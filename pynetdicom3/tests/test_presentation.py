@@ -23,8 +23,10 @@ from pynetdicom3.presentation import (
     DefinedProcedureProtocolPresentationContexts,
     ColorPalettePresentationContexts,
     ImplantTemplatePresentationContexts,
+    DisplaySystemPresentationContexts,
     build_context,
 )
+from pynetdicom3.sop_class import VerificationSOPClass
 
 
 @pytest.fixture(params=[
@@ -891,6 +893,16 @@ def test_build_context():
     assert context.transfer_syntax == ['1.2.3', '4.5.6']
     assert context.context_id is None
 
+    context = build_context('1.2.840.10008.1.1', '12.3')
+    assert context.abstract_syntax == '1.2.840.10008.1.1'
+    assert context.transfer_syntax == ['12.3']
+    assert context.context_id is None
+
+    context = build_context(VerificationSOPClass)
+    assert context.abstract_syntax == '1.2.840.10008.1.1'
+    assert context.transfer_syntax == DEFAULT_TRANSFER_SYNTAXES
+    assert context.context_id is None
+
 
 class TestServiceContexts(object):
     def test_verification(self):
@@ -1035,3 +1047,14 @@ class TestServiceContexts(object):
         assert contexts[6].abstract_syntax == '1.2.840.10008.5.1.4.45.2'
         assert contexts[7].abstract_syntax == '1.2.840.10008.5.1.4.45.3'
         assert contexts[8].abstract_syntax == '1.2.840.10008.5.1.4.45.4'
+
+    def test_display_system(self):
+        """Tests with display system presentation contexts"""
+        contexts = DisplaySystemPresentationContexts
+        assert len(contexts) == 1
+
+        for context in contexts:
+            assert context.transfer_syntax == DEFAULT_TRANSFER_SYNTAXES
+            assert context.context_id is None
+
+        assert contexts[0].abstract_syntax == '1.2.840.10008.5.1.1.40'

@@ -340,7 +340,7 @@ class TestAEGoodCallbacks(object):
         """Test default callback raises exception"""
         ae = AE()
         with pytest.raises(NotImplementedError):
-            ae.on_n_get(None, None)
+            ae.on_n_get(None, None, None)
 
     def test_on_n_set(self):
         """Test default callback raises exception"""

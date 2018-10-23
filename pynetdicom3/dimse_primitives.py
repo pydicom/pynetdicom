@@ -11,9 +11,14 @@ TODO: Add string output for the DIMSE-C classes
 """
 
 import codecs
+try:
+    from collections.abc import MutableSequence
+except ImportError:
+    from collections import MutableSequence
 from io import BytesIO
 import logging
 
+from pydicom.tag import Tag
 from pydicom.uid import UID
 
 from pynetdicom3.utils import validate_ae_title
@@ -1746,7 +1751,7 @@ class N_EVENT_REPORT(object):
 
 
 class N_GET(object):
-    """Represents a N-GET primitive.
+    """Represents an N-GET primitive.
 
     +------------------------------------------+---------+----------+
     | Parameter                                | Req/ind | Rsp/conf |
@@ -1770,8 +1775,8 @@ class N_GET(object):
     | Status                                   | \-      | M        |
     +------------------------------------------+---------+----------+
 
-    | (=) - The value of the parameter is equal to the value of the parameter in
-      the column to the left
+    | (=) - The value of the parameter is equal to the value of the parameter
+      in the column to the left
     | C - The parameter is conditional.
     | M - Mandatory
     | MF - Mandatory with a fixed value
@@ -1789,11 +1794,12 @@ class N_GET(object):
         The Message ID of the operation request/indication to which this
         response/confirmation applies.
     RequestedSOPClassUID : pydicom.uid.UID, bytes or str
-        FIXME
+        The UID of the SOP Class for which attribute values are to be
+        retrieved.
     RequestedSOPInstanceUID : pydicom.uid.UID, bytes or str
-        FIXME
-    AttributeIdentifierList :
-        FIXME
+        The SOP Instance for which attribute values are to be retrieved.
+    AttributeIdentifierList : list of pydicom.tag.Tag
+        A list of attribute tags to be sent to the peer.
     AffectedSOPClassUID : pydicom.uid.UID, bytes or str
         For the request/indication this specifies the SOP Class for
         storage. If included in the response/confirmation, it shall be equal
@@ -1802,29 +1808,17 @@ class N_GET(object):
         For the request/indication this specifies the SOP Instance for
         storage. If included in the response/confirmation, it shall be equal
         to the value in the request/indication
-    AttributeList :
-        FIXME
+    AttributeList : pydicom.dataset.Dataset
+        A dataset containing elements matching those supplied in
+        AttributeIdentifierList.
     Status : int
         The error or success notification of the operation. It shall be
         one of the following values:
 
-    **Status**
+    References
+    ----------
 
-    Warning
-        attribute list error 0x0107 PS3.5 Annex C.4.2
-    Failure
-        class-instance conflict 0x0119 PS3.7 Annex C.5.7
-        duplicate invocation 0x0210 PS3.7 Annex C.5.9
-        invalid SOP instance 0x0117 PS3.7 Annex C.5.12
-        mistyped argument 0x0212 PS3.7 Annex C.5.15
-        no such SOP class 0x0118 PS3.7 Annex C.5.20
-        no such SOP instance 0x0112 PS3.7 Annex C.5.19
-        processing failure 0x0110 PS3.7 Annex C.5.21
-        resource limitation 0x213 PS3.7 Annex C.5.22
-        unrecognised operation 0x0211 PS3.7 Annex C.5.23
-        not authorised 0x0124 PS3.5 Annex C.5.25
-    Success
-        success 0x0000
+    DICOM Standard, Part 7, Section 10.1.2
     """
     def __init__(self):
         self.MessageID = None
@@ -1836,6 +1830,120 @@ class N_GET(object):
         self.AffectedSOPInstanceUID = None
         self.AttributeList = None
         self.Status = None
+
+        # (Optional) elements for specific status values
+        self.ErrorComment = None
+        self.ErrorID = None
+
+    @property
+    def AffectedSOPClassUID(self):
+        """Return the *Affected SOP Class UID*."""
+        return self._affected_sop_class_uid
+
+    @AffectedSOPClassUID.setter
+    def AffectedSOPClassUID(self, value):
+        """Set the *Affected SOP Class UID*.
+
+        Parameters
+        ----------
+        value : pydicom.uid.UID, bytes or str
+            The value for the Affected SOP Class UID
+        """
+        if isinstance(value, UID):
+            pass
+        elif isinstance(value, str):
+            value = UID(value)
+        elif isinstance(value, bytes):
+            value = UID(value.decode('ascii'))
+        elif value is None:
+            pass
+        else:
+            raise TypeError("Affected SOP Class UID must be a "
+                            "pydicom.uid.UID, str or bytes")
+
+        if value is not None and not value.is_valid:
+            LOGGER.error("Affected SOP Class UID is an invalid UID")
+            raise ValueError("Affected SOP Class UID is an invalid UID")
+
+        self._affected_sop_class_uid = value
+
+    @property
+    def AffectedSOPInstanceUID(self):
+        """Return the *Affected SOP Instance UID*."""
+        return self._affected_sop_instance_uid
+
+    @AffectedSOPInstanceUID.setter
+    def AffectedSOPInstanceUID(self, value):
+        """Set the *Affected SOP Instance UID*.
+
+        Parameters
+        ----------
+        value : pydicom.uid.UID, bytes or str
+            The value for the Affected SOP Instance UID
+        """
+        if isinstance(value, UID):
+            pass
+        elif isinstance(value, str):
+            value = UID(value)
+        elif isinstance(value, bytes):
+            value = UID(value.decode('ascii'))
+        elif value is None:
+            pass
+        else:
+            raise TypeError("Affected SOP Instance UID must be a "
+                            "pydicom.uid.UID, str or bytes")
+
+        if value is not None and not value.is_valid:
+            LOGGER.error("Affected SOP Instance UID is an invalid UID")
+            raise ValueError("Affected SOP Instance UID is an invalid UID")
+
+        self._affected_sop_instance_uid = value
+
+    @property
+    def AttributeIdentifierList(self):
+        """Return the value of (0000,1005) *Attribute Identifier List*."""
+        return self._attribute_identifier_list
+
+    @AttributeIdentifierList.setter
+    def AttributeIdentifierList(self, value):
+        """Set the value of (0000,1005) *Attribute Identifier List*.
+
+        Parameters
+        ----------
+        value : list of pydicom.tag.Tag
+            A list of pydicom Tags or any values acceptable for creating a new
+            pydicom Tag object.
+        """
+        if value:
+            if not isinstance(value, (list, MutableSequence)):
+                value = [value]
+            try:
+                self._attribute_identifier_list = [Tag(tag) for tag in value]
+            except (TypeError, ValueError):
+                raise ValueError(
+                    "Attribute Identifier List must be a list of pydicom Tags"
+                )
+        elif value is None:
+            self._attribute_identifier_list = None
+        else:
+            raise ValueError(
+                "Attribute Identifier List must be a list of pydicom Tags"
+            )
+
+    @property
+    def AttributeList(self):
+        """Return the *Attribute List*."""
+        return self._attribute_list
+
+    @AttributeList.setter
+    def AttributeList(self, value):
+        """Set the *Attribute List*."""
+        if value is None:
+            self._attribute_list = value
+        elif isinstance(value, BytesIO):
+            self._attribute_list = value
+        else:
+            raise TypeError("AttributeList must be a BytesIO object")
 
     @property
     def is_valid_request(self):
@@ -1855,6 +1963,122 @@ class N_GET(object):
                 return False
 
         return True
+
+    @property
+    def MessageID(self):
+        """Return the *Message ID*."""
+        return self._message_id
+
+    @MessageID.setter
+    def MessageID(self, value):
+        """Set the *Message ID*."""
+        if isinstance(value, int):
+            if 0 <= value < 2**16:
+                self._message_id = value
+            else:
+                raise ValueError("Message ID must be between 0 and 65535, "
+                                 "inclusive")
+        elif value is None:
+            self._message_id = value
+        else:
+            raise TypeError("Message ID must be an int")
+
+    @property
+    def MessageIDBeingRespondedTo(self):
+        """Return the *Message ID Being Responded To*."""
+        return self._message_id_being_responded_to
+
+    @MessageIDBeingRespondedTo.setter
+    def MessageIDBeingRespondedTo(self, value):
+        """Set the *Message ID Being Responded To*."""
+        if isinstance(value, int):
+            if 0 <= value < 2**16:
+                self._message_id_being_responded_to = value
+            else:
+                raise ValueError("Message ID Being Responded To must be "
+                                 "between 0 and 65535, inclusive")
+        elif value is None:
+            self._message_id_being_responded_to = value
+        else:
+            raise TypeError("Message ID Being Responded To must be an int")
+
+    @property
+    def RequestedSOPClassUID(self):
+        """Return the *Requested SOP Class UID*."""
+        return self._requested_sop_class_uid
+
+    @RequestedSOPClassUID.setter
+    def RequestedSOPClassUID(self, value):
+        """Set the *Requested SOP Class UID*.
+
+        Parameters
+        ----------
+        value : pydicom.uid.UID, bytes or str
+            The value for the Requested SOP Class UID
+        """
+        if isinstance(value, UID):
+            pass
+        elif isinstance(value, str):
+            value = UID(value)
+        elif isinstance(value, bytes):
+            value = UID(value.decode('ascii'))
+        elif value is None:
+            pass
+        else:
+            raise TypeError("Requested SOP Class UID must be a "
+                            "pydicom.uid.UID, str or bytes")
+
+        if value is not None and not value.is_valid:
+            LOGGER.error("Requested SOP Class UID is an invalid UID")
+            raise ValueError("Requested SOP Class UID is an invalid UID")
+
+        self._requested_sop_class_uid = value
+
+    @property
+    def RequestedSOPInstanceUID(self):
+        """Return the *Requested SOP Instance UID*."""
+        return self._requested_sop_instance_uid
+
+    @RequestedSOPInstanceUID.setter
+    def RequestedSOPInstanceUID(self, value):
+        """Set the *Requested SOP Instance UID*.
+
+        Parameters
+        ----------
+        value : pydicom.uid.UID, bytes or str
+            The value for the Requested SOP Instance UID
+        """
+        if isinstance(value, UID):
+            pass
+        elif isinstance(value, str):
+            value = UID(value)
+        elif isinstance(value, bytes):
+            value = UID(value.decode('ascii'))
+        elif value is None:
+            pass
+        else:
+            raise TypeError("Requested SOP Instance UID must be a "
+                            "pydicom.uid.UID, str or bytes")
+
+        if value is not None and not value.is_valid:
+            LOGGER.error("Requested SOP Instance UID is an invalid UID")
+            raise ValueError("Requested SOP Instance UID is an invalid UID")
+
+        self._requested_sop_instance_uid = value
+
+    @property
+    def Status(self):
+        """Return the *Status*."""
+        return self._status
+
+    @Status.setter
+    def Status(self, value):
+        """Set the *Status*."""
+        if isinstance(value, int) or value is None:
+            self._status = value
+        else:
+            raise TypeError("'N_GET.Status' must be an int.")
+
 
 
 class N_SET(object):

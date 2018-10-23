@@ -2027,16 +2027,80 @@ class ApplicationEntity(object):
                                   "AE.on_n_event_report function prior to "
                                   "calling AE.start()")
 
-    def on_n_get(self, context, info):
-        """Callback for when a N-GET is received.
+    def on_n_get(self, attr, context, info):
+        """Callback for when an N-GET request is received.
+
+        Parameters
+        ----------
+        attr : list of pydicom.tag.Tag
+            The value of the (0000,1005) *Attribute Idenfier List* element
+            containing the attribute tags for the N-GET operation.
+        context : presentation.PresentationContextTuple
+            The presentation context that the N-GET message was sent under
+            as a ``namedtuple`` with field names ``context_id``,
+            ``abstract_syntax`` and ``transfer_syntax``.
+        info : dict
+            A dict containing information about the current association, with
+            the keys:
+
+            ::
+
+              'requestor' : {
+                  'ae_title' : bytes, the requestor's calling AE title
+                  'called_aet' : bytes, the requestor's called AE title
+                  'address' : str, the requestor's IP address
+                  'port' : int, the requestor's port number
+              }
+              'acceptor' : {
+                  'ae_title' : bytes, the acceptor's AE title
+                  'address' : str, the acceptor's IP address
+                  'port' : int, the acceptor's port number
+              }
+              'parameters' : {
+                  'message_id' : int, the DIMSE message ID
+                  'requested_sop_class' : str, the N-GET-RQ's requested SOP
+                  Class UID value
+                  'requested_sop_instance' : str, the N-GET-RQ's requested SOP
+                  Instance UID value
+              }
+
+        Returns
+        -------
+        status : pydicom.dataset.Dataset or int
+            The status returned to the peer AE in the N-GET response. Must be a
+            valid N-GET status value for the applicable Service Class as either
+            an ``int`` or a ``Dataset`` object containing (at a minimum) a
+            (0000,0900) *Status* element. If returning a Dataset object then
+            it may also contain optional elements related to the Status (as in
+            DICOM Standard Part 7, Annex C).
+        dataset : pydicom.dataset.Dataset or None
+            If the status category is 'Success' or 'Warning' then a dataset
+            containing elements matching the request's Attribute List
+            conformant to the specifications in the corresponding Service
+            Class.
+
+            If the status is not 'Successs' or 'Warning' then return None.
+
+        See Also
+        --------
+        association.Association.send_n_get
+        dimse_primitives.N_GET
+        service_class.DisplaySystemManagementServiceClass
 
         References
         ----------
-        DICOM Standard Part 4, Annexes F, H, S, CC, DD and EE
+
+        * DICOM Standart Part 4, `Annex F <http://dicom.nema.org/medical/dicom/current/output/html/part04.html#chapter_F>`_
+        * DICOM Standart Part 4, `Annex H <http://dicom.nema.org/medical/dicom/current/output/html/part04.html#chapter_H>`_
+        * DICOM Standard Part 4, `Annex S <http://dicom.nema.org/medical/dicom/current/output/html/part04.html#chapter_S>`_
+        * DICOM Standard Part 4, `Annex CC <http://dicom.nema.org/medical/dicom/current/output/html/part04.html#chapter_CC>`_
+        * DICOM Standard Part 4, `Annex DD <http://dicom.nema.org/medical/dicom/current/output/html/part04.html#chapter_DD>`_
+        * DICOM Standard Part 4, `Annex EE <http://dicom.nema.org/medical/dicom/current/output/html/part04.html#chapter_EE>`_
         """
-        raise NotImplementedError("User must implement the "
-                                  "AE.on_n_get function prior to calling "
-                                  "AE.start()")
+        raise NotImplementedError(
+            "User must implement the AE.on_n_get function prior to calling "
+            "AE.start()"
+        )
 
     def on_n_set(self, context, info):
         """Callback for when a N-SET is received.

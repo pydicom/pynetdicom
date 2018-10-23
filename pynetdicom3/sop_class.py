@@ -20,6 +20,9 @@ from pynetdicom3.service_class import (
     ColorPaletteQueryRetrieveServiceClass,
     ImplantTemplateQueryRetrieveServiceClass,
 )
+from pynetdicom3.service_class_n import (
+    DisplaySystemManagementServiceClass
+)
 
 
 LOGGER = logging.getLogger('pynetdicom3.sop')
@@ -66,6 +69,8 @@ def uid_to_service_class(uid):
         return ColorPaletteQueryRetrieveServiceClass
     elif uid in _IMPLANT_TEMPLATE_CLASSES.values():
         return ImplantTemplateQueryRetrieveServiceClass
+    elif uid in _DISPLAY_SYSTEM_CLASSES.values():
+        return DisplaySystemManagementServiceClass
     else:
         raise NotImplementedError(
             "The Service Class for the SOP Class with UID '{}' has not "
@@ -307,6 +312,10 @@ _IMPLANT_TEMPLATE_CLASSES = {
     'ImplantTemplateGroupInformationModelGet' : '1.2.840.10008.5.1.4.45.4',
 }
 
+_DISPLAY_SYSTEM_CLASSES = {
+    'DisplaySystemSOPClass' : '1.2.840.10008.5.1.1.40',
+}
+
 # pylint: enable=line-too-long
 _generate_sop_classes(_VERIFICATION_CLASSES)
 _generate_sop_classes(_STORAGE_CLASSES)
@@ -319,6 +328,7 @@ _generate_sop_classes(_HANGING_PROTOCOL_CLASSES)
 _generate_sop_classes(_DEFINED_PROCEDURE_CLASSES)
 _generate_sop_classes(_COLOR_PALETTE_CLASSES)
 _generate_sop_classes(_IMPLANT_TEMPLATE_CLASSES)
+_generate_sop_classes(_DISPLAY_SYSTEM_CLASSES)
 
 
 # WIP SOP Classes
@@ -354,10 +364,6 @@ _UNITED_PROCEDURE_STEP_CLASSES = {
 _RT_MACHINE_VERIFICATION_CLASSES = {
     'RTConventionalMachineVerification' : '1.2.840.10008.5.1.4.34.8',
     'RTIonMachineVerification' : '1.2.840.10008.5.1.4.34.9',
-}
-
-_DISPLAY_SYSTEM_MANAGEMENT_CLASSES = {
-    'DisplaySystemSOPClass' : '1.2.840.10008.5.1.1.40',
 }
 
 

@@ -74,6 +74,8 @@ class DummyBaseSCP(threading.Thread):
         self.ae.on_c_find = self.on_c_find
         self.ae.on_c_get = self.on_c_get
         self.ae.on_c_move = self.on_c_move
+        self.ae.on_n_get = self.on_n_get
+
         threading.Thread.__init__(self)
         self.daemon = True
 
@@ -133,6 +135,10 @@ class DummyBaseSCP(threading.Thread):
 
     def on_c_cancel_move(self):
         """Callback for ae.on_c_cancel_move"""
+        raise RuntimeError("You should not have been able to get here.")
+
+    def on_n_get(self, elem, context, info):
+        """Callback for ae.on_n_get"""
         raise RuntimeError("You should not have been able to get here.")
 
     def dev_monitor_socket(self):

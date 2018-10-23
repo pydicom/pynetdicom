@@ -66,6 +66,7 @@ pynetdicom3 supports the following DICOM service classes:
 - `Substance Administration Query Service Class <http://dicom.nema.org/medical/dicom/current/output/html/part04.html#chapter_V>`_
 - `Color Palette Query/Retrieve Service Class <http://dicom.nema.org/medical/dicom/current/output/html/part04.html#chapter_X>`_
 - `Implant Template Query/Retrieve Service Class <http://dicom.nema.org/medical/dicom/current/output/html/part04.html#chapter_BB>`_
+- `Display System Management Service Class <http://dicom.nema.org/medical/dicom/current/output/html/part04.html#chapter_EE>`_
 - `Non-Patient Object Storage Service Class <http://dicom.nema.org/medical/dicom/current/output/html/part04.html#chapter_GG>`_
 - `Defined Procedure Protocol Query/Retrieve Service Class <http://dicom.nema.org/medical/dicom/current/output/html/part04.html#chapter_HH>`_
 
@@ -74,9 +75,9 @@ Supported DIMSE SCU Services
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
 When the AE is acting as an SCU and an association has been established with a
-peer SCP, the following DIMSE-C services are available (provided the peer
-supports the Service Class corresponding to the *dataset* and a corresponding
-Presentation Context has been accepted):
+peer SCP, the following DIMSE-C and -N services are available (provided the
+peer supports the Service Class corresponding to the *dataset* and a
+corresponding Presentation Context has been accepted):
 
 - C-ECHO: ``Association.send_c_echo()`` used to verify end-to-end
   communications with the peer.
@@ -92,18 +93,23 @@ Presentation Context has been accepted):
   search its set of managed SOP Instances for those that match the attributes
   given in *dataset* and then copy those matching Instances to the AE with title
   *move_aet* over a new association.
+- N-GET: ``Association.send_n_get(identifier_list, class_uid, instance_uid)``
+  requests the retrieval of attribute values from a peer.
 
-Where *dataset* is a pydicom `Dataset <https://pydicom.github.io/pydicom/stable/ref_guide.html#dataset>`_
-object.
+Where *dataset* is a pydicom
+`Dataset <https://pydicom.github.io/pydicom/stable/ref_guide.html#dataset>`_
+object, *identifier_list* is a list of pydicom
+`Tag <https://pydicom.github.io/pydicom/stable/api_ref.html#pydicom.tag.Tag>`_
+objects and *class_uid* and *instance_uid* are UID strings.
 
 
 Supported DIMSE SCP Services
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
-When the AE is acting as an SCP the following DIMSE-C services are available to
-the peer once an association has been established. With the exception of
-``on_c_echo()``, the user is expected to handle the required operations by
-implementing one (or more) of the following ``AE`` callbacks:
+When the AE is acting as an SCP the following DIMSE-C and -N services are
+available to the peer once an association has been established. With the
+exception of ``on_c_echo()``, the user is expected to handle the required
+operations by implementing one (or more) of the following ``AE`` callbacks:
 
 - C-ECHO: ``AE.on_c_echo(context, info)``
 - C-STORE: ``AE.on_c_store(dataset, context, info)``
@@ -113,13 +119,17 @@ implementing one (or more) of the following ``AE`` callbacks:
   ``AE.on_c_get_cancel()``
 - C-MOVE: ``AE.on_c_move(dataset, move_aet, context, info)`` and
   ``AE.on_c_move_cancel()``
+- N-GET: ``AE.on_n_get(attr, context, info)``
 
-Where *dataset* is a pydicom `Dataset <https://pydicom.github.io/pydicom/stable/ref_guide.html#dataset>`_
+Where *dataset* is a pydicom
+`Dataset <https://pydicom.github.io/pydicom/stable/ref_guide.html#dataset>`_
 object, *context* is a ``namedtuple`` with details of the Presentation Context
 used to transfer *dataset*, *info* is a ``dict`` containing information about
 the association and the message request (such as the peer's IP address and AE
-title and the message priority) and *move_aet* is the Move Destination AE
-title.
+title and the message priority), *move_aet* is the Move Destination AE
+title and *attr* is a list of pydicom
+`Tag <https://pydicom.github.io/pydicom/stable/api_ref.html#pydicom.tag.Tag>`_
+objects.
 
 
 Documentation

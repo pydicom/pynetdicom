@@ -8,6 +8,7 @@ STATUS_FAILURE = 'Failure'
 STATUS_WARNING = 'Warning'
 STATUS_CANCEL = 'Cancel'
 STATUS_PENDING = 'Pending'
+STATUS_UNKNOWN = 'Unknown'
 
 
 # Non-Service Class specific statuses - PS3.7 Annex C
@@ -34,7 +35,7 @@ GENERAL_STATUS = {
     0x0210 : (STATUS_FAILURE, 'Duplicate Invocation'),
     0x0211 : (STATUS_FAILURE, 'Unrecognised Operation'),
     0x0212 : (STATUS_FAILURE, 'Mistyped Argument'),
-    0x0213 : (STATUS_FAILURE, 'Resources Limitation'),
+    0x0213 : (STATUS_FAILURE, 'Resource Limitation'),
     0xFE00 : (STATUS_CANCEL, '')
 }
 
@@ -469,6 +470,6 @@ def code_to_category(code):
         elif code == 0x0001:
             return STATUS_WARNING
 
-        return 'Unknown'
+        return STATUS_UNKNOWN
     else:
         raise ValueError("'code' must be a positive integer.")
