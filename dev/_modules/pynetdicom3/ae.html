@@ -99,6 +99,7 @@
 <li class="toctree-l1"><a class="reference internal" href="../../defined_procedure_service_class.html">Defined Procedure Protocol Query/Retrieve Service Class</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../../hanging_protocol_service_class.html">Hanging Protocol Query/Retrieve Service Class</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../../implant_template_service_class.html">Implant Template Query/Retrieve Service Class</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../display_system_service_class.html">Display System Management Service Class</a></li>
 </ul>
 <ul>
 <li class="toctree-l1"><a class="reference internal" href="../../user/index.html">User Guide</a></li>
@@ -2197,16 +2198,80 @@
                                   <span class="s2">&quot;AE.on_n_event_report function prior to &quot;</span>
                                   <span class="s2">&quot;calling AE.start()&quot;</span><span class="p">)</span></div>
 
-<div class="viewcode-block" id="ApplicationEntity.on_n_get"><a class="viewcode-back" href="../../reference/generated/pynetdicom3.ae.ApplicationEntity.html#pynetdicom3.ae.ApplicationEntity.on_n_get">[docs]</a>    <span class="k">def</span> <span class="nf">on_n_get</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">context</span><span class="p">,</span> <span class="n">info</span><span class="p">):</span>
-        <span class="sd">&quot;&quot;&quot;Callback for when a N-GET is received.</span>
+<div class="viewcode-block" id="ApplicationEntity.on_n_get"><a class="viewcode-back" href="../../reference/generated/pynetdicom3.ae.ApplicationEntity.html#pynetdicom3.ae.ApplicationEntity.on_n_get">[docs]</a>    <span class="k">def</span> <span class="nf">on_n_get</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">attr</span><span class="p">,</span> <span class="n">context</span><span class="p">,</span> <span class="n">info</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;Callback for when an N-GET request is received.</span>
+
+<span class="sd">        Parameters</span>
+<span class="sd">        ----------</span>
+<span class="sd">        attr : list of pydicom.tag.Tag</span>
+<span class="sd">            The value of the (0000,1005) *Attribute Idenfier List* element</span>
+<span class="sd">            containing the attribute tags for the N-GET operation.</span>
+<span class="sd">        context : presentation.PresentationContextTuple</span>
+<span class="sd">            The presentation context that the N-GET message was sent under</span>
+<span class="sd">            as a ``namedtuple`` with field names ``context_id``,</span>
+<span class="sd">            ``abstract_syntax`` and ``transfer_syntax``.</span>
+<span class="sd">        info : dict</span>
+<span class="sd">            A dict containing information about the current association, with</span>
+<span class="sd">            the keys:</span>
+
+<span class="sd">            ::</span>
+
+<span class="sd">              &#39;requestor&#39; : {</span>
+<span class="sd">                  &#39;ae_title&#39; : bytes, the requestor&#39;s calling AE title</span>
+<span class="sd">                  &#39;called_aet&#39; : bytes, the requestor&#39;s called AE title</span>
+<span class="sd">                  &#39;address&#39; : str, the requestor&#39;s IP address</span>
+<span class="sd">                  &#39;port&#39; : int, the requestor&#39;s port number</span>
+<span class="sd">              }</span>
+<span class="sd">              &#39;acceptor&#39; : {</span>
+<span class="sd">                  &#39;ae_title&#39; : bytes, the acceptor&#39;s AE title</span>
+<span class="sd">                  &#39;address&#39; : str, the acceptor&#39;s IP address</span>
+<span class="sd">                  &#39;port&#39; : int, the acceptor&#39;s port number</span>
+<span class="sd">              }</span>
+<span class="sd">              &#39;parameters&#39; : {</span>
+<span class="sd">                  &#39;message_id&#39; : int, the DIMSE message ID</span>
+<span class="sd">                  &#39;requested_sop_class&#39; : str, the N-GET-RQ&#39;s requested SOP</span>
+<span class="sd">                  Class UID value</span>
+<span class="sd">                  &#39;requested_sop_instance&#39; : str, the N-GET-RQ&#39;s requested SOP</span>
+<span class="sd">                  Instance UID value</span>
+<span class="sd">              }</span>
+
+<span class="sd">        Returns</span>
+<span class="sd">        -------</span>
+<span class="sd">        status : pydicom.dataset.Dataset or int</span>
+<span class="sd">            The status returned to the peer AE in the N-GET response. Must be a</span>
+<span class="sd">            valid N-GET status value for the applicable Service Class as either</span>
+<span class="sd">            an ``int`` or a ``Dataset`` object containing (at a minimum) a</span>
+<span class="sd">            (0000,0900) *Status* element. If returning a Dataset object then</span>
+<span class="sd">            it may also contain optional elements related to the Status (as in</span>
+<span class="sd">            DICOM Standard Part 7, Annex C).</span>
+<span class="sd">        dataset : pydicom.dataset.Dataset or None</span>
+<span class="sd">            If the status category is &#39;Success&#39; or &#39;Warning&#39; then a dataset</span>
+<span class="sd">            containing elements matching the request&#39;s Attribute List</span>
+<span class="sd">            conformant to the specifications in the corresponding Service</span>
+<span class="sd">            Class.</span>
+
+<span class="sd">            If the status is not &#39;Successs&#39; or &#39;Warning&#39; then return None.</span>
+
+<span class="sd">        See Also</span>
+<span class="sd">        --------</span>
+<span class="sd">        association.Association.send_n_get</span>
+<span class="sd">        dimse_primitives.N_GET</span>
+<span class="sd">        service_class.DisplaySystemManagementServiceClass</span>
 
 <span class="sd">        References</span>
 <span class="sd">        ----------</span>
-<span class="sd">        DICOM Standard Part 4, Annexes F, H, S, CC, DD and EE</span>
+
+<span class="sd">        * DICOM Standart Part 4, `Annex F &lt;http://dicom.nema.org/medical/dicom/current/output/html/part04.html#chapter_F&gt;`_</span>
+<span class="sd">        * DICOM Standart Part 4, `Annex H &lt;http://dicom.nema.org/medical/dicom/current/output/html/part04.html#chapter_H&gt;`_</span>
+<span class="sd">        * DICOM Standard Part 4, `Annex S &lt;http://dicom.nema.org/medical/dicom/current/output/html/part04.html#chapter_S&gt;`_</span>
+<span class="sd">        * DICOM Standard Part 4, `Annex CC &lt;http://dicom.nema.org/medical/dicom/current/output/html/part04.html#chapter_CC&gt;`_</span>
+<span class="sd">        * DICOM Standard Part 4, `Annex DD &lt;http://dicom.nema.org/medical/dicom/current/output/html/part04.html#chapter_DD&gt;`_</span>
+<span class="sd">        * DICOM Standard Part 4, `Annex EE &lt;http://dicom.nema.org/medical/dicom/current/output/html/part04.html#chapter_EE&gt;`_</span>
 <span class="sd">        &quot;&quot;&quot;</span>
-        <span class="k">raise</span> <span class="ne">NotImplementedError</span><span class="p">(</span><span class="s2">&quot;User must implement the &quot;</span>
-                                  <span class="s2">&quot;AE.on_n_get function prior to calling &quot;</span>
-                                  <span class="s2">&quot;AE.start()&quot;</span><span class="p">)</span></div>
+        <span class="k">raise</span> <span class="ne">NotImplementedError</span><span class="p">(</span>
+            <span class="s2">&quot;User must implement the AE.on_n_get function prior to calling &quot;</span>
+            <span class="s2">&quot;AE.start()&quot;</span>
+        <span class="p">)</span></div>
 
 <div class="viewcode-block" id="ApplicationEntity.on_n_set"><a class="viewcode-back" href="../../reference/generated/pynetdicom3.ae.ApplicationEntity.html#pynetdicom3.ae.ApplicationEntity.on_n_set">[docs]</a>    <span class="k">def</span> <span class="nf">on_n_set</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">context</span><span class="p">,</span> <span class="n">info</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;Callback for when a N-SET is received.</span>

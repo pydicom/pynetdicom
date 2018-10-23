@@ -99,6 +99,7 @@
 <li class="toctree-l1"><a class="reference internal" href="../../defined_procedure_service_class.html">Defined Procedure Protocol Query/Retrieve Service Class</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../../hanging_protocol_service_class.html">Hanging Protocol Query/Retrieve Service Class</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../../implant_template_service_class.html">Implant Template Query/Retrieve Service Class</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../display_system_service_class.html">Display System Management Service Class</a></li>
 </ul>
 <ul>
 <li class="toctree-l1"><a class="reference internal" href="../../user/index.html">User Guide</a></li>
@@ -526,8 +527,8 @@ set to 0 the OS will use the first available port (default <code class="docutils
 <tr class="row-odd"><td><a class="reference internal" href="#pynetdicom3.ae.ApplicationEntity.on_n_event_report" title="pynetdicom3.ae.ApplicationEntity.on_n_event_report"><code class="xref py py-obj docutils literal notranslate"><span class="pre">on_n_event_report</span></code></a>(context,&nbsp;info)</td>
 <td>Callback for when a N-EVENT-REPORT is received.</td>
 </tr>
-<tr class="row-even"><td><a class="reference internal" href="#pynetdicom3.ae.ApplicationEntity.on_n_get" title="pynetdicom3.ae.ApplicationEntity.on_n_get"><code class="xref py py-obj docutils literal notranslate"><span class="pre">on_n_get</span></code></a>(context,&nbsp;info)</td>
-<td>Callback for when a N-GET is received.</td>
+<tr class="row-even"><td><a class="reference internal" href="#pynetdicom3.ae.ApplicationEntity.on_n_get" title="pynetdicom3.ae.ApplicationEntity.on_n_get"><code class="xref py py-obj docutils literal notranslate"><span class="pre">on_n_get</span></code></a>(attr,&nbsp;context,&nbsp;info)</td>
+<td>Callback for when an N-GET request is received.</td>
 </tr>
 <tr class="row-odd"><td><a class="reference internal" href="#pynetdicom3.ae.ApplicationEntity.on_n_set" title="pynetdicom3.ae.ApplicationEntity.on_n_set"><code class="xref py py-obj docutils literal notranslate"><span class="pre">on_n_set</span></code></a>(context,&nbsp;info)</td>
 <td>Callback for when a N-SET is received.</td>
@@ -1628,10 +1629,77 @@ Status (as in the DICOM Standard Part 7, Annex C).</p>
 
 <dl class="method">
 <dt id="pynetdicom3.ae.ApplicationEntity.on_n_get">
-<code class="descname">on_n_get</code><span class="sig-paren">(</span><em>context</em>, <em>info</em><span class="sig-paren">)</span><a class="reference internal" href="../../_modules/pynetdicom3/ae.html#ApplicationEntity.on_n_get"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pynetdicom3.ae.ApplicationEntity.on_n_get" title="Permalink to this definition">¶</a></dt>
-<dd><p>Callback for when a N-GET is received.</p>
+<code class="descname">on_n_get</code><span class="sig-paren">(</span><em>attr</em>, <em>context</em>, <em>info</em><span class="sig-paren">)</span><a class="reference internal" href="../../_modules/pynetdicom3/ae.html#ApplicationEntity.on_n_get"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pynetdicom3.ae.ApplicationEntity.on_n_get" title="Permalink to this definition">¶</a></dt>
+<dd><p>Callback for when an N-GET request is received.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first simple">
+<li><strong>attr</strong> (<em>list of pydicom.tag.Tag</em>) – The value of the (0000,1005) <em>Attribute Idenfier List</em> element
+containing the attribute tags for the N-GET operation.</li>
+<li><strong>context</strong> (<em>presentation.PresentationContextTuple</em>) – The presentation context that the N-GET message was sent under
+as a <code class="docutils literal notranslate"><span class="pre">namedtuple</span></code> with field names <code class="docutils literal notranslate"><span class="pre">context_id</span></code>,
+<code class="docutils literal notranslate"><span class="pre">abstract_syntax</span></code> and <code class="docutils literal notranslate"><span class="pre">transfer_syntax</span></code>.</li>
+<li><strong>info</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#dict" title="(in Python v3.7)"><em>dict</em></a>) – <p>A dict containing information about the current association, with
+the keys:</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="s1">&#39;requestor&#39;</span> <span class="p">:</span> <span class="p">{</span>
+    <span class="s1">&#39;ae_title&#39;</span> <span class="p">:</span> <span class="nb">bytes</span><span class="p">,</span> <span class="n">the</span> <span class="n">requestor</span><span class="s1">&#39;s calling AE title</span>
+    <span class="s1">&#39;called_aet&#39;</span> <span class="p">:</span> <span class="nb">bytes</span><span class="p">,</span> <span class="n">the</span> <span class="n">requestor</span><span class="s1">&#39;s called AE title</span>
+    <span class="s1">&#39;address&#39;</span> <span class="p">:</span> <span class="nb">str</span><span class="p">,</span> <span class="n">the</span> <span class="n">requestor</span><span class="s1">&#39;s IP address</span>
+    <span class="s1">&#39;port&#39;</span> <span class="p">:</span> <span class="nb">int</span><span class="p">,</span> <span class="n">the</span> <span class="n">requestor</span><span class="s1">&#39;s port number</span>
+<span class="p">}</span>
+<span class="s1">&#39;acceptor&#39;</span> <span class="p">:</span> <span class="p">{</span>
+    <span class="s1">&#39;ae_title&#39;</span> <span class="p">:</span> <span class="nb">bytes</span><span class="p">,</span> <span class="n">the</span> <span class="n">acceptor</span><span class="s1">&#39;s AE title</span>
+    <span class="s1">&#39;address&#39;</span> <span class="p">:</span> <span class="nb">str</span><span class="p">,</span> <span class="n">the</span> <span class="n">acceptor</span><span class="s1">&#39;s IP address</span>
+    <span class="s1">&#39;port&#39;</span> <span class="p">:</span> <span class="nb">int</span><span class="p">,</span> <span class="n">the</span> <span class="n">acceptor</span><span class="s1">&#39;s port number</span>
+<span class="p">}</span>
+<span class="s1">&#39;parameters&#39;</span> <span class="p">:</span> <span class="p">{</span>
+    <span class="s1">&#39;message_id&#39;</span> <span class="p">:</span> <span class="nb">int</span><span class="p">,</span> <span class="n">the</span> <span class="n">DIMSE</span> <span class="n">message</span> <span class="n">ID</span>
+    <span class="s1">&#39;requested_sop_class&#39;</span> <span class="p">:</span> <span class="nb">str</span><span class="p">,</span> <span class="n">the</span> <span class="n">N</span><span class="o">-</span><span class="n">GET</span><span class="o">-</span><span class="n">RQ</span><span class="s1">&#39;s requested SOP</span>
+    <span class="n">Class</span> <span class="n">UID</span> <span class="n">value</span>
+    <span class="s1">&#39;requested_sop_instance&#39;</span> <span class="p">:</span> <span class="nb">str</span><span class="p">,</span> <span class="n">the</span> <span class="n">N</span><span class="o">-</span><span class="n">GET</span><span class="o">-</span><span class="n">RQ</span><span class="s1">&#39;s requested SOP</span>
+    <span class="n">Instance</span> <span class="n">UID</span> <span class="n">value</span>
+<span class="p">}</span>
+</pre></div>
+</div>
+</li>
+</ul>
+</td>
+</tr>
+<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body"><p class="first last"><ul>
+<li><p class="first"><strong>status</strong> (<em>pydicom.dataset.Dataset or int</em>) – The status returned to the peer AE in the N-GET response. Must be a
+valid N-GET status value for the applicable Service Class as either
+an <code class="docutils literal notranslate"><span class="pre">int</span></code> or a <code class="docutils literal notranslate"><span class="pre">Dataset</span></code> object containing (at a minimum) a
+(0000,0900) <em>Status</em> element. If returning a Dataset object then
+it may also contain optional elements related to the Status (as in
+DICOM Standard Part 7, Annex C).</p>
+</li>
+<li><p class="first"><strong>dataset</strong> (<em>pydicom.dataset.Dataset or None</em>) – If the status category is ‘Success’ or ‘Warning’ then a dataset
+containing elements matching the request’s Attribute List
+conformant to the specifications in the corresponding Service
+Class.</p>
+<p>If the status is not ‘Successs’ or ‘Warning’ then return None.</p>
+</li>
+</ul>
+</p>
+</td>
+</tr>
+</tbody>
+</table>
+<div class="admonition seealso">
+<p class="first admonition-title">See also</p>
+<p class="last"><code class="xref py py-meth docutils literal notranslate"><span class="pre">association.Association.send_n_get()</span></code>, <code class="xref py py-meth docutils literal notranslate"><span class="pre">dimse_primitives.N_GET()</span></code>, <code class="xref py py-meth docutils literal notranslate"><span class="pre">service_class.DisplaySystemManagementServiceClass()</span></code></p>
+</div>
 <p class="rubric">References</p>
-<p>DICOM Standard Part 4, Annexes F, H, S, CC, DD and EE</p>
+<ul class="simple">
+<li>DICOM Standart Part 4, <a class="reference external" href="http://dicom.nema.org/medical/dicom/current/output/html/part04.html#chapter_F">Annex F</a></li>
+<li>DICOM Standart Part 4, <a class="reference external" href="http://dicom.nema.org/medical/dicom/current/output/html/part04.html#chapter_H">Annex H</a></li>
+<li>DICOM Standard Part 4, <a class="reference external" href="http://dicom.nema.org/medical/dicom/current/output/html/part04.html#chapter_S">Annex S</a></li>
+<li>DICOM Standard Part 4, <a class="reference external" href="http://dicom.nema.org/medical/dicom/current/output/html/part04.html#chapter_CC">Annex CC</a></li>
+<li>DICOM Standard Part 4, <a class="reference external" href="http://dicom.nema.org/medical/dicom/current/output/html/part04.html#chapter_DD">Annex DD</a></li>
+<li>DICOM Standard Part 4, <a class="reference external" href="http://dicom.nema.org/medical/dicom/current/output/html/part04.html#chapter_EE">Annex EE</a></li>
+</ul>
 </dd></dl>
 
 <dl class="method">

@@ -8,7 +8,7 @@
   
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   
-  <title>Verification Service Class &mdash; pynetdicom3 0.9.1 documentation</title>
+  <title>Display System Management Service Class &mdash; pynetdicom3 0.9.1 documentation</title>
   
 
   
@@ -32,8 +32,8 @@
   <link rel="stylesheet" href="_static/css/pynetdicom3.css" type="text/css" />
     <link rel="index" title="Index" href="genindex.html" />
     <link rel="search" title="Search" href="search.html" />
-    <link rel="next" title="Storage Service Class" href="storage_service_class.html" />
-    <link rel="prev" title="pynetdicom Documentation" href="index.html" /> 
+    <link rel="next" title="User Guide" href="user/index.html" />
+    <link rel="prev" title="Implant Template Query/Retrieve Service Class" href="implant_template_service_class.html" /> 
 
   
   <script src="_static/js/modernizr.min.js"></script>
@@ -90,15 +90,7 @@
             
             
               <ul class="current">
-<li class="toctree-l1 current"><a class="current reference internal" href="#">Verification Service Class</a><ul>
-<li class="toctree-l2"><a class="reference internal" href="#supported-sop-classes">Supported SOP Classes</a></li>
-<li class="toctree-l2"><a class="reference internal" href="#statuses">Statuses</a><ul>
-<li class="toctree-l3"><a class="reference internal" href="#c-echo-statuses">C-ECHO Statuses</a></li>
-</ul>
-</li>
-<li class="toctree-l2"><a class="reference internal" href="#references">References</a></li>
-</ul>
-</li>
+<li class="toctree-l1"><a class="reference internal" href="verification_service_class.html">Verification Service Class</a></li>
 <li class="toctree-l1"><a class="reference internal" href="storage_service_class.html">Storage Service Class</a></li>
 <li class="toctree-l1"><a class="reference internal" href="query_retrieve_service_class.html">Query/Retrieve Service Class</a></li>
 <li class="toctree-l1"><a class="reference internal" href="basic_worklist_service_class.html">Basic Worklist Management Service Class</a></li>
@@ -109,7 +101,18 @@
 <li class="toctree-l1"><a class="reference internal" href="defined_procedure_service_class.html">Defined Procedure Protocol Query/Retrieve Service Class</a></li>
 <li class="toctree-l1"><a class="reference internal" href="hanging_protocol_service_class.html">Hanging Protocol Query/Retrieve Service Class</a></li>
 <li class="toctree-l1"><a class="reference internal" href="implant_template_service_class.html">Implant Template Query/Retrieve Service Class</a></li>
-<li class="toctree-l1"><a class="reference internal" href="display_system_service_class.html">Display System Management Service Class</a></li>
+<li class="toctree-l1 current"><a class="current reference internal" href="#">Display System Management Service Class</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="#supported-sop-classes">Supported SOP Classes</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="#display-system-management-sop-classes">Display System Management SOP Classes</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="#statuses">Statuses</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="#n-get-statuses">N-GET Statuses</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="#references">References</a></li>
+</ul>
+</li>
 </ul>
 <ul>
 <li class="toctree-l1"><a class="reference internal" href="user/index.html">User Guide</a></li>
@@ -161,13 +164,13 @@
     
       <li><a href="index.html">Docs</a> &raquo;</li>
         
-      <li>Verification Service Class</li>
+      <li>Display System Management Service Class</li>
     
     
       <li class="wy-breadcrumbs-aside">
         
             
-            <a href="_sources/verification_service_class.rst.txt" rel="nofollow"> View page source</a>
+            <a href="_sources/display_system_service_class.rst.txt" rel="nofollow"> View page source</a>
           
         
       </li>
@@ -180,19 +183,18 @@
           <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
            <div itemprop="articleBody">
             
-  <div class="section" id="verification-service-class">
-<h1>Verification Service Class<a class="headerlink" href="#verification-service-class" title="Permalink to this headline">¶</a></h1>
-<p>The <a class="reference external" href="http://dicom.nema.org/medical/dicom/current/output/html/part04.html#chapter_A">Verification Service Class</a>
-defines a service that verifies application
-level communication between peer DICOM Application Entities. This
-verification is accomplished on an established association using the C-ECHO
-DIMSE-C service.</p>
+  <div class="section" id="display-system-management-service-class">
+<span id="display-sops"></span><h1>Display System Management Service Class<a class="headerlink" href="#display-system-management-service-class" title="Permalink to this headline">¶</a></h1>
+<p>The <a class="reference external" href="http://dicom.nema.org/medical/dicom/current/output/html/part04.html#chapter_EE">Display System Management Service Class</a>
+defines a service that facilitates access to Display System objects.</p>
 <div class="section" id="supported-sop-classes">
-<span id="verification-sops"></span><h2>Supported SOP Classes<a class="headerlink" href="#supported-sop-classes" title="Permalink to this headline">¶</a></h2>
+<h2>Supported SOP Classes<a class="headerlink" href="#supported-sop-classes" title="Permalink to this headline">¶</a></h2>
+<div class="section" id="display-system-management-sop-classes">
+<span id="id2"></span><h3>Display System Management SOP Classes<a class="headerlink" href="#display-system-management-sop-classes" title="Permalink to this headline">¶</a></h3>
 <table border="1" class="docutils">
 <colgroup>
-<col width="41%" />
-<col width="59%" />
+<col width="38%" />
+<col width="62%" />
 </colgroup>
 <thead valign="bottom">
 <tr class="row-odd"><th class="head">UID</th>
@@ -200,16 +202,17 @@ DIMSE-C service.</p>
 </tr>
 </thead>
 <tbody valign="top">
-<tr class="row-even"><td>1.2.840.10008.1.1</td>
-<td>VerificationSOPClass</td>
+<tr class="row-even"><td>1.2.840.10008.5.1.1.40</td>
+<td>DisplaySystemSOPClass</td>
 </tr>
 </tbody>
 </table>
 </div>
+</div>
 <div class="section" id="statuses">
-<span id="verification-statuses"></span><h2>Statuses<a class="headerlink" href="#statuses" title="Permalink to this headline">¶</a></h2>
-<div class="section" id="c-echo-statuses">
-<h3>C-ECHO Statuses<a class="headerlink" href="#c-echo-statuses" title="Permalink to this headline">¶</a></h3>
+<span id="display-statuses"></span><h2>Statuses<a class="headerlink" href="#statuses" title="Permalink to this headline">¶</a></h2>
+<div class="section" id="n-get-statuses">
+<h3>N-GET Statuses<a class="headerlink" href="#n-get-statuses" title="Permalink to this headline">¶</a></h3>
 <table border="1" class="docutils">
 <colgroup>
 <col width="21%" />
@@ -227,21 +230,53 @@ DIMSE-C service.</p>
 <td>Success</td>
 <td>Success</td>
 </tr>
+<tr class="row-odd"><td>0x0107</td>
+<td>Warning</td>
+<td>SOP Class not supported</td>
+</tr>
+<tr class="row-even"><td>0x0110</td>
+<td>Failure</td>
+<td>Processing failure</td>
+</tr>
+<tr class="row-odd"><td>0x0112</td>
+<td>Failure</td>
+<td>No such SOP Instance</td>
+</tr>
+<tr class="row-even"><td>0x0117</td>
+<td>Failure</td>
+<td>Invalid object instance</td>
+</tr>
+<tr class="row-odd"><td>0x0118</td>
+<td>Failure</td>
+<td>No such SOP Class</td>
+</tr>
+<tr class="row-even"><td>0x0119</td>
+<td>Failure</td>
+<td>Class-Instance conflict</td>
+</tr>
 <tr class="row-odd"><td>0x0122</td>
 <td>Failure</td>
-<td>Refused: SOP Class not supported</td>
+<td>SOP class not supported</td>
 </tr>
-<tr class="row-even"><td>0x0210</td>
+<tr class="row-even"><td>0x0124</td>
+<td>Failure</td>
+<td>Not authorised</td>
+</tr>
+<tr class="row-odd"><td>0x0210</td>
 <td>Failure</td>
 <td>Duplicate invocation</td>
 </tr>
-<tr class="row-odd"><td>0x0211</td>
+<tr class="row-even"><td>0x0211</td>
 <td>Failure</td>
 <td>Unrecognised operation</td>
 </tr>
-<tr class="row-even"><td>0x0212</td>
+<tr class="row-odd"><td>0x0212</td>
 <td>Failure</td>
 <td>Mistyped argument</td>
+</tr>
+<tr class="row-even"><td>0x0213</td>
+<td>Failure</td>
+<td>Resource limitation</td>
 </tr>
 </tbody>
 </table>
@@ -250,8 +285,9 @@ DIMSE-C service.</p>
 <div class="section" id="references">
 <h2>References<a class="headerlink" href="#references" title="Permalink to this headline">¶</a></h2>
 <ul class="simple">
-<li>DICOM Standard, Part 4, <a class="reference external" href="http://dicom.nema.org/medical/dicom/current/output/html/part04.html#chapter_A">Annex A</a></li>
-<li>DICOM Standard, Part 7, <a class="reference external" href="http://dicom.nema.org/medical/dicom/current/output/chtml/part07/chapter_9.html#sect_9.1.5.1.4">Section 9.1.5.1.4</a></li>
+<li>DICOM Standard, Part 4, <a class="reference external" href="http://dicom.nema.org/medical/dicom/current/output/html/part04.html#chapter_EE">Annex EE</a></li>
+<li>DICOM Standard, Part 7, Sections
+<a class="reference external" href="http://dicom.nema.org/medical/dicom/current/output/chtml/part07/chapter_9.html#sect_10.1.2">10.1.2</a></li>
 </ul>
 </div>
 </div>
@@ -264,10 +300,10 @@ DIMSE-C service.</p>
   
     <div class="rst-footer-buttons" role="navigation" aria-label="footer navigation">
       
-        <a href="storage_service_class.html" class="btn btn-neutral float-right" title="Storage Service Class" accesskey="n" rel="next">Next <span class="fa fa-arrow-circle-right"></span></a>
+        <a href="user/index.html" class="btn btn-neutral float-right" title="User Guide" accesskey="n" rel="next">Next <span class="fa fa-arrow-circle-right"></span></a>
       
       
-        <a href="index.html" class="btn btn-neutral" title="pynetdicom Documentation" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left"></span> Previous</a>
+        <a href="implant_template_service_class.html" class="btn btn-neutral" title="Implant Template Query/Retrieve Service Class" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left"></span> Previous</a>
       
     </div>
   

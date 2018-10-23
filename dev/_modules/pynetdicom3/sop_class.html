@@ -99,6 +99,7 @@
 <li class="toctree-l1"><a class="reference internal" href="../../defined_procedure_service_class.html">Defined Procedure Protocol Query/Retrieve Service Class</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../../hanging_protocol_service_class.html">Hanging Protocol Query/Retrieve Service Class</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../../implant_template_service_class.html">Implant Template Query/Retrieve Service Class</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../display_system_service_class.html">Display System Management Service Class</a></li>
 </ul>
 <ul>
 <li class="toctree-l1"><a class="reference internal" href="../../user/index.html">User Guide</a></li>
@@ -190,6 +191,9 @@
     <span class="n">ColorPaletteQueryRetrieveServiceClass</span><span class="p">,</span>
     <span class="n">ImplantTemplateQueryRetrieveServiceClass</span><span class="p">,</span>
 <span class="p">)</span>
+<span class="kn">from</span> <span class="nn">pynetdicom3.service_class_n</span> <span class="k">import</span> <span class="p">(</span>
+    <span class="n">DisplaySystemManagementServiceClass</span>
+<span class="p">)</span>
 
 
 <span class="n">LOGGER</span> <span class="o">=</span> <span class="n">logging</span><span class="o">.</span><span class="n">getLogger</span><span class="p">(</span><span class="s1">&#39;pynetdicom3.sop&#39;</span><span class="p">)</span>
@@ -236,6 +240,8 @@
         <span class="k">return</span> <span class="n">ColorPaletteQueryRetrieveServiceClass</span>
     <span class="k">elif</span> <span class="n">uid</span> <span class="ow">in</span> <span class="n">_IMPLANT_TEMPLATE_CLASSES</span><span class="o">.</span><span class="n">values</span><span class="p">():</span>
         <span class="k">return</span> <span class="n">ImplantTemplateQueryRetrieveServiceClass</span>
+    <span class="k">elif</span> <span class="n">uid</span> <span class="ow">in</span> <span class="n">_DISPLAY_SYSTEM_CLASSES</span><span class="o">.</span><span class="n">values</span><span class="p">():</span>
+        <span class="k">return</span> <span class="n">DisplaySystemManagementServiceClass</span>
     <span class="k">else</span><span class="p">:</span>
         <span class="k">raise</span> <span class="ne">NotImplementedError</span><span class="p">(</span>
             <span class="s2">&quot;The Service Class for the SOP Class with UID &#39;</span><span class="si">{}</span><span class="s2">&#39; has not &quot;</span>
@@ -477,6 +483,10 @@
     <span class="s1">&#39;ImplantTemplateGroupInformationModelGet&#39;</span> <span class="p">:</span> <span class="s1">&#39;1.2.840.10008.5.1.4.45.4&#39;</span><span class="p">,</span>
 <span class="p">}</span>
 
+<span class="n">_DISPLAY_SYSTEM_CLASSES</span> <span class="o">=</span> <span class="p">{</span>
+    <span class="s1">&#39;DisplaySystemSOPClass&#39;</span> <span class="p">:</span> <span class="s1">&#39;1.2.840.10008.5.1.1.40&#39;</span><span class="p">,</span>
+<span class="p">}</span>
+
 <span class="c1"># pylint: enable=line-too-long</span>
 <span class="n">_generate_sop_classes</span><span class="p">(</span><span class="n">_VERIFICATION_CLASSES</span><span class="p">)</span>
 <span class="n">_generate_sop_classes</span><span class="p">(</span><span class="n">_STORAGE_CLASSES</span><span class="p">)</span>
@@ -489,6 +499,7 @@
 <span class="n">_generate_sop_classes</span><span class="p">(</span><span class="n">_DEFINED_PROCEDURE_CLASSES</span><span class="p">)</span>
 <span class="n">_generate_sop_classes</span><span class="p">(</span><span class="n">_COLOR_PALETTE_CLASSES</span><span class="p">)</span>
 <span class="n">_generate_sop_classes</span><span class="p">(</span><span class="n">_IMPLANT_TEMPLATE_CLASSES</span><span class="p">)</span>
+<span class="n">_generate_sop_classes</span><span class="p">(</span><span class="n">_DISPLAY_SYSTEM_CLASSES</span><span class="p">)</span>
 
 
 <span class="c1"># WIP SOP Classes</span>
@@ -524,10 +535,6 @@
 <span class="n">_RT_MACHINE_VERIFICATION_CLASSES</span> <span class="o">=</span> <span class="p">{</span>
     <span class="s1">&#39;RTConventionalMachineVerification&#39;</span> <span class="p">:</span> <span class="s1">&#39;1.2.840.10008.5.1.4.34.8&#39;</span><span class="p">,</span>
     <span class="s1">&#39;RTIonMachineVerification&#39;</span> <span class="p">:</span> <span class="s1">&#39;1.2.840.10008.5.1.4.34.9&#39;</span><span class="p">,</span>
-<span class="p">}</span>
-
-<span class="n">_DISPLAY_SYSTEM_MANAGEMENT_CLASSES</span> <span class="o">=</span> <span class="p">{</span>
-    <span class="s1">&#39;DisplaySystemSOPClass&#39;</span> <span class="p">:</span> <span class="s1">&#39;1.2.840.10008.5.1.1.40&#39;</span><span class="p">,</span>
 <span class="p">}</span>
 
 

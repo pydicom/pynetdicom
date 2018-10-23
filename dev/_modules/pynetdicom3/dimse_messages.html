@@ -99,6 +99,7 @@
 <li class="toctree-l1"><a class="reference internal" href="../../defined_procedure_service_class.html">Defined Procedure Protocol Query/Retrieve Service Class</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../../hanging_protocol_service_class.html">Hanging Protocol Query/Retrieve Service Class</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../../implant_template_service_class.html">Implant Template Query/Retrieve Service Class</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../display_system_service_class.html">Display System Management Service Class</a></li>
 </ul>
 <ul>
 <li class="toctree-l1"><a class="reference internal" href="../../user/index.html">User Guide</a></li>
@@ -291,7 +292,7 @@
     <span class="p">),</span>
     <span class="s1">&#39;N-GET-RSP&#39;</span><span class="p">:</span> <span class="p">(</span>
         <span class="mh">0x00000000</span><span class="p">,</span> <span class="mh">0x00000002</span><span class="p">,</span> <span class="mh">0x00000100</span><span class="p">,</span> <span class="mh">0x00000120</span><span class="p">,</span>
-        <span class="mh">0x00000800</span><span class="p">,</span> <span class="mh">0x00000900</span><span class="p">,</span> <span class="mh">0x00001000</span>
+        <span class="mh">0x00000800</span><span class="p">,</span> <span class="mh">0x00000900</span><span class="p">,</span> <span class="mh">0x00001000</span><span class="p">,</span> <span class="mh">0x00000902</span><span class="p">,</span> <span class="mh">0x00000903</span><span class="p">,</span>
     <span class="p">),</span>
     <span class="s1">&#39;N-SET-RQ&#39;</span><span class="p">:</span> <span class="p">(</span>
         <span class="mh">0x00000000</span><span class="p">,</span> <span class="mh">0x00000003</span><span class="p">,</span> <span class="mh">0x00000100</span><span class="p">,</span> <span class="mh">0x00000110</span><span class="p">,</span> <span class="mh">0x00000800</span><span class="p">,</span> <span class="mh">0x00001001</span>
@@ -681,24 +682,11 @@
 
         <span class="c1"># Datasets</span>
         <span class="c1"># Set the primitive&#39;s DataSet/Identifier/etc attribute</span>
-        <span class="k">if</span> <span class="n">cls_type_name</span> <span class="o">==</span> <span class="s1">&#39;C_STORE_RQ&#39;</span><span class="p">:</span>
-            <span class="n">primitive</span><span class="o">.</span><span class="n">DataSet</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">data_set</span>
-        <span class="k">elif</span> <span class="n">cls_type_name</span> <span class="ow">in</span> <span class="p">[</span><span class="s1">&#39;C_FIND_RQ&#39;</span><span class="p">,</span> <span class="s1">&#39;C_FIND_RSP&#39;</span><span class="p">,</span> <span class="s1">&#39;C_GET_RQ&#39;</span><span class="p">,</span>
-                               <span class="s1">&#39;C_GET_RSP&#39;</span><span class="p">,</span> <span class="s1">&#39;C_MOVE_RQ&#39;</span><span class="p">,</span> <span class="s1">&#39;C_MOVE_RSP&#39;</span><span class="p">]:</span>
-            <span class="n">primitive</span><span class="o">.</span><span class="n">Identifier</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">data_set</span>
-        <span class="k">elif</span> <span class="n">cls_type_name</span> <span class="o">==</span> <span class="s1">&#39;N_EVENT_REPORT_RQ&#39;</span><span class="p">:</span>
-            <span class="n">primitive</span><span class="o">.</span><span class="n">EventInformation</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">data_set</span>
-        <span class="k">elif</span> <span class="n">cls_type_name</span> <span class="o">==</span> <span class="s1">&#39;N_EVENT_REPORT_RSP&#39;</span><span class="p">:</span>
-            <span class="n">primitive</span><span class="o">.</span><span class="n">EventReply</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">data_set</span>
-        <span class="k">elif</span> <span class="n">cls_type_name</span> <span class="ow">in</span> <span class="p">[</span><span class="s1">&#39;N_GET_RSP&#39;</span><span class="p">,</span> <span class="s1">&#39;N_SET_RSP&#39;</span><span class="p">,</span>
-                               <span class="s1">&#39;N_CREATE_RQ&#39;</span><span class="p">,</span> <span class="s1">&#39;N_CREATE_RSP&#39;</span><span class="p">]:</span>
-            <span class="n">primitive</span><span class="o">.</span><span class="n">AttributeList</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">data_set</span>
-        <span class="k">elif</span> <span class="n">cls_type_name</span> <span class="o">==</span> <span class="s1">&#39;N_SET_RQ&#39;</span><span class="p">:</span>
-            <span class="n">primitive</span><span class="o">.</span><span class="n">ModificationList</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">data_set</span>
-        <span class="k">elif</span> <span class="n">cls_type_name</span> <span class="o">==</span> <span class="s1">&#39;N_ACTION_RQ&#39;</span><span class="p">:</span>
-            <span class="n">primitive</span><span class="o">.</span><span class="n">ActionInformation</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">data_set</span>
-        <span class="k">elif</span> <span class="n">cls_type_name</span> <span class="o">==</span> <span class="s1">&#39;N_ACTION_RSP&#39;</span><span class="p">:</span>
-            <span class="n">primitive</span><span class="o">.</span><span class="n">ActionReply</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">data_set</span>
+        <span class="k">try</span><span class="p">:</span>
+            <span class="n">dataset_keyword</span> <span class="o">=</span> <span class="n">_DATASET_KEYWORDS</span><span class="p">[</span><span class="n">cls_type_name</span><span class="p">]</span>
+            <span class="nb">setattr</span><span class="p">(</span><span class="n">primitive</span><span class="p">,</span> <span class="n">dataset_keyword</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">data_set</span><span class="p">)</span>
+        <span class="k">except</span> <span class="ne">KeyError</span><span class="p">:</span>
+            <span class="k">pass</span>
 
         <span class="k">return</span> <span class="n">primitive</span>
 
@@ -759,38 +747,17 @@
         <span class="bp">self</span><span class="o">.</span><span class="n">data_set</span> <span class="o">=</span> <span class="n">BytesIO</span><span class="p">()</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">command_set</span><span class="o">.</span><span class="n">CommandDataSetType</span> <span class="o">=</span> <span class="mh">0x0101</span>
 
-        <span class="n">cls_type_name</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="vm">__class__</span><span class="o">.</span><span class="vm">__name__</span>
-        <span class="k">if</span> <span class="n">cls_type_name</span> <span class="o">==</span> <span class="s1">&#39;C_STORE_RQ&#39;</span><span class="p">:</span>
-            <span class="bp">self</span><span class="o">.</span><span class="n">data_set</span> <span class="o">=</span> <span class="n">primitive</span><span class="o">.</span><span class="n">DataSet</span>
-            <span class="bp">self</span><span class="o">.</span><span class="n">command_set</span><span class="o">.</span><span class="n">CommandDataSetType</span> <span class="o">=</span> <span class="mh">0x0001</span>
-        <span class="k">elif</span> <span class="p">(</span><span class="n">cls_type_name</span> <span class="ow">in</span> <span class="p">[</span>
-                <span class="s1">&#39;C_FIND_RQ&#39;</span><span class="p">,</span> <span class="s1">&#39;C_GET_RQ&#39;</span><span class="p">,</span> <span class="s1">&#39;C_MOVE_RQ&#39;</span><span class="p">,</span> <span class="s1">&#39;C_FIND_RSP&#39;</span><span class="p">,</span>
-                <span class="s1">&#39;C_GET_RSP&#39;</span><span class="p">,</span> <span class="s1">&#39;C_MOVE_RSP&#39;</span><span class="p">]</span> <span class="ow">and</span> <span class="n">primitive</span><span class="o">.</span><span class="n">Identifier</span><span class="p">):</span>
-            <span class="bp">self</span><span class="o">.</span><span class="n">data_set</span> <span class="o">=</span> <span class="n">primitive</span><span class="o">.</span><span class="n">Identifier</span>
-            <span class="bp">self</span><span class="o">.</span><span class="n">command_set</span><span class="o">.</span><span class="n">CommandDataSetType</span> <span class="o">=</span> <span class="mh">0x0001</span>
-        <span class="k">elif</span> <span class="n">cls_type_name</span> <span class="o">==</span> <span class="s1">&#39;N_EVENT_REPORT_RQ&#39;</span><span class="p">:</span>
-            <span class="bp">self</span><span class="o">.</span><span class="n">data_set</span> <span class="o">=</span> <span class="n">primitive</span><span class="o">.</span><span class="n">EventInformation</span>
-            <span class="bp">self</span><span class="o">.</span><span class="n">command_set</span><span class="o">.</span><span class="n">CommandDataSetType</span> <span class="o">=</span> <span class="mh">0x0001</span>
-        <span class="k">elif</span> <span class="n">cls_type_name</span> <span class="o">==</span> <span class="s1">&#39;N_EVENT_REPORT_RSP&#39;</span><span class="p">:</span>
-            <span class="bp">self</span><span class="o">.</span><span class="n">data_set</span> <span class="o">=</span> <span class="n">primitive</span><span class="o">.</span><span class="n">EventReply</span>
-            <span class="bp">self</span><span class="o">.</span><span class="n">command_set</span><span class="o">.</span><span class="n">CommandDataSetType</span> <span class="o">=</span> <span class="mh">0x0001</span>
-        <span class="k">elif</span> <span class="n">cls_type_name</span> <span class="ow">in</span> <span class="p">[</span><span class="s1">&#39;N_GET_RSP&#39;</span><span class="p">,</span> <span class="s1">&#39;N_SET_RSP&#39;</span><span class="p">,</span>
-                               <span class="s1">&#39;N_CREATE_RQ&#39;</span><span class="p">,</span> <span class="s1">&#39;N_CREATE_RSP&#39;</span><span class="p">]:</span>
-            <span class="bp">self</span><span class="o">.</span><span class="n">data_set</span> <span class="o">=</span> <span class="n">primitive</span><span class="o">.</span><span class="n">AttributeList</span>
-            <span class="bp">self</span><span class="o">.</span><span class="n">command_set</span><span class="o">.</span><span class="n">CommandDataSetType</span> <span class="o">=</span> <span class="mh">0x0001</span>
-        <span class="k">elif</span> <span class="n">cls_type_name</span> <span class="o">==</span> <span class="s1">&#39;N_SET_RQ&#39;</span><span class="p">:</span>
-            <span class="bp">self</span><span class="o">.</span><span class="n">data_set</span> <span class="o">=</span> <span class="n">primitive</span><span class="o">.</span><span class="n">ModificationList</span>
-            <span class="bp">self</span><span class="o">.</span><span class="n">command_set</span><span class="o">.</span><span class="n">CommandDataSetType</span> <span class="o">=</span> <span class="mh">0x0001</span>
-        <span class="k">elif</span> <span class="n">cls_type_name</span> <span class="o">==</span> <span class="s1">&#39;N_ACTION_RQ&#39;</span><span class="p">:</span>
-            <span class="bp">self</span><span class="o">.</span><span class="n">data_set</span> <span class="o">=</span> <span class="n">primitive</span><span class="o">.</span><span class="n">ActionInformation</span>
-            <span class="bp">self</span><span class="o">.</span><span class="n">command_set</span><span class="o">.</span><span class="n">CommandDataSetType</span> <span class="o">=</span> <span class="mh">0x0001</span>
-        <span class="k">elif</span> <span class="n">cls_type_name</span> <span class="o">==</span> <span class="s1">&#39;N_ACTION_RSP&#39;</span><span class="p">:</span>
-            <span class="bp">self</span><span class="o">.</span><span class="n">data_set</span> <span class="o">=</span> <span class="n">primitive</span><span class="o">.</span><span class="n">ActionReply</span>
-            <span class="bp">self</span><span class="o">.</span><span class="n">command_set</span><span class="o">.</span><span class="n">CommandDataSetType</span> <span class="o">=</span> <span class="mh">0x0001</span>
-
-        <span class="c1"># The following message types don&#39;t have a dataset</span>
-        <span class="c1"># &#39;C_ECHO_RQ&#39;, &#39;C_ECHO_RSP&#39;, &#39;N_DELETE_RQ&#39;, &#39;C_STORE_RSP&#39;,</span>
-        <span class="c1"># &#39;C_CANCEL_RQ&#39;, &#39;N_DELETE_RSP&#39;, &#39;C_FIND_RSP&#39;, &#39;N_GET_RQ&#39;</span>
+        <span class="k">try</span><span class="p">:</span>
+            <span class="c1"># These message types *may* have a dataset</span>
+            <span class="n">dataset_keyword</span> <span class="o">=</span> <span class="n">_DATASET_KEYWORDS</span><span class="p">[</span><span class="bp">self</span><span class="o">.</span><span class="vm">__class__</span><span class="o">.</span><span class="vm">__name__</span><span class="p">]</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">data_set</span> <span class="o">=</span> <span class="nb">getattr</span><span class="p">(</span><span class="n">primitive</span><span class="p">,</span> <span class="n">dataset_keyword</span><span class="p">)</span>
+            <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">data_set</span><span class="p">:</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">command_set</span><span class="o">.</span><span class="n">CommandDataSetType</span> <span class="o">=</span> <span class="mh">0x0001</span>
+        <span class="k">except</span> <span class="ne">KeyError</span><span class="p">:</span>
+            <span class="c1"># The following message types never have a dataset</span>
+            <span class="c1"># &#39;C_ECHO_RQ&#39;, &#39;C_ECHO_RSP&#39;, &#39;N_DELETE_RQ&#39;, &#39;C_STORE_RSP&#39;,</span>
+            <span class="c1"># &#39;C_CANCEL_RQ&#39;, &#39;N_DELETE_RSP&#39;, &#39;C_FIND_RSP&#39;, &#39;N_GET_RQ&#39;</span>
+            <span class="k">pass</span>
 
         <span class="c1"># Set the Command Set length</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">_set_command_group_length</span><span class="p">()</span>
@@ -906,6 +873,25 @@
     <span class="mh">0x8140</span><span class="p">:</span> <span class="n">N_CREATE_RSP</span><span class="p">,</span>
     <span class="mh">0x0150</span><span class="p">:</span> <span class="n">N_DELETE_RQ</span><span class="p">,</span>
     <span class="mh">0x8150</span><span class="p">:</span> <span class="n">N_DELETE_RSP</span>
+<span class="p">}</span>
+
+<span class="n">_DATASET_KEYWORDS</span> <span class="o">=</span> <span class="p">{</span>
+    <span class="s1">&#39;C_STORE_RQ&#39;</span> <span class="p">:</span> <span class="s1">&#39;DataSet&#39;</span><span class="p">,</span>
+    <span class="s1">&#39;C_FIND_RQ&#39;</span> <span class="p">:</span> <span class="s1">&#39;Identifier&#39;</span><span class="p">,</span>
+    <span class="s1">&#39;C_GET_RQ&#39;</span> <span class="p">:</span> <span class="s1">&#39;Identifier&#39;</span><span class="p">,</span>
+    <span class="s1">&#39;C_MOVE_RQ&#39;</span> <span class="p">:</span> <span class="s1">&#39;Identifier&#39;</span><span class="p">,</span>
+    <span class="s1">&#39;C_FIND_RSP&#39;</span> <span class="p">:</span> <span class="s1">&#39;Identifier&#39;</span><span class="p">,</span>
+    <span class="s1">&#39;C_GET_RSP&#39;</span> <span class="p">:</span> <span class="s1">&#39;Identifier&#39;</span><span class="p">,</span>
+    <span class="s1">&#39;C_MOVE_RSP&#39;</span> <span class="p">:</span> <span class="s1">&#39;Identifier&#39;</span><span class="p">,</span>
+    <span class="s1">&#39;N_EVENT_REPORT_RQ&#39;</span> <span class="p">:</span> <span class="s1">&#39;EventInformation&#39;</span><span class="p">,</span>
+    <span class="s1">&#39;N_EVENT_REPORT_RSP&#39;</span> <span class="p">:</span> <span class="s1">&#39;EventReply&#39;</span><span class="p">,</span>
+    <span class="s1">&#39;N_GET_RSP&#39;</span> <span class="p">:</span> <span class="s1">&#39;AttributeList&#39;</span><span class="p">,</span>
+    <span class="s1">&#39;N_SET_RSP&#39;</span> <span class="p">:</span> <span class="s1">&#39;AttributeList&#39;</span><span class="p">,</span>
+    <span class="s1">&#39;N_CREATE_RQ&#39;</span> <span class="p">:</span> <span class="s1">&#39;AttributeList&#39;</span><span class="p">,</span>
+    <span class="s1">&#39;N_CREATE_RSP&#39;</span> <span class="p">:</span> <span class="s1">&#39;AttributeList&#39;</span><span class="p">,</span>
+    <span class="s1">&#39;N_SET_RQ&#39;</span> <span class="p">:</span> <span class="s1">&#39;ModificationList&#39;</span><span class="p">,</span>
+    <span class="s1">&#39;N_ACTION_RQ&#39;</span> <span class="p">:</span> <span class="s1">&#39;ActionInformation&#39;</span><span class="p">,</span>
+    <span class="s1">&#39;N_ACTION_RSP&#39;</span> <span class="p">:</span> <span class="s1">&#39;ActionReply&#39;</span><span class="p">,</span>
 <span class="p">}</span>
 </pre></div>
 

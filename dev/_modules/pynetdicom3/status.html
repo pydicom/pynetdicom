@@ -99,6 +99,7 @@
 <li class="toctree-l1"><a class="reference internal" href="../../defined_procedure_service_class.html">Defined Procedure Protocol Query/Retrieve Service Class</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../../hanging_protocol_service_class.html">Hanging Protocol Query/Retrieve Service Class</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../../implant_template_service_class.html">Implant Template Query/Retrieve Service Class</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../display_system_service_class.html">Display System Management Service Class</a></li>
 </ul>
 <ul>
 <li class="toctree-l1"><a class="reference internal" href="../../user/index.html">User Guide</a></li>
@@ -178,6 +179,7 @@
 <span class="n">STATUS_WARNING</span> <span class="o">=</span> <span class="s1">&#39;Warning&#39;</span>
 <span class="n">STATUS_CANCEL</span> <span class="o">=</span> <span class="s1">&#39;Cancel&#39;</span>
 <span class="n">STATUS_PENDING</span> <span class="o">=</span> <span class="s1">&#39;Pending&#39;</span>
+<span class="n">STATUS_UNKNOWN</span> <span class="o">=</span> <span class="s1">&#39;Unknown&#39;</span>
 
 
 <span class="c1"># Non-Service Class specific statuses - PS3.7 Annex C</span>
@@ -204,7 +206,7 @@
     <span class="mh">0x0210</span> <span class="p">:</span> <span class="p">(</span><span class="n">STATUS_FAILURE</span><span class="p">,</span> <span class="s1">&#39;Duplicate Invocation&#39;</span><span class="p">),</span>
     <span class="mh">0x0211</span> <span class="p">:</span> <span class="p">(</span><span class="n">STATUS_FAILURE</span><span class="p">,</span> <span class="s1">&#39;Unrecognised Operation&#39;</span><span class="p">),</span>
     <span class="mh">0x0212</span> <span class="p">:</span> <span class="p">(</span><span class="n">STATUS_FAILURE</span><span class="p">,</span> <span class="s1">&#39;Mistyped Argument&#39;</span><span class="p">),</span>
-    <span class="mh">0x0213</span> <span class="p">:</span> <span class="p">(</span><span class="n">STATUS_FAILURE</span><span class="p">,</span> <span class="s1">&#39;Resources Limitation&#39;</span><span class="p">),</span>
+    <span class="mh">0x0213</span> <span class="p">:</span> <span class="p">(</span><span class="n">STATUS_FAILURE</span><span class="p">,</span> <span class="s1">&#39;Resource Limitation&#39;</span><span class="p">),</span>
     <span class="mh">0xFE00</span> <span class="p">:</span> <span class="p">(</span><span class="n">STATUS_CANCEL</span><span class="p">,</span> <span class="s1">&#39;&#39;</span><span class="p">)</span>
 <span class="p">}</span>
 
@@ -639,7 +641,7 @@
         <span class="k">elif</span> <span class="n">code</span> <span class="o">==</span> <span class="mh">0x0001</span><span class="p">:</span>
             <span class="k">return</span> <span class="n">STATUS_WARNING</span>
 
-        <span class="k">return</span> <span class="s1">&#39;Unknown&#39;</span>
+        <span class="k">return</span> <span class="n">STATUS_UNKNOWN</span>
     <span class="k">else</span><span class="p">:</span>
         <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s2">&quot;&#39;code&#39; must be a positive integer.&quot;</span><span class="p">)</span></div>
 </pre></div>
