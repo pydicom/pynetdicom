@@ -466,7 +466,7 @@ class DIMSEServiceProvider(object):
         priority = priority_str[cs.Priority]
 
         dataset = 'None'
-        if msg.data_set.getvalue() != b'':
+        if msg.data_set and msg.data_set.getvalue() != b'':
             dataset = 'Present'
 
         if cs.AffectedSOPClassUID.name == 'CT Image Storage':
@@ -538,7 +538,7 @@ class DIMSEServiceProvider(object):
         priority = priority_str[cs.Priority]
 
         dataset = 'None'
-        if msg.data_set.getvalue() != b'':
+        if msg.data_set and msg.data_set.getvalue() != b'':
             dataset = 'Present'
 
         LOGGER.info("Sending Find Request: MsgID %s", cs.MessageID)
@@ -579,7 +579,7 @@ class DIMSEServiceProvider(object):
         cs = msg.command_set
 
         dataset = 'None'
-        if msg.data_set.getvalue() != b'':
+        if msg.data_set and msg.data_set.getvalue() != b'':
             dataset = 'Present'
 
         s = []
@@ -624,7 +624,7 @@ class DIMSEServiceProvider(object):
         priority = priority_str[cs.Priority]
 
         dataset = 'None'
-        if msg.data_set.getvalue() != b'':
+        if msg.data_set and msg.data_set.getvalue() != b'':
             dataset = 'Present'
 
         LOGGER.info("Sending Get Request: MsgID %s", cs.MessageID)
@@ -667,7 +667,7 @@ class DIMSEServiceProvider(object):
         cs = msg.command_set
 
         dataset = 'None'
-        if msg.data_set.getvalue() != b'':
+        if msg.data_set and msg.data_set.getvalue() != b'':
             dataset = 'Present'
 
         affected_sop = getattr(cs, 'AffectedSOPClassUID', 'None')
@@ -715,7 +715,7 @@ class DIMSEServiceProvider(object):
         priority = priority_str[cs.Priority]
 
         identifier = 'None'
-        if msg.data_set.getvalue() != b'':
+        if msg.data_set and msg.data_set.getvalue() != b'':
             identifier = 'Present'
 
         LOGGER.info("Sending Move Request: MsgID %s", cs.MessageID)
@@ -884,7 +884,7 @@ class DIMSEServiceProvider(object):
         priority = priority_str[cs.Priority]
 
         dataset = 'None'
-        if msg.data_set.getvalue() != b'':
+        if msg.data_set and msg.data_set.getvalue() != b'':
             dataset = 'Present'
 
         LOGGER.info('Received Store Request')
@@ -929,7 +929,7 @@ class DIMSEServiceProvider(object):
         cs = msg.command_set
 
         dataset = 'None'
-        if msg.data_set.getvalue() != b'':
+        if msg.data_set and msg.data_set.getvalue() != b'':
             dataset = 'Present'
 
         # See PS3.4 Annex B.2.3 for Storage Service Class Statuses
@@ -988,7 +988,7 @@ class DIMSEServiceProvider(object):
         priority = priority_str[cs.Priority]
 
         dataset = 'None'
-        if msg.data_set.getvalue() != b'':
+        if msg.data_set and msg.data_set.getvalue() != b'':
             dataset = 'Present'
 
         s = []
@@ -1029,7 +1029,7 @@ class DIMSEServiceProvider(object):
             return
 
         dataset = 'None'
-        if msg.data_set.getvalue() != b'':
+        if msg.data_set and msg.data_set.getvalue() != b'':
             dataset = 'Present'
 
         s = []
@@ -1100,7 +1100,7 @@ class DIMSEServiceProvider(object):
         priority = priority_str[cs.Priority]
 
         dataset = 'None'
-        if msg.data_set.getvalue() != b'':
+        if msg.data_set and msg.data_set.getvalue() != b'':
             dataset = 'Present'
 
         s = []
@@ -1143,7 +1143,7 @@ class DIMSEServiceProvider(object):
         cs = msg.command_set
 
         dataset = 'None'
-        if msg.data_set.getvalue() != b'':
+        if msg.data_set and msg.data_set.getvalue() != b'':
             dataset = 'Present'
 
         s = []
@@ -1286,11 +1286,13 @@ class DIMSEServiceProvider(object):
         """
         cs = msg.command_set
 
-        attributes = ''
+        nr_attr = 'no identifiers'
         if 'AttributeIdentifierList' in cs:
-            attributes = ','.join(
-                [str(tag) for tag in cs.AttributeIdentifierList]
-            )
+            nr_attr = len(cs.AttributeIdentifierList)
+            if nr_attr == 1:
+                nr_attr = '{} identifier'.format(nr_attr)
+            else:
+                nr_attr = '{} identifiers'.format(nr_attr)
 
         s = []
         s.append('===================== OUTGOING DIMSE MESSAGE ================'
@@ -1301,7 +1303,7 @@ class DIMSEServiceProvider(object):
                  .format(cs.RequestedSOPClassUID))
         s.append('Requested SOP Instance UID    : {0!s}'
                  .format(cs.RequestedSOPInstanceUID))
-        s.append('Attribute Identifier List     : {0!s}'.format(attributes))
+        s.append('Attribute Identifier List     : ({0!s})'.format(nr_attr))
         s.append('======================= END DIMSE MESSAGE ==================='
                  '====')
         for line in s:

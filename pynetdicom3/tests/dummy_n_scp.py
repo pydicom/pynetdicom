@@ -37,14 +37,12 @@ class DummyGetSCP(DummyBaseSCP):
         ds.SOPInstanceUID = '1.2.3.4'
         self.dataset = ds
 
-    def on_n_get(self, elem, context, info):
+    def on_n_get(self, attr, context, info):
         """Callback for ae.on_n_get"""
 
         self.context = context
         self.info = info
+        self.attr = attr
         time.sleep(self.delay)
 
-        status = Dataset()
-        status.Status = self.status
-
-        return status, self.dataset
+        return self.status, self.dataset

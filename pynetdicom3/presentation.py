@@ -809,6 +809,6 @@ ImplantTemplatePresentationContexts = [
     build_context('1.2.840.10008.5.1.4.45.4'),
 ]
 
-DisplaySystemManagementPresentationContexts = [
+DisplaySystemPresentationContexts = [
     build_context('1.2.840.10008.5.1.1.40')
 ]

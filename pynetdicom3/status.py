@@ -8,6 +8,7 @@ STATUS_FAILURE = 'Failure'
 STATUS_WARNING = 'Warning'
 STATUS_CANCEL = 'Cancel'
 STATUS_PENDING = 'Pending'
+STATUS_UNKNOWN = 'Unknown'
 
 
 # Non-Service Class specific statuses - PS3.7 Annex C
@@ -469,6 +470,6 @@ def code_to_category(code):
         elif code == 0x0001:
             return STATUS_WARNING
 
-        return 'Unknown'
+        return STATUS_UNKNOWN
     else:
         raise ValueError("'code' must be a positive integer.")

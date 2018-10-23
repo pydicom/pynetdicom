@@ -121,7 +121,7 @@ _COMMAND_SET_ELEM = {
     ),
     'N-GET-RSP': (
         0x00000000, 0x00000002, 0x00000100, 0x00000120,
-        0x00000800, 0x00000900, 0x00001000
+        0x00000800, 0x00000900, 0x00001000, 0x00000902, 0x00000903,
     ),
     'N-SET-RQ': (
         0x00000000, 0x00000003, 0x00000100, 0x00000110, 0x00000800, 0x00001001
@@ -504,16 +504,11 @@ class DIMSEMessage(object):
         # Command Set
         # For each parameter in the primitive, set the appropriate value
         #   from the Message's Command Set elements
-        print('Converting...')
         for elem in self.command_set:
             if hasattr(primitive, elem.keyword):
-                print(elem.keyword)
-                if elem.keyword == 'AttributeIdentifierList':
-                    print(elem)
                 setattr(primitive, elem.keyword,
                         self.command_set.__getattr__(elem.keyword))
 
-        print('Done')
         # Datasets
         # Set the primitive's DataSet/Identifier/etc attribute
         try:
@@ -584,8 +579,8 @@ class DIMSEMessage(object):
         try:
             # These message types *may* have a dataset
             dataset_keyword = _DATASET_KEYWORDS[self.__class__.__name__]
-            if getattr(primitive, dataset_keyword):
-                self.data_set = getattr(primitive, dataset_keyword)
+            self.data_set = getattr(primitive, dataset_keyword)
+            if self.data_set:
                 self.command_set.CommandDataSetType = 0x0001
         except KeyError:
             # The following message types never have a dataset

@@ -63,8 +63,10 @@ from pynetdicom3.pdu_primitives import (UserIdentityNegotiation,
                                         SOPClassExtendedNegotiation,
                                         SOPClassCommonExtendedNegotiation,
                                         A_ASSOCIATE, A_ABORT, A_P_ABORT)
-from pynetdicom3.status import (code_to_status, code_to_category,
-                                STORAGE_SERVICE_CLASS_STATUS)
+from pynetdicom3.status import (
+    code_to_status, code_to_category, STORAGE_SERVICE_CLASS_STATUS,
+    STATUS_WARNING, STATUS_SUCCESS
+)
 from pynetdicom3.utils import PresentationContextManager
 # pylint: enable=no-name-in-module
 
@@ -513,12 +515,12 @@ class Association(threading.Thread):
                 #   Class UID to determine which service to use
                 # If there's no AffectedSOPClassUID or RequestedSOPClassUID
                 #   then we received a C-CANCEL request
-                if getattr(msg, 'AffectedSOPClassUID') is not None:
-                    # DIMSE-C, N-EVENT-REPORT and N-CREATE use AffectedSOPClassUID
-                    sop_class_uid = msg.AffectedSOPClassUID
-                elif getattr(msg, 'RequestedSOPClassUID') is not None:
+                if getattr(msg, 'AffectedSOPClassUID', None) is not None:
+                    # DIMSE-C, N-EVENT-REPORT, N-CREATE use AffectedSOPClassUID
+                    class_uid = msg.AffectedSOPClassUID
+                elif getattr(msg, 'RequestedSOPClassUID', None) is not None:
                     # N-GET, N-SET, N-ACTION, N-DELETE use RequestedSOPClassUID
-                    sop_class_uid = msg.RequestedSOPClassUID
+                    class_uid = msg.RequestedSOPClassUID
                 else:
                     # FIXME: C-CANCEL requests are not being handled correctly
                     #   need a way to identify which service it belongs to
@@ -527,7 +529,7 @@ class Association(threading.Thread):
                     return
 
                 # Convert the SOP Class UID to the corresponding service
-                service_class = uid_to_service_class(sop_class_uid)()
+                service_class = uid_to_service_class(class_uid)()
 
                 # Check that the SOP Class is supported by the AE
                 # New method
@@ -2124,32 +2126,22 @@ class Association(threading.Thread):
                                "request")
         raise NotImplementedError
 
-    def send_n_get(self, attribute_list, sop_class, sop_instance, msg_id=1):
+    def send_n_get(self, identifier_list, class_uid, instance_uid, msg_id=1):
         """Send an N-GET request message to the peer AE.
 
         Parameters
         ----------
-        attribute_list : list of pydicom.tag.Tag
+        identifier_list : list of pydicom.tag.Tag
             A list of DICOM Data Element tags to be sent in the request's
-            (0000,1005) *Attribute Identifier List* element.
-        sop_class : pydicom.uid.UID
-            The SOP Class UID to be sent in the request's (0000,0003)
-            *Requested SOP Class UID* element.
-
-            Display System SOP Class : 1.2.840.10008.5.1.1.40
-            Media Creation Management SOP Class : 1.2.840.10008.5.1.1.33
-            Print Job SOP Class : 1.2.840.10008.5.1.1.14
-            Printer SOP Class : 1.2.840.10008.5.1.1.16
-            Printer Configuration Retrieval SOP Class : 1.2.840.10008.5.1.1.16.376
-
-        sop_instance : pydicom.uid.UID
-            The SOP Class UID to be sent in the request's (0000,1001)
-            *Requested SOP Instance UID* element.
-
-            Display System SOP Instance : 1.2.840.10008.5.1.1.40.1
-            Printer SOP Instance : 1.2.840.10008.5.1.1.17
-            Printer Configuration Retrieval SOP Instance : 1.2.840.10008.5.1.1.17.376
-
+            (0000,1005) *Attribute Identifier List* element. Should either be
+            a list of pydicom Tag objects or a list of values that is
+            acceptable for creating pydicom Tag objects.
+        class_uid : pydicom.uid.UID
+            The UID to be sent in the request's (0000,0003) *Requested SOP
+            Class UID* element.
+        instance_uid : pydicom.uid.UID
+            The UID to be sent in the request's (0000,1001) *Requested SOP
+            Instance UID* element.
         msg_id : int, optional
             The DIMSE *Message ID*, must be between 0 and 65535, inclusive,
             (default 1).
@@ -2163,28 +2155,71 @@ class Association(threading.Thread):
             element, and depending on the returned value, may optionally
             contain additional elements (see the DICOM Standard, Part 7,
             Section 9.1.2.1.5 and Annex C).
-        attribute_list : pydicom.dataset.Dataset
-            A dataset containing the values of the attributes.
+
+            General N-GET (DICOM Standard Part 7, Section 10.1.2 and Annex C)
+
+            Success
+              | ``0x0000`` Successful operation
+
+            Warning
+              | ``0x0107`` Attribute list error
+
+            Failure
+              | ``0x0110`` Processing failure
+              | ``0x0112`` Such such SOP Instance
+              | ``0x0117`` Invalid object instance
+              | ``0x0118`` No such SOP Class
+              | ``0x0119`` Class-Instance conflict
+              | ``0x0122`` SOP class not supported
+              | ``0x0124`` Not authorised
+              | ``0x0210`` Duplicate invocation
+              | ``0x0211`` Unrecognised operation
+              | ``0x0212`` Mistyped argument
+              | ``0x0213`` Resource limitation
+
+        attribute_list : pydicom.dataset.Dataset or None
+            If the status is 'Success' then a ``Dataset`` containing attributes
+            corresponding to those supplied in the *Attribute Identifier List*,
+            otherwise returns None.
+
+        See Also
+        --------
+        ae.ApplicationEntity.on_n_get
+        dimse_primitives.N_GET
+        service_class.DisplaySystemManagementServiceClass
+
+        References
+        ----------
+        * DICOM Standart Part 4, `Annex F <http://dicom.nema.org/medical/dicom/current/output/html/part04.html#chapter_F>`_
+        * DICOM Standart Part 4, `Annex H <http://dicom.nema.org/medical/dicom/current/output/html/part04.html#chapter_H>`_
+        * DICOM Standard Part 4, `Annex S <http://dicom.nema.org/medical/dicom/current/output/html/part04.html#chapter_S>`_
+        * DICOM Standard Part 4, `Annex CC <http://dicom.nema.org/medical/dicom/current/output/html/part04.html#chapter_CC>`_
+        * DICOM Standard Part 4, `Annex DD <http://dicom.nema.org/medical/dicom/current/output/html/part04.html#chapter_DD>`_
+        * DICOM Standard Part 4, `Annex EE <http://dicom.nema.org/medical/dicom/current/output/html/part04.html#chapter_EE>`_
+        * DICOM Standard Part 7, Sections
+          `10.1.2 <http://dicom.nema.org/medical/dicom/current/output/html/part07.html#sect_10.1.2>`_,
+          `10.3.2 <http://dicom.nema.org/medical/dicom/current/output/html/part07.html#sect_10.3.2>`_ and
+          `Annex C <http://dicom.nema.org/medical/dicom/current/output/html/part07.html#chapter_C>`__
         """
         # Can't send an N-GET without an Association
         if not self.is_established:
             raise RuntimeError(
-                "The association with a peer SCP must be established before "
-                "sending an N-GET request."
+                "The association with a peer SCP must be established prior "
+                "to sending an N-GET request."
             )
 
         # Determine the Presentation Context we are operating under
         #   and hence the transfer syntax to use for encoding `dataset`
         transfer_syntax = None
         for context in self.acse.context_manager.accepted:
-            if sop_class == context.abstract_syntax:
+            if class_uid == context.abstract_syntax:
                 transfer_syntax = context.transfer_syntax[0]
                 context_id = context.context_id
                 break
         else:
             LOGGER.error(
                 "Association.send_n_get - no accepted Presentation Context "
-                "for: '{}'".format(sop_class)
+                "for: '{}'".format(class_uid)
             )
             LOGGER.error(
                 "Get SCU failed due to there being no accepted presentation "
@@ -2192,7 +2227,7 @@ class Association(threading.Thread):
             )
             raise ValueError(
                 "No accepted Presentation Context for the SOP Class UID '{}'"
-                .format(sop_class)
+                .format(class_uid)
             )
 
         # Build N-GET request primitive
@@ -2202,9 +2237,9 @@ class Association(threading.Thread):
         #   (U) Attribute Identifier List
         req = N_GET()
         req.MessageID = msg_id
-        req.RequestedSOPClassUID = sop_class
-        req.RequestedSOPInstanceUID = sop_instance
-        req.AttributeIdentifierList = attribute_list
+        req.RequestedSOPClassUID = class_uid
+        req.RequestedSOPInstanceUID = instance_uid
+        req.AttributeIdentifierList = identifier_list
 
         # Send N-GET request to the peer via DIMSE and wait for the response
         self.dimse.send_msg(req, context_id)
@@ -2212,19 +2247,36 @@ class Association(threading.Thread):
 
         # Determine validity of the response and get the status
         status = Dataset()
-        attribute_list = Dataset()
+        attribute_list = None
         if rsp is None:
             LOGGER.error('DIMSE service timed out')
             self.abort()
         elif rsp.is_valid_response:
             status.Status = rsp.Status
-            attribute_list = rsp.AttributeList
-            for keyword in ['ErrorComment', 'OffendingElement']:
+            for keyword in ['ErrorComment', 'ErrorID']:
                 if getattr(rsp, keyword, None) is not None:
                     setattr(status, keyword, getattr(rsp, keyword))
         else:
             LOGGER.error('Received an invalid N-GET response from the peer')
             self.abort()
+
+        # Warning and Success statuses will return a dataset
+        #   we check against None as 0x0000 is a possible status
+        if getattr(status, 'Status', None) is not None:
+            category = code_to_category(status.Status)
+            if category not in [STATUS_WARNING, STATUS_SUCCESS]:
+                return status, attribute_list
+
+            # Attempt to decode the response's dataset
+            try:
+                attribute_list = decode(rsp.AttributeList,
+                                        transfer_syntax.is_implicit_VR,
+                                        transfer_syntax.is_little_endian)
+            except Exception as ex:
+                LOGGER.error("Failed to decode the received dataset")
+                LOGGER.exception(ex)
+                # Failure: Processing failure
+                status.Status = 0x0110
 
         return status, attribute_list
 

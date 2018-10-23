@@ -41,6 +41,7 @@ pynetdicom currently supports the following DICOM service classes:
    defined_procedure_service_class
    hanging_protocol_service_class
    implant_template_service_class
+   display_system_service_class
 
 
 User Guide

@@ -33,8 +33,8 @@ from .dummy_n_scp import (
 )
 
 LOGGER = logging.getLogger('pynetdicom3')
-#LOGGER.setLevel(logging.CRITICAL)
-LOGGER.setLevel(logging.DEBUG)
+LOGGER.setLevel(logging.CRITICAL)
+#LOGGER.setLevel(logging.DEBUG)
 
 
 class TestAssociationSendNEventReport(object):
@@ -169,6 +169,8 @@ class TestAssociationSendNGet(object):
                                       DisplaySystemSOPClass.uid,
                                       '1.2.840.10008.5.1.1.40.1')
 
+        assert status == Dataset()
+        assert ds is None
         assert assoc.is_aborted
 
         self.scp.stop()
@@ -195,6 +197,8 @@ class TestAssociationSendNGet(object):
         status, ds = assoc.send_n_get([0x7fe0,0x0010],
                                       DisplaySystemSOPClass.uid,
                                       '1.2.840.10008.5.1.1.40.1')
+        assert status == Dataset()
+        assert ds is None
         assert assoc.is_aborted
 
         self.scp.stop()
@@ -214,6 +218,7 @@ class TestAssociationSendNGet(object):
                                       DisplaySystemSOPClass.uid,
                                       '1.2.840.10008.5.1.1.40.1')
         assert status.Status == 0x0112
+        assert ds is None
         assoc.release()
         assert assoc.is_released
         self.scp.stop()
@@ -233,6 +238,11 @@ class TestAssociationSendNGet(object):
                                       DisplaySystemSOPClass.uid,
                                       '1.2.840.10008.5.1.1.40.1')
         assert status.Status == 0x0116
+        assert ds is not None
+        assert isinstance(ds, Dataset)
+        assert ds.PatientName == 'Test'
+        assert ds.SOPClassUID == DisplaySystemSOPClass.UID
+        assert ds.SOPInstanceUID == '1.2.3.4'
         assoc.release()
         assert assoc.is_released
         self.scp.stop()
@@ -251,6 +261,11 @@ class TestAssociationSendNGet(object):
                                       DisplaySystemSOPClass.uid,
                                       '1.2.840.10008.5.1.1.40.1')
         assert status.Status == 0x0000
+        assert ds is not None
+        assert isinstance(ds, Dataset)
+        assert ds.PatientName == 'Test'
+        assert ds.SOPClassUID == DisplaySystemSOPClass.UID
+        assert ds.SOPInstanceUID == '1.2.3.4'
         assoc.release()
         assert assoc.is_released
         self.scp.stop()
@@ -270,6 +285,7 @@ class TestAssociationSendNGet(object):
                                       DisplaySystemSOPClass.uid,
                                       '1.2.840.10008.5.1.1.40.1')
         assert status.Status == 0xFFF0
+        assert ds is None
         assoc.release()
         assert assoc.is_released
         self.scp.stop()

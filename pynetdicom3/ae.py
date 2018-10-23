@@ -2080,9 +2080,21 @@ class ApplicationEntity(object):
 
             If the status is not 'Successs' then return None.
 
+        See Also
+        --------
+        association.Association.send_n_get
+        dimse_primitives.N_GET
+        service_class.DisplaySystemManagementServiceClass
+
         References
         ----------
-        DICOM Standard Part 4, Annexes F, H, S, CC, DD and EE
+
+        * DICOM Standart Part 4, `Annex F <http://dicom.nema.org/medical/dicom/current/output/html/part04.html#chapter_F>`_
+        * DICOM Standart Part 4, `Annex H <http://dicom.nema.org/medical/dicom/current/output/html/part04.html#chapter_H>`_
+        * DICOM Standard Part 4, `Annex S <http://dicom.nema.org/medical/dicom/current/output/html/part04.html#chapter_S>`_
+        * DICOM Standard Part 4, `Annex CC <http://dicom.nema.org/medical/dicom/current/output/html/part04.html#chapter_CC>`_
+        * DICOM Standard Part 4, `Annex DD <http://dicom.nema.org/medical/dicom/current/output/html/part04.html#chapter_DD>`_
+        * DICOM Standard Part 4, `Annex EE <http://dicom.nema.org/medical/dicom/current/output/html/part04.html#chapter_EE>`_
         """
         raise NotImplementedError(
             "User must implement the AE.on_n_get function prior to calling "

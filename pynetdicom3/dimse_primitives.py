@@ -1815,7 +1815,6 @@ class N_GET(object):
         The error or success notification of the operation. It shall be
         one of the following values:
 
-
     References
     ----------
 
@@ -1832,8 +1831,9 @@ class N_GET(object):
         self.AttributeList = None
         self.Status = None
 
-        # (Optional) for Failure status 0x0122
+        # (Optional) elements for specific status values
         self.ErrorComment = None
+        self.ErrorID = None
 
     @property
     def AffectedSOPClassUID(self):
