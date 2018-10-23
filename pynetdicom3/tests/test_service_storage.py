@@ -52,7 +52,6 @@ class TestStorageServiceClass(object):
                 thread.abort()
                 thread.stop()
 
-    @pytest.mark.skip("Not aware of any way to test")
     def test_scp_failed_ds_decode(self):
         """Test failure to decode the dataset"""
         # Hard to test directly as decode errors won't show up until the
@@ -77,7 +76,7 @@ class TestStorageServiceClass(object):
         assoc.dimse.send_msg(req, 1)
         rsp, _ = assoc.dimse.receive_msg(True)
 
-        assert rsp.Status == 0xC100
+        assert rsp.Status == 0xC210
         assert rsp.ErrorComment == 'Unable to decode the dataset'
         assoc.release()
         self.scp.stop()

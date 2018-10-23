@@ -290,6 +290,44 @@ class TestAssociationSendNGet(object):
         assert assoc.is_released
         self.scp.stop()
 
+    def test_rsp_bad_dataset(self):
+        """Test bad dataset received from peer"""
+        self.scp = DummyGetSCP()
+        self.scp.start()
+        ae = AE()
+        ae.add_requested_context(DisplaySystemSOPClass)
+        ae.acse_timeout = 5
+        ae.dimse_timeout = 5
+        assoc = ae.associate('localhost', 11112)
+
+        class DummyMessage():
+            is_valid_response = True
+            AttributeList = None
+            Status = 0x0000
+
+        class DummyDIMSE():
+            def send_msg(*args, **kwargs):
+                return
+
+            def receive_msg(*args, **kwargs):
+                status = Dataset()
+                status.Status = 0x0000
+
+                rsp = DummyMessage()
+
+                return rsp, None
+
+        assoc.dimse = DummyDIMSE()
+        assert assoc.is_established
+        status, ds = assoc.send_n_get([0x7fe0,0x0010],
+                                      DisplaySystemSOPClass.uid,
+                                      '1.2.840.10008.5.1.1.40.1')
+
+        assert status.Status == 0x0110
+        assert ds is None
+
+        self.scp.stop()
+
 
 class TestAssociationSendNSet(object):
     """Run tests on Assocation send_n_set."""

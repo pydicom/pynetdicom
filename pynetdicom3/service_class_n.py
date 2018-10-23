@@ -27,7 +27,7 @@ LOGGER = logging.getLogger('pynetdicom3.service-n')
 
 
 class DisplaySystemManagementServiceClass(ServiceClass):
-    """"""
+    """Implementation of the Display System Management Service Class."""
     statuses = GENERAL_STATUS
 
     def SCP(self, req, context, info):
@@ -41,6 +41,11 @@ class DisplaySystemManagementServiceClass(ServiceClass):
             The presentation context that the service is operating under.
         info : dict
             A dict containing details about the association.
+
+        See Also
+        --------
+        ae.ApplicationEntity.on_n_get
+        association.Association.send_n_get
 
         Notes
         -----
@@ -72,6 +77,14 @@ class DisplaySystemManagementServiceClass(ServiceClass):
 
         A dataset containing the values of the requested attributes.
 
+        References
+        ----------
+
+        * DICOM Standard, Part 4, `Annex EE <http://dicom.nema.org/medical/dicom/current/output/html/part04.html#chapter_EE>`_
+        * DICOM Standard, Part 7, Sections
+          `10.1.2 <http://dicom.nema.org/medical/dicom/current/output/html/part07.html#sect_10.1.2>`_,
+          `10.3.2 <http://dicom.nema.org/medical/dicom/current/output/html/part07.html#sect_10.3.2>`_ and
+          `Annex C <http://dicom.nema.org/medical/dicom/current/output/html/part07.html#chapter_C>`_
         """
         # Build N-GET response primitive
         rsp = N_GET()

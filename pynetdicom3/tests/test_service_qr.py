@@ -20,11 +20,12 @@ from pydicom import dcmread
 from pydicom.dataset import Dataset
 from pydicom.uid import ExplicitVRLittleEndian
 
-from pynetdicom3 import AE
+from pynetdicom3 import AE, build_context
 from pynetdicom3.dimse_primitives import C_FIND, C_GET
 from pynetdicom3.presentation import PresentationContext
 from pynetdicom3.service_class import (
-    QueryRetrieveServiceClass
+    QueryRetrieveServiceClass,
+    BasicWorklistManagementServiceClass,
 )
 from pynetdicom3.sop_class import (
     uid_to_sop_class,
@@ -2576,3 +2577,42 @@ class TestQRCompositeInstanceWithoutBulk(object):
 
         assoc.release()
         self.scp.stop()
+
+
+class TestBasicWorklistServiceClass(object):
+    """Tests for BasicWorklistManagementServiceClass."""
+    def setup(self):
+        """Run prior to each test"""
+        self.query = Dataset()
+        self.query.PatientName = '*'
+        self.query.QueryRetrieveLevel = "PATIENT"
+
+        self.ds = Dataset()
+        self.ds.SOPClassUID = CTImageStorage.uid
+        self.ds.SOPInstanceUID = '1.1.1'
+        self.ds.PatientName = 'Test'
+
+        self.fail = Dataset()
+        self.fail.FailedSOPInstanceUIDList = ['1.2.3']
+
+        self.scp = None
+
+    def teardown(self):
+        """Clear any active threads"""
+        if self.scp:
+            self.scp.abort()
+
+        time.sleep(0.1)
+
+        for thread in threading.enumerate():
+            if isinstance(thread, DummyBaseSCP):
+                thread.abort()
+                thread.stop()
+
+    def test_bad_abstract_syntax_raises(self):
+        """Test calling the BWM SCP with an unknown UID raises exception."""
+        msg = r'The supplied abstract syntax is not valid'
+        with pytest.raises(ValueError, match=msg):
+            bwm = BasicWorklistManagementServiceClass()
+            context = build_context('1.2.3.4')
+            bwm.SCP(None, context, None)

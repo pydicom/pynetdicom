@@ -238,3 +238,25 @@ class TestDisplayServiceClass(object):
         assert self.scp.attr == [(0x7fe0, 0x0010)]
 
         self.scp.stop()
+
+    def test_callback_bad_attr(self):
+        """Test SCP handles a bad callback attribute list"""
+        self.scp = DummyGetSCP()
+        self.scp.statuses = 0x0000
+        self.scp.dataset = None
+        self.scp.start()
+
+        ae = AE()
+        ae.add_requested_context(DisplaySystemSOPClass)
+        ae.acse_timeout = 5
+        ae.dimse_timeout = 5
+        assoc = ae.associate('localhost', 11112)
+        assert assoc.is_established
+        status, ds = assoc.send_n_get([(0x7fe0, 0x0010)],
+                                      DisplaySystemSOPClass.uid,
+                                      '1.2.840.10008.5.1.1.40.1')
+        assert status.Status == 0x0110
+        assert ds is None
+
+        assoc.release()
+        self.scp.stop()

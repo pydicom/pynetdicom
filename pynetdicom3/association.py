@@ -2116,7 +2116,6 @@ class Association(threading.Thread):
 
 
     # DIMSE-N services provided by the Association
-    # TODO: Implement DIMSE-N services
     def send_n_event_report(self):
         """Send an N-EVENT-REPORT request message to the peer AE."""
         # Can't send an N-EVENT-REPORT without an Association
