@@ -27,7 +27,8 @@ from pynetdicom3.utils import pretty_bytes
 from pynetdicom3.dsutils import encode
 from pynetdicom3.utils import validate_ae_title
 from .encoded_dimse_n_msg import (
-    n_get_rq_cmd, n_get_rsp_cmd, n_get_rsp_ds
+    n_get_rq_cmd, n_get_rsp_cmd, n_get_rsp_ds,
+    n_delete_rq_cmd, n_delete_rsp_cmd
 )
 
 LOGGER = logging.getLogger('pynetdicom3')
@@ -305,10 +306,6 @@ class TestPrimitive_N_GET(object):
         for fragment in dimse_msg.encode_msg(1, 16382):
             pdvs.append(fragment)
 
-
-        for line in pretty_bytes(pdvs[1].presentation_data_value_list[0][1]):
-            print(line)
-
         assert len(pdvs) == 2
         cs_pdv = pdvs[0].presentation_data_value_list[0][1]
         ds_pdv = pdvs[1].presentation_data_value_list[0][1]
@@ -458,17 +455,174 @@ class TestPrimitive_N_DELETE(object):
         """ Check assignment works correctly """
         primitive = N_DELETE()
 
+        # AffectedSOPClassUID
+        primitive.AffectedSOPClassUID = '1.1.1'
+        assert primitive.AffectedSOPClassUID == UID('1.1.1')
+        assert isinstance(primitive.AffectedSOPClassUID, UID)
+        primitive.AffectedSOPClassUID = UID('1.1.2')
+        assert primitive.AffectedSOPClassUID == UID('1.1.2')
+        assert isinstance(primitive.AffectedSOPClassUID, UID)
+        primitive.AffectedSOPClassUID = b'1.1.3'
+        assert primitive.AffectedSOPClassUID == UID('1.1.3')
+        assert isinstance(primitive.AffectedSOPClassUID, UID)
+
+        # AffectedSOPInstanceUID
+        primitive.AffectedSOPInstanceUID = b'1.2.1'
+        assert primitive.AffectedSOPInstanceUID == UID('1.2.1')
+        assert isinstance(primitive.AffectedSOPClassUID, UID)
+        primitive.AffectedSOPInstanceUID = UID('1.2.2')
+        assert primitive.AffectedSOPInstanceUID == UID('1.2.2')
+        assert isinstance(primitive.AffectedSOPClassUID, UID)
+        primitive.AffectedSOPInstanceUID = '1.2.3'
+        assert primitive.AffectedSOPInstanceUID == UID('1.2.3')
+        assert isinstance(primitive.AffectedSOPClassUID, UID)
+
+        # MessageID
+        primitive.MessageID = 11
+        assert 11 == primitive.MessageID
+
+        # MessageIDBeingRespondedTo
+        primitive.MessageIDBeingRespondedTo = 13
+        assert 13 == primitive.MessageIDBeingRespondedTo
+
+        # RequestedSOPClassUID
+        primitive.RequestedSOPClassUID = '1.1.1'
+        assert primitive.RequestedSOPClassUID == UID('1.1.1')
+        assert isinstance(primitive.RequestedSOPClassUID, UID)
+        primitive.RequestedSOPClassUID = UID('1.1.2')
+        assert primitive.RequestedSOPClassUID == UID('1.1.2')
+        assert isinstance(primitive.RequestedSOPClassUID, UID)
+        primitive.RequestedSOPClassUID = b'1.1.3'
+        assert primitive.RequestedSOPClassUID == UID('1.1.3')
+        assert isinstance(primitive.RequestedSOPClassUID, UID)
+
+        # RequestedSOPInstanceUID
+        primitive.RequestedSOPInstanceUID = b'1.2.1'
+        assert primitive.RequestedSOPInstanceUID == UID('1.2.1')
+        assert isinstance(primitive.RequestedSOPInstanceUID, UID)
+        primitive.RequestedSOPInstanceUID = UID('1.2.2')
+        assert primitive.RequestedSOPInstanceUID == UID('1.2.2')
+        assert isinstance(primitive.RequestedSOPInstanceUID, UID)
+        primitive.RequestedSOPInstanceUID = '1.2.3'
+        assert primitive.RequestedSOPInstanceUID == UID('1.2.3')
+        assert isinstance(primitive.RequestedSOPInstanceUID, UID)
+
+        # Status
+        primitive.Status = 0x0000
+        assert primitive.Status == 0x0000
+
     def test_exceptions(self):
         """ Check incorrect types/values for properties raise exceptions """
         primitive = N_DELETE()
 
+        # MessageID
+        with pytest.raises(TypeError):
+            primitive.MessageID = 'halp'
+
+        with pytest.raises(TypeError):
+            primitive.MessageID = 1.111
+
+        with pytest.raises(ValueError):
+            primitive.MessageID = 65536
+
+        with pytest.raises(ValueError):
+            primitive.MessageID = -1
+
+        # MessageIDBeingRespondedTo
+        with pytest.raises(TypeError):
+            primitive.MessageIDBeingRespondedTo = 'halp'
+
+        with pytest.raises(TypeError):
+            primitive.MessageIDBeingRespondedTo = 1.111
+
+        with pytest.raises(ValueError):
+            primitive.MessageIDBeingRespondedTo = 65536
+
+        with pytest.raises(ValueError):
+            primitive.MessageIDBeingRespondedTo = -1
+
+        # AffectedSOPClassUID
+        with pytest.raises(TypeError):
+            primitive.AffectedSOPClassUID = 45.2
+
+        with pytest.raises(TypeError):
+            primitive.AffectedSOPClassUID = 100
+
+        with pytest.raises(ValueError):
+            primitive.AffectedSOPClassUID = 'abc'
+
+        # AffectedSOPInstanceUID
+        with pytest.raises(TypeError):
+            primitive.AffectedSOPInstanceUID = 45.2
+
+        with pytest.raises(TypeError):
+            primitive.AffectedSOPInstanceUID = 100
+
+        with pytest.raises(ValueError):
+            primitive.AffectedSOPInstanceUID = 'abc'
+
+        # RequestedSOPClassUID
+        with pytest.raises(TypeError):
+            primitive.RequestedSOPClassUID = 45.2
+
+        with pytest.raises(TypeError):
+            primitive.RequestedSOPClassUID = 100
+
+        with pytest.raises(ValueError):
+            primitive.RequestedSOPClassUID = 'abc'
+
+        # RequestedSOPInstanceUID
+        with pytest.raises(TypeError):
+            primitive.RequestedSOPInstanceUID = 45.2
+
+        with pytest.raises(TypeError):
+            primitive.RequestedSOPInstanceUID = 100
+
+        with pytest.raises(ValueError):
+            primitive.RequestedSOPInstanceUID = 'abc'
+
+        # Status
+        with pytest.raises(TypeError):
+            primitive.Status = 19.4
+
     def test_conversion_rq(self):
         """ Check conversion to a -RQ PDU produces the correct output """
         primitive = N_DELETE()
+        primitive.MessageID = 7
+        primitive.RequestedSOPClassUID = '1.2.3'
+        primitive.RequestedSOPInstanceUID = '1.2.30'
+
+        dimse_msg = N_DELETE_RQ()
+        dimse_msg.primitive_to_message(primitive)
+
+        pdvs = []
+        for fragment in dimse_msg.encode_msg(1, 16382):
+            pdvs.append(fragment)
+
+        assert len(pdvs) == 1
+        cs_pdv = pdvs[0].presentation_data_value_list[0][1]
+
+        assert cs_pdv == n_delete_rq_cmd
 
     def test_conversion_rsp(self):
         """ Check conversion to a -RSP PDU produces the correct output """
         primitive = N_DELETE()
+        primitive.MessageIDBeingRespondedTo = 5
+        primitive.AffectedSOPClassUID = '1.2.4.10'
+        primitive.AffectedSOPInstanceUID = '1.2.4.5.7.8'
+        primitive.Status = 0xC201
+
+        dimse_msg = N_DELETE_RSP()
+        dimse_msg.primitive_to_message(primitive)
+
+        pdvs = []
+        for fragment in dimse_msg.encode_msg(1, 16382):
+            pdvs.append(fragment)
+
+        assert len(pdvs) == 1
+        cs_pdv = pdvs[0].presentation_data_value_list[0][1]
+
+        assert cs_pdv == n_delete_rsp_cmd
 
     def test_is_valid_request(self):
         """Test N_DELETE.is_valid_request"""
