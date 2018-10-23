@@ -2036,7 +2036,7 @@ class ApplicationEntity(object):
             The value of the (0000,1005) *Attribute Idenfier List* element
             containing the attribute tags for the N-GET operation.
         context : presentation.PresentationContextTuple
-            The presentation context that the C-ECHO message was sent under
+            The presentation context that the N-GET message was sent under
             as a ``namedtuple`` with field names ``context_id``,
             ``abstract_syntax`` and ``transfer_syntax``.
         info : dict
@@ -2074,11 +2074,12 @@ class ApplicationEntity(object):
             it may also contain optional elements related to the Status (as in
             DICOM Standard Part 7, Annex C).
         dataset : pydicom.dataset.Dataset or None
-            If the status is 'Success' then a dataset containing elements
-            matching the request's Attribute List conformant to the
-            specifications in the corresponding Service Class.
+            If the status category is 'Success' or 'Warning' then a dataset
+            containing elements matching the request's Attribute List
+            conformant to the specifications in the corresponding Service
+            Class.
 
-            If the status is not 'Successs' then return None.
+            If the status is not 'Successs' or 'Warning' then return None.
 
         See Also
         --------

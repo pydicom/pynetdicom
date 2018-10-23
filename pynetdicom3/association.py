@@ -2165,7 +2165,7 @@ class Association(threading.Thread):
 
             Failure
               | ``0x0110`` Processing failure
-              | ``0x0112`` Such such SOP Instance
+              | ``0x0112`` No such SOP Instance
               | ``0x0117`` Invalid object instance
               | ``0x0118`` No such SOP Class
               | ``0x0119`` Class-Instance conflict
