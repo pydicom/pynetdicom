@@ -96,9 +96,11 @@ corresponding Presentation Context has been accepted):
 - N-GET: ``Association.send_n_get(identifier_list, class_uid, instance_uid)``
   requests the retrieval of attribute values from a peer.
 
-Where *dataset* is a pydicom `Dataset <https://pydicom.github.io/pydicom/stable/ref_guide.html#dataset>`_
-object, *identifier_list* is a list of pydicom Tag objects and *class_uid* and
-*instance_uid* are UID strings.
+Where *dataset* is a pydicom
+`Dataset <https://pydicom.github.io/pydicom/stable/ref_guide.html#dataset>`_
+object, *identifier_list* is a list of pydicom
+`Tag <https://pydicom.github.io/pydicom/stable/api_ref.html#pydicom.tag.Tag>`_
+objects and *class_uid* and *instance_uid* are UID strings.
 
 
 Supported DIMSE SCP Services
@@ -119,12 +121,15 @@ operations by implementing one (or more) of the following ``AE`` callbacks:
   ``AE.on_c_move_cancel()``
 - N-GET: ``AE.on_n_get(attr, context, info)``
 
-Where *dataset* is a pydicom `Dataset <https://pydicom.github.io/pydicom/stable/ref_guide.html#dataset>`_
+Where *dataset* is a pydicom
+`Dataset <https://pydicom.github.io/pydicom/stable/ref_guide.html#dataset>`_
 object, *context* is a ``namedtuple`` with details of the Presentation Context
 used to transfer *dataset*, *info* is a ``dict`` containing information about
 the association and the message request (such as the peer's IP address and AE
 title and the message priority), *move_aet* is the Move Destination AE
-title and *attr* is a list of pydicom Tag objects.
+title and *attr* is a list of pydicom
+`Tag <https://pydicom.github.io/pydicom/stable/api_ref.html#pydicom.tag.Tag>`_
+objects.
 
 
 Documentation

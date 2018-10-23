@@ -70,5 +70,5 @@ Enhancements
 * Add support for the Implant Template QR service
 * Add support for the Non-Patient Information Storage service
 * Add support for the Defined Procedure Protocol QR service
-* Add experimental support for N-GET
+* Add support for N-GET
 * Add support for the Display System Management service

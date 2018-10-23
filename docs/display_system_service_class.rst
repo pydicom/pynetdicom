@@ -2,7 +2,7 @@
 
 Display System Management Service Class
 =======================================
-The `Display System Management Service Class <http://dicom.nema.org/medical/dicom/current/output/html/part04.html#chapter_E>`_
+The `Display System Management Service Class <http://dicom.nema.org/medical/dicom/current/output/html/part04.html#chapter_EE>`_
 defines a service that facilitates access to Display System objects.
 
 Supported SOP Classes

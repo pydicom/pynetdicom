@@ -38,4 +38,9 @@ from pynetdicom3.presentation import (
     RelevantPatientInformationPresentationContexts,
     SubstanceAdministrationPresentationContexts,
     NonPatientObjectPresentationContexts,
+    HangingProtocolPresentationContexts,
+    DefinedProcedureProtocolPresentationContexts,
+    ColorPalettePresentationContexts,
+    ImplantTemplatePresentationContexts,
+    DisplaySystemPresentationContexts,
 )

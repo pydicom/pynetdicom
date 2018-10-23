@@ -2028,7 +2028,7 @@ class ApplicationEntity(object):
                                   "calling AE.start()")
 
     def on_n_get(self, attr, context, info):
-        """Callback for when a N-GET is received.
+        """Callback for when an N-GET request is received.
 
         Parameters
         ----------

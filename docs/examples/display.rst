@@ -28,12 +28,15 @@ Display System Management Service.
     assoc = ae.associate('127.0.0.1', 11112)
 
     if assoc.is_established:
-        # Use the N-GET service to send the request
-        # returns the response status a pydicom Dataset and the AttributeList
-        # value
-        status, attr_list = assoc.send_c_echo()
+        # Use the N-GET service to send the request, returns the
+        #  response status a pydicom Dataset and the AttributeList dataset
+        status, attr_list = assoc.send_n_get(
+            [(0x0008,0x0070)],
+            DisplaySystemSOPClass.uid,
+            '1.2.840.10008.5.1.1.40.1'
+        )
 
-        # Check the status of the verification request
+        # Check the status of the display system request
         if 'Status' in status:
             print('N-GET request status: 0x{0:04x}'.format(status.Status))
 
@@ -81,7 +84,7 @@ containing the single tag (0008,0070).
     ae.add_supported_context(DisplaySystemSOPClass)
 
     def on_n_get(attr, context, info):
-        """Callback for when a N-GET is received.
+        """Callback for when an N-GET request is received.
 
         Parameters
         ----------
@@ -112,7 +115,7 @@ containing the single tag (0008,0070).
         """
         # User defined function to generate the required attribute list dataset
         # implementation is outside the scope of the current example
-        # In this case we assume `dataset` is a pydicom Dataset
+        # We pretend it returns a pydicom Dataset
         dataset = create_attribute_list(attr)
 
         # If Display System Management returns an attribute list then the
