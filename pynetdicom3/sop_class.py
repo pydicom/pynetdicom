@@ -406,5 +406,4 @@ def uid_to_sop_class(uid):
         if hasattr(obj[1], 'uid') and obj[1].uid == uid:
             return obj[1]
 
-    raise NotImplementedError("The SOP Class for UID '{}' has not been " \
-                              "implemented".format(uid))
+    return SOPClass(uid, uid, ServiceClass)

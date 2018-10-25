@@ -56,7 +56,8 @@ from pynetdicom3.status import code_to_category
 
 
 LOGGER = logging.getLogger('pynetdicom3')
-LOGGER.setLevel(logging.CRITICAL)
+#LOGGER.setLevel(logging.CRITICAL)
+LOGGER.setLevel(logging.DEBUG)
 
 TEST_DS_DIR = os.path.join(os.path.dirname(__file__), 'dicom_files')
 BIG_DATASET = read_file(os.path.join(TEST_DS_DIR, 'RTImageStorage.dcm'))
@@ -177,6 +178,7 @@ class DummyVerificationSCP(DummyBaseSCP):
     def __init__(self, port=11112):
         self.ae = AE(port=port)
         self.ae.supported_contexts = VerificationPresentationContexts
+        self.ae.add_supported_context('1.2.3.4')
         DummyBaseSCP.__init__(self)
         self.status = 0x0000
 

@@ -53,9 +53,11 @@ from pynetdicom3.service_class_n import (
 class TestUIDtoSOPlass(object):
     """Tests for uid_to_sop_class"""
     def test_missing_sop(self):
-        """Test raise if SOP Class not found."""
-        with pytest.raises(NotImplementedError):
-            uid_to_sop_class('1.2.3.4')
+        """Test SOP Class if UID not found."""
+        sop_class = uid_to_sop_class('1.2.3.4')
+        assert sop_class.uid == '1.2.3.4'
+        assert sop_class.UID == '1.2.3.4'
+        assert sop_class.service_class == ServiceClass
 
     def test_verification_uid(self):
         """Test normal function"""

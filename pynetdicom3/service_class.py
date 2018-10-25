@@ -81,7 +81,7 @@ class ServiceClass(object):
             A dict containing details about the association.
         """
         msg = (
-            "The service for the SOP Class UID '{}' has not been implemented"
+            "No service has been implemented for the SOP Class UID '{}'"
             .format(context.abstract_syntax)
         )
         LOGGER.error(msg)

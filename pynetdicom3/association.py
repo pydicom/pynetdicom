@@ -555,12 +555,12 @@ class Association(threading.Thread):
                         service_class.AE = self.ae
 
                         # Run SOPClass in SCP mode
-                        #try:
-                        service_class.SCP(msg, context, info)
-                        #except NotImplementedError:
-                        #    # SCP isn't implemented
-                        #    self.abort()
-                        #    return
+                        try:
+                            service_class.SCP(msg, context, info)
+                        except NotImplementedError:
+                            # SCP isn't implemented
+                            self.abort()
+                            return
                         break
                 else:
                     LOGGER.info("Received message with invalid or rejected "

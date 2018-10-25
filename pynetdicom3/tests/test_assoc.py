@@ -73,8 +73,8 @@ from .dummy_c_scp import (
 )
 
 LOGGER = logging.getLogger('pynetdicom3')
-LOGGER.setLevel(logging.CRITICAL)
-#LOGGER.setLevel(logging.DEBUG)
+#LOGGER.setLevel(logging.CRITICAL)
+LOGGER.setLevel(logging.DEBUG)
 
 TEST_DS_DIR = os.path.join(os.path.dirname(__file__), 'dicom_files')
 BIG_DATASET = read_file(os.path.join(TEST_DS_DIR, 'RTImageStorage.dcm')) # 2.1 M
@@ -933,6 +933,23 @@ class TestAssociationSendCEcho(object):
         assert assoc.is_established
         result = assoc.send_c_echo()
         assert result == Dataset()
+        assert assoc.is_aborted
+        self.scp.stop()
+
+    def test_run_accept_scp_not_implemented(self):
+        """Test association is aborted if non-implemented SCP requested."""
+        self.scp = DummyVerificationSCP()
+        self.scp.send_abort = True
+        self.scp.start()
+        ae = AE()
+        ae.add_requested_context(VerificationSOPClass)
+        ae.add_requested_context('1.2.3.4')
+        ae.acse_timeout = 5
+        ae.dimse_timeout = 5
+        assoc = ae.associate('localhost', 11112)
+        assert assoc.is_established
+        status = assoc.send_n_delete('1.2.3.4', '1.2.3')
+        assert status == Dataset()
         assert assoc.is_aborted
         self.scp.stop()
 
