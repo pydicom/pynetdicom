@@ -82,8 +82,9 @@ def uid_to_service_class(uid):
         return ServiceClass  # Not yet implemented
     elif uid in _RT_MACHINE_VERIFICATION_CLASSES.values():
         return ServiceClass  # Not yet implemented
-    else:
-        return ServiceClass # Not implemented
+
+    # No SCP implemented
+    return ServiceClass
 
 
 class SOPClass(namedtuple("SOPClass", ['uid', 'UID', 'service_class'])):
