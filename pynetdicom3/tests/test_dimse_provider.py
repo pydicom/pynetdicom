@@ -6,7 +6,8 @@ TODO: Add testing of maximum pdu length flow from assoc negotiation
 
 from io import BytesIO
 import logging
-import unittest
+
+import pytest
 
 from pydicom.dataset import Dataset
 
@@ -50,15 +51,15 @@ class DummyDUL(object):
         return 0x01
 
 
-class TestDIMSEProvider(unittest.TestCase):
+class TestDIMSEProvider(object):
     """Test DIMSE service provider operations."""
-    def setUp(self):
+    def setup(self):
         """Set up"""
         self.dimse = DIMSEServiceProvider(DummyDUL(), 1)
 
     def test_receive_not_pdata(self):
         """Test we get back None if not a P_DATA"""
-        self.assertEqual(self.dimse.receive_msg(True), (None, None))
+        assert self.dimse.receive_msg(True) == (None, None)
 
     def test_send_c_echo(self):
         """Check sending DIMSE C-ECHO messages."""
@@ -69,7 +70,7 @@ class TestDIMSEProvider(unittest.TestCase):
 
         def test_callback(msg):
             """Callback"""
-            self.assertEqual(msg.__class__.__name__, 'C_ECHO_RQ')
+            assert msg.__class__.__name__ == 'C_ECHO_RQ'
         self.dimse.on_send_dimse_message = test_callback
         self.dimse.send_msg(primitive, 1)
 
@@ -79,7 +80,7 @@ class TestDIMSEProvider(unittest.TestCase):
         primitive.Status = 0x0000
         def test_callback(msg):
             """Callback"""
-            self.assertEqual(msg.__class__.__name__, 'C_ECHO_RSP')
+            assert msg.__class__.__name__ == 'C_ECHO_RSP'
         self.dimse.on_send_dimse_message = test_callback
         self.dimse.send_msg(primitive, 1)
 
@@ -92,7 +93,7 @@ class TestDIMSEProvider(unittest.TestCase):
 
         def test_callback(msg):
             """Callback"""
-            self.assertEqual(msg.__class__.__name__, 'C_STORE_RQ')
+            assert msg.__class__.__name__ == 'C_STORE_RQ'
         self.dimse.on_send_dimse_message = test_callback
         self.dimse.send_msg(primitive, 1)
 
@@ -102,7 +103,7 @@ class TestDIMSEProvider(unittest.TestCase):
         primitive.Status = 0x0000
         def test_callback(msg):
             """Callback"""
-            self.assertEqual(msg.__class__.__name__, 'C_STORE_RSP')
+            assert msg.__class__.__name__ == 'C_STORE_RSP'
         self.dimse.on_send_dimse_message = test_callback
         self.dimse.send_msg(primitive, 1)
 
@@ -115,7 +116,7 @@ class TestDIMSEProvider(unittest.TestCase):
 
         def test_callback(msg):
             """Callback"""
-            self.assertEqual(msg.__class__.__name__, 'C_FIND_RQ')
+            assert msg.__class__.__name__ == 'C_FIND_RQ'
         self.dimse.on_send_dimse_message = test_callback
         self.dimse.send_msg(primitive, 1)
 
@@ -125,7 +126,7 @@ class TestDIMSEProvider(unittest.TestCase):
         primitive.Status = 0x0000
         def test_callback(msg):
             """Callback"""
-            self.assertEqual(msg.__class__.__name__, 'C_FIND_RSP')
+            assert msg.__class__.__name__ == 'C_FIND_RSP'
         self.dimse.on_send_dimse_message = test_callback
         self.dimse.send_msg(primitive, 1)
 
@@ -138,7 +139,7 @@ class TestDIMSEProvider(unittest.TestCase):
 
         def test_callback(msg):
             """Callback"""
-            self.assertEqual(msg.__class__.__name__, 'C_GET_RQ')
+            assert msg.__class__.__name__ == 'C_GET_RQ'
         self.dimse.on_send_dimse_message = test_callback
         self.dimse.send_msg(primitive, 1)
 
@@ -148,7 +149,7 @@ class TestDIMSEProvider(unittest.TestCase):
         primitive.Status = 0x0000
         def test_callback(msg):
             """Callback"""
-            self.assertEqual(msg.__class__.__name__, 'C_GET_RSP')
+            assert msg.__class__.__name__ == 'C_GET_RSP'
         self.dimse.on_send_dimse_message = test_callback
         self.dimse.send_msg(primitive, 1)
 
@@ -161,7 +162,7 @@ class TestDIMSEProvider(unittest.TestCase):
 
         def test_callback(msg):
             """Callback"""
-            self.assertEqual(msg.__class__.__name__, 'C_MOVE_RQ')
+            assert msg.__class__.__name__ == 'C_MOVE_RQ'
         self.dimse.on_send_dimse_message = test_callback
         self.dimse.send_msg(primitive, 1)
 
@@ -171,7 +172,7 @@ class TestDIMSEProvider(unittest.TestCase):
         primitive.Status = 0x0000
         def test_callback(msg):
             """Callback"""
-            self.assertEqual(msg.__class__.__name__, 'C_MOVE_RSP')
+            assert msg.__class__.__name__ == 'C_MOVE_RSP'
         self.dimse.on_send_dimse_message = test_callback
         self.dimse.send_msg(primitive, 1)
 
@@ -182,7 +183,7 @@ class TestDIMSEProvider(unittest.TestCase):
         primitive.MessageIDBeingRespondedTo = 1
         def test_callback(msg):
             """Callback"""
-            self.assertEqual(msg.__class__.__name__, 'C_CANCEL_RQ')
+            assert msg.__class__.__name__ == 'C_CANCEL_RQ'
         self.dimse.on_send_dimse_message = test_callback
         self.dimse.send_msg(primitive, 1)
 
@@ -195,7 +196,7 @@ class TestDIMSEProvider(unittest.TestCase):
 
         def test_callback(msg):
             """Callback"""
-            self.assertEqual(msg.__class__.__name__, 'N_EVENT_REPORT_RQ')
+            assert msg.__class__.__name__ == 'N_EVENT_REPORT_RQ'
         self.dimse.on_send_dimse_message = test_callback
         self.dimse.send_msg(primitive, 1)
 
@@ -205,7 +206,7 @@ class TestDIMSEProvider(unittest.TestCase):
         primitive.Status = 0x0000
         def test_callback(msg):
             """Callback"""
-            self.assertEqual(msg.__class__.__name__, 'N_EVENT_REPORT_RSP')
+            assert msg.__class__.__name__ == 'N_EVENT_REPORT_RSP'
         self.dimse.on_send_dimse_message = test_callback
         self.dimse.send_msg(primitive, 1)
 
@@ -218,7 +219,7 @@ class TestDIMSEProvider(unittest.TestCase):
 
         def test_callback(msg):
             """Callback"""
-            self.assertEqual(msg.__class__.__name__, 'N_GET_RQ')
+            assert msg.__class__.__name__ == 'N_GET_RQ'
         self.dimse.on_send_dimse_message = test_callback
         self.dimse.send_msg(primitive, 1)
 
@@ -228,7 +229,7 @@ class TestDIMSEProvider(unittest.TestCase):
         primitive.Status = 0x0000
         def test_callback(msg):
             """Callback"""
-            self.assertEqual(msg.__class__.__name__, 'N_GET_RSP')
+            assert msg.__class__.__name__ == 'N_GET_RSP'
         self.dimse.on_send_dimse_message = test_callback
         self.dimse.send_msg(primitive, 1)
 
@@ -241,7 +242,7 @@ class TestDIMSEProvider(unittest.TestCase):
 
         def test_callback(msg):
             """Callback"""
-            self.assertEqual(msg.__class__.__name__, 'N_SET_RQ')
+            assert msg.__class__.__name__ == 'N_SET_RQ'
         self.dimse.on_send_dimse_message = test_callback
         self.dimse.send_msg(primitive, 1)
 
@@ -251,7 +252,7 @@ class TestDIMSEProvider(unittest.TestCase):
         primitive.Status = 0x0000
         def test_callback(msg):
             """Callback"""
-            self.assertEqual(msg.__class__.__name__, 'N_SET_RSP')
+            assert msg.__class__.__name__ == 'N_SET_RSP'
         self.dimse.on_send_dimse_message = test_callback
         self.dimse.send_msg(primitive, 1)
 
@@ -264,7 +265,7 @@ class TestDIMSEProvider(unittest.TestCase):
 
         def test_callback(msg):
             """Callback"""
-            self.assertEqual(msg.__class__.__name__, 'N_ACTION_RQ')
+            assert msg.__class__.__name__ == 'N_ACTION_RQ'
         self.dimse.on_send_dimse_message = test_callback
         self.dimse.send_msg(primitive, 1)
 
@@ -274,7 +275,7 @@ class TestDIMSEProvider(unittest.TestCase):
         primitive.Status = 0x0000
         def test_callback(msg):
             """Callback"""
-            self.assertEqual(msg.__class__.__name__, 'N_ACTION_RSP')
+            assert msg.__class__.__name__ == 'N_ACTION_RSP'
         self.dimse.on_send_dimse_message = test_callback
         self.dimse.send_msg(primitive, 1)
 
@@ -287,7 +288,7 @@ class TestDIMSEProvider(unittest.TestCase):
 
         def test_callback(msg):
             """Callback"""
-            self.assertEqual(msg.__class__.__name__, 'N_CREATE_RQ')
+            assert msg.__class__.__name__ == 'N_CREATE_RQ'
         self.dimse.on_send_dimse_message = test_callback
         self.dimse.send_msg(primitive, 1)
 
@@ -297,7 +298,7 @@ class TestDIMSEProvider(unittest.TestCase):
         primitive.Status = 0x0000
         def test_callback(msg):
             """Callback"""
-            self.assertEqual(msg.__class__.__name__, 'N_CREATE_RSP')
+            assert msg.__class__.__name__ == 'N_CREATE_RSP'
         self.dimse.on_send_dimse_message = test_callback
         self.dimse.send_msg(primitive, 1)
 
@@ -310,7 +311,7 @@ class TestDIMSEProvider(unittest.TestCase):
 
         def test_callback(msg):
             """Callback"""
-            self.assertEqual(msg.__class__.__name__, 'N_DELETE_RQ')
+            assert msg.__class__.__name__ == 'N_DELETE_RQ'
         self.dimse.on_send_dimse_message = test_callback
         self.dimse.send_msg(primitive, 1)
 
@@ -320,7 +321,7 @@ class TestDIMSEProvider(unittest.TestCase):
         primitive.Status = 0x0000
         def test_callback(msg):
             """Callback"""
-            self.assertEqual(msg.__class__.__name__, 'N_DELETE_RSP')
+            assert msg.__class__.__name__ == 'N_DELETE_RSP'
         self.dimse.on_send_dimse_message = test_callback
         self.dimse.send_msg(primitive, 1)
 
@@ -374,9 +375,9 @@ class TestDIMSEProvider(unittest.TestCase):
         pass
 
 
-class TestDIMSEProviderCallbacks(unittest.TestCase):
+class TestDIMSEProviderCallbacks(object):
     """Test the callbacks for the DIMSE Service"""
-    def setUp(self):
+    def setup(self):
         """Set up"""
         self.dimse = DIMSEServiceProvider(DummyDUL(), 1)
 
@@ -597,13 +598,23 @@ class TestDIMSEProviderCallbacks(unittest.TestCase):
         # N-DELETE-RQ
         primitive = N_DELETE()
         primitive.MessageID = 1
-        primitive.AffectedSOPClassUID = '1.1.1'
+        primitive.RequestedSOPClassUID = '1.1.1'
+        primitive.RequestedSOPInstanceUID = '1.2.3'
         self.dimse.send_msg(primitive, 1)
 
         # N-DELETE-RSP
+        # No affected SOP class/instance
         primitive = N_DELETE()
         primitive.MessageIDBeingRespondedTo = 1
         primitive.Status = 0x0000
+        self.dimse.send_msg(primitive, 1)
+
+        # Affected SOP Class
+        primitive.AffectedSOPClassUID = '1.1.2'
+        self.dimse.send_msg(primitive, 1)
+
+        # Affected SOP Instance
+        primitive.AffectedSOPInstanceUID = '1.1.3'
         self.dimse.send_msg(primitive, 1)
 
     # Receive
@@ -866,11 +877,45 @@ class TestDIMSEProviderCallbacks(unittest.TestCase):
     def test_callback_receive_n_get(self):
         """Check callback for receiving DIMSE N-GET messages."""
         # N-GET-RQ
+        primitive = N_GET()
+        primitive.MessageID = 1
+        primitive.RequestedSOPClassUID = '1.1.1'
+        primitive.RequestedSOPInstanceUID = '1.1.1.1'
         msg = N_GET_RQ()
+        msg.primitive_to_message(primitive)
+        msg.ID = 1
+        self.dimse.debug_receive_n_get_rq(msg)
+
+        # Plus user defined
+        primitive.AttributeIdentifierList = [(0x0000, 0x0000), (0xffff, 0xffff)]
+        msg = N_GET_RQ()
+        msg.primitive_to_message(primitive)
+        msg.ID = 1
         self.dimse.debug_receive_n_get_rq(msg)
 
         # N-GET-RSP
+        # Mandatory elements
+        primitive = N_GET()
+        primitive.MessageIDBeingRespondedTo = 1
+        primitive.Status = 0x0000
         msg = N_GET_RSP()
+        msg.primitive_to_message(primitive)
+        msg.ID = 1
+        self.dimse.debug_receive_n_get_rsp(msg)
+
+        # User defined
+        primitive.AffectedSOPClassUID = '1.1.1'
+        primitive.AffectedSOPInstanceUID = '1.1.1.1'
+        msg = N_GET_RSP()
+        msg.primitive_to_message(primitive)
+        msg.ID = 1
+        self.dimse.debug_receive_n_get_rsp(msg)
+
+        # Conditional
+        primitive.AttributeList = BytesIO(n_get_rsp_ds)
+        msg = N_GET_RSP()
+        msg.primitive_to_message(primitive)
+        msg.ID = 1
         self.dimse.debug_receive_n_get_rsp(msg)
 
     def test_callback_receive_n_set(self):
@@ -906,13 +951,33 @@ class TestDIMSEProviderCallbacks(unittest.TestCase):
     def test_callback_receive_n_delete(self):
         """Check callback for receiving DIMSE N-DELETE messages."""
         # N-DELETE-RQ
+        primitive = N_DELETE()
+        primitive.MessageID = 1
+        primitive.RequestedSOPClassUID = '1.1.1'
+        primitive.RequestedSOPInstanceUID = '1.1.1.1'
         msg = N_DELETE_RQ()
+        msg.primitive_to_message(primitive)
+        msg.ID = 1
         self.dimse.debug_receive_n_delete_rq(msg)
 
         # N-DELETE-RSP
-        msg = N_DELETE_RQ()
+        primitive = N_DELETE()
+        primitive.MessageIDBeingRespondedTo = 1
+        primitive.Status = 0x0000
+        msg = N_DELETE_RSP()
+        msg.primitive_to_message(primitive)
+        msg.ID = 1
         self.dimse.debug_receive_n_delete_rsp(msg)
 
+        # User optional
+        primitive.AffectedSOPClassUID = '1.2.3'
+        msg = N_DELETE_RSP()
+        msg.primitive_to_message(primitive)
+        msg.ID = 1
+        self.dimse.debug_receive_n_delete_rsp(msg)
 
-if __name__ == "__main__":
-    unittest.main()
+        primitive.AffectedSOPInstanceUID = '1.2.3.4'
+        msg = N_DELETE_RSP()
+        msg.primitive_to_message(primitive)
+        msg.ID = 1
+        self.dimse.debug_receive_n_delete_rsp(msg)
