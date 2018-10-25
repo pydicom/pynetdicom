@@ -2482,6 +2482,8 @@ class N_DELETE(object):
         self.Status = None
 
         # Optional
+        self.ErrorComment = None
+        self.ErrorID = None
 
     @property
     def AffectedSOPClassUID(self):

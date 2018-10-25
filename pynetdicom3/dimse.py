@@ -1418,7 +1418,28 @@ class DIMSEServiceProvider(object):
         msg : dimse_messages.N_DELETE_RQ
             The N-DELETE-RQ message to be sent.
         """
-        pass
+        """Debugging function when an N-GET-RQ is sent.
+
+        Parameters
+        ----------
+        msg : dimse_messages.N_GET_RQ
+            The N-GET-RQ message to be sent.
+        """
+        cs = msg.command_set
+
+        s = []
+        s.append('===================== OUTGOING DIMSE MESSAGE ================'
+                 '====')
+        s.append('Message Type                  : {0!s}'.format('N-DELETE RQ'))
+        s.append('Message ID                    : {0!s}'.format(cs.MessageID))
+        s.append('Requested SOP Class UID       : {0!s}'
+                 .format(cs.RequestedSOPClassUID))
+        s.append('Requested SOP Instance UID    : {0!s}'
+                 .format(cs.RequestedSOPInstanceUID))
+        s.append('======================= END DIMSE MESSAGE ==================='
+                 '====')
+        for line in s:
+            LOGGER.debug(line)
 
     @staticmethod
     def debug_send_n_delete_rsp(msg):
@@ -1429,7 +1450,25 @@ class DIMSEServiceProvider(object):
         msg : dimse_messages.N_DELETE_RSP
             The N-DELETE-RSP message to be sent.
         """
-        pass
+        cs = msg.command_set
+
+        s = []
+        s.append('===================== OUTGOING DIMSE MESSAGE ================'
+                 '====')
+        s.append('Message Type                  : {0!s}'.format('N-DELETE RQ'))
+        s.append('Message ID Being Responded To : {0!s}'
+                 .format(cs.MessageIDBeingRespondedTo))
+        if 'AffectedSOPClassUID' in cs:
+            s.append('Affected SOP Class UID        : {0!s}'
+                     .format(cs.AffectedSOPClassUID))
+        if 'AffectedSOPInstanceUID' in cs:
+            s.append('Affected SOP Instance UID     : {0!s}'
+                     .format(cs.AffectedSOPInstanceUID))
+        s.append('Status                        : 0x{0:04x}'.format(cs.Status))
+        s.append('======================= END DIMSE MESSAGE ==================='
+                 '====')
+        for line in s:
+            LOGGER.debug(line)
 
     @staticmethod
     def debug_receive_n_event_report_rq(msg):

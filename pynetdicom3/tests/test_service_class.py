@@ -4,9 +4,11 @@ import pytest
 
 from pydicom.dataset import Dataset
 
+from pynetdicom3 import build_context
 from pynetdicom3.dimse_primitives import C_STORE
 from pynetdicom3.service_class import (
     StorageServiceClass,
+    ServiceClass
 )
 
 
@@ -75,3 +77,12 @@ class TestServiceClass(object):
         rsp = C_STORE()
         rsp = sop.validate_status(0xD011, rsp)
         assert rsp.Status == 0xD011
+
+    def test_scp_raises(self):
+        """Test that ServiceClass.SCP raises exception"""
+        service = ServiceClass()
+        msg = (
+            r"The service for the SOP Class UID '1.2.3' has not"
+        )
+        with pytest.raises(NotImplementedError, match=msg):
+            service.SCP(None, build_context('1.2.3'), None)
