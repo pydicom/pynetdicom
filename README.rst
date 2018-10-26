@@ -95,6 +95,8 @@ corresponding Presentation Context has been accepted):
   *move_aet* over a new association.
 - N-GET: ``Association.send_n_get(identifier_list, class_uid, instance_uid)``
   requests the retrieval of attribute values from a peer.
+- N-SET: ``Association.send_n_set(dataset, class_uid, instance_uid)`` requests
+  the peer modify a SOP Instance using the attribute values in *dataset*.
 - N-DELETE: ``Association.send_n_delete(class_uid, instance_uid)`` requests the
   peer delete the specified SOP Instance.
 

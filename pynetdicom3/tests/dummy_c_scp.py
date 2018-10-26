@@ -76,6 +76,7 @@ class DummyBaseSCP(threading.Thread):
         self.ae.on_c_get = self.on_c_get
         self.ae.on_c_move = self.on_c_move
         self.ae.on_n_get = self.on_n_get
+        self.ae.on_n_set = self.on_n_set
         self.ae.on_n_delete = self.on_n_delete
 
         threading.Thread.__init__(self)
@@ -141,6 +142,10 @@ class DummyBaseSCP(threading.Thread):
 
     def on_n_get(self, elem, context, info):
         """Callback for ae.on_n_get"""
+        raise RuntimeError("You should not have been able to get here.")
+
+    def on_n_set(self, ds, context, info):
+        """Callback for ae.on_n_set"""
         raise RuntimeError("You should not have been able to get here.")
 
     def on_n_delete(self, context, info):

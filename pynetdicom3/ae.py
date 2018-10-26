@@ -2102,7 +2102,7 @@ class ApplicationEntity(object):
             "AE.start()"
         )
 
-    def on_n_set(self, context, info):
+    def on_n_set(self, dataset, context, info):
         """Callback for when a N-SET is received.
 
         References
