@@ -1491,14 +1491,14 @@
 <span class="sd">        &quot;&quot;&quot;</span>
         <span class="n">cs</span> <span class="o">=</span> <span class="n">msg</span><span class="o">.</span><span class="n">command_set</span>
 
-        <span class="n">attribute_list</span> <span class="o">=</span> <span class="s1">&#39;None&#39;</span>
+        <span class="n">attr_list</span> <span class="o">=</span> <span class="s1">&#39;None&#39;</span>
         <span class="k">if</span> <span class="n">msg</span><span class="o">.</span><span class="n">data_set</span> <span class="ow">and</span> <span class="n">msg</span><span class="o">.</span><span class="n">data_set</span><span class="o">.</span><span class="n">getvalue</span><span class="p">()</span> <span class="o">!=</span> <span class="sa">b</span><span class="s1">&#39;&#39;</span><span class="p">:</span>
-            <span class="n">attribute_list</span> <span class="o">=</span> <span class="s1">&#39;Present&#39;</span>
+            <span class="n">attr_list</span> <span class="o">=</span> <span class="s1">&#39;Present&#39;</span>
 
         <span class="n">s</span> <span class="o">=</span> <span class="p">[]</span>
         <span class="n">s</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="s1">&#39;===================== OUTGOING DIMSE MESSAGE ================&#39;</span>
                  <span class="s1">&#39;====&#39;</span><span class="p">)</span>
-        <span class="n">s</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="s1">&#39;Message Type                  : </span><span class="si">{0!s}</span><span class="s1">&#39;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="s1">&#39;N-GET RQ&#39;</span><span class="p">))</span>
+        <span class="n">s</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="s1">&#39;Message Type                  : </span><span class="si">{0!s}</span><span class="s1">&#39;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="s1">&#39;N-GET RSP&#39;</span><span class="p">))</span>
         <span class="n">s</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="s1">&#39;Message ID Being Responded To : </span><span class="si">{0!s}</span><span class="s1">&#39;</span>
                  <span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">cs</span><span class="o">.</span><span class="n">MessageIDBeingRespondedTo</span><span class="p">))</span>
         <span class="k">if</span> <span class="s1">&#39;AffectedSOPClassUID&#39;</span> <span class="ow">in</span> <span class="n">cs</span><span class="p">:</span>
@@ -1507,7 +1507,7 @@
         <span class="k">if</span> <span class="s1">&#39;AffectedSOPInstanceUID&#39;</span> <span class="ow">in</span> <span class="n">cs</span><span class="p">:</span>
             <span class="n">s</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="s1">&#39;Affected SOP Instance UID     : </span><span class="si">{0!s}</span><span class="s1">&#39;</span>
                      <span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">cs</span><span class="o">.</span><span class="n">AffectedSOPInstanceUID</span><span class="p">))</span>
-        <span class="n">s</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="s1">&#39;Attribute List                : </span><span class="si">{0!s}</span><span class="s1">&#39;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">attribute_list</span><span class="p">))</span>
+        <span class="n">s</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="s1">&#39;Attribute List                : </span><span class="si">{0!s}</span><span class="s1">&#39;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">attr_list</span><span class="p">))</span>
         <span class="n">s</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="s1">&#39;Status                        : 0x</span><span class="si">{0:04x}</span><span class="s1">&#39;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">cs</span><span class="o">.</span><span class="n">Status</span><span class="p">))</span>
         <span class="n">s</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="s1">&#39;======================= END DIMSE MESSAGE ===================&#39;</span>
                  <span class="s1">&#39;====&#39;</span><span class="p">)</span>
@@ -1523,7 +1523,26 @@
 <span class="sd">        msg : dimse_messages.N_SET_RQ</span>
 <span class="sd">            The N-SET-RQ message to be sent.</span>
 <span class="sd">        &quot;&quot;&quot;</span>
-        <span class="k">pass</span></div>
+        <span class="n">cs</span> <span class="o">=</span> <span class="n">msg</span><span class="o">.</span><span class="n">command_set</span>
+
+        <span class="n">mod_list</span> <span class="o">=</span> <span class="s1">&#39;None&#39;</span>
+        <span class="k">if</span> <span class="n">msg</span><span class="o">.</span><span class="n">data_set</span> <span class="ow">and</span> <span class="n">msg</span><span class="o">.</span><span class="n">data_set</span><span class="o">.</span><span class="n">getvalue</span><span class="p">()</span> <span class="o">!=</span> <span class="sa">b</span><span class="s1">&#39;&#39;</span><span class="p">:</span>
+            <span class="n">mod_list</span> <span class="o">=</span> <span class="s1">&#39;Present&#39;</span>
+
+        <span class="n">s</span> <span class="o">=</span> <span class="p">[]</span>
+        <span class="n">s</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="s1">&#39;===================== OUTGOING DIMSE MESSAGE ================&#39;</span>
+                 <span class="s1">&#39;====&#39;</span><span class="p">)</span>
+        <span class="n">s</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="s1">&#39;Message Type                  : </span><span class="si">{0!s}</span><span class="s1">&#39;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="s1">&#39;N-SET RQ&#39;</span><span class="p">))</span>
+        <span class="n">s</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="s1">&#39;Message ID                    : </span><span class="si">{0!s}</span><span class="s1">&#39;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">cs</span><span class="o">.</span><span class="n">MessageID</span><span class="p">))</span>
+        <span class="n">s</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="s1">&#39;Requested SOP Class UID       : </span><span class="si">{0!s}</span><span class="s1">&#39;</span>
+                 <span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">cs</span><span class="o">.</span><span class="n">RequestedSOPClassUID</span><span class="p">))</span>
+        <span class="n">s</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="s1">&#39;Requested SOP Instance UID    : </span><span class="si">{0!s}</span><span class="s1">&#39;</span>
+                 <span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">cs</span><span class="o">.</span><span class="n">RequestedSOPInstanceUID</span><span class="p">))</span>
+        <span class="n">s</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="s1">&#39;Modification List             : </span><span class="si">{0!s}</span><span class="s1">&#39;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">mod_list</span><span class="p">))</span>
+        <span class="n">s</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="s1">&#39;======================= END DIMSE MESSAGE ===================&#39;</span>
+                 <span class="s1">&#39;====&#39;</span><span class="p">)</span>
+        <span class="k">for</span> <span class="n">line</span> <span class="ow">in</span> <span class="n">s</span><span class="p">:</span>
+            <span class="n">LOGGER</span><span class="o">.</span><span class="n">debug</span><span class="p">(</span><span class="n">line</span><span class="p">)</span></div>
 
 <div class="viewcode-block" id="DIMSEServiceProvider.debug_send_n_set_rsp"><a class="viewcode-back" href="../../reference/generated/pynetdicom3.dimse.DIMSEServiceProvider.html#pynetdicom3.dimse.DIMSEServiceProvider.debug_send_n_set_rsp">[docs]</a>    <span class="nd">@staticmethod</span>
     <span class="k">def</span> <span class="nf">debug_send_n_set_rsp</span><span class="p">(</span><span class="n">msg</span><span class="p">):</span>
@@ -1534,7 +1553,30 @@
 <span class="sd">        msg : dimse_messages.N_SET_RSP</span>
 <span class="sd">            The N-SET-RSP message to be sent.</span>
 <span class="sd">        &quot;&quot;&quot;</span>
-        <span class="k">pass</span></div>
+        <span class="n">cs</span> <span class="o">=</span> <span class="n">msg</span><span class="o">.</span><span class="n">command_set</span>
+
+        <span class="n">attr_list</span> <span class="o">=</span> <span class="s1">&#39;None&#39;</span>
+        <span class="k">if</span> <span class="n">msg</span><span class="o">.</span><span class="n">data_set</span> <span class="ow">and</span> <span class="n">msg</span><span class="o">.</span><span class="n">data_set</span><span class="o">.</span><span class="n">getvalue</span><span class="p">()</span> <span class="o">!=</span> <span class="sa">b</span><span class="s1">&#39;&#39;</span><span class="p">:</span>
+            <span class="n">attr_list</span> <span class="o">=</span> <span class="s1">&#39;Present&#39;</span>
+
+        <span class="n">s</span> <span class="o">=</span> <span class="p">[]</span>
+        <span class="n">s</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="s1">&#39;===================== OUTGOING DIMSE MESSAGE ================&#39;</span>
+                 <span class="s1">&#39;====&#39;</span><span class="p">)</span>
+        <span class="n">s</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="s1">&#39;Message Type                  : </span><span class="si">{0!s}</span><span class="s1">&#39;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="s1">&#39;N-SET RSP&#39;</span><span class="p">))</span>
+        <span class="n">s</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="s1">&#39;Message ID Being Responded To : </span><span class="si">{0!s}</span><span class="s1">&#39;</span>
+                 <span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">cs</span><span class="o">.</span><span class="n">MessageIDBeingRespondedTo</span><span class="p">))</span>
+        <span class="k">if</span> <span class="s1">&#39;AffectedSOPClassUID&#39;</span> <span class="ow">in</span> <span class="n">cs</span><span class="p">:</span>
+            <span class="n">s</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="s1">&#39;Affected SOP Class UID        : </span><span class="si">{0!s}</span><span class="s1">&#39;</span>
+                     <span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">cs</span><span class="o">.</span><span class="n">AffectedSOPClassUID</span><span class="p">))</span>
+        <span class="k">if</span> <span class="s1">&#39;AffectedSOPInstanceUID&#39;</span> <span class="ow">in</span> <span class="n">cs</span><span class="p">:</span>
+            <span class="n">s</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="s1">&#39;Affected SOP Instance UID     : </span><span class="si">{0!s}</span><span class="s1">&#39;</span>
+                     <span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">cs</span><span class="o">.</span><span class="n">AffectedSOPInstanceUID</span><span class="p">))</span>
+        <span class="n">s</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="s1">&#39;Attribute List                : </span><span class="si">{0!s}</span><span class="s1">&#39;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">attr_list</span><span class="p">))</span>
+        <span class="n">s</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="s1">&#39;Status                        : 0x</span><span class="si">{0:04x}</span><span class="s1">&#39;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">cs</span><span class="o">.</span><span class="n">Status</span><span class="p">))</span>
+        <span class="n">s</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="s1">&#39;======================= END DIMSE MESSAGE ===================&#39;</span>
+                 <span class="s1">&#39;====&#39;</span><span class="p">)</span>
+        <span class="k">for</span> <span class="n">line</span> <span class="ow">in</span> <span class="n">s</span><span class="p">:</span>
+            <span class="n">LOGGER</span><span class="o">.</span><span class="n">debug</span><span class="p">(</span><span class="n">line</span><span class="p">)</span></div>
 
 <div class="viewcode-block" id="DIMSEServiceProvider.debug_send_n_action_rq"><a class="viewcode-back" href="../../reference/generated/pynetdicom3.dimse.DIMSEServiceProvider.html#pynetdicom3.dimse.DIMSEServiceProvider.debug_send_n_action_rq">[docs]</a>    <span class="nd">@staticmethod</span>
     <span class="k">def</span> <span class="nf">debug_send_n_action_rq</span><span class="p">(</span><span class="n">msg</span><span class="p">):</span>

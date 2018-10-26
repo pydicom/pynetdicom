@@ -530,7 +530,7 @@ set to 0 the OS will use the first available port (default <code class="docutils
 <tr class="row-even"><td><a class="reference internal" href="#pynetdicom3.ae.ApplicationEntity.on_n_get" title="pynetdicom3.ae.ApplicationEntity.on_n_get"><code class="xref py py-obj docutils literal notranslate"><span class="pre">on_n_get</span></code></a>(attr,&nbsp;context,&nbsp;info)</td>
 <td>Callback for when an N-GET request is received.</td>
 </tr>
-<tr class="row-odd"><td><a class="reference internal" href="#pynetdicom3.ae.ApplicationEntity.on_n_set" title="pynetdicom3.ae.ApplicationEntity.on_n_set"><code class="xref py py-obj docutils literal notranslate"><span class="pre">on_n_set</span></code></a>(context,&nbsp;info)</td>
+<tr class="row-odd"><td><a class="reference internal" href="#pynetdicom3.ae.ApplicationEntity.on_n_set" title="pynetdicom3.ae.ApplicationEntity.on_n_set"><code class="xref py py-obj docutils literal notranslate"><span class="pre">on_n_set</span></code></a>(dataset,&nbsp;context,&nbsp;info)</td>
 <td>Callback for when a N-SET is received.</td>
 </tr>
 <tr class="row-even"><td><a class="reference internal" href="#pynetdicom3.ae.ApplicationEntity.on_receive_connection" title="pynetdicom3.ae.ApplicationEntity.on_receive_connection"><code class="xref py py-obj docutils literal notranslate"><span class="pre">on_receive_connection</span></code></a>()</td>
@@ -1704,7 +1704,7 @@ Class.</p>
 
 <dl class="method">
 <dt id="pynetdicom3.ae.ApplicationEntity.on_n_set">
-<code class="descname">on_n_set</code><span class="sig-paren">(</span><em>context</em>, <em>info</em><span class="sig-paren">)</span><a class="reference internal" href="../../_modules/pynetdicom3/ae.html#ApplicationEntity.on_n_set"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pynetdicom3.ae.ApplicationEntity.on_n_set" title="Permalink to this definition">¶</a></dt>
+<code class="descname">on_n_set</code><span class="sig-paren">(</span><em>dataset</em>, <em>context</em>, <em>info</em><span class="sig-paren">)</span><a class="reference internal" href="../../_modules/pynetdicom3/ae.html#ApplicationEntity.on_n_set"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pynetdicom3.ae.ApplicationEntity.on_n_set" title="Permalink to this definition">¶</a></dt>
 <dd><p>Callback for when a N-SET is received.</p>
 <p class="rubric">References</p>
 <p>DICOM Standard Part 4, Annexes F, H, CC and DD</p>
