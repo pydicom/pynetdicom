@@ -93,6 +93,8 @@ corresponding Presentation Context has been accepted):
   search its set of managed SOP Instances for those that match the attributes
   given in *dataset* and then copy those matching Instances to the AE with title
   *move_aet* over a new association.
+- N-EVENT-REPORT: ``Association.send_n_event_report(dataset, class_uid, instance_uid)``
+  reports the events in *dataset* to the peer.
 - N-GET: ``Association.send_n_get(identifier_list, class_uid, instance_uid)``
   requests the retrieval of attribute values from a peer.
 - N-SET: ``Association.send_n_set(dataset, class_uid, instance_uid)`` requests
