@@ -25,7 +25,7 @@ from pynetdicom3.dimse_primitives import (
 )
 from pynetdicom3.dsutils import encode
 from .encoded_dimse_msg import c_store_ds
-from .encoded_dimse_n_msg import n_get_rsp_ds
+from .encoded_dimse_n_msg import n_get_rsp_ds, n_set_rq_ds, n_set_rsp_ds
 
 LOGGER = logging.getLogger('pynetdicom3')
 LOGGER.setLevel(logging.CRITICAL)
@@ -334,13 +334,21 @@ class TestDIMSEProviderCallbacks(object):
         # N-SET-RQ
         primitive = N_SET()
         primitive.MessageID = 1
-        primitive.AffectedSOPClassUID = '1.1.1'
+        primitive.RequestedSOPClassUID = '1.1.1'
+        primitive.RequestedSOPInstanceUID = '1.1.1.1'
+        primitive.ModificationList = BytesIO(b'\x00\x01')
         self.dimse.send_msg(primitive, 1)
 
         # N-SET-RSP
         primitive = N_SET()
         primitive.MessageIDBeingRespondedTo = 1
         primitive.Status = 0x0000
+        self.dimse.send_msg(primitive, 1)
+
+        # User defined
+        primitive.AffectedSOPClassUID = '1.1.1'
+        primitive.AffectedSOPInstanceUID = '1.1.1.1'
+        primitive.AttributeList = BytesIO(b'\x00\x01')
         self.dimse.send_msg(primitive, 1)
 
     def test_callback_send_n_action(self):
@@ -699,11 +707,32 @@ class TestDIMSEProviderCallbacks(object):
     def test_callback_receive_n_set(self):
         """Check callback for receiving DIMSE N-SET messages."""
         # N-SET-RQ
+        primitive = N_SET()
+        primitive.MessageID = 1
+        primitive.RequestedSOPClassUID = '1.1.1'
+        primitive.RequestedSOPInstanceUID = '1.1.1.1'
+        primitive.ModificationList = BytesIO(n_set_rq_ds)
         msg = N_SET_RQ()
+        msg.primitive_to_message(primitive)
+        msg.ID = 1
         self.dimse.debug_receive_n_set_rq(msg)
 
         # N-SET-RSP
+        primitive = N_SET()
+        primitive.MessageIDBeingRespondedTo = 1
+        primitive.Status = 0x0000
         msg = N_SET_RSP()
+        msg.primitive_to_message(primitive)
+        msg.ID = 1
+        self.dimse.debug_receive_n_set_rsp(msg)
+
+        # User defined
+        primitive.AffectedSOPClassUID = '1.1.1'
+        primitive.AffectedSOPInstanceUID = '1.1.1.1'
+        primitive.ModificationList = BytesIO(n_set_rsp_ds)
+        msg = N_GET_RSP()
+        msg.primitive_to_message(primitive)
+        msg.ID = 1
         self.dimse.debug_receive_n_set_rsp(msg)
 
     def test_callback_receive_n_action(self):

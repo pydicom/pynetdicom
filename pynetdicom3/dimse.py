@@ -1320,14 +1320,14 @@ class DIMSEServiceProvider(object):
         """
         cs = msg.command_set
 
-        attribute_list = 'None'
+        attr_list = 'None'
         if msg.data_set and msg.data_set.getvalue() != b'':
-            attribute_list = 'Present'
+            attr_list = 'Present'
 
         s = []
         s.append('===================== OUTGOING DIMSE MESSAGE ================'
                  '====')
-        s.append('Message Type                  : {0!s}'.format('N-GET RQ'))
+        s.append('Message Type                  : {0!s}'.format('N-GET RSP'))
         s.append('Message ID Being Responded To : {0!s}'
                  .format(cs.MessageIDBeingRespondedTo))
         if 'AffectedSOPClassUID' in cs:
@@ -1336,7 +1336,7 @@ class DIMSEServiceProvider(object):
         if 'AffectedSOPInstanceUID' in cs:
             s.append('Affected SOP Instance UID     : {0!s}'
                      .format(cs.AffectedSOPInstanceUID))
-        s.append('Attribute List                : {0!s}'.format(attribute_list))
+        s.append('Attribute List                : {0!s}'.format(attr_list))
         s.append('Status                        : 0x{0:04x}'.format(cs.Status))
         s.append('======================= END DIMSE MESSAGE ==================='
                  '====')
@@ -1352,7 +1352,26 @@ class DIMSEServiceProvider(object):
         msg : dimse_messages.N_SET_RQ
             The N-SET-RQ message to be sent.
         """
-        pass
+        cs = msg.command_set
+
+        mod_list = 'None'
+        if msg.data_set and msg.data_set.getvalue() != b'':
+            mod_list = 'Present'
+
+        s = []
+        s.append('===================== OUTGOING DIMSE MESSAGE ================'
+                 '====')
+        s.append('Message Type                  : {0!s}'.format('N-SET RQ'))
+        s.append('Message ID                    : {0!s}'.format(cs.MessageID))
+        s.append('Requested SOP Class UID       : {0!s}'
+                 .format(cs.RequestedSOPClassUID))
+        s.append('Requested SOP Instance UID    : {0!s}'
+                 .format(cs.RequestedSOPInstanceUID))
+        s.append('Modification List             : {0!s}'.format(mod_list))
+        s.append('======================= END DIMSE MESSAGE ==================='
+                 '====')
+        for line in s:
+            LOGGER.debug(line)
 
     @staticmethod
     def debug_send_n_set_rsp(msg):
@@ -1363,7 +1382,30 @@ class DIMSEServiceProvider(object):
         msg : dimse_messages.N_SET_RSP
             The N-SET-RSP message to be sent.
         """
-        pass
+        cs = msg.command_set
+
+        attr_list = 'None'
+        if msg.data_set and msg.data_set.getvalue() != b'':
+            attr_list = 'Present'
+
+        s = []
+        s.append('===================== OUTGOING DIMSE MESSAGE ================'
+                 '====')
+        s.append('Message Type                  : {0!s}'.format('N-SET RSP'))
+        s.append('Message ID Being Responded To : {0!s}'
+                 .format(cs.MessageIDBeingRespondedTo))
+        if 'AffectedSOPClassUID' in cs:
+            s.append('Affected SOP Class UID        : {0!s}'
+                     .format(cs.AffectedSOPClassUID))
+        if 'AffectedSOPInstanceUID' in cs:
+            s.append('Affected SOP Instance UID     : {0!s}'
+                     .format(cs.AffectedSOPInstanceUID))
+        s.append('Attribute List                : {0!s}'.format(attr_list))
+        s.append('Status                        : 0x{0:04x}'.format(cs.Status))
+        s.append('======================= END DIMSE MESSAGE ==================='
+                 '====')
+        for line in s:
+            LOGGER.debug(line)
 
     @staticmethod
     def debug_send_n_action_rq(msg):

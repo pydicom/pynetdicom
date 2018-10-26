@@ -29,7 +29,9 @@ from .encoded_dimse_msg import (
     c_move_rsp_cmd, c_move_rsp_ds
 )
 from .encoded_dimse_n_msg import (
-    n_get_rq_cmd, n_get_rsp_cmd, n_get_rsp_ds
+    n_get_rq_cmd, n_get_rsp_cmd, n_get_rsp_ds,
+    n_delete_rq_cmd, n_delete_rsp_cmd,
+    n_set_rq_cmd, n_set_rq_ds, n_set_rsp_cmd, n_set_rsp_ds
 )
 
 
@@ -411,13 +413,38 @@ class TestDIMSEMessage(object):
         """Test converting N_SET_RQ and _RSP to primitive."""
         # N-SET-RQ
         msg = N_SET_RQ()
+        for data in [n_set_rq_cmd, n_set_rq_ds]:
+            p_data = P_DATA()
+            p_data.presentation_data_value_list.append([0, data])
+            msg.decode_msg(p_data)
         primitive = msg.message_to_primitive()
         assert isinstance(primitive, N_SET)
+        assert primitive.RequestedSOPClassUID == UID('1.2.840.10008.5.1.4.1.1.2')
+        assert primitive.RequestedSOPInstanceUID == UID('1.2.392.200036.9116.2.6.1.48')
+        assert primitive.MessageID == 7
+
+        ds = decode(primitive.ModificationList, True, True)
+        assert ds.PatientName == 'Tube HeNe'
+        assert ds.PatientID == 'Test1101'
 
         # N-SET-RSP
         msg = N_SET_RSP()
+        for data in [n_set_rsp_cmd, n_set_rsp_ds]:
+            p_data = P_DATA()
+            p_data.presentation_data_value_list.append([0, data])
+            msg.decode_msg(p_data)
+        msg.decode_msg(p_data)
         primitive = msg.message_to_primitive()
         assert isinstance(primitive, N_SET)
+        assert isinstance(primitive.AttributeList, BytesIO)
+        assert primitive.AffectedSOPClassUID == UID('1.2.4.10')
+        assert primitive.AffectedSOPInstanceUID == UID('1.2.4.5.7.8')
+        assert primitive.MessageIDBeingRespondedTo == 5
+        assert primitive.Status == 0x0000
+
+        ds = decode(primitive.AttributeList, True, True)
+        assert ds.PatientName == 'Tube HeNe'
+        assert ds.PatientID == 'Test1101'
 
     def test_message_to_primitive_n_action(self):
         """Test converting N_ACTION_RQ and _RSP to primitive."""
@@ -447,10 +474,25 @@ class TestDIMSEMessage(object):
         """Test converting N_DELETE_RQ and _RSP to primitive."""
         # N-DELETE-RQ
         msg = N_DELETE_RQ()
+        for data in [n_delete_rq_cmd]:
+            p_data = P_DATA()
+            p_data.presentation_data_value_list.append([0, data])
+            msg.decode_msg(p_data)
         primitive = msg.message_to_primitive()
         assert isinstance(primitive, N_DELETE)
+        assert primitive.RequestedSOPClassUID == UID('1.2.3')
+        assert primitive.RequestedSOPInstanceUID == UID('1.2.30')
+        assert primitive.MessageID == 7
 
         # N-DELETE-RSP
         msg = N_DELETE_RSP()
+        for data in [n_delete_rsp_cmd]:
+            p_data = P_DATA()
+            p_data.presentation_data_value_list.append([0, data])
+            msg.decode_msg(p_data)
         primitive = msg.message_to_primitive()
         assert isinstance(primitive, N_DELETE)
+        assert primitive.AffectedSOPClassUID == UID('1.2.4.10')
+        assert primitive.AffectedSOPInstanceUID == UID('1.2.4.5.7.8')
+        assert primitive.MessageIDBeingRespondedTo == 5
+        assert primitive.Status == 0xC201
