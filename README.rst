@@ -95,6 +95,8 @@ corresponding Presentation Context has been accepted):
   *move_aet* over a new association.
 - N-GET: ``Association.send_n_get(identifier_list, class_uid, instance_uid)``
   requests the retrieval of attribute values from a peer.
+- N-DELETE: ``Association.send_n_delete(class_uid, instance_uid)`` requests the
+  peer delete the specified SOP Instance.
 
 Where *dataset* is a pydicom
 `Dataset <https://pydicom.github.io/pydicom/stable/ref_guide.html#dataset>`_

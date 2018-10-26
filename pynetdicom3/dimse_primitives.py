@@ -30,8 +30,6 @@ LOGGER = logging.getLogger('pynetdicom3.dimse_primitives')
 # pylint: disable=too-many-instance-attributes
 
 # DIMSE-C Services
-
-
 class C_STORE(object):
     """Represents a C-STORE primitive.
 
@@ -2471,7 +2469,7 @@ class N_DELETE(object):
     ----------
 
     DICOM Standard Part 7, Sections 10.1.6 and 10.3.6.
-"""
+    """
     def __init__(self):
         self.MessageID = None
         self.MessageIDBeingRespondedTo = None
