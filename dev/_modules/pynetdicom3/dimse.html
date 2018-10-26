@@ -1589,7 +1589,28 @@
 <span class="sd">        msg : dimse_messages.N_DELETE_RQ</span>
 <span class="sd">            The N-DELETE-RQ message to be sent.</span>
 <span class="sd">        &quot;&quot;&quot;</span>
-        <span class="k">pass</span></div>
+        <span class="sd">&quot;&quot;&quot;Debugging function when an N-GET-RQ is sent.</span>
+
+<span class="sd">        Parameters</span>
+<span class="sd">        ----------</span>
+<span class="sd">        msg : dimse_messages.N_GET_RQ</span>
+<span class="sd">            The N-GET-RQ message to be sent.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">cs</span> <span class="o">=</span> <span class="n">msg</span><span class="o">.</span><span class="n">command_set</span>
+
+        <span class="n">s</span> <span class="o">=</span> <span class="p">[]</span>
+        <span class="n">s</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="s1">&#39;===================== OUTGOING DIMSE MESSAGE ================&#39;</span>
+                 <span class="s1">&#39;====&#39;</span><span class="p">)</span>
+        <span class="n">s</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="s1">&#39;Message Type                  : </span><span class="si">{0!s}</span><span class="s1">&#39;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="s1">&#39;N-DELETE RQ&#39;</span><span class="p">))</span>
+        <span class="n">s</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="s1">&#39;Message ID                    : </span><span class="si">{0!s}</span><span class="s1">&#39;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">cs</span><span class="o">.</span><span class="n">MessageID</span><span class="p">))</span>
+        <span class="n">s</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="s1">&#39;Requested SOP Class UID       : </span><span class="si">{0!s}</span><span class="s1">&#39;</span>
+                 <span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">cs</span><span class="o">.</span><span class="n">RequestedSOPClassUID</span><span class="p">))</span>
+        <span class="n">s</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="s1">&#39;Requested SOP Instance UID    : </span><span class="si">{0!s}</span><span class="s1">&#39;</span>
+                 <span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">cs</span><span class="o">.</span><span class="n">RequestedSOPInstanceUID</span><span class="p">))</span>
+        <span class="n">s</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="s1">&#39;======================= END DIMSE MESSAGE ===================&#39;</span>
+                 <span class="s1">&#39;====&#39;</span><span class="p">)</span>
+        <span class="k">for</span> <span class="n">line</span> <span class="ow">in</span> <span class="n">s</span><span class="p">:</span>
+            <span class="n">LOGGER</span><span class="o">.</span><span class="n">debug</span><span class="p">(</span><span class="n">line</span><span class="p">)</span></div>
 
 <div class="viewcode-block" id="DIMSEServiceProvider.debug_send_n_delete_rsp"><a class="viewcode-back" href="../../reference/generated/pynetdicom3.dimse.DIMSEServiceProvider.html#pynetdicom3.dimse.DIMSEServiceProvider.debug_send_n_delete_rsp">[docs]</a>    <span class="nd">@staticmethod</span>
     <span class="k">def</span> <span class="nf">debug_send_n_delete_rsp</span><span class="p">(</span><span class="n">msg</span><span class="p">):</span>
@@ -1600,7 +1621,25 @@
 <span class="sd">        msg : dimse_messages.N_DELETE_RSP</span>
 <span class="sd">            The N-DELETE-RSP message to be sent.</span>
 <span class="sd">        &quot;&quot;&quot;</span>
-        <span class="k">pass</span></div>
+        <span class="n">cs</span> <span class="o">=</span> <span class="n">msg</span><span class="o">.</span><span class="n">command_set</span>
+
+        <span class="n">s</span> <span class="o">=</span> <span class="p">[]</span>
+        <span class="n">s</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="s1">&#39;===================== OUTGOING DIMSE MESSAGE ================&#39;</span>
+                 <span class="s1">&#39;====&#39;</span><span class="p">)</span>
+        <span class="n">s</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="s1">&#39;Message Type                  : </span><span class="si">{0!s}</span><span class="s1">&#39;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="s1">&#39;N-DELETE RQ&#39;</span><span class="p">))</span>
+        <span class="n">s</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="s1">&#39;Message ID Being Responded To : </span><span class="si">{0!s}</span><span class="s1">&#39;</span>
+                 <span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">cs</span><span class="o">.</span><span class="n">MessageIDBeingRespondedTo</span><span class="p">))</span>
+        <span class="k">if</span> <span class="s1">&#39;AffectedSOPClassUID&#39;</span> <span class="ow">in</span> <span class="n">cs</span><span class="p">:</span>
+            <span class="n">s</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="s1">&#39;Affected SOP Class UID        : </span><span class="si">{0!s}</span><span class="s1">&#39;</span>
+                     <span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">cs</span><span class="o">.</span><span class="n">AffectedSOPClassUID</span><span class="p">))</span>
+        <span class="k">if</span> <span class="s1">&#39;AffectedSOPInstanceUID&#39;</span> <span class="ow">in</span> <span class="n">cs</span><span class="p">:</span>
+            <span class="n">s</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="s1">&#39;Affected SOP Instance UID     : </span><span class="si">{0!s}</span><span class="s1">&#39;</span>
+                     <span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">cs</span><span class="o">.</span><span class="n">AffectedSOPInstanceUID</span><span class="p">))</span>
+        <span class="n">s</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="s1">&#39;Status                        : 0x</span><span class="si">{0:04x}</span><span class="s1">&#39;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">cs</span><span class="o">.</span><span class="n">Status</span><span class="p">))</span>
+        <span class="n">s</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="s1">&#39;======================= END DIMSE MESSAGE ===================&#39;</span>
+                 <span class="s1">&#39;====&#39;</span><span class="p">)</span>
+        <span class="k">for</span> <span class="n">line</span> <span class="ow">in</span> <span class="n">s</span><span class="p">:</span>
+            <span class="n">LOGGER</span><span class="o">.</span><span class="n">debug</span><span class="p">(</span><span class="n">line</span><span class="p">)</span></div>
 
 <div class="viewcode-block" id="DIMSEServiceProvider.debug_receive_n_event_report_rq"><a class="viewcode-back" href="../../reference/generated/pynetdicom3.dimse.DIMSEServiceProvider.html#pynetdicom3.dimse.DIMSEServiceProvider.debug_receive_n_event_report_rq">[docs]</a>    <span class="nd">@staticmethod</span>
     <span class="k">def</span> <span class="nf">debug_receive_n_event_report_rq</span><span class="p">(</span><span class="n">msg</span><span class="p">):</span>

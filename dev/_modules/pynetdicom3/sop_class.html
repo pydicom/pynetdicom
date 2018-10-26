@@ -179,6 +179,7 @@
 <span class="kn">from</span> <span class="nn">pydicom.uid</span> <span class="k">import</span> <span class="n">UID</span>
 
 <span class="kn">from</span> <span class="nn">pynetdicom3.service_class</span> <span class="k">import</span> <span class="p">(</span>
+    <span class="n">ServiceClass</span><span class="p">,</span>
     <span class="n">VerificationServiceClass</span><span class="p">,</span>
     <span class="n">StorageServiceClass</span><span class="p">,</span>
     <span class="n">QueryRetrieveServiceClass</span><span class="p">,</span>
@@ -242,11 +243,19 @@
         <span class="k">return</span> <span class="n">ImplantTemplateQueryRetrieveServiceClass</span>
     <span class="k">elif</span> <span class="n">uid</span> <span class="ow">in</span> <span class="n">_DISPLAY_SYSTEM_CLASSES</span><span class="o">.</span><span class="n">values</span><span class="p">():</span>
         <span class="k">return</span> <span class="n">DisplaySystemManagementServiceClass</span>
-    <span class="k">else</span><span class="p">:</span>
-        <span class="k">raise</span> <span class="ne">NotImplementedError</span><span class="p">(</span>
-            <span class="s2">&quot;The Service Class for the SOP Class with UID &#39;</span><span class="si">{}</span><span class="s2">&#39; has not &quot;</span>
-            <span class="s2">&quot;been implemented&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">uid</span><span class="p">)</span>
-        <span class="p">)</span></div>
+    <span class="k">elif</span> <span class="n">uid</span> <span class="ow">in</span> <span class="n">_PRINT_MANAGEMENT_CLASSES</span><span class="o">.</span><span class="n">values</span><span class="p">():</span>
+        <span class="k">return</span> <span class="n">ServiceClass</span>  <span class="c1"># Not yet implemented</span>
+    <span class="k">elif</span> <span class="n">uid</span> <span class="ow">in</span> <span class="n">_PROCEDURE_STEP_CLASSES</span><span class="o">.</span><span class="n">values</span><span class="p">():</span>
+        <span class="k">return</span> <span class="n">ServiceClass</span>  <span class="c1"># Not yet implemented</span>
+    <span class="k">elif</span> <span class="n">uid</span> <span class="ow">in</span> <span class="n">_MEDIA_STORAGE_CLASSES</span><span class="o">.</span><span class="n">values</span><span class="p">():</span>
+        <span class="k">return</span> <span class="n">ServiceClass</span>  <span class="c1"># Not yet implemented</span>
+    <span class="k">elif</span> <span class="n">uid</span> <span class="ow">in</span> <span class="n">_UNITED_PROCEDURE_STEP_CLASSES</span><span class="o">.</span><span class="n">values</span><span class="p">():</span>
+        <span class="k">return</span> <span class="n">ServiceClass</span>  <span class="c1"># Not yet implemented</span>
+    <span class="k">elif</span> <span class="n">uid</span> <span class="ow">in</span> <span class="n">_RT_MACHINE_VERIFICATION_CLASSES</span><span class="o">.</span><span class="n">values</span><span class="p">():</span>
+        <span class="k">return</span> <span class="n">ServiceClass</span>  <span class="c1"># Not yet implemented</span>
+
+    <span class="c1"># No SCP implemented</span>
+    <span class="k">return</span> <span class="n">ServiceClass</span></div>
 
 
 <div class="viewcode-block" id="SOPClass"><a class="viewcode-back" href="../../reference/generated/pynetdicom3.sop_class.SOPClass.html#pynetdicom3.sop_class.SOPClass">[docs]</a><span class="k">class</span> <span class="nc">SOPClass</span><span class="p">(</span><span class="n">namedtuple</span><span class="p">(</span><span class="s2">&quot;SOPClass&quot;</span><span class="p">,</span> <span class="p">[</span><span class="s1">&#39;uid&#39;</span><span class="p">,</span> <span class="s1">&#39;UID&#39;</span><span class="p">,</span> <span class="s1">&#39;service_class&#39;</span><span class="p">])):</span>
@@ -487,28 +496,6 @@
     <span class="s1">&#39;DisplaySystemSOPClass&#39;</span> <span class="p">:</span> <span class="s1">&#39;1.2.840.10008.5.1.1.40&#39;</span><span class="p">,</span>
 <span class="p">}</span>
 
-<span class="c1"># pylint: enable=line-too-long</span>
-<span class="n">_generate_sop_classes</span><span class="p">(</span><span class="n">_VERIFICATION_CLASSES</span><span class="p">)</span>
-<span class="n">_generate_sop_classes</span><span class="p">(</span><span class="n">_STORAGE_CLASSES</span><span class="p">)</span>
-<span class="n">_generate_sop_classes</span><span class="p">(</span><span class="n">_QR_CLASSES</span><span class="p">)</span>
-<span class="n">_generate_sop_classes</span><span class="p">(</span><span class="n">_BASIC_WORKLIST_CLASSES</span><span class="p">)</span>
-<span class="n">_generate_sop_classes</span><span class="p">(</span><span class="n">_RELEVANT_PATIENT_QUERY_CLASSES</span><span class="p">)</span>
-<span class="n">_generate_sop_classes</span><span class="p">(</span><span class="n">_SUBSTANCE_ADMINISTRATION_CLASSES</span><span class="p">)</span>
-<span class="n">_generate_sop_classes</span><span class="p">(</span><span class="n">_NON_PATIENT_OBJECT_CLASSES</span><span class="p">)</span>
-<span class="n">_generate_sop_classes</span><span class="p">(</span><span class="n">_HANGING_PROTOCOL_CLASSES</span><span class="p">)</span>
-<span class="n">_generate_sop_classes</span><span class="p">(</span><span class="n">_DEFINED_PROCEDURE_CLASSES</span><span class="p">)</span>
-<span class="n">_generate_sop_classes</span><span class="p">(</span><span class="n">_COLOR_PALETTE_CLASSES</span><span class="p">)</span>
-<span class="n">_generate_sop_classes</span><span class="p">(</span><span class="n">_IMPLANT_TEMPLATE_CLASSES</span><span class="p">)</span>
-<span class="n">_generate_sop_classes</span><span class="p">(</span><span class="n">_DISPLAY_SYSTEM_CLASSES</span><span class="p">)</span>
-
-
-<span class="c1"># WIP SOP Classes</span>
-<span class="n">_PROCEDURE_STEP_CLASSES</span> <span class="o">=</span> <span class="p">{</span>
-    <span class="s1">&#39;ModalityPerformedProcedureStepSOPClass&#39;</span> <span class="p">:</span> <span class="s1">&#39;1.2.840.10008.3.1.2.3.3&#39;</span><span class="p">,</span>
-    <span class="s1">&#39;ModalityPerformedProcedureStepRetrieveSOPClass&#39;</span> <span class="p">:</span> <span class="s1">&#39;1.2.840.10008.3.1.2.3.4&#39;</span><span class="p">,</span>
-    <span class="s1">&#39;ModalityPerformedProcedureStepNotificationSOPClass&#39;</span> <span class="p">:</span> <span class="s1">&#39;1.2.840.10008.3.1.2.3.5&#39;</span><span class="p">,</span>
-<span class="p">}</span>
-
 <span class="n">_PRINT_MANAGEMENT_CLASSES</span> <span class="o">=</span> <span class="p">{</span>
     <span class="s1">&#39;BasicFilmSessionSOPClass&#39;</span> <span class="p">:</span> <span class="s1">&#39;1.2.840.10008.5.1.1.1&#39;</span><span class="p">,</span>
     <span class="s1">&#39;BasicFilmBoxSOPClass&#39;</span> <span class="p">:</span> <span class="s1">&#39;1.2.840.10008.5.1.1.2&#39;</span><span class="p">,</span>
@@ -519,6 +506,12 @@
     <span class="s1">&#39;PrinterSOPClass&#39;</span> <span class="p">:</span> <span class="s1">&#39;1.2.840.10008.5.1.1.16&#39;</span><span class="p">,</span>
     <span class="s1">&#39;PrinterConfigurationRetrievalSOPClass&#39;</span> <span class="p">:</span> <span class="s1">&#39;1.2.840.10008.5.1.1.16.376&#39;</span><span class="p">,</span>
     <span class="s1">&#39;PresentationLUTSOPClass&#39;</span> <span class="p">:</span> <span class="s1">&#39;1.2.840.10008.5.1.1.23&#39;</span><span class="p">,</span>
+<span class="p">}</span>
+
+<span class="n">_PROCEDURE_STEP_CLASSES</span> <span class="o">=</span> <span class="p">{</span>
+    <span class="s1">&#39;ModalityPerformedProcedureStepSOPClass&#39;</span> <span class="p">:</span> <span class="s1">&#39;1.2.840.10008.3.1.2.3.3&#39;</span><span class="p">,</span>
+    <span class="s1">&#39;ModalityPerformedProcedureStepRetrieveSOPClass&#39;</span> <span class="p">:</span> <span class="s1">&#39;1.2.840.10008.3.1.2.3.4&#39;</span><span class="p">,</span>
+    <span class="s1">&#39;ModalityPerformedProcedureStepNotificationSOPClass&#39;</span> <span class="p">:</span> <span class="s1">&#39;1.2.840.10008.3.1.2.3.5&#39;</span><span class="p">,</span>
 <span class="p">}</span>
 
 <span class="n">_MEDIA_STORAGE_CLASSES</span> <span class="o">=</span> <span class="p">{</span>
@@ -536,6 +529,25 @@
     <span class="s1">&#39;RTConventionalMachineVerification&#39;</span> <span class="p">:</span> <span class="s1">&#39;1.2.840.10008.5.1.4.34.8&#39;</span><span class="p">,</span>
     <span class="s1">&#39;RTIonMachineVerification&#39;</span> <span class="p">:</span> <span class="s1">&#39;1.2.840.10008.5.1.4.34.9&#39;</span><span class="p">,</span>
 <span class="p">}</span>
+
+<span class="c1"># pylint: enable=line-too-long</span>
+<span class="n">_generate_sop_classes</span><span class="p">(</span><span class="n">_VERIFICATION_CLASSES</span><span class="p">)</span>
+<span class="n">_generate_sop_classes</span><span class="p">(</span><span class="n">_STORAGE_CLASSES</span><span class="p">)</span>
+<span class="n">_generate_sop_classes</span><span class="p">(</span><span class="n">_QR_CLASSES</span><span class="p">)</span>
+<span class="n">_generate_sop_classes</span><span class="p">(</span><span class="n">_BASIC_WORKLIST_CLASSES</span><span class="p">)</span>
+<span class="n">_generate_sop_classes</span><span class="p">(</span><span class="n">_RELEVANT_PATIENT_QUERY_CLASSES</span><span class="p">)</span>
+<span class="n">_generate_sop_classes</span><span class="p">(</span><span class="n">_SUBSTANCE_ADMINISTRATION_CLASSES</span><span class="p">)</span>
+<span class="n">_generate_sop_classes</span><span class="p">(</span><span class="n">_NON_PATIENT_OBJECT_CLASSES</span><span class="p">)</span>
+<span class="n">_generate_sop_classes</span><span class="p">(</span><span class="n">_HANGING_PROTOCOL_CLASSES</span><span class="p">)</span>
+<span class="n">_generate_sop_classes</span><span class="p">(</span><span class="n">_DEFINED_PROCEDURE_CLASSES</span><span class="p">)</span>
+<span class="n">_generate_sop_classes</span><span class="p">(</span><span class="n">_COLOR_PALETTE_CLASSES</span><span class="p">)</span>
+<span class="n">_generate_sop_classes</span><span class="p">(</span><span class="n">_IMPLANT_TEMPLATE_CLASSES</span><span class="p">)</span>
+<span class="n">_generate_sop_classes</span><span class="p">(</span><span class="n">_DISPLAY_SYSTEM_CLASSES</span><span class="p">)</span>
+<span class="n">_generate_sop_classes</span><span class="p">(</span><span class="n">_PRINT_MANAGEMENT_CLASSES</span><span class="p">)</span>
+<span class="n">_generate_sop_classes</span><span class="p">(</span><span class="n">_PROCEDURE_STEP_CLASSES</span><span class="p">)</span>
+<span class="n">_generate_sop_classes</span><span class="p">(</span><span class="n">_MEDIA_STORAGE_CLASSES</span><span class="p">)</span>
+<span class="n">_generate_sop_classes</span><span class="p">(</span><span class="n">_UNITED_PROCEDURE_STEP_CLASSES</span><span class="p">)</span>
+<span class="n">_generate_sop_classes</span><span class="p">(</span><span class="n">_RT_MACHINE_VERIFICATION_CLASSES</span><span class="p">)</span>
 
 
 <div class="viewcode-block" id="uid_to_sop_class"><a class="viewcode-back" href="../../reference/generated/pynetdicom3.sop_class.uid_to_sop_class.html#pynetdicom3.sop_class.uid_to_sop_class">[docs]</a><span class="k">def</span> <span class="nf">uid_to_sop_class</span><span class="p">(</span><span class="n">uid</span><span class="p">):</span>
@@ -566,8 +578,7 @@
         <span class="k">if</span> <span class="nb">hasattr</span><span class="p">(</span><span class="n">obj</span><span class="p">[</span><span class="mi">1</span><span class="p">],</span> <span class="s1">&#39;uid&#39;</span><span class="p">)</span> <span class="ow">and</span> <span class="n">obj</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span><span class="o">.</span><span class="n">uid</span> <span class="o">==</span> <span class="n">uid</span><span class="p">:</span>
             <span class="k">return</span> <span class="n">obj</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span>
 
-    <span class="k">raise</span> <span class="ne">NotImplementedError</span><span class="p">(</span><span class="s2">&quot;The SOP Class for UID &#39;</span><span class="si">{}</span><span class="s2">&#39; has not been &quot;</span> \
-                              <span class="s2">&quot;implemented&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">uid</span><span class="p">))</span></div>
+    <span class="k">return</span> <span class="n">SOPClass</span><span class="p">(</span><span class="n">uid</span><span class="p">,</span> <span class="n">uid</span><span class="p">,</span> <span class="n">ServiceClass</span><span class="p">)</span></div>
 </pre></div>
 
            </div>

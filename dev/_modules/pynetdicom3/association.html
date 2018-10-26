@@ -186,7 +186,7 @@
 <span class="kn">from</span> <span class="nn">pynetdicom3.dimse</span> <span class="k">import</span> <span class="n">DIMSEServiceProvider</span>
 <span class="kn">from</span> <span class="nn">pynetdicom3.dimse_primitives</span> <span class="k">import</span> <span class="p">(</span>
     <span class="n">C_ECHO</span><span class="p">,</span> <span class="n">C_MOVE</span><span class="p">,</span> <span class="n">C_STORE</span><span class="p">,</span> <span class="n">C_GET</span><span class="p">,</span> <span class="n">C_FIND</span><span class="p">,</span> <span class="n">C_CANCEL</span><span class="p">,</span>
-    <span class="n">N_GET</span>
+    <span class="n">N_GET</span><span class="p">,</span> <span class="n">N_DELETE</span>
 <span class="p">)</span>
 <span class="kn">from</span> <span class="nn">pynetdicom3.dsutils</span> <span class="k">import</span> <span class="n">decode</span><span class="p">,</span> <span class="n">encode</span>
 <span class="kn">from</span> <span class="nn">pynetdicom3.dul</span> <span class="k">import</span> <span class="n">DULServiceProvider</span>
@@ -726,7 +726,12 @@
                         <span class="n">service_class</span><span class="o">.</span><span class="n">AE</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">ae</span>
 
                         <span class="c1"># Run SOPClass in SCP mode</span>
-                        <span class="n">service_class</span><span class="o">.</span><span class="n">SCP</span><span class="p">(</span><span class="n">msg</span><span class="p">,</span> <span class="n">context</span><span class="p">,</span> <span class="n">info</span><span class="p">)</span>
+                        <span class="k">try</span><span class="p">:</span>
+                            <span class="n">service_class</span><span class="o">.</span><span class="n">SCP</span><span class="p">(</span><span class="n">msg</span><span class="p">,</span> <span class="n">context</span><span class="p">,</span> <span class="n">info</span><span class="p">)</span>
+                        <span class="k">except</span> <span class="ne">NotImplementedError</span><span class="p">:</span>
+                            <span class="c1"># SCP isn&#39;t implemented</span>
+                            <span class="bp">self</span><span class="o">.</span><span class="n">abort</span><span class="p">()</span>
+                            <span class="k">return</span>
                         <span class="k">break</span>
                 <span class="k">else</span><span class="p">:</span>
                     <span class="n">LOGGER</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="s2">&quot;Received message with invalid or rejected &quot;</span>
@@ -2360,6 +2365,7 @@
 
 <span class="sd">        References</span>
 <span class="sd">        ----------</span>
+
 <span class="sd">        * DICOM Standart Part 4, `Annex F &lt;http://dicom.nema.org/medical/dicom/current/output/html/part04.html#chapter_F&gt;`_</span>
 <span class="sd">        * DICOM Standart Part 4, `Annex H &lt;http://dicom.nema.org/medical/dicom/current/output/html/part04.html#chapter_H&gt;`_</span>
 <span class="sd">        * DICOM Standard Part 4, `Annex S &lt;http://dicom.nema.org/medical/dicom/current/output/html/part04.html#chapter_S&gt;`_</span>
@@ -2477,14 +2483,121 @@
                                <span class="s2">&quot;request.&quot;</span><span class="p">)</span>
         <span class="k">raise</span> <span class="ne">NotImplementedError</span></div>
 
-<div class="viewcode-block" id="Association.send_n_delete"><a class="viewcode-back" href="../../reference/generated/pynetdicom3.association.Association.html#pynetdicom3.association.Association.send_n_delete">[docs]</a>    <span class="k">def</span> <span class="nf">send_n_delete</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
-        <span class="sd">&quot;&quot;&quot;Send an N-DELETE request message to the peer AE.&quot;&quot;&quot;</span>
+<div class="viewcode-block" id="Association.send_n_delete"><a class="viewcode-back" href="../../reference/generated/pynetdicom3.association.Association.html#pynetdicom3.association.Association.send_n_delete">[docs]</a>    <span class="k">def</span> <span class="nf">send_n_delete</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">class_uid</span><span class="p">,</span> <span class="n">instance_uid</span><span class="p">,</span> <span class="n">msg_id</span><span class="o">=</span><span class="mi">1</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;Send an N-DELETE request message to the peer AE.</span>
+
+<span class="sd">        Parameters</span>
+<span class="sd">        ----------</span>
+<span class="sd">        class_uid : pydicom.uid.UID</span>
+<span class="sd">            The UID to be sent in the request&#39;s (0000,0003) *Requested SOP</span>
+<span class="sd">            Class UID* element.</span>
+<span class="sd">        instance_uid : pydicom.uid.UID</span>
+<span class="sd">            The UID to be sent in the request&#39;s (0000,1001) *Requested SOP</span>
+<span class="sd">            Instance UID* element.</span>
+<span class="sd">        msg_id : int, optional</span>
+<span class="sd">            The DIMSE *Message ID*, must be between 0 and 65535, inclusive,</span>
+<span class="sd">            (default 1).</span>
+
+<span class="sd">        Returns</span>
+<span class="sd">        -------</span>
+<span class="sd">        status : pydicom.dataset.Dataset</span>
+<span class="sd">            If the peer timed out or sent an invalid response then yields an</span>
+<span class="sd">            empty ``Dataset``. If a response was received from the peer then</span>
+<span class="sd">            yields a ``Dataset`` containing at least a (0000,0900) *Status*</span>
+<span class="sd">            element, and depending on the returned value, may optionally</span>
+<span class="sd">            contain additional elements (see the DICOM Standard, Part 7,</span>
+<span class="sd">            Section 9.1.2.1.5 and Annex C).</span>
+
+<span class="sd">            General N-DELETE (DICOM Standard Part 7, Section 10.1.6 and</span>
+<span class="sd">            Annex C)</span>
+
+<span class="sd">            Success</span>
+<span class="sd">              | ``0x0000`` Successful operation</span>
+
+<span class="sd">            Failure</span>
+<span class="sd">              | ``0x0110`` Processing failure</span>
+<span class="sd">              | ``0x0112`` No such SOP Instance</span>
+<span class="sd">              | ``0x0117`` Invalid object instance</span>
+<span class="sd">              | ``0x0118`` No such SOP Class</span>
+<span class="sd">              | ``0x0119`` Class-Instance conflict</span>
+<span class="sd">              | ``0x0124`` Not authorised</span>
+<span class="sd">              | ``0x0210`` Duplicate invocation</span>
+<span class="sd">              | ``0x0211`` Unrecognised operation</span>
+<span class="sd">              | ``0x0212`` Mistyped argument</span>
+<span class="sd">              | ``0x0213`` Resource limitation</span>
+
+<span class="sd">        See Also</span>
+<span class="sd">        --------</span>
+<span class="sd">        ae.ApplicationEntity.on_n_delete</span>
+<span class="sd">        dimse_primitives.N_DELETE</span>
+
+<span class="sd">        References</span>
+<span class="sd">        ----------</span>
+
+<span class="sd">        * DICOM Standart Part 4, `Annex H &lt;http://dicom.nema.org/medical/dicom/current/output/html/part04.html#chapter_H&gt;`_</span>
+<span class="sd">        * DICOM Standard Part 4, `Annex DD &lt;http://dicom.nema.org/medical/dicom/current/output/html/part04.html#chapter_DD&gt;`_</span>
+<span class="sd">        * DICOM Standard Part 7, Sections</span>
+<span class="sd">          `10.1.6 &lt;http://dicom.nema.org/medical/dicom/current/output/html/part07.html#sect_10.1.6&gt;`_,</span>
+<span class="sd">          `10.3.6 &lt;http://dicom.nema.org/medical/dicom/current/output/html/part07.html#sect_10.3.6&gt;`_ and</span>
+<span class="sd">          `Annex C &lt;http://dicom.nema.org/medical/dicom/current/output/html/part07.html#chapter_C&gt;`__</span>
+<span class="sd">        &quot;&quot;&quot;</span>
         <span class="c1"># Can&#39;t send an N-DELETE without an Association</span>
         <span class="k">if</span> <span class="ow">not</span> <span class="bp">self</span><span class="o">.</span><span class="n">is_established</span><span class="p">:</span>
-            <span class="k">raise</span> <span class="ne">RuntimeError</span><span class="p">(</span><span class="s2">&quot;The association with a peer SCP must be &quot;</span>
-                               <span class="s2">&quot;established before sending an N-DELETE &quot;</span>
-                               <span class="s2">&quot;request.&quot;</span><span class="p">)</span>
-        <span class="k">raise</span> <span class="ne">NotImplementedError</span></div>
+            <span class="k">raise</span> <span class="ne">RuntimeError</span><span class="p">(</span>
+                <span class="s2">&quot;The association with a peer SCP must be established prior &quot;</span>
+                <span class="s2">&quot;to sending an N-DELETE request.&quot;</span>
+            <span class="p">)</span>
+
+        <span class="c1"># Determine the Presentation Context we are operating under</span>
+        <span class="c1">#   and hence the transfer syntax to use for encoding `dataset`</span>
+        <span class="n">transfer_syntax</span> <span class="o">=</span> <span class="kc">None</span>
+        <span class="k">for</span> <span class="n">context</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">acse</span><span class="o">.</span><span class="n">context_manager</span><span class="o">.</span><span class="n">accepted</span><span class="p">:</span>
+            <span class="k">if</span> <span class="n">class_uid</span> <span class="o">==</span> <span class="n">context</span><span class="o">.</span><span class="n">abstract_syntax</span><span class="p">:</span>
+                <span class="n">transfer_syntax</span> <span class="o">=</span> <span class="n">context</span><span class="o">.</span><span class="n">transfer_syntax</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span>
+                <span class="n">context_id</span> <span class="o">=</span> <span class="n">context</span><span class="o">.</span><span class="n">context_id</span>
+                <span class="k">break</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="n">LOGGER</span><span class="o">.</span><span class="n">error</span><span class="p">(</span>
+                <span class="s2">&quot;Association.send_n_delete - no accepted Presentation Context &quot;</span>
+                <span class="s2">&quot;for: &#39;</span><span class="si">{}</span><span class="s2">&#39;&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">class_uid</span><span class="p">)</span>
+            <span class="p">)</span>
+            <span class="n">LOGGER</span><span class="o">.</span><span class="n">error</span><span class="p">(</span>
+                <span class="s2">&quot;Delete SCU failed due to there being no accepted &quot;</span>
+                <span class="s2">&quot;presentation context&quot;</span>
+            <span class="p">)</span>
+            <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span>
+                <span class="s2">&quot;No accepted Presentation Context for the SOP Class UID &#39;</span><span class="si">{}</span><span class="s2">&#39;&quot;</span>
+                <span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">class_uid</span><span class="p">)</span>
+            <span class="p">)</span>
+
+        <span class="c1"># Build N-DELETE request primitive</span>
+        <span class="c1">#   (M) Message ID</span>
+        <span class="c1">#   (M) Requested SOP Class UID</span>
+        <span class="c1">#   (M) Requested SOP Instance UID</span>
+        <span class="n">req</span> <span class="o">=</span> <span class="n">N_DELETE</span><span class="p">()</span>
+        <span class="n">req</span><span class="o">.</span><span class="n">MessageID</span> <span class="o">=</span> <span class="n">msg_id</span>
+        <span class="n">req</span><span class="o">.</span><span class="n">RequestedSOPClassUID</span> <span class="o">=</span> <span class="n">class_uid</span>
+        <span class="n">req</span><span class="o">.</span><span class="n">RequestedSOPInstanceUID</span> <span class="o">=</span> <span class="n">instance_uid</span>
+
+        <span class="c1"># Send N-DELETE request to the peer via DIMSE and wait for the response</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">dimse</span><span class="o">.</span><span class="n">send_msg</span><span class="p">(</span><span class="n">req</span><span class="p">,</span> <span class="n">context_id</span><span class="p">)</span>
+        <span class="n">rsp</span><span class="p">,</span> <span class="n">_</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">dimse</span><span class="o">.</span><span class="n">receive_msg</span><span class="p">(</span><span class="n">wait</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+
+        <span class="c1"># Determine validity of the response and get the status</span>
+        <span class="n">status</span> <span class="o">=</span> <span class="n">Dataset</span><span class="p">()</span>
+        <span class="k">if</span> <span class="n">rsp</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="n">LOGGER</span><span class="o">.</span><span class="n">error</span><span class="p">(</span><span class="s1">&#39;DIMSE service timed out&#39;</span><span class="p">)</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">abort</span><span class="p">()</span>
+        <span class="k">elif</span> <span class="n">rsp</span><span class="o">.</span><span class="n">is_valid_response</span><span class="p">:</span>
+            <span class="n">status</span><span class="o">.</span><span class="n">Status</span> <span class="o">=</span> <span class="n">rsp</span><span class="o">.</span><span class="n">Status</span>
+            <span class="k">for</span> <span class="n">keyword</span> <span class="ow">in</span> <span class="p">[</span><span class="s1">&#39;ErrorComment&#39;</span><span class="p">,</span> <span class="s1">&#39;ErrorID&#39;</span><span class="p">]:</span>
+                <span class="k">if</span> <span class="nb">getattr</span><span class="p">(</span><span class="n">rsp</span><span class="p">,</span> <span class="n">keyword</span><span class="p">,</span> <span class="kc">None</span><span class="p">)</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+                    <span class="nb">setattr</span><span class="p">(</span><span class="n">status</span><span class="p">,</span> <span class="n">keyword</span><span class="p">,</span> <span class="nb">getattr</span><span class="p">(</span><span class="n">rsp</span><span class="p">,</span> <span class="n">keyword</span><span class="p">))</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="n">LOGGER</span><span class="o">.</span><span class="n">error</span><span class="p">(</span><span class="s1">&#39;Received an invalid N-DELETE response from the peer&#39;</span><span class="p">)</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">abort</span><span class="p">()</span>
+
+        <span class="k">return</span> <span class="n">status</span></div>
 
 
     <span class="c1"># Association logging/debugging functions</span>

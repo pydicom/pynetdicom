@@ -239,6 +239,25 @@
 
         <span class="k">return</span> <span class="kc">False</span>
 
+    <span class="k">def</span> <span class="nf">SCP</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">req</span><span class="p">,</span> <span class="n">context</span><span class="p">,</span> <span class="n">info</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;The implementation of the corresponding service class.</span>
+
+<span class="sd">        Parameters</span>
+<span class="sd">        ----------</span>
+<span class="sd">        req : A DIMSE message primitive</span>
+<span class="sd">            The message request primitive sent by the peer.</span>
+<span class="sd">        context : presentation.PresentationContext</span>
+<span class="sd">            The presentation context that the SCP is operating under.</span>
+<span class="sd">        info : dict</span>
+<span class="sd">            A dict containing details about the association.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">msg</span> <span class="o">=</span> <span class="p">(</span>
+            <span class="s2">&quot;No service has been implemented for the SOP Class UID &#39;</span><span class="si">{}</span><span class="s2">&#39;&quot;</span>
+            <span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">context</span><span class="o">.</span><span class="n">abstract_syntax</span><span class="p">)</span>
+        <span class="p">)</span>
+        <span class="n">LOGGER</span><span class="o">.</span><span class="n">error</span><span class="p">(</span><span class="n">msg</span><span class="p">)</span>
+        <span class="k">raise</span> <span class="ne">NotImplementedError</span><span class="p">(</span><span class="n">msg</span><span class="p">)</span>
+
     <span class="k">def</span> <span class="nf">validate_status</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">status</span><span class="p">,</span> <span class="n">rsp</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;Validate `status` and set `rsp.Status` accordingly.</span>
 
@@ -291,14 +310,15 @@
         <span class="k">return</span> <span class="n">rsp</span>
 
 
+
+
 <span class="c1"># Service Class implementations</span>
 <div class="viewcode-block" id="VerificationServiceClass"><a class="viewcode-back" href="../../reference/generated/pynetdicom3.service_class.VerificationServiceClass.html#pynetdicom3.service_class.VerificationServiceClass">[docs]</a><span class="k">class</span> <span class="nc">VerificationServiceClass</span><span class="p">(</span><span class="n">ServiceClass</span><span class="p">):</span>
     <span class="sd">&quot;&quot;&quot;Implementation of the Verification Service Class.&quot;&quot;&quot;</span>
     <span class="n">statuses</span> <span class="o">=</span> <span class="n">VERIFICATION_SERVICE_CLASS_STATUS</span>
 
 <div class="viewcode-block" id="VerificationServiceClass.SCP"><a class="viewcode-back" href="../../reference/generated/pynetdicom3.service_class.VerificationServiceClass.html#pynetdicom3.service_class.VerificationServiceClass.SCP">[docs]</a>    <span class="k">def</span> <span class="nf">SCP</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">req</span><span class="p">,</span> <span class="n">context</span><span class="p">,</span> <span class="n">info</span><span class="p">):</span>
-        <span class="sd">&quot;&quot;&quot;</span>
-<span class="sd">        The SCP implementation for the Verification Service Class.</span>
+        <span class="sd">&quot;&quot;&quot;The SCP implementation for the Verification Service Class.</span>
 
 <span class="sd">        Will always return 0x0000 (Success) unless the user returns a different</span>
 <span class="sd">        (valid) status value from the `AE.on_c_echo` callback.</span>

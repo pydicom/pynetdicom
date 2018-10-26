@@ -481,7 +481,7 @@ is a list containing the negotiation objects (default: None).</li>
 <tr class="row-even"><td><a class="reference internal" href="#pynetdicom3.association.Association.send_n_create" title="pynetdicom3.association.Association.send_n_create"><code class="xref py py-obj docutils literal notranslate"><span class="pre">send_n_create</span></code></a>()</td>
 <td>Send an N-CREATE request message to the peer AE.</td>
 </tr>
-<tr class="row-odd"><td><a class="reference internal" href="#pynetdicom3.association.Association.send_n_delete" title="pynetdicom3.association.Association.send_n_delete"><code class="xref py py-obj docutils literal notranslate"><span class="pre">send_n_delete</span></code></a>()</td>
+<tr class="row-odd"><td><a class="reference internal" href="#pynetdicom3.association.Association.send_n_delete" title="pynetdicom3.association.Association.send_n_delete"><code class="xref py py-obj docutils literal notranslate"><span class="pre">send_n_delete</span></code></a>(class_uid,&nbsp;instance_uid[,&nbsp;msg_id])</td>
 <td>Send an N-DELETE request message to the peer AE.</td>
 </tr>
 <tr class="row-even"><td><a class="reference internal" href="#pynetdicom3.association.Association.send_n_event_report" title="pynetdicom3.association.Association.send_n_event_report"><code class="xref py py-obj docutils literal notranslate"><span class="pre">send_n_event_report</span></code></a>()</td>
@@ -1400,8 +1400,72 @@ unable to encode the <cite>dataset</cite>.</li>
 
 <dl class="method">
 <dt id="pynetdicom3.association.Association.send_n_delete">
-<code class="descname">send_n_delete</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="../../_modules/pynetdicom3/association.html#Association.send_n_delete"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pynetdicom3.association.Association.send_n_delete" title="Permalink to this definition">¶</a></dt>
+<code class="descname">send_n_delete</code><span class="sig-paren">(</span><em>class_uid</em>, <em>instance_uid</em>, <em>msg_id=1</em><span class="sig-paren">)</span><a class="reference internal" href="../../_modules/pynetdicom3/association.html#Association.send_n_delete"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pynetdicom3.association.Association.send_n_delete" title="Permalink to this definition">¶</a></dt>
 <dd><p>Send an N-DELETE request message to the peer AE.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first simple">
+<li><strong>class_uid</strong> (<a class="reference external" href="https://pydicom.github.io/pydicom/stable/api_ref.html#pydicom.uid.UID" title="(in pydicom v1.2.0rc1)"><em>pydicom.uid.UID</em></a>) – The UID to be sent in the request’s (0000,0003) <em>Requested SOP
+Class UID</em> element.</li>
+<li><strong>instance_uid</strong> (<a class="reference external" href="https://pydicom.github.io/pydicom/stable/api_ref.html#pydicom.uid.UID" title="(in pydicom v1.2.0rc1)"><em>pydicom.uid.UID</em></a>) – The UID to be sent in the request’s (0000,1001) <em>Requested SOP
+Instance UID</em> element.</li>
+<li><strong>msg_id</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.7)"><em>int</em></a><em>, </em><em>optional</em>) – The DIMSE <em>Message ID</em>, must be between 0 and 65535, inclusive,
+(default 1).</li>
+</ul>
+</td>
+</tr>
+<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body"><p class="first"><p><strong>status</strong> – If the peer timed out or sent an invalid response then yields an
+empty <code class="docutils literal notranslate"><span class="pre">Dataset</span></code>. If a response was received from the peer then
+yields a <code class="docutils literal notranslate"><span class="pre">Dataset</span></code> containing at least a (0000,0900) <em>Status</em>
+element, and depending on the returned value, may optionally
+contain additional elements (see the DICOM Standard, Part 7,
+Section 9.1.2.1.5 and Annex C).</p>
+<p>General N-DELETE (DICOM Standard Part 7, Section 10.1.6 and
+Annex C)</p>
+<dl class="docutils">
+<dt>Success</dt>
+<dd><div class="first last line-block">
+<div class="line"><code class="docutils literal notranslate"><span class="pre">0x0000</span></code> Successful operation</div>
+</div>
+</dd>
+<dt>Failure</dt>
+<dd><div class="first last line-block">
+<div class="line"><code class="docutils literal notranslate"><span class="pre">0x0110</span></code> Processing failure</div>
+<div class="line"><code class="docutils literal notranslate"><span class="pre">0x0112</span></code> No such SOP Instance</div>
+<div class="line"><code class="docutils literal notranslate"><span class="pre">0x0117</span></code> Invalid object instance</div>
+<div class="line"><code class="docutils literal notranslate"><span class="pre">0x0118</span></code> No such SOP Class</div>
+<div class="line"><code class="docutils literal notranslate"><span class="pre">0x0119</span></code> Class-Instance conflict</div>
+<div class="line"><code class="docutils literal notranslate"><span class="pre">0x0124</span></code> Not authorised</div>
+<div class="line"><code class="docutils literal notranslate"><span class="pre">0x0210</span></code> Duplicate invocation</div>
+<div class="line"><code class="docutils literal notranslate"><span class="pre">0x0211</span></code> Unrecognised operation</div>
+<div class="line"><code class="docutils literal notranslate"><span class="pre">0x0212</span></code> Mistyped argument</div>
+<div class="line"><code class="docutils literal notranslate"><span class="pre">0x0213</span></code> Resource limitation</div>
+</div>
+</dd>
+</dl>
+</p>
+</td>
+</tr>
+<tr class="field-odd field"><th class="field-name">Return type:</th><td class="field-body"><p class="first last"><a class="reference external" href="https://pydicom.github.io/pydicom/stable/api_ref.html#pydicom.dataset.Dataset" title="(in pydicom v1.2.0rc1)">pydicom.dataset.Dataset</a></p>
+</td>
+</tr>
+</tbody>
+</table>
+<div class="admonition seealso">
+<p class="first admonition-title">See also</p>
+<p class="last"><code class="xref py py-meth docutils literal notranslate"><span class="pre">ae.ApplicationEntity.on_n_delete()</span></code>, <code class="xref py py-meth docutils literal notranslate"><span class="pre">dimse_primitives.N_DELETE()</span></code></p>
+</div>
+<p class="rubric">References</p>
+<ul class="simple">
+<li>DICOM Standart Part 4, <a class="reference external" href="http://dicom.nema.org/medical/dicom/current/output/html/part04.html#chapter_H">Annex H</a></li>
+<li>DICOM Standard Part 4, <a class="reference external" href="http://dicom.nema.org/medical/dicom/current/output/html/part04.html#chapter_DD">Annex DD</a></li>
+<li>DICOM Standard Part 7, Sections
+<a class="reference external" href="http://dicom.nema.org/medical/dicom/current/output/html/part07.html#sect_10.1.6">10.1.6</a>,
+<a class="reference external" href="http://dicom.nema.org/medical/dicom/current/output/html/part07.html#sect_10.3.6">10.3.6</a> and
+<a class="reference external" href="http://dicom.nema.org/medical/dicom/current/output/html/part07.html#chapter_C">Annex C</a></li>
+</ul>
 </dd></dl>
 
 <dl class="method">
