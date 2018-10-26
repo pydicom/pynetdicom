@@ -479,7 +479,9 @@ class TestAssociationSendNSet(object):
 
         assoc.dimse = DummyDIMSE()
         assert assoc.is_established
-        status, ds = assoc.send_n_get([(0x7fe0,0x0010)],
+        mod_list = Dataset()
+        mod_list.PatientName = 'Test^test'
+        status, ds = assoc.send_n_set(mod_list,
                                       PrintJobSOPClass.uid,
                                       '1.2.840.10008.5.1.1.40.1')
 
@@ -508,7 +510,9 @@ class TestAssociationSendNSet(object):
 
         assoc.dimse = DummyDIMSE()
         assert assoc.is_established
-        status, ds = assoc.send_n_get([(0x7fe0,0x0010)],
+        mod_list = Dataset()
+        mod_list.PatientName = 'Test^test'
+        status, ds = assoc.send_n_set(mod_list,
                                       PrintJobSOPClass.uid,
                                       '1.2.840.10008.5.1.1.40.1')
         assert status == Dataset()
