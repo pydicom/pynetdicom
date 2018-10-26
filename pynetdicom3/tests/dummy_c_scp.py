@@ -57,6 +57,7 @@ from pynetdicom3.status import code_to_category
 
 LOGGER = logging.getLogger('pynetdicom3')
 LOGGER.setLevel(logging.CRITICAL)
+#LOGGER.setLevel(logging.DEBUG)
 
 TEST_DS_DIR = os.path.join(os.path.dirname(__file__), 'dicom_files')
 BIG_DATASET = read_file(os.path.join(TEST_DS_DIR, 'RTImageStorage.dcm'))
@@ -75,6 +76,7 @@ class DummyBaseSCP(threading.Thread):
         self.ae.on_c_get = self.on_c_get
         self.ae.on_c_move = self.on_c_move
         self.ae.on_n_get = self.on_n_get
+        self.ae.on_n_delete = self.on_n_delete
 
         threading.Thread.__init__(self)
         self.daemon = True
@@ -141,6 +143,10 @@ class DummyBaseSCP(threading.Thread):
         """Callback for ae.on_n_get"""
         raise RuntimeError("You should not have been able to get here.")
 
+    def on_n_delete(self, context, info):
+        """Callback for ae.on_n_delete"""
+        raise RuntimeError("You should not have been able to get here.")
+
     def dev_monitor_socket(self):
         try:
             read_list, _, _ = select.select([self.local_socket], [], [], 0)
@@ -172,6 +178,7 @@ class DummyVerificationSCP(DummyBaseSCP):
     def __init__(self, port=11112):
         self.ae = AE(port=port)
         self.ae.supported_contexts = VerificationPresentationContexts
+        self.ae.add_supported_context('1.2.3.4')
         DummyBaseSCP.__init__(self)
         self.status = 0x0000
 

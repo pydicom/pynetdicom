@@ -13,6 +13,12 @@ from pynetdicom3.sop_class import (
     _RELEVANT_PATIENT_QUERY_CLASSES,
     _SUBSTANCE_ADMINISTRATION_CLASSES,
     _NON_PATIENT_OBJECT_CLASSES,
+    _PRINT_MANAGEMENT_CLASSES,
+    _PROCEDURE_STEP_CLASSES,
+    _DISPLAY_SYSTEM_CLASSES,
+    _MEDIA_STORAGE_CLASSES,
+    _UNITED_PROCEDURE_STEP_CLASSES,
+    _RT_MACHINE_VERIFICATION_CLASSES,
     VerificationSOPClass,
     CTImageStorage,
     StudyRootQueryRetrieveInformationModelFind,
@@ -26,6 +32,7 @@ from pynetdicom3.sop_class import (
     ImplantTemplateGroupInformationModelFind,
 )
 from pynetdicom3.service_class import (
+    ServiceClass,
     VerificationServiceClass,
     StorageServiceClass,
     QueryRetrieveServiceClass,
@@ -38,14 +45,19 @@ from pynetdicom3.service_class import (
     ColorPaletteQueryRetrieveServiceClass,
     ImplantTemplateQueryRetrieveServiceClass,
 )
+from pynetdicom3.service_class_n import (
+    DisplaySystemManagementServiceClass,
+)
 
 
 class TestUIDtoSOPlass(object):
     """Tests for uid_to_sop_class"""
     def test_missing_sop(self):
-        """Test raise if SOP Class not found."""
-        with pytest.raises(NotImplementedError):
-            uid_to_sop_class('1.2.3.4')
+        """Test SOP Class if UID not found."""
+        sop_class = uid_to_sop_class('1.2.3.4')
+        assert sop_class.uid == '1.2.3.4'
+        assert sop_class.UID == '1.2.3.4'
+        assert sop_class.service_class == ServiceClass
 
     def test_verification_uid(self):
         """Test normal function"""
@@ -89,10 +101,39 @@ class TestUIDToServiceClass(object):
         for uid in _NON_PATIENT_OBJECT_CLASSES.values():
             assert uid_to_service_class(uid) == NonPatientObjectStorageServiceClass
 
-    def test_unknown_uid_raises(self):
-        """Test that an unknown UID raises exception."""
-        with pytest.raises(NotImplementedError):
-            uid_to_service_class('1.2.3')
+    def test_print_uids(self):
+        """Test that the Print SOP Class UIDs work correctly."""
+        for uid in _PRINT_MANAGEMENT_CLASSES.values():
+            assert uid_to_service_class(uid) == ServiceClass
+
+    def test_procedure_uids(self):
+        """Test that the Procedure SOP Class UIDs work correctly."""
+        for uid in _PROCEDURE_STEP_CLASSES.values():
+            assert uid_to_service_class(uid) == ServiceClass
+
+    def test_media_uids(self):
+        """Test that the Media Storage SOP Class UIDs work correctly."""
+        for uid in _MEDIA_STORAGE_CLASSES.values():
+            assert uid_to_service_class(uid) == ServiceClass
+
+    def test_ups_uids(self):
+        """Test that the UPS SOP Class UIDs work correctly."""
+        for uid in _UNITED_PROCEDURE_STEP_CLASSES.values():
+            assert uid_to_service_class(uid) == ServiceClass
+
+    def test_rt_machine_uids(self):
+        """Test that the RT Verification SOP Class UIDs work correctly."""
+        for uid in _RT_MACHINE_VERIFICATION_CLASSES.values():
+            assert uid_to_service_class(uid) == ServiceClass
+
+    def test_display_system_uids(self):
+        """Test that Display System SOP Class UIDs work correctly."""
+        for uid in _DISPLAY_SYSTEM_CLASSES.values():
+            assert uid_to_service_class(uid) == DisplaySystemManagementServiceClass
+
+    def test_unknown_uid(self):
+        """Test that an unknown UID returns default service class."""
+        assert uid_to_service_class('1.2.3') == ServiceClass
 
 
 class TestSOPClass(object):

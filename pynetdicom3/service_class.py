@@ -68,6 +68,25 @@ class ServiceClass(object):
 
         return False
 
+    def SCP(self, req, context, info):
+        """The implementation of the corresponding service class.
+
+        Parameters
+        ----------
+        req : A DIMSE message primitive
+            The message request primitive sent by the peer.
+        context : presentation.PresentationContext
+            The presentation context that the SCP is operating under.
+        info : dict
+            A dict containing details about the association.
+        """
+        msg = (
+            "No service has been implemented for the SOP Class UID '{}'"
+            .format(context.abstract_syntax)
+        )
+        LOGGER.error(msg)
+        raise NotImplementedError(msg)
+
     def validate_status(self, status, rsp):
         """Validate `status` and set `rsp.Status` accordingly.
 
@@ -120,14 +139,15 @@ class ServiceClass(object):
         return rsp
 
 
+
+
 # Service Class implementations
 class VerificationServiceClass(ServiceClass):
     """Implementation of the Verification Service Class."""
     statuses = VERIFICATION_SERVICE_CLASS_STATUS
 
     def SCP(self, req, context, info):
-        """
-        The SCP implementation for the Verification Service Class.
+        """The SCP implementation for the Verification Service Class.
 
         Will always return 0x0000 (Success) unless the user returns a different
         (valid) status value from the `AE.on_c_echo` callback.

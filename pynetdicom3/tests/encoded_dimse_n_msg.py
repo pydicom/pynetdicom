@@ -52,3 +52,39 @@ n_get_rsp_ds = (
     # (0010, 0010) PatientID = 'Test1101'
     b'\x10\x00\x20\x00\x08\x00\x00\x00\x54\x65\x73\x74\x31\x31\x30\x31'
 )
+
+n_delete_rq_cmd = (
+    # Message control header byte: command set, last fragment
+    b'\x03'
+    # Command Group Length, length 4, value 58
+    b'\x00\x00\x00\x00\x04\x00\x00\x00\x3a\x00\x00\x00'
+    # Requested SOP Class UID, length 6, value 1.2.3
+    b'\x00\x00\x03\x00\x06\x00\x00\x00\x31\x2e\x32\x2e\x33\x00'
+    # Command Field   | length 2      | value 0x0150
+    b'\x00\x00\x00\x01\x02\x00\x00\x00\x50\x01'
+    # Message ID      | length 2      | value 7
+    b'\x00\x00\x10\x01\x02\x00\x00\x00\x07\x00'
+    # Command Data Set Type, length 2 | value 0x0101
+    b'\x00\x00\x00\x08\x02\x00\x00\x00\x01\x01'
+    # Requested SOP Instance UID, length 6, value 1.2.30
+    b'\x00\x00\x01\x10\x06\x00\x00\x00\x31\x2e\x32\x2e\x33\x30'
+)
+
+n_delete_rsp_cmd = (
+    b'\x03'
+    # Command Group Length, length 4, value 76
+    b'\x00\x00\x00\x00\x04\x00\x00\x00\x4c\x00\x00\x00'
+    # Affected SOP Class UID, length 8, value 1.2.4.10
+    b'\x00\x00\x02\x00\x08\x00\x00\x00\x31\x2e\x32\x2e\x34\x2e\x31\x30'
+    # Command Field   | length 2      | value 0x8150
+    b'\x00\x00\x00\x01\x02\x00\x00\x00\x50\x81'
+    # Message ID Being Responded To, length 2      | value 5
+    b'\x00\x00\x20\x01\x02\x00\x00\x00\x05\x00'
+    # Command Data Set Type, length 2 | value 0x0101
+    b'\x00\x00\x00\x08\x02\x00\x00\x00\x01\x01'
+    # Status          | length 2      | value 0xC201
+    b'\x00\x00\x00\x09\x02\x00\x00\x00\x01\xC2'
+    # Affected SOP Instance UID, length 12, value 1.2.4.5.7.8
+    b'\x00\x00\x00\x10\x0c\x00\x00\x00\x31\x2e\x32\x2e\x34\x2e\x35\x2e\x37'
+    b'\x2e\x38\x00'
+)

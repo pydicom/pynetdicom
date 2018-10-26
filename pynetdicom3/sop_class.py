@@ -8,6 +8,7 @@ import sys
 from pydicom.uid import UID
 
 from pynetdicom3.service_class import (
+    ServiceClass,
     VerificationServiceClass,
     StorageServiceClass,
     QueryRetrieveServiceClass,
@@ -71,11 +72,19 @@ def uid_to_service_class(uid):
         return ImplantTemplateQueryRetrieveServiceClass
     elif uid in _DISPLAY_SYSTEM_CLASSES.values():
         return DisplaySystemManagementServiceClass
-    else:
-        raise NotImplementedError(
-            "The Service Class for the SOP Class with UID '{}' has not "
-            "been implemented".format(uid)
-        )
+    elif uid in _PRINT_MANAGEMENT_CLASSES.values():
+        return ServiceClass  # Not yet implemented
+    elif uid in _PROCEDURE_STEP_CLASSES.values():
+        return ServiceClass  # Not yet implemented
+    elif uid in _MEDIA_STORAGE_CLASSES.values():
+        return ServiceClass  # Not yet implemented
+    elif uid in _UNITED_PROCEDURE_STEP_CLASSES.values():
+        return ServiceClass  # Not yet implemented
+    elif uid in _RT_MACHINE_VERIFICATION_CLASSES.values():
+        return ServiceClass  # Not yet implemented
+
+    # No SCP implemented
+    return ServiceClass
 
 
 class SOPClass(namedtuple("SOPClass", ['uid', 'UID', 'service_class'])):
@@ -316,28 +325,6 @@ _DISPLAY_SYSTEM_CLASSES = {
     'DisplaySystemSOPClass' : '1.2.840.10008.5.1.1.40',
 }
 
-# pylint: enable=line-too-long
-_generate_sop_classes(_VERIFICATION_CLASSES)
-_generate_sop_classes(_STORAGE_CLASSES)
-_generate_sop_classes(_QR_CLASSES)
-_generate_sop_classes(_BASIC_WORKLIST_CLASSES)
-_generate_sop_classes(_RELEVANT_PATIENT_QUERY_CLASSES)
-_generate_sop_classes(_SUBSTANCE_ADMINISTRATION_CLASSES)
-_generate_sop_classes(_NON_PATIENT_OBJECT_CLASSES)
-_generate_sop_classes(_HANGING_PROTOCOL_CLASSES)
-_generate_sop_classes(_DEFINED_PROCEDURE_CLASSES)
-_generate_sop_classes(_COLOR_PALETTE_CLASSES)
-_generate_sop_classes(_IMPLANT_TEMPLATE_CLASSES)
-_generate_sop_classes(_DISPLAY_SYSTEM_CLASSES)
-
-
-# WIP SOP Classes
-_PROCEDURE_STEP_CLASSES = {
-    'ModalityPerformedProcedureStepSOPClass' : '1.2.840.10008.3.1.2.3.3',
-    'ModalityPerformedProcedureStepRetrieveSOPClass' : '1.2.840.10008.3.1.2.3.4',
-    'ModalityPerformedProcedureStepNotificationSOPClass' : '1.2.840.10008.3.1.2.3.5',
-}
-
 _PRINT_MANAGEMENT_CLASSES = {
     'BasicFilmSessionSOPClass' : '1.2.840.10008.5.1.1.1',
     'BasicFilmBoxSOPClass' : '1.2.840.10008.5.1.1.2',
@@ -348,6 +335,12 @@ _PRINT_MANAGEMENT_CLASSES = {
     'PrinterSOPClass' : '1.2.840.10008.5.1.1.16',
     'PrinterConfigurationRetrievalSOPClass' : '1.2.840.10008.5.1.1.16.376',
     'PresentationLUTSOPClass' : '1.2.840.10008.5.1.1.23',
+}
+
+_PROCEDURE_STEP_CLASSES = {
+    'ModalityPerformedProcedureStepSOPClass' : '1.2.840.10008.3.1.2.3.3',
+    'ModalityPerformedProcedureStepRetrieveSOPClass' : '1.2.840.10008.3.1.2.3.4',
+    'ModalityPerformedProcedureStepNotificationSOPClass' : '1.2.840.10008.3.1.2.3.5',
 }
 
 _MEDIA_STORAGE_CLASSES = {
@@ -365,6 +358,25 @@ _RT_MACHINE_VERIFICATION_CLASSES = {
     'RTConventionalMachineVerification' : '1.2.840.10008.5.1.4.34.8',
     'RTIonMachineVerification' : '1.2.840.10008.5.1.4.34.9',
 }
+
+# pylint: enable=line-too-long
+_generate_sop_classes(_VERIFICATION_CLASSES)
+_generate_sop_classes(_STORAGE_CLASSES)
+_generate_sop_classes(_QR_CLASSES)
+_generate_sop_classes(_BASIC_WORKLIST_CLASSES)
+_generate_sop_classes(_RELEVANT_PATIENT_QUERY_CLASSES)
+_generate_sop_classes(_SUBSTANCE_ADMINISTRATION_CLASSES)
+_generate_sop_classes(_NON_PATIENT_OBJECT_CLASSES)
+_generate_sop_classes(_HANGING_PROTOCOL_CLASSES)
+_generate_sop_classes(_DEFINED_PROCEDURE_CLASSES)
+_generate_sop_classes(_COLOR_PALETTE_CLASSES)
+_generate_sop_classes(_IMPLANT_TEMPLATE_CLASSES)
+_generate_sop_classes(_DISPLAY_SYSTEM_CLASSES)
+_generate_sop_classes(_PRINT_MANAGEMENT_CLASSES)
+_generate_sop_classes(_PROCEDURE_STEP_CLASSES)
+_generate_sop_classes(_MEDIA_STORAGE_CLASSES)
+_generate_sop_classes(_UNITED_PROCEDURE_STEP_CLASSES)
+_generate_sop_classes(_RT_MACHINE_VERIFICATION_CLASSES)
 
 
 def uid_to_sop_class(uid):
@@ -395,5 +407,4 @@ def uid_to_sop_class(uid):
         if hasattr(obj[1], 'uid') and obj[1].uid == uid:
             return obj[1]
 
-    raise NotImplementedError("The SOP Class for UID '{}' has not been " \
-                              "implemented".format(uid))
+    return SOPClass(uid, uid, ServiceClass)

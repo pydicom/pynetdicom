@@ -15,7 +15,7 @@ from pynetdicom3.acse import ACSEServiceProvider
 from pynetdicom3.dimse import DIMSEServiceProvider
 from pynetdicom3.dimse_primitives import (
     C_ECHO, C_MOVE, C_STORE, C_GET, C_FIND, C_CANCEL,
-    N_GET
+    N_GET, N_DELETE
 )
 from pynetdicom3.dsutils import decode, encode
 from pynetdicom3.dul import DULServiceProvider
@@ -555,7 +555,12 @@ class Association(threading.Thread):
                         service_class.AE = self.ae
 
                         # Run SOPClass in SCP mode
-                        service_class.SCP(msg, context, info)
+                        try:
+                            service_class.SCP(msg, context, info)
+                        except NotImplementedError:
+                            # SCP isn't implemented
+                            self.abort()
+                            return
                         break
                 else:
                     LOGGER.info("Received message with invalid or rejected "
@@ -2189,6 +2194,7 @@ class Association(threading.Thread):
 
         References
         ----------
+
         * DICOM Standart Part 4, `Annex F <http://dicom.nema.org/medical/dicom/current/output/html/part04.html#chapter_F>`_
         * DICOM Standart Part 4, `Annex H <http://dicom.nema.org/medical/dicom/current/output/html/part04.html#chapter_H>`_
         * DICOM Standard Part 4, `Annex S <http://dicom.nema.org/medical/dicom/current/output/html/part04.html#chapter_S>`_
@@ -2306,14 +2312,121 @@ class Association(threading.Thread):
                                "request.")
         raise NotImplementedError
 
-    def send_n_delete(self):
-        """Send an N-DELETE request message to the peer AE."""
+    def send_n_delete(self, class_uid, instance_uid, msg_id=1):
+        """Send an N-DELETE request message to the peer AE.
+
+        Parameters
+        ----------
+        class_uid : pydicom.uid.UID
+            The UID to be sent in the request's (0000,0003) *Requested SOP
+            Class UID* element.
+        instance_uid : pydicom.uid.UID
+            The UID to be sent in the request's (0000,1001) *Requested SOP
+            Instance UID* element.
+        msg_id : int, optional
+            The DIMSE *Message ID*, must be between 0 and 65535, inclusive,
+            (default 1).
+
+        Returns
+        -------
+        status : pydicom.dataset.Dataset
+            If the peer timed out or sent an invalid response then yields an
+            empty ``Dataset``. If a response was received from the peer then
+            yields a ``Dataset`` containing at least a (0000,0900) *Status*
+            element, and depending on the returned value, may optionally
+            contain additional elements (see the DICOM Standard, Part 7,
+            Section 9.1.2.1.5 and Annex C).
+
+            General N-DELETE (DICOM Standard Part 7, Section 10.1.6 and
+            Annex C)
+
+            Success
+              | ``0x0000`` Successful operation
+
+            Failure
+              | ``0x0110`` Processing failure
+              | ``0x0112`` No such SOP Instance
+              | ``0x0117`` Invalid object instance
+              | ``0x0118`` No such SOP Class
+              | ``0x0119`` Class-Instance conflict
+              | ``0x0124`` Not authorised
+              | ``0x0210`` Duplicate invocation
+              | ``0x0211`` Unrecognised operation
+              | ``0x0212`` Mistyped argument
+              | ``0x0213`` Resource limitation
+
+        See Also
+        --------
+        ae.ApplicationEntity.on_n_delete
+        dimse_primitives.N_DELETE
+
+        References
+        ----------
+
+        * DICOM Standart Part 4, `Annex H <http://dicom.nema.org/medical/dicom/current/output/html/part04.html#chapter_H>`_
+        * DICOM Standard Part 4, `Annex DD <http://dicom.nema.org/medical/dicom/current/output/html/part04.html#chapter_DD>`_
+        * DICOM Standard Part 7, Sections
+          `10.1.6 <http://dicom.nema.org/medical/dicom/current/output/html/part07.html#sect_10.1.6>`_,
+          `10.3.6 <http://dicom.nema.org/medical/dicom/current/output/html/part07.html#sect_10.3.6>`_ and
+          `Annex C <http://dicom.nema.org/medical/dicom/current/output/html/part07.html#chapter_C>`__
+        """
         # Can't send an N-DELETE without an Association
         if not self.is_established:
-            raise RuntimeError("The association with a peer SCP must be "
-                               "established before sending an N-DELETE "
-                               "request.")
-        raise NotImplementedError
+            raise RuntimeError(
+                "The association with a peer SCP must be established prior "
+                "to sending an N-DELETE request."
+            )
+
+        # Determine the Presentation Context we are operating under
+        #   and hence the transfer syntax to use for encoding `dataset`
+        transfer_syntax = None
+        for context in self.acse.context_manager.accepted:
+            if class_uid == context.abstract_syntax:
+                transfer_syntax = context.transfer_syntax[0]
+                context_id = context.context_id
+                break
+        else:
+            LOGGER.error(
+                "Association.send_n_delete - no accepted Presentation Context "
+                "for: '{}'".format(class_uid)
+            )
+            LOGGER.error(
+                "Delete SCU failed due to there being no accepted "
+                "presentation context"
+            )
+            raise ValueError(
+                "No accepted Presentation Context for the SOP Class UID '{}'"
+                .format(class_uid)
+            )
+
+        # Build N-DELETE request primitive
+        #   (M) Message ID
+        #   (M) Requested SOP Class UID
+        #   (M) Requested SOP Instance UID
+        req = N_DELETE()
+        req.MessageID = msg_id
+        req.RequestedSOPClassUID = class_uid
+        req.RequestedSOPInstanceUID = instance_uid
+
+        # Send N-DELETE request to the peer via DIMSE and wait for the response
+        self.dimse.send_msg(req, context_id)
+        rsp, _ = self.dimse.receive_msg(wait=True)
+
+        # Determine validity of the response and get the status
+        status = Dataset()
+        if rsp is None:
+            LOGGER.error('DIMSE service timed out')
+            self.abort()
+        elif rsp.is_valid_response:
+            status.Status = rsp.Status
+            for keyword in ['ErrorComment', 'ErrorID']:
+                if getattr(rsp, keyword, None) is not None:
+                    setattr(status, keyword, getattr(rsp, keyword))
+        else:
+            LOGGER.error('Received an invalid N-DELETE response from the peer')
+            self.abort()
+
+        return status
 
 
     # Association logging/debugging functions
