@@ -15,7 +15,7 @@ from pynetdicom3.acse import ACSEServiceProvider
 from pynetdicom3.dimse import DIMSEServiceProvider
 from pynetdicom3.dimse_primitives import (
     C_ECHO, C_MOVE, C_STORE, C_GET, C_FIND, C_CANCEL,
-    N_GET, N_SET, N_DELETE
+    N_EVENT_REPORT, N_GET, N_SET, N_CREATE, N_ACTION, N_DELETE
 )
 from pynetdicom3.dsutils import decode, encode
 from pynetdicom3.dul import DULServiceProvider
@@ -2121,14 +2121,177 @@ class Association(threading.Thread):
 
 
     # DIMSE-N services provided by the Association
-    def send_n_event_report(self):
-        """Send an N-EVENT-REPORT request message to the peer AE."""
+    def send_n_event_report(self, dataset, event_type, class_uid,
+                            instance_uid, msg_id=1):
+        """Send an N-EVENT-REPORT request message to the peer AE.
+
+        Parameters
+        ----------
+        dataset : pydicom.dataset.Dataset
+            The dataset that will be sent as the *Event Information* parameter
+            in the N-EVENT-REPORT request.
+        event_type : int
+            The value to be sent in the request's (0000,10002) *Event Type ID*
+            element.
+        class_uid : pydicom.uid.UID
+            The UID to be sent in the request's (0000,0003) *Requested SOP
+            Class UID* element.
+        instance_uid : pydicom.uid.UID
+            The UID to be sent in the request's (0000,1001) *Requested SOP
+            Instance UID* element.
+        msg_id : int, optional
+            The DIMSE *Message ID*, must be between 0 and 65535, inclusive,
+            (default 1).
+
+        Returns
+        -------
+        status : pydicom.dataset.Dataset
+            If the peer timed out or sent an invalid response then yields an
+            empty ``Dataset``. If a response was received from the peer then
+            yields a ``Dataset`` containing at least a (0000,0900) *Status*
+            element, and depending on the returned value, may optionally
+            contain additional elements (see the DICOM Standard, Part 7,
+            Section 9.1.2.1.5 and Annex C).
+
+            General N-EVENT-REPORT (DICOM Standard Part 7, Section 10.1.1
+            and Annex C)
+
+            Success
+              | ``0x0000`` Successful operation
+
+            Failure
+              | ``0x0110`` Processing failure
+              | ``0x0112`` No such SOP Instance
+              | ``0x0113`` No such event type
+              | ``0x0114`` No such argument
+              | ``0x0115`` Invalid argument value
+              | ``0x0117`` Invalid object instance
+              | ``0x0118`` No such SOP Class
+              | ``0x0119`` Class-Instance conflict
+              | ``0x0210`` Duplicate invocation
+              | ``0x0211`` Unrecognised operation
+              | ``0x0212`` Mistyped argument
+              | ``0x0213`` Resource limitation
+
+        event_reply : pydicom.dataset.Dataset or None
+            If the status is 'Success' then a ``Dataset`` containing the
+            optional reply to the event report.
+
+        See Also
+        --------
+        ae.ApplicationEntity.on_n_event_report
+        dimse_primitives.N_EVENT_REPORT
+
+        References
+        ----------
+
+        * DICOM Standart Part 4, `Annex F <http://dicom.nema.org/medical/dicom/current/output/html/part04.html#chapter_F>`_
+        * DICOM Standart Part 4, `Annex H <http://dicom.nema.org/medical/dicom/current/output/html/part04.html#chapter_H>`_
+        * DICOM Standart Part 4, `Annex J <http://dicom.nema.org/medical/dicom/current/output/html/part04.html#chapter_J>`_
+        * DICOM Standard Part 4, `Annex CC <http://dicom.nema.org/medical/dicom/current/output/html/part04.html#chapter_CC>`_
+        * DICOM Standard Part 4, `Annex DD <http://dicom.nema.org/medical/dicom/current/output/html/part04.html#chapter_DD>`_
+        * DICOM Standard Part 7, Sections
+          `10.1.1 <http://dicom.nema.org/medical/dicom/current/output/html/part07.html#sect_10.1.1>`_,
+          `10.3.1 <http://dicom.nema.org/medical/dicom/current/output/html/part07.html#sect_10.3.1>`_ and
+          `Annex C <http://dicom.nema.org/medical/dicom/current/output/html/part07.html#chapter_C>`__
+        """
         # Can't send an N-EVENT-REPORT without an Association
         if not self.is_established:
-            raise RuntimeError("The association with a peer SCP must be "
-                               "established before sending an N-EVENT-REPORT "
-                               "request")
-        raise NotImplementedError
+            raise RuntimeError(
+                "The association with a peer SCP must be established prior "
+                "to sending an N-EVENT-REPORT request."
+            )
+
+        # Determine the Presentation Context we are operating under
+        #   and hence the transfer syntax to use for encoding `dataset`
+        transfer_syntax = None
+        for context in self.acse.context_manager.accepted:
+            if class_uid == context.abstract_syntax:
+                transfer_syntax = context.transfer_syntax[0]
+                context_id = context.context_id
+                break
+        else:
+            LOGGER.error(
+                "Association.send_n_event_report - no accepted Presentation "
+                "Context for: '{}'".format(class_uid)
+            )
+            LOGGER.error(
+                "Event Report SCU failed due to there being no accepted "
+                "presentation context"
+            )
+            raise ValueError(
+                "No accepted Presentation Context for the SOP Class UID '{}'"
+                .format(class_uid)
+            )
+
+        # Build N-EVENT-REPORT request primitive
+        #   (M) Message ID
+        #   (M) Affected SOP Class UID
+        #   (M) Affected SOP Instance UID
+        #   (M) Event Type ID
+        #   (U) Event Information
+        req = N_EVENT_REPORT()
+        req.MessageID = msg_id
+        req.AffectedSOPClassUID = class_uid
+        req.AffectedSOPInstanceUID = instance_uid
+        req.EventTypeID = event_type
+
+        # Encode the `dataset` using the agreed transfer syntax
+        #   Will return None if failed to encode
+        bytestream = encode(dataset,
+                            transfer_syntax.is_implicit_VR,
+                            transfer_syntax.is_little_endian)
+
+        if bytestream is not None:
+            req.ModificationList = BytesIO(bytestream)
+        else:
+            LOGGER.error("Failed to encode the supplied dataset")
+            raise ValueError('Failed to encode the supplied dataset')
+
+        # Send N-EVENT-REPORT request to the peer via DIMSE and wait for
+        # the response
+        self.dimse.send_msg(req, context_id)
+        rsp, _ = self.dimse.receive_msg(wait=True)
+
+        # Determine validity of the response and get the status
+        status = Dataset()
+        event_reply = None
+        if rsp is None:
+            LOGGER.error('DIMSE service timed out')
+            self.abort()
+        elif rsp.is_valid_response:
+            status.Status = rsp.Status
+            # TODO: use rsp.OPTIONAL_STATUS_KEYWORDS or something
+            for keyword in ['ErrorComment', 'ErrorID', 'EventTypeID',
+                            'AffectedSOPClassUID', 'AffectedSOPInstanceUID',
+                            'EventInformation']:
+                if getattr(rsp, keyword, None) is not None:
+                    setattr(status, keyword, getattr(rsp, keyword))
+        else:
+            LOGGER.error(
+                'Received an invalid N-EVENT-REPORT response from the peer'
+            )
+            self.abort()
+
+        # Warning and Success statuses will return a dataset
+        #   we check against None as 0x0000 is a possible status
+        if getattr(status, 'Status', None) is not None:
+            category = code_to_category(status.Status)
+            if category not in [STATUS_WARNING, STATUS_SUCCESS]:
+                return status, attribute_list
+
+            # Attempt to decode the response's dataset
+            try:
+                event_reply = decode(rsp.EventReply,
+                                     transfer_syntax.is_implicit_VR,
+                                     transfer_syntax.is_little_endian)
+            except Exception as ex:
+                LOGGER.error("Failed to decode the received dataset")
+                LOGGER.exception(ex)
+                # Failure: Processing failure
+                status.Status = 0x0110
+
+        return status, event_reply
 
     def send_n_get(self, identifier_list, class_uid, instance_uid, msg_id=1):
         """Send an N-GET request message to the peer AE.
@@ -2389,7 +2552,7 @@ class Association(threading.Thread):
                 .format(class_uid)
             )
 
-        # Build C-STORE request primitive
+        # Build N-SET request primitive
         #   (M) Message ID
         #   (M) Requested SOP Class UID
         #   (M) Requested SOP Instance UID

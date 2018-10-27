@@ -2016,7 +2016,7 @@ class ApplicationEntity(object):
                                   "AE.on_n_delete function prior to calling "
                                   "AE.start()")
 
-    def on_n_event_report(self, context, info):
+    def on_n_event_report(self, dataset, context, info):
         """Callback for when a N-EVENT-REPORT is received.
 
         References
