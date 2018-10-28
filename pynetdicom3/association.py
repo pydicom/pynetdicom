@@ -2134,10 +2134,10 @@ class Association(threading.Thread):
             The value to be sent in the request's (0000,10002) *Event Type ID*
             element.
         class_uid : pydicom.uid.UID
-            The UID to be sent in the request's (0000,0003) *Requested SOP
+            The UID to be sent in the request's (0000,0003) *Affected SOP
             Class UID* element.
         instance_uid : pydicom.uid.UID
-            The UID to be sent in the request's (0000,1001) *Requested SOP
+            The UID to be sent in the request's (0000,1001) *Affected SOP
             Instance UID* element.
         msg_id : int, optional
             The DIMSE *Message ID*, must be between 0 and 65535, inclusive,
@@ -2243,13 +2243,13 @@ class Association(threading.Thread):
                             transfer_syntax.is_little_endian)
 
         if bytestream is not None:
-            req.ModificationList = BytesIO(bytestream)
+            req.EventInformation = BytesIO(bytestream)
         else:
             LOGGER.error("Failed to encode the supplied dataset")
             raise ValueError('Failed to encode the supplied dataset')
 
         # Send N-EVENT-REPORT request to the peer via DIMSE and wait for
-        # the response
+        # the response primitive
         self.dimse.send_msg(req, context_id)
         rsp, _ = self.dimse.receive_msg(wait=True)
 
@@ -2262,9 +2262,7 @@ class Association(threading.Thread):
         elif rsp.is_valid_response:
             status.Status = rsp.Status
             # TODO: use rsp.OPTIONAL_STATUS_KEYWORDS or something
-            for keyword in ['ErrorComment', 'ErrorID', 'EventTypeID',
-                            'AffectedSOPClassUID', 'AffectedSOPInstanceUID',
-                            'EventInformation']:
+            for keyword in rsp.STATUS_OPTIONAL_KEYWORDS:
                 if getattr(rsp, keyword, None) is not None:
                     setattr(status, keyword, getattr(rsp, keyword))
         else:

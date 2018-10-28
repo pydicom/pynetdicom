@@ -1689,31 +1689,13 @@ class N_EVENT_REPORT(object):
         Dataset containing additional Service Class specific information.
     Status : int
         The error or success notification of the operation.
-
-    Notes
-    -----
-
-    **Status**
-
-    Failure
-
-    0x0119 - class-instance conflict PS3.7 Annex C.5.7
-    0x0210 - duplicate invocation PS3.7 Annex C.5.9
-    0x0115 - invalid argument value PS3.7 Annex C.5.10
-    0x0117 - invalid SOP instance PS3.7 Annex C.5.12
-    0x0212 - mistyped argument PS3.7 Annex C.5.15
-    0x0114 - no such argument  PS3.7 Annex C.5.16
-    0x0113 - no such event type PS3.7 Annex C.5.18
-    0x0118 - no such SOP class PS3.7 Annex C.5.20
-    0x0112 - no such SOP instance PS3.7 Annex C.5.19
-    0x0110 - processing failure PS3.7 Annex C.5.21
-    0x0213 - resource limitation PS3.7 Annex C.5.22
-    0x0211 - unrecognised operation PS3.7 Annex C.5.23
-
-    Success
-
-    0x0000 - success 0x0000
     """
+    # Optional status element keywords other than 'Status'
+    STATUS_OPTIONAL_KEYWORDS = (
+        'AffectedSOPClassUID', 'AffectedSOPInstanceUID', 'EventTypeID',
+        'EventInformation', 'ErrorComment', 'ErrorID'
+    )
+
     def __init__(self):
         self.MessageID = None
         self.MessageIDBeingRespondedTo = None
@@ -1724,9 +1706,116 @@ class N_EVENT_REPORT(object):
         self.EventReply = None
         self.Status = None
 
-        # (0000,1008) 0x0115
-        self.ActionTypeID = None
-        self.ActionInformation = None
+        # Optional status elements
+        self.ErrorComment = None
+        self.ErrorID = None
+
+    @property
+    def AffectedSOPClassUID(self):
+        """Return the *Affected SOP Class UID*."""
+        return self._affected_sop_class_uid
+
+    @AffectedSOPClassUID.setter
+    def AffectedSOPClassUID(self, value):
+        """Set the *Affected SOP Class UID*.
+
+        Parameters
+        ----------
+        value : pydicom.uid.UID, bytes or str
+            The value for the Affected SOP Class UID
+        """
+        if isinstance(value, UID):
+            pass
+        elif isinstance(value, str):
+            value = UID(value)
+        elif isinstance(value, bytes):
+            value = UID(value.decode('ascii'))
+        elif value is None:
+            pass
+        else:
+            raise TypeError("Affected SOP Class UID must be a "
+                            "pydicom.uid.UID, str or bytes")
+
+        if value is not None and not value.is_valid:
+            LOGGER.error("Affected SOP Class UID is an invalid UID")
+            raise ValueError("Affected SOP Class UID is an invalid UID")
+
+        self._affected_sop_class_uid = value
+
+    @property
+    def AffectedSOPInstanceUID(self):
+        """Return the *Affected SOP Instance UID*."""
+        return self._affected_sop_instance_uid
+
+    @AffectedSOPInstanceUID.setter
+    def AffectedSOPInstanceUID(self, value):
+        """Set the *Affected SOP Instance UID*.
+
+        Parameters
+        ----------
+        value : pydicom.uid.UID, bytes or str
+            The value for the Affected SOP Instance UID
+        """
+        if isinstance(value, UID):
+            pass
+        elif isinstance(value, str):
+            value = UID(value)
+        elif isinstance(value, bytes):
+            value = UID(value.decode('ascii'))
+        elif value is None:
+            pass
+        else:
+            raise TypeError("Affected SOP Instance UID must be a "
+                            "pydicom.uid.UID, str or bytes")
+
+        if value is not None and not value.is_valid:
+            LOGGER.error("Affected SOP Instance UID is an invalid UID")
+            raise ValueError("Affected SOP Instance UID is an invalid UID")
+
+        self._affected_sop_instance_uid = value
+
+    @property
+    def EventInformation(self):
+        """Return the *Event Information*."""
+        return self._event_info
+
+    @EventInformation.setter
+    def EventInformation(self, value):
+        """Set the *Event Information*."""
+        if value is None:
+            self._event_info = value
+        elif isinstance(value, BytesIO):
+            self._event_info = value
+        else:
+            raise TypeError("EventInformation must be a BytesIO object")
+
+    @property
+    def EventReply(self):
+        """Return the *Event Reply*."""
+        return self._event_reply
+
+    @EventReply.setter
+    def EventReply(self, value):
+        """Set the *Event Reply*."""
+        if value is None:
+            self._event_reply = value
+        elif isinstance(value, BytesIO):
+            self._event_reply = value
+        else:
+            raise TypeError("EventReply must be a BytesIO object")
+
+    @property
+    def EventTypeID(self):
+        """Return the *Event Type ID*."""
+        return self._event_type_id
+
+    @EventTypeID.setter
+    def EventTypeID(self, value):
+        """Set the *Event Type ID*."""
+        if isinstance(value, int) or value is None:
+            self._event_type_id = value
+        else:
+            raise TypeError("'N_EVENT_REPORT.EventTypeID' must be an int.")
 
     @property
     def is_valid_request(self):
@@ -1746,6 +1835,58 @@ class N_EVENT_REPORT(object):
                 return False
 
         return True
+
+    @property
+    def MessageID(self):
+        """Return the *Message ID*."""
+        return self._message_id
+
+    @MessageID.setter
+    def MessageID(self, value):
+        """Set the *Message ID*."""
+        if isinstance(value, int):
+            if 0 <= value < 2**16:
+                self._message_id = value
+            else:
+                raise ValueError("Message ID must be between 0 and 65535, "
+                                 "inclusive")
+        elif value is None:
+            self._message_id = value
+        else:
+            raise TypeError("Message ID must be an int")
+
+    @property
+    def MessageIDBeingRespondedTo(self):
+        """Return the *Message ID Being Responded To*."""
+        return self._message_id_being_responded_to
+
+    @MessageIDBeingRespondedTo.setter
+    def MessageIDBeingRespondedTo(self, value):
+        """Set the *Message ID Being Responded To*."""
+        if isinstance(value, int):
+            if 0 <= value < 2**16:
+                self._message_id_being_responded_to = value
+            else:
+                raise ValueError("Message ID Being Responded To must be "
+                                 "between 0 and 65535, inclusive")
+        elif value is None:
+            self._message_id_being_responded_to = value
+        else:
+            raise TypeError("Message ID Being Responded To must be an int")
+
+    @property
+    def Status(self):
+        """Return the *Status*."""
+        return self._status
+
+    @Status.setter
+    def Status(self, value):
+        """Set the *Status*."""
+        if isinstance(value, int) or value is None:
+            self._status = value
+        else:
+            raise TypeError("'N_EVENT_REPORT.Status' must be an int.")
+
 
 
 class N_GET(object):

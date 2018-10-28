@@ -24,9 +24,10 @@ from pynetdicom3.dimse_primitives import (
     N_EVENT_REPORT, N_GET, N_SET, N_ACTION, N_CREATE, N_DELETE
 )
 from pynetdicom3.utils import pretty_bytes
-from pynetdicom3.dsutils import encode
+from pynetdicom3.dsutils import decode, encode
 from pynetdicom3.utils import validate_ae_title
 from .encoded_dimse_n_msg import (
+    n_er_rq_cmd, n_er_rq_ds, n_er_rsp_cmd, n_er_rsp_ds,
     n_get_rq_cmd, n_get_rsp_cmd, n_get_rsp_ds,
     n_delete_rq_cmd, n_delete_rsp_cmd,
     n_set_rq_cmd, n_set_rq_ds, n_set_rsp_cmd, n_set_rsp_ds
@@ -42,23 +43,198 @@ class TestPrimitive_N_EVENT(object):
         """ Check assignment works correctly """
         primitive = N_EVENT_REPORT()
 
+        # AffectedSOPClassUID
+        primitive.AffectedSOPClassUID = '1.1.1'
+        assert primitive.AffectedSOPClassUID == UID('1.1.1')
+        assert isinstance(primitive.AffectedSOPClassUID, UID)
+        primitive.AffectedSOPClassUID = UID('1.1.2')
+        assert primitive.AffectedSOPClassUID == UID('1.1.2')
+        assert isinstance(primitive.AffectedSOPClassUID, UID)
+        primitive.AffectedSOPClassUID = b'1.1.3'
+        assert primitive.AffectedSOPClassUID == UID('1.1.3')
+        assert isinstance(primitive.AffectedSOPClassUID, UID)
+
+        # AffectedSOPInstanceUID
+        primitive.AffectedSOPInstanceUID = b'1.2.1'
+        assert primitive.AffectedSOPInstanceUID == UID('1.2.1')
+        assert isinstance(primitive.AffectedSOPClassUID, UID)
+        primitive.AffectedSOPInstanceUID = UID('1.2.2')
+        assert primitive.AffectedSOPInstanceUID == UID('1.2.2')
+        assert isinstance(primitive.AffectedSOPClassUID, UID)
+        primitive.AffectedSOPInstanceUID = '1.2.3'
+        assert primitive.AffectedSOPInstanceUID == UID('1.2.3')
+        assert isinstance(primitive.AffectedSOPClassUID, UID)
+
+        # Event Information
+        ds = Dataset()
+        ds.PatientID = '1234567'
+        primitive.EventInformation = BytesIO(encode(ds, True, True))
+        ds = decode(primitive.EventInformation, True, True)
+        assert ds.PatientID == '1234567'
+
+        # Event Reply
+        ds = Dataset()
+        ds.PatientID = '123456'
+        primitive.EventReply = BytesIO(encode(ds, True, True))
+        ds = decode(primitive.EventReply, True, True)
+        assert ds.PatientID == '123456'
+
+        # Event Type ID
+        primitive.EventTypeID = 0x0000
+        assert primitive.EventTypeID == 0x0000
+
+        # MessageID
         primitive.MessageID = 11
         assert 11 == primitive.MessageID
 
+        # MessageIDBeingRespondedTo
         primitive.MessageIDBeingRespondedTo = 13
         assert 13 == primitive.MessageIDBeingRespondedTo
+
+        # Status
+        primitive.Status = 0x0000
+        assert primitive.Status == 0x0000
 
     def test_exceptions(self):
         """ Check incorrect types/values for properties raise exceptions """
         primitive = N_EVENT_REPORT()
 
+        # MessageID
+        with pytest.raises(TypeError):
+            primitive.MessageID = 'halp'
+
+        with pytest.raises(TypeError):
+            primitive.MessageID = 1.111
+
+        with pytest.raises(ValueError):
+            primitive.MessageID = 65536
+
+        with pytest.raises(ValueError):
+            primitive.MessageID = -1
+
+        # MessageIDBeingRespondedTo
+        with pytest.raises(TypeError):
+            primitive.MessageIDBeingRespondedTo = 'halp'
+
+        with pytest.raises(TypeError):
+            primitive.MessageIDBeingRespondedTo = 1.111
+
+        with pytest.raises(ValueError):
+            primitive.MessageIDBeingRespondedTo = 65536
+
+        with pytest.raises(ValueError):
+            primitive.MessageIDBeingRespondedTo = -1
+
+        # AffectedSOPClassUID
+        with pytest.raises(TypeError):
+            primitive.AffectedSOPClassUID = 45.2
+
+        with pytest.raises(TypeError):
+            primitive.AffectedSOPClassUID = 100
+
+        with pytest.raises(ValueError):
+            primitive.AffectedSOPClassUID = 'abc'
+
+        # AffectedSOPInstanceUID
+        with pytest.raises(TypeError):
+            primitive.AffectedSOPInstanceUID = 45.2
+
+        with pytest.raises(TypeError):
+            primitive.AffectedSOPInstanceUID = 100
+
+        with pytest.raises(ValueError):
+            primitive.AffectedSOPInstanceUID = 'abc'
+
+        # EventInformation
+        with pytest.raises(TypeError):
+            primitive.EventInformation = 'halp'
+
+        with pytest.raises(TypeError):
+            primitive.EventInformation = 1.111
+
+        with pytest.raises(TypeError):
+            primitive.EventInformation = 50
+
+        with pytest.raises(TypeError):
+            primitive.EventInformation = [30, 10]
+
+        # EventReply
+        with pytest.raises(TypeError):
+            primitive.EventReply = 'halp'
+
+        with pytest.raises(TypeError):
+            primitive.EventReply = 1.111
+
+        with pytest.raises(TypeError):
+            primitive.EventReply = 50
+
+        with pytest.raises(TypeError):
+            primitive.EventReply = [30, 10]
+
+        # EventTypeID
+        with pytest.raises(TypeError):
+            primitive.EventTypeID = 19.4
+
+        # Status
+        with pytest.raises(TypeError):
+            primitive.Status = 19.4
+
     def test_conversion_rq(self):
         """ Check conversion to a -RQ PDU produces the correct output """
         primitive = N_EVENT_REPORT()
+        primitive.MessageID = 7
+        primitive.AffectedSOPClassUID = '1.2.840.10008.5.1.4.1.1.2'
+        primitive.AffectedSOPInstanceUID = '1.2.392.200036.9116.2.6.1.48'
+        primitive.EventTypeID = 2
+
+        ds = Dataset()
+        ds.PatientID = 'Test1101'
+        ds.PatientName = "Tube HeNe"
+
+        primitive.EventInformation = BytesIO(encode(ds, True, True))
+
+        dimse_msg = N_EVENT_REPORT_RQ()
+        dimse_msg.primitive_to_message(primitive)
+
+        pdvs = []
+        for fragment in dimse_msg.encode_msg(1, 16382):
+            pdvs.append(fragment)
+
+        assert len(pdvs) == 2
+        cs_pdv = pdvs[0].presentation_data_value_list[0][1]
+        ds_pdv = pdvs[1].presentation_data_value_list[0][1]
+
+        assert cs_pdv == n_er_rq_cmd
+        assert ds_pdv == n_er_rq_ds
 
     def test_conversion_rsp(self):
         """ Check conversion to a -RSP PDU produces the correct output """
         primitive = N_EVENT_REPORT()
+        primitive.MessageIDBeingRespondedTo = 5
+        primitive.AffectedSOPClassUID = '1.2.4.10'
+        primitive.AffectedSOPInstanceUID = '1.2.4.5.7.8'
+        primitive.Status = 0x0000
+        primitive.EventTypeID = 2
+
+        ds = Dataset()
+        ds.PatientID = 'Test1101'
+        ds.PatientName = "Tube HeNe"
+
+        primitive.EventReply = BytesIO(encode(ds, True, True))
+
+        dimse_msg = N_EVENT_REPORT_RSP()
+        dimse_msg.primitive_to_message(primitive)
+
+        pdvs = []
+        for fragment in dimse_msg.encode_msg(1, 16382):
+            pdvs.append(fragment)
+
+        assert len(pdvs) == 2
+        cs_pdv = pdvs[0].presentation_data_value_list[0][1]
+        ds_pdv = pdvs[1].presentation_data_value_list[0][1]
+
+        assert cs_pdv == n_er_rsp_cmd
+        assert ds_pdv == n_er_rsp_ds
 
     def test_is_valid_request(self):
         """Test N_EVENT_REPORT.is_valid_request"""
@@ -113,8 +289,10 @@ class TestPrimitive_N_GET(object):
 
         # AttributeList
         ref_ds = Dataset()
-        ref_ds.PatientID = 1234567
+        ref_ds.PatientID = '1234567'
         primitive.AttributeList = BytesIO(encode(ref_ds, True, True))
+        ds = decode(primitive.AttributeList, True, True)
+        assert ds.PatientID == '1234567'
 
         # AttributeIdentifierList
         primitive.AttributeIdentifierList = [0x00001000, (
@@ -340,6 +518,7 @@ class TestPrimitive_N_SET(object):
     def test_assignment(self):
         """ Check assignment works correctly """
         primitive = N_SET()
+
         # AffectedSOPClassUID
         primitive.AffectedSOPClassUID = '1.1.1'
         assert primitive.AffectedSOPClassUID == UID('1.1.1')
@@ -364,13 +543,17 @@ class TestPrimitive_N_SET(object):
 
         # AttributeList
         ref_ds = Dataset()
-        ref_ds.PatientID = 1234567
+        ref_ds.PatientID = '1234567'
         primitive.AttributeList = BytesIO(encode(ref_ds, True, True))
+        ds = decode(primitive.AttributeList, True, True)
+        assert ds.PatientID == '1234567'
 
         #ModificationList
         ref_ds = Dataset()
-        ref_ds.PatientID = 1234567
+        ref_ds.PatientID = '123456'
         primitive.ModificationList = BytesIO(encode(ref_ds, True, True))
+        ds = decode(primitive.ModificationList, True, True)
+        assert ds.PatientID == '123456'
 
         # MessageID
         primitive.MessageID = 11
