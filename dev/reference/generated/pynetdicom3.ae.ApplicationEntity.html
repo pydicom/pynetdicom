@@ -515,16 +515,16 @@ set to 0 the OS will use the first available port (default <code class="docutils
 <tr class="row-odd"><td><a class="reference internal" href="#pynetdicom3.ae.ApplicationEntity.on_make_connection" title="pynetdicom3.ae.ApplicationEntity.on_make_connection"><code class="xref py py-obj docutils literal notranslate"><span class="pre">on_make_connection</span></code></a>()</td>
 <td>Callback for a connection is made.</td>
 </tr>
-<tr class="row-even"><td><a class="reference internal" href="#pynetdicom3.ae.ApplicationEntity.on_n_action" title="pynetdicom3.ae.ApplicationEntity.on_n_action"><code class="xref py py-obj docutils literal notranslate"><span class="pre">on_n_action</span></code></a>(context,&nbsp;info)</td>
+<tr class="row-even"><td><a class="reference internal" href="#pynetdicom3.ae.ApplicationEntity.on_n_action" title="pynetdicom3.ae.ApplicationEntity.on_n_action"><code class="xref py py-obj docutils literal notranslate"><span class="pre">on_n_action</span></code></a>(dataset,&nbsp;context,&nbsp;info)</td>
 <td>Callback for when a N-ACTION is received.</td>
 </tr>
-<tr class="row-odd"><td><a class="reference internal" href="#pynetdicom3.ae.ApplicationEntity.on_n_create" title="pynetdicom3.ae.ApplicationEntity.on_n_create"><code class="xref py py-obj docutils literal notranslate"><span class="pre">on_n_create</span></code></a>(context,&nbsp;info)</td>
+<tr class="row-odd"><td><a class="reference internal" href="#pynetdicom3.ae.ApplicationEntity.on_n_create" title="pynetdicom3.ae.ApplicationEntity.on_n_create"><code class="xref py py-obj docutils literal notranslate"><span class="pre">on_n_create</span></code></a>(dataset,&nbsp;context,&nbsp;info)</td>
 <td>Callback for when a N-CREATE is received.</td>
 </tr>
 <tr class="row-even"><td><a class="reference internal" href="#pynetdicom3.ae.ApplicationEntity.on_n_delete" title="pynetdicom3.ae.ApplicationEntity.on_n_delete"><code class="xref py py-obj docutils literal notranslate"><span class="pre">on_n_delete</span></code></a>(context,&nbsp;info)</td>
 <td>Callback for when a N-DELETE is received.</td>
 </tr>
-<tr class="row-odd"><td><a class="reference internal" href="#pynetdicom3.ae.ApplicationEntity.on_n_event_report" title="pynetdicom3.ae.ApplicationEntity.on_n_event_report"><code class="xref py py-obj docutils literal notranslate"><span class="pre">on_n_event_report</span></code></a>(context,&nbsp;info)</td>
+<tr class="row-odd"><td><a class="reference internal" href="#pynetdicom3.ae.ApplicationEntity.on_n_event_report" title="pynetdicom3.ae.ApplicationEntity.on_n_event_report"><code class="xref py py-obj docutils literal notranslate"><span class="pre">on_n_event_report</span></code></a>(dataset,&nbsp;context,&nbsp;info)</td>
 <td>Callback for when a N-EVENT-REPORT is received.</td>
 </tr>
 <tr class="row-even"><td><a class="reference internal" href="#pynetdicom3.ae.ApplicationEntity.on_n_get" title="pynetdicom3.ae.ApplicationEntity.on_n_get"><code class="xref py py-obj docutils literal notranslate"><span class="pre">on_n_get</span></code></a>(attr,&nbsp;context,&nbsp;info)</td>
@@ -1597,7 +1597,7 @@ Status (as in the DICOM Standard Part 7, Annex C).</p>
 
 <dl class="method">
 <dt id="pynetdicom3.ae.ApplicationEntity.on_n_action">
-<code class="descname">on_n_action</code><span class="sig-paren">(</span><em>context</em>, <em>info</em><span class="sig-paren">)</span><a class="reference internal" href="../../_modules/pynetdicom3/ae.html#ApplicationEntity.on_n_action"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pynetdicom3.ae.ApplicationEntity.on_n_action" title="Permalink to this definition">¶</a></dt>
+<code class="descname">on_n_action</code><span class="sig-paren">(</span><em>dataset</em>, <em>context</em>, <em>info</em><span class="sig-paren">)</span><a class="reference internal" href="../../_modules/pynetdicom3/ae.html#ApplicationEntity.on_n_action"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pynetdicom3.ae.ApplicationEntity.on_n_action" title="Permalink to this definition">¶</a></dt>
 <dd><p>Callback for when a N-ACTION is received.</p>
 <p class="rubric">References</p>
 <p>DICOM Standard Part 4, Annexes H, J, P, S, CC and DD</p>
@@ -1605,7 +1605,7 @@ Status (as in the DICOM Standard Part 7, Annex C).</p>
 
 <dl class="method">
 <dt id="pynetdicom3.ae.ApplicationEntity.on_n_create">
-<code class="descname">on_n_create</code><span class="sig-paren">(</span><em>context</em>, <em>info</em><span class="sig-paren">)</span><a class="reference internal" href="../../_modules/pynetdicom3/ae.html#ApplicationEntity.on_n_create"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pynetdicom3.ae.ApplicationEntity.on_n_create" title="Permalink to this definition">¶</a></dt>
+<code class="descname">on_n_create</code><span class="sig-paren">(</span><em>dataset</em>, <em>context</em>, <em>info</em><span class="sig-paren">)</span><a class="reference internal" href="../../_modules/pynetdicom3/ae.html#ApplicationEntity.on_n_create"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pynetdicom3.ae.ApplicationEntity.on_n_create" title="Permalink to this definition">¶</a></dt>
 <dd><p>Callback for when a N-CREATE is received.</p>
 <p class="rubric">References</p>
 <p>DICOM Standard Part 4, Annexes F, H, R, S, CC and DD</p>
@@ -1621,7 +1621,7 @@ Status (as in the DICOM Standard Part 7, Annex C).</p>
 
 <dl class="method">
 <dt id="pynetdicom3.ae.ApplicationEntity.on_n_event_report">
-<code class="descname">on_n_event_report</code><span class="sig-paren">(</span><em>context</em>, <em>info</em><span class="sig-paren">)</span><a class="reference internal" href="../../_modules/pynetdicom3/ae.html#ApplicationEntity.on_n_event_report"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pynetdicom3.ae.ApplicationEntity.on_n_event_report" title="Permalink to this definition">¶</a></dt>
+<code class="descname">on_n_event_report</code><span class="sig-paren">(</span><em>dataset</em>, <em>context</em>, <em>info</em><span class="sig-paren">)</span><a class="reference internal" href="../../_modules/pynetdicom3/ae.html#ApplicationEntity.on_n_event_report"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pynetdicom3.ae.ApplicationEntity.on_n_event_report" title="Permalink to this definition">¶</a></dt>
 <dd><p>Callback for when a N-EVENT-REPORT is received.</p>
 <p class="rubric">References</p>
 <p>DICOM Standard Part 4, Annexes F, H, J, CC and DD</p>

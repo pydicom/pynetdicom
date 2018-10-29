@@ -186,7 +186,7 @@
 <span class="kn">from</span> <span class="nn">pynetdicom3.dimse</span> <span class="k">import</span> <span class="n">DIMSEServiceProvider</span>
 <span class="kn">from</span> <span class="nn">pynetdicom3.dimse_primitives</span> <span class="k">import</span> <span class="p">(</span>
     <span class="n">C_ECHO</span><span class="p">,</span> <span class="n">C_MOVE</span><span class="p">,</span> <span class="n">C_STORE</span><span class="p">,</span> <span class="n">C_GET</span><span class="p">,</span> <span class="n">C_FIND</span><span class="p">,</span> <span class="n">C_CANCEL</span><span class="p">,</span>
-    <span class="n">N_GET</span><span class="p">,</span> <span class="n">N_SET</span><span class="p">,</span> <span class="n">N_DELETE</span>
+    <span class="n">N_EVENT_REPORT</span><span class="p">,</span> <span class="n">N_GET</span><span class="p">,</span> <span class="n">N_SET</span><span class="p">,</span> <span class="n">N_CREATE</span><span class="p">,</span> <span class="n">N_ACTION</span><span class="p">,</span> <span class="n">N_DELETE</span>
 <span class="p">)</span>
 <span class="kn">from</span> <span class="nn">pynetdicom3.dsutils</span> <span class="k">import</span> <span class="n">decode</span><span class="p">,</span> <span class="n">encode</span>
 <span class="kn">from</span> <span class="nn">pynetdicom3.dul</span> <span class="k">import</span> <span class="n">DULServiceProvider</span>
@@ -2292,14 +2292,175 @@
 
 
     <span class="c1"># DIMSE-N services provided by the Association</span>
-<div class="viewcode-block" id="Association.send_n_event_report"><a class="viewcode-back" href="../../reference/generated/pynetdicom3.association.Association.html#pynetdicom3.association.Association.send_n_event_report">[docs]</a>    <span class="k">def</span> <span class="nf">send_n_event_report</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
-        <span class="sd">&quot;&quot;&quot;Send an N-EVENT-REPORT request message to the peer AE.&quot;&quot;&quot;</span>
+<div class="viewcode-block" id="Association.send_n_event_report"><a class="viewcode-back" href="../../reference/generated/pynetdicom3.association.Association.html#pynetdicom3.association.Association.send_n_event_report">[docs]</a>    <span class="k">def</span> <span class="nf">send_n_event_report</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">dataset</span><span class="p">,</span> <span class="n">event_type</span><span class="p">,</span> <span class="n">class_uid</span><span class="p">,</span>
+                            <span class="n">instance_uid</span><span class="p">,</span> <span class="n">msg_id</span><span class="o">=</span><span class="mi">1</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;Send an N-EVENT-REPORT request message to the peer AE.</span>
+
+<span class="sd">        Parameters</span>
+<span class="sd">        ----------</span>
+<span class="sd">        dataset : pydicom.dataset.Dataset</span>
+<span class="sd">            The dataset that will be sent as the *Event Information* parameter</span>
+<span class="sd">            in the N-EVENT-REPORT request.</span>
+<span class="sd">        event_type : int</span>
+<span class="sd">            The value to be sent in the request&#39;s (0000,10002) *Event Type ID*</span>
+<span class="sd">            element.</span>
+<span class="sd">        class_uid : pydicom.uid.UID</span>
+<span class="sd">            The UID to be sent in the request&#39;s (0000,0003) *Affected SOP</span>
+<span class="sd">            Class UID* element.</span>
+<span class="sd">        instance_uid : pydicom.uid.UID</span>
+<span class="sd">            The UID to be sent in the request&#39;s (0000,1001) *Affected SOP</span>
+<span class="sd">            Instance UID* element.</span>
+<span class="sd">        msg_id : int, optional</span>
+<span class="sd">            The DIMSE *Message ID*, must be between 0 and 65535, inclusive,</span>
+<span class="sd">            (default 1).</span>
+
+<span class="sd">        Returns</span>
+<span class="sd">        -------</span>
+<span class="sd">        status : pydicom.dataset.Dataset</span>
+<span class="sd">            If the peer timed out or sent an invalid response then yields an</span>
+<span class="sd">            empty ``Dataset``. If a response was received from the peer then</span>
+<span class="sd">            yields a ``Dataset`` containing at least a (0000,0900) *Status*</span>
+<span class="sd">            element, and depending on the returned value, may optionally</span>
+<span class="sd">            contain additional elements (see the DICOM Standard, Part 7,</span>
+<span class="sd">            Section 9.1.2.1.5 and Annex C).</span>
+
+<span class="sd">            General N-EVENT-REPORT (DICOM Standard Part 7, Section 10.1.1</span>
+<span class="sd">            and Annex C)</span>
+
+<span class="sd">            Success</span>
+<span class="sd">              | ``0x0000`` Successful operation</span>
+
+<span class="sd">            Failure</span>
+<span class="sd">              | ``0x0110`` Processing failure</span>
+<span class="sd">              | ``0x0112`` No such SOP Instance</span>
+<span class="sd">              | ``0x0113`` No such event type</span>
+<span class="sd">              | ``0x0114`` No such argument</span>
+<span class="sd">              | ``0x0115`` Invalid argument value</span>
+<span class="sd">              | ``0x0117`` Invalid object instance</span>
+<span class="sd">              | ``0x0118`` No such SOP Class</span>
+<span class="sd">              | ``0x0119`` Class-Instance conflict</span>
+<span class="sd">              | ``0x0210`` Duplicate invocation</span>
+<span class="sd">              | ``0x0211`` Unrecognised operation</span>
+<span class="sd">              | ``0x0212`` Mistyped argument</span>
+<span class="sd">              | ``0x0213`` Resource limitation</span>
+
+<span class="sd">        event_reply : pydicom.dataset.Dataset or None</span>
+<span class="sd">            If the status is &#39;Success&#39; then a ``Dataset`` containing the</span>
+<span class="sd">            optional reply to the event report.</span>
+
+<span class="sd">        See Also</span>
+<span class="sd">        --------</span>
+<span class="sd">        ae.ApplicationEntity.on_n_event_report</span>
+<span class="sd">        dimse_primitives.N_EVENT_REPORT</span>
+
+<span class="sd">        References</span>
+<span class="sd">        ----------</span>
+
+<span class="sd">        * DICOM Standart Part 4, `Annex F &lt;http://dicom.nema.org/medical/dicom/current/output/html/part04.html#chapter_F&gt;`_</span>
+<span class="sd">        * DICOM Standart Part 4, `Annex H &lt;http://dicom.nema.org/medical/dicom/current/output/html/part04.html#chapter_H&gt;`_</span>
+<span class="sd">        * DICOM Standart Part 4, `Annex J &lt;http://dicom.nema.org/medical/dicom/current/output/html/part04.html#chapter_J&gt;`_</span>
+<span class="sd">        * DICOM Standard Part 4, `Annex CC &lt;http://dicom.nema.org/medical/dicom/current/output/html/part04.html#chapter_CC&gt;`_</span>
+<span class="sd">        * DICOM Standard Part 4, `Annex DD &lt;http://dicom.nema.org/medical/dicom/current/output/html/part04.html#chapter_DD&gt;`_</span>
+<span class="sd">        * DICOM Standard Part 7, Sections</span>
+<span class="sd">          `10.1.1 &lt;http://dicom.nema.org/medical/dicom/current/output/html/part07.html#sect_10.1.1&gt;`_,</span>
+<span class="sd">          `10.3.1 &lt;http://dicom.nema.org/medical/dicom/current/output/html/part07.html#sect_10.3.1&gt;`_ and</span>
+<span class="sd">          `Annex C &lt;http://dicom.nema.org/medical/dicom/current/output/html/part07.html#chapter_C&gt;`__</span>
+<span class="sd">        &quot;&quot;&quot;</span>
         <span class="c1"># Can&#39;t send an N-EVENT-REPORT without an Association</span>
         <span class="k">if</span> <span class="ow">not</span> <span class="bp">self</span><span class="o">.</span><span class="n">is_established</span><span class="p">:</span>
-            <span class="k">raise</span> <span class="ne">RuntimeError</span><span class="p">(</span><span class="s2">&quot;The association with a peer SCP must be &quot;</span>
-                               <span class="s2">&quot;established before sending an N-EVENT-REPORT &quot;</span>
-                               <span class="s2">&quot;request&quot;</span><span class="p">)</span>
-        <span class="k">raise</span> <span class="ne">NotImplementedError</span></div>
+            <span class="k">raise</span> <span class="ne">RuntimeError</span><span class="p">(</span>
+                <span class="s2">&quot;The association with a peer SCP must be established prior &quot;</span>
+                <span class="s2">&quot;to sending an N-EVENT-REPORT request.&quot;</span>
+            <span class="p">)</span>
+
+        <span class="c1"># Determine the Presentation Context we are operating under</span>
+        <span class="c1">#   and hence the transfer syntax to use for encoding `dataset`</span>
+        <span class="n">transfer_syntax</span> <span class="o">=</span> <span class="kc">None</span>
+        <span class="k">for</span> <span class="n">context</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">acse</span><span class="o">.</span><span class="n">context_manager</span><span class="o">.</span><span class="n">accepted</span><span class="p">:</span>
+            <span class="k">if</span> <span class="n">class_uid</span> <span class="o">==</span> <span class="n">context</span><span class="o">.</span><span class="n">abstract_syntax</span><span class="p">:</span>
+                <span class="n">transfer_syntax</span> <span class="o">=</span> <span class="n">context</span><span class="o">.</span><span class="n">transfer_syntax</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span>
+                <span class="n">context_id</span> <span class="o">=</span> <span class="n">context</span><span class="o">.</span><span class="n">context_id</span>
+                <span class="k">break</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="n">LOGGER</span><span class="o">.</span><span class="n">error</span><span class="p">(</span>
+                <span class="s2">&quot;Association.send_n_event_report - no accepted Presentation &quot;</span>
+                <span class="s2">&quot;Context for: &#39;</span><span class="si">{}</span><span class="s2">&#39;&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">class_uid</span><span class="p">)</span>
+            <span class="p">)</span>
+            <span class="n">LOGGER</span><span class="o">.</span><span class="n">error</span><span class="p">(</span>
+                <span class="s2">&quot;Event Report SCU failed due to there being no accepted &quot;</span>
+                <span class="s2">&quot;presentation context&quot;</span>
+            <span class="p">)</span>
+            <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span>
+                <span class="s2">&quot;No accepted Presentation Context for the SOP Class UID &#39;</span><span class="si">{}</span><span class="s2">&#39;&quot;</span>
+                <span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">class_uid</span><span class="p">)</span>
+            <span class="p">)</span>
+
+        <span class="c1"># Build N-EVENT-REPORT request primitive</span>
+        <span class="c1">#   (M) Message ID</span>
+        <span class="c1">#   (M) Affected SOP Class UID</span>
+        <span class="c1">#   (M) Affected SOP Instance UID</span>
+        <span class="c1">#   (M) Event Type ID</span>
+        <span class="c1">#   (U) Event Information</span>
+        <span class="n">req</span> <span class="o">=</span> <span class="n">N_EVENT_REPORT</span><span class="p">()</span>
+        <span class="n">req</span><span class="o">.</span><span class="n">MessageID</span> <span class="o">=</span> <span class="n">msg_id</span>
+        <span class="n">req</span><span class="o">.</span><span class="n">AffectedSOPClassUID</span> <span class="o">=</span> <span class="n">class_uid</span>
+        <span class="n">req</span><span class="o">.</span><span class="n">AffectedSOPInstanceUID</span> <span class="o">=</span> <span class="n">instance_uid</span>
+        <span class="n">req</span><span class="o">.</span><span class="n">EventTypeID</span> <span class="o">=</span> <span class="n">event_type</span>
+
+        <span class="c1"># Encode the `dataset` using the agreed transfer syntax</span>
+        <span class="c1">#   Will return None if failed to encode</span>
+        <span class="n">bytestream</span> <span class="o">=</span> <span class="n">encode</span><span class="p">(</span><span class="n">dataset</span><span class="p">,</span>
+                            <span class="n">transfer_syntax</span><span class="o">.</span><span class="n">is_implicit_VR</span><span class="p">,</span>
+                            <span class="n">transfer_syntax</span><span class="o">.</span><span class="n">is_little_endian</span><span class="p">)</span>
+
+        <span class="k">if</span> <span class="n">bytestream</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="n">req</span><span class="o">.</span><span class="n">EventInformation</span> <span class="o">=</span> <span class="n">BytesIO</span><span class="p">(</span><span class="n">bytestream</span><span class="p">)</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="n">LOGGER</span><span class="o">.</span><span class="n">error</span><span class="p">(</span><span class="s2">&quot;Failed to encode the supplied dataset&quot;</span><span class="p">)</span>
+            <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s1">&#39;Failed to encode the supplied dataset&#39;</span><span class="p">)</span>
+
+        <span class="c1"># Send N-EVENT-REPORT request to the peer via DIMSE and wait for</span>
+        <span class="c1"># the response primitive</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">dimse</span><span class="o">.</span><span class="n">send_msg</span><span class="p">(</span><span class="n">req</span><span class="p">,</span> <span class="n">context_id</span><span class="p">)</span>
+        <span class="n">rsp</span><span class="p">,</span> <span class="n">_</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">dimse</span><span class="o">.</span><span class="n">receive_msg</span><span class="p">(</span><span class="n">wait</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+
+        <span class="c1"># Determine validity of the response and get the status</span>
+        <span class="n">status</span> <span class="o">=</span> <span class="n">Dataset</span><span class="p">()</span>
+        <span class="n">event_reply</span> <span class="o">=</span> <span class="kc">None</span>
+        <span class="k">if</span> <span class="n">rsp</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="n">LOGGER</span><span class="o">.</span><span class="n">error</span><span class="p">(</span><span class="s1">&#39;DIMSE service timed out&#39;</span><span class="p">)</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">abort</span><span class="p">()</span>
+        <span class="k">elif</span> <span class="n">rsp</span><span class="o">.</span><span class="n">is_valid_response</span><span class="p">:</span>
+            <span class="n">status</span><span class="o">.</span><span class="n">Status</span> <span class="o">=</span> <span class="n">rsp</span><span class="o">.</span><span class="n">Status</span>
+            <span class="c1"># TODO: use rsp.OPTIONAL_STATUS_KEYWORDS or something</span>
+            <span class="k">for</span> <span class="n">keyword</span> <span class="ow">in</span> <span class="n">rsp</span><span class="o">.</span><span class="n">STATUS_OPTIONAL_KEYWORDS</span><span class="p">:</span>
+                <span class="k">if</span> <span class="nb">getattr</span><span class="p">(</span><span class="n">rsp</span><span class="p">,</span> <span class="n">keyword</span><span class="p">,</span> <span class="kc">None</span><span class="p">)</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+                    <span class="nb">setattr</span><span class="p">(</span><span class="n">status</span><span class="p">,</span> <span class="n">keyword</span><span class="p">,</span> <span class="nb">getattr</span><span class="p">(</span><span class="n">rsp</span><span class="p">,</span> <span class="n">keyword</span><span class="p">))</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="n">LOGGER</span><span class="o">.</span><span class="n">error</span><span class="p">(</span>
+                <span class="s1">&#39;Received an invalid N-EVENT-REPORT response from the peer&#39;</span>
+            <span class="p">)</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">abort</span><span class="p">()</span>
+
+        <span class="c1"># Warning and Success statuses will return a dataset</span>
+        <span class="c1">#   we check against None as 0x0000 is a possible status</span>
+        <span class="k">if</span> <span class="nb">getattr</span><span class="p">(</span><span class="n">status</span><span class="p">,</span> <span class="s1">&#39;Status&#39;</span><span class="p">,</span> <span class="kc">None</span><span class="p">)</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="n">category</span> <span class="o">=</span> <span class="n">code_to_category</span><span class="p">(</span><span class="n">status</span><span class="o">.</span><span class="n">Status</span><span class="p">)</span>
+            <span class="k">if</span> <span class="n">category</span> <span class="ow">not</span> <span class="ow">in</span> <span class="p">[</span><span class="n">STATUS_WARNING</span><span class="p">,</span> <span class="n">STATUS_SUCCESS</span><span class="p">]:</span>
+                <span class="k">return</span> <span class="n">status</span><span class="p">,</span> <span class="n">event_reply</span>
+
+            <span class="c1"># Attempt to decode the response&#39;s dataset</span>
+            <span class="k">try</span><span class="p">:</span>
+                <span class="n">event_reply</span> <span class="o">=</span> <span class="n">decode</span><span class="p">(</span><span class="n">rsp</span><span class="o">.</span><span class="n">EventReply</span><span class="p">,</span>
+                                     <span class="n">transfer_syntax</span><span class="o">.</span><span class="n">is_implicit_VR</span><span class="p">,</span>
+                                     <span class="n">transfer_syntax</span><span class="o">.</span><span class="n">is_little_endian</span><span class="p">)</span>
+            <span class="k">except</span> <span class="ne">Exception</span> <span class="k">as</span> <span class="n">ex</span><span class="p">:</span>
+                <span class="n">LOGGER</span><span class="o">.</span><span class="n">error</span><span class="p">(</span><span class="s2">&quot;Failed to decode the received dataset&quot;</span><span class="p">)</span>
+                <span class="n">LOGGER</span><span class="o">.</span><span class="n">exception</span><span class="p">(</span><span class="n">ex</span><span class="p">)</span>
+                <span class="c1"># Failure: Processing failure</span>
+                <span class="n">status</span><span class="o">.</span><span class="n">Status</span> <span class="o">=</span> <span class="mh">0x0110</span>
+
+        <span class="k">return</span> <span class="n">status</span><span class="p">,</span> <span class="n">event_reply</span></div>
 
 <div class="viewcode-block" id="Association.send_n_get"><a class="viewcode-back" href="../../reference/generated/pynetdicom3.association.Association.html#pynetdicom3.association.Association.send_n_get">[docs]</a>    <span class="k">def</span> <span class="nf">send_n_get</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">identifier_list</span><span class="p">,</span> <span class="n">class_uid</span><span class="p">,</span> <span class="n">instance_uid</span><span class="p">,</span> <span class="n">msg_id</span><span class="o">=</span><span class="mi">1</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;Send an N-GET request message to the peer AE.</span>
@@ -2560,7 +2721,7 @@
                 <span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">class_uid</span><span class="p">)</span>
             <span class="p">)</span>
 
-        <span class="c1"># Build C-STORE request primitive</span>
+        <span class="c1"># Build N-SET request primitive</span>
         <span class="c1">#   (M) Message ID</span>
         <span class="c1">#   (M) Requested SOP Class UID</span>
         <span class="c1">#   (M) Requested SOP Instance UID</span>
@@ -2622,23 +2783,330 @@
 
         <span class="k">return</span> <span class="n">status</span><span class="p">,</span> <span class="n">attribute_list</span></div>
 
-<div class="viewcode-block" id="Association.send_n_action"><a class="viewcode-back" href="../../reference/generated/pynetdicom3.association.Association.html#pynetdicom3.association.Association.send_n_action">[docs]</a>    <span class="k">def</span> <span class="nf">send_n_action</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
-        <span class="sd">&quot;&quot;&quot;Send an N-ACTION request message to the peer AE.&quot;&quot;&quot;</span>
+<div class="viewcode-block" id="Association.send_n_action"><a class="viewcode-back" href="../../reference/generated/pynetdicom3.association.Association.html#pynetdicom3.association.Association.send_n_action">[docs]</a>    <span class="k">def</span> <span class="nf">send_n_action</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">dataset</span><span class="p">,</span> <span class="n">action_type</span><span class="p">,</span> <span class="n">class_uid</span><span class="p">,</span> <span class="n">instance_uid</span><span class="p">,</span> <span class="n">msg_id</span><span class="o">=</span><span class="mi">1</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;Send an N-ACTION request message to the peer AE.</span>
+
+<span class="sd">        Parameters</span>
+<span class="sd">        ----------</span>
+<span class="sd">        dataset : pydicom.dataset.Dataset or None</span>
+<span class="sd">            The dataset that will be sent as the *Action Information*</span>
+<span class="sd">            parameter in the N-ACTION request, or None if not required.</span>
+<span class="sd">        action_type : int</span>
+<span class="sd">            The value of the request&#39;s (0000,1008) *Action Type ID* element.</span>
+<span class="sd">        class_uid : pydicom.uid.UID</span>
+<span class="sd">            The UID to be sent in the request&#39;s (0000,0003) *Requested SOP</span>
+<span class="sd">            Class UID* element.</span>
+<span class="sd">        instance_uid : pydicom.uid.UID</span>
+<span class="sd">            The UID to be sent in the request&#39;s (0000,1001) *Requested SOP</span>
+<span class="sd">            Instance UID* element.</span>
+<span class="sd">        msg_id : int, optional</span>
+<span class="sd">            The DIMSE *Message ID*, must be between 0 and 65535, inclusive,</span>
+<span class="sd">            (default 1).</span>
+
+<span class="sd">        Returns</span>
+<span class="sd">        -------</span>
+<span class="sd">        status : pydicom.dataset.Dataset</span>
+<span class="sd">            If the peer timed out or sent an invalid response then yields an</span>
+<span class="sd">            empty ``Dataset``. If a response was received from the peer then</span>
+<span class="sd">            yields a ``Dataset`` containing at least a (0000,0900) *Status*</span>
+<span class="sd">            element, and depending on the returned value, may optionally</span>
+<span class="sd">            contain additional elements (see the DICOM Standard, Part 7,</span>
+<span class="sd">            Section 9.1.2.1.5 and Annex C).</span>
+
+<span class="sd">            General N-ACTION (DICOM Standard Part 7, Section 10.1.4 and</span>
+<span class="sd">            Annex C)</span>
+
+<span class="sd">            Success</span>
+<span class="sd">              | ``0x0000`` Successful operation</span>
+
+<span class="sd">            Failure</span>
+<span class="sd">              | ``0x0110`` Processing failure</span>
+<span class="sd">              | ``0x0112`` No such SOP Instance</span>
+<span class="sd">              | ``0x0114`` No such argument</span>
+<span class="sd">              | ``0x0115`` Invalid argument value</span>
+<span class="sd">              | ``0x0117`` Invalid object instance</span>
+<span class="sd">              | ``0x0118`` No such SOP Class</span>
+<span class="sd">              | ``0x0119`` Class-Instance conflict</span>
+<span class="sd">              | ``0x0123`` No such action</span>
+<span class="sd">              | ``0x0124`` Not authorised</span>
+<span class="sd">              | ``0x0210`` Duplicate invocation</span>
+<span class="sd">              | ``0x0211`` Unrecognised operation</span>
+<span class="sd">              | ``0x0212`` Mistyped argument</span>
+<span class="sd">              | ``0x0213`` Resource limitation</span>
+
+<span class="sd">        action_reply : pydicom.dataset.Dataset or None</span>
+<span class="sd">            If the status is &#39;Success&#39; then a ``Dataset`` containing attributes</span>
+<span class="sd">            corresponding to those supplied in the *Action Reply*,</span>
+<span class="sd">            otherwise returns None.</span>
+
+<span class="sd">        See Also</span>
+<span class="sd">        --------</span>
+<span class="sd">        ae.ApplicationEntity.on_n_action</span>
+<span class="sd">        dimse_primitives.N_ACTION</span>
+
+<span class="sd">        References</span>
+<span class="sd">        ----------</span>
+
+<span class="sd">        * DICOM Standart Part 4, `Annex F &lt;http://dicom.nema.org/medical/dicom/current/output/html/part04.html#chapter_F&gt;`_</span>
+<span class="sd">        * DICOM Standart Part 4, `Annex H &lt;http://dicom.nema.org/medical/dicom/current/output/html/part04.html#chapter_H&gt;`_</span>
+<span class="sd">        * DICOM Standard Part 4, `Annex CC &lt;http://dicom.nema.org/medical/dicom/current/output/html/part04.html#chapter_CC&gt;`_</span>
+<span class="sd">        * DICOM Standard Part 4, `Annex DD &lt;http://dicom.nema.org/medical/dicom/current/output/html/part04.html#chapter_DD&gt;`_</span>
+<span class="sd">        * DICOM Standard Part 7, Sections</span>
+<span class="sd">          `10.1.3 &lt;http://dicom.nema.org/medical/dicom/current/output/html/part07.html#sect_10.1.3&gt;`_,</span>
+<span class="sd">          `10.3.3 &lt;http://dicom.nema.org/medical/dicom/current/output/html/part07.html#sect_10.3.3&gt;`_ and</span>
+<span class="sd">          `Annex C &lt;http://dicom.nema.org/medical/dicom/current/output/html/part07.html#chapter_C&gt;`__</span>
+<span class="sd">        &quot;&quot;&quot;</span>
         <span class="c1"># Can&#39;t send an N-ACTION without an Association</span>
         <span class="k">if</span> <span class="ow">not</span> <span class="bp">self</span><span class="o">.</span><span class="n">is_established</span><span class="p">:</span>
-            <span class="k">raise</span> <span class="ne">RuntimeError</span><span class="p">(</span><span class="s2">&quot;The association with a peer SCP must be &quot;</span>
-                               <span class="s2">&quot;established before sending an N-ACTION &quot;</span>
-                               <span class="s2">&quot;request.&quot;</span><span class="p">)</span>
-        <span class="k">raise</span> <span class="ne">NotImplementedError</span></div>
+            <span class="k">raise</span> <span class="ne">RuntimeError</span><span class="p">(</span>
+                <span class="s2">&quot;The association with a peer SCP must be established prior &quot;</span>
+                <span class="s2">&quot;to sending an N-ACTION request.&quot;</span>
+            <span class="p">)</span>
 
-<div class="viewcode-block" id="Association.send_n_create"><a class="viewcode-back" href="../../reference/generated/pynetdicom3.association.Association.html#pynetdicom3.association.Association.send_n_create">[docs]</a>    <span class="k">def</span> <span class="nf">send_n_create</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
-        <span class="sd">&quot;&quot;&quot;Send an N-CREATE request message to the peer AE.&quot;&quot;&quot;</span>
+        <span class="c1"># Determine the Presentation Context we are operating under</span>
+        <span class="c1">#   and hence the transfer syntax to use for encoding `dataset`</span>
+        <span class="n">transfer_syntax</span> <span class="o">=</span> <span class="kc">None</span>
+        <span class="k">for</span> <span class="n">context</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">acse</span><span class="o">.</span><span class="n">context_manager</span><span class="o">.</span><span class="n">accepted</span><span class="p">:</span>
+            <span class="k">if</span> <span class="n">class_uid</span> <span class="o">==</span> <span class="n">context</span><span class="o">.</span><span class="n">abstract_syntax</span><span class="p">:</span>
+                <span class="n">transfer_syntax</span> <span class="o">=</span> <span class="n">context</span><span class="o">.</span><span class="n">transfer_syntax</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span>
+                <span class="n">context_id</span> <span class="o">=</span> <span class="n">context</span><span class="o">.</span><span class="n">context_id</span>
+                <span class="k">break</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="n">LOGGER</span><span class="o">.</span><span class="n">error</span><span class="p">(</span>
+                <span class="s2">&quot;Association.send_n_action - no accepted Presentation Context &quot;</span>
+                <span class="s2">&quot;for: &#39;</span><span class="si">{}</span><span class="s2">&#39;&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">class_uid</span><span class="p">)</span>
+            <span class="p">)</span>
+            <span class="n">LOGGER</span><span class="o">.</span><span class="n">error</span><span class="p">(</span>
+                <span class="s2">&quot;Action SCU failed due to there being no accepted &quot;</span>
+                <span class="s2">&quot;presentation context&quot;</span>
+            <span class="p">)</span>
+            <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span>
+                <span class="s2">&quot;No accepted Presentation Context for the SOP Class UID &#39;</span><span class="si">{}</span><span class="s2">&#39;&quot;</span>
+                <span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">class_uid</span><span class="p">)</span>
+            <span class="p">)</span>
+
+        <span class="c1"># Build N-ACTION request primitive</span>
+        <span class="c1">#   (M) Message ID</span>
+        <span class="c1">#   (M) Requested SOP Class UID</span>
+        <span class="c1">#   (M) Requested SOP Instance UID</span>
+        <span class="c1">#   (M) Action Type ID</span>
+        <span class="n">req</span> <span class="o">=</span> <span class="n">N_ACTION</span><span class="p">()</span>
+        <span class="n">req</span><span class="o">.</span><span class="n">MessageID</span> <span class="o">=</span> <span class="n">msg_id</span>
+        <span class="n">req</span><span class="o">.</span><span class="n">RequestedSOPClassUID</span> <span class="o">=</span> <span class="n">class_uid</span>
+        <span class="n">req</span><span class="o">.</span><span class="n">RequestedSOPInstanceUID</span> <span class="o">=</span> <span class="n">instance_uid</span>
+        <span class="n">req</span><span class="o">.</span><span class="n">ActionTypeID</span> <span class="o">=</span> <span class="n">action_type</span>
+
+        <span class="c1"># Encode the `dataset` using the agreed transfer syntax</span>
+        <span class="c1">#   Will return None if failed to encode</span>
+        <span class="n">bytestream</span> <span class="o">=</span> <span class="n">encode</span><span class="p">(</span><span class="n">dataset</span><span class="p">,</span>
+                            <span class="n">transfer_syntax</span><span class="o">.</span><span class="n">is_implicit_VR</span><span class="p">,</span>
+                            <span class="n">transfer_syntax</span><span class="o">.</span><span class="n">is_little_endian</span><span class="p">)</span>
+
+        <span class="k">if</span> <span class="n">bytestream</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="n">req</span><span class="o">.</span><span class="n">ActionInformation</span> <span class="o">=</span> <span class="n">BytesIO</span><span class="p">(</span><span class="n">bytestream</span><span class="p">)</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="n">LOGGER</span><span class="o">.</span><span class="n">error</span><span class="p">(</span><span class="s2">&quot;Failed to encode the supplied Dataset&quot;</span><span class="p">)</span>
+            <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s1">&#39;Failed to encode the supplied Dataset&#39;</span><span class="p">)</span>
+
+        <span class="c1"># Send N-ACTION request to the peer via DIMSE and wait for the response</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">dimse</span><span class="o">.</span><span class="n">send_msg</span><span class="p">(</span><span class="n">req</span><span class="p">,</span> <span class="n">context_id</span><span class="p">)</span>
+        <span class="n">rsp</span><span class="p">,</span> <span class="n">_</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">dimse</span><span class="o">.</span><span class="n">receive_msg</span><span class="p">(</span><span class="n">wait</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+
+        <span class="c1"># Determine validity of the response and get the status</span>
+        <span class="n">status</span> <span class="o">=</span> <span class="n">Dataset</span><span class="p">()</span>
+        <span class="n">action_reply</span> <span class="o">=</span> <span class="kc">None</span>
+        <span class="k">if</span> <span class="n">rsp</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="n">LOGGER</span><span class="o">.</span><span class="n">error</span><span class="p">(</span><span class="s1">&#39;DIMSE service timed out&#39;</span><span class="p">)</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">abort</span><span class="p">()</span>
+        <span class="k">elif</span> <span class="n">rsp</span><span class="o">.</span><span class="n">is_valid_response</span><span class="p">:</span>
+            <span class="n">status</span><span class="o">.</span><span class="n">Status</span> <span class="o">=</span> <span class="n">rsp</span><span class="o">.</span><span class="n">Status</span>
+            <span class="k">for</span> <span class="n">keyword</span> <span class="ow">in</span> <span class="p">[</span><span class="s1">&#39;ErrorComment&#39;</span><span class="p">,</span> <span class="s1">&#39;ErrorID&#39;</span><span class="p">,</span>
+                            <span class="s1">&#39;AttributeIdentifierList&#39;</span><span class="p">]:</span>
+                <span class="k">if</span> <span class="nb">getattr</span><span class="p">(</span><span class="n">rsp</span><span class="p">,</span> <span class="n">keyword</span><span class="p">,</span> <span class="kc">None</span><span class="p">)</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+                    <span class="nb">setattr</span><span class="p">(</span><span class="n">status</span><span class="p">,</span> <span class="n">keyword</span><span class="p">,</span> <span class="nb">getattr</span><span class="p">(</span><span class="n">rsp</span><span class="p">,</span> <span class="n">keyword</span><span class="p">))</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="n">LOGGER</span><span class="o">.</span><span class="n">error</span><span class="p">(</span><span class="s1">&#39;Received an invalid N-ACTION response from the peer&#39;</span><span class="p">)</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">abort</span><span class="p">()</span>
+
+        <span class="c1"># Warning and Success statuses will return a dataset</span>
+        <span class="c1">#   we check against None as 0x0000 is a possible status</span>
+        <span class="k">if</span> <span class="nb">getattr</span><span class="p">(</span><span class="n">status</span><span class="p">,</span> <span class="s1">&#39;Status&#39;</span><span class="p">,</span> <span class="kc">None</span><span class="p">)</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="n">category</span> <span class="o">=</span> <span class="n">code_to_category</span><span class="p">(</span><span class="n">status</span><span class="o">.</span><span class="n">Status</span><span class="p">)</span>
+            <span class="k">if</span> <span class="n">category</span> <span class="ow">not</span> <span class="ow">in</span> <span class="p">[</span><span class="n">STATUS_WARNING</span><span class="p">,</span> <span class="n">STATUS_SUCCESS</span><span class="p">]:</span>
+                <span class="k">return</span> <span class="n">status</span><span class="p">,</span> <span class="n">action_reply</span>
+
+            <span class="c1"># Attempt to decode the response&#39;s dataset</span>
+            <span class="k">try</span><span class="p">:</span>
+                <span class="n">action_reply</span> <span class="o">=</span> <span class="n">decode</span><span class="p">(</span><span class="n">rsp</span><span class="o">.</span><span class="n">ActionReply</span><span class="p">,</span>
+                                      <span class="n">transfer_syntax</span><span class="o">.</span><span class="n">is_implicit_VR</span><span class="p">,</span>
+                                      <span class="n">transfer_syntax</span><span class="o">.</span><span class="n">is_little_endian</span><span class="p">)</span>
+            <span class="k">except</span> <span class="ne">Exception</span> <span class="k">as</span> <span class="n">ex</span><span class="p">:</span>
+                <span class="n">LOGGER</span><span class="o">.</span><span class="n">error</span><span class="p">(</span><span class="s2">&quot;Failed to decode the received dataset&quot;</span><span class="p">)</span>
+                <span class="n">LOGGER</span><span class="o">.</span><span class="n">exception</span><span class="p">(</span><span class="n">ex</span><span class="p">)</span>
+                <span class="c1"># Failure: Processing failure</span>
+                <span class="n">status</span><span class="o">.</span><span class="n">Status</span> <span class="o">=</span> <span class="mh">0x0110</span>
+
+        <span class="k">return</span> <span class="n">status</span><span class="p">,</span> <span class="n">action_reply</span></div>
+
+<div class="viewcode-block" id="Association.send_n_create"><a class="viewcode-back" href="../../reference/generated/pynetdicom3.association.Association.html#pynetdicom3.association.Association.send_n_create">[docs]</a>    <span class="k">def</span> <span class="nf">send_n_create</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">dataset</span><span class="p">,</span> <span class="n">class_uid</span><span class="p">,</span> <span class="n">instance_uid</span><span class="p">,</span> <span class="n">msg_id</span><span class="o">=</span><span class="mi">1</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;Send an N-CREATE request message to the peer AE.</span>
+
+<span class="sd">        Parameters</span>
+<span class="sd">        ----------</span>
+<span class="sd">        dataset : pydicom.dataset.Dataset or None</span>
+<span class="sd">            The dataset that will be sent as the *Attribute List*</span>
+<span class="sd">            parameter in the N-CREATE request, or None if not required.</span>
+<span class="sd">        class_uid : pydicom.uid.UID</span>
+<span class="sd">            The UID to be sent in the request&#39;s (0000,0002) *Affected SOP</span>
+<span class="sd">            Class UID* element.</span>
+<span class="sd">        instance_uid : pydicom.uid.UID or None</span>
+<span class="sd">            The UID to be sent in the request&#39;s (0000,1000) *Affected SOP</span>
+<span class="sd">            Instance UID* element or None if not required.</span>
+<span class="sd">        msg_id : int, optional</span>
+<span class="sd">            The DIMSE *Message ID*, must be between 0 and 65535, inclusive,</span>
+<span class="sd">            (default 1).</span>
+
+<span class="sd">        Returns</span>
+<span class="sd">        -------</span>
+<span class="sd">        status : pydicom.dataset.Dataset</span>
+<span class="sd">            If the peer timed out or sent an invalid response then yields an</span>
+<span class="sd">            empty ``Dataset``. If a response was received from the peer then</span>
+<span class="sd">            yields a ``Dataset`` containing at least a (0000,0900) *Status*</span>
+<span class="sd">            element, and depending on the returned value, may optionally</span>
+<span class="sd">            contain additional elements (see the DICOM Standard, Part 7,</span>
+<span class="sd">            Section 9.1.2.1.5 and Annex C).</span>
+
+<span class="sd">            General N-CREATE (DICOM Standard Part 7, Section 10.1.5 and</span>
+<span class="sd">            Annex C)</span>
+
+<span class="sd">            Success</span>
+<span class="sd">              | ``0x0000`` Successful operation</span>
+
+<span class="sd">            Failure</span>
+<span class="sd">              | ``0x0110`` Processing failure</span>
+<span class="sd">              | ``0x0112`` No such SOP Instance</span>
+<span class="sd">              | ``0x0114`` No such argument</span>
+<span class="sd">              | ``0x0115`` Invalid argument value</span>
+<span class="sd">              | ``0x0117`` Invalid object instance</span>
+<span class="sd">              | ``0x0118`` No such SOP Class</span>
+<span class="sd">              | ``0x0119`` Class-Instance conflict</span>
+<span class="sd">              | ``0x0123`` No such action</span>
+<span class="sd">              | ``0x0124`` Not authorised</span>
+<span class="sd">              | ``0x0210`` Duplicate invocation</span>
+<span class="sd">              | ``0x0211`` Unrecognised operation</span>
+<span class="sd">              | ``0x0212`` Mistyped argument</span>
+<span class="sd">              | ``0x0213`` Resource limitation</span>
+
+<span class="sd">        attribute_list : pydicom.dataset.Dataset or None</span>
+<span class="sd">            If the status is &#39;Success&#39; then a ``Dataset`` containing attributes</span>
+<span class="sd">            corresponding to those supplied in the *Attribute List*,</span>
+<span class="sd">            otherwise returns None.</span>
+
+<span class="sd">        See Also</span>
+<span class="sd">        --------</span>
+<span class="sd">        ae.ApplicationEntity.on_n_create</span>
+<span class="sd">        dimse_primitives.N_CREATE</span>
+
+<span class="sd">        References</span>
+<span class="sd">        ----------</span>
+
+<span class="sd">        * DICOM Standart Part 4, `Annex F &lt;http://dicom.nema.org/medical/dicom/current/output/html/part04.html#chapter_F&gt;`_</span>
+<span class="sd">        * DICOM Standart Part 4, `Annex H &lt;http://dicom.nema.org/medical/dicom/current/output/html/part04.html#chapter_H&gt;`_</span>
+<span class="sd">        * DICOM Standard Part 4, `Annex CC &lt;http://dicom.nema.org/medical/dicom/current/output/html/part04.html#chapter_CC&gt;`_</span>
+<span class="sd">        * DICOM Standard Part 4, `Annex DD &lt;http://dicom.nema.org/medical/dicom/current/output/html/part04.html#chapter_DD&gt;`_</span>
+<span class="sd">        * DICOM Standard Part 7, Sections</span>
+<span class="sd">          `10.1.5 &lt;http://dicom.nema.org/medical/dicom/current/output/html/part07.html#sect_10.1.5&gt;`_,</span>
+<span class="sd">          `10.3.5 &lt;http://dicom.nema.org/medical/dicom/current/output/html/part07.html#sect_10.3.5&gt;`_ and</span>
+<span class="sd">          `Annex C &lt;http://dicom.nema.org/medical/dicom/current/output/html/part07.html#chapter_C&gt;`__</span>
+<span class="sd">        &quot;&quot;&quot;</span>
         <span class="c1"># Can&#39;t send an N-CREATE without an Association</span>
         <span class="k">if</span> <span class="ow">not</span> <span class="bp">self</span><span class="o">.</span><span class="n">is_established</span><span class="p">:</span>
-            <span class="k">raise</span> <span class="ne">RuntimeError</span><span class="p">(</span><span class="s2">&quot;The association with a peer SCP must be &quot;</span>
-                               <span class="s2">&quot;established before sending an N-CREATE &quot;</span>
-                               <span class="s2">&quot;request.&quot;</span><span class="p">)</span>
-        <span class="k">raise</span> <span class="ne">NotImplementedError</span></div>
+            <span class="k">raise</span> <span class="ne">RuntimeError</span><span class="p">(</span>
+                <span class="s2">&quot;The association with a peer SCP must be established prior &quot;</span>
+                <span class="s2">&quot;to sending an N-CREATE request.&quot;</span>
+            <span class="p">)</span>
+
+        <span class="c1"># Determine the Presentation Context we are operating under</span>
+        <span class="c1">#   and hence the transfer syntax to use for encoding `dataset`</span>
+        <span class="n">transfer_syntax</span> <span class="o">=</span> <span class="kc">None</span>
+        <span class="k">for</span> <span class="n">context</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">acse</span><span class="o">.</span><span class="n">context_manager</span><span class="o">.</span><span class="n">accepted</span><span class="p">:</span>
+            <span class="k">if</span> <span class="n">class_uid</span> <span class="o">==</span> <span class="n">context</span><span class="o">.</span><span class="n">abstract_syntax</span><span class="p">:</span>
+                <span class="n">transfer_syntax</span> <span class="o">=</span> <span class="n">context</span><span class="o">.</span><span class="n">transfer_syntax</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span>
+                <span class="n">context_id</span> <span class="o">=</span> <span class="n">context</span><span class="o">.</span><span class="n">context_id</span>
+                <span class="k">break</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="n">LOGGER</span><span class="o">.</span><span class="n">error</span><span class="p">(</span>
+                <span class="s2">&quot;Association.send_n_create - no accepted Presentation Context &quot;</span>
+                <span class="s2">&quot;for: &#39;</span><span class="si">{}</span><span class="s2">&#39;&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">class_uid</span><span class="p">)</span>
+            <span class="p">)</span>
+            <span class="n">LOGGER</span><span class="o">.</span><span class="n">error</span><span class="p">(</span>
+                <span class="s2">&quot;Create SCU failed due to there being no accepted presentation &quot;</span>
+                <span class="s2">&quot;context&quot;</span>
+            <span class="p">)</span>
+            <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span>
+                <span class="s2">&quot;No accepted Presentation Context for the SOP Class UID &#39;</span><span class="si">{}</span><span class="s2">&#39;&quot;</span>
+                <span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">class_uid</span><span class="p">)</span>
+            <span class="p">)</span>
+
+        <span class="c1"># Build N-CREATE request primitive</span>
+        <span class="c1">#   (M) Message ID</span>
+        <span class="c1">#   (M) Affected SOP Class UID</span>
+        <span class="c1">#   (M) Affected SOP Instance UID</span>
+        <span class="n">req</span> <span class="o">=</span> <span class="n">N_CREATE</span><span class="p">()</span>
+        <span class="n">req</span><span class="o">.</span><span class="n">MessageID</span> <span class="o">=</span> <span class="n">msg_id</span>
+        <span class="n">req</span><span class="o">.</span><span class="n">AffectedSOPClassUID</span> <span class="o">=</span> <span class="n">class_uid</span>
+        <span class="n">req</span><span class="o">.</span><span class="n">AffectedSOPInstanceUID</span> <span class="o">=</span> <span class="n">instance_uid</span>
+
+        <span class="c1"># Encode the `dataset` using the agreed transfer syntax</span>
+        <span class="c1">#   Will return None if failed to encode</span>
+        <span class="n">bytestream</span> <span class="o">=</span> <span class="n">encode</span><span class="p">(</span><span class="n">dataset</span><span class="p">,</span>
+                            <span class="n">transfer_syntax</span><span class="o">.</span><span class="n">is_implicit_VR</span><span class="p">,</span>
+                            <span class="n">transfer_syntax</span><span class="o">.</span><span class="n">is_little_endian</span><span class="p">)</span>
+
+        <span class="k">if</span> <span class="n">bytestream</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="n">req</span><span class="o">.</span><span class="n">AttributeList</span> <span class="o">=</span> <span class="n">BytesIO</span><span class="p">(</span><span class="n">bytestream</span><span class="p">)</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="n">LOGGER</span><span class="o">.</span><span class="n">error</span><span class="p">(</span><span class="s2">&quot;Failed to encode the supplied Dataset&quot;</span><span class="p">)</span>
+            <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s1">&#39;Failed to encode the supplied Dataset&#39;</span><span class="p">)</span>
+
+        <span class="c1"># Send N-CREATE request to the peer via DIMSE and wait for the response</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">dimse</span><span class="o">.</span><span class="n">send_msg</span><span class="p">(</span><span class="n">req</span><span class="p">,</span> <span class="n">context_id</span><span class="p">)</span>
+        <span class="n">rsp</span><span class="p">,</span> <span class="n">_</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">dimse</span><span class="o">.</span><span class="n">receive_msg</span><span class="p">(</span><span class="n">wait</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+
+        <span class="c1"># Determine validity of the response and get the status</span>
+        <span class="n">status</span> <span class="o">=</span> <span class="n">Dataset</span><span class="p">()</span>
+        <span class="n">attribute_list</span> <span class="o">=</span> <span class="kc">None</span>
+        <span class="k">if</span> <span class="n">rsp</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="n">LOGGER</span><span class="o">.</span><span class="n">error</span><span class="p">(</span><span class="s1">&#39;DIMSE service timed out&#39;</span><span class="p">)</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">abort</span><span class="p">()</span>
+        <span class="k">elif</span> <span class="n">rsp</span><span class="o">.</span><span class="n">is_valid_response</span><span class="p">:</span>
+            <span class="n">status</span><span class="o">.</span><span class="n">Status</span> <span class="o">=</span> <span class="n">rsp</span><span class="o">.</span><span class="n">Status</span>
+            <span class="k">for</span> <span class="n">keyword</span> <span class="ow">in</span> <span class="p">[</span><span class="s1">&#39;ErrorComment&#39;</span><span class="p">,</span> <span class="s1">&#39;ErrorID&#39;</span><span class="p">]:</span>
+                <span class="k">if</span> <span class="nb">getattr</span><span class="p">(</span><span class="n">rsp</span><span class="p">,</span> <span class="n">keyword</span><span class="p">,</span> <span class="kc">None</span><span class="p">)</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+                    <span class="nb">setattr</span><span class="p">(</span><span class="n">status</span><span class="p">,</span> <span class="n">keyword</span><span class="p">,</span> <span class="nb">getattr</span><span class="p">(</span><span class="n">rsp</span><span class="p">,</span> <span class="n">keyword</span><span class="p">))</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="n">LOGGER</span><span class="o">.</span><span class="n">error</span><span class="p">(</span><span class="s1">&#39;Received an invalid N-CREATE response from the peer&#39;</span><span class="p">)</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">abort</span><span class="p">()</span>
+
+        <span class="c1"># Warning and Success statuses will return a dataset</span>
+        <span class="c1">#   we check against None as 0x0000 is a possible status</span>
+        <span class="k">if</span> <span class="nb">getattr</span><span class="p">(</span><span class="n">status</span><span class="p">,</span> <span class="s1">&#39;Status&#39;</span><span class="p">,</span> <span class="kc">None</span><span class="p">)</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="n">category</span> <span class="o">=</span> <span class="n">code_to_category</span><span class="p">(</span><span class="n">status</span><span class="o">.</span><span class="n">Status</span><span class="p">)</span>
+            <span class="k">if</span> <span class="n">category</span> <span class="ow">not</span> <span class="ow">in</span> <span class="p">[</span><span class="n">STATUS_WARNING</span><span class="p">,</span> <span class="n">STATUS_SUCCESS</span><span class="p">]:</span>
+                <span class="k">return</span> <span class="n">status</span><span class="p">,</span> <span class="n">attribute_list</span>
+
+            <span class="c1"># Attempt to decode the response&#39;s dataset</span>
+            <span class="k">try</span><span class="p">:</span>
+                <span class="n">attribute_list</span> <span class="o">=</span> <span class="n">decode</span><span class="p">(</span><span class="n">rsp</span><span class="o">.</span><span class="n">AttributeList</span><span class="p">,</span>
+                                        <span class="n">transfer_syntax</span><span class="o">.</span><span class="n">is_implicit_VR</span><span class="p">,</span>
+                                        <span class="n">transfer_syntax</span><span class="o">.</span><span class="n">is_little_endian</span><span class="p">)</span>
+            <span class="k">except</span> <span class="ne">Exception</span> <span class="k">as</span> <span class="n">ex</span><span class="p">:</span>
+                <span class="n">LOGGER</span><span class="o">.</span><span class="n">error</span><span class="p">(</span><span class="s2">&quot;Failed to decode the received dataset&quot;</span><span class="p">)</span>
+                <span class="n">LOGGER</span><span class="o">.</span><span class="n">exception</span><span class="p">(</span><span class="n">ex</span><span class="p">)</span>
+                <span class="c1"># Failure: Processing failure</span>
+                <span class="n">status</span><span class="o">.</span><span class="n">Status</span> <span class="o">=</span> <span class="mh">0x0110</span>
+
+        <span class="k">return</span> <span class="n">status</span><span class="p">,</span> <span class="n">attribute_list</span></div>
 
 <div class="viewcode-block" id="Association.send_n_delete"><a class="viewcode-back" href="../../reference/generated/pynetdicom3.association.Association.html#pynetdicom3.association.Association.send_n_delete">[docs]</a>    <span class="k">def</span> <span class="nf">send_n_delete</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">class_uid</span><span class="p">,</span> <span class="n">instance_uid</span><span class="p">,</span> <span class="n">msg_id</span><span class="o">=</span><span class="mi">1</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;Send an N-DELETE request message to the peer AE.</span>

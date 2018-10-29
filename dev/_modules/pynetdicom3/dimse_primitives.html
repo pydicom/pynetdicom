@@ -1860,31 +1860,13 @@
 <span class="sd">        Dataset containing additional Service Class specific information.</span>
 <span class="sd">    Status : int</span>
 <span class="sd">        The error or success notification of the operation.</span>
-
-<span class="sd">    Notes</span>
-<span class="sd">    -----</span>
-
-<span class="sd">    **Status**</span>
-
-<span class="sd">    Failure</span>
-
-<span class="sd">    0x0119 - class-instance conflict PS3.7 Annex C.5.7</span>
-<span class="sd">    0x0210 - duplicate invocation PS3.7 Annex C.5.9</span>
-<span class="sd">    0x0115 - invalid argument value PS3.7 Annex C.5.10</span>
-<span class="sd">    0x0117 - invalid SOP instance PS3.7 Annex C.5.12</span>
-<span class="sd">    0x0212 - mistyped argument PS3.7 Annex C.5.15</span>
-<span class="sd">    0x0114 - no such argument  PS3.7 Annex C.5.16</span>
-<span class="sd">    0x0113 - no such event type PS3.7 Annex C.5.18</span>
-<span class="sd">    0x0118 - no such SOP class PS3.7 Annex C.5.20</span>
-<span class="sd">    0x0112 - no such SOP instance PS3.7 Annex C.5.19</span>
-<span class="sd">    0x0110 - processing failure PS3.7 Annex C.5.21</span>
-<span class="sd">    0x0213 - resource limitation PS3.7 Annex C.5.22</span>
-<span class="sd">    0x0211 - unrecognised operation PS3.7 Annex C.5.23</span>
-
-<span class="sd">    Success</span>
-
-<span class="sd">    0x0000 - success 0x0000</span>
 <span class="sd">    &quot;&quot;&quot;</span>
+    <span class="c1"># Optional status element keywords other than &#39;Status&#39;</span>
+    <span class="n">STATUS_OPTIONAL_KEYWORDS</span> <span class="o">=</span> <span class="p">(</span>
+        <span class="s1">&#39;AffectedSOPClassUID&#39;</span><span class="p">,</span> <span class="s1">&#39;AffectedSOPInstanceUID&#39;</span><span class="p">,</span> <span class="s1">&#39;EventTypeID&#39;</span><span class="p">,</span>
+        <span class="s1">&#39;EventInformation&#39;</span><span class="p">,</span> <span class="s1">&#39;ErrorComment&#39;</span><span class="p">,</span> <span class="s1">&#39;ErrorID&#39;</span>
+    <span class="p">)</span>
+
     <span class="k">def</span> <span class="nf">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">MessageID</span> <span class="o">=</span> <span class="kc">None</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">MessageIDBeingRespondedTo</span> <span class="o">=</span> <span class="kc">None</span>
@@ -1895,9 +1877,116 @@
         <span class="bp">self</span><span class="o">.</span><span class="n">EventReply</span> <span class="o">=</span> <span class="kc">None</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">Status</span> <span class="o">=</span> <span class="kc">None</span>
 
-        <span class="c1"># (0000,1008) 0x0115</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">ActionTypeID</span> <span class="o">=</span> <span class="kc">None</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">ActionInformation</span> <span class="o">=</span> <span class="kc">None</span>
+        <span class="c1"># Optional status elements</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">ErrorComment</span> <span class="o">=</span> <span class="kc">None</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">ErrorID</span> <span class="o">=</span> <span class="kc">None</span>
+
+    <span class="nd">@property</span>
+    <span class="k">def</span> <span class="nf">AffectedSOPClassUID</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;Return the *Affected SOP Class UID*.&quot;&quot;&quot;</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_affected_sop_class_uid</span>
+
+    <span class="nd">@AffectedSOPClassUID</span><span class="o">.</span><span class="n">setter</span>
+    <span class="k">def</span> <span class="nf">AffectedSOPClassUID</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">value</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;Set the *Affected SOP Class UID*.</span>
+
+<span class="sd">        Parameters</span>
+<span class="sd">        ----------</span>
+<span class="sd">        value : pydicom.uid.UID, bytes or str</span>
+<span class="sd">            The value for the Affected SOP Class UID</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">value</span><span class="p">,</span> <span class="n">UID</span><span class="p">):</span>
+            <span class="k">pass</span>
+        <span class="k">elif</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">value</span><span class="p">,</span> <span class="nb">str</span><span class="p">):</span>
+            <span class="n">value</span> <span class="o">=</span> <span class="n">UID</span><span class="p">(</span><span class="n">value</span><span class="p">)</span>
+        <span class="k">elif</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">value</span><span class="p">,</span> <span class="nb">bytes</span><span class="p">):</span>
+            <span class="n">value</span> <span class="o">=</span> <span class="n">UID</span><span class="p">(</span><span class="n">value</span><span class="o">.</span><span class="n">decode</span><span class="p">(</span><span class="s1">&#39;ascii&#39;</span><span class="p">))</span>
+        <span class="k">elif</span> <span class="n">value</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="k">pass</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="k">raise</span> <span class="ne">TypeError</span><span class="p">(</span><span class="s2">&quot;Affected SOP Class UID must be a &quot;</span>
+                            <span class="s2">&quot;pydicom.uid.UID, str or bytes&quot;</span><span class="p">)</span>
+
+        <span class="k">if</span> <span class="n">value</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span> <span class="ow">and</span> <span class="ow">not</span> <span class="n">value</span><span class="o">.</span><span class="n">is_valid</span><span class="p">:</span>
+            <span class="n">LOGGER</span><span class="o">.</span><span class="n">error</span><span class="p">(</span><span class="s2">&quot;Affected SOP Class UID is an invalid UID&quot;</span><span class="p">)</span>
+            <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s2">&quot;Affected SOP Class UID is an invalid UID&quot;</span><span class="p">)</span>
+
+        <span class="bp">self</span><span class="o">.</span><span class="n">_affected_sop_class_uid</span> <span class="o">=</span> <span class="n">value</span>
+
+    <span class="nd">@property</span>
+    <span class="k">def</span> <span class="nf">AffectedSOPInstanceUID</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;Return the *Affected SOP Instance UID*.&quot;&quot;&quot;</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_affected_sop_instance_uid</span>
+
+    <span class="nd">@AffectedSOPInstanceUID</span><span class="o">.</span><span class="n">setter</span>
+    <span class="k">def</span> <span class="nf">AffectedSOPInstanceUID</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">value</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;Set the *Affected SOP Instance UID*.</span>
+
+<span class="sd">        Parameters</span>
+<span class="sd">        ----------</span>
+<span class="sd">        value : pydicom.uid.UID, bytes or str</span>
+<span class="sd">            The value for the Affected SOP Instance UID</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">value</span><span class="p">,</span> <span class="n">UID</span><span class="p">):</span>
+            <span class="k">pass</span>
+        <span class="k">elif</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">value</span><span class="p">,</span> <span class="nb">str</span><span class="p">):</span>
+            <span class="n">value</span> <span class="o">=</span> <span class="n">UID</span><span class="p">(</span><span class="n">value</span><span class="p">)</span>
+        <span class="k">elif</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">value</span><span class="p">,</span> <span class="nb">bytes</span><span class="p">):</span>
+            <span class="n">value</span> <span class="o">=</span> <span class="n">UID</span><span class="p">(</span><span class="n">value</span><span class="o">.</span><span class="n">decode</span><span class="p">(</span><span class="s1">&#39;ascii&#39;</span><span class="p">))</span>
+        <span class="k">elif</span> <span class="n">value</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="k">pass</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="k">raise</span> <span class="ne">TypeError</span><span class="p">(</span><span class="s2">&quot;Affected SOP Instance UID must be a &quot;</span>
+                            <span class="s2">&quot;pydicom.uid.UID, str or bytes&quot;</span><span class="p">)</span>
+
+        <span class="k">if</span> <span class="n">value</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span> <span class="ow">and</span> <span class="ow">not</span> <span class="n">value</span><span class="o">.</span><span class="n">is_valid</span><span class="p">:</span>
+            <span class="n">LOGGER</span><span class="o">.</span><span class="n">error</span><span class="p">(</span><span class="s2">&quot;Affected SOP Instance UID is an invalid UID&quot;</span><span class="p">)</span>
+            <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s2">&quot;Affected SOP Instance UID is an invalid UID&quot;</span><span class="p">)</span>
+
+        <span class="bp">self</span><span class="o">.</span><span class="n">_affected_sop_instance_uid</span> <span class="o">=</span> <span class="n">value</span>
+
+    <span class="nd">@property</span>
+    <span class="k">def</span> <span class="nf">EventInformation</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;Return the *Event Information*.&quot;&quot;&quot;</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_event_info</span>
+
+    <span class="nd">@EventInformation</span><span class="o">.</span><span class="n">setter</span>
+    <span class="k">def</span> <span class="nf">EventInformation</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">value</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;Set the *Event Information*.&quot;&quot;&quot;</span>
+        <span class="k">if</span> <span class="n">value</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">_event_info</span> <span class="o">=</span> <span class="n">value</span>
+        <span class="k">elif</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">value</span><span class="p">,</span> <span class="n">BytesIO</span><span class="p">):</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">_event_info</span> <span class="o">=</span> <span class="n">value</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="k">raise</span> <span class="ne">TypeError</span><span class="p">(</span><span class="s2">&quot;EventInformation must be a BytesIO object&quot;</span><span class="p">)</span>
+
+    <span class="nd">@property</span>
+    <span class="k">def</span> <span class="nf">EventReply</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;Return the *Event Reply*.&quot;&quot;&quot;</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_event_reply</span>
+
+    <span class="nd">@EventReply</span><span class="o">.</span><span class="n">setter</span>
+    <span class="k">def</span> <span class="nf">EventReply</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">value</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;Set the *Event Reply*.&quot;&quot;&quot;</span>
+        <span class="k">if</span> <span class="n">value</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">_event_reply</span> <span class="o">=</span> <span class="n">value</span>
+        <span class="k">elif</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">value</span><span class="p">,</span> <span class="n">BytesIO</span><span class="p">):</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">_event_reply</span> <span class="o">=</span> <span class="n">value</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="k">raise</span> <span class="ne">TypeError</span><span class="p">(</span><span class="s2">&quot;EventReply must be a BytesIO object&quot;</span><span class="p">)</span>
+
+    <span class="nd">@property</span>
+    <span class="k">def</span> <span class="nf">EventTypeID</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;Return the *Event Type ID*.&quot;&quot;&quot;</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_event_type_id</span>
+
+    <span class="nd">@EventTypeID</span><span class="o">.</span><span class="n">setter</span>
+    <span class="k">def</span> <span class="nf">EventTypeID</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">value</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;Set the *Event Type ID*.&quot;&quot;&quot;</span>
+        <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">value</span><span class="p">,</span> <span class="nb">int</span><span class="p">)</span> <span class="ow">or</span> <span class="n">value</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">_event_type_id</span> <span class="o">=</span> <span class="n">value</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="k">raise</span> <span class="ne">TypeError</span><span class="p">(</span><span class="s2">&quot;&#39;N_EVENT_REPORT.EventTypeID&#39; must be an int.&quot;</span><span class="p">)</span>
 
     <span class="nd">@property</span>
     <span class="k">def</span> <span class="nf">is_valid_request</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
@@ -1917,6 +2006,57 @@
                 <span class="k">return</span> <span class="kc">False</span>
 
         <span class="k">return</span> <span class="kc">True</span>
+
+    <span class="nd">@property</span>
+    <span class="k">def</span> <span class="nf">MessageID</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;Return the *Message ID*.&quot;&quot;&quot;</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_message_id</span>
+
+    <span class="nd">@MessageID</span><span class="o">.</span><span class="n">setter</span>
+    <span class="k">def</span> <span class="nf">MessageID</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">value</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;Set the *Message ID*.&quot;&quot;&quot;</span>
+        <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">value</span><span class="p">,</span> <span class="nb">int</span><span class="p">):</span>
+            <span class="k">if</span> <span class="mi">0</span> <span class="o">&lt;=</span> <span class="n">value</span> <span class="o">&lt;</span> <span class="mi">2</span><span class="o">**</span><span class="mi">16</span><span class="p">:</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">_message_id</span> <span class="o">=</span> <span class="n">value</span>
+            <span class="k">else</span><span class="p">:</span>
+                <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s2">&quot;Message ID must be between 0 and 65535, &quot;</span>
+                                 <span class="s2">&quot;inclusive&quot;</span><span class="p">)</span>
+        <span class="k">elif</span> <span class="n">value</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">_message_id</span> <span class="o">=</span> <span class="n">value</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="k">raise</span> <span class="ne">TypeError</span><span class="p">(</span><span class="s2">&quot;Message ID must be an int&quot;</span><span class="p">)</span>
+
+    <span class="nd">@property</span>
+    <span class="k">def</span> <span class="nf">MessageIDBeingRespondedTo</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;Return the *Message ID Being Responded To*.&quot;&quot;&quot;</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_message_id_being_responded_to</span>
+
+    <span class="nd">@MessageIDBeingRespondedTo</span><span class="o">.</span><span class="n">setter</span>
+    <span class="k">def</span> <span class="nf">MessageIDBeingRespondedTo</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">value</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;Set the *Message ID Being Responded To*.&quot;&quot;&quot;</span>
+        <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">value</span><span class="p">,</span> <span class="nb">int</span><span class="p">):</span>
+            <span class="k">if</span> <span class="mi">0</span> <span class="o">&lt;=</span> <span class="n">value</span> <span class="o">&lt;</span> <span class="mi">2</span><span class="o">**</span><span class="mi">16</span><span class="p">:</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">_message_id_being_responded_to</span> <span class="o">=</span> <span class="n">value</span>
+            <span class="k">else</span><span class="p">:</span>
+                <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s2">&quot;Message ID Being Responded To must be &quot;</span>
+                                 <span class="s2">&quot;between 0 and 65535, inclusive&quot;</span><span class="p">)</span>
+        <span class="k">elif</span> <span class="n">value</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">_message_id_being_responded_to</span> <span class="o">=</span> <span class="n">value</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="k">raise</span> <span class="ne">TypeError</span><span class="p">(</span><span class="s2">&quot;Message ID Being Responded To must be an int&quot;</span><span class="p">)</span>
+
+    <span class="nd">@property</span>
+    <span class="k">def</span> <span class="nf">Status</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;Return the *Status*.&quot;&quot;&quot;</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_status</span>
+
+    <span class="nd">@Status</span><span class="o">.</span><span class="n">setter</span>
+    <span class="k">def</span> <span class="nf">Status</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">value</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;Set the *Status*.&quot;&quot;&quot;</span>
+        <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">value</span><span class="p">,</span> <span class="nb">int</span><span class="p">)</span> <span class="ow">or</span> <span class="n">value</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">_status</span> <span class="o">=</span> <span class="n">value</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="k">raise</span> <span class="ne">TypeError</span><span class="p">(</span><span class="s2">&quot;&#39;N_EVENT_REPORT.Status&#39; must be an int.&quot;</span><span class="p">)</span>
 
 
 <span class="k">class</span> <span class="nc">N_GET</span><span class="p">(</span><span class="nb">object</span><span class="p">):</span>
@@ -2603,13 +2743,13 @@
 <span class="sd">        The Message ID of the operation request/indication to which this</span>
 <span class="sd">        response/confirmation applies.</span>
 <span class="sd">    RequestedSOPClassUID : pydicom.uid.UID, bytes or str</span>
-<span class="sd">        FIXME</span>
+<span class="sd">        The SOP Class for which the action is to be performed.</span>
 <span class="sd">    RequestedSOPInstanceUID : pydicom.uid.UID, bytes or str</span>
-<span class="sd">        FIXME</span>
-<span class="sd">    ActionTypeID :</span>
-<span class="sd">        FIXME</span>
-<span class="sd">    ActionInformation :</span>
-<span class="sd">        FIXME</span>
+<span class="sd">        The SOP Instance for which the action is to be performed.</span>
+<span class="sd">    ActionTypeID : int</span>
+<span class="sd">        The type of action that is to be performed.</span>
+<span class="sd">    ActionInformation : pydicom.dataset.Dataset</span>
+<span class="sd">        Extra information required to perform the action.</span>
 <span class="sd">    AffectedSOPClassUID : pydicom.uid.UID, bytes or str</span>
 <span class="sd">        For the request/indication this specifies the SOP Class for</span>
 <span class="sd">        storage. If included in the response/confirmation, it shall be equal</span>
@@ -2618,30 +2758,11 @@
 <span class="sd">        For the request/indication this specifies the SOP Instance for</span>
 <span class="sd">        storage. If included in the response/confirmation, it shall be equal</span>
 <span class="sd">        to the value in the request/indication</span>
-<span class="sd">    ActionReply :</span>
-<span class="sd">        FIXME</span>
+<span class="sd">    ActionReply : pydicom.dataset.Dataset</span>
+<span class="sd">        The reply to the action.</span>
 <span class="sd">    Status : int</span>
-<span class="sd">        The error or success notification of the operation. It shall be</span>
-<span class="sd">        one of the following values:</span>
+<span class="sd">        The error or success notification of the operation.</span>
 
-<span class="sd">    **Status**</span>
-
-<span class="sd">    Failure</span>
-<span class="sd">        class-instance conflict 0x0119 PS3.7 Annex C.5.7</span>
-<span class="sd">        duplicate invocation 0x0210 PS3.7 Annex C.5.9</span>
-<span class="sd">        invalid argument value 0x0115 PS3.7 Annex C.5.10</span>
-<span class="sd">        invalid SOP instance 0x0117 PS3.7 Annex C.5.12</span>
-<span class="sd">        mistyped argument 0x0212 PS3.7 Annex C.5.15</span>
-<span class="sd">        no such action type 0x0123 PS3.7 Annex C.5.24</span>
-<span class="sd">        no such argument 0x0114 PS3.7 Annex C.5.16</span>
-<span class="sd">        no such SOP instance 0x0112 PS3.7 Annex C.5.19</span>
-<span class="sd">        no such SOP class 0x0118 PS3.7 Annex C.5.20</span>
-<span class="sd">        processing failure 0x0110 PS3.7 Annex C.5.21</span>
-<span class="sd">        resource limitation 0x213 PS3.7 Annex C.5.22</span>
-<span class="sd">        unrecognised operation 0x0211 PS3.7 Annex C.5.23</span>
-<span class="sd">        not authorised 0x0124 PS3.5 Annex C.5.25</span>
-<span class="sd">    Success</span>
-<span class="sd">        success 0x0000 PS3.7 Annex C.1.1</span>
 <span class="sd">    &quot;&quot;&quot;</span>
     <span class="k">def</span> <span class="nf">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">MessageID</span> <span class="o">=</span> <span class="kc">None</span>
@@ -2655,11 +2776,94 @@
         <span class="bp">self</span><span class="o">.</span><span class="n">ActionReply</span> <span class="o">=</span> <span class="kc">None</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">Status</span> <span class="o">=</span> <span class="kc">None</span>
 
+        <span class="c1"># Optional status elements</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">ErrorComment</span> <span class="o">=</span> <span class="kc">None</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">ErrorID</span> <span class="o">=</span> <span class="kc">None</span>
+
+    <span class="nd">@property</span>
+    <span class="k">def</span> <span class="nf">AffectedSOPClassUID</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;Return the *Affected SOP Class UID*.&quot;&quot;&quot;</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_affected_sop_class_uid</span>
+
+    <span class="nd">@AffectedSOPClassUID</span><span class="o">.</span><span class="n">setter</span>
+    <span class="k">def</span> <span class="nf">AffectedSOPClassUID</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">value</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;Set the *Affected SOP Class UID*.</span>
+
+<span class="sd">        Parameters</span>
+<span class="sd">        ----------</span>
+<span class="sd">        value : pydicom.uid.UID, bytes or str</span>
+<span class="sd">            The value for the Affected SOP Class UID</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">value</span><span class="p">,</span> <span class="n">UID</span><span class="p">):</span>
+            <span class="k">pass</span>
+        <span class="k">elif</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">value</span><span class="p">,</span> <span class="nb">str</span><span class="p">):</span>
+            <span class="n">value</span> <span class="o">=</span> <span class="n">UID</span><span class="p">(</span><span class="n">value</span><span class="p">)</span>
+        <span class="k">elif</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">value</span><span class="p">,</span> <span class="nb">bytes</span><span class="p">):</span>
+            <span class="n">value</span> <span class="o">=</span> <span class="n">UID</span><span class="p">(</span><span class="n">value</span><span class="o">.</span><span class="n">decode</span><span class="p">(</span><span class="s1">&#39;ascii&#39;</span><span class="p">))</span>
+        <span class="k">elif</span> <span class="n">value</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="k">pass</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="k">raise</span> <span class="ne">TypeError</span><span class="p">(</span><span class="s2">&quot;Affected SOP Class UID must be a &quot;</span>
+                            <span class="s2">&quot;pydicom.uid.UID, str or bytes&quot;</span><span class="p">)</span>
+
+        <span class="k">if</span> <span class="n">value</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span> <span class="ow">and</span> <span class="ow">not</span> <span class="n">value</span><span class="o">.</span><span class="n">is_valid</span><span class="p">:</span>
+            <span class="n">LOGGER</span><span class="o">.</span><span class="n">error</span><span class="p">(</span><span class="s2">&quot;Affected SOP Class UID is an invalid UID&quot;</span><span class="p">)</span>
+            <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s2">&quot;Affected SOP Class UID is an invalid UID&quot;</span><span class="p">)</span>
+
+        <span class="bp">self</span><span class="o">.</span><span class="n">_affected_sop_class_uid</span> <span class="o">=</span> <span class="n">value</span>
+
+    <span class="nd">@property</span>
+    <span class="k">def</span> <span class="nf">AffectedSOPInstanceUID</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;Return the *Affected SOP Instance UID*.&quot;&quot;&quot;</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_affected_sop_instance_uid</span>
+
+    <span class="nd">@AffectedSOPInstanceUID</span><span class="o">.</span><span class="n">setter</span>
+    <span class="k">def</span> <span class="nf">AffectedSOPInstanceUID</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">value</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;Set the *Affected SOP Instance UID*.</span>
+
+<span class="sd">        Parameters</span>
+<span class="sd">        ----------</span>
+<span class="sd">        value : pydicom.uid.UID, bytes or str</span>
+<span class="sd">            The value for the Affected SOP Instance UID</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">value</span><span class="p">,</span> <span class="n">UID</span><span class="p">):</span>
+            <span class="k">pass</span>
+        <span class="k">elif</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">value</span><span class="p">,</span> <span class="nb">str</span><span class="p">):</span>
+            <span class="n">value</span> <span class="o">=</span> <span class="n">UID</span><span class="p">(</span><span class="n">value</span><span class="p">)</span>
+        <span class="k">elif</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">value</span><span class="p">,</span> <span class="nb">bytes</span><span class="p">):</span>
+            <span class="n">value</span> <span class="o">=</span> <span class="n">UID</span><span class="p">(</span><span class="n">value</span><span class="o">.</span><span class="n">decode</span><span class="p">(</span><span class="s1">&#39;ascii&#39;</span><span class="p">))</span>
+        <span class="k">elif</span> <span class="n">value</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="k">pass</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="k">raise</span> <span class="ne">TypeError</span><span class="p">(</span><span class="s2">&quot;Affected SOP Instance UID must be a &quot;</span>
+                            <span class="s2">&quot;pydicom.uid.UID, str or bytes&quot;</span><span class="p">)</span>
+
+        <span class="k">if</span> <span class="n">value</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span> <span class="ow">and</span> <span class="ow">not</span> <span class="n">value</span><span class="o">.</span><span class="n">is_valid</span><span class="p">:</span>
+            <span class="n">LOGGER</span><span class="o">.</span><span class="n">error</span><span class="p">(</span><span class="s2">&quot;Affected SOP Instance UID is an invalid UID&quot;</span><span class="p">)</span>
+            <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s2">&quot;Affected SOP Instance UID is an invalid UID&quot;</span><span class="p">)</span>
+
+        <span class="bp">self</span><span class="o">.</span><span class="n">_affected_sop_instance_uid</span> <span class="o">=</span> <span class="n">value</span>
+
+    <span class="nd">@property</span>
+    <span class="k">def</span> <span class="nf">ActionInformation</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;Return the *Action Information*.&quot;&quot;&quot;</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_action_info</span>
+
+    <span class="nd">@ActionInformation</span><span class="o">.</span><span class="n">setter</span>
+    <span class="k">def</span> <span class="nf">ActionInformation</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">value</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;Set the *Action Information*.&quot;&quot;&quot;</span>
+        <span class="k">if</span> <span class="n">value</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">_action_info</span> <span class="o">=</span> <span class="n">value</span>
+        <span class="k">elif</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">value</span><span class="p">,</span> <span class="n">BytesIO</span><span class="p">):</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">_action_info</span> <span class="o">=</span> <span class="n">value</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="k">raise</span> <span class="ne">TypeError</span><span class="p">(</span><span class="s2">&quot;ActionInformation must be a BytesIO object&quot;</span><span class="p">)</span>
+
     <span class="nd">@property</span>
     <span class="k">def</span> <span class="nf">is_valid_request</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;Return True if the N-ACTION RQ is valid.&quot;&quot;&quot;</span>
         <span class="k">for</span> <span class="n">keyword</span> <span class="ow">in</span> <span class="p">[</span><span class="s1">&#39;MessageID&#39;</span><span class="p">,</span> <span class="s1">&#39;RequestedSOPClassUID&#39;</span><span class="p">,</span>
-                        <span class="s1">&#39;RequestedSOPInstanceUID&#39;</span><span class="p">]:</span>
+                        <span class="s1">&#39;RequestedSOPInstanceUID&#39;</span><span class="p">,</span> <span class="s1">&#39;ActionTypeID&#39;</span><span class="p">]:</span>
             <span class="k">if</span> <span class="nb">getattr</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">keyword</span><span class="p">)</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
                 <span class="k">return</span> <span class="kc">False</span>
 
@@ -2673,6 +2877,149 @@
                 <span class="k">return</span> <span class="kc">False</span>
 
         <span class="k">return</span> <span class="kc">True</span>
+
+    <span class="nd">@property</span>
+    <span class="k">def</span> <span class="nf">MessageID</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;Return the *Message ID*.&quot;&quot;&quot;</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_message_id</span>
+
+    <span class="nd">@MessageID</span><span class="o">.</span><span class="n">setter</span>
+    <span class="k">def</span> <span class="nf">MessageID</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">value</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;Set the *Message ID*.&quot;&quot;&quot;</span>
+        <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">value</span><span class="p">,</span> <span class="nb">int</span><span class="p">):</span>
+            <span class="k">if</span> <span class="mi">0</span> <span class="o">&lt;=</span> <span class="n">value</span> <span class="o">&lt;</span> <span class="mi">2</span><span class="o">**</span><span class="mi">16</span><span class="p">:</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">_message_id</span> <span class="o">=</span> <span class="n">value</span>
+            <span class="k">else</span><span class="p">:</span>
+                <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s2">&quot;Message ID must be between 0 and 65535, &quot;</span>
+                                 <span class="s2">&quot;inclusive&quot;</span><span class="p">)</span>
+        <span class="k">elif</span> <span class="n">value</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">_message_id</span> <span class="o">=</span> <span class="n">value</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="k">raise</span> <span class="ne">TypeError</span><span class="p">(</span><span class="s2">&quot;Message ID must be an int&quot;</span><span class="p">)</span>
+
+    <span class="nd">@property</span>
+    <span class="k">def</span> <span class="nf">MessageIDBeingRespondedTo</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;Return the *Message ID Being Responded To*.&quot;&quot;&quot;</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_message_id_being_responded_to</span>
+
+    <span class="nd">@MessageIDBeingRespondedTo</span><span class="o">.</span><span class="n">setter</span>
+    <span class="k">def</span> <span class="nf">MessageIDBeingRespondedTo</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">value</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;Set the *Message ID Being Responded To*.&quot;&quot;&quot;</span>
+        <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">value</span><span class="p">,</span> <span class="nb">int</span><span class="p">):</span>
+            <span class="k">if</span> <span class="mi">0</span> <span class="o">&lt;=</span> <span class="n">value</span> <span class="o">&lt;</span> <span class="mi">2</span><span class="o">**</span><span class="mi">16</span><span class="p">:</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">_message_id_being_responded_to</span> <span class="o">=</span> <span class="n">value</span>
+            <span class="k">else</span><span class="p">:</span>
+                <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s2">&quot;Message ID Being Responded To must be &quot;</span>
+                                 <span class="s2">&quot;between 0 and 65535, inclusive&quot;</span><span class="p">)</span>
+        <span class="k">elif</span> <span class="n">value</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">_message_id_being_responded_to</span> <span class="o">=</span> <span class="n">value</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="k">raise</span> <span class="ne">TypeError</span><span class="p">(</span><span class="s2">&quot;Message ID Being Responded To must be an int&quot;</span><span class="p">)</span>
+
+    <span class="nd">@property</span>
+    <span class="k">def</span> <span class="nf">ActionReply</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;Return the *Action Reply*.&quot;&quot;&quot;</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_action_reply</span>
+
+    <span class="nd">@ActionReply</span><span class="o">.</span><span class="n">setter</span>
+    <span class="k">def</span> <span class="nf">ActionReply</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">value</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;Set the *Action Reply List*.&quot;&quot;&quot;</span>
+        <span class="k">if</span> <span class="n">value</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">_action_reply</span> <span class="o">=</span> <span class="n">value</span>
+        <span class="k">elif</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">value</span><span class="p">,</span> <span class="n">BytesIO</span><span class="p">):</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">_action_reply</span> <span class="o">=</span> <span class="n">value</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="k">raise</span> <span class="ne">TypeError</span><span class="p">(</span><span class="s2">&quot;ActionReply must be a BytesIO object&quot;</span><span class="p">)</span>
+
+    <span class="nd">@property</span>
+    <span class="k">def</span> <span class="nf">RequestedSOPClassUID</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;Return the *Requested SOP Class UID*.&quot;&quot;&quot;</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_requested_sop_class_uid</span>
+
+    <span class="nd">@RequestedSOPClassUID</span><span class="o">.</span><span class="n">setter</span>
+    <span class="k">def</span> <span class="nf">RequestedSOPClassUID</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">value</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;Set the *Requested SOP Class UID*.</span>
+
+<span class="sd">        Parameters</span>
+<span class="sd">        ----------</span>
+<span class="sd">        value : pydicom.uid.UID, bytes or str</span>
+<span class="sd">            The value for the Requested SOP Class UID</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">value</span><span class="p">,</span> <span class="n">UID</span><span class="p">):</span>
+            <span class="k">pass</span>
+        <span class="k">elif</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">value</span><span class="p">,</span> <span class="nb">str</span><span class="p">):</span>
+            <span class="n">value</span> <span class="o">=</span> <span class="n">UID</span><span class="p">(</span><span class="n">value</span><span class="p">)</span>
+        <span class="k">elif</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">value</span><span class="p">,</span> <span class="nb">bytes</span><span class="p">):</span>
+            <span class="n">value</span> <span class="o">=</span> <span class="n">UID</span><span class="p">(</span><span class="n">value</span><span class="o">.</span><span class="n">decode</span><span class="p">(</span><span class="s1">&#39;ascii&#39;</span><span class="p">))</span>
+        <span class="k">elif</span> <span class="n">value</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="k">pass</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="k">raise</span> <span class="ne">TypeError</span><span class="p">(</span><span class="s2">&quot;Requested SOP Class UID must be a &quot;</span>
+                            <span class="s2">&quot;pydicom.uid.UID, str or bytes&quot;</span><span class="p">)</span>
+
+        <span class="k">if</span> <span class="n">value</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span> <span class="ow">and</span> <span class="ow">not</span> <span class="n">value</span><span class="o">.</span><span class="n">is_valid</span><span class="p">:</span>
+            <span class="n">LOGGER</span><span class="o">.</span><span class="n">error</span><span class="p">(</span><span class="s2">&quot;Requested SOP Class UID is an invalid UID&quot;</span><span class="p">)</span>
+            <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s2">&quot;Requested SOP Class UID is an invalid UID&quot;</span><span class="p">)</span>
+
+        <span class="bp">self</span><span class="o">.</span><span class="n">_requested_sop_class_uid</span> <span class="o">=</span> <span class="n">value</span>
+
+    <span class="nd">@property</span>
+    <span class="k">def</span> <span class="nf">RequestedSOPInstanceUID</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;Return the *Requested SOP Instance UID*.&quot;&quot;&quot;</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_requested_sop_instance_uid</span>
+
+    <span class="nd">@RequestedSOPInstanceUID</span><span class="o">.</span><span class="n">setter</span>
+    <span class="k">def</span> <span class="nf">RequestedSOPInstanceUID</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">value</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;Set the *Requested SOP Instance UID*.</span>
+
+<span class="sd">        Parameters</span>
+<span class="sd">        ----------</span>
+<span class="sd">        value : pydicom.uid.UID, bytes or str</span>
+<span class="sd">            The value for the Requested SOP Instance UID</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">value</span><span class="p">,</span> <span class="n">UID</span><span class="p">):</span>
+            <span class="k">pass</span>
+        <span class="k">elif</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">value</span><span class="p">,</span> <span class="nb">str</span><span class="p">):</span>
+            <span class="n">value</span> <span class="o">=</span> <span class="n">UID</span><span class="p">(</span><span class="n">value</span><span class="p">)</span>
+        <span class="k">elif</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">value</span><span class="p">,</span> <span class="nb">bytes</span><span class="p">):</span>
+            <span class="n">value</span> <span class="o">=</span> <span class="n">UID</span><span class="p">(</span><span class="n">value</span><span class="o">.</span><span class="n">decode</span><span class="p">(</span><span class="s1">&#39;ascii&#39;</span><span class="p">))</span>
+        <span class="k">elif</span> <span class="n">value</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="k">pass</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="k">raise</span> <span class="ne">TypeError</span><span class="p">(</span><span class="s2">&quot;Requested SOP Instance UID must be a &quot;</span>
+                            <span class="s2">&quot;pydicom.uid.UID, str or bytes&quot;</span><span class="p">)</span>
+
+        <span class="k">if</span> <span class="n">value</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span> <span class="ow">and</span> <span class="ow">not</span> <span class="n">value</span><span class="o">.</span><span class="n">is_valid</span><span class="p">:</span>
+            <span class="n">LOGGER</span><span class="o">.</span><span class="n">error</span><span class="p">(</span><span class="s2">&quot;Requested SOP Instance UID is an invalid UID&quot;</span><span class="p">)</span>
+            <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s2">&quot;Requested SOP Instance UID is an invalid UID&quot;</span><span class="p">)</span>
+
+        <span class="bp">self</span><span class="o">.</span><span class="n">_requested_sop_instance_uid</span> <span class="o">=</span> <span class="n">value</span>
+
+    <span class="nd">@property</span>
+    <span class="k">def</span> <span class="nf">Status</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;Return the *Status*.&quot;&quot;&quot;</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_status</span>
+
+    <span class="nd">@Status</span><span class="o">.</span><span class="n">setter</span>
+    <span class="k">def</span> <span class="nf">Status</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">value</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;Set the *Status*.&quot;&quot;&quot;</span>
+        <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">value</span><span class="p">,</span> <span class="nb">int</span><span class="p">)</span> <span class="ow">or</span> <span class="n">value</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">_status</span> <span class="o">=</span> <span class="n">value</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="k">raise</span> <span class="ne">TypeError</span><span class="p">(</span><span class="s2">&quot;&#39;N_ACTION.Status&#39; must be an int.&quot;</span><span class="p">)</span>
+
+    <span class="nd">@property</span>
+    <span class="k">def</span> <span class="nf">ActionTypeID</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;Return the *Action Type ID*.&quot;&quot;&quot;</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_action_type_id</span>
+
+    <span class="nd">@ActionTypeID</span><span class="o">.</span><span class="n">setter</span>
+    <span class="k">def</span> <span class="nf">ActionTypeID</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">value</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;Set the *Action Type ID*.&quot;&quot;&quot;</span>
+        <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">value</span><span class="p">,</span> <span class="nb">int</span><span class="p">)</span> <span class="ow">or</span> <span class="n">value</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">_action_type_id</span> <span class="o">=</span> <span class="n">value</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="k">raise</span> <span class="ne">TypeError</span><span class="p">(</span><span class="s2">&quot;&#39;N_ACTION.ActionTypeID&#39; must be an int.&quot;</span><span class="p">)</span>
 
 
 <span class="k">class</span> <span class="nc">N_CREATE</span><span class="p">(</span><span class="nb">object</span><span class="p">):</span>
@@ -2720,33 +3067,13 @@
 <span class="sd">        For the request/indication this specifies the SOP Instance for</span>
 <span class="sd">        storage. If included in the response/confirmation, it shall be equal</span>
 <span class="sd">        to the value in the request/indication</span>
-<span class="sd">    AttributeList :</span>
-<span class="sd">        FIXME</span>
+<span class="sd">    AttributeList : pydicom.dataset.Dataset</span>
+<span class="sd">        A set of attributes and values that are to be assigned to the new</span>
+<span class="sd">        SOP Instance.</span>
 <span class="sd">    Status : int</span>
 <span class="sd">        The error or success notification of the operation. It shall be</span>
 <span class="sd">        one of the following values:</span>
 
-<span class="sd">    **Status**</span>
-
-<span class="sd">    Failure</span>
-<span class="sd">        duplicate SOP instance 0x0111 PS3.7 Annex C.5.8</span>
-<span class="sd">        duplicate invocation 0x0210 PS3.7 Annex C.5.9</span>
-<span class="sd">        invalid attribute value 0x0106 PS3.7 Annex C.5.11</span>
-<span class="sd">        invalid SOP instance 0x0117 PS3.7 Annex C.5.12</span>
-<span class="sd">        missing attribute 0x0120 PS3.7 Annex C.5.13</span>
-<span class="sd">        missing attribute value 0x0121 PS3.7 Annex C.5.14</span>
-<span class="sd">        mistyped argument 0x0212 PS3.7 Annex C.5.15</span>
-<span class="sd">        no such attribute 0x0105 PS3.6 Annex C.5.17</span>
-<span class="sd">        no such SOP class 0x0118 PS3.7 Annex C.5.20</span>
-<span class="sd">        processing failure 0x0110 PS3.7 Annex C.5.21</span>
-<span class="sd">        resource limitation 0x213 PS3.7 Annex C.5.22</span>
-<span class="sd">        unrecognised operation 0x0211 PS3.7 Annex C.5.23</span>
-<span class="sd">        not authorised 0x0124 PS3.5 Annex C.5.25</span>
-<span class="sd">    Warning</span>
-<span class="sd">        attribute list error 0x0107 PS3.7 Annex C.4.2</span>
-<span class="sd">        attribute value out of range 0x0116 PS3.7 Annex C.4.3</span>
-<span class="sd">    Success</span>
-<span class="sd">        success 0x0000 PS3.7 Annex C.1.1</span>
 <span class="sd">    &quot;&quot;&quot;</span>
     <span class="k">def</span> <span class="nf">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">MessageID</span> <span class="o">=</span> <span class="kc">None</span>
@@ -2755,6 +3082,89 @@
         <span class="bp">self</span><span class="o">.</span><span class="n">AffectedSOPInstanceUID</span> <span class="o">=</span> <span class="kc">None</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">AttributeList</span> <span class="o">=</span> <span class="kc">None</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">Status</span> <span class="o">=</span> <span class="kc">None</span>
+
+        <span class="c1"># Optional elements</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">ErrorComment</span> <span class="o">=</span> <span class="kc">None</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">ErrorID</span> <span class="o">=</span> <span class="kc">None</span>
+
+    <span class="nd">@property</span>
+    <span class="k">def</span> <span class="nf">AffectedSOPClassUID</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;Return the *Affected SOP Class UID*.&quot;&quot;&quot;</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_affected_sop_class_uid</span>
+
+    <span class="nd">@AffectedSOPClassUID</span><span class="o">.</span><span class="n">setter</span>
+    <span class="k">def</span> <span class="nf">AffectedSOPClassUID</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">value</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;Set the *Affected SOP Class UID*.</span>
+
+<span class="sd">        Parameters</span>
+<span class="sd">        ----------</span>
+<span class="sd">        value : pydicom.uid.UID, bytes or str</span>
+<span class="sd">            The value for the Affected SOP Class UID</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">value</span><span class="p">,</span> <span class="n">UID</span><span class="p">):</span>
+            <span class="k">pass</span>
+        <span class="k">elif</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">value</span><span class="p">,</span> <span class="nb">str</span><span class="p">):</span>
+            <span class="n">value</span> <span class="o">=</span> <span class="n">UID</span><span class="p">(</span><span class="n">value</span><span class="p">)</span>
+        <span class="k">elif</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">value</span><span class="p">,</span> <span class="nb">bytes</span><span class="p">):</span>
+            <span class="n">value</span> <span class="o">=</span> <span class="n">UID</span><span class="p">(</span><span class="n">value</span><span class="o">.</span><span class="n">decode</span><span class="p">(</span><span class="s1">&#39;ascii&#39;</span><span class="p">))</span>
+        <span class="k">elif</span> <span class="n">value</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="k">pass</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="k">raise</span> <span class="ne">TypeError</span><span class="p">(</span><span class="s2">&quot;Affected SOP Class UID must be a &quot;</span>
+                            <span class="s2">&quot;pydicom.uid.UID, str or bytes&quot;</span><span class="p">)</span>
+
+        <span class="k">if</span> <span class="n">value</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span> <span class="ow">and</span> <span class="ow">not</span> <span class="n">value</span><span class="o">.</span><span class="n">is_valid</span><span class="p">:</span>
+            <span class="n">LOGGER</span><span class="o">.</span><span class="n">error</span><span class="p">(</span><span class="s2">&quot;Affected SOP Class UID is an invalid UID&quot;</span><span class="p">)</span>
+            <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s2">&quot;Affected SOP Class UID is an invalid UID&quot;</span><span class="p">)</span>
+
+        <span class="bp">self</span><span class="o">.</span><span class="n">_affected_sop_class_uid</span> <span class="o">=</span> <span class="n">value</span>
+
+    <span class="nd">@property</span>
+    <span class="k">def</span> <span class="nf">AffectedSOPInstanceUID</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;Return the *Affected SOP Instance UID*.&quot;&quot;&quot;</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_affected_sop_instance_uid</span>
+
+    <span class="nd">@AffectedSOPInstanceUID</span><span class="o">.</span><span class="n">setter</span>
+    <span class="k">def</span> <span class="nf">AffectedSOPInstanceUID</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">value</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;Set the *Affected SOP Instance UID*.</span>
+
+<span class="sd">        Parameters</span>
+<span class="sd">        ----------</span>
+<span class="sd">        value : pydicom.uid.UID, bytes or str</span>
+<span class="sd">            The value for the Affected SOP Instance UID</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">value</span><span class="p">,</span> <span class="n">UID</span><span class="p">):</span>
+            <span class="k">pass</span>
+        <span class="k">elif</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">value</span><span class="p">,</span> <span class="nb">str</span><span class="p">):</span>
+            <span class="n">value</span> <span class="o">=</span> <span class="n">UID</span><span class="p">(</span><span class="n">value</span><span class="p">)</span>
+        <span class="k">elif</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">value</span><span class="p">,</span> <span class="nb">bytes</span><span class="p">):</span>
+            <span class="n">value</span> <span class="o">=</span> <span class="n">UID</span><span class="p">(</span><span class="n">value</span><span class="o">.</span><span class="n">decode</span><span class="p">(</span><span class="s1">&#39;ascii&#39;</span><span class="p">))</span>
+        <span class="k">elif</span> <span class="n">value</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="k">pass</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="k">raise</span> <span class="ne">TypeError</span><span class="p">(</span><span class="s2">&quot;Affected SOP Instance UID must be a &quot;</span>
+                            <span class="s2">&quot;pydicom.uid.UID, str or bytes&quot;</span><span class="p">)</span>
+
+        <span class="k">if</span> <span class="n">value</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span> <span class="ow">and</span> <span class="ow">not</span> <span class="n">value</span><span class="o">.</span><span class="n">is_valid</span><span class="p">:</span>
+            <span class="n">LOGGER</span><span class="o">.</span><span class="n">error</span><span class="p">(</span><span class="s2">&quot;Affected SOP Instance UID is an invalid UID&quot;</span><span class="p">)</span>
+            <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s2">&quot;Affected SOP Instance UID is an invalid UID&quot;</span><span class="p">)</span>
+
+        <span class="bp">self</span><span class="o">.</span><span class="n">_affected_sop_instance_uid</span> <span class="o">=</span> <span class="n">value</span>
+
+    <span class="nd">@property</span>
+    <span class="k">def</span> <span class="nf">AttributeList</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;Return the *Attribute List*.&quot;&quot;&quot;</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_attribute_list</span>
+
+    <span class="nd">@AttributeList</span><span class="o">.</span><span class="n">setter</span>
+    <span class="k">def</span> <span class="nf">AttributeList</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">value</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;Set the *Attribute List*.&quot;&quot;&quot;</span>
+        <span class="k">if</span> <span class="n">value</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">_attribute_list</span> <span class="o">=</span> <span class="n">value</span>
+        <span class="k">elif</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">value</span><span class="p">,</span> <span class="n">BytesIO</span><span class="p">):</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">_attribute_list</span> <span class="o">=</span> <span class="n">value</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="k">raise</span> <span class="ne">TypeError</span><span class="p">(</span><span class="s2">&quot;AttributeList must be a BytesIO object&quot;</span><span class="p">)</span>
 
     <span class="nd">@property</span>
     <span class="k">def</span> <span class="nf">is_valid_request</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
@@ -2773,6 +3183,57 @@
                 <span class="k">return</span> <span class="kc">False</span>
 
         <span class="k">return</span> <span class="kc">True</span>
+
+    <span class="nd">@property</span>
+    <span class="k">def</span> <span class="nf">MessageID</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;Return the *Message ID*.&quot;&quot;&quot;</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_message_id</span>
+
+    <span class="nd">@MessageID</span><span class="o">.</span><span class="n">setter</span>
+    <span class="k">def</span> <span class="nf">MessageID</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">value</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;Set the *Message ID*.&quot;&quot;&quot;</span>
+        <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">value</span><span class="p">,</span> <span class="nb">int</span><span class="p">):</span>
+            <span class="k">if</span> <span class="mi">0</span> <span class="o">&lt;=</span> <span class="n">value</span> <span class="o">&lt;</span> <span class="mi">2</span><span class="o">**</span><span class="mi">16</span><span class="p">:</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">_message_id</span> <span class="o">=</span> <span class="n">value</span>
+            <span class="k">else</span><span class="p">:</span>
+                <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s2">&quot;Message ID must be between 0 and 65535, &quot;</span>
+                                 <span class="s2">&quot;inclusive&quot;</span><span class="p">)</span>
+        <span class="k">elif</span> <span class="n">value</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">_message_id</span> <span class="o">=</span> <span class="n">value</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="k">raise</span> <span class="ne">TypeError</span><span class="p">(</span><span class="s2">&quot;Message ID must be an int&quot;</span><span class="p">)</span>
+
+    <span class="nd">@property</span>
+    <span class="k">def</span> <span class="nf">MessageIDBeingRespondedTo</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;Return the *Message ID Being Responded To*.&quot;&quot;&quot;</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_message_id_being_responded_to</span>
+
+    <span class="nd">@MessageIDBeingRespondedTo</span><span class="o">.</span><span class="n">setter</span>
+    <span class="k">def</span> <span class="nf">MessageIDBeingRespondedTo</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">value</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;Set the *Message ID Being Responded To*.&quot;&quot;&quot;</span>
+        <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">value</span><span class="p">,</span> <span class="nb">int</span><span class="p">):</span>
+            <span class="k">if</span> <span class="mi">0</span> <span class="o">&lt;=</span> <span class="n">value</span> <span class="o">&lt;</span> <span class="mi">2</span><span class="o">**</span><span class="mi">16</span><span class="p">:</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">_message_id_being_responded_to</span> <span class="o">=</span> <span class="n">value</span>
+            <span class="k">else</span><span class="p">:</span>
+                <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s2">&quot;Message ID Being Responded To must be &quot;</span>
+                                 <span class="s2">&quot;between 0 and 65535, inclusive&quot;</span><span class="p">)</span>
+        <span class="k">elif</span> <span class="n">value</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">_message_id_being_responded_to</span> <span class="o">=</span> <span class="n">value</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="k">raise</span> <span class="ne">TypeError</span><span class="p">(</span><span class="s2">&quot;Message ID Being Responded To must be an int&quot;</span><span class="p">)</span>
+
+    <span class="nd">@property</span>
+    <span class="k">def</span> <span class="nf">Status</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;Return the *Status*.&quot;&quot;&quot;</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_status</span>
+
+    <span class="nd">@Status</span><span class="o">.</span><span class="n">setter</span>
+    <span class="k">def</span> <span class="nf">Status</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">value</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;Set the *Status*.&quot;&quot;&quot;</span>
+        <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">value</span><span class="p">,</span> <span class="nb">int</span><span class="p">)</span> <span class="ow">or</span> <span class="n">value</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">_status</span> <span class="o">=</span> <span class="n">value</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="k">raise</span> <span class="ne">TypeError</span><span class="p">(</span><span class="s2">&quot;&#39;N_CREATE.Status&#39; must be an int.&quot;</span><span class="p">)</span>
 
 
 <span class="k">class</span> <span class="nc">N_DELETE</span><span class="p">(</span><span class="nb">object</span><span class="p">):</span>
