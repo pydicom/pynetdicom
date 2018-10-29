@@ -334,7 +334,7 @@ class TestAEGoodCallbacks(object):
         """Test default callback raises exception"""
         ae = AE()
         with pytest.raises(NotImplementedError):
-            ae.on_n_event_report(None, None)
+            ae.on_n_event_report(None, None, None)
 
     def test_on_n_get(self):
         """Test default callback raises exception"""
@@ -352,13 +352,13 @@ class TestAEGoodCallbacks(object):
         """Test default callback raises exception"""
         ae = AE()
         with pytest.raises(NotImplementedError):
-            ae.on_n_action(None, None)
+            ae.on_n_action(None, None, None)
 
     def test_on_n_create(self):
         """Test default callback raises exception"""
         ae = AE()
         with pytest.raises(NotImplementedError):
-            ae.on_n_create(None, None)
+            ae.on_n_create(None, None, None)
 
     def test_on_n_delete(self):
         """Test default callback raises exception"""

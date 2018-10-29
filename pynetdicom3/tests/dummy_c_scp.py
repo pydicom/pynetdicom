@@ -75,8 +75,11 @@ class DummyBaseSCP(threading.Thread):
         self.ae.on_c_find = self.on_c_find
         self.ae.on_c_get = self.on_c_get
         self.ae.on_c_move = self.on_c_move
-        self.ae.on_n_get = self.on_n_get
+        self.ae.on_n_event_report = self.on_n_event_report
         self.ae.on_n_set = self.on_n_set
+        self.ae.on_n_get = self.on_n_get
+        self.ae.on_n_action = self.on_n_action
+        self.ae.on_n_create = self.on_n_create
         self.ae.on_n_delete = self.on_n_delete
 
         threading.Thread.__init__(self)
@@ -140,12 +143,24 @@ class DummyBaseSCP(threading.Thread):
         """Callback for ae.on_c_cancel_move"""
         raise RuntimeError("You should not have been able to get here.")
 
-    def on_n_get(self, elem, context, info):
+    def on_n_event_report(self, ds, evt_id, context, info):
+        """Callback for ae.on_n_event_report"""
+        raise RuntimeError("You should not have been able to get here.")
+
+    def on_n_get(self, attr, context, info):
         """Callback for ae.on_n_get"""
         raise RuntimeError("You should not have been able to get here.")
 
     def on_n_set(self, ds, context, info):
         """Callback for ae.on_n_set"""
+        raise RuntimeError("You should not have been able to get here.")
+
+    def on_n_action(self, ds, context, info):
+        """Callback for ae.on_n_action"""
+        raise RuntimeError("You should not have been able to get here.")
+
+    def on_n_create(self, ds, context, info):
+        """Callback for ae.on_n_create"""
         raise RuntimeError("You should not have been able to get here.")
 
     def on_n_delete(self, context, info):
