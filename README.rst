@@ -99,6 +99,10 @@ corresponding Presentation Context has been accepted):
   requests the retrieval of attribute values from a peer.
 - N-SET: ``Association.send_n_set(dataset, class_uid, instance_uid)`` requests
   the peer modify a SOP Instance using the attribute values in *dataset*.
+- N-ACTION: ``Association.send_n_action(dataset, action_type, class_uid,
+  instance_uid)`` requests the peer perform an action.
+- N-CREATE: ``Association.send_n_create(dataset, class_uid, instance_uid)``
+  requests the peer create a new SOP Instance.
 - N-DELETE: ``Association.send_n_delete(class_uid, instance_uid)`` requests the
   peer delete the specified SOP Instance.
 
@@ -106,7 +110,8 @@ Where *dataset* is a pydicom
 `Dataset <https://pydicom.github.io/pydicom/stable/ref_guide.html#dataset>`_
 object, *identifier_list* is a list of pydicom
 `Tag <https://pydicom.github.io/pydicom/stable/api_ref.html#pydicom.tag.Tag>`_
-objects, *event_type* is an int and *class_uid* and *instance_uid* are UID strings.
+objects, *event_type* and *action_type* are ints and *class_uid* and
+*instance_uid* are UID strings.
 
 
 Supported DIMSE SCP Services
