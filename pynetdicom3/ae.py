@@ -1983,7 +1983,7 @@ class ApplicationEntity(object):
 
 
     # High-level DIMSE-N callbacks - user should implement these as required
-    def on_n_action(self, context, info):
+    def on_n_action(self, dataset, context, info):
         """Callback for when a N-ACTION is received.
 
         References
@@ -1994,7 +1994,7 @@ class ApplicationEntity(object):
                                   "AE.on_n_action function prior to calling "
                                   "AE.start()")
 
-    def on_n_create(self, context, info):
+    def on_n_create(self, dataset, context, info):
         """Callback for when a N-CREATE is received.
 
         References

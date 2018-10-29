@@ -99,6 +99,54 @@ class DummySetSCP(DummyBaseSCP):
         return self.status, self.dataset
 
 
+class DummyActionSCP(DummyBaseSCP):
+    """A threaded dummy get SCP used for testing"""
+    def __init__(self, port=11112):
+        self.ae = AE(port=port)
+        self.ae.add_supported_context(PrintJobSOPClass)
+        self.ae.add_supported_context(VerificationSOPClass)
+        DummyBaseSCP.__init__(self)
+        self.status = 0x0000
+        ds = Dataset()
+        ds.PatientName = 'Test'
+        ds.SOPClassUID = PrintJobSOPClass.UID
+        ds.SOPInstanceUID = '1.2.3.4'
+        self.dataset = ds
+
+    def on_n_action(self, ds, context, info):
+        """Callback for ae.on_n_action"""
+
+        self.context = context
+        self.info = info
+        time.sleep(self.delay)
+
+        return self.status, self.dataset
+
+
+class DummyCreateSCP(DummyBaseSCP):
+    """A threaded dummy get SCP used for testing"""
+    def __init__(self, port=11112):
+        self.ae = AE(port=port)
+        self.ae.add_supported_context(PrintJobSOPClass)
+        self.ae.add_supported_context(VerificationSOPClass)
+        DummyBaseSCP.__init__(self)
+        self.status = 0x0000
+        ds = Dataset()
+        ds.PatientName = 'Test'
+        ds.SOPClassUID = PrintJobSOPClass.UID
+        ds.SOPInstanceUID = '1.2.3.4'
+        self.dataset = ds
+
+    def on_n_create(self, ds, context, info):
+        """Callback for ae.on_n_create"""
+
+        self.context = context
+        self.info = info
+        time.sleep(self.delay)
+
+        return self.status, self.dataset
+
+
 class DummyDeleteSCP(DummyBaseSCP):
     """A threaded dummy delete SCP used for testing"""
     def __init__(self, port=11112):
