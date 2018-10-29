@@ -147,12 +147,8 @@ class DummyBaseSCP(threading.Thread):
         """Callback for ae.on_n_event_report"""
         raise RuntimeError("You should not have been able to get here.")
 
-    def on_n_get(self, elem, context, info):
-        """Callback for ae.on_n_get"""
-        raise RuntimeError("You should not have been able to get here.")
-
     def on_n_get(self, attr, context, info):
-        """Callback for ae.on_g_set"""
+        """Callback for ae.on_n_get"""
         raise RuntimeError("You should not have been able to get here.")
 
     def on_n_set(self, ds, context, info):
