@@ -2617,9 +2617,9 @@ class Association(threading.Thread):
 
         Parameters
         ----------
-        dataset : pydicom.dataset.Dataset
+        dataset : pydicom.dataset.Dataset or None
             The dataset that will be sent as the *Action Information*
-            parameter in the N-ACTION request.
+            parameter in the N-ACTION request, or None if not required.
         action_type : int
             The value of the request's (0000,1008) *Action Type ID* element.
         class_uid : pydicom.uid.UID
@@ -2706,8 +2706,8 @@ class Association(threading.Thread):
                 "for: '{}'".format(class_uid)
             )
             LOGGER.error(
-                "Get SCU failed due to there being no accepted presentation "
-                "context"
+                "Action SCU failed due to there being no accepted "
+                "presentation context"
             )
             raise ValueError(
                 "No accepted Presentation Context for the SOP Class UID '{}'"
@@ -2777,15 +2777,165 @@ class Association(threading.Thread):
 
         return status, action_reply
 
-
     def send_n_create(self, dataset, class_uid, instance_uid, msg_id=1):
-        """Send an N-CREATE request message to the peer AE."""
+        """Send an N-CREATE request message to the peer AE.
+
+        Parameters
+        ----------
+        dataset : pydicom.dataset.Dataset or None
+            The dataset that will be sent as the *Attribute List*
+            parameter in the N-CREATE request, or None if not required.
+        class_uid : pydicom.uid.UID
+            The UID to be sent in the request's (0000,0002) *Affected SOP
+            Class UID* element.
+        instance_uid : pydicom.uid.UID or None
+            The UID to be sent in the request's (0000,1000) *Affected SOP
+            Instance UID* element or None if not required.
+        msg_id : int, optional
+            The DIMSE *Message ID*, must be between 0 and 65535, inclusive,
+            (default 1).
+
+        Returns
+        -------
+        status : pydicom.dataset.Dataset
+            If the peer timed out or sent an invalid response then yields an
+            empty ``Dataset``. If a response was received from the peer then
+            yields a ``Dataset`` containing at least a (0000,0900) *Status*
+            element, and depending on the returned value, may optionally
+            contain additional elements (see the DICOM Standard, Part 7,
+            Section 9.1.2.1.5 and Annex C).
+
+            General N-CREATE (DICOM Standard Part 7, Section 10.1.5 and
+            Annex C)
+
+            Success
+              | ``0x0000`` Successful operation
+
+            Failure
+              | ``0x0110`` Processing failure
+              | ``0x0112`` No such SOP Instance
+              | ``0x0114`` No such argument
+              | ``0x0115`` Invalid argument value
+              | ``0x0117`` Invalid object instance
+              | ``0x0118`` No such SOP Class
+              | ``0x0119`` Class-Instance conflict
+              | ``0x0123`` No such action
+              | ``0x0124`` Not authorised
+              | ``0x0210`` Duplicate invocation
+              | ``0x0211`` Unrecognised operation
+              | ``0x0212`` Mistyped argument
+              | ``0x0213`` Resource limitation
+
+        attribute_list : pydicom.dataset.Dataset or None
+            If the status is 'Success' then a ``Dataset`` containing attributes
+            corresponding to those supplied in the *Attribute List*,
+            otherwise returns None.
+
+        See Also
+        --------
+        ae.ApplicationEntity.on_n_create
+        dimse_primitives.N_CREATE
+
+        References
+        ----------
+
+        * DICOM Standart Part 4, `Annex F <http://dicom.nema.org/medical/dicom/current/output/html/part04.html#chapter_F>`_
+        * DICOM Standart Part 4, `Annex H <http://dicom.nema.org/medical/dicom/current/output/html/part04.html#chapter_H>`_
+        * DICOM Standard Part 4, `Annex CC <http://dicom.nema.org/medical/dicom/current/output/html/part04.html#chapter_CC>`_
+        * DICOM Standard Part 4, `Annex DD <http://dicom.nema.org/medical/dicom/current/output/html/part04.html#chapter_DD>`_
+        * DICOM Standard Part 7, Sections
+          `10.1.5 <http://dicom.nema.org/medical/dicom/current/output/html/part07.html#sect_10.1.5>`_,
+          `10.3.5 <http://dicom.nema.org/medical/dicom/current/output/html/part07.html#sect_10.3.5>`_ and
+          `Annex C <http://dicom.nema.org/medical/dicom/current/output/html/part07.html#chapter_C>`__
+        """
         # Can't send an N-CREATE without an Association
         if not self.is_established:
-            raise RuntimeError("The association with a peer SCP must be "
-                               "established before sending an N-CREATE "
-                               "request.")
-        raise NotImplementedError
+            raise RuntimeError(
+                "The association with a peer SCP must be established prior "
+                "to sending an N-CREATE request."
+            )
+
+        # Determine the Presentation Context we are operating under
+        #   and hence the transfer syntax to use for encoding `dataset`
+        transfer_syntax = None
+        for context in self.acse.context_manager.accepted:
+            if class_uid == context.abstract_syntax:
+                transfer_syntax = context.transfer_syntax[0]
+                context_id = context.context_id
+                break
+        else:
+            LOGGER.error(
+                "Association.send_n_create - no accepted Presentation Context "
+                "for: '{}'".format(class_uid)
+            )
+            LOGGER.error(
+                "Create SCU failed due to there being no accepted presentation "
+                "context"
+            )
+            raise ValueError(
+                "No accepted Presentation Context for the SOP Class UID '{}'"
+                .format(class_uid)
+            )
+
+        # Build N-CREATE request primitive
+        #   (M) Message ID
+        #   (M) Affected SOP Class UID
+        #   (M) Affected SOP Instance UID
+        req = N_CREATE()
+        req.MessageID = msg_id
+        req.AffectedSOPClassUID = class_uid
+        req.AffectedSOPInstanceUID = instance_uid
+
+        # Encode the `dataset` using the agreed transfer syntax
+        #   Will return None if failed to encode
+        bytestream = encode(dataset,
+                            transfer_syntax.is_implicit_VR,
+                            transfer_syntax.is_little_endian)
+
+        if bytestream is not None:
+            req.AttributeList = BytesIO(bytestream)
+        else:
+            LOGGER.error("Failed to encode the supplied Dataset")
+            raise ValueError('Failed to encode the supplied Dataset')
+
+        # Send N-CREATE request to the peer via DIMSE and wait for the response
+        self.dimse.send_msg(req, context_id)
+        rsp, _ = self.dimse.receive_msg(wait=True)
+
+        # Determine validity of the response and get the status
+        status = Dataset()
+        attribute_list = None
+        if rsp is None:
+            LOGGER.error('DIMSE service timed out')
+            self.abort()
+        elif rsp.is_valid_response:
+            status.Status = rsp.Status
+            for keyword in ['ErrorComment', 'ErrorID']:
+                if getattr(rsp, keyword, None) is not None:
+                    setattr(status, keyword, getattr(rsp, keyword))
+        else:
+            LOGGER.error('Received an invalid N-CREATE response from the peer')
+            self.abort()
+
+        # Warning and Success statuses will return a dataset
+        #   we check against None as 0x0000 is a possible status
+        if getattr(status, 'Status', None) is not None:
+            category = code_to_category(status.Status)
+            if category not in [STATUS_WARNING, STATUS_SUCCESS]:
+                return status, attribute_list
+
+            # Attempt to decode the response's dataset
+            try:
+                attribute_list = decode(rsp.AttributeList,
+                                        transfer_syntax.is_implicit_VR,
+                                        transfer_syntax.is_little_endian)
+            except Exception as ex:
+                LOGGER.error("Failed to decode the received dataset")
+                LOGGER.exception(ex)
+                # Failure: Processing failure
+                status.Status = 0x0110
+
+        return status, attribute_list
 
     def send_n_delete(self, class_uid, instance_uid, msg_id=1):
         """Send an N-DELETE request message to the peer AE.

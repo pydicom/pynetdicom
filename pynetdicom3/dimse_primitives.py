@@ -2912,6 +2912,10 @@ class N_CREATE(object):
         self.AttributeList = None
         self.Status = None
 
+        # Optional elements
+        self.ErrorComment = None
+        self.ErrorID = None
+
     @property
     def AffectedSOPClassUID(self):
         """Return the *Affected SOP Class UID*."""

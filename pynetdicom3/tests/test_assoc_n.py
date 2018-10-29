@@ -1327,17 +1327,18 @@ class TestAssociationSendNCreate(object):
         status, ds = self.scp.ae.on_n_create(req.AttributeList,
                                              context.as_tuple,
                                              info)
+
         if isinstance(status, Dataset):
             if 'Status' not in status:
                 raise AttributeError("The 'status' dataset returned by "
-                                     "'on_n_set' must contain"
+                                     "'on_n_create' must contain"
                                      "a (0000,0900) Status element")
             for elem in status:
                 if hasattr(rsp, elem.keyword):
                     setattr(rsp, elem.keyword, elem.value)
                 else:
                     LOGGER.warning("The 'status' dataset returned by "
-                                   "'on_n_set' contained an unsupported "
+                                   "'on_n_create' contained an unsupported "
                                    "Element '%s'.", elem.keyword)
         elif isinstance(status, int):
             rsp.Status = status
@@ -1379,6 +1380,273 @@ class TestAssociationSendNCreate(object):
         assert not assoc.is_established
         with pytest.raises(RuntimeError):
             assoc.send_n_create(None, None, None)
+        self.scp.stop()
+
+    def test_no_abstract_syntax_match(self):
+        """Test SCU when no accepted abstract syntax"""
+        self.scp = DummyCreateSCP()
+        self.scp.start()
+        ae = AE()
+        ae.add_requested_context(PrintJobSOPClass)
+        ae.acse_timeout = 5
+        ae.dimse_timeout = 5
+        assoc = ae.associate('localhost', 11112)
+        assert assoc.is_established
+        msg = (
+            r"No accepted Presentation Context for the SOP Class "
+            r"UID '1.2.840.10008.1.1'"
+        )
+        with pytest.raises(ValueError, match=msg):
+            assoc.send_n_create(None, VerificationSOPClass.uid, None)
+        assoc.release()
+        assert assoc.is_released
+        self.scp.stop()
+
+    def test_rq_bad_dataset_raises(self):
+        """Test sending bad dataset raises exception."""
+        self.scp = DummyCreateSCP()
+        self.scp.start()
+        ae = AE()
+        ae.add_requested_context(PrintJobSOPClass, ExplicitVRLittleEndian)
+        ae.acse_timeout = 5
+        ae.dimse_timeout = 5
+        assoc = ae.associate('localhost', 11112)
+        assert assoc.is_established
+        ds = Dataset()
+        ds.PerimeterValue = b'\x00\x01'
+        msg = r"Failed to encode the supplied Dataset"
+        with pytest.raises(ValueError, match=msg):
+            assoc.send_n_create(ds, PrintJobSOPClass.uid, '1.2.3')
+        assoc.release()
+        assert assoc.is_released
+
+        self.scp.stop()
+
+    def test_rsp_none(self):
+        """Test no response from peer"""
+        self.scp = DummyCreateSCP()
+        self.scp.start()
+        ae = AE()
+        ae.add_requested_context(PrintJobSOPClass)
+        ae.acse_timeout = 5
+        ae.dimse_timeout = 5
+        assoc = ae.associate('localhost', 11112)
+
+        class DummyDIMSE():
+            def send_msg(*args, **kwargs): return
+
+            def receive_msg(*args, **kwargs): return None, None
+
+        assoc.dimse = DummyDIMSE()
+        assert assoc.is_established
+        ds = Dataset()
+        ds.PatientName = 'Test^test'
+        status, ds = assoc.send_n_create(
+            ds, PrintJobSOPClass.uid, '1.2.840.10008.5.1.1.40.1'
+        )
+
+        assert status == Dataset()
+        assert ds is None
+        assert assoc.is_aborted
+
+        self.scp.stop()
+
+    def test_rsp_invalid(self):
+        """Test invalid DIMSE message received from peer"""
+        self.scp = DummyCreateSCP()
+        self.scp.start()
+        ae = AE()
+        ae.add_requested_context(PrintJobSOPClass)
+        ae.acse_timeout = 5
+        ae.dimse_timeout = 5
+        assoc = ae.associate('localhost', 11112)
+
+        class DummyResponse():
+            is_valid_response = False
+
+        class DummyDIMSE():
+            def send_msg(*args, **kwargs): return
+            def receive_msg(*args, **kwargs): return DummyResponse(), None
+
+        assoc.dimse = DummyDIMSE()
+        assert assoc.is_established
+        ds = Dataset()
+        ds.PatientName = 'Test^test'
+        status, ds = assoc.send_n_create(
+            ds, PrintJobSOPClass.uid, '1.2.840.10008.5.1.1.40.1'
+        )
+        assert status == Dataset()
+        assert ds is None
+        assert assoc.is_aborted
+
+        self.scp.stop()
+
+    def test_rsp_failure(self):
+        """Test receiving a failure response from the peer"""
+        self.scp = DummyCreateSCP()
+        self.scp.status = 0x0112
+        ServiceClass.SCP = self._scp
+        self.scp.start()
+        ae = AE()
+        ae.add_requested_context(PrintJobSOPClass)
+        ae.acse_timeout = 5
+        ae.dimse_timeout = 5
+        assoc = ae.associate('localhost', 11112)
+        assert assoc.is_established
+        ds = Dataset()
+        ds.PatientName = 'Test^test'
+        status, ds = assoc.send_n_create(
+            ds, PrintJobSOPClass.uid, '1.2.840.10008.5.1.1.40.1'
+        )
+        assert status.Status == 0x0112
+        assert ds is None
+        assoc.release()
+        assert assoc.is_released
+        self.scp.stop()
+
+    def test_rsp_warning(self):
+        """Test receiving a warning response from the peer"""
+        self.scp = DummyCreateSCP()
+        self.scp.status = 0x0116
+        ServiceClass.SCP = self._scp
+        self.scp.start()
+        ae = AE()
+        ae.add_requested_context(PrintJobSOPClass)
+        ae.acse_timeout = 5
+        ae.dimse_timeout = 5
+        assoc = ae.associate('localhost', 11112)
+        assert assoc.is_established
+        ds = Dataset()
+        ds.PatientName = 'Test^test'
+        status, ds = assoc.send_n_create(
+            ds, PrintJobSOPClass.uid, '1.2.840.10008.5.1.1.40.1'
+        )
+        assert status.Status == 0x0116
+        assert ds is not None
+        assert isinstance(ds, Dataset)
+        assert ds.PatientName == 'Test'
+        assert ds.SOPClassUID == PrintJobSOPClass.UID
+        assert ds.SOPInstanceUID == '1.2.3.4'
+        assoc.release()
+        assert assoc.is_released
+        self.scp.stop()
+
+    def test_rsp_success(self):
+        """Test receiving a success response from the peer"""
+        self.scp = DummyCreateSCP()
+        ServiceClass.SCP = self._scp
+        self.scp.start()
+        ae = AE()
+        ae.add_requested_context(PrintJobSOPClass)
+        ae.acse_timeout = 5
+        ae.dimse_timeout = 5
+        assoc = ae.associate('localhost', 11112)
+        assert assoc.is_established
+        ds = Dataset()
+        ds.PatientName = 'Test^test'
+        status, ds = assoc.send_n_create(
+            ds, PrintJobSOPClass.uid, '1.2.840.10008.5.1.1.40.1'
+        )
+        assert status.Status == 0x0000
+        assert ds is not None
+        assert isinstance(ds, Dataset)
+        assert ds.PatientName == 'Test'
+        assert ds.SOPClassUID == PrintJobSOPClass.UID
+        assert ds.SOPInstanceUID == '1.2.3.4'
+        assoc.release()
+        assert assoc.is_released
+        self.scp.stop()
+
+    def test_rsp_unknown_status(self):
+        """Test unknown status value returned by peer"""
+        self.scp = DummyCreateSCP()
+        self.scp.status = 0xFFF0
+        ServiceClass.SCP = self._scp
+        self.scp.start()
+        ae = AE()
+        ae.add_requested_context(PrintJobSOPClass)
+        ae.acse_timeout = 5
+        ae.dimse_timeout = 5
+        assoc = ae.associate('localhost', 11112)
+        assert assoc.is_established
+        ds = Dataset()
+        ds.PatientName = 'Test^test'
+        status, ds = assoc.send_n_create(
+            ds, PrintJobSOPClass.uid, '1.2.840.10008.5.1.1.40.1'
+        )
+        assert status.Status == 0xFFF0
+        assert ds is None
+        assoc.release()
+        assert assoc.is_released
+        self.scp.stop()
+
+    def test_rsp_bad_dataset(self):
+        """Test bad dataset received from peer"""
+        self.scp = DummyCreateSCP()
+        ServiceClass.SCP = self._scp
+        self.scp.start()
+        ae = AE()
+        ae.add_requested_context(PrintJobSOPClass)
+        ae.acse_timeout = 5
+        ae.dimse_timeout = 5
+        assoc = ae.associate('localhost', 11112)
+
+        class DummyMessage():
+            is_valid_response = True
+            ModificationList = None
+            Status = 0x0000
+
+        class DummyDIMSE():
+            def send_msg(*args, **kwargs):
+                return
+
+            def receive_msg(*args, **kwargs):
+                status = Dataset()
+                status.Status = 0x0000
+
+                rsp = DummyMessage()
+
+                return rsp, None
+
+        assoc.dimse = DummyDIMSE()
+        assert assoc.is_established
+        ds = Dataset()
+        ds.PatientName = 'Test^test'
+        status, ds = assoc.send_n_create(
+            ds, PrintJobSOPClass.uid, '1.2.840.10008.5.1.1.40.1'
+        )
+
+        assert status.Status == 0x0110
+        assert ds is None
+
+        self.scp.stop()
+
+    def test_extra_status(self):
+        """Test extra status elements are available."""
+        self.scp = DummyCreateSCP()
+        self.scp.status = Dataset()
+        self.scp.status.Status = 0xFFF0
+        self.scp.status.ErrorComment = 'Some comment'
+        self.scp.status.ErrorID = 12
+        ServiceClass.SCP = self._scp
+        self.scp.start()
+        ae = AE()
+        ae.add_requested_context(PrintJobSOPClass)
+        ae.acse_timeout = 5
+        ae.dimse_timeout = 5
+        assoc = ae.associate('localhost', 11112)
+        assert assoc.is_established
+        ds = Dataset()
+        ds.PatientName = 'Test^test'
+        status, ds = assoc.send_n_create(
+            ds, PrintJobSOPClass.uid, '1.2.840.10008.5.1.1.40.1'
+        )
+        assert status.Status == 0xFFF0
+        assert status.ErrorComment == 'Some comment'
+        assert status.ErrorID == 12
+        assert ds is None
+        assoc.release()
+        assert assoc.is_released
         self.scp.stop()
 
 

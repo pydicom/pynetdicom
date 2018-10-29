@@ -139,9 +139,9 @@ class DummyCreateSCP(DummyBaseSCP):
 
     def on_n_create(self, ds, context, info):
         """Callback for ae.on_n_create"""
-
         self.context = context
         self.info = info
+        self.ds = ds
         time.sleep(self.delay)
 
         return self.status, self.dataset
