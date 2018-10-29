@@ -93,8 +93,8 @@ corresponding Presentation Context has been accepted):
   search its set of managed SOP Instances for those that match the attributes
   given in *dataset* and then copy those matching Instances to the AE with title
   *move_aet* over a new association.
-- N-EVENT-REPORT: ``Association.send_n_event_report(dataset, class_uid, instance_uid)``
-  reports the events in *dataset* to the peer.
+- N-EVENT-REPORT: ``Association.send_n_event_report(dataset, event_type,
+  class_uid, instance_uid)`` reports the events in *dataset* to the peer.
 - N-GET: ``Association.send_n_get(identifier_list, class_uid, instance_uid)``
   requests the retrieval of attribute values from a peer.
 - N-SET: ``Association.send_n_set(dataset, class_uid, instance_uid)`` requests
@@ -106,7 +106,7 @@ Where *dataset* is a pydicom
 `Dataset <https://pydicom.github.io/pydicom/stable/ref_guide.html#dataset>`_
 object, *identifier_list* is a list of pydicom
 `Tag <https://pydicom.github.io/pydicom/stable/api_ref.html#pydicom.tag.Tag>`_
-objects and *class_uid* and *instance_uid* are UID strings.
+objects, *event_type* is an int and *class_uid* and *instance_uid* are UID strings.
 
 
 Supported DIMSE SCP Services

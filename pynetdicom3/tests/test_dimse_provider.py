@@ -25,7 +25,9 @@ from pynetdicom3.dimse_primitives import (
 )
 from pynetdicom3.dsutils import encode
 from .encoded_dimse_msg import c_store_ds
-from .encoded_dimse_n_msg import n_get_rsp_ds, n_set_rq_ds, n_set_rsp_ds
+from .encoded_dimse_n_msg import (
+    n_er_rq_ds, n_er_rsp_ds, n_get_rsp_ds, n_set_rq_ds, n_set_rsp_ds
+)
 
 LOGGER = logging.getLogger('pynetdicom3')
 LOGGER.setLevel(logging.CRITICAL)
@@ -292,12 +294,25 @@ class TestDIMSEProviderCallbacks(object):
         primitive = N_EVENT_REPORT()
         primitive.MessageID = 1
         primitive.AffectedSOPClassUID = '1.1.1'
+        primitive.AffectedSOPInstanceUID = '1.1.1'
+        primitive.EventTypeID = 2
+        self.dimse.send_msg(primitive, 1)
+
+        # User defined
+        primitive.EventInformation = BytesIO(n_er_rq_ds)
         self.dimse.send_msg(primitive, 1)
 
         # N-EVENT-REPORT-RSP
         primitive = N_EVENT_REPORT()
         primitive.MessageIDBeingRespondedTo = 1
         primitive.Status = 0x0000
+        self.dimse.send_msg(primitive, 1)
+
+        # User defined
+        primitive.AffectedSOPClassUID = '1.2'
+        primitive.AffectedSOPInstanceUID = '1.2.3'
+        primitive.EventTypeID = 4
+        primitive.EventReply = BytesIO(n_er_rsp_ds)
         self.dimse.send_msg(primitive, 1)
 
     def test_callback_send_n_get(self):

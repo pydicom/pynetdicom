@@ -1262,7 +1262,29 @@ class DIMSEServiceProvider(object):
         msg : dimse_messages.N_EVENT_REPORT_RQ
             The N-EVENT-REPORT-RQ message to be sent.
         """
-        pass
+        cs = msg.command_set
+
+        evt_info = 'None'
+        if msg.data_set and msg.data_set.getvalue() != b'':
+            evt_info = 'Present'
+
+        s = []
+        s.append('===================== OUTGOING DIMSE MESSAGE ================'
+                 '====')
+        s.append('Message Type                  : {0!s}'
+                 .format('N-EVENT-REPORT RQ'))
+        s.append('Message ID                    : {0!s}'.format(cs.MessageID))
+        s.append('Affected SOP Class UID        : {0!s}'
+                 .format(cs.AffectedSOPClassUID))
+        s.append('Affected SOP Instance UID     : {0!s}'
+                 .format(cs.AffectedSOPInstanceUID))
+        s.append('Event Type ID                 : {0!s}'
+                 .format(cs.EventTypeID))
+        s.append('Event Information             : {0!s}'.format(evt_info))
+        s.append('======================= END DIMSE MESSAGE ==================='
+                 '====')
+        for line in s:
+            LOGGER.debug(line)
 
     @staticmethod
     def debug_send_n_event_report_rsp(msg):
@@ -1273,7 +1295,34 @@ class DIMSEServiceProvider(object):
         msg : dimse_messages.N_EVENT_REPORT_RSP
             The N-EVENT-REPORT-RSP message to be sent.
         """
-        pass
+        cs = msg.command_set
+
+        evt_reply = 'None'
+        if msg.data_set and msg.data_set.getvalue() != b'':
+            evt_reply = 'Present'
+
+        s = []
+        s.append('===================== OUTGOING DIMSE MESSAGE ================'
+                 '====')
+        s.append('Message Type                  : {0!s}'
+                 .format('N-EVENT-REPORT RSP'))
+        s.append('Message ID Being Responded To : {0!s}'
+                 .format(cs.MessageIDBeingRespondedTo))
+        if 'AffectedSOPClassUID' in cs:
+            s.append('Affected SOP Class UID        : {0!s}'
+                     .format(cs.AffectedSOPClassUID))
+        if 'AffectedSOPInstanceUID' in cs:
+            s.append('Affected SOP Instance UID     : {0!s}'
+                     .format(cs.AffectedSOPInstanceUID))
+        if 'EventTypeID' in cs:
+            s.append('Event Type ID                 : {!s}'
+            .format(cs.EventTypeID))
+        s.append('Event Reply                       : {0!s}'.format(evt_reply))
+        s.append('Status                        : 0x{0:04x}'.format(cs.Status))
+        s.append('======================= END DIMSE MESSAGE ==================='
+                 '====')
+        for line in s:
+            LOGGER.debug(line)
 
     @staticmethod
     def debug_send_n_get_rq(msg):

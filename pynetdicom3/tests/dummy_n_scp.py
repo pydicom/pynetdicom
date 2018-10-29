@@ -25,6 +25,31 @@ LOGGER.setLevel(logging.CRITICAL)
 #LOGGER.setLevel(logging.DEBUG)
 
 
+class DummyEventReportSCP(DummyBaseSCP):
+    """A threaded dummy event report SCP used for testing"""
+    def __init__(self, port=11112):
+        self.ae = AE(port=port)
+        self.ae.add_supported_context(PrintJobSOPClass)
+        self.ae.add_supported_context(VerificationSOPClass)
+        DummyBaseSCP.__init__(self)
+        self.status = 0x0000
+        ds = Dataset()
+        ds.PatientName = 'Test'
+        ds.SOPClassUID = PrintJobSOPClass.UID
+        ds.SOPInstanceUID = '1.2.3.4'
+        self.dataset = ds
+
+    def on_n_event_report(self, event_info, context, info):
+        """Callback for ae.on_n_event_report"""
+
+        self.context = context
+        self.info = info
+        self.event_info = event_info
+        time.sleep(self.delay)
+
+        return self.status, self.dataset
+
+
 class DummyGetSCP(DummyBaseSCP):
     """A threaded dummy get SCP used for testing"""
     def __init__(self, port=11112):

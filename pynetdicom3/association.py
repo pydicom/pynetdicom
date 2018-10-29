@@ -2276,7 +2276,7 @@ class Association(threading.Thread):
         if getattr(status, 'Status', None) is not None:
             category = code_to_category(status.Status)
             if category not in [STATUS_WARNING, STATUS_SUCCESS]:
-                return status, attribute_list
+                return status, event_reply
 
             # Attempt to decode the response's dataset
             try:

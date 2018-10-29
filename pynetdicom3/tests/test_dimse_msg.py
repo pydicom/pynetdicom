@@ -29,6 +29,7 @@ from .encoded_dimse_msg import (
     c_move_rsp_cmd, c_move_rsp_ds
 )
 from .encoded_dimse_n_msg import (
+    n_er_rq_cmd, n_er_rq_ds, n_er_rsp_cmd, n_er_rsp_ds,
     n_get_rq_cmd, n_get_rsp_cmd, n_get_rsp_ds,
     n_delete_rq_cmd, n_delete_rsp_cmd,
     n_set_rq_cmd, n_set_rq_ds, n_set_rsp_cmd, n_set_rsp_ds
@@ -365,13 +366,38 @@ class TestDIMSEMessage(object):
         """Test converting N_EVENT_REPORT_RQ and _RSP to primitive."""
         # N-EVENT-REPORT-RQ
         msg = N_EVENT_REPORT_RQ()
+        for data in [n_er_rq_cmd, n_er_rq_ds]:
+            p_data = P_DATA()
+            p_data.presentation_data_value_list.append([0, data])
+            msg.decode_msg(p_data)
         primitive = msg.message_to_primitive()
         assert isinstance(primitive, N_EVENT_REPORT)
+        assert primitive.AffectedSOPClassUID == UID('1.2.840.10008.5.1.4.1.1.2')
+        assert primitive.AffectedSOPInstanceUID == UID('1.2.392.200036.9116.2.6.1.48')
+        assert primitive.MessageID == 7
+        assert primitive.EventTypeID == 2
+
+        ds = decode(primitive.EventInformation, True, True)
+        assert ds.PatientName == 'Tube HeNe'
+        assert ds.PatientID == 'Test1101'
 
         # N-EVENT-REPORT-RSP
         msg = N_EVENT_REPORT_RSP()
+        for data in [n_er_rsp_cmd, n_er_rsp_ds]:
+            p_data = P_DATA()
+            p_data.presentation_data_value_list.append([0, data])
+            msg.decode_msg(p_data)
         primitive = msg.message_to_primitive()
         assert isinstance(primitive, N_EVENT_REPORT)
+        assert primitive.AffectedSOPClassUID == UID('1.2.4.10')
+        assert primitive.AffectedSOPInstanceUID == UID('1.2.4.5.7.8')
+        assert primitive.MessageIDBeingRespondedTo == 5
+        assert primitive.EventTypeID == 2
+        assert primitive.Status == 0x0000
+
+        ds = decode(primitive.EventReply, True, True)
+        assert ds.PatientName == 'Tube HeNe'
+        assert ds.PatientID == 'Test1101'
 
     def test_message_to_primitive_n_get(self):
         """Test converting N_GET_RQ and _RSP to primitive."""
@@ -398,7 +424,6 @@ class TestDIMSEMessage(object):
         msg.decode_msg(p_data)
         primitive = msg.message_to_primitive()
         assert isinstance(primitive, N_GET)
-        assert isinstance(primitive.AttributeList, BytesIO)
         assert primitive.AttributeIdentifierList is None
         assert primitive.AffectedSOPClassUID == UID('1.2.4.10')
         assert primitive.AffectedSOPInstanceUID == UID('1.2.4.5.7.8')
