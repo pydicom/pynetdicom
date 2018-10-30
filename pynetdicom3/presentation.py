@@ -53,15 +53,42 @@ class PresentationContext(object):
     - The Presentation Contexts may be sent by the Requestor in any order.
     - The Presentation Contexts may be sent by the Acceptor in any order.
 
+    **SCP/SCU Role Selection Negotiation**
+
+    - If no role selection negotiation then the requestor is SCU and the
+      acceptor is SCP
+    - If the proposed role is rejected then the roles default to requestor as
+      SCU and acceptor as SCP
+    - If the association requestor proposes the role value of 0 then that role
+      shall be the default role.
+    - The association acceptor cannot return accept a role that has not been
+      proposed (i.e. cannot return 1 when the proposed value is 0).
+
     Attributes
     ---------
     abstract_syntax : pydicom.uid.UID or None
         The Presentation Context's *Abstract Syntax*.
+    as_scp : bool or None
+        If True then the association acceptor can act as SCP for the current
+        context, otherwise it cannot. A non-None value is only available
+        after association negotiation has been completed.
+    as_scu : bool or None
+        If True then the association acceptor can act as SCU for the current
+        context, otherwise it cannot. A non-None value is only available
+        after association negotiation has been completed.
     context_id : int or None
         The Presentation Context's *Context ID*.
     result : int or None
         If part of an A-ASSOCIATE (request) then None. If part of an
         A-ASSOCIATE (response) then one of 0x00, 0x01, 0x02, 0x03, 0x04.
+    scp_role : bool
+        Only used when acting as an association acceptor. If True (default)
+        then accept when the SCP role is proposed by the requestor, otherwise
+        reject the proposal.
+    scu_role : bool
+        Only used when acting as an association acceptor. If True (default)
+        then accept when the SCU role is proposed by the requestor, otherwise
+        reject the proposal.
     transfer_syntax : list of pydicom.uid.UID
         The Presentation Context's *Transfer Syntax(es)*.
 
@@ -84,8 +111,12 @@ class PresentationContext(object):
         self.result = None
 
         # Used with SCP/SCU Role Selection negotiation
-        self._scu_role = None
-        self._scp_role = None
+        self._scu_role = True
+        self._scp_role = True
+
+        # Used to track the allowed use of the context
+        self._as_scp = None
+        self._as_scu = None
 
     @property
     def abstract_syntax(self):
@@ -146,6 +177,16 @@ class PresentationContext(object):
             self._transfer_syntax.append(syntax)
 
     @property
+    def as_scp(self):
+        """Return True if can act as an SCP for the context."""
+        return self._as_scp
+
+    @property
+    def as_scu(self):
+        """Return True if can act as an SCU for the context."""
+        return self._as_scu
+
+    @property
     def as_tuple(self):
         """Return a namedtuple representation of the presentation context.
 
@@ -197,6 +238,46 @@ class PresentationContext(object):
     def __ne__(self, other):
         """Return True if `self` does not equal `other`."""
         return not self == other
+
+    @property
+    def scp_role(self):
+        """Return True if a proposed SCP role will be accepted."""
+        return self._scp_role
+
+    @scp_role.setter
+    def scp_role(self, val):
+        """Set whether to accept the proposed SCP role (as acceptor).
+
+        Parameters
+        ----------
+        val : bool
+            If True (default) then accept if the association requestor proposes
+            the SCP role for itself, False to reject the proposal.
+        """
+        if not isinstance(val, bool):
+            raise TypeError("`scp_role` must be a bool")
+
+        self._scp_role = val
+
+    @property
+    def scu_role(self):
+        """Return True if a proposed SCU role will be accepted."""
+        return self._scu_role
+
+    @scu_role.setter
+    def scu_role(self, val):
+        """Set whether to accept the proposed SCU role (as acceptor).
+
+        Parameters
+        ----------
+        val : bool
+            If True (default) then accept if the association requestor proposes
+            the SCU role for itself, False to reject the proposal.
+        """
+        if not isinstance(val, bool):
+            raise TypeError("`scu_role` must be a bool")
+
+        self._scu_role = val
 
     @property
     def status(self):

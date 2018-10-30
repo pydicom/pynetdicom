@@ -54,8 +54,10 @@ class TestPresentationContext(object):
         assert pc.context_id == context_id
         assert pc.abstract_syntax == abs_syn
         assert pc.transfer_syntax == tran_syn
-        assert pc._scu_role is None
-        assert pc._scp_role is None
+        assert pc._scu_role
+        assert pc._scp_role
+        assert pc._as_scu is None
+        assert pc._as_scp is None
         assert pc.result is None
 
     def test_add_transfer_syntax(self):
@@ -71,7 +73,8 @@ class TestPresentationContext(object):
         pc.add_transfer_syntax(1234)
         assert 1234 not in pc.transfer_syntax
 
-    @pytest.mark.skipif(sys.version_info[:2] == (3, 4), reason='pytest missing caplog')
+    @pytest.mark.skipif(sys.version_info[:2] == (3, 4),
+                        reason='pytest missing caplog')
     def test_add_transfer_syntax_nonconformant(self, caplog):
         """Test adding non-conformant transfer syntaxes"""
         caplog.set_level(logging.DEBUG, logger='pynetdicom3.presentation')
@@ -117,11 +120,11 @@ class TestPresentationContext(object):
         assert pc_a == pc_b
         assert not pc_a != pc_b
         assert not pc_a != pc_a
-        pc_a._scp_role = True
+        pc_a._scp_role = False
         assert not pc_a == pc_b
-        pc_b._scp_role = True
+        pc_a._scp_role = True
         assert pc_a == pc_b
-        pc_a._scu_role = True
+        pc_b._scu_role = False
         assert not pc_a == pc_b
         pc_b._scu_role = True
         assert pc_a == pc_b
@@ -175,7 +178,8 @@ class TestPresentationContext(object):
         with pytest.raises(TypeError):
             pc.abstract_syntax = 1234
 
-    @pytest.mark.skipif(sys.version_info[:2] == (3, 4), reason='pytest missing caplog')
+    @pytest.mark.skipif(sys.version_info[:2] == (3, 4),
+                        reason='pytest missing caplog')
     def test_abstract_syntax_nonconformant(self, caplog):
         """Test adding non-conformant abstract syntaxes"""
         caplog.set_level(logging.DEBUG, logger='pynetdicom3.presentation')
@@ -214,7 +218,8 @@ class TestPresentationContext(object):
         pc.transfer_syntax = ['1.3', '1.3']
         assert pc.transfer_syntax == ['1.3']
 
-    @pytest.mark.skipif(sys.version_info[:2] == (3, 4), reason='pytest missing caplog')
+    @pytest.mark.skipif(sys.version_info[:2] == (3, 4),
+                        reason='pytest missing caplog')
     def test_transfer_syntax_nonconformant(self, caplog):
         """Test setting non-conformant transfer syntaxes"""
         caplog.set_level(logging.DEBUG, logger='pynetdicom3.presentation')
@@ -249,6 +254,58 @@ class TestPresentationContext(object):
         assert out.context_id == 3
         assert out.abstract_syntax == '1.2.840.10008.1.1'
         assert out.transfer_syntax == '1.2.840.10008.1.2'
+
+    def test_as_scp(self):
+        """Test the Presentation.as_scp property."""
+        context = build_context('1.2.3')
+        assert context.as_scp is None
+
+        with pytest.raises(AttributeError, match=r"can't set attribute"):
+            context.as_scp = True
+
+        context._as_scp = True
+        assert context.as_scp
+        context._as_scp = False
+        assert not context.as_scp
+
+    def test_as_scu(self):
+        """Test the Presentation.as_scu property."""
+        context = build_context('1.2.3')
+        assert context.as_scu is None
+
+        with pytest.raises(AttributeError, match=r"can't set attribute"):
+            context.as_scu = True
+
+        context._as_scu = True
+        assert context.as_scu
+        context._as_scu = False
+        assert not context.as_scu
+
+    def test_scu_role(self):
+        """Test Presentation.scu_role setter/getter."""
+        context = build_context('1.2.3')
+        assert context.scu_role
+        context.scu_role = True
+        assert context.scu_role
+        context.scu_role = False
+        assert not context.scu_role
+        with pytest.raises(TypeError, match=r"`scu_role` must be a bool"):
+            context.scu_role = 1
+        with pytest.raises(TypeError, match=r"`scu_role` must be a bool"):
+            context.scu_role = None
+
+    def test_scp_role(self):
+        """Test Presentation.scp_role setter/getter."""
+        context = build_context('1.2.3')
+        assert context.scp_role
+        context.scp_role = True
+        assert context.scp_role
+        context.scp_role = False
+        assert not context.scp_role
+        with pytest.raises(TypeError, match=r"`scp_role` must be a bool"):
+            context.scp_role = 1
+        with pytest.raises(TypeError, match=r"`scp_role` must be a bool"):
+            context.scp_role = None
 
 
 class TestPresentationServiceAcceptor(object):
