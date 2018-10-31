@@ -54,8 +54,8 @@ class TestPresentationContext(object):
         assert pc.context_id == context_id
         assert pc.abstract_syntax == abs_syn
         assert pc.transfer_syntax == tran_syn
-        assert pc._scu_role
-        assert pc._scp_role
+        assert pc._scu_role is None
+        assert pc._scp_role is None
         assert pc._as_scu is None
         assert pc._as_scp is None
         assert pc.result is None
@@ -120,13 +120,16 @@ class TestPresentationContext(object):
         assert pc_a == pc_b
         assert not pc_a != pc_b
         assert not pc_a != pc_a
+        # scp/scu role start off as None
         pc_a._scp_role = False
         assert not pc_a == pc_b
         pc_a._scp_role = True
-        assert pc_a == pc_b
+        assert not pc_a == pc_b
         pc_b._scu_role = False
         assert not pc_a == pc_b
         pc_b._scu_role = True
+        pc_a._scu_role = True
+        pc_b._scp_role = True
         assert pc_a == pc_b
         assert not 'a' == pc_b
 
@@ -284,7 +287,7 @@ class TestPresentationContext(object):
     def test_scu_role(self):
         """Test Presentation.scu_role setter/getter."""
         context = build_context('1.2.3')
-        assert context.scu_role
+        assert context.scu_role is None
         context.scu_role = True
         assert context.scu_role
         context.scu_role = False
@@ -297,13 +300,14 @@ class TestPresentationContext(object):
     def test_scp_role(self):
         """Test Presentation.scp_role setter/getter."""
         context = build_context('1.2.3')
-        assert context.scp_role
+        assert context.scp_role is None
         context.scp_role = True
         assert context.scp_role
         context.scp_role = False
         assert not context.scp_role
         context.scp_role = None
         assert context.scp_role is None
+
         with pytest.raises(TypeError, match=r"`scp_role` must be a bool"):
             context.scp_role = 1
 
@@ -632,7 +636,6 @@ class TestPresentationServiceAcceptorWithRoleSelection(object):
         ac.scp_role = acc[1]
 
         service = PresentationService()
-
         result = service.negotiate_as_acceptor([rq], [ac])
 
         assert result[0].abstract_syntax == '1.2.3.4'
@@ -643,6 +646,38 @@ class TestPresentationServiceAcceptorWithRoleSelection(object):
             assert result[0].result == 0x02
         else:
             assert result[0].result == 0x00
+
+    def test_multiple_contexts_same_abstract(self):
+        """Test that SCP/SCU role neg works with multiple contexts."""
+        rq_contexts = [build_context('1.2.3.4'), build_context('1.2.3.4')]
+        for ii, context in enumerate(rq_contexts):
+            context.context_id = ii * 2 + 1
+            context.scu_role = False
+            context.scp_role = True
+        rq_contexts.append(build_context('1.2.3.4.5'))
+        rq_contexts[2].context_id = 5
+
+        ac = build_context('1.2.3.4')
+        ac.scu_role = False
+        ac.scp_role = True
+
+        ac2 = build_context('1.2.3.4.5')
+
+        service = PresentationService()
+        result = service.negotiate_as_acceptor(rq_contexts, [ac, ac2])
+        assert len(result) == 3
+        for context in result[:2]:
+            assert context.abstract_syntax == '1.2.3.4'
+            assert context.transfer_syntax[0] == '1.2.840.10008.1.2'
+            assert context.as_scu == True
+            assert context.as_scp == False
+            assert context.result == 0x0000
+
+        assert result[2].abstract_syntax == '1.2.3.4.5'
+        assert result[2].transfer_syntax[0] == '1.2.840.10008.1.2'
+        assert result[2].as_scu == False
+        assert result[2].as_scp == True
+        assert result[2].result == 0x0000
 
 
 class TestPresentationServiceRequestorWithRoleSelection(object):
@@ -662,13 +697,52 @@ class TestPresentationServiceRequestorWithRoleSelection(object):
         ac.result = 0x0000
 
         service = PresentationService()
-
         result = service.negotiate_as_requestor([rq], [ac])
 
         assert result[0].abstract_syntax == '1.2.3.4'
         assert result[0].transfer_syntax[0] == '1.2.840.10008.1.2'
         assert result[0].as_scu == out[0]
         assert result[0].as_scp == out[1]
+
+    def test_multiple_contexts_same_abstract(self):
+        """Test that SCP/SCU role neg works with multiple contexts."""
+        rq_contexts = [build_context('1.2.3.4'), build_context('1.2.3.4')]
+        for ii, context in enumerate(rq_contexts):
+            context.context_id = ii * 2 + 1
+            context.scu_role = False
+            context.scp_role = True
+        rq_contexts.append(build_context('1.2.3.4.5'))
+        rq_contexts[2].context_id = 5
+
+        ac = build_context('1.2.3.4')
+        ac.context_id = 1
+        ac.scu_role = False
+        ac.scp_role = True
+        ac.result = 0x0000
+
+        ac2 = build_context('1.2.3.4')
+        ac2.context_id = 3
+        ac2.scu_role = False
+        ac2.scp_role = True
+        ac2.result = 0x0000
+
+        ac3 = build_context('1.2.3.4.5')
+        ac3.context_id = 5
+        ac3.result = 0x0000
+
+        service = PresentationService()
+        result = service.negotiate_as_requestor(rq_contexts, [ac, ac2, ac3])
+        assert len(result) == 3
+        for context in result[:2]:
+            assert context.abstract_syntax == '1.2.3.4'
+            assert context.transfer_syntax[0] == '1.2.840.10008.1.2'
+            assert context.as_scu == False
+            assert context.as_scp == True
+
+        assert result[2].abstract_syntax == '1.2.3.4.5'
+        assert result[2].transfer_syntax[0] == '1.2.840.10008.1.2'
+        assert result[2].as_scu == True
+        assert result[2].as_scp == False
 
 
 class TestPresentationServiceRequestor(object):

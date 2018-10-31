@@ -183,15 +183,15 @@ class PresentationContext(object):
         If part of an A-ASSOCIATE (request) then None. If part of an
         A-ASSOCIATE (response) then one of 0x00, 0x01, 0x02, 0x03, 0x04.
     scp_role : bool or None
-        Only used when acting as an association acceptor. If True (default)
+        Only used when acting as an association acceptor. If True
         then accept when the SCP role is proposed by the requestor, otherwise
-        reject the proposal. If None then no SCP/SCU Role Selection reply
-        will be sent and the default roles will be used.
+        reject the proposal. If None (default) then no SCP/SCU Role Selection
+        reply will be sent and the default roles will be used.
     scu_role : bool
-        Only used when acting as an association acceptor. If True (default)
+        Only used when acting as an association acceptor. If True
         then accept when the SCU role is proposed by the requestor, otherwise
-        reject the proposal. If None then no SCP/SCU Role Selection reply
-        will be sent and the default roles will be used.
+        reject the proposal. If None (default) then no SCP/SCU Role Selection
+        reply will be sent and the default roles will be used.
     transfer_syntax : list of pydicom.uid.UID
         The Presentation Context's *Transfer Syntax(es)*.
 
@@ -214,8 +214,8 @@ class PresentationContext(object):
         self.result = None
 
         # Used with SCP/SCU Role Selection negotiation
-        self._scu_role = True
-        self._scp_role = True
+        self._scu_role = None
+        self._scp_role = None
 
         # Used to track the allowed use of the context
         self._as_scp = None
@@ -354,10 +354,11 @@ class PresentationContext(object):
         Parameters
         ----------
         val : bool or None
-            If True (default) then accept if the association requestor proposes
+            If True then accept if the association requestor proposes
             the SCP role for itself, False to reject the proposal. If None
-            then no SCP/SCU Role Selection reply will be sent. If either of
-            `scu_role` or `scp_role` is None then both will assumed to be.
+            (default) then no SCP/SCU Role Selection reply will be sent. If
+            either of `scu_role` or `scp_role` is None then both will assumed
+            to be.
         """
         if not isinstance(val, (bool, type(None))):
             raise TypeError("`scp_role` must be a bool or None")
@@ -376,10 +377,11 @@ class PresentationContext(object):
         Parameters
         ----------
         val : bool or None
-            If True (default) then accept if the association requestor proposes
+            If True then accept if the association requestor proposes
             the SCU role for itself, False to reject the proposal. If None
-            then no SCP/SCU Role Selection reply will be sent. If either of
-            `scu_role` or `scp_role` is None then both will assumed to be.
+            (default) then no SCP/SCU Role Selection reply will be sent. If
+            either of `scu_role` or `scp_role` is None then both will assumed
+            to be.
         """
         if not isinstance(val, (bool, type(None))):
             raise TypeError("`scu_role` must be a bool or None")
@@ -633,8 +635,7 @@ class PresentationService(object):
         The acceptor has processed the requestor's presentation context
         definition list and returned the results. We want to do two things:
 
-        - Process the SCP/SCU Role Selection Negotiation (if any) (TO BE
-          IMPLEMENTED)
+        - Process the SCP/SCU Role Selection Negotiation
         - Return a nice list of PresentationContexts with the Results and
           original Abstract Syntax values to make things easier to use.
 
@@ -694,10 +695,13 @@ class PresentationService(object):
                 context.transfer_syntax = [ac_context.transfer_syntax[0]]
                 context.result = ac_context.result
 
+                print(context, ac_context.scp_role, ac_context.scu_role)
+
                 ## SCP/SCU Role Selection Negotiation
                 # Skip if context rejected or acceptor ignored proposal
                 if (ac_context.result == 0x00
-                        and None not in (ac_context.scp_role, ac_context.scu_role)):
+                        and None not in (ac_context.scp_role,
+                                         ac_context.scu_role)):
                     outcomes = SCP_SCU_ROLES[
                         (rq_context.scu_role, rq_context.scp_role)
                     ]
