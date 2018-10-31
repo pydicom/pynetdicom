@@ -289,10 +289,10 @@ class TestPresentationContext(object):
         assert context.scu_role
         context.scu_role = False
         assert not context.scu_role
+        context.scu_role = None
+        assert context.scu_role is None
         with pytest.raises(TypeError, match=r"`scu_role` must be a bool"):
             context.scu_role = 1
-        with pytest.raises(TypeError, match=r"`scu_role` must be a bool"):
-            context.scu_role = None
 
     def test_scp_role(self):
         """Test Presentation.scp_role setter/getter."""
@@ -302,10 +302,10 @@ class TestPresentationContext(object):
         assert context.scp_role
         context.scp_role = False
         assert not context.scp_role
+        context.scp_role = None
+        assert context.scp_role is None
         with pytest.raises(TypeError, match=r"`scp_role` must be a bool"):
             context.scp_role = 1
-        with pytest.raises(TypeError, match=r"`scp_role` must be a bool"):
-            context.scp_role = None
 
 
 class TestPresentationServiceAcceptor(object):
@@ -556,64 +556,98 @@ class TestPresentationServiceAcceptor(object):
                 assert results[ii].transfer_syntax == ['1.2.840.10008.1.2']
 
 
-@pytest.mark.skip()
+# (req.as_scu, req.as_scp, ac.as_scu, ac.as_scp)
+DEFAULT_ROLE = (True, False, False, True)
+BOTH_SCU_SCP_ROLE = (True, True, True, True)
+CONTEXT_REJECTED = (False, False, False, False)
+INVERTED_ROLE = (False, True, True, False)
+
+REFERENCE_ROLES = [
+    # Req role, ac role, Outcome
+    # No SCP/SCU Role Selection proposed
+    ((None, None), (None, None), DEFAULT_ROLE),
+    ((None, None), (None, True), DEFAULT_ROLE),
+    ((None, None), (None, False), DEFAULT_ROLE),
+    ((None, None), (True, None), DEFAULT_ROLE),
+    ((None, None), (False, None), DEFAULT_ROLE),
+    ((None, None), (True, True), DEFAULT_ROLE),
+    ((None, None), (True, False), DEFAULT_ROLE),
+    ((None, None), (False, False), DEFAULT_ROLE),
+    ((None, None), (False, True), DEFAULT_ROLE),
+    # True, True proposed
+    ((True, True), (None, None), DEFAULT_ROLE),
+    ((True, True), (None, True), DEFAULT_ROLE),
+    ((True, True), (None, False), DEFAULT_ROLE),
+    ((True, True), (True, None), DEFAULT_ROLE),
+    ((True, True), (False, None), DEFAULT_ROLE),
+    ((True, True), (True, True), BOTH_SCU_SCP_ROLE),
+    ((True, True), (True, False), DEFAULT_ROLE),
+    ((True, True), (False, False), CONTEXT_REJECTED),
+    ((True, True), (False, True), INVERTED_ROLE),
+    # True, False proposed
+    ((True, False), (None, None), DEFAULT_ROLE),
+    ((True, False), (None, True), DEFAULT_ROLE),
+    ((True, False), (None, False), DEFAULT_ROLE),
+    ((True, False), (True, None), DEFAULT_ROLE),
+    ((True, False), (False, None), DEFAULT_ROLE),
+    ((True, False), (True, True), DEFAULT_ROLE),  # Invalid
+    ((True, False), (True, False), DEFAULT_ROLE),
+    ((True, False), (False, False), CONTEXT_REJECTED),
+    ((True, False), (False, True), CONTEXT_REJECTED),  # Invalid
+    # False, True proposed x
+    ((False, True), (None, None), DEFAULT_ROLE),
+    ((False, True), (None, True), DEFAULT_ROLE),
+    ((False, True), (None, False), DEFAULT_ROLE),
+    ((False, True), (True, None), DEFAULT_ROLE),
+    ((False, True), (False, None), DEFAULT_ROLE),
+    ((False, True), (True, True), INVERTED_ROLE),  # Invalid
+    ((False, True), (True, False), CONTEXT_REJECTED),  # Invalid
+    ((False, True), (False, False), CONTEXT_REJECTED),
+    ((False, True), (False, True), INVERTED_ROLE),
+    # False, False proposed x
+    ((False, False), (None, None), DEFAULT_ROLE),
+    ((False, False), (None, True), DEFAULT_ROLE),
+    ((False, False), (None, False), DEFAULT_ROLE),
+    ((False, False), (True, None), DEFAULT_ROLE),
+    ((False, False), (False, None), DEFAULT_ROLE),
+    ((False, False), (True, True), CONTEXT_REJECTED),  # Invalid
+    ((False, False), (True, False), CONTEXT_REJECTED),  # Invalid
+    ((False, False), (False, False), CONTEXT_REJECTED),
+    ((False, False), (False, True), CONTEXT_REJECTED),  # Invalid
+]
+
+
 class TestPresentationServiceAcceptorWithRoleSelection(object):
     """Tests for the PresentationService as acceptor with role selection."""
-    @pytest.mark.parametrize("req, acc, out", [
-        ((None, None), (None, None), (False, True)),
-        ((None, None), (True, True), (False, True)),
-        ((None, None), (True, False), (False, True)),
-        ((None, None), (False, False), (False, True)),
-        ((None, None), (False, True), (False, True)),
-        ((True, True), (None, None), (False, True)),
-        ((True, True), (True, True), (True, True)),
-        ((True, True), (True, False), (True, True)),
-        ((True, True), (False, False), (False, True)),
-        ((True, True), (False, True), (False, True)),
-        ((False, True), (None, None), (False, True)),
-        ((False, True), (True, True), (False, True)),
-        ((False, True), (True, False), (False, True)),
-        ((False, True), (False, False), (False, True)),
-        ((False, True), (False, True), (False, True)),
-        ((False, False), (None, None), (False, True)),
-        ((False, False), (True, True), (False, True)),
-        ((False, False), (True, False), (False, False)),
-        ((False, False), (False, False), (False, False)),
-        ((False, False), (False, True), (False, True)),
-        ((True, False), (None, None), (False, True)),
-        ((True, False), (True, True), (True, True)),
-        ((True, False), (True, False), (True, False)),
-        ((True, False), (False, False), (False, False)),
-        ((True, False), (False, True), (False, True)),
-    ])
+    @pytest.mark.parametrize("req, acc, out", REFERENCE_ROLES)
     def test_scp_scu_role_negotiation(self, req, acc, out):
         """Test presentation service negotiation with role selection."""
-        # Rules!
-        # - If the requestor doesn't ask, then there is no reply
-        # - If the requestor is False then the reply is False
-        # - If the requestor is True then the reply is either True or False
-        #   - If the acceptor is True then the reply is True
-        #   - If the acceptor is False then the reply is False
-        # Note: if the requestor and acceptor can't agree then the default
-        # roles should be used, which as we are acceptor is SCP True, SCU False
-        rq = PresentationContext(1,
-                                 '1.2.3.4',
-                                 ['1.2.840.10008.1.2'])
-        rq.SCP = req[0]
-        rq.SCU = req[1]
+        rq = build_context('1.2.3.4')
+        rq.context_id = 1
+        rq.scu_role = req[0]
+        rq.scp_role = req[1]
 
-        ac = PresentationContext(1,
-                                 '1.2.3.4',
-                                 ['1.2.840.10008.1.2'])
-        ac.SCP = acc[0]
-        ac.SCU = acc[0]
-        result = self.test_func([rq], [ac])
+        ac = build_context('1.2.3.4')
+        ac.scu_role = acc[0]
+        ac.scp_role = acc[1]
+
+        service = PresentationService()
+
+        result = service.negotiate_as_acceptor([rq], [ac])
 
         assert result[0].abstract_syntax == '1.2.3.4'
         assert result[0].transfer_syntax[0] == '1.2.840.10008.1.2'
-        assert result[0].SCP == out[0]
-        assert result[0].SCU == out[1]
-        assert result[0].result == 0x00
+        assert result[0].as_scu == out[2]
+        assert result[0].as_scp == out[3]
+        if out == CONTEXT_REJECTED:
+            assert result[0].result == 0x02
+        else:
+            assert result[0].result == 0x00
+
+
+class TestPresentationServiceRequestorWithRoleSelection(object):
+    """Tests for the PresentationService as requestor with role selection."""
+    pass
 
 
 class TestPresentationServiceRequestor(object):
