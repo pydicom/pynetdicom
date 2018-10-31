@@ -647,7 +647,28 @@ class TestPresentationServiceAcceptorWithRoleSelection(object):
 
 class TestPresentationServiceRequestorWithRoleSelection(object):
     """Tests for the PresentationService as requestor with role selection."""
-    pass
+    @pytest.mark.parametrize("req, acc, out", REFERENCE_ROLES)
+    def test_scp_scu_role_negotiation(self, req, acc, out):
+        """Test presentation service negotiation with role selection."""
+        rq = build_context('1.2.3.4')
+        rq.context_id = 1
+        rq.scu_role = req[0]
+        rq.scp_role = req[1]
+
+        ac = build_context('1.2.3.4')
+        ac.context_id = 1
+        ac.scu_role = acc[0]
+        ac.scp_role = acc[1]
+        ac.result = 0x0000
+
+        service = PresentationService()
+
+        result = service.negotiate_as_requestor([rq], [ac])
+
+        assert result[0].abstract_syntax == '1.2.3.4'
+        assert result[0].transfer_syntax[0] == '1.2.840.10008.1.2'
+        assert result[0].as_scu == out[0]
+        assert result[0].as_scp == out[1]
 
 
 class TestPresentationServiceRequestor(object):

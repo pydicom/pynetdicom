@@ -698,17 +698,14 @@ class PresentationService(object):
                 # Skip if context rejected or acceptor ignored proposal
                 if (ac_context.result == 0x00
                         and None not in (ac_context.scp_role, ac_context.scu_role)):
-                    # Requestor has proposed SCP role for context:
-                    #   acceptor agrees: use agreed role
-                    #   acceptor disagrees: no role
-                    if rq_context.scp_role == ac_context.scp_role:
-                        context._as_scp = ac_context.scp_role
-
-                    # Requestor has proposed SCU role for context:
-                    #   acceptor agrees: use agreed role
-                    #   acceptor disagrees: no role
-                    if rq_context.scu_role == ac_context.scu_role:
-                        context._as_scu = ac_context.scu_role
+                    outcomes = SCP_SCU_ROLES[
+                        (rq_context.scu_role, rq_context.scp_role)
+                    ]
+                    outcome = outcomes[
+                        (ac_context.scu_role, ac_context.scp_role)
+                    ]
+                    context._as_scu = outcome[0]
+                    context._as_scp = outcome[1]
                 else:
                     # We are the association requestor, so SCU role only
                     context._as_scp = False
