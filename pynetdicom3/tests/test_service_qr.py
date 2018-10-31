@@ -23,6 +23,7 @@ from pydicom.uid import ExplicitVRLittleEndian
 from pynetdicom3 import AE, build_context
 from pynetdicom3.dimse_primitives import C_FIND, C_GET
 from pynetdicom3.presentation import PresentationContext
+from pynetdicom3.pdu_primitives import SCP_SCU_RoleSelectionNegotiation
 from pynetdicom3.service_class import (
     QueryRetrieveServiceClass,
     BasicWorklistManagementServiceClass,
@@ -47,8 +48,8 @@ from .dummy_c_scp import (
 )
 
 LOGGER = logging.getLogger('pynetdicom3')
-#LOGGER.setLevel(logging.DEBUG)
-LOGGER.setLevel(logging.CRITICAL)
+LOGGER.setLevel(logging.DEBUG)
+#LOGGER.setLevel(logging.CRITICAL)
 
 TEST_DS_DIR = os.path.join(os.path.dirname(__file__), 'dicom_files')
 DATASET = dcmread(os.path.join(TEST_DS_DIR, 'CTImageStorage.dcm'))
@@ -2535,6 +2536,7 @@ class TestQRCompositeInstanceWithoutBulk(object):
     def test_waveform_sequence(self):
         """Test when on_c_get returns success status"""
         self.scp = DummyGetSCP()
+        self.ds.SOPClassUID = CTImageStorage.uid
         self.ds.WaveformSequence = [Dataset(), Dataset()]
         self.ds.WaveformSequence[0].WaveformData = b'\x00\x01'
         self.ds.WaveformSequence[0].WaveformBitsAllocated = 16
@@ -2555,13 +2557,18 @@ class TestQRCompositeInstanceWithoutBulk(object):
         # SCP should override final success status
         self.scp.start()
 
+        role = SCP_SCU_RoleSelectionNegotiation()
+        role.sop_class_uid = CTImageStorage.uid
+        role.scp_role = True
+        role.scu_role = False
+
         ae = AE()
         ae.add_requested_context(CompositeInstanceRetrieveWithoutBulkDataGet)
         ae.add_requested_context(CTImageStorage)
         ae.on_c_store = on_c_store
         ae.acse_timeout = 5
         ae.dimse_timeout = 5
-        assoc = ae.associate('localhost', 11112)
+        assoc = ae.associate('localhost', 11112, ext_neg=[role])
         assert assoc.is_established
         result = assoc.send_c_get(self.query, query_model='CB')
         status, identifier = next(result)

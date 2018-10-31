@@ -10,7 +10,7 @@ from pydicom import read_file
 from pydicom.dataset import Dataset
 from pydicom.uid import UID, ImplicitVRLittleEndian
 
-from pynetdicom3 import AE, VerificationPresentationContexts
+from pynetdicom3 import AE, VerificationPresentationContexts, build_context
 from pynetdicom3.sop_class import (
     VerificationSOPClass,
     CTImageStorage, MRImageStorage, RTImageStorage,
@@ -56,8 +56,8 @@ from pynetdicom3.status import code_to_category
 
 
 LOGGER = logging.getLogger('pynetdicom3')
-LOGGER.setLevel(logging.CRITICAL)
-#LOGGER.setLevel(logging.DEBUG)
+#LOGGER.setLevel(logging.CRITICAL)
+LOGGER.setLevel(logging.DEBUG)
 
 TEST_DS_DIR = os.path.join(os.path.dirname(__file__), 'dicom_files')
 BIG_DATASET = read_file(os.path.join(TEST_DS_DIR, 'RTImageStorage.dcm'))
@@ -306,8 +306,9 @@ class DummyGetSCP(DummyBaseSCP):
         self.ae.add_supported_context(ImplantAssemblyTemplateInformationModelGet)
         self.ae.add_supported_context(ImplantTemplateGroupInformationModelGet)
         self.ae.add_supported_context(CTImageStorage)
-
-        self.ae.add_requested_context(CTImageStorage)
+        cx = self.ae._supported_contexts[CTImageStorage.uid]
+        cx.scp_role = True
+        cx.scu_role = True
 
         DummyBaseSCP.__init__(self)
         self.statuses = [0x0000]

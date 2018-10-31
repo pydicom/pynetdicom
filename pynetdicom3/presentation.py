@@ -431,6 +431,16 @@ class PresentationContext(object):
         if self.result is not None:
             s += '\nResult: {0!s}'.format(self.status)
 
+        if None not in (self.as_scu, self.as_scp):
+            if self.as_scu and not self.as_scp:
+                s += '\nRole: SCU only'
+            elif self.as_scu and self.as_scp:
+                s += '\nRole: SCU and SCP'
+            elif not self.as_scu and self.as_scp:
+                s += '\nRole: SCP only'
+            else:
+                s += '\nRole: (none)'
+
         return s
 
     @property
@@ -695,10 +705,9 @@ class PresentationService(object):
                 context.transfer_syntax = [ac_context.transfer_syntax[0]]
                 context.result = ac_context.result
 
-                print(context, ac_context.scp_role, ac_context.scu_role)
-
                 ## SCP/SCU Role Selection Negotiation
                 # Skip if context rejected or acceptor ignored proposal
+                print('RQ', ac_context)
                 if (ac_context.result == 0x00
                         and None not in (ac_context.scp_role,
                                          ac_context.scu_role)):
@@ -710,6 +719,7 @@ class PresentationService(object):
                     ]
                     context._as_scu = outcome[0]
                     context._as_scp = outcome[1]
+                    print(outcome)
                 else:
                     # We are the association requestor, so SCU role only
                     context._as_scp = False

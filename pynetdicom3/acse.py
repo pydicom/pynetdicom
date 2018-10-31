@@ -13,6 +13,7 @@ from pynetdicom3.pdu_primitives import (MaximumLengthNegotiation,
                                         ImplementationVersionNameNotification)
 from pynetdicom3.pdu_primitives import (A_ASSOCIATE, A_RELEASE, A_ABORT,
                                         A_P_ABORT)
+from pynetdicom3.presentation import PresentationService
 from pynetdicom3.utils import PresentationContextManager
 from pynetdicom3.utils import pretty_bytes
 
@@ -83,7 +84,8 @@ class ACSEServiceProvider(object):
                       userspdu=None):
         """Request an Association with a peer Application Entity SCP.
 
-        Issues an A-ASSOCIATE request primitive to the DICOM UL service provider
+        Issues an A-ASSOCIATE request primitive to the DICOM UL service
+        provider
 
         Requests an association with a remote AE and waits for association
         response (local AE is acting as an SCU)
@@ -190,16 +192,45 @@ class ACSEServiceProvider(object):
                 # FIXME
                 self.parent.peer_max_pdu = assoc_rsp.maximum_length_received
 
-                # Get accepted presentation contexts using the manager
-                self.context_manager.requestor_contexts = pcdl
-                self.context_manager.acceptor_contexts = (
-                    assoc_rsp.presentation_context_definition_results_list
-                )
+                # SCP/SCU Roles
+                roles = {}
+                for ii in assoc_rsp.user_information:
+                    if isinstance(ii, SCP_SCU_RoleSelectionNegotiation):
+                        roles[ii.sop_class_uid] = (ii.scu_role, ii_scp_role)
 
-                # Once the context manager gets both sets of contexts it
-                #   automatically determines which are accepted and refused
-                self.accepted_contexts = self.context_manager.accepted
-                self.rejected_contexts = self.context_manager.rejected
+                # Get accepted presentation contexts using the manager
+                # old method
+                if False:
+                    self.context_manager.requestor_contexts = pcdl
+                    self.context_manager.acceptor_contexts = (
+                        assoc_rsp.presentation_context_definition_results_list
+                    )
+
+                    # Once the context manager gets both sets of contexts it
+                    #   automatically determines which are accepted and refused
+                    self.accepted_contexts = self.context_manager.accepted
+                    self.rejected_contexts = self.context_manager.rejected
+                else:
+                    # Apply acceptors SCP/SCU roles
+                    service = PresentationService()
+                    ac_contexts = []
+                    for cx in assoc_rsp.presentation_context_definition_results_list:
+                        try:
+                            cx.scu_role = roles[cx.abstract_syntax].scu_role
+                            cx.scp_role = roles[cx.abstract_syntax].scp_role
+                        except KeyError:
+                            pass
+                        ac_contexts.append(cx)
+
+                    results = service.negotiate_as_requestor(
+                        pcdl, ac_contexts
+                    )
+                    self.accepted_contexts = [
+                        cx for cx in results if cx.result == 0x00
+                    ]
+                    self.rejected_contexts = [
+                        cx for cx in results if cx.result != 0x00
+                    ]
 
                 return True, assoc_rsp
 
@@ -296,9 +327,9 @@ class ACSEServiceProvider(object):
 
         # Send response
         primitive.presentation_context_definition_list = []
-        primitive.presentation_context_definition_results_list = \
-                                        self.accepted_contexts + \
-                                        self.rejected_contexts
+        primitive.presentation_context_definition_results_list = (
+            self.accepted_contexts + self.rejected_contexts
+        )
         primitive.result = 0
 
         self.dul.send_pdu(primitive)
@@ -625,14 +656,12 @@ class ACSEServiceProvider(object):
 
             # If Presentation Context was accepted
             if item.result == 0:
-                '''
-                if item.SCP is None and item.SCU is None:
-                    ac_scp_scu_role = 'Default'
-                else:
-                    ac_scp_scu_role = '{0!s}/{1!s}'.format(item.SCP, item.SCU)
-                s.append('    Accepted SCP/SCU Role: {0!s}'
-                         .format(ac_scp_scu_role))
-                '''
+                #if item.scu_role is None and item.scp_role is None:
+                #    ac_scp_scu_role = 'Default'
+                #else:
+                #    ac_scp_scu_role = '{0!s}/{1!s}'.format(item.scp_role, item.scu_role)
+                #s.append('    Accepted SCP/SCU Role: {0!s}'
+                #         .format(ac_scp_scu_role))
                 s.append('    Accepted Transfer Syntax: ={0!s}'
                          .format(item.transfer_syntax.name))
 

@@ -1140,6 +1140,20 @@ class ApplicationEntity(object):
                 "No supported Presentation Contexts have been defined"
             )
 
+        bad_contexts = []
+        for cx in self.supported_contexts:
+            roles = (cx.scu_role, cx.scp_role)
+            if None in roles and roles != (None, None):
+                bad_contexts.append(cx.abstract_syntax)
+
+        if bad_contexts:
+            msg = (
+                "The following presentation contexts have inconsistent "
+                "scu_role/scp_role values (if one is None, both must be):\n  "
+            )
+            msg += '\n  '.join(bad_contexts)
+            LOGGER.warning(msg)
+
         # Bind the local_socket to the specified listen port
         #try:
         self._bind_socket()
