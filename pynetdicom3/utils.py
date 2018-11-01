@@ -3,16 +3,10 @@
 import codecs
 from io import BytesIO
 import logging
-import sys
 import unicodedata
 
-from pydicom.uid import UID
-
-from pynetdicom3.presentation import PresentationContext
 
 LOGGER = logging.getLogger('pynetdicom3.utils')
-
-IS_PYTHON3 = sys.version_info[0] == (3,)
 
 
 def validate_ae_title(ae_title):
