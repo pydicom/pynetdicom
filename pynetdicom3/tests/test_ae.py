@@ -36,7 +36,7 @@ from pynetdicom3.sop_class import (
 
 LOGGER = logging.getLogger('pynetdicom3')
 #LOGGER.setLevel(logging.DEBUG)
-LOGGER.setLevel(logging.WARNING)
+LOGGER.setLevel(logging.CRITICAL)
 
 TEST_DS_DIR = os.path.join(os.path.dirname(__file__), 'dicom_files')
 DATASET = read_file(os.path.join(TEST_DS_DIR, 'RTImageStorage.dcm'))
@@ -93,7 +93,7 @@ class TestAEVerificationSCP(object):
                         reason='pytest missing caplog')
     def test_scu_scp_warning(self, caplog):
         """Test that a warning is given if scu_role and scp_role bad."""
-        with caplog.at_level(logging.WARNING, logger=''):
+        with caplog.at_level(logging.WARNING, logger='pynetdicom3'):
             self.scp = DummyVerificationSCP()
             self.scp.ae.add_supported_context('1.2.3', scp_role=False)
             self.scp.start()
