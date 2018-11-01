@@ -6,9 +6,9 @@ Fixes
 
 * Fixed upstream pydicom changes to AE elements breaking logging
   (:issue:``195``)
-* Fixed typos in SOP class names
+* Fixed typos in SOP class names, fix bad UID
 * Fixed SCP/SCU Role Negotiation requiring both SCP and SCU role values to be
-  set
+  set (as association requestor)
 
 
 Changes
@@ -43,6 +43,7 @@ Changes
 * ``BasicWorklistManagementServiceClass`` reimplemented separately from QR.
 * ``SOPClass`` class added to ``sop_class`` module and all SOP Class objects
   now inherit from it rather than the corresponding service class.
+* ``utils.PresentationContextManager`` removed
 
 
 Enhancements
@@ -70,5 +71,7 @@ Enhancements
 * Add support for the Implant Template QR service
 * Add support for the Non-Patient Information Storage service
 * Add support for the Defined Procedure Protocol QR service
-* Add support for N-GET
 * Add support for the Display System Management service
+* Add support for N-GET, N-SET, N-EVENT-REPORT, N-DELETE, N-ACTION, N-CREATE
+  as SCU.
+* Add full support for SCP/SCU Role Selection Negotiation

@@ -69,7 +69,6 @@ from pynetdicom3.status import (
     code_to_status, code_to_category, STORAGE_SERVICE_CLASS_STATUS,
     STATUS_WARNING, STATUS_SUCCESS
 )
-from pynetdicom3.utils import PresentationContextManager
 # pylint: enable=no-name-in-module
 
 LOGGER = logging.getLogger('pynetdicom3.assoc')

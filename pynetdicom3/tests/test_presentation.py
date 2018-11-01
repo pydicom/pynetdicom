@@ -151,6 +151,17 @@ class TestPresentationContext(object):
         assert 'Implicit' in pc.__str__()
         assert 'Provider Rejected' in pc.__str__()
 
+        pc._as_scu = True
+        pc._as_scp = False
+        assert 'Role: SCU only' in pc.__str__()
+        pc._as_scp = True
+        assert 'Role: SCU and SCP' in pc.__str__()
+        pc._as_scu = False
+        assert 'Role: SCP only' in pc.__str__()
+        pc._as_scp = False
+        assert 'Role: (none)' in pc.__str__()
+
+
     def test_context_id(self):
         """Test setting context_id."""
         pc = PresentationContext()
