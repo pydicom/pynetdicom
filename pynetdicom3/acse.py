@@ -13,8 +13,9 @@ from pynetdicom3.pdu_primitives import (MaximumLengthNegotiation,
                                         ImplementationVersionNameNotification)
 from pynetdicom3.pdu_primitives import (A_ASSOCIATE, A_RELEASE, A_ABORT,
                                         A_P_ABORT)
-from pynetdicom3.presentation import PresentationService
-from pynetdicom3.utils import PresentationContextManager
+from pynetdicom3.presentation import (
+    negotiate_as_requestor, negotiate_as_acceptor
+)
 from pynetdicom3.utils import pretty_bytes
 
 LOGGER = logging.getLogger('pynetdicom3.acse')
@@ -45,8 +46,6 @@ class ACSEServiceProvider(object):
         A list of accepted presentation contexts.
     rejected_contexts : list of utils.PresentationContext
         A list of rejected presentation contexts.
-    context_manager : utils.PresentationContextManager
-        The presentation context manager.
     """
     def __init__(self, assoc, acse_timeout=30):
         """Create the ACSE provider.
@@ -72,8 +71,6 @@ class ACSEServiceProvider(object):
         # The accepted/rejected presentation contexts
         self.accepted_contexts = None
         self.rejected_contexts = None
-
-        self.context_manager = PresentationContextManager()
 
     @property
     def dul(self):
@@ -192,45 +189,36 @@ class ACSEServiceProvider(object):
                 # FIXME
                 self.parent.peer_max_pdu = assoc_rsp.maximum_length_received
 
+                # Apply acceptors SCP/SCU roles
+                #ac_contexts = []
+                #for cx in :
+                #    try:
+                #        cx.scu_role = roles[cx.abstract_syntax].scu_role
+                #        cx.scp_role = roles[cx.abstract_syntax].scp_role
+                #    except KeyError:
+                #        pass
+                #    ac_contexts.append(cx)
+
                 # SCP/SCU Roles
-                roles = {}
-                for ii in assoc_rsp.user_information:
-                    if isinstance(ii, SCP_SCU_RoleSelectionNegotiation):
-                        roles[ii.sop_class_uid] = (ii.scu_role, ii_scp_role)
+                #ac_roles = {}
+                #for ii in assoc_rsp.user_information:
+                #    if isinstance(ii, SCP_SCU_RoleSelectionNegotiation):
+                #        ac_roles[ii.sop_class_uid] = (ii.scu_role, ii_scp_role)
 
-                # Get accepted presentation contexts using the manager
-                # old method
-                if False:
-                    self.context_manager.requestor_contexts = pcdl
-                    self.context_manager.acceptor_contexts = (
-                        assoc_rsp.presentation_context_definition_results_list
-                    )
+                # Perform the Presentation Context negotiation
+                #   acceptor -> requestor
+                results = negotiate_as_requestor(
+                    pcdl,
+                    assoc_rsp.presentation_context_definition_results_list,
+                    None
+                )
 
-                    # Once the context manager gets both sets of contexts it
-                    #   automatically determines which are accepted and refused
-                    self.accepted_contexts = self.context_manager.accepted
-                    self.rejected_contexts = self.context_manager.rejected
-                else:
-                    # Apply acceptors SCP/SCU roles
-                    service = PresentationService()
-                    ac_contexts = []
-                    for cx in assoc_rsp.presentation_context_definition_results_list:
-                        try:
-                            cx.scu_role = roles[cx.abstract_syntax].scu_role
-                            cx.scp_role = roles[cx.abstract_syntax].scp_role
-                        except KeyError:
-                            pass
-                        ac_contexts.append(cx)
-
-                    results = service.negotiate_as_requestor(
-                        pcdl, ac_contexts
-                    )
-                    self.accepted_contexts = [
-                        cx for cx in results if cx.result == 0x00
-                    ]
-                    self.rejected_contexts = [
-                        cx for cx in results if cx.result != 0x00
-                    ]
+                self.accepted_contexts = [
+                    cx for cx in results if cx.result == 0x00
+                ]
+                self.rejected_contexts = [
+                    cx for cx in results if cx.result != 0x00
+                ]
 
                 return True, assoc_rsp
 

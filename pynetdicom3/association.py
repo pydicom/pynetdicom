@@ -19,7 +19,7 @@ from pynetdicom3.dimse_primitives import (
 )
 from pynetdicom3.dsutils import decode, encode
 from pynetdicom3.dul import DULServiceProvider
-from pynetdicom3.presentation import PresentationService
+from pynetdicom3.presentation import negotiate_as_acceptor
 from pynetdicom3.sop_class import (
     uid_to_sop_class,
     uid_to_service_class,
@@ -360,24 +360,6 @@ class Association(threading.Thread):
                 reject_assoc_rsd = [(0x01, 0x01, 0x07)]
 
         ## DUL ACSE Related Rejections
-        #
-        # SCP/SCU Role Selection Negotiation
-        # {SOP Class UID : (SCU role, SCP role)}
-        roles = {}
-        for ii in assoc_rq.user_information:
-            if isinstance(ii, SCP_SCU_RoleSelectionNegotiation):
-                roles[ii.sop_class_uid] = (ii.scu_role, ii.scp_role)
-                assoc_rq.user_information.remove(ii)
-
-        if roles:
-            # Add requestor's proposed roles to the PresentationContexts
-            for cx in assoc_rq.presentation_context_definition_list:
-                try:
-                    cx.scu_role = roles[cx.abstract_syntax][0]
-                    cx.scp_role = roles[cx.abstract_syntax][1]
-                except KeyError:
-                    pass
-
         # User Identity Negotiation (PS3.7 Annex D.3.3.7)
         for ii in assoc_rq.user_information:
             if isinstance(ii, UserIdentityNegotiation):
@@ -429,36 +411,29 @@ class Association(threading.Thread):
             self.kill()
             return
 
-        ## Presentation Contexts
-        # old method
-        if False:
-            self.acse.context_manager = PresentationContextManager()
-            self.acse.context_manager.requestor_contexts = \
-                                assoc_rq.presentation_context_definition_list
-            self.acse.context_manager.acceptor_contexts = self.ae.supported_contexts
+        ## Negotiate Presentation Contexts
+        # SCP/SCU Role Selection Negotiation request items
+        # {SOP Class UID : (SCU role, SCP role)}
+        rq_roles = {}
+        for ii in assoc_rq.user_information:
+            if isinstance(ii, SCP_SCU_RoleSelectionNegotiation):
+                rq_roles[ii.sop_class_uid] = (ii.scu_role, ii.scp_role)
+                assoc_rq.user_information.remove(ii)
 
-            self.acse.accepted_contexts = self.acse.context_manager.accepted
-            self.acse.rejected_contexts = self.acse.context_manager.rejected
-        else:
-            service = PresentationService()
-            result = service.negotiate_as_acceptor(
-                assoc_rq.presentation_context_definition_list,
-                self.ae.supported_contexts
-            )
-            self.acse.accepted_contexts = [
-                cx for cx in result if cx.result == 0x00
-            ]
-            self.acse.rejected_contexts = [
-                cx for cx in result if cx.result != 0x00
-            ]
+        result, ac_roles = negotiate_as_acceptor(
+            assoc_rq.presentation_context_definition_list,
+            self.ae.supported_contexts,
+            rq_roles
+        )
+        self.acse.accepted_contexts = [
+            cx for cx in result if cx.result == 0x00
+        ]
+        self.acse.rejected_contexts = [
+            cx for cx in result if cx.result != 0x00
+        ]
 
-            # Generate new SCP/SCU Role Selection Negotiation items
-            for class_uid in roles:
-                role = SCP_SCU_RoleSelectionNegotiation()
-                role.sop_class_uid = class_uid
-                role.scu_role = self.ae._supported_contexts[class_uid].scu_role
-                role.scp_role = self.ae._supported_contexts[class_uid].scp_role
-                assoc_rq.user_information.append(role)
+        # Add any SCP/SCU Role Selection Negotiation response items
+        assoc_rq.user_information.extend(ac_roles)
 
         # Save the peer AE details
         self.peer_ae['ae_title'] = assoc_rq.calling_ae_title
@@ -638,23 +613,22 @@ class Association(threading.Thread):
             self.kill()
             return
 
-        # Build role extended negotiation - FIXME - needs updating
-        #   in particular, when running a C-GET user the role selection
-        #   needs to be set prior to association
-        #
-        # SCP/SCU Role Negotiation (optional)
-        #self.ext_neg = []
-        #for context in self.AE.presentation_contexts_scu:
-        #    tmp = SCP_SCU_RoleSelectionParameters()
-        #    tmp.SOPClassUID = context.abstract_syntax
-        #    tmp.SCURole = 0
-        #    tmp.SCPRole = 1
-        #
-        #    self.ext_neg.append(tmp)
-
         local_ae = {'address' : self.ae.address,
                     'port' : self.ae.port,
                     'ae_title' : self.ae.ae_title}
+
+        # Apply requestor's SCP/SCU role selection (if any)
+        roles = {}
+        for ii in self.ext_neg:
+            if isinstance(ii, SCP_SCU_RoleSelectionNegotiation):
+                roles[ii.sop_class_uid] = (ii.scu_role, ii.scp_role)
+
+        if roles:
+            for cx in self.requested_contexts:
+                try:
+                    (cx.scu_role, cx.scp_role) = roles[cx.abstract_syntax]
+                except KeyError:
+                    pass
 
         # Request an Association via the ACSE
         is_accepted, assoc_rsp = self.acse.request_assoc(
