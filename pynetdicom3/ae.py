@@ -489,14 +489,14 @@ class ApplicationEntity(object):
             context = self._supported_contexts[abstract_syntax]
             for syntax in transfer_syntax:
                 context.add_transfer_syntax(syntax)
-            context.scu_role = scu_role or None
-            context.scp_role = scp_role or None
+            context.scu_role = None or scu_role
+            context.scp_role =  None or scp_role
         else:
             context = PresentationContext()
             context.abstract_syntax = abstract_syntax
             context.transfer_syntax = transfer_syntax
-            context.scu_role = scu_role or None
-            context.scp_role = scp_role or None
+            context.scu_role = None or scu_role
+            context.scp_role = None or scp_role
 
             self._supported_contexts[abstract_syntax] = context
 

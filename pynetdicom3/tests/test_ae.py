@@ -3,6 +3,7 @@
 import logging
 import os
 import signal
+import sys
 import threading
 import time
 
@@ -34,8 +35,8 @@ from pynetdicom3.sop_class import (
 
 
 LOGGER = logging.getLogger('pynetdicom3')
-LOGGER.setLevel(logging.DEBUG)
-#LOGGER.setLevel(logging.CRITICAL)
+#LOGGER.setLevel(logging.DEBUG)
+LOGGER.setLevel(logging.CRITICAL)
 
 TEST_DS_DIR = os.path.join(os.path.dirname(__file__), 'dicom_files')
 DATASET = read_file(os.path.join(TEST_DS_DIR, 'RTImageStorage.dcm'))
@@ -92,6 +93,20 @@ class TestAEVerificationSCP(object):
         ae = AE()
         ae.__str__()
 
+    @pytest.mark.skipif(sys.version_info[:2] == (3, 4),
+                        reason='pytest missing caplog')
+    def test_scu_scp_warning(self, caplog):
+        """Test that a warning is given if scu_role and scp_role bad."""
+        self.scp = DummyVerificationSCP()
+        self.scp.ae.add_supported_context('1.2.3', scp_role=False)
+
+        with caplog.at_level(logging.DEBUG, logger='pynetdicom3'):
+            self.scp.start()
+
+            msg = r"The following presentation contexts have "
+            assert msg in caplog.text
+
+        self.scp.stop()
 
 class TestAEPresentationSCU(object):
     """Tests for AE presentation contexts when running as an SCU"""
@@ -1200,13 +1215,13 @@ class TestAESupportedPresentationContexts(object):
         self.ae.supported_context = []
         self.ae.add_supported_context('1.2.3', scu_role=True)
         context = self.ae.supported_contexts[0]
-        assert context.scu_role
+        assert context.scu_role is True
         assert context.scp_role is None
 
         self.ae.supported_context = []
         self.ae.add_supported_context('1.2.3', scu_role=False)
         context = self.ae.supported_contexts[0]
-        assert not context.scu_role
+        assert context.scu_role is False
         assert context.scp_role is None
 
     def test_scu_role_update(self):
@@ -1223,12 +1238,12 @@ class TestAESupportedPresentationContexts(object):
 
         self.ae.add_supported_context('1.2.3', scu_role=True)
         context = self.ae.supported_contexts[0]
-        assert context.scu_role
+        assert context.scu_role is True
         assert context.scp_role is None
 
         self.ae.add_supported_context('1.2.3', scu_role=False)
         context = self.ae.supported_contexts[0]
-        assert not context.scu_role
+        assert context.scu_role is False
         assert context.scp_role is None
 
     def test_scu_role_raises(self):
@@ -1255,13 +1270,13 @@ class TestAESupportedPresentationContexts(object):
         self.ae.add_supported_context('1.2.3', scp_role=True)
         context = self.ae.supported_contexts[0]
         assert context.scu_role is None
-        assert context.scp_role
+        assert context.scp_role is True
 
         self.ae.supported_context = []
         self.ae.add_supported_context('1.2.3', scp_role=False)
         context = self.ae.supported_contexts[0]
         assert context.scu_role is None
-        assert not context.scp_role
+        assert context.scp_role is False
 
     def test_scp_role_update(self):
         """Test updating add_supported_context with scp_role parameter."""
@@ -1278,12 +1293,12 @@ class TestAESupportedPresentationContexts(object):
         self.ae.add_supported_context('1.2.3', scp_role=True)
         context = self.ae.supported_contexts[0]
         assert context.scu_role is None
-        assert context.scp_role
+        assert context.scp_role is True
 
         self.ae.add_supported_context('1.2.3', scp_role=False)
         context = self.ae.supported_contexts[0]
         assert context.scu_role is None
-        assert not context.scp_role
+        assert context.scp_role is False
 
     def test_scp_role_raises(self):
         """Test add_supported_context raises if scp_role wrong type."""
