@@ -6,7 +6,8 @@ pretty_bytes
 
 from io import BytesIO
 import logging
-import unittest
+
+import pytest
 
 from pydicom.uid import UID
 
@@ -17,15 +18,14 @@ LOGGER = logging.getLogger('pynetdicom3')
 LOGGER.setLevel(logging.CRITICAL)
 
 
-class TestValidateAETitle(unittest.TestCase):
+class TestValidateAETitle(object):
     """Test validate_ae_title() function"""
     def test_bad_parameters(self):
         "Test exception raised if ae is not str or bytes."
-        with self.assertRaises(TypeError):
+        with pytest.raises(TypeError):
             validate_ae_title(1234)
-        with self.assertRaises(TypeError):
+        with pytest.raises(TypeError):
             validate_ae_title(['aetitle'])
-
 
     def test_bad_ae_title(self):
         """Test bad AE titles raise exceptions."""
@@ -38,7 +38,7 @@ class TestValidateAETitle(unittest.TestCase):
                   'AE\nTITLE'] # control char, newline
 
         for ae in bad_ae:
-            with self.assertRaises(ValueError):
+            with pytest.raises(ValueError):
                 validate_ae_title(ae)
 
         # Bad bytes AE
@@ -50,7 +50,7 @@ class TestValidateAETitle(unittest.TestCase):
                   b'AE\nTITLE'] # control char, newline
 
         for ae in bad_ae:
-            with self.assertRaises(ValueError):
+            with pytest.raises(ValueError):
                 validate_ae_title(ae)
 
     def test_good_ae_title(self):
@@ -67,8 +67,8 @@ class TestValidateAETitle(unittest.TestCase):
 
         for ae, ref_ae in zip(good_ae, ref):
             new_ae = validate_ae_title(ae)
-            self.assertEqual(new_ae, ref_ae)
-            self.assertTrue(isinstance(new_ae, str))
+            assert new_ae == ref_ae
+            assert isinstance(new_ae, str)
 
         # Check bytes AE
         good_ae = [b'a',
@@ -82,45 +82,50 @@ class TestValidateAETitle(unittest.TestCase):
 
         for ae, ref_ae in zip(good_ae, ref):
             new_ae = validate_ae_title(ae)
-            self.assertEqual(new_ae, ref_ae)
-            self.assertTrue(isinstance(new_ae, bytes))
+            assert new_ae == ref_ae
+            assert isinstance(new_ae, bytes)
+
+    def test_invalid_ae_title_raises(self):
+        """Test invalid AE title value raises exception."""
+        with pytest.raises(TypeError, match=r"Invalid value for an AE"):
+            validate_ae_title(1234)
 
 
-class TestWrapList(unittest.TestCase):
+class TestWrapList(object):
     """Test pretty_bytes() function"""
     def test_parameters(self):
         """Test parameters are correct."""
         # Default
         bytestream = a_associate_rq
         result = pretty_bytes(bytestream)
-        self.assertEqual(len(result), 14)
-        self.assertTrue(isinstance(result[0], str))
+        assert len(result) == 14
+        assert isinstance(result[0], str)
 
         # prefix
         result = pretty_bytes(bytestream, prefix='\\x')
         for line in result:
-            self.assertTrue(line[:2] == '\\x')
+            assert line[:2] == '\\x'
 
         # delimiter
         result = pretty_bytes(bytestream, prefix='', delimiter=',')
         for line in result:
-            self.assertTrue(line[2] == ',')
+            assert line[2] == ','
 
         # items_per_line
         result = pretty_bytes(bytestream, prefix='', delimiter='',
                            items_per_line=10)
-        self.assertEqual(len(result[0]), 20)
+        assert len(result[0]) == 20
 
         # max_size
         result = pretty_bytes(bytestream, prefix='', delimiter='',
                            items_per_line=10, max_size=100)
-        self.assertEqual(len(result), 11) # 10 plus the cutoff line
+        assert len(result) == 11  # 10 plus the cutoff line
         result = pretty_bytes(bytestream, max_size=None)
 
         # suffix
         result = pretty_bytes(bytestream, suffix='xxx')
         for line in result:
-            self.assertTrue(line[-3:] == 'xxx')
+            assert line[-3:] == 'xxx'
 
     def test_bytesio(self):
         """Test wrap list using bytesio"""
@@ -128,4 +133,4 @@ class TestWrapList(unittest.TestCase):
         bytestream.write(a_associate_rq)
         result = pretty_bytes(bytestream, prefix='', delimiter='',
                            items_per_line=10)
-        self.assertTrue(isinstance(result[0], str))
+        assert isinstance(result[0], str)
