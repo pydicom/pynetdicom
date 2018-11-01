@@ -36,7 +36,7 @@ from pynetdicom3.sop_class import (
 
 LOGGER = logging.getLogger('pynetdicom3')
 #LOGGER.setLevel(logging.DEBUG)
-LOGGER.setLevel(logging.CRITICAL)
+LOGGER.setLevel(logging.WARNING)
 
 TEST_DS_DIR = os.path.join(os.path.dirname(__file__), 'dicom_files')
 DATASET = read_file(os.path.join(TEST_DS_DIR, 'RTImageStorage.dcm'))
@@ -57,16 +57,17 @@ class TestAEVerificationSCP(object):
         time.sleep(0.1)
 
         for thread in threading.enumerate():
-            if isinstance(thread, (AE, DummyBaseSCP)):
+            if isinstance(thread, DummyBaseSCP):
                 thread.abort()
                 thread.stop()
 
-    # Causing thread exiting issues
-    #@pytest.mark.skip('Causes threading issues')
     def test_stop_scp_keyboard(self):
         """Test stopping the SCP with keyboard"""
         self.scp = DummyVerificationSCP()
         self.scp.start()
+
+        # Give the SCP time to start
+        time.sleep(0.1)
 
         def test():
             raise KeyboardInterrupt
@@ -79,34 +80,30 @@ class TestAEVerificationSCP(object):
     def test_no_supported_contexts(self):
         """Test starting with no contexts raises"""
         """Test stopping the SCP with keyboard"""
-        self.scp = DummyVerificationSCP()
-        self.scp.start()
-
-        ae = AE()
-        with pytest.raises(ValueError):
+        ae = AE(port=11112)
+        with pytest.raises(ValueError, match=r"No supported Presentation"):
             ae.start()
-
-        self.scp.stop()
 
     def test_str_empty(self):
         """Test str output for default AE"""
-        ae = AE()
+        ae = AE(port=11112)
         ae.__str__()
 
     @pytest.mark.skipif(sys.version_info[:2] == (3, 4),
                         reason='pytest missing caplog')
     def test_scu_scp_warning(self, caplog):
         """Test that a warning is given if scu_role and scp_role bad."""
-        self.scp = DummyVerificationSCP()
-        self.scp.ae.add_supported_context('1.2.3', scp_role=False)
-
-        with caplog.at_level(logging.DEBUG, logger='pynetdicom3'):
+        with caplog.at_level(logging.WARNING, logger=''):
+            self.scp = DummyVerificationSCP()
+            self.scp.ae.add_supported_context('1.2.3', scp_role=False)
             self.scp.start()
 
-            msg = r"The following presentation contexts have "
-            assert msg in caplog.text
+            # Give the SCP time to start
+            time.sleep(0.1)
+            assert "The following presentation contexts have " in caplog.text
 
-        self.scp.stop()
+            self.scp.stop()
+
 
 class TestAEPresentationSCU(object):
     """Tests for AE presentation contexts when running as an SCU"""

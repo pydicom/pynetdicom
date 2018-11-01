@@ -635,8 +635,18 @@ def negotiate_as_acceptor(rq_contexts, ac_contexts, roles=None):
                 # Create new SCP/SCU Role Selection Negotiation item
                 role = SCP_SCU_RoleSelectionNegotiation()
                 role.sop_class_uid = context.abstract_syntax
-                role.scu_role = ac_context.scu_role
-                role.scp_role = ac_context.scp_role
+
+                # Can't return 0x01 if proposed 0x00
+                if rq_roles[0] is False:
+                    role.scu_role = False
+                else:
+                    role.scu_role = ac_context.scu_role
+
+                if rq_roles[1] is False:
+                    role.scp_role = False
+                else:
+                    role.scp_role = ac_context.scp_role
+
                 reply_roles.append(role)
         else:
             # Reject context - abstract syntax not supported

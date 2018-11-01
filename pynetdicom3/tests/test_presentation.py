@@ -161,7 +161,6 @@ class TestPresentationContext(object):
         pc._as_scp = False
         assert 'Role: (none)' in pc.__str__()
 
-
     def test_context_id(self):
         """Test setting context_id."""
         pc = PresentationContext()
@@ -672,8 +671,15 @@ class TestNegotiateAsAcceptorWithRoleSelection(object):
 
         if None not in acc and out != CONTEXT_REJECTED:
             assert roles[0].sop_class_uid == '1.2.3.4'
-            assert roles[0].scu_role == acc[0]
-            assert roles[0].scp_role == acc[1]
+            if req[0] is False:
+                assert roles[0].scu_role is False
+            else:
+                assert roles[0].scu_role == acc[0]
+                
+            if req[1] is False:
+                assert roles[0].scp_role is False
+            else:
+                assert roles[0].scp_role == acc[1]
 
     def test_multiple_contexts_same_abstract(self):
         """Test that SCP/SCU role neg works with multiple contexts."""
@@ -711,6 +717,38 @@ class TestNegotiateAsAcceptorWithRoleSelection(object):
             assert role.sop_class_uid == '1.2.3.4'
             assert role.scu_role == False
             assert role.scp_role == True
+
+    def test_no_invalid_return_scp(self):
+        """Test that invalid role selection values aren't returned."""
+        # If the SCU proposes 0x00 we can't return 0x01
+        rq = build_context('1.2.3.4')
+        rq_roles = {'1.2.3.4' : (True, False)}
+
+        ac = build_context('1.2.3.4')
+        ac.scu_role = True
+        ac.scp_role = True
+
+        result, roles = negotiate_as_acceptor([rq], [ac], rq_roles)
+
+        assert roles[0].sop_class_uid == '1.2.3.4'
+        assert roles[0].scu_role == True
+        assert roles[0].scp_role == False
+
+    def test_no_invalid_return_scu(self):
+        """Test that invalid role selection values aren't returned."""
+        # If the SCU proposes 0x00 we can't return 0x01
+        rq = build_context('1.2.3.4')
+        rq_roles = {'1.2.3.4' : (False, True)}
+
+        ac = build_context('1.2.3.4')
+        ac.scu_role = True
+        ac.scp_role = True
+
+        result, roles = negotiate_as_acceptor([rq], [ac], rq_roles)
+
+        assert roles[0].sop_class_uid == '1.2.3.4'
+        assert roles[0].scu_role == False
+        assert roles[0].scp_role == True
 
 
 class TestNegotiateAsRequestorWithRoleSelection(object):
