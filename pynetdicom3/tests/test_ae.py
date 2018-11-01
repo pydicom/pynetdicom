@@ -1184,6 +1184,114 @@ class TestAESupportedPresentationContexts(object):
         self.ae.remove_supported_context('1.2.840.10008.1.1', tsyntax)
         assert len(self.ae.supported_contexts) == 0
 
+    def test_scu_role(self):
+        """Test add_supported_context with scu_role parameter."""
+        self.ae.add_supported_context('1.2.3')
+        context = self.ae.supported_contexts[0]
+        assert context.scu_role is None
+        assert context.scp_role is None
+
+        self.ae.supported_context = []
+        self.ae.add_supported_context('1.2.3', scu_role=None)
+        context = self.ae.supported_contexts[0]
+        assert context.scu_role is None
+        assert context.scp_role is None
+
+        self.ae.supported_context = []
+        self.ae.add_supported_context('1.2.3', scu_role=True)
+        context = self.ae.supported_contexts[0]
+        assert context.scu_role
+        assert context.scp_role is None
+
+        self.ae.supported_context = []
+        self.ae.add_supported_context('1.2.3', scu_role=False)
+        context = self.ae.supported_contexts[0]
+        assert not context.scu_role
+        assert context.scp_role is None
+
+    def test_scu_role_update(self):
+        """Test updating add_supported_context with scu_role parameter."""
+        self.ae.add_supported_context('1.2.3')
+        context = self.ae.supported_contexts[0]
+        assert context.scu_role is None
+        assert context.scp_role is None
+
+        self.ae.add_supported_context('1.2.3', scu_role=None)
+        context = self.ae.supported_contexts[0]
+        assert context.scu_role is None
+        assert context.scp_role is None
+
+        self.ae.add_supported_context('1.2.3', scu_role=True)
+        context = self.ae.supported_contexts[0]
+        assert context.scu_role
+        assert context.scp_role is None
+
+        self.ae.add_supported_context('1.2.3', scu_role=False)
+        context = self.ae.supported_contexts[0]
+        assert not context.scu_role
+        assert context.scp_role is None
+
+    def test_scu_role_raises(self):
+        """Test add_supported_context raises if scu_role wrong type."""
+        with pytest.raises(TypeError, match=""):
+            self.ae.add_supported_context('1.2.3', scu_role='abc')
+
+        assert self.ae.supported_contexts == []
+
+    def test_scp_role(self):
+        """Test add_supported_context with scu_role parameter."""
+        self.ae.add_supported_context('1.2.3')
+        context = self.ae.supported_contexts[0]
+        assert context.scu_role is None
+        assert context.scp_role is None
+
+        self.ae.supported_context = []
+        self.ae.add_supported_context('1.2.3', scp_role=None)
+        context = self.ae.supported_contexts[0]
+        assert context.scu_role is None
+        assert context.scp_role is None
+
+        self.ae.supported_context = []
+        self.ae.add_supported_context('1.2.3', scp_role=True)
+        context = self.ae.supported_contexts[0]
+        assert context.scu_role is None
+        assert context.scp_role
+
+        self.ae.supported_context = []
+        self.ae.add_supported_context('1.2.3', scp_role=False)
+        context = self.ae.supported_contexts[0]
+        assert context.scu_role is None
+        assert not context.scp_role
+
+    def test_scp_role_update(self):
+        """Test updating add_supported_context with scp_role parameter."""
+        self.ae.add_supported_context('1.2.3')
+        context = self.ae.supported_contexts[0]
+        assert context.scu_role is None
+        assert context.scp_role is None
+
+        self.ae.add_supported_context('1.2.3', scp_role=None)
+        context = self.ae.supported_contexts[0]
+        assert context.scu_role is None
+        assert context.scp_role is None
+
+        self.ae.add_supported_context('1.2.3', scp_role=True)
+        context = self.ae.supported_contexts[0]
+        assert context.scu_role is None
+        assert context.scp_role
+
+        self.ae.add_supported_context('1.2.3', scp_role=False)
+        context = self.ae.supported_contexts[0]
+        assert context.scu_role is None
+        assert not context.scp_role
+
+    def test_scp_role_raises(self):
+        """Test add_supported_context raises if scp_role wrong type."""
+        with pytest.raises(TypeError, match=""):
+            self.ae.add_supported_context('1.2.3', scp_role='abc')
+
+        assert self.ae.supported_contexts == []
+
 
 class TestAERequestedPresentationContexts(object):
     """Tests for AE's presentation contexts when acting as an SCU"""

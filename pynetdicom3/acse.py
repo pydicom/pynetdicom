@@ -8,15 +8,18 @@ from pydicom.uid import UID
 
 from pynetdicom3 import PYNETDICOM_IMPLEMENTATION_UID
 from pynetdicom3 import PYNETDICOM_IMPLEMENTATION_VERSION
-from pynetdicom3.pdu_primitives import (MaximumLengthNegotiation,
-                                        ImplementationClassUIDNotification,
-                                        ImplementationVersionNameNotification)
-from pynetdicom3.pdu_primitives import (A_ASSOCIATE, A_RELEASE, A_ABORT,
-                                        A_P_ABORT)
+from pynetdicom3.pdu_primitives import (
+    A_ASSOCIATE, A_RELEASE, A_ABORT, A_P_ABORT,
+    MaximumLengthNegotiation,
+    ImplementationClassUIDNotification,
+    ImplementationVersionNameNotification,
+    SCP_SCU_RoleSelectionNegotiation,
+)
 from pynetdicom3.presentation import (
     negotiate_as_requestor, negotiate_as_acceptor
 )
 from pynetdicom3.utils import pretty_bytes
+
 
 LOGGER = logging.getLogger('pynetdicom3.acse')
 
@@ -189,28 +192,16 @@ class ACSEServiceProvider(object):
                 # FIXME
                 self.parent.peer_max_pdu = assoc_rsp.maximum_length_received
 
-                # Apply acceptors SCP/SCU roles
-                #ac_contexts = []
-                #for cx in :
-                #    try:
-                #        cx.scu_role = roles[cx.abstract_syntax].scu_role
-                #        cx.scp_role = roles[cx.abstract_syntax].scp_role
-                #    except KeyError:
-                #        pass
-                #    ac_contexts.append(cx)
+                ac_roles = {}
+                for ii in assoc_rsp.user_information:
+                    if isinstance(ii, SCP_SCU_RoleSelectionNegotiation):
+                        ac_roles[ii.sop_class_uid] = (ii.scu_role, ii.scp_role)
 
-                # SCP/SCU Roles
-                #ac_roles = {}
-                #for ii in assoc_rsp.user_information:
-                #    if isinstance(ii, SCP_SCU_RoleSelectionNegotiation):
-                #        ac_roles[ii.sop_class_uid] = (ii.scu_role, ii_scp_role)
-
-                # Perform the Presentation Context negotiation
-                #   acceptor -> requestor
+                # Check the negotiated Presentation Contexts
                 results = negotiate_as_requestor(
                     pcdl,
                     assoc_rsp.presentation_context_definition_results_list,
-                    None
+                    ac_roles
                 )
 
                 self.accepted_contexts = [

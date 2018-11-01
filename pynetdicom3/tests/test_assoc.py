@@ -25,7 +25,8 @@ from pynetdicom3.dimse_primitives import C_STORE, C_FIND, C_GET, C_MOVE
 from pynetdicom3.dsutils import encode, decode
 from pynetdicom3.pdu_primitives import (
     UserIdentityNegotiation, SOPClassExtendedNegotiation,
-    SOPClassCommonExtendedNegotiation
+    SOPClassCommonExtendedNegotiation,
+    SCP_SCU_RoleSelectionNegotiation,
 )
 from pynetdicom3.sop_class import (
     VerificationSOPClass,
@@ -73,8 +74,8 @@ from .dummy_c_scp import (
 )
 
 LOGGER = logging.getLogger('pynetdicom3')
-#LOGGER.setLevel(logging.CRITICAL)
-LOGGER.setLevel(logging.DEBUG)
+LOGGER.setLevel(logging.CRITICAL)
+#LOGGER.setLevel(logging.DEBUG)
 
 TEST_DS_DIR = os.path.join(os.path.dirname(__file__), 'dicom_files')
 BIG_DATASET = read_file(os.path.join(TEST_DS_DIR, 'RTImageStorage.dcm')) # 2.1 M
@@ -120,7 +121,12 @@ class TestCStoreSCP(object):
         ae.dimse_timeout = 5
         ae.on_c_store = self.scp.on_c_store
 
-        assoc = ae.associate('localhost', 11112)
+        role = SCP_SCU_RoleSelectionNegotiation()
+        role.sop_class_uid = CTImageStorage.uid
+        role.scu_role = False
+        role.scp_role = True
+
+        assoc = ae.associate('localhost', 11112, ext_neg=[role])
         assoc.dimse = DummyDIMSE()
         assert assoc.is_established
 
@@ -157,7 +163,12 @@ class TestCStoreSCP(object):
         ae.dimse_timeout = 5
         ae.on_c_store = self.scp.on_c_store
 
-        assoc = ae.associate('localhost', 11112)
+        role = SCP_SCU_RoleSelectionNegotiation()
+        role.sop_class_uid = CTImageStorage.uid
+        role.scu_role = False
+        role.scp_role = True
+
+        assoc = ae.associate('localhost', 11112, ext_neg=[role])
         assoc.dimse = DummyDIMSE()
         assert assoc.is_established
 
@@ -190,7 +201,12 @@ class TestCStoreSCP(object):
         ae.dimse_timeout = 5
         ae.on_c_store = self.scp.on_c_store
 
-        assoc = ae.associate('localhost', 11112)
+        role = SCP_SCU_RoleSelectionNegotiation()
+        role.sop_class_uid = CTImageStorage.uid
+        role.scu_role = False
+        role.scp_role = True
+
+        assoc = ae.associate('localhost', 11112, ext_neg=[role])
         assoc.dimse = DummyDIMSE()
         assert assoc.is_established
 
@@ -224,7 +240,12 @@ class TestCStoreSCP(object):
         ae.dimse_timeout = 5
         ae.on_c_store = self.scp.on_c_store
 
-        assoc = ae.associate('localhost', 11112)
+        role = SCP_SCU_RoleSelectionNegotiation()
+        role.sop_class_uid = CTImageStorage.uid
+        role.scu_role = False
+        role.scp_role = True
+
+        assoc = ae.associate('localhost', 11112, ext_neg=[role])
         assoc.dimse = DummyDIMSE()
         assert assoc.is_established
 
@@ -256,7 +277,12 @@ class TestCStoreSCP(object):
         ae.dimse_timeout = 5
         ae.on_c_store = self.scp.on_c_store
 
-        assoc = ae.associate('localhost', 11112)
+        role = SCP_SCU_RoleSelectionNegotiation()
+        role.sop_class_uid = CTImageStorage.uid
+        role.scu_role = False
+        role.scp_role = True
+
+        assoc = ae.associate('localhost', 11112, ext_neg=[role])
         assoc.dimse = DummyDIMSE()
         assert assoc.is_established
 
@@ -284,11 +310,17 @@ class TestCStoreSCP(object):
         ae = AE()
         ae.add_requested_context(CTImageStorage)
         ae.add_requested_context(RTImageStorage)
+
+        role = SCP_SCU_RoleSelectionNegotiation()
+        role.sop_class_uid = CTImageStorage.uid
+        role.scu_role = False
+        role.scp_role = True
+
         ae.acse_timeout = 5
         ae.dimse_timeout = 5
         ae.on_c_store = self.scp.on_c_store
 
-        assoc = ae.associate('localhost', 11112)
+        assoc = ae.associate('localhost', 11112, ext_neg=[role])
         assoc.dimse = DummyDIMSE()
         assert assoc.is_established
 
@@ -1575,6 +1607,46 @@ class TestAssociationSendCGet(object):
             next(assoc.send_c_get(self.ds))
         self.scp.stop()
 
+    def test_must_be_scp(self):
+        """Test failure if not SCP for storage context."""
+        self.scp = DummyGetSCP()
+        self.scp.no_suboperations = 2
+        self.scp.statuses = [0xFF00, 0xFF00]
+        self.scp.datasets = [self.good, self.good]
+
+        def on_c_store(ds, context, assoc_info):
+            assert 'PatientName' in ds
+            return 0x0000
+
+        self.scp.start()
+        ae = AE()
+        ae.add_requested_context(PatientRootQueryRetrieveInformationModelGet)
+        ae.add_requested_context(CTImageStorage)
+
+        role = SCP_SCU_RoleSelectionNegotiation()
+        role.sop_class_uid = CTImageStorage.uid
+        role.scu_role = True
+        role.scp_role = False
+
+        ae.acse_timeout = 5
+        ae.dimse_timeout = 5
+        ae.on_c_store = on_c_store
+        assoc = ae.associate('localhost', 11112, ext_neg=[role])
+        assert assoc.is_established
+        result = assoc.send_c_get(self.ds, query_model='P')
+        (status, ds) = next(result)
+        assert status.Status == 0xff00
+        assert ds is None
+        (status, ds) = next(result)
+        assert status.Status == 0xff00
+        assert ds is None
+        (status, ds) = next(result)
+        assert status.Status == 0xb000
+        assert ds.FailedSOPInstanceUIDList == ['1.1.1', '1.1.1']
+        assoc.release()
+        assert assoc.is_released
+        self.scp.stop()
+
     def test_no_abstract_syntax_match(self):
         """Test when no accepted abstract syntax"""
         self.scp = DummyStorageSCP()
@@ -1697,12 +1769,16 @@ class TestAssociationSendCGet(object):
         ae = AE()
         ae.add_requested_context(PatientRootQueryRetrieveInformationModelGet)
         ae.add_requested_context(CTImageStorage)
-        ae.add_supported_context(PatientRootQueryRetrieveInformationModelGet)
-        ae.add_supported_context(CTImageStorage, ExplicitVRLittleEndian)
+
+        role = SCP_SCU_RoleSelectionNegotiation()
+        role.sop_class_uid = CTImageStorage.uid
+        role.scu_role = False
+        role.scp_role = True
+
         ae.acse_timeout = 5
         ae.dimse_timeout = 5
         ae.on_c_store = on_c_store
-        assoc = ae.associate('localhost', 11112)
+        assoc = ae.associate('localhost', 11112, ext_neg=[role])
         assert assoc.is_established
         result = assoc.send_c_get(self.ds, query_model='P')
         (status, ds) = next(result)
@@ -1728,13 +1804,18 @@ class TestAssociationSendCGet(object):
         ae = AE()
         ae.add_requested_context(PatientRootQueryRetrieveInformationModelGet)
         ae.add_requested_context(CTImageStorage)
-        ae.add_supported_context(CTImageStorage)
+
+        role = SCP_SCU_RoleSelectionNegotiation()
+        role.sop_class_uid = CTImageStorage.uid
+        role.scu_role = False
+        role.scp_role = True
+
         ae.acse_timeout = 5
         ae.dimse_timeout = 5
         def on_c_store(ds, context, assoc_info):
             return 0x0000
         ae.on_c_store = on_c_store
-        assoc = ae.associate('localhost', 11112)
+        assoc = ae.associate('localhost', 11112, ext_neg=[role])
         assert assoc.is_established
         result = assoc.send_c_get(self.ds, query_model='P')
         # We have 2 status, ds and 1 success
@@ -1763,13 +1844,18 @@ class TestAssociationSendCGet(object):
         ae = AE()
         ae.add_requested_context(PatientRootQueryRetrieveInformationModelGet)
         ae.add_requested_context(CTImageStorage)
-        ae.add_supported_context(CTImageStorage)
+
+        role = SCP_SCU_RoleSelectionNegotiation()
+        role.sop_class_uid = CTImageStorage.uid
+        role.scu_role = True
+        role.scp_role = False
+
         ae.acse_timeout = 5
         ae.dimse_timeout = 5
         def on_c_store(ds, context, assoc_info):
             return 0xA700
         ae.on_c_store = on_c_store
-        assoc = ae.associate('localhost', 11112)
+        assoc = ae.associate('localhost', 11112, ext_neg=[role])
         assert assoc.is_established
         result = assoc.send_c_get(self.ds, query_model='P')
         # We have 2 status, ds and 1 success
@@ -1798,13 +1884,18 @@ class TestAssociationSendCGet(object):
         ae = AE()
         ae.add_requested_context(PatientRootQueryRetrieveInformationModelGet)
         ae.add_requested_context(CTImageStorage)
-        ae.add_supported_context(CTImageStorage)
+
+        role = SCP_SCU_RoleSelectionNegotiation()
+        role.sop_class_uid = CTImageStorage.uid
+        role.scu_role = True
+        role.scp_role = False
+
         ae.acse_timeout = 5
         ae.dimse_timeout = 5
         def on_c_store(ds, context, assoc_info):
             return 0xB007
         ae.on_c_store = on_c_store
-        assoc = ae.associate('localhost', 11112)
+        assoc = ae.associate('localhost', 11112, ext_neg=[role])
         assert assoc.is_established
         result = assoc.send_c_get(self.ds, query_model='P')
         # We have 2 status, ds and 1 success
@@ -1851,14 +1942,19 @@ class TestAssociationSendCGet(object):
         ae = AE()
         ae.add_requested_context(PatientRootQueryRetrieveInformationModelGet)
         ae.add_requested_context(CTImageStorage)
-        ae.add_supported_context(CTImageStorage)
+
+        role = SCP_SCU_RoleSelectionNegotiation()
+        role.sop_class_uid = CTImageStorage.uid
+        role.scu_role = True
+        role.scp_role = False
+
         ae.acse_timeout = 5
         ae.dimse_timeout = 5
 
         def on_c_store(ds, context, assoc_info):
             return 0xB007
         ae.on_c_store = on_c_store
-        assoc = ae.associate('localhost', 11112)
+        assoc = ae.associate('localhost', 11112, ext_neg=[role])
         assert assoc.is_established
         result = assoc.send_c_get(self.ds, query_model='P')
         (status, ds) = next(result)
@@ -1884,10 +1980,15 @@ class TestAssociationSendCGet(object):
         ae = AE()
         ae.add_requested_context(PatientRootQueryRetrieveInformationModelGet)
         ae.add_requested_context(CTImageStorage)
-        ae.add_supported_context(CTImageStorage)
+
+        role = SCP_SCU_RoleSelectionNegotiation()
+        role.sop_class_uid = CTImageStorage.uid
+        role.scu_role = True
+        role.scp_role = False
+
         ae.acse_timeout = 5
         ae.dimse_timeout = 5
-        assoc = ae.associate('localhost', 11112)
+        assoc = ae.associate('localhost', 11112, ext_neg=[role])
         assert assoc.is_established
         for (status, ds) in assoc.send_c_get(self.ds, query_model='P'):
             assert status.Status == 0xFFF0

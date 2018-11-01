@@ -356,7 +356,8 @@ class ApplicationEntity(object):
         self._requested_contexts.append(context)
 
     def add_supported_context(self, abstract_syntax,
-                              transfer_syntax=DEFAULT_TRANSFER_SYNTAXES):
+                              transfer_syntax=DEFAULT_TRANSFER_SYNTAXES,
+                              scu_role=None, scp_role=None):
         """Add a supported presentation context.
 
         When an Association request is received from a peer it supplies a list
@@ -376,6 +377,24 @@ class ApplicationEntity(object):
         transfer_syntax :  str/pydicom.uid.UID or list of str/pydicom.uid.UID
             The transfer syntax(es) to support (default: Implicit VR Little
             Endian, Explicit VR Little Endian, Explicit VR Big Endian).
+        scu_role : bool or None, optional
+            If the association requestor includes an SCP/SCU Role Selection
+            Negotiation item for this context then:
+
+            * If None then ignore the proposal (if either `scp_role` or
+              `scu_role` is None then both are assumed to be) and use the
+              default roles.
+            * If True accept the proposed SCU role
+            * If False reject the proposed SCU role
+        scp_role : bool or None, optional
+            If the association requestor includes an SCP/SCU Role Selection
+            Negotiation item for this context then:
+
+            * If None then ignore the proposal (if either `scp_role` or
+              `scu_role` is None then both are assumed to be) and use the
+              default roles.
+            * If True accept the proposed SCP role
+            * If False reject the proposed SCP role
 
         Examples
         --------
@@ -436,11 +455,28 @@ class ApplicationEntity(object):
             =Implicit VR Little Endian
             =Explicit VR Little Endian
             =Explicit VR Big Endian
+
+        Add support for CTImageStorage and if the association requestor
+        includes an SCP/SCU Role Selection Negotiation item for CT Image
+        Storage requesting the SCU and SCP roles then accept the proposal.
+
+        >>> from pynetdicom3 import AE
+        >>> from pynetdicom3.sop_class import CTImageStorage
+        >>> ae = AE()
+        >>> ae.add_supported_context(
+        ...     CTImageStorage, scu_role=True, scp_role=True
+        ... )
         """
         if hasattr(abstract_syntax, 'uid'):
             abstract_syntax = UID(abstract_syntax.uid)
         else:
             abstract_syntax = UID(abstract_syntax)
+
+        if not isinstance(scu_role, (type(None), bool)):
+            raise TypeError("`scu_role` must be None or bool")
+
+        if not isinstance(scp_role, (type(None), bool)):
+            raise TypeError("`scp_role` must be None or bool")
 
         # For convenience allow single transfer syntax values
         if isinstance(transfer_syntax, str):
@@ -453,10 +489,14 @@ class ApplicationEntity(object):
             context = self._supported_contexts[abstract_syntax]
             for syntax in transfer_syntax:
                 context.add_transfer_syntax(syntax)
+            context.scu_role = scu_role or None
+            context.scp_role = scp_role or None
         else:
             context = PresentationContext()
             context.abstract_syntax = abstract_syntax
             context.transfer_syntax = transfer_syntax
+            context.scu_role = scu_role or None
+            context.scp_role = scp_role or None
 
             self._supported_contexts[abstract_syntax] = context
 

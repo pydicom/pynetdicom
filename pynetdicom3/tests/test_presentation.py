@@ -27,7 +27,11 @@ from pynetdicom3.presentation import (
     DisplaySystemPresentationContexts,
     build_context,
 )
-from pynetdicom3.sop_class import VerificationSOPClass
+from pynetdicom3.sop_class import (
+    VerificationSOPClass,
+    CompositeInstanceRetrieveWithoutBulkDataGet,
+    CTImageStorage,
+)
 
 
 @pytest.fixture(params=[
@@ -757,6 +761,43 @@ class TestNegotiateAsRequestorWithRoleSelection(object):
         assert result[2].transfer_syntax[0] == '1.2.840.10008.1.2'
         assert result[2].as_scu == True
         assert result[2].as_scp == False
+
+    def test_functional(self):
+        """Functional test of role negotiation."""
+        # Requestor
+        context_a = build_context(CompositeInstanceRetrieveWithoutBulkDataGet)
+        context_a.context_id = 1
+        context_b = build_context(CTImageStorage)
+        context_b.context_id = 3
+        rq_roles = {CTImageStorage.uid : (False, True)}
+        rq_contexts = [context_a, context_b]
+
+        # Acceptor
+        context_a = build_context(CompositeInstanceRetrieveWithoutBulkDataGet)
+        context_b = build_context(CTImageStorage)
+        context_b.scu_role = False
+        context_b.scp_role = True
+        ac_contexts = [context_a, context_b]
+
+        # Requestor -> Acceptor
+        result, roles = negotiate_as_acceptor(rq_contexts, ac_contexts, rq_roles)
+
+        # Acceptor -> Requestor
+        ac_roles = {}
+        for role in roles:
+            ac_roles[role.sop_class_uid] = (role.scu_role, role.scp_role)
+
+        rq_contexts[1].scu_role = False
+        rq_contexts[1].scp_role = True
+        result = negotiate_as_requestor(rq_contexts, result, ac_roles)
+
+        assert result[0].abstract_syntax == CompositeInstanceRetrieveWithoutBulkDataGet.uid
+        assert result[0].as_scu
+        assert not result[0].as_scp
+
+        assert result[1].abstract_syntax == CTImageStorage.uid
+        assert not result[1].as_scu
+        assert result[1].as_scp
 
 
 class TestNegotiateAsRequestor(object):

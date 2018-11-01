@@ -975,7 +975,6 @@ class Association(threading.Thread):
         transfer_syntax = None
         for context in self.acse.accepted_contexts:
             try:
-                print('C', context)
                 if dataset.SOPClassUID == context.abstract_syntax and context.as_scu:
                     transfer_syntax = context.transfer_syntax[0]
                     context_id = context.context_id
@@ -2021,8 +2020,7 @@ class Association(threading.Thread):
 
         transfer_syntax = None
         for context in self.acse.accepted_contexts:
-            if req.AffectedSOPClassUID == context.abstract_syntax: # and context.as_scp:
-                print('Is SCP?', context.as_scp)
+            if req.AffectedSOPClassUID == context.abstract_syntax and context.as_scp:
                 transfer_syntax = context.transfer_syntax[0]
                 break
         else:

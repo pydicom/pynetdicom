@@ -31,7 +31,6 @@ DEFAULT_ROLE = (True, False, False, True)
 BOTH_SCU_SCP_ROLE = (True, True, True, True)
 CONTEXT_REJECTED = (False, False, False, False)
 INVERTED_ROLE = (False, True, True, False)
-
 SCP_SCU_ROLES = {
     # Req role, ac role, Outcome
     # No SCP/SCU Role Selection proposed
@@ -510,6 +509,7 @@ References
 ----------
 DICOM Standard, Part 7, Annex D.3
 """
+
 
 def negotiate_as_acceptor(rq_contexts, ac_contexts, roles=None):
     """Process the Presentation Contexts as an Association acceptor.

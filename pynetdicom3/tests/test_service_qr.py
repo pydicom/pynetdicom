@@ -48,8 +48,8 @@ from .dummy_c_scp import (
 )
 
 LOGGER = logging.getLogger('pynetdicom3')
-LOGGER.setLevel(logging.DEBUG)
-#LOGGER.setLevel(logging.CRITICAL)
+#LOGGER.setLevel(logging.DEBUG)
+LOGGER.setLevel(logging.CRITICAL)
 
 TEST_DS_DIR = os.path.join(os.path.dirname(__file__), 'dicom_files')
 DATASET = dcmread(os.path.join(TEST_DS_DIR, 'CTImageStorage.dcm'))
@@ -584,12 +584,18 @@ class TestQRGetServiceClass(object):
         ae = AE()
         ae.add_requested_context(PatientRootQueryRetrieveInformationModelGet)
         ae.add_requested_context(CTImageStorage)
+
+        role = SCP_SCU_RoleSelectionNegotiation()
+        role.sop_class_uid = CTImageStorage.uid
+        role.scu_role = False
+        role.scp_role = True
+
         ae.acse_timeout = 5
         ae.dimse_timeout = 5
         def on_c_store(ds, context, assoc_info):
             return 0x0000
         ae.on_c_store = on_c_store
-        assoc = ae.associate('localhost', 11112)
+        assoc = ae.associate('localhost', 11112, ext_neg=[role])
         assert assoc.is_established
         result = assoc.send_c_get(self.query, query_model='P')
         status, identifier = next(result)
@@ -611,12 +617,18 @@ class TestQRGetServiceClass(object):
         ae = AE()
         ae.add_requested_context(PatientRootQueryRetrieveInformationModelGet)
         ae.add_requested_context(CTImageStorage)
+
+        role = SCP_SCU_RoleSelectionNegotiation()
+        role.sop_class_uid = CTImageStorage.uid
+        role.scu_role = False
+        role.scp_role = True
+
         def on_c_store(ds, context, assoc_info):
             return 0x0000
         ae.on_c_store = on_c_store
         ae.acse_timeout = 5
         ae.dimse_timeout = 5
-        assoc = ae.associate('localhost', 11112)
+        assoc = ae.associate('localhost', 11112, ext_neg=[role])
         assert assoc.is_established
         result = assoc.send_c_get(self.query, query_model='P')
         status, identifier = next(result)
@@ -642,12 +654,18 @@ class TestQRGetServiceClass(object):
         ae = AE()
         ae.add_requested_context(PatientRootQueryRetrieveInformationModelGet)
         ae.add_requested_context(CTImageStorage)
+
+        role = SCP_SCU_RoleSelectionNegotiation()
+        role.sop_class_uid = CTImageStorage.uid
+        role.scu_role = False
+        role.scp_role = True
+
         def on_c_store(ds, context, assoc_info):
             return 0x0000
         ae.on_c_store = on_c_store
         ae.acse_timeout = 5
         ae.dimse_timeout = 5
-        assoc = ae.associate('localhost', 11112)
+        assoc = ae.associate('localhost', 11112, ext_neg=[role])
         assert assoc.is_established
         result = assoc.send_c_get(self.query, query_model='P')
         status, identifier = next(result)
@@ -672,12 +690,18 @@ class TestQRGetServiceClass(object):
         ae = AE()
         ae.add_requested_context(PatientRootQueryRetrieveInformationModelGet)
         ae.add_requested_context(CTImageStorage)
+
+        role = SCP_SCU_RoleSelectionNegotiation()
+        role.sop_class_uid = CTImageStorage.uid
+        role.scu_role = False
+        role.scp_role = True
+
         def on_c_store(ds, context, assoc_info):
             return 0x0000
         ae.on_c_store = on_c_store
         ae.acse_timeout = 5
         ae.dimse_timeout = 5
-        assoc = ae.associate('localhost', 11112)
+        assoc = ae.associate('localhost', 11112, ext_neg=[role])
         assert assoc.is_established
         result = assoc.send_c_get(self.query, query_model='P')
         status, identifier = next(result)
@@ -700,12 +724,18 @@ class TestQRGetServiceClass(object):
         ae = AE()
         ae.add_requested_context(PatientRootQueryRetrieveInformationModelGet)
         ae.add_requested_context(CTImageStorage)
+
+        role = SCP_SCU_RoleSelectionNegotiation()
+        role.sop_class_uid = CTImageStorage.uid
+        role.scu_role = False
+        role.scp_role = True
+
         def on_c_store(ds, context, assoc_info):
             return 0x0000
         ae.on_c_store = on_c_store
         ae.acse_timeout = 5
         ae.dimse_timeout = 5
-        assoc = ae.associate('localhost', 11112)
+        assoc = ae.associate('localhost', 11112, ext_neg=[role])
         assert assoc.is_established
         result = assoc.send_c_get(self.query, query_model='P')
         status, identifier = next(result)
@@ -724,12 +754,18 @@ class TestQRGetServiceClass(object):
         ae = AE()
         ae.add_requested_context(PatientRootQueryRetrieveInformationModelGet)
         ae.add_requested_context(CTImageStorage)
+
+        role = SCP_SCU_RoleSelectionNegotiation()
+        role.sop_class_uid = CTImageStorage.uid
+        role.scu_role = False
+        role.scp_role = True
+
         def on_c_store(ds, context, assoc_info):
             return 0x0000
         ae.on_c_store = on_c_store
         ae.acse_timeout = 5
         ae.dimse_timeout = 5
-        assoc = ae.associate('localhost', 11112)
+        assoc = ae.associate('localhost', 11112, ext_neg=[role])
         assert assoc.is_established
         result = assoc.send_c_get(self.query, query_model='P')
         status, identifier = next(result)
@@ -748,12 +784,18 @@ class TestQRGetServiceClass(object):
         ae = AE()
         ae.add_requested_context(PatientRootQueryRetrieveInformationModelGet)
         ae.add_requested_context(CTImageStorage)
+
+        role = SCP_SCU_RoleSelectionNegotiation()
+        role.sop_class_uid = CTImageStorage.uid
+        role.scu_role = False
+        role.scp_role = True
+
         def on_c_store(ds, context, assoc_info):
             return 0x0000
         ae.on_c_store = on_c_store
         ae.acse_timeout = 5
         ae.dimse_timeout = 5
-        assoc = ae.associate('localhost', 11112)
+        assoc = ae.associate('localhost', 11112, ext_neg=[role])
         assert assoc.is_established
         result = assoc.send_c_get(self.query, query_model='P')
         status, identifier = next(result)
@@ -773,12 +815,18 @@ class TestQRGetServiceClass(object):
         ae = AE()
         ae.add_requested_context(PatientRootQueryRetrieveInformationModelGet)
         ae.add_requested_context(CTImageStorage)
+
+        role = SCP_SCU_RoleSelectionNegotiation()
+        role.sop_class_uid = CTImageStorage.uid
+        role.scu_role = False
+        role.scp_role = True
+
         def on_c_store(ds, context, assoc_info):
             return 0x0000
         ae.on_c_store = on_c_store
         ae.acse_timeout = 5
         ae.dimse_timeout = 5
-        assoc = ae.associate('localhost', 11112)
+        assoc = ae.associate('localhost', 11112, ext_neg=[role])
         assert assoc.is_established
         result = assoc.send_c_get(self.query, query_model='P')
         status, identifier = next(result)
@@ -798,12 +846,18 @@ class TestQRGetServiceClass(object):
         ae = AE()
         ae.add_requested_context(PatientRootQueryRetrieveInformationModelGet)
         ae.add_requested_context(CTImageStorage)
+
+        role = SCP_SCU_RoleSelectionNegotiation()
+        role.sop_class_uid = CTImageStorage.uid
+        role.scu_role = False
+        role.scp_role = True
+
         def on_c_store(ds, context, assoc_info):
             return 0x0000
         ae.on_c_store = on_c_store
         ae.acse_timeout = 5
         ae.dimse_timeout = 5
-        assoc = ae.associate('localhost', 11112)
+        assoc = ae.associate('localhost', 11112, ext_neg=[role])
         assert assoc.is_established
         result = assoc.send_c_get(self.query, query_model='P')
         status, identifier = next(result)
@@ -833,11 +887,17 @@ class TestQRGetServiceClass(object):
         ae = AE()
         ae.add_requested_context(PatientRootQueryRetrieveInformationModelGet)
         ae.add_requested_context(CTImageStorage)
+
+        role = SCP_SCU_RoleSelectionNegotiation()
+        role.sop_class_uid = CTImageStorage.uid
+        role.scu_role = False
+        role.scp_role = True
+
         ae.on_c_store = on_c_store
         ae.acse_timeout = 5
         ae.dimse_timeout = 5
 
-        assoc = ae.associate('localhost', 11112)
+        assoc = ae.associate('localhost', 11112, ext_neg=[role])
         assert assoc.is_established
         result = assoc.send_c_get(self.query, query_model='P')
 
@@ -870,12 +930,18 @@ class TestQRGetServiceClass(object):
         ae = AE()
         ae.add_requested_context(PatientRootQueryRetrieveInformationModelGet)
         ae.add_requested_context(CTImageStorage)
+
+        role = SCP_SCU_RoleSelectionNegotiation()
+        role.sop_class_uid = CTImageStorage.uid
+        role.scu_role = False
+        role.scp_role = True
+
         def on_c_store(ds, context, assoc_info):
             return 0x0000
         ae.on_c_store = on_c_store
         ae.acse_timeout = 5
         ae.dimse_timeout = 5
-        assoc = ae.associate('localhost', 11112)
+        assoc = ae.associate('localhost', 11112, ext_neg=[role])
         assert assoc.is_established
         result = assoc.send_c_get(self.query, query_model='P')
         status, identifier = next(result)
@@ -902,10 +968,16 @@ class TestQRGetServiceClass(object):
         ae = AE()
         ae.add_requested_context(PatientRootQueryRetrieveInformationModelGet)
         ae.add_requested_context(CTImageStorage)
+
+        role = SCP_SCU_RoleSelectionNegotiation()
+        role.sop_class_uid = CTImageStorage.uid
+        role.scu_role = False
+        role.scp_role = True
+
         ae.on_c_store = on_c_store
         ae.acse_timeout = 5
         ae.dimse_timeout = 5
-        assoc = ae.associate('localhost', 11112)
+        assoc = ae.associate('localhost', 11112, ext_neg=[role])
         assert assoc.is_established
         result = assoc.send_c_get(self.query, query_model='P')
         status, identifier = next(result)
@@ -936,10 +1008,16 @@ class TestQRGetServiceClass(object):
         ae = AE()
         ae.add_requested_context(PatientRootQueryRetrieveInformationModelGet)
         ae.add_requested_context(CTImageStorage)
+
+        role = SCP_SCU_RoleSelectionNegotiation()
+        role.sop_class_uid = CTImageStorage.uid
+        role.scu_role = False
+        role.scp_role = True
+
         ae.on_c_store = on_c_store
         ae.acse_timeout = 5
         ae.dimse_timeout = 5
-        assoc = ae.associate('localhost', 11112)
+        assoc = ae.associate('localhost', 11112, ext_neg=[role])
         assert assoc.is_established
         result = assoc.send_c_get(self.query, query_model='P')
         status, identifier = next(result)
@@ -973,10 +1051,16 @@ class TestQRGetServiceClass(object):
         ae = AE()
         ae.add_requested_context(PatientRootQueryRetrieveInformationModelGet)
         ae.add_requested_context(CTImageStorage)
+
+        role = SCP_SCU_RoleSelectionNegotiation()
+        role.sop_class_uid = CTImageStorage.uid
+        role.scu_role = False
+        role.scp_role = True
+
         ae.on_c_store = on_c_store
         ae.acse_timeout = 5
         ae.dimse_timeout = 5
-        assoc = ae.associate('localhost', 11112)
+        assoc = ae.associate('localhost', 11112, ext_neg=[role])
         assert assoc.is_established
         result = assoc.send_c_get(self.query, query_model='P')
         status, identifier = next(result)
@@ -1010,10 +1094,16 @@ class TestQRGetServiceClass(object):
         ae = AE()
         ae.add_requested_context(PatientRootQueryRetrieveInformationModelGet)
         ae.add_requested_context(CTImageStorage)
+
+        role = SCP_SCU_RoleSelectionNegotiation()
+        role.sop_class_uid = CTImageStorage.uid
+        role.scu_role = False
+        role.scp_role = True
+
         ae.on_c_store = on_c_store
         ae.acse_timeout = 5
         ae.dimse_timeout = 5
-        assoc = ae.associate('localhost', 11112)
+        assoc = ae.associate('localhost', 11112, ext_neg=[role])
         assert assoc.is_established
         result = assoc.send_c_get(self.query, query_model='P')
         status, identifier = next(result)
@@ -1044,10 +1134,16 @@ class TestQRGetServiceClass(object):
         ae = AE()
         ae.add_requested_context(PatientRootQueryRetrieveInformationModelGet)
         ae.add_requested_context(CTImageStorage)
+
+        role = SCP_SCU_RoleSelectionNegotiation()
+        role.sop_class_uid = CTImageStorage.uid
+        role.scu_role = False
+        role.scp_role = True
+
         ae.on_c_store = on_c_store
         ae.acse_timeout = 5
         ae.dimse_timeout = 5
-        assoc = ae.associate('localhost', 11112)
+        assoc = ae.associate('localhost', 11112, ext_neg=[role])
         assert assoc.is_established
         result = assoc.send_c_get(self.query, query_model='P')
         status, identifier = next(result)
@@ -1078,10 +1174,16 @@ class TestQRGetServiceClass(object):
         ae = AE()
         ae.add_requested_context(PatientRootQueryRetrieveInformationModelGet)
         ae.add_requested_context(CTImageStorage)
+
+        role = SCP_SCU_RoleSelectionNegotiation()
+        role.sop_class_uid = CTImageStorage.uid
+        role.scu_role = False
+        role.scp_role = True
+
         ae.on_c_store = on_c_store
         ae.acse_timeout = 5
         ae.dimse_timeout = 5
-        assoc = ae.associate('localhost', 11112)
+        assoc = ae.associate('localhost', 11112, ext_neg=[role])
         assert assoc.is_established
         result = assoc.send_c_get(self.query, query_model='P')
         status, identifier = next(result)
@@ -1112,10 +1214,16 @@ class TestQRGetServiceClass(object):
         ae = AE()
         ae.add_requested_context(PatientRootQueryRetrieveInformationModelGet)
         ae.add_requested_context(CTImageStorage)
+
+        role = SCP_SCU_RoleSelectionNegotiation()
+        role.sop_class_uid = CTImageStorage.uid
+        role.scu_role = False
+        role.scp_role = True
+
         ae.on_c_store = on_c_store
         ae.acse_timeout = 5
         ae.dimse_timeout = 5
-        assoc = ae.associate('localhost', 11112)
+        assoc = ae.associate('localhost', 11112, ext_neg=[role])
         assert assoc.is_established
         result = assoc.send_c_get(self.query, query_model='P')
         status, identifier = next(result)
@@ -1152,10 +1260,16 @@ class TestQRGetServiceClass(object):
         ae = AE()
         ae.add_requested_context(PatientRootQueryRetrieveInformationModelGet)
         ae.add_requested_context(CTImageStorage)
+
+        role = SCP_SCU_RoleSelectionNegotiation()
+        role.sop_class_uid = CTImageStorage.uid
+        role.scu_role = False
+        role.scp_role = True
+
         ae.on_c_store = on_c_store
         ae.acse_timeout = 5
         ae.dimse_timeout = 5
-        assoc = ae.associate('localhost', 11112)
+        assoc = ae.associate('localhost', 11112, ext_neg=[role])
         assert assoc.is_established
         result = assoc.send_c_get(self.query, query_model='P')
         status, identifier = next(result)
@@ -1194,10 +1308,16 @@ class TestQRGetServiceClass(object):
         ae = AE()
         ae.add_requested_context(PatientRootQueryRetrieveInformationModelGet)
         ae.add_requested_context(CTImageStorage)
+
+        role = SCP_SCU_RoleSelectionNegotiation()
+        role.sop_class_uid = CTImageStorage.uid
+        role.scu_role = False
+        role.scp_role = True
+
         ae.on_c_store = on_c_store
         ae.acse_timeout = 5
         ae.dimse_timeout = 5
-        assoc = ae.associate('localhost', 11112)
+        assoc = ae.associate('localhost', 11112, ext_neg=[role])
         assert assoc.is_established
         result = assoc.send_c_get(self.query, query_model='P')
         status, identifier = next(result)
@@ -1236,10 +1356,16 @@ class TestQRGetServiceClass(object):
         ae = AE()
         ae.add_requested_context(PatientRootQueryRetrieveInformationModelGet)
         ae.add_requested_context(CTImageStorage)
+
+        role = SCP_SCU_RoleSelectionNegotiation()
+        role.sop_class_uid = CTImageStorage.uid
+        role.scu_role = False
+        role.scp_role = True
+
         ae.on_c_store = on_c_store
         ae.acse_timeout = 5
         ae.dimse_timeout = 5
-        assoc = ae.associate('localhost', 11112)
+        assoc = ae.associate('localhost', 11112, ext_neg=[role])
         assert assoc.is_established
         result = assoc.send_c_get(self.query, query_model='P')
         status, identifier = next(result)
@@ -1270,10 +1396,16 @@ class TestQRGetServiceClass(object):
         ae = AE()
         ae.add_requested_context(PatientRootQueryRetrieveInformationModelGet)
         ae.add_requested_context(CTImageStorage)
+
+        role = SCP_SCU_RoleSelectionNegotiation()
+        role.sop_class_uid = CTImageStorage.uid
+        role.scu_role = False
+        role.scp_role = True
+
         ae.on_c_store = on_c_store
         ae.acse_timeout = 5
         ae.dimse_timeout = 5
-        assoc = ae.associate('localhost', 11112)
+        assoc = ae.associate('localhost', 11112, ext_neg=[role])
         assert assoc.is_established
         result = assoc.send_c_get(self.query, query_model='P')
         status, identifier = next(result)
@@ -1304,10 +1436,16 @@ class TestQRGetServiceClass(object):
         ae = AE()
         ae.add_requested_context(PatientRootQueryRetrieveInformationModelGet)
         ae.add_requested_context(CTImageStorage)
+
+        role = SCP_SCU_RoleSelectionNegotiation()
+        role.sop_class_uid = CTImageStorage.uid
+        role.scu_role = False
+        role.scp_role = True
+
         ae.on_c_store = on_c_store
         ae.acse_timeout = 5
         ae.dimse_timeout = 5
-        assoc = ae.associate('localhost', 11112)
+        assoc = ae.associate('localhost', 11112, ext_neg=[role])
         assert assoc.is_established
         result = assoc.send_c_get(self.query, query_model='P')
         status, identifier = next(result)
@@ -1338,10 +1476,16 @@ class TestQRGetServiceClass(object):
         ae = AE()
         ae.add_requested_context(PatientRootQueryRetrieveInformationModelGet)
         ae.add_requested_context(CTImageStorage)
+
+        role = SCP_SCU_RoleSelectionNegotiation()
+        role.sop_class_uid = CTImageStorage.uid
+        role.scu_role = False
+        role.scp_role = True
+
         ae.on_c_store = on_c_store
         ae.acse_timeout = 5
         ae.dimse_timeout = 5
-        assoc = ae.associate('localhost', 11112)
+        assoc = ae.associate('localhost', 11112, ext_neg=[role])
         assert assoc.is_established
         result = assoc.send_c_get(self.query, query_model='P')
         status, identifier = next(result)
@@ -1372,6 +1516,11 @@ class TestQRGetServiceClass(object):
                                  '1.2.840.10008.1.2.1')
         ae.add_requested_context(CTImageStorage, '1.2.840.10008.1.2.1')
 
+        role = SCP_SCU_RoleSelectionNegotiation()
+        role.sop_class_uid = CTImageStorage.uid
+        role.scu_role = False
+        role.scp_role = True
+
         def on_c_store(ds, context, assoc_info):
             assert context.context_id == 3
             assert context.abstract_syntax == CTImageStorage.uid
@@ -1381,7 +1530,7 @@ class TestQRGetServiceClass(object):
         ae.on_c_store = on_c_store
         ae.acse_timeout = 5
         ae.dimse_timeout = 5
-        assoc = ae.associate('localhost', 11112)
+        assoc = ae.associate('localhost', 11112, ext_neg=[role])
         assert assoc.is_established
         result = assoc.send_c_get(self.query, query_model='P')
         status, identifier = next(result)
@@ -1414,6 +1563,11 @@ class TestQRGetServiceClass(object):
                                  '1.2.840.10008.1.2.1')
         ae.add_requested_context(CTImageStorage, '1.2.840.10008.1.2.1')
 
+        role = SCP_SCU_RoleSelectionNegotiation()
+        role.sop_class_uid = CTImageStorage.uid
+        role.scu_role = False
+        role.scp_role = True
+
         def on_c_store(ds, context, assoc_info):
             assert context.abstract_syntax == CTImageStorage.uid
             assert context.transfer_syntax == '1.2.840.10008.1.2.1'
@@ -1422,7 +1576,7 @@ class TestQRGetServiceClass(object):
         ae.on_c_store = on_c_store
         ae.acse_timeout = 5
         ae.dimse_timeout = 5
-        assoc = ae.associate('localhost', 11112)
+        assoc = ae.associate('localhost', 11112, ext_neg=[role])
         assert assoc.is_established
         result = assoc.send_c_get(self.query, query_model='P')
         status, identifier = next(result)
@@ -2513,10 +2667,16 @@ class TestQRCompositeInstanceWithoutBulk(object):
         ae = AE()
         ae.add_requested_context(CompositeInstanceRetrieveWithoutBulkDataGet)
         ae.add_requested_context(CTImageStorage)
+
+        role = SCP_SCU_RoleSelectionNegotiation()
+        role.sop_class_uid = CTImageStorage.uid
+        role.scp_role = True
+        role.scu_role = False
+
         ae.on_c_store = on_c_store
         ae.acse_timeout = 5
         ae.dimse_timeout = 5
-        assoc = ae.associate('localhost', 11112)
+        assoc = ae.associate('localhost', 11112, ext_neg=[role])
         assert assoc.is_established
         result = assoc.send_c_get(self.query, query_model='CB')
         status, identifier = next(result)
