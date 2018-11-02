@@ -621,7 +621,7 @@ def negotiate_as_acceptor(rq_contexts, ac_contexts, roles=None):
                     context._as_scp = outcome[3]
 
                 # If can't act as either SCU nor SCP then reject the context
-                if not context.as_scu and not context.as_scp:
+                if context.as_scu is False and context.as_scp is False:
                     # No reason (provider rejection)
                     context.result = 0x02
 
@@ -837,7 +837,7 @@ VerificationPresentationContexts = [
 StoragePresentationContexts = [
     build_context('1.2.840.10008.5.1.4.1.1.1'),
     build_context('1.2.840.10008.5.1.4.1.1.1.1'),
-    build_context('1.2.840.10008.5.1.4.1.1.1.1.1.1'),
+    build_context('1.2.840.10008.5.1.4.1.1.1.1.1'),
     build_context('1.2.840.10008.5.1.4.1.1.1.2'),
     build_context('1.2.840.10008.5.1.4.1.1.1.2.1'),
     build_context('1.2.840.10008.5.1.4.1.1.1.3'),

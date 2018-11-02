@@ -427,6 +427,7 @@ class Association(threading.Thread):
         self.acse.accepted_contexts = [
             cx for cx in result if cx.result == 0x00
         ]
+
         self.acse.rejected_contexts = [
             cx for cx in result if cx.result != 0x00
         ]

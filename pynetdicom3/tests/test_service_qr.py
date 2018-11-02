@@ -20,7 +20,7 @@ from pydicom import dcmread
 from pydicom.dataset import Dataset
 from pydicom.uid import ExplicitVRLittleEndian
 
-from pynetdicom3 import AE, build_context
+from pynetdicom3 import AE, build_context, StoragePresentationContexts
 from pynetdicom3.dimse_primitives import C_FIND, C_GET
 from pynetdicom3.presentation import PresentationContext
 from pynetdicom3.pdu_primitives import SCP_SCU_RoleSelectionNegotiation
@@ -1599,6 +1599,64 @@ class TestQRGetServiceClass(object):
         assert self.scp.info['parameters']['message_id'] == 1
         assert self.scp.info['parameters']['priority'] == 2
 
+        self.scp.stop()
+
+    def test_contexts(self):
+        """Test multiple presentation contexts work OK."""
+        self.scp = DummyGetSCP()
+        def on_c_store(ds, context, assoc_info):
+            return 0x0000
+        # SCP should override final success status
+        self.scp.statuses = [0xFF00]
+        self.scp.datasets = [self.ds]
+        self.scp.no_suboperations = 1
+        self.scp.start()
+
+        ae = AE()
+        ae.requested_contexts = StoragePresentationContexts
+        ae.add_requested_context(PatientRootQueryRetrieveInformationModelGet)
+
+        role_selection = []
+        for context in StoragePresentationContexts:
+            role = SCP_SCU_RoleSelectionNegotiation()
+            role.sop_class_uid = context.abstract_syntax
+            role.scu_role = False
+            role.scp_role = True
+            role_selection.append(role)
+
+        ae.on_c_store = on_c_store
+        ae.acse_timeout = 5
+        ae.dimse_timeout = 5
+        assoc = ae.associate('localhost', 11112, ext_neg=role_selection)
+        assert assoc.is_established
+
+        # Check requestor's negotiated contexts
+        storage_uids = [cx.abstract_syntax for cx in StoragePresentationContexts]
+        for cx in assoc.acse.accepted_contexts:
+            if cx.abstract_syntax in storage_uids:
+                # Requestor is acting as SCP for storage contexts
+                assert cx.as_scp is True
+                assert cx.as_scu is False
+            else:
+                # Requestor is acting as SCU for query contexts
+                assert cx.as_scp is False
+                assert cx.as_scu is True
+
+        # Check acceptor's negotiated contexts
+        acc_assoc = self.scp.ae.active_associations[0]
+        for cx in acc_assoc.acse.accepted_contexts:
+            if cx.abstract_syntax in storage_uids:
+                # Acceptor is acting as SCU for storage contexts
+                assert cx.as_scp is False
+                assert cx.as_scu is True
+            else:
+                # Acceptor is acting as SCP for query contexts
+                assert cx.as_scp is True
+                assert cx.as_scu is False
+
+        assert len(acc_assoc.acse.rejected_contexts) == 0
+
+        assoc.release()
         self.scp.stop()
 
 

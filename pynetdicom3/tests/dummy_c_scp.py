@@ -10,7 +10,12 @@ from pydicom import read_file
 from pydicom.dataset import Dataset
 from pydicom.uid import UID, ImplicitVRLittleEndian
 
-from pynetdicom3 import AE, VerificationPresentationContexts, build_context
+from pynetdicom3 import (
+    AE,
+    VerificationPresentationContexts,
+    build_context,
+    StoragePresentationContexts
+)
 from pynetdicom3.sop_class import (
     VerificationSOPClass,
     CTImageStorage, MRImageStorage, RTImageStorage,
@@ -305,10 +310,8 @@ class DummyGetSCP(DummyBaseSCP):
         self.ae.add_supported_context(GenericImplantTemplateInformationModelGet)
         self.ae.add_supported_context(ImplantAssemblyTemplateInformationModelGet)
         self.ae.add_supported_context(ImplantTemplateGroupInformationModelGet)
-        self.ae.add_supported_context(CTImageStorage)
-        cx = self.ae._supported_contexts[CTImageStorage.uid]
-        cx.scp_role = True
-        cx.scu_role = True
+        for cx in StoragePresentationContexts:
+            self.ae.add_supported_context(cx.abstract_syntax, scp_role=True, scu_role=False)
 
         DummyBaseSCP.__init__(self)
         self.statuses = [0x0000]

@@ -623,7 +623,7 @@ REFERENCE_ROLES = [
     ((True, False), (True, False), DEFAULT_ROLE),
     ((True, False), (False, False), CONTEXT_REJECTED),
     ((True, False), (False, True), CONTEXT_REJECTED),  # Invalid
-    # False, True proposed x
+    # False, True proposed
     ((False, True), (None, None), DEFAULT_ROLE),
     ((False, True), (None, True), DEFAULT_ROLE),
     ((False, True), (None, False), DEFAULT_ROLE),
@@ -633,7 +633,7 @@ REFERENCE_ROLES = [
     ((False, True), (True, False), CONTEXT_REJECTED),  # Invalid
     ((False, True), (False, False), CONTEXT_REJECTED),
     ((False, True), (False, True), INVERTED_ROLE),
-    # False, False proposed x
+    # False, False proposed
     ((False, False), (None, None), DEFAULT_ROLE),
     ((False, False), (None, True), DEFAULT_ROLE),
     ((False, False), (None, False), DEFAULT_ROLE),
@@ -675,7 +675,7 @@ class TestNegotiateAsAcceptorWithRoleSelection(object):
                 assert roles[0].scu_role is False
             else:
                 assert roles[0].scu_role == acc[0]
-                
+
             if req[1] is False:
                 assert roles[0].scp_role is False
             else:
@@ -847,6 +847,70 @@ class TestNegotiateAsRequestorWithRoleSelection(object):
         assert result[1].abstract_syntax == CTImageStorage.uid
         assert not result[1].as_scu
         assert result[1].as_scp
+
+    def test_acc_invalid_return_scp(self):
+        """Test that the role negotiation is OK if given invalid SCP value."""
+        # Requestor
+        context_a = build_context(CTImageStorage)
+        context_a.context_id = 3
+        rq_roles = {CTImageStorage.uid : (True, False)}
+        rq_contexts = [context_a]
+
+        # Acceptor
+        context_a = build_context(CompositeInstanceRetrieveWithoutBulkDataGet)
+        context_b = build_context(CTImageStorage)
+        context_b.scu_role = True
+        context_b.scp_role = True
+        ac_contexts = [context_a, context_b]
+
+        # Requestor -> Acceptor
+        result, roles = negotiate_as_acceptor(rq_contexts, ac_contexts, rq_roles)
+        # Force invalid SCP role response
+        roles[0].scp_role = True
+
+        # Acceptor -> Requestor
+        ac_roles = {}
+        for role in roles:
+            ac_roles[role.sop_class_uid] = (role.scu_role, role.scp_role)
+
+        rq_contexts[0].scu_role = True
+        rq_contexts[0].scp_role = False
+        result = negotiate_as_requestor(rq_contexts, result, ac_roles)
+
+        assert result[0].as_scu is True
+        assert result[0].as_scp is False
+
+    def test_acc_invalid_return_scu(self):
+        """Test that the role negotiation is OK if given invalid SCU value."""
+        # Requestor
+        context_a = build_context(CTImageStorage)
+        context_a.context_id = 3
+        rq_roles = {CTImageStorage.uid : (False, True)}
+        rq_contexts = [context_a]
+
+        # Acceptor
+        context_a = build_context(CompositeInstanceRetrieveWithoutBulkDataGet)
+        context_b = build_context(CTImageStorage)
+        context_b.scu_role = True
+        context_b.scp_role = True
+        ac_contexts = [context_a, context_b]
+
+        # Requestor -> Acceptor
+        result, roles = negotiate_as_acceptor(rq_contexts, ac_contexts, rq_roles)
+        # Force invalid SCU role response
+        roles[0].scu_role = True
+
+        # Acceptor -> Requestor
+        ac_roles = {}
+        for role in roles:
+            ac_roles[role.sop_class_uid] = (role.scu_role, role.scp_role)
+
+        rq_contexts[0].scu_role = False
+        rq_contexts[0].scp_role = True
+        result = negotiate_as_requestor(rq_contexts, result, ac_roles)
+
+        assert result[0].as_scu is False
+        assert result[0].as_scp is True
 
 
 class TestNegotiateAsRequestor(object):

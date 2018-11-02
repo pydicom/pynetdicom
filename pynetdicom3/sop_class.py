@@ -121,7 +121,7 @@ _VERIFICATION_CLASSES = {
 _STORAGE_CLASSES = {
     'ComputedRadiographyImageStorage' : '1.2.840.10008.5.1.4.1.1.1',  # A.2
     'DigitalXRayImagePresentationStorage' : '1.2.840.10008.5.1.4.1.1.1.1',  # A.26
-    'DigitalXRayImageProcessingStorage' : '1.2.840.10008.5.1.4.1.1.1.1.1.1',  # A.26
+    'DigitalXRayImageProcessingStorage' : '1.2.840.10008.5.1.4.1.1.1.1.1',  # A.26
     'DigitalMammographyXRayImagePresentationStorage' : '1.2.840.10008.5.1.4.1.1.1.2',  # A.27
     'DigitalMammographyXRayImageProcessingStorage' : '1.2.840.10008.5.1.4.1.1.1.2.1',  # A.27
     'DigitalIntraOralXRayImagePresentationStorage' : '1.2.840.10008.5.1.4.1.1.1.3',  # A.28

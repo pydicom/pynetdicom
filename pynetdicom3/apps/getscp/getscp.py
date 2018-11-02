@@ -175,7 +175,9 @@ def on_c_get(dataset, context, info):
 ae = AE(ae_title=args.aetitle, port=args.port)
 
 for context in StoragePresentationContexts:
-    ae.add_supported_context(context.abstract_syntax, transfer_syntax)
+    ae.add_supported_context(
+        context.abstract_syntax, transfer_syntax, scp_role=True, scu_role=False
+    )
 for context in QueryRetrievePresentationContexts:
     ae.add_supported_context(context.abstract_syntax, transfer_syntax)
 
