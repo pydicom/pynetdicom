@@ -1510,8 +1510,8 @@ class TestServiceContexts(object):
             assert context.context_id is None
 
         assert contexts[0].abstract_syntax == '1.2.840.10008.5.1.4.1.1.1'
-        assert contexts[80].abstract_syntax == '1.2.840.10008.5.1.4.1.1.78.8'
-        assert contexts[-1].abstract_syntax == '1.2.840.10008.5.1.4.34.10'
+        assert contexts[80].abstract_syntax == '1.2.840.10008.5.1.4.1.1.77.1.4.1'
+        assert contexts[-1].abstract_syntax == '1.2.840.10008.5.1.4.1.1.88.70'
 
     def test_qr(self):
         """Test the query/retrieve service presentation contexts."""
@@ -1569,13 +1569,13 @@ class TestServiceContexts(object):
             assert context.transfer_syntax == DEFAULT_TRANSFER_SYNTAXES
             assert context.context_id is None
 
-        assert contexts[0].abstract_syntax == '1.2.840.10008.5.1.4.38.1'
-        assert contexts[1].abstract_syntax == '1.2.840.10008.5.1.4.39.1'
-        assert contexts[2].abstract_syntax == '1.2.840.10008.5.1.4.43.1'
-        assert contexts[3].abstract_syntax == '1.2.840.10008.5.1.4.44.1'
-        assert contexts[4].abstract_syntax == '1.2.840.10008.5.1.4.45.1'
-        assert contexts[5].abstract_syntax == '1.2.840.10008.5.1.4.1.1.200.1'
-        assert contexts[6].abstract_syntax == '1.2.840.10008.5.1.4.1.1.200.3'
+        assert contexts[0].abstract_syntax == '1.2.840.10008.5.1.4.1.1.200.1'
+        assert contexts[1].abstract_syntax == '1.2.840.10008.5.1.4.1.1.200.3'
+        assert contexts[2].abstract_syntax == '1.2.840.10008.5.1.4.38.1'
+        assert contexts[3].abstract_syntax == '1.2.840.10008.5.1.4.39.1'
+        assert contexts[4].abstract_syntax == '1.2.840.10008.5.1.4.43.1'
+        assert contexts[5].abstract_syntax == '1.2.840.10008.5.1.4.44.1'
+        assert contexts[6].abstract_syntax == '1.2.840.10008.5.1.4.45.1'
 
     def test_hanging_protocol(self):
         """Tests with hanging protocol presentation contexts"""

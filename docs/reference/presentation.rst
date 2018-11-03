@@ -21,4 +21,5 @@ Negotiation
 .. autosummary::
    :toctree: generated/
 
-   PresentationService
+   negotiate_as_acceptor
+   negotiate_as_requestor
