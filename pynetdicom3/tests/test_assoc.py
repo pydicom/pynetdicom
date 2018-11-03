@@ -15,9 +15,14 @@ import threading
 
 import pytest
 
-from pydicom import read_file
+from pydicom import dcmread
 from pydicom.dataset import Dataset
-from pydicom.uid import UID, ImplicitVRLittleEndian, ExplicitVRLittleEndian
+from pydicom.uid import (
+    UID,
+    ImplicitVRLittleEndian,
+    ExplicitVRLittleEndian,
+    JPEGBaseline,
+)
 
 from pynetdicom3 import AE, VerificationPresentationContexts
 from pynetdicom3.association import Association
@@ -78,9 +83,9 @@ LOGGER.setLevel(logging.CRITICAL)
 #LOGGER.setLevel(logging.DEBUG)
 
 TEST_DS_DIR = os.path.join(os.path.dirname(__file__), 'dicom_files')
-BIG_DATASET = read_file(os.path.join(TEST_DS_DIR, 'RTImageStorage.dcm')) # 2.1 M
-DATASET = read_file(os.path.join(TEST_DS_DIR, 'CTImageStorage.dcm'))
-COMP_DATASET = read_file(os.path.join(TEST_DS_DIR, 'MRImageStorage_JPG2000_Lossless.dcm'))
+BIG_DATASET = dcmread(os.path.join(TEST_DS_DIR, 'RTImageStorage.dcm')) # 2.1 M
+DATASET = dcmread(os.path.join(TEST_DS_DIR, 'CTImageStorage.dcm'))
+COMP_DATASET = dcmread(os.path.join(TEST_DS_DIR, 'MRImageStorage_JPG2000_Lossless.dcm'))
 
 
 class DummyDIMSE(object):
@@ -1201,6 +1206,31 @@ class TestAssociationSendCStore(object):
         assert result.Status == 0xFFF0
         assoc.release()
         assert assoc.is_released
+        self.scp.stop()
+
+    # Regression tests
+    def test_no_send_mismatch(self):
+        """Test sending a dataset with mismatched transfer syntax (206)."""
+        self.scp = DummyStorageSCP()
+        self.scp.start()
+
+        ds = dcmread(os.path.join(TEST_DS_DIR, 'CTImageStorage.dcm'))
+        ds.file_meta.TransferSyntaxUID = JPEGBaseline
+
+        ae = AE()
+        ae.add_requested_context(CTImageStorage, ImplicitVRLittleEndian)
+        ae.acse_timeout = 5
+        ae.dimse_timeout = 5
+        assoc = ae.associate('localhost', 11112)
+        assert assoc.is_established
+
+        msg = r""
+        with pytest.raises(ValueError, match=msg):
+            assoc.send_c_store(ds)
+
+        assoc.release()
+        assert assoc.is_released
+
         self.scp.stop()
 
 
