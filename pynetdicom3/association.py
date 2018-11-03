@@ -19,6 +19,7 @@ from pynetdicom3.dimse_primitives import (
 )
 from pynetdicom3.dsutils import decode, encode
 from pynetdicom3.dul import DULServiceProvider
+from pynetdicom3.presentation import negotiate_as_acceptor
 from pynetdicom3.sop_class import (
     uid_to_sop_class,
     uid_to_service_class,
@@ -62,12 +63,12 @@ from pynetdicom3.sop_class import (
 from pynetdicom3.pdu_primitives import (UserIdentityNegotiation,
                                         SOPClassExtendedNegotiation,
                                         SOPClassCommonExtendedNegotiation,
+                                        SCP_SCU_RoleSelectionNegotiation,
                                         A_ASSOCIATE, A_ABORT, A_P_ABORT)
 from pynetdicom3.status import (
     code_to_status, code_to_category, STORAGE_SERVICE_CLASS_STATUS,
     STATUS_WARNING, STATUS_SUCCESS
 )
-from pynetdicom3.utils import PresentationContextManager
 # pylint: enable=no-name-in-module
 
 LOGGER = logging.getLogger('pynetdicom3.assoc')
@@ -358,44 +359,43 @@ class Association(threading.Thread):
                 reject_assoc_rsd = [(0x01, 0x01, 0x07)]
 
         ## DUL ACSE Related Rejections
-        #
         # User Identity Negotiation (PS3.7 Annex D.3.3.7)
-        for ii in assoc_rq.user_information:
-            if isinstance(ii, UserIdentityNegotiation):
-                # Used to notify the association acceptor of the user
-                #   identity of the association requestor. It may also
-                #   request that the Acceptor response with the server
-                #   identity.
-                #
-                # The Acceptor does not provide an A-ASSOCIATE response
-                #   unless a positive response is requested and user
-                #   authentication succeeded. If a positive response
-                #   was requested, the A-ASSOCIATE response shall contain
-                #   a User Identity sub-item. If a Kerberos ticket is used
-                #   the response shall include a Kerberos server ticket
-                #
-                # A positive response must be requested if the association
-                #   requestor requires confirmation. If the Acceptor does
-                #   not support user identification it will accept the
-                #   association without making a positive response. The
-                #   Requestor can then decide whether to proceed
+        # TODO: Implement propoerly but for now just remove items
+        # Used to notify the association acceptor of the user
+        #   identity of the association requestor. It may also
+        #   request that the Acceptor response with the server
+        #   identity.
+        #
+        # The Acceptor does not provide an A-ASSOCIATE response
+        #   unless a positive response is requested and user
+        #   authentication succeeded. If a positive response
+        #   was requested, the A-ASSOCIATE response shall contain
+        #   a User Identity sub-item. If a Kerberos ticket is used
+        #   the response shall include a Kerberos server ticket
+        #
+        # A positive response must be requested if the association
+        #   requestor requires confirmation. If the Acceptor does
+        #   not support user identification it will accept the
+        #   association without making a positive response. The
+        #   Requestor can then decide whether to proceed
 
-                #user_authorised = self.ae.on_user_identity(
-                #                       ii.UserIdentityType,
-                #                       ii.PrimaryField,
-                #                       ii.SecondaryField)
+        #user_authorised = self.ae.on_user_identity(
+        #                       ii.UserIdentityType,
+        #                       ii.PrimaryField,
+        #                       ii.SecondaryField)
 
-                # Associate with all requestors
-                assoc_rq.user_information.remove(ii)
-
-                # Testing
-                #if ii.PositiveResponseRequested:
-                #    ii.ServerResponse = b''
+        # Associate with all requestors
+        assoc_rq.user_information[:] = (
+            ii for ii in assoc_rq.user_information
+                if not isinstance(ii, UserIdentityNegotiation)
+        )
 
         # Extended Negotiation
-        for ii in assoc_rq.user_information:
-            if isinstance(ii, SOPClassExtendedNegotiation):
-                assoc_rq.user_information.remove(ii)
+        # TODO: Implement propoerly but for now just remove items
+        assoc_rq.user_information[:] = (
+            ii for ii in assoc_rq.user_information
+                if not isinstance(ii, SOPClassExtendedNegotiation)
+        )
 
         ## DUL Presentation Related Rejections
         #
@@ -410,14 +410,35 @@ class Association(threading.Thread):
             self.kill()
             return
 
-        ## Presentation Contexts
-        self.acse.context_manager = PresentationContextManager()
-        self.acse.context_manager.requestor_contexts = \
-                            assoc_rq.presentation_context_definition_list
-        self.acse.context_manager.acceptor_contexts = self.ae.supported_contexts
+        ## Negotiate Presentation Contexts
+        # SCP/SCU Role Selection Negotiation request items
+        # {SOP Class UID : (SCU role, SCP role)}
+        rq_roles = {}
+        for ii in assoc_rq.user_information:
+            if isinstance(ii, SCP_SCU_RoleSelectionNegotiation):
+                rq_roles[ii.sop_class_uid] = (ii.scu_role, ii.scp_role)
 
-        self.acse.accepted_contexts = self.acse.context_manager.accepted
-        self.acse.rejected_contexts = self.acse.context_manager.rejected
+        # Remove role selection items
+        assoc_rq.user_information[:] = (
+            ii for ii in assoc_rq.user_information
+                if not isinstance(ii, SCP_SCU_RoleSelectionNegotiation)
+        )
+
+        result, ac_roles = negotiate_as_acceptor(
+            assoc_rq.presentation_context_definition_list,
+            self.ae.supported_contexts,
+            rq_roles
+        )
+        self.acse.accepted_contexts = [
+            cx for cx in result if cx.result == 0x00
+        ]
+
+        self.acse.rejected_contexts = [
+            cx for cx in result if cx.result != 0x00
+        ]
+
+        # Add any SCP/SCU Role Selection Negotiation response items
+        assoc_rq.user_information.extend(ac_roles)
 
         # Save the peer AE details
         self.peer_ae['ae_title'] = assoc_rq.calling_ae_title
@@ -597,23 +618,22 @@ class Association(threading.Thread):
             self.kill()
             return
 
-        # Build role extended negotiation - FIXME - needs updating
-        #   in particular, when running a C-GET user the role selection
-        #   needs to be set prior to association
-        #
-        # SCP/SCU Role Negotiation (optional)
-        #self.ext_neg = []
-        #for context in self.AE.presentation_contexts_scu:
-        #    tmp = SCP_SCU_RoleSelectionParameters()
-        #    tmp.SOPClassUID = context.abstract_syntax
-        #    tmp.SCURole = 0
-        #    tmp.SCPRole = 1
-        #
-        #    self.ext_neg.append(tmp)
-
         local_ae = {'address' : self.ae.address,
                     'port' : self.ae.port,
                     'ae_title' : self.ae.ae_title}
+
+        # Apply requestor's SCP/SCU role selection (if any)
+        roles = {}
+        for ii in self.ext_neg:
+            if isinstance(ii, SCP_SCU_RoleSelectionNegotiation):
+                roles[ii.sop_class_uid] = (ii.scu_role, ii.scp_role)
+
+        if roles:
+            for cx in self.requested_contexts:
+                try:
+                    (cx.scu_role, cx.scp_role) = roles[cx.abstract_syntax]
+                except KeyError:
+                    pass
 
         # Request an Association via the ACSE
         is_accepted, assoc_rsp = self.acse.request_assoc(
@@ -640,14 +660,6 @@ class Association(threading.Thread):
                     self.kill()
 
                     return
-
-                # Build supported SOP Classes for the Association
-                self.scu_supported_sop = []
-                for context in self.acse.accepted_contexts:
-                    self.scu_supported_sop.append(
-                        (context.context_id,
-                         uid_to_sop_class(context.abstract_syntax),
-                         context.transfer_syntax[0]))
 
                 # Assocation established OK
                 self.is_established = True
@@ -802,12 +814,11 @@ class Association(threading.Thread):
 
         # Get the Presentation Context we are operating under
         context_id = None
-        for context in self.acse.context_manager.accepted:
-            if uid == context.abstract_syntax:
+        for context in self.acse.accepted_contexts:
+            if uid == context.abstract_syntax and context.as_scu:
                 context_id = context.context_id
                 break
-
-        if context_id is None:
+        else:
             LOGGER.error("No accepted Presentation Context for '%s'", uid)
             raise ValueError("No accepted Presentation Context for "
                              "'Verification SOP Class'.")
@@ -959,9 +970,9 @@ class Association(threading.Thread):
         # Determine the Presentation Context we are operating under
         #   and hence the transfer syntax to use for encoding `dataset`
         transfer_syntax = None
-        for context in self.acse.context_manager.accepted:
+        for context in self.acse.accepted_contexts:
             try:
-                if dataset.SOPClassUID == context.abstract_syntax:
+                if dataset.SOPClassUID == context.abstract_syntax and context.as_scu:
                     transfer_syntax = context.transfer_syntax[0]
                     context_id = context.context_id
                     break
@@ -972,10 +983,9 @@ class Association(threading.Thread):
                 LOGGER.error("Store SCU failed due to there being no valid "
                              "presentation context for the current dataset")
                 raise ex
-
-        if transfer_syntax is None:
+        else:
             LOGGER.error("Association.send_c_store - no accepted Presentation "
-                         " Context for: '%s'", dataset.SOPClassUID)
+                         "Context for: '%s'", dataset.SOPClassUID)
             LOGGER.error("Store SCU failed due to there being no accepted "
                          "presentation context for the current dataset")
             raise ValueError("No accepted Presentation Context for 'dataset'.")
@@ -1244,13 +1254,12 @@ class Association(threading.Thread):
         # Determine the Presentation Context we are operating under
         #   and hence the transfer syntax to use for encoding `dataset`
         transfer_syntax = None
-        for context in self.acse.context_manager.accepted:
-            if sop_class.uid == context.abstract_syntax:
+        for context in self.acse.accepted_contexts:
+            if sop_class.uid == context.abstract_syntax and context.as_scu:
                 transfer_syntax = context.transfer_syntax[0]
                 context_id = context.context_id
                 break
-
-        if transfer_syntax is None:
+        else:
             LOGGER.error("No accepted Presentation Context for: '%s'",
                          sop_class.uid)
             LOGGER.error("Find SCU failed due to there being no accepted "
@@ -1516,13 +1525,12 @@ class Association(threading.Thread):
         # Determine the Presentation Context we are operating under
         #   and hence the transfer syntax to use for encoding `dataset`
         transfer_syntax = None
-        for context in self.acse.context_manager.accepted:
-            if sop_class.uid == context.abstract_syntax:
+        for context in self.acse.accepted_contexts:
+            if sop_class.uid == context.abstract_syntax and context.as_scu:
                 transfer_syntax = context.transfer_syntax[0]
                 context_id = context.context_id
                 break
-
-        if transfer_syntax is None:
+        else:
             LOGGER.error("No accepted Presentation Context for: '%s'",
                          sop_class.uid)
             LOGGER.error("Move SCU failed due to there being no accepted "
@@ -1837,13 +1845,12 @@ class Association(threading.Thread):
         # Determine the Presentation Context we are operating under
         #   and hence the transfer syntax to use for encoding `dataset`
         transfer_syntax = None
-        for context in self.acse.context_manager.accepted:
-            if sop_class.uid == context.abstract_syntax:
+        for context in self.acse.accepted_contexts:
+            if sop_class.uid == context.abstract_syntax and context.as_scu:
                 transfer_syntax = context.transfer_syntax[0]
                 context_id = context.context_id
                 break
-
-        if transfer_syntax is None:
+        else:
             LOGGER.error("No accepted Presentation Context for: '%s'",
                          sop_class.uid)
             LOGGER.error("Get SCU failed due to there being no accepted "
@@ -2009,12 +2016,11 @@ class Association(threading.Thread):
         rsp.AffectedSOPClassUID = req.AffectedSOPClassUID
 
         transfer_syntax = None
-        for context in self.acse.context_manager.accepted:
-            if req.AffectedSOPClassUID == context.abstract_syntax:
+        for context in self.acse.accepted_contexts:
+            if req.AffectedSOPClassUID == context.abstract_syntax and context.as_scp:
                 transfer_syntax = context.transfer_syntax[0]
                 break
-
-        if transfer_syntax is None:
+        else:
             LOGGER.error("No accepted Presentation Context for: '%s'",
                          req.AffectedSOPClassUID)
             # SOP Class not supported, no context ID?
@@ -2205,8 +2211,8 @@ class Association(threading.Thread):
         # Determine the Presentation Context we are operating under
         #   and hence the transfer syntax to use for encoding `dataset`
         transfer_syntax = None
-        for context in self.acse.context_manager.accepted:
-            if class_uid == context.abstract_syntax:
+        for context in self.acse.accepted_contexts:
+            if class_uid == context.abstract_syntax and context.as_scu:
                 transfer_syntax = context.transfer_syntax[0]
                 context_id = context.context_id
                 break
@@ -2377,8 +2383,8 @@ class Association(threading.Thread):
         # Determine the Presentation Context we are operating under
         #   and hence the transfer syntax to use for encoding `dataset`
         transfer_syntax = None
-        for context in self.acse.context_manager.accepted:
-            if class_uid == context.abstract_syntax:
+        for context in self.acse.accepted_contexts:
+            if class_uid == context.abstract_syntax and context.as_scu:
                 transfer_syntax = context.transfer_syntax[0]
                 context_id = context.context_id
                 break
@@ -2531,8 +2537,8 @@ class Association(threading.Thread):
         # Determine the Presentation Context we are operating under
         #   and hence the transfer syntax to use for encoding `dataset`
         transfer_syntax = None
-        for context in self.acse.context_manager.accepted:
-            if class_uid == context.abstract_syntax:
+        for context in self.acse.accepted_contexts:
+            if class_uid == context.abstract_syntax and context.as_scu:
                 transfer_syntax = context.transfer_syntax[0]
                 context_id = context.context_id
                 break
@@ -2695,8 +2701,8 @@ class Association(threading.Thread):
         # Determine the Presentation Context we are operating under
         #   and hence the transfer syntax to use for encoding `dataset`
         transfer_syntax = None
-        for context in self.acse.context_manager.accepted:
-            if class_uid == context.abstract_syntax:
+        for context in self.acse.accepted_contexts:
+            if class_uid == context.abstract_syntax and context.as_scu:
                 transfer_syntax = context.transfer_syntax[0]
                 context_id = context.context_id
                 break
@@ -2858,8 +2864,8 @@ class Association(threading.Thread):
         # Determine the Presentation Context we are operating under
         #   and hence the transfer syntax to use for encoding `dataset`
         transfer_syntax = None
-        for context in self.acse.context_manager.accepted:
-            if class_uid == context.abstract_syntax:
+        for context in self.acse.accepted_contexts:
+            if class_uid == context.abstract_syntax and context.as_scu:
                 transfer_syntax = context.transfer_syntax[0]
                 context_id = context.context_id
                 break
@@ -3005,8 +3011,8 @@ class Association(threading.Thread):
         # Determine the Presentation Context we are operating under
         #   and hence the transfer syntax to use for encoding `dataset`
         transfer_syntax = None
-        for context in self.acse.context_manager.accepted:
-            if class_uid == context.abstract_syntax:
+        for context in self.acse.accepted_contexts:
+            if class_uid == context.abstract_syntax and context.as_scu:
                 transfer_syntax = context.transfer_syntax[0]
                 context_id = context.context_id
                 break

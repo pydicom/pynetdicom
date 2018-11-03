@@ -10,7 +10,12 @@ from pydicom import read_file
 from pydicom.dataset import Dataset
 from pydicom.uid import UID, ImplicitVRLittleEndian
 
-from pynetdicom3 import AE, VerificationPresentationContexts
+from pynetdicom3 import (
+    AE,
+    VerificationPresentationContexts,
+    build_context,
+    StoragePresentationContexts
+)
 from pynetdicom3.sop_class import (
     VerificationSOPClass,
     CTImageStorage, MRImageStorage, RTImageStorage,
@@ -227,7 +232,7 @@ class DummyStorageSCP(DummyBaseSCP):
         self.ae.add_supported_context(PatientRootQueryRetrieveInformationModelMove)
         self.ae.add_supported_context(StudyRootQueryRetrieveInformationModelMove)
         self.ae.add_supported_context(PatientStudyOnlyQueryRetrieveInformationModelMove)
-        self.ae.add_supported_context(CTImageStorage)
+        self.ae.add_supported_context(CTImageStorage, scp_role=True, scu_role=True)
         self.ae.add_supported_context(RTImageStorage)
         self.ae.add_supported_context(MRImageStorage)
         self.ae.add_supported_context(HangingProtocolStorage)
@@ -305,9 +310,8 @@ class DummyGetSCP(DummyBaseSCP):
         self.ae.add_supported_context(GenericImplantTemplateInformationModelGet)
         self.ae.add_supported_context(ImplantAssemblyTemplateInformationModelGet)
         self.ae.add_supported_context(ImplantTemplateGroupInformationModelGet)
-        self.ae.add_supported_context(CTImageStorage)
-
-        self.ae.add_requested_context(CTImageStorage)
+        for cx in StoragePresentationContexts:
+            self.ae.add_supported_context(cx.abstract_syntax, scp_role=True, scu_role=False)
 
         DummyBaseSCP.__init__(self)
         self.statuses = [0x0000]

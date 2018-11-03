@@ -125,7 +125,7 @@ _STORAGE_CLASSES = {
     'DigitalMammographyXRayImagePresentationStorage' : '1.2.840.10008.5.1.4.1.1.1.2',  # A.27
     'DigitalMammographyXRayImageProcessingStorage' : '1.2.840.10008.5.1.4.1.1.1.2.1',  # A.27
     'DigitalIntraOralXRayImagePresentationStorage' : '1.2.840.10008.5.1.4.1.1.1.3',  # A.28
-    'DigitalIntraOralXRayImageProcessingStorage' : '1.2.840.10008.5.1.1.4.1.1.3.1',  # A.28
+    'DigitalIntraOralXRayImageProcessingStorage' : '1.2.840.10008.5.1.4.1.1.1.3.1',  # A.28
     'CTImageStorage' : '1.2.840.10008.5.1.4.1.1.2',  # A.3
     'EnhancedCTImageStorage' : '1.2.840.10008.5.1.4.1.1.2.1',  # A.38
     'LegacyConvertedEnhancedCTImageStorage' : '1.2.840.10008.5.1.4.1.1.2.2',  # A.70
@@ -330,7 +330,7 @@ _PRINT_MANAGEMENT_CLASSES = {
     'BasicFilmBoxSOPClass' : '1.2.840.10008.5.1.1.2',
     'BasicGrayscaleImageBoxSOPClass' : '1.2.840.10008.5.1.1.4',
     'BasicColourImageBoxSOPClass' : '1.2.840.10008.5.1.1.4.1',
-    'PrintJobSOPClass' : '1.2.840.100008.5.1.1.14',
+    'PrintJobSOPClass' : '1.2.840.10008.5.1.1.14',
     'BasicAnnotationBoxSOPClass' : '1.2.840.10008.5.1.1.15',
     'PrinterSOPClass' : '1.2.840.10008.5.1.1.16',
     'PrinterConfigurationRetrievalSOPClass' : '1.2.840.10008.5.1.1.16.376',

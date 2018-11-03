@@ -5,7 +5,6 @@ from pydicom.uid import UID
 
 from pynetdicom3 import StorageSOPClassList
 from pynetdicom3.presentation import PresentationContext, PresentationService
-from pynetdicom3.utils import PresentationContextManager
 
 
 class TimePresentationContext:
@@ -122,13 +121,6 @@ class TimePresentationAcceptorRoleNegotiation(object):
                                             self.acceptor_contexts)
 
 
-    def time_pcm_ac_role(self):
-        """Time PresentationContextManager with SCP/SCU role negotiation."""
-        pcm = PresentationContextManager()
-        pcm.requestor_contexts = self.requestor_contexts
-        pcm.acceptor_contexts = self.acceptor_contexts
-
-
 class TimePresentationRequestorRoleNegotiation(object):
     """Time presentation context negotiation as requestor with SCP/SCU Role
     Selection
@@ -170,13 +162,6 @@ class TimePresentationRequestorRoleNegotiation(object):
                                             self.acceptor_contexts)
 
 
-    def time_pcm_rq_role(self):
-        """Time PresentationContextManager with SCP/SCU role negotiation."""
-        pcm = PresentationContextManager()
-        pcm.requestor_contexts = self.requestor_contexts
-        pcm.acceptor_contexts = self.acceptor_contexts
-
-
 class TimePresentationAcceptor(object):
     """Time presentation context negotiation as acceptor"""
     def setup(self):
@@ -215,13 +200,6 @@ class TimePresentationAcceptor(object):
         presentation.negotiate_as_acceptor(self.requestor_contexts,
                                            self.acceptor_contexts)
 
-    def time_pcm_basic(self):
-        """Time a basic PresentationContextManager negotiation"""
-        pcm = PresentationContextManager()
-        pcm.requestor_contexts = self.requestor_contexts
-        pcm.acceptor_contexts = self.acceptor_contexts
-        accepted = pcm.accepted
-
 
 class TimePresentationRequestor(object):
     """Time presentation context negotiation as requestor"""
@@ -257,9 +235,3 @@ class TimePresentationRequestor(object):
         presentation = PresentationService()
         presentation.negotiate_as_requestor(self.requestor_contexts,
                                             self.acceptor_contexts)
-
-    def time_pcm_rq_basic(self):
-        """Time a basic PresentationContextManager negotiation"""
-        pcm = PresentationContextManager()
-        pcm.requestor_contexts = self.requestor_contexts
-        pcm.acceptor_contexts = self.acceptor_contexts

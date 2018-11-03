@@ -29,7 +29,8 @@ from pynetdicom3.pdu_primitives import (
     ImplementationVersionNameNotification, SCP_SCU_RoleSelectionNegotiation,
     AsynchronousOperationsWindowNegotiation, UserIdentityNegotiation
 )
-from pynetdicom3.utils import pretty_bytes, PresentationContext
+from pynetdicom3.presentation import PresentationContext
+from pynetdicom3.utils import pretty_bytes
 from .encoded_pdu_items import (
     a_associate_rq, a_associate_ac, a_associate_rq_user_async,
     asynchronous_window_ops, a_associate_rq_role, user_identity_rq_user_nopw,

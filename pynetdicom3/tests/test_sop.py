@@ -2,6 +2,8 @@
 
 import pytest
 
+from pydicom._uid_dict import UID_dictionary
+
 from pynetdicom3.sop_class import (
     uid_to_sop_class,
     uid_to_service_class,
@@ -48,6 +50,36 @@ from pynetdicom3.service_class import (
 from pynetdicom3.service_class_n import (
     DisplaySystemManagementServiceClass,
 )
+
+
+def test_all_sop_classes():
+    """Test that all the SOP Class UIDs are correct."""
+    for uid in _VERIFICATION_CLASSES.values():
+        assert uid in UID_dictionary
+    for uid in _STORAGE_CLASSES.values():
+        assert uid in UID_dictionary
+    for uid in _QR_CLASSES.values():
+        assert uid in UID_dictionary
+    for uid in _BASIC_WORKLIST_CLASSES.values():
+        assert uid in UID_dictionary
+    for uid in _RELEVANT_PATIENT_QUERY_CLASSES.values():
+        assert uid in UID_dictionary
+    for uid in _SUBSTANCE_ADMINISTRATION_CLASSES.values():
+        assert uid in UID_dictionary
+    for uid in _NON_PATIENT_OBJECT_CLASSES.values():
+        assert uid in UID_dictionary
+    for uid in _PRINT_MANAGEMENT_CLASSES.values():
+        assert uid in UID_dictionary
+    for uid in _PROCEDURE_STEP_CLASSES.values():
+        assert uid in UID_dictionary
+    for uid in _DISPLAY_SYSTEM_CLASSES.values():
+        assert uid in UID_dictionary
+    for uid in _MEDIA_STORAGE_CLASSES.values():
+        assert uid in UID_dictionary
+    for uid in _UNITED_PROCEDURE_STEP_CLASSES.values():
+        assert uid in UID_dictionary
+    for uid in _RT_MACHINE_VERIFICATION_CLASSES.values():
+        assert uid in UID_dictionary
 
 
 class TestUIDtoSOPlass(object):
