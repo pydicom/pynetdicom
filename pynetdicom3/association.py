@@ -360,6 +360,7 @@ class Association(threading.Thread):
 
         ## DUL ACSE Related Rejections
         # User Identity Negotiation (PS3.7 Annex D.3.3.7)
+        # FIXME: iteratively removing like this doesnt work
         for ii in assoc_rq.user_information:
             if isinstance(ii, UserIdentityNegotiation):
                 # Used to notify the association acceptor of the user
@@ -393,6 +394,7 @@ class Association(threading.Thread):
                 #    ii.ServerResponse = b''
 
         # Extended Negotiation
+        # FIXME: iteratively removing like this doesnt work
         for ii in assoc_rq.user_information:
             if isinstance(ii, SOPClassExtendedNegotiation):
                 assoc_rq.user_information.remove(ii)
@@ -417,7 +419,12 @@ class Association(threading.Thread):
         for ii in assoc_rq.user_information:
             if isinstance(ii, SCP_SCU_RoleSelectionNegotiation):
                 rq_roles[ii.sop_class_uid] = (ii.scu_role, ii.scp_role)
-                assoc_rq.user_information.remove(ii)
+
+        # Remove role selection items
+        assoc_rq.user_information[:] = (
+            ii for ii in assoc_rq.user_information
+                if not isinstance(ii, SCP_SCU_RoleSelectionNegotiation)
+        )
 
         result, ac_roles = negotiate_as_acceptor(
             assoc_rq.presentation_context_definition_list,
@@ -629,6 +636,7 @@ class Association(threading.Thread):
                     (cx.scu_role, cx.scp_role) = roles[cx.abstract_syntax]
                 except KeyError:
                     pass
+                print(cx.scu_role, cx.scp_role)
 
         # Request an Association via the ACSE
         is_accepted, assoc_rsp = self.acse.request_assoc(
@@ -655,14 +663,6 @@ class Association(threading.Thread):
                     self.kill()
 
                     return
-
-                # Build supported SOP Classes for the Association
-                self.scu_supported_sop = []
-                for context in self.acse.accepted_contexts:
-                    self.scu_supported_sop.append(
-                        (context.context_id,
-                         uid_to_sop_class(context.abstract_syntax),
-                         context.transfer_syntax[0]))
 
                 # Assocation established OK
                 self.is_established = True

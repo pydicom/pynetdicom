@@ -542,11 +542,11 @@ def negotiate_as_acceptor(rq_contexts, ac_contexts, roles=None):
 
     roles = roles or {}
     result_contexts = []
-    reply_roles = []
+    reply_roles = {}
 
     # No requestor presentation contexts
     if not rq_contexts:
-        return result_contexts, reply_roles
+        return result_contexts, []
 
     # Acceptor doesn't support any presentation contexts
     if not ac_contexts:
@@ -557,7 +557,7 @@ def negotiate_as_acceptor(rq_contexts, ac_contexts, roles=None):
             context.transfer_syntax = [rq_context.transfer_syntax[0]]
             context.result = 0x03
             result_contexts.append(context)
-        return result_contexts, reply_roles
+        return result_contexts, []
 
     # Optimisation notes (for iterating through contexts only, not
     #   including actual context negotiation)
@@ -583,6 +583,8 @@ def negotiate_as_acceptor(rq_contexts, ac_contexts, roles=None):
         context = PresentationContext()
         context.context_id = cntx_id
         context.abstract_syntax = ab_syntax
+        context._as_scu = False
+        context._as_scp = False
 
         # Check if the acceptor supports the Abstract Syntax
         if ab_syntax in acceptor_contexts:
@@ -616,14 +618,16 @@ def negotiate_as_acceptor(rq_contexts, ac_contexts, roles=None):
                     #   don't send an SCP/SCU negotiation reply
                     has_role = False
                 else:
+                    # Use a LUT to make changes to outcomes easier
+                    #   also its much simpler than coding if/then branches
                     outcome = SCP_SCU_ROLES[rq_roles][ac_roles]
                     context._as_scu = outcome[2]
                     context._as_scp = outcome[3]
 
                 # If can't act as either SCU nor SCP then reject the context
                 if context.as_scu is False and context.as_scp is False:
-                    # No reason (provider rejection)
-                    context.result = 0x02
+                    # User rejection
+                    context.result = 0x01
 
             # Need to check against None as 0x00 is a possible value
             if context.result is None:
@@ -647,16 +651,21 @@ def negotiate_as_acceptor(rq_contexts, ac_contexts, roles=None):
                 else:
                     role.scp_role = ac_context.scp_role
 
-                reply_roles.append(role)
+                reply_roles[context.abstract_syntax] = role
         else:
             # Reject context - abstract syntax not supported
             context.result = 0x03
             context.transfer_syntax = [rq_context.transfer_syntax[0]]
             result_contexts.append(context)
 
-    # Sort by presentation context ID and return
+    # Sort by presentation context ID
     #   This isn't required by the DICOM Standard but its a nice thing to do
-    return sorted(result_contexts, key=lambda x: x.context_id), reply_roles
+    result_contexts = sorted(result_contexts, key=lambda x: x.context_id)
+
+    # Sort role selection by abstract syntax, also not required but nice
+    reply_roles = sorted(reply_roles.values(), key=lambda x: x.sop_class_uid)
+
+    return result_contexts, reply_roles
 
 
 def negotiate_as_requestor(rq_contexts, ac_contexts, roles=None):
@@ -723,6 +732,9 @@ def negotiate_as_requestor(rq_contexts, ac_contexts, roles=None):
         context = PresentationContext()
         context.context_id = context_id
         context.abstract_syntax = rq_context.abstract_syntax
+        # Ensure we always have a role set
+        context._as_scu = False
+        context._as_scp = False
 
         if context_id in acceptor_contexts:
             # Convenience variable
@@ -733,13 +745,14 @@ def negotiate_as_requestor(rq_contexts, ac_contexts, roles=None):
             context.result = ac_context.result
 
             ## SCP/SCU Role Selection Negotiation
-            # Skip if context rejected or acceptor ignored proposal
             rq_roles = (rq_context.scu_role, rq_context.scp_role)
             try:
                 ac_roles = roles[context.abstract_syntax]
             except KeyError:
                 ac_roles = (None, None)
 
+            # Skip if context rejected or acceptor ignored proposal
+            print(rq_roles, ac_roles, ac_context.result)
             if ac_context.result == 0x00 and None not in ac_roles:
                 outcome = SCP_SCU_ROLES[rq_roles][ac_roles]
                 context._as_scu = outcome[0]

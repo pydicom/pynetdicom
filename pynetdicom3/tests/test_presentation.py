@@ -665,7 +665,7 @@ class TestNegotiateAsAcceptorWithRoleSelection(object):
         assert result[0].as_scu == out[2]
         assert result[0].as_scp == out[3]
         if out == CONTEXT_REJECTED:
-            assert result[0].result == 0x02
+            assert result[0].result == 0x01
         else:
             assert result[0].result == 0x00
 
@@ -712,7 +712,7 @@ class TestNegotiateAsAcceptorWithRoleSelection(object):
         assert result[2].as_scp == True
         assert result[2].result == 0x0000
 
-        assert len(roles) == 2
+        assert len(roles) == 1
         for role in roles:
             assert role.sop_class_uid == '1.2.3.4'
             assert role.scu_role == False
@@ -749,6 +749,136 @@ class TestNegotiateAsAcceptorWithRoleSelection(object):
         assert roles[0].sop_class_uid == '1.2.3.4'
         assert roles[0].scu_role == False
         assert roles[0].scp_role == True
+
+    @pytest.mark.parametrize("req, acc, out", REFERENCE_ROLES)
+    def test_combination_role(self, req, acc, out):
+        """Test that a combination of results works correctly."""
+        # No role selection
+        rq_contexts = []
+        ac_contexts = []
+
+        # 0x00 - accepted
+        rq_contexts.append(build_context('1.1.1'))
+        rq_contexts.append(build_context('1.1.2'))
+        rq_contexts.append(build_context('1.1.2'))
+        rq_contexts.append(build_context('1.1.3'))
+        ac_contexts.append(build_context('1.1.1'))
+        ac_contexts.append(build_context('1.1.2'))
+        ac_contexts.append(build_context('1.1.3'))
+
+        # 0x01 - user rejected - only achievable with role selection
+
+        # 0x02 - provider rejected - not achievable as acceptor
+
+        # 0x03 - abstract syyntax not supported
+        rq_contexts.append(build_context('1.4.1'))
+        rq_contexts.append(build_context('1.4.2'))
+        rq_contexts.append(build_context('1.4.2'))
+        rq_contexts.append(build_context('1.4.3'))
+
+        # 0x04 - transfer syntax not supported
+        rq_contexts.append(build_context('1.5.1', '1.2'))
+        rq_contexts.append(build_context('1.5.2', '1.2'))
+        rq_contexts.append(build_context('1.5.2', '1.2'))
+        rq_contexts.append(build_context('1.5.3', '1.2'))
+        ac_contexts.append(build_context('1.5.1'))
+        ac_contexts.append(build_context('1.5.2'))
+        ac_contexts.append(build_context('1.5.3'))
+
+        # Role selection
+        rq_roles = {}
+        # 0x00 - accepted and 0x01 - user rejected
+        for uid in ['2.1.1', '2.1.2', '2.1.2', '2.1.3']:
+            rq_contexts.append(build_context(uid))
+            rq_roles[uid] = (req[0], req[1])
+            cx = build_context(uid)
+            cx.scu_role = acc[0]
+            cx.scp_role = acc[1]
+            ac_contexts.append(cx)
+
+        # 0x03 - abstract syntax not supported
+        for uid in ['2.4.1', '2.4.2', '2.4.2', '2.4.3']:
+            rq_contexts.append(build_context(uid))
+            rq_roles[uid] = (req[0], req[1])
+
+        # 0x04 - transfer syntax not supported
+        for uid in ['2.5.1', '2.5.2', '2.5.2', '2.5.3']:
+            rq_contexts.append(build_context(uid, '1.2'))
+            rq_roles[uid] = (req[0], req[1])
+            cx = build_context(uid)
+            cx.scu_role = acc[0]
+            cx.scp_role = acc[1]
+            ac_contexts.append(cx)
+
+        for ii, cx in enumerate(rq_contexts):
+            cx.context_id = (ii + 1) * 2 - 1
+
+        results, roles = negotiate_as_acceptor(rq_contexts, ac_contexts, rq_roles)
+
+        out_00 = [cx for cx in results if cx.result == 0x00]
+        out_01 = [cx for cx in results if cx.result == 0x01]
+        out_02 = [cx for cx in results if cx.result == 0x02]
+        out_03 = [cx for cx in results if cx.result == 0x03]
+        out_04 = [cx for cx in results if cx.result == 0x04]
+        out_na = [cx for cx in results if cx.result is None]
+
+        out_00_role = [cx for cx in out_00 if cx.abstract_syntax[0] == '2']
+        # Unique UIDs with role selection
+        out_00_uids = set([cx.abstract_syntax for cx in out_00_role])
+
+        # If acceptor has None as role then no SCP/SCU role response
+        if None not in acc:
+            assert len(out_00_uids) == len(roles)
+
+        # Raw results
+        if out == CONTEXT_REJECTED:
+            assert len(out_01) == 4
+            assert len(out_00) == 4
+        else:
+            assert len(out_00) == 8
+            assert len(out_01) == 0
+
+        # Always
+        assert len(out_02) == 0
+        assert len(out_03) == 8
+        assert len(out_04) == 8
+        assert len(out_na) == 0
+
+        # Test individual results
+        assert out_00[0].abstract_syntax == '1.1.1'
+        assert out_00[1].abstract_syntax == '1.1.2'
+        assert out_00[2].abstract_syntax == '1.1.2'
+        assert out_00[3].abstract_syntax == '1.1.3'
+
+        for cx in out_00:
+            if cx.abstract_syntax[0] == '2':
+                assert cx.as_scu == out[2]
+                assert cx.as_scp == out[3]
+            else:
+                assert cx.as_scu is False
+                assert cx.as_scp is True
+
+        if out == CONTEXT_REJECTED:
+            assert out_01[0].abstract_syntax == '2.1.1'
+            assert out_01[1].abstract_syntax == '2.1.2'
+            assert out_01[2].abstract_syntax == '2.1.2'
+            assert out_01[3].abstract_syntax == '2.1.3'
+
+            for cx in out_01:
+                assert cx.as_scu is False
+                assert cx.as_scp is False
+
+        for cx in out_02:
+            assert cx.as_scu is False
+            assert cx.as_scp is False
+
+        for cx in out_03:
+            assert cx.as_scu is False
+            assert cx.as_scp is False
+
+        for cx in out_04:
+            assert cx.as_scu is False
+            assert cx.as_scp is False
 
 
 class TestNegotiateAsRequestorWithRoleSelection(object):
@@ -911,6 +1041,110 @@ class TestNegotiateAsRequestorWithRoleSelection(object):
 
         assert result[0].as_scu is False
         assert result[0].as_scp is True
+
+    @pytest.mark.parametrize("req, acc, out", REFERENCE_ROLES)
+    def test_combination(self, req, acc, out):
+        """Test that returned combinations work OK."""
+        ## GENERATE ACCEPTOR RESPONSE
+        # No role selection
+        rq_contexts = []
+        ac_contexts = []
+
+        # 0x00 - accepted
+        rq_contexts.append(build_context('1.1.1'))
+        rq_contexts.append(build_context('1.1.2'))
+        rq_contexts.append(build_context('1.1.2'))
+        rq_contexts.append(build_context('1.1.3'))
+        ac_contexts.append(build_context('1.1.1'))
+        ac_contexts.append(build_context('1.1.2'))
+        ac_contexts.append(build_context('1.1.3'))
+
+        # 0x01 - user rejected - only achievable with role selection
+
+        # 0x02 - provider rejected - not achievable as acceptor
+
+        # 0x03 - abstract syyntax not supported
+        rq_contexts.append(build_context('1.4.1'))
+        rq_contexts.append(build_context('1.4.2'))
+        rq_contexts.append(build_context('1.4.2'))
+        rq_contexts.append(build_context('1.4.3'))
+
+        # 0x04 - transfer syntax not supported
+        rq_contexts.append(build_context('1.5.1', '1.2'))
+        rq_contexts.append(build_context('1.5.2', '1.2'))
+        rq_contexts.append(build_context('1.5.2', '1.2'))
+        rq_contexts.append(build_context('1.5.3', '1.2'))
+        ac_contexts.append(build_context('1.5.1'))
+        ac_contexts.append(build_context('1.5.2'))
+        ac_contexts.append(build_context('1.5.3'))
+
+        # Role selection
+        rq_roles = {}
+        # 0x00 - accepted and 0x01 - user rejected
+        for uid in ['2.1.1', '2.1.2', '2.1.2', '2.1.3']:
+            rq_contexts.append(build_context(uid))
+            rq_roles[uid] = (req[0], req[1])
+            cx = build_context(uid)
+            cx.scu_role = acc[0]
+            cx.scp_role = acc[1]
+            ac_contexts.append(cx)
+
+        # 0x03 - abstract syntax not supported
+        for uid in ['2.4.1', '2.4.2', '2.4.2', '2.4.3']:
+            rq_contexts.append(build_context(uid))
+            rq_roles[uid] = (req[0], req[1])
+
+        # 0x04 - transfer syntax not supported
+        for uid in ['2.5.1', '2.5.2', '2.5.2', '2.5.3']:
+            rq_contexts.append(build_context(uid, '1.2'))
+            rq_roles[uid] = (req[0], req[1])
+            cx = build_context(uid)
+            cx.scu_role = acc[0]
+            cx.scp_role = acc[1]
+            ac_contexts.append(cx)
+
+        for ii, cx in enumerate(rq_contexts):
+            cx.context_id = (ii + 1) * 2 - 1
+
+        results, roles = negotiate_as_acceptor(rq_contexts, ac_contexts, rq_roles)
+
+        ## TEST REQUESTOR NEGOTIATION
+        for cx in rq_contexts:
+            if '2' == cx.abstract_syntax[0]:
+                cx.scu_role = req[0]
+                cx.scp_role = req[1]
+
+        roles = {rr.sop_class_uid : (rr.scu_role, rr.scp_role) for rr in roles}
+        results = negotiate_as_requestor(rq_contexts, results, roles)
+
+        out_00 = [cx for cx in results if cx.result == 0x00]
+        out_01 = [cx for cx in results if cx.result == 0x01]
+        out_02 = [cx for cx in results if cx.result == 0x02]
+        out_03 = [cx for cx in results if cx.result == 0x03]
+        out_04 = [cx for cx in results if cx.result == 0x04]
+        out_na = [cx for cx in results if cx.result is None]
+
+        if out != CONTEXT_REJECTED:
+            assert len(out_00) == 8
+            assert len(out_01) == 0
+
+            for cx in out_00:
+                if cx.abstract_syntax[0] == '2':
+                    assert cx.as_scu == out[0]
+                    assert cx.as_scp == out[1]
+                else:
+                    assert cx.as_scu is True
+                    assert cx.as_scp is False
+        else:
+            assert len(out_00) == 4
+            assert len(out_01) == 4
+
+        # Always
+        assert len(out_02) == 0
+        assert len(out_03) == 8
+        assert len(out_04) == 8
+        assert len(out_na) == 0
+
 
 
 class TestNegotiateAsRequestor(object):
