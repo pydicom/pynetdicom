@@ -362,7 +362,8 @@ Depending on the requirements of the service class, an association requestor
 may include SCP/SCU Role Selection Negotiation items
 in the association request and it's up to the association acceptor to decide
 whether or not to accept the proposed roles. This can be done through the
-``scu_role`` and ``scp_role`` parameters:
+``scu_role`` and ``scp_role`` parameters, which control whether or not the
+association acceptor will accept or reject the proposal:
 
 >>> from pynetdicom3 import AE
 >>> from pynetdicom3.sop_class import CTImageStorage
@@ -373,10 +374,12 @@ If either ``scu_role`` or ``scp_role`` is None (the default) then no response
 to the role selection will be sent and the default roles assumed. If you wish
 to accept a proposed role then set the corresponding parameter to ``True``. In
 the above example if the requestor proposes the SCP role then the acceptor will
-accept it while rejecting the proposed SCU role.
+accept it while rejecting the proposed SCU role (and therefore the acceptor
+will be SCU and requestor SCP).
 
 To reiterate, if you wish to respond to the proposed role selection then
-**both** ``scu_role`` and ``scp_role`` must be set.
+**both** ``scu_role`` and ``scp_role`` must be set, and the value you set
+indicates whether or not to accept or reject the proposal.
 
 There are four possible outcomes for the role selection negotiation, depending
 on what was proposed and what was accepted:

@@ -206,10 +206,6 @@ Context.</li>
 <ul class="simple">
 <li>If no role selection negotiation then the requestor is SCU and the
 acceptor is SCP</li>
-<li>If the proposed role is rejected then the roles default to requestor as
-SCU and acceptor as SCP</li>
-<li>If the association requestor proposes the role value of 0 then that role
-shall be the default role.</li>
 <li>The association acceptor cannot return accept a role that has not been
 proposed (i.e. cannot return 1 when the proposed value is 0).</li>
 <li>The association requestor may be SCP only, SCU only or both SCU and SCP.</li>
@@ -230,10 +226,10 @@ proposed (i.e. cannot return 1 when the proposed value is 0).</li>
 <th class="head" colspan="2">Outcome</th>
 <th class="head" rowspan="2">Notes</th>
 </tr>
-<tr class="row-even"><th class="head">SCU Role</th>
-<th class="head">SCP Role</th>
-<th class="head">SCU Role</th>
-<th class="head">SCP Role</th>
+<tr class="row-even"><th class="head">scu_role</th>
+<th class="head">scp_role</th>
+<th class="head">scu_role</th>
+<th class="head">scp_role</th>
 <th class="head">Req.</th>
 <th class="head">Acc.</th>
 </tr>
@@ -247,60 +243,60 @@ proposed (i.e. cannot return 1 when the proposed value is 0).</li>
 <td>SCP</td>
 <td>Default</td>
 </tr>
-<tr class="row-even"><td rowspan="4">0x01</td>
-<td rowspan="4">0x01</td>
-<td rowspan="2">0x00</td>
-<td>0x00</td>
+<tr class="row-even"><td rowspan="4">True</td>
+<td rowspan="4">True</td>
+<td rowspan="2">False</td>
+<td>False</td>
 <td>N/A</td>
 <td>N/A</td>
 <td>Rejected</td>
 </tr>
-<tr class="row-odd"><td>0x01</td>
+<tr class="row-odd"><td>True</td>
 <td>SCP</td>
 <td>SCU</td>
 <td>&#160;</td>
 </tr>
-<tr class="row-even"><td rowspan="2">0x01</td>
-<td>0x00</td>
+<tr class="row-even"><td rowspan="2">True</td>
+<td>False</td>
 <td>SCU</td>
 <td>SCP</td>
 <td>Default</td>
 </tr>
-<tr class="row-odd"><td>0x01</td>
+<tr class="row-odd"><td>True</td>
 <td>SCU/SCP</td>
 <td>SCU/SCP</td>
 <td>&#160;</td>
 </tr>
-<tr class="row-even"><td rowspan="2">0x01</td>
-<td rowspan="2">0x00</td>
-<td>0x00</td>
-<td rowspan="2">0x00</td>
+<tr class="row-even"><td rowspan="2">True</td>
+<td rowspan="2">False</td>
+<td>False</td>
+<td rowspan="2">False</td>
 <td>N/A</td>
 <td>N/A</td>
 <td>Rejected</td>
 </tr>
-<tr class="row-odd"><td>0x01</td>
+<tr class="row-odd"><td>True</td>
 <td>SCU</td>
 <td>SCP</td>
 <td>Default</td>
 </tr>
-<tr class="row-even"><td rowspan="2">0x00</td>
-<td rowspan="2">0x01</td>
-<td rowspan="2">0x00</td>
-<td>0x00</td>
+<tr class="row-even"><td rowspan="2">False</td>
+<td rowspan="2">True</td>
+<td rowspan="2">False</td>
+<td>False</td>
 <td>N/A</td>
 <td>N/A</td>
 <td>Rejected</td>
 </tr>
-<tr class="row-odd"><td>0x01</td>
+<tr class="row-odd"><td>True</td>
 <td>SCP</td>
 <td>SCU</td>
 <td>&#160;</td>
 </tr>
-<tr class="row-even"><td>0x00</td>
-<td>0x00</td>
-<td>0x00</td>
-<td>0x00</td>
+<tr class="row-even"><td>False</td>
+<td>False</td>
+<td>False</td>
+<td>False</td>
 <td>N/A</td>
 <td>N/A</td>
 <td>Rejected</td>

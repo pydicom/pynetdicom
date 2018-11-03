@@ -567,7 +567,8 @@ transfer syntaxes will be combined with the pre-existing context:</p>
 may include SCP/SCU Role Selection Negotiation items
 in the association request and it’s up to the association acceptor to decide
 whether or not to accept the proposed roles. This can be done through the
-<code class="docutils literal notranslate"><span class="pre">scu_role</span></code> and <code class="docutils literal notranslate"><span class="pre">scp_role</span></code> parameters:</p>
+<code class="docutils literal notranslate"><span class="pre">scu_role</span></code> and <code class="docutils literal notranslate"><span class="pre">scp_role</span></code> parameters, which control whether or not the
+association acceptor will accept or reject the proposal:</p>
 <div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="kn">from</span> <span class="nn">pynetdicom3</span> <span class="k">import</span> <span class="n">AE</span>
 <span class="gp">&gt;&gt;&gt; </span><span class="kn">from</span> <span class="nn">pynetdicom3.sop_class</span> <span class="k">import</span> <span class="n">CTImageStorage</span>
 <span class="gp">&gt;&gt;&gt; </span><span class="n">ae</span> <span class="o">=</span> <span class="n">AE</span><span class="p">()</span>
@@ -578,9 +579,11 @@ whether or not to accept the proposed roles. This can be done through the
 to the role selection will be sent and the default roles assumed. If you wish
 to accept a proposed role then set the corresponding parameter to <code class="docutils literal notranslate"><span class="pre">True</span></code>. In
 the above example if the requestor proposes the SCP role then the acceptor will
-accept it while rejecting the proposed SCU role.</p>
+accept it while rejecting the proposed SCU role (and therefore the acceptor
+will be SCU and requestor SCP).</p>
 <p>To reiterate, if you wish to respond to the proposed role selection then
-<strong>both</strong> <code class="docutils literal notranslate"><span class="pre">scu_role</span></code> and <code class="docutils literal notranslate"><span class="pre">scp_role</span></code> must be set.</p>
+<strong>both</strong> <code class="docutils literal notranslate"><span class="pre">scu_role</span></code> and <code class="docutils literal notranslate"><span class="pre">scp_role</span></code> must be set, and the value you set
+indicates whether or not to accept or reject the proposal.</p>
 <p>There are four possible outcomes for the role selection negotiation, depending
 on what was proposed and what was accepted:</p>
 <ul class="simple">
