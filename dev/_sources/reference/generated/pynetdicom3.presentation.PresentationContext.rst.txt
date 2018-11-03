@@ -25,8 +25,12 @@ pynetdicom3.presentation.PresentationContext
    .. autosummary::
    
       ~PresentationContext.abstract_syntax
+      ~PresentationContext.as_scp
+      ~PresentationContext.as_scu
       ~PresentationContext.as_tuple
       ~PresentationContext.context_id
+      ~PresentationContext.scp_role
+      ~PresentationContext.scu_role
       ~PresentationContext.status
       ~PresentationContext.transfer_syntax
    

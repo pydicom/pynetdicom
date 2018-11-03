@@ -180,6 +180,7 @@
     <span class="n">ExplicitVRBigEndian</span>
 <span class="p">)</span>
 
+
 <span class="n">LOGGER</span> <span class="o">=</span> <span class="n">logging</span><span class="o">.</span><span class="n">getLogger</span><span class="p">(</span><span class="s1">&#39;pynetdicom3.presentation&#39;</span><span class="p">)</span>
 
 <span class="c1"># The default transfer syntaxes used when creating Presentation Contexts</span>
@@ -195,6 +196,72 @@
                                       <span class="p">[</span><span class="s1">&#39;context_id&#39;</span><span class="p">,</span>
                                        <span class="s1">&#39;abstract_syntax&#39;</span><span class="p">,</span>
                                        <span class="s1">&#39;transfer_syntax&#39;</span><span class="p">])</span>
+
+
+<span class="n">DEFAULT_ROLE</span> <span class="o">=</span> <span class="p">(</span><span class="kc">True</span><span class="p">,</span> <span class="kc">False</span><span class="p">,</span> <span class="kc">False</span><span class="p">,</span> <span class="kc">True</span><span class="p">)</span>
+<span class="n">BOTH_SCU_SCP_ROLE</span> <span class="o">=</span> <span class="p">(</span><span class="kc">True</span><span class="p">,</span> <span class="kc">True</span><span class="p">,</span> <span class="kc">True</span><span class="p">,</span> <span class="kc">True</span><span class="p">)</span>
+<span class="n">CONTEXT_REJECTED</span> <span class="o">=</span> <span class="p">(</span><span class="kc">False</span><span class="p">,</span> <span class="kc">False</span><span class="p">,</span> <span class="kc">False</span><span class="p">,</span> <span class="kc">False</span><span class="p">)</span>
+<span class="n">INVERTED_ROLE</span> <span class="o">=</span> <span class="p">(</span><span class="kc">False</span><span class="p">,</span> <span class="kc">True</span><span class="p">,</span> <span class="kc">True</span><span class="p">,</span> <span class="kc">False</span><span class="p">)</span>
+<span class="n">SCP_SCU_ROLES</span> <span class="o">=</span> <span class="p">{</span>
+    <span class="c1"># Req role, ac role, Outcome</span>
+    <span class="c1"># No SCP/SCU Role Selection proposed</span>
+    <span class="p">(</span><span class="kc">None</span><span class="p">,</span> <span class="kc">None</span><span class="p">)</span> <span class="p">:</span> <span class="p">{</span>
+        <span class="p">(</span><span class="kc">None</span><span class="p">,</span> <span class="kc">None</span><span class="p">)</span> <span class="p">:</span> <span class="n">DEFAULT_ROLE</span><span class="p">,</span>
+        <span class="p">(</span><span class="kc">None</span><span class="p">,</span> <span class="kc">True</span><span class="p">)</span> <span class="p">:</span> <span class="n">DEFAULT_ROLE</span><span class="p">,</span>
+        <span class="p">(</span><span class="kc">None</span><span class="p">,</span> <span class="kc">False</span><span class="p">)</span> <span class="p">:</span> <span class="n">DEFAULT_ROLE</span><span class="p">,</span>
+        <span class="p">(</span><span class="kc">True</span><span class="p">,</span> <span class="kc">None</span><span class="p">)</span> <span class="p">:</span> <span class="n">DEFAULT_ROLE</span><span class="p">,</span>
+        <span class="p">(</span><span class="kc">False</span><span class="p">,</span> <span class="kc">None</span><span class="p">)</span> <span class="p">:</span> <span class="n">DEFAULT_ROLE</span><span class="p">,</span>
+        <span class="p">(</span><span class="kc">True</span><span class="p">,</span> <span class="kc">True</span><span class="p">)</span> <span class="p">:</span> <span class="n">DEFAULT_ROLE</span><span class="p">,</span>
+        <span class="p">(</span><span class="kc">True</span><span class="p">,</span> <span class="kc">False</span><span class="p">)</span> <span class="p">:</span> <span class="n">DEFAULT_ROLE</span><span class="p">,</span>
+        <span class="p">(</span><span class="kc">False</span><span class="p">,</span> <span class="kc">False</span><span class="p">)</span> <span class="p">:</span> <span class="n">DEFAULT_ROLE</span><span class="p">,</span>
+        <span class="p">(</span><span class="kc">False</span><span class="p">,</span> <span class="kc">True</span><span class="p">)</span> <span class="p">:</span> <span class="n">DEFAULT_ROLE</span><span class="p">,</span>
+    <span class="p">},</span>
+    <span class="p">(</span><span class="kc">True</span><span class="p">,</span> <span class="kc">True</span><span class="p">)</span> <span class="p">:</span> <span class="p">{</span>
+        <span class="p">(</span><span class="kc">None</span><span class="p">,</span> <span class="kc">None</span><span class="p">)</span> <span class="p">:</span> <span class="n">DEFAULT_ROLE</span><span class="p">,</span>
+        <span class="p">(</span><span class="kc">None</span><span class="p">,</span> <span class="kc">True</span><span class="p">)</span> <span class="p">:</span> <span class="n">DEFAULT_ROLE</span><span class="p">,</span>
+        <span class="p">(</span><span class="kc">None</span><span class="p">,</span> <span class="kc">False</span><span class="p">)</span> <span class="p">:</span> <span class="n">DEFAULT_ROLE</span><span class="p">,</span>
+        <span class="p">(</span><span class="kc">True</span><span class="p">,</span> <span class="kc">None</span><span class="p">)</span> <span class="p">:</span> <span class="n">DEFAULT_ROLE</span><span class="p">,</span>
+        <span class="p">(</span><span class="kc">False</span><span class="p">,</span> <span class="kc">None</span><span class="p">)</span> <span class="p">:</span> <span class="n">DEFAULT_ROLE</span><span class="p">,</span>
+        <span class="p">(</span><span class="kc">True</span><span class="p">,</span> <span class="kc">True</span><span class="p">)</span> <span class="p">:</span> <span class="n">BOTH_SCU_SCP_ROLE</span><span class="p">,</span>
+        <span class="p">(</span><span class="kc">True</span><span class="p">,</span> <span class="kc">False</span><span class="p">)</span> <span class="p">:</span> <span class="n">DEFAULT_ROLE</span><span class="p">,</span>
+        <span class="p">(</span><span class="kc">False</span><span class="p">,</span> <span class="kc">False</span><span class="p">)</span> <span class="p">:</span> <span class="n">CONTEXT_REJECTED</span><span class="p">,</span>
+        <span class="p">(</span><span class="kc">False</span><span class="p">,</span> <span class="kc">True</span><span class="p">)</span> <span class="p">:</span> <span class="n">INVERTED_ROLE</span><span class="p">,</span>
+    <span class="p">},</span>
+    <span class="p">(</span><span class="kc">True</span><span class="p">,</span> <span class="kc">False</span><span class="p">)</span> <span class="p">:</span> <span class="p">{</span>
+        <span class="p">(</span><span class="kc">None</span><span class="p">,</span> <span class="kc">None</span><span class="p">)</span> <span class="p">:</span> <span class="n">DEFAULT_ROLE</span><span class="p">,</span>
+        <span class="p">(</span><span class="kc">None</span><span class="p">,</span> <span class="kc">True</span><span class="p">)</span> <span class="p">:</span> <span class="n">DEFAULT_ROLE</span><span class="p">,</span>
+        <span class="p">(</span><span class="kc">None</span><span class="p">,</span> <span class="kc">False</span><span class="p">)</span> <span class="p">:</span> <span class="n">DEFAULT_ROLE</span><span class="p">,</span>
+        <span class="p">(</span><span class="kc">True</span><span class="p">,</span> <span class="kc">None</span><span class="p">)</span> <span class="p">:</span> <span class="n">DEFAULT_ROLE</span><span class="p">,</span>
+        <span class="p">(</span><span class="kc">False</span><span class="p">,</span> <span class="kc">None</span><span class="p">)</span> <span class="p">:</span> <span class="n">DEFAULT_ROLE</span><span class="p">,</span>
+        <span class="p">(</span><span class="kc">True</span><span class="p">,</span> <span class="kc">True</span><span class="p">)</span> <span class="p">:</span> <span class="n">DEFAULT_ROLE</span><span class="p">,</span>  <span class="c1"># Invalid</span>
+        <span class="p">(</span><span class="kc">True</span><span class="p">,</span> <span class="kc">False</span><span class="p">)</span> <span class="p">:</span> <span class="n">DEFAULT_ROLE</span><span class="p">,</span>
+        <span class="p">(</span><span class="kc">False</span><span class="p">,</span> <span class="kc">False</span><span class="p">)</span> <span class="p">:</span> <span class="n">CONTEXT_REJECTED</span><span class="p">,</span>
+        <span class="p">(</span><span class="kc">False</span><span class="p">,</span> <span class="kc">True</span><span class="p">)</span> <span class="p">:</span> <span class="n">CONTEXT_REJECTED</span><span class="p">,</span>  <span class="c1"># Invalid</span>
+    <span class="p">},</span>
+    <span class="p">(</span><span class="kc">False</span><span class="p">,</span> <span class="kc">True</span><span class="p">)</span> <span class="p">:</span> <span class="p">{</span>
+        <span class="p">(</span><span class="kc">None</span><span class="p">,</span> <span class="kc">None</span><span class="p">)</span> <span class="p">:</span> <span class="n">DEFAULT_ROLE</span><span class="p">,</span>
+        <span class="p">(</span><span class="kc">None</span><span class="p">,</span> <span class="kc">True</span><span class="p">)</span> <span class="p">:</span> <span class="n">DEFAULT_ROLE</span><span class="p">,</span>
+        <span class="p">(</span><span class="kc">None</span><span class="p">,</span> <span class="kc">False</span><span class="p">)</span> <span class="p">:</span> <span class="n">DEFAULT_ROLE</span><span class="p">,</span>
+        <span class="p">(</span><span class="kc">True</span><span class="p">,</span> <span class="kc">None</span><span class="p">)</span> <span class="p">:</span> <span class="n">DEFAULT_ROLE</span><span class="p">,</span>
+        <span class="p">(</span><span class="kc">False</span><span class="p">,</span> <span class="kc">None</span><span class="p">)</span> <span class="p">:</span> <span class="n">DEFAULT_ROLE</span><span class="p">,</span>
+        <span class="p">(</span><span class="kc">True</span><span class="p">,</span> <span class="kc">True</span><span class="p">)</span> <span class="p">:</span> <span class="n">INVERTED_ROLE</span><span class="p">,</span>  <span class="c1"># Invalid</span>
+        <span class="p">(</span><span class="kc">True</span><span class="p">,</span> <span class="kc">False</span><span class="p">)</span> <span class="p">:</span> <span class="n">CONTEXT_REJECTED</span><span class="p">,</span>  <span class="c1"># Invalid</span>
+        <span class="p">(</span><span class="kc">False</span><span class="p">,</span> <span class="kc">False</span><span class="p">)</span> <span class="p">:</span> <span class="n">CONTEXT_REJECTED</span><span class="p">,</span>
+        <span class="p">(</span><span class="kc">False</span><span class="p">,</span> <span class="kc">True</span><span class="p">)</span> <span class="p">:</span> <span class="n">INVERTED_ROLE</span><span class="p">,</span>
+    <span class="p">},</span>
+    <span class="c1"># False, False proposed x</span>
+    <span class="p">(</span><span class="kc">False</span><span class="p">,</span> <span class="kc">False</span><span class="p">)</span> <span class="p">:</span> <span class="p">{</span>
+        <span class="p">(</span><span class="kc">None</span><span class="p">,</span> <span class="kc">None</span><span class="p">)</span> <span class="p">:</span> <span class="n">DEFAULT_ROLE</span><span class="p">,</span>
+        <span class="p">(</span><span class="kc">None</span><span class="p">,</span> <span class="kc">True</span><span class="p">)</span> <span class="p">:</span> <span class="n">DEFAULT_ROLE</span><span class="p">,</span>
+        <span class="p">(</span><span class="kc">None</span><span class="p">,</span> <span class="kc">False</span><span class="p">)</span> <span class="p">:</span> <span class="n">DEFAULT_ROLE</span><span class="p">,</span>
+        <span class="p">(</span><span class="kc">True</span><span class="p">,</span> <span class="kc">None</span><span class="p">)</span> <span class="p">:</span> <span class="n">DEFAULT_ROLE</span><span class="p">,</span>
+        <span class="p">(</span><span class="kc">False</span><span class="p">,</span> <span class="kc">None</span><span class="p">)</span> <span class="p">:</span> <span class="n">DEFAULT_ROLE</span><span class="p">,</span>
+        <span class="p">(</span><span class="kc">True</span><span class="p">,</span> <span class="kc">True</span><span class="p">)</span> <span class="p">:</span> <span class="n">CONTEXT_REJECTED</span><span class="p">,</span>  <span class="c1"># Invalid</span>
+        <span class="p">(</span><span class="kc">True</span><span class="p">,</span> <span class="kc">False</span><span class="p">)</span> <span class="p">:</span> <span class="n">CONTEXT_REJECTED</span><span class="p">,</span>  <span class="c1"># Invalid</span>
+        <span class="p">(</span><span class="kc">False</span><span class="p">,</span> <span class="kc">False</span><span class="p">)</span> <span class="p">:</span> <span class="n">CONTEXT_REJECTED</span><span class="p">,</span>
+        <span class="p">(</span><span class="kc">False</span><span class="p">,</span> <span class="kc">True</span><span class="p">)</span> <span class="p">:</span> <span class="n">CONTEXT_REJECTED</span><span class="p">,</span>  <span class="c1"># Invalid</span>
+    <span class="p">},</span>
+<span class="p">}</span>
 
 
 <div class="viewcode-block" id="PresentationContext"><a class="viewcode-back" href="../../reference/generated/pynetdicom3.presentation.PresentationContext.html#pynetdicom3.presentation.PresentationContext">[docs]</a><span class="k">class</span> <span class="nc">PresentationContext</span><span class="p">(</span><span class="nb">object</span><span class="p">):</span>
@@ -224,15 +291,78 @@
 <span class="sd">    - The Presentation Contexts may be sent by the Requestor in any order.</span>
 <span class="sd">    - The Presentation Contexts may be sent by the Acceptor in any order.</span>
 
+<span class="sd">    **SCP/SCU Role Selection Negotiation**</span>
+
+<span class="sd">    - If no role selection negotiation then the requestor is SCU and the</span>
+<span class="sd">      acceptor is SCP</span>
+<span class="sd">    - If the proposed role is rejected then the roles default to requestor as</span>
+<span class="sd">      SCU and acceptor as SCP</span>
+<span class="sd">    - If the association requestor proposes the role value of 0 then that role</span>
+<span class="sd">      shall be the default role.</span>
+<span class="sd">    - The association acceptor cannot return accept a role that has not been</span>
+<span class="sd">      proposed (i.e. cannot return 1 when the proposed value is 0).</span>
+<span class="sd">    - The association requestor may be SCP only, SCU only or both SCU and SCP.</span>
+
+<span class="sd">    +---------------------+---------------------+-------------------+----------+</span>
+<span class="sd">    | Requestor           | Acceptor            | Outcome           | Notes    |</span>
+<span class="sd">    +----------+----------+----------+----------+---------+---------+          |</span>
+<span class="sd">    | SCU Role | SCP Role | SCU Role | SCP Role | Req.    | Acc.    |          |</span>
+<span class="sd">    +==========+==========+==========+==========+=========+=========+==========+</span>
+<span class="sd">    | N/A      | N/A      | N/A      | N/A      | SCU     | SCP     | Default  |</span>
+<span class="sd">    +----------+----------+----------+----------+---------+---------+----------+</span>
+<span class="sd">    | 0x01     | 0x01     | 0x00     | 0x00     | N/A     | N/A     | Rejected |</span>
+<span class="sd">    |          |          |          +----------+---------+---------+----------+</span>
+<span class="sd">    |          |          |          | 0x01     | SCP     | SCU     |          |</span>
+<span class="sd">    |          |          +----------+----------+---------+---------+----------+</span>
+<span class="sd">    |          |          | 0x01     | 0x00     | SCU     | SCP     | Default  |</span>
+<span class="sd">    |          |          |          +----------+---------+---------+----------+</span>
+<span class="sd">    |          |          |          | 0x01     | SCU/SCP | SCU/SCP |          |</span>
+<span class="sd">    +----------+----------+----------+----------+---------+---------+----------+</span>
+<span class="sd">    | 0x01     | 0x00     | 0x00     | 0x00     | N/A     | N/A     | Rejected |</span>
+<span class="sd">    |          |          +----------+          +---------+---------+----------+</span>
+<span class="sd">    |          |          | 0x01     |          | SCU     | SCP     | Default  |</span>
+<span class="sd">    +----------+----------+----------+----------+---------+---------+----------+</span>
+<span class="sd">    | 0x00     | 0x01     | 0x00     | 0x00     | N/A     | N/A     | Rejected |</span>
+<span class="sd">    |          |          |          +----------+---------+---------+----------+</span>
+<span class="sd">    |          |          |          | 0x01     | SCP     | SCU     |          |</span>
+<span class="sd">    +----------+----------+----------+----------+---------+---------+----------+</span>
+<span class="sd">    | 0x00     | 0x00     | 0x00     | 0x00     | N/A     | N/A     | Rejected |</span>
+<span class="sd">    +----------+----------+----------+----------+---------+---------+----------+</span>
+
+<span class="sd">    As can be seen from the above table there are four possible outcomes:</span>
+
+<span class="sd">    * Requestor is SCU, acceptor is SCP (default roles)</span>
+<span class="sd">    * Requestor is SCP, acceptor is SCU</span>
+<span class="sd">    * Requestor and acceptor are both SCU/SCP</span>
+<span class="sd">    * Requestor and acceptor are neither (context rejected)</span>
+
 <span class="sd">    Attributes</span>
 <span class="sd">    ---------</span>
 <span class="sd">    abstract_syntax : pydicom.uid.UID or None</span>
 <span class="sd">        The Presentation Context&#39;s *Abstract Syntax*.</span>
+<span class="sd">    as_scp : bool or None</span>
+<span class="sd">        If True then the association acceptor can act as SCP for the current</span>
+<span class="sd">        context, otherwise it cannot. A non-None value is only available</span>
+<span class="sd">        after association negotiation has been completed.</span>
+<span class="sd">    as_scu : bool or None</span>
+<span class="sd">        If True then the association acceptor can act as SCU for the current</span>
+<span class="sd">        context, otherwise it cannot. A non-None value is only available</span>
+<span class="sd">        after association negotiation has been completed.</span>
 <span class="sd">    context_id : int or None</span>
 <span class="sd">        The Presentation Context&#39;s *Context ID*.</span>
 <span class="sd">    result : int or None</span>
 <span class="sd">        If part of an A-ASSOCIATE (request) then None. If part of an</span>
 <span class="sd">        A-ASSOCIATE (response) then one of 0x00, 0x01, 0x02, 0x03, 0x04.</span>
+<span class="sd">    scp_role : bool or None</span>
+<span class="sd">        Only used when acting as an association acceptor. If True</span>
+<span class="sd">        then accept when the SCP role is proposed by the requestor, otherwise</span>
+<span class="sd">        reject the proposal. If None (default) then no SCP/SCU Role Selection</span>
+<span class="sd">        reply will be sent and the default roles will be used.</span>
+<span class="sd">    scu_role : bool</span>
+<span class="sd">        Only used when acting as an association acceptor. If True</span>
+<span class="sd">        then accept when the SCU role is proposed by the requestor, otherwise</span>
+<span class="sd">        reject the proposal. If None (default) then no SCP/SCU Role Selection</span>
+<span class="sd">        reply will be sent and the default roles will be used.</span>
 <span class="sd">    transfer_syntax : list of pydicom.uid.UID</span>
 <span class="sd">        The Presentation Context&#39;s *Transfer Syntax(es)*.</span>
 
@@ -256,7 +386,11 @@
 
         <span class="c1"># Used with SCP/SCU Role Selection negotiation</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">_scu_role</span> <span class="o">=</span> <span class="kc">None</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">_scp_role</span> <span class="o">=</span> <span class="kc">None</span></div>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_scp_role</span> <span class="o">=</span> <span class="kc">None</span>
+
+        <span class="c1"># Used to track the allowed use of the context</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_as_scp</span> <span class="o">=</span> <span class="kc">None</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_as_scu</span> <span class="o">=</span> <span class="kc">None</span></div>
 
     <span class="nd">@property</span>
     <span class="k">def</span> <span class="nf">abstract_syntax</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
@@ -317,6 +451,16 @@
             <span class="bp">self</span><span class="o">.</span><span class="n">_transfer_syntax</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">syntax</span><span class="p">)</span></div>
 
     <span class="nd">@property</span>
+    <span class="k">def</span> <span class="nf">as_scp</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;Return True if can act as an SCP for the context.&quot;&quot;&quot;</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_as_scp</span>
+
+    <span class="nd">@property</span>
+    <span class="k">def</span> <span class="nf">as_scu</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;Return True if can act as an SCU for the context.&quot;&quot;&quot;</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_as_scu</span>
+
+    <span class="nd">@property</span>
     <span class="k">def</span> <span class="nf">as_tuple</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;Return a namedtuple representation of the presentation context.</span>
 
@@ -370,6 +514,52 @@
         <span class="k">return</span> <span class="ow">not</span> <span class="bp">self</span> <span class="o">==</span> <span class="n">other</span>
 
     <span class="nd">@property</span>
+    <span class="k">def</span> <span class="nf">scp_role</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;Return True if a proposed SCP role will be accepted.&quot;&quot;&quot;</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_scp_role</span>
+
+    <span class="nd">@scp_role</span><span class="o">.</span><span class="n">setter</span>
+    <span class="k">def</span> <span class="nf">scp_role</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">val</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;Set whether to accept the proposed SCP role (as acceptor).</span>
+
+<span class="sd">        Parameters</span>
+<span class="sd">        ----------</span>
+<span class="sd">        val : bool or None</span>
+<span class="sd">            If True then accept if the association requestor proposes</span>
+<span class="sd">            the SCP role for itself, False to reject the proposal. If None</span>
+<span class="sd">            (default) then no SCP/SCU Role Selection reply will be sent. If</span>
+<span class="sd">            either of `scu_role` or `scp_role` is None then both will assumed</span>
+<span class="sd">            to be.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">if</span> <span class="ow">not</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">val</span><span class="p">,</span> <span class="p">(</span><span class="nb">bool</span><span class="p">,</span> <span class="nb">type</span><span class="p">(</span><span class="kc">None</span><span class="p">))):</span>
+            <span class="k">raise</span> <span class="ne">TypeError</span><span class="p">(</span><span class="s2">&quot;`scp_role` must be a bool or None&quot;</span><span class="p">)</span>
+
+        <span class="bp">self</span><span class="o">.</span><span class="n">_scp_role</span> <span class="o">=</span> <span class="n">val</span>
+
+    <span class="nd">@property</span>
+    <span class="k">def</span> <span class="nf">scu_role</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;Return True if a proposed SCU role will be accepted.&quot;&quot;&quot;</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_scu_role</span>
+
+    <span class="nd">@scu_role</span><span class="o">.</span><span class="n">setter</span>
+    <span class="k">def</span> <span class="nf">scu_role</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">val</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;Set whether to accept the proposed SCU role (as acceptor).</span>
+
+<span class="sd">        Parameters</span>
+<span class="sd">        ----------</span>
+<span class="sd">        val : bool or None</span>
+<span class="sd">            If True then accept if the association requestor proposes</span>
+<span class="sd">            the SCU role for itself, False to reject the proposal. If None</span>
+<span class="sd">            (default) then no SCP/SCU Role Selection reply will be sent. If</span>
+<span class="sd">            either of `scu_role` or `scp_role` is None then both will assumed</span>
+<span class="sd">            to be.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">if</span> <span class="ow">not</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">val</span><span class="p">,</span> <span class="p">(</span><span class="nb">bool</span><span class="p">,</span> <span class="nb">type</span><span class="p">(</span><span class="kc">None</span><span class="p">))):</span>
+            <span class="k">raise</span> <span class="ne">TypeError</span><span class="p">(</span><span class="s2">&quot;`scu_role` must be a bool or None&quot;</span><span class="p">)</span>
+
+        <span class="bp">self</span><span class="o">.</span><span class="n">_scu_role</span> <span class="o">=</span> <span class="n">val</span>
+
+    <span class="nd">@property</span>
     <span class="k">def</span> <span class="nf">status</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;Return a descriptive str of the presentation context&#39;s *Result*.</span>
 
@@ -412,6 +602,16 @@
         <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">result</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
             <span class="n">s</span> <span class="o">+=</span> <span class="s1">&#39;</span><span class="se">\n</span><span class="s1">Result: </span><span class="si">{0!s}</span><span class="s1">&#39;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">status</span><span class="p">)</span>
 
+        <span class="k">if</span> <span class="kc">None</span> <span class="ow">not</span> <span class="ow">in</span> <span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">as_scu</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">as_scp</span><span class="p">):</span>
+            <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">as_scu</span> <span class="ow">and</span> <span class="ow">not</span> <span class="bp">self</span><span class="o">.</span><span class="n">as_scp</span><span class="p">:</span>
+                <span class="n">s</span> <span class="o">+=</span> <span class="s1">&#39;</span><span class="se">\n</span><span class="s1">Role: SCU only&#39;</span>
+            <span class="k">elif</span> <span class="bp">self</span><span class="o">.</span><span class="n">as_scu</span> <span class="ow">and</span> <span class="bp">self</span><span class="o">.</span><span class="n">as_scp</span><span class="p">:</span>
+                <span class="n">s</span> <span class="o">+=</span> <span class="s1">&#39;</span><span class="se">\n</span><span class="s1">Role: SCU and SCP&#39;</span>
+            <span class="k">elif</span> <span class="ow">not</span> <span class="bp">self</span><span class="o">.</span><span class="n">as_scu</span> <span class="ow">and</span> <span class="bp">self</span><span class="o">.</span><span class="n">as_scp</span><span class="p">:</span>
+                <span class="n">s</span> <span class="o">+=</span> <span class="s1">&#39;</span><span class="se">\n</span><span class="s1">Role: SCP only&#39;</span>
+            <span class="k">else</span><span class="p">:</span>
+                <span class="n">s</span> <span class="o">+=</span> <span class="s1">&#39;</span><span class="se">\n</span><span class="s1">Role: (none)&#39;</span>
+
         <span class="k">return</span> <span class="n">s</span>
 
     <span class="nd">@property</span>
@@ -443,279 +643,304 @@
             <span class="bp">self</span><span class="o">.</span><span class="n">add_transfer_syntax</span><span class="p">(</span><span class="n">syntax</span><span class="p">)</span></div>
 
 
-<div class="viewcode-block" id="PresentationService"><a class="viewcode-back" href="../../reference/generated/pynetdicom3.presentation.PresentationService.html#pynetdicom3.presentation.PresentationService">[docs]</a><span class="k">class</span> <span class="nc">PresentationService</span><span class="p">(</span><span class="nb">object</span><span class="p">):</span>
-    <span class="sd">&quot;&quot;&quot;Provides Presentation related services to the AE.</span>
+<span class="sd">&quot;&quot;&quot;Provides Presentation related services to the AE.</span>
 
-<span class="sd">    For each SOP Class or Meta SOP Class, a Presentation Context must be</span>
-<span class="sd">    negotiated such that this Presentation Context supports the associated</span>
-<span class="sd">    Abstract Syntax and a suitable Transfer Syntax.</span>
+<span class="sd">For each SOP Class or Meta SOP Class, a Presentation Context must be</span>
+<span class="sd">negotiated such that this Presentation Context supports the associated</span>
+<span class="sd">Abstract Syntax and a suitable Transfer Syntax.</span>
 
-<span class="sd">    * The Association requestor may off multiple Presentation Contexts per</span>
-<span class="sd">      Association.</span>
-<span class="sd">    * Each Presentation Context supports one Abstract Syntax and one or more</span>
-<span class="sd">      Transfer Syntaxes.</span>
-<span class="sd">    * The Association acceptor may accept or reject each Presentation Context</span>
-<span class="sd">      individually.</span>
-<span class="sd">    * The Association acceptor selects a suitable Transfer Syntax for each</span>
-<span class="sd">      Presentation Context accepted.</span>
+<span class="sd">* The Association requestor may off multiple Presentation Contexts per</span>
+<span class="sd">  Association.</span>
+<span class="sd">* Each Presentation Context supports one Abstract Syntax and one or more</span>
+<span class="sd">  Transfer Syntaxes.</span>
+<span class="sd">* The Association acceptor may accept or reject each Presentation Context</span>
+<span class="sd">  individually.</span>
+<span class="sd">* The Association acceptor selects a suitable Transfer Syntax for each</span>
+<span class="sd">  Presentation Context accepted.</span>
 
-<span class="sd">    **SCP/SCU Role Selection Negotiation**</span>
+<span class="sd">**SCP/SCU Role Selection Negotiation**</span>
 
-<span class="sd">    The SCP/SCU role selection negotiation allows peer AEs to negotiate the</span>
-<span class="sd">    roles in which they will server for each SOP Class or Meta SOP Class</span>
-<span class="sd">    supported on the Association. This negotiation is optional.</span>
+<span class="sd">The SCP/SCU role selection negotiation allows peer AEs to negotiate the</span>
+<span class="sd">roles in which they will server for each SOP Class or Meta SOP Class</span>
+<span class="sd">supported on the Association. This negotiation is optional.</span>
 
-<span class="sd">    The Association requestor, for each SOP Class UID or Meta SOP Class UID,</span>
-<span class="sd">    may use one SCP/SCU Role Selection item, with the SOP Class or Meta SOP</span>
-<span class="sd">    Class identified by its corresponding Abstract Syntax Name, followed by</span>
-<span class="sd">    one of the three role values:</span>
+<span class="sd">The Association requestor, for each SOP Class UID or Meta SOP Class UID,</span>
+<span class="sd">may use one SCP/SCU Role Selection item, with the SOP Class or Meta SOP</span>
+<span class="sd">Class identified by its corresponding Abstract Syntax Name, followed by</span>
+<span class="sd">one of the three role values:</span>
 
-<span class="sd">    * Association requestor is SCU only</span>
-<span class="sd">    * Association requestor is SCP only</span>
-<span class="sd">    * Association requestor is both SCU and SCP</span>
+<span class="sd">* Association requestor is SCU only</span>
+<span class="sd">* Association requestor is SCP only</span>
+<span class="sd">* Association requestor is both SCU and SCP</span>
 
-<span class="sd">    If the SCP/SCU Role Selection item is absent then the Association requestor</span>
-<span class="sd">    shall be SCU and the Association acceptor shall be SCP.</span>
+<span class="sd">If the SCP/SCU Role Selection item is absent then the Association requestor</span>
+<span class="sd">shall be SCU and the Association acceptor shall be SCP.</span>
 
-<span class="sd">    References</span>
+<span class="sd">References</span>
+<span class="sd">----------</span>
+<span class="sd">DICOM Standard, Part 7, Annex D.3</span>
+<span class="sd">&quot;&quot;&quot;</span>
+
+
+<span class="k">def</span> <span class="nf">negotiate_as_acceptor</span><span class="p">(</span><span class="n">rq_contexts</span><span class="p">,</span> <span class="n">ac_contexts</span><span class="p">,</span> <span class="n">roles</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;Process the Presentation Contexts as an Association acceptor.</span>
+
+<span class="sd">    Parameters</span>
 <span class="sd">    ----------</span>
-<span class="sd">    DICOM Standard, Part 7, Annex D.3</span>
+<span class="sd">    rq_contexts : list of PresentationContext</span>
+<span class="sd">        The Presentation Contexts proposed by the peer. Each item has</span>
+<span class="sd">        values for Context ID, Abstract Syntax and Transfer Syntax.</span>
+<span class="sd">    ac_contexts : list of PresentationContext</span>
+<span class="sd">        The Presentation Contexts supported by the local AE when acting</span>
+<span class="sd">        as an Association acceptor. Each item has values for Context ID</span>
+<span class="sd">        Abstract Syntax and Transfer Syntax.</span>
+<span class="sd">    roles : dict or None</span>
+<span class="sd">        If the requestor has included one or more SCP/SCU Role Selection</span>
+<span class="sd">        Negotiation items then this will be a dict of</span>
+<span class="sd">        {SOP Class UID : (SCU role, SCP role)}, otherwise None (default)</span>
+
+<span class="sd">    Returns</span>
+<span class="sd">    -------</span>
+<span class="sd">    list of PresentationContext</span>
+<span class="sd">        The accepted presentation context items, each with a Result value</span>
+<span class="sd">        a Context ID, an Abstract Syntax and one Transfer Syntax item.</span>
+<span class="sd">        Items are sorted in increasing Context ID value.</span>
+<span class="sd">    list of SCP_SCU_RoleSelectionNegotiation</span>
+<span class="sd">        If `roles` is not None then this is a list of SCP/SCU Role Selection</span>
+<span class="sd">        Negotiation items that can be sent back to the requestor.</span>
 <span class="sd">    &quot;&quot;&quot;</span>
-<div class="viewcode-block" id="PresentationService.__init__"><a class="viewcode-back" href="../../reference/generated/pynetdicom3.presentation.PresentationService.html#pynetdicom3.presentation.PresentationService.__init__">[docs]</a>    <span class="k">def</span> <span class="nf">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
-        <span class="k">pass</span></div>
+    <span class="kn">from</span> <span class="nn">pynetdicom3.pdu_primitives</span> <span class="k">import</span> <span class="n">SCP_SCU_RoleSelectionNegotiation</span>
 
-<div class="viewcode-block" id="PresentationService.negotiate"><a class="viewcode-back" href="../../reference/generated/pynetdicom3.presentation.PresentationService.html#pynetdicom3.presentation.PresentationService.negotiate">[docs]</a>    <span class="nd">@staticmethod</span>
-    <span class="k">def</span> <span class="nf">negotiate</span><span class="p">(</span><span class="n">assoc</span><span class="p">):</span>
-        <span class="sd">&quot;&quot;&quot;Process an Association&#39;s Presentation Contexts.&quot;&quot;&quot;</span>
-        <span class="k">if</span> <span class="n">assoc</span><span class="o">.</span><span class="n">_mode</span> <span class="o">==</span> <span class="s1">&#39;acceptor&#39;</span><span class="p">:</span>
-            <span class="bp">self</span><span class="o">.</span><span class="n">negotiate_as_acceptor</span><span class="p">()</span>
-        <span class="k">elif</span> <span class="n">assoc</span><span class="o">.</span><span class="n">_mode</span> <span class="o">==</span> <span class="s1">&#39;requestor&#39;</span><span class="p">:</span>
-            <span class="bp">self</span><span class="o">.</span><span class="n">negotiate_as_requestor</span><span class="p">()</span></div>
+    <span class="n">roles</span> <span class="o">=</span> <span class="n">roles</span> <span class="ow">or</span> <span class="p">{}</span>
+    <span class="n">result_contexts</span> <span class="o">=</span> <span class="p">[]</span>
+    <span class="n">reply_roles</span> <span class="o">=</span> <span class="p">{}</span>
 
-<div class="viewcode-block" id="PresentationService.negotiate_as_acceptor"><a class="viewcode-back" href="../../reference/generated/pynetdicom3.presentation.PresentationService.html#pynetdicom3.presentation.PresentationService.negotiate_as_acceptor">[docs]</a>    <span class="nd">@staticmethod</span>
-    <span class="k">def</span> <span class="nf">negotiate_as_acceptor</span><span class="p">(</span><span class="n">rq_contexts</span><span class="p">,</span> <span class="n">ac_contexts</span><span class="p">):</span>
-        <span class="sd">&quot;&quot;&quot;Process the Presentation Contexts as an Association acceptor.</span>
+    <span class="c1"># No requestor presentation contexts</span>
+    <span class="k">if</span> <span class="ow">not</span> <span class="n">rq_contexts</span><span class="p">:</span>
+        <span class="k">return</span> <span class="n">result_contexts</span><span class="p">,</span> <span class="p">[]</span>
 
-<span class="sd">        Parameters</span>
-<span class="sd">        ----------</span>
-<span class="sd">        rq_contexts : list of PresentationContext</span>
-<span class="sd">            The Presentation Contexts proposed by the peer. Each item has</span>
-<span class="sd">            values for Context ID, Abstract Syntax and Transfer Syntax.</span>
-<span class="sd">        ac_contexts : list of PresentationContext</span>
-<span class="sd">            The Presentation Contexts supported by the local AE when acting</span>
-<span class="sd">            as an Association acceptor. Each item has values for Context ID</span>
-<span class="sd">            Abstract Syntax and Transfer Syntax.</span>
-
-<span class="sd">        Returns</span>
-<span class="sd">        -------</span>
-<span class="sd">        result_contexts : list of PresentationContext</span>
-<span class="sd">            The accepted presentation context items, each with a Result value</span>
-<span class="sd">            a Context ID, an Abstract Syntax and one Transfer Syntax item.</span>
-<span class="sd">            Items are sorted in increasing Context ID value.</span>
-<span class="sd">        &quot;&quot;&quot;</span>
-        <span class="n">result_contexts</span> <span class="o">=</span> <span class="p">[]</span>
-
-        <span class="c1"># No requestor presentation contexts</span>
-        <span class="k">if</span> <span class="ow">not</span> <span class="n">rq_contexts</span><span class="p">:</span>
-            <span class="k">return</span> <span class="n">result_contexts</span>
-
-        <span class="c1"># Acceptor doesn&#39;t support any presentation contexts</span>
-        <span class="k">if</span> <span class="ow">not</span> <span class="n">ac_contexts</span><span class="p">:</span>
-            <span class="k">for</span> <span class="n">rq_context</span> <span class="ow">in</span> <span class="n">rq_contexts</span><span class="p">:</span>
-                <span class="n">context</span> <span class="o">=</span> <span class="n">PresentationContext</span><span class="p">()</span>
-                <span class="n">context</span><span class="o">.</span><span class="n">context_id</span> <span class="o">=</span> <span class="n">rq_context</span><span class="o">.</span><span class="n">context_id</span>
-                <span class="n">context</span><span class="o">.</span><span class="n">abstract_syntax</span> <span class="o">=</span> <span class="n">rq_context</span><span class="o">.</span><span class="n">abstract_syntax</span>
-                <span class="n">context</span><span class="o">.</span><span class="n">transfer_syntax</span> <span class="o">=</span> <span class="p">[</span><span class="n">rq_context</span><span class="o">.</span><span class="n">transfer_syntax</span><span class="p">[</span><span class="mi">0</span><span class="p">]]</span>
-                <span class="n">context</span><span class="o">.</span><span class="n">result</span> <span class="o">=</span> <span class="mh">0x03</span>
-                <span class="n">result_contexts</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">context</span><span class="p">)</span>
-            <span class="k">return</span> <span class="n">result_contexts</span>
-
-        <span class="c1"># Optimisation notes (for iterating through contexts only, not</span>
-        <span class="c1">#   including actual context negotiation)</span>
-        <span class="c1"># - Create dict, use set intersection/difference of dict keys: ~600 us</span>
-        <span class="c1"># - Create dict, iterate over dict keys: ~400 us</span>
-        <span class="c1"># - Iterate over lists: ~52000 us</span>
-
-        <span class="c1"># Requestor may use the same Abstract Syntax in multiple Presentation</span>
-        <span class="c1">#   Contexts so we need a more specific key than UID</span>
-        <span class="n">requestor_contexts</span> <span class="o">=</span> <span class="p">{</span>
-            <span class="p">(</span><span class="n">cx</span><span class="o">.</span><span class="n">context_id</span><span class="p">,</span> <span class="n">cx</span><span class="o">.</span><span class="n">abstract_syntax</span><span class="p">):</span><span class="n">cx</span> <span class="k">for</span> <span class="n">cx</span> <span class="ow">in</span> <span class="n">rq_contexts</span>
-        <span class="p">}</span>
-        <span class="c1"># Acceptor supported SOP Classes must be unique so we can use UID as</span>
-        <span class="c1">#   the key</span>
-        <span class="n">acceptor_contexts</span> <span class="o">=</span> <span class="p">{</span><span class="n">cx</span><span class="o">.</span><span class="n">abstract_syntax</span><span class="p">:</span><span class="n">cx</span> <span class="k">for</span> <span class="n">cx</span> <span class="ow">in</span> <span class="n">ac_contexts</span><span class="p">}</span>
-
-        <span class="k">for</span> <span class="p">(</span><span class="n">cntx_id</span><span class="p">,</span> <span class="n">ab_syntax</span><span class="p">)</span> <span class="ow">in</span> <span class="n">requestor_contexts</span><span class="p">:</span>
-            <span class="c1"># Convenience variable</span>
-            <span class="n">rq_context</span> <span class="o">=</span> <span class="n">requestor_contexts</span><span class="p">[(</span><span class="n">cntx_id</span><span class="p">,</span> <span class="n">ab_syntax</span><span class="p">)]</span>
-
-            <span class="c1"># Create a new PresentationContext item that will store the</span>
-            <span class="c1">#   results of the negotiation</span>
+    <span class="c1"># Acceptor doesn&#39;t support any presentation contexts</span>
+    <span class="k">if</span> <span class="ow">not</span> <span class="n">ac_contexts</span><span class="p">:</span>
+        <span class="k">for</span> <span class="n">rq_context</span> <span class="ow">in</span> <span class="n">rq_contexts</span><span class="p">:</span>
             <span class="n">context</span> <span class="o">=</span> <span class="n">PresentationContext</span><span class="p">()</span>
-            <span class="n">context</span><span class="o">.</span><span class="n">context_id</span> <span class="o">=</span> <span class="n">cntx_id</span>
-            <span class="n">context</span><span class="o">.</span><span class="n">abstract_syntax</span> <span class="o">=</span> <span class="n">ab_syntax</span>
-
-            <span class="c1"># Check if the acceptor supports the Abstract Syntax</span>
-            <span class="k">if</span> <span class="n">ab_syntax</span> <span class="ow">in</span> <span class="n">acceptor_contexts</span><span class="p">:</span>
-                <span class="c1"># Convenience variable</span>
-                <span class="n">ac_context</span> <span class="o">=</span> <span class="n">acceptor_contexts</span><span class="p">[</span><span class="n">ab_syntax</span><span class="p">]</span>
-
-                <span class="c1"># Abstract syntax supported so check Transfer Syntax</span>
-                <span class="k">for</span> <span class="n">tr_syntax</span> <span class="ow">in</span> <span class="n">rq_context</span><span class="o">.</span><span class="n">transfer_syntax</span><span class="p">:</span>
-
-                    <span class="c1"># If transfer syntax supported</span>
-                    <span class="k">if</span> <span class="n">tr_syntax</span> <span class="ow">in</span> <span class="n">ac_context</span><span class="o">.</span><span class="n">transfer_syntax</span><span class="p">:</span>
-                        <span class="n">context</span><span class="o">.</span><span class="n">transfer_syntax</span> <span class="o">=</span> <span class="p">[</span><span class="n">tr_syntax</span><span class="p">]</span>
-                        <span class="c1"># Accept the presentation context</span>
-                        <span class="n">context</span><span class="o">.</span><span class="n">result</span> <span class="o">=</span> <span class="mh">0x00</span>
-
-                        <span class="c1"># SCP/SCU Role Selection needs to be reimplemented as it</span>
-                        <span class="c1">#   doesn&#39;t meet the DICOM Standard</span>
-                        <span class="sd">&#39;&#39;&#39;</span>
-<span class="sd">                        ## SCP/SCU Role Selection Negotiation</span>
-<span class="sd">                        # Only give an answer if the acceptor supports Role</span>
-<span class="sd">                        #   Selection Negotiation (i.e. `ac_context.SCU` and</span>
-<span class="sd">                        #   `ac_context.SCP` are not None)</span>
-<span class="sd">                        if None not in (ac_context.SCP, ac_context.SCU):</span>
-<span class="sd">                            # Requestor has proposed SCP role for context</span>
-<span class="sd">                            if rq_context.SCP:</span>
-<span class="sd">                                if ac_context.SCP:</span>
-<span class="sd">                                    context.SCP = True</span>
-<span class="sd">                                else:</span>
-<span class="sd">                                    context.SCP = False</span>
-
-<span class="sd">                            # Requestor has proposed SCU role for context</span>
-<span class="sd">                            if rq_context.SCU:</span>
-<span class="sd">                                if ac_context.SCU:</span>
-<span class="sd">                                    context.SCU = True</span>
-<span class="sd">                                else:</span>
-<span class="sd">                                    context.SCU = False</span>
-<span class="sd">                        &#39;&#39;&#39;</span>
-
-                        <span class="n">result_contexts</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">context</span><span class="p">)</span>
-                        <span class="k">break</span>
-
-                <span class="c1"># Need to check against None as 0x00 is a possible value</span>
-                <span class="k">if</span> <span class="n">context</span><span class="o">.</span><span class="n">result</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
-                    <span class="c1"># Reject context - transfer syntax not supported</span>
-                    <span class="n">context</span><span class="o">.</span><span class="n">result</span> <span class="o">=</span> <span class="mh">0x04</span>
-                    <span class="n">context</span><span class="o">.</span><span class="n">transfer_syntax</span> <span class="o">=</span> <span class="p">[</span><span class="n">rq_context</span><span class="o">.</span><span class="n">transfer_syntax</span><span class="p">[</span><span class="mi">0</span><span class="p">]]</span>
-                    <span class="n">result_contexts</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">context</span><span class="p">)</span>
-            <span class="k">else</span><span class="p">:</span>
-                <span class="c1"># Reject context - abstract syntax not supported</span>
-                <span class="n">context</span><span class="o">.</span><span class="n">result</span> <span class="o">=</span> <span class="mh">0x03</span>
-                <span class="n">context</span><span class="o">.</span><span class="n">transfer_syntax</span> <span class="o">=</span> <span class="p">[</span><span class="n">rq_context</span><span class="o">.</span><span class="n">transfer_syntax</span><span class="p">[</span><span class="mi">0</span><span class="p">]]</span>
-                <span class="n">result_contexts</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">context</span><span class="p">)</span>
-
-        <span class="c1"># Sort by presentation context ID and return</span>
-        <span class="c1">#   This isn&#39;t required by the DICOM Standard but its a nice thing to do</span>
-        <span class="k">return</span> <span class="nb">sorted</span><span class="p">(</span><span class="n">result_contexts</span><span class="p">,</span> <span class="n">key</span><span class="o">=</span><span class="k">lambda</span> <span class="n">x</span><span class="p">:</span> <span class="n">x</span><span class="o">.</span><span class="n">context_id</span><span class="p">)</span></div>
-
-<div class="viewcode-block" id="PresentationService.negotiate_as_requestor"><a class="viewcode-back" href="../../reference/generated/pynetdicom3.presentation.PresentationService.html#pynetdicom3.presentation.PresentationService.negotiate_as_requestor">[docs]</a>    <span class="nd">@staticmethod</span>
-    <span class="k">def</span> <span class="nf">negotiate_as_requestor</span><span class="p">(</span><span class="n">rq_contexts</span><span class="p">,</span> <span class="n">ac_contexts</span><span class="p">):</span>
-        <span class="sd">&quot;&quot;&quot;Process the Presentation Contexts as an Association requestor.</span>
-
-<span class="sd">        The acceptor has processed the requestor&#39;s presentation context</span>
-<span class="sd">        definition list and returned the results. We want to do two things:</span>
-
-<span class="sd">        - Process the SCP/SCU Role Selection Negotiation (if any) (TO BE</span>
-<span class="sd">          IMPLEMENTED)</span>
-<span class="sd">        - Return a nice list of PresentationContexts with the Results and</span>
-<span class="sd">          original Abstract Syntax values to make things easier to use.</span>
-
-<span class="sd">        Presentation Context Item (RQ)</span>
-
-<span class="sd">        - Presentation context ID</span>
-<span class="sd">        - Abstract Syntax: one</span>
-<span class="sd">        - Transfer syntax: one or more</span>
-
-<span class="sd">        Presentation Context Item (AC)</span>
-
-<span class="sd">        - Presentation context ID</span>
-<span class="sd">        - Result: 0x00, 0x01, 0x02, 0x03, 0x04</span>
-<span class="sd">        - Transfer syntax: one, not to be tested if result is not 0x00</span>
-
-<span class="sd">        Parameters</span>
-<span class="sd">        ----------</span>
-<span class="sd">        rq_contexts : list of PresentationContext</span>
-<span class="sd">            The Presentation Contexts sent to the peer as the A-ASSOCIATE&#39;s</span>
-<span class="sd">            Presentation Context Definition List.</span>
-<span class="sd">        ac_contexts : list of PresentationContext</span>
-<span class="sd">            The Presentation Contexts return by the peer as the A-ASSOCIATE&#39;s</span>
-<span class="sd">            Presentation Context Definition Result List.</span>
-
-<span class="sd">        Returns</span>
-<span class="sd">        -------</span>
-<span class="sd">        list of PresentationContext</span>
-<span class="sd">            The contexts in the returned Presentation Context Definition Result</span>
-<span class="sd">            List, with added Abstract Syntax value. Items are sorted in</span>
-<span class="sd">            increasing Context ID value.</span>
-<span class="sd">        &quot;&quot;&quot;</span>
-        <span class="k">if</span> <span class="ow">not</span> <span class="n">rq_contexts</span><span class="p">:</span>
-            <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s1">&#39;Requestor contexts are required&#39;</span><span class="p">)</span>
-        <span class="n">output</span> <span class="o">=</span> <span class="p">[]</span>
-
-        <span class="c1"># Create dicts, indexed by the presentation context ID</span>
-        <span class="n">requestor_contexts</span> <span class="o">=</span> <span class="p">{</span>
-            <span class="n">context</span><span class="o">.</span><span class="n">context_id</span><span class="p">:</span><span class="n">context</span> <span class="k">for</span> <span class="n">context</span> <span class="ow">in</span> <span class="n">rq_contexts</span>
-        <span class="p">}</span>
-        <span class="n">acceptor_contexts</span> <span class="o">=</span> <span class="p">{</span>
-            <span class="n">context</span><span class="o">.</span><span class="n">context_id</span><span class="p">:</span><span class="n">context</span> <span class="k">for</span> <span class="n">context</span> <span class="ow">in</span> <span class="n">ac_contexts</span>
-        <span class="p">}</span>
-
-        <span class="k">for</span> <span class="n">context_id</span> <span class="ow">in</span> <span class="n">requestor_contexts</span><span class="p">:</span>
-            <span class="c1"># Convenience variable</span>
-            <span class="n">rq_context</span> <span class="o">=</span> <span class="n">requestor_contexts</span><span class="p">[</span><span class="n">context_id</span><span class="p">]</span>
-
-            <span class="n">context</span> <span class="o">=</span> <span class="n">PresentationContext</span><span class="p">()</span>
-            <span class="n">context</span><span class="o">.</span><span class="n">context_id</span> <span class="o">=</span> <span class="n">context_id</span>
+            <span class="n">context</span><span class="o">.</span><span class="n">context_id</span> <span class="o">=</span> <span class="n">rq_context</span><span class="o">.</span><span class="n">context_id</span>
             <span class="n">context</span><span class="o">.</span><span class="n">abstract_syntax</span> <span class="o">=</span> <span class="n">rq_context</span><span class="o">.</span><span class="n">abstract_syntax</span>
+            <span class="n">context</span><span class="o">.</span><span class="n">transfer_syntax</span> <span class="o">=</span> <span class="p">[</span><span class="n">rq_context</span><span class="o">.</span><span class="n">transfer_syntax</span><span class="p">[</span><span class="mi">0</span><span class="p">]]</span>
+            <span class="n">context</span><span class="o">.</span><span class="n">result</span> <span class="o">=</span> <span class="mh">0x03</span>
+            <span class="n">result_contexts</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">context</span><span class="p">)</span>
+        <span class="k">return</span> <span class="n">result_contexts</span><span class="p">,</span> <span class="p">[]</span>
 
-            <span class="k">if</span> <span class="n">context_id</span> <span class="ow">in</span> <span class="n">acceptor_contexts</span><span class="p">:</span>
-                <span class="c1"># Convenience variable</span>
-                <span class="n">ac_context</span> <span class="o">=</span> <span class="n">acceptor_contexts</span><span class="p">[</span><span class="n">context_id</span><span class="p">]</span>
+    <span class="c1"># Optimisation notes (for iterating through contexts only, not</span>
+    <span class="c1">#   including actual context negotiation)</span>
+    <span class="c1"># - Create dict, use set intersection/difference of dict keys: ~600 us</span>
+    <span class="c1"># - Create dict, iterate over dict keys: ~400 us</span>
+    <span class="c1"># - Iterate over lists: ~52000 us</span>
 
-                <span class="c1"># Update with accepted values</span>
-                <span class="n">context</span><span class="o">.</span><span class="n">transfer_syntax</span> <span class="o">=</span> <span class="p">[</span><span class="n">ac_context</span><span class="o">.</span><span class="n">transfer_syntax</span><span class="p">[</span><span class="mi">0</span><span class="p">]]</span>
-                <span class="n">context</span><span class="o">.</span><span class="n">result</span> <span class="o">=</span> <span class="n">ac_context</span><span class="o">.</span><span class="n">result</span>
+    <span class="c1"># Requestor may use the same Abstract Syntax in multiple Presentation</span>
+    <span class="c1">#   Contexts so we need a more specific key than UID</span>
+    <span class="n">requestor_contexts</span> <span class="o">=</span> <span class="p">{</span>
+        <span class="p">(</span><span class="n">cx</span><span class="o">.</span><span class="n">context_id</span><span class="p">,</span> <span class="n">cx</span><span class="o">.</span><span class="n">abstract_syntax</span><span class="p">):</span><span class="n">cx</span> <span class="k">for</span> <span class="n">cx</span> <span class="ow">in</span> <span class="n">rq_contexts</span>
+    <span class="p">}</span>
+    <span class="c1"># Acceptor supported SOP Classes must be unique so we can use UID as</span>
+    <span class="c1">#   the key</span>
+    <span class="n">acceptor_contexts</span> <span class="o">=</span> <span class="p">{</span><span class="n">cx</span><span class="o">.</span><span class="n">abstract_syntax</span><span class="p">:</span><span class="n">cx</span> <span class="k">for</span> <span class="n">cx</span> <span class="ow">in</span> <span class="n">ac_contexts</span><span class="p">}</span>
 
-                <span class="c1"># SCP/SCU Role Selection needs to be reimplemented as it</span>
-                <span class="c1">#   doesn&#39;t meet the DICOM Standard</span>
-                <span class="sd">&#39;&#39;&#39;</span>
-<span class="sd">                ## SCP/SCU Role Selection Negotiation</span>
-<span class="sd">                # Skip if context rejected or acceptor ignored proposal</span>
-<span class="sd">                if (ac_context.Result == 0x00</span>
-<span class="sd">                            and None not in (ac_context.SCP, ac_context.SCU)):</span>
-<span class="sd">                    # Requestor has proposed SCP role for context:</span>
-<span class="sd">                    #   acceptor agrees: use agreed role</span>
-<span class="sd">                    #   acceptor disagrees: use default role</span>
-<span class="sd">                    if rq_context.SCP == ac_context.SCP:</span>
-<span class="sd">                        context.SCP = ac_context.SCP</span>
-<span class="sd">                    else:</span>
-<span class="sd">                        context.SCP = False</span>
+    <span class="k">for</span> <span class="p">(</span><span class="n">cntx_id</span><span class="p">,</span> <span class="n">ab_syntax</span><span class="p">)</span> <span class="ow">in</span> <span class="n">requestor_contexts</span><span class="p">:</span>
+        <span class="c1"># Convenience variable</span>
+        <span class="n">rq_context</span> <span class="o">=</span> <span class="n">requestor_contexts</span><span class="p">[(</span><span class="n">cntx_id</span><span class="p">,</span> <span class="n">ab_syntax</span><span class="p">)]</span>
 
-<span class="sd">                    # Requestor has proposed SCU role for context:</span>
-<span class="sd">                    #   acceptor agrees: use agreed role</span>
-<span class="sd">                    #   acceptor disagrees: use default role</span>
-<span class="sd">                    if rq_context.SCU == ac_context.SCU:</span>
-<span class="sd">                        context.SCU = ac_context.SCU</span>
-<span class="sd">                    else:</span>
-<span class="sd">                        context.SCU = False</span>
-<span class="sd">                else:</span>
-<span class="sd">                    # We are the association requestor, so SCU role only</span>
-<span class="sd">                    context.SCP = False</span>
-<span class="sd">                    context.SCU = True</span>
-<span class="sd">                &#39;&#39;&#39;</span>
+        <span class="c1"># Create a new PresentationContext item that will store the</span>
+        <span class="c1">#   results of the negotiation</span>
+        <span class="n">context</span> <span class="o">=</span> <span class="n">PresentationContext</span><span class="p">()</span>
+        <span class="n">context</span><span class="o">.</span><span class="n">context_id</span> <span class="o">=</span> <span class="n">cntx_id</span>
+        <span class="n">context</span><span class="o">.</span><span class="n">abstract_syntax</span> <span class="o">=</span> <span class="n">ab_syntax</span>
+        <span class="n">context</span><span class="o">.</span><span class="n">_as_scu</span> <span class="o">=</span> <span class="kc">False</span>
+        <span class="n">context</span><span class="o">.</span><span class="n">_as_scp</span> <span class="o">=</span> <span class="kc">False</span>
 
-            <span class="c1"># Add any missing contexts as rejected</span>
-            <span class="k">else</span><span class="p">:</span>
+        <span class="c1"># Check if the acceptor supports the Abstract Syntax</span>
+        <span class="k">if</span> <span class="n">ab_syntax</span> <span class="ow">in</span> <span class="n">acceptor_contexts</span><span class="p">:</span>
+            <span class="c1"># Convenience variables</span>
+            <span class="n">ac_context</span> <span class="o">=</span> <span class="n">acceptor_contexts</span><span class="p">[</span><span class="n">ab_syntax</span><span class="p">]</span>
+            <span class="n">ac_roles</span> <span class="o">=</span> <span class="p">(</span><span class="n">ac_context</span><span class="o">.</span><span class="n">scu_role</span><span class="p">,</span> <span class="n">ac_context</span><span class="o">.</span><span class="n">scp_role</span><span class="p">)</span>
+            <span class="k">try</span><span class="p">:</span>
+                <span class="n">rq_roles</span> <span class="o">=</span> <span class="n">roles</span><span class="p">[</span><span class="n">ab_syntax</span><span class="p">]</span>
+                <span class="n">has_role</span> <span class="o">=</span> <span class="kc">True</span>
+            <span class="k">except</span> <span class="ne">KeyError</span><span class="p">:</span>
+                <span class="n">rq_roles</span> <span class="o">=</span> <span class="p">(</span><span class="kc">None</span><span class="p">,</span> <span class="kc">None</span><span class="p">)</span>
+                <span class="n">has_role</span> <span class="o">=</span> <span class="kc">False</span>
+
+            <span class="c1"># Abstract syntax supported so check Transfer Syntax</span>
+            <span class="k">for</span> <span class="n">tr_syntax</span> <span class="ow">in</span> <span class="n">rq_context</span><span class="o">.</span><span class="n">transfer_syntax</span><span class="p">:</span>
+                <span class="c1"># If transfer syntax supported then (provisionally) accept</span>
+                <span class="k">if</span> <span class="n">tr_syntax</span> <span class="ow">in</span> <span class="n">ac_context</span><span class="o">.</span><span class="n">transfer_syntax</span><span class="p">:</span>
+                    <span class="n">context</span><span class="o">.</span><span class="n">transfer_syntax</span> <span class="o">=</span> <span class="p">[</span><span class="n">tr_syntax</span><span class="p">]</span>
+                    <span class="n">context</span><span class="o">.</span><span class="n">result</span> <span class="o">=</span> <span class="mh">0x00</span>
+                    <span class="n">result_contexts</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">context</span><span class="p">)</span>
+                    <span class="k">break</span>
+
+            <span class="c1">## SCP/SCU Role Selection Negotiation</span>
+            <span class="c1">#   Only for (provisionally) accepted contexts</span>
+            <span class="k">if</span> <span class="n">context</span><span class="o">.</span><span class="n">result</span> <span class="o">==</span> <span class="mh">0x00</span><span class="p">:</span>
+                <span class="k">if</span> <span class="kc">None</span> <span class="ow">in</span> <span class="n">ac_roles</span><span class="p">:</span>
+                    <span class="c1"># Default roles</span>
+                    <span class="n">context</span><span class="o">.</span><span class="n">_as_scu</span> <span class="o">=</span> <span class="kc">False</span>
+                    <span class="n">context</span><span class="o">.</span><span class="n">_as_scp</span> <span class="o">=</span> <span class="kc">True</span>
+                    <span class="c1"># If either aq.scu_role or ac.scp_role is None then</span>
+                    <span class="c1">#   don&#39;t send an SCP/SCU negotiation reply</span>
+                    <span class="n">has_role</span> <span class="o">=</span> <span class="kc">False</span>
+                <span class="k">else</span><span class="p">:</span>
+                    <span class="c1"># Use a LUT to make changes to outcomes easier</span>
+                    <span class="c1">#   also its much simpler than coding if/then branches</span>
+                    <span class="n">outcome</span> <span class="o">=</span> <span class="n">SCP_SCU_ROLES</span><span class="p">[</span><span class="n">rq_roles</span><span class="p">][</span><span class="n">ac_roles</span><span class="p">]</span>
+                    <span class="n">context</span><span class="o">.</span><span class="n">_as_scu</span> <span class="o">=</span> <span class="n">outcome</span><span class="p">[</span><span class="mi">2</span><span class="p">]</span>
+                    <span class="n">context</span><span class="o">.</span><span class="n">_as_scp</span> <span class="o">=</span> <span class="n">outcome</span><span class="p">[</span><span class="mi">3</span><span class="p">]</span>
+
+                <span class="c1"># If can&#39;t act as either SCU nor SCP then reject the context</span>
+                <span class="k">if</span> <span class="n">context</span><span class="o">.</span><span class="n">as_scu</span> <span class="ow">is</span> <span class="kc">False</span> <span class="ow">and</span> <span class="n">context</span><span class="o">.</span><span class="n">as_scp</span> <span class="ow">is</span> <span class="kc">False</span><span class="p">:</span>
+                    <span class="c1"># User rejection</span>
+                    <span class="n">context</span><span class="o">.</span><span class="n">result</span> <span class="o">=</span> <span class="mh">0x01</span>
+
+            <span class="c1"># Need to check against None as 0x00 is a possible value</span>
+            <span class="k">if</span> <span class="n">context</span><span class="o">.</span><span class="n">result</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+                <span class="c1"># Reject context - transfer syntax not supported</span>
+                <span class="n">context</span><span class="o">.</span><span class="n">result</span> <span class="o">=</span> <span class="mh">0x04</span>
                 <span class="n">context</span><span class="o">.</span><span class="n">transfer_syntax</span> <span class="o">=</span> <span class="p">[</span><span class="n">rq_context</span><span class="o">.</span><span class="n">transfer_syntax</span><span class="p">[</span><span class="mi">0</span><span class="p">]]</span>
-                <span class="n">context</span><span class="o">.</span><span class="n">result</span> <span class="o">=</span> <span class="mh">0x02</span>
+                <span class="n">result_contexts</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">context</span><span class="p">)</span>
+            <span class="k">elif</span> <span class="n">context</span><span class="o">.</span><span class="n">result</span> <span class="o">==</span> <span class="mh">0x00</span> <span class="ow">and</span> <span class="n">has_role</span><span class="p">:</span>
+                <span class="c1"># Create new SCP/SCU Role Selection Negotiation item</span>
+                <span class="n">role</span> <span class="o">=</span> <span class="n">SCP_SCU_RoleSelectionNegotiation</span><span class="p">()</span>
+                <span class="n">role</span><span class="o">.</span><span class="n">sop_class_uid</span> <span class="o">=</span> <span class="n">context</span><span class="o">.</span><span class="n">abstract_syntax</span>
 
-            <span class="n">output</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">context</span><span class="p">)</span>
+                <span class="c1"># Can&#39;t return 0x01 if proposed 0x00</span>
+                <span class="k">if</span> <span class="n">rq_roles</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span> <span class="ow">is</span> <span class="kc">False</span><span class="p">:</span>
+                    <span class="n">role</span><span class="o">.</span><span class="n">scu_role</span> <span class="o">=</span> <span class="kc">False</span>
+                <span class="k">else</span><span class="p">:</span>
+                    <span class="n">role</span><span class="o">.</span><span class="n">scu_role</span> <span class="o">=</span> <span class="n">ac_context</span><span class="o">.</span><span class="n">scu_role</span>
 
-        <span class="c1"># Sort returned list by context ID</span>
-        <span class="k">return</span> <span class="nb">sorted</span><span class="p">(</span><span class="n">output</span><span class="p">,</span> <span class="n">key</span><span class="o">=</span><span class="k">lambda</span> <span class="n">x</span><span class="p">:</span> <span class="n">x</span><span class="o">.</span><span class="n">context_id</span><span class="p">)</span></div></div>
+                <span class="k">if</span> <span class="n">rq_roles</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span> <span class="ow">is</span> <span class="kc">False</span><span class="p">:</span>
+                    <span class="n">role</span><span class="o">.</span><span class="n">scp_role</span> <span class="o">=</span> <span class="kc">False</span>
+                <span class="k">else</span><span class="p">:</span>
+                    <span class="n">role</span><span class="o">.</span><span class="n">scp_role</span> <span class="o">=</span> <span class="n">ac_context</span><span class="o">.</span><span class="n">scp_role</span>
+
+                <span class="n">reply_roles</span><span class="p">[</span><span class="n">context</span><span class="o">.</span><span class="n">abstract_syntax</span><span class="p">]</span> <span class="o">=</span> <span class="n">role</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="c1"># Reject context - abstract syntax not supported</span>
+            <span class="n">context</span><span class="o">.</span><span class="n">result</span> <span class="o">=</span> <span class="mh">0x03</span>
+            <span class="n">context</span><span class="o">.</span><span class="n">transfer_syntax</span> <span class="o">=</span> <span class="p">[</span><span class="n">rq_context</span><span class="o">.</span><span class="n">transfer_syntax</span><span class="p">[</span><span class="mi">0</span><span class="p">]]</span>
+            <span class="n">result_contexts</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">context</span><span class="p">)</span>
+
+    <span class="c1"># Sort by presentation context ID</span>
+    <span class="c1">#   This isn&#39;t required by the DICOM Standard but its a nice thing to do</span>
+    <span class="n">result_contexts</span> <span class="o">=</span> <span class="nb">sorted</span><span class="p">(</span><span class="n">result_contexts</span><span class="p">,</span> <span class="n">key</span><span class="o">=</span><span class="k">lambda</span> <span class="n">x</span><span class="p">:</span> <span class="n">x</span><span class="o">.</span><span class="n">context_id</span><span class="p">)</span>
+
+    <span class="c1"># Sort role selection by abstract syntax, also not required but nice</span>
+    <span class="n">reply_roles</span> <span class="o">=</span> <span class="nb">sorted</span><span class="p">(</span><span class="n">reply_roles</span><span class="o">.</span><span class="n">values</span><span class="p">(),</span> <span class="n">key</span><span class="o">=</span><span class="k">lambda</span> <span class="n">x</span><span class="p">:</span> <span class="n">x</span><span class="o">.</span><span class="n">sop_class_uid</span><span class="p">)</span>
+
+    <span class="k">return</span> <span class="n">result_contexts</span><span class="p">,</span> <span class="n">reply_roles</span>
+
+
+<span class="k">def</span> <span class="nf">negotiate_as_requestor</span><span class="p">(</span><span class="n">rq_contexts</span><span class="p">,</span> <span class="n">ac_contexts</span><span class="p">,</span> <span class="n">roles</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;Process the Presentation Contexts as an Association requestor.</span>
+
+<span class="sd">    The acceptor has processed the requestor&#39;s presentation context</span>
+<span class="sd">    definition list and returned the results. We want to do two things:</span>
+
+<span class="sd">    - Process the SCP/SCU Role Selection Negotiation</span>
+<span class="sd">    - Return a nice list of PresentationContexts with the Results and</span>
+<span class="sd">      original Abstract Syntax values to make things easier to use.</span>
+
+<span class="sd">    Presentation Context Item (RQ)</span>
+
+<span class="sd">    - Presentation context ID</span>
+<span class="sd">    - Abstract Syntax: one</span>
+<span class="sd">    - Transfer syntax: one or more</span>
+
+<span class="sd">    Presentation Context Item (AC)</span>
+
+<span class="sd">    - Presentation context ID</span>
+<span class="sd">    - Result: 0x00, 0x01, 0x02, 0x03, 0x04</span>
+<span class="sd">    - Transfer syntax: one, not to be tested if result is not 0x00</span>
+
+<span class="sd">    Parameters</span>
+<span class="sd">    ----------</span>
+<span class="sd">    rq_contexts : list of PresentationContext</span>
+<span class="sd">        The Presentation Contexts sent to the peer as the A-ASSOCIATE&#39;s</span>
+<span class="sd">        Presentation Context Definition List.</span>
+<span class="sd">    ac_contexts : list of PresentationContext</span>
+<span class="sd">        The Presentation Contexts return by the peer as the A-ASSOCIATE&#39;s</span>
+<span class="sd">        Presentation Context Definition Result List.</span>
+<span class="sd">    roles : dict or None</span>
+<span class="sd">        If the acceptor has included one or more SCP/SCU Role Selection</span>
+<span class="sd">        Negotiation items then this will be a dict of</span>
+<span class="sd">        {SOP Class UID : (SCU role, SCP role)}, otherwise None (default)</span>
+
+<span class="sd">    Returns</span>
+<span class="sd">    -------</span>
+<span class="sd">    list of PresentationContext</span>
+<span class="sd">        The contexts in the returned Presentation Context Definition Result</span>
+<span class="sd">        List, with added Abstract Syntax value. Items are sorted in</span>
+<span class="sd">        increasing Context ID value and the SCP/SCU roles are set as per</span>
+<span class="sd">        the negotiated outcome.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="n">roles</span> <span class="o">=</span> <span class="n">roles</span> <span class="ow">or</span> <span class="p">{}</span>
+
+    <span class="k">if</span> <span class="ow">not</span> <span class="n">rq_contexts</span><span class="p">:</span>
+        <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s1">&#39;Requestor contexts are required&#39;</span><span class="p">)</span>
+    <span class="n">output</span> <span class="o">=</span> <span class="p">[]</span>
+
+    <span class="c1"># Create dicts, indexed by the presentation context ID</span>
+    <span class="n">requestor_contexts</span> <span class="o">=</span> <span class="p">{</span>
+        <span class="n">context</span><span class="o">.</span><span class="n">context_id</span><span class="p">:</span><span class="n">context</span> <span class="k">for</span> <span class="n">context</span> <span class="ow">in</span> <span class="n">rq_contexts</span>
+    <span class="p">}</span>
+    <span class="n">acceptor_contexts</span> <span class="o">=</span> <span class="p">{</span>
+        <span class="n">context</span><span class="o">.</span><span class="n">context_id</span><span class="p">:</span><span class="n">context</span> <span class="k">for</span> <span class="n">context</span> <span class="ow">in</span> <span class="n">ac_contexts</span>
+    <span class="p">}</span>
+
+    <span class="k">for</span> <span class="n">context_id</span> <span class="ow">in</span> <span class="n">requestor_contexts</span><span class="p">:</span>
+        <span class="c1"># Convenience variable</span>
+        <span class="n">rq_context</span> <span class="o">=</span> <span class="n">requestor_contexts</span><span class="p">[</span><span class="n">context_id</span><span class="p">]</span>
+
+        <span class="n">context</span> <span class="o">=</span> <span class="n">PresentationContext</span><span class="p">()</span>
+        <span class="n">context</span><span class="o">.</span><span class="n">context_id</span> <span class="o">=</span> <span class="n">context_id</span>
+        <span class="n">context</span><span class="o">.</span><span class="n">abstract_syntax</span> <span class="o">=</span> <span class="n">rq_context</span><span class="o">.</span><span class="n">abstract_syntax</span>
+        <span class="c1"># Ensure we always have a role set</span>
+        <span class="n">context</span><span class="o">.</span><span class="n">_as_scu</span> <span class="o">=</span> <span class="kc">False</span>
+        <span class="n">context</span><span class="o">.</span><span class="n">_as_scp</span> <span class="o">=</span> <span class="kc">False</span>
+
+        <span class="k">if</span> <span class="n">context_id</span> <span class="ow">in</span> <span class="n">acceptor_contexts</span><span class="p">:</span>
+            <span class="c1"># Convenience variable</span>
+            <span class="n">ac_context</span> <span class="o">=</span> <span class="n">acceptor_contexts</span><span class="p">[</span><span class="n">context_id</span><span class="p">]</span>
+
+            <span class="c1"># Update with accepted values</span>
+            <span class="n">context</span><span class="o">.</span><span class="n">transfer_syntax</span> <span class="o">=</span> <span class="p">[</span><span class="n">ac_context</span><span class="o">.</span><span class="n">transfer_syntax</span><span class="p">[</span><span class="mi">0</span><span class="p">]]</span>
+            <span class="n">context</span><span class="o">.</span><span class="n">result</span> <span class="o">=</span> <span class="n">ac_context</span><span class="o">.</span><span class="n">result</span>
+
+            <span class="c1">## SCP/SCU Role Selection Negotiation</span>
+            <span class="n">rq_roles</span> <span class="o">=</span> <span class="p">(</span><span class="n">rq_context</span><span class="o">.</span><span class="n">scu_role</span><span class="p">,</span> <span class="n">rq_context</span><span class="o">.</span><span class="n">scp_role</span><span class="p">)</span>
+            <span class="k">try</span><span class="p">:</span>
+                <span class="n">ac_roles</span> <span class="o">=</span> <span class="n">roles</span><span class="p">[</span><span class="n">context</span><span class="o">.</span><span class="n">abstract_syntax</span><span class="p">]</span>
+            <span class="k">except</span> <span class="ne">KeyError</span><span class="p">:</span>
+                <span class="n">ac_roles</span> <span class="o">=</span> <span class="p">(</span><span class="kc">None</span><span class="p">,</span> <span class="kc">None</span><span class="p">)</span>
+
+            <span class="c1"># Skip if context rejected or acceptor ignored proposal</span>
+            <span class="k">if</span> <span class="n">ac_context</span><span class="o">.</span><span class="n">result</span> <span class="o">==</span> <span class="mh">0x00</span> <span class="ow">and</span> <span class="kc">None</span> <span class="ow">not</span> <span class="ow">in</span> <span class="n">ac_roles</span><span class="p">:</span>
+                <span class="n">outcome</span> <span class="o">=</span> <span class="n">SCP_SCU_ROLES</span><span class="p">[</span><span class="n">rq_roles</span><span class="p">][</span><span class="n">ac_roles</span><span class="p">]</span>
+                <span class="n">context</span><span class="o">.</span><span class="n">_as_scu</span> <span class="o">=</span> <span class="n">outcome</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span>
+                <span class="n">context</span><span class="o">.</span><span class="n">_as_scp</span> <span class="o">=</span> <span class="n">outcome</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span>
+            <span class="k">else</span><span class="p">:</span>
+                <span class="c1"># We are the association requestor, so SCU role only</span>
+                <span class="n">context</span><span class="o">.</span><span class="n">_as_scp</span> <span class="o">=</span> <span class="kc">False</span>
+                <span class="n">context</span><span class="o">.</span><span class="n">_as_scu</span> <span class="o">=</span> <span class="kc">True</span>
+
+        <span class="c1"># Add any missing contexts as rejected</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="n">context</span><span class="o">.</span><span class="n">transfer_syntax</span> <span class="o">=</span> <span class="p">[</span><span class="n">rq_context</span><span class="o">.</span><span class="n">transfer_syntax</span><span class="p">[</span><span class="mi">0</span><span class="p">]]</span>
+            <span class="n">context</span><span class="o">.</span><span class="n">result</span> <span class="o">=</span> <span class="mh">0x02</span>
+
+        <span class="n">output</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">context</span><span class="p">)</span>
+
+    <span class="c1"># Sort returned list by context ID</span>
+    <span class="k">return</span> <span class="nb">sorted</span><span class="p">(</span><span class="n">output</span><span class="p">,</span> <span class="n">key</span><span class="o">=</span><span class="k">lambda</span> <span class="n">x</span><span class="p">:</span> <span class="n">x</span><span class="o">.</span><span class="n">context_id</span><span class="p">)</span>
 
 
 <div class="viewcode-block" id="build_context"><a class="viewcode-back" href="../../reference/generated/pynetdicom3.presentation.build_context.html#pynetdicom3.presentation.build_context">[docs]</a><span class="k">def</span> <span class="nf">build_context</span><span class="p">(</span><span class="n">abstract_syntax</span><span class="p">,</span> <span class="n">transfer_syntax</span><span class="o">=</span><span class="n">DEFAULT_TRANSFER_SYNTAXES</span><span class="p">):</span>
@@ -795,7 +1020,7 @@
 <span class="n">StoragePresentationContexts</span> <span class="o">=</span> <span class="p">[</span>
     <span class="n">build_context</span><span class="p">(</span><span class="s1">&#39;1.2.840.10008.5.1.4.1.1.1&#39;</span><span class="p">),</span>
     <span class="n">build_context</span><span class="p">(</span><span class="s1">&#39;1.2.840.10008.5.1.4.1.1.1.1&#39;</span><span class="p">),</span>
-    <span class="n">build_context</span><span class="p">(</span><span class="s1">&#39;1.2.840.10008.5.1.4.1.1.1.1.1.1&#39;</span><span class="p">),</span>
+    <span class="n">build_context</span><span class="p">(</span><span class="s1">&#39;1.2.840.10008.5.1.4.1.1.1.1.1&#39;</span><span class="p">),</span>
     <span class="n">build_context</span><span class="p">(</span><span class="s1">&#39;1.2.840.10008.5.1.4.1.1.1.2&#39;</span><span class="p">),</span>
     <span class="n">build_context</span><span class="p">(</span><span class="s1">&#39;1.2.840.10008.5.1.4.1.1.1.2.1&#39;</span><span class="p">),</span>
     <span class="n">build_context</span><span class="p">(</span><span class="s1">&#39;1.2.840.10008.5.1.4.1.1.1.3&#39;</span><span class="p">),</span>

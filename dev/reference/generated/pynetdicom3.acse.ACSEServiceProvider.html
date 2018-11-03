@@ -291,20 +291,6 @@ from the peer (default: 30)</p>
 </table>
 </dd></dl>
 
-<dl class="attribute">
-<dt id="pynetdicom3.acse.ACSEServiceProvider.context_manager">
-<code class="descname">context_manager</code><a class="headerlink" href="#pynetdicom3.acse.ACSEServiceProvider.context_manager" title="Permalink to this definition">¶</a></dt>
-<dd><p>The presentation context manager.</p>
-<table class="docutils field-list" frame="void" rules="none">
-<col class="field-name" />
-<col class="field-body" />
-<tbody valign="top">
-<tr class="field-odd field"><th class="field-name">Type:</th><td class="field-body">utils.PresentationContextManager</td>
-</tr>
-</tbody>
-</table>
-</dd></dl>
-
 <dl class="method">
 <dt id="pynetdicom3.acse.ACSEServiceProvider.__init__">
 <code class="descname">__init__</code><span class="sig-paren">(</span><em>assoc</em>, <em>acse_timeout=30</em><span class="sig-paren">)</span><a class="reference internal" href="../../_modules/pynetdicom3/acse.html#ACSEServiceProvider.__init__"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pynetdicom3.acse.ACSEServiceProvider.__init__" title="Permalink to this definition">¶</a></dt>
@@ -787,7 +773,8 @@ A-RELEASE always gives a reason of ‘normal’ and a result of
 <dt id="pynetdicom3.acse.ACSEServiceProvider.request_assoc">
 <code class="descname">request_assoc</code><span class="sig-paren">(</span><em>local_ae</em>, <em>peer_ae</em>, <em>max_pdu_size</em>, <em>pcdl</em>, <em>userspdu=None</em><span class="sig-paren">)</span><a class="reference internal" href="../../_modules/pynetdicom3/acse.html#ACSEServiceProvider.request_assoc"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pynetdicom3.acse.ACSEServiceProvider.request_assoc" title="Permalink to this definition">¶</a></dt>
 <dd><p>Request an Association with a peer Application Entity SCP.</p>
-<p>Issues an A-ASSOCIATE request primitive to the DICOM UL service provider</p>
+<p>Issues an A-ASSOCIATE request primitive to the DICOM UL service
+provider</p>
 <p>Requests an association with a remote AE and waits for association
 response (local AE is acting as an SCU)</p>
 <table class="docutils field-list" frame="void" rules="none">

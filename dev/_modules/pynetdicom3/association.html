@@ -190,6 +190,7 @@
 <span class="p">)</span>
 <span class="kn">from</span> <span class="nn">pynetdicom3.dsutils</span> <span class="k">import</span> <span class="n">decode</span><span class="p">,</span> <span class="n">encode</span>
 <span class="kn">from</span> <span class="nn">pynetdicom3.dul</span> <span class="k">import</span> <span class="n">DULServiceProvider</span>
+<span class="kn">from</span> <span class="nn">pynetdicom3.presentation</span> <span class="k">import</span> <span class="n">negotiate_as_acceptor</span>
 <span class="kn">from</span> <span class="nn">pynetdicom3.sop_class</span> <span class="k">import</span> <span class="p">(</span>
     <span class="n">uid_to_sop_class</span><span class="p">,</span>
     <span class="n">uid_to_service_class</span><span class="p">,</span>
@@ -233,12 +234,12 @@
 <span class="kn">from</span> <span class="nn">pynetdicom3.pdu_primitives</span> <span class="k">import</span> <span class="p">(</span><span class="n">UserIdentityNegotiation</span><span class="p">,</span>
                                         <span class="n">SOPClassExtendedNegotiation</span><span class="p">,</span>
                                         <span class="n">SOPClassCommonExtendedNegotiation</span><span class="p">,</span>
+                                        <span class="n">SCP_SCU_RoleSelectionNegotiation</span><span class="p">,</span>
                                         <span class="n">A_ASSOCIATE</span><span class="p">,</span> <span class="n">A_ABORT</span><span class="p">,</span> <span class="n">A_P_ABORT</span><span class="p">)</span>
 <span class="kn">from</span> <span class="nn">pynetdicom3.status</span> <span class="k">import</span> <span class="p">(</span>
     <span class="n">code_to_status</span><span class="p">,</span> <span class="n">code_to_category</span><span class="p">,</span> <span class="n">STORAGE_SERVICE_CLASS_STATUS</span><span class="p">,</span>
     <span class="n">STATUS_WARNING</span><span class="p">,</span> <span class="n">STATUS_SUCCESS</span>
 <span class="p">)</span>
-<span class="kn">from</span> <span class="nn">pynetdicom3.utils</span> <span class="k">import</span> <span class="n">PresentationContextManager</span>
 <span class="c1"># pylint: enable=no-name-in-module</span>
 
 <span class="n">LOGGER</span> <span class="o">=</span> <span class="n">logging</span><span class="o">.</span><span class="n">getLogger</span><span class="p">(</span><span class="s1">&#39;pynetdicom3.assoc&#39;</span><span class="p">)</span>
@@ -529,44 +530,43 @@
                 <span class="n">reject_assoc_rsd</span> <span class="o">=</span> <span class="p">[(</span><span class="mh">0x01</span><span class="p">,</span> <span class="mh">0x01</span><span class="p">,</span> <span class="mh">0x07</span><span class="p">)]</span>
 
         <span class="c1">## DUL ACSE Related Rejections</span>
-        <span class="c1">#</span>
         <span class="c1"># User Identity Negotiation (PS3.7 Annex D.3.3.7)</span>
-        <span class="k">for</span> <span class="n">ii</span> <span class="ow">in</span> <span class="n">assoc_rq</span><span class="o">.</span><span class="n">user_information</span><span class="p">:</span>
-            <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">ii</span><span class="p">,</span> <span class="n">UserIdentityNegotiation</span><span class="p">):</span>
-                <span class="c1"># Used to notify the association acceptor of the user</span>
-                <span class="c1">#   identity of the association requestor. It may also</span>
-                <span class="c1">#   request that the Acceptor response with the server</span>
-                <span class="c1">#   identity.</span>
-                <span class="c1">#</span>
-                <span class="c1"># The Acceptor does not provide an A-ASSOCIATE response</span>
-                <span class="c1">#   unless a positive response is requested and user</span>
-                <span class="c1">#   authentication succeeded. If a positive response</span>
-                <span class="c1">#   was requested, the A-ASSOCIATE response shall contain</span>
-                <span class="c1">#   a User Identity sub-item. If a Kerberos ticket is used</span>
-                <span class="c1">#   the response shall include a Kerberos server ticket</span>
-                <span class="c1">#</span>
-                <span class="c1"># A positive response must be requested if the association</span>
-                <span class="c1">#   requestor requires confirmation. If the Acceptor does</span>
-                <span class="c1">#   not support user identification it will accept the</span>
-                <span class="c1">#   association without making a positive response. The</span>
-                <span class="c1">#   Requestor can then decide whether to proceed</span>
+        <span class="c1"># TODO: Implement propoerly but for now just remove items</span>
+        <span class="c1"># Used to notify the association acceptor of the user</span>
+        <span class="c1">#   identity of the association requestor. It may also</span>
+        <span class="c1">#   request that the Acceptor response with the server</span>
+        <span class="c1">#   identity.</span>
+        <span class="c1">#</span>
+        <span class="c1"># The Acceptor does not provide an A-ASSOCIATE response</span>
+        <span class="c1">#   unless a positive response is requested and user</span>
+        <span class="c1">#   authentication succeeded. If a positive response</span>
+        <span class="c1">#   was requested, the A-ASSOCIATE response shall contain</span>
+        <span class="c1">#   a User Identity sub-item. If a Kerberos ticket is used</span>
+        <span class="c1">#   the response shall include a Kerberos server ticket</span>
+        <span class="c1">#</span>
+        <span class="c1"># A positive response must be requested if the association</span>
+        <span class="c1">#   requestor requires confirmation. If the Acceptor does</span>
+        <span class="c1">#   not support user identification it will accept the</span>
+        <span class="c1">#   association without making a positive response. The</span>
+        <span class="c1">#   Requestor can then decide whether to proceed</span>
 
-                <span class="c1">#user_authorised = self.ae.on_user_identity(</span>
-                <span class="c1">#                       ii.UserIdentityType,</span>
-                <span class="c1">#                       ii.PrimaryField,</span>
-                <span class="c1">#                       ii.SecondaryField)</span>
+        <span class="c1">#user_authorised = self.ae.on_user_identity(</span>
+        <span class="c1">#                       ii.UserIdentityType,</span>
+        <span class="c1">#                       ii.PrimaryField,</span>
+        <span class="c1">#                       ii.SecondaryField)</span>
 
-                <span class="c1"># Associate with all requestors</span>
-                <span class="n">assoc_rq</span><span class="o">.</span><span class="n">user_information</span><span class="o">.</span><span class="n">remove</span><span class="p">(</span><span class="n">ii</span><span class="p">)</span>
-
-                <span class="c1"># Testing</span>
-                <span class="c1">#if ii.PositiveResponseRequested:</span>
-                <span class="c1">#    ii.ServerResponse = b&#39;&#39;</span>
+        <span class="c1"># Associate with all requestors</span>
+        <span class="n">assoc_rq</span><span class="o">.</span><span class="n">user_information</span><span class="p">[:]</span> <span class="o">=</span> <span class="p">(</span>
+            <span class="n">ii</span> <span class="k">for</span> <span class="n">ii</span> <span class="ow">in</span> <span class="n">assoc_rq</span><span class="o">.</span><span class="n">user_information</span>
+                <span class="k">if</span> <span class="ow">not</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">ii</span><span class="p">,</span> <span class="n">UserIdentityNegotiation</span><span class="p">)</span>
+        <span class="p">)</span>
 
         <span class="c1"># Extended Negotiation</span>
-        <span class="k">for</span> <span class="n">ii</span> <span class="ow">in</span> <span class="n">assoc_rq</span><span class="o">.</span><span class="n">user_information</span><span class="p">:</span>
-            <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">ii</span><span class="p">,</span> <span class="n">SOPClassExtendedNegotiation</span><span class="p">):</span>
-                <span class="n">assoc_rq</span><span class="o">.</span><span class="n">user_information</span><span class="o">.</span><span class="n">remove</span><span class="p">(</span><span class="n">ii</span><span class="p">)</span>
+        <span class="c1"># TODO: Implement propoerly but for now just remove items</span>
+        <span class="n">assoc_rq</span><span class="o">.</span><span class="n">user_information</span><span class="p">[:]</span> <span class="o">=</span> <span class="p">(</span>
+            <span class="n">ii</span> <span class="k">for</span> <span class="n">ii</span> <span class="ow">in</span> <span class="n">assoc_rq</span><span class="o">.</span><span class="n">user_information</span>
+                <span class="k">if</span> <span class="ow">not</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">ii</span><span class="p">,</span> <span class="n">SOPClassExtendedNegotiation</span><span class="p">)</span>
+        <span class="p">)</span>
 
         <span class="c1">## DUL Presentation Related Rejections</span>
         <span class="c1">#</span>
@@ -581,14 +581,35 @@
             <span class="bp">self</span><span class="o">.</span><span class="n">kill</span><span class="p">()</span>
             <span class="k">return</span>
 
-        <span class="c1">## Presentation Contexts</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">acse</span><span class="o">.</span><span class="n">context_manager</span> <span class="o">=</span> <span class="n">PresentationContextManager</span><span class="p">()</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">acse</span><span class="o">.</span><span class="n">context_manager</span><span class="o">.</span><span class="n">requestor_contexts</span> <span class="o">=</span> \
-                            <span class="n">assoc_rq</span><span class="o">.</span><span class="n">presentation_context_definition_list</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">acse</span><span class="o">.</span><span class="n">context_manager</span><span class="o">.</span><span class="n">acceptor_contexts</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">ae</span><span class="o">.</span><span class="n">supported_contexts</span>
+        <span class="c1">## Negotiate Presentation Contexts</span>
+        <span class="c1"># SCP/SCU Role Selection Negotiation request items</span>
+        <span class="c1"># {SOP Class UID : (SCU role, SCP role)}</span>
+        <span class="n">rq_roles</span> <span class="o">=</span> <span class="p">{}</span>
+        <span class="k">for</span> <span class="n">ii</span> <span class="ow">in</span> <span class="n">assoc_rq</span><span class="o">.</span><span class="n">user_information</span><span class="p">:</span>
+            <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">ii</span><span class="p">,</span> <span class="n">SCP_SCU_RoleSelectionNegotiation</span><span class="p">):</span>
+                <span class="n">rq_roles</span><span class="p">[</span><span class="n">ii</span><span class="o">.</span><span class="n">sop_class_uid</span><span class="p">]</span> <span class="o">=</span> <span class="p">(</span><span class="n">ii</span><span class="o">.</span><span class="n">scu_role</span><span class="p">,</span> <span class="n">ii</span><span class="o">.</span><span class="n">scp_role</span><span class="p">)</span>
 
-        <span class="bp">self</span><span class="o">.</span><span class="n">acse</span><span class="o">.</span><span class="n">accepted_contexts</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">acse</span><span class="o">.</span><span class="n">context_manager</span><span class="o">.</span><span class="n">accepted</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">acse</span><span class="o">.</span><span class="n">rejected_contexts</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">acse</span><span class="o">.</span><span class="n">context_manager</span><span class="o">.</span><span class="n">rejected</span>
+        <span class="c1"># Remove role selection items</span>
+        <span class="n">assoc_rq</span><span class="o">.</span><span class="n">user_information</span><span class="p">[:]</span> <span class="o">=</span> <span class="p">(</span>
+            <span class="n">ii</span> <span class="k">for</span> <span class="n">ii</span> <span class="ow">in</span> <span class="n">assoc_rq</span><span class="o">.</span><span class="n">user_information</span>
+                <span class="k">if</span> <span class="ow">not</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">ii</span><span class="p">,</span> <span class="n">SCP_SCU_RoleSelectionNegotiation</span><span class="p">)</span>
+        <span class="p">)</span>
+
+        <span class="n">result</span><span class="p">,</span> <span class="n">ac_roles</span> <span class="o">=</span> <span class="n">negotiate_as_acceptor</span><span class="p">(</span>
+            <span class="n">assoc_rq</span><span class="o">.</span><span class="n">presentation_context_definition_list</span><span class="p">,</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">ae</span><span class="o">.</span><span class="n">supported_contexts</span><span class="p">,</span>
+            <span class="n">rq_roles</span>
+        <span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">acse</span><span class="o">.</span><span class="n">accepted_contexts</span> <span class="o">=</span> <span class="p">[</span>
+            <span class="n">cx</span> <span class="k">for</span> <span class="n">cx</span> <span class="ow">in</span> <span class="n">result</span> <span class="k">if</span> <span class="n">cx</span><span class="o">.</span><span class="n">result</span> <span class="o">==</span> <span class="mh">0x00</span>
+        <span class="p">]</span>
+
+        <span class="bp">self</span><span class="o">.</span><span class="n">acse</span><span class="o">.</span><span class="n">rejected_contexts</span> <span class="o">=</span> <span class="p">[</span>
+            <span class="n">cx</span> <span class="k">for</span> <span class="n">cx</span> <span class="ow">in</span> <span class="n">result</span> <span class="k">if</span> <span class="n">cx</span><span class="o">.</span><span class="n">result</span> <span class="o">!=</span> <span class="mh">0x00</span>
+        <span class="p">]</span>
+
+        <span class="c1"># Add any SCP/SCU Role Selection Negotiation response items</span>
+        <span class="n">assoc_rq</span><span class="o">.</span><span class="n">user_information</span><span class="o">.</span><span class="n">extend</span><span class="p">(</span><span class="n">ac_roles</span><span class="p">)</span>
 
         <span class="c1"># Save the peer AE details</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">peer_ae</span><span class="p">[</span><span class="s1">&#39;ae_title&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">assoc_rq</span><span class="o">.</span><span class="n">calling_ae_title</span>
@@ -768,23 +789,22 @@
             <span class="bp">self</span><span class="o">.</span><span class="n">kill</span><span class="p">()</span>
             <span class="k">return</span>
 
-        <span class="c1"># Build role extended negotiation - FIXME - needs updating</span>
-        <span class="c1">#   in particular, when running a C-GET user the role selection</span>
-        <span class="c1">#   needs to be set prior to association</span>
-        <span class="c1">#</span>
-        <span class="c1"># SCP/SCU Role Negotiation (optional)</span>
-        <span class="c1">#self.ext_neg = []</span>
-        <span class="c1">#for context in self.AE.presentation_contexts_scu:</span>
-        <span class="c1">#    tmp = SCP_SCU_RoleSelectionParameters()</span>
-        <span class="c1">#    tmp.SOPClassUID = context.abstract_syntax</span>
-        <span class="c1">#    tmp.SCURole = 0</span>
-        <span class="c1">#    tmp.SCPRole = 1</span>
-        <span class="c1">#</span>
-        <span class="c1">#    self.ext_neg.append(tmp)</span>
-
         <span class="n">local_ae</span> <span class="o">=</span> <span class="p">{</span><span class="s1">&#39;address&#39;</span> <span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">ae</span><span class="o">.</span><span class="n">address</span><span class="p">,</span>
                     <span class="s1">&#39;port&#39;</span> <span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">ae</span><span class="o">.</span><span class="n">port</span><span class="p">,</span>
                     <span class="s1">&#39;ae_title&#39;</span> <span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">ae</span><span class="o">.</span><span class="n">ae_title</span><span class="p">}</span>
+
+        <span class="c1"># Apply requestor&#39;s SCP/SCU role selection (if any)</span>
+        <span class="n">roles</span> <span class="o">=</span> <span class="p">{}</span>
+        <span class="k">for</span> <span class="n">ii</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">ext_neg</span><span class="p">:</span>
+            <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">ii</span><span class="p">,</span> <span class="n">SCP_SCU_RoleSelectionNegotiation</span><span class="p">):</span>
+                <span class="n">roles</span><span class="p">[</span><span class="n">ii</span><span class="o">.</span><span class="n">sop_class_uid</span><span class="p">]</span> <span class="o">=</span> <span class="p">(</span><span class="n">ii</span><span class="o">.</span><span class="n">scu_role</span><span class="p">,</span> <span class="n">ii</span><span class="o">.</span><span class="n">scp_role</span><span class="p">)</span>
+
+        <span class="k">if</span> <span class="n">roles</span><span class="p">:</span>
+            <span class="k">for</span> <span class="n">cx</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">requested_contexts</span><span class="p">:</span>
+                <span class="k">try</span><span class="p">:</span>
+                    <span class="p">(</span><span class="n">cx</span><span class="o">.</span><span class="n">scu_role</span><span class="p">,</span> <span class="n">cx</span><span class="o">.</span><span class="n">scp_role</span><span class="p">)</span> <span class="o">=</span> <span class="n">roles</span><span class="p">[</span><span class="n">cx</span><span class="o">.</span><span class="n">abstract_syntax</span><span class="p">]</span>
+                <span class="k">except</span> <span class="ne">KeyError</span><span class="p">:</span>
+                    <span class="k">pass</span>
 
         <span class="c1"># Request an Association via the ACSE</span>
         <span class="n">is_accepted</span><span class="p">,</span> <span class="n">assoc_rsp</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">acse</span><span class="o">.</span><span class="n">request_assoc</span><span class="p">(</span>
@@ -811,14 +831,6 @@
                     <span class="bp">self</span><span class="o">.</span><span class="n">kill</span><span class="p">()</span>
 
                     <span class="k">return</span>
-
-                <span class="c1"># Build supported SOP Classes for the Association</span>
-                <span class="bp">self</span><span class="o">.</span><span class="n">scu_supported_sop</span> <span class="o">=</span> <span class="p">[]</span>
-                <span class="k">for</span> <span class="n">context</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">acse</span><span class="o">.</span><span class="n">accepted_contexts</span><span class="p">:</span>
-                    <span class="bp">self</span><span class="o">.</span><span class="n">scu_supported_sop</span><span class="o">.</span><span class="n">append</span><span class="p">(</span>
-                        <span class="p">(</span><span class="n">context</span><span class="o">.</span><span class="n">context_id</span><span class="p">,</span>
-                         <span class="n">uid_to_sop_class</span><span class="p">(</span><span class="n">context</span><span class="o">.</span><span class="n">abstract_syntax</span><span class="p">),</span>
-                         <span class="n">context</span><span class="o">.</span><span class="n">transfer_syntax</span><span class="p">[</span><span class="mi">0</span><span class="p">]))</span>
 
                 <span class="c1"># Assocation established OK</span>
                 <span class="bp">self</span><span class="o">.</span><span class="n">is_established</span> <span class="o">=</span> <span class="kc">True</span>
@@ -973,12 +985,11 @@
 
         <span class="c1"># Get the Presentation Context we are operating under</span>
         <span class="n">context_id</span> <span class="o">=</span> <span class="kc">None</span>
-        <span class="k">for</span> <span class="n">context</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">acse</span><span class="o">.</span><span class="n">context_manager</span><span class="o">.</span><span class="n">accepted</span><span class="p">:</span>
-            <span class="k">if</span> <span class="n">uid</span> <span class="o">==</span> <span class="n">context</span><span class="o">.</span><span class="n">abstract_syntax</span><span class="p">:</span>
+        <span class="k">for</span> <span class="n">context</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">acse</span><span class="o">.</span><span class="n">accepted_contexts</span><span class="p">:</span>
+            <span class="k">if</span> <span class="n">uid</span> <span class="o">==</span> <span class="n">context</span><span class="o">.</span><span class="n">abstract_syntax</span> <span class="ow">and</span> <span class="n">context</span><span class="o">.</span><span class="n">as_scu</span><span class="p">:</span>
                 <span class="n">context_id</span> <span class="o">=</span> <span class="n">context</span><span class="o">.</span><span class="n">context_id</span>
                 <span class="k">break</span>
-
-        <span class="k">if</span> <span class="n">context_id</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+        <span class="k">else</span><span class="p">:</span>
             <span class="n">LOGGER</span><span class="o">.</span><span class="n">error</span><span class="p">(</span><span class="s2">&quot;No accepted Presentation Context for &#39;</span><span class="si">%s</span><span class="s2">&#39;&quot;</span><span class="p">,</span> <span class="n">uid</span><span class="p">)</span>
             <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s2">&quot;No accepted Presentation Context for &quot;</span>
                              <span class="s2">&quot;&#39;Verification SOP Class&#39;.&quot;</span><span class="p">)</span>
@@ -1130,9 +1141,9 @@
         <span class="c1"># Determine the Presentation Context we are operating under</span>
         <span class="c1">#   and hence the transfer syntax to use for encoding `dataset`</span>
         <span class="n">transfer_syntax</span> <span class="o">=</span> <span class="kc">None</span>
-        <span class="k">for</span> <span class="n">context</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">acse</span><span class="o">.</span><span class="n">context_manager</span><span class="o">.</span><span class="n">accepted</span><span class="p">:</span>
+        <span class="k">for</span> <span class="n">context</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">acse</span><span class="o">.</span><span class="n">accepted_contexts</span><span class="p">:</span>
             <span class="k">try</span><span class="p">:</span>
-                <span class="k">if</span> <span class="n">dataset</span><span class="o">.</span><span class="n">SOPClassUID</span> <span class="o">==</span> <span class="n">context</span><span class="o">.</span><span class="n">abstract_syntax</span><span class="p">:</span>
+                <span class="k">if</span> <span class="n">dataset</span><span class="o">.</span><span class="n">SOPClassUID</span> <span class="o">==</span> <span class="n">context</span><span class="o">.</span><span class="n">abstract_syntax</span> <span class="ow">and</span> <span class="n">context</span><span class="o">.</span><span class="n">as_scu</span><span class="p">:</span>
                     <span class="n">transfer_syntax</span> <span class="o">=</span> <span class="n">context</span><span class="o">.</span><span class="n">transfer_syntax</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span>
                     <span class="n">context_id</span> <span class="o">=</span> <span class="n">context</span><span class="o">.</span><span class="n">context_id</span>
                     <span class="k">break</span>
@@ -1143,10 +1154,9 @@
                 <span class="n">LOGGER</span><span class="o">.</span><span class="n">error</span><span class="p">(</span><span class="s2">&quot;Store SCU failed due to there being no valid &quot;</span>
                              <span class="s2">&quot;presentation context for the current dataset&quot;</span><span class="p">)</span>
                 <span class="k">raise</span> <span class="n">ex</span>
-
-        <span class="k">if</span> <span class="n">transfer_syntax</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+        <span class="k">else</span><span class="p">:</span>
             <span class="n">LOGGER</span><span class="o">.</span><span class="n">error</span><span class="p">(</span><span class="s2">&quot;Association.send_c_store - no accepted Presentation &quot;</span>
-                         <span class="s2">&quot; Context for: &#39;</span><span class="si">%s</span><span class="s2">&#39;&quot;</span><span class="p">,</span> <span class="n">dataset</span><span class="o">.</span><span class="n">SOPClassUID</span><span class="p">)</span>
+                         <span class="s2">&quot;Context for: &#39;</span><span class="si">%s</span><span class="s2">&#39;&quot;</span><span class="p">,</span> <span class="n">dataset</span><span class="o">.</span><span class="n">SOPClassUID</span><span class="p">)</span>
             <span class="n">LOGGER</span><span class="o">.</span><span class="n">error</span><span class="p">(</span><span class="s2">&quot;Store SCU failed due to there being no accepted &quot;</span>
                          <span class="s2">&quot;presentation context for the current dataset&quot;</span><span class="p">)</span>
             <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s2">&quot;No accepted Presentation Context for &#39;dataset&#39;.&quot;</span><span class="p">)</span>
@@ -1415,13 +1425,12 @@
         <span class="c1"># Determine the Presentation Context we are operating under</span>
         <span class="c1">#   and hence the transfer syntax to use for encoding `dataset`</span>
         <span class="n">transfer_syntax</span> <span class="o">=</span> <span class="kc">None</span>
-        <span class="k">for</span> <span class="n">context</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">acse</span><span class="o">.</span><span class="n">context_manager</span><span class="o">.</span><span class="n">accepted</span><span class="p">:</span>
-            <span class="k">if</span> <span class="n">sop_class</span><span class="o">.</span><span class="n">uid</span> <span class="o">==</span> <span class="n">context</span><span class="o">.</span><span class="n">abstract_syntax</span><span class="p">:</span>
+        <span class="k">for</span> <span class="n">context</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">acse</span><span class="o">.</span><span class="n">accepted_contexts</span><span class="p">:</span>
+            <span class="k">if</span> <span class="n">sop_class</span><span class="o">.</span><span class="n">uid</span> <span class="o">==</span> <span class="n">context</span><span class="o">.</span><span class="n">abstract_syntax</span> <span class="ow">and</span> <span class="n">context</span><span class="o">.</span><span class="n">as_scu</span><span class="p">:</span>
                 <span class="n">transfer_syntax</span> <span class="o">=</span> <span class="n">context</span><span class="o">.</span><span class="n">transfer_syntax</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span>
                 <span class="n">context_id</span> <span class="o">=</span> <span class="n">context</span><span class="o">.</span><span class="n">context_id</span>
                 <span class="k">break</span>
-
-        <span class="k">if</span> <span class="n">transfer_syntax</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+        <span class="k">else</span><span class="p">:</span>
             <span class="n">LOGGER</span><span class="o">.</span><span class="n">error</span><span class="p">(</span><span class="s2">&quot;No accepted Presentation Context for: &#39;</span><span class="si">%s</span><span class="s2">&#39;&quot;</span><span class="p">,</span>
                          <span class="n">sop_class</span><span class="o">.</span><span class="n">uid</span><span class="p">)</span>
             <span class="n">LOGGER</span><span class="o">.</span><span class="n">error</span><span class="p">(</span><span class="s2">&quot;Find SCU failed due to there being no accepted &quot;</span>
@@ -1687,13 +1696,12 @@
         <span class="c1"># Determine the Presentation Context we are operating under</span>
         <span class="c1">#   and hence the transfer syntax to use for encoding `dataset`</span>
         <span class="n">transfer_syntax</span> <span class="o">=</span> <span class="kc">None</span>
-        <span class="k">for</span> <span class="n">context</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">acse</span><span class="o">.</span><span class="n">context_manager</span><span class="o">.</span><span class="n">accepted</span><span class="p">:</span>
-            <span class="k">if</span> <span class="n">sop_class</span><span class="o">.</span><span class="n">uid</span> <span class="o">==</span> <span class="n">context</span><span class="o">.</span><span class="n">abstract_syntax</span><span class="p">:</span>
+        <span class="k">for</span> <span class="n">context</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">acse</span><span class="o">.</span><span class="n">accepted_contexts</span><span class="p">:</span>
+            <span class="k">if</span> <span class="n">sop_class</span><span class="o">.</span><span class="n">uid</span> <span class="o">==</span> <span class="n">context</span><span class="o">.</span><span class="n">abstract_syntax</span> <span class="ow">and</span> <span class="n">context</span><span class="o">.</span><span class="n">as_scu</span><span class="p">:</span>
                 <span class="n">transfer_syntax</span> <span class="o">=</span> <span class="n">context</span><span class="o">.</span><span class="n">transfer_syntax</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span>
                 <span class="n">context_id</span> <span class="o">=</span> <span class="n">context</span><span class="o">.</span><span class="n">context_id</span>
                 <span class="k">break</span>
-
-        <span class="k">if</span> <span class="n">transfer_syntax</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+        <span class="k">else</span><span class="p">:</span>
             <span class="n">LOGGER</span><span class="o">.</span><span class="n">error</span><span class="p">(</span><span class="s2">&quot;No accepted Presentation Context for: &#39;</span><span class="si">%s</span><span class="s2">&#39;&quot;</span><span class="p">,</span>
                          <span class="n">sop_class</span><span class="o">.</span><span class="n">uid</span><span class="p">)</span>
             <span class="n">LOGGER</span><span class="o">.</span><span class="n">error</span><span class="p">(</span><span class="s2">&quot;Move SCU failed due to there being no accepted &quot;</span>
@@ -2008,13 +2016,12 @@
         <span class="c1"># Determine the Presentation Context we are operating under</span>
         <span class="c1">#   and hence the transfer syntax to use for encoding `dataset`</span>
         <span class="n">transfer_syntax</span> <span class="o">=</span> <span class="kc">None</span>
-        <span class="k">for</span> <span class="n">context</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">acse</span><span class="o">.</span><span class="n">context_manager</span><span class="o">.</span><span class="n">accepted</span><span class="p">:</span>
-            <span class="k">if</span> <span class="n">sop_class</span><span class="o">.</span><span class="n">uid</span> <span class="o">==</span> <span class="n">context</span><span class="o">.</span><span class="n">abstract_syntax</span><span class="p">:</span>
+        <span class="k">for</span> <span class="n">context</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">acse</span><span class="o">.</span><span class="n">accepted_contexts</span><span class="p">:</span>
+            <span class="k">if</span> <span class="n">sop_class</span><span class="o">.</span><span class="n">uid</span> <span class="o">==</span> <span class="n">context</span><span class="o">.</span><span class="n">abstract_syntax</span> <span class="ow">and</span> <span class="n">context</span><span class="o">.</span><span class="n">as_scu</span><span class="p">:</span>
                 <span class="n">transfer_syntax</span> <span class="o">=</span> <span class="n">context</span><span class="o">.</span><span class="n">transfer_syntax</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span>
                 <span class="n">context_id</span> <span class="o">=</span> <span class="n">context</span><span class="o">.</span><span class="n">context_id</span>
                 <span class="k">break</span>
-
-        <span class="k">if</span> <span class="n">transfer_syntax</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+        <span class="k">else</span><span class="p">:</span>
             <span class="n">LOGGER</span><span class="o">.</span><span class="n">error</span><span class="p">(</span><span class="s2">&quot;No accepted Presentation Context for: &#39;</span><span class="si">%s</span><span class="s2">&#39;&quot;</span><span class="p">,</span>
                          <span class="n">sop_class</span><span class="o">.</span><span class="n">uid</span><span class="p">)</span>
             <span class="n">LOGGER</span><span class="o">.</span><span class="n">error</span><span class="p">(</span><span class="s2">&quot;Get SCU failed due to there being no accepted &quot;</span>
@@ -2180,12 +2187,11 @@
         <span class="n">rsp</span><span class="o">.</span><span class="n">AffectedSOPClassUID</span> <span class="o">=</span> <span class="n">req</span><span class="o">.</span><span class="n">AffectedSOPClassUID</span>
 
         <span class="n">transfer_syntax</span> <span class="o">=</span> <span class="kc">None</span>
-        <span class="k">for</span> <span class="n">context</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">acse</span><span class="o">.</span><span class="n">context_manager</span><span class="o">.</span><span class="n">accepted</span><span class="p">:</span>
-            <span class="k">if</span> <span class="n">req</span><span class="o">.</span><span class="n">AffectedSOPClassUID</span> <span class="o">==</span> <span class="n">context</span><span class="o">.</span><span class="n">abstract_syntax</span><span class="p">:</span>
+        <span class="k">for</span> <span class="n">context</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">acse</span><span class="o">.</span><span class="n">accepted_contexts</span><span class="p">:</span>
+            <span class="k">if</span> <span class="n">req</span><span class="o">.</span><span class="n">AffectedSOPClassUID</span> <span class="o">==</span> <span class="n">context</span><span class="o">.</span><span class="n">abstract_syntax</span> <span class="ow">and</span> <span class="n">context</span><span class="o">.</span><span class="n">as_scp</span><span class="p">:</span>
                 <span class="n">transfer_syntax</span> <span class="o">=</span> <span class="n">context</span><span class="o">.</span><span class="n">transfer_syntax</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span>
                 <span class="k">break</span>
-
-        <span class="k">if</span> <span class="n">transfer_syntax</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+        <span class="k">else</span><span class="p">:</span>
             <span class="n">LOGGER</span><span class="o">.</span><span class="n">error</span><span class="p">(</span><span class="s2">&quot;No accepted Presentation Context for: &#39;</span><span class="si">%s</span><span class="s2">&#39;&quot;</span><span class="p">,</span>
                          <span class="n">req</span><span class="o">.</span><span class="n">AffectedSOPClassUID</span><span class="p">)</span>
             <span class="c1"># SOP Class not supported, no context ID?</span>
@@ -2376,8 +2382,8 @@
         <span class="c1"># Determine the Presentation Context we are operating under</span>
         <span class="c1">#   and hence the transfer syntax to use for encoding `dataset`</span>
         <span class="n">transfer_syntax</span> <span class="o">=</span> <span class="kc">None</span>
-        <span class="k">for</span> <span class="n">context</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">acse</span><span class="o">.</span><span class="n">context_manager</span><span class="o">.</span><span class="n">accepted</span><span class="p">:</span>
-            <span class="k">if</span> <span class="n">class_uid</span> <span class="o">==</span> <span class="n">context</span><span class="o">.</span><span class="n">abstract_syntax</span><span class="p">:</span>
+        <span class="k">for</span> <span class="n">context</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">acse</span><span class="o">.</span><span class="n">accepted_contexts</span><span class="p">:</span>
+            <span class="k">if</span> <span class="n">class_uid</span> <span class="o">==</span> <span class="n">context</span><span class="o">.</span><span class="n">abstract_syntax</span> <span class="ow">and</span> <span class="n">context</span><span class="o">.</span><span class="n">as_scu</span><span class="p">:</span>
                 <span class="n">transfer_syntax</span> <span class="o">=</span> <span class="n">context</span><span class="o">.</span><span class="n">transfer_syntax</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span>
                 <span class="n">context_id</span> <span class="o">=</span> <span class="n">context</span><span class="o">.</span><span class="n">context_id</span>
                 <span class="k">break</span>
@@ -2548,8 +2554,8 @@
         <span class="c1"># Determine the Presentation Context we are operating under</span>
         <span class="c1">#   and hence the transfer syntax to use for encoding `dataset`</span>
         <span class="n">transfer_syntax</span> <span class="o">=</span> <span class="kc">None</span>
-        <span class="k">for</span> <span class="n">context</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">acse</span><span class="o">.</span><span class="n">context_manager</span><span class="o">.</span><span class="n">accepted</span><span class="p">:</span>
-            <span class="k">if</span> <span class="n">class_uid</span> <span class="o">==</span> <span class="n">context</span><span class="o">.</span><span class="n">abstract_syntax</span><span class="p">:</span>
+        <span class="k">for</span> <span class="n">context</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">acse</span><span class="o">.</span><span class="n">accepted_contexts</span><span class="p">:</span>
+            <span class="k">if</span> <span class="n">class_uid</span> <span class="o">==</span> <span class="n">context</span><span class="o">.</span><span class="n">abstract_syntax</span> <span class="ow">and</span> <span class="n">context</span><span class="o">.</span><span class="n">as_scu</span><span class="p">:</span>
                 <span class="n">transfer_syntax</span> <span class="o">=</span> <span class="n">context</span><span class="o">.</span><span class="n">transfer_syntax</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span>
                 <span class="n">context_id</span> <span class="o">=</span> <span class="n">context</span><span class="o">.</span><span class="n">context_id</span>
                 <span class="k">break</span>
@@ -2702,8 +2708,8 @@
         <span class="c1"># Determine the Presentation Context we are operating under</span>
         <span class="c1">#   and hence the transfer syntax to use for encoding `dataset`</span>
         <span class="n">transfer_syntax</span> <span class="o">=</span> <span class="kc">None</span>
-        <span class="k">for</span> <span class="n">context</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">acse</span><span class="o">.</span><span class="n">context_manager</span><span class="o">.</span><span class="n">accepted</span><span class="p">:</span>
-            <span class="k">if</span> <span class="n">class_uid</span> <span class="o">==</span> <span class="n">context</span><span class="o">.</span><span class="n">abstract_syntax</span><span class="p">:</span>
+        <span class="k">for</span> <span class="n">context</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">acse</span><span class="o">.</span><span class="n">accepted_contexts</span><span class="p">:</span>
+            <span class="k">if</span> <span class="n">class_uid</span> <span class="o">==</span> <span class="n">context</span><span class="o">.</span><span class="n">abstract_syntax</span> <span class="ow">and</span> <span class="n">context</span><span class="o">.</span><span class="n">as_scu</span><span class="p">:</span>
                 <span class="n">transfer_syntax</span> <span class="o">=</span> <span class="n">context</span><span class="o">.</span><span class="n">transfer_syntax</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span>
                 <span class="n">context_id</span> <span class="o">=</span> <span class="n">context</span><span class="o">.</span><span class="n">context_id</span>
                 <span class="k">break</span>
@@ -2866,8 +2872,8 @@
         <span class="c1"># Determine the Presentation Context we are operating under</span>
         <span class="c1">#   and hence the transfer syntax to use for encoding `dataset`</span>
         <span class="n">transfer_syntax</span> <span class="o">=</span> <span class="kc">None</span>
-        <span class="k">for</span> <span class="n">context</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">acse</span><span class="o">.</span><span class="n">context_manager</span><span class="o">.</span><span class="n">accepted</span><span class="p">:</span>
-            <span class="k">if</span> <span class="n">class_uid</span> <span class="o">==</span> <span class="n">context</span><span class="o">.</span><span class="n">abstract_syntax</span><span class="p">:</span>
+        <span class="k">for</span> <span class="n">context</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">acse</span><span class="o">.</span><span class="n">accepted_contexts</span><span class="p">:</span>
+            <span class="k">if</span> <span class="n">class_uid</span> <span class="o">==</span> <span class="n">context</span><span class="o">.</span><span class="n">abstract_syntax</span> <span class="ow">and</span> <span class="n">context</span><span class="o">.</span><span class="n">as_scu</span><span class="p">:</span>
                 <span class="n">transfer_syntax</span> <span class="o">=</span> <span class="n">context</span><span class="o">.</span><span class="n">transfer_syntax</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span>
                 <span class="n">context_id</span> <span class="o">=</span> <span class="n">context</span><span class="o">.</span><span class="n">context_id</span>
                 <span class="k">break</span>
@@ -3029,8 +3035,8 @@
         <span class="c1"># Determine the Presentation Context we are operating under</span>
         <span class="c1">#   and hence the transfer syntax to use for encoding `dataset`</span>
         <span class="n">transfer_syntax</span> <span class="o">=</span> <span class="kc">None</span>
-        <span class="k">for</span> <span class="n">context</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">acse</span><span class="o">.</span><span class="n">context_manager</span><span class="o">.</span><span class="n">accepted</span><span class="p">:</span>
-            <span class="k">if</span> <span class="n">class_uid</span> <span class="o">==</span> <span class="n">context</span><span class="o">.</span><span class="n">abstract_syntax</span><span class="p">:</span>
+        <span class="k">for</span> <span class="n">context</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">acse</span><span class="o">.</span><span class="n">accepted_contexts</span><span class="p">:</span>
+            <span class="k">if</span> <span class="n">class_uid</span> <span class="o">==</span> <span class="n">context</span><span class="o">.</span><span class="n">abstract_syntax</span> <span class="ow">and</span> <span class="n">context</span><span class="o">.</span><span class="n">as_scu</span><span class="p">:</span>
                 <span class="n">transfer_syntax</span> <span class="o">=</span> <span class="n">context</span><span class="o">.</span><span class="n">transfer_syntax</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span>
                 <span class="n">context_id</span> <span class="o">=</span> <span class="n">context</span><span class="o">.</span><span class="n">context_id</span>
                 <span class="k">break</span>
@@ -3176,8 +3182,8 @@
         <span class="c1"># Determine the Presentation Context we are operating under</span>
         <span class="c1">#   and hence the transfer syntax to use for encoding `dataset`</span>
         <span class="n">transfer_syntax</span> <span class="o">=</span> <span class="kc">None</span>
-        <span class="k">for</span> <span class="n">context</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">acse</span><span class="o">.</span><span class="n">context_manager</span><span class="o">.</span><span class="n">accepted</span><span class="p">:</span>
-            <span class="k">if</span> <span class="n">class_uid</span> <span class="o">==</span> <span class="n">context</span><span class="o">.</span><span class="n">abstract_syntax</span><span class="p">:</span>
+        <span class="k">for</span> <span class="n">context</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">acse</span><span class="o">.</span><span class="n">accepted_contexts</span><span class="p">:</span>
+            <span class="k">if</span> <span class="n">class_uid</span> <span class="o">==</span> <span class="n">context</span><span class="o">.</span><span class="n">abstract_syntax</span> <span class="ow">and</span> <span class="n">context</span><span class="o">.</span><span class="n">as_scu</span><span class="p">:</span>
                 <span class="n">transfer_syntax</span> <span class="o">=</span> <span class="n">context</span><span class="o">.</span><span class="n">transfer_syntax</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span>
                 <span class="n">context_id</span> <span class="o">=</span> <span class="n">context</span><span class="o">.</span><span class="n">context_id</span>
                 <span class="k">break</span>

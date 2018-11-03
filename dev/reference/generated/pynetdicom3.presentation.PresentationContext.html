@@ -202,6 +202,118 @@ Context.</li>
 <li>The Presentation Contexts may be sent by the Requestor in any order.</li>
 <li>The Presentation Contexts may be sent by the Acceptor in any order.</li>
 </ul>
+<p><strong>SCP/SCU Role Selection Negotiation</strong></p>
+<ul class="simple">
+<li>If no role selection negotiation then the requestor is SCU and the
+acceptor is SCP</li>
+<li>If the proposed role is rejected then the roles default to requestor as
+SCU and acceptor as SCP</li>
+<li>If the association requestor proposes the role value of 0 then that role
+shall be the default role.</li>
+<li>The association acceptor cannot return accept a role that has not been
+proposed (i.e. cannot return 1 when the proposed value is 0).</li>
+<li>The association requestor may be SCP only, SCU only or both SCU and SCP.</li>
+</ul>
+<table border="1" class="docutils">
+<colgroup>
+<col width="15%" />
+<col width="15%" />
+<col width="15%" />
+<col width="15%" />
+<col width="13%" />
+<col width="13%" />
+<col width="15%" />
+</colgroup>
+<thead valign="bottom">
+<tr class="row-odd"><th class="head" colspan="2">Requestor</th>
+<th class="head" colspan="2">Acceptor</th>
+<th class="head" colspan="2">Outcome</th>
+<th class="head" rowspan="2">Notes</th>
+</tr>
+<tr class="row-even"><th class="head">SCU Role</th>
+<th class="head">SCP Role</th>
+<th class="head">SCU Role</th>
+<th class="head">SCP Role</th>
+<th class="head">Req.</th>
+<th class="head">Acc.</th>
+</tr>
+</thead>
+<tbody valign="top">
+<tr class="row-odd"><td>N/A</td>
+<td>N/A</td>
+<td>N/A</td>
+<td>N/A</td>
+<td>SCU</td>
+<td>SCP</td>
+<td>Default</td>
+</tr>
+<tr class="row-even"><td rowspan="4">0x01</td>
+<td rowspan="4">0x01</td>
+<td rowspan="2">0x00</td>
+<td>0x00</td>
+<td>N/A</td>
+<td>N/A</td>
+<td>Rejected</td>
+</tr>
+<tr class="row-odd"><td>0x01</td>
+<td>SCP</td>
+<td>SCU</td>
+<td>&#160;</td>
+</tr>
+<tr class="row-even"><td rowspan="2">0x01</td>
+<td>0x00</td>
+<td>SCU</td>
+<td>SCP</td>
+<td>Default</td>
+</tr>
+<tr class="row-odd"><td>0x01</td>
+<td>SCU/SCP</td>
+<td>SCU/SCP</td>
+<td>&#160;</td>
+</tr>
+<tr class="row-even"><td rowspan="2">0x01</td>
+<td rowspan="2">0x00</td>
+<td>0x00</td>
+<td rowspan="2">0x00</td>
+<td>N/A</td>
+<td>N/A</td>
+<td>Rejected</td>
+</tr>
+<tr class="row-odd"><td>0x01</td>
+<td>SCU</td>
+<td>SCP</td>
+<td>Default</td>
+</tr>
+<tr class="row-even"><td rowspan="2">0x00</td>
+<td rowspan="2">0x01</td>
+<td rowspan="2">0x00</td>
+<td>0x00</td>
+<td>N/A</td>
+<td>N/A</td>
+<td>Rejected</td>
+</tr>
+<tr class="row-odd"><td>0x01</td>
+<td>SCP</td>
+<td>SCU</td>
+<td>&#160;</td>
+</tr>
+<tr class="row-even"><td>0x00</td>
+<td>0x00</td>
+<td>0x00</td>
+<td>0x00</td>
+<td>N/A</td>
+<td>N/A</td>
+<td>Rejected</td>
+</tr>
+</tbody>
+</table>
+<p>As can be seen from the above table there are four possible outcomes:</p>
+<ul class="simple">
+<li>Requestor is SCU, acceptor is SCP (default roles)</li>
+<li>Requestor is SCP, acceptor is SCU</li>
+<li>Requestor and acceptor are both SCU/SCP</li>
+<li>Requestor and acceptor are neither (context rejected)</li>
+</ul>
 <dl class="attribute">
 <dt id="pynetdicom3.presentation.PresentationContext.abstract_syntax">
 <code class="descname">abstract_syntax</code><a class="headerlink" href="#pynetdicom3.presentation.PresentationContext.abstract_syntax" title="Permalink to this definition">¶</a></dt>
@@ -211,6 +323,38 @@ Context.</li>
 <col class="field-body" />
 <tbody valign="top">
 <tr class="field-odd field"><th class="field-name">Type:</th><td class="field-body"><a class="reference external" href="https://pydicom.github.io/pydicom/stable/api_ref.html#pydicom.uid.UID" title="(in pydicom v1.2.0rc1)">pydicom.uid.UID</a> or <a class="reference external" href="https://docs.python.org/3/library/constants.html#None" title="(in Python v3.7)">None</a></td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="attribute">
+<dt id="pynetdicom3.presentation.PresentationContext.as_scp">
+<code class="descname">as_scp</code><a class="headerlink" href="#pynetdicom3.presentation.PresentationContext.as_scp" title="Permalink to this definition">¶</a></dt>
+<dd><p>If True then the association acceptor can act as SCP for the current
+context, otherwise it cannot. A non-None value is only available
+after association negotiation has been completed.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Type:</th><td class="field-body"><a class="reference external" href="https://docs.python.org/3/library/functions.html#bool" title="(in Python v3.7)">bool</a> or <a class="reference external" href="https://docs.python.org/3/library/constants.html#None" title="(in Python v3.7)">None</a></td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="attribute">
+<dt id="pynetdicom3.presentation.PresentationContext.as_scu">
+<code class="descname">as_scu</code><a class="headerlink" href="#pynetdicom3.presentation.PresentationContext.as_scu" title="Permalink to this definition">¶</a></dt>
+<dd><p>If True then the association acceptor can act as SCU for the current
+context, otherwise it cannot. A non-None value is only available
+after association negotiation has been completed.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Type:</th><td class="field-body"><a class="reference external" href="https://docs.python.org/3/library/functions.html#bool" title="(in Python v3.7)">bool</a> or <a class="reference external" href="https://docs.python.org/3/library/constants.html#None" title="(in Python v3.7)">None</a></td>
 </tr>
 </tbody>
 </table>
@@ -240,6 +384,40 @@ A-ASSOCIATE (response) then one of 0x00, 0x01, 0x02, 0x03, 0x04.</p>
 <col class="field-body" />
 <tbody valign="top">
 <tr class="field-odd field"><th class="field-name">Type:</th><td class="field-body"><a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.7)">int</a> or <a class="reference external" href="https://docs.python.org/3/library/constants.html#None" title="(in Python v3.7)">None</a></td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="attribute">
+<dt id="pynetdicom3.presentation.PresentationContext.scp_role">
+<code class="descname">scp_role</code><a class="headerlink" href="#pynetdicom3.presentation.PresentationContext.scp_role" title="Permalink to this definition">¶</a></dt>
+<dd><p>Only used when acting as an association acceptor. If True
+then accept when the SCP role is proposed by the requestor, otherwise
+reject the proposal. If None (default) then no SCP/SCU Role Selection
+reply will be sent and the default roles will be used.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Type:</th><td class="field-body"><a class="reference external" href="https://docs.python.org/3/library/functions.html#bool" title="(in Python v3.7)">bool</a> or <a class="reference external" href="https://docs.python.org/3/library/constants.html#None" title="(in Python v3.7)">None</a></td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="attribute">
+<dt id="pynetdicom3.presentation.PresentationContext.scu_role">
+<code class="descname">scu_role</code><a class="headerlink" href="#pynetdicom3.presentation.PresentationContext.scu_role" title="Permalink to this definition">¶</a></dt>
+<dd><p>Only used when acting as an association acceptor. If True
+then accept when the SCU role is proposed by the requestor, otherwise
+reject the proposal. If None (default) then no SCP/SCU Role Selection
+reply will be sent and the default roles will be used.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Type:</th><td class="field-body"><a class="reference external" href="https://docs.python.org/3/library/functions.html#bool" title="(in Python v3.7)">bool</a></td>
 </tr>
 </tbody>
 </table>
@@ -300,11 +478,23 @@ A-ASSOCIATE (response) then one of 0x00, 0x01, 0x02, 0x03, 0x04.</p>
 <tr class="row-odd"><td><a class="reference internal" href="#pynetdicom3.presentation.PresentationContext.abstract_syntax" title="pynetdicom3.presentation.PresentationContext.abstract_syntax"><code class="xref py py-obj docutils literal notranslate"><span class="pre">abstract_syntax</span></code></a></td>
 <td>Return the presentation context’s <em>Abstract Syntax</em> as a UID.</td>
 </tr>
+<tr class="row-even"><td><a class="reference internal" href="#pynetdicom3.presentation.PresentationContext.as_scp" title="pynetdicom3.presentation.PresentationContext.as_scp"><code class="xref py py-obj docutils literal notranslate"><span class="pre">as_scp</span></code></a></td>
+<td>Return True if can act as an SCP for the context.</td>
+</tr>
+<tr class="row-odd"><td><a class="reference internal" href="#pynetdicom3.presentation.PresentationContext.as_scu" title="pynetdicom3.presentation.PresentationContext.as_scu"><code class="xref py py-obj docutils literal notranslate"><span class="pre">as_scu</span></code></a></td>
+<td>Return True if can act as an SCU for the context.</td>
+</tr>
 <tr class="row-even"><td><a class="reference internal" href="#pynetdicom3.presentation.PresentationContext.as_tuple" title="pynetdicom3.presentation.PresentationContext.as_tuple"><code class="xref py py-obj docutils literal notranslate"><span class="pre">as_tuple</span></code></a></td>
 <td>Return a namedtuple representation of the presentation context.</td>
 </tr>
 <tr class="row-odd"><td><a class="reference internal" href="#pynetdicom3.presentation.PresentationContext.context_id" title="pynetdicom3.presentation.PresentationContext.context_id"><code class="xref py py-obj docutils literal notranslate"><span class="pre">context_id</span></code></a></td>
 <td>Return the presentation context’s <em>ID</em> parameter as an int.</td>
+</tr>
+<tr class="row-even"><td><a class="reference internal" href="#pynetdicom3.presentation.PresentationContext.scp_role" title="pynetdicom3.presentation.PresentationContext.scp_role"><code class="xref py py-obj docutils literal notranslate"><span class="pre">scp_role</span></code></a></td>
+<td>Return True if a proposed SCP role will be accepted.</td>
+</tr>
+<tr class="row-odd"><td><a class="reference internal" href="#pynetdicom3.presentation.PresentationContext.scu_role" title="pynetdicom3.presentation.PresentationContext.scu_role"><code class="xref py py-obj docutils literal notranslate"><span class="pre">scu_role</span></code></a></td>
+<td>Return True if a proposed SCU role will be accepted.</td>
 </tr>
 <tr class="row-even"><td><a class="reference internal" href="#pynetdicom3.presentation.PresentationContext.status" title="pynetdicom3.presentation.PresentationContext.status"><code class="xref py py-obj docutils literal notranslate"><span class="pre">status</span></code></a></td>
 <td>Return a descriptive str of the presentation context’s <em>Result</em>.</td>
@@ -345,6 +535,18 @@ A-ASSOCIATE (response) then one of 0x00, 0x01, 0x02, 0x03, 0x04.</p>
 </dd></dl>
 
 <dl class="attribute">
+<dt>
+<code class="descname">as_scp</code></dt>
+<dd><p>Return True if can act as an SCP for the context.</p>
+</dd></dl>
+
+<dl class="attribute">
+<dt>
+<code class="descname">as_scu</code></dt>
+<dd><p>Return True if can act as an SCU for the context.</p>
+</dd></dl>
+
+<dl class="attribute">
 <dt id="pynetdicom3.presentation.PresentationContext.as_tuple">
 <code class="descname">as_tuple</code><a class="headerlink" href="#pynetdicom3.presentation.PresentationContext.as_tuple" title="Permalink to this definition">¶</a></dt>
 <dd><p>Return a namedtuple representation of the presentation context.</p>
@@ -366,6 +568,18 @@ first transfer syntax item is returned in the tuple.</p>
 <dt>
 <code class="descname">context_id</code></dt>
 <dd><p>Return the presentation context’s <em>ID</em> parameter as an int.</p>
+</dd></dl>
+
+<dl class="attribute">
+<dt>
+<code class="descname">scp_role</code></dt>
+<dd><p>Return True if a proposed SCP role will be accepted.</p>
+</dd></dl>
+
+<dl class="attribute">
+<dt>
+<code class="descname">scu_role</code></dt>
+<dd><p>Return True if a proposed SCU role will be accepted.</p>
 </dd></dl>
 
 <dl class="attribute">

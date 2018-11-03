@@ -718,7 +718,7 @@ using different transfer syntaxes for each.</p>
 
 <dl class="method">
 <dt id="pynetdicom3.ae.ApplicationEntity.add_supported_context">
-<code class="descname">add_supported_context</code><span class="sig-paren">(</span><em>abstract_syntax, transfer_syntax=['1.2.840.10008.1.2', '1.2.840.10008.1.2.1', '1.2.840.10008.1.2.2']</em><span class="sig-paren">)</span><a class="reference internal" href="../../_modules/pynetdicom3/ae.html#ApplicationEntity.add_supported_context"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pynetdicom3.ae.ApplicationEntity.add_supported_context" title="Permalink to this definition">¶</a></dt>
+<code class="descname">add_supported_context</code><span class="sig-paren">(</span><em>abstract_syntax, transfer_syntax=['1.2.840.10008.1.2', '1.2.840.10008.1.2.1', '1.2.840.10008.1.2.2'], scu_role=None, scp_role=None</em><span class="sig-paren">)</span><a class="reference internal" href="../../_modules/pynetdicom3/ae.html#ApplicationEntity.add_supported_context"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pynetdicom3.ae.ApplicationEntity.add_supported_context" title="Permalink to this definition">¶</a></dt>
 <dd><p>Add a supported presentation context.</p>
 <p>When an Association request is received from a peer it supplies a list
 of presentation contexts that it would like the SCP to support. This
@@ -736,6 +736,26 @@ a supported context or one or more of its transfer syntaxes see the
 <li><strong>abstract_syntax</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.7)"><em>str</em></a><em>, </em><a class="reference external" href="https://pydicom.github.io/pydicom/stable/api_ref.html#pydicom.uid.UID" title="(in pydicom v1.2.0rc1)"><em>pydicom.uid.UID</em></a><em> or </em><a class="reference internal" href="pynetdicom3.sop_class.SOPClass.html#pynetdicom3.sop_class.SOPClass" title="pynetdicom3.sop_class.SOPClass"><em>sop_class.SOPClass</em></a>) – The abstract syntax of the presentation context to be supported.</li>
 <li><strong>transfer_syntax</strong> (<em>str/pydicom.uid.UID</em><em> or </em><em>list of str/pydicom.uid.UID</em>) – The transfer syntax(es) to support (default: Implicit VR Little
 Endian, Explicit VR Little Endian, Explicit VR Big Endian).</li>
+<li><strong>scu_role</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#bool" title="(in Python v3.7)"><em>bool</em></a><em> or </em><a class="reference external" href="https://docs.python.org/3/library/constants.html#None" title="(in Python v3.7)"><em>None</em></a><em>, </em><em>optional</em>) – <p>If the association requestor includes an SCP/SCU Role Selection
+Negotiation item for this context then:</p>
+<ul>
+<li>If None then ignore the proposal (if either <cite>scp_role</cite> or
+<cite>scu_role</cite> is None then both are assumed to be) and use the
+default roles.</li>
+<li>If True accept the proposed SCU role</li>
+<li>If False reject the proposed SCU role</li>
+</ul>
+</li>
+<li><strong>scp_role</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#bool" title="(in Python v3.7)"><em>bool</em></a><em> or </em><a class="reference external" href="https://docs.python.org/3/library/constants.html#None" title="(in Python v3.7)"><em>None</em></a><em>, </em><em>optional</em>) – <p>If the association requestor includes an SCP/SCU Role Selection
+Negotiation item for this context then:</p>
+<ul>
+<li>If None then ignore the proposal (if either <cite>scp_role</cite> or
+<cite>scu_role</cite> is None then both are assumed to be) and use the
+default roles.</li>
+<li>If True accept the proposed SCP role</li>
+<li>If False reject the proposed SCP role</li>
+</ul>
+</li>
 </ul>
 </td>
 </tr>
@@ -798,6 +818,17 @@ support <em>Explicit VR Little Endian</em>.</p>
 <span class="go">    =Implicit VR Little Endian</span>
 <span class="go">    =Explicit VR Little Endian</span>
 <span class="go">    =Explicit VR Big Endian</span>
+</pre></div>
+</div>
+<p>Add support for CTImageStorage and if the association requestor
+includes an SCP/SCU Role Selection Negotiation item for CT Image
+Storage requesting the SCU and SCP roles then accept the proposal.</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="kn">from</span> <span class="nn">pynetdicom3</span> <span class="k">import</span> <span class="n">AE</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="kn">from</span> <span class="nn">pynetdicom3.sop_class</span> <span class="k">import</span> <span class="n">CTImageStorage</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">ae</span> <span class="o">=</span> <span class="n">AE</span><span class="p">()</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">ae</span><span class="o">.</span><span class="n">add_supported_context</span><span class="p">(</span>
+<span class="gp">... </span>    <span class="n">CTImageStorage</span><span class="p">,</span> <span class="n">scu_role</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span> <span class="n">scp_role</span><span class="o">=</span><span class="kc">True</span>
+<span class="gp">... </span><span class="p">)</span>
 </pre></div>
 </div>
 </dd></dl>

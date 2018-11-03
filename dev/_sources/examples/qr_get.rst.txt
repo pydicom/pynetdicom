@@ -193,6 +193,13 @@ query against that.
 
     # Add the supported presentation contexts (Storage SCU)
     ae.supported_contexts = StoragePresentationContexts
+
+    # Accept the association requestor's proposed SCP role in the
+    #   SCP/SCU Role Selection Negotiation items
+    for cx in self.supported_contexts:
+        cx.scp_role = True
+        cx.scu_role = False
+
     # Add a supported presentation context (QR Get SCP)
     ae.add_supported_context(PatientRootQueryRetrieveInformationModelGet)
 

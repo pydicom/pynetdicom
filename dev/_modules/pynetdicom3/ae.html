@@ -527,7 +527,8 @@
         <span class="bp">self</span><span class="o">.</span><span class="n">_requested_contexts</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">context</span><span class="p">)</span></div>
 
 <div class="viewcode-block" id="ApplicationEntity.add_supported_context"><a class="viewcode-back" href="../../reference/generated/pynetdicom3.ae.ApplicationEntity.html#pynetdicom3.ae.ApplicationEntity.add_supported_context">[docs]</a>    <span class="k">def</span> <span class="nf">add_supported_context</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">abstract_syntax</span><span class="p">,</span>
-                              <span class="n">transfer_syntax</span><span class="o">=</span><span class="n">DEFAULT_TRANSFER_SYNTAXES</span><span class="p">):</span>
+                              <span class="n">transfer_syntax</span><span class="o">=</span><span class="n">DEFAULT_TRANSFER_SYNTAXES</span><span class="p">,</span>
+                              <span class="n">scu_role</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">scp_role</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;Add a supported presentation context.</span>
 
 <span class="sd">        When an Association request is received from a peer it supplies a list</span>
@@ -547,6 +548,24 @@
 <span class="sd">        transfer_syntax :  str/pydicom.uid.UID or list of str/pydicom.uid.UID</span>
 <span class="sd">            The transfer syntax(es) to support (default: Implicit VR Little</span>
 <span class="sd">            Endian, Explicit VR Little Endian, Explicit VR Big Endian).</span>
+<span class="sd">        scu_role : bool or None, optional</span>
+<span class="sd">            If the association requestor includes an SCP/SCU Role Selection</span>
+<span class="sd">            Negotiation item for this context then:</span>
+
+<span class="sd">            * If None then ignore the proposal (if either `scp_role` or</span>
+<span class="sd">              `scu_role` is None then both are assumed to be) and use the</span>
+<span class="sd">              default roles.</span>
+<span class="sd">            * If True accept the proposed SCU role</span>
+<span class="sd">            * If False reject the proposed SCU role</span>
+<span class="sd">        scp_role : bool or None, optional</span>
+<span class="sd">            If the association requestor includes an SCP/SCU Role Selection</span>
+<span class="sd">            Negotiation item for this context then:</span>
+
+<span class="sd">            * If None then ignore the proposal (if either `scp_role` or</span>
+<span class="sd">              `scu_role` is None then both are assumed to be) and use the</span>
+<span class="sd">              default roles.</span>
+<span class="sd">            * If True accept the proposed SCP role</span>
+<span class="sd">            * If False reject the proposed SCP role</span>
 
 <span class="sd">        Examples</span>
 <span class="sd">        --------</span>
@@ -607,11 +626,28 @@
 <span class="sd">            =Implicit VR Little Endian</span>
 <span class="sd">            =Explicit VR Little Endian</span>
 <span class="sd">            =Explicit VR Big Endian</span>
+
+<span class="sd">        Add support for CTImageStorage and if the association requestor</span>
+<span class="sd">        includes an SCP/SCU Role Selection Negotiation item for CT Image</span>
+<span class="sd">        Storage requesting the SCU and SCP roles then accept the proposal.</span>
+
+<span class="sd">        &gt;&gt;&gt; from pynetdicom3 import AE</span>
+<span class="sd">        &gt;&gt;&gt; from pynetdicom3.sop_class import CTImageStorage</span>
+<span class="sd">        &gt;&gt;&gt; ae = AE()</span>
+<span class="sd">        &gt;&gt;&gt; ae.add_supported_context(</span>
+<span class="sd">        ...     CTImageStorage, scu_role=True, scp_role=True</span>
+<span class="sd">        ... )</span>
 <span class="sd">        &quot;&quot;&quot;</span>
         <span class="k">if</span> <span class="nb">hasattr</span><span class="p">(</span><span class="n">abstract_syntax</span><span class="p">,</span> <span class="s1">&#39;uid&#39;</span><span class="p">):</span>
             <span class="n">abstract_syntax</span> <span class="o">=</span> <span class="n">UID</span><span class="p">(</span><span class="n">abstract_syntax</span><span class="o">.</span><span class="n">uid</span><span class="p">)</span>
         <span class="k">else</span><span class="p">:</span>
             <span class="n">abstract_syntax</span> <span class="o">=</span> <span class="n">UID</span><span class="p">(</span><span class="n">abstract_syntax</span><span class="p">)</span>
+
+        <span class="k">if</span> <span class="ow">not</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">scu_role</span><span class="p">,</span> <span class="p">(</span><span class="nb">type</span><span class="p">(</span><span class="kc">None</span><span class="p">),</span> <span class="nb">bool</span><span class="p">)):</span>
+            <span class="k">raise</span> <span class="ne">TypeError</span><span class="p">(</span><span class="s2">&quot;`scu_role` must be None or bool&quot;</span><span class="p">)</span>
+
+        <span class="k">if</span> <span class="ow">not</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">scp_role</span><span class="p">,</span> <span class="p">(</span><span class="nb">type</span><span class="p">(</span><span class="kc">None</span><span class="p">),</span> <span class="nb">bool</span><span class="p">)):</span>
+            <span class="k">raise</span> <span class="ne">TypeError</span><span class="p">(</span><span class="s2">&quot;`scp_role` must be None or bool&quot;</span><span class="p">)</span>
 
         <span class="c1"># For convenience allow single transfer syntax values</span>
         <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">transfer_syntax</span><span class="p">,</span> <span class="nb">str</span><span class="p">):</span>
@@ -624,10 +660,14 @@
             <span class="n">context</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_supported_contexts</span><span class="p">[</span><span class="n">abstract_syntax</span><span class="p">]</span>
             <span class="k">for</span> <span class="n">syntax</span> <span class="ow">in</span> <span class="n">transfer_syntax</span><span class="p">:</span>
                 <span class="n">context</span><span class="o">.</span><span class="n">add_transfer_syntax</span><span class="p">(</span><span class="n">syntax</span><span class="p">)</span>
+            <span class="n">context</span><span class="o">.</span><span class="n">scu_role</span> <span class="o">=</span> <span class="kc">None</span> <span class="ow">or</span> <span class="n">scu_role</span>
+            <span class="n">context</span><span class="o">.</span><span class="n">scp_role</span> <span class="o">=</span>  <span class="kc">None</span> <span class="ow">or</span> <span class="n">scp_role</span>
         <span class="k">else</span><span class="p">:</span>
             <span class="n">context</span> <span class="o">=</span> <span class="n">PresentationContext</span><span class="p">()</span>
             <span class="n">context</span><span class="o">.</span><span class="n">abstract_syntax</span> <span class="o">=</span> <span class="n">abstract_syntax</span>
             <span class="n">context</span><span class="o">.</span><span class="n">transfer_syntax</span> <span class="o">=</span> <span class="n">transfer_syntax</span>
+            <span class="n">context</span><span class="o">.</span><span class="n">scu_role</span> <span class="o">=</span> <span class="kc">None</span> <span class="ow">or</span> <span class="n">scu_role</span>
+            <span class="n">context</span><span class="o">.</span><span class="n">scp_role</span> <span class="o">=</span> <span class="kc">None</span> <span class="ow">or</span> <span class="n">scp_role</span>
 
             <span class="bp">self</span><span class="o">.</span><span class="n">_supported_contexts</span><span class="p">[</span><span class="n">abstract_syntax</span><span class="p">]</span> <span class="o">=</span> <span class="n">context</span></div>
 
@@ -1310,6 +1350,20 @@
             <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span>
                 <span class="s2">&quot;No supported Presentation Contexts have been defined&quot;</span>
             <span class="p">)</span>
+
+        <span class="n">bad_contexts</span> <span class="o">=</span> <span class="p">[]</span>
+        <span class="k">for</span> <span class="n">cx</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">supported_contexts</span><span class="p">:</span>
+            <span class="n">roles</span> <span class="o">=</span> <span class="p">(</span><span class="n">cx</span><span class="o">.</span><span class="n">scu_role</span><span class="p">,</span> <span class="n">cx</span><span class="o">.</span><span class="n">scp_role</span><span class="p">)</span>
+            <span class="k">if</span> <span class="kc">None</span> <span class="ow">in</span> <span class="n">roles</span> <span class="ow">and</span> <span class="n">roles</span> <span class="o">!=</span> <span class="p">(</span><span class="kc">None</span><span class="p">,</span> <span class="kc">None</span><span class="p">):</span>
+                <span class="n">bad_contexts</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">cx</span><span class="o">.</span><span class="n">abstract_syntax</span><span class="p">)</span>
+
+        <span class="k">if</span> <span class="n">bad_contexts</span><span class="p">:</span>
+            <span class="n">msg</span> <span class="o">=</span> <span class="p">(</span>
+                <span class="s2">&quot;The following presentation contexts have inconsistent &quot;</span>
+                <span class="s2">&quot;scu_role/scp_role values (if one is None, both must be):</span><span class="se">\n</span><span class="s2">  &quot;</span>
+            <span class="p">)</span>
+            <span class="n">msg</span> <span class="o">+=</span> <span class="s1">&#39;</span><span class="se">\n</span><span class="s1">  &#39;</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">bad_contexts</span><span class="p">)</span>
+            <span class="n">LOGGER</span><span class="o">.</span><span class="n">warning</span><span class="p">(</span><span class="n">msg</span><span class="p">)</span>
 
         <span class="c1"># Bind the local_socket to the specified listen port</span>
         <span class="c1">#try:</span>

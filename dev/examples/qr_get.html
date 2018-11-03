@@ -362,6 +362,13 @@ query against that.</p>
 
 <span class="c1"># Add the supported presentation contexts (Storage SCU)</span>
 <span class="n">ae</span><span class="o">.</span><span class="n">supported_contexts</span> <span class="o">=</span> <span class="n">StoragePresentationContexts</span>
+
+<span class="c1"># Accept the association requestor&#39;s proposed SCP role in the</span>
+<span class="c1">#   SCP/SCU Role Selection Negotiation items</span>
+<span class="k">for</span> <span class="n">cx</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">supported_contexts</span><span class="p">:</span>
+    <span class="n">cx</span><span class="o">.</span><span class="n">scp_role</span> <span class="o">=</span> <span class="bp">True</span>
+    <span class="n">cx</span><span class="o">.</span><span class="n">scu_role</span> <span class="o">=</span> <span class="bp">False</span>
+
 <span class="c1"># Add a supported presentation context (QR Get SCP)</span>
 <span class="n">ae</span><span class="o">.</span><span class="n">add_supported_context</span><span class="p">(</span><span class="n">PatientRootQueryRetrieveInformationModelGet</span><span class="p">)</span>
 

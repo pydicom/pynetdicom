@@ -179,13 +179,18 @@
 
 <span class="kn">from</span> <span class="nn">pynetdicom3</span> <span class="k">import</span> <span class="n">PYNETDICOM_IMPLEMENTATION_UID</span>
 <span class="kn">from</span> <span class="nn">pynetdicom3</span> <span class="k">import</span> <span class="n">PYNETDICOM_IMPLEMENTATION_VERSION</span>
-<span class="kn">from</span> <span class="nn">pynetdicom3.pdu_primitives</span> <span class="k">import</span> <span class="p">(</span><span class="n">MaximumLengthNegotiation</span><span class="p">,</span>
-                                        <span class="n">ImplementationClassUIDNotification</span><span class="p">,</span>
-                                        <span class="n">ImplementationVersionNameNotification</span><span class="p">)</span>
-<span class="kn">from</span> <span class="nn">pynetdicom3.pdu_primitives</span> <span class="k">import</span> <span class="p">(</span><span class="n">A_ASSOCIATE</span><span class="p">,</span> <span class="n">A_RELEASE</span><span class="p">,</span> <span class="n">A_ABORT</span><span class="p">,</span>
-                                        <span class="n">A_P_ABORT</span><span class="p">)</span>
-<span class="kn">from</span> <span class="nn">pynetdicom3.utils</span> <span class="k">import</span> <span class="n">PresentationContextManager</span>
+<span class="kn">from</span> <span class="nn">pynetdicom3.pdu_primitives</span> <span class="k">import</span> <span class="p">(</span>
+    <span class="n">A_ASSOCIATE</span><span class="p">,</span> <span class="n">A_RELEASE</span><span class="p">,</span> <span class="n">A_ABORT</span><span class="p">,</span> <span class="n">A_P_ABORT</span><span class="p">,</span>
+    <span class="n">MaximumLengthNegotiation</span><span class="p">,</span>
+    <span class="n">ImplementationClassUIDNotification</span><span class="p">,</span>
+    <span class="n">ImplementationVersionNameNotification</span><span class="p">,</span>
+    <span class="n">SCP_SCU_RoleSelectionNegotiation</span><span class="p">,</span>
+<span class="p">)</span>
+<span class="kn">from</span> <span class="nn">pynetdicom3.presentation</span> <span class="k">import</span> <span class="p">(</span>
+    <span class="n">negotiate_as_requestor</span><span class="p">,</span> <span class="n">negotiate_as_acceptor</span>
+<span class="p">)</span>
 <span class="kn">from</span> <span class="nn">pynetdicom3.utils</span> <span class="k">import</span> <span class="n">pretty_bytes</span>
+
 
 <span class="n">LOGGER</span> <span class="o">=</span> <span class="n">logging</span><span class="o">.</span><span class="n">getLogger</span><span class="p">(</span><span class="s1">&#39;pynetdicom3.acse&#39;</span><span class="p">)</span>
 
@@ -215,8 +220,6 @@
 <span class="sd">        A list of accepted presentation contexts.</span>
 <span class="sd">    rejected_contexts : list of utils.PresentationContext</span>
 <span class="sd">        A list of rejected presentation contexts.</span>
-<span class="sd">    context_manager : utils.PresentationContextManager</span>
-<span class="sd">        The presentation context manager.</span>
 <span class="sd">    &quot;&quot;&quot;</span>
 <div class="viewcode-block" id="ACSEServiceProvider.__init__"><a class="viewcode-back" href="../../reference/generated/pynetdicom3.acse.ACSEServiceProvider.html#pynetdicom3.acse.ACSEServiceProvider.__init__">[docs]</a>    <span class="k">def</span> <span class="nf">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">assoc</span><span class="p">,</span> <span class="n">acse_timeout</span><span class="o">=</span><span class="mi">30</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;Create the ACSE provider.</span>
@@ -241,9 +244,7 @@
 
         <span class="c1"># The accepted/rejected presentation contexts</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">accepted_contexts</span> <span class="o">=</span> <span class="kc">None</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">rejected_contexts</span> <span class="o">=</span> <span class="kc">None</span>
-
-        <span class="bp">self</span><span class="o">.</span><span class="n">context_manager</span> <span class="o">=</span> <span class="n">PresentationContextManager</span><span class="p">()</span></div>
+        <span class="bp">self</span><span class="o">.</span><span class="n">rejected_contexts</span> <span class="o">=</span> <span class="kc">None</span></div>
 
     <span class="nd">@property</span>
     <span class="k">def</span> <span class="nf">dul</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
@@ -254,7 +255,8 @@
                       <span class="n">userspdu</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;Request an Association with a peer Application Entity SCP.</span>
 
-<span class="sd">        Issues an A-ASSOCIATE request primitive to the DICOM UL service provider</span>
+<span class="sd">        Issues an A-ASSOCIATE request primitive to the DICOM UL service</span>
+<span class="sd">        provider</span>
 
 <span class="sd">        Requests an association with a remote AE and waits for association</span>
 <span class="sd">        response (local AE is acting as an SCU)</span>
@@ -361,16 +363,24 @@
                 <span class="c1"># FIXME</span>
                 <span class="bp">self</span><span class="o">.</span><span class="n">parent</span><span class="o">.</span><span class="n">peer_max_pdu</span> <span class="o">=</span> <span class="n">assoc_rsp</span><span class="o">.</span><span class="n">maximum_length_received</span>
 
-                <span class="c1"># Get accepted presentation contexts using the manager</span>
-                <span class="bp">self</span><span class="o">.</span><span class="n">context_manager</span><span class="o">.</span><span class="n">requestor_contexts</span> <span class="o">=</span> <span class="n">pcdl</span>
-                <span class="bp">self</span><span class="o">.</span><span class="n">context_manager</span><span class="o">.</span><span class="n">acceptor_contexts</span> <span class="o">=</span> <span class="p">(</span>
-                    <span class="n">assoc_rsp</span><span class="o">.</span><span class="n">presentation_context_definition_results_list</span>
+                <span class="n">ac_roles</span> <span class="o">=</span> <span class="p">{}</span>
+                <span class="k">for</span> <span class="n">ii</span> <span class="ow">in</span> <span class="n">assoc_rsp</span><span class="o">.</span><span class="n">user_information</span><span class="p">:</span>
+                    <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">ii</span><span class="p">,</span> <span class="n">SCP_SCU_RoleSelectionNegotiation</span><span class="p">):</span>
+                        <span class="n">ac_roles</span><span class="p">[</span><span class="n">ii</span><span class="o">.</span><span class="n">sop_class_uid</span><span class="p">]</span> <span class="o">=</span> <span class="p">(</span><span class="n">ii</span><span class="o">.</span><span class="n">scu_role</span><span class="p">,</span> <span class="n">ii</span><span class="o">.</span><span class="n">scp_role</span><span class="p">)</span>
+
+                <span class="c1"># Check the negotiated Presentation Contexts</span>
+                <span class="n">results</span> <span class="o">=</span> <span class="n">negotiate_as_requestor</span><span class="p">(</span>
+                    <span class="n">pcdl</span><span class="p">,</span>
+                    <span class="n">assoc_rsp</span><span class="o">.</span><span class="n">presentation_context_definition_results_list</span><span class="p">,</span>
+                    <span class="n">ac_roles</span>
                 <span class="p">)</span>
 
-                <span class="c1"># Once the context manager gets both sets of contexts it</span>
-                <span class="c1">#   automatically determines which are accepted and refused</span>
-                <span class="bp">self</span><span class="o">.</span><span class="n">accepted_contexts</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">context_manager</span><span class="o">.</span><span class="n">accepted</span>
-                <span class="bp">self</span><span class="o">.</span><span class="n">rejected_contexts</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">context_manager</span><span class="o">.</span><span class="n">rejected</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">accepted_contexts</span> <span class="o">=</span> <span class="p">[</span>
+                    <span class="n">cx</span> <span class="k">for</span> <span class="n">cx</span> <span class="ow">in</span> <span class="n">results</span> <span class="k">if</span> <span class="n">cx</span><span class="o">.</span><span class="n">result</span> <span class="o">==</span> <span class="mh">0x00</span>
+                <span class="p">]</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">rejected_contexts</span> <span class="o">=</span> <span class="p">[</span>
+                    <span class="n">cx</span> <span class="k">for</span> <span class="n">cx</span> <span class="ow">in</span> <span class="n">results</span> <span class="k">if</span> <span class="n">cx</span><span class="o">.</span><span class="n">result</span> <span class="o">!=</span> <span class="mh">0x00</span>
+                <span class="p">]</span>
 
                 <span class="k">return</span> <span class="kc">True</span><span class="p">,</span> <span class="n">assoc_rsp</span>
 
@@ -467,9 +477,9 @@
 
         <span class="c1"># Send response</span>
         <span class="n">primitive</span><span class="o">.</span><span class="n">presentation_context_definition_list</span> <span class="o">=</span> <span class="p">[]</span>
-        <span class="n">primitive</span><span class="o">.</span><span class="n">presentation_context_definition_results_list</span> <span class="o">=</span> \
-                                        <span class="bp">self</span><span class="o">.</span><span class="n">accepted_contexts</span> <span class="o">+</span> \
-                                        <span class="bp">self</span><span class="o">.</span><span class="n">rejected_contexts</span>
+        <span class="n">primitive</span><span class="o">.</span><span class="n">presentation_context_definition_results_list</span> <span class="o">=</span> <span class="p">(</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">accepted_contexts</span> <span class="o">+</span> <span class="bp">self</span><span class="o">.</span><span class="n">rejected_contexts</span>
+        <span class="p">)</span>
         <span class="n">primitive</span><span class="o">.</span><span class="n">result</span> <span class="o">=</span> <span class="mi">0</span>
 
         <span class="bp">self</span><span class="o">.</span><span class="n">dul</span><span class="o">.</span><span class="n">send_pdu</span><span class="p">(</span><span class="n">primitive</span><span class="p">)</span>
@@ -796,14 +806,12 @@
 
             <span class="c1"># If Presentation Context was accepted</span>
             <span class="k">if</span> <span class="n">item</span><span class="o">.</span><span class="n">result</span> <span class="o">==</span> <span class="mi">0</span><span class="p">:</span>
-                <span class="sd">&#39;&#39;&#39;</span>
-<span class="sd">                if item.SCP is None and item.SCU is None:</span>
-<span class="sd">                    ac_scp_scu_role = &#39;Default&#39;</span>
-<span class="sd">                else:</span>
-<span class="sd">                    ac_scp_scu_role = &#39;{0!s}/{1!s}&#39;.format(item.SCP, item.SCU)</span>
-<span class="sd">                s.append(&#39;    Accepted SCP/SCU Role: {0!s}&#39;</span>
-<span class="sd">                         .format(ac_scp_scu_role))</span>
-<span class="sd">                &#39;&#39;&#39;</span>
+                <span class="c1">#if item.scu_role is None and item.scp_role is None:</span>
+                <span class="c1">#    ac_scp_scu_role = &#39;Default&#39;</span>
+                <span class="c1">#else:</span>
+                <span class="c1">#    ac_scp_scu_role = &#39;{0!s}/{1!s}&#39;.format(item.scp_role, item.scu_role)</span>
+                <span class="c1">#s.append(&#39;    Accepted SCP/SCU Role: {0!s}&#39;</span>
+                <span class="c1">#         .format(ac_scp_scu_role))</span>
                 <span class="n">s</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="s1">&#39;    Accepted Transfer Syntax: =</span><span class="si">{0!s}</span><span class="s1">&#39;</span>
                          <span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">item</span><span class="o">.</span><span class="n">transfer_syntax</span><span class="o">.</span><span class="n">name</span><span class="p">))</span>
 

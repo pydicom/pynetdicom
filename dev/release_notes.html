@@ -183,9 +183,9 @@
 <ul class="simple">
 <li>Fixed upstream pydicom changes to AE elements breaking logging
 (:issue:<code class="docutils literal notranslate"><span class="pre">195</span></code>)</li>
-<li>Fixed typos in SOP class names</li>
+<li>Fixed typos in SOP class names, fix bad UID</li>
 <li>Fixed SCP/SCU Role Negotiation requiring both SCP and SCU role values to be
-set</li>
+set (as association requestor)</li>
 </ul>
 </div>
 <div class="section" id="changes">
@@ -220,6 +220,7 @@ been consolidated into one.</li>
 <li><code class="docutils literal notranslate"><span class="pre">BasicWorklistManagementServiceClass</span></code> reimplemented separately from QR.</li>
 <li><code class="docutils literal notranslate"><span class="pre">SOPClass</span></code> class added to <code class="docutils literal notranslate"><span class="pre">sop_class</span></code> module and all SOP Class objects
 now inherit from it rather than the corresponding service class.</li>
+<li><code class="docutils literal notranslate"><span class="pre">utils.PresentationContextManager</span></code> removed</li>
 </ul>
 </div>
 <div class="section" id="enhancements">
@@ -247,8 +248,10 @@ negotiation.</li>
 <li>Add support for the Implant Template QR service</li>
 <li>Add support for the Non-Patient Information Storage service</li>
 <li>Add support for the Defined Procedure Protocol QR service</li>
-<li>Add support for N-GET</li>
 <li>Add support for the Display System Management service</li>
+<li>Add support for N-GET, N-SET, N-EVENT-REPORT, N-DELETE, N-ACTION, N-CREATE
+as SCU.</li>
+<li>Add full support for SCP/SCU Role Selection Negotiation</li>
 </ul>
 </div>
 </div>

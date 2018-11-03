@@ -116,6 +116,7 @@
 </li>
 <li class="toctree-l3"><a class="reference internal" href="#creating-an-scp">Creating an SCP</a><ul>
 <li class="toctree-l4"><a class="reference internal" href="#adding-supported-presentation-contexts">Adding supported Presentation Contexts</a></li>
+<li class="toctree-l4"><a class="reference internal" href="#handling-scp-scu-role-selection-negotiation">Handling SCP/SCU Role Selection Negotiation</a></li>
 <li class="toctree-l4"><a class="reference internal" href="#id6">Specifying the network port</a></li>
 <li class="toctree-l4"><a class="reference internal" href="#id7">Association</a></li>
 <li class="toctree-l4"><a class="reference internal" href="#references">References</a></li>
@@ -559,6 +560,35 @@ transfer syntaxes will be combined with the pre-existing context:</p>
 <span class="go">    =Explicit VR Little Endian</span>
 </pre></div>
 </div>
+</div>
+<div class="section" id="handling-scp-scu-role-selection-negotiation">
+<h3>Handling SCP/SCU Role Selection Negotiation<a class="headerlink" href="#handling-scp-scu-role-selection-negotiation" title="Permalink to this headline">¶</a></h3>
+<p>Depending on the requirements of the service class, an association requestor
+may include SCP/SCU Role Selection Negotiation items
+in the association request and it’s up to the association acceptor to decide
+whether or not to accept the proposed roles. This can be done through the
+<code class="docutils literal notranslate"><span class="pre">scu_role</span></code> and <code class="docutils literal notranslate"><span class="pre">scp_role</span></code> parameters:</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="kn">from</span> <span class="nn">pynetdicom3</span> <span class="k">import</span> <span class="n">AE</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="kn">from</span> <span class="nn">pynetdicom3.sop_class</span> <span class="k">import</span> <span class="n">CTImageStorage</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">ae</span> <span class="o">=</span> <span class="n">AE</span><span class="p">()</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">ae</span><span class="o">.</span><span class="n">add_supported_context</span><span class="p">(</span><span class="n">CTImageStorage</span><span class="p">,</span> <span class="n">scu_role</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span> <span class="n">scp_role</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+</pre></div>
+</div>
+<p>If either <code class="docutils literal notranslate"><span class="pre">scu_role</span></code> or <code class="docutils literal notranslate"><span class="pre">scp_role</span></code> is None (the default) then no response
+to the role selection will be sent and the default roles assumed. If you wish
+to accept a proposed role then set the corresponding parameter to <code class="docutils literal notranslate"><span class="pre">True</span></code>. In
+the above example if the requestor proposes the SCP role then the acceptor will
+accept it while rejecting the proposed SCU role.</p>
+<p>To reiterate, if you wish to respond to the proposed role selection then
+<strong>both</strong> <code class="docutils literal notranslate"><span class="pre">scu_role</span></code> and <code class="docutils literal notranslate"><span class="pre">scp_role</span></code> must be set.</p>
+<p>There are four possible outcomes for the role selection negotiation, depending
+on what was proposed and what was accepted:</p>
+<ul class="simple">
+<li>The proposed roles aren’t acceptable and the context is rejected</li>
+<li>The acceptor acts as the SCP and the requestor the SCU (default)</li>
+<li>The acceptor acts as the SCU and the requestor the SCP</li>
+<li>Both acceptor and requestor act as SCU and SCP</li>
+</ul>
 </div>
 <div class="section" id="id6">
 <h3>Specifying the network port<a class="headerlink" href="#id6" title="Permalink to this headline">¶</a></h3>
