@@ -9,6 +9,26 @@ from pydicom.uid import (
     ExplicitVRBigEndian
 )
 
+from pynetdicom3.sop_class import (
+    _VERIFICATION_CLASSES,
+    _STORAGE_CLASSES,
+    _QR_CLASSES,
+    _BASIC_WORKLIST_CLASSES,
+    _RELEVANT_PATIENT_QUERY_CLASSES,
+    _SUBSTANCE_ADMINISTRATION_CLASSES,
+    _NON_PATIENT_OBJECT_CLASSES,
+    _HANGING_PROTOCOL_CLASSES,
+    _DEFINED_PROCEDURE_CLASSES,
+    _COLOR_PALETTE_CLASSES,
+    _IMPLANT_TEMPLATE_CLASSES,
+    _PRINT_MANAGEMENT_CLASSES,
+    _PROCEDURE_STEP_CLASSES,
+    _DISPLAY_SYSTEM_CLASSES,
+    _MEDIA_STORAGE_CLASSES,
+    _UNITED_PROCEDURE_STEP_CLASSES,
+    _RT_MACHINE_VERIFICATION_CLASSES,
+)
+
 
 LOGGER = logging.getLogger('pynetdicom3.presentation')
 
@@ -124,10 +144,6 @@ class PresentationContext(object):
 
     - If no role selection negotiation then the requestor is SCU and the
       acceptor is SCP
-    - If the proposed role is rejected then the roles default to requestor as
-      SCU and acceptor as SCP
-    - If the association requestor proposes the role value of 0 then that role
-      shall be the default role.
     - The association acceptor cannot return accept a role that has not been
       proposed (i.e. cannot return 1 when the proposed value is 0).
     - The association requestor may be SCP only, SCU only or both SCU and SCP.
@@ -135,27 +151,27 @@ class PresentationContext(object):
     +---------------------+---------------------+-------------------+----------+
     | Requestor           | Acceptor            | Outcome           | Notes    |
     +----------+----------+----------+----------+---------+---------+          |
-    | SCU Role | SCP Role | SCU Role | SCP Role | Req.    | Acc.    |          |
+    | scu_role | scp_role | scu_role | scp_role | Req.    | Acc.    |          |
     +==========+==========+==========+==========+=========+=========+==========+
     | N/A      | N/A      | N/A      | N/A      | SCU     | SCP     | Default  |
     +----------+----------+----------+----------+---------+---------+----------+
-    | 0x01     | 0x01     | 0x00     | 0x00     | N/A     | N/A     | Rejected |
+    | True     | True     | False    | False    | N/A     | N/A     | Rejected |
     |          |          |          +----------+---------+---------+----------+
-    |          |          |          | 0x01     | SCP     | SCU     |          |
+    |          |          |          | True     | SCP     | SCU     |          |
     |          |          +----------+----------+---------+---------+----------+
-    |          |          | 0x01     | 0x00     | SCU     | SCP     | Default  |
+    |          |          | True     | False    | SCU     | SCP     | Default  |
     |          |          |          +----------+---------+---------+----------+
-    |          |          |          | 0x01     | SCU/SCP | SCU/SCP |          |
+    |          |          |          | True     | SCU/SCP | SCU/SCP |          |
     +----------+----------+----------+----------+---------+---------+----------+
-    | 0x01     | 0x00     | 0x00     | 0x00     | N/A     | N/A     | Rejected |
+    | True     | False    | False    | False    | N/A     | N/A     | Rejected |
     |          |          +----------+          +---------+---------+----------+
-    |          |          | 0x01     |          | SCU     | SCP     | Default  |
+    |          |          | True     |          | SCU     | SCP     | Default  |
     +----------+----------+----------+----------+---------+---------+----------+
-    | 0x00     | 0x01     | 0x00     | 0x00     | N/A     | N/A     | Rejected |
+    | False    | True     | False    | False    | N/A     | N/A     | Rejected |
     |          |          |          +----------+---------+---------+----------+
-    |          |          |          | 0x01     | SCP     | SCU     |          |
+    |          |          |          | True     | SCP     | SCU     |          |
     +----------+----------+----------+----------+---------+---------+----------+
-    | 0x00     | 0x00     | 0x00     | 0x00     | N/A     | N/A     | Rejected |
+    | False    | False    | False    | False    | N/A     | N/A     | Rejected |
     +----------+----------+----------+----------+---------+---------+----------+
 
     As can be seen from the above table there are four possible outcomes:
@@ -470,45 +486,6 @@ class PresentationContext(object):
 
         for syntax in syntaxes:
             self.add_transfer_syntax(syntax)
-
-
-"""Provides Presentation related services to the AE.
-
-For each SOP Class or Meta SOP Class, a Presentation Context must be
-negotiated such that this Presentation Context supports the associated
-Abstract Syntax and a suitable Transfer Syntax.
-
-* The Association requestor may off multiple Presentation Contexts per
-  Association.
-* Each Presentation Context supports one Abstract Syntax and one or more
-  Transfer Syntaxes.
-* The Association acceptor may accept or reject each Presentation Context
-  individually.
-* The Association acceptor selects a suitable Transfer Syntax for each
-  Presentation Context accepted.
-
-**SCP/SCU Role Selection Negotiation**
-
-The SCP/SCU role selection negotiation allows peer AEs to negotiate the
-roles in which they will server for each SOP Class or Meta SOP Class
-supported on the Association. This negotiation is optional.
-
-The Association requestor, for each SOP Class UID or Meta SOP Class UID,
-may use one SCP/SCU Role Selection item, with the SOP Class or Meta SOP
-Class identified by its corresponding Abstract Syntax Name, followed by
-one of the three role values:
-
-* Association requestor is SCU only
-* Association requestor is SCP only
-* Association requestor is both SCU and SCP
-
-If the SCP/SCU Role Selection item is absent then the Association requestor
-shall be SCU and the Association acceptor shall be SCP.
-
-References
-----------
-DICOM Standard, Part 7, Annex D.3
-"""
 
 
 def negotiate_as_acceptor(rq_contexts, ac_contexts, roles=None):
@@ -843,197 +820,49 @@ def build_context(abstract_syntax, transfer_syntax=DEFAULT_TRANSFER_SYNTAXES):
 
 # Service specific pre-generated Presentation Contexts
 VerificationPresentationContexts = [
-    build_context('1.2.840.10008.1.1')
+    build_context(uid) for uid in sorted(_VERIFICATION_CLASSES.values())
 ]
 
 StoragePresentationContexts = [
-    build_context('1.2.840.10008.5.1.4.1.1.1'),
-    build_context('1.2.840.10008.5.1.4.1.1.1.1'),
-    build_context('1.2.840.10008.5.1.4.1.1.1.1.1'),
-    build_context('1.2.840.10008.5.1.4.1.1.1.2'),
-    build_context('1.2.840.10008.5.1.4.1.1.1.2.1'),
-    build_context('1.2.840.10008.5.1.4.1.1.1.3'),
-    build_context('1.2.840.10008.5.1.1.4.1.1.3.1'),
-    build_context('1.2.840.10008.5.1.4.1.1.2'),
-    build_context('1.2.840.10008.5.1.4.1.1.2.1'),
-    build_context('1.2.840.10008.5.1.4.1.1.2.2'),
-    build_context('1.2.840.10008.5.1.4.1.1.3.1'),
-    build_context('1.2.840.10008.5.1.4.1.1.4'),
-    build_context('1.2.840.10008.5.1.4.1.1.4.1'),
-    build_context('1.2.840.10008.5.1.4.1.1.4.2'),
-    build_context('1.2.840.10008.5.1.4.1.1.4.3'),
-    build_context('1.2.840.10008.5.1.4.1.1.4.4'),
-    build_context('1.2.840.10008.5.1.4.1.1.6.1'),
-    build_context('1.2.840.10008.5.1.4.1.1.6.2'),
-    build_context('1.2.840.10008.5.1.4.1.1.7'),
-    build_context('1.2.840.10008.5.1.4.1.1.7.1'),
-    build_context('1.2.840.10008.5.1.4.1.1.7.2'),
-    build_context('1.2.840.10008.5.1.4.1.1.7.3'),
-    build_context('1.2.840.10008.5.1.4.1.1.7.4'),
-    build_context('1.2.840.10008.5.1.4.1.1.9.1.1'),
-    build_context('1.2.840.10008.5.1.4.1.1.9.1.2'),
-    build_context('1.2.840.10008.5.1.4.1.1.9.1.3'),
-    build_context('1.2.840.10008.5.1.4.1.1.9.2.1'),
-    build_context('1.2.840.10008.5.1.4.1.1.9.3.1'),
-    build_context('1.2.840.10008.5.1.4.1.1.9.4.1'),
-    build_context('1.2.840.10008.5.1.4.1.1.9.4.2'),
-    build_context('1.2.840.10008.5.1.4.1.1.9.5.1'),
-    build_context('1.2.840.10008.5.1.4.1.1.9.6.1'),
-    build_context('1.2.840.10008.5.1.4.1.1.11.1'),
-    build_context('1.2.840.10008.5.1.4.1.1.11.2'),
-    build_context('1.2.840.10008.5.1.4.1.1.11.3'),
-    build_context('1.2.840.10008.5.1.4.1.1.11.4'),
-    build_context('1.2.840.10008.5.1.4.1.1.11.5'),
-    build_context('1.2.840.10008.5.1.4.1.1.12.1'),
-    build_context('1.2.840.10008.5.1.4.1.1.12.1.1'),
-    build_context('1.2.840.10008.5.1.4.1.1.12.2'),
-    build_context('1.2.840.10008.5.1.4.1.1.12.2.1'),
-    build_context('1.2.840.10008.5.1.4.1.1.13.1.1'),
-    build_context('1.2.840.10008.5.1.4.1.1.13.1.2'),
-    build_context('1.2.840.10008.5.1.4.1.1.13.1.3'),
-    build_context('1.2.840.10008.5.1.4.1.1.13.1.4'),
-    build_context('1.2.840.10008.5.1.4.1.1.13.1.5'),
-    build_context('1.2.840.10008.5.1.4.1.1.14.1'),
-    build_context('1.2.840.10008.5.1.4.1.1.14.2'),
-    build_context('1.2.840.10008.5.1.4.1.1.20'),
-    build_context('1.2.840.10008.5.1.4.1.1.30'),
-    build_context('1.2.840.10008.5.1.4.1.1.66'),
-    build_context('1.2.840.10008.5.1.4.1.1.66.1'),
-    build_context('1.2.840.10008.5.1.4.1.1.66.2'),
-    build_context('1.2.840.10008.5.1.4.1.1.66.3'),
-    build_context('1.2.840.10008.5.1.4.1.1.66.4'),
-    build_context('1.2.840.10008.5.1.4.1.1.66.5'),
-    build_context('1.2.840.10008.5.1.4.1.1.67'),
-    build_context('1.2.840.10008.5.1.4.1.1.68.1'),
-    build_context('1.2.840.10008.5.1.4.1.1.68.2'),
-    build_context('1.2.840.10008.5.1.4.1.1.77.1.1'),
-    build_context('1.2.840.10008.5.1.4.1.1.77.1.1.1'),
-    build_context('1.2.840.10008.5.1.4.1.1.77.1.2'),
-    build_context('1.2.840.10008.5.1.4.1.1.77.1.2.1'),
-    build_context('1.2.840.10008.5.1.4.1.1.77.1.3'),
-    build_context('1.2.840.10008.5.1.4.1.1.77.1.4'),
-    build_context('1.2.840.10008.5.1.4.1.1.77.1.4.1'),
-    build_context('1.2.840.10008.5.1.4.1.1.77.1.5.1'),
-    build_context('1.2.840.10008.5.1.4.1.1.77.1.5.2'),
-    build_context('1.2.840.10008.5.1.4.1.1.77.1.5.3'),
-    build_context('1.2.840.10008.5.1.4.1.1.77.1.5.4'),
-    build_context('1.2.840.10008.5.1.4.1.1.77.1.5.5'),
-    build_context('1.2.840.10008.5.1.4.1.1.77.1.5.6'),
-    build_context('1.2.840.10008.5.1.4.1.1.77.1.6'),
-    build_context('1.2.840.10008.5.1.4.1.1.78.1'),
-    build_context('1.2.840.10008.5.1.4.1.1.78.2'),
-    build_context('1.2.840.10008.5.1.4.1.1.78.3'),
-    build_context('1.2.840.10008.5.1.4.1.1.78.4'),
-    build_context('1.2.840.10008.5.1.4.1.1.78.5'),
-    build_context('1.2.840.10008.5.1.4.1.1.78.6'),
-    build_context('1.2.840.10008.5.1.4.1.1.78.7'),
-    build_context('1.2.840.10008.5.1.4.1.1.78.8'),
-    build_context('1.2.840.10008.5.1.4.1.1.79.1'),
-    build_context('1.2.840.10008.5.1.4.1.1.80.1'),
-    build_context('1.2.840.10008.5.1.4.1.1.81.1'),
-    build_context('1.2.840.10008.5.1.4.1.1.82.1'),
-    build_context('1.2.840.10008.5.1.4.1.1.88.11'),
-    build_context('1.2.840.10008.5.1.4.1.1.88.22'),
-    build_context('1.2.840.10008.5.1.4.1.1.88.33'),
-    build_context('1.2.840.10008.5.1.4.1.1.88.34'),
-    build_context('1.2.840.10008.5.1.4.1.1.88.35'),
-    build_context('1.2.840.10008.5.1.4.1.1.88.40'),
-    build_context('1.2.840.10008.5.1.4.1.1.88.50'),
-    build_context('1.2.840.10008.5.1.4.1.1.88.59'),
-    build_context('1.2.840.10008.5.1.4.1.1.88.65'),
-    build_context('1.2.840.10008.5.1.4.1.1.88.67'),
-    build_context('1.2.840.10008.5.1.4.1.1.88.68'),
-    build_context('1.2.840.10008.5.1.4.1.1.88.69'),
-    build_context('1.2.840.10008.5.1.4.1.1.88.70'),
-    build_context('1.2.840.10008.5.1.4.1.1.104.1'),
-    build_context('1.2.840.10008.5.1.4.1.1.104.2'),
-    build_context('1.2.840.10008.5.1.4.1.1.128'),
-    build_context('1.2.840.10008.5.1.4.1.1.130'),
-    build_context('1.2.840.10008.5.1.4.1.1.128.1'),
-    build_context('1.2.840.10008.5.1.4.1.1.131'),
-    build_context('1.2.840.10008.5.1.4.1.1.481.1'),
-    build_context('1.2.840.10008.5.1.4.1.1.481.2'),
-    build_context('1.2.840.10008.5.1.4.1.1.481.3'),
-    build_context('1.2.840.10008.5.1.4.1.1.481.4'),
-    build_context('1.2.840.10008.5.1.4.1.1.481.5'),
-    build_context('1.2.840.10008.5.1.4.1.1.481.6'),
-    build_context('1.2.840.10008.5.1.4.1.1.481.7'),
-    build_context('1.2.840.10008.5.1.4.1.1.481.8'),
-    build_context('1.2.840.10008.5.1.4.1.1.481.9'),
-    build_context('1.2.840.10008.5.1.4.34.7'),
-    build_context('1.2.840.10008.5.1.4.34.10'),
+    build_context(uid) for uid in sorted(_STORAGE_CLASSES.values())[:128]
 ]
 
 QueryRetrievePresentationContexts = [
-    build_context('1.2.840.10008.5.1.4.1.2.1.1'),
-    build_context('1.2.840.10008.5.1.4.1.2.1.2'),
-    build_context('1.2.840.10008.5.1.4.1.2.1.3'),
-    build_context('1.2.840.10008.5.1.4.1.2.2.1'),
-    build_context('1.2.840.10008.5.1.4.1.2.2.2'),
-    build_context('1.2.840.10008.5.1.4.1.2.2.3'),
-    build_context('1.2.840.10008.5.1.4.1.2.3.1'),
-    build_context('1.2.840.10008.5.1.4.1.2.3.2'),
-    build_context('1.2.840.10008.5.1.4.1.2.3.3'),
-    build_context('1.2.840.10008.5.1.4.1.2.4.2'),
-    build_context('1.2.840.10008.5.1.4.1.2.4.3'),
-    build_context('1.2.840.10008.5.1.4.1.2.5.3'),
+    build_context(uid) for uid in sorted(_QR_CLASSES.values())
 ]
 
 BasicWorklistManagementPresentationContexts = [
-    build_context('1.2.840.10008.5.1.4.31'),
+    build_context(uid) for uid in sorted(_BASIC_WORKLIST_CLASSES.values())
 ]
 
 RelevantPatientInformationPresentationContexts = [
-    build_context('1.2.840.10008.5.1.4.37.1'),
-    build_context('1.2.840.10008.5.1.4.37.2'),
-    build_context('1.2.840.10008.5.1.4.37.3'),
+    build_context(uid) for uid in sorted(_RELEVANT_PATIENT_QUERY_CLASSES.values())
 ]
 
 SubstanceAdministrationPresentationContexts = [
-    build_context('1.2.840.10008.5.1.4.41'),
-    build_context('1.2.840.10008.5.1.4.42'),
+    build_context(uid) for uid in sorted(_SUBSTANCE_ADMINISTRATION_CLASSES.values())
 ]
 
 NonPatientObjectPresentationContexts = [
-    build_context('1.2.840.10008.5.1.4.38.1'),
-    build_context('1.2.840.10008.5.1.4.39.1'),
-    build_context('1.2.840.10008.5.1.4.43.1'),
-    build_context('1.2.840.10008.5.1.4.44.1'),
-    build_context('1.2.840.10008.5.1.4.45.1'),
-    build_context('1.2.840.10008.5.1.4.1.1.200.1'),
-    build_context('1.2.840.10008.5.1.4.1.1.200.3'),
+    build_context(uid) for uid in sorted(_NON_PATIENT_OBJECT_CLASSES.values())
 ]
 
 HangingProtocolPresentationContexts = [
-    build_context('1.2.840.10008.5.1.4.38.2'),
-    build_context('1.2.840.10008.5.1.4.38.3'),
-    build_context('1.2.840.10008.5.1.4.38.4'),
+    build_context(uid) for uid in sorted(_HANGING_PROTOCOL_CLASSES.values())
 ]
 
 DefinedProcedureProtocolPresentationContexts = [
-    build_context('1.2.840.10008.5.1.4.20.1'),
-    build_context('1.2.840.10008.5.1.4.20.2'),
-    build_context('1.2.840.10008.5.1.4.20.3'),
+    build_context(uid) for uid in sorted(_DEFINED_PROCEDURE_CLASSES.values())
 ]
 
 ColorPalettePresentationContexts = [
-    build_context('1.2.840.10008.5.1.4.39.2'),
-    build_context('1.2.840.10008.5.1.4.39.3'),
-    build_context('1.2.840.10008.5.1.4.39.4'),
+    build_context(uid) for uid in sorted(_COLOR_PALETTE_CLASSES.values())
 ]
 
 ImplantTemplatePresentationContexts = [
-    build_context('1.2.840.10008.5.1.4.43.2'),
-    build_context('1.2.840.10008.5.1.4.43.3'),
-    build_context('1.2.840.10008.5.1.4.43.4'),
-    build_context('1.2.840.10008.5.1.4.44.2'),
-    build_context('1.2.840.10008.5.1.4.44.3'),
-    build_context('1.2.840.10008.5.1.4.44.4'),
-    build_context('1.2.840.10008.5.1.4.45.2'),
-    build_context('1.2.840.10008.5.1.4.45.3'),
-    build_context('1.2.840.10008.5.1.4.45.4'),
+    build_context(uid) for uid in sorted(_IMPLANT_TEMPLATE_CLASSES.values())
 ]
 
 DisplaySystemPresentationContexts = [
-    build_context('1.2.840.10008.5.1.1.40')
+    build_context(uid) for uid in sorted(_DISPLAY_SYSTEM_CLASSES.values())
 ]

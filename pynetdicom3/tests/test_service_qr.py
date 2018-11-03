@@ -1613,7 +1613,7 @@ class TestQRGetServiceClass(object):
         self.scp.start()
 
         ae = AE()
-        ae.requested_contexts = StoragePresentationContexts
+        ae.requested_contexts = StoragePresentationContexts[:120]
         ae.add_requested_context(PatientRootQueryRetrieveInformationModelGet)
 
         role_selection = []
