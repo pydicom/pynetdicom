@@ -355,6 +355,38 @@ Transfer Syntax(es):
     =Explicit VR Little Endian
 
 
+Handling SCP/SCU Role Selection Negotiation
+...........................................
+
+Depending on the requirements of the service class, an association requestor
+may include SCP/SCU Role Selection Negotiation items
+in the association request and it's up to the association acceptor to decide
+whether or not to accept the proposed roles. This can be done through the
+``scu_role`` and ``scp_role`` parameters:
+
+>>> from pynetdicom3 import AE
+>>> from pynetdicom3.sop_class import CTImageStorage
+>>> ae = AE()
+>>> ae.add_supported_context(CTImageStorage, scu_role=False, scp_role=True)
+
+If either ``scu_role`` or ``scp_role`` is None (the default) then no response
+to the role selection will be sent and the default roles assumed. If you wish
+to accept a proposed role then set the corresponding parameter to ``True``. In
+the above example if the requestor proposes the SCP role then the acceptor will
+accept it while rejecting the proposed SCU role.
+
+To reiterate, if you wish to respond to the proposed role selection then
+**both** ``scu_role`` and ``scp_role`` must be set.
+
+There are four possible outcomes for the role selection negotiation, depending
+on what was proposed and what was accepted:
+
+* The proposed roles aren't acceptable and the context is rejected
+* The acceptor acts as the SCP and the requestor the SCU (default)
+* The acceptor acts as the SCU and the requestor the SCP
+* Both acceptor and requestor act as SCU and SCP
+
+
 Specifying the network port
 ...........................
 By default an SCP will use the first available port to listen on for

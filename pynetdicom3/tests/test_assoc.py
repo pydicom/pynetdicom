@@ -476,6 +476,7 @@ class TestAssociation(object):
         ae.acse_timeout = 5
         ae.dimse_timeout = 5
         assoc = ae.associate('localhost', 11112)
+        time.sleep(0.1)
         assert not assoc.is_established
         assert assoc.is_aborted
         self.scp.stop()

@@ -752,7 +752,6 @@ def negotiate_as_requestor(rq_contexts, ac_contexts, roles=None):
                 ac_roles = (None, None)
 
             # Skip if context rejected or acceptor ignored proposal
-            print(rq_roles, ac_roles, ac_context.result)
             if ac_context.result == 0x00 and None not in ac_roles:
                 outcome = SCP_SCU_ROLES[rq_roles][ac_roles]
                 context._as_scu = outcome[0]

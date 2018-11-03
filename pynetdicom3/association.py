@@ -360,44 +360,42 @@ class Association(threading.Thread):
 
         ## DUL ACSE Related Rejections
         # User Identity Negotiation (PS3.7 Annex D.3.3.7)
-        # FIXME: iteratively removing like this doesnt work
-        for ii in assoc_rq.user_information:
-            if isinstance(ii, UserIdentityNegotiation):
-                # Used to notify the association acceptor of the user
-                #   identity of the association requestor. It may also
-                #   request that the Acceptor response with the server
-                #   identity.
-                #
-                # The Acceptor does not provide an A-ASSOCIATE response
-                #   unless a positive response is requested and user
-                #   authentication succeeded. If a positive response
-                #   was requested, the A-ASSOCIATE response shall contain
-                #   a User Identity sub-item. If a Kerberos ticket is used
-                #   the response shall include a Kerberos server ticket
-                #
-                # A positive response must be requested if the association
-                #   requestor requires confirmation. If the Acceptor does
-                #   not support user identification it will accept the
-                #   association without making a positive response. The
-                #   Requestor can then decide whether to proceed
+        # TODO: Implement propoerly but for now just remove items
+        # Used to notify the association acceptor of the user
+        #   identity of the association requestor. It may also
+        #   request that the Acceptor response with the server
+        #   identity.
+        #
+        # The Acceptor does not provide an A-ASSOCIATE response
+        #   unless a positive response is requested and user
+        #   authentication succeeded. If a positive response
+        #   was requested, the A-ASSOCIATE response shall contain
+        #   a User Identity sub-item. If a Kerberos ticket is used
+        #   the response shall include a Kerberos server ticket
+        #
+        # A positive response must be requested if the association
+        #   requestor requires confirmation. If the Acceptor does
+        #   not support user identification it will accept the
+        #   association without making a positive response. The
+        #   Requestor can then decide whether to proceed
 
-                #user_authorised = self.ae.on_user_identity(
-                #                       ii.UserIdentityType,
-                #                       ii.PrimaryField,
-                #                       ii.SecondaryField)
+        #user_authorised = self.ae.on_user_identity(
+        #                       ii.UserIdentityType,
+        #                       ii.PrimaryField,
+        #                       ii.SecondaryField)
 
-                # Associate with all requestors
-                assoc_rq.user_information.remove(ii)
-
-                # Testing
-                #if ii.PositiveResponseRequested:
-                #    ii.ServerResponse = b''
+        # Associate with all requestors
+        assoc_rq.user_information[:] = (
+            ii for ii in assoc_rq.user_information
+                if not isinstance(ii, UserIdentityNegotiation)
+        )
 
         # Extended Negotiation
-        # FIXME: iteratively removing like this doesnt work
-        for ii in assoc_rq.user_information:
-            if isinstance(ii, SOPClassExtendedNegotiation):
-                assoc_rq.user_information.remove(ii)
+        # TODO: Implement propoerly but for now just remove items
+        assoc_rq.user_information[:] = (
+            ii for ii in assoc_rq.user_information
+                if not isinstance(ii, SOPClassExtendedNegotiation)
+        )
 
         ## DUL Presentation Related Rejections
         #
@@ -636,7 +634,6 @@ class Association(threading.Thread):
                     (cx.scu_role, cx.scp_role) = roles[cx.abstract_syntax]
                 except KeyError:
                     pass
-                print(cx.scu_role, cx.scp_role)
 
         # Request an Association via the ACSE
         is_accepted, assoc_rsp = self.acse.request_assoc(
