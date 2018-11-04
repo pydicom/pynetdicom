@@ -2584,3 +2584,9 @@ class TestAssociationCallbacks(object):
         assoc.release()
         assert assoc.is_released
         self.scp.stop()
+
+
+class TestGetValidContext(object):
+    """Tests for Association._get_valid_context."""
+    def setup(self):
+        pass

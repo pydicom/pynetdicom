@@ -60,11 +60,14 @@ from pynetdicom3.sop_class import (
     ImplantTemplateGroupInformationModelGet,
     ImplantTemplateGroupInformationModelMove,
 )
-from pynetdicom3.pdu_primitives import (UserIdentityNegotiation,
-                                        SOPClassExtendedNegotiation,
-                                        SOPClassCommonExtendedNegotiation,
-                                        SCP_SCU_RoleSelectionNegotiation,
-                                        A_ASSOCIATE, A_ABORT, A_P_ABORT)
+from pynetdicom3.pdu_primitives import (
+    UserIdentityNegotiation,
+    AsynchronousOperationsWindowNegotiation,
+    SOPClassExtendedNegotiation,
+    SOPClassCommonExtendedNegotiation,
+    SCP_SCU_RoleSelectionNegotiation,
+    A_ASSOCIATE, A_ABORT, A_P_ABORT
+)
 from pynetdicom3.status import (
     code_to_status, code_to_category, STORAGE_SERVICE_CLASS_STATUS,
     STATUS_WARNING, STATUS_SUCCESS
@@ -263,6 +266,93 @@ class Association(threading.Thread):
         threading.Thread.__init__(self)
         self.daemon = True
 
+    def abort(self):
+        """Abort the association.
+
+        DUL service user association abort. Always gives the source as the
+        DUL service user and sets the abort reason to 0x00 (not significant)
+
+        See PS3.8, 7.3-4 and 9.3.8.
+        """
+        if not self.is_released:
+            self.acse.abort_assoc(source=0x00, reason=0x00)
+            self.kill()
+            self.is_aborted = True
+
+        # Add short delay to ensure everything shuts down
+        time.sleep(0.1)
+
+    @property
+    def accepted_contexts(self):
+        """Return a list of accepted PresentationContexts."""
+        return self.acse.accepted_contexts
+
+    def _get_valid_context(self, ab_syntax, tr_syntax, role, context_id=None):
+        """
+
+        Parameters
+        ----------
+        ab_syntax : str or pydicom.uid.UID
+            The abstract syntax to match.
+        tr_syntax : str or pydicom.uid.UID
+            The transfer syntax to match, if an empty string is used then
+            the transfer syntax will not be used for matching. If the value
+            corresponds to an uncompressed syntax then matches will be made
+            with any uncompressed transfer syntaxes.
+        role : str
+            One of 'scu' or 'scp', the required role of the context.
+        context_id : int or None
+            If not None then the ID of the presentation context to use. It will
+            be checked against the available parameter values.
+
+        Returns
+        -------
+        presentation.PresentationContext
+            An accepted presentation context.
+        """
+        ab_syntax = UID(ab_syntax)
+        tr_syntax = UID(tr_syntax)
+
+        possible_contexts = []
+        if context_id is None:
+            possible_contexts = self.accepted_contexts
+        else:
+            for cx in self.accepted_contexts:
+                if cx.context_id == context_id:
+                    possible_contexts = [cx]
+                    break
+
+        for cx in possible_contexts:
+            if cx.abstract_syntax != ab_syntax:
+                continue
+
+            # Allow us to skip the transfer syntax check
+            if tr_syntax and cx.transfer_syntax[0] != tr_syntax:
+                # Compressed transfer syntaxes are not convertable
+                if tr_syntax.is_compressed or cx.transfer_syntax[0].is_compressed:
+                    continue
+
+            # Cover both False and None
+            if role == 'scu' and cx.as_scu is not True:
+                continue
+
+            if role == 'scp' and cx.as_scp is not True:
+                continue
+
+            # Only a valid presentation context can reach this point
+            return cx
+
+        msg = (
+            "No presentation context for the {} role has been accepted by "
+            "the peer for the SOP Class '{}'"
+            .format(role.upper(), ab_syntax.name, tr_syntax.name)
+        )
+        if tr_syntax:
+            msg += " with a transfer syntax of '{}'".format(tr_syntax.name)
+
+        LOGGER.error(msg)
+        raise ValueError(msg)
+
     def kill(self):
         """Kill the main association thread loop."""
         self._kill = True
@@ -283,21 +373,10 @@ class Association(threading.Thread):
                 # No release reply within timeout window
                 self.abort()
 
-    def abort(self):
-        """Abort the association.
-
-        DUL service user association abort. Always gives the source as the
-        DUL service user and sets the abort reason to 0x00 (not significant)
-
-        See PS3.8, 7.3-4 and 9.3.8.
-        """
-        if not self.is_released:
-            self.acse.abort_assoc(source=0x00, reason=0x00)
-            self.kill()
-            self.is_aborted = True
-
-        # Add short delay to ensure everything shuts down
-        time.sleep(0.1)
+    @property
+    def rejected_contexts(self):
+        """Return a list of rejected PresentationContexts."""
+        return self.acse.rejected_contexts
 
     def run(self):
         """The main Association control."""
@@ -810,28 +889,20 @@ class Association(threading.Thread):
                                "established before sending a C-ECHO request")
 
         # Verification SOP Class
-        uid = UID('1.2.840.10008.1.1')
+        sop_class = UID('1.2.840.10008.1.1')
 
-        # Get the Presentation Context we are operating under
-        context_id = None
-        for context in self.acse.accepted_contexts:
-            if uid == context.abstract_syntax and context.as_scu:
-                context_id = context.context_id
-                break
-        else:
-            LOGGER.error("No accepted Presentation Context for '%s'", uid)
-            raise ValueError("No accepted Presentation Context for "
-                             "'Verification SOP Class'.")
+        # Get a Presentation Context to use for sending the message
+        context = self._get_valid_context(sop_class, '', 'scu')
 
         # Build C-STORE request primitive
         #   (M) Message ID
         #   (M) Affected SOP Class UID
         primitive = C_ECHO()
         primitive.MessageID = msg_id
-        primitive.AffectedSOPClassUID = uid
+        primitive.AffectedSOPClassUID = sop_class
 
         # Send C-ECHO request to the peer via DIMSE and wait for the response
-        self.dimse.send_msg(primitive, context_id)
+        self.dimse.send_msg(primitive, context.context_id)
         rsp, _ = self.dimse.receive_msg(wait=True)
 
         # Determine validity of the response and get the status
@@ -967,28 +1038,30 @@ class Association(threading.Thread):
             raise RuntimeError("The association with a peer SCP must be "
                                "established before sending a C-STORE request")
 
-        # Determine the Presentation Context we are operating under
-        #   and hence the transfer syntax to use for encoding `dataset`
-        transfer_syntax = None
-        for context in self.acse.accepted_contexts:
-            try:
-                if dataset.SOPClassUID == context.abstract_syntax and context.as_scu:
-                    transfer_syntax = context.transfer_syntax[0]
-                    context_id = context.context_id
-                    break
-            except AttributeError as ex:
-                LOGGER.error("Association.send_c_store - unable to determine "
-                             "Presentation Context as "
-                             "Dataset has no 'SOP Class UID' element")
-                LOGGER.error("Store SCU failed due to there being no valid "
-                             "presentation context for the current dataset")
-                raise ex
-        else:
-            LOGGER.error("Association.send_c_store - no accepted Presentation "
-                         "Context for: '%s'", dataset.SOPClassUID)
-            LOGGER.error("Store SCU failed due to there being no accepted "
-                         "presentation context for the current dataset")
-            raise ValueError("No accepted Presentation Context for 'dataset'.")
+        # Check `dataset` has required elements
+        if 'SOPClassUID' not in dataset:
+            raise AttributeError(
+                "Unable to determine the presentation context to use with "
+                "the dataset as it contains no '(0008,0016) SOP Class UID' "
+                "element"
+            )
+
+        try:
+            'TransferSyntaxUID' in dataset.file_meta
+        except AttributeError:
+            raise AttributeError(
+                "Unable to determine the presentation context to use with "
+                "the dataset as it contains no '(0002,0010) Transfer Syntax "
+                "UID' file meta information element"
+        )
+
+        # Get a Presentation Context to use for sending the message
+        context = self._get_valid_context(
+            dataset.SOPClassUID,
+            dataset.file_meta.TransferSyntaxUID,
+            'scu'
+        )
+        transfer_syntax = context.transfer_syntax[0]
 
         # Build C-STORE request primitive
         #   (M) Message ID
@@ -1019,7 +1092,7 @@ class Association(threading.Thread):
             raise ValueError('Failed to encode the supplied Dataset')
 
         # Send C-STORE request to the peer via DIMSE and wait for the response
-        self.dimse.send_msg(req, context_id)
+        self.dimse.send_msg(req, context.context_id)
         rsp, _ = self.dimse.receive_msg(wait=True)
 
         # Determine validity of the response and get the status
@@ -1253,18 +1326,7 @@ class Association(threading.Thread):
 
         # Determine the Presentation Context we are operating under
         #   and hence the transfer syntax to use for encoding `dataset`
-        transfer_syntax = None
-        for context in self.acse.accepted_contexts:
-            if sop_class.uid == context.abstract_syntax and context.as_scu:
-                transfer_syntax = context.transfer_syntax[0]
-                context_id = context.context_id
-                break
-        else:
-            LOGGER.error("No accepted Presentation Context for: '%s'",
-                         sop_class.uid)
-            LOGGER.error("Find SCU failed due to there being no accepted "
-                         "presentation context for the current dataset")
-            raise ValueError("No accepted Presentation Context for 'dataset'")
+        context = self._get_valid_context(sop_class.uid, '', 'scu')
 
         # Build C-FIND request primitive
         #   (M) Message ID
@@ -1278,6 +1340,7 @@ class Association(threading.Thread):
 
         # Encode the Identifier `dataset` using the agreed transfer syntax
         #   Will return None if failed to encode
+        transfer_syntax = context.transfer_syntax[0]
         bytestream = encode(dataset,
                             transfer_syntax.is_implicit_VR,
                             transfer_syntax.is_little_endian)
@@ -1524,18 +1587,7 @@ class Association(threading.Thread):
 
         # Determine the Presentation Context we are operating under
         #   and hence the transfer syntax to use for encoding `dataset`
-        transfer_syntax = None
-        for context in self.acse.accepted_contexts:
-            if sop_class.uid == context.abstract_syntax and context.as_scu:
-                transfer_syntax = context.transfer_syntax[0]
-                context_id = context.context_id
-                break
-        else:
-            LOGGER.error("No accepted Presentation Context for: '%s'",
-                         sop_class.uid)
-            LOGGER.error("Move SCU failed due to there being no accepted "
-                         "presentation context\n   for the current dataset")
-            raise ValueError("No accepted Presentation Context for 'dataset'")
+        context = self._get_valid_context(sop_class.uid, '', 'scu')
 
         # Build C-MOVE request primitive
         #   (M) Message ID
@@ -1551,6 +1603,7 @@ class Association(threading.Thread):
 
         # Encode the Identifier `dataset` using the agreed transfer syntax;
         #   will return None if failed to encode
+        transfer_syntax = context.transfer_syntax[0]
         bytestream = encode(dataset,
                             transfer_syntax.is_implicit_VR,
                             transfer_syntax.is_little_endian)
@@ -1844,18 +1897,7 @@ class Association(threading.Thread):
 
         # Determine the Presentation Context we are operating under
         #   and hence the transfer syntax to use for encoding `dataset`
-        transfer_syntax = None
-        for context in self.acse.accepted_contexts:
-            if sop_class.uid == context.abstract_syntax and context.as_scu:
-                transfer_syntax = context.transfer_syntax[0]
-                context_id = context.context_id
-                break
-        else:
-            LOGGER.error("No accepted Presentation Context for: '%s'",
-                         sop_class.uid)
-            LOGGER.error("Get SCU failed due to there being no accepted "
-                         "presentation context for the current dataset")
-            raise ValueError("No accepted Presentation Context for 'dataset'")
+        context = self._get_valid_context(sop_class.uid, '', 'scu')
 
         # Build C-GET request primitive
         #   (M) Message ID
@@ -1869,6 +1911,7 @@ class Association(threading.Thread):
 
         # Encode the Identifier `dataset` using the agreed transfer syntax
         #   Will return None if failed to encode
+        transfer_syntax = context.transfer_syntax[0]
         bytestream = encode(dataset,
                             transfer_syntax.is_implicit_VR,
                             transfer_syntax.is_little_endian)
@@ -2015,20 +2058,21 @@ class Association(threading.Thread):
         rsp.AffectedSOPInstanceUID = req.AffectedSOPInstanceUID
         rsp.AffectedSOPClassUID = req.AffectedSOPClassUID
 
-        transfer_syntax = None
-        for context in self.acse.accepted_contexts:
-            if req.AffectedSOPClassUID == context.abstract_syntax and context.as_scp:
-                transfer_syntax = context.transfer_syntax[0]
-                break
-        else:
-            LOGGER.error("No accepted Presentation Context for: '%s'",
-                         req.AffectedSOPClassUID)
+        try:
+            context = self._get_valid_context(
+                req.AffectedSOPClassUID,
+                '',
+                'scp',
+                context_id=req._context_id
+            )
+        except ValueError:
             # SOP Class not supported, no context ID?
             rsp.Status = 0x0122
             self.dimse.send_msg(rsp, 1)
             return
 
         # Attempt to decode the dataset
+        transfer_syntax = context.transfer_syntax[0]
         try:
             ds = decode(req.DataSet,
                         transfer_syntax.is_implicit_VR,
@@ -2211,24 +2255,7 @@ class Association(threading.Thread):
         # Determine the Presentation Context we are operating under
         #   and hence the transfer syntax to use for encoding `dataset`
         transfer_syntax = None
-        for context in self.acse.accepted_contexts:
-            if class_uid == context.abstract_syntax and context.as_scu:
-                transfer_syntax = context.transfer_syntax[0]
-                context_id = context.context_id
-                break
-        else:
-            LOGGER.error(
-                "Association.send_n_event_report - no accepted Presentation "
-                "Context for: '{}'".format(class_uid)
-            )
-            LOGGER.error(
-                "Event Report SCU failed due to there being no accepted "
-                "presentation context"
-            )
-            raise ValueError(
-                "No accepted Presentation Context for the SOP Class UID '{}'"
-                .format(class_uid)
-            )
+        context = self._get_valid_context(class_uid, '', 'scu')
 
         # Build N-EVENT-REPORT request primitive
         #   (M) Message ID
@@ -2244,6 +2271,7 @@ class Association(threading.Thread):
 
         # Encode the `dataset` using the agreed transfer syntax
         #   Will return None if failed to encode
+        transfer_syntax = context.transfer_syntax[0]
         bytestream = encode(dataset,
                             transfer_syntax.is_implicit_VR,
                             transfer_syntax.is_little_endian)
@@ -2256,7 +2284,7 @@ class Association(threading.Thread):
 
         # Send N-EVENT-REPORT request to the peer via DIMSE and wait for
         # the response primitive
-        self.dimse.send_msg(req, context_id)
+        self.dimse.send_msg(req, context.context_id)
         rsp, _ = self.dimse.receive_msg(wait=True)
 
         # Determine validity of the response and get the status
@@ -2382,25 +2410,8 @@ class Association(threading.Thread):
 
         # Determine the Presentation Context we are operating under
         #   and hence the transfer syntax to use for encoding `dataset`
-        transfer_syntax = None
-        for context in self.acse.accepted_contexts:
-            if class_uid == context.abstract_syntax and context.as_scu:
-                transfer_syntax = context.transfer_syntax[0]
-                context_id = context.context_id
-                break
-        else:
-            LOGGER.error(
-                "Association.send_n_get - no accepted Presentation Context "
-                "for: '{}'".format(class_uid)
-            )
-            LOGGER.error(
-                "Get SCU failed due to there being no accepted presentation "
-                "context"
-            )
-            raise ValueError(
-                "No accepted Presentation Context for the SOP Class UID '{}'"
-                .format(class_uid)
-            )
+        context = self._get_valid_context(class_uid, '', 'scu')
+        transfer_syntax = context.transfer_syntax[0]
 
         # Build N-GET request primitive
         #   (M) Message ID
@@ -2414,7 +2425,7 @@ class Association(threading.Thread):
         req.AttributeIdentifierList = identifier_list
 
         # Send N-GET request to the peer via DIMSE and wait for the response
-        self.dimse.send_msg(req, context_id)
+        self.dimse.send_msg(req, context.context_id)
         rsp, _ = self.dimse.receive_msg(wait=True)
 
         # Determine validity of the response and get the status
@@ -2536,25 +2547,8 @@ class Association(threading.Thread):
 
         # Determine the Presentation Context we are operating under
         #   and hence the transfer syntax to use for encoding `dataset`
-        transfer_syntax = None
-        for context in self.acse.accepted_contexts:
-            if class_uid == context.abstract_syntax and context.as_scu:
-                transfer_syntax = context.transfer_syntax[0]
-                context_id = context.context_id
-                break
-        else:
-            LOGGER.error(
-                "Association.send_n_set - no accepted Presentation Context "
-                "for: '{}'".format(class_uid)
-            )
-            LOGGER.error(
-                "Get SCU failed due to there being no accepted presentation "
-                "context"
-            )
-            raise ValueError(
-                "No accepted Presentation Context for the SOP Class UID '{}'"
-                .format(class_uid)
-            )
+        context = self._get_valid_context(class_uid, '', 'scu')
+        transfer_syntax = context.transfer_syntax[0]
 
         # Build N-SET request primitive
         #   (M) Message ID
@@ -2579,7 +2573,7 @@ class Association(threading.Thread):
             raise ValueError('Failed to encode the supplied Dataset')
 
         # Send N-SET request to the peer via DIMSE and wait for the response
-        self.dimse.send_msg(req, context_id)
+        self.dimse.send_msg(req, context.context_id)
         rsp, _ = self.dimse.receive_msg(wait=True)
 
         # Determine validity of the response and get the status
@@ -2700,25 +2694,8 @@ class Association(threading.Thread):
 
         # Determine the Presentation Context we are operating under
         #   and hence the transfer syntax to use for encoding `dataset`
-        transfer_syntax = None
-        for context in self.acse.accepted_contexts:
-            if class_uid == context.abstract_syntax and context.as_scu:
-                transfer_syntax = context.transfer_syntax[0]
-                context_id = context.context_id
-                break
-        else:
-            LOGGER.error(
-                "Association.send_n_action - no accepted Presentation Context "
-                "for: '{}'".format(class_uid)
-            )
-            LOGGER.error(
-                "Action SCU failed due to there being no accepted "
-                "presentation context"
-            )
-            raise ValueError(
-                "No accepted Presentation Context for the SOP Class UID '{}'"
-                .format(class_uid)
-            )
+        context = self._get_valid_context(class_uid, '', 'scu')
+        transfer_syntax = context.transfer_syntax[0]
 
         # Build N-ACTION request primitive
         #   (M) Message ID
@@ -2744,7 +2721,7 @@ class Association(threading.Thread):
             raise ValueError('Failed to encode the supplied Dataset')
 
         # Send N-ACTION request to the peer via DIMSE and wait for the response
-        self.dimse.send_msg(req, context_id)
+        self.dimse.send_msg(req, context.context_id)
         rsp, _ = self.dimse.receive_msg(wait=True)
 
         # Determine validity of the response and get the status
@@ -2863,25 +2840,8 @@ class Association(threading.Thread):
 
         # Determine the Presentation Context we are operating under
         #   and hence the transfer syntax to use for encoding `dataset`
-        transfer_syntax = None
-        for context in self.acse.accepted_contexts:
-            if class_uid == context.abstract_syntax and context.as_scu:
-                transfer_syntax = context.transfer_syntax[0]
-                context_id = context.context_id
-                break
-        else:
-            LOGGER.error(
-                "Association.send_n_create - no accepted Presentation Context "
-                "for: '{}'".format(class_uid)
-            )
-            LOGGER.error(
-                "Create SCU failed due to there being no accepted presentation "
-                "context"
-            )
-            raise ValueError(
-                "No accepted Presentation Context for the SOP Class UID '{}'"
-                .format(class_uid)
-            )
+        context = self._get_valid_context(class_uid, '', 'scu')
+        transfer_syntax = context.transfer_syntax[0]
 
         # Build N-CREATE request primitive
         #   (M) Message ID
@@ -2905,7 +2865,7 @@ class Association(threading.Thread):
             raise ValueError('Failed to encode the supplied Dataset')
 
         # Send N-CREATE request to the peer via DIMSE and wait for the response
-        self.dimse.send_msg(req, context_id)
+        self.dimse.send_msg(req, context.context_id)
         rsp, _ = self.dimse.receive_msg(wait=True)
 
         # Determine validity of the response and get the status
@@ -3010,25 +2970,8 @@ class Association(threading.Thread):
 
         # Determine the Presentation Context we are operating under
         #   and hence the transfer syntax to use for encoding `dataset`
-        transfer_syntax = None
-        for context in self.acse.accepted_contexts:
-            if class_uid == context.abstract_syntax and context.as_scu:
-                transfer_syntax = context.transfer_syntax[0]
-                context_id = context.context_id
-                break
-        else:
-            LOGGER.error(
-                "Association.send_n_delete - no accepted Presentation Context "
-                "for: '{}'".format(class_uid)
-            )
-            LOGGER.error(
-                "Delete SCU failed due to there being no accepted "
-                "presentation context"
-            )
-            raise ValueError(
-                "No accepted Presentation Context for the SOP Class UID '{}'"
-                .format(class_uid)
-            )
+        context = self._get_valid_context(class_uid, '', 'scu')
+        transfer_syntax = context.transfer_syntax[0]
 
         # Build N-DELETE request primitive
         #   (M) Message ID
@@ -3040,7 +2983,7 @@ class Association(threading.Thread):
         req.RequestedSOPInstanceUID = instance_uid
 
         # Send N-DELETE request to the peer via DIMSE and wait for the response
-        self.dimse.send_msg(req, context_id)
+        self.dimse.send_msg(req, context.context_id)
         rsp, _ = self.dimse.receive_msg(wait=True)
 
         # Determine validity of the response and get the status
