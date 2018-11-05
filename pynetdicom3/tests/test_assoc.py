@@ -22,6 +22,7 @@ from pydicom.uid import (
     ImplicitVRLittleEndian,
     ExplicitVRLittleEndian,
     JPEGBaseline,
+    JPEG2000,
 )
 
 from pynetdicom3 import AE, VerificationPresentationContexts
@@ -2589,4 +2590,424 @@ class TestAssociationCallbacks(object):
 class TestGetValidContext(object):
     """Tests for Association._get_valid_context."""
     def setup(self):
-        pass
+        """Run prior to each test"""
+        self.scp = None
+
+    def teardown(self):
+        """Clear any active threads"""
+        if self.scp:
+            self.scp.abort()
+
+        time.sleep(0.1)
+
+        for thread in threading.enumerate():
+            if isinstance(thread, DummyBaseSCP):
+                thread.abort()
+                thread.stop()
+
+    def test_id_no_abstract_syntax_match(self):
+        """Test exception raised if with ID no abstract syntax match"""
+        self.scp = DummyVerificationSCP()
+        self.scp.start()
+        ae = AE()
+        ae.add_requested_context(VerificationSOPClass)
+        ae.add_requested_context(CTImageStorage)
+        ae.acse_timeout = 5
+        ae.dimse_timeout = 5
+        assoc = ae.associate('localhost', 11112)
+        assert assoc.is_established
+
+        msg = (
+            r"No suitable presentation context for the SCU role has been "
+            r"accepted by the peer for the SOP Class 'CT Image Storage'"
+        )
+        with pytest.raises(ValueError, match=msg):
+            assoc._get_valid_context(CTImageStorage.uid, '', 'scu', context_id=1)
+
+        assoc.release()
+        assert assoc.is_released
+        self.scp.stop()
+
+    def test_id_transfer_syntax(self):
+        """Test match with context ID."""
+        self.scp = DummyVerificationSCP()
+        self.scp.ae.add_supported_context(CTImageStorage)
+        self.scp.ae.add_supported_context(
+            CTImageStorage,
+            [ExplicitVRLittleEndian, JPEGBaseline]
+        )
+        self.scp.start()
+        ae = AE()
+        ae.add_requested_context(VerificationSOPClass)
+        ae.add_requested_context(CTImageStorage)
+        ae.add_requested_context(CTImageStorage, JPEGBaseline)
+        ae.acse_timeout = 5
+        ae.dimse_timeout = 5
+        assoc = ae.associate('localhost', 11112)
+        assert assoc.is_established
+
+        # Uncompressed accepted, different uncompressed sent
+        cx = assoc._get_valid_context(CTImageStorage.uid,
+                                      '',
+                                      'scu',
+                                      context_id=3)
+        assert cx.context_id == 3
+        assert cx.abstract_syntax == CTImageStorage.uid
+        assert cx.transfer_syntax[0] == ImplicitVRLittleEndian
+        assert cx.as_scu is True
+
+        cx = assoc._get_valid_context(CTImageStorage.uid,
+                                      '',
+                                      'scu',
+                                      context_id=5)
+        assert cx.context_id == 5
+        assert cx.abstract_syntax == CTImageStorage.uid
+        assert cx.transfer_syntax[0] == JPEGBaseline
+        assert cx.as_scu is True
+
+    def test_id_no_transfer_syntax(self):
+        """Test exception raised if with ID no transfer syntax match."""
+        self.scp = DummyVerificationSCP()
+        self.scp.ae.add_supported_context(CTImageStorage, JPEGBaseline)
+        self.scp.start()
+        ae = AE()
+        ae.add_requested_context(VerificationSOPClass)
+        ae.add_requested_context(CTImageStorage, JPEGBaseline)
+        ae.acse_timeout = 5
+        ae.dimse_timeout = 5
+        assoc = ae.associate('localhost', 11112)
+        assert assoc.is_established
+
+        # Confirm otherwise OK
+        cx = assoc._get_valid_context('1.2.840.10008.1.1',
+                                      '',
+                                      'scu',
+                                      context_id=1)
+        assert cx.context_id == 1
+        assert cx.transfer_syntax[0] == ImplicitVRLittleEndian
+
+        # Uncompressed accepted, compressed sent
+        msg = (
+            r"No suitable presentation context for the SCU role has been "
+            r"accepted by the peer for the SOP Class 'Verification SOP Class' "
+            r"with a transfer syntax of 'JPEG Baseline \(Process 1\)'"
+        )
+        with pytest.raises(ValueError, match=msg):
+            assoc._get_valid_context('1.2.840.10008.1.1',
+                                     JPEGBaseline,
+                                     'scu',
+                                     context_id=1)
+
+        # Compressed (JPEGBaseline) accepted, uncompressed sent
+        # Confirm otherwise OK
+        cx = assoc._get_valid_context(CTImageStorage.uid,
+                                      JPEGBaseline,
+                                      'scu',
+                                      context_id=3)
+        assert cx.context_id == 3
+        assert cx.transfer_syntax[0] == JPEGBaseline
+
+        msg = (
+            r"No suitable presentation context for the SCU role has been "
+            r"accepted by the peer for the SOP Class 'CT Image Storage' "
+            r"with a transfer syntax of 'Implicit VR Little Endian'"
+        )
+        with pytest.raises(ValueError, match=msg):
+            assoc._get_valid_context(CTImageStorage.uid,
+                                     ImplicitVRLittleEndian,
+                                     'scu',
+                                     context_id=3)
+
+        # Compressed (JPEGBaseline) accepted, compressed (JPEG2000) sent
+        msg = (
+            r"No suitable presentation context for the SCU role has been "
+            r"accepted by the peer for the SOP Class 'CT Image Storage' "
+            r"with a transfer syntax of 'JPEG 2000 Image Compression'"
+        )
+        with pytest.raises(ValueError, match=msg):
+            assoc._get_valid_context(CTImageStorage.uid,
+                                     JPEG2000,
+                                     'scu',
+                                     context_id=3)
+
+        assoc.release()
+        assert assoc.is_released
+        self.scp.stop()
+
+    def test_id_no_role_scp(self):
+        """Test exception raised if with ID no role match."""
+        self.scp = DummyVerificationSCP()
+        self.scp.ae.add_supported_context(CTImageStorage, JPEGBaseline)
+        self.scp.start()
+        ae = AE()
+        ae.add_requested_context(VerificationSOPClass)
+        ae.add_requested_context(CTImageStorage, JPEGBaseline)
+        ae.acse_timeout = 5
+        ae.dimse_timeout = 5
+        assoc = ae.associate('localhost', 11112)
+        assert assoc.is_established
+
+        # Confirm matching otherwise OK
+        cx = assoc._get_valid_context('1.2.840.10008.1.1',
+                                      '',
+                                      'scu',
+                                      context_id=1)
+        assert cx.context_id == 1
+        assert cx.as_scu is True
+
+        # Any transfer syntax
+        msg = (
+            r"No suitable presentation context for the SCP role has been "
+            r"accepted by the peer for the SOP Class 'Verification SOP Class'"
+        )
+        with pytest.raises(ValueError, match=msg):
+            assoc._get_valid_context('1.2.840.10008.1.1',
+                                     '',
+                                     'scp',
+                                     context_id=1)
+
+        # Transfer syntax used
+        msg = (
+            r"No suitable presentation context for the SCP role has been "
+            r"accepted by the peer for the SOP Class 'Verification SOP Class' "
+            r"with a transfer syntax of 'Implicit VR Little Endian'"
+        )
+        with pytest.raises(ValueError, match=msg):
+            assoc._get_valid_context('1.2.840.10008.1.1',
+                                     ImplicitVRLittleEndian,
+                                     'scp',
+                                     context_id=1)
+
+    def test_id_no_role_scu(self):
+        """Test exception raised if with ID no role match."""
+        self.scp = DummyGetSCP()
+        self.scp.start()
+        ae = AE()
+        ae.add_requested_context(PatientRootQueryRetrieveInformationModelGet)
+        ae.add_requested_context(CTImageStorage)
+
+        role = SCP_SCU_RoleSelectionNegotiation()
+        role.sop_class_uid = CTImageStorage.uid
+        role.scu_role = False
+        role.scp_role = True
+
+        ae.acse_timeout = 5
+        ae.dimse_timeout = 5
+        assoc = ae.associate('localhost', 11112, ext_neg=[role])
+        assert assoc.is_established
+
+        # Confirm matching otherwise OK
+        cx = assoc._get_valid_context(CTImageStorage.uid,
+                                      '',
+                                      'scp',
+                                      context_id=3)
+        assert cx.context_id == 3
+        assert cx.as_scp is True
+
+        # Any transfer syntax
+        msg = (
+            r"No suitable presentation context for the SCU role has been "
+            r"accepted by the peer for the SOP Class 'CT Image Storage'"
+        )
+        with pytest.raises(ValueError, match=msg):
+            assoc._get_valid_context(CTImageStorage.uid,
+                                     '',
+                                     'scu',
+                                     context_id=3)
+
+        # Transfer syntax used
+        msg = (
+            r"No suitable presentation context for the SCU role has been "
+            r"accepted by the peer for the SOP Class 'CT Image Storage' "
+            r"with a transfer syntax of 'Implicit VR Little Endian'"
+        )
+        with pytest.raises(ValueError, match=msg):
+            assoc._get_valid_context(CTImageStorage.uid,
+                                     ImplicitVRLittleEndian,
+                                     'scu',
+                                     context_id=3)
+
+    def test_no_id_no_abstract_syntax_match(self):
+        """Test exception raised if no abstract syntax match"""
+        self.scp = DummyVerificationSCP()
+        self.scp.start()
+        ae = AE()
+        ae.add_requested_context(VerificationSOPClass)
+        ae.add_requested_context(CTImageStorage)
+        ae.acse_timeout = 5
+        ae.dimse_timeout = 5
+        assoc = ae.associate('localhost', 11112)
+        assert assoc.is_established
+
+        # Test otherwise OK
+        assoc._get_valid_context(VerificationSOPClass.uid, '', 'scu')
+
+        msg = (
+            r"No suitable presentation context for the SCU role has been "
+            r"accepted by the peer for the SOP Class 'CT Image Storage'"
+        )
+        with pytest.raises(ValueError, match=msg):
+            assoc._get_valid_context(CTImageStorage.uid, '', 'scu')
+
+        assoc.release()
+        assert assoc.is_released
+        self.scp.stop()
+
+    def test_no_id_transfer_syntax(self):
+        """Test match."""
+        self.scp = DummyVerificationSCP()
+        self.scp.ae.add_supported_context(CTImageStorage, JPEGBaseline)
+        self.scp.start()
+        ae = AE()
+        ae.add_requested_context(VerificationSOPClass)
+        ae.add_requested_context(CTImageStorage, JPEGBaseline)
+        ae.acse_timeout = 5
+        ae.dimse_timeout = 5
+        assoc = ae.associate('localhost', 11112)
+        assert assoc.is_established
+
+        # Uncompressed accepted, different uncompressed sent
+        cx = assoc._get_valid_context('1.2.840.10008.1.1',
+                                      ExplicitVRLittleEndian,
+                                      'scu')
+        assert cx.context_id == 1
+        assert cx.abstract_syntax == VerificationSOPClass.uid
+        assert cx.transfer_syntax[0] == ImplicitVRLittleEndian
+        assert cx.as_scu is True
+
+    def test_no_id_no_transfer_syntax(self):
+        """Test exception raised if no transfer syntax match."""
+        self.scp = DummyVerificationSCP()
+        self.scp.ae.add_supported_context(CTImageStorage, JPEGBaseline)
+        self.scp.start()
+        ae = AE()
+        ae.add_requested_context(VerificationSOPClass)
+        ae.add_requested_context(CTImageStorage, JPEGBaseline)
+        ae.acse_timeout = 5
+        ae.dimse_timeout = 5
+        assoc = ae.associate('localhost', 11112)
+        assert assoc.is_established
+
+        # Confirm otherwise OK
+        cx = assoc._get_valid_context('1.2.840.10008.1.1', '', 'scu')
+        assert cx.context_id == 1
+        assert cx.transfer_syntax[0] == ImplicitVRLittleEndian
+
+        # Uncompressed accepted, compressed sent
+        msg = (
+            r"No suitable presentation context for the SCU role has been "
+            r"accepted by the peer for the SOP Class 'Verification SOP Class' "
+            r"with a transfer syntax of 'JPEG Baseline \(Process 1\)'"
+        )
+        with pytest.raises(ValueError, match=msg):
+            assoc._get_valid_context('1.2.840.10008.1.1', JPEGBaseline, 'scu')
+
+        # Compressed (JPEGBaseline) accepted, uncompressed sent
+        # Confirm otherwise OK
+        cx = assoc._get_valid_context(CTImageStorage.uid, JPEGBaseline, 'scu')
+        assert cx.context_id == 3
+        assert cx.transfer_syntax[0] == JPEGBaseline
+
+        msg = (
+            r"No suitable presentation context for the SCU role has been "
+            r"accepted by the peer for the SOP Class 'CT Image Storage' "
+            r"with a transfer syntax of 'Implicit VR Little Endian'"
+        )
+        with pytest.raises(ValueError, match=msg):
+            assoc._get_valid_context(CTImageStorage.uid,
+                                     ImplicitVRLittleEndian,
+                                     'scu')
+
+        # Compressed (JPEGBaseline) accepted, compressed (JPEG2000) sent
+        msg = (
+            r"No suitable presentation context for the SCU role has been "
+            r"accepted by the peer for the SOP Class 'CT Image Storage' "
+            r"with a transfer syntax of 'JPEG 2000 Image Compression'"
+        )
+        with pytest.raises(ValueError, match=msg):
+            assoc._get_valid_context(CTImageStorage.uid, JPEG2000, 'scu')
+
+        assoc.release()
+        assert assoc.is_released
+        self.scp.stop()
+
+    def test_no_id_no_role_scp(self):
+        """Test exception raised if no role match."""
+        self.scp = DummyVerificationSCP()
+        self.scp.ae.add_supported_context(CTImageStorage, JPEGBaseline)
+        self.scp.start()
+        ae = AE()
+        ae.add_requested_context(VerificationSOPClass)
+        ae.add_requested_context(CTImageStorage, JPEGBaseline)
+        ae.acse_timeout = 5
+        ae.dimse_timeout = 5
+        assoc = ae.associate('localhost', 11112)
+        assert assoc.is_established
+
+        # Confirm matching otherwise OK
+        cx = assoc._get_valid_context('1.2.840.10008.1.1', '', 'scu')
+        assert cx.context_id == 1
+        assert cx.as_scu is True
+
+        # Any transfer syntax
+        msg = (
+            r"No suitable presentation context for the SCP role has been "
+            r"accepted by the peer for the SOP Class 'Verification SOP Class'"
+        )
+        with pytest.raises(ValueError, match=msg):
+            assoc._get_valid_context('1.2.840.10008.1.1', '', 'scp')
+
+        # Transfer syntax used
+        msg = (
+            r"No suitable presentation context for the SCP role has been "
+            r"accepted by the peer for the SOP Class 'Verification SOP Class' "
+            r"with a transfer syntax of 'Implicit VR Little Endian'"
+        )
+        with pytest.raises(ValueError, match=msg):
+            assoc._get_valid_context('1.2.840.10008.1.1',
+                                     ImplicitVRLittleEndian,
+                                     'scp')
+
+    def test_no_id_no_role_scu(self):
+        """Test exception raised if no role match."""
+        self.scp = DummyGetSCP()
+        self.scp.start()
+        ae = AE()
+        ae.add_requested_context(PatientRootQueryRetrieveInformationModelGet)
+        ae.add_requested_context(CTImageStorage)
+
+        role = SCP_SCU_RoleSelectionNegotiation()
+        role.sop_class_uid = CTImageStorage.uid
+        role.scu_role = False
+        role.scp_role = True
+
+        ae.acse_timeout = 5
+        ae.dimse_timeout = 5
+        assoc = ae.associate('localhost', 11112, ext_neg=[role])
+        assert assoc.is_established
+
+        # Confirm matching otherwise OK
+        cx = assoc._get_valid_context(CTImageStorage.uid, '', 'scp')
+        assert cx.context_id == 3
+        assert cx.as_scp is True
+
+        # Any transfer syntax
+        msg = (
+            r"No suitable presentation context for the SCU role has been "
+            r"accepted by the peer for the SOP Class 'CT Image Storage'"
+        )
+        with pytest.raises(ValueError, match=msg):
+            assoc._get_valid_context(CTImageStorage.uid,
+                                     '',
+                                     'scu')
+
+        # Transfer syntax used
+        msg = (
+            r"No suitable presentation context for the SCU role has been "
+            r"accepted by the peer for the SOP Class 'CT Image Storage' "
+            r"with a transfer syntax of 'Implicit VR Little Endian'"
+        )
+        with pytest.raises(ValueError, match=msg):
+            assoc._get_valid_context(CTImageStorage.uid,
+                                     ImplicitVRLittleEndian,
+                                     'scu')

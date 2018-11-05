@@ -326,12 +326,6 @@ class Association(threading.Thread):
             if cx.abstract_syntax != ab_syntax:
                 continue
 
-            # Allow us to skip the transfer syntax check
-            if tr_syntax and cx.transfer_syntax[0] != tr_syntax:
-                # Compressed transfer syntaxes are not convertable
-                if tr_syntax.is_compressed or cx.transfer_syntax[0].is_compressed:
-                    continue
-
             # Cover both False and None
             if role == 'scu' and cx.as_scu is not True:
                 continue
@@ -339,13 +333,20 @@ class Association(threading.Thread):
             if role == 'scp' and cx.as_scp is not True:
                 continue
 
+            # Allow us to skip the transfer syntax check
+            if tr_syntax and tr_syntax != cx.transfer_syntax[0]:
+                # Compressed transfer syntaxes are not convertable
+                if (tr_syntax.is_compressed
+                        or cx.transfer_syntax[0].is_compressed):
+                    continue
+
             # Only a valid presentation context can reach this point
             return cx
 
         msg = (
-            "No presentation context for the {} role has been accepted by "
-            "the peer for the SOP Class '{}'"
-            .format(role.upper(), ab_syntax.name, tr_syntax.name)
+            "No suitable presentation context for the {} role has been "
+            "accepted by the peer for the SOP Class '{}'"
+            .format(role.upper(), ab_syntax.name)
         )
         if tr_syntax:
             msg += " with a transfer syntax of '{}'".format(tr_syntax.name)
