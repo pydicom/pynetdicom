@@ -23,6 +23,7 @@ from pydicom.uid import (
     ExplicitVRLittleEndian,
     JPEGBaseline,
     JPEG2000,
+    JPEG2000Lossless,
 )
 
 from pynetdicom3 import AE, VerificationPresentationContexts
@@ -86,6 +87,7 @@ LOGGER.setLevel(logging.CRITICAL)
 TEST_DS_DIR = os.path.join(os.path.dirname(__file__), 'dicom_files')
 BIG_DATASET = dcmread(os.path.join(TEST_DS_DIR, 'RTImageStorage.dcm')) # 2.1 M
 DATASET = dcmread(os.path.join(TEST_DS_DIR, 'CTImageStorage.dcm'))
+# JPEG2000Lossless UID
 COMP_DATASET = dcmread(os.path.join(TEST_DS_DIR, 'MRImageStorage_JPG2000_Lossless.dcm'))
 
 
@@ -141,6 +143,7 @@ class TestCStoreSCP(object):
         req.AffectedSOPClassUID = DATASET.SOPClassUID
         req.AffectedSOPInstanceUID = DATASET.SOPInstanceUID
         req.Priority = 1
+        req._context_id = 1
 
         bytestream = encode(DATASET, True, True)
         req.DataSet = BytesIO(bytestream)
@@ -183,6 +186,7 @@ class TestCStoreSCP(object):
         req.AffectedSOPClassUID = DATASET.SOPClassUID
         req.AffectedSOPInstanceUID = DATASET.SOPInstanceUID
         req.Priority = 1
+        req._context_id = 1
 
         bytestream = encode(DATASET, True, True)
         req.DataSet = BytesIO(bytestream)
@@ -221,6 +225,7 @@ class TestCStoreSCP(object):
         req.AffectedSOPClassUID = DATASET.SOPClassUID
         req.AffectedSOPInstanceUID = DATASET.SOPInstanceUID
         req.Priority = 1
+        req._context_id = 1
 
         bytestream = encode(DATASET, True, True)
         req.DataSet = BytesIO(bytestream)
@@ -260,6 +265,7 @@ class TestCStoreSCP(object):
         req.AffectedSOPClassUID = DATASET.SOPClassUID
         req.AffectedSOPInstanceUID = DATASET.SOPInstanceUID
         req.Priority = 1
+        req._context_id = 1
 
         bytestream = encode(DATASET, True, True)
         req.DataSet = BytesIO(bytestream)
@@ -297,6 +303,7 @@ class TestCStoreSCP(object):
         req.AffectedSOPClassUID = DATASET.SOPClassUID
         req.AffectedSOPInstanceUID = DATASET.SOPInstanceUID
         req.Priority = 1
+        req._context_id = 1
 
         bytestream = encode(DATASET, True, True)
         req.DataSet = BytesIO(bytestream)
@@ -335,6 +342,7 @@ class TestCStoreSCP(object):
         req.AffectedSOPClassUID = DATASET.SOPClassUID
         req.AffectedSOPInstanceUID = DATASET.SOPInstanceUID
         req.Priority = 1
+        req._context_id = 1
 
         bytestream = encode(DATASET, True, True)
         req.DataSet = BytesIO(bytestream)
@@ -1083,11 +1091,13 @@ class TestAssociationSendCStore(object):
         self.scp = DummyStorageSCP()
         self.scp.start()
         ae = AE()
-        ae.add_requested_context(MRImageStorage)
+        ae.add_requested_context(MRImageStorage, JPEG2000Lossless)
         ae.acse_timeout = 5
         ae.dimse_timeout = 5
         assoc = ae.associate('localhost', 11112)
         assert assoc.is_established
+        for cx in assoc.accepted_contexts:
+            print(cx)
         result = assoc.send_c_store(COMP_DATASET)
         assert result.Status == 0x0000
         assoc.release()
@@ -1604,6 +1614,8 @@ class TestAssociationSendCGet(object):
         self.ds.QueryRetrieveLevel = "PATIENT"
 
         self.good = Dataset()
+        self.good.file_meta = Dataset()
+        self.good.file_meta.TransferSyntaxUID = ImplicitVRLittleEndian
         self.good.SOPClassUID = CTImageStorage.uid
         self.good.SOPInstanceUID = '1.1.1'
         self.good.PatientName = 'Test'
@@ -2074,6 +2086,8 @@ class TestAssociationSendCMove(object):
         self.ds.QueryRetrieveLevel = "PATIENT"
 
         self.good = Dataset()
+        self.good.file_meta = Dataset()
+        self.good.file_meta.TransferSyntaxUID = ImplicitVRLittleEndian
         self.good.SOPClassUID = CTImageStorage.uid
         self.good.SOPInstanceUID = '1.1.1'
         self.good.PatientName = 'Test'

@@ -799,33 +799,6 @@ class ApplicationEntity(object):
         """Stop the SCP."""
         self.stop()
 
-    def register(self, event, callback):
-        """Register `callback` with an `event`
-
-        Parameters
-        ----------
-        event : str
-            The event that will trigger `callback`. Possible events are:
-
-            * 'user-identity' : event occurs when an association acceptor
-              receives a User Identity Negotiation request as part of an
-              association request.
-            * 'sop-class-common' : event occurs when an association acceptor
-              receives one or more SOP Class Common Negotiation request as
-              part of an association request.
-            * 'sop-class-common-extended' : event occurs when an association
-              acceptor receives one or more SOP Class Common Extended
-              Negotiation items as part of an association request.
-            * 'asynchronous-operations' : event occurs when an association
-              acceptor receives an Asynchronous Operations Window Neogotiation
-              item as part of an association request.
-        callback : callable
-            The callback that will be called when `event` occurs. The arguments
-            and keyword arguments available to `callback` are dependent on
-            the `event`.
-        """
-        pass
-
     def remove_requested_context(self, abstract_syntax, transfer_syntax=None):
         """Remove a requested Presentation Context.
 
@@ -1384,16 +1357,6 @@ class ApplicationEntity(object):
 
             self.add_supported_context(item.abstract_syntax,
                                        item.transfer_syntax)
-
-    def unregister(self, event, callback):
-        """Unregister a `callback`.
-
-        Parameters
-        ----------
-        event : str
-        callback : callable
-        """
-        pass
 
     @staticmethod
     def _validate_requested_contexts(contexts):

@@ -18,7 +18,7 @@ import pytest
 
 from pydicom import dcmread
 from pydicom.dataset import Dataset
-from pydicom.uid import ExplicitVRLittleEndian
+from pydicom.uid import ImplicitVRLittleEndian, ExplicitVRLittleEndian
 
 from pynetdicom3 import AE, build_context, StoragePresentationContexts
 from pynetdicom3.dimse_primitives import C_FIND, C_GET
@@ -524,6 +524,8 @@ class TestQRGetServiceClass(object):
         self.query.QueryRetrieveLevel = "PATIENT"
 
         self.ds = Dataset()
+        self.ds.file_meta = Dataset()
+        self.ds.file_meta.TransferSyntaxUID = ImplicitVRLittleEndian
         self.ds.SOPClassUID = CTImageStorage.uid
         self.ds.SOPInstanceUID = '1.1.1'
         self.ds.PatientName = 'Test'
@@ -662,6 +664,7 @@ class TestQRGetServiceClass(object):
 
         def on_c_store(ds, context, assoc_info):
             return 0x0000
+
         ae.on_c_store = on_c_store
         ae.acse_timeout = 5
         ae.dimse_timeout = 5
@@ -1668,6 +1671,8 @@ class TestQRMoveServiceClass(object):
         self.query.QueryRetrieveLevel = "PATIENT"
 
         self.ds = Dataset()
+        self.ds.file_meta = Dataset()
+        self.ds.file_meta.TransferSyntaxUID = ImplicitVRLittleEndian
         self.ds.SOPClassUID = CTImageStorage.uid
         self.ds.SOPInstanceUID = '1.1.1'
         self.ds.PatientName = 'Test'
@@ -2645,7 +2650,7 @@ class TestQRMoveServiceClass(object):
         self.scp.stop()
 
     def test_scp_callback_move_aet(self):
-        """Test on_c_store caontext parameter"""
+        """Test on_c_move move_aet parameter"""
         self.scp = DummyMoveSCP()
         self.scp.no_suboperations = 1
         self.scp.statuses = [Dataset(), 0x0000]
@@ -2686,6 +2691,8 @@ class TestQRCompositeInstanceWithoutBulk(object):
         self.query.QueryRetrieveLevel = "PATIENT"
 
         self.ds = Dataset()
+        self.ds.file_meta = Dataset()
+        self.ds.file_meta.TransferSyntaxUID = ImplicitVRLittleEndian
         self.ds.SOPClassUID = CTImageStorage.uid
         self.ds.SOPInstanceUID = '1.1.1'
         self.ds.PatientName = 'Test'

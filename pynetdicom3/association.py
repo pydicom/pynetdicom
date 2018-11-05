@@ -1360,7 +1360,7 @@ class Association(threading.Thread):
         LOGGER.info('')
 
         # Send C-FIND request to the peer via DIMSE
-        self.dimse.send_msg(req, context_id)
+        self.dimse.send_msg(req, context.context_id)
 
         # Get the responses from the peer
         ii = 1
@@ -1624,7 +1624,7 @@ class Association(threading.Thread):
         LOGGER.info('')
 
         # Send C-MOVE request to the peer via DIMSE and wait for the response
-        self.dimse.send_msg(req, context_id)
+        self.dimse.send_msg(req, context.context_id)
 
         # Get the responses from peer
         operation_no = 1
@@ -1932,7 +1932,7 @@ class Association(threading.Thread):
         LOGGER.info('')
 
         # Send C-GET request to the peer via DIMSE
-        self.dimse.send_msg(req, context_id)
+        self.dimse.send_msg(req, context.context_id)
 
         # Get the responses from the peer
         operation_no = 1

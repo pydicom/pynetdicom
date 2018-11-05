@@ -8,7 +8,7 @@ import threading
 
 from pydicom import read_file
 from pydicom.dataset import Dataset
-from pydicom.uid import UID, ImplicitVRLittleEndian
+from pydicom.uid import UID, ImplicitVRLittleEndian, JPEG2000Lossless
 
 from pynetdicom3 import (
     AE,
@@ -234,7 +234,7 @@ class DummyStorageSCP(DummyBaseSCP):
         self.ae.add_supported_context(PatientStudyOnlyQueryRetrieveInformationModelMove)
         self.ae.add_supported_context(CTImageStorage, scp_role=True, scu_role=True)
         self.ae.add_supported_context(RTImageStorage)
-        self.ae.add_supported_context(MRImageStorage)
+        self.ae.add_supported_context(MRImageStorage, [ImplicitVRLittleEndian, JPEG2000Lossless])
         self.ae.add_supported_context(HangingProtocolStorage)
 
         DummyBaseSCP.__init__(self)
@@ -316,6 +316,8 @@ class DummyGetSCP(DummyBaseSCP):
         DummyBaseSCP.__init__(self)
         self.statuses = [0x0000]
         ds = Dataset()
+        ds.file_meta = Dataset()
+        ds.file_meta.TransferSyntaxUID = ImplicitVRLittleEndian
         ds.PatientName = 'Test'
         ds.SOPClassUID = CTImageStorage.UID
         ds.SOPInstanceUID = '1.2.3.4'
@@ -368,6 +370,8 @@ class DummyMoveSCP(DummyBaseSCP):
         self.statuses = [0x0000]
         self.store_status = 0x0000
         ds = Dataset()
+        ds.file_meta = Dataset()
+        ds.file_meta.TransferSyntaxUID = ImplicitVRLittleEndian
         ds.PatientName = 'Test'
         ds.SOPClassUID = CTImageStorage.UID
         ds.SOPInstanceUID = '1.2.3.4'

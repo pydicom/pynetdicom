@@ -118,8 +118,8 @@ class TestAssociationSendNEventReport(object):
         assoc = ae.associate('localhost', 11112)
         assert assoc.is_established
         msg = (
-            r"No accepted Presentation Context for the SOP Class "
-            r"UID '1.2.840.10008.1.1'"
+            r"No suitable presentation context for the SCU role has been "
+            r"accepted by the peer for the SOP Class 'Verification SOP Class'"
         )
         with pytest.raises(ValueError, match=msg):
             assoc.send_n_event_report(
@@ -428,8 +428,8 @@ class TestAssociationSendNGet(object):
         assoc = ae.associate('localhost', 11112)
         assert assoc.is_established
         msg = (
-            r"No accepted Presentation Context for the SOP Class "
-            r"UID '1.2.840.10008.1.1'"
+            r"No suitable presentation context for the SCU role has been "
+            r"accepted by the peer for the SOP Class 'Verification SOP Class'"
         )
         with pytest.raises(ValueError, match=msg):
             assoc.send_n_get(None, VerificationSOPClass.uid, None)
@@ -723,8 +723,8 @@ class TestAssociationSendNSet(object):
         assoc = ae.associate('localhost', 11112)
         assert assoc.is_established
         msg = (
-            r"No accepted Presentation Context for the SOP Class "
-            r"UID '1.2.840.10008.1.1'"
+            r"No suitable presentation context for the SCU role has been "
+            r"accepted by the peer for the SOP Class 'Verification SOP Class'"
         )
         with pytest.raises(ValueError, match=msg):
             assoc.send_n_set(None, VerificationSOPClass.uid, None)
@@ -1059,8 +1059,8 @@ class TestAssociationSendNAction(object):
         assoc = ae.associate('localhost', 11112)
         assert assoc.is_established
         msg = (
-            r"No accepted Presentation Context for the SOP Class "
-            r"UID '1.2.840.10008.1.1'"
+            r"No suitable presentation context for the SCU role has been "
+            r"accepted by the peer for the SOP Class 'Verification SOP Class'"
         )
         with pytest.raises(ValueError, match=msg):
             assoc.send_n_action(None, 1, VerificationSOPClass.uid, None)
@@ -1393,8 +1393,8 @@ class TestAssociationSendNCreate(object):
         assoc = ae.associate('localhost', 11112)
         assert assoc.is_established
         msg = (
-            r"No accepted Presentation Context for the SOP Class "
-            r"UID '1.2.840.10008.1.1'"
+            r"No suitable presentation context for the SCU role has been "
+            r"accepted by the peer for the SOP Class 'Verification SOP Class'"
         )
         with pytest.raises(ValueError, match=msg):
             assoc.send_n_create(None, VerificationSOPClass.uid, None)
@@ -1723,8 +1723,8 @@ class TestAssociationSendNDelete(object):
         assoc = ae.associate('localhost', 11112)
         assert assoc.is_established
         msg = (
-            r"No accepted Presentation Context for the SOP Class "
-            r"UID '1.2.840.10008.1.1'"
+            r"No suitable presentation context for the SCU role has been "
+            r"accepted by the peer for the SOP Class 'Verification SOP Class'"
         )
         with pytest.raises(ValueError, match=msg):
             assoc.send_n_delete(VerificationSOPClass.uid, None)
