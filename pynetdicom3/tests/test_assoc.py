@@ -1060,7 +1060,6 @@ class TestAssociationSendCEcho(object):
         assert len(assoc.rejected_contexts) == 1
         cx = assoc.rejected_contexts[0]
         assert cx.abstract_syntax == CTImageStorage
-        assert result.Status == 0x0000
         assoc.release()
         assert assoc.is_released
         self.scp.stop()
