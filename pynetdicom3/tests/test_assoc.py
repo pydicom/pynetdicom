@@ -81,8 +81,8 @@ from .dummy_c_scp import (
 )
 
 LOGGER = logging.getLogger('pynetdicom3')
-#LOGGER.setLevel(logging.CRITICAL)
-LOGGER.setLevel(logging.DEBUG)
+LOGGER.setLevel(logging.CRITICAL)
+#LOGGER.setLevel(logging.DEBUG)
 
 TEST_DS_DIR = os.path.join(os.path.dirname(__file__), 'dicom_files')
 BIG_DATASET = dcmread(os.path.join(TEST_DS_DIR, 'RTImageStorage.dcm')) # 2.1 M
@@ -1723,7 +1723,7 @@ class TestAssociationSendCFind(object):
 
             def receive_msg(*args, **kwargs):
                 rsp = C_FIND()
-                rsp.Status = 0xC000
+                rsp.Status = 0xFF00
                 rsp.MessageIDBeingRespondedTo = 1
                 rsp.Identifier = BytesIO(b'\x08\x00\x01\x00\x04\x00\x00\x00\x00\x08\x00\x49')
                 return rsp, 1
@@ -1734,7 +1734,7 @@ class TestAssociationSendCFind(object):
         results = assoc.send_c_find(self.ds, query_model='P')
         status, ds = next(results)
 
-        assert status.Status == 0xC000
+        assert status.Status == 0xFF00
         assert ds is None
 
         self.scp.stop()
