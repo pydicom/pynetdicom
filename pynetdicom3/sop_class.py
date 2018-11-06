@@ -401,11 +401,11 @@ def uid_to_sop_class(uid):
     # Get a list of all the class members of the current module
     members = inspect.getmembers(
         sys.modules[__name__],
-        lambda mbr: isinstance(mbr, tuple)
+        lambda mbr: isinstance(mbr, str)
     )
 
     for obj in members:
-        if obj[1] == uid:
+        if hasattr(obj[1], 'service_class') and obj[1] == uid:
             return obj[1]
 
     sop_class = SOPClass(uid)

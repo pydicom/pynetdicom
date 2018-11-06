@@ -94,6 +94,12 @@ class TestUIDtoSOPlass(object):
         """Test normal function"""
         assert uid_to_sop_class('1.2.840.10008.1.1') == VerificationSOPClass
 
+    def test_existing(self):
+        """Test that the existing class is returned."""
+        original = VerificationSOPClass
+        sop_class = uid_to_sop_class('1.2.840.10008.1.1')
+        assert id(sop_class) == id(original)
+
 
 class TestUIDToServiceClass(object):
     """Tests for sop_class.uid_to_service_class."""
