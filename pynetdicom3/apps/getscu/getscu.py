@@ -139,7 +139,7 @@ ae = AE(ae_title=args.calling_aet, port=0)
 
 for context in QueryRetrievePresentationContexts:
     ae.add_requested_context(context.abstract_syntax)
-for context in StoragePresentationContexts:
+for context in StoragePresentationContexts[:115]:
     ae.add_requested_context(context.abstract_syntax)
 
 # Add SCP/SCU Role Selection Negotiation to the extended negotiation
