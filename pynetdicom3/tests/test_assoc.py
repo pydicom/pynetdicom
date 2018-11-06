@@ -81,8 +81,8 @@ from .dummy_c_scp import (
 )
 
 LOGGER = logging.getLogger('pynetdicom3')
-LOGGER.setLevel(logging.CRITICAL)
-#LOGGER.setLevel(logging.DEBUG)
+#LOGGER.setLevel(logging.CRITICAL)
+LOGGER.setLevel(logging.DEBUG)
 
 TEST_DS_DIR = os.path.join(os.path.dirname(__file__), 'dicom_files')
 BIG_DATASET = dcmread(os.path.join(TEST_DS_DIR, 'RTImageStorage.dcm')) # 2.1 M
@@ -153,11 +153,6 @@ class TestCStoreSCP(object):
         assoc.release()
         assert assoc.is_released
         self.scp.stop()
-
-    def test_dataset_decode_failure(self):
-        """Test correct status returned if unable to decode dataset."""
-        # Not sure how to test this
-        pass
 
     def test_on_c_store_callback_exception(self):
         """Test correct status returned if exception raised in callback."""
@@ -351,6 +346,57 @@ class TestCStoreSCP(object):
         assert assoc.dimse.status == 0xDEFA
         assoc.release()
         assert assoc.is_released
+        self.scp.stop()
+
+    def test_decode_failure(self):
+        """Test decoding failure."""
+        self.scp = DummyStorageSCP()
+        self.scp.start()
+
+        ae = AE()
+        ae.add_requested_context(CTImageStorage)
+        ae.acse_timeout = 5
+        ae.dimse_timeout = 5
+
+        role = SCP_SCU_RoleSelectionNegotiation()
+        role.sop_class_uid = CTImageStorage
+        role.scu_role = False
+        role.scp_role = True
+
+        assoc = ae.associate('localhost', 11112, ext_neg=[role])
+
+        class DummyMessage():
+            is_valid_response = True
+            DataSet = None
+            Status = 0x0000
+            STATUS_OPTIONAL_KEYWORDS = []
+
+        class DummyDIMSE():
+            def send_msg(*args, **kwargs):
+                assert args[1].Status == 0xC210
+                assert args[1].ErrorComment == "Unable to decode the dataset"
+                return
+
+            def receive_msg(*args, **kwargs):
+                status = Dataset()
+                status.Status = 0x0000
+
+                rsp = DummyMessage()
+
+                return rsp, None
+
+        req = C_STORE()
+        req.MessageID = 1
+        req.AffectedSOPClassUID = DATASET.SOPClassUID
+        req.AffectedSOPInstanceUID = DATASET.SOPInstanceUID
+        req.Priority = 1
+        req._context_id = 1
+        req.DataSet = None
+
+        assoc.dimse = DummyDIMSE()
+        assert assoc.is_established
+        assoc._c_store_scp(req)
+
         self.scp.stop()
 
 
@@ -1000,6 +1046,25 @@ class TestAssociationSendCEcho(object):
         assert assoc.is_aborted
         self.scp.stop()
 
+    def test_rejected_contexts(self):
+        """Test receiving a success response from the peer"""
+        self.scp = DummyVerificationSCP()
+        self.scp.start()
+        ae = AE()
+        ae.add_requested_context(VerificationSOPClass)
+        ae.add_requested_context(CTImageStorage)
+        ae.acse_timeout = 5
+        ae.dimse_timeout = 5
+        assoc = ae.associate('localhost', 11112)
+        assert assoc.is_established
+        assert len(assoc.rejected_contexts) == 1
+        cx = assoc.rejected_contexts[0]
+        assert cx.abstract_syntax == CTImageStorage
+        assert result.Status == 0x0000
+        assoc.release()
+        assert assoc.is_released
+        self.scp.stop()
+
 
 class TestAssociationSendCStore(object):
     """Run tests on Assocation send_c_store."""
@@ -1219,6 +1284,65 @@ class TestAssociationSendCStore(object):
         assert assoc.is_released
         self.scp.stop()
 
+    def test_dataset_no_sop_class_raises(self):
+        """Test sending a dataset without SOPClassUID raises."""
+        self.scp = DummyStorageSCP()
+        self.scp.start()
+        ae = AE()
+        ae.add_requested_context(CTImageStorage)
+        ae.acse_timeout = 5
+        ae.dimse_timeout = 5
+        assoc = ae.associate('localhost', 11112)
+        assert assoc.is_established
+        ds = DATASET[:]
+        del ds.SOPClassUID
+        assert 'SOPClassUID' not in ds
+        msg = (
+            r"Unable to determine the presentation context to use with "
+            r"`dataset` as it contains no '\(0008,0016\) SOP Class UID' "
+            r"element"
+        )
+        with pytest.raises(AttributeError, match=msg):
+            assoc.send_c_store(ds)
+
+        assoc.release()
+        assert assoc.is_released
+        self.scp.stop()
+
+    def test_dataset_no_transfer_syntax_raises(self):
+        """Test sending a dataset without TransferSyntaxUID raises."""
+        self.scp = DummyStorageSCP()
+        self.scp.start()
+        ae = AE()
+        ae.add_requested_context(CTImageStorage)
+        ae.acse_timeout = 5
+        ae.dimse_timeout = 5
+        assoc = ae.associate('localhost', 11112)
+        assert assoc.is_established
+        ds = DATASET[:]
+        assert 'file_meta' not in ds
+        msg = (
+            r"Unable to determine the presentation context to use with "
+            r"`dataset` as it contains no '\(0002,0010\) Transfer Syntax "
+            r"UID' file meta information element"
+        )
+        with pytest.raises(AttributeError, match=msg):
+            assoc.send_c_store(ds)
+
+        ds.file_meta = Dataset()
+        assert 'TransferSyntaxUID' not in ds.file_meta
+        msg = (
+            r"Unable to determine the presentation context to use with "
+            r"`dataset` as it contains no '\(0002,0010\) Transfer Syntax "
+            r"UID' file meta information element"
+        )
+        with pytest.raises(AttributeError, match=msg):
+            assoc.send_c_store(ds)
+
+        assoc.release()
+        assert assoc.is_released
+        self.scp.stop()
+
     # Regression tests
     def test_no_send_mismatch(self):
         """Test sending a dataset with mismatched transfer syntax (206)."""
@@ -1419,9 +1543,9 @@ class TestAssociationSendCFind(object):
 
     def test_rsp_success(self):
         """Test receiving a success response from the peer"""
-        scp = DummyFindSCP()
-        scp.statuses = [0x0000]
-        scp.start()
+        self.scp = DummyFindSCP()
+        self.scp.statuses = [0x0000]
+        self.scp.start()
         ae = AE()
         ae.add_requested_context(PatientRootQueryRetrieveInformationModelFind)
         ae.acse_timeout = 5
@@ -1433,7 +1557,7 @@ class TestAssociationSendCFind(object):
             assert ds is None
         assoc.release()
         assert assoc.is_released
-        scp.stop()
+        self.scp.stop()
 
     def test_rsp_empty(self):
         """Test receiving a success response from the peer"""
@@ -1536,6 +1660,84 @@ class TestAssociationSendCFind(object):
             assert status.Status in range(0xC000, 0xD000)
         assoc.release()
         assert assoc.is_released
+        self.scp.stop()
+
+    def test_connection_timeout(self):
+        """Test the connection timing out"""
+        self.scp = DummyFindSCP()
+        self.scp.statuses = [0x0000]
+        self.scp.start()
+        ae = AE()
+        ae.add_requested_context(PatientRootQueryRetrieveInformationModelFind)
+
+        ae.acse_timeout = 5
+        ae.dimse_timeout = 5
+        assoc = ae.associate('localhost', 11112)
+
+        class DummyMessage():
+            is_valid_response = True
+            Identifier = None
+            Status = 0x0000
+            STATUS_OPTIONAL_KEYWORDS = []
+
+        class DummyDIMSE():
+            def send_msg(*args, **kwargs):
+                return
+
+            def receive_msg(*args, **kwargs):
+                return None, None
+
+        assoc.dimse = DummyDIMSE()
+        assert assoc.is_established
+
+        results = assoc.send_c_find(self.ds, query_model='P')
+        with pytest.raises(StopIteration):
+            next(results)
+
+        assert assoc.is_aborted
+
+        self.scp.stop()
+
+    def test_decode_failure(self):
+        """Test the connection timing out"""
+        self.scp = DummyFindSCP()
+        self.scp.statuses = [0x0000]
+        self.scp.start()
+        ae = AE()
+        ae.add_requested_context(PatientRootQueryRetrieveInformationModelFind,
+                                 ExplicitVRLittleEndian)
+        ae.add_requested_context(CTImageStorage)
+
+        ae.acse_timeout = 5
+        ae.dimse_timeout = 5
+        assoc = ae.associate('localhost', 11112)
+
+        class DummyMessage():
+            is_valid_response = True
+            DataSet = None
+            Status = 0x0000
+            STATUS_OPTIONAL_KEYWORDS = []
+
+        class DummyDIMSE():
+            def send_msg(*args, **kwargs):
+                return
+
+            def receive_msg(*args, **kwargs):
+                rsp = C_FIND()
+                rsp.Status = 0xC000
+                rsp.MessageIDBeingRespondedTo = 1
+                rsp.Identifier = BytesIO(b'\x08\x00\x01\x00\x04\x00\x00\x00\x00\x08\x00\x49')
+                return rsp, 1
+
+        assoc.dimse = DummyDIMSE()
+        assert assoc.is_established
+
+        results = assoc.send_c_find(self.ds, query_model='P')
+        status, ds = next(results)
+
+        assert status.Status == 0xC000
+        assert ds is None
+
         self.scp.stop()
 
 
@@ -2040,6 +2242,111 @@ class TestAssociationSendCGet(object):
         assert assoc.is_released
         self.scp.stop()
 
+    def test_connection_timeout(self):
+        """Test the connection timing out"""
+        self.scp = DummyGetSCP()
+        self.scp.no_suboperations = 2
+        self.scp.statuses = [0xFF00, 0xFF00]
+        self.scp.datasets = [self.good, self.good]
+
+        def on_c_store(ds, context, assoc_info):
+            assert 'PatientName' in ds
+            return 0x0000
+
+        self.scp.start()
+        ae = AE()
+        ae.add_requested_context(PatientRootQueryRetrieveInformationModelGet)
+        ae.add_requested_context(CTImageStorage)
+
+        role = SCP_SCU_RoleSelectionNegotiation()
+        role.sop_class_uid = CTImageStorage
+        role.scu_role = False
+        role.scp_role = True
+
+        ae.acse_timeout = 5
+        ae.dimse_timeout = 5
+        ae.on_c_store = on_c_store
+        assoc = ae.associate('localhost', 11112, ext_neg=[role])
+
+        class DummyMessage():
+            is_valid_response = True
+            DataSet = None
+            Status = 0x0000
+            STATUS_OPTIONAL_KEYWORDS = []
+
+        class DummyDIMSE():
+            def send_msg(*args, **kwargs):
+                return
+
+            def receive_msg(*args, **kwargs):
+                return None, None
+
+        assoc.dimse = DummyDIMSE()
+        assert assoc.is_established
+
+        results = assoc.send_c_get(self.ds, query_model='P')
+        with pytest.raises(StopIteration):
+            next(results)
+
+        assert assoc.is_aborted
+
+        self.scp.stop()
+
+    def test_decode_failure(self):
+        """Test the connection timing out"""
+        self.scp = DummyGetSCP()
+        self.scp.no_suboperations = 2
+        self.scp.ae.remove_supported_context(CTImageStorage, ImplicitVRLittleEndian)
+        self.scp.statuses = [0xFF00, 0xFF00]
+        self.scp.datasets = [self.good, self.good]
+
+        def on_c_store(ds, context, assoc_info):
+            assert 'PatientName' in ds
+            return 0x0000
+
+        self.scp.start()
+        ae = AE()
+        ae.add_requested_context(PatientRootQueryRetrieveInformationModelGet,
+                                 ExplicitVRLittleEndian)
+        ae.add_requested_context(CTImageStorage)
+
+        role = SCP_SCU_RoleSelectionNegotiation()
+        role.sop_class_uid = CTImageStorage
+        role.scu_role = False
+        role.scp_role = True
+
+        ae.acse_timeout = 5
+        ae.dimse_timeout = 5
+        ae.on_c_store = on_c_store
+        assoc = ae.associate('localhost', 11112, ext_neg=[role])
+
+        class DummyMessage():
+            is_valid_response = True
+            DataSet = None
+            Status = 0x0000
+            STATUS_OPTIONAL_KEYWORDS = []
+
+        class DummyDIMSE():
+            def send_msg(*args, **kwargs):
+                return
+
+            def receive_msg(*args, **kwargs):
+                rsp = C_GET()
+                rsp.Status = 0xC000
+                rsp.Identifier = BytesIO(b'\x08\x00\x01\x00\x04\x00\x00\x00\x00\x08\x00\x49')
+                return rsp, 1
+
+        assoc.dimse = DummyDIMSE()
+        assert assoc.is_established
+
+        results = assoc.send_c_get(self.ds, query_model='P')
+        status, ds = next(results)
+
+        assert status.Status == 0xC000
+        assert ds is None
+
+        self.scp.stop()
+
 
 class TestAssociationSendCCancelGet(object):
     """Run tests on Assocation send_c_cancel_find."""
@@ -2532,6 +2839,95 @@ class TestAssociationSendCMove(object):
 
         self.scp.stop()
         self.scp2.stop()
+
+    def test_connection_timeout(self):
+        """Test the connection timing out"""
+        self.scp = DummyMoveSCP()
+        self.scp.no_suboperations = 2
+        self.scp.statuses = [0xFF00, 0xFF00]
+        self.scp.datasets = [self.good, self.good]
+
+        self.scp.start()
+        ae = AE()
+        ae.add_requested_context(PatientRootQueryRetrieveInformationModelMove)
+        ae.add_requested_context(CTImageStorage)
+
+        ae.acse_timeout = 5
+        ae.dimse_timeout = 5
+        assoc = ae.associate('localhost', 11112)
+
+        class DummyMessage():
+            is_valid_response = True
+            Identifier = None
+            Status = 0x0000
+            STATUS_OPTIONAL_KEYWORDS = []
+
+        class DummyDIMSE():
+            def send_msg(*args, **kwargs):
+                return
+
+            def receive_msg(*args, **kwargs):
+                return None, None
+
+        assoc.dimse = DummyDIMSE()
+        assert assoc.is_established
+
+        results = assoc.send_c_move(self.ds, b'TEST', query_model='P')
+        with pytest.raises(StopIteration):
+            next(results)
+
+        assert assoc.is_aborted
+
+        self.scp.stop()
+
+    def test_decode_failure(self):
+        """Test the connection timing out"""
+        self.scp = DummyMoveSCP()
+        self.scp.no_suboperations = 2
+        self.scp.statuses = [0xFF00, 0xFF00]
+        self.scp.datasets = [self.good, self.good]
+
+        def on_c_store(ds, context, assoc_info):
+            assert 'PatientName' in ds
+            return 0x0000
+
+        self.scp.start()
+        ae = AE()
+        ae.add_requested_context(PatientRootQueryRetrieveInformationModelMove,
+                                 ExplicitVRLittleEndian)
+        ae.add_requested_context(CTImageStorage)
+
+        ae.acse_timeout = 5
+        ae.dimse_timeout = 5
+        ae.on_c_store = on_c_store
+        assoc = ae.associate('localhost', 11112)
+
+        class DummyMessage():
+            is_valid_response = True
+            DataSet = None
+            Status = 0x0000
+            STATUS_OPTIONAL_KEYWORDS = []
+
+        class DummyDIMSE():
+            def send_msg(*args, **kwargs):
+                return
+
+            def receive_msg(*args, **kwargs):
+                rsp = C_MOVE()
+                rsp.Status = 0xC000
+                rsp.Identifier = BytesIO(b'\x08\x00\x01\x00\x04\x00\x00\x00\x00\x08\x00\x49')
+                return rsp, 1
+
+        assoc.dimse = DummyDIMSE()
+        assert assoc.is_established
+
+        results = assoc.send_c_move(self.ds, b'TEST', query_model='P')
+        status, ds = next(results)
+
+        assert status.Status == 0xC000
+        assert ds is None
+
+        self.scp.stop()
 
 
 class TestAssociationSendCCancelMove(object):

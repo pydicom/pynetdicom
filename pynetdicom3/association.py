@@ -1669,6 +1669,7 @@ class Association(threading.Thread):
                         LOGGER.error("Failed to decode the received Identifier "
                                      "dataset")
                         LOGGER.exception(ex)
+                        identifier = None
 
                 yield status, identifier
                 break
@@ -1972,6 +1973,7 @@ class Association(threading.Thread):
                         LOGGER.error("Failed to decode the received Identifier "
                                      "dataset")
                         LOGGER.exception(ex)
+                        identifier = None
 
                 yield status, identifier
                 break
