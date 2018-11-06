@@ -511,14 +511,20 @@ is a list containing the negotiation objects (default: None).</li>
 <col width="90%" />
 </colgroup>
 <tbody valign="top">
-<tr class="row-odd"><td><a class="reference internal" href="#pynetdicom3.association.Association.daemon" title="pynetdicom3.association.Association.daemon"><code class="xref py py-obj docutils literal notranslate"><span class="pre">daemon</span></code></a></td>
+<tr class="row-odd"><td><a class="reference internal" href="#pynetdicom3.association.Association.accepted_contexts" title="pynetdicom3.association.Association.accepted_contexts"><code class="xref py py-obj docutils literal notranslate"><span class="pre">accepted_contexts</span></code></a></td>
+<td>Return a list of accepted PresentationContexts.</td>
+</tr>
+<tr class="row-even"><td><a class="reference internal" href="#pynetdicom3.association.Association.daemon" title="pynetdicom3.association.Association.daemon"><code class="xref py py-obj docutils literal notranslate"><span class="pre">daemon</span></code></a></td>
 <td>A boolean value indicating whether this thread is a daemon thread.</td>
 </tr>
-<tr class="row-even"><td><a class="reference internal" href="#pynetdicom3.association.Association.ident" title="pynetdicom3.association.Association.ident"><code class="xref py py-obj docutils literal notranslate"><span class="pre">ident</span></code></a></td>
+<tr class="row-odd"><td><a class="reference internal" href="#pynetdicom3.association.Association.ident" title="pynetdicom3.association.Association.ident"><code class="xref py py-obj docutils literal notranslate"><span class="pre">ident</span></code></a></td>
 <td>Thread identifier of this thread or None if it has not been started.</td>
 </tr>
-<tr class="row-odd"><td><a class="reference internal" href="#pynetdicom3.association.Association.name" title="pynetdicom3.association.Association.name"><code class="xref py py-obj docutils literal notranslate"><span class="pre">name</span></code></a></td>
+<tr class="row-even"><td><a class="reference internal" href="#pynetdicom3.association.Association.name" title="pynetdicom3.association.Association.name"><code class="xref py py-obj docutils literal notranslate"><span class="pre">name</span></code></a></td>
 <td>A string used for identification purposes only.</td>
+</tr>
+<tr class="row-odd"><td><a class="reference internal" href="#pynetdicom3.association.Association.rejected_contexts" title="pynetdicom3.association.Association.rejected_contexts"><code class="xref py py-obj docutils literal notranslate"><span class="pre">rejected_contexts</span></code></a></td>
+<td>Return a list of rejected PresentationContexts.</td>
 </tr>
 </tbody>
 </table>
@@ -529,6 +535,12 @@ is a list containing the negotiation objects (default: None).</li>
 <p>DUL service user association abort. Always gives the source as the
 DUL service user and sets the abort reason to 0x00 (not significant)</p>
 <p>See PS3.8, 7.3-4 and 9.3.8.</p>
+</dd></dl>
+
+<dl class="attribute">
+<dt id="pynetdicom3.association.Association.accepted_contexts">
+<code class="descname">accepted_contexts</code><a class="headerlink" href="#pynetdicom3.association.Association.accepted_contexts" title="Permalink to this definition">¶</a></dt>
+<dd><p>Return a list of accepted PresentationContexts.</p>
 </dd></dl>
 
 <dl class="attribute">
@@ -675,6 +687,12 @@ exception.</p>
 initial name is set by the constructor.</p>
 </dd></dl>
 
+<dl class="attribute">
+<dt id="pynetdicom3.association.Association.rejected_contexts">
+<code class="descname">rejected_contexts</code><a class="headerlink" href="#pynetdicom3.association.Association.rejected_contexts" title="Permalink to this definition">¶</a></dt>
+<dd><p>Return a list of rejected PresentationContexts.</p>
+</dd></dl>
+
 <dl class="method">
 <dt id="pynetdicom3.association.Association.release">
 <code class="descname">release</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="../../_modules/pynetdicom3/association.html#Association.release"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pynetdicom3.association.Association.release" title="Permalink to this definition">¶</a></dt>
@@ -741,15 +759,6 @@ assumed that it will be one of these.</p>
 </tr>
 </tbody>
 </table>
-<p class="rubric">Examples</p>
-<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="n">assoc</span> <span class="o">=</span> <span class="n">ae</span><span class="o">.</span><span class="n">associate</span><span class="p">(</span><span class="n">addr</span><span class="p">,</span> <span class="n">port</span><span class="p">)</span>
-<span class="gp">&gt;&gt;&gt; </span><span class="k">if</span> <span class="n">assoc</span><span class="o">.</span><span class="n">is_established</span><span class="p">:</span>
-<span class="gp">... </span>    <span class="n">status</span> <span class="o">=</span> <span class="n">assoc</span><span class="o">.</span><span class="n">send_c_echo</span><span class="p">()</span>
-<span class="gp">... </span>    <span class="k">if</span> <span class="n">status</span><span class="p">:</span>
-<span class="gp">... </span>        <span class="nb">print</span><span class="p">(</span><span class="s1">&#39;C-ECHO Response: 0x</span><span class="si">{0:04x}</span><span class="s1">&#39;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">status</span><span class="o">.</span><span class="n">Status</span><span class="p">))</span>
-<span class="gp">... </span>    <span class="n">assoc</span><span class="o">.</span><span class="n">release</span><span class="p">()</span>
-</pre></div>
-</div>
 <div class="admonition seealso">
 <p class="first admonition-title">See also</p>
 <p class="last"><code class="xref py py-meth docutils literal notranslate"><span class="pre">ae.ApplicationEntity.on_c_echo()</span></code>, <code class="xref py py-meth docutils literal notranslate"><span class="pre">dimse_primitives.C_ECHO()</span></code>, <code class="xref py py-meth docutils literal notranslate"><span class="pre">service_class.VerificationServiceClass()</span></code></p>
@@ -917,18 +926,6 @@ unable to encode the <em>Identifier</em> <cite>dataset</cite>.</li>
 </tr>
 </tbody>
 </table>
-<p class="rubric">Examples</p>
-<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="n">ds</span> <span class="o">=</span> <span class="n">Dataset</span><span class="p">()</span>
-<span class="gp">&gt;&gt;&gt; </span><span class="n">ds</span><span class="o">.</span><span class="n">QueryRetrieveLevel</span> <span class="o">=</span> <span class="s1">&#39;PATIENT&#39;</span>
-<span class="gp">&gt;&gt;&gt; </span><span class="n">ds</span><span class="o">.</span><span class="n">PatientName</span> <span class="o">=</span> <span class="s1">&#39;*&#39;</span>
-<span class="gp">&gt;&gt;&gt; </span><span class="n">assoc</span> <span class="o">=</span> <span class="n">ae</span><span class="o">.</span><span class="n">associate</span><span class="p">(</span><span class="n">addr</span><span class="p">,</span> <span class="n">port</span><span class="p">)</span>
-<span class="gp">&gt;&gt;&gt; </span><span class="k">if</span> <span class="n">assoc</span><span class="o">.</span><span class="n">is_established</span><span class="p">:</span>
-<span class="gp">... </span>    <span class="n">response</span> <span class="o">=</span> <span class="n">assoc</span><span class="o">.</span><span class="n">send_c_find</span><span class="p">(</span><span class="n">ds</span><span class="p">,</span> <span class="n">query_model</span><span class="o">=</span><span class="s1">&#39;P&#39;</span><span class="p">)</span>
-<span class="gp">... </span>    <span class="k">for</span> <span class="p">(</span><span class="n">status</span><span class="p">,</span> <span class="n">identifier</span><span class="p">)</span> <span class="ow">in</span> <span class="n">response</span><span class="p">:</span>
-<span class="gp">... </span>        <span class="nb">print</span><span class="p">(</span><span class="s1">&#39;C-FIND Response: 0x</span><span class="si">{0:04x}</span><span class="s1">&#39;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">status</span><span class="o">.</span><span class="n">Status</span><span class="p">))</span>
-<span class="gp">... </span>    <span class="n">assoc</span><span class="o">.</span><span class="n">release</span><span class="p">()</span>
-</pre></div>
-</div>
 <div class="admonition seealso">
 <p class="first admonition-title">See also</p>
 <p class="last"><code class="xref py py-meth docutils literal notranslate"><span class="pre">ae.ApplicationEntity.on_c_find()</span></code>, <code class="xref py py-meth docutils literal notranslate"><span class="pre">dimse_primitives.C_FIND()</span></code>, <code class="xref py py-meth docutils literal notranslate"><span class="pre">service_class.QueryRetrieveFindServiceClass()</span></code>, <code class="xref py py-meth docutils literal notranslate"><span class="pre">service_class.RelevantPatientInformationQueryServiceClass()</span></code>, <code class="xref py py-meth docutils literal notranslate"><span class="pre">service_class.SubstanceAdministrationQueryServiceClass()</span></code>, <code class="xref py py-meth docutils literal notranslate"><span class="pre">service_class.HangingProtocolQueryRetrieveServiceClass()</span></code>, <code class="xref py py-meth docutils literal notranslate"><span class="pre">service_class.DefinedProcedureProtocolQueryRetrieveServiceClass()</span></code>, <code class="xref py py-meth docutils literal notranslate"><span class="pre">service_class.ColorPaletteQueryRetrieveServiceClass()</span></code>, <code class="xref py py-meth docutils literal notranslate"><span class="pre">service_class.ImplantTemplateQueryRetrieveServiceClass()</span></code></p>
@@ -1352,8 +1349,9 @@ Annex GG.4.2)</p>
 </tr>
 <tr class="field-even field"><th class="field-name">Raises:</th><td class="field-body"><ul class="first last simple">
 <li><a class="reference external" href="https://docs.python.org/3/library/exceptions.html#RuntimeError" title="(in Python v3.7)"><code class="xref py py-exc docutils literal notranslate"><span class="pre">RuntimeError</span></code></a> – If <code class="docutils literal notranslate"><span class="pre">send_c_store</span></code> is called with no established association.</li>
-<li><a class="reference external" href="https://docs.python.org/3/library/exceptions.html#AttributeError" title="(in Python v3.7)"><code class="xref py py-exc docutils literal notranslate"><span class="pre">AttributeError</span></code></a> – If <cite>dataset</cite> is missing (0008,0016) <em>SOP Class UID</em> or
-(0008,0018) <em>SOP Instance UID</em> elements.</li>
+<li><a class="reference external" href="https://docs.python.org/3/library/exceptions.html#AttributeError" title="(in Python v3.7)"><code class="xref py py-exc docutils literal notranslate"><span class="pre">AttributeError</span></code></a> – If <cite>dataset</cite> is missing (0008,0016) <em>SOP Class UID</em>,
+(0008,0018) <em>SOP Instance UID</em> elements or the (0002,0010)
+<em>Transfer Syntax UID</em> file meta information element.</li>
 <li><a class="reference external" href="https://docs.python.org/3/library/exceptions.html#ValueError" title="(in Python v3.7)"><code class="xref py py-exc docutils literal notranslate"><span class="pre">ValueError</span></code></a> – If no accepted Presentation Context for <cite>dataset</cite> exists or if
 unable to encode the <cite>dataset</cite>.</li>
 </ul>
@@ -1361,16 +1359,6 @@ unable to encode the <cite>dataset</cite>.</li>
 </tr>
 </tbody>
 </table>
-<p class="rubric">Examples</p>
-<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="n">ds</span> <span class="o">=</span> <span class="n">pydicom</span><span class="o">.</span><span class="n">dcmread</span><span class="p">(</span><span class="s1">&#39;file-in.dcm&#39;</span><span class="p">)</span>
-<span class="gp">&gt;&gt;&gt; </span><span class="n">assoc</span> <span class="o">=</span> <span class="n">ae</span><span class="o">.</span><span class="n">associate</span><span class="p">(</span><span class="n">addr</span><span class="p">,</span> <span class="n">port</span><span class="p">)</span>
-<span class="gp">&gt;&gt;&gt; </span><span class="k">if</span> <span class="n">assoc</span><span class="o">.</span><span class="n">is_established</span><span class="p">:</span>
-<span class="gp">... </span>    <span class="n">status</span> <span class="o">=</span> <span class="n">assoc</span><span class="o">.</span><span class="n">send_c_store</span><span class="p">(</span><span class="n">ds</span><span class="p">)</span>
-<span class="gp">... </span>    <span class="k">if</span> <span class="n">status</span><span class="p">:</span>
-<span class="gp">... </span>        <span class="nb">print</span><span class="p">(</span><span class="s1">&#39;C-STORE Response: 0x</span><span class="si">{0:04x}</span><span class="s1">&#39;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">status</span><span class="o">.</span><span class="n">Status</span><span class="p">))</span>
-<span class="gp">... </span>    <span class="n">assoc</span><span class="o">.</span><span class="n">release</span><span class="p">()</span>
-</pre></div>
-</div>
 <div class="admonition seealso">
 <p class="first admonition-title">See also</p>
 <p class="last"><code class="xref py py-meth docutils literal notranslate"><span class="pre">ae.ApplicationEntity.on_c_store()</span></code>, <code class="xref py py-meth docutils literal notranslate"><span class="pre">dimse_primitives.C_STORE()</span></code>, <code class="xref py py-meth docutils literal notranslate"><span class="pre">service_class.StorageServiceClass()</span></code>, <code class="xref py py-meth docutils literal notranslate"><span class="pre">service_class.NonPatientObjectStorageServiceClass()</span></code></p>

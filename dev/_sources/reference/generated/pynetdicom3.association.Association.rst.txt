@@ -51,8 +51,10 @@ pynetdicom3.association.Association
 
    .. autosummary::
    
+      ~Association.accepted_contexts
       ~Association.daemon
       ~Association.ident
       ~Association.name
+      ~Association.rejected_contexts
    
    

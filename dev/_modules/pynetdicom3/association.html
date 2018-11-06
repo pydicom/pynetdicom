@@ -194,6 +194,7 @@
 <span class="kn">from</span> <span class="nn">pynetdicom3.sop_class</span> <span class="k">import</span> <span class="p">(</span>
     <span class="n">uid_to_sop_class</span><span class="p">,</span>
     <span class="n">uid_to_service_class</span><span class="p">,</span>
+    <span class="n">VerificationSOPClass</span><span class="p">,</span>
     <span class="n">ModalityWorklistInformationFind</span><span class="p">,</span>
     <span class="n">PatientRootQueryRetrieveInformationModelFind</span><span class="p">,</span>
     <span class="n">StudyRootQueryRetrieveInformationModelFind</span><span class="p">,</span>
@@ -231,14 +232,18 @@
     <span class="n">ImplantTemplateGroupInformationModelGet</span><span class="p">,</span>
     <span class="n">ImplantTemplateGroupInformationModelMove</span><span class="p">,</span>
 <span class="p">)</span>
-<span class="kn">from</span> <span class="nn">pynetdicom3.pdu_primitives</span> <span class="k">import</span> <span class="p">(</span><span class="n">UserIdentityNegotiation</span><span class="p">,</span>
-                                        <span class="n">SOPClassExtendedNegotiation</span><span class="p">,</span>
-                                        <span class="n">SOPClassCommonExtendedNegotiation</span><span class="p">,</span>
-                                        <span class="n">SCP_SCU_RoleSelectionNegotiation</span><span class="p">,</span>
-                                        <span class="n">A_ASSOCIATE</span><span class="p">,</span> <span class="n">A_ABORT</span><span class="p">,</span> <span class="n">A_P_ABORT</span><span class="p">)</span>
+<span class="kn">from</span> <span class="nn">pynetdicom3.pdu_primitives</span> <span class="k">import</span> <span class="p">(</span>
+    <span class="n">UserIdentityNegotiation</span><span class="p">,</span>
+    <span class="n">AsynchronousOperationsWindowNegotiation</span><span class="p">,</span>
+    <span class="n">SOPClassExtendedNegotiation</span><span class="p">,</span>
+    <span class="n">SOPClassCommonExtendedNegotiation</span><span class="p">,</span>
+    <span class="n">SCP_SCU_RoleSelectionNegotiation</span><span class="p">,</span>
+    <span class="n">A_ASSOCIATE</span><span class="p">,</span> <span class="n">A_ABORT</span><span class="p">,</span> <span class="n">A_P_ABORT</span>
+<span class="p">)</span>
 <span class="kn">from</span> <span class="nn">pynetdicom3.status</span> <span class="k">import</span> <span class="p">(</span>
     <span class="n">code_to_status</span><span class="p">,</span> <span class="n">code_to_category</span><span class="p">,</span> <span class="n">STORAGE_SERVICE_CLASS_STATUS</span><span class="p">,</span>
-    <span class="n">STATUS_WARNING</span><span class="p">,</span> <span class="n">STATUS_SUCCESS</span>
+    <span class="n">STATUS_WARNING</span><span class="p">,</span> <span class="n">STATUS_SUCCESS</span><span class="p">,</span> <span class="n">STATUS_CANCEL</span><span class="p">,</span> <span class="n">STATUS_PENDING</span><span class="p">,</span>
+    <span class="n">STATUS_FAILURE</span>
 <span class="p">)</span>
 <span class="c1"># pylint: enable=no-name-in-module</span>
 
@@ -434,6 +439,133 @@
         <span class="n">threading</span><span class="o">.</span><span class="n">Thread</span><span class="o">.</span><span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">daemon</span> <span class="o">=</span> <span class="kc">True</span></div>
 
+<div class="viewcode-block" id="Association.abort"><a class="viewcode-back" href="../../reference/generated/pynetdicom3.association.Association.html#pynetdicom3.association.Association.abort">[docs]</a>    <span class="k">def</span> <span class="nf">abort</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;Abort the association.</span>
+
+<span class="sd">        DUL service user association abort. Always gives the source as the</span>
+<span class="sd">        DUL service user and sets the abort reason to 0x00 (not significant)</span>
+
+<span class="sd">        See PS3.8, 7.3-4 and 9.3.8.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">if</span> <span class="ow">not</span> <span class="bp">self</span><span class="o">.</span><span class="n">is_released</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">acse</span><span class="o">.</span><span class="n">abort_assoc</span><span class="p">(</span><span class="n">source</span><span class="o">=</span><span class="mh">0x00</span><span class="p">,</span> <span class="n">reason</span><span class="o">=</span><span class="mh">0x00</span><span class="p">)</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">kill</span><span class="p">()</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">is_aborted</span> <span class="o">=</span> <span class="kc">True</span>
+
+        <span class="c1"># Add short delay to ensure everything shuts down</span>
+        <span class="n">time</span><span class="o">.</span><span class="n">sleep</span><span class="p">(</span><span class="mf">0.1</span><span class="p">)</span></div>
+
+    <span class="nd">@property</span>
+    <span class="k">def</span> <span class="nf">accepted_contexts</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;Return a list of accepted PresentationContexts.&quot;&quot;&quot;</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">acse</span><span class="o">.</span><span class="n">accepted_contexts</span>
+
+    <span class="k">def</span> <span class="nf">_check_received_status</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">rsp</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;Return a dataset containing status related elements.</span>
+
+<span class="sd">        Parameters</span>
+<span class="sd">        ----------</span>
+<span class="sd">        rsp : pynetdicom3.dimse_primitives</span>
+<span class="sd">            The DIMSE Message primitive received from the peer in response</span>
+<span class="sd">            to a service request.</span>
+
+<span class="sd">        Returns</span>
+<span class="sd">        -------</span>
+<span class="sd">        pydicom.dataset.Dataset</span>
+<span class="sd">            If no response or an invalid response was received from the peer</span>
+<span class="sd">            then an empty Dataset, if a valid response was received from the</span>
+<span class="sd">            peer then (at a minimum) a Dataset containing an (0000,0900)</span>
+<span class="sd">            *Status* element, and any included optional status related</span>
+<span class="sd">            elements.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">msg_type</span> <span class="o">=</span> <span class="n">rsp</span><span class="o">.</span><span class="vm">__class__</span><span class="o">.</span><span class="vm">__name__</span>
+        <span class="n">msg_type</span> <span class="o">=</span> <span class="n">msg_type</span><span class="o">.</span><span class="n">replace</span><span class="p">(</span><span class="s1">&#39;_&#39;</span><span class="p">,</span> <span class="s1">&#39;-&#39;</span><span class="p">)</span>
+
+        <span class="n">status</span> <span class="o">=</span> <span class="n">Dataset</span><span class="p">()</span>
+        <span class="k">if</span> <span class="n">rsp</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="n">LOGGER</span><span class="o">.</span><span class="n">error</span><span class="p">(</span><span class="s1">&#39;DIMSE service timed out&#39;</span><span class="p">)</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">abort</span><span class="p">()</span>
+        <span class="k">elif</span> <span class="n">rsp</span><span class="o">.</span><span class="n">is_valid_response</span><span class="p">:</span>
+            <span class="n">status</span><span class="o">.</span><span class="n">Status</span> <span class="o">=</span> <span class="n">rsp</span><span class="o">.</span><span class="n">Status</span>
+            <span class="k">for</span> <span class="n">keyword</span> <span class="ow">in</span> <span class="n">rsp</span><span class="o">.</span><span class="n">STATUS_OPTIONAL_KEYWORDS</span><span class="p">:</span>
+                <span class="k">if</span> <span class="nb">getattr</span><span class="p">(</span><span class="n">rsp</span><span class="p">,</span> <span class="n">keyword</span><span class="p">,</span> <span class="kc">None</span><span class="p">)</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+                    <span class="nb">setattr</span><span class="p">(</span><span class="n">status</span><span class="p">,</span> <span class="n">keyword</span><span class="p">,</span> <span class="nb">getattr</span><span class="p">(</span><span class="n">rsp</span><span class="p">,</span> <span class="n">keyword</span><span class="p">))</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="n">LOGGER</span><span class="o">.</span><span class="n">error</span><span class="p">(</span>
+                <span class="s2">&quot;Received an invalid </span><span class="si">{}</span><span class="s2"> response from the peer&quot;</span>
+                <span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">msg_type</span><span class="p">)</span>
+            <span class="p">)</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">abort</span><span class="p">()</span>
+
+        <span class="k">return</span> <span class="n">status</span>
+
+    <span class="k">def</span> <span class="nf">_get_valid_context</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">ab_syntax</span><span class="p">,</span> <span class="n">tr_syntax</span><span class="p">,</span> <span class="n">role</span><span class="p">,</span> <span class="n">context_id</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+
+<span class="sd">        Parameters</span>
+<span class="sd">        ----------</span>
+<span class="sd">        ab_syntax : str or pydicom.uid.UID</span>
+<span class="sd">            The abstract syntax to match.</span>
+<span class="sd">        tr_syntax : str or pydicom.uid.UID</span>
+<span class="sd">            The transfer syntax to match, if an empty string is used then</span>
+<span class="sd">            the transfer syntax will not be used for matching. If the value</span>
+<span class="sd">            corresponds to an uncompressed syntax then matches will be made</span>
+<span class="sd">            with any uncompressed transfer syntaxes.</span>
+<span class="sd">        role : str</span>
+<span class="sd">            One of &#39;scu&#39; or &#39;scp&#39;, the required role of the context.</span>
+<span class="sd">        context_id : int or None</span>
+<span class="sd">            If not None then the ID of the presentation context to use. It will</span>
+<span class="sd">            be checked against the available parameter values.</span>
+
+<span class="sd">        Returns</span>
+<span class="sd">        -------</span>
+<span class="sd">        presentation.PresentationContext</span>
+<span class="sd">            An accepted presentation context.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">ab_syntax</span> <span class="o">=</span> <span class="n">UID</span><span class="p">(</span><span class="n">ab_syntax</span><span class="p">)</span>
+        <span class="n">tr_syntax</span> <span class="o">=</span> <span class="n">UID</span><span class="p">(</span><span class="n">tr_syntax</span><span class="p">)</span>
+
+        <span class="n">possible_contexts</span> <span class="o">=</span> <span class="p">[]</span>
+        <span class="k">if</span> <span class="n">context_id</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="n">possible_contexts</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">accepted_contexts</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="k">for</span> <span class="n">cx</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">accepted_contexts</span><span class="p">:</span>
+                <span class="k">if</span> <span class="n">cx</span><span class="o">.</span><span class="n">context_id</span> <span class="o">==</span> <span class="n">context_id</span><span class="p">:</span>
+                    <span class="n">possible_contexts</span> <span class="o">=</span> <span class="p">[</span><span class="n">cx</span><span class="p">]</span>
+                    <span class="k">break</span>
+
+        <span class="k">for</span> <span class="n">cx</span> <span class="ow">in</span> <span class="n">possible_contexts</span><span class="p">:</span>
+            <span class="k">if</span> <span class="n">cx</span><span class="o">.</span><span class="n">abstract_syntax</span> <span class="o">!=</span> <span class="n">ab_syntax</span><span class="p">:</span>
+                <span class="k">continue</span>
+
+            <span class="c1"># Cover both False and None</span>
+            <span class="k">if</span> <span class="n">role</span> <span class="o">==</span> <span class="s1">&#39;scu&#39;</span> <span class="ow">and</span> <span class="n">cx</span><span class="o">.</span><span class="n">as_scu</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">True</span><span class="p">:</span>
+                <span class="k">continue</span>
+
+            <span class="k">if</span> <span class="n">role</span> <span class="o">==</span> <span class="s1">&#39;scp&#39;</span> <span class="ow">and</span> <span class="n">cx</span><span class="o">.</span><span class="n">as_scp</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">True</span><span class="p">:</span>
+                <span class="k">continue</span>
+
+            <span class="c1"># Allow us to skip the transfer syntax check</span>
+            <span class="k">if</span> <span class="n">tr_syntax</span> <span class="ow">and</span> <span class="n">tr_syntax</span> <span class="o">!=</span> <span class="n">cx</span><span class="o">.</span><span class="n">transfer_syntax</span><span class="p">[</span><span class="mi">0</span><span class="p">]:</span>
+                <span class="c1"># Compressed transfer syntaxes are not convertable</span>
+                <span class="k">if</span> <span class="p">(</span><span class="n">tr_syntax</span><span class="o">.</span><span class="n">is_compressed</span>
+                        <span class="ow">or</span> <span class="n">cx</span><span class="o">.</span><span class="n">transfer_syntax</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span><span class="o">.</span><span class="n">is_compressed</span><span class="p">):</span>
+                    <span class="k">continue</span>
+
+            <span class="c1"># Only a valid presentation context can reach this point</span>
+            <span class="k">return</span> <span class="n">cx</span>
+
+        <span class="n">msg</span> <span class="o">=</span> <span class="p">(</span>
+            <span class="s2">&quot;No suitable presentation context for the </span><span class="si">{}</span><span class="s2"> role has been &quot;</span>
+            <span class="s2">&quot;accepted by the peer for the SOP Class &#39;</span><span class="si">{}</span><span class="s2">&#39;&quot;</span>
+            <span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">role</span><span class="o">.</span><span class="n">upper</span><span class="p">(),</span> <span class="n">ab_syntax</span><span class="o">.</span><span class="n">name</span><span class="p">)</span>
+        <span class="p">)</span>
+        <span class="k">if</span> <span class="n">tr_syntax</span><span class="p">:</span>
+            <span class="n">msg</span> <span class="o">+=</span> <span class="s2">&quot; with a transfer syntax of &#39;</span><span class="si">{}</span><span class="s2">&#39;&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">tr_syntax</span><span class="o">.</span><span class="n">name</span><span class="p">)</span>
+
+        <span class="n">LOGGER</span><span class="o">.</span><span class="n">error</span><span class="p">(</span><span class="n">msg</span><span class="p">)</span>
+        <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="n">msg</span><span class="p">)</span>
+
 <div class="viewcode-block" id="Association.kill"><a class="viewcode-back" href="../../reference/generated/pynetdicom3.association.Association.html#pynetdicom3.association.Association.kill">[docs]</a>    <span class="k">def</span> <span class="nf">kill</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;Kill the main association thread loop.&quot;&quot;&quot;</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">_kill</span> <span class="o">=</span> <span class="kc">True</span>
@@ -454,21 +586,10 @@
                 <span class="c1"># No release reply within timeout window</span>
                 <span class="bp">self</span><span class="o">.</span><span class="n">abort</span><span class="p">()</span></div>
 
-<div class="viewcode-block" id="Association.abort"><a class="viewcode-back" href="../../reference/generated/pynetdicom3.association.Association.html#pynetdicom3.association.Association.abort">[docs]</a>    <span class="k">def</span> <span class="nf">abort</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
-        <span class="sd">&quot;&quot;&quot;Abort the association.</span>
-
-<span class="sd">        DUL service user association abort. Always gives the source as the</span>
-<span class="sd">        DUL service user and sets the abort reason to 0x00 (not significant)</span>
-
-<span class="sd">        See PS3.8, 7.3-4 and 9.3.8.</span>
-<span class="sd">        &quot;&quot;&quot;</span>
-        <span class="k">if</span> <span class="ow">not</span> <span class="bp">self</span><span class="o">.</span><span class="n">is_released</span><span class="p">:</span>
-            <span class="bp">self</span><span class="o">.</span><span class="n">acse</span><span class="o">.</span><span class="n">abort_assoc</span><span class="p">(</span><span class="n">source</span><span class="o">=</span><span class="mh">0x00</span><span class="p">,</span> <span class="n">reason</span><span class="o">=</span><span class="mh">0x00</span><span class="p">)</span>
-            <span class="bp">self</span><span class="o">.</span><span class="n">kill</span><span class="p">()</span>
-            <span class="bp">self</span><span class="o">.</span><span class="n">is_aborted</span> <span class="o">=</span> <span class="kc">True</span>
-
-        <span class="c1"># Add short delay to ensure everything shuts down</span>
-        <span class="n">time</span><span class="o">.</span><span class="n">sleep</span><span class="p">(</span><span class="mf">0.1</span><span class="p">)</span></div>
+    <span class="nd">@property</span>
+    <span class="k">def</span> <span class="nf">rejected_contexts</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;Return a list of rejected PresentationContexts.&quot;&quot;&quot;</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">acse</span><span class="o">.</span><span class="n">rejected_contexts</span>
 
 <div class="viewcode-block" id="Association.run"><a class="viewcode-back" href="../../reference/generated/pynetdicom3.association.Association.html#pynetdicom3.association.Association.run">[docs]</a>    <span class="k">def</span> <span class="nf">run</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;The main Association control.&quot;&quot;&quot;</span>
@@ -951,15 +1072,6 @@
 <span class="sd">            If the association has no accepted Presentation Context for</span>
 <span class="sd">            &#39;Verification SOP Class&#39;.</span>
 
-<span class="sd">        Examples</span>
-<span class="sd">        --------</span>
-<span class="sd">        &gt;&gt;&gt; assoc = ae.associate(addr, port)</span>
-<span class="sd">        &gt;&gt;&gt; if assoc.is_established:</span>
-<span class="sd">        ...     status = assoc.send_c_echo()</span>
-<span class="sd">        ...     if status:</span>
-<span class="sd">        ...         print(&#39;C-ECHO Response: 0x{0:04x}&#39;.format(status.Status))</span>
-<span class="sd">        ...     assoc.release()</span>
-
 <span class="sd">        See Also</span>
 <span class="sd">        --------</span>
 <span class="sd">        ae.ApplicationEntity.on_c_echo</span>
@@ -980,43 +1092,22 @@
             <span class="k">raise</span> <span class="ne">RuntimeError</span><span class="p">(</span><span class="s2">&quot;The association with a peer SCP must be &quot;</span>
                                <span class="s2">&quot;established before sending a C-ECHO request&quot;</span><span class="p">)</span>
 
-        <span class="c1"># Verification SOP Class</span>
-        <span class="n">uid</span> <span class="o">=</span> <span class="n">UID</span><span class="p">(</span><span class="s1">&#39;1.2.840.10008.1.1&#39;</span><span class="p">)</span>
-
-        <span class="c1"># Get the Presentation Context we are operating under</span>
-        <span class="n">context_id</span> <span class="o">=</span> <span class="kc">None</span>
-        <span class="k">for</span> <span class="n">context</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">acse</span><span class="o">.</span><span class="n">accepted_contexts</span><span class="p">:</span>
-            <span class="k">if</span> <span class="n">uid</span> <span class="o">==</span> <span class="n">context</span><span class="o">.</span><span class="n">abstract_syntax</span> <span class="ow">and</span> <span class="n">context</span><span class="o">.</span><span class="n">as_scu</span><span class="p">:</span>
-                <span class="n">context_id</span> <span class="o">=</span> <span class="n">context</span><span class="o">.</span><span class="n">context_id</span>
-                <span class="k">break</span>
-        <span class="k">else</span><span class="p">:</span>
-            <span class="n">LOGGER</span><span class="o">.</span><span class="n">error</span><span class="p">(</span><span class="s2">&quot;No accepted Presentation Context for &#39;</span><span class="si">%s</span><span class="s2">&#39;&quot;</span><span class="p">,</span> <span class="n">uid</span><span class="p">)</span>
-            <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s2">&quot;No accepted Presentation Context for &quot;</span>
-                             <span class="s2">&quot;&#39;Verification SOP Class&#39;.&quot;</span><span class="p">)</span>
+        <span class="c1"># Get a Presentation Context to use for sending the message</span>
+        <span class="n">context</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_get_valid_context</span><span class="p">(</span><span class="n">VerificationSOPClass</span><span class="p">,</span> <span class="s1">&#39;&#39;</span><span class="p">,</span> <span class="s1">&#39;scu&#39;</span><span class="p">)</span>
 
         <span class="c1"># Build C-STORE request primitive</span>
         <span class="c1">#   (M) Message ID</span>
         <span class="c1">#   (M) Affected SOP Class UID</span>
         <span class="n">primitive</span> <span class="o">=</span> <span class="n">C_ECHO</span><span class="p">()</span>
         <span class="n">primitive</span><span class="o">.</span><span class="n">MessageID</span> <span class="o">=</span> <span class="n">msg_id</span>
-        <span class="n">primitive</span><span class="o">.</span><span class="n">AffectedSOPClassUID</span> <span class="o">=</span> <span class="n">uid</span>
+        <span class="n">primitive</span><span class="o">.</span><span class="n">AffectedSOPClassUID</span> <span class="o">=</span> <span class="n">VerificationSOPClass</span>
 
         <span class="c1"># Send C-ECHO request to the peer via DIMSE and wait for the response</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">dimse</span><span class="o">.</span><span class="n">send_msg</span><span class="p">(</span><span class="n">primitive</span><span class="p">,</span> <span class="n">context_id</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">dimse</span><span class="o">.</span><span class="n">send_msg</span><span class="p">(</span><span class="n">primitive</span><span class="p">,</span> <span class="n">context</span><span class="o">.</span><span class="n">context_id</span><span class="p">)</span>
         <span class="n">rsp</span><span class="p">,</span> <span class="n">_</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">dimse</span><span class="o">.</span><span class="n">receive_msg</span><span class="p">(</span><span class="n">wait</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
 
         <span class="c1"># Determine validity of the response and get the status</span>
-        <span class="n">status</span> <span class="o">=</span> <span class="n">Dataset</span><span class="p">()</span>
-        <span class="k">if</span> <span class="n">rsp</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
-            <span class="n">LOGGER</span><span class="o">.</span><span class="n">error</span><span class="p">(</span><span class="s1">&#39;DIMSE service timed out&#39;</span><span class="p">)</span>
-            <span class="bp">self</span><span class="o">.</span><span class="n">abort</span><span class="p">()</span>
-        <span class="k">elif</span> <span class="n">rsp</span><span class="o">.</span><span class="n">is_valid_response</span><span class="p">:</span>
-            <span class="n">status</span><span class="o">.</span><span class="n">Status</span> <span class="o">=</span> <span class="n">rsp</span><span class="o">.</span><span class="n">Status</span>
-            <span class="k">if</span> <span class="nb">getattr</span><span class="p">(</span><span class="n">rsp</span><span class="p">,</span> <span class="s1">&#39;ErrorComment&#39;</span><span class="p">)</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
-                <span class="n">status</span><span class="o">.</span><span class="n">ErrorComment</span> <span class="o">=</span> <span class="n">rsp</span><span class="o">.</span><span class="n">ErrorComment</span>
-        <span class="k">else</span><span class="p">:</span>
-            <span class="n">LOGGER</span><span class="o">.</span><span class="n">error</span><span class="p">(</span><span class="s1">&#39;Received an invalid C-ECHO response from the peer&#39;</span><span class="p">)</span>
-            <span class="bp">self</span><span class="o">.</span><span class="n">abort</span><span class="p">()</span>
+        <span class="n">status</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_check_received_status</span><span class="p">(</span><span class="n">rsp</span><span class="p">)</span>
 
         <span class="k">return</span> <span class="n">status</span></div>
 
@@ -1099,22 +1190,12 @@
 <span class="sd">        RuntimeError</span>
 <span class="sd">            If ``send_c_store`` is called with no established association.</span>
 <span class="sd">        AttributeError</span>
-<span class="sd">            If `dataset` is missing (0008,0016) *SOP Class UID* or</span>
-<span class="sd">            (0008,0018) *SOP Instance UID* elements.</span>
+<span class="sd">            If `dataset` is missing (0008,0016) *SOP Class UID*,</span>
+<span class="sd">            (0008,0018) *SOP Instance UID* elements or the (0002,0010)</span>
+<span class="sd">            *Transfer Syntax UID* file meta information element.</span>
 <span class="sd">        ValueError</span>
 <span class="sd">            If no accepted Presentation Context for `dataset` exists or if</span>
 <span class="sd">            unable to encode the `dataset`.</span>
-
-<span class="sd">        Examples</span>
-<span class="sd">        --------</span>
-
-<span class="sd">        &gt;&gt;&gt; ds = pydicom.dcmread(&#39;file-in.dcm&#39;)</span>
-<span class="sd">        &gt;&gt;&gt; assoc = ae.associate(addr, port)</span>
-<span class="sd">        &gt;&gt;&gt; if assoc.is_established:</span>
-<span class="sd">        ...     status = assoc.send_c_store(ds)</span>
-<span class="sd">        ...     if status:</span>
-<span class="sd">        ...         print(&#39;C-STORE Response: 0x{0:04x}&#39;.format(status.Status))</span>
-<span class="sd">        ...     assoc.release()</span>
 
 <span class="sd">        See Also</span>
 <span class="sd">        --------</span>
@@ -1138,28 +1219,30 @@
             <span class="k">raise</span> <span class="ne">RuntimeError</span><span class="p">(</span><span class="s2">&quot;The association with a peer SCP must be &quot;</span>
                                <span class="s2">&quot;established before sending a C-STORE request&quot;</span><span class="p">)</span>
 
-        <span class="c1"># Determine the Presentation Context we are operating under</span>
-        <span class="c1">#   and hence the transfer syntax to use for encoding `dataset`</span>
-        <span class="n">transfer_syntax</span> <span class="o">=</span> <span class="kc">None</span>
-        <span class="k">for</span> <span class="n">context</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">acse</span><span class="o">.</span><span class="n">accepted_contexts</span><span class="p">:</span>
-            <span class="k">try</span><span class="p">:</span>
-                <span class="k">if</span> <span class="n">dataset</span><span class="o">.</span><span class="n">SOPClassUID</span> <span class="o">==</span> <span class="n">context</span><span class="o">.</span><span class="n">abstract_syntax</span> <span class="ow">and</span> <span class="n">context</span><span class="o">.</span><span class="n">as_scu</span><span class="p">:</span>
-                    <span class="n">transfer_syntax</span> <span class="o">=</span> <span class="n">context</span><span class="o">.</span><span class="n">transfer_syntax</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span>
-                    <span class="n">context_id</span> <span class="o">=</span> <span class="n">context</span><span class="o">.</span><span class="n">context_id</span>
-                    <span class="k">break</span>
-            <span class="k">except</span> <span class="ne">AttributeError</span> <span class="k">as</span> <span class="n">ex</span><span class="p">:</span>
-                <span class="n">LOGGER</span><span class="o">.</span><span class="n">error</span><span class="p">(</span><span class="s2">&quot;Association.send_c_store - unable to determine &quot;</span>
-                             <span class="s2">&quot;Presentation Context as &quot;</span>
-                             <span class="s2">&quot;Dataset has no &#39;SOP Class UID&#39; element&quot;</span><span class="p">)</span>
-                <span class="n">LOGGER</span><span class="o">.</span><span class="n">error</span><span class="p">(</span><span class="s2">&quot;Store SCU failed due to there being no valid &quot;</span>
-                             <span class="s2">&quot;presentation context for the current dataset&quot;</span><span class="p">)</span>
-                <span class="k">raise</span> <span class="n">ex</span>
-        <span class="k">else</span><span class="p">:</span>
-            <span class="n">LOGGER</span><span class="o">.</span><span class="n">error</span><span class="p">(</span><span class="s2">&quot;Association.send_c_store - no accepted Presentation &quot;</span>
-                         <span class="s2">&quot;Context for: &#39;</span><span class="si">%s</span><span class="s2">&#39;&quot;</span><span class="p">,</span> <span class="n">dataset</span><span class="o">.</span><span class="n">SOPClassUID</span><span class="p">)</span>
-            <span class="n">LOGGER</span><span class="o">.</span><span class="n">error</span><span class="p">(</span><span class="s2">&quot;Store SCU failed due to there being no accepted &quot;</span>
-                         <span class="s2">&quot;presentation context for the current dataset&quot;</span><span class="p">)</span>
-            <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s2">&quot;No accepted Presentation Context for &#39;dataset&#39;.&quot;</span><span class="p">)</span>
+        <span class="c1"># Check `dataset` has required elements</span>
+        <span class="k">if</span> <span class="s1">&#39;SOPClassUID&#39;</span> <span class="ow">not</span> <span class="ow">in</span> <span class="n">dataset</span><span class="p">:</span>
+            <span class="k">raise</span> <span class="ne">AttributeError</span><span class="p">(</span>
+                <span class="s2">&quot;Unable to determine the presentation context to use with &quot;</span>
+                <span class="s2">&quot;`dataset` as it contains no &#39;(0008,0016) SOP Class UID&#39; &quot;</span>
+                <span class="s2">&quot;element&quot;</span>
+            <span class="p">)</span>
+
+        <span class="k">try</span><span class="p">:</span>
+            <span class="k">assert</span> <span class="s1">&#39;TransferSyntaxUID&#39;</span> <span class="ow">in</span> <span class="n">dataset</span><span class="o">.</span><span class="n">file_meta</span>
+        <span class="k">except</span> <span class="p">(</span><span class="ne">AssertionError</span><span class="p">,</span> <span class="ne">AttributeError</span><span class="p">):</span>
+            <span class="k">raise</span> <span class="ne">AttributeError</span><span class="p">(</span>
+                <span class="s2">&quot;Unable to determine the presentation context to use with &quot;</span>
+                <span class="s2">&quot;`dataset` as it contains no &#39;(0002,0010) Transfer Syntax &quot;</span>
+                <span class="s2">&quot;UID&#39; file meta information element&quot;</span>
+        <span class="p">)</span>
+
+        <span class="c1"># Get a Presentation Context to use for sending the message</span>
+        <span class="n">context</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_get_valid_context</span><span class="p">(</span>
+            <span class="n">dataset</span><span class="o">.</span><span class="n">SOPClassUID</span><span class="p">,</span>
+            <span class="n">dataset</span><span class="o">.</span><span class="n">file_meta</span><span class="o">.</span><span class="n">TransferSyntaxUID</span><span class="p">,</span>
+            <span class="s1">&#39;scu&#39;</span>
+        <span class="p">)</span>
+        <span class="n">transfer_syntax</span> <span class="o">=</span> <span class="n">context</span><span class="o">.</span><span class="n">transfer_syntax</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span>
 
         <span class="c1"># Build C-STORE request primitive</span>
         <span class="c1">#   (M) Message ID</span>
@@ -1190,22 +1273,11 @@
             <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s1">&#39;Failed to encode the supplied Dataset&#39;</span><span class="p">)</span>
 
         <span class="c1"># Send C-STORE request to the peer via DIMSE and wait for the response</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">dimse</span><span class="o">.</span><span class="n">send_msg</span><span class="p">(</span><span class="n">req</span><span class="p">,</span> <span class="n">context_id</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">dimse</span><span class="o">.</span><span class="n">send_msg</span><span class="p">(</span><span class="n">req</span><span class="p">,</span> <span class="n">context</span><span class="o">.</span><span class="n">context_id</span><span class="p">)</span>
         <span class="n">rsp</span><span class="p">,</span> <span class="n">_</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">dimse</span><span class="o">.</span><span class="n">receive_msg</span><span class="p">(</span><span class="n">wait</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
 
         <span class="c1"># Determine validity of the response and get the status</span>
-        <span class="n">status</span> <span class="o">=</span> <span class="n">Dataset</span><span class="p">()</span>
-        <span class="k">if</span> <span class="n">rsp</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
-            <span class="n">LOGGER</span><span class="o">.</span><span class="n">error</span><span class="p">(</span><span class="s1">&#39;DIMSE service timed out&#39;</span><span class="p">)</span>
-            <span class="bp">self</span><span class="o">.</span><span class="n">abort</span><span class="p">()</span>
-        <span class="k">elif</span> <span class="n">rsp</span><span class="o">.</span><span class="n">is_valid_response</span><span class="p">:</span>
-            <span class="n">status</span><span class="o">.</span><span class="n">Status</span> <span class="o">=</span> <span class="n">rsp</span><span class="o">.</span><span class="n">Status</span>
-            <span class="k">for</span> <span class="n">keyword</span> <span class="ow">in</span> <span class="p">[</span><span class="s1">&#39;ErrorComment&#39;</span><span class="p">,</span> <span class="s1">&#39;OffendingElement&#39;</span><span class="p">]:</span>
-                <span class="k">if</span> <span class="nb">getattr</span><span class="p">(</span><span class="n">rsp</span><span class="p">,</span> <span class="n">keyword</span><span class="p">)</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
-                    <span class="nb">setattr</span><span class="p">(</span><span class="n">status</span><span class="p">,</span> <span class="n">keyword</span><span class="p">,</span> <span class="nb">getattr</span><span class="p">(</span><span class="n">rsp</span><span class="p">,</span> <span class="n">keyword</span><span class="p">))</span>
-        <span class="k">else</span><span class="p">:</span>
-            <span class="n">LOGGER</span><span class="o">.</span><span class="n">error</span><span class="p">(</span><span class="s1">&#39;Received an invalid C-STORE response from the peer&#39;</span><span class="p">)</span>
-            <span class="bp">self</span><span class="o">.</span><span class="n">abort</span><span class="p">()</span>
+        <span class="n">status</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_check_received_status</span><span class="p">(</span><span class="n">rsp</span><span class="p">)</span>
 
         <span class="k">return</span> <span class="n">status</span></div>
 
@@ -1341,19 +1413,6 @@
 <span class="sd">            If no accepted Presentation Context for `dataset` exists or if</span>
 <span class="sd">            unable to encode the *Identifier* `dataset`.</span>
 
-<span class="sd">        Examples</span>
-<span class="sd">        --------</span>
-
-<span class="sd">        &gt;&gt;&gt; ds = Dataset()</span>
-<span class="sd">        &gt;&gt;&gt; ds.QueryRetrieveLevel = &#39;PATIENT&#39;</span>
-<span class="sd">        &gt;&gt;&gt; ds.PatientName = &#39;*&#39;</span>
-<span class="sd">        &gt;&gt;&gt; assoc = ae.associate(addr, port)</span>
-<span class="sd">        &gt;&gt;&gt; if assoc.is_established:</span>
-<span class="sd">        ...     response = assoc.send_c_find(ds, query_model=&#39;P&#39;)</span>
-<span class="sd">        ...     for (status, identifier) in response:</span>
-<span class="sd">        ...         print(&#39;C-FIND Response: 0x{0:04x}&#39;.format(status.Status))</span>
-<span class="sd">        ...     assoc.release()</span>
-
 <span class="sd">        See Also</span>
 <span class="sd">        --------</span>
 <span class="sd">        ae.ApplicationEntity.on_c_find</span>
@@ -1387,55 +1446,34 @@
             <span class="k">raise</span> <span class="ne">RuntimeError</span><span class="p">(</span><span class="s2">&quot;The association with a peer SCP must be &quot;</span>
                                <span class="s2">&quot;established before sending a C-FIND request&quot;</span><span class="p">)</span>
 
-        <span class="k">if</span> <span class="n">query_model</span> <span class="o">==</span> <span class="s1">&#39;W&#39;</span><span class="p">:</span>
-            <span class="n">sop_class</span> <span class="o">=</span> <span class="n">ModalityWorklistInformationFind</span>
-        <span class="k">elif</span> <span class="n">query_model</span> <span class="o">==</span> <span class="s2">&quot;P&quot;</span><span class="p">:</span>
-            <span class="n">sop_class</span> <span class="o">=</span> <span class="n">PatientRootQueryRetrieveInformationModelFind</span>
-        <span class="k">elif</span> <span class="n">query_model</span> <span class="o">==</span> <span class="s2">&quot;S&quot;</span><span class="p">:</span>
-            <span class="n">sop_class</span> <span class="o">=</span> <span class="n">StudyRootQueryRetrieveInformationModelFind</span>
-        <span class="k">elif</span> <span class="n">query_model</span> <span class="o">==</span> <span class="s2">&quot;O&quot;</span><span class="p">:</span>
-            <span class="n">sop_class</span> <span class="o">=</span> <span class="n">PatientStudyOnlyQueryRetrieveInformationModelFind</span>
-        <span class="k">elif</span> <span class="n">query_model</span> <span class="o">==</span> <span class="s2">&quot;G&quot;</span><span class="p">:</span>
-            <span class="n">sop_class</span> <span class="o">=</span> <span class="n">GeneralRelevantPatientInformationQuery</span>
-        <span class="k">elif</span> <span class="n">query_model</span> <span class="o">==</span> <span class="s2">&quot;B&quot;</span><span class="p">:</span>
-            <span class="n">sop_class</span> <span class="o">=</span> <span class="n">BreastImagingRelevantPatientInformationQuery</span>
-        <span class="k">elif</span> <span class="n">query_model</span> <span class="o">==</span> <span class="s2">&quot;C&quot;</span><span class="p">:</span>
-            <span class="n">sop_class</span> <span class="o">=</span> <span class="n">CardiacRelevantPatientInformationQuery</span>
-        <span class="k">elif</span> <span class="n">query_model</span> <span class="o">==</span> <span class="s2">&quot;PC&quot;</span><span class="p">:</span>
-            <span class="n">sop_class</span> <span class="o">=</span> <span class="n">ProductCharacteristicsQueryInformationModelFind</span>
-        <span class="k">elif</span> <span class="n">query_model</span> <span class="o">==</span> <span class="s2">&quot;SA&quot;</span><span class="p">:</span>
-            <span class="n">sop_class</span> <span class="o">=</span> <span class="n">SubstanceApprovalQueryInformationModelFind</span>
-        <span class="k">elif</span> <span class="n">query_model</span> <span class="o">==</span> <span class="s2">&quot;H&quot;</span><span class="p">:</span>
-            <span class="n">sop_class</span> <span class="o">=</span> <span class="n">HangingProtocolInformationModelFind</span>
-        <span class="k">elif</span> <span class="n">query_model</span> <span class="o">==</span> <span class="s2">&quot;D&quot;</span><span class="p">:</span>
-            <span class="n">sop_class</span> <span class="o">=</span> <span class="n">DefinedProcedureProtocolInformationModelFind</span>
-        <span class="k">elif</span> <span class="n">query_model</span> <span class="o">==</span> <span class="s2">&quot;CP&quot;</span><span class="p">:</span>
-            <span class="n">sop_class</span> <span class="o">=</span> <span class="n">ColorPaletteInformationModelFind</span>
-        <span class="k">elif</span> <span class="n">query_model</span> <span class="o">==</span> <span class="s2">&quot;IG&quot;</span><span class="p">:</span>
-            <span class="n">sop_class</span> <span class="o">=</span> <span class="n">GenericImplantTemplateInformationModelFind</span>
-        <span class="k">elif</span> <span class="n">query_model</span> <span class="o">==</span> <span class="s2">&quot;IA&quot;</span><span class="p">:</span>
-            <span class="n">sop_class</span> <span class="o">=</span> <span class="n">ImplantAssemblyTemplateInformationModelFind</span>
-        <span class="k">elif</span> <span class="n">query_model</span> <span class="o">==</span> <span class="s2">&quot;IT&quot;</span><span class="p">:</span>
-            <span class="n">sop_class</span> <span class="o">=</span> <span class="n">ImplantTemplateGroupInformationModelFind</span>
-        <span class="k">else</span><span class="p">:</span>
+        <span class="n">SOP_CLASSES</span> <span class="o">=</span> <span class="p">{</span>
+            <span class="s1">&#39;W&#39;</span> <span class="p">:</span> <span class="n">ModalityWorklistInformationFind</span><span class="p">,</span>
+            <span class="s2">&quot;P&quot;</span> <span class="p">:</span> <span class="n">PatientRootQueryRetrieveInformationModelFind</span><span class="p">,</span>
+            <span class="s2">&quot;S&quot;</span> <span class="p">:</span> <span class="n">StudyRootQueryRetrieveInformationModelFind</span><span class="p">,</span>
+            <span class="s2">&quot;O&quot;</span> <span class="p">:</span> <span class="n">PatientStudyOnlyQueryRetrieveInformationModelFind</span><span class="p">,</span>
+            <span class="s2">&quot;G&quot;</span> <span class="p">:</span> <span class="n">GeneralRelevantPatientInformationQuery</span><span class="p">,</span>
+            <span class="s2">&quot;B&quot;</span> <span class="p">:</span> <span class="n">BreastImagingRelevantPatientInformationQuery</span><span class="p">,</span>
+            <span class="s2">&quot;C&quot;</span> <span class="p">:</span> <span class="n">CardiacRelevantPatientInformationQuery</span><span class="p">,</span>
+            <span class="s2">&quot;PC&quot;</span> <span class="p">:</span> <span class="n">ProductCharacteristicsQueryInformationModelFind</span><span class="p">,</span>
+            <span class="s2">&quot;SA&quot;</span> <span class="p">:</span> <span class="n">SubstanceApprovalQueryInformationModelFind</span><span class="p">,</span>
+            <span class="s2">&quot;H&quot;</span> <span class="p">:</span> <span class="n">HangingProtocolInformationModelFind</span><span class="p">,</span>
+            <span class="s2">&quot;D&quot;</span> <span class="p">:</span> <span class="n">DefinedProcedureProtocolInformationModelFind</span><span class="p">,</span>
+            <span class="s2">&quot;CP&quot;</span> <span class="p">:</span> <span class="n">ColorPaletteInformationModelFind</span><span class="p">,</span>
+            <span class="s2">&quot;IG&quot;</span> <span class="p">:</span> <span class="n">GenericImplantTemplateInformationModelFind</span><span class="p">,</span>
+            <span class="s2">&quot;IA&quot;</span> <span class="p">:</span> <span class="n">ImplantAssemblyTemplateInformationModelFind</span><span class="p">,</span>
+            <span class="s2">&quot;IT&quot;</span> <span class="p">:</span> <span class="n">ImplantTemplateGroupInformationModelFind</span><span class="p">,</span>
+        <span class="p">}</span>
+
+        <span class="k">try</span><span class="p">:</span>
+            <span class="n">sop_class</span> <span class="o">=</span> <span class="n">SOP_CLASSES</span><span class="p">[</span><span class="n">query_model</span><span class="p">]</span>
+        <span class="k">except</span> <span class="ne">KeyError</span><span class="p">:</span>
             <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span>
                 <span class="s2">&quot;Unsupported value for `query_model`: </span><span class="si">{}</span><span class="s2">&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">query_model</span><span class="p">)</span>
             <span class="p">)</span>
 
         <span class="c1"># Determine the Presentation Context we are operating under</span>
         <span class="c1">#   and hence the transfer syntax to use for encoding `dataset`</span>
-        <span class="n">transfer_syntax</span> <span class="o">=</span> <span class="kc">None</span>
-        <span class="k">for</span> <span class="n">context</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">acse</span><span class="o">.</span><span class="n">accepted_contexts</span><span class="p">:</span>
-            <span class="k">if</span> <span class="n">sop_class</span><span class="o">.</span><span class="n">uid</span> <span class="o">==</span> <span class="n">context</span><span class="o">.</span><span class="n">abstract_syntax</span> <span class="ow">and</span> <span class="n">context</span><span class="o">.</span><span class="n">as_scu</span><span class="p">:</span>
-                <span class="n">transfer_syntax</span> <span class="o">=</span> <span class="n">context</span><span class="o">.</span><span class="n">transfer_syntax</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span>
-                <span class="n">context_id</span> <span class="o">=</span> <span class="n">context</span><span class="o">.</span><span class="n">context_id</span>
-                <span class="k">break</span>
-        <span class="k">else</span><span class="p">:</span>
-            <span class="n">LOGGER</span><span class="o">.</span><span class="n">error</span><span class="p">(</span><span class="s2">&quot;No accepted Presentation Context for: &#39;</span><span class="si">%s</span><span class="s2">&#39;&quot;</span><span class="p">,</span>
-                         <span class="n">sop_class</span><span class="o">.</span><span class="n">uid</span><span class="p">)</span>
-            <span class="n">LOGGER</span><span class="o">.</span><span class="n">error</span><span class="p">(</span><span class="s2">&quot;Find SCU failed due to there being no accepted &quot;</span>
-                         <span class="s2">&quot;presentation context for the current dataset&quot;</span><span class="p">)</span>
-            <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s2">&quot;No accepted Presentation Context for &#39;dataset&#39;&quot;</span><span class="p">)</span>
+        <span class="n">context</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_get_valid_context</span><span class="p">(</span><span class="n">sop_class</span><span class="p">,</span> <span class="s1">&#39;&#39;</span><span class="p">,</span> <span class="s1">&#39;scu&#39;</span><span class="p">)</span>
 
         <span class="c1"># Build C-FIND request primitive</span>
         <span class="c1">#   (M) Message ID</span>
@@ -1444,11 +1482,12 @@
         <span class="c1">#   (M) Identifier</span>
         <span class="n">req</span> <span class="o">=</span> <span class="n">C_FIND</span><span class="p">()</span>
         <span class="n">req</span><span class="o">.</span><span class="n">MessageID</span> <span class="o">=</span> <span class="n">msg_id</span>
-        <span class="n">req</span><span class="o">.</span><span class="n">AffectedSOPClassUID</span> <span class="o">=</span> <span class="n">sop_class</span><span class="o">.</span><span class="n">uid</span>
+        <span class="n">req</span><span class="o">.</span><span class="n">AffectedSOPClassUID</span> <span class="o">=</span> <span class="n">sop_class</span>
         <span class="n">req</span><span class="o">.</span><span class="n">Priority</span> <span class="o">=</span> <span class="n">priority</span>
 
         <span class="c1"># Encode the Identifier `dataset` using the agreed transfer syntax</span>
         <span class="c1">#   Will return None if failed to encode</span>
+        <span class="n">transfer_syntax</span> <span class="o">=</span> <span class="n">context</span><span class="o">.</span><span class="n">transfer_syntax</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span>
         <span class="n">bytestream</span> <span class="o">=</span> <span class="n">encode</span><span class="p">(</span><span class="n">dataset</span><span class="p">,</span>
                             <span class="n">transfer_syntax</span><span class="o">.</span><span class="n">is_implicit_VR</span><span class="p">,</span>
                             <span class="n">transfer_syntax</span><span class="o">.</span><span class="n">is_little_endian</span><span class="p">)</span>
@@ -1467,7 +1506,7 @@
         <span class="n">LOGGER</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="s1">&#39;&#39;</span><span class="p">)</span>
 
         <span class="c1"># Send C-FIND request to the peer via DIMSE</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">dimse</span><span class="o">.</span><span class="n">send_msg</span><span class="p">(</span><span class="n">req</span><span class="p">,</span> <span class="n">context_id</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">dimse</span><span class="o">.</span><span class="n">send_msg</span><span class="p">(</span><span class="n">req</span><span class="p">,</span> <span class="n">context</span><span class="o">.</span><span class="n">context_id</span><span class="p">)</span>
 
         <span class="c1"># Get the responses from the peer</span>
         <span class="n">ii</span> <span class="o">=</span> <span class="mi">1</span>
@@ -1489,7 +1528,7 @@
             <span class="c1"># Status may be &#39;Failure&#39;, &#39;Cancel&#39;, &#39;Success&#39; or &#39;Pending&#39;</span>
             <span class="n">status</span> <span class="o">=</span> <span class="n">Dataset</span><span class="p">()</span>
             <span class="n">status</span><span class="o">.</span><span class="n">Status</span> <span class="o">=</span> <span class="n">rsp</span><span class="o">.</span><span class="n">Status</span>
-            <span class="k">for</span> <span class="n">keyword</span> <span class="ow">in</span> <span class="p">[</span><span class="s1">&#39;OffendingElement&#39;</span><span class="p">,</span> <span class="s1">&#39;ErrorComment&#39;</span><span class="p">]:</span>
+            <span class="k">for</span> <span class="n">keyword</span> <span class="ow">in</span> <span class="n">rsp</span><span class="o">.</span><span class="n">STATUS_OPTIONAL_KEYWORDS</span><span class="p">:</span>
                 <span class="k">if</span> <span class="nb">getattr</span><span class="p">(</span><span class="n">rsp</span><span class="p">,</span> <span class="n">keyword</span><span class="p">)</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
                     <span class="nb">setattr</span><span class="p">(</span><span class="n">status</span><span class="p">,</span> <span class="n">keyword</span><span class="p">,</span> <span class="nb">getattr</span><span class="p">(</span><span class="n">rsp</span><span class="p">,</span> <span class="n">keyword</span><span class="p">))</span>
 
@@ -1501,7 +1540,7 @@
 
             <span class="c1"># We want to exit the wait loop if we receive a Failure, Cancel or</span>
             <span class="c1">#   Success status type</span>
-            <span class="k">if</span> <span class="n">status_category</span> <span class="o">!=</span> <span class="s1">&#39;Pending&#39;</span><span class="p">:</span>
+            <span class="k">if</span> <span class="n">status_category</span> <span class="o">!=</span> <span class="n">STATUS_PENDING</span><span class="p">:</span>
                 <span class="n">identifier</span> <span class="o">=</span> <span class="kc">None</span>
                 <span class="k">break</span>
 
@@ -1668,45 +1707,29 @@
             <span class="k">raise</span> <span class="ne">RuntimeError</span><span class="p">(</span><span class="s2">&quot;The association with a peer SCP must be &quot;</span>
                                <span class="s2">&quot;established before sending a C-MOVE request&quot;</span><span class="p">)</span>
 
-        <span class="k">if</span> <span class="n">query_model</span> <span class="o">==</span> <span class="s2">&quot;P&quot;</span><span class="p">:</span>
-            <span class="n">sop_class</span> <span class="o">=</span> <span class="n">PatientRootQueryRetrieveInformationModelMove</span>
-        <span class="k">elif</span> <span class="n">query_model</span> <span class="o">==</span> <span class="s2">&quot;S&quot;</span><span class="p">:</span>
-            <span class="n">sop_class</span> <span class="o">=</span> <span class="n">StudyRootQueryRetrieveInformationModelMove</span>
-        <span class="k">elif</span> <span class="n">query_model</span> <span class="o">==</span> <span class="s2">&quot;O&quot;</span><span class="p">:</span>
-            <span class="n">sop_class</span> <span class="o">=</span> <span class="n">PatientStudyOnlyQueryRetrieveInformationModelMove</span>
-        <span class="k">elif</span> <span class="n">query_model</span> <span class="o">==</span> <span class="s2">&quot;C&quot;</span><span class="p">:</span>
-            <span class="n">sop_class</span> <span class="o">=</span> <span class="n">CompositeInstanceRootRetrieveMove</span>
-        <span class="k">elif</span> <span class="n">query_model</span> <span class="o">==</span> <span class="s2">&quot;H&quot;</span><span class="p">:</span>
-            <span class="n">sop_class</span> <span class="o">=</span> <span class="n">HangingProtocolInformationModelMove</span>
-        <span class="k">elif</span> <span class="n">query_model</span> <span class="o">==</span> <span class="s2">&quot;D&quot;</span><span class="p">:</span>
-            <span class="n">sop_class</span> <span class="o">=</span> <span class="n">DefinedProcedureProtocolInformationModelMove</span>
-        <span class="k">elif</span> <span class="n">query_model</span> <span class="o">==</span> <span class="s2">&quot;CP&quot;</span><span class="p">:</span>
-            <span class="n">sop_class</span> <span class="o">=</span> <span class="n">ColorPaletteInformationModelMove</span>
-        <span class="k">elif</span> <span class="n">query_model</span> <span class="o">==</span> <span class="s2">&quot;IG&quot;</span><span class="p">:</span>
-            <span class="n">sop_class</span> <span class="o">=</span> <span class="n">GenericImplantTemplateInformationModelMove</span>
-        <span class="k">elif</span> <span class="n">query_model</span> <span class="o">==</span> <span class="s2">&quot;IA&quot;</span><span class="p">:</span>
-            <span class="n">sop_class</span> <span class="o">=</span> <span class="n">ImplantAssemblyTemplateInformationModelMove</span>
-        <span class="k">elif</span> <span class="n">query_model</span> <span class="o">==</span> <span class="s2">&quot;IT&quot;</span><span class="p">:</span>
-            <span class="n">sop_class</span> <span class="o">=</span> <span class="n">ImplantTemplateGroupInformationModelMove</span>
-        <span class="k">else</span><span class="p">:</span>
+        <span class="n">SOP_CLASSES</span> <span class="o">=</span> <span class="p">{</span>
+            <span class="s2">&quot;P&quot;</span> <span class="p">:</span> <span class="n">PatientRootQueryRetrieveInformationModelMove</span><span class="p">,</span>
+            <span class="s2">&quot;S&quot;</span> <span class="p">:</span> <span class="n">StudyRootQueryRetrieveInformationModelMove</span><span class="p">,</span>
+            <span class="s2">&quot;O&quot;</span> <span class="p">:</span> <span class="n">PatientStudyOnlyQueryRetrieveInformationModelMove</span><span class="p">,</span>
+            <span class="s2">&quot;C&quot;</span> <span class="p">:</span> <span class="n">CompositeInstanceRootRetrieveMove</span><span class="p">,</span>
+            <span class="s2">&quot;H&quot;</span> <span class="p">:</span> <span class="n">HangingProtocolInformationModelMove</span><span class="p">,</span>
+            <span class="s2">&quot;D&quot;</span> <span class="p">:</span> <span class="n">DefinedProcedureProtocolInformationModelMove</span><span class="p">,</span>
+            <span class="s2">&quot;CP&quot;</span> <span class="p">:</span> <span class="n">ColorPaletteInformationModelMove</span><span class="p">,</span>
+            <span class="s2">&quot;IG&quot;</span> <span class="p">:</span> <span class="n">GenericImplantTemplateInformationModelMove</span><span class="p">,</span>
+            <span class="s2">&quot;IA&quot;</span> <span class="p">:</span> <span class="n">ImplantAssemblyTemplateInformationModelMove</span><span class="p">,</span>
+            <span class="s2">&quot;IT&quot;</span> <span class="p">:</span> <span class="n">ImplantTemplateGroupInformationModelMove</span><span class="p">,</span>
+        <span class="p">}</span>
+
+        <span class="k">try</span><span class="p">:</span>
+            <span class="n">sop_class</span> <span class="o">=</span> <span class="n">SOP_CLASSES</span><span class="p">[</span><span class="n">query_model</span><span class="p">]</span>
+        <span class="k">except</span> <span class="ne">KeyError</span><span class="p">:</span>
             <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span>
                 <span class="s2">&quot;Unsupported value for `query_model`: </span><span class="si">{}</span><span class="s2">&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">query_model</span><span class="p">)</span>
             <span class="p">)</span>
 
         <span class="c1"># Determine the Presentation Context we are operating under</span>
         <span class="c1">#   and hence the transfer syntax to use for encoding `dataset`</span>
-        <span class="n">transfer_syntax</span> <span class="o">=</span> <span class="kc">None</span>
-        <span class="k">for</span> <span class="n">context</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">acse</span><span class="o">.</span><span class="n">accepted_contexts</span><span class="p">:</span>
-            <span class="k">if</span> <span class="n">sop_class</span><span class="o">.</span><span class="n">uid</span> <span class="o">==</span> <span class="n">context</span><span class="o">.</span><span class="n">abstract_syntax</span> <span class="ow">and</span> <span class="n">context</span><span class="o">.</span><span class="n">as_scu</span><span class="p">:</span>
-                <span class="n">transfer_syntax</span> <span class="o">=</span> <span class="n">context</span><span class="o">.</span><span class="n">transfer_syntax</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span>
-                <span class="n">context_id</span> <span class="o">=</span> <span class="n">context</span><span class="o">.</span><span class="n">context_id</span>
-                <span class="k">break</span>
-        <span class="k">else</span><span class="p">:</span>
-            <span class="n">LOGGER</span><span class="o">.</span><span class="n">error</span><span class="p">(</span><span class="s2">&quot;No accepted Presentation Context for: &#39;</span><span class="si">%s</span><span class="s2">&#39;&quot;</span><span class="p">,</span>
-                         <span class="n">sop_class</span><span class="o">.</span><span class="n">uid</span><span class="p">)</span>
-            <span class="n">LOGGER</span><span class="o">.</span><span class="n">error</span><span class="p">(</span><span class="s2">&quot;Move SCU failed due to there being no accepted &quot;</span>
-                         <span class="s2">&quot;presentation context</span><span class="se">\n</span><span class="s2">   for the current dataset&quot;</span><span class="p">)</span>
-            <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s2">&quot;No accepted Presentation Context for &#39;dataset&#39;&quot;</span><span class="p">)</span>
+        <span class="n">context</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_get_valid_context</span><span class="p">(</span><span class="n">sop_class</span><span class="p">,</span> <span class="s1">&#39;&#39;</span><span class="p">,</span> <span class="s1">&#39;scu&#39;</span><span class="p">)</span>
 
         <span class="c1"># Build C-MOVE request primitive</span>
         <span class="c1">#   (M) Message ID</span>
@@ -1716,12 +1739,13 @@
         <span class="c1">#   (M) Identifier</span>
         <span class="n">req</span> <span class="o">=</span> <span class="n">C_MOVE</span><span class="p">()</span>
         <span class="n">req</span><span class="o">.</span><span class="n">MessageID</span> <span class="o">=</span> <span class="n">msg_id</span>
-        <span class="n">req</span><span class="o">.</span><span class="n">AffectedSOPClassUID</span> <span class="o">=</span> <span class="n">sop_class</span><span class="o">.</span><span class="n">uid</span>
+        <span class="n">req</span><span class="o">.</span><span class="n">AffectedSOPClassUID</span> <span class="o">=</span> <span class="n">sop_class</span>
         <span class="n">req</span><span class="o">.</span><span class="n">Priority</span> <span class="o">=</span> <span class="n">priority</span>
         <span class="n">req</span><span class="o">.</span><span class="n">MoveDestination</span> <span class="o">=</span> <span class="n">move_aet</span>
 
         <span class="c1"># Encode the Identifier `dataset` using the agreed transfer syntax;</span>
         <span class="c1">#   will return None if failed to encode</span>
+        <span class="n">transfer_syntax</span> <span class="o">=</span> <span class="n">context</span><span class="o">.</span><span class="n">transfer_syntax</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span>
         <span class="n">bytestream</span> <span class="o">=</span> <span class="n">encode</span><span class="p">(</span><span class="n">dataset</span><span class="p">,</span>
                             <span class="n">transfer_syntax</span><span class="o">.</span><span class="n">is_implicit_VR</span><span class="p">,</span>
                             <span class="n">transfer_syntax</span><span class="o">.</span><span class="n">is_little_endian</span><span class="p">)</span>
@@ -1741,7 +1765,7 @@
         <span class="n">LOGGER</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="s1">&#39;&#39;</span><span class="p">)</span>
 
         <span class="c1"># Send C-MOVE request to the peer via DIMSE and wait for the response</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">dimse</span><span class="o">.</span><span class="n">send_msg</span><span class="p">(</span><span class="n">req</span><span class="p">,</span> <span class="n">context_id</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">dimse</span><span class="o">.</span><span class="n">send_msg</span><span class="p">(</span><span class="n">req</span><span class="p">,</span> <span class="n">context</span><span class="o">.</span><span class="n">context_id</span><span class="p">)</span>
 
         <span class="c1"># Get the responses from peer</span>
         <span class="n">operation_no</span> <span class="o">=</span> <span class="mi">1</span>
@@ -1758,11 +1782,7 @@
             <span class="k">if</span> <span class="n">rsp</span><span class="o">.</span><span class="vm">__class__</span> <span class="o">==</span> <span class="n">C_MOVE</span><span class="p">:</span>
                 <span class="n">status</span> <span class="o">=</span> <span class="n">Dataset</span><span class="p">()</span>
                 <span class="n">status</span><span class="o">.</span><span class="n">Status</span> <span class="o">=</span> <span class="n">rsp</span><span class="o">.</span><span class="n">Status</span>
-                <span class="k">for</span> <span class="n">keyword</span> <span class="ow">in</span> <span class="p">[</span><span class="s1">&#39;ErrorComment&#39;</span><span class="p">,</span> <span class="s1">&#39;OffendingElement&#39;</span><span class="p">,</span>
-                                <span class="s1">&#39;NumberOfRemainingSuboperations&#39;</span><span class="p">,</span>
-                                <span class="s1">&#39;NumberOfCompletedSuboperations&#39;</span><span class="p">,</span>
-                                <span class="s1">&#39;NumberOfFailedSuboperations&#39;</span><span class="p">,</span>
-                                <span class="s1">&#39;NumberOfWarningSuboperations&#39;</span><span class="p">]:</span>
+                <span class="k">for</span> <span class="n">keyword</span> <span class="ow">in</span> <span class="n">rsp</span><span class="o">.</span><span class="n">STATUS_OPTIONAL_KEYWORDS</span><span class="p">:</span>
                     <span class="k">if</span> <span class="nb">getattr</span><span class="p">(</span><span class="n">rsp</span><span class="p">,</span> <span class="n">keyword</span><span class="p">)</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
                         <span class="nb">setattr</span><span class="p">(</span><span class="n">status</span><span class="p">,</span> <span class="n">keyword</span><span class="p">,</span> <span class="nb">getattr</span><span class="p">(</span><span class="n">rsp</span><span class="p">,</span> <span class="n">keyword</span><span class="p">))</span>
 
@@ -1774,31 +1794,34 @@
 
                 <span class="c1"># Log status type</span>
                 <span class="n">LOGGER</span><span class="o">.</span><span class="n">debug</span><span class="p">(</span><span class="s1">&#39;&#39;</span><span class="p">)</span>
-                <span class="k">if</span> <span class="n">category</span> <span class="o">==</span> <span class="s1">&#39;Pending&#39;</span><span class="p">:</span>
+                <span class="k">if</span> <span class="n">category</span> <span class="o">==</span> <span class="n">STATUS_PENDING</span><span class="p">:</span>
                     <span class="n">LOGGER</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="s2">&quot;Move SCP Response: </span><span class="si">%s</span><span class="s2"> (Pending)&quot;</span><span class="p">,</span> <span class="n">operation_no</span><span class="p">)</span>
-                <span class="k">elif</span> <span class="n">category</span> <span class="ow">in</span> <span class="p">[</span><span class="s1">&#39;Success&#39;</span><span class="p">,</span> <span class="s1">&#39;Cancel&#39;</span><span class="p">,</span> <span class="s1">&#39;Warning&#39;</span><span class="p">]:</span>
+                <span class="k">elif</span> <span class="n">category</span> <span class="ow">in</span> <span class="p">[</span><span class="n">STATUS_SUCCESS</span><span class="p">,</span> <span class="n">STATUS_CANCEL</span><span class="p">,</span> <span class="n">STATUS_WARNING</span><span class="p">]:</span>
                     <span class="n">LOGGER</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="s2">&quot;Move SCP Result: (</span><span class="si">%s</span><span class="s2">)&quot;</span><span class="p">,</span> <span class="n">category</span><span class="p">)</span>
-                <span class="k">elif</span> <span class="n">category</span> <span class="o">==</span> <span class="s1">&#39;Failure&#39;</span><span class="p">:</span>
+                <span class="k">elif</span> <span class="n">category</span> <span class="o">==</span> <span class="n">STATUS_FAILURE</span><span class="p">:</span>
                     <span class="n">LOGGER</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="s2">&quot;Move SCP Result: (Failure - 0x</span><span class="si">%04x</span><span class="s2">)&quot;</span><span class="p">,</span>
                                 <span class="n">status</span><span class="o">.</span><span class="n">Status</span><span class="p">)</span>
 
                 <span class="c1"># Log number of remaining sub-operations</span>
-                <span class="n">LOGGER</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="s2">&quot;Sub-Operations Remaining: </span><span class="si">%s</span><span class="s2">, Completed: </span><span class="si">%s</span><span class="s2">, &quot;</span>
-                            <span class="s2">&quot;Failed: </span><span class="si">%s</span><span class="s2">, Warning: </span><span class="si">%s</span><span class="s2">&quot;</span><span class="p">,</span>
-                            <span class="n">rsp</span><span class="o">.</span><span class="n">NumberOfRemainingSuboperations</span> <span class="ow">or</span> <span class="s1">&#39;0&#39;</span><span class="p">,</span>
-                            <span class="n">rsp</span><span class="o">.</span><span class="n">NumberOfCompletedSuboperations</span> <span class="ow">or</span> <span class="s1">&#39;0&#39;</span><span class="p">,</span>
-                            <span class="n">rsp</span><span class="o">.</span><span class="n">NumberOfFailedSuboperations</span> <span class="ow">or</span> <span class="s1">&#39;0&#39;</span><span class="p">,</span>
-                            <span class="n">rsp</span><span class="o">.</span><span class="n">NumberOfWarningSuboperations</span> <span class="ow">or</span> <span class="s1">&#39;0&#39;</span><span class="p">)</span>
+                <span class="n">LOGGER</span><span class="o">.</span><span class="n">info</span><span class="p">(</span>
+                    <span class="s2">&quot;Sub-Operations Remaining: </span><span class="si">%s</span><span class="s2">, Completed: </span><span class="si">%s</span><span class="s2">, &quot;</span>
+                    <span class="s2">&quot;Failed: </span><span class="si">%s</span><span class="s2">, Warning: </span><span class="si">%s</span><span class="s2">&quot;</span><span class="p">,</span>
+                    <span class="n">rsp</span><span class="o">.</span><span class="n">NumberOfRemainingSuboperations</span> <span class="ow">or</span> <span class="s1">&#39;0&#39;</span><span class="p">,</span>
+                    <span class="n">rsp</span><span class="o">.</span><span class="n">NumberOfCompletedSuboperations</span> <span class="ow">or</span> <span class="s1">&#39;0&#39;</span><span class="p">,</span>
+                    <span class="n">rsp</span><span class="o">.</span><span class="n">NumberOfFailedSuboperations</span> <span class="ow">or</span> <span class="s1">&#39;0&#39;</span><span class="p">,</span>
+                    <span class="n">rsp</span><span class="o">.</span><span class="n">NumberOfWarningSuboperations</span> <span class="ow">or</span> <span class="s1">&#39;0&#39;</span>
+                <span class="p">)</span>
 
                 <span class="c1"># Yields - &#39;Success&#39;, &#39;Warning&#39;, &#39;Cancel&#39;, &#39;Failure&#39; are final</span>
                 <span class="c1">#   yields, &#39;Pending&#39; means more to come</span>
                 <span class="n">identifier</span> <span class="o">=</span> <span class="kc">None</span>
-                <span class="k">if</span> <span class="n">category</span> <span class="o">==</span> <span class="s1">&#39;Pending&#39;</span><span class="p">:</span>
+                <span class="k">if</span> <span class="n">category</span> <span class="o">==</span> <span class="n">STATUS_PENDING</span><span class="p">:</span>
                     <span class="n">operation_no</span> <span class="o">+=</span> <span class="mi">1</span>
                     <span class="k">yield</span> <span class="n">status</span><span class="p">,</span> <span class="n">identifier</span>
                     <span class="k">continue</span>
-                <span class="k">elif</span> <span class="n">rsp</span><span class="o">.</span><span class="n">Identifier</span> <span class="ow">and</span> <span class="n">category</span> <span class="ow">in</span> <span class="p">[</span><span class="s1">&#39;Cancel&#39;</span><span class="p">,</span> <span class="s1">&#39;Warning&#39;</span><span class="p">,</span>
-                                                     <span class="s1">&#39;Failure&#39;</span><span class="p">]:</span>
+                <span class="k">elif</span> <span class="n">rsp</span><span class="o">.</span><span class="n">Identifier</span> <span class="ow">and</span> <span class="n">category</span> <span class="ow">in</span> <span class="p">[</span><span class="n">STATUS_CANCEL</span><span class="p">,</span>
+                                                     <span class="n">STATUS_WARNING</span><span class="p">,</span>
+                                                     <span class="n">STATUS_FAILURE</span><span class="p">]:</span>
                     <span class="c1"># From Part 4, Annex C.4.2, responses with these statuses</span>
                     <span class="c1">#   should contain an Identifier dataset with a</span>
                     <span class="c1">#   (0008,0058) Failed SOP Instance UID List element</span>
@@ -1817,6 +1840,7 @@
                         <span class="n">LOGGER</span><span class="o">.</span><span class="n">error</span><span class="p">(</span><span class="s2">&quot;Failed to decode the received Identifier &quot;</span>
                                      <span class="s2">&quot;dataset&quot;</span><span class="p">)</span>
                         <span class="n">LOGGER</span><span class="o">.</span><span class="n">exception</span><span class="p">(</span><span class="n">ex</span><span class="p">)</span>
+                        <span class="n">identifier</span> <span class="o">=</span> <span class="kc">None</span>
 
                 <span class="k">yield</span> <span class="n">status</span><span class="p">,</span> <span class="n">identifier</span>
                 <span class="k">break</span>
@@ -1986,47 +2010,30 @@
             <span class="k">raise</span> <span class="ne">RuntimeError</span><span class="p">(</span><span class="s2">&quot;The association with a peer SCP must be &quot;</span>
                                <span class="s2">&quot;established before sending a C-GET request&quot;</span><span class="p">)</span>
 
-        <span class="k">if</span> <span class="n">query_model</span> <span class="o">==</span> <span class="s2">&quot;P&quot;</span><span class="p">:</span>
-            <span class="n">sop_class</span> <span class="o">=</span> <span class="n">PatientRootQueryRetrieveInformationModelGet</span>
-        <span class="k">elif</span> <span class="n">query_model</span> <span class="o">==</span> <span class="s2">&quot;S&quot;</span><span class="p">:</span>
-            <span class="n">sop_class</span> <span class="o">=</span> <span class="n">StudyRootQueryRetrieveInformationModelGet</span>
-        <span class="k">elif</span> <span class="n">query_model</span> <span class="o">==</span> <span class="s2">&quot;O&quot;</span><span class="p">:</span>
-            <span class="n">sop_class</span> <span class="o">=</span> <span class="n">PatientStudyOnlyQueryRetrieveInformationModelGet</span>
-        <span class="k">elif</span> <span class="n">query_model</span> <span class="o">==</span> <span class="s2">&quot;C&quot;</span><span class="p">:</span>
-            <span class="n">sop_class</span> <span class="o">=</span> <span class="n">CompositeInstanceRootRetrieveGet</span>
-        <span class="k">elif</span> <span class="n">query_model</span> <span class="o">==</span> <span class="s2">&quot;CB&quot;</span><span class="p">:</span>
-            <span class="n">sop_class</span> <span class="o">=</span> <span class="n">CompositeInstanceRetrieveWithoutBulkDataGet</span>
-        <span class="k">elif</span> <span class="n">query_model</span> <span class="o">==</span> <span class="s2">&quot;H&quot;</span><span class="p">:</span>
-            <span class="n">sop_class</span> <span class="o">=</span> <span class="n">HangingProtocolInformationModelGet</span>
-        <span class="k">elif</span> <span class="n">query_model</span> <span class="o">==</span> <span class="s2">&quot;D&quot;</span><span class="p">:</span>
-            <span class="n">sop_class</span> <span class="o">=</span> <span class="n">DefinedProcedureProtocolInformationModelGet</span>
-        <span class="k">elif</span> <span class="n">query_model</span> <span class="o">==</span> <span class="s2">&quot;CP&quot;</span><span class="p">:</span>
-            <span class="n">sop_class</span> <span class="o">=</span> <span class="n">ColorPaletteInformationModelGet</span>
-        <span class="k">elif</span> <span class="n">query_model</span> <span class="o">==</span> <span class="s2">&quot;IG&quot;</span><span class="p">:</span>
-            <span class="n">sop_class</span> <span class="o">=</span> <span class="n">GenericImplantTemplateInformationModelGet</span>
-        <span class="k">elif</span> <span class="n">query_model</span> <span class="o">==</span> <span class="s2">&quot;IA&quot;</span><span class="p">:</span>
-            <span class="n">sop_class</span> <span class="o">=</span> <span class="n">ImplantAssemblyTemplateInformationModelGet</span>
-        <span class="k">elif</span> <span class="n">query_model</span> <span class="o">==</span> <span class="s2">&quot;IT&quot;</span><span class="p">:</span>
-            <span class="n">sop_class</span> <span class="o">=</span> <span class="n">ImplantTemplateGroupInformationModelGet</span>
-        <span class="k">else</span><span class="p">:</span>
+        <span class="n">SOP_CLASSES</span> <span class="o">=</span> <span class="p">{</span>
+            <span class="s2">&quot;P&quot;</span> <span class="p">:</span> <span class="n">PatientRootQueryRetrieveInformationModelGet</span><span class="p">,</span>
+            <span class="s2">&quot;S&quot;</span> <span class="p">:</span> <span class="n">StudyRootQueryRetrieveInformationModelGet</span><span class="p">,</span>
+            <span class="s2">&quot;O&quot;</span> <span class="p">:</span> <span class="n">PatientStudyOnlyQueryRetrieveInformationModelGet</span><span class="p">,</span>
+            <span class="s2">&quot;C&quot;</span> <span class="p">:</span> <span class="n">CompositeInstanceRootRetrieveGet</span><span class="p">,</span>
+            <span class="s2">&quot;CB&quot;</span> <span class="p">:</span> <span class="n">CompositeInstanceRetrieveWithoutBulkDataGet</span><span class="p">,</span>
+            <span class="s2">&quot;H&quot;</span> <span class="p">:</span> <span class="n">HangingProtocolInformationModelGet</span><span class="p">,</span>
+            <span class="s2">&quot;D&quot;</span> <span class="p">:</span> <span class="n">DefinedProcedureProtocolInformationModelGet</span><span class="p">,</span>
+            <span class="s2">&quot;CP&quot;</span> <span class="p">:</span> <span class="n">ColorPaletteInformationModelGet</span><span class="p">,</span>
+            <span class="s2">&quot;IG&quot;</span> <span class="p">:</span> <span class="n">GenericImplantTemplateInformationModelGet</span><span class="p">,</span>
+            <span class="s2">&quot;IA&quot;</span> <span class="p">:</span> <span class="n">ImplantAssemblyTemplateInformationModelGet</span><span class="p">,</span>
+            <span class="s2">&quot;IT&quot;</span> <span class="p">:</span> <span class="n">ImplantTemplateGroupInformationModelGet</span><span class="p">,</span>
+        <span class="p">}</span>
+
+        <span class="k">try</span><span class="p">:</span>
+            <span class="n">sop_class</span> <span class="o">=</span> <span class="n">SOP_CLASSES</span><span class="p">[</span><span class="n">query_model</span><span class="p">]</span>
+        <span class="k">except</span> <span class="ne">KeyError</span><span class="p">:</span>
             <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span>
                 <span class="s2">&quot;Unsupported value for `query_model`: </span><span class="si">{}</span><span class="s2">&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">query_model</span><span class="p">)</span>
             <span class="p">)</span>
 
         <span class="c1"># Determine the Presentation Context we are operating under</span>
         <span class="c1">#   and hence the transfer syntax to use for encoding `dataset`</span>
-        <span class="n">transfer_syntax</span> <span class="o">=</span> <span class="kc">None</span>
-        <span class="k">for</span> <span class="n">context</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">acse</span><span class="o">.</span><span class="n">accepted_contexts</span><span class="p">:</span>
-            <span class="k">if</span> <span class="n">sop_class</span><span class="o">.</span><span class="n">uid</span> <span class="o">==</span> <span class="n">context</span><span class="o">.</span><span class="n">abstract_syntax</span> <span class="ow">and</span> <span class="n">context</span><span class="o">.</span><span class="n">as_scu</span><span class="p">:</span>
-                <span class="n">transfer_syntax</span> <span class="o">=</span> <span class="n">context</span><span class="o">.</span><span class="n">transfer_syntax</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span>
-                <span class="n">context_id</span> <span class="o">=</span> <span class="n">context</span><span class="o">.</span><span class="n">context_id</span>
-                <span class="k">break</span>
-        <span class="k">else</span><span class="p">:</span>
-            <span class="n">LOGGER</span><span class="o">.</span><span class="n">error</span><span class="p">(</span><span class="s2">&quot;No accepted Presentation Context for: &#39;</span><span class="si">%s</span><span class="s2">&#39;&quot;</span><span class="p">,</span>
-                         <span class="n">sop_class</span><span class="o">.</span><span class="n">uid</span><span class="p">)</span>
-            <span class="n">LOGGER</span><span class="o">.</span><span class="n">error</span><span class="p">(</span><span class="s2">&quot;Get SCU failed due to there being no accepted &quot;</span>
-                         <span class="s2">&quot;presentation context for the current dataset&quot;</span><span class="p">)</span>
-            <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s2">&quot;No accepted Presentation Context for &#39;dataset&#39;&quot;</span><span class="p">)</span>
+        <span class="n">context</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_get_valid_context</span><span class="p">(</span><span class="n">sop_class</span><span class="p">,</span> <span class="s1">&#39;&#39;</span><span class="p">,</span> <span class="s1">&#39;scu&#39;</span><span class="p">)</span>
 
         <span class="c1"># Build C-GET request primitive</span>
         <span class="c1">#   (M) Message ID</span>
@@ -2035,11 +2042,12 @@
         <span class="c1">#   (M) Identifier</span>
         <span class="n">req</span> <span class="o">=</span> <span class="n">C_GET</span><span class="p">()</span>
         <span class="n">req</span><span class="o">.</span><span class="n">MessageID</span> <span class="o">=</span> <span class="n">msg_id</span>
-        <span class="n">req</span><span class="o">.</span><span class="n">AffectedSOPClassUID</span> <span class="o">=</span> <span class="n">sop_class</span><span class="o">.</span><span class="n">uid</span>
+        <span class="n">req</span><span class="o">.</span><span class="n">AffectedSOPClassUID</span> <span class="o">=</span> <span class="n">sop_class</span>
         <span class="n">req</span><span class="o">.</span><span class="n">Priority</span> <span class="o">=</span> <span class="n">priority</span>
 
         <span class="c1"># Encode the Identifier `dataset` using the agreed transfer syntax</span>
         <span class="c1">#   Will return None if failed to encode</span>
+        <span class="n">transfer_syntax</span> <span class="o">=</span> <span class="n">context</span><span class="o">.</span><span class="n">transfer_syntax</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span>
         <span class="n">bytestream</span> <span class="o">=</span> <span class="n">encode</span><span class="p">(</span><span class="n">dataset</span><span class="p">,</span>
                             <span class="n">transfer_syntax</span><span class="o">.</span><span class="n">is_implicit_VR</span><span class="p">,</span>
                             <span class="n">transfer_syntax</span><span class="o">.</span><span class="n">is_little_endian</span><span class="p">)</span>
@@ -2059,7 +2067,7 @@
         <span class="n">LOGGER</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="s1">&#39;&#39;</span><span class="p">)</span>
 
         <span class="c1"># Send C-GET request to the peer via DIMSE</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">dimse</span><span class="o">.</span><span class="n">send_msg</span><span class="p">(</span><span class="n">req</span><span class="p">,</span> <span class="n">context_id</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">dimse</span><span class="o">.</span><span class="n">send_msg</span><span class="p">(</span><span class="n">req</span><span class="p">,</span> <span class="n">context</span><span class="o">.</span><span class="n">context_id</span><span class="p">)</span>
 
         <span class="c1"># Get the responses from the peer</span>
         <span class="n">operation_no</span> <span class="o">=</span> <span class="mi">1</span>
@@ -2078,11 +2086,7 @@
             <span class="k">if</span> <span class="n">rsp</span><span class="o">.</span><span class="vm">__class__</span> <span class="o">==</span> <span class="n">C_GET</span><span class="p">:</span>
                 <span class="n">status</span> <span class="o">=</span> <span class="n">Dataset</span><span class="p">()</span>
                 <span class="n">status</span><span class="o">.</span><span class="n">Status</span> <span class="o">=</span> <span class="n">rsp</span><span class="o">.</span><span class="n">Status</span>
-                <span class="k">for</span> <span class="n">keyword</span> <span class="ow">in</span> <span class="p">[</span><span class="s1">&#39;ErrorComment&#39;</span><span class="p">,</span> <span class="s1">&#39;OffendingElement&#39;</span><span class="p">,</span>
-                                <span class="s1">&#39;NumberOfRemainingSuboperations&#39;</span><span class="p">,</span>
-                                <span class="s1">&#39;NumberOfCompletedSuboperations&#39;</span><span class="p">,</span>
-                                <span class="s1">&#39;NumberOfFailedSuboperations&#39;</span><span class="p">,</span>
-                                <span class="s1">&#39;NumberOfWarningSuboperations&#39;</span><span class="p">]:</span>
+                <span class="k">for</span> <span class="n">keyword</span> <span class="ow">in</span> <span class="n">rsp</span><span class="o">.</span><span class="n">STATUS_OPTIONAL_KEYWORDS</span><span class="p">:</span>
                     <span class="k">if</span> <span class="nb">getattr</span><span class="p">(</span><span class="n">rsp</span><span class="p">,</span> <span class="n">keyword</span><span class="p">)</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
                         <span class="nb">setattr</span><span class="p">(</span><span class="n">status</span><span class="p">,</span> <span class="n">keyword</span><span class="p">,</span> <span class="nb">getattr</span><span class="p">(</span><span class="n">rsp</span><span class="p">,</span> <span class="n">keyword</span><span class="p">))</span>
 
@@ -2094,31 +2098,34 @@
 
                 <span class="c1"># Log status type</span>
                 <span class="n">LOGGER</span><span class="o">.</span><span class="n">debug</span><span class="p">(</span><span class="s1">&#39;&#39;</span><span class="p">)</span>
-                <span class="k">if</span> <span class="n">category</span> <span class="o">==</span> <span class="s1">&#39;Pending&#39;</span><span class="p">:</span>
+                <span class="k">if</span> <span class="n">category</span> <span class="o">==</span> <span class="n">STATUS_PENDING</span><span class="p">:</span>
                     <span class="n">LOGGER</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="s2">&quot;Get SCP Response: </span><span class="si">%s</span><span class="s2"> (Pending)&quot;</span><span class="p">,</span> <span class="n">operation_no</span><span class="p">)</span>
-                <span class="k">elif</span> <span class="n">category</span> <span class="ow">in</span> <span class="p">[</span><span class="s1">&#39;Success&#39;</span><span class="p">,</span> <span class="s1">&#39;Cancel&#39;</span><span class="p">,</span> <span class="s1">&#39;Warning&#39;</span><span class="p">]:</span>
+                <span class="k">elif</span> <span class="n">category</span> <span class="ow">in</span> <span class="p">[</span><span class="n">STATUS_SUCCESS</span><span class="p">,</span> <span class="n">STATUS_CANCEL</span><span class="p">,</span> <span class="n">STATUS_WARNING</span><span class="p">]:</span>
                     <span class="n">LOGGER</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="s1">&#39;Get SCP Result: (</span><span class="si">%s</span><span class="s1">)&#39;</span><span class="p">,</span> <span class="n">category</span><span class="p">)</span>
-                <span class="k">elif</span> <span class="n">category</span> <span class="o">==</span> <span class="s2">&quot;Failure&quot;</span><span class="p">:</span>
+                <span class="k">elif</span> <span class="n">category</span> <span class="o">==</span> <span class="n">STATUS_FAILURE</span><span class="p">:</span>
                     <span class="n">LOGGER</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="s1">&#39;Get SCP Result: (Failure - 0x</span><span class="si">%04x</span><span class="s1">)&#39;</span><span class="p">,</span>
                                 <span class="n">status</span><span class="o">.</span><span class="n">Status</span><span class="p">)</span>
 
                 <span class="c1"># Log number of remaining sub-operations</span>
-                <span class="n">LOGGER</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="s2">&quot;Sub-Operations Remaining: </span><span class="si">%s</span><span class="s2">, Completed: </span><span class="si">%s</span><span class="s2">, &quot;</span>
-                            <span class="s2">&quot;Failed: </span><span class="si">%s</span><span class="s2">, Warning: </span><span class="si">%s</span><span class="s2">&quot;</span><span class="p">,</span>
-                            <span class="n">rsp</span><span class="o">.</span><span class="n">NumberOfRemainingSuboperations</span> <span class="ow">or</span> <span class="s1">&#39;0&#39;</span><span class="p">,</span>
-                            <span class="n">rsp</span><span class="o">.</span><span class="n">NumberOfCompletedSuboperations</span> <span class="ow">or</span> <span class="s1">&#39;0&#39;</span><span class="p">,</span>
-                            <span class="n">rsp</span><span class="o">.</span><span class="n">NumberOfFailedSuboperations</span> <span class="ow">or</span> <span class="s1">&#39;0&#39;</span><span class="p">,</span>
-                            <span class="n">rsp</span><span class="o">.</span><span class="n">NumberOfWarningSuboperations</span> <span class="ow">or</span> <span class="s1">&#39;0&#39;</span><span class="p">)</span>
+                <span class="n">LOGGER</span><span class="o">.</span><span class="n">info</span><span class="p">(</span>
+                    <span class="s2">&quot;Sub-Operations Remaining: </span><span class="si">%s</span><span class="s2">, Completed: </span><span class="si">%s</span><span class="s2">, &quot;</span>
+                    <span class="s2">&quot;Failed: </span><span class="si">%s</span><span class="s2">, Warning: </span><span class="si">%s</span><span class="s2">&quot;</span><span class="p">,</span>
+                    <span class="n">rsp</span><span class="o">.</span><span class="n">NumberOfRemainingSuboperations</span> <span class="ow">or</span> <span class="s1">&#39;0&#39;</span><span class="p">,</span>
+                    <span class="n">rsp</span><span class="o">.</span><span class="n">NumberOfCompletedSuboperations</span> <span class="ow">or</span> <span class="s1">&#39;0&#39;</span><span class="p">,</span>
+                    <span class="n">rsp</span><span class="o">.</span><span class="n">NumberOfFailedSuboperations</span> <span class="ow">or</span> <span class="s1">&#39;0&#39;</span><span class="p">,</span>
+                    <span class="n">rsp</span><span class="o">.</span><span class="n">NumberOfWarningSuboperations</span> <span class="ow">or</span> <span class="s1">&#39;0&#39;</span>
+                <span class="p">)</span>
 
                 <span class="c1"># Yields - &#39;Success&#39;, &#39;Warning&#39;, &#39;Failure&#39;, &#39;Cancel&#39; are</span>
                 <span class="c1">#   final yields, &#39;Pending&#39; means more to come</span>
                 <span class="n">identifier</span> <span class="o">=</span> <span class="kc">None</span>
-                <span class="k">if</span> <span class="n">category</span> <span class="ow">in</span> <span class="p">[</span><span class="s1">&#39;Pending&#39;</span><span class="p">]:</span>
+                <span class="k">if</span> <span class="n">category</span> <span class="ow">in</span> <span class="p">[</span><span class="n">STATUS_PENDING</span><span class="p">]:</span>
                     <span class="n">operation_no</span> <span class="o">+=</span> <span class="mi">1</span>
                     <span class="k">yield</span> <span class="n">status</span><span class="p">,</span> <span class="n">identifier</span>
                     <span class="k">continue</span>
-                <span class="k">elif</span> <span class="n">rsp</span><span class="o">.</span><span class="n">Identifier</span> <span class="ow">and</span> <span class="n">category</span> <span class="ow">in</span> <span class="p">[</span><span class="s1">&#39;Cancel&#39;</span><span class="p">,</span> <span class="s1">&#39;Warning&#39;</span><span class="p">,</span>
-                                                     <span class="s1">&#39;Failure&#39;</span><span class="p">]:</span>
+                <span class="k">elif</span> <span class="n">rsp</span><span class="o">.</span><span class="n">Identifier</span> <span class="ow">and</span> <span class="n">category</span> <span class="ow">in</span> <span class="p">[</span><span class="n">STATUS_CANCEL</span><span class="p">,</span>
+                                                     <span class="n">STATUS_WARNING</span><span class="p">,</span>
+                                                     <span class="n">STATUS_FAILURE</span><span class="p">]:</span>
                     <span class="c1"># From Part 4, Annex C.4.3, responses with these statuses</span>
                     <span class="c1">#   should contain an Identifier dataset with a</span>
                     <span class="c1">#   (0008,0058) Failed SOP Instance UID List element</span>
@@ -2137,6 +2144,7 @@
                         <span class="n">LOGGER</span><span class="o">.</span><span class="n">error</span><span class="p">(</span><span class="s2">&quot;Failed to decode the received Identifier &quot;</span>
                                      <span class="s2">&quot;dataset&quot;</span><span class="p">)</span>
                         <span class="n">LOGGER</span><span class="o">.</span><span class="n">exception</span><span class="p">(</span><span class="n">ex</span><span class="p">)</span>
+                        <span class="n">identifier</span> <span class="o">=</span> <span class="kc">None</span>
 
                 <span class="k">yield</span> <span class="n">status</span><span class="p">,</span> <span class="n">identifier</span>
                 <span class="k">break</span>
@@ -2186,20 +2194,21 @@
         <span class="n">rsp</span><span class="o">.</span><span class="n">AffectedSOPInstanceUID</span> <span class="o">=</span> <span class="n">req</span><span class="o">.</span><span class="n">AffectedSOPInstanceUID</span>
         <span class="n">rsp</span><span class="o">.</span><span class="n">AffectedSOPClassUID</span> <span class="o">=</span> <span class="n">req</span><span class="o">.</span><span class="n">AffectedSOPClassUID</span>
 
-        <span class="n">transfer_syntax</span> <span class="o">=</span> <span class="kc">None</span>
-        <span class="k">for</span> <span class="n">context</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">acse</span><span class="o">.</span><span class="n">accepted_contexts</span><span class="p">:</span>
-            <span class="k">if</span> <span class="n">req</span><span class="o">.</span><span class="n">AffectedSOPClassUID</span> <span class="o">==</span> <span class="n">context</span><span class="o">.</span><span class="n">abstract_syntax</span> <span class="ow">and</span> <span class="n">context</span><span class="o">.</span><span class="n">as_scp</span><span class="p">:</span>
-                <span class="n">transfer_syntax</span> <span class="o">=</span> <span class="n">context</span><span class="o">.</span><span class="n">transfer_syntax</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span>
-                <span class="k">break</span>
-        <span class="k">else</span><span class="p">:</span>
-            <span class="n">LOGGER</span><span class="o">.</span><span class="n">error</span><span class="p">(</span><span class="s2">&quot;No accepted Presentation Context for: &#39;</span><span class="si">%s</span><span class="s2">&#39;&quot;</span><span class="p">,</span>
-                         <span class="n">req</span><span class="o">.</span><span class="n">AffectedSOPClassUID</span><span class="p">)</span>
+        <span class="k">try</span><span class="p">:</span>
+            <span class="n">context</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_get_valid_context</span><span class="p">(</span>
+                <span class="n">req</span><span class="o">.</span><span class="n">AffectedSOPClassUID</span><span class="p">,</span>
+                <span class="s1">&#39;&#39;</span><span class="p">,</span>
+                <span class="s1">&#39;scp&#39;</span><span class="p">,</span>
+                <span class="n">context_id</span><span class="o">=</span><span class="n">req</span><span class="o">.</span><span class="n">_context_id</span>
+            <span class="p">)</span>
+        <span class="k">except</span> <span class="ne">ValueError</span><span class="p">:</span>
             <span class="c1"># SOP Class not supported, no context ID?</span>
             <span class="n">rsp</span><span class="o">.</span><span class="n">Status</span> <span class="o">=</span> <span class="mh">0x0122</span>
             <span class="bp">self</span><span class="o">.</span><span class="n">dimse</span><span class="o">.</span><span class="n">send_msg</span><span class="p">(</span><span class="n">rsp</span><span class="p">,</span> <span class="mi">1</span><span class="p">)</span>
             <span class="k">return</span>
 
         <span class="c1"># Attempt to decode the dataset</span>
+        <span class="n">transfer_syntax</span> <span class="o">=</span> <span class="n">context</span><span class="o">.</span><span class="n">transfer_syntax</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span>
         <span class="k">try</span><span class="p">:</span>
             <span class="n">ds</span> <span class="o">=</span> <span class="n">decode</span><span class="p">(</span><span class="n">req</span><span class="o">.</span><span class="n">DataSet</span><span class="p">,</span>
                         <span class="n">transfer_syntax</span><span class="o">.</span><span class="n">is_implicit_VR</span><span class="p">,</span>
@@ -2382,24 +2391,7 @@
         <span class="c1"># Determine the Presentation Context we are operating under</span>
         <span class="c1">#   and hence the transfer syntax to use for encoding `dataset`</span>
         <span class="n">transfer_syntax</span> <span class="o">=</span> <span class="kc">None</span>
-        <span class="k">for</span> <span class="n">context</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">acse</span><span class="o">.</span><span class="n">accepted_contexts</span><span class="p">:</span>
-            <span class="k">if</span> <span class="n">class_uid</span> <span class="o">==</span> <span class="n">context</span><span class="o">.</span><span class="n">abstract_syntax</span> <span class="ow">and</span> <span class="n">context</span><span class="o">.</span><span class="n">as_scu</span><span class="p">:</span>
-                <span class="n">transfer_syntax</span> <span class="o">=</span> <span class="n">context</span><span class="o">.</span><span class="n">transfer_syntax</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span>
-                <span class="n">context_id</span> <span class="o">=</span> <span class="n">context</span><span class="o">.</span><span class="n">context_id</span>
-                <span class="k">break</span>
-        <span class="k">else</span><span class="p">:</span>
-            <span class="n">LOGGER</span><span class="o">.</span><span class="n">error</span><span class="p">(</span>
-                <span class="s2">&quot;Association.send_n_event_report - no accepted Presentation &quot;</span>
-                <span class="s2">&quot;Context for: &#39;</span><span class="si">{}</span><span class="s2">&#39;&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">class_uid</span><span class="p">)</span>
-            <span class="p">)</span>
-            <span class="n">LOGGER</span><span class="o">.</span><span class="n">error</span><span class="p">(</span>
-                <span class="s2">&quot;Event Report SCU failed due to there being no accepted &quot;</span>
-                <span class="s2">&quot;presentation context&quot;</span>
-            <span class="p">)</span>
-            <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span>
-                <span class="s2">&quot;No accepted Presentation Context for the SOP Class UID &#39;</span><span class="si">{}</span><span class="s2">&#39;&quot;</span>
-                <span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">class_uid</span><span class="p">)</span>
-            <span class="p">)</span>
+        <span class="n">context</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_get_valid_context</span><span class="p">(</span><span class="n">class_uid</span><span class="p">,</span> <span class="s1">&#39;&#39;</span><span class="p">,</span> <span class="s1">&#39;scu&#39;</span><span class="p">)</span>
 
         <span class="c1"># Build N-EVENT-REPORT request primitive</span>
         <span class="c1">#   (M) Message ID</span>
@@ -2415,6 +2407,7 @@
 
         <span class="c1"># Encode the `dataset` using the agreed transfer syntax</span>
         <span class="c1">#   Will return None if failed to encode</span>
+        <span class="n">transfer_syntax</span> <span class="o">=</span> <span class="n">context</span><span class="o">.</span><span class="n">transfer_syntax</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span>
         <span class="n">bytestream</span> <span class="o">=</span> <span class="n">encode</span><span class="p">(</span><span class="n">dataset</span><span class="p">,</span>
                             <span class="n">transfer_syntax</span><span class="o">.</span><span class="n">is_implicit_VR</span><span class="p">,</span>
                             <span class="n">transfer_syntax</span><span class="o">.</span><span class="n">is_little_endian</span><span class="p">)</span>
@@ -2427,29 +2420,15 @@
 
         <span class="c1"># Send N-EVENT-REPORT request to the peer via DIMSE and wait for</span>
         <span class="c1"># the response primitive</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">dimse</span><span class="o">.</span><span class="n">send_msg</span><span class="p">(</span><span class="n">req</span><span class="p">,</span> <span class="n">context_id</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">dimse</span><span class="o">.</span><span class="n">send_msg</span><span class="p">(</span><span class="n">req</span><span class="p">,</span> <span class="n">context</span><span class="o">.</span><span class="n">context_id</span><span class="p">)</span>
         <span class="n">rsp</span><span class="p">,</span> <span class="n">_</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">dimse</span><span class="o">.</span><span class="n">receive_msg</span><span class="p">(</span><span class="n">wait</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
 
         <span class="c1"># Determine validity of the response and get the status</span>
-        <span class="n">status</span> <span class="o">=</span> <span class="n">Dataset</span><span class="p">()</span>
-        <span class="n">event_reply</span> <span class="o">=</span> <span class="kc">None</span>
-        <span class="k">if</span> <span class="n">rsp</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
-            <span class="n">LOGGER</span><span class="o">.</span><span class="n">error</span><span class="p">(</span><span class="s1">&#39;DIMSE service timed out&#39;</span><span class="p">)</span>
-            <span class="bp">self</span><span class="o">.</span><span class="n">abort</span><span class="p">()</span>
-        <span class="k">elif</span> <span class="n">rsp</span><span class="o">.</span><span class="n">is_valid_response</span><span class="p">:</span>
-            <span class="n">status</span><span class="o">.</span><span class="n">Status</span> <span class="o">=</span> <span class="n">rsp</span><span class="o">.</span><span class="n">Status</span>
-            <span class="c1"># TODO: use rsp.OPTIONAL_STATUS_KEYWORDS or something</span>
-            <span class="k">for</span> <span class="n">keyword</span> <span class="ow">in</span> <span class="n">rsp</span><span class="o">.</span><span class="n">STATUS_OPTIONAL_KEYWORDS</span><span class="p">:</span>
-                <span class="k">if</span> <span class="nb">getattr</span><span class="p">(</span><span class="n">rsp</span><span class="p">,</span> <span class="n">keyword</span><span class="p">,</span> <span class="kc">None</span><span class="p">)</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
-                    <span class="nb">setattr</span><span class="p">(</span><span class="n">status</span><span class="p">,</span> <span class="n">keyword</span><span class="p">,</span> <span class="nb">getattr</span><span class="p">(</span><span class="n">rsp</span><span class="p">,</span> <span class="n">keyword</span><span class="p">))</span>
-        <span class="k">else</span><span class="p">:</span>
-            <span class="n">LOGGER</span><span class="o">.</span><span class="n">error</span><span class="p">(</span>
-                <span class="s1">&#39;Received an invalid N-EVENT-REPORT response from the peer&#39;</span>
-            <span class="p">)</span>
-            <span class="bp">self</span><span class="o">.</span><span class="n">abort</span><span class="p">()</span>
+        <span class="n">status</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_check_received_status</span><span class="p">(</span><span class="n">rsp</span><span class="p">)</span>
 
         <span class="c1"># Warning and Success statuses will return a dataset</span>
         <span class="c1">#   we check against None as 0x0000 is a possible status</span>
+        <span class="n">event_reply</span> <span class="o">=</span> <span class="kc">None</span>
         <span class="k">if</span> <span class="nb">getattr</span><span class="p">(</span><span class="n">status</span><span class="p">,</span> <span class="s1">&#39;Status&#39;</span><span class="p">,</span> <span class="kc">None</span><span class="p">)</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
             <span class="n">category</span> <span class="o">=</span> <span class="n">code_to_category</span><span class="p">(</span><span class="n">status</span><span class="o">.</span><span class="n">Status</span><span class="p">)</span>
             <span class="k">if</span> <span class="n">category</span> <span class="ow">not</span> <span class="ow">in</span> <span class="p">[</span><span class="n">STATUS_WARNING</span><span class="p">,</span> <span class="n">STATUS_SUCCESS</span><span class="p">]:</span>
@@ -2553,25 +2532,8 @@
 
         <span class="c1"># Determine the Presentation Context we are operating under</span>
         <span class="c1">#   and hence the transfer syntax to use for encoding `dataset`</span>
-        <span class="n">transfer_syntax</span> <span class="o">=</span> <span class="kc">None</span>
-        <span class="k">for</span> <span class="n">context</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">acse</span><span class="o">.</span><span class="n">accepted_contexts</span><span class="p">:</span>
-            <span class="k">if</span> <span class="n">class_uid</span> <span class="o">==</span> <span class="n">context</span><span class="o">.</span><span class="n">abstract_syntax</span> <span class="ow">and</span> <span class="n">context</span><span class="o">.</span><span class="n">as_scu</span><span class="p">:</span>
-                <span class="n">transfer_syntax</span> <span class="o">=</span> <span class="n">context</span><span class="o">.</span><span class="n">transfer_syntax</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span>
-                <span class="n">context_id</span> <span class="o">=</span> <span class="n">context</span><span class="o">.</span><span class="n">context_id</span>
-                <span class="k">break</span>
-        <span class="k">else</span><span class="p">:</span>
-            <span class="n">LOGGER</span><span class="o">.</span><span class="n">error</span><span class="p">(</span>
-                <span class="s2">&quot;Association.send_n_get - no accepted Presentation Context &quot;</span>
-                <span class="s2">&quot;for: &#39;</span><span class="si">{}</span><span class="s2">&#39;&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">class_uid</span><span class="p">)</span>
-            <span class="p">)</span>
-            <span class="n">LOGGER</span><span class="o">.</span><span class="n">error</span><span class="p">(</span>
-                <span class="s2">&quot;Get SCU failed due to there being no accepted presentation &quot;</span>
-                <span class="s2">&quot;context&quot;</span>
-            <span class="p">)</span>
-            <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span>
-                <span class="s2">&quot;No accepted Presentation Context for the SOP Class UID &#39;</span><span class="si">{}</span><span class="s2">&#39;&quot;</span>
-                <span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">class_uid</span><span class="p">)</span>
-            <span class="p">)</span>
+        <span class="n">context</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_get_valid_context</span><span class="p">(</span><span class="n">class_uid</span><span class="p">,</span> <span class="s1">&#39;&#39;</span><span class="p">,</span> <span class="s1">&#39;scu&#39;</span><span class="p">)</span>
+        <span class="n">transfer_syntax</span> <span class="o">=</span> <span class="n">context</span><span class="o">.</span><span class="n">transfer_syntax</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span>
 
         <span class="c1"># Build N-GET request primitive</span>
         <span class="c1">#   (M) Message ID</span>
@@ -2585,26 +2547,15 @@
         <span class="n">req</span><span class="o">.</span><span class="n">AttributeIdentifierList</span> <span class="o">=</span> <span class="n">identifier_list</span>
 
         <span class="c1"># Send N-GET request to the peer via DIMSE and wait for the response</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">dimse</span><span class="o">.</span><span class="n">send_msg</span><span class="p">(</span><span class="n">req</span><span class="p">,</span> <span class="n">context_id</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">dimse</span><span class="o">.</span><span class="n">send_msg</span><span class="p">(</span><span class="n">req</span><span class="p">,</span> <span class="n">context</span><span class="o">.</span><span class="n">context_id</span><span class="p">)</span>
         <span class="n">rsp</span><span class="p">,</span> <span class="n">_</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">dimse</span><span class="o">.</span><span class="n">receive_msg</span><span class="p">(</span><span class="n">wait</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
 
         <span class="c1"># Determine validity of the response and get the status</span>
-        <span class="n">status</span> <span class="o">=</span> <span class="n">Dataset</span><span class="p">()</span>
-        <span class="n">attribute_list</span> <span class="o">=</span> <span class="kc">None</span>
-        <span class="k">if</span> <span class="n">rsp</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
-            <span class="n">LOGGER</span><span class="o">.</span><span class="n">error</span><span class="p">(</span><span class="s1">&#39;DIMSE service timed out&#39;</span><span class="p">)</span>
-            <span class="bp">self</span><span class="o">.</span><span class="n">abort</span><span class="p">()</span>
-        <span class="k">elif</span> <span class="n">rsp</span><span class="o">.</span><span class="n">is_valid_response</span><span class="p">:</span>
-            <span class="n">status</span><span class="o">.</span><span class="n">Status</span> <span class="o">=</span> <span class="n">rsp</span><span class="o">.</span><span class="n">Status</span>
-            <span class="k">for</span> <span class="n">keyword</span> <span class="ow">in</span> <span class="p">[</span><span class="s1">&#39;ErrorComment&#39;</span><span class="p">,</span> <span class="s1">&#39;ErrorID&#39;</span><span class="p">]:</span>
-                <span class="k">if</span> <span class="nb">getattr</span><span class="p">(</span><span class="n">rsp</span><span class="p">,</span> <span class="n">keyword</span><span class="p">,</span> <span class="kc">None</span><span class="p">)</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
-                    <span class="nb">setattr</span><span class="p">(</span><span class="n">status</span><span class="p">,</span> <span class="n">keyword</span><span class="p">,</span> <span class="nb">getattr</span><span class="p">(</span><span class="n">rsp</span><span class="p">,</span> <span class="n">keyword</span><span class="p">))</span>
-        <span class="k">else</span><span class="p">:</span>
-            <span class="n">LOGGER</span><span class="o">.</span><span class="n">error</span><span class="p">(</span><span class="s1">&#39;Received an invalid N-GET response from the peer&#39;</span><span class="p">)</span>
-            <span class="bp">self</span><span class="o">.</span><span class="n">abort</span><span class="p">()</span>
+        <span class="n">status</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_check_received_status</span><span class="p">(</span><span class="n">rsp</span><span class="p">)</span>
 
         <span class="c1"># Warning and Success statuses will return a dataset</span>
         <span class="c1">#   we check against None as 0x0000 is a possible status</span>
+        <span class="n">attribute_list</span> <span class="o">=</span> <span class="kc">None</span>
         <span class="k">if</span> <span class="nb">getattr</span><span class="p">(</span><span class="n">status</span><span class="p">,</span> <span class="s1">&#39;Status&#39;</span><span class="p">,</span> <span class="kc">None</span><span class="p">)</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
             <span class="n">category</span> <span class="o">=</span> <span class="n">code_to_category</span><span class="p">(</span><span class="n">status</span><span class="o">.</span><span class="n">Status</span><span class="p">)</span>
             <span class="k">if</span> <span class="n">category</span> <span class="ow">not</span> <span class="ow">in</span> <span class="p">[</span><span class="n">STATUS_WARNING</span><span class="p">,</span> <span class="n">STATUS_SUCCESS</span><span class="p">]:</span>
@@ -2707,25 +2658,8 @@
 
         <span class="c1"># Determine the Presentation Context we are operating under</span>
         <span class="c1">#   and hence the transfer syntax to use for encoding `dataset`</span>
-        <span class="n">transfer_syntax</span> <span class="o">=</span> <span class="kc">None</span>
-        <span class="k">for</span> <span class="n">context</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">acse</span><span class="o">.</span><span class="n">accepted_contexts</span><span class="p">:</span>
-            <span class="k">if</span> <span class="n">class_uid</span> <span class="o">==</span> <span class="n">context</span><span class="o">.</span><span class="n">abstract_syntax</span> <span class="ow">and</span> <span class="n">context</span><span class="o">.</span><span class="n">as_scu</span><span class="p">:</span>
-                <span class="n">transfer_syntax</span> <span class="o">=</span> <span class="n">context</span><span class="o">.</span><span class="n">transfer_syntax</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span>
-                <span class="n">context_id</span> <span class="o">=</span> <span class="n">context</span><span class="o">.</span><span class="n">context_id</span>
-                <span class="k">break</span>
-        <span class="k">else</span><span class="p">:</span>
-            <span class="n">LOGGER</span><span class="o">.</span><span class="n">error</span><span class="p">(</span>
-                <span class="s2">&quot;Association.send_n_set - no accepted Presentation Context &quot;</span>
-                <span class="s2">&quot;for: &#39;</span><span class="si">{}</span><span class="s2">&#39;&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">class_uid</span><span class="p">)</span>
-            <span class="p">)</span>
-            <span class="n">LOGGER</span><span class="o">.</span><span class="n">error</span><span class="p">(</span>
-                <span class="s2">&quot;Get SCU failed due to there being no accepted presentation &quot;</span>
-                <span class="s2">&quot;context&quot;</span>
-            <span class="p">)</span>
-            <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span>
-                <span class="s2">&quot;No accepted Presentation Context for the SOP Class UID &#39;</span><span class="si">{}</span><span class="s2">&#39;&quot;</span>
-                <span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">class_uid</span><span class="p">)</span>
-            <span class="p">)</span>
+        <span class="n">context</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_get_valid_context</span><span class="p">(</span><span class="n">class_uid</span><span class="p">,</span> <span class="s1">&#39;&#39;</span><span class="p">,</span> <span class="s1">&#39;scu&#39;</span><span class="p">)</span>
+        <span class="n">transfer_syntax</span> <span class="o">=</span> <span class="n">context</span><span class="o">.</span><span class="n">transfer_syntax</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span>
 
         <span class="c1"># Build N-SET request primitive</span>
         <span class="c1">#   (M) Message ID</span>
@@ -2750,27 +2684,15 @@
             <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s1">&#39;Failed to encode the supplied Dataset&#39;</span><span class="p">)</span>
 
         <span class="c1"># Send N-SET request to the peer via DIMSE and wait for the response</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">dimse</span><span class="o">.</span><span class="n">send_msg</span><span class="p">(</span><span class="n">req</span><span class="p">,</span> <span class="n">context_id</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">dimse</span><span class="o">.</span><span class="n">send_msg</span><span class="p">(</span><span class="n">req</span><span class="p">,</span> <span class="n">context</span><span class="o">.</span><span class="n">context_id</span><span class="p">)</span>
         <span class="n">rsp</span><span class="p">,</span> <span class="n">_</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">dimse</span><span class="o">.</span><span class="n">receive_msg</span><span class="p">(</span><span class="n">wait</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
 
         <span class="c1"># Determine validity of the response and get the status</span>
-        <span class="n">status</span> <span class="o">=</span> <span class="n">Dataset</span><span class="p">()</span>
-        <span class="n">attribute_list</span> <span class="o">=</span> <span class="kc">None</span>
-        <span class="k">if</span> <span class="n">rsp</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
-            <span class="n">LOGGER</span><span class="o">.</span><span class="n">error</span><span class="p">(</span><span class="s1">&#39;DIMSE service timed out&#39;</span><span class="p">)</span>
-            <span class="bp">self</span><span class="o">.</span><span class="n">abort</span><span class="p">()</span>
-        <span class="k">elif</span> <span class="n">rsp</span><span class="o">.</span><span class="n">is_valid_response</span><span class="p">:</span>
-            <span class="n">status</span><span class="o">.</span><span class="n">Status</span> <span class="o">=</span> <span class="n">rsp</span><span class="o">.</span><span class="n">Status</span>
-            <span class="k">for</span> <span class="n">keyword</span> <span class="ow">in</span> <span class="p">[</span><span class="s1">&#39;ErrorComment&#39;</span><span class="p">,</span> <span class="s1">&#39;ErrorID&#39;</span><span class="p">,</span>
-                            <span class="s1">&#39;AttributeIdentifierList&#39;</span><span class="p">]:</span>
-                <span class="k">if</span> <span class="nb">getattr</span><span class="p">(</span><span class="n">rsp</span><span class="p">,</span> <span class="n">keyword</span><span class="p">,</span> <span class="kc">None</span><span class="p">)</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
-                    <span class="nb">setattr</span><span class="p">(</span><span class="n">status</span><span class="p">,</span> <span class="n">keyword</span><span class="p">,</span> <span class="nb">getattr</span><span class="p">(</span><span class="n">rsp</span><span class="p">,</span> <span class="n">keyword</span><span class="p">))</span>
-        <span class="k">else</span><span class="p">:</span>
-            <span class="n">LOGGER</span><span class="o">.</span><span class="n">error</span><span class="p">(</span><span class="s1">&#39;Received an invalid N-SET response from the peer&#39;</span><span class="p">)</span>
-            <span class="bp">self</span><span class="o">.</span><span class="n">abort</span><span class="p">()</span>
+        <span class="n">status</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_check_received_status</span><span class="p">(</span><span class="n">rsp</span><span class="p">)</span>
 
         <span class="c1"># Warning and Success statuses will return a dataset</span>
         <span class="c1">#   we check against None as 0x0000 is a possible status</span>
+        <span class="n">attribute_list</span> <span class="o">=</span> <span class="kc">None</span>
         <span class="k">if</span> <span class="nb">getattr</span><span class="p">(</span><span class="n">status</span><span class="p">,</span> <span class="s1">&#39;Status&#39;</span><span class="p">,</span> <span class="kc">None</span><span class="p">)</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
             <span class="n">category</span> <span class="o">=</span> <span class="n">code_to_category</span><span class="p">(</span><span class="n">status</span><span class="o">.</span><span class="n">Status</span><span class="p">)</span>
             <span class="k">if</span> <span class="n">category</span> <span class="ow">not</span> <span class="ow">in</span> <span class="p">[</span><span class="n">STATUS_WARNING</span><span class="p">,</span> <span class="n">STATUS_SUCCESS</span><span class="p">]:</span>
@@ -2871,25 +2793,8 @@
 
         <span class="c1"># Determine the Presentation Context we are operating under</span>
         <span class="c1">#   and hence the transfer syntax to use for encoding `dataset`</span>
-        <span class="n">transfer_syntax</span> <span class="o">=</span> <span class="kc">None</span>
-        <span class="k">for</span> <span class="n">context</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">acse</span><span class="o">.</span><span class="n">accepted_contexts</span><span class="p">:</span>
-            <span class="k">if</span> <span class="n">class_uid</span> <span class="o">==</span> <span class="n">context</span><span class="o">.</span><span class="n">abstract_syntax</span> <span class="ow">and</span> <span class="n">context</span><span class="o">.</span><span class="n">as_scu</span><span class="p">:</span>
-                <span class="n">transfer_syntax</span> <span class="o">=</span> <span class="n">context</span><span class="o">.</span><span class="n">transfer_syntax</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span>
-                <span class="n">context_id</span> <span class="o">=</span> <span class="n">context</span><span class="o">.</span><span class="n">context_id</span>
-                <span class="k">break</span>
-        <span class="k">else</span><span class="p">:</span>
-            <span class="n">LOGGER</span><span class="o">.</span><span class="n">error</span><span class="p">(</span>
-                <span class="s2">&quot;Association.send_n_action - no accepted Presentation Context &quot;</span>
-                <span class="s2">&quot;for: &#39;</span><span class="si">{}</span><span class="s2">&#39;&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">class_uid</span><span class="p">)</span>
-            <span class="p">)</span>
-            <span class="n">LOGGER</span><span class="o">.</span><span class="n">error</span><span class="p">(</span>
-                <span class="s2">&quot;Action SCU failed due to there being no accepted &quot;</span>
-                <span class="s2">&quot;presentation context&quot;</span>
-            <span class="p">)</span>
-            <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span>
-                <span class="s2">&quot;No accepted Presentation Context for the SOP Class UID &#39;</span><span class="si">{}</span><span class="s2">&#39;&quot;</span>
-                <span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">class_uid</span><span class="p">)</span>
-            <span class="p">)</span>
+        <span class="n">context</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_get_valid_context</span><span class="p">(</span><span class="n">class_uid</span><span class="p">,</span> <span class="s1">&#39;&#39;</span><span class="p">,</span> <span class="s1">&#39;scu&#39;</span><span class="p">)</span>
+        <span class="n">transfer_syntax</span> <span class="o">=</span> <span class="n">context</span><span class="o">.</span><span class="n">transfer_syntax</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span>
 
         <span class="c1"># Build N-ACTION request primitive</span>
         <span class="c1">#   (M) Message ID</span>
@@ -2915,27 +2820,15 @@
             <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s1">&#39;Failed to encode the supplied Dataset&#39;</span><span class="p">)</span>
 
         <span class="c1"># Send N-ACTION request to the peer via DIMSE and wait for the response</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">dimse</span><span class="o">.</span><span class="n">send_msg</span><span class="p">(</span><span class="n">req</span><span class="p">,</span> <span class="n">context_id</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">dimse</span><span class="o">.</span><span class="n">send_msg</span><span class="p">(</span><span class="n">req</span><span class="p">,</span> <span class="n">context</span><span class="o">.</span><span class="n">context_id</span><span class="p">)</span>
         <span class="n">rsp</span><span class="p">,</span> <span class="n">_</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">dimse</span><span class="o">.</span><span class="n">receive_msg</span><span class="p">(</span><span class="n">wait</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
 
         <span class="c1"># Determine validity of the response and get the status</span>
-        <span class="n">status</span> <span class="o">=</span> <span class="n">Dataset</span><span class="p">()</span>
-        <span class="n">action_reply</span> <span class="o">=</span> <span class="kc">None</span>
-        <span class="k">if</span> <span class="n">rsp</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
-            <span class="n">LOGGER</span><span class="o">.</span><span class="n">error</span><span class="p">(</span><span class="s1">&#39;DIMSE service timed out&#39;</span><span class="p">)</span>
-            <span class="bp">self</span><span class="o">.</span><span class="n">abort</span><span class="p">()</span>
-        <span class="k">elif</span> <span class="n">rsp</span><span class="o">.</span><span class="n">is_valid_response</span><span class="p">:</span>
-            <span class="n">status</span><span class="o">.</span><span class="n">Status</span> <span class="o">=</span> <span class="n">rsp</span><span class="o">.</span><span class="n">Status</span>
-            <span class="k">for</span> <span class="n">keyword</span> <span class="ow">in</span> <span class="p">[</span><span class="s1">&#39;ErrorComment&#39;</span><span class="p">,</span> <span class="s1">&#39;ErrorID&#39;</span><span class="p">,</span>
-                            <span class="s1">&#39;AttributeIdentifierList&#39;</span><span class="p">]:</span>
-                <span class="k">if</span> <span class="nb">getattr</span><span class="p">(</span><span class="n">rsp</span><span class="p">,</span> <span class="n">keyword</span><span class="p">,</span> <span class="kc">None</span><span class="p">)</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
-                    <span class="nb">setattr</span><span class="p">(</span><span class="n">status</span><span class="p">,</span> <span class="n">keyword</span><span class="p">,</span> <span class="nb">getattr</span><span class="p">(</span><span class="n">rsp</span><span class="p">,</span> <span class="n">keyword</span><span class="p">))</span>
-        <span class="k">else</span><span class="p">:</span>
-            <span class="n">LOGGER</span><span class="o">.</span><span class="n">error</span><span class="p">(</span><span class="s1">&#39;Received an invalid N-ACTION response from the peer&#39;</span><span class="p">)</span>
-            <span class="bp">self</span><span class="o">.</span><span class="n">abort</span><span class="p">()</span>
+        <span class="n">status</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_check_received_status</span><span class="p">(</span><span class="n">rsp</span><span class="p">)</span>
 
         <span class="c1"># Warning and Success statuses will return a dataset</span>
         <span class="c1">#   we check against None as 0x0000 is a possible status</span>
+        <span class="n">action_reply</span> <span class="o">=</span> <span class="kc">None</span>
         <span class="k">if</span> <span class="nb">getattr</span><span class="p">(</span><span class="n">status</span><span class="p">,</span> <span class="s1">&#39;Status&#39;</span><span class="p">,</span> <span class="kc">None</span><span class="p">)</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
             <span class="n">category</span> <span class="o">=</span> <span class="n">code_to_category</span><span class="p">(</span><span class="n">status</span><span class="o">.</span><span class="n">Status</span><span class="p">)</span>
             <span class="k">if</span> <span class="n">category</span> <span class="ow">not</span> <span class="ow">in</span> <span class="p">[</span><span class="n">STATUS_WARNING</span><span class="p">,</span> <span class="n">STATUS_SUCCESS</span><span class="p">]:</span>
@@ -3034,25 +2927,8 @@
 
         <span class="c1"># Determine the Presentation Context we are operating under</span>
         <span class="c1">#   and hence the transfer syntax to use for encoding `dataset`</span>
-        <span class="n">transfer_syntax</span> <span class="o">=</span> <span class="kc">None</span>
-        <span class="k">for</span> <span class="n">context</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">acse</span><span class="o">.</span><span class="n">accepted_contexts</span><span class="p">:</span>
-            <span class="k">if</span> <span class="n">class_uid</span> <span class="o">==</span> <span class="n">context</span><span class="o">.</span><span class="n">abstract_syntax</span> <span class="ow">and</span> <span class="n">context</span><span class="o">.</span><span class="n">as_scu</span><span class="p">:</span>
-                <span class="n">transfer_syntax</span> <span class="o">=</span> <span class="n">context</span><span class="o">.</span><span class="n">transfer_syntax</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span>
-                <span class="n">context_id</span> <span class="o">=</span> <span class="n">context</span><span class="o">.</span><span class="n">context_id</span>
-                <span class="k">break</span>
-        <span class="k">else</span><span class="p">:</span>
-            <span class="n">LOGGER</span><span class="o">.</span><span class="n">error</span><span class="p">(</span>
-                <span class="s2">&quot;Association.send_n_create - no accepted Presentation Context &quot;</span>
-                <span class="s2">&quot;for: &#39;</span><span class="si">{}</span><span class="s2">&#39;&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">class_uid</span><span class="p">)</span>
-            <span class="p">)</span>
-            <span class="n">LOGGER</span><span class="o">.</span><span class="n">error</span><span class="p">(</span>
-                <span class="s2">&quot;Create SCU failed due to there being no accepted presentation &quot;</span>
-                <span class="s2">&quot;context&quot;</span>
-            <span class="p">)</span>
-            <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span>
-                <span class="s2">&quot;No accepted Presentation Context for the SOP Class UID &#39;</span><span class="si">{}</span><span class="s2">&#39;&quot;</span>
-                <span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">class_uid</span><span class="p">)</span>
-            <span class="p">)</span>
+        <span class="n">context</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_get_valid_context</span><span class="p">(</span><span class="n">class_uid</span><span class="p">,</span> <span class="s1">&#39;&#39;</span><span class="p">,</span> <span class="s1">&#39;scu&#39;</span><span class="p">)</span>
+        <span class="n">transfer_syntax</span> <span class="o">=</span> <span class="n">context</span><span class="o">.</span><span class="n">transfer_syntax</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span>
 
         <span class="c1"># Build N-CREATE request primitive</span>
         <span class="c1">#   (M) Message ID</span>
@@ -3076,26 +2952,15 @@
             <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s1">&#39;Failed to encode the supplied Dataset&#39;</span><span class="p">)</span>
 
         <span class="c1"># Send N-CREATE request to the peer via DIMSE and wait for the response</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">dimse</span><span class="o">.</span><span class="n">send_msg</span><span class="p">(</span><span class="n">req</span><span class="p">,</span> <span class="n">context_id</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">dimse</span><span class="o">.</span><span class="n">send_msg</span><span class="p">(</span><span class="n">req</span><span class="p">,</span> <span class="n">context</span><span class="o">.</span><span class="n">context_id</span><span class="p">)</span>
         <span class="n">rsp</span><span class="p">,</span> <span class="n">_</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">dimse</span><span class="o">.</span><span class="n">receive_msg</span><span class="p">(</span><span class="n">wait</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
 
         <span class="c1"># Determine validity of the response and get the status</span>
-        <span class="n">status</span> <span class="o">=</span> <span class="n">Dataset</span><span class="p">()</span>
-        <span class="n">attribute_list</span> <span class="o">=</span> <span class="kc">None</span>
-        <span class="k">if</span> <span class="n">rsp</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
-            <span class="n">LOGGER</span><span class="o">.</span><span class="n">error</span><span class="p">(</span><span class="s1">&#39;DIMSE service timed out&#39;</span><span class="p">)</span>
-            <span class="bp">self</span><span class="o">.</span><span class="n">abort</span><span class="p">()</span>
-        <span class="k">elif</span> <span class="n">rsp</span><span class="o">.</span><span class="n">is_valid_response</span><span class="p">:</span>
-            <span class="n">status</span><span class="o">.</span><span class="n">Status</span> <span class="o">=</span> <span class="n">rsp</span><span class="o">.</span><span class="n">Status</span>
-            <span class="k">for</span> <span class="n">keyword</span> <span class="ow">in</span> <span class="p">[</span><span class="s1">&#39;ErrorComment&#39;</span><span class="p">,</span> <span class="s1">&#39;ErrorID&#39;</span><span class="p">]:</span>
-                <span class="k">if</span> <span class="nb">getattr</span><span class="p">(</span><span class="n">rsp</span><span class="p">,</span> <span class="n">keyword</span><span class="p">,</span> <span class="kc">None</span><span class="p">)</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
-                    <span class="nb">setattr</span><span class="p">(</span><span class="n">status</span><span class="p">,</span> <span class="n">keyword</span><span class="p">,</span> <span class="nb">getattr</span><span class="p">(</span><span class="n">rsp</span><span class="p">,</span> <span class="n">keyword</span><span class="p">))</span>
-        <span class="k">else</span><span class="p">:</span>
-            <span class="n">LOGGER</span><span class="o">.</span><span class="n">error</span><span class="p">(</span><span class="s1">&#39;Received an invalid N-CREATE response from the peer&#39;</span><span class="p">)</span>
-            <span class="bp">self</span><span class="o">.</span><span class="n">abort</span><span class="p">()</span>
+        <span class="n">status</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_check_received_status</span><span class="p">(</span><span class="n">rsp</span><span class="p">)</span>
 
         <span class="c1"># Warning and Success statuses will return a dataset</span>
         <span class="c1">#   we check against None as 0x0000 is a possible status</span>
+        <span class="n">attribute_list</span> <span class="o">=</span> <span class="kc">None</span>
         <span class="k">if</span> <span class="nb">getattr</span><span class="p">(</span><span class="n">status</span><span class="p">,</span> <span class="s1">&#39;Status&#39;</span><span class="p">,</span> <span class="kc">None</span><span class="p">)</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
             <span class="n">category</span> <span class="o">=</span> <span class="n">code_to_category</span><span class="p">(</span><span class="n">status</span><span class="o">.</span><span class="n">Status</span><span class="p">)</span>
             <span class="k">if</span> <span class="n">category</span> <span class="ow">not</span> <span class="ow">in</span> <span class="p">[</span><span class="n">STATUS_WARNING</span><span class="p">,</span> <span class="n">STATUS_SUCCESS</span><span class="p">]:</span>
@@ -3181,25 +3046,8 @@
 
         <span class="c1"># Determine the Presentation Context we are operating under</span>
         <span class="c1">#   and hence the transfer syntax to use for encoding `dataset`</span>
-        <span class="n">transfer_syntax</span> <span class="o">=</span> <span class="kc">None</span>
-        <span class="k">for</span> <span class="n">context</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">acse</span><span class="o">.</span><span class="n">accepted_contexts</span><span class="p">:</span>
-            <span class="k">if</span> <span class="n">class_uid</span> <span class="o">==</span> <span class="n">context</span><span class="o">.</span><span class="n">abstract_syntax</span> <span class="ow">and</span> <span class="n">context</span><span class="o">.</span><span class="n">as_scu</span><span class="p">:</span>
-                <span class="n">transfer_syntax</span> <span class="o">=</span> <span class="n">context</span><span class="o">.</span><span class="n">transfer_syntax</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span>
-                <span class="n">context_id</span> <span class="o">=</span> <span class="n">context</span><span class="o">.</span><span class="n">context_id</span>
-                <span class="k">break</span>
-        <span class="k">else</span><span class="p">:</span>
-            <span class="n">LOGGER</span><span class="o">.</span><span class="n">error</span><span class="p">(</span>
-                <span class="s2">&quot;Association.send_n_delete - no accepted Presentation Context &quot;</span>
-                <span class="s2">&quot;for: &#39;</span><span class="si">{}</span><span class="s2">&#39;&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">class_uid</span><span class="p">)</span>
-            <span class="p">)</span>
-            <span class="n">LOGGER</span><span class="o">.</span><span class="n">error</span><span class="p">(</span>
-                <span class="s2">&quot;Delete SCU failed due to there being no accepted &quot;</span>
-                <span class="s2">&quot;presentation context&quot;</span>
-            <span class="p">)</span>
-            <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span>
-                <span class="s2">&quot;No accepted Presentation Context for the SOP Class UID &#39;</span><span class="si">{}</span><span class="s2">&#39;&quot;</span>
-                <span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">class_uid</span><span class="p">)</span>
-            <span class="p">)</span>
+        <span class="n">context</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_get_valid_context</span><span class="p">(</span><span class="n">class_uid</span><span class="p">,</span> <span class="s1">&#39;&#39;</span><span class="p">,</span> <span class="s1">&#39;scu&#39;</span><span class="p">)</span>
+        <span class="n">transfer_syntax</span> <span class="o">=</span> <span class="n">context</span><span class="o">.</span><span class="n">transfer_syntax</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span>
 
         <span class="c1"># Build N-DELETE request primitive</span>
         <span class="c1">#   (M) Message ID</span>
@@ -3211,22 +3059,11 @@
         <span class="n">req</span><span class="o">.</span><span class="n">RequestedSOPInstanceUID</span> <span class="o">=</span> <span class="n">instance_uid</span>
 
         <span class="c1"># Send N-DELETE request to the peer via DIMSE and wait for the response</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">dimse</span><span class="o">.</span><span class="n">send_msg</span><span class="p">(</span><span class="n">req</span><span class="p">,</span> <span class="n">context_id</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">dimse</span><span class="o">.</span><span class="n">send_msg</span><span class="p">(</span><span class="n">req</span><span class="p">,</span> <span class="n">context</span><span class="o">.</span><span class="n">context_id</span><span class="p">)</span>
         <span class="n">rsp</span><span class="p">,</span> <span class="n">_</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">dimse</span><span class="o">.</span><span class="n">receive_msg</span><span class="p">(</span><span class="n">wait</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
 
         <span class="c1"># Determine validity of the response and get the status</span>
-        <span class="n">status</span> <span class="o">=</span> <span class="n">Dataset</span><span class="p">()</span>
-        <span class="k">if</span> <span class="n">rsp</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
-            <span class="n">LOGGER</span><span class="o">.</span><span class="n">error</span><span class="p">(</span><span class="s1">&#39;DIMSE service timed out&#39;</span><span class="p">)</span>
-            <span class="bp">self</span><span class="o">.</span><span class="n">abort</span><span class="p">()</span>
-        <span class="k">elif</span> <span class="n">rsp</span><span class="o">.</span><span class="n">is_valid_response</span><span class="p">:</span>
-            <span class="n">status</span><span class="o">.</span><span class="n">Status</span> <span class="o">=</span> <span class="n">rsp</span><span class="o">.</span><span class="n">Status</span>
-            <span class="k">for</span> <span class="n">keyword</span> <span class="ow">in</span> <span class="p">[</span><span class="s1">&#39;ErrorComment&#39;</span><span class="p">,</span> <span class="s1">&#39;ErrorID&#39;</span><span class="p">]:</span>
-                <span class="k">if</span> <span class="nb">getattr</span><span class="p">(</span><span class="n">rsp</span><span class="p">,</span> <span class="n">keyword</span><span class="p">,</span> <span class="kc">None</span><span class="p">)</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
-                    <span class="nb">setattr</span><span class="p">(</span><span class="n">status</span><span class="p">,</span> <span class="n">keyword</span><span class="p">,</span> <span class="nb">getattr</span><span class="p">(</span><span class="n">rsp</span><span class="p">,</span> <span class="n">keyword</span><span class="p">))</span>
-        <span class="k">else</span><span class="p">:</span>
-            <span class="n">LOGGER</span><span class="o">.</span><span class="n">error</span><span class="p">(</span><span class="s1">&#39;Received an invalid N-DELETE response from the peer&#39;</span><span class="p">)</span>
-            <span class="bp">self</span><span class="o">.</span><span class="n">abort</span><span class="p">()</span>
+        <span class="n">status</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_check_received_status</span><span class="p">(</span><span class="n">rsp</span><span class="p">)</span>
 
         <span class="k">return</span> <span class="n">status</span></div>
 

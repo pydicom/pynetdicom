@@ -13,8 +13,50 @@ pynetdicom3.sop\_class.SOPClass
 
    .. autosummary::
    
+      ~SOPClass.capitalize
+      ~SOPClass.casefold
+      ~SOPClass.center
       ~SOPClass.count
+      ~SOPClass.encode
+      ~SOPClass.endswith
+      ~SOPClass.expandtabs
+      ~SOPClass.find
+      ~SOPClass.format
+      ~SOPClass.format_map
       ~SOPClass.index
+      ~SOPClass.isalnum
+      ~SOPClass.isalpha
+      ~SOPClass.isdecimal
+      ~SOPClass.isdigit
+      ~SOPClass.isidentifier
+      ~SOPClass.islower
+      ~SOPClass.isnumeric
+      ~SOPClass.isprintable
+      ~SOPClass.isspace
+      ~SOPClass.istitle
+      ~SOPClass.isupper
+      ~SOPClass.join
+      ~SOPClass.ljust
+      ~SOPClass.lower
+      ~SOPClass.lstrip
+      ~SOPClass.maketrans
+      ~SOPClass.partition
+      ~SOPClass.replace
+      ~SOPClass.rfind
+      ~SOPClass.rindex
+      ~SOPClass.rjust
+      ~SOPClass.rpartition
+      ~SOPClass.rsplit
+      ~SOPClass.rstrip
+      ~SOPClass.split
+      ~SOPClass.splitlines
+      ~SOPClass.startswith
+      ~SOPClass.strip
+      ~SOPClass.swapcase
+      ~SOPClass.title
+      ~SOPClass.translate
+      ~SOPClass.upper
+      ~SOPClass.zfill
    
    
 
@@ -24,8 +66,18 @@ pynetdicom3.sop\_class.SOPClass
 
    .. autosummary::
    
-      ~SOPClass.UID
+      ~SOPClass.info
+      ~SOPClass.is_compressed
+      ~SOPClass.is_deflated
+      ~SOPClass.is_encapsulated
+      ~SOPClass.is_implicit_VR
+      ~SOPClass.is_little_endian
+      ~SOPClass.is_private
+      ~SOPClass.is_retired
+      ~SOPClass.is_transfer_syntax
+      ~SOPClass.is_valid
+      ~SOPClass.name
       ~SOPClass.service_class
-      ~SOPClass.uid
+      ~SOPClass.type
    
    

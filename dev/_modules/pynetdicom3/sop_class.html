@@ -171,7 +171,6 @@
   <h1>Source code for pynetdicom3.sop_class</h1><div class="highlight"><pre>
 <span></span><span class="sd">&quot;&quot;&quot;Generates the supported SOP Classes.&quot;&quot;&quot;</span>
 
-<span class="kn">from</span> <span class="nn">collections</span> <span class="k">import</span> <span class="n">namedtuple</span>
 <span class="kn">import</span> <span class="nn">inspect</span>
 <span class="kn">import</span> <span class="nn">logging</span>
 <span class="kn">import</span> <span class="nn">sys</span>
@@ -258,29 +257,31 @@
     <span class="k">return</span> <span class="n">ServiceClass</span></div>
 
 
-<div class="viewcode-block" id="SOPClass"><a class="viewcode-back" href="../../reference/generated/pynetdicom3.sop_class.SOPClass.html#pynetdicom3.sop_class.SOPClass">[docs]</a><span class="k">class</span> <span class="nc">SOPClass</span><span class="p">(</span><span class="n">namedtuple</span><span class="p">(</span><span class="s2">&quot;SOPClass&quot;</span><span class="p">,</span> <span class="p">[</span><span class="s1">&#39;uid&#39;</span><span class="p">,</span> <span class="s1">&#39;UID&#39;</span><span class="p">,</span> <span class="s1">&#39;service_class&#39;</span><span class="p">])):</span>
-    <span class="sd">&quot;&quot;&quot;A DICOM SOP Class.</span>
+<div class="viewcode-block" id="SOPClass"><a class="viewcode-back" href="../../reference/generated/pynetdicom3.sop_class.SOPClass.html#pynetdicom3.sop_class.SOPClass">[docs]</a><span class="k">class</span> <span class="nc">SOPClass</span><span class="p">(</span><span class="n">UID</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;Extend pydicom&#39;s UID to include the corresponding Service Class.&quot;&quot;&quot;</span>
+    <span class="n">_service_class</span> <span class="o">=</span> <span class="kc">None</span>
 
-<span class="sd">    Attributes</span>
-<span class="sd">    ----------</span>
-<span class="sd">    service_class : service_class.ServiceClass</span>
-<span class="sd">        The DICOM Service Class corresponding to the SOP Class.</span>
-<span class="sd">    uid : pydicom.uid.UID</span>
-<span class="sd">        The SOP Class UID.</span>
-<span class="sd">    UID : pydicom.uid.UID</span>
-<span class="sd">        The SOP Class UID.</span>
-<span class="sd">    &quot;&quot;&quot;</span>
-    <span class="k">pass</span></div>
+    <span class="k">def</span> <span class="nf">__new__</span><span class="p">(</span><span class="bp">cls</span><span class="p">,</span> <span class="n">val</span><span class="p">):</span>
+        <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">val</span><span class="p">,</span> <span class="n">SOPClass</span><span class="p">):</span>
+            <span class="k">return</span> <span class="n">val</span>
+
+        <span class="k">return</span> <span class="nb">super</span><span class="p">(</span><span class="n">SOPClass</span><span class="p">,</span> <span class="bp">cls</span><span class="p">)</span><span class="o">.</span><span class="fm">__new__</span><span class="p">(</span><span class="bp">cls</span><span class="p">,</span> <span class="n">val</span><span class="p">)</span>
+
+    <span class="k">def</span> <span class="nf">__getattribute__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">name</span><span class="p">):</span>
+        <span class="k">return</span> <span class="nb">super</span><span class="p">(</span><span class="n">SOPClass</span><span class="p">,</span> <span class="bp">self</span><span class="p">)</span><span class="o">.</span><span class="fm">__getattribute__</span><span class="p">(</span><span class="n">name</span><span class="p">)</span>
+
+    <span class="nd">@property</span>
+    <span class="k">def</span> <span class="nf">service_class</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;Return the corresponding Service Class implementation.&quot;&quot;&quot;</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_service_class</span></div>
 
 
 <span class="k">def</span> <span class="nf">_generate_sop_classes</span><span class="p">(</span><span class="n">sop_class_dict</span><span class="p">):</span>
     <span class="sd">&quot;&quot;&quot;Generate the SOP Classes.&quot;&quot;&quot;</span>
     <span class="k">for</span> <span class="n">name</span> <span class="ow">in</span> <span class="n">sop_class_dict</span><span class="p">:</span>
-        <span class="nb">globals</span><span class="p">()[</span><span class="n">name</span><span class="p">]</span> <span class="o">=</span> <span class="n">SOPClass</span><span class="p">(</span>
-            <span class="n">UID</span><span class="p">(</span><span class="n">sop_class_dict</span><span class="p">[</span><span class="n">name</span><span class="p">]),</span>
-            <span class="n">UID</span><span class="p">(</span><span class="n">sop_class_dict</span><span class="p">[</span><span class="n">name</span><span class="p">]),</span>
-            <span class="n">uid_to_service_class</span><span class="p">(</span><span class="n">sop_class_dict</span><span class="p">[</span><span class="n">name</span><span class="p">])</span>
-        <span class="p">)</span>
+        <span class="n">sop_class</span> <span class="o">=</span> <span class="n">SOPClass</span><span class="p">(</span><span class="n">sop_class_dict</span><span class="p">[</span><span class="n">name</span><span class="p">])</span>
+        <span class="n">sop_class</span><span class="o">.</span><span class="n">_service_class</span> <span class="o">=</span> <span class="n">uid_to_service_class</span><span class="p">(</span><span class="n">sop_class_dict</span><span class="p">[</span><span class="n">name</span><span class="p">])</span>
+        <span class="nb">globals</span><span class="p">()[</span><span class="n">name</span><span class="p">]</span> <span class="o">=</span> <span class="n">sop_class</span>
 
 
 <span class="c1"># Generate the various SOP classes</span>
@@ -571,14 +572,17 @@
     <span class="c1"># Get a list of all the class members of the current module</span>
     <span class="n">members</span> <span class="o">=</span> <span class="n">inspect</span><span class="o">.</span><span class="n">getmembers</span><span class="p">(</span>
         <span class="n">sys</span><span class="o">.</span><span class="n">modules</span><span class="p">[</span><span class="vm">__name__</span><span class="p">],</span>
-        <span class="k">lambda</span> <span class="n">mbr</span><span class="p">:</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">mbr</span><span class="p">,</span> <span class="nb">tuple</span><span class="p">)</span>
+        <span class="k">lambda</span> <span class="n">mbr</span><span class="p">:</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">mbr</span><span class="p">,</span> <span class="nb">str</span><span class="p">)</span>
     <span class="p">)</span>
 
     <span class="k">for</span> <span class="n">obj</span> <span class="ow">in</span> <span class="n">members</span><span class="p">:</span>
-        <span class="k">if</span> <span class="nb">hasattr</span><span class="p">(</span><span class="n">obj</span><span class="p">[</span><span class="mi">1</span><span class="p">],</span> <span class="s1">&#39;uid&#39;</span><span class="p">)</span> <span class="ow">and</span> <span class="n">obj</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span><span class="o">.</span><span class="n">uid</span> <span class="o">==</span> <span class="n">uid</span><span class="p">:</span>
+        <span class="k">if</span> <span class="nb">hasattr</span><span class="p">(</span><span class="n">obj</span><span class="p">[</span><span class="mi">1</span><span class="p">],</span> <span class="s1">&#39;service_class&#39;</span><span class="p">)</span> <span class="ow">and</span> <span class="n">obj</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span> <span class="o">==</span> <span class="n">uid</span><span class="p">:</span>
             <span class="k">return</span> <span class="n">obj</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span>
 
-    <span class="k">return</span> <span class="n">SOPClass</span><span class="p">(</span><span class="n">uid</span><span class="p">,</span> <span class="n">uid</span><span class="p">,</span> <span class="n">ServiceClass</span><span class="p">)</span></div>
+    <span class="n">sop_class</span> <span class="o">=</span> <span class="n">SOPClass</span><span class="p">(</span><span class="n">uid</span><span class="p">)</span>
+    <span class="n">sop_class</span><span class="o">.</span><span class="n">_service_class</span> <span class="o">=</span> <span class="n">ServiceClass</span>
+
+    <span class="k">return</span> <span class="n">sop_class</span></div>
 </pre></div>
 
            </div>

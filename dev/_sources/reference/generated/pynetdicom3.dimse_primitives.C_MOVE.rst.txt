@@ -33,6 +33,7 @@ pynetdicom3.dimse\_primitives.C\_MOVE
       ~C_MOVE.NumberOfRemainingSuboperations
       ~C_MOVE.NumberOfWarningSuboperations
       ~C_MOVE.Priority
+      ~C_MOVE.STATUS_OPTIONAL_KEYWORDS
       ~C_MOVE.Status
       ~C_MOVE.is_valid_request
       ~C_MOVE.is_valid_response

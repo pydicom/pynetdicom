@@ -32,7 +32,7 @@ Display System Management Service.
         #  response status a pydicom Dataset and the AttributeList dataset
         status, attr_list = assoc.send_n_get(
             [(0x0008,0x0070)],
-            DisplaySystemSOPClass.uid,
+            DisplaySystemSOPClass,
             '1.2.840.10008.5.1.1.40.1'
         )
 
