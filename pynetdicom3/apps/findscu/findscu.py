@@ -183,8 +183,8 @@ if assoc.is_established:
     response = assoc.send_c_find(identifier, query_model=query_model)
 
     for status, identifier in response:
-        #pass
         if status.Status in (0xFF00, 0xFF01):
-            print(identifier)
+            #print(identifier)
+            pass
 
     assoc.release()

@@ -197,7 +197,7 @@ class TestStorageServiceClass(object):
         assert assoc.is_released
 
         assert self.scp.context.context_id == 1
-        assert self.scp.context.abstract_syntax == CTImageStorage.UID
+        assert self.scp.context.abstract_syntax == CTImageStorage
         assert self.scp.context.transfer_syntax == '1.2.840.10008.1.2.1'
 
         self.scp.stop()

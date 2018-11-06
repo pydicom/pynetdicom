@@ -132,6 +132,8 @@ class C_STORE(object):
     * DICOM Standard, Part 4, Annex B
     * DICOM Standard, Part 7, 9.1.1
     """
+    STATUS_OPTIONAL_KEYWORDS = ('OffendingElement', 'ErrorComment', )
+
     def __init__(self):
         # Variable names need to match the corresponding DICOM Element keywords
         #   in order for the DIMSE Message classes to be built correctly.
@@ -484,6 +486,8 @@ class C_FIND(object):
         An optional status related field containing a text
         description of the error detected. 64 characters maximum.
     """
+    STATUS_OPTIONAL_KEYWORDS = ('OffendingElement', 'ErrorComment', )
+
     def __init__(self):
         # Variable names need to match the corresponding DICOM Element keywords
         #   in order for the DIMSE Message classes to be built correctly.
@@ -771,6 +775,12 @@ class C_GET(object):
     * DICOM Standard, Part 4, Annex C.4.3
     * DICOM Standard, Part 7, Section 9.1.3
     """
+    STATUS_OPTIONAL_KEYWORDS = (
+        'ErrorComment', 'OffendingElement', 'NumberOfRemainingSuboperations',
+        'NumberOfCompletedSuboperations', 'NumberOfFailedSuboperations',
+        'NumberOfWarningSuboperations'
+    )
+
     def __init__(self):
         # Variable names need to match the corresponding DICOM Element keywords
         #   in order for the DIMSE Message classes to be built correctly.
@@ -1146,6 +1156,12 @@ class C_MOVE(object):
     * DICOM Standard, Part 4, Annex C.4.2
     * DICOM Standard, Part 7, Section 9.1.4
     """
+    STATUS_OPTIONAL_KEYWORDS = (
+        'ErrorComment', 'OffendingElement', 'NumberOfRemainingSuboperations',
+        'NumberOfCompletedSuboperations', 'NumberOfFailedSuboperations',
+        'NumberOfWarningSuboperations'
+    )
+
     def __init__(self):
         # Variable names need to match the corresponding DICOM Element keywords
         #   in order for the DIMSE Message classes to be built correctly.
@@ -1453,6 +1469,8 @@ class C_ECHO(object):
 
     * DICOM Standard, Part 7, Section 9.1.5
     """
+    STATUS_OPTIONAL_KEYWORDS = ('ErrorComment', )
+
     def __init__(self):
         # Variable names need to match the corresponding DICOM Element keywords
         #   in order for the DIMSE Message classes to be built correctly.
@@ -1955,6 +1973,8 @@ class N_GET(object):
 
     DICOM Standard, Part 7, Section 10.1.2
     """
+    STATUS_OPTIONAL_KEYWORDS = ('ErrorComment', 'ErrorID', )
+
     def __init__(self):
         self.MessageID = None
         self.MessageIDBeingRespondedTo = None
@@ -2281,6 +2301,10 @@ class N_SET(object):
 
     DICOM Standard, Part 7, Section 10.1.3
     """
+    STATUS_OPTIONAL_KEYWORDS = (
+        'ErrorComment', 'ErrorID', 'AttributeIdentifierList'
+    )
+
     def __init__(self):
         self.MessageID = None
         self.MessageIDBeingRespondedTo = None
@@ -2591,8 +2615,11 @@ class N_ACTION(object):
         The reply to the action.
     Status : int
         The error or success notification of the operation.
-
     """
+    STATUS_OPTIONAL_KEYWORDS = (
+        'ErrorComment', 'ErrorID', 'AttributeIdentifierList'
+    )
+
     def __init__(self):
         self.MessageID = None
         self.MessageIDBeingRespondedTo = None
@@ -2902,8 +2929,9 @@ class N_CREATE(object):
     Status : int
         The error or success notification of the operation. It shall be
         one of the following values:
-
     """
+    STATUS_OPTIONAL_KEYWORDS = ('ErrorComment', 'ErrorID', )
+
     def __init__(self):
         self.MessageID = None
         self.MessageIDBeingRespondedTo = None
@@ -3124,6 +3152,8 @@ class N_DELETE(object):
 
     DICOM Standard Part 7, Sections 10.1.6 and 10.3.6.
     """
+    STATUS_OPTIONAL_KEYWORDS = ('ErrorComment', 'ErrorID', )
+
     def __init__(self):
         self.MessageID = None
         self.MessageIDBeingRespondedTo = None

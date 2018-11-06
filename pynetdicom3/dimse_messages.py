@@ -519,6 +519,9 @@ class DIMSEMessage(object):
         except KeyError:
             pass
 
+        # Set the presentation context ID the message was set under
+        primitive._context_id = self.ID
+
         return primitive
 
     def primitive_to_message(self, primitive):

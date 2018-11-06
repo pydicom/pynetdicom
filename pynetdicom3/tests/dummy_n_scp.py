@@ -35,7 +35,7 @@ class DummyEventReportSCP(DummyBaseSCP):
         self.status = 0x0000
         ds = Dataset()
         ds.PatientName = 'Test'
-        ds.SOPClassUID = PrintJobSOPClass.UID
+        ds.SOPClassUID = PrintJobSOPClass
         ds.SOPInstanceUID = '1.2.3.4'
         self.dataset = ds
 
@@ -60,7 +60,7 @@ class DummyGetSCP(DummyBaseSCP):
         self.status = 0x0000
         ds = Dataset()
         ds.PatientName = 'Test'
-        ds.SOPClassUID = DisplaySystemSOPClass.UID
+        ds.SOPClassUID = DisplaySystemSOPClass
         ds.SOPInstanceUID = '1.2.3.4'
         self.dataset = ds
 
@@ -85,7 +85,7 @@ class DummySetSCP(DummyBaseSCP):
         self.status = 0x0000
         ds = Dataset()
         ds.PatientName = 'Test'
-        ds.SOPClassUID = PrintJobSOPClass.UID
+        ds.SOPClassUID = PrintJobSOPClass
         ds.SOPInstanceUID = '1.2.3.4'
         self.dataset = ds
 
@@ -109,7 +109,7 @@ class DummyActionSCP(DummyBaseSCP):
         self.status = 0x0000
         ds = Dataset()
         ds.PatientName = 'Test'
-        ds.SOPClassUID = PrintJobSOPClass.UID
+        ds.SOPClassUID = PrintJobSOPClass
         ds.SOPInstanceUID = '1.2.3.4'
         self.dataset = ds
 
@@ -133,7 +133,7 @@ class DummyCreateSCP(DummyBaseSCP):
         self.status = 0x0000
         ds = Dataset()
         ds.PatientName = 'Test'
-        ds.SOPClassUID = PrintJobSOPClass.UID
+        ds.SOPClassUID = PrintJobSOPClass
         ds.SOPInstanceUID = '1.2.3.4'
         self.dataset = ds
 

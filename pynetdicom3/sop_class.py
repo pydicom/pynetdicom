@@ -1,6 +1,5 @@
 """Generates the supported SOP Classes."""
 
-from collections import namedtuple
 import inspect
 import logging
 import sys
@@ -87,29 +86,31 @@ def uid_to_service_class(uid):
     return ServiceClass
 
 
-class SOPClass(namedtuple("SOPClass", ['uid', 'UID', 'service_class'])):
-    """A DICOM SOP Class.
+class SOPClass(UID):
+    """Extend pydicom's UID to include the corresponding Service Class."""
+    _service_class = None
 
-    Attributes
-    ----------
-    service_class : service_class.ServiceClass
-        The DICOM Service Class corresponding to the SOP Class.
-    uid : pydicom.uid.UID
-        The SOP Class UID.
-    UID : pydicom.uid.UID
-        The SOP Class UID.
-    """
-    pass
+    def __new__(cls, val):
+        if isinstance(val, SOPClass):
+            return val
+
+        return super(SOPClass, cls).__new__(cls, val)
+
+    def __getattribute__(self, name):
+        return super(SOPClass, self).__getattribute__(name)
+
+    @property
+    def service_class(self):
+        """Return the corresponding Service Class implementation."""
+        return self._service_class
 
 
 def _generate_sop_classes(sop_class_dict):
     """Generate the SOP Classes."""
     for name in sop_class_dict:
-        globals()[name] = SOPClass(
-            UID(sop_class_dict[name]),
-            UID(sop_class_dict[name]),
-            uid_to_service_class(sop_class_dict[name])
-        )
+        sop_class = SOPClass(sop_class_dict[name])
+        sop_class._service_class = uid_to_service_class(sop_class_dict[name])
+        globals()[name] = sop_class
 
 
 # Generate the various SOP classes
@@ -400,11 +401,14 @@ def uid_to_sop_class(uid):
     # Get a list of all the class members of the current module
     members = inspect.getmembers(
         sys.modules[__name__],
-        lambda mbr: isinstance(mbr, tuple)
+        lambda mbr: isinstance(mbr, str)
     )
 
     for obj in members:
-        if hasattr(obj[1], 'uid') and obj[1].uid == uid:
+        if hasattr(obj[1], 'service_class') and obj[1] == uid:
             return obj[1]
 
-    return SOPClass(uid, uid, ServiceClass)
+    sop_class = SOPClass(uid)
+    sop_class._service_class = ServiceClass
+
+    return sop_class

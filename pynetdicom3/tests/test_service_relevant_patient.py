@@ -71,7 +71,7 @@ class TestRelevantPatientServiceClass(object):
 
         req = C_FIND()
         req.MessageID = 1
-        req.AffectedSOPClassUID = GeneralRelevantPatientInformationQuery.uid
+        req.AffectedSOPClassUID = GeneralRelevantPatientInformationQuery
         req.Priority = 2
         req.Identifier = BytesIO(b'\x08\x00\x01\x00\x04\x00\x00\x00\x00\x08\x00\x49')
         assoc.dimse.send_msg(req, 1)
@@ -439,7 +439,7 @@ class TestRelevantPatientServiceClass(object):
         assert assoc.is_released
 
         assert self.scp.context.context_id == 1
-        assert self.scp.context.abstract_syntax == GeneralRelevantPatientInformationQuery.uid
+        assert self.scp.context.abstract_syntax == GeneralRelevantPatientInformationQuery
         assert self.scp.context.transfer_syntax == '1.2.840.10008.1.2.1'
 
         self.scp.stop()

@@ -340,10 +340,7 @@ class ApplicationEntity(object):
                 "are already the maximum allowed number of requested contexts"
             )
 
-        if hasattr(abstract_syntax, 'uid'):
-            abstract_syntax = UID(abstract_syntax.uid)
-        else:
-            abstract_syntax = UID(abstract_syntax)
+        abstract_syntax = UID(abstract_syntax)
 
         # Allow single transfer syntax values for convenience
         if isinstance(transfer_syntax, str):
@@ -467,10 +464,7 @@ class ApplicationEntity(object):
         ...     CTImageStorage, scu_role=True, scp_role=True
         ... )
         """
-        if hasattr(abstract_syntax, 'uid'):
-            abstract_syntax = UID(abstract_syntax.uid)
-        else:
-            abstract_syntax = UID(abstract_syntax)
+        abstract_syntax = UID(abstract_syntax)
 
         if not isinstance(scu_role, (type(None), bool)):
             raise TypeError("`scu_role` must be None or bool")
@@ -895,10 +889,7 @@ class ApplicationEntity(object):
         Transfer Syntax(es):
 	        =Explicit VR Big Endian
         """
-        if hasattr(abstract_syntax, 'uid'):
-            abstract_syntax = UID(abstract_syntax.uid)
-        else:
-            abstract_syntax = UID(abstract_syntax)
+        abstract_syntax = UID(abstract_syntax)
 
         # Get all the current requested contexts with the same abstract syntax
         matching_contexts = [
@@ -1018,10 +1009,7 @@ class ApplicationEntity(object):
         Transfer Syntax(es):
 	        =Explicit VR Big Endian
         """
-        if hasattr(abstract_syntax, 'uid'):
-            abstract_syntax = UID(abstract_syntax.uid)
-        else:
-            abstract_syntax = UID(abstract_syntax)
+        abstract_syntax = UID(abstract_syntax)
 
         if isinstance(transfer_syntax, str):
             transfer_syntax = [transfer_syntax]
@@ -1378,6 +1366,7 @@ class ApplicationEntity(object):
                 raise ValueError(
                     "'contexts' must be a list of PresentationContext items"
                 )
+
 
     # Association negotiation callbacks
     def on_user_identity_negotiation(self, user_id_type, primary_field,

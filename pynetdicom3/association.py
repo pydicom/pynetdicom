@@ -23,6 +23,7 @@ from pynetdicom3.presentation import negotiate_as_acceptor
 from pynetdicom3.sop_class import (
     uid_to_sop_class,
     uid_to_service_class,
+    VerificationSOPClass,
     ModalityWorklistInformationFind,
     PatientRootQueryRetrieveInformationModelFind,
     StudyRootQueryRetrieveInformationModelFind,
@@ -60,14 +61,18 @@ from pynetdicom3.sop_class import (
     ImplantTemplateGroupInformationModelGet,
     ImplantTemplateGroupInformationModelMove,
 )
-from pynetdicom3.pdu_primitives import (UserIdentityNegotiation,
-                                        SOPClassExtendedNegotiation,
-                                        SOPClassCommonExtendedNegotiation,
-                                        SCP_SCU_RoleSelectionNegotiation,
-                                        A_ASSOCIATE, A_ABORT, A_P_ABORT)
+from pynetdicom3.pdu_primitives import (
+    UserIdentityNegotiation,
+    AsynchronousOperationsWindowNegotiation,
+    SOPClassExtendedNegotiation,
+    SOPClassCommonExtendedNegotiation,
+    SCP_SCU_RoleSelectionNegotiation,
+    A_ASSOCIATE, A_ABORT, A_P_ABORT
+)
 from pynetdicom3.status import (
     code_to_status, code_to_category, STORAGE_SERVICE_CLASS_STATUS,
-    STATUS_WARNING, STATUS_SUCCESS
+    STATUS_WARNING, STATUS_SUCCESS, STATUS_CANCEL, STATUS_PENDING,
+    STATUS_FAILURE
 )
 # pylint: enable=no-name-in-module
 
@@ -263,6 +268,133 @@ class Association(threading.Thread):
         threading.Thread.__init__(self)
         self.daemon = True
 
+    def abort(self):
+        """Abort the association.
+
+        DUL service user association abort. Always gives the source as the
+        DUL service user and sets the abort reason to 0x00 (not significant)
+
+        See PS3.8, 7.3-4 and 9.3.8.
+        """
+        if not self.is_released:
+            self.acse.abort_assoc(source=0x00, reason=0x00)
+            self.kill()
+            self.is_aborted = True
+
+        # Add short delay to ensure everything shuts down
+        time.sleep(0.1)
+
+    @property
+    def accepted_contexts(self):
+        """Return a list of accepted PresentationContexts."""
+        return self.acse.accepted_contexts
+
+    def _check_received_status(self, rsp):
+        """Return a dataset containing status related elements.
+
+        Parameters
+        ----------
+        rsp : pynetdicom3.dimse_primitives
+            The DIMSE Message primitive received from the peer in response
+            to a service request.
+
+        Returns
+        -------
+        pydicom.dataset.Dataset
+            If no response or an invalid response was received from the peer
+            then an empty Dataset, if a valid response was received from the
+            peer then (at a minimum) a Dataset containing an (0000,0900)
+            *Status* element, and any included optional status related
+            elements.
+        """
+        msg_type = rsp.__class__.__name__
+        msg_type = msg_type.replace('_', '-')
+
+        status = Dataset()
+        if rsp is None:
+            LOGGER.error('DIMSE service timed out')
+            self.abort()
+        elif rsp.is_valid_response:
+            status.Status = rsp.Status
+            for keyword in rsp.STATUS_OPTIONAL_KEYWORDS:
+                if getattr(rsp, keyword, None) is not None:
+                    setattr(status, keyword, getattr(rsp, keyword))
+        else:
+            LOGGER.error(
+                "Received an invalid {} response from the peer"
+                .format(msg_type)
+            )
+            self.abort()
+
+        return status
+
+    def _get_valid_context(self, ab_syntax, tr_syntax, role, context_id=None):
+        """
+
+        Parameters
+        ----------
+        ab_syntax : str or pydicom.uid.UID
+            The abstract syntax to match.
+        tr_syntax : str or pydicom.uid.UID
+            The transfer syntax to match, if an empty string is used then
+            the transfer syntax will not be used for matching. If the value
+            corresponds to an uncompressed syntax then matches will be made
+            with any uncompressed transfer syntaxes.
+        role : str
+            One of 'scu' or 'scp', the required role of the context.
+        context_id : int or None
+            If not None then the ID of the presentation context to use. It will
+            be checked against the available parameter values.
+
+        Returns
+        -------
+        presentation.PresentationContext
+            An accepted presentation context.
+        """
+        ab_syntax = UID(ab_syntax)
+        tr_syntax = UID(tr_syntax)
+
+        possible_contexts = []
+        if context_id is None:
+            possible_contexts = self.accepted_contexts
+        else:
+            for cx in self.accepted_contexts:
+                if cx.context_id == context_id:
+                    possible_contexts = [cx]
+                    break
+
+        for cx in possible_contexts:
+            if cx.abstract_syntax != ab_syntax:
+                continue
+
+            # Cover both False and None
+            if role == 'scu' and cx.as_scu is not True:
+                continue
+
+            if role == 'scp' and cx.as_scp is not True:
+                continue
+
+            # Allow us to skip the transfer syntax check
+            if tr_syntax and tr_syntax != cx.transfer_syntax[0]:
+                # Compressed transfer syntaxes are not convertable
+                if (tr_syntax.is_compressed
+                        or cx.transfer_syntax[0].is_compressed):
+                    continue
+
+            # Only a valid presentation context can reach this point
+            return cx
+
+        msg = (
+            "No suitable presentation context for the {} role has been "
+            "accepted by the peer for the SOP Class '{}'"
+            .format(role.upper(), ab_syntax.name)
+        )
+        if tr_syntax:
+            msg += " with a transfer syntax of '{}'".format(tr_syntax.name)
+
+        LOGGER.error(msg)
+        raise ValueError(msg)
+
     def kill(self):
         """Kill the main association thread loop."""
         self._kill = True
@@ -283,21 +415,10 @@ class Association(threading.Thread):
                 # No release reply within timeout window
                 self.abort()
 
-    def abort(self):
-        """Abort the association.
-
-        DUL service user association abort. Always gives the source as the
-        DUL service user and sets the abort reason to 0x00 (not significant)
-
-        See PS3.8, 7.3-4 and 9.3.8.
-        """
-        if not self.is_released:
-            self.acse.abort_assoc(source=0x00, reason=0x00)
-            self.kill()
-            self.is_aborted = True
-
-        # Add short delay to ensure everything shuts down
-        time.sleep(0.1)
+    @property
+    def rejected_contexts(self):
+        """Return a list of rejected PresentationContexts."""
+        return self.acse.rejected_contexts
 
     def run(self):
         """The main Association control."""
@@ -780,15 +901,6 @@ class Association(threading.Thread):
             If the association has no accepted Presentation Context for
             'Verification SOP Class'.
 
-        Examples
-        --------
-        >>> assoc = ae.associate(addr, port)
-        >>> if assoc.is_established:
-        ...     status = assoc.send_c_echo()
-        ...     if status:
-        ...         print('C-ECHO Response: 0x{0:04x}'.format(status.Status))
-        ...     assoc.release()
-
         See Also
         --------
         ae.ApplicationEntity.on_c_echo
@@ -809,43 +921,22 @@ class Association(threading.Thread):
             raise RuntimeError("The association with a peer SCP must be "
                                "established before sending a C-ECHO request")
 
-        # Verification SOP Class
-        uid = UID('1.2.840.10008.1.1')
-
-        # Get the Presentation Context we are operating under
-        context_id = None
-        for context in self.acse.accepted_contexts:
-            if uid == context.abstract_syntax and context.as_scu:
-                context_id = context.context_id
-                break
-        else:
-            LOGGER.error("No accepted Presentation Context for '%s'", uid)
-            raise ValueError("No accepted Presentation Context for "
-                             "'Verification SOP Class'.")
+        # Get a Presentation Context to use for sending the message
+        context = self._get_valid_context(VerificationSOPClass, '', 'scu')
 
         # Build C-STORE request primitive
         #   (M) Message ID
         #   (M) Affected SOP Class UID
         primitive = C_ECHO()
         primitive.MessageID = msg_id
-        primitive.AffectedSOPClassUID = uid
+        primitive.AffectedSOPClassUID = VerificationSOPClass
 
         # Send C-ECHO request to the peer via DIMSE and wait for the response
-        self.dimse.send_msg(primitive, context_id)
+        self.dimse.send_msg(primitive, context.context_id)
         rsp, _ = self.dimse.receive_msg(wait=True)
 
         # Determine validity of the response and get the status
-        status = Dataset()
-        if rsp is None:
-            LOGGER.error('DIMSE service timed out')
-            self.abort()
-        elif rsp.is_valid_response:
-            status.Status = rsp.Status
-            if getattr(rsp, 'ErrorComment') is not None:
-                status.ErrorComment = rsp.ErrorComment
-        else:
-            LOGGER.error('Received an invalid C-ECHO response from the peer')
-            self.abort()
+        status = self._check_received_status(rsp)
 
         return status
 
@@ -928,22 +1019,12 @@ class Association(threading.Thread):
         RuntimeError
             If ``send_c_store`` is called with no established association.
         AttributeError
-            If `dataset` is missing (0008,0016) *SOP Class UID* or
-            (0008,0018) *SOP Instance UID* elements.
+            If `dataset` is missing (0008,0016) *SOP Class UID*,
+            (0008,0018) *SOP Instance UID* elements or the (0002,0010)
+            *Transfer Syntax UID* file meta information element.
         ValueError
             If no accepted Presentation Context for `dataset` exists or if
             unable to encode the `dataset`.
-
-        Examples
-        --------
-
-        >>> ds = pydicom.dcmread('file-in.dcm')
-        >>> assoc = ae.associate(addr, port)
-        >>> if assoc.is_established:
-        ...     status = assoc.send_c_store(ds)
-        ...     if status:
-        ...         print('C-STORE Response: 0x{0:04x}'.format(status.Status))
-        ...     assoc.release()
 
         See Also
         --------
@@ -967,28 +1048,30 @@ class Association(threading.Thread):
             raise RuntimeError("The association with a peer SCP must be "
                                "established before sending a C-STORE request")
 
-        # Determine the Presentation Context we are operating under
-        #   and hence the transfer syntax to use for encoding `dataset`
-        transfer_syntax = None
-        for context in self.acse.accepted_contexts:
-            try:
-                if dataset.SOPClassUID == context.abstract_syntax and context.as_scu:
-                    transfer_syntax = context.transfer_syntax[0]
-                    context_id = context.context_id
-                    break
-            except AttributeError as ex:
-                LOGGER.error("Association.send_c_store - unable to determine "
-                             "Presentation Context as "
-                             "Dataset has no 'SOP Class UID' element")
-                LOGGER.error("Store SCU failed due to there being no valid "
-                             "presentation context for the current dataset")
-                raise ex
-        else:
-            LOGGER.error("Association.send_c_store - no accepted Presentation "
-                         "Context for: '%s'", dataset.SOPClassUID)
-            LOGGER.error("Store SCU failed due to there being no accepted "
-                         "presentation context for the current dataset")
-            raise ValueError("No accepted Presentation Context for 'dataset'.")
+        # Check `dataset` has required elements
+        if 'SOPClassUID' not in dataset:
+            raise AttributeError(
+                "Unable to determine the presentation context to use with "
+                "`dataset` as it contains no '(0008,0016) SOP Class UID' "
+                "element"
+            )
+
+        try:
+            assert 'TransferSyntaxUID' in dataset.file_meta
+        except (AssertionError, AttributeError):
+            raise AttributeError(
+                "Unable to determine the presentation context to use with "
+                "`dataset` as it contains no '(0002,0010) Transfer Syntax "
+                "UID' file meta information element"
+        )
+
+        # Get a Presentation Context to use for sending the message
+        context = self._get_valid_context(
+            dataset.SOPClassUID,
+            dataset.file_meta.TransferSyntaxUID,
+            'scu'
+        )
+        transfer_syntax = context.transfer_syntax[0]
 
         # Build C-STORE request primitive
         #   (M) Message ID
@@ -1019,22 +1102,11 @@ class Association(threading.Thread):
             raise ValueError('Failed to encode the supplied Dataset')
 
         # Send C-STORE request to the peer via DIMSE and wait for the response
-        self.dimse.send_msg(req, context_id)
+        self.dimse.send_msg(req, context.context_id)
         rsp, _ = self.dimse.receive_msg(wait=True)
 
         # Determine validity of the response and get the status
-        status = Dataset()
-        if rsp is None:
-            LOGGER.error('DIMSE service timed out')
-            self.abort()
-        elif rsp.is_valid_response:
-            status.Status = rsp.Status
-            for keyword in ['ErrorComment', 'OffendingElement']:
-                if getattr(rsp, keyword) is not None:
-                    setattr(status, keyword, getattr(rsp, keyword))
-        else:
-            LOGGER.error('Received an invalid C-STORE response from the peer')
-            self.abort()
+        status = self._check_received_status(rsp)
 
         return status
 
@@ -1170,19 +1242,6 @@ class Association(threading.Thread):
             If no accepted Presentation Context for `dataset` exists or if
             unable to encode the *Identifier* `dataset`.
 
-        Examples
-        --------
-
-        >>> ds = Dataset()
-        >>> ds.QueryRetrieveLevel = 'PATIENT'
-        >>> ds.PatientName = '*'
-        >>> assoc = ae.associate(addr, port)
-        >>> if assoc.is_established:
-        ...     response = assoc.send_c_find(ds, query_model='P')
-        ...     for (status, identifier) in response:
-        ...         print('C-FIND Response: 0x{0:04x}'.format(status.Status))
-        ...     assoc.release()
-
         See Also
         --------
         ae.ApplicationEntity.on_c_find
@@ -1216,55 +1275,34 @@ class Association(threading.Thread):
             raise RuntimeError("The association with a peer SCP must be "
                                "established before sending a C-FIND request")
 
-        if query_model == 'W':
-            sop_class = ModalityWorklistInformationFind
-        elif query_model == "P":
-            sop_class = PatientRootQueryRetrieveInformationModelFind
-        elif query_model == "S":
-            sop_class = StudyRootQueryRetrieveInformationModelFind
-        elif query_model == "O":
-            sop_class = PatientStudyOnlyQueryRetrieveInformationModelFind
-        elif query_model == "G":
-            sop_class = GeneralRelevantPatientInformationQuery
-        elif query_model == "B":
-            sop_class = BreastImagingRelevantPatientInformationQuery
-        elif query_model == "C":
-            sop_class = CardiacRelevantPatientInformationQuery
-        elif query_model == "PC":
-            sop_class = ProductCharacteristicsQueryInformationModelFind
-        elif query_model == "SA":
-            sop_class = SubstanceApprovalQueryInformationModelFind
-        elif query_model == "H":
-            sop_class = HangingProtocolInformationModelFind
-        elif query_model == "D":
-            sop_class = DefinedProcedureProtocolInformationModelFind
-        elif query_model == "CP":
-            sop_class = ColorPaletteInformationModelFind
-        elif query_model == "IG":
-            sop_class = GenericImplantTemplateInformationModelFind
-        elif query_model == "IA":
-            sop_class = ImplantAssemblyTemplateInformationModelFind
-        elif query_model == "IT":
-            sop_class = ImplantTemplateGroupInformationModelFind
-        else:
+        SOP_CLASSES = {
+            'W' : ModalityWorklistInformationFind,
+            "P" : PatientRootQueryRetrieveInformationModelFind,
+            "S" : StudyRootQueryRetrieveInformationModelFind,
+            "O" : PatientStudyOnlyQueryRetrieveInformationModelFind,
+            "G" : GeneralRelevantPatientInformationQuery,
+            "B" : BreastImagingRelevantPatientInformationQuery,
+            "C" : CardiacRelevantPatientInformationQuery,
+            "PC" : ProductCharacteristicsQueryInformationModelFind,
+            "SA" : SubstanceApprovalQueryInformationModelFind,
+            "H" : HangingProtocolInformationModelFind,
+            "D" : DefinedProcedureProtocolInformationModelFind,
+            "CP" : ColorPaletteInformationModelFind,
+            "IG" : GenericImplantTemplateInformationModelFind,
+            "IA" : ImplantAssemblyTemplateInformationModelFind,
+            "IT" : ImplantTemplateGroupInformationModelFind,
+        }
+
+        try:
+            sop_class = SOP_CLASSES[query_model]
+        except KeyError:
             raise ValueError(
                 "Unsupported value for `query_model`: {}".format(query_model)
             )
 
         # Determine the Presentation Context we are operating under
         #   and hence the transfer syntax to use for encoding `dataset`
-        transfer_syntax = None
-        for context in self.acse.accepted_contexts:
-            if sop_class.uid == context.abstract_syntax and context.as_scu:
-                transfer_syntax = context.transfer_syntax[0]
-                context_id = context.context_id
-                break
-        else:
-            LOGGER.error("No accepted Presentation Context for: '%s'",
-                         sop_class.uid)
-            LOGGER.error("Find SCU failed due to there being no accepted "
-                         "presentation context for the current dataset")
-            raise ValueError("No accepted Presentation Context for 'dataset'")
+        context = self._get_valid_context(sop_class, '', 'scu')
 
         # Build C-FIND request primitive
         #   (M) Message ID
@@ -1273,11 +1311,12 @@ class Association(threading.Thread):
         #   (M) Identifier
         req = C_FIND()
         req.MessageID = msg_id
-        req.AffectedSOPClassUID = sop_class.uid
+        req.AffectedSOPClassUID = sop_class
         req.Priority = priority
 
         # Encode the Identifier `dataset` using the agreed transfer syntax
         #   Will return None if failed to encode
+        transfer_syntax = context.transfer_syntax[0]
         bytestream = encode(dataset,
                             transfer_syntax.is_implicit_VR,
                             transfer_syntax.is_little_endian)
@@ -1296,7 +1335,7 @@ class Association(threading.Thread):
         LOGGER.info('')
 
         # Send C-FIND request to the peer via DIMSE
-        self.dimse.send_msg(req, context_id)
+        self.dimse.send_msg(req, context.context_id)
 
         # Get the responses from the peer
         ii = 1
@@ -1318,7 +1357,7 @@ class Association(threading.Thread):
             # Status may be 'Failure', 'Cancel', 'Success' or 'Pending'
             status = Dataset()
             status.Status = rsp.Status
-            for keyword in ['OffendingElement', 'ErrorComment']:
+            for keyword in rsp.STATUS_OPTIONAL_KEYWORDS:
                 if getattr(rsp, keyword) is not None:
                     setattr(status, keyword, getattr(rsp, keyword))
 
@@ -1330,7 +1369,7 @@ class Association(threading.Thread):
 
             # We want to exit the wait loop if we receive a Failure, Cancel or
             #   Success status type
-            if status_category != 'Pending':
+            if status_category != STATUS_PENDING:
                 identifier = None
                 break
 
@@ -1497,45 +1536,29 @@ class Association(threading.Thread):
             raise RuntimeError("The association with a peer SCP must be "
                                "established before sending a C-MOVE request")
 
-        if query_model == "P":
-            sop_class = PatientRootQueryRetrieveInformationModelMove
-        elif query_model == "S":
-            sop_class = StudyRootQueryRetrieveInformationModelMove
-        elif query_model == "O":
-            sop_class = PatientStudyOnlyQueryRetrieveInformationModelMove
-        elif query_model == "C":
-            sop_class = CompositeInstanceRootRetrieveMove
-        elif query_model == "H":
-            sop_class = HangingProtocolInformationModelMove
-        elif query_model == "D":
-            sop_class = DefinedProcedureProtocolInformationModelMove
-        elif query_model == "CP":
-            sop_class = ColorPaletteInformationModelMove
-        elif query_model == "IG":
-            sop_class = GenericImplantTemplateInformationModelMove
-        elif query_model == "IA":
-            sop_class = ImplantAssemblyTemplateInformationModelMove
-        elif query_model == "IT":
-            sop_class = ImplantTemplateGroupInformationModelMove
-        else:
+        SOP_CLASSES = {
+            "P" : PatientRootQueryRetrieveInformationModelMove,
+            "S" : StudyRootQueryRetrieveInformationModelMove,
+            "O" : PatientStudyOnlyQueryRetrieveInformationModelMove,
+            "C" : CompositeInstanceRootRetrieveMove,
+            "H" : HangingProtocolInformationModelMove,
+            "D" : DefinedProcedureProtocolInformationModelMove,
+            "CP" : ColorPaletteInformationModelMove,
+            "IG" : GenericImplantTemplateInformationModelMove,
+            "IA" : ImplantAssemblyTemplateInformationModelMove,
+            "IT" : ImplantTemplateGroupInformationModelMove,
+        }
+
+        try:
+            sop_class = SOP_CLASSES[query_model]
+        except KeyError:
             raise ValueError(
                 "Unsupported value for `query_model`: {}".format(query_model)
             )
 
         # Determine the Presentation Context we are operating under
         #   and hence the transfer syntax to use for encoding `dataset`
-        transfer_syntax = None
-        for context in self.acse.accepted_contexts:
-            if sop_class.uid == context.abstract_syntax and context.as_scu:
-                transfer_syntax = context.transfer_syntax[0]
-                context_id = context.context_id
-                break
-        else:
-            LOGGER.error("No accepted Presentation Context for: '%s'",
-                         sop_class.uid)
-            LOGGER.error("Move SCU failed due to there being no accepted "
-                         "presentation context\n   for the current dataset")
-            raise ValueError("No accepted Presentation Context for 'dataset'")
+        context = self._get_valid_context(sop_class, '', 'scu')
 
         # Build C-MOVE request primitive
         #   (M) Message ID
@@ -1545,12 +1568,13 @@ class Association(threading.Thread):
         #   (M) Identifier
         req = C_MOVE()
         req.MessageID = msg_id
-        req.AffectedSOPClassUID = sop_class.uid
+        req.AffectedSOPClassUID = sop_class
         req.Priority = priority
         req.MoveDestination = move_aet
 
         # Encode the Identifier `dataset` using the agreed transfer syntax;
         #   will return None if failed to encode
+        transfer_syntax = context.transfer_syntax[0]
         bytestream = encode(dataset,
                             transfer_syntax.is_implicit_VR,
                             transfer_syntax.is_little_endian)
@@ -1570,7 +1594,7 @@ class Association(threading.Thread):
         LOGGER.info('')
 
         # Send C-MOVE request to the peer via DIMSE and wait for the response
-        self.dimse.send_msg(req, context_id)
+        self.dimse.send_msg(req, context.context_id)
 
         # Get the responses from peer
         operation_no = 1
@@ -1587,11 +1611,7 @@ class Association(threading.Thread):
             if rsp.__class__ == C_MOVE:
                 status = Dataset()
                 status.Status = rsp.Status
-                for keyword in ['ErrorComment', 'OffendingElement',
-                                'NumberOfRemainingSuboperations',
-                                'NumberOfCompletedSuboperations',
-                                'NumberOfFailedSuboperations',
-                                'NumberOfWarningSuboperations']:
+                for keyword in rsp.STATUS_OPTIONAL_KEYWORDS:
                     if getattr(rsp, keyword) is not None:
                         setattr(status, keyword, getattr(rsp, keyword))
 
@@ -1603,31 +1623,34 @@ class Association(threading.Thread):
 
                 # Log status type
                 LOGGER.debug('')
-                if category == 'Pending':
+                if category == STATUS_PENDING:
                     LOGGER.info("Move SCP Response: %s (Pending)", operation_no)
-                elif category in ['Success', 'Cancel', 'Warning']:
+                elif category in [STATUS_SUCCESS, STATUS_CANCEL, STATUS_WARNING]:
                     LOGGER.info("Move SCP Result: (%s)", category)
-                elif category == 'Failure':
+                elif category == STATUS_FAILURE:
                     LOGGER.info("Move SCP Result: (Failure - 0x%04x)",
                                 status.Status)
 
                 # Log number of remaining sub-operations
-                LOGGER.info("Sub-Operations Remaining: %s, Completed: %s, "
-                            "Failed: %s, Warning: %s",
-                            rsp.NumberOfRemainingSuboperations or '0',
-                            rsp.NumberOfCompletedSuboperations or '0',
-                            rsp.NumberOfFailedSuboperations or '0',
-                            rsp.NumberOfWarningSuboperations or '0')
+                LOGGER.info(
+                    "Sub-Operations Remaining: %s, Completed: %s, "
+                    "Failed: %s, Warning: %s",
+                    rsp.NumberOfRemainingSuboperations or '0',
+                    rsp.NumberOfCompletedSuboperations or '0',
+                    rsp.NumberOfFailedSuboperations or '0',
+                    rsp.NumberOfWarningSuboperations or '0'
+                )
 
                 # Yields - 'Success', 'Warning', 'Cancel', 'Failure' are final
                 #   yields, 'Pending' means more to come
                 identifier = None
-                if category == 'Pending':
+                if category == STATUS_PENDING:
                     operation_no += 1
                     yield status, identifier
                     continue
-                elif rsp.Identifier and category in ['Cancel', 'Warning',
-                                                     'Failure']:
+                elif rsp.Identifier and category in [STATUS_CANCEL,
+                                                     STATUS_WARNING,
+                                                     STATUS_FAILURE]:
                     # From Part 4, Annex C.4.2, responses with these statuses
                     #   should contain an Identifier dataset with a
                     #   (0008,0058) Failed SOP Instance UID List element
@@ -1646,6 +1669,7 @@ class Association(threading.Thread):
                         LOGGER.error("Failed to decode the received Identifier "
                                      "dataset")
                         LOGGER.exception(ex)
+                        identifier = None
 
                 yield status, identifier
                 break
@@ -1815,47 +1839,30 @@ class Association(threading.Thread):
             raise RuntimeError("The association with a peer SCP must be "
                                "established before sending a C-GET request")
 
-        if query_model == "P":
-            sop_class = PatientRootQueryRetrieveInformationModelGet
-        elif query_model == "S":
-            sop_class = StudyRootQueryRetrieveInformationModelGet
-        elif query_model == "O":
-            sop_class = PatientStudyOnlyQueryRetrieveInformationModelGet
-        elif query_model == "C":
-            sop_class = CompositeInstanceRootRetrieveGet
-        elif query_model == "CB":
-            sop_class = CompositeInstanceRetrieveWithoutBulkDataGet
-        elif query_model == "H":
-            sop_class = HangingProtocolInformationModelGet
-        elif query_model == "D":
-            sop_class = DefinedProcedureProtocolInformationModelGet
-        elif query_model == "CP":
-            sop_class = ColorPaletteInformationModelGet
-        elif query_model == "IG":
-            sop_class = GenericImplantTemplateInformationModelGet
-        elif query_model == "IA":
-            sop_class = ImplantAssemblyTemplateInformationModelGet
-        elif query_model == "IT":
-            sop_class = ImplantTemplateGroupInformationModelGet
-        else:
+        SOP_CLASSES = {
+            "P" : PatientRootQueryRetrieveInformationModelGet,
+            "S" : StudyRootQueryRetrieveInformationModelGet,
+            "O" : PatientStudyOnlyQueryRetrieveInformationModelGet,
+            "C" : CompositeInstanceRootRetrieveGet,
+            "CB" : CompositeInstanceRetrieveWithoutBulkDataGet,
+            "H" : HangingProtocolInformationModelGet,
+            "D" : DefinedProcedureProtocolInformationModelGet,
+            "CP" : ColorPaletteInformationModelGet,
+            "IG" : GenericImplantTemplateInformationModelGet,
+            "IA" : ImplantAssemblyTemplateInformationModelGet,
+            "IT" : ImplantTemplateGroupInformationModelGet,
+        }
+
+        try:
+            sop_class = SOP_CLASSES[query_model]
+        except KeyError:
             raise ValueError(
                 "Unsupported value for `query_model`: {}".format(query_model)
             )
 
         # Determine the Presentation Context we are operating under
         #   and hence the transfer syntax to use for encoding `dataset`
-        transfer_syntax = None
-        for context in self.acse.accepted_contexts:
-            if sop_class.uid == context.abstract_syntax and context.as_scu:
-                transfer_syntax = context.transfer_syntax[0]
-                context_id = context.context_id
-                break
-        else:
-            LOGGER.error("No accepted Presentation Context for: '%s'",
-                         sop_class.uid)
-            LOGGER.error("Get SCU failed due to there being no accepted "
-                         "presentation context for the current dataset")
-            raise ValueError("No accepted Presentation Context for 'dataset'")
+        context = self._get_valid_context(sop_class, '', 'scu')
 
         # Build C-GET request primitive
         #   (M) Message ID
@@ -1864,11 +1871,12 @@ class Association(threading.Thread):
         #   (M) Identifier
         req = C_GET()
         req.MessageID = msg_id
-        req.AffectedSOPClassUID = sop_class.uid
+        req.AffectedSOPClassUID = sop_class
         req.Priority = priority
 
         # Encode the Identifier `dataset` using the agreed transfer syntax
         #   Will return None if failed to encode
+        transfer_syntax = context.transfer_syntax[0]
         bytestream = encode(dataset,
                             transfer_syntax.is_implicit_VR,
                             transfer_syntax.is_little_endian)
@@ -1888,7 +1896,7 @@ class Association(threading.Thread):
         LOGGER.info('')
 
         # Send C-GET request to the peer via DIMSE
-        self.dimse.send_msg(req, context_id)
+        self.dimse.send_msg(req, context.context_id)
 
         # Get the responses from the peer
         operation_no = 1
@@ -1907,11 +1915,7 @@ class Association(threading.Thread):
             if rsp.__class__ == C_GET:
                 status = Dataset()
                 status.Status = rsp.Status
-                for keyword in ['ErrorComment', 'OffendingElement',
-                                'NumberOfRemainingSuboperations',
-                                'NumberOfCompletedSuboperations',
-                                'NumberOfFailedSuboperations',
-                                'NumberOfWarningSuboperations']:
+                for keyword in rsp.STATUS_OPTIONAL_KEYWORDS:
                     if getattr(rsp, keyword) is not None:
                         setattr(status, keyword, getattr(rsp, keyword))
 
@@ -1923,31 +1927,34 @@ class Association(threading.Thread):
 
                 # Log status type
                 LOGGER.debug('')
-                if category == 'Pending':
+                if category == STATUS_PENDING:
                     LOGGER.info("Get SCP Response: %s (Pending)", operation_no)
-                elif category in ['Success', 'Cancel', 'Warning']:
+                elif category in [STATUS_SUCCESS, STATUS_CANCEL, STATUS_WARNING]:
                     LOGGER.info('Get SCP Result: (%s)', category)
-                elif category == "Failure":
+                elif category == STATUS_FAILURE:
                     LOGGER.info('Get SCP Result: (Failure - 0x%04x)',
                                 status.Status)
 
                 # Log number of remaining sub-operations
-                LOGGER.info("Sub-Operations Remaining: %s, Completed: %s, "
-                            "Failed: %s, Warning: %s",
-                            rsp.NumberOfRemainingSuboperations or '0',
-                            rsp.NumberOfCompletedSuboperations or '0',
-                            rsp.NumberOfFailedSuboperations or '0',
-                            rsp.NumberOfWarningSuboperations or '0')
+                LOGGER.info(
+                    "Sub-Operations Remaining: %s, Completed: %s, "
+                    "Failed: %s, Warning: %s",
+                    rsp.NumberOfRemainingSuboperations or '0',
+                    rsp.NumberOfCompletedSuboperations or '0',
+                    rsp.NumberOfFailedSuboperations or '0',
+                    rsp.NumberOfWarningSuboperations or '0'
+                )
 
                 # Yields - 'Success', 'Warning', 'Failure', 'Cancel' are
                 #   final yields, 'Pending' means more to come
                 identifier = None
-                if category in ['Pending']:
+                if category in [STATUS_PENDING]:
                     operation_no += 1
                     yield status, identifier
                     continue
-                elif rsp.Identifier and category in ['Cancel', 'Warning',
-                                                     'Failure']:
+                elif rsp.Identifier and category in [STATUS_CANCEL,
+                                                     STATUS_WARNING,
+                                                     STATUS_FAILURE]:
                     # From Part 4, Annex C.4.3, responses with these statuses
                     #   should contain an Identifier dataset with a
                     #   (0008,0058) Failed SOP Instance UID List element
@@ -1966,6 +1973,7 @@ class Association(threading.Thread):
                         LOGGER.error("Failed to decode the received Identifier "
                                      "dataset")
                         LOGGER.exception(ex)
+                        identifier = None
 
                 yield status, identifier
                 break
@@ -2015,20 +2023,21 @@ class Association(threading.Thread):
         rsp.AffectedSOPInstanceUID = req.AffectedSOPInstanceUID
         rsp.AffectedSOPClassUID = req.AffectedSOPClassUID
 
-        transfer_syntax = None
-        for context in self.acse.accepted_contexts:
-            if req.AffectedSOPClassUID == context.abstract_syntax and context.as_scp:
-                transfer_syntax = context.transfer_syntax[0]
-                break
-        else:
-            LOGGER.error("No accepted Presentation Context for: '%s'",
-                         req.AffectedSOPClassUID)
+        try:
+            context = self._get_valid_context(
+                req.AffectedSOPClassUID,
+                '',
+                'scp',
+                context_id=req._context_id
+            )
+        except ValueError:
             # SOP Class not supported, no context ID?
             rsp.Status = 0x0122
             self.dimse.send_msg(rsp, 1)
             return
 
         # Attempt to decode the dataset
+        transfer_syntax = context.transfer_syntax[0]
         try:
             ds = decode(req.DataSet,
                         transfer_syntax.is_implicit_VR,
@@ -2211,24 +2220,7 @@ class Association(threading.Thread):
         # Determine the Presentation Context we are operating under
         #   and hence the transfer syntax to use for encoding `dataset`
         transfer_syntax = None
-        for context in self.acse.accepted_contexts:
-            if class_uid == context.abstract_syntax and context.as_scu:
-                transfer_syntax = context.transfer_syntax[0]
-                context_id = context.context_id
-                break
-        else:
-            LOGGER.error(
-                "Association.send_n_event_report - no accepted Presentation "
-                "Context for: '{}'".format(class_uid)
-            )
-            LOGGER.error(
-                "Event Report SCU failed due to there being no accepted "
-                "presentation context"
-            )
-            raise ValueError(
-                "No accepted Presentation Context for the SOP Class UID '{}'"
-                .format(class_uid)
-            )
+        context = self._get_valid_context(class_uid, '', 'scu')
 
         # Build N-EVENT-REPORT request primitive
         #   (M) Message ID
@@ -2244,6 +2236,7 @@ class Association(threading.Thread):
 
         # Encode the `dataset` using the agreed transfer syntax
         #   Will return None if failed to encode
+        transfer_syntax = context.transfer_syntax[0]
         bytestream = encode(dataset,
                             transfer_syntax.is_implicit_VR,
                             transfer_syntax.is_little_endian)
@@ -2256,29 +2249,15 @@ class Association(threading.Thread):
 
         # Send N-EVENT-REPORT request to the peer via DIMSE and wait for
         # the response primitive
-        self.dimse.send_msg(req, context_id)
+        self.dimse.send_msg(req, context.context_id)
         rsp, _ = self.dimse.receive_msg(wait=True)
 
         # Determine validity of the response and get the status
-        status = Dataset()
-        event_reply = None
-        if rsp is None:
-            LOGGER.error('DIMSE service timed out')
-            self.abort()
-        elif rsp.is_valid_response:
-            status.Status = rsp.Status
-            # TODO: use rsp.OPTIONAL_STATUS_KEYWORDS or something
-            for keyword in rsp.STATUS_OPTIONAL_KEYWORDS:
-                if getattr(rsp, keyword, None) is not None:
-                    setattr(status, keyword, getattr(rsp, keyword))
-        else:
-            LOGGER.error(
-                'Received an invalid N-EVENT-REPORT response from the peer'
-            )
-            self.abort()
+        status = self._check_received_status(rsp)
 
         # Warning and Success statuses will return a dataset
         #   we check against None as 0x0000 is a possible status
+        event_reply = None
         if getattr(status, 'Status', None) is not None:
             category = code_to_category(status.Status)
             if category not in [STATUS_WARNING, STATUS_SUCCESS]:
@@ -2382,25 +2361,8 @@ class Association(threading.Thread):
 
         # Determine the Presentation Context we are operating under
         #   and hence the transfer syntax to use for encoding `dataset`
-        transfer_syntax = None
-        for context in self.acse.accepted_contexts:
-            if class_uid == context.abstract_syntax and context.as_scu:
-                transfer_syntax = context.transfer_syntax[0]
-                context_id = context.context_id
-                break
-        else:
-            LOGGER.error(
-                "Association.send_n_get - no accepted Presentation Context "
-                "for: '{}'".format(class_uid)
-            )
-            LOGGER.error(
-                "Get SCU failed due to there being no accepted presentation "
-                "context"
-            )
-            raise ValueError(
-                "No accepted Presentation Context for the SOP Class UID '{}'"
-                .format(class_uid)
-            )
+        context = self._get_valid_context(class_uid, '', 'scu')
+        transfer_syntax = context.transfer_syntax[0]
 
         # Build N-GET request primitive
         #   (M) Message ID
@@ -2414,26 +2376,15 @@ class Association(threading.Thread):
         req.AttributeIdentifierList = identifier_list
 
         # Send N-GET request to the peer via DIMSE and wait for the response
-        self.dimse.send_msg(req, context_id)
+        self.dimse.send_msg(req, context.context_id)
         rsp, _ = self.dimse.receive_msg(wait=True)
 
         # Determine validity of the response and get the status
-        status = Dataset()
-        attribute_list = None
-        if rsp is None:
-            LOGGER.error('DIMSE service timed out')
-            self.abort()
-        elif rsp.is_valid_response:
-            status.Status = rsp.Status
-            for keyword in ['ErrorComment', 'ErrorID']:
-                if getattr(rsp, keyword, None) is not None:
-                    setattr(status, keyword, getattr(rsp, keyword))
-        else:
-            LOGGER.error('Received an invalid N-GET response from the peer')
-            self.abort()
+        status = self._check_received_status(rsp)
 
         # Warning and Success statuses will return a dataset
         #   we check against None as 0x0000 is a possible status
+        attribute_list = None
         if getattr(status, 'Status', None) is not None:
             category = code_to_category(status.Status)
             if category not in [STATUS_WARNING, STATUS_SUCCESS]:
@@ -2536,25 +2487,8 @@ class Association(threading.Thread):
 
         # Determine the Presentation Context we are operating under
         #   and hence the transfer syntax to use for encoding `dataset`
-        transfer_syntax = None
-        for context in self.acse.accepted_contexts:
-            if class_uid == context.abstract_syntax and context.as_scu:
-                transfer_syntax = context.transfer_syntax[0]
-                context_id = context.context_id
-                break
-        else:
-            LOGGER.error(
-                "Association.send_n_set - no accepted Presentation Context "
-                "for: '{}'".format(class_uid)
-            )
-            LOGGER.error(
-                "Get SCU failed due to there being no accepted presentation "
-                "context"
-            )
-            raise ValueError(
-                "No accepted Presentation Context for the SOP Class UID '{}'"
-                .format(class_uid)
-            )
+        context = self._get_valid_context(class_uid, '', 'scu')
+        transfer_syntax = context.transfer_syntax[0]
 
         # Build N-SET request primitive
         #   (M) Message ID
@@ -2579,27 +2513,15 @@ class Association(threading.Thread):
             raise ValueError('Failed to encode the supplied Dataset')
 
         # Send N-SET request to the peer via DIMSE and wait for the response
-        self.dimse.send_msg(req, context_id)
+        self.dimse.send_msg(req, context.context_id)
         rsp, _ = self.dimse.receive_msg(wait=True)
 
         # Determine validity of the response and get the status
-        status = Dataset()
-        attribute_list = None
-        if rsp is None:
-            LOGGER.error('DIMSE service timed out')
-            self.abort()
-        elif rsp.is_valid_response:
-            status.Status = rsp.Status
-            for keyword in ['ErrorComment', 'ErrorID',
-                            'AttributeIdentifierList']:
-                if getattr(rsp, keyword, None) is not None:
-                    setattr(status, keyword, getattr(rsp, keyword))
-        else:
-            LOGGER.error('Received an invalid N-SET response from the peer')
-            self.abort()
+        status = self._check_received_status(rsp)
 
         # Warning and Success statuses will return a dataset
         #   we check against None as 0x0000 is a possible status
+        attribute_list = None
         if getattr(status, 'Status', None) is not None:
             category = code_to_category(status.Status)
             if category not in [STATUS_WARNING, STATUS_SUCCESS]:
@@ -2700,25 +2622,8 @@ class Association(threading.Thread):
 
         # Determine the Presentation Context we are operating under
         #   and hence the transfer syntax to use for encoding `dataset`
-        transfer_syntax = None
-        for context in self.acse.accepted_contexts:
-            if class_uid == context.abstract_syntax and context.as_scu:
-                transfer_syntax = context.transfer_syntax[0]
-                context_id = context.context_id
-                break
-        else:
-            LOGGER.error(
-                "Association.send_n_action - no accepted Presentation Context "
-                "for: '{}'".format(class_uid)
-            )
-            LOGGER.error(
-                "Action SCU failed due to there being no accepted "
-                "presentation context"
-            )
-            raise ValueError(
-                "No accepted Presentation Context for the SOP Class UID '{}'"
-                .format(class_uid)
-            )
+        context = self._get_valid_context(class_uid, '', 'scu')
+        transfer_syntax = context.transfer_syntax[0]
 
         # Build N-ACTION request primitive
         #   (M) Message ID
@@ -2744,27 +2649,15 @@ class Association(threading.Thread):
             raise ValueError('Failed to encode the supplied Dataset')
 
         # Send N-ACTION request to the peer via DIMSE and wait for the response
-        self.dimse.send_msg(req, context_id)
+        self.dimse.send_msg(req, context.context_id)
         rsp, _ = self.dimse.receive_msg(wait=True)
 
         # Determine validity of the response and get the status
-        status = Dataset()
-        action_reply = None
-        if rsp is None:
-            LOGGER.error('DIMSE service timed out')
-            self.abort()
-        elif rsp.is_valid_response:
-            status.Status = rsp.Status
-            for keyword in ['ErrorComment', 'ErrorID',
-                            'AttributeIdentifierList']:
-                if getattr(rsp, keyword, None) is not None:
-                    setattr(status, keyword, getattr(rsp, keyword))
-        else:
-            LOGGER.error('Received an invalid N-ACTION response from the peer')
-            self.abort()
+        status = self._check_received_status(rsp)
 
         # Warning and Success statuses will return a dataset
         #   we check against None as 0x0000 is a possible status
+        action_reply = None
         if getattr(status, 'Status', None) is not None:
             category = code_to_category(status.Status)
             if category not in [STATUS_WARNING, STATUS_SUCCESS]:
@@ -2863,25 +2756,8 @@ class Association(threading.Thread):
 
         # Determine the Presentation Context we are operating under
         #   and hence the transfer syntax to use for encoding `dataset`
-        transfer_syntax = None
-        for context in self.acse.accepted_contexts:
-            if class_uid == context.abstract_syntax and context.as_scu:
-                transfer_syntax = context.transfer_syntax[0]
-                context_id = context.context_id
-                break
-        else:
-            LOGGER.error(
-                "Association.send_n_create - no accepted Presentation Context "
-                "for: '{}'".format(class_uid)
-            )
-            LOGGER.error(
-                "Create SCU failed due to there being no accepted presentation "
-                "context"
-            )
-            raise ValueError(
-                "No accepted Presentation Context for the SOP Class UID '{}'"
-                .format(class_uid)
-            )
+        context = self._get_valid_context(class_uid, '', 'scu')
+        transfer_syntax = context.transfer_syntax[0]
 
         # Build N-CREATE request primitive
         #   (M) Message ID
@@ -2905,26 +2781,15 @@ class Association(threading.Thread):
             raise ValueError('Failed to encode the supplied Dataset')
 
         # Send N-CREATE request to the peer via DIMSE and wait for the response
-        self.dimse.send_msg(req, context_id)
+        self.dimse.send_msg(req, context.context_id)
         rsp, _ = self.dimse.receive_msg(wait=True)
 
         # Determine validity of the response and get the status
-        status = Dataset()
-        attribute_list = None
-        if rsp is None:
-            LOGGER.error('DIMSE service timed out')
-            self.abort()
-        elif rsp.is_valid_response:
-            status.Status = rsp.Status
-            for keyword in ['ErrorComment', 'ErrorID']:
-                if getattr(rsp, keyword, None) is not None:
-                    setattr(status, keyword, getattr(rsp, keyword))
-        else:
-            LOGGER.error('Received an invalid N-CREATE response from the peer')
-            self.abort()
+        status = self._check_received_status(rsp)
 
         # Warning and Success statuses will return a dataset
         #   we check against None as 0x0000 is a possible status
+        attribute_list = None
         if getattr(status, 'Status', None) is not None:
             category = code_to_category(status.Status)
             if category not in [STATUS_WARNING, STATUS_SUCCESS]:
@@ -3010,25 +2875,8 @@ class Association(threading.Thread):
 
         # Determine the Presentation Context we are operating under
         #   and hence the transfer syntax to use for encoding `dataset`
-        transfer_syntax = None
-        for context in self.acse.accepted_contexts:
-            if class_uid == context.abstract_syntax and context.as_scu:
-                transfer_syntax = context.transfer_syntax[0]
-                context_id = context.context_id
-                break
-        else:
-            LOGGER.error(
-                "Association.send_n_delete - no accepted Presentation Context "
-                "for: '{}'".format(class_uid)
-            )
-            LOGGER.error(
-                "Delete SCU failed due to there being no accepted "
-                "presentation context"
-            )
-            raise ValueError(
-                "No accepted Presentation Context for the SOP Class UID '{}'"
-                .format(class_uid)
-            )
+        context = self._get_valid_context(class_uid, '', 'scu')
+        transfer_syntax = context.transfer_syntax[0]
 
         # Build N-DELETE request primitive
         #   (M) Message ID
@@ -3040,22 +2888,11 @@ class Association(threading.Thread):
         req.RequestedSOPInstanceUID = instance_uid
 
         # Send N-DELETE request to the peer via DIMSE and wait for the response
-        self.dimse.send_msg(req, context_id)
+        self.dimse.send_msg(req, context.context_id)
         rsp, _ = self.dimse.receive_msg(wait=True)
 
         # Determine validity of the response and get the status
-        status = Dataset()
-        if rsp is None:
-            LOGGER.error('DIMSE service timed out')
-            self.abort()
-        elif rsp.is_valid_response:
-            status.Status = rsp.Status
-            for keyword in ['ErrorComment', 'ErrorID']:
-                if getattr(rsp, keyword, None) is not None:
-                    setattr(status, keyword, getattr(rsp, keyword))
-        else:
-            LOGGER.error('Received an invalid N-DELETE response from the peer')
-            self.abort()
+        status = self._check_received_status(rsp)
 
         return status
 
