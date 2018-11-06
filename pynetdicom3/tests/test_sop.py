@@ -87,8 +87,7 @@ class TestUIDtoSOPlass(object):
     def test_missing_sop(self):
         """Test SOP Class if UID not found."""
         sop_class = uid_to_sop_class('1.2.3.4')
-        assert sop_class.uid == '1.2.3.4'
-        assert sop_class.UID == '1.2.3.4'
+        assert sop_class == '1.2.3.4'
         assert sop_class.service_class == ServiceClass
 
     def test_verification_uid(self):
@@ -170,75 +169,70 @@ class TestUIDToServiceClass(object):
 
 class TestSOPClass(object):
     """Tests for sop_class.SOPClass."""
-    def test_functional(self):
-        """Test basic functionality."""
-        sop = SOPClass('1.2.3', '1.2.3', VerificationServiceClass)
-        assert sop.uid == '1.2.3'
-        assert sop.UID == '1.2.3'
-        assert sop.service_class == VerificationServiceClass
+    def test_creation(self):
+        """Test creating a new UIDSOPClass."""
+        sop_class = SOPClass('1.2.3')
+        sop_class._service_class = ServiceClass
+
+        assert sop_class == '1.2.3'
+        assert sop_class.service_class == ServiceClass
+
+        sop_class_b = SOPClass(sop_class)
+        assert sop_class == sop_class_b
+        assert sop_class_b == '1.2.3'
+        assert sop_class_b.service_class == ServiceClass
 
     def test_verification_sop(self):
         """Test a Verification Service SOP Class."""
-        assert VerificationSOPClass.uid == '1.2.840.10008.1.1'
-        assert VerificationSOPClass.UID == '1.2.840.10008.1.1'
+        assert VerificationSOPClass == '1.2.840.10008.1.1'
         assert VerificationSOPClass.service_class == VerificationServiceClass
 
     def test_storage_sop(self):
         """Test a Storage Service SOP Class."""
-        assert CTImageStorage.uid == '1.2.840.10008.5.1.4.1.1.2'
-        assert CTImageStorage.UID == '1.2.840.10008.5.1.4.1.1.2'
+        assert CTImageStorage == '1.2.840.10008.5.1.4.1.1.2'
         assert CTImageStorage.service_class == StorageServiceClass
 
     def test_qr_sop(self):
         """Test a Query/Retrieve Service SOP Class."""
-        assert StudyRootQueryRetrieveInformationModelFind.uid == '1.2.840.10008.5.1.4.1.2.2.1'
-        assert StudyRootQueryRetrieveInformationModelFind.UID == '1.2.840.10008.5.1.4.1.2.2.1'
+        assert StudyRootQueryRetrieveInformationModelFind == '1.2.840.10008.5.1.4.1.2.2.1'
         assert StudyRootQueryRetrieveInformationModelFind.service_class == QueryRetrieveServiceClass
 
     def test_basic_worklist_sop(self):
         """Test a Basic Worklist Service SOP Class."""
-        assert ModalityWorklistInformationFind.uid == '1.2.840.10008.5.1.4.31'
-        assert ModalityWorklistInformationFind.UID == '1.2.840.10008.5.1.4.31'
+        assert ModalityWorklistInformationFind == '1.2.840.10008.5.1.4.31'
         assert ModalityWorklistInformationFind.service_class == BasicWorklistManagementServiceClass
 
     def test_relevant_patient_info_sop(self):
         """Test a Relevant Patient Information Query Service SOP Class."""
-        assert GeneralRelevantPatientInformationQuery.uid == '1.2.840.10008.5.1.4.37.1'
-        assert GeneralRelevantPatientInformationQuery.UID == '1.2.840.10008.5.1.4.37.1'
+        assert GeneralRelevantPatientInformationQuery == '1.2.840.10008.5.1.4.37.1'
         assert GeneralRelevantPatientInformationQuery.service_class == RelevantPatientInformationQueryServiceClass
 
     def test_substance_admin_sop(self):
         """Test s Substance Administration Query Service SOP Class."""
-        assert ProductCharacteristicsQueryInformationModelFind.uid == '1.2.840.10008.5.1.4.41'
-        assert ProductCharacteristicsQueryInformationModelFind.UID == '1.2.840.10008.5.1.4.41'
+        assert ProductCharacteristicsQueryInformationModelFind == '1.2.840.10008.5.1.4.41'
         assert ProductCharacteristicsQueryInformationModelFind.service_class == SubstanceAdministrationQueryServiceClass
 
     def test_non_patient_sop(self):
         """Test a Non-Patient Object Service SOP Class."""
-        assert HangingProtocolStorage.uid == '1.2.840.10008.5.1.4.38.1'
-        assert HangingProtocolStorage.UID == '1.2.840.10008.5.1.4.38.1'
+        assert HangingProtocolStorage == '1.2.840.10008.5.1.4.38.1'
         assert HangingProtocolStorage.service_class == NonPatientObjectStorageServiceClass
 
     def test_hanging_protocol_sop(self):
         """Test a Hanging Protocol Service SOP Class."""
-        assert HangingProtocolInformationModelGet.uid == '1.2.840.10008.5.1.4.38.4'
-        assert HangingProtocolInformationModelGet.UID == '1.2.840.10008.5.1.4.38.4'
+        assert HangingProtocolInformationModelGet == '1.2.840.10008.5.1.4.38.4'
         assert HangingProtocolInformationModelGet.service_class == HangingProtocolQueryRetrieveServiceClass
 
     def test_defined_procedure_sop(self):
         """Test a Defined Procedure Protocol Service SOP Class."""
-        assert DefinedProcedureProtocolInformationModelFind.uid == '1.2.840.10008.5.1.4.20.1'
-        assert DefinedProcedureProtocolInformationModelFind.UID == '1.2.840.10008.5.1.4.20.1'
+        assert DefinedProcedureProtocolInformationModelFind == '1.2.840.10008.5.1.4.20.1'
         assert DefinedProcedureProtocolInformationModelFind.service_class == DefinedProcedureProtocolQueryRetrieveServiceClass
 
     def test_color_palette_sop(self):
         """Test a Color Palette Service SOP Class."""
-        assert ColorPaletteInformationModelMove.uid == '1.2.840.10008.5.1.4.39.3'
-        assert ColorPaletteInformationModelMove.UID == '1.2.840.10008.5.1.4.39.3'
+        assert ColorPaletteInformationModelMove == '1.2.840.10008.5.1.4.39.3'
         assert ColorPaletteInformationModelMove.service_class == ColorPaletteQueryRetrieveServiceClass
 
     def test_implant_template_sop(self):
         """Test an Implant Template Service SOP Class."""
-        assert ImplantTemplateGroupInformationModelFind.uid == '1.2.840.10008.5.1.4.45.2'
-        assert ImplantTemplateGroupInformationModelFind.UID == '1.2.840.10008.5.1.4.45.2'
+        assert ImplantTemplateGroupInformationModelFind == '1.2.840.10008.5.1.4.45.2'
         assert ImplantTemplateGroupInformationModelFind.service_class == ImplantTemplateQueryRetrieveServiceClass

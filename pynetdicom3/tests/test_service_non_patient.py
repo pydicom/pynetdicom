@@ -29,7 +29,7 @@ LOGGER.setLevel(logging.CRITICAL)
 
 TEST_DS_DIR = os.path.join(os.path.dirname(__file__), 'dicom_files')
 DATASET = dcmread(os.path.join(TEST_DS_DIR, 'CTImageStorage.dcm'))
-DATASET.SOPClassUID = HangingProtocolStorage.uid
+DATASET.SOPClassUID = HangingProtocolStorage
 
 
 class TestNonPatientObjectStorageServiceClass(object):
@@ -196,7 +196,7 @@ class TestNonPatientObjectStorageServiceClass(object):
         assert assoc.is_released
 
         assert self.scp.context.context_id == 1
-        assert self.scp.context.abstract_syntax == HangingProtocolStorage.UID
+        assert self.scp.context.abstract_syntax == HangingProtocolStorage
         assert self.scp.context.transfer_syntax == '1.2.840.10008.1.2.1'
 
         self.scp.stop()

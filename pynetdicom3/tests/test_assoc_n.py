@@ -123,7 +123,7 @@ class TestAssociationSendNEventReport(object):
         )
         with pytest.raises(ValueError, match=msg):
             assoc.send_n_event_report(
-                None, None, VerificationSOPClass.uid, None
+                None, None, VerificationSOPClass, None
             )
         assoc.release()
         assert assoc.is_released
@@ -143,7 +143,7 @@ class TestAssociationSendNEventReport(object):
         ds.PerimeterValue = b'\x00\x01'
         msg = r"Failed to encode the supplied dataset"
         with pytest.raises(ValueError, match=msg):
-            assoc.send_n_event_report(ds, 1, PrintJobSOPClass.uid, '1.2.3')
+            assoc.send_n_event_report(ds, 1, PrintJobSOPClass, '1.2.3')
         assoc.release()
         assert assoc.is_released
 
@@ -169,7 +169,7 @@ class TestAssociationSendNEventReport(object):
         ds = Dataset()
         ds.PatientName = 'Test^test'
         status, ds = assoc.send_n_event_report(
-            ds, 1, PrintJobSOPClass.uid, '1.2.840.10008.5.1.1.40.1'
+            ds, 1, PrintJobSOPClass, '1.2.840.10008.5.1.1.40.1'
         )
 
         assert status == Dataset()
@@ -200,7 +200,7 @@ class TestAssociationSendNEventReport(object):
         ds = Dataset()
         ds.PatientName = 'Test^test'
         status, ds = assoc.send_n_event_report(
-            ds, 1, PrintJobSOPClass.uid, '1.2.840.10008.5.1.1.40.1'
+            ds, 1, PrintJobSOPClass, '1.2.840.10008.5.1.1.40.1'
         )
         assert status == Dataset()
         assert ds is None
@@ -223,7 +223,7 @@ class TestAssociationSendNEventReport(object):
         ds = Dataset()
         ds.PatientName = 'Test^test'
         status, ds = assoc.send_n_event_report(
-            ds, 1, PrintJobSOPClass.uid, '1.2.840.10008.5.1.1.40.1'
+            ds, 1, PrintJobSOPClass, '1.2.840.10008.5.1.1.40.1'
         )
         assert status.Status == 0x0112
         assert ds is None
@@ -246,13 +246,13 @@ class TestAssociationSendNEventReport(object):
         ds = Dataset()
         ds.PatientName = 'Test^test'
         status, ds = assoc.send_n_event_report(
-            ds, 1, PrintJobSOPClass.uid, '1.2.840.10008.5.1.1.40.1'
+            ds, 1, PrintJobSOPClass, '1.2.840.10008.5.1.1.40.1'
         )
         assert status.Status == 0x0116
         assert ds is not None
         assert isinstance(ds, Dataset)
         assert ds.PatientName == 'Test'
-        assert ds.SOPClassUID == PrintJobSOPClass.UID
+        assert ds.SOPClassUID == PrintJobSOPClass
         assert ds.SOPInstanceUID == '1.2.3.4'
         assoc.release()
         assert assoc.is_released
@@ -272,13 +272,13 @@ class TestAssociationSendNEventReport(object):
         ds = Dataset()
         ds.PatientName = 'Test^test'
         status, ds = assoc.send_n_event_report(
-            ds, 1, PrintJobSOPClass.uid, '1.2.840.10008.5.1.1.40.1'
+            ds, 1, PrintJobSOPClass, '1.2.840.10008.5.1.1.40.1'
         )
         assert status.Status == 0x0000
         assert ds is not None
         assert isinstance(ds, Dataset)
         assert ds.PatientName == 'Test'
-        assert ds.SOPClassUID == PrintJobSOPClass.UID
+        assert ds.SOPClassUID == PrintJobSOPClass
         assert ds.SOPInstanceUID == '1.2.3.4'
         assoc.release()
         assert assoc.is_released
@@ -299,7 +299,7 @@ class TestAssociationSendNEventReport(object):
         ds = Dataset()
         ds.PatientName = 'Test^test'
         status, ds = assoc.send_n_event_report(
-            ds, 1, PrintJobSOPClass.uid, '1.2.840.10008.5.1.1.40.1'
+            ds, 1, PrintJobSOPClass, '1.2.840.10008.5.1.1.40.1'
         )
         assert status.Status == 0xFFF0
         assert ds is None
@@ -341,7 +341,7 @@ class TestAssociationSendNEventReport(object):
         ds = Dataset()
         ds.PatientName = 'Test^test'
         status, ds = assoc.send_n_event_report(
-            ds, 1, PrintJobSOPClass.uid, '1.2.840.10008.5.1.1.40.1'
+            ds, 1, PrintJobSOPClass, '1.2.840.10008.5.1.1.40.1'
         )
 
         assert status.Status == 0x0110
@@ -369,7 +369,7 @@ class TestAssociationSendNEventReport(object):
         ds = Dataset()
         ds.PatientName = 'Test^test'
         status, ds = assoc.send_n_event_report(
-            ds, 1, PrintJobSOPClass.uid, '1.2.840.10008.5.1.1.40.1'
+            ds, 1, PrintJobSOPClass, '1.2.840.10008.5.1.1.40.1'
         )
         assert status.Status == 0xFFF0
         assert status.ErrorComment == 'Some comment'
@@ -432,7 +432,7 @@ class TestAssociationSendNGet(object):
             r"accepted by the peer for the SOP Class 'Verification SOP Class'"
         )
         with pytest.raises(ValueError, match=msg):
-            assoc.send_n_get(None, VerificationSOPClass.uid, None)
+            assoc.send_n_get(None, VerificationSOPClass, None)
         assoc.release()
         assert assoc.is_released
         self.scp.stop()
@@ -459,7 +459,7 @@ class TestAssociationSendNGet(object):
         assoc.dimse = DummyDIMSE()
         assert assoc.is_established
         status, ds = assoc.send_n_get([(0x7fe0,0x0010)],
-                                      DisplaySystemSOPClass.uid,
+                                      DisplaySystemSOPClass,
                                       '1.2.840.10008.5.1.1.40.1')
 
         assert status == Dataset()
@@ -488,7 +488,7 @@ class TestAssociationSendNGet(object):
         assoc.dimse = DummyDIMSE()
         assert assoc.is_established
         status, ds = assoc.send_n_get([(0x7fe0,0x0010)],
-                                      DisplaySystemSOPClass.uid,
+                                      DisplaySystemSOPClass,
                                       '1.2.840.10008.5.1.1.40.1')
         assert status == Dataset()
         assert ds is None
@@ -508,7 +508,7 @@ class TestAssociationSendNGet(object):
         assoc = ae.associate('localhost', 11112)
         assert assoc.is_established
         status, ds = assoc.send_n_get([(0x7fe0, 0x0010)],
-                                      DisplaySystemSOPClass.uid,
+                                      DisplaySystemSOPClass,
                                       '1.2.840.10008.5.1.1.40.1')
         assert status.Status == 0x0112
         assert ds is None
@@ -528,13 +528,13 @@ class TestAssociationSendNGet(object):
         assoc = ae.associate('localhost', 11112)
         assert assoc.is_established
         status, ds = assoc.send_n_get([(0x7fe0,0x0010)],
-                                      DisplaySystemSOPClass.uid,
+                                      DisplaySystemSOPClass,
                                       '1.2.840.10008.5.1.1.40.1')
         assert status.Status == 0x0116
         assert ds is not None
         assert isinstance(ds, Dataset)
         assert ds.PatientName == 'Test'
-        assert ds.SOPClassUID == DisplaySystemSOPClass.UID
+        assert ds.SOPClassUID == DisplaySystemSOPClass
         assert ds.SOPInstanceUID == '1.2.3.4'
         assoc.release()
         assert assoc.is_released
@@ -551,13 +551,13 @@ class TestAssociationSendNGet(object):
         assoc = ae.associate('localhost', 11112)
         assert assoc.is_established
         status, ds = assoc.send_n_get([(0x7fe0,0x0010)],
-                                      DisplaySystemSOPClass.uid,
+                                      DisplaySystemSOPClass,
                                       '1.2.840.10008.5.1.1.40.1')
         assert status.Status == 0x0000
         assert ds is not None
         assert isinstance(ds, Dataset)
         assert ds.PatientName == 'Test'
-        assert ds.SOPClassUID == DisplaySystemSOPClass.UID
+        assert ds.SOPClassUID == DisplaySystemSOPClass
         assert ds.SOPInstanceUID == '1.2.3.4'
         assoc.release()
         assert assoc.is_released
@@ -575,7 +575,7 @@ class TestAssociationSendNGet(object):
         assoc = ae.associate('localhost', 11112)
         assert assoc.is_established
         status, ds = assoc.send_n_get([(0x7fe0,0x0010)],
-                                      DisplaySystemSOPClass.uid,
+                                      DisplaySystemSOPClass,
                                       '1.2.840.10008.5.1.1.40.1')
         assert status.Status == 0xFFF0
         assert ds is None
@@ -597,6 +597,7 @@ class TestAssociationSendNGet(object):
             is_valid_response = True
             AttributeList = None
             Status = 0x0000
+            STATUS_OPTIONAL_KEYWORDS = []
 
         class DummyDIMSE():
             def send_msg(*args, **kwargs):
@@ -613,7 +614,7 @@ class TestAssociationSendNGet(object):
         assoc.dimse = DummyDIMSE()
         assert assoc.is_established
         status, ds = assoc.send_n_get([(0x7fe0,0x0010)],
-                                      DisplaySystemSOPClass.uid,
+                                      DisplaySystemSOPClass,
                                       '1.2.840.10008.5.1.1.40.1')
 
         assert status.Status == 0x0110
@@ -636,7 +637,7 @@ class TestAssociationSendNGet(object):
         assoc = ae.associate('localhost', 11112)
         assert assoc.is_established
         status, ds = assoc.send_n_get([(0x7fe0,0x0010)],
-                                      DisplaySystemSOPClass.uid,
+                                      DisplaySystemSOPClass,
                                       '1.2.840.10008.5.1.1.40.1')
         assert status.Status == 0xFFF0
         assert status.ErrorComment == 'Some comment'
@@ -727,7 +728,7 @@ class TestAssociationSendNSet(object):
             r"accepted by the peer for the SOP Class 'Verification SOP Class'"
         )
         with pytest.raises(ValueError, match=msg):
-            assoc.send_n_set(None, VerificationSOPClass.uid, None)
+            assoc.send_n_set(None, VerificationSOPClass, None)
         assoc.release()
         assert assoc.is_released
         self.scp.stop()
@@ -746,7 +747,7 @@ class TestAssociationSendNSet(object):
         mod_list.PerimeterValue = b'\x00\x01'
         msg = r"Failed to encode the supplied Dataset"
         with pytest.raises(ValueError, match=msg):
-            assoc.send_n_set(mod_list, PrintJobSOPClass.uid, '1.2.3')
+            assoc.send_n_set(mod_list, PrintJobSOPClass, '1.2.3')
         assoc.release()
         assert assoc.is_released
 
@@ -772,7 +773,7 @@ class TestAssociationSendNSet(object):
         mod_list = Dataset()
         mod_list.PatientName = 'Test^test'
         status, ds = assoc.send_n_set(mod_list,
-                                      PrintJobSOPClass.uid,
+                                      PrintJobSOPClass,
                                       '1.2.840.10008.5.1.1.40.1')
 
         assert status == Dataset()
@@ -803,7 +804,7 @@ class TestAssociationSendNSet(object):
         mod_list = Dataset()
         mod_list.PatientName = 'Test^test'
         status, ds = assoc.send_n_set(mod_list,
-                                      PrintJobSOPClass.uid,
+                                      PrintJobSOPClass,
                                       '1.2.840.10008.5.1.1.40.1')
         assert status == Dataset()
         assert ds is None
@@ -826,7 +827,7 @@ class TestAssociationSendNSet(object):
         mod_list = Dataset()
         mod_list.PatientName = 'Test^test'
         status, ds = assoc.send_n_set(mod_list,
-                                      PrintJobSOPClass.uid,
+                                      PrintJobSOPClass,
                                       '1.2.840.10008.5.1.1.40.1')
         assert status.Status == 0x0112
         assert ds is None
@@ -849,13 +850,13 @@ class TestAssociationSendNSet(object):
         mod_list = Dataset()
         mod_list.PatientName = 'Test^test'
         status, ds = assoc.send_n_set(mod_list,
-                                      PrintJobSOPClass.uid,
+                                      PrintJobSOPClass,
                                       '1.2.840.10008.5.1.1.40.1')
         assert status.Status == 0x0116
         assert ds is not None
         assert isinstance(ds, Dataset)
         assert ds.PatientName == 'Test'
-        assert ds.SOPClassUID == PrintJobSOPClass.UID
+        assert ds.SOPClassUID == PrintJobSOPClass
         assert ds.SOPInstanceUID == '1.2.3.4'
         assoc.release()
         assert assoc.is_released
@@ -875,13 +876,13 @@ class TestAssociationSendNSet(object):
         mod_list = Dataset()
         mod_list.PatientName = 'Test^test'
         status, ds = assoc.send_n_set(mod_list,
-                                      PrintJobSOPClass.uid,
+                                      PrintJobSOPClass,
                                       '1.2.840.10008.5.1.1.40.1')
         assert status.Status == 0x0000
         assert ds is not None
         assert isinstance(ds, Dataset)
         assert ds.PatientName == 'Test'
-        assert ds.SOPClassUID == PrintJobSOPClass.UID
+        assert ds.SOPClassUID == PrintJobSOPClass
         assert ds.SOPInstanceUID == '1.2.3.4'
         assoc.release()
         assert assoc.is_released
@@ -902,7 +903,7 @@ class TestAssociationSendNSet(object):
         mod_list = Dataset()
         mod_list.PatientName = 'Test^test'
         status, ds = assoc.send_n_set(mod_list,
-                                      PrintJobSOPClass.uid,
+                                      PrintJobSOPClass,
                                       '1.2.840.10008.5.1.1.40.1')
         assert status.Status == 0xFFF0
         assert ds is None
@@ -925,6 +926,7 @@ class TestAssociationSendNSet(object):
             is_valid_response = True
             ModificationList = None
             Status = 0x0000
+            STATUS_OPTIONAL_KEYWORDS = []
 
         class DummyDIMSE():
             def send_msg(*args, **kwargs):
@@ -943,7 +945,7 @@ class TestAssociationSendNSet(object):
         mod_list = Dataset()
         mod_list.PatientName = 'Test^test'
         status, ds = assoc.send_n_set(mod_list,
-                                      PrintJobSOPClass.uid,
+                                      PrintJobSOPClass,
                                       '1.2.840.10008.5.1.1.40.1')
 
         assert status.Status == 0x0110
@@ -970,7 +972,7 @@ class TestAssociationSendNSet(object):
         mod_list = Dataset()
         mod_list.PatientName = 'Test^test'
         status, ds = assoc.send_n_set(mod_list,
-                                      PrintJobSOPClass.uid,
+                                      PrintJobSOPClass,
                                       '1.2.840.10008.5.1.1.40.1')
         assert status.Status == 0xFFF0
         assert status.ErrorComment == 'Some comment'
@@ -1063,7 +1065,7 @@ class TestAssociationSendNAction(object):
             r"accepted by the peer for the SOP Class 'Verification SOP Class'"
         )
         with pytest.raises(ValueError, match=msg):
-            assoc.send_n_action(None, 1, VerificationSOPClass.uid, None)
+            assoc.send_n_action(None, 1, VerificationSOPClass, None)
         assoc.release()
         assert assoc.is_released
         self.scp.stop()
@@ -1082,7 +1084,7 @@ class TestAssociationSendNAction(object):
         ds.PerimeterValue = b'\x00\x01'
         msg = r"Failed to encode the supplied Dataset"
         with pytest.raises(ValueError, match=msg):
-            assoc.send_n_action(ds, 1, PrintJobSOPClass.uid, '1.2.3')
+            assoc.send_n_action(ds, 1, PrintJobSOPClass, '1.2.3')
         assoc.release()
         assert assoc.is_released
 
@@ -1108,7 +1110,7 @@ class TestAssociationSendNAction(object):
         ds = Dataset()
         ds.PatientName = 'Test^test'
         status, ds = assoc.send_n_action(
-            ds, 1, PrintJobSOPClass.uid, '1.2.840.10008.5.1.1.40.1'
+            ds, 1, PrintJobSOPClass, '1.2.840.10008.5.1.1.40.1'
         )
 
         assert status == Dataset()
@@ -1139,7 +1141,7 @@ class TestAssociationSendNAction(object):
         ds = Dataset()
         ds.PatientName = 'Test^test'
         status, ds = assoc.send_n_action(
-            ds, 1, PrintJobSOPClass.uid, '1.2.840.10008.5.1.1.40.1'
+            ds, 1, PrintJobSOPClass, '1.2.840.10008.5.1.1.40.1'
         )
         assert status == Dataset()
         assert ds is None
@@ -1162,7 +1164,7 @@ class TestAssociationSendNAction(object):
         ds = Dataset()
         ds.PatientName = 'Test^test'
         status, ds = assoc.send_n_action(
-            ds, 1, PrintJobSOPClass.uid, '1.2.840.10008.5.1.1.40.1'
+            ds, 1, PrintJobSOPClass, '1.2.840.10008.5.1.1.40.1'
         )
         assert status.Status == 0x0112
         assert ds is None
@@ -1185,13 +1187,13 @@ class TestAssociationSendNAction(object):
         ds = Dataset()
         ds.PatientName = 'Test^test'
         status, ds = assoc.send_n_action(
-            ds, 1, PrintJobSOPClass.uid, '1.2.840.10008.5.1.1.40.1'
+            ds, 1, PrintJobSOPClass, '1.2.840.10008.5.1.1.40.1'
         )
         assert status.Status == 0x0116
         assert ds is not None
         assert isinstance(ds, Dataset)
         assert ds.PatientName == 'Test'
-        assert ds.SOPClassUID == PrintJobSOPClass.UID
+        assert ds.SOPClassUID == PrintJobSOPClass
         assert ds.SOPInstanceUID == '1.2.3.4'
         assoc.release()
         assert assoc.is_released
@@ -1211,13 +1213,13 @@ class TestAssociationSendNAction(object):
         ds = Dataset()
         ds.PatientName = 'Test^test'
         status, ds = assoc.send_n_action(
-            ds, 1, PrintJobSOPClass.uid, '1.2.840.10008.5.1.1.40.1'
+            ds, 1, PrintJobSOPClass, '1.2.840.10008.5.1.1.40.1'
         )
         assert status.Status == 0x0000
         assert ds is not None
         assert isinstance(ds, Dataset)
         assert ds.PatientName == 'Test'
-        assert ds.SOPClassUID == PrintJobSOPClass.UID
+        assert ds.SOPClassUID == PrintJobSOPClass
         assert ds.SOPInstanceUID == '1.2.3.4'
         assoc.release()
         assert assoc.is_released
@@ -1238,7 +1240,7 @@ class TestAssociationSendNAction(object):
         ds = Dataset()
         ds.PatientName = 'Test^test'
         status, ds = assoc.send_n_action(
-            ds, 1, PrintJobSOPClass.uid, '1.2.840.10008.5.1.1.40.1'
+            ds, 1, PrintJobSOPClass, '1.2.840.10008.5.1.1.40.1'
         )
         assert status.Status == 0xFFF0
         assert ds is None
@@ -1261,6 +1263,7 @@ class TestAssociationSendNAction(object):
             is_valid_response = True
             ModificationList = None
             Status = 0x0000
+            STATUS_OPTIONAL_KEYWORDS = []
 
         class DummyDIMSE():
             def send_msg(*args, **kwargs):
@@ -1279,7 +1282,7 @@ class TestAssociationSendNAction(object):
         ds = Dataset()
         ds.PatientName = 'Test^test'
         status, ds = assoc.send_n_action(
-            ds, 1, PrintJobSOPClass.uid, '1.2.840.10008.5.1.1.40.1'
+            ds, 1, PrintJobSOPClass, '1.2.840.10008.5.1.1.40.1'
         )
 
         assert status.Status == 0x0110
@@ -1305,7 +1308,7 @@ class TestAssociationSendNAction(object):
         ds = Dataset()
         ds.PatientName = 'Test^test'
         status, ds = assoc.send_n_action(
-            ds, 1, PrintJobSOPClass.uid, '1.2.840.10008.5.1.1.40.1'
+            ds, 1, PrintJobSOPClass, '1.2.840.10008.5.1.1.40.1'
         )
         assert status.Status == 0xFFF0
         assert status.ErrorComment == 'Some comment'
@@ -1397,7 +1400,7 @@ class TestAssociationSendNCreate(object):
             r"accepted by the peer for the SOP Class 'Verification SOP Class'"
         )
         with pytest.raises(ValueError, match=msg):
-            assoc.send_n_create(None, VerificationSOPClass.uid, None)
+            assoc.send_n_create(None, VerificationSOPClass, None)
         assoc.release()
         assert assoc.is_released
         self.scp.stop()
@@ -1416,7 +1419,7 @@ class TestAssociationSendNCreate(object):
         ds.PerimeterValue = b'\x00\x01'
         msg = r"Failed to encode the supplied Dataset"
         with pytest.raises(ValueError, match=msg):
-            assoc.send_n_create(ds, PrintJobSOPClass.uid, '1.2.3')
+            assoc.send_n_create(ds, PrintJobSOPClass, '1.2.3')
         assoc.release()
         assert assoc.is_released
 
@@ -1442,7 +1445,7 @@ class TestAssociationSendNCreate(object):
         ds = Dataset()
         ds.PatientName = 'Test^test'
         status, ds = assoc.send_n_create(
-            ds, PrintJobSOPClass.uid, '1.2.840.10008.5.1.1.40.1'
+            ds, PrintJobSOPClass, '1.2.840.10008.5.1.1.40.1'
         )
 
         assert status == Dataset()
@@ -1473,7 +1476,7 @@ class TestAssociationSendNCreate(object):
         ds = Dataset()
         ds.PatientName = 'Test^test'
         status, ds = assoc.send_n_create(
-            ds, PrintJobSOPClass.uid, '1.2.840.10008.5.1.1.40.1'
+            ds, PrintJobSOPClass, '1.2.840.10008.5.1.1.40.1'
         )
         assert status == Dataset()
         assert ds is None
@@ -1496,7 +1499,7 @@ class TestAssociationSendNCreate(object):
         ds = Dataset()
         ds.PatientName = 'Test^test'
         status, ds = assoc.send_n_create(
-            ds, PrintJobSOPClass.uid, '1.2.840.10008.5.1.1.40.1'
+            ds, PrintJobSOPClass, '1.2.840.10008.5.1.1.40.1'
         )
         assert status.Status == 0x0112
         assert ds is None
@@ -1519,13 +1522,13 @@ class TestAssociationSendNCreate(object):
         ds = Dataset()
         ds.PatientName = 'Test^test'
         status, ds = assoc.send_n_create(
-            ds, PrintJobSOPClass.uid, '1.2.840.10008.5.1.1.40.1'
+            ds, PrintJobSOPClass, '1.2.840.10008.5.1.1.40.1'
         )
         assert status.Status == 0x0116
         assert ds is not None
         assert isinstance(ds, Dataset)
         assert ds.PatientName == 'Test'
-        assert ds.SOPClassUID == PrintJobSOPClass.UID
+        assert ds.SOPClassUID == PrintJobSOPClass
         assert ds.SOPInstanceUID == '1.2.3.4'
         assoc.release()
         assert assoc.is_released
@@ -1545,13 +1548,13 @@ class TestAssociationSendNCreate(object):
         ds = Dataset()
         ds.PatientName = 'Test^test'
         status, ds = assoc.send_n_create(
-            ds, PrintJobSOPClass.uid, '1.2.840.10008.5.1.1.40.1'
+            ds, PrintJobSOPClass, '1.2.840.10008.5.1.1.40.1'
         )
         assert status.Status == 0x0000
         assert ds is not None
         assert isinstance(ds, Dataset)
         assert ds.PatientName == 'Test'
-        assert ds.SOPClassUID == PrintJobSOPClass.UID
+        assert ds.SOPClassUID == PrintJobSOPClass
         assert ds.SOPInstanceUID == '1.2.3.4'
         assoc.release()
         assert assoc.is_released
@@ -1572,7 +1575,7 @@ class TestAssociationSendNCreate(object):
         ds = Dataset()
         ds.PatientName = 'Test^test'
         status, ds = assoc.send_n_create(
-            ds, PrintJobSOPClass.uid, '1.2.840.10008.5.1.1.40.1'
+            ds, PrintJobSOPClass, '1.2.840.10008.5.1.1.40.1'
         )
         assert status.Status == 0xFFF0
         assert ds is None
@@ -1595,6 +1598,7 @@ class TestAssociationSendNCreate(object):
             is_valid_response = True
             ModificationList = None
             Status = 0x0000
+            STATUS_OPTIONAL_KEYWORDS = []
 
         class DummyDIMSE():
             def send_msg(*args, **kwargs):
@@ -1613,7 +1617,7 @@ class TestAssociationSendNCreate(object):
         ds = Dataset()
         ds.PatientName = 'Test^test'
         status, ds = assoc.send_n_create(
-            ds, PrintJobSOPClass.uid, '1.2.840.10008.5.1.1.40.1'
+            ds, PrintJobSOPClass, '1.2.840.10008.5.1.1.40.1'
         )
 
         assert status.Status == 0x0110
@@ -1639,7 +1643,7 @@ class TestAssociationSendNCreate(object):
         ds = Dataset()
         ds.PatientName = 'Test^test'
         status, ds = assoc.send_n_create(
-            ds, PrintJobSOPClass.uid, '1.2.840.10008.5.1.1.40.1'
+            ds, PrintJobSOPClass, '1.2.840.10008.5.1.1.40.1'
         )
         assert status.Status == 0xFFF0
         assert status.ErrorComment == 'Some comment'
@@ -1727,7 +1731,7 @@ class TestAssociationSendNDelete(object):
             r"accepted by the peer for the SOP Class 'Verification SOP Class'"
         )
         with pytest.raises(ValueError, match=msg):
-            assoc.send_n_delete(VerificationSOPClass.uid, None)
+            assoc.send_n_delete(VerificationSOPClass, None)
         assoc.release()
         assert assoc.is_released
         self.scp.stop()
@@ -1749,7 +1753,7 @@ class TestAssociationSendNDelete(object):
 
         assoc.dimse = DummyDIMSE()
         assert assoc.is_established
-        status = assoc.send_n_delete(PrintJobSOPClass.uid,
+        status = assoc.send_n_delete(PrintJobSOPClass,
                                      '1.2.840.10008.5.1.1.40.1')
 
         assert status == Dataset()
@@ -1776,7 +1780,7 @@ class TestAssociationSendNDelete(object):
 
         assoc.dimse = DummyDIMSE()
         assert assoc.is_established
-        status = assoc.send_n_delete(PrintJobSOPClass.uid,
+        status = assoc.send_n_delete(PrintJobSOPClass,
                                      '1.2.840.10008.5.1.1.40.1')
         assert status == Dataset()
         assert assoc.is_aborted
@@ -1795,7 +1799,7 @@ class TestAssociationSendNDelete(object):
         ae.dimse_timeout = 5
         assoc = ae.associate('localhost', 11112)
         assert assoc.is_established
-        status = assoc.send_n_delete(PrintJobSOPClass.uid,
+        status = assoc.send_n_delete(PrintJobSOPClass,
                                      '1.2.840.10008.5.1.1.40.1')
         assert status.Status == 0x0112
         assoc.release()
@@ -1814,7 +1818,7 @@ class TestAssociationSendNDelete(object):
         assoc = ae.associate('localhost', 11112)
 
         assert assoc.is_established
-        status = assoc.send_n_delete(PrintJobSOPClass.uid,
+        status = assoc.send_n_delete(PrintJobSOPClass,
                                      '1.2.840.10008.5.1.1.40.1')
         assert status.Status == 0x0000
         assoc.release()
@@ -1833,7 +1837,7 @@ class TestAssociationSendNDelete(object):
         ae.dimse_timeout = 5
         assoc = ae.associate('localhost', 11112)
         assert assoc.is_established
-        status = assoc.send_n_delete(PrintJobSOPClass.uid,
+        status = assoc.send_n_delete(PrintJobSOPClass,
                                      '1.2.840.10008.5.1.1.40.1')
         assert status.Status == 0xFFF0
         assoc.release()
@@ -1855,7 +1859,7 @@ class TestAssociationSendNDelete(object):
         ae.dimse_timeout = 5
         assoc = ae.associate('localhost', 11112)
         assert assoc.is_established
-        status = assoc.send_n_delete(PrintJobSOPClass.uid,
+        status = assoc.send_n_delete(PrintJobSOPClass,
                                      '1.2.840.10008.5.1.1.40.1')
         assert status.Status == 0xFFF0
         assert status.ErrorComment == 'Some comment'

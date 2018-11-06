@@ -948,7 +948,7 @@ class TestNegotiateAsRequestorWithRoleSelection(object):
         context_a.context_id = 1
         context_b = build_context(CTImageStorage)
         context_b.context_id = 3
-        rq_roles = {CTImageStorage.uid : (False, True)}
+        rq_roles = {CTImageStorage : (False, True)}
         rq_contexts = [context_a, context_b]
 
         # Acceptor
@@ -970,11 +970,11 @@ class TestNegotiateAsRequestorWithRoleSelection(object):
         rq_contexts[1].scp_role = True
         result = negotiate_as_requestor(rq_contexts, result, ac_roles)
 
-        assert result[0].abstract_syntax == CompositeInstanceRetrieveWithoutBulkDataGet.uid
+        assert result[0].abstract_syntax == CompositeInstanceRetrieveWithoutBulkDataGet
         assert result[0].as_scu
         assert not result[0].as_scp
 
-        assert result[1].abstract_syntax == CTImageStorage.uid
+        assert result[1].abstract_syntax == CTImageStorage
         assert not result[1].as_scu
         assert result[1].as_scp
 
@@ -983,7 +983,7 @@ class TestNegotiateAsRequestorWithRoleSelection(object):
         # Requestor
         context_a = build_context(CTImageStorage)
         context_a.context_id = 3
-        rq_roles = {CTImageStorage.uid : (True, False)}
+        rq_roles = {CTImageStorage : (True, False)}
         rq_contexts = [context_a]
 
         # Acceptor
@@ -1015,7 +1015,7 @@ class TestNegotiateAsRequestorWithRoleSelection(object):
         # Requestor
         context_a = build_context(CTImageStorage)
         context_a.context_id = 3
-        rq_roles = {CTImageStorage.uid : (False, True)}
+        rq_roles = {CTImageStorage : (False, True)}
         rq_contexts = [context_a]
 
         # Acceptor

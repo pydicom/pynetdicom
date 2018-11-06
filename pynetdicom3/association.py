@@ -23,6 +23,7 @@ from pynetdicom3.presentation import negotiate_as_acceptor
 from pynetdicom3.sop_class import (
     uid_to_sop_class,
     uid_to_service_class,
+    VerificationSOPClass,
     ModalityWorklistInformationFind,
     PatientRootQueryRetrieveInformationModelFind,
     StudyRootQueryRetrieveInformationModelFind,
@@ -70,7 +71,8 @@ from pynetdicom3.pdu_primitives import (
 )
 from pynetdicom3.status import (
     code_to_status, code_to_category, STORAGE_SERVICE_CLASS_STATUS,
-    STATUS_WARNING, STATUS_SUCCESS
+    STATUS_WARNING, STATUS_SUCCESS, STATUS_CANCEL, STATUS_PENDING,
+    STATUS_FAILURE
 )
 # pylint: enable=no-name-in-module
 
@@ -286,6 +288,45 @@ class Association(threading.Thread):
     def accepted_contexts(self):
         """Return a list of accepted PresentationContexts."""
         return self.acse.accepted_contexts
+
+    def _check_received_status(self, rsp):
+        """Return a dataset containing status related elements.
+
+        Parameters
+        ----------
+        rsp : pynetdicom3.dimse_primitives
+            The DIMSE Message primitive received from the peer in response
+            to a service request.
+
+        Returns
+        -------
+        pydicom.dataset.Dataset
+            If no response or an invalid response was received from the peer
+            then an empty Dataset, if a valid response was received from the
+            peer then (at a minimum) a Dataset containing an (0000,0900)
+            *Status* element, and any included optional status related
+            elements.
+        """
+        msg_type = rsp.__class__.__name__
+        msg_type = msg_type.replace('_', '-')
+
+        status = Dataset()
+        if rsp is None:
+            LOGGER.error('DIMSE service timed out')
+            self.abort()
+        elif rsp.is_valid_response:
+            status.Status = rsp.Status
+            for keyword in rsp.STATUS_OPTIONAL_KEYWORDS:
+                if getattr(rsp, keyword, None) is not None:
+                    setattr(status, keyword, getattr(rsp, keyword))
+        else:
+            LOGGER.error(
+                "Received an invalid {} response from the peer"
+                .format(msg_type)
+            )
+            self.abort()
+
+        return status
 
     def _get_valid_context(self, ab_syntax, tr_syntax, role, context_id=None):
         """
@@ -860,15 +901,6 @@ class Association(threading.Thread):
             If the association has no accepted Presentation Context for
             'Verification SOP Class'.
 
-        Examples
-        --------
-        >>> assoc = ae.associate(addr, port)
-        >>> if assoc.is_established:
-        ...     status = assoc.send_c_echo()
-        ...     if status:
-        ...         print('C-ECHO Response: 0x{0:04x}'.format(status.Status))
-        ...     assoc.release()
-
         See Also
         --------
         ae.ApplicationEntity.on_c_echo
@@ -889,35 +921,22 @@ class Association(threading.Thread):
             raise RuntimeError("The association with a peer SCP must be "
                                "established before sending a C-ECHO request")
 
-        # Verification SOP Class
-        sop_class = UID('1.2.840.10008.1.1')
-
         # Get a Presentation Context to use for sending the message
-        context = self._get_valid_context(sop_class, '', 'scu')
+        context = self._get_valid_context(VerificationSOPClass, '', 'scu')
 
         # Build C-STORE request primitive
         #   (M) Message ID
         #   (M) Affected SOP Class UID
         primitive = C_ECHO()
         primitive.MessageID = msg_id
-        primitive.AffectedSOPClassUID = sop_class
+        primitive.AffectedSOPClassUID = VerificationSOPClass
 
         # Send C-ECHO request to the peer via DIMSE and wait for the response
         self.dimse.send_msg(primitive, context.context_id)
         rsp, _ = self.dimse.receive_msg(wait=True)
 
         # Determine validity of the response and get the status
-        status = Dataset()
-        if rsp is None:
-            LOGGER.error('DIMSE service timed out')
-            self.abort()
-        elif rsp.is_valid_response:
-            status.Status = rsp.Status
-            if getattr(rsp, 'ErrorComment') is not None:
-                status.ErrorComment = rsp.ErrorComment
-        else:
-            LOGGER.error('Received an invalid C-ECHO response from the peer')
-            self.abort()
+        status = self._check_received_status(rsp)
 
         return status
 
@@ -1000,22 +1019,12 @@ class Association(threading.Thread):
         RuntimeError
             If ``send_c_store`` is called with no established association.
         AttributeError
-            If `dataset` is missing (0008,0016) *SOP Class UID* or
-            (0008,0018) *SOP Instance UID* elements.
+            If `dataset` is missing (0008,0016) *SOP Class UID*,
+            (0008,0018) *SOP Instance UID* elements or the (0002,0010)
+            *Transfer Syntax UID* file meta information element.
         ValueError
             If no accepted Presentation Context for `dataset` exists or if
             unable to encode the `dataset`.
-
-        Examples
-        --------
-
-        >>> ds = pydicom.dcmread('file-in.dcm')
-        >>> assoc = ae.associate(addr, port)
-        >>> if assoc.is_established:
-        ...     status = assoc.send_c_store(ds)
-        ...     if status:
-        ...         print('C-STORE Response: 0x{0:04x}'.format(status.Status))
-        ...     assoc.release()
 
         See Also
         --------
@@ -1043,16 +1052,16 @@ class Association(threading.Thread):
         if 'SOPClassUID' not in dataset:
             raise AttributeError(
                 "Unable to determine the presentation context to use with "
-                "the dataset as it contains no '(0008,0016) SOP Class UID' "
+                "`dataset` as it contains no '(0008,0016) SOP Class UID' "
                 "element"
             )
 
         try:
-            'TransferSyntaxUID' in dataset.file_meta
-        except AttributeError:
+            assert 'TransferSyntaxUID' in dataset.file_meta
+        except (AssertionError, AttributeError):
             raise AttributeError(
                 "Unable to determine the presentation context to use with "
-                "the dataset as it contains no '(0002,0010) Transfer Syntax "
+                "`dataset` as it contains no '(0002,0010) Transfer Syntax "
                 "UID' file meta information element"
         )
 
@@ -1097,18 +1106,7 @@ class Association(threading.Thread):
         rsp, _ = self.dimse.receive_msg(wait=True)
 
         # Determine validity of the response and get the status
-        status = Dataset()
-        if rsp is None:
-            LOGGER.error('DIMSE service timed out')
-            self.abort()
-        elif rsp.is_valid_response:
-            status.Status = rsp.Status
-            for keyword in ['ErrorComment', 'OffendingElement']:
-                if getattr(rsp, keyword) is not None:
-                    setattr(status, keyword, getattr(rsp, keyword))
-        else:
-            LOGGER.error('Received an invalid C-STORE response from the peer')
-            self.abort()
+        status = self._check_received_status(rsp)
 
         return status
 
@@ -1244,19 +1242,6 @@ class Association(threading.Thread):
             If no accepted Presentation Context for `dataset` exists or if
             unable to encode the *Identifier* `dataset`.
 
-        Examples
-        --------
-
-        >>> ds = Dataset()
-        >>> ds.QueryRetrieveLevel = 'PATIENT'
-        >>> ds.PatientName = '*'
-        >>> assoc = ae.associate(addr, port)
-        >>> if assoc.is_established:
-        ...     response = assoc.send_c_find(ds, query_model='P')
-        ...     for (status, identifier) in response:
-        ...         print('C-FIND Response: 0x{0:04x}'.format(status.Status))
-        ...     assoc.release()
-
         See Also
         --------
         ae.ApplicationEntity.on_c_find
@@ -1290,44 +1275,34 @@ class Association(threading.Thread):
             raise RuntimeError("The association with a peer SCP must be "
                                "established before sending a C-FIND request")
 
-        if query_model == 'W':
-            sop_class = ModalityWorklistInformationFind
-        elif query_model == "P":
-            sop_class = PatientRootQueryRetrieveInformationModelFind
-        elif query_model == "S":
-            sop_class = StudyRootQueryRetrieveInformationModelFind
-        elif query_model == "O":
-            sop_class = PatientStudyOnlyQueryRetrieveInformationModelFind
-        elif query_model == "G":
-            sop_class = GeneralRelevantPatientInformationQuery
-        elif query_model == "B":
-            sop_class = BreastImagingRelevantPatientInformationQuery
-        elif query_model == "C":
-            sop_class = CardiacRelevantPatientInformationQuery
-        elif query_model == "PC":
-            sop_class = ProductCharacteristicsQueryInformationModelFind
-        elif query_model == "SA":
-            sop_class = SubstanceApprovalQueryInformationModelFind
-        elif query_model == "H":
-            sop_class = HangingProtocolInformationModelFind
-        elif query_model == "D":
-            sop_class = DefinedProcedureProtocolInformationModelFind
-        elif query_model == "CP":
-            sop_class = ColorPaletteInformationModelFind
-        elif query_model == "IG":
-            sop_class = GenericImplantTemplateInformationModelFind
-        elif query_model == "IA":
-            sop_class = ImplantAssemblyTemplateInformationModelFind
-        elif query_model == "IT":
-            sop_class = ImplantTemplateGroupInformationModelFind
-        else:
+        SOP_CLASSES = {
+            'W' : ModalityWorklistInformationFind,
+            "P" : PatientRootQueryRetrieveInformationModelFind,
+            "S" : StudyRootQueryRetrieveInformationModelFind,
+            "O" : PatientStudyOnlyQueryRetrieveInformationModelFind,
+            "G" : GeneralRelevantPatientInformationQuery,
+            "B" : BreastImagingRelevantPatientInformationQuery,
+            "C" : CardiacRelevantPatientInformationQuery,
+            "PC" : ProductCharacteristicsQueryInformationModelFind,
+            "SA" : SubstanceApprovalQueryInformationModelFind,
+            "H" : HangingProtocolInformationModelFind,
+            "D" : DefinedProcedureProtocolInformationModelFind,
+            "CP" : ColorPaletteInformationModelFind,
+            "IG" : GenericImplantTemplateInformationModelFind,
+            "IA" : ImplantAssemblyTemplateInformationModelFind,
+            "IT" : ImplantTemplateGroupInformationModelFind,
+        }
+
+        try:
+            sop_class = SOP_CLASSES[query_model]
+        except KeyError:
             raise ValueError(
                 "Unsupported value for `query_model`: {}".format(query_model)
             )
 
         # Determine the Presentation Context we are operating under
         #   and hence the transfer syntax to use for encoding `dataset`
-        context = self._get_valid_context(sop_class.uid, '', 'scu')
+        context = self._get_valid_context(sop_class, '', 'scu')
 
         # Build C-FIND request primitive
         #   (M) Message ID
@@ -1336,7 +1311,7 @@ class Association(threading.Thread):
         #   (M) Identifier
         req = C_FIND()
         req.MessageID = msg_id
-        req.AffectedSOPClassUID = sop_class.uid
+        req.AffectedSOPClassUID = sop_class
         req.Priority = priority
 
         # Encode the Identifier `dataset` using the agreed transfer syntax
@@ -1382,7 +1357,7 @@ class Association(threading.Thread):
             # Status may be 'Failure', 'Cancel', 'Success' or 'Pending'
             status = Dataset()
             status.Status = rsp.Status
-            for keyword in ['OffendingElement', 'ErrorComment']:
+            for keyword in rsp.STATUS_OPTIONAL_KEYWORDS:
                 if getattr(rsp, keyword) is not None:
                     setattr(status, keyword, getattr(rsp, keyword))
 
@@ -1394,7 +1369,7 @@ class Association(threading.Thread):
 
             # We want to exit the wait loop if we receive a Failure, Cancel or
             #   Success status type
-            if status_category != 'Pending':
+            if status_category != STATUS_PENDING:
                 identifier = None
                 break
 
@@ -1561,34 +1536,29 @@ class Association(threading.Thread):
             raise RuntimeError("The association with a peer SCP must be "
                                "established before sending a C-MOVE request")
 
-        if query_model == "P":
-            sop_class = PatientRootQueryRetrieveInformationModelMove
-        elif query_model == "S":
-            sop_class = StudyRootQueryRetrieveInformationModelMove
-        elif query_model == "O":
-            sop_class = PatientStudyOnlyQueryRetrieveInformationModelMove
-        elif query_model == "C":
-            sop_class = CompositeInstanceRootRetrieveMove
-        elif query_model == "H":
-            sop_class = HangingProtocolInformationModelMove
-        elif query_model == "D":
-            sop_class = DefinedProcedureProtocolInformationModelMove
-        elif query_model == "CP":
-            sop_class = ColorPaletteInformationModelMove
-        elif query_model == "IG":
-            sop_class = GenericImplantTemplateInformationModelMove
-        elif query_model == "IA":
-            sop_class = ImplantAssemblyTemplateInformationModelMove
-        elif query_model == "IT":
-            sop_class = ImplantTemplateGroupInformationModelMove
-        else:
+        SOP_CLASSES = {
+            "P" : PatientRootQueryRetrieveInformationModelMove,
+            "S" : StudyRootQueryRetrieveInformationModelMove,
+            "O" : PatientStudyOnlyQueryRetrieveInformationModelMove,
+            "C" : CompositeInstanceRootRetrieveMove,
+            "H" : HangingProtocolInformationModelMove,
+            "D" : DefinedProcedureProtocolInformationModelMove,
+            "CP" : ColorPaletteInformationModelMove,
+            "IG" : GenericImplantTemplateInformationModelMove,
+            "IA" : ImplantAssemblyTemplateInformationModelMove,
+            "IT" : ImplantTemplateGroupInformationModelMove,
+        }
+
+        try:
+            sop_class = SOP_CLASSES[query_model]
+        except KeyError:
             raise ValueError(
                 "Unsupported value for `query_model`: {}".format(query_model)
             )
 
         # Determine the Presentation Context we are operating under
         #   and hence the transfer syntax to use for encoding `dataset`
-        context = self._get_valid_context(sop_class.uid, '', 'scu')
+        context = self._get_valid_context(sop_class, '', 'scu')
 
         # Build C-MOVE request primitive
         #   (M) Message ID
@@ -1598,7 +1568,7 @@ class Association(threading.Thread):
         #   (M) Identifier
         req = C_MOVE()
         req.MessageID = msg_id
-        req.AffectedSOPClassUID = sop_class.uid
+        req.AffectedSOPClassUID = sop_class
         req.Priority = priority
         req.MoveDestination = move_aet
 
@@ -1641,11 +1611,7 @@ class Association(threading.Thread):
             if rsp.__class__ == C_MOVE:
                 status = Dataset()
                 status.Status = rsp.Status
-                for keyword in ['ErrorComment', 'OffendingElement',
-                                'NumberOfRemainingSuboperations',
-                                'NumberOfCompletedSuboperations',
-                                'NumberOfFailedSuboperations',
-                                'NumberOfWarningSuboperations']:
+                for keyword in rsp.STATUS_OPTIONAL_KEYWORDS:
                     if getattr(rsp, keyword) is not None:
                         setattr(status, keyword, getattr(rsp, keyword))
 
@@ -1657,31 +1623,34 @@ class Association(threading.Thread):
 
                 # Log status type
                 LOGGER.debug('')
-                if category == 'Pending':
+                if category == STATUS_PENDING:
                     LOGGER.info("Move SCP Response: %s (Pending)", operation_no)
-                elif category in ['Success', 'Cancel', 'Warning']:
+                elif category in [STATUS_SUCCESS, STATUS_CANCEL, STATUS_WARNING]:
                     LOGGER.info("Move SCP Result: (%s)", category)
-                elif category == 'Failure':
+                elif category == STATUS_FAILURE:
                     LOGGER.info("Move SCP Result: (Failure - 0x%04x)",
                                 status.Status)
 
                 # Log number of remaining sub-operations
-                LOGGER.info("Sub-Operations Remaining: %s, Completed: %s, "
-                            "Failed: %s, Warning: %s",
-                            rsp.NumberOfRemainingSuboperations or '0',
-                            rsp.NumberOfCompletedSuboperations or '0',
-                            rsp.NumberOfFailedSuboperations or '0',
-                            rsp.NumberOfWarningSuboperations or '0')
+                LOGGER.info(
+                    "Sub-Operations Remaining: %s, Completed: %s, "
+                    "Failed: %s, Warning: %s",
+                    rsp.NumberOfRemainingSuboperations or '0',
+                    rsp.NumberOfCompletedSuboperations or '0',
+                    rsp.NumberOfFailedSuboperations or '0',
+                    rsp.NumberOfWarningSuboperations or '0'
+                )
 
                 # Yields - 'Success', 'Warning', 'Cancel', 'Failure' are final
                 #   yields, 'Pending' means more to come
                 identifier = None
-                if category == 'Pending':
+                if category == STATUS_PENDING:
                     operation_no += 1
                     yield status, identifier
                     continue
-                elif rsp.Identifier and category in ['Cancel', 'Warning',
-                                                     'Failure']:
+                elif rsp.Identifier and category in [STATUS_CANCEL,
+                                                     STATUS_WARNING,
+                                                     STATUS_FAILURE]:
                     # From Part 4, Annex C.4.2, responses with these statuses
                     #   should contain an Identifier dataset with a
                     #   (0008,0058) Failed SOP Instance UID List element
@@ -1869,36 +1838,30 @@ class Association(threading.Thread):
             raise RuntimeError("The association with a peer SCP must be "
                                "established before sending a C-GET request")
 
-        if query_model == "P":
-            sop_class = PatientRootQueryRetrieveInformationModelGet
-        elif query_model == "S":
-            sop_class = StudyRootQueryRetrieveInformationModelGet
-        elif query_model == "O":
-            sop_class = PatientStudyOnlyQueryRetrieveInformationModelGet
-        elif query_model == "C":
-            sop_class = CompositeInstanceRootRetrieveGet
-        elif query_model == "CB":
-            sop_class = CompositeInstanceRetrieveWithoutBulkDataGet
-        elif query_model == "H":
-            sop_class = HangingProtocolInformationModelGet
-        elif query_model == "D":
-            sop_class = DefinedProcedureProtocolInformationModelGet
-        elif query_model == "CP":
-            sop_class = ColorPaletteInformationModelGet
-        elif query_model == "IG":
-            sop_class = GenericImplantTemplateInformationModelGet
-        elif query_model == "IA":
-            sop_class = ImplantAssemblyTemplateInformationModelGet
-        elif query_model == "IT":
-            sop_class = ImplantTemplateGroupInformationModelGet
-        else:
+        SOP_CLASSES = {
+            "P" : PatientRootQueryRetrieveInformationModelGet,
+            "S" : StudyRootQueryRetrieveInformationModelGet,
+            "O" : PatientStudyOnlyQueryRetrieveInformationModelGet,
+            "C" : CompositeInstanceRootRetrieveGet,
+            "CB" : CompositeInstanceRetrieveWithoutBulkDataGet,
+            "H" : HangingProtocolInformationModelGet,
+            "D" : DefinedProcedureProtocolInformationModelGet,
+            "CP" : ColorPaletteInformationModelGet,
+            "IG" : GenericImplantTemplateInformationModelGet,
+            "IA" : ImplantAssemblyTemplateInformationModelGet,
+            "IT" : ImplantTemplateGroupInformationModelGet,
+        }
+
+        try:
+            sop_class = SOP_CLASSES[query_model]
+        except KeyError:
             raise ValueError(
                 "Unsupported value for `query_model`: {}".format(query_model)
             )
 
         # Determine the Presentation Context we are operating under
         #   and hence the transfer syntax to use for encoding `dataset`
-        context = self._get_valid_context(sop_class.uid, '', 'scu')
+        context = self._get_valid_context(sop_class, '', 'scu')
 
         # Build C-GET request primitive
         #   (M) Message ID
@@ -1907,7 +1870,7 @@ class Association(threading.Thread):
         #   (M) Identifier
         req = C_GET()
         req.MessageID = msg_id
-        req.AffectedSOPClassUID = sop_class.uid
+        req.AffectedSOPClassUID = sop_class
         req.Priority = priority
 
         # Encode the Identifier `dataset` using the agreed transfer syntax
@@ -1951,11 +1914,7 @@ class Association(threading.Thread):
             if rsp.__class__ == C_GET:
                 status = Dataset()
                 status.Status = rsp.Status
-                for keyword in ['ErrorComment', 'OffendingElement',
-                                'NumberOfRemainingSuboperations',
-                                'NumberOfCompletedSuboperations',
-                                'NumberOfFailedSuboperations',
-                                'NumberOfWarningSuboperations']:
+                for keyword in rsp.STATUS_OPTIONAL_KEYWORDS:
                     if getattr(rsp, keyword) is not None:
                         setattr(status, keyword, getattr(rsp, keyword))
 
@@ -1967,31 +1926,34 @@ class Association(threading.Thread):
 
                 # Log status type
                 LOGGER.debug('')
-                if category == 'Pending':
+                if category == STATUS_PENDING:
                     LOGGER.info("Get SCP Response: %s (Pending)", operation_no)
-                elif category in ['Success', 'Cancel', 'Warning']:
+                elif category in [STATUS_SUCCESS, STATUS_CANCEL, STATUS_WARNING]:
                     LOGGER.info('Get SCP Result: (%s)', category)
-                elif category == "Failure":
+                elif category == STATUS_FAILURE:
                     LOGGER.info('Get SCP Result: (Failure - 0x%04x)',
                                 status.Status)
 
                 # Log number of remaining sub-operations
-                LOGGER.info("Sub-Operations Remaining: %s, Completed: %s, "
-                            "Failed: %s, Warning: %s",
-                            rsp.NumberOfRemainingSuboperations or '0',
-                            rsp.NumberOfCompletedSuboperations or '0',
-                            rsp.NumberOfFailedSuboperations or '0',
-                            rsp.NumberOfWarningSuboperations or '0')
+                LOGGER.info(
+                    "Sub-Operations Remaining: %s, Completed: %s, "
+                    "Failed: %s, Warning: %s",
+                    rsp.NumberOfRemainingSuboperations or '0',
+                    rsp.NumberOfCompletedSuboperations or '0',
+                    rsp.NumberOfFailedSuboperations or '0',
+                    rsp.NumberOfWarningSuboperations or '0'
+                )
 
                 # Yields - 'Success', 'Warning', 'Failure', 'Cancel' are
                 #   final yields, 'Pending' means more to come
                 identifier = None
-                if category in ['Pending']:
+                if category in [STATUS_PENDING]:
                     operation_no += 1
                     yield status, identifier
                     continue
-                elif rsp.Identifier and category in ['Cancel', 'Warning',
-                                                     'Failure']:
+                elif rsp.Identifier and category in [STATUS_CANCEL,
+                                                     STATUS_WARNING,
+                                                     STATUS_FAILURE]:
                     # From Part 4, Annex C.4.3, responses with these statuses
                     #   should contain an Identifier dataset with a
                     #   (0008,0058) Failed SOP Instance UID List element
@@ -2289,25 +2251,11 @@ class Association(threading.Thread):
         rsp, _ = self.dimse.receive_msg(wait=True)
 
         # Determine validity of the response and get the status
-        status = Dataset()
-        event_reply = None
-        if rsp is None:
-            LOGGER.error('DIMSE service timed out')
-            self.abort()
-        elif rsp.is_valid_response:
-            status.Status = rsp.Status
-            # TODO: use rsp.OPTIONAL_STATUS_KEYWORDS or something
-            for keyword in rsp.STATUS_OPTIONAL_KEYWORDS:
-                if getattr(rsp, keyword, None) is not None:
-                    setattr(status, keyword, getattr(rsp, keyword))
-        else:
-            LOGGER.error(
-                'Received an invalid N-EVENT-REPORT response from the peer'
-            )
-            self.abort()
+        status = self._check_received_status(rsp)
 
         # Warning and Success statuses will return a dataset
         #   we check against None as 0x0000 is a possible status
+        event_reply = None
         if getattr(status, 'Status', None) is not None:
             category = code_to_category(status.Status)
             if category not in [STATUS_WARNING, STATUS_SUCCESS]:
@@ -2430,22 +2378,11 @@ class Association(threading.Thread):
         rsp, _ = self.dimse.receive_msg(wait=True)
 
         # Determine validity of the response and get the status
-        status = Dataset()
-        attribute_list = None
-        if rsp is None:
-            LOGGER.error('DIMSE service timed out')
-            self.abort()
-        elif rsp.is_valid_response:
-            status.Status = rsp.Status
-            for keyword in ['ErrorComment', 'ErrorID']:
-                if getattr(rsp, keyword, None) is not None:
-                    setattr(status, keyword, getattr(rsp, keyword))
-        else:
-            LOGGER.error('Received an invalid N-GET response from the peer')
-            self.abort()
+        status = self._check_received_status(rsp)
 
         # Warning and Success statuses will return a dataset
         #   we check against None as 0x0000 is a possible status
+        attribute_list = None
         if getattr(status, 'Status', None) is not None:
             category = code_to_category(status.Status)
             if category not in [STATUS_WARNING, STATUS_SUCCESS]:
@@ -2578,23 +2515,11 @@ class Association(threading.Thread):
         rsp, _ = self.dimse.receive_msg(wait=True)
 
         # Determine validity of the response and get the status
-        status = Dataset()
-        attribute_list = None
-        if rsp is None:
-            LOGGER.error('DIMSE service timed out')
-            self.abort()
-        elif rsp.is_valid_response:
-            status.Status = rsp.Status
-            for keyword in ['ErrorComment', 'ErrorID',
-                            'AttributeIdentifierList']:
-                if getattr(rsp, keyword, None) is not None:
-                    setattr(status, keyword, getattr(rsp, keyword))
-        else:
-            LOGGER.error('Received an invalid N-SET response from the peer')
-            self.abort()
+        status = self._check_received_status(rsp)
 
         # Warning and Success statuses will return a dataset
         #   we check against None as 0x0000 is a possible status
+        attribute_list = None
         if getattr(status, 'Status', None) is not None:
             category = code_to_category(status.Status)
             if category not in [STATUS_WARNING, STATUS_SUCCESS]:
@@ -2726,23 +2651,11 @@ class Association(threading.Thread):
         rsp, _ = self.dimse.receive_msg(wait=True)
 
         # Determine validity of the response and get the status
-        status = Dataset()
-        action_reply = None
-        if rsp is None:
-            LOGGER.error('DIMSE service timed out')
-            self.abort()
-        elif rsp.is_valid_response:
-            status.Status = rsp.Status
-            for keyword in ['ErrorComment', 'ErrorID',
-                            'AttributeIdentifierList']:
-                if getattr(rsp, keyword, None) is not None:
-                    setattr(status, keyword, getattr(rsp, keyword))
-        else:
-            LOGGER.error('Received an invalid N-ACTION response from the peer')
-            self.abort()
+        status = self._check_received_status(rsp)
 
         # Warning and Success statuses will return a dataset
         #   we check against None as 0x0000 is a possible status
+        action_reply = None
         if getattr(status, 'Status', None) is not None:
             category = code_to_category(status.Status)
             if category not in [STATUS_WARNING, STATUS_SUCCESS]:
@@ -2870,22 +2783,11 @@ class Association(threading.Thread):
         rsp, _ = self.dimse.receive_msg(wait=True)
 
         # Determine validity of the response and get the status
-        status = Dataset()
-        attribute_list = None
-        if rsp is None:
-            LOGGER.error('DIMSE service timed out')
-            self.abort()
-        elif rsp.is_valid_response:
-            status.Status = rsp.Status
-            for keyword in ['ErrorComment', 'ErrorID']:
-                if getattr(rsp, keyword, None) is not None:
-                    setattr(status, keyword, getattr(rsp, keyword))
-        else:
-            LOGGER.error('Received an invalid N-CREATE response from the peer')
-            self.abort()
+        status = self._check_received_status(rsp)
 
         # Warning and Success statuses will return a dataset
         #   we check against None as 0x0000 is a possible status
+        attribute_list = None
         if getattr(status, 'Status', None) is not None:
             category = code_to_category(status.Status)
             if category not in [STATUS_WARNING, STATUS_SUCCESS]:
@@ -2988,18 +2890,7 @@ class Association(threading.Thread):
         rsp, _ = self.dimse.receive_msg(wait=True)
 
         # Determine validity of the response and get the status
-        status = Dataset()
-        if rsp is None:
-            LOGGER.error('DIMSE service timed out')
-            self.abort()
-        elif rsp.is_valid_response:
-            status.Status = rsp.Status
-            for keyword in ['ErrorComment', 'ErrorID']:
-                if getattr(rsp, keyword, None) is not None:
-                    setattr(status, keyword, getattr(rsp, keyword))
-        else:
-            LOGGER.error('Received an invalid N-DELETE response from the peer')
-            self.abort()
+        status = self._check_received_status(rsp)
 
         return status
 

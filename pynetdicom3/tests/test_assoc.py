@@ -130,7 +130,7 @@ class TestCStoreSCP(object):
         ae.on_c_store = self.scp.on_c_store
 
         role = SCP_SCU_RoleSelectionNegotiation()
-        role.sop_class_uid = CTImageStorage.uid
+        role.sop_class_uid = CTImageStorage
         role.scu_role = False
         role.scp_role = True
 
@@ -173,7 +173,7 @@ class TestCStoreSCP(object):
         ae.on_c_store = self.scp.on_c_store
 
         role = SCP_SCU_RoleSelectionNegotiation()
-        role.sop_class_uid = CTImageStorage.uid
+        role.sop_class_uid = CTImageStorage
         role.scu_role = False
         role.scp_role = True
 
@@ -212,7 +212,7 @@ class TestCStoreSCP(object):
         ae.on_c_store = self.scp.on_c_store
 
         role = SCP_SCU_RoleSelectionNegotiation()
-        role.sop_class_uid = CTImageStorage.uid
+        role.sop_class_uid = CTImageStorage
         role.scu_role = False
         role.scp_role = True
 
@@ -252,7 +252,7 @@ class TestCStoreSCP(object):
         ae.on_c_store = self.scp.on_c_store
 
         role = SCP_SCU_RoleSelectionNegotiation()
-        role.sop_class_uid = CTImageStorage.uid
+        role.sop_class_uid = CTImageStorage
         role.scu_role = False
         role.scp_role = True
 
@@ -290,7 +290,7 @@ class TestCStoreSCP(object):
         ae.on_c_store = self.scp.on_c_store
 
         role = SCP_SCU_RoleSelectionNegotiation()
-        role.sop_class_uid = CTImageStorage.uid
+        role.sop_class_uid = CTImageStorage
         role.scu_role = False
         role.scp_role = True
 
@@ -325,7 +325,7 @@ class TestCStoreSCP(object):
         ae.add_requested_context(RTImageStorage)
 
         role = SCP_SCU_RoleSelectionNegotiation()
-        role.sop_class_uid = CTImageStorage.uid
+        role.sop_class_uid = CTImageStorage
         role.scu_role = False
         role.scp_role = True
 
@@ -1616,7 +1616,7 @@ class TestAssociationSendCGet(object):
         self.good = Dataset()
         self.good.file_meta = Dataset()
         self.good.file_meta.TransferSyntaxUID = ImplicitVRLittleEndian
-        self.good.SOPClassUID = CTImageStorage.uid
+        self.good.SOPClassUID = CTImageStorage
         self.good.SOPInstanceUID = '1.1.1'
         self.good.PatientName = 'Test'
 
@@ -1668,7 +1668,7 @@ class TestAssociationSendCGet(object):
         ae.add_requested_context(CTImageStorage)
 
         role = SCP_SCU_RoleSelectionNegotiation()
-        role.sop_class_uid = CTImageStorage.uid
+        role.sop_class_uid = CTImageStorage
         role.scu_role = True
         role.scp_role = False
 
@@ -1815,7 +1815,7 @@ class TestAssociationSendCGet(object):
         ae.add_requested_context(CTImageStorage)
 
         role = SCP_SCU_RoleSelectionNegotiation()
-        role.sop_class_uid = CTImageStorage.uid
+        role.sop_class_uid = CTImageStorage
         role.scu_role = False
         role.scp_role = True
 
@@ -1850,7 +1850,7 @@ class TestAssociationSendCGet(object):
         ae.add_requested_context(CTImageStorage)
 
         role = SCP_SCU_RoleSelectionNegotiation()
-        role.sop_class_uid = CTImageStorage.uid
+        role.sop_class_uid = CTImageStorage
         role.scu_role = False
         role.scp_role = True
 
@@ -1890,7 +1890,7 @@ class TestAssociationSendCGet(object):
         ae.add_requested_context(CTImageStorage)
 
         role = SCP_SCU_RoleSelectionNegotiation()
-        role.sop_class_uid = CTImageStorage.uid
+        role.sop_class_uid = CTImageStorage
         role.scu_role = True
         role.scp_role = False
 
@@ -1930,7 +1930,7 @@ class TestAssociationSendCGet(object):
         ae.add_requested_context(CTImageStorage)
 
         role = SCP_SCU_RoleSelectionNegotiation()
-        role.sop_class_uid = CTImageStorage.uid
+        role.sop_class_uid = CTImageStorage
         role.scu_role = True
         role.scp_role = False
 
@@ -1988,7 +1988,7 @@ class TestAssociationSendCGet(object):
         ae.add_requested_context(CTImageStorage)
 
         role = SCP_SCU_RoleSelectionNegotiation()
-        role.sop_class_uid = CTImageStorage.uid
+        role.sop_class_uid = CTImageStorage
         role.scu_role = True
         role.scp_role = False
 
@@ -2026,7 +2026,7 @@ class TestAssociationSendCGet(object):
         ae.add_requested_context(CTImageStorage)
 
         role = SCP_SCU_RoleSelectionNegotiation()
-        role.sop_class_uid = CTImageStorage.uid
+        role.sop_class_uid = CTImageStorage
         role.scu_role = True
         role.scp_role = False
 
@@ -2088,7 +2088,7 @@ class TestAssociationSendCMove(object):
         self.good = Dataset()
         self.good.file_meta = Dataset()
         self.good.file_meta.TransferSyntaxUID = ImplicitVRLittleEndian
-        self.good.SOPClassUID = CTImageStorage.uid
+        self.good.SOPClassUID = CTImageStorage
         self.good.SOPInstanceUID = '1.1.1'
         self.good.PatientName = 'Test'
 
@@ -2636,7 +2636,7 @@ class TestGetValidContext(object):
             r"accepted by the peer for the SOP Class 'CT Image Storage'"
         )
         with pytest.raises(ValueError, match=msg):
-            assoc._get_valid_context(CTImageStorage.uid, '', 'scu', context_id=1)
+            assoc._get_valid_context(CTImageStorage, '', 'scu', context_id=1)
 
         assoc.release()
         assert assoc.is_released
@@ -2661,21 +2661,21 @@ class TestGetValidContext(object):
         assert assoc.is_established
 
         # Uncompressed accepted, different uncompressed sent
-        cx = assoc._get_valid_context(CTImageStorage.uid,
+        cx = assoc._get_valid_context(CTImageStorage,
                                       '',
                                       'scu',
                                       context_id=3)
         assert cx.context_id == 3
-        assert cx.abstract_syntax == CTImageStorage.uid
+        assert cx.abstract_syntax == CTImageStorage
         assert cx.transfer_syntax[0] == ImplicitVRLittleEndian
         assert cx.as_scu is True
 
-        cx = assoc._get_valid_context(CTImageStorage.uid,
+        cx = assoc._get_valid_context(CTImageStorage,
                                       '',
                                       'scu',
                                       context_id=5)
         assert cx.context_id == 5
-        assert cx.abstract_syntax == CTImageStorage.uid
+        assert cx.abstract_syntax == CTImageStorage
         assert cx.transfer_syntax[0] == JPEGBaseline
         assert cx.as_scu is True
 
@@ -2714,7 +2714,7 @@ class TestGetValidContext(object):
 
         # Compressed (JPEGBaseline) accepted, uncompressed sent
         # Confirm otherwise OK
-        cx = assoc._get_valid_context(CTImageStorage.uid,
+        cx = assoc._get_valid_context(CTImageStorage,
                                       JPEGBaseline,
                                       'scu',
                                       context_id=3)
@@ -2727,7 +2727,7 @@ class TestGetValidContext(object):
             r"with a transfer syntax of 'Implicit VR Little Endian'"
         )
         with pytest.raises(ValueError, match=msg):
-            assoc._get_valid_context(CTImageStorage.uid,
+            assoc._get_valid_context(CTImageStorage,
                                      ImplicitVRLittleEndian,
                                      'scu',
                                      context_id=3)
@@ -2739,7 +2739,7 @@ class TestGetValidContext(object):
             r"with a transfer syntax of 'JPEG 2000 Image Compression'"
         )
         with pytest.raises(ValueError, match=msg):
-            assoc._get_valid_context(CTImageStorage.uid,
+            assoc._get_valid_context(CTImageStorage,
                                      JPEG2000,
                                      'scu',
                                      context_id=3)
@@ -2801,7 +2801,7 @@ class TestGetValidContext(object):
         ae.add_requested_context(CTImageStorage)
 
         role = SCP_SCU_RoleSelectionNegotiation()
-        role.sop_class_uid = CTImageStorage.uid
+        role.sop_class_uid = CTImageStorage
         role.scu_role = False
         role.scp_role = True
 
@@ -2811,7 +2811,7 @@ class TestGetValidContext(object):
         assert assoc.is_established
 
         # Confirm matching otherwise OK
-        cx = assoc._get_valid_context(CTImageStorage.uid,
+        cx = assoc._get_valid_context(CTImageStorage,
                                       '',
                                       'scp',
                                       context_id=3)
@@ -2824,7 +2824,7 @@ class TestGetValidContext(object):
             r"accepted by the peer for the SOP Class 'CT Image Storage'"
         )
         with pytest.raises(ValueError, match=msg):
-            assoc._get_valid_context(CTImageStorage.uid,
+            assoc._get_valid_context(CTImageStorage,
                                      '',
                                      'scu',
                                      context_id=3)
@@ -2836,7 +2836,7 @@ class TestGetValidContext(object):
             r"with a transfer syntax of 'Implicit VR Little Endian'"
         )
         with pytest.raises(ValueError, match=msg):
-            assoc._get_valid_context(CTImageStorage.uid,
+            assoc._get_valid_context(CTImageStorage,
                                      ImplicitVRLittleEndian,
                                      'scu',
                                      context_id=3)
@@ -2854,14 +2854,14 @@ class TestGetValidContext(object):
         assert assoc.is_established
 
         # Test otherwise OK
-        assoc._get_valid_context(VerificationSOPClass.uid, '', 'scu')
+        assoc._get_valid_context(VerificationSOPClass, '', 'scu')
 
         msg = (
             r"No suitable presentation context for the SCU role has been "
             r"accepted by the peer for the SOP Class 'CT Image Storage'"
         )
         with pytest.raises(ValueError, match=msg):
-            assoc._get_valid_context(CTImageStorage.uid, '', 'scu')
+            assoc._get_valid_context(CTImageStorage, '', 'scu')
 
         assoc.release()
         assert assoc.is_released
@@ -2885,7 +2885,7 @@ class TestGetValidContext(object):
                                       ExplicitVRLittleEndian,
                                       'scu')
         assert cx.context_id == 1
-        assert cx.abstract_syntax == VerificationSOPClass.uid
+        assert cx.abstract_syntax == VerificationSOPClass
         assert cx.transfer_syntax[0] == ImplicitVRLittleEndian
         assert cx.as_scu is True
 
@@ -2918,7 +2918,7 @@ class TestGetValidContext(object):
 
         # Compressed (JPEGBaseline) accepted, uncompressed sent
         # Confirm otherwise OK
-        cx = assoc._get_valid_context(CTImageStorage.uid, JPEGBaseline, 'scu')
+        cx = assoc._get_valid_context(CTImageStorage, JPEGBaseline, 'scu')
         assert cx.context_id == 3
         assert cx.transfer_syntax[0] == JPEGBaseline
 
@@ -2928,7 +2928,7 @@ class TestGetValidContext(object):
             r"with a transfer syntax of 'Implicit VR Little Endian'"
         )
         with pytest.raises(ValueError, match=msg):
-            assoc._get_valid_context(CTImageStorage.uid,
+            assoc._get_valid_context(CTImageStorage,
                                      ImplicitVRLittleEndian,
                                      'scu')
 
@@ -2939,7 +2939,7 @@ class TestGetValidContext(object):
             r"with a transfer syntax of 'JPEG 2000 Image Compression'"
         )
         with pytest.raises(ValueError, match=msg):
-            assoc._get_valid_context(CTImageStorage.uid, JPEG2000, 'scu')
+            assoc._get_valid_context(CTImageStorage, JPEG2000, 'scu')
 
         assoc.release()
         assert assoc.is_released
@@ -2991,7 +2991,7 @@ class TestGetValidContext(object):
         ae.add_requested_context(CTImageStorage)
 
         role = SCP_SCU_RoleSelectionNegotiation()
-        role.sop_class_uid = CTImageStorage.uid
+        role.sop_class_uid = CTImageStorage
         role.scu_role = False
         role.scp_role = True
 
@@ -3001,7 +3001,7 @@ class TestGetValidContext(object):
         assert assoc.is_established
 
         # Confirm matching otherwise OK
-        cx = assoc._get_valid_context(CTImageStorage.uid, '', 'scp')
+        cx = assoc._get_valid_context(CTImageStorage, '', 'scp')
         assert cx.context_id == 3
         assert cx.as_scp is True
 
@@ -3011,7 +3011,7 @@ class TestGetValidContext(object):
             r"accepted by the peer for the SOP Class 'CT Image Storage'"
         )
         with pytest.raises(ValueError, match=msg):
-            assoc._get_valid_context(CTImageStorage.uid,
+            assoc._get_valid_context(CTImageStorage,
                                      '',
                                      'scu')
 
@@ -3022,6 +3022,6 @@ class TestGetValidContext(object):
             r"with a transfer syntax of 'Implicit VR Little Endian'"
         )
         with pytest.raises(ValueError, match=msg):
-            assoc._get_valid_context(CTImageStorage.uid,
+            assoc._get_valid_context(CTImageStorage,
                                      ImplicitVRLittleEndian,
                                      'scu')

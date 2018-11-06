@@ -72,7 +72,7 @@ which requires adding the File Meta Information.
 
     # Add an SCP/SCU Role Selection Negotiation item for CT Image Storage
     role = SCP_SCU_RoleSelectionNegotiation()
-    role.sop_class_uid = CTImageStorage.uid
+    role.sop_class_uid = CTImageStorage
     # We will be acting as an SCP for CT Image Storage
     role.scp_role = True
 

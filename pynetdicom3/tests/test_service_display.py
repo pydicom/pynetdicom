@@ -53,7 +53,7 @@ class TestDisplayServiceClass(object):
         assoc = ae.associate('localhost', 11112)
         assert assoc.is_established
         status, ds = assoc.send_n_get([(0x7fe0,0x0010)],
-                                      DisplaySystemSOPClass.uid,
+                                      DisplaySystemSOPClass,
                                       '1.2.840.10008.5.1.1.40.1')
         assert status.Status == 0x0001
         assert ds.PatientName == 'Test'
@@ -75,7 +75,7 @@ class TestDisplayServiceClass(object):
         assoc = ae.associate('localhost', 11112)
         assert assoc.is_established
         status, ds = assoc.send_n_get([(0x7fe0,0x0010)],
-                                      DisplaySystemSOPClass.uid,
+                                      DisplaySystemSOPClass,
                                       '1.2.840.10008.5.1.1.40.1')
         assert status.Status == 0x0001
         assert status.ErrorComment == 'Test'
@@ -96,7 +96,7 @@ class TestDisplayServiceClass(object):
         assoc = ae.associate('localhost', 11112)
         assert assoc.is_established
         status, ds = assoc.send_n_get([(0x7fe0,0x0010)],
-                                      DisplaySystemSOPClass.uid,
+                                      DisplaySystemSOPClass,
                                       '1.2.840.10008.5.1.1.40.1')
         assert status.Status == 0x0000
         assert not 'ErrorComment' in status
@@ -114,7 +114,7 @@ class TestDisplayServiceClass(object):
         assoc = ae.associate('localhost', 11112)
         assert assoc.is_established
         status, ds = assoc.send_n_get([(0x7fe0,0x0010)],
-                                      DisplaySystemSOPClass.uid,
+                                      DisplaySystemSOPClass,
                                       '1.2.840.10008.5.1.1.40.1')
         assert status.Status == 0xFFF0
         assert ds is None
@@ -132,7 +132,7 @@ class TestDisplayServiceClass(object):
         assoc = ae.associate('localhost', 11112)
         assert assoc.is_established
         status, ds = assoc.send_n_get([(0x7fe0,0x0010)],
-                                      DisplaySystemSOPClass.uid,
+                                      DisplaySystemSOPClass,
                                       '1.2.840.10008.5.1.1.40.1')
         assert status.Status == 0xC002
         assert ds is None
@@ -152,7 +152,7 @@ class TestDisplayServiceClass(object):
         assoc = ae.associate('localhost', 11112)
         assert assoc.is_established
         status, ds = assoc.send_n_get([(0x7fe0,0x0010)],
-                                      DisplaySystemSOPClass.uid,
+                                      DisplaySystemSOPClass,
                                       '1.2.840.10008.5.1.1.40.1')
         assert status.Status == 0x0110
         assert ds is None
@@ -171,7 +171,7 @@ class TestDisplayServiceClass(object):
         assoc = ae.associate('localhost', 11112)
         assert assoc.is_established
         status, ds = assoc.send_n_get([(0x7fe0,0x0010)],
-                                      DisplaySystemSOPClass.uid,
+                                      DisplaySystemSOPClass,
                                       '1.2.840.10008.5.1.1.40.1')
         assert status.Status == 0x0000
         assert 'PatientName' in ds
@@ -179,7 +179,7 @@ class TestDisplayServiceClass(object):
         assert assoc.is_released
 
         assert self.scp.context.context_id == 1
-        assert self.scp.context.abstract_syntax == DisplaySystemSOPClass.UID
+        assert self.scp.context.abstract_syntax == DisplaySystemSOPClass
         assert self.scp.context.transfer_syntax == '1.2.840.10008.1.2.1'
 
         self.scp.stop()
@@ -196,7 +196,7 @@ class TestDisplayServiceClass(object):
         assoc = ae.associate('localhost', 11112)
         assert assoc.is_established
         status, ds = assoc.send_n_get([(0x7fe0,0x0010)],
-                                      DisplaySystemSOPClass.uid,
+                                      DisplaySystemSOPClass,
                                       '1.2.840.10008.5.1.1.40.1')
         assert status.Status == 0x0000
         assert 'PatientName' in ds
@@ -211,7 +211,7 @@ class TestDisplayServiceClass(object):
         assert self.scp.info['acceptor']['address'] == '127.0.0.1'
         assert self.scp.info['acceptor']['ae_title'] == b'PYNETDICOM      '
         assert self.scp.info['parameters']['message_id'] == 1
-        assert self.scp.info['parameters']['requested_sop_class_uid'] == DisplaySystemSOPClass.uid
+        assert self.scp.info['parameters']['requested_sop_class_uid'] == DisplaySystemSOPClass
         assert self.scp.info['parameters']['requested_sop_instance_uid'] == '1.2.840.10008.5.1.1.40.1'
 
         self.scp.stop()
@@ -228,7 +228,7 @@ class TestDisplayServiceClass(object):
         assoc = ae.associate('localhost', 11112)
         assert assoc.is_established
         status, ds = assoc.send_n_get([(0x7fe0, 0x0010)],
-                                      DisplaySystemSOPClass.uid,
+                                      DisplaySystemSOPClass,
                                       '1.2.840.10008.5.1.1.40.1')
         assert status.Status == 0x0000
         assert 'PatientName' in ds
@@ -253,7 +253,7 @@ class TestDisplayServiceClass(object):
         assoc = ae.associate('localhost', 11112)
         assert assoc.is_established
         status, ds = assoc.send_n_get([(0x7fe0, 0x0010)],
-                                      DisplaySystemSOPClass.uid,
+                                      DisplaySystemSOPClass,
                                       '1.2.840.10008.5.1.1.40.1')
         assert status.Status == 0x0110
         assert ds is None

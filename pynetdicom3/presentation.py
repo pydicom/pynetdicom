@@ -802,10 +802,7 @@ def build_context(abstract_syntax, transfer_syntax=DEFAULT_TRANSFER_SYNTAXES):
     -------
     presentation.PresentationContext
     """
-    if hasattr(abstract_syntax, 'uid'):
-        abstract_syntax = UID(abstract_syntax.uid)
-    else:
-        abstract_syntax = UID(abstract_syntax)
+    abstract_syntax = UID(abstract_syntax)
 
     # Allow single transfer syntax values for convenience
     if isinstance(transfer_syntax, str):

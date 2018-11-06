@@ -319,7 +319,7 @@ class DummyGetSCP(DummyBaseSCP):
         ds.file_meta = Dataset()
         ds.file_meta.TransferSyntaxUID = ImplicitVRLittleEndian
         ds.PatientName = 'Test'
-        ds.SOPClassUID = CTImageStorage.UID
+        ds.SOPClassUID = CTImageStorage
         ds.SOPInstanceUID = '1.2.3.4'
         self.datasets = [ds]
         self.no_suboperations = 1
@@ -373,7 +373,7 @@ class DummyMoveSCP(DummyBaseSCP):
         ds.file_meta = Dataset()
         ds.file_meta.TransferSyntaxUID = ImplicitVRLittleEndian
         ds.PatientName = 'Test'
-        ds.SOPClassUID = CTImageStorage.UID
+        ds.SOPClassUID = CTImageStorage
         ds.SOPInstanceUID = '1.2.3.4'
         self.datasets = [ds]
         self.no_suboperations = 1

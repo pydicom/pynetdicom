@@ -104,7 +104,7 @@ class TestQRFindServiceClass(object):
 
         req = C_FIND()
         req.MessageID = 1
-        req.AffectedSOPClassUID = PatientRootQueryRetrieveInformationModelFind.uid
+        req.AffectedSOPClassUID = PatientRootQueryRetrieveInformationModelFind
         req.Priority = 2
         req.Identifier = BytesIO(b'\x08\x00\x01\x00\x04\x00\x00\x00\x00\x08\x00\x49')
         assoc.dimse.send_msg(req, 1)
@@ -476,7 +476,7 @@ class TestQRFindServiceClass(object):
         assert assoc.is_released
 
         assert self.scp.context.context_id == 1
-        assert self.scp.context.abstract_syntax == PatientRootQueryRetrieveInformationModelFind.uid
+        assert self.scp.context.abstract_syntax == PatientRootQueryRetrieveInformationModelFind
         assert self.scp.context.transfer_syntax == '1.2.840.10008.1.2.1'
 
         self.scp.stop()
@@ -526,7 +526,7 @@ class TestQRGetServiceClass(object):
         self.ds = Dataset()
         self.ds.file_meta = Dataset()
         self.ds.file_meta.TransferSyntaxUID = ImplicitVRLittleEndian
-        self.ds.SOPClassUID = CTImageStorage.uid
+        self.ds.SOPClassUID = CTImageStorage
         self.ds.SOPInstanceUID = '1.1.1'
         self.ds.PatientName = 'Test'
 
@@ -564,7 +564,7 @@ class TestQRGetServiceClass(object):
 
         req = C_GET()
         req.MessageID = 1
-        req.AffectedSOPClassUID = PatientRootQueryRetrieveInformationModelGet.uid
+        req.AffectedSOPClassUID = PatientRootQueryRetrieveInformationModelGet
         req.Priority = 2
         req.Identifier = BytesIO(b'\x08\x00\x01\x00\x04\x00\x00\x00\x00\x08\x00\x49')
         assoc.dimse.send_msg(req, 1)
@@ -588,7 +588,7 @@ class TestQRGetServiceClass(object):
         ae.add_requested_context(CTImageStorage)
 
         role = SCP_SCU_RoleSelectionNegotiation()
-        role.sop_class_uid = CTImageStorage.uid
+        role.sop_class_uid = CTImageStorage
         role.scu_role = False
         role.scp_role = True
 
@@ -621,7 +621,7 @@ class TestQRGetServiceClass(object):
         ae.add_requested_context(CTImageStorage)
 
         role = SCP_SCU_RoleSelectionNegotiation()
-        role.sop_class_uid = CTImageStorage.uid
+        role.sop_class_uid = CTImageStorage
         role.scu_role = False
         role.scp_role = True
 
@@ -658,7 +658,7 @@ class TestQRGetServiceClass(object):
         ae.add_requested_context(CTImageStorage)
 
         role = SCP_SCU_RoleSelectionNegotiation()
-        role.sop_class_uid = CTImageStorage.uid
+        role.sop_class_uid = CTImageStorage
         role.scu_role = False
         role.scp_role = True
 
@@ -695,7 +695,7 @@ class TestQRGetServiceClass(object):
         ae.add_requested_context(CTImageStorage)
 
         role = SCP_SCU_RoleSelectionNegotiation()
-        role.sop_class_uid = CTImageStorage.uid
+        role.sop_class_uid = CTImageStorage
         role.scu_role = False
         role.scp_role = True
 
@@ -729,7 +729,7 @@ class TestQRGetServiceClass(object):
         ae.add_requested_context(CTImageStorage)
 
         role = SCP_SCU_RoleSelectionNegotiation()
-        role.sop_class_uid = CTImageStorage.uid
+        role.sop_class_uid = CTImageStorage
         role.scu_role = False
         role.scp_role = True
 
@@ -759,7 +759,7 @@ class TestQRGetServiceClass(object):
         ae.add_requested_context(CTImageStorage)
 
         role = SCP_SCU_RoleSelectionNegotiation()
-        role.sop_class_uid = CTImageStorage.uid
+        role.sop_class_uid = CTImageStorage
         role.scu_role = False
         role.scp_role = True
 
@@ -789,7 +789,7 @@ class TestQRGetServiceClass(object):
         ae.add_requested_context(CTImageStorage)
 
         role = SCP_SCU_RoleSelectionNegotiation()
-        role.sop_class_uid = CTImageStorage.uid
+        role.sop_class_uid = CTImageStorage
         role.scu_role = False
         role.scp_role = True
 
@@ -820,7 +820,7 @@ class TestQRGetServiceClass(object):
         ae.add_requested_context(CTImageStorage)
 
         role = SCP_SCU_RoleSelectionNegotiation()
-        role.sop_class_uid = CTImageStorage.uid
+        role.sop_class_uid = CTImageStorage
         role.scu_role = False
         role.scp_role = True
 
@@ -851,7 +851,7 @@ class TestQRGetServiceClass(object):
         ae.add_requested_context(CTImageStorage)
 
         role = SCP_SCU_RoleSelectionNegotiation()
-        role.sop_class_uid = CTImageStorage.uid
+        role.sop_class_uid = CTImageStorage
         role.scu_role = False
         role.scp_role = True
 
@@ -892,7 +892,7 @@ class TestQRGetServiceClass(object):
         ae.add_requested_context(CTImageStorage)
 
         role = SCP_SCU_RoleSelectionNegotiation()
-        role.sop_class_uid = CTImageStorage.uid
+        role.sop_class_uid = CTImageStorage
         role.scu_role = False
         role.scp_role = True
 
@@ -935,7 +935,7 @@ class TestQRGetServiceClass(object):
         ae.add_requested_context(CTImageStorage)
 
         role = SCP_SCU_RoleSelectionNegotiation()
-        role.sop_class_uid = CTImageStorage.uid
+        role.sop_class_uid = CTImageStorage
         role.scu_role = False
         role.scp_role = True
 
@@ -973,7 +973,7 @@ class TestQRGetServiceClass(object):
         ae.add_requested_context(CTImageStorage)
 
         role = SCP_SCU_RoleSelectionNegotiation()
-        role.sop_class_uid = CTImageStorage.uid
+        role.sop_class_uid = CTImageStorage
         role.scu_role = False
         role.scp_role = True
 
@@ -1013,7 +1013,7 @@ class TestQRGetServiceClass(object):
         ae.add_requested_context(CTImageStorage)
 
         role = SCP_SCU_RoleSelectionNegotiation()
-        role.sop_class_uid = CTImageStorage.uid
+        role.sop_class_uid = CTImageStorage
         role.scu_role = False
         role.scp_role = True
 
@@ -1056,7 +1056,7 @@ class TestQRGetServiceClass(object):
         ae.add_requested_context(CTImageStorage)
 
         role = SCP_SCU_RoleSelectionNegotiation()
-        role.sop_class_uid = CTImageStorage.uid
+        role.sop_class_uid = CTImageStorage
         role.scu_role = False
         role.scp_role = True
 
@@ -1099,7 +1099,7 @@ class TestQRGetServiceClass(object):
         ae.add_requested_context(CTImageStorage)
 
         role = SCP_SCU_RoleSelectionNegotiation()
-        role.sop_class_uid = CTImageStorage.uid
+        role.sop_class_uid = CTImageStorage
         role.scu_role = False
         role.scp_role = True
 
@@ -1139,7 +1139,7 @@ class TestQRGetServiceClass(object):
         ae.add_requested_context(CTImageStorage)
 
         role = SCP_SCU_RoleSelectionNegotiation()
-        role.sop_class_uid = CTImageStorage.uid
+        role.sop_class_uid = CTImageStorage
         role.scu_role = False
         role.scp_role = True
 
@@ -1179,7 +1179,7 @@ class TestQRGetServiceClass(object):
         ae.add_requested_context(CTImageStorage)
 
         role = SCP_SCU_RoleSelectionNegotiation()
-        role.sop_class_uid = CTImageStorage.uid
+        role.sop_class_uid = CTImageStorage
         role.scu_role = False
         role.scp_role = True
 
@@ -1219,7 +1219,7 @@ class TestQRGetServiceClass(object):
         ae.add_requested_context(CTImageStorage)
 
         role = SCP_SCU_RoleSelectionNegotiation()
-        role.sop_class_uid = CTImageStorage.uid
+        role.sop_class_uid = CTImageStorage
         role.scu_role = False
         role.scp_role = True
 
@@ -1265,7 +1265,7 @@ class TestQRGetServiceClass(object):
         ae.add_requested_context(CTImageStorage)
 
         role = SCP_SCU_RoleSelectionNegotiation()
-        role.sop_class_uid = CTImageStorage.uid
+        role.sop_class_uid = CTImageStorage
         role.scu_role = False
         role.scp_role = True
 
@@ -1313,7 +1313,7 @@ class TestQRGetServiceClass(object):
         ae.add_requested_context(CTImageStorage)
 
         role = SCP_SCU_RoleSelectionNegotiation()
-        role.sop_class_uid = CTImageStorage.uid
+        role.sop_class_uid = CTImageStorage
         role.scu_role = False
         role.scp_role = True
 
@@ -1361,7 +1361,7 @@ class TestQRGetServiceClass(object):
         ae.add_requested_context(CTImageStorage)
 
         role = SCP_SCU_RoleSelectionNegotiation()
-        role.sop_class_uid = CTImageStorage.uid
+        role.sop_class_uid = CTImageStorage
         role.scu_role = False
         role.scp_role = True
 
@@ -1401,7 +1401,7 @@ class TestQRGetServiceClass(object):
         ae.add_requested_context(CTImageStorage)
 
         role = SCP_SCU_RoleSelectionNegotiation()
-        role.sop_class_uid = CTImageStorage.uid
+        role.sop_class_uid = CTImageStorage
         role.scu_role = False
         role.scp_role = True
 
@@ -1441,7 +1441,7 @@ class TestQRGetServiceClass(object):
         ae.add_requested_context(CTImageStorage)
 
         role = SCP_SCU_RoleSelectionNegotiation()
-        role.sop_class_uid = CTImageStorage.uid
+        role.sop_class_uid = CTImageStorage
         role.scu_role = False
         role.scp_role = True
 
@@ -1481,7 +1481,7 @@ class TestQRGetServiceClass(object):
         ae.add_requested_context(CTImageStorage)
 
         role = SCP_SCU_RoleSelectionNegotiation()
-        role.sop_class_uid = CTImageStorage.uid
+        role.sop_class_uid = CTImageStorage
         role.scu_role = False
         role.scp_role = True
 
@@ -1520,13 +1520,13 @@ class TestQRGetServiceClass(object):
         ae.add_requested_context(CTImageStorage, '1.2.840.10008.1.2.1')
 
         role = SCP_SCU_RoleSelectionNegotiation()
-        role.sop_class_uid = CTImageStorage.uid
+        role.sop_class_uid = CTImageStorage
         role.scu_role = False
         role.scp_role = True
 
         def on_c_store(ds, context, assoc_info):
             assert context.context_id == 3
-            assert context.abstract_syntax == CTImageStorage.uid
+            assert context.abstract_syntax == CTImageStorage
             assert context.transfer_syntax == '1.2.840.10008.1.2.1'
             return 0x0000
 
@@ -1547,7 +1547,7 @@ class TestQRGetServiceClass(object):
         assert assoc.is_released
 
         assert self.scp.context.context_id == 1
-        assert self.scp.context.abstract_syntax == PatientRootQueryRetrieveInformationModelGet.uid
+        assert self.scp.context.abstract_syntax == PatientRootQueryRetrieveInformationModelGet
         assert self.scp.context.transfer_syntax == '1.2.840.10008.1.2.1'
 
         self.scp.stop()
@@ -1567,12 +1567,12 @@ class TestQRGetServiceClass(object):
         ae.add_requested_context(CTImageStorage, '1.2.840.10008.1.2.1')
 
         role = SCP_SCU_RoleSelectionNegotiation()
-        role.sop_class_uid = CTImageStorage.uid
+        role.sop_class_uid = CTImageStorage
         role.scu_role = False
         role.scp_role = True
 
         def on_c_store(ds, context, assoc_info):
-            assert context.abstract_syntax == CTImageStorage.uid
+            assert context.abstract_syntax == CTImageStorage
             assert context.transfer_syntax == '1.2.840.10008.1.2.1'
             return 0x0000
 
@@ -1673,7 +1673,7 @@ class TestQRMoveServiceClass(object):
         self.ds = Dataset()
         self.ds.file_meta = Dataset()
         self.ds.file_meta.TransferSyntaxUID = ImplicitVRLittleEndian
-        self.ds.SOPClassUID = CTImageStorage.uid
+        self.ds.SOPClassUID = CTImageStorage
         self.ds.SOPInstanceUID = '1.1.1'
         self.ds.PatientName = 'Test'
 
@@ -1711,7 +1711,7 @@ class TestQRMoveServiceClass(object):
 
         req = C_GET()
         req.MessageID = 1
-        req.AffectedSOPClassUID = PatientRootQueryRetrieveInformationModelMove.uid
+        req.AffectedSOPClassUID = PatientRootQueryRetrieveInformationModelMove
         req.Priority = 2
         # Encoded as Implicit VR Little
         req.Identifier = BytesIO(b'\x08\x00\x01\x00\x04\x00\x00\x00\x00\x08\x00\x49')
@@ -2601,7 +2601,7 @@ class TestQRMoveServiceClass(object):
         assoc.release()
         assert assoc.is_released
 
-        assert self.scp.context.abstract_syntax == PatientRootQueryRetrieveInformationModelMove.uid
+        assert self.scp.context.abstract_syntax == PatientRootQueryRetrieveInformationModelMove
         assert self.scp.context.transfer_syntax == '1.2.840.10008.1.2.1'
 
         self.scp.stop()
@@ -2693,7 +2693,7 @@ class TestQRCompositeInstanceWithoutBulk(object):
         self.ds = Dataset()
         self.ds.file_meta = Dataset()
         self.ds.file_meta.TransferSyntaxUID = ImplicitVRLittleEndian
-        self.ds.SOPClassUID = CTImageStorage.uid
+        self.ds.SOPClassUID = CTImageStorage
         self.ds.SOPInstanceUID = '1.1.1'
         self.ds.PatientName = 'Test'
 
@@ -2734,7 +2734,7 @@ class TestQRCompositeInstanceWithoutBulk(object):
         ae.add_requested_context(CTImageStorage)
 
         role = SCP_SCU_RoleSelectionNegotiation()
-        role.sop_class_uid = CTImageStorage.uid
+        role.sop_class_uid = CTImageStorage
         role.scp_role = True
         role.scu_role = False
 
@@ -2761,7 +2761,7 @@ class TestQRCompositeInstanceWithoutBulk(object):
     def test_waveform_sequence(self):
         """Test when on_c_get returns success status"""
         self.scp = DummyGetSCP()
-        self.ds.SOPClassUID = CTImageStorage.uid
+        self.ds.SOPClassUID = CTImageStorage
         self.ds.WaveformSequence = [Dataset(), Dataset()]
         self.ds.WaveformSequence[0].WaveformData = b'\x00\x01'
         self.ds.WaveformSequence[0].WaveformBitsAllocated = 16
@@ -2783,7 +2783,7 @@ class TestQRCompositeInstanceWithoutBulk(object):
         self.scp.start()
 
         role = SCP_SCU_RoleSelectionNegotiation()
-        role.sop_class_uid = CTImageStorage.uid
+        role.sop_class_uid = CTImageStorage
         role.scp_role = True
         role.scu_role = False
 
@@ -2820,7 +2820,7 @@ class TestBasicWorklistServiceClass(object):
         self.query.QueryRetrieveLevel = "PATIENT"
 
         self.ds = Dataset()
-        self.ds.SOPClassUID = CTImageStorage.uid
+        self.ds.SOPClassUID = CTImageStorage
         self.ds.SOPInstanceUID = '1.1.1'
         self.ds.PatientName = 'Test'
 
