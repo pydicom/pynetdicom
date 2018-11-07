@@ -572,6 +572,7 @@ class Association(threading.Thread):
 
             if not is_valid:
                 # Transient, ACSE related, no reason given
+                LOGGER.info("User identity failed verification")
                 reject_assoc_rsd = [(0x02, 0x02, 0x01)]
 
             if id_response:

@@ -65,7 +65,7 @@ items can only be singular and some can occur multiple times depending on the
 service class and intended usage. The following example shows how to add
 SCP/SCU Role Selection Negotiation items when requesting the use of the
 Query/Retrieve (QR) Service Class' C-GET service (in this example the QR SCU is
-also acting as a Storage SCP):
+also acting as a Storage SCP), plus a User Identity Negotiation item:
 
 ::
 
@@ -74,7 +74,10 @@ also acting as a Storage SCP):
         StoragePresentationContexts,
         QueryRetrievePresentationContexts
     )
-    from pynetdicom3.pdu_primitives import SCP_SCU_RoleSelectionNegotiation
+    from pynetdicom3.pdu_primitives import (
+        SCP_SCU_RoleSelectionNegotiation,
+        UserIdentityNegotiation,
+    )
 
     ae = AE()
     # Presentation contexts proposed as a QR SCU
@@ -90,6 +93,13 @@ also acting as a Storage SCP):
         role.sop_class_uid = context.abstract_syntax
         role.scp_role = True
         negotiation_items.append(role)
+
+    # Add user identity negotiation request
+    user_identity = UserIdentityNegotiation()
+    user_identity.user_identity_type = 2
+    user_identity.primary_field = b'username'
+    user_identity.secondary_field = b'password'
+    negotiation_items.append(user_identity)
 
     # Associate with the peer at IP address 127.0.0.1 and port 11112
     assoc = ae.associate('127.0.0.1', 11112, ext_neg=negotiation_items)
