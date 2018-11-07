@@ -1370,35 +1370,63 @@ class ApplicationEntity(object):
 
     # Association negotiation callbacks
     def on_user_identity_negotiation(self, user_id_type, primary_field,
-                                     secondary_field):
-        """Callback for when a peer requests user identity negotiations.
+                                     secondary_field, info):
+        """Callback for when a user identity negotiation item is included with
+        the association request.
 
-        See PS3.7 Annex D.3.3.7.1
-
-        Experimental and will definitely change
+        If not implemented by the user then the association will be accepted
+        (provided there's no other reason to reject it) and no User Identity
+        response will be sent even if one is requested.
 
         Parameters
         ----------
         user_id_type : int
-            The *User Identity Type* value (1, 2, 3, 4).
+            The *User Identity Type* value, which indicates the form of user
+            identity being provided:
+
+            * 1 - Username as a UTF-8 string
+            * 2 - Username as a UTF-8 string and passcode
+            * 3 - Kerberos Service ticket
+            * 4 - SAML Assertion
+            * 5 - JSON Web Token
         primary_field : bytes
-            The of the *Primary Field* value.
+            The *Primary Field* value, contains the username, the encoded
+            Kerberos ticket or the JSON web token.
         secondary_field : bytes or None
             The *Secondary Field* value. Will be ``None`` unless the
-            *User Identity Type* is ``2``
+            `user_id_type` is ``2`` in which case it will be ``bytes``.
+        info : dict
+            A dict containing information about the association request and
+            the association requestor, with the keys:
+
+            ::
+
+            'requestor' : {
+                'ae_title' : bytes, the requestor's calling AE title
+                'called_aet' : bytes, the requestor's called AE title
+                'address' : str, the requestor's IP address
+                'port' : int, the requestor's port number
+            }
 
         Returns
         -------
+        is_verified : bool
+            Return True if the user identity has been confirmed and you wish
+            to proceed with association establishment, False otherwise.
         response : bytes or None
-            If ``user_id_type`` is :
+            If ``user_id_type`` is:
 
-            * 1 or 2, then return ``b''``.
-            * 3 then return the Kerberos Server ticket.
-            * 4 then return the SAML response.
+            * 1 or 2, then return None
+            * 3 then return the Kerberos Server ticket as bytes
+            * 4 then return the SAML response as bytes
+            * 5 then return the JSON web token as bytes
 
-            If the identity check fails then return ``None``.
+        References
+        ----------
+
+        * DICOM Standard Part 7, `Annex D.3.3.7 <http://dicom.nema.org/medical/dicom/current/output/chtml/part07/sect_D.3.3.7.html>`_
         """
-        raise NotImplementedError
+        raise NotImplementedError("User Identity Negotiation not implemented")
 
 
     # High-level DIMSE-C callbacks - user should implement these as required
