@@ -39,7 +39,7 @@ pynetdicom3.ae.ApplicationEntity
       ~ApplicationEntity.on_n_get
       ~ApplicationEntity.on_n_set
       ~ApplicationEntity.on_receive_connection
-      ~ApplicationEntity.on_user_identity_negotiation
+      ~ApplicationEntity.on_user_identity
       ~ApplicationEntity.quit
       ~ApplicationEntity.remove_requested_context
       ~ApplicationEntity.remove_supported_context

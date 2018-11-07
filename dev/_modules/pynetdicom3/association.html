@@ -499,6 +499,69 @@
 
         <span class="k">return</span> <span class="n">status</span>
 
+    <span class="k">def</span> <span class="nf">_check_user_identity</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">req</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Parameters</span>
+<span class="sd">        ----------</span>
+<span class="sd">        req : pynetdicom3.pdu_primitives.UserIdentityNegotiation</span>
+<span class="sd">            The negotiation request received from the peer.</span>
+
+<span class="sd">        Returns</span>
+<span class="sd">        -------</span>
+<span class="sd">        bool</span>
+<span class="sd">            True if the user identity has been confirmed, False otherwise.</span>
+<span class="sd">        pynetdicom3.pdu_primitives.UserIdentityNegotiation or None</span>
+<span class="sd">            The negotiation response, if a positive response is requested,</span>
+<span class="sd">            otherwise None.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">try</span><span class="p">:</span>
+            <span class="n">identity_verified</span><span class="p">,</span> <span class="n">response</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">ae</span><span class="o">.</span><span class="n">on_user_identity</span><span class="p">(</span>
+                <span class="n">req</span><span class="o">.</span><span class="n">user_identity_type</span><span class="p">,</span>
+                <span class="n">req</span><span class="o">.</span><span class="n">primary_field</span><span class="p">,</span>
+                <span class="n">req</span><span class="o">.</span><span class="n">secondary_field</span><span class="p">,</span>
+                <span class="p">{</span>
+                    <span class="s1">&#39;requestor&#39;</span> <span class="p">:</span> <span class="p">{</span>
+                        <span class="s1">&#39;ae_title&#39;</span> <span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">peer_ae</span><span class="p">[</span><span class="s1">&#39;ae_title&#39;</span><span class="p">],</span>
+                        <span class="s1">&#39;called_aet&#39;</span> <span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">peer_ae</span><span class="p">[</span><span class="s1">&#39;called_aet&#39;</span><span class="p">],</span>
+                        <span class="s1">&#39;port&#39;</span> <span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">peer_ae</span><span class="p">[</span><span class="s1">&#39;port&#39;</span><span class="p">],</span>
+                        <span class="s1">&#39;address&#39;</span> <span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">peer_ae</span><span class="p">[</span><span class="s1">&#39;address&#39;</span><span class="p">],</span>
+                    <span class="p">},</span>
+                <span class="p">}</span>
+            <span class="p">)</span>
+        <span class="k">except</span> <span class="ne">NotImplementedError</span><span class="p">:</span>
+            <span class="c1"># If the user hasn&#39;t implemented identity negotiation then</span>
+            <span class="c1">#   default to accepting the association</span>
+            <span class="k">return</span> <span class="kc">True</span><span class="p">,</span> <span class="kc">None</span>
+        <span class="k">except</span> <span class="ne">Exception</span> <span class="k">as</span> <span class="n">exc</span><span class="p">:</span>
+            <span class="c1"># If the user has implemented identity negotiation but an exception</span>
+            <span class="c1">#   occurred then reject the association</span>
+            <span class="n">LOGGER</span><span class="o">.</span><span class="n">error</span><span class="p">(</span><span class="s2">&quot;Exception in handling user identity negotiation&quot;</span><span class="p">)</span>
+            <span class="n">LOGGER</span><span class="o">.</span><span class="n">exception</span><span class="p">(</span><span class="n">exc</span><span class="p">)</span>
+            <span class="n">is_valid</span> <span class="o">=</span> <span class="kc">False</span>
+            <span class="k">return</span> <span class="kc">False</span><span class="p">,</span> <span class="kc">None</span>
+
+        <span class="k">if</span> <span class="ow">not</span> <span class="n">identity_verified</span><span class="p">:</span>
+            <span class="c1"># Reject association is the user isn&#39;t authorised</span>
+            <span class="k">return</span> <span class="kc">False</span><span class="p">,</span> <span class="kc">None</span>
+
+        <span class="k">if</span> <span class="n">req</span><span class="o">.</span><span class="n">user_identity_type</span> <span class="ow">in</span> <span class="p">[</span><span class="mi">3</span><span class="p">,</span> <span class="mi">4</span><span class="p">,</span> <span class="mi">5</span><span class="p">]:</span>
+            <span class="k">if</span> <span class="n">req</span><span class="o">.</span><span class="n">positive_response_requested</span> <span class="ow">and</span> <span class="n">response</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+                <span class="k">try</span><span class="p">:</span>
+                    <span class="n">rsp</span> <span class="o">=</span> <span class="n">UserIdentityNegotiation</span><span class="p">()</span>
+                    <span class="n">rsp</span><span class="o">.</span><span class="n">server_response</span> <span class="o">=</span> <span class="n">response</span>
+                    <span class="k">return</span> <span class="kc">True</span><span class="p">,</span> <span class="n">rsp</span>
+                <span class="k">except</span> <span class="ne">Exception</span> <span class="k">as</span> <span class="n">exc</span><span class="p">:</span>
+                    <span class="c1"># &gt; If the acceptor doesn&#39;t support user identification it will</span>
+                    <span class="c1"># &gt; accept the association without make a positive response</span>
+                    <span class="n">LOGGER</span><span class="o">.</span><span class="n">error</span><span class="p">(</span>
+                        <span class="s2">&quot;Unable to set the User Identity Negotiation&#39;s &quot;</span>
+                        <span class="s2">&quot;`server_response`&quot;</span>
+                    <span class="p">)</span>
+                    <span class="n">LOGGER</span><span class="o">.</span><span class="n">exception</span><span class="p">(</span><span class="n">exc</span><span class="p">)</span>
+                    <span class="k">return</span> <span class="kc">True</span><span class="p">,</span> <span class="kc">None</span>
+
+        <span class="k">return</span> <span class="kc">True</span><span class="p">,</span> <span class="kc">None</span>
+
     <span class="k">def</span> <span class="nf">_get_valid_context</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">ab_syntax</span><span class="p">,</span> <span class="n">tr_syntax</span><span class="p">,</span> <span class="n">role</span><span class="p">,</span> <span class="n">context_id</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;</span>
 
@@ -625,6 +688,17 @@
             <span class="bp">self</span><span class="o">.</span><span class="n">kill</span><span class="p">()</span>
             <span class="k">return</span>
 
+        <span class="c1"># Save the peer AE details</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">peer_ae</span><span class="p">[</span><span class="s1">&#39;ae_title&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">assoc_rq</span><span class="o">.</span><span class="n">calling_ae_title</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">peer_ae</span><span class="p">[</span><span class="s1">&#39;called_aet&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">assoc_rq</span><span class="o">.</span><span class="n">called_ae_title</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">peer_ae</span><span class="p">[</span><span class="s1">&#39;pdv_size&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">assoc_rq</span><span class="o">.</span><span class="n">maximum_length_received</span>
+        <span class="n">peer_info</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">client_socket</span><span class="o">.</span><span class="n">getpeername</span><span class="p">()</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">peer_ae</span><span class="p">[</span><span class="s1">&#39;address&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">peer_info</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">peer_ae</span><span class="p">[</span><span class="s1">&#39;port&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">peer_info</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span>
+        <span class="n">local_info</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">client_socket</span><span class="o">.</span><span class="n">getsockname</span><span class="p">()</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">local_ae</span><span class="p">[</span><span class="s1">&#39;address&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">local_info</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">local_ae</span><span class="p">[</span><span class="s1">&#39;port&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">local_info</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span>
+
         <span class="c1"># If the remote AE initiated the Association then reject it if:</span>
         <span class="c1"># Rejection reasons:</span>
         <span class="c1">#   a) DUL user</span>
@@ -652,35 +726,28 @@
 
         <span class="c1">## DUL ACSE Related Rejections</span>
         <span class="c1"># User Identity Negotiation (PS3.7 Annex D.3.3.7)</span>
-        <span class="c1"># TODO: Implement propoerly but for now just remove items</span>
-        <span class="c1"># Used to notify the association acceptor of the user</span>
-        <span class="c1">#   identity of the association requestor. It may also</span>
-        <span class="c1">#   request that the Acceptor response with the server</span>
-        <span class="c1">#   identity.</span>
-        <span class="c1">#</span>
-        <span class="c1"># The Acceptor does not provide an A-ASSOCIATE response</span>
-        <span class="c1">#   unless a positive response is requested and user</span>
-        <span class="c1">#   authentication succeeded. If a positive response</span>
-        <span class="c1">#   was requested, the A-ASSOCIATE response shall contain</span>
-        <span class="c1">#   a User Identity sub-item. If a Kerberos ticket is used</span>
-        <span class="c1">#   the response shall include a Kerberos server ticket</span>
-        <span class="c1">#</span>
-        <span class="c1"># A positive response must be requested if the association</span>
-        <span class="c1">#   requestor requires confirmation. If the Acceptor does</span>
-        <span class="c1">#   not support user identification it will accept the</span>
-        <span class="c1">#   association without making a positive response. The</span>
-        <span class="c1">#   Requestor can then decide whether to proceed</span>
+        <span class="n">id_request</span> <span class="o">=</span> <span class="kc">None</span>
+        <span class="k">for</span> <span class="n">ii</span> <span class="ow">in</span> <span class="n">assoc_rq</span><span class="o">.</span><span class="n">user_information</span><span class="p">:</span>
+            <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">ii</span><span class="p">,</span> <span class="n">UserIdentityNegotiation</span><span class="p">):</span>
+                <span class="n">id_request</span> <span class="o">=</span> <span class="n">ii</span>
+                <span class="k">break</span>
 
-        <span class="c1">#user_authorised = self.ae.on_user_identity(</span>
-        <span class="c1">#                       ii.UserIdentityType,</span>
-        <span class="c1">#                       ii.PrimaryField,</span>
-        <span class="c1">#                       ii.SecondaryField)</span>
-
-        <span class="c1"># Associate with all requestors</span>
+        <span class="c1"># Remove all User Identity Negotiation items</span>
         <span class="n">assoc_rq</span><span class="o">.</span><span class="n">user_information</span><span class="p">[:]</span> <span class="o">=</span> <span class="p">(</span>
             <span class="n">ii</span> <span class="k">for</span> <span class="n">ii</span> <span class="ow">in</span> <span class="n">assoc_rq</span><span class="o">.</span><span class="n">user_information</span>
                 <span class="k">if</span> <span class="ow">not</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">ii</span><span class="p">,</span> <span class="n">UserIdentityNegotiation</span><span class="p">)</span>
         <span class="p">)</span>
+
+        <span class="k">if</span> <span class="n">id_request</span><span class="p">:</span>
+            <span class="n">is_valid</span><span class="p">,</span> <span class="n">id_response</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_check_user_identity</span><span class="p">(</span><span class="n">id_request</span><span class="p">)</span>
+
+            <span class="k">if</span> <span class="ow">not</span> <span class="n">is_valid</span><span class="p">:</span>
+                <span class="c1"># Transient, ACSE related, no reason given</span>
+                <span class="n">LOGGER</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="s2">&quot;User identity failed verification&quot;</span><span class="p">)</span>
+                <span class="n">reject_assoc_rsd</span> <span class="o">=</span> <span class="p">[(</span><span class="mh">0x02</span><span class="p">,</span> <span class="mh">0x02</span><span class="p">,</span> <span class="mh">0x01</span><span class="p">)]</span>
+
+            <span class="k">if</span> <span class="n">id_response</span><span class="p">:</span>
+                <span class="n">assoc_rq</span><span class="o">.</span><span class="n">user_information</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">id_response</span><span class="p">)</span>
 
         <span class="c1"># Extended Negotiation</span>
         <span class="c1"># TODO: Implement propoerly but for now just remove items</span>
@@ -731,17 +798,6 @@
 
         <span class="c1"># Add any SCP/SCU Role Selection Negotiation response items</span>
         <span class="n">assoc_rq</span><span class="o">.</span><span class="n">user_information</span><span class="o">.</span><span class="n">extend</span><span class="p">(</span><span class="n">ac_roles</span><span class="p">)</span>
-
-        <span class="c1"># Save the peer AE details</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">peer_ae</span><span class="p">[</span><span class="s1">&#39;ae_title&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">assoc_rq</span><span class="o">.</span><span class="n">calling_ae_title</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">peer_ae</span><span class="p">[</span><span class="s1">&#39;called_aet&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">assoc_rq</span><span class="o">.</span><span class="n">called_ae_title</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">peer_ae</span><span class="p">[</span><span class="s1">&#39;pdv_size&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">assoc_rq</span><span class="o">.</span><span class="n">maximum_length_received</span>
-        <span class="n">peer_info</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">client_socket</span><span class="o">.</span><span class="n">getpeername</span><span class="p">()</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">peer_ae</span><span class="p">[</span><span class="s1">&#39;address&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">peer_info</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">peer_ae</span><span class="p">[</span><span class="s1">&#39;port&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">peer_info</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span>
-        <span class="n">local_info</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">client_socket</span><span class="o">.</span><span class="n">getsockname</span><span class="p">()</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">local_ae</span><span class="p">[</span><span class="s1">&#39;address&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">local_info</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">local_ae</span><span class="p">[</span><span class="s1">&#39;port&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">local_info</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span>
 
         <span class="c1"># Set maximum PDU send length</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">peer_max_pdu</span> <span class="o">=</span> <span class="n">assoc_rq</span><span class="o">.</span><span class="n">maximum_length_received</span> <span class="c1"># TODO: Remove?</span>

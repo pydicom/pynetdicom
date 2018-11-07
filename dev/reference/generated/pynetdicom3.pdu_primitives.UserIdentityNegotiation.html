@@ -175,7 +175,7 @@
 <dl class="class">
 <dt id="pynetdicom3.pdu_primitives.UserIdentityNegotiation">
 <em class="property">class </em><code class="descclassname">pynetdicom3.pdu_primitives.</code><code class="descname">UserIdentityNegotiation</code><a class="reference internal" href="../../_modules/pynetdicom3/pdu_primitives.html#UserIdentityNegotiation"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pynetdicom3.pdu_primitives.UserIdentityNegotiation" title="Permalink to this definition">¶</a></dt>
-<dd><p>A representation of the User Identity Negotiation primitive.</p>
+<dd><p>Representation of the User Identity Negotiation primitive.</p>
 <p>Allows peer AEs to exchange generic application information.</p>
 <p>The SOP Class Common Extended Negotiation is optional and there may only be
 a single SOPClassCommonExtendedNegotiation item for each available SOP
@@ -207,6 +207,7 @@ whether or not this is supported by the Acceptor).</p>
 <li>2 - Username as string in UTF-8 and passcode</li>
 <li>3 - Kerberos Service ticket</li>
 <li>4 - SAML Assertion</li>
+<li>5 - JSON Web Token</li>
 </ul>
 <table class="docutils field-list" frame="void" rules="none">
 <col class="field-name" />

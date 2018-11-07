@@ -2181,8 +2181,7 @@
 
 
 <div class="viewcode-block" id="UserIdentityNegotiation"><a class="viewcode-back" href="../../reference/generated/pynetdicom3.pdu_primitives.UserIdentityNegotiation.html#pynetdicom3.pdu_primitives.UserIdentityNegotiation">[docs]</a><span class="k">class</span> <span class="nc">UserIdentityNegotiation</span><span class="p">(</span><span class="n">ServiceParameter</span><span class="p">):</span>
-    <span class="sd">&quot;&quot;&quot;</span>
-<span class="sd">    A representation of the User Identity Negotiation primitive.</span>
+    <span class="sd">&quot;&quot;&quot;Representation of the User Identity Negotiation primitive.</span>
 
 <span class="sd">    Allows peer AEs to exchange generic application information.</span>
 
@@ -2221,6 +2220,7 @@
 <span class="sd">        * 2 - Username as string in UTF-8 and passcode</span>
 <span class="sd">        * 3 - Kerberos Service ticket</span>
 <span class="sd">        * 4 - SAML Assertion</span>
+<span class="sd">        * 5 - JSON Web Token</span>
 <span class="sd">    positive_response_requested : bool</span>
 <span class="sd">        A-ASSOCIATE-RQ only. True when requesting a response, False otherwise</span>
 <span class="sd">        (default is False)</span>
@@ -2459,6 +2459,7 @@
 <span class="sd">            * 2 - Username as string in UTF-8 and passcode</span>
 <span class="sd">            * 3 - Kerberos Service ticket</span>
 <span class="sd">            * 4 - SAML Assertion</span>
+<span class="sd">            * 5 - JSON Web Token</span>
 
 <span class="sd">        Raises</span>
 <span class="sd">        ------</span>
@@ -2469,10 +2470,10 @@
 <span class="sd">        &quot;&quot;&quot;</span>
         <span class="c1"># pylint: disable=attribute-defined-outside-init</span>
         <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">value</span><span class="p">,</span> <span class="nb">int</span><span class="p">):</span>
-            <span class="k">if</span> <span class="n">value</span> <span class="ow">not</span> <span class="ow">in</span> <span class="p">[</span><span class="mi">1</span><span class="p">,</span> <span class="mi">2</span><span class="p">,</span> <span class="mi">3</span><span class="p">,</span> <span class="mi">4</span><span class="p">]:</span>
-                <span class="n">LOGGER</span><span class="o">.</span><span class="n">error</span><span class="p">(</span><span class="s2">&quot;User Identity Type must be 1, 2 3 or 4 if &quot;</span>
+            <span class="k">if</span> <span class="n">value</span> <span class="ow">not</span> <span class="ow">in</span> <span class="p">[</span><span class="mi">1</span><span class="p">,</span> <span class="mi">2</span><span class="p">,</span> <span class="mi">3</span><span class="p">,</span> <span class="mi">4</span><span class="p">,</span> <span class="mi">5</span><span class="p">]:</span>
+                <span class="n">LOGGER</span><span class="o">.</span><span class="n">error</span><span class="p">(</span><span class="s2">&quot;User Identity Type must be 1, 2, 3, 4 or 5 if &quot;</span>
                              <span class="s2">&quot;requesting Association, None otherwise&quot;</span><span class="p">)</span>
-                <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s2">&quot;User Identity Type must be 1, 2 3 or 4 &quot;</span>
+                <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s2">&quot;User Identity Type must be 1, 2, 3, 4 or 5 &quot;</span>
                                  <span class="s2">&quot;if requesting Association, None otherwise&quot;</span><span class="p">)</span>
         <span class="k">elif</span> <span class="n">value</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
             <span class="k">pass</span>

@@ -117,6 +117,7 @@
 <li class="toctree-l3"><a class="reference internal" href="#creating-an-scp">Creating an SCP</a><ul>
 <li class="toctree-l4"><a class="reference internal" href="#adding-supported-presentation-contexts">Adding supported Presentation Contexts</a></li>
 <li class="toctree-l4"><a class="reference internal" href="#handling-scp-scu-role-selection-negotiation">Handling SCP/SCU Role Selection Negotiation</a></li>
+<li class="toctree-l4"><a class="reference internal" href="#handling-user-identity-negotiation">Handling User Identity Negotiation</a></li>
 <li class="toctree-l4"><a class="reference internal" href="#id6">Specifying the network port</a></li>
 <li class="toctree-l4"><a class="reference internal" href="#id7">Association</a></li>
 <li class="toctree-l4"><a class="reference internal" href="#references">References</a></li>
@@ -592,6 +593,72 @@ on what was proposed and what was accepted:</p>
 <li>The acceptor acts as the SCU and the requestor the SCP</li>
 <li>Both acceptor and requestor act as SCU and SCP</li>
 </ul>
+</div>
+<div class="section" id="handling-user-identity-negotiation">
+<h3>Handling User Identity Negotiation<a class="headerlink" href="#handling-user-identity-negotiation" title="Permalink to this headline">¶</a></h3>
+<p>An association requestor may include a User Identity Negotiation item in the
+association request with the aim of providing the acceptor a method of
+verifying its identity. Possible forms of identity confirmation methods are:</p>
+<ul class="simple">
+<li>Username</li>
+<li>Username and password (sent in the clear)</li>
+<li>Kerberos service ticket</li>
+<li>SAML assertion</li>
+<li>JSON web token</li>
+</ul>
+<p>By default all association requests that include a user identity negotiation
+requests are accepted (provided there’s no other reason to reject) and
+no user identity negotiation response is sent even if one is requested.</p>
+<p>To handle the user identity negotiation yourself you should implement the
+<a class="reference internal" href="../reference/generated/pynetdicom3.ae.ApplicationEntity.html#pynetdicom3.ae.ApplicationEntity.on_user_identity" title="pynetdicom3.ae.ApplicationEntity.on_user_identity"><code class="xref py py-meth docutils literal notranslate"><span class="pre">AE.on_user_identity</span></code></a>
+callback.</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span> <span class="nn">pynetdicom3</span> <span class="kn">import</span> <span class="n">AE</span>
+<span class="kn">from</span> <span class="nn">pynetdicom3.sop_class</span> <span class="kn">import</span> <span class="n">VerificationSOPClass</span>
+
+<span class="k">def</span> <span class="nf">on_user_identity</span><span class="p">(</span><span class="n">identity_type</span><span class="p">,</span> <span class="n">primary_field</span><span class="p">,</span> <span class="n">secondary_field</span><span class="p">,</span> <span class="n">info</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;Handle user identity negotiation requests.</span>
+
+<span class="sd">    Parameters</span>
+<span class="sd">    ----------</span>
+<span class="sd">    identity_type : int</span>
+<span class="sd">        * 1 - Username as a UTF-8 string</span>
+<span class="sd">        * 2 - Username as a UTF-8 string and passcode</span>
+<span class="sd">        * 3 - Kerberos Service ticket</span>
+<span class="sd">        * 4 - SAML Assertion</span>
+<span class="sd">        * 5 - JSON Web Token</span>
+<span class="sd">    primary_field : bytes</span>
+<span class="sd">        The value of the request&#39;s *Primary Field* parameter.</span>
+<span class="sd">    secondary_field : bytes or None</span>
+<span class="sd">        If the `identity_type` is 2 then the passcode, otherwise None.</span>
+<span class="sd">    info : dict</span>
+<span class="sd">        A dict containing information about the association requestor.</span>
+
+<span class="sd">    Returns</span>
+<span class="sd">    -------</span>
+<span class="sd">    is_verified : bool</span>
+<span class="sd">        Return True if the user identity has been confirmed and you wish</span>
+<span class="sd">        to proceed with association establishment, False otherwise.</span>
+<span class="sd">    response : bytes or None</span>
+<span class="sd">        If a positive response is requested and the identity is verified</span>
+<span class="sd">        then this will be the value of the response&#39;s *Server Response*</span>
+<span class="sd">        parameter. If ``user_id_type`` is:</span>
+
+<span class="sd">        * 1 or 2, then return None</span>
+<span class="sd">        * 3 then return the Kerberos Server ticket as bytes</span>
+<span class="sd">        * 4 then return the SAML response as bytes</span>
+<span class="sd">        * 5 then return the JSON web token as bytes</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="c1"># Identity verification code is outside the scope of pynetdicom</span>
+    <span class="n">is_verified</span><span class="p">,</span> <span class="n">response</span> <span class="o">=</span> <span class="n">some_user_function</span><span class="p">()</span>
+
+    <span class="k">return</span> <span class="n">is_verified</span><span class="p">,</span> <span class="n">response</span>
+
+<span class="n">ae</span> <span class="o">=</span> <span class="n">AE</span><span class="p">(</span><span class="n">port</span><span class="o">=</span><span class="mi">11112</span><span class="p">)</span>
+<span class="n">ae</span><span class="o">.</span><span class="n">add_supported_context</span><span class="p">(</span><span class="n">VerificationSOPClass</span><span class="p">)</span>
+<span class="n">ae</span><span class="o">.</span><span class="n">on_user_identity</span> <span class="o">=</span> <span class="n">on_user_identity</span>
+<span class="n">ae</span><span class="o">.</span><span class="n">start</span><span class="p">()</span>
+</pre></div>
+</div>
 </div>
 <div class="section" id="id6">
 <h3>Specifying the network port<a class="headerlink" href="#id6" title="Permalink to this headline">¶</a></h3>

@@ -536,8 +536,8 @@ set to 0 the OS will use the first available port (default <code class="docutils
 <tr class="row-even"><td><a class="reference internal" href="#pynetdicom3.ae.ApplicationEntity.on_receive_connection" title="pynetdicom3.ae.ApplicationEntity.on_receive_connection"><code class="xref py py-obj docutils literal notranslate"><span class="pre">on_receive_connection</span></code></a>()</td>
 <td>Callback for a connection is received.</td>
 </tr>
-<tr class="row-odd"><td><a class="reference internal" href="#pynetdicom3.ae.ApplicationEntity.on_user_identity_negotiation" title="pynetdicom3.ae.ApplicationEntity.on_user_identity_negotiation"><code class="xref py py-obj docutils literal notranslate"><span class="pre">on_user_identity_negotiation</span></code></a>(user_id_type,&nbsp;…)</td>
-<td>Callback for when a peer requests user identity negotiations.</td>
+<tr class="row-odd"><td><a class="reference internal" href="#pynetdicom3.ae.ApplicationEntity.on_user_identity" title="pynetdicom3.ae.ApplicationEntity.on_user_identity"><code class="xref py py-obj docutils literal notranslate"><span class="pre">on_user_identity</span></code></a>(user_id_type,&nbsp;…)</td>
+<td>Callback for when a user identity negotiation item is included with the association request.</td>
 </tr>
 <tr class="row-even"><td><a class="reference internal" href="#pynetdicom3.ae.ApplicationEntity.quit" title="pynetdicom3.ae.ApplicationEntity.quit"><code class="xref py py-obj docutils literal notranslate"><span class="pre">quit</span></code></a>()</td>
 <td>Stop the SCP.</td>
@@ -1749,38 +1749,67 @@ Class.</p>
 </dd></dl>
 
 <dl class="method">
-<dt id="pynetdicom3.ae.ApplicationEntity.on_user_identity_negotiation">
-<code class="descname">on_user_identity_negotiation</code><span class="sig-paren">(</span><em>user_id_type</em>, <em>primary_field</em>, <em>secondary_field</em><span class="sig-paren">)</span><a class="reference internal" href="../../_modules/pynetdicom3/ae.html#ApplicationEntity.on_user_identity_negotiation"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pynetdicom3.ae.ApplicationEntity.on_user_identity_negotiation" title="Permalink to this definition">¶</a></dt>
-<dd><p>Callback for when a peer requests user identity negotiations.</p>
-<p>See PS3.7 Annex D.3.3.7.1</p>
-<p>Experimental and will definitely change</p>
+<dt id="pynetdicom3.ae.ApplicationEntity.on_user_identity">
+<code class="descname">on_user_identity</code><span class="sig-paren">(</span><em>user_id_type</em>, <em>primary_field</em>, <em>secondary_field</em>, <em>info</em><span class="sig-paren">)</span><a class="reference internal" href="../../_modules/pynetdicom3/ae.html#ApplicationEntity.on_user_identity"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pynetdicom3.ae.ApplicationEntity.on_user_identity" title="Permalink to this definition">¶</a></dt>
+<dd><p>Callback for when a user identity negotiation item is included with
+the association request.</p>
+<p>If not implemented by the user then the association will be accepted
+(provided there’s no other reason to reject it) and no User Identity
+response will be sent even if one is requested.</p>
 <table class="docutils field-list" frame="void" rules="none">
 <col class="field-name" />
 <col class="field-body" />
 <tbody valign="top">
 <tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first simple">
-<li><strong>user_id_type</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.7)"><em>int</em></a>) – The <em>User Identity Type</em> value (1, 2, 3, 4).</li>
-<li><strong>primary_field</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#bytes" title="(in Python v3.7)"><em>bytes</em></a>) – The of the <em>Primary Field</em> value.</li>
+<li><strong>user_id_type</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.7)"><em>int</em></a>) – <p>The <em>User Identity Type</em> value, which indicates the form of user
+identity being provided:</p>
+<ul>
+<li>1 - Username as a UTF-8 string</li>
+<li>2 - Username as a UTF-8 string and passcode</li>
+<li>3 - Kerberos Service ticket</li>
+<li>4 - SAML Assertion</li>
+<li>5 - JSON Web Token</li>
+</ul>
+</li>
+<li><strong>primary_field</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#bytes" title="(in Python v3.7)"><em>bytes</em></a>) – The <em>Primary Field</em> value, contains the username, the encoded
+Kerberos ticket or the JSON web token.</li>
 <li><strong>secondary_field</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#bytes" title="(in Python v3.7)"><em>bytes</em></a><em> or </em><a class="reference external" href="https://docs.python.org/3/library/constants.html#None" title="(in Python v3.7)"><em>None</em></a>) – The <em>Secondary Field</em> value. Will be <code class="docutils literal notranslate"><span class="pre">None</span></code> unless the
-<em>User Identity Type</em> is <code class="docutils literal notranslate"><span class="pre">2</span></code></li>
+<cite>user_id_type</cite> is <code class="docutils literal notranslate"><span class="pre">2</span></code> in which case it will be <code class="docutils literal notranslate"><span class="pre">bytes</span></code>.</li>
+<li><strong>info</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#dict" title="(in Python v3.7)"><em>dict</em></a>) – <p>A dict containing information about the association request and
+the association requestor, with the keys:</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="s1">&#39;requestor&#39;</span> <span class="p">:</span> <span class="p">{</span>
+</pre></div>
+</div>
+<blockquote>
+<div>’ae_title’ : bytes, the requestor’s calling AE title
+‘called_aet’ : bytes, the requestor’s called AE title
+‘address’ : str, the requestor’s IP address
+‘port’ : int, the requestor’s port number</div></blockquote>
+<p>}</p>
+</li>
 </ul>
 </td>
 </tr>
-<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body"><p class="first"><p><strong>response</strong> – If <code class="docutils literal notranslate"><span class="pre">user_id_type</span></code> is :</p>
-<ul class="simple">
-<li>1 or 2, then return <code class="docutils literal notranslate"><span class="pre">b''</span></code>.</li>
-<li>3 then return the Kerberos Server ticket.</li>
-<li>4 then return the SAML response.</li>
+<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body"><p class="first last"><ul class="simple">
+<li><strong>is_verified</strong> (<em>bool</em>) – Return True if the user identity has been confirmed and you wish
+to proceed with association establishment, False otherwise.</li>
+<li><strong>response</strong> (<em>bytes or None</em>) – If <code class="docutils literal notranslate"><span class="pre">user_id_type</span></code> is:<ul>
+<li>1 or 2, then return None</li>
+<li>3 then return the Kerberos Server ticket as bytes</li>
+<li>4 then return the SAML response as bytes</li>
+<li>5 then return the JSON web token as bytes</li>
 </ul>
-<p>If the identity check fails then return <code class="docutils literal notranslate"><span class="pre">None</span></code>.</p>
+</li>
+</ul>
 </p>
-</td>
-</tr>
-<tr class="field-odd field"><th class="field-name">Return type:</th><td class="field-body"><p class="first last"><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#bytes" title="(in Python v3.7)">bytes</a> or <a class="reference external" href="https://docs.python.org/3/library/constants.html#None" title="(in Python v3.7)">None</a></p>
 </td>
 </tr>
 </tbody>
 </table>
+<p class="rubric">References</p>
+<ul class="simple">
+<li>DICOM Standard Part 7, <a class="reference external" href="http://dicom.nema.org/medical/dicom/current/output/chtml/part07/sect_D.3.3.7.html">Annex D.3.3.7</a></li>
+</ul>
 </dd></dl>
 
 <dl class="attribute">

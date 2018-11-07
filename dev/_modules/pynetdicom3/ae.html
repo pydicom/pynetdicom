@@ -1540,36 +1540,64 @@
 
 
     <span class="c1"># Association negotiation callbacks</span>
-<div class="viewcode-block" id="ApplicationEntity.on_user_identity_negotiation"><a class="viewcode-back" href="../../reference/generated/pynetdicom3.ae.ApplicationEntity.html#pynetdicom3.ae.ApplicationEntity.on_user_identity_negotiation">[docs]</a>    <span class="k">def</span> <span class="nf">on_user_identity_negotiation</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">user_id_type</span><span class="p">,</span> <span class="n">primary_field</span><span class="p">,</span>
-                                     <span class="n">secondary_field</span><span class="p">):</span>
-        <span class="sd">&quot;&quot;&quot;Callback for when a peer requests user identity negotiations.</span>
+<div class="viewcode-block" id="ApplicationEntity.on_user_identity"><a class="viewcode-back" href="../../reference/generated/pynetdicom3.ae.ApplicationEntity.html#pynetdicom3.ae.ApplicationEntity.on_user_identity">[docs]</a>    <span class="k">def</span> <span class="nf">on_user_identity</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">user_id_type</span><span class="p">,</span> <span class="n">primary_field</span><span class="p">,</span>
+                         <span class="n">secondary_field</span><span class="p">,</span> <span class="n">info</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;Callback for when a user identity negotiation item is included with</span>
+<span class="sd">        the association request.</span>
 
-<span class="sd">        See PS3.7 Annex D.3.3.7.1</span>
-
-<span class="sd">        Experimental and will definitely change</span>
+<span class="sd">        If not implemented by the user then the association will be accepted</span>
+<span class="sd">        (provided there&#39;s no other reason to reject it) and no User Identity</span>
+<span class="sd">        response will be sent even if one is requested.</span>
 
 <span class="sd">        Parameters</span>
 <span class="sd">        ----------</span>
 <span class="sd">        user_id_type : int</span>
-<span class="sd">            The *User Identity Type* value (1, 2, 3, 4).</span>
+<span class="sd">            The *User Identity Type* value, which indicates the form of user</span>
+<span class="sd">            identity being provided:</span>
+
+<span class="sd">            * 1 - Username as a UTF-8 string</span>
+<span class="sd">            * 2 - Username as a UTF-8 string and passcode</span>
+<span class="sd">            * 3 - Kerberos Service ticket</span>
+<span class="sd">            * 4 - SAML Assertion</span>
+<span class="sd">            * 5 - JSON Web Token</span>
 <span class="sd">        primary_field : bytes</span>
-<span class="sd">            The of the *Primary Field* value.</span>
+<span class="sd">            The *Primary Field* value, contains the username, the encoded</span>
+<span class="sd">            Kerberos ticket or the JSON web token.</span>
 <span class="sd">        secondary_field : bytes or None</span>
 <span class="sd">            The *Secondary Field* value. Will be ``None`` unless the</span>
-<span class="sd">            *User Identity Type* is ``2``</span>
+<span class="sd">            `user_id_type` is ``2`` in which case it will be ``bytes``.</span>
+<span class="sd">        info : dict</span>
+<span class="sd">            A dict containing information about the association request and</span>
+<span class="sd">            the association requestor, with the keys:</span>
+
+<span class="sd">            ::</span>
+
+<span class="sd">            &#39;requestor&#39; : {</span>
+<span class="sd">                &#39;ae_title&#39; : bytes, the requestor&#39;s calling AE title</span>
+<span class="sd">                &#39;called_aet&#39; : bytes, the requestor&#39;s called AE title</span>
+<span class="sd">                &#39;address&#39; : str, the requestor&#39;s IP address</span>
+<span class="sd">                &#39;port&#39; : int, the requestor&#39;s port number</span>
+<span class="sd">            }</span>
 
 <span class="sd">        Returns</span>
 <span class="sd">        -------</span>
+<span class="sd">        is_verified : bool</span>
+<span class="sd">            Return True if the user identity has been confirmed and you wish</span>
+<span class="sd">            to proceed with association establishment, False otherwise.</span>
 <span class="sd">        response : bytes or None</span>
-<span class="sd">            If ``user_id_type`` is :</span>
+<span class="sd">            If ``user_id_type`` is:</span>
 
-<span class="sd">            * 1 or 2, then return ``b&#39;&#39;``.</span>
-<span class="sd">            * 3 then return the Kerberos Server ticket.</span>
-<span class="sd">            * 4 then return the SAML response.</span>
+<span class="sd">            * 1 or 2, then return None</span>
+<span class="sd">            * 3 then return the Kerberos Server ticket as bytes</span>
+<span class="sd">            * 4 then return the SAML response as bytes</span>
+<span class="sd">            * 5 then return the JSON web token as bytes</span>
 
-<span class="sd">            If the identity check fails then return ``None``.</span>
+<span class="sd">        References</span>
+<span class="sd">        ----------</span>
+
+<span class="sd">        * DICOM Standard Part 7, `Annex D.3.3.7 &lt;http://dicom.nema.org/medical/dicom/current/output/chtml/part07/sect_D.3.3.7.html&gt;`_</span>
 <span class="sd">        &quot;&quot;&quot;</span>
-        <span class="k">raise</span> <span class="ne">NotImplementedError</span></div>
+        <span class="k">raise</span> <span class="ne">NotImplementedError</span><span class="p">(</span><span class="s2">&quot;User Identity Negotiation not implemented&quot;</span><span class="p">)</span></div>
 
 
     <span class="c1"># High-level DIMSE-C callbacks - user should implement these as required</span>
