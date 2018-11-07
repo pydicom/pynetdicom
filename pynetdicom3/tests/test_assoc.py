@@ -3420,3 +3420,341 @@ class TestGetValidContext(object):
             assoc._get_valid_context(CTImageStorage,
                                      ImplicitVRLittleEndian,
                                      'scu')
+
+
+REFERENCE_USER_IDENTITY_REQUEST = [
+    # (Request, response)
+    # Request: (ID type, primary field, secondary field, req_response)
+    # Response: (is_valid, server response)
+    # Username
+    ((1, b'username', None, False), (True, b'\x01\x01')),
+    ((1, b'username', None, True), (True, b'\x01\x01')),
+    ((1, b'username', b'invalid', False), (True, b'\x01\x01')),
+    ((1, b'username', b'invalid', True), (True, b'\x01\x01')),
+    # Username and password
+    ((2, b'username', None, False), (True, b'\x01\x02')),
+    ((2, b'username', None, True), (True, b'\x01\x02')),
+    ((2, b'username', b'password', False), (True, b'\x01\x02')),
+    ((2, b'username', b'password', True), (True, b'\x01\x02')),
+    # Kerberos service ticket
+    ((3, b'\x00\x03', None, False), (True, b'\x01\x03')),
+    ((3, b'\x00\x03', None, True), (True, b'\x01\x03')),
+    ((3, b'\x00\x03', b'invalid', False), (True, b'\x01\x03')),
+    ((3, b'\x00\x03', b'invalid', True), (True, b'\x01\x03')),
+    # SAML assertion
+    ((4, b'\x00\x04', None, False), (True, b'\x01\x04')),
+    ((4, b'\x00\x04', None, True), (True, b'\x01\x04')),
+    ((4, b'\x00\x04', b'invalid', False), (True, b'\x01\x04')),
+    ((4, b'\x00\x04', b'invalid', True), (True, b'\x01\x04')),
+    # JSON web token
+    ((5, b'\x00\x05', None, False), (True, b'\x01\x05')),
+    ((5, b'\x00\x05', None, True), (True, b'\x01\x05')),
+    ((5, b'\x00\x05', b'invalid', False), (True, b'\x01\x05')),
+    ((5, b'\x00\x05', b'invalid', True), (True, b'\x01\x05')),
+]
+
+
+class TestUserIdentityNegotiation(object):
+    """Tests for User Identity Negotiation."""
+    def setup(self):
+        """Run prior to each test"""
+        self.scp = None
+
+    def teardown(self):
+        """Clear any active threads"""
+        if self.scp:
+            self.scp.abort()
+
+        time.sleep(0.1)
+
+        for thread in threading.enumerate():
+            if isinstance(thread, DummyBaseSCP):
+                thread.abort()
+                thread.stop()
+
+    @pytest.mark.parametrize("req, rsp", REFERENCE_USER_IDENTITY_REQUEST)
+    def test_check_usrid_not_implemented(self, req, rsp):
+        """Check _check_user_identity if user hasn't implemented."""
+        self.scp = DummyVerificationSCP()
+        self.scp.start()
+        ae = AE()
+        ae.add_requested_context(VerificationSOPClass)
+        ae.acse_timeout = 5
+        ae.dimse_timeout = 5
+        assoc = ae.associate('localhost', 11112)
+
+        assert assoc.is_established
+
+        request = UserIdentityNegotiation()
+        request.user_identity_type = req[0]
+        request.primary_field = req[1]
+        request.secondary_field = req[2]
+        request.positive_response_requested = req[3]
+
+        scp_assoc = self.scp.ae.active_associations[0]
+        is_valid, response = scp_assoc._check_user_identity(request)
+
+        assert is_valid is True
+        assert response is None
+
+        self.scp.stop()
+
+    @pytest.mark.parametrize("req, rsp", REFERENCE_USER_IDENTITY_REQUEST)
+    def test_check_usrid_not_authorised(self, req, rsp):
+        """Check _check_user_identity if requestor not authorised"""
+
+        def on_user_identity(usr_type, primary, secondary, info):
+            return False, rsp[1]
+
+        self.scp = DummyVerificationSCP()
+        self.scp.ae.on_user_identity = on_user_identity
+        self.scp.start()
+        ae = AE()
+        ae.add_requested_context(VerificationSOPClass)
+        ae.acse_timeout = 5
+        ae.dimse_timeout = 5
+        assoc = ae.associate('localhost', 11112)
+
+        assert assoc.is_established
+
+        request = UserIdentityNegotiation()
+        request.user_identity_type = req[0]
+        request.primary_field = req[1]
+        request.secondary_field = req[2]
+        request.positive_response_requested = req[3]
+
+        scp_assoc = self.scp.ae.active_associations[0]
+        is_valid, response = scp_assoc._check_user_identity(request)
+
+        assert is_valid is False
+        assert response is None
+
+        assoc.release()
+
+        self.scp.stop()
+
+    @pytest.mark.parametrize("req, rsp", REFERENCE_USER_IDENTITY_REQUEST)
+    def test_check_usrid_authorised(self, req, rsp):
+        """Check _check_user_identity if requestor authorised"""
+
+        def on_user_identity(usr_type, primary, secondary, info):
+            return True, rsp[1]
+
+        self.scp = DummyVerificationSCP()
+        self.scp.ae.on_user_identity = on_user_identity
+        self.scp.start()
+        ae = AE()
+        ae.add_requested_context(VerificationSOPClass)
+        ae.acse_timeout = 5
+        ae.dimse_timeout = 5
+        assoc = ae.associate('localhost', 11112)
+
+        assert assoc.is_established
+
+        request = UserIdentityNegotiation()
+        request.user_identity_type = req[0]
+        request.primary_field = req[1]
+        request.secondary_field = req[2]
+        request.positive_response_requested = req[3]
+
+        scp_assoc = self.scp.ae.active_associations[0]
+        is_valid, response = scp_assoc._check_user_identity(request)
+
+        assert is_valid is True
+        if req[3] is True and req[0] in [3, 4, 5]:
+            assert isinstance(response, UserIdentityNegotiation)
+            assert response.server_response == rsp[1]
+        else:
+            assert response is None
+
+        assoc.release()
+
+        self.scp.stop()
+
+    def test_check_usrid_callback_exception(self):
+        """Check _check_user_identity if exception in callback"""
+
+        def on_user_identity(usr_type, primary, secondary, info):
+            raise ValueError()
+            return True, rsp[1]
+
+        self.scp = DummyVerificationSCP()
+        self.scp.ae.on_user_identity = on_user_identity
+        self.scp.start()
+        ae = AE()
+        ae.add_requested_context(VerificationSOPClass)
+        ae.acse_timeout = 5
+        ae.dimse_timeout = 5
+        assoc = ae.associate('localhost', 11112)
+
+        assert assoc.is_established
+
+        request = UserIdentityNegotiation()
+        request.user_identity_type = 1
+        request.primary_field = b'test'
+        request.secondary_field = b'test'
+        request.positive_response_requested = True
+
+        scp_assoc = self.scp.ae.active_associations[0]
+        is_valid, response = scp_assoc._check_user_identity(request)
+
+        assert is_valid is False
+        assert response is None
+
+        assoc.release()
+
+        self.scp.stop()
+
+    def test_check_usrid_server_response_exception(self):
+        """Check _check_user_identity exception in setting server response"""
+
+        def on_user_identity(usr_type, primary, secondary, info):
+            return True, 123
+
+        self.scp = DummyVerificationSCP()
+        self.scp.ae.on_user_identity = on_user_identity
+        self.scp.start()
+        ae = AE()
+        ae.add_requested_context(VerificationSOPClass)
+        ae.acse_timeout = 5
+        ae.dimse_timeout = 5
+        assoc = ae.associate('localhost', 11112)
+
+        assert assoc.is_established
+
+        request = UserIdentityNegotiation()
+        request.user_identity_type = 3
+        request.primary_field = b'test'
+        request.secondary_field = b'test'
+        request.positive_response_requested = True
+
+        scp_assoc = self.scp.ae.active_associations[0]
+        is_valid, response = scp_assoc._check_user_identity(request)
+
+        assert is_valid is True
+        assert response is None
+
+        assoc.release()
+
+        self.scp.stop()
+
+    @pytest.mark.parametrize("req, rsp", REFERENCE_USER_IDENTITY_REQUEST)
+    def test_callback(self, req, rsp):
+        """Test the AE.on_user_identity callback"""
+        def on_user_identity(usr_type, primary, secondary, info):
+            assert usr_type == req[0]
+            assert primary == req[1]
+            assert secondary == req[2]
+            assert 'requestor' in info
+            assert 'ae_title' in info['requestor']
+            assert 'called_aet' in info['requestor']
+            assert 'port' in info['requestor']
+            assert 'address' in info['requestor']
+
+            return True, rsp[1]
+
+        self.scp = DummyVerificationSCP()
+        self.scp.ae.on_user_identity = on_user_identity
+        self.scp.start()
+        ae = AE()
+        ae.add_requested_context(VerificationSOPClass)
+        ae.acse_timeout = 5
+        ae.dimse_timeout = 5
+        assoc = ae.associate('localhost', 11112)
+
+        assert assoc.is_established
+
+        request = UserIdentityNegotiation()
+        request.user_identity_type = req[0]
+        request.primary_field = req[1]
+        request.secondary_field = req[2]
+        request.positive_response_requested = req[3]
+
+        scp_assoc = self.scp.ae.active_associations[0]
+        is_valid, response = scp_assoc._check_user_identity(request)
+
+        assoc.release()
+
+        self.scp.stop()
+
+    def test_functional_authorised_response(self):
+        """Test a functional workflow where the user is authorised."""
+        def on_user_identity(usr_type, primary, secondary, info):
+            return True, b'\x00\x01'
+
+        self.scp = DummyVerificationSCP()
+        self.scp.ae.on_user_identity = on_user_identity
+        self.scp.start()
+        ae = AE()
+        ae.on_user_identity = on_user_identity
+        ae.add_requested_context(VerificationSOPClass)
+        ae.acse_timeout = 5
+        ae.dimse_timeout = 5
+
+        request = UserIdentityNegotiation()
+        request.user_identity_type = 3
+        request.primary_field = b'test'
+        request.secondary_field = b'test'
+        request.positive_response_requested = True
+
+        assoc = ae.associate('localhost', 11112, ext_neg=[request])
+
+        assert assoc.is_established
+
+        assoc.release()
+
+        self.scp.stop()
+
+    def test_functional_authorised_no_response(self):
+        """Test a functional workflow where the user is authorised."""
+        def on_user_identity(usr_type, primary, secondary, info):
+            return True, None
+
+        self.scp = DummyVerificationSCP()
+        self.scp.ae.on_user_identity = on_user_identity
+        self.scp.start()
+        ae = AE()
+        ae.on_user_identity = on_user_identity
+        ae.add_requested_context(VerificationSOPClass)
+        ae.acse_timeout = 5
+        ae.dimse_timeout = 5
+
+        request = UserIdentityNegotiation()
+        request.user_identity_type = 3
+        request.primary_field = b'test'
+        request.secondary_field = b'test'
+        request.positive_response_requested = True
+
+        assoc = ae.associate('localhost', 11112, ext_neg=[request])
+
+        assert assoc.is_established
+
+        assoc.release()
+
+        self.scp.stop()
+
+    def test_functional_not_authorised(self):
+        """Test a functional workflow where the user isn't authorised."""
+        def on_user_identity(usr_type, primary, secondary, info):
+            return False, None
+
+        self.scp = DummyVerificationSCP()
+        self.scp.ae.on_user_identity = on_user_identity
+        self.scp.start()
+        ae = AE()
+        ae.on_user_identity = on_user_identity
+        ae.add_requested_context(VerificationSOPClass)
+        ae.acse_timeout = 5
+        ae.dimse_timeout = 5
+
+        request = UserIdentityNegotiation()
+        request.user_identity_type = 1
+        request.primary_field = b'test'
+        request.secondary_field = b'test'
+        request.positive_response_requested = True
+
+        assoc = ae.associate('localhost', 11112, ext_neg=[request])
+
+        assert assoc.is_rejected
+
+        self.scp.stop()

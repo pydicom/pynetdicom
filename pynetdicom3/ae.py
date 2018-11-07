@@ -1369,8 +1369,8 @@ class ApplicationEntity(object):
 
 
     # Association negotiation callbacks
-    def on_user_identity_negotiation(self, user_id_type, primary_field,
-                                     secondary_field, info):
+    def on_user_identity(self, user_id_type, primary_field,
+                         secondary_field, info):
         """Callback for when a user identity negotiation item is included with
         the association request.
 

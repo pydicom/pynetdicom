@@ -293,7 +293,7 @@ class TestAEGoodCallbacks(object):
         """Test default callback raises exception"""
         ae = AE()
         with pytest.raises(NotImplementedError):
-            ae.on_user_identity_negotiation(None, None, None)
+            ae.on_user_identity(None, None, None, None)
 
     def test_on_c_echo(self):
         """Test default callback raises exception"""
