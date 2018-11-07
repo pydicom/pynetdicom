@@ -389,6 +389,75 @@ on what was proposed and what was accepted:
 * The acceptor acts as the SCU and the requestor the SCP
 * Both acceptor and requestor act as SCU and SCP
 
+Handling User Identity Negotiation
+..................................
+
+An association requestor may include a User Identity Negotiation item in the
+association request with the aim of providing the acceptor a method of
+verifying its identity. Possible forms of identity confirmation methods are:
+
+* Username
+* Username and password (sent in the clear)
+* Kerberos service ticket
+* SAML assertion
+* JSON web token
+
+By default all association requests that include a user identity negotiation
+requests are accepted (provided there's no other reason to reject) and
+no user identity negotiation response is sent even if one is requested.
+
+To handle the user identity negotiation yourself you should implement the
+:py:meth:`AE.on_user_identity <pynetdicom3.ae.ApplicationEntity.on_user_identity>`
+callback.
+
+.. code-block:: python
+
+    from pynetdicom3 import AE
+    from pynetdicom3.sop_class import VerificationSOPClass
+
+    def on_user_identity(identity_type, primary_field, secondary_field, info):
+        """Handle user identity negotiation requests.
+
+        Parameters
+        ----------
+        identity_type : int
+            * 1 - Username as a UTF-8 string
+            * 2 - Username as a UTF-8 string and passcode
+            * 3 - Kerberos Service ticket
+            * 4 - SAML Assertion
+            * 5 - JSON Web Token
+        primary_field : bytes
+            The value of the request's *Primary Field* parameter.
+        secondary_field : bytes or None
+            If the `identity_type` is 2 then the passcode, otherwise None.
+        info : dict
+            A dict containing information about the association requestor.
+
+        Returns
+        -------
+        is_verified : bool
+            Return True if the user identity has been confirmed and you wish
+            to proceed with association establishment, False otherwise.
+        response : bytes or None
+            If a positive response is requested and the identity is verified
+            then this will be the value of the response's *Server Response*
+            parameter. If ``user_id_type`` is:
+
+            * 1 or 2, then return None
+            * 3 then return the Kerberos Server ticket as bytes
+            * 4 then return the SAML response as bytes
+            * 5 then return the JSON web token as bytes
+        """
+        # Identity verification code is outside the scope of pynetdicom
+        is_verified, response = some_user_function()
+
+        return is_verified, response
+
+    ae = AE(port=11112)
+    ae.add_supported_context(VerificationSOPClass)
+    ae.on_user_identity = on_user_identity
+    ae.start()
+
 
 Specifying the network port
 ...........................

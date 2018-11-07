@@ -328,6 +328,69 @@ class Association(threading.Thread):
 
         return status
 
+    def _check_user_identity(self, req):
+        """
+        Parameters
+        ----------
+        req : pynetdicom3.pdu_primitives.UserIdentityNegotiation
+            The negotiation request received from the peer.
+
+        Returns
+        -------
+        bool
+            True if the user identity has been confirmed, False otherwise.
+        pynetdicom3.pdu_primitives.UserIdentityNegotiation or None
+            The negotiation response, if a positive response is requested,
+            otherwise None.
+        """
+        try:
+            identity_verified, response = self.ae.on_user_identity(
+                req.user_identity_type,
+                req.primary_field,
+                req.secondary_field,
+                {
+                    'requestor' : {
+                        'ae_title' : self.peer_ae['ae_title'],
+                        'called_aet' : self.peer_ae['called_aet'],
+                        'port' : self.peer_ae['port'],
+                        'address' : self.peer_ae['address'],
+                    },
+                }
+            )
+        except NotImplementedError:
+            # If the user hasn't implemented identity negotiation then
+            #   default to accepting the association
+            return True, None
+        except Exception as exc:
+            # If the user has implemented identity negotiation but an exception
+            #   occurred then reject the association
+            LOGGER.error("Exception in handling user identity negotiation")
+            LOGGER.exception(exc)
+            is_valid = False
+            return False, None
+
+        if not identity_verified:
+            # Reject association is the user isn't authorised
+            return False, None
+
+        if req.user_identity_type in [3, 4, 5]:
+            if req.positive_response_requested and response is not None:
+                try:
+                    rsp = UserIdentityNegotiation()
+                    rsp.server_response = response
+                    return True, rsp
+                except Exception as exc:
+                    # > If the acceptor doesn't support user identification it will
+                    # > accept the association without make a positive response
+                    LOGGER.error(
+                        "Unable to set the User Identity Negotiation's "
+                        "`server_response`"
+                    )
+                    LOGGER.exception(exc)
+                    return True, None
+
+        return True, None
+
     def _get_valid_context(self, ab_syntax, tr_syntax, role, context_id=None):
         """
 
@@ -454,6 +517,17 @@ class Association(threading.Thread):
             self.kill()
             return
 
+        # Save the peer AE details
+        self.peer_ae['ae_title'] = assoc_rq.calling_ae_title
+        self.peer_ae['called_aet'] = assoc_rq.called_ae_title
+        self.peer_ae['pdv_size'] = assoc_rq.maximum_length_received
+        peer_info = self.client_socket.getpeername()
+        self.peer_ae['address'] = peer_info[0]
+        self.peer_ae['port'] = peer_info[1]
+        local_info = self.client_socket.getsockname()
+        self.local_ae['address'] = local_info[0]
+        self.local_ae['port'] = local_info[1]
+
         # If the remote AE initiated the Association then reject it if:
         # Rejection reasons:
         #   a) DUL user
@@ -481,35 +555,28 @@ class Association(threading.Thread):
 
         ## DUL ACSE Related Rejections
         # User Identity Negotiation (PS3.7 Annex D.3.3.7)
-        # TODO: Implement propoerly but for now just remove items
-        # Used to notify the association acceptor of the user
-        #   identity of the association requestor. It may also
-        #   request that the Acceptor response with the server
-        #   identity.
-        #
-        # The Acceptor does not provide an A-ASSOCIATE response
-        #   unless a positive response is requested and user
-        #   authentication succeeded. If a positive response
-        #   was requested, the A-ASSOCIATE response shall contain
-        #   a User Identity sub-item. If a Kerberos ticket is used
-        #   the response shall include a Kerberos server ticket
-        #
-        # A positive response must be requested if the association
-        #   requestor requires confirmation. If the Acceptor does
-        #   not support user identification it will accept the
-        #   association without making a positive response. The
-        #   Requestor can then decide whether to proceed
+        id_request = None
+        for ii in assoc_rq.user_information:
+            if isinstance(ii, UserIdentityNegotiation):
+                id_request = ii
+                break
 
-        #user_authorised = self.ae.on_user_identity(
-        #                       ii.UserIdentityType,
-        #                       ii.PrimaryField,
-        #                       ii.SecondaryField)
-
-        # Associate with all requestors
+        # Remove all User Identity Negotiation items
         assoc_rq.user_information[:] = (
             ii for ii in assoc_rq.user_information
                 if not isinstance(ii, UserIdentityNegotiation)
         )
+
+        if id_request:
+            is_valid, id_response = self._check_user_identity(id_request)
+
+            if not is_valid:
+                # Transient, ACSE related, no reason given
+                LOGGER.info("User identity failed verification")
+                reject_assoc_rsd = [(0x02, 0x02, 0x01)]
+
+            if id_response:
+                assoc_rq.user_information.append(id_response)
 
         # Extended Negotiation
         # TODO: Implement propoerly but for now just remove items
@@ -560,17 +627,6 @@ class Association(threading.Thread):
 
         # Add any SCP/SCU Role Selection Negotiation response items
         assoc_rq.user_information.extend(ac_roles)
-
-        # Save the peer AE details
-        self.peer_ae['ae_title'] = assoc_rq.calling_ae_title
-        self.peer_ae['called_aet'] = assoc_rq.called_ae_title
-        self.peer_ae['pdv_size'] = assoc_rq.maximum_length_received
-        peer_info = self.client_socket.getpeername()
-        self.peer_ae['address'] = peer_info[0]
-        self.peer_ae['port'] = peer_info[1]
-        local_info = self.client_socket.getsockname()
-        self.local_ae['address'] = local_info[0]
-        self.local_ae['port'] = local_info[1]
 
         # Set maximum PDU send length
         self.peer_max_pdu = assoc_rq.maximum_length_received # TODO: Remove?

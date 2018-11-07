@@ -513,10 +513,13 @@ class TestPrimitive_UserIdentityNegotiation(object):
     def test_assignment_and_exceptions(self):
         """ Check incorrect types/values for properties raise exceptions """
         primitive = UserIdentityNegotiation()
-        primitive.user_identity_type = 1
-        assert primitive.user_identity_type == 1
+        for type_no in [1, 2, 3, 4, 5]:
+            primitive.user_identity_type = type_no
+            assert primitive.user_identity_type == type_no
+
         with pytest.raises(ValueError):
-            primitive.user_identity_type = 5
+            primitive.user_identity_type = 6
+
         with pytest.raises(TypeError):
             primitive.user_identity_type = 'a'
 

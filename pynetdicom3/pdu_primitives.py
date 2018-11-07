@@ -2010,8 +2010,7 @@ class SOPClassCommonExtendedNegotiation(ServiceParameter):
 
 
 class UserIdentityNegotiation(ServiceParameter):
-    """
-    A representation of the User Identity Negotiation primitive.
+    """Representation of the User Identity Negotiation primitive.
 
     Allows peer AEs to exchange generic application information.
 
@@ -2050,6 +2049,7 @@ class UserIdentityNegotiation(ServiceParameter):
         * 2 - Username as string in UTF-8 and passcode
         * 3 - Kerberos Service ticket
         * 4 - SAML Assertion
+        * 5 - JSON Web Token
     positive_response_requested : bool
         A-ASSOCIATE-RQ only. True when requesting a response, False otherwise
         (default is False)
@@ -2288,6 +2288,7 @@ class UserIdentityNegotiation(ServiceParameter):
             * 2 - Username as string in UTF-8 and passcode
             * 3 - Kerberos Service ticket
             * 4 - SAML Assertion
+            * 5 - JSON Web Token
 
         Raises
         ------
@@ -2298,10 +2299,10 @@ class UserIdentityNegotiation(ServiceParameter):
         """
         # pylint: disable=attribute-defined-outside-init
         if isinstance(value, int):
-            if value not in [1, 2, 3, 4]:
-                LOGGER.error("User Identity Type must be 1, 2 3 or 4 if "
+            if value not in [1, 2, 3, 4, 5]:
+                LOGGER.error("User Identity Type must be 1, 2, 3, 4 or 5 if "
                              "requesting Association, None otherwise")
-                raise ValueError("User Identity Type must be 1, 2 3 or 4 "
+                raise ValueError("User Identity Type must be 1, 2, 3, 4 or 5 "
                                  "if requesting Association, None otherwise")
         elif value is None:
             pass
