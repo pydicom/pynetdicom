@@ -28,26 +28,154 @@ LOGGER = logging.getLogger('pynetdicom3.dimse_primitives')
 # pylint: disable=invalid-name
 # pylint: disable=attribute-defined-outside-init
 # pylint: disable=too-many-instance-attributes
+class DIMSEPrimitive(object):
+    """Base class for the DIMSE primitives."""
+    STATUS_OPTIONAL_KEYWORDS = ()
+    REQUEST_KEYWORDS = ()
+    RESPONSE_KEYWORDS = ('MessageIDBeingRespondedTo', 'Status')
 
-# DIMSE-C Services
-class C_STORE(object):
+    @property
+    def AffectedSOPClassUID(self):
+        """Return the *Affected SOP Class UID*."""
+        return self._affected_sop_class_uid
+
+    @AffectedSOPClassUID.setter
+    def AffectedSOPClassUID(self, value):
+        """Set the *Affected SOP Class UID*.
+
+        Parameters
+        ----------
+        value : pydicom.uid.UID, bytes or str
+            The value for the Affected SOP Class UID
+        """
+        if isinstance(value, UID):
+            pass
+        elif isinstance(value, str):
+            value = UID(value)
+        elif isinstance(value, bytes):
+            value = UID(value.decode('ascii'))
+        elif value is None:
+            pass
+        else:
+            raise TypeError("Affected SOP Class UID must be a "
+                            "pydicom.uid.UID, str or bytes")
+
+        if value is not None and not value.is_valid:
+            LOGGER.error("Affected SOP Class UID is an invalid UID")
+            raise ValueError("Affected SOP Class UID is an invalid UID")
+
+        self._affected_sop_class_uid = value
+
+    @property
+    def _dataset_variant(self):
+        """Return the Dataset-like parameter value.
+
+        Used for EventInformation, EventReply, AttributeList,
+        ActionInformation, ActionReply, DataSet, Identifier and
+        ModificationList dataset-like parameter values.
+
+        Returns
+        -------
+        BytesIO or None
+        """
+        return self._dataset
+
+    @_dataset_variant.setter
+    def _dataset_variant(self, value):
+        """Set the Dataset-like parameter.
+
+        Used for EventInformation, EventReply, AttributeList,
+        ActionInformation, ActionReply, DataSet, Identifier and
+        ModificationList dataset-like parameter values.
+
+        Parameters
+        ----------
+        value : tuple
+            The (dataset, variant name) to set, where dataset is either None
+            or BytesIO and variant name is str.
+        """
+        if value[0] is None:
+            self._dataset = value[0]
+        elif isinstance(value[0], BytesIO):
+            self._dataset = value[0]
+        else:
+            raise TypeError(
+                "'{}' parameter must be a BytesIO object".format(value[1])
+            )
+
+    @property
+    def is_valid_request(self):
+        """Return True if the request is valid, False otherwise."""
+        for keyword in self.REQUEST_KEYWORDS:
+            if getattr(self, keyword) is None:
+                return False
+
+        return True
+
+    @property
+    def is_valid_response(self):
+        """Return True if the response is valid, False otherwise."""
+        for keyword in self.RESPONSE_KEYWORDS:
+            if getattr(self, keyword) is None:
+                return False
+
+        return True
+
+    @property
+    def MessageID(self):
+        """Return the DIMSE *Message ID*."""
+        return self._message_id
+
+    @MessageID.setter
+    def MessageID(self, value):
+        """Set the DIMSE *Message ID*."""
+        if isinstance(value, int):
+            if 0 <= value < 2**16:
+                self._message_id = value
+            else:
+                raise ValueError("Message ID must be between 0 and 65535, "
+                                 "inclusive")
+        elif value is None:
+            self._message_id = value
+        else:
+            raise TypeError("Message ID must be an int")
+
+    @property
+    def MessageIDBeingRespondedTo(self):
+        """Return the *Message ID Being Responded To*."""
+        return self._message_id_being_responded_to
+
+    @MessageIDBeingRespondedTo.setter
+    def MessageIDBeingRespondedTo(self, value):
+        """Set the *Message ID Being Responded To*."""
+        if isinstance(value, int):
+            if 0 <= value < 2**16:
+                self._message_id_being_responded_to = value
+            else:
+                raise ValueError("Message ID Being Responded To must be "
+                                 "between 0 and 65535, inclusive")
+        elif value is None:
+            self._message_id_being_responded_to = value
+        else:
+            raise TypeError("Message ID Being Responded To must be an int")
+
+    @property
+    def Status(self):
+        """Return the *Status*."""
+        return self._status
+
+    @Status.setter
+    def Status(self, value):
+        """Set the *Status*."""
+        if isinstance(value, int) or value is None:
+            self._status = value
+        else:
+            raise TypeError("DIMSE primitive's 'Status' must be an int")
+
+
+# DIMSE-C Service Primitives
+class C_STORE(DIMSEPrimitive):
     """Represents a C-STORE primitive.
-
-    The C-STORE service is used by a DIMSE user to store a composite SOP
-    Instance on a peer DISMSE user. It is a confirmed service.
-
-    **C-STORE Service Procedure**
-
-    1. The invoking DIMSE user requests that the performing DIMSE user store a
-       composite SOP Instance by issuing a C-STORE request primitive to the
-       DIMSE provider
-    2. The DIMSE provider issues a C-STORE indication primitive to the
-       performing DIMSE user
-    3. The performing DIMSE user reports acceptance or rejection of the C-STORE
-       request primitive by issuing a C-STORE response primitive to the DIMSE
-       provider
-    4. The DIMSE provider issues a C-STORE confirmation primitive to the
-       invoking DIMSE user, completing the C-STORE operation.
 
     +------------------------------------------+---------+----------+
     | Parameter                                | Req/ind | Rsp/conf |
@@ -75,8 +203,8 @@ class C_STORE(object):
     | Error Comment                            | \-      | C        |
     +------------------------------------------+---------+----------+
 
-    | (=) - The value of the parameter is equal to the value of the parameter in
-      the column to the left
+    | (=) - The value of the parameter is equal to the value of the parameter
+      in the column to the left
     | C - The parameter is conditional.
     | M - Mandatory
     | MF - Mandatory with a fixed value
@@ -125,14 +253,12 @@ class C_STORE(object):
     ErrorComment : str or None
         An optional status related field containing a text description
         of the error detected. 64 characters maximum.
-
-    References
-    ----------
-
-    * DICOM Standard, Part 4, Annex B
-    * DICOM Standard, Part 7, 9.1.1
     """
     STATUS_OPTIONAL_KEYWORDS = ('OffendingElement', 'ErrorComment', )
+    REQUEST_KEYWORDS = (
+        'MessageID', 'AffectedSOPClassUID', 'AffectedSOPInstanceUID',
+        'Priority', 'DataSet'
+    )
 
     def __init__(self):
         # Variable names need to match the corresponding DICOM Element keywords
@@ -159,76 +285,6 @@ class C_STORE(object):
         self.ErrorComment = None
         # For Failure statuses 0x0117
         # self.AffectedSOPInstanceUID
-
-    @property
-    def MessageID(self):
-        """Return the DIMSE *Message ID*."""
-        return self._message_id
-
-    @MessageID.setter
-    def MessageID(self, value):
-        """Set the DIMSE *Message ID*."""
-        if isinstance(value, int):
-            if 0 <= value < 2**16:
-                self._message_id = value
-            else:
-                raise ValueError("Message ID must be between 0 and 65535, "
-                                 "inclusive")
-        elif value is None:
-            self._message_id = value
-        else:
-            raise TypeError("Message ID must be an int")
-
-    @property
-    def MessageIDBeingRespondedTo(self):
-        """Return the *Message ID Being Responded To*."""
-        return self._message_id_being_responded_to
-
-    @MessageIDBeingRespondedTo.setter
-    def MessageIDBeingRespondedTo(self, value):
-        """Set the *Message ID Being Responded To*."""
-        if isinstance(value, int):
-            if 0 <= value < 2**16:
-                self._message_id_being_responded_to = value
-            else:
-                raise ValueError("Message ID Being Responded To must be "
-                                 "between 0 and 65535, inclusive")
-        elif value is None:
-            self._message_id_being_responded_to = value
-        else:
-            raise TypeError("Message ID Being Responded To must be an int")
-
-    @property
-    def AffectedSOPClassUID(self):
-        """Return the *Affected SOP Class UID*."""
-        return self._affected_sop_class_uid
-
-    @AffectedSOPClassUID.setter
-    def AffectedSOPClassUID(self, value):
-        """Set the *Affected SOP Class UID*.
-
-        Parameters
-        ----------
-        value : pydicom.uid.UID, bytes or str
-            The value for the Affected SOP Class UID
-        """
-        if isinstance(value, UID):
-            pass
-        elif isinstance(value, str):
-            value = UID(value)
-        elif isinstance(value, bytes):
-            value = UID(value.decode('ascii'))
-        elif value is None:
-            pass
-        else:
-            raise TypeError("Affected SOP Class UID must be a "
-                            "pydicom.uid.UID, str or bytes")
-
-        if value is not None and not value.is_valid:
-            LOGGER.error("Affected SOP Class UID is an invalid UID")
-            raise ValueError("Affected SOP Class UID is an invalid UID")
-
-        self._affected_sop_class_uid = value
 
     @property
     def AffectedSOPInstanceUID(self):
@@ -324,104 +380,16 @@ class C_STORE(object):
     @property
     def DataSet(self):
         """Return the *Data Set*."""
-        return self._dataset
+        return self._dataset_variant
 
     @DataSet.setter
     def DataSet(self, value):
         """Set the *Data Set*."""
-        if value is None:
-            self._dataset = value
-        elif isinstance(value, BytesIO):
-            self._dataset = value
-        else:
-            raise TypeError("DataSet must be a BytesIO object")
-
-    @property
-    def Status(self):
-        """Return the *Status*."""
-        return self._status
-
-    @Status.setter
-    def Status(self, value):
-        """Set the *Status*."""
-        if isinstance(value, int) or value is None:
-            self._status = value
-        else:
-            raise TypeError("'C_STORE.Status' must be an int")
-
-    @property
-    def is_valid_request(self):
-        """Return True if the C-STORE RQ is valid."""
-        for keyword in ['MessageID', 'AffectedSOPClassUID', 'Priority',
-                        'AffectedSOPInstanceUID', 'DataSet']:
-            if getattr(self, keyword) is None:
-                return False
-
-        return True
-
-    @property
-    def is_valid_response(self):
-        """Return True if the C-STORE RSP is valid."""
-        for keyword in ['MessageIDBeingRespondedTo', 'Status']:
-            if getattr(self, keyword) is None:
-                return False
-
-        return True
+        self._dataset_variant = (value, 'DataSet')
 
 
-class C_FIND(object):
+class C_FIND(DIMSEPrimitive):
     """Represents a C-FIND primitive.
-
-    **SOP Class UID**
-
-    Identifies the QR Information Model against which the C-FIND is to be
-    performed. Support for the SOP Class UID is implied by the Abstract Syntax
-    UID of the Presentation Context used by this C-FIND operation.
-
-    **Priority**
-
-    The requested priority of the C-FIND operation with respect to other DIMSE
-    operations being performed by the same SCP. Processing of priority requests
-    is not required of SCPs. Whether or not an SCP supports priority processing
-    and the meaning of different priority levels shall be stated in the
-    Conformance Statement of the SCP.
-
-    **Identifier**
-
-    Encoded as a Data Set
-
-    Request Identifier Structure
-
-    * Key Attribute values to be matched against the values of storage SOP
-      Instances managed by the SCP
-    * QR Level (0008,0052) Query/Retrieve Level
-    * Conditionally, (0008,0053) if enhanced multi frame image conversion
-      accepted during Extended Negotiation
-    * Conditionally, (0008,0005) if expanded or replacement character sets
-      may be used in the request Identifier attributes
-    * Conditionally, (0008,0201) if Key Attributes of time are to be
-      interpreted explicitly in the designated local time zone
-
-    Response Identifier Structure
-
-    * Key Attribute with values corresponding to Key Attributes contained in
-      the Identifier of the request
-    * QR Level (0008, 0053)
-    * Conditionally, (0008,0005) if expanded or replacement character sets
-      may be used in the response Identifier attributes
-    * Conditionally, (0008,0201) if Key Attributes of time are to be
-      interpreted explicitly in the designated local time zone
-
-    The C-FIND SCP is required to support either/both the 'Retrieve AE Title'
-    (0008,0054) or the 'Storage Media File-Set ID'/'Storage Media File Set UID'
-    (0088,0130)/(0088,0140) data elements.
-
-    **Retrieve AE Title**
-
-    A list of AE title(s) that identify the location from which the Instance
-    may be retrieved on the network. Must be present if Storage Media File Set
-    ID/UID not present. The named AE shall support either C-GET or C-MOVE
-    SOP Class of the QR Service Class.
 
     +-------------------------------+---------+----------+
     | Parameter                     | Req/ind | Rsp/conf |
@@ -443,8 +411,8 @@ class C_FIND(object):
     | Error Comment                 | \-      | C        |
     +-------------------------------+---------+----------+
 
-    | (=) - The value of the parameter is equal to the value of the parameter in
-      the column to the left
+    | (=) - The value of the parameter is equal to the value of the parameter
+      in the column to the left
     | C - The parameter is conditional.
     | M - Mandatory
     | MF - Mandatory with a fixed value
@@ -487,6 +455,9 @@ class C_FIND(object):
         description of the error detected. 64 characters maximum.
     """
     STATUS_OPTIONAL_KEYWORDS = ('OffendingElement', 'ErrorComment', )
+    REQUEST_KEYWORDS = (
+        'MessageID', 'AffectedSOPClassUID', 'Priority', 'Identifier'
+    )
 
     def __init__(self):
         # Variable names need to match the corresponding DICOM Element keywords
@@ -508,76 +479,6 @@ class C_FIND(object):
         self.ErrorComment = None
 
     @property
-    def MessageID(self):
-        """Return the *Message ID*."""
-        return self._message_id
-
-    @MessageID.setter
-    def MessageID(self, value):
-        """Set the *Message ID*."""
-        if isinstance(value, int):
-            if 0 <= value < 2**16:
-                self._message_id = value
-            else:
-                raise ValueError("Message ID must be between 0 and 65535, "
-                                 "inclusive")
-        elif value is None:
-            self._message_id = value
-        else:
-            raise TypeError("Message ID must be an int")
-
-    @property
-    def MessageIDBeingRespondedTo(self):
-        """Return the *Message ID Being Responded To*."""
-        return self._message_id_being_responded_to
-
-    @MessageIDBeingRespondedTo.setter
-    def MessageIDBeingRespondedTo(self, value):
-        """Set the *Message ID Being Responded To*."""
-        if isinstance(value, int):
-            if 0 <= value < 2**16:
-                self._message_id_being_responded_to = value
-            else:
-                raise ValueError("Message ID Being Responded To must be "
-                                 "between 0 and 65535, inclusive")
-        elif value is None:
-            self._message_id_being_responded_to = value
-        else:
-            raise TypeError("Message ID Being Responded To must be an int")
-
-    @property
-    def AffectedSOPClassUID(self):
-        """Return the *Affected SOP Class UID*."""
-        return self._affected_sop_class_uid
-
-    @AffectedSOPClassUID.setter
-    def AffectedSOPClassUID(self, value):
-        """Set the *Affected SOP Class UID*.
-
-        Parameters
-        ----------
-        value : pydicom.uid.UID, bytes or str
-            The value for the Affected SOP Class UID
-        """
-        if isinstance(value, UID):
-            pass
-        elif isinstance(value, str):
-            value = UID(value)
-        elif isinstance(value, bytes):
-            value = UID(value.decode('ascii'))
-        elif value is None:
-            pass
-        else:
-            raise TypeError("Affected SOP Class UID must be a "
-                            "pydicom.uid.UID, str or bytes")
-
-        if value is not None and not value.is_valid:
-            LOGGER.error("Affected SOP Class UID is an invalid UID")
-            raise ValueError("Affected SOP Class UID is an invalid UID")
-
-        self._affected_sop_class_uid = value
-
-    @property
     def Priority(self):
         """Return the *Priority*."""
         return self._priority
@@ -595,90 +496,16 @@ class C_FIND(object):
     @property
     def Identifier(self):
         """Return the *Identifier*."""
-        return self._identifier
+        return self._dataset_variant
 
     @Identifier.setter
     def Identifier(self, value):
         """Set the *Identifier*."""
-        if value is None:
-            self._identifier = value
-        elif isinstance(value, BytesIO):
-            self._identifier = value
-        else:
-            raise TypeError("Identifier must be a BytesIO object")
-
-    @property
-    def Status(self):
-        """Return the *Status*."""
-        return self._status
-
-    @Status.setter
-    def Status(self, value):
-        """Set the *Status*."""
-        if isinstance(value, int) or value is None:
-            self._status = value
-        else:
-            raise TypeError("'C_FIND.Status' must be an int.")
-
-    @property
-    def is_valid_request(self):
-        """Return True if the C-FIND RQ is valid."""
-        for keyword in ['MessageID', 'AffectedSOPClassUID', 'Priority',
-                        'Identifier']:
-            if getattr(self, keyword) is None:
-                return False
-
-        return True
-
-    @property
-    def is_valid_response(self):
-        """Return True if the C-FIND RSP is valid."""
-        for keyword in ['MessageIDBeingRespondedTo', 'Status']:
-            if getattr(self, keyword) is None:
-                return False
-
-        return True
+        self._dataset_variant = (value, 'Identifier')
 
 
-class C_GET(object):
+class C_GET(DIMSEPrimitive):
     """Represents a C-GET primitive.
-
-    The C-GET service is used
-
-    **C-GET Service Procedure**
-
-    **Number of Remaining Sub-Operations**
-
-    A C-GET response with a status of:
-
-    * Pending shall contain the Number of Remaining Sub-operations Attribute
-    * Canceled may contain the Number of Remaining Sub-operations Attribute
-    * Warning, Failure or Success shall not contain the Number of Remaining
-      Sub-operations Attribute
-
-    **Number of Completed Sub-Operations**
-
-    A C-GET response with a status of:
-
-    * Pending shall contain the Number of Completed Sub-operations Attribute
-    * Canceled, Warning, Failure or Success may contain the Number of Completed
-      Sub-operations Attribute
-
-    **Number of Failed Sub-Operations**
-
-    A C-GET response with a status of:
-
-    * Pending shall contain the Number of Failed Sub-operations Attribute
-    * Canceled, Warning, Failure or Success may contain the Number of Failed
-      Sub-operations Attribute
-
-    **Number of Warning Sub-Operations**
-
-    A C-GET response with a status of:
-
-    * Pending shall contain the Number of Warning Sub-operations Attribute
-    * Canceled, Warning, Failure or Success may contain the Number of Warning
-      Sub-operations Attribute
 
     +-------------------------------+---------+----------+
     | Parameter                     | Req/ind | Rsp/conf |
@@ -708,8 +535,8 @@ class C_GET(object):
     | Error Comment                 | \-      | C        |
     +-------------------------------+---------+----------+
 
-    | (=) - The value of the parameter is equal to the value of the parameter in
-      the column to the left
+    | (=) - The value of the parameter is equal to the value of the parameter
+      in the column to the left
     | C - The parameter is conditional.
     | M - Mandatory
     | MF - Mandatory with a fixed value
@@ -768,17 +595,14 @@ class C_GET(object):
     ErrorComment : str or None
         An optional status related field containing a text
         description of the error detected. 64 characters maximum.
-
-    References
-    ----------
-
-    * DICOM Standard, Part 4, Annex C.4.3
-    * DICOM Standard, Part 7, Section 9.1.3
     """
     STATUS_OPTIONAL_KEYWORDS = (
         'ErrorComment', 'OffendingElement', 'NumberOfRemainingSuboperations',
         'NumberOfCompletedSuboperations', 'NumberOfFailedSuboperations',
         'NumberOfWarningSuboperations'
+    )
+    REQUEST_KEYWORDS = (
+        'MessageID', 'AffectedSOPClassUID', 'Priority', 'Identifier'
     )
 
     def __init__(self):
@@ -808,76 +632,6 @@ class C_GET(object):
         # self.NumberOfWarningSuboperations
 
     @property
-    def MessageID(self):
-        """Return the *Message ID*."""
-        return self._message_id
-
-    @MessageID.setter
-    def MessageID(self, value):
-        """Set the *Message ID*."""
-        if isinstance(value, int):
-            if 0 <= value < 2**16:
-                self._message_id = value
-            else:
-                raise ValueError("Message ID must be between 0 and 65535, "
-                                 "inclusive")
-        elif value is None:
-            self._message_id = value
-        else:
-            raise TypeError("Message ID must be an int")
-
-    @property
-    def MessageIDBeingRespondedTo(self):
-        """Return the *Message ID Being Responded To*."""
-        return self._message_id_being_responded_to
-
-    @MessageIDBeingRespondedTo.setter
-    def MessageIDBeingRespondedTo(self, value):
-        """Set the *Message ID Being Responded To*."""
-        if isinstance(value, int):
-            if 0 <= value < 2**16:
-                self._message_id_being_responded_to = value
-            else:
-                raise ValueError("Message ID Being Responded To must be "
-                                 "between 0 and 65535, inclusive")
-        elif value is None:
-            self._message_id_being_responded_to = value
-        else:
-            raise TypeError("Message ID Being Responded To must be an int")
-
-    @property
-    def AffectedSOPClassUID(self):
-        """Return the *Affected SOP Class UID*."""
-        return self._affected_sop_class_uid
-
-    @AffectedSOPClassUID.setter
-    def AffectedSOPClassUID(self, value):
-        """Set the *Affected SOP Class UID*.
-
-        Parameters
-        ----------
-        value : pydicom.uid.UID, bytes or str
-            The value for the Affected SOP Class UID
-        """
-        if isinstance(value, UID):
-            pass
-        elif isinstance(value, str):
-            value = UID(value)
-        elif isinstance(value, bytes):
-            value = UID(value.decode('ascii'))
-        elif value is None:
-            pass
-        else:
-            raise TypeError("Affected SOP Class UID must be a "
-                            "pydicom.uid.UID, str or bytes")
-
-        if value is not None and not value.is_valid:
-            LOGGER.error("Affected SOP Class UID is an invalid UID")
-            raise ValueError("Affected SOP Class UID is an invalid UID")
-
-        self._affected_sop_class_uid = value
-
-    @property
     def Priority(self):
         """Return the *Priority*."""
         return self._priority
@@ -895,30 +649,12 @@ class C_GET(object):
     @property
     def Identifier(self):
         """Return the *Identifier*."""
-        return self._identifier
+        return self._dataset_variant
 
     @Identifier.setter
     def Identifier(self, value):
         """Set the *Identifier*."""
-        if value is None:
-            self._identifier = value
-        elif isinstance(value, BytesIO):
-            self._identifier = value
-        else:
-            raise TypeError("Identifier must be a BytesIO object")
-
-    @property
-    def Status(self):
-        """Return the *Status*."""
-        return self._status
-
-    @Status.setter
-    def Status(self, value):
-        """Set the *Status*."""
-        if isinstance(value, int) or value is None:
-            self._status = value
-        else:
-            raise TypeError("Status must be an int")
+        self._dataset_variant = (value, 'Identifier')
 
     @property
     def NumberOfRemainingSuboperations(self):
@@ -996,65 +732,9 @@ class C_GET(object):
         else:
             raise TypeError("Number of Warning Suboperations must be an int")
 
-    @property
-    def is_valid_request(self):
-        """Return True if the C-GET RQ is valid."""
-        for keyword in ['MessageID', 'AffectedSOPClassUID', 'Priority',
-                        'Identifier']:
-            if getattr(self, keyword) is None:
-                return False
 
-        return True
-
-    @property
-    def is_valid_response(self):
-        """Return True if the C-GET RSP is valid."""
-        for keyword in ['MessageIDBeingRespondedTo', 'Status']:
-            if getattr(self, keyword) is None:
-                return False
-
-        return True
-
-
-class C_MOVE(object):
+class C_MOVE(DIMSEPrimitive):
     """Represents a C-MOVE primitive.
-
-    The C-MOVE service is used
-
-    **C-MOVE Service Procedure**
-
-    **Number of Remaining Sub-Operations**
-
-    A C-MOVE response with a status of:
-
-    * Pending shall contain the Number of Remaining Sub-operations Attribute
-    * Canceled may contain the Number of Remaining Sub-operations Attribute
-    * Warning, Failure or Success shall not contain the Number of Remaining
-      Sub-operations Attribute
-
-    **Number of Completed Sub-Operations**
-
-    A C-MOVE response with a status of:
-
-    * Pending shall contain the Number of Completed Sub-operations Attribute
-    * Canceled, Warning, Failure or Success may contain the Number of Completed
-      Sub-operations Attribute
-
-    **Number of Failed Sub-Operations**
-
-    A C-MOVE response with a status of:
-
-    * Pending shall contain the Number of Failed Sub-operations Attribute
-    * Canceled, Warning, Failure or Success may contain the Number of Failed
-      Sub-operations Attribute
-
-    **Number of Warning Sub-Operations**
-
-    A C-MOVE response with a status of:
-
-    * Pending shall contain the Number of Warning Sub-operations Attribute
-    * Canceled, Warning, Failure or Success may contain the Number of Warning
-      Sub-operations Attribute
 
     +-------------------------------+---------+----------+
     | Parameter                     | Req/ind | Rsp/conf |
@@ -1086,8 +766,8 @@ class C_MOVE(object):
     | Error Comment                 | \-      | C        |
     +-------------------------------+---------+----------+
 
-    | (=) - The value of the parameter is equal to the value of the parameter in
-      the column to the left
+    | (=) - The value of the parameter is equal to the value of the parameter
+      in the column to the left
     | C - The parameter is conditional.
     | M - Mandatory
     | MF - Mandatory with a fixed value
@@ -1149,17 +829,15 @@ class C_MOVE(object):
     ErrorComment : str or None
         An optional status related field containing a text
         description of the error detected. 64 characters maximum.
-
-    References
-    ----------
-
-    * DICOM Standard, Part 4, Annex C.4.2
-    * DICOM Standard, Part 7, Section 9.1.4
     """
     STATUS_OPTIONAL_KEYWORDS = (
         'ErrorComment', 'OffendingElement', 'NumberOfRemainingSuboperations',
         'NumberOfCompletedSuboperations', 'NumberOfFailedSuboperations',
         'NumberOfWarningSuboperations'
+    )
+    REQUEST_KEYWORDS = (
+        'MessageID', 'AffectedSOPClassUID', 'Priority', 'Identifier',
+        'MoveDestination'
     )
 
     def __init__(self):
@@ -1186,76 +864,6 @@ class C_MOVE(object):
         # For Failure statuses 0xA801, 0xA701, 0xA702, 0x0122, 0xA900, 0xCxxx
         #   0x0124
         self.ErrorComment = None
-
-    @property
-    def MessageID(self):
-        """Return the *Message ID*."""
-        return self._message_id
-
-    @MessageID.setter
-    def MessageID(self, value):
-        """Set the *Message ID*."""
-        if isinstance(value, int):
-            if 0 <= value < 2**16:
-                self._message_id = value
-            else:
-                raise ValueError("Message ID must be between 0 and 65535, "
-                                 "inclusive")
-        elif value is None:
-            self._message_id = value
-        else:
-            raise TypeError("Message ID must be an int")
-
-    @property
-    def MessageIDBeingRespondedTo(self):
-        """Return the *Message ID Being Responding To*."""
-        return self._message_id_being_responded_to
-
-    @MessageIDBeingRespondedTo.setter
-    def MessageIDBeingRespondedTo(self, value):
-        """Set the *Message ID Being Responding To*."""
-        if isinstance(value, int):
-            if 0 <= value < 2**16:
-                self._message_id_being_responded_to = value
-            else:
-                raise ValueError("Message ID Being Responded To must be "
-                                 "between 0 and 65535, inclusive")
-        elif value is None:
-            self._message_id_being_responded_to = value
-        else:
-            raise TypeError("Message ID Being Responded To must be an int")
-
-    @property
-    def AffectedSOPClassUID(self):
-        """Return the *Affected SOP Class UID*."""
-        return self._affected_sop_class_uid
-
-    @AffectedSOPClassUID.setter
-    def AffectedSOPClassUID(self, value):
-        """Set the *Affected SOP Class UID*.
-
-        Parameters
-        ----------
-        value : pydicom.uid.UID, bytes or str
-            The value for the Affected SOP Class UID
-        """
-        if isinstance(value, UID):
-            pass
-        elif isinstance(value, str):
-            value = UID(value)
-        elif isinstance(value, bytes):
-            value = UID(value.decode('ascii'))
-        elif value is None:
-            pass
-        else:
-            raise TypeError("Affected SOP Class UID must be a "
-                            "pydicom.uid.UID, str or bytes")
-
-        if value is not None and not value.is_valid:
-            LOGGER.error("Affected SOP Class UID is an invalid UID")
-            raise ValueError("Affected SOP Class UID is an invalid UID")
-
-        self._affected_sop_class_uid = value
 
     @property
     def Priority(self):
@@ -1298,30 +906,12 @@ class C_MOVE(object):
     @property
     def Identifier(self):
         """Return the *Identifier*."""
-        return self._identifier
+        return self._dataset_variant
 
     @Identifier.setter
     def Identifier(self, value):
         """Set the *Identifier*."""
-        if value is None:
-            self._identifier = value
-        elif isinstance(value, BytesIO):
-            self._identifier = value
-        else:
-            raise TypeError("Identifier must be a BytesIO object")
-
-    @property
-    def Status(self):
-        """Return the *Status*."""
-        return self._status
-
-    @Status.setter
-    def Status(self, value):
-        """Set the *Status*."""
-        if isinstance(value, int) or value is None:
-            self._status = value
-        else:
-            raise TypeError("Status must be an int")
+        self._dataset_variant = (value, 'Identifier')
 
     @property
     def NumberOfRemainingSuboperations(self):
@@ -1399,27 +989,8 @@ class C_MOVE(object):
         else:
             raise TypeError("Number of Warning Suboperations must be an int")
 
-    @property
-    def is_valid_request(self):
-        """Return True if the C-MOVE RQ is valid."""
-        for keyword in ['MessageID', 'AffectedSOPClassUID', 'Priority',
-                        'Identifier', 'MoveDestination']:
-            if getattr(self, keyword) is None:
-                return False
 
-        return True
-
-    @property
-    def is_valid_response(self):
-        """Return True if the C-MOVE RSP is valid."""
-        for keyword in ['MessageIDBeingRespondedTo', 'Status']:
-            if getattr(self, keyword) is None:
-                return False
-
-        return True
-
-
-class C_ECHO(object):
+class C_ECHO(DIMSEPrimitive):
     """Represents a C-ECHO primitive.
 
     +-------------------------------+---------+----------+
@@ -1436,8 +1007,8 @@ class C_ECHO(object):
     | Error Comment                 | \-      | C        |
     +-------------------------------+---------+----------+
 
-    | (=) - The value of the parameter is equal to the value of the parameter in
-      the column to the left
+    | (=) - The value of the parameter is equal to the value of the parameter
+      in the column to the left
     | C - The parameter is conditional.
     | M - Mandatory
     | MF - Mandatory with a fixed value
@@ -1463,13 +1034,9 @@ class C_ECHO(object):
     ErrorComment : str or None
         An optional status related field containing a text description
         of the error detected. 64 characters maximum.
-
-    References
-    ----------
-
-    * DICOM Standard, Part 7, Section 9.1.5
     """
     STATUS_OPTIONAL_KEYWORDS = ('ErrorComment', )
+    REQUEST_KEYWORDS = ('MessageID', 'AffectedSOPClassUID')
 
     def __init__(self):
         # Variable names need to match the corresponding DICOM Element keywords
@@ -1484,107 +1051,6 @@ class C_ECHO(object):
 
         # (Optional) for Failure status 0x0122
         self.ErrorComment = None
-
-    @property
-    def MessageID(self):
-        """Return the *Message ID*."""
-        return self._message_id
-
-    @MessageID.setter
-    def MessageID(self, value):
-        """Set the *Message ID*."""
-        if isinstance(value, int):
-            if 0 <= value < 2**16:
-                self._message_id = value
-            else:
-                raise ValueError("Message ID must be between 0 and 65535, "
-                                 "inclusive")
-        elif value is None:
-            self._message_id = value
-        else:
-            raise TypeError("Message ID must be an int")
-
-    @property
-    def MessageIDBeingRespondedTo(self):
-        """Return the *Message ID Being Responded To*."""
-        return self._message_id_being_responded_to
-
-    @MessageIDBeingRespondedTo.setter
-    def MessageIDBeingRespondedTo(self, value):
-        """Set the *Message ID Being Responded To*."""
-        if isinstance(value, int):
-            if 0 <= value < 2**16:
-                self._message_id_being_responded_to = value
-            else:
-                raise ValueError("Message ID Being Responded To must be "
-                                 "between 0 and 65535, inclusive")
-        elif value is None:
-            self._message_id_being_responded_to = value
-        else:
-            raise TypeError("Message ID Being Responded To must be an int")
-
-    @property
-    def AffectedSOPClassUID(self):
-        """Return the *Affected SOP Class UID*."""
-        return self._affected_sop_class_uid
-
-    @AffectedSOPClassUID.setter
-    def AffectedSOPClassUID(self, value):
-        """Set the *Affected SOP Class UID*.
-
-        Parameters
-        ----------
-        value : pydicom.uid.UID, bytes or str
-            The value for the Affected SOP Class UID
-        """
-        if isinstance(value, UID):
-            pass
-        elif isinstance(value, str):
-            value = UID(value)
-        elif isinstance(value, bytes):
-            value = UID(value.decode('ascii'))
-        elif value is None:
-            pass
-        else:
-            raise TypeError("Affected SOP Class UID must be a "
-                            "pydicom.uid.UID, str or bytes")
-
-        if value is not None and not value.is_valid:
-            LOGGER.error("Affected SOP Class UID is an invalid UID")
-            raise ValueError("Affected SOP Class UID is an invalid UID")
-
-        self._affected_sop_class_uid = value
-
-    @property
-    def Status(self):
-        """Return the *Status*."""
-        return self._status
-
-    @Status.setter
-    def Status(self, value):
-        """Set the *Status*."""
-        if isinstance(value, int) or value is None:
-            self._status = value
-        else:
-            raise TypeError("'C_ECHO.Status' must be an int.")
-
-    @property
-    def is_valid_request(self):
-        """Return True if the C-ECHO RQ is valid."""
-        for keyword in ['MessageID', 'AffectedSOPClassUID']:
-            if getattr(self, keyword) is None:
-                return False
-
-        return True
-
-    @property
-    def is_valid_response(self):
-        """Return True if the C-ECHO RSP is valid."""
-        for keyword in ['MessageIDBeingRespondedTo', 'Status']:
-            if getattr(self, keyword) is None:
-                return False
-
-        return True
 
 
 class C_CANCEL(object):
@@ -1615,7 +1081,6 @@ class C_CANCEL(object):
 
     * DICOM Standard, Part 7, Section 9.3.2.3-4
     """
-
     def __init__(self):
         """Initialise the C_CANCEL"""
         # Variable names need to match the corresponding DICOM Element keywords
@@ -1645,8 +1110,9 @@ class C_CANCEL(object):
             raise TypeError("Message ID Being Responded To must be an int")
 
 
-# DIMSE-N Services
-class N_EVENT_REPORT(object):
+
+# DIMSE-N Service Primitives
+class N_EVENT_REPORT(DIMSEPrimitive):
     """Represents a N-EVENT-REPORT primitive.
 
     +------------------------------------------+---------+----------+
@@ -1669,8 +1135,8 @@ class N_EVENT_REPORT(object):
     | Status                                   | \-      | M        |
     +------------------------------------------+---------+----------+
 
-    | (=) - The value of the parameter is equal to the value of the parameter in
-      the column to the left
+    | (=) - The value of the parameter is equal to the value of the parameter
+      in the column to the left
     | C - The parameter is conditional.
     | M - Mandatory
     | MF - Mandatory with a fixed value
@@ -1713,6 +1179,10 @@ class N_EVENT_REPORT(object):
         'AffectedSOPClassUID', 'AffectedSOPInstanceUID', 'EventTypeID',
         'EventInformation', 'ErrorComment', 'ErrorID'
     )
+    REQUEST_KEYWORDS = (
+        'MessageID', 'AffectedSOPClassUID', 'EventTypeID',
+        'AffectedSOPInstanceUID'
+    )
 
     def __init__(self):
         self.MessageID = None
@@ -1727,38 +1197,6 @@ class N_EVENT_REPORT(object):
         # Optional status elements
         self.ErrorComment = None
         self.ErrorID = None
-
-    @property
-    def AffectedSOPClassUID(self):
-        """Return the *Affected SOP Class UID*."""
-        return self._affected_sop_class_uid
-
-    @AffectedSOPClassUID.setter
-    def AffectedSOPClassUID(self, value):
-        """Set the *Affected SOP Class UID*.
-
-        Parameters
-        ----------
-        value : pydicom.uid.UID, bytes or str
-            The value for the Affected SOP Class UID
-        """
-        if isinstance(value, UID):
-            pass
-        elif isinstance(value, str):
-            value = UID(value)
-        elif isinstance(value, bytes):
-            value = UID(value.decode('ascii'))
-        elif value is None:
-            pass
-        else:
-            raise TypeError("Affected SOP Class UID must be a "
-                            "pydicom.uid.UID, str or bytes")
-
-        if value is not None and not value.is_valid:
-            LOGGER.error("Affected SOP Class UID is an invalid UID")
-            raise ValueError("Affected SOP Class UID is an invalid UID")
-
-        self._affected_sop_class_uid = value
 
     @property
     def AffectedSOPInstanceUID(self):
@@ -1795,32 +1233,22 @@ class N_EVENT_REPORT(object):
     @property
     def EventInformation(self):
         """Return the *Event Information*."""
-        return self._event_info
+        return self._dataset_variant
 
     @EventInformation.setter
     def EventInformation(self, value):
         """Set the *Event Information*."""
-        if value is None:
-            self._event_info = value
-        elif isinstance(value, BytesIO):
-            self._event_info = value
-        else:
-            raise TypeError("EventInformation must be a BytesIO object")
+        self._dataset_variant = (value, 'EventInformation')
 
     @property
     def EventReply(self):
         """Return the *Event Reply*."""
-        return self._event_reply
+        return self._dataset_variant
 
     @EventReply.setter
     def EventReply(self, value):
         """Set the *Event Reply*."""
-        if value is None:
-            self._event_reply = value
-        elif isinstance(value, BytesIO):
-            self._event_reply = value
-        else:
-            raise TypeError("EventReply must be a BytesIO object")
+        self._dataset_variant = (value, 'EventReply')
 
     @property
     def EventTypeID(self):
@@ -1835,78 +1263,8 @@ class N_EVENT_REPORT(object):
         else:
             raise TypeError("'N_EVENT_REPORT.EventTypeID' must be an int.")
 
-    @property
-    def is_valid_request(self):
-        """Return True if the N-EVENT-REPORT RQ is valid."""
-        for keyword in ['MessageID', 'AffectedSOPClassUID', 'EventTypeID',
-                        'AffectedSOPInstanceUID']:
-            if getattr(self, keyword) is None:
-                return False
 
-        return True
-
-    @property
-    def is_valid_response(self):
-        """Return True if the N-EVENT-REPORT RSP is valid."""
-        for keyword in ['MessageIDBeingRespondedTo', 'Status']:
-            if getattr(self, keyword) is None:
-                return False
-
-        return True
-
-    @property
-    def MessageID(self):
-        """Return the *Message ID*."""
-        return self._message_id
-
-    @MessageID.setter
-    def MessageID(self, value):
-        """Set the *Message ID*."""
-        if isinstance(value, int):
-            if 0 <= value < 2**16:
-                self._message_id = value
-            else:
-                raise ValueError("Message ID must be between 0 and 65535, "
-                                 "inclusive")
-        elif value is None:
-            self._message_id = value
-        else:
-            raise TypeError("Message ID must be an int")
-
-    @property
-    def MessageIDBeingRespondedTo(self):
-        """Return the *Message ID Being Responded To*."""
-        return self._message_id_being_responded_to
-
-    @MessageIDBeingRespondedTo.setter
-    def MessageIDBeingRespondedTo(self, value):
-        """Set the *Message ID Being Responded To*."""
-        if isinstance(value, int):
-            if 0 <= value < 2**16:
-                self._message_id_being_responded_to = value
-            else:
-                raise ValueError("Message ID Being Responded To must be "
-                                 "between 0 and 65535, inclusive")
-        elif value is None:
-            self._message_id_being_responded_to = value
-        else:
-            raise TypeError("Message ID Being Responded To must be an int")
-
-    @property
-    def Status(self):
-        """Return the *Status*."""
-        return self._status
-
-    @Status.setter
-    def Status(self, value):
-        """Set the *Status*."""
-        if isinstance(value, int) or value is None:
-            self._status = value
-        else:
-            raise TypeError("'N_EVENT_REPORT.Status' must be an int.")
-
-
-class N_GET(object):
+class N_GET(DIMSEPrimitive):
     """Represents an N-GET primitive.
 
     +------------------------------------------+---------+----------+
@@ -1967,13 +1325,11 @@ class N_GET(object):
         AttributeIdentifierList.
     Status : int
         The error or success notification of the operation.
-
-    References
-    ----------
-
-    DICOM Standard, Part 7, Section 10.1.2
     """
     STATUS_OPTIONAL_KEYWORDS = ('ErrorComment', 'ErrorID', )
+    REQUEST_KEYWORDS = (
+        'MessageID', 'RequestedSOPClassUID', 'RequestedSOPInstanceUID'
+    )
 
     def __init__(self):
         self.MessageID = None
@@ -1989,38 +1345,6 @@ class N_GET(object):
         # (Optional) elements for specific status values
         self.ErrorComment = None
         self.ErrorID = None
-
-    @property
-    def AffectedSOPClassUID(self):
-        """Return the *Affected SOP Class UID*."""
-        return self._affected_sop_class_uid
-
-    @AffectedSOPClassUID.setter
-    def AffectedSOPClassUID(self, value):
-        """Set the *Affected SOP Class UID*.
-
-        Parameters
-        ----------
-        value : pydicom.uid.UID, bytes or str
-            The value for the Affected SOP Class UID
-        """
-        if isinstance(value, UID):
-            pass
-        elif isinstance(value, str):
-            value = UID(value)
-        elif isinstance(value, bytes):
-            value = UID(value.decode('ascii'))
-        elif value is None:
-            pass
-        else:
-            raise TypeError("Affected SOP Class UID must be a "
-                            "pydicom.uid.UID, str or bytes")
-
-        if value is not None and not value.is_valid:
-            LOGGER.error("Affected SOP Class UID is an invalid UID")
-            raise ValueError("Affected SOP Class UID is an invalid UID")
-
-        self._affected_sop_class_uid = value
 
     @property
     def AffectedSOPInstanceUID(self):
@@ -2088,74 +1412,12 @@ class N_GET(object):
     @property
     def AttributeList(self):
         """Return the *Attribute List*."""
-        return self._attribute_list
+        return self._dataset_variant
 
     @AttributeList.setter
     def AttributeList(self, value):
         """Set the *Attribute List*."""
-        if value is None:
-            self._attribute_list = value
-        elif isinstance(value, BytesIO):
-            self._attribute_list = value
-        else:
-            raise TypeError("AttributeList must be a BytesIO object")
-
-    @property
-    def is_valid_request(self):
-        """Return True if the N-GET RQ is valid."""
-        for keyword in ['MessageID', 'RequestedSOPClassUID',
-                        'RequestedSOPInstanceUID']:
-            if getattr(self, keyword) is None:
-                return False
-
-        return True
-
-    @property
-    def is_valid_response(self):
-        """Return True if the N-GET RSP is valid."""
-        for keyword in ['MessageIDBeingRespondedTo', 'Status']:
-            if getattr(self, keyword) is None:
-                return False
-
-        return True
-
-    @property
-    def MessageID(self):
-        """Return the *Message ID*."""
-        return self._message_id
-
-    @MessageID.setter
-    def MessageID(self, value):
-        """Set the *Message ID*."""
-        if isinstance(value, int):
-            if 0 <= value < 2**16:
-                self._message_id = value
-            else:
-                raise ValueError("Message ID must be between 0 and 65535, "
-                                 "inclusive")
-        elif value is None:
-            self._message_id = value
-        else:
-            raise TypeError("Message ID must be an int")
-
-    @property
-    def MessageIDBeingRespondedTo(self):
-        """Return the *Message ID Being Responded To*."""
-        return self._message_id_being_responded_to
-
-    @MessageIDBeingRespondedTo.setter
-    def MessageIDBeingRespondedTo(self, value):
-        """Set the *Message ID Being Responded To*."""
-        if isinstance(value, int):
-            if 0 <= value < 2**16:
-                self._message_id_being_responded_to = value
-            else:
-                raise ValueError("Message ID Being Responded To must be "
-                                 "between 0 and 65535, inclusive")
-        elif value is None:
-            self._message_id_being_responded_to = value
-        else:
-            raise TypeError("Message ID Being Responded To must be an int")
+        self._dataset_variant = (value, 'AttributeList')
 
     @property
     def RequestedSOPClassUID(self):
@@ -2221,21 +1483,8 @@ class N_GET(object):
 
         self._requested_sop_instance_uid = value
 
-    @property
-    def Status(self):
-        """Return the *Status*."""
-        return self._status
 
-    @Status.setter
-    def Status(self, value):
-        """Set the *Status*."""
-        if isinstance(value, int) or value is None:
-            self._status = value
-        else:
-            raise TypeError("'N_GET.Status' must be an int.")
-
-
-class N_SET(object):
+class N_SET(DIMSEPrimitive):
     """Represents a N-SET primitive.
 
     +------------------------------------------+---------+----------+
@@ -2260,8 +1509,8 @@ class N_SET(object):
     | Status                                   | \-      | M        |
     +------------------------------------------+---------+----------+
 
-    | (=) - The value of the parameter is equal to the value of the parameter in
-      the column to the left
+    | (=) - The value of the parameter is equal to the value of the parameter
+      in the column to the left
     | C - The parameter is conditional.
     | M - Mandatory
     | MF - Mandatory with a fixed value
@@ -2295,14 +1544,13 @@ class N_SET(object):
         The SOP Instance UID of the modified SOP Instance.
     Status : int
         The error or success notification of the operation.
-
-    References
-    ----------
-
-    DICOM Standard, Part 7, Section 10.1.3
     """
     STATUS_OPTIONAL_KEYWORDS = (
         'ErrorComment', 'ErrorID', 'AttributeIdentifierList'
+    )
+    REQUEST_KEYWORDS = (
+        'MessageID', 'RequestedSOPClassUID', 'RequestedSOPInstanceUID',
+        'ModificationList'
     )
 
     def __init__(self):
@@ -2320,38 +1568,6 @@ class N_SET(object):
         self.ErrorComment = None
         self.ErrorID = None
         self.AttributeIdentifierList = None
-
-    @property
-    def AffectedSOPClassUID(self):
-        """Return the *Affected SOP Class UID*."""
-        return self._affected_sop_class_uid
-
-    @AffectedSOPClassUID.setter
-    def AffectedSOPClassUID(self, value):
-        """Set the *Affected SOP Class UID*.
-
-        Parameters
-        ----------
-        value : pydicom.uid.UID, bytes or str
-            The value for the Affected SOP Class UID
-        """
-        if isinstance(value, UID):
-            pass
-        elif isinstance(value, str):
-            value = UID(value)
-        elif isinstance(value, bytes):
-            value = UID(value.decode('ascii'))
-        elif value is None:
-            pass
-        else:
-            raise TypeError("Affected SOP Class UID must be a "
-                            "pydicom.uid.UID, str or bytes")
-
-        if value is not None and not value.is_valid:
-            LOGGER.error("Affected SOP Class UID is an invalid UID")
-            raise ValueError("Affected SOP Class UID is an invalid UID")
-
-        self._affected_sop_class_uid = value
 
     @property
     def AffectedSOPInstanceUID(self):
@@ -2388,89 +1604,22 @@ class N_SET(object):
     @property
     def AttributeList(self):
         """Return the *Attribute List*."""
-        return self._attribute_list
+        return self._dataset_variant
 
     @AttributeList.setter
     def AttributeList(self, value):
         """Set the *Attribute List*."""
-        if value is None:
-            self._attribute_list = value
-        elif isinstance(value, BytesIO):
-            self._attribute_list = value
-        else:
-            raise TypeError("AttributeList must be a BytesIO object")
-
-    @property
-    def is_valid_request(self):
-        """Return True if the N-SET RQ is valid."""
-        for keyword in ['MessageID', 'RequestedSOPClassUID',
-                        'RequestedSOPInstanceUID', 'ModificationList']:
-            if getattr(self, keyword) is None:
-                return False
-
-        return True
-
-    @property
-    def is_valid_response(self):
-        """Return True if the N-SET RSP is valid."""
-        for keyword in ['MessageIDBeingRespondedTo', 'Status']:
-            if getattr(self, keyword) is None:
-                return False
-
-        return True
-
-    @property
-    def MessageID(self):
-        """Return the *Message ID*."""
-        return self._message_id
-
-    @MessageID.setter
-    def MessageID(self, value):
-        """Set the *Message ID*."""
-        if isinstance(value, int):
-            if 0 <= value < 2**16:
-                self._message_id = value
-            else:
-                raise ValueError("Message ID must be between 0 and 65535, "
-                                 "inclusive")
-        elif value is None:
-            self._message_id = value
-        else:
-            raise TypeError("Message ID must be an int")
-
-    @property
-    def MessageIDBeingRespondedTo(self):
-        """Return the *Message ID Being Responded To*."""
-        return self._message_id_being_responded_to
-
-    @MessageIDBeingRespondedTo.setter
-    def MessageIDBeingRespondedTo(self, value):
-        """Set the *Message ID Being Responded To*."""
-        if isinstance(value, int):
-            if 0 <= value < 2**16:
-                self._message_id_being_responded_to = value
-            else:
-                raise ValueError("Message ID Being Responded To must be "
-                                 "between 0 and 65535, inclusive")
-        elif value is None:
-            self._message_id_being_responded_to = value
-        else:
-            raise TypeError("Message ID Being Responded To must be an int")
+        self._dataset_variant = (value, 'AttributeList')
 
     @property
     def ModificationList(self):
         """Return the *Modification List*."""
-        return self._modification_list
+        return self._dataset_variant
 
     @ModificationList.setter
     def ModificationList(self, value):
         """Set the *Modification List*."""
-        if value is None:
-            self._modification_list = value
-        elif isinstance(value, BytesIO):
-            self._modification_list = value
-        else:
-            raise TypeError("ModificationList must be a BytesIO object")
+        self._dataset_variant = (value, 'ModificationList')
 
     @property
     def RequestedSOPClassUID(self):
@@ -2536,21 +1685,8 @@ class N_SET(object):
 
         self._requested_sop_instance_uid = value
 
-    @property
-    def Status(self):
-        """Return the *Status*."""
-        return self._status
 
-    @Status.setter
-    def Status(self, value):
-        """Set the *Status*."""
-        if isinstance(value, int) or value is None:
-            self._status = value
-        else:
-            raise TypeError("'N_SET.Status' must be an int.")
-
-
-class N_ACTION(object):
+class N_ACTION(DIMSEPrimitive):
     """Represents a N-ACTION primitive.
 
     +------------------------------------------+---------+----------+
@@ -2577,8 +1713,8 @@ class N_ACTION(object):
     | Status                                   | \-      | M        |
     +------------------------------------------+---------+----------+
 
-    | (=) - The value of the parameter is equal to the value of the parameter in
-      the column to the left
+    | (=) - The value of the parameter is equal to the value of the parameter
+      in the column to the left
     | C - The parameter is conditional.
     | M - Mandatory
     | MF - Mandatory with a fixed value
@@ -2619,6 +1755,10 @@ class N_ACTION(object):
     STATUS_OPTIONAL_KEYWORDS = (
         'ErrorComment', 'ErrorID', 'AttributeIdentifierList'
     )
+    REQUEST_KEYWORDS = (
+        'MessageID', 'RequestedSOPClassUID', 'RequestedSOPInstanceUID',
+        'ActionTypeID'
+    )
 
     def __init__(self):
         self.MessageID = None
@@ -2635,38 +1775,6 @@ class N_ACTION(object):
         # Optional status elements
         self.ErrorComment = None
         self.ErrorID = None
-
-    @property
-    def AffectedSOPClassUID(self):
-        """Return the *Affected SOP Class UID*."""
-        return self._affected_sop_class_uid
-
-    @AffectedSOPClassUID.setter
-    def AffectedSOPClassUID(self, value):
-        """Set the *Affected SOP Class UID*.
-
-        Parameters
-        ----------
-        value : pydicom.uid.UID, bytes or str
-            The value for the Affected SOP Class UID
-        """
-        if isinstance(value, UID):
-            pass
-        elif isinstance(value, str):
-            value = UID(value)
-        elif isinstance(value, bytes):
-            value = UID(value.decode('ascii'))
-        elif value is None:
-            pass
-        else:
-            raise TypeError("Affected SOP Class UID must be a "
-                            "pydicom.uid.UID, str or bytes")
-
-        if value is not None and not value.is_valid:
-            LOGGER.error("Affected SOP Class UID is an invalid UID")
-            raise ValueError("Affected SOP Class UID is an invalid UID")
-
-        self._affected_sop_class_uid = value
 
     @property
     def AffectedSOPInstanceUID(self):
@@ -2703,89 +1811,22 @@ class N_ACTION(object):
     @property
     def ActionInformation(self):
         """Return the *Action Information*."""
-        return self._action_info
+        return self._dataset_variant
 
     @ActionInformation.setter
     def ActionInformation(self, value):
         """Set the *Action Information*."""
-        if value is None:
-            self._action_info = value
-        elif isinstance(value, BytesIO):
-            self._action_info = value
-        else:
-            raise TypeError("ActionInformation must be a BytesIO object")
-
-    @property
-    def is_valid_request(self):
-        """Return True if the N-ACTION RQ is valid."""
-        for keyword in ['MessageID', 'RequestedSOPClassUID',
-                        'RequestedSOPInstanceUID', 'ActionTypeID']:
-            if getattr(self, keyword) is None:
-                return False
-
-        return True
-
-    @property
-    def is_valid_response(self):
-        """Return True if the N-ACTION RSP is valid."""
-        for keyword in ['MessageIDBeingRespondedTo', 'Status']:
-            if getattr(self, keyword) is None:
-                return False
-
-        return True
-
-    @property
-    def MessageID(self):
-        """Return the *Message ID*."""
-        return self._message_id
-
-    @MessageID.setter
-    def MessageID(self, value):
-        """Set the *Message ID*."""
-        if isinstance(value, int):
-            if 0 <= value < 2**16:
-                self._message_id = value
-            else:
-                raise ValueError("Message ID must be between 0 and 65535, "
-                                 "inclusive")
-        elif value is None:
-            self._message_id = value
-        else:
-            raise TypeError("Message ID must be an int")
-
-    @property
-    def MessageIDBeingRespondedTo(self):
-        """Return the *Message ID Being Responded To*."""
-        return self._message_id_being_responded_to
-
-    @MessageIDBeingRespondedTo.setter
-    def MessageIDBeingRespondedTo(self, value):
-        """Set the *Message ID Being Responded To*."""
-        if isinstance(value, int):
-            if 0 <= value < 2**16:
-                self._message_id_being_responded_to = value
-            else:
-                raise ValueError("Message ID Being Responded To must be "
-                                 "between 0 and 65535, inclusive")
-        elif value is None:
-            self._message_id_being_responded_to = value
-        else:
-            raise TypeError("Message ID Being Responded To must be an int")
+        self._dataset_variant = (value, 'ActionInformation')
 
     @property
     def ActionReply(self):
         """Return the *Action Reply*."""
-        return self._action_reply
+        return self._dataset_variant
 
     @ActionReply.setter
     def ActionReply(self, value):
         """Set the *Action Reply List*."""
-        if value is None:
-            self._action_reply = value
-        elif isinstance(value, BytesIO):
-            self._action_reply = value
-        else:
-            raise TypeError("ActionReply must be a BytesIO object")
+        self._dataset_variant = (value, 'ActionReply')
 
     @property
     def RequestedSOPClassUID(self):
@@ -2852,19 +1893,6 @@ class N_ACTION(object):
         self._requested_sop_instance_uid = value
 
     @property
-    def Status(self):
-        """Return the *Status*."""
-        return self._status
-
-    @Status.setter
-    def Status(self, value):
-        """Set the *Status*."""
-        if isinstance(value, int) or value is None:
-            self._status = value
-        else:
-            raise TypeError("'N_ACTION.Status' must be an int.")
-
-    @property
     def ActionTypeID(self):
         """Return the *Action Type ID*."""
         return self._action_type_id
@@ -2878,7 +1906,7 @@ class N_ACTION(object):
             raise TypeError("'N_ACTION.ActionTypeID' must be an int.")
 
 
-class N_CREATE(object):
+class N_CREATE(DIMSEPrimitive):
     """Represents a N-CREATE primitive.
 
     +------------------------------------------+---------+----------+
@@ -2897,8 +1925,8 @@ class N_CREATE(object):
     | Status                                   | \-      | M        |
     +------------------------------------------+---------+----------+
 
-    | (=) - The value of the parameter is equal to the value of the parameter in
-      the column to the left
+    | (=) - The value of the parameter is equal to the value of the parameter
+      in the column to the left
     | C - The parameter is conditional.
     | M - Mandatory
     | MF - Mandatory with a fixed value
@@ -2931,6 +1959,7 @@ class N_CREATE(object):
         one of the following values:
     """
     STATUS_OPTIONAL_KEYWORDS = ('ErrorComment', 'ErrorID', )
+    REQUEST_KEYWORDS = ('MessageID', 'AffectedSOPClassUID')
 
     def __init__(self):
         self.MessageID = None
@@ -2943,38 +1972,6 @@ class N_CREATE(object):
         # Optional elements
         self.ErrorComment = None
         self.ErrorID = None
-
-    @property
-    def AffectedSOPClassUID(self):
-        """Return the *Affected SOP Class UID*."""
-        return self._affected_sop_class_uid
-
-    @AffectedSOPClassUID.setter
-    def AffectedSOPClassUID(self, value):
-        """Set the *Affected SOP Class UID*.
-
-        Parameters
-        ----------
-        value : pydicom.uid.UID, bytes or str
-            The value for the Affected SOP Class UID
-        """
-        if isinstance(value, UID):
-            pass
-        elif isinstance(value, str):
-            value = UID(value)
-        elif isinstance(value, bytes):
-            value = UID(value.decode('ascii'))
-        elif value is None:
-            pass
-        else:
-            raise TypeError("Affected SOP Class UID must be a "
-                            "pydicom.uid.UID, str or bytes")
-
-        if value is not None and not value.is_valid:
-            LOGGER.error("Affected SOP Class UID is an invalid UID")
-            raise ValueError("Affected SOP Class UID is an invalid UID")
-
-        self._affected_sop_class_uid = value
 
     @property
     def AffectedSOPInstanceUID(self):
@@ -3011,89 +2008,15 @@ class N_CREATE(object):
     @property
     def AttributeList(self):
         """Return the *Attribute List*."""
-        return self._attribute_list
+        return self._dataset_variant
 
     @AttributeList.setter
     def AttributeList(self, value):
         """Set the *Attribute List*."""
-        if value is None:
-            self._attribute_list = value
-        elif isinstance(value, BytesIO):
-            self._attribute_list = value
-        else:
-            raise TypeError("AttributeList must be a BytesIO object")
-
-    @property
-    def is_valid_request(self):
-        """Return True if the N-CREATE RQ is valid."""
-        for keyword in ['MessageID', 'AffectedSOPClassUID']:
-            if getattr(self, keyword) is None:
-                return False
-
-        return True
-
-    @property
-    def is_valid_response(self):
-        """Return True if the N-CREATE RSP is valid."""
-        for keyword in ['MessageIDBeingRespondedTo', 'Status']:
-            if getattr(self, keyword) is None:
-                return False
-
-        return True
-
-    @property
-    def MessageID(self):
-        """Return the *Message ID*."""
-        return self._message_id
-
-    @MessageID.setter
-    def MessageID(self, value):
-        """Set the *Message ID*."""
-        if isinstance(value, int):
-            if 0 <= value < 2**16:
-                self._message_id = value
-            else:
-                raise ValueError("Message ID must be between 0 and 65535, "
-                                 "inclusive")
-        elif value is None:
-            self._message_id = value
-        else:
-            raise TypeError("Message ID must be an int")
-
-    @property
-    def MessageIDBeingRespondedTo(self):
-        """Return the *Message ID Being Responded To*."""
-        return self._message_id_being_responded_to
-
-    @MessageIDBeingRespondedTo.setter
-    def MessageIDBeingRespondedTo(self, value):
-        """Set the *Message ID Being Responded To*."""
-        if isinstance(value, int):
-            if 0 <= value < 2**16:
-                self._message_id_being_responded_to = value
-            else:
-                raise ValueError("Message ID Being Responded To must be "
-                                 "between 0 and 65535, inclusive")
-        elif value is None:
-            self._message_id_being_responded_to = value
-        else:
-            raise TypeError("Message ID Being Responded To must be an int")
-
-    @property
-    def Status(self):
-        """Return the *Status*."""
-        return self._status
-
-    @Status.setter
-    def Status(self, value):
-        """Set the *Status*."""
-        if isinstance(value, int) or value is None:
-            self._status = value
-        else:
-            raise TypeError("'N_CREATE.Status' must be an int.")
+        self._dataset_variant = (value, 'AttributeList')
 
 
-class N_DELETE(object):
+class N_DELETE(DIMSEPrimitive):
     """Represents a N-DELETE primitive.
 
     +------------------------------------------+---------+----------+
@@ -3146,13 +2069,11 @@ class N_DELETE(object):
         to the value in the request/indication
     Status : int
         The error or success notification of the operation.
-
-    References
-    ----------
-
-    DICOM Standard Part 7, Sections 10.1.6 and 10.3.6.
     """
     STATUS_OPTIONAL_KEYWORDS = ('ErrorComment', 'ErrorID', )
+    REQUEST_KEYWORDS = (
+        'MessageID', 'RequestedSOPClassUID', 'RequestedSOPInstanceUID'
+    )
 
     def __init__(self):
         self.MessageID = None
@@ -3166,38 +2087,6 @@ class N_DELETE(object):
         # Optional
         self.ErrorComment = None
         self.ErrorID = None
-
-    @property
-    def AffectedSOPClassUID(self):
-        """Return the *Affected SOP Class UID*."""
-        return self._affected_sop_class_uid
-
-    @AffectedSOPClassUID.setter
-    def AffectedSOPClassUID(self, value):
-        """Set the *Affected SOP Class UID*.
-
-        Parameters
-        ----------
-        value : pydicom.uid.UID, bytes or str
-            The value for the Affected SOP Class UID
-        """
-        if isinstance(value, UID):
-            pass
-        elif isinstance(value, str):
-            value = UID(value)
-        elif isinstance(value, bytes):
-            value = UID(value.decode('ascii'))
-        elif value is None:
-            pass
-        else:
-            raise TypeError("Affected SOP Class UID must be a "
-                            "pydicom.uid.UID, str or bytes")
-
-        if value is not None and not value.is_valid:
-            LOGGER.error("Affected SOP Class UID is an invalid UID")
-            raise ValueError("Affected SOP Class UID is an invalid UID")
-
-        self._affected_sop_class_uid = value
 
     @property
     def AffectedSOPInstanceUID(self):
@@ -3230,63 +2119,6 @@ class N_DELETE(object):
             raise ValueError("Affected SOP Instance UID is an invalid UID")
 
         self._affected_sop_instance_uid = value
-
-    @property
-    def is_valid_request(self):
-        """Return True if the N-DELETE RQ is valid."""
-        for keyword in ['MessageID', 'RequestedSOPClassUID',
-                        'RequestedSOPInstanceUID']:
-            if getattr(self, keyword) is None:
-                return False
-
-        return True
-
-    @property
-    def is_valid_response(self):
-        """Return True if the N-DELETE RSP is valid."""
-        for keyword in ['MessageIDBeingRespondedTo', 'Status']:
-            if getattr(self, keyword) is None:
-                return False
-
-        return True
-
-    @property
-    def MessageID(self):
-        """Return the *Message ID*."""
-        return self._message_id
-
-    @MessageID.setter
-    def MessageID(self, value):
-        """Set the *Message ID*."""
-        if isinstance(value, int):
-            if 0 <= value < 2**16:
-                self._message_id = value
-            else:
-                raise ValueError("Message ID must be between 0 and 65535, "
-                                 "inclusive")
-        elif value is None:
-            self._message_id = value
-        else:
-            raise TypeError("Message ID must be an int")
-
-    @property
-    def MessageIDBeingRespondedTo(self):
-        """Return the *Message ID Being Responded To*."""
-        return self._message_id_being_responded_to
-
-    @MessageIDBeingRespondedTo.setter
-    def MessageIDBeingRespondedTo(self, value):
-        """Set the *Message ID Being Responded To*."""
-        if isinstance(value, int):
-            if 0 <= value < 2**16:
-                self._message_id_being_responded_to = value
-            else:
-                raise ValueError("Message ID Being Responded To must be "
-                                 "between 0 and 65535, inclusive")
-        elif value is None:
-            self._message_id_being_responded_to = value
-        else:
-            raise TypeError("Message ID Being Responded To must be an int")
 
     @property
     def RequestedSOPClassUID(self):
@@ -3351,16 +2183,3 @@ class N_DELETE(object):
             raise ValueError("Requested SOP Instance UID is an invalid UID")
 
         self._requested_sop_instance_uid = value
-
-    @property
-    def Status(self):
-        """Return the *Status*."""
-        return self._status
-
-    @Status.setter
-    def Status(self, value):
-        """Set the *Status*."""
-        if isinstance(value, int) or value is None:
-            self._status = value
-        else:
-            raise TypeError("'N_DELETE.Status' must be an int.")
