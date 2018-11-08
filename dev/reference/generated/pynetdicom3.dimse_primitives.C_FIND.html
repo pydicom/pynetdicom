@@ -176,48 +176,6 @@
 <dt id="pynetdicom3.dimse_primitives.C_FIND">
 <em class="property">class </em><code class="descclassname">pynetdicom3.dimse_primitives.</code><code class="descname">C_FIND</code><a class="reference internal" href="../../_modules/pynetdicom3/dimse_primitives.html#C_FIND"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pynetdicom3.dimse_primitives.C_FIND" title="Permalink to this definition">¶</a></dt>
 <dd><p>Represents a C-FIND primitive.</p>
-<p><strong>SOP Class UID</strong></p>
-<p>Identifies the QR Information Model against which the C-FIND is to be
-performed. Support for the SOP Class UID is implied by the Abstract Syntax
-UID of the Presentation Context used by this C-FIND operation.</p>
-<p><strong>Priority</strong></p>
-<p>The requested priority of the C-FIND operation with respect to other DIMSE
-operations being performed by the same SCP. Processing of priority requests
-is not required of SCPs. Whether or not an SCP supports priority processing
-and the meaning of different priority levels shall be stated in the
-Conformance Statement of the SCP.</p>
-<p><strong>Identifier</strong></p>
-<p>Encoded as a Data Set</p>
-<p>Request Identifier Structure</p>
-<ul class="simple">
-<li>Key Attribute values to be matched against the values of storage SOP
-Instances managed by the SCP</li>
-<li>QR Level (0008,0052) Query/Retrieve Level</li>
-<li>Conditionally, (0008,0053) if enhanced multi frame image conversion
-accepted during Extended Negotiation</li>
-<li>Conditionally, (0008,0005) if expanded or replacement character sets
-may be used in the request Identifier attributes</li>
-<li>Conditionally, (0008,0201) if Key Attributes of time are to be
-interpreted explicitly in the designated local time zone</li>
-</ul>
-<p>Response Identifier Structure</p>
-<ul class="simple">
-<li>Key Attribute with values corresponding to Key Attributes contained in
-the Identifier of the request</li>
-<li>QR Level (0008, 0053)</li>
-<li>Conditionally, (0008,0005) if expanded or replacement character sets
-may be used in the response Identifier attributes</li>
-<li>Conditionally, (0008,0201) if Key Attributes of time are to be
-interpreted explicitly in the designated local time zone</li>
-</ul>
-<p>The C-FIND SCP is required to support either/both the ‘Retrieve AE Title’
-(0008,0054) or the ‘Storage Media File-Set ID’/’Storage Media File Set UID’
-(0088,0130)/(0088,0140) data elements.</p>
-<p><strong>Retrieve AE Title</strong></p>
-<p>A list of AE title(s) that identify the location from which the Instance
-may be retrieved on the network. Must be present if Storage Media File Set
-ID/UID not present. The named AE shall support either C-GET or C-MOVE
-SOP Class of the QR Service Class.</p>
 <table border="1" class="docutils">
 <colgroup>
 <col width="62%" />
@@ -266,8 +224,8 @@ SOP Class of the QR Service Class.</p>
 </tbody>
 </table>
 <div class="line-block">
-<div class="line">(=) - The value of the parameter is equal to the value of the parameter in
-the column to the left</div>
+<div class="line">(=) - The value of the parameter is equal to the value of the parameter
+in the column to the left</div>
 <div class="line">C - The parameter is conditional.</div>
 <div class="line">M - Mandatory</div>
 <div class="line">MF - Mandatory with a fixed value</div>
@@ -435,13 +393,19 @@ description of the error detected. 64 characters maximum.</p>
 <td>Return the <em>Identifier</em>.</td>
 </tr>
 <tr class="row-odd"><td><a class="reference internal" href="#pynetdicom3.dimse_primitives.C_FIND.MessageID" title="pynetdicom3.dimse_primitives.C_FIND.MessageID"><code class="xref py py-obj docutils literal notranslate"><span class="pre">MessageID</span></code></a></td>
-<td>Return the <em>Message ID</em>.</td>
+<td>Return the DIMSE <em>Message ID</em>.</td>
 </tr>
 <tr class="row-even"><td><a class="reference internal" href="#pynetdicom3.dimse_primitives.C_FIND.MessageIDBeingRespondedTo" title="pynetdicom3.dimse_primitives.C_FIND.MessageIDBeingRespondedTo"><code class="xref py py-obj docutils literal notranslate"><span class="pre">MessageIDBeingRespondedTo</span></code></a></td>
 <td>Return the <em>Message ID Being Responded To</em>.</td>
 </tr>
 <tr class="row-odd"><td><a class="reference internal" href="#pynetdicom3.dimse_primitives.C_FIND.Priority" title="pynetdicom3.dimse_primitives.C_FIND.Priority"><code class="xref py py-obj docutils literal notranslate"><span class="pre">Priority</span></code></a></td>
 <td>Return the <em>Priority</em>.</td>
+</tr>
+<tr class="row-even"><td><code class="xref py py-obj docutils literal notranslate"><span class="pre">REQUEST_KEYWORDS</span></code></td>
+<td></td>
+</tr>
+<tr class="row-odd"><td><code class="xref py py-obj docutils literal notranslate"><span class="pre">RESPONSE_KEYWORDS</span></code></td>
+<td></td>
 </tr>
 <tr class="row-even"><td><code class="xref py py-obj docutils literal notranslate"><span class="pre">STATUS_OPTIONAL_KEYWORDS</span></code></td>
 <td></td>
@@ -450,10 +414,10 @@ description of the error detected. 64 characters maximum.</p>
 <td>Return the <em>Status</em>.</td>
 </tr>
 <tr class="row-even"><td><a class="reference internal" href="#pynetdicom3.dimse_primitives.C_FIND.is_valid_request" title="pynetdicom3.dimse_primitives.C_FIND.is_valid_request"><code class="xref py py-obj docutils literal notranslate"><span class="pre">is_valid_request</span></code></a></td>
-<td>Return True if the C-FIND RQ is valid.</td>
+<td>Return True if the request is valid, False otherwise.</td>
 </tr>
 <tr class="row-odd"><td><a class="reference internal" href="#pynetdicom3.dimse_primitives.C_FIND.is_valid_response" title="pynetdicom3.dimse_primitives.C_FIND.is_valid_response"><code class="xref py py-obj docutils literal notranslate"><span class="pre">is_valid_response</span></code></a></td>
-<td>Return True if the C-FIND RSP is valid.</td>
+<td>Return True if the response is valid, False otherwise.</td>
 </tr>
 </tbody>
 </table>
@@ -472,7 +436,7 @@ description of the error detected. 64 characters maximum.</p>
 <dl class="attribute">
 <dt>
 <code class="descname">MessageID</code></dt>
-<dd><p>Return the <em>Message ID</em>.</p>
+<dd><p>Return the DIMSE <em>Message ID</em>.</p>
 </dd></dl>
 
 <dl class="attribute">
@@ -496,13 +460,13 @@ description of the error detected. 64 characters maximum.</p>
 <dl class="attribute">
 <dt id="pynetdicom3.dimse_primitives.C_FIND.is_valid_request">
 <code class="descname">is_valid_request</code><a class="headerlink" href="#pynetdicom3.dimse_primitives.C_FIND.is_valid_request" title="Permalink to this definition">¶</a></dt>
-<dd><p>Return True if the C-FIND RQ is valid.</p>
+<dd><p>Return True if the request is valid, False otherwise.</p>
 </dd></dl>
 
 <dl class="attribute">
 <dt id="pynetdicom3.dimse_primitives.C_FIND.is_valid_response">
 <code class="descname">is_valid_response</code><a class="headerlink" href="#pynetdicom3.dimse_primitives.C_FIND.is_valid_response" title="Permalink to this definition">¶</a></dt>
-<dd><p>Return True if the C-FIND RSP is valid.</p>
+<dd><p>Return True if the response is valid, False otherwise.</p>
 </dd></dl>
 
 </dd></dl>

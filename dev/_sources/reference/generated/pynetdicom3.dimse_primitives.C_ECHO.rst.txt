@@ -26,6 +26,8 @@ pynetdicom3.dimse\_primitives.C\_ECHO
       ~C_ECHO.AffectedSOPClassUID
       ~C_ECHO.MessageID
       ~C_ECHO.MessageIDBeingRespondedTo
+      ~C_ECHO.REQUEST_KEYWORDS
+      ~C_ECHO.RESPONSE_KEYWORDS
       ~C_ECHO.STATUS_OPTIONAL_KEYWORDS
       ~C_ECHO.Status
       ~C_ECHO.is_valid_request

@@ -176,37 +176,6 @@
 <dt id="pynetdicom3.dimse_primitives.C_GET">
 <em class="property">class </em><code class="descclassname">pynetdicom3.dimse_primitives.</code><code class="descname">C_GET</code><a class="reference internal" href="../../_modules/pynetdicom3/dimse_primitives.html#C_GET"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pynetdicom3.dimse_primitives.C_GET" title="Permalink to this definition">¶</a></dt>
 <dd><p>Represents a C-GET primitive.</p>
-<p>The C-GET service is used</p>
-<p><strong>C-GET Service Procedure</strong></p>
-<p><strong>Number of Remaining Sub-Operations</strong></p>
-<p>A C-GET response with a status of:</p>
-<ul class="simple">
-<li>Pending shall contain the Number of Remaining Sub-operations Attribute</li>
-<li>Canceled may contain the Number of Remaining Sub-operations Attribute</li>
-<li>Warning, Failure or Success shall not contain the Number of Remaining
-Sub-operations Attribute</li>
-</ul>
-<p><strong>Number of Completed Sub-Operations</strong></p>
-<p>A C-GET response with a status of:</p>
-<ul class="simple">
-<li>Pending shall contain the Number of Completed Sub-operations Attribute</li>
-<li>Canceled, Warning, Failure or Success may contain the Number of Completed
-Sub-operations Attribute</li>
-</ul>
-<p><strong>Number of Failed Sub-Operations</strong></p>
-<p>A C-GET response with a status of:</p>
-<ul class="simple">
-<li>Pending shall contain the Number of Failed Sub-operations Attribute</li>
-<li>Canceled, Warning, Failure or Success may contain the Number of Failed
-Sub-operations Attribute</li>
-</ul>
-<p><strong>Number of Warning Sub-Operations</strong></p>
-<p>A C-GET response with a status of:</p>
-<ul class="simple">
-<li>Pending shall contain the Number of Warning Sub-operations Attribute</li>
-<li>Canceled, Warning, Failure or Success may contain the Number of Warning
-Sub-operations Attribute</li>
-</ul>
 <table border="1" class="docutils">
 <colgroup>
 <col width="62%" />
@@ -271,8 +240,8 @@ Sub-operations Attribute</li>
 </tbody>
 </table>
 <div class="line-block">
-<div class="line">(=) - The value of the parameter is equal to the value of the parameter in
-the column to the left</div>
+<div class="line">(=) - The value of the parameter is equal to the value of the parameter
+in the column to the left</div>
 <div class="line">C - The parameter is conditional.</div>
 <div class="line">M - Mandatory</div>
 <div class="line">MF - Mandatory with a fixed value</div>
@@ -474,11 +443,6 @@ description of the error detected. 64 characters maximum.</p>
 </table>
 </dd></dl>
 
-<p class="rubric">References</p>
-<ul class="simple">
-<li>DICOM Standard, Part 4, Annex C.4.3</li>
-<li>DICOM Standard, Part 7, Section 9.1.3</li>
-</ul>
 <dl class="method">
 <dt id="pynetdicom3.dimse_primitives.C_GET.__init__">
 <code class="descname">__init__</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="../../_modules/pynetdicom3/dimse_primitives.html#C_GET.__init__"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pynetdicom3.dimse_primitives.C_GET.__init__" title="Permalink to this definition">¶</a></dt>
@@ -511,7 +475,7 @@ description of the error detected. 64 characters maximum.</p>
 <td>Return the <em>Identifier</em>.</td>
 </tr>
 <tr class="row-odd"><td><a class="reference internal" href="#pynetdicom3.dimse_primitives.C_GET.MessageID" title="pynetdicom3.dimse_primitives.C_GET.MessageID"><code class="xref py py-obj docutils literal notranslate"><span class="pre">MessageID</span></code></a></td>
-<td>Return the <em>Message ID</em>.</td>
+<td>Return the DIMSE <em>Message ID</em>.</td>
 </tr>
 <tr class="row-even"><td><a class="reference internal" href="#pynetdicom3.dimse_primitives.C_GET.MessageIDBeingRespondedTo" title="pynetdicom3.dimse_primitives.C_GET.MessageIDBeingRespondedTo"><code class="xref py py-obj docutils literal notranslate"><span class="pre">MessageIDBeingRespondedTo</span></code></a></td>
 <td>Return the <em>Message ID Being Responded To</em>.</td>
@@ -531,6 +495,12 @@ description of the error detected. 64 characters maximum.</p>
 <tr class="row-odd"><td><a class="reference internal" href="#pynetdicom3.dimse_primitives.C_GET.Priority" title="pynetdicom3.dimse_primitives.C_GET.Priority"><code class="xref py py-obj docutils literal notranslate"><span class="pre">Priority</span></code></a></td>
 <td>Return the <em>Priority</em>.</td>
 </tr>
+<tr class="row-even"><td><code class="xref py py-obj docutils literal notranslate"><span class="pre">REQUEST_KEYWORDS</span></code></td>
+<td></td>
+</tr>
+<tr class="row-odd"><td><code class="xref py py-obj docutils literal notranslate"><span class="pre">RESPONSE_KEYWORDS</span></code></td>
+<td></td>
+</tr>
 <tr class="row-even"><td><code class="xref py py-obj docutils literal notranslate"><span class="pre">STATUS_OPTIONAL_KEYWORDS</span></code></td>
 <td></td>
 </tr>
@@ -538,10 +508,10 @@ description of the error detected. 64 characters maximum.</p>
 <td>Return the <em>Status</em>.</td>
 </tr>
 <tr class="row-even"><td><a class="reference internal" href="#pynetdicom3.dimse_primitives.C_GET.is_valid_request" title="pynetdicom3.dimse_primitives.C_GET.is_valid_request"><code class="xref py py-obj docutils literal notranslate"><span class="pre">is_valid_request</span></code></a></td>
-<td>Return True if the C-GET RQ is valid.</td>
+<td>Return True if the request is valid, False otherwise.</td>
 </tr>
 <tr class="row-odd"><td><a class="reference internal" href="#pynetdicom3.dimse_primitives.C_GET.is_valid_response" title="pynetdicom3.dimse_primitives.C_GET.is_valid_response"><code class="xref py py-obj docutils literal notranslate"><span class="pre">is_valid_response</span></code></a></td>
-<td>Return True if the C-GET RSP is valid.</td>
+<td>Return True if the response is valid, False otherwise.</td>
 </tr>
 </tbody>
 </table>
@@ -560,7 +530,7 @@ description of the error detected. 64 characters maximum.</p>
 <dl class="attribute">
 <dt>
 <code class="descname">MessageID</code></dt>
-<dd><p>Return the <em>Message ID</em>.</p>
+<dd><p>Return the DIMSE <em>Message ID</em>.</p>
 </dd></dl>
 
 <dl class="attribute">
@@ -608,13 +578,13 @@ description of the error detected. 64 characters maximum.</p>
 <dl class="attribute">
 <dt id="pynetdicom3.dimse_primitives.C_GET.is_valid_request">
 <code class="descname">is_valid_request</code><a class="headerlink" href="#pynetdicom3.dimse_primitives.C_GET.is_valid_request" title="Permalink to this definition">¶</a></dt>
-<dd><p>Return True if the C-GET RQ is valid.</p>
+<dd><p>Return True if the request is valid, False otherwise.</p>
 </dd></dl>
 
 <dl class="attribute">
 <dt id="pynetdicom3.dimse_primitives.C_GET.is_valid_response">
 <code class="descname">is_valid_response</code><a class="headerlink" href="#pynetdicom3.dimse_primitives.C_GET.is_valid_response" title="Permalink to this definition">¶</a></dt>
-<dd><p>Return True if the C-GET RSP is valid.</p>
+<dd><p>Return True if the response is valid, False otherwise.</p>
 </dd></dl>
 
 </dd></dl>

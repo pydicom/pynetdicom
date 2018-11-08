@@ -31,6 +31,8 @@ pynetdicom3.dimse\_primitives.C\_STORE
       ~C_STORE.MoveOriginatorApplicationEntityTitle
       ~C_STORE.MoveOriginatorMessageID
       ~C_STORE.Priority
+      ~C_STORE.REQUEST_KEYWORDS
+      ~C_STORE.RESPONSE_KEYWORDS
       ~C_STORE.STATUS_OPTIONAL_KEYWORDS
       ~C_STORE.Status
       ~C_STORE.is_valid_request

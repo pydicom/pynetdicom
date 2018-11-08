@@ -28,6 +28,8 @@ pynetdicom3.dimse\_primitives.C\_FIND
       ~C_FIND.MessageID
       ~C_FIND.MessageIDBeingRespondedTo
       ~C_FIND.Priority
+      ~C_FIND.REQUEST_KEYWORDS
+      ~C_FIND.RESPONSE_KEYWORDS
       ~C_FIND.STATUS_OPTIONAL_KEYWORDS
       ~C_FIND.Status
       ~C_FIND.is_valid_request

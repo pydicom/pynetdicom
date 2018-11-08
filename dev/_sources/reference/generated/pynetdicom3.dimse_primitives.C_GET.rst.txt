@@ -32,6 +32,8 @@ pynetdicom3.dimse\_primitives.C\_GET
       ~C_GET.NumberOfRemainingSuboperations
       ~C_GET.NumberOfWarningSuboperations
       ~C_GET.Priority
+      ~C_GET.REQUEST_KEYWORDS
+      ~C_GET.RESPONSE_KEYWORDS
       ~C_GET.STATUS_OPTIONAL_KEYWORDS
       ~C_GET.Status
       ~C_GET.is_valid_request

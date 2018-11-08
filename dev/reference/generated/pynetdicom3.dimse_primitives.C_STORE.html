@@ -176,21 +176,6 @@
 <dt id="pynetdicom3.dimse_primitives.C_STORE">
 <em class="property">class </em><code class="descclassname">pynetdicom3.dimse_primitives.</code><code class="descname">C_STORE</code><a class="reference internal" href="../../_modules/pynetdicom3/dimse_primitives.html#C_STORE"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pynetdicom3.dimse_primitives.C_STORE" title="Permalink to this definition">¶</a></dt>
 <dd><p>Represents a C-STORE primitive.</p>
-<p>The C-STORE service is used by a DIMSE user to store a composite SOP
-Instance on a peer DISMSE user. It is a confirmed service.</p>
-<p><strong>C-STORE Service Procedure</strong></p>
-<ol class="arabic simple">
-<li>The invoking DIMSE user requests that the performing DIMSE user store a
-composite SOP Instance by issuing a C-STORE request primitive to the
-DIMSE provider</li>
-<li>The DIMSE provider issues a C-STORE indication primitive to the
-performing DIMSE user</li>
-<li>The performing DIMSE user reports acceptance or rejection of the C-STORE
-request primitive by issuing a C-STORE response primitive to the DIMSE
-provider</li>
-<li>The DIMSE provider issues a C-STORE confirmation primitive to the
-invoking DIMSE user, completing the C-STORE operation.</li>
-</ol>
 <table border="1" class="docutils">
 <colgroup>
 <col width="69%" />
@@ -251,8 +236,8 @@ invoking DIMSE user, completing the C-STORE operation.</li>
 </tbody>
 </table>
 <div class="line-block">
-<div class="line">(=) - The value of the parameter is equal to the value of the parameter in
-the column to the left</div>
+<div class="line">(=) - The value of the parameter is equal to the value of the parameter
+in the column to the left</div>
 <div class="line">C - The parameter is conditional.</div>
 <div class="line">M - Mandatory</div>
 <div class="line">MF - Mandatory with a fixed value</div>
@@ -432,11 +417,6 @@ of the error detected. 64 characters maximum.</p>
 </table>
 </dd></dl>
 
-<p class="rubric">References</p>
-<ul class="simple">
-<li>DICOM Standard, Part 4, Annex B</li>
-<li>DICOM Standard, Part 7, 9.1.1</li>
-</ul>
 <dl class="method">
 <dt id="pynetdicom3.dimse_primitives.C_STORE.__init__">
 <code class="descname">__init__</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="../../_modules/pynetdicom3/dimse_primitives.html#C_STORE.__init__"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pynetdicom3.dimse_primitives.C_STORE.__init__" title="Permalink to this definition">¶</a></dt>
@@ -486,6 +466,12 @@ of the error detected. 64 characters maximum.</p>
 <tr class="row-even"><td><a class="reference internal" href="#pynetdicom3.dimse_primitives.C_STORE.Priority" title="pynetdicom3.dimse_primitives.C_STORE.Priority"><code class="xref py py-obj docutils literal notranslate"><span class="pre">Priority</span></code></a></td>
 <td>Return the <em>Priority</em>.</td>
 </tr>
+<tr class="row-odd"><td><code class="xref py py-obj docutils literal notranslate"><span class="pre">REQUEST_KEYWORDS</span></code></td>
+<td></td>
+</tr>
+<tr class="row-even"><td><code class="xref py py-obj docutils literal notranslate"><span class="pre">RESPONSE_KEYWORDS</span></code></td>
+<td></td>
+</tr>
 <tr class="row-odd"><td><code class="xref py py-obj docutils literal notranslate"><span class="pre">STATUS_OPTIONAL_KEYWORDS</span></code></td>
 <td></td>
 </tr>
@@ -493,10 +479,10 @@ of the error detected. 64 characters maximum.</p>
 <td>Return the <em>Status</em>.</td>
 </tr>
 <tr class="row-odd"><td><a class="reference internal" href="#pynetdicom3.dimse_primitives.C_STORE.is_valid_request" title="pynetdicom3.dimse_primitives.C_STORE.is_valid_request"><code class="xref py py-obj docutils literal notranslate"><span class="pre">is_valid_request</span></code></a></td>
-<td>Return True if the C-STORE RQ is valid.</td>
+<td>Return True if the request is valid, False otherwise.</td>
 </tr>
 <tr class="row-even"><td><a class="reference internal" href="#pynetdicom3.dimse_primitives.C_STORE.is_valid_response" title="pynetdicom3.dimse_primitives.C_STORE.is_valid_response"><code class="xref py py-obj docutils literal notranslate"><span class="pre">is_valid_response</span></code></a></td>
-<td>Return True if the C-STORE RSP is valid.</td>
+<td>Return True if the response is valid, False otherwise.</td>
 </tr>
 </tbody>
 </table>
@@ -557,13 +543,13 @@ of the error detected. 64 characters maximum.</p>
 <dl class="attribute">
 <dt id="pynetdicom3.dimse_primitives.C_STORE.is_valid_request">
 <code class="descname">is_valid_request</code><a class="headerlink" href="#pynetdicom3.dimse_primitives.C_STORE.is_valid_request" title="Permalink to this definition">¶</a></dt>
-<dd><p>Return True if the C-STORE RQ is valid.</p>
+<dd><p>Return True if the request is valid, False otherwise.</p>
 </dd></dl>
 
 <dl class="attribute">
 <dt id="pynetdicom3.dimse_primitives.C_STORE.is_valid_response">
 <code class="descname">is_valid_response</code><a class="headerlink" href="#pynetdicom3.dimse_primitives.C_STORE.is_valid_response" title="Permalink to this definition">¶</a></dt>
-<dd><p>Return True if the C-STORE RSP is valid.</p>
+<dd><p>Return True if the response is valid, False otherwise.</p>
 </dd></dl>
 
 </dd></dl>
