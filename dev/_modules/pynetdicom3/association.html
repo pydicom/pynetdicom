@@ -800,8 +800,12 @@
         <span class="n">assoc_rq</span><span class="o">.</span><span class="n">user_information</span><span class="o">.</span><span class="n">extend</span><span class="p">(</span><span class="n">ac_roles</span><span class="p">)</span>
 
         <span class="c1"># Set maximum PDU send length</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">peer_max_pdu</span> <span class="o">=</span> <span class="n">assoc_rq</span><span class="o">.</span><span class="n">maximum_length_received</span> <span class="c1"># TODO: Remove?</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">dimse</span><span class="o">.</span><span class="n">maximum_pdu_size</span> <span class="o">=</span> <span class="n">assoc_rq</span><span class="o">.</span><span class="n">maximum_length_received</span>
+        <span class="k">if</span> <span class="n">assoc_rq</span><span class="o">.</span><span class="n">maximum_length_received</span> <span class="o">==</span> <span class="mi">0</span><span class="p">:</span>  <span class="c1"># Unlimited PDU size - set to 64K as this is big enough to max out most protocols</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">peer_max_pdu</span> <span class="o">=</span> <span class="mh">0x10000</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">dimse</span><span class="o">.</span><span class="n">maximum_pdu_size</span> <span class="o">=</span> <span class="mh">0x10000</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">peer_max_pdu</span> <span class="o">=</span> <span class="n">assoc_rq</span><span class="o">.</span><span class="n">maximum_length_received</span> <span class="c1"># TODO: Remove?</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">dimse</span><span class="o">.</span><span class="n">maximum_pdu_size</span> <span class="o">=</span> <span class="n">assoc_rq</span><span class="o">.</span><span class="n">maximum_length_received</span>
 
         <span class="c1"># Set Responding AE title</span>
         <span class="n">assoc_rq</span><span class="o">.</span><span class="n">called_ae_title</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">ae</span><span class="o">.</span><span class="n">ae_title</span>
