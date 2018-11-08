@@ -572,11 +572,14 @@ class ACSEServiceProvider(object):
             elif usid.id_type == 4:
                 s.append('  SAML Assertion (not dumped) length: '
                          '{0:d}'.format(len(usid.primary)))
+            elif usid.id_type == 5:
+                s.append('  JSON Web Token (not dumped) length: '
+                         '{0:d}'.format(len(usid.primary)))
 
             if usid.response_requested:
                 s.append('  Positive Response requested: Yes')
             else:
-                s.append('  Positive Response requested: None')
+                s.append('  Positive Response requested: No')
         else:
             s.append('Requested User Identity Negotiation: None')
 
@@ -651,9 +654,7 @@ class ACSEServiceProvider(object):
         s.append('Accepted Extended Negotiation: {0!s}'.format(ext_nego))
 
         ## User Identity Negotiation
-        usr_id = 'None'
-        if user_info.user_identity is not None:
-            usr_id = 'Yes'
+        usr_id = 'Yes' if user_info.user_identity is not None else 'None'
 
         s.append('User Identity Negotiation Response:  {0!s}'.format(usr_id))
         s.append('======================= END A-ASSOCIATE-AC =================='
@@ -874,6 +875,9 @@ class ACSEServiceProvider(object):
             elif usid.id_type == 4:
                 s.append('  SAML Assertion (not dumped) length: '
                          '{0:d}'.format(len(usid.primary)))
+            elif usid.id_type == 5:
+                s.append('  JSON Web Token (not dumped) length: '
+                         '{0:d}'.format(len(usid.primary)))
 
             if usid.response_requested:
                 s.append('  Positive Response requested: Yes')
@@ -909,6 +913,8 @@ class ACSEServiceProvider(object):
         app_context = assoc_ac.application_context_name.title()
         pres_contexts = assoc_ac.presentation_context
         user_info = assoc_ac.user_information
+
+        #roles = (ii.abstract_syntax:ii for ii in user_info.role_selection)
 
         their_class_uid = 'unknown'
         their_version = 'unknown'
@@ -972,9 +978,7 @@ class ACSEServiceProvider(object):
                  .format(async_neg))
 
         ## User Identity
-        usr_id = 'None'
-        if user_info.user_identity is not None:
-            usr_id = 'Yes'
+        usr_id = 'Yes' if user_info.user_identity is not None else 'None'
 
         s.append('User Identity Negotiation Response:  {0!s}'.format(usr_id))
         s.append('======================= END A-ASSOCIATE-AC =================='
