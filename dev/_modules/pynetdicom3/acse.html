@@ -743,11 +743,14 @@
             <span class="k">elif</span> <span class="n">usid</span><span class="o">.</span><span class="n">id_type</span> <span class="o">==</span> <span class="mi">4</span><span class="p">:</span>
                 <span class="n">s</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="s1">&#39;  SAML Assertion (not dumped) length: &#39;</span>
                          <span class="s1">&#39;</span><span class="si">{0:d}</span><span class="s1">&#39;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="nb">len</span><span class="p">(</span><span class="n">usid</span><span class="o">.</span><span class="n">primary</span><span class="p">)))</span>
+            <span class="k">elif</span> <span class="n">usid</span><span class="o">.</span><span class="n">id_type</span> <span class="o">==</span> <span class="mi">5</span><span class="p">:</span>
+                <span class="n">s</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="s1">&#39;  JSON Web Token (not dumped) length: &#39;</span>
+                         <span class="s1">&#39;</span><span class="si">{0:d}</span><span class="s1">&#39;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="nb">len</span><span class="p">(</span><span class="n">usid</span><span class="o">.</span><span class="n">primary</span><span class="p">)))</span>
 
             <span class="k">if</span> <span class="n">usid</span><span class="o">.</span><span class="n">response_requested</span><span class="p">:</span>
                 <span class="n">s</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="s1">&#39;  Positive Response requested: Yes&#39;</span><span class="p">)</span>
             <span class="k">else</span><span class="p">:</span>
-                <span class="n">s</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="s1">&#39;  Positive Response requested: None&#39;</span><span class="p">)</span>
+                <span class="n">s</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="s1">&#39;  Positive Response requested: No&#39;</span><span class="p">)</span>
         <span class="k">else</span><span class="p">:</span>
             <span class="n">s</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="s1">&#39;Requested User Identity Negotiation: None&#39;</span><span class="p">)</span>
 
@@ -822,9 +825,7 @@
         <span class="n">s</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="s1">&#39;Accepted Extended Negotiation: </span><span class="si">{0!s}</span><span class="s1">&#39;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">ext_nego</span><span class="p">))</span>
 
         <span class="c1">## User Identity Negotiation</span>
-        <span class="n">usr_id</span> <span class="o">=</span> <span class="s1">&#39;None&#39;</span>
-        <span class="k">if</span> <span class="n">user_info</span><span class="o">.</span><span class="n">user_identity</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
-            <span class="n">usr_id</span> <span class="o">=</span> <span class="s1">&#39;Yes&#39;</span>
+        <span class="n">usr_id</span> <span class="o">=</span> <span class="s1">&#39;Yes&#39;</span> <span class="k">if</span> <span class="n">user_info</span><span class="o">.</span><span class="n">user_identity</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span> <span class="k">else</span> <span class="s1">&#39;None&#39;</span>
 
         <span class="n">s</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="s1">&#39;User Identity Negotiation Response:  </span><span class="si">{0!s}</span><span class="s1">&#39;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">usr_id</span><span class="p">))</span>
         <span class="n">s</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="s1">&#39;======================= END A-ASSOCIATE-AC ==================&#39;</span>
@@ -1045,6 +1046,9 @@
             <span class="k">elif</span> <span class="n">usid</span><span class="o">.</span><span class="n">id_type</span> <span class="o">==</span> <span class="mi">4</span><span class="p">:</span>
                 <span class="n">s</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="s1">&#39;  SAML Assertion (not dumped) length: &#39;</span>
                          <span class="s1">&#39;</span><span class="si">{0:d}</span><span class="s1">&#39;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="nb">len</span><span class="p">(</span><span class="n">usid</span><span class="o">.</span><span class="n">primary</span><span class="p">)))</span>
+            <span class="k">elif</span> <span class="n">usid</span><span class="o">.</span><span class="n">id_type</span> <span class="o">==</span> <span class="mi">5</span><span class="p">:</span>
+                <span class="n">s</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="s1">&#39;  JSON Web Token (not dumped) length: &#39;</span>
+                         <span class="s1">&#39;</span><span class="si">{0:d}</span><span class="s1">&#39;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="nb">len</span><span class="p">(</span><span class="n">usid</span><span class="o">.</span><span class="n">primary</span><span class="p">)))</span>
 
             <span class="k">if</span> <span class="n">usid</span><span class="o">.</span><span class="n">response_requested</span><span class="p">:</span>
                 <span class="n">s</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="s1">&#39;  Positive Response requested: Yes&#39;</span><span class="p">)</span>
@@ -1080,6 +1084,8 @@
         <span class="n">app_context</span> <span class="o">=</span> <span class="n">assoc_ac</span><span class="o">.</span><span class="n">application_context_name</span><span class="o">.</span><span class="n">title</span><span class="p">()</span>
         <span class="n">pres_contexts</span> <span class="o">=</span> <span class="n">assoc_ac</span><span class="o">.</span><span class="n">presentation_context</span>
         <span class="n">user_info</span> <span class="o">=</span> <span class="n">assoc_ac</span><span class="o">.</span><span class="n">user_information</span>
+
+        <span class="c1">#roles = (ii.abstract_syntax:ii for ii in user_info.role_selection)</span>
 
         <span class="n">their_class_uid</span> <span class="o">=</span> <span class="s1">&#39;unknown&#39;</span>
         <span class="n">their_version</span> <span class="o">=</span> <span class="s1">&#39;unknown&#39;</span>
@@ -1143,9 +1149,7 @@
                  <span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">async_neg</span><span class="p">))</span>
 
         <span class="c1">## User Identity</span>
-        <span class="n">usr_id</span> <span class="o">=</span> <span class="s1">&#39;None&#39;</span>
-        <span class="k">if</span> <span class="n">user_info</span><span class="o">.</span><span class="n">user_identity</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
-            <span class="n">usr_id</span> <span class="o">=</span> <span class="s1">&#39;Yes&#39;</span>
+        <span class="n">usr_id</span> <span class="o">=</span> <span class="s1">&#39;Yes&#39;</span> <span class="k">if</span> <span class="n">user_info</span><span class="o">.</span><span class="n">user_identity</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span> <span class="k">else</span> <span class="s1">&#39;None&#39;</span>
 
         <span class="n">s</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="s1">&#39;User Identity Negotiation Response:  </span><span class="si">{0!s}</span><span class="s1">&#39;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">usr_id</span><span class="p">))</span>
         <span class="n">s</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="s1">&#39;======================= END A-ASSOCIATE-AC ==================&#39;</span>
