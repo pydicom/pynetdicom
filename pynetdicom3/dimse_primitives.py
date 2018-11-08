@@ -28,22 +28,8 @@ LOGGER = logging.getLogger('pynetdicom3.dimse_primitives')
 # pylint: disable=invalid-name
 # pylint: disable=attribute-defined-outside-init
 # pylint: disable=too-many-instance-attributes
-
-_DATASET_KEYWORDS = {
-    'C_STORE' : 'DataSet',
-    'C_FIND' : 'Identifier',
-    'C_GET' : 'Identifier',
-    'C_MOVE' : 'Identifier',
-    'N_EVENT_REPORT' : ('EventInformation', 'EventReply'),
-    'N_GET' : 'AttributeList',
-    'N_SET' : ('ModificationList', 'AttributeList'),
-    'N_CREATE' : 'AttributeList',
-    'N_ACTION' : ('ActionInformation', 'ActionReply'),
-}
-
-
 class DIMSEPrimitive(object):
-    """Base class for the DIMSE Primitive classes."""
+    """Base class for the DIMSE primitives."""
     STATUS_OPTIONAL_KEYWORDS = ()
     REQUEST_KEYWORDS = ()
     RESPONSE_KEYWORDS = ('MessageIDBeingRespondedTo', 'Status')
@@ -82,10 +68,15 @@ class DIMSEPrimitive(object):
 
     @property
     def _dataset_variant(self):
-        """Return the Dataset like parameter
+        """Return the Dataset-like parameter value.
 
         Used for EventInformation, EventReply, AttributeList,
-        ActionInformation, ActionReply, DataSet, Identifier, ModificationList
+        ActionInformation, ActionReply, DataSet, Identifier and
+        ModificationList dataset-like parameter values.
+
+        Returns
+        -------
+        BytesIO or None
         """
         return self._dataset
 
@@ -94,22 +85,22 @@ class DIMSEPrimitive(object):
         """Set the Dataset-like parameter.
 
         Used for EventInformation, EventReply, AttributeList,
-        ActionInformation, ActionReply, DataSet, Identifier, ModificationList
-        """
-        if value is None:
-            self._dataset = value
-        elif isinstance(value, BytesIO):
-            self._dataset = value
-        else:
-            variant_name = _DATASET_KEYWORDS[self.__class__.__name__]
-            if len(variant_name) != 1:
-                if self.is_valid_request:
-                    variant_name = variant_name[0]
-                elif self.is_valid_response:
-                    variant_name = variant_name[1]
+        ActionInformation, ActionReply, DataSet, Identifier and
+        ModificationList dataset-like parameter values.
 
+        Parameters
+        ----------
+        value : tuple
+            The (dataset, variant name) to set, where dataset is either None
+            or BytesIO and variant name is str.
+        """
+        if value[0] is None:
+            self._dataset = value[0]
+        elif isinstance(value[0], BytesIO):
+            self._dataset = value[0]
+        else:
             raise TypeError(
-                "'{}' parameter must be a BytesIO object".format(variant_name)
+                "'{}' parameter must be a BytesIO object".format(value[1])
             )
 
     @property
@@ -182,25 +173,9 @@ class DIMSEPrimitive(object):
             raise TypeError("DIMSE primitive's 'Status' must be an int")
 
 
-# DIMSE-C Services
+# DIMSE-C Service Primitives
 class C_STORE(DIMSEPrimitive):
     """Represents a C-STORE primitive.
-
-    The C-STORE service is used by a DIMSE user to store a composite SOP
-    Instance on a peer DISMSE user. It is a confirmed service.
-
-    **C-STORE Service Procedure**
-
-    1. The invoking DIMSE user requests that the performing DIMSE user store a
-       composite SOP Instance by issuing a C-STORE request primitive to the
-       DIMSE provider
-    2. The DIMSE provider issues a C-STORE indication primitive to the
-       performing DIMSE user
-    3. The performing DIMSE user reports acceptance or rejection of the C-STORE
-       request primitive by issuing a C-STORE response primitive to the DIMSE
-       provider
-    4. The DIMSE provider issues a C-STORE confirmation primitive to the
-       invoking DIMSE user, completing the C-STORE operation.
 
     +------------------------------------------+---------+----------+
     | Parameter                                | Req/ind | Rsp/conf |
@@ -228,8 +203,8 @@ class C_STORE(DIMSEPrimitive):
     | Error Comment                            | \-      | C        |
     +------------------------------------------+---------+----------+
 
-    | (=) - The value of the parameter is equal to the value of the parameter in
-      the column to the left
+    | (=) - The value of the parameter is equal to the value of the parameter
+      in the column to the left
     | C - The parameter is conditional.
     | M - Mandatory
     | MF - Mandatory with a fixed value
@@ -278,12 +253,6 @@ class C_STORE(DIMSEPrimitive):
     ErrorComment : str or None
         An optional status related field containing a text description
         of the error detected. 64 characters maximum.
-
-    References
-    ----------
-
-    * DICOM Standard, Part 4, Annex B
-    * DICOM Standard, Part 7, 9.1.1
     """
     STATUS_OPTIONAL_KEYWORDS = ('OffendingElement', 'ErrorComment', )
     REQUEST_KEYWORDS = (
@@ -416,62 +385,11 @@ class C_STORE(DIMSEPrimitive):
     @DataSet.setter
     def DataSet(self, value):
         """Set the *Data Set*."""
-        self._dataset_variant = value
+        self._dataset_variant = (value, 'DataSet')
 
 
 class C_FIND(DIMSEPrimitive):
     """Represents a C-FIND primitive.
-
-    **SOP Class UID**
-
-    Identifies the QR Information Model against which the C-FIND is to be
-    performed. Support for the SOP Class UID is implied by the Abstract Syntax
-    UID of the Presentation Context used by this C-FIND operation.
-
-    **Priority**
-
-    The requested priority of the C-FIND operation with respect to other DIMSE
-    operations being performed by the same SCP. Processing of priority requests
-    is not required of SCPs. Whether or not an SCP supports priority processing
-    and the meaning of different priority levels shall be stated in the
-    Conformance Statement of the SCP.
-
-    **Identifier**
-
-    Encoded as a Data Set
-
-    Request Identifier Structure
-
-    * Key Attribute values to be matched against the values of storage SOP
-      Instances managed by the SCP
-    * QR Level (0008,0052) Query/Retrieve Level
-    * Conditionally, (0008,0053) if enhanced multi frame image conversion
-      accepted during Extended Negotiation
-    * Conditionally, (0008,0005) if expanded or replacement character sets
-      may be used in the request Identifier attributes
-    * Conditionally, (0008,0201) if Key Attributes of time are to be
-      interpreted explicitly in the designated local time zone
-
-    Response Identifier Structure
-
-    * Key Attribute with values corresponding to Key Attributes contained in
-      the Identifier of the request
-    * QR Level (0008, 0053)
-    * Conditionally, (0008,0005) if expanded or replacement character sets
-      may be used in the response Identifier attributes
-    * Conditionally, (0008,0201) if Key Attributes of time are to be
-      interpreted explicitly in the designated local time zone
-
-    The C-FIND SCP is required to support either/both the 'Retrieve AE Title'
-    (0008,0054) or the 'Storage Media File-Set ID'/'Storage Media File Set UID'
-    (0088,0130)/(0088,0140) data elements.
-
-    **Retrieve AE Title**
-
-    A list of AE title(s) that identify the location from which the Instance
-    may be retrieved on the network. Must be present if Storage Media File Set
-    ID/UID not present. The named AE shall support either C-GET or C-MOVE
-    SOP Class of the QR Service Class.
 
     +-------------------------------+---------+----------+
     | Parameter                     | Req/ind | Rsp/conf |
@@ -493,8 +411,8 @@ class C_FIND(DIMSEPrimitive):
     | Error Comment                 | \-      | C        |
     +-------------------------------+---------+----------+
 
-    | (=) - The value of the parameter is equal to the value of the parameter in
-      the column to the left
+    | (=) - The value of the parameter is equal to the value of the parameter
+      in the column to the left
     | C - The parameter is conditional.
     | M - Mandatory
     | MF - Mandatory with a fixed value
@@ -583,48 +501,11 @@ class C_FIND(DIMSEPrimitive):
     @Identifier.setter
     def Identifier(self, value):
         """Set the *Identifier*."""
-        self._dataset_variant = value
+        self._dataset_variant = (value, 'Identifier')
 
 
 class C_GET(DIMSEPrimitive):
     """Represents a C-GET primitive.
-
-    The C-GET service is used
-
-    **C-GET Service Procedure**
-
-    **Number of Remaining Sub-Operations**
-
-    A C-GET response with a status of:
-
-    * Pending shall contain the Number of Remaining Sub-operations Attribute
-    * Canceled may contain the Number of Remaining Sub-operations Attribute
-    * Warning, Failure or Success shall not contain the Number of Remaining
-      Sub-operations Attribute
-
-    **Number of Completed Sub-Operations**
-
-    A C-GET response with a status of:
-
-    * Pending shall contain the Number of Completed Sub-operations Attribute
-    * Canceled, Warning, Failure or Success may contain the Number of Completed
-      Sub-operations Attribute
-
-    **Number of Failed Sub-Operations**
-
-    A C-GET response with a status of:
-
-    * Pending shall contain the Number of Failed Sub-operations Attribute
-    * Canceled, Warning, Failure or Success may contain the Number of Failed
-      Sub-operations Attribute
-
-    **Number of Warning Sub-Operations**
-
-    A C-GET response with a status of:
-
-    * Pending shall contain the Number of Warning Sub-operations Attribute
-    * Canceled, Warning, Failure or Success may contain the Number of Warning
-      Sub-operations Attribute
 
     +-------------------------------+---------+----------+
     | Parameter                     | Req/ind | Rsp/conf |
@@ -654,8 +535,8 @@ class C_GET(DIMSEPrimitive):
     | Error Comment                 | \-      | C        |
     +-------------------------------+---------+----------+
 
-    | (=) - The value of the parameter is equal to the value of the parameter in
-      the column to the left
+    | (=) - The value of the parameter is equal to the value of the parameter
+      in the column to the left
     | C - The parameter is conditional.
     | M - Mandatory
     | MF - Mandatory with a fixed value
@@ -714,12 +595,6 @@ class C_GET(DIMSEPrimitive):
     ErrorComment : str or None
         An optional status related field containing a text
         description of the error detected. 64 characters maximum.
-
-    References
-    ----------
-
-    * DICOM Standard, Part 4, Annex C.4.3
-    * DICOM Standard, Part 7, Section 9.1.3
     """
     STATUS_OPTIONAL_KEYWORDS = (
         'ErrorComment', 'OffendingElement', 'NumberOfRemainingSuboperations',
@@ -779,7 +654,7 @@ class C_GET(DIMSEPrimitive):
     @Identifier.setter
     def Identifier(self, value):
         """Set the *Identifier*."""
-        self._dataset_variant = value
+        self._dataset_variant = (value, 'Identifier')
 
     @property
     def NumberOfRemainingSuboperations(self):
@@ -861,43 +736,6 @@ class C_GET(DIMSEPrimitive):
 class C_MOVE(DIMSEPrimitive):
     """Represents a C-MOVE primitive.
 
-    The C-MOVE service is used
-
-    **C-MOVE Service Procedure**
-
-    **Number of Remaining Sub-Operations**
-
-    A C-MOVE response with a status of:
-
-    * Pending shall contain the Number of Remaining Sub-operations Attribute
-    * Canceled may contain the Number of Remaining Sub-operations Attribute
-    * Warning, Failure or Success shall not contain the Number of Remaining
-      Sub-operations Attribute
-
-    **Number of Completed Sub-Operations**
-
-    A C-MOVE response with a status of:
-
-    * Pending shall contain the Number of Completed Sub-operations Attribute
-    * Canceled, Warning, Failure or Success may contain the Number of Completed
-      Sub-operations Attribute
-
-    **Number of Failed Sub-Operations**
-
-    A C-MOVE response with a status of:
-
-    * Pending shall contain the Number of Failed Sub-operations Attribute
-    * Canceled, Warning, Failure or Success may contain the Number of Failed
-      Sub-operations Attribute
-
-    **Number of Warning Sub-Operations**
-
-    A C-MOVE response with a status of:
-
-    * Pending shall contain the Number of Warning Sub-operations Attribute
-    * Canceled, Warning, Failure or Success may contain the Number of Warning
-      Sub-operations Attribute
-
     +-------------------------------+---------+----------+
     | Parameter                     | Req/ind | Rsp/conf |
     +===============================+=========+==========+
@@ -928,8 +766,8 @@ class C_MOVE(DIMSEPrimitive):
     | Error Comment                 | \-      | C        |
     +-------------------------------+---------+----------+
 
-    | (=) - The value of the parameter is equal to the value of the parameter in
-      the column to the left
+    | (=) - The value of the parameter is equal to the value of the parameter
+      in the column to the left
     | C - The parameter is conditional.
     | M - Mandatory
     | MF - Mandatory with a fixed value
@@ -991,12 +829,6 @@ class C_MOVE(DIMSEPrimitive):
     ErrorComment : str or None
         An optional status related field containing a text
         description of the error detected. 64 characters maximum.
-
-    References
-    ----------
-
-    * DICOM Standard, Part 4, Annex C.4.2
-    * DICOM Standard, Part 7, Section 9.1.4
     """
     STATUS_OPTIONAL_KEYWORDS = (
         'ErrorComment', 'OffendingElement', 'NumberOfRemainingSuboperations',
@@ -1079,7 +911,7 @@ class C_MOVE(DIMSEPrimitive):
     @Identifier.setter
     def Identifier(self, value):
         """Set the *Identifier*."""
-        self._dataset_variant = value
+        self._dataset_variant = (value, 'Identifier')
 
     @property
     def NumberOfRemainingSuboperations(self):
@@ -1175,8 +1007,8 @@ class C_ECHO(DIMSEPrimitive):
     | Error Comment                 | \-      | C        |
     +-------------------------------+---------+----------+
 
-    | (=) - The value of the parameter is equal to the value of the parameter in
-      the column to the left
+    | (=) - The value of the parameter is equal to the value of the parameter
+      in the column to the left
     | C - The parameter is conditional.
     | M - Mandatory
     | MF - Mandatory with a fixed value
@@ -1202,11 +1034,6 @@ class C_ECHO(DIMSEPrimitive):
     ErrorComment : str or None
         An optional status related field containing a text description
         of the error detected. 64 characters maximum.
-
-    References
-    ----------
-
-    * DICOM Standard, Part 7, Section 9.1.5
     """
     STATUS_OPTIONAL_KEYWORDS = ('ErrorComment', )
     REQUEST_KEYWORDS = ('MessageID', 'AffectedSOPClassUID')
@@ -1284,7 +1111,7 @@ class C_CANCEL(object):
 
 
 
-# DIMSE-N Services
+# DIMSE-N Service Primitives
 class N_EVENT_REPORT(DIMSEPrimitive):
     """Represents a N-EVENT-REPORT primitive.
 
@@ -1308,8 +1135,8 @@ class N_EVENT_REPORT(DIMSEPrimitive):
     | Status                                   | \-      | M        |
     +------------------------------------------+---------+----------+
 
-    | (=) - The value of the parameter is equal to the value of the parameter in
-      the column to the left
+    | (=) - The value of the parameter is equal to the value of the parameter
+      in the column to the left
     | C - The parameter is conditional.
     | M - Mandatory
     | MF - Mandatory with a fixed value
@@ -1411,7 +1238,7 @@ class N_EVENT_REPORT(DIMSEPrimitive):
     @EventInformation.setter
     def EventInformation(self, value):
         """Set the *Event Information*."""
-        self._dataset_variant = value
+        self._dataset_variant = (value, 'EventInformation')
 
     @property
     def EventReply(self):
@@ -1421,7 +1248,7 @@ class N_EVENT_REPORT(DIMSEPrimitive):
     @EventReply.setter
     def EventReply(self, value):
         """Set the *Event Reply*."""
-        self._dataset_variant = value
+        self._dataset_variant = (value, 'EventReply')
 
     @property
     def EventTypeID(self):
@@ -1498,11 +1325,6 @@ class N_GET(DIMSEPrimitive):
         AttributeIdentifierList.
     Status : int
         The error or success notification of the operation.
-
-    References
-    ----------
-
-    DICOM Standard, Part 7, Section 10.1.2
     """
     STATUS_OPTIONAL_KEYWORDS = ('ErrorComment', 'ErrorID', )
     REQUEST_KEYWORDS = (
@@ -1595,7 +1417,7 @@ class N_GET(DIMSEPrimitive):
     @AttributeList.setter
     def AttributeList(self, value):
         """Set the *Attribute List*."""
-        self._dataset_variant = value
+        self._dataset_variant = (value, 'AttributeList')
 
     @property
     def RequestedSOPClassUID(self):
@@ -1687,8 +1509,8 @@ class N_SET(DIMSEPrimitive):
     | Status                                   | \-      | M        |
     +------------------------------------------+---------+----------+
 
-    | (=) - The value of the parameter is equal to the value of the parameter in
-      the column to the left
+    | (=) - The value of the parameter is equal to the value of the parameter
+      in the column to the left
     | C - The parameter is conditional.
     | M - Mandatory
     | MF - Mandatory with a fixed value
@@ -1722,11 +1544,6 @@ class N_SET(DIMSEPrimitive):
         The SOP Instance UID of the modified SOP Instance.
     Status : int
         The error or success notification of the operation.
-
-    References
-    ----------
-
-    DICOM Standard, Part 7, Section 10.1.3
     """
     STATUS_OPTIONAL_KEYWORDS = (
         'ErrorComment', 'ErrorID', 'AttributeIdentifierList'
@@ -1792,7 +1609,7 @@ class N_SET(DIMSEPrimitive):
     @AttributeList.setter
     def AttributeList(self, value):
         """Set the *Attribute List*."""
-        self._dataset_variant = value
+        self._dataset_variant = (value, 'AttributeList')
 
     @property
     def ModificationList(self):
@@ -1802,7 +1619,7 @@ class N_SET(DIMSEPrimitive):
     @ModificationList.setter
     def ModificationList(self, value):
         """Set the *Modification List*."""
-        self._dataset_variant = value
+        self._dataset_variant = (value, 'ModificationList')
 
     @property
     def RequestedSOPClassUID(self):
@@ -1896,8 +1713,8 @@ class N_ACTION(DIMSEPrimitive):
     | Status                                   | \-      | M        |
     +------------------------------------------+---------+----------+
 
-    | (=) - The value of the parameter is equal to the value of the parameter in
-      the column to the left
+    | (=) - The value of the parameter is equal to the value of the parameter
+      in the column to the left
     | C - The parameter is conditional.
     | M - Mandatory
     | MF - Mandatory with a fixed value
@@ -1999,7 +1816,7 @@ class N_ACTION(DIMSEPrimitive):
     @ActionInformation.setter
     def ActionInformation(self, value):
         """Set the *Action Information*."""
-        self._dataset_variant = value
+        self._dataset_variant = (value, 'ActionInformation')
 
     @property
     def ActionReply(self):
@@ -2009,7 +1826,7 @@ class N_ACTION(DIMSEPrimitive):
     @ActionReply.setter
     def ActionReply(self, value):
         """Set the *Action Reply List*."""
-        self._dataset_variant = value
+        self._dataset_variant = (value, 'ActionReply')
 
     @property
     def RequestedSOPClassUID(self):
@@ -2108,8 +1925,8 @@ class N_CREATE(DIMSEPrimitive):
     | Status                                   | \-      | M        |
     +------------------------------------------+---------+----------+
 
-    | (=) - The value of the parameter is equal to the value of the parameter in
-      the column to the left
+    | (=) - The value of the parameter is equal to the value of the parameter
+      in the column to the left
     | C - The parameter is conditional.
     | M - Mandatory
     | MF - Mandatory with a fixed value
@@ -2196,7 +2013,7 @@ class N_CREATE(DIMSEPrimitive):
     @AttributeList.setter
     def AttributeList(self, value):
         """Set the *Attribute List*."""
-        self._dataset_variant = value
+        self._dataset_variant = (value, 'AttributeList')
 
 
 class N_DELETE(DIMSEPrimitive):
@@ -2252,11 +2069,6 @@ class N_DELETE(DIMSEPrimitive):
         to the value in the request/indication
     Status : int
         The error or success notification of the operation.
-
-    References
-    ----------
-
-    DICOM Standard Part 7, Sections 10.1.6 and 10.3.6.
     """
     STATUS_OPTIONAL_KEYWORDS = ('ErrorComment', 'ErrorID', )
     REQUEST_KEYWORDS = (

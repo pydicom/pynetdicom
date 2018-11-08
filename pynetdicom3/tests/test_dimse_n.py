@@ -148,7 +148,8 @@ class TestPrimitive_N_EVENT(object):
             primitive.AffectedSOPInstanceUID = 'abc'
 
         # EventInformation
-        with pytest.raises(TypeError):
+        msg = r"'EventInformation' parameter must be a BytesIO object"
+        with pytest.raises(TypeError, match=msg):
             primitive.EventInformation = 'halp'
 
         with pytest.raises(TypeError):
@@ -161,7 +162,8 @@ class TestPrimitive_N_EVENT(object):
             primitive.EventInformation = [30, 10]
 
         # EventReply
-        with pytest.raises(TypeError):
+        msg = r"'EventReply' parameter must be a BytesIO object"
+        with pytest.raises(TypeError, match=msg):
             primitive.EventReply = 'halp'
 
         with pytest.raises(TypeError):
@@ -428,7 +430,8 @@ class TestPrimitive_N_GET(object):
             primitive.AttributeIdentifierList = []
 
         # AttributeList
-        with pytest.raises(TypeError):
+        msg = r"'AttributeList' parameter must be a BytesIO object"
+        with pytest.raises(TypeError, match=msg):
             primitive.AttributeList = 'halp'
 
         with pytest.raises(TypeError):
@@ -662,7 +665,8 @@ class TestPrimitive_N_SET(object):
             primitive.RequestedSOPInstanceUID = 'abc'
 
         # AttributeList
-        with pytest.raises(TypeError):
+        msg = r"'AttributeList' parameter must be a BytesIO object"
+        with pytest.raises(TypeError, match=msg):
             primitive.AttributeList = 'halp'
 
         with pytest.raises(TypeError):
@@ -675,7 +679,8 @@ class TestPrimitive_N_SET(object):
             primitive.AttributeList = [30, 10]
 
         # ModificationList
-        with pytest.raises(TypeError):
+        msg = r"'ModificationList' parameter must be a BytesIO object"
+        with pytest.raises(TypeError, match=msg):
             primitive.ModificationList = 'halp'
 
         with pytest.raises(TypeError):
@@ -924,7 +929,8 @@ class TestPrimitive_N_ACTION(object):
             primitive.RequestedSOPInstanceUID = 'abc'
 
         # ActionInformation
-        with pytest.raises(TypeError):
+        msg = r"'ActionInformation' parameter must be a BytesIO object"
+        with pytest.raises(TypeError, match=msg):
             primitive.ActionInformation = 'halp'
 
         with pytest.raises(TypeError):
@@ -937,7 +943,8 @@ class TestPrimitive_N_ACTION(object):
             primitive.ActionInformation = [30, 10]
 
         # ActionReply
-        with pytest.raises(TypeError):
+        msg = r"'ActionReply' parameter must be a BytesIO object"
+        with pytest.raises(TypeError, match=msg):
             primitive.ActionReply = 'halp'
 
         with pytest.raises(TypeError):
@@ -1135,7 +1142,8 @@ class TestPrimitive_N_CREATE(object):
             primitive.AffectedSOPInstanceUID = 'abc'
 
         # AttributeList
-        with pytest.raises(TypeError):
+        msg = r"'AttributeList' parameter must be a BytesIO object"
+        with pytest.raises(TypeError, match=msg):
             primitive.AttributeList = 'halp'
 
         with pytest.raises(TypeError):
