@@ -629,8 +629,12 @@ class Association(threading.Thread):
         assoc_rq.user_information.extend(ac_roles)
 
         # Set maximum PDU send length
-        self.peer_max_pdu = assoc_rq.maximum_length_received # TODO: Remove?
-        self.dimse.maximum_pdu_size = assoc_rq.maximum_length_received
+        if assoc_rq.maximum_length_received == 0:  # Unlimited PDU size - set to 64K as this is big enough to max out most protocols
+            self.peer_max_pdu = 0x10000
+            self.dimse.maximum_pdu_size = 0x10000
+        else:
+            self.peer_max_pdu = assoc_rq.maximum_length_received # TODO: Remove?
+            self.dimse.maximum_pdu_size = assoc_rq.maximum_length_received
 
         # Set Responding AE title
         assoc_rq.called_ae_title = self.ae.ae_title
