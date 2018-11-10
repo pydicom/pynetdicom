@@ -328,8 +328,59 @@ class Association(threading.Thread):
 
         return status
 
-    def _check_user_identity(self, req):
+    def _check_sop_class_extended(self, req):
+        """Check the user's response to a SOP Class Extended request.
+
+        Parameters
+        ----------
+        req : dict
+            The {*SOP Class UID* : *Service Class Application Information*}
+            received from the requestor.
+
+        Returns
+        -------
+        list of SOPClassExtendedNegotiation
+            The SOP Class Extended Negotiation items to be sent in response
         """
+        try:
+            user_response = self.ae.on_sop_class_extended(req)
+        except Exception as exc:
+            user_response = None
+            LOGGER.error(
+                "Exception raised in user's 'on_sop_class_extended' "
+                "implementation"
+            )
+            LOGGER.exception(exc)
+
+        if not isinstance(user_response, (type(None), dict)):
+            LOGGER.error(
+                "Invalid type returned by user's 'on_sop_class_extended' "
+                "implementation"
+            )
+            user_response = None
+
+        if user_response is None:
+            return []
+
+        items = []
+        for sop_class, app_info in user_response.items():
+            try:
+                item = SOPClassExtendedNegotiation()
+                item.sop_class_uid = sop_class
+                item.service_class_application_information = app_info
+                items.append(item)
+            except Exception as exc:
+                LOGGER.error(
+                    "Unable to set the SOP Class Extended Negotiation "
+                    "response values"
+                )
+                LOGGER.exception(exc)
+
+        return items
+
+    def _check_user_identity(self, req):
+        """Check the user's response to a User Identity request.
+
         Parameters
         ----------
         req : pynetdicom3.pdu_primitives.UserIdentityNegotiation
@@ -553,15 +604,15 @@ class Association(threading.Thread):
             and self.ae.require_called_aet != assoc_rq.called_ae_title):
                 reject_assoc_rsd = [(0x01, 0x01, 0x07)]
 
-        ## DUL ACSE Related Rejections
-        # User Identity Negotiation (PS3.7 Annex D.3.3.7)
+        ## Extended Negotiation items
+        # User Identity Negotiation items
         id_request = None
         for ii in assoc_rq.user_information:
             if isinstance(ii, UserIdentityNegotiation):
                 id_request = ii
                 break
 
-        # Remove all User Identity Negotiation items
+        # Remove all User Identity Negotiation (request) items
         assoc_rq.user_information[:] = (
             ii for ii in assoc_rq.user_information
                 if not isinstance(ii, UserIdentityNegotiation)
@@ -576,13 +627,48 @@ class Association(threading.Thread):
                 reject_assoc_rsd = [(0x02, 0x02, 0x01)]
 
             if id_response:
+                # Add the User Identity Negotiation (response) item
                 assoc_rq.user_information.append(id_response)
 
-        # Extended Negotiation
-        # TODO: Implement propoerly but for now just remove items
+        # SOP Class Extended Negotiation items
+        sop_extended = {}
+        for ii in assoc_rq.user_information:
+            if isinstance(ii, SOPClassExtendedNegotiation):
+                sop_extended[ii.sop_class_uid] = (
+                    ii.service_class_application_information
+                )
+
+        # Remove all SOP Class Extended Negotiation (request) items
         assoc_rq.user_information[:] = (
             ii for ii in assoc_rq.user_information
                 if not isinstance(ii, SOPClassExtendedNegotiation)
+        )
+
+        # Add any SOP Class Extended Negotiation (response) items
+        assoc_rq.user_information.extend(
+            self._check_sop_class_extended(sop_extended)
+        )
+
+        # If used then ae.on_sop_class_extended, return result
+        #   how to validate? or no validation?
+        #   storage_class.extended.level_of_digital_signature_support
+        #   .element_coercion
+        #   .level_of_support
+
+        # SOP Class Common Extended Negotiation items
+        # Used by:
+        #   Storage Service Class (optional)
+        # TODO: Implement properly but for now just remove items
+        assoc_rq.user_information[:] = (
+            ii for ii in assoc_rq.user_information
+                if not isinstance(ii, SOPClassCommonExtendedNegotiation)
+        )
+
+        # Asynchronous Operations Window Negotiation items
+        # Not supported by pynetdicom
+        assoc_rq.user_information[:] = (
+            ii for ii in assoc_rq.user_information
+                if not isinstance(ii, AsynchronousOperationsWindowNegotiation)
         )
 
         ## DUL Presentation Related Rejections
@@ -620,7 +706,6 @@ class Association(threading.Thread):
         self.acse.accepted_contexts = [
             cx for cx in result if cx.result == 0x00
         ]
-
         self.acse.rejected_contexts = [
             cx for cx in result if cx.result != 0x00
         ]

@@ -32,8 +32,7 @@ from pynetdicom3.dimse_primitives import C_STORE, C_FIND, C_GET, C_MOVE
 from pynetdicom3.dsutils import encode, decode
 from pynetdicom3.pdu_primitives import (
     UserIdentityNegotiation, SOPClassExtendedNegotiation,
-    SOPClassCommonExtendedNegotiation,
-    SCP_SCU_RoleSelectionNegotiation,
+    SOPClassCommonExtendedNegotiation, SCP_SCU_RoleSelectionNegotiation,
 )
 from pynetdicom3.sop_class import (
     VerificationSOPClass,
@@ -3756,5 +3755,198 @@ class TestUserIdentityNegotiation(object):
         assoc = ae.associate('localhost', 11112, ext_neg=[request])
 
         assert assoc.is_rejected
+
+        self.scp.stop()
+
+
+class TestSOPClassExtendedNegotiation(object):
+    """Tests for SOP Class Extended Negotiation."""
+    def setup(self):
+        """Run prior to each test"""
+        self.scp = None
+
+    def teardown(self):
+        """Clear any active threads"""
+        if self.scp:
+            self.scp.abort()
+
+        time.sleep(0.1)
+
+        for thread in threading.enumerate():
+            if isinstance(thread, DummyBaseSCP):
+                thread.abort()
+                thread.stop()
+
+    def test_check_ext_no_req(self):
+        """Test the default implementation of on_sop_class_extended"""
+        self.scp = DummyVerificationSCP()
+        self.scp.start()
+        ae = AE()
+        ae.add_requested_context(VerificationSOPClass)
+        ae.acse_timeout = 5
+        ae.dimse_timeout = 5
+        assoc = ae.associate('localhost', 11112)
+
+        assert assoc.is_established
+
+        req = {}
+
+        scp_assoc = self.scp.ae.active_associations[0]
+        rsp = scp_assoc._check_sop_class_extended(req)
+
+        assert rsp == []
+
+    def test_check_ext_default(self):
+        """Test the default implementation of on_sop_class_extended"""
+        self.scp = DummyVerificationSCP()
+        self.scp.start()
+        ae = AE()
+        ae.add_requested_context(VerificationSOPClass)
+        ae.acse_timeout = 5
+        ae.dimse_timeout = 5
+        assoc = ae.associate('localhost', 11112)
+
+        assert assoc.is_established
+
+        req = {
+            '1.2.3' : b'\x00\x01',
+            '1.2.4' : b'\x00\x02',
+        }
+
+        scp_assoc = self.scp.ae.active_associations[0]
+        rsp = scp_assoc._check_sop_class_extended(req)
+
+        assert rsp == []
+
+        self.scp.stop()
+
+    def test_check_ext_user_implemented_none(self):
+        """Test the default implementation of on_sop_class_extended"""
+        def on_ext(req):
+            return req
+
+        self.scp = DummyVerificationSCP()
+        self.scp.ae.on_sop_class_extended = on_ext
+        self.scp.start()
+        ae = AE()
+        ae.add_requested_context(VerificationSOPClass)
+        ae.acse_timeout = 5
+        ae.dimse_timeout = 5
+        assoc = ae.associate('localhost', 11112)
+
+        assert assoc.is_established
+
+        req = {
+            '1.2.3' : b'\x00\x01',
+            '1.2.4' : b'\x00\x02',
+        }
+
+        scp_assoc = self.scp.ae.active_associations[0]
+        rsp = scp_assoc._check_sop_class_extended(req)
+
+        assert len(rsp) == 2
+        # Can't guarantee order
+        for item in rsp:
+            if item.sop_class_uid == '1.2.3':
+                assert item.service_class_application_information == b'\x00\x01'
+            else:
+                assert item.sop_class_uid == '1.2.4'
+                assert item.service_class_application_information == b'\x00\x02'
+
+        self.scp.stop()
+
+    def test_check_ext_bad_implemented_raises(self):
+        """Test the default implementation of on_sop_class_extended"""
+        def on_ext(req):
+            raise ValueError()
+
+        self.scp = DummyVerificationSCP()
+        self.scp.ae.on_sop_class_extended = on_ext
+        self.scp.start()
+        ae = AE()
+        ae.add_requested_context(VerificationSOPClass)
+        ae.acse_timeout = 5
+        ae.dimse_timeout = 5
+        assoc = ae.associate('localhost', 11112)
+
+        assert assoc.is_established
+
+        req = {
+            '1.2.3' : b'\x00\x01',
+            '1.2.4' : b'\x00\x02',
+        }
+
+        scp_assoc = self.scp.ae.active_associations[0]
+        rsp = scp_assoc._check_sop_class_extended(req)
+
+        assert rsp == []
+
+        self.scp.stop()
+
+    def test_check_ext_bad_implemented_type(self):
+        """Test the default implementation of on_sop_class_extended"""
+        def on_ext(req):
+            return b'\x00\x00'
+
+        self.scp = DummyVerificationSCP()
+        self.scp.ae.on_sop_class_extended = on_ext
+        self.scp.start()
+        ae = AE()
+        ae.add_requested_context(VerificationSOPClass)
+        ae.acse_timeout = 5
+        ae.dimse_timeout = 5
+        assoc = ae.associate('localhost', 11112)
+
+        assert assoc.is_established
+
+        req = {
+            '1.2.3' : b'\x00\x01',
+            '1.2.4' : b'\x00\x02',
+        }
+
+        scp_assoc = self.scp.ae.active_associations[0]
+        rsp = scp_assoc._check_sop_class_extended(req)
+
+        assert rsp == []
+
+        self.scp.stop()
+
+    def test_check_ext_bad_implemented_item_value(self):
+        """Test the default implementation of on_sop_class_extended"""
+        def on_ext(request):
+            out = {}
+            print(request)
+            for k, v in request:
+                if k == '1.2.3':
+                    out[k] = 1234
+                else:
+                    out[k] = v
+
+            print(request, out)
+
+            return out
+
+        self.scp = DummyVerificationSCP()
+        self.scp.ae.on_sop_class_extended = on_ext
+        self.scp.start()
+        ae = AE()
+        ae.add_requested_context(VerificationSOPClass)
+        ae.acse_timeout = 5
+        ae.dimse_timeout = 5
+        assoc = ae.associate('localhost', 11112)
+
+        assert assoc.is_established
+
+        req = {
+            '1.2.3' : b'\x00\x01',
+            '1.2.4' : b'\x00\x02',
+        }
+
+        scp_assoc = self.scp.ae.active_associations[0]
+        rsp = scp_assoc._check_sop_class_extended(req)
+
+        assert len(rsp) == 1
+        assert rsp[0].sop_class_uid == '1.2.4'
+        assert rsp[0].service_class_application_information == b'\x00\x02'
 
         self.scp.stop()

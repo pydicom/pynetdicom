@@ -139,8 +139,6 @@ class ServiceClass(object):
         return rsp
 
 
-
-
 # Service Class implementations
 class VerificationServiceClass(ServiceClass):
     """Implementation of the Verification Service Class."""
