@@ -3988,21 +3988,7 @@ class TestSOPClassExtendedNegotiation(object):
     def test_functional_response(self):
         """Test a functional workflow with response."""
         def on_ext(req):
-            assert isinstance(req, dict)
-            out = []
-            for k, v in req.items():
-                if k == '1.2.3':
-                    assert v == b'\x00\x01'
-                else:
-                    assert k == '1.2.4'
-                    assert v == b'\x00\x02'
-
-                item = SOPClassExtendedNegotiation()
-                item.sop_class_uid = k
-                item.service_class_application_information = v
-                item.append(out)
-
-            return out
+            return req
 
         self.scp = DummyVerificationSCP()
         self.scp.ae.on_sop_class_extended = on_ext

@@ -295,6 +295,11 @@ class TestAEGoodCallbacks(object):
         with pytest.raises(NotImplementedError):
             ae.on_user_identity(None, None, None, None)
 
+    def test_on_sop_class_extended(self):
+        """Test default callback returns None"""
+        ae = AE()
+        assert ae.on_sop_class_extended(None) is None
+
     def test_on_c_echo(self):
         """Test default callback raises exception"""
         ae = AE()
