@@ -1369,6 +1369,34 @@ class ApplicationEntity(object):
 
 
     # Association extended negotiation callbacks
+    def on_sop_class_extended(self, app_info):
+        """Callback for when one or more SOP Class Extended Negotiation items
+        are included in the association request.
+
+        Parameters
+        ----------
+        app_info : dict of pydicom.uid.UID, bytes
+            The {*SOP Class UID* : *Service Class Application Information*}
+            parameter values for the included items, with the service class
+            application information being the raw encoded data sent by the
+            requestor.
+
+        Returns
+        -------
+        dict of pydicom.uid.UID, bytes or None
+            The {*SOP Class UID* : *Service Class Application Information*}
+            parameter values to be sent in response to the request, with the
+            service class application information being the encoded data that
+            will be sent to the peer as-is. Return None if no response is to
+            be sent.
+
+        References
+        ----------
+
+        * DICOM Standard Part 7, `Annex D.3.3.5 <http://dicom.nema.org/medical/dicom/current/output/chtml/part07/sect_D.3.3.5.html>`_
+        """
+        return None
+
     def on_user_identity(self, user_id_type, primary_field,
                          secondary_field, info):
         """Callback for when a user identity negotiation item is included with
@@ -1427,34 +1455,6 @@ class ApplicationEntity(object):
         * DICOM Standard Part 7, `Annex D.3.3.7 <http://dicom.nema.org/medical/dicom/current/output/chtml/part07/sect_D.3.3.7.html>`_
         """
         raise NotImplementedError("User Identity Negotiation not implemented")
-
-    def on_sop_class_extended(self, app_info):
-        """Callback for when one or more SOP Class Extended Negotiation items
-        are included in the association request.
-
-        Parameters
-        ----------
-        app_info : dict of pydicom.uid.UID, bytes
-            The {*SOP Class UID* : *Service Class Application Information*}
-            parameter values for the included items, with the service class
-            application information being the raw encoded data sent by the
-            requestor.
-
-        Returns
-        -------
-        dict of pydicom.uid.UID, bytes or None
-            The {*SOP Class UID* : *Service Class Application Information*}
-            parameter values to be sent in response to the request, with the
-            service class application information being the encoded data that
-            will be sent to the peer as-is. Return None if no response is to
-            be sent.
-
-        References
-        ----------
-
-        * DICOM Standard Part 7, `Annex D.3.3.5 <http://dicom.nema.org/medical/dicom/current/output/chtml/part07/sect_D.3.3.5.html>`_
-        """
-        return None
 
 
     # High-level DIMSE-C callbacks - user should implement these as required

@@ -1159,8 +1159,6 @@ class TestAssociationSendCStore(object):
         ae.dimse_timeout = 5
         assoc = ae.associate('localhost', 11112)
         assert assoc.is_established
-        for cx in assoc.accepted_contexts:
-            print(cx)
         result = assoc.send_c_store(COMP_DATASET)
         assert result.Status == 0x0000
         assoc.release()
@@ -3915,14 +3913,11 @@ class TestSOPClassExtendedNegotiation(object):
         """Test the default implementation of on_sop_class_extended"""
         def on_ext(request):
             out = {}
-            print(request)
-            for k, v in request:
+            for k, v in request.items():
                 if k == '1.2.3':
                     out[k] = 1234
                 else:
                     out[k] = v
-
-            print(request, out)
 
             return out
 
@@ -3948,5 +3943,89 @@ class TestSOPClassExtendedNegotiation(object):
         assert len(rsp) == 1
         assert rsp[0].sop_class_uid == '1.2.4'
         assert rsp[0].service_class_application_information == b'\x00\x02'
+
+        self.scp.stop()
+
+    def test_functional_no_response(self):
+        """Test a functional workflow with no response."""
+        def on_ext(req):
+            assert isinstance(req, dict)
+            for k, v in req.items():
+                if k == '1.2.3':
+                    assert v == b'\x00\x01'
+                else:
+                    assert k == '1.2.4'
+                    assert v == b'\x00\x02'
+
+            return None
+
+        self.scp = DummyVerificationSCP()
+        self.scp.ae.on_sop_class_extended = on_ext
+        self.scp.start()
+        ae = AE()
+        ae.add_requested_context(VerificationSOPClass)
+        ae.acse_timeout = 5
+        ae.dimse_timeout = 5
+
+        ext_neg = []
+        item = SOPClassExtendedNegotiation()
+        item.sop_class_uid = '1.2.3'
+        item.service_class_application_information = b'\x00\x01'
+        ext_neg.append(item)
+
+        item = SOPClassExtendedNegotiation()
+        item.sop_class_uid = '1.2.4'
+        item.service_class_application_information = b'\x00\x02'
+        ext_neg.append(item)
+
+        assoc = ae.associate('localhost', 11112, ext_neg=ext_neg)
+
+        assert assoc.is_established
+        assoc.release()
+
+        self.scp.stop()
+
+    def test_functional_response(self):
+        """Test a functional workflow with response."""
+        def on_ext(req):
+            assert isinstance(req, dict)
+            out = []
+            for k, v in req.items():
+                if k == '1.2.3':
+                    assert v == b'\x00\x01'
+                else:
+                    assert k == '1.2.4'
+                    assert v == b'\x00\x02'
+
+                item = SOPClassExtendedNegotiation()
+                item.sop_class_uid = k
+                item.service_class_application_information = v
+                item.append(out)
+
+            return out
+
+        self.scp = DummyVerificationSCP()
+        self.scp.ae.on_sop_class_extended = on_ext
+        self.scp.start()
+        ae = AE()
+        ae.add_requested_context(VerificationSOPClass)
+        ae.acse_timeout = 5
+        ae.dimse_timeout = 5
+
+        ext_neg = []
+        item = SOPClassExtendedNegotiation()
+        item.sop_class_uid = '1.2.3'
+        item.service_class_application_information = b'\x00\x01'
+        ext_neg.append(item)
+
+        item = SOPClassExtendedNegotiation()
+        item.sop_class_uid = '1.2.4'
+        item.service_class_application_information = b'\x00\x02'
+        ext_neg.append(item)
+
+        assoc = ae.associate('localhost', 11112, ext_neg=ext_neg)
+
+        assert assoc.is_established
+        assoc.release()
 
         self.scp.stop()
