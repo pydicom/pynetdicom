@@ -252,6 +252,10 @@ class Association(threading.Thread):
         self._kill = False
         self._is_running = False
 
+        # Store the A-ASSOCIATE request/accept/reject primitives
+        self._assoc_req = None
+        self._assoc_rsp = None
+
         # Send an A-ABORT when an association request is received
         self._a_abort_assoc_rq = False
         # Send an A-P-ABORT when an association request is received
@@ -283,6 +287,35 @@ class Association(threading.Thread):
 
         # Add short delay to ensure everything shuts down
         time.sleep(0.1)
+
+    @property
+    def asynchronous_operations_response(self):
+        """Return the association acceptor's Asynchronous Operations Window
+        Negotiation response.
+
+        Returns
+        -------
+        int, int
+            The maximum number of operations invoked, maximum number of
+            operations performed. If the association acceptor hasn't responded
+            to the Aynchronous Operations Window Negotiation request then the`
+            default values of 1, 1 will be returned.
+        """
+        if self.response is None:
+            raise RuntimeError(
+                "No Asynchronous Operations Window Negotiation response is "
+                "available until after association negotiation is complete"
+            )
+
+        if self.response.result != 0x00:
+            return 1, 1
+
+        for item in self.response.user_information:
+            if isinstance(item, AsynchronousOperationsWindowNegotiation):
+                return (item.maximum_number_operations_invoked,
+                        item.maximum_number_operations_performed)
+
+        return 1, 1
 
     @property
     def accepted_contexts(self):
@@ -518,6 +551,11 @@ class Association(threading.Thread):
 
         self.ae.cleanup_associations()
 
+    @property
+    def rejected_contexts(self):
+        """Return a list of rejected PresentationContexts."""
+        return self.acse.rejected_contexts
+
     def release(self):
         """Release the association."""
         if self.is_established:
@@ -530,9 +568,30 @@ class Association(threading.Thread):
                 self.abort()
 
     @property
-    def rejected_contexts(self):
-        """Return a list of rejected PresentationContexts."""
-        return self.acse.rejected_contexts
+    def request(self):
+        """Return the A-ASSOCIATE (request) primitive that was sent/received.
+
+        Returns
+        -------
+        pynetdicom3.pdu_primitives.A_ASSOCIATE or None
+            The A-ASSOCIATE (request) primitive that was either sent to or
+            received from the peer at the start of association negotiation or
+            None if no request has been sent/received.
+        """
+        return self._assoc_req
+
+    @property
+    def response(self):
+        """Return the A-ASSOCIATE (response) primitive that was sent/received.
+
+        Returns
+        -------
+        pynetdicom3.pdu_primitives.A_ASSOCIATE or None
+            The A-ASSOCIATE (accept or reject)  primitive that was either sent
+            to or received from the peer at the end of association negotiation
+            or None if no response has been sent/received.
+        """
+        return self._assoc_rsp
 
     def run(self):
         """The main Association control."""
@@ -557,6 +616,8 @@ class Association(threading.Thread):
         if assoc_rq is None:
             self.kill()
             return
+
+        #self._assoc_req = assoc_rq
 
         # (Optionally) send an A-ABORT/A-P-ABORT in response
         if self._a_abort_assoc_rq:
@@ -908,71 +969,72 @@ class Association(threading.Thread):
 
         # Association was accepted or rejected
         if isinstance(assoc_rsp, A_ASSOCIATE):
-            # Association was accepted
-            if is_accepted:
-                self.debug_association_accepted(assoc_rsp)
-                self.ae.on_association_accepted(assoc_rsp)
-
-                # No acceptable presentation contexts
-                if self.acse.accepted_contexts == []:
-                    LOGGER.error("No Acceptable Presentation Contexts")
-                    self.is_aborted = True
-                    self.is_established = False
-                    self.acse.abort_assoc(0x02, 0x00)
-                    self.kill()
-
-                    return
-
-                # Assocation established OK
-                self.is_established = True
-
-                # This seems like it should be event driven rather than
-                #   driven by a loop
-                #
-                # Listen for further messages from the peer
-                while not self._kill:
-                    time.sleep(0.1)
-
-                    # Check for release request
-                    if self.acse.CheckRelease():
-                        self.is_released = True
-                        self.is_established = False
-                        # Callback trigger
-                        self.ae.on_association_released()
-                        self.debug_association_released()
-                        self.kill()
-                        return
-
-                    # Check for abort
-                    if self.acse.CheckAbort():
-                        self.is_aborted = True
-                        self.is_established = False
-                        # Callback trigger
-                        self.ae.on_association_aborted()
-                        self.debug_association_aborted()
-                        self.kill()
-                        return
-
-                    # Check if the DULServiceProvider thread is
-                    #   still running. DUL.is_alive() is inherited from
-                    #   threading.thread
-                    if not self.dul.is_alive():
-                        self.kill()
-                        return
-
-                    # Check if idle timer has expired
-                    if self.dul.idle_timer_expired():
-                        self.kill()
-                        return
+            self._assoc_rsp = assoc_rsp
 
             # Association was rejected
-            else:
+            if not is_accepted:
                 self.ae.on_association_rejected(assoc_rsp)
                 self.debug_association_rejected(assoc_rsp)
                 self.is_rejected = True
                 self.is_established = False
                 self.dul.kill_dul()
                 return
+
+            # Association was accepted
+            self.debug_association_accepted(assoc_rsp)
+            self.ae.on_association_accepted(assoc_rsp)
+
+            # No acceptable presentation contexts
+            if self.acse.accepted_contexts == []:
+                LOGGER.error("No Acceptable Presentation Contexts")
+                self.is_aborted = True
+                self.is_established = False
+                self.acse.abort_assoc(0x02, 0x00)
+                self.kill()
+
+                return
+
+            # Assocation established OK
+            self.is_established = True
+
+            # This seems like it should be event driven rather than
+            #   driven by a loop
+            #
+            # Listen for further messages from the peer
+            while not self._kill:
+                time.sleep(0.1)
+
+                # Check for release request
+                if self.acse.CheckRelease():
+                    self.is_released = True
+                    self.is_established = False
+                    # Callback trigger
+                    self.ae.on_association_released()
+                    self.debug_association_released()
+                    self.kill()
+                    return
+
+                # Check for abort
+                if self.acse.CheckAbort():
+                    self.is_aborted = True
+                    self.is_established = False
+                    # Callback trigger
+                    self.ae.on_association_aborted()
+                    self.debug_association_aborted()
+                    self.kill()
+                    return
+
+                # Check if the DULServiceProvider thread is
+                #   still running. DUL.is_alive() is inherited from
+                #   threading.thread
+                if not self.dul.is_alive():
+                    self.kill()
+                    return
+
+                # Check if idle timer has expired
+                if self.dul.idle_timer_expired():
+                    self.kill()
+                    return
 
         # Association was aborted by peer
         elif isinstance(assoc_rsp, A_ABORT):
@@ -995,6 +1057,65 @@ class Association(threading.Thread):
             self.is_established = False
             self.dul.kill_dul()
             return
+
+    @property
+    def sop_class_extended_response(self):
+        """Return the association acceptor's SOP Class Extended Negotiation
+        responses.
+
+        Returns
+        -------
+        dict
+            Returns the SOP Class Extended Negotiation responses received
+            from the association acceptor as {SOP Class UID : Service Class
+            Application Information}. If no responses are received then
+            returns an empty dict.
+        """
+        if self.response is None:
+            raise RuntimeError(
+                "No SOP Class Extended Negotiation response is "
+                "available until after association negotiation is complete"
+            )
+
+        if self.response.result != 0x00:
+            return {}
+
+        responses = {}
+        for item in self.response.user_information:
+            if isinstance(item, SOPClassExtendedNegotiation):
+                responses[item.sop_class_uid] = (
+                    item.service_class_application_information
+                )
+
+        return responses
+
+    @property
+    def user_identity_response(self):
+        """Return the association acceptor's User Identity Negotiation response
+
+        Returns
+        -------
+        bytes or None
+            If a positive response has been requested and the association
+            acceptor has included a User Identity Negotiation response in the
+            A-ASSOCIATE (accept) primitive and the user identity type is 3,
+            4 or 5, then the server response value as bytes. If no server
+            response was received then returns None.
+        """
+        if self.response is None:
+            raise RuntimeError(
+                "No User Identity Negotiation response is "
+                "available until after association negotiation is complete"
+            )
+
+        if self.response.result != 0x00:
+            return None
+
+        for item in self.response.user_information:
+            if isinstance(item, UserIdentityNegotiation):
+                return item.server_response
+
+        return None
 
 
     # DIMSE-C services provided by the Association
