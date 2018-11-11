@@ -751,16 +751,9 @@ class Association(threading.Thread):
             self._check_sop_class_extended(sop_extended)
         )
 
-        # If used then ae.on_sop_class_extended, return result
-        #   how to validate? or no validation?
-        #   storage_class.extended.level_of_digital_signature_support
-        #   .element_coercion
-        #   .level_of_support
-
         # SOP Class Common Extended Negotiation items
-        # Used by:
-        #   Storage Service Class (optional)
-        # TODO: Implement properly but for now just remove items
+        # Remove all SOP Class Common Extended Negotiation (request) items
+        #   Note: No response items are allowed
         assoc_rq.user_information[:] = (
             ii for ii in assoc_rq.user_information
                 if not isinstance(ii, SOPClassCommonExtendedNegotiation)
@@ -847,6 +840,8 @@ class Association(threading.Thread):
         # Issue the A-ASSOCIATE indication (accept) primitive using the ACSE
         # FIXME: Is this correct? Do we send Accept then Abort if no
         #   presentation contexts?
+        # FIXME: separate the request for the response
+        self._assoc_rsp = assoc_rq
         assoc_ac = self.acse.accept_assoc(assoc_rq)
 
         if assoc_ac is None:
@@ -897,7 +892,8 @@ class Association(threading.Thread):
                 'ae_title' : self.local_ae['ae_title'],
                 'address' : self.local_ae['address'],
                 'port' : self.local_ae['port'],
-            }
+            },
+            'sop_class_extended' : self.sop_class_extended_response,
         }
 
         self._is_running = True
@@ -1114,6 +1110,36 @@ class Association(threading.Thread):
             self.is_established = False
             self.dul.kill_dul()
             return
+
+    @property
+    def sop_class_common_extended(self):
+        """Return the association requestor's SOP Class Common Extended
+        Negotiation requests.
+
+        Returns
+        -------
+        dict
+            Returns the SOP Class Common Extended Negotiation requests received
+            from the association requestor as {SOP Class UID : (Service Class
+            UID, list of Related General SOP Class UIDs)}. If no requests are
+            received then returns an empty dict.
+        """
+        if self.request is None:
+            raise RuntimeError(
+                "No SOP Class Common Extended Negotiation request is "
+                "available until after an association request has been "
+                "received"
+            )
+
+        sop_common = {}
+        for ii in self.request.user_information:
+            if isinstance(ii, SOPClassCommonExtendedNegotiation):
+                sop_common[ii.sop_class_uid] = (
+                    ii.service_class_uid,
+                    ii.related_general_sop_class_identification
+                )
+
+        return sop_common
 
     @property
     def sop_class_extended_response(self):

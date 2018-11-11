@@ -14,6 +14,7 @@ from pydicom.uid import ExplicitVRLittleEndian
 
 from pynetdicom3 import AE
 from pynetdicom3.dimse_primitives import C_STORE
+from pynetdicom3.pdu_primitives import SOPClassExtendedNegotiation
 from pynetdicom3.sop_class import (
     VerificationServiceClass,
     VerificationSOPClass,
@@ -229,6 +230,7 @@ class TestStorageServiceClass(object):
         assert self.scp.info['parameters']['priority'] == 2
         assert self.scp.info['parameters']['originator_aet'] is None
         assert self.scp.info['parameters']['originator_message_id'] is None
+        assert self.scp.info['sop_class_extended'] == {}
 
         self.scp.stop()
 
@@ -261,5 +263,44 @@ class TestStorageServiceClass(object):
         assert self.scp.info['parameters']['priority'] == 2
         assert self.scp.info['parameters']['originator_aet'] == b'ORIGIN          '
         assert self.scp.info['parameters']['originator_message_id'] == 888
+
+        self.scp.stop()
+
+    def test_scp_callback_sop_class_extended(self):
+        """Test that the SOP Class Extended info is available."""
+        def on_ext(req):
+            return req
+
+        self.scp = DummyStorageSCP()
+        self.scp.ae.on_sop_class_extended = on_ext
+        self.scp.start()
+
+        ae = AE()
+        ae.add_requested_context(CTImageStorage)
+        ae.acse_timeout = 5
+        ae.dimse_timeout = 5
+
+        ext_neg = []
+        item = SOPClassExtendedNegotiation()
+        item.sop_class_uid = '1.2.3'
+        item.service_class_application_information = b'\x00\x01'
+        ext_neg.append(item)
+
+        item = SOPClassExtendedNegotiation()
+        item.sop_class_uid = '1.2.4'
+        item.service_class_application_information = b'\x00\x02'
+        ext_neg.append(item)
+
+        assoc = ae.associate('localhost', 11112, ext_neg=ext_neg)
+        assert assoc.is_established
+        status = assoc.send_c_store(DATASET)
+        assert status.Status == 0x0000
+        assoc.release()
+        assert assoc.is_released
+
+        info = self.scp.info['sop_class_extended']
+        assert len(info) == 2
+        assert info['1.2.3'] == b'\x00\x01'
+        assert info['1.2.4'] == b'\x00\x02'
 
         self.scp.stop()

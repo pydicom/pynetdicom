@@ -33,7 +33,7 @@ from pynetdicom3.dsutils import encode, decode
 from pynetdicom3.pdu_primitives import (
     UserIdentityNegotiation, SOPClassExtendedNegotiation,
     SOPClassCommonExtendedNegotiation, SCP_SCU_RoleSelectionNegotiation,
-    AsynchronousOperationsWindowNegotiation,
+    AsynchronousOperationsWindowNegotiation, A_ASSOCIATE,
 )
 from pynetdicom3.sop_class import (
     VerificationSOPClass,
@@ -1062,6 +1062,21 @@ class TestAssociationSendCEcho(object):
         assert cx.abstract_syntax == CTImageStorage
         assoc.release()
         assert assoc.is_released
+        self.scp.stop()
+
+    def test_request(self):
+        """Test the Association.request property."""
+        self.scp = DummyVerificationSCP()
+        self.scp.start()
+        ae = AE()
+        ae.add_requested_context(VerificationSOPClass)
+        ae.acse_timeout = 5
+        ae.dimse_timeout = 5
+        assoc = ae.associate('localhost', 11112)
+        assert assoc.is_established
+        req = assoc.request
+        assert isinstance(req, type(None))
+
         self.scp.stop()
 
 
