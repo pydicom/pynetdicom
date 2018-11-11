@@ -23,6 +23,7 @@ pynetdicom3.ae.ApplicationEntity
       ~ApplicationEntity.on_association_rejected
       ~ApplicationEntity.on_association_released
       ~ApplicationEntity.on_association_requested
+      ~ApplicationEntity.on_async_ops_window
       ~ApplicationEntity.on_c_echo
       ~ApplicationEntity.on_c_find
       ~ApplicationEntity.on_c_find_cancel
@@ -39,6 +40,7 @@ pynetdicom3.ae.ApplicationEntity
       ~ApplicationEntity.on_n_get
       ~ApplicationEntity.on_n_set
       ~ApplicationEntity.on_receive_connection
+      ~ApplicationEntity.on_sop_class_extended
       ~ApplicationEntity.on_user_identity
       ~ApplicationEntity.quit
       ~ApplicationEntity.remove_requested_context

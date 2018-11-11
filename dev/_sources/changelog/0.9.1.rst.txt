@@ -75,3 +75,7 @@ Enhancements
 * Add support for N-GET, N-SET, N-EVENT-REPORT, N-DELETE, N-ACTION, N-CREATE
   as SCU.
 * Add full support for SCP/SCU Role Selection Negotiation
+* Add support for SOP Class Extended Negotiation
+* Add support for Asynchronous Operations Window Negotiation, however
+  pynetdicom does not support asynchronous operations.
+* Add support for User Identity Negotiation

@@ -1539,7 +1539,73 @@
                 <span class="p">)</span>
 
 
-    <span class="c1"># Association negotiation callbacks</span>
+    <span class="c1"># Association extended negotiation callbacks</span>
+<div class="viewcode-block" id="ApplicationEntity.on_async_ops_window"><a class="viewcode-back" href="../../reference/generated/pynetdicom3.ae.ApplicationEntity.html#pynetdicom3.ae.ApplicationEntity.on_async_ops_window">[docs]</a>    <span class="k">def</span> <span class="nf">on_async_ops_window</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">nr_invoked</span><span class="p">,</span> <span class="n">nr_performed</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;Callback for when an Asynchronous Operations Window Negotiation</span>
+<span class="sd">        item is include in the association request.</span>
+
+<span class="sd">        Asynchronous operations are not supported by pynetdicom3 and any</span>
+<span class="sd">        request will always return the default number of operations</span>
+<span class="sd">        invoked/performed (1, 1), regardless of what values are returned by</span>
+<span class="sd">        this callback.</span>
+
+<span class="sd">        If the callback is not implemented then no response to the Asynchronous</span>
+<span class="sd">        Operations Window Negotiation will be sent to the association</span>
+<span class="sd">        requestor.</span>
+
+<span class="sd">        Parameters</span>
+<span class="sd">        ----------</span>
+<span class="sd">        nr_invoked : int</span>
+<span class="sd">            The *Maximum Number Operations Invoked* parameter value of the</span>
+<span class="sd">            Asynchronous Operations Window request. If the value is 0 then</span>
+<span class="sd">            an unlimited number of invocations are requested.</span>
+<span class="sd">        nr_performed : int</span>
+<span class="sd">            The *Maximum Number Operations Performed* parameter value of the</span>
+<span class="sd">            Asynchronous Operations Window request. If the value is 0 then</span>
+<span class="sd">            an unlimited number of performances are requested.</span>
+
+<span class="sd">        Returns</span>
+<span class="sd">        -------</span>
+<span class="sd">        int, int</span>
+<span class="sd">            The (maximum number operations invoked, maximum number operations</span>
+<span class="sd">            performed). A value of 0 indicates that an unlimited number of</span>
+<span class="sd">            operations is supported. As asynchronous operations are not</span>
+<span class="sd">            currently supported the return value will be ignored and (1, 1).</span>
+<span class="sd">            sent in response.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">raise</span> <span class="ne">NotImplementedError</span><span class="p">(</span>
+            <span class="s2">&quot;No Asynchronous Operations Window Negotiation response will be &quot;</span>
+            <span class="s2">&quot;sent&quot;</span>
+        <span class="p">)</span></div>
+
+<div class="viewcode-block" id="ApplicationEntity.on_sop_class_extended"><a class="viewcode-back" href="../../reference/generated/pynetdicom3.ae.ApplicationEntity.html#pynetdicom3.ae.ApplicationEntity.on_sop_class_extended">[docs]</a>    <span class="k">def</span> <span class="nf">on_sop_class_extended</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">app_info</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;Callback for when one or more SOP Class Extended Negotiation items</span>
+<span class="sd">        are included in the association request.</span>
+
+<span class="sd">        Parameters</span>
+<span class="sd">        ----------</span>
+<span class="sd">        app_info : dict of pydicom.uid.UID, bytes</span>
+<span class="sd">            The {*SOP Class UID* : *Service Class Application Information*}</span>
+<span class="sd">            parameter values for the included items, with the service class</span>
+<span class="sd">            application information being the raw encoded data sent by the</span>
+<span class="sd">            requestor.</span>
+
+<span class="sd">        Returns</span>
+<span class="sd">        -------</span>
+<span class="sd">        dict of pydicom.uid.UID, bytes or None</span>
+<span class="sd">            The {*SOP Class UID* : *Service Class Application Information*}</span>
+<span class="sd">            parameter values to be sent in response to the request, with the</span>
+<span class="sd">            service class application information being the encoded data that</span>
+<span class="sd">            will be sent to the peer as-is. Return None if no response is to</span>
+<span class="sd">            be sent.</span>
+
+<span class="sd">        References</span>
+<span class="sd">        ----------</span>
+
+<span class="sd">        * DICOM Standard Part 7, `Annex D.3.3.5 &lt;http://dicom.nema.org/medical/dicom/current/output/chtml/part07/sect_D.3.3.5.html&gt;`_</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">return</span> <span class="kc">None</span></div>
+
 <div class="viewcode-block" id="ApplicationEntity.on_user_identity"><a class="viewcode-back" href="../../reference/generated/pynetdicom3.ae.ApplicationEntity.html#pynetdicom3.ae.ApplicationEntity.on_user_identity">[docs]</a>    <span class="k">def</span> <span class="nf">on_user_identity</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">user_id_type</span><span class="p">,</span> <span class="n">primary_field</span><span class="p">,</span>
                          <span class="n">secondary_field</span><span class="p">,</span> <span class="n">info</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;Callback for when a user identity negotiation item is included with</span>
@@ -1654,6 +1720,9 @@
 <span class="sd">                  &#39;originator_aet&#39; : bytes or None, the move originator&#39;s AE title</span>
 <span class="sd">                  &#39;originator_message_id&#39; : int or None, the move originator&#39;s message ID</span>
 <span class="sd">              }</span>
+<span class="sd">              &#39;sop_class_extended&#39; : {</span>
+<span class="sd">                  SOP Class UID : Service Class Application Information,</span>
+<span class="sd">              }</span>
 
 <span class="sd">        Returns</span>
 <span class="sd">        -------</span>
@@ -1753,6 +1822,9 @@
 <span class="sd">              &#39;parameters&#39; : {</span>
 <span class="sd">                  &#39;message_id&#39; : int, the DIMSE message ID</span>
 <span class="sd">                  &#39;priority&#39; : int, the requested operation priority</span>
+<span class="sd">              }</span>
+<span class="sd">              &#39;sop_class_extended&#39; : {</span>
+<span class="sd">                  SOP Class UID : Service Class Application Information,</span>
 <span class="sd">              }</span>
 
 <span class="sd">        Yields</span>
@@ -1895,6 +1967,9 @@
 <span class="sd">              &#39;parameters&#39; : {</span>
 <span class="sd">                  &#39;message_id&#39; : int, the DIMSE message ID</span>
 <span class="sd">                  &#39;priority&#39; : int, the requested operation priority</span>
+<span class="sd">              }</span>
+<span class="sd">              &#39;sop_class_extended&#39; : {</span>
+<span class="sd">                  SOP Class UID : Service Class Application Information,</span>
 <span class="sd">              }</span>
 
 <span class="sd">        Yields</span>
@@ -2045,6 +2120,9 @@
 <span class="sd">                  &#39;message_id&#39; : int, the DIMSE message ID</span>
 <span class="sd">                  &#39;priority&#39; : int, the requested operation priority</span>
 <span class="sd">              }</span>
+<span class="sd">              &#39;sop_class_extended&#39; : {</span>
+<span class="sd">                  SOP Class UID : Service Class Application Information,</span>
+<span class="sd">              }</span>
 
 <span class="sd">        Yields</span>
 <span class="sd">        ------</span>
@@ -2182,6 +2260,9 @@
 <span class="sd">                  &#39;originator_aet&#39; : bytes or None, the move originator&#39;s AE title</span>
 <span class="sd">                  &#39;originator_message_id&#39; : int or None, the move originator&#39;s message ID</span>
 <span class="sd">              }</span>
+<span class="sd">              &#39;sop_class_extended&#39; : {</span>
+<span class="sd">                  SOP Class UID : Service Class Application Information,</span>
+<span class="sd">              }</span>
 
 <span class="sd">        Returns</span>
 <span class="sd">        -------</span>
@@ -2304,6 +2385,9 @@
 <span class="sd">                  Class UID value</span>
 <span class="sd">                  &#39;requested_sop_instance&#39; : str, the N-GET-RQ&#39;s requested SOP</span>
 <span class="sd">                  Instance UID value</span>
+<span class="sd">              }</span>
+<span class="sd">              &#39;sop_class_extended&#39; : {</span>
+<span class="sd">                  SOP Class UID : Service Class Application Information,</span>
 <span class="sd">              }</span>
 
 <span class="sd">        Returns</span>

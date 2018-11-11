@@ -432,10 +432,10 @@
 </li>
       <li><a href="reference/generated/pynetdicom3.fsm.AE_1.html#pynetdicom3.fsm.AE_1">AE_1() (in module pynetdicom3.fsm)</a>
 </li>
-  </ul></td>
-  <td style="width: 33%; vertical-align: top;"><ul>
       <li><a href="reference/generated/pynetdicom3.fsm.AE_2.html#pynetdicom3.fsm.AE_2">AE_2() (in module pynetdicom3.fsm)</a>
 </li>
+  </ul></td>
+  <td style="width: 33%; vertical-align: top;"><ul>
       <li><a href="reference/generated/pynetdicom3.fsm.AE_3.html#pynetdicom3.fsm.AE_3">AE_3() (in module pynetdicom3.fsm)</a>
 </li>
       <li><a href="reference/generated/pynetdicom3.fsm.AE_4.html#pynetdicom3.fsm.AE_4">AE_4() (in module pynetdicom3.fsm)</a>
@@ -517,6 +517,8 @@
       <li><a href="reference/generated/pynetdicom3.dul.DULServiceProvider.html#pynetdicom3.dul.DULServiceProvider.association">association (pynetdicom3.dul.DULServiceProvider attribute)</a>
 </li>
       <li><a href="reference/generated/pynetdicom3.pdu_items.UserInformationItem.html#pynetdicom3.pdu_items.UserInformationItem.async_ops_window">async_ops_window (pynetdicom3.pdu_items.UserInformationItem attribute)</a>, <a href="reference/generated/pynetdicom3.pdu_items.UserInformationItem.html#pynetdicom3.pdu_items.UserInformationItem.async_ops_window">[1]</a>
+</li>
+      <li><a href="reference/generated/pynetdicom3.association.Association.html#pynetdicom3.association.Association.asynchronous_operations_response">asynchronous_operations_response (pynetdicom3.association.Association attribute)</a>
 </li>
       <li><a href="reference/generated/pynetdicom3.pdu_primitives.AsynchronousOperationsWindowNegotiation.html#pynetdicom3.pdu_primitives.AsynchronousOperationsWindowNegotiation">AsynchronousOperationsWindowNegotiation (class in pynetdicom3.pdu_primitives)</a>
 </li>
@@ -1548,6 +1550,8 @@
 </li>
       <li><a href="reference/generated/pynetdicom3.ae.ApplicationEntity.html#pynetdicom3.ae.ApplicationEntity.on_association_requested">on_association_requested() (pynetdicom3.ae.ApplicationEntity method)</a>
 </li>
+      <li><a href="reference/generated/pynetdicom3.ae.ApplicationEntity.html#pynetdicom3.ae.ApplicationEntity.on_async_ops_window">on_async_ops_window() (pynetdicom3.ae.ApplicationEntity method)</a>
+</li>
       <li><a href="reference/generated/pynetdicom3.ae.ApplicationEntity.html#pynetdicom3.ae.ApplicationEntity.on_c_echo">on_c_echo() (pynetdicom3.ae.ApplicationEntity method)</a>
 </li>
       <li><a href="reference/generated/pynetdicom3.ae.ApplicationEntity.html#pynetdicom3.ae.ApplicationEntity.on_c_find">on_c_find() (pynetdicom3.ae.ApplicationEntity method)</a>
@@ -1587,6 +1591,8 @@
       <li><a href="reference/generated/pynetdicom3.dul.DULServiceProvider.html#pynetdicom3.dul.DULServiceProvider.on_receive_pdu">on_receive_pdu() (pynetdicom3.dul.DULServiceProvider method)</a>
 </li>
       <li><a href="reference/generated/pynetdicom3.dimse.DIMSEServiceProvider.html#pynetdicom3.dimse.DIMSEServiceProvider.on_send_dimse_message">on_send_dimse_message() (pynetdicom3.dimse.DIMSEServiceProvider method)</a>
+</li>
+      <li><a href="reference/generated/pynetdicom3.ae.ApplicationEntity.html#pynetdicom3.ae.ApplicationEntity.on_sop_class_extended">on_sop_class_extended() (pynetdicom3.ae.ApplicationEntity method)</a>
 </li>
       <li><a href="reference/generated/pynetdicom3.ae.ApplicationEntity.html#pynetdicom3.ae.ApplicationEntity.on_user_identity">on_user_identity() (pynetdicom3.ae.ApplicationEntity method)</a>
 </li>
@@ -1818,6 +1824,8 @@
 </li>
       <li><a href="reference/generated/pynetdicom3.sop_class.SOPClass.html#pynetdicom3.sop_class.SOPClass.replace">replace() (pynetdicom3.sop_class.SOPClass method)</a>
 </li>
+      <li><a href="reference/generated/pynetdicom3.association.Association.html#pynetdicom3.association.Association.request">request (pynetdicom3.association.Association attribute)</a>
+</li>
       <li><a href="reference/generated/pynetdicom3.acse.ACSEServiceProvider.html#pynetdicom3.acse.ACSEServiceProvider.request_assoc">request_assoc() (pynetdicom3.acse.ACSEServiceProvider method)</a>
 </li>
       <li><a href="reference/generated/pynetdicom3.ae.ApplicationEntity.html#pynetdicom3.ae.ApplicationEntity.requested_contexts">requested_contexts (pynetdicom3.ae.ApplicationEntity attribute)</a>
@@ -1836,8 +1844,12 @@
 </li>
       <li><a href="reference/generated/pynetdicom3.pdu_primitives.A_ASSOCIATE.html#pynetdicom3.pdu_primitives.A_ASSOCIATE.responding_presentation_address">responding_presentation_address (pynetdicom3.pdu_primitives.A_ASSOCIATE attribute)</a>, <a href="reference/generated/pynetdicom3.pdu_primitives.A_ASSOCIATE.html#pynetdicom3.pdu_primitives.A_ASSOCIATE.responding_presentation_address">[1]</a>
 </li>
-      <li><a href="reference/generated/pynetdicom3.pdu_items.UserIdentitySubItemAC.html#pynetdicom3.pdu_items.UserIdentitySubItemAC.response">response (pynetdicom3.pdu_items.UserIdentitySubItemAC attribute)</a>
+      <li><a href="reference/generated/pynetdicom3.association.Association.html#pynetdicom3.association.Association.response">response (pynetdicom3.association.Association attribute)</a>
+
+      <ul>
+        <li><a href="reference/generated/pynetdicom3.pdu_items.UserIdentitySubItemAC.html#pynetdicom3.pdu_items.UserIdentitySubItemAC.response">(pynetdicom3.pdu_items.UserIdentitySubItemAC attribute)</a>
 </li>
+      </ul></li>
       <li><a href="reference/generated/pynetdicom3.pdu_items.UserIdentitySubItemRQ.html#pynetdicom3.pdu_items.UserIdentitySubItemRQ.response_requested">response_requested (pynetdicom3.pdu_items.UserIdentitySubItemRQ attribute)</a>
 </li>
       <li><a href="reference/generated/pynetdicom3.timer.Timer.html#pynetdicom3.timer.Timer.restart">restart() (pynetdicom3.timer.Timer method)</a>
@@ -1990,9 +2002,13 @@
       </ul></li>
       <li><a href="reference/generated/pynetdicom3.pdu_items.SOPClassCommonExtendedNegotiationSubItem.html#pynetdicom3.pdu_items.SOPClassCommonExtendedNegotiationSubItem.service_class_uid_length">service_class_uid_length (pynetdicom3.pdu_items.SOPClassCommonExtendedNegotiationSubItem attribute)</a>, <a href="reference/generated/pynetdicom3.pdu_items.SOPClassCommonExtendedNegotiationSubItem.html#pynetdicom3.pdu_items.SOPClassCommonExtendedNegotiationSubItem.service_class_uid_length">[1]</a>
 </li>
+      <li><a href="reference/generated/pynetdicom3.pdu_primitives.A_ASSOCIATE.html#pynetdicom3.pdu_primitives.A_ASSOCIATE.session_requirements">session_requirements (pynetdicom3.pdu_primitives.A_ASSOCIATE attribute)</a>, <a href="reference/generated/pynetdicom3.pdu_primitives.A_ASSOCIATE.html#pynetdicom3.pdu_primitives.A_ASSOCIATE.session_requirements">[1]</a>
+</li>
   </ul></td>
   <td style="width: 33%; vertical-align: top;"><ul>
-      <li><a href="reference/generated/pynetdicom3.pdu_primitives.A_ASSOCIATE.html#pynetdicom3.pdu_primitives.A_ASSOCIATE.session_requirements">session_requirements (pynetdicom3.pdu_primitives.A_ASSOCIATE attribute)</a>, <a href="reference/generated/pynetdicom3.pdu_primitives.A_ASSOCIATE.html#pynetdicom3.pdu_primitives.A_ASSOCIATE.session_requirements">[1]</a>
+      <li><a href="reference/generated/pynetdicom3.association.Association.html#pynetdicom3.association.Association.sop_class_common_extended">sop_class_common_extended (pynetdicom3.association.Association attribute)</a>
+</li>
+      <li><a href="reference/generated/pynetdicom3.association.Association.html#pynetdicom3.association.Association.sop_class_extended_response">sop_class_extended_response (pynetdicom3.association.Association attribute)</a>
 </li>
       <li><a href="reference/generated/pynetdicom3.pdu_items.SCP_SCU_RoleSelectionSubItem.html#pynetdicom3.pdu_items.SCP_SCU_RoleSelectionSubItem.sop_class_uid">sop_class_uid (pynetdicom3.pdu_items.SCP_SCU_RoleSelectionSubItem attribute)</a>, <a href="reference/generated/pynetdicom3.pdu_items.SCP_SCU_RoleSelectionSubItem.html#pynetdicom3.pdu_items.SCP_SCU_RoleSelectionSubItem.sop_class_uid">[1]</a>
 
@@ -2194,14 +2210,16 @@
 </li>
       <li><a href="reference/generated/pynetdicom3.pdu_items.UserInformationItem.html#pynetdicom3.pdu_items.UserInformationItem.user_identity">user_identity (pynetdicom3.pdu_items.UserInformationItem attribute)</a>, <a href="reference/generated/pynetdicom3.pdu_items.UserInformationItem.html#pynetdicom3.pdu_items.UserInformationItem.user_identity">[1]</a>
 </li>
+      <li><a href="reference/generated/pynetdicom3.association.Association.html#pynetdicom3.association.Association.user_identity_response">user_identity_response (pynetdicom3.association.Association attribute)</a>
+</li>
+  </ul></td>
+  <td style="width: 33%; vertical-align: top;"><ul>
       <li><a href="reference/generated/pynetdicom3.pdu_items.UserIdentitySubItemRQ.html#pynetdicom3.pdu_items.UserIdentitySubItemRQ.user_identity_type">user_identity_type (pynetdicom3.pdu_items.UserIdentitySubItemRQ attribute)</a>
 
       <ul>
         <li><a href="reference/generated/pynetdicom3.pdu_primitives.UserIdentityNegotiation.html#pynetdicom3.pdu_primitives.UserIdentityNegotiation.user_identity_type">(pynetdicom3.pdu_primitives.UserIdentityNegotiation attribute)</a>, <a href="reference/generated/pynetdicom3.pdu_primitives.UserIdentityNegotiation.html#pynetdicom3.pdu_primitives.UserIdentityNegotiation.user_identity_type">[1]</a>
 </li>
       </ul></li>
-  </ul></td>
-  <td style="width: 33%; vertical-align: top;"><ul>
       <li><a href="reference/generated/pynetdicom3.pdu.A_ASSOCIATE_AC.html#pynetdicom3.pdu.A_ASSOCIATE_AC.user_information">user_information (pynetdicom3.pdu.A_ASSOCIATE_AC attribute)</a>, <a href="reference/generated/pynetdicom3.pdu.A_ASSOCIATE_AC.html#pynetdicom3.pdu.A_ASSOCIATE_AC.user_information">[1]</a>
 
       <ul>

@@ -514,17 +514,35 @@ is a list containing the negotiation objects (default: None).</li>
 <tr class="row-odd"><td><a class="reference internal" href="#pynetdicom3.association.Association.accepted_contexts" title="pynetdicom3.association.Association.accepted_contexts"><code class="xref py py-obj docutils literal notranslate"><span class="pre">accepted_contexts</span></code></a></td>
 <td>Return a list of accepted PresentationContexts.</td>
 </tr>
-<tr class="row-even"><td><a class="reference internal" href="#pynetdicom3.association.Association.daemon" title="pynetdicom3.association.Association.daemon"><code class="xref py py-obj docutils literal notranslate"><span class="pre">daemon</span></code></a></td>
+<tr class="row-even"><td><a class="reference internal" href="#pynetdicom3.association.Association.asynchronous_operations_response" title="pynetdicom3.association.Association.asynchronous_operations_response"><code class="xref py py-obj docutils literal notranslate"><span class="pre">asynchronous_operations_response</span></code></a></td>
+<td>Return the association acceptor’s Asynchronous Operations Window Negotiation response.</td>
+</tr>
+<tr class="row-odd"><td><a class="reference internal" href="#pynetdicom3.association.Association.daemon" title="pynetdicom3.association.Association.daemon"><code class="xref py py-obj docutils literal notranslate"><span class="pre">daemon</span></code></a></td>
 <td>A boolean value indicating whether this thread is a daemon thread.</td>
 </tr>
-<tr class="row-odd"><td><a class="reference internal" href="#pynetdicom3.association.Association.ident" title="pynetdicom3.association.Association.ident"><code class="xref py py-obj docutils literal notranslate"><span class="pre">ident</span></code></a></td>
+<tr class="row-even"><td><a class="reference internal" href="#pynetdicom3.association.Association.ident" title="pynetdicom3.association.Association.ident"><code class="xref py py-obj docutils literal notranslate"><span class="pre">ident</span></code></a></td>
 <td>Thread identifier of this thread or None if it has not been started.</td>
 </tr>
-<tr class="row-even"><td><a class="reference internal" href="#pynetdicom3.association.Association.name" title="pynetdicom3.association.Association.name"><code class="xref py py-obj docutils literal notranslate"><span class="pre">name</span></code></a></td>
+<tr class="row-odd"><td><a class="reference internal" href="#pynetdicom3.association.Association.name" title="pynetdicom3.association.Association.name"><code class="xref py py-obj docutils literal notranslate"><span class="pre">name</span></code></a></td>
 <td>A string used for identification purposes only.</td>
 </tr>
-<tr class="row-odd"><td><a class="reference internal" href="#pynetdicom3.association.Association.rejected_contexts" title="pynetdicom3.association.Association.rejected_contexts"><code class="xref py py-obj docutils literal notranslate"><span class="pre">rejected_contexts</span></code></a></td>
+<tr class="row-even"><td><a class="reference internal" href="#pynetdicom3.association.Association.rejected_contexts" title="pynetdicom3.association.Association.rejected_contexts"><code class="xref py py-obj docutils literal notranslate"><span class="pre">rejected_contexts</span></code></a></td>
 <td>Return a list of rejected PresentationContexts.</td>
+</tr>
+<tr class="row-odd"><td><a class="reference internal" href="#pynetdicom3.association.Association.request" title="pynetdicom3.association.Association.request"><code class="xref py py-obj docutils literal notranslate"><span class="pre">request</span></code></a></td>
+<td>Return the A-ASSOCIATE (request) primitive that was sent/received.</td>
+</tr>
+<tr class="row-even"><td><a class="reference internal" href="#pynetdicom3.association.Association.response" title="pynetdicom3.association.Association.response"><code class="xref py py-obj docutils literal notranslate"><span class="pre">response</span></code></a></td>
+<td>Return the A-ASSOCIATE (response) primitive that was sent/received.</td>
+</tr>
+<tr class="row-odd"><td><a class="reference internal" href="#pynetdicom3.association.Association.sop_class_common_extended" title="pynetdicom3.association.Association.sop_class_common_extended"><code class="xref py py-obj docutils literal notranslate"><span class="pre">sop_class_common_extended</span></code></a></td>
+<td>Return the association requestor’s SOP Class Common Extended Negotiation requests.</td>
+</tr>
+<tr class="row-even"><td><a class="reference internal" href="#pynetdicom3.association.Association.sop_class_extended_response" title="pynetdicom3.association.Association.sop_class_extended_response"><code class="xref py py-obj docutils literal notranslate"><span class="pre">sop_class_extended_response</span></code></a></td>
+<td>Return the association acceptor’s SOP Class Extended Negotiation responses.</td>
+</tr>
+<tr class="row-odd"><td><a class="reference internal" href="#pynetdicom3.association.Association.user_identity_response" title="pynetdicom3.association.Association.user_identity_response"><code class="xref py py-obj docutils literal notranslate"><span class="pre">user_identity_response</span></code></a></td>
+<td>Return the association acceptor’s User Identity Negotiation response</td>
 </tr>
 </tbody>
 </table>
@@ -541,6 +559,26 @@ DUL service user and sets the abort reason to 0x00 (not significant)</p>
 <dt id="pynetdicom3.association.Association.accepted_contexts">
 <code class="descname">accepted_contexts</code><a class="headerlink" href="#pynetdicom3.association.Association.accepted_contexts" title="Permalink to this definition">¶</a></dt>
 <dd><p>Return a list of accepted PresentationContexts.</p>
+</dd></dl>
+
+<dl class="attribute">
+<dt id="pynetdicom3.association.Association.asynchronous_operations_response">
+<code class="descname">asynchronous_operations_response</code><a class="headerlink" href="#pynetdicom3.association.Association.asynchronous_operations_response" title="Permalink to this definition">¶</a></dt>
+<dd><p>Return the association acceptor’s Asynchronous Operations Window
+Negotiation response.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Returns:</th><td class="field-body">The (maximum number of operations invoked, maximum number of
+operations performed). If the association acceptor hasn’t responded
+to the Aynchronous Operations Window Negotiation request then the`
+default values of 1, 1 will be returned.</td>
+</tr>
+<tr class="field-even field"><th class="field-name">Return type:</th><td class="field-body">(<a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.7)">int</a>, <a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.7)">int</a>) or <a class="reference external" href="https://docs.python.org/3/library/constants.html#None" title="(in Python v3.7)">None</a></td>
+</tr>
+</tbody>
+</table>
 </dd></dl>
 
 <dl class="attribute">
@@ -697,6 +735,42 @@ initial name is set by the constructor.</p>
 <dt id="pynetdicom3.association.Association.release">
 <code class="descname">release</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="../../_modules/pynetdicom3/association.html#Association.release"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pynetdicom3.association.Association.release" title="Permalink to this definition">¶</a></dt>
 <dd><p>Release the association.</p>
+</dd></dl>
+
+<dl class="attribute">
+<dt id="pynetdicom3.association.Association.request">
+<code class="descname">request</code><a class="headerlink" href="#pynetdicom3.association.Association.request" title="Permalink to this definition">¶</a></dt>
+<dd><p>Return the A-ASSOCIATE (request) primitive that was sent/received.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Returns:</th><td class="field-body">The A-ASSOCIATE (request) primitive that was either sent to or
+received from the peer at the start of association negotiation or
+None if no request has been sent/received.</td>
+</tr>
+<tr class="field-even field"><th class="field-name">Return type:</th><td class="field-body"><a class="reference internal" href="pynetdicom3.pdu_primitives.A_ASSOCIATE.html#pynetdicom3.pdu_primitives.A_ASSOCIATE" title="pynetdicom3.pdu_primitives.A_ASSOCIATE">pynetdicom3.pdu_primitives.A_ASSOCIATE</a> or <a class="reference external" href="https://docs.python.org/3/library/constants.html#None" title="(in Python v3.7)">None</a></td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="attribute">
+<dt id="pynetdicom3.association.Association.response">
+<code class="descname">response</code><a class="headerlink" href="#pynetdicom3.association.Association.response" title="Permalink to this definition">¶</a></dt>
+<dd><p>Return the A-ASSOCIATE (response) primitive that was sent/received.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Returns:</th><td class="field-body">The A-ASSOCIATE (accept or reject)  primitive that was either sent
+to or received from the peer at the end of association negotiation
+or None if no response has been sent/received.</td>
+</tr>
+<tr class="field-even field"><th class="field-name">Return type:</th><td class="field-body"><a class="reference internal" href="pynetdicom3.pdu_primitives.A_ASSOCIATE.html#pynetdicom3.pdu_primitives.A_ASSOCIATE" title="pynetdicom3.pdu_primitives.A_ASSOCIATE">pynetdicom3.pdu_primitives.A_ASSOCIATE</a> or <a class="reference external" href="https://docs.python.org/3/library/constants.html#None" title="(in Python v3.7)">None</a></td>
+</tr>
+</tbody>
+</table>
 </dd></dl>
 
 <dl class="method">
@@ -1863,6 +1937,46 @@ otherwise returns None.</p>
 </ul>
 </dd></dl>
 
+<dl class="attribute">
+<dt id="pynetdicom3.association.Association.sop_class_common_extended">
+<code class="descname">sop_class_common_extended</code><a class="headerlink" href="#pynetdicom3.association.Association.sop_class_common_extended" title="Permalink to this definition">¶</a></dt>
+<dd><p>Return the association requestor’s SOP Class Common Extended
+Negotiation requests.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Returns:</th><td class="field-body">Returns the SOP Class Common Extended Negotiation requests received
+from the association requestor as {SOP Class UID : (Service Class
+UID, list of Related General SOP Class UIDs)}. If no requests are
+received then returns an empty dict.</td>
+</tr>
+<tr class="field-even field"><th class="field-name">Return type:</th><td class="field-body"><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#dict" title="(in Python v3.7)">dict</a></td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="attribute">
+<dt id="pynetdicom3.association.Association.sop_class_extended_response">
+<code class="descname">sop_class_extended_response</code><a class="headerlink" href="#pynetdicom3.association.Association.sop_class_extended_response" title="Permalink to this definition">¶</a></dt>
+<dd><p>Return the association acceptor’s SOP Class Extended Negotiation
+responses.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Returns:</th><td class="field-body">Returns the SOP Class Extended Negotiation responses received
+from the association acceptor as {SOP Class UID : Service Class
+Application Information}. If no responses are received then
+returns an empty dict.</td>
+</tr>
+<tr class="field-even field"><th class="field-name">Return type:</th><td class="field-body"><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#dict" title="(in Python v3.7)">dict</a></td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
 <dl class="method">
 <dt id="pynetdicom3.association.Association.start">
 <code class="descname">start</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#pynetdicom3.association.Association.start" title="Permalink to this definition">¶</a></dt>
@@ -1871,6 +1985,26 @@ otherwise returns None.</p>
 object’s run() method to be invoked in a separate thread of control.</p>
 <p>This method will raise a RuntimeError if called more than once on the
 same thread object.</p>
+</dd></dl>
+
+<dl class="attribute">
+<dt id="pynetdicom3.association.Association.user_identity_response">
+<code class="descname">user_identity_response</code><a class="headerlink" href="#pynetdicom3.association.Association.user_identity_response" title="Permalink to this definition">¶</a></dt>
+<dd><p>Return the association acceptor’s User Identity Negotiation response</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Returns:</th><td class="field-body">If a positive response has been requested and the association
+acceptor has included a User Identity Negotiation response in the
+A-ASSOCIATE (accept) primitive and the user identity type is 3,
+4 or 5, then the server response value as bytes. If no server
+response was received then returns None.</td>
+</tr>
+<tr class="field-even field"><th class="field-name">Return type:</th><td class="field-body"><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#bytes" title="(in Python v3.7)">bytes</a> or <a class="reference external" href="https://docs.python.org/3/library/constants.html#None" title="(in Python v3.7)">None</a></td>
+</tr>
+</tbody>
+</table>
 </dd></dl>
 
 </dd></dl>

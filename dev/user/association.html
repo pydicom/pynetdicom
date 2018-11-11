@@ -117,6 +117,7 @@
 </ul>
 </li>
 <li class="toctree-l3"><a class="reference internal" href="#using-an-association-scu">Using an Association (SCU)</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#accessing-user-identity-responses">Accessing User Identity Responses</a></li>
 <li class="toctree-l3"><a class="reference internal" href="#listening-for-association-requests-scp">Listening for Association Requests (SCP)</a></li>
 <li class="toctree-l3"><a class="reference internal" href="#providing-dimse-services-scp">Providing DIMSE Services (SCP)</a></li>
 </ul>
@@ -353,6 +354,14 @@ the association will raise a <code class="docutils literal notranslate"><span cl
 <p>For more information on using the services available to an association please
 read through the <a class="reference internal" href="../index.html#index-examples"><span class="std std-ref">examples</span></a> corresponding to the
 service class you’re interested in.</p>
+</div>
+<div class="section" id="accessing-user-identity-responses">
+<h2>Accessing User Identity Responses<a class="headerlink" href="#accessing-user-identity-responses" title="Permalink to this headline">¶</a></h2>
+<p>If the association requestor has sent a User Identity Negotiation item as
+part of the extended negotiation and has requested a response in the event of
+a positive identification then it can be accessed via the
+<a class="reference internal" href="../reference/generated/pynetdicom3.association.Association.html#pynetdicom3.association.Association.user_identity_response" title="pynetdicom3.association.Association.user_identity_response"><code class="xref py py-meth docutils literal notranslate"><span class="pre">Assocation.user_identity_response</span></code></a>
+property after the association has been established.</p>
 </div>
 <div class="section" id="listening-for-association-requests-scp">
 <span id="assoc-scp"></span><h2>Listening for Association Requests (SCP)<a class="headerlink" href="#listening-for-association-requests-scp" title="Permalink to this headline">¶</a></h2>

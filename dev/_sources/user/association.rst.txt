@@ -173,6 +173,15 @@ For more information on using the services available to an association please
 read through the :ref:`examples <index_examples>` corresponding to the
 service class you're interested in.
 
+Accessing User Identity Responses
+---------------------------------
+
+If the association requestor has sent a User Identity Negotiation item as
+part of the extended negotiation and has requested a response in the event of
+a positive identification then it can be accessed via the
+:py:meth:`Assocation.user_identity_response <pynetdicom3.association.Association.user_identity_response>`
+property after the association has been established.
+
 .. _assoc_scp:
 
 Listening for Association Requests (SCP)

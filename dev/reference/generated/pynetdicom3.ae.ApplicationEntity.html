@@ -488,53 +488,59 @@ set to 0 the OS will use the first available port (default <code class="docutils
 <tr class="row-even"><td><a class="reference internal" href="#pynetdicom3.ae.ApplicationEntity.on_association_requested" title="pynetdicom3.ae.ApplicationEntity.on_association_requested"><code class="xref py py-obj docutils literal notranslate"><span class="pre">on_association_requested</span></code></a>(primitive)</td>
 <td>Callback for an association is requested.</td>
 </tr>
-<tr class="row-odd"><td><a class="reference internal" href="#pynetdicom3.ae.ApplicationEntity.on_c_echo" title="pynetdicom3.ae.ApplicationEntity.on_c_echo"><code class="xref py py-obj docutils literal notranslate"><span class="pre">on_c_echo</span></code></a>(context,&nbsp;info)</td>
+<tr class="row-odd"><td><a class="reference internal" href="#pynetdicom3.ae.ApplicationEntity.on_async_ops_window" title="pynetdicom3.ae.ApplicationEntity.on_async_ops_window"><code class="xref py py-obj docutils literal notranslate"><span class="pre">on_async_ops_window</span></code></a>(nr_invoked,&nbsp;nr_performed)</td>
+<td>Callback for when an Asynchronous Operations Window Negotiation item is include in the association request.</td>
+</tr>
+<tr class="row-even"><td><a class="reference internal" href="#pynetdicom3.ae.ApplicationEntity.on_c_echo" title="pynetdicom3.ae.ApplicationEntity.on_c_echo"><code class="xref py py-obj docutils literal notranslate"><span class="pre">on_c_echo</span></code></a>(context,&nbsp;info)</td>
 <td>Callback for when a C-ECHO request is received.</td>
 </tr>
-<tr class="row-even"><td><a class="reference internal" href="#pynetdicom3.ae.ApplicationEntity.on_c_find" title="pynetdicom3.ae.ApplicationEntity.on_c_find"><code class="xref py py-obj docutils literal notranslate"><span class="pre">on_c_find</span></code></a>(dataset,&nbsp;context,&nbsp;info)</td>
+<tr class="row-odd"><td><a class="reference internal" href="#pynetdicom3.ae.ApplicationEntity.on_c_find" title="pynetdicom3.ae.ApplicationEntity.on_c_find"><code class="xref py py-obj docutils literal notranslate"><span class="pre">on_c_find</span></code></a>(dataset,&nbsp;context,&nbsp;info)</td>
 <td>Callback for when a C-FIND request is received.</td>
 </tr>
-<tr class="row-odd"><td><a class="reference internal" href="#pynetdicom3.ae.ApplicationEntity.on_c_find_cancel" title="pynetdicom3.ae.ApplicationEntity.on_c_find_cancel"><code class="xref py py-obj docutils literal notranslate"><span class="pre">on_c_find_cancel</span></code></a>()</td>
+<tr class="row-even"><td><a class="reference internal" href="#pynetdicom3.ae.ApplicationEntity.on_c_find_cancel" title="pynetdicom3.ae.ApplicationEntity.on_c_find_cancel"><code class="xref py py-obj docutils literal notranslate"><span class="pre">on_c_find_cancel</span></code></a>()</td>
 <td>Callback for when a C-FIND-CANCEL request is received.</td>
 </tr>
-<tr class="row-even"><td><a class="reference internal" href="#pynetdicom3.ae.ApplicationEntity.on_c_get" title="pynetdicom3.ae.ApplicationEntity.on_c_get"><code class="xref py py-obj docutils literal notranslate"><span class="pre">on_c_get</span></code></a>(dataset,&nbsp;context,&nbsp;info)</td>
+<tr class="row-odd"><td><a class="reference internal" href="#pynetdicom3.ae.ApplicationEntity.on_c_get" title="pynetdicom3.ae.ApplicationEntity.on_c_get"><code class="xref py py-obj docutils literal notranslate"><span class="pre">on_c_get</span></code></a>(dataset,&nbsp;context,&nbsp;info)</td>
 <td>Callback for when a C-GET request is received.</td>
 </tr>
-<tr class="row-odd"><td><a class="reference internal" href="#pynetdicom3.ae.ApplicationEntity.on_c_get_cancel" title="pynetdicom3.ae.ApplicationEntity.on_c_get_cancel"><code class="xref py py-obj docutils literal notranslate"><span class="pre">on_c_get_cancel</span></code></a>()</td>
+<tr class="row-even"><td><a class="reference internal" href="#pynetdicom3.ae.ApplicationEntity.on_c_get_cancel" title="pynetdicom3.ae.ApplicationEntity.on_c_get_cancel"><code class="xref py py-obj docutils literal notranslate"><span class="pre">on_c_get_cancel</span></code></a>()</td>
 <td>Callback for when a C-GET-CANCEL request is received.</td>
 </tr>
-<tr class="row-even"><td><a class="reference internal" href="#pynetdicom3.ae.ApplicationEntity.on_c_move" title="pynetdicom3.ae.ApplicationEntity.on_c_move"><code class="xref py py-obj docutils literal notranslate"><span class="pre">on_c_move</span></code></a>(dataset,&nbsp;move_aet,&nbsp;context,&nbsp;info)</td>
+<tr class="row-odd"><td><a class="reference internal" href="#pynetdicom3.ae.ApplicationEntity.on_c_move" title="pynetdicom3.ae.ApplicationEntity.on_c_move"><code class="xref py py-obj docutils literal notranslate"><span class="pre">on_c_move</span></code></a>(dataset,&nbsp;move_aet,&nbsp;context,&nbsp;info)</td>
 <td>Callback for when a C-MOVE request is received.</td>
 </tr>
-<tr class="row-odd"><td><a class="reference internal" href="#pynetdicom3.ae.ApplicationEntity.on_c_move_cancel" title="pynetdicom3.ae.ApplicationEntity.on_c_move_cancel"><code class="xref py py-obj docutils literal notranslate"><span class="pre">on_c_move_cancel</span></code></a>()</td>
+<tr class="row-even"><td><a class="reference internal" href="#pynetdicom3.ae.ApplicationEntity.on_c_move_cancel" title="pynetdicom3.ae.ApplicationEntity.on_c_move_cancel"><code class="xref py py-obj docutils literal notranslate"><span class="pre">on_c_move_cancel</span></code></a>()</td>
 <td>Callback for when a C-MOVE-CANCEL request is received.</td>
 </tr>
-<tr class="row-even"><td><a class="reference internal" href="#pynetdicom3.ae.ApplicationEntity.on_c_store" title="pynetdicom3.ae.ApplicationEntity.on_c_store"><code class="xref py py-obj docutils literal notranslate"><span class="pre">on_c_store</span></code></a>(dataset,&nbsp;context,&nbsp;info)</td>
+<tr class="row-odd"><td><a class="reference internal" href="#pynetdicom3.ae.ApplicationEntity.on_c_store" title="pynetdicom3.ae.ApplicationEntity.on_c_store"><code class="xref py py-obj docutils literal notranslate"><span class="pre">on_c_store</span></code></a>(dataset,&nbsp;context,&nbsp;info)</td>
 <td>Callback for when a C-STORE request is received.</td>
 </tr>
-<tr class="row-odd"><td><a class="reference internal" href="#pynetdicom3.ae.ApplicationEntity.on_make_connection" title="pynetdicom3.ae.ApplicationEntity.on_make_connection"><code class="xref py py-obj docutils literal notranslate"><span class="pre">on_make_connection</span></code></a>()</td>
+<tr class="row-even"><td><a class="reference internal" href="#pynetdicom3.ae.ApplicationEntity.on_make_connection" title="pynetdicom3.ae.ApplicationEntity.on_make_connection"><code class="xref py py-obj docutils literal notranslate"><span class="pre">on_make_connection</span></code></a>()</td>
 <td>Callback for a connection is made.</td>
 </tr>
-<tr class="row-even"><td><a class="reference internal" href="#pynetdicom3.ae.ApplicationEntity.on_n_action" title="pynetdicom3.ae.ApplicationEntity.on_n_action"><code class="xref py py-obj docutils literal notranslate"><span class="pre">on_n_action</span></code></a>(dataset,&nbsp;context,&nbsp;info)</td>
+<tr class="row-odd"><td><a class="reference internal" href="#pynetdicom3.ae.ApplicationEntity.on_n_action" title="pynetdicom3.ae.ApplicationEntity.on_n_action"><code class="xref py py-obj docutils literal notranslate"><span class="pre">on_n_action</span></code></a>(dataset,&nbsp;context,&nbsp;info)</td>
 <td>Callback for when a N-ACTION is received.</td>
 </tr>
-<tr class="row-odd"><td><a class="reference internal" href="#pynetdicom3.ae.ApplicationEntity.on_n_create" title="pynetdicom3.ae.ApplicationEntity.on_n_create"><code class="xref py py-obj docutils literal notranslate"><span class="pre">on_n_create</span></code></a>(dataset,&nbsp;context,&nbsp;info)</td>
+<tr class="row-even"><td><a class="reference internal" href="#pynetdicom3.ae.ApplicationEntity.on_n_create" title="pynetdicom3.ae.ApplicationEntity.on_n_create"><code class="xref py py-obj docutils literal notranslate"><span class="pre">on_n_create</span></code></a>(dataset,&nbsp;context,&nbsp;info)</td>
 <td>Callback for when a N-CREATE is received.</td>
 </tr>
-<tr class="row-even"><td><a class="reference internal" href="#pynetdicom3.ae.ApplicationEntity.on_n_delete" title="pynetdicom3.ae.ApplicationEntity.on_n_delete"><code class="xref py py-obj docutils literal notranslate"><span class="pre">on_n_delete</span></code></a>(context,&nbsp;info)</td>
+<tr class="row-odd"><td><a class="reference internal" href="#pynetdicom3.ae.ApplicationEntity.on_n_delete" title="pynetdicom3.ae.ApplicationEntity.on_n_delete"><code class="xref py py-obj docutils literal notranslate"><span class="pre">on_n_delete</span></code></a>(context,&nbsp;info)</td>
 <td>Callback for when a N-DELETE is received.</td>
 </tr>
-<tr class="row-odd"><td><a class="reference internal" href="#pynetdicom3.ae.ApplicationEntity.on_n_event_report" title="pynetdicom3.ae.ApplicationEntity.on_n_event_report"><code class="xref py py-obj docutils literal notranslate"><span class="pre">on_n_event_report</span></code></a>(dataset,&nbsp;context,&nbsp;info)</td>
+<tr class="row-even"><td><a class="reference internal" href="#pynetdicom3.ae.ApplicationEntity.on_n_event_report" title="pynetdicom3.ae.ApplicationEntity.on_n_event_report"><code class="xref py py-obj docutils literal notranslate"><span class="pre">on_n_event_report</span></code></a>(dataset,&nbsp;context,&nbsp;info)</td>
 <td>Callback for when a N-EVENT-REPORT is received.</td>
 </tr>
-<tr class="row-even"><td><a class="reference internal" href="#pynetdicom3.ae.ApplicationEntity.on_n_get" title="pynetdicom3.ae.ApplicationEntity.on_n_get"><code class="xref py py-obj docutils literal notranslate"><span class="pre">on_n_get</span></code></a>(attr,&nbsp;context,&nbsp;info)</td>
+<tr class="row-odd"><td><a class="reference internal" href="#pynetdicom3.ae.ApplicationEntity.on_n_get" title="pynetdicom3.ae.ApplicationEntity.on_n_get"><code class="xref py py-obj docutils literal notranslate"><span class="pre">on_n_get</span></code></a>(attr,&nbsp;context,&nbsp;info)</td>
 <td>Callback for when an N-GET request is received.</td>
 </tr>
-<tr class="row-odd"><td><a class="reference internal" href="#pynetdicom3.ae.ApplicationEntity.on_n_set" title="pynetdicom3.ae.ApplicationEntity.on_n_set"><code class="xref py py-obj docutils literal notranslate"><span class="pre">on_n_set</span></code></a>(dataset,&nbsp;context,&nbsp;info)</td>
+<tr class="row-even"><td><a class="reference internal" href="#pynetdicom3.ae.ApplicationEntity.on_n_set" title="pynetdicom3.ae.ApplicationEntity.on_n_set"><code class="xref py py-obj docutils literal notranslate"><span class="pre">on_n_set</span></code></a>(dataset,&nbsp;context,&nbsp;info)</td>
 <td>Callback for when a N-SET is received.</td>
 </tr>
-<tr class="row-even"><td><a class="reference internal" href="#pynetdicom3.ae.ApplicationEntity.on_receive_connection" title="pynetdicom3.ae.ApplicationEntity.on_receive_connection"><code class="xref py py-obj docutils literal notranslate"><span class="pre">on_receive_connection</span></code></a>()</td>
+<tr class="row-odd"><td><a class="reference internal" href="#pynetdicom3.ae.ApplicationEntity.on_receive_connection" title="pynetdicom3.ae.ApplicationEntity.on_receive_connection"><code class="xref py py-obj docutils literal notranslate"><span class="pre">on_receive_connection</span></code></a>()</td>
 <td>Callback for a connection is received.</td>
+</tr>
+<tr class="row-even"><td><a class="reference internal" href="#pynetdicom3.ae.ApplicationEntity.on_sop_class_extended" title="pynetdicom3.ae.ApplicationEntity.on_sop_class_extended"><code class="xref py py-obj docutils literal notranslate"><span class="pre">on_sop_class_extended</span></code></a>(app_info)</td>
+<td>Callback for when one or more SOP Class Extended Negotiation items are included in the association request.</td>
 </tr>
 <tr class="row-odd"><td><a class="reference internal" href="#pynetdicom3.ae.ApplicationEntity.on_user_identity" title="pynetdicom3.ae.ApplicationEntity.on_user_identity"><code class="xref py py-obj docutils literal notranslate"><span class="pre">on_user_identity</span></code></a>(user_id_type,&nbsp;…)</td>
 <td>Callback for when a user identity negotiation item is included with the association request.</td>
@@ -978,6 +984,46 @@ when an association attempt is rejected by a peer AE</p>
 </dd></dl>
 
 <dl class="method">
+<dt id="pynetdicom3.ae.ApplicationEntity.on_async_ops_window">
+<code class="descname">on_async_ops_window</code><span class="sig-paren">(</span><em>nr_invoked</em>, <em>nr_performed</em><span class="sig-paren">)</span><a class="reference internal" href="../../_modules/pynetdicom3/ae.html#ApplicationEntity.on_async_ops_window"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pynetdicom3.ae.ApplicationEntity.on_async_ops_window" title="Permalink to this definition">¶</a></dt>
+<dd><p>Callback for when an Asynchronous Operations Window Negotiation
+item is include in the association request.</p>
+<p>Asynchronous operations are not supported by pynetdicom3 and any
+request will always return the default number of operations
+invoked/performed (1, 1), regardless of what values are returned by
+this callback.</p>
+<p>If the callback is not implemented then no response to the Asynchronous
+Operations Window Negotiation will be sent to the association
+requestor.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first simple">
+<li><strong>nr_invoked</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.7)"><em>int</em></a>) – The <em>Maximum Number Operations Invoked</em> parameter value of the
+Asynchronous Operations Window request. If the value is 0 then
+an unlimited number of invocations are requested.</li>
+<li><strong>nr_performed</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.7)"><em>int</em></a>) – The <em>Maximum Number Operations Performed</em> parameter value of the
+Asynchronous Operations Window request. If the value is 0 then
+an unlimited number of performances are requested.</li>
+</ul>
+</td>
+</tr>
+<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body"><p class="first">The (maximum number operations invoked, maximum number operations
+performed). A value of 0 indicates that an unlimited number of
+operations is supported. As asynchronous operations are not
+currently supported the return value will be ignored and (1, 1).
+sent in response.</p>
+</td>
+</tr>
+<tr class="field-odd field"><th class="field-name">Return type:</th><td class="field-body"><p class="first last"><a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.7)">int</a>, <a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.7)">int</a></p>
+</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="method">
 <dt id="pynetdicom3.ae.ApplicationEntity.on_c_echo">
 <code class="descname">on_c_echo</code><span class="sig-paren">(</span><em>context</em>, <em>info</em><span class="sig-paren">)</span><a class="reference internal" href="../../_modules/pynetdicom3/ae.html#ApplicationEntity.on_c_echo"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pynetdicom3.ae.ApplicationEntity.on_c_echo" title="Permalink to this definition">¶</a></dt>
 <dd><p>Callback for when a C-ECHO request is received.</p>
@@ -1030,6 +1076,9 @@ the keys:</p>
     <span class="s1">&#39;priority&#39;</span> <span class="p">:</span> <span class="nb">int</span><span class="p">,</span> <span class="n">the</span> <span class="n">requested</span> <span class="n">operation</span> <span class="n">priority</span>
     <span class="s1">&#39;originator_aet&#39;</span> <span class="p">:</span> <span class="nb">bytes</span> <span class="ow">or</span> <span class="kc">None</span><span class="p">,</span> <span class="n">the</span> <span class="n">move</span> <span class="n">originator</span><span class="s1">&#39;s AE title</span>
     <span class="s1">&#39;originator_message_id&#39;</span> <span class="p">:</span> <span class="nb">int</span> <span class="ow">or</span> <span class="kc">None</span><span class="p">,</span> <span class="n">the</span> <span class="n">move</span> <span class="n">originator</span><span class="s1">&#39;s message ID</span>
+<span class="p">}</span>
+<span class="s1">&#39;sop_class_extended&#39;</span> <span class="p">:</span> <span class="p">{</span>
+    <span class="n">SOP</span> <span class="n">Class</span> <span class="n">UID</span> <span class="p">:</span> <span class="n">Service</span> <span class="n">Class</span> <span class="n">Application</span> <span class="n">Information</span><span class="p">,</span>
 <span class="p">}</span>
 </pre></div>
 </div>
@@ -1139,6 +1188,9 @@ the keys:</p>
 <span class="s1">&#39;parameters&#39;</span> <span class="p">:</span> <span class="p">{</span>
     <span class="s1">&#39;message_id&#39;</span> <span class="p">:</span> <span class="nb">int</span><span class="p">,</span> <span class="n">the</span> <span class="n">DIMSE</span> <span class="n">message</span> <span class="n">ID</span>
     <span class="s1">&#39;priority&#39;</span> <span class="p">:</span> <span class="nb">int</span><span class="p">,</span> <span class="n">the</span> <span class="n">requested</span> <span class="n">operation</span> <span class="n">priority</span>
+<span class="p">}</span>
+<span class="s1">&#39;sop_class_extended&#39;</span> <span class="p">:</span> <span class="p">{</span>
+    <span class="n">SOP</span> <span class="n">Class</span> <span class="n">UID</span> <span class="p">:</span> <span class="n">Service</span> <span class="n">Class</span> <span class="n">Application</span> <span class="n">Information</span><span class="p">,</span>
 <span class="p">}</span>
 </pre></div>
 </div>
@@ -1288,6 +1340,9 @@ the keys:</p>
 <span class="s1">&#39;parameters&#39;</span> <span class="p">:</span> <span class="p">{</span>
     <span class="s1">&#39;message_id&#39;</span> <span class="p">:</span> <span class="nb">int</span><span class="p">,</span> <span class="n">the</span> <span class="n">DIMSE</span> <span class="n">message</span> <span class="n">ID</span>
     <span class="s1">&#39;priority&#39;</span> <span class="p">:</span> <span class="nb">int</span><span class="p">,</span> <span class="n">the</span> <span class="n">requested</span> <span class="n">operation</span> <span class="n">priority</span>
+<span class="p">}</span>
+<span class="s1">&#39;sop_class_extended&#39;</span> <span class="p">:</span> <span class="p">{</span>
+    <span class="n">SOP</span> <span class="n">Class</span> <span class="n">UID</span> <span class="p">:</span> <span class="n">Service</span> <span class="n">Class</span> <span class="n">Application</span> <span class="n">Information</span><span class="p">,</span>
 <span class="p">}</span>
 </pre></div>
 </div>
@@ -1439,6 +1494,9 @@ the keys:</p>
     <span class="s1">&#39;message_id&#39;</span> <span class="p">:</span> <span class="nb">int</span><span class="p">,</span> <span class="n">the</span> <span class="n">DIMSE</span> <span class="n">message</span> <span class="n">ID</span>
     <span class="s1">&#39;priority&#39;</span> <span class="p">:</span> <span class="nb">int</span><span class="p">,</span> <span class="n">the</span> <span class="n">requested</span> <span class="n">operation</span> <span class="n">priority</span>
 <span class="p">}</span>
+<span class="s1">&#39;sop_class_extended&#39;</span> <span class="p">:</span> <span class="p">{</span>
+    <span class="n">SOP</span> <span class="n">Class</span> <span class="n">UID</span> <span class="p">:</span> <span class="n">Service</span> <span class="n">Class</span> <span class="n">Application</span> <span class="n">Information</span><span class="p">,</span>
+<span class="p">}</span>
 </pre></div>
 </div>
 </li>
@@ -1577,6 +1635,9 @@ the keys:</p>
     <span class="s1">&#39;originator_aet&#39;</span> <span class="p">:</span> <span class="nb">bytes</span> <span class="ow">or</span> <span class="kc">None</span><span class="p">,</span> <span class="n">the</span> <span class="n">move</span> <span class="n">originator</span><span class="s1">&#39;s AE title</span>
     <span class="s1">&#39;originator_message_id&#39;</span> <span class="p">:</span> <span class="nb">int</span> <span class="ow">or</span> <span class="kc">None</span><span class="p">,</span> <span class="n">the</span> <span class="n">move</span> <span class="n">originator</span><span class="s1">&#39;s message ID</span>
 <span class="p">}</span>
+<span class="s1">&#39;sop_class_extended&#39;</span> <span class="p">:</span> <span class="p">{</span>
+    <span class="n">SOP</span> <span class="n">Class</span> <span class="n">UID</span> <span class="p">:</span> <span class="n">Service</span> <span class="n">Class</span> <span class="n">Application</span> <span class="n">Information</span><span class="p">,</span>
+<span class="p">}</span>
 </pre></div>
 </div>
 </li>
@@ -1692,6 +1753,9 @@ the keys:</p>
     <span class="s1">&#39;requested_sop_instance&#39;</span> <span class="p">:</span> <span class="nb">str</span><span class="p">,</span> <span class="n">the</span> <span class="n">N</span><span class="o">-</span><span class="n">GET</span><span class="o">-</span><span class="n">RQ</span><span class="s1">&#39;s requested SOP</span>
     <span class="n">Instance</span> <span class="n">UID</span> <span class="n">value</span>
 <span class="p">}</span>
+<span class="s1">&#39;sop_class_extended&#39;</span> <span class="p">:</span> <span class="p">{</span>
+    <span class="n">SOP</span> <span class="n">Class</span> <span class="n">UID</span> <span class="p">:</span> <span class="n">Service</span> <span class="n">Class</span> <span class="n">Application</span> <span class="n">Information</span><span class="p">,</span>
+<span class="p">}</span>
 </pre></div>
 </div>
 </li>
@@ -1746,6 +1810,36 @@ Class.</p>
 <code class="descname">on_receive_connection</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="../../_modules/pynetdicom3/ae.html#ApplicationEntity.on_receive_connection"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pynetdicom3.ae.ApplicationEntity.on_receive_connection" title="Permalink to this definition">¶</a></dt>
 <dd><p>Callback for a connection is received.</p>
 <p>** NOT IMPLEMENTED **</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="pynetdicom3.ae.ApplicationEntity.on_sop_class_extended">
+<code class="descname">on_sop_class_extended</code><span class="sig-paren">(</span><em>app_info</em><span class="sig-paren">)</span><a class="reference internal" href="../../_modules/pynetdicom3/ae.html#ApplicationEntity.on_sop_class_extended"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pynetdicom3.ae.ApplicationEntity.on_sop_class_extended" title="Permalink to this definition">¶</a></dt>
+<dd><p>Callback for when one or more SOP Class Extended Negotiation items
+are included in the association request.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><strong>app_info</strong> (<em>dict of pydicom.uid.UID</em><em>, </em><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#bytes" title="(in Python v3.7)"><em>bytes</em></a>) – The {<em>SOP Class UID</em> : <em>Service Class Application Information</em>}
+parameter values for the included items, with the service class
+application information being the raw encoded data sent by the
+requestor.</td>
+</tr>
+<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body">The {<em>SOP Class UID</em> : <em>Service Class Application Information</em>}
+parameter values to be sent in response to the request, with the
+service class application information being the encoded data that
+will be sent to the peer as-is. Return None if no response is to
+be sent.</td>
+</tr>
+<tr class="field-odd field"><th class="field-name">Return type:</th><td class="field-body">dict of pydicom.uid.UID, <a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#bytes" title="(in Python v3.7)">bytes</a> or <a class="reference external" href="https://docs.python.org/3/library/constants.html#None" title="(in Python v3.7)">None</a></td>
+</tr>
+</tbody>
+</table>
+<p class="rubric">References</p>
+<ul class="simple">
+<li>DICOM Standard Part 7, <a class="reference external" href="http://dicom.nema.org/medical/dicom/current/output/chtml/part07/sect_D.3.3.5.html">Annex D.3.3.5</a></li>
+</ul>
 </dd></dl>
 
 <dl class="method">

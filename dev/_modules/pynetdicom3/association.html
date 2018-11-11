@@ -423,6 +423,10 @@
         <span class="bp">self</span><span class="o">.</span><span class="n">_kill</span> <span class="o">=</span> <span class="kc">False</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">_is_running</span> <span class="o">=</span> <span class="kc">False</span>
 
+        <span class="c1"># Store the A-ASSOCIATE request/accept/reject primitives</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_assoc_req</span> <span class="o">=</span> <span class="kc">None</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_assoc_rsp</span> <span class="o">=</span> <span class="kc">None</span>
+
         <span class="c1"># Send an A-ABORT when an association request is received</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">_a_abort_assoc_rq</span> <span class="o">=</span> <span class="kc">False</span>
         <span class="c1"># Send an A-P-ABORT when an association request is received</span>
@@ -456,9 +460,79 @@
         <span class="n">time</span><span class="o">.</span><span class="n">sleep</span><span class="p">(</span><span class="mf">0.1</span><span class="p">)</span></div>
 
     <span class="nd">@property</span>
+    <span class="k">def</span> <span class="nf">asynchronous_operations_response</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;Return the association acceptor&#39;s Asynchronous Operations Window</span>
+<span class="sd">        Negotiation response.</span>
+
+<span class="sd">        Returns</span>
+<span class="sd">        -------</span>
+<span class="sd">        (int, int) or None</span>
+<span class="sd">            The (maximum number of operations invoked, maximum number of</span>
+<span class="sd">            operations performed). If the association acceptor hasn&#39;t responded</span>
+<span class="sd">            to the Aynchronous Operations Window Negotiation request then the`</span>
+<span class="sd">            default values of 1, 1 will be returned.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">response</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="k">raise</span> <span class="ne">RuntimeError</span><span class="p">(</span>
+                <span class="s2">&quot;No Asynchronous Operations Window Negotiation response is &quot;</span>
+                <span class="s2">&quot;available until after association negotiation is complete&quot;</span>
+            <span class="p">)</span>
+
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">response</span><span class="o">.</span><span class="n">result</span> <span class="o">!=</span> <span class="mh">0x00</span><span class="p">:</span>
+            <span class="k">return</span> <span class="kc">None</span>
+
+        <span class="k">for</span> <span class="n">item</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">response</span><span class="o">.</span><span class="n">user_information</span><span class="p">:</span>
+            <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">item</span><span class="p">,</span> <span class="n">AsynchronousOperationsWindowNegotiation</span><span class="p">):</span>
+                <span class="k">return</span> <span class="p">(</span><span class="n">item</span><span class="o">.</span><span class="n">maximum_number_operations_invoked</span><span class="p">,</span>
+                        <span class="n">item</span><span class="o">.</span><span class="n">maximum_number_operations_performed</span><span class="p">)</span>
+
+        <span class="k">return</span> <span class="kc">None</span>
+
+    <span class="nd">@property</span>
     <span class="k">def</span> <span class="nf">accepted_contexts</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;Return a list of accepted PresentationContexts.&quot;&quot;&quot;</span>
         <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">acse</span><span class="o">.</span><span class="n">accepted_contexts</span>
+
+    <span class="k">def</span> <span class="nf">_check_async_ops</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">req_invoked</span><span class="p">,</span> <span class="n">req_performed</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;Check the user&#39;s response to an Asynchronous Operations request.</span>
+
+<span class="sd">        Parameters</span>
+<span class="sd">        ----------</span>
+<span class="sd">        nr_invoked : int</span>
+<span class="sd">            The *Maximum Number Operations Invoked* parameter value of the</span>
+<span class="sd">            Asynchronous Operations Window request. If the value is 0 then</span>
+<span class="sd">            an unlimited number of invocations are requested.</span>
+<span class="sd">        nr_performed : int</span>
+<span class="sd">            The *Maximum Number Operations Performed* parameter value of the</span>
+<span class="sd">            Asynchronous Operations Window request. If the value is 0 then</span>
+<span class="sd">            an unlimited number of performances are requested.</span>
+
+<span class="sd">        Returns</span>
+<span class="sd">        -------</span>
+<span class="sd">        AsynchronousOperationsWindowNegotiation or None</span>
+<span class="sd">            If the `AE.on_async_ops_window` callback hasn&#39;t been implemented</span>
+<span class="sd">            then returns None, otherwise returns an</span>
+<span class="sd">            AsynchronousOperationsWindowNegotiation item with the default</span>
+<span class="sd">            values for the number of operations invoked/performed (1, 1).</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">try</span><span class="p">:</span>
+            <span class="n">rsp_invoked</span><span class="p">,</span> <span class="n">rsp_performed</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">ae</span><span class="o">.</span><span class="n">on_async_ops_window</span><span class="p">(</span>
+                <span class="n">req_invoked</span><span class="p">,</span> <span class="n">req_performed</span>
+            <span class="p">)</span>
+        <span class="k">except</span> <span class="ne">NotImplementedError</span><span class="p">:</span>
+            <span class="k">return</span> <span class="kc">None</span>
+        <span class="k">except</span> <span class="ne">Exception</span> <span class="k">as</span> <span class="n">exc</span><span class="p">:</span>
+            <span class="n">LOGGER</span><span class="o">.</span><span class="n">error</span><span class="p">(</span>
+                <span class="s2">&quot;Exception raised in user&#39;s &#39;on_async_ops_window&#39; &quot;</span>
+                <span class="s2">&quot;implementation&quot;</span>
+            <span class="p">)</span>
+            <span class="n">LOGGER</span><span class="o">.</span><span class="n">exception</span><span class="p">(</span><span class="n">exc</span><span class="p">)</span>
+
+        <span class="n">item</span> <span class="o">=</span> <span class="n">AsynchronousOperationsWindowNegotiation</span><span class="p">()</span>
+        <span class="n">item</span><span class="o">.</span><span class="n">maximum_number_operations_invoked</span> <span class="o">=</span> <span class="mi">1</span>
+        <span class="n">item</span><span class="o">.</span><span class="n">maximum_number_operations_performed</span> <span class="o">=</span> <span class="mi">1</span>
+
+        <span class="k">return</span> <span class="n">item</span>
 
     <span class="k">def</span> <span class="nf">_check_received_status</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">rsp</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;Return a dataset containing status related elements.</span>
@@ -499,8 +573,59 @@
 
         <span class="k">return</span> <span class="n">status</span>
 
+    <span class="k">def</span> <span class="nf">_check_sop_class_extended</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">req</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;Check the user&#39;s response to a SOP Class Extended request.</span>
+
+<span class="sd">        Parameters</span>
+<span class="sd">        ----------</span>
+<span class="sd">        req : dict</span>
+<span class="sd">            The {*SOP Class UID* : *Service Class Application Information*}</span>
+<span class="sd">            received from the requestor.</span>
+
+<span class="sd">        Returns</span>
+<span class="sd">        -------</span>
+<span class="sd">        list of SOPClassExtendedNegotiation</span>
+<span class="sd">            The SOP Class Extended Negotiation items to be sent in response</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">try</span><span class="p">:</span>
+            <span class="n">user_response</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">ae</span><span class="o">.</span><span class="n">on_sop_class_extended</span><span class="p">(</span><span class="n">req</span><span class="p">)</span>
+        <span class="k">except</span> <span class="ne">Exception</span> <span class="k">as</span> <span class="n">exc</span><span class="p">:</span>
+            <span class="n">user_response</span> <span class="o">=</span> <span class="kc">None</span>
+            <span class="n">LOGGER</span><span class="o">.</span><span class="n">error</span><span class="p">(</span>
+                <span class="s2">&quot;Exception raised in user&#39;s &#39;on_sop_class_extended&#39; &quot;</span>
+                <span class="s2">&quot;implementation&quot;</span>
+            <span class="p">)</span>
+            <span class="n">LOGGER</span><span class="o">.</span><span class="n">exception</span><span class="p">(</span><span class="n">exc</span><span class="p">)</span>
+
+        <span class="k">if</span> <span class="ow">not</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">user_response</span><span class="p">,</span> <span class="p">(</span><span class="nb">type</span><span class="p">(</span><span class="kc">None</span><span class="p">),</span> <span class="nb">dict</span><span class="p">)):</span>
+            <span class="n">LOGGER</span><span class="o">.</span><span class="n">error</span><span class="p">(</span>
+                <span class="s2">&quot;Invalid type returned by user&#39;s &#39;on_sop_class_extended&#39; &quot;</span>
+                <span class="s2">&quot;implementation&quot;</span>
+            <span class="p">)</span>
+            <span class="n">user_response</span> <span class="o">=</span> <span class="kc">None</span>
+
+        <span class="k">if</span> <span class="n">user_response</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="k">return</span> <span class="p">[]</span>
+
+        <span class="n">items</span> <span class="o">=</span> <span class="p">[]</span>
+        <span class="k">for</span> <span class="n">sop_class</span><span class="p">,</span> <span class="n">app_info</span> <span class="ow">in</span> <span class="n">user_response</span><span class="o">.</span><span class="n">items</span><span class="p">():</span>
+            <span class="k">try</span><span class="p">:</span>
+                <span class="n">item</span> <span class="o">=</span> <span class="n">SOPClassExtendedNegotiation</span><span class="p">()</span>
+                <span class="n">item</span><span class="o">.</span><span class="n">sop_class_uid</span> <span class="o">=</span> <span class="n">sop_class</span>
+                <span class="n">item</span><span class="o">.</span><span class="n">service_class_application_information</span> <span class="o">=</span> <span class="n">app_info</span>
+                <span class="n">items</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">item</span><span class="p">)</span>
+            <span class="k">except</span> <span class="ne">Exception</span> <span class="k">as</span> <span class="n">exc</span><span class="p">:</span>
+                <span class="n">LOGGER</span><span class="o">.</span><span class="n">error</span><span class="p">(</span>
+                    <span class="s2">&quot;Unable to set the SOP Class Extended Negotiation &quot;</span>
+                    <span class="s2">&quot;response values&quot;</span>
+                <span class="p">)</span>
+                <span class="n">LOGGER</span><span class="o">.</span><span class="n">exception</span><span class="p">(</span><span class="n">exc</span><span class="p">)</span>
+
+        <span class="k">return</span> <span class="n">items</span>
+
     <span class="k">def</span> <span class="nf">_check_user_identity</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">req</span><span class="p">):</span>
-        <span class="sd">&quot;&quot;&quot;</span>
+        <span class="sd">&quot;&quot;&quot;Check the user&#39;s response to a User Identity request.</span>
+
 <span class="sd">        Parameters</span>
 <span class="sd">        ----------</span>
 <span class="sd">        req : pynetdicom3.pdu_primitives.UserIdentityNegotiation</span>
@@ -638,6 +763,11 @@
 
         <span class="bp">self</span><span class="o">.</span><span class="n">ae</span><span class="o">.</span><span class="n">cleanup_associations</span><span class="p">()</span></div>
 
+    <span class="nd">@property</span>
+    <span class="k">def</span> <span class="nf">rejected_contexts</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;Return a list of rejected PresentationContexts.&quot;&quot;&quot;</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">acse</span><span class="o">.</span><span class="n">rejected_contexts</span>
+
 <div class="viewcode-block" id="Association.release"><a class="viewcode-back" href="../../reference/generated/pynetdicom3.association.Association.html#pynetdicom3.association.Association.release">[docs]</a>    <span class="k">def</span> <span class="nf">release</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;Release the association.&quot;&quot;&quot;</span>
         <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">is_established</span><span class="p">:</span>
@@ -650,9 +780,30 @@
                 <span class="bp">self</span><span class="o">.</span><span class="n">abort</span><span class="p">()</span></div>
 
     <span class="nd">@property</span>
-    <span class="k">def</span> <span class="nf">rejected_contexts</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
-        <span class="sd">&quot;&quot;&quot;Return a list of rejected PresentationContexts.&quot;&quot;&quot;</span>
-        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">acse</span><span class="o">.</span><span class="n">rejected_contexts</span>
+    <span class="k">def</span> <span class="nf">request</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;Return the A-ASSOCIATE (request) primitive that was sent/received.</span>
+
+<span class="sd">        Returns</span>
+<span class="sd">        -------</span>
+<span class="sd">        pynetdicom3.pdu_primitives.A_ASSOCIATE or None</span>
+<span class="sd">            The A-ASSOCIATE (request) primitive that was either sent to or</span>
+<span class="sd">            received from the peer at the start of association negotiation or</span>
+<span class="sd">            None if no request has been sent/received.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_assoc_req</span>
+
+    <span class="nd">@property</span>
+    <span class="k">def</span> <span class="nf">response</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;Return the A-ASSOCIATE (response) primitive that was sent/received.</span>
+
+<span class="sd">        Returns</span>
+<span class="sd">        -------</span>
+<span class="sd">        pynetdicom3.pdu_primitives.A_ASSOCIATE or None</span>
+<span class="sd">            The A-ASSOCIATE (accept or reject)  primitive that was either sent</span>
+<span class="sd">            to or received from the peer at the end of association negotiation</span>
+<span class="sd">            or None if no response has been sent/received.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_assoc_rsp</span>
 
 <div class="viewcode-block" id="Association.run"><a class="viewcode-back" href="../../reference/generated/pynetdicom3.association.Association.html#pynetdicom3.association.Association.run">[docs]</a>    <span class="k">def</span> <span class="nf">run</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;The main Association control.&quot;&quot;&quot;</span>
@@ -677,6 +828,8 @@
         <span class="k">if</span> <span class="n">assoc_rq</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
             <span class="bp">self</span><span class="o">.</span><span class="n">kill</span><span class="p">()</span>
             <span class="k">return</span>
+
+        <span class="c1">#self._assoc_req = assoc_rq</span>
 
         <span class="c1"># (Optionally) send an A-ABORT/A-P-ABORT in response</span>
         <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">_a_abort_assoc_rq</span><span class="p">:</span>
@@ -724,15 +877,15 @@
             <span class="ow">and</span> <span class="bp">self</span><span class="o">.</span><span class="n">ae</span><span class="o">.</span><span class="n">require_called_aet</span> <span class="o">!=</span> <span class="n">assoc_rq</span><span class="o">.</span><span class="n">called_ae_title</span><span class="p">):</span>
                 <span class="n">reject_assoc_rsd</span> <span class="o">=</span> <span class="p">[(</span><span class="mh">0x01</span><span class="p">,</span> <span class="mh">0x01</span><span class="p">,</span> <span class="mh">0x07</span><span class="p">)]</span>
 
-        <span class="c1">## DUL ACSE Related Rejections</span>
-        <span class="c1"># User Identity Negotiation (PS3.7 Annex D.3.3.7)</span>
+        <span class="c1">## Extended Negotiation items</span>
+        <span class="c1"># User Identity Negotiation items</span>
         <span class="n">id_request</span> <span class="o">=</span> <span class="kc">None</span>
         <span class="k">for</span> <span class="n">ii</span> <span class="ow">in</span> <span class="n">assoc_rq</span><span class="o">.</span><span class="n">user_information</span><span class="p">:</span>
             <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">ii</span><span class="p">,</span> <span class="n">UserIdentityNegotiation</span><span class="p">):</span>
                 <span class="n">id_request</span> <span class="o">=</span> <span class="n">ii</span>
                 <span class="k">break</span>
 
-        <span class="c1"># Remove all User Identity Negotiation items</span>
+        <span class="c1"># Remove all User Identity Negotiation (request) items</span>
         <span class="n">assoc_rq</span><span class="o">.</span><span class="n">user_information</span><span class="p">[:]</span> <span class="o">=</span> <span class="p">(</span>
             <span class="n">ii</span> <span class="k">for</span> <span class="n">ii</span> <span class="ow">in</span> <span class="n">assoc_rq</span><span class="o">.</span><span class="n">user_information</span>
                 <span class="k">if</span> <span class="ow">not</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">ii</span><span class="p">,</span> <span class="n">UserIdentityNegotiation</span><span class="p">)</span>
@@ -747,14 +900,58 @@
                 <span class="n">reject_assoc_rsd</span> <span class="o">=</span> <span class="p">[(</span><span class="mh">0x02</span><span class="p">,</span> <span class="mh">0x02</span><span class="p">,</span> <span class="mh">0x01</span><span class="p">)]</span>
 
             <span class="k">if</span> <span class="n">id_response</span><span class="p">:</span>
+                <span class="c1"># Add the User Identity Negotiation (response) item</span>
                 <span class="n">assoc_rq</span><span class="o">.</span><span class="n">user_information</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">id_response</span><span class="p">)</span>
 
-        <span class="c1"># Extended Negotiation</span>
-        <span class="c1"># TODO: Implement propoerly but for now just remove items</span>
+        <span class="c1"># SOP Class Extended Negotiation items</span>
+        <span class="n">sop_extended</span> <span class="o">=</span> <span class="p">{}</span>
+        <span class="k">for</span> <span class="n">ii</span> <span class="ow">in</span> <span class="n">assoc_rq</span><span class="o">.</span><span class="n">user_information</span><span class="p">:</span>
+            <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">ii</span><span class="p">,</span> <span class="n">SOPClassExtendedNegotiation</span><span class="p">):</span>
+                <span class="n">sop_extended</span><span class="p">[</span><span class="n">ii</span><span class="o">.</span><span class="n">sop_class_uid</span><span class="p">]</span> <span class="o">=</span> <span class="p">(</span>
+                    <span class="n">ii</span><span class="o">.</span><span class="n">service_class_application_information</span>
+                <span class="p">)</span>
+
+        <span class="c1"># Remove all SOP Class Extended Negotiation (request) items</span>
         <span class="n">assoc_rq</span><span class="o">.</span><span class="n">user_information</span><span class="p">[:]</span> <span class="o">=</span> <span class="p">(</span>
             <span class="n">ii</span> <span class="k">for</span> <span class="n">ii</span> <span class="ow">in</span> <span class="n">assoc_rq</span><span class="o">.</span><span class="n">user_information</span>
                 <span class="k">if</span> <span class="ow">not</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">ii</span><span class="p">,</span> <span class="n">SOPClassExtendedNegotiation</span><span class="p">)</span>
         <span class="p">)</span>
+
+        <span class="c1"># Add any SOP Class Extended Negotiation (response) items</span>
+        <span class="n">assoc_rq</span><span class="o">.</span><span class="n">user_information</span><span class="o">.</span><span class="n">extend</span><span class="p">(</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">_check_sop_class_extended</span><span class="p">(</span><span class="n">sop_extended</span><span class="p">)</span>
+        <span class="p">)</span>
+
+        <span class="c1"># SOP Class Common Extended Negotiation items</span>
+        <span class="c1"># Remove all SOP Class Common Extended Negotiation (request) items</span>
+        <span class="c1">#   Note: No response items are allowed</span>
+        <span class="n">assoc_rq</span><span class="o">.</span><span class="n">user_information</span><span class="p">[:]</span> <span class="o">=</span> <span class="p">(</span>
+            <span class="n">ii</span> <span class="k">for</span> <span class="n">ii</span> <span class="ow">in</span> <span class="n">assoc_rq</span><span class="o">.</span><span class="n">user_information</span>
+                <span class="k">if</span> <span class="ow">not</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">ii</span><span class="p">,</span> <span class="n">SOPClassCommonExtendedNegotiation</span><span class="p">)</span>
+        <span class="p">)</span>
+
+        <span class="c1"># Asynchronous Operations Window Negotiation items</span>
+        <span class="n">async_request</span> <span class="o">=</span> <span class="kc">None</span>
+        <span class="k">for</span> <span class="n">ii</span> <span class="ow">in</span> <span class="n">assoc_rq</span><span class="o">.</span><span class="n">user_information</span><span class="p">:</span>
+            <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">ii</span><span class="p">,</span> <span class="n">AsynchronousOperationsWindowNegotiation</span><span class="p">):</span>
+                <span class="n">async_request</span> <span class="o">=</span> <span class="n">ii</span>
+                <span class="k">break</span>
+
+        <span class="c1"># Remove all Asynchronous Operations Window Negotiation (request) items</span>
+        <span class="n">assoc_rq</span><span class="o">.</span><span class="n">user_information</span><span class="p">[:]</span> <span class="o">=</span> <span class="p">(</span>
+            <span class="n">ii</span> <span class="k">for</span> <span class="n">ii</span> <span class="ow">in</span> <span class="n">assoc_rq</span><span class="o">.</span><span class="n">user_information</span>
+                <span class="k">if</span> <span class="ow">not</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">ii</span><span class="p">,</span> <span class="n">AsynchronousOperationsWindowNegotiation</span><span class="p">)</span>
+        <span class="p">)</span>
+
+        <span class="k">if</span> <span class="n">async_request</span><span class="p">:</span>
+            <span class="n">async_rsp</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_check_async_ops</span><span class="p">(</span>
+                <span class="n">async_request</span><span class="o">.</span><span class="n">maximum_number_operations_invoked</span><span class="p">,</span>
+                <span class="n">async_request</span><span class="o">.</span><span class="n">maximum_number_operations_performed</span>
+            <span class="p">)</span>
+
+            <span class="c1"># Add any Async Ops (response) item</span>
+            <span class="k">if</span> <span class="n">async_rsp</span><span class="p">:</span>
+                <span class="n">assoc_rq</span><span class="o">.</span><span class="n">user_information</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">async_rsp</span><span class="p">)</span>
 
         <span class="c1">## DUL Presentation Related Rejections</span>
         <span class="c1">#</span>
@@ -791,7 +988,6 @@
         <span class="bp">self</span><span class="o">.</span><span class="n">acse</span><span class="o">.</span><span class="n">accepted_contexts</span> <span class="o">=</span> <span class="p">[</span>
             <span class="n">cx</span> <span class="k">for</span> <span class="n">cx</span> <span class="ow">in</span> <span class="n">result</span> <span class="k">if</span> <span class="n">cx</span><span class="o">.</span><span class="n">result</span> <span class="o">==</span> <span class="mh">0x00</span>
         <span class="p">]</span>
-
         <span class="bp">self</span><span class="o">.</span><span class="n">acse</span><span class="o">.</span><span class="n">rejected_contexts</span> <span class="o">=</span> <span class="p">[</span>
             <span class="n">cx</span> <span class="k">for</span> <span class="n">cx</span> <span class="ow">in</span> <span class="n">result</span> <span class="k">if</span> <span class="n">cx</span><span class="o">.</span><span class="n">result</span> <span class="o">!=</span> <span class="mh">0x00</span>
         <span class="p">]</span>
@@ -819,6 +1015,8 @@
         <span class="c1"># Issue the A-ASSOCIATE indication (accept) primitive using the ACSE</span>
         <span class="c1"># FIXME: Is this correct? Do we send Accept then Abort if no</span>
         <span class="c1">#   presentation contexts?</span>
+        <span class="c1"># FIXME: separate the request for the response</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_assoc_rsp</span> <span class="o">=</span> <span class="n">assoc_rq</span>
         <span class="n">assoc_ac</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">acse</span><span class="o">.</span><span class="n">accept_assoc</span><span class="p">(</span><span class="n">assoc_rq</span><span class="p">)</span>
 
         <span class="k">if</span> <span class="n">assoc_ac</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
@@ -869,7 +1067,8 @@
                 <span class="s1">&#39;ae_title&#39;</span> <span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">local_ae</span><span class="p">[</span><span class="s1">&#39;ae_title&#39;</span><span class="p">],</span>
                 <span class="s1">&#39;address&#39;</span> <span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">local_ae</span><span class="p">[</span><span class="s1">&#39;address&#39;</span><span class="p">],</span>
                 <span class="s1">&#39;port&#39;</span> <span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">local_ae</span><span class="p">[</span><span class="s1">&#39;port&#39;</span><span class="p">],</span>
-            <span class="p">}</span>
+            <span class="p">},</span>
+            <span class="s1">&#39;sop_class_extended&#39;</span> <span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">sop_class_extended_response</span><span class="p">,</span>
         <span class="p">}</span>
 
         <span class="bp">self</span><span class="o">.</span><span class="n">_is_running</span> <span class="o">=</span> <span class="kc">True</span>
@@ -998,71 +1197,72 @@
 
         <span class="c1"># Association was accepted or rejected</span>
         <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">assoc_rsp</span><span class="p">,</span> <span class="n">A_ASSOCIATE</span><span class="p">):</span>
-            <span class="c1"># Association was accepted</span>
-            <span class="k">if</span> <span class="n">is_accepted</span><span class="p">:</span>
-                <span class="bp">self</span><span class="o">.</span><span class="n">debug_association_accepted</span><span class="p">(</span><span class="n">assoc_rsp</span><span class="p">)</span>
-                <span class="bp">self</span><span class="o">.</span><span class="n">ae</span><span class="o">.</span><span class="n">on_association_accepted</span><span class="p">(</span><span class="n">assoc_rsp</span><span class="p">)</span>
-
-                <span class="c1"># No acceptable presentation contexts</span>
-                <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">acse</span><span class="o">.</span><span class="n">accepted_contexts</span> <span class="o">==</span> <span class="p">[]:</span>
-                    <span class="n">LOGGER</span><span class="o">.</span><span class="n">error</span><span class="p">(</span><span class="s2">&quot;No Acceptable Presentation Contexts&quot;</span><span class="p">)</span>
-                    <span class="bp">self</span><span class="o">.</span><span class="n">is_aborted</span> <span class="o">=</span> <span class="kc">True</span>
-                    <span class="bp">self</span><span class="o">.</span><span class="n">is_established</span> <span class="o">=</span> <span class="kc">False</span>
-                    <span class="bp">self</span><span class="o">.</span><span class="n">acse</span><span class="o">.</span><span class="n">abort_assoc</span><span class="p">(</span><span class="mh">0x02</span><span class="p">,</span> <span class="mh">0x00</span><span class="p">)</span>
-                    <span class="bp">self</span><span class="o">.</span><span class="n">kill</span><span class="p">()</span>
-
-                    <span class="k">return</span>
-
-                <span class="c1"># Assocation established OK</span>
-                <span class="bp">self</span><span class="o">.</span><span class="n">is_established</span> <span class="o">=</span> <span class="kc">True</span>
-
-                <span class="c1"># This seems like it should be event driven rather than</span>
-                <span class="c1">#   driven by a loop</span>
-                <span class="c1">#</span>
-                <span class="c1"># Listen for further messages from the peer</span>
-                <span class="k">while</span> <span class="ow">not</span> <span class="bp">self</span><span class="o">.</span><span class="n">_kill</span><span class="p">:</span>
-                    <span class="n">time</span><span class="o">.</span><span class="n">sleep</span><span class="p">(</span><span class="mf">0.1</span><span class="p">)</span>
-
-                    <span class="c1"># Check for release request</span>
-                    <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">acse</span><span class="o">.</span><span class="n">CheckRelease</span><span class="p">():</span>
-                        <span class="bp">self</span><span class="o">.</span><span class="n">is_released</span> <span class="o">=</span> <span class="kc">True</span>
-                        <span class="bp">self</span><span class="o">.</span><span class="n">is_established</span> <span class="o">=</span> <span class="kc">False</span>
-                        <span class="c1"># Callback trigger</span>
-                        <span class="bp">self</span><span class="o">.</span><span class="n">ae</span><span class="o">.</span><span class="n">on_association_released</span><span class="p">()</span>
-                        <span class="bp">self</span><span class="o">.</span><span class="n">debug_association_released</span><span class="p">()</span>
-                        <span class="bp">self</span><span class="o">.</span><span class="n">kill</span><span class="p">()</span>
-                        <span class="k">return</span>
-
-                    <span class="c1"># Check for abort</span>
-                    <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">acse</span><span class="o">.</span><span class="n">CheckAbort</span><span class="p">():</span>
-                        <span class="bp">self</span><span class="o">.</span><span class="n">is_aborted</span> <span class="o">=</span> <span class="kc">True</span>
-                        <span class="bp">self</span><span class="o">.</span><span class="n">is_established</span> <span class="o">=</span> <span class="kc">False</span>
-                        <span class="c1"># Callback trigger</span>
-                        <span class="bp">self</span><span class="o">.</span><span class="n">ae</span><span class="o">.</span><span class="n">on_association_aborted</span><span class="p">()</span>
-                        <span class="bp">self</span><span class="o">.</span><span class="n">debug_association_aborted</span><span class="p">()</span>
-                        <span class="bp">self</span><span class="o">.</span><span class="n">kill</span><span class="p">()</span>
-                        <span class="k">return</span>
-
-                    <span class="c1"># Check if the DULServiceProvider thread is</span>
-                    <span class="c1">#   still running. DUL.is_alive() is inherited from</span>
-                    <span class="c1">#   threading.thread</span>
-                    <span class="k">if</span> <span class="ow">not</span> <span class="bp">self</span><span class="o">.</span><span class="n">dul</span><span class="o">.</span><span class="n">is_alive</span><span class="p">():</span>
-                        <span class="bp">self</span><span class="o">.</span><span class="n">kill</span><span class="p">()</span>
-                        <span class="k">return</span>
-
-                    <span class="c1"># Check if idle timer has expired</span>
-                    <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">dul</span><span class="o">.</span><span class="n">idle_timer_expired</span><span class="p">():</span>
-                        <span class="bp">self</span><span class="o">.</span><span class="n">kill</span><span class="p">()</span>
-                        <span class="k">return</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">_assoc_rsp</span> <span class="o">=</span> <span class="n">assoc_rsp</span>
 
             <span class="c1"># Association was rejected</span>
-            <span class="k">else</span><span class="p">:</span>
+            <span class="k">if</span> <span class="ow">not</span> <span class="n">is_accepted</span><span class="p">:</span>
                 <span class="bp">self</span><span class="o">.</span><span class="n">ae</span><span class="o">.</span><span class="n">on_association_rejected</span><span class="p">(</span><span class="n">assoc_rsp</span><span class="p">)</span>
                 <span class="bp">self</span><span class="o">.</span><span class="n">debug_association_rejected</span><span class="p">(</span><span class="n">assoc_rsp</span><span class="p">)</span>
                 <span class="bp">self</span><span class="o">.</span><span class="n">is_rejected</span> <span class="o">=</span> <span class="kc">True</span>
                 <span class="bp">self</span><span class="o">.</span><span class="n">is_established</span> <span class="o">=</span> <span class="kc">False</span>
                 <span class="bp">self</span><span class="o">.</span><span class="n">dul</span><span class="o">.</span><span class="n">kill_dul</span><span class="p">()</span>
                 <span class="k">return</span>
+
+            <span class="c1"># Association was accepted</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">debug_association_accepted</span><span class="p">(</span><span class="n">assoc_rsp</span><span class="p">)</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">ae</span><span class="o">.</span><span class="n">on_association_accepted</span><span class="p">(</span><span class="n">assoc_rsp</span><span class="p">)</span>
+
+            <span class="c1"># No acceptable presentation contexts</span>
+            <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">acse</span><span class="o">.</span><span class="n">accepted_contexts</span> <span class="o">==</span> <span class="p">[]:</span>
+                <span class="n">LOGGER</span><span class="o">.</span><span class="n">error</span><span class="p">(</span><span class="s2">&quot;No Acceptable Presentation Contexts&quot;</span><span class="p">)</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">is_aborted</span> <span class="o">=</span> <span class="kc">True</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">is_established</span> <span class="o">=</span> <span class="kc">False</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">acse</span><span class="o">.</span><span class="n">abort_assoc</span><span class="p">(</span><span class="mh">0x02</span><span class="p">,</span> <span class="mh">0x00</span><span class="p">)</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">kill</span><span class="p">()</span>
+
+                <span class="k">return</span>
+
+            <span class="c1"># Assocation established OK</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">is_established</span> <span class="o">=</span> <span class="kc">True</span>
+
+            <span class="c1"># This seems like it should be event driven rather than</span>
+            <span class="c1">#   driven by a loop</span>
+            <span class="c1">#</span>
+            <span class="c1"># Listen for further messages from the peer</span>
+            <span class="k">while</span> <span class="ow">not</span> <span class="bp">self</span><span class="o">.</span><span class="n">_kill</span><span class="p">:</span>
+                <span class="n">time</span><span class="o">.</span><span class="n">sleep</span><span class="p">(</span><span class="mf">0.1</span><span class="p">)</span>
+
+                <span class="c1"># Check for release request</span>
+                <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">acse</span><span class="o">.</span><span class="n">CheckRelease</span><span class="p">():</span>
+                    <span class="bp">self</span><span class="o">.</span><span class="n">is_released</span> <span class="o">=</span> <span class="kc">True</span>
+                    <span class="bp">self</span><span class="o">.</span><span class="n">is_established</span> <span class="o">=</span> <span class="kc">False</span>
+                    <span class="c1"># Callback trigger</span>
+                    <span class="bp">self</span><span class="o">.</span><span class="n">ae</span><span class="o">.</span><span class="n">on_association_released</span><span class="p">()</span>
+                    <span class="bp">self</span><span class="o">.</span><span class="n">debug_association_released</span><span class="p">()</span>
+                    <span class="bp">self</span><span class="o">.</span><span class="n">kill</span><span class="p">()</span>
+                    <span class="k">return</span>
+
+                <span class="c1"># Check for abort</span>
+                <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">acse</span><span class="o">.</span><span class="n">CheckAbort</span><span class="p">():</span>
+                    <span class="bp">self</span><span class="o">.</span><span class="n">is_aborted</span> <span class="o">=</span> <span class="kc">True</span>
+                    <span class="bp">self</span><span class="o">.</span><span class="n">is_established</span> <span class="o">=</span> <span class="kc">False</span>
+                    <span class="c1"># Callback trigger</span>
+                    <span class="bp">self</span><span class="o">.</span><span class="n">ae</span><span class="o">.</span><span class="n">on_association_aborted</span><span class="p">()</span>
+                    <span class="bp">self</span><span class="o">.</span><span class="n">debug_association_aborted</span><span class="p">()</span>
+                    <span class="bp">self</span><span class="o">.</span><span class="n">kill</span><span class="p">()</span>
+                    <span class="k">return</span>
+
+                <span class="c1"># Check if the DULServiceProvider thread is</span>
+                <span class="c1">#   still running. DUL.is_alive() is inherited from</span>
+                <span class="c1">#   threading.thread</span>
+                <span class="k">if</span> <span class="ow">not</span> <span class="bp">self</span><span class="o">.</span><span class="n">dul</span><span class="o">.</span><span class="n">is_alive</span><span class="p">():</span>
+                    <span class="bp">self</span><span class="o">.</span><span class="n">kill</span><span class="p">()</span>
+                    <span class="k">return</span>
+
+                <span class="c1"># Check if idle timer has expired</span>
+                <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">dul</span><span class="o">.</span><span class="n">idle_timer_expired</span><span class="p">():</span>
+                    <span class="bp">self</span><span class="o">.</span><span class="n">kill</span><span class="p">()</span>
+                    <span class="k">return</span>
 
         <span class="c1"># Association was aborted by peer</span>
         <span class="k">elif</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">assoc_rsp</span><span class="p">,</span> <span class="n">A_ABORT</span><span class="p">):</span>
@@ -1085,6 +1285,95 @@
             <span class="bp">self</span><span class="o">.</span><span class="n">is_established</span> <span class="o">=</span> <span class="kc">False</span>
             <span class="bp">self</span><span class="o">.</span><span class="n">dul</span><span class="o">.</span><span class="n">kill_dul</span><span class="p">()</span>
             <span class="k">return</span>
+
+    <span class="nd">@property</span>
+    <span class="k">def</span> <span class="nf">sop_class_common_extended</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;Return the association requestor&#39;s SOP Class Common Extended</span>
+<span class="sd">        Negotiation requests.</span>
+
+<span class="sd">        Returns</span>
+<span class="sd">        -------</span>
+<span class="sd">        dict</span>
+<span class="sd">            Returns the SOP Class Common Extended Negotiation requests received</span>
+<span class="sd">            from the association requestor as {SOP Class UID : (Service Class</span>
+<span class="sd">            UID, list of Related General SOP Class UIDs)}. If no requests are</span>
+<span class="sd">            received then returns an empty dict.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">request</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="k">raise</span> <span class="ne">RuntimeError</span><span class="p">(</span>
+                <span class="s2">&quot;No SOP Class Common Extended Negotiation request is &quot;</span>
+                <span class="s2">&quot;available until after an association request has been &quot;</span>
+                <span class="s2">&quot;received&quot;</span>
+            <span class="p">)</span>
+
+        <span class="n">sop_common</span> <span class="o">=</span> <span class="p">{}</span>
+        <span class="k">for</span> <span class="n">ii</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">request</span><span class="o">.</span><span class="n">user_information</span><span class="p">:</span>
+            <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">ii</span><span class="p">,</span> <span class="n">SOPClassCommonExtendedNegotiation</span><span class="p">):</span>
+                <span class="n">sop_common</span><span class="p">[</span><span class="n">ii</span><span class="o">.</span><span class="n">sop_class_uid</span><span class="p">]</span> <span class="o">=</span> <span class="p">(</span>
+                    <span class="n">ii</span><span class="o">.</span><span class="n">service_class_uid</span><span class="p">,</span>
+                    <span class="n">ii</span><span class="o">.</span><span class="n">related_general_sop_class_identification</span>
+                <span class="p">)</span>
+
+        <span class="k">return</span> <span class="n">sop_common</span>
+
+    <span class="nd">@property</span>
+    <span class="k">def</span> <span class="nf">sop_class_extended_response</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;Return the association acceptor&#39;s SOP Class Extended Negotiation</span>
+<span class="sd">        responses.</span>
+
+<span class="sd">        Returns</span>
+<span class="sd">        -------</span>
+<span class="sd">        dict</span>
+<span class="sd">            Returns the SOP Class Extended Negotiation responses received</span>
+<span class="sd">            from the association acceptor as {SOP Class UID : Service Class</span>
+<span class="sd">            Application Information}. If no responses are received then</span>
+<span class="sd">            returns an empty dict.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">response</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="k">raise</span> <span class="ne">RuntimeError</span><span class="p">(</span>
+                <span class="s2">&quot;No SOP Class Extended Negotiation response is &quot;</span>
+                <span class="s2">&quot;available until after association negotiation is complete&quot;</span>
+            <span class="p">)</span>
+
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">response</span><span class="o">.</span><span class="n">result</span> <span class="o">!=</span> <span class="mh">0x00</span><span class="p">:</span>
+            <span class="k">return</span> <span class="p">{}</span>
+
+        <span class="n">responses</span> <span class="o">=</span> <span class="p">{}</span>
+        <span class="k">for</span> <span class="n">item</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">response</span><span class="o">.</span><span class="n">user_information</span><span class="p">:</span>
+            <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">item</span><span class="p">,</span> <span class="n">SOPClassExtendedNegotiation</span><span class="p">):</span>
+                <span class="n">responses</span><span class="p">[</span><span class="n">item</span><span class="o">.</span><span class="n">sop_class_uid</span><span class="p">]</span> <span class="o">=</span> <span class="p">(</span>
+                    <span class="n">item</span><span class="o">.</span><span class="n">service_class_application_information</span>
+                <span class="p">)</span>
+
+        <span class="k">return</span> <span class="n">responses</span>
+
+    <span class="nd">@property</span>
+    <span class="k">def</span> <span class="nf">user_identity_response</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;Return the association acceptor&#39;s User Identity Negotiation response</span>
+
+<span class="sd">        Returns</span>
+<span class="sd">        -------</span>
+<span class="sd">        bytes or None</span>
+<span class="sd">            If a positive response has been requested and the association</span>
+<span class="sd">            acceptor has included a User Identity Negotiation response in the</span>
+<span class="sd">            A-ASSOCIATE (accept) primitive and the user identity type is 3,</span>
+<span class="sd">            4 or 5, then the server response value as bytes. If no server</span>
+<span class="sd">            response was received then returns None.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">response</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="k">raise</span> <span class="ne">RuntimeError</span><span class="p">(</span>
+                <span class="s2">&quot;No User Identity Negotiation response is &quot;</span>
+                <span class="s2">&quot;available until after association negotiation is complete&quot;</span>
+            <span class="p">)</span>
+
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">response</span><span class="o">.</span><span class="n">result</span> <span class="o">!=</span> <span class="mh">0x00</span><span class="p">:</span>
+            <span class="k">return</span> <span class="kc">None</span>
+
+        <span class="k">for</span> <span class="n">item</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">response</span><span class="o">.</span><span class="n">user_information</span><span class="p">:</span>
+            <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">item</span><span class="p">,</span> <span class="n">UserIdentityNegotiation</span><span class="p">):</span>
+                <span class="k">return</span> <span class="n">item</span><span class="o">.</span><span class="n">server_response</span>
+
+        <span class="k">return</span> <span class="kc">None</span>
 
 
     <span class="c1"># DIMSE-C services provided by the Association</span>
