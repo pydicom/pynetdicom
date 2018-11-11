@@ -295,9 +295,9 @@ class Association(threading.Thread):
 
         Returns
         -------
-        int, int
-            The maximum number of operations invoked, maximum number of
-            operations performed. If the association acceptor hasn't responded
+        (int, int) or None
+            The (maximum number of operations invoked, maximum number of
+            operations performed). If the association acceptor hasn't responded
             to the Aynchronous Operations Window Negotiation request then the`
             default values of 1, 1 will be returned.
         """
@@ -308,19 +308,60 @@ class Association(threading.Thread):
             )
 
         if self.response.result != 0x00:
-            return 1, 1
+            return None
 
         for item in self.response.user_information:
             if isinstance(item, AsynchronousOperationsWindowNegotiation):
                 return (item.maximum_number_operations_invoked,
                         item.maximum_number_operations_performed)
 
-        return 1, 1
+        return None
 
     @property
     def accepted_contexts(self):
         """Return a list of accepted PresentationContexts."""
         return self.acse.accepted_contexts
+
+    def _check_async_ops(self, req_invoked, req_performed):
+        """Check the user's response to an Asynchronous Operations request.
+
+        Parameters
+        ----------
+        nr_invoked : int
+            The *Maximum Number Operations Invoked* parameter value of the
+            Asynchronous Operations Window request. If the value is 0 then
+            an unlimited number of invocations are requested.
+        nr_performed : int
+            The *Maximum Number Operations Performed* parameter value of the
+            Asynchronous Operations Window request. If the value is 0 then
+            an unlimited number of performances are requested.
+
+        Returns
+        -------
+        AsynchronousOperationsWindowNegotiation or None
+            If the `AE.on_async_ops_window` callback hasn't been implemented
+            then returns None, otherwise returns an
+            AsynchronousOperationsWindowNegotiation item with the default
+            values for the number of operations invoked/performed (1, 1).
+        """
+        try:
+            rsp_invoked, rsp_performed = self.ae.on_async_ops_window(
+                req_invoked, req_performed
+            )
+        except NotImplementedError:
+            return None
+        except Exception as exc:
+            LOGGER.error(
+                "Exception raised in user's 'on_async_ops_window' "
+                "implementation"
+            )
+            LOGGER.exception(exc)
+
+        item = AsynchronousOperationsWindowNegotiation()
+        item.maximum_number_operations_invoked = 1
+        item.maximum_number_operations_performed = 1
+
+        return item
 
     def _check_received_status(self, rsp):
         """Return a dataset containing status related elements.
@@ -726,11 +767,27 @@ class Association(threading.Thread):
         )
 
         # Asynchronous Operations Window Negotiation items
-        # Not supported by pynetdicom
+        async_request = None
+        for ii in assoc_rq.user_information:
+            if isinstance(ii, AsynchronousOperationsWindowNegotiation):
+                async_request = ii
+                break
+
+        # Remove all Asynchronous Operations Window Negotiation (request) items
         assoc_rq.user_information[:] = (
             ii for ii in assoc_rq.user_information
                 if not isinstance(ii, AsynchronousOperationsWindowNegotiation)
         )
+
+        if async_request:
+            async_rsp = self._check_async_ops(
+                async_request.maximum_number_operations_invoked,
+                async_request.maximum_number_operations_performed
+            )
+
+            # Add any Async Ops (response) item
+            if async_rsp:
+                assoc_rq.user_information.append(async_rsp)
 
         ## DUL Presentation Related Rejections
         #

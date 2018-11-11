@@ -1369,6 +1369,44 @@ class ApplicationEntity(object):
 
 
     # Association extended negotiation callbacks
+    def on_async_ops_window(self, nr_invoked, nr_performed):
+        """Callback for when an Asynchronous Operations Window Negotiation
+        item is include in the association request.
+
+        Asynchronous operations are not supported by pynetdicom3 and any
+        request will always return the default number of operations
+        invoked/performed (1, 1), regardless of what values are returned by
+        this callback.
+
+        If the callback is not implemented then no response to the Asynchronous
+        Operations Window Negotiation will be sent to the association
+        requestor.
+
+        Parameters
+        ----------
+        nr_invoked : int
+            The *Maximum Number Operations Invoked* parameter value of the
+            Asynchronous Operations Window request. If the value is 0 then
+            an unlimited number of invocations are requested.
+        nr_performed : int
+            The *Maximum Number Operations Performed* parameter value of the
+            Asynchronous Operations Window request. If the value is 0 then
+            an unlimited number of performances are requested.
+
+        Returns
+        -------
+        int, int
+            The (maximum number operations invoked, maximum number operations
+            performed). A value of 0 indicates that an unlimited number of
+            operations is supported. As asynchronous operations are not
+            currently supported the return value will be ignored and (1, 1).
+            sent in response.
+        """
+        raise NotImplementedError(
+            "No Asynchronous Operations Window Negotiation response will be "
+            "sent"
+        )
+
     def on_sop_class_extended(self, app_info):
         """Callback for when one or more SOP Class Extended Negotiation items
         are included in the association request.
