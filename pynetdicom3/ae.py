@@ -1549,6 +1549,9 @@ class ApplicationEntity(object):
                   'originator_aet' : bytes or None, the move originator's AE title
                   'originator_message_id' : int or None, the move originator's message ID
               }
+              'sop_class_extended' : {
+                  SOP Class UID : Service Class Application Information,
+              }
 
         Returns
         -------
@@ -1648,6 +1651,9 @@ class ApplicationEntity(object):
               'parameters' : {
                   'message_id' : int, the DIMSE message ID
                   'priority' : int, the requested operation priority
+              }
+              'sop_class_extended' : {
+                  SOP Class UID : Service Class Application Information,
               }
 
         Yields
@@ -1790,6 +1796,9 @@ class ApplicationEntity(object):
               'parameters' : {
                   'message_id' : int, the DIMSE message ID
                   'priority' : int, the requested operation priority
+              }
+              'sop_class_extended' : {
+                  SOP Class UID : Service Class Application Information,
               }
 
         Yields
@@ -1940,6 +1949,9 @@ class ApplicationEntity(object):
                   'message_id' : int, the DIMSE message ID
                   'priority' : int, the requested operation priority
               }
+              'sop_class_extended' : {
+                  SOP Class UID : Service Class Application Information,
+              }
 
         Yields
         ------
@@ -2077,6 +2089,9 @@ class ApplicationEntity(object):
                   'originator_aet' : bytes or None, the move originator's AE title
                   'originator_message_id' : int or None, the move originator's message ID
               }
+              'sop_class_extended' : {
+                  SOP Class UID : Service Class Application Information,
+              }
 
         Returns
         -------
@@ -2199,6 +2214,9 @@ class ApplicationEntity(object):
                   Class UID value
                   'requested_sop_instance' : str, the N-GET-RQ's requested SOP
                   Instance UID value
+              }
+              'sop_class_extended' : {
+                  SOP Class UID : Service Class Application Information,
               }
 
         Returns
