@@ -144,7 +144,7 @@ class PresentationContext(object):
 
     - If no role selection negotiation then the requestor is SCU and the
       acceptor is SCP
-    - The association acceptor cannot return accept a role that has not been
+    - The association acceptor cannot accept a role that has not been
       proposed (i.e. cannot return 1 when the proposed value is 0).
     - The association requestor may be SCP only, SCU only or both SCU and SCP.
 

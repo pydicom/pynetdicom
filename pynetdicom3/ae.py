@@ -1368,7 +1368,73 @@ class ApplicationEntity(object):
                 )
 
 
-    # Association negotiation callbacks
+    # Association extended negotiation callbacks
+    def on_async_ops_window(self, nr_invoked, nr_performed):
+        """Callback for when an Asynchronous Operations Window Negotiation
+        item is include in the association request.
+
+        Asynchronous operations are not supported by pynetdicom3 and any
+        request will always return the default number of operations
+        invoked/performed (1, 1), regardless of what values are returned by
+        this callback.
+
+        If the callback is not implemented then no response to the Asynchronous
+        Operations Window Negotiation will be sent to the association
+        requestor.
+
+        Parameters
+        ----------
+        nr_invoked : int
+            The *Maximum Number Operations Invoked* parameter value of the
+            Asynchronous Operations Window request. If the value is 0 then
+            an unlimited number of invocations are requested.
+        nr_performed : int
+            The *Maximum Number Operations Performed* parameter value of the
+            Asynchronous Operations Window request. If the value is 0 then
+            an unlimited number of performances are requested.
+
+        Returns
+        -------
+        int, int
+            The (maximum number operations invoked, maximum number operations
+            performed). A value of 0 indicates that an unlimited number of
+            operations is supported. As asynchronous operations are not
+            currently supported the return value will be ignored and (1, 1).
+            sent in response.
+        """
+        raise NotImplementedError(
+            "No Asynchronous Operations Window Negotiation response will be "
+            "sent"
+        )
+
+    def on_sop_class_extended(self, app_info):
+        """Callback for when one or more SOP Class Extended Negotiation items
+        are included in the association request.
+
+        Parameters
+        ----------
+        app_info : dict of pydicom.uid.UID, bytes
+            The {*SOP Class UID* : *Service Class Application Information*}
+            parameter values for the included items, with the service class
+            application information being the raw encoded data sent by the
+            requestor.
+
+        Returns
+        -------
+        dict of pydicom.uid.UID, bytes or None
+            The {*SOP Class UID* : *Service Class Application Information*}
+            parameter values to be sent in response to the request, with the
+            service class application information being the encoded data that
+            will be sent to the peer as-is. Return None if no response is to
+            be sent.
+
+        References
+        ----------
+
+        * DICOM Standard Part 7, `Annex D.3.3.5 <http://dicom.nema.org/medical/dicom/current/output/chtml/part07/sect_D.3.3.5.html>`_
+        """
+        return None
+
     def on_user_identity(self, user_id_type, primary_field,
                          secondary_field, info):
         """Callback for when a user identity negotiation item is included with
@@ -1483,6 +1549,9 @@ class ApplicationEntity(object):
                   'originator_aet' : bytes or None, the move originator's AE title
                   'originator_message_id' : int or None, the move originator's message ID
               }
+              'sop_class_extended' : {
+                  SOP Class UID : Service Class Application Information,
+              }
 
         Returns
         -------
@@ -1582,6 +1651,9 @@ class ApplicationEntity(object):
               'parameters' : {
                   'message_id' : int, the DIMSE message ID
                   'priority' : int, the requested operation priority
+              }
+              'sop_class_extended' : {
+                  SOP Class UID : Service Class Application Information,
               }
 
         Yields
@@ -1724,6 +1796,9 @@ class ApplicationEntity(object):
               'parameters' : {
                   'message_id' : int, the DIMSE message ID
                   'priority' : int, the requested operation priority
+              }
+              'sop_class_extended' : {
+                  SOP Class UID : Service Class Application Information,
               }
 
         Yields
@@ -1874,6 +1949,9 @@ class ApplicationEntity(object):
                   'message_id' : int, the DIMSE message ID
                   'priority' : int, the requested operation priority
               }
+              'sop_class_extended' : {
+                  SOP Class UID : Service Class Application Information,
+              }
 
         Yields
         ------
@@ -2011,6 +2089,9 @@ class ApplicationEntity(object):
                   'originator_aet' : bytes or None, the move originator's AE title
                   'originator_message_id' : int or None, the move originator's message ID
               }
+              'sop_class_extended' : {
+                  SOP Class UID : Service Class Application Information,
+              }
 
         Returns
         -------
@@ -2133,6 +2214,9 @@ class ApplicationEntity(object):
                   Class UID value
                   'requested_sop_instance' : str, the N-GET-RQ's requested SOP
                   Instance UID value
+              }
+              'sop_class_extended' : {
+                  SOP Class UID : Service Class Application Information,
               }
 
         Returns

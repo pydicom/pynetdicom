@@ -48,13 +48,13 @@ class TestPrimitive_MaximumLengthNegotiation(unittest.TestCase):
         self.assertTrue(primitive.maximum_length_received == 45)
 
         # Check exceptions
-        with self.assertRaises(TypeError):
+        with pytest.raises(TypeError):
             primitive.maximum_length_received = 45.2
 
-        with self.assertRaises(ValueError):
+        with pytest.raises(ValueError):
             primitive.maximum_length_received = -1
 
-        with self.assertRaises(TypeError):
+        with pytest.raises(TypeError):
             primitive.maximum_length_received = 'abc'
 
     def test_conversion(self):
@@ -104,17 +104,17 @@ class TestPrimitive_ImplementationClassUIDNotification(unittest.TestCase):
         primitive = ImplementationClassUIDNotification()
 
         # No value set
-        with self.assertRaises(ValueError):
+        with pytest.raises(ValueError):
             item = primitive.from_primitive()
 
         # Non UID, bytes or str
-        with self.assertRaises(TypeError):
+        with pytest.raises(TypeError):
             primitive.implementation_class_uid = 45.2
 
-        with self.assertRaises(TypeError):
+        with pytest.raises(TypeError):
             primitive.implementation_class_uid = 100
 
-        with self.assertRaises(ValueError):
+        with pytest.raises(ValueError):
             primitive.implementation_class_uid = 'abc'
 
     def test_conversion(self):
@@ -158,17 +158,17 @@ class TestPrimitive_ImplementationVersionNameNotification(unittest.TestCase):
         primitive = ImplementationVersionNameNotification()
 
         # No value set
-        with self.assertRaises(ValueError):
+        with pytest.raises(ValueError):
             item = primitive.from_primitive()
 
         # Non UID, bytes or str
-        with self.assertRaises(TypeError):
+        with pytest.raises(TypeError):
             primitive.implementation_version_name = 45.2
 
-        with self.assertRaises(TypeError):
+        with pytest.raises(TypeError):
             primitive.implementation_version_name = 100
 
-        with self.assertRaises(ValueError):
+        with pytest.raises(ValueError):
             primitive.implementation_version_name = 'ABCD1234ABCD12345'
 
     def test_conversion(self):
@@ -203,22 +203,22 @@ class TestPrimitive_AsynchronousOperationsWindowNegotiation(unittest.TestCase):
         self.assertTrue(primitive.maximum_number_operations_performed == 11)
 
         ## Check exceptions
-        with self.assertRaises(TypeError):
+        with pytest.raises(TypeError):
             primitive.maximum_number_operations_invoked = 45.2
 
-        with self.assertRaises(ValueError):
+        with pytest.raises(ValueError):
             primitive.maximum_number_operations_invoked = -1
 
-        with self.assertRaises(TypeError):
+        with pytest.raises(TypeError):
             primitive.maximum_number_operations_invoked = 'ABCD1234ABCD12345'
 
-        with self.assertRaises(TypeError):
+        with pytest.raises(TypeError):
             primitive.maximum_number_operations_performed = 45.2
 
-        with self.assertRaises(ValueError):
+        with pytest.raises(ValueError):
             primitive.maximum_number_operations_performed = -1
 
-        with self.assertRaises(TypeError):
+        with pytest.raises(TypeError):
             primitive.maximum_number_operations_performed = 'ABCD1234ABCD12345'
 
     def test_conversion(self):
@@ -266,38 +266,38 @@ class TestPrimitive_SCP_SCU_RoleSelectionNegotiation(unittest.TestCase):
         self.assertTrue(primitive.scu_role == True)
 
         ## Check exceptions
-        with self.assertRaises(TypeError):
+        with pytest.raises(TypeError):
             primitive.sop_class_uid = 10
 
-        with self.assertRaises(TypeError):
+        with pytest.raises(TypeError):
             primitive.sop_class_uid = 45.2
 
-        with self.assertRaises(ValueError):
+        with pytest.raises(ValueError):
             primitive.sop_class_uid = 'abc'
 
-        with self.assertRaises(TypeError):
+        with pytest.raises(TypeError):
             primitive.scp_role = 1
 
-        with self.assertRaises(TypeError):
+        with pytest.raises(TypeError):
             primitive.scp_role = 'abc'
 
-        with self.assertRaises(TypeError):
+        with pytest.raises(TypeError):
             primitive.scu_role = 1
 
-        with self.assertRaises(TypeError):
+        with pytest.raises(TypeError):
             primitive.scu_role = 'abc'
 
         # No value set
         primitive = SCP_SCU_RoleSelectionNegotiation()
-        with self.assertRaises(ValueError):
+        with pytest.raises(ValueError):
             item = primitive.from_primitive()
 
         primitive.sop_class_uid = b'1.2.840.10008.5.1.4.1.1.2'
-        with self.assertRaises(ValueError):
+        with pytest.raises(ValueError):
             item = primitive.from_primitive()
 
         primitive.scp_role = False
-        with self.assertRaises(ValueError):
+        with pytest.raises(ValueError):
             item = primitive.from_primitive()
 
         primitive = SCP_SCU_RoleSelectionNegotiation()
@@ -310,7 +310,7 @@ class TestPrimitive_SCP_SCU_RoleSelectionNegotiation(unittest.TestCase):
         primitive = SCP_SCU_RoleSelectionNegotiation()
         primitive.scp_role = True
         primitive.scu_role = True
-        with self.assertRaises(ValueError):
+        with pytest.raises(ValueError):
             item = primitive.from_primitive()
 
     def test_conversion(self):
@@ -329,7 +329,7 @@ class TestPrimitive_SCP_SCU_RoleSelectionNegotiation(unittest.TestCase):
         primitive.sop_class_uid = b'1.2.840.10008.5.1.4.1.1.2'
         primitive.scp_role = False
         primitive.scu_role = False
-        with self.assertRaises(ValueError):
+        with pytest.raises(ValueError):
             primitive.from_primitive()
 
 
@@ -357,38 +357,38 @@ class TestPrimitive_SOPClassExtendedNegotiation(unittest.TestCase):
 
         ## Check exceptions
         # SOP Class UID
-        with self.assertRaises(TypeError):
+        with pytest.raises(TypeError):
             primitive.sop_class_uid = 10
 
-        with self.assertRaises(TypeError):
+        with pytest.raises(TypeError):
             primitive.sop_class_uid = 45.2
 
-        with self.assertRaises(ValueError):
+        with pytest.raises(ValueError):
             primitive.sop_class_uid = 'abc'
 
         # Service Class Application Information
-        with self.assertRaises(TypeError):
+        with pytest.raises(TypeError):
             primitive.service_class_application_information = 10
 
-        with self.assertRaises(TypeError):
+        with pytest.raises(TypeError):
             primitive.service_class_application_information = 45.2
 
         # Python 2 compatibility all bytes are str
-        #with self.assertRaises(TypeError):
+        #with pytest.raises(TypeError):
         #    primitive.service_class_application_information = 'abc'
 
         # No value set
         primitive = SOPClassExtendedNegotiation()
-        with self.assertRaises(ValueError):
+        with pytest.raises(ValueError):
             item = primitive.from_primitive()
 
         primitive.sop_class_uid = b'1.2.840.10008.5.1.4.1.1.2'
-        with self.assertRaises(ValueError):
+        with pytest.raises(ValueError):
             item = primitive.from_primitive()
 
         primitive = SOPClassExtendedNegotiation()
         primitive.service_class_application_information = b'\x02\x00\x03\x00\x01\x00'
-        with self.assertRaises(ValueError):
+        with pytest.raises(ValueError):
             item = primitive.from_primitive()
 
     def test_conversion(self):
@@ -413,82 +413,75 @@ class TestPrimitive_SOPClassCommonExtendedNegotiation(unittest.TestCase):
         reference_uid = UID('1.2.840.10008.5.1.4.1.1.2')
 
         primitive.sop_class_uid = b'1.2.840.10008.5.1.4.1.1.2'
-        self.assertTrue(primitive.sop_class_uid == reference_uid)
-
+        assert primitive.sop_class_uid == reference_uid
+        primitive.sop_class_uid = 'abc'
+        assert primitive.sop_class_uid == 'abc'
         primitive.sop_class_uid = '1.2.840.10008.5.1.4.1.1.2'
-        self.assertTrue(primitive.sop_class_uid == reference_uid)
-
+        assert primitive.sop_class_uid == reference_uid
         primitive.sop_class_uid = UID('1.2.840.10008.5.1.4.1.1.2')
-        self.assertTrue(primitive.sop_class_uid == reference_uid)
+        assert primitive.sop_class_uid == reference_uid
 
         # Service Class UID
         primitive.service_class_uid = b'1.2.840.10008.5.1.4.1.1.2'
-        self.assertTrue(primitive.service_class_uid == reference_uid)
-
+        assert primitive.service_class_uid == reference_uid
+        primitive.service_class_uid = 'abc'
+        assert primitive.service_class_uid == 'abc'
         primitive.service_class_uid = '1.2.840.10008.5.1.4.1.1.2'
-        self.assertTrue(primitive.service_class_uid == reference_uid)
-
+        assert primitive.service_class_uid == reference_uid
         primitive.service_class_uid = UID('1.2.840.10008.5.1.4.1.1.2')
-        self.assertTrue(primitive.service_class_uid == reference_uid)
+        assert primitive.service_class_uid == reference_uid
 
         # Related General SOP Class Identification
-        ref_uid_list = [UID('1.2.840.10008.5.1.4.1.1.2'),
-                        UID('1.2.840.10008.5.1.4.1.1.3'),
-                        UID('1.2.840.10008.5.1.4.1.1.4')]
+        ref_list = [UID('1.2.840.10008.5.1.4.1.1.2'),
+                    UID('1.2.840.10008.5.1.4.1.1.3'),
+                    UID('1.2.840.10008.5.1.4.1.1.4')]
 
         uid_list = []
         uid_list.append(b'1.2.840.10008.5.1.4.1.1.2')
         uid_list.append('1.2.840.10008.5.1.4.1.1.3')
         uid_list.append(UID('1.2.840.10008.5.1.4.1.1.4'))
         primitive.related_general_sop_class_identification = uid_list
-        self.assertTrue(primitive.related_general_sop_class_identification == ref_uid_list)
+        assert primitive.related_general_sop_class_identification == ref_list
+        primitive.related_general_sop_class_identification = ['abc']
+        assert primitive.related_general_sop_class_identification == ['abc']
 
-        with self.assertRaises(TypeError):
+        with pytest.raises(TypeError):
             primitive.related_general_sop_class_identification = 'test'
 
         ## Check exceptions
         # SOP Class UID
-        with self.assertRaises(TypeError):
+        with pytest.raises(TypeError):
             primitive.sop_class_uid = 10
 
-        with self.assertRaises(TypeError):
+        with pytest.raises(TypeError):
             primitive.sop_class_uid = 45.2
 
-        with self.assertRaises(ValueError):
-            primitive.sop_class_uid = 'abc'
-
         # Service Class UID
-        with self.assertRaises(TypeError):
+        with pytest.raises(TypeError):
             primitive.service_class_uid = 10
 
-        with self.assertRaises(TypeError):
+        with pytest.raises(TypeError):
             primitive.service_class_uid = 45.2
 
-        with self.assertRaises(ValueError):
-            primitive.service_class_uid = 'abc'
-
         # Related General SOP Class Identification
-        with self.assertRaises(TypeError):
+        with pytest.raises(TypeError):
             primitive.related_general_sop_class_identification = [10]
 
-        with self.assertRaises(TypeError):
+        with pytest.raises(TypeError):
             primitive.related_general_sop_class_identification = [45.2]
-
-        with self.assertRaises(ValueError):
-            primitive.related_general_sop_class_identification = ['abc']
 
         # No value set
         primitive = SOPClassCommonExtendedNegotiation()
-        with self.assertRaises(ValueError):
+        with pytest.raises(ValueError):
             item = primitive.from_primitive()
 
         primitive.sop_class_uid = b'1.2.840.10008.5.1.4.1.1.2'
-        with self.assertRaises(ValueError):
+        with pytest.raises(ValueError):
             item = primitive.from_primitive()
 
         primitive = SOPClassCommonExtendedNegotiation()
         primitive.service_class_uid = b'1.2.840.10008.5.1.4.1.1.2'
-        with self.assertRaises(ValueError):
+        with pytest.raises(ValueError):
             item = primitive.from_primitive()
 
     def test_conversion(self):
@@ -692,105 +685,105 @@ class TestPrimitive_A_ASSOCIATE(unittest.TestCase):
         assoc = A_ASSOCIATE()
 
         # application_context_name
-        with self.assertRaises(TypeError):
+        with pytest.raises(TypeError):
             assoc.application_context_name = 10
 
-        with self.assertRaises(TypeError):
+        with pytest.raises(TypeError):
             assoc.application_context_name = 45.2
 
-        with self.assertRaises(ValueError):
+        with pytest.raises(ValueError):
             assoc.application_context_name = 'abc'
 
         # calling_ae_title
-        with self.assertRaises(TypeError):
+        with pytest.raises(TypeError):
             assoc.calling_ae_title = 45.2
 
-        with self.assertRaises(TypeError):
+        with pytest.raises(TypeError):
             assoc.calling_ae_title = 100
 
-        with self.assertRaises(ValueError):
+        with pytest.raises(ValueError):
             assoc.calling_ae_title = ''
 
-        with self.assertRaises(ValueError):
+        with pytest.raises(ValueError):
             assoc.calling_ae_title = '    '
 
         # called_ae_title
-        with self.assertRaises(TypeError):
+        with pytest.raises(TypeError):
             assoc.called_ae_title = 45.2
 
-        with self.assertRaises(TypeError):
+        with pytest.raises(TypeError):
             assoc.called_ae_title = 100
 
-        with self.assertRaises(ValueError):
+        with pytest.raises(ValueError):
             assoc.called_ae_title = ''
 
-        with self.assertRaises(ValueError):
+        with pytest.raises(ValueError):
             assoc.called_ae_title = '    '
 
         # user_information
-        with self.assertRaises(TypeError):
+        with pytest.raises(TypeError):
             assoc.user_information = 45.2
 
         # result
-        with self.assertRaises(ValueError):
+        with pytest.raises(ValueError):
             assoc.result = -1
 
-        with self.assertRaises(ValueError):
+        with pytest.raises(ValueError):
             assoc.result = 3
 
         # result_source
-        with self.assertRaises(ValueError):
+        with pytest.raises(ValueError):
             assoc.result_source = 0
 
         # result_source
-        with self.assertRaises(ValueError):
+        with pytest.raises(ValueError):
             assoc.result_source = 4
 
         # diagnostic
-        with self.assertRaises(ValueError):
+        with pytest.raises(ValueError):
             assoc.diagnostic = 0
 
-        with self.assertRaises(ValueError):
+        with pytest.raises(ValueError):
             assoc.diagnostic = 4
 
-        with self.assertRaises(ValueError):
+        with pytest.raises(ValueError):
             assoc.diagnostic = 5
 
-        with self.assertRaises(ValueError):
+        with pytest.raises(ValueError):
             assoc.diagnostic = 6
 
-        with self.assertRaises(ValueError):
+        with pytest.raises(ValueError):
             assoc.diagnostic = 8
 
         # calling_presentation_addresss
-        with self.assertRaises(TypeError):
+        with pytest.raises(TypeError):
             assoc.calling_presentation_address = ['10.40.94.43', 105]
 
-        with self.assertRaises(TypeError):
+        with pytest.raises(TypeError):
             assoc.calling_presentation_address = (105, '10.40.94.43')
 
         # called_presentation_addresss
-        with self.assertRaises(TypeError):
+        with pytest.raises(TypeError):
             assoc.called_presentation_address = ['10.40.94.43', 105]
 
-        with self.assertRaises(TypeError):
+        with pytest.raises(TypeError):
             assoc.called_presentation_address = (105, '10.40.94.43')
 
         # presentation_context_definition_list
-        with self.assertRaises(TypeError):
+        with pytest.raises(TypeError):
             assoc.presentation_context_definition_list = 45.2
 
         # presentation_context_definition_results_list
-        with self.assertRaises(TypeError):
+        with pytest.raises(TypeError):
             assoc.presentation_context_definition_results_list = 45.2
 
         # implementation_class_uid
-        with self.assertRaises(ValueError):
+        with pytest.raises(ValueError):
             x = assoc.implementation_class_uid
 
         imp_uid = ImplementationClassUIDNotification()
         assoc.user_information.append(imp_uid)
-        with self.assertRaises(ValueError):
+        with pytest.raises(ValueError):
             x = assoc.implementation_class_uid
 
     def test_conversion(self):
@@ -850,7 +843,7 @@ class TestPrimitive_A_RELEASE(unittest.TestCase):
         with self.assertRaises(AttributeError):
             assoc.reason = "something"
 
-        with self.assertRaises(ValueError):
+        with pytest.raises(ValueError):
             assoc.result = "accepted"
 
 
@@ -867,10 +860,10 @@ class TestPrimitive_A_ABORT(unittest.TestCase):
         """ Check incorrect types/values for properties raise exceptions """
         primitive = A_ABORT()
 
-        with self.assertRaises(ValueError):
+        with pytest.raises(ValueError):
             primitive.abort_source = 1
 
-        with self.assertRaises(ValueError):
+        with pytest.raises(ValueError):
             primitive.abort_source
 
     def test_conversion(self):
@@ -906,9 +899,9 @@ class TestPrimitive_A_P_ABORT(unittest.TestCase):
         """ Check incorrect types/values for properties raise exceptions """
         primitive = A_P_ABORT()
 
-        with self.assertRaises(ValueError):
+        with pytest.raises(ValueError):
             primitive.provider_reason = 3
-        with self.assertRaises(ValueError):
+        with pytest.raises(ValueError):
             primitive.provider_reason
 
     def test_conversion(self):
@@ -934,16 +927,16 @@ class TestPrimitive_P_DATA(unittest.TestCase):
         """ Check incorrect types/values for properties raise exceptions """
         primitive = P_DATA()
 
-        with self.assertRaises(TypeError):
+        with pytest.raises(TypeError):
             primitive.presentation_data_value_list = ([1, b'\x00'])
 
-        with self.assertRaises(TypeError):
+        with pytest.raises(TypeError):
             primitive.presentation_data_value_list = [1, b'\x00']
 
-        with self.assertRaises(TypeError):
+        with pytest.raises(TypeError):
             primitive.presentation_data_value_list = [[b'\x00', 1]]
 
-        with self.assertRaises(TypeError):
+        with pytest.raises(TypeError):
             primitive.presentation_data_value_list = 'test'
 
     def test_conversion(self):

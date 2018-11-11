@@ -1912,10 +1912,8 @@ class SOPClassCommonExtendedNegotiation(ServiceParameter):
                                     "pydicom.uid.UID, str or bytes")
 
                 if uid is not None and not uid.is_valid:
-                    LOGGER.error("Related General SOP Class "
-                                 "Identification contains an invalid UID")
-                    raise ValueError("Related General SOP Class contains "
-                                     "an invalid UID")
+                    LOGGER.warning("Related General SOP Class "
+                                   "Identification contains an invalid UID")
 
                 valid_uid_list.append(uid)
 
@@ -1963,8 +1961,7 @@ class SOPClassCommonExtendedNegotiation(ServiceParameter):
                             "str or bytes")
 
         if value is not None and not value.is_valid:
-            LOGGER.error("Implementation Class UID is an invalid UID")
-            raise ValueError("Implementation Class UID is an invalid UID")
+            LOGGER.warning("Implementation Class UID is an invalid UID")
 
         self._service_class_uid = value
 
@@ -2003,8 +2000,7 @@ class SOPClassCommonExtendedNegotiation(ServiceParameter):
                             "or bytes")
 
         if value is not None and not value.is_valid:
-            LOGGER.error("Implementation Class UID is an invalid UID")
-            raise ValueError("Implementation Class UID is an invalid UID")
+            LOGGER.warning("Implementation Class UID is an invalid UID")
 
         self._sop_class_uid = value
 
