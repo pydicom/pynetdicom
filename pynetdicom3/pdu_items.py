@@ -1054,7 +1054,7 @@ class UserInformationItem(PDUItem):
         primitive : list of User Information primitives
             Must contain:
 
-            - MaximumLengthNegotiation
+            - MaximumLengthNotification
             - ImplementationClassUIDNotification
 
             May optionally contain one or more:
@@ -1077,7 +1077,7 @@ class UserInformationItem(PDUItem):
         list of User Information primitives
             Must contain:
 
-            - MaximumLengthNegotiation
+            - MaximumLengthNotification
             - ImplementationClassUIDNotification
 
             May optionally contain one or more:
@@ -1637,7 +1637,7 @@ class MaximumLengthSubItem(PDUItem):
 
         Parameters
         ----------
-        primitive : pdu_primitives.MaximumLengthNegotiation
+        primitive : pdu_primitives.MaximumLengthNotification
             The primitive to use to set the Item's field values.
         """
         self.maximum_length_received = primitive.maximum_length_received
@@ -1647,12 +1647,12 @@ class MaximumLengthSubItem(PDUItem):
 
         Returns
         -------
-        pdu_primitives.MaximumLengthNegotiation
+        pdu_primitives.MaximumLengthNotification
             The primitive representation of the current Item.
         """
-        from pynetdicom3.pdu_primitives import MaximumLengthNegotiation
+        from pynetdicom3.pdu_primitives import MaximumLengthNotification
 
-        primitive = MaximumLengthNegotiation()
+        primitive = MaximumLengthNotification()
         primitive.maximum_length_received = self.maximum_length_received
 
         return primitive

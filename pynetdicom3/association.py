@@ -256,6 +256,10 @@ class Association(threading.Thread):
         self._assoc_req = None
         self._assoc_rsp = None
 
+        # Extended Negotiation items; requested and responses
+        self._ext_neg_req = []
+        self._ext_neg_rsp = []
+
         # Send an A-ABORT when an association request is received
         self._a_abort_assoc_rq = False
         # Send an A-P-ABORT when an association request is received
@@ -515,6 +519,103 @@ class Association(threading.Thread):
                     return True, None
 
         return True, None
+
+    @property
+    def extended_negotiation(self):
+        """Return a tuple of extended negotiation items (request, response).
+
+        Returns
+        -------
+        2-tuple of list
+            The (request, response) extended negotiation items. If no items
+            have been requested or responded to then will return ([], []).
+        """
+        return (self._extneg_request, self._extneg_response)
+
+    @property
+    def _extneg_request(self):
+        return self._ext_neg_req
+
+    @_extneg_request.setter
+    def _extneg_request(self, items):
+        """
+
+        +--------------------------------+--------+
+        | Negotiation Item               | Number |
+        +================================+========+
+        | SOP Class Extended             | 0 - N  |
+        +--------------------------------+--------+
+        | SOP Class Common Extended      | 0 - N  |
+        +--------------------------------+--------+
+        | SCP/SCU Role Selection         | 0 - N  |
+        +--------------------------------+--------+
+        | User Identity                  | 0 - 1  |
+        +--------------------------------+--------+
+        | Asynchronous Operations Window | 0 - 1  |
+        +--------------------------------+--------+
+
+        Parameters
+        ----------
+        items : list of pynetdicom3.pdu_primitives
+        """
+        # Check the supplied items
+        # Maximum 1 User Identity
+        user_identity = [
+            ii for ii in items if isinstance(ii, UserIdentityNegotiation)
+        ]
+        if len(user_identity) > 1:
+            raise ValueError(
+                "Only one User Identity Negotiation item is allowed as part "
+                "of the extended negotiation"
+            )
+
+        # Maximum 1 Async Operations Window
+        async_ops = [
+            ii for ii in items if isinstance(ii, AsynchronousOperationsWindowNegotiation)
+        ]
+        if len(async_ops) > 1:
+            raise ValueError(
+                "Only one Asynchronous Operations Window Negotiation item is "
+                "allowed as part of the extended negotiation"
+            )
+
+        for ii in items:
+            if not isinstance(ii, (AsynchronousOperationsWindowNegotiation,
+                                   UserIdentityNegotiation,
+                                   SOPClassExtendedNegotiation,
+                                   SOPClassCommonExtendedNegotiation,
+                                   SCP_SCU_RoleSelectionNegotiation)):
+                raise TypeError(
+                    "Invalid item included in the extended negotiation"
+                )
+
+        self._ext_neg_req = items
+
+    @property
+    def _extneg_response(self):
+        return self._ext_neg_rsp
+
+    @_extneg_response.setter
+    def _extneg_response(self, items):
+        """
+
+        +--------------------------------+--------+
+        | Negotiation Item               | Number |
+        +================================+========+
+        | SOP Class Extended             | 0 - N  |
+        +--------------------------------+--------+
+        | SCP/SCU Role Selection         | 0 - N  |
+        +--------------------------------+--------+
+        | User Identity                  | 0 - 1  |
+        +--------------------------------+--------+
+        | Asynchronous Operations Window | 0 - 1  |
+        +--------------------------------+--------+
+
+        Parameters
+        ----------
+        items : list of pynetdicom3.pdu_primitives
+        """
+        self._ext_neg_rsp = items
 
     def _get_valid_context(self, ab_syntax, tr_syntax, role, context_id=None):
         """
@@ -838,7 +939,7 @@ class Association(threading.Thread):
         # Set maximum PDU receive length
         assoc_rq.maximum_length_received = self.local_max_pdu # TODO: Rename?
         #for user_item in assoc_rq.user_information:
-        #    if isinstance(user_item, MaximumLengthNegotiation):
+        #    if isinstance(user_item, MaximumLengthNotification):
         #        user_item.maximum_length_received = self.local_max_pdu
 
         # Issue the A-ASSOCIATE indication (accept) primitive using the ACSE
@@ -1072,7 +1173,7 @@ class Association(threading.Thread):
                     return
 
                 # Check for abort
-                if self.acse.CheckAbort():
+                if self.acse.is_aborted:
                     self.is_aborted = True
                     self.is_established = False
                     # Callback trigger
