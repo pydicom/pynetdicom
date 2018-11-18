@@ -10,12 +10,12 @@ PYNETDICOM_UID_PREFIX = '1.2.826.0.1.3680043.9.3811.'
 
 # Encoded as SH, 16 bytes maximum
 PYNETDICOM_IMPLEMENTATION_VERSION = (
-    'PYNETDICOM_' + ''.join(__version_info__[:3])
+    'PYNETDICOM_' + ''.join([str(ii) for ii in __version_info__['release']])
 )
 assert 1 <= len(PYNETDICOM_IMPLEMENTATION_VERSION) <= 16
 
 PYNETDICOM_IMPLEMENTATION_UID = UID(
-    PYNETDICOM_UID_PREFIX + '.'.join(__version_info__[:3])
+    PYNETDICOM_UID_PREFIX + '.'.join([str(ii) for ii in __version_info__['release']])
 )
 assert PYNETDICOM_IMPLEMENTATION_UID.is_valid
 
