@@ -19,6 +19,7 @@ from pynetdicom3.pdu import (A_ASSOCIATE_RQ, A_ASSOCIATE_AC, A_ASSOCIATE_RJ,
                              P_DATA_TF, A_RELEASE_RQ, A_RELEASE_RP, A_ABORT_RQ)
 from pynetdicom3.pdu_primitives import A_ASSOCIATE, A_RELEASE, A_ABORT, P_DATA
 from pynetdicom3.timer import Timer
+from pynetdicom3.utils import pretty_bytes
 
 LOGGER = logging.getLogger('pynetdicom3.dul')
 
@@ -602,6 +603,11 @@ class DULServiceProvider(Thread):
             (pdu, acse_callback) = PDU_TYPES[pdutype]
             pdu = pdu()
             pdu.decode(data)
+
+            if pdutype == 0x02:
+                output = pretty_bytes(data, max_size=None)
+                for line in output:
+                    LOGGER.debug(line)
 
             # ACSE callbacks
             acse_callback(pdu)
