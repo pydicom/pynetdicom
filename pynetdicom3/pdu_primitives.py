@@ -1226,8 +1226,11 @@ class ImplementationClassUIDNotification(ServiceParameter):
                             "pydicom.uid.UID, str or bytes")
 
         if value is not None and not value.is_valid:
-            LOGGER.error("Implementation Class UID is an invalid UID")
-            raise ValueError("Implementation Class UID is an invalid UID")
+            LOGGER.error(
+                "The Implementation Class UID Notification's 'Implementation "
+                "Class UID' parameter value '{}' is not a valid UID"
+                .format(value)
+            )
 
         self._implementation_class_uid = value
 
