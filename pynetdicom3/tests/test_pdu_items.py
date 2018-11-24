@@ -41,8 +41,9 @@ from .encoded_pdu_items import (
     presentation_context_rq, presentation_context_ac, abstract_syntax,
     transfer_syntax, presentation_data, presentation_data_value,
     maximum_length_received, implementation_class_uid,
-    implementation_version_name, role_selection, user_information,
-    extended_negotiation, common_extended_negotiation, p_data_tf
+    implementation_version_name, role_selection, role_selection_odd,
+    user_information, extended_negotiation, common_extended_negotiation,
+    p_data_tf
 )
 
 LOGGER = logging.getLogger('pynetdicom3')
@@ -206,9 +207,17 @@ class TestPDU(object):
     def test_wrap_encode_uid(self):
         """Test PDU._wrap_encode_uid()."""
         item = PDUItem()
+        # Odd length
         uid = UID('1.2.840.10008.1.1')
+        assert len(uid) % 2 > 0
         out = item._wrap_encode_uid(uid)
-        assert out == b'1.2.840.10008.1.1'
+        assert out == b'1.2.840.10008.1.1\x00'
+
+        # Even length
+        uid = UID('1.2.840.10008.1.10')
+        assert len(uid) % 2 == 0
+        out = item._wrap_encode_uid(uid)
+        assert out == b'1.2.840.10008.1.10'
 
     def test_wrap_generate_items(self):
         """Test PDU._wrap_generate_items()."""
@@ -236,6 +245,19 @@ class TestPDU(object):
         item = PDUItem()
         out = item._wrap_unpack(b'\x01', UNPACK_UCHAR)
         assert out == 1
+
+    @pytest.mark.skip("Not sure if required yet")
+    def test_wrap_encode_odd_uid(self):
+        """Regression test for #240"""
+        item = PDUItem()
+        uid = UID('1.2.840.10008.1.1')
+        # Check odd length
+        assert len(uid) % 2 > 0
+        out = item._wrap_encode_uid(uid)
+        # Trailing padding byte
+        assert len(out) == 18
+        assert out == b'1.2.840.10008.1.1\x00'
+
 
 
 class TestApplicationContext(object):
@@ -1208,9 +1230,21 @@ class TestUserInformation_RoleSelection(object):
 
     def test_encode(self):
         """ Check encoding produces the correct output """
-        pdu = A_ASSOCIATE_RQ()
-        pdu.decode(a_associate_rq_role)
-        item = pdu.user_information.role_selection['1.2.840.10008.5.1.4.1.1.2']
+        # Encoding follows the rules of UIDs (trailing padding null if odd)
+        item = SCP_SCU_RoleSelectionSubItem()
+        item.scu_role = False
+        item.scp_role = True
+        # Odd length
+        uid = '1.2.840.10008.5.1.4.1.1.2'
+        assert len(uid) % 2 > 0
+        item.sop_class_uid = uid
+
+        assert item.encode() == role_selection_odd
+
+        # Even length
+        uid = '1.2.840.10008.5.1.4.1.1.21'
+        assert len(uid) % 2 == 0
+        item.sop_class_uid = uid
 
         assert item.encode() == role_selection
 
