@@ -234,7 +234,7 @@ class PDUItem(object):
 
     @staticmethod
     def _wrap_uid_bytes(bytestream):
-        """Return `bytestream` without any null trailing padding."""
+        """Return `bytestream` without any trailing null padding."""
         if bytestream[-1:] == b'\x00':
             return bytestream[:-1]
 
@@ -2757,8 +2757,8 @@ class SOPClassExtendedNegotiationSubItem(PDUItem):
     def sop_class_uid_length(self):
         """Return the item's *SOP Class UID Length* field value."""
         if self.sop_class_uid:
+            # If odd length then pad with trailing null
             uid_len = len(self.sop_class_uid)
-
             return uid_len + uid_len % 2
 
         return 0
@@ -3055,12 +3055,13 @@ class SOPClassCommonExtendedNegotiationSubItem(PDUItem):
         while bytestream[offset:offset + 1]:
             uid_length = UNPACK_UINT2(bytestream[offset:offset + 2])[0]
             raw_uid = bytestream[offset + 2:offset + 2 + uid_length]
+            stripped_uid_length = uid_length
             if raw_uid[-1:] == b'\x00':
                 raw_uid = raw_uid[:-1]
-                uid_length -= 1
+                stripped_uid_length = uid_length - 1
 
             uid = UID(raw_uid.decode('ascii'))
-            assert len(uid) == uid_length
+            assert len(uid) == stripped_uid_length
             yield uid
             offset += 2 + uid_length
 
@@ -3110,8 +3111,7 @@ class SOPClassCommonExtendedNegotiationSubItem(PDUItem):
         """
         length = 0
         for uid in self._related_general_sop_class_identification:
-            uid_len = len(uid)
-            length += 2 + uid_len + uid_len % 2
+            length += 2 + len(uid) + len(uid) % 2
 
         return length
 
@@ -3141,7 +3141,6 @@ class SOPClassCommonExtendedNegotiationSubItem(PDUItem):
         """Return the item's *SOP Class UID Length* field value."""
         if self.sop_class_uid:
             uid_len = len(self.sop_class_uid)
-
             return uid_len + uid_len % 2
 
         return 0
@@ -3172,7 +3171,6 @@ class SOPClassCommonExtendedNegotiationSubItem(PDUItem):
         """Return the item's *Service Class UID Length* field value."""
         if self.service_class_uid:
             uid_len = len(self.service_class_uid)
-
             return uid_len + uid_len % 2
 
         return 0
@@ -3225,7 +3223,9 @@ class SOPClassCommonExtendedNegotiationSubItem(PDUItem):
         for uid in uid_list:
             # UIDs are to be encoded as per normal Part 5 UID encoding rules
             #   (i.e. that odd length UIDs be null padded to even length)
+            # Related general SOP class UID length
             bytestream += PACK_UINT2(len(uid) + len(uid) % 2)
+            # Related general SOP class UID
             bytestream += self._wrap_encode_uid(uid, True)
 
         return bytestream
