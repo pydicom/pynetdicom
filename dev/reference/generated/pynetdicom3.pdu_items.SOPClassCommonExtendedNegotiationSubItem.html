@@ -330,7 +330,10 @@ parameters:</p>
 <p><strong>Encoding</strong></p>
 <p>When encoded, a SOP Class Common Extended Negotiation Sub-item has the
 following structure, taken from Table D.3-12 <a class="footnote-reference" href="#id4" id="id1">[1]</a> (offsets shown
-with Python indexing). Items are always encoded using Big Endian <a class="footnote-reference" href="#id5" id="id2">[2]</a>.</p>
+with Python indexing). Items are always encoded using Big Endian <a class="footnote-reference" href="#id5" id="id2">[2]</a>.
+The SOP Class UID, Service Class UID and the UIDs in the Related General
+SOP Class Identification parameters are encoded as UIDs as per the rules in
+Part 5, Section 9.1.</p>
 <table border="1" class="docutils">
 <colgroup>
 <col width="32%" />
@@ -554,8 +557,8 @@ primitive.</p>
 <dl class="attribute">
 <dt>
 <code class="descname">related_general_sop_class_identification_length</code></dt>
-<dd><p>Return the item’s <em>Related General SOP Class Identification Length</em> field
-value.</p>
+<dd><p>Return the item’s <em>Related General SOP Class Identification Length</em>
+field value.</p>
 </dd></dl>
 
 <dl class="attribute">

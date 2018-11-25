@@ -235,14 +235,17 @@ field to the last byte of the Item.</p>
 <p>Application Context Names are OSI Object Identifiers in a numeric form as
 defined by ISO 8824 <a class="footnote-reference" href="#id8" id="id2">[2]</a>. They are encoded as an ISO 646:1990-Basic G0 Set
 Numeric String of bytes (characters 0-9), separated by the character
-<code class="docutils literal notranslate"><span class="pre">.</span></code> (0x2e) <a class="footnote-reference" href="#id9" id="id3">[3]</a>.</p>
+<code class="docutils literal notranslate"><span class="pre">.</span></code> (0x2e) <a class="footnote-reference" href="#id9" id="id3">[3]</a>. No separator or padding shall be present before the
+first digit of the first component or after the last digit of the last
+component.</p>
 <p>Application context names shall not exceed 64 total characters.</p>
 <p>A single DICOM Application Context Name is defined for the current (2018c)
 version of the DICOM Standard and it is <em>1.2.840.10008.3.1.1.1</em> <a class="footnote-reference" href="#id10" id="id4">[4]</a>.</p>
 <p><strong>Encoding</strong></p>
-<p>When encoded, an Application Context Item has the following structure, taken
-from Table 9-12 <a class="footnote-reference" href="#id11" id="id5">[5]</a> (offsets shown with Python indexing). Items are always
-encoded using Big Endian <a class="footnote-reference" href="#id12" id="id6">[6]</a>.</p>
+<p>When encoded, an Application Context Item has the following structure,
+taken from Table 9-12 <a class="footnote-reference" href="#id11" id="id5">[5]</a> (offsets shown with Python indexing). Items are
+always encoded using Big Endian <a class="footnote-reference" href="#id12" id="id6">[6]</a>. Encoding of the Application Context
+Name parameter follows the rules in Part 8, Annex F.</p>
 <table border="1" class="docutils">
 <colgroup>
 <col width="17%" />

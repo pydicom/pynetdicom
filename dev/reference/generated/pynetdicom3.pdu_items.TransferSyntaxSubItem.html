@@ -238,11 +238,14 @@ field to the last byte of the Item.</p>
 defined by ISO 8824 <a class="footnote-reference" href="#id7" id="id2">[2]</a>. They may be either DICOM registered or privately
 defined. They’re encoded as an ISO 646:1990-Basic G0 Set Numeric String of
 bytes (characters 0-9), separated by the character <code class="docutils literal notranslate"><span class="pre">.</span></code> (0x2e) <a class="footnote-reference" href="#id8" id="id3">[3]</a> and
-shall not exceed 64 total characters.</p>
+shall not exceed 64 total characters. No separator or padding shall be
+present before the first digit of the first component or after the last
+digit of the last component.</p>
 <p><strong>Encoding</strong></p>
 <p>When encoded, a Transfer Syntax Item has the following structure,
 taken from Table 9-15 <a class="footnote-reference" href="#id9" id="id4">[4]</a> (offsets shown with Python indexing). Items are
-always encoded using Big Endian <a class="footnote-reference" href="#id10" id="id5">[5]</a>.</p>
+always encoded using Big Endian <a class="footnote-reference" href="#id10" id="id5">[5]</a>. Encoding of the Transfer Syntax Name
+parameter follows the rules in Part 8, Annex F.</p>
 <table border="1" class="docutils">
 <colgroup>
 <col width="14%" />
