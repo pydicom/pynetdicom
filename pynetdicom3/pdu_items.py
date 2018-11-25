@@ -233,6 +233,14 @@ class PDUItem(object):
         return bytestream
 
     @staticmethod
+    def _wrap_uid_bytes(bytestream):
+        """Return `bytestream` without any trailing null padding."""
+        if bytestream[-1:] == b'\x00':
+            return bytestream[:-1]
+
+        return bytestream
+
+    @staticmethod
     def _wrap_encode_items(items):
         """Return `items` encoded as bytes.
 
@@ -253,7 +261,7 @@ class PDUItem(object):
         return bytestream
 
     @staticmethod
-    def _wrap_encode_uid(uid):
+    def _wrap_encode_uid(uid, encode_as_uid=False):
         """Return `uid` as bytes encoded using ASCII.
 
         Each component of Application Context, Abstract Syntax and Transfer
@@ -264,10 +272,16 @@ class PDUItem(object):
         'ascii' is chosen because this is the codec Python uses for ISO 646 [#]_
         [#]_.
 
+        Odd-length UIDs should have a trailing padding 0x00 byte to make them
+        even length.
+
         Parameters
         ----------
         uid : pydicom.uid.UID
             The UID to encode using ASCII.
+        encode_as_uid : bool, optional
+            If False (default) then add no trailing padding null byte for
+            odd length UIDs, otherwise add the trailing null byte.
 
         Returns
         -------
@@ -280,7 +294,11 @@ class PDUItem(object):
         .. [#] `Python 2 codecs module <https://docs.python.org/3/library/codecs.html#standard-encodings>`_
         .. [#] `Python 3 codecs module <https://docs.python.org/2/library/codecs.html#standard-encodings>`_
         """
-        return codecs.encode(uid, 'ascii')
+        uid = codecs.encode(uid, 'ascii')
+        if encode_as_uid:
+            uid += b'\x00' if len(uid) % 2 > 0 else b''
+
+        return uid
 
     def _wrap_generate_items(self, bytestream):
         """Return a list of encoded PDU items generated from `bytestream`."""
@@ -358,7 +376,9 @@ class ApplicationContextItem(PDUItem):
     Application Context Names are OSI Object Identifiers in a numeric form as
     defined by ISO 8824 [#]_. They are encoded as an ISO 646:1990-Basic G0 Set
     Numeric String of bytes (characters 0-9), separated by the character
-    ``.`` (0x2e) [#]_.
+    ``.`` (0x2e) [#]_. No separator or padding shall be present before the
+    first digit of the first component or after the last digit of the last
+    component.
 
     Application context names shall not exceed 64 total characters.
 
@@ -367,9 +387,10 @@ class ApplicationContextItem(PDUItem):
 
     **Encoding**
 
-    When encoded, an Application Context Item has the following structure, taken
-    from Table 9-12 [#]_ (offsets shown with Python indexing). Items are always
-    encoded using Big Endian [#]_.
+    When encoded, an Application Context Item has the following structure,
+    taken from Table 9-12 [#]_ (offsets shown with Python indexing). Items are
+    always encoded using Big Endian [#]_. Encoding of the Application Context
+    Name parameter follows the rules in Part 8, Annex F.
 
     +--------+-------------+--------------------------+
     | Offset | Length      | Description              |
@@ -446,7 +467,7 @@ class ApplicationContextItem(PDUItem):
             - args is a list of arguments to pass callable.
         """
         return [
-            ((4, None), 'application_context_name', self._wrap_bytes, [])
+            ((4, None), 'application_context_name', self._wrap_uid_bytes, [])
         ]
 
     @property
@@ -1277,13 +1298,16 @@ class AbstractSyntaxSubItem(PDUItem):
     defined by ISO 8824 [#]_. They may be either DICOM registered or privately
     defined. They're encoded as an ISO 646:1990-Basic G0 Set Numeric String of
     bytes (characters 0-9), separated by the character ``.`` (0x2e) [#]_ and
-    shall not exceed 64 total characters.
+    shall not exceed 64 total characters. No separator or padding shall be
+    present before the first digit of the first component or after the last
+    digit of the last component.
 
     **Encoding**
 
     When encoded, an Abstract Syntax Item has the following structure,
     taken from Table 9-14 [#]_ (offsets shown with Python indexing). Items are
-    always encoded using Big Endian [#]_.
+    always encoded using Big Endian [#]_. Encoding of the Abstract Syntax Name
+    parameter follows the rules in Part 8, Annex F.
 
     +--------+-------------+------------------------------------+
     | Offset | Length      | Description                        |
@@ -1365,7 +1389,7 @@ class AbstractSyntaxSubItem(PDUItem):
             - args is a list of arguments to pass callable.
         """
         return [
-            ((4, None), 'abstract_syntax_name', self._wrap_bytes, [])
+            ((4, None), 'abstract_syntax_name', self._wrap_uid_bytes, [])
         ]
 
     @property
@@ -1443,13 +1467,16 @@ class TransferSyntaxSubItem(PDUItem):
     defined by ISO 8824 [#]_. They may be either DICOM registered or privately
     defined. They're encoded as an ISO 646:1990-Basic G0 Set Numeric String of
     bytes (characters 0-9), separated by the character ``.`` (0x2e) [#]_ and
-    shall not exceed 64 total characters.
+    shall not exceed 64 total characters. No separator or padding shall be
+    present before the first digit of the first component or after the last
+    digit of the last component.
 
     **Encoding**
 
     When encoded, a Transfer Syntax Item has the following structure,
     taken from Table 9-15 [#]_ (offsets shown with Python indexing). Items are
-    always encoded using Big Endian [#]_.
+    always encoded using Big Endian [#]_. Encoding of the Transfer Syntax Name
+    parameter follows the rules in Part 8, Annex F.
 
     +--------+-------------+------------------------------------+
     | Offset | Length      | Description                        |
@@ -1497,7 +1524,7 @@ class TransferSyntaxSubItem(PDUItem):
             - args is a list of arguments to pass callable.
         """
         return [
-            ((4, None), 'transfer_syntax_name', self._wrap_bytes, [])
+            ((4, None), 'transfer_syntax_name', self._wrap_uid_bytes, [])
         ]
 
     @property
@@ -1821,7 +1848,7 @@ class ImplementationClassUIDSubItem(PDUItem):
             - args is a list of arguments to pass callable.
         """
         return [
-            ((4, None), 'implementation_class_uid', self._wrap_bytes, [])
+            ((4, None), 'implementation_class_uid', self._wrap_uid_bytes, [])
         ]
 
     @property
@@ -2285,6 +2312,8 @@ class SCP_SCU_RoleSelectionSubItem(PDUItem):
     When encoded, an SCP/SCU Role Section Sub-item has the following
     structure, taken from Tables D.3-9 and D.3-10 [#]_ (offsets shown with
     Python indexing). Items are always encoded using Big Endian [#]_.
+    The SOP Class UID parameter is encoded as a UID as per the rules in
+    Part 5, Section 9.1.
 
     +----------------+----------+------------------------------------+
     | Offset         | Length   | Description                        |
@@ -2383,7 +2412,7 @@ class SCP_SCU_RoleSelectionSubItem(PDUItem):
         yield (
             (6, self._uid_length),
             'sop_class_uid',
-            self._wrap_bytes,
+            self._wrap_uid_bytes,
             []
         )
 
@@ -2419,7 +2448,7 @@ class SCP_SCU_RoleSelectionSubItem(PDUItem):
             (None, self._wrap_pack, [0x00, PACK_UCHAR]),
             ('item_length', PACK_UINT2, []),
             ('uid_length', PACK_UINT2, []),
-            ('sop_class_uid', self._wrap_encode_uid, []),
+            ('sop_class_uid', self._wrap_encode_uid, [True]),
             ('scu_role', PACK_UCHAR, []),
             ('scp_role', PACK_UCHAR, [])
         ]
@@ -2513,7 +2542,9 @@ class SCP_SCU_RoleSelectionSubItem(PDUItem):
     def uid_length(self):
         """Return the *UID Length* parameter value."""
         if self.sop_class_uid:
-            return len(self.sop_class_uid)
+            # If odd length then pad with trailing null
+            uid_len = len(self.sop_class_uid)
+            return uid_len + uid_len % 2
 
         return 0
 
@@ -2554,6 +2585,9 @@ class SOPClassExtendedNegotiationSubItem(PDUItem):
     When encoded, a SOP Class Extended Negotiation Sub-item has the following
     structure, taken from Table D.3-11 [1]_ (offsets shown with
     Python indexing). Items are always encoded using Big Endian [2]_.
+    The SOP Class UID parameter is encoded as a UID as per the rules in
+    Part 5, Section 9.1.
+
 
     +----------------+-------------+------------------------------------+
     | Offset         | Length      | Description                        |
@@ -2652,7 +2686,7 @@ class SOPClassExtendedNegotiationSubItem(PDUItem):
         yield (
             (6, self._sop_class_uid_length),
             'sop_class_uid',
-            self._wrap_bytes,
+            self._wrap_uid_bytes,
             []
         )
 
@@ -2681,7 +2715,7 @@ class SOPClassExtendedNegotiationSubItem(PDUItem):
             (None, self._wrap_pack, [0x00, PACK_UCHAR]),
             ('item_length', PACK_UINT2, []),
             ('sop_class_uid_length', PACK_UINT2, []),
-            ('sop_class_uid', self._wrap_encode_uid, []),
+            ('sop_class_uid', self._wrap_encode_uid, [True]),
             ('service_class_application_information', self._wrap_bytes, [])
         ]
 
@@ -2723,7 +2757,9 @@ class SOPClassExtendedNegotiationSubItem(PDUItem):
     def sop_class_uid_length(self):
         """Return the item's *SOP Class UID Length* field value."""
         if self.sop_class_uid:
-            return len(self.sop_class_uid)
+            # If odd length then pad with trailing null
+            uid_len = len(self.sop_class_uid)
+            return uid_len + uid_len % 2
 
         return 0
 
@@ -2807,6 +2843,9 @@ class SOPClassCommonExtendedNegotiationSubItem(PDUItem):
     When encoded, a SOP Class Common Extended Negotiation Sub-item has the
     following structure, taken from Table D.3-12 [1]_ (offsets shown
     with Python indexing). Items are always encoded using Big Endian [2]_.
+    The SOP Class UID, Service Class UID and the UIDs in the Related General
+    SOP Class Identification parameters are encoded as UIDs as per the rules in
+    Part 5, Section 9.1.
 
     +----------------------+----------+-------------------------------------+
     | Offset               | Length   | Description                         |
@@ -2924,7 +2963,7 @@ class SOPClassCommonExtendedNegotiationSubItem(PDUItem):
         yield (
             (6, self._sop_length),
             'sop_class_uid',
-            self._wrap_bytes,
+            self._wrap_uid_bytes,
             []
         )
 
@@ -2938,7 +2977,7 @@ class SOPClassCommonExtendedNegotiationSubItem(PDUItem):
         yield (
             (8 + self._sop_length, self._service_length),
             'service_class_uid',
-            self._wrap_bytes,
+            self._wrap_uid_bytes,
             []
         )
 
@@ -2967,9 +3006,9 @@ class SOPClassCommonExtendedNegotiationSubItem(PDUItem):
             ('sub_item_version', PACK_UCHAR, []),
             ('item_length', PACK_UINT2, []),
             ('sop_class_uid_length', PACK_UINT2, []),
-            ('sop_class_uid', self._wrap_encode_uid, []),
+            ('sop_class_uid', self._wrap_encode_uid, [True]),
             ('service_class_uid_length', PACK_UINT2, []),
-            ('service_class_uid', self._wrap_encode_uid, []),
+            ('service_class_uid', self._wrap_encode_uid, [True]),
             ('related_general_sop_class_identification_length', PACK_UINT2, []),
             ('related_general_sop_class_identification', self._wrap_list, []),
             # (None, )
@@ -3015,10 +3054,14 @@ class SOPClassCommonExtendedNegotiationSubItem(PDUItem):
         offset = 0
         while bytestream[offset:offset + 1]:
             uid_length = UNPACK_UINT2(bytestream[offset:offset + 2])[0]
-            uid = UID(
-                bytestream[offset + 2:offset + 2 + uid_length].decode('ascii')
-            )
-            assert len(uid) == uid_length
+            raw_uid = bytestream[offset + 2:offset + 2 + uid_length]
+            stripped_uid_length = uid_length
+            if raw_uid[-1:] == b'\x00':
+                raw_uid = raw_uid[:-1]
+                stripped_uid_length = uid_length - 1
+
+            uid = UID(raw_uid.decode('ascii'))
+            assert len(uid) == stripped_uid_length
             yield uid
             offset += 2 + uid_length
 
@@ -3063,12 +3106,12 @@ class SOPClassCommonExtendedNegotiationSubItem(PDUItem):
 
     @property
     def related_general_sop_class_identification_length(self):
-        """Return the item's *Related General SOP Class Identification Length* field
-        value.
+        """Return the item's *Related General SOP Class Identification Length*
+        field value.
         """
         length = 0
         for uid in self._related_general_sop_class_identification:
-            length += 2 + len(uid)
+            length += 2 + len(uid) + len(uid) % 2
 
         return length
 
@@ -3097,7 +3140,8 @@ class SOPClassCommonExtendedNegotiationSubItem(PDUItem):
     def sop_class_uid_length(self):
         """Return the item's *SOP Class UID Length* field value."""
         if self.sop_class_uid:
-            return len(self.sop_class_uid)
+            uid_len = len(self.sop_class_uid)
+            return uid_len + uid_len % 2
 
         return 0
 
@@ -3126,7 +3170,8 @@ class SOPClassCommonExtendedNegotiationSubItem(PDUItem):
     def service_class_uid_length(self):
         """Return the item's *Service Class UID Length* field value."""
         if self.service_class_uid:
-            return len(self.service_class_uid)
+            uid_len = len(self.service_class_uid)
+            return uid_len + uid_len % 2
 
         return 0
 
@@ -3176,8 +3221,12 @@ class SOPClassCommonExtendedNegotiationSubItem(PDUItem):
         """
         bytestream = bytes()
         for uid in uid_list:
-            bytestream += PACK_UINT2(len(uid))
-            bytestream += self._wrap_encode_uid(uid)
+            # UIDs are to be encoded as per normal Part 5 UID encoding rules
+            #   (i.e. that odd length UIDs be null padded to even length)
+            # Related general SOP class UID length
+            bytestream += PACK_UINT2(len(uid) + len(uid) % 2)
+            # Related general SOP class UID
+            bytestream += self._wrap_encode_uid(uid, True)
 
         return bytestream
 
