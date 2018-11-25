@@ -1841,16 +1841,6 @@ class TestUserIdentityRQ_UserPass(object):
         assert item.secondary == b'p4ssw0rd'
 
 
-# FIXME: Add tests for UserIdentityRQ SAML
-class TestUserIdentityRQ_SAML(object):
-    pass
-
-
-# FIXME: Add tests for UserIdentityRQ Kerberos
-class TestUserIdentityRQ_Kerberos(object):
-    pass
-
-
 class TestUserIdentityAC_UserResponse(object):
     def test_init(self):
         """Test a new UserIdentitySubItemAC."""
@@ -1922,16 +1912,6 @@ class TestUserIdentityAC_UserResponse(object):
         pdu.decode(a_associate_ac_user)
         item = pdu.user_information.user_identity
         assert item.response == b'Accepted'
-
-
-# FIXME: Add tests for UserIdentityAC SAML
-class TestUserIdentityAC_SAMLResponse(object):
-    pass
-
-
-# FIXME: Add tests for UserIdentityAC Kerberos
-class TestUserIdentityAC_KerberosResponse(object):
-    pass
 
 
 class TestUserInformation_ExtendedNegotiation(object):
@@ -2159,11 +2139,13 @@ class TestUserInformation_CommonExtendedNegotiation(object):
         item = pdu.user_information.common_ext_neg[0]
 
         assert item.item_type == 0x57
-        assert item.item_length == 79
-        assert len(item) == 83
-        assert item.sop_class_uid_length == 25
+        assert item.item_length == 82
+        assert len(item) == 86
+        assert item.sop_class_uid_length == 26
         assert item.sop_class_uid == UID('1.2.840.10008.5.1.4.1.1.4')
+        assert item.service_class_uid_length == 18
         assert item.service_class_uid == UID('1.2.840.10008.4.2')
+        assert item.related_general_sop_class_identification_length == 32
         assert item.related_general_sop_class_identification == [
             UID('1.2.840.10008.5.1.4.1.1.88.22')
         ]
@@ -2173,7 +2155,22 @@ class TestUserInformation_CommonExtendedNegotiation(object):
         pdu = A_ASSOCIATE_RQ()
         pdu.decode(a_associate_rq_com_ext_neg)
         item = pdu.user_information.common_ext_neg[0]
-        assert item.encode() == common_extended_negotiation
+        assert item.encode() == (
+            # Item type, item length
+            b'\x57\x00\x00\x52'
+            # SOP Class UID length, SOP Class UID
+            b'\x00\x1a\x31\x2e\x32\x2e\x38\x34\x30\x2e\x31\x30\x30\x30\x38\x2e'
+            b'\x35\x2e\x31\x2e\x34\x2e\x31\x2e\x31\x2e\x34\x00'
+            # Service Class UID length, Service Class UID
+            b'\x00\x12\x31\x2e\x32\x2e\x38\x34\x30\x2e\x31\x30\x30\x30\x38\x2e'
+            b'\x34\x2e\x32\x00'
+            # Related general ID length
+            b'\x00\x20'
+            # Related general ID list
+            b'\x00\x1e\x31\x2e\x32\x2e\x38\x34\x30\x2e\x31\x30'
+            b'\x30\x30\x38\x2e\x35\x2e\x31\x2e\x34\x2e\x31\x2e\x31\x2e\x38\x38'
+            b'\x2e\x32\x32\x00'
+        )
 
     def test_to_primitive(self):
         """Check converting to primitive """
@@ -2211,7 +2208,7 @@ class TestUserInformation_CommonExtendedNegotiation(object):
         # SOP Class UID
         item.sop_class_uid = '1.1'
         assert item.sop_class_uid == UID('1.1')
-        assert item.sop_class_uid_length == 3
+        assert item.sop_class_uid_length == 4
 
         with pytest.raises(TypeError):
             item.sop_class_uid = 10002
@@ -2219,13 +2216,16 @@ class TestUserInformation_CommonExtendedNegotiation(object):
         # Service Class UID
         item.service_class_uid = '1.2'
         assert item.service_class_uid == UID('1.2')
-        assert item.service_class_uid_length == 3
+        assert item.service_class_uid_length == 4
         item.service_class_uid = b'1.2.3'
         assert item.service_class_uid == UID('1.2.3')
-        assert item.service_class_uid_length == 5
+        assert item.service_class_uid_length == 6
         item.service_class_uid = UID('1.2.3.4')
         assert item.service_class_uid == UID('1.2.3.4')
-        assert item.service_class_uid_length == 7
+        assert item.service_class_uid_length == 8
+        item.service_class_uid = UID('1.2.3.41')
+        assert item.service_class_uid == UID('1.2.3.41')
+        assert item.service_class_uid_length == 8
 
         with pytest.raises(TypeError):
             item.service_class_uid = 10002
@@ -2233,13 +2233,16 @@ class TestUserInformation_CommonExtendedNegotiation(object):
         # Related General SOP Class UID
         item.related_general_sop_class_identification = ['1.2']
         assert item.related_general_sop_class_identification == [UID('1.2')]
-        assert item.related_general_sop_class_identification_length == 5
+        assert item.related_general_sop_class_identification_length == 6
         item.related_general_sop_class_identification = [b'1.2.3']
         assert item.related_general_sop_class_identification == [UID('1.2.3')]
-        assert item.related_general_sop_class_identification_length ==  7
+        assert item.related_general_sop_class_identification_length ==  8
         item.related_general_sop_class_identification = [UID('1.2.3.4')]
         assert item.related_general_sop_class_identification == [UID('1.2.3.4')]
-        assert item.related_general_sop_class_identification_length == 9
+        assert item.related_general_sop_class_identification_length == 10
+        item.related_general_sop_class_identification = [UID('1.2.3.41')]
+        assert item.related_general_sop_class_identification == [UID('1.2.3.41')]
+        assert item.related_general_sop_class_identification_length == 10
 
         with pytest.raises(TypeError):
             item.related_general_sop_class_identification = 10002
@@ -2253,16 +2256,37 @@ class TestUserInformation_CommonExtendedNegotiation(object):
         with pytest.raises(StopIteration):
             next(gen)
 
+        # Unpadded odd length UID
         data = b'\x00\x07\x31\x2e\x38\x38\x2e\x32\x32'
         gen = item._generate_items(data)
         assert next(gen) == UID('1.88.22')
         with pytest.raises(StopIteration):
             next(gen)
 
+        # Even length UID
         data += b'\x00\x08\x31\x2e\x38\x31\x38\x2e\x32\x32'
         gen = item._generate_items(data)
         assert next(gen) == UID('1.88.22')
         assert next(gen) == UID('1.818.22')
+        with pytest.raises(StopIteration):
+            next(gen)
+
+        # Padded odd length UID
+        data += b'\x00\x08\x31\x2e\x38\x38\x2e\x32\x32\x00'
+        gen = item._generate_items(data)
+        assert next(gen) == UID('1.88.22')
+        assert next(gen) == UID('1.818.22')
+        assert next(gen) == UID('1.88.22')
+        with pytest.raises(StopIteration):
+            next(gen)
+
+        # Even length UID
+        data += b'\x00\x08\x31\x2e\x38\x38\x2e\x32\x32\x31'
+        gen = item._generate_items(data)
+        assert next(gen) == UID('1.88.22')
+        assert next(gen) == UID('1.818.22')
+        assert next(gen) == UID('1.88.22')
+        assert next(gen) == UID('1.88.221')
         with pytest.raises(StopIteration):
             next(gen)
 
@@ -2294,6 +2318,6 @@ class TestUserInformation_CommonExtendedNegotiation(object):
         item = SOPClassCommonExtendedNegotiationSubItem()
         data = [UID('1.88.22'), UID('1.818.22')]
         assert item._wrap_list(data) == (
-            b'\x00\x07\x31\x2e\x38\x38\x2e\x32\x32' +
+            b'\x00\x08\x31\x2e\x38\x38\x2e\x32\x32\x00'
             b'\x00\x08\x31\x2e\x38\x31\x38\x2e\x32\x32'
         )
