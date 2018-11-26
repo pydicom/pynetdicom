@@ -2,6 +2,7 @@
 
 import codecs
 import logging
+import sys
 
 import pytest
 
@@ -1106,6 +1107,11 @@ class TestUserInformation_ImplementationUID(object):
         assert len(item) == 4
         assert item.implementation_class_uid is None
 
+        item.decode(
+            b'\x52\x00\x00\x14\x31\x2e\x32\x2e\x31\x32\x34\x2e\x31\x31\x33\x35\x33\x32\x2e\x33\x33\x32\x30\x00'
+        )
+        primitive = item.to_primitive()
+
     def test_string_output(self):
         """Test the string output"""
         pdu = A_ASSOCIATE_RQ()
@@ -1239,6 +1245,32 @@ class TestUserInformation_ImplementationUID(object):
         assert len(item) == 9
         assert item.encode() == b'\x52\x00\x00\x05\x31\x2e\x32\x2e\x33'
 
+    @pytest.mark.skipif(sys.version_info[:2] == (3, 4),
+                        reason='pytest missing caplog')
+    def test_no_log_padded(self, caplog):
+        """Regression test for #240."""
+        caplog.set_level(logging.DEBUG, logger='pynetdicom3.pdu_primitives')
+        # Confirm that no longer logs invalid UID
+        item = ImplementationClassUIDSubItem()
+        # Valid UID (with non-conformant padding)
+        item.decode(
+            b'\x52\x00\x00\x14'
+            b'\x31\x2e\x32\x2e\x31\x32\x34\x2e\x31\x31\x33\x35\x33\x32\x2e'
+            b'\x33\x33\x32\x30\x00'
+        )
+        primitive = item.to_primitive()
+        assert caplog.text == ''
+
+        # Invalid UID (with no padding)
+        item.decode(
+            b'\x52\x00\x00\x08\x30\x30\x2e\x31\x2e\x32\x2e\x33'
+        )
+        primitive = item.to_primitive()
+        msg = (
+            r"The Implementation Class UID Notification's 'Implementation "
+            r"Class UID' parameter value '00.1.2.3' is not a valid UID"
+        )
+        assert msg in caplog.text
 
 class TestUserInformation_ImplementationVersion(object):
     def test_init(self):
