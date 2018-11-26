@@ -378,6 +378,10 @@
     <span class="c1"># Python 2: Classes defining __eq__ should flag themselves as unhashable</span>
     <span class="fm">__hash__</span> <span class="o">=</span> <span class="kc">None</span>
 
+    <span class="k">def</span> <span class="nf">__len__</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;Return the total length of the encoded PDU as an int.&quot;&quot;&quot;</span>
+        <span class="k">return</span> <span class="mi">6</span> <span class="o">+</span> <span class="bp">self</span><span class="o">.</span><span class="n">pdu_length</span>
+
     <span class="k">def</span> <span class="nf">__ne__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">other</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;Return True if `self` does not equal `other`.&quot;&quot;&quot;</span>
         <span class="k">return</span> <span class="ow">not</span> <span class="bp">self</span> <span class="o">==</span> <span class="n">other</span>
@@ -805,10 +809,6 @@
             <span class="p">(</span><span class="s1">&#39;variable_items&#39;</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">_wrap_encode_items</span><span class="p">,</span> <span class="p">[])</span>
         <span class="p">]</span>
 
-    <span class="k">def</span> <span class="nf">__len__</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
-        <span class="sd">&quot;&quot;&quot;Return the total length of the encoded PDU as an int.&quot;&quot;&quot;</span>
-        <span class="k">return</span> <span class="mi">6</span> <span class="o">+</span> <span class="bp">self</span><span class="o">.</span><span class="n">pdu_length</span>
-
     <span class="nd">@property</span>
     <span class="k">def</span> <span class="nf">pdu_length</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;Return the *PDU Length* field value as an int.&quot;&quot;&quot;</span>
@@ -1184,10 +1184,6 @@
             <span class="p">(</span><span class="s1">&#39;variable_items&#39;</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">_wrap_encode_items</span><span class="p">,</span> <span class="p">[])</span>
         <span class="p">]</span>
 
-    <span class="k">def</span> <span class="nf">__len__</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
-        <span class="sd">&quot;&quot;&quot;Return the total length of the encoded PDU as an int.&quot;&quot;&quot;</span>
-        <span class="k">return</span> <span class="mi">6</span> <span class="o">+</span> <span class="bp">self</span><span class="o">.</span><span class="n">pdu_length</span>
-
     <span class="nd">@property</span>
     <span class="k">def</span> <span class="nf">pdu_length</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;Return the *PDU Length* field value as an int.&quot;&quot;&quot;</span>
@@ -1401,10 +1397,6 @@
             <span class="p">(</span><span class="s1">&#39;source&#39;</span><span class="p">,</span> <span class="n">PACK_UCHAR</span><span class="p">,</span> <span class="p">[]),</span>
             <span class="p">(</span><span class="s1">&#39;reason_diagnostic&#39;</span><span class="p">,</span> <span class="n">PACK_UCHAR</span><span class="p">,</span> <span class="p">[]),</span>
         <span class="p">]</span>
-
-    <span class="k">def</span> <span class="nf">__len__</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
-        <span class="sd">&quot;&quot;&quot;Return the total length of the encoded PDU as an int.&quot;&quot;&quot;</span>
-        <span class="k">return</span> <span class="mi">10</span>
 
     <span class="nd">@property</span>
     <span class="k">def</span> <span class="nf">pdu_length</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
@@ -1685,10 +1677,6 @@
             <span class="c1"># Change `offset` to the start of the next PDV item</span>
             <span class="n">offset</span> <span class="o">+=</span> <span class="mi">4</span> <span class="o">+</span> <span class="n">item_length</span>
 
-    <span class="k">def</span> <span class="nf">__len__</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
-        <span class="sd">&quot;&quot;&quot;Return the total length of the encoded PDU as an int.&quot;&quot;&quot;</span>
-        <span class="k">return</span> <span class="mi">6</span> <span class="o">+</span> <span class="bp">self</span><span class="o">.</span><span class="n">pdu_length</span>
-
     <span class="nd">@property</span>
     <span class="k">def</span> <span class="nf">pdu_length</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;Return the *PDU Length* field value as an int.&quot;&quot;&quot;</span>
@@ -1853,10 +1841,6 @@
             <span class="p">(</span><span class="kc">None</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">_wrap_pack</span><span class="p">,</span> <span class="p">[</span><span class="mh">0x00</span><span class="p">,</span> <span class="n">PACK_UINT4</span><span class="p">])</span>
         <span class="p">]</span>
 
-    <span class="k">def</span> <span class="nf">__len__</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
-        <span class="sd">&quot;&quot;&quot;Return the total length of the encoded PDU as an int.&quot;&quot;&quot;</span>
-        <span class="k">return</span> <span class="mi">10</span>
-
     <span class="nd">@property</span>
     <span class="k">def</span> <span class="nf">pdu_length</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;Return the *PDU Length* field value as an int.&quot;&quot;&quot;</span>
@@ -1988,10 +1972,6 @@
             <span class="p">(</span><span class="kc">None</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">_wrap_pack</span><span class="p">,</span> <span class="p">[</span><span class="mh">0x00</span><span class="p">,</span> <span class="n">PACK_UINT4</span><span class="p">])</span>
         <span class="p">]</span>
 
-    <span class="k">def</span> <span class="nf">__len__</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
-        <span class="sd">&quot;&quot;&quot;Return the total length of the encoded PDU as an int.&quot;&quot;&quot;</span>
-        <span class="k">return</span> <span class="mi">10</span>
-
     <span class="nd">@property</span>
     <span class="k">def</span> <span class="nf">pdu_length</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;Return the *PDU Length* field value as an int.&quot;&quot;&quot;</span>
@@ -2034,7 +2014,7 @@
 <span class="sd">    * Reason/Diagnostic (1)</span>
 
 <span class="sd">    **Encoding**</span>
-<span class="sd">    </span>
+
 <span class="sd">    When encoded, an A-ABORT-RQ PDU has the following structure, taken</span>
 <span class="sd">    from Table 9-26 [1]_ (offsets shown with Python indexing). PDUs are always</span>
 <span class="sd">    encoded using Big Endian [2]_.</span>
@@ -2156,10 +2136,6 @@
             <span class="p">(</span><span class="s1">&#39;source&#39;</span><span class="p">,</span> <span class="n">PACK_UCHAR</span><span class="p">,</span> <span class="p">[]),</span>
             <span class="p">(</span><span class="s1">&#39;reason_diagnostic&#39;</span><span class="p">,</span> <span class="n">PACK_UCHAR</span><span class="p">,</span> <span class="p">[]),</span>
         <span class="p">]</span>
-
-    <span class="k">def</span> <span class="nf">__len__</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
-        <span class="sd">&quot;&quot;&quot;Return the total length of the encoded PDU as an int.&quot;&quot;&quot;</span>
-        <span class="k">return</span> <span class="mi">10</span>
 
     <span class="nd">@property</span>
     <span class="k">def</span> <span class="nf">pdu_length</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>

@@ -394,6 +394,10 @@
 
         <span class="k">return</span> <span class="n">keys</span><span class="p">[</span><span class="n">vals</span><span class="o">.</span><span class="n">index</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="vm">__class__</span><span class="p">)]</span>
 
+    <span class="k">def</span> <span class="nf">__len__</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;Return the total length of the encoded item as an int.&quot;&quot;&quot;</span>
+        <span class="k">return</span> <span class="mi">4</span> <span class="o">+</span> <span class="bp">self</span><span class="o">.</span><span class="n">item_length</span>
+
     <span class="k">def</span> <span class="nf">__ne__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">other</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;Return True if `self` does not equal `other`.&quot;&quot;&quot;</span>
         <span class="k">return</span> <span class="ow">not</span> <span class="bp">self</span> <span class="o">==</span> <span class="n">other</span>
@@ -664,10 +668,6 @@
         <span class="sd">&quot;&quot;&quot;Return the item&#39;s *Item Length* field value as an int.&quot;&quot;&quot;</span>
         <span class="k">return</span> <span class="nb">len</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">application_context_name</span><span class="p">)</span>
 
-    <span class="k">def</span> <span class="nf">__len__</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
-        <span class="sd">&quot;&quot;&quot;Return the total length of the encoded item as an int.&quot;&quot;&quot;</span>
-        <span class="k">return</span> <span class="mi">4</span> <span class="o">+</span> <span class="bp">self</span><span class="o">.</span><span class="n">item_length</span>
-
     <span class="k">def</span> <span class="nf">__str__</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;Return a string representation of the Item.&quot;&quot;&quot;</span>
         <span class="n">s</span> <span class="o">=</span> <span class="s1">&#39;</span><span class="si">{0!s}</span><span class="s1"> (</span><span class="si">{1!s}</span><span class="s1">)</span><span class="se">\n</span><span class="s1">&#39;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">application_context_name</span><span class="p">,</span>
@@ -885,10 +885,6 @@
             <span class="n">length</span> <span class="o">+=</span> <span class="nb">len</span><span class="p">(</span><span class="n">item</span><span class="p">)</span>
 
         <span class="k">return</span> <span class="n">length</span>
-
-    <span class="k">def</span> <span class="nf">__len__</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
-        <span class="sd">&quot;&quot;&quot;Return the total length of the encoded item as an int.&quot;&quot;&quot;</span>
-        <span class="k">return</span> <span class="mi">4</span> <span class="o">+</span> <span class="bp">self</span><span class="o">.</span><span class="n">item_length</span>
 
     <span class="k">def</span> <span class="nf">__str__</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;Return a string representation of the Item.&quot;&quot;&quot;</span>
@@ -1110,10 +1106,6 @@
 
         <span class="k">else</span><span class="p">:</span>
             <span class="k">return</span> <span class="mi">4</span>
-
-    <span class="k">def</span> <span class="nf">__len__</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
-        <span class="sd">&quot;&quot;&quot;Return the total length of the encoded item as an int.&quot;&quot;&quot;</span>
-        <span class="k">return</span> <span class="mi">4</span> <span class="o">+</span> <span class="bp">self</span><span class="o">.</span><span class="n">item_length</span>
 
     <span class="nd">@property</span>
     <span class="k">def</span> <span class="nf">result</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
@@ -1381,10 +1373,6 @@
 
         <span class="k">return</span> <span class="n">length</span>
 
-    <span class="k">def</span> <span class="nf">__len__</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
-        <span class="sd">&quot;&quot;&quot;Return the total length of the encoded item as an int.&quot;&quot;&quot;</span>
-        <span class="k">return</span> <span class="mi">4</span> <span class="o">+</span> <span class="bp">self</span><span class="o">.</span><span class="n">item_length</span>
-
     <span class="nd">@property</span>
     <span class="k">def</span> <span class="nf">maximum_length</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;Return the item&#39;s *Maximum Length Received* field value, if available.&quot;&quot;&quot;</span>
@@ -1589,10 +1577,6 @@
 
         <span class="k">return</span> <span class="mi">0</span>
 
-    <span class="k">def</span> <span class="nf">__len__</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
-        <span class="sd">&quot;&quot;&quot;Return the total length of the encoded item as an int.&quot;&quot;&quot;</span>
-        <span class="k">return</span> <span class="mi">4</span> <span class="o">+</span> <span class="bp">self</span><span class="o">.</span><span class="n">item_length</span>
-
     <span class="k">def</span> <span class="nf">__str__</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;Return a string representation of the Item.&quot;&quot;&quot;</span>
         <span class="n">s</span> <span class="o">=</span> <span class="s2">&quot;Abstract Syntax Sub-item</span><span class="se">\n</span><span class="s2">&quot;</span>
@@ -1723,10 +1707,6 @@
             <span class="k">return</span> <span class="nb">len</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">transfer_syntax_name</span><span class="p">)</span>
 
         <span class="k">return</span> <span class="mi">0</span>
-
-    <span class="k">def</span> <span class="nf">__len__</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
-        <span class="sd">&quot;&quot;&quot;Return the total length of the encoded item as an int.&quot;&quot;&quot;</span>
-        <span class="k">return</span> <span class="mi">4</span> <span class="o">+</span> <span class="bp">self</span><span class="o">.</span><span class="n">item_length</span>
 
     <span class="k">def</span> <span class="nf">__str__</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;Return a string representation of the Item.&quot;&quot;&quot;</span>
@@ -1903,10 +1883,6 @@
         <span class="sd">&quot;&quot;&quot;Return the item&#39;s *Item Length* field value as an int.&quot;&quot;&quot;</span>
         <span class="k">return</span> <span class="mi">4</span>
 
-    <span class="k">def</span> <span class="nf">__len__</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
-        <span class="sd">&quot;&quot;&quot;Return the total length of the encoded item as an int.&quot;&quot;&quot;</span>
-        <span class="k">return</span> <span class="mi">8</span>
-
     <span class="k">def</span> <span class="nf">__str__</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;Return a string representation of the Item.&quot;&quot;&quot;</span>
         <span class="n">s</span> <span class="o">=</span> <span class="s2">&quot;Maximum length Sub-item</span><span class="se">\n</span><span class="s2">&quot;</span>
@@ -2079,10 +2055,6 @@
 
         <span class="k">return</span> <span class="mi">0</span>
 
-    <span class="k">def</span> <span class="nf">__len__</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
-        <span class="sd">&quot;&quot;&quot;Return the total length of the encoded item as an int.&quot;&quot;&quot;</span>
-        <span class="k">return</span> <span class="mi">4</span> <span class="o">+</span> <span class="bp">self</span><span class="o">.</span><span class="n">item_length</span>
-
     <span class="k">def</span> <span class="nf">__str__</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;Return a string representation of the Item.&quot;&quot;&quot;</span>
         <span class="n">s</span> <span class="o">=</span> <span class="s2">&quot;Implementation Class UID Sub-item</span><span class="se">\n</span><span class="s2">&quot;</span>
@@ -2242,10 +2214,6 @@
             <span class="k">return</span> <span class="nb">len</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">implementation_version_name</span><span class="p">)</span>
 
         <span class="k">return</span> <span class="mi">0</span>
-
-    <span class="k">def</span> <span class="nf">__len__</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
-        <span class="sd">&quot;&quot;&quot;Return the total length of the encoded item as an int.&quot;&quot;&quot;</span>
-        <span class="k">return</span> <span class="mi">4</span> <span class="o">+</span> <span class="bp">self</span><span class="o">.</span><span class="n">item_length</span>
 
     <span class="k">def</span> <span class="nf">__str__</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;Return a string representation of the Item.&quot;&quot;&quot;</span>
@@ -2414,10 +2382,6 @@
     <span class="k">def</span> <span class="nf">item_length</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;Return the item&#39;s *Item Length* field value as an int.&quot;&quot;&quot;</span>
         <span class="k">return</span> <span class="mi">4</span>
-
-    <span class="k">def</span> <span class="nf">__len__</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
-        <span class="sd">&quot;&quot;&quot;Return the total length of the encoded item as an int.&quot;&quot;&quot;</span>
-        <span class="k">return</span> <span class="mi">8</span>
 
     <span class="nd">@property</span>
     <span class="k">def</span> <span class="nf">max_operations_invoked</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
@@ -2626,10 +2590,6 @@
     <span class="k">def</span> <span class="nf">item_length</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;Return the item&#39;s *Item Length* field value as an int.&quot;&quot;&quot;</span>
         <span class="k">return</span> <span class="mi">4</span> <span class="o">+</span> <span class="bp">self</span><span class="o">.</span><span class="n">uid_length</span>
-
-    <span class="k">def</span> <span class="nf">__len__</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
-        <span class="sd">&quot;&quot;&quot;Return the total length of the encoded item as an int.&quot;&quot;&quot;</span>
-        <span class="k">return</span> <span class="mi">4</span> <span class="o">+</span> <span class="bp">self</span><span class="o">.</span><span class="n">item_length</span>
 
     <span class="nd">@property</span>
     <span class="k">def</span> <span class="nf">scu</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
@@ -2894,10 +2854,6 @@
             <span class="k">return</span> <span class="n">length</span> <span class="o">+</span> <span class="nb">len</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">service_class_application_information</span><span class="p">)</span>
 
         <span class="k">return</span> <span class="n">length</span>
-
-    <span class="k">def</span> <span class="nf">__len__</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
-        <span class="sd">&quot;&quot;&quot;Return the total length of the encoded item as an int.&quot;&quot;&quot;</span>
-        <span class="k">return</span> <span class="mi">4</span> <span class="o">+</span> <span class="bp">self</span><span class="o">.</span><span class="n">item_length</span>
 
     <span class="nd">@property</span>
     <span class="k">def</span> <span class="nf">sop_class_uid</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
@@ -3236,10 +3192,6 @@
         <span class="k">return</span> <span class="p">(</span><span class="mi">2</span> <span class="o">+</span> <span class="bp">self</span><span class="o">.</span><span class="n">sop_class_uid_length</span> <span class="o">+</span>
                 <span class="mi">2</span> <span class="o">+</span> <span class="bp">self</span><span class="o">.</span><span class="n">service_class_uid_length</span> <span class="o">+</span>
                 <span class="mi">2</span> <span class="o">+</span> <span class="bp">self</span><span class="o">.</span><span class="n">related_general_sop_class_identification_length</span><span class="p">)</span>
-
-    <span class="k">def</span> <span class="nf">__len__</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
-        <span class="sd">&quot;&quot;&quot;Return the total length of the encoded item as an int.&quot;&quot;&quot;</span>
-        <span class="k">return</span> <span class="mi">4</span> <span class="o">+</span> <span class="bp">self</span><span class="o">.</span><span class="n">item_length</span>
 
     <span class="nd">@property</span>
     <span class="k">def</span> <span class="nf">related_general_sop_class_identification</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
@@ -3614,10 +3566,6 @@
         <span class="sd">&quot;&quot;&quot;Return the item&#39;s *Item Length* field value as an int.&quot;&quot;&quot;</span>
         <span class="k">return</span> <span class="mi">6</span> <span class="o">+</span> <span class="bp">self</span><span class="o">.</span><span class="n">primary_field_length</span> <span class="o">+</span> <span class="bp">self</span><span class="o">.</span><span class="n">secondary_field_length</span>
 
-    <span class="k">def</span> <span class="nf">__len__</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
-        <span class="sd">&quot;&quot;&quot;Return the total length of the encoded item as an int.&quot;&quot;&quot;</span>
-        <span class="k">return</span> <span class="mi">4</span> <span class="o">+</span> <span class="bp">self</span><span class="o">.</span><span class="n">item_length</span>
-
     <span class="nd">@property</span>
     <span class="k">def</span> <span class="nf">primary</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;Return the item&#39;s *Primary Field* field value.&quot;&quot;&quot;</span>
@@ -3805,10 +3753,6 @@
         <span class="sd">&quot;&quot;&quot;Return the item&#39;s *Item Length* field value as an int.&quot;&quot;&quot;</span>
         <span class="k">return</span> <span class="mi">2</span> <span class="o">+</span> <span class="bp">self</span><span class="o">.</span><span class="n">server_response_length</span>
 
-    <span class="k">def</span> <span class="nf">__len__</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
-        <span class="sd">&quot;&quot;&quot;Return the total length of the encoded item as an int.&quot;&quot;&quot;</span>
-        <span class="k">return</span> <span class="mi">4</span> <span class="o">+</span> <span class="bp">self</span><span class="o">.</span><span class="n">item_length</span>
-
     <span class="nd">@property</span>
     <span class="k">def</span> <span class="nf">response</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;Return the item&#39;s *Server Response* field value.&quot;&quot;&quot;</span>
@@ -3965,10 +3909,6 @@
 <span class="sd">        *Item Type* field.</span>
 <span class="sd">        &quot;&quot;&quot;</span>
         <span class="k">raise</span> <span class="ne">NotImplementedError</span>
-
-    <span class="k">def</span> <span class="nf">__len__</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
-        <span class="sd">&quot;&quot;&quot;Return the total length of the encoded item as an int.&quot;&quot;&quot;</span>
-        <span class="k">return</span> <span class="mi">4</span> <span class="o">+</span> <span class="bp">self</span><span class="o">.</span><span class="n">item_length</span>
 
     <span class="nd">@property</span>
     <span class="k">def</span> <span class="nf">message_control_header_byte</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
