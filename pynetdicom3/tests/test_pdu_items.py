@@ -242,37 +242,20 @@ class TestPDU(object):
         out = item._wrap_unpack(b'\x01', UNPACK_UCHAR)
         assert out == 1
 
-    def test_wrap_encode_uid_as_is(self):
+    def test_wrap_encode_uid(self):
         """Test PDU._wrap_encode_uid()."""
         item = PDUItem()
         # Odd length
         uid = UID('1.2.840.10008.1.1')
         assert len(uid) % 2 > 0
-        out = item._wrap_encode_uid(uid, encode_as_uid=False)
+        out = item._wrap_encode_uid(uid)
         assert out == b'1.2.840.10008.1.1'
 
         # Even length
         uid = UID('1.2.840.10008.1.10')
         assert len(uid) % 2 == 0
-        out = item._wrap_encode_uid(uid, encode_as_uid=False)
+        out = item._wrap_encode_uid(uid)
         assert out == b'1.2.840.10008.1.10'
-
-    def test_wrap_encode_uid_as_uid(self):
-        """Regression test for #240"""
-        item = PDUItem()
-        uid = UID('1.2.840.10008.1.1')
-        # Check odd length
-        assert len(uid) % 2 > 0
-        out = item._wrap_encode_uid(uid, encode_as_uid=True)
-        # Trailing padding byte
-        assert len(out) == 18
-        assert out == b'1.2.840.10008.1.1\x00'
-
-        uid = UID('1.2.840.10008.1.12')
-        assert len(uid) % 2 == 0
-        out = item._wrap_encode_uid(uid, encode_as_uid=True)
-        assert len(out) == 18
-        assert out == b'1.2.840.10008.1.12'
 
 
 class TestApplicationContext(object):
@@ -931,8 +914,8 @@ class TestUserInformation(object):
         item = pdu.user_information
 
         assert item.item_type == 0x50
-        assert item.item_length == 96
-        assert len(item) == 100
+        assert item.item_length == 95
+        assert len(item) == 99
         assert len(item.user_data) == 4
 
     def test_encode(self):
@@ -1452,9 +1435,9 @@ class TestUserInformation_RoleSelection(object):
         item = pdu.user_information.role_selection['1.2.840.10008.5.1.4.1.1.2']
 
         assert item.item_type == 0x54
-        assert item.item_length == 30
-        assert len(item) == 34
-        assert item.uid_length == 26
+        assert item.item_length == 29
+        assert len(item) == 33
+        assert item.uid_length == 25
         assert item.sop_class_uid == UID('1.2.840.10008.5.1.4.1.1.2')
         assert item.scu_role == 0
         assert item.scp_role == 1
@@ -1533,15 +1516,15 @@ class TestUserInformation_RoleSelection(object):
         item.sop_class_uid = '1.1'
         assert item.sop_class_uid == UID('1.1')
         assert isinstance(item.sop_class_uid, UID)
-        assert item.uid_length == 4
+        assert item.uid_length == 3
         item.sop_class_uid = b'1.1.2'
         assert item.sop_class_uid == UID('1.1.2')
         assert isinstance(item.sop_class_uid, UID)
-        assert item.uid_length == 6
+        assert item.uid_length == 5
         item.sop_class_uid = UID('1.1.3.1')
         assert item.sop_class_uid == UID('1.1.3.1')
         assert isinstance(item.sop_class_uid, UID)
-        assert item.uid_length == 8
+        assert item.uid_length == 7
         item.sop_class_uid = UID('1.1.3.12')
         assert item.sop_class_uid == UID('1.1.3.12')
         assert isinstance(item.sop_class_uid, UID)
@@ -1579,12 +1562,12 @@ class TestUserInformation_RoleSelection(object):
         item.scp_role = True
         item.sop_class_uid = '1.2.3'
         assert len(item.sop_class_uid) % 2 > 0
-        assert item.uid_length == 6
-        assert item.item_length == 10
-        assert len(item) == 14
+        assert item.uid_length == 5
+        assert item.item_length == 9
+        assert len(item) == 13
         enc = item.encode()
         assert enc == (
-            b'\x54\x00\x00\x0a\x00\x06\x31\x2e\x32\x2e\x33\x00\x00\x01'
+            b'\x54\x00\x00\x09\x00\x05\x31\x2e\x32\x2e\x33\x00\x01'
         )
 
     def test_encode_even(self):
@@ -1605,15 +1588,15 @@ class TestUserInformation_RoleSelection(object):
     def test_decode_odd(self):
         """Test decoding odd-length UID"""
         bytestream = (
-            b'\x54\x00\x00\x0a\x00\x06\x31\x2e\x32\x2e\x33\x00\x00\x01'
+            b'\x54\x00\x00\x09\x00\x05\x31\x2e\x32\x2e\x33\x00\x01'
         )
         item = SCP_SCU_RoleSelectionSubItem()
         item.decode(bytestream)
-        assert item.item_length == 10
+        assert item.item_length == 9
         assert item.sop_class_uid == '1.2.3'
-        assert item.uid_length == 6
+        assert item.uid_length == 5
         assert len(item.sop_class_uid) % 2 > 0
-        assert len(item) == 14
+        assert len(item) == 13
         assert item.scu_role == 0
         assert item.scp_role == 1
         assert item.encode() == bytestream
@@ -1634,23 +1617,23 @@ class TestUserInformation_RoleSelection(object):
         assert item.scp_role == 1
         assert item.encode() == bytestream
 
-    def test_decode_unpadded_odd(self):
-        """Test decoding an unpadded odd-length UID"""
+    def test_decode_padded_odd(self):
+        """Test decoding padded odd-length UID"""
         # Non-conformant but handle anyway
         bytestream = (
-            b'\x54\x00\x00\x09\x00\x05\x31\x2e\x32\x2e\x33\x00\x01'
+            b'\x54\x00\x00\x0a\x00\x06\x31\x2e\x32\x2e\x33\x00\x00\x01'
         )
         item = SCP_SCU_RoleSelectionSubItem()
         item.decode(bytestream)
-        assert item.item_length == 10
+        assert item.item_length == 9
         assert item.sop_class_uid == '1.2.3'
-        assert item.uid_length == 6
+        assert item.uid_length == 5
         assert len(item.sop_class_uid) % 2 > 0
-        assert len(item) == 14
+        assert len(item) == 13
         assert item.scu_role == 0
         assert item.scp_role == 1
         assert item.encode() == (
-            b'\x54\x00\x00\x0a\x00\x06\x31\x2e\x32\x2e\x33\x00\x00\x01'
+            b'\x54\x00\x00\x09\x00\x05\x31\x2e\x32\x2e\x33\x00\x01'
         )
 
 
@@ -1945,9 +1928,9 @@ class TestUserInformation_ExtendedNegotiation(object):
         item = pdu.user_information.ext_neg[0]
 
         assert item.item_type == 0x56
-        assert item.item_length == 34
-        assert len(item) == 38
-        assert item.sop_class_uid_length == 26
+        assert item.item_length == 33
+        assert len(item) == 37
+        assert item.sop_class_uid_length == 25
         assert item.sop_class_uid == UID('1.2.840.10008.5.1.4.1.1.2')
         assert item.service_class_application_information == (
             b'\x02\x00\x03\x00\x01\x00'
@@ -1964,8 +1947,8 @@ class TestUserInformation_ExtendedNegotiation(object):
         item = pdu.user_information.ext_neg[0]
 
         assert item.encode() == (
-            b'\x56\x00\x00\x22\x00\x1a\x31\x2e\x32\x2e\x38\x34\x30\x2e\x31\x30'
-            b'\x30\x30\x38\x2e\x35\x2e\x31\x2e\x34\x2e\x31\x2e\x31\x2e\x32\x00'
+            b'\x56\x00\x00\x21\x00\x19\x31\x2e\x32\x2e\x38\x34\x30\x2e\x31\x30'
+            b'\x30\x30\x38\x2e\x35\x2e\x31\x2e\x34\x2e\x31\x2e\x31\x2e\x32'
             b'\x02\x00\x03\x00\x01\x00'
         )
 
@@ -2006,15 +1989,15 @@ class TestUserInformation_ExtendedNegotiation(object):
         # SOP Class UID
         item.sop_class_uid = '1.1.1'
         assert item.sop_class_uid == UID('1.1.1')
-        assert item.sop_class_uid_length == 6
+        assert item.sop_class_uid_length == 5
         assert isinstance(item.sop_class_uid, UID)
         item.sop_class_uid = b'1.1.2.1'
         assert item.sop_class_uid == UID('1.1.2.1')
-        assert item.sop_class_uid_length == 8
+        assert item.sop_class_uid_length == 7
         assert isinstance(item.sop_class_uid, UID)
         item.sop_class_uid = UID('1.1.3.1.1')
         assert item.sop_class_uid == UID('1.1.3.1.1')
-        assert item.sop_class_uid_length == 10
+        assert item.sop_class_uid_length == 9
         assert isinstance(item.sop_class_uid, UID)
         item.sop_class_uid = UID('1.1.3.1.11')
         assert item.sop_class_uid == UID('1.1.3.1.11')
@@ -2039,11 +2022,11 @@ class TestUserInformation_ExtendedNegotiation(object):
         item.sop_class_uid = '1.2.3'
         item.service_class_application_information = b'\xFF'
         assert len(item.sop_class_uid) % 2 > 0
-        assert item.sop_class_uid_length == 6
-        assert item.item_length == 9
-        assert len(item) == 13
+        assert item.sop_class_uid_length == 5
+        assert item.item_length == 8
+        assert len(item) == 12
         enc = item.encode()
-        assert enc == b'\x56\x00\x00\x09\x00\x06\x31\x2e\x32\x2e\x33\x00\xFF'
+        assert enc == b'\x56\x00\x00\x08\x00\x05\x31\x2e\x32\x2e\x33\xFF'
 
     def test_encode_even(self):
         """Test encoding even-length UID"""
@@ -2062,15 +2045,15 @@ class TestUserInformation_ExtendedNegotiation(object):
     def test_decode_odd(self):
         """Test decoding odd-length UID"""
         bytestream = (
-            b'\x56\x00\x00\x09\x00\x06\x31\x2e\x32\x2e\x33\x00\xFF'
+            b'\x56\x00\x00\x08\x00\x05\x31\x2e\x32\x2e\x33\xFF'
         )
         item = SOPClassExtendedNegotiationSubItem()
         item.decode(bytestream)
-        assert item.item_length == 9
+        assert item.item_length == 8
         assert item.sop_class_uid == '1.2.3'
-        assert item.sop_class_uid_length == 6
+        assert item.sop_class_uid_length == 5
         assert len(item.sop_class_uid) % 2 > 0
-        assert len(item) == 13
+        assert len(item) == 12
         assert item.service_class_application_information == b'\xFF'
         assert item.encode() == bytestream
 
@@ -2089,22 +2072,22 @@ class TestUserInformation_ExtendedNegotiation(object):
         assert item.service_class_application_information == b'\xFF'
         assert item.encode() == bytestream
 
-    def test_decode_unpadded_odd(self):
-        """Test decoding an unpadded odd-length UID"""
+    def test_decode_padded_odd(self):
+        """Test decoding padded odd-length UID"""
         # Non-conformant but handle anyway
         bytestream = (
-            b'\x56\x00\x00\x08\x00\x05\x31\x2e\x32\x2e\x33\xFF'
+            b'\x56\x00\x00\x09\x00\x06\x31\x2e\x32\x2e\x33\x00\xFF'
         )
         item = SOPClassExtendedNegotiationSubItem()
         item.decode(bytestream)
-        assert item.item_length == 9
+        assert item.item_length == 8
         assert item.sop_class_uid == '1.2.3'
-        assert item.sop_class_uid_length == 6
+        assert item.sop_class_uid_length == 5
         assert len(item.sop_class_uid) % 2 > 0
-        assert len(item) == 13
+        assert len(item) == 12
         assert item.service_class_application_information == b'\xFF'
         assert item.encode() == (
-            b'\x56\x00\x00\x09\x00\x06\x31\x2e\x32\x2e\x33\x00\xFF'
+            b'\x56\x00\x00\x08\x00\x05\x31\x2e\x32\x2e\x33\xFF'
         )
 
 
@@ -2139,13 +2122,13 @@ class TestUserInformation_CommonExtendedNegotiation(object):
         item = pdu.user_information.common_ext_neg[0]
 
         assert item.item_type == 0x57
-        assert item.item_length == 82
-        assert len(item) == 86
-        assert item.sop_class_uid_length == 26
+        assert item.item_length == 79
+        assert len(item) == 83
+        assert item.sop_class_uid_length == 25
         assert item.sop_class_uid == UID('1.2.840.10008.5.1.4.1.1.4')
-        assert item.service_class_uid_length == 18
+        assert item.service_class_uid_length == 17
         assert item.service_class_uid == UID('1.2.840.10008.4.2')
-        assert item.related_general_sop_class_identification_length == 32
+        assert item.related_general_sop_class_identification_length == 31
         assert item.related_general_sop_class_identification == [
             UID('1.2.840.10008.5.1.4.1.1.88.22')
         ]
@@ -2157,19 +2140,19 @@ class TestUserInformation_CommonExtendedNegotiation(object):
         item = pdu.user_information.common_ext_neg[0]
         assert item.encode() == (
             # Item type, item length
-            b'\x57\x00\x00\x52'
+            b'\x57\x00\x00\x4f'
             # SOP Class UID length, SOP Class UID
-            b'\x00\x1a\x31\x2e\x32\x2e\x38\x34\x30\x2e\x31\x30\x30\x30\x38\x2e'
-            b'\x35\x2e\x31\x2e\x34\x2e\x31\x2e\x31\x2e\x34\x00'
+            b'\x00\x19\x31\x2e\x32\x2e\x38\x34\x30\x2e\x31\x30\x30\x30\x38\x2e'
+            b'\x35\x2e\x31\x2e\x34\x2e\x31\x2e\x31\x2e\x34'
             # Service Class UID length, Service Class UID
-            b'\x00\x12\x31\x2e\x32\x2e\x38\x34\x30\x2e\x31\x30\x30\x30\x38\x2e'
-            b'\x34\x2e\x32\x00'
+            b'\x00\x11\x31\x2e\x32\x2e\x38\x34\x30\x2e\x31\x30\x30\x30\x38\x2e'
+            b'\x34\x2e\x32'
             # Related general ID length
-            b'\x00\x20'
+            b'\x00\x1f'
             # Related general ID list
-            b'\x00\x1e\x31\x2e\x32\x2e\x38\x34\x30\x2e\x31\x30'
+            b'\x00\x1d\x31\x2e\x32\x2e\x38\x34\x30\x2e\x31\x30'
             b'\x30\x30\x38\x2e\x35\x2e\x31\x2e\x34\x2e\x31\x2e\x31\x2e\x38\x38'
-            b'\x2e\x32\x32\x00'
+            b'\x2e\x32\x32'
         )
 
     def test_to_primitive(self):
@@ -2201,14 +2184,14 @@ class TestUserInformation_CommonExtendedNegotiation(object):
 
         assert orig == new
 
-    def test_properies(self):
+    def test_properties(self):
         """Check property setters and getters """
         item = SOPClassCommonExtendedNegotiationSubItem()
 
         # SOP Class UID
         item.sop_class_uid = '1.1'
         assert item.sop_class_uid == UID('1.1')
-        assert item.sop_class_uid_length == 4
+        assert item.sop_class_uid_length == 3
 
         with pytest.raises(TypeError):
             item.sop_class_uid = 10002
@@ -2216,13 +2199,13 @@ class TestUserInformation_CommonExtendedNegotiation(object):
         # Service Class UID
         item.service_class_uid = '1.2'
         assert item.service_class_uid == UID('1.2')
-        assert item.service_class_uid_length == 4
+        assert item.service_class_uid_length == 3
         item.service_class_uid = b'1.2.3'
         assert item.service_class_uid == UID('1.2.3')
-        assert item.service_class_uid_length == 6
+        assert item.service_class_uid_length == 5
         item.service_class_uid = UID('1.2.3.4')
         assert item.service_class_uid == UID('1.2.3.4')
-        assert item.service_class_uid_length == 8
+        assert item.service_class_uid_length == 7
         item.service_class_uid = UID('1.2.3.41')
         assert item.service_class_uid == UID('1.2.3.41')
         assert item.service_class_uid_length == 8
@@ -2233,13 +2216,13 @@ class TestUserInformation_CommonExtendedNegotiation(object):
         # Related General SOP Class UID
         item.related_general_sop_class_identification = ['1.2']
         assert item.related_general_sop_class_identification == [UID('1.2')]
-        assert item.related_general_sop_class_identification_length == 6
+        assert item.related_general_sop_class_identification_length == 5
         item.related_general_sop_class_identification = [b'1.2.3']
         assert item.related_general_sop_class_identification == [UID('1.2.3')]
-        assert item.related_general_sop_class_identification_length ==  8
+        assert item.related_general_sop_class_identification_length ==  7
         item.related_general_sop_class_identification = [UID('1.2.3.4')]
         assert item.related_general_sop_class_identification == [UID('1.2.3.4')]
-        assert item.related_general_sop_class_identification_length == 10
+        assert item.related_general_sop_class_identification_length == 9
         item.related_general_sop_class_identification = [UID('1.2.3.41')]
         assert item.related_general_sop_class_identification == [UID('1.2.3.41')]
         assert item.related_general_sop_class_identification_length == 10
@@ -2318,6 +2301,6 @@ class TestUserInformation_CommonExtendedNegotiation(object):
         item = SOPClassCommonExtendedNegotiationSubItem()
         data = [UID('1.88.22'), UID('1.818.22')]
         assert item._wrap_list(data) == (
-            b'\x00\x08\x31\x2e\x38\x38\x2e\x32\x32\x00'
+            b'\x00\x07\x31\x2e\x38\x38\x2e\x32\x32'
             b'\x00\x08\x31\x2e\x38\x31\x38\x2e\x32\x32'
         )
