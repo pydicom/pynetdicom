@@ -223,6 +223,10 @@ class PDUItem(object):
 
         return keys[vals.index(self.__class__)]
 
+    def __len__(self):
+        """Return the total length of the encoded item as an int."""
+        return 4 + self.item_length
+
     def __ne__(self, other):
         """Return True if `self` does not equal `other`."""
         return not self == other
@@ -493,10 +497,6 @@ class ApplicationContextItem(PDUItem):
         """Return the item's *Item Length* field value as an int."""
         return len(self.application_context_name)
 
-    def __len__(self):
-        """Return the total length of the encoded item as an int."""
-        return 4 + self.item_length
-
     def __str__(self):
         """Return a string representation of the Item."""
         s = '{0!s} ({1!s})\n'.format(self.application_context_name,
@@ -714,10 +714,6 @@ class PresentationContextItemRQ(PDUItem):
             length += len(item)
 
         return length
-
-    def __len__(self):
-        """Return the total length of the encoded item as an int."""
-        return 4 + self.item_length
 
     def __str__(self):
         """Return a string representation of the Item."""
@@ -939,10 +935,6 @@ class PresentationContextItemAC(PDUItem):
 
         else:
             return 4
-
-    def __len__(self):
-        """Return the total length of the encoded item as an int."""
-        return 4 + self.item_length
 
     @property
     def result(self):
@@ -1210,10 +1202,6 @@ class UserInformationItem(PDUItem):
 
         return length
 
-    def __len__(self):
-        """Return the total length of the encoded item as an int."""
-        return 4 + self.item_length
-
     @property
     def maximum_length(self):
         """Return the item's *Maximum Length Received* field value, if available."""
@@ -1418,10 +1406,6 @@ class AbstractSyntaxSubItem(PDUItem):
 
         return 0
 
-    def __len__(self):
-        """Return the total length of the encoded item as an int."""
-        return 4 + self.item_length
-
     def __str__(self):
         """Return a string representation of the Item."""
         s = "Abstract Syntax Sub-item\n"
@@ -1552,10 +1536,6 @@ class TransferSyntaxSubItem(PDUItem):
             return len(self.transfer_syntax_name)
 
         return 0
-
-    def __len__(self):
-        """Return the total length of the encoded item as an int."""
-        return 4 + self.item_length
 
     def __str__(self):
         """Return a string representation of the Item."""
@@ -1732,10 +1712,6 @@ class MaximumLengthSubItem(PDUItem):
         """Return the item's *Item Length* field value as an int."""
         return 4
 
-    def __len__(self):
-        """Return the total length of the encoded item as an int."""
-        return 8
-
     def __str__(self):
         """Return a string representation of the Item."""
         s = "Maximum length Sub-item\n"
@@ -1908,10 +1884,6 @@ class ImplementationClassUIDSubItem(PDUItem):
 
         return 0
 
-    def __len__(self):
-        """Return the total length of the encoded item as an int."""
-        return 4 + self.item_length
-
     def __str__(self):
         """Return a string representation of the Item."""
         s = "Implementation Class UID Sub-item\n"
@@ -2071,10 +2043,6 @@ class ImplementationVersionNameSubItem(PDUItem):
             return len(self.implementation_version_name)
 
         return 0
-
-    def __len__(self):
-        """Return the total length of the encoded item as an int."""
-        return 4 + self.item_length
 
     def __str__(self):
         """Return a string representation of the Item."""
@@ -2243,10 +2211,6 @@ class AsynchronousOperationsWindowSubItem(PDUItem):
     def item_length(self):
         """Return the item's *Item Length* field value as an int."""
         return 4
-
-    def __len__(self):
-        """Return the total length of the encoded item as an int."""
-        return 8
 
     @property
     def max_operations_invoked(self):
@@ -2455,10 +2419,6 @@ class SCP_SCU_RoleSelectionSubItem(PDUItem):
     def item_length(self):
         """Return the item's *Item Length* field value as an int."""
         return 4 + self.uid_length
-
-    def __len__(self):
-        """Return the total length of the encoded item as an int."""
-        return 4 + self.item_length
 
     @property
     def scu(self):
@@ -2723,10 +2683,6 @@ class SOPClassExtendedNegotiationSubItem(PDUItem):
             return length + len(self.service_class_application_information)
 
         return length
-
-    def __len__(self):
-        """Return the total length of the encoded item as an int."""
-        return 4 + self.item_length
 
     @property
     def sop_class_uid(self):
@@ -3065,10 +3021,6 @@ class SOPClassCommonExtendedNegotiationSubItem(PDUItem):
         return (2 + self.sop_class_uid_length +
                 2 + self.service_class_uid_length +
                 2 + self.related_general_sop_class_identification_length)
-
-    def __len__(self):
-        """Return the total length of the encoded item as an int."""
-        return 4 + self.item_length
 
     @property
     def related_general_sop_class_identification(self):
@@ -3443,10 +3395,6 @@ class UserIdentitySubItemRQ(PDUItem):
         """Return the item's *Item Length* field value as an int."""
         return 6 + self.primary_field_length + self.secondary_field_length
 
-    def __len__(self):
-        """Return the total length of the encoded item as an int."""
-        return 4 + self.item_length
-
     @property
     def primary(self):
         """Return the item's *Primary Field* field value."""
@@ -3634,10 +3582,6 @@ class UserIdentitySubItemAC(PDUItem):
         """Return the item's *Item Length* field value as an int."""
         return 2 + self.server_response_length
 
-    def __len__(self):
-        """Return the total length of the encoded item as an int."""
-        return 4 + self.item_length
-
     @property
     def response(self):
         """Return the item's *Server Response* field value."""
@@ -3794,10 +3738,6 @@ class PresentationDataValueItem(PDUItem):
         *Item Type* field.
         """
         raise NotImplementedError
-
-    def __len__(self):
-        """Return the total length of the encoded item as an int."""
-        return 4 + self.item_length
 
     @property
     def message_control_header_byte(self):
