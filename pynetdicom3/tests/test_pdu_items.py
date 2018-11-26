@@ -1496,7 +1496,6 @@ class TestUserInformation_RoleSelection(object):
 
         orig = pdu.user_information.role_selection['1.2.840.10008.5.1.4.1.1.2']
         params = orig.to_primitive()
-        print(dir(params))
 
         assert not params.scu_role
         # None should become False
