@@ -79,6 +79,11 @@ from pynetdicom3.status import (
 LOGGER = logging.getLogger('pynetdicom3.assoc')
 
 
+MODE_REQUESTOR = 'requestor'
+MODE_ACCEPTOR = 'acceptor'
+
+
+
 class Association(threading.Thread):
     """Manage an Association with a peer AE.
 
@@ -118,7 +123,7 @@ class Association(threading.Thread):
         A list of the supported Presentation Contexts sent or received during
         association negotiation.
     """
-    def __init__(self, local_ae, client_socket=None, peer_ae=None,
+    def _old__init__(self, local_ae, client_socket=None, peer_ae=None,
                  acse_timeout=60, dimse_timeout=None, max_pdu=16382,
                  ext_neg=None):
         """Create a new Association.
@@ -179,9 +184,6 @@ class Association(threading.Thread):
         elif peer_ae is not None:
             raise TypeError("peer_ae must be a dict")
 
-        # The socket.socket used for connections
-        self.client_socket = client_socket
-
         # The parent AE object
         from pynetdicom3 import AE # Imported here to avoid circular import
         if isinstance(local_ae, AE):
@@ -194,11 +196,7 @@ class Association(threading.Thread):
                          'ae_title' : local_ae.ae_title,
                          'pdv_size' : None}
 
-        # Why do we instantiate the DUL provider with a socket when acting
-        #   as an SCU?
-        # Q. Why do we need to feed the DUL an ACSE timeout?
-        # A. ARTIM timer
-        self.dul = DULServiceProvider(socket=client_socket,
+        self.dul = DULServiceProvider(socket=self.ae.transport.socket,
                                       dul_timeout=self.ae.network_timeout,
                                       assoc=self)
 
@@ -276,6 +274,101 @@ class Association(threading.Thread):
         threading.Thread.__init__(self)
         self.daemon = True
 
+    def __init__(self, ae, mode):
+        """Create a new Association object.
+
+        Parameters
+        ----------
+        ae : pynetdicom3.ae.ApplicationEntity
+            The local AE.
+        mode : str
+            Must be either "requestor" or "acceptor".
+        """
+        self._ae = ae
+        self.mode = mode
+        self.requested_contexts = []
+
+        self.local = {
+            'port' : None,
+            'address' : None,
+            'ae_title' : None,
+            'pdv_size' : None,
+        }
+        self.remote = {
+            'port' : None,
+            'address' : None,
+            'ae_title' : None,
+            'pdv_size' : None,
+        }
+
+        # Status attributes
+        self.is_established = False
+        self.is_rejected = False
+        self.is_aborted = False
+        self.is_released = False
+
+        # Service providers
+        self.dul = DULServiceProvider(socket=ae.transport.socket,
+                                      dul_timeout=ae.network_timeout,
+                                      assoc=self)
+        self.acse = ACSE(ae.acse_timeout)
+        self.dimse = DIMSEServiceProvider(self.dul,
+                                          self.dimse_timeout,
+                                          self.local_max_pdu)
+
+        # Kills the thread loop in run()
+        self._kill = False
+        self._is_running = False
+
+        # Thread setup
+        threading.Thread.__init__(self)
+        self.daemon = True
+
+    # New styles
+    @property
+    def accepted_contexts(self):
+        """Return a list of accepted PresentationContexts."""
+        return self._accepted_cx
+
+    @property
+    def ae(self):
+        """Return the Association's parent ApplicationEntity."""
+        return self._ae
+
+    @property
+    def mode(self):
+        """Return the Association's `mode` as a str."""
+        return self._mode
+
+    @mode.setter
+    def mode(self, mode):
+        """Set the Association's mode.
+
+        Parameters
+        ----------
+        mode : str
+            The mode of the Association, must be either "requestor" or
+            "acceptor". If "requestor" then its assumed that the local AE
+            requests an association with peers and (by default) acts as the
+            SCU. If "acceptor" then its assumed that the local AE is listening
+            for association requests and (by default) acts as the SCP.
+        """
+        mode = mode.lower()
+        if mode not in [MODE_REQUESTOR, MODE_ACCEPTOR]:
+            raise ValueError(
+                "Invalid association `mode` value, must be either 'requestor' "
+                "or 'acceptor'."
+            )
+
+        self._mode = mode
+
+    @property
+    def rejected_contexts(self):
+        """Return a list of rejected PresentationContexts."""
+        return self._rejected_cx
+
+
+    # Old
     def abort(self):
         """Abort the association.
 
@@ -320,11 +413,6 @@ class Association(threading.Thread):
                         item.maximum_number_operations_performed)
 
         return None
-
-    @property
-    def accepted_contexts(self):
-        """Return a list of accepted PresentationContexts."""
-        return self.acse.accepted_contexts
 
     def _check_async_ops(self, req_invoked, req_performed):
         """Check the user's response to an Asynchronous Operations request.
@@ -693,11 +781,6 @@ class Association(threading.Thread):
 
         self.ae.cleanup_associations()
 
-    @property
-    def rejected_contexts(self):
-        """Return a list of rejected PresentationContexts."""
-        return self.acse.rejected_contexts
-
     def release(self):
         """Release the association."""
         if self.is_established:
@@ -744,7 +827,9 @@ class Association(threading.Thread):
             self._run_as_acceptor()
         # If the local AE initiated the Association
         elif self._mode == 'Requestor':
-            self._run_as_requestor()
+            self.acse.negotiate_association(self)
+            if self.is_established:
+                self._x_run_as_requestor()
 
     def _run_as_acceptor(self):
         """Run as an Association Acceptor."""
@@ -775,10 +860,10 @@ class Association(threading.Thread):
         self.peer_ae['ae_title'] = assoc_rq.calling_ae_title
         self.peer_ae['called_aet'] = assoc_rq.called_ae_title
         self.peer_ae['pdv_size'] = assoc_rq.maximum_length_received
-        peer_info = self.client_socket.getpeername()
+        peer_info = self.ae.transport.socket.getpeername()
         self.peer_ae['address'] = peer_info[0]
         self.peer_ae['port'] = peer_info[1]
-        local_info = self.client_socket.getsockname()
+        local_info = self.ae.transport.socket.getsockname()
         self.local_ae['address'] = local_info[0]
         self.local_ae['port'] = local_info[1]
 
@@ -1091,6 +1176,44 @@ class Association(threading.Thread):
             # Check if idle timer has expired
             if self.dul.idle_timer_expired():
                 self.abort()
+
+    def _x_run_as_requestor(self):
+        # Listen for further messages from the peer
+        while not self._kill:
+            time.sleep(0.1)
+
+            # Check for release request
+            if self.acse.is_released(self):
+                self.acse.send_release(self, is_response=True)
+                self.is_released = True
+                self.is_established = False
+                # Callback triggers
+                self.ae.on_association_released()
+                self.debug_association_released()
+                self.kill()
+                return
+
+            # Check for abort
+            if self.acse.is_aborted(self):
+                self.is_aborted = True
+                self.is_established = False
+                # Callback trigger
+                self.ae.on_association_aborted()
+                self.debug_association_aborted()
+                self.kill()
+                return
+
+            # Check if the DULServiceProvider thread is
+            #   still running. DUL.is_alive() is inherited from
+            #   threading.thread
+            if not self.dul.is_alive():
+                self.kill()
+                return
+
+            # Check if idle timer has expired
+            if self.dul.idle_timer_expired():
+                self.kill()
+                return
 
     def _run_as_requestor(self):
         """Run as the Association Requestor."""

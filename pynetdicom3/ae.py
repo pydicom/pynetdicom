@@ -22,6 +22,7 @@ from pynetdicom3.presentation import (
     PresentationContext,
     DEFAULT_TRANSFER_SYNTAXES
 )
+from pynetdicom3.transport import TransportService
 from pynetdicom3.utils import validate_ae_title
 
 
@@ -211,7 +212,9 @@ class ApplicationEntity(object):
         self.require_calling_aet = b''
         self.require_called_aet = b''
 
-        self.local_socket = None
+        # Transport service
+        self.transport = TransportService()
+        self.transport.socket = None
 
         # Used to terminate AE when running as an SCP
         self._quit = False
@@ -561,17 +564,19 @@ class ApplicationEntity(object):
         if not isinstance(port, int):
             raise TypeError("'port' must be a valid port number")
 
-        peer_ae = {'ae_title' : validate_ae_title(ae_title),
-                   'address' : addr,
-                   'port' : port}
-
         # Associate
-        assoc = Association(local_ae=self,
-                            peer_ae=peer_ae,
-                            acse_timeout=self.acse_timeout,
-                            dimse_timeout=self.dimse_timeout,
-                            max_pdu=max_pdu,
-                            ext_neg=ext_neg)
+        assoc = Association(self, 'requestor')
+        assoc.local['pdv_size'] = max_pdu
+        assoc.local['address'] = self.address
+        assoc.local['port'] = self.port
+        assoc.local['ae_title'] = self.ae_title
+        assoc.remote['ae_title'] = validate_ae_title(ae_title)
+        assoc.remote['address'] = addr
+        assoc.remote['port'] = port
+        assoc.acse_timeout = self.acse_timeout
+        assoc.dimse_timeout = self.dimse_timeout
+        assoc.network_timeout = self.network_timeout
+        assoc.ext_neg = ext_neg
 
         if contexts is None:
             contexts = self.requested_contexts
@@ -617,12 +622,14 @@ class ApplicationEntity(object):
         enable better unit testing
         """
         # The socket to listen for connections on, port is always specified
-        self.local_socket = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
-        self.local_socket.setsockopt(socket.SOL_SOCKET, socket.SO_REUSEADDR, 1)
-        self.local_socket.bind((self.bind_addr, self.port))
+        self.transport.socket = socket.socket(socket.AF_INET,
+                                              socket.SOCK_STREAM)
+        self.transport.socket.setsockopt(socket.SOL_SOCKET,
+                                         socket.SO_REUSEADDR, 1)
+        self.transport.socket.bind((self.bind_addr, self.port))
         # Listen for connections made to the socket, the backlog argument
         #   specifies the maximum number of queued connections.
-        self.local_socket.listen(1)
+        self.transport.socket.listen(1)
 
     def cleanup_associations(self):
         """Remove dead associations."""
@@ -731,24 +738,28 @@ class ApplicationEntity(object):
         """
         # FIXME: this needs to be dealt with properly
         try:
-            read_list, _, _ = select.select([self.local_socket], [], [], 0)
+            read_list, _, _ = select.select([self.transport.socket], [], [], 0)
         except (socket.error, ValueError):
             return
 
         # If theres a connection
         if read_list:
-            client_socket, _ = self.local_socket.accept()
+            client_socket, _ = self.transport.socket.accept()
             client_socket.setsockopt(socket.SOL_SOCKET,
                                      socket.SO_RCVTIMEO,
                                      pack('ll', 10, 0))
 
             # Create a new Association
-            # Association(local_ae, local_socket=None, max_pdu=16382)
-            assoc = Association(self,
-                                client_socket=client_socket,
-                                max_pdu=self.maximum_pdu_size,
-                                acse_timeout=self.acse_timeout,
-                                dimse_timeout=self.dimse_timeout)
+            assoc = Association(self, 'acceptor')
+            assoc.local['pdv_size'] = self.maximum_pdu_size
+            assoc.local['ae_title'] = self.ae_title
+            assoc.local['address'] = self.address
+            assoc.local['port'] = self.port
+            assoc.remote['address'] = client_socket.getpeername()[0]
+            assoc.remote['port'] = client_socket.getpeername()[1]
+            assoc.acse_timeout = self.acse_timeout
+            assoc.dimse_timeout = self.dimse_timeout
+            assoc.network_timeout = self.network_timeout
             assoc.supported_contexts = self.supported_contexts
 
             assoc.start()
@@ -1227,8 +1238,8 @@ class ApplicationEntity(object):
         for assoc in self.active_associations:
             assoc.abort()
 
-        if self.local_socket:
-            self.local_socket.close()
+        if self.transport.socket:
+            self.transport.socket.close()
 
     def __str__(self):
         """ Prints out the attribute values and status for the AE """

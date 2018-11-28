@@ -24,7 +24,7 @@ from pynetdicom3.utils import pretty_bytes
 LOGGER = logging.getLogger('pynetdicom3.acse')
 
 
-class ACSEServiceProvider(object):
+class ACSE(object):
     """The Association Control Service Element (ACSE) service provider.
 
     The ACSE protocol handles association establishment, normal release of an
@@ -32,48 +32,21 @@ class ACSEServiceProvider(object):
 
     Attributes
     ----------
-    parent : association.Association
-        The Association that is utilising the ACSE services.
     acse_timeout : int, optional
         The maximum time (in seconds) to wait for A-ASSOCIATE related PDUs
         from the peer (default: 30)
-    local_ae : dict
-        A dict containing details of the local AE.
-    remote_ae : dict
-        A dict containing details of the peer AE.
-    local_max_pdu : int
-        The maximum PDV size accepted by the local AE.
-    peer_max_pdu : int
-        The maximum PDV size accepted by the peer.
-    accepted_contexts : list of utils.PresentationContext
-        A list of accepted presentation contexts.
-    rejected_contexts : list of utils.PresentationContext
-        A list of rejected presentation contexts.
     """
-    def __init__(self, assoc, acse_timeout=30):
+    def __init__(self, acse_timeout=30):
         """Create the ACSE provider.
 
         Parameters
         ----------
-        assoc : association.Association
-            The parent Association that owns the ACSE provider
         acse_timeout : int, optional
             The maximum time (in seconds) to wait for A-ASSOCIATE related PDUs
             from the peer (default: 30)
         """
-        self.parent = assoc
-
         # Maximum time for response from peer (in seconds)
         self.acse_timeout = acse_timeout
-
-        self.local_ae = None
-        self.remote_ae = None
-        self.local_max_pdu = None
-        self.peer_max_pdu = None
-
-        # The accepted/rejected presentation contexts
-        self.accepted_contexts = None
-        self.rejected_contexts = None
 
     def abort_assoc(self, source=0x02, reason=0x00):
         """Abort the Association with the peer Application Entity.
@@ -174,19 +147,19 @@ class ACSEServiceProvider(object):
         """Return the DUL Service Provider."""
         return self.parent.dul
 
-    @property
-    def is_aborted(self):
+    @staticmethod
+    def is_aborted(assoc):
         """Return True if an A-ABORT request has been received."""
-        primitive = self.dul.peek_next_pdu()
+        primitive = assoc.dul.peek_next_pdu()
         if primitive.__class__ in (A_ABORT, A_P_ABORT):
             return True
 
         return False
 
-    @property
-    def is_released(self):
+    @staticmethod
+    def is_released(assoc):
         """Return True if an A-RELEASE request has been received."""
-        primitive = self.dul.peek_next_pdu()
+        primitive = assoc.dul.peek_next_pdu()
         if primitive.__class__ == A_RELEASE:
             # Make sure this is an A-RELEASE request primitive
             #   response primitives have the Result field as 'affirmative'
@@ -451,6 +424,131 @@ class ACSEServiceProvider(object):
 
 
     # New hotness
+    def negotiate_association(self, assoc):
+        if not assoc.mode:
+            raise ValueError("No Association `mode` has been set")
+
+        if assoc.mode == "requestor":
+            self._negotiate_as_requestor(assoc)
+        elif assoc.mode == "acceptor":
+            self._negotiate_as_acceptor(assoc)
+
+    def _negotiate_as_acceptor(self, assoc):
+        pass
+
+    def _negotiate_as_requestor(self, assoc):
+        """
+        Parameters
+        ----------
+
+        """
+        if not assoc.requested_contexts:
+            LOGGER.error(
+                "One or more requested presentation contexts must be set "
+                "prior to requesting an association"
+            )
+            assoc.kill()
+            return
+
+        # Send A-ASSOCIATE (request) PDU to the peer
+        self.send_request(assoc)
+
+        # Wait for response
+        assoc_rsp = assoc.dul.receive_pdu(wait=True, timeout=self.acse_timeout)
+
+        # Association accepted or rejected
+        if isinstance(assoc_rsp, A_ASSOCIATE):
+            # Accepted
+            if assoc_rsp.result == 0x00:
+                # Get maximum pdu length from answer
+                assoc.remote['pdv_size'] = assoc_rsp.maximum_length_received
+
+                ## Handle SCP/SCU Role Selection response
+                # Apply requestor's SCP/SCU role selection (if any)
+                rq_roles = {}
+                for ii in assoc.ext_neg:
+                    if isinstance(ii, SCP_SCU_RoleSelectionNegotiation):
+                        roles[item.sop_class_uid] = (ii.scu_role, ii.scp_role)
+
+                if rq_roles:
+                    for cx in assoc.requested_contexts:
+                        try:
+                            (cx.scu_role, cx.scp_role) = rq_roles[cx.abstract_syntax]
+                        except KeyError:
+                            pass
+
+                ac_roles = {}
+                for ii in assoc_rsp.user_information:
+                    if isinstance(ii, SCP_SCU_RoleSelectionNegotiation):
+                        ac_roles[ii.sop_class_uid] = (ii.scu_role, ii.scp_role)
+
+                # Check the negotiated Presentation Contexts
+                results = negotiate_as_requestor(
+                    assoc.requested_contexts,
+                    assoc_rsp.presentation_context_definition_results_list,
+                    ac_roles
+                )
+
+                assoc.accepted_contexts = [
+                    cx for cx in results if cx.result == 0x00
+                ]
+                assoc.rejected_contexts = [
+                    cx for cx in results if cx.result != 0x00
+                ]
+
+                is_accepted = True
+                assoc.debug_association_accepted(assoc_rsp)
+                assoc.ae.on_association_accepted(assoc_rsp)
+
+                # No acceptable presentation contexts
+                if assoc.accepted_contexts == []:
+                    LOGGER.error("No Acceptable Presentation Contexts")
+                    assoc.is_aborted = True
+                    assoc.is_established = False
+                    assoc.acse.abort_assoc(0x02, 0x00)
+                    assoc.kill()
+
+                    return
+
+                # Assocation established OK
+                assoc.is_established = True
+            elif assoc_rsp.result in [0x01, 0x02]:
+                # 0x01 is rejected (permanent)
+                # 0x02 is rejected (transient)
+                assoc.ae.on_association_rejected(assoc_rsp)
+                assoc.debug_association_rejected(assoc_rsp)
+                assoc.is_rejected = True
+                assoc.is_established = False
+                assoc.dul.kill_dul()
+
+                is_accepted = False
+            else:
+                msg = (
+                    "Received an invalid A-ASSOCIATE 'result' value from "
+                    "the peer: '{}'".format(assoc_rsp.result)
+                )
+                LOGGER.error(msg)
+                assoc.dul.kill_dul()
+
+        # Association aborted or no response
+        elif isinstance(assoc_rsp, A_ABORT):
+            assoc.ae.on_association_aborted(assoc_rsp)
+            assoc.debug_association_aborted(assoc_rsp)
+            assoc.is_established = False
+            assoc.is_aborted = True
+            assoc.dul.kill_dul()
+        elif isinstance(assoc_rsp, A_P_ABORT):
+            assoc.is_aborted = True
+            assoc.is_established = False
+            assoc.dul.kill_dul()
+        else:
+            assoc.is_established = False
+            assoc.dul.kill_dul()
+            LOGGER.error(
+                "Received an invalid response to the A-ASSOCIATE (request)"
+            )
+
+
     @staticmethod
     def send_abort(assoc, source, reason):
         """Send an A-ABORT to the peer.
@@ -508,7 +606,10 @@ class ACSEServiceProvider(object):
         assoc : pynetdicom3.association.Association
             The association that is sending the A-ASSOCIATE (accept).
         """
-        pass
+        primitive = None
+        assoc._assoc_rsp = primitive
+
+        assoc.dul.send_pdu(primitive)
 
     @staticmethod
     def send_reject(assoc, result, source, diagnostic):
@@ -530,6 +631,7 @@ class ACSEServiceProvider(object):
         primitive.result_source = source
         primitive.diagnostic = diagnostic
 
+        assoc._assoc_rsp = primitive
         assoc.dul.send_pdu(primitive)
 
     @staticmethod
@@ -574,16 +676,16 @@ class ACSEServiceProvider(object):
         # DICOM Application Context Name, see PS3.7 Annex A.2.1
         primitive.application_context_name = UID('1.2.840.10008.3.1.1.1')
         # Source DICOM AE title
-        primitive.calling_ae_title = assoc.local_ae['ae_title']
+        primitive.calling_ae_title = assoc.local['ae_title']
         # Destination DICOM AE title
-        primitive.called_ae_title = assoc.remote_ae['ae_title']
+        primitive.called_ae_title = assoc.remote['ae_title']
         # The TCP/IP address of the source
         primitive.calling_presentation_address = (
-            assoc.local_ae['address'], assoc.local_ae['port']
+            assoc.local['address'], assoc.local['port']
         )
         # The TCP/IP address of the destination
         primitive.called_presentation_address = (
-            assoc.remote_ae['address'], assoc.remote_ae['port']
+            assoc.remote['address'], assoc.remote['port']
         )
         # Proposed presentation contexts
         primitive.presentation_context_definition_list = (
@@ -594,7 +696,7 @@ class ACSEServiceProvider(object):
         # Notification items
         # Maximum Length Notification (required)
         item = MaximumLengthNotification()
-        item.maximum_length_received = assoc.local_ae['pdv_size']
+        item.maximum_length_received = assoc.local['pdv_size']
         primitive.user_information = [item]
 
         # Implementation Identification Notification (required)
@@ -612,6 +714,7 @@ class ACSEServiceProvider(object):
         primitive.user_information += assoc.extended_negotiation[0]
 
         # Send the A-ASSOCIATE request primitive to the peer
+        assoc._assoc_req = primitive
         LOGGER.info("Requesting Association")
         assoc.dul.send_pdu(primitive)
 
