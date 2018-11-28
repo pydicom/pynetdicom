@@ -99,7 +99,6 @@ class TestPrimitive_ImplementationClassUIDNotification(unittest.TestCase):
         primitive.implementation_class_uid = UID('1.2.826.0.1.3680043.9.3811.0.9.0')
         self.assertTrue(primitive.implementation_class_uid == reference_uid)
 
-
         ## Check exceptions
         primitive = ImplementationClassUIDNotification()
 
@@ -114,9 +113,6 @@ class TestPrimitive_ImplementationClassUIDNotification(unittest.TestCase):
         with pytest.raises(TypeError):
             primitive.implementation_class_uid = 100
 
-        with pytest.raises(ValueError):
-            primitive.implementation_class_uid = 'abc'
-
     def test_conversion(self):
         """ Check converting to PDU item works correctly """
         primitive = ImplementationClassUIDNotification()
@@ -126,6 +122,7 @@ class TestPrimitive_ImplementationClassUIDNotification(unittest.TestCase):
         self.assertTrue(item.encode() ==     b"\x52\x00\x00\x20\x31\x2e\x32\x2e\x38\x32\x36\x2e\x30\x2e\x31" \
                                          b"\x2e\x33\x36\x38\x30\x30\x34\x33\x2e\x39\x2e\x33\x38\x31\x31\x2e" \
                                          b"\x30\x2e\x39\x2e\x30")
+
     def test_string(self):
         """Check the string output."""
         primitive = ImplementationClassUIDNotification()
@@ -321,9 +318,11 @@ class TestPrimitive_SCP_SCU_RoleSelectionNegotiation(unittest.TestCase):
         primitive.scu_role = False
         item = primitive.from_primitive()
 
-        self.assertTrue(item.encode() == b'\x54\x00\x00\x1d\x00\x19\x31\x2e\x32\x2e\x38\x34\x30\x2e\x31\x30' \
-                                         b'\x30\x30\x38\x2e\x35\x2e\x31\x2e\x34\x2e\x31\x2e\x31\x2e\x32\x00' \
-                                         b'\x01')
+        assert item.encode() == (
+            b'\x54\x00\x00\x1d\x00\x19\x31\x2e\x32\x2e\x38\x34\x30\x2e\x31\x30'
+            b'\x30\x30\x38\x2e\x35\x2e\x31\x2e\x34\x2e\x31\x2e\x31\x2e\x32'
+            b'\x00\x01'
+        )
 
         primitive = SCP_SCU_RoleSelectionNegotiation()
         primitive.sop_class_uid = b'1.2.840.10008.5.1.4.1.1.2'
@@ -398,12 +397,14 @@ class TestPrimitive_SOPClassExtendedNegotiation(unittest.TestCase):
         primitive.service_class_application_information = b'\x02\x00\x03\x00\x01\x00'
         item = primitive.from_primitive()
 
-        self.assertTrue(item.encode() == b'\x56\x00\x00\x21\x00\x19\x31\x2e\x32\x2e\x38\x34\x30\x2e\x31\x30' \
-                                         b'\x30\x30\x38\x2e\x35\x2e\x31\x2e\x34\x2e\x31\x2e\x31\x2e\x32\x02' \
-                                         b'\x00\x03\x00\x01\x00')
+        assert item.encode() == (
+            b'\x56\x00\x00\x21\x00\x19\x31\x2e\x32\x2e\x38\x34\x30\x2e\x31\x30'
+            b'\x30\x30\x38\x2e\x35\x2e\x31\x2e\x34\x2e\x31\x2e\x31\x2e\x32'
+            b'\x02\x00\x03\x00\x01\x00'
+        )
 
 
-class TestPrimitive_SOPClassCommonExtendedNegotiation(unittest.TestCase):
+class TestPrimitive_SOPClassCommonExtendedNegotiation(object):
     def test_assignment_and_exceptions(self):
         """ Check incorrect types/values for properties raise exceptions """
         primitive = SOPClassCommonExtendedNegotiation()

@@ -207,6 +207,10 @@ class PDU(object):
     # Python 2: Classes defining __eq__ should flag themselves as unhashable
     __hash__ = None
 
+    def __len__(self):
+        """Return the total length of the encoded PDU as an int."""
+        return 6 + self.pdu_length
+
     def __ne__(self, other):
         """Return True if `self` does not equal `other`."""
         return not self == other
@@ -634,10 +638,6 @@ class A_ASSOCIATE_RQ(PDU):
             ('variable_items', self._wrap_encode_items, [])
         ]
 
-    def __len__(self):
-        """Return the total length of the encoded PDU as an int."""
-        return 6 + self.pdu_length
-
     @property
     def pdu_length(self):
         """Return the *PDU Length* field value as an int."""
@@ -1013,10 +1013,6 @@ class A_ASSOCIATE_AC(PDU):
             ('variable_items', self._wrap_encode_items, [])
         ]
 
-    def __len__(self):
-        """Return the total length of the encoded PDU as an int."""
-        return 6 + self.pdu_length
-
     @property
     def pdu_length(self):
         """Return the *PDU Length* field value as an int."""
@@ -1230,10 +1226,6 @@ class A_ASSOCIATE_RJ(PDU):
             ('source', PACK_UCHAR, []),
             ('reason_diagnostic', PACK_UCHAR, []),
         ]
-
-    def __len__(self):
-        """Return the total length of the encoded PDU as an int."""
-        return 10
 
     @property
     def pdu_length(self):
@@ -1514,10 +1506,6 @@ class P_DATA_TF(PDU):
             # Change `offset` to the start of the next PDV item
             offset += 4 + item_length
 
-    def __len__(self):
-        """Return the total length of the encoded PDU as an int."""
-        return 6 + self.pdu_length
-
     @property
     def pdu_length(self):
         """Return the *PDU Length* field value as an int."""
@@ -1682,10 +1670,6 @@ class A_RELEASE_RQ(PDU):
             (None, self._wrap_pack, [0x00, PACK_UINT4])
         ]
 
-    def __len__(self):
-        """Return the total length of the encoded PDU as an int."""
-        return 10
-
     @property
     def pdu_length(self):
         """Return the *PDU Length* field value as an int."""
@@ -1817,10 +1801,6 @@ class A_RELEASE_RP(PDU):
             (None, self._wrap_pack, [0x00, PACK_UINT4])
         ]
 
-    def __len__(self):
-        """Return the total length of the encoded PDU as an int."""
-        return 10
-
     @property
     def pdu_length(self):
         """Return the *PDU Length* field value as an int."""
@@ -1863,7 +1843,7 @@ class A_ABORT_RQ(PDU):
     * Reason/Diagnostic (1)
 
     **Encoding**
-    
+
     When encoded, an A-ABORT-RQ PDU has the following structure, taken
     from Table 9-26 [1]_ (offsets shown with Python indexing). PDUs are always
     encoded using Big Endian [2]_.
@@ -1985,10 +1965,6 @@ class A_ABORT_RQ(PDU):
             ('source', PACK_UCHAR, []),
             ('reason_diagnostic', PACK_UCHAR, []),
         ]
-
-    def __len__(self):
-        """Return the total length of the encoded PDU as an int."""
-        return 10
 
     @property
     def pdu_length(self):

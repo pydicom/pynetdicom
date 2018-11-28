@@ -221,6 +221,10 @@ class PDUItem(object):
 
         return keys[vals.index(self.__class__)]
 
+    def __len__(self):
+        """Return the total length of the encoded item as an int."""
+        return 4 + self.item_length
+
     def __ne__(self, other):
         """Return True if `self` does not equal `other`."""
         return not self == other
@@ -228,6 +232,14 @@ class PDUItem(object):
     @staticmethod
     def _wrap_bytes(bytestream):
         """Return `bytestream` without changing it."""
+        return bytestream
+
+    @staticmethod
+    def _wrap_uid_bytes(bytestream):
+        """Return `bytestream` without any trailing null padding."""
+        if bytestream[-1:] == b'\x00':
+            return bytestream[:-1]
+
         return bytestream
 
     @staticmethod
@@ -262,10 +274,18 @@ class PDUItem(object):
         'ascii' is chosen because this is the codec Python uses for ISO 646 [#]_
         [#]_.
 
+        Odd-length UIDs should NOT have a trailing padding 0x00 byte to make
+        them even length (as per Part 5, Section 9.1: "If ending on an odd
+        byte boundary, except when used for network negotiation, one trailing
+        padding character...")
+
         Parameters
         ----------
         uid : pydicom.uid.UID
             The UID to encode using ASCII.
+        encode_as_uid : bool, optional
+            If False (default) then add no trailing padding null byte for
+            odd length UIDs, otherwise add the trailing null byte.
 
         Returns
         -------
@@ -356,7 +376,9 @@ class ApplicationContextItem(PDUItem):
     Application Context Names are OSI Object Identifiers in a numeric form as
     defined by ISO 8824 [#]_. They are encoded as an ISO 646:1990-Basic G0 Set
     Numeric String of bytes (characters 0-9), separated by the character
-    ``.`` (0x2e) [#]_.
+    ``.`` (0x2e) [#]_. No separator or padding shall be present before the
+    first digit of the first component or after the last digit of the last
+    component.
 
     Application context names shall not exceed 64 total characters.
 
@@ -367,7 +389,8 @@ class ApplicationContextItem(PDUItem):
 
     When encoded, an Application Context Item has the following structure,
     taken from Table 9-12 [#]_ (offsets shown with Python indexing). Items are
-    always encoded using Big Endian [#]_.
+    always encoded using Big Endian [#]_. Encoding of the Application Context
+    Name parameter follows the rules in Part 8, Annex F.
 
     +--------+-------------+--------------------------+
     | Offset | Length      | Description              |
@@ -444,7 +467,7 @@ class ApplicationContextItem(PDUItem):
             - args is a list of arguments to pass callable.
         """
         return [
-            ((4, None), 'application_context_name', self._wrap_bytes, [])
+            ((4, None), 'application_context_name', self._wrap_uid_bytes, [])
         ]
 
     @property
@@ -471,10 +494,6 @@ class ApplicationContextItem(PDUItem):
     def item_length(self):
         """Return the item's *Item Length* field value as an int."""
         return len(self.application_context_name)
-
-    def __len__(self):
-        """Return the total length of the encoded item as an int."""
-        return 4 + self.item_length
 
     def __str__(self):
         """Return a string representation of the Item."""
@@ -693,10 +712,6 @@ class PresentationContextItemRQ(PDUItem):
             length += len(item)
 
         return length
-
-    def __len__(self):
-        """Return the total length of the encoded item as an int."""
-        return 4 + self.item_length
 
     def __str__(self):
         """Return a string representation of the Item."""
@@ -918,10 +933,6 @@ class PresentationContextItemAC(PDUItem):
 
         else:
             return 4
-
-    def __len__(self):
-        """Return the total length of the encoded item as an int."""
-        return 4 + self.item_length
 
     @property
     def result(self):
@@ -1189,10 +1200,6 @@ class UserInformationItem(PDUItem):
 
         return length
 
-    def __len__(self):
-        """Return the total length of the encoded item as an int."""
-        return 4 + self.item_length
-
     @property
     def maximum_length(self):
         """Return the item's *Maximum Length Received* field value, if available."""
@@ -1275,13 +1282,16 @@ class AbstractSyntaxSubItem(PDUItem):
     defined by ISO 8824 [#]_. They may be either DICOM registered or privately
     defined. They're encoded as an ISO 646:1990-Basic G0 Set Numeric String of
     bytes (characters 0-9), separated by the character ``.`` (0x2e) [#]_ and
-    shall not exceed 64 total characters.
+    shall not exceed 64 total characters. No separator or padding shall be
+    present before the first digit of the first component or after the last
+    digit of the last component.
 
     **Encoding**
 
     When encoded, an Abstract Syntax Item has the following structure,
     taken from Table 9-14 [#]_ (offsets shown with Python indexing). Items are
-    always encoded using Big Endian [#]_.
+    always encoded using Big Endian [#]_. Encoding of the Abstract Syntax Name
+    parameter follows the rules in Part 8, Annex F.
 
     +--------+-------------+------------------------------------+
     | Offset | Length      | Description                        |
@@ -1363,7 +1373,7 @@ class AbstractSyntaxSubItem(PDUItem):
             - args is a list of arguments to pass callable.
         """
         return [
-            ((4, None), 'abstract_syntax_name', self._wrap_bytes, [])
+            ((4, None), 'abstract_syntax_name', self._wrap_uid_bytes, [])
         ]
 
     @property
@@ -1393,10 +1403,6 @@ class AbstractSyntaxSubItem(PDUItem):
             return len(self.abstract_syntax_name)
 
         return 0
-
-    def __len__(self):
-        """Return the total length of the encoded item as an int."""
-        return 4 + self.item_length
 
     def __str__(self):
         """Return a string representation of the Item."""
@@ -1441,13 +1447,16 @@ class TransferSyntaxSubItem(PDUItem):
     defined by ISO 8824 [#]_. They may be either DICOM registered or privately
     defined. They're encoded as an ISO 646:1990-Basic G0 Set Numeric String of
     bytes (characters 0-9), separated by the character ``.`` (0x2e) [#]_ and
-    shall not exceed 64 total characters.
+    shall not exceed 64 total characters. No separator or padding shall be
+    present before the first digit of the first component or after the last
+    digit of the last component.
 
     **Encoding**
 
     When encoded, a Transfer Syntax Item has the following structure,
     taken from Table 9-15 [#]_ (offsets shown with Python indexing). Items are
-    always encoded using Big Endian [#]_.
+    always encoded using Big Endian [#]_. Encoding of the Transfer Syntax Name
+    parameter follows the rules in Part 8, Annex F.
 
     +--------+-------------+------------------------------------+
     | Offset | Length      | Description                        |
@@ -1495,7 +1504,7 @@ class TransferSyntaxSubItem(PDUItem):
             - args is a list of arguments to pass callable.
         """
         return [
-            ((4, None), 'transfer_syntax_name', self._wrap_bytes, [])
+            ((4, None), 'transfer_syntax_name', self._wrap_uid_bytes, [])
         ]
 
     @property
@@ -1525,10 +1534,6 @@ class TransferSyntaxSubItem(PDUItem):
             return len(self.transfer_syntax_name)
 
         return 0
-
-    def __len__(self):
-        """Return the total length of the encoded item as an int."""
-        return 4 + self.item_length
 
     def __str__(self):
         """Return a string representation of the Item."""
@@ -1705,10 +1710,6 @@ class MaximumLengthSubItem(PDUItem):
         """Return the item's *Item Length* field value as an int."""
         return 4
 
-    def __len__(self):
-        """Return the total length of the encoded item as an int."""
-        return 8
-
     def __str__(self):
         """Return a string representation of the Item."""
         s = "Maximum length Sub-item\n"
@@ -1819,7 +1820,7 @@ class ImplementationClassUIDSubItem(PDUItem):
             - args is a list of arguments to pass callable.
         """
         return [
-            ((4, None), 'implementation_class_uid', self._wrap_bytes, [])
+            ((4, None), 'implementation_class_uid', self._wrap_uid_bytes, [])
         ]
 
     @property
@@ -1880,10 +1881,6 @@ class ImplementationClassUIDSubItem(PDUItem):
             return len(self.implementation_class_uid)
 
         return 0
-
-    def __len__(self):
-        """Return the total length of the encoded item as an int."""
-        return 4 + self.item_length
 
     def __str__(self):
         """Return a string representation of the Item."""
@@ -2044,10 +2041,6 @@ class ImplementationVersionNameSubItem(PDUItem):
             return len(self.implementation_version_name)
 
         return 0
-
-    def __len__(self):
-        """Return the total length of the encoded item as an int."""
-        return 4 + self.item_length
 
     def __str__(self):
         """Return a string representation of the Item."""
@@ -2217,10 +2210,6 @@ class AsynchronousOperationsWindowSubItem(PDUItem):
         """Return the item's *Item Length* field value as an int."""
         return 4
 
-    def __len__(self):
-        """Return the total length of the encoded item as an int."""
-        return 8
-
     @property
     def max_operations_invoked(self):
         """Return the item's *Maximum Number Operations Invoked* field value."""
@@ -2283,6 +2272,8 @@ class SCP_SCU_RoleSelectionSubItem(PDUItem):
     When encoded, an SCP/SCU Role Section Sub-item has the following
     structure, taken from Tables D.3-9 and D.3-10 [#]_ (offsets shown with
     Python indexing). Items are always encoded using Big Endian [#]_.
+    The SOP Class UID parameter is encoded as a UID as per the rules in
+    Part 5, Section 9.1 (ie NO trailing padding null byte).
 
     +----------------+----------+------------------------------------+
     | Offset         | Length   | Description                        |
@@ -2381,7 +2372,7 @@ class SCP_SCU_RoleSelectionSubItem(PDUItem):
         yield (
             (6, self._uid_length),
             'sop_class_uid',
-            self._wrap_bytes,
+            self._wrap_uid_bytes,
             []
         )
 
@@ -2426,10 +2417,6 @@ class SCP_SCU_RoleSelectionSubItem(PDUItem):
     def item_length(self):
         """Return the item's *Item Length* field value as an int."""
         return 4 + self.uid_length
-
-    def __len__(self):
-        """Return the total length of the encoded item as an int."""
-        return 4 + self.item_length
 
     @property
     def scu(self):
@@ -2552,6 +2539,9 @@ class SOPClassExtendedNegotiationSubItem(PDUItem):
     When encoded, a SOP Class Extended Negotiation Sub-item has the following
     structure, taken from Table D.3-11 [1]_ (offsets shown with
     Python indexing). Items are always encoded using Big Endian [2]_.
+    The SOP Class UID parameter is encoded as a UID as per the rules in
+    Part 5, Section 9.1 (ie NO trailing padding null byte).
+
 
     +----------------+-------------+------------------------------------+
     | Offset         | Length      | Description                        |
@@ -2650,7 +2640,7 @@ class SOPClassExtendedNegotiationSubItem(PDUItem):
         yield (
             (6, self._sop_class_uid_length),
             'sop_class_uid',
-            self._wrap_bytes,
+            self._wrap_uid_bytes,
             []
         )
 
@@ -2691,10 +2681,6 @@ class SOPClassExtendedNegotiationSubItem(PDUItem):
             return length + len(self.service_class_application_information)
 
         return length
-
-    def __len__(self):
-        """Return the total length of the encoded item as an int."""
-        return 4 + self.item_length
 
     @property
     def sop_class_uid(self):
@@ -2805,6 +2791,9 @@ class SOPClassCommonExtendedNegotiationSubItem(PDUItem):
     When encoded, a SOP Class Common Extended Negotiation Sub-item has the
     following structure, taken from Table D.3-12 [1]_ (offsets shown
     with Python indexing). Items are always encoded using Big Endian [2]_.
+    The SOP Class UID, Service Class UID and the UIDs in the Related General
+    SOP Class Identification parameters are encoded as UIDs as per the rules in
+    Part 5, Section 9.1 (ie NO trailing padding null byte).
 
     +----------------------+----------+-------------------------------------+
     | Offset               | Length   | Description                         |
@@ -2922,7 +2911,7 @@ class SOPClassCommonExtendedNegotiationSubItem(PDUItem):
         yield (
             (6, self._sop_length),
             'sop_class_uid',
-            self._wrap_bytes,
+            self._wrap_uid_bytes,
             []
         )
 
@@ -2936,7 +2925,7 @@ class SOPClassCommonExtendedNegotiationSubItem(PDUItem):
         yield (
             (8 + self._sop_length, self._service_length),
             'service_class_uid',
-            self._wrap_bytes,
+            self._wrap_uid_bytes,
             []
         )
 
@@ -3013,10 +3002,14 @@ class SOPClassCommonExtendedNegotiationSubItem(PDUItem):
         offset = 0
         while bytestream[offset:offset + 1]:
             uid_length = UNPACK_UINT2(bytestream[offset:offset + 2])[0]
-            uid = UID(
-                bytestream[offset + 2:offset + 2 + uid_length].decode('ascii')
-            )
-            assert len(uid) == uid_length
+            raw_uid = bytestream[offset + 2:offset + 2 + uid_length]
+            stripped_uid_length = uid_length
+            if raw_uid[-1:] == b'\x00':
+                raw_uid = raw_uid[:-1]
+                stripped_uid_length = uid_length - 1
+
+            uid = UID(raw_uid.decode('ascii'))
+            assert len(uid) == stripped_uid_length
             yield uid
             offset += 2 + uid_length
 
@@ -3026,10 +3019,6 @@ class SOPClassCommonExtendedNegotiationSubItem(PDUItem):
         return (2 + self.sop_class_uid_length +
                 2 + self.service_class_uid_length +
                 2 + self.related_general_sop_class_identification_length)
-
-    def __len__(self):
-        """Return the total length of the encoded item as an int."""
-        return 4 + self.item_length
 
     @property
     def related_general_sop_class_identification(self):
@@ -3061,8 +3050,8 @@ class SOPClassCommonExtendedNegotiationSubItem(PDUItem):
 
     @property
     def related_general_sop_class_identification_length(self):
-        """Return the item's *Related General SOP Class Identification Length* field
-        value.
+        """Return the item's *Related General SOP Class Identification Length*
+        field value.
         """
         length = 0
         for uid in self._related_general_sop_class_identification:
@@ -3174,7 +3163,11 @@ class SOPClassCommonExtendedNegotiationSubItem(PDUItem):
         """
         bytestream = bytes()
         for uid in uid_list:
+            # UIDs are to be encoded as per normal Part 5 UID encoding rules
+            #   (i.e. that odd length UIDs be null padded to even length)
+            # Related general SOP class UID length
             bytestream += PACK_UINT2(len(uid))
+            # Related general SOP class UID
             bytestream += self._wrap_encode_uid(uid)
 
         return bytestream
@@ -3400,10 +3393,6 @@ class UserIdentitySubItemRQ(PDUItem):
         """Return the item's *Item Length* field value as an int."""
         return 6 + self.primary_field_length + self.secondary_field_length
 
-    def __len__(self):
-        """Return the total length of the encoded item as an int."""
-        return 4 + self.item_length
-
     @property
     def primary(self):
         """Return the item's *Primary Field* field value."""
@@ -3591,10 +3580,6 @@ class UserIdentitySubItemAC(PDUItem):
         """Return the item's *Item Length* field value as an int."""
         return 2 + self.server_response_length
 
-    def __len__(self):
-        """Return the total length of the encoded item as an int."""
-        return 4 + self.item_length
-
     @property
     def response(self):
         """Return the item's *Server Response* field value."""
@@ -3751,10 +3736,6 @@ class PresentationDataValueItem(PDUItem):
         *Item Type* field.
         """
         raise NotImplementedError
-
-    def __len__(self):
-        """Return the total length of the encoded item as an int."""
-        return 4 + self.item_length
 
     @property
     def message_control_header_byte(self):
