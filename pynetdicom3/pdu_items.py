@@ -89,9 +89,7 @@ class PDUItem(object):
             else:
                 sl = slice(offset, None)
 
-            setattr(
-                self, attr_name, func(bytestream[sl], *args)
-            )
+            setattr(self, attr_name, func(bytestream[sl], *args))
 
     @property
     def _decoders(self):
@@ -128,10 +126,10 @@ class PDUItem(object):
 
         if isinstance(other, self.__class__):
             self_dict = {
-                enc[0] : getattr(self, enc[0]) for enc in self._encoders if enc[0]
+                en[0]: getattr(self, en[0]) for en in self._encoders if en[0]
             }
             other_dict = {
-                enc[0] : getattr(other, enc[0]) for enc in other._encoders if enc[0]
+                en[0]: getattr(other, en[0]) for en in other._encoders if en[0]
             }
             return self_dict == other_dict
 
@@ -367,9 +365,9 @@ class ApplicationContextItem(PDUItem):
 
     **Encoding**
 
-    When encoded, an Application Context Item has the following structure, taken
-    from Table 9-12 [#]_ (offsets shown with Python indexing). Items are always
-    encoded using Big Endian [#]_.
+    When encoded, an Application Context Item has the following structure,
+    taken from Table 9-12 [#]_ (offsets shown with Python indexing). Items are
+    always encoded using Big Endian [#]_.
 
     +--------+-------------+--------------------------+
     | Offset | Length      | Description              |
