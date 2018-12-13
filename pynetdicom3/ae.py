@@ -18,6 +18,7 @@ from pydicom.uid import (
 )
 
 from pynetdicom3.association import Association
+from pynetdicom._globals import MODE_REQUESTOR, MODE_ACCEPTOR
 from pynetdicom3.presentation import (
     PresentationContext,
     DEFAULT_TRANSFER_SYNTAXES
@@ -565,7 +566,7 @@ class ApplicationEntity(object):
             raise TypeError("'port' must be a valid port number")
 
         # Associate
-        assoc = Association(self, 'requestor')
+        assoc = Association(self, MODE_REQUESTOR)
         assoc.local['pdv_size'] = max_pdu
         assoc.local['address'] = self.address
         assoc.local['port'] = self.port
@@ -750,7 +751,7 @@ class ApplicationEntity(object):
                                      pack('ll', 10, 0))
 
             # Create a new Association
-            assoc = Association(self, 'acceptor')
+            assoc = Association(self, MODE_ACCEPTOR)
             assoc.local['pdv_size'] = self.maximum_pdu_size
             assoc.local['ae_title'] = self.ae_title
             assoc.local['address'] = self.address

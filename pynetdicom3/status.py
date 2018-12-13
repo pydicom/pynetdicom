@@ -2,13 +2,10 @@
 
 from pydicom.dataset import Dataset
 
-
-STATUS_SUCCESS = 'Success'
-STATUS_FAILURE = 'Failure'
-STATUS_WARNING = 'Warning'
-STATUS_CANCEL = 'Cancel'
-STATUS_PENDING = 'Pending'
-STATUS_UNKNOWN = 'Unknown'
+from pynetdicom3._globals import (
+    STATUS_CANCEL, STATUS_SUCCESS, STATUS_FAILURE, STATUS_WARNING,
+    STATUS_PENDING, STATUS_UNKNOWN
+)
 
 
 # Non-Service Class specific statuses - PS3.7 Annex C

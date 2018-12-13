@@ -74,14 +74,11 @@ from pynetdicom3.status import (
     STATUS_WARNING, STATUS_SUCCESS, STATUS_CANCEL, STATUS_PENDING,
     STATUS_FAILURE
 )
+from pynetdicom3._globals import MODE_REQUESTOR, MODE_ACCEPTOR
+
+
 # pylint: enable=no-name-in-module
-
 LOGGER = logging.getLogger('pynetdicom3.assoc')
-
-
-MODE_REQUESTOR = 'requestor'
-MODE_ACCEPTOR = 'acceptor'
-
 
 
 class Association(threading.Thread):
@@ -286,6 +283,7 @@ class Association(threading.Thread):
         """
         self._ae = ae
         self.mode = mode
+        # Move to _request
         self.requested_contexts = []
 
         self.local = {
@@ -300,6 +298,14 @@ class Association(threading.Thread):
             'ae_title' : None,
             'pdv_size' : None,
         }
+
+        # Experimental
+        self._requestor = None
+        self._acceptor = None
+
+        # Request and response
+        self._request = None
+        self._response = None
 
         # Status attributes
         self.is_established = False
@@ -367,6 +373,19 @@ class Association(threading.Thread):
         """Return a list of rejected PresentationContexts."""
         return self._rejected_cx
 
+    @property
+    def xlocal(self):
+        if self.mode == MODE_ACCEPTOR:
+            return self._acceptor
+
+        return self._requestor
+
+    @property
+    def xremote(self):
+        if self.mode == MODE_ACCEPTOR:
+            return self._requestor
+
+        return self._acceptor
 
     # Old
     def abort(self):
@@ -3562,3 +3581,98 @@ class Association(threading.Thread):
             The A-ABORT (RQ) primitive received from the DICOM Upper Layer
         """
         LOGGER.error('Association Aborted')
+
+
+class RequestorAcceptor(object):
+    """"""
+    def __init__(self, mode):
+        self.primitive = None
+        self.ae_title = b''
+        self.port = None
+        self.address = ''
+        self._contexts = []
+        self.mode = mode
+
+    @property
+    def asynchronous_operations(self):
+        for item in self.extended_negotiation:
+            if isinstance(item, AsynchronousOperationsWindowNegotiation):
+                return item
+
+        return None
+
+    @property
+    def contexts(self):
+        # Requested/supported vs pcdl/pcdrl
+        return self._contexts
+
+    @property
+    def extended_negotiation(self):
+        return self.primitive.user_information
+
+    @property
+    def implementation_class_uid(self):
+        pass
+
+    @property
+    def implementation_version_name(self):
+        pass
+
+    @property
+    def maximum_length(self):
+        for item in self.extended_negotiation:
+            if isinstance(item, MaximumLengthNotification):
+                return item.maximum_length_received
+
+        raise ValueError(
+            "No Maximum Length Negotiation was found in the "
+            "A-ASSOCIATE's 'User Information' items"
+        )
+
+    @maximum_length.setter
+    def maximum_length(self, length):
+        # Change existing MaximumLengthNegotiation item
+        for item in self.extended_negotiation:
+            if isinstance(item, MaximumLengthNotification):
+                item.maximum_length_received = length
+                return
+
+        # No MaximumLengthNegotiation item found, so add one
+        item = MaximumLengthNotification()
+        item.maximum_length_received = length
+        self.extended_negotiation.append(item)
+
+    @property
+    def role_selection(self):
+        roles = {}
+        for item in self.extended_negotiation:
+            if isinstance(item, SCP_SCU_RoleSelectionNegotiation):
+                roles[item.sop_class_uid] = item
+
+        return roles
+
+    @property
+    def sop_class_common_extended(self):
+        sop_classes = {}
+        for item in self.extended_negotiation:
+            if isinstance(item, SOPClassCommonExtendedNegotiation):
+                sop_classes[item.sop_class_uid] = item
+
+        return sop_classes
+
+    @property
+    def sop_class_extended(self):
+        sop_classes = {}
+        for item in self.extended_negotiation:
+            if isinstance(item, SOPClassExtendedNegotiation):
+                sop_classes[item.sop_class_uid] = item
+
+        return sop_classes
+
+    @property
+    def user_identity(self):
+        for item in self.extended_negotiation:
+            if isinstance(item, UserIdentityNegotiation):
+                return item
+
+        return None
