@@ -28,11 +28,10 @@ from pynetdicom3.pdu_primitives import (
     ImplementationVersionNameNotification,
     SCP_SCU_RoleSelectionNegotiation,
 )
+from pynetdicom3.sop_class import VerificationSOPClass
 
-from .dummy_c_scp import (
-    DummyVerificationSCP, DummyStorageSCP, DummyFindSCP, DummyGetSCP,
-    DummyMoveSCP, DummyBaseSCP
-)
+from .dummy_c_scp import DummyVerificationSCP, DummyBaseSCP
+
 
 LOGGER = logging.getLogger('pynetdicom3')
 LOGGER.setLevel(logging.CRITICAL)
@@ -57,6 +56,7 @@ class DummyDUL(object):
 class DummyAssociation(object):
     def __init__(self):
         self.ae = AE()
+        self.mode = None
         self.dul = DummyDUL()
         self.local = {'pdv_size' : 31682, 'address' : '127.0.0.1',
                       'port' : 11112, 'ae_title' : b'TEST_LOCAL      '}
@@ -139,6 +139,71 @@ class TestACSE(object):
             self.assoc.dul.queue.get(block=False)
         assert acse.is_released(self.assoc) is False
 
+    def test_negotiate_no_mode(self):
+        acse = ACSE()
+        self.assoc.mode = None
+        msg = r"No Association `mode` has been set"
+        with pytest.raises(ValueError, match=msg):
+            acse.negotiate_association(self.assoc)
+
+
+class TestNegotiationRequestor(object):
+    """Test ACSE negotiation as requestor."""
+    def setup(self):
+        """Run prior to each test"""
+        self.scp = None
+
+    def teardown(self):
+        """Clear any active threads"""
+        if self.scp:
+            self.scp.abort()
+
+        time.sleep(0.1)
+
+        for thread in threading.enumerate():
+            if isinstance(thread, DummyBaseSCP):
+                thread.abort()
+                thread.stop()
+
+    def test_no_requested_cx(self):
+        pass
+
+    def test_receive_abort(self):
+        pass
+
+    def test_receive_ap_abort(self):
+        pass
+
+    def test_receive_other(self):
+        pass
+
+    def test_role_selection(self):
+        pass
+
+    def test_receive_reject(self):
+        pass
+
+    def test_receive_accept(self):
+        self.scp = DummyVerificationSCP()
+        self.scp.start()
+
+        ae = AE()
+        ae.add_requested_context(VerificationSOPClass)
+        ae.acse_timeout = 5
+        ae.dimse_timeout = 5
+
+        assoc = Association(ae, mode='requestor')
+
+        self.scp.stop()
+
+    def test_receive_accept_no_cx(self):
+        pass
+
+
+class TestNegotiationAcceptor(object):
+    """Test ACSE negotiation as acceptor."""
+    def setup(self):
+        pass
 
 
 REFERENCE_REJECT_GOOD = [

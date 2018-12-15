@@ -23,7 +23,7 @@ from pynetdicom3.utils import pretty_bytes
 
 LOGGER = logging.getLogger('pynetdicom3.acse')
 
-# DICOM Application Context Name, see PS3.7 Annex A.2.1
+# DICOM Application Context Name - see Part 7, Annex A.2.1
 APPLICATION_CONTEXT_NAME = UID('1.2.840.10008.3.1.1.1')
 
 
@@ -36,7 +36,7 @@ class ACSE(object):
     Attributes
     ----------
     acse_timeout : int, optional
-        The maximum time (in seconds) to wait for A-ASSOCIATE related PDUs
+        The maximum time (in seconds) to wait for association related PDUs
         from the peer (default: 30)
     """
     def __init__(self, acse_timeout=30):
@@ -74,6 +74,7 @@ class ACSE(object):
 
         return False
 
+
     def negotiate_association(self, assoc):
         if not assoc.mode:
             raise ValueError("No Association `mode` has been set")
@@ -108,15 +109,14 @@ class ACSE(object):
         self.send_request(assoc)
 
         # Wait for response
-        assoc_rsp = assoc.dul.receive_pdu(wait=True,
-                                          timeout=assoc.acse_timeout)
+        rsp = assoc.dul.receive_pdu(wait=True, timeout=assoc.acse_timeout)
 
         # Association accepted or rejected
-        if isinstance(assoc_rsp, A_ASSOCIATE):
+        if isinstance(rsp, A_ASSOCIATE):
             # Accepted
-            if assoc_rsp.result == 0x00:
+            if rsp.result == 0x00:
                 # Get maximum pdu length from response
-                assoc.remote['pdv_size'] = assoc_rsp.maximum_length_received
+                assoc.remote['pdv_size'] = rsp.maximum_length_received
 
                 ## Handle SCP/SCU Role Selection response
                 # Apply requestor's proposed SCP/SCU role selection (if any)
@@ -129,13 +129,15 @@ class ACSE(object):
                 if rq_roles:
                     for cx in assoc.requested_contexts:
                         try:
-                            (cx.scu_role, cx.scp_role) = rq_roles[cx.abstract_syntax]
+                            (cx.scu_role, cx.scp_role) = rq_roles[
+                                cx.abstract_syntax
+                            ]
                         except KeyError:
                             pass
 
                 # Collate the acceptor's SCP/SCU role selection responses
                 ac_roles = {}
-                for ii in assoc_rsp.user_information:
+                for ii in rsp.user_information:
                     if isinstance(ii, SCP_SCU_RoleSelectionNegotiation):
                         ac_roles[ii.sop_class_uid] = (ii.scu_role, ii.scp_role)
 
@@ -143,7 +145,7 @@ class ACSE(object):
                 #   determine their agreed upon SCP/SCU roles
                 negotiated_contexts = negotiate_as_requestor(
                     assoc.requested_contexts,
-                    assoc_rsp.presentation_context_definition_results_list,
+                    rsp.presentation_context_definition_results_list,
                     ac_roles
                 )
 
@@ -154,8 +156,8 @@ class ACSE(object):
                     cx for cx in negotiated_contexts if cx.result != 0x00
                 ]
 
-                assoc.debug_association_accepted(assoc_rsp)
-                assoc.ae.on_association_accepted(assoc_rsp)
+                assoc.debug_association_accepted(rsp)
+                assoc.ae.on_association_accepted(rsp)
 
                 # No acceptable presentation contexts
                 if not assoc.accepted_contexts:
@@ -167,28 +169,28 @@ class ACSE(object):
                 else:
                     assoc.is_established = True
 
-            elif assoc_rsp.result in [0x01, 0x02]:
+            elif rsp.result in [0x01, 0x02]:
                 # 0x01 is rejected (permanent)
                 # 0x02 is rejected (transient)
-                assoc.ae.on_association_rejected(assoc_rsp)
-                assoc.debug_association_rejected(assoc_rsp)
+                assoc.ae.on_association_rejected(rsp)
+                assoc.debug_association_rejected(rsp)
                 assoc.is_rejected = True
                 assoc.is_established = False
                 assoc.dul.kill_dul()
             else:
                 LOGGER.error(
                     "Received an invalid A-ASSOCIATE 'Result' value from "
-                    "the peer: '0x{:02x}'".format(assoc_rsp.result)
+                    "the peer: '0x{:02x}'".format(rsp.result)
                 )
                 assoc.is_aborted = True
                 assoc.is_established = False
                 self.send_abort(assoc, source=0x02, reason=0x06)
                 assoc.kill()
 
-        # Association aborted or no response
-        elif isinstance(assoc_rsp, (A_ABORT, A_P_ABORT)):
-            assoc.ae.on_association_aborted(assoc_rsp)
-            assoc.debug_association_aborted(assoc_rsp)
+        # Association aborted
+        elif isinstance(rsp, (A_ABORT, A_P_ABORT)):
+            assoc.ae.on_association_aborted(rsp)
+            assoc.debug_association_aborted(rsp)
             assoc.is_established = False
             assoc.is_aborted = True
             assoc.dul.kill_dul()
@@ -198,6 +200,7 @@ class ACSE(object):
             LOGGER.error(
                 "Received an invalid response to the A-ASSOCIATE request"
             )
+
 
     @staticmethod
     def send_abort(assoc, source):
@@ -484,35 +487,6 @@ class ACSE(object):
         LOGGER.info("Requesting Association")
         assoc.dul.send_pdu(primitive)
 
-    # Deprecated
-    def CheckRelease(self):
-        """Checks for release request from the remote AE. Upon reception of
-        the request a confirmation is sent"""
-        rel = self.dul.peek_next_pdu()
-        if rel.__class__ == A_RELEASE:
-            # Make sure this is a A-RELEASE request primitive
-            if rel.result == 'affirmative':
-                return False
-
-            self.dul.receive_pdu(wait=False)
-            release_rsp = A_RELEASE()
-            release_rsp.result = "affirmative"
-            self.dul.send_pdu(release_rsp)
-
-            return True
-
-        return False
-
-    def CheckAbort(self):
-        """Checks for abort indication from the remote AE. """
-        # Abort is a non-confirmed service so no need to worry if its a request
-        #   primitive
-        primitive = self.dul.peek_next_pdu()
-        if primitive.__class__ in (A_ABORT, A_P_ABORT):
-            self.dul.receive_pdu(wait=False)
-            return True
-
-        return False
 
     # ACSE logging/debugging functions
     # Local AE sending PDU to peer AE

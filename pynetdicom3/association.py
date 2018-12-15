@@ -194,7 +194,7 @@ class Association(threading.Thread):
                          'ae_title' : local_ae.ae_title,
                          'pdv_size' : None}
 
-        self.dul = DULServiceProvider(socket=self.ae.transport.socket,
+        self.dul = DULServiceProvider(socket=self.ae.socket,
                                       dul_timeout=self.ae.network_timeout,
                                       assoc=self)
 
@@ -315,7 +315,7 @@ class Association(threading.Thread):
         self.is_released = False
 
         # Service providers
-        self.dul = DULServiceProvider(socket=ae.transport.socket,
+        self.dul = DULServiceProvider(socket=ae.socket,
                                       dul_timeout=ae.network_timeout,
                                       assoc=self)
         self.acse = ACSE(ae.acse_timeout)
@@ -880,10 +880,10 @@ class Association(threading.Thread):
         self.peer_ae['ae_title'] = assoc_rq.calling_ae_title
         self.peer_ae['called_aet'] = assoc_rq.called_ae_title
         self.peer_ae['pdv_size'] = assoc_rq.maximum_length_received
-        peer_info = self.ae.transport.socket.getpeername()
+        peer_info = self.ae.socket.getpeername()
         self.peer_ae['address'] = peer_info[0]
         self.peer_ae['port'] = peer_info[1]
-        local_info = self.ae.transport.socket.getsockname()
+        local_info = self.ae.socket.getsockname()
         self.local_ae['address'] = local_info[0]
         self.local_ae['port'] = local_info[1]
 
