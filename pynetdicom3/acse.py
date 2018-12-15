@@ -23,6 +23,9 @@ from pynetdicom3.utils import pretty_bytes
 
 LOGGER = logging.getLogger('pynetdicom3.acse')
 
+# DICOM Application Context Name, see PS3.7 Annex A.2.1
+APPLICATION_CONTEXT_NAME = UID('1.2.840.10008.3.1.1.1')
+
 
 class ACSE(object):
     """The Association Control Service Element (ACSE) service provider.
@@ -134,13 +137,6 @@ class ACSE(object):
 
         self.dul.send_pdu(primitive)
         return primitive
-
-    @property
-    def application_context_name(self):
-        """Return the application context name UID"""
-        # DICOM Application Context Name, see PS3.7 Annex A.2.1
-        #   UID for the DICOM Application Context Name
-        return UID('1.2.840.10008.3.1.1.1')
 
     @property
     def dul(self):
@@ -636,9 +632,8 @@ class ACSE(object):
         #   Result
         #   Result Source
         #   Presentation Context Definition List Result*
-        # FIXME
         primitive = A_ASSOCIATE()
-        primitive.application_context_name = UID('1.2.840.10008.3.1.1.1')
+        primitive.application_context_name = APPLICATION_CONTEXT_NAME
         primitive.calling_ae_title = assoc._assoc_req.calling_ae_title
         primitive.called_ae_title = assoc._assoc_req.called_ae_title
         primitive.result = 0x00
@@ -788,7 +783,7 @@ class ACSE(object):
         #   Presentation Context Definition List*
         primitive = A_ASSOCIATE()
         # DICOM Application Context Name, see PS3.7 Annex A.2.1
-        primitive.application_context_name = UID('1.2.840.10008.3.1.1.1')
+        primitive.application_context_name = APPLICATION_CONTEXT_NAME
         # Calling AE Title is the source DICOM AE title
         primitive.calling_ae_title = assoc.local['ae_title']
         # Called AE Title is the destination DICOM AE title
