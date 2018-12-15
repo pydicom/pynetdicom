@@ -41,11 +41,17 @@ LOGGER.setLevel(logging.CRITICAL)
 
 class DummyDUL(object):
     def __init__(self):
-        self.received = queue.Queue()
-        self.to_send = queue.Queue()
+        self.queue = queue.Queue()
 
     def send_pdu(self, primitive):
-        self.to_send.put(primitive)
+        self.queue.put(primitive)
+
+    def peek_next_pdu(self):
+        """Check the next PDU to be processed."""
+        try:
+            return self.queue.queue[0]
+        except (queue.Empty, IndexError):
+            return None
 
 
 class DummyAssociation(object):
@@ -82,8 +88,12 @@ class DummyAssociation(object):
         return self._supported_contexts
 
 
-class TestInit(object):
+class TestACSE(object):
     """Tests for initialising the ACSE class"""
+    def setup(self):
+        self.assoc = DummyAssociation()
+        self.assoc.add_requested_context('1.2.840.10008.1.1')
+
     def test_default(self):
         """Test default initialisation"""
         acse = ACSE()
@@ -93,6 +103,42 @@ class TestInit(object):
         """Test initialising the ACSE with arguments."""
         acse = ACSE(acse_timeout=20)
         assert acse.acse_timeout == 20
+
+    def test_is_aborted(self):
+        """Test ACSE.is_aborted"""
+        acse = ACSE()
+        assert acse.is_aborted(self.assoc) is False
+        # "Received" A-ABORT
+        acse.send_abort(self.assoc, 0x02)
+        assert acse.is_aborted(self.assoc) is True
+        self.assoc.dul.queue.get()
+        with pytest.raises(queue.Empty):
+            self.assoc.dul.queue.get(block=False)
+        assert acse.is_aborted(self.assoc) is False
+
+        # "Received" A-P-ABORT
+        acse.send_ap_abort(self.assoc, 0x02)
+        assert acse.is_aborted(self.assoc) is True
+
+    def test_is_released(self):
+        """Test ACSE.is_released"""
+        acse = ACSE()
+        assert acse.is_released(self.assoc) is False
+
+        acse.send_release(self.assoc)
+        assert acse.is_released(self.assoc) is True
+        self.assoc.dul.queue.get()
+        with pytest.raises(queue.Empty):
+            self.assoc.dul.queue.get(block=False)
+        assert acse.is_released(self.assoc) is False
+
+        acse.send_release(self.assoc, is_response=True)
+        assert acse.is_released(self.assoc) is False
+        self.assoc.dul.queue.get()
+        with pytest.raises(queue.Empty):
+            self.assoc.dul.queue.get(block=False)
+        assert acse.is_released(self.assoc) is False
+
 
 
 REFERENCE_REJECT_GOOD = [
@@ -121,9 +167,9 @@ class TestPrimitiveConstruction(object):
         self.assoc.extended_negotiation[0].append(role)
         acse.send_request(self.assoc)
 
-        primitive = self.assoc.dul.to_send.get()
+        primitive = self.assoc.dul.queue.get()
         with pytest.raises(queue.Empty):
-            self.assoc.dul.to_send.get(block=False)
+            self.assoc.dul.queue.get(block=False)
 
         assert isinstance(primitive, A_ASSOCIATE)
         assert primitive.application_context_name == '1.2.840.10008.3.1.1.1'
@@ -161,9 +207,9 @@ class TestPrimitiveConstruction(object):
         acse = ACSE()
         acse.send_abort(self.assoc, source)
 
-        primitive = self.assoc.dul.to_send.get()
+        primitive = self.assoc.dul.queue.get()
         with pytest.raises(queue.Empty):
-            self.assoc.dul.to_send.get(block=False)
+            self.assoc.dul.queue.get(block=False)
 
         assert isinstance(primitive, A_ABORT)
         assert primitive.abort_source == source
@@ -179,11 +225,11 @@ class TestPrimitiveConstruction(object):
     def test_send_ap_abort(self, reason):
         """Test A-P-ABORT construction and sending"""
         acse = ACSE()
-        acse._send_ap_abort(self.assoc, reason)
+        acse.send_ap_abort(self.assoc, reason)
 
-        primitive = self.assoc.dul.to_send.get()
+        primitive = self.assoc.dul.queue.get()
         with pytest.raises(queue.Empty):
-            self.assoc.dul.to_send.get(block=False)
+            self.assoc.dul.queue.get(block=False)
 
         assert isinstance(primitive, A_P_ABORT)
         assert primitive.provider_reason == reason
@@ -193,7 +239,7 @@ class TestPrimitiveConstruction(object):
         acse = ACSE()
         msg = r"Invalid 'reason' parameter value"
         with pytest.raises(ValueError, match=msg):
-            acse._send_ap_abort(self.assoc, 0x03)
+            acse.send_ap_abort(self.assoc, 0x03)
 
     @pytest.mark.parametrize('result, source, reasons', REFERENCE_REJECT_GOOD)
     def test_send_reject(self, result, source, reasons):
@@ -202,9 +248,9 @@ class TestPrimitiveConstruction(object):
         for reason in reasons:
             acse.send_reject(self.assoc, result, source, reason)
 
-            primitive = self.assoc.dul.to_send.get()
+            primitive = self.assoc.dul.queue.get()
             with pytest.raises(queue.Empty):
-                self.assoc.dul.to_send.get(block=False)
+                self.assoc.dul.queue.get(block=False)
 
             assert isinstance(primitive, A_ASSOCIATE)
             assert primitive.result == result
@@ -231,18 +277,18 @@ class TestPrimitiveConstruction(object):
         acse = ACSE()
         acse.send_release(self.assoc, is_response=False)
 
-        primitive = self.assoc.dul.to_send.get()
+        primitive = self.assoc.dul.queue.get()
         with pytest.raises(queue.Empty):
-            self.assoc.dul.to_send.get(block=False)
+            self.assoc.dul.queue.get(block=False)
 
         assert isinstance(primitive, A_RELEASE)
         assert primitive.result is None
 
         acse.send_release(self.assoc, is_response=True)
 
-        primitive = self.assoc.dul.to_send.get()
+        primitive = self.assoc.dul.queue.get()
         with pytest.raises(queue.Empty):
-            self.assoc.dul.to_send.get(block=False)
+            self.assoc.dul.queue.get(block=False)
 
         assert isinstance(primitive, A_RELEASE)
         assert primitive.result == 'affirmative'
@@ -255,10 +301,10 @@ class TestPrimitiveConstruction(object):
         self.assoc.accepted_contexts = [build_context('1.2.840.10008.1.1')]
         acse.send_accept(self.assoc)
 
-        self.assoc.dul.to_send.get()  # The request
-        primitive = self.assoc.dul.to_send.get()
+        self.assoc.dul.queue.get()  # The request
+        primitive = self.assoc.dul.queue.get()
         with pytest.raises(queue.Empty):
-            self.assoc.dul.to_send.get(block=False)
+            self.assoc.dul.queue.get(block=False)
 
         assert isinstance(primitive, A_ASSOCIATE)
         assert primitive.application_context_name == '1.2.840.10008.3.1.1.1'

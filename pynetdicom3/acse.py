@@ -51,98 +51,6 @@ class ACSE(object):
         # Maximum time for response from peer (in seconds)
         self.acse_timeout = acse_timeout
 
-    def abort_assoc(self, source=0x02, reason=0x00):
-        """Abort the Association with the peer Application Entity.
-
-        ACSE issued A-ABORT request primitive to the DICOM UL service provider.
-        The source may be either the DUL service user or provider.
-
-        See PS3.8 7.3-4 and 9.3.8
-
-        Parameters
-        ----------
-        source : int, optional
-            The source of the abort request (default: 0x02 DUL provider)
-
-            - 0x00 - the DUL service user
-            - 0x02 - the DUL service provider
-        reason : int, optional
-            The reason for aborting the association (default: 0x00 reason not
-            specified).
-
-            If source 0x00 (DUL user):
-
-            - 0x00 - reason field not significant
-
-            If source 0x02 (DUL provider):
-
-            - 0x00 - reason not specified
-            - 0x01 - unrecognised PDU
-            - 0x02 - unexpected PDU
-            - 0x04 - unrecognised PDU parameter
-            - 0x05 - unexpected PDU parameter
-            - 0x06 - invalid PDU parameter value
-        """
-        primitive = A_ABORT()
-
-        if source in [0x00, 0x02]:
-            primitive.abort_source = source
-            if source == 0x00:
-                primitive.reason = 0x00
-            elif reason in [0x00, 0x01, 0x02, 0x04, 0x05, 0x06]:
-                primitive.reason = reason
-            else:
-                raise ValueError("acse.abort_assoc() invalid reason "
-                                 "'{0!s}'".format(reason))
-
-        else:
-            raise ValueError("acse.abort_assoc() invalid source "
-                             "'{0!s}'".format(source))
-
-        self.dul.send_pdu(primitive)
-
-    def accept_assoc(self, primitive):
-        """Accept an Association with a peer Application Entity SCU,
-
-        Issues an A-ASSOCIATE response primitive to the DICOM UL service
-        provider. The response will be that the association request is
-        accepted
-
-        When an AE gets a connection on its listen socket it creates an
-        Association instance which creates an ACSE instance and forwards
-        the socket onwards (`client_socket`).
-
-        Waits for an association request from a remote AE. Upon reception
-        of the request sends association response based on
-        AcceptablePresentationContexts
-
-        The acceptability of the proposed Transfer Syntax is checked in the
-        order of appearance in the local AE's SupportedTransferSyntax list
-
-        Parameters
-        ----------
-        primitive : pdu_primitives.A_ASSOCIATE
-            The A_ASSOCIATE (AC) primitive to convert and send to the peer
-        """
-        # FIXME: This is weird, refactor
-        self.local_max_pdu = primitive.maximum_length_received
-        self.parent.local_max_pdu = primitive.maximum_length_received
-
-        # Send response
-        primitive.presentation_context_definition_list = []
-        primitive.presentation_context_definition_results_list = (
-            self.accepted_contexts + self.rejected_contexts
-        )
-        primitive.result = 0
-
-        self.dul.send_pdu(primitive)
-        return primitive
-
-    @property
-    def dul(self):
-        """Return the DUL Service Provider."""
-        return self.parent.dul
-
     @staticmethod
     def is_aborted(assoc):
         """Return True if an A-ABORT request has been received."""
@@ -166,260 +74,6 @@ class ACSE(object):
 
         return False
 
-    def reject_assoc(self, primitive, result, source, diagnostic):
-        """Reject an Association with a peer Application Entity SCU.
-
-        Issues an A-ASSOCIATE response primitive to the DICOM UL service
-        provider. The response will be that the association request is
-        rejected
-
-        Parameters
-        ----------
-        assoc_primtive : pdu_primitives.A_ASSOCIATE
-            The Association request primitive to be rejected
-        result : int
-            The association rejection: 0x01 or 0x02
-        source : int
-            The source of the rejection: 0x01, 0x02, 0x03
-        diagnostic : int
-            The reason for the rejection: 0x01 to 0x10
-        """
-        # Check valid Result and Source values
-        if result not in [0x01, 0x02]:
-            raise ValueError("ACSE rejection: invalid Result value " \
-                             "'{0!s}'".format(result))
-
-        if source not in [0x01, 0x02, 0x03]:
-            raise ValueError("ACSE rejection: invalid Source value "
-                             "'{0!s}'".format(source))
-
-        # Send an A-ASSOCIATE primitive, rejecting the association
-        primitive.presentation_context_definition_list = []
-        primitive.presentation_context_definition_results_list = []
-        primitive.result = result
-        primitive.result_source = source
-        primitive.diagnostic = diagnostic
-        primitive.user_information = []
-
-        self.dul.send_pdu(primitive)
-
-        return primitive
-
-    def release_assoc(self):
-        """Release the Association with the peer Application Entity.
-
-        Issues an A-RELEASE request primitive to the DICOM UL service provider
-
-        The graceful release of an association between two AEs shall be
-        performed through ACSE A-RELEASE request, indication, response and
-        confirmation primitives.
-
-        Requests the release of the associations and waits for confirmation.
-        A-RELEASE always gives a reason of 'normal' and a result of
-        'affirmative'.
-
-        Returns
-        -------
-        pdu_primitives.A_RELEASE
-            The A-RELEASE response primitive
-        """
-        LOGGER.info("Releasing Association")
-        primitive = A_RELEASE()
-        self.dul.send_pdu(primitive)
-
-        return self.dul.receive_pdu(wait=True, timeout=self.acse_timeout)
-
-    def request_assoc(self, local_ae, peer_ae, max_pdu_size, pcdl,
-                      userspdu=None):
-        """Request an Association with a peer Application Entity SCP.
-
-        Issues an A-ASSOCIATE request primitive to the DICOM UL service
-        provider
-
-        Requests an association with a remote AE and waits for association
-        response (local AE is acting as an SCU)
-
-        Parameters
-        ----------
-        local_ae : dict
-            Contains information about the local AE, keys 'ae_title', 'port',
-            'address', 'pdv_size'.
-        peer_ae : dict
-            Contains information about the peer AE, keys 'ae_title', 'port',
-            'address'.
-        max_pdu_size : int
-            Maximum PDU size in bytes
-        pcdl : list of presentation.PresentationContext
-            A list of the proposed Presentation Contexts for the association
-            If local_ae is ApplicationEntity then this is doubled up
-            unnecessarily
-        userpdu : list of UserInformation objects
-            List of items to be added to the requests user information for use
-            in extended negotiation. See PS3.7 Annex D.3.3
-
-        Returns
-        -------
-        bool
-            True if the Association was accepted, False if rejected or aborted
-        """
-        self.local_ae = local_ae
-        self.local_ae['pdv_size'] = max_pdu_size
-        self.remote_ae = peer_ae
-
-        self.local_max_pdu = max_pdu_size
-
-        ## Build an A-ASSOCIATE request primitive
-        #
-        # The following parameters must be set for a request primitive
-        #   ApplicationContextName
-        #   CallingAETitle
-        #   CalledAETitle
-        #   UserInformation
-        #       Maximum PDV Length (required)
-        #       Implementation Identification - Class UID (required)
-        #   CallingPresentationAddress
-        #   CalledPresentationAddress
-        #   PresentationContextDefinitionList
-        assoc_rq = A_ASSOCIATE()
-        assoc_rq.application_context_name = self.application_context_name
-        assoc_rq.calling_ae_title = self.local_ae['ae_title']
-        assoc_rq.called_ae_title = self.remote_ae['ae_title']
-
-        # Build User Information - PS3.7 Annex D.3.3
-        #
-        # Maximum Length Negotiation (required)
-        max_length = MaximumLengthNotification()
-        max_length.maximum_length_received = self.local_ae['pdv_size']
-        assoc_rq.user_information = [max_length]
-
-        # Implementation Identification Notification (required)
-        # Class UID (required)
-        implementation_class_uid = ImplementationClassUIDNotification()
-        implementation_class_uid.implementation_class_uid = UID(
-            PYNETDICOM_IMPLEMENTATION_UID
-        )
-        assoc_rq.user_information.append(implementation_class_uid)
-
-        # Version Name (optional)
-        implementation_version_name = ImplementationVersionNameNotification()
-        implementation_version_name.implementation_version_name = (
-            PYNETDICOM_IMPLEMENTATION_VERSION
-        )
-        assoc_rq.user_information.append(implementation_version_name)
-
-        # Add the extended negotiation information (optional)
-        if userspdu is not None:
-            assoc_rq.user_information += userspdu
-
-        assoc_rq.calling_presentation_address = (self.local_ae['address'],
-                                                 self.local_ae['port'])
-        assoc_rq.called_presentation_address = (self.remote_ae['address'],
-                                                self.remote_ae['port'])
-        assoc_rq.presentation_context_definition_list = pcdl
-        ## A-ASSOCIATE request primitive is now complete
-
-        # Send the A-ASSOCIATE request primitive to the peer via the
-        #   DICOM UL service
-        LOGGER.info("Requesting Association")
-        self.dul.send_pdu(assoc_rq)
-
-        ## Receive the response from the peer
-        #   This may be an A-ASSOCIATE confirmation primitive or an
-        #   A-ABORT or A-P-ABORT request primitive
-        #
-        assoc_rsp = self.dul.receive_pdu(wait=True, timeout=self.acse_timeout)
-
-        # Association accepted or rejected
-        if isinstance(assoc_rsp, A_ASSOCIATE):
-            # Accepted
-            if assoc_rsp.result == 0x00:
-                # Get maximum pdu length from answer
-                self.peer_max_pdu = assoc_rsp.maximum_length_received
-                self.parent.peer_ae['pdv_size'] = (
-                    assoc_rsp.maximum_length_received
-                )
-                # FIXME
-                self.parent.peer_max_pdu = assoc_rsp.maximum_length_received
-
-                ac_roles = {}
-                for ii in assoc_rsp.user_information:
-                    if isinstance(ii, SCP_SCU_RoleSelectionNegotiation):
-                        ac_roles[ii.sop_class_uid] = (ii.scu_role, ii.scp_role)
-
-                # Check the negotiated Presentation Contexts
-                results = negotiate_as_requestor(
-                    pcdl,
-                    assoc_rsp.presentation_context_definition_results_list,
-                    ac_roles
-                )
-
-                self.accepted_contexts = [
-                    cx for cx in results if cx.result == 0x00
-                ]
-                self.rejected_contexts = [
-                    cx for cx in results if cx.result != 0x00
-                ]
-
-                return True, assoc_rsp
-
-            # Rejected
-            elif assoc_rsp.result in [0x01, 0x02]:
-                # 0x01 is rejected (permanent)
-                # 0x02 is rejected (transient)
-                return False, assoc_rsp
-            # Invalid Result value
-            elif assoc_rsp.result is None:
-                return False, assoc_rsp
-            else:
-                LOGGER.error("ACSE received an invalid result value from "
-                             "the peer AE: '%s'", assoc_rsp.result)
-                raise ValueError("ACSE received an invalid result value from "
-                                 "the peer AE: '{}'".format(assoc_rsp.result))
-
-        # Association aborted
-        elif isinstance(assoc_rsp, (A_ABORT, A_P_ABORT)):
-            return False, assoc_rsp
-
-        elif assoc_rsp is None:
-            return False, assoc_rsp
-
-        else:
-            raise ValueError("Unexpected response by the peer AE to the "
-                             "ACSE association request")
-
-
-    # Deprecated
-    def CheckRelease(self):
-        """Checks for release request from the remote AE. Upon reception of
-        the request a confirmation is sent"""
-        rel = self.dul.peek_next_pdu()
-        if rel.__class__ == A_RELEASE:
-            # Make sure this is a A-RELEASE request primitive
-            if rel.result == 'affirmative':
-                return False
-
-            self.dul.receive_pdu(wait=False)
-            release_rsp = A_RELEASE()
-            release_rsp.result = "affirmative"
-            self.dul.send_pdu(release_rsp)
-
-            return True
-
-        return False
-
-    def CheckAbort(self):
-        """Checks for abort indication from the remote AE. """
-        # Abort is a non-confirmed service so no need to worry if its a request
-        #   primitive
-        primitive = self.dul.peek_next_pdu()
-        if primitive.__class__ in (A_ABORT, A_P_ABORT):
-            self.dul.receive_pdu(wait=False)
-            return True
-
-        return False
-
-
-    # New hotness
     def negotiate_association(self, assoc):
         if not assoc.mode:
             raise ValueError("No Association `mode` has been set")
@@ -545,7 +199,6 @@ class ACSE(object):
                 "Received an invalid response to the A-ASSOCIATE request"
             )
 
-
     @staticmethod
     def send_abort(assoc, source):
         """Send an A-ABORT to the peer.
@@ -578,7 +231,7 @@ class ACSE(object):
         assoc.dul.send_pdu(primitive)
 
     @staticmethod
-    def _send_ap_abort(assoc, reason):
+    def send_ap_abort(assoc, reason):
         """Send an A-P-ABORT to the peer.
 
         Parameters
@@ -831,6 +484,35 @@ class ACSE(object):
         LOGGER.info("Requesting Association")
         assoc.dul.send_pdu(primitive)
 
+    # Deprecated
+    def CheckRelease(self):
+        """Checks for release request from the remote AE. Upon reception of
+        the request a confirmation is sent"""
+        rel = self.dul.peek_next_pdu()
+        if rel.__class__ == A_RELEASE:
+            # Make sure this is a A-RELEASE request primitive
+            if rel.result == 'affirmative':
+                return False
+
+            self.dul.receive_pdu(wait=False)
+            release_rsp = A_RELEASE()
+            release_rsp.result = "affirmative"
+            self.dul.send_pdu(release_rsp)
+
+            return True
+
+        return False
+
+    def CheckAbort(self):
+        """Checks for abort indication from the remote AE. """
+        # Abort is a non-confirmed service so no need to worry if its a request
+        #   primitive
+        primitive = self.dul.peek_next_pdu()
+        if primitive.__class__ in (A_ABORT, A_P_ABORT):
+            self.dul.receive_pdu(wait=False)
+            return True
+
+        return False
 
     # ACSE logging/debugging functions
     # Local AE sending PDU to peer AE
