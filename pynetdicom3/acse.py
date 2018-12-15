@@ -628,8 +628,8 @@ class ACSE(object):
         # The following parameters must be set for an A-ASSOCIATE (accept)
         # primitive (* sent in A-ASSOCIATE-AC PDU):
         #   Application Context Name*
-        #   Calling AE Title*
-        #   Called AE Title*
+        #   Calling AE Title* (but not to be tested)
+        #   Called AE Title* (but not to be tested)
         #   User Information
         #       Maximum PDV Length*
         #       Implementation Class UID*
@@ -684,30 +684,50 @@ class ACSE(object):
         assoc : pynetdicom3.association.Association
             The association that is sending the A-ASSOCIATE (reject).
         result : int
-            The association rejection: 0x01 or 0x02
+            The association rejection:
+
+            - 0x01 - rejected permanent
+            - 0x02 - rejected transient
         source : int
-            The source of the rejection: 0x01, 0x02, 0x03
+            The source of the rejection:
+
+            - 0x01 - DUL service user
+            - 0x02 - DUL service provider (ACSE related)
+            - 0x03 - DUL service provider (presentation related)
         diagnostic : int
-            The reason for the rejection: 0x01 to 0x10
+            The reason for the rejection, if the source is 0x01:
+
+            - 0x01 - no reason given
+            - 0x02 - application context name not supported
+            - 0x03 - calling AE title not recognised
+            - 0x07 - called AE title not recognised
+
+            If the source is 0x02:
+
+            - 0x01 - no reason given
+            - 0x02 - protocol version not supported
+
+            If the source is 0x03:
+
+            - 0x01 - temporary congestion
+            - 0x02 - local limit exceeded
         """
         if result not in [0x01, 0x02]:
-            raise ValueError("Invalid A-ASSOCIATE 'Result' parameter value")
+            raise ValueError("Invalid 'result' parameter value")
 
-        if source not in [0x01, 0x02, 0x03]:
-            raise ValueError("Invalid A-ASSOCIATE 'Source' parameter value")
-
-        VALID_RESULT_DIAGNOSTIC = {
-            0x01 : [
-                0x01, 0x02, 0x03, 0x04, 0x05, 0x06, 0x07, 0x08, 0x09, 0x0a
-            ],
+        VALID_REASON_DIAGNOSTIC = {
+            0x01 : [0x01, 0x02, 0x03, 0x07],
             0x02 : [0x01, 0x02],
-            0x03 : [0x00, 0x01, 0x02, 0x03, 0x04, 0x05, 0x06, 0x07],
+            0x03 : [0x01, 0x02],
         }
 
-        if diagonstic not in VALID_RESULT_DIAGNOSTIC[source]:
-            raise ValueError(
-                "Invalid A-ASSOCIATE 'Reason/Diagnostic' parameter value"
-            )
+        try:
+            if diagnostic not in VALID_REASON_DIAGNOSTIC[source]:
+                raise ValueError(
+                    "Invalid 'diagnostic' parameter value"
+                )
+        except KeyError:
+            raise ValueError("Invalid 'source' parameter value")
 
         # The following parameters must be set for an A-ASSOCIATE (reject)
         # primitive (* sent in A-ASSOCIATE-RJ PDU):

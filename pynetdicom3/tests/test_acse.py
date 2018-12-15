@@ -17,7 +17,7 @@ import pytest
 
 from pynetdicom3 import (
     AE, VerificationPresentationContexts, PYNETDICOM_IMPLEMENTATION_UID,
-    PYNETDICOM_IMPLEMENTATION_VERSION
+    PYNETDICOM_IMPLEMENTATION_VERSION, build_context
 )
 from pynetdicom3.acse import ACSE
 from pynetdicom3.association import Association
@@ -93,6 +93,16 @@ class TestInit(object):
         """Test initialising the ACSE with arguments."""
         acse = ACSE(acse_timeout=20)
         assert acse.acse_timeout == 20
+
+
+REFERENCE_REJECT_GOOD = [
+    (0x01, 0x01, (0x01, 0x02, 0x03, 0x07)),
+    (0x02, 0x01, (0x01, 0x02, 0x03, 0x07)),
+    (0x01, 0x02, (0x01, 0x02)),
+    (0x02, 0x02, (0x01, 0x02)),
+    (0x01, 0x03, (0x01, 0x02)),
+    (0x02, 0x03, (0x01, 0x02)),
+]
 
 
 class TestPrimitiveConstruction(object):
@@ -184,6 +194,82 @@ class TestPrimitiveConstruction(object):
         msg = r"Invalid 'reason' parameter value"
         with pytest.raises(ValueError, match=msg):
             acse._send_ap_abort(self.assoc, 0x03)
+
+    @pytest.mark.parametrize('result, source, reasons', REFERENCE_REJECT_GOOD)
+    def test_send_reject(self, result, source, reasons):
+        """Test A-ASSOCIATE (rj) construction and sending"""
+        acse = ACSE()
+        for reason in reasons:
+            acse.send_reject(self.assoc, result, source, reason)
+
+            primitive = self.assoc.dul.to_send.get()
+            with pytest.raises(queue.Empty):
+                self.assoc.dul.to_send.get(block=False)
+
+            assert isinstance(primitive, A_ASSOCIATE)
+            assert primitive.result == result
+            assert primitive.result_source == source
+            assert primitive.diagnostic == reason
+
+    def test_send_reject_raises(self):
+        """Test A-ASSOCIATE (rj) construction invalid values raise exception"""
+        acse = ACSE()
+        msg = r"Invalid 'result' parameter value"
+        with pytest.raises(ValueError, match=msg):
+            acse.send_reject(self.assoc, 0x00, 0x00, 0x00)
+
+        msg = r"Invalid 'source' parameter value"
+        with pytest.raises(ValueError, match=msg):
+            acse.send_reject(self.assoc, 0x01, 0x00, 0x00)
+
+        msg = r"Invalid 'diagnostic' parameter value"
+        with pytest.raises(ValueError, match=msg):
+            acse.send_reject(self.assoc, 0x01, 0x01, 0x00)
+
+    def test_send_release(self):
+        """Test A-RELEASE construction and sending"""
+        acse = ACSE()
+        acse.send_release(self.assoc, is_response=False)
+
+        primitive = self.assoc.dul.to_send.get()
+        with pytest.raises(queue.Empty):
+            self.assoc.dul.to_send.get(block=False)
+
+        assert isinstance(primitive, A_RELEASE)
+        assert primitive.result is None
+
+        acse.send_release(self.assoc, is_response=True)
+
+        primitive = self.assoc.dul.to_send.get()
+        with pytest.raises(queue.Empty):
+            self.assoc.dul.to_send.get(block=False)
+
+        assert isinstance(primitive, A_RELEASE)
+        assert primitive.result == 'affirmative'
+
+    def test_send_accept(self):
+        """Test A-ASSOCIATE (ac) construction and sending"""
+        acse = ACSE()
+        # So we have the request available
+        acse.send_request(self.assoc)
+        self.assoc.accepted_contexts = [build_context('1.2.840.10008.1.1')]
+        acse.send_accept(self.assoc)
+
+        self.assoc.dul.to_send.get()  # The request
+        primitive = self.assoc.dul.to_send.get()
+        with pytest.raises(queue.Empty):
+            self.assoc.dul.to_send.get(block=False)
+
+        assert isinstance(primitive, A_ASSOCIATE)
+        assert primitive.application_context_name == '1.2.840.10008.3.1.1.1'
+        assert primitive.calling_ae_title == b'TEST_LOCAL      '
+        assert primitive.called_ae_title == b'TEST_REMOTE     '
+        assert primitive.result == 0x00
+        assert primitive.result_source == 0x01
+
+        cx = primitive.presentation_context_definition_results_list
+        assert len(cx) == 1
+        assert cx[0].abstract_syntax == '1.2.840.10008.1.1'
 
 
 class Test(object):
