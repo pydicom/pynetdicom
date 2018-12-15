@@ -15,7 +15,9 @@ PYNETDICOM_IMPLEMENTATION_VERSION = (
 assert 1 <= len(PYNETDICOM_IMPLEMENTATION_VERSION) <= 16
 
 PYNETDICOM_IMPLEMENTATION_UID = UID(
-    PYNETDICOM_UID_PREFIX + '.'.join([str(ii) for ii in __version_info__['release']])
+    PYNETDICOM_UID_PREFIX + '.'.join(
+        [str(ii) for ii in __version_info__['release']]
+    )
 )
 assert PYNETDICOM_IMPLEMENTATION_UID.is_valid
 

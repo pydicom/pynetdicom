@@ -1,8 +1,4 @@
-"""Association testing
-
-TODO: Add tests to check raise NotImplemented if no user implementation
-of the DIMSE-C service callbacks
-"""
+"""Association testing"""
 
 from io import BytesIO
 import logging

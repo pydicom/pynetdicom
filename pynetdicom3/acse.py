@@ -551,7 +551,7 @@ class ACSE(object):
 
 
     @staticmethod
-    def send_abort(assoc, source, reason):
+    def send_abort(assoc, source):
         """Send an A-ABORT to the peer.
 
         Parameters
@@ -563,13 +563,34 @@ class ACSE(object):
 
             - 0x00 - the DUL service user
             - 0x02 - the DUL service provider
+
+        Raises
+        ------
+        ValueError
+            If the `source` value is invalid.
+        """
+        if source not in [0x00, 0x02]:
+            raise ValueError("Invalid 'source' parameter value")
+
+        # The following parameters must be set for an A-ABORT primitive
+        # (* sent in A-ABORT PDU):
+        #    Abort Source*
+        #    Provider Reason* (not significant with source 0x00)
+        primitive = A_ABORT()
+        primitive.abort_source = source
+
+        assoc.dul.send_pdu(primitive)
+
+    @staticmethod
+    def _send_ap_abort(assoc, reason):
+        """Send an A-P-ABORT to the peer.
+
+        Parameters
+        ----------
+        assoc : pynetdicom3.association.Association
+            The association that is sending the A-P-ABORT.
         reason : int
-            The reason for aborting the association. If `source` is 0x00
-            (DUL user):
-
-            - 0x00 - reason field not significant
-
-            If `source` is 0x02 (DUL provider):
+            The reason for aborting the association, one of the following:
 
             - 0x00 - reason not specified
             - 0x01 - unrecognised PDU
@@ -581,24 +602,17 @@ class ACSE(object):
         Raises
         ------
         ValueError
-            If the `source` or `reason` values are invalid.
+            If the `reason` value is invalid.
         """
-        if source not in [0x00, 0x01, 0x02]:
-            raise ValueError("Invalid A-ABORT 'Source' parameter value")
+        if reason not in [0x00, 0x01, 0x02, 0x04, 0x05, 0x06]:
+            raise ValueError("Invalid 'reason' parameter value")
 
-        # The following parameters must be set for an A-ABORT or A-P-ABORT
-        # primitive (* sent in A-ABORT PDU):
-        #    Abort Source*
+        # The following parameters must be set for an A-P-ABORT primitive
+        # (* sent in A-ABORT PDU):
+        #    Abort Source* (always 0x02)
         #    Provider Reason*
-        primitive = A_ABORT()
-        primitive.abort_source = source
-
-        if source == 0x00:
-            primitive.reason = 0x00
-        elif reason in [0x00, 0x01, 0x02, 0x03, 0x04, 0x05, 0x06]:
-            primitive.reason = reason
-        else:
-            raise ValueError("Invalid A-ABORT 'Reason' parameter value")
+        primitive = A_P_ABORT()
+        primitive.provider_reason = reason
 
         assoc.dul.send_pdu(primitive)
 

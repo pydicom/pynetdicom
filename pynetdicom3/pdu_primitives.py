@@ -945,10 +945,12 @@ class A_P_ABORT(object):
         elif value is None:
             self._provider_reason = None
         else:
-            LOGGER.error("Attempted to set A_ABORT.provider_reason to an "
-                         "invalid value")
-            raise ValueError("Attempted to set A_ABORT.provider_reason to an "
-                             "invalid value")
+            msg = (
+                "Attempted to set A_P_ABORT.provider_reason to an invalid "
+                "value"
+            )
+            LOGGER.error(msg)
+            raise ValueError(msg)
 
 
 class P_DATA(object):

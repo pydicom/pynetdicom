@@ -11,7 +11,7 @@ from pydicom.dataset import Dataset
 from pydicom.uid import UID
 
 # pylint: disable=no-name-in-module
-from pynetdicom3.acse import ACSEServiceProvider
+from pynetdicom3.acse import ACSE
 from pynetdicom3.dimse import DIMSEServiceProvider
 from pynetdicom3.dimse_primitives import (
     C_ECHO, C_MOVE, C_STORE, C_GET, C_FIND, C_CANCEL,
@@ -74,11 +74,12 @@ from pynetdicom3.status import (
     STATUS_WARNING, STATUS_SUCCESS, STATUS_CANCEL, STATUS_PENDING,
     STATUS_FAILURE
 )
-from pynetdicom3._globals import MODE_REQUESTOR, MODE_ACCEPTOR
 
 
 # pylint: enable=no-name-in-module
 LOGGER = logging.getLogger('pynetdicom3.assoc')
+MODE_REQUESTOR = 'requestor'
+MODE_ACCEPTOR = 'acceptor'
 
 
 class Association(threading.Thread):
