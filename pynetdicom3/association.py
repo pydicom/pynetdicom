@@ -823,6 +823,10 @@ class Association(threading.Thread):
                 self.abort()
 
     @property
+    def requested_contexts(self):
+        return self.requestor.contexts
+
+    @property
     def request(self):
         """Return the A-ASSOCIATE (request) primitive that was sent/received.
 
@@ -3598,15 +3602,16 @@ class Association(threading.Thread):
 
 
 class RequestorAcceptor(object):
-    """"""
+    """Convenience class for the Association Requestor/Acceptor."""
     def __init__(self, mode):
         self.primitive = None
         self.ae_title = b''
         self.port = None
         self.address = ''
         self._contexts = []
-        self.mode = mode
-        #self.maximum_length = 16382
+        self._mode = mode
+        self._max_length = 16382
+        self._ext_neg = []
 
     @property
     def asynchronous_operations(self):
@@ -3633,7 +3638,30 @@ class RequestorAcceptor(object):
     @property
     def contexts(self):
         # Requested/supported vs pcdl/pcdrl
+        if self.primitive:
+            # return pcdl/pcdrl lists
+            return
+
+        # Otherwise return initial requested/supported contexts
         return self._contexts
+
+    @contexts.setter
+    def contexts(self, value):
+        """Set the presentation contexts (only prior to association).
+
+        Parameters
+        ----------
+        value : list of presentation.PresentationContext
+            The requested/supported presentation contexts, complete with
+            valid Context ID.
+        """
+        if self.primitive:
+            raise RuntimeError(
+                "Can't set the Presentation Contexts after negotiation "
+                "has started""
+            )
+
+        self._contexts = value
 
     @property
     def extended_negotiation(self):
@@ -3641,7 +3669,24 @@ class RequestorAcceptor(object):
         if self.primitive:
             return self.primitive.user_information
 
-        return []
+        return self._ext_neg
+
+    @extended_negotiation.setter
+    def extended_negotiation(self, value):
+        """Set the extended negotiation items (only prior to association).
+
+        Paramaeters
+        -----------
+        value : list of extended negotiation items
+            The items to include in the extended negotiation
+        """
+        if self.primitive:
+            raise RuntimeError(
+                "Can't set the Extended Negotiation items after negotiation "
+                "has started"
+            )
+
+        self._ext_neg = value
 
     @property
     def implementation_class_uid(self):
@@ -3683,14 +3728,34 @@ class RequestorAcceptor(object):
 
     @property
     def maximum_length(self):
+        """Return the maximum PDV size as int."""
         for item in self.extended_negotiation:
             if isinstance(item, MaximumLengthNotification):
                 return item.maximum_length_received
 
-        raise ValueError(
-            "No Maximum Length Negotiation was found in the "
-            "A-ASSOCIATE's 'User Information' items"
-        )
+        # If no primitive has been built
+        return self._max_length
+
+    @maximum_length.setter
+    def maximum_length(self, value):
+        """Set the Maximum PDU Length (only prior to association).
+
+        Parameters
+        ----------
+        value : int or None
+            The value to use in the Maximum Length Negotiation.
+        """
+        if self.primitive:
+            raise RuntimeError(
+                "Can't set the Maximum Length after negotiation has started"
+            )
+
+        self._max_length = value
+
+    @property
+    def mode(self):
+        """Return the AE's mode as str."""
+        return self._mode
 
     @property
     def role_selection(self):

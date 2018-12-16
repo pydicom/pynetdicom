@@ -563,17 +563,21 @@ class ApplicationEntity(object):
 
         # Associate
         assoc = Association(self, MODE_REQUESTOR)
-        assoc.local['pdv_size'] = max_pdu
-        assoc.local['address'] = self.address
-        assoc.local['port'] = self.port
-        assoc.local['ae_title'] = self.ae_title
-        assoc.remote['ae_title'] = validate_ae_title(ae_title)
-        assoc.remote['address'] = addr
-        assoc.remote['port'] = port
         assoc.acse_timeout = self.acse_timeout
         assoc.dimse_timeout = self.dimse_timeout
         assoc.network_timeout = self.network_timeout
-        assoc.ext_neg = ext_neg
+
+        # Association Acceptor object -> remote AE
+        assoc.acceptor.ae_title = validate_ae_title(ae_title)
+        assoc.acceptor.address = addr
+        assoc.acceptor.port = port
+
+        # Association Requestor object -> local AE
+        assoc.requestor.maximum_length = max_pdu
+        assoc.requestor.address = self.address
+        assoc.requestor.port = self.port
+        assoc.requestor.ae_title = self.ae_title
+        assoc.requestor.extended_negotiation = ext_neg
 
         if contexts is None:
             contexts = self.requested_contexts
@@ -587,11 +591,11 @@ class ApplicationEntity(object):
         for ii, context in enumerate(contexts):
             context.context_id = 2 * ii + 1
 
-        assoc.requested_contexts = contexts
+        assoc.requestor.contexts = contexts
 
         # PS3.8 Table 9.11, an A-ASSOCIATE-RQ must contain one or more
         #   Presentation Context items
-        if not assoc.requested_contexts:
+        if not contexts:
             raise RuntimeError(
                 "Can't start an association with no requested presentation "
                 "contexts"
