@@ -63,6 +63,9 @@ from pynetdicom3.sop_class import (
 )
 from pynetdicom3.pdu_primitives import (
     UserIdentityNegotiation,
+    MaximumLengthNotification,
+    ImplementationClassUIDNotification,
+    ImplementationVersionNameNotification,
     AsynchronousOperationsWindowNegotiation,
     SOPClassExtendedNegotiation,
     SOPClassCommonExtendedNegotiation,
@@ -194,7 +197,7 @@ class Association(threading.Thread):
                          'ae_title' : local_ae.ae_title,
                          'pdv_size' : None}
 
-        self.dul = DULServiceProvider(socket=self.ae.socket,
+        self.dul = DULServiceProvider(socket=self.ae.local_socket,
                                       dul_timeout=self.ae.network_timeout,
                                       assoc=self)
 
@@ -284,29 +287,29 @@ class Association(threading.Thread):
         """
         self._ae = ae
         self.mode = mode
-        # Move to _request
-        self.requested_contexts = []
 
-        self.local = {
-            'port' : None,
-            'address' : None,
-            'ae_title' : None,
-            'pdv_size' : None,
-        }
-        self.remote = {
-            'port' : None,
-            'address' : None,
-            'ae_title' : None,
-            'pdv_size' : None,
-        }
+        #self.requested_contexts = []
+
+        #self.local = {
+        #    'port' : None,
+        #    'address' : None,
+        #    'ae_title' : None,
+        #    'pdv_size' : None,
+        #}
+        #self.remote = {
+        #    'port' : None,
+        #    'address' : None,
+        #    'ae_title' : None,
+        #    'pdv_size' : None,
+        #}
 
         # Experimental
-        self._requestor = None
-        self._acceptor = None
+        self._requestor = RequestorAcceptor()
+        self._acceptor = RequestorAcceptor()
 
         # Request and response
-        self._request = None
-        self._response = None
+        #self._request = None
+        #self._response = None
 
         # Status attributes
         self.is_established = False
@@ -315,13 +318,13 @@ class Association(threading.Thread):
         self.is_released = False
 
         # Service providers
-        self.dul = DULServiceProvider(socket=ae.socket,
+        self.dul = DULServiceProvider(socket=ae.local_socket,
                                       dul_timeout=ae.network_timeout,
                                       assoc=self)
         self.acse = ACSE(ae.acse_timeout)
+        # Set dimse.maximum_pdu_size later
         self.dimse = DIMSEServiceProvider(self.dul,
-                                          self.dimse_timeout,
-                                          self.local_max_pdu)
+                                          self.ae.dimse_timeout)
 
         # Kills the thread loop in run()
         self._kill = False
@@ -364,7 +367,7 @@ class Association(threading.Thread):
         if mode not in [MODE_REQUESTOR, MODE_ACCEPTOR]:
             raise ValueError(
                 "Invalid association `mode` value, must be either 'requestor' "
-                "or 'acceptor'."
+                "or 'acceptor'"
             )
 
         self._mode = mode
@@ -375,18 +378,20 @@ class Association(threading.Thread):
         return self._rejected_cx
 
     @property
-    def xlocal(self):
+    def local(self):
+        """Return a dict with information about the local AE."""
         if self.mode == MODE_ACCEPTOR:
-            return self._acceptor
+            return self._acceptor.info
 
-        return self._requestor
+        return self._requestor.info
 
     @property
-    def xremote(self):
+    def remote(self):
+        """Return a dict with information about the peer AE."""
         if self.mode == MODE_ACCEPTOR:
-            return self._requestor
+            return self._requestor.info
 
-        return self._acceptor
+        return self._acceptor.info
 
     # Old
     def abort(self):
@@ -434,6 +439,7 @@ class Association(threading.Thread):
 
         return None
 
+    # Move to ACSE, acceptor only
     def _check_async_ops(self, req_invoked, req_performed):
         """Check the user's response to an Asynchronous Operations request.
 
@@ -475,6 +481,7 @@ class Association(threading.Thread):
 
         return item
 
+    # Keep, utility for DIMSE message senders
     def _check_received_status(self, rsp):
         """Return a dataset containing status related elements.
 
@@ -514,6 +521,7 @@ class Association(threading.Thread):
 
         return status
 
+    # Move to ACSE, acceptor only
     def _check_sop_class_extended(self, req):
         """Check the user's response to a SOP Class Extended request.
 
@@ -564,6 +572,7 @@ class Association(threading.Thread):
 
         return items
 
+    # Move to ACSE, acceptor only
     def _check_user_identity(self, req):
         """Check the user's response to a User Identity request.
 
@@ -725,6 +734,7 @@ class Association(threading.Thread):
         """
         self._ext_neg_rsp = items
 
+    # Keep, utility for DIMSE message senders
     def _get_valid_context(self, ab_syntax, tr_syntax, role, context_id=None):
         """
 
@@ -834,7 +844,8 @@ class Association(threading.Thread):
         pynetdicom3.pdu_primitives.A_ASSOCIATE or None
             The A-ASSOCIATE (accept or reject)  primitive that was either sent
             to or received from the peer at the end of association negotiation
-            or None if no response has been sent/received.
+            or None if no response has been sent/received or if the response
+            was not an A-ASSOCIATE primitive.
         """
         return self._assoc_rsp
 
@@ -880,10 +891,10 @@ class Association(threading.Thread):
         self.peer_ae['ae_title'] = assoc_rq.calling_ae_title
         self.peer_ae['called_aet'] = assoc_rq.called_ae_title
         self.peer_ae['pdv_size'] = assoc_rq.maximum_length_received
-        peer_info = self.ae.socket.getpeername()
+        peer_info = self.ae.local_socket.getpeername()
         self.peer_ae['address'] = peer_info[0]
         self.peer_ae['port'] = peer_info[1]
-        local_info = self.ae.socket.getsockname()
+        local_info = self.ae.local_socket.getsockname()
         self.local_ae['address'] = local_info[0]
         self.local_ae['port'] = local_info[1]
 
@@ -1235,6 +1246,7 @@ class Association(threading.Thread):
                 self.kill()
                 return
 
+    # Deprecated
     def _run_as_requestor(self):
         """Run as the Association Requestor."""
         if not self.requested_contexts:
@@ -1359,6 +1371,7 @@ class Association(threading.Thread):
             self.dul.kill_dul()
             return
 
+    # Bluh ugly
     @property
     def sop_class_common_extended(self):
         """Return the association requestor's SOP Class Common Extended
@@ -3593,14 +3606,29 @@ class RequestorAcceptor(object):
         self.address = ''
         self._contexts = []
         self.mode = mode
+        #self.maximum_length = 16382
 
     @property
     def asynchronous_operations(self):
+        """Return the Asynchronous Operations Window operations numbers.
+
+        Returns
+        -------
+        (int, int)
+            The (Maximum Number of Operations Invoked, Maximum Number of
+            Operations Performed) or (1, 1) if no Asynchronous Operations
+            Window Negotiation item is in the extended negotiation items.
+        """
+        invoked, performed = (1, 1)
         for item in self.extended_negotiation:
             if isinstance(item, AsynchronousOperationsWindowNegotiation):
-                return item
+                invoked, performed = (
+                    item.maximum_number_operations_invoked,
+                    item.maximum_number_operations_performed
+                )
+                break
 
-        return None
+        return invoked, performed
 
     @property
     def contexts(self):
@@ -3609,15 +3637,49 @@ class RequestorAcceptor(object):
 
     @property
     def extended_negotiation(self):
-        return self.primitive.user_information
+        """Return the list of User Information Items"""
+        if self.primitive:
+            return self.primitive.user_information
+
+        return []
 
     @property
     def implementation_class_uid(self):
-        pass
+        """Return the Implementation Class UID as pydicom UID."""
+        for item in self.extended_negotiation:
+            if isinstance(item, ImplementationClassUIDNotification):
+                return item.implementation_class_uid
 
     @property
     def implementation_version_name(self):
-        pass
+        """Return the Implementation Version Name as str (if available)."""
+        for item in self.extended_negotiation:
+            if isinstance(item, ImplementationVersionNameNotification):
+                version_name = item.implementation_version_name
+                break
+        else:
+            return None
+
+        # May be str or bytes, decode if necessary
+        # TODO: add handling for str decode
+        version_name = version_name.decode('ascii')
+
+        return version_name
+
+    @property
+    def info(self):
+        """Return a dict with information about the AE."""
+        info = {
+            'ae_title' : self.ae_title,
+            'address' : self.address,
+            'port' : self.port,
+            #'pdv_size' : self.maximum_length,
+            'mode' : self.mode,
+        }
+        if self.primitive:
+            info['pdv_size'] = self.maximum_length
+
+        return info
 
     @property
     def maximum_length(self):
@@ -3629,19 +3691,6 @@ class RequestorAcceptor(object):
             "No Maximum Length Negotiation was found in the "
             "A-ASSOCIATE's 'User Information' items"
         )
-
-    @maximum_length.setter
-    def maximum_length(self, length):
-        # Change existing MaximumLengthNegotiation item
-        for item in self.extended_negotiation:
-            if isinstance(item, MaximumLengthNotification):
-                item.maximum_length_received = length
-                return
-
-        # No MaximumLengthNegotiation item found, so add one
-        item = MaximumLengthNotification()
-        item.maximum_length_received = length
-        self.extended_negotiation.append(item)
 
     @property
     def role_selection(self):
@@ -3672,6 +3721,7 @@ class RequestorAcceptor(object):
 
     @property
     def user_identity(self):
+        """Return the User Identity Negotiation Item (if available)."""
         for item in self.extended_negotiation:
             if isinstance(item, UserIdentityNegotiation):
                 return item

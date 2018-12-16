@@ -381,22 +381,3 @@ class TestPrimitiveConstruction(object):
         cx = primitive.presentation_context_definition_results_list
         assert len(cx) == 1
         assert cx[0].abstract_syntax == '1.2.840.10008.1.1'
-
-
-class Test(object):
-    """Tests for ACSE"""
-    def setup(self):
-        """Run prior to each test"""
-        self.scp = None
-
-    def teardown(self):
-        """Clear any active threads"""
-        if self.scp:
-            self.scp.abort()
-
-        time.sleep(0.1)
-
-        for thread in threading.enumerate():
-            if isinstance(thread, DummyBaseSCP):
-                thread.abort()
-                thread.stop()

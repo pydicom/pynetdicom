@@ -211,6 +211,8 @@ class ApplicationEntity(object):
         self.require_calling_aet = b''
         self.require_called_aet = b''
 
+        self.local_socket = None
+
         # Used to terminate AE when running as an SCP
         self._quit = False
 
@@ -617,14 +619,14 @@ class ApplicationEntity(object):
         enable better unit testing
         """
         # The socket to listen for connections on, port is always specified
-        self.socket = socket.socket(socket.AF_INET,
+        self.local_socket = socket.socket(socket.AF_INET,
                                               socket.SOCK_STREAM)
-        self.socket.setsockopt(socket.SOL_SOCKET,
+        self.local_socket.setsockopt(socket.SOL_SOCKET,
                                          socket.SO_REUSEADDR, 1)
-        self.socket.bind((self.bind_addr, self.port))
+        self.local_socket.bind((self.bind_addr, self.port))
         # Listen for connections made to the socket, the backlog argument
         #   specifies the maximum number of queued connections.
-        self.socket.listen(1)
+        self.local_socket.listen(1)
 
     def cleanup_associations(self):
         """Remove dead associations."""
@@ -733,13 +735,13 @@ class ApplicationEntity(object):
         """
         # FIXME: this needs to be dealt with properly
         try:
-            read_list, _, _ = select.select([self.socket], [], [], 0)
+            read_list, _, _ = select.select([self.local_socket], [], [], 0)
         except (socket.error, ValueError):
             return
 
         # If theres a connection
         if read_list:
-            client_socket, _ = self.socket.accept()
+            client_socket, _ = self.local_socket.accept()
             client_socket.setsockopt(socket.SOL_SOCKET,
                                      socket.SO_RCVTIMEO,
                                      pack('ll', 10, 0))
@@ -1233,8 +1235,8 @@ class ApplicationEntity(object):
         for assoc in self.active_associations:
             assoc.abort()
 
-        if self.socket:
-            self.socket.close()
+        if self.local_socket:
+            self.local_socket.close()
 
     def __str__(self):
         """ Prints out the attribute values and status for the AE """
