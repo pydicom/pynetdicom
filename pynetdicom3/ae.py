@@ -561,7 +561,7 @@ class ApplicationEntity(object):
         if not isinstance(port, int):
             raise TypeError("'port' must be a valid port number")
 
-        # Associate
+        # Association
         assoc = Association(self, MODE_REQUESTOR)
         assoc.acse_timeout = self.acse_timeout
         assoc.dimse_timeout = self.dimse_timeout
@@ -573,16 +573,31 @@ class ApplicationEntity(object):
         assoc.acceptor.port = port
 
         # Association Requestor object -> local AE
-        assoc.requestor.maximum_length = max_pdu
         assoc.requestor.address = self.address
         assoc.requestor.port = self.port
         assoc.requestor.ae_title = self.ae_title
-        assoc.requestor.extended_negotiation = ext_neg
+        assoc.requestor.maximum_length = max_pdu
+        assoc.requestor.implementation_class_uid = (
+            self.implementation_class_uid
+        )
+        assoc.requestor.implementation_version_name = (
+            self.implementation_version_name
+        )
+        assoc.requestor.add_negotiation_items(ext_neg)
 
+        # Requestor's presentation contexts
         if contexts is None:
             contexts = self.requested_contexts
         else:
             self._validate_requested_contexts(contexts)
+
+        # PS3.8 Table 9.11, an A-ASSOCIATE-RQ must contain one or more
+        #   Presentation Context items
+        if not contexts:
+            raise RuntimeError(
+                "At least one requested presentation context is required "
+                "before associating with a peer"
+            )
 
         # Set using a copy of the original to play nicely
         contexts = deepcopy(contexts)
@@ -591,15 +606,7 @@ class ApplicationEntity(object):
         for ii, context in enumerate(contexts):
             context.context_id = 2 * ii + 1
 
-        assoc.requestor.contexts = contexts
-
-        # PS3.8 Table 9.11, an A-ASSOCIATE-RQ must contain one or more
-        #   Presentation Context items
-        if not contexts:
-            raise RuntimeError(
-                "Can't start an association with no requested presentation "
-                "contexts"
-            )
+        assoc.requestor.requested_contexts = contexts
 
         # Send an A-ASSOCIATE request to the peer
         assoc.start()

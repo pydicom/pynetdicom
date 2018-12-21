@@ -718,14 +718,14 @@ class A_ASSOCIATE(object):
         # Type and value checking for the implementation_class_uid parameter is
         #   done by the ImplementationClassUIDNotification class
 
-        # Check for a ImplementationClassUIDNegotiation item
+        # Check for a ImplementationClassUIDNotification item
         found_item = False
         for item in self.user_information:
             if isinstance(item, ImplementationClassUIDNotification):
                 found_item = True
                 item.implementation_class_uid = value
 
-        # No ImplementationClassUIDNegotiation item found
+        # No ImplementationClassUIDNotification item found
         if not found_item:
             imp_uid = ImplementationClassUIDNotification()
             imp_uid.implementation_class_uid = value
@@ -1270,8 +1270,8 @@ class ImplementationVersionNameNotification(ServiceParameter):
     Examples
     --------
 
-    >>> from pynetdicom3.pdu_primitives import ImplementationVersionNameNegotiation
-    >>> item = ImplementationVersionNameNegotiation()
+    >>> from pynetdicom3.pdu_primitives import ImplementationVersionNameNotification
+    >>> item = ImplementationVersionNameNotification()
     >>> item.implementation_version_name = b'SOME_NAME'
 
     References

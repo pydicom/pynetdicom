@@ -672,12 +672,12 @@ class TestPrimitive_A_ASSOCIATE(unittest.TestCase):
         assoc.maximum_length_received = 31224
         self.assertTrue(assoc.maximum_length_received == 31224)
 
-        # No ImplementationClassUIDNegotiation present
+        # No ImplementationClassUIDNotification present
         assoc.implementation_class_uid = '1.1.2.3.4'
         self.assertTrue(assoc.user_information[1].implementation_class_uid == UID('1.1.2.3.4'))
         self.assertTrue(assoc.implementation_class_uid == UID('1.1.2.3.4'))
 
-        # ImplementationClassUIDNegotiation already present
+        # ImplementationClassUIDNotification already present
         assoc.implementation_class_uid = '1.1.2.3.4'
         self.assertTrue(assoc.implementation_class_uid == UID('1.1.2.3.4'))
 

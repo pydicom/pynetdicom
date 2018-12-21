@@ -288,28 +288,8 @@ class Association(threading.Thread):
         self._ae = ae
         self.mode = mode
 
-        #self.requested_contexts = []
-
-        #self.local = {
-        #    'port' : None,
-        #    'address' : None,
-        #    'ae_title' : None,
-        #    'pdv_size' : None,
-        #}
-        #self.remote = {
-        #    'port' : None,
-        #    'address' : None,
-        #    'ae_title' : None,
-        #    'pdv_size' : None,
-        #}
-
-        # Experimental
-        self._requestor = RequestorAcceptor()
-        self._acceptor = RequestorAcceptor()
-
-        # Request and response
-        #self._request = None
-        #self._response = None
+        self.requestor = ServiceUser(self, MODE_REQUESTOR)
+        self.acceptor = ServiceUser(self, MODE_ACCEPTOR)
 
         # Status attributes
         self.is_established = False
@@ -322,7 +302,7 @@ class Association(threading.Thread):
                                       dul_timeout=ae.network_timeout,
                                       assoc=self)
         self.acse = ACSE(ae.acse_timeout)
-        # Set dimse.maximum_pdu_size later
+        # TODO: Set dimse.maximum_pdu_size later
         self.dimse = DIMSEServiceProvider(self.dul,
                                           self.ae.dimse_timeout)
 
@@ -334,66 +314,6 @@ class Association(threading.Thread):
         threading.Thread.__init__(self)
         self.daemon = True
 
-    # New styles
-    @property
-    def accepted_contexts(self):
-        """Return a list of accepted PresentationContexts."""
-        return self._accepted_cx
-
-    @property
-    def ae(self):
-        """Return the Association's parent ApplicationEntity."""
-        return self._ae
-
-    @property
-    def mode(self):
-        """Return the Association's `mode` as a str."""
-        return self._mode
-
-    @mode.setter
-    def mode(self, mode):
-        """Set the Association's mode.
-
-        Parameters
-        ----------
-        mode : str
-            The mode of the Association, must be either "requestor" or
-            "acceptor". If "requestor" then its assumed that the local AE
-            requests an association with peers and (by default) acts as the
-            SCU. If "acceptor" then its assumed that the local AE is listening
-            for association requests and (by default) acts as the SCP.
-        """
-        mode = mode.lower()
-        if mode not in [MODE_REQUESTOR, MODE_ACCEPTOR]:
-            raise ValueError(
-                "Invalid association `mode` value, must be either 'requestor' "
-                "or 'acceptor'"
-            )
-
-        self._mode = mode
-
-    @property
-    def rejected_contexts(self):
-        """Return a list of rejected PresentationContexts."""
-        return self._rejected_cx
-
-    @property
-    def local(self):
-        """Return a dict with information about the local AE."""
-        if self.mode == MODE_ACCEPTOR:
-            return self._acceptor.info
-
-        return self._requestor.info
-
-    @property
-    def remote(self):
-        """Return a dict with information about the peer AE."""
-        if self.mode == MODE_ACCEPTOR:
-            return self._requestor.info
-
-        return self._acceptor.info
-
-    # Old
     def abort(self):
         """Abort the association.
 
@@ -403,13 +323,38 @@ class Association(threading.Thread):
         See PS3.8, 7.3-4 and 9.3.8.
         """
         if not self.is_released:
-            self.acse.abort_assoc(source=0x00, reason=0x00)
-            self.kill()
+            self.acse.send_abort(self, 0x00)
+            self.is_established = False
             self.is_aborted = True
+            self.kill()
 
         # Add short delay to ensure everything shuts down
         time.sleep(0.1)
 
+    # OK
+    @property
+    def accepted_contexts(self):
+        """Return a list of accepted PresentationContexts."""
+        return self._accepted_cx
+
+    def add_negotiation_item(self, item):
+        """Add an extended negotiation item prior to starting negotiation."""
+        if self.mode == MODE_REQUESTOR:
+            self.requestor.add_negotiation_item(item)
+        else:
+            self.acceptor.add_negotiation_item(item)
+
+    def add_negotiation_items(self, items):
+        for item in items:
+            self.add_negotiation_item(item)
+
+    # OK
+    @property
+    def ae(self):
+        """Return the Association's parent ApplicationEntity object."""
+        return self._ae
+
+    # Ugly
     @property
     def asynchronous_operations_response(self):
         """Return the association acceptor's Asynchronous Operations Window
@@ -445,11 +390,11 @@ class Association(threading.Thread):
 
         Parameters
         ----------
-        nr_invoked : int
+        req_invoked : int
             The *Maximum Number Operations Invoked* parameter value of the
             Asynchronous Operations Window request. If the value is 0 then
             an unlimited number of invocations are requested.
-        nr_performed : int
+        req_performed : int
             The *Maximum Number Operations Performed* parameter value of the
             Asynchronous Operations Window request. If the value is 0 then
             an unlimited number of performances are requested.
@@ -463,9 +408,8 @@ class Association(threading.Thread):
             values for the number of operations invoked/performed (1, 1).
         """
         try:
-            rsp_invoked, rsp_performed = self.ae.on_async_ops_window(
-                req_invoked, req_performed
-            )
+            # Response is always ignored as async ops is not supported
+            _ = self.ae.on_async_ops_window(req_invoked, req_performed)
         except NotImplementedError:
             return None
         except Exception as exc:
@@ -533,7 +477,7 @@ class Association(threading.Thread):
 
         Returns
         -------
-        list of SOPClassExtendedNegotiation
+        list of pdu_primitives.SOPClassExtendedNegotiation
             The SOP Class Extended Negotiation items to be sent in response
         """
         try:
@@ -566,7 +510,8 @@ class Association(threading.Thread):
             except Exception as exc:
                 LOGGER.error(
                     "Unable to set the SOP Class Extended Negotiation "
-                    "response values"
+                    "response values for the SOP Class UID {}"
+                    .format(sop_class)
                 )
                 LOGGER.exception(exc)
 
@@ -595,12 +540,7 @@ class Association(threading.Thread):
                 req.primary_field,
                 req.secondary_field,
                 {
-                    'requestor' : {
-                        'ae_title' : self.peer_ae['ae_title'],
-                        'called_aet' : self.peer_ae['called_aet'],
-                        'port' : self.peer_ae['port'],
-                        'address' : self.peer_ae['address'],
-                    },
+                    'requestor' : self.requestor.info,
                 }
             )
         except NotImplementedError:
@@ -636,103 +576,6 @@ class Association(threading.Thread):
                     return True, None
 
         return True, None
-
-    @property
-    def extended_negotiation(self):
-        """Return a tuple of extended negotiation items (request, response).
-
-        Returns
-        -------
-        2-tuple of list
-            The (request, response) extended negotiation items. If no items
-            have been requested or responded to then will return ([], []).
-        """
-        return (self._extneg_request, self._extneg_response)
-
-    @property
-    def _extneg_request(self):
-        return self._ext_neg_req
-
-    @_extneg_request.setter
-    def _extneg_request(self, items):
-        """
-
-        +--------------------------------+--------+
-        | Negotiation Item               | Number |
-        +================================+========+
-        | SOP Class Extended             | 0 - N  |
-        +--------------------------------+--------+
-        | SOP Class Common Extended      | 0 - N  |
-        +--------------------------------+--------+
-        | SCP/SCU Role Selection         | 0 - N  |
-        +--------------------------------+--------+
-        | User Identity                  | 0 - 1  |
-        +--------------------------------+--------+
-        | Asynchronous Operations Window | 0 - 1  |
-        +--------------------------------+--------+
-
-        Parameters
-        ----------
-        items : list of pynetdicom3.pdu_primitives
-        """
-        # Check the supplied items
-        # Maximum 1 User Identity
-        user_identity = [
-            ii for ii in items if isinstance(ii, UserIdentityNegotiation)
-        ]
-        if len(user_identity) > 1:
-            raise ValueError(
-                "Only one User Identity Negotiation item is allowed as part "
-                "of the extended negotiation"
-            )
-
-        # Maximum 1 Async Operations Window
-        async_ops = [
-            ii for ii in items if isinstance(ii, AsynchronousOperationsWindowNegotiation)
-        ]
-        if len(async_ops) > 1:
-            raise ValueError(
-                "Only one Asynchronous Operations Window Negotiation item is "
-                "allowed as part of the extended negotiation"
-            )
-
-        for ii in items:
-            if not isinstance(ii, (AsynchronousOperationsWindowNegotiation,
-                                   UserIdentityNegotiation,
-                                   SOPClassExtendedNegotiation,
-                                   SOPClassCommonExtendedNegotiation,
-                                   SCP_SCU_RoleSelectionNegotiation)):
-                raise TypeError(
-                    "Invalid item included in the extended negotiation"
-                )
-
-        self._ext_neg_req = items
-
-    @property
-    def _extneg_response(self):
-        return self._ext_neg_rsp
-
-    @_extneg_response.setter
-    def _extneg_response(self, items):
-        """
-
-        +--------------------------------+--------+
-        | Negotiation Item               | Number |
-        +================================+========+
-        | SOP Class Extended             | 0 - N  |
-        +--------------------------------+--------+
-        | SCP/SCU Role Selection         | 0 - N  |
-        +--------------------------------+--------+
-        | User Identity                  | 0 - 1  |
-        +--------------------------------+--------+
-        | Asynchronous Operations Window | 0 - 1  |
-        +--------------------------------+--------+
-
-        Parameters
-        ----------
-        items : list of pynetdicom3.pdu_primitives
-        """
-        self._ext_neg_rsp = items
 
     # Keep, utility for DIMSE message senders
     def _get_valid_context(self, ab_syntax, tr_syntax, role, context_id=None):
@@ -811,61 +654,94 @@ class Association(threading.Thread):
 
         self.ae.cleanup_associations()
 
+    # OK
+    @property
+    def local(self):
+        """Return a dict with information about the local AE."""
+        if self.mode == MODE_ACCEPTOR:
+            return self.acceptor.info
+
+        return self.requestor.info
+
+    # OK
+    @property
+    def mode(self):
+        """Return the Association's `mode` as a str."""
+        return self._mode
+
+    # OK
+    @mode.setter
+    def mode(self, mode):
+        """Set the Association's mode.
+
+        Parameters
+        ----------
+        mode : str
+            The mode of the Association, must be either "requestor" or
+            "acceptor". If "requestor" then its assumed that the local AE
+            requests an association with peers and (by default) acts as the
+            SCU. If "acceptor" then its assumed that the local AE is listening
+            for association requests and (by default) acts as the SCP.
+        """
+        mode = mode.lower()
+        if mode not in [MODE_REQUESTOR, MODE_ACCEPTOR]:
+            raise ValueError(
+                "Invalid association `mode` value, must be either 'requestor' "
+                "or 'acceptor'"
+            )
+
+        self._mode = mode
+
+    # OK
+    @property
+    def rejected_contexts(self):
+        """Return a list of rejected PresentationContexts."""
+        return self._rejected_cx
+
+    # To be changed -> acse.send_release(self)
     def release(self):
         """Release the association."""
         if self.is_established:
-            if self.acse.release_assoc():
+            # TODO: confirm this works as intended
+            self.acse.send_release(self, is_response=False):
+            if self.acse.is_released(self):
                 # Got release reply within timeout window
-                self.kill()
                 self.is_released = True
+                self.is_established = False
+                self.kill()
             else:
                 # No release reply within timeout window
                 self.abort()
 
+    # OK
     @property
     def requested_contexts(self):
-        return self.requestor.contexts
+        """"""
+        return self.requestor.get_contexts('requested')
 
+    # OK
     @property
-    def request(self):
-        """Return the A-ASSOCIATE (request) primitive that was sent/received.
+    def remote(self):
+        """Return a dict with information about the peer AE."""
+        if self.mode == MODE_ACCEPTOR:
+            return self.requestor.info
 
-        Returns
-        -------
-        pynetdicom3.pdu_primitives.A_ASSOCIATE or None
-            The A-ASSOCIATE (request) primitive that was either sent to or
-            received from the peer at the start of association negotiation or
-            None if no request has been sent/received.
-        """
-        return self._assoc_req
-
-    @property
-    def response(self):
-        """Return the A-ASSOCIATE (response) primitive that was sent/received.
-
-        Returns
-        -------
-        pynetdicom3.pdu_primitives.A_ASSOCIATE or None
-            The A-ASSOCIATE (accept or reject)  primitive that was either sent
-            to or received from the peer at the end of association negotiation
-            or None if no response has been sent/received or if the response
-            was not an A-ASSOCIATE primitive.
-        """
-        return self._assoc_rsp
+        return self.acceptor.info
 
     def run(self):
         """The main Association control."""
         self.dul.start()
 
         # When the AE is acting as an SCP (Association Acceptor)
-        if self._mode == 'Acceptor':
+        if self.mode == MODE_ACCEPTOR:
             self._run_as_acceptor()
         # If the local AE initiated the Association
-        elif self._mode == 'Requestor':
+        elif self.mode == MODE_REQUESTOR:
             self.acse.negotiate_association(self)
             if self.is_established:
                 self._x_run_as_requestor()
 
+    # Shift as much as possible to ACSE
     def _run_as_acceptor(self):
         """Run as an Association Acceptor."""
         # FIXME: needed because of some thread-related problem
@@ -1107,17 +983,9 @@ class Association(threading.Thread):
             If timed out then kill thread
         """
         info = {
-            'requestor' : {
-                'ae_title' : self.peer_ae['ae_title'],
-                'called_aet' : self.peer_ae['called_aet'],
-                'port' : self.peer_ae['port'],
-                'address' : self.peer_ae['address'],
-            },
-            'acceptor' : {
-                'ae_title' : self.local_ae['ae_title'],
-                'address' : self.local_ae['address'],
-                'port' : self.local_ae['port'],
-            },
+            'requestor' : self.requestor.info,
+            'acceptor' : self.acceptor.info,
+            # Ugly
             'sop_class_extended' : self.sop_class_extended_response,
         }
 
@@ -1153,30 +1021,18 @@ class Association(threading.Thread):
                 # Convert the SOP Class UID to the corresponding service
                 service_class = uid_to_service_class(class_uid)()
 
-                # Check that the SOP Class is supported by the AE
-                # New method
-                #pc_accepted = self.acse.accepted_contexts
-                #context = [
-                #    pc for pc in pc_accepted if pc.context_id == msg_context_id
-                #]
-
-                # Matching context
-                #if context:
-                #    service_class.presentation_context = context[0]
-                #else:
-                #    # No matching presentation context
-                #    pass
-
-                # Old method
                 # TODO: Index contexts in a dict using context ID
-                for context in self.acse.accepted_contexts:
+                for context in self.accepted_contexts:
                     if context.context_id == msg_context_id:
-                        service_class.maxpdulength = self.peer_max_pdu
+                        # TODO: This needs to be refactored
+                        service_class.maxpdulength = (
+                            self.requestor.maximum_length
+                        )
                         service_class.DIMSE = self.dimse
                         service_class.ACSE = self.acse
                         service_class.AE = self.ae
 
-                        # Run SOPClass in SCP mode
+                        # Run corresponding Service Class in SCP mode
                         try:
                             service_class.SCP(msg, context, info)
                         except NotImplementedError:
@@ -1190,14 +1046,20 @@ class Association(threading.Thread):
                     LOGGER.debug("%s", msg)
 
             # Check for release request
-            if self.acse.CheckRelease():
+            if self.acse.is_released(self):
+                # Send A-RELEASE response
+                self.acse.send_release(self, is_response=True)
+                self.is_released = True
+                self.is_established = False
                 # Callback trigger
                 self.debug_association_released()
                 self.ae.on_association_released()
                 self.kill()
 
             # Check for abort
-            if self.acse.CheckAbort():
+            if self.acse.is_aborted(self):
+                self.is_aborted = True
+                self.is_established = False
                 # Callback trigger
                 self.debug_association_aborted()
                 self.ae.on_association_aborted(None)
@@ -1219,6 +1081,7 @@ class Association(threading.Thread):
 
             # Check for release request
             if self.acse.is_released(self):
+                # Send A-RELEASE response
                 self.acse.send_release(self, is_response=True)
                 self.is_released = True
                 self.is_established = False
@@ -1436,6 +1299,11 @@ class Association(threading.Thread):
                 )
 
         return responses
+
+    @property
+    def supported_contexts(self):
+        """"""
+        return self.acceptor.get_contexts('supported')
 
     @property
     def user_identity_response(self):
@@ -3601,17 +3469,95 @@ class Association(threading.Thread):
         LOGGER.error('Association Aborted')
 
 
-class RequestorAcceptor(object):
-    """Convenience class for the Association Requestor/Acceptor."""
-    def __init__(self, mode):
+class ServiceUser(object):
+    """Convenience class for the Association's Requestor/Acceptor AEs.
+
+    Notes
+    -----
+    The Requestor requires the following in order to be valid:
+
+    * AE title
+    * Address and port number
+    * Maximum PDU length
+    * Implementation class UID
+    * At least one presentation context
+
+    The Acceptor requires the following in order to be valid:
+
+    * AE title
+    * Address and port number
+
+    Once an Association has a valid Requestor and Acceptor, negotiation can be
+    initiated.
+
+    Attributes
+    ----------
+    address : str
+        The TCP/IP address of the AE.
+    ae_title : bytes
+        The AE's AE title.
+    port : int
+        The port number of the AE.
+    primitive : None or pdu_primitives.A_ASSOCIATE
+        The A-ASSOCIATE primitive (request if mode is 'requestor',
+        accept/reject if mode is 'acceptor') sent or received by the AE
+        during association negotiation.
+    """
+    def __init__(self, assoc, mode):
+        """Create a new class instance.
+
+        Parameters
+        ----------
+        assoc : association.Association
+            The parent Association.
+        mode : str
+            The operation mode of the AE, either 'requestor' or 'acceptor'.
+        """
+        mode = mode.lower()
+        if mode not in [MODE_REQUESTOR, MODE_ACCEPTOR]:
+            raise ValueError(
+                "The 'mode' must be either 'requestor' or 'acceptor'"
+            )
+
+        self.assoc = assoc
         self.primitive = None
         self.ae_title = b''
         self.port = None
         self.address = ''
+        self._user_info = []
+        # Must always be set
+        self.maximum_length = 16382
+        self.implementation_class_uid = assoc.ae.implementation_class_uid
+
+        # If Requestor this is the requested contexts, otherwise this is
+        #   the supported contexts
         self._contexts = []
         self._mode = mode
-        self._max_length = 16382
-        self._ext_neg = []
+
+        # If Requestor these are the proposed extended negotiation items,
+        #   otherwise ?
+        self._ext_neg = {
+            SCP_SCU_RoleSelectionNegotiation : [],
+            AsynchronousOperationsWindowNegotiation : [],
+            UserIdentityNegotiation : [],
+            SOPClassCommonExtendedNegotiation : [],
+            SOPClassExtendedNegotiation : [],
+        }
+
+    def add_negotiation_item(self, item):
+        """"""
+        if not self.writeable:
+            raise RuntimeError(
+                "Can't add extended negotiation items after negotiation "
+                "has started"
+            )
+
+        if type(item) in self._ext_neg:
+            self._ext_neg[type(item)].append(item)
+        else:
+            raise TypeError(
+                "'item' is not a valid extended negotiation item"
+            )
 
     @property
     def asynchronous_operations(self):
@@ -3619,97 +3565,178 @@ class RequestorAcceptor(object):
 
         Returns
         -------
-        (int, int)
+        2-tuple of int
             The (Maximum Number of Operations Invoked, Maximum Number of
             Operations Performed) or (1, 1) if no Asynchronous Operations
             Window Negotiation item is in the extended negotiation items.
         """
         invoked, performed = (1, 1)
-        for item in self.extended_negotiation:
-            if isinstance(item, AsynchronousOperationsWindowNegotiation):
+        if self.writeable:
+            for item in self._ext_neg[AsynchronousOperationsWindowNegotiation]:
                 invoked, performed = (
                     item.maximum_number_operations_invoked,
                     item.maximum_number_operations_performed
                 )
                 break
+        else:
+            for item in self.user_information:
+                if isinstance(item, AsynchronousOperationsWindowNegotiation):
+                    invoked, performed = (
+                        item.maximum_number_operations_invoked,
+                        item.maximum_number_operations_performed
+                    )
+                    break
 
         return invoked, performed
 
     @property
-    def contexts(self):
-        # Requested/supported vs pcdl/pcdrl
-        if self.primitive:
-            # return pcdl/pcdrl lists
-            return
+    def extended_negotiation(self):
+        """Return a list of Extended Negotiation items.
 
-        # Otherwise return initial requested/supported contexts
-        return self._contexts
+        Extended Negotiation items are:
 
-    @contexts.setter
-    def contexts(self, value):
-        """Set the presentation contexts (only prior to association).
+        * SCP/SCU Role Selection Negotiation
+        * Asynchronous Operations Window Negotiation
+        * SOP Class Extended Negotiation
+        * SOP Class Common Extended Negotiation
+        * User Identity Negotiation
+
+        Returns
+        -------
+        list
+            If `mode` is 'requestor' then returns a list of the proposed
+            extended negotiation items, otherwise returns a list of the
+            extended negotiation item responses.
+        """
+        items = []
+        if self.writeable:
+            for negotiation_type in self._ext_neg:
+                items.extend(self._ext_neg[negotiation_type])
+
+            return items
+
+        for item in self.user_information:
+            if type(item) in self._ext_neg.keys():
+                items.append(item)
+
+        return items
+
+    def get_contexts(self, cx_type):
+        """
 
         Parameters
         ----------
-        value : list of presentation.PresentationContext
-            The requested/supported presentation contexts, complete with
-            valid Context ID.
+        cx_type : str
+            The type of contexts to return, if `mode` is 'requestor':
+
+            - If the association has not yet been negotiated then 'requested'.
+            - If the association has been negotiated then one of 'requested',
+              'accepted', 'rejected', 'pcdl' or 'pcdrl'.
+
+            If `mode` is 'acceptor':
+
+            - If the association has not yet been negotiated then 'supported'.
+            - If the association has been negotiated then one of 'supported',
+              'accepted', 'rejected', 'pcdl' or 'pcdrl'.
         """
-        if self.primitive:
-            raise RuntimeError(
-                "Can't set the Presentation Contexts after negotiation "
-                "has started""
+        # Association hasn't been negotiated
+        if self.mode == MODE_REQUESTOR:
+            allowed = ['requested']
+        elif self.mode == MODE_ACCEPTOR:
+            allowed = ['supported']
+
+        if self.writeable:
+            if cx_type in allowed:
+                return self._contexts
+            else:
+                raise ValueError(
+                    "Invalid 'cx_type' for an AE as the "
+                    "association {}".format(self.mode)
+                )
+
+        # Association has been negotiated
+        allowed.extend(['accepted', 'rejected', 'pcdl', 'pcdrl'])
+
+        if cx_type not in allowed:
+            raise ValueError(
+                "Invalid 'cx_type' for an AE as the association {}"
+                .format(self.mode)
             )
 
-        self._contexts = value
+        contexts = {
+            'requested' : self._contexts,
+            'supported' : self._contexts,
+            'accepted' : self.assoc.accepted_contexts,
+            'rejected' : self.assoc.rejected_contexts,
+            'pcdl' : self.primitive.presentation_context_definition_list,
+            'pcdrl' : (
+                self.primitive.presentation_context_definition_results_list
+            ),
+        }
 
-    @property
-    def extended_negotiation(self):
-        """Return the list of User Information Items"""
-        if self.primitive:
-            return self.primitive.user_information
-
-        return self._ext_neg
-
-    @extended_negotiation.setter
-    def extended_negotiation(self, value):
-        """Set the extended negotiation items (only prior to association).
-
-        Paramaeters
-        -----------
-        value : list of extended negotiation items
-            The items to include in the extended negotiation
-        """
-        if self.primitive:
-            raise RuntimeError(
-                "Can't set the Extended Negotiation items after negotiation "
-                "has started"
-            )
-
-        self._ext_neg = value
+        return contexts[cx_type]
 
     @property
     def implementation_class_uid(self):
-        """Return the Implementation Class UID as pydicom UID."""
-        for item in self.extended_negotiation:
+        """Return the Implementation Class UID as a pydicom UID."""
+        if not self.writeable:
+            for item in self.user_information:
+                if isinstance(item, ImplementationClassUIDNotification):
+                    return item.implementation_class_uid
+
+        for item in self._user_info:
             if isinstance(item, ImplementationClassUIDNotification):
                 return item.implementation_class_uid
+
+    @implementation_class_uid.setter
+    def implementation_class_uid(self, value):
+        if not self.writeable:
+            raise RuntimeError(
+                "Can't set the Implementation Class UID after negotiation "
+                "has started"
+            )
+
+        for item in self._user_info:
+            if isinstance(item, ImplementationClassUIDNotification):
+                item.implementation_class_uid = value
+                break
+        else:
+            item = ImplementationClassUIDNotification()
+            item.implementation_class_uid = value
+            self._user_info.append(item)
 
     @property
     def implementation_version_name(self):
         """Return the Implementation Version Name as str (if available)."""
-        for item in self.extended_negotiation:
+        if not self.writeable:
+            for item in self.user_information:
+                if isinstance(item, ImplementationVersionNameNotification):
+                    return item.implementation_version_name
+            else:
+                return None
+
+        for item in self._user_info:
             if isinstance(item, ImplementationVersionNameNotification):
-                version_name = item.implementation_version_name
-                break
+                return item.implementation_version_name
         else:
             return None
 
-        # May be str or bytes, decode if necessary
-        # TODO: add handling for str decode
-        version_name = version_name.decode('ascii')
+    @implementation_version_name.setter
+    def implementation_version_name(self, value):
+        if not self.writeable:
+            raise RuntimeError(
+                "Can't set the Implementation Version Name after negotiation "
+                "has started"
+            )
 
-        return version_name
+        for item in self._user_info:
+            if isinstance(item, ImplementationVersionNameNotification):
+                item.implementation_version_name = value
+                break
+        else:
+            item = ImplementationVersionNameNotification()
+            item.implementation_version_name = value
+            self._user_info.append(item)
 
     @property
     def info(self):
@@ -3729,12 +3756,14 @@ class RequestorAcceptor(object):
     @property
     def maximum_length(self):
         """Return the maximum PDV size as int."""
-        for item in self.extended_negotiation:
+        if not self.writeable:
+            for item in self.user_information:
+                if isinstance(item, MaximumLengthNotification):
+                    return item.maximum_length_received
+
+        for item in self._user_info:
             if isinstance(item, MaximumLengthNotification):
                 return item.maximum_length_received
-
-        # If no primitive has been built
-        return self._max_length
 
     @maximum_length.setter
     def maximum_length(self, value):
@@ -3745,31 +3774,65 @@ class RequestorAcceptor(object):
         value : int or None
             The value to use in the Maximum Length Negotiation.
         """
-        if self.primitive:
+        if not self.writeable:
             raise RuntimeError(
                 "Can't set the Maximum Length after negotiation has started"
             )
 
-        self._max_length = value
+        for item in self._user_info:
+            if isinstance(item, MaximumLengthNotification):
+                item.maximum_length_received = value
+                break
+        else:
+            item = MaximumLengthNotification()
+            item.maximum_length_received = value
+            self._user_info.append(item)
 
     @property
     def mode(self):
-        """Return the AE's mode as str."""
+        """Return the AE's mode as str, either 'requestor' or 'acceptor'."""
         return self._mode
 
     @property
-    def role_selection(self):
-        roles = {}
-        for item in self.extended_negotiation:
-            if isinstance(item, SCP_SCU_RoleSelectionNegotiation):
-                roles[item.sop_class_uid] = item
+    def requested_contexts(self):
+        return self.get_contexts('requested')
 
-        return roles
+    @requested_contexts.setter
+    def requested_contexts(self, value):
+        self._contexts = value
+
+    @property
+    def role_selection(self):
+        """Return any SCP/SCU Role Selection items as a list.
+
+        Returns
+        -------
+        list of pdu_primitives.SCP_SCU_RoleSelectionNegotiation
+            The SCP/SCU Role Selection items ordered by SOP Class UID.
+        """
+        roles = []
+        if self.writeable:
+            for item in self._ext_neg[SCP_SCU_RoleSelectionNegotiation]:
+                roles.append(item)
+
+            return sorted(roles, key=lambda x: x.sop_class_uid)
+
+        for item in self.user_information:
+                if isinstance(item, SCP_SCU_RoleSelectionNegotiation):
+                    roles.append(item)
+
+        return sorted(roles, key=lambda x: x.sop_class_uid)
 
     @property
     def sop_class_common_extended(self):
         sop_classes = {}
-        for item in self.extended_negotiation:
+        if self.writeable:
+            for item in self._ext_neg[SOPClassCommonExtendedNegotiation]:
+                sop_classes[item.sop_class_uid] = item
+
+            return sop_classes
+
+        for item in self.user_information:
             if isinstance(item, SOPClassCommonExtendedNegotiation):
                 sop_classes[item.sop_class_uid] = item
 
@@ -3778,17 +3841,47 @@ class RequestorAcceptor(object):
     @property
     def sop_class_extended(self):
         sop_classes = {}
-        for item in self.extended_negotiation:
+        if self.writeable:
+            for item in self._ext_neg[SOPClassExtendedNegotiation]:
+                sop_classes[item.sop_class_uid] = item
+
+            return sop_classes
+
+        for item in self.user_information:
             if isinstance(item, SOPClassExtendedNegotiation):
                 sop_classes[item.sop_class_uid] = item
 
         return sop_classes
 
     @property
+    def supported_contexts(self):
+        return self.get_contexts('supported')
+
+    @supported_contexts.setter
+    def supported_contexts(self, value):
+        self._contexts = value
+
+    @property
     def user_identity(self):
         """Return the User Identity Negotiation Item (if available)."""
-        for item in self.extended_negotiation:
+        if self.writeable:
+            return self._ext_neg[UserIdentityNegotiation][0] or None
+
+        for item in self.user_information:
             if isinstance(item, UserIdentityNegotiation):
                 return item
 
         return None
+
+    @property
+    def user_information(self):
+        """"""
+        if not self.writeable:
+            return self.primitive.user_information
+
+        return self._user_info + self.extended_negotiation
+
+    @property
+    def writeable(self):
+        """Return True if the current object can be changed."""
+        return self.primitive is None

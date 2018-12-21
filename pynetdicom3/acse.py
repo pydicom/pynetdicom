@@ -8,6 +8,7 @@ from pydicom.uid import UID
 
 from pynetdicom3 import PYNETDICOM_IMPLEMENTATION_UID
 from pynetdicom3 import PYNETDICOM_IMPLEMENTATION_VERSION
+from pynetdicom3.association import MODE_ACCEPTOR, MODE_REQUESTOR
 from pynetdicom3.pdu_primitives import (
     A_ASSOCIATE, A_RELEASE, A_ABORT, A_P_ABORT,
     MaximumLengthNotification,
@@ -76,12 +77,14 @@ class ACSE(object):
 
 
     def negotiate_association(self, assoc):
+        """
+        """
         if not assoc.mode:
             raise ValueError("No Association `mode` has been set")
 
-        if assoc.mode == "requestor":
+        if assoc.mode == MODE_REQUESTOR:
             self._negotiate_as_requestor(assoc)
-        elif assoc.mode == "acceptor":
+        elif assoc.mode == MODE_ACCEPTOR:
             self._negotiate_as_acceptor(assoc)
 
     def _negotiate_as_acceptor(self, assoc):
@@ -99,9 +102,8 @@ class ACSE(object):
         if not assoc.requested_contexts:
             LOGGER.error(
                 "One or more requested presentation contexts must be set "
-                "prior to requesting an association"
+                "prior to association negotiation"
             )
-            # Is it necessary to kill, negotiation should be fully synchronous
             assoc.kill()
             return
 
@@ -113,19 +115,17 @@ class ACSE(object):
 
         # Association accepted or rejected
         if isinstance(rsp, A_ASSOCIATE):
+            assoc.acceptor.primitive = rsp
             # Accepted
             if rsp.result == 0x00:
-                # Get maximum pdu length from response
-                assoc.remote['pdv_size'] = rsp.maximum_length_received
-
                 ## Handle SCP/SCU Role Selection response
                 # Apply requestor's proposed SCP/SCU role selection (if any)
                 #   to the requested contexts
                 rq_roles = {}
-                for ii in assoc.ext_neg:
-                    if isinstance(ii, SCP_SCU_RoleSelectionNegotiation):
-                        roles[item.sop_class_uid] = (ii.scu_role, ii.scp_role)
+                for ii in assoc.requestor.role_selection:
+                    rq_roles[ii.sop_class_uid] = (ii.scu_role, ii.scp_role)
 
+                # Update the requested contexts with the proposed roles
                 if rq_roles:
                     for cx in assoc.requested_contexts:
                         try:
@@ -137,9 +137,8 @@ class ACSE(object):
 
                 # Collate the acceptor's SCP/SCU role selection responses
                 ac_roles = {}
-                for ii in rsp.user_information:
-                    if isinstance(ii, SCP_SCU_RoleSelectionNegotiation):
-                        ac_roles[ii.sop_class_uid] = (ii.scu_role, ii.scp_role)
+                for ii in assoc.acceptor.role_selection:
+                    ac_roles[ii.sop_class_uid] = (ii.scu_role, ii.scp_role)
 
                 # Check the negotiated presentation contexts results and
                 #   determine their agreed upon SCP/SCU roles
@@ -149,10 +148,10 @@ class ACSE(object):
                     ac_roles
                 )
 
-                assoc.accepted_contexts = [
+                assoc._accepted_cx = [
                     cx for cx in negotiated_contexts if cx.result == 0x00
                 ]
-                assoc.rejected_contexts = [
+                assoc._rejected_cx = [
                     cx for cx in negotiated_contexts if cx.result != 0x00
                 ]
 
@@ -162,9 +161,9 @@ class ACSE(object):
                 # No acceptable presentation contexts
                 if not assoc.accepted_contexts:
                     LOGGER.error("No accepted presentation contexts")
+                    self.send_abort(assoc, 0x02)
                     assoc.is_aborted = True
                     assoc.is_established = False
-                    self.send_abort(assoc, source=0x02, reason=0x00)
                     assoc.kill()
                 else:
                     assoc.is_established = True
@@ -182,9 +181,9 @@ class ACSE(object):
                     "Received an invalid A-ASSOCIATE 'Result' value from "
                     "the peer: '0x{:02x}'".format(rsp.result)
                 )
+                self.send_abort(assoc, 0x02)
                 assoc.is_aborted = True
                 assoc.is_established = False
-                self.send_abort(assoc, source=0x02, reason=0x06)
                 assoc.kill()
 
         # Association aborted
@@ -458,30 +457,22 @@ class ACSE(object):
         )
 
         ## User Information - PS3.7 Annex D.3.3
-        # Maximum Length Notification
-        # Allows the requestor to limit the size of each P-DATA PDU
-        item = MaximumLengthNotification()
-        item.maximum_length_received = assoc.local['pdv_size']
-        primitive.user_information = [item]
-
-        # Implementation Identification Notification
-        # Implementation Class UID
-        # Uniquely identifies the implementation of the requestor
-        item = ImplementationClassUIDNotification()
-        item.implementation_class_uid = assoc.ae.implementation_class_uid
-        primitive.user_information.append(item)
-
-        # Implementation Version Name (optional)
-        # Used to distinguish between two versions of the same implementation
-        item = ImplementationVersionNameNotification()
-        item.implementation_version_name = assoc.ae.implementation_version_name
-        primitive.user_information.append(item)
-
-        # Extended Negotiation items (optional)
-        primitive.user_information += assoc.extended_negotiation[0]
+        # Mandatory items:
+        #   Maximum Length Notification (1)
+        #   Implementation Class UID Notification (1)
+        # Optional notification items:
+        #   Implementation Version Name Notification (0 or 1)
+        primitive.user_information = assoc.requestor.user_information
+        # Optional negotiation items:
+        #   SCP/SCU Role Selection Negotiation (0 or N)
+        #   Asynchronous Operations Window Negotiation (1)
+        #   SOP Class Extended Negotiation (0 or N)
+        #   SOP Class Common Extended Negotiation (0 or N)
+        #   User Information Negotiation (1)
+        primitive.user_information += assoc.requestor.extended_negotiation
 
         # Save the request primitive
-        assoc._assoc_req = primitive
+        assoc.requestor.primitive = primitive
 
         # Send the A-ASSOCIATE request primitive to the peer
         LOGGER.info("Requesting Association")
