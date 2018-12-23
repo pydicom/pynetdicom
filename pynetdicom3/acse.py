@@ -8,7 +8,6 @@ from pydicom.uid import UID
 
 from pynetdicom3 import PYNETDICOM_IMPLEMENTATION_UID
 from pynetdicom3 import PYNETDICOM_IMPLEMENTATION_VERSION
-from pynetdicom3.association import MODE_ACCEPTOR, MODE_REQUESTOR
 from pynetdicom3.pdu_primitives import (
     A_ASSOCIATE, A_RELEASE, A_ABORT, A_P_ABORT,
     MaximumLengthNotification,
@@ -75,16 +74,15 @@ class ACSE(object):
 
         return False
 
-
     def negotiate_association(self, assoc):
         """
         """
         if not assoc.mode:
             raise ValueError("No Association `mode` has been set")
 
-        if assoc.mode == MODE_REQUESTOR:
+        if assoc.is_requestor:
             self._negotiate_as_requestor(assoc)
-        elif assoc.mode == MODE_ACCEPTOR:
+        elif assoc.is_acceptor:
             self._negotiate_as_acceptor(assoc)
 
     def _negotiate_as_acceptor(self, assoc):
@@ -121,11 +119,10 @@ class ACSE(object):
                 ## Handle SCP/SCU Role Selection response
                 # Apply requestor's proposed SCP/SCU role selection (if any)
                 #   to the requested contexts
-                rq_roles = {}
-                for ii in assoc.requestor.role_selection:
-                    rq_roles[ii.sop_class_uid] = (ii.scu_role, ii.scp_role)
-
-                # Update the requested contexts with the proposed roles
+                rq_roles = {
+                    uid:(ii.scu_role, ii.scp_role)
+                        for uid, ii in assoc.requestor.role_selection.items()
+                }
                 if rq_roles:
                     for cx in assoc.requested_contexts:
                         try:
@@ -136,9 +133,10 @@ class ACSE(object):
                             pass
 
                 # Collate the acceptor's SCP/SCU role selection responses
-                ac_roles = {}
-                for ii in assoc.acceptor.role_selection:
-                    ac_roles[ii.sop_class_uid] = (ii.scu_role, ii.scp_role)
+                ac_roles = {
+                    uid:(ii.scu_role, ii.scp_role)
+                        for uid, ii in assoc.acceptor.role_selection.items()
+                }
 
                 # Check the negotiated presentation contexts results and
                 #   determine their agreed upon SCP/SCU roles
@@ -199,7 +197,6 @@ class ACSE(object):
             LOGGER.error(
                 "Received an invalid response to the A-ASSOCIATE request"
             )
-
 
     @staticmethod
     def send_abort(assoc, source):

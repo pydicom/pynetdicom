@@ -583,7 +583,8 @@ class ApplicationEntity(object):
         assoc.requestor.implementation_version_name = (
             self.implementation_version_name
         )
-        assoc.requestor.add_negotiation_items(ext_neg)
+        for item in (ext_neg or []):
+            assoc.requestor.add_negotiation_item(item)
 
         # Requestor's presentation contexts
         if contexts is None:
@@ -759,16 +760,22 @@ class ApplicationEntity(object):
 
             # Create a new Association
             assoc = Association(self, MODE_ACCEPTOR)
-            assoc.local['pdv_size'] = self.maximum_pdu_size
-            assoc.local['ae_title'] = self.ae_title
-            assoc.local['address'] = self.address
-            assoc.local['port'] = self.port
-            assoc.remote['address'] = client_socket.getpeername()[0]
-            assoc.remote['port'] = client_socket.getpeername()[1]
             assoc.acse_timeout = self.acse_timeout
             assoc.dimse_timeout = self.dimse_timeout
             assoc.network_timeout = self.network_timeout
-            assoc.supported_contexts = self.supported_contexts
+
+            # Association Acceptor object -> local AE
+            assoc.acceptor.maximum_length = self.maximum_pdu_size
+            assoc.acceptor.ae_title = self.ae_title
+            assoc.acceptor.address = self.address
+            assoc.acceptor.port = self.port
+            assoc.acceptor.supported_contexts = deepcopy(
+                self.supported_contexts
+            )
+
+            # Association Requestor object -> remote AE
+            assoc.requestor.address = client_socket.getpeername()[0]
+            assoc.requestor.port = client_socket.getpeername()[1]
 
             assoc.start()
             self.active_associations.append(assoc)

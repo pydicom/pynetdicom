@@ -90,7 +90,9 @@ class Association(threading.Thread):
 
     Attributes
     ----------
-    acse : acse.ACSEServiceProvider
+    acceptor : association.ServiceUser
+        Representation of the association's acceptor AE.
+    acse : acse.ACSE
         The Association Control Service Element provider.
     ae : ae.ApplicationEntity
         The local AE.
@@ -106,15 +108,11 @@ class Association(threading.Thread):
         True if the association was rejected, False otherwise.
     is_released : bool
         True if the association has been released, False otherwise.
-    local_ae : dict
-        The local Application Entity details, keys: 'port', 'address',
-        'ae_title', 'pdv_size'.
     mode : str
         Whether the local AE is acting as the Association 'Requestor' or
         'Acceptor' (i.e. SCU or SCP).
-    peer_ae : dict
-        The peer Application Entity details, keys: 'port', 'address',
-        'ae_title', 'pdv_size'.
+    requestor : association.ServiceUser
+        Representation of the association's requestor AE.
     client_socket : socket.socket
         The socket to use for connections with the peer AE.
     requested_contexts : list of presentation.PresentationContext
@@ -280,7 +278,7 @@ class Association(threading.Thread):
 
         Parameters
         ----------
-        ae : pynetdicom3.ae.ApplicationEntity
+        ae : ae.ApplicationEntity
             The local AE.
         mode : str
             Must be either "requestor" or "acceptor".
@@ -331,58 +329,15 @@ class Association(threading.Thread):
         # Add short delay to ensure everything shuts down
         time.sleep(0.1)
 
-    # OK
-    @property
+    @property # OK
     def accepted_contexts(self):
         """Return a list of accepted PresentationContexts."""
         return self._accepted_cx
 
-    def add_negotiation_item(self, item):
-        """Add an extended negotiation item prior to starting negotiation."""
-        if self.mode == MODE_REQUESTOR:
-            self.requestor.add_negotiation_item(item)
-        else:
-            self.acceptor.add_negotiation_item(item)
-
-    def add_negotiation_items(self, items):
-        for item in items:
-            self.add_negotiation_item(item)
-
-    # OK
-    @property
+    @property # OK
     def ae(self):
-        """Return the Association's parent ApplicationEntity object."""
+        """Return the Association's parent ApplicationEntity."""
         return self._ae
-
-    # Ugly
-    @property
-    def asynchronous_operations_response(self):
-        """Return the association acceptor's Asynchronous Operations Window
-        Negotiation response.
-
-        Returns
-        -------
-        (int, int) or None
-            The (maximum number of operations invoked, maximum number of
-            operations performed). If the association acceptor hasn't responded
-            to the Aynchronous Operations Window Negotiation request then the`
-            default values of 1, 1 will be returned.
-        """
-        if self.response is None:
-            raise RuntimeError(
-                "No Asynchronous Operations Window Negotiation response is "
-                "available until after association negotiation is complete"
-            )
-
-        if self.response.result != 0x00:
-            return None
-
-        for item in self.response.user_information:
-            if isinstance(item, AsynchronousOperationsWindowNegotiation):
-                return (item.maximum_number_operations_invoked,
-                        item.maximum_number_operations_performed)
-
-        return None
 
     # Move to ACSE, acceptor only
     def _check_async_ops(self, req_invoked, req_performed):
@@ -425,7 +380,7 @@ class Association(threading.Thread):
 
         return item
 
-    # Keep, utility for DIMSE message senders
+    # Keep, utility for DIMSE message senders, requestor only
     def _check_received_status(self, rsp):
         """Return a dataset containing status related elements.
 
@@ -517,7 +472,7 @@ class Association(threading.Thread):
 
         return items
 
-    # Move to ACSE, acceptor only
+    # Move to ACSE, acceptor only, remove need for parameter
     def _check_user_identity(self, req):
         """Check the user's response to a User Identity request.
 
@@ -530,7 +485,7 @@ class Association(threading.Thread):
         -------
         bool
             True if the user identity has been confirmed, False otherwise.
-        pynetdicom3.pdu_primitives.UserIdentityNegotiation or None
+        pdu_primitives.UserIdentityNegotiation or None
             The negotiation response, if a positive response is requested,
             otherwise None.
         """
@@ -645,6 +600,16 @@ class Association(threading.Thread):
         LOGGER.error(msg)
         raise ValueError(msg)
 
+    @property # OK
+    def is_acceptor(self):
+        """Return True if the local AE is the association acceptor."""
+        return self.mode == MODE_ACCEPTOR
+
+    @property
+    def is_requestor(self):
+        """Return True if the local AE is the association requestor."""
+        return self.mode == MODE_REQUESTOR
+
     def kill(self):
         """Kill the main association thread loop."""
         self._kill = True
@@ -654,23 +619,20 @@ class Association(threading.Thread):
 
         self.ae.cleanup_associations()
 
-    # OK
-    @property
+    @property # OK
     def local(self):
         """Return a dict with information about the local AE."""
-        if self.mode == MODE_ACCEPTOR:
+        if self.is_acceptor:
             return self.acceptor.info
 
         return self.requestor.info
 
-    # OK
-    @property
+    @property # OK
     def mode(self):
         """Return the Association's `mode` as a str."""
         return self._mode
 
-    # OK
-    @mode.setter
+    @mode.setter # OK
     def mode(self, mode):
         """Set the Association's mode.
 
@@ -692,8 +654,7 @@ class Association(threading.Thread):
 
         self._mode = mode
 
-    # OK
-    @property
+    @property # OK
     def rejected_contexts(self):
         """Return a list of rejected PresentationContexts."""
         return self._rejected_cx
@@ -703,7 +664,7 @@ class Association(threading.Thread):
         """Release the association."""
         if self.is_established:
             # TODO: confirm this works as intended
-            self.acse.send_release(self, is_response=False):
+            self.acse.send_release(self, is_response=False)
             if self.acse.is_released(self):
                 # Got release reply within timeout window
                 self.is_released = True
@@ -713,17 +674,15 @@ class Association(threading.Thread):
                 # No release reply within timeout window
                 self.abort()
 
-    # OK
-    @property
+    @property # OK
     def requested_contexts(self):
         """"""
         return self.requestor.get_contexts('requested')
 
-    # OK
-    @property
+    @property # OK
     def remote(self):
         """Return a dict with information about the peer AE."""
-        if self.mode == MODE_ACCEPTOR:
+        if self.is_acceptor:
             return self.requestor.info
 
         return self.acceptor.info
@@ -733,10 +692,10 @@ class Association(threading.Thread):
         self.dul.start()
 
         # When the AE is acting as an SCP (Association Acceptor)
-        if self.mode == MODE_ACCEPTOR:
+        if self.is_acceptor:
             self._run_as_acceptor()
         # If the local AE initiated the Association
-        elif self.mode == MODE_REQUESTOR:
+        elif self.is_requestor:
             self.acse.negotiate_association(self)
             if self.is_established:
                 self._x_run_as_requestor()
@@ -1238,100 +1197,10 @@ class Association(threading.Thread):
             self.dul.kill_dul()
             return
 
-    # Bluh ugly
-    @property
-    def sop_class_common_extended(self):
-        """Return the association requestor's SOP Class Common Extended
-        Negotiation requests.
-
-        Returns
-        -------
-        dict
-            Returns the SOP Class Common Extended Negotiation requests received
-            from the association requestor as {SOP Class UID : (Service Class
-            UID, list of Related General SOP Class UIDs)}. If no requests are
-            received then returns an empty dict.
-        """
-        if self.request is None:
-            raise RuntimeError(
-                "No SOP Class Common Extended Negotiation request is "
-                "available until after an association request has been "
-                "received"
-            )
-
-        sop_common = {}
-        for ii in self.request.user_information:
-            if isinstance(ii, SOPClassCommonExtendedNegotiation):
-                sop_common[ii.sop_class_uid] = (
-                    ii.service_class_uid,
-                    ii.related_general_sop_class_identification
-                )
-
-        return sop_common
-
-    @property
-    def sop_class_extended_response(self):
-        """Return the association acceptor's SOP Class Extended Negotiation
-        responses.
-
-        Returns
-        -------
-        dict
-            Returns the SOP Class Extended Negotiation responses received
-            from the association acceptor as {SOP Class UID : Service Class
-            Application Information}. If no responses are received then
-            returns an empty dict.
-        """
-        if self.response is None:
-            raise RuntimeError(
-                "No SOP Class Extended Negotiation response is "
-                "available until after association negotiation is complete"
-            )
-
-        if self.response.result != 0x00:
-            return {}
-
-        responses = {}
-        for item in self.response.user_information:
-            if isinstance(item, SOPClassExtendedNegotiation):
-                responses[item.sop_class_uid] = (
-                    item.service_class_application_information
-                )
-
-        return responses
-
     @property
     def supported_contexts(self):
         """"""
         return self.acceptor.get_contexts('supported')
-
-    @property
-    def user_identity_response(self):
-        """Return the association acceptor's User Identity Negotiation response
-
-        Returns
-        -------
-        bytes or None
-            If a positive response has been requested and the association
-            acceptor has included a User Identity Negotiation response in the
-            A-ASSOCIATE (accept) primitive and the user identity type is 3,
-            4 or 5, then the server response value as bytes. If no server
-            response was received then returns None.
-        """
-        if self.response is None:
-            raise RuntimeError(
-                "No User Identity Negotiation response is "
-                "available until after association negotiation is complete"
-            )
-
-        if self.response.result != 0x00:
-            return None
-
-        for item in self.response.user_information:
-            if isinstance(item, UserIdentityNegotiation):
-                return item.server_response
-
-        return None
 
 
     # DIMSE-C services provided by the Association
@@ -3470,25 +3339,38 @@ class Association(threading.Thread):
 
 
 class ServiceUser(object):
-    """Convenience class for the Association's Requestor/Acceptor AEs.
+    """Convenience class for the Association Service User.
 
-    Notes
-    -----
-    The Requestor requires the following in order to be valid:
+    An Association object has two ServiceUser attributes, one representing the
+    association requestor and the other the association acceptor. Once both
+    ServiceUser's have been defined sufficiently to be considered valid then
+    association negotiation can begin. The requestor ServiceUser requires
+    (at a minimum) the following in order to be valid:
 
-    * AE title
-    * Address and port number
-    * Maximum PDU length
-    * Implementation class UID
-    * At least one presentation context
+    * For association as requestor:
 
-    The Acceptor requires the following in order to be valid:
+        * AE title (ae_title)
+        * Address and port number (address and port)
+        * Maximum PDU length (maximum_length)
+        * Implementation class UID (implementation_class_uid)
+        * At least one presentation context (requested_contexts)
+    * For association as acceptor:
 
-    * AE title
-    * Address and port number
+        * AE title
+        * Address and port number
 
-    Once an Association has a valid Requestor and Acceptor, negotiation can be
-    initiated.
+    The acceptor ServiceUser requires (at a minimum) the following in order
+    to be valid:
+
+    * For association as requestor:
+
+        * Address and port number
+    * For association as acceptor:
+
+        * AE title
+        * Address and port number
+        * Maximum PDU length
+        * Implementation class UID
 
     Attributes
     ----------
@@ -3520,32 +3402,46 @@ class ServiceUser(object):
             )
 
         self.assoc = assoc
+        self._mode = mode
         self.primitive = None
         self.ae_title = b''
         self.port = None
         self.address = ''
+
+        # If Requestor this is the requested contexts, otherwise this is
+        #   the supported contexts
+        self._contexts = []
+
+        # User Information items
         self._user_info = []
         # Must always be set
         self.maximum_length = 16382
         self.implementation_class_uid = assoc.ae.implementation_class_uid
 
-        # If Requestor this is the requested contexts, otherwise this is
-        #   the supported contexts
-        self._contexts = []
-        self._mode = mode
-
         # If Requestor these are the proposed extended negotiation items,
         #   otherwise ?
-        self._ext_neg = {
-            SCP_SCU_RoleSelectionNegotiation : [],
-            AsynchronousOperationsWindowNegotiation : [],
-            UserIdentityNegotiation : [],
-            SOPClassCommonExtendedNegotiation : [],
-            SOPClassExtendedNegotiation : [],
-        }
+        self._ext_neg = {}
+        self.reset_negotiation_items()
 
     def add_negotiation_item(self, item):
-        """"""
+        """Add an extended negotiation item to the user information.
+
+        Parameters
+        ----------
+        item : pdu_primitives.ServiceParameter
+            An extended negotiation item, one of
+            SCP_SCU_RoleSelectionNegotiation, UserIdentityNegotiation,
+            AsynchronousOperationsWindowNegotiation,
+            SOPClassExtendedNegotiation or SOPClassCommonExtendedNegotiation.
+
+        Raises
+        ------
+        RuntimeError
+            If attempting to add an item after association negotiation has
+            started.
+        TypeError
+            If `item` it not an extended negotiation item.
+        """
         if not self.writeable:
             raise RuntimeError(
                 "Can't add extended negotiation items after negotiation "
@@ -3595,11 +3491,11 @@ class ServiceUser(object):
 
         Extended Negotiation items are:
 
-        * SCP/SCU Role Selection Negotiation
-        * Asynchronous Operations Window Negotiation
-        * SOP Class Extended Negotiation
-        * SOP Class Common Extended Negotiation
-        * User Identity Negotiation
+        * SCP/SCU Role Selection Negotiation (0 or more)
+        * Asynchronous Operations Window Negotiation (0 or 1)
+        * SOP Class Extended Negotiation (0 or more)
+        * SOP Class Common Extended Negotiation (0 or more)
+        * User Identity Negotiation (0 or 1)
 
         Returns
         -------
@@ -3622,7 +3518,7 @@ class ServiceUser(object):
         return items
 
     def get_contexts(self, cx_type):
-        """
+        """Return a list of PresentationContext corresponding to `cx_type`.
 
         Parameters
         ----------
@@ -3630,51 +3526,54 @@ class ServiceUser(object):
             The type of contexts to return, if `mode` is 'requestor':
 
             - If the association has not yet been negotiated then 'requested'.
-            - If the association has been negotiated then one of 'requested',
-              'accepted', 'rejected', 'pcdl' or 'pcdrl'.
+            - If the association has been negotiated then 'requested' or
+              'pcdl'.
 
             If `mode` is 'acceptor':
 
             - If the association has not yet been negotiated then 'supported'.
-            - If the association has been negotiated then one of 'supported',
-              'accepted', 'rejected', 'pcdl' or 'pcdrl'.
+            - If the association has been negotiated then 'supported' or
+              'pcdrl'.
+
+        Returns
+        -------
+        list of presentation.PresentationContext
+            A list of presentations contexts, if `cx_type` is 'requested' then
+            the requested presentation contexts, if 'pcdl' then the
+            presentation contexts from the A-ASSOCIATE (request) primitive's
+            Presentation Context Definition List parameter. If 'supported' then
+            the supported presentation contexts, if 'pcdrl' then the
+            presentation contexts from the A-ASSOCIATE (accept) primitive's
+            Presentation Context Definition Results List parameter.
         """
-        # Association hasn't been negotiated
-        if self.mode == MODE_REQUESTOR:
-            allowed = ['requested']
-        elif self.mode == MODE_ACCEPTOR:
-            allowed = ['supported']
-
-        if self.writeable:
-            if cx_type in allowed:
-                return self._contexts
-            else:
-                raise ValueError(
-                    "Invalid 'cx_type' for an AE as the "
-                    "association {}".format(self.mode)
+        contexts = {'requested' : self._contexts, 'supported' : self._contexts}
+        if not self.writeable:
+            contexts.update({
+                'pcdl' : self.primitive.presentation_context_definition_list,
+                'pcdrl' : (
+                    self.primitive.presentation_context_definition_results_list
                 )
+            })
 
-        # Association has been negotiated
-        allowed.extend(['accepted', 'rejected', 'pcdl', 'pcdrl'])
-
-        if cx_type not in allowed:
-            raise ValueError(
-                "Invalid 'cx_type' for an AE as the association {}"
-                .format(self.mode)
-            )
-
-        contexts = {
-            'requested' : self._contexts,
-            'supported' : self._contexts,
-            'accepted' : self.assoc.accepted_contexts,
-            'rejected' : self.assoc.rejected_contexts,
-            'pcdl' : self.primitive.presentation_context_definition_list,
-            'pcdrl' : (
-                self.primitive.presentation_context_definition_results_list
-            ),
+        possible = {
+            True : {
+                True : ['requested'],
+                False : ['supported'],
+            },
+            False : {
+                True : ['requested', 'pcdl'],
+                False : ['supported', 'pcdrl'],
+            }
         }
 
-        return contexts[cx_type]
+        available = possible[self.writeable][self.is_requestor]
+        if cx_type in available:
+            return contexts[cx_type]
+
+        available = ["'{}'".format(vv) for vv in available]
+        raise ValueError(
+            "Invalid 'cx_type', must be {}".format(' or '.join(available))
+        )
 
     @property
     def implementation_class_uid(self):
@@ -3748,10 +3647,20 @@ class ServiceUser(object):
             #'pdv_size' : self.maximum_length,
             'mode' : self.mode,
         }
-        if self.primitive:
+        if not self.writeable:
             info['pdv_size'] = self.maximum_length
 
         return info
+
+    @property
+    def is_acceptor(self):
+        """Return True if the ServiceUser is the association acceptor."""
+        return self.mode == MODE_ACCEPTOR
+
+    @property
+    def is_requestor(self):
+        """Return True if the ServiceUser is the association requestor."""
+        return self.mode == MODE_REQUESTOR
 
     @property
     def maximum_length(self):
@@ -3799,7 +3708,91 @@ class ServiceUser(object):
 
     @requested_contexts.setter
     def requested_contexts(self, value):
+        """Set the requested presentation contexts.
+
+        Parameters
+        ----------
+        value : list of presentation.PresentationContext
+            A list of the presentation contexts to propose when acting as the
+            association requestor.
+
+        Raises
+        ------
+        RuntimeError
+            If attempting to set the contexts after negotiation has begun.
+        AttributeError
+            If attempting to set the contexts as the association acceptor.
+        """
+        if not self.writeable:
+            raise RuntimeError(
+                "Can't set the requested presentation contexts after "
+                "negotiation has started"
+            )
+
+        if not self.is_requestor:
+            raise AttributeError(
+                "'requested_contexts' can only be set for the association "
+                "requestor"
+            )
+
         self._contexts = value
+
+    def remove_negotiation_item(self, item):
+        """Remove an extended negotiation item from the user information.
+
+        Parameters
+        ----------
+        item : pdu_primitives.ServiceParameter
+            An extended negotiation item, one of
+            SCP_SCU_RoleSelectionNegotiation, UserIdentityNegotiation,
+            AsynchronousOperationsWindowNegotiation,
+            SOPClassExtendedNegotiation or SOPClassCommonExtendedNegotiation.
+
+        Raises
+        ------
+        RuntimeError
+            If attempting to remove an item after association negotiation has
+            started.
+        TypeError
+            If `item` it not an extended negotiation item.
+        """
+        if not self.writeable:
+            raise RuntimeError(
+                "Can't remove extended negotiation items after negotiation "
+                "has started"
+            )
+
+        if type(item) in self._ext_neg:
+            # Do nothing if item not in _ext_neg
+            if item in self._ext_neg[type(item)]:
+                self._ext_neg[type(item)].remove(item)
+        else:
+            raise TypeError(
+                "'item' is not a valid extended negotiation item"
+            )
+
+    def reset_negotiation_items(self):
+        """Remove all extended negotiation items.
+
+        Raises
+        ------
+        RuntimeError
+            If attempting to clear the extended negotiation items after
+            association negotiation has started.
+        """
+        if not self.writeable:
+            raise RuntimeError(
+                "Can't reset the extended negotiation items after negotiation "
+                "has started"
+            )
+
+        self._ext_neg = {
+            SCP_SCU_RoleSelectionNegotiation : [],
+            AsynchronousOperationsWindowNegotiation : [],
+            UserIdentityNegotiation : [],
+            SOPClassCommonExtendedNegotiation : [],
+            SOPClassExtendedNegotiation : [],
+        }
 
     @property
     def role_selection(self):
@@ -3807,21 +3800,22 @@ class ServiceUser(object):
 
         Returns
         -------
-        list of pdu_primitives.SCP_SCU_RoleSelectionNegotiation
-            The SCP/SCU Role Selection items ordered by SOP Class UID.
+        dict
+            The SCP/SCU Role Selection items as {SOP Class UID :
+            SCP_SCU_RoleSelectionNegotiation}.
         """
-        roles = []
+        roles = {}
         if self.writeable:
             for item in self._ext_neg[SCP_SCU_RoleSelectionNegotiation]:
-                roles.append(item)
+                roles[item.sop_class_uid] = item
 
-            return sorted(roles, key=lambda x: x.sop_class_uid)
+            return roles
 
         for item in self.user_information:
-                if isinstance(item, SCP_SCU_RoleSelectionNegotiation):
-                    roles.append(item)
+            if isinstance(item, SCP_SCU_RoleSelectionNegotiation):
+                roles[item.sop_class_uid] = item
 
-        return sorted(roles, key=lambda x: x.sop_class_uid)
+        return roles
 
     @property
     def sop_class_common_extended(self):
@@ -3855,10 +3849,44 @@ class ServiceUser(object):
 
     @property
     def supported_contexts(self):
+        """Return a list of supported presentation contexts.
+
+        Returns
+        -------
+        list of presentation.PresentationContext
+            The supported presentation contexts when acting as an acceptor.
+        """
         return self.get_contexts('supported')
 
     @supported_contexts.setter
     def supported_contexts(self, value):
+        """Set the supported presentation contexts.
+
+        Parameters
+        ----------
+        value : list of presentation.PresentationContext
+            A list of the presentation contexts to support when acting as the
+            association acceptor.
+
+        Raises
+        ------
+        RuntimeError
+            If attempting to set the contexts after negotiation has begun.
+        AttributeError
+            If attempting to set the contexts as the association requestor.
+        """
+        if not self.writeable:
+            raise RuntimeError(
+                "Can't set the supported presentation contexts after "
+                "negotiation has started"
+            )
+
+        if not self.is_acceptor:
+            raise AttributeError(
+                "'supported_contexts' can only be set for the association "
+                "acceptor"
+            )
+
         self._contexts = value
 
     @property
