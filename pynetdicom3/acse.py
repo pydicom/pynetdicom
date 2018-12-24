@@ -363,7 +363,7 @@ class ACSE(object):
         assoc : association.Association
             The Association instance to perform the negotiation for.
         """
-        if not assoc.requested_contexts:
+        if not assoc.requestor.requested_contexts:
             LOGGER.error(
                 "One or more requested presentation contexts must be set "
                 "prior to association negotiation"
@@ -390,7 +390,7 @@ class ACSE(object):
                         for uid, ii in assoc.requestor.role_selection.items()
                 }
                 if rq_roles:
-                    for cx in assoc.requested_contexts:
+                    for cx in assoc.requestor.requested_contexts:
                         try:
                             (cx.scu_role, cx.scp_role) = rq_roles[
                                 cx.abstract_syntax
@@ -407,7 +407,7 @@ class ACSE(object):
                 # Check the negotiated presentation contexts results and
                 #   determine their agreed upon SCP/SCU roles
                 negotiated_contexts = negotiate_as_requestor(
-                    assoc.requested_contexts,
+                    assoc.requestor.requested_contexts,
                     rsp.presentation_context_definition_results_list,
                     ac_roles
                 )
