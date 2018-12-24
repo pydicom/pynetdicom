@@ -322,8 +322,6 @@ class Association(threading.Thread):
         """
         if not self.is_released:
             self.acse.send_abort(self, 0x00)
-            self.is_established = False
-            self.is_aborted = True
             self.kill()
 
         # Add short delay to ensure everything shuts down
@@ -338,47 +336,6 @@ class Association(threading.Thread):
     def ae(self):
         """Return the Association's parent ApplicationEntity."""
         return self._ae
-
-    # Move to ACSE, acceptor only
-    def _check_async_ops(self, req_invoked, req_performed):
-        """Check the user's response to an Asynchronous Operations request.
-
-        Parameters
-        ----------
-        req_invoked : int
-            The *Maximum Number Operations Invoked* parameter value of the
-            Asynchronous Operations Window request. If the value is 0 then
-            an unlimited number of invocations are requested.
-        req_performed : int
-            The *Maximum Number Operations Performed* parameter value of the
-            Asynchronous Operations Window request. If the value is 0 then
-            an unlimited number of performances are requested.
-
-        Returns
-        -------
-        AsynchronousOperationsWindowNegotiation or None
-            If the `AE.on_async_ops_window` callback hasn't been implemented
-            then returns None, otherwise returns an
-            AsynchronousOperationsWindowNegotiation item with the default
-            values for the number of operations invoked/performed (1, 1).
-        """
-        try:
-            # Response is always ignored as async ops is not supported
-            _ = self.ae.on_async_ops_window(req_invoked, req_performed)
-        except NotImplementedError:
-            return None
-        except Exception as exc:
-            LOGGER.error(
-                "Exception raised in user's 'on_async_ops_window' "
-                "implementation"
-            )
-            LOGGER.exception(exc)
-
-        item = AsynchronousOperationsWindowNegotiation()
-        item.maximum_number_operations_invoked = 1
-        item.maximum_number_operations_performed = 1
-
-        return item
 
     # Keep, utility for DIMSE message senders, requestor only
     def _check_received_status(self, rsp):
@@ -419,118 +376,6 @@ class Association(threading.Thread):
             self.abort()
 
         return status
-
-    # Move to ACSE, acceptor only
-    def _check_sop_class_extended(self, req):
-        """Check the user's response to a SOP Class Extended request.
-
-        Parameters
-        ----------
-        req : dict
-            The {*SOP Class UID* : *Service Class Application Information*}
-            received from the requestor.
-
-        Returns
-        -------
-        list of pdu_primitives.SOPClassExtendedNegotiation
-            The SOP Class Extended Negotiation items to be sent in response
-        """
-        try:
-            user_response = self.ae.on_sop_class_extended(req)
-        except Exception as exc:
-            user_response = None
-            LOGGER.error(
-                "Exception raised in user's 'on_sop_class_extended' "
-                "implementation"
-            )
-            LOGGER.exception(exc)
-
-        if not isinstance(user_response, (type(None), dict)):
-            LOGGER.error(
-                "Invalid type returned by user's 'on_sop_class_extended' "
-                "implementation"
-            )
-            user_response = None
-
-        if user_response is None:
-            return []
-
-        items = []
-        for sop_class, app_info in user_response.items():
-            try:
-                item = SOPClassExtendedNegotiation()
-                item.sop_class_uid = sop_class
-                item.service_class_application_information = app_info
-                items.append(item)
-            except Exception as exc:
-                LOGGER.error(
-                    "Unable to set the SOP Class Extended Negotiation "
-                    "response values for the SOP Class UID {}"
-                    .format(sop_class)
-                )
-                LOGGER.exception(exc)
-
-        return items
-
-    # Move to ACSE, acceptor only, remove need for parameter
-    def _check_user_identity(self, req):
-        """Check the user's response to a User Identity request.
-
-        Parameters
-        ----------
-        req : pynetdicom3.pdu_primitives.UserIdentityNegotiation
-            The negotiation request received from the peer.
-
-        Returns
-        -------
-        bool
-            True if the user identity has been confirmed, False otherwise.
-        pdu_primitives.UserIdentityNegotiation or None
-            The negotiation response, if a positive response is requested,
-            otherwise None.
-        """
-        try:
-            identity_verified, response = self.ae.on_user_identity(
-                req.user_identity_type,
-                req.primary_field,
-                req.secondary_field,
-                {
-                    'requestor' : self.requestor.info,
-                }
-            )
-        except NotImplementedError:
-            # If the user hasn't implemented identity negotiation then
-            #   default to accepting the association
-            return True, None
-        except Exception as exc:
-            # If the user has implemented identity negotiation but an exception
-            #   occurred then reject the association
-            LOGGER.error("Exception in handling user identity negotiation")
-            LOGGER.exception(exc)
-            is_valid = False
-            return False, None
-
-        if not identity_verified:
-            # Reject association is the user isn't authorised
-            return False, None
-
-        if req.user_identity_type in [3, 4, 5]:
-            if req.positive_response_requested and response is not None:
-                try:
-                    rsp = UserIdentityNegotiation()
-                    rsp.server_response = response
-                    return True, rsp
-                except Exception as exc:
-                    # > If the acceptor doesn't support user identification it will
-                    # > accept the association without make a positive response
-                    LOGGER.error(
-                        "Unable to set the User Identity Negotiation's "
-                        "`server_response`"
-                    )
-                    LOGGER.exception(exc)
-                    return True, None
-
-        return True, None
 
     # Keep, utility for DIMSE message senders
     def _get_valid_context(self, ab_syntax, tr_syntax, role, context_id=None):
@@ -691,241 +536,41 @@ class Association(threading.Thread):
         """The main Association control."""
         self.dul.start()
 
-        # When the AE is acting as an SCP (Association Acceptor)
         if self.is_acceptor:
-            self._run_as_acceptor()
-        # If the local AE initiated the Association
-        elif self.is_requestor:
+            primitive = self.dul.receive_pdu(wait=True,
+                                             timeout=self.acse.acse_timeout)
+
+            # Timed out waiting for A-ASSOCIATE request
+            if primitive is None:
+                self.kill()
+                return
+
+            self.requestor.primitive = primitive
+
+            # (Optionally) send an A-ABORT/A-P-ABORT in response
+            if self._a_abort_assoc_rq:
+                self.acse.send_abort(self, 0x00)
+                self.kill()
+                return
+            elif self._a_p_abort_assoc_rq:
+                self.acse.send_ap_abort(self, 0x00)
+                self.kill()
+                return
+
             self.acse.negotiate_association(self)
             if self.is_established:
-                self._x_run_as_requestor()
+                # TODO: Refactor so not needed
+                self.dimse.maximum_pdu_size = self.requestor.maximum_length
+                self._run_as_acceptor()
+        else:
+            self.acse.negotiate_association(self)
+            if self.is_established:
+                # TODO: Refactor so not needed
+                self.dimse.maximum_pdu_size = self.acceptor.maximum_length
+                self._run_as_requestor()
 
     # Shift as much as possible to ACSE
     def _run_as_acceptor(self):
-        """Run as an Association Acceptor."""
-        # FIXME: needed because of some thread-related problem
-        time.sleep(0.1)
-
-        # Got an A-ASSOCIATE request primitive from the DICOM UL
-        assoc_rq = self.dul.receive_pdu(wait=True,
-                                        timeout=self.acse.acse_timeout)
-
-        if assoc_rq is None:
-            self.kill()
-            return
-
-        #self._assoc_req = assoc_rq
-
-        # (Optionally) send an A-ABORT/A-P-ABORT in response
-        if self._a_abort_assoc_rq:
-            self.acse.abort_assoc(0x00, 0x00)
-            self.kill()
-            return
-        elif self._a_p_abort_assoc_rq:
-            self.acse.abort_assoc(0x02, 0x00)
-            self.kill()
-            return
-
-        # Save the peer AE details
-        self.peer_ae['ae_title'] = assoc_rq.calling_ae_title
-        self.peer_ae['called_aet'] = assoc_rq.called_ae_title
-        self.peer_ae['pdv_size'] = assoc_rq.maximum_length_received
-        peer_info = self.ae.local_socket.getpeername()
-        self.peer_ae['address'] = peer_info[0]
-        self.peer_ae['port'] = peer_info[1]
-        local_info = self.ae.local_socket.getsockname()
-        self.local_ae['address'] = local_info[0]
-        self.local_ae['port'] = local_info[1]
-
-        # If the remote AE initiated the Association then reject it if:
-        # Rejection reasons:
-        #   a) DUL user
-        #       0x02 unsupported application context name
-        #   b) DUL ACSE related
-        #       0x01 no reason given
-        #       0x02 protocol version not supported
-        #   c) DUL Presentation related
-        #       0x01 temporary congestion
-
-        ## DUL User Related Rejections
-        #
-        # [result, source, diagnostic]
-        reject_assoc_rsd = []
-
-        # Calling AE Title not recognised
-        if (self.ae.require_calling_aet != b''
-            and self.ae.require_calling_aet != assoc_rq.calling_ae_title):
-                reject_assoc_rsd = [(0x01, 0x01, 0x03)]
-
-        # Called AE Title not recognised
-        if (self.ae.require_called_aet != b''
-            and self.ae.require_called_aet != assoc_rq.called_ae_title):
-                reject_assoc_rsd = [(0x01, 0x01, 0x07)]
-
-        ## Extended Negotiation items
-        # User Identity Negotiation items
-        id_request = None
-        for ii in assoc_rq.user_information:
-            if isinstance(ii, UserIdentityNegotiation):
-                id_request = ii
-                break
-
-        # Remove all User Identity Negotiation (request) items
-        assoc_rq.user_information[:] = (
-            ii for ii in assoc_rq.user_information
-                if not isinstance(ii, UserIdentityNegotiation)
-        )
-
-        if id_request:
-            is_valid, id_response = self._check_user_identity(id_request)
-
-            if not is_valid:
-                # Transient, ACSE related, no reason given
-                LOGGER.info("User identity failed verification")
-                reject_assoc_rsd = [(0x02, 0x02, 0x01)]
-
-            if id_response:
-                # Add the User Identity Negotiation (response) item
-                assoc_rq.user_information.append(id_response)
-
-        # SOP Class Extended Negotiation items
-        sop_extended = {}
-        for ii in assoc_rq.user_information:
-            if isinstance(ii, SOPClassExtendedNegotiation):
-                sop_extended[ii.sop_class_uid] = (
-                    ii.service_class_application_information
-                )
-
-        # Remove all SOP Class Extended Negotiation (request) items
-        assoc_rq.user_information[:] = (
-            ii for ii in assoc_rq.user_information
-                if not isinstance(ii, SOPClassExtendedNegotiation)
-        )
-
-        # Add any SOP Class Extended Negotiation (response) items
-        assoc_rq.user_information.extend(
-            self._check_sop_class_extended(sop_extended)
-        )
-
-        # SOP Class Common Extended Negotiation items
-        # Remove all SOP Class Common Extended Negotiation (request) items
-        #   Note: No response items are allowed
-        assoc_rq.user_information[:] = (
-            ii for ii in assoc_rq.user_information
-                if not isinstance(ii, SOPClassCommonExtendedNegotiation)
-        )
-
-        # Asynchronous Operations Window Negotiation items
-        async_request = None
-        for ii in assoc_rq.user_information:
-            if isinstance(ii, AsynchronousOperationsWindowNegotiation):
-                async_request = ii
-                break
-
-        # Remove all Asynchronous Operations Window Negotiation (request) items
-        assoc_rq.user_information[:] = (
-            ii for ii in assoc_rq.user_information
-                if not isinstance(ii, AsynchronousOperationsWindowNegotiation)
-        )
-
-        if async_request:
-            async_rsp = self._check_async_ops(
-                async_request.maximum_number_operations_invoked,
-                async_request.maximum_number_operations_performed
-            )
-
-            # Add any Async Ops (response) item
-            if async_rsp:
-                assoc_rq.user_information.append(async_rsp)
-
-        ## DUL Presentation Related Rejections
-        #
-        # Maximum number of associations reached (local-limit-exceeded)
-        if len(self.ae.active_associations) > self.ae.maximum_associations:
-            reject_assoc_rsd = [(0x02, 0x03, 0x02)]
-
-        for (result, src, diag) in reject_assoc_rsd:
-            assoc_rj = self.acse.reject_assoc(assoc_rq, result, src, diag)
-            self.debug_association_rejected(assoc_rj)
-            self.ae.on_association_rejected(assoc_rj)
-            self.kill()
-            return
-
-        ## Negotiate Presentation Contexts
-        # SCP/SCU Role Selection Negotiation request items
-        # {SOP Class UID : (SCU role, SCP role)}
-        rq_roles = {}
-        for ii in assoc_rq.user_information:
-            if isinstance(ii, SCP_SCU_RoleSelectionNegotiation):
-                rq_roles[ii.sop_class_uid] = (ii.scu_role, ii.scp_role)
-
-        # Remove role selection items
-        assoc_rq.user_information[:] = (
-            ii for ii in assoc_rq.user_information
-                if not isinstance(ii, SCP_SCU_RoleSelectionNegotiation)
-        )
-
-        result, ac_roles = negotiate_as_acceptor(
-            assoc_rq.presentation_context_definition_list,
-            self.ae.supported_contexts,
-            rq_roles
-        )
-        self.acse.accepted_contexts = [
-            cx for cx in result if cx.result == 0x00
-        ]
-        self.acse.rejected_contexts = [
-            cx for cx in result if cx.result != 0x00
-        ]
-
-        # Add any SCP/SCU Role Selection Negotiation response items
-        assoc_rq.user_information.extend(ac_roles)
-
-        # Set maximum PDU send length
-        if assoc_rq.maximum_length_received == 0:  # Unlimited PDU size - set to 64K as this is big enough to max out most protocols
-            self.peer_max_pdu = 0x10000
-            self.dimse.maximum_pdu_size = 0x10000
-        else:
-            self.peer_max_pdu = assoc_rq.maximum_length_received # TODO: Remove?
-            self.dimse.maximum_pdu_size = assoc_rq.maximum_length_received
-
-        # Set Responding AE title
-        assoc_rq.called_ae_title = self.ae.ae_title
-
-        # Set maximum PDU receive length
-        assoc_rq.maximum_length_received = self.local_max_pdu # TODO: Rename?
-        #for user_item in assoc_rq.user_information:
-        #    if isinstance(user_item, MaximumLengthNotification):
-        #        user_item.maximum_length_received = self.local_max_pdu
-
-        # Issue the A-ASSOCIATE indication (accept) primitive using the ACSE
-        # FIXME: Is this correct? Do we send Accept then Abort if no
-        #   presentation contexts?
-        # FIXME: separate the request for the response
-        self._assoc_rsp = assoc_rq
-        assoc_ac = self.acse.accept_assoc(assoc_rq)
-
-        if assoc_ac is None:
-            #self.abort()
-            self.kill()
-            return
-
-        # Callbacks/Logging
-        self.debug_association_accepted(assoc_ac)
-        self.ae.on_association_accepted(assoc_ac)
-
-        # No valid presentation contexts, abort the association
-        if self.acse.accepted_contexts == []:
-            self.acse.abort_assoc(0x02, 0x00)
-            self.kill()
-            return
-
-        # Assocation established OK
-        self.is_established = True
-
-        # Start the SCP loop
-        self._run_as_acceptor_loop()
-
-    def _run_as_acceptor_loop(self):
         """Run the Association Acceptor reactor loop.
 
         Main SCP run loop
@@ -941,11 +586,14 @@ class Association(threading.Thread):
         5. Checks DUL idle timeout
             If timed out then kill thread
         """
+        # FIXME: needed because of some thread-related problem
+        #time.sleep(0.1)
+
         info = {
             'requestor' : self.requestor.info,
             'acceptor' : self.acceptor.info,
             # Ugly
-            'sop_class_extended' : self.sop_class_extended_response,
+            'sop_class_extended' : self.acceptor.sop_class_extended,
         }
 
         self._is_running = True
@@ -1033,7 +681,7 @@ class Association(threading.Thread):
             if self.dul.idle_timer_expired():
                 self.abort()
 
-    def _x_run_as_requestor(self):
+    def _run_as_requestor(self):
         # Listen for further messages from the peer
         while not self._kill:
             time.sleep(0.1)
@@ -1072,130 +720,6 @@ class Association(threading.Thread):
                 self.kill()
                 return
 
-    # Deprecated
-    def _run_as_requestor(self):
-        """Run as the Association Requestor."""
-        if not self.requested_contexts:
-            LOGGER.error("No requested Presentation Contexts specified")
-            self.kill()
-            return
-
-        local_ae = {'address' : self.ae.address,
-                    'port' : self.ae.port,
-                    'ae_title' : self.ae.ae_title}
-
-        # Apply requestor's SCP/SCU role selection (if any)
-        roles = {}
-        for ii in self.ext_neg:
-            if isinstance(ii, SCP_SCU_RoleSelectionNegotiation):
-                roles[ii.sop_class_uid] = (ii.scu_role, ii.scp_role)
-
-        if roles:
-            for cx in self.requested_contexts:
-                try:
-                    (cx.scu_role, cx.scp_role) = roles[cx.abstract_syntax]
-                except KeyError:
-                    pass
-
-        # Request an Association via the ACSE
-        is_accepted, assoc_rsp = self.acse.request_assoc(
-            local_ae,
-            self.peer_ae,
-            self.local_ae['pdv_size'],
-            self.requested_contexts,
-            userspdu=self.ext_neg
-        )
-
-        # Association was accepted or rejected
-        if isinstance(assoc_rsp, A_ASSOCIATE):
-            self._assoc_rsp = assoc_rsp
-
-            # Association was rejected
-            if not is_accepted:
-                self.ae.on_association_rejected(assoc_rsp)
-                self.debug_association_rejected(assoc_rsp)
-                self.is_rejected = True
-                self.is_established = False
-                self.dul.kill_dul()
-                return
-
-            # Association was accepted
-            self.debug_association_accepted(assoc_rsp)
-            self.ae.on_association_accepted(assoc_rsp)
-
-            # No acceptable presentation contexts
-            if self.acse.accepted_contexts == []:
-                LOGGER.error("No Acceptable Presentation Contexts")
-                self.is_aborted = True
-                self.is_established = False
-                self.acse.abort_assoc(0x02, 0x00)
-                self.kill()
-
-                return
-
-            # Assocation established OK
-            self.is_established = True
-
-            # This seems like it should be event driven rather than
-            #   driven by a loop
-            #
-            # Listen for further messages from the peer
-            while not self._kill:
-                time.sleep(0.1)
-
-                # Check for release request
-                if self.acse.CheckRelease():
-                    self.is_released = True
-                    self.is_established = False
-                    # Callback trigger
-                    self.ae.on_association_released()
-                    self.debug_association_released()
-                    self.kill()
-                    return
-
-                # Check for abort
-                if self.acse.is_aborted:
-                    self.is_aborted = True
-                    self.is_established = False
-                    # Callback trigger
-                    self.ae.on_association_aborted()
-                    self.debug_association_aborted()
-                    self.kill()
-                    return
-
-                # Check if the DULServiceProvider thread is
-                #   still running. DUL.is_alive() is inherited from
-                #   threading.thread
-                if not self.dul.is_alive():
-                    self.kill()
-                    return
-
-                # Check if idle timer has expired
-                if self.dul.idle_timer_expired():
-                    self.kill()
-                    return
-
-        # Association was aborted by peer
-        elif isinstance(assoc_rsp, A_ABORT):
-            self.ae.on_association_aborted(assoc_rsp)
-            self.debug_association_aborted(assoc_rsp)
-            self.is_established = False
-            self.is_aborted = True
-            self.dul.kill_dul()
-            return
-
-        # Association was aborted by DUL provider
-        elif isinstance(assoc_rsp, A_P_ABORT):
-            self.is_aborted = True
-            self.is_established = False
-            self.dul.kill_dul()
-            return
-
-        # Association failed for any other reason (No peer, etc)
-        else:
-            self.is_established = False
-            self.dul.kill_dul()
-            return
 
     @property
     def supported_contexts(self):
@@ -3466,24 +2990,21 @@ class ServiceUser(object):
             Operations Performed) or (1, 1) if no Asynchronous Operations
             Window Negotiation item is in the extended negotiation items.
         """
-        invoked, performed = (1, 1)
         if self.writeable:
             for item in self._ext_neg[AsynchronousOperationsWindowNegotiation]:
-                invoked, performed = (
+                return (
                     item.maximum_number_operations_invoked,
                     item.maximum_number_operations_performed
                 )
-                break
         else:
             for item in self.user_information:
                 if isinstance(item, AsynchronousOperationsWindowNegotiation):
-                    invoked, performed = (
+                    return (
                         item.maximum_number_operations_invoked,
                         item.maximum_number_operations_performed
                     )
-                    break
 
-        return invoked, performed
+        return (1, 1)
 
     @property
     def extended_negotiation(self):

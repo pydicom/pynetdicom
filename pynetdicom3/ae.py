@@ -1494,8 +1494,7 @@ class ApplicationEntity(object):
             ::
 
             'requestor' : {
-                'ae_title' : bytes, the requestor's calling AE title
-                'called_aet' : bytes, the requestor's called AE title
+                'ae_title' : bytes, the requestor's AE title
                 'address' : str, the requestor's IP address
                 'port' : int, the requestor's port number
             }

@@ -40,7 +40,7 @@ class ACSE(object):
         from the peer (default: 30)
     """
     def __init__(self, acse_timeout=30):
-        """Create the ACSE provider.
+        """Create the ACSE service provider.
 
         Parameters
         ----------
@@ -50,6 +50,161 @@ class ACSE(object):
         """
         # Maximum time for response from peer (in seconds)
         self.acse_timeout = acse_timeout
+
+    @staticmethod
+    def _check_async_ops(assoc):
+        """Check the user's response to an Asynchronous Operations request.
+
+        Parameters
+        ----------
+        assoc : association.Association
+            The Association instance that received the Asynchronous Operations
+            Window Negotiation item in an A-ASSOCIATE (request) primitive.
+
+        Returns
+        -------
+        pdu_primitives.AsynchronousOperationsWindowNegotiation or None
+            If the `AE.on_async_ops_window` callback hasn't been implemented
+            then returns None, otherwise returns an
+            AsynchronousOperationsWindowNegotiation item with the default
+            values for the number of operations invoked/performed (1, 1).
+        """
+        try:
+            # Response is always ignored as async ops is not supported
+            _ = assoc.ae.on_async_ops_window(
+                *assoc.requestor.asynchronous_operations
+            )
+        except NotImplementedError:
+            return None
+        except Exception as exc:
+            LOGGER.error(
+                "Exception raised in user's 'on_async_ops_window' "
+                "implementation"
+            )
+            LOGGER.exception(exc)
+
+        item = AsynchronousOperationsWindowNegotiation()
+        item.maximum_number_operations_invoked = 1
+        item.maximum_number_operations_performed = 1
+
+        return item
+
+    @staticmethod
+    def _check_sop_class_extended(assoc):
+        """Check the user's response to a SOP Class Extended request.
+
+        Parameters
+        ----------
+        assoc : association.Association
+            The Association instance that received one or more SOP Class
+            Extended Negotiation items in an A-ASSOCIATE (request) primitive.
+
+        Returns
+        -------
+        list of pdu_primitives.SOPClassExtendedNegotiation
+            The SOP Class Extended Negotiation items to be sent in response
+        """
+        try:
+            user_response = assoc.ae.on_sop_class_extended(
+                assoc.requestor.sop_class_extended
+            )
+        except Exception as exc:
+            user_response = None
+            LOGGER.error(
+                "Exception raised in user's 'on_sop_class_extended' "
+                "implementation"
+            )
+            LOGGER.exception(exc)
+
+        if not isinstance(user_response, (type(None), dict)):
+            LOGGER.error(
+                "Invalid type returned by user's 'on_sop_class_extended' "
+                "implementation"
+            )
+            user_response = None
+
+        if user_response is None:
+            return []
+
+        items = []
+        for sop_class, app_info in user_response.items():
+            try:
+                item = SOPClassExtendedNegotiation()
+                item.sop_class_uid = sop_class
+                item.service_class_application_information = app_info
+                items.append(item)
+            except Exception as exc:
+                LOGGER.error(
+                    "Unable to set the SOP Class Extended Negotiation "
+                    "response values for the SOP Class UID {}"
+                    .format(sop_class)
+                )
+                LOGGER.exception(exc)
+
+        return items
+
+    @staticmethod
+    def _check_user_identity(assoc):
+        """Check the user's response to a User Identity request.
+
+        Parameters
+        ----------
+        assoc : association.Association
+            The Association instance that received the User Identity
+            Negotiation item in an A-ASSOCIATE (request) primitive.
+
+        Returns
+        -------
+        bool
+            True if the user identity has been confirmed, False otherwise.
+        pdu_primitives.UserIdentityNegotiation or None
+            The negotiation response, if a positive response is requested,
+            otherwise None.
+        """
+        # The UserIdentityNegotiation (request) item
+        req = assoc.requestor.user_identity
+        try:
+            identity_verified, response = assoc.ae.on_user_identity(
+                req.user_identity_type,
+                req.primary_field,
+                req.secondary_field,
+                {
+                    'requestor' : assoc.requestor.info,
+                }
+            )
+        except NotImplementedError:
+            # If the user hasn't implemented identity negotiation then
+            #   default to accepting the association
+            return True, None
+        except Exception as exc:
+            # If the user has implemented identity negotiation but an exception
+            #   occurred then reject the association
+            LOGGER.error("Exception in handling user identity negotiation")
+            LOGGER.exception(exc)
+            return False, None
+
+        if not identity_verified:
+            # Reject association as the user isn't authorised
+            return False, None
+
+        if req.user_identity_type in [3, 4, 5]:
+            if req.positive_response_requested and response is not None:
+                try:
+                    rsp = UserIdentityNegotiation()
+                    rsp.server_response = response
+                    return True, rsp
+                except Exception as exc:
+                    # > If the acceptor doesn't support user identification it
+                    # > will accept the association without making a positive
+                    # > response
+                    LOGGER.error(
+                        "Unable to set the User Identity Negotiation's "
+                        "'server_response'"
+                    )
+                    LOGGER.exception(exc)
+                    return True, None
+
+        return True, None
 
     @staticmethod
     def is_aborted(assoc):
@@ -65,7 +220,7 @@ class ACSE(object):
         """Return True if an A-RELEASE request has been received."""
         primitive = assoc.dul.peek_next_pdu()
         if primitive.__class__ == A_RELEASE:
-            # Make sure this is an A-RELEASE request primitive
+            # Make sure this is an A-RELEASE *request* primitive
             #   response primitives have the Result field as 'affirmative'
             if primitive.result == 'affirmative':
                 return False
@@ -75,27 +230,137 @@ class ACSE(object):
         return False
 
     def negotiate_association(self, assoc):
-        """
-        """
-        if not assoc.mode:
-            raise ValueError("No Association `mode` has been set")
+        """Perform an association negotiation.
 
+        Parameters
+        ----------
+        assoc : association.Association
+            The Association instance to perform the negotiation for.
+        """
         if assoc.is_requestor:
             self._negotiate_as_requestor(assoc)
         elif assoc.is_acceptor:
             self._negotiate_as_acceptor(assoc)
 
     def _negotiate_as_acceptor(self, assoc):
-        pass
-
-    # Replacement for request_association
-    def _negotiate_as_requestor(self, assoc):
-        """Send an A-ASSOCIATE (request) primitive to the peer AE and
-        handle the response.
+        """Perform an association negotiation as the association acceptor.
 
         Parameters
         ----------
-        assoc
+        assoc : association.Association
+            The Association instance to perform the negotiation for.
+        """
+        # For convenience
+        assoc_rq = assoc.requestor.primitive
+
+        # If we reject association -> [result, source, diagnostic]
+        reject_assoc_rsd = []
+
+        # Calling AE Title not recognised
+        if (assoc.ae.require_calling_aet != b''
+            and assoc.ae.require_calling_aet != assoc_rq.calling_ae_title):
+                reject_assoc_rsd = [0x01, 0x01, 0x03]
+
+        # Called AE Title not recognised
+        if (assoc.ae.require_called_aet != b''
+            and assoc.ae.require_called_aet != assoc_rq.called_ae_title):
+                reject_assoc_rsd = [0x01, 0x01, 0x07]
+
+        ## Extended Negotiation items
+        # User Identity Negotiation items
+        if assoc.requestor.user_identity:
+            is_valid, id_response = self._check_user_identity(assoc)
+
+            if not is_valid:
+                # Transient, ACSE related, no reason given
+                LOGGER.info("User identity failed verification")
+                reject_assoc_rsd = [0x02, 0x02, 0x01]
+
+            if id_response:
+                # Add the User Identity Negotiation (response) item
+                assoc.acceptor.add_negotiation_item(id_response)
+
+        # SOP Class Extended Negotiation items
+        for item in self._check_sop_class_extended(assoc):
+            assoc.acceptor.add_negotiation_item(item)
+
+        # SOP Class Common Extended Negotiation items
+        #   Note: No response items are allowed
+
+        # Asynchronous Operations Window Negotiation items
+        if assoc.requestor.asynchronous_operations != (1, 1):
+            async_rsp = self._check_async_ops(assoc)
+
+            # Add any Async Ops (response) item
+            if async_rsp:
+                assoc.acceptor.add_negotiation_item(async_rsp)
+
+        ## DUL Presentation Related Rejections
+        # Maximum number of associations reached (local-limit-exceeded)
+        if len(assoc.ae.active_associations) > assoc.ae.maximum_associations:
+            reject_assoc_rsd = [0x02, 0x03, 0x02]
+
+        if reject_assoc_rsd:
+            self.send_reject(assoc, *reject_assoc_rsd)
+            assoc.debug_association_rejected(assoc.acceptor.primitive)
+            ae.on_association_rejected(assoc.acceptor.primitive)
+            assoc.kill()
+            return
+
+        ## Negotiate Presentation Contexts
+        # SCP/SCU Role Selection Negotiation request items
+        # {SOP Class UID : (SCU role, SCP role)}
+        rq_roles = {
+            uid:(item.scu_role, item.scp_role)
+                for uid, item in assoc.requestor.role_selection.items()
+        }
+
+        result, ac_roles = negotiate_as_acceptor(
+            assoc_rq.presentation_context_definition_list,
+            assoc.acceptor.supported_contexts,
+            rq_roles
+        )
+
+        assoc._accepted_cx = [cx for cx in result if cx.result == 0x00]
+        assoc._rejected_cx = [cx for cx in result if cx.result != 0x00]
+
+        # Add any SCP/SCU Role Selection Negotiation response items
+        for item in ac_roles:
+            assoc.acceptor.add_negotiation_item(item)
+
+        # Set maximum PDU send length
+        # Unlimited PDU size - set to 64K as this is big enough to max
+        #   out most protocols
+        # FIXME: unlimited length should be handled correctly
+        if assoc.requestor.maximum_length == 0:
+            for item in assoc.requestor.user_information:
+                if isinstance(item, MaximumLengthNotification):
+                    item.maximum_length_received = 0x10000
+                    break
+
+        # Send the A-ASSOCIATE (accept) primitive
+        self.send_accept(assoc)
+
+        # Callbacks/Logging
+        assoc.debug_association_accepted(assoc.acceptor.primitive)
+        ae.on_association_accepted(assoc.acceptor.primitive)
+
+        # No valid presentation contexts, abort the association
+        if not assoc.accepted_contexts:
+            self.send_abort(assoc, 0x02)
+            assoc.kill()
+            return
+
+        # Assocation established OK
+        assoc.is_established = True
+
+    def _negotiate_as_requestor(self, assoc):
+        """Perform an association negotiation as the association requestor.
+
+        Parameters
+        ----------
+        assoc : association.Association
+            The Association instance to perform the negotiation for.
         """
         if not assoc.requested_contexts:
             LOGGER.error(
@@ -198,8 +463,6 @@ class ACSE(object):
                 "Received an invalid response to the A-ASSOCIATE request"
             )
 
-
-    # OK...
     @staticmethod
     def send_abort(assoc, source):
         """Send an A-ABORT to the peer.
@@ -230,41 +493,8 @@ class ACSE(object):
         primitive.abort_source = source
 
         assoc.dul.send_pdu(primitive)
-
-    @staticmethod
-    def send_ap_abort(assoc, reason):
-        """Send an A-P-ABORT to the peer.
-
-        Parameters
-        ----------
-        assoc : pynetdicom3.association.Association
-            The association that is sending the A-P-ABORT.
-        reason : int
-            The reason for aborting the association, one of the following:
-
-            - 0x00 - reason not specified
-            - 0x01 - unrecognised PDU
-            - 0x02 - unexpected PDU
-            - 0x04 - unrecognised PDU parameter
-            - 0x05 - unexpected PDU parameter
-            - 0x06 - invalid PDU parameter value
-
-        Raises
-        ------
-        ValueError
-            If the `reason` value is invalid.
-        """
-        if reason not in [0x00, 0x01, 0x02, 0x04, 0x05, 0x06]:
-            raise ValueError("Invalid 'reason' parameter value")
-
-        # The following parameters must be set for an A-P-ABORT primitive
-        # (* sent in A-ABORT PDU):
-        #    Abort Source* (always 0x02)
-        #    Provider Reason*
-        primitive = A_P_ABORT()
-        primitive.provider_reason = reason
-
-        assoc.dul.send_pdu(primitive)
+        assoc.is_aborted = True
+        assoc.is_established = False
 
     @staticmethod
     def send_accept(assoc):
@@ -302,6 +532,43 @@ class ACSE(object):
 
         assoc.acceptor.primitive = primitive
         assoc.dul.send_pdu(primitive)
+
+    @staticmethod
+    def send_ap_abort(assoc, reason):
+        """Send an A-P-ABORT to the peer.
+
+        Parameters
+        ----------
+        assoc : pynetdicom3.association.Association
+            The association that is sending the A-P-ABORT.
+        reason : int
+            The reason for aborting the association, one of the following:
+
+            - 0x00 - reason not specified
+            - 0x01 - unrecognised PDU
+            - 0x02 - unexpected PDU
+            - 0x04 - unrecognised PDU parameter
+            - 0x05 - unexpected PDU parameter
+            - 0x06 - invalid PDU parameter value
+
+        Raises
+        ------
+        ValueError
+            If the `reason` value is invalid.
+        """
+        if reason not in [0x00, 0x01, 0x02, 0x04, 0x05, 0x06]:
+            raise ValueError("Invalid 'reason' parameter value")
+
+        # The following parameters must be set for an A-P-ABORT primitive
+        # (* sent in A-ABORT PDU):
+        #    Abort Source* (always 0x02)
+        #    Provider Reason*
+        primitive = A_P_ABORT()
+        primitive.provider_reason = reason
+
+        assoc.dul.send_pdu(primitive)
+        assoc.is_aborted = True
+        assoc.is_established = False
 
     @staticmethod
     def send_reject(assoc, result, source, diagnostic):
@@ -369,6 +636,8 @@ class ACSE(object):
 
         assoc.acceptor.primitive = primitive
         assoc.dul.send_pdu(primitive)
+        assoc.is_rejected = True
+        assoc.is_established = False
 
     @staticmethod
     def send_release(assoc, is_response=False):
