@@ -296,30 +296,9 @@ class ACSE(object):
         )
 
         ## User Information - PS3.7 Annex D.3.3
-        # Maximum Length Notification
-        # Allows the acceptor to limit the size of each P-DATA PDU
-        item = MaximumLengthNotification()
-        item.maximum_length_received = assoc.local['pdv_size']
-        primitive.user_information = [item]
+        primitive.user_information = assoc.acceptor.user_information
 
-        # Implementation Identification Notification
-        # Implementation Class UID
-        # Uniquely identifies the implementation of the acceptor
-        item = ImplementationClassUIDNotification()
-        item.implementation_class_uid = assoc.ae.implementation_class_uid
-        primitive.user_information.append(item)
-
-        # Implementation Version Name (optional)
-        # Used to distinguish between two versions of the same implementation
-        item = ImplementationVersionNameNotification()
-        item.implementation_version_name = assoc.ae.implementation_version_name
-        primitive.user_information.append(item)
-
-        # Extended Negotiation items (optional)
-        primitive.user_information += assoc.extended_negotiation[1]
-
-        assoc._assoc_rsp = primitive
-
+        assoc.acceptor.primitive = primitive
         assoc.dul.send_pdu(primitive)
 
     @staticmethod

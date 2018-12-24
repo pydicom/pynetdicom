@@ -3577,11 +3577,21 @@ class ServiceUser(object):
 
     @property
     def implementation_class_uid(self):
-        """Return the Implementation Class UID as a pydicom UID."""
+        """Return the Implementation Class UID as a pydicom UID.
+
+        Returns
+        -------
+        pydicom.uid.UID or None
+            Returns the Implementation Class UID if the requestor or if
+            the acceptor and they have accepted the negotiation. Returns None
+            if the acceptor and they have rejected the negotiation.
+        """
         if not self.writeable:
             for item in self.user_information:
                 if isinstance(item, ImplementationClassUIDNotification):
                     return item.implementation_class_uid
+
+            return None
 
         for item in self._user_info:
             if isinstance(item, ImplementationClassUIDNotification):
@@ -3606,13 +3616,22 @@ class ServiceUser(object):
 
     @property
     def implementation_version_name(self):
-        """Return the Implementation Version Name as str (if available)."""
+        """Return the Implementation Version Name as str (if available).
+
+        Returns
+        -------
+        str or None
+            Returns None if the acceptor and they have rejected the
+            negotiation or if no Implementation Version Name Notification item
+            has been included in the association negotiation. Otherwise returns
+            the Implementation Version Name.
+        """
         if not self.writeable:
             for item in self.user_information:
                 if isinstance(item, ImplementationVersionNameNotification):
                     return item.implementation_version_name
-            else:
-                return None
+
+            return None
 
         for item in self._user_info:
             if isinstance(item, ImplementationVersionNameNotification):
@@ -3664,11 +3683,21 @@ class ServiceUser(object):
 
     @property
     def maximum_length(self):
-        """Return the maximum PDV size as int."""
+        """Return the maximum PDV size as int.
+
+        Returns
+        -------
+        int or None
+            Returns the Maximum Received Length if the requestor or if
+            the acceptor and they have accepted the negotiation. Returns None
+            if the acceptor and they have rejected the negotiation.
+        """
         if not self.writeable:
             for item in self.user_information:
                 if isinstance(item, MaximumLengthNotification):
                     return item.maximum_length_received
+
+            return None
 
         for item in self._user_info:
             if isinstance(item, MaximumLengthNotification):
