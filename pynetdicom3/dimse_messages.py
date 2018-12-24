@@ -20,7 +20,6 @@ from pynetdicom3.pdu_primitives import P_DATA
 LOGGER = logging.getLogger('pynetdicom3.dimse')
 
 
-
 _MESSAGE_TYPES = {
     0x0001: 'C-STORE-RQ',
     0x8001: 'C-STORE-RSP',
@@ -711,4 +710,23 @@ _MESSAGE_CLASS_TYPES = {
     0x8140: N_CREATE_RSP,
     0x0150: N_DELETE_RQ,
     0x8150: N_DELETE_RSP
+}
+
+_DATASET_KEYWORDS = {
+    'C_STORE_RQ' : 'DataSet',
+    'C_FIND_RQ' : 'Identifier',
+    'C_GET_RQ' : 'Identifier',
+    'C_MOVE_RQ' : 'Identifier',
+    'C_FIND_RSP' : 'Identifier',
+    'C_GET_RSP' : 'Identifier',
+    'C_MOVE_RSP' : 'Identifier',
+    'N_EVENT_REPORT_RQ' : 'EventInformation',
+    'N_EVENT_REPORT_RSP' : 'EventReply',
+    'N_GET_RSP' : 'AttributeList',
+    'N_SET_RSP' : 'AttributeList',
+    'N_CREATE_RQ' : 'AttributeList',
+    'N_CREATE_RSP' : 'AttributeList',
+    'N_SET_RQ' : 'ModificationList',
+    'N_ACTION_RQ' : 'ActionInformation',
+    'N_ACTION_RSP' : 'ActionReply',
 }

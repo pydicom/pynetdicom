@@ -198,6 +198,8 @@ class ACSE(object):
                 "Received an invalid response to the A-ASSOCIATE request"
             )
 
+
+    # OK...
     @staticmethod
     def send_abort(assoc, source):
         """Send an A-ABORT to the peer.

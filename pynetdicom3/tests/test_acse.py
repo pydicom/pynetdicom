@@ -20,7 +20,7 @@ from pynetdicom3 import (
     PYNETDICOM_IMPLEMENTATION_VERSION, build_context
 )
 from pynetdicom3.acse import ACSE
-from pynetdicom3.association import Association
+from pynetdicom3.association import Association, ServiceUser
 from pynetdicom3.pdu_primitives import (
     A_ASSOCIATE, A_RELEASE, A_ABORT, A_P_ABORT,
     MaximumLengthNotification,
@@ -58,41 +58,35 @@ class DummyAssociation(object):
         self.ae = AE()
         self.mode = None
         self.dul = DummyDUL()
-        self.local = {'pdv_size' : 31682, 'address' : '127.0.0.1',
-                      'port' : 11112, 'ae_title' : b'TEST_LOCAL      '}
-        self.remote = {'pdv_size' : 31683, 'address' : '127.0.0.2',
-                      'port' : 11113, 'ae_title' : b'TEST_REMOTE     '}
+        self.requestor = ServiceUser(self, 'requestor')
+        self.requestor.port = 11112
+        self.requestor.ae_title = b'TEST_LOCAL      '
+        self.requestor.address = '127.0.0.1'
+        self.requestor.maximum_length = 31682
+        self.acceptor = ServiceUser(self, 'acceptor')
+        self.acceptor.ae_title = b'TEST_REMOTE     '
+        self.acceptor.port = 11113
+        self.acceptor.address = '127.0.0.2'
         self.acse_timeout = 11
         self.dimse_timeout = 12
         self.network_timeout = 13
-        self.extended_negotiation = [[], []]
-
-        self._requested_contexts = []
-        self._supported_contexts = []
-
-    add_requested_context = AE.add_requested_context
-    add_supported_context = AE.add_supported_context
-    #self._validate_requested_contexts = AE._validate_requested_contexts
 
     @property
     def requested_contexts(self):
-        contexts = []
-        for ii, context in enumerate(self._requested_contexts):
-            context.context_id = 2 * ii + 1
-            contexts.append(context)
-
-        return contexts
+        return self.requestor.get_contexts('requested')
 
     @property
     def supported_contexts(self):
-        return self._supported_contexts
+        return self.requestor.get_contexts('supported')
 
 
 class TestACSE(object):
     """Tests for initialising the ACSE class"""
     def setup(self):
         self.assoc = DummyAssociation()
-        self.assoc.add_requested_context('1.2.840.10008.1.1')
+        self.assoc.requestor.requested_contexts = [
+            build_context('1.2.840.10008.1.1')
+        ]
 
     def test_default(self):
         """Test default initialisation"""
@@ -220,7 +214,9 @@ class TestPrimitiveConstruction(object):
     """Test the primitive builders"""
     def setup(self):
         self.assoc = DummyAssociation()
-        self.assoc.add_requested_context('1.2.840.10008.1.1')
+        self.assoc.requestor.requested_contexts = [
+            build_context('1.2.840.10008.1.1')
+        ]
 
     def test_send_request(self):
         """Test A-ASSOCIATE (rq) construction and sending"""
@@ -229,7 +225,7 @@ class TestPrimitiveConstruction(object):
         role.sop_class_uid = '1.2.840.10008.1.1'
         role.scu_role = True
         role.scp_role = False
-        self.assoc.extended_negotiation[0].append(role)
+        self.assoc.requestor.add_negotiation_item(role)
         acse.send_request(self.assoc)
 
         primitive = self.assoc.dul.queue.get()
@@ -248,7 +244,7 @@ class TestPrimitiveConstruction(object):
         assert cx[0].abstract_syntax == '1.2.840.10008.1.1'
 
         user_info = primitive.user_information
-        assert len(user_info) == 4
+        assert len(user_info) == 3
 
         for item in user_info:
             if isinstance(item, MaximumLengthNotification):
