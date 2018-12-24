@@ -722,7 +722,106 @@ class ACSE(object):
 
 
     # ACSE logging/debugging functions
-    # Local AE sending PDU to peer AE
+    @staticmethod
+    def debug_send_abort(a_abort_rq):
+        """
+        Placeholder for a function callback. Function will be called
+        immediately prior to encoding and sending an A-ABORT to a peer AE
+
+        Parameters
+        ----------
+        a_abort : pdu.A_ABORT_RQ
+            The A-ABORT PDU instance
+        """
+        LOGGER.info('Aborting Association')
+
+    @staticmethod
+    def debug_send_associate_ac(a_associate_ac):
+        """
+        Placeholder for a function callback. Function will be called
+        immediately prior to encoding and sending an A-ASSOCIATE-AC to a peer AE
+
+        Parameters
+        ----------
+        a_associate_ac : pdu.A_ASSOCIATE_AC
+            The A-ASSOCIATE-AC PDU instance
+        """
+        LOGGER.info("Association Accepted")
+
+        # Shorthand
+        assoc_ac = a_associate_ac
+
+        # Needs some cleanup
+        app_context = assoc_ac.application_context_name.title()
+        pres_contexts = assoc_ac.presentation_context
+        user_info = assoc_ac.user_information
+
+        responding_ae = 'resp. AE Title'
+
+        s = ['Accept Parameters:']
+        s.append('====================== BEGIN A-ASSOCIATE-AC ================'
+                 '=====')
+
+        s.append('Our Implementation Class UID:      '
+                 '{0!s}'.format(user_info.implementation_class_uid))
+        s.append('Our Implementation Version Name:   '
+                 '{0!s}'.format(
+            user_info.implementation_version_name.decode('ascii'))
+        )
+        s.append('Application Context Name:    {0!s}'.format(app_context))
+        s.append('Responding Application Name: {0!s}'.format(responding_ae))
+        s.append('Our Max PDU Receive Size:    '
+                 '{0!s}'.format(user_info.maximum_length))
+        s.append('Presentation Contexts:')
+
+        if not pres_contexts:
+            s.append('    (no valid presentation contexts)')
+
+        # Sort by context ID
+        for item in sorted(pres_contexts, key=lambda x: x.context_id):
+            s.append('  Context ID:        {0!s} ({1!s})'
+                     .format(item.context_id, item.result_str))
+
+            # If Presentation Context was accepted
+            if item.result == 0:
+                #if item.scu_role is None and item.scp_role is None:
+                #    ac_scp_scu_role = 'Default'
+                #else:
+                #    ac_scp_scu_role = '{0!s}/{1!s}'.format(item.scp_role, item.scu_role)
+                #s.append('    Accepted SCP/SCU Role: {0!s}'
+                #         .format(ac_scp_scu_role))
+                s.append('    Accepted Transfer Syntax: ={0!s}'
+                         .format(item.transfer_syntax.name))
+
+        ## Extended Negotiation
+        ext_nego = 'None'
+        #if assoc_ac.UserInformation.ExtendedNegotiation is not None:
+        #    ext_nego = 'Yes'
+        s.append('Accepted Extended Negotiation: {0!s}'.format(ext_nego))
+
+        ## User Identity Negotiation
+        usr_id = 'Yes' if user_info.user_identity is not None else 'None'
+
+        s.append('User Identity Negotiation Response:  {0!s}'.format(usr_id))
+        s.append('======================= END A-ASSOCIATE-AC =================='
+                 '====')
+
+        for line in s:
+            LOGGER.debug(line)
+
+    @staticmethod
+    def debug_send_associate_rj(a_associate_rj):
+        """
+        Placeholder for a function callback. Function will be called
+        immediately prior to encoding and sending an A-ASSOCIATE-RJ to a peer AE
+
+        Parameters
+        ----------
+        a_associate_rj : pdu.A_ASSOCIATE_RJ
+            The A-ASSOCIATE-RJ PDU instance
+        """
+        LOGGER.info("Association Rejected")
+
     @staticmethod
     def debug_send_associate_rq(a_associate_rq):
         """
@@ -879,93 +978,6 @@ class ACSE(object):
             LOGGER.debug(line)
 
     @staticmethod
-    def debug_send_associate_ac(a_associate_ac):
-        """
-        Placeholder for a function callback. Function will be called
-        immediately prior to encoding and sending an A-ASSOCIATE-AC to a peer AE
-
-        Parameters
-        ----------
-        a_associate_ac : pdu.A_ASSOCIATE_AC
-            The A-ASSOCIATE-AC PDU instance
-        """
-        LOGGER.info("Association Accepted")
-
-        # Shorthand
-        assoc_ac = a_associate_ac
-
-        # Needs some cleanup
-        app_context = assoc_ac.application_context_name.title()
-        pres_contexts = assoc_ac.presentation_context
-        user_info = assoc_ac.user_information
-
-        responding_ae = 'resp. AE Title'
-
-        s = ['Accept Parameters:']
-        s.append('====================== BEGIN A-ASSOCIATE-AC ================'
-                 '=====')
-
-        s.append('Our Implementation Class UID:      '
-                 '{0!s}'.format(user_info.implementation_class_uid))
-        s.append('Our Implementation Version Name:   '
-                 '{0!s}'.format(
-            user_info.implementation_version_name.decode('ascii'))
-        )
-        s.append('Application Context Name:    {0!s}'.format(app_context))
-        s.append('Responding Application Name: {0!s}'.format(responding_ae))
-        s.append('Our Max PDU Receive Size:    '
-                 '{0!s}'.format(user_info.maximum_length))
-        s.append('Presentation Contexts:')
-
-        if not pres_contexts:
-            s.append('    (no valid presentation contexts)')
-
-        # Sort by context ID
-        for item in sorted(pres_contexts, key=lambda x: x.context_id):
-            s.append('  Context ID:        {0!s} ({1!s})'
-                     .format(item.context_id, item.result_str))
-
-            # If Presentation Context was accepted
-            if item.result == 0:
-                #if item.scu_role is None and item.scp_role is None:
-                #    ac_scp_scu_role = 'Default'
-                #else:
-                #    ac_scp_scu_role = '{0!s}/{1!s}'.format(item.scp_role, item.scu_role)
-                #s.append('    Accepted SCP/SCU Role: {0!s}'
-                #         .format(ac_scp_scu_role))
-                s.append('    Accepted Transfer Syntax: ={0!s}'
-                         .format(item.transfer_syntax.name))
-
-        ## Extended Negotiation
-        ext_nego = 'None'
-        #if assoc_ac.UserInformation.ExtendedNegotiation is not None:
-        #    ext_nego = 'Yes'
-        s.append('Accepted Extended Negotiation: {0!s}'.format(ext_nego))
-
-        ## User Identity Negotiation
-        usr_id = 'Yes' if user_info.user_identity is not None else 'None'
-
-        s.append('User Identity Negotiation Response:  {0!s}'.format(usr_id))
-        s.append('======================= END A-ASSOCIATE-AC =================='
-                 '====')
-
-        for line in s:
-            LOGGER.debug(line)
-
-    @staticmethod
-    def debug_send_associate_rj(a_associate_rj):
-        """
-        Placeholder for a function callback. Function will be called
-        immediately prior to encoding and sending an A-ASSOCIATE-RJ to a peer AE
-
-        Parameters
-        ----------
-        a_associate_rj : pdu.A_ASSOCIATE_RJ
-            The A-ASSOCIATE-RJ PDU instance
-        """
-        LOGGER.info("Association Rejected")
-
-    @staticmethod
     def debug_send_data_tf(p_data_tf):
         """
         Placeholder for a function callback. Function will be called
@@ -975,19 +987,6 @@ class ACSE(object):
         ----------
         a_release_rq : pdu.P_DATA_TF
             The P-DATA-TF PDU instance
-        """
-        pass
-
-    @staticmethod
-    def debug_send_release_rq(a_release_rq):
-        """
-        Placeholder for a function callback. Function will be called
-        immediately prior to encoding and sending an A-RELEASE-RQ to a peer AE
-
-        Parameters
-        ----------
-        a_release_rq : pdu.A_RELEASE_RQ
-            The A-RELEASE-RQ PDU instance
         """
         pass
 
@@ -1005,20 +1004,161 @@ class ACSE(object):
         pass
 
     @staticmethod
-    def debug_send_abort(a_abort_rq):
+    def debug_send_release_rq(a_release_rq):
         """
         Placeholder for a function callback. Function will be called
-        immediately prior to encoding and sending an A-ABORT to a peer AE
+        immediately prior to encoding and sending an A-RELEASE-RQ to a peer AE
+
+        Parameters
+        ----------
+        a_release_rq : pdu.A_RELEASE_RQ
+            The A-RELEASE-RQ PDU instance
+        """
+        pass
+
+    @staticmethod
+    def debug_receive_abort(a_abort):
+        """
+        Placeholder for a function callback. Function will be called
+        immediately after receiving and decoding an A-ABORT
 
         Parameters
         ----------
         a_abort : pdu.A_ABORT_RQ
             The A-ABORT PDU instance
         """
-        LOGGER.info('Aborting Association')
+        s = ['Abort Parameters:']
+        s.append('========================== BEGIN A-ABORT ===================='
+                 '====')
+        s.append('Abort Source: {0!s}'.format(a_abort.source_str))
+        s.append('Abort Reason: {0!s}'.format(a_abort.reason_str))
+        s.append('=========================== END A-ABORT ====================='
+                 '====')
+        for line in s:
+            LOGGER.debug(line)
+
+    @staticmethod
+    def debug_receive_associate_ac(a_associate_ac):
+        """
+        Placeholder for a function callback. Function will be called
+        immediately after receiving and decoding an A-ASSOCIATE-AC
+
+        The default implementation is used for logging debugging information
+
+        Most of this should be moved to on_association_accepted()
+
+        Parameters
+        ----------
+        a_associate_ac : pdu.A_ASSOCIATE_AC
+            The A-ASSOCIATE-AC PDU instance
+        """
+        # Shorthand
+        assoc_ac = a_associate_ac
+
+        app_context = assoc_ac.application_context_name.title()
+        pres_contexts = assoc_ac.presentation_context
+        user_info = assoc_ac.user_information
+
+        #roles = (ii.abstract_syntax:ii for ii in user_info.role_selection)
+
+        their_class_uid = 'unknown'
+        their_version = 'unknown'
+
+        if user_info.implementation_class_uid:
+            their_class_uid = user_info.implementation_class_uid
+        if user_info.implementation_version_name:
+            their_version = user_info.implementation_version_name
+
+        s = ['Accept Parameters:']
+        s.append('====================== BEGIN A-ASSOCIATE-AC ================'
+                 '=====')
+
+        s.append('Their Implementation Class UID:    {0!s}'
+                 .format(their_class_uid))
+        s.append('Their Implementation Version Name: {0!s}'
+                 .format(their_version.decode('ascii')))
+        s.append('Application Context Name:    {0!s}'.format(app_context))
+        s.append('Calling Application Name:    {0!s}'
+                 .format(assoc_ac.calling_ae_title.decode('ascii')))
+        s.append('Called Application Name:     {0!s}'
+                 .format(assoc_ac.called_ae_title.decode('ascii')))
+        s.append('Their Max PDU Receive Size:  {0!s}'
+                 .format(user_info.maximum_length))
+        s.append('Presentation Contexts:')
+
+        for item in pres_contexts:
+            s.append('  Context ID:        {0!s} ({1!s})'
+                     .format(item.context_id, item.result_str))
+
+            if item.result == 0:
+                '''
+                if item.SCP is None and item.SCU is None:
+                    ac_scp_scu_role = 'Default'
+                    rq_scp_scu_role = 'Default'
+                else:
+                    ac_scp_scu_role = '{0!s}/{1!s}'.format(item.SCP, item.SCU)
+                s.append('    Proposed SCP/SCU Role: {0!s}'
+                         .format(rq_scp_scu_role))
+                s.append('    Accepted SCP/SCU Role: {0!s}'
+                         .format(ac_scp_scu_role))
+                '''
+                s.append('    Accepted Transfer Syntax: ={0!s}'
+                         .format(item.transfer_syntax.name))
 
 
-    # Local AE receiving PDU from peer AE
+        ## Extended Negotiation
+        ext_neg = 'None'
+        #if assoc_ac.UserInformation.ExtendedNegotiation is not None:
+        #    ext_nego = 'Yes'
+        s.append('Accepted Extended Negotiation: {0!s}'.format(ext_neg))
+
+        ## Common Extended Negotiation
+        common_ext_neg = 'None'
+        s.append('Accepted Common Extended Negotiation: {0!s}'
+                 .format(common_ext_neg))
+
+        ## Asynchronous Operations Negotiation
+        async_neg = 'None'
+        s.append('Accepted Asynchronous Operations Window Negotiation: {0!s}'
+                 .format(async_neg))
+
+        ## User Identity
+        usr_id = 'Yes' if user_info.user_identity is not None else 'None'
+
+        s.append('User Identity Negotiation Response:  {0!s}'.format(usr_id))
+        s.append('======================= END A-ASSOCIATE-AC =================='
+                 '====')
+
+        for line in s:
+            LOGGER.debug(line)
+
+        LOGGER.info('Association Accepted')
+
+    @staticmethod
+    def debug_receive_associate_rj(a_associate_rj):
+        """
+        Placeholder for a function callback. Function will be called
+        immediately after receiving and decoding an A-ASSOCIATE-RJ
+
+        Parameters
+        ----------
+        a_associate_rj : pdu.A_ASSOCIATE_RJ
+            The A-ASSOCIATE-RJ PDU instance
+        """
+        # Shorthand
+        assoc_rj = a_associate_rj
+
+        s = ['Reject Parameters:']
+        s.append('====================== BEGIN A-ASSOCIATE-RJ ================='
+                 '=====')
+        s.append('Result:    {0!s}'.format(assoc_rj.result_str))
+        s.append('Source:    {0!s}'.format(assoc_rj.source_str))
+        s.append('Reason:    {0!s}'.format(assoc_rj.reason_str))
+        s.append('======================= END A-ASSOCIATE-RJ =================='
+                 '====')
+        for line in s:
+            LOGGER.debug(line)
+
     @staticmethod
     def debug_receive_associate_rq(a_associate_rq):
         """
@@ -1183,128 +1323,6 @@ class ACSE(object):
             LOGGER.debug(line)
 
     @staticmethod
-    def debug_receive_associate_ac(a_associate_ac):
-        """
-        Placeholder for a function callback. Function will be called
-        immediately after receiving and decoding an A-ASSOCIATE-AC
-
-        The default implementation is used for logging debugging information
-
-        Most of this should be moved to on_association_accepted()
-
-        Parameters
-        ----------
-        a_associate_ac : pdu.A_ASSOCIATE_AC
-            The A-ASSOCIATE-AC PDU instance
-        """
-        # Shorthand
-        assoc_ac = a_associate_ac
-
-        app_context = assoc_ac.application_context_name.title()
-        pres_contexts = assoc_ac.presentation_context
-        user_info = assoc_ac.user_information
-
-        #roles = (ii.abstract_syntax:ii for ii in user_info.role_selection)
-
-        their_class_uid = 'unknown'
-        their_version = 'unknown'
-
-        if user_info.implementation_class_uid:
-            their_class_uid = user_info.implementation_class_uid
-        if user_info.implementation_version_name:
-            their_version = user_info.implementation_version_name
-
-        s = ['Accept Parameters:']
-        s.append('====================== BEGIN A-ASSOCIATE-AC ================'
-                 '=====')
-
-        s.append('Their Implementation Class UID:    {0!s}'
-                 .format(their_class_uid))
-        s.append('Their Implementation Version Name: {0!s}'
-                 .format(their_version.decode('ascii')))
-        s.append('Application Context Name:    {0!s}'.format(app_context))
-        s.append('Calling Application Name:    {0!s}'
-                 .format(assoc_ac.calling_ae_title.decode('ascii')))
-        s.append('Called Application Name:     {0!s}'
-                 .format(assoc_ac.called_ae_title.decode('ascii')))
-        s.append('Their Max PDU Receive Size:  {0!s}'
-                 .format(user_info.maximum_length))
-        s.append('Presentation Contexts:')
-
-        for item in pres_contexts:
-            s.append('  Context ID:        {0!s} ({1!s})'
-                     .format(item.context_id, item.result_str))
-
-            if item.result == 0:
-                '''
-                if item.SCP is None and item.SCU is None:
-                    ac_scp_scu_role = 'Default'
-                    rq_scp_scu_role = 'Default'
-                else:
-                    ac_scp_scu_role = '{0!s}/{1!s}'.format(item.SCP, item.SCU)
-                s.append('    Proposed SCP/SCU Role: {0!s}'
-                         .format(rq_scp_scu_role))
-                s.append('    Accepted SCP/SCU Role: {0!s}'
-                         .format(ac_scp_scu_role))
-                '''
-                s.append('    Accepted Transfer Syntax: ={0!s}'
-                         .format(item.transfer_syntax.name))
-
-
-        ## Extended Negotiation
-        ext_neg = 'None'
-        #if assoc_ac.UserInformation.ExtendedNegotiation is not None:
-        #    ext_nego = 'Yes'
-        s.append('Accepted Extended Negotiation: {0!s}'.format(ext_neg))
-
-        ## Common Extended Negotiation
-        common_ext_neg = 'None'
-        s.append('Accepted Common Extended Negotiation: {0!s}'
-                 .format(common_ext_neg))
-
-        ## Asynchronous Operations Negotiation
-        async_neg = 'None'
-        s.append('Accepted Asynchronous Operations Window Negotiation: {0!s}'
-                 .format(async_neg))
-
-        ## User Identity
-        usr_id = 'Yes' if user_info.user_identity is not None else 'None'
-
-        s.append('User Identity Negotiation Response:  {0!s}'.format(usr_id))
-        s.append('======================= END A-ASSOCIATE-AC =================='
-                 '====')
-
-        for line in s:
-            LOGGER.debug(line)
-
-        LOGGER.info('Association Accepted')
-
-    @staticmethod
-    def debug_receive_associate_rj(a_associate_rj):
-        """
-        Placeholder for a function callback. Function will be called
-        immediately after receiving and decoding an A-ASSOCIATE-RJ
-
-        Parameters
-        ----------
-        a_associate_rj : pdu.A_ASSOCIATE_RJ
-            The A-ASSOCIATE-RJ PDU instance
-        """
-        # Shorthand
-        assoc_rj = a_associate_rj
-
-        s = ['Reject Parameters:']
-        s.append('====================== BEGIN A-ASSOCIATE-RJ ================='
-                 '=====')
-        s.append('Result:    {0!s}'.format(assoc_rj.result_str))
-        s.append('Source:    {0!s}'.format(assoc_rj.source_str))
-        s.append('Reason:    {0!s}'.format(assoc_rj.reason_str))
-        s.append('======================= END A-ASSOCIATE-RJ =================='
-                 '====')
-        for line in s:
-            LOGGER.debug(line)
-
-    @staticmethod
     def debug_receive_data_tf(p_data_tf):
         """
         Placeholder for a function callback. Function will be called
@@ -1314,19 +1332,6 @@ class ACSE(object):
         ----------
         p_data_tf : pdu.P_DATA_TF
             The P-DATA-TF PDU instance
-        """
-        pass
-
-    @staticmethod
-    def debug_receive_release_rq(a_release_rq):
-        """
-        Placeholder for a function callback. Function will be called
-        immediately after receiving and decoding an A-RELEASE-RQ
-
-        Parameters
-        ----------
-        a_release_rq : pdu.A_RELEASE_RQ
-            The A-RELEASE-RQ PDU instance
         """
         pass
 
@@ -1344,22 +1349,14 @@ class ACSE(object):
         pass
 
     @staticmethod
-    def debug_receive_abort(a_abort):
+    def debug_receive_release_rq(a_release_rq):
         """
         Placeholder for a function callback. Function will be called
-        immediately after receiving and decoding an A-ABORT
+        immediately after receiving and decoding an A-RELEASE-RQ
 
         Parameters
         ----------
-        a_abort : pdu.A_ABORT_RQ
-            The A-ABORT PDU instance
+        a_release_rq : pdu.A_RELEASE_RQ
+            The A-RELEASE-RQ PDU instance
         """
-        s = ['Abort Parameters:']
-        s.append('========================== BEGIN A-ABORT ===================='
-                 '====')
-        s.append('Abort Source: {0!s}'.format(a_abort.source_str))
-        s.append('Abort Reason: {0!s}'.format(a_abort.reason_str))
-        s.append('=========================== END A-ABORT ====================='
-                 '====')
-        for line in s:
-            LOGGER.debug(line)
+        pass
