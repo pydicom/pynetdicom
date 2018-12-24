@@ -252,6 +252,7 @@ class ACSE(object):
         """
         # For convenience
         assoc_rq = assoc.requestor.primitive
+        assoc.requestor.ae_title = assoc_rq.calling_ae_title
 
         # If we reject association -> [result, source, diagnostic]
         reject_assoc_rsd = []
@@ -343,7 +344,7 @@ class ACSE(object):
 
         # Callbacks/Logging
         assoc.debug_association_accepted(assoc.acceptor.primitive)
-        ae.on_association_accepted(assoc.acceptor.primitive)
+        assoc.ae.on_association_accepted(assoc.acceptor.primitive)
 
         # No valid presentation contexts, abort the association
         if not assoc.accepted_contexts:

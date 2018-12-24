@@ -286,6 +286,7 @@ class Association(threading.Thread):
         self._ae = ae
         self.mode = mode
 
+        # Represent the association requestor and acceptor users
         self.requestor = ServiceUser(self, MODE_REQUESTOR)
         self.acceptor = ServiceUser(self, MODE_ACCEPTOR)
 
@@ -300,13 +301,21 @@ class Association(threading.Thread):
                                       dul_timeout=ae.network_timeout,
                                       assoc=self)
         self.acse = ACSE(ae.acse_timeout)
-        # TODO: Set dimse.maximum_pdu_size later
         self.dimse = DIMSEServiceProvider(self.dul,
                                           self.ae.dimse_timeout)
 
         # Kills the thread loop in run()
         self._kill = False
         self._is_running = False
+
+        # Send A-ABORT when an A-ASSOCIATE request is received
+        self._a_abort_assoc_rq = False
+        self._a_p_abort_assoc_rq = False
+
+        # Point the public send_c_cancel_* functions to the actual function
+        self.send_c_cancel_find = self._send_c_cancel
+        self.send_c_cancel_move = self._send_c_cancel
+        self.send_c_cancel_get = self._send_c_cancel
 
         # Thread setup
         threading.Thread.__init__(self)
@@ -537,8 +546,11 @@ class Association(threading.Thread):
         self.dul.start()
 
         if self.is_acceptor:
+            # Give the DUL time to start up
+            time.sleep(0.1)
             primitive = self.dul.receive_pdu(wait=True,
                                              timeout=self.acse.acse_timeout)
+            print(primitive)
 
             # Timed out waiting for A-ASSOCIATE request
             if primitive is None:
