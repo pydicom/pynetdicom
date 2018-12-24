@@ -415,6 +415,10 @@ class TestServiceUserRequestor(object):
         user.add_negotiation_item(item)
 
         assert user.asynchronous_operations == (2, 3)
+        assert item in user.extended_negotiation
+        assert item in user._ext_neg[AsynchronousOperationsWindowNegotiation]
+        assert len(user.extended_negotiation) == 1
+        assert len(user.user_information) == 3
 
     def test_async_ops_post(self):
         """Test getting async ops item after negotiation."""
@@ -430,6 +434,14 @@ class TestServiceUserRequestor(object):
         self.primitive.user_information.append(item)
         assert user.asynchronous_operations == (2, 3)
         assert user.extended_negotiation == [item]
+        assert item in user.extended_negotiation
+        assert item not in user._ext_neg[AsynchronousOperationsWindowNegotiation]
+        assert len(user.extended_negotiation) == 1
+        assert len(user.user_information) == 3
+
+        msg = r"Can't add extended negotiation items after negotiation"
+        with pytest.raises(RuntimeError, match=msg):
+            user.add_negotiation_item(item)
 
     def test_ext_neg_pre(self):
         """Test extended_negotiation only returns negotiation items."""
@@ -892,27 +904,130 @@ class TestServiceUserRequestor(object):
 
     def test_role_pre(self):
         """Test role_selection prior to association."""
-        pass
+        user = ServiceUser(self.assoc, mode='requestor')
+        assert len(user.extended_negotiation) == 0
+        assert len(user.user_information) == 2
+        assert user.role_selection == {}
+
+        item = SCP_SCU_RoleSelectionNegotiation()
+        item.sop_class_uid = '1.2.3'
+        item.scu_role = True
+        item.scp_role = True
+        user.add_negotiation_item(item)
+        assert item in user.extended_negotiation
+        assert item in user._ext_neg[SCP_SCU_RoleSelectionNegotiation]
+        assert len(user.extended_negotiation) == 1
+        assert len(user.user_information) == 3
+
+        assert user.role_selection['1.2.3'] == item
 
     def test_role_post(self):
         """Test role_selection prior to association."""
-        pass
+        user = ServiceUser(self.assoc, mode='requestor')
+        user.primitive = self.primitive
+        assert len(user.extended_negotiation) == 0
+        assert len(user.user_information) == 2
+        assert user.role_selection == {}
+
+        item = SCP_SCU_RoleSelectionNegotiation()
+        item.sop_class_uid = '1.2.3'
+        item.scu_role = True
+        item.scp_role = True
+        user.primitive.user_information.append(item)
+        assert item in user.extended_negotiation
+        assert item not in user._ext_neg[SCP_SCU_RoleSelectionNegotiation]
+        assert len(user.extended_negotiation) == 1
+        assert len(user.user_information) == 3
+
+        assert user.role_selection['1.2.3'] == item
+
+        msg = r"Can't add extended negotiation items after negotiation"
+        with pytest.raises(RuntimeError, match=msg):
+            user.add_negotiation_item(item)
 
     def test_sop_ext_pre(self):
         """Test sop_class_extended prior to association."""
-        pass
+        user = ServiceUser(self.assoc, mode='requestor')
+        assert len(user.extended_negotiation) == 0
+        assert len(user.user_information) == 2
+        assert user.sop_class_extended == {}
+
+        item = SOPClassExtendedNegotiation()
+        item.sop_class_uid = '1.2.3'
+        item.service_class_application_information = b'SOME DATA'
+        user.add_negotiation_item(item)
+        assert item in user.extended_negotiation
+        assert item in user._ext_neg[SOPClassExtendedNegotiation]
+        assert len(user.extended_negotiation) == 1
+        assert len(user.user_information) == 3
+
+        assert user.sop_class_extended['1.2.3'] == item
 
     def test_sop_ext_post(self):
         """Test sop_class_extended prior to association."""
-        pass
+        user = ServiceUser(self.assoc, mode='requestor')
+        user.primitive = self.primitive
+        assert len(user.extended_negotiation) == 0
+        assert len(user.user_information) == 2
+        assert user.sop_class_extended == {}
+
+        item = SOPClassExtendedNegotiation()
+        item.sop_class_uid = '1.2.3'
+        item.service_class_application_information = b'SOME DATA'
+        user.primitive.user_information.append(item)
+        assert item in user.extended_negotiation
+        assert item not in user._ext_neg[SOPClassExtendedNegotiation]
+        assert len(user.extended_negotiation) == 1
+        assert len(user.user_information) == 3
+
+        assert user.sop_class_extended['1.2.3'] == item
+
+        msg = r"Can't add extended negotiation items after negotiation"
+        with pytest.raises(RuntimeError, match=msg):
+            user.add_negotiation_item(item)
 
     def test_sop_common_pre(self):
         """Test sop_class_common_extended prior to association."""
-        pass
+        user = ServiceUser(self.assoc, mode='requestor')
+        assert len(user.extended_negotiation) == 0
+        assert len(user.user_information) == 2
+        assert user.sop_class_common_extended == {}
+
+        item = SOPClassCommonExtendedNegotiation()
+        item.sop_class_uid = '1.2.3'
+        item.service_class_uid = '2.3.4'
+        item.related_general_sop_class_identification = ['1.3.4']
+        user.add_negotiation_item(item)
+        assert item in user.extended_negotiation
+        assert item in user._ext_neg[SOPClassCommonExtendedNegotiation]
+        assert len(user.extended_negotiation) == 1
+        assert len(user.user_information) == 3
+
+        assert user.sop_class_common_extended['1.2.3'] == item
 
     def test_sop_common_post(self):
         """Test sop_class_common_extended prior to association."""
-        pass
+        user = ServiceUser(self.assoc, mode='requestor')
+        user.primitive = self.primitive
+        assert len(user.extended_negotiation) == 0
+        assert len(user.user_information) == 2
+        assert user.sop_class_common_extended == {}
+
+        item = SOPClassCommonExtendedNegotiation()
+        item.sop_class_uid = '1.2.3'
+        item.service_class_uid = '2.3.4'
+        item.related_general_sop_class_identification = ['1.3.4']
+        user.primitive.user_information.append(item)
+        assert item in user.extended_negotiation
+        assert item not in user._ext_neg[SOPClassCommonExtendedNegotiation]
+        assert len(user.extended_negotiation) == 1
+        assert len(user.user_information) == 3
+
+        assert user.sop_class_common_extended['1.2.3'] == item
+
+        msg = r"Can't add extended negotiation items after negotiation"
+        with pytest.raises(RuntimeError, match=msg):
+            user.add_negotiation_item(item)
 
     def test_supported_cx_pre(self):
         """Test supported_contexts prior to association."""
@@ -935,20 +1050,153 @@ class TestServiceUserRequestor(object):
 
     def test_user_id_pre(self):
         """Test user_identity prior to association."""
-        pass
+        user = ServiceUser(self.assoc, mode='requestor')
+        assert len(user.extended_negotiation) == 0
+        assert len(user.user_information) == 2
+        assert user.user_identity is None
+
+        item = UserIdentityNegotiation()
+        item.user_identity_type = 0x01
+        item.positive_response_requested = True
+        item.primary_field = b'username'
+        user.add_negotiation_item(item)
+        assert item in user.extended_negotiation
+        assert item in user._ext_neg[UserIdentityNegotiation]
+        assert len(user.extended_negotiation) == 1
+        assert len(user.user_information) == 3
+
+        assert user.user_identity == item
 
     def test_user_id_post(self):
         """Test user_identity prior to association."""
-        pass
+        user = ServiceUser(self.assoc, mode='requestor')
+        user.primitive = self.primitive
+        assert len(user.extended_negotiation) == 0
+        assert len(user.user_information) == 2
+        assert user.user_identity is None
+
+        item = UserIdentityNegotiation()
+        item.user_identity_type = 0x01
+        item.positive_response_requested = True
+        item.primary_field = b'username'
+        user.primitive.user_information.append(item)
+        assert item in user.extended_negotiation
+        assert item not in user._ext_neg[UserIdentityNegotiation]
+        assert len(user.extended_negotiation) == 1
+        assert len(user.user_information) == 3
+
+        assert user.user_identity == item
+
+        msg = r"Can't add extended negotiation items after negotiation"
+        with pytest.raises(RuntimeError, match=msg):
+            user.add_negotiation_item(item)
 
     def test_user_info_pre(self):
         """Test user_information prior to association."""
-        pass
+        user = ServiceUser(self.assoc, mode='requestor')
+        assert len(user.user_information) == 2
+
+        user.implementation_version_name = 'VERSION_1'
+        item = user.user_information[2]
+        assert isinstance(item, ImplementationVersionNameNotification)
+        assert item.implementation_version_name == b'VERSION_1'
+        assert len(user.user_information) == 3
+
+        for uid in ['1.2', '3.4']:
+            item = SCP_SCU_RoleSelectionNegotiation()
+            item.sop_class_uid = uid
+            item.scu_role = False
+            item.scp_role = True
+            user.add_negotiation_item(item)
+            assert item in user.user_information
+
+        assert len(user.user_information) == 5
+
+        item = AsynchronousOperationsWindowNegotiation()
+        item.maximum_number_operations_invoked = 2
+        item.maximum_number_operations_performed = 3
+        user.add_negotiation_item(item)
+        assert item in user.user_information
+        assert len(user.user_information) == 6
+
+        item = UserIdentityNegotiation()
+        item.user_identity_type = 0x01
+        item.positive_response_requested = True
+        item.primary_field = b'username'
+        user.add_negotiation_item(item)
+        assert item in user.user_information
+        assert len(user.user_information) == 7
+
+        item = SOPClassExtendedNegotiation()
+        item.sop_class_uid = '1.2.3'
+        item.service_class_application_information = b'SOME DATA'
+        user.add_negotiation_item(item)
+        assert item in user.user_information
+        assert len(user.user_information) == 8
+
+        item = SOPClassCommonExtendedNegotiation()
+        item.sop_class_uid = '1.2.3'
+        item.service_class_uid = '2.3.4'
+        item.related_general_sop_class_identification = ['1.3.4']
+        user.add_negotiation_item(item)
+        assert item in user.user_information
+        assert len(user.user_information) == 9
 
     def test_user_info_post(self):
         """Test user_information prior to association."""
-        pass
+        user = ServiceUser(self.assoc, mode='requestor')
+        user.primitive = self.primitive
+        assert len(user.user_information) == 2
+
+        item = ImplementationVersionNameNotification()
+        item.implementation_version_name = 'VERSION_1'
+        user.primitive.user_information.append(item)
+        assert item in user.user_information
+        assert len(user.user_information) == 3
+
+        for uid in ['1.2', '3.4']:
+            item = SCP_SCU_RoleSelectionNegotiation()
+            item.sop_class_uid = uid
+            item.scu_role = False
+            item.scp_role = True
+            user.primitive.user_information.append(item)
+            assert item in user.user_information
+
+        assert len(user.user_information) == 5
+
+        item = AsynchronousOperationsWindowNegotiation()
+        item.maximum_number_operations_invoked = 2
+        item.maximum_number_operations_performed = 3
+        user.primitive.user_information.append(item)
+        assert item in user.user_information
+        assert len(user.user_information) == 6
+
+        item = UserIdentityNegotiation()
+        item.user_identity_type = 0x01
+        item.positive_response_requested = True
+        item.primary_field = b'username'
+        user.primitive.user_information.append(item)
+        assert item in user.user_information
+        assert len(user.user_information) == 7
+
+        item = SOPClassExtendedNegotiation()
+        item.sop_class_uid = '1.2.3'
+        item.service_class_application_information = b'SOME DATA'
+        user.primitive.user_information.append(item)
+        assert item in user.user_information
+        assert len(user.user_information) == 8
+
+        item = SOPClassCommonExtendedNegotiation()
+        item.sop_class_uid = '1.2.3'
+        item.service_class_uid = '2.3.4'
+        item.related_general_sop_class_identification = ['1.3.4']
+        user.primitive.user_information.append(item)
+        assert item in user.user_information
+        assert len(user.user_information) == 9
 
     def test_writeable(self):
         """Test writeable."""
-        pass
+        user = ServiceUser(self.assoc, mode='requestor')
+        assert user.writeable is True
+        user.primitive = self.primitive
+        assert user.writeable is False

@@ -3893,7 +3893,11 @@ class ServiceUser(object):
     def user_identity(self):
         """Return the User Identity Negotiation Item (if available)."""
         if self.writeable:
-            return self._ext_neg[UserIdentityNegotiation][0] or None
+            items = self._ext_neg[UserIdentityNegotiation]
+            if items:
+                return items[0]
+
+            return None
 
         for item in self.user_information:
             if isinstance(item, UserIdentityNegotiation):
