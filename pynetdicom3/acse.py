@@ -286,8 +286,8 @@ class ACSE(object):
         #   Presentation Context Definition List Result*
         primitive = A_ASSOCIATE()
         primitive.application_context_name = APPLICATION_CONTEXT_NAME
-        primitive.calling_ae_title = assoc._assoc_req.calling_ae_title
-        primitive.called_ae_title = assoc._assoc_req.called_ae_title
+        primitive.calling_ae_title = assoc.requestor.primitive.calling_ae_title
+        primitive.called_ae_title = assoc.requestor.primitive.called_ae_title
         primitive.result = 0x00
         primitive.result_source = 0x01
 
@@ -357,20 +357,15 @@ class ACSE(object):
 
         # The following parameters must be set for an A-ASSOCIATE (reject)
         # primitive (* sent in A-ASSOCIATE-RJ PDU):
-        #   Application Context Name
-        #   Calling AE Title
-        #   Called AE Title
-        #   User Information
         #   Result*
         #   Result Source*
         #   Diagnostic*
-        #   Presentation Context Definition List Result
         primitive = A_ASSOCIATE()
         primitive.result = result
         primitive.result_source = source
         primitive.diagnostic = diagnostic
 
-        assoc._assoc_rsp = primitive
+        assoc.acceptor.primitive = primitive
         assoc.dul.send_pdu(primitive)
 
     @staticmethod
@@ -416,20 +411,20 @@ class ACSE(object):
         # DICOM Application Context Name, see PS3.7 Annex A.2.1
         primitive.application_context_name = APPLICATION_CONTEXT_NAME
         # Calling AE Title is the source DICOM AE title
-        primitive.calling_ae_title = assoc.local['ae_title']
+        primitive.calling_ae_title = assoc.requestor.ae_title
         # Called AE Title is the destination DICOM AE title
-        primitive.called_ae_title = assoc.remote['ae_title']
+        primitive.called_ae_title = assoc.acceptor.ae_title
         # The TCP/IP address of the source, pynetdicom includes port too
         primitive.calling_presentation_address = (
-            assoc.local['address'], assoc.local['port']
+            assoc.requestor.address, assoc.requestor.port
         )
         # The TCP/IP address of the destination, pynetdicom includes port too
         primitive.called_presentation_address = (
-            assoc.remote['address'], assoc.remote['port']
+            assoc.acceptor.address, assoc.acceptor.port
         )
         # Proposed presentation contexts
         primitive.presentation_context_definition_list = (
-            assoc.requested_contexts
+            assoc.requestor.requested_contexts
         )
 
         ## User Information - PS3.7 Annex D.3.3
@@ -438,14 +433,13 @@ class ACSE(object):
         #   Implementation Class UID Notification (1)
         # Optional notification items:
         #   Implementation Version Name Notification (0 or 1)
-        primitive.user_information = assoc.requestor.user_information
         # Optional negotiation items:
         #   SCP/SCU Role Selection Negotiation (0 or N)
-        #   Asynchronous Operations Window Negotiation (1)
+        #   Asynchronous Operations Window Negotiation (0 or 1)
         #   SOP Class Extended Negotiation (0 or N)
         #   SOP Class Common Extended Negotiation (0 or N)
-        #   User Information Negotiation (1)
-        primitive.user_information += assoc.requestor.extended_negotiation
+        #   User Identity Negotiation (0 or 1)
+        primitive.user_information = assoc.requestor.user_information
 
         # Save the request primitive
         assoc.requestor.primitive = primitive
