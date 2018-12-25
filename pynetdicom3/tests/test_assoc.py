@@ -77,8 +77,8 @@ from .dummy_c_scp import (
 )
 
 LOGGER = logging.getLogger('pynetdicom3')
-LOGGER.setLevel(logging.CRITICAL)
-#LOGGER.setLevel(logging.DEBUG)
+#LOGGER.setLevel(logging.CRITICAL)
+LOGGER.setLevel(logging.DEBUG)
 
 TEST_DS_DIR = os.path.join(os.path.dirname(__file__), 'dicom_files')
 BIG_DATASET = dcmread(os.path.join(TEST_DS_DIR, 'RTImageStorage.dcm')) # 2.1 M
@@ -477,52 +477,6 @@ class TestAssociation(object):
         ae.dimse_timeout = 5
         assoc = ae.associate('localhost', 11120)
 
-    def test_init_errors(self):
-        """Test bad parameters on init raise errors"""
-        ae = AE()
-        ae.acse_timeout = 5
-        ae.dimse_timeout = 5
-        with pytest.raises(TypeError, match="with either the client_socket or peer_ae"):
-            Association(ae)
-        with pytest.raises(TypeError, match="with either client_socket or peer_ae"):
-            Association(ae, client_socket=self.socket, peer_ae=self.peer)
-        with pytest.raises(TypeError, match="client_socket must be"):
-            Association(ae, client_socket=123)
-        with pytest.raises(TypeError, match="peer_ae must be a dict"):
-            Association(ae, peer_ae=123)
-        with pytest.raises(KeyError, match="peer_ae must contain 'ae_title'"):
-            Association(ae, peer_ae={})
-        with pytest.raises(TypeError, match="local_ae must be a pynetdicom"):
-            Association(12345, peer_ae=self.peer)
-        with pytest.raises(TypeError, match="dimse_timeout must be numeric"):
-            Association(ae, peer_ae=self.peer, dimse_timeout='a')
-        with pytest.raises(TypeError, match="acse_timeout must be numeric"):
-            Association(ae, peer_ae=self.peer, acse_timeout='a')
-        with pytest.raises(TypeError, match="max_pdu must be an int"):
-            Association(ae, peer_ae=self.peer, max_pdu='a')
-        with pytest.raises(TypeError, match="ext_neg must be a list"):
-            Association(ae, peer_ae=self.peer, ext_neg='a')
-
-    def test_run_acceptor(self):
-        """Test running as an Association acceptor (SCP)"""
-        pass
-
-    def test_run_requestor(self):
-        """Test running as an Association requestor (SCU)"""
-        self.scp = DummyVerificationSCP()
-        self.scp.start()
-        ae = AE()
-        ae.add_requested_context(VerificationSOPClass)
-        ae.acse_timeout = 5
-        ae.dimse_timeout = 5
-        assoc = ae.associate('localhost', 11112)
-        assert assoc.is_established
-        assoc.release()
-        assert assoc.is_released
-        assert not assoc.is_established
-        assert assoc.is_released
-        self.scp.stop()
-
     def test_req_no_presentation_context(self):
         """Test rejection due to no acceptable presentation contexts"""
         self.scp = DummyVerificationSCP()
@@ -866,6 +820,7 @@ class TestAssociationSendCEcho(object):
         ae.acse_timeout = 5
         ae.dimse_timeout = 5
         assoc = ae.associate('localhost', 11112)
+        assert assoc.is_established
         assoc.release()
         assert assoc.is_released
         assert not assoc.is_established
@@ -1058,21 +1013,6 @@ class TestAssociationSendCEcho(object):
         assert cx.abstract_syntax == CTImageStorage
         assoc.release()
         assert assoc.is_released
-        self.scp.stop()
-
-    def test_request(self):
-        """Test the Association.request property."""
-        self.scp = DummyVerificationSCP()
-        self.scp.start()
-        ae = AE()
-        ae.add_requested_context(VerificationSOPClass)
-        ae.acse_timeout = 5
-        ae.dimse_timeout = 5
-        assoc = ae.associate('localhost', 11112)
-        assert assoc.is_established
-        req = assoc.request
-        assert isinstance(req, type(None))
-
         self.scp.stop()
 
 
@@ -2482,8 +2422,9 @@ class TestAssociationSendCMove(object):
         self.scp2 = DummyStorageSCP(11113)
         self.scp2.start()
 
-        self.scp = DummyMoveSCP()
+        self.scp = DummyMoveSCP()  # port 11112
         self.scp.no_suboperations = 2
+        self.scp.destination_ae = ('localhost', 11113)
         self.scp.statuses = [0xFF00, 0xFF00]
         self.scp.datasets = [self.good, self.good]
         self.scp.start()
@@ -3484,29 +3425,24 @@ class TestUserIdentityNegotiation(object):
     @pytest.mark.parametrize("req, rsp", REFERENCE_USER_IDENTITY_REQUEST)
     def test_check_usrid_not_implemented(self, req, rsp):
         """Check _check_user_identity if user hasn't implemented."""
-        self.scp = DummyVerificationSCP()
-        self.scp.start()
         ae = AE()
         ae.add_requested_context(VerificationSOPClass)
         ae.acse_timeout = 5
         ae.dimse_timeout = 5
-        assoc = ae.associate('localhost', 11112)
 
-        assert assoc.is_established
+        assoc = Association(ae, mode='requestor')
 
-        request = UserIdentityNegotiation()
-        request.user_identity_type = req[0]
-        request.primary_field = req[1]
-        request.secondary_field = req[2]
-        request.positive_response_requested = req[3]
+        item = UserIdentityNegotiation()
+        item.user_identity_type = req[0]
+        item.primary_field = req[1]
+        item.secondary_field = req[2]
+        item.positive_response_requested = req[3]
 
-        scp_assoc = self.scp.ae.active_associations[0]
-        is_valid, response = scp_assoc._check_user_identity(request)
+        assoc.requestor.add_negotiation_item(item)
+        is_valid, response = assoc.acse._check_user_identity(assoc)
 
         assert is_valid is True
         assert response is None
-
-        self.scp.stop()
 
     @pytest.mark.parametrize("req, rsp", REFERENCE_USER_IDENTITY_REQUEST)
     def test_check_usrid_not_authorised(self, req, rsp):
@@ -3526,14 +3462,15 @@ class TestUserIdentityNegotiation(object):
 
         assert assoc.is_established
 
-        request = UserIdentityNegotiation()
-        request.user_identity_type = req[0]
-        request.primary_field = req[1]
-        request.secondary_field = req[2]
-        request.positive_response_requested = req[3]
+        item = UserIdentityNegotiation()
+        item.user_identity_type = req[0]
+        item.primary_field = req[1]
+        item.secondary_field = req[2]
+        item.positive_response_requested = req[3]
 
         scp_assoc = self.scp.ae.active_associations[0]
-        is_valid, response = scp_assoc._check_user_identity(request)
+        scp_assoc.requestor.primitive.user_information.append(item)
+        is_valid, response = scp_assoc.acse._check_user_identity(scp_assoc)
 
         assert is_valid is False
         assert response is None
@@ -3560,14 +3497,15 @@ class TestUserIdentityNegotiation(object):
 
         assert assoc.is_established
 
-        request = UserIdentityNegotiation()
-        request.user_identity_type = req[0]
-        request.primary_field = req[1]
-        request.secondary_field = req[2]
-        request.positive_response_requested = req[3]
+        item = UserIdentityNegotiation()
+        item.user_identity_type = req[0]
+        item.primary_field = req[1]
+        item.secondary_field = req[2]
+        item.positive_response_requested = req[3]
 
         scp_assoc = self.scp.ae.active_associations[0]
-        is_valid, response = scp_assoc._check_user_identity(request)
+        scp_assoc.requestor.primitive.user_information.append(item)
+        is_valid, response = scp_assoc.acse._check_user_identity(scp_assoc)
 
         assert is_valid is True
         if req[3] is True and req[0] in [3, 4, 5]:
@@ -3598,14 +3536,15 @@ class TestUserIdentityNegotiation(object):
 
         assert assoc.is_established
 
-        request = UserIdentityNegotiation()
-        request.user_identity_type = 1
-        request.primary_field = b'test'
-        request.secondary_field = b'test'
-        request.positive_response_requested = True
+        item = UserIdentityNegotiation()
+        item.user_identity_type = 1
+        item.primary_field = b'test'
+        item.secondary_field = b'test'
+        item.positive_response_requested = True
 
         scp_assoc = self.scp.ae.active_associations[0]
-        is_valid, response = scp_assoc._check_user_identity(request)
+        scp_assoc.requestor.primitive.user_information.append(item)
+        is_valid, response = scp_assoc.acse._check_user_identity(scp_assoc)
 
         assert is_valid is False
         assert response is None
@@ -3631,14 +3570,15 @@ class TestUserIdentityNegotiation(object):
 
         assert assoc.is_established
 
-        request = UserIdentityNegotiation()
-        request.user_identity_type = 3
-        request.primary_field = b'test'
-        request.secondary_field = b'test'
-        request.positive_response_requested = True
+        item = UserIdentityNegotiation()
+        item.user_identity_type = 3
+        item.primary_field = b'test'
+        item.secondary_field = b'test'
+        item.positive_response_requested = True
 
         scp_assoc = self.scp.ae.active_associations[0]
-        is_valid, response = scp_assoc._check_user_identity(request)
+        scp_assoc.requestor.primitive.user_information.append(item)
+        is_valid, response = scp_assoc.acse._check_user_identity(scp_assoc)
 
         assert is_valid is True
         assert response is None
@@ -3656,7 +3596,6 @@ class TestUserIdentityNegotiation(object):
             assert secondary == req[2]
             assert 'requestor' in info
             assert 'ae_title' in info['requestor']
-            assert 'called_aet' in info['requestor']
             assert 'port' in info['requestor']
             assert 'address' in info['requestor']
 
@@ -3673,14 +3612,21 @@ class TestUserIdentityNegotiation(object):
 
         assert assoc.is_established
 
-        request = UserIdentityNegotiation()
-        request.user_identity_type = req[0]
-        request.primary_field = req[1]
-        request.secondary_field = req[2]
-        request.positive_response_requested = req[3]
+        item = UserIdentityNegotiation()
+        item.user_identity_type = req[0]
+        item.primary_field = req[1]
+        item.secondary_field = req[2]
+        item.positive_response_requested = req[3]
 
         scp_assoc = self.scp.ae.active_associations[0]
-        is_valid, response = scp_assoc._check_user_identity(request)
+        scp_assoc.requestor.primitive.user_information.append(item)
+        is_valid, response = scp_assoc.acse._check_user_identity(scp_assoc)
+        assert is_valid is True
+        if req[3] is True and req[0] in [3, 4, 5]:
+            assert isinstance(response, UserIdentityNegotiation)
+            assert response.server_response == rsp[1]
+        else:
+            assert response is None
 
         assoc.release()
 
@@ -3700,13 +3646,13 @@ class TestUserIdentityNegotiation(object):
         ae.acse_timeout = 5
         ae.dimse_timeout = 5
 
-        request = UserIdentityNegotiation()
-        request.user_identity_type = 3
-        request.primary_field = b'test'
-        request.secondary_field = b'test'
-        request.positive_response_requested = True
+        item = UserIdentityNegotiation()
+        item.user_identity_type = 3
+        item.primary_field = b'test'
+        item.secondary_field = b'test'
+        item.positive_response_requested = True
 
-        assoc = ae.associate('localhost', 11112, ext_neg=[request])
+        assoc = ae.associate('localhost', 11112, ext_neg=[item])
 
         assert assoc.is_established
 
@@ -3728,13 +3674,13 @@ class TestUserIdentityNegotiation(object):
         ae.acse_timeout = 5
         ae.dimse_timeout = 5
 
-        request = UserIdentityNegotiation()
-        request.user_identity_type = 3
-        request.primary_field = b'test'
-        request.secondary_field = b'test'
-        request.positive_response_requested = True
+        item = UserIdentityNegotiation()
+        item.user_identity_type = 3
+        item.primary_field = b'test'
+        item.secondary_field = b'test'
+        item.positive_response_requested = True
 
-        assoc = ae.associate('localhost', 11112, ext_neg=[request])
+        assoc = ae.associate('localhost', 11112, ext_neg=[item])
 
         assert assoc.is_established
 
@@ -3756,13 +3702,13 @@ class TestUserIdentityNegotiation(object):
         ae.acse_timeout = 5
         ae.dimse_timeout = 5
 
-        request = UserIdentityNegotiation()
-        request.user_identity_type = 1
-        request.primary_field = b'test'
-        request.secondary_field = b'test'
-        request.positive_response_requested = True
+        item = UserIdentityNegotiation()
+        item.user_identity_type = 1
+        item.primary_field = b'test'
+        item.secondary_field = b'test'
+        item.positive_response_requested = True
 
-        assoc = ae.associate('localhost', 11112, ext_neg=[request])
+        assoc = ae.associate('localhost', 11112, ext_neg=[item])
 
         assert assoc.is_rejected
 
@@ -3783,53 +3729,20 @@ class TestUserIdentityNegotiation(object):
         ae.acse_timeout = 5
         ae.dimse_timeout = 5
 
-        request = UserIdentityNegotiation()
-        request.user_identity_type = 3
-        request.primary_field = b'test'
-        request.secondary_field = b'test'
-        request.positive_response_requested = True
+        item = UserIdentityNegotiation()
+        item.user_identity_type = 3
+        item.primary_field = b'test'
+        item.secondary_field = b'test'
+        item.positive_response_requested = True
 
-        assoc = ae.associate('localhost', 11112, ext_neg=[request])
+        assoc = ae.associate('localhost', 11112, ext_neg=[item])
 
         assert assoc.is_rejected
-        assert assoc.user_identity_response is None
+        assert assoc.acceptor.user_identity is None
 
         assoc.release()
 
         self.scp.stop()
-
-    def test_req_response_raises(self):
-        """Test requestor response raises if assoc not attempted."""
-        def on_user_identity(usr_type, primary, secondary, info):
-            return True, b'\x00\x01'
-
-        ae = AE()
-        ae.on_user_identity = on_user_identity
-        ae.add_requested_context(VerificationSOPClass)
-        ae.acse_timeout = 5
-        ae.dimse_timeout = 5
-
-        request = UserIdentityNegotiation()
-        request.user_identity_type = 3
-        request.primary_field = b'test'
-        request.secondary_field = b'test'
-        request.positive_response_requested = True
-
-        assoc = Association(local_ae=ae,
-                            peer_ae={'ae_title' : b'bluh',
-                                     'port' : 11112,
-                                     'address' : '127.0.0.1'},
-                            acse_timeout=5,
-                            dimse_timeout=5,
-                            max_pdu=1000,
-                            ext_neg=[request])
-
-        msg = (
-            r"No User Identity Negotiation response is "
-            r"available until after association negotiation is complete"
-        )
-        with pytest.raises(RuntimeError, match=msg):
-            assoc.user_identity_response
 
     def test_req_response_no_user_identity(self):
         """Test requestor response if no response from acceptor."""
@@ -3845,16 +3758,16 @@ class TestUserIdentityNegotiation(object):
         ae.acse_timeout = 5
         ae.dimse_timeout = 5
 
-        request = UserIdentityNegotiation()
-        request.user_identity_type = 3
-        request.primary_field = b'test'
-        request.secondary_field = b'test'
-        request.positive_response_requested = True
+        item = UserIdentityNegotiation()
+        item.user_identity_type = 3
+        item.primary_field = b'test'
+        item.secondary_field = b'test'
+        item.positive_response_requested = True
 
-        assoc = ae.associate('localhost', 11112, ext_neg=[request])
+        assoc = ae.associate('localhost', 11112, ext_neg=[item])
 
         assert assoc.is_established
-        assert assoc.user_identity_response is None
+        assert assoc.acceptor.user_identity is None
 
         assoc.release()
 
@@ -3874,16 +3787,16 @@ class TestUserIdentityNegotiation(object):
         ae.acse_timeout = 5
         ae.dimse_timeout = 5
 
-        request = UserIdentityNegotiation()
-        request.user_identity_type = 3
-        request.primary_field = b'test'
-        request.secondary_field = b'test'
-        request.positive_response_requested = True
+        item = UserIdentityNegotiation()
+        item.user_identity_type = 3
+        item.primary_field = b'test'
+        item.secondary_field = b'test'
+        item.positive_response_requested = True
 
-        assoc = ae.associate('localhost', 11112, ext_neg=[request])
+        assoc = ae.associate('localhost', 11112, ext_neg=[item])
 
         assert assoc.is_established
-        assert assoc.user_identity_response == b'\x00\x01'
+        assert assoc.acceptor.user_identity.server_response == b'\x00\x01'
 
         assoc.release()
 
@@ -3923,7 +3836,7 @@ class TestSOPClassExtendedNegotiation(object):
         req = {}
 
         scp_assoc = self.scp.ae.active_associations[0]
-        rsp = scp_assoc._check_sop_class_extended(req)
+        rsp = scp_assoc.acse._check_sop_class_extended(scp_assoc)
 
         assert rsp == []
 
@@ -3945,7 +3858,13 @@ class TestSOPClassExtendedNegotiation(object):
         }
 
         scp_assoc = self.scp.ae.active_associations[0]
-        rsp = scp_assoc._check_sop_class_extended(req)
+        for kk, vv in req.items():
+            item = SOPClassExtendedNegotiation()
+            item.sop_class_uid = kk
+            item.service_class_application_information = vv
+            scp_assoc.requestor.user_information.append(item)
+
+        rsp = scp_assoc.acse._check_sop_class_extended(scp_assoc)
 
         assert rsp == []
 
@@ -3973,7 +3892,13 @@ class TestSOPClassExtendedNegotiation(object):
         }
 
         scp_assoc = self.scp.ae.active_associations[0]
-        rsp = scp_assoc._check_sop_class_extended(req)
+        for kk, vv in req.items():
+            item = SOPClassExtendedNegotiation()
+            item.sop_class_uid = kk
+            item.service_class_application_information = vv
+            scp_assoc.requestor.user_information.append(item)
+
+        rsp = scp_assoc.acse._check_sop_class_extended(scp_assoc)
 
         assert len(rsp) == 2
         # Can't guarantee order
@@ -4008,7 +3933,13 @@ class TestSOPClassExtendedNegotiation(object):
         }
 
         scp_assoc = self.scp.ae.active_associations[0]
-        rsp = scp_assoc._check_sop_class_extended(req)
+        for kk, vv in req.items():
+            item = SOPClassExtendedNegotiation()
+            item.sop_class_uid = kk
+            item.service_class_application_information = vv
+            scp_assoc.requestor.user_information.append(item)
+
+        rsp = scp_assoc.acse._check_sop_class_extended(scp_assoc)
 
         assert rsp == []
 
@@ -4036,7 +3967,13 @@ class TestSOPClassExtendedNegotiation(object):
         }
 
         scp_assoc = self.scp.ae.active_associations[0]
-        rsp = scp_assoc._check_sop_class_extended(req)
+        for kk, vv in req.items():
+            item = SOPClassExtendedNegotiation()
+            item.sop_class_uid = kk
+            item.service_class_application_information = vv
+            scp_assoc.requestor.user_information.append(item)
+
+        rsp = scp_assoc.acse._check_sop_class_extended(scp_assoc)
 
         assert rsp == []
 
@@ -4071,7 +4008,13 @@ class TestSOPClassExtendedNegotiation(object):
         }
 
         scp_assoc = self.scp.ae.active_associations[0]
-        rsp = scp_assoc._check_sop_class_extended(req)
+        for kk, vv in req.items():
+            item = SOPClassExtendedNegotiation()
+            item.sop_class_uid = kk
+            item.service_class_application_information = vv
+            scp_assoc.requestor.user_information.append(item)
+
+        rsp = scp_assoc.acse._check_sop_class_extended(scp_assoc)
 
         assert len(rsp) == 1
         assert rsp[0].sop_class_uid == '1.2.4'
@@ -4177,45 +4120,11 @@ class TestSOPClassExtendedNegotiation(object):
         assoc = ae.associate('localhost', 11112, ext_neg=ext_neg)
 
         assert assoc.is_rejected
-        assert assoc.sop_class_extended_response == {}
+        assert assoc.acceptor.sop_class_extended == {}
 
         assoc.release()
 
         self.scp.stop()
-
-    def test_req_response_raises(self):
-        """Test requestor response raises if assoc not attempted."""
-        ae = AE()
-        ae.add_requested_context(VerificationSOPClass)
-        ae.acse_timeout = 5
-        ae.dimse_timeout = 5
-
-        ext_neg = []
-        item = SOPClassExtendedNegotiation()
-        item.sop_class_uid = '1.2.3'
-        item.service_class_application_information = b'\x00\x01'
-        ext_neg.append(item)
-
-        item = SOPClassExtendedNegotiation()
-        item.sop_class_uid = '1.2.4'
-        item.service_class_application_information = b'\x00\x02'
-        ext_neg.append(item)
-
-        assoc = Association(local_ae=ae,
-                            peer_ae={'ae_title' : b'bluh',
-                                     'port' : 11112,
-                                     'address' : '127.0.0.1'},
-                            acse_timeout=5,
-                            dimse_timeout=5,
-                            max_pdu=1000,
-                            ext_neg=ext_neg)
-
-        msg = (
-            r"No SOP Class Extended Negotiation response is "
-            r"available until after association negotiation is complete"
-        )
-        with pytest.raises(RuntimeError, match=msg):
-            assoc.sop_class_extended_response
 
     def test_req_response_no_response(self):
         """Test requestor response if no response from acceptor."""
@@ -4240,7 +4149,7 @@ class TestSOPClassExtendedNegotiation(object):
         assoc = ae.associate('localhost', 11112, ext_neg=ext_neg)
 
         assert assoc.is_established
-        assert assoc.sop_class_extended_response == {}
+        assert assoc.acceptor.sop_class_extended == {}
 
         assoc.release()
 
@@ -4273,7 +4182,7 @@ class TestSOPClassExtendedNegotiation(object):
         assoc = ae.associate('localhost', 11112, ext_neg=ext_neg)
 
         assert assoc.is_established
-        rsp = assoc.sop_class_extended_response
+        rsp = assoc.acceptor.sop_class_extended
         assert '1.2.3' in rsp
         assert '1.2.4' in rsp
         assert len(rsp) == 2
@@ -4316,11 +4225,11 @@ class TestAsyncOpsNegotiation(object):
         assert assoc.is_established
 
         scp_assoc = self.scp.ae.active_associations[0]
-        rsp = scp_assoc._check_async_ops(0, 0)
+        rsp = scp_assoc.acse._check_async_ops(scp_assoc)
 
         assert rsp is None
 
-    def test_check_ext_user_implemented_none(self):
+    def test_check_user_implemented_none(self):
         """Test the response when user callback returns values."""
         def on_async(invoked, performed):
             return 1, 2
@@ -4337,7 +4246,7 @@ class TestAsyncOpsNegotiation(object):
         assert assoc.is_established
 
         scp_assoc = self.scp.ae.active_associations[0]
-        rsp = scp_assoc._check_async_ops(0, 0)
+        rsp = scp_assoc.acse._check_async_ops(scp_assoc)
 
         assert isinstance(rsp, AsynchronousOperationsWindowNegotiation)
         assert rsp.maximum_number_operations_invoked == 1
@@ -4362,7 +4271,7 @@ class TestAsyncOpsNegotiation(object):
         assert assoc.is_established
 
         scp_assoc = self.scp.ae.active_associations[0]
-        rsp = scp_assoc._check_async_ops(0, 0)
+        rsp = scp_assoc.acse._check_async_ops(scp_assoc)
 
         assert isinstance(rsp, AsynchronousOperationsWindowNegotiation)
         assert rsp.maximum_number_operations_invoked == 1
@@ -4393,40 +4302,11 @@ class TestAsyncOpsNegotiation(object):
         assoc = ae.associate('localhost', 11112, ext_neg=ext_neg)
 
         assert assoc.is_rejected
-        assert assoc.asynchronous_operations_response is None
+        assert assoc.acceptor.asynchronous_operations == (1, 1)
 
         assoc.release()
 
         self.scp.stop()
-
-    def test_req_response_raises(self):
-        """Test requestor response raises if assoc not attempted."""
-        ae = AE()
-        ae.add_requested_context(VerificationSOPClass)
-        ae.acse_timeout = 5
-        ae.dimse_timeout = 5
-
-        ext_neg = []
-        item = AsynchronousOperationsWindowNegotiation()
-        item.maximum_number_operations_invoked = 0
-        item.maximum_number_operations_performed = 1
-        ext_neg.append(item)
-
-        assoc = Association(local_ae=ae,
-                            peer_ae={'ae_title' : b'bluh',
-                                     'port' : 11112,
-                                     'address' : '127.0.0.1'},
-                            acse_timeout=5,
-                            dimse_timeout=5,
-                            max_pdu=1000,
-                            ext_neg=ext_neg)
-
-        msg = (
-            r"No Asynchronous Operations Window Negotiation response is "
-            r"available until after association negotiation is complete"
-        )
-        with pytest.raises(RuntimeError, match=msg):
-            assoc.asynchronous_operations_response
 
     def test_req_response_no_response(self):
         """Test requestor response if no response from acceptor."""
@@ -4446,7 +4326,7 @@ class TestAsyncOpsNegotiation(object):
         assoc = ae.associate('localhost', 11112, ext_neg=ext_neg)
 
         assert assoc.is_established
-        assert assoc.asynchronous_operations_response is None
+        assert assoc.acceptor.asynchronous_operations == (1, 1)
 
         assoc.release()
 
@@ -4475,7 +4355,7 @@ class TestAsyncOpsNegotiation(object):
 
         assert assoc.is_established
         # Because pynetdicom doesn't support async ops this is always 1, 1
-        assert assoc.asynchronous_operations_response == (1, 1)
+        assert assoc.acceptor.asynchronous_operations == (1, 1)
 
         assoc.release()
 

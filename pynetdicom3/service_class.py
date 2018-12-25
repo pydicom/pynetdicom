@@ -33,10 +33,6 @@ LOGGER = logging.getLogger('pynetdicom3.service')
 class ServiceClass(object):
     """The base class for all the service classes.
 
-    TODO: Perhaps define some class attributes such as self.AE = None
-        self.UID = None,
-        then call ServiceClass.__init__() in the subclasses?
-
     Attributes
     ----------
     AE : ae.ApplicationEntity
@@ -44,11 +40,19 @@ class ServiceClass(object):
     DIMSE : dimse.DIMSEServiceProvider
         The DIMSE service provider (needed to send/receive messages)
     """
-    def __init__(self):
-        self.AE = None
-        self.DIMSE = None
-        self.ACSE = None
-        self.maxpdulength = None
+    def __init__(self, assoc):
+        """Create a new ServiceClass."""
+        self.assoc = assoc
+
+    @property
+    def ae(self):
+        """Return the AE."""
+        return self.assoc.ae
+
+    @property
+    def dimse(self):
+        """Return the DIMSE service provider."""
+        return self.assoc.dimse
 
     def is_valid_status(self, status):
         """Return True if `status` is valid for the service class.
@@ -220,7 +224,7 @@ class VerificationServiceClass(ServiceClass):
         #   the Status as either an int or Dataset, and any failures in the
         #   callback results in 0x0000 'Success'
         try:
-            status = self.AE.on_c_echo(context.as_tuple, info)
+            status = self.ae.on_c_echo(context.as_tuple, info)
             if isinstance(status, Dataset):
                 if 'Status' not in status:
                     raise AttributeError("The 'status' dataset returned by "
@@ -249,7 +253,7 @@ class VerificationServiceClass(ServiceClass):
             rsp.Status = 0x0000
 
         # Send primitive
-        self.DIMSE.send_msg(rsp, context.context_id)
+        self.dimse.send_msg(rsp, context.context_id)
 
 
 class StorageServiceClass(ServiceClass):
@@ -352,7 +356,7 @@ class StorageServiceClass(ServiceClass):
             # Failure: Cannot Understand - Dataset decoding error
             rsp.Status = 0xC210
             rsp.ErrorComment = 'Unable to decode the dataset'
-            self.DIMSE.send_msg(rsp, context.context_id)
+            self.dimse.send_msg(rsp, context.context_id)
             return
 
         info['parameters'] = {
@@ -364,7 +368,7 @@ class StorageServiceClass(ServiceClass):
 
         # Attempt to run the ApplicationEntity's on_c_store callback
         try:
-            rsp_status = self.AE.on_c_store(ds, context.as_tuple, info)
+            rsp_status = self.ae.on_c_store(ds, context.as_tuple, info)
         except Exception as ex:
             LOGGER.error("Exception in the ApplicationEntity.on_c_store() "
                          "callback")
@@ -374,7 +378,7 @@ class StorageServiceClass(ServiceClass):
 
         # Validate rsp_status and set rsp.Status accordingly
         rsp = self.validate_status(rsp_status, rsp)
-        self.DIMSE.send_msg(rsp, context.context_id)
+        self.dimse.send_msg(rsp, context.context_id)
 
 
 class QueryRetrieveServiceClass(ServiceClass):
@@ -570,7 +574,7 @@ class QueryRetrieveServiceClass(ServiceClass):
             # Failure - Unable to Process - Failed to decode Identifier
             rsp.Status = 0xC310
             rsp.ErrorComment = 'Unable to decode the dataset'
-            self.DIMSE.send_msg(rsp, context.context_id)
+            self.dimse.send_msg(rsp, context.context_id)
             return
 
         info['parameters'] = {
@@ -583,7 +587,7 @@ class QueryRetrieveServiceClass(ServiceClass):
         def wrap_on_c_find():
             try:
                 # We unpack here so that the error is still caught
-                for val1, val2 in self.AE.on_c_find(identifier,
+                for val1, val2 in self.ae.on_c_find(identifier,
                                                     context.as_tuple,
                                                     info):
                     yield val1, val2
@@ -600,7 +604,7 @@ class QueryRetrieveServiceClass(ServiceClass):
                 LOGGER.exception("Exception in user's on_c_find implementation.", exc_info=exc_info)
                 # Failure - Unable to Process - Error in on_c_find callback
                 rsp.Status = 0xC311
-                self.DIMSE.send_msg(rsp, context.context_id)
+                self.dimse.send_msg(rsp, context.context_id)
                 return
             # Validate rsp_status and set rsp.Status accordingly
             rsp = self.validate_status(rsp_status, rsp)
@@ -609,25 +613,25 @@ class QueryRetrieveServiceClass(ServiceClass):
                 status = self.statuses[rsp.Status]
             else:
                 # Unknown status
-                self.DIMSE.send_msg(rsp, context.context_id)
+                self.dimse.send_msg(rsp, context.context_id)
                 return
 
             if status[0] == STATUS_CANCEL:
                 # If cancel, then rsp_identifier is None
                 LOGGER.info('Received C-CANCEL-FIND RQ from peer')
                 LOGGER.info('Find SCP Response: (Cancel)')
-                self.DIMSE.send_msg(rsp, context.context_id)
+                self.dimse.send_msg(rsp, context.context_id)
                 return
             elif status[0] == STATUS_FAILURE:
                 # If failed, then rsp_identifier is None
                 LOGGER.info('Find SCP Response: (Failure - %s)', status[1])
-                self.DIMSE.send_msg(rsp, context.context_id)
+                self.dimse.send_msg(rsp, context.context_id)
                 return
             elif status[0] == STATUS_SUCCESS:
                 # User isn't supposed to send these, but handle anyway
                 # If success, then rsp_identifier is None
                 LOGGER.info('Find SCP Response: %s (Success)', ii + 1)
-                self.DIMSE.send_msg(rsp, context.context_id)
+                self.dimse.send_msg(rsp, context.context_id)
                 return
             elif status[0] == STATUS_PENDING:
                 # If pending, the rsp_identifier is the Identifier dataset
@@ -642,7 +646,7 @@ class QueryRetrieveServiceClass(ServiceClass):
                     # Failure: Unable to Process - Can't decode dataset
                     #   returned by on_c_find callback
                     rsp.Status = 0xC312
-                    self.DIMSE.send_msg(rsp, context.context_id)
+                    self.dimse.send_msg(rsp, context.context_id)
                     return
 
                 rsp.Identifier = bytestream
@@ -655,7 +659,7 @@ class QueryRetrieveServiceClass(ServiceClass):
                     LOGGER.debug(elem)
                 LOGGER.debug('')
 
-                self.DIMSE.send_msg(rsp, context.context_id)
+                self.dimse.send_msg(rsp, context.context_id)
 
             # Reset the response Identifier
             rsp.Identifier = None
@@ -663,7 +667,7 @@ class QueryRetrieveServiceClass(ServiceClass):
         # Send final success response
         rsp.Status = 0x0000
         LOGGER.info('Find SCP Response: %s (Success)', ii + 2)
-        self.DIMSE.send_msg(rsp, context.context_id)
+        self.dimse.send_msg(rsp, context.context_id)
 
     def _get_scp(self, req, context, info):
         """The SCP implementation for Query/Retrieve - Get.
@@ -814,7 +818,7 @@ class QueryRetrieveServiceClass(ServiceClass):
             # Failure: Cannot Understand - Dataset decoding error
             rsp.Status = 0xC410
             rsp.ErrorComment = 'Unable to decode the dataset'
-            self.DIMSE.send_msg(rsp, context.context_id)
+            self.dimse.send_msg(rsp, context.context_id)
             return
 
         info['parameters'] = {
@@ -825,12 +829,12 @@ class QueryRetrieveServiceClass(ServiceClass):
         # Callback - C-GET
         try:
             # yields int, (status, dataset), ...
-            result = self.AE.on_c_get(identifier, context.as_tuple, info)
+            result = self.ae.on_c_get(identifier, context.as_tuple, info)
         except Exception as ex:
             LOGGER.error("Exception in user's on_c_get implementation.")
             LOGGER.exception(ex)
             rsp.Status = 0xC411
-            self.DIMSE.send_msg(rsp, context.context_id)
+            self.dimse.send_msg(rsp, context.context_id)
             return
 
         # Number of C-STORE sub-operations
@@ -841,7 +845,7 @@ class QueryRetrieveServiceClass(ServiceClass):
                          "sub-operations value")
             LOGGER.exception(ex)
             rsp.Status = 0xC413
-            self.DIMSE.send_msg(rsp, context.context_id)
+            self.dimse.send_msg(rsp, context.context_id)
             return
 
         # Track the sub operation results [remaining, failed, warning, complete]
@@ -869,7 +873,7 @@ class QueryRetrieveServiceClass(ServiceClass):
                 status = self.statuses[rsp.Status]
             else:
                 # Unknown status
-                self.DIMSE.send_msg(rsp, context.context_id)
+                self.dimse.send_msg(rsp, context.context_id)
                 return
 
             if status[0] == STATUS_CANCEL:
@@ -891,7 +895,7 @@ class QueryRetrieveServiceClass(ServiceClass):
                                     transfer_syntax.is_implicit_VR,
                                     transfer_syntax.is_little_endian)
                 rsp.Identifier = BytesIO(bytestream)
-                self.DIMSE.send_msg(rsp, context.context_id)
+                self.dimse.send_msg(rsp, context.context_id)
                 return
             elif status[0] in [STATUS_FAILURE, STATUS_WARNING]:
                 # If failure or warning, dataset is a Dataset with a
@@ -914,7 +918,7 @@ class QueryRetrieveServiceClass(ServiceClass):
                                     transfer_syntax.is_implicit_VR,
                                     transfer_syntax.is_little_endian)
                 rsp.Identifier = BytesIO(bytestream)
-                self.DIMSE.send_msg(rsp, context.context_id)
+                self.dimse.send_msg(rsp, context.context_id)
                 return
             elif status[0] == STATUS_SUCCESS:
                 # If user yields Success, check it
@@ -937,7 +941,7 @@ class QueryRetrieveServiceClass(ServiceClass):
                 rsp.NumberOfWarningSuboperations = store_results[2]
                 rsp.NumberOfCompletedSuboperations = store_results[3]
 
-                self.DIMSE.send_msg(rsp, context.context_id)
+                self.dimse.send_msg(rsp, context.context_id)
                 return
             elif status[0] == STATUS_PENDING and dataset:
                 # If pending, dataset is the Dataset to send
@@ -951,7 +955,7 @@ class QueryRetrieveServiceClass(ServiceClass):
                     rsp.NumberOfFailedSuboperations = store_results[1]
                     rsp.NumberOfWarningSuboperations = store_results[2]
                     rsp.NumberOfCompletedSuboperations = store_results[3]
-                    self.DIMSE.send_msg(rsp, context.context_id)
+                    self.dimse.send_msg(rsp, context.context_id)
                     continue
 
                 LOGGER.info('Get SCP Response: %s (Pending)', ii + 1)
@@ -988,9 +992,10 @@ class QueryRetrieveServiceClass(ServiceClass):
                 #   association and check that the response's Status exists and
                 #   is a known value
                 try:
-                    store_status = self.ACSE.parent.send_c_store(dataset)
-                    store_status = \
+                    store_status = self.assoc.send_c_store(dataset)
+                    store_status = (
                         STORAGE_SERVICE_CLASS_STATUS[store_status.Status]
+                    )
                 except Exception as ex:
                     # An exception implies a C-STORE failure
                     LOGGER.warning("C-STORE sub-operation failed.")
@@ -1016,7 +1021,7 @@ class QueryRetrieveServiceClass(ServiceClass):
                 rsp.NumberOfFailedSuboperations = store_results[1]
                 rsp.NumberOfWarningSuboperations = store_results[2]
                 rsp.NumberOfCompletedSuboperations = store_results[3]
-                self.DIMSE.send_msg(rsp, context.context_id)
+                self.dimse.send_msg(rsp, context.context_id)
 
         # If not already done, send the final 'Success' or 'Warning' response
         if not store_results[1] and not store_results[2]:
@@ -1041,7 +1046,7 @@ class QueryRetrieveServiceClass(ServiceClass):
         rsp.NumberOfWarningSuboperations = store_results[2]
         rsp.NumberOfCompletedSuboperations = store_results[3]
 
-        self.DIMSE.send_msg(rsp, context.context_id)
+        self.dimse.send_msg(rsp, context.context_id)
 
     def _move_scp(self, req, context, info):
         """The SCP implementation for Query/Retrieve - Move.
@@ -1194,7 +1199,7 @@ class QueryRetrieveServiceClass(ServiceClass):
             # Failure: Cannot Understand - Dataset decoding error
             rsp.Status = 0xC510
             rsp.ErrorComment = 'Unable to decode the dataset'
-            self.DIMSE.send_msg(rsp, context.context_id)
+            self.dimse.send_msg(rsp, context.context_id)
             return
 
         info['parameters'] = {
@@ -1205,7 +1210,7 @@ class QueryRetrieveServiceClass(ServiceClass):
         # Callback - C-MOVE
         try:
             # yields (addr, port), int, (status, dataset), ...
-            result = self.AE.on_c_move(identifier,
+            result = self.ae.on_c_move(identifier,
                                        req.MoveDestination,
                                        context.as_tuple,
                                        info)
@@ -1214,7 +1219,7 @@ class QueryRetrieveServiceClass(ServiceClass):
             LOGGER.exception(ex)
             # Failure - Unable to process - Error in on_c_move callback
             rsp.Status = 0xC511
-            self.DIMSE.send_msg(rsp, context.context_id)
+            self.dimse.send_msg(rsp, context.context_id)
             return
 
         try:
@@ -1227,7 +1232,7 @@ class QueryRetrieveServiceClass(ServiceClass):
                              "dataset) pairs.")
             # Failure - Unable to process - Error in on_c_move yield
             rsp.Status = 0xC514
-            self.DIMSE.send_msg(rsp, context.context_id)
+            self.dimse.send_msg(rsp, context.context_id)
             return
 
         # Check number of C-STORE sub-operations
@@ -1238,7 +1243,7 @@ class QueryRetrieveServiceClass(ServiceClass):
                          "sub-operations value")
             LOGGER.exception(ex)
             rsp.Status = 0xC513
-            self.DIMSE.send_msg(rsp, context.context_id)
+            self.dimse.send_msg(rsp, context.context_id)
             return
 
         # Request new association with Move Destination
@@ -1249,10 +1254,10 @@ class QueryRetrieveServiceClass(ServiceClass):
                              req.MoveDestination.decode('ascii'))
                 # Failure - Move destination unknown
                 rsp.Status = 0xA801
-                self.DIMSE.send_msg(rsp, context.context_id)
+                self.dimse.send_msg(rsp, context.context_id)
                 return
 
-            store_assoc = self.AE.associate(destination[0],
+            store_assoc = self.ae.associate(destination[0],
                                             destination[1],
                                             ae_title=req.MoveDestination)
         except Exception as ex:
@@ -1261,7 +1266,7 @@ class QueryRetrieveServiceClass(ServiceClass):
             LOGGER.exception(ex)
             # Failure - Unable to process - Bad on_c_move destination
             rsp.Status = 0xC515
-            self.DIMSE.send_msg(rsp, context.context_id)
+            self.dimse.send_msg(rsp, context.context_id)
             return
 
         # Track the sub operation results [remaining, failed, warning, complete]
@@ -1291,7 +1296,7 @@ class QueryRetrieveServiceClass(ServiceClass):
                 else:
                     # Unknown status
                     store_assoc.release()
-                    self.DIMSE.send_msg(rsp, context.context_id)
+                    self.dimse.send_msg(rsp, context.context_id)
                     return
 
                 # If usr_status is Cancel, Failure, Warning or Success then
@@ -1319,7 +1324,7 @@ class QueryRetrieveServiceClass(ServiceClass):
                     rsp.NumberOfWarningSuboperations = store_results[2]
                     rsp.NumberOfCompletedSuboperations = store_results[3]
 
-                    self.DIMSE.send_msg(rsp, context.context_id)
+                    self.dimse.send_msg(rsp, context.context_id)
                     return
                 elif status[0] in [STATUS_FAILURE, STATUS_WARNING]:
                     # If failed or warning, then dataset is a Dataset with a
@@ -1347,7 +1352,7 @@ class QueryRetrieveServiceClass(ServiceClass):
                     rsp.NumberOfWarningSuboperations = store_results[2]
                     rsp.NumberOfCompletedSuboperations = store_results[3]
 
-                    self.DIMSE.send_msg(rsp, context.context_id)
+                    self.dimse.send_msg(rsp, context.context_id)
                     return
                 elif status[0] == STATUS_SUCCESS:
                     # If success, then dataset is None
@@ -1374,7 +1379,7 @@ class QueryRetrieveServiceClass(ServiceClass):
                     rsp.NumberOfWarningSuboperations = store_results[2]
                     rsp.NumberOfCompletedSuboperations = store_results[3]
 
-                    self.DIMSE.send_msg(rsp, context.context_id)
+                    self.dimse.send_msg(rsp, context.context_id)
                     return
                 elif status[0] == STATUS_PENDING and dataset:
                     # If pending, then dataset is the Dataset to send
@@ -1388,7 +1393,7 @@ class QueryRetrieveServiceClass(ServiceClass):
                         rsp.NumberOfFailedSuboperations = store_results[1]
                         rsp.NumberOfWarningSuboperations = store_results[2]
                         rsp.NumberOfCompletedSuboperations = store_results[3]
-                        self.DIMSE.send_msg(rsp, context.context_id)
+                        self.dimse.send_msg(rsp, context.context_id)
                         continue
 
                     LOGGER.info('Move SCP Response %s (Pending)', ii)
@@ -1399,7 +1404,7 @@ class QueryRetrieveServiceClass(ServiceClass):
                     try:
                         store_status = store_assoc.send_c_store(
                             dataset,
-                            originator_aet=self.AE.ae_title,
+                            originator_aet=self.ae.ae_title,
                             originator_id=1
                         )
                         # FIXME: Should probably split status check?
@@ -1432,7 +1437,7 @@ class QueryRetrieveServiceClass(ServiceClass):
                     rsp.NumberOfWarningSuboperations = store_results[2]
                     rsp.NumberOfCompletedSuboperations = store_results[3]
 
-                    self.DIMSE.send_msg(rsp, context.context_id)
+                    self.dimse.send_msg(rsp, context.context_id)
 
             store_assoc.release()
 
@@ -1440,7 +1445,7 @@ class QueryRetrieveServiceClass(ServiceClass):
             # Failed to associate with Move Destination AE
             LOGGER.error('Move SCP: Unable to associate with destination AE')
             rsp.Status = 0xA801
-            self.DIMSE.send_msg(rsp, context.context_id)
+            self.dimse.send_msg(rsp, context.context_id)
 
             # FIXME - shouldn't have to manually close the socket like this
             store_assoc.dul.scu_socket.close()
@@ -1469,15 +1474,15 @@ class QueryRetrieveServiceClass(ServiceClass):
         rsp.NumberOfWarningSuboperations = store_results[2]
         rsp.NumberOfCompletedSuboperations = store_results[3]
 
-        self.DIMSE.send_msg(rsp, context.context_id)
+        self.dimse.send_msg(rsp, context.context_id)
 
 
 class BasicWorklistManagementServiceClass(QueryRetrieveServiceClass):
     """Implementation of the Basic Worklist Management Service Class."""
     statuses = QR_FIND_SERVICE_CLASS_STATUS
 
-    def __init__(self):
-        super(BasicWorklistManagementServiceClass, self).__init__()
+    def __init__(self, assoc):
+        super(BasicWorklistManagementServiceClass, self).__init__(assoc)
 
     def SCP(self, req, context, info):
         """The SCP implementation for Basic Worklist Management.
@@ -1689,7 +1694,7 @@ class RelevantPatientInformationQueryServiceClass(ServiceClass):
             # Failure - Unable to Process - Failed to decode Identifier
             rsp.Status = 0xC310
             rsp.ErrorComment = 'Unable to decode the dataset'
-            self.DIMSE.send_msg(rsp, context.context_id)
+            self.dimse.send_msg(rsp, context.context_id)
             return
 
         info['parameters'] = {
@@ -1707,20 +1712,20 @@ class RelevantPatientInformationQueryServiceClass(ServiceClass):
             #   if the yield is pending, send message then success and return
             #   if the yield is cancel or failure, send message and return
             #   if StopIteration send success and return
-            responses = self.AE.on_c_find(identifier, context.as_tuple, info)
+            responses = self.ae.on_c_find(identifier, context.as_tuple, info)
             (rsp_status, rsp_identifier) = next(responses)
         except StopIteration:
             # There were no matches, so return Success
             # If success, then rsp_identifier is None
             rsp.Status = 0x0000
             LOGGER.info('Find SCP Response: (Success)')
-            self.DIMSE.send_msg(rsp, context.context_id)
+            self.dimse.send_msg(rsp, context.context_id)
             return
         except Exception as ex:
             LOGGER.error("Exception in user's on_c_find implementation.")
             LOGGER.exception(ex)
             rsp.Status = 0xC311
-            self.DIMSE.send_msg(rsp, context.context_id)
+            self.dimse.send_msg(rsp, context.context_id)
             return
 
         rsp = self.validate_status(rsp_status, rsp)
@@ -1729,25 +1734,25 @@ class RelevantPatientInformationQueryServiceClass(ServiceClass):
             status = self.statuses[rsp.Status]
         else:
             # Unknown status
-            self.DIMSE.send_msg(rsp, context.context_id)
+            self.dimse.send_msg(rsp, context.context_id)
             return
 
         if status[0] == STATUS_CANCEL:
             # If cancel, then rsp_identifier is None
             LOGGER.info('Received C-CANCEL-FIND RQ from peer')
             LOGGER.info('Find SCP Response: (Cancel)')
-            self.DIMSE.send_msg(rsp, context.context_id)
+            self.dimse.send_msg(rsp, context.context_id)
             return
         elif status[0] == STATUS_FAILURE:
             # If failed, then rsp_identifier is None
             LOGGER.info('Find SCP Response: (Failure)')
-            self.DIMSE.send_msg(rsp, context.context_id)
+            self.dimse.send_msg(rsp, context.context_id)
             return
         elif status[0] == STATUS_SUCCESS:
             # User isn't supposed to send these, but handle anyway
             # If success, then rsp_identifier is None
             LOGGER.info('Find SCP Response: (Success)')
-            self.DIMSE.send_msg(rsp, context.context_id)
+            self.dimse.send_msg(rsp, context.context_id)
             return
         elif status[0] == STATUS_PENDING:
             # If pending, the rsp_identifier is the Identifier dataset
@@ -1762,7 +1767,7 @@ class RelevantPatientInformationQueryServiceClass(ServiceClass):
                 # Failure: Unable to Process - Can't encode dataset
                 #   returned by on_c_find callback
                 rsp.Status = 0xC312
-                self.DIMSE.send_msg(rsp, context.context_id)
+                self.dimse.send_msg(rsp, context.context_id)
                 return
 
             rsp.Identifier = bytestream
@@ -1776,20 +1781,20 @@ class RelevantPatientInformationQueryServiceClass(ServiceClass):
             LOGGER.debug('')
 
             # Send pending response
-            self.DIMSE.send_msg(rsp, context.context_id)
+            self.dimse.send_msg(rsp, context.context_id)
 
             # Send final success response
             rsp.Status = 0x0000
             LOGGER.info('Find SCP Response: (Success)')
-            self.DIMSE.send_msg(rsp, context.context_id)
+            self.dimse.send_msg(rsp, context.context_id)
 
 
 class SubstanceAdministrationQueryServiceClass(QueryRetrieveServiceClass):
     """Implementation of the Substance Administration Query Service"""
     statuses = SUBSTANCE_ADMINISTRATION_SERVICE_CLASS_STATUS
 
-    def __init__(self):
-        super(SubstanceAdministrationQueryServiceClass, self).__init__()
+    def __init__(self, assoc):
+        super(SubstanceAdministrationQueryServiceClass, self).__init__(assoc)
 
     def SCP(self, req, context, info):
         """The SCP implementation for the Relevant Patient Information Query

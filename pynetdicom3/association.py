@@ -3,7 +3,6 @@ Defines the Association class which handles associating with peers.
 """
 from io import BytesIO
 import logging
-import socket
 import threading
 import time
 
@@ -19,9 +18,7 @@ from pynetdicom3.dimse_primitives import (
 )
 from pynetdicom3.dsutils import decode, encode
 from pynetdicom3.dul import DULServiceProvider
-from pynetdicom3.presentation import negotiate_as_acceptor
 from pynetdicom3.sop_class import (
-    uid_to_sop_class,
     uid_to_service_class,
     VerificationSOPClass,
     ModalityWorklistInformationFind,
@@ -70,10 +67,9 @@ from pynetdicom3.pdu_primitives import (
     SOPClassExtendedNegotiation,
     SOPClassCommonExtendedNegotiation,
     SCP_SCU_RoleSelectionNegotiation,
-    A_ASSOCIATE, A_ABORT, A_P_ABORT
 )
 from pynetdicom3.status import (
-    code_to_status, code_to_category, STORAGE_SERVICE_CLASS_STATUS,
+    code_to_category, STORAGE_SERVICE_CLASS_STATUS,
     STATUS_WARNING, STATUS_SUCCESS, STATUS_CANCEL, STATUS_PENDING,
     STATUS_FAILURE
 )
@@ -114,7 +110,7 @@ class Association(threading.Thread):
     requestor : association.ServiceUser
         Representation of the association's requestor AE.
     """
-    def __init__(self, ae, mode):
+    def __init__(self, ae, mode, local_socket=None):
         """Create a new Association instance.
 
         Association negotiation won't begin until Association.start() is
@@ -126,6 +122,9 @@ class Association(threading.Thread):
             The local AE.
         mode : str
             Must be "requestor" or "acceptor".
+        local_socket : socket.socket or None
+            If `mode` is 'acceptor' then this is the connection to the
+            peer, otherwise will be None.
         """
         self._ae = ae
         self.mode = mode
@@ -145,7 +144,7 @@ class Association(threading.Thread):
         self._rejected_cx = []
 
         # Service providers
-        self.dul = DULServiceProvider(socket=ae.local_socket,
+        self.dul = DULServiceProvider(socket=local_socket,
                                       dul_timeout=ae.network_timeout,
                                       assoc=self)
         self.acse = ACSE(ae.acse_timeout)
@@ -361,16 +360,17 @@ class Association(threading.Thread):
         window then send an A-ABORT and shut down the association.
         """
         if self.is_established:
+            self.acse.release_association(self)
             # TODO: confirm this works as intended
-            self.acse.send_release(self, is_response=False)
-            if self.acse.is_released(self):
-                # Got release reply within timeout window
-                self.is_released = True
-                self.is_established = False
-                self.kill()
-            else:
-                # No release reply within timeout window
-                self.abort()
+            #self.acse.send_release(self, is_response=False)
+            #if self.acse.is_released(self):
+            #    # Got release reply within timeout window
+            #    self.is_released = True
+            #    self.is_established = False
+            #    self.kill()
+            #else:
+            #    # No release reply within timeout window
+            #    self.abort()
 
     @property
     def remote(self):
@@ -389,7 +389,6 @@ class Association(threading.Thread):
             time.sleep(0.1)
             primitive = self.dul.receive_pdu(wait=True,
                                              timeout=self.acse.acse_timeout)
-            print(primitive)
 
             # Timed out waiting for A-ASSOCIATE request
             if primitive is None:
@@ -472,19 +471,11 @@ class Association(threading.Thread):
                     return
 
                 # Convert the SOP Class UID to the corresponding service
-                service_class = uid_to_service_class(class_uid)()
+                service_class = uid_to_service_class(class_uid)(self)
 
                 # TODO: Index contexts in a dict using context ID
                 for context in self.accepted_contexts:
                     if context.context_id == msg_context_id:
-                        # TODO: This needs to be refactored
-                        service_class.maxpdulength = (
-                            self.requestor.maximum_length
-                        )
-                        service_class.DIMSE = self.dimse
-                        service_class.ACSE = self.acse
-                        service_class.AE = self.ae
-
                         # Run corresponding Service Class in SCP mode
                         try:
                             service_class.SCP(msg, context, info)
@@ -633,8 +624,8 @@ class Association(threading.Thread):
             return
 
         info = {
-            'acceptor' : self.local_ae,
-            'requestor': self.peer_ae,
+            'acceptor' : self.acceptor.info,
+            'requestor': self.requestor.info,
             'parameters' : {
                 'message_id' : req.MessageID,
                 'priority' : req.Priority,
@@ -964,7 +955,7 @@ class Association(threading.Thread):
             raise RuntimeError("The association with a peer SCP must be "
                                "established before sending a C-FIND request")
 
-        SOP_CLASSES = {
+        _sop_classes = {
             'W' : ModalityWorklistInformationFind,
             "P" : PatientRootQueryRetrieveInformationModelFind,
             "S" : StudyRootQueryRetrieveInformationModelFind,
@@ -983,7 +974,7 @@ class Association(threading.Thread):
         }
 
         try:
-            sop_class = SOP_CLASSES[query_model]
+            sop_class = _sop_classes[query_model]
         except KeyError:
             raise ValueError(
                 "Unsupported value for `query_model`: {}".format(query_model)
@@ -1239,7 +1230,7 @@ class Association(threading.Thread):
             raise RuntimeError("The association with a peer SCP must be "
                                "established before sending a C-GET request")
 
-        SOP_CLASSES = {
+        _sop_classes = {
             "P" : PatientRootQueryRetrieveInformationModelGet,
             "S" : StudyRootQueryRetrieveInformationModelGet,
             "O" : PatientStudyOnlyQueryRetrieveInformationModelGet,
@@ -1254,7 +1245,7 @@ class Association(threading.Thread):
         }
 
         try:
-            sop_class = SOP_CLASSES[query_model]
+            sop_class = _sop_classes[query_model]
         except KeyError:
             raise ValueError(
                 "Unsupported value for `query_model`: {}".format(query_model)
@@ -1370,8 +1361,9 @@ class Association(threading.Thread):
                             LOGGER.debug(elem)
                         LOGGER.debug('')
                     except Exception as ex:
-                        LOGGER.error("Failed to decode the received Identifier "
-                                     "dataset")
+                        LOGGER.error(
+                            "Failed to decode the received Identifier dataset"
+                        )
                         LOGGER.exception(ex)
                         identifier = None
 
@@ -1528,7 +1520,7 @@ class Association(threading.Thread):
             raise RuntimeError("The association with a peer SCP must be "
                                "established before sending a C-MOVE request")
 
-        SOP_CLASSES = {
+        _sop_classes = {
             "P" : PatientRootQueryRetrieveInformationModelMove,
             "S" : StudyRootQueryRetrieveInformationModelMove,
             "O" : PatientStudyOnlyQueryRetrieveInformationModelMove,
@@ -1542,7 +1534,7 @@ class Association(threading.Thread):
         }
 
         try:
-            sop_class = SOP_CLASSES[query_model]
+            sop_class = _sop_classes[query_model]
         except KeyError:
             raise ValueError(
                 "Unsupported value for `query_model`: {}".format(query_model)
@@ -1798,7 +1790,7 @@ class Association(threading.Thread):
                 "Unable to determine the presentation context to use with "
                 "`dataset` as it contains no '(0002,0010) Transfer Syntax "
                 "UID' file meta information element"
-        )
+            )
 
         # Get a Presentation Context to use for sending the message
         context = self._get_valid_context(
@@ -2182,7 +2174,6 @@ class Association(threading.Thread):
         # Determine the Presentation Context we are operating under
         #   and hence the transfer syntax to use for encoding `dataset`
         context = self._get_valid_context(class_uid, '', 'scu')
-        transfer_syntax = context.transfer_syntax[0]
 
         # Build N-DELETE request primitive
         #   (M) Message ID
@@ -2810,9 +2801,9 @@ class ServiceUser(object):
                 "has started"
             )
 
-        if type(item) in self._ext_neg:
+        try:
             self._ext_neg[type(item)].append(item)
-        else:
+        except KeyError:
             raise TypeError(
                 "'item' is not a valid extended negotiation item"
             )
@@ -2956,6 +2947,8 @@ class ServiceUser(object):
             if isinstance(item, ImplementationClassUIDNotification):
                 return item.implementation_class_uid
 
+        return None
+
     @implementation_class_uid.setter
     def implementation_class_uid(self, value):
         if not self.writeable:
@@ -2995,8 +2988,8 @@ class ServiceUser(object):
         for item in self._user_info:
             if isinstance(item, ImplementationVersionNameNotification):
                 return item.implementation_version_name
-        else:
-            return None
+
+        return None
 
     @implementation_version_name.setter
     def implementation_version_name(self, value):
@@ -3062,6 +3055,8 @@ class ServiceUser(object):
             if isinstance(item, MaximumLengthNotification):
                 return item.maximum_length_received
 
+        return None
+
     @maximum_length.setter
     def maximum_length(self, value):
         """Set the Maximum PDU Length (only prior to association).
@@ -3092,6 +3087,7 @@ class ServiceUser(object):
 
     @property
     def requested_contexts(self):
+        """Return a list of the requestor's requested presentation contexts."""
         return self.get_contexts('requested')
 
     @requested_contexts.setter
@@ -3207,6 +3203,8 @@ class ServiceUser(object):
 
     @property
     def sop_class_common_extended(self):
+        """
+        """
         sop_classes = {}
         if self.writeable:
             for item in self._ext_neg[SOPClassCommonExtendedNegotiation]:
@@ -3222,16 +3220,22 @@ class ServiceUser(object):
 
     @property
     def sop_class_extended(self):
+        """
+        """
         sop_classes = {}
         if self.writeable:
             for item in self._ext_neg[SOPClassExtendedNegotiation]:
-                sop_classes[item.sop_class_uid] = item
+                sop_classes[item.sop_class_uid] = (
+                    item.service_class_application_information
+                )
 
             return sop_classes
 
         for item in self.user_information:
             if isinstance(item, SOPClassExtendedNegotiation):
-                sop_classes[item.sop_class_uid] = item
+                sop_classes[item.sop_class_uid] = (
+                    item.service_class_application_information
+                )
 
         return sop_classes
 

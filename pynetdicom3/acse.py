@@ -13,6 +13,9 @@ from pynetdicom3.pdu_primitives import (
     MaximumLengthNotification,
     ImplementationClassUIDNotification,
     ImplementationVersionNameNotification,
+    UserIdentityNegotiation,
+    SOPClassExtendedNegotiation,
+    AsynchronousOperationsWindowNegotiation,
     SCP_SCU_RoleSelectionNegotiation,
 )
 from pynetdicom3.presentation import (
@@ -304,7 +307,7 @@ class ACSE(object):
         if reject_assoc_rsd:
             self.send_reject(assoc, *reject_assoc_rsd)
             assoc.debug_association_rejected(assoc.acceptor.primitive)
-            ae.on_association_rejected(assoc.acceptor.primitive)
+            assoc.ae.on_association_rejected(assoc.acceptor.primitive)
             assoc.kill()
             return
 
@@ -463,6 +466,24 @@ class ACSE(object):
             LOGGER.error(
                 "Received an invalid response to the A-ASSOCIATE request"
             )
+
+    def release_association(self, assoc):
+        """Release an established association.
+
+        Parameters
+        ----------
+        assoc : association.Association
+            The Association instance to release.
+        """
+        self.send_release(assoc, is_response=False)
+        rsp = assoc.dul.receive_pdu(wait=True, timeout=self.acse_timeout)
+        try:
+            assert rsp.result == 'affirmative'
+            assoc.is_released = True
+            assoc.is_established = False
+            assoc.kill()
+        except (AttributeError, AssertionError) as exc:
+            assoc.abort()
 
     @staticmethod
     def send_abort(assoc, source):

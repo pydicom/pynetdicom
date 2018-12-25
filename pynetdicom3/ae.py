@@ -751,16 +751,20 @@ class ApplicationEntity(object):
 
         # If theres a connection
         if read_list:
-            self.local_socket, _ = self.local_socket.accept()
-            self.local_socket.setsockopt(socket.SOL_SOCKET,
+            client_socket, _ = self.local_socket.accept()
+            client_socket.setsockopt(socket.SOL_SOCKET,
                                      socket.SO_RCVTIMEO,
                                      pack('ll', 10, 0))
 
             # Create a new Association
-            assoc = Association(self, MODE_ACCEPTOR)
+            assoc = Association(self, MODE_ACCEPTOR, client_socket)
             assoc.acse_timeout = self.acse_timeout
             assoc.dimse_timeout = self.dimse_timeout
             assoc.network_timeout = self.network_timeout
+
+            # Assign the socket to use to the DUL
+            #assoc.dul.scu_socket = client_socket
+            #assoc.dul.scp_socket = None
 
             # Association Acceptor object -> local AE
             assoc.acceptor.maximum_length = self.maximum_pdu_size
@@ -778,8 +782,8 @@ class ApplicationEntity(object):
             )
 
             # Association Requestor object -> remote AE
-            assoc.requestor.address = self.local_socket.getpeername()[0]
-            assoc.requestor.port = self.local_socket.getpeername()[1]
+            assoc.requestor.address = client_socket.getpeername()[0]
+            assoc.requestor.port = client_socket.getpeername()[1]
 
             assoc.start()
             self.active_associations.append(assoc)
