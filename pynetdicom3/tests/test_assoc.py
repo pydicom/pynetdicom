@@ -791,6 +791,35 @@ class TestAssociation(object):
 
         self.scp.stop()
 
+    def test_local(self):
+        """Test Association.local."""
+        ae = AE()
+        assoc = Association(ae, 'requestor')
+        assoc.requestor.ae_title = ae.ae_title
+        assert assoc.local['ae_title'] == b'PYNETDICOM      '
+
+        assoc = Association(ae, 'acceptor')
+        assoc.acceptor.ae_title = ae.ae_title
+        assert assoc.local['ae_title'] == b'PYNETDICOM      '
+
+    def test_remote(self):
+        """Test Association.local."""
+        ae = AE()
+        assoc = Association(ae, 'requestor')
+        assert assoc.remote['ae_title'] == b''
+
+        assoc = Association(ae, 'acceptor')
+        assert assoc.remote['ae_title'] == b''
+
+    def test_mode_raises(self):
+        """Test exception is raised if invalid mode."""
+        msg = (
+            r"Invalid association `mode` value, must be either 'requestor' or "
+            "'acceptor'"
+        )
+        with pytest.raises(ValueError, match=msg):
+            assoc = Association(None, 'nope')
+
 
 class TestAssociationSendCEcho(object):
     """Run tests on Assocation send_c_echo."""

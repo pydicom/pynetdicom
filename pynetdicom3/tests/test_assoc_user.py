@@ -77,6 +77,23 @@ class TestServiceUserAcceptor(object):
 
         assert len(user.user_information) == 2
 
+    def test_bad_mode(self):
+        """Test bad mode raises exception."""
+        with pytest.raises(ValueError, match=r"The 'mode' must be either"):
+            ServiceUser(None, 'something')
+
+    def test_no_implementation_class_uid(self):
+        """Test correct return if no class UID."""
+        user = ServiceUser(self.assoc, mode='acceptor')
+        user._user_info = []
+        assert user.implementation_class_uid is None
+
+    def test_no_implementation_class_uid(self):
+        """Test correct reutrn if no maximum length."""
+        user = ServiceUser(self.assoc, mode='acceptor')
+        user._user_info = []
+        assert user.maximum_length is None
+
     def test_assignment(self):
         """Test that assignment works OK,"""
         user = ServiceUser(self.assoc, mode='acceptor')
@@ -2137,6 +2154,13 @@ class TestServiceUserRequestor(object):
         msg = r"Invalid 'cx_type', must be 'requested'"
         with pytest.raises(ValueError, match=msg):
             assert user.supported_contexts == []
+
+        msg = (
+            r"'supported_contexts' can only be set for the association "
+            r"acceptor"
+        )
+        with pytest.raises(AttributeError, match=msg):
+            user.supported_contexts = 'bluh'
 
     def test_supported_cx_post(self):
         """Test supported_contexts after association."""
