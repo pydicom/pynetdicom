@@ -180,7 +180,7 @@ class ApplicationEntity(object):
         self.implementation_class_uid = PYNETDICOM_IMPLEMENTATION_UID
         self.implementation_version_name = PYNETDICOM_IMPLEMENTATION_VERSION
 
-        self.address = platform.node()
+        self.address = socket.gethostbyname(socket.gethostname())
         self.port = port
         self.bind_addr = ''
         self.ae_title = ae_title
@@ -1311,9 +1311,9 @@ class ApplicationEntity(object):
 
         for assoc in self.active_associations:
             str_out += '\tPeer: {0!s} on {1!s}:{2!s}\n' \
-                       .format(assoc.peer_ae['ae_title'],
-                               assoc.peer_ae['address'],
-                               assoc.peer_ae['port'])
+                       .format(assoc.remote['ae_title'],
+                               assoc.remote['address'],
+                               assoc.remote['port'])
 
         return str_out
 

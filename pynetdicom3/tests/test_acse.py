@@ -133,13 +133,6 @@ class TestACSE(object):
             self.assoc.dul.queue.get(block=False)
         assert acse.is_released(self.assoc) is False
 
-    def test_negotiate_no_mode(self):
-        acse = ACSE()
-        self.assoc.mode = None
-        msg = r"No Association `mode` has been set"
-        with pytest.raises(ValueError, match=msg):
-            acse.negotiate_association(self.assoc)
-
 
 class TestNegotiationRequestor(object):
     """Test ACSE negotiation as requestor."""
