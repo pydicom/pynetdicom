@@ -63,7 +63,7 @@ extensions = [
     'sphinx.ext.imgmath',
     'sphinx.ext.ifconfig',
     'sphinx.ext.viewcode',
-    'sphinx_gallery.gen_gallery',
+    #'sphinx_gallery.gen_gallery',
     'sphinx.ext.autosummary',
     'sphinx.ext.napoleon',
     #'sphinx_issues',
@@ -113,7 +113,7 @@ master_doc = 'index'
 
 # General information about the project.
 project = u'pynetdicom3'
-copyright = u'2018, pynetdicom3 contributors'
+copyright = u'2018-2019, pynetdicom3 contributors'
 
 # The version info for the project you're documenting, acts as replacement for
 # |version| and |release|, also used in various other places throughout the
