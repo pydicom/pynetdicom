@@ -101,7 +101,7 @@ class DisplaySystemManagementServiceClass(ServiceClass):
         # Attempt to run the ApplicationEntity's on_n_get callback
         try:
             # Send the value rather than the element
-            (rsp_status, ds) = self.AE.on_n_get(req.AttributeIdentifierList,
+            (rsp_status, ds) = self.ae.on_n_get(req.AttributeIdentifierList,
                                                 context.as_tuple, info)
         except Exception as exc:
             LOGGER.error(
@@ -130,4 +130,4 @@ class DisplaySystemManagementServiceClass(ServiceClass):
                 # Processing failure - Failed to encode dataset
                 rsp.Status = 0x0110
 
-        self.DIMSE.send_msg(rsp, context.context_id)
+        self.dimse.send_msg(rsp, context.context_id)

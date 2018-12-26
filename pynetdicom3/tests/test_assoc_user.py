@@ -198,9 +198,7 @@ class TestServiceUserAcceptor(object):
 
         classes = user.sop_class_extended
         assert len(classes) == 1
-        assert classes['1.2.3'].service_class_application_information == (
-            b'SOME DATA'
-        )
+        assert classes['1.2.3'] == b'SOME DATA'
 
         classes = user.sop_class_common_extended
         assert len(classes) == 1
@@ -930,7 +928,9 @@ class TestServiceUserAcceptor(object):
         assert len(user.extended_negotiation) == 1
         assert len(user.user_information) == 3
 
-        assert user.sop_class_extended['1.2.3'] == item
+        assert user.sop_class_extended['1.2.3'] == (
+            item.service_class_application_information
+        )
 
     def test_sop_ext_post(self):
         """Test sop_class_extended prior to association."""
@@ -949,7 +949,9 @@ class TestServiceUserAcceptor(object):
         assert len(user.extended_negotiation) == 1
         assert len(user.user_information) == 3
 
-        assert user.sop_class_extended['1.2.3'] == item
+        assert user.sop_class_extended['1.2.3'] == (
+            item.service_class_application_information
+        )
 
         msg = r"Can't add extended negotiation items after negotiation"
         with pytest.raises(RuntimeError, match=msg):
@@ -1327,9 +1329,7 @@ class TestServiceUserRequestor(object):
 
         classes = user.sop_class_extended
         assert len(classes) == 1
-        assert classes['1.2.3'].service_class_application_information == (
-            b'SOME DATA'
-        )
+        assert classes['1.2.3'] == b'SOME DATA'
 
         classes = user.sop_class_common_extended
         assert len(classes) == 1
@@ -2057,7 +2057,9 @@ class TestServiceUserRequestor(object):
         assert len(user.extended_negotiation) == 1
         assert len(user.user_information) == 3
 
-        assert user.sop_class_extended['1.2.3'] == item
+        assert user.sop_class_extended['1.2.3'] == (
+            item.service_class_application_information
+        )
 
     def test_sop_ext_post(self):
         """Test sop_class_extended prior to association."""
@@ -2076,7 +2078,9 @@ class TestServiceUserRequestor(object):
         assert len(user.extended_negotiation) == 1
         assert len(user.user_information) == 3
 
-        assert user.sop_class_extended['1.2.3'] == item
+        assert user.sop_class_extended['1.2.3'] == (
+            item.service_class_application_information
+        )
 
         msg = r"Can't add extended negotiation items after negotiation"
         with pytest.raises(RuntimeError, match=msg):
