@@ -353,24 +353,9 @@ class Association(threading.Thread):
         return self._rejected_cx
 
     def release(self):
-        """Send an A-RELEASE request to the peer.
-
-        If an A-RELEASE confirmation is received then shut down the
-        association, otherwise is no response is received within the timeout
-        window then send an A-ABORT and shut down the association.
-        """
+        """Send an A-RELEASE request to the peer."""
         if self.is_established:
             self.acse.release_association(self)
-            # TODO: confirm this works as intended
-            #self.acse.send_release(self, is_response=False)
-            #if self.acse.is_released(self):
-            #    # Got release reply within timeout window
-            #    self.is_released = True
-            #    self.is_established = False
-            #    self.kill()
-            #else:
-            #    # No release reply within timeout window
-            #    self.abort()
 
     @property
     def remote(self):
@@ -2739,14 +2724,16 @@ class ServiceUser(object):
         during association negotiation.
     """
     def __init__(self, assoc, mode):
-        """Create a new class instance.
+        """Create a new ServiceUser.
 
         Parameters
         ----------
         assoc : association.Association
             The parent Association.
         mode : str
-            The operation mode of the AE, either 'requestor' or 'acceptor'.
+            The operation mode of the AE represented by the ServiceUser, either
+            'requestor' or 'acceptor'. This is not necessarily the same as the
+            association's mode.
         """
         mode = mode.lower()
         if mode not in [MODE_REQUESTOR, MODE_ACCEPTOR]:
@@ -2778,6 +2765,8 @@ class ServiceUser(object):
 
     def add_negotiation_item(self, item):
         """Add an extended negotiation item to the user information.
+
+        Items can only be added prior to starting the association negotiation.
 
         Parameters
         ----------
@@ -2951,6 +2940,13 @@ class ServiceUser(object):
 
     @implementation_class_uid.setter
     def implementation_class_uid(self, value):
+        """Set the Implementation Class UID (only prior to association).
+
+        Parameters
+        ----------
+        str or pydicom.uid.UID
+            The Implementation Class UID value.
+        """
         if not self.writeable:
             raise RuntimeError(
                 "Can't set the Implementation Class UID after negotiation "
@@ -2993,6 +2989,13 @@ class ServiceUser(object):
 
     @implementation_version_name.setter
     def implementation_version_name(self, value):
+        """Set the Implementation Version Name (only prior to association).
+
+        Parameters
+        ----------
+        str
+            The Implementation Version Name value to use.
+        """
         if not self.writeable:
             raise RuntimeError(
                 "Can't set the Implementation Version Name after negotiation "
@@ -3010,12 +3013,11 @@ class ServiceUser(object):
 
     @property
     def info(self):
-        """Return a dict with information about the AE."""
+        """Return a dict with information about the ServiceUser."""
         info = {
             'ae_title' : self.ae_title,
             'address' : self.address,
             'port' : self.port,
-            #'pdv_size' : self.maximum_length,
             'mode' : self.mode,
         }
         if not self.writeable:
@@ -3082,7 +3084,7 @@ class ServiceUser(object):
 
     @property
     def mode(self):
-        """Return the AE's mode as str, either 'requestor' or 'acceptor'."""
+        """Return the mode as str, either 'requestor' or 'acceptor'."""
         return self._mode
 
     @property
@@ -3124,6 +3126,9 @@ class ServiceUser(object):
     def remove_negotiation_item(self, item):
         """Remove an extended negotiation item from the user information.
 
+        Items can only be removed prior to starting the association
+        negotiation.
+
         Parameters
         ----------
         item : pdu_primitives.ServiceParameter
@@ -3158,6 +3163,9 @@ class ServiceUser(object):
     def reset_negotiation_items(self):
         """Remove all extended negotiation items.
 
+        Items can only be removed prior to starting the association
+        negotiation.
+
         Raises
         ------
         RuntimeError
@@ -3180,7 +3188,7 @@ class ServiceUser(object):
 
     @property
     def role_selection(self):
-        """Return any SCP/SCU Role Selection items as a list.
+        """Return any SCP/SCU Role Selection items as a dict.
 
         Returns
         -------
@@ -3203,7 +3211,12 @@ class ServiceUser(object):
 
     @property
     def sop_class_common_extended(self):
-        """
+        """Return any SOP Class Common Extended items as dict.
+
+        Returns
+        -------
+        dict
+            The SOP Class Common Extended items as {SOP Class UID : item}.
         """
         sop_classes = {}
         if self.writeable:
@@ -3220,7 +3233,13 @@ class ServiceUser(object):
 
     @property
     def sop_class_extended(self):
-        """
+        """Return any SOP Class Extended items as dict.
+
+        Returns
+        -------
+        dict
+            The SOP Class Extended items as {SOP Class UID : Service Class
+            Application Information}.
         """
         sop_classes = {}
         if self.writeable:
@@ -3283,7 +3302,14 @@ class ServiceUser(object):
 
     @property
     def user_identity(self):
-        """Return the User Identity Negotiation Item (if available)."""
+        """Return the User Identity Negotiation Item (if available).
+
+        Returns
+        -------
+        pdu_primitives.UserIdentityNegotiation or None
+            Returns the User Identity item if one is available, otherwise
+            None.
+        """
         if self.writeable:
             items = self._ext_neg[UserIdentityNegotiation]
             if items:
@@ -3299,7 +3325,7 @@ class ServiceUser(object):
 
     @property
     def user_information(self):
-        """"""
+        """Returns a list of the User Information items."""
         if not self.writeable:
             return self.primitive.user_information
 

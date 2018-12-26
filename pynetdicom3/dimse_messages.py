@@ -16,9 +16,7 @@ from pynetdicom3.dimse_primitives import (
 from pynetdicom3.dsutils import encode_element, encode, decode
 from pynetdicom3.pdu_primitives import P_DATA
 
-
 LOGGER = logging.getLogger('pynetdicom3.dimse')
-
 
 _MESSAGE_TYPES = {
     0x0001: 'C-STORE-RQ',
@@ -683,7 +681,6 @@ def _build_message_classes(message_name):
 
 for __msg_type in _COMMAND_SET_ELEM:
     _build_message_classes(__msg_type)
-
 
 # Values from PS3.5
 _MESSAGE_CLASS_TYPES = {

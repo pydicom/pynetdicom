@@ -88,7 +88,7 @@ class TestServiceUserAcceptor(object):
         user._user_info = []
         assert user.implementation_class_uid is None
 
-    def test_no_implementation_class_uid(self):
+    def test_no_maximum_len(self):
         """Test correct reutrn if no maximum length."""
         user = ServiceUser(self.assoc, mode='acceptor')
         user._user_info = []

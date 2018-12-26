@@ -51,7 +51,6 @@ class ACSE(object):
             The maximum time (in seconds) to wait for A-ASSOCIATE related PDUs
             from the peer (default: 30)
         """
-        # Maximum time for response from peer (in seconds)
         self.acse_timeout = acse_timeout
 
     @staticmethod
@@ -211,7 +210,7 @@ class ACSE(object):
 
     @staticmethod
     def is_aborted(assoc):
-        """Return True if an A-ABORT request has been received."""
+        """Return True if an A-ABORT or A-P-ABORT request has been received."""
         primitive = assoc.dul.peek_next_pdu()
         if primitive.__class__ in (A_ABORT, A_P_ABORT):
             return True
@@ -222,7 +221,7 @@ class ACSE(object):
     def is_released(assoc):
         """Return True if an A-RELEASE request has been received."""
         primitive = assoc.dul.peek_next_pdu()
-        if primitive.__class__ == A_RELEASE:
+        if isinstance(primitive, A_RELEASE):
             # Make sure this is an A-RELEASE *request* primitive
             #   response primitives have the Result field as 'affirmative'
             if primitive.result == 'affirmative':
@@ -233,7 +232,8 @@ class ACSE(object):
         return False
 
     def negotiate_association(self, assoc):
-        """Perform an association negotiation.
+        """Perform an association negotiation as either the requestor or
+        acceptor.
 
         Parameters
         ----------
@@ -470,6 +470,9 @@ class ACSE(object):
     def release_association(self, assoc):
         """Release an established association.
 
+        Sends an A-RELEASE request and waits for the response. If no response
+        is received then aborts the association instead.
+
         Parameters
         ----------
         assoc : association.Association
@@ -490,7 +493,7 @@ class ACSE(object):
 
     @staticmethod
     def send_abort(assoc, source):
-        """Send an A-ABORT to the peer.
+        """Send an A-ABORT request to the peer.
 
         Parameters
         ----------
