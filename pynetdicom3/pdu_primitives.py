@@ -39,10 +39,6 @@ class ServiceParameter(object):
         """Inequality of two ServiceParameters"""
         return not self == other
 
-    #def from_primitive(self):
-    #    """FIXME"""
-    #    return self.from_primitive()
-
 
 # Association Service primitives
 class A_ASSOCIATE(object):

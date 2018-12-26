@@ -1015,6 +1015,28 @@ class TestAssociationSendCEcho(object):
         assert assoc.is_released
         self.scp.stop()
 
+    def test_common_ext_neg_no_general_sop(self):
+        """Test sending SOP Class Common Extended Negotiation."""
+        # With no Related General SOP Classes
+        self.scp = DummyVerificationSCP()
+        self.scp.start()
+        ae = AE()
+        ae.add_requested_context(VerificationSOPClass)
+        ae.acse_timeout = 5
+        ae.dimse_timeout = 5
+
+        item = SOPClassCommonExtendedNegotiation()
+        item.sop_class_uid = '1.2.3'
+        item.service_class_uid = '2.3.4'
+
+        assoc = ae.associate('localhost', 11112, ext_neg=[item])
+        assert assoc.is_established
+        result = assoc.send_c_echo()
+        assert result.Status == 0x0000
+        assoc.release()
+        assert assoc.is_released
+        self.scp.stop()
+
 
 class TestAssociationSendCStore(object):
     """Run tests on Assocation send_c_store."""

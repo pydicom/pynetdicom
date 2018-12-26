@@ -483,6 +483,9 @@ class ACSE(object):
             assoc.is_established = False
             assoc.kill()
         except (AttributeError, AssertionError) as exc:
+            LOGGER.error(
+                "Received an invalid response to the A-RELEASE request"
+            )
             assoc.abort()
 
     @staticmethod
@@ -925,11 +928,11 @@ class ACSE(object):
                 s.append('      ={0!s}'.format(ts.name))
 
         ## Extended Negotiation
-        if pdu.user_information.ext_neg is not None:
+        if pdu.user_information.ext_neg:
             s.append('Requested Extended Negotiation:')
 
             for item in pdu.user_information.ext_neg:
-                s.append('  Abstract Syntax: ={0!s}'.format(item.uid))
+                s.append('  SOP Class: ={0!s}'.format(item.uid))
                 #s.append('    Application Information, length: %d bytes'
                 #                                       %len(item.app_info))
 
@@ -942,12 +945,12 @@ class ACSE(object):
             s.append('Requested Extended Negotiation: None')
 
         ## Common Extended Negotiation
-        if pdu.user_information.common_ext_neg is not None:
+        if pdu.user_information.common_ext_neg:
             s.append('Requested Common Extended Negotiation:')
 
             for item in pdu.user_information.common_ext_neg:
 
-                s.append('  Abstract Syntax: ={0!s}'.format(item.sop_class_uid))
+                s.append('  SOP Class: ={0!s}'.format(item.sop_class_uid))
                 s.append('  Service Class:   ='
                          '{0!s}'.format(item.service_class_uid))
 
@@ -986,9 +989,9 @@ class ACSE(object):
                          '{0:d}'.format(len(usid.primary)))
 
             if usid.response_requested:
-                s.append('  Positive Response requested: Yes')
+                s.append('  Positive Response Requested: Yes')
             else:
-                s.append('  Positive Response requested: No')
+                s.append('  Positive Response Requested: No')
         else:
             s.append('Requested User Identity Negotiation: None')
 
@@ -1260,11 +1263,11 @@ class ACSE(object):
                 s.append('      ={0!s}'.format(ts.name))
 
         ## Extended Negotiation
-        if pdu.user_information.ext_neg is not None:
+        if pdu.user_information.ext_neg:
             s.append('Requested Extended Negotiation:')
 
             for item in pdu.user_information.ext_neg:
-                s.append('  Abstract Syntax: ={0!s}'.format(item.uid))
+                s.append('  SOP Class: ={0!s}'.format(item.uid))
                 #s.append('    Application Information, length: %d bytes'
                 #                                       %len(item.app_info))
 
@@ -1277,12 +1280,12 @@ class ACSE(object):
             s.append('Requested Extended Negotiation: None')
 
         ## Common Extended Negotiation
-        if pdu.user_information.common_ext_neg is not None:
+        if pdu.user_information.common_ext_neg:
             s.append('Requested Common Extended Negotiation:')
 
             for item in pdu.user_information.common_ext_neg:
 
-                s.append('  Abstract Syntax: ={0!s}'
+                s.append('  SOP Class: ={0!s}'
                          .format(item.sop_class_uid))
                 s.append('  Service Class:   ={0!s}'
                          .format(item.service_class_uid))

@@ -3383,7 +3383,8 @@ class UserIdentitySubItemRQ(PDUItem):
             1 : 'Username',
             2 : 'Username/Password',
             3 : 'Kerberos',
-            4 : 'SAML'
+            4 : 'SAML',
+            5 : 'JSON Web Token',
         }
 
         return _types[self.user_identity_type]

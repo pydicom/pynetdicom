@@ -2,14 +2,11 @@
 
 #from io import BytesIO
 import logging
-#import os
 try:
     import queue
 except ImportError:
     import Queue as queue  # Python 2 compatibility
-#import select
-#import socket
-#from struct import pack
+import sys
 import time
 import threading
 
@@ -44,6 +41,8 @@ LOGGER.setLevel(logging.CRITICAL)
 class DummyDUL(object):
     def __init__(self):
         self.queue = queue.Queue()
+        self.received = queue.Queue()
+        self.is_killed = False
 
     def send_pdu(self, primitive):
         self.queue.put(primitive)
@@ -54,6 +53,12 @@ class DummyDUL(object):
             return self.queue.queue[0]
         except (queue.Empty, IndexError):
             return None
+
+    def receive_pdu(self, wait=False, timeout=None):
+        return self.received.get()
+
+    def kill_dul(self):
+        self.is_killed = True
 
 
 class DummyAssociation(object):
@@ -73,6 +78,18 @@ class DummyAssociation(object):
         self.acse_timeout = 11
         self.dimse_timeout = 12
         self.network_timeout = 13
+        self.is_killed = False
+        self.is_aborted = False
+        self.is_established = False
+        self.is_rejected = False
+        self.is_released = False
+
+    def abort(self):
+        self.is_aborted = True
+        self.kill()
+
+    def kill(self):
+        self.is_killed = True
 
     @property
     def requested_contexts(self):
@@ -81,6 +98,11 @@ class DummyAssociation(object):
     @property
     def supported_contexts(self):
         return self.requestor.get_contexts('supported')
+
+    def debug_association_rejected(self, primitive):
+        pass
+
+    debug_association_aborted = debug_association_rejected
 
 
 class TestACSE(object):
@@ -136,12 +158,107 @@ class TestACSE(object):
             self.assoc.dul.queue.get(block=False)
         assert acse.is_released(self.assoc) is False
 
+    def test_release_assoc_good(self):
+        """Test receiving a good A-RELEASE response."""
+        primitive = A_RELEASE()
+        primitive.result = 'affirmative'
+
+        self.assoc.dul.received.put(primitive)
+        assert self.assoc.is_aborted is False
+        assert self.assoc.is_killed is False
+        assert self.assoc.is_released is False
+
+        acse = ACSE()
+        acse.release_association(self.assoc)
+
+        with pytest.raises(queue.Empty):
+            self.assoc.dul.received.get(block=False)
+        assert self.assoc.is_aborted is False
+        assert self.assoc.is_released is True
+        assert self.assoc.is_killed is True
+
+        primitive = self.assoc.dul.queue.get(block=False)
+        assert isinstance(primitive, A_RELEASE)
+        assert primitive.result != 'affirmative'
+        with pytest.raises(queue.Empty):
+            self.assoc.dul.queue.get(block=False)
+
+    @pytest.mark.skipif(sys.version_info[:2] == (3, 4),
+                    reason='pytest missing caplog')
+    def test_release_assoc_bad_response(self, caplog):
+        """Test receiving bad response to A-RELEASE request."""
+        # Request received
+        primitive = A_RELEASE()
+        assert primitive.result != 'affirmative'
+
+        self.assoc.dul.received.put(primitive)
+        assert self.assoc.is_aborted is False
+        assert self.assoc.is_killed is False
+        assert self.assoc.is_released is False
+
+        acse = ACSE()
+        with caplog.at_level(logging.WARNING, logger='pynetdicom3'):
+            acse.release_association(self.assoc)
+
+            msg = (
+                "Received an invalid response to the A-RELEASE request"
+            )
+            assert msg in caplog.text
+
+        with pytest.raises(queue.Empty):
+            self.assoc.dul.received.get(block=False)
+        assert self.assoc.is_aborted is True
+        assert self.assoc.is_released is False
+        assert self.assoc.is_killed is True
+
+        primitive = self.assoc.dul.queue.get(block=False)
+        assert isinstance(primitive, A_RELEASE)
+        assert primitive.result != 'affirmative'
+        with pytest.raises(queue.Empty):
+            self.assoc.dul.queue.get(block=False)
+
+    @pytest.mark.skipif(sys.version_info[:2] == (3, 4),
+                    reason='pytest missing caplog')
+    def test_release_assoc_invalid_response(self, caplog):
+        """Test receiving invalid response to A-RELEASE request."""
+        # Non A-RELEASE received
+        self.assoc.dul.received.put(None)
+        assert self.assoc.is_aborted is False
+        assert self.assoc.is_killed is False
+        assert self.assoc.is_released is False
+
+        acse = ACSE()
+        with caplog.at_level(logging.WARNING, logger='pynetdicom3'):
+            acse.release_association(self.assoc)
+
+            msg = (
+                "Received an invalid response to the A-RELEASE request"
+            )
+            assert msg in caplog.text
+
+        with pytest.raises(queue.Empty):
+            self.assoc.dul.received.get(block=False)
+        assert self.assoc.is_aborted is True
+        assert self.assoc.is_released is False
+        assert self.assoc.is_killed is True
+
+        primitive = self.assoc.dul.queue.get(block=False)
+        assert isinstance(primitive, A_RELEASE)
+        assert primitive.result != 'affirmative'
+        with pytest.raises(queue.Empty):
+            self.assoc.dul.queue.get(block=False)
+
 
 class TestNegotiationRequestor(object):
     """Test ACSE negotiation as requestor."""
     def setup(self):
         """Run prior to each test"""
         self.scp = None
+
+        self.assoc = DummyAssociation()
+        self.assoc.requestor.requested_contexts = [
+            build_context('1.2.840.10008.1.1')
+        ]
 
     def teardown(self):
         """Clear any active threads"""
@@ -155,25 +272,133 @@ class TestNegotiationRequestor(object):
                 thread.abort()
                 thread.stop()
 
-    def test_no_requested_cx(self):
-        pass
+    @pytest.mark.skipif(sys.version_info[:2] == (3, 4),
+                    reason='pytest missing caplog')
+    def test_no_requested_cx(self, caplog):
+        """Test error logged if no requested contexts."""
+        ae = AE()
+        ae.add_requested_context(VerificationSOPClass)
+        ae.acse_timeout = 5
+        ae.dimse_timeout = 5
+
+        assoc = Association(ae, mode='requestor')
+        assert assoc.requestor.requested_contexts == []
+
+        with caplog.at_level(logging.WARNING, logger='pynetdicom3'):
+            assoc.acse._negotiate_as_requestor(assoc)
+
+            msg = (
+                "One or more requested presentation contexts must be set "
+                "prior to association negotiation"
+            )
+            assert msg in caplog.text
 
     def test_receive_abort(self):
-        pass
+        """Test if A-ABORT received during association negotiation."""
+        primitive = A_ABORT()
+
+        self.assoc.dul.received.put(primitive)
+        assert self.assoc.is_aborted is False
+        assert self.assoc.is_killed is False
+
+        acse = ACSE()
+        acse._negotiate_as_requestor(self.assoc)
+        with pytest.raises(queue.Empty):
+            self.assoc.dul.received.get(block=False)
+        assert self.assoc.is_aborted is True
+        assert self.assoc.dul.is_killed is True
+
+        primitive = self.assoc.dul.queue.get(block=False)
+        assert isinstance(primitive, A_ASSOCIATE)
+        with pytest.raises(queue.Empty):
+            self.assoc.dul.queue.get(block=False)
 
     def test_receive_ap_abort(self):
-        pass
+        """Test if A-P-ABORT received during association negotiation."""
+        primitive = A_P_ABORT()
+
+        self.assoc.dul.received.put(primitive)
+        assert self.assoc.is_aborted is False
+        assert self.assoc.is_killed is False
+
+        acse = ACSE()
+        acse._negotiate_as_requestor(self.assoc)
+        with pytest.raises(queue.Empty):
+            self.assoc.dul.received.get(block=False)
+        assert self.assoc.is_aborted is True
+        assert self.assoc.dul.is_killed is True
+
+        primitive = self.assoc.dul.queue.get(block=False)
+        assert isinstance(primitive, A_ASSOCIATE)
+        with pytest.raises(queue.Empty):
+            self.assoc.dul.queue.get(block=False)
 
     def test_receive_other(self):
-        pass
+        """Test if invalid received during association negotiation."""
+        primitive = A_RELEASE()
 
-    def test_role_selection(self):
-        pass
+        self.assoc.dul.received.put(primitive)
+        assert self.assoc.is_aborted is False
+        assert self.assoc.is_killed is False
+
+        acse = ACSE()
+        acse._negotiate_as_requestor(self.assoc)
+        with pytest.raises(queue.Empty):
+            self.assoc.dul.received.get(block=False)
+        assert self.assoc.is_aborted is False
+        assert self.assoc.dul.is_killed is True
+
+        primitive = self.assoc.dul.queue.get(block=False)
+        assert isinstance(primitive, A_ASSOCIATE)
+        with pytest.raises(queue.Empty):
+            self.assoc.dul.queue.get(block=False)
+
+    def test_receive_unknown_result(self):
+        """Test abort if A-ASSOCIATE result is unknown."""
+        primitive = A_ASSOCIATE()
+        primitive._result = 0xFF
+
+        self.assoc.dul.received.put(primitive)
+        assert self.assoc.is_aborted is False
+        assert self.assoc.is_killed is False
+
+        acse = ACSE()
+        acse._negotiate_as_requestor(self.assoc)
+        primitive = self.assoc.dul.queue.get(block=False)
+        assert isinstance(primitive, A_ASSOCIATE)
+        assert self.assoc.is_aborted is True
+        assert self.assoc.is_killed is True
+
+        primitive = self.assoc.dul.queue.get(block=False)
+        assert isinstance(primitive, A_ABORT)
+        assert primitive.abort_source == 0x02
+        with pytest.raises(queue.Empty):
+            self.assoc.dul.queue.get(block=False)
 
     def test_receive_reject(self):
-        pass
+        """Test kill if A-ASSOCIATE result is rejection."""
+        primitive = A_ASSOCIATE()
+        primitive._result = 0x01
+
+        self.assoc.dul.received.put(primitive)
+        assert self.assoc.is_aborted is False
+        assert self.assoc.is_killed is False
+        assert self.assoc.is_rejected is False
+
+        acse = ACSE()
+        acse._negotiate_as_requestor(self.assoc)
+        primitive = self.assoc.dul.queue.get(block=False)
+        assert isinstance(primitive, A_ASSOCIATE)
+        assert self.assoc.is_aborted is False
+        assert self.assoc.is_rejected is True
+        assert self.assoc.is_established is False
+        assert self.assoc.dul.is_killed is True
+
+        with pytest.raises(queue.Empty):
+            self.assoc.dul.queue.get(block=False)
 
     def test_receive_accept(self):
+        """Test establishment if A-ASSOCIATE result is acceptance."""
         self.scp = DummyVerificationSCP()
         self.scp.start()
 
@@ -182,12 +407,11 @@ class TestNegotiationRequestor(object):
         ae.acse_timeout = 5
         ae.dimse_timeout = 5
 
-        assoc = Association(ae, mode='requestor')
+        assoc = ae.associate('localhost', 11112)
+        assert assoc.is_established is True
+        assoc.release()
 
         self.scp.stop()
-
-    def test_receive_accept_no_cx(self):
-        pass
 
 
 class TestNegotiationAcceptor(object):
@@ -380,28 +604,30 @@ REFERENCE_USER_IDENTITY_REQUEST = [
     # Request: (ID type, primary field, secondary field, req_response)
     # Response: (is_valid, server response)
     # Username
-    ((1, b'username', None, False), (True, b'\x01\x01')),
-    ((1, b'username', None, True), (True, b'\x01\x01')),
+    # (User ID Type, Primary Field, Secondary Field, Response Requested)
+    # (Is valid, positive response value)
+    ((1, b'username', b'', False), (True, b'\x01\x01')),
+    ((1, b'username', b'', True), (True, b'\x01\x01')),
     ((1, b'username', b'invalid', False), (True, b'\x01\x01')),
     ((1, b'username', b'invalid', True), (True, b'\x01\x01')),
     # Username and password
-    ((2, b'username', None, False), (True, b'\x01\x02')),
-    ((2, b'username', None, True), (True, b'\x01\x02')),
+    ((2, b'username', b'', False), (True, b'\x01\x02')),
+    ((2, b'username', b'', True), (True, b'\x01\x02')),
     ((2, b'username', b'password', False), (True, b'\x01\x02')),
     ((2, b'username', b'password', True), (True, b'\x01\x02')),
     # Kerberos service ticket
-    ((3, b'\x00\x03', None, False), (True, b'\x01\x03')),
-    ((3, b'\x00\x03', None, True), (True, b'\x01\x03')),
+    ((3, b'\x00\x03', b'', False), (True, b'\x01\x03')),
+    ((3, b'\x00\x03', b'', True), (True, b'\x01\x03')),
     ((3, b'\x00\x03', b'invalid', False), (True, b'\x01\x03')),
     ((3, b'\x00\x03', b'invalid', True), (True, b'\x01\x03')),
     # SAML assertion
-    ((4, b'\x00\x04', None, False), (True, b'\x01\x04')),
-    ((4, b'\x00\x04', None, True), (True, b'\x01\x04')),
+    ((4, b'\x00\x04', b'', False), (True, b'\x01\x04')),
+    ((4, b'\x00\x04', b'', True), (True, b'\x01\x04')),
     ((4, b'\x00\x04', b'invalid', False), (True, b'\x01\x04')),
     ((4, b'\x00\x04', b'invalid', True), (True, b'\x01\x04')),
     # JSON web token
-    ((5, b'\x00\x05', None, False), (True, b'\x01\x05')),
-    ((5, b'\x00\x05', None, True), (True, b'\x01\x05')),
+    ((5, b'\x00\x05', b'', False), (True, b'\x01\x05')),
+    ((5, b'\x00\x05', b'', True), (True, b'\x01\x05')),
     ((5, b'\x00\x05', b'invalid', False), (True, b'\x01\x05')),
     ((5, b'\x00\x05', b'invalid', True), (True, b'\x01\x05')),
 ]
@@ -803,6 +1029,33 @@ class TestUserIdentityNegotiation(object):
 
         assoc.release()
 
+        self.scp.stop()
+
+    @pytest.mark.parametrize("req, rsp", REFERENCE_USER_IDENTITY_REQUEST)
+    def test_logging(self, req, rsp):
+        """Test the logging output works with user identity"""
+        def on_user_identity(usr_type, primary, secondary, info):
+            return True, rsp[1]
+
+        self.scp = DummyVerificationSCP()
+        self.scp.ae.on_user_identity = on_user_identity
+        self.scp.start()
+        ae = AE()
+        ae.on_user_identity = on_user_identity
+        ae.add_requested_context(VerificationSOPClass)
+        ae.acse_timeout = 5
+        ae.dimse_timeout = 5
+
+        item = UserIdentityNegotiation()
+        item.user_identity_type = req[0]
+        item.primary_field = req[1]
+        if req[0] == 2:
+            item.secondary_field = req[2] or b'someval'
+        else:
+            item.secondary_field = req[2]
+        item.positive_response_requested = req[3]
+
+        assoc = ae.associate('localhost', 11112, ext_neg=[item])
         self.scp.stop()
 
 
