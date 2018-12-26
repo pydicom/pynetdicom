@@ -291,7 +291,7 @@ issues_user_uri = 'https://github.com/{user}'
 
 
 def setup(app):
-    app.connect('autodoc-process-docstring', generate_example_rst)
+    #app.connect('autodoc-process-docstring', generate_example_rst)
     app.add_stylesheet('css/pynetdicom3.css')
 
 # Example configuration for intersphinx: refer to
