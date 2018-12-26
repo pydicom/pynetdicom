@@ -2,21 +2,15 @@
 ACSE service provider
 """
 import logging
-import socket
 
 from pydicom.uid import UID
 
-from pynetdicom3 import PYNETDICOM_IMPLEMENTATION_UID
-from pynetdicom3 import PYNETDICOM_IMPLEMENTATION_VERSION
 from pynetdicom3.pdu_primitives import (
     A_ASSOCIATE, A_RELEASE, A_ABORT, A_P_ABORT,
     MaximumLengthNotification,
-    ImplementationClassUIDNotification,
-    ImplementationVersionNameNotification,
     UserIdentityNegotiation,
     SOPClassExtendedNegotiation,
     AsynchronousOperationsWindowNegotiation,
-    SCP_SCU_RoleSelectionNegotiation,
 )
 from pynetdicom3.presentation import (
     negotiate_as_requestor, negotiate_as_acceptor
@@ -71,6 +65,7 @@ class ACSE(object):
             AsynchronousOperationsWindowNegotiation item with the default
             values for the number of operations invoked/performed (1, 1).
         """
+        # pylint: disable=broad-except
         try:
             # Response is always ignored as async ops is not supported
             _ = assoc.ae.on_async_ops_window(
@@ -106,6 +101,7 @@ class ACSE(object):
         list of pdu_primitives.SOPClassExtendedNegotiation
             The SOP Class Extended Negotiation items to be sent in response
         """
+        # pylint: disable=broad-except
         try:
             user_response = assoc.ae.on_sop_class_extended(
                 assoc.requestor.sop_class_extended
@@ -163,6 +159,7 @@ class ACSE(object):
             The negotiation response, if a positive response is requested,
             otherwise None.
         """
+        # pylint: disable=broad-except
         # The UserIdentityNegotiation (request) item
         req = assoc.requestor.user_identity
         try:
@@ -262,13 +259,13 @@ class ACSE(object):
 
         # Calling AE Title not recognised
         if (assoc.ae.require_calling_aet != b''
-            and assoc.ae.require_calling_aet != assoc_rq.calling_ae_title):
-                reject_assoc_rsd = [0x01, 0x01, 0x03]
+                and assoc.ae.require_calling_aet != assoc_rq.calling_ae_title):
+            reject_assoc_rsd = [0x01, 0x01, 0x03]
 
         # Called AE Title not recognised
         if (assoc.ae.require_called_aet != b''
-            and assoc.ae.require_called_aet != assoc_rq.called_ae_title):
-                reject_assoc_rsd = [0x01, 0x01, 0x07]
+                and assoc.ae.require_called_aet != assoc_rq.called_ae_title):
+            reject_assoc_rsd = [0x01, 0x01, 0x07]
 
         ## Extended Negotiation items
         # User Identity Negotiation items
@@ -305,6 +302,7 @@ class ACSE(object):
             reject_assoc_rsd = [0x02, 0x03, 0x02]
 
         if reject_assoc_rsd:
+            # pylint: disable=no-value-for-parameter
             self.send_reject(assoc, *reject_assoc_rsd)
             assoc.debug_association_rejected(assoc.acceptor.primitive)
             assoc.ae.on_association_rejected(assoc.acceptor.primitive)
@@ -316,7 +314,7 @@ class ACSE(object):
         # {SOP Class UID : (SCU role, SCP role)}
         rq_roles = {
             uid:(item.scu_role, item.scp_role)
-                for uid, item in assoc.requestor.role_selection.items()
+            for uid, item in assoc.requestor.role_selection.items()
         }
 
         result, ac_roles = negotiate_as_acceptor(
@@ -325,8 +323,10 @@ class ACSE(object):
             rq_roles
         )
 
+        # pylint: disable=protected-access
         assoc._accepted_cx = [cx for cx in result if cx.result == 0x00]
         assoc._rejected_cx = [cx for cx in result if cx.result != 0x00]
+        # pylint: enable=protected-access
 
         # Add any SCP/SCU Role Selection Negotiation response items
         for item in ac_roles:
@@ -390,7 +390,7 @@ class ACSE(object):
                 #   to the requested contexts
                 rq_roles = {
                     uid:(ii.scu_role, ii.scp_role)
-                        for uid, ii in assoc.requestor.role_selection.items()
+                    for uid, ii in assoc.requestor.role_selection.items()
                 }
                 if rq_roles:
                     for cx in assoc.requestor.requested_contexts:
@@ -404,7 +404,7 @@ class ACSE(object):
                 # Collate the acceptor's SCP/SCU role selection responses
                 ac_roles = {
                     uid:(ii.scu_role, ii.scp_role)
-                        for uid, ii in assoc.acceptor.role_selection.items()
+                    for uid, ii in assoc.acceptor.role_selection.items()
                 }
 
                 # Check the negotiated presentation contexts results and
@@ -415,12 +415,14 @@ class ACSE(object):
                     ac_roles
                 )
 
+                # pylint: disable=protected-access
                 assoc._accepted_cx = [
                     cx for cx in negotiated_contexts if cx.result == 0x00
                 ]
                 assoc._rejected_cx = [
                     cx for cx in negotiated_contexts if cx.result != 0x00
                 ]
+                # pylint: enable=protected-access
 
                 assoc.debug_association_accepted(rsp)
                 assoc.ae.on_association_accepted(rsp)
@@ -485,7 +487,7 @@ class ACSE(object):
             assoc.is_released = True
             assoc.is_established = False
             assoc.kill()
-        except (AttributeError, AssertionError) as exc:
+        except (AttributeError, AssertionError):
             LOGGER.error(
                 "Received an invalid response to the A-RELEASE request"
             )
@@ -638,14 +640,14 @@ class ACSE(object):
         if result not in [0x01, 0x02]:
             raise ValueError("Invalid 'result' parameter value")
 
-        VALID_REASON_DIAGNOSTIC = {
+        _valid_reason_diagnostic = {
             0x01 : [0x01, 0x02, 0x03, 0x07],
             0x02 : [0x01, 0x02],
             0x03 : [0x01, 0x02],
         }
 
         try:
-            if diagnostic not in VALID_REASON_DIAGNOSTIC[source]:
+            if diagnostic not in _valid_reason_diagnostic[source]:
                 raise ValueError(
                     "Invalid 'diagnostic' parameter value"
                 )
@@ -791,9 +793,10 @@ class ACSE(object):
 
         s.append('Our Implementation Class UID:      '
                  '{0!s}'.format(user_info.implementation_class_uid))
-        s.append('Our Implementation Version Name:   '
-                 '{0!s}'.format(
-            user_info.implementation_version_name.decode('ascii'))
+        s.append(
+            'Our Implementation Version Name:   {0!s}'.format(
+                user_info.implementation_version_name.decode('ascii')
+            )
         )
         s.append('Application Context Name:    {0!s}'.format(app_context))
         s.append('Responding Application Name: {0!s}'.format(responding_ae))
@@ -814,7 +817,8 @@ class ACSE(object):
                 #if item.scu_role is None and item.scp_role is None:
                 #    ac_scp_scu_role = 'Default'
                 #else:
-                #    ac_scp_scu_role = '{0!s}/{1!s}'.format(item.scp_role, item.scu_role)
+                #    ac_scp_scu_role = '{0!s}/{1!s}'.format(item.scp_role,
+                #item.scu_role)
                 #s.append('    Accepted SCP/SCU Role: {0!s}'
                 #         .format(ac_scp_scu_role))
                 s.append('    Accepted Transfer Syntax: ={0!s}'
@@ -876,9 +880,10 @@ class ACSE(object):
 
         s.append('Our Implementation Class UID:      '
                  '{0!s}'.format(user_info.implementation_class_uid))
-        s.append('Our Implementation Version Name:   '
-                 '{0!s}'.format(
-            user_info.implementation_version_name.decode('ascii'))
+        s.append(
+            'Our Implementation Version Name:   {0!s}'.format(
+                user_info.implementation_version_name.decode('ascii')
+            )
         )
         s.append('Application Context Name:    {0!s}'.format(app_context))
         s.append('Calling Application Name:    '
@@ -1118,17 +1123,15 @@ class ACSE(object):
                      .format(item.context_id, item.result_str))
 
             if item.result == 0:
-                '''
-                if item.SCP is None and item.SCU is None:
-                    ac_scp_scu_role = 'Default'
-                    rq_scp_scu_role = 'Default'
-                else:
-                    ac_scp_scu_role = '{0!s}/{1!s}'.format(item.SCP, item.SCU)
-                s.append('    Proposed SCP/SCU Role: {0!s}'
-                         .format(rq_scp_scu_role))
-                s.append('    Accepted SCP/SCU Role: {0!s}'
-                         .format(ac_scp_scu_role))
-                '''
+                #if item.SCP is None and item.SCU is None:
+                #    ac_scp_scu_role = 'Default'
+                #    rq_scp_scu_role = 'Default'
+                #else:
+                #    ac_scp_scu_role = '{0!s}/{1!s}'.format(item.SCP, item.SCU)
+                #s.append('    Proposed SCP/SCU Role: {0!s}'
+                #         .format(rq_scp_scu_role))
+                #s.append('    Accepted SCP/SCU Role: {0!s}'
+                #         .format(ac_scp_scu_role))
                 s.append('    Accepted Transfer Syntax: ={0!s}'
                          .format(item.transfer_syntax.name))
 
@@ -1234,11 +1237,11 @@ class ACSE(object):
         ## Presentation Contexts
         s.append('Presentation Contexts:')
         for item in pres_contexts:
-            s.append('  Context ID:        {0!s} (Proposed)'.format(
-                item.context_id)
+            s.append(
+                '  Context ID:        {0!s} (Proposed)'.format(item.context_id)
             )
-            s.append('    Abstract Syntax: ={0!s}'.format(
-                item.abstract_syntax.name)
+            s.append(
+                '    Abstract Syntax: ={0!s}'.format(item.abstract_syntax.name)
             )
 
             # Add SCP/SCU Role Selection Negotiation
@@ -1307,9 +1310,8 @@ class ACSE(object):
         #async_neg = 'None'
         if pdu.user_information.async_ops_window is not None:
             s.append('Requested Asynchronous Operations Window Negotiation:')
-            # FIXME
         else:
-            s.append('Requested Asynchronous Operations Window ' \
+            s.append('Requested Asynchronous Operations Window '
                      'Negotiation: None')
 
         ## User Identity
