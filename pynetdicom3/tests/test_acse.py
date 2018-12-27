@@ -25,6 +25,7 @@ from pynetdicom3.pdu_primitives import (
     ImplementationVersionNameNotification,
     UserIdentityNegotiation,
     SOPClassExtendedNegotiation,
+    SOPClassCommonExtendedNegotiation,
     AsynchronousOperationsWindowNegotiation,
     SCP_SCU_RoleSelectionNegotiation,
 )
@@ -1444,6 +1445,275 @@ class TestSOPClassExtendedNegotiation(object):
         assert len(rsp) == 2
         assert rsp['1.2.3'] == b'\x00\x01'
         assert rsp['1.2.4'] == b'\x00\x02'
+
+        assoc.release()
+
+        self.scp.stop()
+
+
+class TestSOPClassCommonExtendedNegotiation(object):
+    """Tests for SOP Class Extended Negotiation."""
+    def setup(self):
+        """Run prior to each test"""
+        self.scp = None
+
+    def teardown(self):
+        """Clear any active threads"""
+        if self.scp:
+            self.scp.abort()
+
+        time.sleep(0.1)
+
+        for thread in threading.enumerate():
+            if isinstance(thread, DummyBaseSCP):
+                thread.abort()
+                thread.stop()
+
+    def test_check_ext_no_req(self):
+        """Test the default implementation of on_sop_class_common_extended"""
+        self.scp = DummyVerificationSCP()
+        self.scp.start()
+        ae = AE()
+        ae.add_requested_context(VerificationSOPClass)
+        ae.acse_timeout = 5
+        ae.dimse_timeout = 5
+        assoc = ae.associate('localhost', 11112)
+
+        assert assoc.is_established
+
+        req = {}
+
+        scp_assoc = self.scp.ae.active_associations[0]
+        rsp = scp_assoc.acse._check_sop_class_common_extended(scp_assoc)
+
+        assert rsp == {}
+
+    def test_check_ext_default(self):
+        """Test the default implementation of on_sop_class_extended"""
+        self.scp = DummyVerificationSCP()
+        self.scp.start()
+        ae = AE()
+        ae.add_requested_context(VerificationSOPClass)
+        ae.acse_timeout = 5
+        ae.dimse_timeout = 5
+        assoc = ae.associate('localhost', 11112)
+
+        assert assoc.is_established
+
+        req = {
+            '1.2.3' : ('1.2.840.10008.4.2', []),
+            '1.2.3.1' : ('1.2.840.10008.4.2', ['1.1.1', '1.4.2']),
+            '1.2.3.4' : ('1.2.111111', []),
+            '1.2.3.5' : ('1.2.111111', ['1.2.4', '1.2.840.10008.1.1']),
+        }
+
+        scp_assoc = self.scp.ae.active_associations[0]
+        items = {}
+        for kk, vv in req.items():
+            item = SOPClassCommonExtendedNegotiation()
+            item.sop_class_uid = kk
+            item.service_class_uid = vv[0]
+            item.related_general_sop_class_identification = vv[1]
+            items[kk] = item
+
+        rsp = scp_assoc.acse._check_sop_class_common_extended(scp_assoc)
+
+        assert rsp == {}
+
+        self.scp.stop()
+
+    def test_check_ext_user_implemented_none(self):
+        """Test the default implementation of on_sop_class_common_extended"""
+        def on_ext(req):
+            return req
+
+        self.scp = DummyVerificationSCP()
+        self.scp.ae.on_sop_class_common_extended = on_ext
+        self.scp.start()
+        ae = AE()
+        ae.add_requested_context(VerificationSOPClass)
+        ae.acse_timeout = 5
+        ae.dimse_timeout = 5
+        assoc = ae.associate('localhost', 11112)
+
+        assert assoc.is_established
+
+        req = {
+            '1.2.3' : ('1.2.840.10008.4.2', []),
+            '1.2.3.1' : ('1.2.840.10008.4.2', ['1.1.1', '1.4.2']),
+            '1.2.3.4' : ('1.2.111111', []),
+            '1.2.3.5' : ('1.2.111111', ['1.2.4', '1.2.840.10008.1.1']),
+        }
+
+        scp_assoc = self.scp.ae.active_associations[0]
+        items = {}
+        for kk, vv in req.items():
+            item = SOPClassCommonExtendedNegotiation()
+            item.sop_class_uid = kk
+            item.service_class_uid = vv[0]
+            item.related_general_sop_class_identification = vv[1]
+            items[kk] = item
+
+        scp_assoc.requestor.user_information.extend(items.values())
+        rsp = scp_assoc.acse._check_sop_class_common_extended(scp_assoc)
+        assert rsp == items
+
+        self.scp.stop()
+
+    def test_check_ext_bad_implemented_raises(self):
+        """Test the default implementation of on_sop_class_extended"""
+        def on_ext(req):
+            raise ValueError()
+
+        self.scp = DummyVerificationSCP()
+        self.scp.ae.on_sop_class_common_extended = on_ext
+        self.scp.start()
+        ae = AE()
+        ae.add_requested_context(VerificationSOPClass)
+        ae.acse_timeout = 5
+        ae.dimse_timeout = 5
+        assoc = ae.associate('localhost', 11112)
+
+        assert assoc.is_established
+
+        req = {
+            '1.2.3' : ('1.2.840.10008.4.2', []),
+            '1.2.3.1' : ('1.2.840.10008.4.2', ['1.1.1', '1.4.2']),
+            '1.2.3.4' : ('1.2.111111', []),
+            '1.2.3.5' : ('1.2.111111', ['1.2.4', '1.2.840.10008.1.1']),
+        }
+
+        scp_assoc = self.scp.ae.active_associations[0]
+        items = {}
+        for kk, vv in req.items():
+            item = SOPClassCommonExtendedNegotiation()
+            item.sop_class_uid = kk
+            item.service_class_uid = vv[0]
+            item.related_general_sop_class_identification = vv[1]
+            items[kk] = item
+
+        scp_assoc.requestor.user_information.extend(items.values())
+        rsp = scp_assoc.acse._check_sop_class_common_extended(scp_assoc)
+
+        assert rsp == {}
+
+        self.scp.stop()
+
+    def test_check_ext_bad_implemented_type(self):
+        """Test the default implementation of on_sop_class_extended"""
+        def on_ext(req):
+            return b'\x00\x00'
+
+        self.scp = DummyVerificationSCP()
+        self.scp.ae.on_sop_class_extended = on_ext
+        self.scp.start()
+        ae = AE()
+        ae.add_requested_context(VerificationSOPClass)
+        ae.acse_timeout = 5
+        ae.dimse_timeout = 5
+        assoc = ae.associate('localhost', 11112)
+
+        assert assoc.is_established
+
+        req = {
+            '1.2.3' : ('1.2.840.10008.4.2', []),
+            '1.2.3.1' : ('1.2.840.10008.4.2', ['1.1.1', '1.4.2']),
+            '1.2.3.4' : ('1.2.111111', []),
+            '1.2.3.5' : ('1.2.111111', ['1.2.4', '1.2.840.10008.1.1']),
+        }
+
+        scp_assoc = self.scp.ae.active_associations[0]
+        items = {}
+        for kk, vv in req.items():
+            item = SOPClassCommonExtendedNegotiation()
+            item.sop_class_uid = kk
+            item.service_class_uid = vv[0]
+            item.related_general_sop_class_identification = vv[1]
+            items[kk] = item
+
+        scp_assoc.requestor.user_information.extend(items.values())
+        rsp = scp_assoc.acse._check_sop_class_common_extended(scp_assoc)
+
+        assert rsp == {}
+
+        self.scp.stop()
+
+    def test_functional_no_response(self):
+        """Test a functional workflow with no response."""
+        def on_ext(req):
+            return {}
+
+        self.scp = DummyVerificationSCP()
+        self.scp.ae.on_sop_class_common_extended = on_ext
+        self.scp.start()
+        ae = AE()
+        ae.add_requested_context(VerificationSOPClass)
+        ae.acse_timeout = 5
+        ae.dimse_timeout = 5
+
+        req = {
+            '1.2.3' : ('1.2.840.10008.4.2', []),
+            '1.2.3.1' : ('1.2.840.10008.4.2', ['1.1.1', '1.4.2']),
+            '1.2.3.4' : ('1.2.111111', []),
+            '1.2.3.5' : ('1.2.111111', ['1.2.4', '1.2.840.10008.1.1']),
+        }
+
+        ext_neg = []
+        for kk, vv in req.items():
+            item = SOPClassCommonExtendedNegotiation()
+            item.sop_class_uid = kk
+            item.service_class_uid = vv[0]
+            item.related_general_sop_class_identification = vv[1]
+            ext_neg.append(item)
+
+        assoc = ae.associate('localhost', 11112, ext_neg=ext_neg)
+
+        assert assoc.is_established
+        assert assoc.acceptor.accepted_common_extended == {}
+        scp_assoc = self.scp.ae.active_associations[0]
+        assert scp_assoc.acceptor.accepted_common_extended == {}
+        assoc.release()
+
+        self.scp.stop()
+
+    def test_functional_response(self):
+        """Test a functional workflow with response."""
+        def on_ext(req):
+            del req['1.2.3.1']
+            return req
+
+        self.scp = DummyVerificationSCP()
+        self.scp.ae.on_sop_class_common_extended = on_ext
+        self.scp.start()
+        ae = AE()
+        ae.add_requested_context(VerificationSOPClass)
+        ae.acse_timeout = 5
+        ae.dimse_timeout = 5
+
+        req = {
+            '1.2.3' : ('1.2.840.10008.4.2', []),
+            '1.2.3.1' : ('1.2.840.10008.4.2', ['1.1.1', '1.4.2']),
+            '1.2.3.4' : ('1.2.111111', []),
+            '1.2.3.5' : ('1.2.111111', ['1.2.4', '1.2.840.10008.1.1']),
+        }
+
+        ext_neg = []
+        for kk, vv in req.items():
+            item = SOPClassCommonExtendedNegotiation()
+            item.sop_class_uid = kk
+            item.service_class_uid = vv[0]
+            item.related_general_sop_class_identification = vv[1]
+            ext_neg.append(item)
+
+        assoc = ae.associate('localhost', 11112, ext_neg=ext_neg)
+        assert assoc.is_established
+
+        scp_assoc = self.scp.ae.active_associations[0]
+        acc = scp_assoc.acceptor.accepted_common_extended
+        assert len(acc) == 3
+        assert acc['1.2.3'] == req['1.2.3']
+        assert acc['1.2.3.4'] == req['1.2.3.4']
+        assert acc['1.2.3.5'] == req['1.2.3.5']
 
         assoc.release()
 

@@ -8,6 +8,7 @@ from pynetdicom3.sop_class import (
     uid_to_sop_class,
     uid_to_service_class,
     SOPClass,
+    _SERVICE_CLASSES,
     _VERIFICATION_CLASSES,
     _STORAGE_CLASSES,
     _QR_CLASSES,
@@ -19,7 +20,7 @@ from pynetdicom3.sop_class import (
     _PROCEDURE_STEP_CLASSES,
     _DISPLAY_SYSTEM_CLASSES,
     _MEDIA_STORAGE_CLASSES,
-    _UNITED_PROCEDURE_STEP_CLASSES,
+    _UNIFIED_PROCEDURE_STEP_CLASSES,
     _RT_MACHINE_VERIFICATION_CLASSES,
     VerificationSOPClass,
     CTImageStorage,
@@ -76,9 +77,14 @@ def test_all_sop_classes():
         assert uid in UID_dictionary
     for uid in _MEDIA_STORAGE_CLASSES.values():
         assert uid in UID_dictionary
-    for uid in _UNITED_PROCEDURE_STEP_CLASSES.values():
+    for uid in _UNIFIED_PROCEDURE_STEP_CLASSES.values():
         assert uid in UID_dictionary
     for uid in _RT_MACHINE_VERIFICATION_CLASSES.values():
+        assert uid in UID_dictionary
+
+def test_all_service_classes():
+    """Test that all the Service Class UIDs are correct."""
+    for uid in _SERVICE_CLASSES:
         assert uid in UID_dictionary
 
 
@@ -103,6 +109,10 @@ class TestUIDtoSOPlass(object):
 
 class TestUIDToServiceClass(object):
     """Tests for sop_class.uid_to_service_class."""
+    def test_service_class_uid(self):
+        uid = '1.2.840.10008.4.2'
+        assert uid_to_service_class(uid) == StorageServiceClass
+
     def test_verification_uids(self):
         """Test that the Verification SOP Class UIDs work correctly."""
         for uid in _VERIFICATION_CLASSES.values():
@@ -155,7 +165,7 @@ class TestUIDToServiceClass(object):
 
     def test_ups_uids(self):
         """Test that the UPS SOP Class UIDs work correctly."""
-        for uid in _UNITED_PROCEDURE_STEP_CLASSES.values():
+        for uid in _UNIFIED_PROCEDURE_STEP_CLASSES.values():
             assert uid_to_service_class(uid) == ServiceClass
 
     def test_rt_machine_uids(self):

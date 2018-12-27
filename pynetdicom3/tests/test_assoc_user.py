@@ -94,6 +94,23 @@ class TestServiceUserAcceptor(object):
         user._user_info = []
         assert user.maximum_length is None
 
+    def test_accepted_common(self):
+        """Test accepted_common_extended works correctly."""
+        user = ServiceUser(self.assoc, 'acceptor')
+
+        item = SOPClassCommonExtendedNegotiation()
+        item.sop_class_uid = '1.2.3'
+        item.service_class_uid = '2.3.4'
+        item.related_general_sop_class_identification = ['1.3.4']
+
+        user._common_ext = {item.sop_class_uid : item}
+
+        out = user.accepted_common_extended
+        assert out[item.sop_class_uid] == (
+            item.service_class_uid,
+            item.related_general_sop_class_identification
+        )
+
     def test_assignment(self):
         """Test that assignment works OK,"""
         user = ServiceUser(self.assoc, mode='acceptor')
@@ -194,12 +211,6 @@ class TestServiceUserAcceptor(object):
         item.service_class_application_information = b'SOME DATA'
         self.primitive_ac.user_information.append(item)
 
-        item = SOPClassCommonExtendedNegotiation()
-        item.sop_class_uid = '1.2.3'
-        item.service_class_uid = '2.3.4'
-        item.related_general_sop_class_identification = ['1.3.4']
-        self.primitive_ac.user_information.append(item)
-
         user.primitive = self.primitive_ac
 
         assert user.maximum_length == 16383
@@ -217,12 +228,7 @@ class TestServiceUserAcceptor(object):
         assert len(classes) == 1
         assert classes['1.2.3'] == b'SOME DATA'
 
-        classes = user.sop_class_common_extended
-        assert len(classes) == 1
-        assert classes['1.2.3'].service_class_uid == '2.3.4'
-        assert classes['1.2.3'].related_general_sop_class_identification == [
-            '1.3.4'
-        ]
+        assert user.sop_class_common_extended == {}
 
         item = user.user_identity
         assert item.user_identity_type == 0x01
@@ -330,16 +336,6 @@ class TestServiceUserAcceptor(object):
         assert item in user._ext_neg[SOPClassExtendedNegotiation]
         assert len(user.extended_negotiation) == 4
         assert len(user.user_information) == 6
-
-        item = SOPClassCommonExtendedNegotiation()
-        item.sop_class_uid = '1.2.3'
-        item.service_class_uid = '2.3.4'
-        item.related_general_sop_class_identification = ['1.3.4']
-        user.add_negotiation_item(item)
-        assert item in user.extended_negotiation
-        assert item in user._ext_neg[SOPClassCommonExtendedNegotiation]
-        assert len(user.extended_negotiation) == 5
-        assert len(user.user_information) == 7
 
     def test_add_neg_pre_raises(self):
         """Test that exception is raised if bad item added."""
@@ -755,21 +751,6 @@ class TestServiceUserAcceptor(object):
         assert len(user.extended_negotiation) == 0
         assert len(user.user_information) == 2
 
-        # Repeat for SOP Class Common
-        item = SOPClassCommonExtendedNegotiation()
-        item.sop_class_uid = '1.2.3'
-        item.service_class_uid = '2.3.4'
-        item.related_general_sop_class_identification = ['1.3.4']
-        user.add_negotiation_item(item)
-        assert item in user.extended_negotiation
-        assert item in user._ext_neg[SOPClassCommonExtendedNegotiation]
-        assert len(user.extended_negotiation) == 1
-        assert len(user.user_information) == 3
-
-        user.remove_negotiation_item(item)
-        assert len(user.extended_negotiation) == 0
-        assert len(user.user_information) == 2
-
         # Try removing unknown type
         msg = r"'item' is not a valid extended negotiation item"
         with pytest.raises(TypeError, match=msg):
@@ -827,19 +808,13 @@ class TestServiceUserAcceptor(object):
         item.service_class_application_information = b'SOME DATA'
         user.add_negotiation_item(item)
 
-        item = SOPClassCommonExtendedNegotiation()
-        item.sop_class_uid = '1.2.3'
-        item.service_class_uid = '2.3.4'
-        item.related_general_sop_class_identification = ['1.3.4']
-        user.add_negotiation_item(item)
-
-        assert len(user.extended_negotiation) == 5
-        assert len(user.user_information) == 7
+        assert len(user.extended_negotiation) == 4
+        assert len(user.user_information) == 6
 
         user.reset_negotiation_items()
         assert len(user.extended_negotiation) == 0
         assert len(user.user_information) == 2
-        assert len(user._ext_neg.keys()) == 5
+        assert len(user._ext_neg.keys()) == 4
 
     def test_reset_neg_post_raises(self):
         """Test reset_negotiation_items after association raises."""
@@ -876,14 +851,14 @@ class TestServiceUserAcceptor(object):
         item.related_general_sop_class_identification = ['1.3.4']
         user.primitive.user_information.append(item)
 
-        assert len(user.extended_negotiation) == 5
+        assert len(user.extended_negotiation) == 4
         assert len(user.user_information) == 7
 
         msg = r"Can't reset the extended negotiation items after negotiation"
         with pytest.raises(RuntimeError, match=msg):
             user.reset_negotiation_items()
 
-        assert len(user.extended_negotiation) == 5
+        assert len(user.extended_negotiation) == 4
         assert len(user.user_information) == 7
 
     def test_role_pre(self):
@@ -985,13 +960,16 @@ class TestServiceUserAcceptor(object):
         item.sop_class_uid = '1.2.3'
         item.service_class_uid = '2.3.4'
         item.related_general_sop_class_identification = ['1.3.4']
-        user.add_negotiation_item(item)
-        assert item in user.extended_negotiation
-        assert item in user._ext_neg[SOPClassCommonExtendedNegotiation]
-        assert len(user.extended_negotiation) == 1
-        assert len(user.user_information) == 3
 
-        assert user.sop_class_common_extended['1.2.3'] == item
+        msg = r"'item' is not a valid extended negotiation item"
+        with pytest.raises(TypeError, match=msg):
+            user.add_negotiation_item(item)
+
+        assert item not in user.extended_negotiation
+        assert len(user.extended_negotiation) == 0
+        assert len(user.user_information) == 2
+
+        assert user.sop_class_common_extended == {}
 
     def test_sop_common_post(self):
         """Test sop_class_common_extended prior to association."""
@@ -1006,12 +984,11 @@ class TestServiceUserAcceptor(object):
         item.service_class_uid = '2.3.4'
         item.related_general_sop_class_identification = ['1.3.4']
         user.primitive.user_information.append(item)
-        assert item in user.extended_negotiation
-        assert item not in user._ext_neg[SOPClassCommonExtendedNegotiation]
-        assert len(user.extended_negotiation) == 1
+        assert item not in user.extended_negotiation
+        assert len(user.extended_negotiation) == 0
         assert len(user.user_information) == 3
 
-        assert user.sop_class_common_extended['1.2.3'] == item
+        assert user.sop_class_common_extended == {}
 
         msg = r"Can't add extended negotiation items after negotiation"
         with pytest.raises(RuntimeError, match=msg):
@@ -1135,9 +1112,13 @@ class TestServiceUserAcceptor(object):
         item.sop_class_uid = '1.2.3'
         item.service_class_uid = '2.3.4'
         item.related_general_sop_class_identification = ['1.3.4']
-        user.add_negotiation_item(item)
-        assert item in user.user_information
-        assert len(user.user_information) == 9
+
+        msg = r"'item' is not a valid extended negotiation item"
+        with pytest.raises(TypeError, match=msg):
+            user.add_negotiation_item(item)
+
+        assert item not in user.user_information
+        assert len(user.user_information) == 8
 
     def test_user_info_post(self):
         """Test user_information prior to association."""
@@ -1417,6 +1398,17 @@ class TestServiceUserRequestor(object):
 
         with pytest.raises(AttributeError, match=r"can't set attribute"):
             user.extended_negotiation = []
+
+    def test_accepted_common_raises(self):
+        """Test trying to get the accepted common ext items raises."""
+        user = ServiceUser(self.assoc, mode='requestor')
+
+        msg = (
+            r"'accepted_common_extended' is only available for the "
+            r"'acceptor'"
+        )
+        with pytest.raises(RuntimeError, match=msg):
+            user.accepted_common_extended()
 
     def test_add_neg_pre(self):
         """Test adding negotiation items."""

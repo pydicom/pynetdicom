@@ -424,6 +424,9 @@ class Association(threading.Thread):
             'requestor' : self.requestor.info,
             'acceptor' : self.acceptor.info,
             'sop_class_extended' : self.acceptor.sop_class_extended,
+            'sop_class_common_extended' : (
+                self.acceptor.accepted_common_extended
+            ),
         }
 
         self._is_running = True
@@ -455,7 +458,16 @@ class Association(threading.Thread):
                     self.abort()
                     return
 
-                # Convert the SOP Class UID to the corresponding service
+                # SOP Class Common Extended Negotiation
+                try:
+                    # The service class UID
+                    class_uid = (
+                        self.acceptor.accepted_common_extended[class_uid][0]
+                    )
+                except KeyError:
+                    pass
+
+                # Convert the SOP/Service UID to the corresponding service
                 service_class = uid_to_service_class(class_uid)(self)
 
                 # TODO: Index contexts in a dict using context ID
@@ -2758,10 +2770,44 @@ class ServiceUser(object):
         self.maximum_length = 16382
         self.implementation_class_uid = assoc.ae.implementation_class_uid
 
-        # If Requestor these are the proposed extended negotiation items,
-        #   otherwise ?
+        # The are the proposed extended negotiation items,
         self._ext_neg = {}
         self.reset_negotiation_items()
+
+        # If Acceptor then this the accepted SOP Class Common Extended
+        #   negotiation items
+        self._common_ext = {}
+
+    @property
+    def accepted_common_extended(self):
+        """Return a dict of the accepted SOP Class Common Extended Negotiation.
+
+        Returns
+        -------
+        dict of 2-tuple
+            The {SOP Class UID : (Service Class UID, Related General SOP Class
+            Identification)} for the accepted SOP Class Common Extended
+            negotiation items.
+
+        Raises
+        ------
+        RuntimeError
+            If called when the requestor.
+        """
+        if not self.is_acceptor:
+            raise RuntimeError(
+                "'accepted_common_extended' is only available for the "
+                "'acceptor'"
+            )
+
+        out = {}
+        for item in self._common_ext.values():
+            out[item.sop_class_uid] = (
+                item.service_class_uid,
+                item.related_general_sop_class_identification
+            )
+
+        return out
 
     def add_negotiation_item(self, item):
         """Add an extended negotiation item to the user information.
@@ -3182,9 +3228,10 @@ class ServiceUser(object):
             SCP_SCU_RoleSelectionNegotiation : [],
             AsynchronousOperationsWindowNegotiation : [],
             UserIdentityNegotiation : [],
-            SOPClassCommonExtendedNegotiation : [],
             SOPClassExtendedNegotiation : [],
         }
+        if self.is_requestor:
+            self._ext_neg[SOPClassCommonExtendedNegotiation] = []
 
     @property
     def role_selection(self):
@@ -3213,11 +3260,17 @@ class ServiceUser(object):
     def sop_class_common_extended(self):
         """Return any SOP Class Common Extended items as dict.
 
+        If the ServiceUser is the association acceptor then no SOP Class
+        Common Extended items will be present in the User Information.
+
         Returns
         -------
         dict
             The SOP Class Common Extended items as {SOP Class UID : item}.
         """
+        if self.is_acceptor:
+            return {}
+
         sop_classes = {}
         if self.writeable:
             for item in self._ext_neg[SOPClassCommonExtendedNegotiation]:
