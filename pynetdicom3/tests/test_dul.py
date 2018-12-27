@@ -3,7 +3,8 @@
 
 import logging
 import socket
-import unittest
+
+import pytest
 
 from pynetdicom3.dul import DULServiceProvider
 from pynetdicom3.pdu import A_ASSOCIATE_RQ, A_ASSOCIATE_AC, A_ASSOCIATE_RJ, \
@@ -43,7 +44,7 @@ class DummyDUL(DULServiceProvider):
         self.assoc = DummyAssociation()
 
 
-class TestDUL(unittest.TestCase):
+class TestDUL(object):
     """Run tests on DUL service provider."""
     def test__pdu_to_event(self):
         """Test that good PDU paramters return expected results"""
@@ -58,12 +59,12 @@ class TestDUL(unittest.TestCase):
                      'Evt16', 'Evt19']
 
         for pdu, evt in zip(pdu_types, event_str):
-            self.assertEqual(p2e(pdu), evt)
+            assert p2e(pdu) == evt
 
     def test__socket_to_pdu(self):
         """Test that good PDU paramters return expected results"""
         dul = DummyDUL()
-        self.assertEqual(dul._socket_to_pdu(b'\x99\x98'), None)
+        assert dul._socket_to_pdu(b'\x99\x98') is None
 
     def test__primitive_to_event(self):
         """Test that parameter returns expected results"""
@@ -72,28 +73,23 @@ class TestDUL(unittest.TestCase):
 
         primitive = A_ASSOCIATE()
         primitive.result = None
-        self.assertEqual(p2e(primitive), 'Evt1')
+        assert p2e(primitive) == 'Evt1'
         primitive.result = 0
-        self.assertEqual(p2e(primitive), 'Evt7')
+        assert p2e(primitive) == 'Evt7'
         primitive.result = 1
-        self.assertEqual(p2e(primitive), 'Evt8')
+        assert p2e(primitive) == 'Evt8'
 
         primitive = A_RELEASE()
         primitive.result = None
-        self.assertEqual(p2e(primitive), 'Evt11')
+        assert p2e(primitive) == 'Evt11'
         primitive.result = 'affirmative'
-        self.assertEqual(p2e(primitive), 'Evt14')
+        assert p2e(primitive) == 'Evt14'
 
         primitive = A_ABORT()
-        self.assertEqual(p2e(primitive), 'Evt15')
+        assert p2e(primitive) == 'Evt15'
 
         primitive = P_DATA()
-        self.assertEqual(p2e(primitive), 'Evt9')
+        assert p2e(primitive) == 'Evt9'
 
-        with self.assertRaises(ValueError):
+        with pytest.raises(ValueError):
             p2e('TEST')
-
-
-
-if __name__ == "__main__":
-    unittest.main()
