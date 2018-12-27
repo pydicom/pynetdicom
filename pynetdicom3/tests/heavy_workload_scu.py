@@ -8,12 +8,8 @@ Results:
 31-01-2016: CTImageStorage: 30 runs of 50 in 12.4 +/- 0.5 s/run (~59 MB)
             RTImageStorage: 30 runs of 50 in 138.1 +/- 3.5 s/run (~3.1 GB)
             Ratio data: 53.6; Ratio time/run: 11.1
-17-03-2018: f7ba772 : (different hardware)
-            CTImageStorage: 30 runs of 50 in 6.0 +/- 0.1 s/run (~59 MB)
-            RTImageStorage: 30 runs of 50 in 70.8 +/- 0.4 s/run (~3.1 GB)
-            Ratio time/run: 11.8
 """
-
+import cProfile
 import logging
 import os
 import time
@@ -31,9 +27,6 @@ TEST_DS_DIR = os.path.join(os.path.dirname(__file__), 'dicom_files')
 BIG_DATASET = read_file(os.path.join(TEST_DS_DIR, 'RTImageStorage.dcm')) # 2.1 MB
 DATASET = read_file(os.path.join(TEST_DS_DIR, 'CTImageStorage.dcm')) # 39 kB
 
-scp = DummyStorageSCP(11112)
-scp.start()
-
 ae = AE()
 ae.add_requested_context(CTImageStorage)
 ae.add_requested_context(RTImageStorage)
@@ -41,7 +34,7 @@ assoc = ae.associate('localhost', 11112)
 
 if assoc.is_established:
     print('Starting transfers...')
-    no_runs = 30
+    no_runs = 10
     ds_per_run = 50
     results = []
     for ii in range(no_runs):
@@ -57,5 +50,3 @@ if assoc.is_established:
 
     print('Transfers complete, releasing association.')
     assoc.release()
-
-scp.stop()

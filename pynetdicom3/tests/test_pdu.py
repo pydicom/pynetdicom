@@ -24,7 +24,7 @@ from pynetdicom3.pdu_items import (
     TransferSyntaxSubItem
 )
 from pynetdicom3.pdu_primitives import (
-    MaximumLengthNegotiation, ImplementationClassUIDNotification,
+    MaximumLengthNotification, ImplementationClassUIDNotification,
     ImplementationVersionNameNotification, A_P_ABORT, A_ABORT, A_ASSOCIATE,
     P_DATA
 )
@@ -297,7 +297,7 @@ class TestASSOC_RQ(object):
         # Test User Information
         for item in pr.user_information:
             # Maximum PDU Length (required)
-            if isinstance(item, MaximumLengthNegotiation):
+            if isinstance(item, MaximumLengthNotification):
                 assert item.maximum_length_received == 16382
                 assert isinstance(item.maximum_length_received, int)
 
@@ -598,7 +598,7 @@ class TestASSOC_AC(object):
         # Test User Information
         for item in primitive.user_information:
             # Maximum PDU Length (required)
-            if isinstance(item, MaximumLengthNegotiation):
+            if isinstance(item, MaximumLengthNotification):
                 assert item.maximum_length_received == 16384
                 assert isinstance(item.maximum_length_received, int)
 

@@ -12,7 +12,7 @@ from pynetdicom3.pdu import A_ASSOCIATE_RQ, A_ABORT_RQ, P_DATA_TF
 from pynetdicom3.pdu_primitives import (
     SOPClassExtendedNegotiation,
     SOPClassCommonExtendedNegotiation,
-    MaximumLengthNegotiation,
+    MaximumLengthNotification,
     ImplementationClassUIDNotification,
     ImplementationVersionNameNotification,
     P_DATA, A_RELEASE, A_ASSOCIATE, A_P_ABORT, A_ABORT,
@@ -35,10 +35,10 @@ def print_nice_bytes(bytestream):
         print(string)
 
 
-class TestPrimitive_MaximumLengthNegotiation(unittest.TestCase):
+class TestPrimitive_MaximumLengthNotification(unittest.TestCase):
     def test_assignment_and_exceptions(self):
         """ Check incorrect types/values for maximum_length_received raise exceptions """
-        primitive = MaximumLengthNegotiation()
+        primitive = MaximumLengthNotification()
 
         # Check default assignment
         self.assertTrue(primitive.maximum_length_received == 16382)
@@ -60,7 +60,7 @@ class TestPrimitive_MaximumLengthNegotiation(unittest.TestCase):
     def test_conversion(self):
         """ Check converting to PDU item works correctly """
         ## Check conversion to item using default value
-        primitive = MaximumLengthNegotiation()
+        primitive = MaximumLengthNotification()
         item = primitive.from_primitive()
 
         # \x3F\xFE = 16382
@@ -75,7 +75,7 @@ class TestPrimitive_MaximumLengthNegotiation(unittest.TestCase):
 
     def test_string(self):
         """Check the string output."""
-        primitive = MaximumLengthNegotiation()
+        primitive = MaximumLengthNotification()
         self.assertTrue('16382 bytes' in primitive.__str__())
 
 
@@ -610,7 +610,7 @@ class TestPrimitive_A_ASSOCIATE(unittest.TestCase):
         self.assertTrue(assoc.called_ae_title == b'ABCD1234ABCD1234')
         self.assertTrue(assoc.responding_ae_title == b'ABCD1234ABCD1234')
 
-        max_length = MaximumLengthNegotiation()
+        max_length = MaximumLengthNotification()
         max_length.maximum_length_received = 31222
         assoc.user_information.append(max_length)
         self.assertTrue(assoc.user_information[0].maximum_length_received == 31222)
@@ -663,21 +663,21 @@ class TestPrimitive_A_ASSOCIATE(unittest.TestCase):
         # No maximum_length_received set
         self.assertEqual(assoc.maximum_length_received, None)
 
-        # No MaximumLengthNegotiation present
+        # No MaximumLengthNotification present
         assoc.maximum_length_received = 31223
         self.assertTrue(assoc.user_information[0].maximum_length_received == 31223)
         self.assertTrue(assoc.maximum_length_received == 31223)
 
-        # MaximumLengthNegotiation already present
+        # MaximumLengthNotification already present
         assoc.maximum_length_received = 31224
         self.assertTrue(assoc.maximum_length_received == 31224)
 
-        # No ImplementationClassUIDNegotiation present
+        # No ImplementationClassUIDNotification present
         assoc.implementation_class_uid = '1.1.2.3.4'
         self.assertTrue(assoc.user_information[1].implementation_class_uid == UID('1.1.2.3.4'))
         self.assertTrue(assoc.implementation_class_uid == UID('1.1.2.3.4'))
 
-        # ImplementationClassUIDNegotiation already present
+        # ImplementationClassUIDNotification already present
         assoc.implementation_class_uid = '1.1.2.3.4'
         self.assertTrue(assoc.implementation_class_uid == UID('1.1.2.3.4'))
 
@@ -974,8 +974,8 @@ class TestPrimitive_P_DATA(unittest.TestCase):
 class TestServiceParameter(object):
     def test_equality(self):
         """Test equality of ServiceParameter subclasses."""
-        prim_a = MaximumLengthNegotiation()
-        prim_b = MaximumLengthNegotiation()
+        prim_a = MaximumLengthNotification()
+        prim_b = MaximumLengthNotification()
         assert prim_a == prim_b
         assert not prim_a == 'test'
         assert not prim_a != prim_b

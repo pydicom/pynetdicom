@@ -89,9 +89,7 @@ class PDUItem(object):
             else:
                 sl = slice(offset, None)
 
-            setattr(
-                self, attr_name, func(bytestream[sl], *args)
-            )
+            setattr(self, attr_name, func(bytestream[sl], *args))
 
     @property
     def _decoders(self):
@@ -128,10 +126,10 @@ class PDUItem(object):
 
         if isinstance(other, self.__class__):
             self_dict = {
-                enc[0] : getattr(self, enc[0]) for enc in self._encoders if enc[0]
+                en[0]: getattr(self, en[0]) for en in self._encoders if en[0]
             }
             other_dict = {
-                enc[0] : getattr(other, enc[0]) for enc in other._encoders if enc[0]
+                en[0]: getattr(other, en[0]) for en in other._encoders if en[0]
             }
             return self_dict == other_dict
 
@@ -1065,7 +1063,7 @@ class UserInformationItem(PDUItem):
         primitive : list of User Information primitives
             Must contain:
 
-            - MaximumLengthNegotiation
+            - MaximumLengthNotification
             - ImplementationClassUIDNotification
 
             May optionally contain one or more:
@@ -1088,7 +1086,7 @@ class UserInformationItem(PDUItem):
         list of User Information primitives
             Must contain:
 
-            - MaximumLengthNegotiation
+            - MaximumLengthNotification
             - ImplementationClassUIDNotification
 
             May optionally contain one or more:
@@ -1642,7 +1640,7 @@ class MaximumLengthSubItem(PDUItem):
 
         Parameters
         ----------
-        primitive : pdu_primitives.MaximumLengthNegotiation
+        primitive : pdu_primitives.MaximumLengthNotification
             The primitive to use to set the Item's field values.
         """
         self.maximum_length_received = primitive.maximum_length_received
@@ -1652,12 +1650,12 @@ class MaximumLengthSubItem(PDUItem):
 
         Returns
         -------
-        pdu_primitives.MaximumLengthNegotiation
+        pdu_primitives.MaximumLengthNotification
             The primitive representation of the current Item.
         """
-        from pynetdicom3.pdu_primitives import MaximumLengthNegotiation
+        from pynetdicom3.pdu_primitives import MaximumLengthNotification
 
-        primitive = MaximumLengthNegotiation()
+        primitive = MaximumLengthNotification()
         primitive.maximum_length_received = self.maximum_length_received
 
         return primitive
@@ -3385,7 +3383,8 @@ class UserIdentitySubItemRQ(PDUItem):
             1 : 'Username',
             2 : 'Username/Password',
             3 : 'Kerberos',
-            4 : 'SAML'
+            4 : 'SAML',
+            5 : 'JSON Web Token',
         }
 
         return _types[self.user_identity_type]

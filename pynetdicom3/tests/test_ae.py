@@ -138,22 +138,27 @@ class TestAEPresentationSCU(object):
         assert assoc.is_established
 
         assert ae.requested_contexts[0].context_id is None
-        assert len(assoc.requested_contexts) == 1
-        assert assoc.requested_contexts[0].abstract_syntax == '1.2.840.10008.1.1'
-        assert assoc.requested_contexts[0].context_id == 1
+        assert len(assoc.requestor.requested_contexts) == 1
+        assert assoc.requestor.requested_contexts[0].abstract_syntax == (
+            '1.2.840.10008.1.1'
+        )
+        assert assoc.requestor.requested_contexts[0].context_id == 1
         assoc.release()
         assert not assoc.is_established
         assert assoc.is_released
 
         # Test associate(contexts=...)
         ae.requested_contexts = []
-        assoc = ae.associate('localhost', 11112, contexts=VerificationPresentationContexts)
+        assoc = ae.associate('localhost', 11112,
+                             contexts=VerificationPresentationContexts)
         assert assoc.is_established
 
         assert VerificationPresentationContexts[0].context_id is None
-        assert len(assoc.requested_contexts) == 1
-        assert assoc.requested_contexts[0].abstract_syntax == '1.2.840.10008.1.1'
-        assert assoc.requested_contexts[0].context_id == 1
+        assert len(assoc.requestor.requested_contexts) == 1
+        assert assoc.requestor.requested_contexts[0].abstract_syntax == (
+            '1.2.840.10008.1.1'
+        )
+        assert assoc.requestor.requested_contexts[0].context_id == 1
         assoc.release()
         assert not assoc.is_established
         assert assoc.is_released
@@ -466,16 +471,22 @@ class TestAEGoodAssociation(object):
         ae.acse_timeout = 5
         ae.dimse_timeout = 5
         assoc = ae.associate('localhost', 11112, max_pdu=12345)
-        assert self.scp.ae.active_associations[0].local_max_pdu == 54321
-        assert self.scp.ae.active_associations[0].peer_max_pdu == 12345
-        assert assoc.local_max_pdu == 12345
-        assert assoc.peer_max_pdu == 54321
+        assert self.scp.ae.active_associations[0].acceptor.maximum_length == (
+            54321
+        )
+        assert self.scp.ae.active_associations[0].requestor.maximum_length == (
+            12345
+        )
+        assert assoc.requestor.maximum_length == 12345
+        assert assoc.acceptor.maximum_length == 54321
         assoc.release()
 
         # Check 0 max pdu value - max PDU value maps to 0x10000 internally
         assoc = ae.associate('localhost', 11112, max_pdu=0)
-        assert assoc.local_max_pdu == 0
-        assert self.scp.ae.active_associations[0].peer_max_pdu == 0x10000
+        assert assoc.requestor.maximum_length == 0
+        assert self.scp.ae.active_associations[0].requestor.maximum_length == (
+            0x10000
+        )
         assoc.release()
 
         self.scp.stop()
