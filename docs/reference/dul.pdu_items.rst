@@ -1,7 +1,7 @@
-PDU Items and Sub-items (:mod:`pynetdicom3.pdu_items`)
+PDU Items and Sub-items (:mod:`pynetdicom.pdu_items`)
 ======================================================
 
-.. currentmodule:: pynetdicom3.pdu_items
+.. currentmodule:: pynetdicom.pdu_items
 
 .. autosummary::
    :toctree: generated/

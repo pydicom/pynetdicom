@@ -63,6 +63,7 @@ Changes
   - Added ``Association.requestor`` and ``Association.acceptor`` attributes
     which are ``ServiceUser`` instances that track the association requestor
     and acceptor.
+* Project named changed from pynetdicom3 to pynetdicom
 
 
 Enhancements

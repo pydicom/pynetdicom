@@ -1,7 +1,7 @@
-Service Primitives (:mod:`pynetdicom3.dimse_primitives`)
+Service Primitives (:mod:`pynetdicom.dimse_primitives`)
 ========================================================
 
-.. currentmodule:: pynetdicom3.dimse_primitives
+.. currentmodule:: pynetdicom.dimse_primitives
 
 
 DIMSE-C Primitives

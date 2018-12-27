@@ -1,9 +1,9 @@
 .. _timer:
 
-Timer (:mod:`pynetdicom3.timer`)
+Timer (:mod:`pynetdicom.timer`)
 ================================
 
-.. currentmodule:: pynetdicom3.timer
+.. currentmodule:: pynetdicom.timer
 
 .. autosummary::
    :toctree: generated/

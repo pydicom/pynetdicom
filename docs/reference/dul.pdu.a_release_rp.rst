@@ -1,7 +1,7 @@
 A-RELEASE-RP PDU
 ================
 
-.. currentmodule:: pynetdicom3.pdu
+.. currentmodule:: pynetdicom.pdu
 
 An A-RELEASE-RP PDU is made of a sequence of mandatory fields.
 

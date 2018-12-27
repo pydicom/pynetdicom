@@ -1,12 +1,12 @@
 .. _association:
 
-Association (:mod:`pynetdicom3.association`)
+Association (:mod:`pynetdicom.association`)
 ============================================
 
 Representation of a DICOM Association between two Application Entities and
 one of pynetdicom's two main user classes.
 
-.. currentmodule:: pynetdicom3.association
+.. currentmodule:: pynetdicom.association
 
 .. autosummary::
    :toctree: generated/

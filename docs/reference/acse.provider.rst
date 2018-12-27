@@ -1,8 +1,8 @@
 ***********************************************
-ACSE Service Provider (:mod:`pynetdicom3.acse`)
+ACSE Service Provider (:mod:`pynetdicom.acse`)
 ***********************************************
 
-.. currentmodule:: pynetdicom3.acse
+.. currentmodule:: pynetdicom.acse
 
 .. autosummary::
    :toctree: generated/

@@ -1,7 +1,7 @@
 A-ASSOCIATE-RJ PDU
 ==================
 
-.. currentmodule:: pynetdicom3.pdu
+.. currentmodule:: pynetdicom.pdu
 
 An A-ASSOCIATE-RJ PDU is made of a sequence of mandatory fields.
 

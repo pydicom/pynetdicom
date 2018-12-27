@@ -1,9 +1,9 @@
 .. _dsutils:
 
-Dataset Utilities (:mod:`pynetdicom3.dsutils`)
+Dataset Utilities (:mod:`pynetdicom.dsutils`)
 ==============================================
 
-.. currentmodule:: pynetdicom3.dsutils
+.. currentmodule:: pynetdicom.dsutils
 
 This module provides DICOM Dataset related utilities.
 

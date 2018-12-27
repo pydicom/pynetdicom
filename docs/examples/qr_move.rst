@@ -28,8 +28,8 @@ the Storage SCP with AE title b'STORE_SCP'.
 
     from pydicom.dataset import Dataset
 
-    from pynetdicom3 import AE
-    from pynetdicom3.sop_class import PatientRootQueryRetrieveInformationModelMove
+    from pynetdicom import AE
+    from pynetdicom.sop_class import PatientRootQueryRetrieveInformationModelMove
 
     # Initialise the Application Entity
     ae = AE()
@@ -98,8 +98,8 @@ query against that.
     from pydicom import dcmread
     from pydicom.dataset import Dataset
 
-    from pynetdicom3 import AE, StoragePresentationContexts
-    from pynetdicom3.sop_class import PatientRootQueryRetrieveInformationModelMove
+    from pynetdicom import AE, StoragePresentationContexts
+    from pynetdicom.sop_class import PatientRootQueryRetrieveInformationModelMove
 
     # Create application entity
     ae = AE(port=11112)

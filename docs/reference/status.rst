@@ -1,9 +1,9 @@
 .. _status:
 
-Statuses (:mod:`pynetdicom3.status`)
+Statuses (:mod:`pynetdicom.status`)
 ====================================
 
-.. currentmodule:: pynetdicom3.status
+.. currentmodule:: pynetdicom.status
 
 Certain service classes allow assigning custom values to specific general
 status types provided that they lay within a given range. The following status

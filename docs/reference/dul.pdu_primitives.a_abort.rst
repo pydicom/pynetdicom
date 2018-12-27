@@ -1,7 +1,7 @@
 A-ABORT
 =======
 
-.. currentmodule:: pynetdicom3.pdu_primitives
+.. currentmodule:: pynetdicom.pdu_primitives
 
 The ACSE A-ABORT service shall be used by either of the Application Entities to
 cause the abnormal release of the association.

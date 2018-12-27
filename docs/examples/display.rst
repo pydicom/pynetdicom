@@ -14,9 +14,9 @@ Display System Management Service.
 
 .. code-block:: python
 
-    from pynetdicom3 import AE
-    from pynetdicom3.sop_class import DisplaySystemSOPClass
-    from pynetdcom3.status import code_to_category
+    from pynetdicom import AE
+    from pynetdicom.sop_class import DisplaySystemSOPClass
+    from pynetdicom.status import code_to_category
 
     # Initialise the Application Entity
     ae = AE()
@@ -59,7 +59,7 @@ the requested contexts.
 
 .. code-block:: python
 
-   from pynetdicom3 import AE, DisplaySystemPresentationContexts
+   from pynetdicom import AE, DisplaySystemPresentationContexts
 
    ae = AE()
    ae.requested_contexts = DisplaySystemPresentationContexts
@@ -74,8 +74,8 @@ containing the single tag (0008,0070).
 
 .. code-block:: python
 
-    from pynetdicom3 import AE
-    from pynetdicom3.sop_class import DisplaySystemSOPClass
+    from pynetdicom import AE
+    from pynetdicom.sop_class import DisplaySystemSOPClass
 
     # Initialise the Application Entity and specify the listen port
     ae = AE(port=11112)

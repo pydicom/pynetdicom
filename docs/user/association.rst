@@ -10,15 +10,15 @@ Requesting an Association (SCU)
 
 Assuming you :ref:`have an AE <ae_create_scu>` and have added your requested presentation contexts
 then you can associate with a peer by using the
-:py:meth:`AE.associate() <pynetdicom3.ae.ApplicationEntity.associate>`
+:py:meth:`AE.associate() <pynetdicom.ae.ApplicationEntity.associate>`
 method, which returns an
-:py:class:`Association <pynetdicom3.association.Association>`
+:py:class:`Association <pynetdicom.association.Association>`
 thread:
 
 ::
 
-    from pynetdicom3 import AE
-    from pynetdicom3.sop_class import VerificationSOPClass
+    from pynetdicom import AE
+    from pynetdicom.sop_class import VerificationSOPClass
 
     ae = AE()
     ae.add_requested_context(VerificationSOPClass)
@@ -28,7 +28,7 @@ thread:
 
 This sends an association request to the IP address '127.0.0.1' on port 11112
 with the request containing the presentation contexts from
-:py:obj:`AE.requested_contexts <pynetdicom3.ae.ApplicationEntity.requested_contexts>`
+:py:obj:`AE.requested_contexts <pynetdicom.ae.ApplicationEntity.requested_contexts>`
 and the default *Called AE Title* parameter of ``b'ANY-SCP         '``.
 
 Specifying the Called AE Title
@@ -42,16 +42,16 @@ parameter:
 Specifying Presentation Contexts for each Association
 .....................................................
 Calling
-:py:meth:`AE.associate() <pynetdicom3.ae.ApplicationEntity.associate>`
+:py:meth:`AE.associate() <pynetdicom.ae.ApplicationEntity.associate>`
 with only the ``addr`` and ``port`` parameters means the presentation
 contexts in
-:py:obj:`AE.requested_contexts <pynetdicom3.ae.ApplicationEntity.requested_contexts>`
+:py:obj:`AE.requested_contexts <pynetdicom.ae.ApplicationEntity.requested_contexts>`
 will be used with the association. To propose presentation contexts on a
 per-association basis you can use the ``contexts`` parameter:
 
 ::
 
-    from pynetdicom3 import AE, build_context
+    from pynetdicom import AE, build_context
 
     ae = AE()
     requested_contexts = [build_context('1.2.840.10008.1.1')]
@@ -69,12 +69,12 @@ also acting as a Storage SCP), plus a User Identity Negotiation item:
 
 ::
 
-    from pynetdicom3 import (
+    from pynetdicom import (
         AE,
         StoragePresentationContexts,
         QueryRetrievePresentationContexts
     )
-    from pynetdicom3.pdu_primitives import (
+    from pynetdicom.pdu_primitives import (
         SCP_SCU_RoleSelectionNegotiation,
         UserIdentityNegotiation,
     )
@@ -106,11 +106,11 @@ also acting as a Storage SCP), plus a User Identity Negotiation item:
 
 Possible extended negotiation items are:
 
-* :py:class:`Asynchronous Operations Window Negotiation <pynetdicom3.pdu_primitives.AsynchronousOperationsWindowNegotiation>`
-* :py:class:`SCP/SCU Role Selection Negotiation <pynetdicom3.pdu_primitives.SCP_SCU_RoleSelectionNegotiation>`
-* :py:class:`SOP Class Extended Negotiation <pynetdicom3.pdu_primitives.SOPClassExtendedNegotiation>`
-* :py:class:`SOP Class Common Negotiation <pynetdicom3.pdu_primitives.SOPClassCommonExtendedNegotiation>`
-* :py:class:`User Identity Negotiation <pynetdicom3.pdu_primitives.UserIdentityNegotiation>`
+* :py:class:`Asynchronous Operations Window Negotiation <pynetdicom.pdu_primitives.AsynchronousOperationsWindowNegotiation>`
+* :py:class:`SCP/SCU Role Selection Negotiation <pynetdicom.pdu_primitives.SCP_SCU_RoleSelectionNegotiation>`
+* :py:class:`SOP Class Extended Negotiation <pynetdicom.pdu_primitives.SOPClassExtendedNegotiation>`
+* :py:class:`SOP Class Common Negotiation <pynetdicom.pdu_primitives.SOPClassCommonExtendedNegotiation>`
+* :py:class:`User Identity Negotiation <pynetdicom.pdu_primitives.UserIdentityNegotiation>`
 
 
 Outcomes of an Association Request
@@ -122,8 +122,8 @@ the Association:
 
 ::
 
-    from pynetdicom3 import AE
-    from pynetdicom3.sop_class import VerificationSOPClass
+    from pynetdicom import AE
+    from pynetdicom.sop_class import VerificationSOPClass
 
     ae = AE()
     ae.add_requested_context(VerificationSOPClass)
@@ -145,22 +145,22 @@ set of services are available for use. Currently pynetdicom supports the usage
 of the following DIMSE-C services:
 
 * C-ECHO, through the
-  :py:meth:`Association.send_c_echo() <pynetdicom3.association.Association.send_c_echo>`
+  :py:meth:`Association.send_c_echo() <pynetdicom.association.Association.send_c_echo>`
   method
 * C-STORE, through the
-  :py:meth:`Association.send_c_store() <pynetdicom3.association.Association.send_c_store>`
+  :py:meth:`Association.send_c_store() <pynetdicom.association.Association.send_c_store>`
   method
 * C-FIND, through the
-  :py:meth:`Association.send_c_find() <pynetdicom3.association.Association.send_c_find>`
+  :py:meth:`Association.send_c_find() <pynetdicom.association.Association.send_c_find>`
   method
 * C-GET, through the
-  :py:meth:`Association.send_c_get() <pynetdicom3.association.Association.send_c_get>`
+  :py:meth:`Association.send_c_get() <pynetdicom.association.Association.send_c_get>`
   method. Any AE that uses the C-GET service will also be providing the C-STORE
   service and must implement the
-  :py:meth:`AE.on_c_store() <pynetdicom3.ae.ApplicationEntity.on_c_store>`
+  :py:meth:`AE.on_c_store() <pynetdicom.ae.ApplicationEntity.on_c_store>`
   callback (as outlined :ref:`here <assoc_scp>`)
 * C-MOVE, through the
-  :py:meth:`Association.send_c_move() <pynetdicom3.association.Association.send_c_move>`
+  :py:meth:`Association.send_c_move() <pynetdicom.association.Association.send_c_move>`
   method. The current implementation of pynetdicom doesn't support the C-MOVE
   SCU being the destination for the storage of requested datasets (the C-STORE
   SCP).
@@ -179,7 +179,7 @@ Accessing User Identity Responses
 If the association requestor has sent a User Identity Negotiation item as
 part of the extended negotiation and has requested a response in the event of
 a positive identification then it can be accessed via the
-:py:meth:`Assocation.acceptor.user_identity <pynetdicom3.association.Association.acceptor.user_identity>`
+:py:meth:`Assocation.acceptor.user_identity <pynetdicom.association.Association.acceptor.user_identity>`
 property after the association has been established.
 
 .. _assoc_scp:
@@ -189,13 +189,13 @@ Listening for Association Requests (SCP)
 Assuming you :ref:`have an AE <ae_create_scp>` set to listen on port 11112
 and have added your supported presentation contexts then you can start
 listening for association requests from peers with the
-:py:meth:`AE.start() <pynetdicom3.ae.ApplicationEntity.start>`
+:py:meth:`AE.start() <pynetdicom.ae.ApplicationEntity.start>`
 method:
 
 ::
 
-    from pynetdicom3 import AE
-    from pynetdicom3.sop_class import VerificationSOPClass
+    from pynetdicom import AE
+    from pynetdicom.sop_class import VerificationSOPClass
 
     ae = AE(port=11112)
     ae.add_supported_context(VerificationSOPClass)
@@ -215,19 +215,19 @@ DIMSE-C services then the corresponding callback(s) should be implemented
 (excluding C-ECHO which has a default implementation that always returns a
 0x0000 *Success* response):
 
-* C-ECHO: :py:meth:`AE.on_c_echo() <pynetdicom3.ae.ApplicationEntity.on_c_echo>`
-* C-STORE: :py:meth:`AE.on_c_store() <pynetdicom3.ae.ApplicationEntity.on_c_store>`
-* C-FIND: :py:meth:`AE.on_c_find() <pynetdicom3.ae.ApplicationEntity.on_c_find>`
-* C-GET: :py:meth:`AE.on_c_get() <pynetdicom3.ae.ApplicationEntity.on_c_get>`
-* C-MOVE: :py:meth:`AE.on_c_move() <pynetdicom3.ae.ApplicationEntity.on_c_move>`
+* C-ECHO: :py:meth:`AE.on_c_echo() <pynetdicom.ae.ApplicationEntity.on_c_echo>`
+* C-STORE: :py:meth:`AE.on_c_store() <pynetdicom.ae.ApplicationEntity.on_c_store>`
+* C-FIND: :py:meth:`AE.on_c_find() <pynetdicom.ae.ApplicationEntity.on_c_find>`
+* C-GET: :py:meth:`AE.on_c_get() <pynetdicom.ae.ApplicationEntity.on_c_get>`
+* C-MOVE: :py:meth:`AE.on_c_move() <pynetdicom.ae.ApplicationEntity.on_c_move>`
 
 For instance, if your SCP is to support the Storage Service then you would
 implement the ``on_c_store`` callback in manner similar to:
 
 ::
 
-    from pynetdicom3 import AE
-    from pynetdicom3.sop_class import VerificationSOPClass
+    from pynetdicom import AE
+    from pynetdicom.sop_class import VerificationSOPClass
 
     ae = AE(port=11112)
     ae.add_supported_context(VerificationSOPClass)

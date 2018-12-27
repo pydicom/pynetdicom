@@ -1,3 +1,3 @@
-.. currentmodule:: pynetdicom3
+.. currentmodule:: pynetdicom
 
 .. include:: changelog/1.0.0.rst
