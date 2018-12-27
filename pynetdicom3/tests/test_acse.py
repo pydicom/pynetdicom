@@ -1566,7 +1566,7 @@ class TestSOPClassCommonExtendedNegotiation(object):
             raise ValueError()
 
         self.scp = DummyVerificationSCP()
-        self.scp.ae.on_sop_class_extended = on_ext
+        self.scp.ae.on_sop_class_common_extended = on_ext
         self.scp.start()
         ae = AE()
         ae.add_requested_context(VerificationSOPClass)

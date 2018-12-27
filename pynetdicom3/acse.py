@@ -110,12 +110,12 @@ class ACSE(object):
                 assoc.requestor.sop_class_common_extended
             )
         except Exception as exc:
-            items = []
             LOGGER.error(
                 "Exception raised in user's 'on_sop_class_common_extended' "
                 "implementation"
             )
             LOGGER.exception(exc)
+            return {}
 
         rsp = {
             uid:ii for uid,ii in rsp.items()
