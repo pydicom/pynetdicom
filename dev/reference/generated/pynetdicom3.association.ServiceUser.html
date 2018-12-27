@@ -331,59 +331,82 @@ association’s mode.</li>
 <col width="90%" />
 </colgroup>
 <tbody valign="top">
-<tr class="row-odd"><td><a class="reference internal" href="#pynetdicom3.association.ServiceUser.asynchronous_operations" title="pynetdicom3.association.ServiceUser.asynchronous_operations"><code class="xref py py-obj docutils literal notranslate"><span class="pre">asynchronous_operations</span></code></a></td>
+<tr class="row-odd"><td><a class="reference internal" href="#pynetdicom3.association.ServiceUser.accepted_common_extended" title="pynetdicom3.association.ServiceUser.accepted_common_extended"><code class="xref py py-obj docutils literal notranslate"><span class="pre">accepted_common_extended</span></code></a></td>
+<td>Return a dict of the accepted SOP Class Common Extended Negotiation.</td>
+</tr>
+<tr class="row-even"><td><a class="reference internal" href="#pynetdicom3.association.ServiceUser.asynchronous_operations" title="pynetdicom3.association.ServiceUser.asynchronous_operations"><code class="xref py py-obj docutils literal notranslate"><span class="pre">asynchronous_operations</span></code></a></td>
 <td>Return the Asynchronous Operations Window operations numbers.</td>
 </tr>
-<tr class="row-even"><td><a class="reference internal" href="#pynetdicom3.association.ServiceUser.extended_negotiation" title="pynetdicom3.association.ServiceUser.extended_negotiation"><code class="xref py py-obj docutils literal notranslate"><span class="pre">extended_negotiation</span></code></a></td>
+<tr class="row-odd"><td><a class="reference internal" href="#pynetdicom3.association.ServiceUser.extended_negotiation" title="pynetdicom3.association.ServiceUser.extended_negotiation"><code class="xref py py-obj docutils literal notranslate"><span class="pre">extended_negotiation</span></code></a></td>
 <td>Return a list of Extended Negotiation items.</td>
 </tr>
-<tr class="row-odd"><td><a class="reference internal" href="#pynetdicom3.association.ServiceUser.implementation_class_uid" title="pynetdicom3.association.ServiceUser.implementation_class_uid"><code class="xref py py-obj docutils literal notranslate"><span class="pre">implementation_class_uid</span></code></a></td>
+<tr class="row-even"><td><a class="reference internal" href="#pynetdicom3.association.ServiceUser.implementation_class_uid" title="pynetdicom3.association.ServiceUser.implementation_class_uid"><code class="xref py py-obj docutils literal notranslate"><span class="pre">implementation_class_uid</span></code></a></td>
 <td>Return the Implementation Class UID as a pydicom UID.</td>
 </tr>
-<tr class="row-even"><td><a class="reference internal" href="#pynetdicom3.association.ServiceUser.implementation_version_name" title="pynetdicom3.association.ServiceUser.implementation_version_name"><code class="xref py py-obj docutils literal notranslate"><span class="pre">implementation_version_name</span></code></a></td>
+<tr class="row-odd"><td><a class="reference internal" href="#pynetdicom3.association.ServiceUser.implementation_version_name" title="pynetdicom3.association.ServiceUser.implementation_version_name"><code class="xref py py-obj docutils literal notranslate"><span class="pre">implementation_version_name</span></code></a></td>
 <td>Return the Implementation Version Name as str (if available).</td>
 </tr>
-<tr class="row-odd"><td><a class="reference internal" href="#pynetdicom3.association.ServiceUser.info" title="pynetdicom3.association.ServiceUser.info"><code class="xref py py-obj docutils literal notranslate"><span class="pre">info</span></code></a></td>
+<tr class="row-even"><td><a class="reference internal" href="#pynetdicom3.association.ServiceUser.info" title="pynetdicom3.association.ServiceUser.info"><code class="xref py py-obj docutils literal notranslate"><span class="pre">info</span></code></a></td>
 <td>Return a dict with information about the ServiceUser.</td>
 </tr>
-<tr class="row-even"><td><a class="reference internal" href="#pynetdicom3.association.ServiceUser.is_acceptor" title="pynetdicom3.association.ServiceUser.is_acceptor"><code class="xref py py-obj docutils literal notranslate"><span class="pre">is_acceptor</span></code></a></td>
+<tr class="row-odd"><td><a class="reference internal" href="#pynetdicom3.association.ServiceUser.is_acceptor" title="pynetdicom3.association.ServiceUser.is_acceptor"><code class="xref py py-obj docutils literal notranslate"><span class="pre">is_acceptor</span></code></a></td>
 <td>Return True if the ServiceUser is the association acceptor.</td>
 </tr>
-<tr class="row-odd"><td><a class="reference internal" href="#pynetdicom3.association.ServiceUser.is_requestor" title="pynetdicom3.association.ServiceUser.is_requestor"><code class="xref py py-obj docutils literal notranslate"><span class="pre">is_requestor</span></code></a></td>
+<tr class="row-even"><td><a class="reference internal" href="#pynetdicom3.association.ServiceUser.is_requestor" title="pynetdicom3.association.ServiceUser.is_requestor"><code class="xref py py-obj docutils literal notranslate"><span class="pre">is_requestor</span></code></a></td>
 <td>Return True if the ServiceUser is the association requestor.</td>
 </tr>
-<tr class="row-even"><td><a class="reference internal" href="#pynetdicom3.association.ServiceUser.maximum_length" title="pynetdicom3.association.ServiceUser.maximum_length"><code class="xref py py-obj docutils literal notranslate"><span class="pre">maximum_length</span></code></a></td>
+<tr class="row-odd"><td><a class="reference internal" href="#pynetdicom3.association.ServiceUser.maximum_length" title="pynetdicom3.association.ServiceUser.maximum_length"><code class="xref py py-obj docutils literal notranslate"><span class="pre">maximum_length</span></code></a></td>
 <td>Return the maximum PDV size as int.</td>
 </tr>
-<tr class="row-odd"><td><a class="reference internal" href="#pynetdicom3.association.ServiceUser.mode" title="pynetdicom3.association.ServiceUser.mode"><code class="xref py py-obj docutils literal notranslate"><span class="pre">mode</span></code></a></td>
+<tr class="row-even"><td><a class="reference internal" href="#pynetdicom3.association.ServiceUser.mode" title="pynetdicom3.association.ServiceUser.mode"><code class="xref py py-obj docutils literal notranslate"><span class="pre">mode</span></code></a></td>
 <td>Return the mode as str, either ‘requestor’ or ‘acceptor’.</td>
 </tr>
-<tr class="row-even"><td><a class="reference internal" href="#pynetdicom3.association.ServiceUser.requested_contexts" title="pynetdicom3.association.ServiceUser.requested_contexts"><code class="xref py py-obj docutils literal notranslate"><span class="pre">requested_contexts</span></code></a></td>
+<tr class="row-odd"><td><a class="reference internal" href="#pynetdicom3.association.ServiceUser.requested_contexts" title="pynetdicom3.association.ServiceUser.requested_contexts"><code class="xref py py-obj docutils literal notranslate"><span class="pre">requested_contexts</span></code></a></td>
 <td>Return a list of the requestor’s requested presentation contexts.</td>
 </tr>
-<tr class="row-odd"><td><a class="reference internal" href="#pynetdicom3.association.ServiceUser.role_selection" title="pynetdicom3.association.ServiceUser.role_selection"><code class="xref py py-obj docutils literal notranslate"><span class="pre">role_selection</span></code></a></td>
+<tr class="row-even"><td><a class="reference internal" href="#pynetdicom3.association.ServiceUser.role_selection" title="pynetdicom3.association.ServiceUser.role_selection"><code class="xref py py-obj docutils literal notranslate"><span class="pre">role_selection</span></code></a></td>
 <td>Return any SCP/SCU Role Selection items as a dict.</td>
 </tr>
-<tr class="row-even"><td><a class="reference internal" href="#pynetdicom3.association.ServiceUser.sop_class_common_extended" title="pynetdicom3.association.ServiceUser.sop_class_common_extended"><code class="xref py py-obj docutils literal notranslate"><span class="pre">sop_class_common_extended</span></code></a></td>
+<tr class="row-odd"><td><a class="reference internal" href="#pynetdicom3.association.ServiceUser.sop_class_common_extended" title="pynetdicom3.association.ServiceUser.sop_class_common_extended"><code class="xref py py-obj docutils literal notranslate"><span class="pre">sop_class_common_extended</span></code></a></td>
 <td>Return any SOP Class Common Extended items as dict.</td>
 </tr>
-<tr class="row-odd"><td><a class="reference internal" href="#pynetdicom3.association.ServiceUser.sop_class_extended" title="pynetdicom3.association.ServiceUser.sop_class_extended"><code class="xref py py-obj docutils literal notranslate"><span class="pre">sop_class_extended</span></code></a></td>
+<tr class="row-even"><td><a class="reference internal" href="#pynetdicom3.association.ServiceUser.sop_class_extended" title="pynetdicom3.association.ServiceUser.sop_class_extended"><code class="xref py py-obj docutils literal notranslate"><span class="pre">sop_class_extended</span></code></a></td>
 <td>Return any SOP Class Extended items as dict.</td>
 </tr>
-<tr class="row-even"><td><a class="reference internal" href="#pynetdicom3.association.ServiceUser.supported_contexts" title="pynetdicom3.association.ServiceUser.supported_contexts"><code class="xref py py-obj docutils literal notranslate"><span class="pre">supported_contexts</span></code></a></td>
+<tr class="row-odd"><td><a class="reference internal" href="#pynetdicom3.association.ServiceUser.supported_contexts" title="pynetdicom3.association.ServiceUser.supported_contexts"><code class="xref py py-obj docutils literal notranslate"><span class="pre">supported_contexts</span></code></a></td>
 <td>Return a list of supported presentation contexts.</td>
 </tr>
-<tr class="row-odd"><td><a class="reference internal" href="#pynetdicom3.association.ServiceUser.user_identity" title="pynetdicom3.association.ServiceUser.user_identity"><code class="xref py py-obj docutils literal notranslate"><span class="pre">user_identity</span></code></a></td>
+<tr class="row-even"><td><a class="reference internal" href="#pynetdicom3.association.ServiceUser.user_identity" title="pynetdicom3.association.ServiceUser.user_identity"><code class="xref py py-obj docutils literal notranslate"><span class="pre">user_identity</span></code></a></td>
 <td>Return the User Identity Negotiation Item (if available).</td>
 </tr>
-<tr class="row-even"><td><a class="reference internal" href="#pynetdicom3.association.ServiceUser.user_information" title="pynetdicom3.association.ServiceUser.user_information"><code class="xref py py-obj docutils literal notranslate"><span class="pre">user_information</span></code></a></td>
+<tr class="row-odd"><td><a class="reference internal" href="#pynetdicom3.association.ServiceUser.user_information" title="pynetdicom3.association.ServiceUser.user_information"><code class="xref py py-obj docutils literal notranslate"><span class="pre">user_information</span></code></a></td>
 <td>Returns a list of the User Information items.</td>
 </tr>
-<tr class="row-odd"><td><a class="reference internal" href="#pynetdicom3.association.ServiceUser.writeable" title="pynetdicom3.association.ServiceUser.writeable"><code class="xref py py-obj docutils literal notranslate"><span class="pre">writeable</span></code></a></td>
+<tr class="row-even"><td><a class="reference internal" href="#pynetdicom3.association.ServiceUser.writeable" title="pynetdicom3.association.ServiceUser.writeable"><code class="xref py py-obj docutils literal notranslate"><span class="pre">writeable</span></code></a></td>
 <td>Return True if the current object can be changed.</td>
 </tr>
 </tbody>
 </table>
+<dl class="attribute">
+<dt id="pynetdicom3.association.ServiceUser.accepted_common_extended">
+<code class="descname">accepted_common_extended</code><a class="headerlink" href="#pynetdicom3.association.ServiceUser.accepted_common_extended" title="Permalink to this definition">¶</a></dt>
+<dd><p>Return a dict of the accepted SOP Class Common Extended Negotiation.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Returns:</th><td class="field-body">The {SOP Class UID : (Service Class UID, Related General SOP Class
+Identification)} for the accepted SOP Class Common Extended
+negotiation items.</td>
+</tr>
+<tr class="field-even field"><th class="field-name">Return type:</th><td class="field-body">dict of 2-tuple</td>
+</tr>
+<tr class="field-odd field"><th class="field-name">Raises:</th><td class="field-body"><a class="reference external" href="https://docs.python.org/3/library/exceptions.html#RuntimeError" title="(in Python v3.7)"><code class="xref py py-exc docutils literal notranslate"><span class="pre">RuntimeError</span></code></a> – If called when the requestor.</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
 <dl class="method">
 <dt id="pynetdicom3.association.ServiceUser.add_negotiation_item">
 <code class="descname">add_negotiation_item</code><span class="sig-paren">(</span><em>item</em><span class="sig-paren">)</span><a class="reference internal" href="../../_modules/pynetdicom3/association.html#ServiceUser.add_negotiation_item"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pynetdicom3.association.ServiceUser.add_negotiation_item" title="Permalink to this definition">¶</a></dt>
@@ -640,6 +663,8 @@ SCP_SCU_RoleSelectionNegotiation}.</td>
 <dt id="pynetdicom3.association.ServiceUser.sop_class_common_extended">
 <code class="descname">sop_class_common_extended</code><a class="headerlink" href="#pynetdicom3.association.ServiceUser.sop_class_common_extended" title="Permalink to this definition">¶</a></dt>
 <dd><p>Return any SOP Class Common Extended items as dict.</p>
+<p>If the ServiceUser is the association acceptor then no SOP Class
+Common Extended items will be present in the User Information.</p>
 <table class="docutils field-list" frame="void" rules="none">
 <col class="field-name" />
 <col class="field-body" />

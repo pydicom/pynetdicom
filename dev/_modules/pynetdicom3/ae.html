@@ -1612,6 +1612,31 @@
             <span class="s2">&quot;sent&quot;</span>
         <span class="p">)</span></div>
 
+<div class="viewcode-block" id="ApplicationEntity.on_sop_class_common_extended"><a class="viewcode-back" href="../../reference/generated/pynetdicom3.ae.ApplicationEntity.html#pynetdicom3.ae.ApplicationEntity.on_sop_class_common_extended">[docs]</a>    <span class="k">def</span> <span class="nf">on_sop_class_common_extended</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">items</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;Callback for when one or more SOP Class Common Extended Negotiation</span>
+<span class="sd">        items are included in the association request.</span>
+
+<span class="sd">        Parameters</span>
+<span class="sd">        ----------</span>
+<span class="sd">        items : dict</span>
+<span class="sd">            The {*SOP Class UID* : SOPClassCommonExtendedNegotiation} items</span>
+<span class="sd">            sent by the requestor.</span>
+
+<span class="sd">        Returns</span>
+<span class="sd">        -------</span>
+<span class="sd">        dict</span>
+<span class="sd">            The {*SOP Class UID* : SOPClassCommonExtendedNegotiation}</span>
+<span class="sd">            accepted by the acceptor. When receiving DIMSE messages containing</span>
+<span class="sd">            datasets corresponding to the SOP Class UID in an accepted item</span>
+<span class="sd">            the corresponding Service Class will be used.</span>
+
+<span class="sd">        References</span>
+<span class="sd">        ----------</span>
+
+<span class="sd">        * DICOM Standard Part 7, `Annex D.3.3.6 &lt;http://dicom.nema.org/medical/dicom/current/output/chtml/part07/sect_D.3.3.6.html&gt;`_</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">return</span> <span class="p">{}</span></div>
+
 <div class="viewcode-block" id="ApplicationEntity.on_sop_class_extended"><a class="viewcode-back" href="../../reference/generated/pynetdicom3.ae.ApplicationEntity.html#pynetdicom3.ae.ApplicationEntity.on_sop_class_extended">[docs]</a>    <span class="k">def</span> <span class="nf">on_sop_class_extended</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">app_info</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;Callback for when one or more SOP Class Extended Negotiation items</span>
 <span class="sd">        are included in the association request.</span>

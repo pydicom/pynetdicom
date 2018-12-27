@@ -538,25 +538,28 @@ set to 0 the OS will use the first available port (default <code class="docutils
 <tr class="row-odd"><td><a class="reference internal" href="#pynetdicom3.ae.ApplicationEntity.on_receive_connection" title="pynetdicom3.ae.ApplicationEntity.on_receive_connection"><code class="xref py py-obj docutils literal notranslate"><span class="pre">on_receive_connection</span></code></a>()</td>
 <td>Callback for a connection is received.</td>
 </tr>
-<tr class="row-even"><td><a class="reference internal" href="#pynetdicom3.ae.ApplicationEntity.on_sop_class_extended" title="pynetdicom3.ae.ApplicationEntity.on_sop_class_extended"><code class="xref py py-obj docutils literal notranslate"><span class="pre">on_sop_class_extended</span></code></a>(app_info)</td>
+<tr class="row-even"><td><a class="reference internal" href="#pynetdicom3.ae.ApplicationEntity.on_sop_class_common_extended" title="pynetdicom3.ae.ApplicationEntity.on_sop_class_common_extended"><code class="xref py py-obj docutils literal notranslate"><span class="pre">on_sop_class_common_extended</span></code></a>(items)</td>
+<td>Callback for when one or more SOP Class Common Extended Negotiation items are included in the association request.</td>
+</tr>
+<tr class="row-odd"><td><a class="reference internal" href="#pynetdicom3.ae.ApplicationEntity.on_sop_class_extended" title="pynetdicom3.ae.ApplicationEntity.on_sop_class_extended"><code class="xref py py-obj docutils literal notranslate"><span class="pre">on_sop_class_extended</span></code></a>(app_info)</td>
 <td>Callback for when one or more SOP Class Extended Negotiation items are included in the association request.</td>
 </tr>
-<tr class="row-odd"><td><a class="reference internal" href="#pynetdicom3.ae.ApplicationEntity.on_user_identity" title="pynetdicom3.ae.ApplicationEntity.on_user_identity"><code class="xref py py-obj docutils literal notranslate"><span class="pre">on_user_identity</span></code></a>(user_id_type,&nbsp;…)</td>
+<tr class="row-even"><td><a class="reference internal" href="#pynetdicom3.ae.ApplicationEntity.on_user_identity" title="pynetdicom3.ae.ApplicationEntity.on_user_identity"><code class="xref py py-obj docutils literal notranslate"><span class="pre">on_user_identity</span></code></a>(user_id_type,&nbsp;…)</td>
 <td>Callback for when a user identity negotiation item is included with the association request.</td>
 </tr>
-<tr class="row-even"><td><a class="reference internal" href="#pynetdicom3.ae.ApplicationEntity.quit" title="pynetdicom3.ae.ApplicationEntity.quit"><code class="xref py py-obj docutils literal notranslate"><span class="pre">quit</span></code></a>()</td>
+<tr class="row-odd"><td><a class="reference internal" href="#pynetdicom3.ae.ApplicationEntity.quit" title="pynetdicom3.ae.ApplicationEntity.quit"><code class="xref py py-obj docutils literal notranslate"><span class="pre">quit</span></code></a>()</td>
 <td>Stop the SCP.</td>
 </tr>
-<tr class="row-odd"><td><a class="reference internal" href="#pynetdicom3.ae.ApplicationEntity.remove_requested_context" title="pynetdicom3.ae.ApplicationEntity.remove_requested_context"><code class="xref py py-obj docutils literal notranslate"><span class="pre">remove_requested_context</span></code></a>(abstract_syntax[,&nbsp;…])</td>
+<tr class="row-even"><td><a class="reference internal" href="#pynetdicom3.ae.ApplicationEntity.remove_requested_context" title="pynetdicom3.ae.ApplicationEntity.remove_requested_context"><code class="xref py py-obj docutils literal notranslate"><span class="pre">remove_requested_context</span></code></a>(abstract_syntax[,&nbsp;…])</td>
 <td>Remove a requested Presentation Context.</td>
 </tr>
-<tr class="row-even"><td><a class="reference internal" href="#pynetdicom3.ae.ApplicationEntity.remove_supported_context" title="pynetdicom3.ae.ApplicationEntity.remove_supported_context"><code class="xref py py-obj docutils literal notranslate"><span class="pre">remove_supported_context</span></code></a>(abstract_syntax[,&nbsp;…])</td>
+<tr class="row-odd"><td><a class="reference internal" href="#pynetdicom3.ae.ApplicationEntity.remove_supported_context" title="pynetdicom3.ae.ApplicationEntity.remove_supported_context"><code class="xref py py-obj docutils literal notranslate"><span class="pre">remove_supported_context</span></code></a>(abstract_syntax[,&nbsp;…])</td>
 <td>Remove a supported presentation context.</td>
 </tr>
-<tr class="row-odd"><td><a class="reference internal" href="#pynetdicom3.ae.ApplicationEntity.start" title="pynetdicom3.ae.ApplicationEntity.start"><code class="xref py py-obj docutils literal notranslate"><span class="pre">start</span></code></a>()</td>
+<tr class="row-even"><td><a class="reference internal" href="#pynetdicom3.ae.ApplicationEntity.start" title="pynetdicom3.ae.ApplicationEntity.start"><code class="xref py py-obj docutils literal notranslate"><span class="pre">start</span></code></a>()</td>
 <td>Start the AE as an SCP.</td>
 </tr>
-<tr class="row-even"><td><a class="reference internal" href="#pynetdicom3.ae.ApplicationEntity.stop" title="pynetdicom3.ae.ApplicationEntity.stop"><code class="xref py py-obj docutils literal notranslate"><span class="pre">stop</span></code></a>()</td>
+<tr class="row-odd"><td><a class="reference internal" href="#pynetdicom3.ae.ApplicationEntity.stop" title="pynetdicom3.ae.ApplicationEntity.stop"><code class="xref py py-obj docutils literal notranslate"><span class="pre">stop</span></code></a>()</td>
 <td>Stop the SCP.</td>
 </tr>
 </tbody>
@@ -1809,6 +1812,33 @@ Class.</p>
 <code class="descname">on_receive_connection</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="../../_modules/pynetdicom3/ae.html#ApplicationEntity.on_receive_connection"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pynetdicom3.ae.ApplicationEntity.on_receive_connection" title="Permalink to this definition">¶</a></dt>
 <dd><p>Callback for a connection is received.</p>
 <p>** NOT IMPLEMENTED **</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="pynetdicom3.ae.ApplicationEntity.on_sop_class_common_extended">
+<code class="descname">on_sop_class_common_extended</code><span class="sig-paren">(</span><em>items</em><span class="sig-paren">)</span><a class="reference internal" href="../../_modules/pynetdicom3/ae.html#ApplicationEntity.on_sop_class_common_extended"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pynetdicom3.ae.ApplicationEntity.on_sop_class_common_extended" title="Permalink to this definition">¶</a></dt>
+<dd><p>Callback for when one or more SOP Class Common Extended Negotiation
+items are included in the association request.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><strong>items</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#dict" title="(in Python v3.7)"><em>dict</em></a>) – The {<em>SOP Class UID</em> : SOPClassCommonExtendedNegotiation} items
+sent by the requestor.</td>
+</tr>
+<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body">The {<em>SOP Class UID</em> : SOPClassCommonExtendedNegotiation}
+accepted by the acceptor. When receiving DIMSE messages containing
+datasets corresponding to the SOP Class UID in an accepted item
+the corresponding Service Class will be used.</td>
+</tr>
+<tr class="field-odd field"><th class="field-name">Return type:</th><td class="field-body"><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#dict" title="(in Python v3.7)">dict</a></td>
+</tr>
+</tbody>
+</table>
+<p class="rubric">References</p>
+<ul class="simple">
+<li>DICOM Standard Part 7, <a class="reference external" href="http://dicom.nema.org/medical/dicom/current/output/chtml/part07/sect_D.3.3.6.html">Annex D.3.3.6</a></li>
+</ul>
 </dd></dl>
 
 <dl class="method">

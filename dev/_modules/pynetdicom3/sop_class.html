@@ -204,7 +204,8 @@
 <span class="sd">    Parameters</span>
 <span class="sd">    ----------</span>
 <span class="sd">    uid : pydicom.uid.UID</span>
-<span class="sd">        The SOP Class UID to find the corresponding Service Class.</span>
+<span class="sd">        The SOP or Service Class UID to use to find the corresponding Service</span>
+<span class="sd">        Class.</span>
 
 <span class="sd">    Returns</span>
 <span class="sd">    -------</span>
@@ -217,7 +218,9 @@
 <span class="sd">        If the Service Class corresponding to the SOP Class `uid` hasn&#39;t been</span>
 <span class="sd">        implemented.</span>
 <span class="sd">    &quot;&quot;&quot;</span>
-    <span class="k">if</span> <span class="n">uid</span> <span class="ow">in</span> <span class="n">_VERIFICATION_CLASSES</span><span class="o">.</span><span class="n">values</span><span class="p">():</span>
+    <span class="k">if</span> <span class="n">uid</span> <span class="ow">in</span> <span class="n">_SERVICE_CLASSES</span><span class="p">:</span>
+        <span class="k">return</span> <span class="n">_SERVICE_CLASSES</span><span class="p">[</span><span class="n">uid</span><span class="p">]</span>
+    <span class="k">elif</span> <span class="n">uid</span> <span class="ow">in</span> <span class="n">_VERIFICATION_CLASSES</span><span class="o">.</span><span class="n">values</span><span class="p">():</span>
         <span class="k">return</span> <span class="n">VerificationServiceClass</span>
     <span class="k">elif</span> <span class="n">uid</span> <span class="ow">in</span> <span class="n">_STORAGE_CLASSES</span><span class="o">.</span><span class="n">values</span><span class="p">():</span>
         <span class="k">return</span> <span class="n">StorageServiceClass</span>
@@ -247,7 +250,7 @@
         <span class="k">return</span> <span class="n">ServiceClass</span>  <span class="c1"># Not yet implemented</span>
     <span class="k">elif</span> <span class="n">uid</span> <span class="ow">in</span> <span class="n">_MEDIA_STORAGE_CLASSES</span><span class="o">.</span><span class="n">values</span><span class="p">():</span>
         <span class="k">return</span> <span class="n">ServiceClass</span>  <span class="c1"># Not yet implemented</span>
-    <span class="k">elif</span> <span class="n">uid</span> <span class="ow">in</span> <span class="n">_UNITED_PROCEDURE_STEP_CLASSES</span><span class="o">.</span><span class="n">values</span><span class="p">():</span>
+    <span class="k">elif</span> <span class="n">uid</span> <span class="ow">in</span> <span class="n">_UNIFIED_PROCEDURE_STEP_CLASSES</span><span class="o">.</span><span class="n">values</span><span class="p">():</span>
         <span class="k">return</span> <span class="n">ServiceClass</span>  <span class="c1"># Not yet implemented</span>
     <span class="k">elif</span> <span class="n">uid</span> <span class="ow">in</span> <span class="n">_RT_MACHINE_VERIFICATION_CLASSES</span><span class="o">.</span><span class="n">values</span><span class="p">():</span>
         <span class="k">return</span> <span class="n">ServiceClass</span>  <span class="c1"># Not yet implemented</span>
@@ -282,6 +285,12 @@
         <span class="n">sop_class</span><span class="o">.</span><span class="n">_service_class</span> <span class="o">=</span> <span class="n">uid_to_service_class</span><span class="p">(</span><span class="n">sop_class_dict</span><span class="p">[</span><span class="n">name</span><span class="p">])</span>
         <span class="nb">globals</span><span class="p">()[</span><span class="n">name</span><span class="p">]</span> <span class="o">=</span> <span class="n">sop_class</span>
 
+
+<span class="c1"># Table of service classes with assigned UIDs</span>
+<span class="n">_SERVICE_CLASSES</span> <span class="o">=</span> <span class="p">{</span>
+    <span class="s1">&#39;1.2.840.10008.4.2&#39;</span> <span class="p">:</span> <span class="n">StorageServiceClass</span><span class="p">,</span>
+    <span class="c1">#&#39;1.2.840.10008.5.1.4.34.6&#39;, UnifiedProcedureStepServiceClass,</span>
+<span class="p">}</span>
 
 <span class="c1"># Generate the various SOP classes</span>
 <span class="n">_VERIFICATION_CLASSES</span> <span class="o">=</span> <span class="p">{</span>
@@ -518,7 +527,7 @@
     <span class="s1">&#39;MediaStorageDirectoryStorage&#39;</span> <span class="p">:</span> <span class="s1">&#39;1.2.840.10008.1.3.10&#39;</span><span class="p">,</span>
 <span class="p">}</span>
 
-<span class="n">_UNITED_PROCEDURE_STEP_CLASSES</span> <span class="o">=</span> <span class="p">{</span>
+<span class="n">_UNIFIED_PROCEDURE_STEP_CLASSES</span> <span class="o">=</span> <span class="p">{</span>
     <span class="s1">&#39;UnitedProcedureStepPush&#39;</span> <span class="p">:</span> <span class="s1">&#39;1.2.840.10008.5.1.4.34.6.1&#39;</span><span class="p">,</span>
     <span class="s1">&#39;UnitedProcedureStepWatch&#39;</span> <span class="p">:</span> <span class="s1">&#39;1.2.840.10008.5.1.4.34.6.2&#39;</span><span class="p">,</span>
     <span class="s1">&#39;UnitedProcedureStepPull&#39;</span> <span class="p">:</span> <span class="s1">&#39;1.2.840.10008.5.1.4.34.6.3&#39;</span><span class="p">,</span>
@@ -546,7 +555,7 @@
 <span class="n">_generate_sop_classes</span><span class="p">(</span><span class="n">_PRINT_MANAGEMENT_CLASSES</span><span class="p">)</span>
 <span class="n">_generate_sop_classes</span><span class="p">(</span><span class="n">_PROCEDURE_STEP_CLASSES</span><span class="p">)</span>
 <span class="n">_generate_sop_classes</span><span class="p">(</span><span class="n">_MEDIA_STORAGE_CLASSES</span><span class="p">)</span>
-<span class="n">_generate_sop_classes</span><span class="p">(</span><span class="n">_UNITED_PROCEDURE_STEP_CLASSES</span><span class="p">)</span>
+<span class="n">_generate_sop_classes</span><span class="p">(</span><span class="n">_UNIFIED_PROCEDURE_STEP_CLASSES</span><span class="p">)</span>
 <span class="n">_generate_sop_classes</span><span class="p">(</span><span class="n">_RT_MACHINE_VERIFICATION_CLASSES</span><span class="p">)</span>
 
 

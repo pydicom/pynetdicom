@@ -27,6 +27,7 @@ pynetdicom3.association.ServiceUser
 
    .. autosummary::
    
+      ~ServiceUser.accepted_common_extended
       ~ServiceUser.asynchronous_operations
       ~ServiceUser.extended_negotiation
       ~ServiceUser.implementation_class_uid

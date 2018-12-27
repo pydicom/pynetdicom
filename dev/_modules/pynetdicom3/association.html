@@ -594,6 +594,9 @@
             <span class="s1">&#39;requestor&#39;</span> <span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">requestor</span><span class="o">.</span><span class="n">info</span><span class="p">,</span>
             <span class="s1">&#39;acceptor&#39;</span> <span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">acceptor</span><span class="o">.</span><span class="n">info</span><span class="p">,</span>
             <span class="s1">&#39;sop_class_extended&#39;</span> <span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">acceptor</span><span class="o">.</span><span class="n">sop_class_extended</span><span class="p">,</span>
+            <span class="s1">&#39;sop_class_common_extended&#39;</span> <span class="p">:</span> <span class="p">(</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">acceptor</span><span class="o">.</span><span class="n">accepted_common_extended</span>
+            <span class="p">),</span>
         <span class="p">}</span>
 
         <span class="bp">self</span><span class="o">.</span><span class="n">_is_running</span> <span class="o">=</span> <span class="kc">True</span>
@@ -625,7 +628,16 @@
                     <span class="bp">self</span><span class="o">.</span><span class="n">abort</span><span class="p">()</span>
                     <span class="k">return</span>
 
-                <span class="c1"># Convert the SOP Class UID to the corresponding service</span>
+                <span class="c1"># SOP Class Common Extended Negotiation</span>
+                <span class="k">try</span><span class="p">:</span>
+                    <span class="c1"># The service class UID</span>
+                    <span class="n">class_uid</span> <span class="o">=</span> <span class="p">(</span>
+                        <span class="bp">self</span><span class="o">.</span><span class="n">acceptor</span><span class="o">.</span><span class="n">accepted_common_extended</span><span class="p">[</span><span class="n">class_uid</span><span class="p">][</span><span class="mi">0</span><span class="p">]</span>
+                    <span class="p">)</span>
+                <span class="k">except</span> <span class="ne">KeyError</span><span class="p">:</span>
+                    <span class="k">pass</span>
+
+                <span class="c1"># Convert the SOP/Service UID to the corresponding service</span>
                 <span class="n">service_class</span> <span class="o">=</span> <span class="n">uid_to_service_class</span><span class="p">(</span><span class="n">class_uid</span><span class="p">)(</span><span class="bp">self</span><span class="p">)</span>
 
                 <span class="c1"># TODO: Index contexts in a dict using context ID</span>
@@ -2928,10 +2940,44 @@
         <span class="bp">self</span><span class="o">.</span><span class="n">maximum_length</span> <span class="o">=</span> <span class="mi">16382</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">implementation_class_uid</span> <span class="o">=</span> <span class="n">assoc</span><span class="o">.</span><span class="n">ae</span><span class="o">.</span><span class="n">implementation_class_uid</span>
 
-        <span class="c1"># If Requestor these are the proposed extended negotiation items,</span>
-        <span class="c1">#   otherwise ?</span>
+        <span class="c1"># The are the proposed extended negotiation items,</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">_ext_neg</span> <span class="o">=</span> <span class="p">{}</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">reset_negotiation_items</span><span class="p">()</span></div>
+        <span class="bp">self</span><span class="o">.</span><span class="n">reset_negotiation_items</span><span class="p">()</span>
+
+        <span class="c1"># If Acceptor then this the accepted SOP Class Common Extended</span>
+        <span class="c1">#   negotiation items</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_common_ext</span> <span class="o">=</span> <span class="p">{}</span></div>
+
+    <span class="nd">@property</span>
+    <span class="k">def</span> <span class="nf">accepted_common_extended</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;Return a dict of the accepted SOP Class Common Extended Negotiation.</span>
+
+<span class="sd">        Returns</span>
+<span class="sd">        -------</span>
+<span class="sd">        dict of 2-tuple</span>
+<span class="sd">            The {SOP Class UID : (Service Class UID, Related General SOP Class</span>
+<span class="sd">            Identification)} for the accepted SOP Class Common Extended</span>
+<span class="sd">            negotiation items.</span>
+
+<span class="sd">        Raises</span>
+<span class="sd">        ------</span>
+<span class="sd">        RuntimeError</span>
+<span class="sd">            If called when the requestor.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">if</span> <span class="ow">not</span> <span class="bp">self</span><span class="o">.</span><span class="n">is_acceptor</span><span class="p">:</span>
+            <span class="k">raise</span> <span class="ne">RuntimeError</span><span class="p">(</span>
+                <span class="s2">&quot;&#39;accepted_common_extended&#39; is only available for the &quot;</span>
+                <span class="s2">&quot;&#39;acceptor&#39;&quot;</span>
+            <span class="p">)</span>
+
+        <span class="n">out</span> <span class="o">=</span> <span class="p">{}</span>
+        <span class="k">for</span> <span class="n">item</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">_common_ext</span><span class="o">.</span><span class="n">values</span><span class="p">():</span>
+            <span class="n">out</span><span class="p">[</span><span class="n">item</span><span class="o">.</span><span class="n">sop_class_uid</span><span class="p">]</span> <span class="o">=</span> <span class="p">(</span>
+                <span class="n">item</span><span class="o">.</span><span class="n">service_class_uid</span><span class="p">,</span>
+                <span class="n">item</span><span class="o">.</span><span class="n">related_general_sop_class_identification</span>
+            <span class="p">)</span>
+
+        <span class="k">return</span> <span class="n">out</span>
 
 <div class="viewcode-block" id="ServiceUser.add_negotiation_item"><a class="viewcode-back" href="../../reference/generated/pynetdicom3.association.ServiceUser.html#pynetdicom3.association.ServiceUser.add_negotiation_item">[docs]</a>    <span class="k">def</span> <span class="nf">add_negotiation_item</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">item</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;Add an extended negotiation item to the user information.</span>
@@ -3352,9 +3398,10 @@
             <span class="n">SCP_SCU_RoleSelectionNegotiation</span> <span class="p">:</span> <span class="p">[],</span>
             <span class="n">AsynchronousOperationsWindowNegotiation</span> <span class="p">:</span> <span class="p">[],</span>
             <span class="n">UserIdentityNegotiation</span> <span class="p">:</span> <span class="p">[],</span>
-            <span class="n">SOPClassCommonExtendedNegotiation</span> <span class="p">:</span> <span class="p">[],</span>
             <span class="n">SOPClassExtendedNegotiation</span> <span class="p">:</span> <span class="p">[],</span>
-        <span class="p">}</span></div>
+        <span class="p">}</span>
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">is_requestor</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">_ext_neg</span><span class="p">[</span><span class="n">SOPClassCommonExtendedNegotiation</span><span class="p">]</span> <span class="o">=</span> <span class="p">[]</span></div>
 
     <span class="nd">@property</span>
     <span class="k">def</span> <span class="nf">role_selection</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
@@ -3383,11 +3430,17 @@
     <span class="k">def</span> <span class="nf">sop_class_common_extended</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;Return any SOP Class Common Extended items as dict.</span>
 
+<span class="sd">        If the ServiceUser is the association acceptor then no SOP Class</span>
+<span class="sd">        Common Extended items will be present in the User Information.</span>
+
 <span class="sd">        Returns</span>
 <span class="sd">        -------</span>
 <span class="sd">        dict</span>
 <span class="sd">            The SOP Class Common Extended items as {SOP Class UID : item}.</span>
 <span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">is_acceptor</span><span class="p">:</span>
+            <span class="k">return</span> <span class="p">{}</span>
+
         <span class="n">sop_classes</span> <span class="o">=</span> <span class="p">{}</span>
         <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">writeable</span><span class="p">:</span>
             <span class="k">for</span> <span class="n">item</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">_ext_neg</span><span class="p">[</span><span class="n">SOPClassCommonExtendedNegotiation</span><span class="p">]:</span>
