@@ -17,7 +17,7 @@ from pydicom.uid import (
     ExplicitVRLittleEndian, ImplicitVRLittleEndian, ExplicitVRBigEndian, UID
 )
 
-from pynetdicom3.association import Association
+from pynetdicom3.association import Association, MODE_REQUESTOR, MODE_ACCEPTOR
 from pynetdicom3.presentation import (
     PresentationContext,
     DEFAULT_TRANSFER_SYNTAXES
@@ -180,7 +180,7 @@ class ApplicationEntity(object):
         self.implementation_class_uid = PYNETDICOM_IMPLEMENTATION_UID
         self.implementation_version_name = PYNETDICOM_IMPLEMENTATION_VERSION
 
-        self.address = platform.node()
+        self.address = socket.gethostbyname(socket.gethostname())
         self.port = port
         self.bind_addr = ''
         self.ae_title = ae_title
@@ -561,22 +561,44 @@ class ApplicationEntity(object):
         if not isinstance(port, int):
             raise TypeError("'port' must be a valid port number")
 
-        peer_ae = {'ae_title' : validate_ae_title(ae_title),
-                   'address' : addr,
-                   'port' : port}
+        # Association
+        assoc = Association(self, MODE_REQUESTOR)
+        assoc.acse_timeout = self.acse_timeout
+        assoc.dimse_timeout = self.dimse_timeout
+        assoc.network_timeout = self.network_timeout
 
-        # Associate
-        assoc = Association(local_ae=self,
-                            peer_ae=peer_ae,
-                            acse_timeout=self.acse_timeout,
-                            dimse_timeout=self.dimse_timeout,
-                            max_pdu=max_pdu,
-                            ext_neg=ext_neg)
+        # Association Acceptor object -> remote AE
+        assoc.acceptor.ae_title = validate_ae_title(ae_title)
+        assoc.acceptor.address = addr
+        assoc.acceptor.port = port
 
+        # Association Requestor object -> local AE
+        assoc.requestor.address = self.address
+        assoc.requestor.port = self.port
+        assoc.requestor.ae_title = self.ae_title
+        assoc.requestor.maximum_length = max_pdu
+        assoc.requestor.implementation_class_uid = (
+            self.implementation_class_uid
+        )
+        assoc.requestor.implementation_version_name = (
+            self.implementation_version_name
+        )
+        for item in (ext_neg or []):
+            assoc.requestor.add_negotiation_item(item)
+
+        # Requestor's presentation contexts
         if contexts is None:
             contexts = self.requested_contexts
         else:
             self._validate_requested_contexts(contexts)
+
+        # PS3.8 Table 9.11, an A-ASSOCIATE-RQ must contain one or more
+        #   Presentation Context items
+        if not contexts:
+            raise RuntimeError(
+                "At least one requested presentation context is required "
+                "before associating with a peer"
+            )
 
         # Set using a copy of the original to play nicely
         contexts = deepcopy(contexts)
@@ -585,15 +607,7 @@ class ApplicationEntity(object):
         for ii, context in enumerate(contexts):
             context.context_id = 2 * ii + 1
 
-        assoc.requested_contexts = contexts
-
-        # PS3.8 Table 9.11, an A-ASSOCIATE-RQ must contain one or more
-        #   Presentation Context items
-        if not assoc.requested_contexts:
-            raise RuntimeError(
-                "Can't start an association with no requested presentation "
-                "contexts"
-            )
+        assoc.requestor.requested_contexts = contexts
 
         # Send an A-ASSOCIATE request to the peer
         assoc.start()
@@ -729,7 +743,7 @@ class ApplicationEntity(object):
         and if so, creates a new association. Separated out from start() to
         enable better unit testing
         """
-        # FIXME: this needs to be dealt with properly
+        # TODO: this needs to be dealt with properly
         try:
             read_list, _, _ = select.select([self.local_socket], [], [], 0)
         except (socket.error, ValueError):
@@ -743,13 +757,33 @@ class ApplicationEntity(object):
                                      pack('ll', 10, 0))
 
             # Create a new Association
-            # Association(local_ae, local_socket=None, max_pdu=16382)
-            assoc = Association(self,
-                                client_socket=client_socket,
-                                max_pdu=self.maximum_pdu_size,
-                                acse_timeout=self.acse_timeout,
-                                dimse_timeout=self.dimse_timeout)
-            assoc.supported_contexts = self.supported_contexts
+            assoc = Association(self, MODE_ACCEPTOR, client_socket)
+            assoc.acse_timeout = self.acse_timeout
+            assoc.dimse_timeout = self.dimse_timeout
+            assoc.network_timeout = self.network_timeout
+
+            # Assign the socket to use to the DUL
+            #assoc.dul.scu_socket = client_socket
+            #assoc.dul.scp_socket = None
+
+            # Association Acceptor object -> local AE
+            assoc.acceptor.maximum_length = self.maximum_pdu_size
+            assoc.acceptor.ae_title = self.ae_title
+            assoc.acceptor.address = self.address
+            assoc.acceptor.port = self.port
+            assoc.acceptor.implementation_class_uid = (
+                self.implementation_class_uid
+            )
+            assoc.acceptor.implementation_version_name = (
+                self.implementation_version_name
+            )
+            assoc.acceptor.supported_contexts = deepcopy(
+                self.supported_contexts
+            )
+
+            # Association Requestor object -> remote AE
+            assoc.requestor.address = client_socket.getpeername()[0]
+            assoc.requestor.port = client_socket.getpeername()[1]
 
             assoc.start()
             self.active_associations.append(assoc)
@@ -1193,8 +1227,9 @@ class ApplicationEntity(object):
         no_loops = 0
         while True:
             try:
-                # #60: Required so we don't max out the CPU
-                time.sleep(0.5)
+                # #60: Required so we don't max out the CPU when SCP
+                # TODO: Find a better solution, this is not a good fix
+                time.sleep(0.05)
 
                 if self._quit:
                     break
@@ -1277,9 +1312,9 @@ class ApplicationEntity(object):
 
         for assoc in self.active_associations:
             str_out += '\tPeer: {0!s} on {1!s}:{2!s}\n' \
-                       .format(assoc.peer_ae['ae_title'],
-                               assoc.peer_ae['address'],
-                               assoc.peer_ae['port'])
+                       .format(assoc.remote['ae_title'],
+                               assoc.remote['address'],
+                               assoc.remote['port'])
 
         return str_out
 
@@ -1468,8 +1503,7 @@ class ApplicationEntity(object):
             ::
 
             'requestor' : {
-                'ae_title' : bytes, the requestor's calling AE title
-                'called_aet' : bytes, the requestor's called AE title
+                'ae_title' : bytes, the requestor's AE title
                 'address' : str, the requestor's IP address
                 'port' : int, the requestor's port number
             }

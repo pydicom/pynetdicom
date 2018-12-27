@@ -15,13 +15,13 @@ from pynetdicom3.service_class import (
 class TestServiceClass(object):
     def test_is_valid_status(self):
         """Test that is_valid_status returns correct values"""
-        sop = StorageServiceClass()
+        sop = StorageServiceClass(None)
         assert not sop.is_valid_status(0x0101)
         assert sop.is_valid_status(0x0000)
 
     def test_validate_status_ds(self):
         """Test that validate_status works correctly with dataset"""
-        sop = StorageServiceClass()
+        sop = StorageServiceClass(None)
         rsp = C_STORE()
         status = Dataset()
         status.Status = 0x0001
@@ -30,7 +30,7 @@ class TestServiceClass(object):
 
     def test_validate_status_ds_multi(self):
         """Test that validate_status works correctly with dataset multi"""
-        sop = StorageServiceClass()
+        sop = StorageServiceClass(None)
         rsp = C_STORE()
         status = Dataset()
         status.Status = 0x0002
@@ -41,7 +41,7 @@ class TestServiceClass(object):
 
     def test_validate_status_ds_none(self):
         """Test correct status returned if ds has no Status element."""
-        sop = StorageServiceClass()
+        sop = StorageServiceClass(None)
         rsp = C_STORE()
         status = Dataset()
         status.ErrorComment = 'Test comment'
@@ -50,7 +50,7 @@ class TestServiceClass(object):
 
     def test_validate_status_ds_unknown(self):
         """Test a status ds with an unknown element."""
-        sop = StorageServiceClass()
+        sop = StorageServiceClass(None)
         rsp = C_STORE()
         status = Dataset()
         status.Status = 0x0000
@@ -59,28 +59,28 @@ class TestServiceClass(object):
 
     def test_validate_status_int(self):
         """Test that validate_status works correctly with int"""
-        sop = StorageServiceClass()
+        sop = StorageServiceClass(None)
         rsp = C_STORE()
         rsp = sop.validate_status(0x0000, rsp)
         assert rsp.Status == 0x0000
 
     def test_validate_status_invalid(self):
         """Test exception raised if invalid status value"""
-        sop = StorageServiceClass()
+        sop = StorageServiceClass(None)
         rsp = C_STORE()
         rsp = sop.validate_status('test', rsp)
         assert rsp.Status == 0xC002
 
     def test_validate_status_unknown(self):
         """Test return unknown status"""
-        sop = StorageServiceClass()
+        sop = StorageServiceClass(None)
         rsp = C_STORE()
         rsp = sop.validate_status(0xD011, rsp)
         assert rsp.Status == 0xD011
 
     def test_scp_raises(self):
         """Test that ServiceClass.SCP raises exception"""
-        service = ServiceClass()
+        service = ServiceClass(None)
         msg = (
             r"No service has been implemented for the SOP Class UID '1.2.3'"
         )

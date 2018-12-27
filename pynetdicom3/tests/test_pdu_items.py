@@ -26,7 +26,7 @@ from pynetdicom3.pdu_items import (
 )
 from pynetdicom3.pdu_primitives import (
     SOPClassExtendedNegotiation, SOPClassCommonExtendedNegotiation,
-    MaximumLengthNegotiation, ImplementationClassUIDNotification,
+    MaximumLengthNotification, ImplementationClassUIDNotification,
     ImplementationVersionNameNotification, SCP_SCU_RoleSelectionNegotiation,
     AsynchronousOperationsWindowNegotiation, UserIdentityNegotiation
 )
@@ -937,7 +937,7 @@ class TestUserInformation(object):
         result = ui.to_primitive()
 
         check = []
-        max_pdu = MaximumLengthNegotiation()
+        max_pdu = MaximumLengthNotification()
         max_pdu.maximum_length_received = 16382
         check.append(max_pdu)
         class_uid = ImplementationClassUIDNotification()
@@ -1083,7 +1083,7 @@ class TestUserInformation_MaximumLength(object):
         pdu.decode(a_associate_rq)
         max_length = pdu.user_information.user_data[0]
         result = max_length.to_primitive()
-        check = MaximumLengthNegotiation()
+        check = MaximumLengthNotification()
         check.maximum_length_received = 16382
         assert result == check
 

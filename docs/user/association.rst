@@ -179,7 +179,7 @@ Accessing User Identity Responses
 If the association requestor has sent a User Identity Negotiation item as
 part of the extended negotiation and has requested a response in the event of
 a positive identification then it can be accessed via the
-:py:meth:`Assocation.user_identity_response <pynetdicom3.association.Association.user_identity_response>`
+:py:meth:`Assocation.acceptor.user_identity <pynetdicom3.association.Association.acceptor.user_identity>`
 property after the association has been established.
 
 .. _assoc_scp:

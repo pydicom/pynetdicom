@@ -39,10 +39,6 @@ class ServiceParameter(object):
         """Inequality of two ServiceParameters"""
         return not self == other
 
-    #def from_primitive(self):
-    #    """FIXME"""
-    #    return self.from_primitive()
-
 
 # Association Service primitives
 class A_ASSOCIATE(object):
@@ -367,7 +363,7 @@ class A_ASSOCIATE(object):
         ----------
         value_list : list of user information class objects
             A list of user information objects, must contain at least
-            MaximumLengthNegotiation and ImplementationClassUIDNotification
+            MaximumLengthNotification and ImplementationClassUIDNotification
         """
         # pylint: disable=attribute-defined-outside-init
         valid_usr_info_items = []
@@ -376,7 +372,7 @@ class A_ASSOCIATE(object):
             # Iterate through the items and check they're an acceptable class
             for item in value_list:
                 if item.__class__.__name__ in \
-                        ["MaximumLengthNegotiation",
+                        ["MaximumLengthNotification",
                          "ImplementationClassUIDNotification",
                          "ImplementationVersionNameNotification",
                          "AsynchronousOperationsWindowNegotiation",
@@ -649,7 +645,7 @@ class A_ASSOCIATE(object):
     def maximum_length_received(self):
         """Get the Maximum Length Received."""
         for item in self.user_information:
-            if isinstance(item, MaximumLengthNegotiation):
+            if isinstance(item, MaximumLengthNotification):
                 return item.maximum_length_received
 
         return None
@@ -659,8 +655,8 @@ class A_ASSOCIATE(object):
         """Set the Maximum Length Received.
 
         If the A_ASSOCIATE.user_information list contains a
-        MaximumLengthNegotiated item then set its maximum_length_received value.
-        If not then add a MaximumLengthNegotiated item and set its
+        MaximumLengthNotification item then set its maximum_length_received
+        value. If not then add a MaximumLengthNotification item and set its
         maximum_length_received value.
 
         Parameters
@@ -669,19 +665,19 @@ class A_ASSOCIATE(object):
             The maximum length of each P-DATA in bytes
         """
         # Type and value checking for the maximum_length_received parameter is
-        #   done by the MaximumLengthNegotiated class
+        #   done by the MaximumLengthNotification class
 
-        # Check for a MaximumLengthNegotiation item
+        # Check for a MaximumLengthNotification item
         found_item = False
 
         for item in self.user_information:
-            if isinstance(item, MaximumLengthNegotiation):
+            if isinstance(item, MaximumLengthNotification):
                 found_item = True
                 item.maximum_length_received = value
 
-        # No MaximumLengthNegotiated item found
+        # No MaximumLengthNotification item found
         if not found_item:
-            max_length = MaximumLengthNegotiation()
+            max_length = MaximumLengthNotification()
             max_length.maximum_length_received = value
             self.user_information.append(max_length)
 
@@ -718,14 +714,14 @@ class A_ASSOCIATE(object):
         # Type and value checking for the implementation_class_uid parameter is
         #   done by the ImplementationClassUIDNotification class
 
-        # Check for a ImplementationClassUIDNegotiation item
+        # Check for a ImplementationClassUIDNotification item
         found_item = False
         for item in self.user_information:
             if isinstance(item, ImplementationClassUIDNotification):
                 found_item = True
                 item.implementation_class_uid = value
 
-        # No ImplementationClassUIDNegotiation item found
+        # No ImplementationClassUIDNotification item found
         if not found_item:
             imp_uid = ImplementationClassUIDNotification()
             imp_uid.implementation_class_uid = value
@@ -945,10 +941,12 @@ class A_P_ABORT(object):
         elif value is None:
             self._provider_reason = None
         else:
-            LOGGER.error("Attempted to set A_ABORT.provider_reason to an "
-                         "invalid value")
-            raise ValueError("Attempted to set A_ABORT.provider_reason to an "
-                             "invalid value")
+            msg = (
+                "Attempted to set A_P_ABORT.provider_reason to an invalid "
+                "value"
+            )
+            LOGGER.error(msg)
+            raise ValueError(msg)
 
 
 class P_DATA(object):
@@ -1054,7 +1052,7 @@ class P_DATA(object):
 
 
 # User Information Negotiation primitives
-class MaximumLengthNegotiation(ServiceParameter):
+class MaximumLengthNotification(ServiceParameter):
     """
     A representation of a Maximum Length Negotiation primitive.
 
@@ -1063,7 +1061,7 @@ class MaximumLengthNegotiation(ServiceParameter):
     all DICOM v3.0 conforming implementations.
 
     This User Information item is required during Association negotiation and
-    there must only be a single MaximumLengthNegotiation item
+    there must only be a single MaximumLengthNotification item
 
     Attributes
     ----------
@@ -1268,8 +1266,8 @@ class ImplementationVersionNameNotification(ServiceParameter):
     Examples
     --------
 
-    >>> from pynetdicom3.pdu_primitives import ImplementationVersionNameNegotiation
-    >>> item = ImplementationVersionNameNegotiation()
+    >>> from pynetdicom3.pdu_primitives import ImplementationVersionNameNotification
+    >>> item = ImplementationVersionNameNotification()
     >>> item.implementation_version_name = b'SOME_NAME'
 
     References

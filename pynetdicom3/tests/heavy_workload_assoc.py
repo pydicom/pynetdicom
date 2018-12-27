@@ -37,7 +37,9 @@ no_runs = 400
 ds_per_run = 1
 results = []
 
-ae = AE(scu_sop_class=[CTImageStorage, RTImageStorage])
+ae = AE()
+ae.add_requested_context(CTImageStorage)
+ae.add_requested_context(RTImageStorage)
 print('Starting...')
 for ii in range(no_runs):
     start_time = time.time()

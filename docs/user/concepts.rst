@@ -211,18 +211,15 @@ communicating AEs to exchange more detailed information about features and
 services they may optionally require/support. This is accomplished by sending
 additional user information items during the association request:
 
-* Maximum Length Application PDU Negotiation
-* Implementation Identification Notification
 * Asynchronous Operations Window Negotiation
 * SCP/SCU Role Selection Negotiation
 * SOP Class Extended Negotiation
 * SOP Class Common Extended Negotiation
 * User Identity Negotiation
 
-Some of these items are compulsory (such as
-the maximum length negotiation and implementation identification notifications)
-while the rest are either completely optional or conditionally required,
-depending on the requested service class (such as SCP/SCU role negotiation
+Some of these items are conditionally required,
+depending on the requested service class (such as SCP/SCU role selection
+negotiation
 when the Query/Retrieve service class' C-GET operation is requested).
 Association negotiation involving these additional items is usually referred
 to as *extended negotiation*.
