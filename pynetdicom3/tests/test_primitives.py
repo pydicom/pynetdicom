@@ -34,11 +34,7 @@ def print_nice_bytes(bytestream):
         print(string)
 
 
-<<<<<<< HEAD
-class TestPrimitive_MaximumLengthNegotiation(object):
-=======
 class TestPrimitive_MaximumLengthNotification(unittest.TestCase):
->>>>>>> c81ad3490f68a3c396fa7463557f655a6b19915c
     def test_assignment_and_exceptions(self):
         """ Check incorrect types/values for maximum_length_received raise exceptions """
         primitive = MaximumLengthNotification()
@@ -78,13 +74,8 @@ class TestPrimitive_MaximumLengthNotification(unittest.TestCase):
 
     def test_string(self):
         """Check the string output."""
-<<<<<<< HEAD
-        primitive = MaximumLengthNegotiation()
-        assert '16382 bytes' in primitive.__str__()
-=======
         primitive = MaximumLengthNotification()
         self.assertTrue('16382 bytes' in primitive.__str__())
->>>>>>> c81ad3490f68a3c396fa7463557f655a6b19915c
 
 
 class TestPrimitive_ImplementationClassUIDNotification(object):
