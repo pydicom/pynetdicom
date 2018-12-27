@@ -34,9 +34,9 @@ def print_nice_bytes(bytestream):
         print(string)
 
 
-class TestPrimitive_MaximumLengthNotification(unittest.TestCase):
+class TestPrimitive_MaximumLengthNotification(object):
     def test_assignment_and_exceptions(self):
-        """ Check incorrect types/values for maximum_length_received raise exceptions """
+        """Test incorrect setter for maximum_length_received raises"""
         primitive = MaximumLengthNotification()
 
         # Check default assignment
@@ -75,27 +75,33 @@ class TestPrimitive_MaximumLengthNotification(unittest.TestCase):
     def test_string(self):
         """Check the string output."""
         primitive = MaximumLengthNotification()
-        self.assertTrue('16382 bytes' in primitive.__str__())
+        assert '16382 bytes' in primitive.__str__()
 
 
 class TestPrimitive_ImplementationClassUIDNotification(object):
     def test_assignment_and_exceptions(self):
-        """ Check incorrect types/values for implementation_class_uid raise exceptions """
+        """Check incorrect setter for implementation_class_uid raises"""
         primitive = ImplementationClassUIDNotification()
 
         ## Check assignment
         reference_uid = UID('1.2.826.0.1.3680043.9.3811.0.9.0')
 
         # bytes
-        primitive.implementation_class_uid = b'1.2.826.0.1.3680043.9.3811.0.9.0'
+        primitive.implementation_class_uid = (
+            b'1.2.826.0.1.3680043.9.3811.0.9.0'
+        )
         assert primitive.implementation_class_uid == reference_uid
 
         # str
-        primitive.implementation_class_uid = '1.2.826.0.1.3680043.9.3811.0.9.0'
+        primitive.implementation_class_uid = (
+            '1.2.826.0.1.3680043.9.3811.0.9.0'
+        )
         assert primitive.implementation_class_uid == reference_uid
 
         # UID
-        primitive.implementation_class_uid = UID('1.2.826.0.1.3680043.9.3811.0.9.0')
+        primitive.implementation_class_uid = UID(
+            '1.2.826.0.1.3680043.9.3811.0.9.0'
+        )
         assert primitive.implementation_class_uid == reference_uid
 
         ## Check exceptions
@@ -115,7 +121,9 @@ class TestPrimitive_ImplementationClassUIDNotification(object):
     def test_conversion(self):
         """ Check converting to PDU item works correctly """
         primitive = ImplementationClassUIDNotification()
-        primitive.implementation_class_uid = UID('1.2.826.0.1.3680043.9.3811.0.9.0')
+        primitive.implementation_class_uid = UID(
+            '1.2.826.0.1.3680043.9.3811.0.9.0'
+        )
         item = primitive.from_primitive()
 
         assert item.encode() == (
@@ -127,13 +135,15 @@ class TestPrimitive_ImplementationClassUIDNotification(object):
     def test_string(self):
         """Check the string output."""
         primitive = ImplementationClassUIDNotification()
-        primitive.implementation_class_uid = UID('1.2.826.0.1.3680043.9.3811.0.9.0')
+        primitive.implementation_class_uid = UID(
+            '1.2.826.0.1.3680043.9.3811.0.9.0'
+        )
         assert '1.2.826.0.1.3680043.9.3811.0.9.0' in primitive.__str__()
 
 
 class TestPrimitive_ImplementationVersionNameNotification(object):
     def test_assignment_and_exceptions(self):
-        """ Check incorrect types/values for implementation_version_name raise exceptions """
+        """Check incorrect setting for implementation_version_name raises"""
         primitive = ImplementationVersionNameNotification()
 
         ## Check assignment
@@ -393,7 +403,9 @@ class TestPrimitive_SOPClassExtendedNegotiation(object):
             item = primitive.from_primitive()
 
         primitive = SOPClassExtendedNegotiation()
-        primitive.service_class_application_information = b'\x02\x00\x03\x00\x01\x00'
+        primitive.service_class_application_information = (
+            b'\x02\x00\x03\x00\x01\x00'
+        )
         with pytest.raises(ValueError):
             item = primitive.from_primitive()
 
@@ -401,7 +413,9 @@ class TestPrimitive_SOPClassExtendedNegotiation(object):
         """ Check converting to PDU item works correctly """
         primitive = SOPClassExtendedNegotiation()
         primitive.sop_class_uid = b'1.2.840.10008.5.1.4.1.1.2'
-        primitive.service_class_application_information = b'\x02\x00\x03\x00\x01\x00'
+        primitive.service_class_application_information = (
+            b'\x02\x00\x03\x00\x01\x00'
+        )
         item = primitive.from_primitive()
 
         assert item.encode() == (
@@ -683,7 +697,9 @@ class TestPrimitive_A_ASSOCIATE(object):
 
         # No ImplementationClassUIDNotification present
         assoc.implementation_class_uid = '1.1.2.3.4'
-        assert assoc.user_information[1].implementation_class_uid == UID('1.1.2.3.4')
+        assert assoc.user_information[1].implementation_class_uid == UID(
+            '1.1.2.3.4'
+        )
         assert assoc.implementation_class_uid == UID('1.1.2.3.4')
 
         # ImplementationClassUIDNotification already present
