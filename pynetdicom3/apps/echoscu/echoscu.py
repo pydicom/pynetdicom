@@ -34,7 +34,7 @@ def setup_logger():
 
 LOGGER = setup_logger()
 
-VERSION = '0.6.1'
+VERSION = '0.6.2'
 
 
 def _setup_argparser():
@@ -109,7 +109,7 @@ def _setup_argparser():
     net_opts.add_argument("-pdu", "--max-pdu", metavar='[n]umber of bytes',
                           help="set max receive pdu to n bytes (4096..131072)",
                           type=int,
-                          default=16384)
+                          default=16382)
     net_opts.add_argument("--repeat", metavar='[n]umber',
                           help="repeat n times",
                           type=int,

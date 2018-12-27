@@ -1227,8 +1227,9 @@ class ApplicationEntity(object):
         no_loops = 0
         while True:
             try:
-                # #60: Required so we don't max out the CPU
-                time.sleep(0.5)
+                # #60: Required so we don't max out the CPU when SCP
+                # TODO: Find a better solution, this is not a good fix
+                time.sleep(0.05)
 
                 if self._quit:
                     break
