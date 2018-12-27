@@ -1442,6 +1442,31 @@ class ApplicationEntity(object):
             "sent"
         )
 
+    def on_sop_class_common_extended(self, items):
+        """Callback for when one or more SOP Class Common Extended Negotiation
+        items are included in the association request.
+
+        Parameters
+        ----------
+        items : dict
+            The {*SOP Class UID* : SOPClassCommonExtendedNegotiation} items
+            sent by the requestor.
+
+        Returns
+        -------
+        dict
+            The {*SOP Class UID* : SOPClassCommonExtendedNegotiation}
+            accepted by the acceptor. When receiving DIMSE messages containing
+            datasets corresponding to the SOP Class UID in an accepted item
+            the corresponding Service Class will be used.
+
+        References
+        ----------
+
+        * DICOM Standard Part 7, `Annex D.3.3.6 <http://dicom.nema.org/medical/dicom/current/output/chtml/part07/sect_D.3.3.6.html>`_
+        """
+        return {}
+
     def on_sop_class_extended(self, app_info):
         """Callback for when one or more SOP Class Extended Negotiation items
         are included in the association request.

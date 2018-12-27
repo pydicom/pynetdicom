@@ -1,5 +1,6 @@
 """Association testing"""
 
+from copy import deepcopy
 from io import BytesIO
 import logging
 import os
@@ -77,8 +78,8 @@ from .dummy_c_scp import (
 )
 
 LOGGER = logging.getLogger('pynetdicom3')
-#LOGGER.setLevel(logging.CRITICAL)
-LOGGER.setLevel(logging.DEBUG)
+LOGGER.setLevel(logging.CRITICAL)
+#LOGGER.setLevel(logging.DEBUG)
 
 TEST_DS_DIR = os.path.join(os.path.dirname(__file__), 'dicom_files')
 BIG_DATASET = dcmread(os.path.join(TEST_DS_DIR, 'RTImageStorage.dcm')) # 2.1 M
@@ -1340,6 +1341,47 @@ class TestAssociationSendCStore(object):
 
         assoc.release()
         assert assoc.is_released
+        self.scp.stop()
+
+    def test_functional_common_ext_neg(self):
+        """Test functioning of the SOP Class Common Extended negotiation."""
+        def on_ext(req):
+            return req
+
+        self.scp = DummyStorageSCP()
+        self.scp.ae.add_supported_context('1.2.3')
+        self.scp.ae.on_sop_class_common_extended = on_ext
+        self.scp.start()
+        ae = AE()
+        ae.add_requested_context('1.2.3')
+        ae.acse_timeout = 5
+        ae.dimse_timeout = 5
+
+        req = {
+            '1.2.3' : ('1.2.840.10008.4.2', []),
+            '1.2.3.1' : ('1.2.840.10008.4.2', ['1.1.1', '1.4.2']),
+            '1.2.3.4' : ('1.2.111111', []),
+            '1.2.3.5' : ('1.2.111111', ['1.2.4', '1.2.840.10008.1.1']),
+        }
+
+        ext_neg = []
+        for kk, vv in req.items():
+            item = SOPClassCommonExtendedNegotiation()
+            item.sop_class_uid = kk
+            item.service_class_uid = vv[0]
+            item.related_general_sop_class_identification = vv[1]
+            ext_neg.append(item)
+
+        assoc = ae.associate('localhost', 11112, ext_neg=ext_neg)
+        assert assoc.is_established
+
+        ds = deepcopy(DATASET)
+        ds.SOPClassUID = '1.2.3'
+        status = assoc.send_c_store(ds)
+        assert status.Status == 0x0000
+
+        assoc.release()
+
         self.scp.stop()
 
     # Regression tests

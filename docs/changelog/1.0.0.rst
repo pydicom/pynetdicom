@@ -9,6 +9,7 @@ Fixes
 * Fixed typos in SOP class names, fix bad UID
 * Fixed SCP/SCU Role Negotiation requiring both SCP and SCU role values to be
   set (as association requestor)
+* Starting with v1.0.0, versioning should be consistent
 
 
 Changes
@@ -97,3 +98,6 @@ Enhancements
 * Add support for Asynchronous Operations Window Negotiation, however
   pynetdicom does not support asynchronous operations.
 * Add support for User Identity Negotiation
+* Add support for SOP Class Common Extended Negotiation
+* Non-conformant (null trailing padded) UIDs in A-ASSOCIATE messages are now
+  handled

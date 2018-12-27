@@ -34,7 +34,8 @@ def uid_to_service_class(uid):
     Parameters
     ----------
     uid : pydicom.uid.UID
-        The SOP Class UID to find the corresponding Service Class.
+        The SOP or Service Class UID to use to find the corresponding Service
+        Class.
 
     Returns
     -------
@@ -47,7 +48,9 @@ def uid_to_service_class(uid):
         If the Service Class corresponding to the SOP Class `uid` hasn't been
         implemented.
     """
-    if uid in _VERIFICATION_CLASSES.values():
+    if uid in _SERVICE_CLASSES:
+        return _SERVICE_CLASSES[uid]
+    elif uid in _VERIFICATION_CLASSES.values():
         return VerificationServiceClass
     elif uid in _STORAGE_CLASSES.values():
         return StorageServiceClass
@@ -77,7 +80,7 @@ def uid_to_service_class(uid):
         return ServiceClass  # Not yet implemented
     elif uid in _MEDIA_STORAGE_CLASSES.values():
         return ServiceClass  # Not yet implemented
-    elif uid in _UNITED_PROCEDURE_STEP_CLASSES.values():
+    elif uid in _UNIFIED_PROCEDURE_STEP_CLASSES.values():
         return ServiceClass  # Not yet implemented
     elif uid in _RT_MACHINE_VERIFICATION_CLASSES.values():
         return ServiceClass  # Not yet implemented
@@ -112,6 +115,12 @@ def _generate_sop_classes(sop_class_dict):
         sop_class._service_class = uid_to_service_class(sop_class_dict[name])
         globals()[name] = sop_class
 
+
+# Table of service classes with assigned UIDs
+_SERVICE_CLASSES = {
+    '1.2.840.10008.4.2' : StorageServiceClass,
+    #'1.2.840.10008.5.1.4.34.6', UnifiedProcedureStepServiceClass,
+}
 
 # Generate the various SOP classes
 _VERIFICATION_CLASSES = {
@@ -348,7 +357,7 @@ _MEDIA_STORAGE_CLASSES = {
     'MediaStorageDirectoryStorage' : '1.2.840.10008.1.3.10',
 }
 
-_UNITED_PROCEDURE_STEP_CLASSES = {
+_UNIFIED_PROCEDURE_STEP_CLASSES = {
     'UnitedProcedureStepPush' : '1.2.840.10008.5.1.4.34.6.1',
     'UnitedProcedureStepWatch' : '1.2.840.10008.5.1.4.34.6.2',
     'UnitedProcedureStepPull' : '1.2.840.10008.5.1.4.34.6.3',
@@ -376,7 +385,7 @@ _generate_sop_classes(_DISPLAY_SYSTEM_CLASSES)
 _generate_sop_classes(_PRINT_MANAGEMENT_CLASSES)
 _generate_sop_classes(_PROCEDURE_STEP_CLASSES)
 _generate_sop_classes(_MEDIA_STORAGE_CLASSES)
-_generate_sop_classes(_UNITED_PROCEDURE_STEP_CLASSES)
+_generate_sop_classes(_UNIFIED_PROCEDURE_STEP_CLASSES)
 _generate_sop_classes(_RT_MACHINE_VERIFICATION_CLASSES)
 
 

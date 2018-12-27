@@ -7,10 +7,11 @@ from pydicom.uid import UID
 
 from pynetdicom3.pdu_primitives import (
     A_ASSOCIATE, A_RELEASE, A_ABORT, A_P_ABORT,
-    MaximumLengthNotification,
-    UserIdentityNegotiation,
-    SOPClassExtendedNegotiation,
     AsynchronousOperationsWindowNegotiation,
+    MaximumLengthNotification,
+    SOPClassCommonExtendedNegotiation,
+    SOPClassExtendedNegotiation,
+    UserIdentityNegotiation,
 )
 from pynetdicom3.presentation import (
     negotiate_as_requestor, negotiate_as_acceptor
@@ -85,6 +86,43 @@ class ACSE(object):
         item.maximum_number_operations_performed = 1
 
         return item
+
+    @staticmethod
+    def _check_sop_class_common_extended(assoc):
+        """Check the user's response to a SOP Class Common Extended request.
+
+        Parameters
+        ----------
+        assoc : association.Association
+            The Association instance that received one or more SOP Class
+            Common Extended Negotiation items in an A-ASSOCIATE (request)
+            primitive.
+
+        Returns
+        -------
+        dict
+            The {SOP Class UID : SOPClassCommonExtendedNegotiation} items for
+            the accepted SOP Class Common Extended negotiation items.
+        """
+        # pylint: disable=broad-except
+        try:
+            rsp = assoc.ae.on_sop_class_common_extended(
+                assoc.requestor.sop_class_common_extended
+            )
+        except Exception as exc:
+            items = []
+            LOGGER.error(
+                "Exception raised in user's 'on_sop_class_common_extended' "
+                "implementation"
+            )
+            LOGGER.exception(exc)
+
+        rsp = {
+            uid:ii for uid,ii in rsp.items()
+            if isinstance(ii, SOPClassCommonExtendedNegotiation)
+        }
+
+        return rsp
 
     @staticmethod
     def _check_sop_class_extended(assoc):
@@ -287,6 +325,9 @@ class ACSE(object):
 
         # SOP Class Common Extended Negotiation items
         #   Note: No response items are allowed
+        assoc.acceptor._common_ext = (
+            self._check_sop_class_common_extended(assoc)
+        )
 
         # Asynchronous Operations Window Negotiation items
         if assoc.requestor.asynchronous_operations != (1, 1):
