@@ -26,6 +26,8 @@ pynetdicom3.service\_class.RelevantPatientInformationQueryServiceClass
 
    .. autosummary::
    
+      ~RelevantPatientInformationQueryServiceClass.ae
+      ~RelevantPatientInformationQueryServiceClass.dimse
       ~RelevantPatientInformationQueryServiceClass.statuses
    
    

@@ -26,6 +26,8 @@ pynetdicom3.service\_class.VerificationServiceClass
 
    .. autosummary::
    
+      ~VerificationServiceClass.ae
+      ~VerificationServiceClass.dimse
       ~VerificationServiceClass.statuses
    
    

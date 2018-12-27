@@ -27,6 +27,8 @@ pynetdicom3.service\_class.BasicWorklistManagementServiceClass
    .. autosummary::
    
       ~BasicWorklistManagementServiceClass.BULK_DATA_KEYWORDS
+      ~BasicWorklistManagementServiceClass.ae
+      ~BasicWorklistManagementServiceClass.dimse
       ~BasicWorklistManagementServiceClass.statuses
    
    

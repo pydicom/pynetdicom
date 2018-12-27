@@ -28,7 +28,6 @@
 
   <link rel="stylesheet" href="../_static/css/pynetdicom3.css" type="text/css" />
   <link rel="stylesheet" href="../_static/pygments.css" type="text/css" />
-  <link rel="stylesheet" href="../_static/gallery.css" type="text/css" />
   <link rel="stylesheet" href="../_static/css/pynetdicom3.css" type="text/css" />
     <link rel="index" title="Index" href="../genindex.html" />
     <link rel="search" title="Search" href="../search.html" />
@@ -131,9 +130,6 @@
 <li class="toctree-l2"><a class="reference internal" href="association.html">Association</a></li>
 </ul>
 </li>
-</ul>
-<ul>
-<li class="toctree-l1"><a class="reference internal" href="../release_notes.html">0.9.1</a></li>
 </ul>
 
             
@@ -379,18 +375,15 @@ communicating AEs to exchange more detailed information about features and
 services they may optionally require/support. This is accomplished by sending
 additional user information items during the association request:</p>
 <ul class="simple">
-<li>Maximum Length Application PDU Negotiation</li>
-<li>Implementation Identification Notification</li>
 <li>Asynchronous Operations Window Negotiation</li>
 <li>SCP/SCU Role Selection Negotiation</li>
 <li>SOP Class Extended Negotiation</li>
 <li>SOP Class Common Extended Negotiation</li>
 <li>User Identity Negotiation</li>
 </ul>
-<p>Some of these items are compulsory (such as
-the maximum length negotiation and implementation identification notifications)
-while the rest are either completely optional or conditionally required,
-depending on the requested service class (such as SCP/SCU role negotiation
+<p>Some of these items are conditionally required,
+depending on the requested service class (such as SCP/SCU role selection
+negotiation
 when the Query/Retrieve service class’ C-GET operation is requested).
 Association negotiation involving these additional items is usually referred
 to as <em>extended negotiation</em>.</p>
@@ -423,7 +416,7 @@ of the DICOM Standard.</p>
 
   <div role="contentinfo">
     <p>
-        &copy; Copyright 2018, pynetdicom3 contributors
+        &copy; Copyright 2018-19, pynetdicom3 contributors
 
     </p>
   </div>
@@ -448,6 +441,7 @@ of the DICOM Standard.</p>
         <script type="text/javascript" src="../_static/jquery.js"></script>
         <script type="text/javascript" src="../_static/underscore.js"></script>
         <script type="text/javascript" src="../_static/doctools.js"></script>
+        <script type="text/javascript" src="../_static/language_data.js"></script>
     
 
   

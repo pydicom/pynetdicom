@@ -28,7 +28,6 @@
 
   <link rel="stylesheet" href="../_static/css/pynetdicom3.css" type="text/css" />
   <link rel="stylesheet" href="../_static/pygments.css" type="text/css" />
-  <link rel="stylesheet" href="../_static/gallery.css" type="text/css" />
   <link rel="stylesheet" href="../_static/css/pynetdicom3.css" type="text/css" />
     <link rel="index" title="Index" href="../genindex.html" />
     <link rel="search" title="Search" href="../search.html" /> 
@@ -104,9 +103,6 @@
 <ul>
 <li class="toctree-l1"><a class="reference internal" href="../user/index.html">User Guide</a></li>
 </ul>
-<ul>
-<li class="toctree-l1"><a class="reference internal" href="../release_notes.html">0.9.1</a></li>
-</ul>
 
             
           
@@ -180,8 +176,11 @@ one of pynetdicom’s two main user classes.</p>
 <col width="90%" />
 </colgroup>
 <tbody valign="top">
-<tr class="row-odd"><td><a class="reference internal" href="generated/pynetdicom3.association.Association.html#pynetdicom3.association.Association" title="pynetdicom3.association.Association"><code class="xref py py-obj docutils literal notranslate"><span class="pre">Association</span></code></a>(local_ae[,&nbsp;client_socket,&nbsp;…])</td>
+<tr class="row-odd"><td><a class="reference internal" href="generated/pynetdicom3.association.Association.html#pynetdicom3.association.Association" title="pynetdicom3.association.Association"><code class="xref py py-obj docutils literal notranslate"><span class="pre">Association</span></code></a>(ae,&nbsp;mode[,&nbsp;local_socket])</td>
 <td>Manage an Association with a peer AE.</td>
+</tr>
+<tr class="row-even"><td><a class="reference internal" href="generated/pynetdicom3.association.ServiceUser.html#pynetdicom3.association.ServiceUser" title="pynetdicom3.association.ServiceUser"><code class="xref py py-obj docutils literal notranslate"><span class="pre">ServiceUser</span></code></a>(assoc,&nbsp;mode)</td>
+<td>Convenience class for the Association Service User.</td>
 </tr>
 </tbody>
 </table>
@@ -198,7 +197,7 @@ one of pynetdicom’s two main user classes.</p>
 
   <div role="contentinfo">
     <p>
-        &copy; Copyright 2018, pynetdicom3 contributors
+        &copy; Copyright 2018-19, pynetdicom3 contributors
 
     </p>
   </div>
@@ -223,6 +222,7 @@ one of pynetdicom’s two main user classes.</p>
         <script type="text/javascript" src="../_static/jquery.js"></script>
         <script type="text/javascript" src="../_static/underscore.js"></script>
         <script type="text/javascript" src="../_static/doctools.js"></script>
+        <script type="text/javascript" src="../_static/language_data.js"></script>
     
 
   

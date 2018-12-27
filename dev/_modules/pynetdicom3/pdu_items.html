@@ -28,7 +28,6 @@
 
   <link rel="stylesheet" href="../../_static/css/pynetdicom3.css" type="text/css" />
   <link rel="stylesheet" href="../../_static/pygments.css" type="text/css" />
-  <link rel="stylesheet" href="../../_static/gallery.css" type="text/css" />
   <link rel="stylesheet" href="../../_static/css/pynetdicom3.css" type="text/css" />
     <link rel="index" title="Index" href="../../genindex.html" />
     <link rel="search" title="Search" href="../../search.html" /> 
@@ -103,9 +102,6 @@
 </ul>
 <ul>
 <li class="toctree-l1"><a class="reference internal" href="../../user/index.html">User Guide</a></li>
-</ul>
-<ul>
-<li class="toctree-l1"><a class="reference internal" href="../../release_notes.html">0.9.1</a></li>
 </ul>
 
             
@@ -260,9 +256,7 @@
             <span class="k">else</span><span class="p">:</span>
                 <span class="n">sl</span> <span class="o">=</span> <span class="nb">slice</span><span class="p">(</span><span class="n">offset</span><span class="p">,</span> <span class="kc">None</span><span class="p">)</span>
 
-            <span class="nb">setattr</span><span class="p">(</span>
-                <span class="bp">self</span><span class="p">,</span> <span class="n">attr_name</span><span class="p">,</span> <span class="n">func</span><span class="p">(</span><span class="n">bytestream</span><span class="p">[</span><span class="n">sl</span><span class="p">],</span> <span class="o">*</span><span class="n">args</span><span class="p">)</span>
-            <span class="p">)</span>
+            <span class="nb">setattr</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">attr_name</span><span class="p">,</span> <span class="n">func</span><span class="p">(</span><span class="n">bytestream</span><span class="p">[</span><span class="n">sl</span><span class="p">],</span> <span class="o">*</span><span class="n">args</span><span class="p">))</span>
 
     <span class="nd">@property</span>
     <span class="k">def</span> <span class="nf">_decoders</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
@@ -299,10 +293,10 @@
 
         <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">other</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="vm">__class__</span><span class="p">):</span>
             <span class="n">self_dict</span> <span class="o">=</span> <span class="p">{</span>
-                <span class="n">enc</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span> <span class="p">:</span> <span class="nb">getattr</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">enc</span><span class="p">[</span><span class="mi">0</span><span class="p">])</span> <span class="k">for</span> <span class="n">enc</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">_encoders</span> <span class="k">if</span> <span class="n">enc</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span>
+                <span class="n">en</span><span class="p">[</span><span class="mi">0</span><span class="p">]:</span> <span class="nb">getattr</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">en</span><span class="p">[</span><span class="mi">0</span><span class="p">])</span> <span class="k">for</span> <span class="n">en</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">_encoders</span> <span class="k">if</span> <span class="n">en</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span>
             <span class="p">}</span>
             <span class="n">other_dict</span> <span class="o">=</span> <span class="p">{</span>
-                <span class="n">enc</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span> <span class="p">:</span> <span class="nb">getattr</span><span class="p">(</span><span class="n">other</span><span class="p">,</span> <span class="n">enc</span><span class="p">[</span><span class="mi">0</span><span class="p">])</span> <span class="k">for</span> <span class="n">enc</span> <span class="ow">in</span> <span class="n">other</span><span class="o">.</span><span class="n">_encoders</span> <span class="k">if</span> <span class="n">enc</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span>
+                <span class="n">en</span><span class="p">[</span><span class="mi">0</span><span class="p">]:</span> <span class="nb">getattr</span><span class="p">(</span><span class="n">other</span><span class="p">,</span> <span class="n">en</span><span class="p">[</span><span class="mi">0</span><span class="p">])</span> <span class="k">for</span> <span class="n">en</span> <span class="ow">in</span> <span class="n">other</span><span class="o">.</span><span class="n">_encoders</span> <span class="k">if</span> <span class="n">en</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span>
             <span class="p">}</span>
             <span class="k">return</span> <span class="n">self_dict</span> <span class="o">==</span> <span class="n">other_dict</span>
 
@@ -1236,7 +1230,7 @@
 <span class="sd">        primitive : list of User Information primitives</span>
 <span class="sd">            Must contain:</span>
 
-<span class="sd">            - MaximumLengthNegotiation</span>
+<span class="sd">            - MaximumLengthNotification</span>
 <span class="sd">            - ImplementationClassUIDNotification</span>
 
 <span class="sd">            May optionally contain one or more:</span>
@@ -1259,7 +1253,7 @@
 <span class="sd">        list of User Information primitives</span>
 <span class="sd">            Must contain:</span>
 
-<span class="sd">            - MaximumLengthNegotiation</span>
+<span class="sd">            - MaximumLengthNotification</span>
 <span class="sd">            - ImplementationClassUIDNotification</span>
 
 <span class="sd">            May optionally contain one or more:</span>
@@ -1813,7 +1807,7 @@
 
 <span class="sd">        Parameters</span>
 <span class="sd">        ----------</span>
-<span class="sd">        primitive : pdu_primitives.MaximumLengthNegotiation</span>
+<span class="sd">        primitive : pdu_primitives.MaximumLengthNotification</span>
 <span class="sd">            The primitive to use to set the Item&#39;s field values.</span>
 <span class="sd">        &quot;&quot;&quot;</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">maximum_length_received</span> <span class="o">=</span> <span class="n">primitive</span><span class="o">.</span><span class="n">maximum_length_received</span></div>
@@ -1823,12 +1817,12 @@
 
 <span class="sd">        Returns</span>
 <span class="sd">        -------</span>
-<span class="sd">        pdu_primitives.MaximumLengthNegotiation</span>
+<span class="sd">        pdu_primitives.MaximumLengthNotification</span>
 <span class="sd">            The primitive representation of the current Item.</span>
 <span class="sd">        &quot;&quot;&quot;</span>
-        <span class="kn">from</span> <span class="nn">pynetdicom3.pdu_primitives</span> <span class="k">import</span> <span class="n">MaximumLengthNegotiation</span>
+        <span class="kn">from</span> <span class="nn">pynetdicom3.pdu_primitives</span> <span class="k">import</span> <span class="n">MaximumLengthNotification</span>
 
-        <span class="n">primitive</span> <span class="o">=</span> <span class="n">MaximumLengthNegotiation</span><span class="p">()</span>
+        <span class="n">primitive</span> <span class="o">=</span> <span class="n">MaximumLengthNotification</span><span class="p">()</span>
         <span class="n">primitive</span><span class="o">.</span><span class="n">maximum_length_received</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">maximum_length_received</span>
 
         <span class="k">return</span> <span class="n">primitive</span></div>
@@ -3556,7 +3550,8 @@
             <span class="mi">1</span> <span class="p">:</span> <span class="s1">&#39;Username&#39;</span><span class="p">,</span>
             <span class="mi">2</span> <span class="p">:</span> <span class="s1">&#39;Username/Password&#39;</span><span class="p">,</span>
             <span class="mi">3</span> <span class="p">:</span> <span class="s1">&#39;Kerberos&#39;</span><span class="p">,</span>
-            <span class="mi">4</span> <span class="p">:</span> <span class="s1">&#39;SAML&#39;</span>
+            <span class="mi">4</span> <span class="p">:</span> <span class="s1">&#39;SAML&#39;</span><span class="p">,</span>
+            <span class="mi">5</span> <span class="p">:</span> <span class="s1">&#39;JSON Web Token&#39;</span><span class="p">,</span>
         <span class="p">}</span>
 
         <span class="k">return</span> <span class="n">_types</span><span class="p">[</span><span class="bp">self</span><span class="o">.</span><span class="n">user_identity_type</span><span class="p">]</span>
@@ -3965,7 +3960,7 @@
 
   <div role="contentinfo">
     <p>
-        &copy; Copyright 2018, pynetdicom3 contributors
+        &copy; Copyright 2018-19, pynetdicom3 contributors
 
     </p>
   </div>
@@ -3990,6 +3985,7 @@
         <script type="text/javascript" src="../../_static/jquery.js"></script>
         <script type="text/javascript" src="../../_static/underscore.js"></script>
         <script type="text/javascript" src="../../_static/doctools.js"></script>
+        <script type="text/javascript" src="../../_static/language_data.js"></script>
     
 
   

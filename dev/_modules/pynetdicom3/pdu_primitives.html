@@ -28,7 +28,6 @@
 
   <link rel="stylesheet" href="../../_static/css/pynetdicom3.css" type="text/css" />
   <link rel="stylesheet" href="../../_static/pygments.css" type="text/css" />
-  <link rel="stylesheet" href="../../_static/gallery.css" type="text/css" />
   <link rel="stylesheet" href="../../_static/css/pynetdicom3.css" type="text/css" />
     <link rel="index" title="Index" href="../../genindex.html" />
     <link rel="search" title="Search" href="../../search.html" /> 
@@ -103,9 +102,6 @@
 </ul>
 <ul>
 <li class="toctree-l1"><a class="reference internal" href="../../user/index.html">User Guide</a></li>
-</ul>
-<ul>
-<li class="toctree-l1"><a class="reference internal" href="../../release_notes.html">0.9.1</a></li>
 </ul>
 
             
@@ -209,10 +205,6 @@
     <span class="k">def</span> <span class="nf">__ne__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">other</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;Inequality of two ServiceParameters&quot;&quot;&quot;</span>
         <span class="k">return</span> <span class="ow">not</span> <span class="bp">self</span> <span class="o">==</span> <span class="n">other</span>
-
-    <span class="c1">#def from_primitive(self):</span>
-    <span class="c1">#    &quot;&quot;&quot;FIXME&quot;&quot;&quot;</span>
-    <span class="c1">#    return self.from_primitive()</span>
 
 
 <span class="c1"># Association Service primitives</span>
@@ -538,7 +530,7 @@
 <span class="sd">        ----------</span>
 <span class="sd">        value_list : list of user information class objects</span>
 <span class="sd">            A list of user information objects, must contain at least</span>
-<span class="sd">            MaximumLengthNegotiation and ImplementationClassUIDNotification</span>
+<span class="sd">            MaximumLengthNotification and ImplementationClassUIDNotification</span>
 <span class="sd">        &quot;&quot;&quot;</span>
         <span class="c1"># pylint: disable=attribute-defined-outside-init</span>
         <span class="n">valid_usr_info_items</span> <span class="o">=</span> <span class="p">[]</span>
@@ -547,7 +539,7 @@
             <span class="c1"># Iterate through the items and check they&#39;re an acceptable class</span>
             <span class="k">for</span> <span class="n">item</span> <span class="ow">in</span> <span class="n">value_list</span><span class="p">:</span>
                 <span class="k">if</span> <span class="n">item</span><span class="o">.</span><span class="vm">__class__</span><span class="o">.</span><span class="vm">__name__</span> <span class="ow">in</span> \
-                        <span class="p">[</span><span class="s2">&quot;MaximumLengthNegotiation&quot;</span><span class="p">,</span>
+                        <span class="p">[</span><span class="s2">&quot;MaximumLengthNotification&quot;</span><span class="p">,</span>
                          <span class="s2">&quot;ImplementationClassUIDNotification&quot;</span><span class="p">,</span>
                          <span class="s2">&quot;ImplementationVersionNameNotification&quot;</span><span class="p">,</span>
                          <span class="s2">&quot;AsynchronousOperationsWindowNegotiation&quot;</span><span class="p">,</span>
@@ -820,7 +812,7 @@
     <span class="k">def</span> <span class="nf">maximum_length_received</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;Get the Maximum Length Received.&quot;&quot;&quot;</span>
         <span class="k">for</span> <span class="n">item</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">user_information</span><span class="p">:</span>
-            <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">item</span><span class="p">,</span> <span class="n">MaximumLengthNegotiation</span><span class="p">):</span>
+            <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">item</span><span class="p">,</span> <span class="n">MaximumLengthNotification</span><span class="p">):</span>
                 <span class="k">return</span> <span class="n">item</span><span class="o">.</span><span class="n">maximum_length_received</span>
 
         <span class="k">return</span> <span class="kc">None</span>
@@ -830,8 +822,8 @@
         <span class="sd">&quot;&quot;&quot;Set the Maximum Length Received.</span>
 
 <span class="sd">        If the A_ASSOCIATE.user_information list contains a</span>
-<span class="sd">        MaximumLengthNegotiated item then set its maximum_length_received value.</span>
-<span class="sd">        If not then add a MaximumLengthNegotiated item and set its</span>
+<span class="sd">        MaximumLengthNotification item then set its maximum_length_received</span>
+<span class="sd">        value. If not then add a MaximumLengthNotification item and set its</span>
 <span class="sd">        maximum_length_received value.</span>
 
 <span class="sd">        Parameters</span>
@@ -840,19 +832,19 @@
 <span class="sd">            The maximum length of each P-DATA in bytes</span>
 <span class="sd">        &quot;&quot;&quot;</span>
         <span class="c1"># Type and value checking for the maximum_length_received parameter is</span>
-        <span class="c1">#   done by the MaximumLengthNegotiated class</span>
+        <span class="c1">#   done by the MaximumLengthNotification class</span>
 
-        <span class="c1"># Check for a MaximumLengthNegotiation item</span>
+        <span class="c1"># Check for a MaximumLengthNotification item</span>
         <span class="n">found_item</span> <span class="o">=</span> <span class="kc">False</span>
 
         <span class="k">for</span> <span class="n">item</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">user_information</span><span class="p">:</span>
-            <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">item</span><span class="p">,</span> <span class="n">MaximumLengthNegotiation</span><span class="p">):</span>
+            <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">item</span><span class="p">,</span> <span class="n">MaximumLengthNotification</span><span class="p">):</span>
                 <span class="n">found_item</span> <span class="o">=</span> <span class="kc">True</span>
                 <span class="n">item</span><span class="o">.</span><span class="n">maximum_length_received</span> <span class="o">=</span> <span class="n">value</span>
 
-        <span class="c1"># No MaximumLengthNegotiated item found</span>
+        <span class="c1"># No MaximumLengthNotification item found</span>
         <span class="k">if</span> <span class="ow">not</span> <span class="n">found_item</span><span class="p">:</span>
-            <span class="n">max_length</span> <span class="o">=</span> <span class="n">MaximumLengthNegotiation</span><span class="p">()</span>
+            <span class="n">max_length</span> <span class="o">=</span> <span class="n">MaximumLengthNotification</span><span class="p">()</span>
             <span class="n">max_length</span><span class="o">.</span><span class="n">maximum_length_received</span> <span class="o">=</span> <span class="n">value</span>
             <span class="bp">self</span><span class="o">.</span><span class="n">user_information</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">max_length</span><span class="p">)</span>
 
@@ -889,14 +881,14 @@
         <span class="c1"># Type and value checking for the implementation_class_uid parameter is</span>
         <span class="c1">#   done by the ImplementationClassUIDNotification class</span>
 
-        <span class="c1"># Check for a ImplementationClassUIDNegotiation item</span>
+        <span class="c1"># Check for a ImplementationClassUIDNotification item</span>
         <span class="n">found_item</span> <span class="o">=</span> <span class="kc">False</span>
         <span class="k">for</span> <span class="n">item</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">user_information</span><span class="p">:</span>
             <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">item</span><span class="p">,</span> <span class="n">ImplementationClassUIDNotification</span><span class="p">):</span>
                 <span class="n">found_item</span> <span class="o">=</span> <span class="kc">True</span>
                 <span class="n">item</span><span class="o">.</span><span class="n">implementation_class_uid</span> <span class="o">=</span> <span class="n">value</span>
 
-        <span class="c1"># No ImplementationClassUIDNegotiation item found</span>
+        <span class="c1"># No ImplementationClassUIDNotification item found</span>
         <span class="k">if</span> <span class="ow">not</span> <span class="n">found_item</span><span class="p">:</span>
             <span class="n">imp_uid</span> <span class="o">=</span> <span class="n">ImplementationClassUIDNotification</span><span class="p">()</span>
             <span class="n">imp_uid</span><span class="o">.</span><span class="n">implementation_class_uid</span> <span class="o">=</span> <span class="n">value</span>
@@ -1116,10 +1108,12 @@
         <span class="k">elif</span> <span class="n">value</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
             <span class="bp">self</span><span class="o">.</span><span class="n">_provider_reason</span> <span class="o">=</span> <span class="kc">None</span>
         <span class="k">else</span><span class="p">:</span>
-            <span class="n">LOGGER</span><span class="o">.</span><span class="n">error</span><span class="p">(</span><span class="s2">&quot;Attempted to set A_ABORT.provider_reason to an &quot;</span>
-                         <span class="s2">&quot;invalid value&quot;</span><span class="p">)</span>
-            <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s2">&quot;Attempted to set A_ABORT.provider_reason to an &quot;</span>
-                             <span class="s2">&quot;invalid value&quot;</span><span class="p">)</span></div>
+            <span class="n">msg</span> <span class="o">=</span> <span class="p">(</span>
+                <span class="s2">&quot;Attempted to set A_P_ABORT.provider_reason to an invalid &quot;</span>
+                <span class="s2">&quot;value&quot;</span>
+            <span class="p">)</span>
+            <span class="n">LOGGER</span><span class="o">.</span><span class="n">error</span><span class="p">(</span><span class="n">msg</span><span class="p">)</span>
+            <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="n">msg</span><span class="p">)</span></div>
 
 
 <div class="viewcode-block" id="P_DATA"><a class="viewcode-back" href="../../reference/generated/pynetdicom3.pdu_primitives.P_DATA.html#pynetdicom3.pdu_primitives.P_DATA">[docs]</a><span class="k">class</span> <span class="nc">P_DATA</span><span class="p">(</span><span class="nb">object</span><span class="p">):</span>
@@ -1225,7 +1219,7 @@
 
 
 <span class="c1"># User Information Negotiation primitives</span>
-<div class="viewcode-block" id="MaximumLengthNegotiation"><a class="viewcode-back" href="../../reference/generated/pynetdicom3.pdu_primitives.MaximumLengthNegotiation.html#pynetdicom3.pdu_primitives.MaximumLengthNegotiation">[docs]</a><span class="k">class</span> <span class="nc">MaximumLengthNegotiation</span><span class="p">(</span><span class="n">ServiceParameter</span><span class="p">):</span>
+<div class="viewcode-block" id="MaximumLengthNotification"><a class="viewcode-back" href="../../reference/generated/pynetdicom3.pdu_primitives.MaximumLengthNotification.html#pynetdicom3.pdu_primitives.MaximumLengthNotification">[docs]</a><span class="k">class</span> <span class="nc">MaximumLengthNotification</span><span class="p">(</span><span class="n">ServiceParameter</span><span class="p">):</span>
     <span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">    A representation of a Maximum Length Negotiation primitive.</span>
 
@@ -1234,7 +1228,7 @@
 <span class="sd">    all DICOM v3.0 conforming implementations.</span>
 
 <span class="sd">    This User Information item is required during Association negotiation and</span>
-<span class="sd">    there must only be a single MaximumLengthNegotiation item</span>
+<span class="sd">    there must only be a single MaximumLengthNotification item</span>
 
 <span class="sd">    Attributes</span>
 <span class="sd">    ----------</span>
@@ -1248,10 +1242,10 @@
 <span class="sd">    * DICOM Standard, Part 7, Annex D.3.3.1</span>
 <span class="sd">    * DICOM Standard, Part 8, Annex D.1</span>
 <span class="sd">    &quot;&quot;&quot;</span>
-<div class="viewcode-block" id="MaximumLengthNegotiation.__init__"><a class="viewcode-back" href="../../reference/generated/pynetdicom3.pdu_primitives.MaximumLengthNegotiation.html#pynetdicom3.pdu_primitives.MaximumLengthNegotiation.__init__">[docs]</a>    <span class="k">def</span> <span class="nf">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+<div class="viewcode-block" id="MaximumLengthNotification.__init__"><a class="viewcode-back" href="../../reference/generated/pynetdicom3.pdu_primitives.MaximumLengthNotification.html#pynetdicom3.pdu_primitives.MaximumLengthNotification.__init__">[docs]</a>    <span class="k">def</span> <span class="nf">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">maximum_length_received</span> <span class="o">=</span> <span class="mi">16382</span></div>
 
-<div class="viewcode-block" id="MaximumLengthNegotiation.from_primitive"><a class="viewcode-back" href="../../reference/generated/pynetdicom3.pdu_primitives.MaximumLengthNegotiation.html#pynetdicom3.pdu_primitives.MaximumLengthNegotiation.from_primitive">[docs]</a>    <span class="k">def</span> <span class="nf">from_primitive</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+<div class="viewcode-block" id="MaximumLengthNotification.from_primitive"><a class="viewcode-back" href="../../reference/generated/pynetdicom3.pdu_primitives.MaximumLengthNotification.html#pynetdicom3.pdu_primitives.MaximumLengthNotification.from_primitive">[docs]</a>    <span class="k">def</span> <span class="nf">from_primitive</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;Convert the primitive to a PDU item ready to be encoded.</span>
 
 <span class="sd">        Returns</span>
@@ -1439,8 +1433,8 @@
 <span class="sd">    Examples</span>
 <span class="sd">    --------</span>
 
-<span class="sd">    &gt;&gt;&gt; from pynetdicom3.pdu_primitives import ImplementationVersionNameNegotiation</span>
-<span class="sd">    &gt;&gt;&gt; item = ImplementationVersionNameNegotiation()</span>
+<span class="sd">    &gt;&gt;&gt; from pynetdicom3.pdu_primitives import ImplementationVersionNameNotification</span>
+<span class="sd">    &gt;&gt;&gt; item = ImplementationVersionNameNotification()</span>
 <span class="sd">    &gt;&gt;&gt; item.implementation_version_name = b&#39;SOME_NAME&#39;</span>
 
 <span class="sd">    References</span>
@@ -2493,7 +2487,7 @@
 
   <div role="contentinfo">
     <p>
-        &copy; Copyright 2018, pynetdicom3 contributors
+        &copy; Copyright 2018-19, pynetdicom3 contributors
 
     </p>
   </div>
@@ -2518,6 +2512,7 @@
         <script type="text/javascript" src="../../_static/jquery.js"></script>
         <script type="text/javascript" src="../../_static/underscore.js"></script>
         <script type="text/javascript" src="../../_static/doctools.js"></script>
+        <script type="text/javascript" src="../../_static/language_data.js"></script>
     
 
   

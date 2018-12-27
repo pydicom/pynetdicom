@@ -12,3 +12,4 @@ one of pynetdicom's two main user classes.
    :toctree: generated/
 
    Association
+   ServiceUser

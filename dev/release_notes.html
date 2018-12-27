@@ -8,7 +8,7 @@
   
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   
-  <title>0.9.1 &mdash; pynetdicom3 1.0.0.dev0 documentation</title>
+  <title>&lt;no title&gt; &mdash; pynetdicom3 1.0.0.dev0 documentation</title>
   
 
   
@@ -28,7 +28,6 @@
 
   <link rel="stylesheet" href="_static/css/pynetdicom3.css" type="text/css" />
   <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
-  <link rel="stylesheet" href="_static/gallery.css" type="text/css" />
   <link rel="stylesheet" href="_static/css/pynetdicom3.css" type="text/css" />
     <link rel="index" title="Index" href="genindex.html" />
     <link rel="search" title="Search" href="search.html" />
@@ -105,14 +104,6 @@
 <ul>
 <li class="toctree-l1"><a class="reference internal" href="user/index.html">User Guide</a></li>
 </ul>
-<ul class="current">
-<li class="toctree-l1 current"><a class="current reference internal" href="#">0.9.1</a><ul>
-<li class="toctree-l2"><a class="reference internal" href="#fixes">Fixes</a></li>
-<li class="toctree-l2"><a class="reference internal" href="#changes">Changes</a></li>
-<li class="toctree-l2"><a class="reference internal" href="#enhancements">Enhancements</a></li>
-</ul>
-</li>
-</ul>
 
             
           
@@ -157,7 +148,7 @@
     
       <li><a href="index.html">Docs</a> &raquo;</li>
         
-      <li>0.9.1</li>
+      <li>&lt;no title&gt;</li>
     
     
       <li class="wy-breadcrumbs-aside">
@@ -176,90 +167,7 @@
           <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
            <div itemprop="articleBody">
             
-  <div class="section" id="id1">
-<h1>0.9.1<a class="headerlink" href="#id1" title="Permalink to this headline">¶</a></h1>
-<div class="section" id="fixes">
-<h2>Fixes<a class="headerlink" href="#fixes" title="Permalink to this headline">¶</a></h2>
-<ul class="simple">
-<li>Fixed upstream pydicom changes to AE elements breaking logging
-(:issue:<code class="docutils literal notranslate"><span class="pre">195</span></code>)</li>
-<li>Fixed typos in SOP class names, fix bad UID</li>
-<li>Fixed SCP/SCU Role Negotiation requiring both SCP and SCU role values to be
-set (as association requestor)</li>
-</ul>
-</div>
-<div class="section" id="changes">
-<h2>Changes<a class="headerlink" href="#changes" title="Permalink to this headline">¶</a></h2>
-<ul class="simple">
-<li><code class="docutils literal notranslate"><span class="pre">applicationentity</span></code> module renamed <code class="docutils literal notranslate"><span class="pre">ae</span></code></li>
-<li><code class="docutils literal notranslate"><span class="pre">ApplicationEntity</span></code> interface updated<ul>
-<li>Removed the following: <code class="docutils literal notranslate"><span class="pre">AE.scu_supported_sop</span></code>, <code class="docutils literal notranslate"><span class="pre">AE.scp_supported_sop</span></code>,
-<code class="docutils literal notranslate"><span class="pre">AE.transfer_syntax</span></code>, <code class="docutils literal notranslate"><span class="pre">AE.presentation_contexts_scu</span></code>,
-<code class="docutils literal notranslate"><span class="pre">AE.presentation_contexts_scp</span></code>.</li>
-<li><code class="docutils literal notranslate"><span class="pre">scu_sop_class</span></code>, <code class="docutils literal notranslate"><span class="pre">scp_sop_class</span></code>, <code class="docutils literal notranslate"><span class="pre">transfer_syntax</span></code> and <code class="docutils literal notranslate"><span class="pre">bind_addr</span></code>
-arguments removed from <code class="docutils literal notranslate"><span class="pre">AE</span></code> initialisation.</li>
-<li>Added <code class="docutils literal notranslate"><span class="pre">AE.bind_addr</span></code> attribute to allow the user to specify the network
-adapter.</li>
-<li>Added <code class="docutils literal notranslate"><span class="pre">AE.add_supported_context()</span></code>, <code class="docutils literal notranslate"><span class="pre">AE.supported_contexts</span></code>,
-<code class="docutils literal notranslate"><span class="pre">AE.remove_supported_context()</span></code> for adding and removing the presentation
-contexts supported as an SCP.</li>
-<li>Added <code class="docutils literal notranslate"><span class="pre">AE.add_requested_context()</span></code>, <code class="docutils literal notranslate"><span class="pre">AE.requested_contexts</span></code>,
-<code class="docutils literal notranslate"><span class="pre">AE.remove_requested_context()</span></code> for adding and removing the presentation
-contexts requested as an SCU.</li>
-</ul>
-</li>
-<li>Removed <code class="docutils literal notranslate"><span class="pre">VerificationSOPClass</span></code>, <code class="docutils literal notranslate"><span class="pre">StorageSOPClassList</span></code> and
-<code class="docutils literal notranslate"><span class="pre">QueryRetrieveSOPClassList</span></code>.</li>
-<li>Added <code class="docutils literal notranslate"><span class="pre">VerificationPresentationContexts</span></code>, <code class="docutils literal notranslate"><span class="pre">StoragePresentationContexts</span></code>,
-<code class="docutils literal notranslate"><span class="pre">QueryRetrievePresentationContexts</span></code> and
-<code class="docutils literal notranslate"><span class="pre">BasicWorklistManagmentPresentationContexts</span></code> to replace them</li>
-<li>Added <code class="docutils literal notranslate"><span class="pre">service_class</span></code> module and moved the service class implementations
-from <code class="docutils literal notranslate"><span class="pre">sop_class</span></code> to <code class="docutils literal notranslate"><span class="pre">service_class</span></code>.</li>
-<li>The three Query/Retrieve service class implementations (Find, Get, Move) have
-been consolidated into one.</li>
-<li><code class="docutils literal notranslate"><span class="pre">BasicWorklistManagementServiceClass</span></code> reimplemented separately from QR.</li>
-<li><code class="docutils literal notranslate"><span class="pre">SOPClass</span></code> class added to <code class="docutils literal notranslate"><span class="pre">sop_class</span></code> module and all SOP Class objects
-now inherit from it rather than the corresponding service class.</li>
-<li><code class="docutils literal notranslate"><span class="pre">utils.PresentationContextManager</span></code> removed</li>
-</ul>
-</div>
-<div class="section" id="enhancements">
-<h2>Enhancements<a class="headerlink" href="#enhancements" title="Permalink to this headline">¶</a></h2>
-<ul class="simple">
-<li>Add <code class="docutils literal notranslate"><span class="pre">context</span></code> and <code class="docutils literal notranslate"><span class="pre">info</span></code> parameters to on_c_* callbacks (:issue:<code class="docutils literal notranslate"><span class="pre">45</span></code>,
-:issue:<code class="docutils literal notranslate"><span class="pre">54</span></code>, :issue:<code class="docutils literal notranslate"><span class="pre">65</span></code>, :issue:<code class="docutils literal notranslate"><span class="pre">106</span></code>)</li>
-<li>Added contribution, issue and PR guides (:issue:<code class="docutils literal notranslate"><span class="pre">66</span></code>)</li>
-<li>Added PEP8 conformant <code class="docutils literal notranslate"><span class="pre">PYNETDICOM_IMPLEMENTATION_VERSION</span></code> and
-<code class="docutils literal notranslate"><span class="pre">PYNETDICOM_IMPLEMENTATION_UID</span></code> variables. The old ones will be removed in
-v1.0</li>
-<li>Added <code class="docutils literal notranslate"><span class="pre">AE.implementation_version_name</span></code> and <code class="docutils literal notranslate"><span class="pre">AE.implementation_class_uid</span></code>
-attributes so user’s can specify the values used during association
-negotiation.</li>
-<li>Allow per-association presentation context requests (SCU)</li>
-<li>Allow more than 128 supported presentation contexts (SCP)</li>
-<li>Documentation added: user guide, examples, API reference (:issue:<code class="docutils literal notranslate"><span class="pre">1</span></code>,
-:issue:<code class="docutils literal notranslate"><span class="pre">45</span></code>, :issue:<code class="docutils literal notranslate"><span class="pre">49</span></code>, :issue:<code class="docutils literal notranslate"><span class="pre">50</span></code>)</li>
-<li>Add support for QR Instance and Frame Level Retrieve</li>
-<li>Add support for QR Composite Instance Root Retrieval</li>
-<li>Add support for the Relevant Patient Information Query service</li>
-<li>Add support for the Hanging Protocol QR service</li>
-<li>Add support for the Substance Administration Query service</li>
-<li>Add support for the Color Palette QR service</li>
-<li>Add support for the Implant Template QR service</li>
-<li>Add support for the Non-Patient Information Storage service</li>
-<li>Add support for the Defined Procedure Protocol QR service</li>
-<li>Add support for the Display System Management service</li>
-<li>Add support for N-GET, N-SET, N-EVENT-REPORT, N-DELETE, N-ACTION, N-CREATE
-as SCU.</li>
-<li>Add full support for SCP/SCU Role Selection Negotiation</li>
-<li>Add support for SOP Class Extended Negotiation</li>
-<li>Add support for Asynchronous Operations Window Negotiation, however
-pynetdicom does not support asynchronous operations.</li>
-<li>Add support for User Identity Negotiation</li>
-</ul>
-</div>
-</div>
-
+  
 
            </div>
            
@@ -278,7 +186,7 @@ pynetdicom does not support asynchronous operations.</li>
 
   <div role="contentinfo">
     <p>
-        &copy; Copyright 2018, pynetdicom3 contributors
+        &copy; Copyright 2018-19, pynetdicom3 contributors
 
     </p>
   </div>
@@ -303,6 +211,7 @@ pynetdicom does not support asynchronous operations.</li>
         <script type="text/javascript" src="_static/jquery.js"></script>
         <script type="text/javascript" src="_static/underscore.js"></script>
         <script type="text/javascript" src="_static/doctools.js"></script>
+        <script type="text/javascript" src="_static/language_data.js"></script>
     
 
   

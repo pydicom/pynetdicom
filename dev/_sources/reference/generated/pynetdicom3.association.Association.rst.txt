@@ -52,15 +52,15 @@ pynetdicom3.association.Association
    .. autosummary::
    
       ~Association.accepted_contexts
-      ~Association.asynchronous_operations_response
+      ~Association.ae
       ~Association.daemon
       ~Association.ident
+      ~Association.is_acceptor
+      ~Association.is_requestor
+      ~Association.local
+      ~Association.mode
       ~Association.name
       ~Association.rejected_contexts
-      ~Association.request
-      ~Association.response
-      ~Association.sop_class_common_extended
-      ~Association.sop_class_extended_response
-      ~Association.user_identity_response
+      ~Association.remote
    
    

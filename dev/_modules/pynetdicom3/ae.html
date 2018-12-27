@@ -28,7 +28,6 @@
 
   <link rel="stylesheet" href="../../_static/css/pynetdicom3.css" type="text/css" />
   <link rel="stylesheet" href="../../_static/pygments.css" type="text/css" />
-  <link rel="stylesheet" href="../../_static/gallery.css" type="text/css" />
   <link rel="stylesheet" href="../../_static/css/pynetdicom3.css" type="text/css" />
     <link rel="index" title="Index" href="../../genindex.html" />
     <link rel="search" title="Search" href="../../search.html" /> 
@@ -103,9 +102,6 @@
 </ul>
 <ul>
 <li class="toctree-l1"><a class="reference internal" href="../../user/index.html">User Guide</a></li>
-</ul>
-<ul>
-<li class="toctree-l1"><a class="reference internal" href="../../release_notes.html">0.9.1</a></li>
 </ul>
 
             
@@ -188,7 +184,7 @@
     <span class="n">ExplicitVRLittleEndian</span><span class="p">,</span> <span class="n">ImplicitVRLittleEndian</span><span class="p">,</span> <span class="n">ExplicitVRBigEndian</span><span class="p">,</span> <span class="n">UID</span>
 <span class="p">)</span>
 
-<span class="kn">from</span> <span class="nn">pynetdicom3.association</span> <span class="k">import</span> <span class="n">Association</span>
+<span class="kn">from</span> <span class="nn">pynetdicom3.association</span> <span class="k">import</span> <span class="n">Association</span><span class="p">,</span> <span class="n">MODE_REQUESTOR</span><span class="p">,</span> <span class="n">MODE_ACCEPTOR</span>
 <span class="kn">from</span> <span class="nn">pynetdicom3.presentation</span> <span class="k">import</span> <span class="p">(</span>
     <span class="n">PresentationContext</span><span class="p">,</span>
     <span class="n">DEFAULT_TRANSFER_SYNTAXES</span>
@@ -351,7 +347,7 @@
         <span class="bp">self</span><span class="o">.</span><span class="n">implementation_class_uid</span> <span class="o">=</span> <span class="n">PYNETDICOM_IMPLEMENTATION_UID</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">implementation_version_name</span> <span class="o">=</span> <span class="n">PYNETDICOM_IMPLEMENTATION_VERSION</span>
 
-        <span class="bp">self</span><span class="o">.</span><span class="n">address</span> <span class="o">=</span> <span class="n">platform</span><span class="o">.</span><span class="n">node</span><span class="p">()</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">address</span> <span class="o">=</span> <span class="n">socket</span><span class="o">.</span><span class="n">gethostbyname</span><span class="p">(</span><span class="n">socket</span><span class="o">.</span><span class="n">gethostname</span><span class="p">())</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">port</span> <span class="o">=</span> <span class="n">port</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">bind_addr</span> <span class="o">=</span> <span class="s1">&#39;&#39;</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">ae_title</span> <span class="o">=</span> <span class="n">ae_title</span>
@@ -732,22 +728,44 @@
         <span class="k">if</span> <span class="ow">not</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">port</span><span class="p">,</span> <span class="nb">int</span><span class="p">):</span>
             <span class="k">raise</span> <span class="ne">TypeError</span><span class="p">(</span><span class="s2">&quot;&#39;port&#39; must be a valid port number&quot;</span><span class="p">)</span>
 
-        <span class="n">peer_ae</span> <span class="o">=</span> <span class="p">{</span><span class="s1">&#39;ae_title&#39;</span> <span class="p">:</span> <span class="n">validate_ae_title</span><span class="p">(</span><span class="n">ae_title</span><span class="p">),</span>
-                   <span class="s1">&#39;address&#39;</span> <span class="p">:</span> <span class="n">addr</span><span class="p">,</span>
-                   <span class="s1">&#39;port&#39;</span> <span class="p">:</span> <span class="n">port</span><span class="p">}</span>
+        <span class="c1"># Association</span>
+        <span class="n">assoc</span> <span class="o">=</span> <span class="n">Association</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">MODE_REQUESTOR</span><span class="p">)</span>
+        <span class="n">assoc</span><span class="o">.</span><span class="n">acse_timeout</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">acse_timeout</span>
+        <span class="n">assoc</span><span class="o">.</span><span class="n">dimse_timeout</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">dimse_timeout</span>
+        <span class="n">assoc</span><span class="o">.</span><span class="n">network_timeout</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">network_timeout</span>
 
-        <span class="c1"># Associate</span>
-        <span class="n">assoc</span> <span class="o">=</span> <span class="n">Association</span><span class="p">(</span><span class="n">local_ae</span><span class="o">=</span><span class="bp">self</span><span class="p">,</span>
-                            <span class="n">peer_ae</span><span class="o">=</span><span class="n">peer_ae</span><span class="p">,</span>
-                            <span class="n">acse_timeout</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">acse_timeout</span><span class="p">,</span>
-                            <span class="n">dimse_timeout</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">dimse_timeout</span><span class="p">,</span>
-                            <span class="n">max_pdu</span><span class="o">=</span><span class="n">max_pdu</span><span class="p">,</span>
-                            <span class="n">ext_neg</span><span class="o">=</span><span class="n">ext_neg</span><span class="p">)</span>
+        <span class="c1"># Association Acceptor object -&gt; remote AE</span>
+        <span class="n">assoc</span><span class="o">.</span><span class="n">acceptor</span><span class="o">.</span><span class="n">ae_title</span> <span class="o">=</span> <span class="n">validate_ae_title</span><span class="p">(</span><span class="n">ae_title</span><span class="p">)</span>
+        <span class="n">assoc</span><span class="o">.</span><span class="n">acceptor</span><span class="o">.</span><span class="n">address</span> <span class="o">=</span> <span class="n">addr</span>
+        <span class="n">assoc</span><span class="o">.</span><span class="n">acceptor</span><span class="o">.</span><span class="n">port</span> <span class="o">=</span> <span class="n">port</span>
 
+        <span class="c1"># Association Requestor object -&gt; local AE</span>
+        <span class="n">assoc</span><span class="o">.</span><span class="n">requestor</span><span class="o">.</span><span class="n">address</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">address</span>
+        <span class="n">assoc</span><span class="o">.</span><span class="n">requestor</span><span class="o">.</span><span class="n">port</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">port</span>
+        <span class="n">assoc</span><span class="o">.</span><span class="n">requestor</span><span class="o">.</span><span class="n">ae_title</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">ae_title</span>
+        <span class="n">assoc</span><span class="o">.</span><span class="n">requestor</span><span class="o">.</span><span class="n">maximum_length</span> <span class="o">=</span> <span class="n">max_pdu</span>
+        <span class="n">assoc</span><span class="o">.</span><span class="n">requestor</span><span class="o">.</span><span class="n">implementation_class_uid</span> <span class="o">=</span> <span class="p">(</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">implementation_class_uid</span>
+        <span class="p">)</span>
+        <span class="n">assoc</span><span class="o">.</span><span class="n">requestor</span><span class="o">.</span><span class="n">implementation_version_name</span> <span class="o">=</span> <span class="p">(</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">implementation_version_name</span>
+        <span class="p">)</span>
+        <span class="k">for</span> <span class="n">item</span> <span class="ow">in</span> <span class="p">(</span><span class="n">ext_neg</span> <span class="ow">or</span> <span class="p">[]):</span>
+            <span class="n">assoc</span><span class="o">.</span><span class="n">requestor</span><span class="o">.</span><span class="n">add_negotiation_item</span><span class="p">(</span><span class="n">item</span><span class="p">)</span>
+
+        <span class="c1"># Requestor&#39;s presentation contexts</span>
         <span class="k">if</span> <span class="n">contexts</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
             <span class="n">contexts</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">requested_contexts</span>
         <span class="k">else</span><span class="p">:</span>
             <span class="bp">self</span><span class="o">.</span><span class="n">_validate_requested_contexts</span><span class="p">(</span><span class="n">contexts</span><span class="p">)</span>
+
+        <span class="c1"># PS3.8 Table 9.11, an A-ASSOCIATE-RQ must contain one or more</span>
+        <span class="c1">#   Presentation Context items</span>
+        <span class="k">if</span> <span class="ow">not</span> <span class="n">contexts</span><span class="p">:</span>
+            <span class="k">raise</span> <span class="ne">RuntimeError</span><span class="p">(</span>
+                <span class="s2">&quot;At least one requested presentation context is required &quot;</span>
+                <span class="s2">&quot;before associating with a peer&quot;</span>
+            <span class="p">)</span>
 
         <span class="c1"># Set using a copy of the original to play nicely</span>
         <span class="n">contexts</span> <span class="o">=</span> <span class="n">deepcopy</span><span class="p">(</span><span class="n">contexts</span><span class="p">)</span>
@@ -756,15 +774,7 @@
         <span class="k">for</span> <span class="n">ii</span><span class="p">,</span> <span class="n">context</span> <span class="ow">in</span> <span class="nb">enumerate</span><span class="p">(</span><span class="n">contexts</span><span class="p">):</span>
             <span class="n">context</span><span class="o">.</span><span class="n">context_id</span> <span class="o">=</span> <span class="mi">2</span> <span class="o">*</span> <span class="n">ii</span> <span class="o">+</span> <span class="mi">1</span>
 
-        <span class="n">assoc</span><span class="o">.</span><span class="n">requested_contexts</span> <span class="o">=</span> <span class="n">contexts</span>
-
-        <span class="c1"># PS3.8 Table 9.11, an A-ASSOCIATE-RQ must contain one or more</span>
-        <span class="c1">#   Presentation Context items</span>
-        <span class="k">if</span> <span class="ow">not</span> <span class="n">assoc</span><span class="o">.</span><span class="n">requested_contexts</span><span class="p">:</span>
-            <span class="k">raise</span> <span class="ne">RuntimeError</span><span class="p">(</span>
-                <span class="s2">&quot;Can&#39;t start an association with no requested presentation &quot;</span>
-                <span class="s2">&quot;contexts&quot;</span>
-            <span class="p">)</span>
+        <span class="n">assoc</span><span class="o">.</span><span class="n">requestor</span><span class="o">.</span><span class="n">requested_contexts</span> <span class="o">=</span> <span class="n">contexts</span>
 
         <span class="c1"># Send an A-ASSOCIATE request to the peer</span>
         <span class="n">assoc</span><span class="o">.</span><span class="n">start</span><span class="p">()</span>
@@ -900,7 +910,7 @@
 <span class="sd">        and if so, creates a new association. Separated out from start() to</span>
 <span class="sd">        enable better unit testing</span>
 <span class="sd">        &quot;&quot;&quot;</span>
-        <span class="c1"># FIXME: this needs to be dealt with properly</span>
+        <span class="c1"># TODO: this needs to be dealt with properly</span>
         <span class="k">try</span><span class="p">:</span>
             <span class="n">read_list</span><span class="p">,</span> <span class="n">_</span><span class="p">,</span> <span class="n">_</span> <span class="o">=</span> <span class="n">select</span><span class="o">.</span><span class="n">select</span><span class="p">([</span><span class="bp">self</span><span class="o">.</span><span class="n">local_socket</span><span class="p">],</span> <span class="p">[],</span> <span class="p">[],</span> <span class="mi">0</span><span class="p">)</span>
         <span class="k">except</span> <span class="p">(</span><span class="n">socket</span><span class="o">.</span><span class="n">error</span><span class="p">,</span> <span class="ne">ValueError</span><span class="p">):</span>
@@ -914,13 +924,33 @@
                                      <span class="n">pack</span><span class="p">(</span><span class="s1">&#39;ll&#39;</span><span class="p">,</span> <span class="mi">10</span><span class="p">,</span> <span class="mi">0</span><span class="p">))</span>
 
             <span class="c1"># Create a new Association</span>
-            <span class="c1"># Association(local_ae, local_socket=None, max_pdu=16382)</span>
-            <span class="n">assoc</span> <span class="o">=</span> <span class="n">Association</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span>
-                                <span class="n">client_socket</span><span class="o">=</span><span class="n">client_socket</span><span class="p">,</span>
-                                <span class="n">max_pdu</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">maximum_pdu_size</span><span class="p">,</span>
-                                <span class="n">acse_timeout</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">acse_timeout</span><span class="p">,</span>
-                                <span class="n">dimse_timeout</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">dimse_timeout</span><span class="p">)</span>
-            <span class="n">assoc</span><span class="o">.</span><span class="n">supported_contexts</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">supported_contexts</span>
+            <span class="n">assoc</span> <span class="o">=</span> <span class="n">Association</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">MODE_ACCEPTOR</span><span class="p">,</span> <span class="n">client_socket</span><span class="p">)</span>
+            <span class="n">assoc</span><span class="o">.</span><span class="n">acse_timeout</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">acse_timeout</span>
+            <span class="n">assoc</span><span class="o">.</span><span class="n">dimse_timeout</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">dimse_timeout</span>
+            <span class="n">assoc</span><span class="o">.</span><span class="n">network_timeout</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">network_timeout</span>
+
+            <span class="c1"># Assign the socket to use to the DUL</span>
+            <span class="c1">#assoc.dul.scu_socket = client_socket</span>
+            <span class="c1">#assoc.dul.scp_socket = None</span>
+
+            <span class="c1"># Association Acceptor object -&gt; local AE</span>
+            <span class="n">assoc</span><span class="o">.</span><span class="n">acceptor</span><span class="o">.</span><span class="n">maximum_length</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">maximum_pdu_size</span>
+            <span class="n">assoc</span><span class="o">.</span><span class="n">acceptor</span><span class="o">.</span><span class="n">ae_title</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">ae_title</span>
+            <span class="n">assoc</span><span class="o">.</span><span class="n">acceptor</span><span class="o">.</span><span class="n">address</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">address</span>
+            <span class="n">assoc</span><span class="o">.</span><span class="n">acceptor</span><span class="o">.</span><span class="n">port</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">port</span>
+            <span class="n">assoc</span><span class="o">.</span><span class="n">acceptor</span><span class="o">.</span><span class="n">implementation_class_uid</span> <span class="o">=</span> <span class="p">(</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">implementation_class_uid</span>
+            <span class="p">)</span>
+            <span class="n">assoc</span><span class="o">.</span><span class="n">acceptor</span><span class="o">.</span><span class="n">implementation_version_name</span> <span class="o">=</span> <span class="p">(</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">implementation_version_name</span>
+            <span class="p">)</span>
+            <span class="n">assoc</span><span class="o">.</span><span class="n">acceptor</span><span class="o">.</span><span class="n">supported_contexts</span> <span class="o">=</span> <span class="n">deepcopy</span><span class="p">(</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">supported_contexts</span>
+            <span class="p">)</span>
+
+            <span class="c1"># Association Requestor object -&gt; remote AE</span>
+            <span class="n">assoc</span><span class="o">.</span><span class="n">requestor</span><span class="o">.</span><span class="n">address</span> <span class="o">=</span> <span class="n">client_socket</span><span class="o">.</span><span class="n">getpeername</span><span class="p">()[</span><span class="mi">0</span><span class="p">]</span>
+            <span class="n">assoc</span><span class="o">.</span><span class="n">requestor</span><span class="o">.</span><span class="n">port</span> <span class="o">=</span> <span class="n">client_socket</span><span class="o">.</span><span class="n">getpeername</span><span class="p">()[</span><span class="mi">1</span><span class="p">]</span>
 
             <span class="n">assoc</span><span class="o">.</span><span class="n">start</span><span class="p">()</span>
             <span class="bp">self</span><span class="o">.</span><span class="n">active_associations</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">assoc</span><span class="p">)</span>
@@ -1364,8 +1394,9 @@
         <span class="n">no_loops</span> <span class="o">=</span> <span class="mi">0</span>
         <span class="k">while</span> <span class="kc">True</span><span class="p">:</span>
             <span class="k">try</span><span class="p">:</span>
-                <span class="c1"># #60: Required so we don&#39;t max out the CPU</span>
-                <span class="n">time</span><span class="o">.</span><span class="n">sleep</span><span class="p">(</span><span class="mf">0.5</span><span class="p">)</span>
+                <span class="c1"># #60: Required so we don&#39;t max out the CPU when SCP</span>
+                <span class="c1"># TODO: Find a better solution, this is not a good fix</span>
+                <span class="n">time</span><span class="o">.</span><span class="n">sleep</span><span class="p">(</span><span class="mf">0.05</span><span class="p">)</span>
 
                 <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">_quit</span><span class="p">:</span>
                     <span class="k">break</span>
@@ -1448,9 +1479,9 @@
 
         <span class="k">for</span> <span class="n">assoc</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">active_associations</span><span class="p">:</span>
             <span class="n">str_out</span> <span class="o">+=</span> <span class="s1">&#39;</span><span class="se">\t</span><span class="s1">Peer: </span><span class="si">{0!s}</span><span class="s1"> on </span><span class="si">{1!s}</span><span class="s1">:</span><span class="si">{2!s}</span><span class="se">\n</span><span class="s1">&#39;</span> \
-                       <span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">assoc</span><span class="o">.</span><span class="n">peer_ae</span><span class="p">[</span><span class="s1">&#39;ae_title&#39;</span><span class="p">],</span>
-                               <span class="n">assoc</span><span class="o">.</span><span class="n">peer_ae</span><span class="p">[</span><span class="s1">&#39;address&#39;</span><span class="p">],</span>
-                               <span class="n">assoc</span><span class="o">.</span><span class="n">peer_ae</span><span class="p">[</span><span class="s1">&#39;port&#39;</span><span class="p">])</span>
+                       <span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">assoc</span><span class="o">.</span><span class="n">remote</span><span class="p">[</span><span class="s1">&#39;ae_title&#39;</span><span class="p">],</span>
+                               <span class="n">assoc</span><span class="o">.</span><span class="n">remote</span><span class="p">[</span><span class="s1">&#39;address&#39;</span><span class="p">],</span>
+                               <span class="n">assoc</span><span class="o">.</span><span class="n">remote</span><span class="p">[</span><span class="s1">&#39;port&#39;</span><span class="p">])</span>
 
         <span class="k">return</span> <span class="n">str_out</span>
 
@@ -1639,8 +1670,7 @@
 <span class="sd">            ::</span>
 
 <span class="sd">            &#39;requestor&#39; : {</span>
-<span class="sd">                &#39;ae_title&#39; : bytes, the requestor&#39;s calling AE title</span>
-<span class="sd">                &#39;called_aet&#39; : bytes, the requestor&#39;s called AE title</span>
+<span class="sd">                &#39;ae_title&#39; : bytes, the requestor&#39;s AE title</span>
 <span class="sd">                &#39;address&#39; : str, the requestor&#39;s IP address</span>
 <span class="sd">                &#39;port&#39; : int, the requestor&#39;s port number</span>
 <span class="sd">            }</span>
@@ -2520,7 +2550,7 @@
 
   <div role="contentinfo">
     <p>
-        &copy; Copyright 2018, pynetdicom3 contributors
+        &copy; Copyright 2018-19, pynetdicom3 contributors
 
     </p>
   </div>
@@ -2545,6 +2575,7 @@
         <script type="text/javascript" src="../../_static/jquery.js"></script>
         <script type="text/javascript" src="../../_static/underscore.js"></script>
         <script type="text/javascript" src="../../_static/doctools.js"></script>
+        <script type="text/javascript" src="../../_static/language_data.js"></script>
     
 
   

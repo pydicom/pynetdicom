@@ -28,7 +28,6 @@
 
   <link rel="stylesheet" href="../../_static/css/pynetdicom3.css" type="text/css" />
   <link rel="stylesheet" href="../../_static/pygments.css" type="text/css" />
-  <link rel="stylesheet" href="../../_static/gallery.css" type="text/css" />
   <link rel="stylesheet" href="../../_static/css/pynetdicom3.css" type="text/css" />
     <link rel="index" title="Index" href="../../genindex.html" />
     <link rel="search" title="Search" href="../../search.html" /> 
@@ -104,9 +103,6 @@
 <ul>
 <li class="toctree-l1"><a class="reference internal" href="../../user/index.html">User Guide</a></li>
 </ul>
-<ul>
-<li class="toctree-l1"><a class="reference internal" href="../../release_notes.html">0.9.1</a></li>
-</ul>
 
             
           
@@ -174,12 +170,12 @@
 <h1>pynetdicom3.service_class.StorageServiceClass<a class="headerlink" href="#pynetdicom3-service-class-storageserviceclass" title="Permalink to this headline">¶</a></h1>
 <dl class="class">
 <dt id="pynetdicom3.service_class.StorageServiceClass">
-<em class="property">class </em><code class="descclassname">pynetdicom3.service_class.</code><code class="descname">StorageServiceClass</code><a class="reference internal" href="../../_modules/pynetdicom3/service_class.html#StorageServiceClass"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pynetdicom3.service_class.StorageServiceClass" title="Permalink to this definition">¶</a></dt>
+<em class="property">class </em><code class="descclassname">pynetdicom3.service_class.</code><code class="descname">StorageServiceClass</code><span class="sig-paren">(</span><em>assoc</em><span class="sig-paren">)</span><a class="reference internal" href="../../_modules/pynetdicom3/service_class.html#StorageServiceClass"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pynetdicom3.service_class.StorageServiceClass" title="Permalink to this definition">¶</a></dt>
 <dd><p>Implementation of the Storage Service Class.</p>
 <dl class="method">
 <dt id="pynetdicom3.service_class.StorageServiceClass.__init__">
-<code class="descname">__init__</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#pynetdicom3.service_class.StorageServiceClass.__init__" title="Permalink to this definition">¶</a></dt>
-<dd><p>Initialize self.  See help(type(self)) for accurate signature.</p>
+<code class="descname">__init__</code><span class="sig-paren">(</span><em>assoc</em><span class="sig-paren">)</span><a class="headerlink" href="#pynetdicom3.service_class.StorageServiceClass.__init__" title="Permalink to this definition">¶</a></dt>
+<dd><p>Create a new ServiceClass.</p>
 </dd></dl>
 
 <p class="rubric">Methods</p>
@@ -192,8 +188,8 @@
 <tr class="row-odd"><td><a class="reference internal" href="#pynetdicom3.service_class.StorageServiceClass.SCP" title="pynetdicom3.service_class.StorageServiceClass.SCP"><code class="xref py py-obj docutils literal notranslate"><span class="pre">SCP</span></code></a>(req,&nbsp;context,&nbsp;info)</td>
 <td>The SCP implementation for the Storage Service Class.</td>
 </tr>
-<tr class="row-even"><td><a class="reference internal" href="#pynetdicom3.service_class.StorageServiceClass.__init__" title="pynetdicom3.service_class.StorageServiceClass.__init__"><code class="xref py py-obj docutils literal notranslate"><span class="pre">__init__</span></code></a>()</td>
-<td>Initialize self.</td>
+<tr class="row-even"><td><a class="reference internal" href="#pynetdicom3.service_class.StorageServiceClass.__init__" title="pynetdicom3.service_class.StorageServiceClass.__init__"><code class="xref py py-obj docutils literal notranslate"><span class="pre">__init__</span></code></a>(assoc)</td>
+<td>Create a new ServiceClass.</td>
 </tr>
 <tr class="row-odd"><td><a class="reference internal" href="#pynetdicom3.service_class.StorageServiceClass.is_valid_status" title="pynetdicom3.service_class.StorageServiceClass.is_valid_status"><code class="xref py py-obj docutils literal notranslate"><span class="pre">is_valid_status</span></code></a>(status)</td>
 <td>Return True if <cite>status</cite> is valid for the service class.</td>
@@ -210,6 +206,12 @@
 <col width="90%" />
 </colgroup>
 <tbody valign="top">
+<tr class="row-odd"><td><a class="reference internal" href="#pynetdicom3.service_class.StorageServiceClass.ae" title="pynetdicom3.service_class.StorageServiceClass.ae"><code class="xref py py-obj docutils literal notranslate"><span class="pre">ae</span></code></a></td>
+<td>Return the AE.</td>
+</tr>
+<tr class="row-even"><td><a class="reference internal" href="#pynetdicom3.service_class.StorageServiceClass.dimse" title="pynetdicom3.service_class.StorageServiceClass.dimse"><code class="xref py py-obj docutils literal notranslate"><span class="pre">dimse</span></code></a></td>
+<td>Return the DIMSE service provider.</td>
+</tr>
 <tr class="row-odd"><td><code class="xref py py-obj docutils literal notranslate"><span class="pre">statuses</span></code></td>
 <td></td>
 </tr>
@@ -299,6 +301,18 @@
 </ul>
 </dd></dl>
 
+<dl class="attribute">
+<dt id="pynetdicom3.service_class.StorageServiceClass.ae">
+<code class="descname">ae</code><a class="headerlink" href="#pynetdicom3.service_class.StorageServiceClass.ae" title="Permalink to this definition">¶</a></dt>
+<dd><p>Return the AE.</p>
+</dd></dl>
+
+<dl class="attribute">
+<dt id="pynetdicom3.service_class.StorageServiceClass.dimse">
+<code class="descname">dimse</code><a class="headerlink" href="#pynetdicom3.service_class.StorageServiceClass.dimse" title="Permalink to this definition">¶</a></dt>
+<dd><p>Return the DIMSE service provider.</p>
+</dd></dl>
+
 <dl class="method">
 <dt id="pynetdicom3.service_class.StorageServiceClass.is_valid_status">
 <code class="descname">is_valid_status</code><span class="sig-paren">(</span><em>status</em><span class="sig-paren">)</span><a class="headerlink" href="#pynetdicom3.service_class.StorageServiceClass.is_valid_status" title="Permalink to this definition">¶</a></dt>
@@ -357,7 +371,7 @@ Status parameter).</p>
 
   <div role="contentinfo">
     <p>
-        &copy; Copyright 2018, pynetdicom3 contributors
+        &copy; Copyright 2018-19, pynetdicom3 contributors
 
     </p>
   </div>
@@ -382,6 +396,7 @@ Status parameter).</p>
         <script type="text/javascript" src="../../_static/jquery.js"></script>
         <script type="text/javascript" src="../../_static/underscore.js"></script>
         <script type="text/javascript" src="../../_static/doctools.js"></script>
+        <script type="text/javascript" src="../../_static/language_data.js"></script>
     
 
   

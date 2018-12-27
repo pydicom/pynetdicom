@@ -8,7 +8,7 @@
   
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   
-  <title>0.9.1 &mdash; pynetdicom3 1.0.0.dev0 documentation</title>
+  <title>1.0.0 &mdash; pynetdicom3 1.0.0.dev0 documentation</title>
   
 
   
@@ -28,7 +28,6 @@
 
   <link rel="stylesheet" href="../_static/css/pynetdicom3.css" type="text/css" />
   <link rel="stylesheet" href="../_static/pygments.css" type="text/css" />
-  <link rel="stylesheet" href="../_static/gallery.css" type="text/css" />
   <link rel="stylesheet" href="../_static/css/pynetdicom3.css" type="text/css" />
     <link rel="index" title="Index" href="../genindex.html" />
     <link rel="search" title="Search" href="../search.html" /> 
@@ -104,9 +103,6 @@
 <ul>
 <li class="toctree-l1"><a class="reference internal" href="../user/index.html">User Guide</a></li>
 </ul>
-<ul>
-<li class="toctree-l1"><a class="reference internal" href="../release_notes.html">0.9.1</a></li>
-</ul>
 
             
           
@@ -151,13 +147,13 @@
     
       <li><a href="../index.html">Docs</a> &raquo;</li>
         
-      <li>0.9.1</li>
+      <li>1.0.0</li>
     
     
       <li class="wy-breadcrumbs-aside">
         
             
-            <a href="../_sources/changelog/0.9.1.rst.txt" rel="nofollow"> View page source</a>
+            <a href="../_sources/changelog/1.0.0.rst.txt" rel="nofollow"> View page source</a>
           
         
       </li>
@@ -171,7 +167,7 @@
            <div itemprop="articleBody">
             
   <div class="section" id="id1">
-<h1>0.9.1<a class="headerlink" href="#id1" title="Permalink to this headline">¶</a></h1>
+<h1>1.0.0<a class="headerlink" href="#id1" title="Permalink to this headline">¶</a></h1>
 <div class="section" id="fixes">
 <h2>Fixes<a class="headerlink" href="#fixes" title="Permalink to this headline">¶</a></h2>
 <ul class="simple">
@@ -215,6 +211,26 @@ been consolidated into one.</li>
 <li><code class="docutils literal notranslate"><span class="pre">SOPClass</span></code> class added to <code class="docutils literal notranslate"><span class="pre">sop_class</span></code> module and all SOP Class objects
 now inherit from it rather than the corresponding service class.</li>
 <li><code class="docutils literal notranslate"><span class="pre">utils.PresentationContextManager</span></code> removed</li>
+<li><code class="docutils literal notranslate"><span class="pre">MaximumLengthNegotiation</span></code> changed to <code class="docutils literal notranslate"><span class="pre">MaximumLengthNotification</span></code></li>
+<li><code class="docutils literal notranslate"><span class="pre">ImplementationClassUIDNegotiation</span></code> changed to <code class="docutils literal notranslate"><span class="pre">ImplementationClassUIDNotification</span></code></li>
+<li><code class="docutils literal notranslate"><span class="pre">ImplementationVersionNameNegotiation</span></code> changed to <code class="docutils literal notranslate"><span class="pre">ImplementationVersioNameNotification</span></code></li>
+<li>Simplified <code class="docutils literal notranslate"><span class="pre">service_class.ServiceClass</span></code> interface</li>
+<li><code class="docutils literal notranslate"><span class="pre">ACSE</span></code> refactored to do more of the association negotiation work and to
+operate independently of the Association instance.<ul>
+<li>Added <code class="docutils literal notranslate"><span class="pre">send_abort</span></code>, <code class="docutils literal notranslate"><span class="pre">send_ap_abort</span></code>, <code class="docutils literal notranslate"><span class="pre">send_reject</span></code>, <code class="docutils literal notranslate"><span class="pre">send_release</span></code>
+<code class="docutils literal notranslate"><span class="pre">send_request</span></code>, <code class="docutils literal notranslate"><span class="pre">send_accept</span></code> methods</li>
+<li>Added <code class="docutils literal notranslate"><span class="pre">negotiate_association</span></code> method</li>
+<li>Added <code class="docutils literal notranslate"><span class="pre">release_association</span></code> method</li>
+</ul>
+</li>
+<li>Added <code class="docutils literal notranslate"><span class="pre">association.ServiceUser</span></code> class</li>
+<li><code class="docutils literal notranslate"><span class="pre">Association</span></code> refactored to do less association negotiation work and to
+operate independently of the ACSE instance.<ul>
+<li>Added <code class="docutils literal notranslate"><span class="pre">Association.requestor</span></code> and <code class="docutils literal notranslate"><span class="pre">Association.acceptor</span></code> attributes
+which are <code class="docutils literal notranslate"><span class="pre">ServiceUser</span></code> instances that track the association requestor
+and acceptor.</li>
+</ul>
+</li>
 </ul>
 </div>
 <div class="section" id="enhancements">
@@ -265,7 +281,7 @@ pynetdicom does not support asynchronous operations.</li>
 
   <div role="contentinfo">
     <p>
-        &copy; Copyright 2018, pynetdicom3 contributors
+        &copy; Copyright 2018-19, pynetdicom3 contributors
 
     </p>
   </div>
@@ -290,6 +306,7 @@ pynetdicom does not support asynchronous operations.</li>
         <script type="text/javascript" src="../_static/jquery.js"></script>
         <script type="text/javascript" src="../_static/underscore.js"></script>
         <script type="text/javascript" src="../_static/doctools.js"></script>
+        <script type="text/javascript" src="../_static/language_data.js"></script>
     
 
   

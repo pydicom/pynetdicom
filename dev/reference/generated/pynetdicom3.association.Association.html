@@ -28,7 +28,6 @@
 
   <link rel="stylesheet" href="../../_static/css/pynetdicom3.css" type="text/css" />
   <link rel="stylesheet" href="../../_static/pygments.css" type="text/css" />
-  <link rel="stylesheet" href="../../_static/gallery.css" type="text/css" />
   <link rel="stylesheet" href="../../_static/css/pynetdicom3.css" type="text/css" />
     <link rel="index" title="Index" href="../../genindex.html" />
     <link rel="search" title="Search" href="../../search.html" /> 
@@ -104,9 +103,6 @@
 <ul>
 <li class="toctree-l1"><a class="reference internal" href="../../user/index.html">User Guide</a></li>
 </ul>
-<ul>
-<li class="toctree-l1"><a class="reference internal" href="../../release_notes.html">0.9.1</a></li>
-</ul>
 
             
           
@@ -174,8 +170,22 @@
 <h1>pynetdicom3.association.Association<a class="headerlink" href="#pynetdicom3-association-association" title="Permalink to this headline">¶</a></h1>
 <dl class="class">
 <dt id="pynetdicom3.association.Association">
-<em class="property">class </em><code class="descclassname">pynetdicom3.association.</code><code class="descname">Association</code><span class="sig-paren">(</span><em>local_ae</em>, <em>client_socket=None</em>, <em>peer_ae=None</em>, <em>acse_timeout=60</em>, <em>dimse_timeout=None</em>, <em>max_pdu=16382</em>, <em>ext_neg=None</em><span class="sig-paren">)</span><a class="reference internal" href="../../_modules/pynetdicom3/association.html#Association"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pynetdicom3.association.Association" title="Permalink to this definition">¶</a></dt>
+<em class="property">class </em><code class="descclassname">pynetdicom3.association.</code><code class="descname">Association</code><span class="sig-paren">(</span><em>ae</em>, <em>mode</em>, <em>local_socket=None</em><span class="sig-paren">)</span><a class="reference internal" href="../../_modules/pynetdicom3/association.html#Association"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pynetdicom3.association.Association" title="Permalink to this definition">¶</a></dt>
 <dd><p>Manage an Association with a peer AE.</p>
+<dl class="attribute">
+<dt id="pynetdicom3.association.Association.acceptor">
+<code class="descname">acceptor</code><a class="headerlink" href="#pynetdicom3.association.Association.acceptor" title="Permalink to this definition">¶</a></dt>
+<dd><p>Representation of the association’s acceptor AE.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Type:</th><td class="field-body"><a class="reference internal" href="pynetdicom3.association.ServiceUser.html#pynetdicom3.association.ServiceUser" title="pynetdicom3.association.ServiceUser">association.ServiceUser</a></td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
 <dl class="attribute">
 <dt id="pynetdicom3.association.Association.acse">
 <code class="descname">acse</code><a class="headerlink" href="#pynetdicom3.association.Association.acse" title="Permalink to this definition">¶</a></dt>
@@ -184,7 +194,7 @@
 <col class="field-name" />
 <col class="field-body" />
 <tbody valign="top">
-<tr class="field-odd field"><th class="field-name">Type:</th><td class="field-body"><a class="reference internal" href="pynetdicom3.acse.ACSEServiceProvider.html#pynetdicom3.acse.ACSEServiceProvider" title="pynetdicom3.acse.ACSEServiceProvider">acse.ACSEServiceProvider</a></td>
+<tr class="field-odd field"><th class="field-name">Type:</th><td class="field-body">acse.ACSE</td>
 </tr>
 </tbody>
 </table>
@@ -221,7 +231,7 @@
 <dl class="attribute">
 <dt id="pynetdicom3.association.Association.dul">
 <code class="descname">dul</code><a class="headerlink" href="#pynetdicom3.association.Association.dul" title="Permalink to this definition">¶</a></dt>
-<dd><p>The DICOM Upper Layer service provider instance.</p>
+<dd><p>The DICOM Upper Layer service provider.</p>
 <table class="docutils field-list" frame="void" rules="none">
 <col class="field-name" />
 <col class="field-body" />
@@ -289,25 +299,10 @@
 </dd></dl>
 
 <dl class="attribute">
-<dt id="pynetdicom3.association.Association.local_ae">
-<code class="descname">local_ae</code><a class="headerlink" href="#pynetdicom3.association.Association.local_ae" title="Permalink to this definition">¶</a></dt>
-<dd><p>The local Application Entity details, keys: ‘port’, ‘address’,
-‘ae_title’, ‘pdv_size’.</p>
-<table class="docutils field-list" frame="void" rules="none">
-<col class="field-name" />
-<col class="field-body" />
-<tbody valign="top">
-<tr class="field-odd field"><th class="field-name">Type:</th><td class="field-body"><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#dict" title="(in Python v3.7)">dict</a></td>
-</tr>
-</tbody>
-</table>
-</dd></dl>
-
-<dl class="attribute">
 <dt id="pynetdicom3.association.Association.mode">
 <code class="descname">mode</code><a class="headerlink" href="#pynetdicom3.association.Association.mode" title="Permalink to this definition">¶</a></dt>
-<dd><p>Whether the local AE is acting as the Association ‘Requestor’ or
-‘Acceptor’ (i.e. SCU or SCP).</p>
+<dd><p>The mode of the local AE, either the association ‘requestor’ or
+association ‘acceptor’.</p>
 <table class="docutils field-list" frame="void" rules="none">
 <col class="field-name" />
 <col class="field-body" />
@@ -319,59 +314,14 @@
 </dd></dl>
 
 <dl class="attribute">
-<dt id="pynetdicom3.association.Association.peer_ae">
-<code class="descname">peer_ae</code><a class="headerlink" href="#pynetdicom3.association.Association.peer_ae" title="Permalink to this definition">¶</a></dt>
-<dd><p>The peer Application Entity details, keys: ‘port’, ‘address’,
-‘ae_title’, ‘pdv_size’.</p>
+<dt id="pynetdicom3.association.Association.requestor">
+<code class="descname">requestor</code><a class="headerlink" href="#pynetdicom3.association.Association.requestor" title="Permalink to this definition">¶</a></dt>
+<dd><p>Representation of the association’s requestor AE.</p>
 <table class="docutils field-list" frame="void" rules="none">
 <col class="field-name" />
 <col class="field-body" />
 <tbody valign="top">
-<tr class="field-odd field"><th class="field-name">Type:</th><td class="field-body"><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#dict" title="(in Python v3.7)">dict</a></td>
-</tr>
-</tbody>
-</table>
-</dd></dl>
-
-<dl class="attribute">
-<dt id="pynetdicom3.association.Association.client_socket">
-<code class="descname">client_socket</code><a class="headerlink" href="#pynetdicom3.association.Association.client_socket" title="Permalink to this definition">¶</a></dt>
-<dd><p>The socket to use for connections with the peer AE.</p>
-<table class="docutils field-list" frame="void" rules="none">
-<col class="field-name" />
-<col class="field-body" />
-<tbody valign="top">
-<tr class="field-odd field"><th class="field-name">Type:</th><td class="field-body">socket.socket</td>
-</tr>
-</tbody>
-</table>
-</dd></dl>
-
-<dl class="attribute">
-<dt id="pynetdicom3.association.Association.requested_contexts">
-<code class="descname">requested_contexts</code><a class="headerlink" href="#pynetdicom3.association.Association.requested_contexts" title="Permalink to this definition">¶</a></dt>
-<dd><p>A list of the requested Presentation Contexts sent or received during
-association negotiation.</p>
-<table class="docutils field-list" frame="void" rules="none">
-<col class="field-name" />
-<col class="field-body" />
-<tbody valign="top">
-<tr class="field-odd field"><th class="field-name">Type:</th><td class="field-body">list of presentation.PresentationContext</td>
-</tr>
-</tbody>
-</table>
-</dd></dl>
-
-<dl class="attribute">
-<dt id="pynetdicom3.association.Association.supported_contexts">
-<code class="descname">supported_contexts</code><a class="headerlink" href="#pynetdicom3.association.Association.supported_contexts" title="Permalink to this definition">¶</a></dt>
-<dd><p>A list of the supported Presentation Contexts sent or received during
-association negotiation.</p>
-<table class="docutils field-list" frame="void" rules="none">
-<col class="field-name" />
-<col class="field-body" />
-<tbody valign="top">
-<tr class="field-odd field"><th class="field-name">Type:</th><td class="field-body">list of presentation.PresentationContext</td>
+<tr class="field-odd field"><th class="field-name">Type:</th><td class="field-body"><a class="reference internal" href="pynetdicom3.association.ServiceUser.html#pynetdicom3.association.ServiceUser" title="pynetdicom3.association.ServiceUser">association.ServiceUser</a></td>
 </tr>
 </tbody>
 </table>
@@ -379,28 +329,19 @@ association negotiation.</p>
 
 <dl class="method">
 <dt id="pynetdicom3.association.Association.__init__">
-<code class="descname">__init__</code><span class="sig-paren">(</span><em>local_ae</em>, <em>client_socket=None</em>, <em>peer_ae=None</em>, <em>acse_timeout=60</em>, <em>dimse_timeout=None</em>, <em>max_pdu=16382</em>, <em>ext_neg=None</em><span class="sig-paren">)</span><a class="reference internal" href="../../_modules/pynetdicom3/association.html#Association.__init__"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pynetdicom3.association.Association.__init__" title="Permalink to this definition">¶</a></dt>
-<dd><p>Create a new Association.</p>
+<code class="descname">__init__</code><span class="sig-paren">(</span><em>ae</em>, <em>mode</em>, <em>local_socket=None</em><span class="sig-paren">)</span><a class="reference internal" href="../../_modules/pynetdicom3/association.html#Association.__init__"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pynetdicom3.association.Association.__init__" title="Permalink to this definition">¶</a></dt>
+<dd><p>Create a new Association instance.</p>
+<p>Association negotiation won’t begin until Association.start() is
+called.</p>
 <table class="docutils field-list" frame="void" rules="none">
 <col class="field-name" />
 <col class="field-body" />
 <tbody valign="top">
 <tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first last simple">
-<li><strong>local_ae</strong> (<a class="reference internal" href="pynetdicom3.ae.ApplicationEntity.html#pynetdicom3.ae.ApplicationEntity" title="pynetdicom3.ae.ApplicationEntity"><em>ae.ApplicationEntity</em></a>) – The local AE instance.</li>
-<li><strong>client_socket</strong> (<em>socket.socket</em><em> or </em><a class="reference external" href="https://docs.python.org/3/library/constants.html#None" title="(in Python v3.7)"><em>None</em></a><em>, </em><em>optional</em>) – If the local AE is acting as an SCP, this is the listen socket for
-incoming connection requests. A value of None is used when acting
-as an SCU.</li>
-<li><strong>peer_ae</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#dict" title="(in Python v3.7)"><em>dict</em></a><em>, </em><em>optional</em>) – If the local AE is acting as an SCU this is the AE title, host and
-port of the peer AE that we want to Associate with. Keys: ‘port’,
-‘address’, ‘ae_title’.</li>
-<li><strong>acse_timeout</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.7)"><em>int</em></a><em>, </em><em>optional</em>) – The maximum amount of time to wait for a reply during association,
-in seconds. A value of 0 means no timeout (default: 30).</li>
-<li><strong>dimse_timeout</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.7)"><em>int</em></a><em>, </em><em>optional</em>) – The maximum amount of time to wait for a reply during DIMSE, in
-seconds. A value of 0 means no timeout (default: 0).</li>
-<li><strong>max_pdu</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.7)"><em>int</em></a><em>, </em><em>optional</em>) – The maximum PDU receive size in bytes for the association. A value
-of 0 means no maximum size (default: 16382 bytes).</li>
-<li><strong>ext_neg</strong> (<em>list of pdu_primitives User Information items</em><em>, </em><em>optional</em>) – If the association requires an extended negotiation then <cite>ext_neg</cite>
-is a list containing the negotiation objects (default: None).</li>
+<li><strong>ae</strong> (<a class="reference internal" href="pynetdicom3.ae.ApplicationEntity.html#pynetdicom3.ae.ApplicationEntity" title="pynetdicom3.ae.ApplicationEntity"><em>ae.ApplicationEntity</em></a>) – The local AE.</li>
+<li><strong>mode</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.7)"><em>str</em></a>) – Must be “requestor” or “acceptor”.</li>
+<li><strong>local_socket</strong> (<em>socket.socket</em><em> or </em><a class="reference external" href="https://docs.python.org/3/library/constants.html#None" title="(in Python v3.7)"><em>None</em></a>) – If <cite>mode</cite> is ‘acceptor’ then this is the connection to the
+peer, otherwise will be None.</li>
 </ul>
 </td>
 </tr>
@@ -415,11 +356,11 @@ is a list containing the negotiation objects (default: None).</li>
 <col width="90%" />
 </colgroup>
 <tbody valign="top">
-<tr class="row-odd"><td><a class="reference internal" href="#pynetdicom3.association.Association.__init__" title="pynetdicom3.association.Association.__init__"><code class="xref py py-obj docutils literal notranslate"><span class="pre">__init__</span></code></a>(local_ae[,&nbsp;client_socket,&nbsp;peer_ae,&nbsp;…])</td>
-<td>Create a new Association.</td>
+<tr class="row-odd"><td><a class="reference internal" href="#pynetdicom3.association.Association.__init__" title="pynetdicom3.association.Association.__init__"><code class="xref py py-obj docutils literal notranslate"><span class="pre">__init__</span></code></a>(ae,&nbsp;mode[,&nbsp;local_socket])</td>
+<td>Create a new Association instance.</td>
 </tr>
 <tr class="row-even"><td><a class="reference internal" href="#pynetdicom3.association.Association.abort" title="pynetdicom3.association.Association.abort"><code class="xref py py-obj docutils literal notranslate"><span class="pre">abort</span></code></a>()</td>
-<td>Abort the association.</td>
+<td>Sends an A-ABORT to the remote AE and kills the Association.</td>
 </tr>
 <tr class="row-odd"><td><a class="reference internal" href="#pynetdicom3.association.Association.debug_association_aborted" title="pynetdicom3.association.Association.debug_association_aborted"><code class="xref py py-obj docutils literal notranslate"><span class="pre">debug_association_aborted</span></code></a>([primitive])</td>
 <td>Debugging information when an A-ABORT request received.</td>
@@ -455,7 +396,7 @@ is a list containing the negotiation objects (default: None).</li>
 <td>Kill the main association thread loop.</td>
 </tr>
 <tr class="row-even"><td><a class="reference internal" href="#pynetdicom3.association.Association.release" title="pynetdicom3.association.Association.release"><code class="xref py py-obj docutils literal notranslate"><span class="pre">release</span></code></a>()</td>
-<td>Release the association.</td>
+<td>Send an A-RELEASE request to the peer.</td>
 </tr>
 <tr class="row-odd"><td><a class="reference internal" href="#pynetdicom3.association.Association.run" title="pynetdicom3.association.Association.run"><code class="xref py py-obj docutils literal notranslate"><span class="pre">run</span></code></a>()</td>
 <td>The main Association control.</td>
@@ -512,10 +453,10 @@ is a list containing the negotiation objects (default: None).</li>
 </colgroup>
 <tbody valign="top">
 <tr class="row-odd"><td><a class="reference internal" href="#pynetdicom3.association.Association.accepted_contexts" title="pynetdicom3.association.Association.accepted_contexts"><code class="xref py py-obj docutils literal notranslate"><span class="pre">accepted_contexts</span></code></a></td>
-<td>Return a list of accepted PresentationContexts.</td>
+<td>Return a list of accepted Presentation Contexts.</td>
 </tr>
-<tr class="row-even"><td><a class="reference internal" href="#pynetdicom3.association.Association.asynchronous_operations_response" title="pynetdicom3.association.Association.asynchronous_operations_response"><code class="xref py py-obj docutils literal notranslate"><span class="pre">asynchronous_operations_response</span></code></a></td>
-<td>Return the association acceptor’s Asynchronous Operations Window Negotiation response.</td>
+<tr class="row-even"><td><a class="reference internal" href="#pynetdicom3.association.Association.ae" title="pynetdicom3.association.Association.ae"><code class="xref py py-obj docutils literal notranslate"><span class="pre">ae</span></code></a></td>
+<td>Return the Association’s parent ApplicationEntity.</td>
 </tr>
 <tr class="row-odd"><td><a class="reference internal" href="#pynetdicom3.association.Association.daemon" title="pynetdicom3.association.Association.daemon"><code class="xref py py-obj docutils literal notranslate"><span class="pre">daemon</span></code></a></td>
 <td>A boolean value indicating whether this thread is a daemon thread.</td>
@@ -523,62 +464,45 @@ is a list containing the negotiation objects (default: None).</li>
 <tr class="row-even"><td><a class="reference internal" href="#pynetdicom3.association.Association.ident" title="pynetdicom3.association.Association.ident"><code class="xref py py-obj docutils literal notranslate"><span class="pre">ident</span></code></a></td>
 <td>Thread identifier of this thread or None if it has not been started.</td>
 </tr>
+<tr class="row-odd"><td><a class="reference internal" href="#pynetdicom3.association.Association.is_acceptor" title="pynetdicom3.association.Association.is_acceptor"><code class="xref py py-obj docutils literal notranslate"><span class="pre">is_acceptor</span></code></a></td>
+<td>Return True if the local AE is the association acceptor.</td>
+</tr>
+<tr class="row-even"><td><a class="reference internal" href="#pynetdicom3.association.Association.is_requestor" title="pynetdicom3.association.Association.is_requestor"><code class="xref py py-obj docutils literal notranslate"><span class="pre">is_requestor</span></code></a></td>
+<td>Return True if the local AE is the association requestor.</td>
+</tr>
+<tr class="row-odd"><td><a class="reference internal" href="#pynetdicom3.association.Association.local" title="pynetdicom3.association.Association.local"><code class="xref py py-obj docutils literal notranslate"><span class="pre">local</span></code></a></td>
+<td>Return a dict with information about the local AE.</td>
+</tr>
+<tr class="row-even"><td><a class="reference internal" href="#pynetdicom3.association.Association.mode" title="pynetdicom3.association.Association.mode"><code class="xref py py-obj docutils literal notranslate"><span class="pre">mode</span></code></a></td>
+<td>Return the Association’s <cite>mode</cite> as a str.</td>
+</tr>
 <tr class="row-odd"><td><a class="reference internal" href="#pynetdicom3.association.Association.name" title="pynetdicom3.association.Association.name"><code class="xref py py-obj docutils literal notranslate"><span class="pre">name</span></code></a></td>
 <td>A string used for identification purposes only.</td>
 </tr>
 <tr class="row-even"><td><a class="reference internal" href="#pynetdicom3.association.Association.rejected_contexts" title="pynetdicom3.association.Association.rejected_contexts"><code class="xref py py-obj docutils literal notranslate"><span class="pre">rejected_contexts</span></code></a></td>
-<td>Return a list of rejected PresentationContexts.</td>
+<td>Return a list of rejected Presentation Contexts.</td>
 </tr>
-<tr class="row-odd"><td><a class="reference internal" href="#pynetdicom3.association.Association.request" title="pynetdicom3.association.Association.request"><code class="xref py py-obj docutils literal notranslate"><span class="pre">request</span></code></a></td>
-<td>Return the A-ASSOCIATE (request) primitive that was sent/received.</td>
-</tr>
-<tr class="row-even"><td><a class="reference internal" href="#pynetdicom3.association.Association.response" title="pynetdicom3.association.Association.response"><code class="xref py py-obj docutils literal notranslate"><span class="pre">response</span></code></a></td>
-<td>Return the A-ASSOCIATE (response) primitive that was sent/received.</td>
-</tr>
-<tr class="row-odd"><td><a class="reference internal" href="#pynetdicom3.association.Association.sop_class_common_extended" title="pynetdicom3.association.Association.sop_class_common_extended"><code class="xref py py-obj docutils literal notranslate"><span class="pre">sop_class_common_extended</span></code></a></td>
-<td>Return the association requestor’s SOP Class Common Extended Negotiation requests.</td>
-</tr>
-<tr class="row-even"><td><a class="reference internal" href="#pynetdicom3.association.Association.sop_class_extended_response" title="pynetdicom3.association.Association.sop_class_extended_response"><code class="xref py py-obj docutils literal notranslate"><span class="pre">sop_class_extended_response</span></code></a></td>
-<td>Return the association acceptor’s SOP Class Extended Negotiation responses.</td>
-</tr>
-<tr class="row-odd"><td><a class="reference internal" href="#pynetdicom3.association.Association.user_identity_response" title="pynetdicom3.association.Association.user_identity_response"><code class="xref py py-obj docutils literal notranslate"><span class="pre">user_identity_response</span></code></a></td>
-<td>Return the association acceptor’s User Identity Negotiation response</td>
+<tr class="row-odd"><td><a class="reference internal" href="#pynetdicom3.association.Association.remote" title="pynetdicom3.association.Association.remote"><code class="xref py py-obj docutils literal notranslate"><span class="pre">remote</span></code></a></td>
+<td>Return a dict with information about the peer AE.</td>
 </tr>
 </tbody>
 </table>
 <dl class="method">
 <dt id="pynetdicom3.association.Association.abort">
 <code class="descname">abort</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="../../_modules/pynetdicom3/association.html#Association.abort"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pynetdicom3.association.Association.abort" title="Permalink to this definition">¶</a></dt>
-<dd><p>Abort the association.</p>
-<p>DUL service user association abort. Always gives the source as the
-DUL service user and sets the abort reason to 0x00 (not significant)</p>
-<p>See PS3.8, 7.3-4 and 9.3.8.</p>
+<dd><p>Sends an A-ABORT to the remote AE and kills the Association.</p>
 </dd></dl>
 
 <dl class="attribute">
 <dt id="pynetdicom3.association.Association.accepted_contexts">
 <code class="descname">accepted_contexts</code><a class="headerlink" href="#pynetdicom3.association.Association.accepted_contexts" title="Permalink to this definition">¶</a></dt>
-<dd><p>Return a list of accepted PresentationContexts.</p>
+<dd><p>Return a list of accepted Presentation Contexts.</p>
 </dd></dl>
 
 <dl class="attribute">
-<dt id="pynetdicom3.association.Association.asynchronous_operations_response">
-<code class="descname">asynchronous_operations_response</code><a class="headerlink" href="#pynetdicom3.association.Association.asynchronous_operations_response" title="Permalink to this definition">¶</a></dt>
-<dd><p>Return the association acceptor’s Asynchronous Operations Window
-Negotiation response.</p>
-<table class="docutils field-list" frame="void" rules="none">
-<col class="field-name" />
-<col class="field-body" />
-<tbody valign="top">
-<tr class="field-odd field"><th class="field-name">Returns:</th><td class="field-body">The (maximum number of operations invoked, maximum number of
-operations performed). If the association acceptor hasn’t responded
-to the Aynchronous Operations Window Negotiation request then the`
-default values of 1, 1 will be returned.</td>
-</tr>
-<tr class="field-even field"><th class="field-name">Return type:</th><td class="field-body">(<a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.7)">int</a>, <a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.7)">int</a>) or <a class="reference external" href="https://docs.python.org/3/library/constants.html#None" title="(in Python v3.7)">None</a></td>
-</tr>
-</tbody>
-</table>
+<dt>
+<code class="descname">ae</code></dt>
+<dd><p>Return the Association’s parent ApplicationEntity.</p>
 </dd></dl>
 
 <dl class="attribute">
@@ -681,6 +605,12 @@ after the run() method terminates. The module function enumerate()
 returns a list of all alive threads.</p>
 </dd></dl>
 
+<dl class="attribute">
+<dt id="pynetdicom3.association.Association.is_acceptor">
+<code class="descname">is_acceptor</code><a class="headerlink" href="#pynetdicom3.association.Association.is_acceptor" title="Permalink to this definition">¶</a></dt>
+<dd><p>Return True if the local AE is the association acceptor.</p>
+</dd></dl>
+
 <dl class="method">
 <dt id="pynetdicom3.association.Association.is_alive">
 <code class="descname">is_alive</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#pynetdicom3.association.Association.is_alive" title="Permalink to this definition">¶</a></dt>
@@ -688,6 +618,12 @@ returns a list of all alive threads.</p>
 <p>This method returns True just before the run() method starts until just
 after the run() method terminates. The module function enumerate()
 returns a list of all alive threads.</p>
+</dd></dl>
+
+<dl class="attribute">
+<dt id="pynetdicom3.association.Association.is_requestor">
+<code class="descname">is_requestor</code><a class="headerlink" href="#pynetdicom3.association.Association.is_requestor" title="Permalink to this definition">¶</a></dt>
+<dd><p>Return True if the local AE is the association requestor.</p>
 </dd></dl>
 
 <dl class="method">
@@ -718,6 +654,18 @@ exception.</p>
 </dd></dl>
 
 <dl class="attribute">
+<dt id="pynetdicom3.association.Association.local">
+<code class="descname">local</code><a class="headerlink" href="#pynetdicom3.association.Association.local" title="Permalink to this definition">¶</a></dt>
+<dd><p>Return a dict with information about the local AE.</p>
+</dd></dl>
+
+<dl class="attribute">
+<dt>
+<code class="descname">mode</code></dt>
+<dd><p>Return the Association’s <cite>mode</cite> as a str.</p>
+</dd></dl>
+
+<dl class="attribute">
 <dt id="pynetdicom3.association.Association.name">
 <code class="descname">name</code><a class="headerlink" href="#pynetdicom3.association.Association.name" title="Permalink to this definition">¶</a></dt>
 <dd><p>A string used for identification purposes only.</p>
@@ -728,49 +676,19 @@ initial name is set by the constructor.</p>
 <dl class="attribute">
 <dt id="pynetdicom3.association.Association.rejected_contexts">
 <code class="descname">rejected_contexts</code><a class="headerlink" href="#pynetdicom3.association.Association.rejected_contexts" title="Permalink to this definition">¶</a></dt>
-<dd><p>Return a list of rejected PresentationContexts.</p>
+<dd><p>Return a list of rejected Presentation Contexts.</p>
 </dd></dl>
 
 <dl class="method">
 <dt id="pynetdicom3.association.Association.release">
 <code class="descname">release</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="../../_modules/pynetdicom3/association.html#Association.release"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pynetdicom3.association.Association.release" title="Permalink to this definition">¶</a></dt>
-<dd><p>Release the association.</p>
+<dd><p>Send an A-RELEASE request to the peer.</p>
 </dd></dl>
 
 <dl class="attribute">
-<dt id="pynetdicom3.association.Association.request">
-<code class="descname">request</code><a class="headerlink" href="#pynetdicom3.association.Association.request" title="Permalink to this definition">¶</a></dt>
-<dd><p>Return the A-ASSOCIATE (request) primitive that was sent/received.</p>
-<table class="docutils field-list" frame="void" rules="none">
-<col class="field-name" />
-<col class="field-body" />
-<tbody valign="top">
-<tr class="field-odd field"><th class="field-name">Returns:</th><td class="field-body">The A-ASSOCIATE (request) primitive that was either sent to or
-received from the peer at the start of association negotiation or
-None if no request has been sent/received.</td>
-</tr>
-<tr class="field-even field"><th class="field-name">Return type:</th><td class="field-body"><a class="reference internal" href="pynetdicom3.pdu_primitives.A_ASSOCIATE.html#pynetdicom3.pdu_primitives.A_ASSOCIATE" title="pynetdicom3.pdu_primitives.A_ASSOCIATE">pynetdicom3.pdu_primitives.A_ASSOCIATE</a> or <a class="reference external" href="https://docs.python.org/3/library/constants.html#None" title="(in Python v3.7)">None</a></td>
-</tr>
-</tbody>
-</table>
-</dd></dl>
-
-<dl class="attribute">
-<dt id="pynetdicom3.association.Association.response">
-<code class="descname">response</code><a class="headerlink" href="#pynetdicom3.association.Association.response" title="Permalink to this definition">¶</a></dt>
-<dd><p>Return the A-ASSOCIATE (response) primitive that was sent/received.</p>
-<table class="docutils field-list" frame="void" rules="none">
-<col class="field-name" />
-<col class="field-body" />
-<tbody valign="top">
-<tr class="field-odd field"><th class="field-name">Returns:</th><td class="field-body">The A-ASSOCIATE (accept or reject)  primitive that was either sent
-to or received from the peer at the end of association negotiation
-or None if no response has been sent/received.</td>
-</tr>
-<tr class="field-even field"><th class="field-name">Return type:</th><td class="field-body"><a class="reference internal" href="pynetdicom3.pdu_primitives.A_ASSOCIATE.html#pynetdicom3.pdu_primitives.A_ASSOCIATE" title="pynetdicom3.pdu_primitives.A_ASSOCIATE">pynetdicom3.pdu_primitives.A_ASSOCIATE</a> or <a class="reference external" href="https://docs.python.org/3/library/constants.html#None" title="(in Python v3.7)">None</a></td>
-</tr>
-</tbody>
-</table>
+<dt id="pynetdicom3.association.Association.remote">
+<code class="descname">remote</code><a class="headerlink" href="#pynetdicom3.association.Association.remote" title="Permalink to this definition">¶</a></dt>
+<dd><p>Return a dict with information about the peer AE.</p>
 </dd></dl>
 
 <dl class="method">
@@ -1937,46 +1855,6 @@ otherwise returns None.</p>
 </ul>
 </dd></dl>
 
-<dl class="attribute">
-<dt id="pynetdicom3.association.Association.sop_class_common_extended">
-<code class="descname">sop_class_common_extended</code><a class="headerlink" href="#pynetdicom3.association.Association.sop_class_common_extended" title="Permalink to this definition">¶</a></dt>
-<dd><p>Return the association requestor’s SOP Class Common Extended
-Negotiation requests.</p>
-<table class="docutils field-list" frame="void" rules="none">
-<col class="field-name" />
-<col class="field-body" />
-<tbody valign="top">
-<tr class="field-odd field"><th class="field-name">Returns:</th><td class="field-body">Returns the SOP Class Common Extended Negotiation requests received
-from the association requestor as {SOP Class UID : (Service Class
-UID, list of Related General SOP Class UIDs)}. If no requests are
-received then returns an empty dict.</td>
-</tr>
-<tr class="field-even field"><th class="field-name">Return type:</th><td class="field-body"><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#dict" title="(in Python v3.7)">dict</a></td>
-</tr>
-</tbody>
-</table>
-</dd></dl>
-
-<dl class="attribute">
-<dt id="pynetdicom3.association.Association.sop_class_extended_response">
-<code class="descname">sop_class_extended_response</code><a class="headerlink" href="#pynetdicom3.association.Association.sop_class_extended_response" title="Permalink to this definition">¶</a></dt>
-<dd><p>Return the association acceptor’s SOP Class Extended Negotiation
-responses.</p>
-<table class="docutils field-list" frame="void" rules="none">
-<col class="field-name" />
-<col class="field-body" />
-<tbody valign="top">
-<tr class="field-odd field"><th class="field-name">Returns:</th><td class="field-body">Returns the SOP Class Extended Negotiation responses received
-from the association acceptor as {SOP Class UID : Service Class
-Application Information}. If no responses are received then
-returns an empty dict.</td>
-</tr>
-<tr class="field-even field"><th class="field-name">Return type:</th><td class="field-body"><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#dict" title="(in Python v3.7)">dict</a></td>
-</tr>
-</tbody>
-</table>
-</dd></dl>
-
 <dl class="method">
 <dt id="pynetdicom3.association.Association.start">
 <code class="descname">start</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#pynetdicom3.association.Association.start" title="Permalink to this definition">¶</a></dt>
@@ -1985,26 +1863,6 @@ returns an empty dict.</td>
 object’s run() method to be invoked in a separate thread of control.</p>
 <p>This method will raise a RuntimeError if called more than once on the
 same thread object.</p>
-</dd></dl>
-
-<dl class="attribute">
-<dt id="pynetdicom3.association.Association.user_identity_response">
-<code class="descname">user_identity_response</code><a class="headerlink" href="#pynetdicom3.association.Association.user_identity_response" title="Permalink to this definition">¶</a></dt>
-<dd><p>Return the association acceptor’s User Identity Negotiation response</p>
-<table class="docutils field-list" frame="void" rules="none">
-<col class="field-name" />
-<col class="field-body" />
-<tbody valign="top">
-<tr class="field-odd field"><th class="field-name">Returns:</th><td class="field-body">If a positive response has been requested and the association
-acceptor has included a User Identity Negotiation response in the
-A-ASSOCIATE (accept) primitive and the user identity type is 3,
-4 or 5, then the server response value as bytes. If no server
-response was received then returns None.</td>
-</tr>
-<tr class="field-even field"><th class="field-name">Return type:</th><td class="field-body"><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#bytes" title="(in Python v3.7)">bytes</a> or <a class="reference external" href="https://docs.python.org/3/library/constants.html#None" title="(in Python v3.7)">None</a></td>
-</tr>
-</tbody>
-</table>
 </dd></dl>
 
 </dd></dl>
@@ -2022,7 +1880,7 @@ response was received then returns None.</td>
 
   <div role="contentinfo">
     <p>
-        &copy; Copyright 2018, pynetdicom3 contributors
+        &copy; Copyright 2018-19, pynetdicom3 contributors
 
     </p>
   </div>
@@ -2047,6 +1905,7 @@ response was received then returns None.</td>
         <script type="text/javascript" src="../../_static/jquery.js"></script>
         <script type="text/javascript" src="../../_static/underscore.js"></script>
         <script type="text/javascript" src="../../_static/doctools.js"></script>
+        <script type="text/javascript" src="../../_static/language_data.js"></script>
     
 
   

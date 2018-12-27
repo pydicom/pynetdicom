@@ -27,6 +27,8 @@ pynetdicom3.service\_class.QueryRetrieveServiceClass
    .. autosummary::
    
       ~QueryRetrieveServiceClass.BULK_DATA_KEYWORDS
+      ~QueryRetrieveServiceClass.ae
+      ~QueryRetrieveServiceClass.dimse
       ~QueryRetrieveServiceClass.statuses
    
    

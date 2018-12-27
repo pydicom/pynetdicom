@@ -18,7 +18,7 @@ Information primitives:
 .. autosummary::
    :toctree: generated/
 
-   MaximumLengthNegotiation
+   MaximumLengthNotification
    ImplementationClassUIDNotification
    ImplementationVersionNameNotification
    AsynchronousOperationsWindowNegotiation

@@ -1,0 +1,29 @@
+pynetdicom3.pdu\_primitives.MaximumLengthNotification
+=====================================================
+
+.. currentmodule:: pynetdicom3.pdu_primitives
+
+.. autoclass:: MaximumLengthNotification
+
+   
+   .. automethod:: __init__
+
+   
+   .. rubric:: Methods
+
+   .. autosummary::
+   
+      ~MaximumLengthNotification.__init__
+      ~MaximumLengthNotification.from_primitive
+   
+   
+
+   
+   
+   .. rubric:: Attributes
+
+   .. autosummary::
+   
+      ~MaximumLengthNotification.maximum_length_received
+   
+   

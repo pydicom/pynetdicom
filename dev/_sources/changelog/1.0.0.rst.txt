@@ -1,4 +1,4 @@
-0.9.1
+1.0.0
 =====
 
 Fixes
@@ -44,6 +44,24 @@ Changes
 * ``SOPClass`` class added to ``sop_class`` module and all SOP Class objects
   now inherit from it rather than the corresponding service class.
 * ``utils.PresentationContextManager`` removed
+* ``MaximumLengthNegotiation`` changed to ``MaximumLengthNotification``
+* ``ImplementationClassUIDNegotiation`` changed to ``ImplementationClassUIDNotification``
+* ``ImplementationVersionNameNegotiation`` changed to ``ImplementationVersioNameNotification``
+* Simplified ``service_class.ServiceClass`` interface
+* ``ACSE`` refactored to do more of the association negotiation work and to
+  operate independently of the Association instance.
+
+  - Added ``send_abort``, ``send_ap_abort``, ``send_reject``, ``send_release``
+    ``send_request``, ``send_accept`` methods
+  - Added ``negotiate_association`` method
+  - Added ``release_association`` method
+* Added ``association.ServiceUser`` class
+* ``Association`` refactored to do less association negotiation work and to
+  operate independently of the ACSE instance.
+
+  - Added ``Association.requestor`` and ``Association.acceptor`` attributes
+    which are ``ServiceUser`` instances that track the association requestor
+    and acceptor.
 
 
 Enhancements

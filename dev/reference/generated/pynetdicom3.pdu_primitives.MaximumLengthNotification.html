@@ -8,7 +8,7 @@
   
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   
-  <title>pynetdicom3.pdu_primitives.MaximumLengthNegotiation &mdash; pynetdicom3 1.0.0.dev0 documentation</title>
+  <title>pynetdicom3.pdu_primitives.MaximumLengthNotification &mdash; pynetdicom3 1.0.0.dev0 documentation</title>
   
 
   
@@ -28,7 +28,6 @@
 
   <link rel="stylesheet" href="../../_static/css/pynetdicom3.css" type="text/css" />
   <link rel="stylesheet" href="../../_static/pygments.css" type="text/css" />
-  <link rel="stylesheet" href="../../_static/gallery.css" type="text/css" />
   <link rel="stylesheet" href="../../_static/css/pynetdicom3.css" type="text/css" />
     <link rel="index" title="Index" href="../../genindex.html" />
     <link rel="search" title="Search" href="../../search.html" /> 
@@ -104,9 +103,6 @@
 <ul>
 <li class="toctree-l1"><a class="reference internal" href="../../user/index.html">User Guide</a></li>
 </ul>
-<ul>
-<li class="toctree-l1"><a class="reference internal" href="../../release_notes.html">0.9.1</a></li>
-</ul>
 
             
           
@@ -151,13 +147,13 @@
     
       <li><a href="../../index.html">Docs</a> &raquo;</li>
         
-      <li>pynetdicom3.pdu_primitives.MaximumLengthNegotiation</li>
+      <li>pynetdicom3.pdu_primitives.MaximumLengthNotification</li>
     
     
       <li class="wy-breadcrumbs-aside">
         
             
-            <a href="../../_sources/reference/generated/pynetdicom3.pdu_primitives.MaximumLengthNegotiation.rst.txt" rel="nofollow"> View page source</a>
+            <a href="../../_sources/reference/generated/pynetdicom3.pdu_primitives.MaximumLengthNotification.rst.txt" rel="nofollow"> View page source</a>
           
         
       </li>
@@ -170,20 +166,20 @@
           <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
            <div itemprop="articleBody">
             
-  <div class="section" id="pynetdicom3-pdu-primitives-maximumlengthnegotiation">
-<h1>pynetdicom3.pdu_primitives.MaximumLengthNegotiation<a class="headerlink" href="#pynetdicom3-pdu-primitives-maximumlengthnegotiation" title="Permalink to this headline">¶</a></h1>
+  <div class="section" id="pynetdicom3-pdu-primitives-maximumlengthnotification">
+<h1>pynetdicom3.pdu_primitives.MaximumLengthNotification<a class="headerlink" href="#pynetdicom3-pdu-primitives-maximumlengthnotification" title="Permalink to this headline">¶</a></h1>
 <dl class="class">
-<dt id="pynetdicom3.pdu_primitives.MaximumLengthNegotiation">
-<em class="property">class </em><code class="descclassname">pynetdicom3.pdu_primitives.</code><code class="descname">MaximumLengthNegotiation</code><a class="reference internal" href="../../_modules/pynetdicom3/pdu_primitives.html#MaximumLengthNegotiation"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pynetdicom3.pdu_primitives.MaximumLengthNegotiation" title="Permalink to this definition">¶</a></dt>
+<dt id="pynetdicom3.pdu_primitives.MaximumLengthNotification">
+<em class="property">class </em><code class="descclassname">pynetdicom3.pdu_primitives.</code><code class="descname">MaximumLengthNotification</code><a class="reference internal" href="../../_modules/pynetdicom3/pdu_primitives.html#MaximumLengthNotification"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pynetdicom3.pdu_primitives.MaximumLengthNotification" title="Permalink to this definition">¶</a></dt>
 <dd><p>A representation of a Maximum Length Negotiation primitive.</p>
 <p>The maximum length notification allows communicating AEs to limit the size
 of the data for each P-DATA indication. This notification is required for
 all DICOM v3.0 conforming implementations.</p>
 <p>This User Information item is required during Association negotiation and
-there must only be a single MaximumLengthNegotiation item</p>
+there must only be a single MaximumLengthNotification item</p>
 <dl class="attribute">
-<dt id="pynetdicom3.pdu_primitives.MaximumLengthNegotiation.maximum_length_received">
-<code class="descname">maximum_length_received</code><a class="headerlink" href="#pynetdicom3.pdu_primitives.MaximumLengthNegotiation.maximum_length_received" title="Permalink to this definition">¶</a></dt>
+<dt id="pynetdicom3.pdu_primitives.MaximumLengthNotification.maximum_length_received">
+<code class="descname">maximum_length_received</code><a class="headerlink" href="#pynetdicom3.pdu_primitives.MaximumLengthNotification.maximum_length_received" title="Permalink to this definition">¶</a></dt>
 <dd><p>The maximum length received value for the Maximum Length sub-item in
 bytes. A value of 0 indicates unlimited length (31682 bytes default).</p>
 <table class="docutils field-list" frame="void" rules="none">
@@ -202,8 +198,8 @@ bytes. A value of 0 indicates unlimited length (31682 bytes default).</p>
 <li>DICOM Standard, Part 8, Annex D.1</li>
 </ul>
 <dl class="method">
-<dt id="pynetdicom3.pdu_primitives.MaximumLengthNegotiation.__init__">
-<code class="descname">__init__</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="../../_modules/pynetdicom3/pdu_primitives.html#MaximumLengthNegotiation.__init__"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pynetdicom3.pdu_primitives.MaximumLengthNegotiation.__init__" title="Permalink to this definition">¶</a></dt>
+<dt id="pynetdicom3.pdu_primitives.MaximumLengthNotification.__init__">
+<code class="descname">__init__</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="../../_modules/pynetdicom3/pdu_primitives.html#MaximumLengthNotification.__init__"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pynetdicom3.pdu_primitives.MaximumLengthNotification.__init__" title="Permalink to this definition">¶</a></dt>
 <dd><p>Initialize self.  See help(type(self)) for accurate signature.</p>
 </dd></dl>
 
@@ -214,10 +210,10 @@ bytes. A value of 0 indicates unlimited length (31682 bytes default).</p>
 <col width="90%" />
 </colgroup>
 <tbody valign="top">
-<tr class="row-odd"><td><a class="reference internal" href="#pynetdicom3.pdu_primitives.MaximumLengthNegotiation.__init__" title="pynetdicom3.pdu_primitives.MaximumLengthNegotiation.__init__"><code class="xref py py-obj docutils literal notranslate"><span class="pre">__init__</span></code></a>()</td>
+<tr class="row-odd"><td><a class="reference internal" href="#pynetdicom3.pdu_primitives.MaximumLengthNotification.__init__" title="pynetdicom3.pdu_primitives.MaximumLengthNotification.__init__"><code class="xref py py-obj docutils literal notranslate"><span class="pre">__init__</span></code></a>()</td>
 <td>Initialize self.</td>
 </tr>
-<tr class="row-even"><td><a class="reference internal" href="#pynetdicom3.pdu_primitives.MaximumLengthNegotiation.from_primitive" title="pynetdicom3.pdu_primitives.MaximumLengthNegotiation.from_primitive"><code class="xref py py-obj docutils literal notranslate"><span class="pre">from_primitive</span></code></a>()</td>
+<tr class="row-even"><td><a class="reference internal" href="#pynetdicom3.pdu_primitives.MaximumLengthNotification.from_primitive" title="pynetdicom3.pdu_primitives.MaximumLengthNotification.from_primitive"><code class="xref py py-obj docutils literal notranslate"><span class="pre">from_primitive</span></code></a>()</td>
 <td>Convert the primitive to a PDU item ready to be encoded.</td>
 </tr>
 </tbody>
@@ -229,14 +225,14 @@ bytes. A value of 0 indicates unlimited length (31682 bytes default).</p>
 <col width="90%" />
 </colgroup>
 <tbody valign="top">
-<tr class="row-odd"><td><a class="reference internal" href="#pynetdicom3.pdu_primitives.MaximumLengthNegotiation.maximum_length_received" title="pynetdicom3.pdu_primitives.MaximumLengthNegotiation.maximum_length_received"><code class="xref py py-obj docutils literal notranslate"><span class="pre">maximum_length_received</span></code></a></td>
+<tr class="row-odd"><td><a class="reference internal" href="#pynetdicom3.pdu_primitives.MaximumLengthNotification.maximum_length_received" title="pynetdicom3.pdu_primitives.MaximumLengthNotification.maximum_length_received"><code class="xref py py-obj docutils literal notranslate"><span class="pre">maximum_length_received</span></code></a></td>
 <td>Return the <em>Maximum Length Received</em>.</td>
 </tr>
 </tbody>
 </table>
 <dl class="method">
-<dt id="pynetdicom3.pdu_primitives.MaximumLengthNegotiation.from_primitive">
-<code class="descname">from_primitive</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="../../_modules/pynetdicom3/pdu_primitives.html#MaximumLengthNegotiation.from_primitive"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pynetdicom3.pdu_primitives.MaximumLengthNegotiation.from_primitive" title="Permalink to this definition">¶</a></dt>
+<dt id="pynetdicom3.pdu_primitives.MaximumLengthNotification.from_primitive">
+<code class="descname">from_primitive</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="../../_modules/pynetdicom3/pdu_primitives.html#MaximumLengthNotification.from_primitive"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pynetdicom3.pdu_primitives.MaximumLengthNotification.from_primitive" title="Permalink to this definition">¶</a></dt>
 <dd><p>Convert the primitive to a PDU item ready to be encoded.</p>
 <table class="docutils field-list" frame="void" rules="none">
 <col class="field-name" />
@@ -271,7 +267,7 @@ bytes. A value of 0 indicates unlimited length (31682 bytes default).</p>
 
   <div role="contentinfo">
     <p>
-        &copy; Copyright 2018, pynetdicom3 contributors
+        &copy; Copyright 2018-19, pynetdicom3 contributors
 
     </p>
   </div>
@@ -296,6 +292,7 @@ bytes. A value of 0 indicates unlimited length (31682 bytes default).</p>
         <script type="text/javascript" src="../../_static/jquery.js"></script>
         <script type="text/javascript" src="../../_static/underscore.js"></script>
         <script type="text/javascript" src="../../_static/doctools.js"></script>
+        <script type="text/javascript" src="../../_static/language_data.js"></script>
     
 
   
