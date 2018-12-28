@@ -16,8 +16,8 @@ single patient with ID '1234567'.
 
    from pydicom.dataset import Dataset
 
-   from pynetdicom3 import AE
-   from pynetdicom3.sop_class import GeneralRelevantPatientInformationQuery
+   from pynetdicom import AE
+   from pynetdicom.sop_class import GeneralRelevantPatientInformationQuery
 
    # Initialise the Application Entity
    ae = AE()
@@ -87,8 +87,8 @@ query against that.
     from pydicom import dcmread
     from pydicom.dataset import Dataset
 
-    from pynetdicom3 import AE
-    from pynetdicom3.sop_class import GeneralRelevantPatientInformationQuery
+    from pynetdicom import AE
+    from pynetdicom.sop_class import GeneralRelevantPatientInformationQuery
 
     # Initialise the Application Entity and specify the listen port
     ae = AE(port=11112)

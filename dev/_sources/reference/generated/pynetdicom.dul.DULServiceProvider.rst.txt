@@ -1,0 +1,46 @@
+pynetdicom.dul.DULServiceProvider
+=================================
+
+.. currentmodule:: pynetdicom.dul
+
+.. autoclass:: DULServiceProvider
+
+   
+   .. automethod:: __init__
+
+   
+   .. rubric:: Methods
+
+   .. autosummary::
+   
+      ~DULServiceProvider.__init__
+      ~DULServiceProvider.getName
+      ~DULServiceProvider.idle_timer_expired
+      ~DULServiceProvider.isAlive
+      ~DULServiceProvider.isDaemon
+      ~DULServiceProvider.is_alive
+      ~DULServiceProvider.join
+      ~DULServiceProvider.kill_dul
+      ~DULServiceProvider.on_receive_pdu
+      ~DULServiceProvider.peek_next_pdu
+      ~DULServiceProvider.receive_pdu
+      ~DULServiceProvider.run
+      ~DULServiceProvider.send_pdu
+      ~DULServiceProvider.setDaemon
+      ~DULServiceProvider.setName
+      ~DULServiceProvider.start
+      ~DULServiceProvider.stop_dul
+   
+   
+
+   
+   
+   .. rubric:: Attributes
+
+   .. autosummary::
+   
+      ~DULServiceProvider.daemon
+      ~DULServiceProvider.ident
+      ~DULServiceProvider.name
+   
+   

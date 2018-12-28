@@ -38,7 +38,7 @@ the SERIES level.
 
 One extra step needed with the Query/Retrieve (Get) Service is
 that during association we need to include a :py:class:`SCP/SCU Role Selection
-Negotation <pynetdicom3.pdu_items.SCP_SCU_RoleSelectionSubItem>`
+Negotation <pynetdicom.pdu_items.SCP_SCU_RoleSelectionSubItem>`
 item for each of the supported presentation contexts that may be used with
 the C-STORE requests.
 
@@ -51,13 +51,13 @@ which requires adding the File Meta Information.
 
     from pydicom.dataset import Dataset
 
-    from pynetdicom3 import (
+    from pynetdicom import (
         AE,
         PYNETDICOM_IMPLEMENTATION_UID,
         PYNETDICOM_IMPLEMENTATION_VERSION
     )
-    from pynetdicom3.pdu_primitives import SCP_SCU_RoleSelectionNegotiation
-    from pynetdicom3.sop_class import (
+    from pynetdicom.pdu_primitives import SCP_SCU_RoleSelectionNegotiation
+    from pynetdicom.sop_class import (
         PatientRootQueryRetrieveInformationModelGet,
         CTImageStorage
     )
@@ -185,8 +185,8 @@ query against that.
     from pydicom import dcmread
     from pydicom.dataset import Dataset
 
-    from pynetdicom3 import AE, StoragePresentationContexts
-    from pynetdicom3.sop_class import PatientRootQueryRetrieveInformationModelGet
+    from pynetdicom import AE, StoragePresentationContexts
+    from pynetdicom.sop_class import PatientRootQueryRetrieveInformationModelGet
 
     # Create application entity
     ae = AE(port=11112)

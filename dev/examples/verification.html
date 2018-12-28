@@ -8,7 +8,7 @@
   
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   
-  <title>Verification Service Examples &mdash; pynetdicom3 1.0.0.dev0 documentation</title>
+  <title>Verification Service Examples &mdash; pynetdicom 1.0.0.dev0 documentation</title>
   
 
   
@@ -26,9 +26,9 @@
 
   
 
-  <link rel="stylesheet" href="../_static/css/pynetdicom3.css" type="text/css" />
+  <link rel="stylesheet" href="../_static/css/pynetdicom.css" type="text/css" />
   <link rel="stylesheet" href="../_static/pygments.css" type="text/css" />
-  <link rel="stylesheet" href="../_static/css/pynetdicom3.css" type="text/css" />
+  <link rel="stylesheet" href="../_static/css/pynetdicom.css" type="text/css" />
     <link rel="index" title="Index" href="../genindex.html" />
     <link rel="search" title="Search" href="../search.html" /> 
 
@@ -49,7 +49,7 @@
           
 
           
-            <a href="../index.html" class="icon icon-home"> pynetdicom3
+            <a href="../index.html" class="icon icon-home"> pynetdicom
           
 
           
@@ -119,7 +119,7 @@
       <nav class="wy-nav-top" aria-label="top navigation">
         
           <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
-          <a href="../index.html">pynetdicom3</a>
+          <a href="../index.html">pynetdicom</a>
         
       </nav>
 
@@ -180,7 +180,7 @@ starting point when troubleshooting associations, particularly with the log
 level set to debug:</p>
 <div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="kn">import</span> <span class="nn">logging</span>
 
-<span class="n">LOGGER</span> <span class="o">=</span> <span class="n">logging</span><span class="o">.</span><span class="n">getLogger</span><span class="p">(</span><span class="s1">&#39;pynetdicom3&#39;</span><span class="p">)</span>
+<span class="n">LOGGER</span> <span class="o">=</span> <span class="n">logging</span><span class="o">.</span><span class="n">getLogger</span><span class="p">(</span><span class="s1">&#39;pynetdicom&#39;</span><span class="p">)</span>
 <span class="n">LOGGER</span><span class="o">.</span><span class="n">setLevel</span><span class="p">(</span><span class="n">logging</span><span class="o">.</span><span class="n">DEBUG</span><span class="p">)</span>
 </pre></div>
 </div>
@@ -188,8 +188,8 @@ level set to debug:</p>
 <h2>Verification SCU<a class="headerlink" href="#verification-scu" title="Permalink to this headline">¶</a></h2>
 <p>Associate with a peer DICOM Application Entity and request the use of the
 Verification Service.</p>
-<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span> <span class="nn">pynetdicom3</span> <span class="kn">import</span> <span class="n">AE</span>
-<span class="kn">from</span> <span class="nn">pynetdicom3.sop_class</span> <span class="kn">import</span> <span class="n">VerificationSOPClass</span>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span> <span class="nn">pynetdicom</span> <span class="kn">import</span> <span class="n">AE</span>
+<span class="kn">from</span> <span class="nn">pynetdicom.sop_class</span> <span class="kn">import</span> <span class="n">VerificationSOPClass</span>
 
 <span class="c1"># Initialise the Application Entity</span>
 <span class="n">ae</span> <span class="o">=</span> <span class="n">AE</span><span class="p">()</span>
@@ -220,7 +220,7 @@ Verification Service.</p>
 </div>
 <p>You can also use the inbuilt <code class="docutils literal notranslate"><span class="pre">VerificationPresentationContexts</span></code> when setting
 the requested contexts.</p>
-<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span> <span class="nn">pynetdicom3</span> <span class="kn">import</span> <span class="n">AE</span><span class="p">,</span> <span class="n">VerificationPresentationContexts</span>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span> <span class="nn">pynetdicom</span> <span class="kn">import</span> <span class="n">AE</span><span class="p">,</span> <span class="n">VerificationPresentationContexts</span>
 
 <span class="n">ae</span> <span class="o">=</span> <span class="n">AE</span><span class="p">()</span>
 <span class="n">ae</span><span class="o">.</span><span class="n">requested_contexts</span> <span class="o">=</span> <span class="n">VerificationPresentationContexts</span>
@@ -233,8 +233,8 @@ the requested contexts.</p>
 association requests on port 11112. When a verification request is received
 over the association we rely on the default implementation of <code class="docutils literal notranslate"><span class="pre">AE.on_c_echo</span></code>
 to return an 0x0000 <em>Success</em> <a class="reference internal" href="../verification_service_class.html#verification-statuses"><span class="std std-ref">status</span></a>.</p>
-<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span> <span class="nn">pynetdicom3</span> <span class="kn">import</span> <span class="n">AE</span>
-<span class="kn">from</span> <span class="nn">pynetdicom3.sop_class</span> <span class="kn">import</span> <span class="n">VerificationSOPClass</span>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span> <span class="nn">pynetdicom</span> <span class="kn">import</span> <span class="n">AE</span>
+<span class="kn">from</span> <span class="nn">pynetdicom.sop_class</span> <span class="kn">import</span> <span class="n">VerificationSOPClass</span>
 
 <span class="c1"># Initialise the Application Entity and specify the listen port</span>
 <span class="n">ae</span> <span class="o">=</span> <span class="n">AE</span><span class="p">(</span><span class="n">port</span><span class="o">=</span><span class="mi">11112</span><span class="p">)</span>
@@ -247,8 +247,8 @@ to return an 0x0000 <em>Success</em> <a class="reference internal" href="../veri
 </pre></div>
 </div>
 <p>You can also optionally implement the <code class="docutils literal notranslate"><span class="pre">on_c_echo</span></code> callback.</p>
-<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span> <span class="nn">pynetdicom3</span> <span class="kn">import</span> <span class="n">AE</span>
-<span class="kn">from</span> <span class="nn">pynetdicom3.sop_class</span> <span class="kn">import</span> <span class="n">VerificationSOPClass</span>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span> <span class="nn">pynetdicom</span> <span class="kn">import</span> <span class="n">AE</span>
+<span class="kn">from</span> <span class="nn">pynetdicom.sop_class</span> <span class="kn">import</span> <span class="n">VerificationSOPClass</span>
 
 <span class="c1"># Initialise the Application Entity and specify the listen port</span>
 <span class="n">ae</span> <span class="o">=</span> <span class="n">AE</span><span class="p">(</span><span class="n">port</span><span class="o">=</span><span class="mi">11112</span><span class="p">)</span>
@@ -296,7 +296,7 @@ to return an 0x0000 <em>Success</em> <a class="reference internal" href="../veri
 
   <div role="contentinfo">
     <p>
-        &copy; Copyright 2018-19, pynetdicom3 contributors
+        &copy; Copyright 2018-19, pynetdicom contributors
 
     </p>
   </div>

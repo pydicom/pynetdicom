@@ -1,7 +1,7 @@
 A-RELEASE
 =========
 
-.. currentmodule:: pynetdicom3.pdu_primitives
+.. currentmodule:: pynetdicom.pdu_primitives
 
 The graceful release of an association between two Application Entities is
 performed through ACSE A-RELEASE request, indication, response and

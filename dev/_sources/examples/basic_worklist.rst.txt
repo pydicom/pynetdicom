@@ -21,7 +21,7 @@ for the *Identifier*.
 
    from pydicom.dataset import Dataset
 
-   from pynetdicom3 import AE, BasicWorklistManagementPresentationContexts
+   from pynetdicom import AE, BasicWorklistManagementPresentationContexts
 
    # Initialise the Application Entity
    ae = AE()

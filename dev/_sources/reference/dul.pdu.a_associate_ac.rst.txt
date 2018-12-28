@@ -1,7 +1,7 @@
 A-ASSOCIATE-AC PDU
 ==================
 
-.. currentmodule:: pynetdicom3.pdu
+.. currentmodule:: pynetdicom.pdu
 
 An A-ASSOCIATE-AC PDU is made of a sequence of mandatory fields followed by a
 variable length field that must contain one Application Context item, one or
@@ -18,7 +18,7 @@ PDU
 
 Variable Items
 --------------
-.. currentmodule:: pynetdicom3.pdu_items
+.. currentmodule:: pynetdicom.pdu_items
 
 .. autosummary::
    :toctree: generated/

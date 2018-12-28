@@ -1,6 +1,0 @@
-pynetdicom3.sop\_class.uid\_to\_sop\_class
-==========================================
-
-.. currentmodule:: pynetdicom3.sop_class
-
-.. autofunction:: uid_to_sop_class

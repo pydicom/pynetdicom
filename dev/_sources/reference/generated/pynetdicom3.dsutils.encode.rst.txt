@@ -1,6 +1,0 @@
-pynetdicom3.dsutils.encode
-==========================
-
-.. currentmodule:: pynetdicom3.dsutils
-
-.. autofunction:: encode

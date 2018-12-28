@@ -1,9 +1,9 @@
 .. _presentation:
 
-Presentation Service (:mod:`pynetdicom3.presentation`)
+Presentation Service (:mod:`pynetdicom.presentation`)
 ======================================================
 
-.. currentmodule:: pynetdicom3.presentation
+.. currentmodule:: pynetdicom.presentation
 
 The Presentation Service supports the creation of Presentation Contexts and
 their negotiation during association.

@@ -1,7 +1,7 @@
 A-ASSOCIATE
 ===========
 
-.. currentmodule:: pynetdicom3.pdu_primitives
+.. currentmodule:: pynetdicom.pdu_primitives
 
 The establishment of an association between two Application Entities shall be
 performed through ACSE A-ASSOCIATE request, indication, response and

@@ -1,0 +1,370 @@
+
+
+<!DOCTYPE html>
+<!--[if IE 8]><html class="no-js lt-ie9" lang="en" > <![endif]-->
+<!--[if gt IE 8]><!--> <html class="no-js" lang="en" > <!--<![endif]-->
+<head>
+  <meta charset="utf-8">
+  
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  
+  <title>pynetdicom.dimse_messages.C_ECHO_RQ &mdash; pynetdicom 1.0.0.dev0 documentation</title>
+  
+
+  
+  
+    <link rel="shortcut icon" href="../../_static/favicon.ico"/>
+  
+  
+  
+
+  
+
+  
+  
+    
+
+  
+
+  <link rel="stylesheet" href="../../_static/css/pynetdicom.css" type="text/css" />
+  <link rel="stylesheet" href="../../_static/pygments.css" type="text/css" />
+  <link rel="stylesheet" href="../../_static/css/pynetdicom.css" type="text/css" />
+    <link rel="index" title="Index" href="../../genindex.html" />
+    <link rel="search" title="Search" href="../../search.html" /> 
+
+  
+  <script src="../../_static/js/modernizr.min.js"></script>
+
+</head>
+
+<body class="wy-body-for-nav">
+
+   
+  <div class="wy-grid-for-nav">
+
+    
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search">
+          
+
+          
+            <a href="../../index.html" class="icon icon-home"> pynetdicom
+          
+
+          
+            
+            <img src="../../_static/pydicom_flat_black.svg" class="logo" alt="Logo"/>
+          
+          </a>
+
+          
+            
+            
+              <div class="version">
+                1.0.0.dev0
+              </div>
+            
+          
+
+          
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="../../search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+
+          
+        </div>
+
+        <div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="main navigation">
+          
+            
+            
+              
+            
+            
+              <ul>
+<li class="toctree-l1"><a class="reference internal" href="../../verification_service_class.html">Verification Service Class</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../storage_service_class.html">Storage Service Class</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../query_retrieve_service_class.html">Query/Retrieve Service Class</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../basic_worklist_service_class.html">Basic Worklist Management Service Class</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../relevant_patient_service_class.html">Relevant Patient Information Query Service Class</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../substance_admin_service_class.html">Substance Administration Query Service Class</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../non_patient_service_class.html">Non-Patient Object Storage Service Class</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../color_palette_service_class.html">Color Palette Query/Retrieve Service Class</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../defined_procedure_service_class.html">Defined Procedure Protocol Query/Retrieve Service Class</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../hanging_protocol_service_class.html">Hanging Protocol Query/Retrieve Service Class</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../implant_template_service_class.html">Implant Template Query/Retrieve Service Class</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../display_system_service_class.html">Display System Management Service Class</a></li>
+</ul>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../../user/index.html">User Guide</a></li>
+</ul>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../../release_notes.html">1.0.0</a></li>
+</ul>
+
+            
+          
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap">
+
+      
+      <nav class="wy-nav-top" aria-label="top navigation">
+        
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="../../index.html">pynetdicom</a>
+        
+      </nav>
+
+
+      <div class="wy-nav-content">
+        
+        <div class="rst-content">
+        
+          
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+<div role="navigation" aria-label="breadcrumbs navigation">
+
+  <ul class="wy-breadcrumbs">
+    
+      <li><a href="../../index.html">Docs</a> &raquo;</li>
+        
+      <li>pynetdicom.dimse_messages.C_ECHO_RQ</li>
+    
+    
+      <li class="wy-breadcrumbs-aside">
+        
+            
+            <a href="../../_sources/reference/generated/pynetdicom.dimse_messages.C_ECHO_RQ.rst.txt" rel="nofollow"> View page source</a>
+          
+        
+      </li>
+    
+  </ul>
+
+  
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+            
+  <div class="section" id="pynetdicom-dimse-messages-c-echo-rq">
+<h1>pynetdicom.dimse_messages.C_ECHO_RQ<a class="headerlink" href="#pynetdicom-dimse-messages-c-echo-rq" title="Permalink to this headline">¶</a></h1>
+<dl class="class">
+<dt id="pynetdicom.dimse_messages.C_ECHO_RQ">
+<em class="property">class </em><code class="descclassname">pynetdicom.dimse_messages.</code><code class="descname">C_ECHO_RQ</code><a class="headerlink" href="#pynetdicom.dimse_messages.C_ECHO_RQ" title="Permalink to this definition">¶</a></dt>
+<dd><dl class="method">
+<dt id="pynetdicom.dimse_messages.C_ECHO_RQ.__init__">
+<code class="descname">__init__</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#pynetdicom.dimse_messages.C_ECHO_RQ.__init__" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<p class="rubric">Methods</p>
+<table border="1" class="longtable docutils">
+<colgroup>
+<col width="10%" />
+<col width="90%" />
+</colgroup>
+<tbody valign="top">
+<tr class="row-odd"><td><a class="reference internal" href="#pynetdicom.dimse_messages.C_ECHO_RQ.__init__" title="pynetdicom.dimse_messages.C_ECHO_RQ.__init__"><code class="xref py py-obj docutils literal notranslate"><span class="pre">__init__</span></code></a>()</td>
+<td></td>
+</tr>
+<tr class="row-even"><td><a class="reference internal" href="#pynetdicom.dimse_messages.C_ECHO_RQ.decode_msg" title="pynetdicom.dimse_messages.C_ECHO_RQ.decode_msg"><code class="xref py py-obj docutils literal notranslate"><span class="pre">decode_msg</span></code></a>(primitive)</td>
+<td>Converts P-DATA primitives into a DIMSEMessage sub-class.</td>
+</tr>
+<tr class="row-odd"><td><a class="reference internal" href="#pynetdicom.dimse_messages.C_ECHO_RQ.encode_msg" title="pynetdicom.dimse_messages.C_ECHO_RQ.encode_msg"><code class="xref py py-obj docutils literal notranslate"><span class="pre">encode_msg</span></code></a>(context_id,&nbsp;max_pdu_length)</td>
+<td>Yield P-DATA primitive(s) for the current DIMSE Message.</td>
+</tr>
+<tr class="row-even"><td><a class="reference internal" href="#pynetdicom.dimse_messages.C_ECHO_RQ.message_to_primitive" title="pynetdicom.dimse_messages.C_ECHO_RQ.message_to_primitive"><code class="xref py py-obj docutils literal notranslate"><span class="pre">message_to_primitive</span></code></a>()</td>
+<td>Convert the DIMSEMessage class to a DIMSE primitive.</td>
+</tr>
+<tr class="row-odd"><td><a class="reference internal" href="#pynetdicom.dimse_messages.C_ECHO_RQ.primitive_to_message" title="pynetdicom.dimse_messages.C_ECHO_RQ.primitive_to_message"><code class="xref py py-obj docutils literal notranslate"><span class="pre">primitive_to_message</span></code></a>(primitive)</td>
+<td>Convert a DIMSE <cite>primitive</cite> to the current DIMSEMessage object.</td>
+</tr>
+</tbody>
+</table>
+<p class="rubric">Attributes</p>
+<table border="1" class="longtable docutils">
+<colgroup>
+<col width="10%" />
+<col width="90%" />
+</colgroup>
+<tbody valign="top">
+<tr class="row-odd"><td><code class="xref py py-obj docutils literal notranslate"><span class="pre">command_set</span></code></td>
+<td></td>
+</tr>
+</tbody>
+</table>
+<dl class="method">
+<dt id="pynetdicom.dimse_messages.C_ECHO_RQ.decode_msg">
+<code class="descname">decode_msg</code><span class="sig-paren">(</span><em>primitive</em><span class="sig-paren">)</span><a class="headerlink" href="#pynetdicom.dimse_messages.C_ECHO_RQ.decode_msg" title="Permalink to this definition">¶</a></dt>
+<dd><p>Converts P-DATA primitives into a DIMSEMessage sub-class.</p>
+<p>Decodes the data from the P-DATA service primitive (which
+may contain the results of one or more P-DATA-TF PDUs) into the
+<cite>command_set</cite> and <cite>data_set</cite> attributes. Also sets the <cite>ID</cite> and
+<cite>encoded_command_set</cite> attributes of the DIMSEMessage sub-class object.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><strong>primitive</strong> (<a class="reference internal" href="pynetdicom.pdu_primitives.P_DATA.html#pynetdicom.pdu_primitives.P_DATA" title="pynetdicom.pdu_primitives.P_DATA"><em>pdu_primitives.P_DATA</em></a>) – The P-DATA service primitive to be decoded into a DIMSE message.</td>
+</tr>
+<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body">True when the DIMSE message is completely decoded, False otherwise.</td>
+</tr>
+<tr class="field-odd field"><th class="field-name">Return type:</th><td class="field-body"><a class="reference external" href="https://docs.python.org/3/library/functions.html#bool" title="(in Python v3.7)">bool</a></td>
+</tr>
+</tbody>
+</table>
+<p class="rubric">References</p>
+<ul class="simple">
+<li>DICOM Standard, Part 8, Annex E</li>
+</ul>
+</dd></dl>
+
+<dl class="method">
+<dt id="pynetdicom.dimse_messages.C_ECHO_RQ.encode_msg">
+<code class="descname">encode_msg</code><span class="sig-paren">(</span><em>context_id</em>, <em>max_pdu_length</em><span class="sig-paren">)</span><a class="headerlink" href="#pynetdicom.dimse_messages.C_ECHO_RQ.encode_msg" title="Permalink to this definition">¶</a></dt>
+<dd><p>Yield P-DATA primitive(s) for the current DIMSE Message.</p>
+<p><strong>Encoding</strong></p>
+<p>The encoding of the Command Set shall be Little Endian Implicit VR,
+while the Data Set will be encoded as per the agreed presentation
+context.</p>
+<p>A P-DATA request PDV List parameter shall contain one or more PDVs.
+Each PDV is wholly contained in a given P-DATA request and doesn’t
+span across several P-DATA request primitives.</p>
+<p>The fragmentation of any message results in a series of PDVs that shall
+be sent, on a given association, by a corresponding series of P-DATA
+requests preserving the ordering of the fragments of any message.
+No fragments of any other messages shall be sent until all fragments
+of the current message have been sent.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first simple">
+<li><strong>context_id</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.7)"><em>int</em></a>) – The ID of the agreed presentation context.</li>
+<li><strong>max_pdu_length</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.7)"><em>int</em></a>) – The maximum PDV length in bytes.</li>
+</ul>
+</td>
+</tr>
+<tr class="field-even field"><th class="field-name">Yields:</th><td class="field-body"><p class="first last"><em>pdu_primitives.P_DATA</em> – The current DIMSE message as one or more P-DATA service
+primitives.</p>
+</td>
+</tr>
+</tbody>
+</table>
+<p class="rubric">References</p>
+<ul class="simple">
+<li>DICOM Standard, Part 7, Section 6.3.1</li>
+<li>DICOM Standard, Part 8, Annex E</li>
+</ul>
+</dd></dl>
+
+<dl class="method">
+<dt id="pynetdicom.dimse_messages.C_ECHO_RQ.message_to_primitive">
+<code class="descname">message_to_primitive</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#pynetdicom.dimse_messages.C_ECHO_RQ.message_to_primitive" title="Permalink to this definition">¶</a></dt>
+<dd><p>Convert the DIMSEMessage class to a DIMSE primitive.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Returns:</th><td class="field-body">One of the DIMSE message primitives from
+pynetdicom.dimse_primitives generated from
+the current DIMSEMessage.</td>
+</tr>
+<tr class="field-even field"><th class="field-name">Return type:</th><td class="field-body">DIMSE message primitive</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="method">
+<dt id="pynetdicom.dimse_messages.C_ECHO_RQ.primitive_to_message">
+<code class="descname">primitive_to_message</code><span class="sig-paren">(</span><em>primitive</em><span class="sig-paren">)</span><a class="headerlink" href="#pynetdicom.dimse_messages.C_ECHO_RQ.primitive_to_message" title="Permalink to this definition">¶</a></dt>
+<dd><p>Convert a DIMSE <cite>primitive</cite> to the current DIMSEMessage object.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><strong>primitive</strong> – A DIMSE message primitive from pynetdicom.dimse_primitives
+to convert to the current DIMSEMessage object.</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+</dd></dl>
+
+</div>
+
+
+           </div>
+           
+          </div>
+          <footer>
+  
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>
+        &copy; Copyright 2018-19, pynetdicom contributors
+
+    </p>
+  </div>
+  Built with <a href="http://sphinx-doc.org/">Sphinx</a> using a <a href="https://github.com/rtfd/sphinx_rtd_theme">theme</a> provided by <a href="https://readthedocs.org">Read the Docs</a>. 
+
+</footer>
+
+        </div>
+      </div>
+
+    </section>
+
+  </div>
+  
+
+
+  
+
+    
+    
+      <script type="text/javascript" id="documentation_options" data-url_root="../../" src="../../_static/documentation_options.js"></script>
+        <script type="text/javascript" src="../../_static/jquery.js"></script>
+        <script type="text/javascript" src="../../_static/underscore.js"></script>
+        <script type="text/javascript" src="../../_static/doctools.js"></script>
+        <script type="text/javascript" src="../../_static/language_data.js"></script>
+    
+
+  
+
+  <script type="text/javascript" src="../../_static/js/theme.js"></script>
+
+  <script type="text/javascript">
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script> 
+
+</body>
+</html>

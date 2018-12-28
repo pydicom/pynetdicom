@@ -1,7 +1,7 @@
 A-RELEASE-RQ PDU
 ================
 
-.. currentmodule:: pynetdicom3.pdu
+.. currentmodule:: pynetdicom.pdu
 
 An A-RELEASE-RQ PDU is made of a sequence of mandatory fields.
 

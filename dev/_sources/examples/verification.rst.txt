@@ -14,7 +14,7 @@ level set to debug:
 
     import logging
 
-    LOGGER = logging.getLogger('pynetdicom3')
+    LOGGER = logging.getLogger('pynetdicom')
     LOGGER.setLevel(logging.DEBUG)
 
 
@@ -26,8 +26,8 @@ Verification Service.
 
 .. code-block:: python
 
-   from pynetdicom3 import AE
-   from pynetdicom3.sop_class import VerificationSOPClass
+   from pynetdicom import AE
+   from pynetdicom.sop_class import VerificationSOPClass
 
    # Initialise the Application Entity
    ae = AE()
@@ -60,7 +60,7 @@ the requested contexts.
 
 .. code-block:: python
 
-   from pynetdicom3 import AE, VerificationPresentationContexts
+   from pynetdicom import AE, VerificationPresentationContexts
 
    ae = AE()
    ae.requested_contexts = VerificationPresentationContexts
@@ -76,8 +76,8 @@ to return an 0x0000 *Success* :ref:`status <verification_statuses>`.
 
 .. code-block:: python
 
-   from pynetdicom3 import AE
-   from pynetdicom3.sop_class import VerificationSOPClass
+   from pynetdicom import AE
+   from pynetdicom.sop_class import VerificationSOPClass
 
    # Initialise the Application Entity and specify the listen port
    ae = AE(port=11112)
@@ -92,8 +92,8 @@ You can also optionally implement the ``on_c_echo`` callback.
 
 .. code-block:: python
 
-   from pynetdicom3 import AE
-   from pynetdicom3.sop_class import VerificationSOPClass
+   from pynetdicom import AE
+   from pynetdicom.sop_class import VerificationSOPClass
 
    # Initialise the Application Entity and specify the listen port
    ae = AE(port=11112)

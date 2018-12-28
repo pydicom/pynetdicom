@@ -1,7 +1,7 @@
-Service Primitives (:mod:`pynetdicom3.pdu_primitives`)
+Service Primitives (:mod:`pynetdicom.pdu_primitives`)
 ======================================================
 
-.. currentmodule:: pynetdicom3.pdu_primitives
+.. currentmodule:: pynetdicom.pdu_primitives
 
 Protocol Data Units (PDUs) are the message formats exchanged between peer
 application entities within a layer. A PDU consists of protocol control

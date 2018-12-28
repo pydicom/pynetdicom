@@ -1,6 +1,0 @@
-pynetdicom3.fsm.AE\_3
-=====================
-
-.. currentmodule:: pynetdicom3.fsm
-
-.. autofunction:: AE_3

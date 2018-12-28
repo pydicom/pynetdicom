@@ -21,8 +21,8 @@ single CT dataset.
 
    from pydicom import dcmread
 
-   from pynetdicom3 import AE
-   from pynetdicom3.sop_class import CTImageStorage
+   from pynetdicom import AE
+   from pynetdicom.sop_class import CTImageStorage
 
    # Initialise the Application Entity
    ae = AE()
@@ -59,7 +59,7 @@ the requested contexts or just add as many contexts as you need.
 
 .. code-block:: python
 
-   from pynetdicom3 import AE, StoragePresentationContexts
+   from pynetdicom import AE, StoragePresentationContexts
 
    ae = AE()
    ae.requested_contexts = StoragePresentationContexts
@@ -70,8 +70,8 @@ You can also set the requested contexts on a per association basis.
 
    from pydicom import dcmread
 
-   from pynetdicom3 import AE, build_context
-   from pynetdicom3.sop_class import CTImageStorage, MRImageStorage
+   from pynetdicom import AE, build_context
+   from pynetdicom.sop_class import CTImageStorage, MRImageStorage
 
    # Initialise the Application Entity
    ae = AE()
@@ -105,7 +105,7 @@ which requires adding the File Meta Information.
 
    from pydicom.dataset import Dataset
 
-   from pynetdicom3 import (
+   from pynetdicom import (
        AE,
        StoragePresentationContexts,
        PYNETDICOM_IMPLEMENTATION_UID,
@@ -170,8 +170,8 @@ interested in.
 
 .. code-block:: python
 
-   from pynetdicom3 import AE
-   from pynetdicom3.sop_class import CTImageStorage
+   from pynetdicom import AE
+   from pynetdicom.sop_class import CTImageStorage
 
    ae = AE(port=11112)
 

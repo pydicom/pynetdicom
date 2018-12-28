@@ -1,7 +1,7 @@
 P-DATA-TF PDU
 =============
 
-.. currentmodule:: pynetdicom3.pdu
+.. currentmodule:: pynetdicom.pdu
 
 A P-DATA-TF PDU is made of a sequence of mandatory fields followed by a
 variable length field. The variable data field shall contain one or more

@@ -1,9 +1,9 @@
 .. _fsm:
 
-State Machine (:mod:`pynetdicom3.fsm`)
+State Machine (:mod:`pynetdicom.fsm`)
 ======================================
 
-.. currentmodule:: pynetdicom3.fsm
+.. currentmodule:: pynetdicom.fsm
 
 The Finite State Machine
 

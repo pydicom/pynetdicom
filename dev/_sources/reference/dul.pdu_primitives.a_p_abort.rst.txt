@@ -1,7 +1,7 @@
 A-P-ABORT
 =========
 
-.. currentmodule:: pynetdicom3.pdu_primitives
+.. currentmodule:: pynetdicom.pdu_primitives
 
 The ACSE A-P-ABORT service shall be used by the Upper Layer service provider
 to signal the abnormal release of the association due to problems in services

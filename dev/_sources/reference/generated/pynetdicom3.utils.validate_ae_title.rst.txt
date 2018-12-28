@@ -1,6 +1,0 @@
-pynetdicom3.utils.validate\_ae\_title
-=====================================
-
-.. currentmodule:: pynetdicom3.utils
-
-.. autofunction:: validate_ae_title

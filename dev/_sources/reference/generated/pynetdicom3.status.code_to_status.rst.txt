@@ -1,6 +1,0 @@
-pynetdicom3.status.code\_to\_status
-===================================
-
-.. currentmodule:: pynetdicom3.status
-
-.. autofunction:: code_to_status

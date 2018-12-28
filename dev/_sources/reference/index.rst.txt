@@ -7,7 +7,7 @@ API Reference
 :Release: |version|
 :Date: |today|
 
-.. module:: pynetdicom3
+.. module:: pynetdicom
 
 This API reference guide details the functions, modules and objects included in
 pynetdicom.
