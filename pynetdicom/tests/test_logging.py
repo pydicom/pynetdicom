@@ -38,6 +38,92 @@ LOGGER.setLevel(logging.CRITICAL)
 LOGGER.setLevel(logging.DEBUG)
 
 
+REFERENCE_USER_ID = [
+    (
+        (1, b'username', None, False),
+        [
+            "Authentication Mode: 1 - Username",
+            "Username: [username]",
+            "Positive Response Requested: No",
+        ],
+    ),
+    (
+        (1, b'username', None, True),
+        [
+            "Authentication Mode: 1 - Username",
+            "Username: [username]",
+            "Positive Response Requested: Yes",
+        ],
+    ),
+    (
+        (2, b'username', b'pass', False),
+        [
+            "Authentication Mode: 2 - Username/Password",
+            "Username: [username]",
+            "Password: [pass]",
+            "Positive Response Requested: No",
+        ],
+    ),
+    (
+        (2, b'username', b'pass', True),
+        [
+            "Authentication Mode: 2 - Username/Password",
+            "Username: [username]",
+            "Password: [pass]",
+            "Positive Response Requested: Yes",
+        ],
+    ),
+    (
+        (3, b'KERBEROS', None, False),
+        [
+            "Authentication Mode: 3 - Kerberos",
+            "Kerberos Service Ticket (not dumped) length: 8",
+            "Positive Response Requested: No",
+        ],
+    ),
+    (
+        (3, b'KERBEROS', None, True),
+        [
+            "Authentication Mode: 3 - Kerberos",
+            "Kerberos Service Ticket (not dumped) length: 8",
+            "Positive Response Requested: Yes",
+        ],
+    ),
+    (
+        (4, b'SAML', None, False),
+        [
+            "Authentication Mode: 4 - SAML",
+            "SAML Assertion (not dumped) length: 4",
+            "Positive Response Requested: No",
+        ],
+    ),
+    (
+        (4, b'SAML', None, True),
+        [
+            "Authentication Mode: 4 - SAML",
+            "SAML Assertion (not dumped) length: 4",
+            "Positive Response Requested: Yes",
+        ],
+    ),
+    (
+        (5, b'JSON', None, False),
+        [
+            "Authentication Mode: 5 - JSON Web Token",
+            "JSON Web Token (not dumped) length: 4",
+            "Positive Response Requested: No",
+        ],
+    ),
+    (
+        (5, b'JSON', None, True),
+        [
+            "Authentication Mode: 5 - JSON Web Token",
+            "JSON Web Token (not dumped) length: 4",
+            "Positive Response Requested: Yes",
+        ],
+    )
+]
+
+
 @pytest.mark.skipif(sys.version_info[:2] == (3, 4), reason='no caplog')
 class TestACSELogging(object):
     """Tests for ACSE logging."""
@@ -84,9 +170,14 @@ class TestACSELogging(object):
 
         return primitive
 
-    def add_user_identity(self, primitive):
+    def add_user_identity(self, primitive, id_type, primary, secondary, response):
         """Add an Implementation Version Name to the A-ASSOCIATE primitive."""
-        pass
+        item = UserIdentityNegotiation()
+        item.user_identity_type = id_type
+        item.primary_field = primary
+        item.secondary_field = secondary
+        item.positive_response_requested = response
+        primitive.user_information.append(item)
 
     def add_async_ops(self, primitive):
         """Add Asynchronous Ops to the A-ASSOCIATE primitive."""
@@ -281,6 +372,175 @@ class TestACSELogging(object):
                 "Requested Asynchronous Operations Window Negotiation: None",
                 "Requested User Identity Negotiation: None",
             ]
+
+            for msg in messages:
+                assert msg in caplog.text
+
+    @pytest.mark.parametrize("info, output", REFERENCE_USER_ID)
+    def test_send_assoc_rq_user_id(self, caplog, info, output):
+        """Test ACSE.debug_send_associate_rq with SOP Class Common."""
+        with caplog.at_level(logging.DEBUG, logger='pynetdicom'):
+            self.add_user_identity(self.associate_rq, *info)
+            pdu = A_ASSOCIATE_RQ()
+            pdu.from_primitive(self.associate_rq)
+            self.acse.debug_send_associate_rq(pdu)
+
+            messages = [
+                "Requested Extended Negotiation: None",
+                "Requested Common Extended Negotiation: None",
+                "Requested Asynchronous Operations Window Negotiation: None",
+                "Requested User Identity Negotiation:",
+            ]
+            messages += output
+
+            for msg in messages:
+                assert msg in caplog.text
+
+    def test_recv_assoc_rq_minimal(self, caplog):
+        """Test minimal ACSE.debug_receive_associate_rq."""
+        with caplog.at_level(logging.DEBUG, logger='pynetdicom'):
+            pdu = A_ASSOCIATE_RQ()
+            pdu.from_primitive(self.associate_rq)
+            self.acse.debug_receive_associate_rq(pdu)
+
+            messages = [
+                "Their Implementation Class UID:      1.2.826.0.1.3680043.8."
+                "498.10207287587329888519122978685894984263",
+                "Their Implementation Version Name:   unknown",
+                "Calling Application Name:    ABCDEFGHIJKLMNOP",
+                "Called Application Name:     1234567890123456",
+                "Their Max PDU Receive Size:  0",
+                "Presentation Contexts:",
+                "Context ID:        1 (Proposed)",
+                "Abstract Syntax: =1.2.3.4.5.6",
+                "Proposed SCP/SCU Role: Default",
+                "Proposed Transfer Syntax:",
+                "=JPEG Baseline (Process 1)",
+                "Context ID:        3 (Proposed)",
+                "Abstract Syntax: =Verification SOP Class",
+                "Proposed SCP/SCU Role: Default",
+                "Proposed Transfer Syntaxes:",
+                "=Implicit VR Little Endian",
+                "=Explicit VR Little Endian",
+                "=Explicit VR Big Endian",
+                "Requested Extended Negotiation: None",
+                "Requested Common Extended Negotiation: None",
+                "Requested Asynchronous Operations Window Negotiation: None",
+                "Requested User Identity Negotiation: None",
+            ]
+
+            for msg in messages:
+                assert msg in caplog.text
+
+    def test_recv_assoc_rq_role(self, caplog):
+        """Test ACSE.debug_receive_associate_rq with role selection."""
+        with caplog.at_level(logging.DEBUG, logger='pynetdicom'):
+            self.add_scp_scu_role(self.associate_rq)
+            pdu = A_ASSOCIATE_RQ()
+            pdu.from_primitive(self.associate_rq)
+            self.acse.debug_receive_associate_rq(pdu)
+
+            messages = [
+                "Proposed SCP/SCU Role: Default",
+                "Proposed SCP/SCU Role: SCU",
+                "Proposed SCP/SCU Role: SCP",
+                "Proposed SCP/SCU Role: SCP/SCU",
+                "Requested Extended Negotiation: None",
+                "Requested Common Extended Negotiation: None",
+                "Requested Asynchronous Operations Window Negotiation: None",
+                "Requested User Identity Negotiation: None",
+            ]
+
+            for msg in messages:
+                assert msg in caplog.text
+
+    def test_recv_assoc_rq_async(self, caplog):
+        """Test ACSE.debug_receive_associate_rq with async ops."""
+        with caplog.at_level(logging.DEBUG, logger='pynetdicom'):
+            self.add_async_ops(self.associate_rq)
+            pdu = A_ASSOCIATE_RQ()
+            pdu.from_primitive(self.associate_rq)
+            self.acse.debug_receive_associate_rq(pdu)
+
+            messages = [
+                "Requested Extended Negotiation: None",
+                "Requested Common Extended Negotiation: None",
+                "Requested Asynchronous Operations Window Negotiation:",
+                "Maximum invoked operations:     2",
+                "Maximum performed operations:   3",
+                "Requested User Identity Negotiation: None",
+            ]
+
+            for msg in messages:
+                assert msg in caplog.text
+
+    def test_recv_assoc_rq_sop_ext(self, caplog):
+        """Test ACSE.debug_receive_associate_rq with SOP Class Extended."""
+        with caplog.at_level(logging.DEBUG, logger='pynetdicom'):
+            self.add_sop_ext(self.associate_rq)
+            pdu = A_ASSOCIATE_RQ()
+            pdu.from_primitive(self.associate_rq)
+            self.acse.debug_receive_associate_rq(pdu)
+
+            messages = [
+                "Requested Extended Negotiation:",
+                "SOP Class: =1.2.3.4",
+                "[ 00  01 ]",
+                "SOP Class: =1.2.840.10008.1.1",
+                "[ 00  01  02  03  00  01  02  03  00  01  02  03  00  01  02"
+                "  03",
+                "00  01  02  03  00  01  02  03  00  01  02  03  00  01  02  03",
+                "00  01  02  03  00  01  02  03 ]",
+                "Requested Common Extended Negotiation: None",
+                "Requested Asynchronous Operations Window Negotiation: None",
+                "Requested User Identity Negotiation: None",
+            ]
+
+            for msg in messages:
+                assert msg in caplog.text
+
+    def test_recv_assoc_rq_sop_common(self, caplog):
+        """Test ACSE.debug_receive_associate_rq with SOP Class Common."""
+        with caplog.at_level(logging.DEBUG, logger='pynetdicom'):
+            self.add_sop_common(self.associate_rq)
+            pdu = A_ASSOCIATE_RQ()
+            pdu.from_primitive(self.associate_rq)
+            self.acse.debug_receive_associate_rq(pdu)
+
+            messages = [
+                "Requested Extended Negotiation: None",
+                "Requested Common Extended Negotiation:",
+                "SOP Class: =1.2.3.4",
+                "Service Class: =1.2.3",
+                "Related General SOP Classes: None",
+                "SOP Class: =Verification SOP Class",
+                "Service Class: =Storage Service Class",
+                "Related General SOP Class(es):",
+                "=CT Image Storage",
+                "=1.9.1",
+                "Requested Asynchronous Operations Window Negotiation: None",
+                "Requested User Identity Negotiation: None",
+            ]
+
+            for msg in messages:
+                assert msg in caplog.text
+
+    @pytest.mark.parametrize("info, output", REFERENCE_USER_ID)
+    def test_recv_assoc_rq_user_id(self, caplog, info, output):
+        """Test ACSE.debug_receive_associate_rq with SOP Class Common."""
+        with caplog.at_level(logging.DEBUG, logger='pynetdicom'):
+            self.add_user_identity(self.associate_rq, *info)
+            pdu = A_ASSOCIATE_RQ()
+            pdu.from_primitive(self.associate_rq)
+            self.acse.debug_send_associate_rq(pdu)
+
+            messages = [
+                "Requested Extended Negotiation: None",
+                "Requested Common Extended Negotiation: None",
+                "Requested Asynchronous Operations Window Negotiation: None",
+                "Requested User Identity Negotiation:",
+            ]
+            messages += output
 
             for msg in messages:
                 assert msg in caplog.text

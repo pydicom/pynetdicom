@@ -1272,7 +1272,7 @@ class ACSE(object):
 
         #responding_ae = 'resp. AP Title'
         their_class_uid = 'unknown'
-        their_version = 'unknown'
+        their_version = b'unknown'
 
         if user_info.implementation_class_uid:
             their_class_uid = user_info.implementation_class_uid
@@ -1282,9 +1282,9 @@ class ACSE(object):
         s = ['Request Parameters:']
         s.append('====================== BEGIN A-ASSOCIATE-RQ ================'
                  '=====')
-        s.append('Their Implementation Class UID:    {0!s}'
+        s.append('Their Implementation Class UID:      {0!s}'
                  .format(their_class_uid))
-        s.append('Their Implementation Version Name: {0!s}'
+        s.append('Their Implementation Version Name:   {0!s}'
                  .format(their_version.decode('ascii')))
         s.append('Application Context Name:    {0!s}'
                  .format(app_context))
@@ -1296,21 +1296,23 @@ class ACSE(object):
                  .format(user_info.maximum_length))
 
         ## Presentation Contexts
-        s.append('Presentation Contexts:')
-        for item in pres_contexts:
-            s.append(
-                '  Context ID:        {0!s} (Proposed)'.format(item.context_id)
-            )
-            s.append(
-                '    Abstract Syntax: ={0!s}'.format(item.abstract_syntax.name)
-            )
+        if len(pres_contexts) == 1:
+            s.append('Presentation Context:')
+        else:
+            s.append('Presentation Contexts:')
+
+        for context in pres_contexts:
+            s.append('  Context ID:        {0!s} '
+                     '(Proposed)'.format((context.context_id)))
+            s.append('    Abstract Syntax: ='
+                     '{0!s}'.format(context.abstract_syntax.name))
 
             # Add SCP/SCU Role Selection Negotiation
             # Roles are: SCU, SCP/SCU, SCP, Default
             if pdu.user_information.role_selection:
                 try:
                     role = pdu.user_information.role_selection[
-                        item.abstract_syntax
+                        context.abstract_syntax
                     ]
                     roles = []
                     if role.scp_role:
@@ -1325,8 +1327,14 @@ class ACSE(object):
                 scp_scu_role = 'Default'
 
             s.append('    Proposed SCP/SCU Role: {0!s}'.format(scp_scu_role))
-            s.append('    Proposed Transfer Syntax(es):')
-            for ts in item.transfer_syntax:
+
+            # Transfer Syntaxes
+            if len(context.transfer_syntax) == 1:
+                s.append('    Proposed Transfer Syntax:')
+            else:
+                s.append('    Proposed Transfer Syntaxes:')
+
+            for ts in context.transfer_syntax:
                 s.append('      ={0!s}'.format(ts.name))
 
         ## Extended Negotiation
@@ -1352,28 +1360,38 @@ class ACSE(object):
 
             for item in pdu.user_information.common_ext_neg:
 
-                s.append('  SOP Class: ={0!s}'
-                         .format(item.sop_class_uid))
-                s.append('  Service Class:   ={0!s}'
-                         .format(item.service_class_uid))
+                s.append('  SOP Class: ={0!s}'.format(item.sop_class_uid.name))
+                s.append(
+                    "    Service Class: ={0!s}"
+                    .format(item.service_class_uid.name)
+                )
 
-                if item.related_general_sop_class_identification != []:
-                    s.append('  Related General SOP Class(es):')
-                    for sub_field in \
-                                item.related_general_sop_class_identification:
-                        s.append('    ={0!s}'.format(sub_field))
+                related_uids = item.related_general_sop_class_identification
+                if related_uids:
+                    s.append('    Related General SOP Class(es):')
+                    for sub_field in related_uids:
+                        s.append('      ={0!s}'.format(sub_field.name))
                 else:
-                    s.append('  Related General SOP Classes: None')
+                    s.append('    Related General SOP Classes: None')
         else:
             s.append('Requested Common Extended Negotiation: None')
 
         ## Asynchronous Operations Window Negotiation
-        #async_neg = 'None'
-        if pdu.user_information.async_ops_window is not None:
+        async_ops = pdu.user_information.async_ops_window
+        if async_ops is not None:
             s.append('Requested Asynchronous Operations Window Negotiation:')
+            s.append(
+                "  Maximum invoked operations:     {}"
+                .format(async_ops.maximum_number_operations_invoked)
+            )
+            s.append(
+                "  Maximum performed operations:   {}"
+                .format(async_ops.maximum_number_operations_performed)
+            )
         else:
-            s.append('Requested Asynchronous Operations Window '
-                     'Negotiation: None')
+            s.append(
+                "Requested Asynchronous Operations Window Negotiation: None"
+            )
 
         ## User Identity
         if user_info.user_identity is not None:
