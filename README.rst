@@ -1,14 +1,14 @@
 .. class:: center
-.. image:: https://codecov.io/gh/pydicom/pynetdicom3/branch/master/graph/badge.svg
-    :target: https://codecov.io/gh/pydicom/pynetdicom3
-.. image:: https://travis-ci.org/pydicom/pynetdicom3.svg?branch=master
-    :target: https://travis-ci.org/pydicom/pynetdicom3
-.. image:: https://circleci.com/gh/pydicom/pynetdicom3/tree/master.svg?style=shield
-    :target: https://circleci.com/gh/pydicom/pynetdicom3/tree/master
+.. image:: https://codecov.io/gh/pydicom/pynetdicom/branch/master/graph/badge.svg
+    :target: https://codecov.io/gh/pydicom/pynetdicom
+.. image:: https://travis-ci.org/pydicom/pynetdicom.svg?branch=master
+    :target: https://travis-ci.org/pydicom/pynetdicom
+.. image:: https://circleci.com/gh/pydicom/pynetdicom/tree/master.svg?style=shield
+    :target: https://circleci.com/gh/pydicom/pynetdicom/tree/master
 
 
-pynetdicom3
-===========
+pynetdicom
+==========
 
 A Python 2.7/3+ implementation of the `DICOM <http://dicom.nema.org>`_
 networking protocol, originally based on
@@ -23,7 +23,7 @@ images and related information. It defines the formats and communication
 protocols for media exchange in radiology, cardiology, radiotherapy and other
 medical domains.
 
-*pynetdicom3* is a pure Python (2.7/3.4+) package that implements the DICOM
+*pynetdicom* is a pure Python (2.7/3.4+) package that implements the DICOM
 networking protocol. Working with `pydicom <https://github.com/pydicom/pydicom>`_,
 it allows the easy creation of DICOM *Service Class Users* (SCUs) and
 *Service Class Providers* (SCPs).
@@ -47,7 +47,7 @@ and `9 <http://dicom.nema.org/medical/dicom/current/output/html/part07.html#chap
 
 Supported Service Classes
 ~~~~~~~~~~~~~~~~~~~~~~~~~
-pynetdicom3 supports the following DICOM service classes:
+pynetdicom supports the following DICOM service classes:
 
 - `Verification Service Class <http://dicom.nema.org/medical/dicom/current/output/html/part04.html#chapter_A>`_
 - `Storage Service Class <http://dicom.nema.org/medical/dicom/current/output/html/part04.html#chapter_B>`_
@@ -145,8 +145,8 @@ objects.
 
 Documentation
 -------------
-The pynetdicom `user guide <https://pydicom.github.io/pynetdicom3/dev/#user-guide>`_, `code examples <https://pydicom.github.io/pynetdicom3/dev/#examples>`_ and `API reference <https://pydicom.github.io/pynetdicom3/dev/reference/index.html>`_ documentation is available for the current `development version
-<https://pydicom.github.io/pynetdicom3/dev>`_.
+The pynetdicom `user guide <https://pydicom.github.io/pynetdicom/dev/#user-guide>`_, `code examples <https://pydicom.github.io/pynetdicom/dev/#examples>`_ and `API reference <https://pydicom.github.io/pynetdicom/dev/reference/index.html>`_ documentation is available for the current `development version
+<https://pydicom.github.io/pynetdicom/dev>`_.
 
 
 Installation
@@ -159,7 +159,7 @@ Installing from github
 ~~~~~~~~~~~~~~~~~~~~~~
 .. code-block:: sh
 
-        $ python -m pip install git+git://github.com/pydicom/pynetdicom3.git
+        $ python -m pip install git+git://github.com/pydicom/pynetdicom.git
 
 Examples
 --------
@@ -168,7 +168,7 @@ listen port number *port*):
 
 .. code-block:: python
 
-        from pynetdicom3 import AE
+        from pynetdicom import AE
 
         ae = AE(ae_title=b'MY_ECHO_SCU')
         # Verification SOP Class has a UID of 1.2.840.10008.1.1
@@ -200,7 +200,7 @@ the ``AE.on_c_echo`` callback if you want to return something other than a
 
 .. code-block:: python
 
-        from pynetdicom3 import AE, VerificationPresentationContexts
+        from pynetdicom import AE, VerificationPresentationContexts
 
         ae = AE(ae_title=b'MY_ECHO_SCP', port=11112)
         # Or we can use the inbuilt VerificationPresentationContexts list,
@@ -220,8 +220,8 @@ SCP (at TCP/IP address *addr*, listen port number *port*):
         from pydicom import dcmread
         from pydicom.uid import ImplicitVRLittleEndian
 
-        from pynetdicom3 import AE, VerificationPresentationContexts
-        from pynetdicom3.sop_class import CTImageStorage, MRImageStorage
+        from pynetdicom import AE, VerificationPresentationContexts
+        from pynetdicom.sop_class import CTImageStorage, MRImageStorage
 
         ae = AE(ae_title=b'MY_STORAGE_SCU')
         # We can also do the same thing with the requested contexts

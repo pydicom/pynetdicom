@@ -7,4 +7,4 @@ Installing the development version
 
 .. code:: shell
 
-   python -m pip install git+git://github.com/pydicom/pynetdicom3.git
+   python -m pip install git+git://github.com/pydicom/pynetdicom.git

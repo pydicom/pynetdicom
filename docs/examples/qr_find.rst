@@ -19,8 +19,8 @@ Root Query/Retrieve Information Model - Find* at the *Patient* level.
 
    from pydicom.dataset import Dataset
 
-   from pynetdicom3 import AE
-   from pynetdicom3.sop_class import PatientRootQueryRetrieveInformationModelFind
+   from pynetdicom import AE
+   from pynetdicom.sop_class import PatientRootQueryRetrieveInformationModelFind
 
    # Initialise the Application Entity
    ae = AE()
@@ -93,8 +93,8 @@ query against that.
    from pydicom import dcmread
    from pydicom.dataset import Dataset
 
-   from pynetdicom3 import AE
-   from pynetdicom3.sop_class import PatientRootQueryRetrieveInformationModelFind
+   from pynetdicom import AE
+   from pynetdicom.sop_class import PatientRootQueryRetrieveInformationModelFind
 
    # Initialise the Application Entity and specify the listen port
    ae = AE(port=11112)

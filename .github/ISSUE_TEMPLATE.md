@@ -19,5 +19,5 @@ Please run the following and paste the output.
 $ python -c "import platform; print(platform.platform())"
 $ python -c "import sys; print('Python', sys.version)"
 $ python -c "import pydicom; print('pydicom', pydicom.__version__)"
-$ python -c "import pynetdicom3; print('pynetdicom3', pynetdicom3.__version__)"
+$ python -c "import pynetdicom; print('pynetdicom', pynetdicom.__version__)"
 ```

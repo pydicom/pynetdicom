@@ -11,8 +11,8 @@ How to contribute
 
 2. Clone your fork to your local disk:
    ```bash
-   $ git clone git@github.com:YourLogin/pynetdicom3.git
-   $ cd pynetdicom3
+   $ git clone git@github.com:YourLogin/pynetdicom.git
+   $ cd pynetdicom
    ```
 
 3. Create a new branch to hold your development changes:
@@ -70,6 +70,6 @@ Building the documentation requires:
 - pydicom
 
 ```bash
-$ cd pynetdicom3/docs
+$ cd pynetdicom/docs
 $ make html
 ```

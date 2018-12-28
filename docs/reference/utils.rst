@@ -1,9 +1,9 @@
 .. _utils:
 
-Utilities (:mod:`pynetdicom3.utils`)
+Utilities (:mod:`pynetdicom.utils`)
 ====================================
 
-.. currentmodule:: pynetdicom3.utils
+.. currentmodule:: pynetdicom.utils
 
 This module provides utilities.
 

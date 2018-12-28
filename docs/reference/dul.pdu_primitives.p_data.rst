@@ -1,7 +1,7 @@
 P-DATA
 ======
 
-.. currentmodule:: pynetdicom3.pdu_primitives
+.. currentmodule:: pynetdicom.pdu_primitives
 
 The P-DATA service is used by either Application Entity to cause the exchange
 of application information (i.e. DICOM Messages).

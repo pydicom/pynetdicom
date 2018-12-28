@@ -12,7 +12,7 @@ before_script:
     - wget https://github.com/pydicom/pydicom/archive/master.tar.gz -O /tmp/pydicom.tar.gz
     - tar xzf /tmp/pydicom.tar.gz
     - pip install $PWD/pydicom-master
-    - python -c "import pydicom; print(pydicom.__version__)" 
+    - python -c "import pydicom; print(pydicom.__version__)"
 
 install:
     - pip install codecov
@@ -24,7 +24,7 @@ install:
 
 # Command to run tests
 script:
-    - pytest --cov=pynetdicom3 --ignore=pydicom-master
+    - pytest --cov=pynetdicom --ignore=pydicom-master
 
 after_success:
     - codecov

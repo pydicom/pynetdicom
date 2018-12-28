@@ -1,7 +1,7 @@
-DUL Service Provider (:mod:`pynetdicom3.dul`)
+DUL Service Provider (:mod:`pynetdicom.dul`)
 =============================================
 
-.. currentmodule:: pynetdicom3.dul
+.. currentmodule:: pynetdicom.dul
 
 .. autosummary::
    :toctree: generated/

@@ -9,7 +9,7 @@ if "%SPHINXBUILD%" == "" (
 )
 set SOURCEDIR=.
 set BUILDDIR=_build
-set SPHINXPROJ=pynetdicom3
+set SPHINXPROJ=pynetdicom
 
 if "%1" == "" goto help
 

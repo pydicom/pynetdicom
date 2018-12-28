@@ -1,7 +1,7 @@
-Messages (:mod:`pynetdicom3.dimse_messages`)
+Messages (:mod:`pynetdicom.dimse_messages`)
 ============================================
 
-.. currentmodule:: pynetdicom3.dimse_messages
+.. currentmodule:: pynetdicom.dimse_messages
 
 DIMSE-C Messages
 ----------------
