@@ -97,7 +97,35 @@ class TestACSELogging(object):
 
     def add_scp_scu_role(self, primitive):
         """Add SCP/SCU Role Selection to the A-ASSOCIATE primitive."""
-        pass
+        contexts = [
+            build_context('1.2.840.10008.1.1'),
+            build_context('1.2.840.10008.1.2'),
+            build_context('1.2.840.10008.1.3'),
+            build_context('1.2.840.10008.1.4'),
+        ]
+
+        for ii, cx in enumerate(contexts):
+            cx.context_id = ii * 2 + 1
+
+        primitive.presentation_context_definition_list = contexts
+
+        item = SCP_SCU_RoleSelectionNegotiation()
+        item.sop_class_uid = '1.2.840.10008.1.2'
+        item.scu_role = True
+        item.scp_role = False
+        primitive.user_information.append(item)
+
+        item = SCP_SCU_RoleSelectionNegotiation()
+        item.sop_class_uid = '1.2.840.10008.1.3'
+        item.scu_role = False
+        item.scp_role = True
+        primitive.user_information.append(item)
+
+        item = SCP_SCU_RoleSelectionNegotiation()
+        item.sop_class_uid = '1.2.840.10008.1.4'
+        item.scu_role = True
+        item.scp_role = True
+        primitive.user_information.append(item)
 
     def add_sop_ext(self, primitive):
         """Add SOP Class Extended to the A-ASSOCIATE primitive."""
@@ -164,8 +192,30 @@ class TestACSELogging(object):
             for msg in messages:
                 assert msg in caplog.text
 
+    def test_send_assoc_rq_role(self, caplog):
+        """Test ACSE.debug_send_associate_rq with role selection."""
+        with caplog.at_level(logging.DEBUG, logger='pynetdicom'):
+            self.add_scp_scu_role(self.associate_rq)
+            pdu = A_ASSOCIATE_RQ()
+            pdu.from_primitive(self.associate_rq)
+            self.acse.debug_send_associate_rq(pdu)
+
+            messages = [
+                "Proposed SCP/SCU Role: Default",
+                "Proposed SCP/SCU Role: SCU",
+                "Proposed SCP/SCU Role: SCP",
+                "Proposed SCP/SCU Role: SCP/SCU",
+                "Requested Extended Negotiation: None",
+                "Requested Common Extended Negotiation: None",
+                "Requested Asynchronous Operations Window Negotiation: None",
+                "Requested User Identity Negotiation: None",
+            ]
+
+            for msg in messages:
+                assert msg in caplog.text
+
     def test_send_assoc_rq_async(self, caplog):
-        """Test minimal ACSE.debug_send_associate_rq."""
+        """Test ACSE.debug_send_associate_rq with async ops."""
         with caplog.at_level(logging.DEBUG, logger='pynetdicom'):
             self.add_async_ops(self.associate_rq)
             pdu = A_ASSOCIATE_RQ()
@@ -185,7 +235,7 @@ class TestACSELogging(object):
                 assert msg in caplog.text
 
     def test_send_assoc_rq_sop_ext(self, caplog):
-        """Test minimal ACSE.debug_send_associate_rq."""
+        """Test ACSE.debug_send_associate_rq with SOP Class Extended."""
         with caplog.at_level(logging.DEBUG, logger='pynetdicom'):
             self.add_sop_ext(self.associate_rq)
             pdu = A_ASSOCIATE_RQ()
@@ -210,7 +260,7 @@ class TestACSELogging(object):
                 assert msg in caplog.text
 
     def test_send_assoc_rq_sop_common(self, caplog):
-        """Test minimal ACSE.debug_send_associate_rq."""
+        """Test ACSE.debug_send_associate_rq with SOP Class Common."""
         with caplog.at_level(logging.DEBUG, logger='pynetdicom'):
             self.add_sop_common(self.associate_rq)
             pdu = A_ASSOCIATE_RQ()
@@ -220,6 +270,14 @@ class TestACSELogging(object):
             messages = [
                 "Requested Extended Negotiation: None",
                 "Requested Common Extended Negotiation:",
+                "SOP Class: =1.2.3.4",
+                "Service Class: =1.2.3",
+                "Related General SOP Classes: None",
+                "SOP Class: =Verification SOP Class",
+                "Service Class: =Storage Service Class",
+                "Related General SOP Class(es):",
+                "=CT Image Storage",
+                "=1.9.1",
                 "Requested Asynchronous Operations Window Negotiation: None",
                 "Requested User Identity Negotiation: None",
             ]
