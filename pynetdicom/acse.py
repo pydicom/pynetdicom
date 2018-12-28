@@ -921,11 +921,12 @@ class ACSE(object):
 
         s.append('Our Implementation Class UID:      '
                  '{0!s}'.format(user_info.implementation_class_uid))
-        s.append(
-            'Our Implementation Version Name:   {0!s}'.format(
-                user_info.implementation_version_name.decode('ascii')
+        if user_info.implementation_version_name:
+            s.append(
+                'Our Implementation Version Name:   {0!s}'.format(
+                    user_info.implementation_version_name.decode('ascii')
+                )
             )
-        )
         s.append('Application Context Name:    {0!s}'.format(app_context))
         s.append('Calling Application Name:    '
                  '{0!s}'.format(pdu.calling_ae_title.decode('ascii')))
@@ -999,19 +1000,38 @@ class ACSE(object):
 
             for item in pdu.user_information.common_ext_neg:
 
-                s.append('  SOP Class: ={0!s}'.format(item.sop_class_uid))
-                s.append('  Service Class:   ='
-                         '{0!s}'.format(item.service_class_uid))
+                s.append('  SOP Class: ={0!s}'.format(item.sop_class_uid.name))
+                s.append(
+                    "    Service Class: ={0!s}"
+                    .format(item.service_class_uid.name)
+                )
 
-                if item.related_general_sop_class_identification != []:
-                    s.append('  Related General SOP Class(es):')
-                    for sub_field in \
-                            item.related_general_sop_class_identification:
-                        s.append('    ={0!s}'.format(sub_field))
+                related_uids = item.related_general_sop_class_identification
+                if related_uids:
+                    s.append('    Related General SOP Class(es):')
+                    for sub_field in related_uids:
+                        s.append('      ={0!s}'.format(sub_field.name))
                 else:
-                    s.append('  Related General SOP Classes: None')
+                    s.append('    Related General SOP Classes: None')
         else:
             s.append('Requested Common Extended Negotiation: None')
+
+        ## Asynchronous Operations Window Negotiation
+        async_ops = pdu.user_information.async_ops_window
+        if async_ops is not None:
+            s.append('Requested Asynchronous Operations Window Negotiation:')
+            s.append(
+                "  Maximum invoked operations:     {}"
+                .format(async_ops.maximum_number_operations_invoked)
+            )
+            s.append(
+                "  Maximum performed operations:   {}"
+                .format(async_ops.maximum_number_operations_performed)
+            )
+        else:
+            s.append(
+                "Requested Asynchronous Operations Window Negotiation: None"
+            )
 
         ## User Identity
         if user_info.user_identity is not None:
