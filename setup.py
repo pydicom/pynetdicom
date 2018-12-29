@@ -19,7 +19,7 @@ setup(
     zip_safe = False,
     description = "A Python implementation of the DICOM networking protocol",
     long_description = long_description,
-    long_description_context_type="text/x-rst",
+    long_description_content_type="text/x-rst",
     author = "",
     author_email = "scaramallion@users.noreply.github.com",
     url = "https://github.com/pydicom/pynetdicom",
