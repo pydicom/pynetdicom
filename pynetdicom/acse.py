@@ -825,6 +825,8 @@ class ACSE(object):
         app_context = assoc_ac.application_context_name.title()
         pres_contexts = assoc_ac.presentation_context
         user_info = assoc_ac.user_information
+        async_ops = user_info.async_ops_window
+        roles = user_info.role_selection
 
         responding_ae = 'resp. AE Title'
 
@@ -834,11 +836,13 @@ class ACSE(object):
 
         s.append('Our Implementation Class UID:      '
                  '{0!s}'.format(user_info.implementation_class_uid))
-        s.append(
-            'Our Implementation Version Name:   {0!s}'.format(
-                user_info.implementation_version_name.decode('ascii')
+
+        if user_info.implementation_version_name:
+            s.append(
+                    "Our Implementation Version Name:   {0!s}".format(
+                    user_info.implementation_version_name.decode('ascii')
+                )
             )
-        )
         s.append('Application Context Name:    {0!s}'.format(app_context))
         s.append('Responding Application Name: {0!s}'.format(responding_ae))
         s.append('Our Max PDU Receive Size:    '
@@ -865,16 +869,61 @@ class ACSE(object):
                 s.append('    Accepted Transfer Syntax: ={0!s}'
                          .format(item.transfer_syntax.name))
 
+        ## Role Selection
+        if roles:
+            s.append("Accepted Role Selection:")
+
+            for uid in sorted(roles.keys()):
+                s.append("  SOP Class: ={}".format(uid.name))
+                str_roles = []
+                if roles[uid].scp_role:
+                    str_roles.append('SCP')
+                if roles[uid].scu_role:
+                    str_roles.append('SCU')
+
+                if str_roles:
+                    str_roles = '/'.join(str_roles)
+                else:
+                    str_roles = 'Default'
+                s.append("    SCP/SCU Role: {}".format(str_roles))
+
         ## Extended Negotiation
-        ext_nego = 'None'
-        #if assoc_ac.UserInformation.ExtendedNegotiation is not None:
-        #    ext_nego = 'Yes'
-        s.append('Accepted Extended Negotiation: {0!s}'.format(ext_nego))
+        if user_info.ext_neg:
+            s.append('Accepted Extended Negotiation:')
+
+            for item in user_info.ext_neg:
+                s.append('  SOP Class: ={0!s}'.format(item.uid))
+                app_info = pretty_bytes(item.app_info)
+                app_info[0] = '[' + app_info[0][1:]
+                app_info[-1] = app_info[-1] + ' ]'
+                for line in app_info:
+                    s.append('    {0!s}'.format(line))
+        else:
+            s.append('Accepted Extended Negotiation: None')
+
+        ## Asynchronous Operations
+        if async_ops:
+            s.append(
+                "Accepted Asynchronous Operations Window Negotiation:"
+            )
+            s.append(
+                "  Maximum Invoked Operations:     {}"
+                .format(async_ops.maximum_number_operations_invoked)
+            )
+            s.append(
+                "  Maximum Performed Operations:   {}"
+                .format(async_ops.maximum_number_operations_performed)
+            )
+        else:
+            s.append(
+                "Accepted Asynchronous Operations Window Negotiation: None"
+            )
 
         ## User Identity Negotiation
         usr_id = 'Yes' if user_info.user_identity is not None else 'None'
 
-        s.append('User Identity Negotiation Response:  {0!s}'.format(usr_id))
+
+        s.append('User Identity Negotiation Response: {0!s}'.format(usr_id))
         s.append('======================= END A-ASSOCIATE-AC =================='
                  '====')
 
@@ -1021,11 +1070,11 @@ class ACSE(object):
         if async_ops is not None:
             s.append('Requested Asynchronous Operations Window Negotiation:')
             s.append(
-                "  Maximum invoked operations:     {}"
+                "  Maximum Invoked Operations:     {}"
                 .format(async_ops.maximum_number_operations_invoked)
             )
             s.append(
-                "  Maximum performed operations:   {}"
+                "  Maximum Performed Operations:   {}"
                 .format(async_ops.maximum_number_operations_performed)
             )
         else:
@@ -1381,11 +1430,11 @@ class ACSE(object):
         if async_ops is not None:
             s.append('Requested Asynchronous Operations Window Negotiation:')
             s.append(
-                "  Maximum invoked operations:     {}"
+                "  Maximum Invoked Operations:     {}"
                 .format(async_ops.maximum_number_operations_invoked)
             )
             s.append(
-                "  Maximum performed operations:   {}"
+                "  Maximum Performed Operations:   {}"
                 .format(async_ops.maximum_number_operations_performed)
             )
         else:
