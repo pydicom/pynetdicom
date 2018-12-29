@@ -31,12 +31,6 @@ class ACSE(object):
     The ACSE protocol handles association establishment, normal release of an
     association and the abnormal release of an association.
 
-    Parameters
-    ----------
-    acse_timeout : int, optional
-        The maximum time (in seconds) to wait for A-ASSOCIATE related PDUs
-        from the peer (default: 30)
-
     Attributes
     ----------
     acse_timeout : int
@@ -44,7 +38,14 @@ class ACSE(object):
         from the peer.
     """
     def __init__(self, acse_timeout=30):
-        """Create the ACSE service provider."""
+        """Create the ACSE service provider.
+
+        Parameters
+        ----------
+        acse_timeout : int, optional
+            The maximum time (in seconds) to wait for A-ASSOCIATE related PDUs
+            from the peer (default: 30)
+        """
         self.acse_timeout = acse_timeout
 
     @staticmethod
