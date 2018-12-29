@@ -1,4 +1,4 @@
-.. _display_sops:
+.. _display_service:
 
 Display System Management Service Class
 =======================================

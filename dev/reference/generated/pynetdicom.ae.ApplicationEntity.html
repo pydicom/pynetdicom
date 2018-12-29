@@ -1901,13 +1901,12 @@ Kerberos ticket or the JSON web token.</li>
 <li><strong>info</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#dict" title="(in Python v3.7)"><em>dict</em></a>) – <p>A dict containing information about the association request and
 the association requestor, with the keys:</p>
 <div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="s1">&#39;requestor&#39;</span> <span class="p">:</span> <span class="p">{</span>
+    <span class="s1">&#39;ae_title&#39;</span> <span class="p">:</span> <span class="nb">bytes</span><span class="p">,</span> <span class="n">the</span> <span class="n">requestor</span><span class="s1">&#39;s AE title</span>
+    <span class="s1">&#39;address&#39;</span> <span class="p">:</span> <span class="nb">str</span><span class="p">,</span> <span class="n">the</span> <span class="n">requestor</span><span class="s1">&#39;s IP address</span>
+    <span class="s1">&#39;port&#39;</span> <span class="p">:</span> <span class="nb">int</span><span class="p">,</span> <span class="n">the</span> <span class="n">requestor</span><span class="s1">&#39;s port number</span>
+<span class="p">}</span>
 </pre></div>
 </div>
-<blockquote>
-<div>’ae_title’ : bytes, the requestor’s AE title
-‘address’ : str, the requestor’s IP address
-‘port’ : int, the requestor’s port number</div></blockquote>
-<p>}</p>
 </li>
 </ul>
 </td>
