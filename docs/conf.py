@@ -39,6 +39,7 @@ except ImportError:
 # directory, add these directories to sys.path here. If the directory
 # is relative to the documentation root, use os.path.abspath to make it
 # absolute, like shown here.
+sys.path.insert(0, os.path.abspath('../build_docs/sphinx'))
 #sys.path.insert(0, os.path.abspath('sphinxext'))  # noqa
 #from github_link import make_linkcode_resolve
 
@@ -66,9 +67,9 @@ extensions = [
     #'sphinx_gallery.gen_gallery',
     'sphinx.ext.autosummary',
     'sphinx.ext.napoleon',
-    #'sphinx_issues',
     #'sphinx.ext.linkcode',
-    # 'numpydoc',
+    # Custom
+    'sphinx_issues',
 ]
 
 autosummary_generate = True
@@ -82,19 +83,19 @@ intersphinx_mapping = {
     'pydicom': ('https://pydicom.github.io/pydicom/stable', None),
 }
 
-sphinx_gallery_conf = {
-    'default_thumb_file': 'assets/img/pydicom_flat_black_alpha.png',
-    # path to your examples scripts
-    'examples_dirs': '../examples',
-    # path where to save gallery generated examples
-    'gallery_dirs': 'auto_examples',
-    'backreferences_dir': os.path.join('generated'),
-    # to make references clickable
-    'doc_module': 'pynetdicom',
-    'reference_url': {
-        'pynetdicom': None
-    }
-}
+#sphinx_gallery_conf = {
+#    'default_thumb_file': 'assets/img/pydicom_flat_black_alpha.png',
+#    # path to your examples scripts
+#    'examples_dirs': '../examples',
+#    # path where to save gallery generated examples
+#    'gallery_dirs': 'auto_examples',
+#    'backreferences_dir': os.path.join('generated'),
+#    # to make references clickable
+#    'doc_module': 'pynetdicom',
+#    'reference_url': {
+#        'pynetdicom': None
+#    }
+#}
 
 napoleon_google_docstring = False
 napoleon_numpy_docstring = True
@@ -285,9 +286,9 @@ def generate_example_rst(app, what, name, obj, options, lines):
 
 # Config for sphinx_issues
 
-issues_uri = 'https://github.com/pydicom/pynetdicom/issues/{issue}'
-issues_github_path = 'pydicom/pynetdicom'
-issues_user_uri = 'https://github.com/{user}'
+ref_uri = 'https://github.com/pydicom/pynetdicom/{ref_type}/{ref_no}'
+ref_github_path = 'pydicom/pynetdicom'
+ref_user_uri = 'https://github.com/{user}'
 
 
 def setup(app):
