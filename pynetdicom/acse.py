@@ -881,10 +881,7 @@ class ACSE(object):
                 if roles[uid].scu_role:
                     str_roles.append('SCU')
 
-                if str_roles:
-                    str_roles = '/'.join(str_roles)
-                else:
-                    str_roles = 'Default'
+                str_roles = '/'.join(str_roles)
                 s.append("    SCP/SCU Role: {}".format(str_roles))
 
         ## Extended Negotiation
@@ -1248,10 +1245,7 @@ class ACSE(object):
                 if roles[uid].scu_role:
                     str_roles.append('SCU')
 
-                if str_roles:
-                    str_roles = '/'.join(str_roles)
-                else:
-                    str_roles = 'Default'
+                str_roles = '/'.join(str_roles)
                 s.append("    SCP/SCU Role: {}".format(str_roles))
 
         ## Extended Negotiation
