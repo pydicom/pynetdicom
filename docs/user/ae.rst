@@ -495,7 +495,7 @@ References
 .. [4] DICOM Standard, Part 8
    `Section 9.3.2 <http://dicom.nema.org/medical/dicom/current/output/html/part08.html#sect_9.3.2>`_
 .. [5] `ISO/IEC 646:1991 <https://www.iso.org/standard/4777.html>`_
-.. [6] DICOM Standard, Part 8
+.. DICOM Standard, Part 8
    `Annex B.1 <http://dicom.nema.org/medical/dicom/current/output/html/part08.html#sect_B.1>`_
-.. [7] DICOM Standard, Part 8
+.. DICOM Standard, Part 8
    `Annex B.2 <http://dicom.nema.org/medical/dicom/current/output/html/part08.html#sect_B.2>`_

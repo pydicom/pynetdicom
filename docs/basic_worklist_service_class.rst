@@ -53,7 +53,7 @@ Basic Worklist Management Service Statuses
 +------------------+----------+----------------------------------------------+
 
 pynetdicom Basic Worklist Management Statuses
-~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
 When pynetdicom is acting as a Basic Worklist Management SCP it uses the
 following status codes values to indicate the corresponding issue has occurred

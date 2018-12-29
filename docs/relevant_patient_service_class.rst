@@ -1,4 +1,4 @@
-.. _relpat_sops:
+.. _relpat_service:
 
 Relevant Patient Information Query Service Class
 ================================================
