@@ -1,6 +1,5 @@
-"""Tests for ACSE"""
+"""Unit tests for ACSE"""
 
-#from io import BytesIO
 import logging
 try:
     import queue
