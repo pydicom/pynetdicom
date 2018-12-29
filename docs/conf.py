@@ -40,6 +40,8 @@ except ImportError:
 # is relative to the documentation root, use os.path.abspath to make it
 # absolute, like shown here.
 sys.path.insert(0, os.path.abspath('../build_docs/sphinx'))
+print(os.path.abspath('../build_docs/sphinx'))
+from github_link import make_linkcode_resolve
 #sys.path.insert(0, os.path.abspath('sphinxext'))  # noqa
 #from github_link import make_linkcode_resolve
 
@@ -67,7 +69,7 @@ extensions = [
     #'sphinx_gallery.gen_gallery',
     'sphinx.ext.autosummary',
     'sphinx.ext.napoleon',
-    #'sphinx.ext.linkcode',
+    'sphinx.ext.linkcode',
     # Custom
     'sphinx_issues',
 ]
@@ -301,7 +303,7 @@ def setup(app):
 
 
 # The following is used by sphinx.ext.linkcode to provide links to github
-#linkcode_resolve = make_linkcode_resolve('pynetdicom',
-#                                         u'https://github.com/pydicom/'
-#                                         'pynetdicom/blob/{revision}/'
-#                                         '{package}/{path}#L{lineno}')
+linkcode_resolve = make_linkcode_resolve('pynetdicom',
+                                         u'https://github.com/pydicom/'
+                                         'pynetdicom/blob/{revision}/'
+                                         '{package}/{path}#L{lineno}')

@@ -33,9 +33,9 @@ class ACSE(object):
 
     Attributes
     ----------
-    acse_timeout : int, optional
+    acse_timeout : int
         The maximum time (in seconds) to wait for association related PDUs
-        from the peer (default: 30)
+        from the peer.
     """
     def __init__(self, acse_timeout=30):
         """Create the ACSE service provider.
