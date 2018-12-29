@@ -702,3 +702,118 @@ class TestACSELogging(object):
 
             for msg in messages:
                 assert msg in caplog.text
+
+    # debug_receive_associate_ac
+    def test_recv_assoc_ac_minimal(self, caplog):
+        """Test minimal ACSE.debug_receive_associate_ac."""
+        with caplog.at_level(logging.DEBUG, logger='pynetdicom'):
+            pdu = A_ASSOCIATE_AC()
+            pdu.from_primitive(self.associate_ac)
+            self.acse.debug_receive_associate_ac(pdu)
+
+            messages = [
+                "Their Implementation Class UID:    1.2.826.0.1.3680043.8.498"
+                ".10207287587329888519122978685894984263",
+                "Their Implementation Version Name: unknown",
+                "Application Context Name:    1.2.840.10008.3.1.1.1",
+                "Calling Application Name:    ABCDEFGHIJKLMNOP",
+                "Called Application Name:     1234567890123456",
+                "Their Max PDU Receive Size:  0",
+                "Presentation Contexts:",
+                "Context ID:        1 (Accepted)",
+                "Accepted Transfer Syntax: =JPEG Baseline (Process 1)",
+                "Context ID:        3 (User Rejection)",
+                "Context ID:        5 (Provider Rejection)",
+                "Context ID:        7 (Abstract Syntax Not Supported)",
+                "Context ID:        9 (Transfer Syntax Not Supported)",
+                "Accepted Extended Negotiation: None",
+                "Accepted Asynchronous Operations Window Negotiation: None",
+                "User Identity Negotiation Response: None",
+            ]
+
+            for msg in messages:
+                assert msg in caplog.text
+
+    def test_recv_assoc_ac_role(self, caplog):
+        """Test ACSE.debug_receive_associate_ac with role selection."""
+        with caplog.at_level(logging.DEBUG, logger='pynetdicom'):
+            self.add_scp_scu_role(self.associate_ac)
+            pdu = A_ASSOCIATE_AC()
+            pdu.from_primitive(self.associate_ac)
+            self.acse.debug_receive_associate_ac(pdu)
+
+            messages = [
+                "Accepted Role Selection:",
+                "SOP Class: =Implicit VR Little Endian",
+                "SCP/SCU Role: SCU",
+                "SOP Class: =1.2.840.10008.1.3",
+                "SCP/SCU Role: SCP",
+                "SOP Class: =1.2.840.10008.1.4",
+                "SCP/SCU Role: SCP/SCU",
+                "Accepted Extended Negotiation: None",
+                "Accepted Asynchronous Operations Window Negotiation: None",
+                "User Identity Negotiation Response: None",
+            ]
+
+            for msg in messages:
+                assert msg in caplog.text
+
+    def test_recv_assoc_ac_async(self, caplog):
+        """Test ACSE.debug_receive_associate_ac with async ops."""
+        with caplog.at_level(logging.DEBUG, logger='pynetdicom'):
+            self.add_async_ops(self.associate_ac)
+            pdu = A_ASSOCIATE_AC()
+            pdu.from_primitive(self.associate_ac)
+            self.acse.debug_receive_associate_ac(pdu)
+
+            messages = [
+                "Accepted Extended Negotiation: None",
+                "Accepted Asynchronous Operations Window Negotiation:",
+                "Maximum Invoked Operations:     2",
+                "Maximum Performed Operations:   3",
+                "User Identity Negotiation Response: None",
+            ]
+
+            for msg in messages:
+                assert msg in caplog.text
+
+    def test_recv_assoc_ac_sop_ext(self, caplog):
+        """Test ACSE.debug_receive_associate_ac with SOP Class Extended."""
+        with caplog.at_level(logging.DEBUG, logger='pynetdicom'):
+            self.add_sop_ext(self.associate_ac)
+            pdu = A_ASSOCIATE_AC()
+            pdu.from_primitive(self.associate_ac)
+            self.acse.debug_receive_associate_ac(pdu)
+
+            messages = [
+                "Accepted Extended Negotiation:",
+                "SOP Class: =1.2.3.4",
+                "[ 00  01 ]",
+                "SOP Class: =1.2.840.10008.1.1",
+                "[ 00  01  02  03  00  01  02  03  00  01  02  03  00  01  02"
+                "  03",
+                "00  01  02  03  00  01  02  03  00  01  02  03  00  01  02  03",
+                "00  01  02  03  00  01  02  03 ]",
+                "Accepted Asynchronous Operations Window Negotiation: None",
+                "User Identity Negotiation Response: None",
+            ]
+
+            for msg in messages:
+                assert msg in caplog.text
+
+    def test_recv_assoc_ac_user_id(self, caplog):
+        """Test ACSE.debug_receive_associate_ac with User Identity."""
+        with caplog.at_level(logging.DEBUG, logger='pynetdicom'):
+            self.add_user_identity_rsp(self.associate_ac)
+            pdu = A_ASSOCIATE_AC()
+            pdu.from_primitive(self.associate_ac)
+            self.acse.debug_receive_associate_ac(pdu)
+
+            messages = [
+                "Accepted Extended Negotiation: None",
+                "Accepted Asynchronous Operations Window Negotiation: None",
+                "User Identity Negotiation Response: Yes",
+            ]
+
+            for msg in messages:
+                assert msg in caplog.text

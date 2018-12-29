@@ -1200,11 +1200,11 @@ class ACSE(object):
         app_context = assoc_ac.application_context_name.title()
         pres_contexts = assoc_ac.presentation_context
         user_info = assoc_ac.user_information
-
-        #roles = (ii.abstract_syntax:ii for ii in user_info.role_selection)
+        async_ops = user_info.async_ops_window
+        roles = user_info.role_selection
 
         their_class_uid = 'unknown'
-        their_version = 'unknown'
+        their_version = b'unknown'
 
         if user_info.implementation_class_uid:
             their_class_uid = user_info.implementation_class_uid
@@ -1233,39 +1233,63 @@ class ACSE(object):
                      .format(item.context_id, item.result_str))
 
             if item.result == 0:
-                #if item.SCP is None and item.SCU is None:
-                #    ac_scp_scu_role = 'Default'
-                #    rq_scp_scu_role = 'Default'
-                #else:
-                #    ac_scp_scu_role = '{0!s}/{1!s}'.format(item.SCP, item.SCU)
-                #s.append('    Proposed SCP/SCU Role: {0!s}'
-                #         .format(rq_scp_scu_role))
-                #s.append('    Accepted SCP/SCU Role: {0!s}'
-                #         .format(ac_scp_scu_role))
                 s.append('    Accepted Transfer Syntax: ={0!s}'
                          .format(item.transfer_syntax.name))
 
+        ## Role Selection
+        if roles:
+            s.append("Accepted Role Selection:")
+
+            for uid in sorted(roles.keys()):
+                s.append("  SOP Class: ={}".format(uid.name))
+                str_roles = []
+                if roles[uid].scp_role:
+                    str_roles.append('SCP')
+                if roles[uid].scu_role:
+                    str_roles.append('SCU')
+
+                if str_roles:
+                    str_roles = '/'.join(str_roles)
+                else:
+                    str_roles = 'Default'
+                s.append("    SCP/SCU Role: {}".format(str_roles))
 
         ## Extended Negotiation
-        ext_neg = 'None'
-        #if assoc_ac.UserInformation.ExtendedNegotiation is not None:
-        #    ext_nego = 'Yes'
-        s.append('Accepted Extended Negotiation: {0!s}'.format(ext_neg))
+        if user_info.ext_neg:
+            s.append('Accepted Extended Negotiation:')
 
-        ## Common Extended Negotiation
-        common_ext_neg = 'None'
-        s.append('Accepted Common Extended Negotiation: {0!s}'
-                 .format(common_ext_neg))
+            for item in user_info.ext_neg:
+                s.append('  SOP Class: ={0!s}'.format(item.uid))
+                app_info = pretty_bytes(item.app_info)
+                app_info[0] = '[' + app_info[0][1:]
+                app_info[-1] = app_info[-1] + ' ]'
+                for line in app_info:
+                    s.append('    {0!s}'.format(line))
+        else:
+            s.append('Accepted Extended Negotiation: None')
 
-        ## Asynchronous Operations Negotiation
-        async_neg = 'None'
-        s.append('Accepted Asynchronous Operations Window Negotiation: {0!s}'
-                 .format(async_neg))
+        ## Asynchronous Operations
+        if async_ops:
+            s.append(
+                "Accepted Asynchronous Operations Window Negotiation:"
+            )
+            s.append(
+                "  Maximum Invoked Operations:     {}"
+                .format(async_ops.maximum_number_operations_invoked)
+            )
+            s.append(
+                "  Maximum Performed Operations:   {}"
+                .format(async_ops.maximum_number_operations_performed)
+            )
+        else:
+            s.append(
+                "Accepted Asynchronous Operations Window Negotiation: None"
+            )
 
         ## User Identity
         usr_id = 'Yes' if user_info.user_identity is not None else 'None'
 
-        s.append('User Identity Negotiation Response:  {0!s}'.format(usr_id))
+        s.append('User Identity Negotiation Response: {0!s}'.format(usr_id))
         s.append('======================= END A-ASSOCIATE-AC =================='
                  '====')
 
