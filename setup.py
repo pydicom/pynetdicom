@@ -8,6 +8,9 @@ VERSION_FILE = os.path.join(BASE_DIR, 'pynetdicom', '_version.py')
 with open(VERSION_FILE) as fp:
     exec(fp.read())
 
+with open("README.rst", "r") as fp:
+    long_description = fp.read()
+
 setup(
     name = "pynetdicom",
     packages = find_packages(),
@@ -15,24 +18,30 @@ setup(
     version = __version__,
     zip_safe = False,
     description = "A Python implementation of the DICOM networking protocol",
+    long_description = long_description,
+    long_description_context_type="text/x-rst",
     author = "",
-    author_email = "",
+    author_email = "scaramallion@users.noreply.github.com",
     url = "https://github.com/pydicom/pynetdicom",
-    license = "LICENCE.txt",
-    keywords = "dicom python medicalimaging",
+    license = "MIT",
+    keywords = "dicom python medicalimaging radiotherapy oncology pydicom imaging",
+    project_urls={
+        'Documentation' : 'https://pydicom.github.io/pynetdicom/'
+    },
     classifiers = [
         "License :: OSI Approved :: MIT License",
         "Intended Audience :: Developers",
         "Intended Audience :: Healthcare Industry",
         "Intended Audience :: Science/Research",
-        "Development Status :: 2 - Pre-Alpha",
-        "Programming Language :: Python :: 3",
+        "Development Status :: 4 - Beta",
+        "Natural Language :: English",
+        "Programming Language :: Python :: 2.7",
+        "Programming Language :: Python :: 3.4",
+        "Programming Language :: Python :: 3.5",
+        "Programming Language :: Python :: 3.6",
         "Operating System :: OS Independent",
         "Topic :: Scientific/Engineering :: Medical Science Apps.",
-        "Topic :: Scientific/Engineering :: Physics",
         "Topic :: Software Development :: Libraries",
     ],
-    install_requires = [
-        "pydicom"
-    ]
+    install_requires = ["pydicom>=1.2"],
 )
