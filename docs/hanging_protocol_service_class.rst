@@ -83,7 +83,7 @@ Hanging Protocol Query/Retrieve (Find) Service Statuses
 +------------------+----------+----------------------------------------------+
 
 pynetdicom Hanging Protocol Query/Retrieve (Find) Statuses
-~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
 When pynetdicom is acting as a Hanging Protocol Query/Retrieve (Find)
 SCP it uses the following status codes values to indicate the corresponding

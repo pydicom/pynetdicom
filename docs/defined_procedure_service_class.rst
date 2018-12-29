@@ -83,7 +83,7 @@ Defined Procedure Protocol Query/Retrieve (Find) Service Statuses
 +------------------+----------+----------------------------------------------+
 
 pynetdicom Defined Procedure Protocol Query/Retrieve (Find) Statuses
-~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
 When pynetdicom is acting as a Defined Procedure Protocol Query/Retrieve (Find)
 SCP it uses the following status codes values to indicate the corresponding

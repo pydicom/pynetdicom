@@ -1,4 +1,4 @@
-.. _subadm_sops:
+.. _subadm_service:
 
 Substance Administration Query Service Class
 ============================================

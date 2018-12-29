@@ -7,4 +7,4 @@ ACSE Service Provider (:mod:`pynetdicom.acse`)
 .. autosummary::
    :toctree: generated/
 
-   ACSEServiceProvider
+   ACSE

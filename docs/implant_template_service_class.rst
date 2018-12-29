@@ -95,7 +95,7 @@ Implant Template Query/Retrieve (Find) Service Statuses
 +------------------+----------+----------------------------------------------+
 
 pynetdicom Implant Template Query/Retrieve (Find) Statuses
-~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
 When pynetdicom is acting as a Implant Template Query/Retrieve (Find)
 SCP it uses the following status codes values to indicate the corresponding
