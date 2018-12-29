@@ -1,0 +1,387 @@
+
+
+<!DOCTYPE html>
+<!--[if IE 8]><html class="no-js lt-ie9" lang="en" > <![endif]-->
+<!--[if gt IE 8]><!--> <html class="no-js" lang="en" > <!--<![endif]-->
+<head>
+  <meta charset="utf-8">
+  
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  
+  <title>echoscu &mdash; pynetdicom 1.0.0.dev0 documentation</title>
+  
+
+  
+  
+    <link rel="shortcut icon" href="../_static/favicon.ico"/>
+  
+  
+  
+
+  
+
+  
+  
+    
+
+  
+
+  <link rel="stylesheet" href="../_static/css/pynetdicom.css" type="text/css" />
+  <link rel="stylesheet" href="../_static/pygments.css" type="text/css" />
+  <link rel="stylesheet" href="../_static/css/pynetdicom.css" type="text/css" />
+    <link rel="index" title="Index" href="../genindex.html" />
+    <link rel="search" title="Search" href="../search.html" /> 
+
+  
+  <script src="../_static/js/modernizr.min.js"></script>
+
+</head>
+
+<body class="wy-body-for-nav">
+
+   
+  <div class="wy-grid-for-nav">
+
+    
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search">
+          
+
+          
+            <a href="../index.html" class="icon icon-home"> pynetdicom
+          
+
+          
+            
+            <img src="../_static/pydicom_flat_black.svg" class="logo" alt="Logo"/>
+          
+          </a>
+
+          
+            
+            
+              <div class="version">
+                1.0.0.dev0
+              </div>
+            
+          
+
+          
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="../search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+
+          
+        </div>
+
+        <div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="main navigation">
+          
+            
+            
+              
+            
+            
+              <ul>
+<li class="toctree-l1"><a class="reference internal" href="../verification_service_class.html">Verification Service Class</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../storage_service_class.html">Storage Service Class</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../query_retrieve_service_class.html">Query/Retrieve Service Class</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../basic_worklist_service_class.html">Basic Worklist Management Service Class</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../relevant_patient_service_class.html">Relevant Patient Information Query Service Class</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../substance_admin_service_class.html">Substance Administration Query Service Class</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../non_patient_service_class.html">Non-Patient Object Storage Service Class</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../color_palette_service_class.html">Color Palette Query/Retrieve Service Class</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../defined_procedure_service_class.html">Defined Procedure Protocol Query/Retrieve Service Class</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../hanging_protocol_service_class.html">Hanging Protocol Query/Retrieve Service Class</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../implant_template_service_class.html">Implant Template Query/Retrieve Service Class</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../display_system_service_class.html">Display System Management Service Class</a></li>
+</ul>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../user/index.html">User Guide</a></li>
+</ul>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../release_notes.html">1.0.0</a></li>
+</ul>
+
+            
+          
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap">
+
+      
+      <nav class="wy-nav-top" aria-label="top navigation">
+        
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="../index.html">pynetdicom</a>
+        
+      </nav>
+
+
+      <div class="wy-nav-content">
+        
+        <div class="rst-content">
+        
+          
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+<div role="navigation" aria-label="breadcrumbs navigation">
+
+  <ul class="wy-breadcrumbs">
+    
+      <li><a href="../index.html">Docs</a> &raquo;</li>
+        
+      <li>echoscu</li>
+    
+    
+      <li class="wy-breadcrumbs-aside">
+        
+            
+            <a href="../_sources/apps/echoscu.rst.txt" rel="nofollow"> View page source</a>
+          
+        
+      </li>
+    
+  </ul>
+
+  
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+            
+  <div class="section" id="echoscu">
+<h1>echoscu<a class="headerlink" href="#echoscu" title="Permalink to this headline">¶</a></h1>
+<blockquote>
+<div><code class="docutils literal notranslate"><span class="pre">echoscu</span> <span class="pre">[options]</span> <span class="pre">peer</span> <span class="pre">port</span></code></div></blockquote>
+<div class="section" id="description">
+<h2>Description<a class="headerlink" href="#description" title="Permalink to this headline">¶</a></h2>
+<p>The <code class="docutils literal notranslate"><span class="pre">echoscu</span></code> application implements a Service Class User (SCU) for the
+<em>Verification SOP Class</em> (UID 1.2.840.10008.1.1) <a class="footnote-reference" href="#id5" id="id1">[1]</a>. It establishes an Association
+with a peer Application Entity (AE) which it then sends a DICOM C-ECHO-RQ
+message <a class="footnote-reference" href="#id6" id="id2">[2]</a> and waits for a response. The application can be used to verify
+basic DICOM connectivity.</p>
+<p>The following simple example shows what happens when it is succesfully run on
+an SCP that supports the <em>Verification SOP Class</em>:</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">user</span><span class="nd">@host</span><span class="p">:</span> <span class="n">echoscu</span> <span class="mf">127.0</span><span class="o">.</span><span class="mf">0.1</span> <span class="mi">11112</span>
+<span class="n">user</span><span class="nd">@host</span><span class="p">:</span>
+</pre></div>
+</div>
+<p>When attempting to send a C-ECHO to an SCP that doesn’t support the
+<em>Verification SOP Class</em>:</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">user</span><span class="nd">@host</span><span class="p">:</span> <span class="n">echoscu</span> <span class="mf">127.0</span><span class="o">.</span><span class="mf">0.1</span> <span class="mi">11112</span>
+<span class="n">E</span><span class="p">:</span> <span class="n">No</span> <span class="n">Acceptable</span> <span class="n">Presentation</span> <span class="n">Contexts</span>
+<span class="n">user</span><span class="nd">@host</span><span class="p">:</span>
+</pre></div>
+</div>
+<p>When attempting to associate with a non-DICOM peer</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">user</span><span class="nd">@host</span><span class="p">:</span> <span class="n">echoscu</span> <span class="mf">127.0</span><span class="o">.</span><span class="mf">0.1</span> <span class="mi">11112</span>
+<span class="n">E</span><span class="p">:</span> <span class="n">Association</span> <span class="n">Request</span> <span class="n">Failed</span><span class="p">:</span> <span class="n">Failed</span> <span class="n">to</span> <span class="n">establish</span> <span class="n">association</span>
+<span class="n">E</span><span class="p">:</span> <span class="n">Peer</span> <span class="n">aborted</span> <span class="n">Association</span> <span class="p">(</span><span class="ow">or</span> <span class="n">never</span> <span class="n">connected</span><span class="p">)</span>
+<span class="n">E</span><span class="p">:</span> <span class="n">TCP</span> <span class="n">Initialisation</span> <span class="n">Error</span><span class="p">:</span> <span class="n">Connection</span> <span class="n">refused</span>
+<span class="n">user</span><span class="nd">@host</span><span class="p">:</span>
+</pre></div>
+</div>
+</div>
+<div class="section" id="options">
+<h2>Options<a class="headerlink" href="#options" title="Permalink to this headline">¶</a></h2>
+<div class="section" id="logging">
+<h3>Logging<a class="headerlink" href="#logging" title="Permalink to this headline">¶</a></h3>
+<blockquote>
+<div><dl class="docutils">
+<dt><code class="docutils literal notranslate"><span class="pre">-q</span>&#160;&#160;&#160; <span class="pre">--quiet</span></code></dt>
+<dd>quiet mode, prints no warnings or errors</dd>
+<dt><code class="docutils literal notranslate"><span class="pre">-v</span>&#160;&#160;&#160; <span class="pre">--verbose</span></code></dt>
+<dd>verbose mode, prints processing details</dd>
+<dt><code class="docutils literal notranslate"><span class="pre">-d</span>&#160;&#160;&#160; <span class="pre">--debug</span></code></dt>
+<dd>debug mode, prints debugging information</dd>
+<dt><code class="docutils literal notranslate"><span class="pre">-ll</span>&#160;&#160; <span class="pre">--log-level</span> <span class="pre">[l]evel</span> <span class="pre">(str)</span></code></dt>
+<dd>One of [‘critical’, ‘error’, ‘warning’, ‘info’, ‘debug’], prints
+logging messages with corresponding level or higher</dd>
+<dt><code class="docutils literal notranslate"><span class="pre">-lc</span>&#160;&#160; <span class="pre">--log-config</span> <span class="pre">[f]ilename</span> <span class="pre">(str)</span></code></dt>
+<dd>use python logging config <a class="footnote-reference" href="#id7" id="id3">[3]</a> file f for the logger</dd>
+</dl>
+</div></blockquote>
+</div>
+<div class="section" id="application-entity-titles">
+<h3>Application Entity Titles<a class="headerlink" href="#application-entity-titles" title="Permalink to this headline">¶</a></h3>
+<blockquote>
+<div><dl class="docutils">
+<dt><code class="docutils literal notranslate"><span class="pre">-aet</span>&#160; <span class="pre">--calling-aet</span> <span class="pre">[a]etitle</span> <span class="pre">(str)</span></code></dt>
+<dd>set the local AE title (default: ECHOSCU)</dd>
+<dt><code class="docutils literal notranslate"><span class="pre">-aec</span>&#160; <span class="pre">--called-aet</span> <span class="pre">[a]etitle</span> <span class="pre">(str)</span></code></dt>
+<dd>set the called AE title for the peer AE (default: ANY-SCP)</dd>
+</dl>
+</div></blockquote>
+</div>
+<div class="section" id="association-negotiation-debugging">
+<h3>Association Negotiation Debugging<a class="headerlink" href="#association-negotiation-debugging" title="Permalink to this headline">¶</a></h3>
+<blockquote>
+<div><dl class="docutils">
+<dt><code class="docutils literal notranslate"><span class="pre">-pts</span>&#160; <span class="pre">--propose-ts</span> <span class="pre">[n]umber</span> <span class="pre">(int)</span></code></dt>
+<dd>propose n transfer syntaxes (1-3)</dd>
+</dl>
+</div></blockquote>
+</div>
+<div class="section" id="miscellaneous-dicom">
+<h3>Miscellaneous DICOM<a class="headerlink" href="#miscellaneous-dicom" title="Permalink to this headline">¶</a></h3>
+<blockquote>
+<div><dl class="docutils">
+<dt><code class="docutils literal notranslate"><span class="pre">-to</span>&#160;&#160; <span class="pre">--timeout</span> <span class="pre">[s]econds</span> <span class="pre">(int)</span></code></dt>
+<dd>timeout for connection requests (default: unlimited)</dd>
+<dt><code class="docutils literal notranslate"><span class="pre">-ta</span>&#160;&#160; <span class="pre">--acse-timeout</span> <span class="pre">[s]econds</span> <span class="pre">(int)</span></code></dt>
+<dd>timeout for ACSE messages (default: 30)</dd>
+<dt><code class="docutils literal notranslate"><span class="pre">-td</span>&#160;&#160; <span class="pre">--dimse-timeout</span> <span class="pre">[s]econds</span> <span class="pre">(int)</span></code></dt>
+<dd>timeout for DIMSE messages (default: unlimited)</dd>
+<dt><code class="docutils literal notranslate"><span class="pre">-pdu</span>&#160; <span class="pre">--max-pdu</span> <span class="pre">[n]umber</span> <span class="pre">of</span> <span class="pre">bytes</span> <span class="pre">(int)</span></code></dt>
+<dd>set maximum receive PDU bytes to n bytes (default: 16384)</dd>
+<dt><code class="docutils literal notranslate"><span class="pre">--repeat</span> <span class="pre">[n]umber</span> <span class="pre">(int)</span></code></dt>
+<dd>repeat echo n times</dd>
+<dt><code class="docutils literal notranslate"><span class="pre">--abort</span></code></dt>
+<dd>abort association instead of releasing it</dd>
+</dl>
+</div></blockquote>
+</div>
+</div>
+<div class="section" id="dicom-conformance">
+<h2>DICOM Conformance<a class="headerlink" href="#dicom-conformance" title="Permalink to this headline">¶</a></h2>
+<p>The echoscu application supports the following SOP Class as an SCU:</p>
+<table border="1" class="docutils">
+<colgroup>
+<col width="43%" />
+<col width="57%" />
+</colgroup>
+<thead valign="bottom">
+<tr class="row-odd"><th class="head">UID</th>
+<th class="head">SOP Class</th>
+</tr>
+</thead>
+<tbody valign="top">
+<tr class="row-even"><td>1.2.840.10008.1.1</td>
+<td>Verification SOP Class</td>
+</tr>
+</tbody>
+</table>
+<p>Unless the <code class="docutils literal notranslate"><span class="pre">--propose-ts</span></code> option is used, the echoscu application will only
+propose the <em>Little Endian Implicit VR Transfer Syntax</em> (UID 1.2.840.10008.1.2).
+The supported Transfer Syntaxes <a class="footnote-reference" href="#id8" id="id4">[4]</a> are:</p>
+<table border="1" class="docutils">
+<colgroup>
+<col width="43%" />
+<col width="57%" />
+</colgroup>
+<thead valign="bottom">
+<tr class="row-odd"><th class="head">UID</th>
+<th class="head">Transfer Syntax</th>
+</tr>
+</thead>
+<tbody valign="top">
+<tr class="row-even"><td>1.2.840.10008.1.2</td>
+<td>Little Endian Implicit VR</td>
+</tr>
+<tr class="row-odd"><td>1.2.840.10008.1.2.1</td>
+<td>Little Endian Explicit VR</td>
+</tr>
+<tr class="row-even"><td>1.2.840.10008.1.2.2</td>
+<td>Big Endian Explicit VR</td>
+</tr>
+</tbody>
+</table>
+<p class="rubric">Footnotes</p>
+<table class="docutils footnote" frame="void" id="id5" rules="none">
+<colgroup><col class="label" /><col /></colgroup>
+<tbody valign="top">
+<tr><td class="label"><a class="fn-backref" href="#id1">[1]</a></td><td>DICOM Standard, Part 6, Table A-1</td></tr>
+</tbody>
+</table>
+<table class="docutils footnote" frame="void" id="id6" rules="none">
+<colgroup><col class="label" /><col /></colgroup>
+<tbody valign="top">
+<tr><td class="label"><a class="fn-backref" href="#id2">[2]</a></td><td>DICOM Standard, Part 7, Sections 9.1.5 and 9.3.5</td></tr>
+</tbody>
+</table>
+<table class="docutils footnote" frame="void" id="id7" rules="none">
+<colgroup><col class="label" /><col /></colgroup>
+<tbody valign="top">
+<tr><td class="label"><a class="fn-backref" href="#id3">[3]</a></td><td><a class="reference external" href="https://docs.python.org/3.5/library/logging.config.html#logging-config-fileformat">The Python documentation</a></td></tr>
+</tbody>
+</table>
+<table class="docutils footnote" frame="void" id="id8" rules="none">
+<colgroup><col class="label" /><col /></colgroup>
+<tbody valign="top">
+<tr><td class="label"><a class="fn-backref" href="#id4">[4]</a></td><td>DICOM Standard, Part 5, Section 10 and Annex A</td></tr>
+</tbody>
+</table>
+</div>
+</div>
+
+
+           </div>
+           
+          </div>
+          <footer>
+  
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>
+        &copy; Copyright 2018-19, pynetdicom contributors
+
+    </p>
+  </div>
+  Built with <a href="http://sphinx-doc.org/">Sphinx</a> using a <a href="https://github.com/rtfd/sphinx_rtd_theme">theme</a> provided by <a href="https://readthedocs.org">Read the Docs</a>. 
+
+</footer>
+
+        </div>
+      </div>
+
+    </section>
+
+  </div>
+  
+
+
+  
+
+    
+    
+      <script type="text/javascript" id="documentation_options" data-url_root="../" src="../_static/documentation_options.js"></script>
+        <script type="text/javascript" src="../_static/jquery.js"></script>
+        <script type="text/javascript" src="../_static/underscore.js"></script>
+        <script type="text/javascript" src="../_static/doctools.js"></script>
+        <script type="text/javascript" src="../_static/language_data.js"></script>
+    
+
+  
+
+  <script type="text/javascript" src="../_static/js/theme.js"></script>
+
+  <script type="text/javascript">
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script> 
+
+</body>
+</html>

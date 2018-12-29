@@ -1,0 +1,32 @@
+pynetdicom.dimse\_messages.C\_MOVE\_RQ
+======================================
+
+.. currentmodule:: pynetdicom.dimse_messages
+
+.. autoclass:: C_MOVE_RQ
+
+   
+   .. automethod:: __init__
+
+   
+   .. rubric:: Methods
+
+   .. autosummary::
+   
+      ~C_MOVE_RQ.__init__
+      ~C_MOVE_RQ.decode_msg
+      ~C_MOVE_RQ.encode_msg
+      ~C_MOVE_RQ.message_to_primitive
+      ~C_MOVE_RQ.primitive_to_message
+   
+   
+
+   
+   
+   .. rubric:: Attributes
+
+   .. autosummary::
+   
+      ~C_MOVE_RQ.command_set
+   
+   

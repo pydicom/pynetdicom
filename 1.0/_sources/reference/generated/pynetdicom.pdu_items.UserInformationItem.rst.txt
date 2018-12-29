@@ -1,0 +1,41 @@
+pynetdicom.pdu\_items.UserInformationItem
+=========================================
+
+.. currentmodule:: pynetdicom.pdu_items
+
+.. autoclass:: UserInformationItem
+
+   
+   .. automethod:: __init__
+
+   
+   .. rubric:: Methods
+
+   .. autosummary::
+   
+      ~UserInformationItem.__init__
+      ~UserInformationItem.decode
+      ~UserInformationItem.encode
+      ~UserInformationItem.from_primitive
+      ~UserInformationItem.to_primitive
+   
+   
+
+   
+   
+   .. rubric:: Attributes
+
+   .. autosummary::
+   
+      ~UserInformationItem.async_ops_window
+      ~UserInformationItem.common_ext_neg
+      ~UserInformationItem.ext_neg
+      ~UserInformationItem.implementation_class_uid
+      ~UserInformationItem.implementation_version_name
+      ~UserInformationItem.item_length
+      ~UserInformationItem.item_type
+      ~UserInformationItem.maximum_length
+      ~UserInformationItem.role_selection
+      ~UserInformationItem.user_identity
+   
+   

@@ -1,0 +1,270 @@
+
+
+<!DOCTYPE html>
+<!--[if IE 8]><html class="no-js lt-ie9" lang="en" > <![endif]-->
+<!--[if gt IE 8]><!--> <html class="no-js" lang="en" > <!--<![endif]-->
+<head>
+  <meta charset="utf-8">
+  
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  
+  <title>Messages (pynetdicom.dimse_messages) &mdash; pynetdicom 1.0.0.dev0 documentation</title>
+  
+
+  
+  
+    <link rel="shortcut icon" href="../_static/favicon.ico"/>
+  
+  
+  
+
+  
+
+  
+  
+    
+
+  
+
+  <link rel="stylesheet" href="../_static/css/pynetdicom.css" type="text/css" />
+  <link rel="stylesheet" href="../_static/pygments.css" type="text/css" />
+  <link rel="stylesheet" href="../_static/css/pynetdicom.css" type="text/css" />
+    <link rel="index" title="Index" href="../genindex.html" />
+    <link rel="search" title="Search" href="../search.html" /> 
+
+  
+  <script src="../_static/js/modernizr.min.js"></script>
+
+</head>
+
+<body class="wy-body-for-nav">
+
+   
+  <div class="wy-grid-for-nav">
+
+    
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search">
+          
+
+          
+            <a href="../index.html" class="icon icon-home"> pynetdicom
+          
+
+          
+            
+            <img src="../_static/pydicom_flat_black.svg" class="logo" alt="Logo"/>
+          
+          </a>
+
+          
+            
+            
+              <div class="version">
+                1.0.0.dev0
+              </div>
+            
+          
+
+          
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="../search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+
+          
+        </div>
+
+        <div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="main navigation">
+          
+            
+            
+              
+            
+            
+              <ul>
+<li class="toctree-l1"><a class="reference internal" href="../verification_service_class.html">Verification Service Class</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../storage_service_class.html">Storage Service Class</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../query_retrieve_service_class.html">Query/Retrieve Service Class</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../basic_worklist_service_class.html">Basic Worklist Management Service Class</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../relevant_patient_service_class.html">Relevant Patient Information Query Service Class</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../substance_admin_service_class.html">Substance Administration Query Service Class</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../non_patient_service_class.html">Non-Patient Object Storage Service Class</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../color_palette_service_class.html">Color Palette Query/Retrieve Service Class</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../defined_procedure_service_class.html">Defined Procedure Protocol Query/Retrieve Service Class</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../hanging_protocol_service_class.html">Hanging Protocol Query/Retrieve Service Class</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../implant_template_service_class.html">Implant Template Query/Retrieve Service Class</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../display_system_service_class.html">Display System Management Service Class</a></li>
+</ul>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../user/index.html">User Guide</a></li>
+</ul>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../release_notes.html">1.0.0</a></li>
+</ul>
+
+            
+          
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap">
+
+      
+      <nav class="wy-nav-top" aria-label="top navigation">
+        
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="../index.html">pynetdicom</a>
+        
+      </nav>
+
+
+      <div class="wy-nav-content">
+        
+        <div class="rst-content">
+        
+          
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+<div role="navigation" aria-label="breadcrumbs navigation">
+
+  <ul class="wy-breadcrumbs">
+    
+      <li><a href="../index.html">Docs</a> &raquo;</li>
+        
+      <li>Messages (<code class="docutils literal notranslate"><span class="pre">pynetdicom.dimse_messages</span></code>)</li>
+    
+    
+      <li class="wy-breadcrumbs-aside">
+        
+            
+            <a href="../_sources/reference/dimse.messages.rst.txt" rel="nofollow"> View page source</a>
+          
+        
+      </li>
+    
+  </ul>
+
+  
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+            
+  <div class="section" id="messages-pynetdicom-dimse-messages">
+<h1>Messages (<code class="xref py py-mod docutils literal notranslate"><span class="pre">pynetdicom.dimse_messages</span></code>)<a class="headerlink" href="#messages-pynetdicom-dimse-messages" title="Permalink to this headline">¶</a></h1>
+<div class="section" id="dimse-c-messages">
+<h2>DIMSE-C Messages<a class="headerlink" href="#dimse-c-messages" title="Permalink to this headline">¶</a></h2>
+<table border="1" class="longtable docutils">
+<colgroup>
+<col width="10%" />
+<col width="90%" />
+</colgroup>
+<tbody valign="top">
+<tr class="row-odd"><td><a class="reference internal" href="generated/pynetdicom.dimse_messages.C_CANCEL_RQ.html#pynetdicom.dimse_messages.C_CANCEL_RQ" title="pynetdicom.dimse_messages.C_CANCEL_RQ"><code class="xref py py-obj docutils literal notranslate"><span class="pre">C_CANCEL_RQ</span></code></a>()</td>
+<td></td>
+</tr>
+<tr class="row-even"><td><a class="reference internal" href="generated/pynetdicom.dimse_messages.C_ECHO_RQ.html#pynetdicom.dimse_messages.C_ECHO_RQ" title="pynetdicom.dimse_messages.C_ECHO_RQ"><code class="xref py py-obj docutils literal notranslate"><span class="pre">C_ECHO_RQ</span></code></a>()</td>
+<td></td>
+</tr>
+<tr class="row-odd"><td><a class="reference internal" href="generated/pynetdicom.dimse_messages.C_ECHO_RSP.html#pynetdicom.dimse_messages.C_ECHO_RSP" title="pynetdicom.dimse_messages.C_ECHO_RSP"><code class="xref py py-obj docutils literal notranslate"><span class="pre">C_ECHO_RSP</span></code></a>()</td>
+<td></td>
+</tr>
+<tr class="row-even"><td><a class="reference internal" href="generated/pynetdicom.dimse_messages.C_FIND_RQ.html#pynetdicom.dimse_messages.C_FIND_RQ" title="pynetdicom.dimse_messages.C_FIND_RQ"><code class="xref py py-obj docutils literal notranslate"><span class="pre">C_FIND_RQ</span></code></a>()</td>
+<td></td>
+</tr>
+<tr class="row-odd"><td><a class="reference internal" href="generated/pynetdicom.dimse_messages.C_FIND_RSP.html#pynetdicom.dimse_messages.C_FIND_RSP" title="pynetdicom.dimse_messages.C_FIND_RSP"><code class="xref py py-obj docutils literal notranslate"><span class="pre">C_FIND_RSP</span></code></a>()</td>
+<td></td>
+</tr>
+<tr class="row-even"><td><a class="reference internal" href="generated/pynetdicom.dimse_messages.C_GET_RQ.html#pynetdicom.dimse_messages.C_GET_RQ" title="pynetdicom.dimse_messages.C_GET_RQ"><code class="xref py py-obj docutils literal notranslate"><span class="pre">C_GET_RQ</span></code></a>()</td>
+<td></td>
+</tr>
+<tr class="row-odd"><td><a class="reference internal" href="generated/pynetdicom.dimse_messages.C_GET_RSP.html#pynetdicom.dimse_messages.C_GET_RSP" title="pynetdicom.dimse_messages.C_GET_RSP"><code class="xref py py-obj docutils literal notranslate"><span class="pre">C_GET_RSP</span></code></a>()</td>
+<td></td>
+</tr>
+<tr class="row-even"><td><a class="reference internal" href="generated/pynetdicom.dimse_messages.C_MOVE_RQ.html#pynetdicom.dimse_messages.C_MOVE_RQ" title="pynetdicom.dimse_messages.C_MOVE_RQ"><code class="xref py py-obj docutils literal notranslate"><span class="pre">C_MOVE_RQ</span></code></a>()</td>
+<td></td>
+</tr>
+<tr class="row-odd"><td><a class="reference internal" href="generated/pynetdicom.dimse_messages.C_MOVE_RSP.html#pynetdicom.dimse_messages.C_MOVE_RSP" title="pynetdicom.dimse_messages.C_MOVE_RSP"><code class="xref py py-obj docutils literal notranslate"><span class="pre">C_MOVE_RSP</span></code></a>()</td>
+<td></td>
+</tr>
+<tr class="row-even"><td><a class="reference internal" href="generated/pynetdicom.dimse_messages.C_STORE_RQ.html#pynetdicom.dimse_messages.C_STORE_RQ" title="pynetdicom.dimse_messages.C_STORE_RQ"><code class="xref py py-obj docutils literal notranslate"><span class="pre">C_STORE_RQ</span></code></a>()</td>
+<td></td>
+</tr>
+<tr class="row-odd"><td><a class="reference internal" href="generated/pynetdicom.dimse_messages.C_STORE_RSP.html#pynetdicom.dimse_messages.C_STORE_RSP" title="pynetdicom.dimse_messages.C_STORE_RSP"><code class="xref py py-obj docutils literal notranslate"><span class="pre">C_STORE_RSP</span></code></a>()</td>
+<td></td>
+</tr>
+</tbody>
+</table>
+</div>
+</div>
+
+
+           </div>
+           
+          </div>
+          <footer>
+  
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>
+        &copy; Copyright 2018-19, pynetdicom contributors
+
+    </p>
+  </div>
+  Built with <a href="http://sphinx-doc.org/">Sphinx</a> using a <a href="https://github.com/rtfd/sphinx_rtd_theme">theme</a> provided by <a href="https://readthedocs.org">Read the Docs</a>. 
+
+</footer>
+
+        </div>
+      </div>
+
+    </section>
+
+  </div>
+  
+
+
+  
+
+    
+    
+      <script type="text/javascript" id="documentation_options" data-url_root="../" src="../_static/documentation_options.js"></script>
+        <script type="text/javascript" src="../_static/jquery.js"></script>
+        <script type="text/javascript" src="../_static/underscore.js"></script>
+        <script type="text/javascript" src="../_static/doctools.js"></script>
+        <script type="text/javascript" src="../_static/language_data.js"></script>
+    
+
+  
+
+  <script type="text/javascript" src="../_static/js/theme.js"></script>
+
+  <script type="text/javascript">
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script> 
+
+</body>
+</html>
