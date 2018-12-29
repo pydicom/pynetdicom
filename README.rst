@@ -145,7 +145,7 @@ objects.
 
 Documentation
 -------------
-The pynetdicom `user guide <https://pydicom.github.io/pynetdicom/dev/#user-guide>`_, `code examples <https://pydicom.github.io/pynetdicom/dev/#examples>`_ and `API reference <https://pydicom.github.io/pynetdicom/dev/reference/index.html>`_ documentation is available for the current `release <https://pydicom.github.io/pynetdicom/>`_ as well as the `development version
+The pynetdicom `user guide <https://pydicom.github.io/pynetdicom/#user-guide>`_, `code examples <https://pydicom.github.io/pynetdicom/#examples>`_ and `API reference <https://pydicom.github.io/pynetdicom/reference/index.html>`_ documentation is available for the current `release <https://pydicom.github.io/pynetdicom/>`_ as well as the `development version
 <https://pydicom.github.io/pynetdicom/dev>`_.
 
 
