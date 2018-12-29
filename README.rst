@@ -145,18 +145,24 @@ objects.
 
 Documentation
 -------------
-The pynetdicom `user guide <https://pydicom.github.io/pynetdicom/dev/#user-guide>`_, `code examples <https://pydicom.github.io/pynetdicom/dev/#examples>`_ and `API reference <https://pydicom.github.io/pynetdicom/dev/reference/index.html>`_ documentation is available for the current `development version
+The pynetdicom `user guide <https://pydicom.github.io/pynetdicom/dev/#user-guide>`_, `code examples <https://pydicom.github.io/pynetdicom/dev/#examples>`_ and `API reference <https://pydicom.github.io/pynetdicom/dev/reference/index.html>`_ documentation is available for the current `release <https://pydicom.github.io/pynetdicom/>`_ as well as the `development version
 <https://pydicom.github.io/pynetdicom/dev>`_.
 
 
 Installation
------------
+------------
 Dependencies
 ~~~~~~~~~~~~
 `pydicom <https://github.com/pydicom/pydicom>`_
 
-Installing from github
-~~~~~~~~~~~~~~~~~~~~~~
+Installing current release
+~~~~~~~~~~~~~~~~~~~~~~~~~~
+.. code-block:: sh
+
+        $ pip install pynetdicom
+
+Installing development version
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 .. code-block:: sh
 
         $ python -m pip install git+git://github.com/pydicom/pynetdicom.git
