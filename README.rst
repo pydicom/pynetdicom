@@ -5,12 +5,16 @@
     :target: https://travis-ci.org/pydicom/pynetdicom
 .. image:: https://circleci.com/gh/pydicom/pynetdicom/tree/master.svg?style=shield
     :target: https://circleci.com/gh/pydicom/pynetdicom/tree/master
+.. image:: https://img.shields.io/pypi/pyversions/pynetdicom.svg
+    :target: https://img.shields.io/pypi/pyversions/pynetdicom.svg
+.. image:: https://badge.fury.io/py/pynetdicom.svg
+    :target: https://badge.fury.io/py/pynetdicom
 
 
 pynetdicom
 ==========
 
-A Python 2.7/3+ implementation of the `DICOM <http://dicom.nema.org>`_
+A Python implementation of the `DICOM <http://dicom.nema.org>`_
 networking protocol, originally based on
 `pynetdicom <https://github.com/patmun/pynetdicom_legacy>`_.
 

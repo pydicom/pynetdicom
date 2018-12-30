@@ -21,12 +21,6 @@ PYNETDICOM_IMPLEMENTATION_UID = UID(
 )
 assert PYNETDICOM_IMPLEMENTATION_UID.is_valid
 
-# Deprecated, will be removed in v1.0
-pynetdicom_uid_prefix = PYNETDICOM_UID_PREFIX
-pynetdicom_version = PYNETDICOM_IMPLEMENTATION_VERSION
-pynetdicom_implementation_uid = PYNETDICOM_IMPLEMENTATION_UID
-
-
 import logging
 
 # Convenience imports
