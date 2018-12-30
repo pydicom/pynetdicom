@@ -33,7 +33,7 @@ setup(
         "Intended Audience :: Developers",
         "Intended Audience :: Healthcare Industry",
         "Intended Audience :: Science/Research",
-        "Development Status :: 4 - Beta",
+        "Development Status :: 5 - Production/Stable",
         "Natural Language :: English",
         "Programming Language :: Python :: 2.7",
         "Programming Language :: Python :: 3.4",
