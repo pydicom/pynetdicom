@@ -8,7 +8,7 @@
   
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   
-  <title>pynetdicom.dimse_messages.C_GET_RQ &mdash; pynetdicom 1.0.0.dev0 documentation</title>
+  <title>pynetdicom.dimse_messages.C_GET_RQ &mdash; pynetdicom 1.0.0 documentation</title>
   
 
   
@@ -62,7 +62,7 @@
             
             
               <div class="version">
-                1.0.0.dev0
+                1.0.0
               </div>
             
           
@@ -173,10 +173,10 @@
 <h1>pynetdicom.dimse_messages.C_GET_RQ<a class="headerlink" href="#pynetdicom-dimse-messages-c-get-rq" title="Permalink to this headline">¶</a></h1>
 <dl class="class">
 <dt id="pynetdicom.dimse_messages.C_GET_RQ">
-<em class="property">class </em><code class="descclassname">pynetdicom.dimse_messages.</code><code class="descname">C_GET_RQ</code><a class="reference external" href="https://github.com/pydicom/pynetdicom/blob/2a4d611/pynetdicom/dimse_messages.py#L"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pynetdicom.dimse_messages.C_GET_RQ" title="Permalink to this definition">¶</a></dt>
+<em class="property">class </em><code class="descclassname">pynetdicom.dimse_messages.</code><code class="descname">C_GET_RQ</code><a class="reference external" href="https://github.com/pydicom/pynetdicom/blob/de1aa04/pynetdicom/dimse_messages.py#L"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pynetdicom.dimse_messages.C_GET_RQ" title="Permalink to this definition">¶</a></dt>
 <dd><dl class="method">
 <dt id="pynetdicom.dimse_messages.C_GET_RQ.__init__">
-<code class="descname">__init__</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference external" href="https://github.com/pydicom/pynetdicom/blob/2a4d611/pynetdicom/dimse_messages.py#L651"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pynetdicom.dimse_messages.C_GET_RQ.__init__" title="Permalink to this definition">¶</a></dt>
+<code class="descname">__init__</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference external" href="https://github.com/pydicom/pynetdicom/blob/de1aa04/pynetdicom/dimse_messages.py#L651"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pynetdicom.dimse_messages.C_GET_RQ.__init__" title="Permalink to this definition">¶</a></dt>
 <dd></dd></dl>
 
 <p class="rubric">Methods</p>
@@ -217,7 +217,7 @@
 </table>
 <dl class="method">
 <dt id="pynetdicom.dimse_messages.C_GET_RQ.decode_msg">
-<code class="descname">decode_msg</code><span class="sig-paren">(</span><em>primitive</em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/pydicom/pynetdicom/blob/2a4d611/pynetdicom/dimse_messages.py#L217"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pynetdicom.dimse_messages.C_GET_RQ.decode_msg" title="Permalink to this definition">¶</a></dt>
+<code class="descname">decode_msg</code><span class="sig-paren">(</span><em>primitive</em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/pydicom/pynetdicom/blob/de1aa04/pynetdicom/dimse_messages.py#L217"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pynetdicom.dimse_messages.C_GET_RQ.decode_msg" title="Permalink to this definition">¶</a></dt>
 <dd><p>Converts P-DATA primitives into a DIMSEMessage sub-class.</p>
 <p>Decodes the data from the P-DATA service primitive (which
 may contain the results of one or more P-DATA-TF PDUs) into the
@@ -243,7 +243,7 @@ may contain the results of one or more P-DATA-TF PDUs) into the
 
 <dl class="method">
 <dt id="pynetdicom.dimse_messages.C_GET_RQ.encode_msg">
-<code class="descname">encode_msg</code><span class="sig-paren">(</span><em>context_id</em>, <em>max_pdu_length</em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/pydicom/pynetdicom/blob/2a4d611/pynetdicom/dimse_messages.py#L328"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pynetdicom.dimse_messages.C_GET_RQ.encode_msg" title="Permalink to this definition">¶</a></dt>
+<code class="descname">encode_msg</code><span class="sig-paren">(</span><em>context_id</em>, <em>max_pdu_length</em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/pydicom/pynetdicom/blob/de1aa04/pynetdicom/dimse_messages.py#L328"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pynetdicom.dimse_messages.C_GET_RQ.encode_msg" title="Permalink to this definition">¶</a></dt>
 <dd><p>Yield P-DATA primitive(s) for the current DIMSE Message.</p>
 <p><strong>Encoding</strong></p>
 <p>The encoding of the Command Set shall be Little Endian Implicit VR,
@@ -282,7 +282,7 @@ primitives.</p>
 
 <dl class="method">
 <dt id="pynetdicom.dimse_messages.C_GET_RQ.message_to_primitive">
-<code class="descname">message_to_primitive</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference external" href="https://github.com/pydicom/pynetdicom/blob/2a4d611/pynetdicom/dimse_messages.py#L469"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pynetdicom.dimse_messages.C_GET_RQ.message_to_primitive" title="Permalink to this definition">¶</a></dt>
+<code class="descname">message_to_primitive</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference external" href="https://github.com/pydicom/pynetdicom/blob/de1aa04/pynetdicom/dimse_messages.py#L469"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pynetdicom.dimse_messages.C_GET_RQ.message_to_primitive" title="Permalink to this definition">¶</a></dt>
 <dd><p>Convert the DIMSEMessage class to a DIMSE primitive.</p>
 <table class="docutils field-list" frame="void" rules="none">
 <col class="field-name" />
@@ -300,7 +300,7 @@ the current DIMSEMessage.</td>
 
 <dl class="method">
 <dt id="pynetdicom.dimse_messages.C_GET_RQ.primitive_to_message">
-<code class="descname">primitive_to_message</code><span class="sig-paren">(</span><em>primitive</em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/pydicom/pynetdicom/blob/2a4d611/pynetdicom/dimse_messages.py#L527"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pynetdicom.dimse_messages.C_GET_RQ.primitive_to_message" title="Permalink to this definition">¶</a></dt>
+<code class="descname">primitive_to_message</code><span class="sig-paren">(</span><em>primitive</em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/pydicom/pynetdicom/blob/de1aa04/pynetdicom/dimse_messages.py#L527"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pynetdicom.dimse_messages.C_GET_RQ.primitive_to_message" title="Permalink to this definition">¶</a></dt>
 <dd><p>Convert a DIMSE <cite>primitive</cite> to the current DIMSEMessage object.</p>
 <table class="docutils field-list" frame="void" rules="none">
 <col class="field-name" />
