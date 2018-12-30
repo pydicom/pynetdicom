@@ -92,6 +92,6 @@ def extract_components(version):
     return components
 
 
-__version__ = '1.0.0b1'
+__version__ = '1.0.0'
 assert is_canonical(__version__)
 __version_info__ = extract_components(__version__)
