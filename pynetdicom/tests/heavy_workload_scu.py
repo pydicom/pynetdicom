@@ -12,6 +12,7 @@ Results:
 import cProfile
 import logging
 import os
+import sys
 import time
 
 from pydicom import read_file
@@ -40,7 +41,11 @@ if assoc.is_established:
     for ii in range(no_runs):
         start_time = time.time()
         for jj in range(ds_per_run):
-            assoc.send_c_store(DATASET)
+            status = assoc.send_c_store(DATASET)
+            if status.Status != 0x0000:
+                print('C-STORE failed')
+                assoc.release()
+                sys.exit()
         end_time = time.time()
         delta_time = end_time - start_time
         results.append(delta_time)

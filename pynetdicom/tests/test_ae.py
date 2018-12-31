@@ -548,6 +548,26 @@ class TestAEGoodAssociation(object):
         """Tests for the AE.associate method's context parameter."""
         pass
 
+    def test_select_timeout_okay(self):
+        """Test that using start works OK with timeout."""
+        # Multiple release/association in a sort time causes an OSError as
+        # the port is still in use due to the use of select.select() with
+        # a timeout. Fixed by using socket.shutdown in stop()
+        for ii in range(3):
+            self.scp = DummyVerificationSCP()
+            self.scp.select_timeout = 0.5
+            self.scp.start()
+            ae = AE()
+            ae.add_requested_context(VerificationSOPClass)
+            ae.acse_timeout = 5
+            ae.dimse_timeout = 5
+            assoc = ae.associate('localhost', 11112)
+            assert assoc.is_established
+            assoc.release()
+            assert assoc.is_released
+            assert not assoc.is_established
+            self.scp.stop()
+
 
 class TestAEBadAssociation(object):
     def test_raise(self):
