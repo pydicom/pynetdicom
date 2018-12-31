@@ -749,7 +749,7 @@ def negotiate_as_requestor(rq_contexts, ac_contexts, roles=None):
     return sorted(output, key=lambda x: x.context_id)
 
 
-def build_context(abstract_syntax, transfer_syntax=DEFAULT_TRANSFER_SYNTAXES):
+def build_context(abstract_syntax, transfer_syntax=None):
     """Return a PresentationContext built from the `abstract_syntax`.
 
     Parameters
@@ -802,6 +802,9 @@ def build_context(abstract_syntax, transfer_syntax=DEFAULT_TRANSFER_SYNTAXES):
     -------
     presentation.PresentationContext
     """
+    if transfer_syntax is None:
+        transfer_syntax = DEFAULT_TRANSFER_SYNTAXES
+
     abstract_syntax = UID(abstract_syntax)
 
     # Allow single transfer syntax values for convenience
