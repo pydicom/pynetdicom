@@ -2,20 +2,13 @@
 The main user class, represents a DICOM Application Entity
 """
 from copy import deepcopy
-import gc
-from inspect import isclass
 import logging
-import platform
 import select
 import socket
 from struct import pack
-import sys
 import time
-import warnings
 
-from pydicom.uid import (
-    ExplicitVRLittleEndian, ImplicitVRLittleEndian, ExplicitVRBigEndian, UID
-)
+from pydicom.uid import UID
 
 from pynetdicom.association import Association, MODE_REQUESTOR, MODE_ACCEPTOR
 from pynetdicom.presentation import (
@@ -237,8 +230,7 @@ class ApplicationEntity(object):
             assoc.acse_timeout = self.acse_timeout
             assoc.acse.acse_timeout = self.acse_timeout
 
-    def add_requested_context(self, abstract_syntax,
-                              transfer_syntax=DEFAULT_TRANSFER_SYNTAXES):
+    def add_requested_context(self, abstract_syntax, transfer_syntax=None):
         """Add a Presentation Context to be proposed when sending Association
         requests.
 
@@ -334,6 +326,9 @@ class ApplicationEntity(object):
         .. [1] DICOM Standard, Part 8, `Section 7.1.1.13 <http://dicom.nema.org/medical/dicom/current/output/html/part08.html#sect_7.1.1.13>`_
         .. [2] DICOM Standard, Part 8, `Table 9-18 <http://dicom.nema.org/medical/dicom/current/output/html/part08.html#table_9-18>`_
         """
+        if transfer_syntax is None:
+            transfer_syntax = DEFAULT_TRANSFER_SYNTAXES
+
         if len(self.requested_contexts) >= 128:
             raise ValueError(
                 "Failed to add the requested presentation context as there "
@@ -352,8 +347,7 @@ class ApplicationEntity(object):
 
         self._requested_contexts.append(context)
 
-    def add_supported_context(self, abstract_syntax,
-                              transfer_syntax=DEFAULT_TRANSFER_SYNTAXES,
+    def add_supported_context(self, abstract_syntax, transfer_syntax=None,
                               scu_role=None, scp_role=None):
         """Add a supported presentation context.
 
@@ -464,6 +458,9 @@ class ApplicationEntity(object):
         ...     CTImageStorage, scu_role=True, scp_role=True
         ... )
         """
+        if transfer_syntax is None:
+            transfer_syntax = DEFAULT_TRANSFER_SYNTAXES
+
         abstract_syntax = UID(abstract_syntax)
 
         if not isinstance(scu_role, (type(None), bool)):
@@ -484,7 +481,7 @@ class ApplicationEntity(object):
             for syntax in transfer_syntax:
                 context.add_transfer_syntax(syntax)
             context.scu_role = None or scu_role
-            context.scp_role =  None or scp_role
+            context.scp_role = None or scp_role
         else:
             context = PresentationContext()
             context.abstract_syntax = abstract_syntax
@@ -625,16 +622,18 @@ class ApplicationEntity(object):
         return assoc
 
     def _bind_socket(self):
-        """Set up and bind the SCP socket.
-
-        AE.start(): Set up and bind the socket. Separated out from start() to
-        enable better unit testing
-        """
+        """Set up and bind a socket for use with the SCP."""
         # The socket to listen for connections on, port is always specified
+        # AF_INET: IPv4, SOCK_STREAM: TCP socket
         self.local_socket = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
 
-        # Set the socket options to
+        # SOL_SOCKET: the level, SO_REUSEADDR: allow reuse of a port
+        #   stuck in TIME_WAIT, 1: set SO_REUSEADDR to 1
+        # This must be called prior to socket.bind()
         self.local_socket.setsockopt(socket.SOL_SOCKET, socket.SO_REUSEADDR, 1)
+        self.local_socket.setsockopt(
+            socket.SOL_SOCKET, socket.SO_RCVTIMEO, pack('ll', 10, 0)
+        )
 
         # Bind the socket to an address and port
         #   If self.bind_addr is '' then the socket is reachable by any
@@ -677,17 +676,18 @@ class ApplicationEntity(object):
             assoc.dimse.dimse_timeout = self.dimse_timeout
 
     def _handle_connection(self, client_socket):
-        """
+        """Start a new Association thread to handle the connection request.
+
+        Parameters
+        ----------
+        client_socket : socket.socket
+            The socket handling to the connection to the peer.
         """
         # Create a new Association
         assoc = Association(self, MODE_ACCEPTOR, client_socket)
         assoc.acse_timeout = self.acse_timeout
         assoc.dimse_timeout = self.dimse_timeout
         assoc.network_timeout = self.network_timeout
-
-        # Assign the socket to use to the DUL
-        #assoc.dul.scu_socket = client_socket
-        #assoc.dul.scp_socket = None
 
         # Association Acceptor object -> local AE
         assoc.acceptor.maximum_length = self.maximum_pdu_size
@@ -779,58 +779,6 @@ class ApplicationEntity(object):
             self._maximum_pdu_size = value
         else:
             LOGGER.warning("maximum_pdu_size set to 16382")
-
-    def _monitor_socket(self):
-        """Monitor the local socket for connections.
-
-        AE.start(): Monitors the local socket to see if anyone tries to connect
-        and if so, creates a new association. Separated out from start() to
-        enable better unit testing
-        """
-        # TODO: this needs to be dealt with properly
-        try:
-            read_list, _, _ = select.select([self.local_socket], [], [], 0)
-        except (socket.error, ValueError):
-            return
-
-        # If theres a connection
-        if read_list:
-            client_socket, _ = self.local_socket.accept()
-            client_socket.setsockopt(socket.SOL_SOCKET,
-                                     socket.SO_RCVTIMEO,
-                                     pack('ll', 10, 0))
-
-            # Create a new Association
-            assoc = Association(self, MODE_ACCEPTOR, client_socket)
-            assoc.acse_timeout = self.acse_timeout
-            assoc.dimse_timeout = self.dimse_timeout
-            assoc.network_timeout = self.network_timeout
-
-            # Assign the socket to use to the DUL
-            #assoc.dul.scu_socket = client_socket
-            #assoc.dul.scp_socket = None
-
-            # Association Acceptor object -> local AE
-            assoc.acceptor.maximum_length = self.maximum_pdu_size
-            assoc.acceptor.ae_title = self.ae_title
-            assoc.acceptor.address = self.address
-            assoc.acceptor.port = self.port
-            assoc.acceptor.implementation_class_uid = (
-                self.implementation_class_uid
-            )
-            assoc.acceptor.implementation_version_name = (
-                self.implementation_version_name
-            )
-            assoc.acceptor.supported_contexts = deepcopy(
-                self.supported_contexts
-            )
-
-            # Association Requestor object -> remote AE
-            assoc.requestor.address = client_socket.getpeername()[0]
-            assoc.requestor.port = client_socket.getpeername()[1]
-
-            assoc.start()
-            self.active_associations.append(assoc)
 
     @property
     def network_timeout(self):
@@ -1229,7 +1177,7 @@ class ApplicationEntity(object):
         else:
             self._require_calling_aet = b''
 
-    def start(self):
+    def start(self, select_timeout=0.5):
         """Start the AE as an SCP.
 
         When running the AE as an SCP this needs to be called to start the main
@@ -1237,14 +1185,22 @@ class ApplicationEntity(object):
         association starts a new Association thread
 
         Successful associations get added to `active_associations`
+
+        Parameters
+        ----------
+        select_timeout : float or None, optional
+            The timeout (in seconds) that the select.select() call will block
+            for (default 0.5). A value of 0 specifies a poll and never blocks.
+            A value of None blocks until a connection is ready.
         """
+        self._quit = False
+
         # If the SCP has no supported SOP Classes then there's no point
         #   running as a server
         if not self.supported_contexts:
-            LOGGER.error("No supported Presentation Contexts have been defined")
-            raise ValueError(
-                "No supported Presentation Contexts have been defined"
-            )
+            msg = "No supported Presentation Contexts have been defined"
+            LOGGER.error(msg)
+            raise ValueError(msg)
 
         bad_contexts = []
         for cx in self.supported_contexts:
@@ -1259,23 +1215,28 @@ class ApplicationEntity(object):
             )
             msg += '\n  '.join(bad_contexts)
             LOGGER.warning(msg)
+            return
 
-        # Bind the local_socket to the specified listen port
+        # Bind `self.local_socket` to the specified listen port
         self._bind_socket()
 
-        while True:
+        while not self._quit:
             try:
-                if self._quit:
-                    break
+                # Returns a list if self.local_socket has data available
+                #   readable, writeable, exceptional
+                # `select_timeout` specifies that select blocks for
+                #   that many seconds before allowing the SCP to be killed
+                ready, _, _ = select.select(
+                    [self.local_socket], [], [], select_timeout
+                )
 
-                # socket.accept() blocks until a connection is available
-                client_socket, _ = self.local_socket.accept()
-                client_socket.setsockopt(socket.SOL_SOCKET,
-                                         socket.SO_RCVTIMEO,
-                                         pack('ll', 10, 0))
+                # We check self._quit in case the kill came in during select()
+                if ready and not self._quit:
+                    # socket.accept() blocks until a connection is available
+                    client_socket, _ = self.local_socket.accept()
 
-                # Start a new association (as acceptor)
-                self._handle_connection(client_socket)
+                    # Start a new association (as acceptor)
+                    self._handle_connection(client_socket)
 
                 # Delete any dead associations
                 self.cleanup_associations()
@@ -1285,15 +1246,22 @@ class ApplicationEntity(object):
     def stop(self):
         """Stop the SCP.
 
-        When running as an SCP, calling stop() will kill all associations,
-        close the listen socket and quit
+        When running as an SCP, calling stop() will kill all associations
+        and close the listen socket.
         """
         self._quit = True
 
         for assoc in self.active_associations:
             assoc.abort()
 
+        # Give any associations time to abort and shutdown
+        time.sleep(0.1)
+
         if self.local_socket:
+            # Ensure we shut the socket even if held open by the select()
+            # Close connection and send EOF
+            self.local_socket.shutdown(socket.SHUT_RDWR)
+            # Deallocate socket
             self.local_socket.close()
 
     def __str__(self):
@@ -1309,7 +1277,7 @@ class ApplicationEntity(object):
         for context in self.requested_contexts:
             str_out += "\t{0!s}\n".format(context.abstract_syntax.name)
             for transfer_syntax in context.transfer_syntax:
-                str_out +="\t\t{0!s}\n".format(transfer_syntax.name)
+                str_out += "\t\t{0!s}\n".format(transfer_syntax.name)
 
         str_out += "\n"
         str_out += "  Supported Presentation Contexts:\n"
@@ -1318,7 +1286,7 @@ class ApplicationEntity(object):
         for context in self.supported_contexts:
             str_out += "\t{0!s}\n".format(context.abstract_syntax.name)
             for transfer_syntax in context.transfer_syntax:
-                str_out +="\t\t{0!s}\n".format(transfer_syntax.name)
+                str_out += "\t\t{0!s}\n".format(transfer_syntax.name)
 
         str_out += "\n"
         str_out += "  ACSE timeout: {0!s} s\n".format(self.acse_timeout)
