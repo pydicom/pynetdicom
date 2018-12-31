@@ -105,6 +105,7 @@
 </ul>
 <ul>
 <li class="toctree-l1"><a class="reference internal" href="../../release_notes.html">1.0.0</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../release_notes.html#id2">1.1.0</a></li>
 </ul>
 
             
@@ -919,7 +920,7 @@
     <span class="k">return</span> <span class="nb">sorted</span><span class="p">(</span><span class="n">output</span><span class="p">,</span> <span class="n">key</span><span class="o">=</span><span class="k">lambda</span> <span class="n">x</span><span class="p">:</span> <span class="n">x</span><span class="o">.</span><span class="n">context_id</span><span class="p">)</span></div>
 
 
-<div class="viewcode-block" id="build_context"><a class="viewcode-back" href="../../reference/generated/pynetdicom.presentation.build_context.html#pynetdicom.presentation.build_context">[docs]</a><span class="k">def</span> <span class="nf">build_context</span><span class="p">(</span><span class="n">abstract_syntax</span><span class="p">,</span> <span class="n">transfer_syntax</span><span class="o">=</span><span class="n">DEFAULT_TRANSFER_SYNTAXES</span><span class="p">):</span>
+<div class="viewcode-block" id="build_context"><a class="viewcode-back" href="../../reference/generated/pynetdicom.presentation.build_context.html#pynetdicom.presentation.build_context">[docs]</a><span class="k">def</span> <span class="nf">build_context</span><span class="p">(</span><span class="n">abstract_syntax</span><span class="p">,</span> <span class="n">transfer_syntax</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
     <span class="sd">&quot;&quot;&quot;Return a PresentationContext built from the `abstract_syntax`.</span>
 
 <span class="sd">    Parameters</span>
@@ -972,6 +973,9 @@
 <span class="sd">    -------</span>
 <span class="sd">    presentation.PresentationContext</span>
 <span class="sd">    &quot;&quot;&quot;</span>
+    <span class="k">if</span> <span class="n">transfer_syntax</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+        <span class="n">transfer_syntax</span> <span class="o">=</span> <span class="n">DEFAULT_TRANSFER_SYNTAXES</span>
+
     <span class="n">abstract_syntax</span> <span class="o">=</span> <span class="n">UID</span><span class="p">(</span><span class="n">abstract_syntax</span><span class="p">)</span>
 
     <span class="c1"># Allow single transfer syntax values for convenience</span>

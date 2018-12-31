@@ -1,0 +1,16 @@
+1.1.0
+=====
+
+Fixes
+.....
+
+* No longer using a list as the default value for the ``transfer_syntax``
+  keyword argument in ``AE.add_requested_context()``,
+  ``AE.add_supported_context()`` and ``presentation.build_context()``
+
+Enhancements
+............
+
+* Added ``select_timeout`` parameter to ``Association.start()`` to allow the
+  user to specify how long the select.select() call blocks for.
+* Improved the CPU usage of the AE when running idle as an SCP (:issue:`60`).
