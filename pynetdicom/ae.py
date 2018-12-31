@@ -632,11 +632,20 @@ class ApplicationEntity(object):
         """
         # The socket to listen for connections on, port is always specified
         self.local_socket = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
+
+        # Set the socket options to
         self.local_socket.setsockopt(socket.SOL_SOCKET, socket.SO_REUSEADDR, 1)
+
+        # Bind the socket to an address and port
+        #   If self.bind_addr is '' then the socket is reachable by any
+        #   address the machine may have, otherwise is visible only on that
+        #   address
         self.local_socket.bind((self.bind_addr, self.port))
-        # Listen for connections made to the socket, the backlog argument
-        #   specifies the maximum number of queued connections.
-        self.local_socket.listen(1)
+
+        # Listen for connections made to the socket
+        # socket.listen() says to queue up to as many as N connect requests
+        #   before refusing outside connections
+        self.local_socket.listen(5)
 
     def cleanup_associations(self):
         """Remove dead associations."""
@@ -666,6 +675,41 @@ class ApplicationEntity(object):
         for assoc in self.active_associations:
             assoc.dimse_timeout = self.dimse_timeout
             assoc.dimse.dimse_timeout = self.dimse_timeout
+
+    def _handle_connection(self, client_socket):
+        """
+        """
+        # Create a new Association
+        assoc = Association(self, MODE_ACCEPTOR, client_socket)
+        assoc.acse_timeout = self.acse_timeout
+        assoc.dimse_timeout = self.dimse_timeout
+        assoc.network_timeout = self.network_timeout
+
+        # Assign the socket to use to the DUL
+        #assoc.dul.scu_socket = client_socket
+        #assoc.dul.scp_socket = None
+
+        # Association Acceptor object -> local AE
+        assoc.acceptor.maximum_length = self.maximum_pdu_size
+        assoc.acceptor.ae_title = self.ae_title
+        assoc.acceptor.address = self.address
+        assoc.acceptor.port = self.port
+        assoc.acceptor.implementation_class_uid = (
+            self.implementation_class_uid
+        )
+        assoc.acceptor.implementation_version_name = (
+            self.implementation_version_name
+        )
+        assoc.acceptor.supported_contexts = deepcopy(
+            self.supported_contexts
+        )
+
+        # Association Requestor object -> remote AE
+        assoc.requestor.address = client_socket.getpeername()[0]
+        assoc.requestor.port = client_socket.getpeername()[1]
+
+        assoc.start()
+        self.active_associations.append(assoc)
 
     @property
     def implementation_class_uid(self):
@@ -1217,37 +1261,24 @@ class ApplicationEntity(object):
             LOGGER.warning(msg)
 
         # Bind the local_socket to the specified listen port
-        #try:
         self._bind_socket()
-        #except OSError:
-        #    self._quit = True
-        #    self.stop()
-        #    return
 
-        no_loops = 0
         while True:
             try:
-                # #60: Required so we don't max out the CPU when SCP
-                # TODO: Find a better solution, this is not a good fix
-                time.sleep(0.05)
-
                 if self._quit:
                     break
 
-                # Monitor client_socket for association requests and
-                #   appends any associations to self.active_associations
-                self._monitor_socket()
+                # socket.accept() blocks until a connection is available
+                client_socket, _ = self.local_socket.accept()
+                client_socket.setsockopt(socket.SOL_SOCKET,
+                                         socket.SO_RCVTIMEO,
+                                         pack('ll', 10, 0))
 
-                # Delete dead associations
+                # Start a new association (as acceptor)
+                self._handle_connection(client_socket)
+
+                # Delete any dead associations
                 self.cleanup_associations()
-
-                # Every 50 loops run the garbage collection
-                if no_loops % 51 == 0:
-                    gc.collect()
-                    no_loops = 0
-
-                no_loops += 1
-
             except KeyboardInterrupt:
                 self.stop()
 
