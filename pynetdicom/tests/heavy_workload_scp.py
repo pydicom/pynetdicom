@@ -55,7 +55,7 @@ class DummyStorageSCP():
         """Stop the SCP thread"""
         self.ae.stop()
 
-    def on_c_store(self, ds):
+    def on_c_store(self, ds, context, info):
         """Callback for ae.on_c_store"""
         return 0x0000
 
