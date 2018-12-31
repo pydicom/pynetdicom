@@ -5,8 +5,8 @@ Fixes
 .....
 
 * No longer using a list as the default value for the ``transfer_syntax``
-  keyword argument in ``AE.add_requested_context()`` and
-  ``AE.add_supported_context()``
+  keyword argument in ``AE.add_requested_context()``,
+  ``AE.add_supported_context()`` and ``presentation.build_context()``
 
 Enhancements
 ............
