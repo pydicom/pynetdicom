@@ -15,7 +15,7 @@ pynetdicom
 ==========
 
 A Python implementation of the `DICOM <http://dicom.nema.org>`_
-networking protocol, originally based on (legacy) 
+networking protocol, originally based on (legacy)
 `pynetdicom <https://github.com/patmun/pynetdicom_legacy>`_.
 
 
@@ -51,7 +51,7 @@ and `9 <http://dicom.nema.org/medical/dicom/current/output/html/part07.html#chap
 
 Supported Service Classes
 ~~~~~~~~~~~~~~~~~~~~~~~~~
-pynetdicom supports the following DICOM service classes:
+*pynetdicom* supports the following DICOM service classes:
 
 - `Verification Service Class <http://dicom.nema.org/medical/dicom/current/output/html/part04.html#chapter_A>`_
 - `Storage Service Class <http://dicom.nema.org/medical/dicom/current/output/html/part04.html#chapter_B>`_
@@ -149,7 +149,7 @@ objects.
 
 Documentation
 -------------
-The pynetdicom `user guide <https://pydicom.github.io/pynetdicom/stable/#user-guide>`_, `code examples <https://pydicom.github.io/pynetdicom/stable/#examples>`_ and `API reference <https://pydicom.github.io/pynetdicom/stable/reference/index.html>`_ documentation is available for the `current release <https://pydicom.github.io/pynetdicom/>`_ as well as the `development version
+The *pynetdicom* `user guide <https://pydicom.github.io/pynetdicom/stable/#user-guide>`_, `code examples <https://pydicom.github.io/pynetdicom/stable/#examples>`_ and `API reference <https://pydicom.github.io/pynetdicom/stable/reference/index.html>`_ documentation is available for the `current release <https://pydicom.github.io/pynetdicom/>`_ as well as the `development version
 <https://pydicom.github.io/pynetdicom/dev>`_.
 
 
