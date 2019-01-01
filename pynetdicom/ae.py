@@ -7,6 +7,7 @@ import select
 import socket
 from struct import pack
 import time
+import warnings
 
 from pydicom.uid import UID
 
@@ -817,6 +818,10 @@ class ApplicationEntity(object):
 
     def quit(self):
         """Stop the SCP."""
+        warnings.warn(
+            "'AE.quit()' is deprecated and will be removed in v1.2.0",
+            DeprecationWarning
+        )
         self.stop()
 
     def remove_requested_context(self, abstract_syntax, transfer_syntax=None):

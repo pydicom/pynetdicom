@@ -7,6 +7,7 @@ Fixes
 * No longer using a list as the default value for the ``transfer_syntax``
   keyword argument in ``AE.add_requested_context()``,
   ``AE.add_supported_context()`` and ``presentation.build_context()``
+* Completely fixed handling a maximum PDU length of 0. (:issue:`193`)
 
 Enhancements
 ............
@@ -14,3 +15,10 @@ Enhancements
 * Added ``select_timeout`` parameter to ``Association.start()`` to allow the
   user to specify how long the select.select() call blocks for.
 * Improved the CPU usage of the AE when running idle as an SCP (:issue:`60`).
+
+
+Changes
+.......
+
+* ``AE.quit()`` is deprecated and will be removed in v1.2. Use ``AE.stop()``
+  instead.

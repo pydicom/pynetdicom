@@ -1067,6 +1067,23 @@ class TestAssociationSendCEcho(object):
         assert assoc.is_released
         self.scp.stop()
 
+    def test_changing_network_timeout(self):
+        """Test changing timeout after associated."""
+        self.scp = DummyVerificationSCP()
+        self.scp.start()
+        ae = AE()
+        ae.add_requested_context(VerificationSOPClass)
+        ae.acse_timeout = 5
+        ae.dimse_timeout = 5
+        assoc = ae.associate('localhost', 11112)
+        assert assoc.is_established
+        ae.network_timeout = 1
+
+        assert assoc.dul.dul_timeout == 1
+        assoc.release()
+        assert assoc.is_released
+        self.scp.stop()
+
 
 class TestAssociationSendCStore(object):
     """Run tests on Assocation send_c_store."""
