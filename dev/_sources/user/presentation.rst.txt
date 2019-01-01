@@ -315,7 +315,7 @@ items in the extended negotiation:
     item.scu_role = True
     item.scp_role = True
 
-    assoc = ae('127.0.0.1', 11112, ext_neg=[item])
+    assoc = ae.associate('127.0.0.1', 11112, ext_neg=[item])
 
 To support SCP/SCU Role Selection as an *Acceptor* you can use the ``scu_role``
 and ``scp_role`` arguments in ``AE.add_supported_context``:
