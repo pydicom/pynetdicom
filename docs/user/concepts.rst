@@ -128,6 +128,9 @@ Transfer Syntaxes, along with an ID value.
 * The *acceptor* selects a suitable Transfer Syntax for each accepted
   presentation context.
 
+A more detailed guide to presentation contexts and how to use them with
+*pynetdicom* is available :ref:`here <user_presentation>`.
+
 .. _concepts_abstract_syntax:
 
 Abstract Syntax

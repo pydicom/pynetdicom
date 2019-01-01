@@ -2,9 +2,9 @@
 
 Application Entity
 ------------------
-The first step in DICOM networking with pynetdicom is the creation of an
-:ref:`Application Entity <concepts_ae>` (or AE). A minimal initialisation of ``AE`` requires no
-arguments.
+The first step in DICOM networking with *pynetdicom* is the creation of an
+:ref:`Application Entity <concepts_ae>` (or AE). A minimal initialisation of
+``AE`` requires no arguments.
 
 >>> from pynetdicom import AE
 >>> ae = AE()
@@ -35,7 +35,7 @@ There's also an extra restriction on Application Entity AE titles:
 
 * An AE title made entirely of spaces is not allowed [4]_
 
-AE titles in pynetdicom are checked for validity (using
+AE titles in *pynetdicom* are checked for validity (using
 :py:meth:`utils.validate_ae_title() <pynetdicom.utils.validate_ae_title>`)
 and then stored as length 16 ``bytes``, with
 trailing spaces added as padding if required. This can be important to
@@ -200,7 +200,7 @@ the :ref:`Association <association>` page for more information).
 Specifying the network port
 ...........................
 In general it shouldn't be necessary to specify the port when acting as an SCU.
-By default pynetdicom will use the first available port to communicate with a
+By default *pynetdicom* will use the first available port to communicate with a
 peer AE. To specify the port number you can use the ``port`` parameter when
 initialising the AE:
 
