@@ -377,11 +377,11 @@ class ACSE(object):
         # Unlimited PDU size - set to 64K as this is big enough to max
         #   out most protocols
         # FIXME: unlimited length should be handled correctly
-        if assoc.requestor.maximum_length == 0:
-            for item in assoc.requestor.user_information:
-                if isinstance(item, MaximumLengthNotification):
-                    item.maximum_length_received = 0x10000
-                    break
+        #if assoc.requestor.maximum_length == 0:
+        #    for item in assoc.requestor.user_information:
+        #        if isinstance(item, MaximumLengthNotification):
+        #            item.maximum_length_received = 0x10000
+        #            break
 
         # Send the A-ASSOCIATE (accept) primitive
         self.send_accept(assoc)

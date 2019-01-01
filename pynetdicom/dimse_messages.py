@@ -371,7 +371,13 @@ class DIMSEMessage(object):
 
         # COMMAND SET (always)
         # Split the command set into fragments with maximum size max_pdu_length
-        no_fragments = ceil(len(encoded_command_set) / (max_pdu_length - 6))
+        if max_pdu_length == 0:
+            no_fragments = 1
+        else:
+            no_fragments = ceil(
+                len(encoded_command_set) / (max_pdu_length - 6)
+            )
+
         cmd_fragments = self._generate_pdv_fragments(encoded_command_set,
                                                      max_pdu_length)
 
@@ -397,9 +403,12 @@ class DIMSEMessage(object):
             if encoded_data_set:
                 # Split the data set into fragments with maximum
                 #   size max_pdu_length
-                no_fragments = ceil(
-                    len(encoded_data_set) / (max_pdu_length - 6)
-                )
+                if max_pdu_length == 0:
+                    no_fragments = 1
+                else:
+                    no_fragments = ceil(
+                        len(encoded_data_set) / (max_pdu_length - 6)
+                    )
                 ds_fragments = self._generate_pdv_fragments(encoded_data_set,
                                                             max_pdu_length)
 
@@ -438,7 +447,8 @@ class DIMSEMessage(object):
         bytestream : bytes
             The data to be fragmented.
         fragment_length : int
-            The maximum size of each fragment, minimum allowed value is 7 as
+            The maximum size of each fragment, a value of 0 is taken to mean
+            the fragment is infinite. Cannot be between 1 and 7 as
             each Presentation Data Value Item is:
             1 - 4       | 5          | 6 ->
             Item length | Context ID | Presentation data value ->
@@ -453,8 +463,10 @@ class DIMSEMessage(object):
         ----------
         DICOM Standard, Part 8, Annex D.1
         """
-        if fragment_length < 7:
-            raise ValueError('fragment_length must be at least 7.')
+        if fragment_length == 0:
+            yield bytestream
+        elif 0 < fragment_length < 7:
+            raise ValueError("'fragment_length' cannot be between 1 and 7.")
 
         # Because the PDV item includes an extra 6 bytes of data at the start
         #   we need to decrease `fragment_length` by 6 bytes.

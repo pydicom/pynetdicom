@@ -61,19 +61,20 @@ class TestAEVerificationSCP(object):
                 thread.abort()
                 thread.stop()
 
+    @pytest.mark.skip("Can't figure out how to simulate KeyboardInterrupt")
     def test_stop_scp_keyboard(self):
         """Test stopping the SCP with keyboard"""
         self.scp = DummyVerificationSCP()
         self.scp.start()
 
         # Give the SCP time to start
-        time.sleep(0.1)
+        time.sleep(0.05)
 
-        def test():
-            raise KeyboardInterrupt
+        assert self.scp.ae._quit is False
 
-        # This causes thread stopping issues
-        pytest.raises(KeyboardInterrupt, test)
+        # Simulate KeyboardInterrupt in self.scp somehow...
+
+        assert self.scp.ae._quit is True
 
         self.scp.stop()
 
@@ -484,9 +485,8 @@ class TestAEGoodAssociation(object):
         # Check 0 max pdu value - max PDU value maps to 0x10000 internally
         assoc = ae.associate('localhost', 11112, max_pdu=0)
         assert assoc.requestor.maximum_length == 0
-        assert self.scp.ae.active_associations[0].requestor.maximum_length == (
-            0x10000
-        )
+        assert self.scp.ae.active_associations[0].requestor.maximum_length == 0
+
         assoc.release()
 
         self.scp.stop()
@@ -567,6 +567,12 @@ class TestAEGoodAssociation(object):
             assert assoc.is_released
             assert not assoc.is_established
             self.scp.stop()
+
+    def test_quit_deprecation(self):
+        """Test that the deprecation warning for AE.quit works."""
+        ae = AE()
+        with pytest.deprecated_call():
+            ae.quit()
 
 
 class TestAEBadAssociation(object):

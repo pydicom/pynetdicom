@@ -76,6 +76,17 @@ class TestDIMSEMessage(object):
         with pytest.raises(ValueError):
             next(frag(c_echo_rsp_cmd, 6))
 
+    def test_fragment_pdv_zero(self):
+        """Test that the PDV fragmenter works correctly for 0 max PDU."""
+        dimse_msg = C_STORE_RQ()
+        frag = dimse_msg._generate_pdv_fragments
+        result = []
+        for fragment in frag(c_echo_rsp_cmd, 0):
+            result.append(fragment)
+
+        assert len(result) == 1
+        assert result[0] == c_echo_rsp_cmd
+
     def test_encode(self):
         """Test encoding of a DIMSE message."""
         primitive = C_STORE()
@@ -119,6 +130,43 @@ class TestDIMSEMessage(object):
             p_data_list.append(pdata)
         assert p_data_list[0].presentation_data_value_list[0][1] == c_store_rq_cmd
         assert p_data_list[1].presentation_data_value_list[0][1] == c_store_ds
+
+    def test_encode_zero(self):
+        """Test encoding with a 0 max pdu length."""
+        primitive = C_STORE()
+        primitive.MessageID = 7
+        primitive.AffectedSOPClassUID = '1.1.1'
+        primitive.AffectedSOPInstanceUID = '1.2.1'
+        primitive.Priority = 0x02
+        primitive.MoveOriginatorApplicationEntityTitle = 'UNITTEST'
+        primitive.MoveOriginatorMessageID = 3
+
+        # Test encode without dataset
+        dimse_msg = C_STORE_RQ()
+        dimse_msg.primitive_to_message(primitive)
+        p_data_list = []
+        for pdata in dimse_msg.encode_msg(12, 0):
+            p_data_list.append(pdata)
+        assert p_data_list[0].presentation_data_value_list[0][1][0:1] == b'\x03'
+        assert dimse_msg.ID == 12
+
+        # Test encode with dataset
+        ds = Dataset()
+        ds.PatientID = 'Test1101'
+        ds.PatientName = 'Tube^HeNe'
+        primitive.DataSet = BytesIO(encode(ds, True, True))
+
+        dimse_msg = C_STORE_RQ()
+        dimse_msg.primitive_to_message(primitive)
+        p_data_list = []
+        for pdata in dimse_msg.encode_msg(13, 0):
+            p_data_list.append(pdata)
+
+        assert p_data_list[0].presentation_data_value_list[0][1][0:1] == b'\x03'
+        assert p_data_list[0].presentation_data_value_list[0][1] == c_store_rq_cmd
+        assert p_data_list[1].presentation_data_value_list[0][1][0:1] == b'\x02'
+        assert p_data_list[1].presentation_data_value_list[0][1] == c_store_ds
+        assert dimse_msg.ID == 13
 
     def test_decode(self):
         """Test decoding of a DIMSE message."""
