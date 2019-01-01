@@ -32,7 +32,7 @@
     <link rel="index" title="Index" href="../genindex.html" />
     <link rel="search" title="Search" href="../search.html" />
     <link rel="next" title="Association" href="association.html" />
-    <link rel="prev" title="Important Concepts" href="concepts.html" /> 
+    <link rel="prev" title="Presentation Contexts" href="presentation.html" /> 
 
   
   <script src="../_static/js/modernizr.min.js"></script>
@@ -106,6 +106,7 @@
 <li class="toctree-l1 current"><a class="reference internal" href="index.html">User Guide</a><ul class="current">
 <li class="toctree-l2"><a class="reference internal" href="installation.html">Installation</a></li>
 <li class="toctree-l2"><a class="reference internal" href="concepts.html">Important Concepts</a></li>
+<li class="toctree-l2"><a class="reference internal" href="presentation.html">Presentation Contexts</a></li>
 <li class="toctree-l2 current"><a class="current reference internal" href="#">Application Entity</a><ul>
 <li class="toctree-l3"><a class="reference internal" href="#creating-an-scu">Creating an SCU</a><ul>
 <li class="toctree-l4"><a class="reference internal" href="#adding-requested-presentation-contexts">Adding requested Presentation Contexts</a></li>
@@ -199,9 +200,9 @@
             
   <div class="section" id="application-entity">
 <h1>Application Entity<a class="headerlink" href="#application-entity" title="Permalink to this headline">¶</a></h1>
-<p>The first step in DICOM networking with pynetdicom is the creation of an
-<a class="reference internal" href="concepts.html#concepts-ae"><span class="std std-ref">Application Entity</span></a> (or AE). A minimal initialisation of <code class="docutils literal notranslate"><span class="pre">AE</span></code> requires no
-arguments.</p>
+<p>The first step in DICOM networking with <em>pynetdicom</em> is the creation of an
+<a class="reference internal" href="concepts.html#concepts-ae"><span class="std std-ref">Application Entity</span></a> (or AE). A minimal initialisation of
+<code class="docutils literal notranslate"><span class="pre">AE</span></code> requires no arguments.</p>
 <div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="kn">from</span> <span class="nn">pynetdicom</span> <span class="k">import</span> <span class="n">AE</span>
 <span class="gp">&gt;&gt;&gt; </span><span class="n">ae</span> <span class="o">=</span> <span class="n">AE</span><span class="p">()</span>
 </pre></div>
@@ -232,7 +233,7 @@ excluding backslash (‘\ ‘ <code class="docutils literal notranslate"><span c
 <ul class="simple">
 <li>An AE title made entirely of spaces is not allowed <a class="footnote-reference" href="#id11" id="id5">[4]</a></li>
 </ul>
-<p>AE titles in pynetdicom are checked for validity (using
+<p>AE titles in <em>pynetdicom</em> are checked for validity (using
 <a class="reference internal" href="../reference/generated/pynetdicom.utils.validate_ae_title.html#pynetdicom.utils.validate_ae_title" title="pynetdicom.utils.validate_ae_title"><code class="xref py py-meth docutils literal notranslate"><span class="pre">utils.validate_ae_title()</span></code></a>)
 and then stored as length 16 <code class="docutils literal notranslate"><span class="pre">bytes</span></code>, with
 trailing spaces added as padding if required. This can be important to
@@ -401,7 +402,7 @@ the <a class="reference internal" href="association.html#association"><span clas
 <div class="section" id="specifying-the-network-port">
 <h3>Specifying the network port<a class="headerlink" href="#specifying-the-network-port" title="Permalink to this headline">¶</a></h3>
 <p>In general it shouldn’t be necessary to specify the port when acting as an SCU.
-By default pynetdicom will use the first available port to communicate with a
+By default <em>pynetdicom</em> will use the first available port to communicate with a
 peer AE. To specify the port number you can use the <code class="docutils literal notranslate"><span class="pre">port</span></code> parameter when
 initialising the AE:</p>
 <div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="kn">from</span> <span class="nn">pynetdicom</span> <span class="k">import</span> <span class="n">AE</span>
@@ -734,7 +735,7 @@ AEs and how to handle their service requests see the
         <a href="association.html" class="btn btn-neutral float-right" title="Association" accesskey="n" rel="next">Next <span class="fa fa-arrow-circle-right"></span></a>
       
       
-        <a href="concepts.html" class="btn btn-neutral" title="Important Concepts" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left"></span> Previous</a>
+        <a href="presentation.html" class="btn btn-neutral" title="Presentation Contexts" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left"></span> Previous</a>
       
     </div>
   

@@ -1,0 +1,682 @@
+
+
+<!DOCTYPE html>
+<!--[if IE 8]><html class="no-js lt-ie9" lang="en" > <![endif]-->
+<!--[if gt IE 8]><!--> <html class="no-js" lang="en" > <!--<![endif]-->
+<head>
+  <meta charset="utf-8">
+  
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  
+  <title>Presentation Contexts &mdash; pynetdicom 1.1.0.dev0 documentation</title>
+  
+
+  
+  
+    <link rel="shortcut icon" href="../_static/favicon.ico"/>
+  
+  
+  
+
+  
+
+  
+  
+    
+
+  
+
+  <link rel="stylesheet" href="../_static/css/pynetdicom.css" type="text/css" />
+  <link rel="stylesheet" href="../_static/pygments.css" type="text/css" />
+  <link rel="stylesheet" href="../_static/css/pynetdicom.css" type="text/css" />
+    <link rel="index" title="Index" href="../genindex.html" />
+    <link rel="search" title="Search" href="../search.html" />
+    <link rel="next" title="Application Entity" href="ae.html" />
+    <link rel="prev" title="Important Concepts" href="concepts.html" /> 
+
+  
+  <script src="../_static/js/modernizr.min.js"></script>
+
+</head>
+
+<body class="wy-body-for-nav">
+
+   
+  <div class="wy-grid-for-nav">
+
+    
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search">
+          
+
+          
+            <a href="../index.html" class="icon icon-home"> pynetdicom
+          
+
+          
+            
+            <img src="../_static/pydicom_flat_black.svg" class="logo" alt="Logo"/>
+          
+          </a>
+
+          
+            
+            
+              <div class="version">
+                1.1.0.dev0
+              </div>
+            
+          
+
+          
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="../search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+
+          
+        </div>
+
+        <div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="main navigation">
+          
+            
+            
+              
+            
+            
+              <ul>
+<li class="toctree-l1"><a class="reference internal" href="../verification_service_class.html">Verification Service Class</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../storage_service_class.html">Storage Service Class</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../query_retrieve_service_class.html">Query/Retrieve Service Class</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../basic_worklist_service_class.html">Basic Worklist Management Service Class</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../relevant_patient_service_class.html">Relevant Patient Information Query Service Class</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../substance_admin_service_class.html">Substance Administration Query Service Class</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../non_patient_service_class.html">Non-Patient Object Storage Service Class</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../color_palette_service_class.html">Color Palette Query/Retrieve Service Class</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../defined_procedure_service_class.html">Defined Procedure Protocol Query/Retrieve Service Class</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../hanging_protocol_service_class.html">Hanging Protocol Query/Retrieve Service Class</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../implant_template_service_class.html">Implant Template Query/Retrieve Service Class</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../display_system_service_class.html">Display System Management Service Class</a></li>
+</ul>
+<ul class="current">
+<li class="toctree-l1 current"><a class="reference internal" href="index.html">User Guide</a><ul class="current">
+<li class="toctree-l2"><a class="reference internal" href="installation.html">Installation</a></li>
+<li class="toctree-l2"><a class="reference internal" href="concepts.html">Important Concepts</a></li>
+<li class="toctree-l2 current"><a class="current reference internal" href="#">Presentation Contexts</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="#introduction">Introduction</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="#representation-in-pynetdicom">Representation in pynetdicom</a></li>
+</ul>
+</li>
+<li class="toctree-l3"><a class="reference internal" href="#presentation-contexts-and-the-association-requestor">Presentation Contexts and the Association Requestor</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#presentation-contexts-and-the-association-acceptor">Presentation Contexts and the Association Acceptor</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#presentation-context-negotiation">Presentation Context Negotiation</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="#implementation-note">Implementation Note</a></li>
+</ul>
+</li>
+<li class="toctree-l3"><a class="reference internal" href="#scp-scu-role-selection">SCP/SCU Role Selection</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="ae.html">Application Entity</a></li>
+<li class="toctree-l2"><a class="reference internal" href="association.html">Association</a></li>
+</ul>
+</li>
+</ul>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../release_notes.html">1.1.0</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../release_notes.html#id2">1.0.0</a></li>
+</ul>
+
+            
+          
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap">
+
+      
+      <nav class="wy-nav-top" aria-label="top navigation">
+        
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="../index.html">pynetdicom</a>
+        
+      </nav>
+
+
+      <div class="wy-nav-content">
+        
+        <div class="rst-content">
+        
+          
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+<div role="navigation" aria-label="breadcrumbs navigation">
+
+  <ul class="wy-breadcrumbs">
+    
+      <li><a href="../index.html">Docs</a> &raquo;</li>
+        
+          <li><a href="index.html">User Guide</a> &raquo;</li>
+        
+      <li>Presentation Contexts</li>
+    
+    
+      <li class="wy-breadcrumbs-aside">
+        
+            
+            <a href="../_sources/user/presentation.rst.txt" rel="nofollow"> View page source</a>
+          
+        
+      </li>
+    
+  </ul>
+
+  
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+            
+  <div class="section" id="presentation-contexts">
+<span id="user-presentation"></span><h1>Presentation Contexts<a class="headerlink" href="#presentation-contexts" title="Permalink to this headline">¶</a></h1>
+<div class="section" id="introduction">
+<h2>Introduction<a class="headerlink" href="#introduction" title="Permalink to this headline">¶</a></h2>
+<p>Presentation Contexts are used in DICOM to fully define the content and the
+encoding of a piece of data (typically a DICOM dataset). They consist of three
+main parts; a Context ID, an Abstract Syntax and one or more Transfer Syntaxes.</p>
+<ul class="simple">
+<li>The Context ID is an odd-integer between 1 and 255 (inclusive) and identifies
+the context. With <em>pynetdicom</em> this is not something you typically have to
+worry about.</li>
+<li>The Abstract Syntax defines what the data represents, usually identified by
+a DICOM SOP Class UID such as ‘1.2.840.10008.1.1’ (Verification SOP Class)
+or ‘1.2.840.10008.5.1.4.1.1’ (CT Image Storage). Private abstract syntaxes
+are also allowed.</li>
+<li>The Transfer Syntax defines how the data is encoded, usually identified by
+a DICOM transfer syntax UID such as ‘1.2.840.10008.1.2’ (Implicit VR Little
+Endian) or ‘1.2.840.10008.1.2.4.50’ (JPEG Baseline). Private transfer
+syntaxes are also allowed.</li>
+</ul>
+<div class="section" id="representation-in-pynetdicom">
+<h3>Representation in pynetdicom<a class="headerlink" href="#representation-in-pynetdicom" title="Permalink to this headline">¶</a></h3>
+<p>In <em>pynetdicom</em> presentation contexts are represented using the
+<a class="reference internal" href="../reference/generated/pynetdicom.presentation.PresentationContext.html#pynetdicom.presentation.PresentationContext" title="pynetdicom.presentation.PresentationContext"><code class="xref py py-class docutils literal notranslate"><span class="pre">presentation.PresentationContext</span></code></a>
+class.</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="kn">from</span> <span class="nn">pynetdicom.presentation</span> <span class="k">import</span> <span class="n">PresentationContext</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">cx</span> <span class="o">=</span> <span class="n">PresentationContext</span><span class="p">()</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">cx</span><span class="o">.</span><span class="n">context_id</span> <span class="o">=</span> <span class="mi">1</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">cx</span><span class="o">.</span><span class="n">abstract_syntax</span> <span class="o">=</span> <span class="s1">&#39;1.2.840.10008.1.1&#39;</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">cx</span><span class="o">.</span><span class="n">transfer_syntax</span> <span class="o">=</span> <span class="p">[</span><span class="s1">&#39;1.2.840.10008.1.2&#39;</span><span class="p">,</span> <span class="s1">&#39;1.2.840.10008.1.2.4.50&#39;</span><span class="p">]</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="nb">print</span><span class="p">(</span><span class="n">cx</span><span class="p">)</span>
+<span class="go">ID: 1</span>
+<span class="go">Abstract Syntax: Verification SOP Class</span>
+<span class="go">Transfer Syntax(es):</span>
+<span class="go">    =Implicit VR Little Endian</span>
+<span class="go">    =JPEG Baseline (Process 1)</span>
+</pre></div>
+</div>
+<p>However its more convenient to use the
+<a class="reference internal" href="../reference/generated/pynetdicom.presentation.build_context.html#pynetdicom.presentation.build_context" title="pynetdicom.presentation.build_context"><code class="xref py py-meth docutils literal notranslate"><span class="pre">build_context</span></code></a>
+convenience function which returns a <code class="docutils literal notranslate"><span class="pre">PresentationContext</span></code> instance:</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="kn">from</span> <span class="nn">pynetdicom</span> <span class="k">import</span> <span class="n">build_context</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">cx</span> <span class="o">=</span> <span class="n">build_context</span><span class="p">(</span><span class="s1">&#39;1.2.840.10008.1.1&#39;</span><span class="p">,</span> <span class="p">[</span><span class="s1">&#39;1.2.840.10008.1.2&#39;</span><span class="p">,</span> <span class="s1">&#39;1.2.840.10008.1.2.4.50&#39;</span><span class="p">])</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="nb">print</span><span class="p">(</span><span class="n">cx</span><span class="p">)</span>
+<span class="go">Abstract Syntax: Verification SOP Class</span>
+<span class="go">Transfer Syntax(es):</span>
+<span class="go">    =Implicit VR Little Endian</span>
+<span class="go">    =JPEG Baseline (Process 1)</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="nb">print</span><span class="p">(</span><span class="n">build_context</span><span class="p">(</span><span class="s1">&#39;1.2.840.10008.1.1&#39;</span><span class="p">))</span>  <span class="c1"># Default transfer syntaxes</span>
+<span class="go">Abstract Syntax: Verification SOP Class</span>
+<span class="go">Transfer Syntax(es):</span>
+<span class="go">    =Implicit VR Little Endian</span>
+<span class="go">    =Explicit VR Little Endian</span>
+<span class="go">    =Explicit VR Big Endian</span>
+</pre></div>
+</div>
+</div>
+</div>
+<div class="section" id="presentation-contexts-and-the-association-requestor">
+<h2>Presentation Contexts and the Association Requestor<a class="headerlink" href="#presentation-contexts-and-the-association-requestor" title="Permalink to this headline">¶</a></h2>
+<p>When acting as the association <em>Requestor</em> (usually the SCU), you must propose
+presentation contexts to be negotiated by the
+association process. There are a couple of simple rules for these:</p>
+<ul class="simple">
+<li>There must be at least 1 and up to 128 proposed presentation contexts.</li>
+<li>You can use the same abstract syntax in more than one presentation context.</li>
+<li>Each presentation context must have at least one transfer syntax.</li>
+</ul>
+<p>In <em>pynetdicom</em> this is accomplished through one of the following methods:</p>
+<ol class="arabic simple">
+<li>Setting the <a class="reference internal" href="../reference/generated/pynetdicom.ae.ApplicationEntity.html#pynetdicom.ae.ApplicationEntity.requested_contexts" title="pynetdicom.ae.ApplicationEntity.requested_contexts"><code class="xref py py-obj docutils literal notranslate"><span class="pre">AE.requested_contexts</span></code></a>
+attribute directly using a list of <code class="docutils literal notranslate"><span class="pre">PresentationContext</span></code> items.</li>
+</ol>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span> <span class="nn">pynetdicom</span> <span class="k">import</span> <span class="n">AE</span>
+<span class="kn">from</span> <span class="nn">pynetdicom.sop_class</span> <span class="k">import</span> <span class="n">VerificationSOPClass</span>
+
+<span class="n">ae</span> <span class="o">=</span> <span class="n">AE</span><span class="p">()</span>
+<span class="n">ae</span><span class="o">.</span><span class="n">requested_contexts</span> <span class="o">=</span> <span class="p">[</span><span class="n">build_context</span><span class="p">(</span><span class="n">VerificationSOPClass</span><span class="p">)]</span>
+<span class="n">assoc</span> <span class="o">=</span> <span class="n">ae</span><span class="o">.</span><span class="n">associate</span><span class="p">(</span><span class="s1">&#39;127.0.0.1&#39;</span><span class="p">,</span> <span class="mi">11112</span><span class="p">)</span>
+</pre></div>
+</div>
+<ol class="arabic simple" start="2">
+<li>Using the
+<a class="reference internal" href="../reference/generated/pynetdicom.ae.ApplicationEntity.html#pynetdicom.ae.ApplicationEntity.add_requested_context" title="pynetdicom.ae.ApplicationEntity.add_requested_context"><code class="xref py py-meth docutils literal notranslate"><span class="pre">AE.add_requested_context()</span></code></a>
+method to add a new <code class="docutils literal notranslate"><span class="pre">PresentationContext</span></code> to the
+<code class="docutils literal notranslate"><span class="pre">AE.requested_contexts</span></code> attribute.</li>
+</ol>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span> <span class="nn">pynetdicom</span> <span class="k">import</span> <span class="n">AE</span>
+<span class="kn">from</span> <span class="nn">pynetdicom.sop_class</span> <span class="k">import</span> <span class="n">VerificationSOPClass</span>
+
+<span class="n">ae</span> <span class="o">=</span> <span class="n">AE</span><span class="p">()</span>
+<span class="n">ae</span><span class="o">.</span><span class="n">add_requested_context</span><span class="p">(</span><span class="n">VerificationSOPClass</span><span class="p">)</span>
+<span class="n">assoc</span> <span class="o">=</span> <span class="n">ae</span><span class="o">.</span><span class="n">associate</span><span class="p">(</span><span class="s1">&#39;127.0.0.1&#39;</span><span class="p">,</span> <span class="mi">11112</span><span class="p">)</span>
+</pre></div>
+</div>
+<ol class="arabic simple" start="3">
+<li>Supplying a list of <code class="docutils literal notranslate"><span class="pre">PresentationContext</span></code> items to
+<a class="reference internal" href="../reference/generated/pynetdicom.ae.ApplicationEntity.html#pynetdicom.ae.ApplicationEntity.associate" title="pynetdicom.ae.ApplicationEntity.associate"><code class="xref py py-meth docutils literal notranslate"><span class="pre">AE.associate()</span></code></a>
+via the <code class="docutils literal notranslate"><span class="pre">context</span></code> keyword argument.</li>
+</ol>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span> <span class="nn">pynetdicom</span> <span class="k">import</span> <span class="n">AE</span>
+<span class="kn">from</span> <span class="nn">pynetdicom.sop_class</span> <span class="k">import</span> <span class="n">VerificationSOPClass</span>
+
+<span class="n">ae</span> <span class="o">=</span> <span class="n">AE</span><span class="p">()</span>
+<span class="n">requested</span> <span class="o">=</span> <span class="p">[</span><span class="n">build_context</span><span class="p">(</span><span class="n">VerificationSOPClass</span><span class="p">)]</span>
+<span class="n">assoc</span> <span class="o">=</span> <span class="n">ae</span><span class="o">.</span><span class="n">associate</span><span class="p">(</span><span class="s1">&#39;127.0.0.1&#39;</span><span class="p">,</span> <span class="mi">11112</span><span class="p">,</span> <span class="n">contexts</span><span class="o">=</span><span class="n">requested</span><span class="p">)</span>
+</pre></div>
+</div>
+<p>The abstract syntaxes you propose should match the (0008,0016) <em>SOP Class UID</em>
+of the SOP classes related to the service you wish to use. For example, if
+you’re intending to use the storage service then you’d propose one or more
+abstract syntaxes from the <a class="reference external" href="http://dicom.nema.org/medical/dicom/current/output/chtml/part04/sect_B.5.html">corresponding SOP Class UIDs</a>.</p>
+<p>The transfer syntaxes you propose for each abstract syntax should match the
+transfer syntax of the data you wish to send. For example, if you have
+a CT Image Storage dataset with a (0002,0010) <em>Transfer Syntax UID</em> value of
+‘1.2.840.10008.1.2.4.50’ (JPEG Baseline) then you won’t be able to send it
+unless you propose (and get accepted) a presentation context with a matching
+transfer syntax.</p>
+<div class="admonition note">
+<p class="first admonition-title">Note</p>
+<p class="last">Uncompressed transfer syntaxes are the exception to this rule as
+<em>pydicom</em> is able to freely convert between these.</p>
+</div>
+<p>If you have data encoded in a variety of transfer syntaxes then you can propose
+multiple presentation contexts with the same abstract syntax but different
+transfer syntaxes:</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="kn">from</span> <span class="nn">pydicom.uid</span> <span class="k">import</span> <span class="n">ImplicitVRLittleEndian</span><span class="p">,</span> <span class="n">JPEGBaseline</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="kn">from</span> <span class="nn">pynetdicom</span> <span class="k">import</span> <span class="n">AE</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="kn">from</span> <span class="nn">pynetdicom.sop_class</span> <span class="k">import</span> <span class="n">CTImageStorage</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">ae</span> <span class="o">=</span> <span class="n">AE</span><span class="p">()</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">ae</span><span class="o">.</span><span class="n">add_requested_context</span><span class="p">(</span><span class="n">CTImageStorage</span><span class="p">,</span> <span class="n">ImplicitVRLittleEndian</span><span class="p">)</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">ae</span><span class="o">.</span><span class="n">add_requested_context</span><span class="p">(</span><span class="n">CTImageStorage</span><span class="p">,</span> <span class="n">JPEGBaseline</span><span class="p">)</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="k">for</span> <span class="n">cx</span> <span class="ow">in</span> <span class="n">ae</span><span class="o">.</span><span class="n">requested_contexts</span><span class="p">:</span>
+<span class="gp">... </span>    <span class="nb">print</span><span class="p">(</span><span class="n">cx</span><span class="p">)</span>
+<span class="gp">...</span>
+<span class="go">Abstract Syntax: CT Image Storage</span>
+<span class="go">Transfer Syntax(es):</span>
+<span class="go">    =Implicit VR Little Endian</span>
+<span class="go">Abstract Syntax: CT Image Storage</span>
+<span class="go">Transfer Syntax(es):</span>
+<span class="go">    =JPEG Baseline (Process 1)</span>
+</pre></div>
+</div>
+<p>Provided both get accepted then its becomes possible to transfer CT Image
+datasets encoded in both JPEG Baseline and Implicit VR Little Endian.
+Alternatively it may be necessary to decompress datasets prior to sending (as
+Implicit VR Little Endian should always be acceptable).</p>
+</div>
+<div class="section" id="presentation-contexts-and-the-association-acceptor">
+<h2>Presentation Contexts and the Association Acceptor<a class="headerlink" href="#presentation-contexts-and-the-association-acceptor" title="Permalink to this headline">¶</a></h2>
+<p>When acting as the association <em>Acceptor</em> (usually the SCP), you should define
+which presentation contexts will be supported. Unlike the <em>Requestor</em> you can
+define an unlimited number of supported presentation contexts.</p>
+<p>In <em>pynetdicom</em> this is accomplished through one of the following methods:</p>
+<ol class="arabic simple">
+<li>Setting the <a class="reference internal" href="../reference/generated/pynetdicom.ae.ApplicationEntity.html#pynetdicom.ae.ApplicationEntity.supported_contexts" title="pynetdicom.ae.ApplicationEntity.supported_contexts"><code class="xref py py-obj docutils literal notranslate"><span class="pre">AE.supported_contexts</span></code></a>
+attribute directly using a list of <code class="docutils literal notranslate"><span class="pre">PresentationContext</span></code> items.</li>
+</ol>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span> <span class="nn">pynetdicom</span> <span class="k">import</span> <span class="n">AE</span>
+<span class="kn">from</span> <span class="nn">pynetdicom.sop_class</span> <span class="k">import</span> <span class="n">VerificationSOPClass</span>
+
+<span class="n">ae</span> <span class="o">=</span> <span class="n">AE</span><span class="p">(</span><span class="n">port</span><span class="o">=</span><span class="mi">11112</span><span class="p">)</span>
+<span class="n">ae</span><span class="o">.</span><span class="n">supported_contexts</span> <span class="o">=</span> <span class="p">[</span><span class="n">build_context</span><span class="p">(</span><span class="n">VerificationSOPClass</span><span class="p">)]</span>
+<span class="n">ae</span><span class="o">.</span><span class="n">start</span><span class="p">()</span>
+</pre></div>
+</div>
+<ol class="arabic simple" start="2">
+<li>Using the
+<a class="reference internal" href="../reference/generated/pynetdicom.ae.ApplicationEntity.html#pynetdicom.ae.ApplicationEntity.add_supported_context" title="pynetdicom.ae.ApplicationEntity.add_supported_context"><code class="xref py py-meth docutils literal notranslate"><span class="pre">AE.add_supported_context()</span></code></a>
+method to add a new <code class="docutils literal notranslate"><span class="pre">PresentationContext</span></code> to the
+<code class="docutils literal notranslate"><span class="pre">AE.supported_contexts</span></code> attribute.</li>
+</ol>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span> <span class="nn">pynetdicom</span> <span class="k">import</span> <span class="n">AE</span>
+<span class="kn">from</span> <span class="nn">pynetdicom.sop_class</span> <span class="k">import</span> <span class="n">VerificationSOPClass</span>
+
+<span class="n">ae</span> <span class="o">=</span> <span class="n">AE</span><span class="p">(</span><span class="n">port</span><span class="o">=</span><span class="mi">11112</span><span class="p">)</span>
+<span class="n">ae</span><span class="o">.</span><span class="n">add_supported_context</span><span class="p">(</span><span class="n">VerificationSOPClass</span><span class="p">)</span>
+<span class="n">ae</span><span class="o">.</span><span class="n">start</span><span class="p">()</span>
+</pre></div>
+</div>
+<p>The abstract syntaxes you support should correspond to the service classes that
+are being offered. For example, if you offer the Storage Service then you should
+support one or more of the Storage Service’s corresponding SOP Classes.</p>
+<p>The transfer syntaxes for each abstract syntax should match the data encoding
+you support.</p>
+<div class="admonition note">
+<p class="first admonition-title">Note</p>
+<p class="last">In general, <em>pynetdicom</em> is able to support any transfer syntax when
+acting as an SCP.</p>
+</div>
+</div>
+<div class="section" id="presentation-context-negotiation">
+<h2>Presentation Context Negotiation<a class="headerlink" href="#presentation-context-negotiation" title="Permalink to this headline">¶</a></h2>
+<p>Consider an <em>Acceptor</em> that supports the following abstract syntax/transfer
+syntaxes:</p>
+<ul class="simple">
+<li>Verification SOP Class<ul>
+<li>Implicit VR Little Endian</li>
+<li>Explicit VR Little Endian</li>
+</ul>
+</li>
+<li>CT Image Storage<ul>
+<li>Implicit VR Little Endian</li>
+</ul>
+</li>
+<li>MR Image Storage<ul>
+<li>JPEG Baseline</li>
+</ul>
+</li>
+</ul>
+<p>If the <em>Requestor</em> proposes the following presentation contexts:</p>
+<ul class="simple">
+<li>Context 1: Verification SOP Class<ul>
+<li>Implicit VR Little Endian</li>
+<li>Explicit VR Little Endian</li>
+<li>Explicit VR Big Endian</li>
+<li>JPEG Baseline</li>
+</ul>
+</li>
+<li>Context 3:  CT Image Storage<ul>
+<li>Implicit VR Little Endian</li>
+<li>Explicit VR Little Endian</li>
+<li>Explicit VR Big Endian</li>
+</ul>
+</li>
+<li>Context 5: MR Image Storage<ul>
+<li>Implicit VR Little Endian</li>
+<li>Explicit VR Little Endian</li>
+</ul>
+</li>
+<li>Context 7: CR Image Storage<ul>
+<li>Implicit VR Little Endian</li>
+<li>Explicit VR Little Endian</li>
+</ul>
+</li>
+</ul>
+<p>Then the outcome of the association negotiation will be:</p>
+<ul class="simple">
+<li>Context 1: Accepted (with the <em>Acceptor</em> choosing one of Implicit or
+Explicit VR Little Endian to use as the transfer syntax)</li>
+<li>Context 3: Accepted with Implicit VR Little Endian transfer syntax</li>
+<li>Context 5: Rejected (transfer syntax not supported) because the <em>Acceptor</em>
+and <em>Requestor</em> have no matching transfer syntax for the context.</li>
+<li>Context 7: Rejected (abstract syntax not supported) because the <em>Acceptor</em>
+doesn’t support the CR Image Storage abstract syntax.</li>
+</ul>
+<p>Contexts 1 and 3 have been accepted and can be used for sending data while
+5 and 7 have been rejected and are not available.</p>
+<div class="section" id="implementation-note">
+<h3>Implementation Note<a class="headerlink" href="#implementation-note" title="Permalink to this headline">¶</a></h3>
+<p>When acting as an <em>Acceptor</em>, <em>pynetdicom</em> will choose the first matching
+transfer syntax in <code class="docutils literal notranslate"><span class="pre">PresentationContext.transfer_syntax</span></code>.  For example, if
+the <em>Requestor</em> proposes the following:</p>
+<blockquote>
+<div><div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">Abstract</span> <span class="n">Syntax</span><span class="p">:</span> <span class="n">Verification</span> <span class="n">SOP</span> <span class="n">Class</span>
+<span class="n">Transfer</span> <span class="n">Syntax</span><span class="p">(</span><span class="n">es</span><span class="p">):</span>
+    <span class="o">=</span><span class="n">Implicit</span> <span class="n">VR</span> <span class="n">Little</span> <span class="n">Endian</span>
+    <span class="o">=</span><span class="n">Explicit</span> <span class="n">VR</span> <span class="n">Little</span> <span class="n">Endian</span>
+    <span class="o">=</span><span class="n">Explicit</span> <span class="n">VR</span> <span class="n">Big</span> <span class="n">Endian</span>
+</pre></div>
+</div>
+</div></blockquote>
+<p>While the <em>Acceptor</em> supports:</p>
+<blockquote>
+<div><div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">Abstract</span> <span class="n">Syntax</span><span class="p">:</span> <span class="n">Verification</span> <span class="n">SOP</span> <span class="n">Class</span>
+<span class="n">Transfer</span> <span class="n">Syntax</span><span class="p">(</span><span class="n">es</span><span class="p">):</span>
+    <span class="o">=</span><span class="n">Explicit</span> <span class="n">VR</span> <span class="n">Little</span> <span class="n">Endian</span>
+    <span class="o">=</span><span class="n">Implicit</span> <span class="n">VR</span> <span class="n">Little</span> <span class="n">Endian</span>
+    <span class="o">=</span><span class="n">Explicit</span> <span class="n">VR</span> <span class="n">Big</span> <span class="n">Endian</span>
+</pre></div>
+</div>
+</div></blockquote>
+<p>Then the accepted transfer syntax will be Explicit VR Little Endian.</p>
+</div>
+</div>
+<div class="section" id="scp-scu-role-selection">
+<h2>SCP/SCU Role Selection<a class="headerlink" href="#scp-scu-role-selection" title="Permalink to this headline">¶</a></h2>
+<p>The final wrinkle in presentation context negotiation is <a class="reference external" href="http://dicom.nema.org/medical/dicom/current/output/chtml/part07/sect_D.3.3.4.html">SCP/SCU Role
+Selection</a>,
+which allows an association <em>Requestor</em> to propose its role (SCU, SCP, or
+SCU and SCP) for each proposed abstract syntax. Role selection is used for services such as the Query/Retrieve Service’s C-GET
+requests, where the association <em>Acceptor</em> sends data back to the <em>Requestor</em>.</p>
+<p>To propose SCP/SCU Role Selection as a <em>Requestor</em> you should include
+<a class="reference internal" href="../reference/generated/pynetdicom.pdu_primitives.SCP_SCU_RoleSelectionNegotiation.html#pynetdicom.pdu_primitives.SCP_SCU_RoleSelectionNegotiation" title="pynetdicom.pdu_primitives.SCP_SCU_RoleSelectionNegotiation"><code class="xref py py-class docutils literal notranslate"><span class="pre">SCP_SCU_RoleSelectionNegotiation</span></code></a>
+items in the extended negotiation:</p>
+<blockquote>
+<div><div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span> <span class="nn">pynetdicom</span> <span class="k">import</span> <span class="n">AE</span>
+<span class="kn">from</span> <span class="nn">pynetdicom.pdu_primitives</span> <span class="k">import</span> <span class="n">SCP_SCU_RoleSelectionNegotiation</span>
+<span class="kn">from</span> <span class="nn">pynetdicom.sop_class</span> <span class="k">import</span> <span class="n">CTImageStorage</span>
+
+<span class="n">ae</span> <span class="o">=</span> <span class="n">AE</span><span class="p">()</span>
+<span class="n">ae</span><span class="o">.</span><span class="n">add_requested_context</span><span class="p">(</span><span class="n">CTImageStorage</span><span class="p">)</span>
+
+<span class="n">item</span> <span class="o">=</span> <span class="n">SCP_SCU_RoleSelectionNegotiation</span><span class="p">()</span>
+<span class="n">item</span><span class="o">.</span><span class="n">sop_class_uid</span> <span class="o">=</span> <span class="n">CTImageStorage</span>
+<span class="n">item</span><span class="o">.</span><span class="n">scu_role</span> <span class="o">=</span> <span class="kc">True</span>
+<span class="n">item</span><span class="o">.</span><span class="n">scp_role</span> <span class="o">=</span> <span class="kc">True</span>
+
+<span class="n">assoc</span> <span class="o">=</span> <span class="n">ae</span><span class="p">(</span><span class="s1">&#39;127.0.0.1&#39;</span><span class="p">,</span> <span class="mi">11112</span><span class="p">,</span> <span class="n">ext_neg</span><span class="o">=</span><span class="p">[</span><span class="n">item</span><span class="p">])</span>
+</pre></div>
+</div>
+</div></blockquote>
+<p>To support SCP/SCU Role Selection as an <em>Acceptor</em> you can use the <code class="docutils literal notranslate"><span class="pre">scu_role</span></code>
+and <code class="docutils literal notranslate"><span class="pre">scp_role</span></code> arguments in <code class="docutils literal notranslate"><span class="pre">AE.add_supported_context</span></code>:</p>
+<blockquote>
+<div><div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span> <span class="nn">pynetdicom</span> <span class="k">import</span> <span class="n">AE</span>
+<span class="kn">from</span> <span class="nn">pynetdicom.pdu_primitives</span> <span class="k">import</span> <span class="n">SCP_SCU_RoleSelectionNegotiation</span>
+<span class="kn">from</span> <span class="nn">pynetdicom.sop_class</span> <span class="k">import</span> <span class="n">CTImageStorage</span>
+
+<span class="n">ae</span> <span class="o">=</span> <span class="n">AE</span><span class="p">(</span><span class="n">port</span><span class="o">=</span><span class="mi">11112</span><span class="p">)</span>
+<span class="n">ae</span><span class="o">.</span><span class="n">add_supported_context</span><span class="p">(</span><span class="n">CTImageStorage</span><span class="p">,</span> <span class="n">scu_role</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span> <span class="n">scp_role</span><span class="o">=</span><span class="kc">False</span><span class="p">)</span>
+<span class="n">ae</span><span class="o">.</span><span class="n">start</span><span class="p">()</span>
+</pre></div>
+</div>
+</div></blockquote>
+<p>Both <code class="docutils literal notranslate"><span class="pre">scu_role</span></code> and <code class="docutils literal notranslate"><span class="pre">scp_role</span></code> must be specified. A value of True indicates
+that the <em>Acceptor</em> will accept the proposed role. <em>pynetdicom</em> uses the
+following table to decide the outcome of role selection negotiation:</p>
+<table border="1" class="docutils">
+<colgroup>
+<col width="14%" />
+<col width="14%" />
+<col width="14%" />
+<col width="14%" />
+<col width="15%" />
+<col width="14%" />
+<col width="14%" />
+</colgroup>
+<thead valign="bottom">
+<tr class="row-odd"><th class="head" colspan="2">Requestor</th>
+<th class="head" colspan="2">Acceptor</th>
+<th class="head" colspan="2">Outcome</th>
+<th class="head" rowspan="2">Notes</th>
+</tr>
+<tr class="row-even"><th class="head">scu_role</th>
+<th class="head">scp_role</th>
+<th class="head">scu_role</th>
+<th class="head">scp_role</th>
+<th class="head">Requestor</th>
+<th class="head">Acceptor`</th>
+</tr>
+</thead>
+<tbody valign="top">
+<tr class="row-odd"><td>N/A</td>
+<td>N/A</td>
+<td>N/A</td>
+<td>N/A</td>
+<td>SCU</td>
+<td>SCP</td>
+<td>Default</td>
+</tr>
+<tr class="row-even"><td rowspan="4">True</td>
+<td rowspan="4">True</td>
+<td rowspan="2">False</td>
+<td>False</td>
+<td>N/A</td>
+<td>N/A</td>
+<td>Rejected</td>
+</tr>
+<tr class="row-odd"><td>True</td>
+<td>SCP</td>
+<td>SCU</td>
+<td>&#160;</td>
+</tr>
+<tr class="row-even"><td rowspan="2">True</td>
+<td>False</td>
+<td>SCU</td>
+<td>SCP</td>
+<td>Default</td>
+</tr>
+<tr class="row-odd"><td>True</td>
+<td>SCU/SCP</td>
+<td>SCU/SCP</td>
+<td>&#160;</td>
+</tr>
+<tr class="row-even"><td rowspan="2">True</td>
+<td rowspan="2">False</td>
+<td>False</td>
+<td rowspan="2">False</td>
+<td>N/A</td>
+<td>N/A</td>
+<td>Rejected</td>
+</tr>
+<tr class="row-odd"><td>True</td>
+<td>SCU</td>
+<td>SCP</td>
+<td>Default</td>
+</tr>
+<tr class="row-even"><td rowspan="2">False</td>
+<td rowspan="2">True</td>
+<td rowspan="2">False</td>
+<td>False</td>
+<td>N/A</td>
+<td>N/A</td>
+<td>Rejected</td>
+</tr>
+<tr class="row-odd"><td>True</td>
+<td>SCP</td>
+<td>SCU</td>
+<td>&#160;</td>
+</tr>
+<tr class="row-even"><td>False</td>
+<td>False</td>
+<td>False</td>
+<td>False</td>
+<td>N/A</td>
+<td>N/A</td>
+<td>Rejected</td>
+</tr>
+</tbody>
+</table>
+<p>As can be seen there are four possible outcomes:</p>
+<ul class="simple">
+<li><em>Requestor</em> is SCU, <em>acceptor</em> is SCP (default roles)</li>
+<li><em>Requestor</em> is SCP, <em>acceptor</em> is SCU</li>
+<li><em>Requestor</em> and <em>acceptor</em> are both SCU/SCP</li>
+<li><em>Requestor</em> and <em>acceptor</em> are neither (context rejected)</li>
+</ul>
+<div class="admonition warning">
+<p class="first admonition-title">Warning</p>
+<p class="last">Role selection negotiation is not very well defined by the DICOM Standard,
+so different implementations may not give the same outcomes.</p>
+</div>
+</div>
+</div>
+
+
+           </div>
+           
+          </div>
+          <footer>
+  
+    <div class="rst-footer-buttons" role="navigation" aria-label="footer navigation">
+      
+        <a href="ae.html" class="btn btn-neutral float-right" title="Application Entity" accesskey="n" rel="next">Next <span class="fa fa-arrow-circle-right"></span></a>
+      
+      
+        <a href="concepts.html" class="btn btn-neutral" title="Important Concepts" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left"></span> Previous</a>
+      
+    </div>
+  
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>
+        &copy; Copyright 2018-19, pynetdicom contributors
+
+    </p>
+  </div>
+  Built with <a href="http://sphinx-doc.org/">Sphinx</a> using a <a href="https://github.com/rtfd/sphinx_rtd_theme">theme</a> provided by <a href="https://readthedocs.org">Read the Docs</a>. 
+
+</footer>
+
+        </div>
+      </div>
+
+    </section>
+
+  </div>
+  
+
+
+  
+
+    
+    
+      <script type="text/javascript" id="documentation_options" data-url_root="../" src="../_static/documentation_options.js"></script>
+        <script type="text/javascript" src="../_static/jquery.js"></script>
+        <script type="text/javascript" src="../_static/underscore.js"></script>
+        <script type="text/javascript" src="../_static/doctools.js"></script>
+        <script type="text/javascript" src="../_static/language_data.js"></script>
+    
+
+  
+
+  <script type="text/javascript" src="../_static/js/theme.js"></script>
+
+  <script type="text/javascript">
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script> 
+
+</body>
+</html>
