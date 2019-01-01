@@ -104,8 +104,8 @@
 <li class="toctree-l1"><a class="reference internal" href="../user/index.html">User Guide</a></li>
 </ul>
 <ul>
-<li class="toctree-l1"><a class="reference internal" href="../release_notes.html">1.0.0</a></li>
-<li class="toctree-l1"><a class="reference internal" href="../release_notes.html#id2">1.1.0</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../release_notes.html">1.1.0</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../release_notes.html#id2">1.0.0</a></li>
 </ul>
 
             
@@ -178,6 +178,7 @@
 <li>No longer using a list as the default value for the <code class="docutils literal notranslate"><span class="pre">transfer_syntax</span></code>
 keyword argument in <code class="docutils literal notranslate"><span class="pre">AE.add_requested_context()</span></code>,
 <code class="docutils literal notranslate"><span class="pre">AE.add_supported_context()</span></code> and <code class="docutils literal notranslate"><span class="pre">presentation.build_context()</span></code></li>
+<li>Completely fixed handling a maximum PDU length of 0. (<a class="reference external" href="https://github.com/pydicom/pynetdicom/issues/193">#193</a>)</li>
 </ul>
 </div>
 <div class="section" id="enhancements">
@@ -186,6 +187,13 @@ keyword argument in <code class="docutils literal notranslate"><span class="pre"
 <li>Added <code class="docutils literal notranslate"><span class="pre">select_timeout</span></code> parameter to <code class="docutils literal notranslate"><span class="pre">Association.start()</span></code> to allow the
 user to specify how long the select.select() call blocks for.</li>
 <li>Improved the CPU usage of the AE when running idle as an SCP (<a class="reference external" href="https://github.com/pydicom/pynetdicom/issues/60">#60</a>).</li>
+</ul>
+</div>
+<div class="section" id="changes">
+<h2>Changes<a class="headerlink" href="#changes" title="Permalink to this headline">¶</a></h2>
+<ul class="simple">
+<li><code class="docutils literal notranslate"><span class="pre">AE.quit()</span></code> is deprecated and will be removed in v1.2. Use <code class="docutils literal notranslate"><span class="pre">AE.stop()</span></code>
+instead.</li>
 </ul>
 </div>
 </div>

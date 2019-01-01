@@ -104,8 +104,8 @@
 <li class="toctree-l1"><a class="reference internal" href="../../user/index.html">User Guide</a></li>
 </ul>
 <ul>
-<li class="toctree-l1"><a class="reference internal" href="../../release_notes.html">1.0.0</a></li>
-<li class="toctree-l1"><a class="reference internal" href="../../release_notes.html#id2">1.1.0</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../release_notes.html">1.1.0</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../release_notes.html#id2">1.0.0</a></li>
 </ul>
 
             
@@ -543,16 +543,6 @@
         <span class="c1"># Add any SCP/SCU Role Selection Negotiation response items</span>
         <span class="k">for</span> <span class="n">item</span> <span class="ow">in</span> <span class="n">ac_roles</span><span class="p">:</span>
             <span class="n">assoc</span><span class="o">.</span><span class="n">acceptor</span><span class="o">.</span><span class="n">add_negotiation_item</span><span class="p">(</span><span class="n">item</span><span class="p">)</span>
-
-        <span class="c1"># Set maximum PDU send length</span>
-        <span class="c1"># Unlimited PDU size - set to 64K as this is big enough to max</span>
-        <span class="c1">#   out most protocols</span>
-        <span class="c1"># FIXME: unlimited length should be handled correctly</span>
-        <span class="k">if</span> <span class="n">assoc</span><span class="o">.</span><span class="n">requestor</span><span class="o">.</span><span class="n">maximum_length</span> <span class="o">==</span> <span class="mi">0</span><span class="p">:</span>
-            <span class="k">for</span> <span class="n">item</span> <span class="ow">in</span> <span class="n">assoc</span><span class="o">.</span><span class="n">requestor</span><span class="o">.</span><span class="n">user_information</span><span class="p">:</span>
-                <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">item</span><span class="p">,</span> <span class="n">MaximumLengthNotification</span><span class="p">):</span>
-                    <span class="n">item</span><span class="o">.</span><span class="n">maximum_length_received</span> <span class="o">=</span> <span class="mh">0x10000</span>
-                    <span class="k">break</span>
 
         <span class="c1"># Send the A-ASSOCIATE (accept) primitive</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">send_accept</span><span class="p">(</span><span class="n">assoc</span><span class="p">)</span>

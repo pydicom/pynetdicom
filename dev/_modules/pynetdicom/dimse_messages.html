@@ -104,8 +104,8 @@
 <li class="toctree-l1"><a class="reference internal" href="../../user/index.html">User Guide</a></li>
 </ul>
 <ul>
-<li class="toctree-l1"><a class="reference internal" href="../../release_notes.html">1.0.0</a></li>
-<li class="toctree-l1"><a class="reference internal" href="../../release_notes.html#id2">1.1.0</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../release_notes.html">1.1.0</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../release_notes.html#id2">1.0.0</a></li>
 </ul>
 
             
@@ -542,7 +542,13 @@
 
         <span class="c1"># COMMAND SET (always)</span>
         <span class="c1"># Split the command set into fragments with maximum size max_pdu_length</span>
-        <span class="n">no_fragments</span> <span class="o">=</span> <span class="n">ceil</span><span class="p">(</span><span class="nb">len</span><span class="p">(</span><span class="n">encoded_command_set</span><span class="p">)</span> <span class="o">/</span> <span class="p">(</span><span class="n">max_pdu_length</span> <span class="o">-</span> <span class="mi">6</span><span class="p">))</span>
+        <span class="k">if</span> <span class="n">max_pdu_length</span> <span class="o">==</span> <span class="mi">0</span><span class="p">:</span>
+            <span class="n">no_fragments</span> <span class="o">=</span> <span class="mi">1</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="n">no_fragments</span> <span class="o">=</span> <span class="n">ceil</span><span class="p">(</span>
+                <span class="nb">len</span><span class="p">(</span><span class="n">encoded_command_set</span><span class="p">)</span> <span class="o">/</span> <span class="p">(</span><span class="n">max_pdu_length</span> <span class="o">-</span> <span class="mi">6</span><span class="p">)</span>
+            <span class="p">)</span>
+
         <span class="n">cmd_fragments</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_generate_pdv_fragments</span><span class="p">(</span><span class="n">encoded_command_set</span><span class="p">,</span>
                                                      <span class="n">max_pdu_length</span><span class="p">)</span>
 
@@ -568,9 +574,12 @@
             <span class="k">if</span> <span class="n">encoded_data_set</span><span class="p">:</span>
                 <span class="c1"># Split the data set into fragments with maximum</span>
                 <span class="c1">#   size max_pdu_length</span>
-                <span class="n">no_fragments</span> <span class="o">=</span> <span class="n">ceil</span><span class="p">(</span>
-                    <span class="nb">len</span><span class="p">(</span><span class="n">encoded_data_set</span><span class="p">)</span> <span class="o">/</span> <span class="p">(</span><span class="n">max_pdu_length</span> <span class="o">-</span> <span class="mi">6</span><span class="p">)</span>
-                <span class="p">)</span>
+                <span class="k">if</span> <span class="n">max_pdu_length</span> <span class="o">==</span> <span class="mi">0</span><span class="p">:</span>
+                    <span class="n">no_fragments</span> <span class="o">=</span> <span class="mi">1</span>
+                <span class="k">else</span><span class="p">:</span>
+                    <span class="n">no_fragments</span> <span class="o">=</span> <span class="n">ceil</span><span class="p">(</span>
+                        <span class="nb">len</span><span class="p">(</span><span class="n">encoded_data_set</span><span class="p">)</span> <span class="o">/</span> <span class="p">(</span><span class="n">max_pdu_length</span> <span class="o">-</span> <span class="mi">6</span><span class="p">)</span>
+                    <span class="p">)</span>
                 <span class="n">ds_fragments</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_generate_pdv_fragments</span><span class="p">(</span><span class="n">encoded_data_set</span><span class="p">,</span>
                                                             <span class="n">max_pdu_length</span><span class="p">)</span>
 
@@ -609,7 +618,8 @@
 <span class="sd">        bytestream : bytes</span>
 <span class="sd">            The data to be fragmented.</span>
 <span class="sd">        fragment_length : int</span>
-<span class="sd">            The maximum size of each fragment, minimum allowed value is 7 as</span>
+<span class="sd">            The maximum size of each fragment, a value of 0 is taken to mean</span>
+<span class="sd">            the fragment is infinite. Cannot be between 1 and 7 as</span>
 <span class="sd">            each Presentation Data Value Item is:</span>
 <span class="sd">            1 - 4       | 5          | 6 -&gt;</span>
 <span class="sd">            Item length | Context ID | Presentation data value -&gt;</span>
@@ -624,8 +634,11 @@
 <span class="sd">        ----------</span>
 <span class="sd">        DICOM Standard, Part 8, Annex D.1</span>
 <span class="sd">        &quot;&quot;&quot;</span>
-        <span class="k">if</span> <span class="n">fragment_length</span> <span class="o">&lt;</span> <span class="mi">7</span><span class="p">:</span>
-            <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s1">&#39;fragment_length must be at least 7.&#39;</span><span class="p">)</span>
+        <span class="k">if</span> <span class="n">fragment_length</span> <span class="o">==</span> <span class="mi">0</span><span class="p">:</span>
+            <span class="k">yield</span> <span class="n">bytestream</span>
+            <span class="k">return</span>
+        <span class="k">elif</span> <span class="mi">0</span> <span class="o">&lt;</span> <span class="n">fragment_length</span> <span class="o">&lt;</span> <span class="mi">7</span><span class="p">:</span>
+            <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s2">&quot;&#39;fragment_length&#39; cannot be between 1 and 7.&quot;</span><span class="p">)</span>
 
         <span class="c1"># Because the PDV item includes an extra 6 bytes of data at the start</span>
         <span class="c1">#   we need to decrease `fragment_length` by 6 bytes.</span>
