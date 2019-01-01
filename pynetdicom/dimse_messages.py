@@ -465,6 +465,7 @@ class DIMSEMessage(object):
         """
         if fragment_length == 0:
             yield bytestream
+            return
         elif 0 < fragment_length < 7:
             raise ValueError("'fragment_length' cannot be between 1 and 7.")
 
