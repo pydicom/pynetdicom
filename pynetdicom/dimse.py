@@ -290,7 +290,7 @@ class DIMSEServiceProvider(object):
                     # if LOG:
                     self.on_receive_dimse_message(self.message)
 
-                    context_id = self.message.ID
+                    context_id = self.message.context_id
                     primitive = self.message.message_to_primitive()
 
                     # Fix for memory leak, Issue #41
@@ -316,7 +316,7 @@ class DIMSEServiceProvider(object):
                 # if LOG:
                 self.on_receive_dimse_message(self.message)
 
-                context_id = self.message.ID
+                context_id = self.message.context_id
                 primitive = self.message.message_to_primitive()
 
                 # Fix for memory leak, Issue #41
@@ -549,7 +549,7 @@ class DIMSEServiceProvider(object):
         s.append('===================== OUTGOING DIMSE MESSAGE ================'
                  '====')
         s.append('Message Type                  : {0!s}'.format('C-FIND RQ'))
-        s.append('Presentation Context ID       : {0!s}'.format(msg.ID))
+        s.append('Presentation Context ID       : {0!s}'.format(msg.context_id))
         s.append('Message ID                    : {0!s}'.format(cs.MessageID))
         s.append('Affected SOP Class UID        : {0!s}'
                  .format(cs.AffectedSOPClassUID))
@@ -821,7 +821,7 @@ class DIMSEServiceProvider(object):
         s.append('===================== INCOMING DIMSE MESSAGE ================'
                  '====')
         s.append('Message Type                  : {0!s}'.format('C-ECHO RQ'))
-        s.append('Presentation Context ID       : {0!s}'.format(msg.ID))
+        s.append('Presentation Context ID       : {0!s}'.format(msg.context_id))
         s.append('Message ID                    : {0!s}'.format(cs.MessageID))
         s.append('Data Set                      : {0!s}'.format('none'))
         s.append('======================= END DIMSE MESSAGE ==================='
@@ -895,7 +895,7 @@ class DIMSEServiceProvider(object):
         s.append('===================== INCOMING DIMSE MESSAGE ================'
                  '====')
         s.append('Message Type                  : {0!s}'.format('C-STORE RQ'))
-        s.append('Presentation Context ID       : {0!s}'.format(msg.ID))
+        s.append('Presentation Context ID       : {0!s}'.format(msg.context_id))
         s.append('Message ID                    : {0!s}'.format(cs.MessageID))
         s.append('Affected SOP Class UID        : {0!s}'
                  .format(cs.AffectedSOPClassUID))
@@ -951,7 +951,7 @@ class DIMSEServiceProvider(object):
         s.append('===================== INCOMING DIMSE MESSAGE ================'
                  '====')
         s.append('Message Type                  : {0!s}'.format('C-STORE RSP'))
-        s.append('Presentation Context ID       : {0!s}'.format(msg.ID))
+        s.append('Presentation Context ID       : {0!s}'.format(msg.context_id))
         s.append('Message ID Being Responded To : {0!s}'
                  .format(cs.MessageIDBeingRespondedTo))
         if 'AffectedSOPClassUID' in cs:
@@ -1155,7 +1155,7 @@ class DIMSEServiceProvider(object):
         s.append('===================== INCOMING DIMSE MESSAGE ================'
                  '====')
         s.append('Message Type                  : {0!s}'.format('C-GET RSP'))
-        s.append('Presentation Context ID       : {0!s}'.format(msg.ID))
+        s.append('Presentation Context ID       : {0!s}'.format(msg.context_id))
         s.append('Message ID Being Responded To : {0!s}'
                  .format(cs.MessageIDBeingRespondedTo))
         if 'AffectedSOPClassUID' in cs:
@@ -1619,7 +1619,7 @@ class DIMSEServiceProvider(object):
         s.append('===================== INCOMING DIMSE MESSAGE ================'
                  '====')
         s.append('Message Type                  : {0!s}'.format('N-GET RSP'))
-        s.append('Presentation Context ID       : {0!s}'.format(msg.ID))
+        s.append('Presentation Context ID       : {0!s}'.format(msg.context_id))
         s.append('Message ID Being Responded To : {0!s}'
                  .format(cs.MessageIDBeingRespondedTo))
         if 'AffectedSOPClassUID' in cs:
