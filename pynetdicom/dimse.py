@@ -204,10 +204,8 @@ class DIMSEServiceProvider(object):
         self.dimse_timeout = dimse_timeout
         self.dul = dul
         self.maximum_pdu_size = maximum_pdu_size
-        # Should be stored by assoc not DIMSE?
         self.message = None
 
-    # Change to use max pdu size arg
     def send_msg(self, primitive, context_id):
         """Send a DIMSE-C or DIMSE-N message to the peer AE.
 

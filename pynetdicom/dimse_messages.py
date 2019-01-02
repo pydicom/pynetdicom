@@ -217,9 +217,6 @@ class DIMSEMessage(object):
         self.encoded_command_set = BytesIO()
         self.data_set = BytesIO()
 
-        self._encoded_command_set = bytearray()
-        self._data_set = bytearray()
-
     def decode_msg(self, primitive):
         """Converts P-DATA primitives into a DIMSEMessage sub-class.
 
