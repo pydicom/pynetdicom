@@ -49,7 +49,6 @@ REFERENCE_BAD_AE_STR = [
     u'\u000D'.encode('ascii'),  # \x0d
     u'\u001B'.encode('ascii'),  # \x1b
     u'\u005C'.encode('ascii'),  # \\
-    u'\u0000'.encode('ascii'),  # \x00
     u'\u0001'.encode('ascii'),  # \x01
     u'\u000e'.encode('ascii'),  # \x0e
     1234,
@@ -68,7 +67,6 @@ REFERENCE_BAD_AE_BYTES = [
     u'\u000D'.encode('ascii'),  # \x0d
     u'\u001B'.encode('ascii'),  # \x1b
     u'\u005C'.encode('ascii'),  # \\
-    u'\u0000'.encode('ascii'),  # \x00
     u'\u0001'.encode('ascii'),  # \x01
     u'\u000e'.encode('ascii'),  # \x0e
     1234,
