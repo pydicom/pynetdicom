@@ -5,7 +5,6 @@ import logging
 import sys
 
 from pydicom.dataset import Dataset
-from pydicom.uid import UID
 
 from pynetdicom.dsutils import decode, encode
 from pynetdicom.dimse_primitives import C_STORE, C_ECHO, C_MOVE, C_GET, C_FIND
@@ -19,6 +18,8 @@ from pynetdicom.status import (
     RELEVANT_PATIENT_SERVICE_CLASS_STATUS,
     SUBSTANCE_ADMINISTRATION_SERVICE_CLASS_STATUS,
     NON_PATIENT_SERVICE_CLASS_STATUS,
+)
+from pynetdicom._globals import (
     STATUS_FAILURE,
     STATUS_SUCCESS,
     STATUS_WARNING,
@@ -35,10 +36,8 @@ class ServiceClass(object):
 
     Attributes
     ----------
-    AE : ae.ApplicationEntity
-        The local AE (needed for the callbacks).
-    DIMSE : dimse.DIMSEServiceProvider
-        The DIMSE service provider (needed to send/receive messages)
+    assoc : association.Association
+        The association instance offering the service.
     """
     def __init__(self, assoc):
         """Create a new ServiceClass."""
@@ -188,9 +187,9 @@ class VerificationServiceClass(ServiceClass):
 
         *Status*
 
-        The DICOM Standard, Part 7 (Table 9.3-13) indicates that the Status value
-        of a C-ECHO response "shall have a value of Success". However Section
-        9.1.5.1.4 indicates it may have any of the following values:
+        The DICOM Standard, Part 7 (Table 9.3-13) indicates that the Status
+        value of a C-ECHO response "shall have a value of Success". However
+        Section 9.1.5.1.4 indicates it may have any of the following values:
 
         Success
           | ``0x0000`` Success
@@ -207,8 +206,8 @@ class VerificationServiceClass(ServiceClass):
         * DICOM Standard, Part 4, `Annex A <http://dicom.nema.org/medical/dicom/current/output/html/part04.html#chapter_A>`_
         * DICOM Standard, Part 7, Sections
           `9.1.5 <http://dicom.nema.org/medical/dicom/current/output/html/part07.html#sect_9.1.5>`_,
-          `9.3.5 <http://dicom.nema.org/medical/dicom/current/output/html/part07.html#sect_9.3.5>`_ and
-          `Annex C <http://dicom.nema.org/medical/dicom/current/output/html/part07.html#chapter_C>`_
+          `9.3.5 <http://dicom.nema.org/medical/dicom/current/output/html/part07.html#sect_9.3.5>`_
+          and `Annex C <http://dicom.nema.org/medical/dicom/current/output/html/part07.html#chapter_C>`_
         """
         # Build C-ECHO response primitive
         rsp = C_ECHO()
@@ -217,7 +216,7 @@ class VerificationServiceClass(ServiceClass):
         rsp.AffectedSOPClassUID = req.AffectedSOPClassUID
 
         info['parameters'] = {
-             'message_id' : req.MessageID
+            'message_id' : req.MessageID
         }
 
         # Try and run the user's on_c_echo callback. The callback should return
@@ -244,8 +243,10 @@ class VerificationServiceClass(ServiceClass):
 
             # Check Status validity
             if not self.is_valid_status(rsp.Status):
-                LOGGER.warning("Unknown 'status' value returned by 'on_c_echo' "
-                               "callback - 0x{0:04x}".format(rsp.Status))
+                LOGGER.warning(
+                    "Unknown 'status' value returned by 'on_c_echo' "
+                    "callback - 0x{0:04x}".format(rsp.Status)
+                )
         except Exception as ex:
             LOGGER.exception(ex)
             LOGGER.error("Exception in the 'on_c_echo' callback, responding "
@@ -331,8 +332,8 @@ class StorageServiceClass(ServiceClass):
         * DICOM Standard, Part 4, `Annex GG <http://dicom.nema.org/medical/dicom/current/output/html/part04.html#chapter_GG>`_.
         * DICOM Standard, Part 7, Sections
           `9.1.1 <http://dicom.nema.org/medical/dicom/current/output/html/part07.html#sect_9.1.1>`_,
-          `9.3.1 <http://dicom.nema.org/medical/dicom/current/output/html/part07.html#sect_9.3.1>`_ and
-          `Annex C <http://dicom.nema.org/medical/dicom/current/output/html/part07.html#chapter_C>`_.
+          `9.3.1 <http://dicom.nema.org/medical/dicom/current/output/html/part07.html#sect_9.3.1>`_
+          and `Annex C <http://dicom.nema.org/medical/dicom/current/output/html/part07.html#chapter_C>`_.
         """
         # Build C-STORE response primitive
         rsp = C_STORE()
@@ -360,10 +361,10 @@ class StorageServiceClass(ServiceClass):
             return
 
         info['parameters'] = {
-             'message_id' : req.MessageID,
-             'priority' : req.Priority,
-             'originator_aet' : req.MoveOriginatorApplicationEntityTitle,
-             'originator_message_id' : req.MoveOriginatorMessageID
+            'message_id' : req.MessageID,
+            'priority' : req.Priority,
+            'originator_aet' : req.MoveOriginatorApplicationEntityTitle,
+            'originator_message_id' : req.MoveOriginatorMessageID
         }
 
         # Attempt to run the ApplicationEntity's on_c_store callback
@@ -481,8 +482,8 @@ class QueryRetrieveServiceClass(ServiceClass):
           SOP Instances managed by the SCP.
         * (0008,0052) Query/Retrieve Level.
         * (0008,0053) Query/Retrieve View, if Enhanced Multi-Frame Image
-          Conversion has been accepted during Extended Negotiation. It shall not
-          be present otherwise.
+          Conversion has been accepted during Extended Negotiation. It shall
+          not be present otherwise.
         * (0008,0005) Specific Character Set, if expanded or replacement
           character sets may be used in any of the Attributes in the request
           Identifier. It shall not be present otherwise.
@@ -547,8 +548,8 @@ class QueryRetrieveServiceClass(ServiceClass):
         .. [1] DICOM Standard, Part 4, `Annex C <http://dicom.nema.org/medical/dicom/current/output/html/part04.html#chapter_C>`_.
         .. [2] DICOM Standard, Part 7, Sections
            `9.1.2 <http://dicom.nema.org/medical/dicom/current/output/html/part07.html#sect_9.1.2>`_,
-           `9.3.2 <http://dicom.nema.org/medical/dicom/current/output/html/part07.html#sect_9.3.2>`_ and
-           `Annex C <http://dicom.nema.org/medical/dicom/current/output/html/part07.html#chapter_C>`_.
+           `9.3.2 <http://dicom.nema.org/medical/dicom/current/output/html/part07.html#sect_9.3.2>`_
+           and `Annex C <http://dicom.nema.org/medical/dicom/current/output/html/part07.html#chapter_C>`_.
         """
         # Build C-FIND response primitive
         rsp = C_FIND()
@@ -578,13 +579,14 @@ class QueryRetrieveServiceClass(ServiceClass):
             return
 
         info['parameters'] = {
-             'message_id' : req.MessageID,
-             'priority' : req.Priority
+            'message_id' : req.MessageID,
+            'priority' : req.Priority
         }
 
         stopper = object()
         # This will wrap exceptions during iteration and return a good value.
         def wrap_on_c_find():
+            """Wrapper for exceptions"""
             try:
                 # We unpack here so that the error is still caught
                 for val1, val2 in self.ae.on_c_find(identifier,
@@ -601,7 +603,10 @@ class QueryRetrieveServiceClass(ServiceClass):
             # We only want to catch exceptions in the user code, not in ours.
             if rsp_status is stopper:
                 exc_info = rsp_identifier
-                LOGGER.exception("Exception in user's on_c_find implementation.", exc_info=exc_info)
+                LOGGER.exception(
+                    "Exception in user's on_c_find implementation.",
+                    exc_info=exc_info
+                )
                 # Failure - Unable to Process - Error in on_c_find callback
                 rsp.Status = 0xC311
                 self.dimse.send_msg(rsp, context.context_id)
@@ -761,7 +766,8 @@ class QueryRetrieveServiceClass(ServiceClass):
           | ``0xC000`` to ``0xCFFF`` Unable to process
 
         Warning
-          | ``0xB000`` Sub-operations complete: one or more failures or warnings
+          | ``0xB000`` Sub-operations complete: one or more failures or
+            warnings
 
         *Number of X Sub-operations*
 
@@ -791,8 +797,8 @@ class QueryRetrieveServiceClass(ServiceClass):
         .. [1] DICOM Standard, Part 4, `Annex C <http://dicom.nema.org/medical/dicom/current/output/html/part04.html#chapter_C>`_.
         .. [2] DICOM Standard, Part 7, Sections
            `9.1.3 <http://dicom.nema.org/medical/dicom/current/output/html/part07.html#sect_9.1.3>`_,
-           `9.3.3 <http://dicom.nema.org/medical/dicom/current/output/html/part07.html#sect_9.3.3>`_ and
-           `Annex C <http://dicom.nema.org/medical/dicom/current/output/html/part07.html#chapter_C>`_.
+           `9.3.3 <http://dicom.nema.org/medical/dicom/current/output/html/part07.html#sect_9.3.3>`_
+           and `Annex C <http://dicom.nema.org/medical/dicom/current/output/html/part07.html#chapter_C>`_.
         """
         # Build C-GET response primitive
         rsp = C_GET()
@@ -822,8 +828,8 @@ class QueryRetrieveServiceClass(ServiceClass):
             return
 
         info['parameters'] = {
-             'message_id' : req.MessageID,
-             'priority' : req.Priority
+            'message_id' : req.MessageID,
+            'priority' : req.Priority
         }
 
         # Callback - C-GET
@@ -848,7 +854,8 @@ class QueryRetrieveServiceClass(ServiceClass):
             self.dimse.send_msg(rsp, context.context_id)
             return
 
-        # Track the sub operation results [remaining, failed, warning, complete]
+        # Track the sub operation results
+        #   [remaining, failed, warning, complete]
         store_results = [no_suboperations, 0, 0, 0]
 
         # Store the SOP Instance UIDs from any failed C-STORE sub-operations
@@ -887,7 +894,7 @@ class QueryRetrieveServiceClass(ServiceClass):
 
                 # In case user didn't include it
                 if (not isinstance(dataset, Dataset) or
-                    'FailedSOPInstanceUIDList' not in dataset):
+                        'FailedSOPInstanceUIDList' not in dataset):
                     dataset = Dataset()
                     dataset.FailedSOPInstanceUIDList = failed_instances
 
@@ -910,7 +917,7 @@ class QueryRetrieveServiceClass(ServiceClass):
 
                 # In case user didn't include it
                 if (not isinstance(dataset, Dataset) or
-                    'FailedSOPInstanceUIDList' not in dataset):
+                        'FailedSOPInstanceUIDList' not in dataset):
                     dataset = Dataset()
                     dataset.FailedSOPInstanceUIDList = failed_instances
 
@@ -1172,8 +1179,8 @@ class QueryRetrieveServiceClass(ServiceClass):
         .. [1] DICOM Standard, Part 4, `Annex C <http://dicom.nema.org/medical/dicom/current/output/html/part04.html#chapter_C>`_.
         .. [2] DICOM Standard, Part 7, Sections
            `9.1.4 <http://dicom.nema.org/medical/dicom/current/output/html/part07.html#sect_9.1.4>`_,
-           `9.3.4 <http://dicom.nema.org/medical/dicom/current/output/html/part07.html#sect_9.3.4>`_ and
-           `Annex C <http://dicom.nema.org/medical/dicom/current/output/html/part07.html#chapter_C>`_.
+           `9.3.4 <http://dicom.nema.org/medical/dicom/current/output/html/part07.html#sect_9.3.4>`_
+           and `Annex C <http://dicom.nema.org/medical/dicom/current/output/html/part07.html#chapter_C>`_.
         """
         # Build C-MOVE response primitive
         rsp = C_MOVE()
@@ -1203,8 +1210,8 @@ class QueryRetrieveServiceClass(ServiceClass):
             return
 
         info['parameters'] = {
-             'message_id' : req.MessageID,
-             'priority' : req.Priority
+            'message_id' : req.MessageID,
+            'priority' : req.Priority
         }
 
         # Callback - C-MOVE
@@ -1261,15 +1268,18 @@ class QueryRetrieveServiceClass(ServiceClass):
                                             destination[1],
                                             ae_title=req.MoveDestination)
         except Exception as ex:
-            LOGGER.error("'on_c_move' yielded an invalid destination AE (addr, "
-                         "port) value")
+            LOGGER.error(
+                "'on_c_move' yielded an invalid destination AE (addr, "
+                "port) value"
+            )
             LOGGER.exception(ex)
             # Failure - Unable to process - Bad on_c_move destination
             rsp.Status = 0xC515
             self.dimse.send_msg(rsp, context.context_id)
             return
 
-        # Track the sub operation results [remaining, failed, warning, complete]
+        # Track the sub operation results
+        #   [remaining, failed, warning, complete]
         store_results = [no_suboperations, 0, 0, 0]
 
         # Store the SOP Instance UIDs from any failed C-STORE sub-operations
@@ -1305,12 +1315,14 @@ class QueryRetrieveServiceClass(ServiceClass):
                 if status[0] == STATUS_CANCEL:
                     # If cancel, then dataset is a Dataset with a
                     #   'FailedSOPInstanceUIDList' element
-                    LOGGER.info('Move SCP Received C-CANCEL-MOVE RQ from peer')
+                    LOGGER.info(
+                        'Move SCP Received C-CANCEL-MOVE RQ from peer'
+                    )
                     store_assoc.release()
 
                     # In case user didn't include it
                     if (not isinstance(dataset, Dataset) or
-                        'FailedSOPInstanceUIDList' not in dataset):
+                            'FailedSOPInstanceUIDList' not in dataset):
                         dataset = Dataset()
                         dataset.FailedSOPInstanceUIDList = failed_instances
 
@@ -1329,14 +1341,14 @@ class QueryRetrieveServiceClass(ServiceClass):
                 elif status[0] in [STATUS_FAILURE, STATUS_WARNING]:
                     # If failed or warning, then dataset is a Dataset with a
                     #   'FailedSOPInstanceUIDList' element
-                    LOGGER.info('Move SCP Result (%s - %s)',
-                                status[0],
-                                status[1])
+                    LOGGER.info(
+                        'Move SCP Result (%s - %s)', status[0], status[1]
+                    )
                     store_assoc.release()
 
                     # In case user didn't include it
                     if (not isinstance(dataset, Dataset) or
-                        'FailedSOPInstanceUIDList' not in dataset):
+                            'FailedSOPInstanceUIDList' not in dataset):
                         dataset = Dataset()
                         dataset.FailedSOPInstanceUIDList = failed_instances
 
@@ -1573,8 +1585,8 @@ class BasicWorklistManagementServiceClass(QueryRetrieveServiceClass):
         * DICOM Standard, Part 4, `Annex K <http://dicom.nema.org/medical/dicom/current/output/html/part04.html#chapter_K>`_.
         * [2] DICOM Standard, Part 7, Sections
           `9.1.2 <http://dicom.nema.org/medical/dicom/current/output/html/part07.html#sect_9.1.2>`_,
-          `9.3.2 <http://dicom.nema.org/medical/dicom/current/output/html/part07.html#sect_9.3.2>`_ and
-          `Annex C <http://dicom.nema.org/medical/dicom/current/output/html/part07.html#chapter_C>`_.
+          `9.3.2 <http://dicom.nema.org/medical/dicom/current/output/html/part07.html#sect_9.3.2>`_
+          and `Annex C <http://dicom.nema.org/medical/dicom/current/output/html/part07.html#chapter_C>`_.
         """
         if context.abstract_syntax == '1.2.840.10008.5.1.4.31':
             self._find_scp(req, context, info)
@@ -1667,8 +1679,8 @@ class RelevantPatientInformationQueryServiceClass(ServiceClass):
         * DICOM Standard, Part 4, `Annex Q <http://dicom.nema.org/medical/dicom/current/output/html/part04.html#chapter_Q>`_.
         * DICOM Standard, Part 7, Sections
            `9.1.2 <http://dicom.nema.org/medical/dicom/current/output/html/part07.html#sect_9.1.2>`_,
-           `9.3.2 <http://dicom.nema.org/medical/dicom/current/output/html/part07.html#sect_9.3.2>`_ and
-           `Annex C <http://dicom.nema.org/medical/dicom/current/output/html/part07.html#chapter_C>`_.
+           `9.3.2 <http://dicom.nema.org/medical/dicom/current/output/html/part07.html#sect_9.3.2>`_
+           and `Annex C <http://dicom.nema.org/medical/dicom/current/output/html/part07.html#chapter_C>`_.
         """
         # Build C-FIND response primitive
         rsp = C_FIND()
@@ -1698,8 +1710,8 @@ class RelevantPatientInformationQueryServiceClass(ServiceClass):
             return
 
         info['parameters'] = {
-             'message_id' : req.MessageID,
-             'priority' : req.Priority
+            'message_id' : req.MessageID,
+            'priority' : req.Priority
         }
 
         # Relevant Patient Query only allows the following responses:
@@ -1869,8 +1881,8 @@ class SubstanceAdministrationQueryServiceClass(QueryRetrieveServiceClass):
         * DICOM Standard, Part 4, `Annex V <http://dicom.nema.org/medical/dicom/current/output/html/part04.html#chapter_V>`_.
         * DICOM Standard, Part 7, Sections
            `9.1.2 <http://dicom.nema.org/medical/dicom/current/output/html/part07.html#sect_9.1.2>`_,
-           `9.3.2 <http://dicom.nema.org/medical/dicom/current/output/html/part07.html#sect_9.3.2>`_ and
-           `Annex C <http://dicom.nema.org/medical/dicom/current/output/html/part07.html#chapter_C>`_.
+           `9.3.2 <http://dicom.nema.org/medical/dicom/current/output/html/part07.html#sect_9.3.2>`_
+           and `Annex C <http://dicom.nema.org/medical/dicom/current/output/html/part07.html#chapter_C>`_.
         """
         self._find_scp(req, context, info)
 

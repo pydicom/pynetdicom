@@ -77,6 +77,7 @@ class Timer(object):
             The number of seconds before the timer expires. A value of None
             means no timeout.
         """
+        # pylint: disable=attribute-defined-outside-init
         self._max_number_seconds = value
 
     @property

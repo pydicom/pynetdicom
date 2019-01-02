@@ -28,15 +28,6 @@ from pynetdicom.pdu_items import (
     PresentationContextItemRQ,
     PresentationContextItemAC,
     UserInformationItem,
-    MaximumLengthSubItem,
-    ImplementationClassUIDSubItem,
-    ImplementationVersionNameSubItem,
-    AsynchronousOperationsWindowSubItem,
-    SCP_SCU_RoleSelectionSubItem,
-    SOPClassExtendedNegotiationSubItem,
-    SOPClassCommonExtendedNegotiationSubItem,
-    UserIdentitySubItemRQ,
-    UserIdentitySubItemAC,
     PresentationDataValueItem,
     PDU_ITEM_TYPES
 )
@@ -125,12 +116,15 @@ class PDU(object):
         if other is self:
             return True
 
+        # pylint: disable=protected-access
         if isinstance(other, self.__class__):
             self_dict = {
-                enc[0] : getattr(self, enc[0]) for enc in self._encoders if enc[0]
+                enc[0] : getattr(self, enc[0])
+                for enc in self._encoders if enc[0]
             }
             other_dict = {
-                enc[0] : getattr(other, enc[0]) for enc in other._encoders if enc[0]
+                enc[0] : getattr(other, enc[0])
+                for enc in other._encoders if enc[0]
             }
             return self_dict == other_dict
 
@@ -171,9 +165,9 @@ class PDU(object):
           - User Identity Sub-item (RQ/AC)
 
         **Encoding**
-        When encoded, PDU item and sub-item data for the above has the following
-        structure, taken from various tables in [1]_ (offsets shown with Python
-        indexing). Items are always encoded using Big Endian [2]_.
+        When encoded, PDU item and sub-item data for the above has the
+        following structure, taken from various tables in [1]_ (offsets shown
+        with Python indexing). Items are always encoded using Big Endian [2]_.
 
         +--------+-------------+-------------+
         | Offset | Length      | Description |
@@ -263,8 +257,8 @@ class PDU(object):
         String (characters 0-9), with each component separated by '.' (0x2e)
         [1]_.
 
-        'ascii' is chosen because this is the codec Python uses for ISO 646 [2]_
-        [3]_.
+        'ascii' is chosen because this is the codec Python uses for ISO 646
+        [2]_ [3]_.
 
         Parameters
         ----------
@@ -365,7 +359,8 @@ class A_ASSOCIATE_RQ(PDU):
     variable_items : list
         A list containing the A-ASSOCIATE-RQ's *Variable Items*. Contains
         one Application Context item, one or more Presentation Context items
-        and one User Information item. The order of the items is not guaranteed.
+        and one User Information item. The order of the items is not
+        guaranteed.
 
     Notes
     -----
@@ -744,7 +739,8 @@ class A_ASSOCIATE_AC(PDU):
     variable_items : list
         A list containing the A-ASSOCIATE-AC's 'Variable Items'. Contains
         one Application Context item, one or more Presentation Context items
-        and one User Information item. The order of the items is not guaranteed.
+        and one User Information item. The order of the items is not
+        guaranteed.
 
     Notes
     -----
@@ -1095,8 +1091,8 @@ class A_ASSOCIATE_RJ(PDU):
     Attributes
     ----------
     pdu_length : int
-        The number of bytes from the first byte following the *PDU Length* field
-        to the last byte of the PDU.
+        The number of bytes from the first byte following the *PDU Length*
+        field to the last byte of the PDU.
     pdu_type : int
         The *PDU Type* field value (0x03).
     reason_diagnostic : int
@@ -1334,8 +1330,8 @@ class P_DATA_TF(PDU):
     Attributes
     ----------
     pdu_length : int
-        The number of bytes from the first byte following the *PDU Length* field
-        to the last byte of the PDU.
+        The number of bytes from the first byte following the *PDU Length*
+        field to the last byte of the PDU.
     pdu_type : int
         The *PDU Type* field value (0x04).
     presentation_data_value_items : list of pdu.PresentationDataValueItem
@@ -1566,8 +1562,8 @@ class A_RELEASE_RQ(PDU):
     Attributes
     ----------
     pdu_length : int
-        The number of bytes from the first byte following the *PDU Length* field
-        to the last byte of the PDU.
+        The number of bytes from the first byte following the *PDU Length*
+        field to the last byte of the PDU.
     pdu_type : int
         The *PDU Type* field value (0x05).
 
@@ -1694,8 +1690,8 @@ class A_RELEASE_RP(PDU):
     Attributes
     ----------
     pdu_length : int
-        The number of bytes from the first byte following the *PDU Length* field
-        to the last byte of the PDU.
+        The number of bytes from the first byte following the *PDU Length*
+        field to the last byte of the PDU.
     pdu_type : int
         The *PDU Type* field value (0x06).
 
@@ -1824,8 +1820,8 @@ class A_ABORT_RQ(PDU):
     Attributes
     ----------
     pdu_length : int
-        The number of bytes from the first byte following the *PDU Length* field
-        to the last byte of the PDU.
+        The number of bytes from the first byte following the *PDU Length*
+        field to the last byte of the PDU.
     pdu_type : int
         The *PDU Type* field value (0x07).
     reason_diagnostic : int
@@ -1891,7 +1887,8 @@ class A_ABORT_RQ(PDU):
 
         # User initiated abort
         if primitive.__class__ == A_ABORT:
-            # The reason field shall be 0x00 when the source is DUL service-user
+            # The reason field shall be 0x00 when the source is DUL
+            # service-user
             self.reason_diagnostic = 0
             self.source = primitive.abort_source
 

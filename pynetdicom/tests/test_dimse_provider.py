@@ -451,7 +451,7 @@ class TestDIMSEProviderCallbacks(object):
         primitive.Priority = 0x02
         msg = C_ECHO_RQ()
         msg.primitive_to_message(primitive)
-        msg.ID = 1
+        msg.context_id = 1
         self.dimse.debug_receive_c_echo_rq(msg)
 
         # C-ECHO-RSP
@@ -699,14 +699,14 @@ class TestDIMSEProviderCallbacks(object):
         primitive.EventTypeID = 5
         msg = N_EVENT_REPORT_RQ()
         msg.primitive_to_message(primitive)
-        msg.ID = 1
+        msg.context_id = 1
         self.dimse.debug_receive_n_event_report_rq(msg)
 
         # User defined
         primitive.EventInformation = BytesIO(n_er_rq_ds)
         msg = N_EVENT_REPORT_RQ()
         msg.primitive_to_message(primitive)
-        msg.ID = 1
+        msg.context_id = 1
         self.dimse.debug_receive_n_event_report_rq(msg)
 
         # N-EVENT-REPORT-RSP
@@ -715,7 +715,7 @@ class TestDIMSEProviderCallbacks(object):
         primitive.Status = 5
         msg = N_EVENT_REPORT_RSP()
         msg.primitive_to_message(primitive)
-        msg.ID = 1
+        msg.context_id = 1
         self.dimse.debug_receive_n_event_report_rsp(msg)
 
         # User defined
@@ -725,7 +725,7 @@ class TestDIMSEProviderCallbacks(object):
         primitive.EventReply = BytesIO(n_er_rsp_ds)
         msg = N_EVENT_REPORT_RSP()
         msg.primitive_to_message(primitive)
-        msg.ID = 1
+        msg.context_id = 1
         self.dimse.debug_receive_n_event_report_rsp(msg)
 
     def test_callback_receive_n_get(self):
@@ -737,14 +737,14 @@ class TestDIMSEProviderCallbacks(object):
         primitive.RequestedSOPInstanceUID = '1.1.1.1'
         msg = N_GET_RQ()
         msg.primitive_to_message(primitive)
-        msg.ID = 1
+        msg.context_id = 1
         self.dimse.debug_receive_n_get_rq(msg)
 
         # Plus user defined
         primitive.AttributeIdentifierList = [(0x0000, 0x0000), (0xffff, 0xffff)]
         msg = N_GET_RQ()
         msg.primitive_to_message(primitive)
-        msg.ID = 1
+        msg.context_id = 1
         self.dimse.debug_receive_n_get_rq(msg)
 
         # N-GET-RSP
@@ -754,7 +754,7 @@ class TestDIMSEProviderCallbacks(object):
         primitive.Status = 0x0000
         msg = N_GET_RSP()
         msg.primitive_to_message(primitive)
-        msg.ID = 1
+        msg.context_id = 1
         self.dimse.debug_receive_n_get_rsp(msg)
 
         # User defined
@@ -762,14 +762,14 @@ class TestDIMSEProviderCallbacks(object):
         primitive.AffectedSOPInstanceUID = '1.1.1.1'
         msg = N_GET_RSP()
         msg.primitive_to_message(primitive)
-        msg.ID = 1
+        msg.context_id = 1
         self.dimse.debug_receive_n_get_rsp(msg)
 
         # Conditional
         primitive.AttributeList = BytesIO(n_get_rsp_ds)
         msg = N_GET_RSP()
         msg.primitive_to_message(primitive)
-        msg.ID = 1
+        msg.context_id = 1
         self.dimse.debug_receive_n_get_rsp(msg)
 
     def test_callback_receive_n_set(self):
@@ -782,7 +782,7 @@ class TestDIMSEProviderCallbacks(object):
         primitive.ModificationList = BytesIO(n_set_rq_ds)
         msg = N_SET_RQ()
         msg.primitive_to_message(primitive)
-        msg.ID = 1
+        msg.context_id = 1
         self.dimse.debug_receive_n_set_rq(msg)
 
         # N-SET-RSP
@@ -791,7 +791,7 @@ class TestDIMSEProviderCallbacks(object):
         primitive.Status = 0x0000
         msg = N_SET_RSP()
         msg.primitive_to_message(primitive)
-        msg.ID = 1
+        msg.context_id = 1
         self.dimse.debug_receive_n_set_rsp(msg)
 
         # User defined
@@ -800,7 +800,7 @@ class TestDIMSEProviderCallbacks(object):
         primitive.ModificationList = BytesIO(n_set_rsp_ds)
         msg = N_GET_RSP()
         msg.primitive_to_message(primitive)
-        msg.ID = 1
+        msg.context_id = 1
         self.dimse.debug_receive_n_set_rsp(msg)
 
     def test_callback_receive_n_action(self):
@@ -813,14 +813,14 @@ class TestDIMSEProviderCallbacks(object):
         primitive.ActionTypeID = 2
         msg = N_ACTION_RQ()
         msg.primitive_to_message(primitive)
-        msg.ID = 1
+        msg.context_id = 1
         self.dimse.debug_receive_n_action_rq(msg)
 
         # User defined
         primitive.ActionInformation = BytesIO(n_action_rq_ds)
         msg = N_ACTION_RQ()
         msg.primitive_to_message(primitive)
-        msg.ID = 1
+        msg.context_id = 1
         self.dimse.debug_receive_n_action_rq(msg)
 
         # N-ACTION-RSP
@@ -829,7 +829,7 @@ class TestDIMSEProviderCallbacks(object):
         primitive.Status = 0x0000
         msg = N_ACTION_RSP()
         msg.primitive_to_message(primitive)
-        msg.ID = 1
+        msg.context_id = 1
         self.dimse.debug_receive_n_action_rsp(msg)
 
         # User defined
@@ -839,7 +839,7 @@ class TestDIMSEProviderCallbacks(object):
         primitive.ActionReply = BytesIO(n_action_rsp_ds)
         msg = N_ACTION_RSP()
         msg.primitive_to_message(primitive)
-        msg.ID = 1
+        msg.context_id = 1
         self.dimse.debug_receive_n_action_rsp(msg)
 
     def test_callback_receive_n_create(self):
@@ -850,7 +850,7 @@ class TestDIMSEProviderCallbacks(object):
         primitive.AffectedSOPClassUID = '1.1.1'
         msg = N_CREATE_RQ()
         msg.primitive_to_message(primitive)
-        msg.ID = 1
+        msg.context_id = 1
         self.dimse.debug_receive_n_create_rq(msg)
 
         # User defined
@@ -858,7 +858,7 @@ class TestDIMSEProviderCallbacks(object):
         primitive.AttributeList = BytesIO(n_create_rq_ds)
         msg = N_CREATE_RQ()
         msg.primitive_to_message(primitive)
-        msg.ID = 1
+        msg.context_id = 1
         self.dimse.debug_receive_n_create_rq(msg)
 
         # N-CREATE-RSP
@@ -867,7 +867,7 @@ class TestDIMSEProviderCallbacks(object):
         primitive.Status = 0x0000
         msg = N_CREATE_RSP()
         msg.primitive_to_message(primitive)
-        msg.ID = 1
+        msg.context_id = 1
         self.dimse.debug_receive_n_create_rsp(msg)
 
         # User defined
@@ -876,7 +876,7 @@ class TestDIMSEProviderCallbacks(object):
         primitive.AttributeList = BytesIO(n_create_rsp_ds)
         msg = N_CREATE_RSP()
         msg.primitive_to_message(primitive)
-        msg.ID = 1
+        msg.context_id = 1
         self.dimse.debug_receive_n_create_rsp(msg)
 
     def test_callback_receive_n_delete(self):
@@ -888,7 +888,7 @@ class TestDIMSEProviderCallbacks(object):
         primitive.RequestedSOPInstanceUID = '1.1.1.1'
         msg = N_DELETE_RQ()
         msg.primitive_to_message(primitive)
-        msg.ID = 1
+        msg.context_id = 1
         self.dimse.debug_receive_n_delete_rq(msg)
 
         # N-DELETE-RSP
@@ -897,18 +897,18 @@ class TestDIMSEProviderCallbacks(object):
         primitive.Status = 0x0000
         msg = N_DELETE_RSP()
         msg.primitive_to_message(primitive)
-        msg.ID = 1
+        msg.context_id = 1
         self.dimse.debug_receive_n_delete_rsp(msg)
 
         # User optional
         primitive.AffectedSOPClassUID = '1.2.3'
         msg = N_DELETE_RSP()
         msg.primitive_to_message(primitive)
-        msg.ID = 1
+        msg.context_id = 1
         self.dimse.debug_receive_n_delete_rsp(msg)
 
         primitive.AffectedSOPInstanceUID = '1.2.3.4'
         msg = N_DELETE_RSP()
         msg.primitive_to_message(primitive)
-        msg.ID = 1
+        msg.context_id = 1
         self.dimse.debug_receive_n_delete_rsp(msg)

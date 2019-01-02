@@ -15,8 +15,10 @@ from threading import Thread
 import time
 
 from pynetdicom.fsm import StateMachine
-from pynetdicom.pdu import (A_ASSOCIATE_RQ, A_ASSOCIATE_AC, A_ASSOCIATE_RJ,
-                             P_DATA_TF, A_RELEASE_RQ, A_RELEASE_RP, A_ABORT_RQ)
+from pynetdicom.pdu import (
+    A_ASSOCIATE_RQ, A_ASSOCIATE_AC, A_ASSOCIATE_RJ,
+    P_DATA_TF, A_RELEASE_RQ, A_RELEASE_RP, A_ABORT_RQ
+)
 from pynetdicom.pdu_primitives import A_ASSOCIATE, A_RELEASE, A_ABORT, P_DATA
 from pynetdicom.timer import Timer
 
@@ -126,6 +128,7 @@ class DULServiceProvider(Thread):
             # The port number for the local AE to listen on
             self.local_port = port
             if self.local_port:
+                # pylint: disable=broad-except
                 try:
                     local_address = os.popen('hostname').read()[:-1]
                     self.scp_socket.bind((local_address, self.local_port))
@@ -588,7 +591,7 @@ class DULServiceProvider(Thread):
         pdutype = unpack('B', data[:1])[0]
 
         acse = self.assoc.acse
-        PDU_TYPES = {
+        _pdu_types = {
             0x01 : (A_ASSOCIATE_RQ, acse.debug_receive_associate_rq),
             0x02 : (A_ASSOCIATE_AC, acse.debug_receive_associate_ac),
             0x03 : (A_ASSOCIATE_RJ, acse.debug_receive_associate_rj),
@@ -598,8 +601,8 @@ class DULServiceProvider(Thread):
             0x07 : (A_ABORT_RQ, acse.debug_receive_abort)
         }
 
-        if pdutype in PDU_TYPES:
-            (pdu, acse_callback) = PDU_TYPES[pdutype]
+        if pdutype in _pdu_types:
+            (pdu, acse_callback) = _pdu_types[pdutype]
             pdu = pdu()
             pdu.decode(data)
 

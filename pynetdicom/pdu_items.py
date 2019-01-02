@@ -931,8 +931,7 @@ class PresentationContextItemAC(PDUItem):
         if self.transfer_syntax_sub_item:
             return 4 + len(self.transfer_syntax_sub_item[0])
 
-        else:
-            return 4
+        return 4
 
     @property
     def result(self):

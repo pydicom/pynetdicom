@@ -7,23 +7,22 @@ import time
 
 # pylint: disable=no-name-in-module
 # TODO: Consider switching to * import, check that _var aren't shown (__var?)
-from pynetdicom.dimse_messages import (C_STORE_RQ, C_STORE_RSP, C_FIND_RQ,
-                                        C_FIND_RSP, C_GET_RQ, C_GET_RSP,
-                                        C_MOVE_RQ, C_MOVE_RSP, C_ECHO_RQ,
-                                        C_ECHO_RSP, C_CANCEL_RQ,
-                                        N_EVENT_REPORT_RQ, N_EVENT_REPORT_RSP,
-                                        N_GET_RQ, N_GET_RSP, N_SET_RQ,
-                                        N_SET_RSP, N_ACTION_RQ, N_ACTION_RSP,
-                                        N_CREATE_RQ, N_CREATE_RSP, N_DELETE_RQ,
-                                        N_DELETE_RSP, DIMSEMessage)
+from pynetdicom.dimse_messages import (
+    C_STORE_RQ, C_STORE_RSP, C_FIND_RQ, C_FIND_RSP, C_GET_RQ, C_GET_RSP,
+    C_MOVE_RQ, C_MOVE_RSP, C_ECHO_RQ, C_ECHO_RSP, C_CANCEL_RQ,
+    N_EVENT_REPORT_RQ, N_EVENT_REPORT_RSP, N_GET_RQ, N_GET_RSP, N_SET_RQ,
+    N_SET_RSP, N_ACTION_RQ, N_ACTION_RSP, N_CREATE_RQ, N_CREATE_RSP,
+    N_DELETE_RQ, N_DELETE_RSP, DIMSEMessage
+)
 # pylint: enable=no-name-in-module
-from pynetdicom.dimse_primitives import (C_STORE, C_FIND, C_GET, C_MOVE,
-                                          C_ECHO, N_EVENT_REPORT, N_GET, N_SET,
-                                          N_ACTION, N_CREATE, N_DELETE,
-                                          C_CANCEL)
+from pynetdicom.dimse_primitives import (
+    C_STORE, C_FIND, C_GET, C_MOVE, C_ECHO, N_EVENT_REPORT, N_GET, N_SET,
+    N_ACTION, N_CREATE, N_DELETE, C_CANCEL
+)
 from pynetdicom.pdu_primitives import P_DATA
 from pynetdicom.sop_class import uid_to_service_class
 from pynetdicom.timer import Timer
+from pynetdicom._globals import DEFAULT_MAX_LENGTH
 
 LOGGER = logging.getLogger('pynetdicom.dimse')
 
@@ -66,12 +65,13 @@ class DIMSEServiceProvider(object):
       provides effective compatibility with the previous versions of the DICOM
       standards.
     - DIMSE-N supports operations associated with normalised SOP Classes and
-      provides an extended set of object-orientated operations and notifications
+      provides an extended set of object-orientated operations and
+      notifications
 
     **Service Overview**
 
-    The DIMSE service provider supports communication between peer DIMSE service
-    users. A service user acts in one of two roles:
+    The DIMSE service provider supports communication between peer DIMSE
+    service users. A service user acts in one of two roles:
 
     - invoking DIMSE user
     - performing DIMSE user
@@ -86,11 +86,12 @@ class DIMSEServiceProvider(object):
 
     These primitives are used as follows:
 
-    - The invoking service user issues a request primitive to the DIMSE provider
-    - The DIMSE provider receives the request primitive and issues an indication
-      primitive to the performing service user
-    - The performing service user receives the indication primitive and performs
-      the requested service
+    - The invoking service user issues a request primitive to the DIMSE
+      provider
+    - The DIMSE provider receives the request primitive and issues an
+      indication primitive to the performing service user
+    - The performing service user receives the indication primitive and
+      performs the requested service
     - The performing service user issues a response primitive to the DIMSE
       provider
     - The DIMSE provider receives the response primitive and issues a
@@ -186,7 +187,8 @@ class DIMSEServiceProvider(object):
     * DICOM Standard, Part 7
     """
     # pylint: disable=too-many-public-methods
-    def __init__(self, dul, dimse_timeout=None, maximum_pdu_size=16382):
+    def __init__(self, dul, dimse_timeout=None,
+                 maximum_pdu_size=DEFAULT_MAX_LENGTH):
         """Start the DIMSE service provider.
 
         Parameters
@@ -284,11 +286,10 @@ class DIMSEServiceProvider(object):
 
                 if self.message.decode_msg(pdu):
                     # Callback
-                    # FIXME: Make this a package level option to increase speed
-                    # if LOG:
+                    # TODO: Make this a package level option to increase speed
                     self.on_receive_dimse_message(self.message)
 
-                    context_id = self.message.ID
+                    context_id = self.message.context_id
                     primitive = self.message.message_to_primitive()
 
                     # Fix for memory leak, Issue #41
@@ -310,11 +311,10 @@ class DIMSEServiceProvider(object):
 
             if self.message.decode_msg(pdu):
                 # Callback
-                # FIXME: Make this a package level option to increase speed
-                # if LOG:
+                # TODO: Make this a package level option to increase speed
                 self.on_receive_dimse_message(self.message)
 
-                context_id = self.message.ID
+                context_id = self.message.context_id
                 primitive = self.message.message_to_primitive()
 
                 # Fix for memory leak, Issue #41
@@ -547,7 +547,7 @@ class DIMSEServiceProvider(object):
         s.append('===================== OUTGOING DIMSE MESSAGE ================'
                  '====')
         s.append('Message Type                  : {0!s}'.format('C-FIND RQ'))
-        s.append('Presentation Context ID       : {0!s}'.format(msg.ID))
+        s.append('Presentation Context ID       : {0!s}'.format(msg.context_id))
         s.append('Message ID                    : {0!s}'.format(cs.MessageID))
         s.append('Affected SOP Class UID        : {0!s}'
                  .format(cs.AffectedSOPClassUID))
@@ -786,14 +786,14 @@ class DIMSEServiceProvider(object):
 
     @staticmethod
     def debug_send_c_cancel_rq(msg):
-        """Debugging function when a C-CANCEL-\*-RQ is sent.
+        """Debugging function when a C-CANCEL-RQ is sent.
 
         Covers C-CANCEL-FIND-RQ, C-CANCEL-GET-RQ and C-CANCEL-MOVE-RQ.
 
         Parameters
         ----------
         msg : dimse_messages.C_CANCEL_RQ
-            The C-CANCEL-\*-RQ message to be sent.
+            The C-CANCEL-RQ message to be sent.
         """
         pass
 
@@ -819,7 +819,7 @@ class DIMSEServiceProvider(object):
         s.append('===================== INCOMING DIMSE MESSAGE ================'
                  '====')
         s.append('Message Type                  : {0!s}'.format('C-ECHO RQ'))
-        s.append('Presentation Context ID       : {0!s}'.format(msg.ID))
+        s.append('Presentation Context ID       : {0!s}'.format(msg.context_id))
         s.append('Message ID                    : {0!s}'.format(cs.MessageID))
         s.append('Data Set                      : {0!s}'.format('none'))
         s.append('======================= END DIMSE MESSAGE ==================='
@@ -893,7 +893,7 @@ class DIMSEServiceProvider(object):
         s.append('===================== INCOMING DIMSE MESSAGE ================'
                  '====')
         s.append('Message Type                  : {0!s}'.format('C-STORE RQ'))
-        s.append('Presentation Context ID       : {0!s}'.format(msg.ID))
+        s.append('Presentation Context ID       : {0!s}'.format(msg.context_id))
         s.append('Message ID                    : {0!s}'.format(cs.MessageID))
         s.append('Affected SOP Class UID        : {0!s}'
                  .format(cs.AffectedSOPClassUID))
@@ -949,7 +949,7 @@ class DIMSEServiceProvider(object):
         s.append('===================== INCOMING DIMSE MESSAGE ================'
                  '====')
         s.append('Message Type                  : {0!s}'.format('C-STORE RSP'))
-        s.append('Presentation Context ID       : {0!s}'.format(msg.ID))
+        s.append('Presentation Context ID       : {0!s}'.format(msg.context_id))
         s.append('Message ID Being Responded To : {0!s}'
                  .format(cs.MessageIDBeingRespondedTo))
         if 'AffectedSOPClassUID' in cs:
@@ -1055,7 +1055,7 @@ class DIMSEServiceProvider(object):
 
     @staticmethod
     def debug_receive_c_cancel_rq(msg):
-        """Debugging function when a C-CANCEL-\*-RQ is received.
+        """Debugging function when a C-CANCEL-RQ is received.
 
         Covers C-CANCEL-FIND-RQ, C-CANCEL-GET-RQ and C-CANCEL-MOVE-RQ
 
@@ -1153,7 +1153,7 @@ class DIMSEServiceProvider(object):
         s.append('===================== INCOMING DIMSE MESSAGE ================'
                  '====')
         s.append('Message Type                  : {0!s}'.format('C-GET RSP'))
-        s.append('Presentation Context ID       : {0!s}'.format(msg.ID))
+        s.append('Presentation Context ID       : {0!s}'.format(msg.context_id))
         s.append('Message ID Being Responded To : {0!s}'
                  .format(cs.MessageIDBeingRespondedTo))
         if 'AffectedSOPClassUID' in cs:
@@ -1318,12 +1318,15 @@ class DIMSEServiceProvider(object):
             s.append('Affected SOP Instance UID     : {0!s}'
                      .format(cs.AffectedSOPInstanceUID))
         if 'EventTypeID' in cs:
-            s.append('Event Type ID                 : {!s}'
-            .format(cs.EventTypeID))
+            s.append(
+                'Event Type ID                 : {!s}'
+                .format(cs.EventTypeID)
+            )
         s.append('Event Reply                       : {0!s}'.format(evt_reply))
         s.append('Status                        : 0x{0:04x}'.format(cs.Status))
-        s.append('======================= END DIMSE MESSAGE ==================='
-                 '====')
+        s.append(
+            '======================= END DIMSE MESSAGE ======================='
+        )
         for line in s:
             LOGGER.debug(line)
 
@@ -1512,13 +1515,6 @@ class DIMSEServiceProvider(object):
         msg : dimse_messages.N_DELETE_RQ
             The N-DELETE-RQ message to be sent.
         """
-        """Debugging function when an N-GET-RQ is sent.
-
-        Parameters
-        ----------
-        msg : dimse_messages.N_GET_RQ
-            The N-GET-RQ message to be sent.
-        """
         cs = msg.command_set
 
         s = []
@@ -1617,7 +1613,7 @@ class DIMSEServiceProvider(object):
         s.append('===================== INCOMING DIMSE MESSAGE ================'
                  '====')
         s.append('Message Type                  : {0!s}'.format('N-GET RSP'))
-        s.append('Presentation Context ID       : {0!s}'.format(msg.ID))
+        s.append('Presentation Context ID       : {0!s}'.format(msg.context_id))
         s.append('Message ID Being Responded To : {0!s}'
                  .format(cs.MessageIDBeingRespondedTo))
         if 'AffectedSOPClassUID' in cs:

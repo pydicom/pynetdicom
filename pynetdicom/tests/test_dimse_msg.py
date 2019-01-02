@@ -105,7 +105,7 @@ class TestDIMSEMessage(object):
             p_data_list.append(pdata)
         assert p_data_list[0].presentation_data_value_list[0][1][0:1] == b'\x01'
         assert p_data_list[-1].presentation_data_value_list[0][1][0:1] == b'\x03'
-        assert dimse_msg.ID == 12
+        assert dimse_msg.context_id == 12
 
         # Test encode with dataset
         ds = Dataset()
@@ -123,7 +123,7 @@ class TestDIMSEMessage(object):
         assert p_data_list[-1].presentation_data_value_list[0][1][0:1] == b'\x02'
         assert p_data_list[-2].presentation_data_value_list[0][1][0:1] == b'\x00'
         assert p_data_list[-10].presentation_data_value_list[0][1][0:1] == b'\x03'
-        assert dimse_msg.ID == 13
+        assert dimse_msg.context_id == 13
 
         p_data_list = []
         for pdata in dimse_msg.encode_msg(1, 31682):
@@ -148,7 +148,7 @@ class TestDIMSEMessage(object):
         for pdata in dimse_msg.encode_msg(12, 0):
             p_data_list.append(pdata)
         assert p_data_list[0].presentation_data_value_list[0][1][0:1] == b'\x03'
-        assert dimse_msg.ID == 12
+        assert dimse_msg.context_id == 12
 
         # Test encode with dataset
         ds = Dataset()
@@ -166,7 +166,7 @@ class TestDIMSEMessage(object):
         assert p_data_list[0].presentation_data_value_list[0][1] == c_store_rq_cmd
         assert p_data_list[1].presentation_data_value_list[0][1][0:1] == b'\x02'
         assert p_data_list[1].presentation_data_value_list[0][1] == c_store_ds
-        assert dimse_msg.ID == 13
+        assert dimse_msg.context_id == 13
 
     def test_decode(self):
         """Test decoding of a DIMSE message."""
@@ -619,3 +619,10 @@ class TestDIMSEMessage(object):
         assert primitive.AffectedSOPInstanceUID == UID('1.2.4.5.7.8')
         assert primitive.MessageIDBeingRespondedTo == 5
         assert primitive.Status == 0xC201
+
+    def test_id_deprecation(self):
+        """Test deprecation warning for DIMSEMessage"""
+        msg = DIMSEMessage()
+        msg.ID = 1
+        with pytest.deprecated_call():
+            assert msg.ID == 1
