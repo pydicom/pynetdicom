@@ -28,6 +28,7 @@ LOGGER = logging.getLogger('pynetdicom.dimse_primitives')
 # pylint: disable=invalid-name
 # pylint: disable=attribute-defined-outside-init
 # pylint: disable=too-many-instance-attributes
+# pylint: disable=anomalous-backslash-in-string
 class DIMSEPrimitive(object):
     """Base class for the DIMSE primitives."""
     STATUS_OPTIONAL_KEYWORDS = ()
