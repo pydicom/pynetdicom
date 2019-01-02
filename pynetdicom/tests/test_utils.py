@@ -18,77 +18,90 @@ LOGGER = logging.getLogger('pynetdicom')
 LOGGER.setLevel(logging.CRITICAL)
 
 
+REFERENCE_GOOD_AE_STR = [
+    ('a',                b'a               '),
+    ('a              b', b'a              b'),
+    ('a    b',           b'a    b          '),
+    ('               b', b'b               '),
+    ('        ab  c   ', b'ab  c           '),
+    ('        ab  c      ', b'ab  c           '),
+    ('ABCDEFGHIJKLMNOPQRSTUVWXYZ', b'ABCDEFGHIJKLMNOP')
+]
+REFERENCE_GOOD_AE_BYTES = [
+    (b'a',                b'a               '),
+    (b'a              b', b'a              b'),
+    (b'a    b',           b'a    b          '),
+    (b'               b', b'b               '),
+    (b'        ab  c   ', b'ab  c           '),
+    (b'        ab  c      ', b'ab  c           '),
+    (b'ABCDEFGHIJKLMNOPQRSTUVWXYZ', b'ABCDEFGHIJKLMNOP')
+]
+REFERENCE_BAD_AE_STR = [
+    '                ',  # empty, 16 chars 0x20
+    '',  # empty
+    'AE\\TITLE',  # backslash
+    'AE\tTITLE',  # control char, tab
+    'AE\rTITLE',  # control char, carriage return
+    'AE\nTITLE',  # control char, new line
+    u'\u0009'.encode('ascii'),  # \t
+    u'\u000A'.encode('ascii'),  # \n
+    u'\u000C'.encode('ascii'),  # \x0c
+    u'\u000D'.encode('ascii'),  # \x0d
+    u'\u001B'.encode('ascii'),  # \x1b
+    u'\u005C'.encode('ascii'),  # \\
+    u'\u0000'.encode('ascii'),  # \x00
+    u'\u0001'.encode('ascii'),  # \x01
+    u'\u000e'.encode('ascii'),  # \x0e
+    1234,
+    45.1,
+]
+REFERENCE_BAD_AE_BYTES = [
+    b'                ',  # empty, 16 chars 0x20
+    b'',  # empty
+    b'AE\\TITLE',  # backslash
+    b'AE\tTITLE',  # control char, tab
+    b'AE\rTITLE',  # control char, carriage return
+    b'AE\nTITLE',  # control char, new line
+    u'\u0009'.encode('ascii'),  # \t
+    u'\u000A'.encode('ascii'),  # \n
+    u'\u000C'.encode('ascii'),  # \x0c
+    u'\u000D'.encode('ascii'),  # \x0d
+    u'\u001B'.encode('ascii'),  # \x1b
+    u'\u005C'.encode('ascii'),  # \\
+    u'\u0000'.encode('ascii'),  # \x00
+    u'\u0001'.encode('ascii'),  # \x01
+    u'\u000e'.encode('ascii'),  # \x0e
+    1234,
+    45.1,
+]
+
+
 class TestValidateAETitle(object):
-    """Test validate_ae_title() function"""
-    def test_bad_parameters(self):
-        "Test exception raised if ae is not str or bytes."
-        with pytest.raises(TypeError):
-            validate_ae_title(1234)
-        with pytest.raises(TypeError):
-            validate_ae_title(['aetitle'])
+    """Test validate_ae_title"""
+    @pytest.mark.parametrize("aet, output", REFERENCE_GOOD_AE_STR)
+    def test_good_ae_str(self, aet, output):
+        """Test validate_ae_title using str input."""
+        assert validate_ae_title(aet) == output
+        assert isinstance(validate_ae_title(aet), bytes)
 
-    def test_bad_ae_title(self):
-        """Test bad AE titles raise exceptions."""
-        # Bad str AE
-        bad_ae = ['                ', # empty, 16 chars 0x20
-                  '', # empty
-                  'AE\\TITLE', # backslash
-                  'AE\tTITLE', # control char, tab
-                  'AE\rTITLE', # control char, line feed
-                  'AE\nTITLE'] # control char, newline
 
-        for ae in bad_ae:
-            with pytest.raises(ValueError):
-                validate_ae_title(ae)
+    @pytest.mark.parametrize("aet, output", REFERENCE_GOOD_AE_BYTES)
+    def test_good_ae_bytes(self, aet, output):
+        """Test validate_ae_title using bytes input."""
+        assert validate_ae_title(aet) == output
+        assert isinstance(validate_ae_title(aet), bytes)
 
-        # Bad bytes AE
-        bad_ae = [b'                ', # empty, 16 chars 0x20
-                  b'', # empty
-                  b'AE\\TITLE', # backslash
-                  b'AE\tTITLE', # control char, tab
-                  b'AE\rTITLE', # control char, line feed
-                  b'AE\nTITLE'] # control char, newline
+    @pytest.mark.parametrize("aet", REFERENCE_BAD_AE_STR)
+    def test_bad_ae_str(self, aet):
+        """Test validate_ae_title using bad str input."""
+        with pytest.raises((TypeError, ValueError)):
+            validate_ae_title(aet)
 
-        for ae in bad_ae:
-            with pytest.raises(ValueError):
-                validate_ae_title(ae)
-
-    def test_good_ae_title(self):
-        """Test good ae titles are set correctly."""
-        # Check str AE
-        good_ae = ['a',
-                   'a              b',
-                   'a    b',
-                   '               b']
-        ref = ['a               ',
-               'a              b',
-               'a    b          ',
-               'b               ']
-
-        for ae, ref_ae in zip(good_ae, ref):
-            new_ae = validate_ae_title(ae)
-            assert new_ae == ref_ae
-            assert isinstance(new_ae, str)
-
-        # Check bytes AE
-        good_ae = [b'a',
-                   b'a              b',
-                   b'a    b',
-                   b'               b']
-        ref = [b'a               ',
-               b'a              b',
-               b'a    b          ',
-               b'b               ']
-
-        for ae, ref_ae in zip(good_ae, ref):
-            new_ae = validate_ae_title(ae)
-            assert new_ae == ref_ae
-            assert isinstance(new_ae, bytes)
-
-    def test_invalid_ae_title_raises(self):
-        """Test invalid AE title value raises exception."""
-        with pytest.raises(TypeError, match=r"Invalid value for an AE"):
-            validate_ae_title(1234)
+    @pytest.mark.parametrize("aet", REFERENCE_BAD_AE_BYTES)
+    def test_bad_ae_bytes(self, aet):
+        """Test validate_ae_title using bad bytes input."""
+        with pytest.raises((TypeError, ValueError)):
+            validate_ae_title(aet)
 
 
 class TestWrapList(object):
