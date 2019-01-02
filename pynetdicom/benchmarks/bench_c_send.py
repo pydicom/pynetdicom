@@ -6,16 +6,16 @@ import time
 
 from pydicom import dcmread
 
-from pynetdicom import AE, VerificationSOPClass
-from pynetdicom.sop_class import CTImageStorage
+from pynetdicom import AE
+from pynetdicom.sop_class import CTImageStorage, VerificationSOPClass
 from pynetdicom.tests.dummy_c_scp import (
     DummyVerificationSCP, DummyStorageSCP, DummyFindSCP, DummyBaseSCP,
     DummyGetSCP, DummyMoveSCP
 )
 
 
-TEST_DS_DIR = os.path.join(os.path.dirname(__file__), '../tests', 'dicom_files')
-DATASET = dcmread(os.path.join(TEST_DS_DIR, 'CTImageStorage.dcm'))
+DS_DIR = os.path.join(os.path.dirname(__file__), '../tests', 'dicom_files')
+DATASET = dcmread(os.path.join(DS_DIR, 'CTImageStorage.dcm'))
 
 
 class TestSendCEcho(object):
@@ -24,7 +24,8 @@ class TestSendCEcho(object):
         self.scp = DummyVerificationSCP()
         self.scp.start()
 
-        ae = AE(scu_sop_class=[VerificationSOPClass])
+        ae = AE()
+        ae.add_requested_context(VerificationSOPClass)
         self.assoc = ae.associate('localhost', 11112)
 
     def teardown(self):
@@ -58,7 +59,8 @@ class TestSendCStore(object):
         self.scp.status = 0x0000
         self.scp.start()
 
-        ae = AE(scu_sop_class=[CTImageStorage])
+        ae = AE()
+        ae.add_requested_context(CTImageStorage)
         self.assoc = ae.associate('localhost', 11112)
 
     def teardown(self):

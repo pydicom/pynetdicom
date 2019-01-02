@@ -4,6 +4,7 @@ from __future__ import division
 from io import BytesIO
 import logging
 from math import ceil
+import warnings
 
 from pydicom.dataset import Dataset
 from pydicom.tag import Tag
@@ -207,12 +208,16 @@ class DIMSEMessage(object):
         The presentation context ID.
     """
     def __init__(self):
-        self.ID = None
+        """Create a new DIMSE Message."""
+        self.context_id = None
 
         # Required to save command set data from multiple fragments
         # self.command_set is added by _build_message_classes()
         self.encoded_command_set = BytesIO()
         self.data_set = BytesIO()
+
+        self._encoded_command_set = bytearray()
+        self._data_set = bytearray()
 
     def decode_msg(self, primitive):
         """Converts P-DATA primitives into a DIMSEMessage sub-class.
@@ -285,7 +290,7 @@ class DIMSEMessage(object):
                     # Presentation Context ID
                     #   Set this now as must only be one final command set
                     #   fragment and command set must always be present
-                    self.ID = context_id
+                    self.context_id = context_id
 
                     # Command Set is always encoded Implicit VR Little Endian
                     #   decode(dataset, is_implicit_VR, is_little_endian)
@@ -363,7 +368,7 @@ class DIMSEMessage(object):
         * DICOM Standard, Part 7, Section 6.3.1
         * DICOM Standard, Part 8, Annex E
         """
-        self.ID = context_id
+        self.context_id = context_id
 
         # The Command Set is always Little Endian Implicit VR (PS3.7 6.3.1)
         #   encode(dataset, is_implicit_VR, is_little_endian)
@@ -479,6 +484,21 @@ class DIMSEMessage(object):
             yield bytestream[offset:offset + fragment_length]
             offset += fragment_length
 
+    @property
+    def ID(self):
+        """Return the Context ID as int."""
+        warnings.warn(
+            "DIMSEMessage.ID is deprecated and will be removed in v1.2.0, use "
+            "DIMSEMessage.context_id instead",
+            DeprecationWarning
+        )
+        return self.context_id
+
+    @ID.setter
+    def ID(self, value):
+        """Set the Context ID."""
+        self.context_id = value
+
     def message_to_primitive(self):
         """Convert the DIMSEMessage class to a DIMSE primitive.
 
@@ -533,7 +553,7 @@ class DIMSEMessage(object):
             pass
 
         # Set the presentation context ID the message was set under
-        primitive._context_id = self.ID
+        primitive._context_id = self.context_id
 
         return primitive
 
