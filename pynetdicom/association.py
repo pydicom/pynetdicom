@@ -343,6 +343,7 @@ class Association(threading.Thread):
                 "or 'acceptor'"
             )
 
+        # pylint: disable=attribute-defined-outside-init
         self._mode = mode
 
     @property
@@ -392,13 +393,12 @@ class Association(threading.Thread):
 
             self.acse.negotiate_association(self)
             if self.is_established:
-                # TODO: Refactor so not needed
                 self.dimse.maximum_pdu_size = self.requestor.maximum_length
                 self._run_as_acceptor()
         else:
+            # Association requestor
             self.acse.negotiate_association(self)
             if self.is_established:
-                # TODO: Refactor so not needed
                 self.dimse.maximum_pdu_size = self.acceptor.maximum_length
                 self._run_as_requestor()
 
@@ -436,7 +436,7 @@ class Association(threading.Thread):
             msg, msg_context_id = self.dimse.receive_msg(wait=False)
 
             # DIMSE message received
-            # FIXME: This is not a good way to handle messages, they should
+            # TODO: This is not a good way to handle messages, they should
             #   be managed via their message ID and/or SOP Class UIDs
             if msg:
                 # Use the Message's Affected SOP Class UID or Requested SOP
@@ -605,6 +605,7 @@ class Association(threading.Thread):
             return
 
         # Attempt to decode the dataset
+        # pylint: disable=broad-except
         transfer_syntax = context.transfer_syntax[0]
         try:
             ds = decode(req.DataSet,
@@ -758,8 +759,8 @@ class Association(threading.Thread):
         * DICOM Standard Part 4, `Annex A <http://dicom.nema.org/medical/dicom/current/output/html/part04.html#chapter_A>`_
         * DICOM Standard Part 7, Sections
           `9.1.5 <http://dicom.nema.org/medical/dicom/current/output/html/part07.html#sect_9.1.5>`_,
-          `9.3.5 <http://dicom.nema.org/medical/dicom/current/output/html/part07.html#sect_9.3.5>`_ and
-          `Annex C <http://dicom.nema.org/medical/dicom/current/output/html/part07.html#chapter_C>`__
+           and `9.3.5 <http://dicom.nema.org/medical/dicom/current/output/html/part07.html#sect_9.3.5>`_
+          `Annex C <http://dicom.nema.org/medical/dicom/current/output/html/part07.html#chapter_C>`_
         """
         # Can't send a C-ECHO without an Association
         if not self.is_established:
@@ -881,9 +882,9 @@ class Association(threading.Thread):
               | ``0xC000`` to ``0xCFFF`` Unable to process
 
             Pending
-              | ``0xFF00`` Matches are continuing: current match is supplied and
-                any Optional Keys were supported in the same manner as Required
-                Keys
+              | ``0xFF00`` Matches are continuing: current match is supplied
+                and any Optional Keys were supported in the same manner as
+                Required Keys
               | ``0xFF01`` Matches are continuing: warning that one or more
                 Optional Keys were not supported for existence and/or matching
                 for this Identifier)
@@ -899,9 +900,9 @@ class Association(threading.Thread):
               | ``0xC200`` Unable to support requested template
 
             Pending
-              | ``0xFF00`` Matches are continuing: current match is supplied and
-                any Optional Keys were supported in the same manner as Required
-                Keys
+              | ``0xFF00`` Matches are continuing: current match is supplied
+                and any Optional Keys were supported in the same manner as
+                Required Keys
 
         identifier : pydicom.dataset.Dataset or None
             If the status is 'Pending' then the C-FIND response's *Identifier*
@@ -942,8 +943,8 @@ class Association(threading.Thread):
         * DICOM Standard Part 7, Sections
           `9.1.2 <http://dicom.nema.org/medical/dicom/current/output/html/part07.html#sect_9.1.2>`_,
           `9.3.2 <http://dicom.nema.org/medical/dicom/current/output/html/part07.html#sect_9.3.2>`_,
-          Annexes `C <http://dicom.nema.org/medical/dicom/current/output/html/part07.html#chapter_C>`_ and
-          `K <http://dicom.nema.org/medical/dicom/current/output/html/part07.html#chapter_K>`_
+          Annexes `C <http://dicom.nema.org/medical/dicom/current/output/html/part07.html#chapter_C>`_
+           and `K <http://dicom.nema.org/medical/dicom/current/output/html/part07.html#chapter_K>`_
         """
         # Can't send a C-FIND without an Association
         if not self.is_established:
@@ -1049,6 +1050,7 @@ class Association(threading.Thread):
                 break
 
             # Status must be Pending, so decode the Identifier dataset
+            # pylint: disable=broad-except
             try:
                 identifier = decode(rsp.Identifier,
                                     transfer_syntax.is_implicit_VR,
@@ -1059,8 +1061,10 @@ class Association(threading.Thread):
                 for elem in identifier:
                     LOGGER.debug(elem)
                 LOGGER.debug('')
-            except:
-                LOGGER.error("Failed to decode the received Identifier dataset")
+            except Exception:
+                LOGGER.error(
+                    "Failed to decode the received Identifier dataset"
+                )
                 yield status, None
 
             ii += 1
@@ -1217,8 +1221,8 @@ class Association(threading.Thread):
         * DICOM Standard Part 4, `Annex HH <http://dicom.nema.org/medical/dicom/current/output/html/part04.html#chapter_HH>`_
         * DICOM Standard Part 7, Sections
           `9.1.3 <http://dicom.nema.org/medical/dicom/current/output/html/part07.html#sect_9.1.3>`_,
-          `9.3.3 <http://dicom.nema.org/medical/dicom/current/output/html/part07.html#sect_9.3.3>`_ and
-          `Annex C <http://dicom.nema.org/medical/dicom/current/output/html/part07.html#chapter_C>`__
+          `9.3.3 <http://dicom.nema.org/medical/dicom/current/output/html/part07.html#sect_9.3.3>`_
+          and `Annex C <http://dicom.nema.org/medical/dicom/current/output/html/part07.html#chapter_C>`_
         """
         # Can't send a C-GET without an Association
         if not self.is_established:
@@ -1289,7 +1293,7 @@ class Association(threading.Thread):
         while True:
             # Wait for DIMSE message, may be either a C-GET response or a
             #   C-STORE request
-            rsp, context_id = self.dimse.receive_msg(wait=True)
+            rsp, _ = self.dimse.receive_msg(wait=True)
 
             # If nothing received from the peer, try again
             if not rsp:
@@ -1315,7 +1319,8 @@ class Association(threading.Thread):
                 LOGGER.debug('')
                 if category == STATUS_PENDING:
                     LOGGER.info("Get SCP Response: %s (Pending)", operation_no)
-                elif category in [STATUS_SUCCESS, STATUS_CANCEL, STATUS_WARNING]:
+                elif category in [STATUS_SUCCESS, STATUS_CANCEL,
+                                  STATUS_WARNING]:
                     LOGGER.info('Get SCP Result: (%s)', category)
                 elif category == STATUS_FAILURE:
                     LOGGER.info('Get SCP Result: (Failure - 0x%04x)',
@@ -1345,6 +1350,7 @@ class Association(threading.Thread):
                     #   should contain an Identifier dataset with a
                     #   (0008,0058) Failed SOP Instance UID List element
                     #   however this can't be assumed
+                    # pylint: disable=broad-except
                     try:
                         identifier = decode(rsp.Identifier,
                                             transfer_syntax.is_implicit_VR,
@@ -1507,8 +1513,8 @@ class Association(threading.Thread):
         * DICOM Standard Part 4, `Annex HH <http://dicom.nema.org/medical/dicom/current/output/html/part04.html#chapter_HH>`_
         * DICOM Standard Part 7, Sections
           `9.1.4 <http://dicom.nema.org/medical/dicom/current/output/html/part07.html#sect_9.1.4>`_,
-          `9.3.4 <http://dicom.nema.org/medical/dicom/current/output/html/part07.html#sect_9.3.4>`_ and
-          `Annex C <http://dicom.nema.org/medical/dicom/current/output/html/part07.html#chapter_C>`__
+          `9.3.4 <http://dicom.nema.org/medical/dicom/current/output/html/part07.html#sect_9.3.4>`_
+          and `Annex C <http://dicom.nema.org/medical/dicom/current/output/html/part07.html#chapter_C>`_
         """
         # Can't send a C-MOVE without an Association
         if not self.is_established:
@@ -1578,7 +1584,7 @@ class Association(threading.Thread):
         # Get the responses from peer
         operation_no = 1
         while True:
-            rsp, context_id = self.dimse.receive_msg(wait=True)
+            rsp, _ = self.dimse.receive_msg(wait=True)
 
             # If nothing received from the peer, try again
             if not rsp:
@@ -1604,7 +1610,8 @@ class Association(threading.Thread):
                 LOGGER.debug('')
                 if category == STATUS_PENDING:
                     LOGGER.info("Move SCP Response: %s (Pending)", operation_no)
-                elif category in [STATUS_SUCCESS, STATUS_CANCEL, STATUS_WARNING]:
+                elif category in [STATUS_SUCCESS, STATUS_CANCEL,
+                                  STATUS_WARNING]:
                     LOGGER.info("Move SCP Result: (%s)", category)
                 elif category == STATUS_FAILURE:
                     LOGGER.info("Move SCP Result: (Failure - 0x%04x)",
@@ -1634,6 +1641,7 @@ class Association(threading.Thread):
                     #   should contain an Identifier dataset with a
                     #   (0008,0058) Failed SOP Instance UID List element
                     #   however this can't be assumed
+                    # pylint: disable=broad-except
                     try:
                         identifier = decode(rsp.Identifier,
                                             transfer_syntax.is_implicit_VR,
@@ -1762,8 +1770,8 @@ class Association(threading.Thread):
         * DICOM Standard Part 4, Annex `GG <http://dicom.nema.org/medical/dicom/current/output/html/part04.html#chapter_GG>`_
         * DICOM Standard Part 7, Sections
           `9.1.1 <http://dicom.nema.org/medical/dicom/current/output/html/part07.html#sect_9.1.1>`_,
-          `9.3.1 <http://dicom.nema.org/medical/dicom/current/output/html/part07.html#sect_9.3.1>`_ and
-          `Annex C <http://dicom.nema.org/medical/dicom/current/output/html/part07.html#chapter_C>`__
+          `9.3.1 <http://dicom.nema.org/medical/dicom/current/output/html/part07.html#sect_9.3.1>`_
+          and `Annex C <http://dicom.nema.org/medical/dicom/current/output/html/part07.html#chapter_C>`_
         """
         # Can't send a C-STORE without an Association
         if not self.is_established:
@@ -1833,7 +1841,8 @@ class Association(threading.Thread):
         return status
 
     # DIMSE-N services provided by the Association
-    def send_n_action(self, dataset, action_type, class_uid, instance_uid, msg_id=1):
+    def send_n_action(self, dataset, action_type, class_uid, instance_uid,
+                      msg_id=1):
         """Send an N-ACTION request message to the peer AE.
 
         Parameters
@@ -1903,8 +1912,8 @@ class Association(threading.Thread):
         * DICOM Standard Part 4, `Annex DD <http://dicom.nema.org/medical/dicom/current/output/html/part04.html#chapter_DD>`_
         * DICOM Standard Part 7, Sections
           `10.1.3 <http://dicom.nema.org/medical/dicom/current/output/html/part07.html#sect_10.1.3>`_,
-          `10.3.3 <http://dicom.nema.org/medical/dicom/current/output/html/part07.html#sect_10.3.3>`_ and
-          `Annex C <http://dicom.nema.org/medical/dicom/current/output/html/part07.html#chapter_C>`__
+          `10.3.3 <http://dicom.nema.org/medical/dicom/current/output/html/part07.html#sect_10.3.3>`_
+          and `Annex C <http://dicom.nema.org/medical/dicom/current/output/html/part07.html#chapter_C>`_
         """
         # Can't send an N-ACTION without an Association
         if not self.is_established:
@@ -1957,6 +1966,7 @@ class Association(threading.Thread):
                 return status, action_reply
 
             # Attempt to decode the response's dataset
+            # pylint: disable=broad-except
             try:
                 action_reply = decode(rsp.ActionReply,
                                       transfer_syntax.is_implicit_VR,
@@ -2037,8 +2047,8 @@ class Association(threading.Thread):
         * DICOM Standard Part 4, `Annex DD <http://dicom.nema.org/medical/dicom/current/output/html/part04.html#chapter_DD>`_
         * DICOM Standard Part 7, Sections
           `10.1.5 <http://dicom.nema.org/medical/dicom/current/output/html/part07.html#sect_10.1.5>`_,
-          `10.3.5 <http://dicom.nema.org/medical/dicom/current/output/html/part07.html#sect_10.3.5>`_ and
-          `Annex C <http://dicom.nema.org/medical/dicom/current/output/html/part07.html#chapter_C>`__
+          `10.3.5 <http://dicom.nema.org/medical/dicom/current/output/html/part07.html#sect_10.3.5>`_
+          and `Annex C <http://dicom.nema.org/medical/dicom/current/output/html/part07.html#chapter_C>`_
         """
         # Can't send an N-CREATE without an Association
         if not self.is_established:
@@ -2089,6 +2099,7 @@ class Association(threading.Thread):
                 return status, attribute_list
 
             # Attempt to decode the response's dataset
+            # pylint: disable=broad-except
             try:
                 attribute_list = decode(rsp.AttributeList,
                                         transfer_syntax.is_implicit_VR,
@@ -2156,8 +2167,8 @@ class Association(threading.Thread):
         * DICOM Standard Part 4, `Annex DD <http://dicom.nema.org/medical/dicom/current/output/html/part04.html#chapter_DD>`_
         * DICOM Standard Part 7, Sections
           `10.1.6 <http://dicom.nema.org/medical/dicom/current/output/html/part07.html#sect_10.1.6>`_,
-          `10.3.6 <http://dicom.nema.org/medical/dicom/current/output/html/part07.html#sect_10.3.6>`_ and
-          `Annex C <http://dicom.nema.org/medical/dicom/current/output/html/part07.html#chapter_C>`__
+          `10.3.6 <http://dicom.nema.org/medical/dicom/current/output/html/part07.html#sect_10.3.6>`_
+          and `Annex C <http://dicom.nema.org/medical/dicom/current/output/html/part07.html#chapter_C>`_
         """
         # Can't send an N-DELETE without an Association
         if not self.is_established:
@@ -2259,8 +2270,8 @@ class Association(threading.Thread):
         * DICOM Standard Part 4, `Annex DD <http://dicom.nema.org/medical/dicom/current/output/html/part04.html#chapter_DD>`_
         * DICOM Standard Part 7, Sections
           `10.1.1 <http://dicom.nema.org/medical/dicom/current/output/html/part07.html#sect_10.1.1>`_,
-          `10.3.1 <http://dicom.nema.org/medical/dicom/current/output/html/part07.html#sect_10.3.1>`_ and
-          `Annex C <http://dicom.nema.org/medical/dicom/current/output/html/part07.html#chapter_C>`__
+          `10.3.1 <http://dicom.nema.org/medical/dicom/current/output/html/part07.html#sect_10.3.1>`_
+          and `Annex C <http://dicom.nema.org/medical/dicom/current/output/html/part07.html#chapter_C>`_
         """
         # Can't send an N-EVENT-REPORT without an Association
         if not self.is_established:
@@ -2316,6 +2327,7 @@ class Association(threading.Thread):
                 return status, event_reply
 
             # Attempt to decode the response's dataset
+            # pylint: disable=broad-except
             try:
                 event_reply = decode(rsp.EventReply,
                                      transfer_syntax.is_implicit_VR,
@@ -2401,8 +2413,8 @@ class Association(threading.Thread):
         * DICOM Standard Part 4, `Annex EE <http://dicom.nema.org/medical/dicom/current/output/html/part04.html#chapter_EE>`_
         * DICOM Standard Part 7, Sections
           `10.1.2 <http://dicom.nema.org/medical/dicom/current/output/html/part07.html#sect_10.1.2>`_,
-          `10.3.2 <http://dicom.nema.org/medical/dicom/current/output/html/part07.html#sect_10.3.2>`_ and
-          `Annex C <http://dicom.nema.org/medical/dicom/current/output/html/part07.html#chapter_C>`__
+          `10.3.2 <http://dicom.nema.org/medical/dicom/current/output/html/part07.html#sect_10.3.2>`_
+          and `Annex C <http://dicom.nema.org/medical/dicom/current/output/html/part07.html#chapter_C>`_
         """
         # Can't send an N-GET without an Association
         if not self.is_established:
@@ -2443,6 +2455,7 @@ class Association(threading.Thread):
                 return status, attribute_list
 
             # Attempt to decode the response's dataset
+            # pylint: disable=broad-except
             try:
                 attribute_list = decode(rsp.AttributeList,
                                         transfer_syntax.is_implicit_VR,
@@ -2527,8 +2540,8 @@ class Association(threading.Thread):
         * DICOM Standard Part 4, `Annex DD <http://dicom.nema.org/medical/dicom/current/output/html/part04.html#chapter_DD>`_
         * DICOM Standard Part 7, Sections
           `10.1.3 <http://dicom.nema.org/medical/dicom/current/output/html/part07.html#sect_10.1.3>`_,
-          `10.3.3 <http://dicom.nema.org/medical/dicom/current/output/html/part07.html#sect_10.3.3>`_ and
-          `Annex C <http://dicom.nema.org/medical/dicom/current/output/html/part07.html#chapter_C>`__
+          `10.3.3 <http://dicom.nema.org/medical/dicom/current/output/html/part07.html#sect_10.3.3>`_
+          and `Annex C <http://dicom.nema.org/medical/dicom/current/output/html/part07.html#chapter_C>`_
         """
         # Can't send an N-SET without an Association
         if not self.is_established:
@@ -2580,6 +2593,7 @@ class Association(threading.Thread):
                 return status, attribute_list
 
             # Attempt to decode the response's dataset
+            # pylint: disable=broad-except
             try:
                 attribute_list = decode(rsp.AttributeList,
                                         transfer_syntax.is_implicit_VR,
@@ -2894,6 +2908,7 @@ class ServiceUser(object):
 
             return items
 
+        # pylint: disable=unidiomatic-typecheck
         for item in self.user_information:
             if type(item) in self._ext_neg.keys():
                 items.append(item)
@@ -3195,6 +3210,7 @@ class ServiceUser(object):
                 "has started"
             )
 
+        # pylint: disable=unidiomatic-typecheck
         if type(item) in self._ext_neg:
             # Do nothing if item not in _ext_neg
             if item in self._ext_neg[type(item)]:
