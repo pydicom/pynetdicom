@@ -143,8 +143,8 @@ class A_ASSOCIATE(object):
        UL service provider (ACSE) or UL service provider (Presentation).
        The indication primitive shall not be issued. The association shall not
        be established.
-    7. Either Requestor or Acceptor may disrupt the Service Procedure by issuing
-       an A-ABORT request primitive. The remote AE receives an A-ABORT
+    7. Either Requestor or Acceptor may disrupt the Service Procedure by
+       issuing an A-ABORT request primitive. The remote AE receives an A-ABORT
        indication primitive. The association shall not be established
 
     Attributes
@@ -152,10 +152,10 @@ class A_ASSOCIATE(object):
     mode : str
         Fixed value of "normal"
     application_context_name : pydicom.uid.UID, bytes or str
-        The application context name proposed by the requestor. Acceptor returns
-        either the same or a different name. Returned name specifies the
-        application context used for the Association. See PS3.8 Annex A. The
-        application context name shall be a valid UID or UID string and for
+        The application context name proposed by the requestor. Acceptor
+        returns either the same or a different name. Returned name specifies
+        the application context used for the Association. See PS3.8 Annex A.
+        The application context name shall be a valid UID or UID string and for
         version 3 of the DICOM Standard should be '1.2.840.10008.3.1.1.1'
     calling_ae_title : str or bytes
         Identifies the Requestor of the A-ASSOCIATE service. Must be a valid
@@ -190,8 +190,9 @@ class A_ASSOCIATE(object):
 
     diagnostic : int
         If the `result` parameter is 0 "rejected (permanent)" or 1 "rejected
-        (transient)" then this supplies diagnostic information about the result.
-        If `result_source` is 0 "UL service-user" then allowed values are:
+        (transient)" then this supplies diagnostic information about the
+        result. If `result_source` is 0 "UL service-user" then allowed values
+        are:
 
         * 0: no reason given
         * 1: application context name not supported
@@ -309,8 +310,8 @@ class A_ASSOCIATE(object):
         Parameters
         ----------
         value : str or bytes
-            The Calling AE Title as a string or bytes object. Cannot be an empty
-            string and will be truncated to 16 characters long
+            The Calling AE Title as a string or bytes object. Cannot be an
+            empty string and will be truncated to 16 characters long
         """
         # pylint: disable=attribute-defined-outside-init
         if isinstance(value, str):
@@ -500,8 +501,8 @@ class A_ASSOCIATE(object):
         Parameters
         ----------
         value : (str, int) tuple
-            A tuple containing a valid TCP/IP address string and the port number
-            as an int
+            A tuple containing a valid TCP/IP address string and the port
+            number as an int
         """
         # pylint: disable=attribute-defined-outside-init
         if isinstance(value, tuple):
@@ -533,8 +534,8 @@ class A_ASSOCIATE(object):
         Parameters
         ----------
         value : (str, int) tuple
-            A tuple containing a valid TCP/IP address string and the port number
-            as an int
+            A tuple containing a valid TCP/IP address string and the port
+            number as an int
         """
         # pylint: disable=attribute-defined-outside-init
         if isinstance(value, tuple):
@@ -582,9 +583,11 @@ class A_ASSOCIATE(object):
                 if isinstance(item, PresentationContext):
                     valid_items.append(item)
                 else:
-                    LOGGER.warning("Attempted to set "
-                                   "A_ASSOCIATE.presentation_context_definition_list to "
-                                   "a list which includes an invalid items")
+                    LOGGER.warning(
+                        "Attempted to set "
+                        "A_ASSOCIATE.presentation_context_definition_list to "
+                        "a list which includes an invalid items"
+                    )
 
             self._presentation_context_definition_list = valid_items
 
@@ -606,8 +609,8 @@ class A_ASSOCIATE(object):
         Parameters
         ----------
         value_list : list of utils.PresentationContext
-            The results of the Presentation Contexts proposal by the Association
-            Requestor
+            The results of the Presentation Contexts proposal by the
+            Association Requestor
         """
         # pylint: disable=attribute-defined-outside-init
         if isinstance(value_list, list):
@@ -734,38 +737,38 @@ class A_RELEASE(object):
 
     The release of an association between two AEs shall be performed through
     ACSE A-RELEASE request, indication, response and confirmation primitives.
-    The initiator of the service is called a Requestor and the service-user that
-    receives the A-RELEASE indication is called the acceptor.
+    The initiator of the service is called a Requestor and the service-user
+    that receives the A-RELEASE indication is called the acceptor.
 
     Service Procedure
 
     1. The user (Requestor) that desires to end the association issues an
        A-RELEASE request primitive. The Requestor shall not issue any other
-       primitives other than A-ABORT until it receives an A-RELEASE confirmation
-       primitive.
+       primitives other than A-ABORT until it receives an A-RELEASE
+       confirmation primitive.
     2. The DUL provider issues an A-RELEASE indication to the Acceptor. The
-       Acceptor shall not issue any other primitives other than A-RELEASE response,
-       A-ABORT request or P-DATA request.
-    3. To complete the release, the Acceptor replies using an A-RELEASE response
-       primitive, with "affirmative" as the result parameter.
+       Acceptor shall not issue any other primitives other than A-RELEASE
+       response, A-ABORT request or P-DATA request.
+    3. To complete the release, the Acceptor replies using an A-RELEASE
+       response primitive, with "affirmative" as the result parameter.
     4. After the Acceptor issues the A-RELEASE response it shall not issue any
        more primitives.
     5. The Requestor shall issue an A-RELEASE confirmation primitive always
        with an "affirmative" value for the Result parameter.
     6. A user may disrupt the release by issuing an A-ABORT request.
     7. A collision may occur when both users issue A-RELEASE requests
-       simultaneously. In this situation both users receive an unexpect A-RELEASE
-       indication primitive (instead of an A-RELEASE acceptance):
+       simultaneously. In this situation both users receive an unexpect
+       A-RELEASE indication primitive (instead of an A-RELEASE acceptance):
 
          a. The association requestor issues an A-RELEASE response primitive
          b. The association acceptor waits for an A-RELEASE confirmation
-            primitive from its peer. When it receives one it issues an A-RELEASE
-            response primitive
+            primitive from its peer. When it receives one it issues an
+            A-RELEASE response primitive
          c. The association requestor receives an A-RELEASE confirmation
             primitive.
 
-       When both ACSE users have received an A-RELEASE confirmation primitive the
-       association shall be released.
+       When both ACSE users have received an A-RELEASE confirmation primitive
+       the association shall be released.
 
     +------------------+---------+------------+----------+--------------+
     | Parameter        | Request | Indication | Response | Confirmation |
@@ -971,8 +974,8 @@ class P_DATA(object):
     ----------
     presentation_data_value_list : list of [int, bytes]
         Contains one or more Presentation Data Values (PDV), each consisting of
-        a Presentation Context ID and User Data values. The User Data values are
-        taken from the Abstract Syntax and encoded in the Transfer Syntax
+        a Presentation Context ID and User Data values. The User Data values
+        are taken from the Abstract Syntax and encoded in the Transfer Syntax
         identified by the Presentation Context ID. Each item in the list is
         [Context ID, PDV Data]
 
@@ -1161,7 +1164,9 @@ class ImplementationClassUIDNotification(ServiceParameter):
     Examples
     --------
 
-    >>> from pynetdicom.pdu_primitives import ImplementationClassUIDNotification
+    >>> from pynetdicom.pdu_primitives import (
+    ...     ImplementationClassUIDNotification
+    ... )
     >>> item = ImplementationClassUIDNotification()
     >>> item.implementation_class_uid = '1.2.3.4'
 
@@ -1266,7 +1271,9 @@ class ImplementationVersionNameNotification(ServiceParameter):
     Examples
     --------
 
-    >>> from pynetdicom.pdu_primitives import ImplementationVersionNameNotification
+    >>> from pynetdicom.pdu_primitives import (
+    ...     ImplementationVersionNameNotification
+    ... )
     >>> item = ImplementationVersionNameNotification()
     >>> item.implementation_version_name = b'SOME_NAME'
 
@@ -1348,7 +1355,7 @@ class ImplementationVersionNameNotification(ServiceParameter):
 
 class AsynchronousOperationsWindowNegotiation(ServiceParameter):
     """
-    A representation of the Asynchronous Operations Window Negotiation primitive.
+    Representation of the Asynchronous Operations Window Negotiation primitive.
 
     Allows peer AEs to negotiate the maximum number of outstanding operation
     or sub-operation requests. This negotiation is optional.
@@ -1370,7 +1377,9 @@ class AsynchronousOperationsWindowNegotiation(ServiceParameter):
     Examples
     --------
 
-    >>> from pynetdicom.pdu_primitives import AsynchronousOperationsWindowNegotiation
+    >>> from pynetdicom.pdu_primitives import (
+    ...     AsynchronousOperationsWindowNegotiation
+    ... )
     >>> item = AsynchronousOperationsWindowNegotiation()
     >>> item.maximum_number_operations_invoked = 2
     >>> item.maximum_number_operations_performed = 1
@@ -1824,7 +1833,7 @@ class SOPClassCommonExtendedNegotiation(ServiceParameter):
         The UID of the SOP Class
     service_class_uid : pydicom.uid.UID, bytes or str
         The UID of the corresponding Service Class
-    related_general_sop_class_identification : list of (pydicom.uid.UID, bytes or str)
+    related_general_sop_class_identification : list of UID str
         Related General SOP Class UIDs (optional)
 
     Examples
@@ -1834,7 +1843,9 @@ class SOPClassCommonExtendedNegotiation(ServiceParameter):
     >>> item = SOPClassCommonExtendedNegotiation()
     >>> item.sop_class_uid = '1.2.840.10008.5.1.4.1.1.88.40'
     >>> item.service_class_uid = '1.2.840.10008.4.2'
-    >>> item.related_general_sop_class_identification = ['1.2.840.10008.5.1.4.1.1.88.22']
+    >>> item.related_general_sop_class_identification = [
+    ...     '1.2.840.10008.5.1.4.1.1.88.22'
+    ... ]
 
     References
     ----------
@@ -1893,8 +1904,8 @@ class SOPClassCommonExtendedNegotiation(ServiceParameter):
         """
         # pylint: disable=attribute-defined-outside-init
         if isinstance(uid_list, list):
-            # Test that all the items in the list are UID compatible and convert
-            #   them to pydicom.uid.UID if required
+            # Test that all the items in the list are UID compatible and
+            #   convert them to pydicom.uid.UID if required
             valid_uid_list = []
 
             for uid in uid_list:
@@ -2015,16 +2026,16 @@ class UserIdentityNegotiation(ServiceParameter):
     a single SOPClassCommonExtendedNegotiation item for each available SOP
     Class UID.
 
-    In general, a User Identity Negotiation request that is accepted will result
-    in Association establishment and possibly a server response if requested
-    and supported by the peer. If a server response is requested but not
-    received then the Requestor must decide how to proceed.
+    In general, a User Identity Negotiation request that is accepted will
+    result in Association establishment and possibly a server response if
+    requested and supported by the peer. If a server response is requested but
+    not received then the Requestor must decide how to proceed.
     An Association rejected due to an authorisation failure will be indicated
     using Rejection Permanent with a Source of "DICOM UL service provided (ACSE
     related function)".
 
-    How the Acceptor handles authentication is to be implemented by the end-user
-    and is outside the scope of the DICOM standard.
+    How the Acceptor handles authentication is to be implemented by the
+    end-user and is outside the scope of the DICOM standard.
 
     A-ASSOCIATE-RQ
     | `user_identity_type`
@@ -2058,8 +2069,8 @@ class UserIdentityNegotiation(ServiceParameter):
         when it should contain the passcode as a bytes object, None otherwise
     server_response : bytes or None
         A-ASSOCIATE-AC only. Shall contain the Kerberos Service ticket or SAML
-        response if the `user_identity_type` in the Request was 3 or 4. Shall be
-        None if `user_identity_type` was 1 or 2.
+        response if the `user_identity_type` in the Request was 3 or 4. Shall
+         be None if `user_identity_type` was 1 or 2.
 
     Examples
     --------
@@ -2105,16 +2116,17 @@ class UserIdentityNegotiation(ServiceParameter):
         if self.server_response is None:
             # Then an -RQ
             if self.user_identity_type is None or self.primary_field is None:
-                LOGGER.error("User Identity Type and Primary Field must be "
-                             "set prior to Association negotiation")
-                raise ValueError("User Identity Type and Primary Field "
-                                 "must be set prior to Association negotiation")
+                msg = (
+                    "User Identity Type and Primary Field must be "
+                    "set prior to Association negotiation"
+                )
+                LOGGER.error(msg)
+                raise ValueError(msg)
 
             if self.user_identity_type == 2 and self.secondary_field == b'':
-                LOGGER.error("Secondary Field must be set when User Identity"
-                             "is 2")
-                raise ValueError("Secondary Field must be set when User "
-                                 "Identity is 2")
+                msg = "Secondary Field must be set when User Identity is 2"
+                LOGGER.error(msg)
+                raise ValueError(msg)
 
             item = UserIdentitySubItemRQ()
 
