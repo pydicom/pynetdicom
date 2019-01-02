@@ -3,12 +3,9 @@ ACSE service provider
 """
 import logging
 
-from pydicom.uid import UID
-
 from pynetdicom.pdu_primitives import (
     A_ASSOCIATE, A_RELEASE, A_ABORT, A_P_ABORT,
     AsynchronousOperationsWindowNegotiation,
-    MaximumLengthNotification,
     SOPClassCommonExtendedNegotiation,
     SOPClassExtendedNegotiation,
     UserIdentityNegotiation,
@@ -116,7 +113,7 @@ class ACSE(object):
             return {}
 
         rsp = {
-            uid:ii for uid,ii in rsp.items()
+            uid:ii for uid, ii in rsp.items()
             if isinstance(ii, SOPClassCommonExtendedNegotiation)
         }
 
@@ -323,9 +320,11 @@ class ACSE(object):
 
         # SOP Class Common Extended Negotiation items
         #   Note: No response items are allowed
+        # pylint: disable=protected-access
         assoc.acceptor._common_ext = (
             self._check_sop_class_common_extended(assoc)
         )
+        # pylint: enable=protected-access
 
         # Asynchronous Operations Window Negotiation items
         if assoc.requestor.asynchronous_operations != (1, 1):
@@ -780,6 +779,8 @@ class ACSE(object):
 
 
     # ACSE logging/debugging functions
+    # pylint: disable=too-many-branches,unused-argument
+    # pylint: disable=too-many-locals,too-many-statements
     @staticmethod
     def debug_send_abort(a_abort_rq):
         """
@@ -827,9 +828,8 @@ class ACSE(object):
 
         if user_info.implementation_version_name:
             s.append(
-                    "Our Implementation Version Name:   {0!s}".format(
-                    user_info.implementation_version_name.decode('ascii')
-                )
+                "Our Implementation Version Name:   {0!s}"
+                .format(user_info.implementation_version_name.decode('ascii'))
             )
         s.append('Application Context Name:    {0!s}'.format(app_context))
         s.append('Responding Application Name: {0!s}'.format(responding_ae))
