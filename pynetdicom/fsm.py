@@ -5,7 +5,7 @@ import logging
 import socket
 
 from pynetdicom.pdu import (A_ASSOCIATE_RQ, A_ASSOCIATE_RJ, A_ASSOCIATE_AC,
-                             P_DATA_TF, A_RELEASE_RQ, A_RELEASE_RP, A_ABORT_RQ)
+                            P_DATA_TF, A_RELEASE_RQ, A_RELEASE_RP, A_ABORT_RQ)
 from pynetdicom.pdu_primitives import A_ABORT
 
 LOGGER = logging.getLogger('pynetdicom.sm')
@@ -73,7 +73,7 @@ class StateMachine(object):
             # Move the state machine to the next state
             self.transition(next_state)
 
-        except Exception as ex:
+        except Exception:
             LOGGER.error("DUL State Machine received an exception attempting "
                          "to perform the action '%s' while in state '%s'",
                          action_name, self.current_state)
@@ -97,8 +97,9 @@ class StateMachine(object):
         if state in STATES.keys():
             self.current_state = state
         else:
-            LOGGER.error('Invalid state "%s" for State Machine', state)
-            raise ValueError('Invalid state "%s" for State Machine', state)
+            msg = 'Invalid state "{}" for State Machine'.format(state)
+            LOGGER.error(msg)
+            raise ValueError(msg)
 
 
 def AE_1(dul):
