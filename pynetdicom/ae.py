@@ -241,7 +241,8 @@ class ApplicationEntity(object):
         When an SCU sends an Association request to a peer it includes a list
         of presentation contexts it would like the peer to support [1]_. This
         method adds a single
-        :py:class:`PresentationContext <pynetdicom.presentation.PresentationContext>`
+        :py:class:`PresentationContext
+        <pynetdicom.presentation.PresentationContext>`
         to the list of the SCU's requested contexts.
 
         Only 128 presentation contexts can be included in the association
@@ -295,7 +296,8 @@ class ApplicationEntity(object):
         >>> from pynetdicom import AE
         >>> from pynetdicom.sop_class import VerificationSOPClass
         >>> ae = AE()
-        >>> ae.add_requested_context(VerificationSOPClass, ImplicitVRLittleEndian)
+        >>> ae.add_requested_context(VerificationSOPClass,
+        ...                          ImplicitVRLittleEndian)
         >>> print(ae.requested_contexts[0])
         Abstract Syntax: Verification SOP Class
         Transfer Syntax(es):
@@ -305,14 +307,17 @@ class ApplicationEntity(object):
         using different transfer syntaxes for each.
 
         >>> from pydicom.uid import (
-        ...     ImplicitVRLittleEndian, ExplicitVRLittleEndian, ExplicitVRBigEndian
+        ...     ImplicitVRLittleEndian, ExplicitVRLittleEndian,
+        ...     ExplicitVRBigEndian
         ... )
         >>> from pynetdicom import AE
         >>> from pynetdicom.sop_class import VerificationSOPClass
         >>> ae = AE()
         >>> ae.add_requested_context(VerificationSOPClass,
-        ...                          [ImplicitVRLittleEndian, ExplicitVRBigEndian])
-        >>> ae.add_requested_context(VerificationSOPClass, ExplicitVRLittleEndian)
+        ...                          [ImplicitVRLittleEndian,
+        ...                           ExplicitVRBigEndian])
+        >>> ae.add_requested_context(VerificationSOPClass,
+        ...                          ExplicitVRLittleEndian)
         >>> len(ae.requested_contexts)
         2
         >>> print(ae.requested_contexts[0])
@@ -424,7 +429,8 @@ class ApplicationEntity(object):
         >>> from pynetdicom import AE
         >>> from pynetdicom.sop_class import VerificationSOPClass
         >>> ae = AE()
-        >>> ae.add_supported_context(VerificationSOPClass, ImplicitVRLittleEndian)
+        >>> ae.add_supported_context(VerificationSOPClass,
+        ...                          ImplicitVRLittleEndian)
         >>> print(ae.supported_contexts[0])
         Abstract Syntax: Verification SOP Class
         Transfer Syntax(es):
@@ -432,18 +438,21 @@ class ApplicationEntity(object):
 
         Add support for presentation contexts with an abstract syntax of
         *Verification SOP Class* and transfer syntaxes of *Implicit VR Little
-        Endian* and *Explicit VR Big Endian* and then update the context to also
-        support *Explicit VR Little Endian*.
+        Endian* and *Explicit VR Big Endian* and then update the context to
+        also support *Explicit VR Little Endian*.
 
         >>> from pydicom.uid import (
-        ...     ImplicitVRLittleEndian, ExplicitVRLittleEndian, ExplicitVRBigEndian
+        ...     ImplicitVRLittleEndian, ExplicitVRLittleEndian,
+        ...     ExplicitVRBigEndian
         ... )
         >>> from pynetdicom import AE
         >>> from pynetdicom.sop_class import VerificationSOPClass
         >>> ae = AE()
         >>> ae.add_supported_context(VerificationSOPClass,
-                                     [ImplicitVRLittleEndian, ExplicitVRBigEndian])
-        >>> ae.add_supported_context(VerificationSOPClass, ExplicitVRLittleEndian)
+        ...                         [ImplicitVRLittleEndian,
+        ...                          ExplicitVRBigEndian])
+        >>> ae.add_supported_context(VerificationSOPClass,
+        ...                          ExplicitVRLittleEndian)
         >>> print(ae.supported_contexts[0])
         Abstract Syntax: Verification SOP Class
         Transfer Syntax(es):
@@ -616,8 +625,7 @@ class ApplicationEntity(object):
         # Endlessly loops while the Association negotiation is taking place
         while (not assoc.is_established and not assoc.is_rejected and
                not assoc.is_aborted and not assoc.dul._kill_thread):
-            # Program loops here endlessly sometimes
-            time.sleep(0.1)
+            time.sleep(0.05)
 
         # If the Association was established
         if assoc.is_established:
@@ -731,9 +739,8 @@ class ApplicationEntity(object):
         """
         uid = UID(uid)
         if uid.is_valid:
+            # pylint: disable=attribute-defined-outside-init
             self._implementation_uid = uid
-        else:
-            pass
 
     @property
     def implementation_version_name(self):
@@ -749,6 +756,7 @@ class ApplicationEntity(object):
         value : bytes
             The A-ASSOCIATE-RQ's Implementation Version Name value.
         """
+        # pylint: disable=attribute-defined-outside-init
         self._implementation_version = value
 
     @property
@@ -848,7 +856,7 @@ class ApplicationEntity(object):
         abstract_syntax : str, pydicom.uid.UID or sop_class.SOPClass
             The abstract syntax of the presentation context you wish to stop
             requesting when sending association requests.
-        transfer_syntax : str/pydicom.uid.UID or list of str/pydicom.uid.UID, optional
+        transfer_syntax : UID str or list of UID str, optional
             The transfer syntax(ex) you wish to stop requesting. If a list of
             str/UID then only those transfer syntaxes specified will no longer
             be requested. If not specified then the abstract syntax and all
@@ -885,29 +893,33 @@ class ApplicationEntity(object):
         0
 
         For all requested presentation contexts with an abstract syntax of
-        *Verification SOP Class*, stop requesting a transfer syntax of *Implicit
-        VR Little Endian*. If a presentation context exists which only has a
-        single *Implicit VR Little Endian* transfer syntax then it will be
-        completely removed, otherwise it will be kept with its remaining
-        transfer syntaxes.
+        *Verification SOP Class*, stop requesting a transfer syntax of
+        *Implicit VR Little Endian*. If a presentation context exists which
+        only has a single *Implicit VR Little Endian* transfer syntax then
+        it will be completely removed, otherwise it will be kept with its
+        remaining transfer syntaxes.
 
         Presentation context has only a single matching transfer syntax:
 
         >>> from pydicom.uid import ImplicitVRLittleEndian
         >>> from pynetdicom import AE
         >>> from pynetdicom.sop_class import VerificationSOPClass
-        >>> ae.add_requested_context(VerificationSOPClass, ImplicitVRLittleEndian)
+        >>> ae.add_requested_context(VerificationSOPClass,
+        ...                          ImplicitVRLittleEndian)
         >>> print(ae.requested_contexts[0])
         Abstract Syntax: Verification SOP Class
         Transfer Syntax(es):
 	        =Implicit VR Little Endian
-        >>> ae.remove_requested_context(VerificationSOPClass, ImplicitVRLittleEndian)
+        >>> ae.remove_requested_context(VerificationSOPClass,
+        ...                             ImplicitVRLittleEndian)
         >>> len(ae.requested_contexts)
         0
 
         Presentation context has at least one remaining transfer syntax:
 
-        >>> from pydicom.uid import ImplicitVRLittleEndian, ExplicitVRLittleEndian
+        >>> from pydicom.uid import (
+        ...     ImplicitVRLittleEndian, ExplicitVRLittleEndian
+        ... )
         >>> from pynetdicom import AE
         >>> from pynetdicom.sop_class import VerificationSOPClass
         >>> ae = AE()
@@ -919,7 +931,8 @@ class ApplicationEntity(object):
 	        =Explicit VR Little Endian
 	        =Explicit VR Big Endian
         >>> ae.remove_requested_context(VerificationSOPClass,
-        ...                             [ImplicitVRLittleEndian, ExplicitVRLittleEndian])
+        ...                             [ImplicitVRLittleEndian,
+        ...                              ExplicitVRLittleEndian])
         >>> print(ae.requested_contexts[0])
         Abstract Syntax: Verification SOP Class
         Transfer Syntax(es):
@@ -929,7 +942,8 @@ class ApplicationEntity(object):
 
         # Get all the current requested contexts with the same abstract syntax
         matching_contexts = [
-            cntx for cntx in self.requested_contexts if cntx.abstract_syntax == abstract_syntax
+            cntx for cntx in self.requested_contexts
+            if cntx.abstract_syntax == abstract_syntax
         ]
 
         if isinstance(transfer_syntax, str):
@@ -969,7 +983,7 @@ class ApplicationEntity(object):
         abstract_syntax : str, pydicom.uid.UID or sop_class.SOPClass
             The abstract syntax of the presentation context you wish to stop
             supporting.
-        transfer_syntax : str/pydicom.uid.UID or list of str/pydicom.uid.UID, optional
+        transfer_syntax : UID str or list of UID str, optional
             The transfer syntax(ex) you wish to stop supporting. If a list of
             str/UID then only those transfer syntaxes specified will no longer
             be supported. If not specified then the abstract syntax and all
@@ -1016,18 +1030,22 @@ class ApplicationEntity(object):
         >>> from pynetdicom import AE
         >>> from pynetdicom.sop_class import VerificationSOPClass
         >>> ae = AE()
-        >>> ae.add_supported_context(VerificationSOPClass, ImplicitVRLittleEndian)
+        >>> ae.add_supported_context(VerificationSOPClass,
+        ...                          ImplicitVRLittleEndian)
         >>> print(ae.supported_contexts[0])
         Abstract Syntax: Verification SOP Class
         Transfer Syntax(es):
 	        =Implicit VR Little Endian
-        >>> ae.remove_supported_context(VerificationSOPClass, ImplicitVRLittleEndian)
+        >>> ae.remove_supported_context(VerificationSOPClass,
+        ...                             ImplicitVRLittleEndian)
         >>> len(ae.supported_contexts)
         0
 
         Presentation context has at least one remaining transfer syntax:
 
-        >>> from pydicom.uid import ImplicitVRLittleEndian, ExplicitVRLittleEndian
+        >>> from pydicom.uid import (
+        ...     ImplicitVRLittleEndian, ExplicitVRLittleEndian
+        ... )
         >>> from pynetdicom import AE
         >>> from pynetdicom.sop_class import VerificationSOPClass
         >>> ae = AE()
@@ -1039,7 +1057,8 @@ class ApplicationEntity(object):
 	        =Explicit VR Little Endian
 	        =Explicit VR Big Endian
         >>> ae.remove_supported_context(VerificationSOPClass,
-        ...                             [ImplicitVRLittleEndian, ExplicitVRLittleEndian])
+        ...                             [ImplicitVRLittleEndian,
+        ...                              ExplicitVRLittleEndian])
         >>> print(ae.supported_contexts[0])
         Abstract Syntax: Verification SOP Class
         Transfer Syntax(es):
@@ -1156,6 +1175,7 @@ class ApplicationEntity(object):
             Called AE Title value that does not match `ae_title` will be
             rejected.
         """
+        # pylint: disable=attribute-defined-outside-init
         if ae_title:
             self._require_called_aet = validate_ae_title(ae_title)
         else:
@@ -1182,6 +1202,7 @@ class ApplicationEntity(object):
             Calling AE Title value that does not match `ae_title` will be
             rejected.
         """
+        # pylint: disable=attribute-defined-outside-init
         if ae_title:
             self._require_calling_aet = validate_ae_title(ae_title)
         else:
@@ -1413,6 +1434,7 @@ class ApplicationEntity(object):
 
 
     # Association extended negotiation callbacks
+    # pylint: disable=unused-argument,no-self-use
     def on_async_ops_window(self, nr_invoked, nr_performed):
         """Callback for when an Asynchronous Operations Window Negotiation
         item is include in the association request.
@@ -1614,8 +1636,10 @@ class ApplicationEntity(object):
               'parameters' : {
                   'message_id' : int, the DIMSE message ID
                   'priority' : int, the requested operation priority
-                  'originator_aet' : bytes or None, the move originator's AE title
-                  'originator_message_id' : int or None, the move originator's message ID
+                  'originator_aet' : bytes or None, the move originator's AE
+                                     title
+                  'originator_message_id' : int or None, the move originator's
+                                            message ID
               }
               'sop_class_extended' : {
                   SOP Class UID : Service Class Application Information,
@@ -1643,8 +1667,8 @@ class ApplicationEntity(object):
         * DICOM Standard Part 4, `Annex A <http://dicom.nema.org/medical/dicom/current/output/html/part04.html#chapter_A>`_
         * DICOM Standard Part 7, Sections
           `9.1.5 <http://dicom.nema.org/medical/dicom/current/output/html/part07.html#sect_9.1.5>`_,
-          `9.3.5 <http://dicom.nema.org/medical/dicom/current/output/html/part07.html#sect_9.3.5>`_ and
-          `Annex C <http://dicom.nema.org/medical/dicom/current/output/html/part07.html#chapter_C>`_
+          `9.3.5 <http://dicom.nema.org/medical/dicom/current/output/html/part07.html#sect_9.3.5>`_
+          and `Annex C <http://dicom.nema.org/medical/dicom/current/output/html/part07.html#chapter_C>`_
 
         """
         # User implementation of on_c_echo is optional
@@ -1769,12 +1793,12 @@ class ApplicationEntity(object):
           `V <http://dicom.nema.org/medical/dicom/current/output/html/part04.html#chapter_V>`_,
           `X <http://dicom.nema.org/medical/dicom/current/output/html/part04.html#chapter_X>`_,
           `BB <http://dicom.nema.org/medical/dicom/current/output/html/part04.html#chapter_BB>`_,
-          `CC <http://dicom.nema.org/medical/dicom/current/output/html/part04.html#chapter_CC>`_ and
-          `HH <http://dicom.nema.org/medical/dicom/current/output/html/part04.html#chapter_HH>`_
+          `CC <http://dicom.nema.org/medical/dicom/current/output/html/part04.html#chapter_CC>`_
+          and `HH <http://dicom.nema.org/medical/dicom/current/output/html/part04.html#chapter_HH>`_
         * DICOM Standard Part 7, Sections
           `9.1.2 <http://dicom.nema.org/medical/dicom/current/output/html/part07.html#sect_9.1.2>`_,
-          `9.3.2 <http://dicom.nema.org/medical/dicom/current/output/html/part07.html#sect_9.3.2>`_ and
-          `Annex C <http://dicom.nema.org/medical/dicom/current/output/html/part07.html#chapter_C>`_
+          `9.3.2 <http://dicom.nema.org/medical/dicom/current/output/html/part07.html#sect_9.3.2>`_
+          and `Annex C <http://dicom.nema.org/medical/dicom/current/output/html/part07.html#chapter_C>`_
         """
         raise NotImplementedError("User must implement the AE.on_c_find "
                                   "function prior to calling AE.start()")
@@ -1830,11 +1854,13 @@ class ApplicationEntity(object):
           | ``0xFE00`` Sub-operations terminated due to Cancel request
 
         Warning
-          | ``0xB000`` Sub-operations complete, one or more failures or warnings
+          | ``0xB000`` Sub-operations complete, one or more failures or
+            warnings
 
         Pending
-          | ``0xFF00`` Matches are continuing - Current Match is supplied and any
-            Optional Keys were supported in the same manner as Required Keys
+          | ``0xFF00`` Matches are continuing - Current Match is supplied and
+            any Optional Keys were supported in the same manner as Required
+            Keys
 
         Parameters
         ----------
@@ -1915,12 +1941,12 @@ class ApplicationEntity(object):
           `X <http://dicom.nema.org/medical/dicom/current/output/html/part04.html#chapter_X>`_,
           `Y <http://dicom.nema.org/medical/dicom/current/output/html/part04.html#chapter_Y>`_,
           `Z <http://dicom.nema.org/medical/dicom/current/output/html/part04.html#chapter_Z>`_,
-          `BB <http://dicom.nema.org/medical/dicom/current/output/html/part04.html#chapter_BB>`_ and
-          `HH <http://dicom.nema.org/medical/dicom/current/output/html/part04.html#chapter_HH>`_
+          `BB <http://dicom.nema.org/medical/dicom/current/output/html/part04.html#chapter_BB>`_
+          and `HH <http://dicom.nema.org/medical/dicom/current/output/html/part04.html#chapter_HH>`_
         * DICOM Standard Part 7, Sections
           `9.1.3 <http://dicom.nema.org/medical/dicom/current/output/html/part07.html#sect_9.1.3>`_,
-          `9.3.3 <http://dicom.nema.org/medical/dicom/current/output/html/part07.html#sect_9.3.3>`_ and
-          `Annex C <http://dicom.nema.org/medical/dicom/current/output/html/part07.html#chapter_C>`_
+          `9.3.3 <http://dicom.nema.org/medical/dicom/current/output/html/part07.html#sect_9.3.3>`_
+          and `Annex C <http://dicom.nema.org/medical/dicom/current/output/html/part07.html#chapter_C>`_
         """
         raise NotImplementedError("User must implement the AE.on_c_get "
                                   "function prior to calling AE.start()")
@@ -2072,12 +2098,12 @@ class ApplicationEntity(object):
           `U <http://dicom.nema.org/medical/dicom/current/output/html/part04.html#chapter_U>`_,
           `X <http://dicom.nema.org/medical/dicom/current/output/html/part04.html#chapter_X>`_,
           `Y <http://dicom.nema.org/medical/dicom/current/output/html/part04.html#chapter_Y>`_,
-          `BB <http://dicom.nema.org/medical/dicom/current/output/html/part04.html#chapter_BB>`_ and
-          `HH <http://dicom.nema.org/medical/dicom/current/output/html/part04.html#chapter_HH>`_
+          `BB <http://dicom.nema.org/medical/dicom/current/output/html/part04.html#chapter_BB>`_
+          and `HH <http://dicom.nema.org/medical/dicom/current/output/html/part04.html#chapter_HH>`_
         * DICOM Standard Part 7, Sections
           `9.1.4 <http://dicom.nema.org/medical/dicom/current/output/html/part07.html#sect_9.1.4>`_,
-          `9.3.4 <http://dicom.nema.org/medical/dicom/current/output/html/part07.html#sect_9.3.4>`_ and
-          `Annex C <http://dicom.nema.org/medical/dicom/current/output/html/part07.html#chapter_C>`_
+          `9.3.4 <http://dicom.nema.org/medical/dicom/current/output/html/part07.html#sect_9.3.4>`_
+          and `Annex C <http://dicom.nema.org/medical/dicom/current/output/html/part07.html#chapter_C>`_
         """
         raise NotImplementedError("User must implement the AE.on_c_move "
                                   "function prior to calling AE.start()")
@@ -2154,8 +2180,10 @@ class ApplicationEntity(object):
               'parameters' : {
                   'message_id' : int, the DIMSE message ID
                   'priority' : int, the requested operation priority
-                  'originator_aet' : bytes or None, the move originator's AE title
-                  'originator_message_id' : int or None, the move originator's message ID
+                  'originator_aet' : bytes or None, the move originator's AE
+                                     title
+                  'originator_message_id' : int or None, the move originator's
+                                            message ID
               }
               'sop_class_extended' : {
                   SOP Class UID : Service Class Application Information,
@@ -2189,12 +2217,12 @@ class ApplicationEntity(object):
         * DICOM Standard Part 4, Annexes
           `B <http://dicom.nema.org/medical/dicom/current/output/html/part04.html#chapter_B>`_,
           `AA <http://dicom.nema.org/medical/dicom/current/output/html/part04.html#chapter_AA>`_,
-          `FF <http://dicom.nema.org/medical/dicom/current/output/html/part04.html#chapter_FF>`_ and
-          `GG <http://dicom.nema.org/medical/dicom/current/output/html/part04.html#chapter_GG>`_
+          `FF <http://dicom.nema.org/medical/dicom/current/output/html/part04.html#chapter_FF>`_
+          and `GG <http://dicom.nema.org/medical/dicom/current/output/html/part04.html#chapter_GG>`_
         * DICOM Standard Part 7, Sections
           `9.1.1 <http://dicom.nema.org/medical/dicom/current/output/html/part07.html#sect_9.1.1>`_,
-          `9.3.1 <http://dicom.nema.org/medical/dicom/current/output/html/part07.html#sect_9.3.1>`_ and
-          `Annex C <http://dicom.nema.org/medical/dicom/current/output/html/part07.html#chapter_C>`_
+          `9.3.1 <http://dicom.nema.org/medical/dicom/current/output/html/part07.html#sect_9.3.1>`_
+          and `Annex C <http://dicom.nema.org/medical/dicom/current/output/html/part07.html#chapter_C>`_
         * DICOM Standard Part 10,
           `Section 7 <http://dicom.nema.org/medical/dicom/current/output/html/part10.html#chapter_7>`_
         """
