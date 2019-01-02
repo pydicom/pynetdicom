@@ -11,12 +11,15 @@ import warnings
 
 from pydicom.uid import UID
 
-from pynetdicom.association import Association, MODE_REQUESTOR, MODE_ACCEPTOR
-from pynetdicom.presentation import (
-    PresentationContext,
+from pynetdicom.association import Association
+from pynetdicom.presentation import PresentationContext
+from pynetdicom.utils import validate_ae_title
+from pynetdicom._globals import (
+    MODE_REQUESTOR,
+    MODE_ACCEPTOR,
+    DEFAULT_MAX_LENGTH,
     DEFAULT_TRANSFER_SYNTAXES
 )
-from pynetdicom.utils import validate_ae_title
 
 
 def setup_logger():
@@ -194,7 +197,7 @@ class ApplicationEntity(object):
         self.maximum_associations = 2
 
         # Default maximum PDU receive size (in bytes)
-        self.maximum_pdu_size = 16382
+        self.maximum_pdu_size = DEFAULT_MAX_LENGTH
 
         # Default timeouts - None means no timeout
         self.acse_timeout = 60
@@ -514,7 +517,7 @@ class ApplicationEntity(object):
             raise
 
     def associate(self, addr, port, contexts=None, ae_title=b'ANY-SCP',
-                  max_pdu=16382, ext_neg=None):
+                  max_pdu=DEFAULT_MAX_LENGTH, ext_neg=None):
         """Send an association request to a remote AE.
 
         When requesting an association the local AE is acting as an SCU. The
@@ -779,7 +782,9 @@ class ApplicationEntity(object):
         if value >= 0:
             self._maximum_pdu_size = value
         else:
-            LOGGER.warning("maximum_pdu_size set to 16382")
+            LOGGER.warning(
+                "maximum_pdu_size set to {}".format(DEFAULT_MAX_LENGTH)
+            )
 
     @property
     def network_timeout(self):

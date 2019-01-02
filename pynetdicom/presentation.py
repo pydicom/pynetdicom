@@ -2,12 +2,7 @@
 from collections import namedtuple
 import logging
 
-from pydicom.uid import (
-    UID,
-    ImplicitVRLittleEndian,
-    ExplicitVRLittleEndian,
-    ExplicitVRBigEndian
-)
+from pydicom.uid import UID
 
 from pynetdicom.sop_class import (
     _VERIFICATION_CLASSES,
@@ -28,16 +23,10 @@ from pynetdicom.sop_class import (
     _UNIFIED_PROCEDURE_STEP_CLASSES,
     _RT_MACHINE_VERIFICATION_CLASSES,
 )
+from pynetdicom._globals import DEFAULT_TRANSFER_SYNTAXES
 
 
 LOGGER = logging.getLogger('pynetdicom.presentation')
-
-# The default transfer syntaxes used when creating Presentation Contexts
-DEFAULT_TRANSFER_SYNTAXES = [
-    ImplicitVRLittleEndian,
-    ExplicitVRLittleEndian,
-    ExplicitVRBigEndian,
-]
 
 
 # Used with the on_c_* callbacks to give the users access to the context

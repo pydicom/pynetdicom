@@ -68,17 +68,15 @@ from pynetdicom.pdu_primitives import (
     SOPClassCommonExtendedNegotiation,
     SCP_SCU_RoleSelectionNegotiation,
 )
-from pynetdicom.status import (
-    code_to_category, STORAGE_SERVICE_CLASS_STATUS,
-    STATUS_WARNING, STATUS_SUCCESS, STATUS_CANCEL, STATUS_PENDING,
-    STATUS_FAILURE
+from pynetdicom.status import code_to_category, STORAGE_SERVICE_CLASS_STATUS
+from pynetdicom._globals import (
+    MODE_REQUESTOR, MODE_ACCEPTOR, DEFAULT_MAX_LENGTH, STATUS_WARNING,
+    STATUS_SUCCESS, STATUS_CANCEL, STATUS_PENDING, STATUS_FAILURE
 )
 
 
 # pylint: enable=no-name-in-module
 LOGGER = logging.getLogger('pynetdicom.assoc')
-MODE_REQUESTOR = 'requestor'
-MODE_ACCEPTOR = 'acceptor'
 
 
 class Association(threading.Thread):
@@ -2767,7 +2765,7 @@ class ServiceUser(object):
         # User Information items
         self._user_info = []
         # Must always be set
-        self.maximum_length = 16382
+        self.maximum_length = DEFAULT_MAX_LENGTH
         self.implementation_class_uid = assoc.ae.implementation_class_uid
 
         # The are the proposed extended negotiation items,

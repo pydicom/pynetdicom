@@ -17,12 +17,10 @@ from pynetdicom.presentation import (
     negotiate_as_requestor, negotiate_as_acceptor
 )
 from pynetdicom.utils import pretty_bytes
+from pynetdicom._globals import APPLICATION_CONTEXT_NAME
 
 
 LOGGER = logging.getLogger('pynetdicom.acse')
-
-# DICOM Application Context Name - see Part 7, Annex A.2.1
-APPLICATION_CONTEXT_NAME = UID('1.2.840.10008.3.1.1.1')
 
 
 class ACSE(object):

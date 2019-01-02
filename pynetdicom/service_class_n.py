@@ -12,14 +12,13 @@ from pynetdicom.dimse_primitives import (
     N_GET, N_SET, N_EVENT_REPORT, N_ACTION, N_CREATE, N_DELETE
 )
 from pynetdicom.service_class import ServiceClass
-from pynetdicom.status import (
+from pynetdicom.status import GENERAL_STATUS, code_to_category
+from pynetdicom._globals import (
     STATUS_FAILURE,
     STATUS_SUCCESS,
     STATUS_WARNING,
     STATUS_PENDING,
     STATUS_CANCEL,
-    GENERAL_STATUS,
-    code_to_category,
 )
 
 

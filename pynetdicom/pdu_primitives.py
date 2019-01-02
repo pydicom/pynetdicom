@@ -19,7 +19,7 @@ from pynetdicom.pdu_items import (
 )
 from pynetdicom.presentation import PresentationContext
 from pynetdicom.utils import validate_ae_title
-#from pynetdicom.utils import pretty_bytes
+from pynetdicom._globals import DEFAULT_MAX_LENGTH
 
 LOGGER = logging.getLogger('pynetdicom.pdu_primitives')
 
@@ -1076,7 +1076,7 @@ class MaximumLengthNotification(ServiceParameter):
     * DICOM Standard, Part 8, Annex D.1
     """
     def __init__(self):
-        self.maximum_length_received = 16382
+        self.maximum_length_received = DEFAULT_MAX_LENGTH
 
     def from_primitive(self):
         """Convert the primitive to a PDU item ready to be encoded.

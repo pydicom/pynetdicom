@@ -24,6 +24,7 @@ from pynetdicom.dimse_primitives import (C_STORE, C_FIND, C_GET, C_MOVE,
 from pynetdicom.pdu_primitives import P_DATA
 from pynetdicom.sop_class import uid_to_service_class
 from pynetdicom.timer import Timer
+from pynetdicom._globals import DEFAULT_MAX_LENGTH
 
 LOGGER = logging.getLogger('pynetdicom.dimse')
 
@@ -186,7 +187,8 @@ class DIMSEServiceProvider(object):
     * DICOM Standard, Part 7
     """
     # pylint: disable=too-many-public-methods
-    def __init__(self, dul, dimse_timeout=None, maximum_pdu_size=16382):
+    def __init__(self, dul, dimse_timeout=None,
+                 maximum_pdu_size=DEFAULT_MAX_LENGTH):
         """Start the DIMSE service provider.
 
         Parameters
