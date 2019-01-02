@@ -639,15 +639,15 @@ class TestAEGoodMiscSetters(object):
         """ Check AE title change produces good value """
         ae = AE()
         ae.ae_title = '     TEST     '
-        assert ae.ae_title == 'TEST            '
+        assert ae.ae_title == b'TEST            '
         ae.ae_title = '            TEST'
-        assert ae.ae_title == 'TEST            '
+        assert ae.ae_title == b'TEST            '
         ae.ae_title = '                 TEST'
-        assert ae.ae_title == 'TEST            '
+        assert ae.ae_title == b'TEST            '
         ae.ae_title = 'a            TEST'
-        assert ae.ae_title == 'a            TES'
+        assert ae.ae_title == b'a            TES'
         ae.ae_title = 'a        TEST'
-        assert ae.ae_title == 'a        TEST   '
+        assert ae.ae_title == b'a        TEST   '
 
     def test_max_assoc_good(self):
         """ Check AE maximum association change produces good value """

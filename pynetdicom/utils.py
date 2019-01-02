@@ -3,6 +3,7 @@
 import codecs
 from io import BytesIO
 import logging
+import sys
 import unicodedata
 
 
@@ -25,76 +26,66 @@ def validate_ae_title(ae_title):
 
     If the supplied `ae_title` is less than 16 characters once non-significant
     spaces have been removed, the spare trailing characters will be set to
-    space (0x20)
+    space (0x20).
+
+    AE titles are made up of the Default Character Repertoire (the Basic
+    G0 Set of ISO646) excluding character code 0x5c (backslash) and all
+    control characters.
 
     Parameters
     ----------
-    ae_title : str or bytes
-        The AE title to check
+    ae_title : bytes
+        The AE title to check.
 
     Returns
     -------
     str or bytes
-        A valid AE title (with the same type as the supplied `ae_title`),
-        truncated to 16 characters if necessary. If Python 3 then only returns
-        bytes.
+        A valid AE title truncated to 16 characters if necessary. If Python 3
+        then only returns bytes, if Python 2 then returns str.
 
     Raises
     ------
     ValueError
         If `ae_title` is an empty string, contains only spaces or contains
-        control characters or backslash
-    TypeError
-        If `ae_title` is not a string or bytes
+        control characters or backslash.
     """
-    try:
-        is_bytes = False
-        if isinstance(ae_title, bytes):
-            is_bytes = True
-            ae_title = ae_title.decode('ascii')
+    if not isinstance(ae_title, (str, bytes)):
+        raise TypeError(
+            "AE titles must be str or bytes"
+        )
 
-        # Remove leading and trailing spaces
-        significant_characters = ae_title.strip()
+    # Python 2 - convert string to unicode
+    if sys.version_info[0] == 2:
+        ae_title = unicode(ae_title)
 
-        # Remove trailing nulls (required as AE titles may be padded by nulls)
-        #   and common control chars (optional, for convenience)
-        significant_characters = significant_characters.rstrip('\0\r\t\n')
+    # If bytes decode to ascii string
+    if isinstance(ae_title, bytes):
+        ae_title = ae_title.decode('ascii', errors='strict')
 
-        # Check for backslash or control characters
-        for char in significant_characters:
-            if unicodedata.category(char)[0] == "C" or char == "\\":
-                raise ValueError("Invalid value for an AE title; must not "
-                                 "contain backslash or control characters")
+    # Strip out any leading or trailing spaces
+    ae_title = ae_title.strip()
+    if not ae_title:
+        raise ValueError(
+            "AE titles are not allowed to consist entirely of only spaces"
+        )
 
-        # AE title OK
-        if 0 < len(significant_characters) <= 16:
-            while len(significant_characters) < 16:
-                significant_characters += ' '
+    # Truncate if longer than 16 characters
+    ae_title = ae_title[:16]
+    # Pad out to 16 characters using spaces
+    ae_title = ae_title.ljust(16)
 
-            if is_bytes:
-                return codecs.encode(significant_characters, 'ascii')
+    # Unicode category: 'Cc' is control characters
+    invalid = [
+        char for char in ae_title
+        if unicodedata.category(char)[0] == 'C' or char == '\\'
+    ]
+    if invalid:
+        raise ValueError(
+            "AE titles must not contain any control characters or backslashes"
+        )
 
-            return significant_characters
-
-        # AE title too long : truncate
-        elif len(significant_characters.strip()) > 16:
-            if is_bytes:
-                return codecs.encode(significant_characters[:16], 'ascii')
-
-            return significant_characters[:16]
-
-        # AE title empty str
-        else:
-            raise ValueError("Invalid value for an AE title; must be a "
-                             "non-empty string or bytes.")
-    except AttributeError:
-        raise TypeError("Invalid value for an AE title; must be a "
-                        "non-empty string or bytes.")
-    except ValueError:
-        raise
-    except:
-        raise TypeError("Invalid value for an AE title; must be a "
-                        "non-empty string or bytes.")
+    # Return as bytes (python 3) or str (python 2)
+    return ae_title.encode('ascii', errors='strict')
 
 
 def pretty_bytes(bytestream, prefix='  ', delimiter='  ', items_per_line=16,
