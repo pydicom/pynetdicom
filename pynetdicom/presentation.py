@@ -16,12 +16,12 @@ from pynetdicom.sop_class import (
     _DEFINED_PROCEDURE_CLASSES,
     _COLOR_PALETTE_CLASSES,
     _IMPLANT_TEMPLATE_CLASSES,
-    _PRINT_MANAGEMENT_CLASSES,
-    _PROCEDURE_STEP_CLASSES,
+    #_PRINT_MANAGEMENT_CLASSES,
+    #_PROCEDURE_STEP_CLASSES,
     _DISPLAY_SYSTEM_CLASSES,
-    _MEDIA_STORAGE_CLASSES,
-    _UNIFIED_PROCEDURE_STEP_CLASSES,
-    _RT_MACHINE_VERIFICATION_CLASSES,
+    #_MEDIA_STORAGE_CLASSES,
+    #_UNIFIED_PROCEDURE_STEP_CLASSES,
+    #_RT_MACHINE_VERIFICATION_CLASSES,
 )
 from pynetdicom._globals import DEFAULT_TRANSFER_SYNTAXES
 
@@ -204,12 +204,12 @@ class PresentationContext(object):
     ----------
 
     * DICOM Standard, Part 7, Annexes
-      `D.3.2 <http://dicom.nema.org/medical/dicom/current/output/html/part07.html#sect_D.3.2>`_ and
-      `D.3.3.4 <http://dicom.nema.org/medical/dicom/current/output/html/part07.html#sect_D.3.3.4>`_
+      `D.3.2 <http://dicom.nema.org/medical/dicom/current/output/html/part07.html#sect_D.3.2>`_
+      and `D.3.3.4 <http://dicom.nema.org/medical/dicom/current/output/html/part07.html#sect_D.3.3.4>`_
     * DICOM Standard, Part 8, Sections
       `9.3.2.2 <http://dicom.nema.org/medical/dicom/current/output/html/part08.html#sect_9.3.2.2>`_,
-      `9.3.3.2 <http://dicom.nema.org/medical/dicom/current/output/html/part08.html#sect_9.3.3.2>`_ and
-      `Annex B <http://dicom.nema.org/medical/dicom/current/output/html/part08.html#chapter_B>`_
+      `9.3.3.2 <http://dicom.nema.org/medical/dicom/current/output/html/part08.html#sect_9.3.3.2>`_
+      and `Annex B <http://dicom.nema.org/medical/dicom/current/output/html/part08.html#chapter_B>`_
     """
     def __init__(self):
         """Create a new PresentationContext."""
@@ -779,7 +779,8 @@ def build_context(abstract_syntax, transfer_syntax=None):
     >>> from pydicom.uid import UID
     >>> from pynetdicom import build_context
     >>> context = build_context(UID('1.2.840.10008.1.1'),
-                                ['1.2.840.10008.1.2', '1.2.840.10008.1.2.4.50'])
+                                ['1.2.840.10008.1.2',
+    ...                          '1.2.840.10008.1.2.4.50'])
     >>> print(context)
     Abstract Syntax: Verification SOP Class
     Transfer Syntax(es):
@@ -808,6 +809,7 @@ def build_context(abstract_syntax, transfer_syntax=None):
 
 
 # Service specific pre-generated Presentation Contexts
+# pylint: disable=line-too-long,invalid-name
 VerificationPresentationContexts = [
     build_context(uid) for uid in sorted(_VERIFICATION_CLASSES.values())
 ]
