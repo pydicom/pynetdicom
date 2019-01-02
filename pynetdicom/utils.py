@@ -63,20 +63,20 @@ def validate_ae_title(ae_title):
         ae_title = ae_title.decode('ascii', errors='strict')
 
     # Strip out any leading or trailing spaces
-    as_ascii = as_ascii.strip()
-    if not as_ascii:
+    ae_title = ae_title.strip()
+    if not ae_title:
         raise ValueError(
             "AE titles are not allowed to consist entirely of only spaces"
         )
 
     # Truncate if longer than 16 characters
-    as_ascii = as_ascii[:16]
+    ae_title = ae_title[:16]
     # Pad out to 16 characters using spaces
-    as_ascii = as_ascii.ljust(16)
+    ae_title = ae_title.ljust(16)
 
     # Unicode category: 'Cc' is control characters
     invalid = [
-        char for char in as_ascii
+        char for char in ae_title
         if unicodedata.category(char)[0] == 'C' or char == '\\'
     ]
     if invalid:
@@ -85,7 +85,7 @@ def validate_ae_title(ae_title):
         )
 
     # Return as bytes (python 3) or str (python 2)
-    return as_ascii.encode('ascii', errors='strict')
+    return ae_title.encode('ascii', errors='strict')
 
 
 def pretty_bytes(bytestream, prefix='  ', delimiter='  ', items_per_line=16,
