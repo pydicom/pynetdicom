@@ -174,7 +174,7 @@
 <h1>pynetdicom.pdu_primitives.A_ASSOCIATE<a class="headerlink" href="#pynetdicom-pdu-primitives-a-associate" title="Permalink to this headline">¶</a></h1>
 <dl class="class">
 <dt id="pynetdicom.pdu_primitives.A_ASSOCIATE">
-<em class="property">class </em><code class="descclassname">pynetdicom.pdu_primitives.</code><code class="descname">A_ASSOCIATE</code><a class="reference internal" href="../../_modules/pynetdicom/pdu_primitives.html#A_ASSOCIATE"><span class="viewcode-link">[source]</span></a><a class="reference external" href="https://github.com/pydicom/pynetdicom/blob/fb3bb86/pynetdicom/pdu_primitives.py#L44"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pynetdicom.pdu_primitives.A_ASSOCIATE" title="Permalink to this definition">¶</a></dt>
+<em class="property">class </em><code class="descclassname">pynetdicom.pdu_primitives.</code><code class="descname">A_ASSOCIATE</code><a class="reference internal" href="../../_modules/pynetdicom/pdu_primitives.html#A_ASSOCIATE"><span class="viewcode-link">[source]</span></a><a class="reference external" href="https://github.com/pydicom/pynetdicom/blob/57b199d/pynetdicom/pdu_primitives.py#L44"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pynetdicom.pdu_primitives.A_ASSOCIATE" title="Permalink to this definition">¶</a></dt>
 <dd><p>An A-ASSOCIATE primitive.</p>
 <p>The establishment of an association between two AEs shall be performed
 through ACSE A-ASSOCIATE request, indication, response and confirmation
@@ -341,8 +341,8 @@ primitive to the Requestor with an appropriate Result parameter
 UL service provider (ACSE) or UL service provider (Presentation).
 The indication primitive shall not be issued. The association shall not
 be established.</li>
-<li>Either Requestor or Acceptor may disrupt the Service Procedure by issuing
-an A-ABORT request primitive. The remote AE receives an A-ABORT
+<li>Either Requestor or Acceptor may disrupt the Service Procedure by
+issuing an A-ABORT request primitive. The remote AE receives an A-ABORT
 indication primitive. The association shall not be established</li>
 </ol>
 <dl class="attribute">
@@ -362,10 +362,10 @@ indication primitive. The association shall not be established</li>
 <dl class="attribute">
 <dt id="pynetdicom.pdu_primitives.A_ASSOCIATE.application_context_name">
 <code class="descname">application_context_name</code><a class="headerlink" href="#pynetdicom.pdu_primitives.A_ASSOCIATE.application_context_name" title="Permalink to this definition">¶</a></dt>
-<dd><p>The application context name proposed by the requestor. Acceptor returns
-either the same or a different name. Returned name specifies the
-application context used for the Association. See PS3.8 Annex A. The
-application context name shall be a valid UID or UID string and for
+<dd><p>The application context name proposed by the requestor. Acceptor
+returns either the same or a different name. Returned name specifies
+the application context used for the Association. See PS3.8 Annex A.
+The application context name shall be a valid UID or UID string and for
 version 3 of the DICOM Standard should be ‘1.2.840.10008.3.1.1.1’</p>
 <table class="docutils field-list" frame="void" rules="none">
 <col class="field-name" />
@@ -484,8 +484,9 @@ Allowed values are:</p>
 <dt id="pynetdicom.pdu_primitives.A_ASSOCIATE.diagnostic">
 <code class="descname">diagnostic</code><a class="headerlink" href="#pynetdicom.pdu_primitives.A_ASSOCIATE.diagnostic" title="Permalink to this definition">¶</a></dt>
 <dd><p>If the <cite>result</cite> parameter is 0 “rejected (permanent)” or 1 “rejected
-(transient)” then this supplies diagnostic information about the result.
-If <cite>result_source</cite> is 0 “UL service-user” then allowed values are:</p>
+(transient)” then this supplies diagnostic information about the
+result. If <cite>result_source</cite> is 0 “UL service-user” then allowed values
+are:</p>
 <ul class="simple">
 <li>0: no reason given</li>
 <li>1: application context name not supported</li>
@@ -632,7 +633,7 @@ Only one Transfer Syntax per presentation context shall be agreed to</p>
 </ul>
 <dl class="method">
 <dt id="pynetdicom.pdu_primitives.A_ASSOCIATE.__init__">
-<code class="descname">__init__</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="../../_modules/pynetdicom/pdu_primitives.html#A_ASSOCIATE.__init__"><span class="viewcode-link">[source]</span></a><a class="reference external" href="https://github.com/pydicom/pynetdicom/blob/fb3bb86/pynetdicom/pdu_primitives.py#L249"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pynetdicom.pdu_primitives.A_ASSOCIATE.__init__" title="Permalink to this definition">¶</a></dt>
+<code class="descname">__init__</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="../../_modules/pynetdicom/pdu_primitives.html#A_ASSOCIATE.__init__"><span class="viewcode-link">[source]</span></a><a class="reference external" href="https://github.com/pydicom/pynetdicom/blob/57b199d/pynetdicom/pdu_primitives.py#L250"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pynetdicom.pdu_primitives.A_ASSOCIATE.__init__" title="Permalink to this definition">¶</a></dt>
 <dd><p>Initialize self.  See help(type(self)) for accurate signature.</p>
 </dd></dl>
 

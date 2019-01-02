@@ -27,6 +27,7 @@ pynetdicom.dimse\_messages.C\_STORE\_RSP
 
    .. autosummary::
    
+      ~C_STORE_RSP.ID
       ~C_STORE_RSP.command_set
    
    

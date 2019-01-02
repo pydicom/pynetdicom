@@ -176,7 +176,7 @@
 <span class="kn">import</span> <span class="nn">socket</span>
 
 <span class="kn">from</span> <span class="nn">pynetdicom.pdu</span> <span class="k">import</span> <span class="p">(</span><span class="n">A_ASSOCIATE_RQ</span><span class="p">,</span> <span class="n">A_ASSOCIATE_RJ</span><span class="p">,</span> <span class="n">A_ASSOCIATE_AC</span><span class="p">,</span>
-                             <span class="n">P_DATA_TF</span><span class="p">,</span> <span class="n">A_RELEASE_RQ</span><span class="p">,</span> <span class="n">A_RELEASE_RP</span><span class="p">,</span> <span class="n">A_ABORT_RQ</span><span class="p">)</span>
+                            <span class="n">P_DATA_TF</span><span class="p">,</span> <span class="n">A_RELEASE_RQ</span><span class="p">,</span> <span class="n">A_RELEASE_RP</span><span class="p">,</span> <span class="n">A_ABORT_RQ</span><span class="p">)</span>
 <span class="kn">from</span> <span class="nn">pynetdicom.pdu_primitives</span> <span class="k">import</span> <span class="n">A_ABORT</span>
 
 <span class="n">LOGGER</span> <span class="o">=</span> <span class="n">logging</span><span class="o">.</span><span class="n">getLogger</span><span class="p">(</span><span class="s1">&#39;pynetdicom.sm&#39;</span><span class="p">)</span>
@@ -244,7 +244,7 @@
             <span class="c1"># Move the state machine to the next state</span>
             <span class="bp">self</span><span class="o">.</span><span class="n">transition</span><span class="p">(</span><span class="n">next_state</span><span class="p">)</span>
 
-        <span class="k">except</span> <span class="ne">Exception</span> <span class="k">as</span> <span class="n">ex</span><span class="p">:</span>
+        <span class="k">except</span> <span class="ne">Exception</span><span class="p">:</span>
             <span class="n">LOGGER</span><span class="o">.</span><span class="n">error</span><span class="p">(</span><span class="s2">&quot;DUL State Machine received an exception attempting &quot;</span>
                          <span class="s2">&quot;to perform the action &#39;</span><span class="si">%s</span><span class="s2">&#39; while in state &#39;</span><span class="si">%s</span><span class="s2">&#39;&quot;</span><span class="p">,</span>
                          <span class="n">action_name</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">current_state</span><span class="p">)</span>
@@ -268,8 +268,9 @@
         <span class="k">if</span> <span class="n">state</span> <span class="ow">in</span> <span class="n">STATES</span><span class="o">.</span><span class="n">keys</span><span class="p">():</span>
             <span class="bp">self</span><span class="o">.</span><span class="n">current_state</span> <span class="o">=</span> <span class="n">state</span>
         <span class="k">else</span><span class="p">:</span>
-            <span class="n">LOGGER</span><span class="o">.</span><span class="n">error</span><span class="p">(</span><span class="s1">&#39;Invalid state &quot;</span><span class="si">%s</span><span class="s1">&quot; for State Machine&#39;</span><span class="p">,</span> <span class="n">state</span><span class="p">)</span>
-            <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s1">&#39;Invalid state &quot;</span><span class="si">%s</span><span class="s1">&quot; for State Machine&#39;</span><span class="p">,</span> <span class="n">state</span><span class="p">)</span></div></div>
+            <span class="n">msg</span> <span class="o">=</span> <span class="s1">&#39;Invalid state &quot;</span><span class="si">{}</span><span class="s1">&quot; for State Machine&#39;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">state</span><span class="p">)</span>
+            <span class="n">LOGGER</span><span class="o">.</span><span class="n">error</span><span class="p">(</span><span class="n">msg</span><span class="p">)</span>
+            <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="n">msg</span><span class="p">)</span></div></div>
 
 
 <div class="viewcode-block" id="AE_1"><a class="viewcode-back" href="../../reference/generated/pynetdicom.fsm.AE_1.html#pynetdicom.fsm.AE_1">[docs]</a><span class="k">def</span> <span class="nf">AE_1</span><span class="p">(</span><span class="n">dul</span><span class="p">):</span>

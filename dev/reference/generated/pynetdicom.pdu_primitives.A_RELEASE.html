@@ -174,25 +174,25 @@
 <h1>pynetdicom.pdu_primitives.A_RELEASE<a class="headerlink" href="#pynetdicom-pdu-primitives-a-release" title="Permalink to this headline">¶</a></h1>
 <dl class="class">
 <dt id="pynetdicom.pdu_primitives.A_RELEASE">
-<em class="property">class </em><code class="descclassname">pynetdicom.pdu_primitives.</code><code class="descname">A_RELEASE</code><a class="reference internal" href="../../_modules/pynetdicom/pdu_primitives.html#A_RELEASE"><span class="viewcode-link">[source]</span></a><a class="reference external" href="https://github.com/pydicom/pynetdicom/blob/fb3bb86/pynetdicom/pdu_primitives.py#L731"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pynetdicom.pdu_primitives.A_RELEASE" title="Permalink to this definition">¶</a></dt>
+<em class="property">class </em><code class="descclassname">pynetdicom.pdu_primitives.</code><code class="descname">A_RELEASE</code><a class="reference internal" href="../../_modules/pynetdicom/pdu_primitives.html#A_RELEASE"><span class="viewcode-link">[source]</span></a><a class="reference external" href="https://github.com/pydicom/pynetdicom/blob/57b199d/pynetdicom/pdu_primitives.py#L734"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pynetdicom.pdu_primitives.A_RELEASE" title="Permalink to this definition">¶</a></dt>
 <dd><p>An A-RELEASE primitive.</p>
 <p>The release of an association between two AEs shall be performed through
 ACSE A-RELEASE request, indication, response and confirmation primitives.
-The initiator of the service is called a Requestor and the service-user that
-receives the A-RELEASE indication is called the acceptor.</p>
+The initiator of the service is called a Requestor and the service-user
+that receives the A-RELEASE indication is called the acceptor.</p>
 <p>Service Procedure</p>
 <ol class="arabic">
 <li><p class="first">The user (Requestor) that desires to end the association issues an
 A-RELEASE request primitive. The Requestor shall not issue any other
-primitives other than A-ABORT until it receives an A-RELEASE confirmation
-primitive.</p>
+primitives other than A-ABORT until it receives an A-RELEASE
+confirmation primitive.</p>
 </li>
 <li><p class="first">The DUL provider issues an A-RELEASE indication to the Acceptor. The
-Acceptor shall not issue any other primitives other than A-RELEASE response,
-A-ABORT request or P-DATA request.</p>
+Acceptor shall not issue any other primitives other than A-RELEASE
+response, A-ABORT request or P-DATA request.</p>
 </li>
-<li><p class="first">To complete the release, the Acceptor replies using an A-RELEASE response
-primitive, with “affirmative” as the result parameter.</p>
+<li><p class="first">To complete the release, the Acceptor replies using an A-RELEASE
+response primitive, with “affirmative” as the result parameter.</p>
 </li>
 <li><p class="first">After the Acceptor issues the A-RELEASE response it shall not issue any
 more primitives.</p>
@@ -203,20 +203,20 @@ with an “affirmative” value for the Result parameter.</p>
 <li><p class="first">A user may disrupt the release by issuing an A-ABORT request.</p>
 </li>
 <li><p class="first">A collision may occur when both users issue A-RELEASE requests
-simultaneously. In this situation both users receive an unexpect A-RELEASE
-indication primitive (instead of an A-RELEASE acceptance):</p>
+simultaneously. In this situation both users receive an unexpect
+A-RELEASE indication primitive (instead of an A-RELEASE acceptance):</p>
 <blockquote>
 <div><ol class="loweralpha simple">
 <li>The association requestor issues an A-RELEASE response primitive</li>
 <li>The association acceptor waits for an A-RELEASE confirmation
-primitive from its peer. When it receives one it issues an A-RELEASE
-response primitive</li>
+primitive from its peer. When it receives one it issues an
+A-RELEASE response primitive</li>
 <li>The association requestor receives an A-RELEASE confirmation
 primitive.</li>
 </ol>
 </div></blockquote>
-<p>When both ACSE users have received an A-RELEASE confirmation primitive the
-association shall be released.</p>
+<p>When both ACSE users have received an A-RELEASE confirmation primitive
+the association shall be released.</p>
 </li>
 </ol>
 <table border="1" class="docutils">
@@ -299,7 +299,7 @@ and confirmation.</p>
 </ul>
 <dl class="method">
 <dt id="pynetdicom.pdu_primitives.A_RELEASE.__init__">
-<code class="descname">__init__</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="../../_modules/pynetdicom/pdu_primitives.html#A_RELEASE.__init__"><span class="viewcode-link">[source]</span></a><a class="reference external" href="https://github.com/pydicom/pynetdicom/blob/fb3bb86/pynetdicom/pdu_primitives.py#L801"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pynetdicom.pdu_primitives.A_RELEASE.__init__" title="Permalink to this definition">¶</a></dt>
+<code class="descname">__init__</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="../../_modules/pynetdicom/pdu_primitives.html#A_RELEASE.__init__"><span class="viewcode-link">[source]</span></a><a class="reference external" href="https://github.com/pydicom/pynetdicom/blob/57b199d/pynetdicom/pdu_primitives.py#L804"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pynetdicom.pdu_primitives.A_RELEASE.__init__" title="Permalink to this definition">¶</a></dt>
 <dd><p>Initialize self.  See help(type(self)) for accurate signature.</p>
 </dd></dl>
 

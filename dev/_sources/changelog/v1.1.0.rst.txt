@@ -22,3 +22,6 @@ Changes
 
 * ``AE.quit()`` is deprecated and will be removed in v1.2. Use ``AE.stop()``
   instead.
+* ``DIMSEMessage.ID`` is deprecated and will be removed in v1.2. Use
+  ``DIMSEMessage.context_id`` instead.
+* Added ``_globals.py`` for frequently used global constants.

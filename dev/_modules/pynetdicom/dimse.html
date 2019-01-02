@@ -178,23 +178,22 @@
 
 <span class="c1"># pylint: disable=no-name-in-module</span>
 <span class="c1"># TODO: Consider switching to * import, check that _var aren&#39;t shown (__var?)</span>
-<span class="kn">from</span> <span class="nn">pynetdicom.dimse_messages</span> <span class="k">import</span> <span class="p">(</span><span class="n">C_STORE_RQ</span><span class="p">,</span> <span class="n">C_STORE_RSP</span><span class="p">,</span> <span class="n">C_FIND_RQ</span><span class="p">,</span>
-                                        <span class="n">C_FIND_RSP</span><span class="p">,</span> <span class="n">C_GET_RQ</span><span class="p">,</span> <span class="n">C_GET_RSP</span><span class="p">,</span>
-                                        <span class="n">C_MOVE_RQ</span><span class="p">,</span> <span class="n">C_MOVE_RSP</span><span class="p">,</span> <span class="n">C_ECHO_RQ</span><span class="p">,</span>
-                                        <span class="n">C_ECHO_RSP</span><span class="p">,</span> <span class="n">C_CANCEL_RQ</span><span class="p">,</span>
-                                        <span class="n">N_EVENT_REPORT_RQ</span><span class="p">,</span> <span class="n">N_EVENT_REPORT_RSP</span><span class="p">,</span>
-                                        <span class="n">N_GET_RQ</span><span class="p">,</span> <span class="n">N_GET_RSP</span><span class="p">,</span> <span class="n">N_SET_RQ</span><span class="p">,</span>
-                                        <span class="n">N_SET_RSP</span><span class="p">,</span> <span class="n">N_ACTION_RQ</span><span class="p">,</span> <span class="n">N_ACTION_RSP</span><span class="p">,</span>
-                                        <span class="n">N_CREATE_RQ</span><span class="p">,</span> <span class="n">N_CREATE_RSP</span><span class="p">,</span> <span class="n">N_DELETE_RQ</span><span class="p">,</span>
-                                        <span class="n">N_DELETE_RSP</span><span class="p">,</span> <span class="n">DIMSEMessage</span><span class="p">)</span>
+<span class="kn">from</span> <span class="nn">pynetdicom.dimse_messages</span> <span class="k">import</span> <span class="p">(</span>
+    <span class="n">C_STORE_RQ</span><span class="p">,</span> <span class="n">C_STORE_RSP</span><span class="p">,</span> <span class="n">C_FIND_RQ</span><span class="p">,</span> <span class="n">C_FIND_RSP</span><span class="p">,</span> <span class="n">C_GET_RQ</span><span class="p">,</span> <span class="n">C_GET_RSP</span><span class="p">,</span>
+    <span class="n">C_MOVE_RQ</span><span class="p">,</span> <span class="n">C_MOVE_RSP</span><span class="p">,</span> <span class="n">C_ECHO_RQ</span><span class="p">,</span> <span class="n">C_ECHO_RSP</span><span class="p">,</span> <span class="n">C_CANCEL_RQ</span><span class="p">,</span>
+    <span class="n">N_EVENT_REPORT_RQ</span><span class="p">,</span> <span class="n">N_EVENT_REPORT_RSP</span><span class="p">,</span> <span class="n">N_GET_RQ</span><span class="p">,</span> <span class="n">N_GET_RSP</span><span class="p">,</span> <span class="n">N_SET_RQ</span><span class="p">,</span>
+    <span class="n">N_SET_RSP</span><span class="p">,</span> <span class="n">N_ACTION_RQ</span><span class="p">,</span> <span class="n">N_ACTION_RSP</span><span class="p">,</span> <span class="n">N_CREATE_RQ</span><span class="p">,</span> <span class="n">N_CREATE_RSP</span><span class="p">,</span>
+    <span class="n">N_DELETE_RQ</span><span class="p">,</span> <span class="n">N_DELETE_RSP</span><span class="p">,</span> <span class="n">DIMSEMessage</span>
+<span class="p">)</span>
 <span class="c1"># pylint: enable=no-name-in-module</span>
-<span class="kn">from</span> <span class="nn">pynetdicom.dimse_primitives</span> <span class="k">import</span> <span class="p">(</span><span class="n">C_STORE</span><span class="p">,</span> <span class="n">C_FIND</span><span class="p">,</span> <span class="n">C_GET</span><span class="p">,</span> <span class="n">C_MOVE</span><span class="p">,</span>
-                                          <span class="n">C_ECHO</span><span class="p">,</span> <span class="n">N_EVENT_REPORT</span><span class="p">,</span> <span class="n">N_GET</span><span class="p">,</span> <span class="n">N_SET</span><span class="p">,</span>
-                                          <span class="n">N_ACTION</span><span class="p">,</span> <span class="n">N_CREATE</span><span class="p">,</span> <span class="n">N_DELETE</span><span class="p">,</span>
-                                          <span class="n">C_CANCEL</span><span class="p">)</span>
+<span class="kn">from</span> <span class="nn">pynetdicom.dimse_primitives</span> <span class="k">import</span> <span class="p">(</span>
+    <span class="n">C_STORE</span><span class="p">,</span> <span class="n">C_FIND</span><span class="p">,</span> <span class="n">C_GET</span><span class="p">,</span> <span class="n">C_MOVE</span><span class="p">,</span> <span class="n">C_ECHO</span><span class="p">,</span> <span class="n">N_EVENT_REPORT</span><span class="p">,</span> <span class="n">N_GET</span><span class="p">,</span> <span class="n">N_SET</span><span class="p">,</span>
+    <span class="n">N_ACTION</span><span class="p">,</span> <span class="n">N_CREATE</span><span class="p">,</span> <span class="n">N_DELETE</span><span class="p">,</span> <span class="n">C_CANCEL</span>
+<span class="p">)</span>
 <span class="kn">from</span> <span class="nn">pynetdicom.pdu_primitives</span> <span class="k">import</span> <span class="n">P_DATA</span>
 <span class="kn">from</span> <span class="nn">pynetdicom.sop_class</span> <span class="k">import</span> <span class="n">uid_to_service_class</span>
 <span class="kn">from</span> <span class="nn">pynetdicom.timer</span> <span class="k">import</span> <span class="n">Timer</span>
+<span class="kn">from</span> <span class="nn">pynetdicom._globals</span> <span class="k">import</span> <span class="n">DEFAULT_MAX_LENGTH</span>
 
 <span class="n">LOGGER</span> <span class="o">=</span> <span class="n">logging</span><span class="o">.</span><span class="n">getLogger</span><span class="p">(</span><span class="s1">&#39;pynetdicom.dimse&#39;</span><span class="p">)</span>
 
@@ -237,12 +236,13 @@
 <span class="sd">      provides effective compatibility with the previous versions of the DICOM</span>
 <span class="sd">      standards.</span>
 <span class="sd">    - DIMSE-N supports operations associated with normalised SOP Classes and</span>
-<span class="sd">      provides an extended set of object-orientated operations and notifications</span>
+<span class="sd">      provides an extended set of object-orientated operations and</span>
+<span class="sd">      notifications</span>
 
 <span class="sd">    **Service Overview**</span>
 
-<span class="sd">    The DIMSE service provider supports communication between peer DIMSE service</span>
-<span class="sd">    users. A service user acts in one of two roles:</span>
+<span class="sd">    The DIMSE service provider supports communication between peer DIMSE</span>
+<span class="sd">    service users. A service user acts in one of two roles:</span>
 
 <span class="sd">    - invoking DIMSE user</span>
 <span class="sd">    - performing DIMSE user</span>
@@ -257,11 +257,12 @@
 
 <span class="sd">    These primitives are used as follows:</span>
 
-<span class="sd">    - The invoking service user issues a request primitive to the DIMSE provider</span>
-<span class="sd">    - The DIMSE provider receives the request primitive and issues an indication</span>
-<span class="sd">      primitive to the performing service user</span>
-<span class="sd">    - The performing service user receives the indication primitive and performs</span>
-<span class="sd">      the requested service</span>
+<span class="sd">    - The invoking service user issues a request primitive to the DIMSE</span>
+<span class="sd">      provider</span>
+<span class="sd">    - The DIMSE provider receives the request primitive and issues an</span>
+<span class="sd">      indication primitive to the performing service user</span>
+<span class="sd">    - The performing service user receives the indication primitive and</span>
+<span class="sd">      performs the requested service</span>
 <span class="sd">    - The performing service user issues a response primitive to the DIMSE</span>
 <span class="sd">      provider</span>
 <span class="sd">    - The DIMSE provider receives the response primitive and issues a</span>
@@ -357,7 +358,8 @@
 <span class="sd">    * DICOM Standard, Part 7</span>
 <span class="sd">    &quot;&quot;&quot;</span>
     <span class="c1"># pylint: disable=too-many-public-methods</span>
-<div class="viewcode-block" id="DIMSEServiceProvider.__init__"><a class="viewcode-back" href="../../reference/generated/pynetdicom.dimse.DIMSEServiceProvider.html#pynetdicom.dimse.DIMSEServiceProvider.__init__">[docs]</a>    <span class="k">def</span> <span class="nf">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">dul</span><span class="p">,</span> <span class="n">dimse_timeout</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">maximum_pdu_size</span><span class="o">=</span><span class="mi">16382</span><span class="p">):</span>
+<div class="viewcode-block" id="DIMSEServiceProvider.__init__"><a class="viewcode-back" href="../../reference/generated/pynetdicom.dimse.DIMSEServiceProvider.html#pynetdicom.dimse.DIMSEServiceProvider.__init__">[docs]</a>    <span class="k">def</span> <span class="nf">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">dul</span><span class="p">,</span> <span class="n">dimse_timeout</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
+                 <span class="n">maximum_pdu_size</span><span class="o">=</span><span class="n">DEFAULT_MAX_LENGTH</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;Start the DIMSE service provider.</span>
 
 <span class="sd">        Parameters</span>
@@ -455,11 +457,10 @@
 
                 <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">message</span><span class="o">.</span><span class="n">decode_msg</span><span class="p">(</span><span class="n">pdu</span><span class="p">):</span>
                     <span class="c1"># Callback</span>
-                    <span class="c1"># FIXME: Make this a package level option to increase speed</span>
-                    <span class="c1"># if LOG:</span>
+                    <span class="c1"># TODO: Make this a package level option to increase speed</span>
                     <span class="bp">self</span><span class="o">.</span><span class="n">on_receive_dimse_message</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">message</span><span class="p">)</span>
 
-                    <span class="n">context_id</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">message</span><span class="o">.</span><span class="n">ID</span>
+                    <span class="n">context_id</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">message</span><span class="o">.</span><span class="n">context_id</span>
                     <span class="n">primitive</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">message</span><span class="o">.</span><span class="n">message_to_primitive</span><span class="p">()</span>
 
                     <span class="c1"># Fix for memory leak, Issue #41</span>
@@ -481,11 +482,10 @@
 
             <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">message</span><span class="o">.</span><span class="n">decode_msg</span><span class="p">(</span><span class="n">pdu</span><span class="p">):</span>
                 <span class="c1"># Callback</span>
-                <span class="c1"># FIXME: Make this a package level option to increase speed</span>
-                <span class="c1"># if LOG:</span>
+                <span class="c1"># TODO: Make this a package level option to increase speed</span>
                 <span class="bp">self</span><span class="o">.</span><span class="n">on_receive_dimse_message</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">message</span><span class="p">)</span>
 
-                <span class="n">context_id</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">message</span><span class="o">.</span><span class="n">ID</span>
+                <span class="n">context_id</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">message</span><span class="o">.</span><span class="n">context_id</span>
                 <span class="n">primitive</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">message</span><span class="o">.</span><span class="n">message_to_primitive</span><span class="p">()</span>
 
                 <span class="c1"># Fix for memory leak, Issue #41</span>
@@ -718,7 +718,7 @@
         <span class="n">s</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="s1">&#39;===================== OUTGOING DIMSE MESSAGE ================&#39;</span>
                  <span class="s1">&#39;====&#39;</span><span class="p">)</span>
         <span class="n">s</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="s1">&#39;Message Type                  : </span><span class="si">{0!s}</span><span class="s1">&#39;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="s1">&#39;C-FIND RQ&#39;</span><span class="p">))</span>
-        <span class="n">s</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="s1">&#39;Presentation Context ID       : </span><span class="si">{0!s}</span><span class="s1">&#39;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">msg</span><span class="o">.</span><span class="n">ID</span><span class="p">))</span>
+        <span class="n">s</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="s1">&#39;Presentation Context ID       : </span><span class="si">{0!s}</span><span class="s1">&#39;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">msg</span><span class="o">.</span><span class="n">context_id</span><span class="p">))</span>
         <span class="n">s</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="s1">&#39;Message ID                    : </span><span class="si">{0!s}</span><span class="s1">&#39;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">cs</span><span class="o">.</span><span class="n">MessageID</span><span class="p">))</span>
         <span class="n">s</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="s1">&#39;Affected SOP Class UID        : </span><span class="si">{0!s}</span><span class="s1">&#39;</span>
                  <span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">cs</span><span class="o">.</span><span class="n">AffectedSOPClassUID</span><span class="p">))</span>
@@ -957,14 +957,14 @@
 
 <div class="viewcode-block" id="DIMSEServiceProvider.debug_send_c_cancel_rq"><a class="viewcode-back" href="../../reference/generated/pynetdicom.dimse.DIMSEServiceProvider.html#pynetdicom.dimse.DIMSEServiceProvider.debug_send_c_cancel_rq">[docs]</a>    <span class="nd">@staticmethod</span>
     <span class="k">def</span> <span class="nf">debug_send_c_cancel_rq</span><span class="p">(</span><span class="n">msg</span><span class="p">):</span>
-        <span class="sd">&quot;&quot;&quot;Debugging function when a C-CANCEL-\*-RQ is sent.</span>
+        <span class="sd">&quot;&quot;&quot;Debugging function when a C-CANCEL-RQ is sent.</span>
 
 <span class="sd">        Covers C-CANCEL-FIND-RQ, C-CANCEL-GET-RQ and C-CANCEL-MOVE-RQ.</span>
 
 <span class="sd">        Parameters</span>
 <span class="sd">        ----------</span>
 <span class="sd">        msg : dimse_messages.C_CANCEL_RQ</span>
-<span class="sd">            The C-CANCEL-\*-RQ message to be sent.</span>
+<span class="sd">            The C-CANCEL-RQ message to be sent.</span>
 <span class="sd">        &quot;&quot;&quot;</span>
         <span class="k">pass</span></div>
 
@@ -990,7 +990,7 @@
         <span class="n">s</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="s1">&#39;===================== INCOMING DIMSE MESSAGE ================&#39;</span>
                  <span class="s1">&#39;====&#39;</span><span class="p">)</span>
         <span class="n">s</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="s1">&#39;Message Type                  : </span><span class="si">{0!s}</span><span class="s1">&#39;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="s1">&#39;C-ECHO RQ&#39;</span><span class="p">))</span>
-        <span class="n">s</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="s1">&#39;Presentation Context ID       : </span><span class="si">{0!s}</span><span class="s1">&#39;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">msg</span><span class="o">.</span><span class="n">ID</span><span class="p">))</span>
+        <span class="n">s</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="s1">&#39;Presentation Context ID       : </span><span class="si">{0!s}</span><span class="s1">&#39;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">msg</span><span class="o">.</span><span class="n">context_id</span><span class="p">))</span>
         <span class="n">s</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="s1">&#39;Message ID                    : </span><span class="si">{0!s}</span><span class="s1">&#39;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">cs</span><span class="o">.</span><span class="n">MessageID</span><span class="p">))</span>
         <span class="n">s</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="s1">&#39;Data Set                      : </span><span class="si">{0!s}</span><span class="s1">&#39;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="s1">&#39;none&#39;</span><span class="p">))</span>
         <span class="n">s</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="s1">&#39;======================= END DIMSE MESSAGE ===================&#39;</span>
@@ -1064,7 +1064,7 @@
         <span class="n">s</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="s1">&#39;===================== INCOMING DIMSE MESSAGE ================&#39;</span>
                  <span class="s1">&#39;====&#39;</span><span class="p">)</span>
         <span class="n">s</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="s1">&#39;Message Type                  : </span><span class="si">{0!s}</span><span class="s1">&#39;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="s1">&#39;C-STORE RQ&#39;</span><span class="p">))</span>
-        <span class="n">s</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="s1">&#39;Presentation Context ID       : </span><span class="si">{0!s}</span><span class="s1">&#39;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">msg</span><span class="o">.</span><span class="n">ID</span><span class="p">))</span>
+        <span class="n">s</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="s1">&#39;Presentation Context ID       : </span><span class="si">{0!s}</span><span class="s1">&#39;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">msg</span><span class="o">.</span><span class="n">context_id</span><span class="p">))</span>
         <span class="n">s</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="s1">&#39;Message ID                    : </span><span class="si">{0!s}</span><span class="s1">&#39;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">cs</span><span class="o">.</span><span class="n">MessageID</span><span class="p">))</span>
         <span class="n">s</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="s1">&#39;Affected SOP Class UID        : </span><span class="si">{0!s}</span><span class="s1">&#39;</span>
                  <span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">cs</span><span class="o">.</span><span class="n">AffectedSOPClassUID</span><span class="p">))</span>
@@ -1120,7 +1120,7 @@
         <span class="n">s</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="s1">&#39;===================== INCOMING DIMSE MESSAGE ================&#39;</span>
                  <span class="s1">&#39;====&#39;</span><span class="p">)</span>
         <span class="n">s</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="s1">&#39;Message Type                  : </span><span class="si">{0!s}</span><span class="s1">&#39;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="s1">&#39;C-STORE RSP&#39;</span><span class="p">))</span>
-        <span class="n">s</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="s1">&#39;Presentation Context ID       : </span><span class="si">{0!s}</span><span class="s1">&#39;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">msg</span><span class="o">.</span><span class="n">ID</span><span class="p">))</span>
+        <span class="n">s</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="s1">&#39;Presentation Context ID       : </span><span class="si">{0!s}</span><span class="s1">&#39;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">msg</span><span class="o">.</span><span class="n">context_id</span><span class="p">))</span>
         <span class="n">s</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="s1">&#39;Message ID Being Responded To : </span><span class="si">{0!s}</span><span class="s1">&#39;</span>
                  <span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">cs</span><span class="o">.</span><span class="n">MessageIDBeingRespondedTo</span><span class="p">))</span>
         <span class="k">if</span> <span class="s1">&#39;AffectedSOPClassUID&#39;</span> <span class="ow">in</span> <span class="n">cs</span><span class="p">:</span>
@@ -1226,7 +1226,7 @@
 
 <div class="viewcode-block" id="DIMSEServiceProvider.debug_receive_c_cancel_rq"><a class="viewcode-back" href="../../reference/generated/pynetdicom.dimse.DIMSEServiceProvider.html#pynetdicom.dimse.DIMSEServiceProvider.debug_receive_c_cancel_rq">[docs]</a>    <span class="nd">@staticmethod</span>
     <span class="k">def</span> <span class="nf">debug_receive_c_cancel_rq</span><span class="p">(</span><span class="n">msg</span><span class="p">):</span>
-        <span class="sd">&quot;&quot;&quot;Debugging function when a C-CANCEL-\*-RQ is received.</span>
+        <span class="sd">&quot;&quot;&quot;Debugging function when a C-CANCEL-RQ is received.</span>
 
 <span class="sd">        Covers C-CANCEL-FIND-RQ, C-CANCEL-GET-RQ and C-CANCEL-MOVE-RQ</span>
 
@@ -1324,7 +1324,7 @@
         <span class="n">s</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="s1">&#39;===================== INCOMING DIMSE MESSAGE ================&#39;</span>
                  <span class="s1">&#39;====&#39;</span><span class="p">)</span>
         <span class="n">s</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="s1">&#39;Message Type                  : </span><span class="si">{0!s}</span><span class="s1">&#39;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="s1">&#39;C-GET RSP&#39;</span><span class="p">))</span>
-        <span class="n">s</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="s1">&#39;Presentation Context ID       : </span><span class="si">{0!s}</span><span class="s1">&#39;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">msg</span><span class="o">.</span><span class="n">ID</span><span class="p">))</span>
+        <span class="n">s</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="s1">&#39;Presentation Context ID       : </span><span class="si">{0!s}</span><span class="s1">&#39;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">msg</span><span class="o">.</span><span class="n">context_id</span><span class="p">))</span>
         <span class="n">s</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="s1">&#39;Message ID Being Responded To : </span><span class="si">{0!s}</span><span class="s1">&#39;</span>
                  <span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">cs</span><span class="o">.</span><span class="n">MessageIDBeingRespondedTo</span><span class="p">))</span>
         <span class="k">if</span> <span class="s1">&#39;AffectedSOPClassUID&#39;</span> <span class="ow">in</span> <span class="n">cs</span><span class="p">:</span>
@@ -1489,12 +1489,15 @@
             <span class="n">s</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="s1">&#39;Affected SOP Instance UID     : </span><span class="si">{0!s}</span><span class="s1">&#39;</span>
                      <span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">cs</span><span class="o">.</span><span class="n">AffectedSOPInstanceUID</span><span class="p">))</span>
         <span class="k">if</span> <span class="s1">&#39;EventTypeID&#39;</span> <span class="ow">in</span> <span class="n">cs</span><span class="p">:</span>
-            <span class="n">s</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="s1">&#39;Event Type ID                 : </span><span class="si">{!s}</span><span class="s1">&#39;</span>
-            <span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">cs</span><span class="o">.</span><span class="n">EventTypeID</span><span class="p">))</span>
+            <span class="n">s</span><span class="o">.</span><span class="n">append</span><span class="p">(</span>
+                <span class="s1">&#39;Event Type ID                 : </span><span class="si">{!s}</span><span class="s1">&#39;</span>
+                <span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">cs</span><span class="o">.</span><span class="n">EventTypeID</span><span class="p">)</span>
+            <span class="p">)</span>
         <span class="n">s</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="s1">&#39;Event Reply                       : </span><span class="si">{0!s}</span><span class="s1">&#39;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">evt_reply</span><span class="p">))</span>
         <span class="n">s</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="s1">&#39;Status                        : 0x</span><span class="si">{0:04x}</span><span class="s1">&#39;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">cs</span><span class="o">.</span><span class="n">Status</span><span class="p">))</span>
-        <span class="n">s</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="s1">&#39;======================= END DIMSE MESSAGE ===================&#39;</span>
-                 <span class="s1">&#39;====&#39;</span><span class="p">)</span>
+        <span class="n">s</span><span class="o">.</span><span class="n">append</span><span class="p">(</span>
+            <span class="s1">&#39;======================= END DIMSE MESSAGE =======================&#39;</span>
+        <span class="p">)</span>
         <span class="k">for</span> <span class="n">line</span> <span class="ow">in</span> <span class="n">s</span><span class="p">:</span>
             <span class="n">LOGGER</span><span class="o">.</span><span class="n">debug</span><span class="p">(</span><span class="n">line</span><span class="p">)</span></div>
 
@@ -1683,13 +1686,6 @@
 <span class="sd">        msg : dimse_messages.N_DELETE_RQ</span>
 <span class="sd">            The N-DELETE-RQ message to be sent.</span>
 <span class="sd">        &quot;&quot;&quot;</span>
-        <span class="sd">&quot;&quot;&quot;Debugging function when an N-GET-RQ is sent.</span>
-
-<span class="sd">        Parameters</span>
-<span class="sd">        ----------</span>
-<span class="sd">        msg : dimse_messages.N_GET_RQ</span>
-<span class="sd">            The N-GET-RQ message to be sent.</span>
-<span class="sd">        &quot;&quot;&quot;</span>
         <span class="n">cs</span> <span class="o">=</span> <span class="n">msg</span><span class="o">.</span><span class="n">command_set</span>
 
         <span class="n">s</span> <span class="o">=</span> <span class="p">[]</span>
@@ -1788,7 +1784,7 @@
         <span class="n">s</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="s1">&#39;===================== INCOMING DIMSE MESSAGE ================&#39;</span>
                  <span class="s1">&#39;====&#39;</span><span class="p">)</span>
         <span class="n">s</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="s1">&#39;Message Type                  : </span><span class="si">{0!s}</span><span class="s1">&#39;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="s1">&#39;N-GET RSP&#39;</span><span class="p">))</span>
-        <span class="n">s</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="s1">&#39;Presentation Context ID       : </span><span class="si">{0!s}</span><span class="s1">&#39;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">msg</span><span class="o">.</span><span class="n">ID</span><span class="p">))</span>
+        <span class="n">s</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="s1">&#39;Presentation Context ID       : </span><span class="si">{0!s}</span><span class="s1">&#39;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">msg</span><span class="o">.</span><span class="n">context_id</span><span class="p">))</span>
         <span class="n">s</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="s1">&#39;Message ID Being Responded To : </span><span class="si">{0!s}</span><span class="s1">&#39;</span>
                  <span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">cs</span><span class="o">.</span><span class="n">MessageIDBeingRespondedTo</span><span class="p">))</span>
         <span class="k">if</span> <span class="s1">&#39;AffectedSOPClassUID&#39;</span> <span class="ow">in</span> <span class="n">cs</span><span class="p">:</span>

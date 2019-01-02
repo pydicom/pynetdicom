@@ -27,6 +27,7 @@ pynetdicom.dimse\_messages.C\_ECHO\_RQ
 
    .. autosummary::
    
+      ~C_ECHO_RQ.ID
       ~C_ECHO_RQ.command_set
    
    

@@ -182,12 +182,15 @@
 
 <span class="kn">from</span> <span class="nn">pydicom.uid</span> <span class="k">import</span> <span class="n">UID</span>
 
-<span class="kn">from</span> <span class="nn">pynetdicom.association</span> <span class="k">import</span> <span class="n">Association</span><span class="p">,</span> <span class="n">MODE_REQUESTOR</span><span class="p">,</span> <span class="n">MODE_ACCEPTOR</span>
-<span class="kn">from</span> <span class="nn">pynetdicom.presentation</span> <span class="k">import</span> <span class="p">(</span>
-    <span class="n">PresentationContext</span><span class="p">,</span>
+<span class="kn">from</span> <span class="nn">pynetdicom.association</span> <span class="k">import</span> <span class="n">Association</span>
+<span class="kn">from</span> <span class="nn">pynetdicom.presentation</span> <span class="k">import</span> <span class="n">PresentationContext</span>
+<span class="kn">from</span> <span class="nn">pynetdicom.utils</span> <span class="k">import</span> <span class="n">validate_ae_title</span>
+<span class="kn">from</span> <span class="nn">pynetdicom._globals</span> <span class="k">import</span> <span class="p">(</span>
+    <span class="n">MODE_REQUESTOR</span><span class="p">,</span>
+    <span class="n">MODE_ACCEPTOR</span><span class="p">,</span>
+    <span class="n">DEFAULT_MAX_LENGTH</span><span class="p">,</span>
     <span class="n">DEFAULT_TRANSFER_SYNTAXES</span>
 <span class="p">)</span>
-<span class="kn">from</span> <span class="nn">pynetdicom.utils</span> <span class="k">import</span> <span class="n">validate_ae_title</span>
 
 
 <span class="k">def</span> <span class="nf">setup_logger</span><span class="p">():</span>
@@ -365,7 +368,7 @@
         <span class="bp">self</span><span class="o">.</span><span class="n">maximum_associations</span> <span class="o">=</span> <span class="mi">2</span>
 
         <span class="c1"># Default maximum PDU receive size (in bytes)</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">maximum_pdu_size</span> <span class="o">=</span> <span class="mi">16382</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">maximum_pdu_size</span> <span class="o">=</span> <span class="n">DEFAULT_MAX_LENGTH</span>
 
         <span class="c1"># Default timeouts - None means no timeout</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">acse_timeout</span> <span class="o">=</span> <span class="mi">60</span>
@@ -409,7 +412,8 @@
 <span class="sd">        When an SCU sends an Association request to a peer it includes a list</span>
 <span class="sd">        of presentation contexts it would like the peer to support [1]_. This</span>
 <span class="sd">        method adds a single</span>
-<span class="sd">        :py:class:`PresentationContext &lt;pynetdicom.presentation.PresentationContext&gt;`</span>
+<span class="sd">        :py:class:`PresentationContext</span>
+<span class="sd">        &lt;pynetdicom.presentation.PresentationContext&gt;`</span>
 <span class="sd">        to the list of the SCU&#39;s requested contexts.</span>
 
 <span class="sd">        Only 128 presentation contexts can be included in the association</span>
@@ -463,7 +467,8 @@
 <span class="sd">        &gt;&gt;&gt; from pynetdicom import AE</span>
 <span class="sd">        &gt;&gt;&gt; from pynetdicom.sop_class import VerificationSOPClass</span>
 <span class="sd">        &gt;&gt;&gt; ae = AE()</span>
-<span class="sd">        &gt;&gt;&gt; ae.add_requested_context(VerificationSOPClass, ImplicitVRLittleEndian)</span>
+<span class="sd">        &gt;&gt;&gt; ae.add_requested_context(VerificationSOPClass,</span>
+<span class="sd">        ...                          ImplicitVRLittleEndian)</span>
 <span class="sd">        &gt;&gt;&gt; print(ae.requested_contexts[0])</span>
 <span class="sd">        Abstract Syntax: Verification SOP Class</span>
 <span class="sd">        Transfer Syntax(es):</span>
@@ -473,14 +478,17 @@
 <span class="sd">        using different transfer syntaxes for each.</span>
 
 <span class="sd">        &gt;&gt;&gt; from pydicom.uid import (</span>
-<span class="sd">        ...     ImplicitVRLittleEndian, ExplicitVRLittleEndian, ExplicitVRBigEndian</span>
+<span class="sd">        ...     ImplicitVRLittleEndian, ExplicitVRLittleEndian,</span>
+<span class="sd">        ...     ExplicitVRBigEndian</span>
 <span class="sd">        ... )</span>
 <span class="sd">        &gt;&gt;&gt; from pynetdicom import AE</span>
 <span class="sd">        &gt;&gt;&gt; from pynetdicom.sop_class import VerificationSOPClass</span>
 <span class="sd">        &gt;&gt;&gt; ae = AE()</span>
 <span class="sd">        &gt;&gt;&gt; ae.add_requested_context(VerificationSOPClass,</span>
-<span class="sd">        ...                          [ImplicitVRLittleEndian, ExplicitVRBigEndian])</span>
-<span class="sd">        &gt;&gt;&gt; ae.add_requested_context(VerificationSOPClass, ExplicitVRLittleEndian)</span>
+<span class="sd">        ...                          [ImplicitVRLittleEndian,</span>
+<span class="sd">        ...                           ExplicitVRBigEndian])</span>
+<span class="sd">        &gt;&gt;&gt; ae.add_requested_context(VerificationSOPClass,</span>
+<span class="sd">        ...                          ExplicitVRLittleEndian)</span>
 <span class="sd">        &gt;&gt;&gt; len(ae.requested_contexts)</span>
 <span class="sd">        2</span>
 <span class="sd">        &gt;&gt;&gt; print(ae.requested_contexts[0])</span>
@@ -592,7 +600,8 @@
 <span class="sd">        &gt;&gt;&gt; from pynetdicom import AE</span>
 <span class="sd">        &gt;&gt;&gt; from pynetdicom.sop_class import VerificationSOPClass</span>
 <span class="sd">        &gt;&gt;&gt; ae = AE()</span>
-<span class="sd">        &gt;&gt;&gt; ae.add_supported_context(VerificationSOPClass, ImplicitVRLittleEndian)</span>
+<span class="sd">        &gt;&gt;&gt; ae.add_supported_context(VerificationSOPClass,</span>
+<span class="sd">        ...                          ImplicitVRLittleEndian)</span>
 <span class="sd">        &gt;&gt;&gt; print(ae.supported_contexts[0])</span>
 <span class="sd">        Abstract Syntax: Verification SOP Class</span>
 <span class="sd">        Transfer Syntax(es):</span>
@@ -600,18 +609,21 @@
 
 <span class="sd">        Add support for presentation contexts with an abstract syntax of</span>
 <span class="sd">        *Verification SOP Class* and transfer syntaxes of *Implicit VR Little</span>
-<span class="sd">        Endian* and *Explicit VR Big Endian* and then update the context to also</span>
-<span class="sd">        support *Explicit VR Little Endian*.</span>
+<span class="sd">        Endian* and *Explicit VR Big Endian* and then update the context to</span>
+<span class="sd">        also support *Explicit VR Little Endian*.</span>
 
 <span class="sd">        &gt;&gt;&gt; from pydicom.uid import (</span>
-<span class="sd">        ...     ImplicitVRLittleEndian, ExplicitVRLittleEndian, ExplicitVRBigEndian</span>
+<span class="sd">        ...     ImplicitVRLittleEndian, ExplicitVRLittleEndian,</span>
+<span class="sd">        ...     ExplicitVRBigEndian</span>
 <span class="sd">        ... )</span>
 <span class="sd">        &gt;&gt;&gt; from pynetdicom import AE</span>
 <span class="sd">        &gt;&gt;&gt; from pynetdicom.sop_class import VerificationSOPClass</span>
 <span class="sd">        &gt;&gt;&gt; ae = AE()</span>
 <span class="sd">        &gt;&gt;&gt; ae.add_supported_context(VerificationSOPClass,</span>
-<span class="sd">                                     [ImplicitVRLittleEndian, ExplicitVRBigEndian])</span>
-<span class="sd">        &gt;&gt;&gt; ae.add_supported_context(VerificationSOPClass, ExplicitVRLittleEndian)</span>
+<span class="sd">        ...                         [ImplicitVRLittleEndian,</span>
+<span class="sd">        ...                          ExplicitVRBigEndian])</span>
+<span class="sd">        &gt;&gt;&gt; ae.add_supported_context(VerificationSOPClass,</span>
+<span class="sd">        ...                          ExplicitVRLittleEndian)</span>
 <span class="sd">        &gt;&gt;&gt; print(ae.supported_contexts[0])</span>
 <span class="sd">        Abstract Syntax: Verification SOP Class</span>
 <span class="sd">        Transfer Syntax(es):</span>
@@ -685,7 +697,7 @@
             <span class="k">raise</span>
 
 <div class="viewcode-block" id="ApplicationEntity.associate"><a class="viewcode-back" href="../../reference/generated/pynetdicom.ae.ApplicationEntity.html#pynetdicom.ae.ApplicationEntity.associate">[docs]</a>    <span class="k">def</span> <span class="nf">associate</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">addr</span><span class="p">,</span> <span class="n">port</span><span class="p">,</span> <span class="n">contexts</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">ae_title</span><span class="o">=</span><span class="sa">b</span><span class="s1">&#39;ANY-SCP&#39;</span><span class="p">,</span>
-                  <span class="n">max_pdu</span><span class="o">=</span><span class="mi">16382</span><span class="p">,</span> <span class="n">ext_neg</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
+                  <span class="n">max_pdu</span><span class="o">=</span><span class="n">DEFAULT_MAX_LENGTH</span><span class="p">,</span> <span class="n">ext_neg</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;Send an association request to a remote AE.</span>
 
 <span class="sd">        When requesting an association the local AE is acting as an SCU. The</span>
@@ -784,8 +796,7 @@
         <span class="c1"># Endlessly loops while the Association negotiation is taking place</span>
         <span class="k">while</span> <span class="p">(</span><span class="ow">not</span> <span class="n">assoc</span><span class="o">.</span><span class="n">is_established</span> <span class="ow">and</span> <span class="ow">not</span> <span class="n">assoc</span><span class="o">.</span><span class="n">is_rejected</span> <span class="ow">and</span>
                <span class="ow">not</span> <span class="n">assoc</span><span class="o">.</span><span class="n">is_aborted</span> <span class="ow">and</span> <span class="ow">not</span> <span class="n">assoc</span><span class="o">.</span><span class="n">dul</span><span class="o">.</span><span class="n">_kill_thread</span><span class="p">):</span>
-            <span class="c1"># Program loops here endlessly sometimes</span>
-            <span class="n">time</span><span class="o">.</span><span class="n">sleep</span><span class="p">(</span><span class="mf">0.1</span><span class="p">)</span>
+            <span class="n">time</span><span class="o">.</span><span class="n">sleep</span><span class="p">(</span><span class="mf">0.05</span><span class="p">)</span>
 
         <span class="c1"># If the Association was established</span>
         <span class="k">if</span> <span class="n">assoc</span><span class="o">.</span><span class="n">is_established</span><span class="p">:</span>
@@ -899,9 +910,8 @@
 <span class="sd">        &quot;&quot;&quot;</span>
         <span class="n">uid</span> <span class="o">=</span> <span class="n">UID</span><span class="p">(</span><span class="n">uid</span><span class="p">)</span>
         <span class="k">if</span> <span class="n">uid</span><span class="o">.</span><span class="n">is_valid</span><span class="p">:</span>
+            <span class="c1"># pylint: disable=attribute-defined-outside-init</span>
             <span class="bp">self</span><span class="o">.</span><span class="n">_implementation_uid</span> <span class="o">=</span> <span class="n">uid</span>
-        <span class="k">else</span><span class="p">:</span>
-            <span class="k">pass</span>
 
     <span class="nd">@property</span>
     <span class="k">def</span> <span class="nf">implementation_version_name</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
@@ -917,6 +927,7 @@
 <span class="sd">        value : bytes</span>
 <span class="sd">            The A-ASSOCIATE-RQ&#39;s Implementation Version Name value.</span>
 <span class="sd">        &quot;&quot;&quot;</span>
+        <span class="c1"># pylint: disable=attribute-defined-outside-init</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">_implementation_version</span> <span class="o">=</span> <span class="n">value</span>
 
     <span class="nd">@property</span>
@@ -950,7 +961,9 @@
         <span class="k">if</span> <span class="n">value</span> <span class="o">&gt;=</span> <span class="mi">0</span><span class="p">:</span>
             <span class="bp">self</span><span class="o">.</span><span class="n">_maximum_pdu_size</span> <span class="o">=</span> <span class="n">value</span>
         <span class="k">else</span><span class="p">:</span>
-            <span class="n">LOGGER</span><span class="o">.</span><span class="n">warning</span><span class="p">(</span><span class="s2">&quot;maximum_pdu_size set to 16382&quot;</span><span class="p">)</span>
+            <span class="n">LOGGER</span><span class="o">.</span><span class="n">warning</span><span class="p">(</span>
+                <span class="s2">&quot;maximum_pdu_size set to </span><span class="si">{}</span><span class="s2">&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">DEFAULT_MAX_LENGTH</span><span class="p">)</span>
+            <span class="p">)</span>
 
     <span class="nd">@property</span>
     <span class="k">def</span> <span class="nf">network_timeout</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
@@ -1014,7 +1027,7 @@
 <span class="sd">        abstract_syntax : str, pydicom.uid.UID or sop_class.SOPClass</span>
 <span class="sd">            The abstract syntax of the presentation context you wish to stop</span>
 <span class="sd">            requesting when sending association requests.</span>
-<span class="sd">        transfer_syntax : str/pydicom.uid.UID or list of str/pydicom.uid.UID, optional</span>
+<span class="sd">        transfer_syntax : UID str or list of UID str, optional</span>
 <span class="sd">            The transfer syntax(ex) you wish to stop requesting. If a list of</span>
 <span class="sd">            str/UID then only those transfer syntaxes specified will no longer</span>
 <span class="sd">            be requested. If not specified then the abstract syntax and all</span>
@@ -1051,29 +1064,33 @@
 <span class="sd">        0</span>
 
 <span class="sd">        For all requested presentation contexts with an abstract syntax of</span>
-<span class="sd">        *Verification SOP Class*, stop requesting a transfer syntax of *Implicit</span>
-<span class="sd">        VR Little Endian*. If a presentation context exists which only has a</span>
-<span class="sd">        single *Implicit VR Little Endian* transfer syntax then it will be</span>
-<span class="sd">        completely removed, otherwise it will be kept with its remaining</span>
-<span class="sd">        transfer syntaxes.</span>
+<span class="sd">        *Verification SOP Class*, stop requesting a transfer syntax of</span>
+<span class="sd">        *Implicit VR Little Endian*. If a presentation context exists which</span>
+<span class="sd">        only has a single *Implicit VR Little Endian* transfer syntax then</span>
+<span class="sd">        it will be completely removed, otherwise it will be kept with its</span>
+<span class="sd">        remaining transfer syntaxes.</span>
 
 <span class="sd">        Presentation context has only a single matching transfer syntax:</span>
 
 <span class="sd">        &gt;&gt;&gt; from pydicom.uid import ImplicitVRLittleEndian</span>
 <span class="sd">        &gt;&gt;&gt; from pynetdicom import AE</span>
 <span class="sd">        &gt;&gt;&gt; from pynetdicom.sop_class import VerificationSOPClass</span>
-<span class="sd">        &gt;&gt;&gt; ae.add_requested_context(VerificationSOPClass, ImplicitVRLittleEndian)</span>
+<span class="sd">        &gt;&gt;&gt; ae.add_requested_context(VerificationSOPClass,</span>
+<span class="sd">        ...                          ImplicitVRLittleEndian)</span>
 <span class="sd">        &gt;&gt;&gt; print(ae.requested_contexts[0])</span>
 <span class="sd">        Abstract Syntax: Verification SOP Class</span>
 <span class="sd">        Transfer Syntax(es):</span>
 <span class="sd">	        =Implicit VR Little Endian</span>
-<span class="sd">        &gt;&gt;&gt; ae.remove_requested_context(VerificationSOPClass, ImplicitVRLittleEndian)</span>
+<span class="sd">        &gt;&gt;&gt; ae.remove_requested_context(VerificationSOPClass,</span>
+<span class="sd">        ...                             ImplicitVRLittleEndian)</span>
 <span class="sd">        &gt;&gt;&gt; len(ae.requested_contexts)</span>
 <span class="sd">        0</span>
 
 <span class="sd">        Presentation context has at least one remaining transfer syntax:</span>
 
-<span class="sd">        &gt;&gt;&gt; from pydicom.uid import ImplicitVRLittleEndian, ExplicitVRLittleEndian</span>
+<span class="sd">        &gt;&gt;&gt; from pydicom.uid import (</span>
+<span class="sd">        ...     ImplicitVRLittleEndian, ExplicitVRLittleEndian</span>
+<span class="sd">        ... )</span>
 <span class="sd">        &gt;&gt;&gt; from pynetdicom import AE</span>
 <span class="sd">        &gt;&gt;&gt; from pynetdicom.sop_class import VerificationSOPClass</span>
 <span class="sd">        &gt;&gt;&gt; ae = AE()</span>
@@ -1085,7 +1102,8 @@
 <span class="sd">	        =Explicit VR Little Endian</span>
 <span class="sd">	        =Explicit VR Big Endian</span>
 <span class="sd">        &gt;&gt;&gt; ae.remove_requested_context(VerificationSOPClass,</span>
-<span class="sd">        ...                             [ImplicitVRLittleEndian, ExplicitVRLittleEndian])</span>
+<span class="sd">        ...                             [ImplicitVRLittleEndian,</span>
+<span class="sd">        ...                              ExplicitVRLittleEndian])</span>
 <span class="sd">        &gt;&gt;&gt; print(ae.requested_contexts[0])</span>
 <span class="sd">        Abstract Syntax: Verification SOP Class</span>
 <span class="sd">        Transfer Syntax(es):</span>
@@ -1095,7 +1113,8 @@
 
         <span class="c1"># Get all the current requested contexts with the same abstract syntax</span>
         <span class="n">matching_contexts</span> <span class="o">=</span> <span class="p">[</span>
-            <span class="n">cntx</span> <span class="k">for</span> <span class="n">cntx</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">requested_contexts</span> <span class="k">if</span> <span class="n">cntx</span><span class="o">.</span><span class="n">abstract_syntax</span> <span class="o">==</span> <span class="n">abstract_syntax</span>
+            <span class="n">cntx</span> <span class="k">for</span> <span class="n">cntx</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">requested_contexts</span>
+            <span class="k">if</span> <span class="n">cntx</span><span class="o">.</span><span class="n">abstract_syntax</span> <span class="o">==</span> <span class="n">abstract_syntax</span>
         <span class="p">]</span>
 
         <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">transfer_syntax</span><span class="p">,</span> <span class="nb">str</span><span class="p">):</span>
@@ -1135,7 +1154,7 @@
 <span class="sd">        abstract_syntax : str, pydicom.uid.UID or sop_class.SOPClass</span>
 <span class="sd">            The abstract syntax of the presentation context you wish to stop</span>
 <span class="sd">            supporting.</span>
-<span class="sd">        transfer_syntax : str/pydicom.uid.UID or list of str/pydicom.uid.UID, optional</span>
+<span class="sd">        transfer_syntax : UID str or list of UID str, optional</span>
 <span class="sd">            The transfer syntax(ex) you wish to stop supporting. If a list of</span>
 <span class="sd">            str/UID then only those transfer syntaxes specified will no longer</span>
 <span class="sd">            be supported. If not specified then the abstract syntax and all</span>
@@ -1182,18 +1201,22 @@
 <span class="sd">        &gt;&gt;&gt; from pynetdicom import AE</span>
 <span class="sd">        &gt;&gt;&gt; from pynetdicom.sop_class import VerificationSOPClass</span>
 <span class="sd">        &gt;&gt;&gt; ae = AE()</span>
-<span class="sd">        &gt;&gt;&gt; ae.add_supported_context(VerificationSOPClass, ImplicitVRLittleEndian)</span>
+<span class="sd">        &gt;&gt;&gt; ae.add_supported_context(VerificationSOPClass,</span>
+<span class="sd">        ...                          ImplicitVRLittleEndian)</span>
 <span class="sd">        &gt;&gt;&gt; print(ae.supported_contexts[0])</span>
 <span class="sd">        Abstract Syntax: Verification SOP Class</span>
 <span class="sd">        Transfer Syntax(es):</span>
 <span class="sd">	        =Implicit VR Little Endian</span>
-<span class="sd">        &gt;&gt;&gt; ae.remove_supported_context(VerificationSOPClass, ImplicitVRLittleEndian)</span>
+<span class="sd">        &gt;&gt;&gt; ae.remove_supported_context(VerificationSOPClass,</span>
+<span class="sd">        ...                             ImplicitVRLittleEndian)</span>
 <span class="sd">        &gt;&gt;&gt; len(ae.supported_contexts)</span>
 <span class="sd">        0</span>
 
 <span class="sd">        Presentation context has at least one remaining transfer syntax:</span>
 
-<span class="sd">        &gt;&gt;&gt; from pydicom.uid import ImplicitVRLittleEndian, ExplicitVRLittleEndian</span>
+<span class="sd">        &gt;&gt;&gt; from pydicom.uid import (</span>
+<span class="sd">        ...     ImplicitVRLittleEndian, ExplicitVRLittleEndian</span>
+<span class="sd">        ... )</span>
 <span class="sd">        &gt;&gt;&gt; from pynetdicom import AE</span>
 <span class="sd">        &gt;&gt;&gt; from pynetdicom.sop_class import VerificationSOPClass</span>
 <span class="sd">        &gt;&gt;&gt; ae = AE()</span>
@@ -1205,7 +1228,8 @@
 <span class="sd">	        =Explicit VR Little Endian</span>
 <span class="sd">	        =Explicit VR Big Endian</span>
 <span class="sd">        &gt;&gt;&gt; ae.remove_supported_context(VerificationSOPClass,</span>
-<span class="sd">        ...                             [ImplicitVRLittleEndian, ExplicitVRLittleEndian])</span>
+<span class="sd">        ...                             [ImplicitVRLittleEndian,</span>
+<span class="sd">        ...                              ExplicitVRLittleEndian])</span>
 <span class="sd">        &gt;&gt;&gt; print(ae.supported_contexts[0])</span>
 <span class="sd">        Abstract Syntax: Verification SOP Class</span>
 <span class="sd">        Transfer Syntax(es):</span>
@@ -1322,6 +1346,7 @@
 <span class="sd">            Called AE Title value that does not match `ae_title` will be</span>
 <span class="sd">            rejected.</span>
 <span class="sd">        &quot;&quot;&quot;</span>
+        <span class="c1"># pylint: disable=attribute-defined-outside-init</span>
         <span class="k">if</span> <span class="n">ae_title</span><span class="p">:</span>
             <span class="bp">self</span><span class="o">.</span><span class="n">_require_called_aet</span> <span class="o">=</span> <span class="n">validate_ae_title</span><span class="p">(</span><span class="n">ae_title</span><span class="p">)</span>
         <span class="k">else</span><span class="p">:</span>
@@ -1348,6 +1373,7 @@
 <span class="sd">            Calling AE Title value that does not match `ae_title` will be</span>
 <span class="sd">            rejected.</span>
 <span class="sd">        &quot;&quot;&quot;</span>
+        <span class="c1"># pylint: disable=attribute-defined-outside-init</span>
         <span class="k">if</span> <span class="n">ae_title</span><span class="p">:</span>
             <span class="bp">self</span><span class="o">.</span><span class="n">_require_calling_aet</span> <span class="o">=</span> <span class="n">validate_ae_title</span><span class="p">(</span><span class="n">ae_title</span><span class="p">)</span>
         <span class="k">else</span><span class="p">:</span>
@@ -1579,6 +1605,7 @@
 
 
     <span class="c1"># Association extended negotiation callbacks</span>
+    <span class="c1"># pylint: disable=unused-argument,no-self-use</span>
 <div class="viewcode-block" id="ApplicationEntity.on_async_ops_window"><a class="viewcode-back" href="../../reference/generated/pynetdicom.ae.ApplicationEntity.html#pynetdicom.ae.ApplicationEntity.on_async_ops_window">[docs]</a>    <span class="k">def</span> <span class="nf">on_async_ops_window</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">nr_invoked</span><span class="p">,</span> <span class="n">nr_performed</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;Callback for when an Asynchronous Operations Window Negotiation</span>
 <span class="sd">        item is include in the association request.</span>
@@ -1780,8 +1807,10 @@
 <span class="sd">              &#39;parameters&#39; : {</span>
 <span class="sd">                  &#39;message_id&#39; : int, the DIMSE message ID</span>
 <span class="sd">                  &#39;priority&#39; : int, the requested operation priority</span>
-<span class="sd">                  &#39;originator_aet&#39; : bytes or None, the move originator&#39;s AE title</span>
-<span class="sd">                  &#39;originator_message_id&#39; : int or None, the move originator&#39;s message ID</span>
+<span class="sd">                  &#39;originator_aet&#39; : bytes or None, the move originator&#39;s AE</span>
+<span class="sd">                                     title</span>
+<span class="sd">                  &#39;originator_message_id&#39; : int or None, the move originator&#39;s</span>
+<span class="sd">                                            message ID</span>
 <span class="sd">              }</span>
 <span class="sd">              &#39;sop_class_extended&#39; : {</span>
 <span class="sd">                  SOP Class UID : Service Class Application Information,</span>
@@ -1809,8 +1838,8 @@
 <span class="sd">        * DICOM Standard Part 4, `Annex A &lt;http://dicom.nema.org/medical/dicom/current/output/html/part04.html#chapter_A&gt;`_</span>
 <span class="sd">        * DICOM Standard Part 7, Sections</span>
 <span class="sd">          `9.1.5 &lt;http://dicom.nema.org/medical/dicom/current/output/html/part07.html#sect_9.1.5&gt;`_,</span>
-<span class="sd">          `9.3.5 &lt;http://dicom.nema.org/medical/dicom/current/output/html/part07.html#sect_9.3.5&gt;`_ and</span>
-<span class="sd">          `Annex C &lt;http://dicom.nema.org/medical/dicom/current/output/html/part07.html#chapter_C&gt;`_</span>
+<span class="sd">          `9.3.5 &lt;http://dicom.nema.org/medical/dicom/current/output/html/part07.html#sect_9.3.5&gt;`_</span>
+<span class="sd">          and `Annex C &lt;http://dicom.nema.org/medical/dicom/current/output/html/part07.html#chapter_C&gt;`_</span>
 
 <span class="sd">        &quot;&quot;&quot;</span>
         <span class="c1"># User implementation of on_c_echo is optional</span>
@@ -1935,12 +1964,12 @@
 <span class="sd">          `V &lt;http://dicom.nema.org/medical/dicom/current/output/html/part04.html#chapter_V&gt;`_,</span>
 <span class="sd">          `X &lt;http://dicom.nema.org/medical/dicom/current/output/html/part04.html#chapter_X&gt;`_,</span>
 <span class="sd">          `BB &lt;http://dicom.nema.org/medical/dicom/current/output/html/part04.html#chapter_BB&gt;`_,</span>
-<span class="sd">          `CC &lt;http://dicom.nema.org/medical/dicom/current/output/html/part04.html#chapter_CC&gt;`_ and</span>
-<span class="sd">          `HH &lt;http://dicom.nema.org/medical/dicom/current/output/html/part04.html#chapter_HH&gt;`_</span>
+<span class="sd">          `CC &lt;http://dicom.nema.org/medical/dicom/current/output/html/part04.html#chapter_CC&gt;`_</span>
+<span class="sd">          and `HH &lt;http://dicom.nema.org/medical/dicom/current/output/html/part04.html#chapter_HH&gt;`_</span>
 <span class="sd">        * DICOM Standard Part 7, Sections</span>
 <span class="sd">          `9.1.2 &lt;http://dicom.nema.org/medical/dicom/current/output/html/part07.html#sect_9.1.2&gt;`_,</span>
-<span class="sd">          `9.3.2 &lt;http://dicom.nema.org/medical/dicom/current/output/html/part07.html#sect_9.3.2&gt;`_ and</span>
-<span class="sd">          `Annex C &lt;http://dicom.nema.org/medical/dicom/current/output/html/part07.html#chapter_C&gt;`_</span>
+<span class="sd">          `9.3.2 &lt;http://dicom.nema.org/medical/dicom/current/output/html/part07.html#sect_9.3.2&gt;`_</span>
+<span class="sd">          and `Annex C &lt;http://dicom.nema.org/medical/dicom/current/output/html/part07.html#chapter_C&gt;`_</span>
 <span class="sd">        &quot;&quot;&quot;</span>
         <span class="k">raise</span> <span class="ne">NotImplementedError</span><span class="p">(</span><span class="s2">&quot;User must implement the AE.on_c_find &quot;</span>
                                   <span class="s2">&quot;function prior to calling AE.start()&quot;</span><span class="p">)</span></div>
@@ -1996,11 +2025,13 @@
 <span class="sd">          | ``0xFE00`` Sub-operations terminated due to Cancel request</span>
 
 <span class="sd">        Warning</span>
-<span class="sd">          | ``0xB000`` Sub-operations complete, one or more failures or warnings</span>
+<span class="sd">          | ``0xB000`` Sub-operations complete, one or more failures or</span>
+<span class="sd">            warnings</span>
 
 <span class="sd">        Pending</span>
-<span class="sd">          | ``0xFF00`` Matches are continuing - Current Match is supplied and any</span>
-<span class="sd">            Optional Keys were supported in the same manner as Required Keys</span>
+<span class="sd">          | ``0xFF00`` Matches are continuing - Current Match is supplied and</span>
+<span class="sd">            any Optional Keys were supported in the same manner as Required</span>
+<span class="sd">            Keys</span>
 
 <span class="sd">        Parameters</span>
 <span class="sd">        ----------</span>
@@ -2081,12 +2112,12 @@
 <span class="sd">          `X &lt;http://dicom.nema.org/medical/dicom/current/output/html/part04.html#chapter_X&gt;`_,</span>
 <span class="sd">          `Y &lt;http://dicom.nema.org/medical/dicom/current/output/html/part04.html#chapter_Y&gt;`_,</span>
 <span class="sd">          `Z &lt;http://dicom.nema.org/medical/dicom/current/output/html/part04.html#chapter_Z&gt;`_,</span>
-<span class="sd">          `BB &lt;http://dicom.nema.org/medical/dicom/current/output/html/part04.html#chapter_BB&gt;`_ and</span>
-<span class="sd">          `HH &lt;http://dicom.nema.org/medical/dicom/current/output/html/part04.html#chapter_HH&gt;`_</span>
+<span class="sd">          `BB &lt;http://dicom.nema.org/medical/dicom/current/output/html/part04.html#chapter_BB&gt;`_</span>
+<span class="sd">          and `HH &lt;http://dicom.nema.org/medical/dicom/current/output/html/part04.html#chapter_HH&gt;`_</span>
 <span class="sd">        * DICOM Standard Part 7, Sections</span>
 <span class="sd">          `9.1.3 &lt;http://dicom.nema.org/medical/dicom/current/output/html/part07.html#sect_9.1.3&gt;`_,</span>
-<span class="sd">          `9.3.3 &lt;http://dicom.nema.org/medical/dicom/current/output/html/part07.html#sect_9.3.3&gt;`_ and</span>
-<span class="sd">          `Annex C &lt;http://dicom.nema.org/medical/dicom/current/output/html/part07.html#chapter_C&gt;`_</span>
+<span class="sd">          `9.3.3 &lt;http://dicom.nema.org/medical/dicom/current/output/html/part07.html#sect_9.3.3&gt;`_</span>
+<span class="sd">          and `Annex C &lt;http://dicom.nema.org/medical/dicom/current/output/html/part07.html#chapter_C&gt;`_</span>
 <span class="sd">        &quot;&quot;&quot;</span>
         <span class="k">raise</span> <span class="ne">NotImplementedError</span><span class="p">(</span><span class="s2">&quot;User must implement the AE.on_c_get &quot;</span>
                                   <span class="s2">&quot;function prior to calling AE.start()&quot;</span><span class="p">)</span></div>
@@ -2238,12 +2269,12 @@
 <span class="sd">          `U &lt;http://dicom.nema.org/medical/dicom/current/output/html/part04.html#chapter_U&gt;`_,</span>
 <span class="sd">          `X &lt;http://dicom.nema.org/medical/dicom/current/output/html/part04.html#chapter_X&gt;`_,</span>
 <span class="sd">          `Y &lt;http://dicom.nema.org/medical/dicom/current/output/html/part04.html#chapter_Y&gt;`_,</span>
-<span class="sd">          `BB &lt;http://dicom.nema.org/medical/dicom/current/output/html/part04.html#chapter_BB&gt;`_ and</span>
-<span class="sd">          `HH &lt;http://dicom.nema.org/medical/dicom/current/output/html/part04.html#chapter_HH&gt;`_</span>
+<span class="sd">          `BB &lt;http://dicom.nema.org/medical/dicom/current/output/html/part04.html#chapter_BB&gt;`_</span>
+<span class="sd">          and `HH &lt;http://dicom.nema.org/medical/dicom/current/output/html/part04.html#chapter_HH&gt;`_</span>
 <span class="sd">        * DICOM Standard Part 7, Sections</span>
 <span class="sd">          `9.1.4 &lt;http://dicom.nema.org/medical/dicom/current/output/html/part07.html#sect_9.1.4&gt;`_,</span>
-<span class="sd">          `9.3.4 &lt;http://dicom.nema.org/medical/dicom/current/output/html/part07.html#sect_9.3.4&gt;`_ and</span>
-<span class="sd">          `Annex C &lt;http://dicom.nema.org/medical/dicom/current/output/html/part07.html#chapter_C&gt;`_</span>
+<span class="sd">          `9.3.4 &lt;http://dicom.nema.org/medical/dicom/current/output/html/part07.html#sect_9.3.4&gt;`_</span>
+<span class="sd">          and `Annex C &lt;http://dicom.nema.org/medical/dicom/current/output/html/part07.html#chapter_C&gt;`_</span>
 <span class="sd">        &quot;&quot;&quot;</span>
         <span class="k">raise</span> <span class="ne">NotImplementedError</span><span class="p">(</span><span class="s2">&quot;User must implement the AE.on_c_move &quot;</span>
                                   <span class="s2">&quot;function prior to calling AE.start()&quot;</span><span class="p">)</span></div>
@@ -2320,8 +2351,10 @@
 <span class="sd">              &#39;parameters&#39; : {</span>
 <span class="sd">                  &#39;message_id&#39; : int, the DIMSE message ID</span>
 <span class="sd">                  &#39;priority&#39; : int, the requested operation priority</span>
-<span class="sd">                  &#39;originator_aet&#39; : bytes or None, the move originator&#39;s AE title</span>
-<span class="sd">                  &#39;originator_message_id&#39; : int or None, the move originator&#39;s message ID</span>
+<span class="sd">                  &#39;originator_aet&#39; : bytes or None, the move originator&#39;s AE</span>
+<span class="sd">                                     title</span>
+<span class="sd">                  &#39;originator_message_id&#39; : int or None, the move originator&#39;s</span>
+<span class="sd">                                            message ID</span>
 <span class="sd">              }</span>
 <span class="sd">              &#39;sop_class_extended&#39; : {</span>
 <span class="sd">                  SOP Class UID : Service Class Application Information,</span>
@@ -2355,12 +2388,12 @@
 <span class="sd">        * DICOM Standard Part 4, Annexes</span>
 <span class="sd">          `B &lt;http://dicom.nema.org/medical/dicom/current/output/html/part04.html#chapter_B&gt;`_,</span>
 <span class="sd">          `AA &lt;http://dicom.nema.org/medical/dicom/current/output/html/part04.html#chapter_AA&gt;`_,</span>
-<span class="sd">          `FF &lt;http://dicom.nema.org/medical/dicom/current/output/html/part04.html#chapter_FF&gt;`_ and</span>
-<span class="sd">          `GG &lt;http://dicom.nema.org/medical/dicom/current/output/html/part04.html#chapter_GG&gt;`_</span>
+<span class="sd">          `FF &lt;http://dicom.nema.org/medical/dicom/current/output/html/part04.html#chapter_FF&gt;`_</span>
+<span class="sd">          and `GG &lt;http://dicom.nema.org/medical/dicom/current/output/html/part04.html#chapter_GG&gt;`_</span>
 <span class="sd">        * DICOM Standard Part 7, Sections</span>
 <span class="sd">          `9.1.1 &lt;http://dicom.nema.org/medical/dicom/current/output/html/part07.html#sect_9.1.1&gt;`_,</span>
-<span class="sd">          `9.3.1 &lt;http://dicom.nema.org/medical/dicom/current/output/html/part07.html#sect_9.3.1&gt;`_ and</span>
-<span class="sd">          `Annex C &lt;http://dicom.nema.org/medical/dicom/current/output/html/part07.html#chapter_C&gt;`_</span>
+<span class="sd">          `9.3.1 &lt;http://dicom.nema.org/medical/dicom/current/output/html/part07.html#sect_9.3.1&gt;`_</span>
+<span class="sd">          and `Annex C &lt;http://dicom.nema.org/medical/dicom/current/output/html/part07.html#chapter_C&gt;`_</span>
 <span class="sd">        * DICOM Standard Part 10,</span>
 <span class="sd">          `Section 7 &lt;http://dicom.nema.org/medical/dicom/current/output/html/part10.html#chapter_7&gt;`_</span>
 <span class="sd">        &quot;&quot;&quot;</span>

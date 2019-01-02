@@ -199,15 +199,6 @@
     <span class="n">PresentationContextItemRQ</span><span class="p">,</span>
     <span class="n">PresentationContextItemAC</span><span class="p">,</span>
     <span class="n">UserInformationItem</span><span class="p">,</span>
-    <span class="n">MaximumLengthSubItem</span><span class="p">,</span>
-    <span class="n">ImplementationClassUIDSubItem</span><span class="p">,</span>
-    <span class="n">ImplementationVersionNameSubItem</span><span class="p">,</span>
-    <span class="n">AsynchronousOperationsWindowSubItem</span><span class="p">,</span>
-    <span class="n">SCP_SCU_RoleSelectionSubItem</span><span class="p">,</span>
-    <span class="n">SOPClassExtendedNegotiationSubItem</span><span class="p">,</span>
-    <span class="n">SOPClassCommonExtendedNegotiationSubItem</span><span class="p">,</span>
-    <span class="n">UserIdentitySubItemRQ</span><span class="p">,</span>
-    <span class="n">UserIdentitySubItemAC</span><span class="p">,</span>
     <span class="n">PresentationDataValueItem</span><span class="p">,</span>
     <span class="n">PDU_ITEM_TYPES</span>
 <span class="p">)</span>
@@ -296,12 +287,15 @@
         <span class="k">if</span> <span class="n">other</span> <span class="ow">is</span> <span class="bp">self</span><span class="p">:</span>
             <span class="k">return</span> <span class="kc">True</span>
 
+        <span class="c1"># pylint: disable=protected-access</span>
         <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">other</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="vm">__class__</span><span class="p">):</span>
             <span class="n">self_dict</span> <span class="o">=</span> <span class="p">{</span>
-                <span class="n">enc</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span> <span class="p">:</span> <span class="nb">getattr</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">enc</span><span class="p">[</span><span class="mi">0</span><span class="p">])</span> <span class="k">for</span> <span class="n">enc</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">_encoders</span> <span class="k">if</span> <span class="n">enc</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span>
+                <span class="n">enc</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span> <span class="p">:</span> <span class="nb">getattr</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">enc</span><span class="p">[</span><span class="mi">0</span><span class="p">])</span>
+                <span class="k">for</span> <span class="n">enc</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">_encoders</span> <span class="k">if</span> <span class="n">enc</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span>
             <span class="p">}</span>
             <span class="n">other_dict</span> <span class="o">=</span> <span class="p">{</span>
-                <span class="n">enc</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span> <span class="p">:</span> <span class="nb">getattr</span><span class="p">(</span><span class="n">other</span><span class="p">,</span> <span class="n">enc</span><span class="p">[</span><span class="mi">0</span><span class="p">])</span> <span class="k">for</span> <span class="n">enc</span> <span class="ow">in</span> <span class="n">other</span><span class="o">.</span><span class="n">_encoders</span> <span class="k">if</span> <span class="n">enc</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span>
+                <span class="n">enc</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span> <span class="p">:</span> <span class="nb">getattr</span><span class="p">(</span><span class="n">other</span><span class="p">,</span> <span class="n">enc</span><span class="p">[</span><span class="mi">0</span><span class="p">])</span>
+                <span class="k">for</span> <span class="n">enc</span> <span class="ow">in</span> <span class="n">other</span><span class="o">.</span><span class="n">_encoders</span> <span class="k">if</span> <span class="n">enc</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span>
             <span class="p">}</span>
             <span class="k">return</span> <span class="n">self_dict</span> <span class="o">==</span> <span class="n">other_dict</span>
 
@@ -342,9 +336,9 @@
 <span class="sd">          - User Identity Sub-item (RQ/AC)</span>
 
 <span class="sd">        **Encoding**</span>
-<span class="sd">        When encoded, PDU item and sub-item data for the above has the following</span>
-<span class="sd">        structure, taken from various tables in [1]_ (offsets shown with Python</span>
-<span class="sd">        indexing). Items are always encoded using Big Endian [2]_.</span>
+<span class="sd">        When encoded, PDU item and sub-item data for the above has the</span>
+<span class="sd">        following structure, taken from various tables in [1]_ (offsets shown</span>
+<span class="sd">        with Python indexing). Items are always encoded using Big Endian [2]_.</span>
 
 <span class="sd">        +--------+-------------+-------------+</span>
 <span class="sd">        | Offset | Length      | Description |</span>
@@ -434,8 +428,8 @@
 <span class="sd">        String (characters 0-9), with each component separated by &#39;.&#39; (0x2e)</span>
 <span class="sd">        [1]_.</span>
 
-<span class="sd">        &#39;ascii&#39; is chosen because this is the codec Python uses for ISO 646 [2]_</span>
-<span class="sd">        [3]_.</span>
+<span class="sd">        &#39;ascii&#39; is chosen because this is the codec Python uses for ISO 646</span>
+<span class="sd">        [2]_ [3]_.</span>
 
 <span class="sd">        Parameters</span>
 <span class="sd">        ----------</span>
@@ -536,7 +530,8 @@
 <span class="sd">    variable_items : list</span>
 <span class="sd">        A list containing the A-ASSOCIATE-RQ&#39;s *Variable Items*. Contains</span>
 <span class="sd">        one Application Context item, one or more Presentation Context items</span>
-<span class="sd">        and one User Information item. The order of the items is not guaranteed.</span>
+<span class="sd">        and one User Information item. The order of the items is not</span>
+<span class="sd">        guaranteed.</span>
 
 <span class="sd">    Notes</span>
 <span class="sd">    -----</span>
@@ -915,7 +910,8 @@
 <span class="sd">    variable_items : list</span>
 <span class="sd">        A list containing the A-ASSOCIATE-AC&#39;s &#39;Variable Items&#39;. Contains</span>
 <span class="sd">        one Application Context item, one or more Presentation Context items</span>
-<span class="sd">        and one User Information item. The order of the items is not guaranteed.</span>
+<span class="sd">        and one User Information item. The order of the items is not</span>
+<span class="sd">        guaranteed.</span>
 
 <span class="sd">    Notes</span>
 <span class="sd">    -----</span>
@@ -1266,8 +1262,8 @@
 <span class="sd">    Attributes</span>
 <span class="sd">    ----------</span>
 <span class="sd">    pdu_length : int</span>
-<span class="sd">        The number of bytes from the first byte following the *PDU Length* field</span>
-<span class="sd">        to the last byte of the PDU.</span>
+<span class="sd">        The number of bytes from the first byte following the *PDU Length*</span>
+<span class="sd">        field to the last byte of the PDU.</span>
 <span class="sd">    pdu_type : int</span>
 <span class="sd">        The *PDU Type* field value (0x03).</span>
 <span class="sd">    reason_diagnostic : int</span>
@@ -1505,8 +1501,8 @@
 <span class="sd">    Attributes</span>
 <span class="sd">    ----------</span>
 <span class="sd">    pdu_length : int</span>
-<span class="sd">        The number of bytes from the first byte following the *PDU Length* field</span>
-<span class="sd">        to the last byte of the PDU.</span>
+<span class="sd">        The number of bytes from the first byte following the *PDU Length*</span>
+<span class="sd">        field to the last byte of the PDU.</span>
 <span class="sd">    pdu_type : int</span>
 <span class="sd">        The *PDU Type* field value (0x04).</span>
 <span class="sd">    presentation_data_value_items : list of pdu.PresentationDataValueItem</span>
@@ -1737,8 +1733,8 @@
 <span class="sd">    Attributes</span>
 <span class="sd">    ----------</span>
 <span class="sd">    pdu_length : int</span>
-<span class="sd">        The number of bytes from the first byte following the *PDU Length* field</span>
-<span class="sd">        to the last byte of the PDU.</span>
+<span class="sd">        The number of bytes from the first byte following the *PDU Length*</span>
+<span class="sd">        field to the last byte of the PDU.</span>
 <span class="sd">    pdu_type : int</span>
 <span class="sd">        The *PDU Type* field value (0x05).</span>
 
@@ -1865,8 +1861,8 @@
 <span class="sd">    Attributes</span>
 <span class="sd">    ----------</span>
 <span class="sd">    pdu_length : int</span>
-<span class="sd">        The number of bytes from the first byte following the *PDU Length* field</span>
-<span class="sd">        to the last byte of the PDU.</span>
+<span class="sd">        The number of bytes from the first byte following the *PDU Length*</span>
+<span class="sd">        field to the last byte of the PDU.</span>
 <span class="sd">    pdu_type : int</span>
 <span class="sd">        The *PDU Type* field value (0x06).</span>
 
@@ -1995,8 +1991,8 @@
 <span class="sd">    Attributes</span>
 <span class="sd">    ----------</span>
 <span class="sd">    pdu_length : int</span>
-<span class="sd">        The number of bytes from the first byte following the *PDU Length* field</span>
-<span class="sd">        to the last byte of the PDU.</span>
+<span class="sd">        The number of bytes from the first byte following the *PDU Length*</span>
+<span class="sd">        field to the last byte of the PDU.</span>
 <span class="sd">    pdu_type : int</span>
 <span class="sd">        The *PDU Type* field value (0x07).</span>
 <span class="sd">    reason_diagnostic : int</span>
@@ -2062,7 +2058,8 @@
 
         <span class="c1"># User initiated abort</span>
         <span class="k">if</span> <span class="n">primitive</span><span class="o">.</span><span class="vm">__class__</span> <span class="o">==</span> <span class="n">A_ABORT</span><span class="p">:</span>
-            <span class="c1"># The reason field shall be 0x00 when the source is DUL service-user</span>
+            <span class="c1"># The reason field shall be 0x00 when the source is DUL</span>
+            <span class="c1"># service-user</span>
             <span class="bp">self</span><span class="o">.</span><span class="n">reason_diagnostic</span> <span class="o">=</span> <span class="mi">0</span>
             <span class="bp">self</span><span class="o">.</span><span class="n">source</span> <span class="o">=</span> <span class="n">primitive</span><span class="o">.</span><span class="n">abort_source</span>
 

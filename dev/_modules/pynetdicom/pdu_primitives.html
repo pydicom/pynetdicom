@@ -190,7 +190,7 @@
 <span class="p">)</span>
 <span class="kn">from</span> <span class="nn">pynetdicom.presentation</span> <span class="k">import</span> <span class="n">PresentationContext</span>
 <span class="kn">from</span> <span class="nn">pynetdicom.utils</span> <span class="k">import</span> <span class="n">validate_ae_title</span>
-<span class="c1">#from pynetdicom.utils import pretty_bytes</span>
+<span class="kn">from</span> <span class="nn">pynetdicom._globals</span> <span class="k">import</span> <span class="n">DEFAULT_MAX_LENGTH</span>
 
 <span class="n">LOGGER</span> <span class="o">=</span> <span class="n">logging</span><span class="o">.</span><span class="n">getLogger</span><span class="p">(</span><span class="s1">&#39;pynetdicom.pdu_primitives&#39;</span><span class="p">)</span>
 
@@ -314,8 +314,8 @@
 <span class="sd">       UL service provider (ACSE) or UL service provider (Presentation).</span>
 <span class="sd">       The indication primitive shall not be issued. The association shall not</span>
 <span class="sd">       be established.</span>
-<span class="sd">    7. Either Requestor or Acceptor may disrupt the Service Procedure by issuing</span>
-<span class="sd">       an A-ABORT request primitive. The remote AE receives an A-ABORT</span>
+<span class="sd">    7. Either Requestor or Acceptor may disrupt the Service Procedure by</span>
+<span class="sd">       issuing an A-ABORT request primitive. The remote AE receives an A-ABORT</span>
 <span class="sd">       indication primitive. The association shall not be established</span>
 
 <span class="sd">    Attributes</span>
@@ -323,10 +323,10 @@
 <span class="sd">    mode : str</span>
 <span class="sd">        Fixed value of &quot;normal&quot;</span>
 <span class="sd">    application_context_name : pydicom.uid.UID, bytes or str</span>
-<span class="sd">        The application context name proposed by the requestor. Acceptor returns</span>
-<span class="sd">        either the same or a different name. Returned name specifies the</span>
-<span class="sd">        application context used for the Association. See PS3.8 Annex A. The</span>
-<span class="sd">        application context name shall be a valid UID or UID string and for</span>
+<span class="sd">        The application context name proposed by the requestor. Acceptor</span>
+<span class="sd">        returns either the same or a different name. Returned name specifies</span>
+<span class="sd">        the application context used for the Association. See PS3.8 Annex A.</span>
+<span class="sd">        The application context name shall be a valid UID or UID string and for</span>
 <span class="sd">        version 3 of the DICOM Standard should be &#39;1.2.840.10008.3.1.1.1&#39;</span>
 <span class="sd">    calling_ae_title : str or bytes</span>
 <span class="sd">        Identifies the Requestor of the A-ASSOCIATE service. Must be a valid</span>
@@ -361,8 +361,9 @@
 
 <span class="sd">    diagnostic : int</span>
 <span class="sd">        If the `result` parameter is 0 &quot;rejected (permanent)&quot; or 1 &quot;rejected</span>
-<span class="sd">        (transient)&quot; then this supplies diagnostic information about the result.</span>
-<span class="sd">        If `result_source` is 0 &quot;UL service-user&quot; then allowed values are:</span>
+<span class="sd">        (transient)&quot; then this supplies diagnostic information about the</span>
+<span class="sd">        result. If `result_source` is 0 &quot;UL service-user&quot; then allowed values</span>
+<span class="sd">        are:</span>
 
 <span class="sd">        * 0: no reason given</span>
 <span class="sd">        * 1: application context name not supported</span>
@@ -480,8 +481,8 @@
 <span class="sd">        Parameters</span>
 <span class="sd">        ----------</span>
 <span class="sd">        value : str or bytes</span>
-<span class="sd">            The Calling AE Title as a string or bytes object. Cannot be an empty</span>
-<span class="sd">            string and will be truncated to 16 characters long</span>
+<span class="sd">            The Calling AE Title as a string or bytes object. Cannot be an</span>
+<span class="sd">            empty string and will be truncated to 16 characters long</span>
 <span class="sd">        &quot;&quot;&quot;</span>
         <span class="c1"># pylint: disable=attribute-defined-outside-init</span>
         <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">value</span><span class="p">,</span> <span class="nb">str</span><span class="p">):</span>
@@ -671,8 +672,8 @@
 <span class="sd">        Parameters</span>
 <span class="sd">        ----------</span>
 <span class="sd">        value : (str, int) tuple</span>
-<span class="sd">            A tuple containing a valid TCP/IP address string and the port number</span>
-<span class="sd">            as an int</span>
+<span class="sd">            A tuple containing a valid TCP/IP address string and the port</span>
+<span class="sd">            number as an int</span>
 <span class="sd">        &quot;&quot;&quot;</span>
         <span class="c1"># pylint: disable=attribute-defined-outside-init</span>
         <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">value</span><span class="p">,</span> <span class="nb">tuple</span><span class="p">):</span>
@@ -704,8 +705,8 @@
 <span class="sd">        Parameters</span>
 <span class="sd">        ----------</span>
 <span class="sd">        value : (str, int) tuple</span>
-<span class="sd">            A tuple containing a valid TCP/IP address string and the port number</span>
-<span class="sd">            as an int</span>
+<span class="sd">            A tuple containing a valid TCP/IP address string and the port</span>
+<span class="sd">            number as an int</span>
 <span class="sd">        &quot;&quot;&quot;</span>
         <span class="c1"># pylint: disable=attribute-defined-outside-init</span>
         <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">value</span><span class="p">,</span> <span class="nb">tuple</span><span class="p">):</span>
@@ -753,9 +754,11 @@
                 <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">item</span><span class="p">,</span> <span class="n">PresentationContext</span><span class="p">):</span>
                     <span class="n">valid_items</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">item</span><span class="p">)</span>
                 <span class="k">else</span><span class="p">:</span>
-                    <span class="n">LOGGER</span><span class="o">.</span><span class="n">warning</span><span class="p">(</span><span class="s2">&quot;Attempted to set &quot;</span>
-                                   <span class="s2">&quot;A_ASSOCIATE.presentation_context_definition_list to &quot;</span>
-                                   <span class="s2">&quot;a list which includes an invalid items&quot;</span><span class="p">)</span>
+                    <span class="n">LOGGER</span><span class="o">.</span><span class="n">warning</span><span class="p">(</span>
+                        <span class="s2">&quot;Attempted to set &quot;</span>
+                        <span class="s2">&quot;A_ASSOCIATE.presentation_context_definition_list to &quot;</span>
+                        <span class="s2">&quot;a list which includes an invalid items&quot;</span>
+                    <span class="p">)</span>
 
             <span class="bp">self</span><span class="o">.</span><span class="n">_presentation_context_definition_list</span> <span class="o">=</span> <span class="n">valid_items</span>
 
@@ -777,8 +780,8 @@
 <span class="sd">        Parameters</span>
 <span class="sd">        ----------</span>
 <span class="sd">        value_list : list of utils.PresentationContext</span>
-<span class="sd">            The results of the Presentation Contexts proposal by the Association</span>
-<span class="sd">            Requestor</span>
+<span class="sd">            The results of the Presentation Contexts proposal by the</span>
+<span class="sd">            Association Requestor</span>
 <span class="sd">        &quot;&quot;&quot;</span>
         <span class="c1"># pylint: disable=attribute-defined-outside-init</span>
         <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">value_list</span><span class="p">,</span> <span class="nb">list</span><span class="p">):</span>
@@ -905,38 +908,38 @@
 
 <span class="sd">    The release of an association between two AEs shall be performed through</span>
 <span class="sd">    ACSE A-RELEASE request, indication, response and confirmation primitives.</span>
-<span class="sd">    The initiator of the service is called a Requestor and the service-user that</span>
-<span class="sd">    receives the A-RELEASE indication is called the acceptor.</span>
+<span class="sd">    The initiator of the service is called a Requestor and the service-user</span>
+<span class="sd">    that receives the A-RELEASE indication is called the acceptor.</span>
 
 <span class="sd">    Service Procedure</span>
 
 <span class="sd">    1. The user (Requestor) that desires to end the association issues an</span>
 <span class="sd">       A-RELEASE request primitive. The Requestor shall not issue any other</span>
-<span class="sd">       primitives other than A-ABORT until it receives an A-RELEASE confirmation</span>
-<span class="sd">       primitive.</span>
+<span class="sd">       primitives other than A-ABORT until it receives an A-RELEASE</span>
+<span class="sd">       confirmation primitive.</span>
 <span class="sd">    2. The DUL provider issues an A-RELEASE indication to the Acceptor. The</span>
-<span class="sd">       Acceptor shall not issue any other primitives other than A-RELEASE response,</span>
-<span class="sd">       A-ABORT request or P-DATA request.</span>
-<span class="sd">    3. To complete the release, the Acceptor replies using an A-RELEASE response</span>
-<span class="sd">       primitive, with &quot;affirmative&quot; as the result parameter.</span>
+<span class="sd">       Acceptor shall not issue any other primitives other than A-RELEASE</span>
+<span class="sd">       response, A-ABORT request or P-DATA request.</span>
+<span class="sd">    3. To complete the release, the Acceptor replies using an A-RELEASE</span>
+<span class="sd">       response primitive, with &quot;affirmative&quot; as the result parameter.</span>
 <span class="sd">    4. After the Acceptor issues the A-RELEASE response it shall not issue any</span>
 <span class="sd">       more primitives.</span>
 <span class="sd">    5. The Requestor shall issue an A-RELEASE confirmation primitive always</span>
 <span class="sd">       with an &quot;affirmative&quot; value for the Result parameter.</span>
 <span class="sd">    6. A user may disrupt the release by issuing an A-ABORT request.</span>
 <span class="sd">    7. A collision may occur when both users issue A-RELEASE requests</span>
-<span class="sd">       simultaneously. In this situation both users receive an unexpect A-RELEASE</span>
-<span class="sd">       indication primitive (instead of an A-RELEASE acceptance):</span>
+<span class="sd">       simultaneously. In this situation both users receive an unexpect</span>
+<span class="sd">       A-RELEASE indication primitive (instead of an A-RELEASE acceptance):</span>
 
 <span class="sd">         a. The association requestor issues an A-RELEASE response primitive</span>
 <span class="sd">         b. The association acceptor waits for an A-RELEASE confirmation</span>
-<span class="sd">            primitive from its peer. When it receives one it issues an A-RELEASE</span>
-<span class="sd">            response primitive</span>
+<span class="sd">            primitive from its peer. When it receives one it issues an</span>
+<span class="sd">            A-RELEASE response primitive</span>
 <span class="sd">         c. The association requestor receives an A-RELEASE confirmation</span>
 <span class="sd">            primitive.</span>
 
-<span class="sd">       When both ACSE users have received an A-RELEASE confirmation primitive the</span>
-<span class="sd">       association shall be released.</span>
+<span class="sd">       When both ACSE users have received an A-RELEASE confirmation primitive</span>
+<span class="sd">       the association shall be released.</span>
 
 <span class="sd">    +------------------+---------+------------+----------+--------------+</span>
 <span class="sd">    | Parameter        | Request | Indication | Response | Confirmation |</span>
@@ -1142,8 +1145,8 @@
 <span class="sd">    ----------</span>
 <span class="sd">    presentation_data_value_list : list of [int, bytes]</span>
 <span class="sd">        Contains one or more Presentation Data Values (PDV), each consisting of</span>
-<span class="sd">        a Presentation Context ID and User Data values. The User Data values are</span>
-<span class="sd">        taken from the Abstract Syntax and encoded in the Transfer Syntax</span>
+<span class="sd">        a Presentation Context ID and User Data values. The User Data values</span>
+<span class="sd">        are taken from the Abstract Syntax and encoded in the Transfer Syntax</span>
 <span class="sd">        identified by the Presentation Context ID. Each item in the list is</span>
 <span class="sd">        [Context ID, PDV Data]</span>
 
@@ -1247,7 +1250,7 @@
 <span class="sd">    * DICOM Standard, Part 8, Annex D.1</span>
 <span class="sd">    &quot;&quot;&quot;</span>
 <div class="viewcode-block" id="MaximumLengthNotification.__init__"><a class="viewcode-back" href="../../reference/generated/pynetdicom.pdu_primitives.MaximumLengthNotification.html#pynetdicom.pdu_primitives.MaximumLengthNotification.__init__">[docs]</a>    <span class="k">def</span> <span class="nf">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">maximum_length_received</span> <span class="o">=</span> <span class="mi">16382</span></div>
+        <span class="bp">self</span><span class="o">.</span><span class="n">maximum_length_received</span> <span class="o">=</span> <span class="n">DEFAULT_MAX_LENGTH</span></div>
 
 <div class="viewcode-block" id="MaximumLengthNotification.from_primitive"><a class="viewcode-back" href="../../reference/generated/pynetdicom.pdu_primitives.MaximumLengthNotification.html#pynetdicom.pdu_primitives.MaximumLengthNotification.from_primitive">[docs]</a>    <span class="k">def</span> <span class="nf">from_primitive</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;Convert the primitive to a PDU item ready to be encoded.</span>
@@ -1332,7 +1335,9 @@
 <span class="sd">    Examples</span>
 <span class="sd">    --------</span>
 
-<span class="sd">    &gt;&gt;&gt; from pynetdicom.pdu_primitives import ImplementationClassUIDNotification</span>
+<span class="sd">    &gt;&gt;&gt; from pynetdicom.pdu_primitives import (</span>
+<span class="sd">    ...     ImplementationClassUIDNotification</span>
+<span class="sd">    ... )</span>
 <span class="sd">    &gt;&gt;&gt; item = ImplementationClassUIDNotification()</span>
 <span class="sd">    &gt;&gt;&gt; item.implementation_class_uid = &#39;1.2.3.4&#39;</span>
 
@@ -1437,7 +1442,9 @@
 <span class="sd">    Examples</span>
 <span class="sd">    --------</span>
 
-<span class="sd">    &gt;&gt;&gt; from pynetdicom.pdu_primitives import ImplementationVersionNameNotification</span>
+<span class="sd">    &gt;&gt;&gt; from pynetdicom.pdu_primitives import (</span>
+<span class="sd">    ...     ImplementationVersionNameNotification</span>
+<span class="sd">    ... )</span>
 <span class="sd">    &gt;&gt;&gt; item = ImplementationVersionNameNotification()</span>
 <span class="sd">    &gt;&gt;&gt; item.implementation_version_name = b&#39;SOME_NAME&#39;</span>
 
@@ -1519,7 +1526,7 @@
 
 <div class="viewcode-block" id="AsynchronousOperationsWindowNegotiation"><a class="viewcode-back" href="../../reference/generated/pynetdicom.pdu_primitives.AsynchronousOperationsWindowNegotiation.html#pynetdicom.pdu_primitives.AsynchronousOperationsWindowNegotiation">[docs]</a><span class="k">class</span> <span class="nc">AsynchronousOperationsWindowNegotiation</span><span class="p">(</span><span class="n">ServiceParameter</span><span class="p">):</span>
     <span class="sd">&quot;&quot;&quot;</span>
-<span class="sd">    A representation of the Asynchronous Operations Window Negotiation primitive.</span>
+<span class="sd">    Representation of the Asynchronous Operations Window Negotiation primitive.</span>
 
 <span class="sd">    Allows peer AEs to negotiate the maximum number of outstanding operation</span>
 <span class="sd">    or sub-operation requests. This negotiation is optional.</span>
@@ -1541,7 +1548,9 @@
 <span class="sd">    Examples</span>
 <span class="sd">    --------</span>
 
-<span class="sd">    &gt;&gt;&gt; from pynetdicom.pdu_primitives import AsynchronousOperationsWindowNegotiation</span>
+<span class="sd">    &gt;&gt;&gt; from pynetdicom.pdu_primitives import (</span>
+<span class="sd">    ...     AsynchronousOperationsWindowNegotiation</span>
+<span class="sd">    ... )</span>
 <span class="sd">    &gt;&gt;&gt; item = AsynchronousOperationsWindowNegotiation()</span>
 <span class="sd">    &gt;&gt;&gt; item.maximum_number_operations_invoked = 2</span>
 <span class="sd">    &gt;&gt;&gt; item.maximum_number_operations_performed = 1</span>
@@ -1995,7 +2004,7 @@
 <span class="sd">        The UID of the SOP Class</span>
 <span class="sd">    service_class_uid : pydicom.uid.UID, bytes or str</span>
 <span class="sd">        The UID of the corresponding Service Class</span>
-<span class="sd">    related_general_sop_class_identification : list of (pydicom.uid.UID, bytes or str)</span>
+<span class="sd">    related_general_sop_class_identification : list of UID str</span>
 <span class="sd">        Related General SOP Class UIDs (optional)</span>
 
 <span class="sd">    Examples</span>
@@ -2005,7 +2014,9 @@
 <span class="sd">    &gt;&gt;&gt; item = SOPClassCommonExtendedNegotiation()</span>
 <span class="sd">    &gt;&gt;&gt; item.sop_class_uid = &#39;1.2.840.10008.5.1.4.1.1.88.40&#39;</span>
 <span class="sd">    &gt;&gt;&gt; item.service_class_uid = &#39;1.2.840.10008.4.2&#39;</span>
-<span class="sd">    &gt;&gt;&gt; item.related_general_sop_class_identification = [&#39;1.2.840.10008.5.1.4.1.1.88.22&#39;]</span>
+<span class="sd">    &gt;&gt;&gt; item.related_general_sop_class_identification = [</span>
+<span class="sd">    ...     &#39;1.2.840.10008.5.1.4.1.1.88.22&#39;</span>
+<span class="sd">    ... ]</span>
 
 <span class="sd">    References</span>
 <span class="sd">    ----------</span>
@@ -2064,8 +2075,8 @@
 <span class="sd">        &quot;&quot;&quot;</span>
         <span class="c1"># pylint: disable=attribute-defined-outside-init</span>
         <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">uid_list</span><span class="p">,</span> <span class="nb">list</span><span class="p">):</span>
-            <span class="c1"># Test that all the items in the list are UID compatible and convert</span>
-            <span class="c1">#   them to pydicom.uid.UID if required</span>
+            <span class="c1"># Test that all the items in the list are UID compatible and</span>
+            <span class="c1">#   convert them to pydicom.uid.UID if required</span>
             <span class="n">valid_uid_list</span> <span class="o">=</span> <span class="p">[]</span>
 
             <span class="k">for</span> <span class="n">uid</span> <span class="ow">in</span> <span class="n">uid_list</span><span class="p">:</span>
@@ -2186,16 +2197,16 @@
 <span class="sd">    a single SOPClassCommonExtendedNegotiation item for each available SOP</span>
 <span class="sd">    Class UID.</span>
 
-<span class="sd">    In general, a User Identity Negotiation request that is accepted will result</span>
-<span class="sd">    in Association establishment and possibly a server response if requested</span>
-<span class="sd">    and supported by the peer. If a server response is requested but not</span>
-<span class="sd">    received then the Requestor must decide how to proceed.</span>
+<span class="sd">    In general, a User Identity Negotiation request that is accepted will</span>
+<span class="sd">    result in Association establishment and possibly a server response if</span>
+<span class="sd">    requested and supported by the peer. If a server response is requested but</span>
+<span class="sd">    not received then the Requestor must decide how to proceed.</span>
 <span class="sd">    An Association rejected due to an authorisation failure will be indicated</span>
 <span class="sd">    using Rejection Permanent with a Source of &quot;DICOM UL service provided (ACSE</span>
 <span class="sd">    related function)&quot;.</span>
 
-<span class="sd">    How the Acceptor handles authentication is to be implemented by the end-user</span>
-<span class="sd">    and is outside the scope of the DICOM standard.</span>
+<span class="sd">    How the Acceptor handles authentication is to be implemented by the</span>
+<span class="sd">    end-user and is outside the scope of the DICOM standard.</span>
 
 <span class="sd">    A-ASSOCIATE-RQ</span>
 <span class="sd">    | `user_identity_type`</span>
@@ -2229,8 +2240,8 @@
 <span class="sd">        when it should contain the passcode as a bytes object, None otherwise</span>
 <span class="sd">    server_response : bytes or None</span>
 <span class="sd">        A-ASSOCIATE-AC only. Shall contain the Kerberos Service ticket or SAML</span>
-<span class="sd">        response if the `user_identity_type` in the Request was 3 or 4. Shall be</span>
-<span class="sd">        None if `user_identity_type` was 1 or 2.</span>
+<span class="sd">        response if the `user_identity_type` in the Request was 3 or 4. Shall</span>
+<span class="sd">         be None if `user_identity_type` was 1 or 2.</span>
 
 <span class="sd">    Examples</span>
 <span class="sd">    --------</span>
@@ -2276,16 +2287,17 @@
         <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">server_response</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
             <span class="c1"># Then an -RQ</span>
             <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">user_identity_type</span> <span class="ow">is</span> <span class="kc">None</span> <span class="ow">or</span> <span class="bp">self</span><span class="o">.</span><span class="n">primary_field</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
-                <span class="n">LOGGER</span><span class="o">.</span><span class="n">error</span><span class="p">(</span><span class="s2">&quot;User Identity Type and Primary Field must be &quot;</span>
-                             <span class="s2">&quot;set prior to Association negotiation&quot;</span><span class="p">)</span>
-                <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s2">&quot;User Identity Type and Primary Field &quot;</span>
-                                 <span class="s2">&quot;must be set prior to Association negotiation&quot;</span><span class="p">)</span>
+                <span class="n">msg</span> <span class="o">=</span> <span class="p">(</span>
+                    <span class="s2">&quot;User Identity Type and Primary Field must be &quot;</span>
+                    <span class="s2">&quot;set prior to Association negotiation&quot;</span>
+                <span class="p">)</span>
+                <span class="n">LOGGER</span><span class="o">.</span><span class="n">error</span><span class="p">(</span><span class="n">msg</span><span class="p">)</span>
+                <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="n">msg</span><span class="p">)</span>
 
             <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">user_identity_type</span> <span class="o">==</span> <span class="mi">2</span> <span class="ow">and</span> <span class="bp">self</span><span class="o">.</span><span class="n">secondary_field</span> <span class="o">==</span> <span class="sa">b</span><span class="s1">&#39;&#39;</span><span class="p">:</span>
-                <span class="n">LOGGER</span><span class="o">.</span><span class="n">error</span><span class="p">(</span><span class="s2">&quot;Secondary Field must be set when User Identity&quot;</span>
-                             <span class="s2">&quot;is 2&quot;</span><span class="p">)</span>
-                <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s2">&quot;Secondary Field must be set when User &quot;</span>
-                                 <span class="s2">&quot;Identity is 2&quot;</span><span class="p">)</span>
+                <span class="n">msg</span> <span class="o">=</span> <span class="s2">&quot;Secondary Field must be set when User Identity is 2&quot;</span>
+                <span class="n">LOGGER</span><span class="o">.</span><span class="n">error</span><span class="p">(</span><span class="n">msg</span><span class="p">)</span>
+                <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="n">msg</span><span class="p">)</span>
 
             <span class="n">item</span> <span class="o">=</span> <span class="n">UserIdentitySubItemRQ</span><span class="p">()</span>
 

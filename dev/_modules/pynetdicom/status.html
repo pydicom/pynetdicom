@@ -173,13 +173,14 @@
 
 <span class="kn">from</span> <span class="nn">pydicom.dataset</span> <span class="k">import</span> <span class="n">Dataset</span>
 
-
-<span class="n">STATUS_SUCCESS</span> <span class="o">=</span> <span class="s1">&#39;Success&#39;</span>
-<span class="n">STATUS_FAILURE</span> <span class="o">=</span> <span class="s1">&#39;Failure&#39;</span>
-<span class="n">STATUS_WARNING</span> <span class="o">=</span> <span class="s1">&#39;Warning&#39;</span>
-<span class="n">STATUS_CANCEL</span> <span class="o">=</span> <span class="s1">&#39;Cancel&#39;</span>
-<span class="n">STATUS_PENDING</span> <span class="o">=</span> <span class="s1">&#39;Pending&#39;</span>
-<span class="n">STATUS_UNKNOWN</span> <span class="o">=</span> <span class="s1">&#39;Unknown&#39;</span>
+<span class="kn">from</span> <span class="nn">pynetdicom._globals</span> <span class="k">import</span> <span class="p">(</span>
+    <span class="n">STATUS_SUCCESS</span><span class="p">,</span>
+    <span class="n">STATUS_FAILURE</span><span class="p">,</span>
+    <span class="n">STATUS_WARNING</span><span class="p">,</span>
+    <span class="n">STATUS_CANCEL</span><span class="p">,</span>
+    <span class="n">STATUS_PENDING</span><span class="p">,</span>
+    <span class="n">STATUS_UNKNOWN</span><span class="p">,</span>
+<span class="p">)</span>
 
 
 <span class="c1"># Non-Service Class specific statuses - PS3.7 Annex C</span>

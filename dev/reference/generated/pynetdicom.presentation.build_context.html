@@ -174,7 +174,7 @@
 <h1>pynetdicom.presentation.build_context<a class="headerlink" href="#pynetdicom-presentation-build-context" title="Permalink to this headline">¶</a></h1>
 <dl class="function">
 <dt id="pynetdicom.presentation.build_context">
-<code class="descclassname">pynetdicom.presentation.</code><code class="descname">build_context</code><span class="sig-paren">(</span><em>abstract_syntax</em>, <em>transfer_syntax=None</em><span class="sig-paren">)</span><a class="reference internal" href="../../_modules/pynetdicom/presentation.html#build_context"><span class="viewcode-link">[source]</span></a><a class="reference external" href="https://github.com/pydicom/pynetdicom/blob/fb3bb86/pynetdicom/presentation.py#L752"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pynetdicom.presentation.build_context" title="Permalink to this definition">¶</a></dt>
+<code class="descclassname">pynetdicom.presentation.</code><code class="descname">build_context</code><span class="sig-paren">(</span><em>abstract_syntax</em>, <em>transfer_syntax=None</em><span class="sig-paren">)</span><a class="reference internal" href="../../_modules/pynetdicom/presentation.html#build_context"><span class="viewcode-link">[source]</span></a><a class="reference external" href="https://github.com/pydicom/pynetdicom/blob/57b199d/pynetdicom/presentation.py#L741"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pynetdicom.presentation.build_context" title="Permalink to this definition">¶</a></dt>
 <dd><p>Return a PresentationContext built from the <cite>abstract_syntax</cite>.</p>
 <table class="docutils field-list" frame="void" rules="none">
 <col class="field-name" />
@@ -216,7 +216,8 @@ a single transfer syntax</p>
 <div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="kn">from</span> <span class="nn">pydicom.uid</span> <span class="k">import</span> <span class="n">UID</span>
 <span class="gp">&gt;&gt;&gt; </span><span class="kn">from</span> <span class="nn">pynetdicom</span> <span class="k">import</span> <span class="n">build_context</span>
 <span class="gp">&gt;&gt;&gt; </span><span class="n">context</span> <span class="o">=</span> <span class="n">build_context</span><span class="p">(</span><span class="n">UID</span><span class="p">(</span><span class="s1">&#39;1.2.840.10008.1.1&#39;</span><span class="p">),</span>
-<span class="go">                            [&#39;1.2.840.10008.1.2&#39;, &#39;1.2.840.10008.1.2.4.50&#39;])</span>
+<span class="go">                            [&#39;1.2.840.10008.1.2&#39;,</span>
+<span class="gp">... </span>                         <span class="s1">&#39;1.2.840.10008.1.2.4.50&#39;</span><span class="p">])</span>
 <span class="gp">&gt;&gt;&gt; </span><span class="nb">print</span><span class="p">(</span><span class="n">context</span><span class="p">)</span>
 <span class="go">Abstract Syntax: Verification SOP Class</span>
 <span class="go">Transfer Syntax(es):</span>

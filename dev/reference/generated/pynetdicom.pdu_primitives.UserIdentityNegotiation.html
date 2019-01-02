@@ -174,21 +174,21 @@
 <h1>pynetdicom.pdu_primitives.UserIdentityNegotiation<a class="headerlink" href="#pynetdicom-pdu-primitives-useridentitynegotiation" title="Permalink to this headline">¶</a></h1>
 <dl class="class">
 <dt id="pynetdicom.pdu_primitives.UserIdentityNegotiation">
-<em class="property">class </em><code class="descclassname">pynetdicom.pdu_primitives.</code><code class="descname">UserIdentityNegotiation</code><a class="reference internal" href="../../_modules/pynetdicom/pdu_primitives.html#UserIdentityNegotiation"><span class="viewcode-link">[source]</span></a><a class="reference external" href="https://github.com/pydicom/pynetdicom/blob/fb3bb86/pynetdicom/pdu_primitives.py#L2009"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pynetdicom.pdu_primitives.UserIdentityNegotiation" title="Permalink to this definition">¶</a></dt>
+<em class="property">class </em><code class="descclassname">pynetdicom.pdu_primitives.</code><code class="descname">UserIdentityNegotiation</code><a class="reference internal" href="../../_modules/pynetdicom/pdu_primitives.html#UserIdentityNegotiation"><span class="viewcode-link">[source]</span></a><a class="reference external" href="https://github.com/pydicom/pynetdicom/blob/57b199d/pynetdicom/pdu_primitives.py#L2020"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pynetdicom.pdu_primitives.UserIdentityNegotiation" title="Permalink to this definition">¶</a></dt>
 <dd><p>Representation of the User Identity Negotiation primitive.</p>
 <p>Allows peer AEs to exchange generic application information.</p>
 <p>The SOP Class Common Extended Negotiation is optional and there may only be
 a single SOPClassCommonExtendedNegotiation item for each available SOP
 Class UID.</p>
-<p>In general, a User Identity Negotiation request that is accepted will result
-in Association establishment and possibly a server response if requested
-and supported by the peer. If a server response is requested but not
-received then the Requestor must decide how to proceed.
+<p>In general, a User Identity Negotiation request that is accepted will
+result in Association establishment and possibly a server response if
+requested and supported by the peer. If a server response is requested but
+not received then the Requestor must decide how to proceed.
 An Association rejected due to an authorisation failure will be indicated
 using Rejection Permanent with a Source of “DICOM UL service provided (ACSE
 related function)”.</p>
-<p>How the Acceptor handles authentication is to be implemented by the end-user
-and is outside the scope of the DICOM standard.</p>
+<p>How the Acceptor handles authentication is to be implemented by the
+end-user and is outside the scope of the DICOM standard.</p>
 <p>A-ASSOCIATE-RQ
 | <cite>user_identity_type</cite>
 | <cite>positive_response_requested</cite>
@@ -268,8 +268,9 @@ when it should contain the passcode as a bytes object, None otherwise</p>
 <dt id="pynetdicom.pdu_primitives.UserIdentityNegotiation.server_response">
 <code class="descname">server_response</code><a class="headerlink" href="#pynetdicom.pdu_primitives.UserIdentityNegotiation.server_response" title="Permalink to this definition">¶</a></dt>
 <dd><p>A-ASSOCIATE-AC only. Shall contain the Kerberos Service ticket or SAML
-response if the <cite>user_identity_type</cite> in the Request was 3 or 4. Shall be
-None if <cite>user_identity_type</cite> was 1 or 2.</p>
+response if the <cite>user_identity_type</cite> in the Request was 3 or 4. Shall</p>
+<blockquote>
+<div>be None if <cite>user_identity_type</cite> was 1 or 2.</div></blockquote>
 <table class="docutils field-list" frame="void" rules="none">
 <col class="field-name" />
 <col class="field-body" />
@@ -295,7 +296,7 @@ None if <cite>user_identity_type</cite> was 1 or 2.</p>
 </ul>
 <dl class="method">
 <dt id="pynetdicom.pdu_primitives.UserIdentityNegotiation.__init__">
-<code class="descname">__init__</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="../../_modules/pynetdicom/pdu_primitives.html#UserIdentityNegotiation.__init__"><span class="viewcode-link">[source]</span></a><a class="reference external" href="https://github.com/pydicom/pynetdicom/blob/fb3bb86/pynetdicom/pdu_primitives.py#L2080"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pynetdicom.pdu_primitives.UserIdentityNegotiation.__init__" title="Permalink to this definition">¶</a></dt>
+<code class="descname">__init__</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="../../_modules/pynetdicom/pdu_primitives.html#UserIdentityNegotiation.__init__"><span class="viewcode-link">[source]</span></a><a class="reference external" href="https://github.com/pydicom/pynetdicom/blob/57b199d/pynetdicom/pdu_primitives.py#L2091"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pynetdicom.pdu_primitives.UserIdentityNegotiation.__init__" title="Permalink to this definition">¶</a></dt>
 <dd><p>Initialize self.  See help(type(self)) for accurate signature.</p>
 </dd></dl>
 
@@ -340,7 +341,7 @@ None if <cite>user_identity_type</cite> was 1 or 2.</p>
 </table>
 <dl class="method">
 <dt id="pynetdicom.pdu_primitives.UserIdentityNegotiation.from_primitive">
-<code class="descname">from_primitive</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="../../_modules/pynetdicom/pdu_primitives.html#UserIdentityNegotiation.from_primitive"><span class="viewcode-link">[source]</span></a><a class="reference external" href="https://github.com/pydicom/pynetdicom/blob/fb3bb86/pynetdicom/pdu_primitives.py#L2087"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pynetdicom.pdu_primitives.UserIdentityNegotiation.from_primitive" title="Permalink to this definition">¶</a></dt>
+<code class="descname">from_primitive</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="../../_modules/pynetdicom/pdu_primitives.html#UserIdentityNegotiation.from_primitive"><span class="viewcode-link">[source]</span></a><a class="reference external" href="https://github.com/pydicom/pynetdicom/blob/57b199d/pynetdicom/pdu_primitives.py#L2098"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pynetdicom.pdu_primitives.UserIdentityNegotiation.from_primitive" title="Permalink to this definition">¶</a></dt>
 <dd><p>Convert the primitive to a PDU item ready to be encoded.</p>
 <table class="docutils field-list" frame="void" rules="none">
 <col class="field-name" />

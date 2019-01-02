@@ -173,12 +173,7 @@
 <span class="kn">from</span> <span class="nn">collections</span> <span class="k">import</span> <span class="n">namedtuple</span>
 <span class="kn">import</span> <span class="nn">logging</span>
 
-<span class="kn">from</span> <span class="nn">pydicom.uid</span> <span class="k">import</span> <span class="p">(</span>
-    <span class="n">UID</span><span class="p">,</span>
-    <span class="n">ImplicitVRLittleEndian</span><span class="p">,</span>
-    <span class="n">ExplicitVRLittleEndian</span><span class="p">,</span>
-    <span class="n">ExplicitVRBigEndian</span>
-<span class="p">)</span>
+<span class="kn">from</span> <span class="nn">pydicom.uid</span> <span class="k">import</span> <span class="n">UID</span>
 
 <span class="kn">from</span> <span class="nn">pynetdicom.sop_class</span> <span class="k">import</span> <span class="p">(</span>
     <span class="n">_VERIFICATION_CLASSES</span><span class="p">,</span>
@@ -192,23 +187,17 @@
     <span class="n">_DEFINED_PROCEDURE_CLASSES</span><span class="p">,</span>
     <span class="n">_COLOR_PALETTE_CLASSES</span><span class="p">,</span>
     <span class="n">_IMPLANT_TEMPLATE_CLASSES</span><span class="p">,</span>
-    <span class="n">_PRINT_MANAGEMENT_CLASSES</span><span class="p">,</span>
-    <span class="n">_PROCEDURE_STEP_CLASSES</span><span class="p">,</span>
+    <span class="c1">#_PRINT_MANAGEMENT_CLASSES,</span>
+    <span class="c1">#_PROCEDURE_STEP_CLASSES,</span>
     <span class="n">_DISPLAY_SYSTEM_CLASSES</span><span class="p">,</span>
-    <span class="n">_MEDIA_STORAGE_CLASSES</span><span class="p">,</span>
-    <span class="n">_UNIFIED_PROCEDURE_STEP_CLASSES</span><span class="p">,</span>
-    <span class="n">_RT_MACHINE_VERIFICATION_CLASSES</span><span class="p">,</span>
+    <span class="c1">#_MEDIA_STORAGE_CLASSES,</span>
+    <span class="c1">#_UNIFIED_PROCEDURE_STEP_CLASSES,</span>
+    <span class="c1">#_RT_MACHINE_VERIFICATION_CLASSES,</span>
 <span class="p">)</span>
+<span class="kn">from</span> <span class="nn">pynetdicom._globals</span> <span class="k">import</span> <span class="n">DEFAULT_TRANSFER_SYNTAXES</span>
 
 
 <span class="n">LOGGER</span> <span class="o">=</span> <span class="n">logging</span><span class="o">.</span><span class="n">getLogger</span><span class="p">(</span><span class="s1">&#39;pynetdicom.presentation&#39;</span><span class="p">)</span>
-
-<span class="c1"># The default transfer syntaxes used when creating Presentation Contexts</span>
-<span class="n">DEFAULT_TRANSFER_SYNTAXES</span> <span class="o">=</span> <span class="p">[</span>
-    <span class="n">ImplicitVRLittleEndian</span><span class="p">,</span>
-    <span class="n">ExplicitVRLittleEndian</span><span class="p">,</span>
-    <span class="n">ExplicitVRBigEndian</span><span class="p">,</span>
-<span class="p">]</span>
 
 
 <span class="c1"># Used with the on_c_* callbacks to give the users access to the context</span>
@@ -386,12 +375,12 @@
 <span class="sd">    ----------</span>
 
 <span class="sd">    * DICOM Standard, Part 7, Annexes</span>
-<span class="sd">      `D.3.2 &lt;http://dicom.nema.org/medical/dicom/current/output/html/part07.html#sect_D.3.2&gt;`_ and</span>
-<span class="sd">      `D.3.3.4 &lt;http://dicom.nema.org/medical/dicom/current/output/html/part07.html#sect_D.3.3.4&gt;`_</span>
+<span class="sd">      `D.3.2 &lt;http://dicom.nema.org/medical/dicom/current/output/html/part07.html#sect_D.3.2&gt;`_</span>
+<span class="sd">      and `D.3.3.4 &lt;http://dicom.nema.org/medical/dicom/current/output/html/part07.html#sect_D.3.3.4&gt;`_</span>
 <span class="sd">    * DICOM Standard, Part 8, Sections</span>
 <span class="sd">      `9.3.2.2 &lt;http://dicom.nema.org/medical/dicom/current/output/html/part08.html#sect_9.3.2.2&gt;`_,</span>
-<span class="sd">      `9.3.3.2 &lt;http://dicom.nema.org/medical/dicom/current/output/html/part08.html#sect_9.3.3.2&gt;`_ and</span>
-<span class="sd">      `Annex B &lt;http://dicom.nema.org/medical/dicom/current/output/html/part08.html#chapter_B&gt;`_</span>
+<span class="sd">      `9.3.3.2 &lt;http://dicom.nema.org/medical/dicom/current/output/html/part08.html#sect_9.3.3.2&gt;`_</span>
+<span class="sd">      and `Annex B &lt;http://dicom.nema.org/medical/dicom/current/output/html/part08.html#chapter_B&gt;`_</span>
 <span class="sd">    &quot;&quot;&quot;</span>
 <div class="viewcode-block" id="PresentationContext.__init__"><a class="viewcode-back" href="../../reference/generated/pynetdicom.presentation.PresentationContext.html#pynetdicom.presentation.PresentationContext.__init__">[docs]</a>    <span class="k">def</span> <span class="nf">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;Create a new PresentationContext.&quot;&quot;&quot;</span>
@@ -961,7 +950,8 @@
 <span class="sd">    &gt;&gt;&gt; from pydicom.uid import UID</span>
 <span class="sd">    &gt;&gt;&gt; from pynetdicom import build_context</span>
 <span class="sd">    &gt;&gt;&gt; context = build_context(UID(&#39;1.2.840.10008.1.1&#39;),</span>
-<span class="sd">                                [&#39;1.2.840.10008.1.2&#39;, &#39;1.2.840.10008.1.2.4.50&#39;])</span>
+<span class="sd">                                [&#39;1.2.840.10008.1.2&#39;,</span>
+<span class="sd">    ...                          &#39;1.2.840.10008.1.2.4.50&#39;])</span>
 <span class="sd">    &gt;&gt;&gt; print(context)</span>
 <span class="sd">    Abstract Syntax: Verification SOP Class</span>
 <span class="sd">    Transfer Syntax(es):</span>
@@ -990,6 +980,7 @@
 
 
 <span class="c1"># Service specific pre-generated Presentation Contexts</span>
+<span class="c1"># pylint: disable=line-too-long,invalid-name</span>
 <span class="n">VerificationPresentationContexts</span> <span class="o">=</span> <span class="p">[</span>
     <span class="n">build_context</span><span class="p">(</span><span class="n">uid</span><span class="p">)</span> <span class="k">for</span> <span class="n">uid</span> <span class="ow">in</span> <span class="nb">sorted</span><span class="p">(</span><span class="n">_VERIFICATION_CLASSES</span><span class="o">.</span><span class="n">values</span><span class="p">())</span>
 <span class="p">]</span>

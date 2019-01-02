@@ -239,17 +239,15 @@
     <span class="n">SOPClassCommonExtendedNegotiation</span><span class="p">,</span>
     <span class="n">SCP_SCU_RoleSelectionNegotiation</span><span class="p">,</span>
 <span class="p">)</span>
-<span class="kn">from</span> <span class="nn">pynetdicom.status</span> <span class="k">import</span> <span class="p">(</span>
-    <span class="n">code_to_category</span><span class="p">,</span> <span class="n">STORAGE_SERVICE_CLASS_STATUS</span><span class="p">,</span>
-    <span class="n">STATUS_WARNING</span><span class="p">,</span> <span class="n">STATUS_SUCCESS</span><span class="p">,</span> <span class="n">STATUS_CANCEL</span><span class="p">,</span> <span class="n">STATUS_PENDING</span><span class="p">,</span>
-    <span class="n">STATUS_FAILURE</span>
+<span class="kn">from</span> <span class="nn">pynetdicom.status</span> <span class="k">import</span> <span class="n">code_to_category</span><span class="p">,</span> <span class="n">STORAGE_SERVICE_CLASS_STATUS</span>
+<span class="kn">from</span> <span class="nn">pynetdicom._globals</span> <span class="k">import</span> <span class="p">(</span>
+    <span class="n">MODE_REQUESTOR</span><span class="p">,</span> <span class="n">MODE_ACCEPTOR</span><span class="p">,</span> <span class="n">DEFAULT_MAX_LENGTH</span><span class="p">,</span> <span class="n">STATUS_WARNING</span><span class="p">,</span>
+    <span class="n">STATUS_SUCCESS</span><span class="p">,</span> <span class="n">STATUS_CANCEL</span><span class="p">,</span> <span class="n">STATUS_PENDING</span><span class="p">,</span> <span class="n">STATUS_FAILURE</span>
 <span class="p">)</span>
 
 
 <span class="c1"># pylint: enable=no-name-in-module</span>
 <span class="n">LOGGER</span> <span class="o">=</span> <span class="n">logging</span><span class="o">.</span><span class="n">getLogger</span><span class="p">(</span><span class="s1">&#39;pynetdicom.assoc&#39;</span><span class="p">)</span>
-<span class="n">MODE_REQUESTOR</span> <span class="o">=</span> <span class="s1">&#39;requestor&#39;</span>
-<span class="n">MODE_ACCEPTOR</span> <span class="o">=</span> <span class="s1">&#39;acceptor&#39;</span>
 
 
 <div class="viewcode-block" id="Association"><a class="viewcode-back" href="../../reference/generated/pynetdicom.association.Association.html#pynetdicom.association.Association">[docs]</a><span class="k">class</span> <span class="nc">Association</span><span class="p">(</span><span class="n">threading</span><span class="o">.</span><span class="n">Thread</span><span class="p">):</span>
@@ -516,6 +514,7 @@
                 <span class="s2">&quot;or &#39;acceptor&#39;&quot;</span>
             <span class="p">)</span>
 
+        <span class="c1"># pylint: disable=attribute-defined-outside-init</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">_mode</span> <span class="o">=</span> <span class="n">mode</span>
 
     <span class="nd">@property</span>
@@ -565,13 +564,12 @@
 
             <span class="bp">self</span><span class="o">.</span><span class="n">acse</span><span class="o">.</span><span class="n">negotiate_association</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span>
             <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">is_established</span><span class="p">:</span>
-                <span class="c1"># TODO: Refactor so not needed</span>
                 <span class="bp">self</span><span class="o">.</span><span class="n">dimse</span><span class="o">.</span><span class="n">maximum_pdu_size</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">requestor</span><span class="o">.</span><span class="n">maximum_length</span>
                 <span class="bp">self</span><span class="o">.</span><span class="n">_run_as_acceptor</span><span class="p">()</span>
         <span class="k">else</span><span class="p">:</span>
+            <span class="c1"># Association requestor</span>
             <span class="bp">self</span><span class="o">.</span><span class="n">acse</span><span class="o">.</span><span class="n">negotiate_association</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span>
             <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">is_established</span><span class="p">:</span>
-                <span class="c1"># TODO: Refactor so not needed</span>
                 <span class="bp">self</span><span class="o">.</span><span class="n">dimse</span><span class="o">.</span><span class="n">maximum_pdu_size</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">acceptor</span><span class="o">.</span><span class="n">maximum_length</span>
                 <span class="bp">self</span><span class="o">.</span><span class="n">_run_as_requestor</span><span class="p">()</span></div>
 
@@ -609,7 +607,7 @@
             <span class="n">msg</span><span class="p">,</span> <span class="n">msg_context_id</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">dimse</span><span class="o">.</span><span class="n">receive_msg</span><span class="p">(</span><span class="n">wait</span><span class="o">=</span><span class="kc">False</span><span class="p">)</span>
 
             <span class="c1"># DIMSE message received</span>
-            <span class="c1"># FIXME: This is not a good way to handle messages, they should</span>
+            <span class="c1"># TODO: This is not a good way to handle messages, they should</span>
             <span class="c1">#   be managed via their message ID and/or SOP Class UIDs</span>
             <span class="k">if</span> <span class="n">msg</span><span class="p">:</span>
                 <span class="c1"># Use the Message&#39;s Affected SOP Class UID or Requested SOP</span>
@@ -778,6 +776,7 @@
             <span class="k">return</span>
 
         <span class="c1"># Attempt to decode the dataset</span>
+        <span class="c1"># pylint: disable=broad-except</span>
         <span class="n">transfer_syntax</span> <span class="o">=</span> <span class="n">context</span><span class="o">.</span><span class="n">transfer_syntax</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span>
         <span class="k">try</span><span class="p">:</span>
             <span class="n">ds</span> <span class="o">=</span> <span class="n">decode</span><span class="p">(</span><span class="n">req</span><span class="o">.</span><span class="n">DataSet</span><span class="p">,</span>
@@ -931,8 +930,8 @@
 <span class="sd">        * DICOM Standard Part 4, `Annex A &lt;http://dicom.nema.org/medical/dicom/current/output/html/part04.html#chapter_A&gt;`_</span>
 <span class="sd">        * DICOM Standard Part 7, Sections</span>
 <span class="sd">          `9.1.5 &lt;http://dicom.nema.org/medical/dicom/current/output/html/part07.html#sect_9.1.5&gt;`_,</span>
-<span class="sd">          `9.3.5 &lt;http://dicom.nema.org/medical/dicom/current/output/html/part07.html#sect_9.3.5&gt;`_ and</span>
-<span class="sd">          `Annex C &lt;http://dicom.nema.org/medical/dicom/current/output/html/part07.html#chapter_C&gt;`__</span>
+<span class="sd">           and `9.3.5 &lt;http://dicom.nema.org/medical/dicom/current/output/html/part07.html#sect_9.3.5&gt;`_</span>
+<span class="sd">          `Annex C &lt;http://dicom.nema.org/medical/dicom/current/output/html/part07.html#chapter_C&gt;`_</span>
 <span class="sd">        &quot;&quot;&quot;</span>
         <span class="c1"># Can&#39;t send a C-ECHO without an Association</span>
         <span class="k">if</span> <span class="ow">not</span> <span class="bp">self</span><span class="o">.</span><span class="n">is_established</span><span class="p">:</span>
@@ -1054,9 +1053,9 @@
 <span class="sd">              | ``0xC000`` to ``0xCFFF`` Unable to process</span>
 
 <span class="sd">            Pending</span>
-<span class="sd">              | ``0xFF00`` Matches are continuing: current match is supplied and</span>
-<span class="sd">                any Optional Keys were supported in the same manner as Required</span>
-<span class="sd">                Keys</span>
+<span class="sd">              | ``0xFF00`` Matches are continuing: current match is supplied</span>
+<span class="sd">                and any Optional Keys were supported in the same manner as</span>
+<span class="sd">                Required Keys</span>
 <span class="sd">              | ``0xFF01`` Matches are continuing: warning that one or more</span>
 <span class="sd">                Optional Keys were not supported for existence and/or matching</span>
 <span class="sd">                for this Identifier)</span>
@@ -1072,9 +1071,9 @@
 <span class="sd">              | ``0xC200`` Unable to support requested template</span>
 
 <span class="sd">            Pending</span>
-<span class="sd">              | ``0xFF00`` Matches are continuing: current match is supplied and</span>
-<span class="sd">                any Optional Keys were supported in the same manner as Required</span>
-<span class="sd">                Keys</span>
+<span class="sd">              | ``0xFF00`` Matches are continuing: current match is supplied</span>
+<span class="sd">                and any Optional Keys were supported in the same manner as</span>
+<span class="sd">                Required Keys</span>
 
 <span class="sd">        identifier : pydicom.dataset.Dataset or None</span>
 <span class="sd">            If the status is &#39;Pending&#39; then the C-FIND response&#39;s *Identifier*</span>
@@ -1115,8 +1114,8 @@
 <span class="sd">        * DICOM Standard Part 7, Sections</span>
 <span class="sd">          `9.1.2 &lt;http://dicom.nema.org/medical/dicom/current/output/html/part07.html#sect_9.1.2&gt;`_,</span>
 <span class="sd">          `9.3.2 &lt;http://dicom.nema.org/medical/dicom/current/output/html/part07.html#sect_9.3.2&gt;`_,</span>
-<span class="sd">          Annexes `C &lt;http://dicom.nema.org/medical/dicom/current/output/html/part07.html#chapter_C&gt;`_ and</span>
-<span class="sd">          `K &lt;http://dicom.nema.org/medical/dicom/current/output/html/part07.html#chapter_K&gt;`_</span>
+<span class="sd">          Annexes `C &lt;http://dicom.nema.org/medical/dicom/current/output/html/part07.html#chapter_C&gt;`_</span>
+<span class="sd">           and `K &lt;http://dicom.nema.org/medical/dicom/current/output/html/part07.html#chapter_K&gt;`_</span>
 <span class="sd">        &quot;&quot;&quot;</span>
         <span class="c1"># Can&#39;t send a C-FIND without an Association</span>
         <span class="k">if</span> <span class="ow">not</span> <span class="bp">self</span><span class="o">.</span><span class="n">is_established</span><span class="p">:</span>
@@ -1222,6 +1221,7 @@
                 <span class="k">break</span>
 
             <span class="c1"># Status must be Pending, so decode the Identifier dataset</span>
+            <span class="c1"># pylint: disable=broad-except</span>
             <span class="k">try</span><span class="p">:</span>
                 <span class="n">identifier</span> <span class="o">=</span> <span class="n">decode</span><span class="p">(</span><span class="n">rsp</span><span class="o">.</span><span class="n">Identifier</span><span class="p">,</span>
                                     <span class="n">transfer_syntax</span><span class="o">.</span><span class="n">is_implicit_VR</span><span class="p">,</span>
@@ -1232,8 +1232,10 @@
                 <span class="k">for</span> <span class="n">elem</span> <span class="ow">in</span> <span class="n">identifier</span><span class="p">:</span>
                     <span class="n">LOGGER</span><span class="o">.</span><span class="n">debug</span><span class="p">(</span><span class="n">elem</span><span class="p">)</span>
                 <span class="n">LOGGER</span><span class="o">.</span><span class="n">debug</span><span class="p">(</span><span class="s1">&#39;&#39;</span><span class="p">)</span>
-            <span class="k">except</span><span class="p">:</span>
-                <span class="n">LOGGER</span><span class="o">.</span><span class="n">error</span><span class="p">(</span><span class="s2">&quot;Failed to decode the received Identifier dataset&quot;</span><span class="p">)</span>
+            <span class="k">except</span> <span class="ne">Exception</span><span class="p">:</span>
+                <span class="n">LOGGER</span><span class="o">.</span><span class="n">error</span><span class="p">(</span>
+                    <span class="s2">&quot;Failed to decode the received Identifier dataset&quot;</span>
+                <span class="p">)</span>
                 <span class="k">yield</span> <span class="n">status</span><span class="p">,</span> <span class="kc">None</span>
 
             <span class="n">ii</span> <span class="o">+=</span> <span class="mi">1</span>
@@ -1390,8 +1392,8 @@
 <span class="sd">        * DICOM Standard Part 4, `Annex HH &lt;http://dicom.nema.org/medical/dicom/current/output/html/part04.html#chapter_HH&gt;`_</span>
 <span class="sd">        * DICOM Standard Part 7, Sections</span>
 <span class="sd">          `9.1.3 &lt;http://dicom.nema.org/medical/dicom/current/output/html/part07.html#sect_9.1.3&gt;`_,</span>
-<span class="sd">          `9.3.3 &lt;http://dicom.nema.org/medical/dicom/current/output/html/part07.html#sect_9.3.3&gt;`_ and</span>
-<span class="sd">          `Annex C &lt;http://dicom.nema.org/medical/dicom/current/output/html/part07.html#chapter_C&gt;`__</span>
+<span class="sd">          `9.3.3 &lt;http://dicom.nema.org/medical/dicom/current/output/html/part07.html#sect_9.3.3&gt;`_</span>
+<span class="sd">          and `Annex C &lt;http://dicom.nema.org/medical/dicom/current/output/html/part07.html#chapter_C&gt;`_</span>
 <span class="sd">        &quot;&quot;&quot;</span>
         <span class="c1"># Can&#39;t send a C-GET without an Association</span>
         <span class="k">if</span> <span class="ow">not</span> <span class="bp">self</span><span class="o">.</span><span class="n">is_established</span><span class="p">:</span>
@@ -1462,7 +1464,7 @@
         <span class="k">while</span> <span class="kc">True</span><span class="p">:</span>
             <span class="c1"># Wait for DIMSE message, may be either a C-GET response or a</span>
             <span class="c1">#   C-STORE request</span>
-            <span class="n">rsp</span><span class="p">,</span> <span class="n">context_id</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">dimse</span><span class="o">.</span><span class="n">receive_msg</span><span class="p">(</span><span class="n">wait</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+            <span class="n">rsp</span><span class="p">,</span> <span class="n">_</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">dimse</span><span class="o">.</span><span class="n">receive_msg</span><span class="p">(</span><span class="n">wait</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
 
             <span class="c1"># If nothing received from the peer, try again</span>
             <span class="k">if</span> <span class="ow">not</span> <span class="n">rsp</span><span class="p">:</span>
@@ -1488,7 +1490,8 @@
                 <span class="n">LOGGER</span><span class="o">.</span><span class="n">debug</span><span class="p">(</span><span class="s1">&#39;&#39;</span><span class="p">)</span>
                 <span class="k">if</span> <span class="n">category</span> <span class="o">==</span> <span class="n">STATUS_PENDING</span><span class="p">:</span>
                     <span class="n">LOGGER</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="s2">&quot;Get SCP Response: </span><span class="si">%s</span><span class="s2"> (Pending)&quot;</span><span class="p">,</span> <span class="n">operation_no</span><span class="p">)</span>
-                <span class="k">elif</span> <span class="n">category</span> <span class="ow">in</span> <span class="p">[</span><span class="n">STATUS_SUCCESS</span><span class="p">,</span> <span class="n">STATUS_CANCEL</span><span class="p">,</span> <span class="n">STATUS_WARNING</span><span class="p">]:</span>
+                <span class="k">elif</span> <span class="n">category</span> <span class="ow">in</span> <span class="p">[</span><span class="n">STATUS_SUCCESS</span><span class="p">,</span> <span class="n">STATUS_CANCEL</span><span class="p">,</span>
+                                  <span class="n">STATUS_WARNING</span><span class="p">]:</span>
                     <span class="n">LOGGER</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="s1">&#39;Get SCP Result: (</span><span class="si">%s</span><span class="s1">)&#39;</span><span class="p">,</span> <span class="n">category</span><span class="p">)</span>
                 <span class="k">elif</span> <span class="n">category</span> <span class="o">==</span> <span class="n">STATUS_FAILURE</span><span class="p">:</span>
                     <span class="n">LOGGER</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="s1">&#39;Get SCP Result: (Failure - 0x</span><span class="si">%04x</span><span class="s1">)&#39;</span><span class="p">,</span>
@@ -1518,6 +1521,7 @@
                     <span class="c1">#   should contain an Identifier dataset with a</span>
                     <span class="c1">#   (0008,0058) Failed SOP Instance UID List element</span>
                     <span class="c1">#   however this can&#39;t be assumed</span>
+                    <span class="c1"># pylint: disable=broad-except</span>
                     <span class="k">try</span><span class="p">:</span>
                         <span class="n">identifier</span> <span class="o">=</span> <span class="n">decode</span><span class="p">(</span><span class="n">rsp</span><span class="o">.</span><span class="n">Identifier</span><span class="p">,</span>
                                             <span class="n">transfer_syntax</span><span class="o">.</span><span class="n">is_implicit_VR</span><span class="p">,</span>
@@ -1680,8 +1684,8 @@
 <span class="sd">        * DICOM Standard Part 4, `Annex HH &lt;http://dicom.nema.org/medical/dicom/current/output/html/part04.html#chapter_HH&gt;`_</span>
 <span class="sd">        * DICOM Standard Part 7, Sections</span>
 <span class="sd">          `9.1.4 &lt;http://dicom.nema.org/medical/dicom/current/output/html/part07.html#sect_9.1.4&gt;`_,</span>
-<span class="sd">          `9.3.4 &lt;http://dicom.nema.org/medical/dicom/current/output/html/part07.html#sect_9.3.4&gt;`_ and</span>
-<span class="sd">          `Annex C &lt;http://dicom.nema.org/medical/dicom/current/output/html/part07.html#chapter_C&gt;`__</span>
+<span class="sd">          `9.3.4 &lt;http://dicom.nema.org/medical/dicom/current/output/html/part07.html#sect_9.3.4&gt;`_</span>
+<span class="sd">          and `Annex C &lt;http://dicom.nema.org/medical/dicom/current/output/html/part07.html#chapter_C&gt;`_</span>
 <span class="sd">        &quot;&quot;&quot;</span>
         <span class="c1"># Can&#39;t send a C-MOVE without an Association</span>
         <span class="k">if</span> <span class="ow">not</span> <span class="bp">self</span><span class="o">.</span><span class="n">is_established</span><span class="p">:</span>
@@ -1751,7 +1755,7 @@
         <span class="c1"># Get the responses from peer</span>
         <span class="n">operation_no</span> <span class="o">=</span> <span class="mi">1</span>
         <span class="k">while</span> <span class="kc">True</span><span class="p">:</span>
-            <span class="n">rsp</span><span class="p">,</span> <span class="n">context_id</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">dimse</span><span class="o">.</span><span class="n">receive_msg</span><span class="p">(</span><span class="n">wait</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+            <span class="n">rsp</span><span class="p">,</span> <span class="n">_</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">dimse</span><span class="o">.</span><span class="n">receive_msg</span><span class="p">(</span><span class="n">wait</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
 
             <span class="c1"># If nothing received from the peer, try again</span>
             <span class="k">if</span> <span class="ow">not</span> <span class="n">rsp</span><span class="p">:</span>
@@ -1777,7 +1781,8 @@
                 <span class="n">LOGGER</span><span class="o">.</span><span class="n">debug</span><span class="p">(</span><span class="s1">&#39;&#39;</span><span class="p">)</span>
                 <span class="k">if</span> <span class="n">category</span> <span class="o">==</span> <span class="n">STATUS_PENDING</span><span class="p">:</span>
                     <span class="n">LOGGER</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="s2">&quot;Move SCP Response: </span><span class="si">%s</span><span class="s2"> (Pending)&quot;</span><span class="p">,</span> <span class="n">operation_no</span><span class="p">)</span>
-                <span class="k">elif</span> <span class="n">category</span> <span class="ow">in</span> <span class="p">[</span><span class="n">STATUS_SUCCESS</span><span class="p">,</span> <span class="n">STATUS_CANCEL</span><span class="p">,</span> <span class="n">STATUS_WARNING</span><span class="p">]:</span>
+                <span class="k">elif</span> <span class="n">category</span> <span class="ow">in</span> <span class="p">[</span><span class="n">STATUS_SUCCESS</span><span class="p">,</span> <span class="n">STATUS_CANCEL</span><span class="p">,</span>
+                                  <span class="n">STATUS_WARNING</span><span class="p">]:</span>
                     <span class="n">LOGGER</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="s2">&quot;Move SCP Result: (</span><span class="si">%s</span><span class="s2">)&quot;</span><span class="p">,</span> <span class="n">category</span><span class="p">)</span>
                 <span class="k">elif</span> <span class="n">category</span> <span class="o">==</span> <span class="n">STATUS_FAILURE</span><span class="p">:</span>
                     <span class="n">LOGGER</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="s2">&quot;Move SCP Result: (Failure - 0x</span><span class="si">%04x</span><span class="s2">)&quot;</span><span class="p">,</span>
@@ -1807,6 +1812,7 @@
                     <span class="c1">#   should contain an Identifier dataset with a</span>
                     <span class="c1">#   (0008,0058) Failed SOP Instance UID List element</span>
                     <span class="c1">#   however this can&#39;t be assumed</span>
+                    <span class="c1"># pylint: disable=broad-except</span>
                     <span class="k">try</span><span class="p">:</span>
                         <span class="n">identifier</span> <span class="o">=</span> <span class="n">decode</span><span class="p">(</span><span class="n">rsp</span><span class="o">.</span><span class="n">Identifier</span><span class="p">,</span>
                                             <span class="n">transfer_syntax</span><span class="o">.</span><span class="n">is_implicit_VR</span><span class="p">,</span>
@@ -1935,8 +1941,8 @@
 <span class="sd">        * DICOM Standard Part 4, Annex `GG &lt;http://dicom.nema.org/medical/dicom/current/output/html/part04.html#chapter_GG&gt;`_</span>
 <span class="sd">        * DICOM Standard Part 7, Sections</span>
 <span class="sd">          `9.1.1 &lt;http://dicom.nema.org/medical/dicom/current/output/html/part07.html#sect_9.1.1&gt;`_,</span>
-<span class="sd">          `9.3.1 &lt;http://dicom.nema.org/medical/dicom/current/output/html/part07.html#sect_9.3.1&gt;`_ and</span>
-<span class="sd">          `Annex C &lt;http://dicom.nema.org/medical/dicom/current/output/html/part07.html#chapter_C&gt;`__</span>
+<span class="sd">          `9.3.1 &lt;http://dicom.nema.org/medical/dicom/current/output/html/part07.html#sect_9.3.1&gt;`_</span>
+<span class="sd">          and `Annex C &lt;http://dicom.nema.org/medical/dicom/current/output/html/part07.html#chapter_C&gt;`_</span>
 <span class="sd">        &quot;&quot;&quot;</span>
         <span class="c1"># Can&#39;t send a C-STORE without an Association</span>
         <span class="k">if</span> <span class="ow">not</span> <span class="bp">self</span><span class="o">.</span><span class="n">is_established</span><span class="p">:</span>
@@ -2006,7 +2012,8 @@
         <span class="k">return</span> <span class="n">status</span></div>
 
     <span class="c1"># DIMSE-N services provided by the Association</span>
-<div class="viewcode-block" id="Association.send_n_action"><a class="viewcode-back" href="../../reference/generated/pynetdicom.association.Association.html#pynetdicom.association.Association.send_n_action">[docs]</a>    <span class="k">def</span> <span class="nf">send_n_action</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">dataset</span><span class="p">,</span> <span class="n">action_type</span><span class="p">,</span> <span class="n">class_uid</span><span class="p">,</span> <span class="n">instance_uid</span><span class="p">,</span> <span class="n">msg_id</span><span class="o">=</span><span class="mi">1</span><span class="p">):</span>
+<div class="viewcode-block" id="Association.send_n_action"><a class="viewcode-back" href="../../reference/generated/pynetdicom.association.Association.html#pynetdicom.association.Association.send_n_action">[docs]</a>    <span class="k">def</span> <span class="nf">send_n_action</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">dataset</span><span class="p">,</span> <span class="n">action_type</span><span class="p">,</span> <span class="n">class_uid</span><span class="p">,</span> <span class="n">instance_uid</span><span class="p">,</span>
+                      <span class="n">msg_id</span><span class="o">=</span><span class="mi">1</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;Send an N-ACTION request message to the peer AE.</span>
 
 <span class="sd">        Parameters</span>
@@ -2076,8 +2083,8 @@
 <span class="sd">        * DICOM Standard Part 4, `Annex DD &lt;http://dicom.nema.org/medical/dicom/current/output/html/part04.html#chapter_DD&gt;`_</span>
 <span class="sd">        * DICOM Standard Part 7, Sections</span>
 <span class="sd">          `10.1.3 &lt;http://dicom.nema.org/medical/dicom/current/output/html/part07.html#sect_10.1.3&gt;`_,</span>
-<span class="sd">          `10.3.3 &lt;http://dicom.nema.org/medical/dicom/current/output/html/part07.html#sect_10.3.3&gt;`_ and</span>
-<span class="sd">          `Annex C &lt;http://dicom.nema.org/medical/dicom/current/output/html/part07.html#chapter_C&gt;`__</span>
+<span class="sd">          `10.3.3 &lt;http://dicom.nema.org/medical/dicom/current/output/html/part07.html#sect_10.3.3&gt;`_</span>
+<span class="sd">          and `Annex C &lt;http://dicom.nema.org/medical/dicom/current/output/html/part07.html#chapter_C&gt;`_</span>
 <span class="sd">        &quot;&quot;&quot;</span>
         <span class="c1"># Can&#39;t send an N-ACTION without an Association</span>
         <span class="k">if</span> <span class="ow">not</span> <span class="bp">self</span><span class="o">.</span><span class="n">is_established</span><span class="p">:</span>
@@ -2130,6 +2137,7 @@
                 <span class="k">return</span> <span class="n">status</span><span class="p">,</span> <span class="n">action_reply</span>
 
             <span class="c1"># Attempt to decode the response&#39;s dataset</span>
+            <span class="c1"># pylint: disable=broad-except</span>
             <span class="k">try</span><span class="p">:</span>
                 <span class="n">action_reply</span> <span class="o">=</span> <span class="n">decode</span><span class="p">(</span><span class="n">rsp</span><span class="o">.</span><span class="n">ActionReply</span><span class="p">,</span>
                                       <span class="n">transfer_syntax</span><span class="o">.</span><span class="n">is_implicit_VR</span><span class="p">,</span>
@@ -2210,8 +2218,8 @@
 <span class="sd">        * DICOM Standard Part 4, `Annex DD &lt;http://dicom.nema.org/medical/dicom/current/output/html/part04.html#chapter_DD&gt;`_</span>
 <span class="sd">        * DICOM Standard Part 7, Sections</span>
 <span class="sd">          `10.1.5 &lt;http://dicom.nema.org/medical/dicom/current/output/html/part07.html#sect_10.1.5&gt;`_,</span>
-<span class="sd">          `10.3.5 &lt;http://dicom.nema.org/medical/dicom/current/output/html/part07.html#sect_10.3.5&gt;`_ and</span>
-<span class="sd">          `Annex C &lt;http://dicom.nema.org/medical/dicom/current/output/html/part07.html#chapter_C&gt;`__</span>
+<span class="sd">          `10.3.5 &lt;http://dicom.nema.org/medical/dicom/current/output/html/part07.html#sect_10.3.5&gt;`_</span>
+<span class="sd">          and `Annex C &lt;http://dicom.nema.org/medical/dicom/current/output/html/part07.html#chapter_C&gt;`_</span>
 <span class="sd">        &quot;&quot;&quot;</span>
         <span class="c1"># Can&#39;t send an N-CREATE without an Association</span>
         <span class="k">if</span> <span class="ow">not</span> <span class="bp">self</span><span class="o">.</span><span class="n">is_established</span><span class="p">:</span>
@@ -2262,6 +2270,7 @@
                 <span class="k">return</span> <span class="n">status</span><span class="p">,</span> <span class="n">attribute_list</span>
 
             <span class="c1"># Attempt to decode the response&#39;s dataset</span>
+            <span class="c1"># pylint: disable=broad-except</span>
             <span class="k">try</span><span class="p">:</span>
                 <span class="n">attribute_list</span> <span class="o">=</span> <span class="n">decode</span><span class="p">(</span><span class="n">rsp</span><span class="o">.</span><span class="n">AttributeList</span><span class="p">,</span>
                                         <span class="n">transfer_syntax</span><span class="o">.</span><span class="n">is_implicit_VR</span><span class="p">,</span>
@@ -2329,8 +2338,8 @@
 <span class="sd">        * DICOM Standard Part 4, `Annex DD &lt;http://dicom.nema.org/medical/dicom/current/output/html/part04.html#chapter_DD&gt;`_</span>
 <span class="sd">        * DICOM Standard Part 7, Sections</span>
 <span class="sd">          `10.1.6 &lt;http://dicom.nema.org/medical/dicom/current/output/html/part07.html#sect_10.1.6&gt;`_,</span>
-<span class="sd">          `10.3.6 &lt;http://dicom.nema.org/medical/dicom/current/output/html/part07.html#sect_10.3.6&gt;`_ and</span>
-<span class="sd">          `Annex C &lt;http://dicom.nema.org/medical/dicom/current/output/html/part07.html#chapter_C&gt;`__</span>
+<span class="sd">          `10.3.6 &lt;http://dicom.nema.org/medical/dicom/current/output/html/part07.html#sect_10.3.6&gt;`_</span>
+<span class="sd">          and `Annex C &lt;http://dicom.nema.org/medical/dicom/current/output/html/part07.html#chapter_C&gt;`_</span>
 <span class="sd">        &quot;&quot;&quot;</span>
         <span class="c1"># Can&#39;t send an N-DELETE without an Association</span>
         <span class="k">if</span> <span class="ow">not</span> <span class="bp">self</span><span class="o">.</span><span class="n">is_established</span><span class="p">:</span>
@@ -2432,8 +2441,8 @@
 <span class="sd">        * DICOM Standard Part 4, `Annex DD &lt;http://dicom.nema.org/medical/dicom/current/output/html/part04.html#chapter_DD&gt;`_</span>
 <span class="sd">        * DICOM Standard Part 7, Sections</span>
 <span class="sd">          `10.1.1 &lt;http://dicom.nema.org/medical/dicom/current/output/html/part07.html#sect_10.1.1&gt;`_,</span>
-<span class="sd">          `10.3.1 &lt;http://dicom.nema.org/medical/dicom/current/output/html/part07.html#sect_10.3.1&gt;`_ and</span>
-<span class="sd">          `Annex C &lt;http://dicom.nema.org/medical/dicom/current/output/html/part07.html#chapter_C&gt;`__</span>
+<span class="sd">          `10.3.1 &lt;http://dicom.nema.org/medical/dicom/current/output/html/part07.html#sect_10.3.1&gt;`_</span>
+<span class="sd">          and `Annex C &lt;http://dicom.nema.org/medical/dicom/current/output/html/part07.html#chapter_C&gt;`_</span>
 <span class="sd">        &quot;&quot;&quot;</span>
         <span class="c1"># Can&#39;t send an N-EVENT-REPORT without an Association</span>
         <span class="k">if</span> <span class="ow">not</span> <span class="bp">self</span><span class="o">.</span><span class="n">is_established</span><span class="p">:</span>
@@ -2489,6 +2498,7 @@
                 <span class="k">return</span> <span class="n">status</span><span class="p">,</span> <span class="n">event_reply</span>
 
             <span class="c1"># Attempt to decode the response&#39;s dataset</span>
+            <span class="c1"># pylint: disable=broad-except</span>
             <span class="k">try</span><span class="p">:</span>
                 <span class="n">event_reply</span> <span class="o">=</span> <span class="n">decode</span><span class="p">(</span><span class="n">rsp</span><span class="o">.</span><span class="n">EventReply</span><span class="p">,</span>
                                      <span class="n">transfer_syntax</span><span class="o">.</span><span class="n">is_implicit_VR</span><span class="p">,</span>
@@ -2574,8 +2584,8 @@
 <span class="sd">        * DICOM Standard Part 4, `Annex EE &lt;http://dicom.nema.org/medical/dicom/current/output/html/part04.html#chapter_EE&gt;`_</span>
 <span class="sd">        * DICOM Standard Part 7, Sections</span>
 <span class="sd">          `10.1.2 &lt;http://dicom.nema.org/medical/dicom/current/output/html/part07.html#sect_10.1.2&gt;`_,</span>
-<span class="sd">          `10.3.2 &lt;http://dicom.nema.org/medical/dicom/current/output/html/part07.html#sect_10.3.2&gt;`_ and</span>
-<span class="sd">          `Annex C &lt;http://dicom.nema.org/medical/dicom/current/output/html/part07.html#chapter_C&gt;`__</span>
+<span class="sd">          `10.3.2 &lt;http://dicom.nema.org/medical/dicom/current/output/html/part07.html#sect_10.3.2&gt;`_</span>
+<span class="sd">          and `Annex C &lt;http://dicom.nema.org/medical/dicom/current/output/html/part07.html#chapter_C&gt;`_</span>
 <span class="sd">        &quot;&quot;&quot;</span>
         <span class="c1"># Can&#39;t send an N-GET without an Association</span>
         <span class="k">if</span> <span class="ow">not</span> <span class="bp">self</span><span class="o">.</span><span class="n">is_established</span><span class="p">:</span>
@@ -2616,6 +2626,7 @@
                 <span class="k">return</span> <span class="n">status</span><span class="p">,</span> <span class="n">attribute_list</span>
 
             <span class="c1"># Attempt to decode the response&#39;s dataset</span>
+            <span class="c1"># pylint: disable=broad-except</span>
             <span class="k">try</span><span class="p">:</span>
                 <span class="n">attribute_list</span> <span class="o">=</span> <span class="n">decode</span><span class="p">(</span><span class="n">rsp</span><span class="o">.</span><span class="n">AttributeList</span><span class="p">,</span>
                                         <span class="n">transfer_syntax</span><span class="o">.</span><span class="n">is_implicit_VR</span><span class="p">,</span>
@@ -2700,8 +2711,8 @@
 <span class="sd">        * DICOM Standard Part 4, `Annex DD &lt;http://dicom.nema.org/medical/dicom/current/output/html/part04.html#chapter_DD&gt;`_</span>
 <span class="sd">        * DICOM Standard Part 7, Sections</span>
 <span class="sd">          `10.1.3 &lt;http://dicom.nema.org/medical/dicom/current/output/html/part07.html#sect_10.1.3&gt;`_,</span>
-<span class="sd">          `10.3.3 &lt;http://dicom.nema.org/medical/dicom/current/output/html/part07.html#sect_10.3.3&gt;`_ and</span>
-<span class="sd">          `Annex C &lt;http://dicom.nema.org/medical/dicom/current/output/html/part07.html#chapter_C&gt;`__</span>
+<span class="sd">          `10.3.3 &lt;http://dicom.nema.org/medical/dicom/current/output/html/part07.html#sect_10.3.3&gt;`_</span>
+<span class="sd">          and `Annex C &lt;http://dicom.nema.org/medical/dicom/current/output/html/part07.html#chapter_C&gt;`_</span>
 <span class="sd">        &quot;&quot;&quot;</span>
         <span class="c1"># Can&#39;t send an N-SET without an Association</span>
         <span class="k">if</span> <span class="ow">not</span> <span class="bp">self</span><span class="o">.</span><span class="n">is_established</span><span class="p">:</span>
@@ -2753,6 +2764,7 @@
                 <span class="k">return</span> <span class="n">status</span><span class="p">,</span> <span class="n">attribute_list</span>
 
             <span class="c1"># Attempt to decode the response&#39;s dataset</span>
+            <span class="c1"># pylint: disable=broad-except</span>
             <span class="k">try</span><span class="p">:</span>
                 <span class="n">attribute_list</span> <span class="o">=</span> <span class="n">decode</span><span class="p">(</span><span class="n">rsp</span><span class="o">.</span><span class="n">AttributeList</span><span class="p">,</span>
                                         <span class="n">transfer_syntax</span><span class="o">.</span><span class="n">is_implicit_VR</span><span class="p">,</span>
@@ -2938,7 +2950,7 @@
         <span class="c1"># User Information items</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">_user_info</span> <span class="o">=</span> <span class="p">[]</span>
         <span class="c1"># Must always be set</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">maximum_length</span> <span class="o">=</span> <span class="mi">16382</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">maximum_length</span> <span class="o">=</span> <span class="n">DEFAULT_MAX_LENGTH</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">implementation_class_uid</span> <span class="o">=</span> <span class="n">assoc</span><span class="o">.</span><span class="n">ae</span><span class="o">.</span><span class="n">implementation_class_uid</span>
 
         <span class="c1"># The are the proposed extended negotiation items,</span>
@@ -3067,6 +3079,7 @@
 
             <span class="k">return</span> <span class="n">items</span>
 
+        <span class="c1"># pylint: disable=unidiomatic-typecheck</span>
         <span class="k">for</span> <span class="n">item</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">user_information</span><span class="p">:</span>
             <span class="k">if</span> <span class="nb">type</span><span class="p">(</span><span class="n">item</span><span class="p">)</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">_ext_neg</span><span class="o">.</span><span class="n">keys</span><span class="p">():</span>
                 <span class="n">items</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">item</span><span class="p">)</span>
@@ -3368,6 +3381,7 @@
                 <span class="s2">&quot;has started&quot;</span>
             <span class="p">)</span>
 
+        <span class="c1"># pylint: disable=unidiomatic-typecheck</span>
         <span class="k">if</span> <span class="nb">type</span><span class="p">(</span><span class="n">item</span><span class="p">)</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">_ext_neg</span><span class="p">:</span>
             <span class="c1"># Do nothing if item not in _ext_neg</span>
             <span class="k">if</span> <span class="n">item</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">_ext_neg</span><span class="p">[</span><span class="nb">type</span><span class="p">(</span><span class="n">item</span><span class="p">)]:</span>

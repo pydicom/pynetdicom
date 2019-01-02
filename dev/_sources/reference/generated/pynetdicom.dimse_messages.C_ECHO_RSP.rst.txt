@@ -27,6 +27,7 @@ pynetdicom.dimse\_messages.C\_ECHO\_RSP
 
    .. autosummary::
    
+      ~C_ECHO_RSP.ID
       ~C_ECHO_RSP.command_set
    
    

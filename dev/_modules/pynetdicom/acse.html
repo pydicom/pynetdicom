@@ -174,12 +174,9 @@
 <span class="sd">&quot;&quot;&quot;</span>
 <span class="kn">import</span> <span class="nn">logging</span>
 
-<span class="kn">from</span> <span class="nn">pydicom.uid</span> <span class="k">import</span> <span class="n">UID</span>
-
 <span class="kn">from</span> <span class="nn">pynetdicom.pdu_primitives</span> <span class="k">import</span> <span class="p">(</span>
     <span class="n">A_ASSOCIATE</span><span class="p">,</span> <span class="n">A_RELEASE</span><span class="p">,</span> <span class="n">A_ABORT</span><span class="p">,</span> <span class="n">A_P_ABORT</span><span class="p">,</span>
     <span class="n">AsynchronousOperationsWindowNegotiation</span><span class="p">,</span>
-    <span class="n">MaximumLengthNotification</span><span class="p">,</span>
     <span class="n">SOPClassCommonExtendedNegotiation</span><span class="p">,</span>
     <span class="n">SOPClassExtendedNegotiation</span><span class="p">,</span>
     <span class="n">UserIdentityNegotiation</span><span class="p">,</span>
@@ -188,12 +185,10 @@
     <span class="n">negotiate_as_requestor</span><span class="p">,</span> <span class="n">negotiate_as_acceptor</span>
 <span class="p">)</span>
 <span class="kn">from</span> <span class="nn">pynetdicom.utils</span> <span class="k">import</span> <span class="n">pretty_bytes</span>
+<span class="kn">from</span> <span class="nn">pynetdicom._globals</span> <span class="k">import</span> <span class="n">APPLICATION_CONTEXT_NAME</span>
 
 
 <span class="n">LOGGER</span> <span class="o">=</span> <span class="n">logging</span><span class="o">.</span><span class="n">getLogger</span><span class="p">(</span><span class="s1">&#39;pynetdicom.acse&#39;</span><span class="p">)</span>
-
-<span class="c1"># DICOM Application Context Name - see Part 7, Annex A.2.1</span>
-<span class="n">APPLICATION_CONTEXT_NAME</span> <span class="o">=</span> <span class="n">UID</span><span class="p">(</span><span class="s1">&#39;1.2.840.10008.3.1.1.1&#39;</span><span class="p">)</span>
 
 
 <div class="viewcode-block" id="ACSE"><a class="viewcode-back" href="../../reference/generated/pynetdicom.acse.ACSE.html#pynetdicom.acse.ACSE">[docs]</a><span class="k">class</span> <span class="nc">ACSE</span><span class="p">(</span><span class="nb">object</span><span class="p">):</span>
@@ -289,7 +284,7 @@
             <span class="k">return</span> <span class="p">{}</span>
 
         <span class="n">rsp</span> <span class="o">=</span> <span class="p">{</span>
-            <span class="n">uid</span><span class="p">:</span><span class="n">ii</span> <span class="k">for</span> <span class="n">uid</span><span class="p">,</span><span class="n">ii</span> <span class="ow">in</span> <span class="n">rsp</span><span class="o">.</span><span class="n">items</span><span class="p">()</span>
+            <span class="n">uid</span><span class="p">:</span><span class="n">ii</span> <span class="k">for</span> <span class="n">uid</span><span class="p">,</span> <span class="n">ii</span> <span class="ow">in</span> <span class="n">rsp</span><span class="o">.</span><span class="n">items</span><span class="p">()</span>
             <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">ii</span><span class="p">,</span> <span class="n">SOPClassCommonExtendedNegotiation</span><span class="p">)</span>
         <span class="p">}</span>
 
@@ -496,9 +491,11 @@
 
         <span class="c1"># SOP Class Common Extended Negotiation items</span>
         <span class="c1">#   Note: No response items are allowed</span>
+        <span class="c1"># pylint: disable=protected-access</span>
         <span class="n">assoc</span><span class="o">.</span><span class="n">acceptor</span><span class="o">.</span><span class="n">_common_ext</span> <span class="o">=</span> <span class="p">(</span>
             <span class="bp">self</span><span class="o">.</span><span class="n">_check_sop_class_common_extended</span><span class="p">(</span><span class="n">assoc</span><span class="p">)</span>
         <span class="p">)</span>
+        <span class="c1"># pylint: enable=protected-access</span>
 
         <span class="c1"># Asynchronous Operations Window Negotiation items</span>
         <span class="k">if</span> <span class="n">assoc</span><span class="o">.</span><span class="n">requestor</span><span class="o">.</span><span class="n">asynchronous_operations</span> <span class="o">!=</span> <span class="p">(</span><span class="mi">1</span><span class="p">,</span> <span class="mi">1</span><span class="p">):</span>
@@ -953,6 +950,8 @@
 
 
     <span class="c1"># ACSE logging/debugging functions</span>
+    <span class="c1"># pylint: disable=too-many-branches,unused-argument</span>
+    <span class="c1"># pylint: disable=too-many-locals,too-many-statements</span>
 <div class="viewcode-block" id="ACSE.debug_send_abort"><a class="viewcode-back" href="../../reference/generated/pynetdicom.acse.ACSE.html#pynetdicom.acse.ACSE.debug_send_abort">[docs]</a>    <span class="nd">@staticmethod</span>
     <span class="k">def</span> <span class="nf">debug_send_abort</span><span class="p">(</span><span class="n">a_abort_rq</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;</span>
@@ -1000,9 +999,8 @@
 
         <span class="k">if</span> <span class="n">user_info</span><span class="o">.</span><span class="n">implementation_version_name</span><span class="p">:</span>
             <span class="n">s</span><span class="o">.</span><span class="n">append</span><span class="p">(</span>
-                    <span class="s2">&quot;Our Implementation Version Name:   </span><span class="si">{0!s}</span><span class="s2">&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span>
-                    <span class="n">user_info</span><span class="o">.</span><span class="n">implementation_version_name</span><span class="o">.</span><span class="n">decode</span><span class="p">(</span><span class="s1">&#39;ascii&#39;</span><span class="p">)</span>
-                <span class="p">)</span>
+                <span class="s2">&quot;Our Implementation Version Name:   </span><span class="si">{0!s}</span><span class="s2">&quot;</span>
+                <span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">user_info</span><span class="o">.</span><span class="n">implementation_version_name</span><span class="o">.</span><span class="n">decode</span><span class="p">(</span><span class="s1">&#39;ascii&#39;</span><span class="p">))</span>
             <span class="p">)</span>
         <span class="n">s</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="s1">&#39;Application Context Name:    </span><span class="si">{0!s}</span><span class="s1">&#39;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">app_context</span><span class="p">))</span>
         <span class="n">s</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="s1">&#39;Responding Application Name: </span><span class="si">{0!s}</span><span class="s1">&#39;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">responding_ae</span><span class="p">))</span>

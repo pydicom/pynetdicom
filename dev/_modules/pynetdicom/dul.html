@@ -186,8 +186,10 @@
 <span class="kn">import</span> <span class="nn">time</span>
 
 <span class="kn">from</span> <span class="nn">pynetdicom.fsm</span> <span class="k">import</span> <span class="n">StateMachine</span>
-<span class="kn">from</span> <span class="nn">pynetdicom.pdu</span> <span class="k">import</span> <span class="p">(</span><span class="n">A_ASSOCIATE_RQ</span><span class="p">,</span> <span class="n">A_ASSOCIATE_AC</span><span class="p">,</span> <span class="n">A_ASSOCIATE_RJ</span><span class="p">,</span>
-                             <span class="n">P_DATA_TF</span><span class="p">,</span> <span class="n">A_RELEASE_RQ</span><span class="p">,</span> <span class="n">A_RELEASE_RP</span><span class="p">,</span> <span class="n">A_ABORT_RQ</span><span class="p">)</span>
+<span class="kn">from</span> <span class="nn">pynetdicom.pdu</span> <span class="k">import</span> <span class="p">(</span>
+    <span class="n">A_ASSOCIATE_RQ</span><span class="p">,</span> <span class="n">A_ASSOCIATE_AC</span><span class="p">,</span> <span class="n">A_ASSOCIATE_RJ</span><span class="p">,</span>
+    <span class="n">P_DATA_TF</span><span class="p">,</span> <span class="n">A_RELEASE_RQ</span><span class="p">,</span> <span class="n">A_RELEASE_RP</span><span class="p">,</span> <span class="n">A_ABORT_RQ</span>
+<span class="p">)</span>
 <span class="kn">from</span> <span class="nn">pynetdicom.pdu_primitives</span> <span class="k">import</span> <span class="n">A_ASSOCIATE</span><span class="p">,</span> <span class="n">A_RELEASE</span><span class="p">,</span> <span class="n">A_ABORT</span><span class="p">,</span> <span class="n">P_DATA</span>
 <span class="kn">from</span> <span class="nn">pynetdicom.timer</span> <span class="k">import</span> <span class="n">Timer</span>
 
@@ -297,6 +299,7 @@
             <span class="c1"># The port number for the local AE to listen on</span>
             <span class="bp">self</span><span class="o">.</span><span class="n">local_port</span> <span class="o">=</span> <span class="n">port</span>
             <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">local_port</span><span class="p">:</span>
+                <span class="c1"># pylint: disable=broad-except</span>
                 <span class="k">try</span><span class="p">:</span>
                     <span class="n">local_address</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">popen</span><span class="p">(</span><span class="s1">&#39;hostname&#39;</span><span class="p">)</span><span class="o">.</span><span class="n">read</span><span class="p">()[:</span><span class="o">-</span><span class="mi">1</span><span class="p">]</span>
                     <span class="bp">self</span><span class="o">.</span><span class="n">scp_socket</span><span class="o">.</span><span class="n">bind</span><span class="p">((</span><span class="n">local_address</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">local_port</span><span class="p">))</span>
@@ -759,7 +762,7 @@
         <span class="n">pdutype</span> <span class="o">=</span> <span class="n">unpack</span><span class="p">(</span><span class="s1">&#39;B&#39;</span><span class="p">,</span> <span class="n">data</span><span class="p">[:</span><span class="mi">1</span><span class="p">])[</span><span class="mi">0</span><span class="p">]</span>
 
         <span class="n">acse</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">assoc</span><span class="o">.</span><span class="n">acse</span>
-        <span class="n">PDU_TYPES</span> <span class="o">=</span> <span class="p">{</span>
+        <span class="n">_pdu_types</span> <span class="o">=</span> <span class="p">{</span>
             <span class="mh">0x01</span> <span class="p">:</span> <span class="p">(</span><span class="n">A_ASSOCIATE_RQ</span><span class="p">,</span> <span class="n">acse</span><span class="o">.</span><span class="n">debug_receive_associate_rq</span><span class="p">),</span>
             <span class="mh">0x02</span> <span class="p">:</span> <span class="p">(</span><span class="n">A_ASSOCIATE_AC</span><span class="p">,</span> <span class="n">acse</span><span class="o">.</span><span class="n">debug_receive_associate_ac</span><span class="p">),</span>
             <span class="mh">0x03</span> <span class="p">:</span> <span class="p">(</span><span class="n">A_ASSOCIATE_RJ</span><span class="p">,</span> <span class="n">acse</span><span class="o">.</span><span class="n">debug_receive_associate_rj</span><span class="p">),</span>
@@ -769,8 +772,8 @@
             <span class="mh">0x07</span> <span class="p">:</span> <span class="p">(</span><span class="n">A_ABORT_RQ</span><span class="p">,</span> <span class="n">acse</span><span class="o">.</span><span class="n">debug_receive_abort</span><span class="p">)</span>
         <span class="p">}</span>
 
-        <span class="k">if</span> <span class="n">pdutype</span> <span class="ow">in</span> <span class="n">PDU_TYPES</span><span class="p">:</span>
-            <span class="p">(</span><span class="n">pdu</span><span class="p">,</span> <span class="n">acse_callback</span><span class="p">)</span> <span class="o">=</span> <span class="n">PDU_TYPES</span><span class="p">[</span><span class="n">pdutype</span><span class="p">]</span>
+        <span class="k">if</span> <span class="n">pdutype</span> <span class="ow">in</span> <span class="n">_pdu_types</span><span class="p">:</span>
+            <span class="p">(</span><span class="n">pdu</span><span class="p">,</span> <span class="n">acse_callback</span><span class="p">)</span> <span class="o">=</span> <span class="n">_pdu_types</span><span class="p">[</span><span class="n">pdutype</span><span class="p">]</span>
             <span class="n">pdu</span> <span class="o">=</span> <span class="n">pdu</span><span class="p">()</span>
             <span class="n">pdu</span><span class="o">.</span><span class="n">decode</span><span class="p">(</span><span class="n">data</span><span class="p">)</span>
 

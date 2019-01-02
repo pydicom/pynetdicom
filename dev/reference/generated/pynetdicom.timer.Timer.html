@@ -174,7 +174,7 @@
 <h1>pynetdicom.timer.Timer<a class="headerlink" href="#pynetdicom-timer-timer" title="Permalink to this headline">¶</a></h1>
 <dl class="class">
 <dt id="pynetdicom.timer.Timer">
-<em class="property">class </em><code class="descclassname">pynetdicom.timer.</code><code class="descname">Timer</code><span class="sig-paren">(</span><em>max_number_seconds</em><span class="sig-paren">)</span><a class="reference internal" href="../../_modules/pynetdicom/timer.html#Timer"><span class="viewcode-link">[source]</span></a><a class="reference external" href="https://github.com/pydicom/pynetdicom/blob/fb3bb86/pynetdicom/timer.py#L10"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pynetdicom.timer.Timer" title="Permalink to this definition">¶</a></dt>
+<em class="property">class </em><code class="descclassname">pynetdicom.timer.</code><code class="descname">Timer</code><span class="sig-paren">(</span><em>max_number_seconds</em><span class="sig-paren">)</span><a class="reference internal" href="../../_modules/pynetdicom/timer.html#Timer"><span class="viewcode-link">[source]</span></a><a class="reference external" href="https://github.com/pydicom/pynetdicom/blob/57b199d/pynetdicom/timer.py#L10"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pynetdicom.timer.Timer" title="Permalink to this definition">¶</a></dt>
 <dd><p>A generic timer.</p>
 <p>Implementation of the DICOM Upper Layer’s ARTIM timer. The ARTIM timer is
 used by the state machine to monitor connection and response timeouts.
@@ -185,7 +185,7 @@ This class may also be used as a general purpose expiry timer.</p>
 </ul>
 <dl class="method">
 <dt id="pynetdicom.timer.Timer.__init__">
-<code class="descname">__init__</code><span class="sig-paren">(</span><em>max_number_seconds</em><span class="sig-paren">)</span><a class="reference internal" href="../../_modules/pynetdicom/timer.html#Timer.__init__"><span class="viewcode-link">[source]</span></a><a class="reference external" href="https://github.com/pydicom/pynetdicom/blob/fb3bb86/pynetdicom/timer.py#L22"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pynetdicom.timer.Timer.__init__" title="Permalink to this definition">¶</a></dt>
+<code class="descname">__init__</code><span class="sig-paren">(</span><em>max_number_seconds</em><span class="sig-paren">)</span><a class="reference internal" href="../../_modules/pynetdicom/timer.html#Timer.__init__"><span class="viewcode-link">[source]</span></a><a class="reference external" href="https://github.com/pydicom/pynetdicom/blob/57b199d/pynetdicom/timer.py#L22"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pynetdicom.timer.Timer.__init__" title="Permalink to this definition">¶</a></dt>
 <dd><p>Create a new Timer.</p>
 <table class="docutils field-list" frame="void" rules="none">
 <col class="field-name" />
@@ -255,7 +255,7 @@ means no timeout.</td>
 
 <dl class="method">
 <dt id="pynetdicom.timer.Timer.restart">
-<code class="descname">restart</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="../../_modules/pynetdicom/timer.html#Timer.restart"><span class="viewcode-link">[source]</span></a><a class="reference external" href="https://github.com/pydicom/pynetdicom/blob/fb3bb86/pynetdicom/timer.py#L42"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pynetdicom.timer.Timer.restart" title="Permalink to this definition">¶</a></dt>
+<code class="descname">restart</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="../../_modules/pynetdicom/timer.html#Timer.restart"><span class="viewcode-link">[source]</span></a><a class="reference external" href="https://github.com/pydicom/pynetdicom/blob/57b199d/pynetdicom/timer.py#L42"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pynetdicom.timer.Timer.restart" title="Permalink to this definition">¶</a></dt>
 <dd><p>Restart the timer.</p>
 <p>If the timer has already started then stop it, reset it and start it.
 If the timer isn’t running then reset it and start it.</p>
@@ -263,13 +263,13 @@ If the timer isn’t running then reset it and start it.</p>
 
 <dl class="method">
 <dt id="pynetdicom.timer.Timer.start">
-<code class="descname">start</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="../../_modules/pynetdicom/timer.html#Timer.start"><span class="viewcode-link">[source]</span></a><a class="reference external" href="https://github.com/pydicom/pynetdicom/blob/fb3bb86/pynetdicom/timer.py#L34"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pynetdicom.timer.Timer.start" title="Permalink to this definition">¶</a></dt>
+<code class="descname">start</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="../../_modules/pynetdicom/timer.html#Timer.start"><span class="viewcode-link">[source]</span></a><a class="reference external" href="https://github.com/pydicom/pynetdicom/blob/57b199d/pynetdicom/timer.py#L34"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pynetdicom.timer.Timer.start" title="Permalink to this definition">¶</a></dt>
 <dd><p>Resets and starts the timer running.</p>
 </dd></dl>
 
 <dl class="method">
 <dt id="pynetdicom.timer.Timer.stop">
-<code class="descname">stop</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="../../_modules/pynetdicom/timer.html#Timer.stop"><span class="viewcode-link">[source]</span></a><a class="reference external" href="https://github.com/pydicom/pynetdicom/blob/fb3bb86/pynetdicom/timer.py#L38"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pynetdicom.timer.Timer.stop" title="Permalink to this definition">¶</a></dt>
+<code class="descname">stop</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="../../_modules/pynetdicom/timer.html#Timer.stop"><span class="viewcode-link">[source]</span></a><a class="reference external" href="https://github.com/pydicom/pynetdicom/blob/57b199d/pynetdicom/timer.py#L38"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pynetdicom.timer.Timer.stop" title="Permalink to this definition">¶</a></dt>
 <dd><p>Stops the timer and resets it.</p>
 </dd></dl>
 

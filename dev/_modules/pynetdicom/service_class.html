@@ -176,7 +176,6 @@
 <span class="kn">import</span> <span class="nn">sys</span>
 
 <span class="kn">from</span> <span class="nn">pydicom.dataset</span> <span class="k">import</span> <span class="n">Dataset</span>
-<span class="kn">from</span> <span class="nn">pydicom.uid</span> <span class="k">import</span> <span class="n">UID</span>
 
 <span class="kn">from</span> <span class="nn">pynetdicom.dsutils</span> <span class="k">import</span> <span class="n">decode</span><span class="p">,</span> <span class="n">encode</span>
 <span class="kn">from</span> <span class="nn">pynetdicom.dimse_primitives</span> <span class="k">import</span> <span class="n">C_STORE</span><span class="p">,</span> <span class="n">C_ECHO</span><span class="p">,</span> <span class="n">C_MOVE</span><span class="p">,</span> <span class="n">C_GET</span><span class="p">,</span> <span class="n">C_FIND</span>
@@ -190,6 +189,8 @@
     <span class="n">RELEVANT_PATIENT_SERVICE_CLASS_STATUS</span><span class="p">,</span>
     <span class="n">SUBSTANCE_ADMINISTRATION_SERVICE_CLASS_STATUS</span><span class="p">,</span>
     <span class="n">NON_PATIENT_SERVICE_CLASS_STATUS</span><span class="p">,</span>
+<span class="p">)</span>
+<span class="kn">from</span> <span class="nn">pynetdicom._globals</span> <span class="k">import</span> <span class="p">(</span>
     <span class="n">STATUS_FAILURE</span><span class="p">,</span>
     <span class="n">STATUS_SUCCESS</span><span class="p">,</span>
     <span class="n">STATUS_WARNING</span><span class="p">,</span>
@@ -206,10 +207,8 @@
 
 <span class="sd">    Attributes</span>
 <span class="sd">    ----------</span>
-<span class="sd">    AE : ae.ApplicationEntity</span>
-<span class="sd">        The local AE (needed for the callbacks).</span>
-<span class="sd">    DIMSE : dimse.DIMSEServiceProvider</span>
-<span class="sd">        The DIMSE service provider (needed to send/receive messages)</span>
+<span class="sd">    assoc : association.Association</span>
+<span class="sd">        The association instance offering the service.</span>
 <span class="sd">    &quot;&quot;&quot;</span>
     <span class="k">def</span> <span class="nf">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">assoc</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;Create a new ServiceClass.&quot;&quot;&quot;</span>
@@ -359,9 +358,9 @@
 
 <span class="sd">        *Status*</span>
 
-<span class="sd">        The DICOM Standard, Part 7 (Table 9.3-13) indicates that the Status value</span>
-<span class="sd">        of a C-ECHO response &quot;shall have a value of Success&quot;. However Section</span>
-<span class="sd">        9.1.5.1.4 indicates it may have any of the following values:</span>
+<span class="sd">        The DICOM Standard, Part 7 (Table 9.3-13) indicates that the Status</span>
+<span class="sd">        value of a C-ECHO response &quot;shall have a value of Success&quot;. However</span>
+<span class="sd">        Section 9.1.5.1.4 indicates it may have any of the following values:</span>
 
 <span class="sd">        Success</span>
 <span class="sd">          | ``0x0000`` Success</span>
@@ -378,8 +377,8 @@
 <span class="sd">        * DICOM Standard, Part 4, `Annex A &lt;http://dicom.nema.org/medical/dicom/current/output/html/part04.html#chapter_A&gt;`_</span>
 <span class="sd">        * DICOM Standard, Part 7, Sections</span>
 <span class="sd">          `9.1.5 &lt;http://dicom.nema.org/medical/dicom/current/output/html/part07.html#sect_9.1.5&gt;`_,</span>
-<span class="sd">          `9.3.5 &lt;http://dicom.nema.org/medical/dicom/current/output/html/part07.html#sect_9.3.5&gt;`_ and</span>
-<span class="sd">          `Annex C &lt;http://dicom.nema.org/medical/dicom/current/output/html/part07.html#chapter_C&gt;`_</span>
+<span class="sd">          `9.3.5 &lt;http://dicom.nema.org/medical/dicom/current/output/html/part07.html#sect_9.3.5&gt;`_</span>
+<span class="sd">          and `Annex C &lt;http://dicom.nema.org/medical/dicom/current/output/html/part07.html#chapter_C&gt;`_</span>
 <span class="sd">        &quot;&quot;&quot;</span>
         <span class="c1"># Build C-ECHO response primitive</span>
         <span class="n">rsp</span> <span class="o">=</span> <span class="n">C_ECHO</span><span class="p">()</span>
@@ -388,7 +387,7 @@
         <span class="n">rsp</span><span class="o">.</span><span class="n">AffectedSOPClassUID</span> <span class="o">=</span> <span class="n">req</span><span class="o">.</span><span class="n">AffectedSOPClassUID</span>
 
         <span class="n">info</span><span class="p">[</span><span class="s1">&#39;parameters&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="p">{</span>
-             <span class="s1">&#39;message_id&#39;</span> <span class="p">:</span> <span class="n">req</span><span class="o">.</span><span class="n">MessageID</span>
+            <span class="s1">&#39;message_id&#39;</span> <span class="p">:</span> <span class="n">req</span><span class="o">.</span><span class="n">MessageID</span>
         <span class="p">}</span>
 
         <span class="c1"># Try and run the user&#39;s on_c_echo callback. The callback should return</span>
@@ -415,8 +414,10 @@
 
             <span class="c1"># Check Status validity</span>
             <span class="k">if</span> <span class="ow">not</span> <span class="bp">self</span><span class="o">.</span><span class="n">is_valid_status</span><span class="p">(</span><span class="n">rsp</span><span class="o">.</span><span class="n">Status</span><span class="p">):</span>
-                <span class="n">LOGGER</span><span class="o">.</span><span class="n">warning</span><span class="p">(</span><span class="s2">&quot;Unknown &#39;status&#39; value returned by &#39;on_c_echo&#39; &quot;</span>
-                               <span class="s2">&quot;callback - 0x</span><span class="si">{0:04x}</span><span class="s2">&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">rsp</span><span class="o">.</span><span class="n">Status</span><span class="p">))</span>
+                <span class="n">LOGGER</span><span class="o">.</span><span class="n">warning</span><span class="p">(</span>
+                    <span class="s2">&quot;Unknown &#39;status&#39; value returned by &#39;on_c_echo&#39; &quot;</span>
+                    <span class="s2">&quot;callback - 0x</span><span class="si">{0:04x}</span><span class="s2">&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">rsp</span><span class="o">.</span><span class="n">Status</span><span class="p">)</span>
+                <span class="p">)</span>
         <span class="k">except</span> <span class="ne">Exception</span> <span class="k">as</span> <span class="n">ex</span><span class="p">:</span>
             <span class="n">LOGGER</span><span class="o">.</span><span class="n">exception</span><span class="p">(</span><span class="n">ex</span><span class="p">)</span>
             <span class="n">LOGGER</span><span class="o">.</span><span class="n">error</span><span class="p">(</span><span class="s2">&quot;Exception in the &#39;on_c_echo&#39; callback, responding &quot;</span>
@@ -502,8 +503,8 @@
 <span class="sd">        * DICOM Standard, Part 4, `Annex GG &lt;http://dicom.nema.org/medical/dicom/current/output/html/part04.html#chapter_GG&gt;`_.</span>
 <span class="sd">        * DICOM Standard, Part 7, Sections</span>
 <span class="sd">          `9.1.1 &lt;http://dicom.nema.org/medical/dicom/current/output/html/part07.html#sect_9.1.1&gt;`_,</span>
-<span class="sd">          `9.3.1 &lt;http://dicom.nema.org/medical/dicom/current/output/html/part07.html#sect_9.3.1&gt;`_ and</span>
-<span class="sd">          `Annex C &lt;http://dicom.nema.org/medical/dicom/current/output/html/part07.html#chapter_C&gt;`_.</span>
+<span class="sd">          `9.3.1 &lt;http://dicom.nema.org/medical/dicom/current/output/html/part07.html#sect_9.3.1&gt;`_</span>
+<span class="sd">          and `Annex C &lt;http://dicom.nema.org/medical/dicom/current/output/html/part07.html#chapter_C&gt;`_.</span>
 <span class="sd">        &quot;&quot;&quot;</span>
         <span class="c1"># Build C-STORE response primitive</span>
         <span class="n">rsp</span> <span class="o">=</span> <span class="n">C_STORE</span><span class="p">()</span>
@@ -531,10 +532,10 @@
             <span class="k">return</span>
 
         <span class="n">info</span><span class="p">[</span><span class="s1">&#39;parameters&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="p">{</span>
-             <span class="s1">&#39;message_id&#39;</span> <span class="p">:</span> <span class="n">req</span><span class="o">.</span><span class="n">MessageID</span><span class="p">,</span>
-             <span class="s1">&#39;priority&#39;</span> <span class="p">:</span> <span class="n">req</span><span class="o">.</span><span class="n">Priority</span><span class="p">,</span>
-             <span class="s1">&#39;originator_aet&#39;</span> <span class="p">:</span> <span class="n">req</span><span class="o">.</span><span class="n">MoveOriginatorApplicationEntityTitle</span><span class="p">,</span>
-             <span class="s1">&#39;originator_message_id&#39;</span> <span class="p">:</span> <span class="n">req</span><span class="o">.</span><span class="n">MoveOriginatorMessageID</span>
+            <span class="s1">&#39;message_id&#39;</span> <span class="p">:</span> <span class="n">req</span><span class="o">.</span><span class="n">MessageID</span><span class="p">,</span>
+            <span class="s1">&#39;priority&#39;</span> <span class="p">:</span> <span class="n">req</span><span class="o">.</span><span class="n">Priority</span><span class="p">,</span>
+            <span class="s1">&#39;originator_aet&#39;</span> <span class="p">:</span> <span class="n">req</span><span class="o">.</span><span class="n">MoveOriginatorApplicationEntityTitle</span><span class="p">,</span>
+            <span class="s1">&#39;originator_message_id&#39;</span> <span class="p">:</span> <span class="n">req</span><span class="o">.</span><span class="n">MoveOriginatorMessageID</span>
         <span class="p">}</span>
 
         <span class="c1"># Attempt to run the ApplicationEntity&#39;s on_c_store callback</span>
@@ -652,8 +653,8 @@
 <span class="sd">          SOP Instances managed by the SCP.</span>
 <span class="sd">        * (0008,0052) Query/Retrieve Level.</span>
 <span class="sd">        * (0008,0053) Query/Retrieve View, if Enhanced Multi-Frame Image</span>
-<span class="sd">          Conversion has been accepted during Extended Negotiation. It shall not</span>
-<span class="sd">          be present otherwise.</span>
+<span class="sd">          Conversion has been accepted during Extended Negotiation. It shall</span>
+<span class="sd">          not be present otherwise.</span>
 <span class="sd">        * (0008,0005) Specific Character Set, if expanded or replacement</span>
 <span class="sd">          character sets may be used in any of the Attributes in the request</span>
 <span class="sd">          Identifier. It shall not be present otherwise.</span>
@@ -718,8 +719,8 @@
 <span class="sd">        .. [1] DICOM Standard, Part 4, `Annex C &lt;http://dicom.nema.org/medical/dicom/current/output/html/part04.html#chapter_C&gt;`_.</span>
 <span class="sd">        .. [2] DICOM Standard, Part 7, Sections</span>
 <span class="sd">           `9.1.2 &lt;http://dicom.nema.org/medical/dicom/current/output/html/part07.html#sect_9.1.2&gt;`_,</span>
-<span class="sd">           `9.3.2 &lt;http://dicom.nema.org/medical/dicom/current/output/html/part07.html#sect_9.3.2&gt;`_ and</span>
-<span class="sd">           `Annex C &lt;http://dicom.nema.org/medical/dicom/current/output/html/part07.html#chapter_C&gt;`_.</span>
+<span class="sd">           `9.3.2 &lt;http://dicom.nema.org/medical/dicom/current/output/html/part07.html#sect_9.3.2&gt;`_</span>
+<span class="sd">           and `Annex C &lt;http://dicom.nema.org/medical/dicom/current/output/html/part07.html#chapter_C&gt;`_.</span>
 <span class="sd">        &quot;&quot;&quot;</span>
         <span class="c1"># Build C-FIND response primitive</span>
         <span class="n">rsp</span> <span class="o">=</span> <span class="n">C_FIND</span><span class="p">()</span>
@@ -749,13 +750,14 @@
             <span class="k">return</span>
 
         <span class="n">info</span><span class="p">[</span><span class="s1">&#39;parameters&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="p">{</span>
-             <span class="s1">&#39;message_id&#39;</span> <span class="p">:</span> <span class="n">req</span><span class="o">.</span><span class="n">MessageID</span><span class="p">,</span>
-             <span class="s1">&#39;priority&#39;</span> <span class="p">:</span> <span class="n">req</span><span class="o">.</span><span class="n">Priority</span>
+            <span class="s1">&#39;message_id&#39;</span> <span class="p">:</span> <span class="n">req</span><span class="o">.</span><span class="n">MessageID</span><span class="p">,</span>
+            <span class="s1">&#39;priority&#39;</span> <span class="p">:</span> <span class="n">req</span><span class="o">.</span><span class="n">Priority</span>
         <span class="p">}</span>
 
         <span class="n">stopper</span> <span class="o">=</span> <span class="nb">object</span><span class="p">()</span>
         <span class="c1"># This will wrap exceptions during iteration and return a good value.</span>
         <span class="k">def</span> <span class="nf">wrap_on_c_find</span><span class="p">():</span>
+            <span class="sd">&quot;&quot;&quot;Wrapper for exceptions&quot;&quot;&quot;</span>
             <span class="k">try</span><span class="p">:</span>
                 <span class="c1"># We unpack here so that the error is still caught</span>
                 <span class="k">for</span> <span class="n">val1</span><span class="p">,</span> <span class="n">val2</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">ae</span><span class="o">.</span><span class="n">on_c_find</span><span class="p">(</span><span class="n">identifier</span><span class="p">,</span>
@@ -772,7 +774,10 @@
             <span class="c1"># We only want to catch exceptions in the user code, not in ours.</span>
             <span class="k">if</span> <span class="n">rsp_status</span> <span class="ow">is</span> <span class="n">stopper</span><span class="p">:</span>
                 <span class="n">exc_info</span> <span class="o">=</span> <span class="n">rsp_identifier</span>
-                <span class="n">LOGGER</span><span class="o">.</span><span class="n">exception</span><span class="p">(</span><span class="s2">&quot;Exception in user&#39;s on_c_find implementation.&quot;</span><span class="p">,</span> <span class="n">exc_info</span><span class="o">=</span><span class="n">exc_info</span><span class="p">)</span>
+                <span class="n">LOGGER</span><span class="o">.</span><span class="n">exception</span><span class="p">(</span>
+                    <span class="s2">&quot;Exception in user&#39;s on_c_find implementation.&quot;</span><span class="p">,</span>
+                    <span class="n">exc_info</span><span class="o">=</span><span class="n">exc_info</span>
+                <span class="p">)</span>
                 <span class="c1"># Failure - Unable to Process - Error in on_c_find callback</span>
                 <span class="n">rsp</span><span class="o">.</span><span class="n">Status</span> <span class="o">=</span> <span class="mh">0xC311</span>
                 <span class="bp">self</span><span class="o">.</span><span class="n">dimse</span><span class="o">.</span><span class="n">send_msg</span><span class="p">(</span><span class="n">rsp</span><span class="p">,</span> <span class="n">context</span><span class="o">.</span><span class="n">context_id</span><span class="p">)</span>
@@ -932,7 +937,8 @@
 <span class="sd">          | ``0xC000`` to ``0xCFFF`` Unable to process</span>
 
 <span class="sd">        Warning</span>
-<span class="sd">          | ``0xB000`` Sub-operations complete: one or more failures or warnings</span>
+<span class="sd">          | ``0xB000`` Sub-operations complete: one or more failures or</span>
+<span class="sd">            warnings</span>
 
 <span class="sd">        *Number of X Sub-operations*</span>
 
@@ -962,8 +968,8 @@
 <span class="sd">        .. [1] DICOM Standard, Part 4, `Annex C &lt;http://dicom.nema.org/medical/dicom/current/output/html/part04.html#chapter_C&gt;`_.</span>
 <span class="sd">        .. [2] DICOM Standard, Part 7, Sections</span>
 <span class="sd">           `9.1.3 &lt;http://dicom.nema.org/medical/dicom/current/output/html/part07.html#sect_9.1.3&gt;`_,</span>
-<span class="sd">           `9.3.3 &lt;http://dicom.nema.org/medical/dicom/current/output/html/part07.html#sect_9.3.3&gt;`_ and</span>
-<span class="sd">           `Annex C &lt;http://dicom.nema.org/medical/dicom/current/output/html/part07.html#chapter_C&gt;`_.</span>
+<span class="sd">           `9.3.3 &lt;http://dicom.nema.org/medical/dicom/current/output/html/part07.html#sect_9.3.3&gt;`_</span>
+<span class="sd">           and `Annex C &lt;http://dicom.nema.org/medical/dicom/current/output/html/part07.html#chapter_C&gt;`_.</span>
 <span class="sd">        &quot;&quot;&quot;</span>
         <span class="c1"># Build C-GET response primitive</span>
         <span class="n">rsp</span> <span class="o">=</span> <span class="n">C_GET</span><span class="p">()</span>
@@ -993,8 +999,8 @@
             <span class="k">return</span>
 
         <span class="n">info</span><span class="p">[</span><span class="s1">&#39;parameters&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="p">{</span>
-             <span class="s1">&#39;message_id&#39;</span> <span class="p">:</span> <span class="n">req</span><span class="o">.</span><span class="n">MessageID</span><span class="p">,</span>
-             <span class="s1">&#39;priority&#39;</span> <span class="p">:</span> <span class="n">req</span><span class="o">.</span><span class="n">Priority</span>
+            <span class="s1">&#39;message_id&#39;</span> <span class="p">:</span> <span class="n">req</span><span class="o">.</span><span class="n">MessageID</span><span class="p">,</span>
+            <span class="s1">&#39;priority&#39;</span> <span class="p">:</span> <span class="n">req</span><span class="o">.</span><span class="n">Priority</span>
         <span class="p">}</span>
 
         <span class="c1"># Callback - C-GET</span>
@@ -1019,7 +1025,8 @@
             <span class="bp">self</span><span class="o">.</span><span class="n">dimse</span><span class="o">.</span><span class="n">send_msg</span><span class="p">(</span><span class="n">rsp</span><span class="p">,</span> <span class="n">context</span><span class="o">.</span><span class="n">context_id</span><span class="p">)</span>
             <span class="k">return</span>
 
-        <span class="c1"># Track the sub operation results [remaining, failed, warning, complete]</span>
+        <span class="c1"># Track the sub operation results</span>
+        <span class="c1">#   [remaining, failed, warning, complete]</span>
         <span class="n">store_results</span> <span class="o">=</span> <span class="p">[</span><span class="n">no_suboperations</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">]</span>
 
         <span class="c1"># Store the SOP Instance UIDs from any failed C-STORE sub-operations</span>
@@ -1058,7 +1065,7 @@
 
                 <span class="c1"># In case user didn&#39;t include it</span>
                 <span class="k">if</span> <span class="p">(</span><span class="ow">not</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">dataset</span><span class="p">,</span> <span class="n">Dataset</span><span class="p">)</span> <span class="ow">or</span>
-                    <span class="s1">&#39;FailedSOPInstanceUIDList&#39;</span> <span class="ow">not</span> <span class="ow">in</span> <span class="n">dataset</span><span class="p">):</span>
+                        <span class="s1">&#39;FailedSOPInstanceUIDList&#39;</span> <span class="ow">not</span> <span class="ow">in</span> <span class="n">dataset</span><span class="p">):</span>
                     <span class="n">dataset</span> <span class="o">=</span> <span class="n">Dataset</span><span class="p">()</span>
                     <span class="n">dataset</span><span class="o">.</span><span class="n">FailedSOPInstanceUIDList</span> <span class="o">=</span> <span class="n">failed_instances</span>
 
@@ -1081,7 +1088,7 @@
 
                 <span class="c1"># In case user didn&#39;t include it</span>
                 <span class="k">if</span> <span class="p">(</span><span class="ow">not</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">dataset</span><span class="p">,</span> <span class="n">Dataset</span><span class="p">)</span> <span class="ow">or</span>
-                    <span class="s1">&#39;FailedSOPInstanceUIDList&#39;</span> <span class="ow">not</span> <span class="ow">in</span> <span class="n">dataset</span><span class="p">):</span>
+                        <span class="s1">&#39;FailedSOPInstanceUIDList&#39;</span> <span class="ow">not</span> <span class="ow">in</span> <span class="n">dataset</span><span class="p">):</span>
                     <span class="n">dataset</span> <span class="o">=</span> <span class="n">Dataset</span><span class="p">()</span>
                     <span class="n">dataset</span><span class="o">.</span><span class="n">FailedSOPInstanceUIDList</span> <span class="o">=</span> <span class="n">failed_instances</span>
 
@@ -1343,8 +1350,8 @@
 <span class="sd">        .. [1] DICOM Standard, Part 4, `Annex C &lt;http://dicom.nema.org/medical/dicom/current/output/html/part04.html#chapter_C&gt;`_.</span>
 <span class="sd">        .. [2] DICOM Standard, Part 7, Sections</span>
 <span class="sd">           `9.1.4 &lt;http://dicom.nema.org/medical/dicom/current/output/html/part07.html#sect_9.1.4&gt;`_,</span>
-<span class="sd">           `9.3.4 &lt;http://dicom.nema.org/medical/dicom/current/output/html/part07.html#sect_9.3.4&gt;`_ and</span>
-<span class="sd">           `Annex C &lt;http://dicom.nema.org/medical/dicom/current/output/html/part07.html#chapter_C&gt;`_.</span>
+<span class="sd">           `9.3.4 &lt;http://dicom.nema.org/medical/dicom/current/output/html/part07.html#sect_9.3.4&gt;`_</span>
+<span class="sd">           and `Annex C &lt;http://dicom.nema.org/medical/dicom/current/output/html/part07.html#chapter_C&gt;`_.</span>
 <span class="sd">        &quot;&quot;&quot;</span>
         <span class="c1"># Build C-MOVE response primitive</span>
         <span class="n">rsp</span> <span class="o">=</span> <span class="n">C_MOVE</span><span class="p">()</span>
@@ -1374,8 +1381,8 @@
             <span class="k">return</span>
 
         <span class="n">info</span><span class="p">[</span><span class="s1">&#39;parameters&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="p">{</span>
-             <span class="s1">&#39;message_id&#39;</span> <span class="p">:</span> <span class="n">req</span><span class="o">.</span><span class="n">MessageID</span><span class="p">,</span>
-             <span class="s1">&#39;priority&#39;</span> <span class="p">:</span> <span class="n">req</span><span class="o">.</span><span class="n">Priority</span>
+            <span class="s1">&#39;message_id&#39;</span> <span class="p">:</span> <span class="n">req</span><span class="o">.</span><span class="n">MessageID</span><span class="p">,</span>
+            <span class="s1">&#39;priority&#39;</span> <span class="p">:</span> <span class="n">req</span><span class="o">.</span><span class="n">Priority</span>
         <span class="p">}</span>
 
         <span class="c1"># Callback - C-MOVE</span>
@@ -1432,15 +1439,18 @@
                                             <span class="n">destination</span><span class="p">[</span><span class="mi">1</span><span class="p">],</span>
                                             <span class="n">ae_title</span><span class="o">=</span><span class="n">req</span><span class="o">.</span><span class="n">MoveDestination</span><span class="p">)</span>
         <span class="k">except</span> <span class="ne">Exception</span> <span class="k">as</span> <span class="n">ex</span><span class="p">:</span>
-            <span class="n">LOGGER</span><span class="o">.</span><span class="n">error</span><span class="p">(</span><span class="s2">&quot;&#39;on_c_move&#39; yielded an invalid destination AE (addr, &quot;</span>
-                         <span class="s2">&quot;port) value&quot;</span><span class="p">)</span>
+            <span class="n">LOGGER</span><span class="o">.</span><span class="n">error</span><span class="p">(</span>
+                <span class="s2">&quot;&#39;on_c_move&#39; yielded an invalid destination AE (addr, &quot;</span>
+                <span class="s2">&quot;port) value&quot;</span>
+            <span class="p">)</span>
             <span class="n">LOGGER</span><span class="o">.</span><span class="n">exception</span><span class="p">(</span><span class="n">ex</span><span class="p">)</span>
             <span class="c1"># Failure - Unable to process - Bad on_c_move destination</span>
             <span class="n">rsp</span><span class="o">.</span><span class="n">Status</span> <span class="o">=</span> <span class="mh">0xC515</span>
             <span class="bp">self</span><span class="o">.</span><span class="n">dimse</span><span class="o">.</span><span class="n">send_msg</span><span class="p">(</span><span class="n">rsp</span><span class="p">,</span> <span class="n">context</span><span class="o">.</span><span class="n">context_id</span><span class="p">)</span>
             <span class="k">return</span>
 
-        <span class="c1"># Track the sub operation results [remaining, failed, warning, complete]</span>
+        <span class="c1"># Track the sub operation results</span>
+        <span class="c1">#   [remaining, failed, warning, complete]</span>
         <span class="n">store_results</span> <span class="o">=</span> <span class="p">[</span><span class="n">no_suboperations</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">]</span>
 
         <span class="c1"># Store the SOP Instance UIDs from any failed C-STORE sub-operations</span>
@@ -1476,12 +1486,14 @@
                 <span class="k">if</span> <span class="n">status</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span> <span class="o">==</span> <span class="n">STATUS_CANCEL</span><span class="p">:</span>
                     <span class="c1"># If cancel, then dataset is a Dataset with a</span>
                     <span class="c1">#   &#39;FailedSOPInstanceUIDList&#39; element</span>
-                    <span class="n">LOGGER</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="s1">&#39;Move SCP Received C-CANCEL-MOVE RQ from peer&#39;</span><span class="p">)</span>
+                    <span class="n">LOGGER</span><span class="o">.</span><span class="n">info</span><span class="p">(</span>
+                        <span class="s1">&#39;Move SCP Received C-CANCEL-MOVE RQ from peer&#39;</span>
+                    <span class="p">)</span>
                     <span class="n">store_assoc</span><span class="o">.</span><span class="n">release</span><span class="p">()</span>
 
                     <span class="c1"># In case user didn&#39;t include it</span>
                     <span class="k">if</span> <span class="p">(</span><span class="ow">not</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">dataset</span><span class="p">,</span> <span class="n">Dataset</span><span class="p">)</span> <span class="ow">or</span>
-                        <span class="s1">&#39;FailedSOPInstanceUIDList&#39;</span> <span class="ow">not</span> <span class="ow">in</span> <span class="n">dataset</span><span class="p">):</span>
+                            <span class="s1">&#39;FailedSOPInstanceUIDList&#39;</span> <span class="ow">not</span> <span class="ow">in</span> <span class="n">dataset</span><span class="p">):</span>
                         <span class="n">dataset</span> <span class="o">=</span> <span class="n">Dataset</span><span class="p">()</span>
                         <span class="n">dataset</span><span class="o">.</span><span class="n">FailedSOPInstanceUIDList</span> <span class="o">=</span> <span class="n">failed_instances</span>
 
@@ -1500,14 +1512,14 @@
                 <span class="k">elif</span> <span class="n">status</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span> <span class="ow">in</span> <span class="p">[</span><span class="n">STATUS_FAILURE</span><span class="p">,</span> <span class="n">STATUS_WARNING</span><span class="p">]:</span>
                     <span class="c1"># If failed or warning, then dataset is a Dataset with a</span>
                     <span class="c1">#   &#39;FailedSOPInstanceUIDList&#39; element</span>
-                    <span class="n">LOGGER</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="s1">&#39;Move SCP Result (</span><span class="si">%s</span><span class="s1"> - </span><span class="si">%s</span><span class="s1">)&#39;</span><span class="p">,</span>
-                                <span class="n">status</span><span class="p">[</span><span class="mi">0</span><span class="p">],</span>
-                                <span class="n">status</span><span class="p">[</span><span class="mi">1</span><span class="p">])</span>
+                    <span class="n">LOGGER</span><span class="o">.</span><span class="n">info</span><span class="p">(</span>
+                        <span class="s1">&#39;Move SCP Result (</span><span class="si">%s</span><span class="s1"> - </span><span class="si">%s</span><span class="s1">)&#39;</span><span class="p">,</span> <span class="n">status</span><span class="p">[</span><span class="mi">0</span><span class="p">],</span> <span class="n">status</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span>
+                    <span class="p">)</span>
                     <span class="n">store_assoc</span><span class="o">.</span><span class="n">release</span><span class="p">()</span>
 
                     <span class="c1"># In case user didn&#39;t include it</span>
                     <span class="k">if</span> <span class="p">(</span><span class="ow">not</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">dataset</span><span class="p">,</span> <span class="n">Dataset</span><span class="p">)</span> <span class="ow">or</span>
-                        <span class="s1">&#39;FailedSOPInstanceUIDList&#39;</span> <span class="ow">not</span> <span class="ow">in</span> <span class="n">dataset</span><span class="p">):</span>
+                            <span class="s1">&#39;FailedSOPInstanceUIDList&#39;</span> <span class="ow">not</span> <span class="ow">in</span> <span class="n">dataset</span><span class="p">):</span>
                         <span class="n">dataset</span> <span class="o">=</span> <span class="n">Dataset</span><span class="p">()</span>
                         <span class="n">dataset</span><span class="o">.</span><span class="n">FailedSOPInstanceUIDList</span> <span class="o">=</span> <span class="n">failed_instances</span>
 
@@ -1744,8 +1756,8 @@
 <span class="sd">        * DICOM Standard, Part 4, `Annex K &lt;http://dicom.nema.org/medical/dicom/current/output/html/part04.html#chapter_K&gt;`_.</span>
 <span class="sd">        * [2] DICOM Standard, Part 7, Sections</span>
 <span class="sd">          `9.1.2 &lt;http://dicom.nema.org/medical/dicom/current/output/html/part07.html#sect_9.1.2&gt;`_,</span>
-<span class="sd">          `9.3.2 &lt;http://dicom.nema.org/medical/dicom/current/output/html/part07.html#sect_9.3.2&gt;`_ and</span>
-<span class="sd">          `Annex C &lt;http://dicom.nema.org/medical/dicom/current/output/html/part07.html#chapter_C&gt;`_.</span>
+<span class="sd">          `9.3.2 &lt;http://dicom.nema.org/medical/dicom/current/output/html/part07.html#sect_9.3.2&gt;`_</span>
+<span class="sd">          and `Annex C &lt;http://dicom.nema.org/medical/dicom/current/output/html/part07.html#chapter_C&gt;`_.</span>
 <span class="sd">        &quot;&quot;&quot;</span>
         <span class="k">if</span> <span class="n">context</span><span class="o">.</span><span class="n">abstract_syntax</span> <span class="o">==</span> <span class="s1">&#39;1.2.840.10008.5.1.4.31&#39;</span><span class="p">:</span>
             <span class="bp">self</span><span class="o">.</span><span class="n">_find_scp</span><span class="p">(</span><span class="n">req</span><span class="p">,</span> <span class="n">context</span><span class="p">,</span> <span class="n">info</span><span class="p">)</span>
@@ -1838,8 +1850,8 @@
 <span class="sd">        * DICOM Standard, Part 4, `Annex Q &lt;http://dicom.nema.org/medical/dicom/current/output/html/part04.html#chapter_Q&gt;`_.</span>
 <span class="sd">        * DICOM Standard, Part 7, Sections</span>
 <span class="sd">           `9.1.2 &lt;http://dicom.nema.org/medical/dicom/current/output/html/part07.html#sect_9.1.2&gt;`_,</span>
-<span class="sd">           `9.3.2 &lt;http://dicom.nema.org/medical/dicom/current/output/html/part07.html#sect_9.3.2&gt;`_ and</span>
-<span class="sd">           `Annex C &lt;http://dicom.nema.org/medical/dicom/current/output/html/part07.html#chapter_C&gt;`_.</span>
+<span class="sd">           `9.3.2 &lt;http://dicom.nema.org/medical/dicom/current/output/html/part07.html#sect_9.3.2&gt;`_</span>
+<span class="sd">           and `Annex C &lt;http://dicom.nema.org/medical/dicom/current/output/html/part07.html#chapter_C&gt;`_.</span>
 <span class="sd">        &quot;&quot;&quot;</span>
         <span class="c1"># Build C-FIND response primitive</span>
         <span class="n">rsp</span> <span class="o">=</span> <span class="n">C_FIND</span><span class="p">()</span>
@@ -1869,8 +1881,8 @@
             <span class="k">return</span>
 
         <span class="n">info</span><span class="p">[</span><span class="s1">&#39;parameters&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="p">{</span>
-             <span class="s1">&#39;message_id&#39;</span> <span class="p">:</span> <span class="n">req</span><span class="o">.</span><span class="n">MessageID</span><span class="p">,</span>
-             <span class="s1">&#39;priority&#39;</span> <span class="p">:</span> <span class="n">req</span><span class="o">.</span><span class="n">Priority</span>
+            <span class="s1">&#39;message_id&#39;</span> <span class="p">:</span> <span class="n">req</span><span class="o">.</span><span class="n">MessageID</span><span class="p">,</span>
+            <span class="s1">&#39;priority&#39;</span> <span class="p">:</span> <span class="n">req</span><span class="o">.</span><span class="n">Priority</span>
         <span class="p">}</span>
 
         <span class="c1"># Relevant Patient Query only allows the following responses:</span>
@@ -2040,8 +2052,8 @@
 <span class="sd">        * DICOM Standard, Part 4, `Annex V &lt;http://dicom.nema.org/medical/dicom/current/output/html/part04.html#chapter_V&gt;`_.</span>
 <span class="sd">        * DICOM Standard, Part 7, Sections</span>
 <span class="sd">           `9.1.2 &lt;http://dicom.nema.org/medical/dicom/current/output/html/part07.html#sect_9.1.2&gt;`_,</span>
-<span class="sd">           `9.3.2 &lt;http://dicom.nema.org/medical/dicom/current/output/html/part07.html#sect_9.3.2&gt;`_ and</span>
-<span class="sd">           `Annex C &lt;http://dicom.nema.org/medical/dicom/current/output/html/part07.html#chapter_C&gt;`_.</span>
+<span class="sd">           `9.3.2 &lt;http://dicom.nema.org/medical/dicom/current/output/html/part07.html#sect_9.3.2&gt;`_</span>
+<span class="sd">           and `Annex C &lt;http://dicom.nema.org/medical/dicom/current/output/html/part07.html#chapter_C&gt;`_.</span>
 <span class="sd">        &quot;&quot;&quot;</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">_find_scp</span><span class="p">(</span><span class="n">req</span><span class="p">,</span> <span class="n">context</span><span class="p">,</span> <span class="n">info</span><span class="p">)</span>
 
