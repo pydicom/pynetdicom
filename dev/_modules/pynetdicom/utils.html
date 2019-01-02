@@ -174,6 +174,7 @@
 <span class="kn">import</span> <span class="nn">codecs</span>
 <span class="kn">from</span> <span class="nn">io</span> <span class="k">import</span> <span class="n">BytesIO</span>
 <span class="kn">import</span> <span class="nn">logging</span>
+<span class="kn">import</span> <span class="nn">sys</span>
 <span class="kn">import</span> <span class="nn">unicodedata</span>
 
 
@@ -196,76 +197,66 @@
 
 <span class="sd">    If the supplied `ae_title` is less than 16 characters once non-significant</span>
 <span class="sd">    spaces have been removed, the spare trailing characters will be set to</span>
-<span class="sd">    space (0x20)</span>
+<span class="sd">    space (0x20).</span>
+
+<span class="sd">    AE titles are made up of the Default Character Repertoire (the Basic</span>
+<span class="sd">    G0 Set of ISO646) excluding character code 0x5c (backslash) and all</span>
+<span class="sd">    control characters.</span>
 
 <span class="sd">    Parameters</span>
 <span class="sd">    ----------</span>
-<span class="sd">    ae_title : str or bytes</span>
-<span class="sd">        The AE title to check</span>
+<span class="sd">    ae_title : bytes</span>
+<span class="sd">        The AE title to check.</span>
 
 <span class="sd">    Returns</span>
 <span class="sd">    -------</span>
 <span class="sd">    str or bytes</span>
-<span class="sd">        A valid AE title (with the same type as the supplied `ae_title`),</span>
-<span class="sd">        truncated to 16 characters if necessary. If Python 3 then only returns</span>
-<span class="sd">        bytes.</span>
+<span class="sd">        A valid AE title truncated to 16 characters if necessary. If Python 3</span>
+<span class="sd">        then only returns bytes, if Python 2 then returns str.</span>
 
 <span class="sd">    Raises</span>
 <span class="sd">    ------</span>
 <span class="sd">    ValueError</span>
 <span class="sd">        If `ae_title` is an empty string, contains only spaces or contains</span>
-<span class="sd">        control characters or backslash</span>
-<span class="sd">    TypeError</span>
-<span class="sd">        If `ae_title` is not a string or bytes</span>
+<span class="sd">        control characters or backslash.</span>
 <span class="sd">    &quot;&quot;&quot;</span>
-    <span class="k">try</span><span class="p">:</span>
-        <span class="n">is_bytes</span> <span class="o">=</span> <span class="kc">False</span>
-        <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">ae_title</span><span class="p">,</span> <span class="nb">bytes</span><span class="p">):</span>
-            <span class="n">is_bytes</span> <span class="o">=</span> <span class="kc">True</span>
-            <span class="n">ae_title</span> <span class="o">=</span> <span class="n">ae_title</span><span class="o">.</span><span class="n">decode</span><span class="p">(</span><span class="s1">&#39;ascii&#39;</span><span class="p">)</span>
+    <span class="k">if</span> <span class="ow">not</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">ae_title</span><span class="p">,</span> <span class="p">(</span><span class="nb">str</span><span class="p">,</span> <span class="nb">bytes</span><span class="p">)):</span>
+        <span class="k">raise</span> <span class="ne">TypeError</span><span class="p">(</span>
+            <span class="s2">&quot;AE titles must be str or bytes&quot;</span>
+        <span class="p">)</span>
 
-        <span class="c1"># Remove leading and trailing spaces</span>
-        <span class="n">significant_characters</span> <span class="o">=</span> <span class="n">ae_title</span><span class="o">.</span><span class="n">strip</span><span class="p">()</span>
+    <span class="c1"># Python 2 - convert string to unicode</span>
+    <span class="k">if</span> <span class="n">sys</span><span class="o">.</span><span class="n">version_info</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span> <span class="o">==</span> <span class="mi">2</span><span class="p">:</span>
+        <span class="n">ae_title</span> <span class="o">=</span> <span class="n">unicode</span><span class="p">(</span><span class="n">ae_title</span><span class="p">)</span>
 
-        <span class="c1"># Remove trailing nulls (required as AE titles may be padded by nulls)</span>
-        <span class="c1">#   and common control chars (optional, for convenience)</span>
-        <span class="n">significant_characters</span> <span class="o">=</span> <span class="n">significant_characters</span><span class="o">.</span><span class="n">rstrip</span><span class="p">(</span><span class="s1">&#39;</span><span class="se">\0\r\t\n</span><span class="s1">&#39;</span><span class="p">)</span>
+    <span class="c1"># If bytes decode to ascii string</span>
+    <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">ae_title</span><span class="p">,</span> <span class="nb">bytes</span><span class="p">):</span>
+        <span class="n">ae_title</span> <span class="o">=</span> <span class="n">ae_title</span><span class="o">.</span><span class="n">decode</span><span class="p">(</span><span class="s1">&#39;ascii&#39;</span><span class="p">,</span> <span class="n">errors</span><span class="o">=</span><span class="s1">&#39;strict&#39;</span><span class="p">)</span>
 
-        <span class="c1"># Check for backslash or control characters</span>
-        <span class="k">for</span> <span class="n">char</span> <span class="ow">in</span> <span class="n">significant_characters</span><span class="p">:</span>
-            <span class="k">if</span> <span class="n">unicodedata</span><span class="o">.</span><span class="n">category</span><span class="p">(</span><span class="n">char</span><span class="p">)[</span><span class="mi">0</span><span class="p">]</span> <span class="o">==</span> <span class="s2">&quot;C&quot;</span> <span class="ow">or</span> <span class="n">char</span> <span class="o">==</span> <span class="s2">&quot;</span><span class="se">\\</span><span class="s2">&quot;</span><span class="p">:</span>
-                <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s2">&quot;Invalid value for an AE title; must not &quot;</span>
-                                 <span class="s2">&quot;contain backslash or control characters&quot;</span><span class="p">)</span>
+    <span class="c1"># Strip out any leading or trailing spaces</span>
+    <span class="n">ae_title</span> <span class="o">=</span> <span class="n">ae_title</span><span class="o">.</span><span class="n">strip</span><span class="p">()</span>
+    <span class="k">if</span> <span class="ow">not</span> <span class="n">ae_title</span><span class="p">:</span>
+        <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span>
+            <span class="s2">&quot;AE titles are not allowed to consist entirely of only spaces&quot;</span>
+        <span class="p">)</span>
 
-        <span class="c1"># AE title OK</span>
-        <span class="k">if</span> <span class="mi">0</span> <span class="o">&lt;</span> <span class="nb">len</span><span class="p">(</span><span class="n">significant_characters</span><span class="p">)</span> <span class="o">&lt;=</span> <span class="mi">16</span><span class="p">:</span>
-            <span class="k">while</span> <span class="nb">len</span><span class="p">(</span><span class="n">significant_characters</span><span class="p">)</span> <span class="o">&lt;</span> <span class="mi">16</span><span class="p">:</span>
-                <span class="n">significant_characters</span> <span class="o">+=</span> <span class="s1">&#39; &#39;</span>
+    <span class="c1"># Truncate if longer than 16 characters</span>
+    <span class="n">ae_title</span> <span class="o">=</span> <span class="n">ae_title</span><span class="p">[:</span><span class="mi">16</span><span class="p">]</span>
+    <span class="c1"># Pad out to 16 characters using spaces</span>
+    <span class="n">ae_title</span> <span class="o">=</span> <span class="n">ae_title</span><span class="o">.</span><span class="n">ljust</span><span class="p">(</span><span class="mi">16</span><span class="p">)</span>
 
-            <span class="k">if</span> <span class="n">is_bytes</span><span class="p">:</span>
-                <span class="k">return</span> <span class="n">codecs</span><span class="o">.</span><span class="n">encode</span><span class="p">(</span><span class="n">significant_characters</span><span class="p">,</span> <span class="s1">&#39;ascii&#39;</span><span class="p">)</span>
+    <span class="c1"># Unicode category: &#39;Cc&#39; is control characters</span>
+    <span class="n">invalid</span> <span class="o">=</span> <span class="p">[</span>
+        <span class="n">char</span> <span class="k">for</span> <span class="n">char</span> <span class="ow">in</span> <span class="n">ae_title</span>
+        <span class="k">if</span> <span class="n">unicodedata</span><span class="o">.</span><span class="n">category</span><span class="p">(</span><span class="n">char</span><span class="p">)[</span><span class="mi">0</span><span class="p">]</span> <span class="o">==</span> <span class="s1">&#39;C&#39;</span> <span class="ow">or</span> <span class="n">char</span> <span class="o">==</span> <span class="s1">&#39;</span><span class="se">\\</span><span class="s1">&#39;</span>
+    <span class="p">]</span>
+    <span class="k">if</span> <span class="n">invalid</span><span class="p">:</span>
+        <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span>
+            <span class="s2">&quot;AE titles must not contain any control characters or backslashes&quot;</span>
+        <span class="p">)</span>
 
-            <span class="k">return</span> <span class="n">significant_characters</span>
-
-        <span class="c1"># AE title too long : truncate</span>
-        <span class="k">elif</span> <span class="nb">len</span><span class="p">(</span><span class="n">significant_characters</span><span class="o">.</span><span class="n">strip</span><span class="p">())</span> <span class="o">&gt;</span> <span class="mi">16</span><span class="p">:</span>
-            <span class="k">if</span> <span class="n">is_bytes</span><span class="p">:</span>
-                <span class="k">return</span> <span class="n">codecs</span><span class="o">.</span><span class="n">encode</span><span class="p">(</span><span class="n">significant_characters</span><span class="p">[:</span><span class="mi">16</span><span class="p">],</span> <span class="s1">&#39;ascii&#39;</span><span class="p">)</span>
-
-            <span class="k">return</span> <span class="n">significant_characters</span><span class="p">[:</span><span class="mi">16</span><span class="p">]</span>
-
-        <span class="c1"># AE title empty str</span>
-        <span class="k">else</span><span class="p">:</span>
-            <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s2">&quot;Invalid value for an AE title; must be a &quot;</span>
-                             <span class="s2">&quot;non-empty string or bytes.&quot;</span><span class="p">)</span>
-    <span class="k">except</span> <span class="ne">AttributeError</span><span class="p">:</span>
-        <span class="k">raise</span> <span class="ne">TypeError</span><span class="p">(</span><span class="s2">&quot;Invalid value for an AE title; must be a &quot;</span>
-                        <span class="s2">&quot;non-empty string or bytes.&quot;</span><span class="p">)</span>
-    <span class="k">except</span> <span class="ne">ValueError</span><span class="p">:</span>
-        <span class="k">raise</span>
-    <span class="k">except</span><span class="p">:</span>
-        <span class="k">raise</span> <span class="ne">TypeError</span><span class="p">(</span><span class="s2">&quot;Invalid value for an AE title; must be a &quot;</span>
-                        <span class="s2">&quot;non-empty string or bytes.&quot;</span><span class="p">)</span></div>
+    <span class="c1"># Return as bytes (python 3) or str (python 2)</span>
+    <span class="k">return</span> <span class="n">ae_title</span><span class="o">.</span><span class="n">encode</span><span class="p">(</span><span class="s1">&#39;ascii&#39;</span><span class="p">,</span> <span class="n">errors</span><span class="o">=</span><span class="s1">&#39;strict&#39;</span><span class="p">)</span></div>
 
 
 <div class="viewcode-block" id="pretty_bytes"><a class="viewcode-back" href="../../reference/generated/pynetdicom.utils.pretty_bytes.html#pynetdicom.utils.pretty_bytes">[docs]</a><span class="k">def</span> <span class="nf">pretty_bytes</span><span class="p">(</span><span class="n">bytestream</span><span class="p">,</span> <span class="n">prefix</span><span class="o">=</span><span class="s1">&#39;  &#39;</span><span class="p">,</span> <span class="n">delimiter</span><span class="o">=</span><span class="s1">&#39;  &#39;</span><span class="p">,</span> <span class="n">items_per_line</span><span class="o">=</span><span class="mi">16</span><span class="p">,</span>
