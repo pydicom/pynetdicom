@@ -2,23 +2,17 @@
 
 from io import BytesIO
 import logging
-import sys
 
-from pydicom.dataset import Dataset
-from pydicom.uid import UID
-
-from pynetdicom.dsutils import decode, encode
-from pynetdicom.dimse_primitives import (
-    N_GET, N_SET, N_EVENT_REPORT, N_ACTION, N_CREATE, N_DELETE
-)
+from pynetdicom.dsutils import encode
+from pynetdicom.dimse_primitives import N_GET
 from pynetdicom.service_class import ServiceClass
 from pynetdicom.status import GENERAL_STATUS, code_to_category
 from pynetdicom._globals import (
-    STATUS_FAILURE,
+    #STATUS_FAILURE,
     STATUS_SUCCESS,
     STATUS_WARNING,
-    STATUS_PENDING,
-    STATUS_CANCEL,
+    #STATUS_PENDING,
+    #STATUS_CANCEL,
 )
 
 
@@ -82,8 +76,8 @@ class DisplaySystemManagementServiceClass(ServiceClass):
         * DICOM Standard, Part 4, `Annex EE <http://dicom.nema.org/medical/dicom/current/output/html/part04.html#chapter_EE>`_
         * DICOM Standard, Part 7, Sections
           `10.1.2 <http://dicom.nema.org/medical/dicom/current/output/html/part07.html#sect_10.1.2>`_,
-          `10.3.2 <http://dicom.nema.org/medical/dicom/current/output/html/part07.html#sect_10.3.2>`_ and
-          `Annex C <http://dicom.nema.org/medical/dicom/current/output/html/part07.html#chapter_C>`_
+          `10.3.2 <http://dicom.nema.org/medical/dicom/current/output/html/part07.html#sect_10.3.2>`_
+          and `Annex C <http://dicom.nema.org/medical/dicom/current/output/html/part07.html#chapter_C>`_
         """
         # Build N-GET response primitive
         rsp = N_GET()
@@ -92,12 +86,13 @@ class DisplaySystemManagementServiceClass(ServiceClass):
         rsp.AffectedSOPInstanceUID = req.RequestedSOPInstanceUID
 
         info['parameters'] = {
-             'message_id' : req.MessageID,
-             'requested_sop_class_uid' : req.RequestedSOPClassUID,
-             'requested_sop_instance_uid' : req.RequestedSOPInstanceUID,
+            'message_id' : req.MessageID,
+            'requested_sop_class_uid' : req.RequestedSOPClassUID,
+            'requested_sop_instance_uid' : req.RequestedSOPInstanceUID,
         }
 
         # Attempt to run the ApplicationEntity's on_n_get callback
+        # pylint: disable=broad-except
         try:
             # Send the value rather than the element
             (rsp_status, ds) = self.ae.on_n_get(req.AttributeIdentifierList,
