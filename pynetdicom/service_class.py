@@ -38,13 +38,10 @@ class ServiceClass(object):
     ----------
     assoc : association.Association
         The association instance offering the service.
-    statuses : list of status.Status
-        The statuses available to the service class.
     """
     def __init__(self, assoc):
         """Create a new ServiceClass."""
         self.assoc = assoc
-        self.statuses = []
 
     @property
     def ae(self):

@@ -9,19 +9,20 @@ from pydicom.uid import UID
 
 from pynetdicom.pdu import (
     A_ASSOCIATE_RQ, A_ASSOCIATE_AC, A_ASSOCIATE_RJ, P_DATA_TF, A_RELEASE_RQ,
-    A_RELEASE_RP, A_ABORT_RQ, MaximumLengthSubItem,
-    ImplementationClassUIDSubItem, ImplementationVersionNameSubItem,
-    AsynchronousOperationsWindowSubItem, SCP_SCU_RoleSelectionSubItem,
-    SOPClassExtendedNegotiationSubItem,
-    SOPClassCommonExtendedNegotiationSubItem, UserIdentitySubItemRQ,
-    UserIdentitySubItemAC, PDU, ApplicationContextItem,
+    A_RELEASE_RP, A_ABORT_RQ, PDU, ApplicationContextItem,
     PresentationContextItemAC, PresentationContextItemRQ, UserInformationItem,
     PDU_ITEM_TYPES, PDU_TYPES,
     PACK_UCHAR, UNPACK_UCHAR
 )
 from pynetdicom.pdu_items import (
     PresentationDataValueItem,
-    TransferSyntaxSubItem
+    TransferSyntaxSubItem,
+    MaximumLengthSubItem,
+    ImplementationClassUIDSubItem, ImplementationVersionNameSubItem,
+    AsynchronousOperationsWindowSubItem, SCP_SCU_RoleSelectionSubItem,
+    SOPClassExtendedNegotiationSubItem,
+    SOPClassCommonExtendedNegotiationSubItem, UserIdentitySubItemRQ,
+    UserIdentitySubItemAC,
 )
 from pynetdicom.pdu_primitives import (
     MaximumLengthNotification, ImplementationClassUIDNotification,
