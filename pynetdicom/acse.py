@@ -285,19 +285,20 @@ class ACSE(object):
         """
         # For convenience
         assoc_rq = assoc.requestor.primitive
+        # Set the Requestor's AE Title
         assoc.requestor.ae_title = assoc_rq.calling_ae_title
 
         # If we reject association -> [result, source, diagnostic]
         reject_assoc_rsd = []
 
         # Calling AE Title not recognised
-        if (assoc.ae.require_calling_aet != b''
-                and assoc.ae.require_calling_aet != assoc_rq.calling_ae_title):
+        if (assoc.ae.require_calling_aet and assoc_rq.calling_ae_title
+                not in assoc.ae.require_calling_aet):
             reject_assoc_rsd = [0x01, 0x01, 0x03]
 
         # Called AE Title not recognised
-        if (assoc.ae.require_called_aet != b''
-                and assoc.ae.require_called_aet != assoc_rq.called_ae_title):
+        if (assoc.ae.require_called_aet and assoc_rq.called_ae_title
+                not in assoc.ae.require_called_aet):
             reject_assoc_rsd = [0x01, 0x01, 0x07]
 
         ## Extended Negotiation items

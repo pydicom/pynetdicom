@@ -205,8 +205,8 @@ class ApplicationEntity(object):
         self.dimse_timeout = None
 
         # Require Calling/Called AE titles to match if value is non-empty str
-        self.require_calling_aet = b''
-        self.require_called_aet = b''
+        self.require_calling_aet = []
+        self.require_called_aet = []
 
         self.local_socket = None
 
@@ -1156,57 +1156,55 @@ class ApplicationEntity(object):
 
     @property
     def require_called_aet(self):
-        """Return the required called AE title as a length 16 ``bytes``."""
+        """Return the required called AE title as a list of bytes."""
         return self._require_called_aet
 
     @require_called_aet.setter
-    def require_called_aet(self, ae_title):
-        """Set the required called AE title.
+    def require_called_aet(self, ae_titles):
+        """Set the required called AE titles.
 
         When an Association request is received the value of the 'Called AE
-        Title' supplied by the peer will be compared with the set value and
-        if they don't match the association will be rejected. If the set value
-        is an empty bytes then the 'Called AE Title' will not be checked.
+        Title' supplied by the peer will be compared with the set values and
+        if none match the association will be rejected. If the set value
+        is an empty list then the 'Called AE Title' will not be checked.
 
         Parameters
         ----------
-        ae_title : bytes
+        ae_titles : list of bytes
             If not empty then any association requests that supply a
-            Called AE Title value that does not match `ae_title` will be
-            rejected.
+            Called AE Title value that does not match anything in `ae_titles`
+            will be rejected.
         """
         # pylint: disable=attribute-defined-outside-init
-        if ae_title:
-            self._require_called_aet = validate_ae_title(ae_title)
-        else:
-            self._require_called_aet = b''
+        self._require_called_aet = [
+            validate_ae_title(aet) for aet in ae_titles
+        ]
 
     @property
     def require_calling_aet(self):
-        """Return the required calling AE title as a length 16 ``bytes``."""
+        """Return the required calling AE title as a list of bytes."""
         return self._require_calling_aet
 
     @require_calling_aet.setter
-    def require_calling_aet(self, ae_title):
+    def require_calling_aet(self, ae_titles):
         """Set the required calling AE title.
 
         When an Association request is received the value of the 'Calling AE
         Title' supplied by the peer will be compared with the set value and
-        if they don't match the association will be rejected. If the set value
-        is an empty bytes then the 'Calling AE Title' will not be checked.
+        if none match the association will be rejected. If the set value
+        is an empty list then the 'Calling AE Title' will not be checked.
 
         Parameters
         ----------
-        ae_title : bytes
+        ae_titles : list of bytes
             If not empty then any association requests that supply a
             Calling AE Title value that does not match `ae_title` will be
             rejected.
         """
         # pylint: disable=attribute-defined-outside-init
-        if ae_title:
-            self._require_calling_aet = validate_ae_title(ae_title)
-        else:
-            self._require_calling_aet = b''
+        self._require_calling_aet = [
+            validate_ae_title(aet) for aet in ae_titles
+        ]
 
     def start(self, select_timeout=0.5):
         """Start the AE as an SCP.
@@ -1327,11 +1325,11 @@ class ApplicationEntity(object):
         if self.require_called_aet != '' or self.require_calling_aet != '':
             str_out += "\n"
         if self.require_calling_aet != '':
-            str_out += "  Required calling AE title: {0!s}\n" \
-                       .format(self.require_calling_aet)
+            str_out += "  Required calling AE title(s): {0!s}\n" \
+                       .format(', '.join(self.require_calling_aet))
         if self.require_called_aet != '':
-            str_out += "  Required called AE title: {0!s}\n" \
-                       .format(self.require_called_aet)
+            str_out += "  Required called AE title(s): {0!s}\n" \
+                       .format(', '.join(self.require_called_aet))
 
         str_out += "\n"
 

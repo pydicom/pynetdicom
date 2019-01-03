@@ -689,19 +689,20 @@ class TestAEGoodMiscSetters(object):
         assert assoc.is_released
         assert not assoc.is_established
 
-        self.scp.ae.require_calling_aet = b'MYAE'
-        assert self.scp.ae.require_calling_aet == b'MYAE            '
+        self.scp.ae.require_calling_aet = [b'MYAE']
+        assert self.scp.ae.require_calling_aet == [b'MYAE            ']
         assoc = ae.associate('localhost', 11112)
         assert assoc.is_rejected
 
-        self.scp.ae.require_calling_aet = b'PYNETDICOM      '
-        assert self.scp.ae.require_calling_aet == b'PYNETDICOM      '
+        self.scp.ae.require_calling_aet = [b'PYNETDICOM      ']
+        assert self.scp.ae.require_calling_aet == [b'PYNETDICOM      ']
         assoc = ae.associate('localhost', 11112)
         assert assoc.is_established
         assoc.release()
 
-        self.scp.ae.require_calling_aet = b''
-        assert self.scp.ae.require_calling_aet == b''
+        with pytest.raises(ValueError, match=r"entirely of only spaces"):
+            self.scp.ae.require_calling_aet = [b'']
+        assert self.scp.ae.require_calling_aet == [b'PYNETDICOM      ']
         assoc = ae.associate('localhost', 11112)
         assert assoc.is_established
         assoc.release()
@@ -724,19 +725,20 @@ class TestAEGoodMiscSetters(object):
         assert assoc.is_released
         assert not assoc.is_established
 
-        self.scp.ae.require_called_aet = b'MYAE'
-        assert self.scp.ae.require_called_aet == b'MYAE            '
+        self.scp.ae.require_called_aet = [b'MYAE']
+        assert self.scp.ae.require_called_aet == [b'MYAE            ']
         assoc = ae.associate('localhost', 11112)
         assert assoc.is_rejected
 
-        self.scp.ae.require_called_aet = b'ANY-SCP         '
-        assert self.scp.ae.require_called_aet == b'ANY-SCP         '
+        self.scp.ae.require_called_aet = [b'ANY-SCP         ']
+        assert self.scp.ae.require_called_aet == [b'ANY-SCP         ']
         assoc = ae.associate('localhost', 11112)
         assert assoc.is_established
         assoc.release()
 
-        self.scp.ae.require_called_aet = b''
-        assert self.scp.ae.require_called_aet == b''
+        with pytest.raises(ValueError, match=r"entirely of only spaces"):
+            self.scp.ae.require_called_aet = [b'']
+        assert self.scp.ae.require_called_aet == [b'ANY-SCP         ']
         assoc = ae.associate('localhost', 11112)
         assert assoc.is_established
         assoc.release()
@@ -746,33 +748,27 @@ class TestAEGoodMiscSetters(object):
     def test_req_calling_aet(self):
         """ Check AE require calling aet change produces good value """
         ae = AE()
-        ae.require_calling_aet = b'10'
-        assert ae.require_calling_aet == b'10              '
-        ae.require_calling_aet = b'     TEST     '
-        assert ae.require_calling_aet == b'TEST            '
-        ae.require_calling_aet = b'           TESTB'
-        assert ae.require_calling_aet == b'TESTB           '
-        ae.require_calling_aet = b'a            TEST'
-        assert ae.require_calling_aet == b'a            TES'
+        ae.require_calling_aet = [b'10', b'asdf']
+        assert ae.require_calling_aet == [
+            b'10              ',
+            b'asdf            '
+        ]
 
     def test_req_called_aet(self):
         """ Check AE require called aet change produces good value """
         ae = AE()
-        ae.require_called_aet = b'10'
-        assert ae.require_called_aet == b'10              '
-        ae.require_called_aet = b'     TESTA    '
-        assert ae.require_called_aet == b'TESTA           '
-        ae.require_called_aet = b'           TESTB'
-        assert ae.require_called_aet == b'TESTB           '
-        ae.require_called_aet = b'a            TEST'
-        assert ae.require_called_aet == b'a            TES'
+        ae.require_called_aet = [b'10', b'asdf']
+        assert ae.require_called_aet == [
+            b'10              ',
+            b'asdf            '
+        ]
 
     def test_string_output(self):
         """Test string output"""
         ae = AE()
         ae.add_requested_context(VerificationSOPClass)
-        ae.require_calling_aet = b'something'
-        ae.require_called_aet = b'elsething'
+        ae.require_calling_aet = [b'something']
+        ae.require_called_aet = [b'elsething']
         assert 'Explicit VR' in ae.__str__()
         assert 'Verification' in ae.__str__()
         assert '0/2' in ae.__str__()

@@ -527,7 +527,7 @@ class TestAssociation(object):
     def test_peer_rejects_assoc(self):
         """Test peer rejects assoc"""
         self.scp = DummyVerificationSCP()
-        self.scp.ae.require_calling_aet = b'HAHA NOPE'
+        self.scp.ae.require_calling_aet = [b'HAHA NOPE']
         self.scp.start()
         ae = AE()
         ae.add_requested_context(VerificationSOPClass)
@@ -716,7 +716,7 @@ class TestAssociation(object):
     def test_require_called_aet(self):
         """SCP requires matching called AET"""
         self.scp = DummyVerificationSCP()
-        self.scp.ae.require_called_aet = b'TESTSCU'
+        self.scp.ae.require_called_aet = [b'TESTSCU']
         self.scp.start()
         ae = AE()
         ae.add_requested_context(VerificationSOPClass)
@@ -730,7 +730,7 @@ class TestAssociation(object):
     def test_require_calling_aet(self):
         """SCP requires matching called AET"""
         self.scp = DummyVerificationSCP()
-        self.scp.ae.require_calling_aet = b'TESTSCP'
+        self.scp.ae.require_calling_aet = [b'TESTSCP']
         self.scp.start()
         ae = AE()
         ae.add_requested_context(VerificationSOPClass)
