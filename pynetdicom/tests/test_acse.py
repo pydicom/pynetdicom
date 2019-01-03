@@ -949,7 +949,7 @@ class TestUserIdentityNegotiation(object):
             return True, b'\x00\x01'
 
         self.scp = DummyVerificationSCP()
-        self.scp.ae.require_calling_aet = b'HAHA NOPE'
+        self.scp.ae.require_calling_aet = [b'HAHA NOPE']
         self.scp.ae.on_user_identity = on_user_identity
         self.scp.start()
         ae = AE()
@@ -1355,7 +1355,7 @@ class TestSOPClassExtendedNegotiation(object):
 
         self.scp = DummyVerificationSCP()
         self.scp.ae.on_sop_class_extended = on_ext
-        self.scp.ae.require_calling_aet = b'HAHA NOPE'
+        self.scp.ae.require_calling_aet = [b'HAHA NOPE']
         self.scp.start()
         ae = AE()
         ae.add_requested_context(VerificationSOPClass)
@@ -1811,7 +1811,7 @@ class TestAsyncOpsNegotiation(object):
 
         self.scp = DummyVerificationSCP()
         self.scp.ae.on_async_ops_window = on_async
-        self.scp.ae.require_calling_aet = b'HAHA NOPE'
+        self.scp.ae.require_calling_aet = [b'HAHA NOPE']
         self.scp.start()
         ae = AE()
         ae.add_requested_context(VerificationSOPClass)
