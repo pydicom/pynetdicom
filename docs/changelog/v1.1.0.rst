@@ -8,6 +8,8 @@ Fixes
   keyword argument in ``AE.add_requested_context()``,
   ``AE.add_supported_context()`` and ``presentation.build_context()``
 * Completely fixed handling a maximum PDU length of 0. (:issue:`193`)
+* ``DIMSEMessage`` subclass creation and ``DIMSEMessage.primitive_to_message``
+  should now be thread-safe (:issue:`137`)
 
 Enhancements
 ............
@@ -25,3 +27,4 @@ Changes
 * ``DIMSEMessage.ID`` is deprecated and will be removed in v1.2. Use
   ``DIMSEMessage.context_id`` instead.
 * Added ``_globals.py`` for frequently used global constants.
+* ``utils.validate_ae_title`` changed to only returns bytes for Python 3
