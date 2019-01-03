@@ -210,7 +210,17 @@ instead.</li>
 <li><code class="docutils literal notranslate"><span class="pre">DIMSEMessage.ID</span></code> is deprecated and will be removed in v1.2. Use
 <code class="docutils literal notranslate"><span class="pre">DIMSEMessage.context_id</span></code> instead.</li>
 <li>Added <code class="docutils literal notranslate"><span class="pre">_globals.py</span></code> for frequently used global constants.</li>
-<li><code class="docutils literal notranslate"><span class="pre">utils.validate_ae_title</span></code> changed to only returns bytes for Python 3</li>
+<li><code class="docutils literal notranslate"><span class="pre">utils.validate_ae_title</span></code> changed to only return bytes for Python 3</li>
+<li><code class="docutils literal notranslate"><span class="pre">AE.require_calling_aet</span></code> now takes a list of AE titles (as bytes) rather
+than a single AE title. If set to a non-empty list then association requests
+will be rejected unless the value of the <em>Calling AE Title</em> parameter matches
+one of those in the list. If set to an empty list (default) then all
+associations will be accepted (unless rejected for other reasons).</li>
+<li><code class="docutils literal notranslate"><span class="pre">AE.require_called_aet</span></code> should now be set using a bool. If True then any
+association requests will be rejected unless the value of the <em>Called AE
+Title</em> parameter matches <code class="docutils literal notranslate"><span class="pre">AE.ae_title</span></code>. If False (default) then no matching
+will be performed and all associations accepted (unless rejected for other
+reasons).</li>
 </ul>
 </div>
 </div>

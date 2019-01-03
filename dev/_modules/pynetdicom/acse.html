@@ -456,19 +456,20 @@
 <span class="sd">        &quot;&quot;&quot;</span>
         <span class="c1"># For convenience</span>
         <span class="n">assoc_rq</span> <span class="o">=</span> <span class="n">assoc</span><span class="o">.</span><span class="n">requestor</span><span class="o">.</span><span class="n">primitive</span>
+        <span class="c1"># Set the Requestor&#39;s AE Title</span>
         <span class="n">assoc</span><span class="o">.</span><span class="n">requestor</span><span class="o">.</span><span class="n">ae_title</span> <span class="o">=</span> <span class="n">assoc_rq</span><span class="o">.</span><span class="n">calling_ae_title</span>
 
         <span class="c1"># If we reject association -&gt; [result, source, diagnostic]</span>
         <span class="n">reject_assoc_rsd</span> <span class="o">=</span> <span class="p">[]</span>
 
         <span class="c1"># Calling AE Title not recognised</span>
-        <span class="k">if</span> <span class="p">(</span><span class="n">assoc</span><span class="o">.</span><span class="n">ae</span><span class="o">.</span><span class="n">require_calling_aet</span> <span class="o">!=</span> <span class="sa">b</span><span class="s1">&#39;&#39;</span>
-                <span class="ow">and</span> <span class="n">assoc</span><span class="o">.</span><span class="n">ae</span><span class="o">.</span><span class="n">require_calling_aet</span> <span class="o">!=</span> <span class="n">assoc_rq</span><span class="o">.</span><span class="n">calling_ae_title</span><span class="p">):</span>
+        <span class="k">if</span> <span class="p">(</span><span class="n">assoc</span><span class="o">.</span><span class="n">ae</span><span class="o">.</span><span class="n">require_calling_aet</span> <span class="ow">and</span> <span class="n">assoc_rq</span><span class="o">.</span><span class="n">calling_ae_title</span>
+                <span class="ow">not</span> <span class="ow">in</span> <span class="n">assoc</span><span class="o">.</span><span class="n">ae</span><span class="o">.</span><span class="n">require_calling_aet</span><span class="p">):</span>
             <span class="n">reject_assoc_rsd</span> <span class="o">=</span> <span class="p">[</span><span class="mh">0x01</span><span class="p">,</span> <span class="mh">0x01</span><span class="p">,</span> <span class="mh">0x03</span><span class="p">]</span>
 
         <span class="c1"># Called AE Title not recognised</span>
-        <span class="k">if</span> <span class="p">(</span><span class="n">assoc</span><span class="o">.</span><span class="n">ae</span><span class="o">.</span><span class="n">require_called_aet</span> <span class="o">!=</span> <span class="sa">b</span><span class="s1">&#39;&#39;</span>
-                <span class="ow">and</span> <span class="n">assoc</span><span class="o">.</span><span class="n">ae</span><span class="o">.</span><span class="n">require_called_aet</span> <span class="o">!=</span> <span class="n">assoc_rq</span><span class="o">.</span><span class="n">called_ae_title</span><span class="p">):</span>
+        <span class="k">if</span> <span class="p">(</span><span class="n">assoc</span><span class="o">.</span><span class="n">ae</span><span class="o">.</span><span class="n">require_called_aet</span> <span class="ow">and</span> <span class="n">assoc_rq</span><span class="o">.</span><span class="n">called_ae_title</span>
+                <span class="o">!=</span> <span class="n">assoc</span><span class="o">.</span><span class="n">ae</span><span class="o">.</span><span class="n">ae_title</span><span class="p">):</span>
             <span class="n">reject_assoc_rsd</span> <span class="o">=</span> <span class="p">[</span><span class="mh">0x01</span><span class="p">,</span> <span class="mh">0x01</span><span class="p">,</span> <span class="mh">0x07</span><span class="p">]</span>
 
         <span class="c1">## Extended Negotiation items</span>

@@ -245,12 +245,13 @@
 <span class="sd">        The local AE&#39;s listen port number when acting as an SCP or connection</span>
 <span class="sd">        port when acting as an SCU. A value of 0 indicates that the operating</span>
 <span class="sd">        system should choose the port.</span>
-<span class="sd">    require_calling_aet : bytes</span>
-<span class="sd">        If not empty bytes, the calling AE title must match</span>
-<span class="sd">        `require_calling_aet` (SCP only).</span>
-<span class="sd">    require_called_aet : bytes</span>
-<span class="sd">        If not empty bytes the called AE title must match `required_called_aet`</span>
-<span class="sd">        (SCP only).</span>
+<span class="sd">    require_calling_aet : list of bytes</span>
+<span class="sd">        If not an empty list, the association request&#39;s *Calling AE Title*</span>
+<span class="sd">        value must match one of the values in `require_calling_aet`. If an</span>
+<span class="sd">        empty list then no matching will be performed (default). (SCP only).</span>
+<span class="sd">    require_called_aet : bool</span>
+<span class="sd">        If True, the association request&#39;s *Called AE Title* value</span>
+<span class="sd">        must match AE.ae_title (default False). (SCP only).</span>
 
 <span class="sd">    Examples</span>
 <span class="sd">    --------</span>
@@ -376,8 +377,8 @@
         <span class="bp">self</span><span class="o">.</span><span class="n">dimse_timeout</span> <span class="o">=</span> <span class="kc">None</span>
 
         <span class="c1"># Require Calling/Called AE titles to match if value is non-empty str</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">require_calling_aet</span> <span class="o">=</span> <span class="sa">b</span><span class="s1">&#39;&#39;</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">require_called_aet</span> <span class="o">=</span> <span class="sa">b</span><span class="s1">&#39;&#39;</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">require_calling_aet</span> <span class="o">=</span> <span class="p">[]</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">require_called_aet</span> <span class="o">=</span> <span class="kc">False</span>
 
         <span class="bp">self</span><span class="o">.</span><span class="n">local_socket</span> <span class="o">=</span> <span class="kc">None</span>
 
@@ -1327,57 +1328,56 @@
 
     <span class="nd">@property</span>
     <span class="k">def</span> <span class="nf">require_called_aet</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
-        <span class="sd">&quot;&quot;&quot;Return the required called AE title as a length 16 ``bytes``.&quot;&quot;&quot;</span>
+        <span class="sd">&quot;&quot;&quot;Return whether the *Called AE Title* must match ae_title.&quot;&quot;&quot;</span>
         <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_require_called_aet</span>
 
     <span class="nd">@require_called_aet</span><span class="o">.</span><span class="n">setter</span>
-    <span class="k">def</span> <span class="nf">require_called_aet</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">ae_title</span><span class="p">):</span>
-        <span class="sd">&quot;&quot;&quot;Set the required called AE title.</span>
+    <span class="k">def</span> <span class="nf">require_called_aet</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">require_match</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;Set whether the *Called AE Title* must match the AE title.</span>
 
 <span class="sd">        When an Association request is received the value of the &#39;Called AE</span>
-<span class="sd">        Title&#39; supplied by the peer will be compared with the set value and</span>
-<span class="sd">        if they don&#39;t match the association will be rejected. If the set value</span>
-<span class="sd">        is an empty bytes then the &#39;Called AE Title&#39; will not be checked.</span>
+<span class="sd">        Title&#39; supplied by the peer will be compared with the set values and</span>
+<span class="sd">        if none match the association will be rejected. If the set value</span>
+<span class="sd">        is an empty list then the &#39;Called AE Title&#39; will not be checked.</span>
 
 <span class="sd">        Parameters</span>
 <span class="sd">        ----------</span>
-<span class="sd">        ae_title : bytes</span>
-<span class="sd">            If not empty then any association requests that supply a</span>
-<span class="sd">            Called AE Title value that does not match `ae_title` will be</span>
-<span class="sd">            rejected.</span>
+<span class="sd">        require_match : bool</span>
+<span class="sd">            If True then any association requests that supply a</span>
+<span class="sd">            *Called AE Title* value that does not match AE.ae_title</span>
+<span class="sd">            will be rejected. If False (default) then all association requests</span>
+<span class="sd">            will be accepted (unless rejected for other reasons).</span>
 <span class="sd">        &quot;&quot;&quot;</span>
         <span class="c1"># pylint: disable=attribute-defined-outside-init</span>
-        <span class="k">if</span> <span class="n">ae_title</span><span class="p">:</span>
-            <span class="bp">self</span><span class="o">.</span><span class="n">_require_called_aet</span> <span class="o">=</span> <span class="n">validate_ae_title</span><span class="p">(</span><span class="n">ae_title</span><span class="p">)</span>
-        <span class="k">else</span><span class="p">:</span>
-            <span class="bp">self</span><span class="o">.</span><span class="n">_require_called_aet</span> <span class="o">=</span> <span class="sa">b</span><span class="s1">&#39;&#39;</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_require_called_aet</span> <span class="o">=</span> <span class="n">require_match</span>
 
     <span class="nd">@property</span>
     <span class="k">def</span> <span class="nf">require_calling_aet</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
-        <span class="sd">&quot;&quot;&quot;Return the required calling AE title as a length 16 ``bytes``.&quot;&quot;&quot;</span>
+        <span class="sd">&quot;&quot;&quot;Return the required calling AE title as a list of bytes.&quot;&quot;&quot;</span>
         <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_require_calling_aet</span>
 
     <span class="nd">@require_calling_aet</span><span class="o">.</span><span class="n">setter</span>
-    <span class="k">def</span> <span class="nf">require_calling_aet</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">ae_title</span><span class="p">):</span>
+    <span class="k">def</span> <span class="nf">require_calling_aet</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">ae_titles</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;Set the required calling AE title.</span>
 
 <span class="sd">        When an Association request is received the value of the &#39;Calling AE</span>
 <span class="sd">        Title&#39; supplied by the peer will be compared with the set value and</span>
-<span class="sd">        if they don&#39;t match the association will be rejected. If the set value</span>
-<span class="sd">        is an empty bytes then the &#39;Calling AE Title&#39; will not be checked.</span>
+<span class="sd">        if none match the association will be rejected. If the set value</span>
+<span class="sd">        is an empty list then the &#39;Calling AE Title&#39; will not be checked.</span>
 
 <span class="sd">        Parameters</span>
 <span class="sd">        ----------</span>
-<span class="sd">        ae_title : bytes</span>
+<span class="sd">        ae_titles : list of bytes</span>
 <span class="sd">            If not empty then any association requests that supply a</span>
-<span class="sd">            Calling AE Title value that does not match `ae_title` will be</span>
-<span class="sd">            rejected.</span>
+<span class="sd">            Calling AE Title value that does not match one of the values in</span>
+<span class="sd">            `ae_titles` will be rejected. If an empty list (default) then all</span>
+<span class="sd">            association requests will be accepted (unless rejected for other</span>
+<span class="sd">            reasons).</span>
 <span class="sd">        &quot;&quot;&quot;</span>
         <span class="c1"># pylint: disable=attribute-defined-outside-init</span>
-        <span class="k">if</span> <span class="n">ae_title</span><span class="p">:</span>
-            <span class="bp">self</span><span class="o">.</span><span class="n">_require_calling_aet</span> <span class="o">=</span> <span class="n">validate_ae_title</span><span class="p">(</span><span class="n">ae_title</span><span class="p">)</span>
-        <span class="k">else</span><span class="p">:</span>
-            <span class="bp">self</span><span class="o">.</span><span class="n">_require_calling_aet</span> <span class="o">=</span> <span class="sa">b</span><span class="s1">&#39;&#39;</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_require_calling_aet</span> <span class="o">=</span> <span class="p">[</span>
+            <span class="n">validate_ae_title</span><span class="p">(</span><span class="n">aet</span><span class="p">)</span> <span class="k">for</span> <span class="n">aet</span> <span class="ow">in</span> <span class="n">ae_titles</span>
+        <span class="p">]</span>
 
 <div class="viewcode-block" id="ApplicationEntity.start"><a class="viewcode-back" href="../../reference/generated/pynetdicom.ae.ApplicationEntity.html#pynetdicom.ae.ApplicationEntity.start">[docs]</a>    <span class="k">def</span> <span class="nf">start</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">select_timeout</span><span class="o">=</span><span class="mf">0.5</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;Start the AE as an SCP.</span>
@@ -1495,14 +1495,15 @@
         <span class="n">str_out</span> <span class="o">+=</span> <span class="s2">&quot;  DIMSE timeout: </span><span class="si">{0!s}</span><span class="s2"> s</span><span class="se">\n</span><span class="s2">&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">dimse_timeout</span><span class="p">)</span>
         <span class="n">str_out</span> <span class="o">+=</span> <span class="s2">&quot;  Network timeout: </span><span class="si">{0!s}</span><span class="s2"> s</span><span class="se">\n</span><span class="s2">&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">network_timeout</span><span class="p">)</span>
 
-        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">require_called_aet</span> <span class="o">!=</span> <span class="s1">&#39;&#39;</span> <span class="ow">or</span> <span class="bp">self</span><span class="o">.</span><span class="n">require_calling_aet</span> <span class="o">!=</span> <span class="s1">&#39;&#39;</span><span class="p">:</span>
-            <span class="n">str_out</span> <span class="o">+=</span> <span class="s2">&quot;</span><span class="se">\n</span><span class="s2">&quot;</span>
-        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">require_calling_aet</span> <span class="o">!=</span> <span class="s1">&#39;&#39;</span><span class="p">:</span>
-            <span class="n">str_out</span> <span class="o">+=</span> <span class="s2">&quot;  Required calling AE title: </span><span class="si">{0!s}</span><span class="se">\n</span><span class="s2">&quot;</span> \
-                       <span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">require_calling_aet</span><span class="p">)</span>
-        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">require_called_aet</span> <span class="o">!=</span> <span class="s1">&#39;&#39;</span><span class="p">:</span>
-            <span class="n">str_out</span> <span class="o">+=</span> <span class="s2">&quot;  Required called AE title: </span><span class="si">{0!s}</span><span class="se">\n</span><span class="s2">&quot;</span> \
-                       <span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">require_called_aet</span><span class="p">)</span>
+        <span class="n">str_out</span> <span class="o">+=</span> <span class="s2">&quot;</span><span class="se">\n</span><span class="s2">&quot;</span>
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">require_calling_aet</span> <span class="o">!=</span> <span class="p">[]:</span>
+            <span class="n">ae_titles</span> <span class="o">=</span> <span class="p">[</span>
+                <span class="n">aet</span><span class="o">.</span><span class="n">decode</span><span class="p">(</span><span class="s1">&#39;ascii&#39;</span><span class="p">)</span> <span class="k">for</span> <span class="n">aet</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">require_calling_aet</span>
+            <span class="p">]</span>
+            <span class="n">str_out</span> <span class="o">+=</span> <span class="s2">&quot;  Required calling AE title(s): </span><span class="si">{0!s}</span><span class="se">\n</span><span class="s2">&quot;</span> \
+                       <span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="s1">&#39;, &#39;</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">ae_titles</span><span class="p">))</span>
+        <span class="n">str_out</span> <span class="o">+=</span> <span class="s2">&quot;  Require called AE title: </span><span class="si">{0!s}</span><span class="se">\n</span><span class="s2">&quot;</span> \
+                   <span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">require_called_aet</span><span class="p">)</span>
 
         <span class="n">str_out</span> <span class="o">+=</span> <span class="s2">&quot;</span><span class="se">\n</span><span class="s2">&quot;</span>
 
