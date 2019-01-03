@@ -1325,8 +1325,11 @@ class ApplicationEntity(object):
 
         str_out += "\n"
         if self.require_calling_aet != []:
+            ae_titles = [
+                aet.decode('ascii') for aet in self.require_calling_aet
+            ]
             str_out += "  Required calling AE title(s): {0!s}\n" \
-                       .format(', '.join(self.require_calling_aet))
+                       .format(', '.join(ae_titles))
         str_out += "  Require called AE title: {0!s}\n" \
                    .format(self.require_called_aet)
 
