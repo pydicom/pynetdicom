@@ -722,7 +722,7 @@ class TestAssociation(object):
         ae.add_requested_context(VerificationSOPClass)
         ae.acse_timeout = 5
         ae.dimse_timeout = 5
-        assoc = ae.associate('loca`lhost', 11112)
+        assoc = ae.associate('localhost', 11112)
         assert not assoc.is_established
         assert assoc.is_rejected
         self.scp.stop()
