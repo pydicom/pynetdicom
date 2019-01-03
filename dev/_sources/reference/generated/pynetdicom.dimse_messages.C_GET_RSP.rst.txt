@@ -28,6 +28,5 @@ pynetdicom.dimse\_messages.C\_GET\_RSP
    .. autosummary::
    
       ~C_GET_RSP.ID
-      ~C_GET_RSP.command_set
    
    

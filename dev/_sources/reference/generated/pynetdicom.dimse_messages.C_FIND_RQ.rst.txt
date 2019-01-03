@@ -28,6 +28,5 @@ pynetdicom.dimse\_messages.C\_FIND\_RQ
    .. autosummary::
    
       ~C_FIND_RQ.ID
-      ~C_FIND_RQ.command_set
    
    

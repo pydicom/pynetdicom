@@ -371,13 +371,13 @@
 <span class="sd">    ----------</span>
 <span class="sd">    command_set : pydicom.dataset.Dataset</span>
 <span class="sd">        The message Command Set information (see PS3.7 6.3).</span>
+<span class="sd">    context_id : int</span>
+<span class="sd">        The presentation context ID.</span>
 <span class="sd">    data_set : io.BytesIO</span>
 <span class="sd">        The encoded message Data Set (see PS3.7 6.3).</span>
 <span class="sd">    encoded_command_set : BytesIO</span>
 <span class="sd">        During decoding of an incoming P-DATA primitive this stores the</span>
 <span class="sd">        encoded Command Set data from the fragments.</span>
-<span class="sd">    ID : int</span>
-<span class="sd">        The presentation context ID.</span>
 <span class="sd">    &quot;&quot;&quot;</span>
     <span class="k">def</span> <span class="nf">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;Create a new DIMSE Message.&quot;&quot;&quot;</span>
@@ -736,26 +736,12 @@
 <span class="sd">            to convert to the current DIMSEMessage object.</span>
 <span class="sd">        &quot;&quot;&quot;</span>
         <span class="c1"># pylint: disable=too-many-branches,too-many-statements</span>
-        <span class="c1"># Command Set</span>
-        <span class="c1"># Due to the del self.command_set[elem.tag] line below this may</span>
-        <span class="c1">#   end up permanently removing the element from the DIMSE message class</span>
-        <span class="c1">#   so we refresh the command set elements</span>
         <span class="n">cls_type_name</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="vm">__class__</span><span class="o">.</span><span class="vm">__name__</span><span class="o">.</span><span class="n">replace</span><span class="p">(</span><span class="s1">&#39;_&#39;</span><span class="p">,</span> <span class="s1">&#39;-&#39;</span><span class="p">)</span>
-        <span class="n">command_set_tags</span> <span class="o">=</span> <span class="p">[</span><span class="n">elem</span><span class="o">.</span><span class="n">tag</span> <span class="k">for</span> <span class="n">elem</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">command_set</span><span class="p">]</span>
-
         <span class="k">if</span> <span class="n">cls_type_name</span> <span class="ow">not</span> <span class="ow">in</span> <span class="n">_COMMAND_SET_ELEM</span><span class="p">:</span>
             <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s2">&quot;Can&#39;t convert primitive to message for unknown &quot;</span>
                              <span class="s2">&quot;DIMSE message type &#39;</span><span class="si">{}</span><span class="s2">&#39;&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">cls_type_name</span><span class="p">))</span>
 
-        <span class="k">for</span> <span class="n">tag</span> <span class="ow">in</span> <span class="n">_COMMAND_SET_ELEM</span><span class="p">[</span><span class="n">cls_type_name</span><span class="p">]:</span>
-            <span class="k">if</span> <span class="n">tag</span> <span class="ow">not</span> <span class="ow">in</span> <span class="n">command_set_tags</span><span class="p">:</span>
-                <span class="n">tag</span> <span class="o">=</span> <span class="n">Tag</span><span class="p">(</span><span class="n">tag</span><span class="p">)</span>
-                <span class="n">vr</span> <span class="o">=</span> <span class="n">dcm_dict</span><span class="p">[</span><span class="n">tag</span><span class="p">][</span><span class="mi">0</span><span class="p">]</span>
-                <span class="k">try</span><span class="p">:</span>
-                    <span class="bp">self</span><span class="o">.</span><span class="n">command_set</span><span class="o">.</span><span class="n">add_new</span><span class="p">(</span><span class="n">tag</span><span class="p">,</span> <span class="n">vr</span><span class="p">,</span> <span class="kc">None</span><span class="p">)</span>
-                <span class="k">except</span> <span class="ne">TypeError</span><span class="p">:</span>
-                    <span class="bp">self</span><span class="o">.</span><span class="n">command_set</span><span class="o">.</span><span class="n">add_new</span><span class="p">(</span><span class="n">tag</span><span class="p">,</span> <span class="n">vr</span><span class="p">,</span> <span class="s1">&#39;&#39;</span><span class="p">)</span>
-
+        <span class="c1"># Command Set</span>
         <span class="c1"># Convert the message command set to the primitive attributes</span>
         <span class="k">for</span> <span class="n">elem</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">command_set</span><span class="p">:</span>
             <span class="c1"># Use the short version of the element names as these should</span>
@@ -768,7 +754,7 @@
                 <span class="k">if</span> <span class="n">attr</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
                     <span class="n">elem</span><span class="o">.</span><span class="n">value</span> <span class="o">=</span> <span class="n">attr</span>
                 <span class="k">else</span><span class="p">:</span>
-                    <span class="k">del</span> <span class="bp">self</span><span class="o">.</span><span class="n">command_set</span><span class="p">[</span><span class="n">elem</span><span class="o">.</span><span class="n">tag</span><span class="p">]</span>  <span class="c1"># Careful!</span>
+                    <span class="k">del</span> <span class="bp">self</span><span class="o">.</span><span class="n">command_set</span><span class="p">[</span><span class="n">elem</span><span class="o">.</span><span class="n">tag</span><span class="p">]</span>
 
         <span class="c1"># Theres a one-to-one relationship in the _MESSAGE_TYPES dict, so</span>
         <span class="c1">#   invert it for convenience</span>
@@ -852,28 +838,26 @@
 
     <span class="k">def</span> <span class="nf">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
         <span class="n">DIMSEMessage</span><span class="o">.</span><span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span>
+        <span class="c1"># Create a new Dataset object for the command_set attributes</span>
+        <span class="n">ds</span> <span class="o">=</span> <span class="n">Dataset</span><span class="p">()</span>
+        <span class="k">for</span> <span class="n">elem_tag</span> <span class="ow">in</span> <span class="n">_COMMAND_SET_ELEM</span><span class="p">[</span><span class="n">message_name</span><span class="p">]:</span>
+            <span class="n">tag</span> <span class="o">=</span> <span class="n">Tag</span><span class="p">(</span><span class="n">elem_tag</span><span class="p">)</span>
+            <span class="n">vr</span> <span class="o">=</span> <span class="n">dcm_dict</span><span class="p">[</span><span class="n">elem_tag</span><span class="p">][</span><span class="mi">0</span><span class="p">]</span>
+
+            <span class="c1"># If the required command set elements are expanded this will need</span>
+            <span class="c1">#   to be checked to ensure it functions OK</span>
+            <span class="k">try</span><span class="p">:</span>
+                <span class="n">ds</span><span class="o">.</span><span class="n">add_new</span><span class="p">(</span><span class="n">tag</span><span class="p">,</span> <span class="n">vr</span><span class="p">,</span> <span class="kc">None</span><span class="p">)</span>
+            <span class="k">except</span> <span class="ne">TypeError</span><span class="p">:</span>
+                <span class="n">ds</span><span class="o">.</span><span class="n">add_new</span><span class="p">(</span><span class="n">tag</span><span class="p">,</span> <span class="n">vr</span><span class="p">,</span> <span class="s1">&#39;&#39;</span><span class="p">)</span>
+
+        <span class="bp">self</span><span class="o">.</span><span class="n">command_set</span> <span class="o">=</span> <span class="n">ds</span>
 
     <span class="c1"># Create new subclass of DIMSE Message using the supplied name</span>
     <span class="c1">#   but replace hyphens with underscores</span>
     <span class="bp">cls</span> <span class="o">=</span> <span class="nb">type</span><span class="p">(</span><span class="n">message_name</span><span class="o">.</span><span class="n">replace</span><span class="p">(</span><span class="s1">&#39;-&#39;</span><span class="p">,</span> <span class="s1">&#39;_&#39;</span><span class="p">),</span>
                <span class="p">(</span><span class="n">DIMSEMessage</span><span class="p">,</span> <span class="p">),</span>
                <span class="p">{</span><span class="s2">&quot;__init__&quot;</span><span class="p">:</span> <span class="fm">__init__</span><span class="p">})</span>
-
-    <span class="c1"># Create a new Dataset object for the command_set attributes</span>
-    <span class="n">ds</span> <span class="o">=</span> <span class="n">Dataset</span><span class="p">()</span>
-    <span class="k">for</span> <span class="n">elem_tag</span> <span class="ow">in</span> <span class="n">_COMMAND_SET_ELEM</span><span class="p">[</span><span class="n">message_name</span><span class="p">]:</span>
-        <span class="n">tag</span> <span class="o">=</span> <span class="n">Tag</span><span class="p">(</span><span class="n">elem_tag</span><span class="p">)</span>
-        <span class="n">vr</span> <span class="o">=</span> <span class="n">dcm_dict</span><span class="p">[</span><span class="n">elem_tag</span><span class="p">][</span><span class="mi">0</span><span class="p">]</span>
-
-        <span class="c1"># If the required command set elements are expanded this will need</span>
-        <span class="c1">#   to be checked to ensure it functions OK</span>
-        <span class="k">try</span><span class="p">:</span>
-            <span class="n">ds</span><span class="o">.</span><span class="n">add_new</span><span class="p">(</span><span class="n">tag</span><span class="p">,</span> <span class="n">vr</span><span class="p">,</span> <span class="kc">None</span><span class="p">)</span>
-        <span class="k">except</span> <span class="ne">TypeError</span><span class="p">:</span>
-            <span class="n">ds</span><span class="o">.</span><span class="n">add_new</span><span class="p">(</span><span class="n">tag</span><span class="p">,</span> <span class="n">vr</span><span class="p">,</span> <span class="s1">&#39;&#39;</span><span class="p">)</span>
-
-    <span class="c1"># Add the Command Set dataset to the class</span>
-    <span class="bp">cls</span><span class="o">.</span><span class="n">command_set</span> <span class="o">=</span> <span class="n">ds</span>
 
     <span class="c1"># Add the class to the module</span>
     <span class="nb">globals</span><span class="p">()[</span><span class="bp">cls</span><span class="o">.</span><span class="vm">__name__</span><span class="p">]</span> <span class="o">=</span> <span class="bp">cls</span>

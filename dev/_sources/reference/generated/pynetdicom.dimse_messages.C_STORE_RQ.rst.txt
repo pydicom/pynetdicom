@@ -28,6 +28,5 @@ pynetdicom.dimse\_messages.C\_STORE\_RQ
    .. autosummary::
    
       ~C_STORE_RQ.ID
-      ~C_STORE_RQ.command_set
    
    

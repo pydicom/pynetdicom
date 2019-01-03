@@ -28,6 +28,5 @@ pynetdicom.dimse\_messages.C\_CANCEL\_RQ
    .. autosummary::
    
       ~C_CANCEL_RQ.ID
-      ~C_CANCEL_RQ.command_set
    
    

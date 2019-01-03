@@ -28,6 +28,5 @@ pynetdicom.dimse\_messages.C\_MOVE\_RSP
    .. autosummary::
    
       ~C_MOVE_RSP.ID
-      ~C_MOVE_RSP.command_set
    
    

@@ -28,6 +28,5 @@ pynetdicom.dimse\_messages.C\_MOVE\_RQ
    .. autosummary::
    
       ~C_MOVE_RQ.ID
-      ~C_MOVE_RQ.command_set
    
    

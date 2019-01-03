@@ -174,7 +174,7 @@
 <h1>pynetdicom.association.ServiceUser<a class="headerlink" href="#pynetdicom-association-serviceuser" title="Permalink to this headline">¶</a></h1>
 <dl class="class">
 <dt id="pynetdicom.association.ServiceUser">
-<em class="property">class </em><code class="descclassname">pynetdicom.association.</code><code class="descname">ServiceUser</code><span class="sig-paren">(</span><em>assoc</em>, <em>mode</em><span class="sig-paren">)</span><a class="reference internal" href="../../_modules/pynetdicom/association.html#ServiceUser"><span class="viewcode-link">[source]</span></a><a class="reference external" href="https://github.com/pydicom/pynetdicom/blob/c62484f/pynetdicom/association.py#L2703"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pynetdicom.association.ServiceUser" title="Permalink to this definition">¶</a></dt>
+<em class="property">class </em><code class="descclassname">pynetdicom.association.</code><code class="descname">ServiceUser</code><span class="sig-paren">(</span><em>assoc</em>, <em>mode</em><span class="sig-paren">)</span><a class="reference internal" href="../../_modules/pynetdicom/association.html#ServiceUser"><span class="viewcode-link">[source]</span></a><a class="reference external" href="https://github.com/pydicom/pynetdicom/blob/1385856/pynetdicom/association.py#L2703"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pynetdicom.association.ServiceUser" title="Permalink to this definition">¶</a></dt>
 <dd><p>Convenience class for the Association Service User.</p>
 <p>An Association object has two ServiceUser attributes, one representing the
 association requestor and the other the association acceptor. Once both
@@ -283,7 +283,7 @@ during association negotiation.</p>
 
 <dl class="method">
 <dt id="pynetdicom.association.ServiceUser.__init__">
-<code class="descname">__init__</code><span class="sig-paren">(</span><em>assoc</em>, <em>mode</em><span class="sig-paren">)</span><a class="reference internal" href="../../_modules/pynetdicom/association.html#ServiceUser.__init__"><span class="viewcode-link">[source]</span></a><a class="reference external" href="https://github.com/pydicom/pynetdicom/blob/c62484f/pynetdicom/association.py#L2750"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pynetdicom.association.ServiceUser.__init__" title="Permalink to this definition">¶</a></dt>
+<code class="descname">__init__</code><span class="sig-paren">(</span><em>assoc</em>, <em>mode</em><span class="sig-paren">)</span><a class="reference internal" href="../../_modules/pynetdicom/association.html#ServiceUser.__init__"><span class="viewcode-link">[source]</span></a><a class="reference external" href="https://github.com/pydicom/pynetdicom/blob/1385856/pynetdicom/association.py#L2750"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pynetdicom.association.ServiceUser.__init__" title="Permalink to this definition">¶</a></dt>
 <dd><p>Create a new ServiceUser.</p>
 <table class="docutils field-list" frame="void" rules="none">
 <col class="field-name" />
@@ -410,7 +410,7 @@ negotiation items.</td>
 
 <dl class="method">
 <dt id="pynetdicom.association.ServiceUser.add_negotiation_item">
-<code class="descname">add_negotiation_item</code><span class="sig-paren">(</span><em>item</em><span class="sig-paren">)</span><a class="reference internal" href="../../_modules/pynetdicom/association.html#ServiceUser.add_negotiation_item"><span class="viewcode-link">[source]</span></a><a class="reference external" href="https://github.com/pydicom/pynetdicom/blob/c62484f/pynetdicom/association.py#L2824"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pynetdicom.association.ServiceUser.add_negotiation_item" title="Permalink to this definition">¶</a></dt>
+<code class="descname">add_negotiation_item</code><span class="sig-paren">(</span><em>item</em><span class="sig-paren">)</span><a class="reference internal" href="../../_modules/pynetdicom/association.html#ServiceUser.add_negotiation_item"><span class="viewcode-link">[source]</span></a><a class="reference external" href="https://github.com/pydicom/pynetdicom/blob/1385856/pynetdicom/association.py#L2824"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pynetdicom.association.ServiceUser.add_negotiation_item" title="Permalink to this definition">¶</a></dt>
 <dd><p>Add an extended negotiation item to the user information.</p>
 <p>Items can only be added prior to starting the association negotiation.</p>
 <table class="docutils field-list" frame="void" rules="none">
@@ -480,7 +480,7 @@ extended negotiation item responses.</td>
 
 <dl class="method">
 <dt id="pynetdicom.association.ServiceUser.get_contexts">
-<code class="descname">get_contexts</code><span class="sig-paren">(</span><em>cx_type</em><span class="sig-paren">)</span><a class="reference internal" href="../../_modules/pynetdicom/association.html#ServiceUser.get_contexts"><span class="viewcode-link">[source]</span></a><a class="reference external" href="https://github.com/pydicom/pynetdicom/blob/c62484f/pynetdicom/association.py#L2918"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pynetdicom.association.ServiceUser.get_contexts" title="Permalink to this definition">¶</a></dt>
+<code class="descname">get_contexts</code><span class="sig-paren">(</span><em>cx_type</em><span class="sig-paren">)</span><a class="reference internal" href="../../_modules/pynetdicom/association.html#ServiceUser.get_contexts"><span class="viewcode-link">[source]</span></a><a class="reference external" href="https://github.com/pydicom/pynetdicom/blob/1385856/pynetdicom/association.py#L2918"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pynetdicom.association.ServiceUser.get_contexts" title="Permalink to this definition">¶</a></dt>
 <dd><p>Return a list of PresentationContext corresponding to <cite>cx_type</cite>.</p>
 <table class="docutils field-list" frame="void" rules="none">
 <col class="field-name" />
@@ -595,7 +595,7 @@ if the acceptor and they have rejected the negotiation.</td>
 
 <dl class="method">
 <dt id="pynetdicom.association.ServiceUser.remove_negotiation_item">
-<code class="descname">remove_negotiation_item</code><span class="sig-paren">(</span><em>item</em><span class="sig-paren">)</span><a class="reference internal" href="../../_modules/pynetdicom/association.html#ServiceUser.remove_negotiation_item"><span class="viewcode-link">[source]</span></a><a class="reference external" href="https://github.com/pydicom/pynetdicom/blob/c62484f/pynetdicom/association.py#L3185"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pynetdicom.association.ServiceUser.remove_negotiation_item" title="Permalink to this definition">¶</a></dt>
+<code class="descname">remove_negotiation_item</code><span class="sig-paren">(</span><em>item</em><span class="sig-paren">)</span><a class="reference internal" href="../../_modules/pynetdicom/association.html#ServiceUser.remove_negotiation_item"><span class="viewcode-link">[source]</span></a><a class="reference external" href="https://github.com/pydicom/pynetdicom/blob/1385856/pynetdicom/association.py#L3185"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pynetdicom.association.ServiceUser.remove_negotiation_item" title="Permalink to this definition">¶</a></dt>
 <dd><p>Remove an extended negotiation item from the user information.</p>
 <p>Items can only be removed prior to starting the association
 negotiation.</p>
@@ -628,7 +628,7 @@ started.</li>
 
 <dl class="method">
 <dt id="pynetdicom.association.ServiceUser.reset_negotiation_items">
-<code class="descname">reset_negotiation_items</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="../../_modules/pynetdicom/association.html#ServiceUser.reset_negotiation_items"><span class="viewcode-link">[source]</span></a><a class="reference external" href="https://github.com/pydicom/pynetdicom/blob/c62484f/pynetdicom/association.py#L3223"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pynetdicom.association.ServiceUser.reset_negotiation_items" title="Permalink to this definition">¶</a></dt>
+<code class="descname">reset_negotiation_items</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="../../_modules/pynetdicom/association.html#ServiceUser.reset_negotiation_items"><span class="viewcode-link">[source]</span></a><a class="reference external" href="https://github.com/pydicom/pynetdicom/blob/1385856/pynetdicom/association.py#L3223"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pynetdicom.association.ServiceUser.reset_negotiation_items" title="Permalink to this definition">¶</a></dt>
 <dd><p>Remove all extended negotiation items.</p>
 <p>Items can only be removed prior to starting the association
 negotiation.</p>

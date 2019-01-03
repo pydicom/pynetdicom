@@ -190,6 +190,8 @@
 keyword argument in <code class="docutils literal notranslate"><span class="pre">AE.add_requested_context()</span></code>,
 <code class="docutils literal notranslate"><span class="pre">AE.add_supported_context()</span></code> and <code class="docutils literal notranslate"><span class="pre">presentation.build_context()</span></code></li>
 <li>Completely fixed handling a maximum PDU length of 0. (<a class="reference external" href="https://github.com/pydicom/pynetdicom/issues/193">#193</a>)</li>
+<li><code class="docutils literal notranslate"><span class="pre">DIMSEMessage</span></code> subclass creation and <code class="docutils literal notranslate"><span class="pre">DIMSEMessage.primitive_to_message</span></code>
+should now be thread-safe (<a class="reference external" href="https://github.com/pydicom/pynetdicom/issues/137">#137</a>)</li>
 </ul>
 </div>
 <div class="section" id="enhancements">
@@ -208,6 +210,7 @@ instead.</li>
 <li><code class="docutils literal notranslate"><span class="pre">DIMSEMessage.ID</span></code> is deprecated and will be removed in v1.2. Use
 <code class="docutils literal notranslate"><span class="pre">DIMSEMessage.context_id</span></code> instead.</li>
 <li>Added <code class="docutils literal notranslate"><span class="pre">_globals.py</span></code> for frequently used global constants.</li>
+<li><code class="docutils literal notranslate"><span class="pre">utils.validate_ae_title</span></code> changed to only returns bytes for Python 3</li>
 </ul>
 </div>
 </div>
