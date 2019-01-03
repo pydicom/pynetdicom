@@ -298,7 +298,7 @@ class ACSE(object):
 
         # Called AE Title not recognised
         if (assoc.ae.require_called_aet and assoc_rq.called_ae_title
-                not in assoc.ae.require_called_aet):
+                != assoc.ae.ae_title):
             reject_assoc_rsd = [0x01, 0x01, 0x07]
 
         ## Extended Negotiation items

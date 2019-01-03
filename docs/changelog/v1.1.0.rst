@@ -28,10 +28,13 @@ Changes
   ``DIMSEMessage.context_id`` instead.
 * Added ``_globals.py`` for frequently used global constants.
 * ``utils.validate_ae_title`` changed to only return bytes for Python 3
-* ``AE.require_called_aet`` and ``AE.require_calling_aet`` now take a list
-  of AE titles (as bytes) rather than a single AE title. During association
-  negotiation (as acceptor) the value of the *Called AE Title* and *Calling AE
-  Title* parameters will be compared to those in the lists and if no matches
-  are found the association rejected. If the ``require_called_aet`` and
-  ``require_calling_aet`` are set to empty lists then no matching will be
-  performed and the association accepted (unless rejected for other reasons).
+* ``AE.require_calling_aet`` now takes a list of AE titles (as bytes) rather
+  than a single AE title. If set to a non-empty list then association requests
+  will be rejected unless the value of the *Calling AE Title* parameter matches
+  one of those in the list. If set to an empty list (default) then all
+  associations will be accepted (unless rejected for other reasons).
+* ``AE.require_called_aet`` should now be set using a bool. If True then any
+  association requests will be rejected unless the value of the *Called AE
+  Title* parameter matches ``AE.ae_title``. If False (default) then no matching
+  will be performed and all associations accepted (unless rejected for other
+  reasons).

@@ -74,12 +74,12 @@ class ApplicationEntity(object):
         The local AE's listen port number when acting as an SCP or connection
         port when acting as an SCU. A value of 0 indicates that the operating
         system should choose the port.
-    require_calling_aet : bytes
-        If not empty bytes, the calling AE title must match
-        `require_calling_aet` (SCP only).
-    require_called_aet : bytes
-        If not empty bytes the called AE title must match `required_called_aet`
-        (SCP only).
+    require_calling_aet : list of bytes
+        If not an empty list, the association request's *Calling AE Title*
+        value must match one of the values in `require_calling_aet` (SCP only).
+    require_called_aet : bool
+        If True, the association request's *Called AE Title* value
+        must match AE.ae_title (default False). (SCP only).
 
     Examples
     --------
@@ -206,7 +206,7 @@ class ApplicationEntity(object):
 
         # Require Calling/Called AE titles to match if value is non-empty str
         self.require_calling_aet = []
-        self.require_called_aet = []
+        self.require_called_aet = False
 
         self.local_socket = None
 
@@ -1156,11 +1156,11 @@ class ApplicationEntity(object):
 
     @property
     def require_called_aet(self):
-        """Return the required called AE title as a list of bytes."""
+        """Return the whether the *Called AE Title* must match ae_title."""
         return self._require_called_aet
 
     @require_called_aet.setter
-    def require_called_aet(self, ae_titles):
+    def require_called_aet(self, require_match):
         """Set the required called AE titles.
 
         When an Association request is received the value of the 'Called AE
@@ -1170,15 +1170,14 @@ class ApplicationEntity(object):
 
         Parameters
         ----------
-        ae_titles : list of bytes
-            If not empty then any association requests that supply a
-            Called AE Title value that does not match anything in `ae_titles`
-            will be rejected.
+        require_match : bool
+            If True then any association requests that supply a
+            *Called AE Title* value that does not match AE.ae_title
+            will be rejected. If False (default) then all association requests
+            will be accepted (unless rejected for other reasons).
         """
         # pylint: disable=attribute-defined-outside-init
-        self._require_called_aet = [
-            validate_ae_title(aet) for aet in ae_titles
-        ]
+        self._require_called_aet = require_match
 
     @property
     def require_calling_aet(self):
@@ -1198,8 +1197,10 @@ class ApplicationEntity(object):
         ----------
         ae_titles : list of bytes
             If not empty then any association requests that supply a
-            Calling AE Title value that does not match `ae_title` will be
-            rejected.
+            Calling AE Title value that does not match one of the values in
+            `ae_titles` will be rejected. If an empty list (default) then all
+            association requests will be accepted (unless rejected for other
+            reasons).
         """
         # pylint: disable=attribute-defined-outside-init
         self._require_calling_aet = [
@@ -1322,14 +1323,12 @@ class ApplicationEntity(object):
         str_out += "  DIMSE timeout: {0!s} s\n".format(self.dimse_timeout)
         str_out += "  Network timeout: {0!s} s\n".format(self.network_timeout)
 
-        if self.require_called_aet != '' or self.require_calling_aet != '':
-            str_out += "\n"
-        if self.require_calling_aet != '':
+        str_out += "\n"
+        if self.require_calling_aet != []:
             str_out += "  Required calling AE title(s): {0!s}\n" \
                        .format(', '.join(self.require_calling_aet))
-        if self.require_called_aet != '':
-            str_out += "  Required called AE title(s): {0!s}\n" \
-                       .format(', '.join(self.require_called_aet))
+        str_out += "  Require called AE title: {0!s}\n" \
+                   .format(self.require_called_aet)
 
         str_out += "\n"
 

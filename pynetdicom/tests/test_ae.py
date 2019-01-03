@@ -725,21 +725,12 @@ class TestAEGoodMiscSetters(object):
         assert assoc.is_released
         assert not assoc.is_established
 
-        self.scp.ae.require_called_aet = [b'MYAE']
-        assert self.scp.ae.require_called_aet == [b'MYAE            ']
+        self.scp.ae.require_called_aet = True
+        assert self.scp.ae.require_called_aet is True
         assoc = ae.associate('localhost', 11112)
         assert assoc.is_rejected
 
-        self.scp.ae.require_called_aet = [b'ANY-SCP         ']
-        assert self.scp.ae.require_called_aet == [b'ANY-SCP         ']
-        assoc = ae.associate('localhost', 11112)
-        assert assoc.is_established
-        assoc.release()
-
-        with pytest.raises(ValueError, match=r"entirely of only spaces"):
-            self.scp.ae.require_called_aet = [b'']
-        assert self.scp.ae.require_called_aet == [b'ANY-SCP         ']
-        assoc = ae.associate('localhost', 11112)
+        assoc = ae.associate('localhost', 11112, ae_title=b'PYNETDICOM')
         assert assoc.is_established
         assoc.release()
 
@@ -757,23 +748,24 @@ class TestAEGoodMiscSetters(object):
     def test_req_called_aet(self):
         """ Check AE require called aet change produces good value """
         ae = AE()
-        ae.require_called_aet = [b'10', b'asdf']
-        assert ae.require_called_aet == [
-            b'10              ',
-            b'asdf            '
-        ]
+        assert ae.require_called_aet is False
+        ae.require_called_aet = True
+        assert ae.require_called_aet is True
+        ae.require_called_aet = False
+        assert ae.require_called_aet is False
 
     def test_string_output(self):
         """Test string output"""
         ae = AE()
         ae.add_requested_context(VerificationSOPClass)
         ae.require_calling_aet = [b'something']
-        ae.require_called_aet = [b'elsething']
+        ae.require_called_aet = True
+        print(ae)
         assert 'Explicit VR' in ae.__str__()
         assert 'Verification' in ae.__str__()
         assert '0/2' in ae.__str__()
         assert 'something' in ae.__str__()
-        assert 'elsething' in ae.__str__()
+        assert 'Require called AE title: True' in ae.__str__()
         ae.supported_contexts = StoragePresentationContexts
         assert 'CT Image' in ae.__str__()
 
