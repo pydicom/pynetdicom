@@ -76,7 +76,8 @@ class ApplicationEntity(object):
         system should choose the port.
     require_calling_aet : list of bytes
         If not an empty list, the association request's *Calling AE Title*
-        value must match one of the values in `require_calling_aet` (SCP only).
+        value must match one of the values in `require_calling_aet`. If an
+        empty list then no matching will be performed (default). (SCP only).
     require_called_aet : bool
         If True, the association request's *Called AE Title* value
         must match AE.ae_title (default False). (SCP only).
@@ -1156,12 +1157,12 @@ class ApplicationEntity(object):
 
     @property
     def require_called_aet(self):
-        """Return the whether the *Called AE Title* must match ae_title."""
+        """Return whether the *Called AE Title* must match ae_title."""
         return self._require_called_aet
 
     @require_called_aet.setter
     def require_called_aet(self, require_match):
-        """Set the required called AE titles.
+        """Set whether the *Called AE Title* must match the AE title.
 
         When an Association request is received the value of the 'Called AE
         Title' supplied by the peer will be compared with the set values and
