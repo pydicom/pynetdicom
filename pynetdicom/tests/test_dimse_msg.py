@@ -626,3 +626,78 @@ class TestDIMSEMessage(object):
         msg.ID = 1
         with pytest.deprecated_call():
             assert msg.ID == 1
+
+
+class TestThreadSafety(object):
+    """Tests for the thread safety of DIMSEMessage classes."""
+    def setup(self):
+        ds = Dataset()
+        ds.SOPClassUID = '1.2.840.10008.5.1.4.1.1'
+        ds.SOPInstanceUID = '1.2.3.4'
+        ds.PatientName = 'Test^Testing'
+        self.ds = ds
+
+    def test_msg_init(self):
+        """Test the DIMSE Message dynamic construction works OK."""
+        msg = C_STORE_RQ()
+        cs = msg.command_set
+        ds = msg.data_set
+        assert cs.CommandGroupLength is None
+        assert cs.AffectedSOPClassUID == ''
+        assert cs.CommandField is None
+        assert cs.MessageID is None
+        assert cs.Priority is None
+        assert cs.CommandDataSetType is None
+        assert cs.AffectedSOPInstanceUID == ''
+        assert cs.MoveOriginatorApplicationEntityTitle is None
+        assert cs.MoveOriginatorMessageID is None
+        assert ds.getvalue() == b''
+
+    def test_cstore_rq(self):
+        """Test creation of a DIMSE Message from a primitive works OK."""
+        # Testing that primitive_to_message doesn't affect the original class
+        #   definition
+        req = C_STORE()
+        req.MessageID = 12
+        req.AffectedSOPClassUID = self.ds.SOPClassUID
+        req.AffectedSOPInstanceUID = self.ds.SOPInstanceUID
+        req.Priority = 0x02
+        req.MoveOriginatorApplicationEntityTitle = None
+        req.MoveOriginatorMessageID = None
+        req.DataSet = BytesIO(encode(self.ds, True, True))
+
+        msg = C_STORE_RQ()
+        msg.primitive_to_message(req)
+        cs = msg.command_set
+        assert cs.CommandGroupLength == 88
+        assert cs.AffectedSOPClassUID == '1.2.840.10008.5.1.4.1.1'
+        assert cs.CommandField == 1
+        assert cs.MessageID == 12
+        assert cs.Priority == 2
+        assert cs.CommandDataSetType == 1
+        assert cs.AffectedSOPInstanceUID == '1.2.3.4'
+        assert 'MoveOriginatorApplicationEntityTitle' not in cs
+        assert 'MoveOriginatorMessageID' not in cs
+        assert msg.data_set.getvalue() != b''
+
+        # Test new class instance is OK
+        msg = C_STORE_RQ()
+        cs = msg.command_set
+        ds = msg.data_set
+        assert cs.CommandGroupLength is None
+        assert cs.AffectedSOPClassUID == ''
+        assert cs.CommandField is None
+        assert cs.MessageID is None
+        assert cs.Priority is None
+        assert cs.CommandDataSetType is None
+        assert cs.AffectedSOPInstanceUID == ''
+        assert cs.MoveOriginatorApplicationEntityTitle is None
+        assert cs.MoveOriginatorMessageID is None
+        assert ds.getvalue() == b''
+
+    def test_message_builder_regression(self):
+        """Regression test for DIMSEMessage class builder."""
+        with pytest.raises(AttributeError, match=r"no attribute 'command_set'"):
+            assert C_STORE_RQ.command_set.MessageID
+        with pytest.raises(AttributeError, match=r"no attribute 'data_set'"):
+            assert C_STORE_RQ.data_set.get_value() == b''

@@ -200,13 +200,13 @@ class DIMSEMessage(object):
     ----------
     command_set : pydicom.dataset.Dataset
         The message Command Set information (see PS3.7 6.3).
+    context_id : int
+        The presentation context ID.
     data_set : io.BytesIO
         The encoded message Data Set (see PS3.7 6.3).
     encoded_command_set : BytesIO
         During decoding of an incoming P-DATA primitive this stores the
         encoded Command Set data from the fragments.
-    ID : int
-        The presentation context ID.
     """
     def __init__(self):
         """Create a new DIMSE Message."""
@@ -565,26 +565,12 @@ class DIMSEMessage(object):
             to convert to the current DIMSEMessage object.
         """
         # pylint: disable=too-many-branches,too-many-statements
-        # Command Set
-        # Due to the del self.command_set[elem.tag] line below this may
-        #   end up permanently removing the element from the DIMSE message class
-        #   so we refresh the command set elements
         cls_type_name = self.__class__.__name__.replace('_', '-')
-        command_set_tags = [elem.tag for elem in self.command_set]
-
         if cls_type_name not in _COMMAND_SET_ELEM:
             raise ValueError("Can't convert primitive to message for unknown "
                              "DIMSE message type '{}'".format(cls_type_name))
 
-        for tag in _COMMAND_SET_ELEM[cls_type_name]:
-            if tag not in command_set_tags:
-                tag = Tag(tag)
-                vr = dcm_dict[tag][0]
-                try:
-                    self.command_set.add_new(tag, vr, None)
-                except TypeError:
-                    self.command_set.add_new(tag, vr, '')
-
+        # Command Set
         # Convert the message command set to the primitive attributes
         for elem in self.command_set:
             # Use the short version of the element names as these should
@@ -597,7 +583,7 @@ class DIMSEMessage(object):
                 if attr is not None:
                     elem.value = attr
                 else:
-                    del self.command_set[elem.tag]  # Careful!
+                    del self.command_set[elem.tag]
 
         # Theres a one-to-one relationship in the _MESSAGE_TYPES dict, so
         #   invert it for convenience
@@ -681,28 +667,26 @@ def _build_message_classes(message_name):
 
     def __init__(self):
         DIMSEMessage.__init__(self)
+        # Create a new Dataset object for the command_set attributes
+        ds = Dataset()
+        for elem_tag in _COMMAND_SET_ELEM[message_name]:
+            tag = Tag(elem_tag)
+            vr = dcm_dict[elem_tag][0]
+
+            # If the required command set elements are expanded this will need
+            #   to be checked to ensure it functions OK
+            try:
+                ds.add_new(tag, vr, None)
+            except TypeError:
+                ds.add_new(tag, vr, '')
+
+        self.command_set = ds
 
     # Create new subclass of DIMSE Message using the supplied name
     #   but replace hyphens with underscores
     cls = type(message_name.replace('-', '_'),
                (DIMSEMessage, ),
                {"__init__": __init__})
-
-    # Create a new Dataset object for the command_set attributes
-    ds = Dataset()
-    for elem_tag in _COMMAND_SET_ELEM[message_name]:
-        tag = Tag(elem_tag)
-        vr = dcm_dict[elem_tag][0]
-
-        # If the required command set elements are expanded this will need
-        #   to be checked to ensure it functions OK
-        try:
-            ds.add_new(tag, vr, None)
-        except TypeError:
-            ds.add_new(tag, vr, '')
-
-    # Add the Command Set dataset to the class
-    cls.command_set = ds
 
     # Add the class to the module
     globals()[cls.__name__] = cls

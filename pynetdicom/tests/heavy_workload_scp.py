@@ -21,6 +21,49 @@ from dummy_c_scp import DummyStorageSCP
 from pynetdicom import AE
 from pynetdicom.sop_class import CTImageStorage, RTImageStorage
 
+
+def init_yappi():
+  OUT_FILE = '/home/dean/Coding/src/scp.assoc'
+
+  import atexit
+  import yappi
+
+  print('[YAPPI START]')
+  yappi.set_clock_type('wall')
+  yappi.start()
+
+  @atexit.register
+  def finish_yappi():
+    yappi.stop()
+
+    print('[YAPPI WRITE]')
+
+    stats = yappi.get_func_stats()
+
+    # 'ystat' is Yappi internal format
+    for stat_type in ['pstat', 'callgrind']:
+      print('writing {}.{}'.format(OUT_FILE, stat_type))
+      stats.save('{}.{}'.format(OUT_FILE, stat_type), type=stat_type)
+
+    print('\n[YAPPI FUNC_STATS]')
+
+    print('writing {}.func_stats'.format(OUT_FILE))
+    with open('{}.func_stats'.format(OUT_FILE), 'wb') as fh:
+      stats.print_all(out=fh)
+
+    print('\n[YAPPI THREAD_STATS]')
+
+    print('writing {}.thread_stats'.format(OUT_FILE))
+    tstats = yappi.get_thread_stats()
+    with open('{}.thread_stats'.format(OUT_FILE), 'wb') as fh:
+      tstats.print_all(out=fh)
+
+    print('[YAPPI DONE]')
+
+
+#init_yappi()
+
+
 LOGGER = logging.getLogger('pynetdicom')
 LOGGER.setLevel(logging.CRITICAL)
 
@@ -28,7 +71,8 @@ TEST_DS_DIR = os.path.join(os.path.dirname(__file__), 'dicom_files')
 BIG_DATASET = read_file(os.path.join(TEST_DS_DIR, 'RTImageStorage.dcm')) # 2.1 MB
 DATASET = read_file(os.path.join(TEST_DS_DIR, 'CTImageStorage.dcm')) # 39 kB
 
-class DummyStorageSCP():
+
+class DummyStorageSCP(threading.Thread):
     def __init__(self, port=11112):
         """Initialise the class"""
         self.ae = AE(b'DUMMY_SCP', port)
@@ -58,6 +102,7 @@ class DummyStorageSCP():
     def on_c_store(self, ds, context, info):
         """Callback for ae.on_c_store"""
         return 0x0000
+
 
 scp = DummyStorageSCP(11112)
 scp.start()
