@@ -494,9 +494,6 @@ class ACSE(object):
         else:
             assoc.is_established = False
             assoc.dul.kill_dul()
-            LOGGER.error(
-                "Received an invalid response to the A-ASSOCIATE request"
-            )
 
     def release_association(self, assoc):
         """Release an established association.
