@@ -177,11 +177,6 @@ class DULServiceProvider(Thread):
         """Immediately interrupts the thread"""
         self._kill_thread = True
 
-    def on_receive_pdu(self):
-        """Called after the first byte of an incoming PDU is read.
-        """
-        pass
-
     def peek_next_pdu(self):
         """Check the next PDU to be processed."""
         try:
@@ -202,14 +197,14 @@ class DULServiceProvider(Thread):
             `timeout` seconds. Otherwise returns an item if one is immediately
             available.
         timeout : int or None
-            See the definition of `Wait`
+            See the definition of `wait`
 
         Returns
         -------
         queue_item
-            The next object in the to_user_queue [FIXME]
+            The next object in the to_user_queue.
         None
-            If the queue is empty
+            If the queue is empty.
         """
         try:
             # Remove and return an item from the queue

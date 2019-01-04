@@ -311,8 +311,8 @@ def AE_6(dul):
     # If A-ASSOCIATE-RQ not acceptable by service dul provider
     #   Then set reason and send -RJ PDU back to peer
     if dul.pdu.protocol_version != 0x0001:
-        LOGGER.error("Receiving Association failed: Unsupported peer protocol "
-                     "version '0x%04x' (0x0001 expected)",
+        LOGGER.error("A-ASSOCIATE-RQ: Unsupported protocol "
+                     "version '0x%04x'",
                      dul.pdu.protocol_version)
 
         # Send A-ASSOCIATE-RJ PDU and start ARTIM timer
@@ -713,7 +713,7 @@ def AR_8(dul):
     """
     # Issue A-RELEASE indication (release collision)
     dul.to_user_queue.put(dul.primitive)
-    if dul.requestor == 1:
+    if dul.assoc.is_requestor:
         return 'Sta9'
 
     return 'Sta10'

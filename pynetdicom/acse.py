@@ -2,9 +2,10 @@
 ACSE service provider
 """
 import logging
+import time
 
 from pynetdicom.pdu_primitives import (
-    A_ASSOCIATE, A_RELEASE, A_ABORT, A_P_ABORT,
+    A_ASSOCIATE, A_RELEASE, A_ABORT, A_P_ABORT, P_DATA,
     AsynchronousOperationsWindowNegotiation,
     SOPClassCommonExtendedNegotiation,
     SOPClassExtendedNegotiation,
@@ -13,6 +14,7 @@ from pynetdicom.pdu_primitives import (
 from pynetdicom.presentation import (
     negotiate_as_requestor, negotiate_as_acceptor
 )
+from pynetdicom.timer import Timer
 from pynetdicom.utils import pretty_bytes
 from pynetdicom._globals import APPLICATION_CONTEXT_NAME
 
@@ -491,10 +493,8 @@ class ACSE(object):
 
     def release_association(self, assoc):
         """Release an established association.
-
         Sends an A-RELEASE request and waits for the response. If no response
         is received then aborts the association instead.
-
         Parameters
         ----------
         assoc : association.Association
