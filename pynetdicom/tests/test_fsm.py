@@ -66,31 +66,19 @@ class BadDUL(object):
         self.is_killed = False
 
     def kill_dul(self):
+        """Hook for testing whether DUL got killed."""
         self.is_killed = True
+
+    @property
+    def primitive(self):
+        """Prevent StateMachine from setting primitive."""
+        return None
 
 
 class TestStateMachine(object):
     """Non-functional unit tests for fsm.StateMachine."""
-    def setup(self):
-        """Run prior to each test"""
-        self.scp = None
-
-    def teardown(self):
-        """Clear any active threads"""
-        if self.scp:
-            self.scp.abort()
-
-        time.sleep(0.1)
-
-        for thread in threading.enumerate():
-            if isinstance(thread, DummyBaseSCP):
-                thread.abort()
-                thread.stop()
-
     def test_init(self):
         """Test creation of new StateMachine."""
-        #self.scp = DummyVerificationSCP()
-        #self.scp.start()
         ae = AE()
         ae.add_requested_context(VerificationSOPClass)
         ae.acse_timeout = 5
@@ -101,8 +89,6 @@ class TestStateMachine(object):
         fsm = assoc.dul.state_machine
         assert fsm.current_state == 'Sta1'
         assert fsm.dul == assoc.dul
-
-        #self.scp.stop()
 
     def test_invalid_transition_raises(self):
         """Test StateMachine.transition using invalid states raises."""
@@ -167,26 +153,51 @@ class TestStateMachine(object):
         fsm = assoc.dul.state_machine
         fsm.dul = BadDUL()
 
-        # These event/states trigger AA-6
-        no_exception = [
-            ("Evt3", "Sta13"), ("Evt4", "Sta13"), ("Evt10", "Sta13"),
-            ("Evt12", "Sta13"), ("Evt13", "Sta13")
-        ]
-
         for state in states:
             fsm.dul.is_killed = False
-            if hasattr(fsm.dul, "primitive"):
-                del fsm.dul.primitive
-            assert not hasattr(fsm.dul, "primitive")
             state = "Sta{}".format(state)
             fsm.current_state = state
-            # AA-6 is the only action that won't raise an exception
-            if (event, state) in no_exception:
+            with pytest.raises(AttributeError):
                 fsm.do_action(event)
-                assert fsm.current_state == "Sta13"
-                assert fsm.dul.primitive is None
-            else:
-                with pytest.raises(AttributeError):
-                    fsm.do_action(event)
-                assert fsm.dul.is_killed is True
-                assert fsm.current_state == state
+            assert fsm.dul.is_killed is True
+            assert fsm.current_state == state
+
+
+class TestStateMachineFunctional(object):
+    """Functional tests for StateMachine."""
+    def setup(self):
+        """Run prior to each test"""
+        self.scp = None
+
+    def teardown(self):
+        """Clear any active threads"""
+        if self.scp:
+            self.scp.abort()
+
+        time.sleep(0.1)
+
+        for thread in threading.enumerate():
+            if isinstance(thread, DummyBaseSCP):
+                thread.abort()
+                thread.stop()
+
+    def monkey_patch(self, fsm):
+        """Monkey patch the StateMachine to add testing hooks."""
+        return fsm
+
+    def test_init(self):
+        """Test creation of new StateMachine."""
+        #self.scp = DummyVerificationSCP()
+        #self.scp.start()
+        ae = AE()
+        ae.add_requested_context(VerificationSOPClass)
+        ae.acse_timeout = 5
+        ae.dimse_timeout = 5
+
+        assoc = Association(ae, mode='requestor')
+
+        fsm = self.monkey_patch(assoc.dul.state_machine)
+        assert fsm.current_state == 'Sta1'
+        assert fsm.dul == assoc.dul
+
+        #self.scp.stop()
