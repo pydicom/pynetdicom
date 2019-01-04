@@ -4,15 +4,17 @@ The DUL's finite state machine representation.
 import logging
 import socket
 
-from pynetdicom.pdu import (A_ASSOCIATE_RQ, A_ASSOCIATE_RJ, A_ASSOCIATE_AC,
-                            P_DATA_TF, A_RELEASE_RQ, A_RELEASE_RP, A_ABORT_RQ)
+from pynetdicom.pdu import (
+    A_ASSOCIATE_RQ, A_ASSOCIATE_RJ, A_ASSOCIATE_AC,
+    P_DATA_TF, A_RELEASE_RQ, A_RELEASE_RP, A_ABORT_RQ
+)
 from pynetdicom.pdu_primitives import A_ABORT
+
 
 LOGGER = logging.getLogger('pynetdicom.sm')
 
+
 # pylint: disable=invalid-name
-
-
 class StateMachine(object):
     """Implementation of the DICOM Upper Layer State Machine.
 
@@ -20,7 +22,7 @@ class StateMachine(object):
     ----------
     current_state : str
         The current state of the state machine, 'Sta1' to 'Sta13'.
-    dul : pynetdicom.dul.DULServiceProvider
+    dul : dul.DULServiceProvider
         The DICOM Upper Layer service instance for the local AE
 
     References
@@ -33,8 +35,8 @@ class StateMachine(object):
 
         Parameters
         ---------
-        dul : pynetdicom.dul.DULServiceProvider
-            The DICOM Upper Layer Service instance for the local AE.
+        dul : dul.DULServiceProvider
+            The DICOM Upper Layer Service instance for the association.
         """
         self.current_state = 'Sta1'
         self.dul = dul
@@ -49,12 +51,12 @@ class StateMachine(object):
         """
         # Check (event + state) is valid
         if (event, self.current_state) not in TRANSITION_TABLE:
-            LOGGER.error("DUL State Machine received an invalid event '%s' "
-                         "for the current state '%s'",
-                         event, self.current_state)
-            raise KeyError("DUL State Machine received an invalid event "
-                           "'{}' for the current state '{}'"
-                           .format(event, self.current_state))
+            msg = (
+                "DUL State Machine received an invalid event '{}' for the "
+                "current state '{}'".format(event, self.current_state)
+            )
+            LOGGER.error(msg)
+            raise KeyError(msg)
 
         action_name = TRANSITION_TABLE[(event, self.current_state)]
 
@@ -68,15 +70,16 @@ class StateMachine(object):
             # Execute the required action
             next_state = action[1](self.dul)
 
-            #print(action_name, self.current_state, event, next_state)
+            print(action_name, self.current_state, event, next_state)
 
             # Move the state machine to the next state
             self.transition(next_state)
 
-        except Exception:
+        except Exception as exc:
             LOGGER.error("DUL State Machine received an exception attempting "
                          "to perform the action '%s' while in state '%s'",
                          action_name, self.current_state)
+            LOGGER.exception(exc)
             self.dul.kill_dul()
             raise
 
@@ -97,7 +100,7 @@ class StateMachine(object):
         if state in STATES.keys():
             self.current_state = state
         else:
-            msg = 'Invalid state "{}" for State Machine'.format(state)
+            msg = "Invalid state '{}' for State Machine".format(state)
             LOGGER.error(msg)
             raise ValueError(msg)
 

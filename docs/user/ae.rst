@@ -402,8 +402,8 @@ verifying its identity. Possible forms of identity confirmation methods are:
 * SAML assertion
 * JSON web token
 
-By default all association requests that include a user identity negotiation
-requests are accepted (provided there's no other reason to reject) and
+By default all association requests that include user identity negotiation
+are accepted (provided there's no other reason to reject) and
 no user identity negotiation response is sent even if one is requested.
 
 To handle the user identity negotiation yourself you should implement the
