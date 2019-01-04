@@ -431,8 +431,8 @@ class TestAssociation(object):
     def test_scp_assoc_a_abort_reply(self):
         """Test SCP sending an A-ABORT instead of an A-ASSOCIATE response"""
         self.scp = DummyVerificationSCP()
-        self.scp.ae._handle_connection = self.scp.dev_handle_connection
         self.scp.send_a_abort = True
+        self.scp.ae._handle_connection = self.scp.dev_handle_connection
         self.scp.start()
 
         ae = AE()
@@ -441,14 +441,15 @@ class TestAssociation(object):
         ae.dimse_timeout = 5
         assoc = ae.associate('localhost', 11112)
         assert not assoc.is_established
+        assert assoc.is_aborted
 
         self.scp.stop()
 
     def test_scp_assoc_ap_abort_reply(self):
         """Test SCP sending an A-P-ABORT instead of an A-ASSOCIATE response"""
         self.scp = DummyVerificationSCP()
-        self.scp.ae._handle_connection = self.scp.dev_handle_connection
         self.scp.send_ap_abort = True
+        self.scp.ae._handle_connection = self.scp.dev_handle_connection
         self.scp.start()
 
         ae = AE()
@@ -457,6 +458,7 @@ class TestAssociation(object):
         ae.dimse_timeout = 5
         assoc = ae.associate('localhost', 11112)
         assert not assoc.is_established
+        assert assoc.is_aborted
 
         self.scp.stop()
 

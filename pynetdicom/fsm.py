@@ -70,7 +70,7 @@ class StateMachine(object):
             # Execute the required action
             next_state = action[1](self.dul)
 
-            print(action_name, self.current_state, event, next_state)
+            #print(action_name, self.current_state, event, next_state)
 
             # Move the state machine to the next state
             self.transition(next_state)

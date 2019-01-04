@@ -10,12 +10,14 @@ Fixes
 * Completely fixed handling a maximum PDU length of 0. (:issue:`193`)
 * ``DIMSEMessage`` subclass creation and ``DIMSEMessage.primitive_to_message``
   should now be thread-safe (:issue:`137`)
+* Fixed ``ACSE.send_ap_abort`` not working correctly (:pull_request:`268`).
 
 Enhancements
 ............
 
 * Added ``select_timeout`` parameter to ``Association.start()`` to allow the
   user to specify how long the select.select() call blocks for.
+  (:pull_request:`260`)
 * Improved the CPU usage of the AE when running idle as an SCP (:issue:`60`).
 
 
@@ -33,8 +35,9 @@ Changes
   will be rejected unless the value of the *Calling AE Title* parameter matches
   one of those in the list. If set to an empty list (default) then all
   associations will be accepted (unless rejected for other reasons).
+  (:issue:`192`)
 * ``AE.require_called_aet`` should now be set using a bool. If True then any
   association requests will be rejected unless the value of the *Called AE
   Title* parameter matches ``AE.ae_title``. If False (default) then no matching
   will be performed and all associations accepted (unless rejected for other
-  reasons).
+  reasons). (:issue:`184`)

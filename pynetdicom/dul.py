@@ -19,7 +19,9 @@ from pynetdicom.pdu import (
     A_ASSOCIATE_RQ, A_ASSOCIATE_AC, A_ASSOCIATE_RJ,
     P_DATA_TF, A_RELEASE_RQ, A_RELEASE_RP, A_ABORT_RQ
 )
-from pynetdicom.pdu_primitives import A_ASSOCIATE, A_RELEASE, A_ABORT, P_DATA
+from pynetdicom.pdu_primitives import (
+    A_ASSOCIATE, A_RELEASE, A_ABORT, P_DATA, A_P_ABORT
+)
 from pynetdicom.timer import Timer
 
 LOGGER = logging.getLogger('pynetdicom.dul')
@@ -538,7 +540,7 @@ class DULServiceProvider(Thread):
                 # A-Release Response
                 # result is 'affirmative'
                 event_str = 'Evt14'
-        elif primitive.__class__ == A_ABORT:
+        elif primitive.__class__ in (A_ABORT, A_P_ABORT):
             event_str = 'Evt15'
         elif primitive.__class__ == P_DATA:
             event_str = 'Evt9'

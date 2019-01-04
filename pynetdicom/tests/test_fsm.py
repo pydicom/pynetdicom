@@ -1,17 +1,27 @@
 """Unit tests for fsm.py"""
 
-import queue
+import logging
+try:
+    import queue
+except ImportError:
+    import Queue as queue  # Python 2 compatibility
 import socket
 import threading
 import time
 
 import pytest
 
-from pynetdicom import AE
+from pynetdicom import AE, build_context
 from pynetdicom.association import Association
 from pynetdicom.fsm import *
 from pynetdicom.sop_class import VerificationSOPClass
+from pynetdicom.utils import validate_ae_title
 from .dummy_c_scp import DummyVerificationSCP, DummyBaseSCP
+
+
+LOGGER = logging.getLogger("pynetdicom")
+LOGGER.setLevel(logging.CRITICAL)
+#LOGGER.setLevel(logging.DEBUG)
 
 
 REFERENCE_BAD_EVENTS = [
@@ -163,11 +173,45 @@ class TestStateMachine(object):
             assert fsm.current_state == state
 
 
-class TestStateMachineFunctional(object):
-    """Functional tests for StateMachine."""
+class TestStateMachineFunctionalRequestor(object):
+    """Functional tests for StateMachine as association requestor."""
     def setup(self):
         """Run prior to each test"""
         self.scp = None
+
+        ae = AE()
+        ae.add_requested_context(VerificationSOPClass)
+        ae.acse_timeout = 5
+        ae.dimse_timeout = 5
+
+        assoc = Association(ae, mode='requestor')
+        assoc.acse_timeout = ae.acse_timeout
+        assoc.dimse_timeout = ae.dimse_timeout
+        assoc.network_timeout = ae.network_timeout
+
+        # Association Acceptor object -> remote AE
+        assoc.acceptor.ae_title = validate_ae_title(b'ANY_SCU')
+        assoc.acceptor.address = 'localhost'
+        assoc.acceptor.port = 11112
+
+        # Association Requestor object -> local AE
+        assoc.requestor.address = ae.address
+        assoc.requestor.port = ae.port
+        assoc.requestor.ae_title = ae.ae_title
+        assoc.requestor.maximum_length = 16382
+        assoc.requestor.implementation_class_uid = (
+            ae.implementation_class_uid
+        )
+        assoc.requestor.implementation_version_name = (
+            ae.implementation_version_name
+        )
+
+        cx = build_context(VerificationSOPClass)
+        cx.context_id = 1
+        assoc.requestor.requested_contexts = [cx]
+
+        self.assoc = assoc
+        self.fsm = self.monkey_patch(assoc.dul.state_machine)
 
     def teardown(self):
         """Clear any active threads"""
@@ -183,12 +227,33 @@ class TestStateMachineFunctional(object):
 
     def monkey_patch(self, fsm):
         """Monkey patch the StateMachine to add testing hooks."""
+        # Record all state transitions
+        fsm._transitions = []
+        fsm.original_transition = fsm.transition
+
+        def transition(state):
+            fsm._transitions.append(state)
+            fsm.original_transition(state)
+
+        fsm.transition = transition
+
+        # Record all event/state/actions
+        fsm._changes = []
+        fsm.original_action = fsm.do_action
+
+        def do_action(event):
+            if (event, fsm.current_state) in TRANSITION_TABLE:
+                action_name = TRANSITION_TABLE[(event, fsm.current_state)]
+                fsm._changes.append((fsm.current_state, event, action_name))
+
+            fsm.original_action(event)
+
+        fsm.do_action = do_action
+
         return fsm
 
-    def test_init(self):
-        """Test creation of new StateMachine."""
-        #self.scp = DummyVerificationSCP()
-        #self.scp.start()
+    def test_monkey_patch(self):
+        """Test monkey patching of StateMachine works as intended."""
         ae = AE()
         ae.add_requested_context(VerificationSOPClass)
         ae.acse_timeout = 5
@@ -198,6 +263,215 @@ class TestStateMachineFunctional(object):
 
         fsm = self.monkey_patch(assoc.dul.state_machine)
         assert fsm.current_state == 'Sta1'
-        assert fsm.dul == assoc.dul
 
-        #self.scp.stop()
+        fsm.current_state = 'Sta13'
+        fsm.do_action('Evt3')
+
+        assert fsm._changes == [('Sta13', 'Evt3', 'AA-6')]
+        assert fsm._transitions == ['Sta13']
+
+    def test_associate_no_connection(self):
+        """Test association with no connection to peer."""
+        self.scp = DummyVerificationSCP()
+        self.scp.send_a_abort = True
+        self.scp.ae._handle_connection = self.scp.dev_handle_connection
+        self.scp.start()
+
+        assert self.fsm.current_state == 'Sta1'
+
+        self.assoc.acceptor.port = 11113
+        self.assoc.start()
+
+        while (not self.assoc.is_established and not self.assoc.is_rejected and
+               not self.assoc.is_aborted and not self.assoc.dul._kill_thread):
+            time.sleep(0.05)
+
+        assert not self.assoc.is_aborted
+
+        #print(self.fsm._transitions)
+        #print(self.fsm._changes)
+        assert self.fsm._transitions == [
+            'Sta1'  # Idle
+        ]
+        assert self.fsm._changes == [
+            ('Sta1', 'Evt1', 'AE-1'),  # recv A-ASSOC rq primitive
+        ]
+
+        assert self.fsm.current_state == 'Sta1'
+
+        self.scp.stop()
+
+    def test_associate_accept_release(self):
+        """Test normal association/release."""
+        self.scp = DummyVerificationSCP()
+        self.scp.start()
+
+        assert self.fsm.current_state == 'Sta1'
+
+        self.assoc.start()
+
+        while (not self.assoc.is_established and not self.assoc.is_rejected and
+               not self.assoc.is_aborted and not self.assoc.dul._kill_thread):
+            time.sleep(0.05)
+
+        if self.assoc.is_established:
+            self.assoc.release()
+
+            assert self.fsm._transitions == [
+                'Sta4',  # Waiting for connection to complete
+                'Sta5',  # Waiting for A-ASSOC-AC or -RJ PDU
+                'Sta6',  # Assoc established
+                'Sta7',  # Waiting for A-RELEASE-RP PDU
+                'Sta1'  # Idle
+            ]
+            assert self.fsm._changes == [
+                ('Sta1', 'Evt1', 'AE-1'),  # recv A-ASSOC rq primitive
+                ('Sta4', 'Evt2', 'AE-2'),  # connection confirmed
+                ('Sta5', 'Evt3', 'AE-3'),  # A-ASSOC-AC PDU recv
+                ('Sta6', 'Evt11', 'AR-1'),  # A-RELEASE rq primitive
+                ('Sta7', 'Evt13', 'AR-3'),  # A-RELEASE-RP PDU recv
+            ]
+
+        assert self.fsm.current_state == 'Sta1'
+
+        self.scp.stop()
+
+    def test_associate_reject(self):
+        """Test normal association rejection."""
+        self.scp = DummyVerificationSCP()
+        self.scp.ae.require_called_aet = True
+        self.scp.start()
+
+        assert self.fsm.current_state == 'Sta1'
+
+        self.assoc.start()
+
+        while (not self.assoc.is_established and not self.assoc.is_rejected and
+               not self.assoc.is_aborted and not self.assoc.dul._kill_thread):
+            time.sleep(0.05)
+
+        assert self.assoc.is_rejected
+
+        assert self.fsm._transitions == [
+            'Sta4',  # Waiting for connection to complete
+            'Sta5',  # Waiting for A-ASSOC-AC or -RJ PDU
+            'Sta1'  # Idle
+        ]
+        assert self.fsm._changes == [
+            ('Sta1', 'Evt1', 'AE-1'),  # recv A-ASSOC rq primitive
+            ('Sta4', 'Evt2', 'AE-2'),  # connection confirmed
+            ('Sta5', 'Evt4', 'AE-4'),  # A-ASSOC-RJ PDU recv
+        ]
+
+        assert self.fsm.current_state == 'Sta1'
+
+        self.scp.stop()
+
+    def test_associate_peer_aborts(self):
+        """Test association negotiation aborted by peer."""
+        self.scp = DummyVerificationSCP()
+        self.scp.send_a_abort = True
+        self.scp.ae._handle_connection = self.scp.dev_handle_connection
+        self.scp.start()
+
+        assert self.fsm.current_state == 'Sta1'
+
+        self.assoc.start()
+
+        while (not self.assoc.is_established and not self.assoc.is_rejected and
+               not self.assoc.is_aborted and not self.assoc.dul._kill_thread):
+            time.sleep(0.05)
+
+        assert self.assoc.is_aborted
+
+        #print(self.fsm._transitions)
+        assert self.fsm._transitions == [
+            'Sta4',  # Waiting for connection to complete
+            'Sta5',  # Waiting for A-ASSOC-AC or -RJ PDU
+            'Sta1'  # Idle
+        ]
+        #print(self.fsm._changes)
+        assert self.fsm._changes == [
+            ('Sta1', 'Evt1', 'AE-1'),  # recv A-ASSOC rq primitive
+            ('Sta4', 'Evt2', 'AE-2'),  # connection confirmed
+            ('Sta5', 'Evt16', 'AA-3'),  # A-ABORT PDU recv
+        ]
+
+        assert self.fsm.current_state == 'Sta1'
+
+        self.scp.stop()
+
+    def test_associate_accept_abort(self):
+        """Test association acceptance then local abort."""
+        self.scp = DummyVerificationSCP()
+        self.scp.start()
+
+        assert self.fsm.current_state == 'Sta1'
+
+        self.assoc.start()
+
+        while (not self.assoc.is_established and not self.assoc.is_rejected and
+               not self.assoc.is_aborted and not self.assoc.dul._kill_thread):
+            time.sleep(0.05)
+
+        if self.assoc.is_established:
+            self.assoc.abort()
+
+            #print(self.fsm._transitions)
+            #print(self.fsm._changes)
+            assert self.fsm._transitions == [
+                'Sta4',  # Waiting for connection to complete
+                'Sta5',  # Waiting for A-ASSOC-AC or -RJ PDU
+                'Sta6',  # Assoc established
+                'Sta13',  # Waiting for connection closed
+                'Sta1'  # Idle
+            ]
+            assert self.fsm._changes == [
+                ('Sta1', 'Evt1', 'AE-1'),  # recv A-ASSOC rq primitive
+                ('Sta4', 'Evt2', 'AE-2'),  # connection confirmed
+                ('Sta5', 'Evt3', 'AE-3'),  # A-ASSOC-AC PDU recv
+                ('Sta6', 'Evt15', 'AA-1'),  # A-ABORT rq primitive
+                ('Sta13', 'Evt17', 'AR-5'),  # connection closed
+            ]
+
+        assert self.fsm.current_state == 'Sta1'
+
+        self.scp.stop()
+
+    def test_associate_accept_peer_abort(self):
+        """Test association acceptance then peer abort."""
+        self.scp = DummyVerificationSCP()
+        self.scp.start()
+
+        assert self.fsm.current_state == 'Sta1'
+
+        self.assoc.requestor.requested_contexts[0].abstract_syntax = '1.2.3'
+        self.assoc.start()
+
+        while (not self.assoc.is_established and not self.assoc.is_rejected and
+               not self.assoc.is_aborted and not self.assoc.dul._kill_thread):
+            time.sleep(0.05)
+
+        while self.assoc.is_established:
+            time.sleep(0.05)
+
+        assert self.assoc.is_aborted
+
+        #print(self.fsm._transitions)
+        #print(self.fsm._changes)
+        assert self.fsm._transitions == [
+            'Sta4',  # Waiting for connection to complete
+            'Sta5',  # Waiting for A-ASSOC-AC or -RJ PDU
+            'Sta6',  # Assoc established
+            'Sta1'  # Idle
+        ]
+        assert self.fsm._changes == [
+            ('Sta1', 'Evt1', 'AE-1'),  # recv A-ASSOC rq primitive
+            ('Sta4', 'Evt2', 'AE-2'),  # connection confirmed
+            ('Sta5', 'Evt3', 'AE-3'),  # A-ASSOC-AC PDU recv
+            ('Sta6', 'Evt16', 'AA-3'),  # A-ABORT PDU recv
+        ]
+
+        assert self.fsm.current_state == 'Sta1'
+
+        self.scp.stop()

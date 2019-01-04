@@ -1,5 +1,6 @@
 """Dummy DIMSE-C SCPs for use in unit tests"""
 
+from copy import deepcopy
 import logging
 import os
 import socket
@@ -12,6 +13,7 @@ from pydicom.uid import UID, ImplicitVRLittleEndian, JPEG2000Lossless
 
 from pynetdicom import (
     AE,
+    Association,
     VerificationPresentationContexts,
     build_context,
     StoragePresentationContexts
@@ -176,32 +178,35 @@ class DummyBaseSCP(threading.Thread):
 
     def dev_handle_connection(self, client_socket):
         # Create a new Association
-        assoc = Association(self, MODE_ACCEPTOR, client_socket)
-        assoc.acse_timeout = self.acse_timeout
-        assoc.dimse_timeout = self.dimse_timeout
-        assoc.network_timeout = self.network_timeout
+        assoc = Association(self.ae, "acceptor", client_socket)
+        assoc.acse_timeout = self.ae.acse_timeout
+        assoc.dimse_timeout = self.ae.dimse_timeout
+        assoc.network_timeout = self.ae.network_timeout
 
         # Association Acceptor object -> local AE
-        assoc.acceptor.maximum_length = self.maximum_pdu_size
-        assoc.acceptor.ae_title = self.ae_title
-        assoc.acceptor.address = self.address
-        assoc.acceptor.port = self.port
+        assoc.acceptor.maximum_length = self.ae.maximum_pdu_size
+        assoc.acceptor.ae_title = self.ae.ae_title
+        assoc.acceptor.address = self.ae.address
+        assoc.acceptor.port = self.ae.port
         assoc.acceptor.implementation_class_uid = (
-            self.implementation_class_uid
+            self.ae.implementation_class_uid
         )
         assoc.acceptor.implementation_version_name = (
-            self.implementation_version_name
+            self.ae.implementation_version_name
         )
         assoc.acceptor.supported_contexts = deepcopy(
-            self.supported_contexts
+            self.ae.supported_contexts
         )
 
         # Association Requestor object -> remote AE
         assoc.requestor.address = client_socket.getpeername()[0]
         assoc.requestor.port = client_socket.getpeername()[1]
 
+        assoc._a_abort_assoc_rq = self.send_a_abort
+        assoc._a_p_abort_assoc_rq = self.send_ap_abort
+
         assoc.start()
-        self.active_associations.append(assoc)
+        self.ae.active_associations.append(assoc)
 
 
 class DummyVerificationSCP(DummyBaseSCP):
