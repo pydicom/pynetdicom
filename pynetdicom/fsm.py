@@ -710,7 +710,7 @@ def AR_8(dul):
     """
     # Issue A-RELEASE indication (release collision)
     dul.to_user_queue.put(dul.primitive)
-    if dul.requestor == 1:
+    if dul.assoc.is_requestor:
         return 'Sta9'
 
     return 'Sta10'
