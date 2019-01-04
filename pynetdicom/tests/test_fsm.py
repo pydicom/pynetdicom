@@ -438,8 +438,8 @@ class TestStateMachineFunctionalRequestor(object):
 
         self.scp.stop()
 
-    def test_associate_accept_peer_abort(self):
-        """Test association acceptance then peer abort."""
+    def test_associate_accept_local_abort(self):
+        """Test association acceptance then local abort if no cx."""
         self.scp = DummyVerificationSCP()
         self.scp.start()
 
@@ -455,21 +455,22 @@ class TestStateMachineFunctionalRequestor(object):
         while self.assoc.is_established:
             time.sleep(0.05)
 
-        assert self.assoc.is_aborted
+        while not self.assoc.is_aborted:
+            time.sleep(0.05)
 
-        #print(self.fsm._transitions)
-        #print(self.fsm._changes)
         assert self.fsm._transitions == [
             'Sta4',  # Waiting for connection to complete
             'Sta5',  # Waiting for A-ASSOC-AC or -RJ PDU
             'Sta6',  # Assoc established
+            'Sta13',  # Waiting for connection close
             'Sta1'  # Idle
         ]
         assert self.fsm._changes == [
-            ('Sta1', 'Evt1', 'AE-1'),  # recv A-ASSOC rq primitive
+            ('Sta1', 'Evt1', 'AE-1'),  # A-ASSOC rq primitive
             ('Sta4', 'Evt2', 'AE-2'),  # connection confirmed
             ('Sta5', 'Evt3', 'AE-3'),  # A-ASSOC-AC PDU recv
-            ('Sta6', 'Evt16', 'AA-3'),  # A-ABORT PDU recv
+            ('Sta6', 'Evt15', 'AA-1'),  # A-ABORT rq primitive
+            ('Sta13', 'Evt17', 'AR-5'),  # Connection closed
         ]
 
         assert self.fsm.current_state == 'Sta1'

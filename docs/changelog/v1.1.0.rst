@@ -41,3 +41,5 @@ Changes
   Title* parameter matches ``AE.ae_title``. If False (default) then no matching
   will be performed and all associations accepted (unless rejected for other
   reasons). (:issue:`184`)
+* The association acceptor no longer aborts an accepted association if there
+  are no accepted presentation contexts. The association requestor still does.

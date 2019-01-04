@@ -378,12 +378,6 @@ class ACSE(object):
         assoc.debug_association_accepted(assoc.acceptor.primitive)
         assoc.ae.on_association_accepted(assoc.acceptor.primitive)
 
-        # No valid presentation contexts, abort the association
-        if not assoc.accepted_contexts:
-            self.send_abort(assoc, 0x02)
-            assoc.kill()
-            return
-
         # Assocation established OK
         assoc.is_established = True
 
