@@ -536,7 +536,7 @@ class ACSE(object):
                                               timeout=self.acse_timeout)
             if primitive is None:
                 # No response received within timeout window
-                self.send_abort(assoc)
+                self.send_abort(assoc, 0x02)
                 assoc.is_aborted = True
                 assoc.is_established = False
                 assoc.kill()
@@ -584,6 +584,14 @@ class ACSE(object):
                 assoc.is_established = False
                 assoc.kill()
                 return
+
+    def release_association(self, assoc):
+        warnings.warn(
+            "ACSE.release_association is deprecated and will be removed "
+            "in v1.2, use ACSE.negotiate_release instead",
+            DeprecationWarning
+        )
+        self.negotiate_release(assoc)
 
     @staticmethod
     def send_abort(assoc, source):

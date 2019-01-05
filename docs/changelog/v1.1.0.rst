@@ -13,6 +13,7 @@ Fixes
 * Fixed A-RELEASE collision not being implemented correctly. (:issue:`269`)
 * Fixed bug in ``fsm.AR_8``
 * Fixed DUL not handling the service user sending A-P-ABORT primitives.
+  (:issue:`270`)
 
 
 Enhancements
@@ -44,3 +45,5 @@ Changes
   reasons).
 * ``ACSE.is_released`` is deprecated and will be removed in v1.2. Use
   ``ACSE.is_release_requested`` instead.
+* ``ACSE.release_association`` is deprecated and will be removed in v1.2. Use
+  ``ACSE.negotiate_release`` instead.

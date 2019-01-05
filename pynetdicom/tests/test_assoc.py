@@ -148,7 +148,6 @@ class TestCStoreSCP(object):
         assoc._c_store_scp(req)
         assert assoc.dimse.status == 0x0122
         assoc.release()
-        print('testing release')
         assert assoc.is_released
         self.scp.stop()
 
@@ -466,10 +465,12 @@ class TestAssociation(object):
     @staticmethod
     def test_bad_connection():
         """Test connect to non-AE"""
+        # sometimes causes hangs in Travis
         ae = AE()
         ae.add_requested_context(VerificationSOPClass)
         ae.acse_timeout = 5
         ae.dimse_timeout = 5
+        ae.network_timeout = 5
         assoc = ae.associate('localhost', 22)
 
     @staticmethod
@@ -479,6 +480,7 @@ class TestAssociation(object):
         ae.add_requested_context(VerificationSOPClass)
         ae.acse_timeout = 5
         ae.dimse_timeout = 5
+        ae.network_timeout = 5
         assoc = ae.associate('localhost', 11120)
 
     def test_req_no_presentation_context(self):
@@ -489,6 +491,7 @@ class TestAssociation(object):
         ae.add_requested_context(CTImageStorage)
         ae.acse_timeout = 5
         ae.dimse_timeout = 5
+        ae.network_timeout = 5
         assoc = ae.associate('localhost', 11112)
         time.sleep(0.1)
         assert not assoc.is_established

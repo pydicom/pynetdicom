@@ -5,6 +5,9 @@ try:
     import queue
 except ImportError:
     import Queue as queue  # Python 2 compatibility
+import select
+import socket
+from struct import pack, unpack
 import sys
 import time
 import threading
@@ -31,11 +34,14 @@ from pynetdicom.pdu_primitives import (
 from pynetdicom.sop_class import VerificationSOPClass
 
 from .dummy_c_scp import DummyVerificationSCP, DummyBaseSCP
+from .encoded_pdu_items import (
+    a_associate_rq, a_associate_ac, a_release_rq, a_release_rp, p_data_tf,
+)
 
 
 LOGGER = logging.getLogger('pynetdicom')
 LOGGER.setLevel(logging.CRITICAL)
-#LOGGER.setLevel(logging.DEBUG)
+LOGGER.setLevel(logging.DEBUG)
 
 
 class DummyDUL(object):
@@ -1795,7 +1801,173 @@ class TestAsyncOpsNegotiation(object):
         self.scp.stop()
 
 
-@pytest.mark.skip()
+class SmallReleaseCollider(threading.Thread):
+    def __init__(self, port=11112):
+        self.queue = queue.Queue()
+        self._kill = False
+        self.socket = socket.socket
+        self.address = ''
+        self.local_port = port
+        self.remote_port = None
+        self.received = []
+        self.mode = 'requestor'
+        self._step = 0
+        self._event = threading.Event()
+
+        threading.Thread.__init__(self)
+        self.daemon = True
+
+    def bind_socket(self):
+        sock = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
+
+        # SOL_SOCKET: the level, SO_REUSEADDR: allow reuse of a port
+        #   stuck in TIME_WAIT, 1: set SO_REUSEADDR to 1
+        # This must be called prior to socket.bind()
+        sock.setsockopt(socket.SOL_SOCKET, socket.SO_REUSEADDR, 1)
+        sock.setsockopt(
+            socket.SOL_SOCKET, socket.SO_RCVTIMEO, pack('ll', 10, 0)
+        )
+
+        # Bind the socket to an address and port
+        #   If self.bind_addr is '' then the socket is reachable by any
+        #   address the machine may have, otherwise is visible only on that
+        #   address
+        sock.bind(('', self.local_port))
+
+        # Listen for connections made to the socket
+        # socket.listen() says to queue up to as many as N connect requests
+        #   before refusing outside connections
+        sock.listen(1)
+        return sock
+
+    def run(self):
+        if self.mode == 'acceptor':
+            self.run_as_scp()
+        elif self.mode == 'requestor':
+            self.run_as_scu()
+
+    def run_as_scp(self):
+        sock = self.bind_socket()
+
+        # Wait for a connection
+        while not self._kill:
+            ready, _, _ = select.select([sock], [], [], 0.5)
+            if ready:
+                conn, _ = sock.accept()
+                break
+
+        # Send and receive data
+        while not self._kill:
+            data_to_send = self.queue.get()
+            if data_to_send:
+                conn.send(data_to_send)
+
+            ready, _, _ = select.select([conn], [], [], 0.5)
+
+            if ready:
+                try:
+                    data_received = self.read_stream(conn)
+                    self.received.append(data_received)
+                except:
+                    return
+
+    def run_as_scu(self):
+        # Make the connection
+        while not self._kill:
+            try:
+                conn = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
+                conn.connect((self.address, self.remote_port))
+                break
+            except:
+                pass
+
+        # Send and receive data
+        while not self._kill:
+            try:
+                peek = self.queue.queue[0]
+            except:
+                pass
+
+            if peek:
+                data_to_send = self.queue.get()
+                print('Sending', data_to_send)
+                conn.send(data_to_send)
+            else:
+                continue
+
+            ready, _, _ = select.select([conn], [], [], 0.5)
+
+            if ready:
+                #try:
+                    data_received = self.read_stream(conn)
+                    print('Received', data_received)
+                    self.received.append(data_received)
+                #except:
+                #    return
+
+    def read_stream(self, sock):
+        bytestream = bytes()
+
+        # Try and read data from the socket
+        try:
+            # Get the data from the socket
+            bytestream = sock.recv(1)
+        except socket.error:
+            self._kill = True
+            sock.close()
+            return
+
+        pdu_type = unpack('B', bytestream)[0]
+
+        # Byte 2 is Reserved
+        result = self._recvn(sock, 1)
+        bytestream += result
+
+        # Bytes 3-6 is the PDU length
+        result = unpack('B', result)
+        length = self._recvn(sock, 4)
+
+        bytestream += length
+        length = unpack('>L', length)
+
+        # Bytes 7-xxxx is the rest of the PDU
+        result = self._recvn(sock, length[0])
+        bytestream += result
+
+        return bytestream
+
+    @staticmethod
+    def _recvn(sock, n_bytes):
+        """Read `n_bytes` from a socket.
+
+        Parameters
+        ----------
+        sock : socket.socket
+            The socket to read from
+        n_bytes : int
+            The number of bytes to read
+        """
+        ret = b''
+        read_length = 0
+        while read_length < n_bytes:
+            tmp = sock.recv(n_bytes - read_length)
+
+            if not tmp:
+                return ret
+
+            ret += tmp
+            read_length += len(tmp)
+
+        if read_length != n_bytes:
+            raise RuntimeError("_recvn(socket, {}) - Error reading data from "
+                               "socket.".format(n_bytes))
+
+        return ret
+
+    def stop(self):
+        self._kill = True
+
+
 class TestCollision(object):
     """Tests for A-RELEASE collisions."""
     def setup(self):
@@ -1814,141 +1986,85 @@ class TestCollision(object):
                 thread.abort()
                 thread.stop()
 
-    def test_collision(self):
-        """Test a simulated A-RELEASE collision."""
-        self.scp = DummyVerificationSCP()
-        self.scp.start()
+    def test_collision_requestor(self):
+        """Test a simulated A-RELEASE collision on the requestor side."""
+
+        scp = SmallReleaseCollider()
+        scp.mode = 'acceptor'
+        scp_messages = [None, a_associate_ac, a_release_rq, a_release_rp]
+        for item in scp_messages:
+            scp.queue.put(item)
+        scp.start()
 
         ae = AE()
         ae.add_requested_context(VerificationSOPClass)
-        ae.acse_timeout = 5
-        ae.dimse_timeout = 5
-        ae.network_timeout = 5
         assoc = ae.associate('localhost', 11112)
         assert assoc.is_established
+        assoc.release()
+        assert assoc.is_released
+        assert not assoc.is_established
 
-        time.sleep(0.1)
+        scp.stop()
 
-        # Can kill the DUL after association, use manual mode from here
-        # SCP and SCU should both be in Sta6
-        # Also kill the association threads to prevent it responding
-        scp_dul = self.scp.ae.active_associations[0].dul
-        scp_dul._step = 1
-        #scp_dul.assoc._kill = True
-        #scp_dul._kill_thread = True
-        time.sleep(0.1)
-        #scp_dul.run = self.run
-        #scp_dul.step = self.step_dul
+    def test_collision_acceptor(self):
+        """Test a simulated A-RELEASE collision on the acceptor side."""
+        # Listening on port 11112
+        def on_c_echo(cx, info):
+            assoc = self.scp.ae.active_associations[0]
+            assoc.release()
+            return 0x0000
 
-        assert scp_dul.state_machine.current_state == 'Sta6'
+        self.scp = DummyVerificationSCP()
+        self.scp.ae.acse_timeout = 5
+        self.scp.ae.on_c_echo = on_c_echo
+        self.scp.start()
 
-        # SCU
-        #assoc._kill = True
-        scu_dul = assoc.dul
-        scu_dul._step = 1
-        time.sleep(0.1)
+        scu = SmallReleaseCollider()
+        scu.mode = 'requestor'
+        scu.address = 'localhost'
+        scu.local_port = 0
+        scu.remote_port = 11112
+        scu.queue.put(a_associate_rq)
+        scu.queue.put(p_data_tf)
+        #scu.queue.put(None)
+        scu.queue.put(a_release_rq)
+        scu.queue.put(a_release_rp)
 
-        assert scu_dul.state_machine.current_state == 'Sta6'
+        scu.start()
+        # Magic happens here, check it afterwards
+        scu.stop()
 
-        # Line up an A-RELEASE (request) primitives
-        scp_dul._step = 1
-        scp_dul.assoc._step = 1
-        scu_dul._step = 1
-        scu_dul.assoc._step = 1
+        self.scp.stop()
 
-        time.sleep(0.1)
+        # A-ASSOCIATE-RQ
+        assert scu.received[1] == b'\x05\x00\x00\x00\x00\x04\x00\x00\x00\x00'
+        # A-ASSOCIATE-RP
+        assert scu.received[2] == b'\x06\x00\x00\x00\x00\x04\x00\x00\x00\x00'
 
-        # Blocking, duh
-        #scp_dul.assoc.release()
-        #assoc.release()
-        # Line up an A-RELEASE (request) primitives
-        primitive = A_RELEASE()
-        scp_dul.send_pdu(primitive)
-        primitive = A_RELEASE()
-        scu_dul.send_pdu(primitive)
+    def test_collision_acceptor_abort(self):
+        """Test a simulated A-RELEASE collision on the acceptor side."""
+        # Listening on port 11112
+        def on_c_echo(cx, info):
+            assoc = self.scp.ae.active_associations[0]
+            assoc.release()
+            return 0x0000
 
-        # Change flag to true and step DUL
-        scp_dul._event.set()
-        scu_dul._event.set()
+        self.scp = DummyVerificationSCP()
+        self.scp.ae.acse_timeout = 5
+        self.scp.ae.on_c_echo = on_c_echo
+        self.scp.start()
 
-        time.sleep(0.1)
+        scu = SmallReleaseCollider()
+        scu.mode = 'requestor'
+        scu.address = 'localhost'
+        scu.local_port = 0
+        scu.remote_port = 11112
+        scu.queue.put(a_associate_rq)
+        scu.queue.put(p_data_tf)
+        scu.queue.put(None)
+        scu.queue.put(a_release_rq)
+        scu.queue.put(a_release_rp)
+        scu.start()
 
-        # Send A-RELEASE (rq) primitive to service
-        #   and convert to PDU and sent to each other
-        # SCP: Sta6 + Evt11 -> AR-1 -> Sta7
-        scp_dul._step = 5
-        scp_dul._event.set()
-        assert scp_dul.state_machine.current_state == 'Sta7'
-
-        # SCU: Sta6 + Evt11 -> AR-1 -> Sta7
-        scu_dul._step = 5
-        scu_dul._event.set()
-        assert scu_dul.state_machine.current_state == 'Sta7'
-
-        # Receive A-RELEASE-RQ PDUS, convert to primitives
-        #   and send primitive to user
-        # SCP: Sta7 + Evt12 -> AR-8 -> Sta10
-        scp_dul._event.set()
-        time.sleep(0.1)
-        assert scp_dul.state_machine.current_state == 'Sta10'
-        primitive = scp_dul.receive_pdu(wait=False)
-        assert primitive.result is None
-        # SCU: Sta7 + Evt12 -> AR-8 -> Sta9
-        scu_dul._event.set()
-        time.sleep(0.1)
-        assert scu_dul.state_machine.current_state == 'Sta9'
-        primitive = scu_dul.receive_pdu(wait=False)
-        assert primitive.result is None
-
-        # SCU sends A-RELEASE (response) primitive to service
-        #   converts it to A-RELEASE-RP PDU and sends to SCP
-        # First step adds the primitive to the DUL queue
-        # SCU: Sta9 + Evt14 -> Evt14 -> AR-9 + Sta11
-        primitive.result = 'affirmative'
-        scu_dul.send_pdu(primitive)
-        scu_dul._event.set()
-        time.sleep(0.1)
-        assert scu_dul.state_machine.current_state == 'Sta11'
-
-        # SCP receives A-RELEASE-RP PDU, converts to primitive and send
-        #   primitive to user
-        # SCP: Sta10 + Evt13 -> AR-10 -> Sta12
-        scp_dul._event.set()
-        time.sleep(0.1)
-        assert scp_dul.state_machine.current_state == 'Sta12'
-        primitive = scp_dul.receive_pdu(wait=False)
-        assert primitive.result == 'affirmative'
-
-        # SCP sends A-RELEASE (response) primitive to service
-        #   converts it to A-RELEASE-RP and sends to SCU
-        # SCP: Sta12 + Evt14 -> AR-4 -> Sta13
-        #time.sleep(0.5)
-        scp_dul.send_pdu(primitive)
-        scp_dul._event.set()
-        time.sleep(0.1)
-        assert scp_dul.state_machine.current_state == 'Sta13'
-
-        # SCU receives A-RELEASE-RP PDU, converts it to primitive,
-        #   sends it to user and closes connection, goes to Sta1
-        # SCU: Sta11 + Evt13 -> AR-3 -> Sta1
-        #time.sleep(0.5)
-        scu_dul._event.set()
-        time.sleep(0.1)
-        assert scu_dul.state_machine.current_state == 'Sta1'
-        primitive = scu_dul.receive_pdu(wait=False)
-        assert primitive.result == 'affirmative'
-
-        # SCP notices closed connection, goes to Sta1
-        # SCP: Sta13 + Evt17 -> AR-5 -> Sta1
-        scp_dul._event.set()
-        time.sleep(0.1)
-        assert scp_dul.state_machine.current_state == 'Sta1'
-
-        scp_dul._kill_thread = True
-        scp_dul._step = 0
-        scp_dul._event.set()
-        scu_dul._kill_thread = True
-        scu_dul._step = 0
-        scu_dul._event.set()
-
+        scu.stop()
         self.scp.stop()

@@ -11,7 +11,7 @@ except ImportError:
 import select
 import socket
 from struct import unpack
-from threading import Thread, Event
+from threading import Thread
 import time
 
 from pynetdicom.fsm import StateMachine
@@ -156,10 +156,6 @@ class DULServiceProvider(Thread):
         # Controls the minimum delay between loops in run()
         self._run_loop_delay = 0.001
 
-        # Allow us to manually step through the DUL reactor
-        self._step = 0
-        self._event = Event()
-
     def idle_timer_expired(self):
         """
         Checks if the idle timer has expired
@@ -244,12 +240,6 @@ class DULServiceProvider(Thread):
 
             # This effectively controls how often the DUL checks the network
             time.sleep(self._run_loop_delay)
-
-            # Allow us to step the DUL reactor (debugging)
-            if self._step:
-                self._step -= 1
-                self._event.wait()
-                self._event.clear()
 
             if self._kill_thread:
                 break

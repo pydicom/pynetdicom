@@ -161,10 +161,6 @@ class Association(threading.Thread):
         self.send_c_cancel_move = self._send_c_cancel
         self.send_c_cancel_get = self._send_c_cancel
 
-        # Allows us to manually step the association reactor
-        self._step = 0
-        self._event = threading.Event()
-
         # Thread setup
         threading.Thread.__init__(self)
         self.daemon = True
@@ -433,12 +429,6 @@ class Association(threading.Thread):
         while not self._kill:
             time.sleep(0.001)
 
-            # Allow us to step the association reactor (debugging)
-            if self._step:
-                self._step -= 1
-                self._event.wait()
-                self._event.clear()
-
             # Check with the DIMSE provider for incoming messages
             #   all messages should be a DIMSEMessage subclass
             msg, msg_context_id = self.dimse.receive_msg(wait=False)
@@ -529,12 +519,6 @@ class Association(threading.Thread):
         # Listen for further messages from the peer
         while not self._kill:
             time.sleep(0.01)
-
-            # Allow us to step the association reactor (debugging)
-            if self._step:
-                self._step -= 1
-                self._event.wait()
-                self._event.clear()
 
             # Check for release request
             if self.acse.is_release_requested(self):
