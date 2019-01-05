@@ -10,6 +10,10 @@ Fixes
 * Completely fixed handling a maximum PDU length of 0. (:issue:`193`)
 * ``DIMSEMessage`` subclass creation and ``DIMSEMessage.primitive_to_message``
   should now be thread-safe (:issue:`137`)
+* Fixed A-RELEASE collision not being implemented correctly. (:issue:`269`)
+* Fixed bug in ``fsm.AR-8``
+* Fixed DUL not handling the service user sending A-P-ABORT primitives.
+
 
 Enhancements
 ............

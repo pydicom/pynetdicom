@@ -19,7 +19,9 @@ from pynetdicom.pdu import (
     A_ASSOCIATE_RQ, A_ASSOCIATE_AC, A_ASSOCIATE_RJ,
     P_DATA_TF, A_RELEASE_RQ, A_RELEASE_RP, A_ABORT_RQ
 )
-from pynetdicom.pdu_primitives import A_ASSOCIATE, A_RELEASE, A_ABORT, P_DATA
+from pynetdicom.pdu_primitives import (
+    A_ASSOCIATE, A_RELEASE, A_ABORT, A_P_ABORT, P_DATA
+)
 from pynetdicom.timer import Timer
 
 LOGGER = logging.getLogger('pynetdicom.dul')
@@ -245,11 +247,12 @@ class DULServiceProvider(Thread):
             # Check the connection for incoming data
             try:
                 # If local AE is SCU also calls _check_incoming_pdu()
-                if self._is_transport_event() and self._idle_timer is not None:
+                if self._is_release_event():
+                    pass
+                elif self._is_transport_event() and self._idle_timer is not None:
                     self._idle_timer.restart()
                 elif self._check_incoming_primitive():
                     pass
-
                 elif self._is_artim_expired():
                     self._kill_thread = True
 
@@ -399,6 +402,29 @@ class DULServiceProvider(Thread):
 
         return False
 
+    def _is_release_event(self):
+        """Handler for A-RELEASE negotiation."""
+        if self.state_machine.current_state == 'Sta12':
+            # Sta12 + Evt14 -> AE-4 -> Sta13
+            # AR-4: Issue A-RELEASE-RP PDU and start ARTIM
+            self.assoc.acse.send_release(self.assoc, True)
+            #self.assoc.is_released = True
+            #self.assoc.is_established = False
+            #self.assoc.ae.on_association_released()
+            #self.assoc.debug_association_released()
+            #self.assoc.kill()
+        elif self.state_machine.current_state == 'Sta9':
+            # Collision on requestor side: send A-RELEASE response
+            # Sta9 + Evt14 -> AR-9 -> Sta11
+            # AR-9: Convert A-RELEASE (response) primitive to PDU and
+            #   send to peer
+            self.assoc.acse.send_release(self.assoc, True)
+            #self.assoc.is_released = True
+            #self.assoc.is_established = False
+            #self.assoc.ae.on_association_released()
+            #self.assoc.debug_association_released()
+            #self.assoc.kill()
+
     def _is_transport_event(self):
         """Check to see if the transport connection has incoming data
 
@@ -538,7 +564,7 @@ class DULServiceProvider(Thread):
                 # A-Release Response
                 # result is 'affirmative'
                 event_str = 'Evt14'
-        elif primitive.__class__ == A_ABORT:
+        elif primitive.__class__ in (A_ABORT, A_P_ABORT):
             event_str = 'Evt15'
         elif primitive.__class__ == P_DATA:
             event_str = 'Evt9'

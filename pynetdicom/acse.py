@@ -4,7 +4,7 @@ ACSE service provider
 import logging
 
 from pynetdicom.pdu_primitives import (
-    A_ASSOCIATE, A_RELEASE, A_ABORT, A_P_ABORT,
+    A_ASSOCIATE, A_RELEASE, A_ABORT, A_P_ABORT, P_DATA,
     AsynchronousOperationsWindowNegotiation,
     SOPClassCommonExtendedNegotiation,
     SOPClassExtendedNegotiation,
@@ -248,15 +248,25 @@ class ACSE(object):
         return False
 
     @staticmethod
-    def is_released(assoc):
+    def is_release_requested(assoc):
         """Return True if an A-RELEASE request has been received."""
         primitive = assoc.dul.peek_next_pdu()
-        if isinstance(primitive, A_RELEASE):
+        if isinstance(primitive, A_RELEASE) and primitive.result is None:
+            _ = assoc.dul.receive_pdu(wait=False)
+            return True
+
+        return False
+
+    @staticmethod
+    def is_released(assoc):
+        """Return True if an A-RELEASE response has been received."""
+        primitive = assoc.dul.peek_next_pdu()
+        if isinstance(primitive, A_RELEASE) and primitive.result is not None:
             # Make sure this is an A-RELEASE *request* primitive
             #   response primitives have the Result field as 'affirmative'
-            if primitive.result == 'affirmative':
-                return False
-
+            #if primitive.result == 'affirmative':
+            #    primitive = assoc.dul.receive_pdu(wait=False)
+            _ = assoc.dul.receive_pdu(wait=False)
             return True
 
         return False
@@ -495,29 +505,69 @@ class ACSE(object):
             assoc.is_established = False
             assoc.dul.kill_dul()
 
-    def release_association(self, assoc):
-        """Release an established association.
-
-        Sends an A-RELEASE request and waits for the response. If no response
-        is received then aborts the association instead.
-
-        Parameters
-        ----------
-        assoc : association.Association
-            The Association instance to release.
-        """
+    def negotiate_release(self, assoc):
+        """Negotiate association release."""
+        # Send A-RELEASE request
+        # Only an A-ABORT request primitive is allowed after A-RELEASE starts
+        # (Part 8, Section 7.2.2)
         self.send_release(assoc, is_response=False)
-        rsp = assoc.dul.receive_pdu(wait=True, timeout=self.acse_timeout)
-        try:
-            assert rsp.result == 'affirmative'
-            assoc.is_released = True
-            assoc.is_established = False
-            assoc.kill()
-        except (AttributeError, AssertionError):
-            LOGGER.error(
-                "Received an invalid response to the A-RELEASE request"
-            )
-            assoc.abort()
+
+        # We need to wait for a reply and need to handle:
+        #   P-DATA primitives
+        #   A-ABORT request primitives
+        #   A-RELEASE collisions
+        is_collision = False
+        while True:
+            primitive = assoc.dul.receive_pdu(wait=True,
+                                              timeout=self.acse_timeout)
+            if primitive is None:
+                # No response received within timeout window
+                self.send_abort(assoc)
+                assoc.is_aborted = True
+                assoc.is_established = False
+                assoc.kill()
+                return
+
+            if isinstance(primitive, (A_ABORT, A_P_ABORT)):
+                # Received A-ABORT during association release
+                assoc.is_aborted = True
+                assoc.is_established = False
+                assoc.kill()
+                return
+
+            # Any other primitive besides A_RELEASE gets trashed
+            elif not isinstance(primitive, A_RELEASE):
+                # Should only be P-DATA
+                LOGGER.warning(
+                    "P-DATA received after Association release, data has "
+                    "been lost"
+                )
+                continue
+
+            # Must be A-RELEASE, but may be either request or release
+            if primitive.result is None:
+                # A-RELEASE (request) received, therefore an
+                # A-RELEASE collision has occurred (Part 8, Section 7.2.2.7)
+                LOGGER.debug("An A-RELEASE collision has occurred")
+                is_collision = True
+                if assoc.is_requestor:
+                    # Send A-RELEASE response
+                    self.send_release(assoc, is_response=True)
+                    # Wait for A-RELEASE response
+                    continue
+                else:
+                    # Acceptor waits for A-RELEASE response before
+                    #   sending their own response
+                    continue
+            else:
+                # A-RELEASE (response) received
+                if assoc.is_acceptor and is_collision:
+                    self.send_release(assoc, is_response=True)
+
+                assoc.is_released = True
+                assoc.is_established = False
+                assoc.kill()
+                return
 
     @staticmethod
     def send_abort(assoc, source):

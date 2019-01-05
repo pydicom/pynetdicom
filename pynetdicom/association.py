@@ -354,7 +354,10 @@ class Association(threading.Thread):
     def release(self):
         """Send an A-RELEASE request to the peer."""
         if self.is_established:
-            self.acse.release_association(self)
+            self.acse.negotiate_release(self)
+            #self.acse.send_release(self, is_response=False)
+            # Needs to block until a release response received
+            #self.dul.receive_pdu(wait=True, timeout=self.acse.acse_timeout)
 
     @property
     def remote(self):
@@ -485,15 +488,18 @@ class Association(threading.Thread):
                     LOGGER.debug("%s", msg)
 
             # Check for release request
-            if self.acse.is_released(self):
-                # Send A-RELEASE response
+            if self.acse.is_release_requested(self):
+                #    # Send A-RELEASE response
                 self.acse.send_release(self, is_response=True)
+
+            if self.acse.is_released(self):
                 self.is_released = True
                 self.is_established = False
-                # Callback trigger
-                self.debug_association_released()
+                #    # Callback triggers
                 self.ae.on_association_released()
+                self.debug_association_released()
                 self.kill()
+                return
 
             # Check for abort
             if self.acse.is_aborted(self):
@@ -520,12 +526,14 @@ class Association(threading.Thread):
             time.sleep(0.1)
 
             # Check for release request
-            if self.acse.is_released(self):
-                # Send A-RELEASE response
+            if self.acse.is_release_requested(self):
+                #    # Send A-RELEASE response
                 self.acse.send_release(self, is_response=True)
+
+            if self.acse.is_released(self):
                 self.is_released = True
                 self.is_established = False
-                # Callback triggers
+                #    # Callback triggers
                 self.ae.on_association_released()
                 self.debug_association_released()
                 self.kill()

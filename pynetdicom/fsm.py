@@ -73,10 +73,11 @@ class StateMachine(object):
             # Move the state machine to the next state
             self.transition(next_state)
 
-        except Exception:
-            LOGGER.error("DUL State Machine received an exception attempting "
+        except Exception as exc:
+            LOGGER.error("State Machine received an exception attempting "
                          "to perform the action '%s' while in state '%s'",
                          action_name, self.current_state)
+            LOGGER.exception(exc)
             self.dul.kill_dul()
             raise
 

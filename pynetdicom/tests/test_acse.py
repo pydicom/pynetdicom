@@ -145,108 +145,18 @@ class TestACSE(object):
         assert acse.is_released(self.assoc) is False
 
         acse.send_release(self.assoc)
-        assert acse.is_released(self.assoc) is True
+        assert acse.is_released(self.assoc) is False
         self.assoc.dul.queue.get()
         with pytest.raises(queue.Empty):
             self.assoc.dul.queue.get(block=False)
         assert acse.is_released(self.assoc) is False
 
         acse.send_release(self.assoc, is_response=True)
-        assert acse.is_released(self.assoc) is False
+        assert acse.is_released(self.assoc) is True
         self.assoc.dul.queue.get()
         with pytest.raises(queue.Empty):
             self.assoc.dul.queue.get(block=False)
         assert acse.is_released(self.assoc) is False
-
-    def test_release_assoc_good(self):
-        """Test receiving a good A-RELEASE response."""
-        primitive = A_RELEASE()
-        primitive.result = 'affirmative'
-
-        self.assoc.dul.received.put(primitive)
-        assert self.assoc.is_aborted is False
-        assert self.assoc.is_killed is False
-        assert self.assoc.is_released is False
-
-        acse = ACSE()
-        acse.release_association(self.assoc)
-
-        with pytest.raises(queue.Empty):
-            self.assoc.dul.received.get(block=False)
-        assert self.assoc.is_aborted is False
-        assert self.assoc.is_released is True
-        assert self.assoc.is_killed is True
-
-        primitive = self.assoc.dul.queue.get(block=False)
-        assert isinstance(primitive, A_RELEASE)
-        assert primitive.result != 'affirmative'
-        with pytest.raises(queue.Empty):
-            self.assoc.dul.queue.get(block=False)
-
-    @pytest.mark.skipif(sys.version_info[:2] == (3, 4),
-                    reason='pytest missing caplog')
-    def test_release_assoc_bad_response(self, caplog):
-        """Test receiving bad response to A-RELEASE request."""
-        # Request received
-        primitive = A_RELEASE()
-        assert primitive.result != 'affirmative'
-
-        self.assoc.dul.received.put(primitive)
-        assert self.assoc.is_aborted is False
-        assert self.assoc.is_killed is False
-        assert self.assoc.is_released is False
-
-        acse = ACSE()
-        with caplog.at_level(logging.WARNING, logger='pynetdicom'):
-            acse.release_association(self.assoc)
-
-            msg = (
-                "Received an invalid response to the A-RELEASE request"
-            )
-            assert msg in caplog.text
-
-        with pytest.raises(queue.Empty):
-            self.assoc.dul.received.get(block=False)
-        assert self.assoc.is_aborted is True
-        assert self.assoc.is_released is False
-        assert self.assoc.is_killed is True
-
-        primitive = self.assoc.dul.queue.get(block=False)
-        assert isinstance(primitive, A_RELEASE)
-        assert primitive.result != 'affirmative'
-        with pytest.raises(queue.Empty):
-            self.assoc.dul.queue.get(block=False)
-
-    @pytest.mark.skipif(sys.version_info[:2] == (3, 4),
-                    reason='pytest missing caplog')
-    def test_release_assoc_invalid_response(self, caplog):
-        """Test receiving invalid response to A-RELEASE request."""
-        # Non A-RELEASE received
-        self.assoc.dul.received.put(None)
-        assert self.assoc.is_aborted is False
-        assert self.assoc.is_killed is False
-        assert self.assoc.is_released is False
-
-        acse = ACSE()
-        with caplog.at_level(logging.WARNING, logger='pynetdicom'):
-            acse.release_association(self.assoc)
-
-            msg = (
-                "Received an invalid response to the A-RELEASE request"
-            )
-            assert msg in caplog.text
-
-        with pytest.raises(queue.Empty):
-            self.assoc.dul.received.get(block=False)
-        assert self.assoc.is_aborted is True
-        assert self.assoc.is_released is False
-        assert self.assoc.is_killed is True
-
-        primitive = self.assoc.dul.queue.get(block=False)
-        assert isinstance(primitive, A_RELEASE)
-        assert primitive.result != 'affirmative'
-        with pytest.raises(queue.Empty):
-            self.assoc.dul.queue.get(block=False)
 
 
 class TestNegotiationRequestor(object):
@@ -1885,3 +1795,165 @@ class TestAsyncOpsNegotiation(object):
         assoc.release()
 
         self.scp.stop()
+
+
+class TestCollision(object):
+    """Tests for A-RELEASE collisions."""
+    def setup(self):
+        """Run prior to each test"""
+        self.scp = None
+
+    def teardown(self):
+        """Clear any active threads"""
+        if self.scp:
+            self.scp.abort()
+
+        time.sleep(0.1)
+
+        for thread in threading.enumerate():
+            if isinstance(thread, DummyBaseSCP):
+                thread.abort()
+                thread.stop()
+
+    def run(self):
+        pass
+
+    def step_dul(self, dul):
+        # Main DUL loop
+        if dul._idle_timer is not None:
+            dul._idle_timer.start()
+
+        # Check the connection for incoming data
+        #try:
+            # If local AE is SCU also calls _check_incoming_pdu()
+            # Check primitives first
+            if dul._is_release_event():
+                pass
+            elif dul._check_incoming_primitive():
+                pass
+            elif dul._is_transport_event() and dul._idle_timer is not None:
+                dul._idle_timer.restart()
+
+            elif dul._is_artim_expired():
+                dul._kill_thread = True
+
+        #except:
+        #    # FIXME: This catch all should be removed
+        #    dul._kill_thread = True
+        #    raise
+
+        # Check the event queue to see if there is anything to do
+        try:
+            event = dul.event_queue.get(block=False)
+        # If the queue is empty, return to the start of the loop
+        except queue.Empty:
+            return
+
+        dul.state_machine.do_action(event)
+
+    def test_manual_dul(self):
+        """Test that the overriden DUL works as expected."""
+        self.scp = DummyVerificationSCP()
+        self.scp.start()
+
+        ae = AE()
+        ae.add_requested_context(VerificationSOPClass)
+        ae.acse_timeout = 5
+        ae.dimse_timeout = 5
+        assoc = ae.associate('localhost', 11112)
+        assert assoc.is_established
+
+        time.sleep(0.5)
+
+        # Can kill the DUL after association, use manual mode from here
+        # SCP and SCU should both be in Sta6
+        scp_dul = self.scp.ae.active_associations[0].dul
+        scp_dul._kill_thread = True
+        time.sleep(0.1)
+        scp_dul.run = self.run
+        scp_dul.step = self.step_dul
+
+        assert scp_dul.state_machine.current_state == 'Sta6'
+
+        # SCU
+        scu_dul = assoc.dul
+        scu_dul._kill_thread = True
+        time.sleep(0.1)
+        scu_dul.run = self.run
+        scu_dul.step = self.step_dul
+
+        assert scu_dul.state_machine.current_state == 'Sta6'
+
+        # Line up an A-RELEASE (request) primitives
+        primitive = A_RELEASE()
+        scp_dul.send_pdu(primitive)
+        primitive = A_RELEASE()
+        scu_dul.send_pdu(primitive)
+
+        # Send A-RELEASE (rq) primitive to service
+        #   and convert to PDU and sent to each other
+        # SCP: Sta6 + Evt11 -> AR-1 -> Sta7
+        scp_dul.step(scp_dul)
+        assert scp_dul.state_machine.current_state == 'Sta7'
+        # SCU: Sta6 + Evt11 -> AR-1 -> Sta7
+        scu_dul.step(scu_dul)
+        assert scu_dul.state_machine.current_state == 'Sta7'
+
+        # Receive A-RELEASE-RQ PDUS, convert to primitives
+        #   and send primitive to user
+        # SCP: Sta7 + Evt12 -> AR-8 -> Sta10
+        scp_dul.step(scp_dul)
+        assert scp_dul.state_machine.current_state == 'Sta10'
+        # SCU: Sta7 + Evt12 -> AR-8 -> Sta9
+        scu_dul.step(scu_dul)
+        assert scu_dul.state_machine.current_state == 'Sta9'
+
+        # Not always triggered grr
+
+        # SCU sends A-RELEASE (response) primitive to service
+        #   converts it to A-RELEASE-RP PDU and sends to SCP
+        # First step adds the primitive to the DUL queue
+        scu_dul.step(scu_dul)
+        # SCU: Sta9 + Evt14 -> Evt14 -> AR-9 + Sta11
+        #scu_dul.step(scu_dul)
+        #scu_dul.step(scu_dul)
+        assert scu_dul.state_machine.current_state == 'Sta11'
+
+        # Here lieth the problem
+
+        # SCP receives A-RELEASE-RP PDU, converts to primitive and send
+        #   primitive to user
+        # SCP: Sta10 + Evt13 -> AR-10 -> Sta12
+        #time.sleep(0.5)
+        scp_dul.step(scp_dul)
+        #scp_dul.step(scp_dul)
+        assert scp_dul.state_machine.current_state == 'Sta12'
+
+        # SCP sends A-RELEASE (response) primitive to service
+        #   converts it to A-RELEASE-RP and sends to SCU
+        # SCP: Sta12 + Evt14 -> AR-4 -> Sta13
+        #time.sleep(0.5)
+        scp_dul.step(scp_dul)
+        assert scp_dul.state_machine.current_state == 'Sta13'
+
+        # SCU receives A-RELEASE-RP PDU, converts it to primitive,
+        #   sends it to user and closes connection, goes to Sta1
+        # SCU: Sta11 + Evt13 -> AR-3 -> Sta1
+        #time.sleep(0.5)
+        scu_dul.step(scu_dul)
+        assert scu_dul.state_machine.current_state == 'Sta1'
+
+        # SCP notices closed connection, goes to Sta1
+        # SCP: Sta13 + Evt17 -> AR-5 -> Sta1
+        #time.sleep(0.5)
+        scp_dul.step(scp_dul)
+        assert scp_dul.state_machine.current_state == 'Sta1'
+
+        #assert assoc.is_released
+
+        self.scp.stop()
+
+
+class TestCollisionAcceptor(object):
+    """Tests for A-RELEASE collisions on the acceptor side."""
+    pass
