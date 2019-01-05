@@ -79,7 +79,7 @@ from .dummy_c_scp import (
 
 LOGGER = logging.getLogger('pynetdicom')
 LOGGER.setLevel(logging.CRITICAL)
-#LOGGER.setLevel(logging.DEBUG)
+LOGGER.setLevel(logging.DEBUG)
 
 TEST_DS_DIR = os.path.join(os.path.dirname(__file__), 'dicom_files')
 BIG_DATASET = dcmread(os.path.join(TEST_DS_DIR, 'RTImageStorage.dcm')) # 2.1 M
@@ -506,6 +506,7 @@ class TestAssociation(object):
         assoc = ae.associate('localhost', 11112)
         assert assoc.is_established
         self.scp.release()
+        time.sleep(0.1)
         assert not assoc.is_established
         assert assoc.is_released
         #self.assertRaises(SystemExit, ae.quit)

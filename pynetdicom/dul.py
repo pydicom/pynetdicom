@@ -11,7 +11,7 @@ except ImportError:
 import select
 import socket
 from struct import unpack
-from threading import Thread
+from threading import Thread, Event
 import time
 
 from pynetdicom.fsm import StateMachine
@@ -156,6 +156,10 @@ class DULServiceProvider(Thread):
         # Controls the minimum delay between loops in run()
         self._run_loop_delay = 0.001
 
+        # Allow us to manually step through the DUL reactor
+        self._step = 0
+        self._event = Event()
+
     def idle_timer_expired(self):
         """
         Checks if the idle timer has expired
@@ -241,15 +245,19 @@ class DULServiceProvider(Thread):
             # This effectively controls how often the DUL checks the network
             time.sleep(self._run_loop_delay)
 
+            # Allow us to step the DUL reactor (debugging)
+            if self._step:
+                self._step -= 1
+                self._event.wait()
+                self._event.clear()
+
             if self._kill_thread:
                 break
 
             # Check the connection for incoming data
             try:
                 # If local AE is SCU also calls _check_incoming_pdu()
-                if self._is_release_event():
-                    pass
-                elif self._is_transport_event() and self._idle_timer is not None:
+                if self._is_transport_event() and self._idle_timer is not None:
                     self._idle_timer.restart()
                 elif self._check_incoming_primitive():
                     pass
@@ -401,29 +409,6 @@ class DULServiceProvider(Thread):
             return True
 
         return False
-
-    def _is_release_event(self):
-        """Handler for A-RELEASE negotiation."""
-        if self.state_machine.current_state == 'Sta12':
-            # Sta12 + Evt14 -> AE-4 -> Sta13
-            # AR-4: Issue A-RELEASE-RP PDU and start ARTIM
-            self.assoc.acse.send_release(self.assoc, True)
-            #self.assoc.is_released = True
-            #self.assoc.is_established = False
-            #self.assoc.ae.on_association_released()
-            #self.assoc.debug_association_released()
-            #self.assoc.kill()
-        elif self.state_machine.current_state == 'Sta9':
-            # Collision on requestor side: send A-RELEASE response
-            # Sta9 + Evt14 -> AR-9 -> Sta11
-            # AR-9: Convert A-RELEASE (response) primitive to PDU and
-            #   send to peer
-            self.assoc.acse.send_release(self.assoc, True)
-            #self.assoc.is_released = True
-            #self.assoc.is_established = False
-            #self.assoc.ae.on_association_released()
-            #self.assoc.debug_association_released()
-            #self.assoc.kill()
 
     def _is_transport_event(self):
         """Check to see if the transport connection has incoming data

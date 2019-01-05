@@ -2,6 +2,8 @@
 ACSE service provider
 """
 import logging
+import time
+import warnings
 
 from pynetdicom.pdu_primitives import (
     A_ASSOCIATE, A_RELEASE, A_ABORT, A_P_ABORT, P_DATA,
@@ -249,7 +251,14 @@ class ACSE(object):
 
     @staticmethod
     def is_release_requested(assoc):
-        """Return True if an A-RELEASE request has been received."""
+        """Return True if an A-RELEASE request has been received.
+
+        Parameters
+        ----------
+        assoc : association.Association
+            The Association instance that wants to know if an A-RELEASE
+            request has been received.
+        """
         primitive = assoc.dul.peek_next_pdu()
         if isinstance(primitive, A_RELEASE) and primitive.result is None:
             _ = assoc.dul.receive_pdu(wait=False)
@@ -257,19 +266,15 @@ class ACSE(object):
 
         return False
 
-    @staticmethod
-    def is_released(assoc):
+    # Deprecated, to be removed in v1.2
+    def is_released(self, assoc):
         """Return True if an A-RELEASE response has been received."""
-        primitive = assoc.dul.peek_next_pdu()
-        if isinstance(primitive, A_RELEASE) and primitive.result is not None:
-            # Make sure this is an A-RELEASE *request* primitive
-            #   response primitives have the Result field as 'affirmative'
-            #if primitive.result == 'affirmative':
-            #    primitive = assoc.dul.receive_pdu(wait=False)
-            _ = assoc.dul.receive_pdu(wait=False)
-            return True
-
-        return False
+        warnings.warn(
+            "ACSE.is_released is deprecated and will be remove in v1.2, "
+            "use ACSE.is_release_requested instead",
+            DeprecationWarning
+        )
+        return self.is_release_requested(assoc)
 
     def negotiate_association(self, assoc):
         """Perform an association negotiation as either the requestor or
@@ -485,10 +490,15 @@ class ACSE(object):
                 assoc.is_established = False
                 assoc.dul.kill_dul()
             else:
-                LOGGER.error(
+                msg = (
                     "Received an invalid A-ASSOCIATE 'Result' value from "
-                    "the peer: '0x{:02x}'".format(rsp.result)
+                    "the peer: "
                 )
+                if rsp.result:
+                    msg += "'0x{:02x}'".format(rsp.result)
+                else:
+                    msg += "(none)"
+                LOGGER.error(msg)
                 self.send_abort(assoc, 0x02)
                 assoc.is_aborted = True
                 assoc.is_established = False
@@ -507,6 +517,10 @@ class ACSE(object):
 
     def negotiate_release(self, assoc):
         """Negotiate association release."""
+        # Kill the main reactor loop to prevent it interfering
+        assoc._kill = True
+        time.sleep(0.01)
+
         # Send A-RELEASE request
         # Only an A-ABORT request primitive is allowed after A-RELEASE starts
         # (Part 8, Section 7.2.2)
@@ -529,7 +543,7 @@ class ACSE(object):
                 return
 
             if isinstance(primitive, (A_ABORT, A_P_ABORT)):
-                # Received A-ABORT during association release
+                # Received A-ABORT/A-P-ABORT during association release
                 assoc.is_aborted = True
                 assoc.is_established = False
                 assoc.kill()
@@ -561,6 +575,8 @@ class ACSE(object):
                     continue
             else:
                 # A-RELEASE (response) received
+                # If collision and we are the acceptor then we need to send
+                #   the A-RELEASE (response) to the requestor
                 if assoc.is_acceptor and is_collision:
                     self.send_release(assoc, is_response=True)
 

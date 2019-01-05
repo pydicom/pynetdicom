@@ -50,12 +50,14 @@ class DummyDUL(object):
     def peek_next_pdu(self):
         """Check the next PDU to be processed."""
         try:
+            # Looks at next item without retrieving it
             return self.queue.queue[0]
         except (queue.Empty, IndexError):
             return None
 
     def receive_pdu(self, wait=False, timeout=None):
-        return self.received.get()
+        # Takes item off the queue
+        return self.queue.get(wait, timeout)
 
     def kill_dul(self):
         self.is_killed = True
@@ -145,14 +147,13 @@ class TestACSE(object):
         assert acse.is_released(self.assoc) is False
 
         acse.send_release(self.assoc)
-        assert acse.is_released(self.assoc) is False
-        self.assoc.dul.queue.get()
+        assert acse.is_released(self.assoc) is True
         with pytest.raises(queue.Empty):
             self.assoc.dul.queue.get(block=False)
         assert acse.is_released(self.assoc) is False
 
         acse.send_release(self.assoc, is_response=True)
-        assert acse.is_released(self.assoc) is True
+        assert acse.is_released(self.assoc) is False
         self.assoc.dul.queue.get()
         with pytest.raises(queue.Empty):
             self.assoc.dul.queue.get(block=False)
@@ -207,14 +208,15 @@ class TestNegotiationRequestor(object):
         """Test if A-ABORT received during association negotiation."""
         primitive = A_ABORT()
 
-        self.assoc.dul.received.put(primitive)
+        self.assoc.dul.queue.put(primitive)
         assert self.assoc.is_aborted is False
         assert self.assoc.is_killed is False
 
         acse = ACSE()
         acse._negotiate_as_requestor(self.assoc)
-        with pytest.raises(queue.Empty):
-            self.assoc.dul.received.get(block=False)
+        #assert isinstance(self.assoc.dul.queue.get(), A_ASSOCIATE)
+        #with pytest.raises(queue.Empty):
+        #    self.assoc.dul.queue.get(block=False)
         assert self.assoc.is_aborted is True
         assert self.assoc.dul.is_killed is True
 
@@ -227,14 +229,12 @@ class TestNegotiationRequestor(object):
         """Test if A-P-ABORT received during association negotiation."""
         primitive = A_P_ABORT()
 
-        self.assoc.dul.received.put(primitive)
+        self.assoc.dul.queue.put(primitive)
         assert self.assoc.is_aborted is False
         assert self.assoc.is_killed is False
 
         acse = ACSE()
         acse._negotiate_as_requestor(self.assoc)
-        with pytest.raises(queue.Empty):
-            self.assoc.dul.received.get(block=False)
         assert self.assoc.is_aborted is True
         assert self.assoc.dul.is_killed is True
 
@@ -247,14 +247,12 @@ class TestNegotiationRequestor(object):
         """Test if invalid received during association negotiation."""
         primitive = A_RELEASE()
 
-        self.assoc.dul.received.put(primitive)
+        self.assoc.dul.queue.put(primitive)
         assert self.assoc.is_aborted is False
         assert self.assoc.is_killed is False
 
         acse = ACSE()
         acse._negotiate_as_requestor(self.assoc)
-        with pytest.raises(queue.Empty):
-            self.assoc.dul.received.get(block=False)
         assert self.assoc.is_aborted is False
         assert self.assoc.dul.is_killed is True
 
@@ -268,7 +266,7 @@ class TestNegotiationRequestor(object):
         primitive = A_ASSOCIATE()
         primitive._result = 0xFF
 
-        self.assoc.dul.received.put(primitive)
+        self.assoc.dul.queue.put(primitive)
         assert self.assoc.is_aborted is False
         assert self.assoc.is_killed is False
 
@@ -290,7 +288,7 @@ class TestNegotiationRequestor(object):
         primitive = A_ASSOCIATE()
         primitive._result = 0x01
 
-        self.assoc.dul.received.put(primitive)
+        self.assoc.dul.queue.put(primitive)
         assert self.assoc.is_aborted is False
         assert self.assoc.is_killed is False
         assert self.assoc.is_rejected is False
@@ -1797,6 +1795,7 @@ class TestAsyncOpsNegotiation(object):
         self.scp.stop()
 
 
+@pytest.mark.skip()
 class TestCollision(object):
     """Tests for A-RELEASE collisions."""
     def setup(self):
@@ -1815,44 +1814,8 @@ class TestCollision(object):
                 thread.abort()
                 thread.stop()
 
-    def run(self):
-        pass
-
-    def step_dul(self, dul):
-        # Main DUL loop
-        if dul._idle_timer is not None:
-            dul._idle_timer.start()
-
-        # Check the connection for incoming data
-        #try:
-            # If local AE is SCU also calls _check_incoming_pdu()
-            # Check primitives first
-            if dul._is_release_event():
-                pass
-            elif dul._check_incoming_primitive():
-                pass
-            elif dul._is_transport_event() and dul._idle_timer is not None:
-                dul._idle_timer.restart()
-
-            elif dul._is_artim_expired():
-                dul._kill_thread = True
-
-        #except:
-        #    # FIXME: This catch all should be removed
-        #    dul._kill_thread = True
-        #    raise
-
-        # Check the event queue to see if there is anything to do
-        try:
-            event = dul.event_queue.get(block=False)
-        # If the queue is empty, return to the start of the loop
-        except queue.Empty:
-            return
-
-        dul.state_machine.do_action(event)
-
-    def test_manual_dul(self):
-        """Test that the overriden DUL works as expected."""
+    def test_collision(self):
+        """Test a simulated A-RELEASE collision."""
         self.scp = DummyVerificationSCP()
         self.scp.start()
 
@@ -1860,100 +1823,132 @@ class TestCollision(object):
         ae.add_requested_context(VerificationSOPClass)
         ae.acse_timeout = 5
         ae.dimse_timeout = 5
+        ae.network_timeout = 5
         assoc = ae.associate('localhost', 11112)
         assert assoc.is_established
 
-        time.sleep(0.5)
+        time.sleep(0.1)
 
         # Can kill the DUL after association, use manual mode from here
         # SCP and SCU should both be in Sta6
+        # Also kill the association threads to prevent it responding
         scp_dul = self.scp.ae.active_associations[0].dul
-        scp_dul._kill_thread = True
+        scp_dul._step = 1
+        #scp_dul.assoc._kill = True
+        #scp_dul._kill_thread = True
         time.sleep(0.1)
-        scp_dul.run = self.run
-        scp_dul.step = self.step_dul
+        #scp_dul.run = self.run
+        #scp_dul.step = self.step_dul
 
         assert scp_dul.state_machine.current_state == 'Sta6'
 
         # SCU
+        #assoc._kill = True
         scu_dul = assoc.dul
-        scu_dul._kill_thread = True
+        scu_dul._step = 1
         time.sleep(0.1)
-        scu_dul.run = self.run
-        scu_dul.step = self.step_dul
 
         assert scu_dul.state_machine.current_state == 'Sta6'
 
+        # Line up an A-RELEASE (request) primitives
+        scp_dul._step = 1
+        scp_dul.assoc._step = 1
+        scu_dul._step = 1
+        scu_dul.assoc._step = 1
+
+        time.sleep(0.1)
+
+        # Blocking, duh
+        #scp_dul.assoc.release()
+        #assoc.release()
         # Line up an A-RELEASE (request) primitives
         primitive = A_RELEASE()
         scp_dul.send_pdu(primitive)
         primitive = A_RELEASE()
         scu_dul.send_pdu(primitive)
 
+        # Change flag to true and step DUL
+        scp_dul._event.set()
+        scu_dul._event.set()
+
+        time.sleep(0.1)
+
         # Send A-RELEASE (rq) primitive to service
         #   and convert to PDU and sent to each other
         # SCP: Sta6 + Evt11 -> AR-1 -> Sta7
-        scp_dul.step(scp_dul)
+        scp_dul._step = 5
+        scp_dul._event.set()
         assert scp_dul.state_machine.current_state == 'Sta7'
+
         # SCU: Sta6 + Evt11 -> AR-1 -> Sta7
-        scu_dul.step(scu_dul)
+        scu_dul._step = 5
+        scu_dul._event.set()
         assert scu_dul.state_machine.current_state == 'Sta7'
 
         # Receive A-RELEASE-RQ PDUS, convert to primitives
         #   and send primitive to user
         # SCP: Sta7 + Evt12 -> AR-8 -> Sta10
-        scp_dul.step(scp_dul)
+        scp_dul._event.set()
+        time.sleep(0.1)
         assert scp_dul.state_machine.current_state == 'Sta10'
+        primitive = scp_dul.receive_pdu(wait=False)
+        assert primitive.result is None
         # SCU: Sta7 + Evt12 -> AR-8 -> Sta9
-        scu_dul.step(scu_dul)
+        scu_dul._event.set()
+        time.sleep(0.1)
         assert scu_dul.state_machine.current_state == 'Sta9'
-
-        # Not always triggered grr
+        primitive = scu_dul.receive_pdu(wait=False)
+        assert primitive.result is None
 
         # SCU sends A-RELEASE (response) primitive to service
         #   converts it to A-RELEASE-RP PDU and sends to SCP
         # First step adds the primitive to the DUL queue
-        scu_dul.step(scu_dul)
         # SCU: Sta9 + Evt14 -> Evt14 -> AR-9 + Sta11
-        #scu_dul.step(scu_dul)
-        #scu_dul.step(scu_dul)
+        primitive.result = 'affirmative'
+        scu_dul.send_pdu(primitive)
+        scu_dul._event.set()
+        time.sleep(0.1)
         assert scu_dul.state_machine.current_state == 'Sta11'
-
-        # Here lieth the problem
 
         # SCP receives A-RELEASE-RP PDU, converts to primitive and send
         #   primitive to user
         # SCP: Sta10 + Evt13 -> AR-10 -> Sta12
-        #time.sleep(0.5)
-        scp_dul.step(scp_dul)
-        #scp_dul.step(scp_dul)
+        scp_dul._event.set()
+        time.sleep(0.1)
         assert scp_dul.state_machine.current_state == 'Sta12'
+        primitive = scp_dul.receive_pdu(wait=False)
+        assert primitive.result == 'affirmative'
 
         # SCP sends A-RELEASE (response) primitive to service
         #   converts it to A-RELEASE-RP and sends to SCU
         # SCP: Sta12 + Evt14 -> AR-4 -> Sta13
         #time.sleep(0.5)
-        scp_dul.step(scp_dul)
+        scp_dul.send_pdu(primitive)
+        scp_dul._event.set()
+        time.sleep(0.1)
         assert scp_dul.state_machine.current_state == 'Sta13'
 
         # SCU receives A-RELEASE-RP PDU, converts it to primitive,
         #   sends it to user and closes connection, goes to Sta1
         # SCU: Sta11 + Evt13 -> AR-3 -> Sta1
         #time.sleep(0.5)
-        scu_dul.step(scu_dul)
+        scu_dul._event.set()
+        time.sleep(0.1)
         assert scu_dul.state_machine.current_state == 'Sta1'
+        primitive = scu_dul.receive_pdu(wait=False)
+        assert primitive.result == 'affirmative'
 
         # SCP notices closed connection, goes to Sta1
         # SCP: Sta13 + Evt17 -> AR-5 -> Sta1
-        #time.sleep(0.5)
-        scp_dul.step(scp_dul)
+        scp_dul._event.set()
+        time.sleep(0.1)
         assert scp_dul.state_machine.current_state == 'Sta1'
 
-        #assert assoc.is_released
+        scp_dul._kill_thread = True
+        scp_dul._step = 0
+        scp_dul._event.set()
+        scu_dul._kill_thread = True
+        scu_dul._step = 0
+        scu_dul._event.set()
 
         self.scp.stop()
-
-
-class TestCollisionAcceptor(object):
-    """Tests for A-RELEASE collisions on the acceptor side."""
-    pass

@@ -151,7 +151,6 @@ class Association(threading.Thread):
 
         # Kills the thread loop in run()
         self._kill = False
-        self._is_running = False
 
         # Send A-ABORT when an A-ASSOCIATE request is received
         self._a_abort_assoc_rq = False
@@ -161,6 +160,10 @@ class Association(threading.Thread):
         self.send_c_cancel_find = self._send_c_cancel
         self.send_c_cancel_move = self._send_c_cancel
         self.send_c_cancel_get = self._send_c_cancel
+
+        # Allows us to manually step the association reactor
+        self._step = 0
+        self._event = threading.Event()
 
         # Thread setup
         threading.Thread.__init__(self)
@@ -352,12 +355,9 @@ class Association(threading.Thread):
         return self._rejected_cx
 
     def release(self):
-        """Send an A-RELEASE request to the peer."""
+        """Send an A-RELEASE request and initiate association release."""
         if self.is_established:
             self.acse.negotiate_release(self)
-            #self.acse.send_release(self, is_response=False)
-            # Needs to block until a release response received
-            #self.dul.receive_pdu(wait=True, timeout=self.acse.acse_timeout)
 
     @property
     def remote(self):
@@ -430,9 +430,14 @@ class Association(threading.Thread):
             ),
         }
 
-        self._is_running = True
         while not self._kill:
             time.sleep(0.001)
+
+            # Allow us to step the association reactor (debugging)
+            if self._step:
+                self._step -= 1
+                self._event.wait()
+                self._event.clear()
 
             # Check with the DIMSE provider for incoming messages
             #   all messages should be a DIMSEMessage subclass
@@ -489,13 +494,11 @@ class Association(threading.Thread):
 
             # Check for release request
             if self.acse.is_release_requested(self):
-                #    # Send A-RELEASE response
+                # Send A-RELEASE response
                 self.acse.send_release(self, is_response=True)
-
-            if self.acse.is_released(self):
                 self.is_released = True
                 self.is_established = False
-                #    # Callback triggers
+                # Callback triggers
                 self.ae.on_association_released()
                 self.debug_association_released()
                 self.kill()
@@ -509,11 +512,13 @@ class Association(threading.Thread):
                 self.debug_association_aborted()
                 self.ae.on_association_aborted(None)
                 self.kill()
+                return
 
             # Check if the DULServiceProvider thread is still running
             #   DUL.is_alive() is inherited from threading.thread
             if not self.dul.is_alive():
                 self.kill()
+                return
 
             # Check if idle timer has expired
             if self.dul.idle_timer_expired():
@@ -523,21 +528,27 @@ class Association(threading.Thread):
         """Run the association as the requestor."""
         # Listen for further messages from the peer
         while not self._kill:
-            time.sleep(0.1)
+            time.sleep(0.01)
+
+            # Allow us to step the association reactor (debugging)
+            if self._step:
+                self._step -= 1
+                self._event.wait()
+                self._event.clear()
 
             # Check for release request
             if self.acse.is_release_requested(self):
-                #    # Send A-RELEASE response
+                # Send A-RELEASE response
                 self.acse.send_release(self, is_response=True)
-
-            if self.acse.is_released(self):
                 self.is_released = True
                 self.is_established = False
-                #    # Callback triggers
+                # Callback triggers
                 self.ae.on_association_released()
                 self.debug_association_released()
                 self.kill()
                 return
+
+            #print('Release not requested!')
 
             # Check for abort
             if self.acse.is_aborted(self):
