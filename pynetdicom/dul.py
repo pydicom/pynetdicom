@@ -19,7 +19,9 @@ from pynetdicom.pdu import (
     A_ASSOCIATE_RQ, A_ASSOCIATE_AC, A_ASSOCIATE_RJ,
     P_DATA_TF, A_RELEASE_RQ, A_RELEASE_RP, A_ABORT_RQ
 )
-from pynetdicom.pdu_primitives import A_ASSOCIATE, A_RELEASE, A_ABORT, P_DATA
+from pynetdicom.pdu_primitives import (
+    A_ASSOCIATE, A_RELEASE, A_ABORT, A_P_ABORT, P_DATA
+)
 from pynetdicom.timer import Timer
 
 LOGGER = logging.getLogger('pynetdicom.dul')
@@ -234,8 +236,8 @@ class DULServiceProvider(Thread):
         # Main DUL loop
         if self._idle_timer is not None:
             self._idle_timer.start()
-        while True:
 
+        while True:
             # This effectively controls how often the DUL checks the network
             time.sleep(self._run_loop_delay)
 
@@ -250,7 +252,7 @@ class DULServiceProvider(Thread):
                 elif self._check_incoming_primitive():
                     pass
 
-                elif self._is_artim_expired():
+                if self._is_artim_expired():
                     self._kill_thread = True
 
             except:
@@ -393,7 +395,6 @@ class DULServiceProvider(Thread):
             True if the ARTIM timer has expired, False otherwise
         """
         if self.artim_timer.is_expired:
-            #LOGGER.debug('%s: timer expired' % (self.name))
             self.event_queue.put('Evt18')
             return True
 
@@ -407,24 +408,29 @@ class DULServiceProvider(Thread):
         bool
             True if an event has been added, False otherwise
         """
-        # Sta13 is waiting for the transport connection to close
+        # Sta13: waiting for the transport connection to close
+        # however it may still receive data that needs to be acted on
         if self.state_machine.current_state == 'Sta13':
             # If we have no connection to the SCU
             if self.scu_socket is None:
                 return False
 
-            # If we are still connected to the SCU
+            # Check to see if there's more data to be read
+            #   Might be any incoming PDU
+            # Make sure our check of the socket is non-blocking!
             try:
-                # socket.Socket().recv(bufsize)
-                # If we are still receiving data from the socket
-                #   wait until its done
-                while self.scu_socket.recv(1) != b'':
-                    continue
-            except socket.error:
+                ready, _, _ = select.select([self.scu_socket], [], [], 0)
+            except (socket.error, ValueError):
                 return False
+
+            if ready:
+                # Data still available, grab it
+                self._check_incoming_pdu()
+                return True
 
             # Once we have no more incoming data close the socket and
             #   add the corresponding event to the queue
+            self.scu_socket.shutdown(socket.SHUT_RDWR)
             self.scu_socket.close()
             self.scu_socket = None
 
@@ -469,8 +475,7 @@ class DULServiceProvider(Thread):
                 self._check_incoming_pdu()
                 return True
 
-        else:
-            return False
+        return False
 
     @staticmethod
     def _pdu_to_event(pdu):
@@ -538,7 +543,7 @@ class DULServiceProvider(Thread):
                 # A-Release Response
                 # result is 'affirmative'
                 event_str = 'Evt14'
-        elif primitive.__class__ == A_ABORT:
+        elif primitive.__class__ in (A_ABORT, A_P_ABORT):
             event_str = 'Evt15'
         elif primitive.__class__ == P_DATA:
             event_str = 'Evt9'

@@ -73,10 +73,11 @@ class StateMachine(object):
             # Move the state machine to the next state
             self.transition(next_state)
 
-        except Exception:
-            LOGGER.error("DUL State Machine received an exception attempting "
+        except Exception as exc:
+            LOGGER.error("State Machine received an exception attempting "
                          "to perform the action '%s' while in state '%s'",
                          action_name, self.current_state)
+            LOGGER.exception(exc)
             self.dul.kill_dul()
             raise
 
@@ -269,6 +270,7 @@ def AE_5(dul):
     # not required due to implementation
 
     # Start ARTIM timer
+    dul.artim_timer.timeout_seconds = dul.assoc.acse_timeout
     dul.artim_timer.start()
 
     return 'Sta2'
@@ -325,7 +327,7 @@ def AE_6(dul):
         dul.assoc.acse.debug_send_associate_rj(dul.pdu)
 
         dul.scu_socket.send(dul.pdu.encode())
-
+        dul.artim_timer.timeout_seconds = dul.assoc.acse_timeout
         dul.artim_timer.start()
 
         return 'Sta13'
@@ -401,6 +403,7 @@ def AE_8(dul):
 
     dul.scu_socket.send(dul.pdu.encode())
 
+    dul.artim_timer.timeout_seconds = dul.assoc.acse_timeout
     dul.artim_timer.start()
 
     return 'Sta13'
@@ -590,6 +593,7 @@ def AR_4(dul):
     dul.assoc.acse.debug_send_release_rp(dul.pdu)
 
     dul.scu_socket.send(dul.pdu.encode())
+    dul.artim_timer.timeout_seconds = dul.assoc.acse_timeout
     dul.artim_timer.start()
 
     return 'Sta13'
@@ -710,7 +714,7 @@ def AR_8(dul):
     """
     # Issue A-RELEASE indication (release collision)
     dul.to_user_queue.put(dul.primitive)
-    if dul.requestor == 1:
+    if dul.assoc.is_requestor:
         return 'Sta9'
 
     return 'Sta10'
@@ -820,6 +824,7 @@ def AA_1(dul):
     dul.assoc.acse.debug_send_abort(dul.pdu)
 
     dul.scu_socket.send(dul.pdu.encode())
+    dul.artim_timer.timeout_seconds = dul.assoc.acse_timeout
     dul.artim_timer.restart()
 
     return 'Sta13'
@@ -849,6 +854,7 @@ def AA_2(dul):
     """
     # Stop ARTIM timer if running. Close transport connection.
     dul.artim_timer.stop()
+    dul.scu_socket.shutdown(socket.SHUT_RDWR)
     dul.scu_socket.close()
     dul.peer_socket = None
 
@@ -1059,6 +1065,7 @@ def AA_8(dul):
 
         # Issue A-P-ABORT to user
         dul.to_user_queue.put(dul.primitive)
+        dul.artim_timer.timeout_seconds = dul.assoc.acse_timeout
         dul.artim_timer.start()
 
     return 'Sta13'
