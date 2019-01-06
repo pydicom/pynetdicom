@@ -594,13 +594,13 @@ class TestAEGoodTimeoutSetters(object):
     def test_acse_timeout(self):
         """ Check AE ACSE timeout change produces good value """
         ae = AE()
-        assert ae.acse_timeout == 60
+        assert ae.acse_timeout == 30
         ae.acse_timeout = None
         assert ae.acse_timeout is None
         ae.acse_timeout = -100
-        assert ae.acse_timeout == 60
+        assert ae.acse_timeout == 30
         ae.acse_timeout = 'a'
-        assert ae.acse_timeout == 60
+        assert ae.acse_timeout == 30
         ae.acse_timeout = 0
         assert ae.acse_timeout == 0
         ae.acse_timeout = 30

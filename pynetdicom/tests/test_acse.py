@@ -2200,64 +2200,6 @@ class TestNegotiateRelease(object):
                 b'\x06\x00\x00\x00\x00\x04\x00\x00\x00\x00'
             )
 
-    @pytest.mark.skip()
-    def test_dul_sta13_socket_data(self):
-        """Test a simulated A-RELEASE collision on the acceptor side."""
-        # Listening on port 11112
-        def on_c_echo(cx, info):
-            assoc = self.scp.ae.active_associations[0]
-            assoc.release()
-            return 0x0000
-
-        self.scp = DummyVerificationSCP()
-        self.scp.ae.acse_timeout = 5
-        self.scp.ae.dimse_timeout = 5
-        self.scp.ae.network_timeout = 5
-        self.scp.ae.on_c_echo = on_c_echo
-        self.scp.start()
-
-        # C-ECHO-RQ
-        # 80 total length
-        p_data_tf = (
-            b"\x04\x00\x00\x00\x00\x4a" # P-DATA-TF 74
-            b"\x00\x00\x00\x46\x01" # PDV Item 70
-            b"\x03"  # PDV: 2 -> 69
-            b"\x00\x00\x00\x00\x04\x00\x00\x00\x42\x00\x00\x00"  # 12 Command Group Length
-            b"\x00\x00\x02\x00\x12\x00\x00\x00\x31\x2e\x32\x2e\x38\x34\x30\x2e\x31\x30\x30\x30\x38\x2e\x31\x2e\x31\x00"  # 26
-            b"\x00\x00\x00\x01\x02\x00\x00\x00\x30\x00"  # 10 Command Field
-            b"\x00\x00\x10\x01\x02\x00\x00\x00\x01\x00"  # 10 Message ID
-            b"\x00\x00\x00\x08\x02\x00\x00\x00\x01\x01"  # 10 Command Data Set Type
-        )
-
-        scu = SmallReleaseCollider()
-        scu.mode = 'requestor'
-        scu.address = 'localhost'
-        scu.local_port = 0
-        scu.remote_port = 11112
-        msgs = [
-            a_associate_rq,
-            p_data_tf,
-            [a_release_rq, a_release_rp],
-            None,
-            'shutdown'
-        ]
-        for msg in msgs:
-            scu.queue.put(msg)
-
-        # Blocking
-        scu.run_as_requestor()
-
-        self.scp.stop()
-
-        # A-ASSOCIATE-RQ
-        assert scu.received[1] == (
-            b'\x05\x00\x00\x00\x00\x04\x00\x00\x00\x00'
-        )
-        # A-ASSOCIATE-RP
-        assert scu.received[2] == (
-            b'\x06\x00\x00\x00\x00\x04\x00\x00\x00\x00'
-        )
-
     @pytest.mark.skipif(sys.version_info[:2] == (3, 4), reason='no caplog')
     def test_collision_requestor_abort(self, caplog):
         """Test a simulated A-RELEASE collision on the requestor side."""

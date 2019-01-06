@@ -490,7 +490,7 @@ class ACSE(object):
                 assoc.is_established = False
                 assoc.dul.kill_dul()
             else:
-                LOGGER.error(
+                LOGGER.warning(
                     "Received an invalid A-ASSOCIATE response from the peer"
                 )
                 self.send_abort(assoc, 0x02)
@@ -510,7 +510,17 @@ class ACSE(object):
             assoc.dul.kill_dul()
 
     def negotiate_release(self, assoc):
-        """Negotiate association release."""
+        """Negotiate association release.
+
+        Once an A-RELEASE request has been sent any received P-DATA PDUs will
+        be ignored.
+
+        Parameters
+        ----------
+        assoc : association.Association
+            The association instance that wants to initiate association
+            release.
+        """
         # Send A-RELEASE request
         # Only an A-ABORT request primitive is allowed after A-RELEASE starts
         # (Part 8, Section 7.2.2)
