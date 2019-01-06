@@ -465,10 +465,12 @@ class TestAssociation(object):
     @staticmethod
     def test_bad_connection():
         """Test connect to non-AE"""
+        # sometimes causes hangs in Travis
         ae = AE()
         ae.add_requested_context(VerificationSOPClass)
         ae.acse_timeout = 5
         ae.dimse_timeout = 5
+        ae.network_timeout = 5
         assoc = ae.associate('localhost', 22)
 
     @staticmethod
@@ -478,6 +480,7 @@ class TestAssociation(object):
         ae.add_requested_context(VerificationSOPClass)
         ae.acse_timeout = 5
         ae.dimse_timeout = 5
+        ae.network_timeout = 5
         assoc = ae.associate('localhost', 11120)
 
     def test_req_no_presentation_context(self):
@@ -488,6 +491,7 @@ class TestAssociation(object):
         ae.add_requested_context(CTImageStorage)
         ae.acse_timeout = 5
         ae.dimse_timeout = 5
+        ae.network_timeout = 5
         assoc = ae.associate('localhost', 11112)
         time.sleep(0.1)
         assert not assoc.is_established
@@ -505,6 +509,7 @@ class TestAssociation(object):
         assoc = ae.associate('localhost', 11112)
         assert assoc.is_established
         self.scp.release()
+        time.sleep(0.1)
         assert not assoc.is_established
         assert assoc.is_released
         #self.assertRaises(SystemExit, ae.quit)
@@ -544,6 +549,22 @@ class TestAssociation(object):
     def test_kill(self):
         """Test killing the association"""
         pass
+
+    def test_assoc_release_deprecated(self):
+        """Test Association release"""
+        # Simple release
+        self.scp = DummyVerificationSCP()
+        self.scp.start()
+        ae = AE()
+        ae.add_requested_context(VerificationSOPClass)
+        ae.acse_timeout = 5
+        ae.dimse_timeout = 5
+        assoc = ae.associate('localhost', 11112)
+        assert assoc.is_established
+        assoc.acse.release_association(assoc)
+        assert assoc.is_released
+        assert not assoc.is_established
+        self.scp.stop()
 
     def test_assoc_release(self):
         """Test Association release"""

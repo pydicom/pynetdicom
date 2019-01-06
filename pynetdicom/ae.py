@@ -47,7 +47,7 @@ class ApplicationEntity(object):
     ----------
     acse_timeout : int or float or None
         The maximum amount of time (in seconds) to wait for association related
-        messages. A value of ``None`` means no timeout. (default: 60)
+        messages. A value of ``None`` means no timeout. (default: 30)
     active_associations : list of association.Association
         The currently active associations between the local and peer AEs.
     address : str
@@ -201,7 +201,7 @@ class ApplicationEntity(object):
         self.maximum_pdu_size = DEFAULT_MAX_LENGTH
 
         # Default timeouts - None means no timeout
-        self.acse_timeout = 60
+        self.acse_timeout = 30
         self.network_timeout = None
         self.dimse_timeout = None
 
@@ -228,8 +228,8 @@ class ApplicationEntity(object):
         elif isinstance(value, (int, float)) and value >= 0:
             self._acse_timeout = value
         else:
-            LOGGER.warning("ACSE timeout set to 60 seconds")
-            self._acse_timeout = 60
+            LOGGER.warning("ACSE timeout set to 30 seconds")
+            self._acse_timeout = 30
 
         for assoc in self.active_associations:
             assoc.acse_timeout = self.acse_timeout

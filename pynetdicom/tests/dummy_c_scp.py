@@ -90,6 +90,15 @@ class DummyBaseSCP(threading.Thread):
         self.ae.on_n_delete = self.on_n_delete
         self.ae.network_timeout = 5
 
+        self.ae.acse_timeout = 5
+        self.ae.dimse_timeout = 5
+        self.ae_network_timeout = 5
+
+        self.implementation_class_uid = '1.2'
+
+        self.send_abort = False
+        self.send_ap_abort = False
+
         threading.Thread.__init__(self)
         self.daemon = True
 
@@ -102,6 +111,18 @@ class DummyBaseSCP(threading.Thread):
         self.send_ap_abort = False
 
         self.select_timeout = 0
+
+    @property
+    def network_timeout(self):
+        return self.ae.network_timeout
+
+    @property
+    def acse_timeout(self):
+        return self.ae.acse_timeout
+
+    @property
+    def dimse_timeout(self):
+        return self.ae.dimse_timeout
 
     def run(self):
         """The thread run method"""
@@ -120,6 +141,9 @@ class DummyBaseSCP(threading.Thread):
         """Release any associations"""
         for assoc in self.ae.active_associations:
             assoc.release()
+
+    def cleanup_associations(self):
+        self.ae.cleanup_associations()
 
     def on_c_echo(self, context, info):
         """Callback for ae.on_c_echo"""

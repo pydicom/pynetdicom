@@ -151,7 +151,6 @@ class Association(threading.Thread):
 
         # Kills the thread loop in run()
         self._kill = False
-        self._is_running = False
 
         # Send A-ABORT when an A-ASSOCIATE request is received
         self._a_abort_assoc_rq = False
@@ -306,7 +305,7 @@ class Association(threading.Thread):
         self._kill = True
         self.is_established = False
         while not self.dul.stop_dul():
-            time.sleep(0.001)
+            time.sleep(0.01)
 
         self.ae.cleanup_associations()
 
@@ -352,9 +351,9 @@ class Association(threading.Thread):
         return self._rejected_cx
 
     def release(self):
-        """Send an A-RELEASE request to the peer."""
+        """Send an A-RELEASE request and initiate association release."""
         if self.is_established:
-            self.acse.release_association(self)
+            self.acse.negotiate_release(self)
 
     @property
     def remote(self):
@@ -427,7 +426,6 @@ class Association(threading.Thread):
             ),
         }
 
-        self._is_running = True
         while not self._kill:
             time.sleep(0.001)
 
@@ -453,6 +451,9 @@ class Association(threading.Thread):
                     # FIXME: C-CANCEL requests are not being handled correctly
                     #   need a way to identify which service it belongs to
                     #   or maybe just call the callback now?
+                    LOGGER.warning(
+                        "C-CANCEL requests are not implemented"
+                    )
                     self.abort()
                     return
 
@@ -476,6 +477,10 @@ class Association(threading.Thread):
                             service_class.SCP(msg, context, info)
                         except NotImplementedError:
                             # SCP isn't implemented
+                            LOGGER.warning(
+                                "No service class implementation for '{}'"
+                                .format(context.abstract_syntax)
+                            )
                             self.abort()
                             return
                         break
@@ -485,15 +490,16 @@ class Association(threading.Thread):
                     LOGGER.debug("%s", msg)
 
             # Check for release request
-            if self.acse.is_released(self):
+            if self.acse.is_release_requested(self):
                 # Send A-RELEASE response
                 self.acse.send_release(self, is_response=True)
                 self.is_released = True
                 self.is_established = False
-                # Callback trigger
-                self.debug_association_released()
+                # Callback triggers
                 self.ae.on_association_released()
+                self.debug_association_released()
                 self.kill()
+                return
 
             # Check for abort
             if self.acse.is_aborted(self):
@@ -503,14 +509,17 @@ class Association(threading.Thread):
                 self.debug_association_aborted()
                 self.ae.on_association_aborted(None)
                 self.kill()
+                return
 
             # Check if the DULServiceProvider thread is still running
             #   DUL.is_alive() is inherited from threading.thread
             if not self.dul.is_alive():
                 self.kill()
+                return
 
             # Check if idle timer has expired
             if self.dul.idle_timer_expired():
+                LOGGER.debug("DUL timeout expired")
                 self.abort()
 
     def _run_as_requestor(self):
@@ -520,7 +529,7 @@ class Association(threading.Thread):
             time.sleep(0.1)
 
             # Check for release request
-            if self.acse.is_released(self):
+            if self.acse.is_release_requested(self):
                 # Send A-RELEASE response
                 self.acse.send_release(self, is_response=True)
                 self.is_released = True
@@ -1025,8 +1034,9 @@ class Association(threading.Thread):
                 self.abort()
                 return
             elif not rsp.is_valid_response:
-                LOGGER.error('Received an invalid C-FIND response from ' \
-                             'the peer')
+                LOGGER.error(
+                    'Received an invalid C-FIND response from the peer'
+                )
                 self.abort()
                 return
 

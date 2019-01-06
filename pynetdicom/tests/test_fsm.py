@@ -561,7 +561,7 @@ class TestStateMachineFunctionalRequestor(object):
 
         self.scp.stop()
 
-    @pytest.mark.xfail()
+    @pytest.mark.skip()
     def test_release_AR6(self):
         """Test receive P-DATA-TF while waiting for A-RELEASE-RP."""
         # Requestor sends A-RELEASE-RQ, acceptor sends P-DATA-TF then
@@ -623,7 +623,7 @@ class TestStateMachineFunctionalRequestor(object):
 
         FINITE_STATE.ACTIONS['AR-4']= orig_entry
 
-    @pytest.mark.xfail()
+    @pytest.mark.skip()
     def test_release_AR7(self):
         """Test receive P-DATA primitive after A-RELEASE-RQ PDU."""
 
@@ -684,7 +684,7 @@ class TestStateMachineFunctionalRequestor(object):
 
         FINITE_STATE.ACTIONS['AR-2']= orig_entry
 
-    @pytest.mark.xfail()
+    @pytest.mark.skip()
     def test_release_AR8(self):
         """Test receive A-RELEASE-RQ after sending A-RELEASE-RQ PDU."""
 
