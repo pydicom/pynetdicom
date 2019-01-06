@@ -29,8 +29,10 @@ pynetdicom.acse.ACSE
       ~ACSE.debug_send_release_rp
       ~ACSE.debug_send_release_rq
       ~ACSE.is_aborted
+      ~ACSE.is_release_requested
       ~ACSE.is_released
       ~ACSE.negotiate_association
+      ~ACSE.negotiate_release
       ~ACSE.release_association
       ~ACSE.send_abort
       ~ACSE.send_accept

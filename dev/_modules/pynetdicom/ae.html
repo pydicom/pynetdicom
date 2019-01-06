@@ -218,7 +218,7 @@
 <span class="sd">    ----------</span>
 <span class="sd">    acse_timeout : int or float or None</span>
 <span class="sd">        The maximum amount of time (in seconds) to wait for association related</span>
-<span class="sd">        messages. A value of ``None`` means no timeout. (default: 60)</span>
+<span class="sd">        messages. A value of ``None`` means no timeout. (default: 30)</span>
 <span class="sd">    active_associations : list of association.Association</span>
 <span class="sd">        The currently active associations between the local and peer AEs.</span>
 <span class="sd">    address : str</span>
@@ -372,7 +372,7 @@
         <span class="bp">self</span><span class="o">.</span><span class="n">maximum_pdu_size</span> <span class="o">=</span> <span class="n">DEFAULT_MAX_LENGTH</span>
 
         <span class="c1"># Default timeouts - None means no timeout</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">acse_timeout</span> <span class="o">=</span> <span class="mi">60</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">acse_timeout</span> <span class="o">=</span> <span class="mi">30</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">network_timeout</span> <span class="o">=</span> <span class="kc">None</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">dimse_timeout</span> <span class="o">=</span> <span class="kc">None</span>
 
@@ -399,8 +399,8 @@
         <span class="k">elif</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">value</span><span class="p">,</span> <span class="p">(</span><span class="nb">int</span><span class="p">,</span> <span class="nb">float</span><span class="p">))</span> <span class="ow">and</span> <span class="n">value</span> <span class="o">&gt;=</span> <span class="mi">0</span><span class="p">:</span>
             <span class="bp">self</span><span class="o">.</span><span class="n">_acse_timeout</span> <span class="o">=</span> <span class="n">value</span>
         <span class="k">else</span><span class="p">:</span>
-            <span class="n">LOGGER</span><span class="o">.</span><span class="n">warning</span><span class="p">(</span><span class="s2">&quot;ACSE timeout set to 60 seconds&quot;</span><span class="p">)</span>
-            <span class="bp">self</span><span class="o">.</span><span class="n">_acse_timeout</span> <span class="o">=</span> <span class="mi">60</span>
+            <span class="n">LOGGER</span><span class="o">.</span><span class="n">warning</span><span class="p">(</span><span class="s2">&quot;ACSE timeout set to 30 seconds&quot;</span><span class="p">)</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">_acse_timeout</span> <span class="o">=</span> <span class="mi">30</span>
 
         <span class="k">for</span> <span class="n">assoc</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">active_associations</span><span class="p">:</span>
             <span class="n">assoc</span><span class="o">.</span><span class="n">acse_timeout</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">acse_timeout</span>

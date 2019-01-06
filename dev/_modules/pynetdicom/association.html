@@ -322,7 +322,6 @@
 
         <span class="c1"># Kills the thread loop in run()</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">_kill</span> <span class="o">=</span> <span class="kc">False</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">_is_running</span> <span class="o">=</span> <span class="kc">False</span>
 
         <span class="c1"># Send A-ABORT when an A-ASSOCIATE request is received</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">_a_abort_assoc_rq</span> <span class="o">=</span> <span class="kc">False</span>
@@ -477,7 +476,7 @@
         <span class="bp">self</span><span class="o">.</span><span class="n">_kill</span> <span class="o">=</span> <span class="kc">True</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">is_established</span> <span class="o">=</span> <span class="kc">False</span>
         <span class="k">while</span> <span class="ow">not</span> <span class="bp">self</span><span class="o">.</span><span class="n">dul</span><span class="o">.</span><span class="n">stop_dul</span><span class="p">():</span>
-            <span class="n">time</span><span class="o">.</span><span class="n">sleep</span><span class="p">(</span><span class="mf">0.001</span><span class="p">)</span>
+            <span class="n">time</span><span class="o">.</span><span class="n">sleep</span><span class="p">(</span><span class="mf">0.01</span><span class="p">)</span>
 
         <span class="bp">self</span><span class="o">.</span><span class="n">ae</span><span class="o">.</span><span class="n">cleanup_associations</span><span class="p">()</span></div>
 
@@ -523,9 +522,9 @@
         <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_rejected_cx</span>
 
 <div class="viewcode-block" id="Association.release"><a class="viewcode-back" href="../../reference/generated/pynetdicom.association.Association.html#pynetdicom.association.Association.release">[docs]</a>    <span class="k">def</span> <span class="nf">release</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
-        <span class="sd">&quot;&quot;&quot;Send an A-RELEASE request to the peer.&quot;&quot;&quot;</span>
+        <span class="sd">&quot;&quot;&quot;Send an A-RELEASE request and initiate association release.&quot;&quot;&quot;</span>
         <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">is_established</span><span class="p">:</span>
-            <span class="bp">self</span><span class="o">.</span><span class="n">acse</span><span class="o">.</span><span class="n">release_association</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span></div>
+            <span class="bp">self</span><span class="o">.</span><span class="n">acse</span><span class="o">.</span><span class="n">negotiate_release</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span></div>
 
     <span class="nd">@property</span>
     <span class="k">def</span> <span class="nf">remote</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
@@ -598,7 +597,6 @@
             <span class="p">),</span>
         <span class="p">}</span>
 
-        <span class="bp">self</span><span class="o">.</span><span class="n">_is_running</span> <span class="o">=</span> <span class="kc">True</span>
         <span class="k">while</span> <span class="ow">not</span> <span class="bp">self</span><span class="o">.</span><span class="n">_kill</span><span class="p">:</span>
             <span class="n">time</span><span class="o">.</span><span class="n">sleep</span><span class="p">(</span><span class="mf">0.001</span><span class="p">)</span>
 
@@ -624,6 +622,9 @@
                     <span class="c1"># FIXME: C-CANCEL requests are not being handled correctly</span>
                     <span class="c1">#   need a way to identify which service it belongs to</span>
                     <span class="c1">#   or maybe just call the callback now?</span>
+                    <span class="n">LOGGER</span><span class="o">.</span><span class="n">warning</span><span class="p">(</span>
+                        <span class="s2">&quot;C-CANCEL requests are not implemented&quot;</span>
+                    <span class="p">)</span>
                     <span class="bp">self</span><span class="o">.</span><span class="n">abort</span><span class="p">()</span>
                     <span class="k">return</span>
 
@@ -647,6 +648,10 @@
                             <span class="n">service_class</span><span class="o">.</span><span class="n">SCP</span><span class="p">(</span><span class="n">msg</span><span class="p">,</span> <span class="n">context</span><span class="p">,</span> <span class="n">info</span><span class="p">)</span>
                         <span class="k">except</span> <span class="ne">NotImplementedError</span><span class="p">:</span>
                             <span class="c1"># SCP isn&#39;t implemented</span>
+                            <span class="n">LOGGER</span><span class="o">.</span><span class="n">warning</span><span class="p">(</span>
+                                <span class="s2">&quot;No service class implementation for &#39;</span><span class="si">{}</span><span class="s2">&#39;&quot;</span>
+                                <span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">context</span><span class="o">.</span><span class="n">abstract_syntax</span><span class="p">)</span>
+                            <span class="p">)</span>
                             <span class="bp">self</span><span class="o">.</span><span class="n">abort</span><span class="p">()</span>
                             <span class="k">return</span>
                         <span class="k">break</span>
@@ -656,15 +661,16 @@
                     <span class="n">LOGGER</span><span class="o">.</span><span class="n">debug</span><span class="p">(</span><span class="s2">&quot;</span><span class="si">%s</span><span class="s2">&quot;</span><span class="p">,</span> <span class="n">msg</span><span class="p">)</span>
 
             <span class="c1"># Check for release request</span>
-            <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">acse</span><span class="o">.</span><span class="n">is_released</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+            <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">acse</span><span class="o">.</span><span class="n">is_release_requested</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
                 <span class="c1"># Send A-RELEASE response</span>
                 <span class="bp">self</span><span class="o">.</span><span class="n">acse</span><span class="o">.</span><span class="n">send_release</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">is_response</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
                 <span class="bp">self</span><span class="o">.</span><span class="n">is_released</span> <span class="o">=</span> <span class="kc">True</span>
                 <span class="bp">self</span><span class="o">.</span><span class="n">is_established</span> <span class="o">=</span> <span class="kc">False</span>
-                <span class="c1"># Callback trigger</span>
-                <span class="bp">self</span><span class="o">.</span><span class="n">debug_association_released</span><span class="p">()</span>
+                <span class="c1"># Callback triggers</span>
                 <span class="bp">self</span><span class="o">.</span><span class="n">ae</span><span class="o">.</span><span class="n">on_association_released</span><span class="p">()</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">debug_association_released</span><span class="p">()</span>
                 <span class="bp">self</span><span class="o">.</span><span class="n">kill</span><span class="p">()</span>
+                <span class="k">return</span>
 
             <span class="c1"># Check for abort</span>
             <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">acse</span><span class="o">.</span><span class="n">is_aborted</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
@@ -674,14 +680,17 @@
                 <span class="bp">self</span><span class="o">.</span><span class="n">debug_association_aborted</span><span class="p">()</span>
                 <span class="bp">self</span><span class="o">.</span><span class="n">ae</span><span class="o">.</span><span class="n">on_association_aborted</span><span class="p">(</span><span class="kc">None</span><span class="p">)</span>
                 <span class="bp">self</span><span class="o">.</span><span class="n">kill</span><span class="p">()</span>
+                <span class="k">return</span>
 
             <span class="c1"># Check if the DULServiceProvider thread is still running</span>
             <span class="c1">#   DUL.is_alive() is inherited from threading.thread</span>
             <span class="k">if</span> <span class="ow">not</span> <span class="bp">self</span><span class="o">.</span><span class="n">dul</span><span class="o">.</span><span class="n">is_alive</span><span class="p">():</span>
                 <span class="bp">self</span><span class="o">.</span><span class="n">kill</span><span class="p">()</span>
+                <span class="k">return</span>
 
             <span class="c1"># Check if idle timer has expired</span>
             <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">dul</span><span class="o">.</span><span class="n">idle_timer_expired</span><span class="p">():</span>
+                <span class="n">LOGGER</span><span class="o">.</span><span class="n">debug</span><span class="p">(</span><span class="s2">&quot;DUL timeout expired&quot;</span><span class="p">)</span>
                 <span class="bp">self</span><span class="o">.</span><span class="n">abort</span><span class="p">()</span>
 
     <span class="k">def</span> <span class="nf">_run_as_requestor</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
@@ -691,7 +700,7 @@
             <span class="n">time</span><span class="o">.</span><span class="n">sleep</span><span class="p">(</span><span class="mf">0.1</span><span class="p">)</span>
 
             <span class="c1"># Check for release request</span>
-            <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">acse</span><span class="o">.</span><span class="n">is_released</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+            <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">acse</span><span class="o">.</span><span class="n">is_release_requested</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
                 <span class="c1"># Send A-RELEASE response</span>
                 <span class="bp">self</span><span class="o">.</span><span class="n">acse</span><span class="o">.</span><span class="n">send_release</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">is_response</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
                 <span class="bp">self</span><span class="o">.</span><span class="n">is_released</span> <span class="o">=</span> <span class="kc">True</span>
@@ -1196,8 +1205,9 @@
                 <span class="bp">self</span><span class="o">.</span><span class="n">abort</span><span class="p">()</span>
                 <span class="k">return</span>
             <span class="k">elif</span> <span class="ow">not</span> <span class="n">rsp</span><span class="o">.</span><span class="n">is_valid_response</span><span class="p">:</span>
-                <span class="n">LOGGER</span><span class="o">.</span><span class="n">error</span><span class="p">(</span><span class="s1">&#39;Received an invalid C-FIND response from &#39;</span> \
-                             <span class="s1">&#39;the peer&#39;</span><span class="p">)</span>
+                <span class="n">LOGGER</span><span class="o">.</span><span class="n">error</span><span class="p">(</span>
+                    <span class="s1">&#39;Received an invalid C-FIND response from the peer&#39;</span>
+                <span class="p">)</span>
                 <span class="bp">self</span><span class="o">.</span><span class="n">abort</span><span class="p">()</span>
                 <span class="k">return</span>
 

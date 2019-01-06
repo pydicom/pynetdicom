@@ -190,7 +190,9 @@
     <span class="n">A_ASSOCIATE_RQ</span><span class="p">,</span> <span class="n">A_ASSOCIATE_AC</span><span class="p">,</span> <span class="n">A_ASSOCIATE_RJ</span><span class="p">,</span>
     <span class="n">P_DATA_TF</span><span class="p">,</span> <span class="n">A_RELEASE_RQ</span><span class="p">,</span> <span class="n">A_RELEASE_RP</span><span class="p">,</span> <span class="n">A_ABORT_RQ</span>
 <span class="p">)</span>
-<span class="kn">from</span> <span class="nn">pynetdicom.pdu_primitives</span> <span class="k">import</span> <span class="n">A_ASSOCIATE</span><span class="p">,</span> <span class="n">A_RELEASE</span><span class="p">,</span> <span class="n">A_ABORT</span><span class="p">,</span> <span class="n">P_DATA</span>
+<span class="kn">from</span> <span class="nn">pynetdicom.pdu_primitives</span> <span class="k">import</span> <span class="p">(</span>
+    <span class="n">A_ASSOCIATE</span><span class="p">,</span> <span class="n">A_RELEASE</span><span class="p">,</span> <span class="n">A_ABORT</span><span class="p">,</span> <span class="n">A_P_ABORT</span><span class="p">,</span> <span class="n">P_DATA</span>
+<span class="p">)</span>
 <span class="kn">from</span> <span class="nn">pynetdicom.timer</span> <span class="k">import</span> <span class="n">Timer</span>
 
 <span class="n">LOGGER</span> <span class="o">=</span> <span class="n">logging</span><span class="o">.</span><span class="n">getLogger</span><span class="p">(</span><span class="s1">&#39;pynetdicom.dul&#39;</span><span class="p">)</span>
@@ -405,8 +407,8 @@
         <span class="c1"># Main DUL loop</span>
         <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">_idle_timer</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
             <span class="bp">self</span><span class="o">.</span><span class="n">_idle_timer</span><span class="o">.</span><span class="n">start</span><span class="p">()</span>
-        <span class="k">while</span> <span class="kc">True</span><span class="p">:</span>
 
+        <span class="k">while</span> <span class="kc">True</span><span class="p">:</span>
             <span class="c1"># This effectively controls how often the DUL checks the network</span>
             <span class="n">time</span><span class="o">.</span><span class="n">sleep</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_run_loop_delay</span><span class="p">)</span>
 
@@ -421,7 +423,7 @@
                 <span class="k">elif</span> <span class="bp">self</span><span class="o">.</span><span class="n">_check_incoming_primitive</span><span class="p">():</span>
                     <span class="k">pass</span>
 
-                <span class="k">elif</span> <span class="bp">self</span><span class="o">.</span><span class="n">_is_artim_expired</span><span class="p">():</span>
+                <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">_is_artim_expired</span><span class="p">():</span>
                     <span class="bp">self</span><span class="o">.</span><span class="n">_kill_thread</span> <span class="o">=</span> <span class="kc">True</span>
 
             <span class="k">except</span><span class="p">:</span>
@@ -564,7 +566,6 @@
 <span class="sd">            True if the ARTIM timer has expired, False otherwise</span>
 <span class="sd">        &quot;&quot;&quot;</span>
         <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">artim_timer</span><span class="o">.</span><span class="n">is_expired</span><span class="p">:</span>
-            <span class="c1">#LOGGER.debug(&#39;%s: timer expired&#39; % (self.name))</span>
             <span class="bp">self</span><span class="o">.</span><span class="n">event_queue</span><span class="o">.</span><span class="n">put</span><span class="p">(</span><span class="s1">&#39;Evt18&#39;</span><span class="p">)</span>
             <span class="k">return</span> <span class="kc">True</span>
 
@@ -578,24 +579,29 @@
 <span class="sd">        bool</span>
 <span class="sd">            True if an event has been added, False otherwise</span>
 <span class="sd">        &quot;&quot;&quot;</span>
-        <span class="c1"># Sta13 is waiting for the transport connection to close</span>
+        <span class="c1"># Sta13: waiting for the transport connection to close</span>
+        <span class="c1"># however it may still receive data that needs to be acted on</span>
         <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">state_machine</span><span class="o">.</span><span class="n">current_state</span> <span class="o">==</span> <span class="s1">&#39;Sta13&#39;</span><span class="p">:</span>
             <span class="c1"># If we have no connection to the SCU</span>
             <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">scu_socket</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
                 <span class="k">return</span> <span class="kc">False</span>
 
-            <span class="c1"># If we are still connected to the SCU</span>
+            <span class="c1"># Check to see if there&#39;s more data to be read</span>
+            <span class="c1">#   Might be any incoming PDU</span>
+            <span class="c1"># Make sure our check of the socket is non-blocking!</span>
             <span class="k">try</span><span class="p">:</span>
-                <span class="c1"># socket.Socket().recv(bufsize)</span>
-                <span class="c1"># If we are still receiving data from the socket</span>
-                <span class="c1">#   wait until its done</span>
-                <span class="k">while</span> <span class="bp">self</span><span class="o">.</span><span class="n">scu_socket</span><span class="o">.</span><span class="n">recv</span><span class="p">(</span><span class="mi">1</span><span class="p">)</span> <span class="o">!=</span> <span class="sa">b</span><span class="s1">&#39;&#39;</span><span class="p">:</span>
-                    <span class="k">continue</span>
-            <span class="k">except</span> <span class="n">socket</span><span class="o">.</span><span class="n">error</span><span class="p">:</span>
+                <span class="n">ready</span><span class="p">,</span> <span class="n">_</span><span class="p">,</span> <span class="n">_</span> <span class="o">=</span> <span class="n">select</span><span class="o">.</span><span class="n">select</span><span class="p">([</span><span class="bp">self</span><span class="o">.</span><span class="n">scu_socket</span><span class="p">],</span> <span class="p">[],</span> <span class="p">[],</span> <span class="mi">0</span><span class="p">)</span>
+            <span class="k">except</span> <span class="p">(</span><span class="n">socket</span><span class="o">.</span><span class="n">error</span><span class="p">,</span> <span class="ne">ValueError</span><span class="p">):</span>
                 <span class="k">return</span> <span class="kc">False</span>
+
+            <span class="k">if</span> <span class="n">ready</span><span class="p">:</span>
+                <span class="c1"># Data still available, grab it</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">_check_incoming_pdu</span><span class="p">()</span>
+                <span class="k">return</span> <span class="kc">True</span>
 
             <span class="c1"># Once we have no more incoming data close the socket and</span>
             <span class="c1">#   add the corresponding event to the queue</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">scu_socket</span><span class="o">.</span><span class="n">shutdown</span><span class="p">(</span><span class="n">socket</span><span class="o">.</span><span class="n">SHUT_RDWR</span><span class="p">)</span>
             <span class="bp">self</span><span class="o">.</span><span class="n">scu_socket</span><span class="o">.</span><span class="n">close</span><span class="p">()</span>
             <span class="bp">self</span><span class="o">.</span><span class="n">scu_socket</span> <span class="o">=</span> <span class="kc">None</span>
 
@@ -640,8 +646,7 @@
                 <span class="bp">self</span><span class="o">.</span><span class="n">_check_incoming_pdu</span><span class="p">()</span>
                 <span class="k">return</span> <span class="kc">True</span>
 
-        <span class="k">else</span><span class="p">:</span>
-            <span class="k">return</span> <span class="kc">False</span>
+        <span class="k">return</span> <span class="kc">False</span>
 
     <span class="nd">@staticmethod</span>
     <span class="k">def</span> <span class="nf">_pdu_to_event</span><span class="p">(</span><span class="n">pdu</span><span class="p">):</span>
@@ -709,7 +714,7 @@
                 <span class="c1"># A-Release Response</span>
                 <span class="c1"># result is &#39;affirmative&#39;</span>
                 <span class="n">event_str</span> <span class="o">=</span> <span class="s1">&#39;Evt14&#39;</span>
-        <span class="k">elif</span> <span class="n">primitive</span><span class="o">.</span><span class="vm">__class__</span> <span class="o">==</span> <span class="n">A_ABORT</span><span class="p">:</span>
+        <span class="k">elif</span> <span class="n">primitive</span><span class="o">.</span><span class="vm">__class__</span> <span class="ow">in</span> <span class="p">(</span><span class="n">A_ABORT</span><span class="p">,</span> <span class="n">A_P_ABORT</span><span class="p">):</span>
             <span class="n">event_str</span> <span class="o">=</span> <span class="s1">&#39;Evt15&#39;</span>
         <span class="k">elif</span> <span class="n">primitive</span><span class="o">.</span><span class="vm">__class__</span> <span class="o">==</span> <span class="n">P_DATA</span><span class="p">:</span>
             <span class="n">event_str</span> <span class="o">=</span> <span class="s1">&#39;Evt9&#39;</span>

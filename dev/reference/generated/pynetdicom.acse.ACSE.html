@@ -174,7 +174,7 @@
 <h1>pynetdicom.acse.ACSE<a class="headerlink" href="#pynetdicom-acse-acse" title="Permalink to this headline">¶</a></h1>
 <dl class="class">
 <dt id="pynetdicom.acse.ACSE">
-<em class="property">class </em><code class="descclassname">pynetdicom.acse.</code><code class="descname">ACSE</code><span class="sig-paren">(</span><em>acse_timeout=30</em><span class="sig-paren">)</span><a class="reference internal" href="../../_modules/pynetdicom/acse.html#ACSE"><span class="viewcode-link">[source]</span></a><a class="reference external" href="https://github.com/pydicom/pynetdicom/blob/adb9ecf/pynetdicom/acse.py#L23"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pynetdicom.acse.ACSE" title="Permalink to this definition">¶</a></dt>
+<em class="property">class </em><code class="descclassname">pynetdicom.acse.</code><code class="descname">ACSE</code><span class="sig-paren">(</span><em>acse_timeout=30</em><span class="sig-paren">)</span><a class="reference internal" href="../../_modules/pynetdicom/acse.html#ACSE"><span class="viewcode-link">[source]</span></a><a class="reference external" href="https://github.com/pydicom/pynetdicom/blob/d6c34fb/pynetdicom/acse.py#L25"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pynetdicom.acse.ACSE" title="Permalink to this definition">¶</a></dt>
 <dd><p>The Association Control Service Element (ACSE) service provider.</p>
 <p>The ACSE protocol handles association establishment, normal release of an
 association and the abnormal release of an association.</p>
@@ -195,7 +195,7 @@ from the peer.</p>
 
 <dl class="method">
 <dt id="pynetdicom.acse.ACSE.__init__">
-<code class="descname">__init__</code><span class="sig-paren">(</span><em>acse_timeout=30</em><span class="sig-paren">)</span><a class="reference internal" href="../../_modules/pynetdicom/acse.html#ACSE.__init__"><span class="viewcode-link">[source]</span></a><a class="reference external" href="https://github.com/pydicom/pynetdicom/blob/adb9ecf/pynetdicom/acse.py#L35"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pynetdicom.acse.ACSE.__init__" title="Permalink to this definition">¶</a></dt>
+<code class="descname">__init__</code><span class="sig-paren">(</span><em>acse_timeout=30</em><span class="sig-paren">)</span><a class="reference internal" href="../../_modules/pynetdicom/acse.html#ACSE.__init__"><span class="viewcode-link">[source]</span></a><a class="reference external" href="https://github.com/pydicom/pynetdicom/blob/d6c34fb/pynetdicom/acse.py#L37"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pynetdicom.acse.ACSE.__init__" title="Permalink to this definition">¶</a></dt>
 <dd><p>Create the ACSE service provider.</p>
 <table class="docutils field-list" frame="void" rules="none">
 <col class="field-name" />
@@ -263,14 +263,20 @@ from the peer (default: 30)</td>
 <tr class="row-even"><td><a class="reference internal" href="#pynetdicom.acse.ACSE.is_aborted" title="pynetdicom.acse.ACSE.is_aborted"><code class="xref py py-obj docutils literal notranslate"><span class="pre">is_aborted</span></code></a>(assoc)</td>
 <td>Return True if an A-ABORT or A-P-ABORT request has been received.</td>
 </tr>
-<tr class="row-odd"><td><a class="reference internal" href="#pynetdicom.acse.ACSE.is_released" title="pynetdicom.acse.ACSE.is_released"><code class="xref py py-obj docutils literal notranslate"><span class="pre">is_released</span></code></a>(assoc)</td>
+<tr class="row-odd"><td><a class="reference internal" href="#pynetdicom.acse.ACSE.is_release_requested" title="pynetdicom.acse.ACSE.is_release_requested"><code class="xref py py-obj docutils literal notranslate"><span class="pre">is_release_requested</span></code></a>(assoc)</td>
 <td>Return True if an A-RELEASE request has been received.</td>
 </tr>
-<tr class="row-even"><td><a class="reference internal" href="#pynetdicom.acse.ACSE.negotiate_association" title="pynetdicom.acse.ACSE.negotiate_association"><code class="xref py py-obj docutils literal notranslate"><span class="pre">negotiate_association</span></code></a>(assoc)</td>
+<tr class="row-even"><td><a class="reference internal" href="#pynetdicom.acse.ACSE.is_released" title="pynetdicom.acse.ACSE.is_released"><code class="xref py py-obj docutils literal notranslate"><span class="pre">is_released</span></code></a>(assoc)</td>
+<td>Return True if an A-RELEASE response has been received.</td>
+</tr>
+<tr class="row-odd"><td><a class="reference internal" href="#pynetdicom.acse.ACSE.negotiate_association" title="pynetdicom.acse.ACSE.negotiate_association"><code class="xref py py-obj docutils literal notranslate"><span class="pre">negotiate_association</span></code></a>(assoc)</td>
 <td>Perform an association negotiation as either the requestor or acceptor.</td>
 </tr>
-<tr class="row-odd"><td><a class="reference internal" href="#pynetdicom.acse.ACSE.release_association" title="pynetdicom.acse.ACSE.release_association"><code class="xref py py-obj docutils literal notranslate"><span class="pre">release_association</span></code></a>(assoc)</td>
-<td>Release an established association.</td>
+<tr class="row-even"><td><a class="reference internal" href="#pynetdicom.acse.ACSE.negotiate_release" title="pynetdicom.acse.ACSE.negotiate_release"><code class="xref py py-obj docutils literal notranslate"><span class="pre">negotiate_release</span></code></a>(assoc)</td>
+<td>Negotiate association release.</td>
+</tr>
+<tr class="row-odd"><td><code class="xref py py-obj docutils literal notranslate"><span class="pre">release_association</span></code>(assoc)</td>
+<td></td>
 </tr>
 <tr class="row-even"><td><a class="reference internal" href="#pynetdicom.acse.ACSE.send_abort" title="pynetdicom.acse.ACSE.send_abort"><code class="xref py py-obj docutils literal notranslate"><span class="pre">send_abort</span></code></a>(assoc,&nbsp;source)</td>
 <td>Send an A-ABORT request to the peer.</td>
@@ -294,7 +300,7 @@ from the peer (default: 30)</td>
 </table>
 <dl class="staticmethod">
 <dt id="pynetdicom.acse.ACSE.debug_receive_abort">
-<em class="property">static </em><code class="descname">debug_receive_abort</code><span class="sig-paren">(</span><em>a_abort</em><span class="sig-paren">)</span><a class="reference internal" href="../../_modules/pynetdicom/acse.html#ACSE.debug_receive_abort"><span class="viewcode-link">[source]</span></a><a class="reference external" href="https://github.com/pydicom/pynetdicom/blob/adb9ecf/pynetdicom/acse.py#L1144"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pynetdicom.acse.ACSE.debug_receive_abort" title="Permalink to this definition">¶</a></dt>
+<em class="property">static </em><code class="descname">debug_receive_abort</code><span class="sig-paren">(</span><em>a_abort</em><span class="sig-paren">)</span><a class="reference internal" href="../../_modules/pynetdicom/acse.html#ACSE.debug_receive_abort"><span class="viewcode-link">[source]</span></a><a class="reference external" href="https://github.com/pydicom/pynetdicom/blob/d6c34fb/pynetdicom/acse.py#L1216"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pynetdicom.acse.ACSE.debug_receive_abort" title="Permalink to this definition">¶</a></dt>
 <dd><p>Placeholder for a function callback. Function will be called
 immediately after receiving and decoding an A-ABORT</p>
 <table class="docutils field-list" frame="void" rules="none">
@@ -309,7 +315,7 @@ immediately after receiving and decoding an A-ABORT</p>
 
 <dl class="staticmethod">
 <dt id="pynetdicom.acse.ACSE.debug_receive_associate_ac">
-<em class="property">static </em><code class="descname">debug_receive_associate_ac</code><span class="sig-paren">(</span><em>a_associate_ac</em><span class="sig-paren">)</span><a class="reference internal" href="../../_modules/pynetdicom/acse.html#ACSE.debug_receive_associate_ac"><span class="viewcode-link">[source]</span></a><a class="reference external" href="https://github.com/pydicom/pynetdicom/blob/adb9ecf/pynetdicom/acse.py#L1165"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pynetdicom.acse.ACSE.debug_receive_associate_ac" title="Permalink to this definition">¶</a></dt>
+<em class="property">static </em><code class="descname">debug_receive_associate_ac</code><span class="sig-paren">(</span><em>a_associate_ac</em><span class="sig-paren">)</span><a class="reference internal" href="../../_modules/pynetdicom/acse.html#ACSE.debug_receive_associate_ac"><span class="viewcode-link">[source]</span></a><a class="reference external" href="https://github.com/pydicom/pynetdicom/blob/d6c34fb/pynetdicom/acse.py#L1237"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pynetdicom.acse.ACSE.debug_receive_associate_ac" title="Permalink to this definition">¶</a></dt>
 <dd><p>Placeholder for a function callback. Function will be called
 immediately after receiving and decoding an A-ASSOCIATE-AC</p>
 <p>The default implementation is used for logging debugging information</p>
@@ -326,7 +332,7 @@ immediately after receiving and decoding an A-ASSOCIATE-AC</p>
 
 <dl class="staticmethod">
 <dt id="pynetdicom.acse.ACSE.debug_receive_associate_rj">
-<em class="property">static </em><code class="descname">debug_receive_associate_rj</code><span class="sig-paren">(</span><em>a_associate_rj</em><span class="sig-paren">)</span><a class="reference internal" href="../../_modules/pynetdicom/acse.html#ACSE.debug_receive_associate_rj"><span class="viewcode-link">[source]</span></a><a class="reference external" href="https://github.com/pydicom/pynetdicom/blob/adb9ecf/pynetdicom/acse.py#L1281"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pynetdicom.acse.ACSE.debug_receive_associate_rj" title="Permalink to this definition">¶</a></dt>
+<em class="property">static </em><code class="descname">debug_receive_associate_rj</code><span class="sig-paren">(</span><em>a_associate_rj</em><span class="sig-paren">)</span><a class="reference internal" href="../../_modules/pynetdicom/acse.html#ACSE.debug_receive_associate_rj"><span class="viewcode-link">[source]</span></a><a class="reference external" href="https://github.com/pydicom/pynetdicom/blob/d6c34fb/pynetdicom/acse.py#L1353"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pynetdicom.acse.ACSE.debug_receive_associate_rj" title="Permalink to this definition">¶</a></dt>
 <dd><p>Placeholder for a function callback. Function will be called
 immediately after receiving and decoding an A-ASSOCIATE-RJ</p>
 <table class="docutils field-list" frame="void" rules="none">
@@ -341,7 +347,7 @@ immediately after receiving and decoding an A-ASSOCIATE-RJ</p>
 
 <dl class="staticmethod">
 <dt id="pynetdicom.acse.ACSE.debug_receive_associate_rq">
-<em class="property">static </em><code class="descname">debug_receive_associate_rq</code><span class="sig-paren">(</span><em>a_associate_rq</em><span class="sig-paren">)</span><a class="reference internal" href="../../_modules/pynetdicom/acse.html#ACSE.debug_receive_associate_rq"><span class="viewcode-link">[source]</span></a><a class="reference external" href="https://github.com/pydicom/pynetdicom/blob/adb9ecf/pynetdicom/acse.py#L1306"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pynetdicom.acse.ACSE.debug_receive_associate_rq" title="Permalink to this definition">¶</a></dt>
+<em class="property">static </em><code class="descname">debug_receive_associate_rq</code><span class="sig-paren">(</span><em>a_associate_rq</em><span class="sig-paren">)</span><a class="reference internal" href="../../_modules/pynetdicom/acse.html#ACSE.debug_receive_associate_rq"><span class="viewcode-link">[source]</span></a><a class="reference external" href="https://github.com/pydicom/pynetdicom/blob/d6c34fb/pynetdicom/acse.py#L1378"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pynetdicom.acse.ACSE.debug_receive_associate_rq" title="Permalink to this definition">¶</a></dt>
 <dd><p>Placeholder for a function callback. Function will be called
 immediately after receiving and decoding an A-ASSOCIATE-RQ</p>
 <table class="docutils field-list" frame="void" rules="none">
@@ -356,7 +362,7 @@ immediately after receiving and decoding an A-ASSOCIATE-RQ</p>
 
 <dl class="staticmethod">
 <dt id="pynetdicom.acse.ACSE.debug_receive_data_tf">
-<em class="property">static </em><code class="descname">debug_receive_data_tf</code><span class="sig-paren">(</span><em>p_data_tf</em><span class="sig-paren">)</span><a class="reference internal" href="../../_modules/pynetdicom/acse.html#ACSE.debug_receive_data_tf"><span class="viewcode-link">[source]</span></a><a class="reference external" href="https://github.com/pydicom/pynetdicom/blob/adb9ecf/pynetdicom/acse.py#L1486"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pynetdicom.acse.ACSE.debug_receive_data_tf" title="Permalink to this definition">¶</a></dt>
+<em class="property">static </em><code class="descname">debug_receive_data_tf</code><span class="sig-paren">(</span><em>p_data_tf</em><span class="sig-paren">)</span><a class="reference internal" href="../../_modules/pynetdicom/acse.html#ACSE.debug_receive_data_tf"><span class="viewcode-link">[source]</span></a><a class="reference external" href="https://github.com/pydicom/pynetdicom/blob/d6c34fb/pynetdicom/acse.py#L1558"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pynetdicom.acse.ACSE.debug_receive_data_tf" title="Permalink to this definition">¶</a></dt>
 <dd><p>Placeholder for a function callback. Function will be called
 immediately after receiving and decoding an P-DATA-TF</p>
 <table class="docutils field-list" frame="void" rules="none">
@@ -371,7 +377,7 @@ immediately after receiving and decoding an P-DATA-TF</p>
 
 <dl class="staticmethod">
 <dt id="pynetdicom.acse.ACSE.debug_receive_release_rp">
-<em class="property">static </em><code class="descname">debug_receive_release_rp</code><span class="sig-paren">(</span><em>a_release_rp</em><span class="sig-paren">)</span><a class="reference internal" href="../../_modules/pynetdicom/acse.html#ACSE.debug_receive_release_rp"><span class="viewcode-link">[source]</span></a><a class="reference external" href="https://github.com/pydicom/pynetdicom/blob/adb9ecf/pynetdicom/acse.py#L1499"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pynetdicom.acse.ACSE.debug_receive_release_rp" title="Permalink to this definition">¶</a></dt>
+<em class="property">static </em><code class="descname">debug_receive_release_rp</code><span class="sig-paren">(</span><em>a_release_rp</em><span class="sig-paren">)</span><a class="reference internal" href="../../_modules/pynetdicom/acse.html#ACSE.debug_receive_release_rp"><span class="viewcode-link">[source]</span></a><a class="reference external" href="https://github.com/pydicom/pynetdicom/blob/d6c34fb/pynetdicom/acse.py#L1571"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pynetdicom.acse.ACSE.debug_receive_release_rp" title="Permalink to this definition">¶</a></dt>
 <dd><p>Placeholder for a function callback. Function will be called
 immediately after receiving and decoding an A-RELEASE-RP</p>
 <table class="docutils field-list" frame="void" rules="none">
@@ -386,7 +392,7 @@ immediately after receiving and decoding an A-RELEASE-RP</p>
 
 <dl class="staticmethod">
 <dt id="pynetdicom.acse.ACSE.debug_receive_release_rq">
-<em class="property">static </em><code class="descname">debug_receive_release_rq</code><span class="sig-paren">(</span><em>a_release_rq</em><span class="sig-paren">)</span><a class="reference internal" href="../../_modules/pynetdicom/acse.html#ACSE.debug_receive_release_rq"><span class="viewcode-link">[source]</span></a><a class="reference external" href="https://github.com/pydicom/pynetdicom/blob/adb9ecf/pynetdicom/acse.py#L1512"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pynetdicom.acse.ACSE.debug_receive_release_rq" title="Permalink to this definition">¶</a></dt>
+<em class="property">static </em><code class="descname">debug_receive_release_rq</code><span class="sig-paren">(</span><em>a_release_rq</em><span class="sig-paren">)</span><a class="reference internal" href="../../_modules/pynetdicom/acse.html#ACSE.debug_receive_release_rq"><span class="viewcode-link">[source]</span></a><a class="reference external" href="https://github.com/pydicom/pynetdicom/blob/d6c34fb/pynetdicom/acse.py#L1584"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pynetdicom.acse.ACSE.debug_receive_release_rq" title="Permalink to this definition">¶</a></dt>
 <dd><p>Placeholder for a function callback. Function will be called
 immediately after receiving and decoding an A-RELEASE-RQ</p>
 <table class="docutils field-list" frame="void" rules="none">
@@ -401,7 +407,7 @@ immediately after receiving and decoding an A-RELEASE-RQ</p>
 
 <dl class="staticmethod">
 <dt id="pynetdicom.acse.ACSE.debug_send_abort">
-<em class="property">static </em><code class="descname">debug_send_abort</code><span class="sig-paren">(</span><em>a_abort_rq</em><span class="sig-paren">)</span><a class="reference internal" href="../../_modules/pynetdicom/acse.html#ACSE.debug_send_abort"><span class="viewcode-link">[source]</span></a><a class="reference external" href="https://github.com/pydicom/pynetdicom/blob/adb9ecf/pynetdicom/acse.py#L782"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pynetdicom.acse.ACSE.debug_send_abort" title="Permalink to this definition">¶</a></dt>
+<em class="property">static </em><code class="descname">debug_send_abort</code><span class="sig-paren">(</span><em>a_abort_rq</em><span class="sig-paren">)</span><a class="reference internal" href="../../_modules/pynetdicom/acse.html#ACSE.debug_send_abort"><span class="viewcode-link">[source]</span></a><a class="reference external" href="https://github.com/pydicom/pynetdicom/blob/d6c34fb/pynetdicom/acse.py#L854"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pynetdicom.acse.ACSE.debug_send_abort" title="Permalink to this definition">¶</a></dt>
 <dd><p>Placeholder for a function callback. Function will be called
 immediately prior to encoding and sending an A-ABORT to a peer AE</p>
 <table class="docutils field-list" frame="void" rules="none">
@@ -416,7 +422,7 @@ immediately prior to encoding and sending an A-ABORT to a peer AE</p>
 
 <dl class="staticmethod">
 <dt id="pynetdicom.acse.ACSE.debug_send_associate_ac">
-<em class="property">static </em><code class="descname">debug_send_associate_ac</code><span class="sig-paren">(</span><em>a_associate_ac</em><span class="sig-paren">)</span><a class="reference internal" href="../../_modules/pynetdicom/acse.html#ACSE.debug_send_associate_ac"><span class="viewcode-link">[source]</span></a><a class="reference external" href="https://github.com/pydicom/pynetdicom/blob/adb9ecf/pynetdicom/acse.py#L795"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pynetdicom.acse.ACSE.debug_send_associate_ac" title="Permalink to this definition">¶</a></dt>
+<em class="property">static </em><code class="descname">debug_send_associate_ac</code><span class="sig-paren">(</span><em>a_associate_ac</em><span class="sig-paren">)</span><a class="reference internal" href="../../_modules/pynetdicom/acse.html#ACSE.debug_send_associate_ac"><span class="viewcode-link">[source]</span></a><a class="reference external" href="https://github.com/pydicom/pynetdicom/blob/d6c34fb/pynetdicom/acse.py#L867"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pynetdicom.acse.ACSE.debug_send_associate_ac" title="Permalink to this definition">¶</a></dt>
 <dd><p>Placeholder for a function callback. Function will be called
 immediately prior to encoding and sending an A-ASSOCIATE-AC to a peer AE</p>
 <table class="docutils field-list" frame="void" rules="none">
@@ -431,7 +437,7 @@ immediately prior to encoding and sending an A-ASSOCIATE-AC to a peer AE</p>
 
 <dl class="staticmethod">
 <dt id="pynetdicom.acse.ACSE.debug_send_associate_rj">
-<em class="property">static </em><code class="descname">debug_send_associate_rj</code><span class="sig-paren">(</span><em>a_associate_rj</em><span class="sig-paren">)</span><a class="reference internal" href="../../_modules/pynetdicom/acse.html#ACSE.debug_send_associate_rj"><span class="viewcode-link">[source]</span></a><a class="reference external" href="https://github.com/pydicom/pynetdicom/blob/adb9ecf/pynetdicom/acse.py#L916"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pynetdicom.acse.ACSE.debug_send_associate_rj" title="Permalink to this definition">¶</a></dt>
+<em class="property">static </em><code class="descname">debug_send_associate_rj</code><span class="sig-paren">(</span><em>a_associate_rj</em><span class="sig-paren">)</span><a class="reference internal" href="../../_modules/pynetdicom/acse.html#ACSE.debug_send_associate_rj"><span class="viewcode-link">[source]</span></a><a class="reference external" href="https://github.com/pydicom/pynetdicom/blob/d6c34fb/pynetdicom/acse.py#L988"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pynetdicom.acse.ACSE.debug_send_associate_rj" title="Permalink to this definition">¶</a></dt>
 <dd><p>Placeholder for a function callback. Function will be called
 immediately prior to encoding and sending an A-ASSOCIATE-RJ to a peer AE</p>
 <table class="docutils field-list" frame="void" rules="none">
@@ -446,7 +452,7 @@ immediately prior to encoding and sending an A-ASSOCIATE-RJ to a peer AE</p>
 
 <dl class="staticmethod">
 <dt id="pynetdicom.acse.ACSE.debug_send_associate_rq">
-<em class="property">static </em><code class="descname">debug_send_associate_rq</code><span class="sig-paren">(</span><em>a_associate_rq</em><span class="sig-paren">)</span><a class="reference internal" href="../../_modules/pynetdicom/acse.html#ACSE.debug_send_associate_rq"><span class="viewcode-link">[source]</span></a><a class="reference external" href="https://github.com/pydicom/pynetdicom/blob/adb9ecf/pynetdicom/acse.py#L929"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pynetdicom.acse.ACSE.debug_send_associate_rq" title="Permalink to this definition">¶</a></dt>
+<em class="property">static </em><code class="descname">debug_send_associate_rq</code><span class="sig-paren">(</span><em>a_associate_rq</em><span class="sig-paren">)</span><a class="reference internal" href="../../_modules/pynetdicom/acse.html#ACSE.debug_send_associate_rq"><span class="viewcode-link">[source]</span></a><a class="reference external" href="https://github.com/pydicom/pynetdicom/blob/d6c34fb/pynetdicom/acse.py#L1001"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pynetdicom.acse.ACSE.debug_send_associate_rq" title="Permalink to this definition">¶</a></dt>
 <dd><p>Placeholder for a function callback. Function will be called
 immediately prior to encoding and sending an A-ASSOCIATE-RQ to
 a peer AE</p>
@@ -463,7 +469,7 @@ a peer AE</p>
 
 <dl class="staticmethod">
 <dt id="pynetdicom.acse.ACSE.debug_send_data_tf">
-<em class="property">static </em><code class="descname">debug_send_data_tf</code><span class="sig-paren">(</span><em>p_data_tf</em><span class="sig-paren">)</span><a class="reference internal" href="../../_modules/pynetdicom/acse.html#ACSE.debug_send_data_tf"><span class="viewcode-link">[source]</span></a><a class="reference external" href="https://github.com/pydicom/pynetdicom/blob/adb9ecf/pynetdicom/acse.py#L1105"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pynetdicom.acse.ACSE.debug_send_data_tf" title="Permalink to this definition">¶</a></dt>
+<em class="property">static </em><code class="descname">debug_send_data_tf</code><span class="sig-paren">(</span><em>p_data_tf</em><span class="sig-paren">)</span><a class="reference internal" href="../../_modules/pynetdicom/acse.html#ACSE.debug_send_data_tf"><span class="viewcode-link">[source]</span></a><a class="reference external" href="https://github.com/pydicom/pynetdicom/blob/d6c34fb/pynetdicom/acse.py#L1177"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pynetdicom.acse.ACSE.debug_send_data_tf" title="Permalink to this definition">¶</a></dt>
 <dd><p>Placeholder for a function callback. Function will be called
 immediately prior to encoding and sending an P-DATA-TF to a peer AE</p>
 <table class="docutils field-list" frame="void" rules="none">
@@ -478,7 +484,7 @@ immediately prior to encoding and sending an P-DATA-TF to a peer AE</p>
 
 <dl class="staticmethod">
 <dt id="pynetdicom.acse.ACSE.debug_send_release_rp">
-<em class="property">static </em><code class="descname">debug_send_release_rp</code><span class="sig-paren">(</span><em>a_release_rp</em><span class="sig-paren">)</span><a class="reference internal" href="../../_modules/pynetdicom/acse.html#ACSE.debug_send_release_rp"><span class="viewcode-link">[source]</span></a><a class="reference external" href="https://github.com/pydicom/pynetdicom/blob/adb9ecf/pynetdicom/acse.py#L1118"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pynetdicom.acse.ACSE.debug_send_release_rp" title="Permalink to this definition">¶</a></dt>
+<em class="property">static </em><code class="descname">debug_send_release_rp</code><span class="sig-paren">(</span><em>a_release_rp</em><span class="sig-paren">)</span><a class="reference internal" href="../../_modules/pynetdicom/acse.html#ACSE.debug_send_release_rp"><span class="viewcode-link">[source]</span></a><a class="reference external" href="https://github.com/pydicom/pynetdicom/blob/d6c34fb/pynetdicom/acse.py#L1190"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pynetdicom.acse.ACSE.debug_send_release_rp" title="Permalink to this definition">¶</a></dt>
 <dd><p>Placeholder for a function callback. Function will be called
 immediately prior to encoding and sending an A-RELEASE-RP to a peer AE</p>
 <table class="docutils field-list" frame="void" rules="none">
@@ -493,7 +499,7 @@ immediately prior to encoding and sending an A-RELEASE-RP to a peer AE</p>
 
 <dl class="staticmethod">
 <dt id="pynetdicom.acse.ACSE.debug_send_release_rq">
-<em class="property">static </em><code class="descname">debug_send_release_rq</code><span class="sig-paren">(</span><em>a_release_rq</em><span class="sig-paren">)</span><a class="reference internal" href="../../_modules/pynetdicom/acse.html#ACSE.debug_send_release_rq"><span class="viewcode-link">[source]</span></a><a class="reference external" href="https://github.com/pydicom/pynetdicom/blob/adb9ecf/pynetdicom/acse.py#L1131"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pynetdicom.acse.ACSE.debug_send_release_rq" title="Permalink to this definition">¶</a></dt>
+<em class="property">static </em><code class="descname">debug_send_release_rq</code><span class="sig-paren">(</span><em>a_release_rq</em><span class="sig-paren">)</span><a class="reference internal" href="../../_modules/pynetdicom/acse.html#ACSE.debug_send_release_rq"><span class="viewcode-link">[source]</span></a><a class="reference external" href="https://github.com/pydicom/pynetdicom/blob/d6c34fb/pynetdicom/acse.py#L1203"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pynetdicom.acse.ACSE.debug_send_release_rq" title="Permalink to this definition">¶</a></dt>
 <dd><p>Placeholder for a function callback. Function will be called
 immediately prior to encoding and sending an A-RELEASE-RQ to a peer AE</p>
 <table class="docutils field-list" frame="void" rules="none">
@@ -508,19 +514,34 @@ immediately prior to encoding and sending an A-RELEASE-RQ to a peer AE</p>
 
 <dl class="staticmethod">
 <dt id="pynetdicom.acse.ACSE.is_aborted">
-<em class="property">static </em><code class="descname">is_aborted</code><span class="sig-paren">(</span><em>assoc</em><span class="sig-paren">)</span><a class="reference internal" href="../../_modules/pynetdicom/acse.html#ACSE.is_aborted"><span class="viewcode-link">[source]</span></a><a class="reference external" href="https://github.com/pydicom/pynetdicom/blob/adb9ecf/pynetdicom/acse.py#L241"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pynetdicom.acse.ACSE.is_aborted" title="Permalink to this definition">¶</a></dt>
+<em class="property">static </em><code class="descname">is_aborted</code><span class="sig-paren">(</span><em>assoc</em><span class="sig-paren">)</span><a class="reference internal" href="../../_modules/pynetdicom/acse.html#ACSE.is_aborted"><span class="viewcode-link">[source]</span></a><a class="reference external" href="https://github.com/pydicom/pynetdicom/blob/d6c34fb/pynetdicom/acse.py#L243"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pynetdicom.acse.ACSE.is_aborted" title="Permalink to this definition">¶</a></dt>
 <dd><p>Return True if an A-ABORT or A-P-ABORT request has been received.</p>
 </dd></dl>
 
 <dl class="staticmethod">
-<dt id="pynetdicom.acse.ACSE.is_released">
-<em class="property">static </em><code class="descname">is_released</code><span class="sig-paren">(</span><em>assoc</em><span class="sig-paren">)</span><a class="reference internal" href="../../_modules/pynetdicom/acse.html#ACSE.is_released"><span class="viewcode-link">[source]</span></a><a class="reference external" href="https://github.com/pydicom/pynetdicom/blob/adb9ecf/pynetdicom/acse.py#L250"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pynetdicom.acse.ACSE.is_released" title="Permalink to this definition">¶</a></dt>
+<dt id="pynetdicom.acse.ACSE.is_release_requested">
+<em class="property">static </em><code class="descname">is_release_requested</code><span class="sig-paren">(</span><em>assoc</em><span class="sig-paren">)</span><a class="reference internal" href="../../_modules/pynetdicom/acse.html#ACSE.is_release_requested"><span class="viewcode-link">[source]</span></a><a class="reference external" href="https://github.com/pydicom/pynetdicom/blob/d6c34fb/pynetdicom/acse.py#L252"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pynetdicom.acse.ACSE.is_release_requested" title="Permalink to this definition">¶</a></dt>
 <dd><p>Return True if an A-RELEASE request has been received.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><strong>assoc</strong> (<a class="reference internal" href="pynetdicom.association.Association.html#pynetdicom.association.Association" title="pynetdicom.association.Association"><em>association.Association</em></a>) – The Association instance that wants to know if an A-RELEASE
+request has been received.</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="method">
+<dt id="pynetdicom.acse.ACSE.is_released">
+<code class="descname">is_released</code><span class="sig-paren">(</span><em>assoc</em><span class="sig-paren">)</span><a class="reference internal" href="../../_modules/pynetdicom/acse.html#ACSE.is_released"><span class="viewcode-link">[source]</span></a><a class="reference external" href="https://github.com/pydicom/pynetdicom/blob/d6c34fb/pynetdicom/acse.py#L270"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pynetdicom.acse.ACSE.is_released" title="Permalink to this definition">¶</a></dt>
+<dd><p>Return True if an A-RELEASE response has been received.</p>
 </dd></dl>
 
 <dl class="method">
 <dt id="pynetdicom.acse.ACSE.negotiate_association">
-<code class="descname">negotiate_association</code><span class="sig-paren">(</span><em>assoc</em><span class="sig-paren">)</span><a class="reference internal" href="../../_modules/pynetdicom/acse.html#ACSE.negotiate_association"><span class="viewcode-link">[source]</span></a><a class="reference external" href="https://github.com/pydicom/pynetdicom/blob/adb9ecf/pynetdicom/acse.py#L264"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pynetdicom.acse.ACSE.negotiate_association" title="Permalink to this definition">¶</a></dt>
+<code class="descname">negotiate_association</code><span class="sig-paren">(</span><em>assoc</em><span class="sig-paren">)</span><a class="reference internal" href="../../_modules/pynetdicom/acse.html#ACSE.negotiate_association"><span class="viewcode-link">[source]</span></a><a class="reference external" href="https://github.com/pydicom/pynetdicom/blob/d6c34fb/pynetdicom/acse.py#L279"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pynetdicom.acse.ACSE.negotiate_association" title="Permalink to this definition">¶</a></dt>
 <dd><p>Perform an association negotiation as either the requestor or
 acceptor.</p>
 <table class="docutils field-list" frame="void" rules="none">
@@ -534,16 +555,17 @@ acceptor.</p>
 </dd></dl>
 
 <dl class="method">
-<dt id="pynetdicom.acse.ACSE.release_association">
-<code class="descname">release_association</code><span class="sig-paren">(</span><em>assoc</em><span class="sig-paren">)</span><a class="reference internal" href="../../_modules/pynetdicom/acse.html#ACSE.release_association"><span class="viewcode-link">[source]</span></a><a class="reference external" href="https://github.com/pydicom/pynetdicom/blob/adb9ecf/pynetdicom/acse.py#L498"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pynetdicom.acse.ACSE.release_association" title="Permalink to this definition">¶</a></dt>
-<dd><p>Release an established association.</p>
-<p>Sends an A-RELEASE request and waits for the response. If no response
-is received then aborts the association instead.</p>
+<dt id="pynetdicom.acse.ACSE.negotiate_release">
+<code class="descname">negotiate_release</code><span class="sig-paren">(</span><em>assoc</em><span class="sig-paren">)</span><a class="reference internal" href="../../_modules/pynetdicom/acse.html#ACSE.negotiate_release"><span class="viewcode-link">[source]</span></a><a class="reference external" href="https://github.com/pydicom/pynetdicom/blob/d6c34fb/pynetdicom/acse.py#L512"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pynetdicom.acse.ACSE.negotiate_release" title="Permalink to this definition">¶</a></dt>
+<dd><p>Negotiate association release.</p>
+<p>Once an A-RELEASE request has been sent any received P-DATA PDUs will
+be ignored.</p>
 <table class="docutils field-list" frame="void" rules="none">
 <col class="field-name" />
 <col class="field-body" />
 <tbody valign="top">
-<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><strong>assoc</strong> (<a class="reference internal" href="pynetdicom.association.Association.html#pynetdicom.association.Association" title="pynetdicom.association.Association"><em>association.Association</em></a>) – The Association instance to release.</td>
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><strong>assoc</strong> (<a class="reference internal" href="pynetdicom.association.Association.html#pynetdicom.association.Association" title="pynetdicom.association.Association"><em>association.Association</em></a>) – The association instance that wants to initiate association
+release.</td>
 </tr>
 </tbody>
 </table>
@@ -551,7 +573,7 @@ is received then aborts the association instead.</p>
 
 <dl class="staticmethod">
 <dt id="pynetdicom.acse.ACSE.send_abort">
-<em class="property">static </em><code class="descname">send_abort</code><span class="sig-paren">(</span><em>assoc</em>, <em>source</em><span class="sig-paren">)</span><a class="reference internal" href="../../_modules/pynetdicom/acse.html#ACSE.send_abort"><span class="viewcode-link">[source]</span></a><a class="reference external" href="https://github.com/pydicom/pynetdicom/blob/adb9ecf/pynetdicom/acse.py#L522"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pynetdicom.acse.ACSE.send_abort" title="Permalink to this definition">¶</a></dt>
+<em class="property">static </em><code class="descname">send_abort</code><span class="sig-paren">(</span><em>assoc</em>, <em>source</em><span class="sig-paren">)</span><a class="reference internal" href="../../_modules/pynetdicom/acse.html#ACSE.send_abort"><span class="viewcode-link">[source]</span></a><a class="reference external" href="https://github.com/pydicom/pynetdicom/blob/d6c34fb/pynetdicom/acse.py#L594"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pynetdicom.acse.ACSE.send_abort" title="Permalink to this definition">¶</a></dt>
 <dd><p>Send an A-ABORT request to the peer.</p>
 <table class="docutils field-list" frame="void" rules="none">
 <col class="field-name" />
@@ -577,7 +599,7 @@ is received then aborts the association instead.</p>
 
 <dl class="staticmethod">
 <dt id="pynetdicom.acse.ACSE.send_accept">
-<em class="property">static </em><code class="descname">send_accept</code><span class="sig-paren">(</span><em>assoc</em><span class="sig-paren">)</span><a class="reference internal" href="../../_modules/pynetdicom/acse.html#ACSE.send_accept"><span class="viewcode-link">[source]</span></a><a class="reference external" href="https://github.com/pydicom/pynetdicom/blob/adb9ecf/pynetdicom/acse.py#L555"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pynetdicom.acse.ACSE.send_accept" title="Permalink to this definition">¶</a></dt>
+<em class="property">static </em><code class="descname">send_accept</code><span class="sig-paren">(</span><em>assoc</em><span class="sig-paren">)</span><a class="reference internal" href="../../_modules/pynetdicom/acse.html#ACSE.send_accept"><span class="viewcode-link">[source]</span></a><a class="reference external" href="https://github.com/pydicom/pynetdicom/blob/d6c34fb/pynetdicom/acse.py#L627"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pynetdicom.acse.ACSE.send_accept" title="Permalink to this definition">¶</a></dt>
 <dd><p>Send an A-ASSOCIATE (accept) to the peer.</p>
 <table class="docutils field-list" frame="void" rules="none">
 <col class="field-name" />
@@ -591,7 +613,7 @@ is received then aborts the association instead.</p>
 
 <dl class="staticmethod">
 <dt id="pynetdicom.acse.ACSE.send_ap_abort">
-<em class="property">static </em><code class="descname">send_ap_abort</code><span class="sig-paren">(</span><em>assoc</em>, <em>reason</em><span class="sig-paren">)</span><a class="reference internal" href="../../_modules/pynetdicom/acse.html#ACSE.send_ap_abort"><span class="viewcode-link">[source]</span></a><a class="reference external" href="https://github.com/pydicom/pynetdicom/blob/adb9ecf/pynetdicom/acse.py#L592"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pynetdicom.acse.ACSE.send_ap_abort" title="Permalink to this definition">¶</a></dt>
+<em class="property">static </em><code class="descname">send_ap_abort</code><span class="sig-paren">(</span><em>assoc</em>, <em>reason</em><span class="sig-paren">)</span><a class="reference internal" href="../../_modules/pynetdicom/acse.html#ACSE.send_ap_abort"><span class="viewcode-link">[source]</span></a><a class="reference external" href="https://github.com/pydicom/pynetdicom/blob/d6c34fb/pynetdicom/acse.py#L664"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pynetdicom.acse.ACSE.send_ap_abort" title="Permalink to this definition">¶</a></dt>
 <dd><p>Send an A-P-ABORT to the peer.</p>
 <table class="docutils field-list" frame="void" rules="none">
 <col class="field-name" />
@@ -621,7 +643,7 @@ is received then aborts the association instead.</p>
 
 <dl class="staticmethod">
 <dt id="pynetdicom.acse.ACSE.send_reject">
-<em class="property">static </em><code class="descname">send_reject</code><span class="sig-paren">(</span><em>assoc</em>, <em>result</em>, <em>source</em>, <em>diagnostic</em><span class="sig-paren">)</span><a class="reference internal" href="../../_modules/pynetdicom/acse.html#ACSE.send_reject"><span class="viewcode-link">[source]</span></a><a class="reference external" href="https://github.com/pydicom/pynetdicom/blob/adb9ecf/pynetdicom/acse.py#L629"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pynetdicom.acse.ACSE.send_reject" title="Permalink to this definition">¶</a></dt>
+<em class="property">static </em><code class="descname">send_reject</code><span class="sig-paren">(</span><em>assoc</em>, <em>result</em>, <em>source</em>, <em>diagnostic</em><span class="sig-paren">)</span><a class="reference internal" href="../../_modules/pynetdicom/acse.html#ACSE.send_reject"><span class="viewcode-link">[source]</span></a><a class="reference external" href="https://github.com/pydicom/pynetdicom/blob/d6c34fb/pynetdicom/acse.py#L701"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pynetdicom.acse.ACSE.send_reject" title="Permalink to this definition">¶</a></dt>
 <dd><p>Send an A-ASSOCIATE (reject) to the peer.</p>
 <table class="docutils field-list" frame="void" rules="none">
 <col class="field-name" />
@@ -669,7 +691,7 @@ is received then aborts the association instead.</p>
 
 <dl class="staticmethod">
 <dt id="pynetdicom.acse.ACSE.send_release">
-<em class="property">static </em><code class="descname">send_release</code><span class="sig-paren">(</span><em>assoc</em>, <em>is_response=False</em><span class="sig-paren">)</span><a class="reference internal" href="../../_modules/pynetdicom/acse.html#ACSE.send_release"><span class="viewcode-link">[source]</span></a><a class="reference external" href="https://github.com/pydicom/pynetdicom/blob/adb9ecf/pynetdicom/acse.py#L698"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pynetdicom.acse.ACSE.send_release" title="Permalink to this definition">¶</a></dt>
+<em class="property">static </em><code class="descname">send_release</code><span class="sig-paren">(</span><em>assoc</em>, <em>is_response=False</em><span class="sig-paren">)</span><a class="reference internal" href="../../_modules/pynetdicom/acse.html#ACSE.send_release"><span class="viewcode-link">[source]</span></a><a class="reference external" href="https://github.com/pydicom/pynetdicom/blob/d6c34fb/pynetdicom/acse.py#L770"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pynetdicom.acse.ACSE.send_release" title="Permalink to this definition">¶</a></dt>
 <dd><p>Send an A-RELEASE (request or response) to the peer.</p>
 <table class="docutils field-list" frame="void" rules="none">
 <col class="field-name" />
@@ -688,7 +710,7 @@ to send an A-RELEASE (request) to the peer (default).</li>
 
 <dl class="staticmethod">
 <dt id="pynetdicom.acse.ACSE.send_request">
-<em class="property">static </em><code class="descname">send_request</code><span class="sig-paren">(</span><em>assoc</em><span class="sig-paren">)</span><a class="reference internal" href="../../_modules/pynetdicom/acse.html#ACSE.send_request"><span class="viewcode-link">[source]</span></a><a class="reference external" href="https://github.com/pydicom/pynetdicom/blob/adb9ecf/pynetdicom/acse.py#L717"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pynetdicom.acse.ACSE.send_request" title="Permalink to this definition">¶</a></dt>
+<em class="property">static </em><code class="descname">send_request</code><span class="sig-paren">(</span><em>assoc</em><span class="sig-paren">)</span><a class="reference internal" href="../../_modules/pynetdicom/acse.html#ACSE.send_request"><span class="viewcode-link">[source]</span></a><a class="reference external" href="https://github.com/pydicom/pynetdicom/blob/d6c34fb/pynetdicom/acse.py#L789"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pynetdicom.acse.ACSE.send_request" title="Permalink to this definition">¶</a></dt>
 <dd><p>Send an A-ASSOCIATE (request) to the peer.</p>
 <table class="docutils field-list" frame="void" rules="none">
 <col class="field-name" />
