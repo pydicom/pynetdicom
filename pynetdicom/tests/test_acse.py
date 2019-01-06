@@ -44,7 +44,7 @@ from .encoded_pdu_items import (
 
 LOGGER = logging.getLogger('pynetdicom')
 LOGGER.setLevel(logging.CRITICAL)
-LOGGER.setLevel(logging.DEBUG)
+#LOGGER.setLevel(logging.DEBUG)
 
 
 class DummyDUL(object):

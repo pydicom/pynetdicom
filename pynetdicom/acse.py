@@ -559,10 +559,8 @@ class ACSE(object):
                     self.send_release(assoc, is_response=True)
                     # Wait for A-RELEASE response
                     continue
-                else:
-                    # Acceptor waits for A-RELEASE response before
-                    #   sending their own response
-                    continue
+                # Acceptor waits for A-RELEASE response before
+                #   sending their own response
             else:
                 # A-RELEASE (response) received
                 # If collision and we are the acceptor then we need to send

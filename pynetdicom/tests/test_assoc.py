@@ -79,7 +79,7 @@ from .dummy_c_scp import (
 
 LOGGER = logging.getLogger('pynetdicom')
 LOGGER.setLevel(logging.CRITICAL)
-LOGGER.setLevel(logging.DEBUG)
+#LOGGER.setLevel(logging.DEBUG)
 
 TEST_DS_DIR = os.path.join(os.path.dirname(__file__), 'dicom_files')
 BIG_DATASET = dcmread(os.path.join(TEST_DS_DIR, 'RTImageStorage.dcm')) # 2.1 M
@@ -549,6 +549,22 @@ class TestAssociation(object):
     def test_kill(self):
         """Test killing the association"""
         pass
+
+    def test_assoc_release_deprecated(self):
+        """Test Association release"""
+        # Simple release
+        self.scp = DummyVerificationSCP()
+        self.scp.start()
+        ae = AE()
+        ae.add_requested_context(VerificationSOPClass)
+        ae.acse_timeout = 5
+        ae.dimse_timeout = 5
+        assoc = ae.associate('localhost', 11112)
+        assert assoc.is_established
+        assoc.acse.release_association(assoc)
+        assert assoc.is_released
+        assert not assoc.is_established
+        self.scp.stop()
 
     def test_assoc_release(self):
         """Test Association release"""

@@ -427,8 +427,6 @@ class DULServiceProvider(Thread):
                 # Data still available, grab it
                 self._check_incoming_pdu()
                 return True
-            else:
-                return False
 
             # Once we have no more incoming data close the socket and
             #   add the corresponding event to the queue

@@ -1283,7 +1283,6 @@ class ApplicationEntity(object):
         self._quit = True
 
         for assoc in self.active_associations:
-            LOGGER.debug("The AE is stopping, aborting active associations")
             assoc.abort()
 
         # Give any associations time to abort and shutdown
