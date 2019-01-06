@@ -511,10 +511,6 @@ class ACSE(object):
 
     def negotiate_release(self, assoc):
         """Negotiate association release."""
-        # Kill the main reactor loop to prevent it interfering
-        assoc._kill = True
-        time.sleep(0.01)
-
         # Send A-RELEASE request
         # Only an A-ABORT request primitive is allowed after A-RELEASE starts
         # (Part 8, Section 7.2.2)

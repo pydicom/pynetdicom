@@ -500,14 +500,17 @@ class TestAEGoodAssociation(object):
         ae = AE()
         ae.add_requested_context(VerificationSOPClass)
 
-        self.scp.ae.acse_timeout = 0
-        self.scp.ae.dimse_timeout = 0
-        self.scp.ae.network_timeout = 0.2
+        self.scp.ae.acse_timeout = 5
+        self.scp.ae.dimse_timeout = 5
+        self.scp.ae.network_timeout = 0.5
 
+        # Test network timeout
         ae.acse_timeout = 30
         ae.dimse_timeout = 30
         assoc = ae.associate('localhost', 11112)
+        assert assoc.is_established
         time.sleep(1)
+        assert assoc.is_aborted
         assert len(self.scp.ae.active_associations) == 0
 
         self.scp.ae.acse_timeout = None
@@ -760,7 +763,6 @@ class TestAEGoodMiscSetters(object):
         ae.add_requested_context(VerificationSOPClass)
         ae.require_calling_aet = [b'something']
         ae.require_called_aet = True
-        print(ae)
         assert 'Explicit VR' in ae.__str__()
         assert 'Verification' in ae.__str__()
         assert '0/2' in ae.__str__()

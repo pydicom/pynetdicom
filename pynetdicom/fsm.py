@@ -68,7 +68,7 @@ class StateMachine(object):
             # Execute the required action
             next_state = action[1](self.dul)
 
-            print(action_name, self.current_state, event, next_state)
+            #print(action_name, self.current_state, event, next_state)
 
             # Move the state machine to the next state
             self.transition(next_state)
@@ -78,7 +78,6 @@ class StateMachine(object):
                          "to perform the action '%s' while in state '%s'",
                          action_name, self.current_state)
             LOGGER.exception(exc)
-            print('excepted fsm')
             self.dul.kill_dul()
             raise
 
@@ -271,6 +270,7 @@ def AE_5(dul):
     # not required due to implementation
 
     # Start ARTIM timer
+    dul.artim_timer.timeout_seconds = dul.assoc.acse_timeout
     dul.artim_timer.start()
 
     return 'Sta2'
@@ -327,7 +327,7 @@ def AE_6(dul):
         dul.assoc.acse.debug_send_associate_rj(dul.pdu)
 
         dul.scu_socket.send(dul.pdu.encode())
-
+        dul.artim_timer.timeout_seconds = dul.assoc.acse_timeout
         dul.artim_timer.start()
 
         return 'Sta13'
@@ -403,6 +403,7 @@ def AE_8(dul):
 
     dul.scu_socket.send(dul.pdu.encode())
 
+    dul.artim_timer.timeout_seconds = dul.assoc.acse_timeout
     dul.artim_timer.start()
 
     return 'Sta13'
@@ -592,6 +593,7 @@ def AR_4(dul):
     dul.assoc.acse.debug_send_release_rp(dul.pdu)
 
     dul.scu_socket.send(dul.pdu.encode())
+    dul.artim_timer.timeout_seconds = dul.assoc.acse_timeout
     dul.artim_timer.start()
 
     return 'Sta13'
@@ -852,6 +854,7 @@ def AA_2(dul):
     """
     # Stop ARTIM timer if running. Close transport connection.
     dul.artim_timer.stop()
+    dul.scu_socket.shutdown(socket.SHUT_RDWR)
     dul.scu_socket.close()
     dul.peer_socket = None
 
@@ -1062,6 +1065,7 @@ def AA_8(dul):
 
         # Issue A-P-ABORT to user
         dul.to_user_queue.put(dul.primitive)
+        dul.artim_timer.timeout_seconds = dul.assoc.acse_timeout
         dul.artim_timer.start()
 
     return 'Sta13'

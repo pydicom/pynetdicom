@@ -15,7 +15,7 @@ Fixes
 * Fixed DUL not handling the service user sending A-P-ABORT primitives.
   (:issue:`270`)
 * Fixed issue with DUL endlessly waiting in State 13 if the remote didn't
-  close the connection.
+  close the connection and there was data still available to be read.
 
 
 Enhancements

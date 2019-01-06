@@ -811,6 +811,9 @@ class TestUserIdentityNegotiation(object):
             return True, None
 
         self.scp = DummyVerificationSCP()
+        self.scp.ae.acse_timeout = 5
+        self.scp.ae.dimse_timeout = 5
+        self.scp.ae.network_timeout = 5
         self.scp.ae.on_user_identity = on_user_identity
         self.scp.start()
         ae = AE()
@@ -839,6 +842,9 @@ class TestUserIdentityNegotiation(object):
             return False, None
 
         self.scp = DummyVerificationSCP()
+        self.scp.ae.acse_timeout = 5
+        self.scp.ae.dimse_timeout = 5
+        self.scp.ae.network_timeout = 5
         self.scp.ae.on_user_identity = on_user_identity
         self.scp.start()
         ae = AE()
@@ -954,6 +960,9 @@ class TestUserIdentityNegotiation(object):
             return True, rsp[1]
 
         self.scp = DummyVerificationSCP()
+        self.scp.ae.acse_timeout = 5
+        self.scp.ae.dimse_timeout = 5
+        self.scp.ae.network_timeout = 5
         self.scp.ae.on_user_identity = on_user_identity
         self.scp.start()
         ae = AE()
@@ -972,6 +981,8 @@ class TestUserIdentityNegotiation(object):
         item.positive_response_requested = req[3]
 
         assoc = ae.associate('localhost', 11112, ext_neg=[item])
+        if assoc.is_established:
+            assoc.release()
         self.scp.stop()
 
 
@@ -1844,12 +1855,26 @@ class SmallReleaseCollider(threading.Thread):
 
     def run(self):
         if self.mode == 'acceptor':
-            self.run_as_scp()
+            self.run_as_acceptor()
         elif self.mode == 'requestor':
-            self.run_as_scu()
+            self.run_as_requestor()
 
-    def run_as_scp(self):
+    def run_as_acceptor(self):
+        """Run the Collider as an association requestor.
+
+        1. Open a list socket on self.local_port
+        2. Wait for a connection request, when connected GOTO 3
+        3. Check self.queue for an item:
+            a. If the item is None then GOTO 4
+            b. If the item is singleton then send it to the peer and GOTO 4
+            c. If the item is a list then send each item in the list to the
+               peer, then GOTO 4. if one of the items is 'shutdown' then exit
+            d. If the item is 'shutdown' then exit
+        4. Block the connection until data appears, then append the data to
+           self.received.
+        """
         sock = self.bind_socket()
+        self.sock = sock
 
         # Wait for a connection
         while not self._kill:
@@ -1860,50 +1885,88 @@ class SmallReleaseCollider(threading.Thread):
 
         # Send and receive data
         while not self._kill:
-            data_to_send = self.queue.get()
-            if data_to_send:
-                conn.send(data_to_send)
+            to_send = self.queue.get()
+            if to_send == 'shutdown':
+                # 'shutdown'
+                self.sock.shutdown(socket.SHUT_RDWR)
+                self.sock.close()
+                self._kill = True
+                return
+            elif to_send is not None:
+                # item or [item, item]
+                if isinstance(to_send, list):
+                    for item in to_send:
+                        if item == 'shutdown':
+                            self.sock.shutdown(socket.SHUT_RDWR)
+                            self.sock.close()
+                            self._kill = True
+                            return
+                        elif item == None:
+                            continue
+                        else:
+                            conn.send(item)
+                else:
+                    conn.send(to_send)
+            elif to_send == 'skip':
+                continue
+            else:
+                # None
+                pass
 
-            ready, _, _ = select.select([conn], [], [], 0.1)
-
+            # Block until ready to read
+            ready, _, _ = select.select([conn], [], [])
             if ready:
-                try:
-                    data_received = self.read_stream(conn)
-                    self.received.append(data_received)
-                except:
-                    return
+                data_received = self.read_stream(conn)
+                self.received.append(data_received)
 
-    def run_as_scu(self):
+    def run_as_requestor(self):
+        """Run the Collider as an association requestor.
+
+        1. Open a connection to the peer at (self.address, self.remote_port)
+        2. Check self.queue for an item:
+            a. If the item is None then GOTO 3
+            b. If the item is singleton then send it to the peer and GOTO 3
+            c. If the item is a list then send each item in the list to the
+               peer, then GOTO 3
+            d. If the item is 'shutdown' then exit
+        3. Block the connection until data appears, then append the data to
+           self.received.
+        """
         # Make the connection
         while not self._kill:
             try:
-                conn = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
-                conn.connect((self.address, self.remote_port))
+                self.sock = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
+                self.sock.connect((self.address, self.remote_port))
                 break
             except:
                 pass
 
         # Send and receive data
         while not self._kill:
-            try:
-                peek = self.queue.queue[0]
-            except:
+            to_send = self.queue.get()
+            if to_send == 'shutdown':
+                # 'shutdown'
+                self.sock.shutdown(socket.SHUT_RDWR)
+                self.sock.close()
+                self._kill = True
                 return
-
-            if peek is not None:
-                data_to_send = self.queue.get()
-                if isinstance(data_to_send, list):
-                    for item in data_to_send:
-                        conn.send(item)
+            elif to_send is not None:
+                # item or [item, item]
+                if isinstance(to_send, list):
+                    for item in to_send:
+                        self.sock.send(item)
                 else:
-                    conn.send(data_to_send)
+                    self.sock.send(to_send)
             else:
-                continue
+                # None
+                pass
 
-            ready, _, _ = select.select([conn], [], [], 0.5)
-
+            # Block until ready
+            # When the timeout argument is omitted the function blocks until
+            #   at least one file descriptor is ready
+            ready, _, _ = select.select([self.sock], [], [])
             if ready:
-                data_received = self.read_stream(conn)
+                data_received = self.read_stream(self.sock)
                 self.received.append(data_received)
 
     def read_stream(self, sock):
@@ -1968,6 +2031,11 @@ class SmallReleaseCollider(threading.Thread):
     def stop(self):
         self._kill = True
 
+    def shutdown_sockets(self):
+        """Close the sockets."""
+        self.sock.shutdown(socket.SHUT_RDWR)
+        self.sock.close()
+
 
 class TestNegotiateRelease(object):
     """Tests for ACSE.negotiate_release."""
@@ -1983,11 +2051,8 @@ class TestNegotiateRelease(object):
         time.sleep(0.1)
 
         for thread in threading.enumerate():
-            if isinstance(thread, (DummyBaseSCP, SmallReleaseCollider)):
-                try:
-                    thread.abort()
-                except:
-                    pass
+            if isinstance(thread, DummyBaseSCP):
+                thread.abort()
                 thread.stop()
 
     @pytest.mark.skipif(sys.version_info[:2] == (3, 4), reason='no caplog')
@@ -1996,7 +2061,9 @@ class TestNegotiateRelease(object):
         with caplog.at_level(logging.DEBUG, logger='pynetdicom'):
             scp = SmallReleaseCollider()
             scp.mode = 'acceptor'
-            scp_messages = [None, a_associate_ac, a_release_rq, a_release_rp]
+            scp_messages = [
+                None, a_associate_ac, a_release_rq, [a_release_rp, 'shutdown']
+            ]
             for item in scp_messages:
                 scp.queue.put(item)
             scp.start()
@@ -2020,13 +2087,13 @@ class TestNegotiateRelease(object):
         """Test a simulated A-RELEASE collision on the requestor side."""
         scp = SmallReleaseCollider()
         scp.mode = 'acceptor'
-        scp_messages = [None, a_associate_ac]
+        scp_messages = [None, a_associate_ac, None, 'shutdown']
         for item in scp_messages:
             scp.queue.put(item)
         scp.start()
 
         ae = AE()
-        ae.acse_timeout = 2
+        ae.acse_timeout = 1
         ae.add_requested_context(VerificationSOPClass)
         assoc = ae.associate('localhost', 11112)
         assert assoc.is_established
@@ -2034,7 +2101,6 @@ class TestNegotiateRelease(object):
         assert assoc.is_aborted
         assert not assoc.is_established
 
-        scp.queue.put(None)
         time.sleep(0.5)
 
         assert scp.received[1] == a_release_rq
@@ -2048,7 +2114,9 @@ class TestNegotiateRelease(object):
         with caplog.at_level(logging.WARNING, logger='pynetdicom'):
             scp = SmallReleaseCollider()
             scp.mode = 'acceptor'
-            scp_messages = [None, a_associate_ac, p_data_tf, a_release_rp]
+            scp_messages = [
+                None, a_associate_ac, [p_data_tf, a_release_rp , 'shutdown'],
+            ]
             for item in scp_messages:
                 scp.queue.put(item)
             scp.start()
@@ -2064,6 +2132,8 @@ class TestNegotiateRelease(object):
 
             assert scp.received[1] == a_release_rq
 
+            scp._kill = True
+            scp.queue.put(None)
             scp.stop()
 
             assert (
@@ -2081,7 +2151,9 @@ class TestNegotiateRelease(object):
                 return 0x0000
 
             self.scp = DummyVerificationSCP()
-            self.scp.ae.acse_timeout = 5
+            self.scp.ae.acse_timeout = 1
+            self.scp.ae.dimse_timeout = 5
+            self.scp.ae.network_timeout = 5
             self.scp.ae.on_c_echo = on_c_echo
             self.scp.start()
 
@@ -2103,21 +2175,21 @@ class TestNegotiateRelease(object):
             scu.address = 'localhost'
             scu.local_port = 0
             scu.remote_port = 11112
-            scu.queue.put(a_associate_rq)
-            scu.queue.put(p_data_tf)
-            scu.queue.put([a_release_rq, a_release_rp])
+            msgs = [
+                a_associate_rq,
+                p_data_tf,
+                [a_release_rq, a_release_rp],
+                'shutdown'
+            ]
+            for msg in msgs:
+                scu.queue.put(msg)
 
-            scu.start()
-            # Magic happens here, check it afterwards
-            time.sleep(0.5)
-
-            scu._kill = True
-            scu.queue.put(None)
-            scu.stop()
-
-            time.sleep(0.1)
+            # Blocking
+            scu.run_as_requestor()
 
             self.scp.stop()
+
+            assert "An A-RELEASE collision has occurred" in caplog.text
 
             # A-ASSOCIATE-RQ
             assert scu.received[1] == (
@@ -2128,7 +2200,63 @@ class TestNegotiateRelease(object):
                 b'\x06\x00\x00\x00\x00\x04\x00\x00\x00\x00'
             )
 
-            assert "An A-RELEASE collision has occurred" in caplog.text
+    @pytest.mark.skip()
+    def test_dul_sta13_socket_data(self):
+        """Test a simulated A-RELEASE collision on the acceptor side."""
+        # Listening on port 11112
+        def on_c_echo(cx, info):
+            assoc = self.scp.ae.active_associations[0]
+            assoc.release()
+            return 0x0000
+
+        self.scp = DummyVerificationSCP()
+        self.scp.ae.acse_timeout = 5
+        self.scp.ae.dimse_timeout = 5
+        self.scp.ae.network_timeout = 5
+        self.scp.ae.on_c_echo = on_c_echo
+        self.scp.start()
+
+        # C-ECHO-RQ
+        # 80 total length
+        p_data_tf = (
+            b"\x04\x00\x00\x00\x00\x4a" # P-DATA-TF 74
+            b"\x00\x00\x00\x46\x01" # PDV Item 70
+            b"\x03"  # PDV: 2 -> 69
+            b"\x00\x00\x00\x00\x04\x00\x00\x00\x42\x00\x00\x00"  # 12 Command Group Length
+            b"\x00\x00\x02\x00\x12\x00\x00\x00\x31\x2e\x32\x2e\x38\x34\x30\x2e\x31\x30\x30\x30\x38\x2e\x31\x2e\x31\x00"  # 26
+            b"\x00\x00\x00\x01\x02\x00\x00\x00\x30\x00"  # 10 Command Field
+            b"\x00\x00\x10\x01\x02\x00\x00\x00\x01\x00"  # 10 Message ID
+            b"\x00\x00\x00\x08\x02\x00\x00\x00\x01\x01"  # 10 Command Data Set Type
+        )
+
+        scu = SmallReleaseCollider()
+        scu.mode = 'requestor'
+        scu.address = 'localhost'
+        scu.local_port = 0
+        scu.remote_port = 11112
+        msgs = [
+            a_associate_rq,
+            p_data_tf,
+            [a_release_rq, a_release_rp],
+            None,
+            'shutdown'
+        ]
+        for msg in msgs:
+            scu.queue.put(msg)
+
+        # Blocking
+        scu.run_as_requestor()
+
+        self.scp.stop()
+
+        # A-ASSOCIATE-RQ
+        assert scu.received[1] == (
+            b'\x05\x00\x00\x00\x00\x04\x00\x00\x00\x00'
+        )
+        # A-ASSOCIATE-RP
+        assert scu.received[2] == (
+            b'\x06\x00\x00\x00\x00\x04\x00\x00\x00\x00'
+        )
 
     @pytest.mark.skipif(sys.version_info[:2] == (3, 4), reason='no caplog')
     def test_collision_requestor_abort(self, caplog):
@@ -2136,7 +2264,9 @@ class TestNegotiateRelease(object):
         with caplog.at_level(logging.DEBUG, logger='pynetdicom'):
             scp = SmallReleaseCollider()
             scp.mode = 'acceptor'
-            scp_messages = [None, a_associate_ac, a_release_rq, a_abort]
+            scp_messages = [
+                None, a_associate_ac, a_release_rq, a_abort, 'shutdown'
+            ]
             for item in scp_messages:
                 scp.queue.put(item)
             scp.start()
@@ -2162,7 +2292,9 @@ class TestNegotiateRelease(object):
         with caplog.at_level(logging.DEBUG, logger='pynetdicom'):
             scp = SmallReleaseCollider()
             scp.mode = 'acceptor'
-            scp_messages = [None, a_associate_ac, a_release_rq, a_p_abort]
+            scp_messages = [
+                None, a_associate_ac, a_release_rq, a_p_abort, 'shutdown'
+            ]
             for item in scp_messages:
                 scp.queue.put(item)
             scp.start()

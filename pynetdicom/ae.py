@@ -47,7 +47,7 @@ class ApplicationEntity(object):
     ----------
     acse_timeout : int or float or None
         The maximum amount of time (in seconds) to wait for association related
-        messages. A value of ``None`` means no timeout. (default: 60)
+        messages. A value of ``None`` means no timeout. (default: 30)
     active_associations : list of association.Association
         The currently active associations between the local and peer AEs.
     address : str
@@ -1283,6 +1283,7 @@ class ApplicationEntity(object):
         self._quit = True
 
         for assoc in self.active_associations:
+            LOGGER.debug("The AE is stopping, aborting active associations")
             assoc.abort()
 
         # Give any associations time to abort and shutdown

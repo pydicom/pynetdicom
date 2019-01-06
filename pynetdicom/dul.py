@@ -251,7 +251,8 @@ class DULServiceProvider(Thread):
                     self._idle_timer.restart()
                 elif self._check_incoming_primitive():
                     pass
-                elif self._is_artim_expired():
+
+                if self._is_artim_expired():
                     self._kill_thread = True
 
             except:
@@ -394,7 +395,6 @@ class DULServiceProvider(Thread):
             True if the ARTIM timer has expired, False otherwise
         """
         if self.artim_timer.is_expired:
-            #LOGGER.debug('%s: timer expired' % (self.name))
             self.event_queue.put('Evt18')
             return True
 
@@ -408,18 +408,31 @@ class DULServiceProvider(Thread):
         bool
             True if an event has been added, False otherwise
         """
-        # Sta13 is waiting for the transport connection to close
+        # Sta13: waiting for the transport connection to close
+        # however it may still receive data that needs to be acted on
         if self.state_machine.current_state == 'Sta13':
             # If we have no connection to the SCU
             if self.scu_socket is None:
                 return False
 
-            # Still data available -> make sure this is non-blocking
-            if select.select([self.scu_socket], [], [], 0)[0]:
+            # Check to see if there's more data to be read
+            #   Might be any incoming PDU
+            # Make sure our check of the socket is non-blocking!
+            try:
+                ready, _, _ = select.select([self.scu_socket], [], [], 0)
+            except (socket.error, ValueError):
+                return False
+
+            if ready:
+                # Data still available, grab it
+                self._check_incoming_pdu()
                 return True
+            else:
+                return False
 
             # Once we have no more incoming data close the socket and
             #   add the corresponding event to the queue
+            self.scu_socket.shutdown(socket.SHUT_RDWR)
             self.scu_socket.close()
             self.scu_socket = None
 

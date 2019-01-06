@@ -131,5 +131,4 @@ class TestDecodeFailure(object):
     def test_failure(self):
         bytestream = BytesIO(b'\x08\x00\x01\x00\x04\x00\x00\x00\x00\x08\x00\x49')
         with pytest.raises(NotImplementedError):
-            ds = decode(bytestream, False, True)
-            print(ds)
+            print(decode(bytestream, False, True))

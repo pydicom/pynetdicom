@@ -451,6 +451,9 @@ class Association(threading.Thread):
                     # FIXME: C-CANCEL requests are not being handled correctly
                     #   need a way to identify which service it belongs to
                     #   or maybe just call the callback now?
+                    LOGGER.warning(
+                        "C-CANCEL requests are not implemented"
+                    )
                     self.abort()
                     return
 
@@ -474,6 +477,10 @@ class Association(threading.Thread):
                             service_class.SCP(msg, context, info)
                         except NotImplementedError:
                             # SCP isn't implemented
+                            LOGGER.warning(
+                                "No service class implementation for '{}'"
+                                .format(context.abstract_syntax)
+                            )
                             self.abort()
                             return
                         break
@@ -512,13 +519,14 @@ class Association(threading.Thread):
 
             # Check if idle timer has expired
             if self.dul.idle_timer_expired():
+                LOGGER.debug("DUL timeout expired")
                 self.abort()
 
     def _run_as_requestor(self):
         """Run the association as the requestor."""
         # Listen for further messages from the peer
         while not self._kill:
-            time.sleep(0.01)
+            time.sleep(0.1)
 
             # Check for release request
             if self.acse.is_release_requested(self):
@@ -1026,8 +1034,9 @@ class Association(threading.Thread):
                 self.abort()
                 return
             elif not rsp.is_valid_response:
-                LOGGER.error('Received an invalid C-FIND response from ' \
-                             'the peer')
+                LOGGER.error(
+                    'Received an invalid C-FIND response from the peer'
+                )
                 self.abort()
                 return
 

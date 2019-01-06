@@ -89,6 +89,10 @@ class DummyBaseSCP(threading.Thread):
         self.ae.on_n_create = self.on_n_create
         self.ae.on_n_delete = self.on_n_delete
 
+        self.ae.acse_timeout = 5
+        self.ae.dimse_timeout = 5
+        self.ae_network_timeout = 5
+
         self.implementation_class_uid = '1.2'
 
         self.send_abort = False
