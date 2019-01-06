@@ -241,6 +241,7 @@ class DIMSEMessage(object):
         * DICOM Standard, Part 8, Annex E
         """
         # Make sure this is a P-DATA primitive
+        print('Got primitive', primitive)
         if primitive.__class__ != P_DATA or primitive is None:
             return False
 
@@ -269,7 +270,7 @@ class DIMSEMessage(object):
             control_header_byte = ord(data[:1])
 
             # LOGGER.debug('Control header byte %s', control_header_byte)
-            #print('Control header byte {}'.format(control_header_byte))
+            print('Control header byte {}'.format(control_header_byte))
 
             # COMMAND SET
             # P-DATA fragment contains Command Set information

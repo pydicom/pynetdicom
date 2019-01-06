@@ -20,6 +20,7 @@ from pynetdicom import (
 )
 from pynetdicom.acse import ACSE
 from pynetdicom.association import Association, ServiceUser
+from pynetdicom.dimse_messages import DIMSEMessage, C_ECHO_RQ, C_ECHO_RSP
 from pynetdicom.pdu_primitives import (
     A_ASSOCIATE, A_RELEASE, A_ABORT, A_P_ABORT,
     MaximumLengthNotification,
@@ -31,11 +32,13 @@ from pynetdicom.pdu_primitives import (
     AsynchronousOperationsWindowNegotiation,
     SCP_SCU_RoleSelectionNegotiation,
 )
+from pynetdicom.pdu import P_DATA_TF
 from pynetdicom.sop_class import VerificationSOPClass
 
 from .dummy_c_scp import DummyVerificationSCP, DummyBaseSCP
 from .encoded_pdu_items import (
     a_associate_rq, a_associate_ac, a_release_rq, a_release_rp, p_data_tf,
+    a_abort, a_p_abort,
 )
 
 
@@ -189,8 +192,7 @@ class TestNegotiationRequestor(object):
                 thread.abort()
                 thread.stop()
 
-    @pytest.mark.skipif(sys.version_info[:2] == (3, 4),
-                    reason='pytest missing caplog')
+    @pytest.mark.skipif(sys.version_info[:2] == (3, 4), reason='no caplog')
     def test_no_requested_cx(self, caplog):
         """Test error logged if no requested contexts."""
         ae = AE()
@@ -1862,7 +1864,7 @@ class SmallReleaseCollider(threading.Thread):
             if data_to_send:
                 conn.send(data_to_send)
 
-            ready, _, _ = select.select([conn], [], [], 0.5)
+            ready, _, _ = select.select([conn], [], [], 0.1)
 
             if ready:
                 try:
@@ -1886,24 +1888,23 @@ class SmallReleaseCollider(threading.Thread):
             try:
                 peek = self.queue.queue[0]
             except:
-                pass
+                return
 
-            if peek:
+            if peek is not None:
                 data_to_send = self.queue.get()
-                print('Sending', data_to_send)
-                conn.send(data_to_send)
+                if isinstance(data_to_send, list):
+                    for item in data_to_send:
+                        conn.send(item)
+                else:
+                    conn.send(data_to_send)
             else:
                 continue
 
             ready, _, _ = select.select([conn], [], [], 0.5)
 
             if ready:
-                #try:
-                    data_received = self.read_stream(conn)
-                    print('Received', data_received)
-                    self.received.append(data_received)
-                #except:
-                #    return
+                data_received = self.read_stream(conn)
+                self.received.append(data_received)
 
     def read_stream(self, sock):
         bytestream = bytes()
@@ -1968,8 +1969,8 @@ class SmallReleaseCollider(threading.Thread):
         self._kill = True
 
 
-class TestCollision(object):
-    """Tests for A-RELEASE collisions."""
+class TestNegotiateRelease(object):
+    """Tests for ACSE.negotiate_release."""
     def setup(self):
         """Run prior to each test"""
         self.scp = None
@@ -1982,89 +1983,201 @@ class TestCollision(object):
         time.sleep(0.1)
 
         for thread in threading.enumerate():
-            if isinstance(thread, DummyBaseSCP):
-                thread.abort()
+            if isinstance(thread, (DummyBaseSCP, SmallReleaseCollider)):
+                try:
+                    thread.abort()
+                except:
+                    pass
                 thread.stop()
 
-    def test_collision_requestor(self):
+    @pytest.mark.skipif(sys.version_info[:2] == (3, 4), reason='no caplog')
+    def test_collision_requestor(self, caplog):
         """Test a simulated A-RELEASE collision on the requestor side."""
+        with caplog.at_level(logging.DEBUG, logger='pynetdicom'):
+            scp = SmallReleaseCollider()
+            scp.mode = 'acceptor'
+            scp_messages = [None, a_associate_ac, a_release_rq, a_release_rp]
+            for item in scp_messages:
+                scp.queue.put(item)
+            scp.start()
 
+            ae = AE()
+            ae.add_requested_context(VerificationSOPClass)
+            assoc = ae.associate('localhost', 11112)
+            assert assoc.is_established
+            assoc.release()
+            assert assoc.is_released
+            assert not assoc.is_established
+
+            scp.stop()
+
+            assert scp.received[1] == a_release_rq
+            assert scp.received[2] == a_release_rp
+
+            assert "An A-RELEASE collision has occurred" in caplog.text
+
+    def test_release_no_response(self):
+        """Test a simulated A-RELEASE collision on the requestor side."""
         scp = SmallReleaseCollider()
         scp.mode = 'acceptor'
-        scp_messages = [None, a_associate_ac, a_release_rq, a_release_rp]
+        scp_messages = [None, a_associate_ac]
         for item in scp_messages:
             scp.queue.put(item)
         scp.start()
 
         ae = AE()
+        ae.acse_timeout = 2
         ae.add_requested_context(VerificationSOPClass)
         assoc = ae.associate('localhost', 11112)
         assert assoc.is_established
         assoc.release()
-        assert assoc.is_released
+        assert assoc.is_aborted
         assert not assoc.is_established
+
+        scp.queue.put(None)
+        time.sleep(0.5)
+
+        assert scp.received[1] == a_release_rq
+        assert scp.received[2] == a_p_abort[:-1] + b'\x00'
 
         scp.stop()
 
-    def test_collision_acceptor(self):
+    @pytest.mark.skipif(sys.version_info[:2] == (3, 4), reason='no caplog')
+    def test_release_p_data(self, caplog):
+        """Test a receiving P-DATA-TF after release."""
+        with caplog.at_level(logging.WARNING, logger='pynetdicom'):
+            scp = SmallReleaseCollider()
+            scp.mode = 'acceptor'
+            scp_messages = [None, a_associate_ac, p_data_tf, a_release_rp]
+            for item in scp_messages:
+                scp.queue.put(item)
+            scp.start()
+
+            ae = AE()
+            ae.acse_timeout = 2
+            ae.add_requested_context(VerificationSOPClass)
+            assoc = ae.associate('localhost', 11112)
+            assert assoc.is_established
+            assoc.release()
+            assert assoc.is_released
+            assert not assoc.is_established
+
+            assert scp.received[1] == a_release_rq
+
+            scp.stop()
+
+            assert (
+                "P-DATA received after Association release, data has been lost"
+            ) in caplog.text
+
+    @pytest.mark.skipif(sys.version_info[:2] == (3, 4), reason='no caplog')
+    def test_collision_acceptor(self, caplog):
         """Test a simulated A-RELEASE collision on the acceptor side."""
         # Listening on port 11112
-        def on_c_echo(cx, info):
-            assoc = self.scp.ae.active_associations[0]
+        with caplog.at_level(logging.DEBUG, logger='pynetdicom'):
+            def on_c_echo(cx, info):
+                assoc = self.scp.ae.active_associations[0]
+                assoc.release()
+                return 0x0000
+
+            self.scp = DummyVerificationSCP()
+            self.scp.ae.acse_timeout = 5
+            self.scp.ae.on_c_echo = on_c_echo
+            self.scp.start()
+
+            # C-ECHO-RQ
+            # 80 total length
+            p_data_tf = (
+                b"\x04\x00\x00\x00\x00\x4a" # P-DATA-TF 74
+                b"\x00\x00\x00\x46\x01" # PDV Item 70
+                b"\x03"  # PDV: 2 -> 69
+                b"\x00\x00\x00\x00\x04\x00\x00\x00\x42\x00\x00\x00"  # 12 Command Group Length
+                b"\x00\x00\x02\x00\x12\x00\x00\x00\x31\x2e\x32\x2e\x38\x34\x30\x2e\x31\x30\x30\x30\x38\x2e\x31\x2e\x31\x00"  # 26
+                b"\x00\x00\x00\x01\x02\x00\x00\x00\x30\x00"  # 10 Command Field
+                b"\x00\x00\x10\x01\x02\x00\x00\x00\x01\x00"  # 10 Message ID
+                b"\x00\x00\x00\x08\x02\x00\x00\x00\x01\x01"  # 10 Command Data Set Type
+            )
+
+            scu = SmallReleaseCollider()
+            scu.mode = 'requestor'
+            scu.address = 'localhost'
+            scu.local_port = 0
+            scu.remote_port = 11112
+            scu.queue.put(a_associate_rq)
+            scu.queue.put(p_data_tf)
+            scu.queue.put([a_release_rq, a_release_rp])
+
+            scu.start()
+            # Magic happens here, check it afterwards
+            time.sleep(0.5)
+
+            scu._kill = True
+            scu.queue.put(None)
+            scu.stop()
+
+            time.sleep(0.1)
+
+            self.scp.stop()
+
+            # A-ASSOCIATE-RQ
+            assert scu.received[1] == (
+                b'\x05\x00\x00\x00\x00\x04\x00\x00\x00\x00'
+            )
+            # A-ASSOCIATE-RP
+            assert scu.received[2] == (
+                b'\x06\x00\x00\x00\x00\x04\x00\x00\x00\x00'
+            )
+
+            assert "An A-RELEASE collision has occurred" in caplog.text
+
+    @pytest.mark.skipif(sys.version_info[:2] == (3, 4), reason='no caplog')
+    def test_collision_requestor_abort(self, caplog):
+        """Test a simulated A-RELEASE collision on the requestor side."""
+        with caplog.at_level(logging.DEBUG, logger='pynetdicom'):
+            scp = SmallReleaseCollider()
+            scp.mode = 'acceptor'
+            scp_messages = [None, a_associate_ac, a_release_rq, a_abort]
+            for item in scp_messages:
+                scp.queue.put(item)
+            scp.start()
+
+            ae = AE()
+            ae.add_requested_context(VerificationSOPClass)
+            assoc = ae.associate('localhost', 11112)
+            assert assoc.is_established
             assoc.release()
-            return 0x0000
+            assert assoc.is_aborted
+            assert not assoc.is_established
 
-        self.scp = DummyVerificationSCP()
-        self.scp.ae.acse_timeout = 5
-        self.scp.ae.on_c_echo = on_c_echo
-        self.scp.start()
+            scp.stop()
 
-        scu = SmallReleaseCollider()
-        scu.mode = 'requestor'
-        scu.address = 'localhost'
-        scu.local_port = 0
-        scu.remote_port = 11112
-        scu.queue.put(a_associate_rq)
-        scu.queue.put(p_data_tf)
-        #scu.queue.put(None)
-        scu.queue.put(a_release_rq)
-        scu.queue.put(a_release_rp)
+            assert scp.received[1] == a_release_rq
+            assert scp.received[2] == a_release_rp
 
-        scu.start()
-        # Magic happens here, check it afterwards
-        scu.stop()
+            assert "An A-RELEASE collision has occurred" in caplog.text
 
-        self.scp.stop()
+    @pytest.mark.skipif(sys.version_info[:2] == (3, 4), reason='no caplog')
+    def test_collision_requestor_ap_abort(self, caplog):
+        """Test a simulated A-RELEASE collision on the requestor side."""
+        with caplog.at_level(logging.DEBUG, logger='pynetdicom'):
+            scp = SmallReleaseCollider()
+            scp.mode = 'acceptor'
+            scp_messages = [None, a_associate_ac, a_release_rq, a_p_abort]
+            for item in scp_messages:
+                scp.queue.put(item)
+            scp.start()
 
-        # A-ASSOCIATE-RQ
-        assert scu.received[1] == b'\x05\x00\x00\x00\x00\x04\x00\x00\x00\x00'
-        # A-ASSOCIATE-RP
-        assert scu.received[2] == b'\x06\x00\x00\x00\x00\x04\x00\x00\x00\x00'
-
-    def test_collision_acceptor_abort(self):
-        """Test a simulated A-RELEASE collision on the acceptor side."""
-        # Listening on port 11112
-        def on_c_echo(cx, info):
-            assoc = self.scp.ae.active_associations[0]
+            ae = AE()
+            ae.add_requested_context(VerificationSOPClass)
+            assoc = ae.associate('localhost', 11112)
+            assert assoc.is_established
             assoc.release()
-            return 0x0000
+            assert assoc.is_aborted
+            assert not assoc.is_established
 
-        self.scp = DummyVerificationSCP()
-        self.scp.ae.acse_timeout = 5
-        self.scp.ae.on_c_echo = on_c_echo
-        self.scp.start()
+            scp.stop()
 
-        scu = SmallReleaseCollider()
-        scu.mode = 'requestor'
-        scu.address = 'localhost'
-        scu.local_port = 0
-        scu.remote_port = 11112
-        scu.queue.put(a_associate_rq)
-        scu.queue.put(p_data_tf)
-        scu.queue.put(None)
-        scu.queue.put(a_release_rq)
-        scu.queue.put(a_release_rp)
-        scu.start()
+            assert scp.received[1] == a_release_rq
+            assert scp.received[2] == a_release_rp
 
-        scu.stop()
-        self.scp.stop()
+            assert "An A-RELEASE collision has occurred" in caplog.text

@@ -305,7 +305,7 @@ class Association(threading.Thread):
         self._kill = True
         self.is_established = False
         while not self.dul.stop_dul():
-            time.sleep(0.001)
+            time.sleep(0.01)
 
         self.ae.cleanup_associations()
 
@@ -531,8 +531,6 @@ class Association(threading.Thread):
                 self.debug_association_released()
                 self.kill()
                 return
-
-            #print('Release not requested!')
 
             # Check for abort
             if self.acse.is_aborted(self):

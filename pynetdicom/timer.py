@@ -86,7 +86,7 @@ class Timer(object):
 
         Returns -1 if the timer is set to unlimited timeout.
         """
-        if self._start_time is None:
+        if self._start_time is None or self.timeout_seconds is None:
             if self.timeout_seconds is None:
                 return -1
 

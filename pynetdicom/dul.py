@@ -236,8 +236,8 @@ class DULServiceProvider(Thread):
         # Main DUL loop
         if self._idle_timer is not None:
             self._idle_timer.start()
-        while True:
 
+        while True:
             # This effectively controls how often the DUL checks the network
             time.sleep(self._run_loop_delay)
 
@@ -414,15 +414,9 @@ class DULServiceProvider(Thread):
             if self.scu_socket is None:
                 return False
 
-            # If we are still connected to the SCU
-            try:
-                # socket.Socket().recv(bufsize)
-                # If we are still receiving data from the socket
-                #   wait until its done
-                while self.scu_socket.recv(1) != b'':
-                    continue
-            except socket.error:
-                return False
+            # Still data available -> make sure this is non-blocking
+            if select.select([self.scu_socket], [], [], 0)[0]:
+                return True
 
             # Once we have no more incoming data close the socket and
             #   add the corresponding event to the queue
@@ -470,8 +464,7 @@ class DULServiceProvider(Thread):
                 self._check_incoming_pdu()
                 return True
 
-        else:
-            return False
+        return False
 
     @staticmethod
     def _pdu_to_event(pdu):

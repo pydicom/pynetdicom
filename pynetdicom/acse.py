@@ -481,7 +481,7 @@ class ACSE(object):
                 else:
                     assoc.is_established = True
 
-            elif rsp.result in [0x01, 0x02]:
+            elif hasattr(rsp, 'result') and rsp.result in [0x01, 0x02]:
                 # 0x01 is rejected (permanent)
                 # 0x02 is rejected (transient)
                 assoc.ae.on_association_rejected(rsp)
@@ -490,15 +490,9 @@ class ACSE(object):
                 assoc.is_established = False
                 assoc.dul.kill_dul()
             else:
-                msg = (
-                    "Received an invalid A-ASSOCIATE 'Result' value from "
-                    "the peer: "
+                LOGGER.error(
+                    "Received an invalid A-ASSOCIATE response from the peer"
                 )
-                if rsp.result:
-                    msg += "'0x{:02x}'".format(rsp.result)
-                else:
-                    msg += "(none)"
-                LOGGER.error(msg)
                 self.send_abort(assoc, 0x02)
                 assoc.is_aborted = True
                 assoc.is_established = False

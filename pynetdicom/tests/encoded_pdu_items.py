@@ -312,6 +312,21 @@ a_p_abort = b"\x07\x00\x00\x00\x00\x04\x00\x00\x02\x04"
 #       \x2e\x31\x2e\x31\x00\x00\x00\x00\x01\x02\x00\x00\x00\x30\x80\x00\x00
 #       \x20\x01\x02\x00\x00\x00\x01\x00\x00\x00\x00\x08\x02\x00\x00\x00\x01
 #       \x01\x00\x00\x00\x09\x02\x00\x00\x00\x00\x00
+# P-DATA
+# PDU type: 04
+# Reserved: 00
+# PDU Length: 00 00 00 54 (84)
+# PDU Items:
+#   Item length: 00 00 00 50 (80)
+#   Context ID: 01
+#   PDV:
+#       03 - Command information, last fragment
+#       00 00 00 00 | 04 00 00 00 | 42 00  - Command Group Length (66)
+#       00 00 02 00 | 12 00 00 00 | 31 2e ... 31 00- Affected SOP Class UID
+#       00 00 00 01 | 02 00 00 00 | 30 80 - Command Field (32816)
+#       00 00 20 01 | 02 00 00 00 | - MessageIDBeingRespondedTo (1)
+#       00 00 00 08 |             | - Command Data Set Type (257)
+#       00 00 00 09 | - Status (0)
 p_data_tf = b"\x04\x00\x00\x00\x00\x54\x00\x00\x00\x50\x01\x03\x00\x00\x00" \
             b"\x00\x04\x00\x00\x00\x42\x00\x00\x00\x00\x00\x02\x00\x12\x00" \
             b"\x00\x00\x31\x2e\x32\x2e\x38\x34\x30\x2e\x31\x30\x30\x30\x38" \

@@ -78,6 +78,7 @@ class StateMachine(object):
                          "to perform the action '%s' while in state '%s'",
                          action_name, self.current_state)
             LOGGER.exception(exc)
+            print('excepted fsm')
             self.dul.kill_dul()
             raise
 
@@ -821,6 +822,7 @@ def AA_1(dul):
     dul.assoc.acse.debug_send_abort(dul.pdu)
 
     dul.scu_socket.send(dul.pdu.encode())
+    dul.artim_timer.timeout_seconds = dul.assoc.acse_timeout
     dul.artim_timer.restart()
 
     return 'Sta13'
