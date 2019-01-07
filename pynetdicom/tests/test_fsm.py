@@ -108,6 +108,7 @@ class DummyAE(threading.Thread):
         self.remote_port = None
         self.received = []
         self.mode = 'requestor'
+        self.wait_after_connect = False
         self.disconnect_after_connect = False
         self._step = 0
         self._event = threading.Event()
@@ -170,6 +171,9 @@ class DummyAE(threading.Thread):
                 sock.close()
                 return
 
+            if self.wait_after_connect:
+                time.sleep(0.5)
+
             if ready:
                 conn, _ = sock.accept()
                 break
@@ -186,6 +190,14 @@ class DummyAE(threading.Thread):
             elif to_send is not None:
                 # item or [item, item]
                 if isinstance(to_send, list):
+                    if to_send[0] == 'wait':
+                        time.sleep(to_send[1])
+                        if len(to_send) == 3:
+                            self.sock.shutdown(socket.SHUT_RDWR)
+                            self.sock.close()
+                            self._kill = True
+                            return
+                        continue
                     for item in to_send:
                         if item == 'shutdown':
                             self.sock.shutdown(socket.SHUT_RDWR)
@@ -388,10 +400,10 @@ class TestStateMachine(object):
             fsm.current_state = state
 
             msg = msg = (
-                r"DUL State Machine received an invalid event '{}' for the "
-                r"current state '{}'".format(event, state)
+                r"Invalid event '{}' for the current state '{}'"
+                .format(event, state)
             )
-            with pytest.raises(KeyError, match=msg):
+            with pytest.raises(InvalidEventError, match=msg):
                 fsm.do_action(event)
 
     @pytest.mark.parametrize("event, states", REFERENCE_GOOD_EVENTS)
@@ -416,8 +428,8 @@ class TestStateMachine(object):
             assert fsm.current_state == state
 
 
-class TestState01(object):
-    """Tests for State 01."""
+class TestStateBase(object):
+    """Base class for State tests."""
     def setup(self):
         ae = AE()
         ae.add_requested_context(VerificationSOPClass)
@@ -565,6 +577,9 @@ class TestState01(object):
 
         return fsm
 
+
+class TestState01(TestStateBase):
+    """Tests for State 01: Idle."""
     def test_evt01(self):
         """Test Sta1 + Evt1."""
         # Sta1 + Evt1 -> AE-1 -> Sta4
@@ -587,8 +602,6 @@ class TestState01(object):
 
         assert self.assoc.is_aborted
 
-        #print(self.fsm._transitions)
-        #print(self.fsm._changes)
         assert self.fsm._transitions == [
             'Sta4',  # Waiting for connection to complete
             'Sta5',  # Waiting for A-ASSOC-AC or -RJ PDU
@@ -602,11 +615,6 @@ class TestState01(object):
         ]
 
         assert self.fsm._events[0] == 'Evt1'
-
-        #assert self.fsm.current_state == 'Sta1'
-        # Test socket is closed
-        #with pytest.raises(OSError, match=r"Bad file descriptor"):
-        #    self.assoc.dul.scu_socket.send(b'\x00')
 
     @pytest.mark.skip()
     def test_evt02(self):
@@ -1111,15 +1119,52 @@ class TestState01(object):
         assert self.fsm.current_state == 'Sta1'
 
 
-class TestState02(object):
-    """Tests for State 02."""
+@pytest.mark.skip("Need a TRANSPORT_OPEN indication")
+class TestState02(TestStateBase):
+    """Tests for State 02: Connection open, waiting for A-ASSOCIATE-RQ."""
+    @pytest.mark.skip()
     def test_evt01(self):
+        """Test Sta2 + Evt1."""
         # Sta2 + Evt1 -> <ignore> -> Sta2
         # Sta2: Connection open, awaiting A-ASSOCIATE-RQ from <remote>
         # Evt1: A-ASSOCIATE (rq) primitive from <local user>
         # Sta2: Connection open, awaiting A-ASSOCIATE-RQ from <remote>
-        pass
+        scp = DummyAE()
+        scp.remote_port = 11112
+        scp.address = ''
 
+        assert self.fsm.current_state == 'Sta1'
+        assert self.assoc.dul.scu_socket is None
+
+        self.assoc._mode = 'acceptor'
+        listen_socket = scp.bind_socket()
+
+        send_socket = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
+        send_socket.connect(('localhost', 11112))
+        #send_socket.send(p_data_tf)
+
+        ready, _, _ = select.select([listen_socket], [], [], 0.5)
+        if ready:
+            self.assoc.dul.scu_socket, _ = listen_socket.accept()
+
+        self.assoc.start()
+
+        self.fsm.current_state = 'Sta2'
+        assert self.fsm.current_state == 'Sta2'
+        self.assoc.dul.send_pdu(self.get_associate('request'))
+
+        time.sleep(0.1)
+
+        assert self.fsm._transitions == []
+        assert self.fsm._changes == []
+        #assert self.fsm._events == ['Evt5', 'Evt1']
+        assert self.fsm._events == ['Evt1']
+        assert self.fsm.current_state == 'Sta2'
+
+        self.fsm.current_state == 'Sta1'
+        self.assoc.kill()
+
+    @pytest.mark.skip()
     def test_evt02(self):
         # Sta2 + Evt2 -> <ignore> -> Sta2
         # Sta2: Connection open, awaiting A-ASSOCIATE-RQ from <remote>
@@ -1134,7 +1179,35 @@ class TestState02(object):
         # AA-1: Send A-ABORT PDU from <local service> to <remote>
         #       Restart ARTIM
         # Sta13: Awaiting TRANSPORT_CLOSE from <transport service>
-        pass
+        scp = DummyAE()
+        scp.remote_port = 11112
+        scp.address = ''
+
+        assert self.fsm.current_state == 'Sta1'
+        assert self.assoc.dul.scu_socket is None
+
+        self.assoc._mode = 'acceptor'
+        listen_socket = scp.bind_socket()
+
+        send_socket = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
+        send_socket.connect(('localhost', 11112))
+        send_socket.send(b'')
+
+        ready, _, _ = select.select([listen_socket], [], [], 0.5)
+        if ready:
+            self.assoc.dul.scu_socket, _ = listen_socket.accept()
+
+        self.assoc.start()
+
+        time.sleep(0.1)
+
+        self.assoc.kill()
+
+        assert self.fsm._transitions == []
+        assert self.fsm._changes == []
+        print(self.fsm.current_state)
+        # Evt5 is not recorded as a unique event
+        assert self.fsm._events == ['Evt3']
 
     def test_evt04(self):
         # Sta2 + Evt4 -> AA-1 -> Sta13
@@ -1143,7 +1216,34 @@ class TestState02(object):
         # AA-1: Send A-ABORT PDU from <local service> to <remote>
         #       Restart ARTIM
         # Sta13: Awaiting TRANSPORT_CLOSE from <transport service>
-        pass
+        scp = DummyAE()
+        scp.remote_port = 11112
+        scp.address = ''
+
+        assert self.fsm.current_state == 'Sta1'
+        assert self.assoc.dul.scu_socket is None
+
+        self.assoc._mode = 'acceptor'
+        listen_socket = scp.bind_socket()
+
+        send_socket = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
+        send_socket.connect(('localhost', 11112))
+        send_socket.send(a_associate_ac)
+
+        ready, _, _ = select.select([listen_socket], [], [], 0.5)
+        if ready:
+            self.assoc.dul.scu_socket, _ = listen_socket.accept()
+
+        self.assoc.start()
+
+        time.sleep(0.1)
+
+        self.assoc.kill()
+
+        assert self.fsm._transitions == []
+        assert self.fsm._changes == []
+        # Evt5 is not recorded as a unique event
+        assert self.fsm._events == ['Evt3']
 
     def test_evt05(self):
         # Sta2 + Evt5 -> <ignore> -> Sta2
@@ -1269,6 +1369,1553 @@ class TestState02(object):
         #       Restart ARTIM
         # Sta13: Awaiting TRANSPORT_CLOSE from <transport service>
         pass
+
+
+@pytest.mark.skip("Need a way to put the DUL in State 3")
+class TestState03(TestStateBase):
+    """Tests for State 03: Awaiting A-ASSOCIATE (rsp) primitive."""
+    def test_evt01(self):
+        """Test Sta3 + Evt1."""
+        # Sta3 + Evt1 -> <ignore> -> Sta3
+        # Sta3: Awaiting A-ASSOCIATE (rsp) primitive from <local user>
+        # Evt1: A-ASSOCIATE (rq) primitive from <local user>
+        # Sta3: Awaiting A-ASSOCIATE (rsp) primitive  <local user>
+        pass
+
+    @pytest.mark.skip()
+    def test_evt02(self):
+        """Test Sta1 + Evt2."""
+        # Sta1 + Evt2 -> <ignore> -> Sta1
+        # Sta1: Idle
+        # Evt2: Receive TRANSPORT_OPEN from <transport service>
+        # Sta1: Idle
+        pass
+
+    def test_evt03(self):
+        """Test Sta1 + Evt3."""
+        # Sta1 + Evt3 -> <ignore> -> Sta1
+        # Sta1: Idle
+        # Evt3: Receive A-ASSOCIATE-AC PDU from <remote>
+        # Sta1: Idle
+        scp = DummyAE()
+        scp.remote_port = 11112
+        scp.address = ''
+
+        assert self.fsm.current_state == 'Sta1'
+        assert self.assoc.dul.scu_socket is None
+
+        self.assoc._mode = 'acceptor'
+        listen_socket = scp.bind_socket()
+
+        send_socket = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
+        send_socket.connect(('localhost', 11112))
+        send_socket.send(a_associate_ac)
+
+        ready, _, _ = select.select([listen_socket], [], [], 0.5)
+        if ready:
+            self.assoc.dul.scu_socket, _ = listen_socket.accept()
+
+        self.assoc.start()
+
+        time.sleep(0.1)
+
+        self.assoc.kill()
+
+        assert self.fsm._transitions == []
+        assert self.fsm._changes == []
+        assert self.fsm._events[0] == 'Evt3'
+        assert self.fsm.current_state == 'Sta1'
+
+    def test_evt04(self):
+        """Test Sta1 + Evt4."""
+        # Sta1 + Evt4 -> <ignore> -> Sta1
+        # Sta1: Idle
+        # Evt4: Receive A-ASSOCIATE-RJ PDU from <remote>
+        # Sta1: Idle
+        scp = DummyAE()
+        scp.remote_port = 11112
+        scp.address = ''
+
+        assert self.fsm.current_state == 'Sta1'
+        assert self.assoc.dul.scu_socket is None
+
+        self.assoc._mode = 'acceptor'
+        listen_socket = scp.bind_socket()
+
+        send_socket = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
+        send_socket.connect(('localhost', 11112))
+        send_socket.send(a_associate_rj)
+
+        ready, _, _ = select.select([listen_socket], [], [], 0.5)
+        if ready:
+            self.assoc.dul.scu_socket, _ = listen_socket.accept()
+
+        self.assoc.start()
+
+        time.sleep(0.1)
+
+        self.assoc.kill()
+
+        assert self.fsm._transitions == []
+        assert self.fsm._changes == []
+        assert self.fsm._events[0] == 'Evt4'
+        assert self.fsm.current_state == 'Sta1'
+
+    @pytest.mark.skip()
+    def test_evt05(self):
+        """Test Sta1 + Evt5."""
+        # Sta1 + Evt5 -> AE-5 -> Sta2
+        # Sta1: Idle
+        # Evt5: Receive TRANSPORT_INDICATION from <transport service>
+        # AE-5: Issue TRANSPORT_RESPONSE to <transport service>
+        #       Start ARTIM timer
+        # Sta2: Connection open, awaiting A-ASSOCIATE-RQ from <remote>
+        scp = DummyAE()
+        scp.remote_port = 11112
+        scp.address = ''
+
+        assert self.fsm.current_state == 'Sta1'
+        assert self.assoc.dul.scu_socket is None
+
+        self.assoc._mode = 'acceptor'
+        listen_socket = scp.bind_socket()
+
+        send_socket = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
+        send_socket.connect(('localhost', 11112))
+        #send_socket.send(a_associate_rj)
+
+        ready, _, _ = select.select([listen_socket], [], [], 0.5)
+        if ready:
+            self.assoc.dul.scu_socket, _ = listen_socket.accept()
+
+        self.assoc.start()
+
+        time.sleep(0.1)
+
+        self.assoc.kill()
+
+        assert self.fsm._transitions == []
+        assert self.fsm._changes == []
+        assert self.fsm._events[0] == 'Evt5'
+        assert self.fsm.current_state == 'Sta1'
+
+    def test_evt06(self):
+        """Test Sta1 + Evt6."""
+        # Sta1 + Evt6 -> <ignore> -> Sta1
+        # Sta1: Idle
+        # Evt6: Receive A-ASSOCIATE-RQ PDU from <remote>
+        # Sta1: Idle
+        scp = DummyAE()
+        scp.remote_port = 11112
+        scp.address = ''
+
+        assert self.fsm.current_state == 'Sta1'
+        assert self.assoc.dul.scu_socket is None
+
+        self.assoc._mode = 'acceptor'
+        listen_socket = scp.bind_socket()
+
+        send_socket = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
+        send_socket.connect(('localhost', 11112))
+        send_socket.send(a_associate_rq)
+
+        ready, _, _ = select.select([listen_socket], [], [], 0.5)
+        if ready:
+            self.assoc.dul.scu_socket, _ = listen_socket.accept()
+
+        self.assoc.start()
+
+        time.sleep(0.1)
+
+        self.assoc.kill()
+
+        assert self.fsm._transitions == []
+        assert self.fsm._changes == []
+        assert self.fsm._events[0] == 'Evt6'
+        assert self.fsm.current_state == 'Sta1'
+
+    def test_evt07(self):
+        """Test Sta1 + Evt7."""
+        # Sta1 + Evt7 -> <ignore> -> Sta1
+        # Sta1: Idle
+        # Evt7: Receive A-ASSOCIATE (accept) primitive from <local user>
+        # Sta1: Idle
+        self.assoc._mode = "acceptor"
+        self.assoc.start()
+
+        self.assoc.dul.send_pdu(self.get_associate('accept'))
+
+        time.sleep(0.1)
+
+        self.assoc.kill()
+
+        assert self.fsm._transitions == []
+        assert self.fsm._changes == []
+        assert self.fsm._events[0] == 'Evt7'
+        assert self.fsm.current_state == 'Sta1'
+
+    def test_evt08(self):
+        """Test Sta1 + Evt8."""
+        # Sta1 + Evt8 -> <ignore> -> Sta1
+        # Sta1: Idle
+        # Evt8: Receive A-ASSOCIATE (reject) primitive from <local user>
+        # Sta1: Idle
+        self.assoc._mode = "acceptor"
+        self.assoc.start()
+
+        self.assoc.dul.send_pdu(self.get_associate('reject'))
+
+        time.sleep(0.1)
+
+        self.assoc.kill()
+
+        assert self.fsm._transitions == []
+        assert self.fsm._changes == []
+        assert self.fsm._events[0] == 'Evt8'
+        assert self.fsm.current_state == 'Sta1'
+
+    def test_evt09(self):
+        """Test Sta1 + Evt9."""
+        # Sta1 + Evt9 -> <ignore> -> Sta1
+        # Sta1: Idle
+        # Evt9: Receive P-DATA primitive from <local user>
+        # Sta1: Idle
+        self.assoc._mode = "acceptor"
+        self.assoc.start()
+
+        self.assoc.dul.send_pdu(self.get_pdata())
+
+        time.sleep(0.1)
+
+        self.assoc.kill()
+
+        assert self.fsm._transitions == []
+        assert self.fsm._changes == []
+        assert self.fsm._events[0] == 'Evt9'
+        assert self.fsm.current_state == 'Sta1'
+
+    def test_evt10(self):
+        """Test Sta1 + Evt10."""
+        # Sta1 + Evt10 -> <ignore> -> Sta1
+        # Sta1: Idle
+        # Evt10: Receive P-DATA-TF PDU from <remote>
+        # Sta1: Idle
+        scp = DummyAE()
+        scp.remote_port = 11112
+        scp.address = ''
+
+        assert self.fsm.current_state == 'Sta1'
+        assert self.assoc.dul.scu_socket is None
+
+        self.assoc._mode = 'acceptor'
+        listen_socket = scp.bind_socket()
+
+        send_socket = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
+        send_socket.connect(('localhost', 11112))
+        send_socket.send(p_data_tf)
+
+        ready, _, _ = select.select([listen_socket], [], [], 0.5)
+        if ready:
+            self.assoc.dul.scu_socket, _ = listen_socket.accept()
+
+        self.assoc.start()
+
+        time.sleep(0.1)
+
+        self.assoc.kill()
+
+        assert self.fsm._transitions == []
+        assert self.fsm._changes == []
+        assert self.fsm._events[0] == 'Evt10'
+        assert self.fsm.current_state == 'Sta1'
+
+    def test_evt11(self):
+        """Test Sta1 + Evt11."""
+        # Sta1 + Evt11 -> <ignore> -> Sta1
+        # Sta1: Idle
+        # Evt11: Receive A-RELEASE (rq) primitive from <local user>
+        # Sta1: Idle
+        self.assoc._mode = "acceptor"
+        self.assoc.start()
+
+        self.assoc.dul.send_pdu(self.get_release(False))
+
+        time.sleep(0.1)
+
+        self.assoc.kill()
+
+        assert self.fsm._transitions == []
+        assert self.fsm._changes == []
+        assert self.fsm._events[0] == 'Evt11'
+        assert self.fsm.current_state == 'Sta1'
+
+    def test_evt12(self):
+        """Test Sta1 + Evt12."""
+        # Sta1 + Evt12 -> <ignore> -> Sta1
+        # Sta1: Idle
+        # Evt12: Receive A-RELEASE-RQ PDU from <remote>
+        # Sta1: Idle
+        scp = DummyAE()
+        scp.remote_port = 11112
+        scp.address = ''
+
+        assert self.fsm.current_state == 'Sta1'
+        assert self.assoc.dul.scu_socket is None
+
+        self.assoc._mode = 'acceptor'
+        listen_socket = scp.bind_socket()
+
+        send_socket = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
+        send_socket.connect(('localhost', 11112))
+        send_socket.send(a_release_rq)
+
+        ready, _, _ = select.select([listen_socket], [], [], 0.5)
+        if ready:
+            self.assoc.dul.scu_socket, _ = listen_socket.accept()
+
+        self.assoc.start()
+
+        time.sleep(0.1)
+
+        self.assoc.kill()
+
+        assert self.fsm._transitions == []
+        assert self.fsm._changes == []
+        assert self.fsm._events[0] == 'Evt12'
+        assert self.fsm.current_state == 'Sta1'
+
+    def test_evt13(self):
+        """Test Sta1 + Evt13."""
+        # Sta1 + Evt13 -> <ignore> -> Sta1
+        # Sta1: Idle
+        # Evt13: Receive A-RELEASE-RP PDU from <remote>
+        # Sta1: Idle
+        scp = DummyAE()
+        scp.remote_port = 11112
+        scp.address = ''
+
+        assert self.fsm.current_state == 'Sta1'
+        assert self.assoc.dul.scu_socket is None
+
+        self.assoc._mode = 'acceptor'
+        listen_socket = scp.bind_socket()
+
+        send_socket = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
+        send_socket.connect(('localhost', 11112))
+        send_socket.send(a_release_rp)
+
+        ready, _, _ = select.select([listen_socket], [], [], 0.5)
+        if ready:
+            self.assoc.dul.scu_socket, _ = listen_socket.accept()
+
+        self.assoc.start()
+
+        time.sleep(0.1)
+
+        self.assoc.kill()
+
+        assert self.fsm._transitions == []
+        assert self.fsm._changes == []
+        assert self.fsm._events[0] == 'Evt13'
+        assert self.fsm.current_state == 'Sta1'
+
+    def test_evt14(self):
+        """Test Sta1 + Evt14."""
+        # Sta1 + Evt14 -> <ignore> -> Sta1
+        # Sta1: Idle
+        # Evt14: Receive A-RELEASE (rsp) primitive from <local user>
+        # Sta1: Idle
+        self.assoc._mode = "acceptor"
+        self.assoc.start()
+
+        self.assoc.dul.send_pdu(self.get_release(True))
+
+        time.sleep(0.1)
+
+        self.assoc.kill()
+
+        assert self.fsm._transitions == []
+        assert self.fsm._changes == []
+        assert self.fsm._events[0] == 'Evt14'
+        assert self.fsm.current_state == 'Sta1'
+
+    def test_evt15(self):
+        """Test Sta1 + Evt15."""
+        # Sta1 + Evt15 -> <ignore> -> Sta1
+        # Sta1: Idle
+        # Evt15: Receive A-ABORT (rq) primitive from <local user>
+        # Sta1: Idle
+        self.assoc._mode = "acceptor"
+        self.assoc.start()
+
+        self.assoc.dul.send_pdu(self.get_abort(False))
+
+        time.sleep(0.1)
+
+        self.assoc.kill()
+
+        assert self.fsm._transitions == []
+        assert self.fsm._changes == []
+        assert self.fsm._events[0] == 'Evt15'
+        assert self.fsm.current_state == 'Sta1'
+
+    def test_evt16(self):
+        """Test Sta1 + Evt16."""
+        # Sta1 + Evt16 -> <ignore> -> Sta1
+        # Sta1: Idle
+        # Evt16: Receive A-ABORT PDU from <remote>
+        # Sta1: Idle
+        scp = DummyAE()
+        scp.remote_port = 11112
+        scp.address = ''
+
+        assert self.fsm.current_state == 'Sta1'
+        assert self.assoc.dul.scu_socket is None
+
+        self.assoc._mode = 'acceptor'
+        listen_socket = scp.bind_socket()
+
+        send_socket = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
+        send_socket.connect(('localhost', 11112))
+        send_socket.send(a_abort)
+
+        ready, _, _ = select.select([listen_socket], [], [], 0.5)
+        if ready:
+            self.assoc.dul.scu_socket, _ = listen_socket.accept()
+
+        self.assoc.start()
+
+        time.sleep(0.1)
+
+        self.assoc.kill()
+
+        assert self.fsm._transitions == []
+        assert self.fsm._changes == []
+        assert self.fsm._events[0] == 'Evt16'
+        assert self.fsm.current_state == 'Sta1'
+
+    def test_evt17(self):
+        """Test Sta1 + Evt17."""
+        # Sta1 + Evt17 -> <ignore> -> Sta1
+        # Sta1: Idle
+        # Evt17: Receive TRANSPORT_CLOSED from <transport service>
+        # Sta1: Idle
+        scp = DummyAE()
+
+        assert self.fsm.current_state == 'Sta1'
+        assert self.assoc.dul.scu_socket is None
+
+        self.assoc._mode = 'acceptor'
+        listen_socket = scp.bind_socket()
+
+        send_socket = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
+        send_socket.connect(('localhost', 11112))
+        send_socket.send(a_associate_ac)
+
+        self.assoc.dul.scu_socket = listen_socket
+        self.assoc.start()
+
+        time.sleep(0.1)
+
+        self.assoc.kill()
+
+        assert self.fsm._transitions == []
+        assert self.fsm._changes == []
+        assert self.fsm._events[0] == 'Evt17'
+        assert self.fsm.current_state == 'Sta1'
+
+    def test_evt18(self):
+        """Test Sta1 + Evt18."""
+        # Sta1 + Evt18 -> <ignore> -> Sta1
+        # Sta1: Idle
+        # Evt18: ARTIM timer expired from <local service>
+        # Sta1: Idle
+        self.assoc._mode = "acceptor"
+        self.assoc.acse_timeout = 0.05
+        self.assoc.dul.artim_timer.timeout_seconds = 0.05
+        self.assoc.dul.artim_timer.start()
+        self.assoc.start()
+
+        time.sleep(0.2)
+
+        self.assoc.kill()
+
+        assert self.assoc.dul.artim_timer.is_expired
+
+        assert self.fsm._transitions == []
+        assert self.fsm._changes == []
+        assert self.fsm._events[0] == 'Evt18'
+        assert self.fsm.current_state == 'Sta1'
+
+    def test_evt19(self):
+        """Test Sta1 + Evt19."""
+        # Sta1 + Evt19 -> <ignore> -> Sta1
+        # Sta1: Idle
+        # Evt19: Received unrecognised or invalid PDU from <remote>
+        # Sta1: Idle
+        scp = DummyAE()
+        scp.remote_port = 11112
+        scp.address = ''
+
+        assert self.fsm.current_state == 'Sta1'
+        assert self.assoc.dul.scu_socket is None
+
+        self.assoc._mode = 'acceptor'
+        listen_socket = scp.bind_socket()
+
+        send_socket = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
+        send_socket.connect(('localhost', 11112))
+
+        invalid_data = b'\x08\x00\x00\x00\x00'
+        send_socket.send(invalid_data)
+
+        ready, _, _ = select.select([listen_socket], [], [], 0.5)
+        if ready:
+            self.assoc.dul.scu_socket, _ = listen_socket.accept()
+
+        self.assoc.start()
+
+        time.sleep(0.1)
+
+        self.assoc.kill()
+
+        assert self.fsm._transitions == []
+        assert self.fsm._changes == []
+        assert self.fsm._events[0] == 'Evt19'
+        assert self.fsm.current_state == 'Sta1'
+
+
+@pytest.mark.skip("Need a way to put the DUL in State 4")
+class TestState04(TestStateBase):
+    """Tests for State 04: Awaiting TRANSPORT_OPEN from <transport service>."""
+    def test_evt01(self):
+        """Test Sta1 + Evt1."""
+        # Sta4 + Evt1 -> <ignore> -> Sta4
+        # Sta4: Awaiting TRANSPORT_OPEN from <transport service>
+        # Evt1: A-ASSOCIATE (rq) primitive from <local user>
+        # Sta4: Awaiting TRANSPORT_OPEN from <transport service>
+        scp = DummyAE()
+        scp.mode = 'acceptor'
+        scp.queue.put(None)
+        scp.queue.put([None, 'shutdown'])
+
+        scp.start()
+
+        assert self.fsm.current_state == 'Sta1'
+        assert self.assoc.dul.scu_socket is None
+        self.assoc.dul.send_pdu(self.get_associate('request'))
+        self.assoc.dul.send_pdu(self.get_associate('request'))
+        print(self.assoc.dul.to_provider_queue.queue)
+        self.assoc.start()
+
+        time.sleep(0.1)
+
+        #assert self.fsm._transitions == ['Sta4']
+        # We only need to test that Sta1 + Evt1 -> AE-1 -> Sta4
+        assert self.fsm._changes == [
+            ('Sta1', 'Evt1', 'AE-1'),  # recv A-ASSOC rq primitive
+        ]
+        assert self.fsm._events == ['Evt1', 'Evt1']
+
+    @pytest.mark.skip()
+    def test_evt02(self):
+        """Test Sta1 + Evt2."""
+        # Sta1 + Evt2 -> <ignore> -> Sta1
+        # Sta1: Idle
+        # Evt2: Receive TRANSPORT_OPEN from <transport service>
+        # Sta1: Idle
+        pass
+
+    def test_evt03(self):
+        """Test Sta1 + Evt3."""
+        # Sta1 + Evt3 -> <ignore> -> Sta1
+        # Sta1: Idle
+        # Evt3: Receive A-ASSOCIATE-AC PDU from <remote>
+        # Sta1: Idle
+        scp = DummyAE()
+        scp.remote_port = 11112
+        scp.address = ''
+
+        assert self.fsm.current_state == 'Sta1'
+        assert self.assoc.dul.scu_socket is None
+
+        self.assoc._mode = 'acceptor'
+        listen_socket = scp.bind_socket()
+
+        send_socket = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
+        send_socket.connect(('localhost', 11112))
+        send_socket.send(a_associate_ac)
+
+        ready, _, _ = select.select([listen_socket], [], [], 0.5)
+        if ready:
+            self.assoc.dul.scu_socket, _ = listen_socket.accept()
+
+        self.assoc.start()
+
+        time.sleep(0.1)
+
+        self.assoc.kill()
+
+        assert self.fsm._transitions == []
+        assert self.fsm._changes == []
+        assert self.fsm._events[0] == 'Evt3'
+        assert self.fsm.current_state == 'Sta1'
+
+    def test_evt04(self):
+        """Test Sta1 + Evt4."""
+        # Sta1 + Evt4 -> <ignore> -> Sta1
+        # Sta1: Idle
+        # Evt4: Receive A-ASSOCIATE-RJ PDU from <remote>
+        # Sta1: Idle
+        scp = DummyAE()
+        scp.remote_port = 11112
+        scp.address = ''
+
+        assert self.fsm.current_state == 'Sta1'
+        assert self.assoc.dul.scu_socket is None
+
+        self.assoc._mode = 'acceptor'
+        listen_socket = scp.bind_socket()
+
+        send_socket = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
+        send_socket.connect(('localhost', 11112))
+        send_socket.send(a_associate_rj)
+
+        ready, _, _ = select.select([listen_socket], [], [], 0.5)
+        if ready:
+            self.assoc.dul.scu_socket, _ = listen_socket.accept()
+
+        self.assoc.start()
+
+        time.sleep(0.1)
+
+        self.assoc.kill()
+
+        assert self.fsm._transitions == []
+        assert self.fsm._changes == []
+        assert self.fsm._events[0] == 'Evt4'
+        assert self.fsm.current_state == 'Sta1'
+
+    @pytest.mark.skip()
+    def test_evt05(self):
+        """Test Sta1 + Evt5."""
+        # Sta1 + Evt5 -> AE-5 -> Sta2
+        # Sta1: Idle
+        # Evt5: Receive TRANSPORT_INDICATION from <transport service>
+        # AE-5: Issue TRANSPORT_RESPONSE to <transport service>
+        #       Start ARTIM timer
+        # Sta2: Connection open, awaiting A-ASSOCIATE-RQ from <remote>
+        scp = DummyAE()
+        scp.remote_port = 11112
+        scp.address = ''
+
+        assert self.fsm.current_state == 'Sta1'
+        assert self.assoc.dul.scu_socket is None
+
+        self.assoc._mode = 'acceptor'
+        listen_socket = scp.bind_socket()
+
+        send_socket = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
+        send_socket.connect(('localhost', 11112))
+        #send_socket.send(a_associate_rj)
+
+        ready, _, _ = select.select([listen_socket], [], [], 0.5)
+        if ready:
+            self.assoc.dul.scu_socket, _ = listen_socket.accept()
+
+        self.assoc.start()
+
+        time.sleep(0.1)
+
+        self.assoc.kill()
+
+        assert self.fsm._transitions == []
+        assert self.fsm._changes == []
+        assert self.fsm._events[0] == 'Evt5'
+        assert self.fsm.current_state == 'Sta1'
+
+    def test_evt06(self):
+        """Test Sta1 + Evt6."""
+        # Sta1 + Evt6 -> <ignore> -> Sta1
+        # Sta1: Idle
+        # Evt6: Receive A-ASSOCIATE-RQ PDU from <remote>
+        # Sta1: Idle
+        scp = DummyAE()
+        scp.remote_port = 11112
+        scp.address = ''
+
+        assert self.fsm.current_state == 'Sta1'
+        assert self.assoc.dul.scu_socket is None
+
+        self.assoc._mode = 'acceptor'
+        listen_socket = scp.bind_socket()
+
+        send_socket = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
+        send_socket.connect(('localhost', 11112))
+        send_socket.send(a_associate_rq)
+
+        ready, _, _ = select.select([listen_socket], [], [], 0.5)
+        if ready:
+            self.assoc.dul.scu_socket, _ = listen_socket.accept()
+
+        self.assoc.start()
+
+        time.sleep(0.1)
+
+        self.assoc.kill()
+
+        assert self.fsm._transitions == []
+        assert self.fsm._changes == []
+        assert self.fsm._events[0] == 'Evt6'
+        assert self.fsm.current_state == 'Sta1'
+
+    def test_evt07(self):
+        """Test Sta1 + Evt7."""
+        # Sta1 + Evt7 -> <ignore> -> Sta1
+        # Sta1: Idle
+        # Evt7: Receive A-ASSOCIATE (accept) primitive from <local user>
+        # Sta1: Idle
+        self.assoc._mode = "acceptor"
+        self.assoc.start()
+
+        self.assoc.dul.send_pdu(self.get_associate('accept'))
+
+        time.sleep(0.1)
+
+        self.assoc.kill()
+
+        assert self.fsm._transitions == []
+        assert self.fsm._changes == []
+        assert self.fsm._events[0] == 'Evt7'
+        assert self.fsm.current_state == 'Sta1'
+
+    def test_evt08(self):
+        """Test Sta1 + Evt8."""
+        # Sta1 + Evt8 -> <ignore> -> Sta1
+        # Sta1: Idle
+        # Evt8: Receive A-ASSOCIATE (reject) primitive from <local user>
+        # Sta1: Idle
+        self.assoc._mode = "acceptor"
+        self.assoc.start()
+
+        self.assoc.dul.send_pdu(self.get_associate('reject'))
+
+        time.sleep(0.1)
+
+        self.assoc.kill()
+
+        assert self.fsm._transitions == []
+        assert self.fsm._changes == []
+        assert self.fsm._events[0] == 'Evt8'
+        assert self.fsm.current_state == 'Sta1'
+
+    def test_evt09(self):
+        """Test Sta1 + Evt9."""
+        # Sta1 + Evt9 -> <ignore> -> Sta1
+        # Sta1: Idle
+        # Evt9: Receive P-DATA primitive from <local user>
+        # Sta1: Idle
+        self.assoc._mode = "acceptor"
+        self.assoc.start()
+
+        self.assoc.dul.send_pdu(self.get_pdata())
+
+        time.sleep(0.1)
+
+        self.assoc.kill()
+
+        assert self.fsm._transitions == []
+        assert self.fsm._changes == []
+        assert self.fsm._events[0] == 'Evt9'
+        assert self.fsm.current_state == 'Sta1'
+
+    def test_evt10(self):
+        """Test Sta1 + Evt10."""
+        # Sta1 + Evt10 -> <ignore> -> Sta1
+        # Sta1: Idle
+        # Evt10: Receive P-DATA-TF PDU from <remote>
+        # Sta1: Idle
+        scp = DummyAE()
+        scp.remote_port = 11112
+        scp.address = ''
+
+        assert self.fsm.current_state == 'Sta1'
+        assert self.assoc.dul.scu_socket is None
+
+        self.assoc._mode = 'acceptor'
+        listen_socket = scp.bind_socket()
+
+        send_socket = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
+        send_socket.connect(('localhost', 11112))
+        send_socket.send(p_data_tf)
+
+        ready, _, _ = select.select([listen_socket], [], [], 0.5)
+        if ready:
+            self.assoc.dul.scu_socket, _ = listen_socket.accept()
+
+        self.assoc.start()
+
+        time.sleep(0.1)
+
+        self.assoc.kill()
+
+        assert self.fsm._transitions == []
+        assert self.fsm._changes == []
+        assert self.fsm._events[0] == 'Evt10'
+        assert self.fsm.current_state == 'Sta1'
+
+    def test_evt11(self):
+        """Test Sta1 + Evt11."""
+        # Sta1 + Evt11 -> <ignore> -> Sta1
+        # Sta1: Idle
+        # Evt11: Receive A-RELEASE (rq) primitive from <local user>
+        # Sta1: Idle
+        self.assoc._mode = "acceptor"
+        self.assoc.start()
+
+        self.assoc.dul.send_pdu(self.get_release(False))
+
+        time.sleep(0.1)
+
+        self.assoc.kill()
+
+        assert self.fsm._transitions == []
+        assert self.fsm._changes == []
+        assert self.fsm._events[0] == 'Evt11'
+        assert self.fsm.current_state == 'Sta1'
+
+    def test_evt12(self):
+        """Test Sta1 + Evt12."""
+        # Sta1 + Evt12 -> <ignore> -> Sta1
+        # Sta1: Idle
+        # Evt12: Receive A-RELEASE-RQ PDU from <remote>
+        # Sta1: Idle
+        scp = DummyAE()
+        scp.remote_port = 11112
+        scp.address = ''
+
+        assert self.fsm.current_state == 'Sta1'
+        assert self.assoc.dul.scu_socket is None
+
+        self.assoc._mode = 'acceptor'
+        listen_socket = scp.bind_socket()
+
+        send_socket = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
+        send_socket.connect(('localhost', 11112))
+        send_socket.send(a_release_rq)
+
+        ready, _, _ = select.select([listen_socket], [], [], 0.5)
+        if ready:
+            self.assoc.dul.scu_socket, _ = listen_socket.accept()
+
+        self.assoc.start()
+
+        time.sleep(0.1)
+
+        self.assoc.kill()
+
+        assert self.fsm._transitions == []
+        assert self.fsm._changes == []
+        assert self.fsm._events[0] == 'Evt12'
+        assert self.fsm.current_state == 'Sta1'
+
+    def test_evt13(self):
+        """Test Sta1 + Evt13."""
+        # Sta1 + Evt13 -> <ignore> -> Sta1
+        # Sta1: Idle
+        # Evt13: Receive A-RELEASE-RP PDU from <remote>
+        # Sta1: Idle
+        scp = DummyAE()
+        scp.remote_port = 11112
+        scp.address = ''
+
+        assert self.fsm.current_state == 'Sta1'
+        assert self.assoc.dul.scu_socket is None
+
+        self.assoc._mode = 'acceptor'
+        listen_socket = scp.bind_socket()
+
+        send_socket = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
+        send_socket.connect(('localhost', 11112))
+        send_socket.send(a_release_rp)
+
+        ready, _, _ = select.select([listen_socket], [], [], 0.5)
+        if ready:
+            self.assoc.dul.scu_socket, _ = listen_socket.accept()
+
+        self.assoc.start()
+
+        time.sleep(0.1)
+
+        self.assoc.kill()
+
+        assert self.fsm._transitions == []
+        assert self.fsm._changes == []
+        assert self.fsm._events[0] == 'Evt13'
+        assert self.fsm.current_state == 'Sta1'
+
+    def test_evt14(self):
+        """Test Sta1 + Evt14."""
+        # Sta1 + Evt14 -> <ignore> -> Sta1
+        # Sta1: Idle
+        # Evt14: Receive A-RELEASE (rsp) primitive from <local user>
+        # Sta1: Idle
+        self.assoc._mode = "acceptor"
+        self.assoc.start()
+
+        self.assoc.dul.send_pdu(self.get_release(True))
+
+        time.sleep(0.1)
+
+        self.assoc.kill()
+
+        assert self.fsm._transitions == []
+        assert self.fsm._changes == []
+        assert self.fsm._events[0] == 'Evt14'
+        assert self.fsm.current_state == 'Sta1'
+
+    def test_evt15(self):
+        """Test Sta1 + Evt15."""
+        # Sta1 + Evt15 -> <ignore> -> Sta1
+        # Sta1: Idle
+        # Evt15: Receive A-ABORT (rq) primitive from <local user>
+        # Sta1: Idle
+        self.assoc._mode = "acceptor"
+        self.assoc.start()
+
+        self.assoc.dul.send_pdu(self.get_abort(False))
+
+        time.sleep(0.1)
+
+        self.assoc.kill()
+
+        assert self.fsm._transitions == []
+        assert self.fsm._changes == []
+        assert self.fsm._events[0] == 'Evt15'
+        assert self.fsm.current_state == 'Sta1'
+
+    def test_evt16(self):
+        """Test Sta1 + Evt16."""
+        # Sta1 + Evt16 -> <ignore> -> Sta1
+        # Sta1: Idle
+        # Evt16: Receive A-ABORT PDU from <remote>
+        # Sta1: Idle
+        scp = DummyAE()
+        scp.remote_port = 11112
+        scp.address = ''
+
+        assert self.fsm.current_state == 'Sta1'
+        assert self.assoc.dul.scu_socket is None
+
+        self.assoc._mode = 'acceptor'
+        listen_socket = scp.bind_socket()
+
+        send_socket = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
+        send_socket.connect(('localhost', 11112))
+        send_socket.send(a_abort)
+
+        ready, _, _ = select.select([listen_socket], [], [], 0.5)
+        if ready:
+            self.assoc.dul.scu_socket, _ = listen_socket.accept()
+
+        self.assoc.start()
+
+        time.sleep(0.1)
+
+        self.assoc.kill()
+
+        assert self.fsm._transitions == []
+        assert self.fsm._changes == []
+        assert self.fsm._events[0] == 'Evt16'
+        assert self.fsm.current_state == 'Sta1'
+
+    def test_evt17(self):
+        """Test Sta1 + Evt17."""
+        # Sta1 + Evt17 -> <ignore> -> Sta1
+        # Sta1: Idle
+        # Evt17: Receive TRANSPORT_CLOSED from <transport service>
+        # Sta1: Idle
+        scp = DummyAE()
+
+        assert self.fsm.current_state == 'Sta1'
+        assert self.assoc.dul.scu_socket is None
+
+        self.assoc._mode = 'acceptor'
+        listen_socket = scp.bind_socket()
+
+        send_socket = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
+        send_socket.connect(('localhost', 11112))
+        send_socket.send(a_associate_ac)
+
+        self.assoc.dul.scu_socket = listen_socket
+        self.assoc.start()
+
+        time.sleep(0.1)
+
+        self.assoc.kill()
+
+        assert self.fsm._transitions == []
+        assert self.fsm._changes == []
+        assert self.fsm._events[0] == 'Evt17'
+        assert self.fsm.current_state == 'Sta1'
+
+    def test_evt18(self):
+        """Test Sta1 + Evt18."""
+        # Sta1 + Evt18 -> <ignore> -> Sta1
+        # Sta1: Idle
+        # Evt18: ARTIM timer expired from <local service>
+        # Sta1: Idle
+        self.assoc._mode = "acceptor"
+        self.assoc.acse_timeout = 0.05
+        self.assoc.dul.artim_timer.timeout_seconds = 0.05
+        self.assoc.dul.artim_timer.start()
+        self.assoc.start()
+
+        time.sleep(0.2)
+
+        self.assoc.kill()
+
+        assert self.assoc.dul.artim_timer.is_expired
+
+        assert self.fsm._transitions == []
+        assert self.fsm._changes == []
+        assert self.fsm._events[0] == 'Evt18'
+        assert self.fsm.current_state == 'Sta1'
+
+    def test_evt19(self):
+        """Test Sta1 + Evt19."""
+        # Sta1 + Evt19 -> <ignore> -> Sta1
+        # Sta1: Idle
+        # Evt19: Received unrecognised or invalid PDU from <remote>
+        # Sta1: Idle
+        scp = DummyAE()
+        scp.remote_port = 11112
+        scp.address = ''
+
+        assert self.fsm.current_state == 'Sta1'
+        assert self.assoc.dul.scu_socket is None
+
+        self.assoc._mode = 'acceptor'
+        listen_socket = scp.bind_socket()
+
+        send_socket = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
+        send_socket.connect(('localhost', 11112))
+
+        invalid_data = b'\x08\x00\x00\x00\x00'
+        send_socket.send(invalid_data)
+
+        ready, _, _ = select.select([listen_socket], [], [], 0.5)
+        if ready:
+            self.assoc.dul.scu_socket, _ = listen_socket.accept()
+
+        self.assoc.start()
+
+        time.sleep(0.1)
+
+        self.assoc.kill()
+
+        assert self.fsm._transitions == []
+        assert self.fsm._changes == []
+        assert self.fsm._events[0] == 'Evt19'
+        assert self.fsm.current_state == 'Sta1'
+
+
+class TestState05(TestStateBase):
+    """Tests for State 05: Awaiting A-ASSOCIATE-AC or A-ASSOCIATE-RJ PDU."""
+    def test_evt01(self):
+        """Test Sta5 + Evt1."""
+        # Sta5 + Evt1 -> <ignore> -> Sta5
+        # Evt1: A-ASSOCIATE (rq) primitive from <local user>
+        scp = DummyAE()
+        scp.mode = 'acceptor'
+        scp.queue.put(None)
+        scp.queue.put(['wait', 0.4, 'shutdown'])
+
+        scp.start()
+
+        assert self.fsm.current_state == 'Sta1'
+        assert self.assoc.dul.scu_socket is None
+        self.assoc.start()
+
+        time.sleep(0.3)
+
+        #self.assoc.acse.send_abort(self.assoc, 0x00)
+        self.assoc.dul.send_pdu(self.get_associate('request'))
+
+        time.sleep(0.2)
+
+        self.fsm.current_state = 'Sta13'
+
+        assert self.fsm._changes == [
+            ('Sta1', 'Evt1', 'AE-1'),
+            ('Sta4', 'Evt2', 'AE-2'),
+        ]
+        assert self.fsm._transitions == ['Sta4', 'Sta5']
+        assert self.fsm._events == ['Evt1', 'Evt2', 'Evt1']
+
+        scp.stop()
+
+    @pytest.mark.skip()
+    def test_evt02(self):
+        """Test Sta5 + Evt2."""
+        # Sta5 + Evt2 -> <ignore> -> Sta5
+        # Evt2: Receive TRANSPORT_OPEN from <transport service>
+        pass
+
+    def test_evt03(self):
+        """Test Sta5 + Evt3."""
+        # Sta5 + Evt3 -> AE-3 -> Sta6
+        # Evt3: Receive A-ASSOCIATE-AC PDU from <remote>
+        # AE-3: Issue A-ASSOCIATE (ac) primitive
+        scp = DummyAE()
+        scp.mode = 'acceptor'
+        scp.queue.put(None)
+        scp.queue.put([a_associate_ac, 'shutdown'])
+
+        scp.start()
+
+        assert self.fsm.current_state == 'Sta1'
+        assert self.assoc.dul.scu_socket is None
+        self.assoc.start()
+
+        time.sleep(0.1)
+
+        assert self.fsm._changes == [
+            ('Sta1', 'Evt1', 'AE-1'),
+            ('Sta4', 'Evt2', 'AE-2'),
+            ('Sta5', 'Evt3', 'AE-3'),
+            ('Sta6', 'Evt17', 'AA-4'),
+        ]
+        assert self.fsm._events == ['Evt1', 'Evt2', 'Evt3', 'Evt17']
+
+    def test_evt04(self):
+        """Test Sta5 + Evt4."""
+        # Sta5 + Evt4 -> AE-4 -> Sta1
+        # Evt4: Receive A-ASSOCIATE-RJ PDU from <remote>
+        # AE-4: Issue A-ASSOCIATE (rj) primitive
+        scp = DummyAE()
+        scp.mode = 'acceptor'
+        scp.queue.put(None)
+        scp.queue.put([a_associate_rj, 'shutdown'])
+
+        scp.start()
+
+        assert self.fsm.current_state == 'Sta1'
+        assert self.assoc.dul.scu_socket is None
+        self.assoc.start()
+
+        time.sleep(0.1)
+
+        assert self.fsm._changes == [
+            ('Sta1', 'Evt1', 'AE-1'),
+            ('Sta4', 'Evt2', 'AE-2'),
+            ('Sta5', 'Evt4', 'AE-4'),
+        ]
+        assert self.fsm._events == ['Evt1', 'Evt2', 'Evt4']
+
+    @pytest.mark.skip()
+    def test_evt05(self):
+        """Test Sta1 + Evt5."""
+        # Sta5 + Evt5 -> <ignore> -> Sta5
+        # Evt5: Receive TRANSPORT_INDICATION from <transport service>
+        # AE-5: Issue TRANSPORT_RESPONSE to <transport service>
+        #       Start ARTIM timer
+        pass
+
+    def test_evt06(self):
+        """Test Sta5 + Evt6."""
+        # Sta5 + Evt6 -> AA-8 -> Sta13
+        # Evt6: Receive A-ASSOCIATE-RQ PDU from <remote>
+        # AA-8: Send A-ABORT PDU, issue A-P-ABORT primitive, start ARTIM
+        scp = DummyAE()
+        scp.mode = 'acceptor'
+        scp.queue.put(None)
+        scp.queue.put(a_associate_rq)
+        scp.queue.put('shutdown')
+
+        scp.start()
+
+        assert self.fsm.current_state == 'Sta1'
+        assert self.assoc.dul.scu_socket is None
+        self.assoc.start()
+
+        time.sleep(0.1)
+
+        assert self.fsm._changes == [
+            ('Sta1', 'Evt1', 'AE-1'),
+            ('Sta4', 'Evt2', 'AE-2'),
+            ('Sta5', 'Evt6', 'AA-8'),
+        ]
+        assert self.fsm._events == ['Evt1', 'Evt2', 'Evt6']
+        # Issue A-ABORT PDU
+        assert scp.received[1] == b'\x07\x00\x00\x00\x00\x04\x00\x00\x02\x00'
+
+    def test_evt07(self):
+        """Test Sta5 + Evt7."""
+        # Sta5 + Evt7 -> <ignore> -> Sta5
+        # Evt7: Receive A-ASSOCIATE (accept) primitive from <local user>
+        scp = DummyAE()
+        scp.mode = 'acceptor'
+        scp.queue.put(None)
+        scp.queue.put(['wait', 0.4, 'shutdown'])
+
+        scp.start()
+
+        assert self.fsm.current_state == 'Sta1'
+        assert self.assoc.dul.scu_socket is None
+        self.assoc.acse_timeout = 1
+        self.assoc.start()
+
+        time.sleep(0.3)
+
+        #self.assoc.acse.send_abort(self.assoc, 0x00)
+        self.assoc.dul.send_pdu(self.get_associate('accept'))
+
+        time.sleep(0.2)
+
+        assert self.fsm._changes == [
+            ('Sta1', 'Evt1', 'AE-1'),
+            ('Sta4', 'Evt2', 'AE-2'),
+        ]
+        assert self.fsm._transitions == ['Sta4', 'Sta5']
+        assert self.fsm._events == ['Evt1', 'Evt2', 'Evt7']
+
+    def test_evt08(self):
+        """Test Sta5 + Evt8."""
+        # Sta5 + Evt8 -> <ignore> -> Sta5
+        # Evt8: Receive A-ASSOCIATE (reject) primitive from <local user>
+        scp = DummyAE()
+        scp.mode = 'acceptor'
+        scp.queue.put(None)
+        scp.queue.put(['wait', 0.4, 'shutdown'])
+
+        scp.start()
+
+        assert self.fsm.current_state == 'Sta1'
+        assert self.assoc.dul.scu_socket is None
+        self.assoc.acse_timeout = 1
+        self.assoc.start()
+
+        time.sleep(0.3)
+
+        #self.assoc.acse.send_abort(self.assoc, 0x00)
+        self.assoc.dul.send_pdu(self.get_associate('reject'))
+
+        time.sleep(0.2)
+
+        assert self.fsm._changes == [
+            ('Sta1', 'Evt1', 'AE-1'),
+            ('Sta4', 'Evt2', 'AE-2'),
+        ]
+        assert self.fsm._transitions == ['Sta4', 'Sta5']
+        assert self.fsm._events == ['Evt1', 'Evt2', 'Evt8']
+
+    def test_evt09(self):
+        """Test Sta5 + Evt9."""
+        # Sta5 + Evt9 -> <ignore> -> Sta5
+        # Evt9: Receive P-DATA primitive from <local user>
+        scp = DummyAE()
+        scp.mode = 'acceptor'
+        scp.queue.put(None)
+        scp.queue.put(['wait', 0.4, 'shutdown'])
+
+        scp.start()
+
+        assert self.fsm.current_state == 'Sta1'
+        assert self.assoc.dul.scu_socket is None
+        self.assoc.acse_timeout = 1
+        self.assoc.start()
+
+        time.sleep(0.3)
+
+        #self.assoc.acse.send_abort(self.assoc, 0x00)
+        self.assoc.dul.send_pdu(self.get_pdata())
+
+        time.sleep(0.2)
+
+        assert self.fsm._changes == [
+            ('Sta1', 'Evt1', 'AE-1'),
+            ('Sta4', 'Evt2', 'AE-2'),
+        ]
+        assert self.fsm._transitions == ['Sta4', 'Sta5']
+        assert self.fsm._events == ['Evt1', 'Evt2', 'Evt9']
+
+    def test_evt10(self):
+        """Test Sta5 + Evt10."""
+        # Sta5 + Evt10 -> AA-8 -> Sta13
+        # Evt10: Receive P-DATA-TF PDU from <remote>
+        # AA-8: Send A-ABORT PDU, issue A-P-ABORT primitive, start ARTIM
+        scp = DummyAE()
+        scp.mode = 'acceptor'
+        scp.queue.put(None)
+        scp.queue.put(p_data_tf)
+        scp.queue.put('shutdown')
+
+        scp.start()
+
+        assert self.fsm.current_state == 'Sta1'
+        assert self.assoc.dul.scu_socket is None
+        self.assoc.start()
+
+        time.sleep(0.1)
+
+        assert self.fsm._changes == [
+            ('Sta1', 'Evt1', 'AE-1'),
+            ('Sta4', 'Evt2', 'AE-2'),
+            ('Sta5', 'Evt10', 'AA-8'),
+        ]
+        assert self.fsm._transitions == ['Sta4', 'Sta5', 'Sta13']
+        assert self.fsm._events == ['Evt1', 'Evt2', 'Evt10']
+        # Issue A-ABORT PDU
+        assert scp.received[1] == b'\x07\x00\x00\x00\x00\x04\x00\x00\x02\x00'
+
+    def test_evt11(self):
+        """Test Sta5 + Evt11."""
+        # Sta5 + Evt11 -> <ignore> -> Sta5
+        # Evt11: Receive A-RELEASE (rq) primitive from <local user>
+        scp = DummyAE()
+        scp.mode = 'acceptor'
+        scp.queue.put(None)
+        scp.queue.put(['wait', 0.4, 'shutdown'])
+
+        scp.start()
+
+        assert self.fsm.current_state == 'Sta1'
+        assert self.assoc.dul.scu_socket is None
+        self.assoc.acse_timeout = 1
+        self.assoc.start()
+
+        time.sleep(0.3)
+
+        #self.assoc.acse.send_abort(self.assoc, 0x00)
+        self.assoc.dul.send_pdu(self.get_release(False))
+
+        time.sleep(0.2)
+
+        assert self.fsm._changes == [
+            ('Sta1', 'Evt1', 'AE-1'),
+            ('Sta4', 'Evt2', 'AE-2'),
+        ]
+        assert self.fsm._transitions == ['Sta4', 'Sta5']
+        assert self.fsm._events == ['Evt1', 'Evt2', 'Evt11']
+
+    def test_evt12(self):
+        """Test Sta5 + Evt12."""
+        # Sta5 + Evt12 -> AA-8 -> Sta13
+        # Evt12: Receive A-RELEASE-RQ PDU from <remote>
+        # AA-8: Send A-ABORT PDU, issue A-P-ABORT primitive, start ARTIM
+        scp = DummyAE()
+        scp.mode = 'acceptor'
+        scp.queue.put(None)
+        scp.queue.put(a_release_rq)
+        scp.queue.put('shutdown')
+
+        scp.start()
+
+        assert self.fsm.current_state == 'Sta1'
+        assert self.assoc.dul.scu_socket is None
+        self.assoc.start()
+
+        time.sleep(0.1)
+
+        assert self.fsm._changes == [
+            ('Sta1', 'Evt1', 'AE-1'),
+            ('Sta4', 'Evt2', 'AE-2'),
+            ('Sta5', 'Evt12', 'AA-8'),
+        ]
+        assert self.fsm._transitions == ['Sta4', 'Sta5', 'Sta13']
+        assert self.fsm._events == ['Evt1', 'Evt2', 'Evt12']
+        # Issue A-ABORT PDU
+        assert scp.received[1] == b'\x07\x00\x00\x00\x00\x04\x00\x00\x02\x00'
+
+    def test_evt13(self):
+        """Test Sta5 + Evt13."""
+        # Sta5 + Evt13 -> AA-8 -> Sta13
+        # Evt13: Receive A-RELEASE-RP PDU from <remote>
+        # AA-8: Send A-ABORT PDU, issue A-P-ABORT primitive, start ARTIM
+        scp = DummyAE()
+        scp.mode = 'acceptor'
+        scp.queue.put(None)
+        scp.queue.put(a_release_rp)
+        scp.queue.put('shutdown')
+
+        scp.start()
+
+        assert self.fsm.current_state == 'Sta1'
+        assert self.assoc.dul.scu_socket is None
+        self.assoc.start()
+
+        time.sleep(0.1)
+
+        assert self.fsm._changes == [
+            ('Sta1', 'Evt1', 'AE-1'),
+            ('Sta4', 'Evt2', 'AE-2'),
+            ('Sta5', 'Evt13', 'AA-8'),
+        ]
+        assert self.fsm._transitions == ['Sta4', 'Sta5', 'Sta13']
+        assert self.fsm._events == ['Evt1', 'Evt2', 'Evt13']
+        # Issue A-ABORT PDU
+        assert scp.received[1] == b'\x07\x00\x00\x00\x00\x04\x00\x00\x02\x00'
+
+    def test_evt14(self):
+        """Test Sta5 + Evt14."""
+        # Sta5 + Evt14 -> <ignore> -> Sta5
+        # Evt14: Receive A-RELEASE (rsp) primitive from <local user>
+        scp = DummyAE()
+        scp.mode = 'acceptor'
+        scp.queue.put(None)
+        scp.queue.put(['wait', 0.4, 'shutdown'])
+
+        scp.start()
+
+        assert self.fsm.current_state == 'Sta1'
+        assert self.assoc.dul.scu_socket is None
+        self.assoc.acse_timeout = 1
+        self.assoc.start()
+
+        time.sleep(0.3)
+
+        #self.assoc.acse.send_abort(self.assoc, 0x00)
+        self.assoc.dul.send_pdu(self.get_release(True))
+
+        time.sleep(0.2)
+
+        assert self.fsm._changes == [
+            ('Sta1', 'Evt1', 'AE-1'),
+            ('Sta4', 'Evt2', 'AE-2'),
+        ]
+        assert self.fsm._transitions == ['Sta4', 'Sta5']
+        assert self.fsm._events == ['Evt1', 'Evt2', 'Evt14']
+
+    def test_evt15(self):
+        """Test Sta5 + Evt15."""
+        # Sta5 + Evt15 -> AA-1 -> Sta13
+        # Evt15: Receive A-ABORT (rq) primitive from <local user>
+        # AA-1: Send A-ABORT PDU and restart ARTIM
+        scp = DummyAE()
+        scp.mode = 'acceptor'
+        scp.queue.put(None)
+        scp.queue.put(['wait', 0.4])
+        scp.queue.put(None)
+        scp.queue.put('shutdown')
+
+        scp.start()
+
+        assert self.fsm.current_state == 'Sta1'
+        assert self.assoc.dul.scu_socket is None
+        self.assoc.acse_timeout = 1
+        self.assoc.start()
+
+        time.sleep(0.3)
+
+        #self.assoc.acse.send_abort(self.assoc, 0x00)
+        self.assoc.dul.send_pdu(self.get_abort(False))
+
+        time.sleep(0.2)
+
+        assert self.fsm._changes == [
+            ('Sta1', 'Evt1', 'AE-1'),
+            ('Sta4', 'Evt2', 'AE-2'),
+            ('Sta5', 'Evt15', 'AA-1'),
+            ('Sta13', 'Evt17', 'AR-5'),
+        ]
+        assert self.fsm._transitions == ['Sta4', 'Sta5', 'Sta13', 'Sta1']
+        assert self.fsm._events == ['Evt1', 'Evt2', 'Evt15', 'Evt17']
+
+        # Issue A-ABORT PDU
+        assert scp.received[1] == b'\x07\x00\x00\x00\x00\x04\x00\x00\x00\x00'
+
+    def test_evt16(self):
+        """Test Sta5 + Evt16."""
+        # Sta5 + Evt16 -> AA-3 -> Sta1
+        # Evt16: Receive A-ABORT PDU from <remote>
+        # AA-3: If service user initiated:
+        #           Issue A-ABORT primitve and close transport
+        #       Otherwise
+        #           Issue A-P-ABORT primitive and close transport
+        scp = DummyAE()
+        scp.mode = 'acceptor'
+        scp.queue.put(None)
+        scp.queue.put(a_abort)
+        scp.queue.put('shutdown')
+
+        scp.start()
+
+        assert self.fsm.current_state == 'Sta1'
+        assert self.assoc.dul.scu_socket is None
+        self.assoc.start()
+
+        time.sleep(0.1)
+
+        assert self.fsm._changes == [
+            ('Sta1', 'Evt1', 'AE-1'),
+            ('Sta4', 'Evt2', 'AE-2'),
+            ('Sta5', 'Evt16', 'AA-3'),
+        ]
+        assert self.fsm._transitions == ['Sta4', 'Sta5', 'Sta1']
+        assert self.fsm._events == ['Evt1', 'Evt2', 'Evt16']
+
+    def test_evt17(self):
+        """Test Sta5 + Evt17."""
+        # Sta1 + Evt17 -> AA-4 -> Sta1
+        # Evt17: Receive TRANSPORT_CLOSED from <transport service>
+        # AA-4: Issue A-P-ABORT primitive
+        scp = DummyAE()
+        scp.mode = 'acceptor'
+        scp.queue.put(None)
+        scp.queue.put(['wait', 0.2])
+        scp.queue.put('shutdown')
+
+        scp.start()
+
+        assert self.fsm.current_state == 'Sta1'
+        assert self.assoc.dul.scu_socket is None
+        self.assoc.start()
+
+        time.sleep(0.5)
+
+        assert self.fsm._changes == [
+            ('Sta1', 'Evt1', 'AE-1'),
+            ('Sta4', 'Evt2', 'AE-2'),
+            ('Sta5', 'Evt17', 'AA-4'),
+        ]
+        assert self.fsm._transitions == ['Sta4', 'Sta5', 'Sta1']
+        assert self.fsm._events == ['Evt1', 'Evt2', 'Evt17']
+
+    @pytest.mark.skip()
+    def test_evt18(self):
+        """Test Sta5 + Evt18."""
+        # Sta5 + Evt18 -> <ignore> -> Sta5
+        # Evt18: ARTIM timer expired from <local service>
+        pass
+
+    def test_evt19(self):
+        """Test Sta5 + Evt19."""
+        # Sta5 + Evt19 -> AA-8 -> Sta13
+        # Evt19: Received unrecognised or invalid PDU from <remote>
+        scp = DummyAE()
+        scp.mode = 'acceptor'
+        scp.queue.put(None)
+        scp.queue.put(b'\x08\x00\x00\x00\x00')
+        scp.queue.put('shutdown')
+
+        scp.start()
+
+        assert self.fsm.current_state == 'Sta1'
+        assert self.assoc.dul.scu_socket is None
+        self.assoc.start()
+
+        time.sleep(0.1)
+
+        assert self.fsm._changes == [
+            ('Sta1', 'Evt1', 'AE-1'),
+            ('Sta4', 'Evt2', 'AE-2'),
+            ('Sta5', 'Evt19', 'AA-8'),
+        ]
+        assert self.fsm._transitions == ['Sta4', 'Sta5', 'Sta13']
+        assert self.fsm._events == ['Evt1', 'Evt2', 'Evt19']
+        # Issue A-ABORT PDU
+        assert scp.received[1] == b'\x07\x00\x00\x00\x00\x04\x00\x00\x02\x00'
 
 
 class TestStateMachineFunctionalRequestor(object):
