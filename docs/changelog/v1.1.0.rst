@@ -47,14 +47,10 @@ Changes
   association requests will be rejected unless the value of the *Called AE
   Title* parameter matches ``AE.ae_title``. If False (default) then no matching
   will be performed and all associations accepted (unless rejected for other
-<<<<<<< HEAD
   reasons). (:issue:`184`)
-* The association acceptor no longer aborts an accepted association if there
-  are no accepted presentation contexts. The association requestor still does.
-=======
-  reasons).
 * ``ACSE.is_released`` is deprecated and will be removed in v1.2. Use
   ``ACSE.is_release_requested`` instead.
 * ``ACSE.release_association`` is deprecated and will be removed in v1.2. Use
   ``ACSE.negotiate_release`` instead.
->>>>>>> d6c34fb82f46edc9950323a3fd11b58cd129f148
+* The association acceptor no longer aborts an accepted association if there
+  are no accepted presentation contexts. The association requestor still does.

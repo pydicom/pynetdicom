@@ -2446,12 +2446,12 @@ class TestState05(TestStateBase):
 
         self.fsm.current_state = 'Sta13'
 
-        assert self.fsm._changes == [
+        assert self.fsm._changes[:2] == [
             ('Sta1', 'Evt1', 'AE-1'),
             ('Sta4', 'Evt2', 'AE-2'),
         ]
-        assert self.fsm._transitions == ['Sta4', 'Sta5']
-        assert self.fsm._events == ['Evt1', 'Evt2', 'Evt1']
+        assert self.fsm._transitions[:2] == ['Sta4', 'Sta5']
+        assert self.fsm._events[:3] == ['Evt1', 'Evt2', 'Evt1']
 
         scp.stop()
 
@@ -2480,13 +2480,13 @@ class TestState05(TestStateBase):
 
         time.sleep(0.1)
 
-        assert self.fsm._changes == [
+        assert self.fsm._changes[:4] == [
             ('Sta1', 'Evt1', 'AE-1'),
             ('Sta4', 'Evt2', 'AE-2'),
             ('Sta5', 'Evt3', 'AE-3'),
             ('Sta6', 'Evt17', 'AA-4'),
         ]
-        assert self.fsm._events == ['Evt1', 'Evt2', 'Evt3', 'Evt17']
+        assert self.fsm._events[:4] == ['Evt1', 'Evt2', 'Evt3', 'Evt17']
 
     def test_evt04(self):
         """Test Sta5 + Evt4."""
@@ -2506,12 +2506,12 @@ class TestState05(TestStateBase):
 
         time.sleep(0.1)
 
-        assert self.fsm._changes == [
+        assert self.fsm._changes[:3] == [
             ('Sta1', 'Evt1', 'AE-1'),
             ('Sta4', 'Evt2', 'AE-2'),
             ('Sta5', 'Evt4', 'AE-4'),
         ]
-        assert self.fsm._events == ['Evt1', 'Evt2', 'Evt4']
+        assert self.fsm._events[:3] == ['Evt1', 'Evt2', 'Evt4']
 
     @pytest.mark.skip()
     def test_evt05(self):
@@ -2541,12 +2541,12 @@ class TestState05(TestStateBase):
 
         time.sleep(0.1)
 
-        assert self.fsm._changes == [
+        assert self.fsm._changes[:3] == [
             ('Sta1', 'Evt1', 'AE-1'),
             ('Sta4', 'Evt2', 'AE-2'),
             ('Sta5', 'Evt6', 'AA-8'),
         ]
-        assert self.fsm._events == ['Evt1', 'Evt2', 'Evt6']
+        assert self.fsm._events[:3] == ['Evt1', 'Evt2', 'Evt6']
         # Issue A-ABORT PDU
         assert scp.received[1] == b'\x07\x00\x00\x00\x00\x04\x00\x00\x02\x00'
 
@@ -2573,12 +2573,12 @@ class TestState05(TestStateBase):
 
         time.sleep(0.2)
 
-        assert self.fsm._changes == [
+        assert self.fsm._changes[:2] == [
             ('Sta1', 'Evt1', 'AE-1'),
             ('Sta4', 'Evt2', 'AE-2'),
         ]
-        assert self.fsm._transitions == ['Sta4', 'Sta5']
-        assert self.fsm._events == ['Evt1', 'Evt2', 'Evt7']
+        assert self.fsm._transitions[:2] == ['Sta4', 'Sta5']
+        assert self.fsm._events[:3] == ['Evt1', 'Evt2', 'Evt7']
 
     def test_evt08(self):
         """Test Sta5 + Evt8."""
@@ -2603,12 +2603,12 @@ class TestState05(TestStateBase):
 
         time.sleep(0.2)
 
-        assert self.fsm._changes == [
+        assert self.fsm._changes[:2] == [
             ('Sta1', 'Evt1', 'AE-1'),
             ('Sta4', 'Evt2', 'AE-2'),
         ]
-        assert self.fsm._transitions == ['Sta4', 'Sta5']
-        assert self.fsm._events == ['Evt1', 'Evt2', 'Evt8']
+        assert self.fsm._transitions[:2] == ['Sta4', 'Sta5']
+        assert self.fsm._events[:3] == ['Evt1', 'Evt2', 'Evt8']
 
     def test_evt09(self):
         """Test Sta5 + Evt9."""
@@ -2633,12 +2633,12 @@ class TestState05(TestStateBase):
 
         time.sleep(0.2)
 
-        assert self.fsm._changes == [
+        assert self.fsm._changes[:2] == [
             ('Sta1', 'Evt1', 'AE-1'),
             ('Sta4', 'Evt2', 'AE-2'),
         ]
-        assert self.fsm._transitions == ['Sta4', 'Sta5']
-        assert self.fsm._events == ['Evt1', 'Evt2', 'Evt9']
+        assert self.fsm._transitions[:2] == ['Sta4', 'Sta5']
+        assert self.fsm._events[:3] == ['Evt1', 'Evt2', 'Evt9']
 
     def test_evt10(self):
         """Test Sta5 + Evt10."""
@@ -2659,13 +2659,13 @@ class TestState05(TestStateBase):
 
         time.sleep(0.1)
 
-        assert self.fsm._changes == [
+        assert self.fsm._changes[:3] == [
             ('Sta1', 'Evt1', 'AE-1'),
             ('Sta4', 'Evt2', 'AE-2'),
             ('Sta5', 'Evt10', 'AA-8'),
         ]
-        assert self.fsm._transitions == ['Sta4', 'Sta5', 'Sta13']
-        assert self.fsm._events == ['Evt1', 'Evt2', 'Evt10']
+        assert self.fsm._transitions[:3] == ['Sta4', 'Sta5', 'Sta13']
+        assert self.fsm._events[:3] == ['Evt1', 'Evt2', 'Evt10']
         # Issue A-ABORT PDU
         assert scp.received[1] == b'\x07\x00\x00\x00\x00\x04\x00\x00\x02\x00'
 
@@ -2692,12 +2692,12 @@ class TestState05(TestStateBase):
 
         time.sleep(0.2)
 
-        assert self.fsm._changes == [
+        assert self.fsm._changes[:2] == [
             ('Sta1', 'Evt1', 'AE-1'),
             ('Sta4', 'Evt2', 'AE-2'),
         ]
-        assert self.fsm._transitions == ['Sta4', 'Sta5']
-        assert self.fsm._events == ['Evt1', 'Evt2', 'Evt11']
+        assert self.fsm._transitions[:2] == ['Sta4', 'Sta5']
+        assert self.fsm._events[:3] == ['Evt1', 'Evt2', 'Evt11']
 
     def test_evt12(self):
         """Test Sta5 + Evt12."""
@@ -2718,13 +2718,13 @@ class TestState05(TestStateBase):
 
         time.sleep(0.1)
 
-        assert self.fsm._changes == [
+        assert self.fsm._changes[:3] == [
             ('Sta1', 'Evt1', 'AE-1'),
             ('Sta4', 'Evt2', 'AE-2'),
             ('Sta5', 'Evt12', 'AA-8'),
         ]
-        assert self.fsm._transitions == ['Sta4', 'Sta5', 'Sta13']
-        assert self.fsm._events == ['Evt1', 'Evt2', 'Evt12']
+        assert self.fsm._transitions[:3] == ['Sta4', 'Sta5', 'Sta13']
+        assert self.fsm._events[:3] == ['Evt1', 'Evt2', 'Evt12']
         # Issue A-ABORT PDU
         assert scp.received[1] == b'\x07\x00\x00\x00\x00\x04\x00\x00\x02\x00'
 
@@ -2747,13 +2747,13 @@ class TestState05(TestStateBase):
 
         time.sleep(0.1)
 
-        assert self.fsm._changes == [
+        assert self.fsm._changes[:3] == [
             ('Sta1', 'Evt1', 'AE-1'),
             ('Sta4', 'Evt2', 'AE-2'),
             ('Sta5', 'Evt13', 'AA-8'),
         ]
-        assert self.fsm._transitions == ['Sta4', 'Sta5', 'Sta13']
-        assert self.fsm._events == ['Evt1', 'Evt2', 'Evt13']
+        assert self.fsm._transitions[:3] == ['Sta4', 'Sta5', 'Sta13']
+        assert self.fsm._events[:3] == ['Evt1', 'Evt2', 'Evt13']
         # Issue A-ABORT PDU
         assert scp.received[1] == b'\x07\x00\x00\x00\x00\x04\x00\x00\x02\x00'
 
@@ -2780,12 +2780,12 @@ class TestState05(TestStateBase):
 
         time.sleep(0.2)
 
-        assert self.fsm._changes == [
+        assert self.fsm._changes[:2] == [
             ('Sta1', 'Evt1', 'AE-1'),
             ('Sta4', 'Evt2', 'AE-2'),
         ]
-        assert self.fsm._transitions == ['Sta4', 'Sta5']
-        assert self.fsm._events == ['Evt1', 'Evt2', 'Evt14']
+        assert self.fsm._transitions[:2] == ['Sta4', 'Sta5']
+        assert self.fsm._events[:3] == ['Evt1', 'Evt2', 'Evt14']
 
     def test_evt15(self):
         """Test Sta5 + Evt15."""
@@ -2813,14 +2813,14 @@ class TestState05(TestStateBase):
 
         time.sleep(0.2)
 
-        assert self.fsm._changes == [
+        assert self.fsm._changes[:4] == [
             ('Sta1', 'Evt1', 'AE-1'),
             ('Sta4', 'Evt2', 'AE-2'),
             ('Sta5', 'Evt15', 'AA-1'),
             ('Sta13', 'Evt17', 'AR-5'),
         ]
-        assert self.fsm._transitions == ['Sta4', 'Sta5', 'Sta13', 'Sta1']
-        assert self.fsm._events == ['Evt1', 'Evt2', 'Evt15', 'Evt17']
+        assert self.fsm._transitions[:4] == ['Sta4', 'Sta5', 'Sta13', 'Sta1']
+        assert self.fsm._events[:4] == ['Evt1', 'Evt2', 'Evt15', 'Evt17']
 
         # Issue A-ABORT PDU
         assert scp.received[1] == b'\x07\x00\x00\x00\x00\x04\x00\x00\x00\x00'
@@ -2847,13 +2847,13 @@ class TestState05(TestStateBase):
 
         time.sleep(0.1)
 
-        assert self.fsm._changes == [
+        assert self.fsm._changes[:3] == [
             ('Sta1', 'Evt1', 'AE-1'),
             ('Sta4', 'Evt2', 'AE-2'),
             ('Sta5', 'Evt16', 'AA-3'),
         ]
-        assert self.fsm._transitions == ['Sta4', 'Sta5', 'Sta1']
-        assert self.fsm._events == ['Evt1', 'Evt2', 'Evt16']
+        assert self.fsm._transitions[:3] == ['Sta4', 'Sta5', 'Sta1']
+        assert self.fsm._events[:3] == ['Evt1', 'Evt2', 'Evt16']
 
     def test_evt17(self):
         """Test Sta5 + Evt17."""
@@ -2874,13 +2874,13 @@ class TestState05(TestStateBase):
 
         time.sleep(0.5)
 
-        assert self.fsm._changes == [
+        assert self.fsm._changes[:3] == [
             ('Sta1', 'Evt1', 'AE-1'),
             ('Sta4', 'Evt2', 'AE-2'),
             ('Sta5', 'Evt17', 'AA-4'),
         ]
-        assert self.fsm._transitions == ['Sta4', 'Sta5', 'Sta1']
-        assert self.fsm._events == ['Evt1', 'Evt2', 'Evt17']
+        assert self.fsm._transitions[:3] == ['Sta4', 'Sta5', 'Sta1']
+        assert self.fsm._events[:3] == ['Evt1', 'Evt2', 'Evt17']
 
     @pytest.mark.skip()
     def test_evt18(self):
@@ -2907,13 +2907,13 @@ class TestState05(TestStateBase):
 
         time.sleep(0.1)
 
-        assert self.fsm._changes == [
+        assert self.fsm._changes[:3] == [
             ('Sta1', 'Evt1', 'AE-1'),
             ('Sta4', 'Evt2', 'AE-2'),
             ('Sta5', 'Evt19', 'AA-8'),
         ]
-        assert self.fsm._transitions == ['Sta4', 'Sta5', 'Sta13']
-        assert self.fsm._events == ['Evt1', 'Evt2', 'Evt19']
+        assert self.fsm._transitions[:3] == ['Sta4', 'Sta5', 'Sta13']
+        assert self.fsm._events[:3] == ['Evt1', 'Evt2', 'Evt19']
         # Issue A-ABORT PDU
         assert scp.received[1] == b'\x07\x00\x00\x00\x00\x04\x00\x00\x02\x00'
 
