@@ -3822,121 +3822,165 @@ class TestState07(TestStateBase):
         assert scp.received[2] == b'\x07\x00\x00\x00\x00\x04\x00\x00\x02\x00'
 
 
-@pytest.mark.skip()
 class TestState08(TestStateBase):
-    """Tests for State 08: """
+    """Tests for State 08: Awaiting A-RELEASE (rp) primitive."""
+    @pytest.mark.skip()
     def test_evt01(self):
-        """Test Sta2 + Evt1."""
-        # Sta2 + Evt1 -> <ignore> -> Sta2
+        """Test Sta8 + Evt1."""
+        # Sta8 + Evt1 -> <ignore> -> Sta8
         # Evt1: A-ASSOCIATE (rq) primitive from <local user>
-        pass
+        scp = DummyAE()
+        scp.mode = 'acceptor'
+        scp.queue.put(None)
+        scp.queue.put(['skip', a_associate_ac])
 
+        scp.start()
+
+        self.assoc.start()
+
+        time.sleep(0.2)
+
+        # Need to stop the assoc reactor from responding
+        self.assoc._kill = True
+
+        scp.queue.put(['skip', a_release_rq])
+        scp.queue.put(['wait', 0.2, 'shutdown'])
+
+        time.sleep(0.2)
+        self.assoc.dul.send_pdu(self.get_associate('request'))
+
+        time.sleep(0.2)
+
+        assert self.fsm._changes[:4] == [
+            ('Sta1', 'Evt1', 'AE-1'),
+            ('Sta4', 'Evt2', 'AE-2'),
+            ('Sta5', 'Evt3', 'AE-3'),
+            ('Sta6', 'Evt11', 'AR-1'),
+        ]
+        assert self.fsm._transitions[:4] == ['Sta4', 'Sta5', 'Sta6', 'Sta7']
+        assert self.fsm._events[:5] == ['Evt1', 'Evt2', 'Evt3', 'Evt11', 'Evt1']
+
+    @pytest.mark.skip()
     def test_evt02(self):
-        """Test Sta2 + Evt2."""
-        # Sta2 + Evt2 -> <ignore> -> Sta2
+        """Test Sta8 + Evt2."""
+        # Sta8 + Evt2 -> <ignore> -> Sta8
         # Evt2: Receive TRANSPORT_OPEN from <transport service>
         pass
 
     def test_evt03(self):
-        """Test Sta2 + Evt3."""
-        # Sta2 + Evt3 -> AA-1 -> Sta13
+        """Test Sta8 + Evt3."""
+        # Sta8 + Evt3 -> AA-8 -> Sta13
         # Evt3: Receive A-ASSOCIATE-AC PDU from <remote>
+        # AA-8: Send A-ABORT PDU, issue A-P-ABORT primitive, start ARTIM
         pass
 
     def test_evt04(self):
-        """Test Sta2 + Evt4."""
-        # Sta2 + Evt4 -> AA-1 -> Sta13
+        """Test Sta8 + Evt4."""
+        # Sta8 + Evt4 -> AA-8 -> Sta13
         # Evt4: Receive A-ASSOCIATE-RJ PDU from <remote>
+        # AA-8: Send A-ABORT PDU, issue A-P-ABORT primitive, start ARTIM
         pass
 
+    @pytest.mark.skip()
     def test_evt05(self):
-        """Test Sta2 + Evt5."""
-        # Sta2 + Evt5 -> <ignore> -> Sta2
+        """Test Sta8 + Evt5."""
+        # Sta8 + Evt5 -> <ignore> -> Sta8
         # Evt5: Receive TRANSPORT_INDICATION from <transport service>
         pass
 
     def test_evt06(self):
-        """Test Sta2 + Evt6."""
-        # Sta2 + Evt6 -> AE-6 -> Sta3 or Sta13
+        """Test Sta8 + Evt6."""
+        # Sta8 + Evt6 -> AA-8 -> Sta13
         # Evt6: Receive A-ASSOCIATE-RQ PDU from <remote>
+        # AA-8: Send A-ABORT PDU, issue A-P-ABORT primitive, start ARTIM
         pass
 
     def test_evt07(self):
-        """Test Sta2 + Evt7."""
-        # Sta2 + Evt7 -> <ignore> -> Sta2
+        """Test Sta8 + Evt7."""
+        # Sta8 + Evt7 -> <ignore> -> Sta8
         # Evt7: Receive A-ASSOCIATE (accept) primitive from <local user>
         pass
 
     def test_evt08(self):
-        """Test Sta2 + Evt8."""
-        # Sta2 + Evt8 -> <ignore> -> Sta2
+        """Test Sta8 + Evt8."""
+        # Sta8 + Evt8 -> <ignore> -> Sta8
         # Evt8: Receive A-ASSOCIATE (reject) primitive from <local user>
         pass
 
     def test_evt09(self):
-        """Test Sta2 + Evt9."""
-        # Sta2 + Evt9 -> <ignore> -> Sta2
+        """Test Sta8 + Evt9."""
+        # Sta8 + Evt9 -> AR-7 -> Sta8
         # Evt9: Receive P-DATA primitive from <local user>
+        # AR-7: Send P-DATA-TF PDU to <remote>
         pass
 
     def test_evt10(self):
-        """Test Sta2 + Evt10."""
-        # Sta2 + Evt10 -> AA-1 -> Sta13
+        """Test Sta8 + Evt10."""
+        # Sta8 + Evt10 -> AA-8 -> Sta13
         # Evt10: Receive P-DATA-TF PDU from <remote>
+        # AA-8: Send A-ABORT PDU, issue A-P-ABORT primitive, start ARTIM
         pass
 
     def test_evt11(self):
-        """Test Sta2 + Evt11."""
-        # Sta2 + Evt11 -> <ignore> -> Sta2
+        """Test Sta8 + Evt11."""
+        # Sta8 + Evt11 -> <ignore> -> Sta8
         # Evt11: Receive A-RELEASE (rq) primitive from <local user>
         pass
 
     def test_evt12(self):
-        """Test Sta2 + Evt12."""
-        # Sta2 + Evt12 -> AA-1 -> Sta13
+        """Test Sta8 + Evt12."""
+        # Sta8 + Evt12 -> AA-8 -> Sta13
         # Evt12: Receive A-RELEASE-RQ PDU from <remote>
+        # AA-8: Send A-ABORT PDU, issue A-P-ABORT primitive, start ARTIM
         pass
 
     def test_evt13(self):
-        """Test Sta2 + Evt13."""
-        # Sta2 + Evt13 -> AA-1 -> Sta13
+        """Test Sta8 + Evt13."""
+        # Sta8 + Evt13 -> AA-8 -> Sta13
         # Evt13: Receive A-RELEASE-RP PDU from <remote>
+        # AA-8: Send A-ABORT PDU, issue A-P-ABORT primitive, start ARTIM
         pass
 
     def test_evt14(self):
-        """Test Sta2 + Evt14."""
-        # Sta2 + Evt14 -> <ignore> -> Sta2
+        """Test Sta8 + Evt14."""
+        # Sta8 + Evt14 -> AR-4 -> Sta13
         # Evt14: Receive A-RELEASE (rsp) primitive from <local user>
+        # AR-4: Send A-RELEASE-RP PDU and start ARTIM
         pass
 
     def test_evt15(self):
-        """Test Sta2 + Evt15."""
-        # Sta2 + Evt15 -> <ignore> -> Sta2
+        """Test Sta8 + Evt15."""
+        # Sta8 + Evt15 -> AA-1 -> Sta13
         # Evt15: Receive A-ABORT (rq) primitive from <local user>
+        # AA-1: Send A-ABORT PDU and start ARTIM
         pass
 
     def test_evt16(self):
-        """Test Sta2 + Evt16."""
-        # Sta2 + Evt16 -> AA-2 -> Sta1
+        """Test Sta8 + Evt16."""
+        # Sta8 + Evt16 -> AA-3 -> Sta13
         # Evt16: Receive A-ABORT PDU from <remote>
+        # AA-3: Issue A-ABORT or A-P-ABORT and close connection
         pass
 
     def test_evt17(self):
-        """Test Sta2 + Evt17."""
-        # Sta2 + Evt17 -> AA-5 -> Sta1
+        """Test Sta8 + Evt17."""
+        # Sta8 + Evt17 -> AA-4 -> Sta1
         # Evt17: Receive TRANSPORT_CLOSED from <transport service>
+        # AA-4: Issue A-P-ABORT
         pass
 
+    @pytest.mark.skip()
     def test_evt18(self):
-        """Test Sta2 + Evt18."""
-        # Sta2 + Evt18 -> AA-2 -> Sta1
+        """Test Sta8 + Evt18."""
+        # Sta8 + Evt18 -> <ignore> -> Sta1
         # Evt18: ARTIM timer expired from <local service>
         pass
 
     def test_evt19(self):
-        """Test Sta2 + Evt19."""
-        # Sta2 + Evt19 -> AA-1 -> Sta13
+        """Test Sta8 + Evt19."""
+        # Sta8 + Evt19 -> AA-8 -> Sta13
         # Evt19: Received unrecognised or invalid PDU from <remote>
+        # AA-8: Send A-ABORT PDU, issue A-P-ABORT primitive, start ARTIM
         pass
 
 

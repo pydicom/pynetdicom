@@ -955,6 +955,7 @@ def AA_5(dul):
     """
     # Stop ARTIM timer.
     dul.artim_timer.stop()
+    dul.kill_dul()
 
     return 'Sta1'
 
