@@ -198,15 +198,17 @@ class DummyAE(threading.Thread):
                             self._kill = True
                             return
                         continue
-                    for item in to_send:
-                        if item == 'shutdown':
-                            self.sock.shutdown(socket.SHUT_RDWR)
-                            self.sock.close()
-                            self._kill = True
-                            return
-                        elif item == None:
-                            continue
-                        else:
+                    elif to_send[0] == 'skip':
+                        conn.send(to_send[1])
+                        continue
+                    elif to_send[1] == 'shutdown':
+                        conn.send(to_send[1])
+                        self.sock.shutdown(socket.SHUT_RDWR)
+                        self.sock.close()
+                        self._kill = True
+                        return
+                    else:
+                        for item in to_send:
                             conn.send(item)
                 else:
                     conn.send(to_send)
@@ -1122,252 +1124,118 @@ class TestState01(TestStateBase):
 @pytest.mark.skip("Need a TRANSPORT_OPEN indication")
 class TestState02(TestStateBase):
     """Tests for State 02: Connection open, waiting for A-ASSOCIATE-RQ."""
-    @pytest.mark.skip()
     def test_evt01(self):
         """Test Sta2 + Evt1."""
         # Sta2 + Evt1 -> <ignore> -> Sta2
-        # Sta2: Connection open, awaiting A-ASSOCIATE-RQ from <remote>
         # Evt1: A-ASSOCIATE (rq) primitive from <local user>
-        # Sta2: Connection open, awaiting A-ASSOCIATE-RQ from <remote>
-        scp = DummyAE()
-        scp.remote_port = 11112
-        scp.address = ''
+        pass
 
-        assert self.fsm.current_state == 'Sta1'
-        assert self.assoc.dul.scu_socket is None
-
-        self.assoc._mode = 'acceptor'
-        listen_socket = scp.bind_socket()
-
-        send_socket = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
-        send_socket.connect(('localhost', 11112))
-        #send_socket.send(p_data_tf)
-
-        ready, _, _ = select.select([listen_socket], [], [], 0.5)
-        if ready:
-            self.assoc.dul.scu_socket, _ = listen_socket.accept()
-
-        self.assoc.start()
-
-        self.fsm.current_state = 'Sta2'
-        assert self.fsm.current_state == 'Sta2'
-        self.assoc.dul.send_pdu(self.get_associate('request'))
-
-        time.sleep(0.1)
-
-        assert self.fsm._transitions == []
-        assert self.fsm._changes == []
-        #assert self.fsm._events == ['Evt5', 'Evt1']
-        assert self.fsm._events == ['Evt1']
-        assert self.fsm.current_state == 'Sta2'
-
-        self.fsm.current_state == 'Sta1'
-        self.assoc.kill()
-
-    @pytest.mark.skip()
     def test_evt02(self):
+        """Test Sta2 + Evt2."""
         # Sta2 + Evt2 -> <ignore> -> Sta2
-        # Sta2: Connection open, awaiting A-ASSOCIATE-RQ from <remote>
         # Evt2: Receive TRANSPORT_OPEN from <transport service>
-        # Sta2: Connection open, awaiting A-ASSOCIATE-RQ from <remote>
         pass
 
     def test_evt03(self):
+        """Test Sta2 + Evt3."""
         # Sta2 + Evt3 -> AA-1 -> Sta13
-        # Sta2: Connection open, awaiting A-ASSOCIATE-RQ from <remote>
         # Evt3: Receive A-ASSOCIATE-AC PDU from <remote>
-        # AA-1: Send A-ABORT PDU from <local service> to <remote>
-        #       Restart ARTIM
-        # Sta13: Awaiting TRANSPORT_CLOSE from <transport service>
-        scp = DummyAE()
-        scp.remote_port = 11112
-        scp.address = ''
-
-        assert self.fsm.current_state == 'Sta1'
-        assert self.assoc.dul.scu_socket is None
-
-        self.assoc._mode = 'acceptor'
-        listen_socket = scp.bind_socket()
-
-        send_socket = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
-        send_socket.connect(('localhost', 11112))
-        send_socket.send(b'')
-
-        ready, _, _ = select.select([listen_socket], [], [], 0.5)
-        if ready:
-            self.assoc.dul.scu_socket, _ = listen_socket.accept()
-
-        self.assoc.start()
-
-        time.sleep(0.1)
-
-        self.assoc.kill()
-
-        assert self.fsm._transitions == []
-        assert self.fsm._changes == []
-        print(self.fsm.current_state)
-        # Evt5 is not recorded as a unique event
-        assert self.fsm._events == ['Evt3']
+        pass
 
     def test_evt04(self):
+        """Test Sta2 + Evt4."""
         # Sta2 + Evt4 -> AA-1 -> Sta13
-        # Sta2: Connection open, awaiting A-ASSOCIATE-RQ from <remote>
         # Evt4: Receive A-ASSOCIATE-RJ PDU from <remote>
-        # AA-1: Send A-ABORT PDU from <local service> to <remote>
-        #       Restart ARTIM
-        # Sta13: Awaiting TRANSPORT_CLOSE from <transport service>
-        scp = DummyAE()
-        scp.remote_port = 11112
-        scp.address = ''
-
-        assert self.fsm.current_state == 'Sta1'
-        assert self.assoc.dul.scu_socket is None
-
-        self.assoc._mode = 'acceptor'
-        listen_socket = scp.bind_socket()
-
-        send_socket = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
-        send_socket.connect(('localhost', 11112))
-        send_socket.send(a_associate_ac)
-
-        ready, _, _ = select.select([listen_socket], [], [], 0.5)
-        if ready:
-            self.assoc.dul.scu_socket, _ = listen_socket.accept()
-
-        self.assoc.start()
-
-        time.sleep(0.1)
-
-        self.assoc.kill()
-
-        assert self.fsm._transitions == []
-        assert self.fsm._changes == []
-        # Evt5 is not recorded as a unique event
-        assert self.fsm._events == ['Evt3']
+        pass
 
     def test_evt05(self):
+        """Test Sta2 + Evt5."""
         # Sta2 + Evt5 -> <ignore> -> Sta2
-        # Sta2: Connection open, awaiting A-ASSOCIATE-RQ from <remote>
         # Evt5: Receive TRANSPORT_INDICATION from <transport service>
-        # Sta2: Connection open, awaiting A-ASSOCIATE-RQ from <remote>
         pass
 
     def test_evt06(self):
+        """Test Sta2 + Evt6."""
         # Sta2 + Evt6 -> AE-6 -> Sta3 or Sta13
-        # Sta2: Connection open, awaiting A-ASSOCIATE-RQ from <remote>
         # Evt6: Receive A-ASSOCIATE-RQ PDU from <remote>
-        # AE-6: Stop ARTIM
-        #       If A-ASSOCIATE-RQ is acceptable
-        #           Send A-ASSOCIATE primitive to <local user>
-        #       Otherwise
-        #           Send A-ASSOCIATE-RJ PDU to <remote>
-        #           Start ARTIM
-        # Sta3: Awaiting A-ASSOCIATE (rsp) from <local user>
-        # Sta13: Awaiting TRANSPORT_CLOSE from <transport service>
         pass
 
     def test_evt07(self):
+        """Test Sta2 + Evt7."""
         # Sta2 + Evt7 -> <ignore> -> Sta2
-        # Sta2: Connection open, awaiting A-ASSOCIATE-RQ from <remote>
         # Evt7: Receive A-ASSOCIATE (accept) primitive from <local user>
-        # Sta2: Connection open, awaiting A-ASSOCIATE-RQ from <remote>
         pass
 
     def test_evt08(self):
+        """Test Sta2 + Evt8."""
         # Sta2 + Evt8 -> <ignore> -> Sta2
-        # Sta2: Connection open, awaiting A-ASSOCIATE-RQ from <remote>
         # Evt8: Receive A-ASSOCIATE (reject) primitive from <local user>
-        # Sta2: Connection open, awaiting A-ASSOCIATE-RQ from <remote>
         pass
 
     def test_evt09(self):
+        """Test Sta2 + Evt9."""
         # Sta2 + Evt9 -> <ignore> -> Sta2
-        # Sta2: Connection open, awaiting A-ASSOCIATE-RQ from <remote>
         # Evt9: Receive P-DATA primitive from <local user>
-        # Sta2: Connection open, awaiting A-ASSOCIATE-RQ from <remote>
         pass
 
     def test_evt10(self):
+        """Test Sta2 + Evt10."""
         # Sta2 + Evt10 -> AA-1 -> Sta13
-        # Sta2: Connection open, awaiting A-ASSOCIATE-RQ from <remote>
         # Evt10: Receive P-DATA-TF PDU from <remote>
-        # AA-1: Send A-ABORT PDU from <local service> to <remote>
-        #       Restart ARTIM
-        # Sta13: Awaiting TRANSPORT_CLOSE from <transport service>
         pass
 
     def test_evt11(self):
+        """Test Sta2 + Evt11."""
         # Sta2 + Evt11 -> <ignore> -> Sta2
-        # Sta2: Connection open, awaiting A-ASSOCIATE-RQ from <remote>
         # Evt11: Receive A-RELEASE (rq) primitive from <local user>
-        # Sta2: Connection open, awaiting A-ASSOCIATE-RQ from <remote>
         pass
 
     def test_evt12(self):
+        """Test Sta2 + Evt12."""
         # Sta2 + Evt12 -> AA-1 -> Sta13
-        # Sta2: Connection open, awaiting A-ASSOCIATE-RQ from <remote>
         # Evt12: Receive A-RELEASE-RQ PDU from <remote>
-        # AA-1: Send A-ABORT PDU from <local service> to <remote>
-        #       Restart ARTIM
-        # Sta13: Awaiting TRANSPORT_CLOSE from <transport service>
         pass
 
     def test_evt13(self):
+        """Test Sta2 + Evt13."""
         # Sta2 + Evt13 -> AA-1 -> Sta13
-        # Sta2: Connection open, awaiting A-ASSOCIATE-RQ from <remote>
         # Evt13: Receive A-RELEASE-RP PDU from <remote>
-        # AA-1: Send A-ABORT PDU from <local service> to <remote>
-        #       Restart ARTIM
-        # Sta13: Awaiting TRANSPORT_CLOSE from <transport service>
         pass
 
     def test_evt14(self):
+        """Test Sta2 + Evt14."""
         # Sta2 + Evt14 -> <ignore> -> Sta2
-        # Sta2: Connection open, awaiting A-ASSOCIATE-RQ from <remote>
         # Evt14: Receive A-RELEASE (rsp) primitive from <local user>
-        # Sta2: Connection open, awaiting A-ASSOCIATE-RQ from <remote>
         pass
 
     def test_evt15(self):
+        """Test Sta2 + Evt15."""
         # Sta2 + Evt15 -> <ignore> -> Sta2
-        # Sta2: Connection open, awaiting A-ASSOCIATE-RQ from <remote>
         # Evt15: Receive A-ABORT (rq) primitive from <local user>
-        # Sta2: Connection open, awaiting A-ASSOCIATE-RQ from <remote>
         pass
 
     def test_evt16(self):
+        """Test Sta2 + Evt16."""
         # Sta2 + Evt16 -> AA-2 -> Sta1
-        # Sta2: Connection open, awaiting A-ASSOCIATE-RQ from <remote>
         # Evt16: Receive A-ABORT PDU from <remote>
-        # AA-2: Stop ARTIM
-        #       Send CONNECTION_CLOSE to <transport service>
-        # Sta1: Idle
         pass
 
     def test_evt17(self):
+        """Test Sta2 + Evt17."""
         # Sta2 + Evt17 -> AA-5 -> Sta1
-        # Sta2: Connection open, awaiting A-ASSOCIATE-RQ from <remote>
         # Evt17: Receive TRANSPORT_CLOSED from <transport service>
-        # AA-5: Stop ARTIM
-        # Sta1: Idle
         pass
 
     def test_evt18(self):
+        """Test Sta2 + Evt18."""
         # Sta2 + Evt18 -> AA-2 -> Sta1
-        # Sta2: Connection open, awaiting A-ASSOCIATE-RQ from <remote>
         # Evt18: ARTIM timer expired from <local service>
-        # AA-2: Stop ARTIM
-        #       Send CONNECTION_CLOSE to <transport service>
-        # Sta1: Idle
         pass
 
     def test_evt19(self):
+        """Test Sta2 + Evt19."""
         # Sta2 + Evt19 -> AA-1 -> Sta13
-        # Sta2: Connection open, awaiting A-ASSOCIATE-RQ from <remote>
         # Evt19: Received unrecognised or invalid PDU from <remote>
-        # AA-1: Send A-ABORT PDU from <local service> to <remote>
-        #       Restart ARTIM
-        # Sta13: Awaiting TRANSPORT_CLOSE from <transport service>
         pass
 
 
@@ -2568,7 +2436,6 @@ class TestState05(TestStateBase):
 
         time.sleep(0.3)
 
-        #self.assoc.acse.send_abort(self.assoc, 0x00)
         self.assoc.dul.send_pdu(self.get_associate('accept'))
 
         time.sleep(0.2)
@@ -2916,6 +2783,1311 @@ class TestState05(TestStateBase):
         assert self.fsm._events[:3] == ['Evt1', 'Evt2', 'Evt19']
         # Issue A-ABORT PDU
         assert scp.received[1] == b'\x07\x00\x00\x00\x00\x04\x00\x00\x02\x00'
+
+
+class TestState06(TestStateBase):
+    """Tests for State 06: Association established and ready for data."""
+    def test_evt01(self):
+        """Test Sta6 + Evt1."""
+        # Sta6 + Evt1 -> <ignore> -> Sta6
+        # Evt1: A-ASSOCIATE (rq) primitive from <local user>
+        scp = DummyAE()
+        scp.mode = 'acceptor'
+        scp.queue.put(None)
+        scp.queue.put(['skip', a_associate_ac])
+        scp.queue.put(['wait', 0.4, 'shutdown'])
+        scp.start()
+
+        self.assoc.start()
+
+        time.sleep(0.3)
+
+        self.assoc.dul.send_pdu(self.get_associate('request'))
+
+        time.sleep(0.2)
+
+        assert self.fsm._changes[:3] == [
+            ('Sta1', 'Evt1', 'AE-1'),
+            ('Sta4', 'Evt2', 'AE-2'),
+            ('Sta5', 'Evt3', 'AE-3'),
+        ]
+        assert self.fsm._transitions[:3] == ['Sta4', 'Sta5', 'Sta6']
+        assert self.fsm._events[:4] == ['Evt1', 'Evt2', 'Evt3', 'Evt1']
+
+    @pytest.mark.skip()
+    def test_evt02(self):
+        """Test Sta6 + Evt2."""
+        # Sta6 + Evt2 -> <ignore> -> Sta6
+        # Evt2: Receive TRANSPORT_OPEN from <transport service>
+        pass
+
+    def test_evt03(self):
+        """Test Sta6 + Evt3."""
+        # Sta6 + Evt3 -> AA-8 -> Sta13
+        # Evt3: Receive A-ASSOCIATE-AC PDU from <remote>
+        # AA-8: Send A-ABORT PDU, issue A-P-ABORT primitive, start ARTIM
+        scp = DummyAE()
+        scp.mode = 'acceptor'
+        scp.queue.put(None)
+        scp.queue.put(['skip', a_associate_ac])
+        scp.queue.put(a_associate_ac)
+        scp.queue.put('shutdown')
+        scp.start()
+
+        self.assoc.start()
+
+        time.sleep(0.2)
+
+        assert self.fsm._changes[:4] == [
+            ('Sta1', 'Evt1', 'AE-1'),
+            ('Sta4', 'Evt2', 'AE-2'),
+            ('Sta5', 'Evt3', 'AE-3'),
+            ('Sta6', 'Evt3', 'AA-8'),
+        ]
+        assert self.fsm._transitions[:4] == ['Sta4', 'Sta5', 'Sta6', 'Sta13']
+        assert self.fsm._events[:4] == ['Evt1', 'Evt2', 'Evt3', 'Evt3']
+
+        # Issue A-ABORT PDU
+        assert scp.received[1] == b'\x07\x00\x00\x00\x00\x04\x00\x00\x02\x00'
+
+    def test_evt04(self):
+        """Test Sta6 + Evt4."""
+        # Sta6 + Evt4 -> AA-8 -> Sta13
+        # Evt4: Receive A-ASSOCIATE-RJ PDU from <remote>
+        # AA-8: Send A-ABORT PDU, issue A-P-ABORT primitive, start ARTIM
+        scp = DummyAE()
+        scp.mode = 'acceptor'
+        scp.queue.put(None)
+        scp.queue.put(['skip', a_associate_ac])
+        scp.queue.put(a_associate_rj)
+        scp.queue.put('shutdown')
+        scp.start()
+
+        self.assoc.start()
+
+        time.sleep(0.2)
+
+        assert self.fsm._changes[:4] == [
+            ('Sta1', 'Evt1', 'AE-1'),
+            ('Sta4', 'Evt2', 'AE-2'),
+            ('Sta5', 'Evt3', 'AE-3'),
+            ('Sta6', 'Evt4', 'AA-8'),
+        ]
+        assert self.fsm._transitions[:4] == ['Sta4', 'Sta5', 'Sta6', 'Sta13']
+        assert self.fsm._events[:4] == ['Evt1', 'Evt2', 'Evt3', 'Evt4']
+
+        # Issue A-ABORT PDU
+        assert scp.received[1] == b'\x07\x00\x00\x00\x00\x04\x00\x00\x02\x00'
+
+    @pytest.mark.skip()
+    def test_evt05(self):
+        """Test Sta6 + Evt5."""
+        # Sta6 + Evt5 -> <ignore> -> Sta6
+        # Evt5: Receive TRANSPORT_INDICATION from <transport service>
+        pass
+
+    def test_evt06(self):
+        """Test Sta6 + Evt6."""
+        # Sta6 + Evt6 -> AA-8 -> Sta13
+        # Evt6: Receive A-ASSOCIATE-RQ PDU from <remote>
+        # AA-8: Send A-ABORT PDU, issue A-P-ABORT primitive, start ARTIM
+        scp = DummyAE()
+        scp.mode = 'acceptor'
+        scp.queue.put(None)
+        scp.queue.put(['skip', a_associate_ac])
+        scp.queue.put(a_associate_rq)
+        scp.queue.put('shutdown')
+        scp.start()
+
+        self.assoc.start()
+
+        time.sleep(0.2)
+
+        assert self.fsm._changes[:4] == [
+            ('Sta1', 'Evt1', 'AE-1'),
+            ('Sta4', 'Evt2', 'AE-2'),
+            ('Sta5', 'Evt3', 'AE-3'),
+            ('Sta6', 'Evt6', 'AA-8'),
+        ]
+        assert self.fsm._transitions[:4] == ['Sta4', 'Sta5', 'Sta6', 'Sta13']
+        assert self.fsm._events[:4] == ['Evt1', 'Evt2', 'Evt3', 'Evt6']
+
+        # Issue A-ABORT PDU
+        assert scp.received[1] == b'\x07\x00\x00\x00\x00\x04\x00\x00\x02\x00'
+
+    def test_evt07(self):
+        """Test Sta6 + Evt7."""
+        # Sta6 + Evt7 -> <ignore> -> Sta6
+        # Evt7: Receive A-ASSOCIATE (accept) primitive from <local user>
+        scp = DummyAE()
+        scp.mode = 'acceptor'
+        scp.queue.put(None)
+        scp.queue.put(['skip', a_associate_ac])
+        scp.queue.put(['wait', 0.3])
+        scp.queue.put(['skip', a_abort])
+        scp.queue.put('shutdown')
+        scp.start()
+
+        self.assoc.start()
+
+        time.sleep(0.2)
+
+        self.assoc.dul.send_pdu(self.get_associate('accept'))
+
+        time.sleep(0.2)
+
+        assert self.fsm._changes[:3] == [
+            ('Sta1', 'Evt1', 'AE-1'),
+            ('Sta4', 'Evt2', 'AE-2'),
+            ('Sta5', 'Evt3', 'AE-3'),
+        ]
+        assert self.fsm._transitions[:3] == ['Sta4', 'Sta5', 'Sta6']
+        assert self.fsm._events[:4] == ['Evt1', 'Evt2', 'Evt3', 'Evt7']
+
+    def test_evt08(self):
+        """Test Sta6 + Evt8."""
+        # Sta6 + Evt8 -> <ignore> -> Sta6
+        # Evt8: Receive A-ASSOCIATE (reject) primitive from <local user>
+        scp = DummyAE()
+        scp.mode = 'acceptor'
+        scp.queue.put(None)
+        scp.queue.put(['skip', a_associate_ac])
+        scp.queue.put(['wait', 0.3])
+        scp.queue.put(['skip', a_abort])
+        scp.queue.put('shutdown')
+        scp.start()
+
+        self.assoc.start()
+
+        time.sleep(0.2)
+
+        self.assoc.dul.send_pdu(self.get_associate('reject'))
+
+        time.sleep(0.2)
+
+        assert self.fsm._changes[:3] == [
+            ('Sta1', 'Evt1', 'AE-1'),
+            ('Sta4', 'Evt2', 'AE-2'),
+            ('Sta5', 'Evt3', 'AE-3'),
+        ]
+        assert self.fsm._transitions[:3] == ['Sta4', 'Sta5', 'Sta6']
+        assert self.fsm._events[:4] == ['Evt1', 'Evt2', 'Evt3', 'Evt8']
+
+    def test_evt09(self):
+        """Test Sta6 + Evt9."""
+        # Sta6 + Evt9 -> DT-1 -> Sta6
+        # Evt9: Receive P-DATA primitive from <local user>
+        # DT-1: Send P-DATA-TD PDU
+        scp = DummyAE()
+        scp.mode = 'acceptor'
+        scp.queue.put(None)
+        scp.queue.put(['skip', a_associate_ac])
+        scp.queue.put(None)
+        scp.queue.put(['skip', a_abort])
+        scp.queue.put('shutdown')
+        scp.start()
+
+        self.assoc.start()
+
+        time.sleep(0.2)
+
+        self.assoc.dul.send_pdu(self.get_pdata())
+
+        time.sleep(0.2)
+
+        assert self.fsm._changes[:4] == [
+            ('Sta1', 'Evt1', 'AE-1'),
+            ('Sta4', 'Evt2', 'AE-2'),
+            ('Sta5', 'Evt3', 'AE-3'),
+            ('Sta6', 'Evt9', 'DT-1'),
+        ]
+        assert self.fsm._transitions[:4] == ['Sta4', 'Sta5', 'Sta6', 'Sta6']
+        assert self.fsm._events[:4] == ['Evt1', 'Evt2', 'Evt3', 'Evt9']
+
+    def test_evt10(self):
+        """Test Sta6 + Evt10."""
+        # Sta6 + Evt10 -> DT-2 -> Sta6
+        # Evt10: Receive P-DATA-TF PDU from <remote>
+        # DT-2: Send P-DATA primitive
+        scp = DummyAE()
+        scp.mode = 'acceptor'
+        scp.queue.put(None)
+        scp.queue.put(['skip', a_associate_ac])
+        scp.queue.put(['skip', p_data_tf])
+        scp.queue.put(['skip', a_abort])
+        scp.queue.put('shutdown')
+        scp.start()
+
+        self.assoc.start()
+
+        time.sleep(0.2)
+
+        assert self.fsm._changes[:4] == [
+            ('Sta1', 'Evt1', 'AE-1'),
+            ('Sta4', 'Evt2', 'AE-2'),
+            ('Sta5', 'Evt3', 'AE-3'),
+            ('Sta6', 'Evt10', 'DT-2'),
+        ]
+        assert self.fsm._transitions[:4] == ['Sta4', 'Sta5', 'Sta6', 'Sta6']
+        assert self.fsm._events[:4] == ['Evt1', 'Evt2', 'Evt3', 'Evt10']
+
+    def test_evt11(self):
+        """Test Sta6 + Evt11."""
+        # Sta6 + Evt11 -> AR-1 -> Sta7
+        # Evt11: Receive A-RELEASE (rq) primitive from <local user>
+        scp = DummyAE()
+        scp.mode = 'acceptor'
+        scp.queue.put(None)
+        scp.queue.put(['skip', a_associate_ac])
+        scp.queue.put(['wait', 0.3])
+        scp.queue.put(['skip', a_abort])
+        scp.queue.put('shutdown')
+        scp.start()
+
+        self.assoc.start()
+
+        time.sleep(0.2)
+
+        self.assoc.dul.send_pdu(self.get_release(False))
+
+        time.sleep(0.2)
+
+        assert self.fsm._changes[:3] == [
+            ('Sta1', 'Evt1', 'AE-1'),
+            ('Sta4', 'Evt2', 'AE-2'),
+            ('Sta5', 'Evt3', 'AE-3'),
+        ]
+        assert self.fsm._transitions[:3] == ['Sta4', 'Sta5', 'Sta6']
+        assert self.fsm._events[:4] == ['Evt1', 'Evt2', 'Evt3', 'Evt11']
+
+    def test_evt12(self):
+        """Test Sta6 + Evt12."""
+        # Sta6 + Evt12 -> AR-2 -> Sta8
+        # Evt12: Receive A-RELEASE-RQ PDU from <remote>
+        # AR-2: Issue A-RELEASE (rq) primitive
+        scp = DummyAE()
+        scp.mode = 'acceptor'
+        scp.queue.put(None)
+        scp.queue.put(['skip', a_associate_ac])
+        scp.queue.put(a_release_rq)
+        scp.queue.put('shutdown')
+        scp.start()
+
+        self.assoc.start()
+
+        time.sleep(0.2)
+
+        assert self.fsm._changes[:4] == [
+            ('Sta1', 'Evt1', 'AE-1'),
+            ('Sta4', 'Evt2', 'AE-2'),
+            ('Sta5', 'Evt3', 'AE-3'),
+            ('Sta6', 'Evt12', 'AR-2'),
+        ]
+        assert self.fsm._transitions[:4] == ['Sta4', 'Sta5', 'Sta6', 'Sta8']
+        assert self.fsm._events[:4] == ['Evt1', 'Evt2', 'Evt3', 'Evt12']
+
+    def test_evt13(self):
+        """Test Sta6 + Evt13."""
+        # Sta6 + Evt13 -> AA-8 -> Sta13
+        # Evt13: Receive A-RELEASE-RP PDU from <remote>
+        # AA-8: Send A-ABORT PDU, issue A-P-ABORT primitive, start ARTIM
+        scp = DummyAE()
+        scp.mode = 'acceptor'
+        scp.queue.put(None)
+        scp.queue.put(['skip', a_associate_ac])
+        scp.queue.put(a_release_rp)
+        scp.queue.put('shutdown')
+        scp.start()
+
+        self.assoc.start()
+
+        time.sleep(0.2)
+
+        assert self.fsm._changes[:4] == [
+            ('Sta1', 'Evt1', 'AE-1'),
+            ('Sta4', 'Evt2', 'AE-2'),
+            ('Sta5', 'Evt3', 'AE-3'),
+            ('Sta6', 'Evt13', 'AA-8'),
+        ]
+        assert self.fsm._transitions[:4] == ['Sta4', 'Sta5', 'Sta6', 'Sta13']
+        assert self.fsm._events[:4] == ['Evt1', 'Evt2', 'Evt3', 'Evt13']
+
+        # Issue A-ABORT PDU
+        assert scp.received[1] == b'\x07\x00\x00\x00\x00\x04\x00\x00\x02\x00'
+
+    def test_evt14(self):
+        """Test Sta6 + Evt14."""
+        # Sta6 + Evt14 -> <ignore> -> Sta6
+        # Evt14: Receive A-RELEASE (rsp) primitive from <local user>
+        scp = DummyAE()
+        scp.mode = 'acceptor'
+        scp.queue.put(None)
+        scp.queue.put(['skip', a_associate_ac])
+        scp.queue.put(['wait', 0.3])
+        scp.queue.put(['skip', a_abort])
+        scp.queue.put('shutdown')
+        scp.start()
+
+        self.assoc.start()
+
+        time.sleep(0.2)
+
+        self.assoc.dul.send_pdu(self.get_release(True))
+
+        time.sleep(0.2)
+
+        assert self.fsm._changes[:3] == [
+            ('Sta1', 'Evt1', 'AE-1'),
+            ('Sta4', 'Evt2', 'AE-2'),
+            ('Sta5', 'Evt3', 'AE-3'),
+        ]
+        assert self.fsm._transitions[:3] == ['Sta4', 'Sta5', 'Sta6']
+        assert self.fsm._events[:4] == ['Evt1', 'Evt2', 'Evt3', 'Evt14']
+
+    def test_evt15(self):
+        """Test Sta6 + Evt15."""
+        # Sta6 + Evt15 -> AA-1 -> Sta13
+        # Evt15: Receive A-ABORT (rq) primitive from <local user>
+        # AA-1: Send A-ABORT PDU and start ARTIM
+        scp = DummyAE()
+        scp.mode = 'acceptor'
+        scp.queue.put(None)
+        scp.queue.put(['skip', a_associate_ac])
+        scp.queue.put(None)
+        scp.queue.put('shutdown')
+        scp.start()
+
+        self.assoc.start()
+
+        time.sleep(0.2)
+
+        self.assoc.abort()
+
+        time.sleep(0.2)
+
+        assert self.fsm._changes[:3] == [
+            ('Sta1', 'Evt1', 'AE-1'),
+            ('Sta4', 'Evt2', 'AE-2'),
+            ('Sta5', 'Evt3', 'AE-3'),
+        ]
+        assert self.fsm._transitions[:3] == ['Sta4', 'Sta5', 'Sta6']
+        assert self.fsm._events[:4] == ['Evt1', 'Evt2', 'Evt3', 'Evt15']
+
+        # Issue A-ABORT PDU
+        assert scp.received[1] == b'\x07\x00\x00\x00\x00\x04\x00\x00\x00\x00'
+
+    def test_evt16(self):
+        """Test Sta6 + Evt16."""
+        # Sta6 + Evt16 -> AA-3 -> Sta1
+        # Evt16: Receive A-ABORT PDU from <remote>
+        # AA-3: Issue A-ABORT or A-P-ABORT, and close connection
+        scp = DummyAE()
+        scp.mode = 'acceptor'
+        scp.queue.put(None)
+        scp.queue.put(['skip', a_associate_ac])
+        scp.queue.put(['skip', a_abort])
+        scp.queue.put('shutdown')
+        scp.start()
+
+        self.assoc.start()
+
+        time.sleep(0.2)
+
+        assert self.fsm._changes[:4] == [
+            ('Sta1', 'Evt1', 'AE-1'),
+            ('Sta4', 'Evt2', 'AE-2'),
+            ('Sta5', 'Evt3', 'AE-3'),
+            ('Sta6', 'Evt16', 'AA-3'),
+        ]
+        assert self.fsm._transitions[:4] == ['Sta4', 'Sta5', 'Sta6', 'Sta1']
+        assert self.fsm._events[:4] == ['Evt1', 'Evt2', 'Evt3', 'Evt16']
+
+    def test_evt17(self):
+        """Test Sta6 + Evt17."""
+        # Sta6 + Evt17 -> AA-4 -> Sta1
+        # Evt17: Receive TRANSPORT_CLOSED from <transport service>
+        # AA-4: Issue A-P-ABORT primitive
+        scp = DummyAE()
+        scp.mode = 'acceptor'
+        scp.queue.put(None)
+        scp.queue.put(['skip', a_associate_ac])
+        scp.queue.put('shutdown')
+        scp.start()
+
+        self.assoc.start()
+
+        time.sleep(0.2)
+
+        assert self.fsm._changes[:4] == [
+            ('Sta1', 'Evt1', 'AE-1'),
+            ('Sta4', 'Evt2', 'AE-2'),
+            ('Sta5', 'Evt3', 'AE-3'),
+            ('Sta6', 'Evt17', 'AA-4'),
+        ]
+        assert self.fsm._transitions[:4] == ['Sta4', 'Sta5', 'Sta6', 'Sta1']
+        assert self.fsm._events[:4] == ['Evt1', 'Evt2', 'Evt3', 'Evt17']
+
+    @pytest.mark.skip
+    def test_evt18(self):
+        """Test Sta6 + Evt18."""
+        # Sta6 + Evt18 -> <ignore> -> Sta6
+        # Evt18: ARTIM timer expired from <local service>
+        pass
+
+    def test_evt19(self):
+        """Test Sta6 + Evt19."""
+        # Sta6 + Evt19 -> AA-8 -> Sta13
+        # Evt19: Received unrecognised or invalid PDU from <remote>
+        # AA-8: Send A-ABORT PDU, issue A-P-ABORT primitive, start ARTIM
+        scp = DummyAE()
+        scp.mode = 'acceptor'
+        scp.queue.put(None)
+        scp.queue.put(['skip', a_associate_ac])
+        scp.queue.put(b'\x08\x00\x00\x00\x00')
+        scp.queue.put('shutdown')
+        scp.start()
+
+        self.assoc.start()
+
+        time.sleep(0.2)
+
+        assert self.fsm._changes[:4] == [
+            ('Sta1', 'Evt1', 'AE-1'),
+            ('Sta4', 'Evt2', 'AE-2'),
+            ('Sta5', 'Evt3', 'AE-3'),
+            ('Sta6', 'Evt19', 'AA-8'),
+        ]
+        assert self.fsm._transitions[:4] == ['Sta4', 'Sta5', 'Sta6', 'Sta13']
+        assert self.fsm._events[:4] == ['Evt1', 'Evt2', 'Evt3', 'Evt19']
+
+        # Issue A-ABORT PDU
+        assert scp.received[1] == b'\x07\x00\x00\x00\x00\x04\x00\x00\x02\x00'
+
+
+@pytest.mark.skip()
+class TestState07(TestStateBase):
+    """Tests for State 07: """
+    def test_evt01(self):
+        """Test Sta2 + Evt1."""
+        # Sta2 + Evt1 -> <ignore> -> Sta2
+        # Evt1: A-ASSOCIATE (rq) primitive from <local user>
+        pass
+
+    def test_evt02(self):
+        """Test Sta2 + Evt2."""
+        # Sta2 + Evt2 -> <ignore> -> Sta2
+        # Evt2: Receive TRANSPORT_OPEN from <transport service>
+        pass
+
+    def test_evt03(self):
+        """Test Sta2 + Evt3."""
+        # Sta2 + Evt3 -> AA-1 -> Sta13
+        # Evt3: Receive A-ASSOCIATE-AC PDU from <remote>
+        pass
+
+    def test_evt04(self):
+        """Test Sta2 + Evt4."""
+        # Sta2 + Evt4 -> AA-1 -> Sta13
+        # Evt4: Receive A-ASSOCIATE-RJ PDU from <remote>
+        pass
+
+    def test_evt05(self):
+        """Test Sta2 + Evt5."""
+        # Sta2 + Evt5 -> <ignore> -> Sta2
+        # Evt5: Receive TRANSPORT_INDICATION from <transport service>
+        pass
+
+    def test_evt06(self):
+        """Test Sta2 + Evt6."""
+        # Sta2 + Evt6 -> AE-6 -> Sta3 or Sta13
+        # Evt6: Receive A-ASSOCIATE-RQ PDU from <remote>
+        pass
+
+    def test_evt07(self):
+        """Test Sta2 + Evt7."""
+        # Sta2 + Evt7 -> <ignore> -> Sta2
+        # Evt7: Receive A-ASSOCIATE (accept) primitive from <local user>
+        pass
+
+    def test_evt08(self):
+        """Test Sta2 + Evt8."""
+        # Sta2 + Evt8 -> <ignore> -> Sta2
+        # Evt8: Receive A-ASSOCIATE (reject) primitive from <local user>
+        pass
+
+    def test_evt09(self):
+        """Test Sta2 + Evt9."""
+        # Sta2 + Evt9 -> <ignore> -> Sta2
+        # Evt9: Receive P-DATA primitive from <local user>
+        pass
+
+    def test_evt10(self):
+        """Test Sta2 + Evt10."""
+        # Sta2 + Evt10 -> AA-1 -> Sta13
+        # Evt10: Receive P-DATA-TF PDU from <remote>
+        pass
+
+    def test_evt11(self):
+        """Test Sta2 + Evt11."""
+        # Sta2 + Evt11 -> <ignore> -> Sta2
+        # Evt11: Receive A-RELEASE (rq) primitive from <local user>
+        pass
+
+    def test_evt12(self):
+        """Test Sta2 + Evt12."""
+        # Sta2 + Evt12 -> AA-1 -> Sta13
+        # Evt12: Receive A-RELEASE-RQ PDU from <remote>
+        pass
+
+    def test_evt13(self):
+        """Test Sta2 + Evt13."""
+        # Sta2 + Evt13 -> AA-1 -> Sta13
+        # Evt13: Receive A-RELEASE-RP PDU from <remote>
+        pass
+
+    def test_evt14(self):
+        """Test Sta2 + Evt14."""
+        # Sta2 + Evt14 -> <ignore> -> Sta2
+        # Evt14: Receive A-RELEASE (rsp) primitive from <local user>
+        pass
+
+    def test_evt15(self):
+        """Test Sta2 + Evt15."""
+        # Sta2 + Evt15 -> <ignore> -> Sta2
+        # Evt15: Receive A-ABORT (rq) primitive from <local user>
+        pass
+
+    def test_evt16(self):
+        """Test Sta2 + Evt16."""
+        # Sta2 + Evt16 -> AA-2 -> Sta1
+        # Evt16: Receive A-ABORT PDU from <remote>
+        pass
+
+    def test_evt17(self):
+        """Test Sta2 + Evt17."""
+        # Sta2 + Evt17 -> AA-5 -> Sta1
+        # Evt17: Receive TRANSPORT_CLOSED from <transport service>
+        pass
+
+    def test_evt18(self):
+        """Test Sta2 + Evt18."""
+        # Sta2 + Evt18 -> AA-2 -> Sta1
+        # Evt18: ARTIM timer expired from <local service>
+        pass
+
+    def test_evt19(self):
+        """Test Sta2 + Evt19."""
+        # Sta2 + Evt19 -> AA-1 -> Sta13
+        # Evt19: Received unrecognised or invalid PDU from <remote>
+        pass
+
+
+@pytest.mark.skip()
+class TestState08(TestStateBase):
+    """Tests for State 08: """
+    def test_evt01(self):
+        """Test Sta2 + Evt1."""
+        # Sta2 + Evt1 -> <ignore> -> Sta2
+        # Evt1: A-ASSOCIATE (rq) primitive from <local user>
+        pass
+
+    def test_evt02(self):
+        """Test Sta2 + Evt2."""
+        # Sta2 + Evt2 -> <ignore> -> Sta2
+        # Evt2: Receive TRANSPORT_OPEN from <transport service>
+        pass
+
+    def test_evt03(self):
+        """Test Sta2 + Evt3."""
+        # Sta2 + Evt3 -> AA-1 -> Sta13
+        # Evt3: Receive A-ASSOCIATE-AC PDU from <remote>
+        pass
+
+    def test_evt04(self):
+        """Test Sta2 + Evt4."""
+        # Sta2 + Evt4 -> AA-1 -> Sta13
+        # Evt4: Receive A-ASSOCIATE-RJ PDU from <remote>
+        pass
+
+    def test_evt05(self):
+        """Test Sta2 + Evt5."""
+        # Sta2 + Evt5 -> <ignore> -> Sta2
+        # Evt5: Receive TRANSPORT_INDICATION from <transport service>
+        pass
+
+    def test_evt06(self):
+        """Test Sta2 + Evt6."""
+        # Sta2 + Evt6 -> AE-6 -> Sta3 or Sta13
+        # Evt6: Receive A-ASSOCIATE-RQ PDU from <remote>
+        pass
+
+    def test_evt07(self):
+        """Test Sta2 + Evt7."""
+        # Sta2 + Evt7 -> <ignore> -> Sta2
+        # Evt7: Receive A-ASSOCIATE (accept) primitive from <local user>
+        pass
+
+    def test_evt08(self):
+        """Test Sta2 + Evt8."""
+        # Sta2 + Evt8 -> <ignore> -> Sta2
+        # Evt8: Receive A-ASSOCIATE (reject) primitive from <local user>
+        pass
+
+    def test_evt09(self):
+        """Test Sta2 + Evt9."""
+        # Sta2 + Evt9 -> <ignore> -> Sta2
+        # Evt9: Receive P-DATA primitive from <local user>
+        pass
+
+    def test_evt10(self):
+        """Test Sta2 + Evt10."""
+        # Sta2 + Evt10 -> AA-1 -> Sta13
+        # Evt10: Receive P-DATA-TF PDU from <remote>
+        pass
+
+    def test_evt11(self):
+        """Test Sta2 + Evt11."""
+        # Sta2 + Evt11 -> <ignore> -> Sta2
+        # Evt11: Receive A-RELEASE (rq) primitive from <local user>
+        pass
+
+    def test_evt12(self):
+        """Test Sta2 + Evt12."""
+        # Sta2 + Evt12 -> AA-1 -> Sta13
+        # Evt12: Receive A-RELEASE-RQ PDU from <remote>
+        pass
+
+    def test_evt13(self):
+        """Test Sta2 + Evt13."""
+        # Sta2 + Evt13 -> AA-1 -> Sta13
+        # Evt13: Receive A-RELEASE-RP PDU from <remote>
+        pass
+
+    def test_evt14(self):
+        """Test Sta2 + Evt14."""
+        # Sta2 + Evt14 -> <ignore> -> Sta2
+        # Evt14: Receive A-RELEASE (rsp) primitive from <local user>
+        pass
+
+    def test_evt15(self):
+        """Test Sta2 + Evt15."""
+        # Sta2 + Evt15 -> <ignore> -> Sta2
+        # Evt15: Receive A-ABORT (rq) primitive from <local user>
+        pass
+
+    def test_evt16(self):
+        """Test Sta2 + Evt16."""
+        # Sta2 + Evt16 -> AA-2 -> Sta1
+        # Evt16: Receive A-ABORT PDU from <remote>
+        pass
+
+    def test_evt17(self):
+        """Test Sta2 + Evt17."""
+        # Sta2 + Evt17 -> AA-5 -> Sta1
+        # Evt17: Receive TRANSPORT_CLOSED from <transport service>
+        pass
+
+    def test_evt18(self):
+        """Test Sta2 + Evt18."""
+        # Sta2 + Evt18 -> AA-2 -> Sta1
+        # Evt18: ARTIM timer expired from <local service>
+        pass
+
+    def test_evt19(self):
+        """Test Sta2 + Evt19."""
+        # Sta2 + Evt19 -> AA-1 -> Sta13
+        # Evt19: Received unrecognised or invalid PDU from <remote>
+        pass
+
+
+@pytest.mark.skip()
+class TestState09(TestStateBase):
+    """Tests for State 09: """
+    def test_evt01(self):
+        """Test Sta2 + Evt1."""
+        # Sta2 + Evt1 -> <ignore> -> Sta2
+        # Evt1: A-ASSOCIATE (rq) primitive from <local user>
+        pass
+
+    def test_evt02(self):
+        """Test Sta2 + Evt2."""
+        # Sta2 + Evt2 -> <ignore> -> Sta2
+        # Evt2: Receive TRANSPORT_OPEN from <transport service>
+        pass
+
+    def test_evt03(self):
+        """Test Sta2 + Evt3."""
+        # Sta2 + Evt3 -> AA-1 -> Sta13
+        # Evt3: Receive A-ASSOCIATE-AC PDU from <remote>
+        pass
+
+    def test_evt04(self):
+        """Test Sta2 + Evt4."""
+        # Sta2 + Evt4 -> AA-1 -> Sta13
+        # Evt4: Receive A-ASSOCIATE-RJ PDU from <remote>
+        pass
+
+    def test_evt05(self):
+        """Test Sta2 + Evt5."""
+        # Sta2 + Evt5 -> <ignore> -> Sta2
+        # Evt5: Receive TRANSPORT_INDICATION from <transport service>
+        pass
+
+    def test_evt06(self):
+        """Test Sta2 + Evt6."""
+        # Sta2 + Evt6 -> AE-6 -> Sta3 or Sta13
+        # Evt6: Receive A-ASSOCIATE-RQ PDU from <remote>
+        pass
+
+    def test_evt07(self):
+        """Test Sta2 + Evt7."""
+        # Sta2 + Evt7 -> <ignore> -> Sta2
+        # Evt7: Receive A-ASSOCIATE (accept) primitive from <local user>
+        pass
+
+    def test_evt08(self):
+        """Test Sta2 + Evt8."""
+        # Sta2 + Evt8 -> <ignore> -> Sta2
+        # Evt8: Receive A-ASSOCIATE (reject) primitive from <local user>
+        pass
+
+    def test_evt09(self):
+        """Test Sta2 + Evt9."""
+        # Sta2 + Evt9 -> <ignore> -> Sta2
+        # Evt9: Receive P-DATA primitive from <local user>
+        pass
+
+    def test_evt10(self):
+        """Test Sta2 + Evt10."""
+        # Sta2 + Evt10 -> AA-1 -> Sta13
+        # Evt10: Receive P-DATA-TF PDU from <remote>
+        pass
+
+    def test_evt11(self):
+        """Test Sta2 + Evt11."""
+        # Sta2 + Evt11 -> <ignore> -> Sta2
+        # Evt11: Receive A-RELEASE (rq) primitive from <local user>
+        pass
+
+    def test_evt12(self):
+        """Test Sta2 + Evt12."""
+        # Sta2 + Evt12 -> AA-1 -> Sta13
+        # Evt12: Receive A-RELEASE-RQ PDU from <remote>
+        pass
+
+    def test_evt13(self):
+        """Test Sta2 + Evt13."""
+        # Sta2 + Evt13 -> AA-1 -> Sta13
+        # Evt13: Receive A-RELEASE-RP PDU from <remote>
+        pass
+
+    def test_evt14(self):
+        """Test Sta2 + Evt14."""
+        # Sta2 + Evt14 -> <ignore> -> Sta2
+        # Evt14: Receive A-RELEASE (rsp) primitive from <local user>
+        pass
+
+    def test_evt15(self):
+        """Test Sta2 + Evt15."""
+        # Sta2 + Evt15 -> <ignore> -> Sta2
+        # Evt15: Receive A-ABORT (rq) primitive from <local user>
+        pass
+
+    def test_evt16(self):
+        """Test Sta2 + Evt16."""
+        # Sta2 + Evt16 -> AA-2 -> Sta1
+        # Evt16: Receive A-ABORT PDU from <remote>
+        pass
+
+    def test_evt17(self):
+        """Test Sta2 + Evt17."""
+        # Sta2 + Evt17 -> AA-5 -> Sta1
+        # Evt17: Receive TRANSPORT_CLOSED from <transport service>
+        pass
+
+    def test_evt18(self):
+        """Test Sta2 + Evt18."""
+        # Sta2 + Evt18 -> AA-2 -> Sta1
+        # Evt18: ARTIM timer expired from <local service>
+        pass
+
+    def test_evt19(self):
+        """Test Sta2 + Evt19."""
+        # Sta2 + Evt19 -> AA-1 -> Sta13
+        # Evt19: Received unrecognised or invalid PDU from <remote>
+        pass
+
+
+@pytest.mark.skip()
+class TestState10(TestStateBase):
+    """Tests for State 10: ."""
+    def test_evt01(self):
+        """Test Sta2 + Evt1."""
+        # Sta2 + Evt1 -> <ignore> -> Sta2
+        # Evt1: A-ASSOCIATE (rq) primitive from <local user>
+        pass
+
+    def test_evt02(self):
+        """Test Sta2 + Evt2."""
+        # Sta2 + Evt2 -> <ignore> -> Sta2
+        # Evt2: Receive TRANSPORT_OPEN from <transport service>
+        pass
+
+    def test_evt03(self):
+        """Test Sta2 + Evt3."""
+        # Sta2 + Evt3 -> AA-1 -> Sta13
+        # Evt3: Receive A-ASSOCIATE-AC PDU from <remote>
+        pass
+
+    def test_evt04(self):
+        """Test Sta2 + Evt4."""
+        # Sta2 + Evt4 -> AA-1 -> Sta13
+        # Evt4: Receive A-ASSOCIATE-RJ PDU from <remote>
+        pass
+
+    def test_evt05(self):
+        """Test Sta2 + Evt5."""
+        # Sta2 + Evt5 -> <ignore> -> Sta2
+        # Evt5: Receive TRANSPORT_INDICATION from <transport service>
+        pass
+
+    def test_evt06(self):
+        """Test Sta2 + Evt6."""
+        # Sta2 + Evt6 -> AE-6 -> Sta3 or Sta13
+        # Evt6: Receive A-ASSOCIATE-RQ PDU from <remote>
+        pass
+
+    def test_evt07(self):
+        """Test Sta2 + Evt7."""
+        # Sta2 + Evt7 -> <ignore> -> Sta2
+        # Evt7: Receive A-ASSOCIATE (accept) primitive from <local user>
+        pass
+
+    def test_evt08(self):
+        """Test Sta2 + Evt8."""
+        # Sta2 + Evt8 -> <ignore> -> Sta2
+        # Evt8: Receive A-ASSOCIATE (reject) primitive from <local user>
+        pass
+
+    def test_evt09(self):
+        """Test Sta2 + Evt9."""
+        # Sta2 + Evt9 -> <ignore> -> Sta2
+        # Evt9: Receive P-DATA primitive from <local user>
+        pass
+
+    def test_evt10(self):
+        """Test Sta2 + Evt10."""
+        # Sta2 + Evt10 -> AA-1 -> Sta13
+        # Evt10: Receive P-DATA-TF PDU from <remote>
+        pass
+
+    def test_evt11(self):
+        """Test Sta2 + Evt11."""
+        # Sta2 + Evt11 -> <ignore> -> Sta2
+        # Evt11: Receive A-RELEASE (rq) primitive from <local user>
+        pass
+
+    def test_evt12(self):
+        """Test Sta2 + Evt12."""
+        # Sta2 + Evt12 -> AA-1 -> Sta13
+        # Evt12: Receive A-RELEASE-RQ PDU from <remote>
+        pass
+
+    def test_evt13(self):
+        """Test Sta2 + Evt13."""
+        # Sta2 + Evt13 -> AA-1 -> Sta13
+        # Evt13: Receive A-RELEASE-RP PDU from <remote>
+        pass
+
+    def test_evt14(self):
+        """Test Sta2 + Evt14."""
+        # Sta2 + Evt14 -> <ignore> -> Sta2
+        # Evt14: Receive A-RELEASE (rsp) primitive from <local user>
+        pass
+
+    def test_evt15(self):
+        """Test Sta2 + Evt15."""
+        # Sta2 + Evt15 -> <ignore> -> Sta2
+        # Evt15: Receive A-ABORT (rq) primitive from <local user>
+        pass
+
+    def test_evt16(self):
+        """Test Sta2 + Evt16."""
+        # Sta2 + Evt16 -> AA-2 -> Sta1
+        # Evt16: Receive A-ABORT PDU from <remote>
+        pass
+
+    def test_evt17(self):
+        """Test Sta2 + Evt17."""
+        # Sta2 + Evt17 -> AA-5 -> Sta1
+        # Evt17: Receive TRANSPORT_CLOSED from <transport service>
+        pass
+
+    def test_evt18(self):
+        """Test Sta2 + Evt18."""
+        # Sta2 + Evt18 -> AA-2 -> Sta1
+        # Evt18: ARTIM timer expired from <local service>
+        pass
+
+    def test_evt19(self):
+        """Test Sta2 + Evt19."""
+        # Sta2 + Evt19 -> AA-1 -> Sta13
+        # Evt19: Received unrecognised or invalid PDU from <remote>
+        pass
+
+
+@pytest.mark.skip()
+class TestState11(TestStateBase):
+    """Tests for State 11: ."""
+    def test_evt01(self):
+        """Test Sta2 + Evt1."""
+        # Sta2 + Evt1 -> <ignore> -> Sta2
+        # Evt1: A-ASSOCIATE (rq) primitive from <local user>
+        pass
+
+    def test_evt02(self):
+        """Test Sta2 + Evt2."""
+        # Sta2 + Evt2 -> <ignore> -> Sta2
+        # Evt2: Receive TRANSPORT_OPEN from <transport service>
+        pass
+
+    def test_evt03(self):
+        """Test Sta2 + Evt3."""
+        # Sta2 + Evt3 -> AA-1 -> Sta13
+        # Evt3: Receive A-ASSOCIATE-AC PDU from <remote>
+        pass
+
+    def test_evt04(self):
+        """Test Sta2 + Evt4."""
+        # Sta2 + Evt4 -> AA-1 -> Sta13
+        # Evt4: Receive A-ASSOCIATE-RJ PDU from <remote>
+        pass
+
+    def test_evt05(self):
+        """Test Sta2 + Evt5."""
+        # Sta2 + Evt5 -> <ignore> -> Sta2
+        # Evt5: Receive TRANSPORT_INDICATION from <transport service>
+        pass
+
+    def test_evt06(self):
+        """Test Sta2 + Evt6."""
+        # Sta2 + Evt6 -> AE-6 -> Sta3 or Sta13
+        # Evt6: Receive A-ASSOCIATE-RQ PDU from <remote>
+        pass
+
+    def test_evt07(self):
+        """Test Sta2 + Evt7."""
+        # Sta2 + Evt7 -> <ignore> -> Sta2
+        # Evt7: Receive A-ASSOCIATE (accept) primitive from <local user>
+        pass
+
+    def test_evt08(self):
+        """Test Sta2 + Evt8."""
+        # Sta2 + Evt8 -> <ignore> -> Sta2
+        # Evt8: Receive A-ASSOCIATE (reject) primitive from <local user>
+        pass
+
+    def test_evt09(self):
+        """Test Sta2 + Evt9."""
+        # Sta2 + Evt9 -> <ignore> -> Sta2
+        # Evt9: Receive P-DATA primitive from <local user>
+        pass
+
+    def test_evt10(self):
+        """Test Sta2 + Evt10."""
+        # Sta2 + Evt10 -> AA-1 -> Sta13
+        # Evt10: Receive P-DATA-TF PDU from <remote>
+        pass
+
+    def test_evt11(self):
+        """Test Sta2 + Evt11."""
+        # Sta2 + Evt11 -> <ignore> -> Sta2
+        # Evt11: Receive A-RELEASE (rq) primitive from <local user>
+        pass
+
+    def test_evt12(self):
+        """Test Sta2 + Evt12."""
+        # Sta2 + Evt12 -> AA-1 -> Sta13
+        # Evt12: Receive A-RELEASE-RQ PDU from <remote>
+        pass
+
+    def test_evt13(self):
+        """Test Sta2 + Evt13."""
+        # Sta2 + Evt13 -> AA-1 -> Sta13
+        # Evt13: Receive A-RELEASE-RP PDU from <remote>
+        pass
+
+    def test_evt14(self):
+        """Test Sta2 + Evt14."""
+        # Sta2 + Evt14 -> <ignore> -> Sta2
+        # Evt14: Receive A-RELEASE (rsp) primitive from <local user>
+        pass
+
+    def test_evt15(self):
+        """Test Sta2 + Evt15."""
+        # Sta2 + Evt15 -> <ignore> -> Sta2
+        # Evt15: Receive A-ABORT (rq) primitive from <local user>
+        pass
+
+    def test_evt16(self):
+        """Test Sta2 + Evt16."""
+        # Sta2 + Evt16 -> AA-2 -> Sta1
+        # Evt16: Receive A-ABORT PDU from <remote>
+        pass
+
+    def test_evt17(self):
+        """Test Sta2 + Evt17."""
+        # Sta2 + Evt17 -> AA-5 -> Sta1
+        # Evt17: Receive TRANSPORT_CLOSED from <transport service>
+        pass
+
+    def test_evt18(self):
+        """Test Sta2 + Evt18."""
+        # Sta2 + Evt18 -> AA-2 -> Sta1
+        # Evt18: ARTIM timer expired from <local service>
+        pass
+
+    def test_evt19(self):
+        """Test Sta2 + Evt19."""
+        # Sta2 + Evt19 -> AA-1 -> Sta13
+        # Evt19: Received unrecognised or invalid PDU from <remote>
+        pass
+
+
+@pytest.mark.skip()
+class TestState12(TestStateBase):
+    """Tests for State 12: """
+    def test_evt01(self):
+        """Test Sta2 + Evt1."""
+        # Sta2 + Evt1 -> <ignore> -> Sta2
+        # Evt1: A-ASSOCIATE (rq) primitive from <local user>
+        pass
+
+    def test_evt02(self):
+        """Test Sta2 + Evt2."""
+        # Sta2 + Evt2 -> <ignore> -> Sta2
+        # Evt2: Receive TRANSPORT_OPEN from <transport service>
+        pass
+
+    def test_evt03(self):
+        """Test Sta2 + Evt3."""
+        # Sta2 + Evt3 -> AA-1 -> Sta13
+        # Evt3: Receive A-ASSOCIATE-AC PDU from <remote>
+        pass
+
+    def test_evt04(self):
+        """Test Sta2 + Evt4."""
+        # Sta2 + Evt4 -> AA-1 -> Sta13
+        # Evt4: Receive A-ASSOCIATE-RJ PDU from <remote>
+        pass
+
+    def test_evt05(self):
+        """Test Sta2 + Evt5."""
+        # Sta2 + Evt5 -> <ignore> -> Sta2
+        # Evt5: Receive TRANSPORT_INDICATION from <transport service>
+        pass
+
+    def test_evt06(self):
+        """Test Sta2 + Evt6."""
+        # Sta2 + Evt6 -> AE-6 -> Sta3 or Sta13
+        # Evt6: Receive A-ASSOCIATE-RQ PDU from <remote>
+        pass
+
+    def test_evt07(self):
+        """Test Sta2 + Evt7."""
+        # Sta2 + Evt7 -> <ignore> -> Sta2
+        # Evt7: Receive A-ASSOCIATE (accept) primitive from <local user>
+        pass
+
+    def test_evt08(self):
+        """Test Sta2 + Evt8."""
+        # Sta2 + Evt8 -> <ignore> -> Sta2
+        # Evt8: Receive A-ASSOCIATE (reject) primitive from <local user>
+        pass
+
+    def test_evt09(self):
+        """Test Sta2 + Evt9."""
+        # Sta2 + Evt9 -> <ignore> -> Sta2
+        # Evt9: Receive P-DATA primitive from <local user>
+        pass
+
+    def test_evt10(self):
+        """Test Sta2 + Evt10."""
+        # Sta2 + Evt10 -> AA-1 -> Sta13
+        # Evt10: Receive P-DATA-TF PDU from <remote>
+        pass
+
+    def test_evt11(self):
+        """Test Sta2 + Evt11."""
+        # Sta2 + Evt11 -> <ignore> -> Sta2
+        # Evt11: Receive A-RELEASE (rq) primitive from <local user>
+        pass
+
+    def test_evt12(self):
+        """Test Sta2 + Evt12."""
+        # Sta2 + Evt12 -> AA-1 -> Sta13
+        # Evt12: Receive A-RELEASE-RQ PDU from <remote>
+        pass
+
+    def test_evt13(self):
+        """Test Sta2 + Evt13."""
+        # Sta2 + Evt13 -> AA-1 -> Sta13
+        # Evt13: Receive A-RELEASE-RP PDU from <remote>
+        pass
+
+    def test_evt14(self):
+        """Test Sta2 + Evt14."""
+        # Sta2 + Evt14 -> <ignore> -> Sta2
+        # Evt14: Receive A-RELEASE (rsp) primitive from <local user>
+        pass
+
+    def test_evt15(self):
+        """Test Sta2 + Evt15."""
+        # Sta2 + Evt15 -> <ignore> -> Sta2
+        # Evt15: Receive A-ABORT (rq) primitive from <local user>
+        pass
+
+    def test_evt16(self):
+        """Test Sta2 + Evt16."""
+        # Sta2 + Evt16 -> AA-2 -> Sta1
+        # Evt16: Receive A-ABORT PDU from <remote>
+        pass
+
+    def test_evt17(self):
+        """Test Sta2 + Evt17."""
+        # Sta2 + Evt17 -> AA-5 -> Sta1
+        # Evt17: Receive TRANSPORT_CLOSED from <transport service>
+        pass
+
+    def test_evt18(self):
+        """Test Sta2 + Evt18."""
+        # Sta2 + Evt18 -> AA-2 -> Sta1
+        # Evt18: ARTIM timer expired from <local service>
+        pass
+
+    def test_evt19(self):
+        """Test Sta2 + Evt19."""
+        # Sta2 + Evt19 -> AA-1 -> Sta13
+        # Evt19: Received unrecognised or invalid PDU from <remote>
+        pass
+
+
+@pytest.mark.skip()
+class TestState13(TestStateBase):
+    """Tests for State 13:"""
+    def test_evt01(self):
+        """Test Sta2 + Evt1."""
+        # Sta2 + Evt1 -> <ignore> -> Sta2
+        # Evt1: A-ASSOCIATE (rq) primitive from <local user>
+        pass
+
+    def test_evt02(self):
+        """Test Sta2 + Evt2."""
+        # Sta2 + Evt2 -> <ignore> -> Sta2
+        # Evt2: Receive TRANSPORT_OPEN from <transport service>
+        pass
+
+    def test_evt03(self):
+        """Test Sta2 + Evt3."""
+        # Sta2 + Evt3 -> AA-1 -> Sta13
+        # Evt3: Receive A-ASSOCIATE-AC PDU from <remote>
+        pass
+
+    def test_evt04(self):
+        """Test Sta2 + Evt4."""
+        # Sta2 + Evt4 -> AA-1 -> Sta13
+        # Evt4: Receive A-ASSOCIATE-RJ PDU from <remote>
+        pass
+
+    def test_evt05(self):
+        """Test Sta2 + Evt5."""
+        # Sta2 + Evt5 -> <ignore> -> Sta2
+        # Evt5: Receive TRANSPORT_INDICATION from <transport service>
+        pass
+
+    def test_evt06(self):
+        """Test Sta2 + Evt6."""
+        # Sta2 + Evt6 -> AE-6 -> Sta3 or Sta13
+        # Evt6: Receive A-ASSOCIATE-RQ PDU from <remote>
+        pass
+
+    def test_evt07(self):
+        """Test Sta2 + Evt7."""
+        # Sta2 + Evt7 -> <ignore> -> Sta2
+        # Evt7: Receive A-ASSOCIATE (accept) primitive from <local user>
+        pass
+
+    def test_evt08(self):
+        """Test Sta2 + Evt8."""
+        # Sta2 + Evt8 -> <ignore> -> Sta2
+        # Evt8: Receive A-ASSOCIATE (reject) primitive from <local user>
+        pass
+
+    def test_evt09(self):
+        """Test Sta2 + Evt9."""
+        # Sta2 + Evt9 -> <ignore> -> Sta2
+        # Evt9: Receive P-DATA primitive from <local user>
+        pass
+
+    def test_evt10(self):
+        """Test Sta2 + Evt10."""
+        # Sta2 + Evt10 -> AA-1 -> Sta13
+        # Evt10: Receive P-DATA-TF PDU from <remote>
+        pass
+
+    def test_evt11(self):
+        """Test Sta2 + Evt11."""
+        # Sta2 + Evt11 -> <ignore> -> Sta2
+        # Evt11: Receive A-RELEASE (rq) primitive from <local user>
+        pass
+
+    def test_evt12(self):
+        """Test Sta2 + Evt12."""
+        # Sta2 + Evt12 -> AA-1 -> Sta13
+        # Evt12: Receive A-RELEASE-RQ PDU from <remote>
+        pass
+
+    def test_evt13(self):
+        """Test Sta2 + Evt13."""
+        # Sta2 + Evt13 -> AA-1 -> Sta13
+        # Evt13: Receive A-RELEASE-RP PDU from <remote>
+        pass
+
+    def test_evt14(self):
+        """Test Sta2 + Evt14."""
+        # Sta2 + Evt14 -> <ignore> -> Sta2
+        # Evt14: Receive A-RELEASE (rsp) primitive from <local user>
+        pass
+
+    def test_evt15(self):
+        """Test Sta2 + Evt15."""
+        # Sta2 + Evt15 -> <ignore> -> Sta2
+        # Evt15: Receive A-ABORT (rq) primitive from <local user>
+        pass
+
+    def test_evt16(self):
+        """Test Sta2 + Evt16."""
+        # Sta2 + Evt16 -> AA-2 -> Sta1
+        # Evt16: Receive A-ABORT PDU from <remote>
+        pass
+
+    def test_evt17(self):
+        """Test Sta2 + Evt17."""
+        # Sta2 + Evt17 -> AA-5 -> Sta1
+        # Evt17: Receive TRANSPORT_CLOSED from <transport service>
+        pass
+
+    def test_evt18(self):
+        """Test Sta2 + Evt18."""
+        # Sta2 + Evt18 -> AA-2 -> Sta1
+        # Evt18: ARTIM timer expired from <local service>
+        pass
+
+    def test_evt19(self):
+        """Test Sta2 + Evt19."""
+        # Sta2 + Evt19 -> AA-1 -> Sta13
+        # Evt19: Received unrecognised or invalid PDU from <remote>
+        pass
 
 
 class TestStateMachineFunctionalRequestor(object):
