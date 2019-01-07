@@ -568,8 +568,10 @@ def AR_3(dul):
     """
     # Issue A-RELEASE confirmation primitive and close transport connection
     dul.to_user_queue.put(dul.primitive)
+    dul.scu_socket.shutdown(socket.SHUT_RDWR)
     dul.scu_socket.close()
     dul.peer_socket = None
+    dul.kill_dul()
 
     return 'Sta1'
 
@@ -633,6 +635,7 @@ def AR_5(dul):
     """
     # Stop ARTIM timer
     dul.artim_timer.stop()
+    dul.kill_dul()
 
     return 'Sta1'
 
@@ -818,16 +821,8 @@ def AA_1(dul):
     # if already started) ARTIM timer.
     dul.pdu = A_ABORT_RQ()
     dul.pdu.source = 0x00
-
-    # The reason for the abort should really be roughly defined by the
-    #   current state of the State Machine
-    if dul.state_machine.current_state == 'Sta2':
-        # Unexpected PDU
-        dul.pdu.reason_diagnostic = 0x02
-    else:
-        # Reason not specified
-        dul.pdu.reason_diagnostic = 0x00
-
+    # Reason not specified
+    dul.pdu.reason_diagnostic = 0x00
     dul.pdu.from_primitive(dul.primitive)
 
     # Callback
