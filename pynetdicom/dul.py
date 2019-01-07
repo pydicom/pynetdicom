@@ -14,7 +14,7 @@ from struct import unpack
 from threading import Thread
 import time
 
-from pynetdicom.fsm import StateMachine
+from pynetdicom.fsm import StateMachine, InvalidEventError
 from pynetdicom.pdu import (
     A_ASSOCIATE_RQ, A_ASSOCIATE_AC, A_ASSOCIATE_RJ,
     P_DATA_TF, A_RELEASE_RQ, A_RELEASE_RP, A_ABORT_RQ

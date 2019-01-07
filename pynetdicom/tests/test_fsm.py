@@ -5,7 +5,9 @@ try:
     import queue
 except ImportError:
     import Queue as queue  # Python 2 compatibility
+import select
 import socket
+from struct import pack, unpack
 import threading
 import time
 
@@ -16,12 +18,18 @@ from pynetdicom.association import Association
 from pynetdicom import fsm as FINITE_STATE
 from pynetdicom.fsm import *
 from pynetdicom.dimse_primitives import C_ECHO
-from pynetdicom.pdu_primitives import A_RELEASE
+from pynetdicom.pdu_primitives import (
+    A_ASSOCIATE, A_ABORT, A_P_ABORT, P_DATA, A_RELEASE,
+    MaximumLengthNotification, ImplementationClassUIDNotification
+)
 from pynetdicom.pdu import A_RELEASE_RQ
 from pynetdicom.sop_class import VerificationSOPClass
 from pynetdicom.utils import validate_ae_title
 from .dummy_c_scp import DummyVerificationSCP, DummyBaseSCP
-from .encoded_pdu_items import p_data_tf
+from .encoded_pdu_items import (
+    a_associate_ac, a_associate_rq, a_associate_rj, p_data_tf, a_abort,
+    a_release_rq, a_release_rp,
+)
 
 
 LOGGER = logging.getLogger("pynetdicom")
@@ -88,6 +96,236 @@ class BadDUL(object):
     def primitive(self):
         """Prevent StateMachine from setting primitive."""
         return None
+
+
+class DummyAE(threading.Thread):
+    def __init__(self, port=11112):
+        self.queue = queue.Queue()
+        self._kill = False
+        self.socket = socket.socket
+        self.address = ''
+        self.local_port = port
+        self.remote_port = None
+        self.received = []
+        self.mode = 'requestor'
+        self.disconnect_after_connect = False
+        self._step = 0
+        self._event = threading.Event()
+
+        threading.Thread.__init__(self)
+        self.daemon = True
+
+    def bind_socket(self):
+        sock = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
+
+        # SOL_SOCKET: the level, SO_REUSEADDR: allow reuse of a port
+        #   stuck in TIME_WAIT, 1: set SO_REUSEADDR to 1
+        # This must be called prior to socket.bind()
+        sock.setsockopt(socket.SOL_SOCKET, socket.SO_REUSEADDR, 1)
+        sock.setsockopt(
+            socket.SOL_SOCKET, socket.SO_RCVTIMEO, pack('ll', 10, 0)
+        )
+
+        # Bind the socket to an address and port
+        #   If self.bind_addr is '' then the socket is reachable by any
+        #   address the machine may have, otherwise is visible only on that
+        #   address
+        sock.bind(('', self.local_port))
+
+        # Listen for connections made to the socket
+        # socket.listen() says to queue up to as many as N connect requests
+        #   before refusing outside connections
+        sock.listen(1)
+        return sock
+
+    def run(self):
+        if self.mode == 'acceptor':
+            self.run_as_acceptor()
+        elif self.mode == 'requestor':
+            self.run_as_requestor()
+
+    def run_as_acceptor(self):
+        """Run the Collider as an association requestor.
+
+        1. Open a list socket on self.local_port
+        2. Wait for a connection request, when connected GOTO 3
+        3. Check self.queue for an item:
+            a. If the item is None then GOTO 4
+            b. If the item is singleton then send it to the peer and GOTO 4
+            c. If the item is a list then send each item in the list to the
+               peer, then GOTO 4. if one of the items is 'shutdown' then exit
+            d. If the item is 'shutdown' then exit
+        4. Block the connection until data appears, then append the data to
+           self.received.
+        """
+        sock = self.bind_socket()
+        self.sock = sock
+
+        # Wait for a connection
+        while not self._kill:
+            ready, _, _ = select.select([sock], [], [], 0.5)
+
+            if self.disconnect_after_connect:
+                sock.shutdown(socket.SHUT_RDWR)
+                sock.close()
+                return
+
+            if ready:
+                conn, _ = sock.accept()
+                break
+
+        # Send and receive data
+        while not self._kill:
+            to_send = self.queue.get()
+            if to_send == 'shutdown':
+                # 'shutdown'
+                self.sock.shutdown(socket.SHUT_RDWR)
+                self.sock.close()
+                self._kill = True
+                return
+            elif to_send is not None:
+                # item or [item, item]
+                if isinstance(to_send, list):
+                    for item in to_send:
+                        if item == 'shutdown':
+                            self.sock.shutdown(socket.SHUT_RDWR)
+                            self.sock.close()
+                            self._kill = True
+                            return
+                        elif item == None:
+                            continue
+                        else:
+                            conn.send(item)
+                else:
+                    conn.send(to_send)
+            elif to_send == 'skip':
+                continue
+            else:
+                # None
+                pass
+
+            # Block until ready to read
+            ready, _, _ = select.select([conn], [], [])
+            if ready:
+                data_received = self.read_stream(conn)
+                self.received.append(data_received)
+
+    def run_as_requestor(self):
+        """Run the Collider as an association requestor.
+
+        1. Open a connection to the peer at (self.address, self.remote_port)
+        2. Check self.queue for an item:
+            a. If the item is None then GOTO 3
+            b. If the item is singleton then send it to the peer and GOTO 3
+            c. If the item is a list then send each item in the list to the
+               peer, then GOTO 3
+            d. If the item is 'shutdown' then exit
+        3. Block the connection until data appears, then append the data to
+           self.received.
+        """
+        # Make the connection
+        while not self._kill:
+            try:
+                self.sock = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
+                self.sock.connect((self.address, self.remote_port))
+                break
+            except:
+                pass
+
+        # Send and receive data
+        while not self._kill:
+            to_send = self.queue.get()
+            if to_send == 'shutdown':
+                # 'shutdown'
+                self.sock.shutdown(socket.SHUT_RDWR)
+                self.sock.close()
+                self._kill = True
+                return
+            elif to_send is not None:
+                # item or [item, item]
+                if isinstance(to_send, list):
+                    for item in to_send:
+                        self.sock.send(item)
+                else:
+                    self.sock.send(to_send)
+            else:
+                # None
+                pass
+
+            # Block until ready
+            # When the timeout argument is omitted the function blocks until
+            #   at least one file descriptor is ready
+            ready, _, _ = select.select([self.sock], [], [])
+            if ready:
+                data_received = self.read_stream(self.sock)
+                self.received.append(data_received)
+
+    def read_stream(self, sock):
+        bytestream = bytes()
+
+        # Try and read data from the socket
+        try:
+            # Get the data from the socket
+            bytestream = sock.recv(1)
+        except socket.error:
+            self._kill = True
+            sock.close()
+            return
+
+        pdu_type = unpack('B', bytestream)[0]
+
+        # Byte 2 is Reserved
+        result = self._recvn(sock, 1)
+        bytestream += result
+
+        # Bytes 3-6 is the PDU length
+        result = unpack('B', result)
+        length = self._recvn(sock, 4)
+
+        bytestream += length
+        length = unpack('>L', length)
+
+        # Bytes 7-xxxx is the rest of the PDU
+        result = self._recvn(sock, length[0])
+        bytestream += result
+
+        return bytestream
+
+    @staticmethod
+    def _recvn(sock, n_bytes):
+        """Read `n_bytes` from a socket.
+
+        Parameters
+        ----------
+        sock : socket.socket
+            The socket to read from
+        n_bytes : int
+            The number of bytes to read
+        """
+        ret = b''
+        read_length = 0
+        while read_length < n_bytes:
+            tmp = sock.recv(n_bytes - read_length)
+
+            if not tmp:
+                return ret
+
+            ret += tmp
+            read_length += len(tmp)
+
+        if read_length != n_bytes:
+            raise RuntimeError("_recvn(socket, {}) - Error reading data from "
+                               "socket.".format(n_bytes))
+
+        return ret
+
+    def stop(self):
+        self._kill = True
+
+    def shutdown_sockets(self):
+        """Close the sockets."""
+        self.sock.shutdown(socket.SHUT_RDWR)
+        self.sock.close()
 
 
 class TestStateMachine(object):
@@ -176,6 +414,861 @@ class TestStateMachine(object):
                 fsm.do_action(event)
             assert fsm.dul.is_killed is True
             assert fsm.current_state == state
+
+
+class TestState01(object):
+    """Tests for State 01."""
+    def setup(self):
+        ae = AE()
+        ae.add_requested_context(VerificationSOPClass)
+        ae.acse_timeout = 5
+        ae.dimse_timeout = 5
+
+        assoc = Association(ae, mode='requestor')
+        assoc.acse_timeout = ae.acse_timeout
+        assoc.dimse_timeout = ae.dimse_timeout
+        assoc.network_timeout = ae.network_timeout
+
+        # Association Acceptor object -> remote AE
+        assoc.acceptor.ae_title = validate_ae_title(b'ANY_SCU')
+        assoc.acceptor.address = 'localhost'
+        assoc.acceptor.port = 11112
+
+        # Association Requestor object -> local AE
+        assoc.requestor.address = ae.address
+        assoc.requestor.port = ae.port
+        assoc.requestor.ae_title = ae.ae_title
+        assoc.requestor.maximum_length = 16382
+        assoc.requestor.implementation_class_uid = (
+            ae.implementation_class_uid
+        )
+        assoc.requestor.implementation_version_name = (
+            ae.implementation_version_name
+        )
+
+        cx = build_context(VerificationSOPClass)
+        cx.context_id = 1
+        assoc.requestor.requested_contexts = [cx]
+
+        self.assoc = assoc
+        self.fsm = self.monkey_patch(assoc.dul.state_machine)
+
+    def get_associate(self, assoc_type):
+        primitive = A_ASSOCIATE()
+        if assoc_type == 'request':
+            primitive.application_context_name = '1.2.3.4.5.6'
+            # Calling AE Title is the source DICOM AE title
+            primitive.calling_ae_title = b'LOCAL_AE_TITLE  '
+            # Called AE Title is the destination DICOM AE title
+            primitive.called_ae_title = b'REMOTE_AE_TITLE '
+            # The TCP/IP address of the source, pynetdicom includes port too
+            primitive.calling_presentation_address = ('', 0)
+            # The TCP/IP address of the destination, pynetdicom includes port too
+            primitive.called_presentation_address = ('localhost', 11112)
+            # Proposed presentation contexts
+            cx = build_context(VerificationSOPClass)
+            cx.context_id = 1
+            primitive.presentation_context_definition_list = [cx]
+
+            user_info = []
+
+            item = MaximumLengthNotification()
+            item.maximum_length_received = 16382
+            user_info.append(item)
+
+            item = ImplementationClassUIDNotification()
+            item.implementation_class_uid = '1.2.3.4'
+            user_info.append(item)
+            primitive.user_information = user_info
+        elif assoc_type == 'accept':
+            primitive.application_context_name = '1.2.3.4.5.6'
+            # Calling AE Title is the source DICOM AE title
+            primitive.calling_ae_title = b'LOCAL_AE_TITLE  '
+            # Called AE Title is the destination DICOM AE title
+            primitive.called_ae_title = b'REMOTE_AE_TITLE '
+            # The TCP/IP address of the source, pynetdicom includes port too
+            primitive.result = 0x00
+            primitive.result_source = 0x01
+            # Proposed presentation contexts
+            cx = build_context(VerificationSOPClass)
+            cx.context_id = 1
+            primitive.presentation_context_definition_results_list = [cx]
+
+            user_info = []
+
+            item = MaximumLengthNotification()
+            item.maximum_length_received = 16383
+            user_info.append(item)
+
+            item = ImplementationClassUIDNotification()
+            item.implementation_class_uid = '1.2.3.4.5'
+            user_info.append(item)
+            primitive.user_information = user_info
+        elif assoc_type == 'reject':
+            primitive.result = 0x01
+            primitive.result_source = 0x01
+            primitive.diagnostic = 0x01
+
+        return primitive
+
+    def get_release(self, is_response=False):
+        primitive = A_RELEASE()
+        if is_response:
+            primitive.result = 'affirmative'
+
+        return primitive
+
+    def get_abort(self, is_ap=False):
+        if is_ap:
+            primitive = A_P_ABORT()
+            primitive.provider_reason = 0x00
+        else:
+            primitive = A_ABORT()
+            primitive.abort_source = 0x00
+
+        return primitive
+
+    def get_pdata(self):
+        item = [1, p_data_tf[10:]]
+
+        primitive = P_DATA()
+        primitive.presentation_data_value_list.append(item)
+
+        return primitive
+
+    def monkey_patch(self, fsm):
+        """Monkey patch the StateMachine to add testing hooks."""
+        # Record all state transitions
+        fsm._transitions = []
+        fsm.original_transition = fsm.transition
+
+        def transition(state):
+            fsm._transitions.append(state)
+            fsm.original_transition(state)
+
+        fsm.transition = transition
+
+        # Record all event/state/actions
+        fsm._changes = []
+        fsm._events = []
+        fsm.original_action = fsm.do_action
+
+        def do_action(event):
+            fsm._events.append(event)
+            if (event, fsm.current_state) in TRANSITION_TABLE:
+                action_name = TRANSITION_TABLE[(event, fsm.current_state)]
+                fsm._changes.append((fsm.current_state, event, action_name))
+
+            fsm.original_action(event)
+
+        fsm.do_action = do_action
+
+        return fsm
+
+    def test_evt01(self):
+        """Test Sta1 + Evt1."""
+        # Sta1 + Evt1 -> AE-1 -> Sta4
+        # Sta1: Idle
+        # Evt1: A-ASSOCIATE (rq) primitive from <local user>
+        # AE-1: Issue TRANSPORT_CONNECT primitive to <transport service>
+        # Sta4: Awaiting TRANSPORT_OPEN from <transport service>
+        scp = DummyAE()
+        scp.mode = 'acceptor'
+        scp.queue.put(None)
+        scp.queue.put([a_abort, 'shutdown'])
+
+        scp.start()
+
+        assert self.fsm.current_state == 'Sta1'
+        assert self.assoc.dul.scu_socket is None
+        self.assoc.start()
+
+        time.sleep(0.1)
+
+        assert self.assoc.is_aborted
+
+        #print(self.fsm._transitions)
+        #print(self.fsm._changes)
+        assert self.fsm._transitions == [
+            'Sta4',  # Waiting for connection to complete
+            'Sta5',  # Waiting for A-ASSOC-AC or -RJ PDU
+            'Sta1'  # Idle
+        ]
+        # We only need to test that Sta1 + Evt1 -> AE-1 -> Sta4
+        assert self.fsm._changes == [
+            ('Sta1', 'Evt1', 'AE-1'),  # recv A-ASSOC rq primitive
+            ('Sta4', 'Evt2', 'AE-2'),  # connection confirmed
+            ('Sta5', 'Evt16', 'AA-3'),  # A-ABORT PDU recv
+        ]
+
+        assert self.fsm._events[0] == 'Evt1'
+
+        #assert self.fsm.current_state == 'Sta1'
+        # Test socket is closed
+        #with pytest.raises(OSError, match=r"Bad file descriptor"):
+        #    self.assoc.dul.scu_socket.send(b'\x00')
+
+    @pytest.mark.skip()
+    def test_evt02(self):
+        """Test Sta1 + Evt2."""
+        # Sta1 + Evt2 -> <ignore> -> Sta1
+        # Sta1: Idle
+        # Evt2: Receive TRANSPORT_OPEN from <transport service>
+        # Sta1: Idle
+        pass
+
+    def test_evt03(self):
+        """Test Sta1 + Evt3."""
+        # Sta1 + Evt3 -> <ignore> -> Sta1
+        # Sta1: Idle
+        # Evt3: Receive A-ASSOCIATE-AC PDU from <remote>
+        # Sta1: Idle
+        scp = DummyAE()
+        scp.remote_port = 11112
+        scp.address = ''
+
+        assert self.fsm.current_state == 'Sta1'
+        assert self.assoc.dul.scu_socket is None
+
+        self.assoc._mode = 'acceptor'
+        listen_socket = scp.bind_socket()
+
+        send_socket = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
+        send_socket.connect(('localhost', 11112))
+        send_socket.send(a_associate_ac)
+
+        ready, _, _ = select.select([listen_socket], [], [], 0.5)
+        if ready:
+            self.assoc.dul.scu_socket, _ = listen_socket.accept()
+
+        self.assoc.start()
+
+        time.sleep(0.1)
+
+        self.assoc.kill()
+
+        assert self.fsm._transitions == []
+        assert self.fsm._changes == []
+        assert self.fsm._events[0] == 'Evt3'
+        assert self.fsm.current_state == 'Sta1'
+
+    def test_evt04(self):
+        """Test Sta1 + Evt4."""
+        # Sta1 + Evt4 -> <ignore> -> Sta1
+        # Sta1: Idle
+        # Evt4: Receive A-ASSOCIATE-RJ PDU from <remote>
+        # Sta1: Idle
+        scp = DummyAE()
+        scp.remote_port = 11112
+        scp.address = ''
+
+        assert self.fsm.current_state == 'Sta1'
+        assert self.assoc.dul.scu_socket is None
+
+        self.assoc._mode = 'acceptor'
+        listen_socket = scp.bind_socket()
+
+        send_socket = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
+        send_socket.connect(('localhost', 11112))
+        send_socket.send(a_associate_rj)
+
+        ready, _, _ = select.select([listen_socket], [], [], 0.5)
+        if ready:
+            self.assoc.dul.scu_socket, _ = listen_socket.accept()
+
+        self.assoc.start()
+
+        time.sleep(0.1)
+
+        self.assoc.kill()
+
+        assert self.fsm._transitions == []
+        assert self.fsm._changes == []
+        assert self.fsm._events[0] == 'Evt4'
+        assert self.fsm.current_state == 'Sta1'
+
+    @pytest.mark.skip()
+    def test_evt05(self):
+        """Test Sta1 + Evt5."""
+        # Sta1 + Evt5 -> AE-5 -> Sta2
+        # Sta1: Idle
+        # Evt5: Receive TRANSPORT_INDICATION from <transport service>
+        # AE-5: Issue TRANSPORT_RESPONSE to <transport service>
+        #       Start ARTIM timer
+        # Sta2: Connection open, awaiting A-ASSOCIATE-RQ from <remote>
+        scp = DummyAE()
+        scp.remote_port = 11112
+        scp.address = ''
+
+        assert self.fsm.current_state == 'Sta1'
+        assert self.assoc.dul.scu_socket is None
+
+        self.assoc._mode = 'acceptor'
+        listen_socket = scp.bind_socket()
+
+        send_socket = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
+        send_socket.connect(('localhost', 11112))
+        #send_socket.send(a_associate_rj)
+
+        ready, _, _ = select.select([listen_socket], [], [], 0.5)
+        if ready:
+            self.assoc.dul.scu_socket, _ = listen_socket.accept()
+
+        self.assoc.start()
+
+        time.sleep(0.1)
+
+        self.assoc.kill()
+
+        assert self.fsm._transitions == []
+        assert self.fsm._changes == []
+        assert self.fsm._events[0] == 'Evt5'
+        assert self.fsm.current_state == 'Sta1'
+
+    def test_evt06(self):
+        """Test Sta1 + Evt6."""
+        # Sta1 + Evt6 -> <ignore> -> Sta1
+        # Sta1: Idle
+        # Evt6: Receive A-ASSOCIATE-RQ PDU from <remote>
+        # Sta1: Idle
+        scp = DummyAE()
+        scp.remote_port = 11112
+        scp.address = ''
+
+        assert self.fsm.current_state == 'Sta1'
+        assert self.assoc.dul.scu_socket is None
+
+        self.assoc._mode = 'acceptor'
+        listen_socket = scp.bind_socket()
+
+        send_socket = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
+        send_socket.connect(('localhost', 11112))
+        send_socket.send(a_associate_rq)
+
+        ready, _, _ = select.select([listen_socket], [], [], 0.5)
+        if ready:
+            self.assoc.dul.scu_socket, _ = listen_socket.accept()
+
+        self.assoc.start()
+
+        time.sleep(0.1)
+
+        self.assoc.kill()
+
+        assert self.fsm._transitions == []
+        assert self.fsm._changes == []
+        assert self.fsm._events[0] == 'Evt6'
+        assert self.fsm.current_state == 'Sta1'
+
+    def test_evt07(self):
+        """Test Sta1 + Evt7."""
+        # Sta1 + Evt7 -> <ignore> -> Sta1
+        # Sta1: Idle
+        # Evt7: Receive A-ASSOCIATE (accept) primitive from <local user>
+        # Sta1: Idle
+        self.assoc._mode = "acceptor"
+        self.assoc.start()
+
+        self.assoc.dul.send_pdu(self.get_associate('accept'))
+
+        time.sleep(0.1)
+
+        self.assoc.kill()
+
+        assert self.fsm._transitions == []
+        assert self.fsm._changes == []
+        assert self.fsm._events[0] == 'Evt7'
+        assert self.fsm.current_state == 'Sta1'
+
+    def test_evt08(self):
+        """Test Sta1 + Evt8."""
+        # Sta1 + Evt8 -> <ignore> -> Sta1
+        # Sta1: Idle
+        # Evt8: Receive A-ASSOCIATE (reject) primitive from <local user>
+        # Sta1: Idle
+        self.assoc._mode = "acceptor"
+        self.assoc.start()
+
+        self.assoc.dul.send_pdu(self.get_associate('reject'))
+
+        time.sleep(0.1)
+
+        self.assoc.kill()
+
+        assert self.fsm._transitions == []
+        assert self.fsm._changes == []
+        assert self.fsm._events[0] == 'Evt8'
+        assert self.fsm.current_state == 'Sta1'
+
+    def test_evt09(self):
+        """Test Sta1 + Evt9."""
+        # Sta1 + Evt9 -> <ignore> -> Sta1
+        # Sta1: Idle
+        # Evt9: Receive P-DATA primitive from <local user>
+        # Sta1: Idle
+        self.assoc._mode = "acceptor"
+        self.assoc.start()
+
+        self.assoc.dul.send_pdu(self.get_pdata())
+
+        time.sleep(0.1)
+
+        self.assoc.kill()
+
+        assert self.fsm._transitions == []
+        assert self.fsm._changes == []
+        assert self.fsm._events[0] == 'Evt9'
+        assert self.fsm.current_state == 'Sta1'
+
+    def test_evt10(self):
+        """Test Sta1 + Evt10."""
+        # Sta1 + Evt10 -> <ignore> -> Sta1
+        # Sta1: Idle
+        # Evt10: Receive P-DATA-TF PDU from <remote>
+        # Sta1: Idle
+        scp = DummyAE()
+        scp.remote_port = 11112
+        scp.address = ''
+
+        assert self.fsm.current_state == 'Sta1'
+        assert self.assoc.dul.scu_socket is None
+
+        self.assoc._mode = 'acceptor'
+        listen_socket = scp.bind_socket()
+
+        send_socket = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
+        send_socket.connect(('localhost', 11112))
+        send_socket.send(p_data_tf)
+
+        ready, _, _ = select.select([listen_socket], [], [], 0.5)
+        if ready:
+            self.assoc.dul.scu_socket, _ = listen_socket.accept()
+
+        self.assoc.start()
+
+        time.sleep(0.1)
+
+        self.assoc.kill()
+
+        assert self.fsm._transitions == []
+        assert self.fsm._changes == []
+        assert self.fsm._events[0] == 'Evt10'
+        assert self.fsm.current_state == 'Sta1'
+
+    def test_evt11(self):
+        """Test Sta1 + Evt11."""
+        # Sta1 + Evt11 -> <ignore> -> Sta1
+        # Sta1: Idle
+        # Evt11: Receive A-RELEASE (rq) primitive from <local user>
+        # Sta1: Idle
+        self.assoc._mode = "acceptor"
+        self.assoc.start()
+
+        self.assoc.dul.send_pdu(self.get_release(False))
+
+        time.sleep(0.1)
+
+        self.assoc.kill()
+
+        assert self.fsm._transitions == []
+        assert self.fsm._changes == []
+        assert self.fsm._events[0] == 'Evt11'
+        assert self.fsm.current_state == 'Sta1'
+
+    def test_evt12(self):
+        """Test Sta1 + Evt12."""
+        # Sta1 + Evt12 -> <ignore> -> Sta1
+        # Sta1: Idle
+        # Evt12: Receive A-RELEASE-RQ PDU from <remote>
+        # Sta1: Idle
+        scp = DummyAE()
+        scp.remote_port = 11112
+        scp.address = ''
+
+        assert self.fsm.current_state == 'Sta1'
+        assert self.assoc.dul.scu_socket is None
+
+        self.assoc._mode = 'acceptor'
+        listen_socket = scp.bind_socket()
+
+        send_socket = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
+        send_socket.connect(('localhost', 11112))
+        send_socket.send(a_release_rq)
+
+        ready, _, _ = select.select([listen_socket], [], [], 0.5)
+        if ready:
+            self.assoc.dul.scu_socket, _ = listen_socket.accept()
+
+        self.assoc.start()
+
+        time.sleep(0.1)
+
+        self.assoc.kill()
+
+        assert self.fsm._transitions == []
+        assert self.fsm._changes == []
+        assert self.fsm._events[0] == 'Evt12'
+        assert self.fsm.current_state == 'Sta1'
+
+    def test_evt13(self):
+        """Test Sta1 + Evt13."""
+        # Sta1 + Evt13 -> <ignore> -> Sta1
+        # Sta1: Idle
+        # Evt13: Receive A-RELEASE-RP PDU from <remote>
+        # Sta1: Idle
+        scp = DummyAE()
+        scp.remote_port = 11112
+        scp.address = ''
+
+        assert self.fsm.current_state == 'Sta1'
+        assert self.assoc.dul.scu_socket is None
+
+        self.assoc._mode = 'acceptor'
+        listen_socket = scp.bind_socket()
+
+        send_socket = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
+        send_socket.connect(('localhost', 11112))
+        send_socket.send(a_release_rp)
+
+        ready, _, _ = select.select([listen_socket], [], [], 0.5)
+        if ready:
+            self.assoc.dul.scu_socket, _ = listen_socket.accept()
+
+        self.assoc.start()
+
+        time.sleep(0.1)
+
+        self.assoc.kill()
+
+        assert self.fsm._transitions == []
+        assert self.fsm._changes == []
+        assert self.fsm._events[0] == 'Evt13'
+        assert self.fsm.current_state == 'Sta1'
+
+    def test_evt14(self):
+        """Test Sta1 + Evt14."""
+        # Sta1 + Evt14 -> <ignore> -> Sta1
+        # Sta1: Idle
+        # Evt14: Receive A-RELEASE (rsp) primitive from <local user>
+        # Sta1: Idle
+        self.assoc._mode = "acceptor"
+        self.assoc.start()
+
+        self.assoc.dul.send_pdu(self.get_release(True))
+
+        time.sleep(0.1)
+
+        self.assoc.kill()
+
+        assert self.fsm._transitions == []
+        assert self.fsm._changes == []
+        assert self.fsm._events[0] == 'Evt14'
+        assert self.fsm.current_state == 'Sta1'
+
+    def test_evt15(self):
+        """Test Sta1 + Evt15."""
+        # Sta1 + Evt15 -> <ignore> -> Sta1
+        # Sta1: Idle
+        # Evt15: Receive A-ABORT (rq) primitive from <local user>
+        # Sta1: Idle
+        self.assoc._mode = "acceptor"
+        self.assoc.start()
+
+        self.assoc.dul.send_pdu(self.get_abort(False))
+
+        time.sleep(0.1)
+
+        self.assoc.kill()
+
+        assert self.fsm._transitions == []
+        assert self.fsm._changes == []
+        assert self.fsm._events[0] == 'Evt15'
+        assert self.fsm.current_state == 'Sta1'
+
+    def test_evt16(self):
+        """Test Sta1 + Evt16."""
+        # Sta1 + Evt16 -> <ignore> -> Sta1
+        # Sta1: Idle
+        # Evt16: Receive A-ABORT PDU from <remote>
+        # Sta1: Idle
+        scp = DummyAE()
+        scp.remote_port = 11112
+        scp.address = ''
+
+        assert self.fsm.current_state == 'Sta1'
+        assert self.assoc.dul.scu_socket is None
+
+        self.assoc._mode = 'acceptor'
+        listen_socket = scp.bind_socket()
+
+        send_socket = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
+        send_socket.connect(('localhost', 11112))
+        send_socket.send(a_abort)
+
+        ready, _, _ = select.select([listen_socket], [], [], 0.5)
+        if ready:
+            self.assoc.dul.scu_socket, _ = listen_socket.accept()
+
+        self.assoc.start()
+
+        time.sleep(0.1)
+
+        self.assoc.kill()
+
+        assert self.fsm._transitions == []
+        assert self.fsm._changes == []
+        assert self.fsm._events[0] == 'Evt16'
+        assert self.fsm.current_state == 'Sta1'
+
+    def test_evt17(self):
+        """Test Sta1 + Evt17."""
+        # Sta1 + Evt17 -> <ignore> -> Sta1
+        # Sta1: Idle
+        # Evt17: Receive TRANSPORT_CLOSED from <transport service>
+        # Sta1: Idle
+        scp = DummyAE()
+
+        assert self.fsm.current_state == 'Sta1'
+        assert self.assoc.dul.scu_socket is None
+
+        self.assoc._mode = 'acceptor'
+        listen_socket = scp.bind_socket()
+
+        send_socket = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
+        send_socket.connect(('localhost', 11112))
+        send_socket.send(a_associate_ac)
+
+        self.assoc.dul.scu_socket = listen_socket
+        self.assoc.start()
+
+        time.sleep(0.1)
+
+        self.assoc.kill()
+
+        assert self.fsm._transitions == []
+        assert self.fsm._changes == []
+        assert self.fsm._events[0] == 'Evt17'
+        assert self.fsm.current_state == 'Sta1'
+
+    def test_evt18(self):
+        """Test Sta1 + Evt18."""
+        # Sta1 + Evt18 -> <ignore> -> Sta1
+        # Sta1: Idle
+        # Evt18: ARTIM timer expired from <local service>
+        # Sta1: Idle
+        self.assoc._mode = "acceptor"
+        self.assoc.acse_timeout = 0.05
+        self.assoc.dul.artim_timer.timeout_seconds = 0.05
+        self.assoc.dul.artim_timer.start()
+        self.assoc.start()
+
+        time.sleep(0.2)
+
+        self.assoc.kill()
+
+        assert self.assoc.dul.artim_timer.is_expired
+
+        assert self.fsm._transitions == []
+        assert self.fsm._changes == []
+        assert self.fsm._events[0] == 'Evt18'
+        assert self.fsm.current_state == 'Sta1'
+
+    def test_evt19(self):
+        """Test Sta1 + Evt19."""
+        # Sta1 + Evt19 -> <ignore> -> Sta1
+        # Sta1: Idle
+        # Evt19: Received unrecognised or invalid PDU from <remote>
+        # Sta1: Idle
+        scp = DummyAE()
+        scp.remote_port = 11112
+        scp.address = ''
+
+        assert self.fsm.current_state == 'Sta1'
+        assert self.assoc.dul.scu_socket is None
+
+        self.assoc._mode = 'acceptor'
+        listen_socket = scp.bind_socket()
+
+        send_socket = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
+        send_socket.connect(('localhost', 11112))
+
+        invalid_data = b'\x08\x00\x00\x00\x00'
+        send_socket.send(invalid_data)
+
+        ready, _, _ = select.select([listen_socket], [], [], 0.5)
+        if ready:
+            self.assoc.dul.scu_socket, _ = listen_socket.accept()
+
+        self.assoc.start()
+
+        time.sleep(0.1)
+
+        self.assoc.kill()
+
+        assert self.fsm._transitions == []
+        assert self.fsm._changes == []
+        assert self.fsm._events[0] == 'Evt19'
+        assert self.fsm.current_state == 'Sta1'
+
+
+class TestState02(object):
+    """Tests for State 02."""
+    def test_evt01(self):
+        # Sta2 + Evt1 -> <ignore> -> Sta2
+        # Sta2: Connection open, awaiting A-ASSOCIATE-RQ from <remote>
+        # Evt1: A-ASSOCIATE (rq) primitive from <local user>
+        # Sta2: Connection open, awaiting A-ASSOCIATE-RQ from <remote>
+        pass
+
+    def test_evt02(self):
+        # Sta2 + Evt2 -> <ignore> -> Sta2
+        # Sta2: Connection open, awaiting A-ASSOCIATE-RQ from <remote>
+        # Evt2: Receive TRANSPORT_OPEN from <transport service>
+        # Sta2: Connection open, awaiting A-ASSOCIATE-RQ from <remote>
+        pass
+
+    def test_evt03(self):
+        # Sta2 + Evt3 -> AA-1 -> Sta13
+        # Sta2: Connection open, awaiting A-ASSOCIATE-RQ from <remote>
+        # Evt3: Receive A-ASSOCIATE-AC PDU from <remote>
+        # AA-1: Send A-ABORT PDU from <local service> to <remote>
+        #       Restart ARTIM
+        # Sta13: Awaiting TRANSPORT_CLOSE from <transport service>
+        pass
+
+    def test_evt04(self):
+        # Sta2 + Evt4 -> AA-1 -> Sta13
+        # Sta2: Connection open, awaiting A-ASSOCIATE-RQ from <remote>
+        # Evt4: Receive A-ASSOCIATE-RJ PDU from <remote>
+        # AA-1: Send A-ABORT PDU from <local service> to <remote>
+        #       Restart ARTIM
+        # Sta13: Awaiting TRANSPORT_CLOSE from <transport service>
+        pass
+
+    def test_evt05(self):
+        # Sta2 + Evt5 -> <ignore> -> Sta2
+        # Sta2: Connection open, awaiting A-ASSOCIATE-RQ from <remote>
+        # Evt5: Receive TRANSPORT_INDICATION from <transport service>
+        # Sta2: Connection open, awaiting A-ASSOCIATE-RQ from <remote>
+        pass
+
+    def test_evt06(self):
+        # Sta2 + Evt6 -> AE-6 -> Sta3 or Sta13
+        # Sta2: Connection open, awaiting A-ASSOCIATE-RQ from <remote>
+        # Evt6: Receive A-ASSOCIATE-RQ PDU from <remote>
+        # AE-6: Stop ARTIM
+        #       If A-ASSOCIATE-RQ is acceptable
+        #           Send A-ASSOCIATE primitive to <local user>
+        #       Otherwise
+        #           Send A-ASSOCIATE-RJ PDU to <remote>
+        #           Start ARTIM
+        # Sta3: Awaiting A-ASSOCIATE (rsp) from <local user>
+        # Sta13: Awaiting TRANSPORT_CLOSE from <transport service>
+        pass
+
+    def test_evt07(self):
+        # Sta2 + Evt7 -> <ignore> -> Sta2
+        # Sta2: Connection open, awaiting A-ASSOCIATE-RQ from <remote>
+        # Evt7: Receive A-ASSOCIATE (accept) primitive from <local user>
+        # Sta2: Connection open, awaiting A-ASSOCIATE-RQ from <remote>
+        pass
+
+    def test_evt08(self):
+        # Sta2 + Evt8 -> <ignore> -> Sta2
+        # Sta2: Connection open, awaiting A-ASSOCIATE-RQ from <remote>
+        # Evt8: Receive A-ASSOCIATE (reject) primitive from <local user>
+        # Sta2: Connection open, awaiting A-ASSOCIATE-RQ from <remote>
+        pass
+
+    def test_evt09(self):
+        # Sta2 + Evt9 -> <ignore> -> Sta2
+        # Sta2: Connection open, awaiting A-ASSOCIATE-RQ from <remote>
+        # Evt9: Receive P-DATA primitive from <local user>
+        # Sta2: Connection open, awaiting A-ASSOCIATE-RQ from <remote>
+        pass
+
+    def test_evt10(self):
+        # Sta2 + Evt10 -> AA-1 -> Sta13
+        # Sta2: Connection open, awaiting A-ASSOCIATE-RQ from <remote>
+        # Evt10: Receive P-DATA-TF PDU from <remote>
+        # AA-1: Send A-ABORT PDU from <local service> to <remote>
+        #       Restart ARTIM
+        # Sta13: Awaiting TRANSPORT_CLOSE from <transport service>
+        pass
+
+    def test_evt11(self):
+        # Sta2 + Evt11 -> <ignore> -> Sta2
+        # Sta2: Connection open, awaiting A-ASSOCIATE-RQ from <remote>
+        # Evt11: Receive A-RELEASE (rq) primitive from <local user>
+        # Sta2: Connection open, awaiting A-ASSOCIATE-RQ from <remote>
+        pass
+
+    def test_evt12(self):
+        # Sta2 + Evt12 -> AA-1 -> Sta13
+        # Sta2: Connection open, awaiting A-ASSOCIATE-RQ from <remote>
+        # Evt12: Receive A-RELEASE-RQ PDU from <remote>
+        # AA-1: Send A-ABORT PDU from <local service> to <remote>
+        #       Restart ARTIM
+        # Sta13: Awaiting TRANSPORT_CLOSE from <transport service>
+        pass
+
+    def test_evt13(self):
+        # Sta2 + Evt13 -> AA-1 -> Sta13
+        # Sta2: Connection open, awaiting A-ASSOCIATE-RQ from <remote>
+        # Evt13: Receive A-RELEASE-RP PDU from <remote>
+        # AA-1: Send A-ABORT PDU from <local service> to <remote>
+        #       Restart ARTIM
+        # Sta13: Awaiting TRANSPORT_CLOSE from <transport service>
+        pass
+
+    def test_evt14(self):
+        # Sta2 + Evt14 -> <ignore> -> Sta2
+        # Sta2: Connection open, awaiting A-ASSOCIATE-RQ from <remote>
+        # Evt14: Receive A-RELEASE (rsp) primitive from <local user>
+        # Sta2: Connection open, awaiting A-ASSOCIATE-RQ from <remote>
+        pass
+
+    def test_evt15(self):
+        # Sta2 + Evt15 -> <ignore> -> Sta2
+        # Sta2: Connection open, awaiting A-ASSOCIATE-RQ from <remote>
+        # Evt15: Receive A-ABORT (rq) primitive from <local user>
+        # Sta2: Connection open, awaiting A-ASSOCIATE-RQ from <remote>
+        pass
+
+    def test_evt16(self):
+        # Sta2 + Evt16 -> AA-2 -> Sta1
+        # Sta2: Connection open, awaiting A-ASSOCIATE-RQ from <remote>
+        # Evt16: Receive A-ABORT PDU from <remote>
+        # AA-2: Stop ARTIM
+        #       Send CONNECTION_CLOSE to <transport service>
+        # Sta1: Idle
+        pass
+
+    def test_evt17(self):
+        # Sta2 + Evt17 -> AA-5 -> Sta1
+        # Sta2: Connection open, awaiting A-ASSOCIATE-RQ from <remote>
+        # Evt17: Receive TRANSPORT_CLOSED from <transport service>
+        # AA-5: Stop ARTIM
+        # Sta1: Idle
+        pass
+
+    def test_evt18(self):
+        # Sta2 + Evt18 -> AA-2 -> Sta1
+        # Sta2: Connection open, awaiting A-ASSOCIATE-RQ from <remote>
+        # Evt18: ARTIM timer expired from <local service>
+        # AA-2: Stop ARTIM
+        #       Send CONNECTION_CLOSE to <transport service>
+        # Sta1: Idle
+        pass
+
+    def test_evt19(self):
+        # Sta2 + Evt19 -> AA-1 -> Sta13
+        # Sta2: Connection open, awaiting A-ASSOCIATE-RQ from <remote>
+        # Evt19: Received unrecognised or invalid PDU from <remote>
+        # AA-1: Send A-ABORT PDU from <local service> to <remote>
+        #       Restart ARTIM
+        # Sta13: Awaiting TRANSPORT_CLOSE from <transport service>
+        pass
 
 
 class TestStateMachineFunctionalRequestor(object):

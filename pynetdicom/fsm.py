@@ -14,6 +14,11 @@ from pynetdicom.pdu_primitives import A_ABORT
 LOGGER = logging.getLogger('pynetdicom.sm')
 
 
+class InvalidEventError(Exception):
+    """Exception for use when an invalid event occurs for a given state."""
+    pass
+
+
 # pylint: disable=invalid-name
 class StateMachine(object):
     """Implementation of the DICOM Upper Layer State Machine.
@@ -52,11 +57,11 @@ class StateMachine(object):
         # Check (event + state) is valid
         if (event, self.current_state) not in TRANSITION_TABLE:
             msg = (
-                "DUL State Machine received an invalid event '{}' for the "
-                "current state '{}'".format(event, self.current_state)
+                "Invalid event '{}' for the current state '{}'"
+                .format(event, self.current_state)
             )
             LOGGER.error(msg)
-            raise KeyError(msg)
+            raise InvalidEventError(msg)
 
         action_name = TRANSITION_TABLE[(event, self.current_state)]
 
@@ -70,7 +75,10 @@ class StateMachine(object):
             # Execute the required action
             next_state = action[1](self.dul)
 
-            #print(action_name, self.current_state, event, next_state)
+            print(
+                "{} + {} -> {} -> {}"
+                .format(self.current_state, event, action_name, next_state)
+            )
 
             # Move the state machine to the next state
             self.transition(next_state)
