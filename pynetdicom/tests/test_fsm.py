@@ -202,7 +202,7 @@ class DummyAE(threading.Thread):
                         conn.send(to_send[1])
                         continue
                     elif to_send[1] == 'shutdown':
-                        conn.send(to_send[1])
+                        conn.send(to_send[0])
                         self.sock.shutdown(socket.SHUT_RDWR)
                         self.sock.close()
                         self._kill = True
@@ -604,16 +604,14 @@ class TestState01(TestStateBase):
 
         assert self.assoc.is_aborted
 
-        assert self.fsm._transitions == [
+        assert self.fsm._transitions[:2] == [
             'Sta4',  # Waiting for connection to complete
             'Sta5',  # Waiting for A-ASSOC-AC or -RJ PDU
-            'Sta1'  # Idle
         ]
         # We only need to test that Sta1 + Evt1 -> AE-1 -> Sta4
-        assert self.fsm._changes == [
+        assert self.fsm._changes[:2] == [
             ('Sta1', 'Evt1', 'AE-1'),  # recv A-ASSOC rq primitive
             ('Sta4', 'Evt2', 'AE-2'),  # connection confirmed
-            ('Sta5', 'Evt16', 'AA-3'),  # A-ABORT PDU recv
         ]
 
         assert self.fsm._events[0] == 'Evt1'
@@ -2348,13 +2346,12 @@ class TestState05(TestStateBase):
 
         time.sleep(0.1)
 
-        assert self.fsm._changes[:4] == [
+        assert self.fsm._changes[:3] == [
             ('Sta1', 'Evt1', 'AE-1'),
             ('Sta4', 'Evt2', 'AE-2'),
             ('Sta5', 'Evt3', 'AE-3'),
-            ('Sta6', 'Evt17', 'AA-4'),
         ]
-        assert self.fsm._events[:4] == ['Evt1', 'Evt2', 'Evt3', 'Evt17']
+        assert self.fsm._events[:3] == ['Evt1', 'Evt2', 'Evt3']
 
     def test_evt04(self):
         """Test Sta5 + Evt4."""
@@ -3264,15 +3261,45 @@ class TestState06(TestStateBase):
         assert scp.received[1] == b'\x07\x00\x00\x00\x00\x04\x00\x00\x02\x00'
 
 
-@pytest.mark.skip()
 class TestState07(TestStateBase):
-    """Tests for State 07: """
+    """Tests for State 07: Awaiting A-RELEASE-RP PDU."""
     def test_evt01(self):
         """Test Sta2 + Evt1."""
         # Sta2 + Evt1 -> <ignore> -> Sta2
         # Evt1: A-ASSOCIATE (rq) primitive from <local user>
-        pass
+        scp = DummyAE()
+        scp.mode = 'acceptor'
+        scp.queue.put(None)
+        scp.queue.put(['skip', a_associate_ac])
+        scp.queue.put(None)
+        scp.queue.put(['wait', 0.2, 'shutdown'])
+        scp.start()
 
+        self.assoc.start()
+
+        time.sleep(0.2)
+
+        self.assoc.dul.send_pdu(self.get_release(False))
+
+        time.sleep(0.1)
+
+        self.assoc.dul.send_pdu(self.get_associate('request'))
+
+        time.sleep(0.1)
+
+        print(self.fsm._changes)
+        print(self.fsm._transitions)
+        print(self.fsm._events)
+        assert self.fsm._changes[:4] == [
+            ('Sta1', 'Evt1', 'AE-1'),
+            ('Sta4', 'Evt2', 'AE-2'),
+            ('Sta5', 'Evt3', 'AE-3'),
+            ('Sta6', 'Evt11', 'AR-1'),
+        ]
+        assert self.fsm._transitions[:4] == ['Sta4', 'Sta5', 'Sta6', 'Sta7']
+        assert self.fsm._events[:5] == ['Evt1', 'Evt2', 'Evt3', 'Evt11', 'Evt1']
+
+    @pytest.mark.skip()
     def test_evt02(self):
         """Test Sta2 + Evt2."""
         # Sta2 + Evt2 -> <ignore> -> Sta2
@@ -3291,6 +3318,7 @@ class TestState07(TestStateBase):
         # Evt4: Receive A-ASSOCIATE-RJ PDU from <remote>
         pass
 
+    @pytest.mark.skip()
     def test_evt05(self):
         """Test Sta2 + Evt5."""
         # Sta2 + Evt5 -> <ignore> -> Sta2
@@ -3369,6 +3397,7 @@ class TestState07(TestStateBase):
         # Evt17: Receive TRANSPORT_CLOSED from <transport service>
         pass
 
+    @pytest.mark.skip()
     def test_evt18(self):
         """Test Sta2 + Evt18."""
         # Sta2 + Evt18 -> AA-2 -> Sta1
