@@ -927,6 +927,7 @@ def AA_4(dul):
     # Issue A-P-ABORT indication primitive.
     dul.primitive = A_ABORT()
     dul.to_user_queue.put(dul.primitive)
+    dul.kill_dul()
 
     return 'Sta1'
 
