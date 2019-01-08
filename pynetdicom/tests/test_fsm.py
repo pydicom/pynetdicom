@@ -34,7 +34,7 @@ from .encoded_pdu_items import (
 
 LOGGER = logging.getLogger("pynetdicom")
 LOGGER.setLevel(logging.CRITICAL)
-#LOGGER.setLevel(logging.DEBUG)
+LOGGER.setLevel(logging.DEBUG)
 
 
 REFERENCE_BAD_EVENTS = [
@@ -1119,7 +1119,7 @@ class TestState01(TestStateBase):
         assert self.fsm.current_state == 'Sta1'
 
 
-@pytest.mark.skip("Need a TRANSPORT_OPEN indication")
+@pytest.mark.skip("Need a way to put the association in State 2")
 class TestState02(TestStateBase):
     """Tests for State 02: Connection open, waiting for A-ASSOCIATE-RQ."""
     def test_evt01(self):
@@ -1237,7 +1237,7 @@ class TestState02(TestStateBase):
         pass
 
 
-@pytest.mark.skip("Need a way to put the DUL in State 3")
+@pytest.mark.skip("Need a way to put the association in State 3")
 class TestState03(TestStateBase):
     """Tests for State 03: Awaiting A-ASSOCIATE (rsp) primitive."""
     def test_evt01(self):
@@ -1751,7 +1751,7 @@ class TestState03(TestStateBase):
         assert self.fsm.current_state == 'Sta1'
 
 
-@pytest.mark.skip("Need a way to put the DUL in State 4")
+@pytest.mark.skip("Need a way to put the association in State 4")
 class TestState04(TestStateBase):
     """Tests for State 04: Awaiting TRANSPORT_OPEN from <transport service>."""
     def test_evt01(self):
@@ -2769,12 +2769,35 @@ class TestState05(TestStateBase):
         assert self.fsm._transitions[:3] == ['Sta4', 'Sta5', 'Sta1']
         assert self.fsm._events[:3] == ['Evt1', 'Evt2', 'Evt17']
 
-    @pytest.mark.skip()
     def test_evt18(self):
         """Test Sta5 + Evt18."""
         # Sta5 + Evt18 -> <ignore> -> Sta5
         # Evt18: ARTIM timer expired from <local service>
-        pass
+        scp = DummyAE()
+        scp.mode = 'acceptor'
+        scp.queue.put(None)
+        scp.queue.put(['wait', 0.3])
+        scp.queue.put('shutdown')
+
+        scp.start()
+
+        assert self.fsm.current_state == 'Sta1'
+        assert self.assoc.dul.scu_socket is None
+        self.assoc.start()
+
+        time.sleep(0.1)
+
+        self.assoc.dul.artim_timer.timeout_seconds = 0.05
+        self.assoc.dul.artim_timer.start()
+
+        time.sleep(0.4)
+
+        assert self.fsm._changes[:3] == [
+            ('Sta1', 'Evt1', 'AE-1'),
+            ('Sta4', 'Evt2', 'AE-2'),
+        ]
+        assert self.fsm._transitions[:3] == ['Sta4', 'Sta5']
+        assert self.fsm._events[:3] == ['Evt1', 'Evt2', 'Evt18']
 
     def test_evt19(self):
         """Test Sta5 + Evt19."""
@@ -3247,12 +3270,34 @@ class TestState06(TestStateBase):
         assert self.fsm._transitions[:4] == ['Sta4', 'Sta5', 'Sta6', 'Sta1']
         assert self.fsm._events[:4] == ['Evt1', 'Evt2', 'Evt3', 'Evt17']
 
-    @pytest.mark.skip
     def test_evt18(self):
         """Test Sta6 + Evt18."""
         # Sta6 + Evt18 -> <ignore> -> Sta6
         # Evt18: ARTIM timer expired from <local service>
-        pass
+        scp = DummyAE()
+        scp.mode = 'acceptor'
+        scp.queue.put(None)
+        scp.queue.put(['skip', a_associate_ac])
+        scp.queue.put(['wait', 0.3])
+        scp.queue.put('shutdown')
+        scp.start()
+
+        self.assoc.start()
+
+        time.sleep(0.2)
+
+        self.assoc.dul.artim_timer.timeout_seconds = 0.1
+        self.assoc.dul.artim_timer.start()
+
+        time.sleep(0.4)
+
+        assert self.fsm._changes[:3] == [
+            ('Sta1', 'Evt1', 'AE-1'),
+            ('Sta4', 'Evt2', 'AE-2'),
+            ('Sta5', 'Evt3', 'AE-3'),
+        ]
+        assert self.fsm._transitions[:4] == ['Sta4', 'Sta5', 'Sta6']
+        assert self.fsm._events[:4] == ['Evt1', 'Evt2', 'Evt3', 'Evt18']
 
     def test_evt19(self):
         """Test Sta6 + Evt19."""
@@ -3802,12 +3847,40 @@ class TestState07(TestStateBase):
         assert self.fsm._transitions[:4] == ['Sta4', 'Sta5', 'Sta6', 'Sta7']
         assert self.fsm._events[:5] == ['Evt1', 'Evt2', 'Evt3', 'Evt11', 'Evt17']
 
-    @pytest.mark.skip()
     def test_evt18(self):
         """Test Sta7 + Evt18."""
         # Sta7 + Evt18 -> <ignore> -> Sta7
         # Evt18: ARTIM timer expired from <local service>
-        pass
+        scp = DummyAE()
+        scp.mode = 'acceptor'
+        scp.queue.put(None)
+        scp.queue.put(['skip', a_associate_ac])
+        scp.queue.put(None)
+        scp.queue.put(['wait', 0.3])
+        scp.queue.put(['wait', 0.2, 'shutdown'])
+        scp.start()
+
+        self.assoc.start()
+
+        time.sleep(0.2)
+
+        self.assoc.dul.send_pdu(self.get_release(False))
+
+        time.sleep(0.3)
+
+        self.assoc.dul.artim_timer.timeout_seconds = 0.05
+        self.assoc.dul.artim_timer.start()
+
+        time.sleep(0.4)
+
+        assert self.fsm._changes[:4] == [
+            ('Sta1', 'Evt1', 'AE-1'),
+            ('Sta4', 'Evt2', 'AE-2'),
+            ('Sta5', 'Evt3', 'AE-3'),
+            ('Sta6', 'Evt11', 'AR-1'),
+        ]
+        assert self.fsm._transitions[:3] == ['Sta4', 'Sta5', 'Sta6']
+        assert self.fsm._events[:5] == ['Evt1', 'Evt2', 'Evt3', 'Evt11', 'Evt18']
 
     def test_evt19(self):
         """Test Sta7 + Evt19."""
@@ -4396,12 +4469,43 @@ class TestState08(TestStateBase):
         assert self.fsm._transitions[:4] == ['Sta4', 'Sta5', 'Sta6', 'Sta8']
         assert self.fsm._events[:5] == ['Evt1', 'Evt2', 'Evt3', 'Evt12', 'Evt17']
 
-    @pytest.mark.skip()
     def test_evt18(self):
         """Test Sta8 + Evt18."""
         # Sta8 + Evt18 -> <ignore> -> Sta1
         # Evt18: ARTIM timer expired from <local service>
-        pass
+        scp = DummyAE()
+        scp.mode = 'acceptor'
+        scp.queue.put(None)
+        scp.queue.put(['skip', a_associate_ac])
+        scp.queue.put(['skip', a_release_rq])
+        scp.queue.put(['wait', 0.3])
+        scp.queue.put(['wait', 0.2, 'shutdown'])
+
+        scp.start()
+
+        # Override ACSE.is_release_requested so the Association loop doesn't
+        #   respond to the release request
+        def is_release_requested(assoc):
+            return False
+
+        self.assoc.acse.is_release_requested = is_release_requested
+        self.assoc.start()
+
+        time.sleep(0.4)
+
+        self.assoc.dul.artim_timer.timeout_seconds = 0.05
+        self.assoc.dul.artim_timer.start()
+
+        time.sleep(0.4)
+
+        assert self.fsm._changes[:4] == [
+            ('Sta1', 'Evt1', 'AE-1'),
+            ('Sta4', 'Evt2', 'AE-2'),
+            ('Sta5', 'Evt3', 'AE-3'),
+            ('Sta6', 'Evt12', 'AR-2'),
+        ]
+        assert self.fsm._transitions[:3] == ['Sta4', 'Sta5', 'Sta6']
+        assert self.fsm._events[:5] == ['Evt1', 'Evt2', 'Evt3', 'Evt12', 'Evt18']
 
     def test_evt19(self):
         """Test Sta8 + Evt19."""
@@ -5146,12 +5250,53 @@ class TestState09(TestStateBase):
             'Evt1', 'Evt2', 'Evt3', 'Evt11', 'Evt12', 'Evt17'
         ]
 
-    @pytest.mark.skip()
     def test_evt18(self):
         """Test Sta9 + Evt18."""
         # Sta9 + Evt18 -> <ignore> -> Sta9
         # Evt18: ARTIM timer expired from <local service>
-        pass
+        scp = DummyAE()
+        scp.mode = 'acceptor'
+        scp.queue.put(None)
+        scp.queue.put(['skip', a_associate_ac])
+        scp.queue.put(['wait', 0.2]) # Wait for release rq
+        scp.queue.put(['skip', a_release_rq]) # Send release rq
+        scp.queue.put(['wait', 0.3])
+        scp.queue.put(['wait', 0.2, 'shutdown'])
+
+        scp.start()
+
+        # Override ACSE.is_release_requested so the Association loop doesn't
+        #   respond to the release request
+        def is_release_requested(assoc):
+            return False
+
+        self.assoc.acse.is_release_requested = is_release_requested
+        self.assoc.start()
+
+        time.sleep(0.2)
+
+        self.assoc.dul.send_pdu(self.get_release(False))
+
+        time.sleep(0.3)
+
+        self.assoc.dul.artim_timer.timeout_seconds = 0.05
+        self.assoc.dul.artim_timer.start()
+
+        time.sleep(0.4)
+
+        assert self.fsm._changes[:5] == [
+            ('Sta1', 'Evt1', 'AE-1'),
+            ('Sta4', 'Evt2', 'AE-2'),
+            ('Sta5', 'Evt3', 'AE-3'),
+            ('Sta6', 'Evt11', 'AR-1'),
+            ('Sta7', 'Evt12', 'AR-8'),
+        ]
+        assert self.fsm._transitions[:4] == [
+            'Sta4', 'Sta5', 'Sta6', 'Sta7'
+        ]
+        assert self.fsm._events[:6] == [
+            'Evt1', 'Evt2', 'Evt3', 'Evt11', 'Evt12', 'Evt18'
+        ]
 
     def test_evt19(self):
         """Test Sta9 + Evt19."""
@@ -5199,7 +5344,7 @@ class TestState09(TestStateBase):
         ]
 
 
-@pytest.mark.skip()
+@pytest.mark.skip("Need a way to put the association in State 10")
 class TestState10(TestStateBase):
     """Tests for State 10: Release collision acc - awaiting A-RELEASE-RP ."""
     def test_evt01(self):
@@ -6132,12 +6277,59 @@ class TestState11(TestStateBase):
             'Evt1', 'Evt2', 'Evt3', 'Evt11', 'Evt12', 'Evt14', 'Evt17',
         ]
 
-    @pytest.mark.skip()
     def test_evt18(self):
         """Test Sta11 + Evt18."""
         # Sta11 + Evt18 -> <ignore> -> Sta11
         # Evt18: ARTIM timer expired from <local service>
-        pass
+        scp = DummyAE()
+        scp.mode = 'acceptor'
+        scp.queue.put(None)
+        scp.queue.put(['skip', a_associate_ac])
+        scp.queue.put(['wait', 0.2]) # Wait for release rq
+        scp.queue.put(['skip', a_release_rq]) # Send release rq
+        scp.queue.put(['wait', 0.2]) # Wait for release rp
+        scp.queue.put(['wait', 0.3])
+        scp.queue.put(['wait', 0.2, 'shutdown'])
+
+        scp.start()
+
+        # Override ACSE.is_release_requested so the Association loop doesn't
+        #   respond to the release request
+        def is_release_requested(assoc):
+            return False
+
+        self.assoc.acse.is_release_requested = is_release_requested
+        self.assoc.start()
+
+        time.sleep(0.1)
+
+        self.assoc.dul.send_pdu(self.get_release(False))
+
+        time.sleep(0.3)
+
+        self.assoc.dul.send_pdu(self.get_release(True))
+
+        time.sleep(0.3)
+
+        self.assoc.dul.artim_timer.timeout_seconds = 0.05
+        self.assoc.dul.artim_timer.start()
+
+        time.sleep(0.4)
+
+        assert self.fsm._changes[:6] == [
+            ('Sta1', 'Evt1', 'AE-1'),
+            ('Sta4', 'Evt2', 'AE-2'),
+            ('Sta5', 'Evt3', 'AE-3'),
+            ('Sta6', 'Evt11', 'AR-1'),
+            ('Sta7', 'Evt12', 'AR-8'),
+            ('Sta9', 'Evt14', 'AR-9'),
+        ]
+        assert self.fsm._transitions[:5] == [
+            'Sta4', 'Sta5', 'Sta6', 'Sta7', 'Sta9'
+        ]
+        assert self.fsm._events[:7] == [
+            'Evt1', 'Evt2', 'Evt3', 'Evt11', 'Evt12', 'Evt14', 'Evt18',
+        ]
 
     def test_evt19(self):
         """Test Sta11 + Evt19."""
@@ -6191,7 +6383,7 @@ class TestState11(TestStateBase):
         ]
 
 
-@pytest.mark.skip()
+@pytest.mark.skip("Need a way to put the association in State 12")
 class TestState12(TestStateBase):
     """Tests for State 12: Release collision acc - awaiting A-RELEASE (rp)"""
     def test_evt01(self):
@@ -7027,13 +7219,59 @@ class TestState13(TestStateBase):
         assert self.fsm._transitions[:4] == ['Sta4', 'Sta5', 'Sta13', 'Sta1']
         assert self.fsm._events[:4] == ['Evt1', 'Evt2', 'Evt6', 'Evt17']
 
-    @pytest.mark.skip()
     def test_evt18(self):
         """Test Sta13 + Evt18."""
         # Sta13 + Evt18 -> AA-2 -> Sta1
         # Evt18: ARTIM timer expired from <local service>
         # AA-2: Stop ARTIM, close connection
-        pass
+        scp = DummyAE()
+        scp.mode = 'acceptor'
+        scp.queue.put(None) # receive a_associate_rq
+        scp.queue.put(['wait', 0.1]) #
+        scp.queue.put(a_associate_rq) # receive a-abort
+        scp.queue.put(['wait', 0.3])
+        scp.queue.put(['wait', 0.1, 'shutdown'])
+
+        scp.start()
+
+        # Override acse._negotiate_as_requestor
+        def patch_neg_rq(assoc):
+            pass
+
+        self.assoc.acse._negotiate_as_requestor = patch_neg_rq
+
+        # Override dul._is_transport_event to not close in Sta13
+        dul = self.assoc.dul
+        orig_method = dul._is_transport_event
+        def patch_xport_event():
+            if self.fsm.current_state == 'Sta13':
+                return False
+
+            return orig_method()
+
+        dul._is_transport_event = patch_xport_event
+
+        assert self.fsm.current_state == 'Sta1'
+        assert self.assoc.dul.scu_socket is None
+        self.assoc.start()
+
+        self.assoc.dul.send_pdu(self.get_associate('request'))
+
+        time.sleep(0.2)
+
+        self.assoc.dul.artim_timer.timeout_seconds = 0.05
+        self.assoc.dul.artim_timer.start()
+
+        time.sleep(0.4)
+
+        assert self.fsm._changes[:4] == [
+            ('Sta1', 'Evt1', 'AE-1'),
+            ('Sta4', 'Evt2', 'AE-2'),
+            ('Sta5', 'Evt6', 'AA-8'),
+            ('Sta13', 'Evt18', 'AA-2'),
+        ]
+        assert self.fsm._transitions[:4] == ['Sta4', 'Sta5', 'Sta13', 'Sta1']
+        assert self.fsm._events[:4] == ['Evt1', 'Evt2', 'Evt6', 'Evt18']
 
     def test_evt19(self):
         """Test Sta13 + Evt19."""
