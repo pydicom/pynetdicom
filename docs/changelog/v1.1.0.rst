@@ -26,6 +26,7 @@ Enhancements
   user to specify how long the select.select() call blocks for.
   (:pull_request:`260`)
 * Improved the CPU usage of the AE when running idle as an SCP (:issue:`60`).
+* Added support for C-CANCEL messages to the query/retrieve service classes.
 
 
 Changes

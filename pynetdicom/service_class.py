@@ -600,6 +600,9 @@ class QueryRetrieveServiceClass(ServiceClass):
         ii = -1  # So if there are no results, log below doesn't break
         # Iterate through the results
         for ii, (rsp_status, rsp_identifier) in enumerate(wrap_on_c_find()):
+            # Check for C-CANCEL-FIND messages
+            pass
+
             # We only want to catch exceptions in the user code, not in ours.
             if rsp_status is stopper:
                 exc_info = rsp_identifier
