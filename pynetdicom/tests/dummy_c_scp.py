@@ -88,6 +88,7 @@ class DummyBaseSCP(threading.Thread):
         self.ae.on_n_action = self.on_n_action
         self.ae.on_n_create = self.on_n_create
         self.ae.on_n_delete = self.on_n_delete
+        self.ae.network_timeout = 5
 
         self.ae.acse_timeout = 5
         self.ae.dimse_timeout = 5
@@ -202,7 +203,7 @@ class DummyBaseSCP(threading.Thread):
 
     def dev_handle_connection(self, client_socket):
         # Create a new Association
-        assoc = Association(self, "acceptor", client_socket)
+        assoc = Association(self.ae, "acceptor", client_socket)
         assoc.acse_timeout = self.ae.acse_timeout
         assoc.dimse_timeout = self.ae.dimse_timeout
         assoc.network_timeout = self.ae.network_timeout
@@ -226,7 +227,7 @@ class DummyBaseSCP(threading.Thread):
         assoc.requestor.address = client_socket.getpeername()[0]
         assoc.requestor.port = client_socket.getpeername()[1]
 
-        assoc._a_abort_assoc_rq = self.send_abort
+        assoc._a_abort_assoc_rq = self.send_a_abort
         assoc._a_p_abort_assoc_rq = self.send_ap_abort
 
         assoc.start()

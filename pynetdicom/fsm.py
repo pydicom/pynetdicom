@@ -4,15 +4,22 @@ The DUL's finite state machine representation.
 import logging
 import socket
 
-from pynetdicom.pdu import (A_ASSOCIATE_RQ, A_ASSOCIATE_RJ, A_ASSOCIATE_AC,
-                            P_DATA_TF, A_RELEASE_RQ, A_RELEASE_RP, A_ABORT_RQ)
+from pynetdicom.pdu import (
+    A_ASSOCIATE_RQ, A_ASSOCIATE_RJ, A_ASSOCIATE_AC,
+    P_DATA_TF, A_RELEASE_RQ, A_RELEASE_RP, A_ABORT_RQ
+)
 from pynetdicom.pdu_primitives import A_ABORT
+
 
 LOGGER = logging.getLogger('pynetdicom.sm')
 
+
+class InvalidEventError(Exception):
+    """Exception for use when an invalid event occurs for a given state."""
+    pass
+
+
 # pylint: disable=invalid-name
-
-
 class StateMachine(object):
     """Implementation of the DICOM Upper Layer State Machine.
 
@@ -20,7 +27,7 @@ class StateMachine(object):
     ----------
     current_state : str
         The current state of the state machine, 'Sta1' to 'Sta13'.
-    dul : pynetdicom.dul.DULServiceProvider
+    dul : dul.DULServiceProvider
         The DICOM Upper Layer service instance for the local AE
 
     References
@@ -33,8 +40,8 @@ class StateMachine(object):
 
         Parameters
         ---------
-        dul : pynetdicom.dul.DULServiceProvider
-            The DICOM Upper Layer Service instance for the local AE.
+        dul : dul.DULServiceProvider
+            The DICOM Upper Layer Service instance for the association.
         """
         self.current_state = 'Sta1'
         self.dul = dul
@@ -49,12 +56,12 @@ class StateMachine(object):
         """
         # Check (event + state) is valid
         if (event, self.current_state) not in TRANSITION_TABLE:
-            LOGGER.error("DUL State Machine received an invalid event '%s' "
-                         "for the current state '%s'",
-                         event, self.current_state)
-            raise KeyError("DUL State Machine received an invalid event "
-                           "'{}' for the current state '{}'"
-                           .format(event, self.current_state))
+            msg = (
+                "Invalid event '{}' for the current state '{}'"
+                .format(event, self.current_state)
+            )
+            LOGGER.error(msg)
+            raise InvalidEventError(msg)
 
         action_name = TRANSITION_TABLE[(event, self.current_state)]
 
@@ -68,7 +75,11 @@ class StateMachine(object):
             # Execute the required action
             next_state = action[1](self.dul)
 
-            #print(action_name, self.current_state, event, next_state)
+            # Useful for debugging
+            #print(
+            #    "{} + {} -> {} -> {}"
+            #    .format(self.current_state, event, action_name, next_state)
+            #)
 
             # Move the state machine to the next state
             self.transition(next_state)
@@ -98,7 +109,7 @@ class StateMachine(object):
         if state in STATES.keys():
             self.current_state = state
         else:
-            msg = 'Invalid state "{}" for State Machine'.format(state)
+            msg = "Invalid state '{}' for State Machine".format(state)
             LOGGER.error(msg)
             raise ValueError(msg)
 
@@ -143,6 +154,8 @@ def AE_1(dul):
         LOGGER.error("TCP Initialisation Error: Connection refused")
         dul.to_user_queue.put(None)
         dul.scu_socket.close()
+        dul.kill_dul()
+
         return 'Sta1'
 
     return 'Sta4'
@@ -239,6 +252,7 @@ def AE_4(dul):
     dul.to_user_queue.put(dul.primitive)
     dul.scu_socket.close()
     dul.peer_socket = None
+    dul.kill_dul()
 
     return 'Sta1'
 
@@ -310,8 +324,8 @@ def AE_6(dul):
     # If A-ASSOCIATE-RQ not acceptable by service dul provider
     #   Then set reason and send -RJ PDU back to peer
     if dul.pdu.protocol_version != 0x0001:
-        LOGGER.error("Receiving Association failed: Unsupported peer protocol "
-                     "version '0x%04x' (0x0001 expected)",
+        LOGGER.error("A-ASSOCIATE-RQ: Unsupported protocol "
+                     "version '0x%04x'",
                      dul.pdu.protocol_version)
 
         # Send A-ASSOCIATE-RJ PDU and start ARTIM timer
@@ -558,8 +572,10 @@ def AR_3(dul):
     """
     # Issue A-RELEASE confirmation primitive and close transport connection
     dul.to_user_queue.put(dul.primitive)
+    dul.scu_socket.shutdown(socket.SHUT_RDWR)
     dul.scu_socket.close()
     dul.peer_socket = None
+    dul.kill_dul()
 
     return 'Sta1'
 
@@ -623,6 +639,7 @@ def AR_5(dul):
     """
     # Stop ARTIM timer
     dul.artim_timer.stop()
+    dul.kill_dul()
 
     return 'Sta1'
 
@@ -808,16 +825,8 @@ def AA_1(dul):
     # if already started) ARTIM timer.
     dul.pdu = A_ABORT_RQ()
     dul.pdu.source = 0x00
-
-    # The reason for the abort should really be roughly defined by the
-    #   current state of the State Machine
-    if dul.state_machine.current_state == 'Sta2':
-        # Unexpected PDU
-        dul.pdu.reason_diagnostic = 0x02
-    else:
-        # Reason not specified
-        dul.pdu.reason_diagnostic = 0x00
-
+    # Reason not specified
+    dul.pdu.reason_diagnostic = 0x00
     dul.pdu.from_primitive(dul.primitive)
 
     # Callback
@@ -857,6 +866,7 @@ def AA_2(dul):
     dul.scu_socket.shutdown(socket.SHUT_RDWR)
     dul.scu_socket.close()
     dul.peer_socket = None
+    dul.kill_dul()
 
     return 'Sta1'
 
@@ -922,6 +932,7 @@ def AA_4(dul):
     # Issue A-P-ABORT indication primitive.
     dul.primitive = A_ABORT()
     dul.to_user_queue.put(dul.primitive)
+    dul.kill_dul()
 
     return 'Sta1'
 
@@ -950,6 +961,7 @@ def AA_5(dul):
     """
     # Stop ARTIM timer.
     dul.artim_timer.stop()
+    dul.kill_dul()
 
     return 'Sta1'
 
@@ -1004,13 +1016,14 @@ def AA_7(dul):
         Sta13, the next state of the state machine
     """
     # Send A-ABORT PDU.
-    dul.pdu = A_ABORT_RQ()
-    dul.pdu.from_primitive(dul.primitive)
+    pdu = A_ABORT_RQ()
+    pdu.source = 0x02
+    pdu.reason_diagnostic = 0x02
 
     # Callback
-    dul.assoc.acse.debug_send_abort(dul.pdu)
+    dul.assoc.acse.debug_send_abort(pdu)
 
-    dul.scu_socket.send(dul.pdu.encode())
+    dul.scu_socket.send(pdu.encode())
 
     return 'Sta13'
 

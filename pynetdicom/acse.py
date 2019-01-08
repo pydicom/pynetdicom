@@ -2,11 +2,10 @@
 ACSE service provider
 """
 import logging
-import time
 import warnings
 
 from pynetdicom.pdu_primitives import (
-    A_ASSOCIATE, A_RELEASE, A_ABORT, A_P_ABORT, P_DATA,
+    A_ASSOCIATE, A_RELEASE, A_ABORT, A_P_ABORT,
     AsynchronousOperationsWindowNegotiation,
     SOPClassCommonExtendedNegotiation,
     SOPClassExtendedNegotiation,
@@ -393,12 +392,6 @@ class ACSE(object):
         assoc.debug_association_accepted(assoc.acceptor.primitive)
         assoc.ae.on_association_accepted(assoc.acceptor.primitive)
 
-        # No valid presentation contexts, abort the association
-        if not assoc.accepted_contexts:
-            self.send_abort(assoc, 0x02)
-            assoc.kill()
-            return
-
         # Assocation established OK
         assoc.is_established = True
 
@@ -584,6 +577,14 @@ class ACSE(object):
                 return
 
     def release_association(self, assoc):
+        """Negotiate association release.
+
+        Parameters
+        ----------
+        assoc : association.Association
+            The association instance that wants to initiate association
+            release.
+        """
         warnings.warn(
             "ACSE.release_association is deprecated and will be removed "
             "in v1.2, use ACSE.negotiate_release instead",
@@ -868,7 +869,8 @@ class ACSE(object):
     def debug_send_associate_ac(a_associate_ac):
         """
         Placeholder for a function callback. Function will be called
-        immediately prior to encoding and sending an A-ASSOCIATE-AC to a peer AE
+        immediately prior to encoding and sending an A-ASSOCIATE-AC to a peer
+        AE
 
         Parameters
         ----------
@@ -979,8 +981,9 @@ class ACSE(object):
 
 
         s.append('User Identity Negotiation Response: {0!s}'.format(usr_id))
-        s.append('======================= END A-ASSOCIATE-AC =================='
-                 '====')
+        s.append(
+            '======================= END A-ASSOCIATE-AC ======================'
+        )
 
         for line in s:
             LOGGER.debug(line)
@@ -989,7 +992,8 @@ class ACSE(object):
     def debug_send_associate_rj(a_associate_rj):
         """
         Placeholder for a function callback. Function will be called
-        immediately prior to encoding and sending an A-ASSOCIATE-RJ to a peer AE
+        immediately prior to encoding and sending an A-ASSOCIATE-RJ to a peer
+        AE.
 
         Parameters
         ----------
@@ -1168,8 +1172,9 @@ class ACSE(object):
         else:
             s.append('Requested User Identity Negotiation: None')
 
-        s.append('======================= END A-ASSOCIATE-RQ =================='
-                 '====')
+        s.append(
+            '======================= END A-ASSOCIATE-RQ ======================'
+        )
 
         for line in s:
             LOGGER.debug(line)
@@ -1225,12 +1230,14 @@ class ACSE(object):
             The A-ABORT PDU instance
         """
         s = ['Abort Parameters:']
-        s.append('========================== BEGIN A-ABORT ===================='
-                 '====')
+        s.append(
+            '========================== BEGIN A-ABORT ========================'
+        )
         s.append('Abort Source: {0!s}'.format(a_abort.source_str))
         s.append('Abort Reason: {0!s}'.format(a_abort.reason_str))
-        s.append('=========================== END A-ABORT ====================='
-                 '====')
+        s.append(
+            '=========================== END A-ABORT ========================='
+        )
         for line in s:
             LOGGER.debug(line)
 
@@ -1342,8 +1349,9 @@ class ACSE(object):
         usr_id = 'Yes' if user_info.user_identity is not None else 'None'
 
         s.append('User Identity Negotiation Response: {0!s}'.format(usr_id))
-        s.append('======================= END A-ASSOCIATE-AC =================='
-                 '====')
+        s.append(
+            '======================= END A-ASSOCIATE-AC ======================'
+        )
 
         for line in s:
             LOGGER.debug(line)
@@ -1365,13 +1373,15 @@ class ACSE(object):
         assoc_rj = a_associate_rj
 
         s = ['Reject Parameters:']
-        s.append('====================== BEGIN A-ASSOCIATE-RJ ================='
-                 '=====')
+        s.append(
+            '====================== BEGIN A-ASSOCIATE-RJ ====================='
+        )
         s.append('Result:    {0!s}'.format(assoc_rj.result_str))
         s.append('Source:    {0!s}'.format(assoc_rj.source_str))
         s.append('Reason:    {0!s}'.format(assoc_rj.reason_str))
-        s.append('======================= END A-ASSOCIATE-RJ =================='
-                 '====')
+        s.append(
+            '======================= END A-ASSOCIATE-RJ ======================'
+        )
         for line in s:
             LOGGER.debug(line)
 
@@ -1549,8 +1559,9 @@ class ACSE(object):
         else:
             s.append('Requested User Identity Negotiation: None')
 
-        s.append('======================= END A-ASSOCIATE-RQ =================='
-                 '====')
+        s.append(
+            '======================= END A-ASSOCIATE-RQ ======================'
+        )
 
         for line in s:
             LOGGER.debug(line)

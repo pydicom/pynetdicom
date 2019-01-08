@@ -337,7 +337,7 @@ following table to decide the outcome of role selection negotiation:
 +---------------------+---------------------+----------------------+----------+
 | Requestor           | Acceptor            | Outcome              | Notes    |
 +----------+----------+----------+----------+-----------+----------+          |
-| scu_role | scp_role | scu_role | scp_role | Requestor | Acceptor`|          |
+| scu_role | scp_role | scu_role | scp_role | Requestor | Acceptor |          |
 +==========+==========+==========+==========+===========+==========+==========+
 | N/A      | N/A      | N/A      | N/A      | SCU       | SCP      | Default  |
 +----------+----------+----------+----------+-----------+----------+----------+

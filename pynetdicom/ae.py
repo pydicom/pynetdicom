@@ -64,7 +64,7 @@ class ApplicationEntity(object):
         messages. A value of ``None`` means no timeout. (default: None)
     network_timeout : int or float or None
         The maximum amount of time (in seconds) to wait for network messages.
-        A value of ``None`` means no timeout. (default: None)
+        A value of ``None`` means no timeout. (default: 60)
     maximum_associations : int
         The maximum number of simultaneous associations (default: 2)
     maximum_pdu_size : int
@@ -202,7 +202,7 @@ class ApplicationEntity(object):
 
         # Default timeouts - None means no timeout
         self.acse_timeout = 30
-        self.network_timeout = None
+        self.network_timeout = 60
         self.dimse_timeout = None
 
         # Require Calling/Called AE titles to match if value is non-empty str
@@ -809,8 +809,8 @@ class ApplicationEntity(object):
         elif isinstance(value, (int, float)) and value >= 0:
             self._network_timeout = value
         else:
-            LOGGER.warning("network_timeout set to never expire")
-            self._network_timeout = None
+            LOGGER.warning("network_timeout set to 60 s")
+            self._network_timeout = 60
 
         for assoc in self.active_associations:
             assoc.dul.dul_timeout = self.network_timeout

@@ -431,7 +431,7 @@ class TestAssociation(object):
     def test_scp_assoc_a_abort_reply(self):
         """Test SCP sending an A-ABORT instead of an A-ASSOCIATE response"""
         self.scp = DummyVerificationSCP()
-        self.scp.send_abort = True
+        self.scp.send_a_abort = True
         self.scp.ae._handle_connection = self.scp.dev_handle_connection
         self.scp.start()
 

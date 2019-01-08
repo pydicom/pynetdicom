@@ -94,6 +94,8 @@ class DummyAssociation(object):
         self.is_established = False
         self.is_rejected = False
         self.is_released = False
+        self.is_acceptor = False
+        self.is_requestor = True
 
     def abort(self):
         self.is_aborted = True

@@ -14,7 +14,7 @@ from struct import unpack
 from threading import Thread
 import time
 
-from pynetdicom.fsm import StateMachine
+from pynetdicom.fsm import StateMachine, InvalidEventError
 from pynetdicom.pdu import (
     A_ASSOCIATE_RQ, A_ASSOCIATE_AC, A_ASSOCIATE_RJ,
     P_DATA_TF, A_RELEASE_RQ, A_RELEASE_RP, A_ABORT_RQ
@@ -177,11 +177,6 @@ class DULServiceProvider(Thread):
         """Immediately interrupts the thread"""
         self._kill_thread = True
 
-    def on_receive_pdu(self):
-        """Called after the first byte of an incoming PDU is read.
-        """
-        pass
-
     def peek_next_pdu(self):
         """Check the next PDU to be processed."""
         try:
@@ -202,14 +197,14 @@ class DULServiceProvider(Thread):
             `timeout` seconds. Otherwise returns an item if one is immediately
             available.
         timeout : int or None
-            See the definition of `Wait`
+            See the definition of `wait`
 
         Returns
         -------
         queue_item
-            The next object in the to_user_queue [FIXME]
+            The next object in the to_user_queue.
         None
-            If the queue is empty
+            If the queue is empty.
         """
         try:
             # Remove and return an item from the queue
@@ -255,7 +250,7 @@ class DULServiceProvider(Thread):
                 if self._is_artim_expired():
                     self._kill_thread = True
 
-            except:
+            except Exception as exc:
                 # FIXME: This catch all should be removed
                 self._kill_thread = True
                 raise
@@ -416,7 +411,7 @@ class DULServiceProvider(Thread):
                 return False
 
             # Check to see if there's more data to be read
-            #   Might be any incoming PDU
+            #   Might be any incoming PDU or valid/invalid data
             # Make sure our check of the socket is non-blocking!
             try:
                 ready, _, _ = select.select([self.scu_socket], [], [], 0)
