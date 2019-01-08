@@ -21,7 +21,6 @@ pynetdicom.dul.DULServiceProvider
       ~DULServiceProvider.is_alive
       ~DULServiceProvider.join
       ~DULServiceProvider.kill_dul
-      ~DULServiceProvider.on_receive_pdu
       ~DULServiceProvider.peek_next_pdu
       ~DULServiceProvider.receive_pdu
       ~DULServiceProvider.run

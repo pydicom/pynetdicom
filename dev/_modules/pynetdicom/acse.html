@@ -173,11 +173,10 @@
 <span class="sd">ACSE service provider</span>
 <span class="sd">&quot;&quot;&quot;</span>
 <span class="kn">import</span> <span class="nn">logging</span>
-<span class="kn">import</span> <span class="nn">time</span>
 <span class="kn">import</span> <span class="nn">warnings</span>
 
 <span class="kn">from</span> <span class="nn">pynetdicom.pdu_primitives</span> <span class="k">import</span> <span class="p">(</span>
-    <span class="n">A_ASSOCIATE</span><span class="p">,</span> <span class="n">A_RELEASE</span><span class="p">,</span> <span class="n">A_ABORT</span><span class="p">,</span> <span class="n">A_P_ABORT</span><span class="p">,</span> <span class="n">P_DATA</span><span class="p">,</span>
+    <span class="n">A_ASSOCIATE</span><span class="p">,</span> <span class="n">A_RELEASE</span><span class="p">,</span> <span class="n">A_ABORT</span><span class="p">,</span> <span class="n">A_P_ABORT</span><span class="p">,</span>
     <span class="n">AsynchronousOperationsWindowNegotiation</span><span class="p">,</span>
     <span class="n">SOPClassCommonExtendedNegotiation</span><span class="p">,</span>
     <span class="n">SOPClassExtendedNegotiation</span><span class="p">,</span>
@@ -564,12 +563,6 @@
         <span class="n">assoc</span><span class="o">.</span><span class="n">debug_association_accepted</span><span class="p">(</span><span class="n">assoc</span><span class="o">.</span><span class="n">acceptor</span><span class="o">.</span><span class="n">primitive</span><span class="p">)</span>
         <span class="n">assoc</span><span class="o">.</span><span class="n">ae</span><span class="o">.</span><span class="n">on_association_accepted</span><span class="p">(</span><span class="n">assoc</span><span class="o">.</span><span class="n">acceptor</span><span class="o">.</span><span class="n">primitive</span><span class="p">)</span>
 
-        <span class="c1"># No valid presentation contexts, abort the association</span>
-        <span class="k">if</span> <span class="ow">not</span> <span class="n">assoc</span><span class="o">.</span><span class="n">accepted_contexts</span><span class="p">:</span>
-            <span class="bp">self</span><span class="o">.</span><span class="n">send_abort</span><span class="p">(</span><span class="n">assoc</span><span class="p">,</span> <span class="mh">0x02</span><span class="p">)</span>
-            <span class="n">assoc</span><span class="o">.</span><span class="n">kill</span><span class="p">()</span>
-            <span class="k">return</span>
-
         <span class="c1"># Assocation established OK</span>
         <span class="n">assoc</span><span class="o">.</span><span class="n">is_established</span> <span class="o">=</span> <span class="kc">True</span>
 
@@ -754,13 +747,21 @@
                 <span class="n">assoc</span><span class="o">.</span><span class="n">kill</span><span class="p">()</span>
                 <span class="k">return</span></div>
 
-    <span class="k">def</span> <span class="nf">release_association</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">assoc</span><span class="p">):</span>
+<div class="viewcode-block" id="ACSE.release_association"><a class="viewcode-back" href="../../reference/generated/pynetdicom.acse.ACSE.html#pynetdicom.acse.ACSE.release_association">[docs]</a>    <span class="k">def</span> <span class="nf">release_association</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">assoc</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;Negotiate association release.</span>
+
+<span class="sd">        Parameters</span>
+<span class="sd">        ----------</span>
+<span class="sd">        assoc : association.Association</span>
+<span class="sd">            The association instance that wants to initiate association</span>
+<span class="sd">            release.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
         <span class="n">warnings</span><span class="o">.</span><span class="n">warn</span><span class="p">(</span>
             <span class="s2">&quot;ACSE.release_association is deprecated and will be removed &quot;</span>
             <span class="s2">&quot;in v1.2, use ACSE.negotiate_release instead&quot;</span><span class="p">,</span>
             <span class="ne">DeprecationWarning</span>
         <span class="p">)</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">negotiate_release</span><span class="p">(</span><span class="n">assoc</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">negotiate_release</span><span class="p">(</span><span class="n">assoc</span><span class="p">)</span></div>
 
 <div class="viewcode-block" id="ACSE.send_abort"><a class="viewcode-back" href="../../reference/generated/pynetdicom.acse.ACSE.html#pynetdicom.acse.ACSE.send_abort">[docs]</a>    <span class="nd">@staticmethod</span>
     <span class="k">def</span> <span class="nf">send_abort</span><span class="p">(</span><span class="n">assoc</span><span class="p">,</span> <span class="n">source</span><span class="p">):</span>
@@ -1039,7 +1040,8 @@
     <span class="k">def</span> <span class="nf">debug_send_associate_ac</span><span class="p">(</span><span class="n">a_associate_ac</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        Placeholder for a function callback. Function will be called</span>
-<span class="sd">        immediately prior to encoding and sending an A-ASSOCIATE-AC to a peer AE</span>
+<span class="sd">        immediately prior to encoding and sending an A-ASSOCIATE-AC to a peer</span>
+<span class="sd">        AE</span>
 
 <span class="sd">        Parameters</span>
 <span class="sd">        ----------</span>
@@ -1150,8 +1152,9 @@
 
 
         <span class="n">s</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="s1">&#39;User Identity Negotiation Response: </span><span class="si">{0!s}</span><span class="s1">&#39;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">usr_id</span><span class="p">))</span>
-        <span class="n">s</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="s1">&#39;======================= END A-ASSOCIATE-AC ==================&#39;</span>
-                 <span class="s1">&#39;====&#39;</span><span class="p">)</span>
+        <span class="n">s</span><span class="o">.</span><span class="n">append</span><span class="p">(</span>
+            <span class="s1">&#39;======================= END A-ASSOCIATE-AC ======================&#39;</span>
+        <span class="p">)</span>
 
         <span class="k">for</span> <span class="n">line</span> <span class="ow">in</span> <span class="n">s</span><span class="p">:</span>
             <span class="n">LOGGER</span><span class="o">.</span><span class="n">debug</span><span class="p">(</span><span class="n">line</span><span class="p">)</span></div>
@@ -1160,7 +1163,8 @@
     <span class="k">def</span> <span class="nf">debug_send_associate_rj</span><span class="p">(</span><span class="n">a_associate_rj</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        Placeholder for a function callback. Function will be called</span>
-<span class="sd">        immediately prior to encoding and sending an A-ASSOCIATE-RJ to a peer AE</span>
+<span class="sd">        immediately prior to encoding and sending an A-ASSOCIATE-RJ to a peer</span>
+<span class="sd">        AE.</span>
 
 <span class="sd">        Parameters</span>
 <span class="sd">        ----------</span>
@@ -1339,8 +1343,9 @@
         <span class="k">else</span><span class="p">:</span>
             <span class="n">s</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="s1">&#39;Requested User Identity Negotiation: None&#39;</span><span class="p">)</span>
 
-        <span class="n">s</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="s1">&#39;======================= END A-ASSOCIATE-RQ ==================&#39;</span>
-                 <span class="s1">&#39;====&#39;</span><span class="p">)</span>
+        <span class="n">s</span><span class="o">.</span><span class="n">append</span><span class="p">(</span>
+            <span class="s1">&#39;======================= END A-ASSOCIATE-RQ ======================&#39;</span>
+        <span class="p">)</span>
 
         <span class="k">for</span> <span class="n">line</span> <span class="ow">in</span> <span class="n">s</span><span class="p">:</span>
             <span class="n">LOGGER</span><span class="o">.</span><span class="n">debug</span><span class="p">(</span><span class="n">line</span><span class="p">)</span></div>
@@ -1396,12 +1401,14 @@
 <span class="sd">            The A-ABORT PDU instance</span>
 <span class="sd">        &quot;&quot;&quot;</span>
         <span class="n">s</span> <span class="o">=</span> <span class="p">[</span><span class="s1">&#39;Abort Parameters:&#39;</span><span class="p">]</span>
-        <span class="n">s</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="s1">&#39;========================== BEGIN A-ABORT ====================&#39;</span>
-                 <span class="s1">&#39;====&#39;</span><span class="p">)</span>
+        <span class="n">s</span><span class="o">.</span><span class="n">append</span><span class="p">(</span>
+            <span class="s1">&#39;========================== BEGIN A-ABORT ========================&#39;</span>
+        <span class="p">)</span>
         <span class="n">s</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="s1">&#39;Abort Source: </span><span class="si">{0!s}</span><span class="s1">&#39;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">a_abort</span><span class="o">.</span><span class="n">source_str</span><span class="p">))</span>
         <span class="n">s</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="s1">&#39;Abort Reason: </span><span class="si">{0!s}</span><span class="s1">&#39;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">a_abort</span><span class="o">.</span><span class="n">reason_str</span><span class="p">))</span>
-        <span class="n">s</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="s1">&#39;=========================== END A-ABORT =====================&#39;</span>
-                 <span class="s1">&#39;====&#39;</span><span class="p">)</span>
+        <span class="n">s</span><span class="o">.</span><span class="n">append</span><span class="p">(</span>
+            <span class="s1">&#39;=========================== END A-ABORT =========================&#39;</span>
+        <span class="p">)</span>
         <span class="k">for</span> <span class="n">line</span> <span class="ow">in</span> <span class="n">s</span><span class="p">:</span>
             <span class="n">LOGGER</span><span class="o">.</span><span class="n">debug</span><span class="p">(</span><span class="n">line</span><span class="p">)</span></div>
 
@@ -1513,8 +1520,9 @@
         <span class="n">usr_id</span> <span class="o">=</span> <span class="s1">&#39;Yes&#39;</span> <span class="k">if</span> <span class="n">user_info</span><span class="o">.</span><span class="n">user_identity</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span> <span class="k">else</span> <span class="s1">&#39;None&#39;</span>
 
         <span class="n">s</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="s1">&#39;User Identity Negotiation Response: </span><span class="si">{0!s}</span><span class="s1">&#39;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">usr_id</span><span class="p">))</span>
-        <span class="n">s</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="s1">&#39;======================= END A-ASSOCIATE-AC ==================&#39;</span>
-                 <span class="s1">&#39;====&#39;</span><span class="p">)</span>
+        <span class="n">s</span><span class="o">.</span><span class="n">append</span><span class="p">(</span>
+            <span class="s1">&#39;======================= END A-ASSOCIATE-AC ======================&#39;</span>
+        <span class="p">)</span>
 
         <span class="k">for</span> <span class="n">line</span> <span class="ow">in</span> <span class="n">s</span><span class="p">:</span>
             <span class="n">LOGGER</span><span class="o">.</span><span class="n">debug</span><span class="p">(</span><span class="n">line</span><span class="p">)</span>
@@ -1536,13 +1544,15 @@
         <span class="n">assoc_rj</span> <span class="o">=</span> <span class="n">a_associate_rj</span>
 
         <span class="n">s</span> <span class="o">=</span> <span class="p">[</span><span class="s1">&#39;Reject Parameters:&#39;</span><span class="p">]</span>
-        <span class="n">s</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="s1">&#39;====================== BEGIN A-ASSOCIATE-RJ =================&#39;</span>
-                 <span class="s1">&#39;=====&#39;</span><span class="p">)</span>
+        <span class="n">s</span><span class="o">.</span><span class="n">append</span><span class="p">(</span>
+            <span class="s1">&#39;====================== BEGIN A-ASSOCIATE-RJ =====================&#39;</span>
+        <span class="p">)</span>
         <span class="n">s</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="s1">&#39;Result:    </span><span class="si">{0!s}</span><span class="s1">&#39;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">assoc_rj</span><span class="o">.</span><span class="n">result_str</span><span class="p">))</span>
         <span class="n">s</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="s1">&#39;Source:    </span><span class="si">{0!s}</span><span class="s1">&#39;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">assoc_rj</span><span class="o">.</span><span class="n">source_str</span><span class="p">))</span>
         <span class="n">s</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="s1">&#39;Reason:    </span><span class="si">{0!s}</span><span class="s1">&#39;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">assoc_rj</span><span class="o">.</span><span class="n">reason_str</span><span class="p">))</span>
-        <span class="n">s</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="s1">&#39;======================= END A-ASSOCIATE-RJ ==================&#39;</span>
-                 <span class="s1">&#39;====&#39;</span><span class="p">)</span>
+        <span class="n">s</span><span class="o">.</span><span class="n">append</span><span class="p">(</span>
+            <span class="s1">&#39;======================= END A-ASSOCIATE-RJ ======================&#39;</span>
+        <span class="p">)</span>
         <span class="k">for</span> <span class="n">line</span> <span class="ow">in</span> <span class="n">s</span><span class="p">:</span>
             <span class="n">LOGGER</span><span class="o">.</span><span class="n">debug</span><span class="p">(</span><span class="n">line</span><span class="p">)</span></div>
 
@@ -1720,8 +1730,9 @@
         <span class="k">else</span><span class="p">:</span>
             <span class="n">s</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="s1">&#39;Requested User Identity Negotiation: None&#39;</span><span class="p">)</span>
 
-        <span class="n">s</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="s1">&#39;======================= END A-ASSOCIATE-RQ ==================&#39;</span>
-                 <span class="s1">&#39;====&#39;</span><span class="p">)</span>
+        <span class="n">s</span><span class="o">.</span><span class="n">append</span><span class="p">(</span>
+            <span class="s1">&#39;======================= END A-ASSOCIATE-RQ ======================&#39;</span>
+        <span class="p">)</span>
 
         <span class="k">for</span> <span class="n">line</span> <span class="ow">in</span> <span class="n">s</span><span class="p">:</span>
             <span class="n">LOGGER</span><span class="o">.</span><span class="n">debug</span><span class="p">(</span><span class="n">line</span><span class="p">)</span></div>

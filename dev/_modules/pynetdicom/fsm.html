@@ -175,15 +175,22 @@
 <span class="kn">import</span> <span class="nn">logging</span>
 <span class="kn">import</span> <span class="nn">socket</span>
 
-<span class="kn">from</span> <span class="nn">pynetdicom.pdu</span> <span class="k">import</span> <span class="p">(</span><span class="n">A_ASSOCIATE_RQ</span><span class="p">,</span> <span class="n">A_ASSOCIATE_RJ</span><span class="p">,</span> <span class="n">A_ASSOCIATE_AC</span><span class="p">,</span>
-                            <span class="n">P_DATA_TF</span><span class="p">,</span> <span class="n">A_RELEASE_RQ</span><span class="p">,</span> <span class="n">A_RELEASE_RP</span><span class="p">,</span> <span class="n">A_ABORT_RQ</span><span class="p">)</span>
+<span class="kn">from</span> <span class="nn">pynetdicom.pdu</span> <span class="k">import</span> <span class="p">(</span>
+    <span class="n">A_ASSOCIATE_RQ</span><span class="p">,</span> <span class="n">A_ASSOCIATE_RJ</span><span class="p">,</span> <span class="n">A_ASSOCIATE_AC</span><span class="p">,</span>
+    <span class="n">P_DATA_TF</span><span class="p">,</span> <span class="n">A_RELEASE_RQ</span><span class="p">,</span> <span class="n">A_RELEASE_RP</span><span class="p">,</span> <span class="n">A_ABORT_RQ</span>
+<span class="p">)</span>
 <span class="kn">from</span> <span class="nn">pynetdicom.pdu_primitives</span> <span class="k">import</span> <span class="n">A_ABORT</span>
+
 
 <span class="n">LOGGER</span> <span class="o">=</span> <span class="n">logging</span><span class="o">.</span><span class="n">getLogger</span><span class="p">(</span><span class="s1">&#39;pynetdicom.sm&#39;</span><span class="p">)</span>
 
+
+<span class="k">class</span> <span class="nc">InvalidEventError</span><span class="p">(</span><span class="ne">Exception</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;Exception for use when an invalid event occurs for a given state.&quot;&quot;&quot;</span>
+    <span class="k">pass</span>
+
+
 <span class="c1"># pylint: disable=invalid-name</span>
-
-
 <div class="viewcode-block" id="StateMachine"><a class="viewcode-back" href="../../reference/generated/pynetdicom.fsm.StateMachine.html#pynetdicom.fsm.StateMachine">[docs]</a><span class="k">class</span> <span class="nc">StateMachine</span><span class="p">(</span><span class="nb">object</span><span class="p">):</span>
     <span class="sd">&quot;&quot;&quot;Implementation of the DICOM Upper Layer State Machine.</span>
 
@@ -191,7 +198,7 @@
 <span class="sd">    ----------</span>
 <span class="sd">    current_state : str</span>
 <span class="sd">        The current state of the state machine, &#39;Sta1&#39; to &#39;Sta13&#39;.</span>
-<span class="sd">    dul : pynetdicom.dul.DULServiceProvider</span>
+<span class="sd">    dul : dul.DULServiceProvider</span>
 <span class="sd">        The DICOM Upper Layer service instance for the local AE</span>
 
 <span class="sd">    References</span>
@@ -204,8 +211,8 @@
 
 <span class="sd">        Parameters</span>
 <span class="sd">        ---------</span>
-<span class="sd">        dul : pynetdicom.dul.DULServiceProvider</span>
-<span class="sd">            The DICOM Upper Layer Service instance for the local AE.</span>
+<span class="sd">        dul : dul.DULServiceProvider</span>
+<span class="sd">            The DICOM Upper Layer Service instance for the association.</span>
 <span class="sd">        &quot;&quot;&quot;</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">current_state</span> <span class="o">=</span> <span class="s1">&#39;Sta1&#39;</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">dul</span> <span class="o">=</span> <span class="n">dul</span></div>
@@ -220,12 +227,12 @@
 <span class="sd">        &quot;&quot;&quot;</span>
         <span class="c1"># Check (event + state) is valid</span>
         <span class="k">if</span> <span class="p">(</span><span class="n">event</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">current_state</span><span class="p">)</span> <span class="ow">not</span> <span class="ow">in</span> <span class="n">TRANSITION_TABLE</span><span class="p">:</span>
-            <span class="n">LOGGER</span><span class="o">.</span><span class="n">error</span><span class="p">(</span><span class="s2">&quot;DUL State Machine received an invalid event &#39;</span><span class="si">%s</span><span class="s2">&#39; &quot;</span>
-                         <span class="s2">&quot;for the current state &#39;</span><span class="si">%s</span><span class="s2">&#39;&quot;</span><span class="p">,</span>
-                         <span class="n">event</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">current_state</span><span class="p">)</span>
-            <span class="k">raise</span> <span class="ne">KeyError</span><span class="p">(</span><span class="s2">&quot;DUL State Machine received an invalid event &quot;</span>
-                           <span class="s2">&quot;&#39;</span><span class="si">{}</span><span class="s2">&#39; for the current state &#39;</span><span class="si">{}</span><span class="s2">&#39;&quot;</span>
-                           <span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">event</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">current_state</span><span class="p">))</span>
+            <span class="n">msg</span> <span class="o">=</span> <span class="p">(</span>
+                <span class="s2">&quot;Invalid event &#39;</span><span class="si">{}</span><span class="s2">&#39; for the current state &#39;</span><span class="si">{}</span><span class="s2">&#39;&quot;</span>
+                <span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">event</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">current_state</span><span class="p">)</span>
+            <span class="p">)</span>
+            <span class="n">LOGGER</span><span class="o">.</span><span class="n">error</span><span class="p">(</span><span class="n">msg</span><span class="p">)</span>
+            <span class="k">raise</span> <span class="n">InvalidEventError</span><span class="p">(</span><span class="n">msg</span><span class="p">)</span>
 
         <span class="n">action_name</span> <span class="o">=</span> <span class="n">TRANSITION_TABLE</span><span class="p">[(</span><span class="n">event</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">current_state</span><span class="p">)]</span>
 
@@ -239,7 +246,11 @@
             <span class="c1"># Execute the required action</span>
             <span class="n">next_state</span> <span class="o">=</span> <span class="n">action</span><span class="p">[</span><span class="mi">1</span><span class="p">](</span><span class="bp">self</span><span class="o">.</span><span class="n">dul</span><span class="p">)</span>
 
-            <span class="c1">#print(action_name, self.current_state, event, next_state)</span>
+            <span class="c1"># Useful for debugging</span>
+            <span class="c1">#print(</span>
+            <span class="c1">#    &quot;{} + {} -&gt; {} -&gt; {}&quot;</span>
+            <span class="c1">#    .format(self.current_state, event, action_name, next_state)</span>
+            <span class="c1">#)</span>
 
             <span class="c1"># Move the state machine to the next state</span>
             <span class="bp">self</span><span class="o">.</span><span class="n">transition</span><span class="p">(</span><span class="n">next_state</span><span class="p">)</span>
@@ -269,7 +280,7 @@
         <span class="k">if</span> <span class="n">state</span> <span class="ow">in</span> <span class="n">STATES</span><span class="o">.</span><span class="n">keys</span><span class="p">():</span>
             <span class="bp">self</span><span class="o">.</span><span class="n">current_state</span> <span class="o">=</span> <span class="n">state</span>
         <span class="k">else</span><span class="p">:</span>
-            <span class="n">msg</span> <span class="o">=</span> <span class="s1">&#39;Invalid state &quot;</span><span class="si">{}</span><span class="s1">&quot; for State Machine&#39;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">state</span><span class="p">)</span>
+            <span class="n">msg</span> <span class="o">=</span> <span class="s2">&quot;Invalid state &#39;</span><span class="si">{}</span><span class="s2">&#39; for State Machine&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">state</span><span class="p">)</span>
             <span class="n">LOGGER</span><span class="o">.</span><span class="n">error</span><span class="p">(</span><span class="n">msg</span><span class="p">)</span>
             <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="n">msg</span><span class="p">)</span></div></div>
 
@@ -314,6 +325,8 @@
         <span class="n">LOGGER</span><span class="o">.</span><span class="n">error</span><span class="p">(</span><span class="s2">&quot;TCP Initialisation Error: Connection refused&quot;</span><span class="p">)</span>
         <span class="n">dul</span><span class="o">.</span><span class="n">to_user_queue</span><span class="o">.</span><span class="n">put</span><span class="p">(</span><span class="kc">None</span><span class="p">)</span>
         <span class="n">dul</span><span class="o">.</span><span class="n">scu_socket</span><span class="o">.</span><span class="n">close</span><span class="p">()</span>
+        <span class="n">dul</span><span class="o">.</span><span class="n">kill_dul</span><span class="p">()</span>
+
         <span class="k">return</span> <span class="s1">&#39;Sta1&#39;</span>
 
     <span class="k">return</span> <span class="s1">&#39;Sta4&#39;</span></div>
@@ -410,6 +423,7 @@
     <span class="n">dul</span><span class="o">.</span><span class="n">to_user_queue</span><span class="o">.</span><span class="n">put</span><span class="p">(</span><span class="n">dul</span><span class="o">.</span><span class="n">primitive</span><span class="p">)</span>
     <span class="n">dul</span><span class="o">.</span><span class="n">scu_socket</span><span class="o">.</span><span class="n">close</span><span class="p">()</span>
     <span class="n">dul</span><span class="o">.</span><span class="n">peer_socket</span> <span class="o">=</span> <span class="kc">None</span>
+    <span class="n">dul</span><span class="o">.</span><span class="n">kill_dul</span><span class="p">()</span>
 
     <span class="k">return</span> <span class="s1">&#39;Sta1&#39;</span></div>
 
@@ -481,8 +495,8 @@
     <span class="c1"># If A-ASSOCIATE-RQ not acceptable by service dul provider</span>
     <span class="c1">#   Then set reason and send -RJ PDU back to peer</span>
     <span class="k">if</span> <span class="n">dul</span><span class="o">.</span><span class="n">pdu</span><span class="o">.</span><span class="n">protocol_version</span> <span class="o">!=</span> <span class="mh">0x0001</span><span class="p">:</span>
-        <span class="n">LOGGER</span><span class="o">.</span><span class="n">error</span><span class="p">(</span><span class="s2">&quot;Receiving Association failed: Unsupported peer protocol &quot;</span>
-                     <span class="s2">&quot;version &#39;0x</span><span class="si">%04x</span><span class="s2">&#39; (0x0001 expected)&quot;</span><span class="p">,</span>
+        <span class="n">LOGGER</span><span class="o">.</span><span class="n">error</span><span class="p">(</span><span class="s2">&quot;A-ASSOCIATE-RQ: Unsupported protocol &quot;</span>
+                     <span class="s2">&quot;version &#39;0x</span><span class="si">%04x</span><span class="s2">&#39;&quot;</span><span class="p">,</span>
                      <span class="n">dul</span><span class="o">.</span><span class="n">pdu</span><span class="o">.</span><span class="n">protocol_version</span><span class="p">)</span>
 
         <span class="c1"># Send A-ASSOCIATE-RJ PDU and start ARTIM timer</span>
@@ -729,8 +743,10 @@
 <span class="sd">    &quot;&quot;&quot;</span>
     <span class="c1"># Issue A-RELEASE confirmation primitive and close transport connection</span>
     <span class="n">dul</span><span class="o">.</span><span class="n">to_user_queue</span><span class="o">.</span><span class="n">put</span><span class="p">(</span><span class="n">dul</span><span class="o">.</span><span class="n">primitive</span><span class="p">)</span>
+    <span class="n">dul</span><span class="o">.</span><span class="n">scu_socket</span><span class="o">.</span><span class="n">shutdown</span><span class="p">(</span><span class="n">socket</span><span class="o">.</span><span class="n">SHUT_RDWR</span><span class="p">)</span>
     <span class="n">dul</span><span class="o">.</span><span class="n">scu_socket</span><span class="o">.</span><span class="n">close</span><span class="p">()</span>
     <span class="n">dul</span><span class="o">.</span><span class="n">peer_socket</span> <span class="o">=</span> <span class="kc">None</span>
+    <span class="n">dul</span><span class="o">.</span><span class="n">kill_dul</span><span class="p">()</span>
 
     <span class="k">return</span> <span class="s1">&#39;Sta1&#39;</span></div>
 
@@ -794,6 +810,7 @@
 <span class="sd">    &quot;&quot;&quot;</span>
     <span class="c1"># Stop ARTIM timer</span>
     <span class="n">dul</span><span class="o">.</span><span class="n">artim_timer</span><span class="o">.</span><span class="n">stop</span><span class="p">()</span>
+    <span class="n">dul</span><span class="o">.</span><span class="n">kill_dul</span><span class="p">()</span>
 
     <span class="k">return</span> <span class="s1">&#39;Sta1&#39;</span></div>
 
@@ -979,16 +996,8 @@
     <span class="c1"># if already started) ARTIM timer.</span>
     <span class="n">dul</span><span class="o">.</span><span class="n">pdu</span> <span class="o">=</span> <span class="n">A_ABORT_RQ</span><span class="p">()</span>
     <span class="n">dul</span><span class="o">.</span><span class="n">pdu</span><span class="o">.</span><span class="n">source</span> <span class="o">=</span> <span class="mh">0x00</span>
-
-    <span class="c1"># The reason for the abort should really be roughly defined by the</span>
-    <span class="c1">#   current state of the State Machine</span>
-    <span class="k">if</span> <span class="n">dul</span><span class="o">.</span><span class="n">state_machine</span><span class="o">.</span><span class="n">current_state</span> <span class="o">==</span> <span class="s1">&#39;Sta2&#39;</span><span class="p">:</span>
-        <span class="c1"># Unexpected PDU</span>
-        <span class="n">dul</span><span class="o">.</span><span class="n">pdu</span><span class="o">.</span><span class="n">reason_diagnostic</span> <span class="o">=</span> <span class="mh">0x02</span>
-    <span class="k">else</span><span class="p">:</span>
-        <span class="c1"># Reason not specified</span>
-        <span class="n">dul</span><span class="o">.</span><span class="n">pdu</span><span class="o">.</span><span class="n">reason_diagnostic</span> <span class="o">=</span> <span class="mh">0x00</span>
-
+    <span class="c1"># Reason not specified</span>
+    <span class="n">dul</span><span class="o">.</span><span class="n">pdu</span><span class="o">.</span><span class="n">reason_diagnostic</span> <span class="o">=</span> <span class="mh">0x00</span>
     <span class="n">dul</span><span class="o">.</span><span class="n">pdu</span><span class="o">.</span><span class="n">from_primitive</span><span class="p">(</span><span class="n">dul</span><span class="o">.</span><span class="n">primitive</span><span class="p">)</span>
 
     <span class="c1"># Callback</span>
@@ -1028,6 +1037,7 @@
     <span class="n">dul</span><span class="o">.</span><span class="n">scu_socket</span><span class="o">.</span><span class="n">shutdown</span><span class="p">(</span><span class="n">socket</span><span class="o">.</span><span class="n">SHUT_RDWR</span><span class="p">)</span>
     <span class="n">dul</span><span class="o">.</span><span class="n">scu_socket</span><span class="o">.</span><span class="n">close</span><span class="p">()</span>
     <span class="n">dul</span><span class="o">.</span><span class="n">peer_socket</span> <span class="o">=</span> <span class="kc">None</span>
+    <span class="n">dul</span><span class="o">.</span><span class="n">kill_dul</span><span class="p">()</span>
 
     <span class="k">return</span> <span class="s1">&#39;Sta1&#39;</span></div>
 
@@ -1093,6 +1103,7 @@
     <span class="c1"># Issue A-P-ABORT indication primitive.</span>
     <span class="n">dul</span><span class="o">.</span><span class="n">primitive</span> <span class="o">=</span> <span class="n">A_ABORT</span><span class="p">()</span>
     <span class="n">dul</span><span class="o">.</span><span class="n">to_user_queue</span><span class="o">.</span><span class="n">put</span><span class="p">(</span><span class="n">dul</span><span class="o">.</span><span class="n">primitive</span><span class="p">)</span>
+    <span class="n">dul</span><span class="o">.</span><span class="n">kill_dul</span><span class="p">()</span>
 
     <span class="k">return</span> <span class="s1">&#39;Sta1&#39;</span></div>
 
@@ -1121,6 +1132,7 @@
 <span class="sd">    &quot;&quot;&quot;</span>
     <span class="c1"># Stop ARTIM timer.</span>
     <span class="n">dul</span><span class="o">.</span><span class="n">artim_timer</span><span class="o">.</span><span class="n">stop</span><span class="p">()</span>
+    <span class="n">dul</span><span class="o">.</span><span class="n">kill_dul</span><span class="p">()</span>
 
     <span class="k">return</span> <span class="s1">&#39;Sta1&#39;</span></div>
 
@@ -1175,13 +1187,14 @@
 <span class="sd">        Sta13, the next state of the state machine</span>
 <span class="sd">    &quot;&quot;&quot;</span>
     <span class="c1"># Send A-ABORT PDU.</span>
-    <span class="n">dul</span><span class="o">.</span><span class="n">pdu</span> <span class="o">=</span> <span class="n">A_ABORT_RQ</span><span class="p">()</span>
-    <span class="n">dul</span><span class="o">.</span><span class="n">pdu</span><span class="o">.</span><span class="n">from_primitive</span><span class="p">(</span><span class="n">dul</span><span class="o">.</span><span class="n">primitive</span><span class="p">)</span>
+    <span class="n">pdu</span> <span class="o">=</span> <span class="n">A_ABORT_RQ</span><span class="p">()</span>
+    <span class="n">pdu</span><span class="o">.</span><span class="n">source</span> <span class="o">=</span> <span class="mh">0x02</span>
+    <span class="n">pdu</span><span class="o">.</span><span class="n">reason_diagnostic</span> <span class="o">=</span> <span class="mh">0x02</span>
 
     <span class="c1"># Callback</span>
-    <span class="n">dul</span><span class="o">.</span><span class="n">assoc</span><span class="o">.</span><span class="n">acse</span><span class="o">.</span><span class="n">debug_send_abort</span><span class="p">(</span><span class="n">dul</span><span class="o">.</span><span class="n">pdu</span><span class="p">)</span>
+    <span class="n">dul</span><span class="o">.</span><span class="n">assoc</span><span class="o">.</span><span class="n">acse</span><span class="o">.</span><span class="n">debug_send_abort</span><span class="p">(</span><span class="n">pdu</span><span class="p">)</span>
 
-    <span class="n">dul</span><span class="o">.</span><span class="n">scu_socket</span><span class="o">.</span><span class="n">send</span><span class="p">(</span><span class="n">dul</span><span class="o">.</span><span class="n">pdu</span><span class="o">.</span><span class="n">encode</span><span class="p">())</span>
+    <span class="n">dul</span><span class="o">.</span><span class="n">scu_socket</span><span class="o">.</span><span class="n">send</span><span class="p">(</span><span class="n">pdu</span><span class="o">.</span><span class="n">encode</span><span class="p">())</span>
 
     <span class="k">return</span> <span class="s1">&#39;Sta13&#39;</span></div>
 

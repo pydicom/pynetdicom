@@ -182,7 +182,7 @@ keyword argument in <code class="docutils literal notranslate"><span class="pre"
 <li><code class="docutils literal notranslate"><span class="pre">DIMSEMessage</span></code> subclass creation and <code class="docutils literal notranslate"><span class="pre">DIMSEMessage.primitive_to_message</span></code>
 should now be thread-safe (<a class="reference external" href="https://github.com/pydicom/pynetdicom/issues/137">#137</a>)</li>
 <li>Fixed A-RELEASE collision not being implemented correctly. (<a class="reference external" href="https://github.com/pydicom/pynetdicom/issues/269">#269</a>)</li>
-<li>Fixed bug in <code class="docutils literal notranslate"><span class="pre">fsm.AR_8</span></code></li>
+<li>Fixed bugs in <code class="docutils literal notranslate"><span class="pre">fsm.AR_8</span></code> and <code class="docutils literal notranslate"><span class="pre">fsm.AA_7</span></code>.</li>
 <li>Fixed DUL not handling the service user sending A-P-ABORT primitives.
 (<a class="reference external" href="https://github.com/pydicom/pynetdicom/issues/270">#270</a>)</li>
 <li>Fixed the DUL endlessly waiting in State 13 if the remote didn’t
@@ -194,7 +194,8 @@ close the connection and there was data still available to be read.
 <h2>Enhancements<a class="headerlink" href="#enhancements" title="Permalink to this headline">¶</a></h2>
 <ul class="simple">
 <li>Added <code class="docutils literal notranslate"><span class="pre">select_timeout</span></code> parameter to <code class="docutils literal notranslate"><span class="pre">Association.start()</span></code> to allow the
-user to specify how long the select.select() call blocks for.</li>
+user to specify how long the select.select() call blocks for.
+(<a class="reference external" href="https://github.com/pydicom/pynetdicom/pull/260">#260</a>)</li>
 <li>Improved the CPU usage of the AE when running idle as an SCP (<a class="reference external" href="https://github.com/pydicom/pynetdicom/issues/60">#60</a>).</li>
 </ul>
 </div>
@@ -211,16 +212,20 @@ instead.</li>
 than a single AE title. If set to a non-empty list then association requests
 will be rejected unless the value of the <em>Calling AE Title</em> parameter matches
 one of those in the list. If set to an empty list (default) then all
-associations will be accepted (unless rejected for other reasons).</li>
+associations will be accepted (unless rejected for other reasons).
+(<a class="reference external" href="https://github.com/pydicom/pynetdicom/issues/192">#192</a>)</li>
 <li><code class="docutils literal notranslate"><span class="pre">AE.require_called_aet</span></code> should now be set using a bool. If True then any
 association requests will be rejected unless the value of the <em>Called AE
 Title</em> parameter matches <code class="docutils literal notranslate"><span class="pre">AE.ae_title</span></code>. If False (default) then no matching
 will be performed and all associations accepted (unless rejected for other
-reasons).</li>
+reasons). (<a class="reference external" href="https://github.com/pydicom/pynetdicom/issues/184">#184</a>)</li>
 <li><code class="docutils literal notranslate"><span class="pre">ACSE.is_released</span></code> is deprecated and will be removed in v1.2. Use
 <code class="docutils literal notranslate"><span class="pre">ACSE.is_release_requested</span></code> instead.</li>
 <li><code class="docutils literal notranslate"><span class="pre">ACSE.release_association</span></code> is deprecated and will be removed in v1.2. Use
 <code class="docutils literal notranslate"><span class="pre">ACSE.negotiate_release</span></code> instead.</li>
+<li>The association acceptor no longer aborts an accepted association if there
+are no accepted presentation contexts. The association requestor still does.</li>
+<li>Default ACSE timeout changed to 30 s and default network timeout to 60 s.</li>
 </ul>
 </div>
 </div>

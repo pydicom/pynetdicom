@@ -235,7 +235,7 @@
 <span class="sd">        messages. A value of ``None`` means no timeout. (default: None)</span>
 <span class="sd">    network_timeout : int or float or None</span>
 <span class="sd">        The maximum amount of time (in seconds) to wait for network messages.</span>
-<span class="sd">        A value of ``None`` means no timeout. (default: None)</span>
+<span class="sd">        A value of ``None`` means no timeout. (default: 60)</span>
 <span class="sd">    maximum_associations : int</span>
 <span class="sd">        The maximum number of simultaneous associations (default: 2)</span>
 <span class="sd">    maximum_pdu_size : int</span>
@@ -373,7 +373,7 @@
 
         <span class="c1"># Default timeouts - None means no timeout</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">acse_timeout</span> <span class="o">=</span> <span class="mi">30</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">network_timeout</span> <span class="o">=</span> <span class="kc">None</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">network_timeout</span> <span class="o">=</span> <span class="mi">60</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">dimse_timeout</span> <span class="o">=</span> <span class="kc">None</span>
 
         <span class="c1"># Require Calling/Called AE titles to match if value is non-empty str</span>
@@ -980,8 +980,8 @@
         <span class="k">elif</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">value</span><span class="p">,</span> <span class="p">(</span><span class="nb">int</span><span class="p">,</span> <span class="nb">float</span><span class="p">))</span> <span class="ow">and</span> <span class="n">value</span> <span class="o">&gt;=</span> <span class="mi">0</span><span class="p">:</span>
             <span class="bp">self</span><span class="o">.</span><span class="n">_network_timeout</span> <span class="o">=</span> <span class="n">value</span>
         <span class="k">else</span><span class="p">:</span>
-            <span class="n">LOGGER</span><span class="o">.</span><span class="n">warning</span><span class="p">(</span><span class="s2">&quot;network_timeout set to never expire&quot;</span><span class="p">)</span>
-            <span class="bp">self</span><span class="o">.</span><span class="n">_network_timeout</span> <span class="o">=</span> <span class="kc">None</span>
+            <span class="n">LOGGER</span><span class="o">.</span><span class="n">warning</span><span class="p">(</span><span class="s2">&quot;network_timeout set to 60 s&quot;</span><span class="p">)</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">_network_timeout</span> <span class="o">=</span> <span class="mi">60</span>
 
         <span class="k">for</span> <span class="n">assoc</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">active_associations</span><span class="p">:</span>
             <span class="n">assoc</span><span class="o">.</span><span class="n">dul</span><span class="o">.</span><span class="n">dul_timeout</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">network_timeout</span>
