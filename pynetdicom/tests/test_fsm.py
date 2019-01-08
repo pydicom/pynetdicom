@@ -1797,10 +1797,6 @@ class TestState04(TestStateBase):
 
         time.sleep(0.2)
 
-        print(self.fsm._changes)
-        print(self.fsm._transitions)
-        print(self.fsm._events)
-        print(scp.received)
         assert self.fsm._changes[:2] == [
             ('Sta1', 'Evt1', 'AE-1'),
             ('Sta4', 'Evt2', 'AE-2'),
@@ -5376,9 +5372,6 @@ class TestState10(TestStateBase):
 
         time.sleep(0.2)
 
-        print(self.fsm._changes)
-        print(self.fsm._transitions)
-        print(self.fsm._events)
         assert self.fsm._changes[:6] == [
             ('Sta1', 'Evt1', 'AE-1'),
             ('Sta4', 'Evt2', 'AE-2'),
@@ -6799,9 +6792,6 @@ class TestState13(TestStateBase):
 
         time.sleep(0.2)
 
-        print(self.fsm._changes)
-        print(self.fsm._transitions)
-        print(self.fsm._events)
         assert self.fsm._changes[:3] == [
             ('Sta1', 'Evt1', 'AE-1'),
             ('Sta4', 'Evt2', 'AE-2'),
@@ -7431,8 +7421,6 @@ class TestStateMachineFunctionalRequestor(object):
 
         assert not self.assoc.is_aborted
 
-        #print(self.fsm._transitions)
-        #print(self.fsm._changes)
         assert self.fsm._transitions == [
             'Sta1'  # Idle
         ]
@@ -7527,13 +7515,11 @@ class TestStateMachineFunctionalRequestor(object):
 
         assert self.assoc.is_aborted
 
-        #print(self.fsm._transitions)
         assert self.fsm._transitions == [
             'Sta4',  # Waiting for connection to complete
             'Sta5',  # Waiting for A-ASSOC-AC or -RJ PDU
             'Sta1'  # Idle
         ]
-        #print(self.fsm._changes)
         assert self.fsm._changes == [
             ('Sta1', 'Evt1', 'AE-1'),  # recv A-ASSOC rq primitive
             ('Sta4', 'Evt2', 'AE-2'),  # connection confirmed
@@ -7560,8 +7546,6 @@ class TestStateMachineFunctionalRequestor(object):
         if self.assoc.is_established:
             self.assoc.abort()
 
-            #print(self.fsm._transitions)
-            #print(self.fsm._changes)
             assert self.fsm._transitions == [
                 'Sta4',  # Waiting for connection to complete
                 'Sta5',  # Waiting for A-ASSOC-AC or -RJ PDU
@@ -7636,8 +7620,6 @@ class TestStateMachineFunctionalRequestor(object):
         while not self.assoc.is_aborted:
             time.sleep(0.05)
 
-        #print(self.fsm._transitions)
-        #print(self.fsm._changes)
         assert self.fsm._transitions == [
             'Sta4',  # Waiting for connection to complete
             'Sta5',  # Waiting for A-ASSOC-AC or -RJ PDU
@@ -7671,11 +7653,6 @@ class TestStateMachineFunctionalRequestor(object):
         self.assoc.send_c_echo()
         self.assoc.release()
 
-        #while not self.assoc.is_released:
-        #    time.sleep(0.05)
-
-        #print(self.fsm._transitions)
-        #print(self.fsm._changes)
         assert self.fsm._transitions == [
             'Sta4',  # Waiting for connection to complete
             'Sta5',  # Waiting for A-ASSOC-AC or -RJ PDU
@@ -7736,8 +7713,6 @@ class TestStateMachineFunctionalRequestor(object):
 
         self.assoc.release()
 
-        #print(self.fsm._transitions)
-        #print(self.fsm._changes)
         assert self.fsm._transitions == [
             'Sta4',  # Waiting for connection to complete
             'Sta5',  # Waiting for A-ASSOC-AC or -RJ PDU
@@ -7797,8 +7772,6 @@ class TestStateMachineFunctionalRequestor(object):
 
         self.assoc.release()
 
-        #print(self.fsm._transitions)
-        #print(self.fsm._changes)
         assert self.fsm._transitions == [
             'Sta4',  # Waiting for connection to complete
             'Sta5',  # Waiting for A-ASSOC-AC or -RJ PDU
@@ -7859,8 +7832,6 @@ class TestStateMachineFunctionalRequestor(object):
 
         self.assoc.release()
 
-        #print(self.fsm._transitions)
-        #print(self.fsm._changes)
         assert self.fsm._transitions == [
             'Sta4',  # Waiting for connection to complete
             'Sta5',  # Waiting for A-ASSOC-AC or -RJ PDU
@@ -8041,8 +8012,6 @@ class TestStateMachineFunctionalAcceptor(object):
 
         self.scp.ae.active_associations[0].release()
 
-        print(self.fsm._transitions)
-        print(self.fsm._changes)
         assert self.fsm._transitions == [
             'Sta4',  # Waiting for connection to complete
             'Sta5',  # Waiting for A-ASSOC-AC or -RJ PDU

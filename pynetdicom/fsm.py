@@ -75,10 +75,11 @@ class StateMachine(object):
             # Execute the required action
             next_state = action[1](self.dul)
 
-            print(
-                "{} + {} -> {} -> {}"
-                .format(self.current_state, event, action_name, next_state)
-            )
+            # Useful for debugging
+            #print(
+            #    "{} + {} -> {} -> {}"
+            #    .format(self.current_state, event, action_name, next_state)
+            #)
 
             # Move the state machine to the next state
             self.transition(next_state)
@@ -153,6 +154,8 @@ def AE_1(dul):
         LOGGER.error("TCP Initialisation Error: Connection refused")
         dul.to_user_queue.put(None)
         dul.scu_socket.close()
+        dul.kill_dul()
+
         return 'Sta1'
 
     return 'Sta4'
@@ -249,6 +252,7 @@ def AE_4(dul):
     dul.to_user_queue.put(dul.primitive)
     dul.scu_socket.close()
     dul.peer_socket = None
+    dul.kill_dul()
 
     return 'Sta1'
 
@@ -862,6 +866,7 @@ def AA_2(dul):
     dul.scu_socket.shutdown(socket.SHUT_RDWR)
     dul.scu_socket.close()
     dul.peer_socket = None
+    dul.kill_dul()
 
     return 'Sta1'
 
