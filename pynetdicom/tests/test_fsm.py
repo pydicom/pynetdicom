@@ -7676,7 +7676,6 @@ class TestStateMachineFunctionalRequestor(object):
 
         self.scp.stop()
 
-    @pytest.mark.skip()
     def test_release_AR6(self):
         """Test receive P-DATA-TF while waiting for A-RELEASE-RP."""
         # Requestor sends A-RELEASE-RQ, acceptor sends P-DATA-TF then
@@ -7736,7 +7735,6 @@ class TestStateMachineFunctionalRequestor(object):
 
         FINITE_STATE.ACTIONS['AR-4']= orig_entry
 
-    @pytest.mark.skip()
     def test_release_AR7(self):
         """Test receive P-DATA primitive after A-RELEASE-RQ PDU."""
 
@@ -7787,68 +7785,6 @@ class TestStateMachineFunctionalRequestor(object):
             ('Sta6', 'Evt11', 'AR-1'),  # A-RELEASE rq primitive
             ('Sta7', 'Evt10', 'AR-6'),  # P-DATA-TF PDU recv
             ('Sta7', 'Evt13', 'AR-3'),  # A-RELEASE-RP PDU recv
-        ]
-
-        assert self.fsm.current_state == 'Sta1'
-
-        self.scp.stop()
-
-        FINITE_STATE.ACTIONS['AR-2']= orig_entry
-
-    @pytest.mark.skip()
-    def test_release_AR8(self):
-        """Test receive A-RELEASE-RQ after sending A-RELEASE-RQ PDU."""
-
-        orig_entry = FINITE_STATE.ACTIONS['AR-2']
-
-        def AR_2(dul):
-            """AR-2 occurs when an A-RELEASE-RQ PDU is received."""
-            # Send A-RELEASE-RQ
-            pdu = A_RELEASE_RQ()
-            pdu.from_primitive(A_RELEASE())
-
-            bytestream = pdu.encode()
-            dul.scu_socket.send(bytestream)
-            #dul.assoc.acse.send_release(dul.assoc)
-
-            # Normal AR2 response
-            dul.to_user_queue.put(dul.primitive)
-            return 'Sta8'
-
-        # In this case the association acceptor will hit AR_2
-        FINITE_STATE.ACTIONS['AR-2'] = ('Bluh', AR_2, 'Sta8')
-
-        self.scp = DummyVerificationSCP()
-        self.scp.acse_timeout = 0.5
-        self.scp.start()
-
-        assert self.fsm.current_state == 'Sta1'
-
-        self.assoc.start()
-
-        while (not self.assoc.is_established and not self.assoc.is_rejected and
-               not self.assoc.is_aborted and not self.assoc.dul._kill_thread):
-            time.sleep(0.05)
-
-        self.assoc.release()
-
-        assert self.fsm._transitions == [
-            'Sta4',  # Waiting for connection to complete
-            'Sta5',  # Waiting for A-ASSOC-AC or -RJ PDU
-            'Sta6',  # Assoc established
-            'Sta7',  # Waiting for A-RELEASE-RP PDU
-            'Sta9',  # Release collision requestor: wait for A-RELEASE primit
-            'Sta11',  # Release collision requestor: wait for A-RELEASE-RP PDU
-            'Sta1'  # Idle
-        ]
-        assert self.fsm._changes == [
-            ('Sta1', 'Evt1', 'AE-1'),  # A-ASSOC rq primitive
-            ('Sta4', 'Evt2', 'AE-2'),  # connection confirmed
-            ('Sta5', 'Evt3', 'AE-3'),  # A-ASSOC-AC PDU recv
-            ('Sta6', 'Evt11', 'AR-1'),  # A-RELEASE rq primitive
-            ('Sta7', 'Evt12', 'AR-8'),  # A-RELEASE-RQ PDU recv
-            ('Sta9', 'Evt14', 'AR-9'),  # A-RELEASE rsp primitive
-            ('Sta11', 'Evt13', 'AR-3'),  # A-RELEASE-RP PDU recv
         ]
 
         assert self.fsm.current_state == 'Sta1'
@@ -7974,65 +7910,3 @@ class TestStateMachineFunctionalAcceptor(object):
 
         self.scp.stop()
         FINITE_STATE.ACTIONS['AE-2']= orig_entry
-
-    @pytest.mark.skip()
-    def test_release_collision(self):
-        """Test receive A-RELEASE-RQ after sending A-RELEASE-RQ PDU."""
-
-        orig_entry = FINITE_STATE.ACTIONS['AR-2']
-
-        def AR_2(dul):
-            """AR-2 occurs when an A-RELEASE-RQ PDU is received."""
-            # Send A-RELEASE-RQ
-            pdu = A_RELEASE_RQ()
-            pdu.from_primitive(A_RELEASE())
-
-            bytestream = pdu.encode()
-            dul.scu_socket.send(bytestream)
-            #dul.assoc.acse.send_release(dul.assoc)
-
-            # Normal AR2 response
-            dul.to_user_queue.put(dul.primitive)
-            return 'Sta8'
-
-        # In this case the association requestor will hit AR_2
-        FINITE_STATE.ACTIONS['AR-2'] = ('Bluh', AR_2, 'Sta8')
-
-        self.scp = DummyVerificationSCP()
-        self.scp.acse_timeout = 0.5
-        self.scp.start()
-
-        assert self.fsm.current_state == 'Sta1'
-
-        self.assoc.start()
-
-        while (not self.assoc.is_established and not self.assoc.is_rejected and
-               not self.assoc.is_aborted and not self.assoc.dul._kill_thread):
-            time.sleep(0.05)
-
-        self.scp.ae.active_associations[0].release()
-
-        assert self.fsm._transitions == [
-            'Sta4',  # Waiting for connection to complete
-            'Sta5',  # Waiting for A-ASSOC-AC or -RJ PDU
-            'Sta6',  # Assoc established
-            'Sta7',  # Waiting for A-RELEASE-RP PDU
-            'Sta9',  # Release collision requestor: wait for A-RELEASE primit
-            'Sta11',  # Release collision requestor: wait for A-RELEASE-RP PDU
-            'Sta1'  # Idle
-        ]
-        assert self.fsm._changes == [
-            ('Sta1', 'Evt1', 'AE-1'),  # A-ASSOC rq primitive
-            ('Sta4', 'Evt2', 'AE-2'),  # connection confirmed
-            ('Sta5', 'Evt3', 'AE-3'),  # A-ASSOC-AC PDU recv
-            ('Sta6', 'Evt11', 'AR-1'),  # A-RELEASE rq primitive
-            ('Sta7', 'Evt12', 'AR-8'),  # A-RELEASE-RQ PDU recv
-            ('Sta9', 'Evt14', 'AR-9'),  # A-RELEASE rsp primitive
-            ('Sta11', 'Evt13', 'AR-3'),  # A-RELEASE-RP PDU recv
-        ]
-
-        assert self.fsm.current_state == 'Sta1'
-
-        self.scp.stop()
-
-        FINITE_STATE.ACTIONS['AR-2']= orig_entry

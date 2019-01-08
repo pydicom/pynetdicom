@@ -411,7 +411,7 @@ class DULServiceProvider(Thread):
                 return False
 
             # Check to see if there's more data to be read
-            #   Might be any incoming PDU or invalid data
+            #   Might be any incoming PDU or valid/invalid data
             # Make sure our check of the socket is non-blocking!
             try:
                 ready, _, _ = select.select([self.scu_socket], [], [], 0)
