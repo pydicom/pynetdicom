@@ -624,13 +624,13 @@ class TestAEGoodTimeoutSetters(object):
     def test_network_timeout(self):
         """ Check AE network timeout change produces good value """
         ae = AE()
-        assert ae.network_timeout is None
+        assert ae.network_timeout == 60
         ae.network_timeout = None
         assert ae.network_timeout is None
         ae.network_timeout = -100
-        assert ae.network_timeout is None
+        assert ae.network_timeout == 60
         ae.network_timeout = 'a'
-        assert ae.network_timeout is None
+        assert ae.network_timeout == 60
         ae.network_timeout = 0
         assert ae.network_timeout == 0
         ae.network_timeout = 30

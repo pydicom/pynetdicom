@@ -54,3 +54,4 @@ Changes
   ``ACSE.negotiate_release`` instead.
 * The association acceptor no longer aborts an accepted association if there
   are no accepted presentation contexts. The association requestor still does.
+* Default ACSE timeout changed to 30 s and default network timeout to 60 s.
