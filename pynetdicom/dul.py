@@ -250,7 +250,7 @@ class DULServiceProvider(Thread):
                 if self._is_artim_expired():
                     self._kill_thread = True
 
-            except:
+            except Exception as exc:
                 # FIXME: This catch all should be removed
                 self._kill_thread = True
                 raise

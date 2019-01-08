@@ -11,7 +11,7 @@ Fixes
 * ``DIMSEMessage`` subclass creation and ``DIMSEMessage.primitive_to_message``
   should now be thread-safe (:issue:`137`)
 * Fixed A-RELEASE collision not being implemented correctly. (:issue:`269`)
-* Fixed bug in ``fsm.AR_8``
+* Fixed bugs in ``fsm.AR_8`` and ``fsm.AA_7``.
 * Fixed DUL not handling the service user sending A-P-ABORT primitives.
   (:issue:`270`)
 * Fixed the DUL endlessly waiting in State 13 if the remote didn't

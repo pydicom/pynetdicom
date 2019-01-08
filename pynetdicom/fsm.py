@@ -1011,13 +1011,14 @@ def AA_7(dul):
         Sta13, the next state of the state machine
     """
     # Send A-ABORT PDU.
-    dul.pdu = A_ABORT_RQ()
-    dul.pdu.from_primitive(dul.primitive)
+    pdu = A_ABORT_RQ()
+    pdu.source = 0x02
+    pdu.reason_diagnostic = 0x02
 
     # Callback
-    dul.assoc.acse.debug_send_abort(dul.pdu)
+    dul.assoc.acse.debug_send_abort(pdu)
 
-    dul.scu_socket.send(dul.pdu.encode())
+    dul.scu_socket.send(pdu.encode())
 
     return 'Sta13'
 
