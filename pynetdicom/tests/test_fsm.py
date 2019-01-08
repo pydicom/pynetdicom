@@ -4416,14 +4416,54 @@ class TestState08(TestStateBase):
         assert self.fsm._events[:5] == ['Evt1', 'Evt2', 'Evt3', 'Evt12', 'Evt19']
 
 
-@pytest.mark.skip()
 class TestState09(TestStateBase):
     """Tests for State 09: Release collision req - awaiting A-RELEASE (rp)."""
     def test_evt01(self):
         """Test Sta9 + Evt1."""
         # Sta9 + Evt1 -> <ignore> -> Sta9
         # Evt1: A-ASSOCIATE (rq) primitive from <local user>
-        pass
+        scp = DummyAE()
+        scp.mode = 'acceptor'
+        scp.queue.put(None)
+        scp.queue.put(['skip', a_associate_ac])
+        scp.queue.put(['wait', 0.2]) # Wait for release rq
+        scp.queue.put(['skip', a_release_rq]) # Send release rq
+        scp.queue.put(None) # Receive sent PDU
+        scp.queue.put(['wait', 0.2, 'shutdown'])
+
+        scp.start()
+
+        # Override ACSE.is_release_requested so the Association loop doesn't
+        #   respond to the release request
+        def is_release_requested(assoc):
+            return False
+
+        self.assoc.acse.is_release_requested = is_release_requested
+        self.assoc.start()
+
+        time.sleep(0.2)
+
+        self.assoc.dul.send_pdu(self.get_release(False))
+
+        time.sleep(0.2)
+
+        self.assoc.dul.send_pdu(self.get_associate('request'))
+
+        time.sleep(0.2)
+
+        assert self.fsm._changes[:5] == [
+            ('Sta1', 'Evt1', 'AE-1'),
+            ('Sta4', 'Evt2', 'AE-2'),
+            ('Sta5', 'Evt3', 'AE-3'),
+            ('Sta6', 'Evt11', 'AR-1'),
+            ('Sta7', 'Evt12', 'AR-8'),
+        ]
+        assert self.fsm._transitions[:5] == [
+            'Sta4', 'Sta5', 'Sta6', 'Sta7', 'Sta9'
+        ]
+        assert self.fsm._events[:6] == [
+            'Evt1', 'Evt2', 'Evt3', 'Evt11', 'Evt12', 'Evt1'
+        ]
 
     @pytest.mark.skip()
     def test_evt02(self):
@@ -4437,14 +4477,91 @@ class TestState09(TestStateBase):
         # Sta9 + Evt3 -> AA-8 -> Sta13
         # Evt3: Receive A-ASSOCIATE-AC PDU from <remote>
         # AA-8: Send A-ABORT PDU, issue A-P-ABORT primitive, start ARTIM
-        pass
+        scp = DummyAE()
+        scp.mode = 'acceptor'
+        scp.queue.put(None)
+        scp.queue.put(['skip', a_associate_ac])
+        scp.queue.put(['wait', 0.2]) # Wait for release rq
+        scp.queue.put(['skip', a_release_rq]) # Send release rq
+        scp.queue.put(['skip', a_associate_ac])
+        scp.queue.put(None) # A-ABORT PDU
+        scp.queue.put(['wait', 0.2, 'shutdown'])
+
+        scp.start()
+
+        # Override ACSE.is_release_requested so the Association loop doesn't
+        #   respond to the release request
+        def is_release_requested(assoc):
+            return False
+
+        self.assoc.acse.is_release_requested = is_release_requested
+        self.assoc.start()
+
+        time.sleep(0.2)
+
+        self.assoc.dul.send_pdu(self.get_release(False))
+
+        time.sleep(0.3)
+
+        assert self.fsm._changes[:6] == [
+            ('Sta1', 'Evt1', 'AE-1'),
+            ('Sta4', 'Evt2', 'AE-2'),
+            ('Sta5', 'Evt3', 'AE-3'),
+            ('Sta6', 'Evt11', 'AR-1'),
+            ('Sta7', 'Evt12', 'AR-8'),
+            ('Sta9', 'Evt3', 'AA-8'),
+        ]
+        assert self.fsm._transitions[:5] == [
+            'Sta4', 'Sta5', 'Sta6', 'Sta7', 'Sta9'
+        ]
+        assert self.fsm._events[:6] == [
+            'Evt1', 'Evt2', 'Evt3', 'Evt11', 'Evt12', 'Evt3'
+        ]
 
     def test_evt04(self):
         """Test Sta9 + Evt4."""
         # Sta9 + Evt4 -> AA-8 -> Sta13
         # Evt4: Receive A-ASSOCIATE-RJ PDU from <remote>
         # AA-8: Send A-ABORT PDU, issue A-P-ABORT primitive, start ARTIM
-        pass
+        scp = DummyAE()
+        scp.mode = 'acceptor'
+        scp.queue.put(None)
+        scp.queue.put(['skip', a_associate_ac])
+        scp.queue.put(['wait', 0.2]) # Wait for release rq
+        scp.queue.put(['skip', a_release_rq]) # Send release rq
+        scp.queue.put(['skip', a_associate_rj])
+        scp.queue.put(['wait', 0.2, 'shutdown'])
+
+        scp.start()
+
+        # Override ACSE.is_release_requested so the Association loop doesn't
+        #   respond to the release request
+        def is_release_requested(assoc):
+            return False
+
+        self.assoc.acse.is_release_requested = is_release_requested
+        self.assoc.start()
+
+        time.sleep(0.2)
+
+        self.assoc.dul.send_pdu(self.get_release(False))
+
+        time.sleep(0.3)
+
+        assert self.fsm._changes[:6] == [
+            ('Sta1', 'Evt1', 'AE-1'),
+            ('Sta4', 'Evt2', 'AE-2'),
+            ('Sta5', 'Evt3', 'AE-3'),
+            ('Sta6', 'Evt11', 'AR-1'),
+            ('Sta7', 'Evt12', 'AR-8'),
+            ('Sta9', 'Evt4', 'AA-8'),
+        ]
+        assert self.fsm._transitions[:5] == [
+            'Sta4', 'Sta5', 'Sta6', 'Sta7', 'Sta9'
+        ]
+        assert self.fsm._events[:6] == [
+            'Evt1', 'Evt2', 'Evt3', 'Evt11', 'Evt12', 'Evt4'
+        ]
 
     @pytest.mark.skip()
     def test_evt05(self):
@@ -4458,80 +4575,553 @@ class TestState09(TestStateBase):
         # Sta9 + Evt6 -> AA-8 -> Sta13
         # Evt6: Receive A-ASSOCIATE-RQ PDU from <remote>
         # AA-8: Send A-ABORT PDU, issue A-P-ABORT primitive, start ARTIM
-        pass
+        scp = DummyAE()
+        scp.mode = 'acceptor'
+        scp.queue.put(None)
+        scp.queue.put(['skip', a_associate_ac])
+        scp.queue.put(['wait', 0.2]) # Wait for release rq
+        scp.queue.put(['skip', a_release_rq]) # Send release rq
+        scp.queue.put(['skip', a_associate_rq])
+        scp.queue.put(['wait', 0.2, 'shutdown'])
+
+        scp.start()
+
+        # Override ACSE.is_release_requested so the Association loop doesn't
+        #   respond to the release request
+        def is_release_requested(assoc):
+            return False
+
+        self.assoc.acse.is_release_requested = is_release_requested
+        self.assoc.start()
+
+        time.sleep(0.2)
+
+        self.assoc.dul.send_pdu(self.get_release(False))
+
+        time.sleep(0.3)
+
+        assert self.fsm._changes[:6] == [
+            ('Sta1', 'Evt1', 'AE-1'),
+            ('Sta4', 'Evt2', 'AE-2'),
+            ('Sta5', 'Evt3', 'AE-3'),
+            ('Sta6', 'Evt11', 'AR-1'),
+            ('Sta7', 'Evt12', 'AR-8'),
+            ('Sta9', 'Evt6', 'AA-8'),
+        ]
+        assert self.fsm._transitions[:5] == [
+            'Sta4', 'Sta5', 'Sta6', 'Sta7', 'Sta9'
+        ]
+        assert self.fsm._events[:6] == [
+            'Evt1', 'Evt2', 'Evt3', 'Evt11', 'Evt12', 'Evt6'
+        ]
 
     def test_evt07(self):
         """Test Sta9 + Evt7."""
         # Sta9 + Evt7 -> <ignore> -> Sta9
         # Evt7: Receive A-ASSOCIATE (accept) primitive from <local user>
-        pass
+        scp = DummyAE()
+        scp.mode = 'acceptor'
+        scp.queue.put(None)
+        scp.queue.put(['skip', a_associate_ac])
+        scp.queue.put(['wait', 0.2]) # Wait for release rq
+        scp.queue.put(['skip', a_release_rq]) # Send release rq
+        scp.queue.put(None) # Receive sent PDU
+        scp.queue.put(['wait', 0.2, 'shutdown'])
+
+        scp.start()
+
+        # Override ACSE.is_release_requested so the Association loop doesn't
+        #   respond to the release request
+        def is_release_requested(assoc):
+            return False
+
+        self.assoc.acse.is_release_requested = is_release_requested
+        self.assoc.start()
+
+        time.sleep(0.2)
+
+        self.assoc.dul.send_pdu(self.get_release(False))
+
+        time.sleep(0.2)
+
+        self.assoc.dul.send_pdu(self.get_associate('accept'))
+
+        time.sleep(0.3)
+
+        assert self.fsm._changes[:5] == [
+            ('Sta1', 'Evt1', 'AE-1'),
+            ('Sta4', 'Evt2', 'AE-2'),
+            ('Sta5', 'Evt3', 'AE-3'),
+            ('Sta6', 'Evt11', 'AR-1'),
+            ('Sta7', 'Evt12', 'AR-8'),
+        ]
+        assert self.fsm._transitions[:5] == [
+            'Sta4', 'Sta5', 'Sta6', 'Sta7', 'Sta9'
+        ]
+        assert self.fsm._events[:6] == [
+            'Evt1', 'Evt2', 'Evt3', 'Evt11', 'Evt12', 'Evt7'
+        ]
 
     def test_evt08(self):
         """Test Sta9 + Evt8."""
         # Sta9 + Evt8 -> <ignore> -> Sta9
         # Evt8: Receive A-ASSOCIATE (reject) primitive from <local user>
-        pass
+        scp = DummyAE()
+        scp.mode = 'acceptor'
+        scp.queue.put(None)
+        scp.queue.put(['skip', a_associate_ac])
+        scp.queue.put(['wait', 0.2]) # Wait for release rq
+        scp.queue.put(['skip', a_release_rq]) # Send release rq
+        scp.queue.put(None) # Receive sent PDU
+        scp.queue.put(['wait', 0.2, 'shutdown'])
+
+        scp.start()
+
+        # Override ACSE.is_release_requested so the Association loop doesn't
+        #   respond to the release request
+        def is_release_requested(assoc):
+            return False
+
+        self.assoc.acse.is_release_requested = is_release_requested
+        self.assoc.start()
+
+        time.sleep(0.2)
+
+        self.assoc.dul.send_pdu(self.get_release(False))
+
+        time.sleep(0.2)
+
+        self.assoc.dul.send_pdu(self.get_associate('reject'))
+
+        time.sleep(0.3)
+
+        assert self.fsm._changes[:5] == [
+            ('Sta1', 'Evt1', 'AE-1'),
+            ('Sta4', 'Evt2', 'AE-2'),
+            ('Sta5', 'Evt3', 'AE-3'),
+            ('Sta6', 'Evt11', 'AR-1'),
+            ('Sta7', 'Evt12', 'AR-8'),
+        ]
+        assert self.fsm._transitions[:5] == [
+            'Sta4', 'Sta5', 'Sta6', 'Sta7', 'Sta9'
+        ]
+        assert self.fsm._events[:6] == [
+            'Evt1', 'Evt2', 'Evt3', 'Evt11', 'Evt12', 'Evt8'
+        ]
 
     def test_evt09(self):
         """Test Sta9 + Evt9."""
         # Sta9 + Evt9 -> <ignore> -> Sta9
         # Evt9: Receive P-DATA primitive from <local user>
-        pass
+        scp = DummyAE()
+        scp.mode = 'acceptor'
+        scp.queue.put(None)
+        scp.queue.put(['skip', a_associate_ac])
+        scp.queue.put(['wait', 0.2]) # Wait for release rq
+        scp.queue.put(['skip', a_release_rq]) # Send release rq
+        scp.queue.put(None) # Receive sent PDU
+        scp.queue.put(['wait', 0.2, 'shutdown'])
+
+        scp.start()
+
+        # Override ACSE.is_release_requested so the Association loop doesn't
+        #   respond to the release request
+        def is_release_requested(assoc):
+            return False
+
+        self.assoc.acse.is_release_requested = is_release_requested
+        self.assoc.start()
+
+        time.sleep(0.2)
+
+        self.assoc.dul.send_pdu(self.get_release(False))
+
+        time.sleep(0.2)
+
+        self.assoc.dul.send_pdu(self.get_pdata())
+
+        time.sleep(0.3)
+
+        assert self.fsm._changes[:5] == [
+            ('Sta1', 'Evt1', 'AE-1'),
+            ('Sta4', 'Evt2', 'AE-2'),
+            ('Sta5', 'Evt3', 'AE-3'),
+            ('Sta6', 'Evt11', 'AR-1'),
+            ('Sta7', 'Evt12', 'AR-8'),
+        ]
+        assert self.fsm._transitions[:5] == [
+            'Sta4', 'Sta5', 'Sta6', 'Sta7', 'Sta9'
+        ]
+        assert self.fsm._events[:6] == [
+            'Evt1', 'Evt2', 'Evt3', 'Evt11', 'Evt12', 'Evt9'
+        ]
 
     def test_evt10(self):
         """Test Sta9 + Evt10."""
         # Sta9 + Evt10 -> AA-8 -> Sta13
         # Evt10: Receive P-DATA-TF PDU from <remote>
         # AA-8: Send A-ABORT PDU, issue A-P-ABORT primitive, start ARTIM
-        pass
+        scp = DummyAE()
+        scp.mode = 'acceptor'
+        scp.queue.put(None)
+        scp.queue.put(['skip', a_associate_ac])
+        scp.queue.put(['wait', 0.2]) # Wait for release rq
+        scp.queue.put(['skip', a_release_rq]) # Send release rq
+        scp.queue.put(['skip', p_data_tf])
+        scp.queue.put(['wait', 0.2, 'shutdown'])
+
+        scp.start()
+
+        # Override ACSE.is_release_requested so the Association loop doesn't
+        #   respond to the release request
+        def is_release_requested(assoc):
+            return False
+
+        self.assoc.acse.is_release_requested = is_release_requested
+        self.assoc.start()
+
+        time.sleep(0.2)
+
+        self.assoc.dul.send_pdu(self.get_release(False))
+
+        time.sleep(0.3)
+
+        assert self.fsm._changes[:6] == [
+            ('Sta1', 'Evt1', 'AE-1'),
+            ('Sta4', 'Evt2', 'AE-2'),
+            ('Sta5', 'Evt3', 'AE-3'),
+            ('Sta6', 'Evt11', 'AR-1'),
+            ('Sta7', 'Evt12', 'AR-8'),
+            ('Sta9', 'Evt10', 'AA-8'),
+        ]
+        assert self.fsm._transitions[:5] == [
+            'Sta4', 'Sta5', 'Sta6', 'Sta7', 'Sta9'
+        ]
+        assert self.fsm._events[:6] == [
+            'Evt1', 'Evt2', 'Evt3', 'Evt11', 'Evt12', 'Evt10'
+        ]
 
     def test_evt11(self):
         """Test Sta9 + Evt11."""
         # Sta9 + Evt11 -> <ignore> -> Sta9
         # Evt11: Receive A-RELEASE (rq) primitive from <local user>
-        pass
+        scp = DummyAE()
+        scp.mode = 'acceptor'
+        scp.queue.put(None)
+        scp.queue.put(['skip', a_associate_ac])
+        scp.queue.put(['wait', 0.2]) # Wait for release rq
+        scp.queue.put(['skip', a_release_rq]) # Send release rq
+        scp.queue.put(None) # Receive sent PDU
+        scp.queue.put(['wait', 0.2, 'shutdown'])
+
+        scp.start()
+
+        # Override ACSE.is_release_requested so the Association loop doesn't
+        #   respond to the release request
+        def is_release_requested(assoc):
+            return False
+
+        self.assoc.acse.is_release_requested = is_release_requested
+        self.assoc.start()
+
+        time.sleep(0.2)
+
+        self.assoc.dul.send_pdu(self.get_release(False))
+
+        time.sleep(0.2)
+
+        self.assoc.dul.send_pdu(self.get_release(False))
+
+        time.sleep(0.3)
+
+        assert self.fsm._changes[:5] == [
+            ('Sta1', 'Evt1', 'AE-1'),
+            ('Sta4', 'Evt2', 'AE-2'),
+            ('Sta5', 'Evt3', 'AE-3'),
+            ('Sta6', 'Evt11', 'AR-1'),
+            ('Sta7', 'Evt12', 'AR-8'),
+        ]
+        assert self.fsm._transitions[:5] == [
+            'Sta4', 'Sta5', 'Sta6', 'Sta7', 'Sta9'
+        ]
+        assert self.fsm._events[:6] == [
+            'Evt1', 'Evt2', 'Evt3', 'Evt11', 'Evt12', 'Evt11'
+        ]
 
     def test_evt12(self):
         """Test Sta9 + Evt12."""
         # Sta9 + Evt12 -> AA-8 -> Sta13
         # Evt12: Receive A-RELEASE-RQ PDU from <remote>
         # AA-8: Send A-ABORT PDU, issue A-P-ABORT primitive, start ARTIM
-        pass
+        scp = DummyAE()
+        scp.mode = 'acceptor'
+        scp.queue.put(None)
+        scp.queue.put(['skip', a_associate_ac])
+        scp.queue.put(['wait', 0.2]) # Wait for release rq
+        scp.queue.put(['skip', a_release_rq]) # Send release rq
+        scp.queue.put(['skip', a_release_rq])
+        scp.queue.put(['wait', 0.2, 'shutdown'])
+
+        scp.start()
+
+        # Override ACSE.is_release_requested so the Association loop doesn't
+        #   respond to the release request
+        def is_release_requested(assoc):
+            return False
+
+        self.assoc.acse.is_release_requested = is_release_requested
+        self.assoc.start()
+
+        time.sleep(0.2)
+
+        self.assoc.dul.send_pdu(self.get_release(False))
+
+        time.sleep(0.3)
+
+        assert self.fsm._changes[:6] == [
+            ('Sta1', 'Evt1', 'AE-1'),
+            ('Sta4', 'Evt2', 'AE-2'),
+            ('Sta5', 'Evt3', 'AE-3'),
+            ('Sta6', 'Evt11', 'AR-1'),
+            ('Sta7', 'Evt12', 'AR-8'),
+            ('Sta9', 'Evt12', 'AA-8'),
+        ]
+        assert self.fsm._transitions[:5] == [
+            'Sta4', 'Sta5', 'Sta6', 'Sta7', 'Sta9'
+        ]
+        assert self.fsm._events[:6] == [
+            'Evt1', 'Evt2', 'Evt3', 'Evt11', 'Evt12', 'Evt12'
+        ]
 
     def test_evt13(self):
         """Test Sta9 + Evt13."""
         # Sta9 + Evt13 -> AA-8 -> Sta13
         # Evt13: Receive A-RELEASE-RP PDU from <remote>
         # AA-8: Send A-ABORT PDU, issue A-P-ABORT primitive, start ARTIM
-        pass
+        scp = DummyAE()
+        scp.mode = 'acceptor'
+        scp.queue.put(None)
+        scp.queue.put(['skip', a_associate_ac])
+        scp.queue.put(['wait', 0.2]) # Wait for release rq
+        scp.queue.put(['skip', a_release_rq]) # Send release rq
+        scp.queue.put(['skip', a_release_rp])
+        scp.queue.put(['wait', 0.2, 'shutdown'])
+
+        scp.start()
+
+        # Override ACSE.is_release_requested so the Association loop doesn't
+        #   respond to the release request
+        def is_release_requested(assoc):
+            return False
+
+        self.assoc.acse.is_release_requested = is_release_requested
+        self.assoc.start()
+
+        time.sleep(0.2)
+
+        self.assoc.dul.send_pdu(self.get_release(False))
+
+        time.sleep(0.3)
+
+        assert self.fsm._changes[:6] == [
+            ('Sta1', 'Evt1', 'AE-1'),
+            ('Sta4', 'Evt2', 'AE-2'),
+            ('Sta5', 'Evt3', 'AE-3'),
+            ('Sta6', 'Evt11', 'AR-1'),
+            ('Sta7', 'Evt12', 'AR-8'),
+            ('Sta9', 'Evt13', 'AA-8'),
+        ]
+        assert self.fsm._transitions[:5] == [
+            'Sta4', 'Sta5', 'Sta6', 'Sta7', 'Sta9'
+        ]
+        assert self.fsm._events[:6] == [
+            'Evt1', 'Evt2', 'Evt3', 'Evt11', 'Evt12', 'Evt13'
+        ]
 
     def test_evt14(self):
         """Test Sta9 + Evt14."""
         # Sta9 + Evt14 -> AR-9 -> Sta11
         # Evt14: Receive A-RELEASE (rsp) primitive from <local user>
         # AR-9: Send A-RELEASE-RP PDU to <remote>
-        pass
+        scp = DummyAE()
+        scp.mode = 'acceptor'
+        scp.queue.put(None)
+        scp.queue.put(['skip', a_associate_ac])
+        scp.queue.put(['wait', 0.2]) # Wait for release rq
+        scp.queue.put(['skip', a_release_rq]) # Send release rq
+        scp.queue.put(None) # Receive sent PDU
+        scp.queue.put(['wait', 0.2, 'shutdown'])
+
+        scp.start()
+
+        # Override ACSE.is_release_requested so the Association loop doesn't
+        #   respond to the release request
+        def is_release_requested(assoc):
+            return False
+
+        self.assoc.acse.is_release_requested = is_release_requested
+        self.assoc.start()
+
+        time.sleep(0.2)
+
+        self.assoc.dul.send_pdu(self.get_release(False))
+
+        time.sleep(0.2)
+
+        self.assoc.dul.send_pdu(self.get_release(True))
+
+        time.sleep(0.3)
+
+        assert self.fsm._changes[:5] == [
+            ('Sta1', 'Evt1', 'AE-1'),
+            ('Sta4', 'Evt2', 'AE-2'),
+            ('Sta5', 'Evt3', 'AE-3'),
+            ('Sta6', 'Evt11', 'AR-1'),
+            ('Sta7', 'Evt12', 'AR-8'),
+        ]
+        assert self.fsm._transitions[:5] == [
+            'Sta4', 'Sta5', 'Sta6', 'Sta7', 'Sta9'
+        ]
+        assert self.fsm._events[:6] == [
+            'Evt1', 'Evt2', 'Evt3', 'Evt11', 'Evt12', 'Evt14'
+        ]
 
     def test_evt15(self):
         """Test Sta9 + Evt15."""
         # Sta9 + Evt15 -> AA-1 -> Sta13
         # Evt15: Receive A-ABORT (rq) primitive from <local user>
         # AA-1: Send A-ABORT PDU to <remote>, start ARTIM
-        pass
+        scp = DummyAE()
+        scp.mode = 'acceptor'
+        scp.queue.put(None)
+        scp.queue.put(['skip', a_associate_ac])
+        scp.queue.put(['wait', 0.2]) # Wait for release rq
+        scp.queue.put(['skip', a_release_rq]) # Send release rq
+        scp.queue.put(None) # Receive sent PDU
+        scp.queue.put(['wait', 0.2, 'shutdown'])
+
+        scp.start()
+
+        # Override ACSE.is_release_requested so the Association loop doesn't
+        #   respond to the release request
+        def is_release_requested(assoc):
+            return False
+
+        self.assoc.acse.is_release_requested = is_release_requested
+        self.assoc.start()
+
+        time.sleep(0.2)
+
+        self.assoc.dul.send_pdu(self.get_release(False))
+
+        time.sleep(0.2)
+
+        self.assoc.dul.send_pdu(self.get_abort())
+
+        time.sleep(0.3)
+
+        assert self.fsm._changes[:5] == [
+            ('Sta1', 'Evt1', 'AE-1'),
+            ('Sta4', 'Evt2', 'AE-2'),
+            ('Sta5', 'Evt3', 'AE-3'),
+            ('Sta6', 'Evt11', 'AR-1'),
+            ('Sta7', 'Evt12', 'AR-8'),
+        ]
+        assert self.fsm._transitions[:5] == [
+            'Sta4', 'Sta5', 'Sta6', 'Sta7', 'Sta9'
+        ]
+        assert self.fsm._events[:6] == [
+            'Evt1', 'Evt2', 'Evt3', 'Evt11', 'Evt12', 'Evt15'
+        ]
 
     def test_evt16(self):
         """Test Sta9 + Evt16."""
         # Sta9 + Evt16 -> AA-3 -> Sta1
         # Evt16: Receive A-ABORT PDU from <remote>
         # AA-3: Issue A-ABORT or A-P-ABORT primitive, close connection
-        pass
+        scp = DummyAE()
+        scp.mode = 'acceptor'
+        scp.queue.put(None)
+        scp.queue.put(['skip', a_associate_ac])
+        scp.queue.put(['wait', 0.2]) # Wait for release rq
+        scp.queue.put(['skip', a_release_rq]) # Send release rq
+        scp.queue.put(['skip', a_abort])
+        scp.queue.put(['wait', 0.2, 'shutdown'])
+
+        scp.start()
+
+        # Override ACSE.is_release_requested so the Association loop doesn't
+        #   respond to the release request
+        def is_release_requested(assoc):
+            return False
+
+        self.assoc.acse.is_release_requested = is_release_requested
+        self.assoc.start()
+
+        time.sleep(0.2)
+
+        self.assoc.dul.send_pdu(self.get_release(False))
+
+        time.sleep(0.3)
+
+        assert self.fsm._changes[:6] == [
+            ('Sta1', 'Evt1', 'AE-1'),
+            ('Sta4', 'Evt2', 'AE-2'),
+            ('Sta5', 'Evt3', 'AE-3'),
+            ('Sta6', 'Evt11', 'AR-1'),
+            ('Sta7', 'Evt12', 'AR-8'),
+            ('Sta9', 'Evt16', 'AA-3'),
+        ]
+        assert self.fsm._transitions[:5] == [
+            'Sta4', 'Sta5', 'Sta6', 'Sta7', 'Sta9'
+        ]
+        assert self.fsm._events[:6] == [
+            'Evt1', 'Evt2', 'Evt3', 'Evt11', 'Evt12', 'Evt16'
+        ]
 
     def test_evt17(self):
         """Test Sta9 + Evt17."""
         # Sta9 + Evt17 -> AA-4 -> Sta1
         # Evt17: Receive TRANSPORT_CLOSED from <transport service>
         # AA-4: Issue A-P-ABORT primitive
-        pass
+        scp = DummyAE()
+        scp.mode = 'acceptor'
+        scp.queue.put(None)
+        scp.queue.put(['skip', a_associate_ac])
+        scp.queue.put(['wait', 0.2]) # Wait for release rq
+        scp.queue.put(['skip', a_release_rq]) # Send release rq
+        scp.queue.put(['wait', 0.2, 'shutdown'])
+
+        scp.start()
+
+        # Override ACSE.is_release_requested so the Association loop doesn't
+        #   respond to the release request
+        def is_release_requested(assoc):
+            return False
+
+        self.assoc.acse.is_release_requested = is_release_requested
+        self.assoc.start()
+
+        time.sleep(0.2)
+
+        self.assoc.dul.send_pdu(self.get_release(False))
+
+        time.sleep(0.3)
+
+        assert self.fsm._changes[:6] == [
+            ('Sta1', 'Evt1', 'AE-1'),
+            ('Sta4', 'Evt2', 'AE-2'),
+            ('Sta5', 'Evt3', 'AE-3'),
+            ('Sta6', 'Evt11', 'AR-1'),
+            ('Sta7', 'Evt12', 'AR-8'),
+            ('Sta9', 'Evt17', 'AA-4'),
+        ]
+        assert self.fsm._transitions[:5] == [
+            'Sta4', 'Sta5', 'Sta6', 'Sta7', 'Sta9'
+        ]
+        assert self.fsm._events[:6] == [
+            'Evt1', 'Evt2', 'Evt3', 'Evt11', 'Evt12', 'Evt17'
+        ]
 
     @pytest.mark.skip()
     def test_evt18(self):
@@ -4549,7 +5139,8 @@ class TestState09(TestStateBase):
         scp.mode = 'acceptor'
         scp.queue.put(None)
         scp.queue.put(['skip', a_associate_ac])
-        scp.queue.put(['skip', a_release_rq])
+        scp.queue.put(['wait', 0.2]) # Wait for release rq
+        scp.queue.put(['skip', a_release_rq]) # Send release rq
         scp.queue.put(['skip', b'\x08\x00\x00\x00'])
         scp.queue.put(['wait', 0.2, 'shutdown'])
 
@@ -4563,20 +5154,26 @@ class TestState09(TestStateBase):
         self.assoc.acse.is_release_requested = is_release_requested
         self.assoc.start()
 
-        time.sleep(0.4)
+        time.sleep(0.2)
 
-        print(self.fsm._changes)
-        print(self.fsm._transitions)
-        print(self.fsm._events)
-        assert self.fsm._changes[:5] == [
+        self.assoc.dul.send_pdu(self.get_release(False))
+
+        time.sleep(0.3)
+
+        assert self.fsm._changes[:6] == [
             ('Sta1', 'Evt1', 'AE-1'),
             ('Sta4', 'Evt2', 'AE-2'),
             ('Sta5', 'Evt3', 'AE-3'),
-            ('Sta6', 'Evt12', 'AR-2'),
-            ('Sta8', 'Evt19', 'AA-8'),
+            ('Sta6', 'Evt11', 'AR-1'),
+            ('Sta7', 'Evt12', 'AR-8'),
+            ('Sta9', 'Evt19', 'AA-8'),
         ]
-        assert self.fsm._transitions[:4] == ['Sta4', 'Sta5', 'Sta6', 'Sta8']
-        assert self.fsm._events[:5] == ['Evt1', 'Evt2', 'Evt3', 'Evt12', 'Evt19']
+        assert self.fsm._transitions[:5] == [
+            'Sta4', 'Sta5', 'Sta6', 'Sta7', 'Sta9'
+        ]
+        assert self.fsm._events[:6] == [
+            'Evt1', 'Evt2', 'Evt3', 'Evt11', 'Evt12', 'Evt19'
+        ]
 
 
 @pytest.mark.skip()
@@ -4586,7 +5183,48 @@ class TestState10(TestStateBase):
         """Test Sta10 + Evt1."""
         # Sta10 + Evt1 -> <ignore> -> Sta10
         # Evt1: A-ASSOCIATE (rq) primitive from <local user>
-        pass
+        scp = DummyAE()
+        scp.mode = 'acceptor'
+        scp.queue.put(None)
+        scp.queue.put(['skip', a_associate_ac])
+        scp.queue.put(['wait', 0.2]) # Wait for release rq
+        scp.queue.put(['skip', a_release_rq]) # Send release rq
+        scp.queue.put(['skip', b'\x08\x00\x00\x00'])
+        scp.queue.put(['wait', 0.2, 'shutdown'])
+
+        scp.start()
+
+        # Override ACSE.is_release_requested so the Association loop doesn't
+        #   respond to the release request
+        def is_release_requested(assoc):
+            return False
+
+        self.assoc.acse.is_release_requested = is_release_requested
+        self.assoc.start()
+
+        time.sleep(0.2)
+
+        self.assoc.dul.send_pdu(self.get_release(False))
+
+        time.sleep(0.2)
+
+        print(self.fsm._changes)
+        print(self.fsm._transitions)
+        print(self.fsm._events)
+        assert self.fsm._changes[:6] == [
+            ('Sta1', 'Evt1', 'AE-1'),
+            ('Sta4', 'Evt2', 'AE-2'),
+            ('Sta5', 'Evt3', 'AE-3'),
+            ('Sta6', 'Evt11', 'AR-1'),
+            ('Sta7', 'Evt12', 'AR-8'),
+            ('Sta9', 'Evt19', 'AA-8'),
+        ]
+        assert self.fsm._transitions[:5] == [
+            'Sta4', 'Sta5', 'Sta6', 'Sta7', 'Sta9'
+        ]
+        assert self.fsm._events[:6] == [
+            'Evt1', 'Evt2', 'Evt3', 'Evt11', 'Evt12', 'Evt19'
+        ]
 
     @pytest.mark.skip()
     def test_evt02(self):
