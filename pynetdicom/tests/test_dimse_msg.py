@@ -620,13 +620,6 @@ class TestDIMSEMessage(object):
         assert primitive.MessageIDBeingRespondedTo == 5
         assert primitive.Status == 0xC201
 
-    def test_id_deprecation(self):
-        """Test deprecation warning for DIMSEMessage"""
-        msg = DIMSEMessage()
-        msg.ID = 1
-        with pytest.deprecated_call():
-            assert msg.ID == 1
-
 
 class TestThreadSafety(object):
     """Tests for the thread safety of DIMSEMessage classes."""

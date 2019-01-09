@@ -550,22 +550,6 @@ class TestAssociation(object):
         """Test killing the association"""
         pass
 
-    def test_assoc_release_deprecated(self):
-        """Test Association release"""
-        # Simple release
-        self.scp = DummyVerificationSCP()
-        self.scp.start()
-        ae = AE()
-        ae.add_requested_context(VerificationSOPClass)
-        ae.acse_timeout = 5
-        ae.dimse_timeout = 5
-        assoc = ae.associate('localhost', 11112)
-        assert assoc.is_established
-        assoc.acse.release_association(assoc)
-        assert assoc.is_released
-        assert not assoc.is_established
-        self.scp.stop()
-
     def test_assoc_release(self):
         """Test Association release"""
         # Simple release

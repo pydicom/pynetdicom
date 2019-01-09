@@ -265,16 +265,6 @@ class ACSE(object):
 
         return False
 
-    # Deprecated, to be removed in v1.2
-    def is_released(self, assoc):
-        """Return True if an A-RELEASE response has been received."""
-        warnings.warn(
-            "ACSE.is_released is deprecated and will be remove in v1.2, "
-            "use ACSE.is_release_requested instead",
-            DeprecationWarning
-        )
-        return self.is_release_requested(assoc)
-
     def negotiate_association(self, assoc):
         """Perform an association negotiation as either the requestor or
         acceptor.
@@ -575,22 +565,6 @@ class ACSE(object):
                 assoc.is_established = False
                 assoc.kill()
                 return
-
-    def release_association(self, assoc):
-        """Negotiate association release.
-
-        Parameters
-        ----------
-        assoc : association.Association
-            The association instance that wants to initiate association
-            release.
-        """
-        warnings.warn(
-            "ACSE.release_association is deprecated and will be removed "
-            "in v1.2, use ACSE.negotiate_release instead",
-            DeprecationWarning
-        )
-        self.negotiate_release(assoc)
 
     @staticmethod
     def send_abort(assoc, source):
