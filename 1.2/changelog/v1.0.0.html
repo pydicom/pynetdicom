@@ -1,0 +1,332 @@
+
+
+<!DOCTYPE html>
+<!--[if IE 8]><html class="no-js lt-ie9" lang="en" > <![endif]-->
+<!--[if gt IE 8]><!--> <html class="no-js" lang="en" > <!--<![endif]-->
+<head>
+  <meta charset="utf-8">
+  
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  
+  <title>1.0.0 &mdash; pynetdicom 1.1.0 documentation</title>
+  
+
+  
+  
+    <link rel="shortcut icon" href="../_static/favicon.ico"/>
+  
+  
+  
+
+  
+
+  
+  
+    
+
+  
+
+  <link rel="stylesheet" href="../_static/css/pynetdicom.css" type="text/css" />
+  <link rel="stylesheet" href="../_static/pygments.css" type="text/css" />
+  <link rel="stylesheet" href="../_static/css/pynetdicom.css" type="text/css" />
+    <link rel="index" title="Index" href="../genindex.html" />
+    <link rel="search" title="Search" href="../search.html" /> 
+
+  
+  <script src="../_static/js/modernizr.min.js"></script>
+
+</head>
+
+<body class="wy-body-for-nav">
+
+   
+  <div class="wy-grid-for-nav">
+
+    
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search">
+          
+
+          
+            <a href="../index.html" class="icon icon-home"> pynetdicom
+          
+
+          
+            
+            <img src="../_static/pydicom_flat_black.svg" class="logo" alt="Logo"/>
+          
+          </a>
+
+          
+            
+            
+              <div class="version">
+                1.1.0
+              </div>
+            
+          
+
+          
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="../search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+
+          
+        </div>
+
+        <div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="main navigation">
+          
+            
+            
+              
+            
+            
+              <ul>
+<li class="toctree-l1"><a class="reference internal" href="../verification_service_class.html">Verification Service Class</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../storage_service_class.html">Storage Service Class</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../query_retrieve_service_class.html">Query/Retrieve Service Class</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../basic_worklist_service_class.html">Basic Worklist Management Service Class</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../relevant_patient_service_class.html">Relevant Patient Information Query Service Class</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../substance_admin_service_class.html">Substance Administration Query Service Class</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../non_patient_service_class.html">Non-Patient Object Storage Service Class</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../color_palette_service_class.html">Color Palette Query/Retrieve Service Class</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../defined_procedure_service_class.html">Defined Procedure Protocol Query/Retrieve Service Class</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../hanging_protocol_service_class.html">Hanging Protocol Query/Retrieve Service Class</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../implant_template_service_class.html">Implant Template Query/Retrieve Service Class</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../display_system_service_class.html">Display System Management Service Class</a></li>
+</ul>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../user/index.html">User Guide</a></li>
+</ul>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../release_notes.html">1.1.0</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../release_notes.html#id2">1.0.0</a></li>
+</ul>
+
+            
+          
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap">
+
+      
+      <nav class="wy-nav-top" aria-label="top navigation">
+        
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="../index.html">pynetdicom</a>
+        
+      </nav>
+
+
+      <div class="wy-nav-content">
+        
+        <div class="rst-content">
+        
+          
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+<div role="navigation" aria-label="breadcrumbs navigation">
+
+  <ul class="wy-breadcrumbs">
+    
+      <li><a href="../index.html">Docs</a> &raquo;</li>
+        
+      <li>1.0.0</li>
+    
+    
+      <li class="wy-breadcrumbs-aside">
+        
+            
+            <a href="../_sources/changelog/v1.0.0.rst.txt" rel="nofollow"> View page source</a>
+          
+        
+      </li>
+    
+  </ul>
+
+  
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+            
+  <div class="section" id="id1">
+<h1>1.0.0<a class="headerlink" href="#id1" title="Permalink to this headline">¶</a></h1>
+<div class="section" id="fixes">
+<h2>Fixes<a class="headerlink" href="#fixes" title="Permalink to this headline">¶</a></h2>
+<ul class="simple">
+<li>Fixed upstream pydicom changes to AE elements breaking logging
+(<a class="reference external" href="https://github.com/pydicom/pynetdicom/issues/195">#195</a>)</li>
+<li>Fixed typos in SOP class names, fix bad UID</li>
+<li>Fixed SCP/SCU Role Negotiation requiring both SCP and SCU role values to be
+set (as association requestor)</li>
+<li>Starting with v1.0.0, versioning should be consistent</li>
+</ul>
+</div>
+<div class="section" id="changes">
+<h2>Changes<a class="headerlink" href="#changes" title="Permalink to this headline">¶</a></h2>
+<ul class="simple">
+<li><code class="docutils literal notranslate"><span class="pre">applicationentity</span></code> module renamed <code class="docutils literal notranslate"><span class="pre">ae</span></code></li>
+<li><code class="docutils literal notranslate"><span class="pre">ApplicationEntity</span></code> interface updated<ul>
+<li>Removed the following: <code class="docutils literal notranslate"><span class="pre">AE.scu_supported_sop</span></code>, <code class="docutils literal notranslate"><span class="pre">AE.scp_supported_sop</span></code>,
+<code class="docutils literal notranslate"><span class="pre">AE.transfer_syntax</span></code>, <code class="docutils literal notranslate"><span class="pre">AE.presentation_contexts_scu</span></code>,
+<code class="docutils literal notranslate"><span class="pre">AE.presentation_contexts_scp</span></code>.</li>
+<li><code class="docutils literal notranslate"><span class="pre">scu_sop_class</span></code>, <code class="docutils literal notranslate"><span class="pre">scp_sop_class</span></code>, <code class="docutils literal notranslate"><span class="pre">transfer_syntax</span></code> and <code class="docutils literal notranslate"><span class="pre">bind_addr</span></code>
+arguments removed from <code class="docutils literal notranslate"><span class="pre">AE</span></code> initialisation.</li>
+<li>Added <code class="docutils literal notranslate"><span class="pre">AE.bind_addr</span></code> attribute to allow the user to specify the network
+adapter.</li>
+<li>Added <code class="docutils literal notranslate"><span class="pre">AE.add_supported_context()</span></code>, <code class="docutils literal notranslate"><span class="pre">AE.supported_contexts</span></code>,
+<code class="docutils literal notranslate"><span class="pre">AE.remove_supported_context()</span></code> for adding and removing the presentation
+contexts supported as an SCP.</li>
+<li>Added <code class="docutils literal notranslate"><span class="pre">AE.add_requested_context()</span></code>, <code class="docutils literal notranslate"><span class="pre">AE.requested_contexts</span></code>,
+<code class="docutils literal notranslate"><span class="pre">AE.remove_requested_context()</span></code> for adding and removing the presentation
+contexts requested as an SCU.</li>
+</ul>
+</li>
+<li>Removed <code class="docutils literal notranslate"><span class="pre">VerificationSOPClass</span></code>, <code class="docutils literal notranslate"><span class="pre">StorageSOPClassList</span></code> and
+<code class="docutils literal notranslate"><span class="pre">QueryRetrieveSOPClassList</span></code>.</li>
+<li>Added <code class="docutils literal notranslate"><span class="pre">VerificationPresentationContexts</span></code>, <code class="docutils literal notranslate"><span class="pre">StoragePresentationContexts</span></code>,
+<code class="docutils literal notranslate"><span class="pre">QueryRetrievePresentationContexts</span></code> and
+<code class="docutils literal notranslate"><span class="pre">BasicWorklistManagmentPresentationContexts</span></code> to replace them</li>
+<li>Added <code class="docutils literal notranslate"><span class="pre">service_class</span></code> module and moved the service class implementations
+from <code class="docutils literal notranslate"><span class="pre">sop_class</span></code> to <code class="docutils literal notranslate"><span class="pre">service_class</span></code>.</li>
+<li>The three Query/Retrieve service class implementations (Find, Get, Move) have
+been consolidated into one.</li>
+<li><code class="docutils literal notranslate"><span class="pre">BasicWorklistManagementServiceClass</span></code> reimplemented separately from QR.</li>
+<li><code class="docutils literal notranslate"><span class="pre">SOPClass</span></code> class added to <code class="docutils literal notranslate"><span class="pre">sop_class</span></code> module and all SOP Class objects
+now inherit from it rather than the corresponding service class.</li>
+<li><code class="docutils literal notranslate"><span class="pre">utils.PresentationContextManager</span></code> removed</li>
+<li><code class="docutils literal notranslate"><span class="pre">MaximumLengthNegotiation</span></code> changed to <code class="docutils literal notranslate"><span class="pre">MaximumLengthNotification</span></code></li>
+<li><code class="docutils literal notranslate"><span class="pre">ImplementationClassUIDNegotiation</span></code> changed to <code class="docutils literal notranslate"><span class="pre">ImplementationClassUIDNotification</span></code></li>
+<li><code class="docutils literal notranslate"><span class="pre">ImplementationVersionNameNegotiation</span></code> changed to <code class="docutils literal notranslate"><span class="pre">ImplementationVersioNameNotification</span></code></li>
+<li>Simplified <code class="docutils literal notranslate"><span class="pre">service_class.ServiceClass</span></code> interface</li>
+<li><code class="docutils literal notranslate"><span class="pre">ACSE</span></code> refactored to do more of the association negotiation work and to
+operate independently of the Association instance.<ul>
+<li>Added <code class="docutils literal notranslate"><span class="pre">send_abort</span></code>, <code class="docutils literal notranslate"><span class="pre">send_ap_abort</span></code>, <code class="docutils literal notranslate"><span class="pre">send_reject</span></code>, <code class="docutils literal notranslate"><span class="pre">send_release</span></code>
+<code class="docutils literal notranslate"><span class="pre">send_request</span></code>, <code class="docutils literal notranslate"><span class="pre">send_accept</span></code> methods</li>
+<li>Added <code class="docutils literal notranslate"><span class="pre">negotiate_association</span></code> method</li>
+<li>Added <code class="docutils literal notranslate"><span class="pre">release_association</span></code> method</li>
+</ul>
+</li>
+<li>Added <code class="docutils literal notranslate"><span class="pre">association.ServiceUser</span></code> class</li>
+<li><code class="docutils literal notranslate"><span class="pre">Association</span></code> refactored to do less association negotiation work and to
+operate independently of the ACSE instance.<ul>
+<li>Added <code class="docutils literal notranslate"><span class="pre">Association.requestor</span></code> and <code class="docutils literal notranslate"><span class="pre">Association.acceptor</span></code> attributes
+which are <code class="docutils literal notranslate"><span class="pre">ServiceUser</span></code> instances that track the association requestor
+and acceptor.</li>
+</ul>
+</li>
+<li>Project named changed from pynetdicom3 to pynetdicom</li>
+</ul>
+</div>
+<div class="section" id="enhancements">
+<h2>Enhancements<a class="headerlink" href="#enhancements" title="Permalink to this headline">¶</a></h2>
+<ul class="simple">
+<li>Add <code class="docutils literal notranslate"><span class="pre">context</span></code> and <code class="docutils literal notranslate"><span class="pre">info</span></code> parameters to on_c_* callbacks (<a class="reference external" href="https://github.com/pydicom/pynetdicom/issues/45">#45</a>,
+<a class="reference external" href="https://github.com/pydicom/pynetdicom/issues/54">#54</a>, <a class="reference external" href="https://github.com/pydicom/pynetdicom/issues/65">#65</a>, <a class="reference external" href="https://github.com/pydicom/pynetdicom/issues/106">#106</a>)</li>
+<li>Added contribution, issue and PR guides (<a class="reference external" href="https://github.com/pydicom/pynetdicom/issues/66">#66</a>)</li>
+<li>Added PEP8 conformant <code class="docutils literal notranslate"><span class="pre">PYNETDICOM_IMPLEMENTATION_VERSION</span></code> and
+<code class="docutils literal notranslate"><span class="pre">PYNETDICOM_IMPLEMENTATION_UID</span></code> variables. The old ones will be removed in
+v1.0</li>
+<li>Added <code class="docutils literal notranslate"><span class="pre">AE.implementation_version_name</span></code> and <code class="docutils literal notranslate"><span class="pre">AE.implementation_class_uid</span></code>
+attributes so user’s can specify the values used during association
+negotiation.</li>
+<li>Allow per-association presentation context requests (SCU)</li>
+<li>Allow more than 128 supported presentation contexts (SCP)</li>
+<li>Documentation added: user guide, examples, API reference (<a class="reference external" href="https://github.com/pydicom/pynetdicom/issues/1">#1</a>,
+<a class="reference external" href="https://github.com/pydicom/pynetdicom/issues/45">#45</a>, <a class="reference external" href="https://github.com/pydicom/pynetdicom/issues/49">#49</a>, <a class="reference external" href="https://github.com/pydicom/pynetdicom/issues/50">#50</a>)</li>
+<li>Add support for QR Instance and Frame Level Retrieve</li>
+<li>Add support for QR Composite Instance Root Retrieval</li>
+<li>Add support for the Relevant Patient Information Query service</li>
+<li>Add support for the Hanging Protocol QR service</li>
+<li>Add support for the Substance Administration Query service</li>
+<li>Add support for the Color Palette QR service</li>
+<li>Add support for the Implant Template QR service</li>
+<li>Add support for the Non-Patient Information Storage service</li>
+<li>Add support for the Defined Procedure Protocol QR service</li>
+<li>Add support for the Display System Management service</li>
+<li>Add support for N-GET, N-SET, N-EVENT-REPORT, N-DELETE, N-ACTION, N-CREATE
+as SCU.</li>
+<li>Add full support for SCP/SCU Role Selection Negotiation</li>
+<li>Add support for SOP Class Extended Negotiation</li>
+<li>Add support for Asynchronous Operations Window Negotiation, however
+pynetdicom does not support asynchronous operations.</li>
+<li>Add support for User Identity Negotiation</li>
+<li>Add support for SOP Class Common Extended Negotiation</li>
+<li>Non-conformant (null trailing padded) UIDs in A-ASSOCIATE messages are now
+handled</li>
+</ul>
+</div>
+</div>
+
+
+           </div>
+           
+          </div>
+          <footer>
+  
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>
+        &copy; Copyright 2018-19, pynetdicom contributors
+
+    </p>
+  </div>
+  Built with <a href="http://sphinx-doc.org/">Sphinx</a> using a <a href="https://github.com/rtfd/sphinx_rtd_theme">theme</a> provided by <a href="https://readthedocs.org">Read the Docs</a>. 
+
+</footer>
+
+        </div>
+      </div>
+
+    </section>
+
+  </div>
+  
+
+
+  
+
+    
+    
+      <script type="text/javascript" id="documentation_options" data-url_root="../" src="../_static/documentation_options.js"></script>
+        <script type="text/javascript" src="../_static/jquery.js"></script>
+        <script type="text/javascript" src="../_static/underscore.js"></script>
+        <script type="text/javascript" src="../_static/doctools.js"></script>
+        <script type="text/javascript" src="../_static/language_data.js"></script>
+    
+
+  
+
+  <script type="text/javascript" src="../_static/js/theme.js"></script>
+
+  <script type="text/javascript">
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script> 
+
+</body>
+</html>

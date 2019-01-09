@@ -1,0 +1,32 @@
+pynetdicom.dimse\_messages.C\_MOVE\_RSP
+=======================================
+
+.. currentmodule:: pynetdicom.dimse_messages
+
+.. autoclass:: C_MOVE_RSP
+
+   
+   .. automethod:: __init__
+
+   
+   .. rubric:: Methods
+
+   .. autosummary::
+   
+      ~C_MOVE_RSP.__init__
+      ~C_MOVE_RSP.decode_msg
+      ~C_MOVE_RSP.encode_msg
+      ~C_MOVE_RSP.message_to_primitive
+      ~C_MOVE_RSP.primitive_to_message
+   
+   
+
+   
+   
+   .. rubric:: Attributes
+
+   .. autosummary::
+   
+      ~C_MOVE_RSP.ID
+   
+   

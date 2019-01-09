@@ -1,0 +1,370 @@
+
+
+<!DOCTYPE html>
+<!--[if IE 8]><html class="no-js lt-ie9" lang="en" > <![endif]-->
+<!--[if gt IE 8]><!--> <html class="no-js" lang="en" > <!--<![endif]-->
+<head>
+  <meta charset="utf-8">
+  
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  
+  <title>pynetdicom.utils &mdash; pynetdicom 1.1.0 documentation</title>
+  
+
+  
+  
+    <link rel="shortcut icon" href="../../_static/favicon.ico"/>
+  
+  
+  
+
+  
+
+  
+  
+    
+
+  
+
+  <link rel="stylesheet" href="../../_static/css/pynetdicom.css" type="text/css" />
+  <link rel="stylesheet" href="../../_static/pygments.css" type="text/css" />
+  <link rel="stylesheet" href="../../_static/css/pynetdicom.css" type="text/css" />
+    <link rel="index" title="Index" href="../../genindex.html" />
+    <link rel="search" title="Search" href="../../search.html" /> 
+
+  
+  <script src="../../_static/js/modernizr.min.js"></script>
+
+</head>
+
+<body class="wy-body-for-nav">
+
+   
+  <div class="wy-grid-for-nav">
+
+    
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search">
+          
+
+          
+            <a href="../../index.html" class="icon icon-home"> pynetdicom
+          
+
+          
+            
+            <img src="../../_static/pydicom_flat_black.svg" class="logo" alt="Logo"/>
+          
+          </a>
+
+          
+            
+            
+              <div class="version">
+                1.1.0
+              </div>
+            
+          
+
+          
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="../../search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+
+          
+        </div>
+
+        <div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="main navigation">
+          
+            
+            
+              
+            
+            
+              <ul>
+<li class="toctree-l1"><a class="reference internal" href="../../verification_service_class.html">Verification Service Class</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../storage_service_class.html">Storage Service Class</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../query_retrieve_service_class.html">Query/Retrieve Service Class</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../basic_worklist_service_class.html">Basic Worklist Management Service Class</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../relevant_patient_service_class.html">Relevant Patient Information Query Service Class</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../substance_admin_service_class.html">Substance Administration Query Service Class</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../non_patient_service_class.html">Non-Patient Object Storage Service Class</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../color_palette_service_class.html">Color Palette Query/Retrieve Service Class</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../defined_procedure_service_class.html">Defined Procedure Protocol Query/Retrieve Service Class</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../hanging_protocol_service_class.html">Hanging Protocol Query/Retrieve Service Class</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../implant_template_service_class.html">Implant Template Query/Retrieve Service Class</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../display_system_service_class.html">Display System Management Service Class</a></li>
+</ul>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../../user/index.html">User Guide</a></li>
+</ul>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../../release_notes.html">1.1.0</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../release_notes.html#id2">1.0.0</a></li>
+</ul>
+
+            
+          
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap">
+
+      
+      <nav class="wy-nav-top" aria-label="top navigation">
+        
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="../../index.html">pynetdicom</a>
+        
+      </nav>
+
+
+      <div class="wy-nav-content">
+        
+        <div class="rst-content">
+        
+          
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+<div role="navigation" aria-label="breadcrumbs navigation">
+
+  <ul class="wy-breadcrumbs">
+    
+      <li><a href="../../index.html">Docs</a> &raquo;</li>
+        
+          <li><a href="../index.html">Module code</a> &raquo;</li>
+        
+      <li>pynetdicom.utils</li>
+    
+    
+      <li class="wy-breadcrumbs-aside">
+        
+      </li>
+    
+  </ul>
+
+  
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+            
+  <h1>Source code for pynetdicom.utils</h1><div class="highlight"><pre>
+<span></span><span class="sd">&quot;&quot;&quot;Various utility functions.&quot;&quot;&quot;</span>
+
+<span class="kn">import</span> <span class="nn">codecs</span>
+<span class="kn">from</span> <span class="nn">io</span> <span class="k">import</span> <span class="n">BytesIO</span>
+<span class="kn">import</span> <span class="nn">logging</span>
+<span class="kn">import</span> <span class="nn">sys</span>
+<span class="kn">import</span> <span class="nn">unicodedata</span>
+
+
+<span class="n">LOGGER</span> <span class="o">=</span> <span class="n">logging</span><span class="o">.</span><span class="n">getLogger</span><span class="p">(</span><span class="s1">&#39;pynetdicom.utils&#39;</span><span class="p">)</span>
+
+
+<div class="viewcode-block" id="validate_ae_title"><a class="viewcode-back" href="../../reference/generated/pynetdicom.utils.validate_ae_title.html#pynetdicom.utils.validate_ae_title">[docs]</a><span class="k">def</span> <span class="nf">validate_ae_title</span><span class="p">(</span><span class="n">ae_title</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;Return a valid AE title from `ae_title`, if possible.</span>
+
+<span class="sd">    An AE title:</span>
+
+<span class="sd">    * Must be no more than 16 characters</span>
+<span class="sd">    * Leading and trailing spaces are not significant</span>
+<span class="sd">    * The characters should belong to the Default Character Repertoire</span>
+<span class="sd">      excluding 0x5C (backslash) and all control characters</span>
+
+<span class="sd">    If the supplied `ae_title` is greater than 16 characters once</span>
+<span class="sd">    non-significant spaces have been removed then the returned AE title</span>
+<span class="sd">    will be truncated to remove the excess characters.</span>
+
+<span class="sd">    If the supplied `ae_title` is less than 16 characters once non-significant</span>
+<span class="sd">    spaces have been removed, the spare trailing characters will be set to</span>
+<span class="sd">    space (0x20).</span>
+
+<span class="sd">    AE titles are made up of the Default Character Repertoire (the Basic</span>
+<span class="sd">    G0 Set of ISO646) excluding character code 0x5c (backslash) and all</span>
+<span class="sd">    control characters.</span>
+
+<span class="sd">    Parameters</span>
+<span class="sd">    ----------</span>
+<span class="sd">    ae_title : bytes</span>
+<span class="sd">        The AE title to check.</span>
+
+<span class="sd">    Returns</span>
+<span class="sd">    -------</span>
+<span class="sd">    str or bytes</span>
+<span class="sd">        A valid AE title truncated to 16 characters if necessary. If Python 3</span>
+<span class="sd">        then only returns bytes, if Python 2 then returns str.</span>
+
+<span class="sd">    Raises</span>
+<span class="sd">    ------</span>
+<span class="sd">    ValueError</span>
+<span class="sd">        If `ae_title` is an empty string, contains only spaces or contains</span>
+<span class="sd">        control characters or backslash.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="k">if</span> <span class="ow">not</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">ae_title</span><span class="p">,</span> <span class="p">(</span><span class="nb">str</span><span class="p">,</span> <span class="nb">bytes</span><span class="p">)):</span>
+        <span class="k">raise</span> <span class="ne">TypeError</span><span class="p">(</span>
+            <span class="s2">&quot;AE titles must be str or bytes&quot;</span>
+        <span class="p">)</span>
+
+    <span class="c1"># Python 2 - convert string to unicode</span>
+    <span class="k">if</span> <span class="n">sys</span><span class="o">.</span><span class="n">version_info</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span> <span class="o">==</span> <span class="mi">2</span><span class="p">:</span>
+        <span class="n">ae_title</span> <span class="o">=</span> <span class="n">unicode</span><span class="p">(</span><span class="n">ae_title</span><span class="p">)</span>
+
+    <span class="c1"># If bytes decode to ascii string</span>
+    <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">ae_title</span><span class="p">,</span> <span class="nb">bytes</span><span class="p">):</span>
+        <span class="n">ae_title</span> <span class="o">=</span> <span class="n">ae_title</span><span class="o">.</span><span class="n">decode</span><span class="p">(</span><span class="s1">&#39;ascii&#39;</span><span class="p">,</span> <span class="n">errors</span><span class="o">=</span><span class="s1">&#39;strict&#39;</span><span class="p">)</span>
+
+    <span class="c1"># Strip out any leading or trailing spaces</span>
+    <span class="n">ae_title</span> <span class="o">=</span> <span class="n">ae_title</span><span class="o">.</span><span class="n">strip</span><span class="p">()</span>
+    <span class="k">if</span> <span class="ow">not</span> <span class="n">ae_title</span><span class="p">:</span>
+        <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span>
+            <span class="s2">&quot;AE titles are not allowed to consist entirely of only spaces&quot;</span>
+        <span class="p">)</span>
+
+    <span class="c1"># Truncate if longer than 16 characters</span>
+    <span class="n">ae_title</span> <span class="o">=</span> <span class="n">ae_title</span><span class="p">[:</span><span class="mi">16</span><span class="p">]</span>
+    <span class="c1"># Pad out to 16 characters using spaces</span>
+    <span class="n">ae_title</span> <span class="o">=</span> <span class="n">ae_title</span><span class="o">.</span><span class="n">ljust</span><span class="p">(</span><span class="mi">16</span><span class="p">)</span>
+
+    <span class="c1"># Unicode category: &#39;Cc&#39; is control characters</span>
+    <span class="n">invalid</span> <span class="o">=</span> <span class="p">[</span>
+        <span class="n">char</span> <span class="k">for</span> <span class="n">char</span> <span class="ow">in</span> <span class="n">ae_title</span>
+        <span class="k">if</span> <span class="n">unicodedata</span><span class="o">.</span><span class="n">category</span><span class="p">(</span><span class="n">char</span><span class="p">)[</span><span class="mi">0</span><span class="p">]</span> <span class="o">==</span> <span class="s1">&#39;C&#39;</span> <span class="ow">or</span> <span class="n">char</span> <span class="o">==</span> <span class="s1">&#39;</span><span class="se">\\</span><span class="s1">&#39;</span>
+    <span class="p">]</span>
+    <span class="k">if</span> <span class="n">invalid</span><span class="p">:</span>
+        <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span>
+            <span class="s2">&quot;AE titles must not contain any control characters or backslashes&quot;</span>
+        <span class="p">)</span>
+
+    <span class="c1"># Return as bytes (python 3) or str (python 2)</span>
+    <span class="k">return</span> <span class="n">ae_title</span><span class="o">.</span><span class="n">encode</span><span class="p">(</span><span class="s1">&#39;ascii&#39;</span><span class="p">,</span> <span class="n">errors</span><span class="o">=</span><span class="s1">&#39;strict&#39;</span><span class="p">)</span></div>
+
+
+<div class="viewcode-block" id="pretty_bytes"><a class="viewcode-back" href="../../reference/generated/pynetdicom.utils.pretty_bytes.html#pynetdicom.utils.pretty_bytes">[docs]</a><span class="k">def</span> <span class="nf">pretty_bytes</span><span class="p">(</span><span class="n">bytestream</span><span class="p">,</span> <span class="n">prefix</span><span class="o">=</span><span class="s1">&#39;  &#39;</span><span class="p">,</span> <span class="n">delimiter</span><span class="o">=</span><span class="s1">&#39;  &#39;</span><span class="p">,</span> <span class="n">items_per_line</span><span class="o">=</span><span class="mi">16</span><span class="p">,</span>
+                 <span class="n">max_size</span><span class="o">=</span><span class="mi">512</span><span class="p">,</span> <span class="n">suffix</span><span class="o">=</span><span class="s1">&#39;&#39;</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;Turn the bytestring `bytestream` into a list of nicely formatted str.</span>
+
+<span class="sd">    Parameters</span>
+<span class="sd">    ----------</span>
+<span class="sd">    bytestream : bytes or io.BytesIO</span>
+<span class="sd">        The bytes to convert to a nicely formatted string list</span>
+<span class="sd">    prefix : str</span>
+<span class="sd">        Insert `prefix` at the start of every item in the output string list</span>
+<span class="sd">    delimiter : str</span>
+<span class="sd">        Delimit each of the bytes in `bytestream` using `delimiter`</span>
+<span class="sd">    items_per_line : int</span>
+<span class="sd">        The number of bytes in each item of the output string list.</span>
+<span class="sd">    max_size : int or None</span>
+<span class="sd">        The maximum number of bytes to add to the output string list. A value</span>
+<span class="sd">        of None indicates that all of `bytestream` should be output.</span>
+<span class="sd">    suffix : str</span>
+<span class="sd">        Append `suffix` to the end of every item in the output string list</span>
+
+<span class="sd">    Returns</span>
+<span class="sd">    -------</span>
+<span class="sd">    list of str</span>
+<span class="sd">        The output string list</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="n">lines</span> <span class="o">=</span> <span class="p">[]</span>
+    <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">bytestream</span><span class="p">,</span> <span class="n">BytesIO</span><span class="p">):</span>
+        <span class="n">bytestream</span> <span class="o">=</span> <span class="n">bytestream</span><span class="o">.</span><span class="n">getvalue</span><span class="p">()</span>
+
+    <span class="n">cutoff_output</span> <span class="o">=</span> <span class="kc">False</span>
+    <span class="n">byte_count</span> <span class="o">=</span> <span class="mi">0</span>
+    <span class="k">for</span> <span class="n">ii</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="nb">len</span><span class="p">(</span><span class="n">bytestream</span><span class="p">),</span> <span class="n">items_per_line</span><span class="p">):</span>
+        <span class="c1"># chunk is a bytes in python3 and a str in python2</span>
+        <span class="n">chunk</span> <span class="o">=</span> <span class="n">bytestream</span><span class="p">[</span><span class="n">ii</span><span class="p">:</span><span class="n">ii</span> <span class="o">+</span> <span class="n">items_per_line</span><span class="p">]</span>
+        <span class="n">byte_count</span> <span class="o">+=</span> <span class="nb">len</span><span class="p">(</span><span class="n">chunk</span><span class="p">)</span>
+
+        <span class="c1"># Python 2 compatibility</span>
+        <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">chunk</span><span class="p">,</span> <span class="nb">str</span><span class="p">):</span>
+            <span class="n">gen</span> <span class="o">=</span> <span class="p">(</span><span class="nb">format</span><span class="p">(</span><span class="nb">ord</span><span class="p">(</span><span class="n">x</span><span class="p">),</span> <span class="s1">&#39;02x&#39;</span><span class="p">)</span> <span class="k">for</span> <span class="n">x</span> <span class="ow">in</span> <span class="n">chunk</span><span class="p">)</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="n">gen</span> <span class="o">=</span> <span class="p">(</span><span class="nb">format</span><span class="p">(</span><span class="n">x</span><span class="p">,</span> <span class="s1">&#39;02x&#39;</span><span class="p">)</span> <span class="k">for</span> <span class="n">x</span> <span class="ow">in</span> <span class="n">chunk</span><span class="p">)</span>
+
+
+        <span class="k">if</span> <span class="n">max_size</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span> <span class="ow">and</span> <span class="n">byte_count</span> <span class="o">&lt;=</span> <span class="n">max_size</span><span class="p">:</span>
+            <span class="n">line</span> <span class="o">=</span> <span class="n">prefix</span> <span class="o">+</span> <span class="n">delimiter</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">gen</span><span class="p">)</span>
+            <span class="n">lines</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">line</span> <span class="o">+</span> <span class="n">suffix</span><span class="p">)</span>
+        <span class="k">elif</span> <span class="n">max_size</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span> <span class="ow">and</span> <span class="n">byte_count</span> <span class="o">&gt;</span> <span class="n">max_size</span><span class="p">:</span>
+            <span class="n">cutoff_output</span> <span class="o">=</span> <span class="kc">True</span>
+            <span class="k">break</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="n">line</span> <span class="o">=</span> <span class="n">prefix</span> <span class="o">+</span> <span class="n">delimiter</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">gen</span><span class="p">)</span>
+            <span class="n">lines</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">line</span> <span class="o">+</span> <span class="n">suffix</span><span class="p">)</span>
+
+    <span class="k">if</span> <span class="n">cutoff_output</span><span class="p">:</span>
+        <span class="n">lines</span><span class="o">.</span><span class="n">insert</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="n">prefix</span> <span class="o">+</span> <span class="s1">&#39;Only dumping </span><span class="si">{0!s}</span><span class="s1"> bytes.&#39;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">max_size</span><span class="p">))</span>
+
+    <span class="k">return</span> <span class="n">lines</span></div>
+</pre></div>
+
+           </div>
+           
+          </div>
+          <footer>
+  
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>
+        &copy; Copyright 2018-19, pynetdicom contributors
+
+    </p>
+  </div>
+  Built with <a href="http://sphinx-doc.org/">Sphinx</a> using a <a href="https://github.com/rtfd/sphinx_rtd_theme">theme</a> provided by <a href="https://readthedocs.org">Read the Docs</a>. 
+
+</footer>
+
+        </div>
+      </div>
+
+    </section>
+
+  </div>
+  
+
+
+  
+
+    
+    
+      <script type="text/javascript" id="documentation_options" data-url_root="../../" src="../../_static/documentation_options.js"></script>
+        <script type="text/javascript" src="../../_static/jquery.js"></script>
+        <script type="text/javascript" src="../../_static/underscore.js"></script>
+        <script type="text/javascript" src="../../_static/doctools.js"></script>
+        <script type="text/javascript" src="../../_static/language_data.js"></script>
+    
+
+  
+
+  <script type="text/javascript" src="../../_static/js/theme.js"></script>
+
+  <script type="text/javascript">
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script> 
+
+</body>
+</html>

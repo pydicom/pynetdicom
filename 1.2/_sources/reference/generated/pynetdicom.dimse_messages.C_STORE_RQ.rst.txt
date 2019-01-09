@@ -1,0 +1,32 @@
+pynetdicom.dimse\_messages.C\_STORE\_RQ
+=======================================
+
+.. currentmodule:: pynetdicom.dimse_messages
+
+.. autoclass:: C_STORE_RQ
+
+   
+   .. automethod:: __init__
+
+   
+   .. rubric:: Methods
+
+   .. autosummary::
+   
+      ~C_STORE_RQ.__init__
+      ~C_STORE_RQ.decode_msg
+      ~C_STORE_RQ.encode_msg
+      ~C_STORE_RQ.message_to_primitive
+      ~C_STORE_RQ.primitive_to_message
+   
+   
+
+   
+   
+   .. rubric:: Attributes
+
+   .. autosummary::
+   
+      ~C_STORE_RQ.ID
+   
+   

@@ -1,0 +1,739 @@
+
+
+<!DOCTYPE html>
+<!--[if IE 8]><html class="no-js lt-ie9" lang="en" > <![endif]-->
+<!--[if gt IE 8]><!--> <html class="no-js" lang="en" > <!--<![endif]-->
+<head>
+  <meta charset="utf-8">
+  
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  
+  <title>Defined Procedure Protocol Query/Retrieve Service Class &mdash; pynetdicom 1.1.0 documentation</title>
+  
+
+  
+  
+    <link rel="shortcut icon" href="_static/favicon.ico"/>
+  
+  
+  
+
+  
+
+  
+  
+    
+
+  
+
+  <link rel="stylesheet" href="_static/css/pynetdicom.css" type="text/css" />
+  <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
+  <link rel="stylesheet" href="_static/css/pynetdicom.css" type="text/css" />
+    <link rel="index" title="Index" href="genindex.html" />
+    <link rel="search" title="Search" href="search.html" />
+    <link rel="next" title="Hanging Protocol Query/Retrieve Service Class" href="hanging_protocol_service_class.html" />
+    <link rel="prev" title="Color Palette Query/Retrieve Service Class" href="color_palette_service_class.html" /> 
+
+  
+  <script src="_static/js/modernizr.min.js"></script>
+
+</head>
+
+<body class="wy-body-for-nav">
+
+   
+  <div class="wy-grid-for-nav">
+
+    
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search">
+          
+
+          
+            <a href="index.html" class="icon icon-home"> pynetdicom
+          
+
+          
+            
+            <img src="_static/pydicom_flat_black.svg" class="logo" alt="Logo"/>
+          
+          </a>
+
+          
+            
+            
+              <div class="version">
+                1.1.0
+              </div>
+            
+          
+
+          
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+
+          
+        </div>
+
+        <div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="main navigation">
+          
+            
+            
+              
+            
+            
+              <ul class="current">
+<li class="toctree-l1"><a class="reference internal" href="verification_service_class.html">Verification Service Class</a></li>
+<li class="toctree-l1"><a class="reference internal" href="storage_service_class.html">Storage Service Class</a></li>
+<li class="toctree-l1"><a class="reference internal" href="query_retrieve_service_class.html">Query/Retrieve Service Class</a></li>
+<li class="toctree-l1"><a class="reference internal" href="basic_worklist_service_class.html">Basic Worklist Management Service Class</a></li>
+<li class="toctree-l1"><a class="reference internal" href="relevant_patient_service_class.html">Relevant Patient Information Query Service Class</a></li>
+<li class="toctree-l1"><a class="reference internal" href="substance_admin_service_class.html">Substance Administration Query Service Class</a></li>
+<li class="toctree-l1"><a class="reference internal" href="non_patient_service_class.html">Non-Patient Object Storage Service Class</a></li>
+<li class="toctree-l1"><a class="reference internal" href="color_palette_service_class.html">Color Palette Query/Retrieve Service Class</a></li>
+<li class="toctree-l1 current"><a class="current reference internal" href="#">Defined Procedure Protocol Query/Retrieve Service Class</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="#supported-sop-classes">Supported SOP Classes</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="#defined-procedure-protocol-query-retrieve-find-sop-classes">Defined Procedure Protocol Query/Retrieve (Find) SOP Classes</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#defined-procedure-protocol-query-retrieve-move-sop-classes">Defined Procedure Protocol Query/Retrieve (Move) SOP Classes</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#defined-procedure-protocol-query-retrieve-get-sop-classes">Defined Procedure Protocol Query/Retrieve (Get) SOP Classes</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="#statuses">Statuses</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="#c-find-statuses">C-FIND Statuses</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#defined-procedure-protocol-query-retrieve-find-service-statuses">Defined Procedure Protocol Query/Retrieve (Find) Service Statuses</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#pynetdicom-defined-procedure-protocol-query-retrieve-find-statuses">pynetdicom Defined Procedure Protocol Query/Retrieve (Find) Statuses</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#c-get-statuses">C-GET Statuses</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#defined-procedure-protocol-query-retrieve-get-service-statuses">Defined Procedure Protocol Query/Retrieve (Get) Service Statuses</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#pynetdicom-defined-procedure-protocol-query-retrieve-get-statuses">pynetdicom Defined Procedure Protocol Query/Retrieve (Get) Statuses</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#c-move-statuses">C-MOVE Statuses</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#defined-procedure-protocol-query-retrieve-move-service-statuses">Defined Procedure Protocol Query/Retrieve (Move) Service Statuses</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#pynetdicom-defined-procedure-protocol-query-retrieve-move-statuses">pynetdicom Defined Procedure Protocol Query/Retrieve (Move) Statuses</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="#references">References</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="hanging_protocol_service_class.html">Hanging Protocol Query/Retrieve Service Class</a></li>
+<li class="toctree-l1"><a class="reference internal" href="implant_template_service_class.html">Implant Template Query/Retrieve Service Class</a></li>
+<li class="toctree-l1"><a class="reference internal" href="display_system_service_class.html">Display System Management Service Class</a></li>
+</ul>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="user/index.html">User Guide</a></li>
+</ul>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="release_notes.html">1.1.0</a></li>
+<li class="toctree-l1"><a class="reference internal" href="release_notes.html#id2">1.0.0</a></li>
+</ul>
+
+            
+          
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap">
+
+      
+      <nav class="wy-nav-top" aria-label="top navigation">
+        
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="index.html">pynetdicom</a>
+        
+      </nav>
+
+
+      <div class="wy-nav-content">
+        
+        <div class="rst-content">
+        
+          
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+<div role="navigation" aria-label="breadcrumbs navigation">
+
+  <ul class="wy-breadcrumbs">
+    
+      <li><a href="index.html">Docs</a> &raquo;</li>
+        
+      <li>Defined Procedure Protocol Query/Retrieve Service Class</li>
+    
+    
+      <li class="wy-breadcrumbs-aside">
+        
+            
+            <a href="_sources/defined_procedure_service_class.rst.txt" rel="nofollow"> View page source</a>
+          
+        
+      </li>
+    
+  </ul>
+
+  
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+            
+  <div class="section" id="defined-procedure-protocol-query-retrieve-service-class">
+<span id="defproc-sops"></span><h1>Defined Procedure Protocol Query/Retrieve Service Class<a class="headerlink" href="#defined-procedure-protocol-query-retrieve-service-class" title="Permalink to this headline">¶</a></h1>
+<p>The <a class="reference external" href="http://dicom.nema.org/medical/dicom/current/output/html/part04.html#chapter_HH">Defined Procedure Protocol Query/Retrieve Service Class</a>
+defines a service that facilitates access to Defined Procedure Protocol objects.</p>
+<div class="section" id="supported-sop-classes">
+<h2>Supported SOP Classes<a class="headerlink" href="#supported-sop-classes" title="Permalink to this headline">¶</a></h2>
+<div class="section" id="defined-procedure-protocol-query-retrieve-find-sop-classes">
+<span id="defproc-find-sops"></span><h3>Defined Procedure Protocol Query/Retrieve (Find) SOP Classes<a class="headerlink" href="#defined-procedure-protocol-query-retrieve-find-sop-classes" title="Permalink to this headline">¶</a></h3>
+<table border="1" class="docutils">
+<colgroup>
+<col width="38%" />
+<col width="62%" />
+</colgroup>
+<thead valign="bottom">
+<tr class="row-odd"><th class="head">UID</th>
+<th class="head">SOP Class</th>
+</tr>
+</thead>
+<tbody valign="top">
+<tr class="row-even"><td>1.2.840.10008.5.1.4.20.1</td>
+<td>DefinedProcedureProtocolInformationModelFind</td>
+</tr>
+</tbody>
+</table>
+</div>
+<div class="section" id="defined-procedure-protocol-query-retrieve-move-sop-classes">
+<span id="defproc-move-sops"></span><h3>Defined Procedure Protocol Query/Retrieve (Move) SOP Classes<a class="headerlink" href="#defined-procedure-protocol-query-retrieve-move-sop-classes" title="Permalink to this headline">¶</a></h3>
+<table border="1" class="docutils">
+<colgroup>
+<col width="39%" />
+<col width="61%" />
+</colgroup>
+<thead valign="bottom">
+<tr class="row-odd"><th class="head">UID</th>
+<th class="head">SOP Class</th>
+</tr>
+</thead>
+<tbody valign="top">
+<tr class="row-even"><td>1.2.840.10008.5.1.4.20.2</td>
+<td>DefinedProcedureProtocolInformationModelMove</td>
+</tr>
+</tbody>
+</table>
+</div>
+<div class="section" id="defined-procedure-protocol-query-retrieve-get-sop-classes">
+<span id="defproc-get-sops"></span><h3>Defined Procedure Protocol Query/Retrieve (Get) SOP Classes<a class="headerlink" href="#defined-procedure-protocol-query-retrieve-get-sop-classes" title="Permalink to this headline">¶</a></h3>
+<table border="1" class="docutils">
+<colgroup>
+<col width="39%" />
+<col width="61%" />
+</colgroup>
+<thead valign="bottom">
+<tr class="row-odd"><th class="head">UID</th>
+<th class="head">SOP Class</th>
+</tr>
+</thead>
+<tbody valign="top">
+<tr class="row-even"><td>1.2.840.10008.5.1.4.20.3</td>
+<td>DefinedProcedureProtocolInformationModelGet</td>
+</tr>
+</tbody>
+</table>
+</div>
+</div>
+<div class="section" id="statuses">
+<span id="defproc-statuses"></span><h2>Statuses<a class="headerlink" href="#statuses" title="Permalink to this headline">¶</a></h2>
+<div class="section" id="c-find-statuses">
+<span id="defproc-find-statuses"></span><h3>C-FIND Statuses<a class="headerlink" href="#c-find-statuses" title="Permalink to this headline">¶</a></h3>
+<table border="1" class="docutils">
+<colgroup>
+<col width="21%" />
+<col width="18%" />
+<col width="61%" />
+</colgroup>
+<thead valign="bottom">
+<tr class="row-odd"><th class="head">Code (hex)</th>
+<th class="head">Category</th>
+<th class="head">Description</th>
+</tr>
+</thead>
+<tbody valign="top">
+<tr class="row-even"><td>0x0000</td>
+<td>Success</td>
+<td>Success</td>
+</tr>
+<tr class="row-odd"><td>0x0122</td>
+<td>Failure</td>
+<td>SOP Class not supported</td>
+</tr>
+<tr class="row-even"><td>0xFE00</td>
+<td>Cancel</td>
+<td>Processing has been terminated</td>
+</tr>
+</tbody>
+</table>
+</div>
+<div class="section" id="defined-procedure-protocol-query-retrieve-find-service-statuses">
+<h3>Defined Procedure Protocol Query/Retrieve (Find) Service Statuses<a class="headerlink" href="#defined-procedure-protocol-query-retrieve-find-service-statuses" title="Permalink to this headline">¶</a></h3>
+<table border="1" class="docutils">
+<colgroup>
+<col width="24%" />
+<col width="14%" />
+<col width="62%" />
+</colgroup>
+<thead valign="bottom">
+<tr class="row-odd"><th class="head">Code (hex)</th>
+<th class="head">Category</th>
+<th class="head">Description</th>
+</tr>
+</thead>
+<tbody valign="top">
+<tr class="row-even"><td>0xA700</td>
+<td>Failure</td>
+<td>Out of resources</td>
+</tr>
+<tr class="row-odd"><td>0xA900</td>
+<td>Failure</td>
+<td>Dataset does not match SOP Class</td>
+</tr>
+<tr class="row-even"><td>0xC000 to 0xCFFF</td>
+<td>Failure</td>
+<td>Unable to process</td>
+</tr>
+<tr class="row-odd"><td>0xFF00</td>
+<td>Pending</td>
+<td>Matches are continuing</td>
+</tr>
+<tr class="row-even"><td>0xFF01</td>
+<td>Pending</td>
+<td>Matches are continuing; one or more Optional
+keys was not supported</td>
+</tr>
+</tbody>
+</table>
+</div>
+<div class="section" id="pynetdicom-defined-procedure-protocol-query-retrieve-find-statuses">
+<h3>pynetdicom Defined Procedure Protocol Query/Retrieve (Find) Statuses<a class="headerlink" href="#pynetdicom-defined-procedure-protocol-query-retrieve-find-statuses" title="Permalink to this headline">¶</a></h3>
+<p>When pynetdicom is acting as a Defined Procedure Protocol Query/Retrieve (Find)
+SCP it uses the following status codes values to indicate the corresponding
+issue has occurred to help aid in debugging.</p>
+<table border="1" class="docutils">
+<colgroup>
+<col width="24%" />
+<col width="13%" />
+<col width="63%" />
+</colgroup>
+<thead valign="bottom">
+<tr class="row-odd"><th class="head">Code (hex)</th>
+<th class="head">Category</th>
+<th class="head">Description</th>
+</tr>
+</thead>
+<tbody valign="top">
+<tr class="row-even"><td>0xC001</td>
+<td>Failure</td>
+<td>User’s callback implementation returned a
+status Dataset with no (0000,0900) <em>Status</em>
+element</td>
+</tr>
+<tr class="row-odd"><td>0xC002</td>
+<td>Failure</td>
+<td>User’s callback implementation returned an
+invalid status object (not a pydicom Dataset
+or an int)</td>
+</tr>
+<tr class="row-even"><td>0xC310</td>
+<td>Failure</td>
+<td>Failed to decode the dataset received from
+the peer</td>
+</tr>
+<tr class="row-odd"><td>0xC311</td>
+<td>Failure</td>
+<td>Unhandled exception raised by the user’s
+implementation of the <code class="docutils literal notranslate"><span class="pre">on_c_find</span></code> callback</td>
+</tr>
+<tr class="row-even"><td>0xC312</td>
+<td>Failure</td>
+<td>Failed to encode the dataset received from
+the user’s implementation of the <code class="docutils literal notranslate"><span class="pre">on_c_find</span></code>
+callback</td>
+</tr>
+</tbody>
+</table>
+</div>
+<div class="section" id="c-get-statuses">
+<span id="defproc-get-statuses"></span><h3>C-GET Statuses<a class="headerlink" href="#c-get-statuses" title="Permalink to this headline">¶</a></h3>
+<table border="1" class="docutils">
+<colgroup>
+<col width="21%" />
+<col width="18%" />
+<col width="61%" />
+</colgroup>
+<thead valign="bottom">
+<tr class="row-odd"><th class="head">Code (hex)</th>
+<th class="head">Category</th>
+<th class="head">Description</th>
+</tr>
+</thead>
+<tbody valign="top">
+<tr class="row-even"><td>0x0000</td>
+<td>Success</td>
+<td>Success</td>
+</tr>
+<tr class="row-odd"><td>0x0122</td>
+<td>Failure</td>
+<td>SOP Class not supported</td>
+</tr>
+<tr class="row-even"><td>0x0124</td>
+<td>Failure</td>
+<td>Not authorised</td>
+</tr>
+<tr class="row-odd"><td>0x0210</td>
+<td>Failure</td>
+<td>Duplicate invocation</td>
+</tr>
+<tr class="row-even"><td>0x0212</td>
+<td>Failure</td>
+<td>Mistyped argument</td>
+</tr>
+<tr class="row-odd"><td>0xFE00</td>
+<td>Cancel</td>
+<td>Sub-operations terminated</td>
+</tr>
+</tbody>
+</table>
+</div>
+<div class="section" id="defined-procedure-protocol-query-retrieve-get-service-statuses">
+<h3>Defined Procedure Protocol Query/Retrieve (Get) Service Statuses<a class="headerlink" href="#defined-procedure-protocol-query-retrieve-get-service-statuses" title="Permalink to this headline">¶</a></h3>
+<table border="1" class="docutils">
+<colgroup>
+<col width="24%" />
+<col width="14%" />
+<col width="62%" />
+</colgroup>
+<thead valign="bottom">
+<tr class="row-odd"><th class="head">Code (hex)</th>
+<th class="head">Category</th>
+<th class="head">Description</th>
+</tr>
+</thead>
+<tbody valign="top">
+<tr class="row-even"><td>0xA701</td>
+<td>Failure</td>
+<td>Out of resources; unable to calculate number
+of matches</td>
+</tr>
+<tr class="row-odd"><td>0xA702</td>
+<td>Failure</td>
+<td>Out of resources; unable to perform
+sub-operations</td>
+</tr>
+<tr class="row-even"><td>0xA900</td>
+<td>Failure</td>
+<td>Dataset does not match SOP Class</td>
+</tr>
+<tr class="row-odd"><td>0xB000</td>
+<td>Warning</td>
+<td>Sub-operations complete, one or more
+or warnings</td>
+</tr>
+<tr class="row-even"><td>0xC000 to 0xCFFF</td>
+<td>Failure</td>
+<td>Unable to process</td>
+</tr>
+<tr class="row-odd"><td>0xFF00</td>
+<td>Pending</td>
+<td>Sub-operations are continuing</td>
+</tr>
+</tbody>
+</table>
+</div>
+<div class="section" id="pynetdicom-defined-procedure-protocol-query-retrieve-get-statuses">
+<h3>pynetdicom Defined Procedure Protocol Query/Retrieve (Get) Statuses<a class="headerlink" href="#pynetdicom-defined-procedure-protocol-query-retrieve-get-statuses" title="Permalink to this headline">¶</a></h3>
+<table border="1" class="docutils">
+<colgroup>
+<col width="24%" />
+<col width="13%" />
+<col width="63%" />
+</colgroup>
+<thead valign="bottom">
+<tr class="row-odd"><th class="head">Code (hex)</th>
+<th class="head">Category</th>
+<th class="head">Description</th>
+</tr>
+</thead>
+<tbody valign="top">
+<tr class="row-even"><td>0xC001</td>
+<td>Failure</td>
+<td>User’s callback implementation returned a
+status Dataset with no (0000,0900) <em>Status</em>
+element</td>
+</tr>
+<tr class="row-odd"><td>0xC002</td>
+<td>Failure</td>
+<td>User’s callback implementation returned an
+invalid status object (not a pydicom Dataset
+or an int)</td>
+</tr>
+<tr class="row-even"><td>0xC410</td>
+<td>Failure</td>
+<td>Failed to decode the dataset received from
+the peer</td>
+</tr>
+<tr class="row-odd"><td>0xC411</td>
+<td>Failure</td>
+<td>Unhandled exception raised by the user’s
+implementation of the <code class="docutils literal notranslate"><span class="pre">on_c_get</span></code> callback</td>
+</tr>
+<tr class="row-even"><td>0xC413</td>
+<td>Failure</td>
+<td>The user’s implementation oc the <code class="docutils literal notranslate"><span class="pre">on_c_get</span></code>
+callback yielded an invalid number of
+sub-operations</td>
+</tr>
+</tbody>
+</table>
+</div>
+<div class="section" id="c-move-statuses">
+<span id="defproc-move-statuses"></span><h3>C-MOVE Statuses<a class="headerlink" href="#c-move-statuses" title="Permalink to this headline">¶</a></h3>
+<table border="1" class="docutils">
+<colgroup>
+<col width="21%" />
+<col width="18%" />
+<col width="61%" />
+</colgroup>
+<thead valign="bottom">
+<tr class="row-odd"><th class="head">Code (hex)</th>
+<th class="head">Category</th>
+<th class="head">Description</th>
+</tr>
+</thead>
+<tbody valign="top">
+<tr class="row-even"><td>0x0000</td>
+<td>Success</td>
+<td>Success</td>
+</tr>
+<tr class="row-odd"><td>0x0122</td>
+<td>Failure</td>
+<td>SOP Class not supported</td>
+</tr>
+<tr class="row-even"><td>0x0124</td>
+<td>Failure</td>
+<td>Not authorised</td>
+</tr>
+<tr class="row-odd"><td>0x0210</td>
+<td>Failure</td>
+<td>Duplicate invocation</td>
+</tr>
+<tr class="row-even"><td>0x0211</td>
+<td>Failure</td>
+<td>Unrecognised operation</td>
+</tr>
+<tr class="row-odd"><td>0x0212</td>
+<td>Failure</td>
+<td>Mistyped argument</td>
+</tr>
+<tr class="row-even"><td>0xFE00</td>
+<td>Cancel</td>
+<td>Sub-operations terminated</td>
+</tr>
+</tbody>
+</table>
+</div>
+<div class="section" id="defined-procedure-protocol-query-retrieve-move-service-statuses">
+<h3>Defined Procedure Protocol Query/Retrieve (Move) Service Statuses<a class="headerlink" href="#defined-procedure-protocol-query-retrieve-move-service-statuses" title="Permalink to this headline">¶</a></h3>
+<table border="1" class="docutils">
+<colgroup>
+<col width="24%" />
+<col width="14%" />
+<col width="62%" />
+</colgroup>
+<thead valign="bottom">
+<tr class="row-odd"><th class="head">Code (hex)</th>
+<th class="head">Category</th>
+<th class="head">Description</th>
+</tr>
+</thead>
+<tbody valign="top">
+<tr class="row-even"><td>0xA701</td>
+<td>Failure</td>
+<td>Out of resources; unable to calculate number
+of matches</td>
+</tr>
+<tr class="row-odd"><td>0xA702</td>
+<td>Failure</td>
+<td>Out of resources; unable to perform
+sub-operations</td>
+</tr>
+<tr class="row-even"><td>0xA801</td>
+<td>Failure</td>
+<td>Move destination unknown</td>
+</tr>
+<tr class="row-odd"><td>0xA900</td>
+<td>Failure</td>
+<td>Dataset does not match SOP Class</td>
+</tr>
+<tr class="row-even"><td>0xB000</td>
+<td>Warning</td>
+<td>Sub-operations complete, one or more
+or warnings</td>
+</tr>
+<tr class="row-odd"><td>0xC000 to 0xCFFF</td>
+<td>Failure</td>
+<td>Unable to process</td>
+</tr>
+<tr class="row-even"><td>0xFF00</td>
+<td>Pending</td>
+<td>Sub-operations are continuing</td>
+</tr>
+</tbody>
+</table>
+</div>
+<div class="section" id="pynetdicom-defined-procedure-protocol-query-retrieve-move-statuses">
+<h3>pynetdicom Defined Procedure Protocol Query/Retrieve (Move) Statuses<a class="headerlink" href="#pynetdicom-defined-procedure-protocol-query-retrieve-move-statuses" title="Permalink to this headline">¶</a></h3>
+<table border="1" class="docutils">
+<colgroup>
+<col width="24%" />
+<col width="13%" />
+<col width="63%" />
+</colgroup>
+<thead valign="bottom">
+<tr class="row-odd"><th class="head">Code (hex)</th>
+<th class="head">Category</th>
+<th class="head">Description</th>
+</tr>
+</thead>
+<tbody valign="top">
+<tr class="row-even"><td>0xC001</td>
+<td>Failure</td>
+<td>User’s callback implementation returned a
+status Dataset with no (0000,0900) <em>Status</em>
+element</td>
+</tr>
+<tr class="row-odd"><td>0xC002</td>
+<td>Failure</td>
+<td>User’s callback implementation returned an
+invalid status object (not a pydicom Dataset
+or an int)</td>
+</tr>
+<tr class="row-even"><td>0xC510</td>
+<td>Failure</td>
+<td>Failed to decode the dataset received from
+the peer</td>
+</tr>
+<tr class="row-odd"><td>0xC511</td>
+<td>Failure</td>
+<td>Unhandled exception raised by the user’s
+implementation of the <code class="docutils literal notranslate"><span class="pre">on_c_get</span></code> callback</td>
+</tr>
+<tr class="row-even"><td>0xC513</td>
+<td>Failure</td>
+<td>The user’s implementation oc the <code class="docutils literal notranslate"><span class="pre">on_c_move</span></code>
+callback yielded an invalid number of
+sub-operations</td>
+</tr>
+<tr class="row-odd"><td>0xC514</td>
+<td>Failure</td>
+<td>The user’s implementation oc the <code class="docutils literal notranslate"><span class="pre">on_c_move</span></code>
+callback failed to yield the (address, port)
+and/or the number of sub-operations</td>
+</tr>
+<tr class="row-even"><td>0xC515</td>
+<td>Failure</td>
+<td>The user’s implementation oc the <code class="docutils literal notranslate"><span class="pre">on_c_move</span></code>
+callback failed to yield a valid (address,
+port) pair</td>
+</tr>
+</tbody>
+</table>
+</div>
+</div>
+<div class="section" id="references">
+<h2>References<a class="headerlink" href="#references" title="Permalink to this headline">¶</a></h2>
+<ul class="simple">
+<li>DICOM Standard, Part 4, <a class="reference external" href="http://dicom.nema.org/medical/dicom/current/output/html/part04.html#chapter_C">Annex C</a></li>
+<li>DICOM Standard, Part 4, <a class="reference external" href="http://dicom.nema.org/medical/dicom/current/output/html/part04.html#chapter_HH">Annex HH</a></li>
+<li>DICOM Standard, Part 7, Sections
+<a class="reference external" href="http://dicom.nema.org/medical/dicom/current/output/chtml/part07/chapter_9.html#sect_9.1.2.1.5">9.1.2.1.5</a>,
+<a class="reference external" href="http://dicom.nema.org/medical/dicom/current/output/chtml/part07/chapter_9.html#sect_9.1.3.1.6">9.1.3.1.6</a> and
+<a class="reference external" href="http://dicom.nema.org/medical/dicom/current/output/chtml/part07/chapter_9.html#sect_9.1.4.1.7">9.1.4.1.7</a></li>
+</ul>
+</div>
+</div>
+
+
+           </div>
+           
+          </div>
+          <footer>
+  
+    <div class="rst-footer-buttons" role="navigation" aria-label="footer navigation">
+      
+        <a href="hanging_protocol_service_class.html" class="btn btn-neutral float-right" title="Hanging Protocol Query/Retrieve Service Class" accesskey="n" rel="next">Next <span class="fa fa-arrow-circle-right"></span></a>
+      
+      
+        <a href="color_palette_service_class.html" class="btn btn-neutral" title="Color Palette Query/Retrieve Service Class" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left"></span> Previous</a>
+      
+    </div>
+  
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>
+        &copy; Copyright 2018-19, pynetdicom contributors
+
+    </p>
+  </div>
+  Built with <a href="http://sphinx-doc.org/">Sphinx</a> using a <a href="https://github.com/rtfd/sphinx_rtd_theme">theme</a> provided by <a href="https://readthedocs.org">Read the Docs</a>. 
+
+</footer>
+
+        </div>
+      </div>
+
+    </section>
+
+  </div>
+  
+
+
+  
+
+    
+    
+      <script type="text/javascript" id="documentation_options" data-url_root="./" src="_static/documentation_options.js"></script>
+        <script type="text/javascript" src="_static/jquery.js"></script>
+        <script type="text/javascript" src="_static/underscore.js"></script>
+        <script type="text/javascript" src="_static/doctools.js"></script>
+        <script type="text/javascript" src="_static/language_data.js"></script>
+    
+
+  
+
+  <script type="text/javascript" src="_static/js/theme.js"></script>
+
+  <script type="text/javascript">
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script> 
+
+</body>
+</html>

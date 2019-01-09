@@ -1,0 +1,37 @@
+pynetdicom.presentation.PresentationContext
+===========================================
+
+.. currentmodule:: pynetdicom.presentation
+
+.. autoclass:: PresentationContext
+
+   
+   .. automethod:: __init__
+
+   
+   .. rubric:: Methods
+
+   .. autosummary::
+   
+      ~PresentationContext.__init__
+      ~PresentationContext.add_transfer_syntax
+   
+   
+
+   
+   
+   .. rubric:: Attributes
+
+   .. autosummary::
+   
+      ~PresentationContext.abstract_syntax
+      ~PresentationContext.as_scp
+      ~PresentationContext.as_scu
+      ~PresentationContext.as_tuple
+      ~PresentationContext.context_id
+      ~PresentationContext.scp_role
+      ~PresentationContext.scu_role
+      ~PresentationContext.status
+      ~PresentationContext.transfer_syntax
+   
+   
