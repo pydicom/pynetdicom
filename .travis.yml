@@ -29,8 +29,7 @@ matrix:
           env: TEST_SUITE=pydicom_release
 
 # Install dependencies and pynetdicom
-install:
-    source build_tools/travis/install.sh
+install: source build_tools/travis/install.sh
 
 # Command to run tests
 script:
