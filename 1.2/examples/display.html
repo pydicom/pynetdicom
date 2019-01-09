@@ -1,0 +1,349 @@
+
+
+<!DOCTYPE html>
+<!--[if IE 8]><html class="no-js lt-ie9" lang="en" > <![endif]-->
+<!--[if gt IE 8]><!--> <html class="no-js" lang="en" > <!--<![endif]-->
+<head>
+  <meta charset="utf-8">
+  
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  
+  <title>Display System Management Service Examples &mdash; pynetdicom 1.1.0 documentation</title>
+  
+
+  
+  
+    <link rel="shortcut icon" href="../_static/favicon.ico"/>
+  
+  
+  
+
+  
+
+  
+  
+    
+
+  
+
+  <link rel="stylesheet" href="../_static/css/pynetdicom.css" type="text/css" />
+  <link rel="stylesheet" href="../_static/pygments.css" type="text/css" />
+  <link rel="stylesheet" href="../_static/css/pynetdicom.css" type="text/css" />
+    <link rel="index" title="Index" href="../genindex.html" />
+    <link rel="search" title="Search" href="../search.html" /> 
+
+  
+  <script src="../_static/js/modernizr.min.js"></script>
+
+</head>
+
+<body class="wy-body-for-nav">
+
+   
+  <div class="wy-grid-for-nav">
+
+    
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search">
+          
+
+          
+            <a href="../index.html" class="icon icon-home"> pynetdicom
+          
+
+          
+            
+            <img src="../_static/pydicom_flat_black.svg" class="logo" alt="Logo"/>
+          
+          </a>
+
+          
+            
+            
+              <div class="version">
+                1.1.0
+              </div>
+            
+          
+
+          
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="../search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+
+          
+        </div>
+
+        <div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="main navigation">
+          
+            
+            
+              
+            
+            
+              <ul>
+<li class="toctree-l1"><a class="reference internal" href="../verification_service_class.html">Verification Service Class</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../storage_service_class.html">Storage Service Class</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../query_retrieve_service_class.html">Query/Retrieve Service Class</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../basic_worklist_service_class.html">Basic Worklist Management Service Class</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../relevant_patient_service_class.html">Relevant Patient Information Query Service Class</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../substance_admin_service_class.html">Substance Administration Query Service Class</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../non_patient_service_class.html">Non-Patient Object Storage Service Class</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../color_palette_service_class.html">Color Palette Query/Retrieve Service Class</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../defined_procedure_service_class.html">Defined Procedure Protocol Query/Retrieve Service Class</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../hanging_protocol_service_class.html">Hanging Protocol Query/Retrieve Service Class</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../implant_template_service_class.html">Implant Template Query/Retrieve Service Class</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../display_system_service_class.html">Display System Management Service Class</a></li>
+</ul>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../user/index.html">User Guide</a></li>
+</ul>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../release_notes.html">1.1.0</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../release_notes.html#id2">1.0.0</a></li>
+</ul>
+
+            
+          
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap">
+
+      
+      <nav class="wy-nav-top" aria-label="top navigation">
+        
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="../index.html">pynetdicom</a>
+        
+      </nav>
+
+
+      <div class="wy-nav-content">
+        
+        <div class="rst-content">
+        
+          
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+<div role="navigation" aria-label="breadcrumbs navigation">
+
+  <ul class="wy-breadcrumbs">
+    
+      <li><a href="../index.html">Docs</a> &raquo;</li>
+        
+      <li>Display System Management Service Examples</li>
+    
+    
+      <li class="wy-breadcrumbs-aside">
+        
+            
+            <a href="../_sources/examples/display.rst.txt" rel="nofollow"> View page source</a>
+          
+        
+      </li>
+    
+  </ul>
+
+  
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+            
+  <div class="section" id="display-system-management-service-examples">
+<h1>Display System Management Service Examples<a class="headerlink" href="#display-system-management-service-examples" title="Permalink to this headline">¶</a></h1>
+<p>The DICOM <a class="reference external" href="http://dicom.nema.org/medical/dicom/current/output/html/part04.html#chapter_EE">Display System Management Service</a>
+allows an Application Entity to retrieve Display Subsystem parameters from a
+peer by using the N-GET service. It only has a single
+<a class="reference internal" href="../display_system_service_class.html#display-sops"><span class="std std-ref">supported SOP Class</span></a>.</p>
+<div class="section" id="display-system-management-scu">
+<h2>Display System Management SCU<a class="headerlink" href="#display-system-management-scu" title="Permalink to this headline">¶</a></h2>
+<p>Associate with a peer DICOM Application Entity and request the use of the
+Display System Management Service.</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span> <span class="nn">pynetdicom</span> <span class="kn">import</span> <span class="n">AE</span>
+<span class="kn">from</span> <span class="nn">pynetdicom.sop_class</span> <span class="kn">import</span> <span class="n">DisplaySystemSOPClass</span>
+<span class="kn">from</span> <span class="nn">pynetdicom.status</span> <span class="kn">import</span> <span class="n">code_to_category</span>
+
+<span class="c1"># Initialise the Application Entity</span>
+<span class="n">ae</span> <span class="o">=</span> <span class="n">AE</span><span class="p">()</span>
+
+<span class="c1"># Add a requested presentation context</span>
+<span class="n">ae</span><span class="o">.</span><span class="n">add_requested_context</span><span class="p">(</span><span class="n">DisplaySystemSOPClass</span><span class="p">)</span>
+
+<span class="c1"># Associate with peer AE at IP 127.0.0.1 and port 11112</span>
+<span class="n">assoc</span> <span class="o">=</span> <span class="n">ae</span><span class="o">.</span><span class="n">associate</span><span class="p">(</span><span class="s1">&#39;127.0.0.1&#39;</span><span class="p">,</span> <span class="mi">11112</span><span class="p">)</span>
+
+<span class="k">if</span> <span class="n">assoc</span><span class="o">.</span><span class="n">is_established</span><span class="p">:</span>
+    <span class="c1"># Use the N-GET service to send the request, returns the</span>
+    <span class="c1">#  response status a pydicom Dataset and the AttributeList dataset</span>
+    <span class="n">status</span><span class="p">,</span> <span class="n">attr_list</span> <span class="o">=</span> <span class="n">assoc</span><span class="o">.</span><span class="n">send_n_get</span><span class="p">(</span>
+        <span class="p">[(</span><span class="mh">0x0008</span><span class="p">,</span><span class="mh">0x0070</span><span class="p">)],</span>
+        <span class="n">DisplaySystemSOPClass</span><span class="p">,</span>
+        <span class="s1">&#39;1.2.840.10008.5.1.1.40.1&#39;</span>
+    <span class="p">)</span>
+
+    <span class="c1"># Check the status of the display system request</span>
+    <span class="k">if</span> <span class="s1">&#39;Status&#39;</span> <span class="ow">in</span> <span class="n">status</span><span class="p">:</span>
+        <span class="k">print</span><span class="p">(</span><span class="s1">&#39;N-GET request status: 0x{0:04x}&#39;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">status</span><span class="o">.</span><span class="n">Status</span><span class="p">))</span>
+
+        <span class="c1"># If the display system request succeeded the status category may</span>
+        <span class="c1"># be either success or warning</span>
+        <span class="n">category</span> <span class="o">=</span> <span class="n">code_to_category</span><span class="p">(</span><span class="n">status</span><span class="o">.</span><span class="n">Status</span><span class="p">)</span>
+        <span class="k">if</span> <span class="n">category</span> <span class="ow">in</span> <span class="p">[</span><span class="s1">&#39;Warning&#39;</span><span class="p">,</span> <span class="s1">&#39;Success&#39;</span><span class="p">]:</span>
+            <span class="c1"># `attr_list` is a pydicom Dataset containing attribute values</span>
+            <span class="k">print</span><span class="p">(</span><span class="n">attr_list</span><span class="p">)</span>
+    <span class="k">else</span><span class="p">:</span>
+        <span class="k">print</span><span class="p">(</span><span class="s1">&#39;Connection timed out or invalid response from peer&#39;</span><span class="p">)</span>
+
+    <span class="c1"># Release the association</span>
+    <span class="n">assoc</span><span class="o">.</span><span class="n">release</span><span class="p">()</span>
+<span class="k">else</span><span class="p">:</span>
+    <span class="k">print</span><span class="p">(</span><span class="s1">&#39;Association rejected or aborted&#39;</span><span class="p">)</span>
+</pre></div>
+</div>
+<p>You can also use the inbuilt <code class="docutils literal notranslate"><span class="pre">DisplaySystemPresentationContexts</span></code> when setting
+the requested contexts.</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span> <span class="nn">pynetdicom</span> <span class="kn">import</span> <span class="n">AE</span><span class="p">,</span> <span class="n">DisplaySystemPresentationContexts</span>
+
+<span class="n">ae</span> <span class="o">=</span> <span class="n">AE</span><span class="p">()</span>
+<span class="n">ae</span><span class="o">.</span><span class="n">requested_contexts</span> <span class="o">=</span> <span class="n">DisplaySystemPresentationContexts</span>
+</pre></div>
+</div>
+</div>
+<div class="section" id="display-system-management-scp">
+<h2>Display System Management SCP<a class="headerlink" href="#display-system-management-scp" title="Permalink to this headline">¶</a></h2>
+<p>The following represents a toy implementation of a Display System Management
+SCP, where the SCU has sent a request with an <em>Attribute Identifier List</em>
+containing the single tag (0008,0070).</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span> <span class="nn">pynetdicom</span> <span class="kn">import</span> <span class="n">AE</span>
+<span class="kn">from</span> <span class="nn">pynetdicom.sop_class</span> <span class="kn">import</span> <span class="n">DisplaySystemSOPClass</span>
+
+<span class="c1"># Initialise the Application Entity and specify the listen port</span>
+<span class="n">ae</span> <span class="o">=</span> <span class="n">AE</span><span class="p">(</span><span class="n">port</span><span class="o">=</span><span class="mi">11112</span><span class="p">)</span>
+
+<span class="c1"># Add the supported presentation context</span>
+<span class="n">ae</span><span class="o">.</span><span class="n">add_supported_context</span><span class="p">(</span><span class="n">DisplaySystemSOPClass</span><span class="p">)</span>
+
+<span class="k">def</span> <span class="nf">on_n_get</span><span class="p">(</span><span class="n">attr</span><span class="p">,</span> <span class="n">context</span><span class="p">,</span> <span class="n">info</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;Callback for when an N-GET request is received.</span>
+
+<span class="sd">    Parameters</span>
+<span class="sd">    ----------</span>
+<span class="sd">    attr : list of pydicom.tag.Tag</span>
+<span class="sd">        The value of the (0000,1005) *Attribute Idenfier List* element</span>
+<span class="sd">        containing the attribute tags for the N-GET operation.</span>
+<span class="sd">    context : presentation.PresentationContextTuple</span>
+<span class="sd">        The presentation context that the N-GET message was sent under.</span>
+<span class="sd">    info : dict</span>
+<span class="sd">        A dict containing information about the current association.</span>
+
+<span class="sd">    Returns</span>
+<span class="sd">    -------</span>
+<span class="sd">    status : pydicom.dataset.Dataset or int</span>
+<span class="sd">        The status returned to the peer AE in the N-GET response. Must be a</span>
+<span class="sd">        valid N-GET status value for the applicable Service Class as either</span>
+<span class="sd">        an ``int`` or a ``Dataset`` object containing (at a minimum) a</span>
+<span class="sd">        (0000,0900) *Status* element. If returning a Dataset object then</span>
+<span class="sd">        it may also contain optional elements related to the Status (as in</span>
+<span class="sd">        DICOM Standard Part 7, Annex C).</span>
+<span class="sd">    dataset : pydicom.dataset.Dataset or None</span>
+<span class="sd">        If the status category is &#39;Success&#39; or &#39;Warning&#39; then a dataset</span>
+<span class="sd">        containing elements matching the request&#39;s Attribute List</span>
+<span class="sd">        conformant to the specifications in the corresponding Service</span>
+<span class="sd">        Class.</span>
+
+<span class="sd">        If the status is not &#39;Successs&#39; or &#39;Warning&#39; then return None.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="c1"># User defined function to generate the required attribute list dataset</span>
+    <span class="c1"># implementation is outside the scope of the current example</span>
+    <span class="c1"># We pretend it returns a pydicom Dataset</span>
+    <span class="n">dataset</span> <span class="o">=</span> <span class="n">create_attribute_list</span><span class="p">(</span><span class="n">attr</span><span class="p">)</span>
+
+    <span class="c1"># If Display System Management returns an attribute list then the</span>
+    <span class="c1"># SOP Class UID and SOP Instance UID must always be as given below</span>
+    <span class="k">assert</span> <span class="n">dataset</span><span class="o">.</span><span class="n">SOPClassUID</span> <span class="o">=</span> <span class="s1">&#39;1.2.840.10008.5.1.1.40&#39;</span>
+    <span class="k">assert</span> <span class="n">dataset</span><span class="o">.</span><span class="n">SOPInstanceUID</span> <span class="o">=</span> <span class="s1">&#39;1.2.840.10008.5.1.1.40.1&#39;</span>
+
+    <span class="c1"># Return status, dataset</span>
+    <span class="k">return</span> <span class="mh">0x0000</span><span class="p">,</span> <span class="n">dataset</span>
+
+<span class="n">ae</span><span class="o">.</span><span class="n">on_n_get</span> <span class="o">=</span> <span class="n">on_n_get</span>
+
+<span class="c1"># Start listening for incoming association requests</span>
+<span class="n">ae</span><span class="o">.</span><span class="n">start</span><span class="p">()</span>
+</pre></div>
+</div>
+</div>
+</div>
+
+
+           </div>
+           
+          </div>
+          <footer>
+  
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>
+        &copy; Copyright 2018-19, pynetdicom contributors
+
+    </p>
+  </div>
+  Built with <a href="http://sphinx-doc.org/">Sphinx</a> using a <a href="https://github.com/rtfd/sphinx_rtd_theme">theme</a> provided by <a href="https://readthedocs.org">Read the Docs</a>. 
+
+</footer>
+
+        </div>
+      </div>
+
+    </section>
+
+  </div>
+  
+
+
+  
+
+    
+    
+      <script type="text/javascript" id="documentation_options" data-url_root="../" src="../_static/documentation_options.js"></script>
+        <script type="text/javascript" src="../_static/jquery.js"></script>
+        <script type="text/javascript" src="../_static/underscore.js"></script>
+        <script type="text/javascript" src="../_static/doctools.js"></script>
+        <script type="text/javascript" src="../_static/language_data.js"></script>
+    
+
+  
+
+  <script type="text/javascript" src="../_static/js/theme.js"></script>
+
+  <script type="text/javascript">
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script> 
+
+</body>
+</html>

@@ -1,0 +1,6 @@
+pynetdicom.fsm.AA\_7
+====================
+
+.. currentmodule:: pynetdicom.fsm
+
+.. autofunction:: AA_7

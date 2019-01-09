@@ -1,0 +1,646 @@
+
+
+<!DOCTYPE html>
+<!--[if IE 8]><html class="no-js lt-ie9" lang="en" > <![endif]-->
+<!--[if gt IE 8]><!--> <html class="no-js" lang="en" > <!--<![endif]-->
+<head>
+  <meta charset="utf-8">
+  
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  
+  <title>pynetdicom.sop_class &mdash; pynetdicom 1.1.0 documentation</title>
+  
+
+  
+  
+    <link rel="shortcut icon" href="../../_static/favicon.ico"/>
+  
+  
+  
+
+  
+
+  
+  
+    
+
+  
+
+  <link rel="stylesheet" href="../../_static/css/pynetdicom.css" type="text/css" />
+  <link rel="stylesheet" href="../../_static/pygments.css" type="text/css" />
+  <link rel="stylesheet" href="../../_static/css/pynetdicom.css" type="text/css" />
+    <link rel="index" title="Index" href="../../genindex.html" />
+    <link rel="search" title="Search" href="../../search.html" /> 
+
+  
+  <script src="../../_static/js/modernizr.min.js"></script>
+
+</head>
+
+<body class="wy-body-for-nav">
+
+   
+  <div class="wy-grid-for-nav">
+
+    
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search">
+          
+
+          
+            <a href="../../index.html" class="icon icon-home"> pynetdicom
+          
+
+          
+            
+            <img src="../../_static/pydicom_flat_black.svg" class="logo" alt="Logo"/>
+          
+          </a>
+
+          
+            
+            
+              <div class="version">
+                1.1.0
+              </div>
+            
+          
+
+          
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="../../search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+
+          
+        </div>
+
+        <div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="main navigation">
+          
+            
+            
+              
+            
+            
+              <ul>
+<li class="toctree-l1"><a class="reference internal" href="../../verification_service_class.html">Verification Service Class</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../storage_service_class.html">Storage Service Class</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../query_retrieve_service_class.html">Query/Retrieve Service Class</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../basic_worklist_service_class.html">Basic Worklist Management Service Class</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../relevant_patient_service_class.html">Relevant Patient Information Query Service Class</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../substance_admin_service_class.html">Substance Administration Query Service Class</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../non_patient_service_class.html">Non-Patient Object Storage Service Class</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../color_palette_service_class.html">Color Palette Query/Retrieve Service Class</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../defined_procedure_service_class.html">Defined Procedure Protocol Query/Retrieve Service Class</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../hanging_protocol_service_class.html">Hanging Protocol Query/Retrieve Service Class</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../implant_template_service_class.html">Implant Template Query/Retrieve Service Class</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../display_system_service_class.html">Display System Management Service Class</a></li>
+</ul>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../../user/index.html">User Guide</a></li>
+</ul>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../../release_notes.html">1.1.0</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../release_notes.html#id2">1.0.0</a></li>
+</ul>
+
+            
+          
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap">
+
+      
+      <nav class="wy-nav-top" aria-label="top navigation">
+        
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="../../index.html">pynetdicom</a>
+        
+      </nav>
+
+
+      <div class="wy-nav-content">
+        
+        <div class="rst-content">
+        
+          
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+<div role="navigation" aria-label="breadcrumbs navigation">
+
+  <ul class="wy-breadcrumbs">
+    
+      <li><a href="../../index.html">Docs</a> &raquo;</li>
+        
+          <li><a href="../index.html">Module code</a> &raquo;</li>
+        
+      <li>pynetdicom.sop_class</li>
+    
+    
+      <li class="wy-breadcrumbs-aside">
+        
+      </li>
+    
+  </ul>
+
+  
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+            
+  <h1>Source code for pynetdicom.sop_class</h1><div class="highlight"><pre>
+<span></span><span class="sd">&quot;&quot;&quot;Generates the supported SOP Classes.&quot;&quot;&quot;</span>
+
+<span class="kn">import</span> <span class="nn">inspect</span>
+<span class="kn">import</span> <span class="nn">logging</span>
+<span class="kn">import</span> <span class="nn">sys</span>
+
+<span class="kn">from</span> <span class="nn">pydicom.uid</span> <span class="k">import</span> <span class="n">UID</span>
+
+<span class="kn">from</span> <span class="nn">pynetdicom.service_class</span> <span class="k">import</span> <span class="p">(</span>
+    <span class="n">ServiceClass</span><span class="p">,</span>
+    <span class="n">VerificationServiceClass</span><span class="p">,</span>
+    <span class="n">StorageServiceClass</span><span class="p">,</span>
+    <span class="n">QueryRetrieveServiceClass</span><span class="p">,</span>
+    <span class="n">BasicWorklistManagementServiceClass</span><span class="p">,</span>
+    <span class="n">RelevantPatientInformationQueryServiceClass</span><span class="p">,</span>
+    <span class="n">SubstanceAdministrationQueryServiceClass</span><span class="p">,</span>
+    <span class="n">NonPatientObjectStorageServiceClass</span><span class="p">,</span>
+    <span class="n">HangingProtocolQueryRetrieveServiceClass</span><span class="p">,</span>
+    <span class="n">DefinedProcedureProtocolQueryRetrieveServiceClass</span><span class="p">,</span>
+    <span class="n">ColorPaletteQueryRetrieveServiceClass</span><span class="p">,</span>
+    <span class="n">ImplantTemplateQueryRetrieveServiceClass</span><span class="p">,</span>
+<span class="p">)</span>
+<span class="kn">from</span> <span class="nn">pynetdicom.service_class_n</span> <span class="k">import</span> <span class="p">(</span>
+    <span class="n">DisplaySystemManagementServiceClass</span>
+<span class="p">)</span>
+
+
+<span class="n">LOGGER</span> <span class="o">=</span> <span class="n">logging</span><span class="o">.</span><span class="n">getLogger</span><span class="p">(</span><span class="s1">&#39;pynetdicom.sop&#39;</span><span class="p">)</span>
+
+
+<div class="viewcode-block" id="uid_to_service_class"><a class="viewcode-back" href="../../reference/generated/pynetdicom.sop_class.uid_to_service_class.html#pynetdicom.sop_class.uid_to_service_class">[docs]</a><span class="k">def</span> <span class="nf">uid_to_service_class</span><span class="p">(</span><span class="n">uid</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;Return the ServiceClass object corresponding to `uid`.</span>
+
+<span class="sd">    Parameters</span>
+<span class="sd">    ----------</span>
+<span class="sd">    uid : pydicom.uid.UID</span>
+<span class="sd">        The SOP or Service Class UID to use to find the corresponding Service</span>
+<span class="sd">        Class.</span>
+
+<span class="sd">    Returns</span>
+<span class="sd">    -------</span>
+<span class="sd">    service_class.ServiceClass</span>
+<span class="sd">        The Service Class corresponding to the SOP Class UID.</span>
+
+<span class="sd">    Raises</span>
+<span class="sd">    ------</span>
+<span class="sd">    NotImplementedError</span>
+<span class="sd">        If the Service Class corresponding to the SOP Class `uid` hasn&#39;t been</span>
+<span class="sd">        implemented.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="k">if</span> <span class="n">uid</span> <span class="ow">in</span> <span class="n">_SERVICE_CLASSES</span><span class="p">:</span>
+        <span class="k">return</span> <span class="n">_SERVICE_CLASSES</span><span class="p">[</span><span class="n">uid</span><span class="p">]</span>
+    <span class="k">elif</span> <span class="n">uid</span> <span class="ow">in</span> <span class="n">_VERIFICATION_CLASSES</span><span class="o">.</span><span class="n">values</span><span class="p">():</span>
+        <span class="k">return</span> <span class="n">VerificationServiceClass</span>
+    <span class="k">elif</span> <span class="n">uid</span> <span class="ow">in</span> <span class="n">_STORAGE_CLASSES</span><span class="o">.</span><span class="n">values</span><span class="p">():</span>
+        <span class="k">return</span> <span class="n">StorageServiceClass</span>
+    <span class="k">elif</span> <span class="n">uid</span> <span class="ow">in</span> <span class="n">_QR_CLASSES</span><span class="o">.</span><span class="n">values</span><span class="p">():</span>
+        <span class="k">return</span> <span class="n">QueryRetrieveServiceClass</span>
+    <span class="k">elif</span> <span class="n">uid</span> <span class="ow">in</span> <span class="n">_BASIC_WORKLIST_CLASSES</span><span class="o">.</span><span class="n">values</span><span class="p">():</span>
+        <span class="k">return</span> <span class="n">BasicWorklistManagementServiceClass</span>
+    <span class="k">elif</span> <span class="n">uid</span> <span class="ow">in</span> <span class="n">_RELEVANT_PATIENT_QUERY_CLASSES</span><span class="o">.</span><span class="n">values</span><span class="p">():</span>
+        <span class="k">return</span> <span class="n">RelevantPatientInformationQueryServiceClass</span>
+    <span class="k">elif</span> <span class="n">uid</span> <span class="ow">in</span> <span class="n">_SUBSTANCE_ADMINISTRATION_CLASSES</span><span class="o">.</span><span class="n">values</span><span class="p">():</span>
+        <span class="k">return</span> <span class="n">SubstanceAdministrationQueryServiceClass</span>
+    <span class="k">elif</span> <span class="n">uid</span> <span class="ow">in</span> <span class="n">_NON_PATIENT_OBJECT_CLASSES</span><span class="o">.</span><span class="n">values</span><span class="p">():</span>
+        <span class="k">return</span> <span class="n">NonPatientObjectStorageServiceClass</span>
+    <span class="k">elif</span> <span class="n">uid</span> <span class="ow">in</span> <span class="n">_HANGING_PROTOCOL_CLASSES</span><span class="o">.</span><span class="n">values</span><span class="p">():</span>
+        <span class="k">return</span> <span class="n">HangingProtocolQueryRetrieveServiceClass</span>
+    <span class="k">elif</span> <span class="n">uid</span> <span class="ow">in</span> <span class="n">_DEFINED_PROCEDURE_CLASSES</span><span class="o">.</span><span class="n">values</span><span class="p">():</span>
+        <span class="k">return</span> <span class="n">DefinedProcedureProtocolQueryRetrieveServiceClass</span>
+    <span class="k">elif</span> <span class="n">uid</span> <span class="ow">in</span> <span class="n">_COLOR_PALETTE_CLASSES</span><span class="o">.</span><span class="n">values</span><span class="p">():</span>
+        <span class="k">return</span> <span class="n">ColorPaletteQueryRetrieveServiceClass</span>
+    <span class="k">elif</span> <span class="n">uid</span> <span class="ow">in</span> <span class="n">_IMPLANT_TEMPLATE_CLASSES</span><span class="o">.</span><span class="n">values</span><span class="p">():</span>
+        <span class="k">return</span> <span class="n">ImplantTemplateQueryRetrieveServiceClass</span>
+    <span class="k">elif</span> <span class="n">uid</span> <span class="ow">in</span> <span class="n">_DISPLAY_SYSTEM_CLASSES</span><span class="o">.</span><span class="n">values</span><span class="p">():</span>
+        <span class="k">return</span> <span class="n">DisplaySystemManagementServiceClass</span>
+    <span class="k">elif</span> <span class="n">uid</span> <span class="ow">in</span> <span class="n">_PRINT_MANAGEMENT_CLASSES</span><span class="o">.</span><span class="n">values</span><span class="p">():</span>
+        <span class="k">return</span> <span class="n">ServiceClass</span>  <span class="c1"># Not yet implemented</span>
+    <span class="k">elif</span> <span class="n">uid</span> <span class="ow">in</span> <span class="n">_PROCEDURE_STEP_CLASSES</span><span class="o">.</span><span class="n">values</span><span class="p">():</span>
+        <span class="k">return</span> <span class="n">ServiceClass</span>  <span class="c1"># Not yet implemented</span>
+    <span class="k">elif</span> <span class="n">uid</span> <span class="ow">in</span> <span class="n">_MEDIA_STORAGE_CLASSES</span><span class="o">.</span><span class="n">values</span><span class="p">():</span>
+        <span class="k">return</span> <span class="n">ServiceClass</span>  <span class="c1"># Not yet implemented</span>
+    <span class="k">elif</span> <span class="n">uid</span> <span class="ow">in</span> <span class="n">_UNIFIED_PROCEDURE_STEP_CLASSES</span><span class="o">.</span><span class="n">values</span><span class="p">():</span>
+        <span class="k">return</span> <span class="n">ServiceClass</span>  <span class="c1"># Not yet implemented</span>
+    <span class="k">elif</span> <span class="n">uid</span> <span class="ow">in</span> <span class="n">_RT_MACHINE_VERIFICATION_CLASSES</span><span class="o">.</span><span class="n">values</span><span class="p">():</span>
+        <span class="k">return</span> <span class="n">ServiceClass</span>  <span class="c1"># Not yet implemented</span>
+
+    <span class="c1"># No SCP implemented</span>
+    <span class="k">return</span> <span class="n">ServiceClass</span></div>
+
+
+<div class="viewcode-block" id="SOPClass"><a class="viewcode-back" href="../../reference/generated/pynetdicom.sop_class.SOPClass.html#pynetdicom.sop_class.SOPClass">[docs]</a><span class="k">class</span> <span class="nc">SOPClass</span><span class="p">(</span><span class="n">UID</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;Extend pydicom&#39;s UID to include the corresponding Service Class.&quot;&quot;&quot;</span>
+    <span class="n">_service_class</span> <span class="o">=</span> <span class="kc">None</span>
+
+    <span class="k">def</span> <span class="nf">__new__</span><span class="p">(</span><span class="bp">cls</span><span class="p">,</span> <span class="n">val</span><span class="p">):</span>
+        <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">val</span><span class="p">,</span> <span class="n">SOPClass</span><span class="p">):</span>
+            <span class="k">return</span> <span class="n">val</span>
+
+        <span class="k">return</span> <span class="nb">super</span><span class="p">(</span><span class="n">SOPClass</span><span class="p">,</span> <span class="bp">cls</span><span class="p">)</span><span class="o">.</span><span class="fm">__new__</span><span class="p">(</span><span class="bp">cls</span><span class="p">,</span> <span class="n">val</span><span class="p">)</span>
+
+    <span class="k">def</span> <span class="nf">__getattribute__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">name</span><span class="p">):</span>
+        <span class="k">return</span> <span class="nb">super</span><span class="p">(</span><span class="n">SOPClass</span><span class="p">,</span> <span class="bp">self</span><span class="p">)</span><span class="o">.</span><span class="fm">__getattribute__</span><span class="p">(</span><span class="n">name</span><span class="p">)</span>
+
+    <span class="nd">@property</span>
+    <span class="k">def</span> <span class="nf">service_class</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;Return the corresponding Service Class implementation.&quot;&quot;&quot;</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_service_class</span></div>
+
+
+<span class="k">def</span> <span class="nf">_generate_sop_classes</span><span class="p">(</span><span class="n">sop_class_dict</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;Generate the SOP Classes.&quot;&quot;&quot;</span>
+    <span class="k">for</span> <span class="n">name</span> <span class="ow">in</span> <span class="n">sop_class_dict</span><span class="p">:</span>
+        <span class="n">sop_class</span> <span class="o">=</span> <span class="n">SOPClass</span><span class="p">(</span><span class="n">sop_class_dict</span><span class="p">[</span><span class="n">name</span><span class="p">])</span>
+        <span class="n">sop_class</span><span class="o">.</span><span class="n">_service_class</span> <span class="o">=</span> <span class="n">uid_to_service_class</span><span class="p">(</span><span class="n">sop_class_dict</span><span class="p">[</span><span class="n">name</span><span class="p">])</span>
+        <span class="nb">globals</span><span class="p">()[</span><span class="n">name</span><span class="p">]</span> <span class="o">=</span> <span class="n">sop_class</span>
+
+
+<span class="c1"># Table of service classes with assigned UIDs</span>
+<span class="n">_SERVICE_CLASSES</span> <span class="o">=</span> <span class="p">{</span>
+    <span class="s1">&#39;1.2.840.10008.4.2&#39;</span> <span class="p">:</span> <span class="n">StorageServiceClass</span><span class="p">,</span>
+    <span class="c1">#&#39;1.2.840.10008.5.1.4.34.6&#39;, UnifiedProcedureStepServiceClass,</span>
+<span class="p">}</span>
+
+<span class="c1"># Generate the various SOP classes</span>
+<span class="n">_VERIFICATION_CLASSES</span> <span class="o">=</span> <span class="p">{</span>
+    <span class="s1">&#39;VerificationSOPClass&#39;</span> <span class="p">:</span> <span class="s1">&#39;1.2.840.10008.1.1&#39;</span><span class="p">,</span>
+<span class="p">}</span>
+
+<span class="c1"># pylint: disable=line-too-long</span>
+<span class="n">_STORAGE_CLASSES</span> <span class="o">=</span> <span class="p">{</span>
+    <span class="s1">&#39;ComputedRadiographyImageStorage&#39;</span> <span class="p">:</span> <span class="s1">&#39;1.2.840.10008.5.1.4.1.1.1&#39;</span><span class="p">,</span>  <span class="c1"># A.2</span>
+    <span class="s1">&#39;DigitalXRayImagePresentationStorage&#39;</span> <span class="p">:</span> <span class="s1">&#39;1.2.840.10008.5.1.4.1.1.1.1&#39;</span><span class="p">,</span>  <span class="c1"># A.26</span>
+    <span class="s1">&#39;DigitalXRayImageProcessingStorage&#39;</span> <span class="p">:</span> <span class="s1">&#39;1.2.840.10008.5.1.4.1.1.1.1.1&#39;</span><span class="p">,</span>  <span class="c1"># A.26</span>
+    <span class="s1">&#39;DigitalMammographyXRayImagePresentationStorage&#39;</span> <span class="p">:</span> <span class="s1">&#39;1.2.840.10008.5.1.4.1.1.1.2&#39;</span><span class="p">,</span>  <span class="c1"># A.27</span>
+    <span class="s1">&#39;DigitalMammographyXRayImageProcessingStorage&#39;</span> <span class="p">:</span> <span class="s1">&#39;1.2.840.10008.5.1.4.1.1.1.2.1&#39;</span><span class="p">,</span>  <span class="c1"># A.27</span>
+    <span class="s1">&#39;DigitalIntraOralXRayImagePresentationStorage&#39;</span> <span class="p">:</span> <span class="s1">&#39;1.2.840.10008.5.1.4.1.1.1.3&#39;</span><span class="p">,</span>  <span class="c1"># A.28</span>
+    <span class="s1">&#39;DigitalIntraOralXRayImageProcessingStorage&#39;</span> <span class="p">:</span> <span class="s1">&#39;1.2.840.10008.5.1.4.1.1.1.3.1&#39;</span><span class="p">,</span>  <span class="c1"># A.28</span>
+    <span class="s1">&#39;CTImageStorage&#39;</span> <span class="p">:</span> <span class="s1">&#39;1.2.840.10008.5.1.4.1.1.2&#39;</span><span class="p">,</span>  <span class="c1"># A.3</span>
+    <span class="s1">&#39;EnhancedCTImageStorage&#39;</span> <span class="p">:</span> <span class="s1">&#39;1.2.840.10008.5.1.4.1.1.2.1&#39;</span><span class="p">,</span>  <span class="c1"># A.38</span>
+    <span class="s1">&#39;LegacyConvertedEnhancedCTImageStorage&#39;</span> <span class="p">:</span> <span class="s1">&#39;1.2.840.10008.5.1.4.1.1.2.2&#39;</span><span class="p">,</span>  <span class="c1"># A.70</span>
+    <span class="s1">&#39;UltrasoundMultiframeImageStorage&#39;</span> <span class="p">:</span> <span class="s1">&#39;1.2.840.10008.5.1.4.1.1.3.1&#39;</span><span class="p">,</span>  <span class="c1"># A.7</span>
+    <span class="s1">&#39;MRImageStorage&#39;</span> <span class="p">:</span> <span class="s1">&#39;1.2.840.10008.5.1.4.1.1.4&#39;</span><span class="p">,</span>  <span class="c1"># A.4</span>
+    <span class="s1">&#39;EnhancedMRImageStorage&#39;</span> <span class="p">:</span> <span class="s1">&#39;1.2.840.10008.5.1.4.1.1.4.1&#39;</span><span class="p">,</span>  <span class="c1"># A.36.2</span>
+    <span class="s1">&#39;MRSpectroscopyStorage&#39;</span> <span class="p">:</span> <span class="s1">&#39;1.2.840.10008.5.1.4.1.1.4.2&#39;</span><span class="p">,</span>  <span class="c1"># A.36.3</span>
+    <span class="s1">&#39;EnhancedMRColorImageStorage&#39;</span> <span class="p">:</span> <span class="s1">&#39;1.2.840.10008.5.1.4.1.1.4.3&#39;</span><span class="p">,</span>  <span class="c1"># A.36.4</span>
+    <span class="s1">&#39;LegacyConvertedEnhancedMRImageStorage&#39;</span> <span class="p">:</span> <span class="s1">&#39;1.2.840.10008.5.1.4.1.1.4.4&#39;</span><span class="p">,</span>  <span class="c1"># A.71</span>
+    <span class="s1">&#39;UltrasoundImageStorage&#39;</span> <span class="p">:</span> <span class="s1">&#39;1.2.840.10008.5.1.4.1.1.6.1&#39;</span><span class="p">,</span>  <span class="c1"># A.6</span>
+    <span class="s1">&#39;EnhancedUSVolumeStorage&#39;</span> <span class="p">:</span> <span class="s1">&#39;1.2.840.10008.5.1.4.1.1.6.2&#39;</span><span class="p">,</span>  <span class="c1"># A.59</span>
+    <span class="s1">&#39;SecondaryCaptureImageStorage&#39;</span> <span class="p">:</span> <span class="s1">&#39;1.2.840.10008.5.1.4.1.1.7&#39;</span><span class="p">,</span>  <span class="c1"># A.8.1</span>
+    <span class="s1">&#39;MultiframeSingleBitSecondaryCaptureImageStorage&#39;</span> <span class="p">:</span> <span class="s1">&#39;1.2.840.10008.5.1.4.1.1.7.1&#39;</span><span class="p">,</span>  <span class="c1"># A.8.2</span>
+    <span class="s1">&#39;MultiframeGrayscaleByteSecondaryCaptureImageStorage&#39;</span> <span class="p">:</span> <span class="s1">&#39;1.2.840.10008.5.1.4.1.1.7.2&#39;</span><span class="p">,</span>  <span class="c1"># A.8.3</span>
+    <span class="s1">&#39;MultiframeGrayscaleWordSecondaryCaptureImageStorage&#39;</span> <span class="p">:</span> <span class="s1">&#39;1.2.840.10008.5.1.4.1.1.7.3&#39;</span><span class="p">,</span>  <span class="c1"># A.8.4</span>
+    <span class="s1">&#39;MultiframeTrueColorSecondaryCaptureImageStorage&#39;</span> <span class="p">:</span> <span class="s1">&#39;1.2.840.10008.5.1.4.1.1.7.4&#39;</span><span class="p">,</span>  <span class="c1"># A.8.5</span>
+    <span class="s1">&#39;TwelveLeadECGWaveformStorage&#39;</span> <span class="p">:</span> <span class="s1">&#39;1.2.840.10008.5.1.4.1.1.9.1.1&#39;</span><span class="p">,</span>  <span class="c1"># A.34.3</span>
+    <span class="s1">&#39;GeneralECGWaveformStorage&#39;</span> <span class="p">:</span> <span class="s1">&#39;1.2.840.10008.5.1.4.1.1.9.1.2&#39;</span><span class="p">,</span>  <span class="c1"># A.34.4</span>
+    <span class="s1">&#39;AmbulatoryECGWaveformStorage&#39;</span> <span class="p">:</span> <span class="s1">&#39;1.2.840.10008.5.1.4.1.1.9.1.3&#39;</span><span class="p">,</span>  <span class="c1"># A.34.5</span>
+    <span class="s1">&#39;HemodynamicWaveformStorage&#39;</span> <span class="p">:</span> <span class="s1">&#39;1.2.840.10008.5.1.4.1.1.9.2.1&#39;</span><span class="p">,</span>  <span class="c1"># A.34.6</span>
+    <span class="s1">&#39;CardiacElectrophysiologyWaveformStorage&#39;</span> <span class="p">:</span> <span class="s1">&#39;1.2.840.10008.5.1.4.1.1.9.3.1&#39;</span><span class="p">,</span>  <span class="c1"># A.34.7</span>
+    <span class="s1">&#39;BasicVoiceAudioWaveformStorage&#39;</span> <span class="p">:</span> <span class="s1">&#39;1.2.840.10008.5.1.4.1.1.9.4.1&#39;</span><span class="p">,</span>  <span class="c1"># A.34.2</span>
+    <span class="s1">&#39;GeneralAudioWaveformStorage&#39;</span> <span class="p">:</span> <span class="s1">&#39;1.2.840.10008.5.1.4.1.1.9.4.2&#39;</span><span class="p">,</span>  <span class="c1"># A.34.10</span>
+    <span class="s1">&#39;ArterialPulseWaveformStorage&#39;</span> <span class="p">:</span> <span class="s1">&#39;1.2.840.10008.5.1.4.1.1.9.5.1&#39;</span><span class="p">,</span>  <span class="c1"># A.34.8</span>
+    <span class="s1">&#39;RespiratoryWaveformStorage&#39;</span> <span class="p">:</span> <span class="s1">&#39;1.2.840.10008.5.1.4.1.1.9.6.1&#39;</span><span class="p">,</span>  <span class="c1"># A.34.9</span>
+    <span class="s1">&#39;GrayscaleSoftcopyPresentationStateStorage&#39;</span> <span class="p">:</span> <span class="s1">&#39;1.2.840.10008.5.1.4.1.1.11.1&#39;</span><span class="p">,</span>  <span class="c1"># A.33.1</span>
+    <span class="s1">&#39;ColorSoftcopyPresentationStateStorage&#39;</span> <span class="p">:</span> <span class="s1">&#39;1.2.840.10008.5.1.4.1.1.11.2&#39;</span><span class="p">,</span>  <span class="c1"># A.33.2</span>
+    <span class="s1">&#39;PseudocolorSoftcopyPresentationStageStorage&#39;</span> <span class="p">:</span> <span class="s1">&#39;1.2.840.10008.5.1.4.1.1.11.3&#39;</span><span class="p">,</span>  <span class="c1"># A.33.3</span>
+    <span class="s1">&#39;BlendingSoftcopyPresentationStateStorage&#39;</span> <span class="p">:</span> <span class="s1">&#39;1.2.840.10008.5.1.4.1.1.11.4&#39;</span><span class="p">,</span>  <span class="c1"># A.33.4</span>
+    <span class="s1">&#39;XAXRFGrayscaleSoftcopyPresentationStateStorage&#39;</span> <span class="p">:</span> <span class="s1">&#39;1.2.840.10008.5.1.4.1.1.11.5&#39;</span><span class="p">,</span>  <span class="c1"># A.33.6</span>
+    <span class="s1">&#39;GrayscalePlanarMPRVolumetricPresentationStateStorage&#39;</span> <span class="p">:</span> <span class="s1">&#39;1.2.840.10008.5.1.4.1.1.11.6&#39;</span><span class="p">,</span>  <span class="c1"># A.80.1</span>
+    <span class="s1">&#39;CompositingPlanarMPRVolumetricPresentationStateStorage&#39;</span> <span class="p">:</span> <span class="s1">&#39;1.2.840.10008.5.1.4.1.1.11.7&#39;</span><span class="p">,</span>  <span class="c1"># A.80.1</span>
+    <span class="s1">&#39;AdvancedBlendingPresentationStateStorage&#39;</span> <span class="p">:</span> <span class="s1">&#39;1.2.840.10008.5.1.4.1.1.11.8&#39;</span><span class="p">,</span>  <span class="c1"># A.33.7</span>
+    <span class="s1">&#39;VolumeRenderingVolumetricPresentationStateStorage&#39;</span> <span class="p">:</span> <span class="s1">&#39;1.2.840.10008.5.1.4.1.1.11.9&#39;</span><span class="p">,</span>  <span class="c1"># A.80.2</span>
+    <span class="s1">&#39;SegmentedVolumeRenderingVolumetricPresentationStateStorage&#39;</span> <span class="p">:</span> <span class="s1">&#39;1.2.840.10008.5.1.4.1.1.11.10&#39;</span><span class="p">,</span>  <span class="c1"># A.80.2</span>
+    <span class="s1">&#39;MultipleVolumeRenderingVolumetricPresentationStateStorage&#39;</span> <span class="p">:</span> <span class="s1">&#39;1.2.840.10008.5.1.4.1.1.11.11&#39;</span><span class="p">,</span>  <span class="c1"># A.80.2</span>
+    <span class="s1">&#39;XRayAngiographicImageStorage&#39;</span> <span class="p">:</span> <span class="s1">&#39;1.2.840.10008.5.1.4.1.1.12.1&#39;</span><span class="p">,</span>  <span class="c1"># A.14</span>
+    <span class="s1">&#39;EnhancedXAImageStorage&#39;</span> <span class="p">:</span> <span class="s1">&#39;1.2.840.10008.5.1.4.1.1.12.1.1&#39;</span><span class="p">,</span>  <span class="c1"># A.47</span>
+    <span class="s1">&#39;XRayRadiofluoroscopicImageStorage&#39;</span> <span class="p">:</span> <span class="s1">&#39;1.2.840.10008.5.1.4.1.1.12.2&#39;</span><span class="p">,</span>  <span class="c1"># A.16</span>
+    <span class="s1">&#39;EnhancedXRFImageStorage&#39;</span> <span class="p">:</span> <span class="s1">&#39;1.2.840.10008.5.1.4.1.1.12.2.1&#39;</span><span class="p">,</span>  <span class="c1"># A.48</span>
+    <span class="s1">&#39;XRay3DAngiographicImageStorage&#39;</span> <span class="p">:</span> <span class="s1">&#39;1.2.840.10008.5.1.4.1.1.13.1.1&#39;</span><span class="p">,</span>  <span class="c1"># A.53</span>
+    <span class="s1">&#39;XRay3DCraniofacialImageStorage&#39;</span> <span class="p">:</span> <span class="s1">&#39;1.2.840.10008.5.1.4.1.1.13.1.2&#39;</span><span class="p">,</span>  <span class="c1"># A.54</span>
+    <span class="s1">&#39;BreastTomosynthesisImageStorage&#39;</span> <span class="p">:</span> <span class="s1">&#39;1.2.840.10008.5.1.4.1.1.13.1.3&#39;</span><span class="p">,</span>  <span class="c1"># A.55</span>
+    <span class="s1">&#39;BreastProjectionXRayImagePresentationStorage&#39;</span> <span class="p">:</span> <span class="s1">&#39;1.2.840.10008.5.1.4.1.1.13.1.4&#39;</span><span class="p">,</span>  <span class="c1"># A.74</span>
+    <span class="s1">&#39;BreastProjectionXRayImageProcessingStorage&#39;</span> <span class="p">:</span> <span class="s1">&#39;1.2.840.10008.5.1.4.1.1.13.1.5&#39;</span><span class="p">,</span>  <span class="c1"># A.74</span>
+    <span class="s1">&#39;IntravascularOpticalCoherenceTomographyImagePresentationStorage&#39;</span> <span class="p">:</span> <span class="s1">&#39;1.2.840.10008.5.1.4.1.1.14.1&#39;</span><span class="p">,</span>  <span class="c1"># A.66</span>
+    <span class="s1">&#39;IntravascularOpticalCoherenceTomographyImageProcessingStorage&#39;</span> <span class="p">:</span> <span class="s1">&#39;1.2.840.10008.5.1.4.1.1.14.2&#39;</span><span class="p">,</span>  <span class="c1"># A.66</span>
+    <span class="s1">&#39;NuclearMedicineImageStorage&#39;</span> <span class="p">:</span> <span class="s1">&#39;1.2.840.10008.5.1.4.1.1.20&#39;</span><span class="p">,</span>    <span class="c1"># A.5</span>
+    <span class="s1">&#39;ParametricMapStorage&#39;</span> <span class="p">:</span> <span class="s1">&#39;1.2.840.10008.5.1.4.1.1.30&#39;</span><span class="p">,</span>  <span class="c1"># A.75</span>
+    <span class="s1">&#39;RawDataStorage&#39;</span> <span class="p">:</span> <span class="s1">&#39;1.2.840.10008.5.1.4.1.1.66&#39;</span><span class="p">,</span>  <span class="c1"># A.37</span>
+    <span class="s1">&#39;SpatialRegistrationStorage&#39;</span> <span class="p">:</span> <span class="s1">&#39;1.2.840.10008.5.1.4.1.1.66.1&#39;</span><span class="p">,</span>  <span class="c1"># A.39.1</span>
+    <span class="s1">&#39;SpatialFiducialsStorage&#39;</span> <span class="p">:</span> <span class="s1">&#39;1.2.840.10008.5.1.4.1.1.66.2&#39;</span><span class="p">,</span>  <span class="c1"># A.40</span>
+    <span class="s1">&#39;DeformableSpatialRegistrationStorage&#39;</span> <span class="p">:</span> <span class="s1">&#39;1.2.840.10008.5.1.4.1.1.66.3&#39;</span><span class="p">,</span>  <span class="c1"># A.39.2</span>
+    <span class="s1">&#39;SegmentationStorage&#39;</span> <span class="p">:</span> <span class="s1">&#39;1.2.840.10008.5.1.4.1.1.66.4&#39;</span><span class="p">,</span>  <span class="c1"># A.51</span>
+    <span class="s1">&#39;SurfaceSegmentationStorage&#39;</span> <span class="p">:</span> <span class="s1">&#39;1.2.840.10008.5.1.4.1.1.66.5&#39;</span><span class="p">,</span>  <span class="c1"># A.57</span>
+    <span class="s1">&#39;TractographyResultsStorage&#39;</span> <span class="p">:</span> <span class="s1">&#39;1.2.840.10008.5.1.4.1.1.66.6&#39;</span><span class="p">,</span>  <span class="c1"># A.78</span>
+    <span class="s1">&#39;RealWorldValueMappingStorage&#39;</span> <span class="p">:</span> <span class="s1">&#39;1.2.840.10008.5.1.4.1.1.67&#39;</span><span class="p">,</span>  <span class="c1"># A.46</span>
+    <span class="s1">&#39;SurfaceScanMeshStorage&#39;</span> <span class="p">:</span> <span class="s1">&#39;1.2.840.10008.5.1.4.1.1.68.1&#39;</span><span class="p">,</span>  <span class="c1"># A.68</span>
+    <span class="s1">&#39;SurfaceScanPointCloudStorage&#39;</span> <span class="p">:</span> <span class="s1">&#39;1.2.840.10008.5.1.4.1.1.68.2&#39;</span><span class="p">,</span>  <span class="c1"># A.69</span>
+    <span class="s1">&#39;VLEndoscopicImageStorage&#39;</span> <span class="p">:</span> <span class="s1">&#39;1.2.840.10008.5.1.4.1.1.77.1.1&#39;</span><span class="p">,</span>  <span class="c1"># A.32.1</span>
+    <span class="s1">&#39;VideoEndoscopicImageStorage&#39;</span> <span class="p">:</span> <span class="s1">&#39;1.2.840.10008.5.1.4.1.1.77.1.1.1&#39;</span><span class="p">,</span>  <span class="c1"># A.32.5</span>
+    <span class="s1">&#39;VLMicroscopicImageStorage&#39;</span> <span class="p">:</span> <span class="s1">&#39;1.2.840.10008.5.1.4.1.1.77.1.2&#39;</span><span class="p">,</span>  <span class="c1"># A.32.2</span>
+    <span class="s1">&#39;VideoMicroscopicImageStorage&#39;</span> <span class="p">:</span> <span class="s1">&#39;1.2.840.10008.5.1.4.1.1.77.1.2.1&#39;</span><span class="p">,</span>  <span class="c1"># A.32.6</span>
+    <span class="s1">&#39;VLSlideCoordinatesMicroscopicImageStorage&#39;</span> <span class="p">:</span> <span class="s1">&#39;1.2.840.10008.5.1.4.1.1.77.1.3&#39;</span><span class="p">,</span>  <span class="c1"># A.32.3</span>
+    <span class="s1">&#39;VLPhotographicImageStorage&#39;</span> <span class="p">:</span> <span class="s1">&#39;1.2.840.10008.5.1.4.1.1.77.1.4&#39;</span><span class="p">,</span>  <span class="c1"># A.32.4</span>
+    <span class="s1">&#39;VideoPhotographicImageStorage&#39;</span> <span class="p">:</span> <span class="s1">&#39;1.2.840.10008.5.1.4.1.1.77.1.4.1&#39;</span><span class="p">,</span>  <span class="c1"># A.32.7</span>
+    <span class="s1">&#39;OphthalmicPhotography8BitImageStorage&#39;</span> <span class="p">:</span> <span class="s1">&#39;1.2.840.10008.5.1.4.1.1.77.1.5.1&#39;</span><span class="p">,</span>  <span class="c1"># A.41</span>
+    <span class="s1">&#39;OphthalmicPhotography16BitImageStorage&#39;</span> <span class="p">:</span> <span class="s1">&#39;1.2.840.10008.5.1.4.1.1.77.1.5.2&#39;</span><span class="p">,</span>  <span class="c1"># A.42</span>
+    <span class="s1">&#39;StereometricRelationshipStorage&#39;</span> <span class="p">:</span> <span class="s1">&#39;1.2.840.10008.5.1.4.1.1.77.1.5.3&#39;</span><span class="p">,</span>  <span class="c1"># A.43</span>
+    <span class="s1">&#39;OphthalmicTomographyImageStorage&#39;</span> <span class="p">:</span> <span class="s1">&#39;1.2.840.10008.5.1.4.1.1.77.1.5.4&#39;</span><span class="p">,</span>  <span class="c1"># A.52</span>
+    <span class="s1">&#39;WideFieldOphthalmicPhotographyStereographicProjectionImageStorage&#39;</span> <span class="p">:</span> <span class="s1">&#39;1.2.840.10008.5.1.4.1.1.77.1.5.5&#39;</span><span class="p">,</span>  <span class="c1"># A.76</span>
+    <span class="s1">&#39;WideFieldOphthalmicPhotography3DCoordinatesImageStorage&#39;</span> <span class="p">:</span> <span class="s1">&#39;1.2.840.10008.5.1.4.1.1.77.1.5.6&#39;</span><span class="p">,</span>  <span class="c1"># A.77</span>
+    <span class="s1">&#39;OphthalmicOpticalCoherenceTomographyEnFaceImageStorage&#39;</span> <span class="p">:</span> <span class="s1">&#39;1.2.840.10008.5.1.4.1.1.77.1.5.7&#39;</span><span class="p">,</span>  <span class="c1"># A.83</span>
+    <span class="s1">&#39;OphthlamicOpticalCoherenceTomographyBScanVolumeAnalysisStorage&#39;</span> <span class="p">:</span> <span class="s1">&#39;1.2.840.10008.5.1.4.1.1.77.1.5.8&#39;</span><span class="p">,</span>  <span class="c1"># A.84</span>
+    <span class="s1">&#39;VLWholeSlideMicroscopyImageStorage&#39;</span> <span class="p">:</span> <span class="s1">&#39;1.2.840.10008.5.1.4.1.1.77.1.6&#39;</span><span class="p">,</span>  <span class="c1"># A.32.8</span>
+    <span class="s1">&#39;LensometryMeasurementsStorage&#39;</span> <span class="p">:</span> <span class="s1">&#39;1.2.840.10008.5.1.4.1.1.78.1&#39;</span><span class="p">,</span>  <span class="c1"># A.60.1</span>
+    <span class="s1">&#39;AutorefractionMeasurementsStorage&#39;</span> <span class="p">:</span> <span class="s1">&#39;1.2.840.10008.5.1.4.1.1.78.2&#39;</span><span class="p">,</span>  <span class="c1"># A.60.2</span>
+    <span class="s1">&#39;KeratometryMeasurementsStorage&#39;</span> <span class="p">:</span> <span class="s1">&#39;1.2.840.10008.5.1.4.1.1.78.3&#39;</span><span class="p">,</span>  <span class="c1"># A.60.3</span>
+    <span class="s1">&#39;SubjectiveRefractionMeasurementsStorage&#39;</span> <span class="p">:</span> <span class="s1">&#39;1.2.840.10008.5.1.4.1.1.78.4&#39;</span><span class="p">,</span>  <span class="c1"># A.60.4</span>
+    <span class="s1">&#39;VisualAcuityMeasurementsStorage&#39;</span> <span class="p">:</span> <span class="s1">&#39;1.2.840.10008.5.1.4.1.1.78.5&#39;</span><span class="p">,</span>  <span class="c1"># A.60.5</span>
+    <span class="s1">&#39;SpectaclePrescriptionReportStorage&#39;</span> <span class="p">:</span> <span class="s1">&#39;1.2.840.10008.5.1.4.1.1.78.6&#39;</span><span class="p">,</span>  <span class="c1"># A.35.9</span>
+    <span class="s1">&#39;OphthalmicAxialMeasurementsStorage&#39;</span> <span class="p">:</span> <span class="s1">&#39;1.2.840.10008.5.1.4.1.1.78.7&#39;</span><span class="p">,</span>  <span class="c1"># A.60.6</span>
+    <span class="s1">&#39;IntraocularLensCalculationsStorage&#39;</span> <span class="p">:</span> <span class="s1">&#39;1.2.840.10008.5.1.4.1.1.78.8&#39;</span><span class="p">,</span>  <span class="c1"># A.60.7</span>
+    <span class="s1">&#39;MacularGridThicknessAndVolumeReport&#39;</span> <span class="p">:</span> <span class="s1">&#39;1.2.840.10008.5.1.4.1.1.79.1&#39;</span><span class="p">,</span>  <span class="c1"># A.35.11</span>
+    <span class="s1">&#39;OphthalmicVisualFieldStaticPerimetryMeasurementsStorage&#39;</span> <span class="p">:</span> <span class="s1">&#39;1.2.840.10008.5.1.4.1.1.80.1&#39;</span><span class="p">,</span>  <span class="c1"># A.65</span>
+    <span class="s1">&#39;OphthalmicThicknessMapStorage&#39;</span> <span class="p">:</span> <span class="s1">&#39;1.2.840.10008.5.1.4.1.1.81.1&#39;</span><span class="p">,</span>  <span class="c1"># A.67</span>
+    <span class="s1">&#39;CornealTopographyMapStorage&#39;</span> <span class="p">:</span> <span class="s1">&#39;1.2.840.10008.5.1.4.1.1.82.1&#39;</span><span class="p">,</span>  <span class="c1"># A.73</span>
+    <span class="s1">&#39;BasicTextSRStorage&#39;</span> <span class="p">:</span> <span class="s1">&#39;1.2.840.10008.5.1.4.1.1.88.11&#39;</span><span class="p">,</span>  <span class="c1"># A.35.1</span>
+    <span class="s1">&#39;EnhancedSRStorage&#39;</span> <span class="p">:</span> <span class="s1">&#39;1.2.840.10008.5.1.4.1.1.88.22&#39;</span><span class="p">,</span>  <span class="c1"># A.35.2</span>
+    <span class="s1">&#39;ComprehensiveSRStorage&#39;</span> <span class="p">:</span> <span class="s1">&#39;1.2.840.10008.5.1.4.1.1.88.33&#39;</span><span class="p">,</span>  <span class="c1"># A.35.3</span>
+    <span class="s1">&#39;Comprehensive3DSRStorage&#39;</span> <span class="p">:</span> <span class="s1">&#39;1.2.840.10008.5.1.4.1.1.88.34&#39;</span><span class="p">,</span>  <span class="c1"># A.35.13</span>
+    <span class="s1">&#39;ExtensibleSRStorage&#39;</span> <span class="p">:</span> <span class="s1">&#39;1.2.840.10008.5.1.4.1.1.88.35&#39;</span><span class="p">,</span>  <span class="c1"># A.35.15</span>
+    <span class="s1">&#39;ProcedureSRStorage&#39;</span> <span class="p">:</span> <span class="s1">&#39;1.2.840.10008.5.1.4.1.1.88.40&#39;</span><span class="p">,</span>  <span class="c1"># A.35.7</span>
+    <span class="s1">&#39;MammographyCADSRStorage&#39;</span> <span class="p">:</span> <span class="s1">&#39;1.2.840.10008.5.1.4.1.1.88.50&#39;</span><span class="p">,</span>  <span class="c1"># A.35.5</span>
+    <span class="s1">&#39;KeyObjectSelectionStorage&#39;</span> <span class="p">:</span> <span class="s1">&#39;1.2.840.10008.5.1.4.1.1.88.59&#39;</span><span class="p">,</span>  <span class="c1"># A.35.4</span>
+    <span class="s1">&#39;ChestCADSRStorage&#39;</span> <span class="p">:</span> <span class="s1">&#39;1.2.840.10008.5.1.4.1.1.88.65&#39;</span><span class="p">,</span>  <span class="c1"># A.35.6</span>
+    <span class="s1">&#39;XRayRadiationDoseSRStorage&#39;</span> <span class="p">:</span> <span class="s1">&#39;1.2.840.10008.5.1.4.1.1.88.67&#39;</span><span class="p">,</span>  <span class="c1"># A.35.8</span>
+    <span class="s1">&#39;RadiopharmaceuticalRadiationDoseSRStorage&#39;</span> <span class="p">:</span> <span class="s1">&#39;1.2.840.10008.5.1.4.1.1.88.68&#39;</span><span class="p">,</span>  <span class="c1"># A.35.14</span>
+    <span class="s1">&#39;ColonCADSRStorage&#39;</span> <span class="p">:</span> <span class="s1">&#39;1.2.840.10008.5.1.4.1.1.88.69&#39;</span><span class="p">,</span>  <span class="c1"># A.35.10</span>
+    <span class="s1">&#39;ImplantationPlanSRDocumentStorage&#39;</span> <span class="p">:</span> <span class="s1">&#39;1.2.840.10008.5.1.4.1.1.88.70&#39;</span><span class="p">,</span>  <span class="c1"># A.35.12</span>
+    <span class="s1">&#39;AcquisitionContextSRStorage&#39;</span> <span class="p">:</span> <span class="s1">&#39;1.2.840.10008.5.1.4.1.1.88.71&#39;</span><span class="p">,</span>  <span class="c1"># A.35.16</span>
+    <span class="s1">&#39;SimplifiedAdultEchoSRStorage&#39;</span> <span class="p">:</span> <span class="s1">&#39;1.2.840.10008.5.1.4.1.1.88.72&#39;</span><span class="p">,</span>  <span class="c1"># A.35.17</span>
+    <span class="s1">&#39;PatientRadiationDoseSRStorage&#39;</span> <span class="p">:</span> <span class="s1">&#39;1.2.840.10008.5.1.4.1.1.88.73&#39;</span><span class="p">,</span>  <span class="c1"># A.35.18</span>
+    <span class="s1">&#39;ContentAssessmentResultsStorage&#39;</span> <span class="p">:</span> <span class="s1">&#39;1.2.840.10008.5.1.4.1.1.90.1&#39;</span><span class="p">,</span>  <span class="c1"># A.81</span>
+    <span class="s1">&#39;EncapsulatedPDFStorage&#39;</span> <span class="p">:</span> <span class="s1">&#39;1.2.840.10008.5.1.4.1.1.104.1&#39;</span><span class="p">,</span>  <span class="c1"># A.45.1</span>
+    <span class="s1">&#39;EncapsulatedCDAStorage&#39;</span> <span class="p">:</span> <span class="s1">&#39;1.2.840.10008.5.1.4.1.1.104.2&#39;</span><span class="p">,</span>  <span class="c1"># A.45.2</span>
+    <span class="s1">&#39;EncapsulatedSTLStorage&#39;</span> <span class="p">:</span> <span class="s1">&#39;1.2.840.10008.5.1.4.1.1.104.3&#39;</span><span class="p">,</span>  <span class="c1"># A.85.1</span>
+    <span class="s1">&#39;PositronEmissionTomographyImageStorage&#39;</span> <span class="p">:</span> <span class="s1">&#39;1.2.840.10008.5.1.4.1.1.128&#39;</span><span class="p">,</span>  <span class="c1"># A.21</span>
+    <span class="s1">&#39;EnhancedPETImageStorage&#39;</span> <span class="p">:</span> <span class="s1">&#39;1.2.840.10008.5.1.4.1.1.130&#39;</span><span class="p">,</span>  <span class="c1"># A.56</span>
+    <span class="s1">&#39;LegacyConvertedEnhancedPETImageStorage&#39;</span> <span class="p">:</span> <span class="s1">&#39;1.2.840.10008.5.1.4.1.1.128.1&#39;</span><span class="p">,</span>  <span class="c1"># A.72</span>
+    <span class="s1">&#39;BasicStructuredDisplayStorage&#39;</span> <span class="p">:</span> <span class="s1">&#39;1.2.840.10008.5.1.4.1.1.131&#39;</span><span class="p">,</span>  <span class="c1"># A.33.5</span>
+    <span class="s1">&#39;CTPerformedProcedureProtocolStorage&#39;</span> <span class="p">:</span> <span class="s1">&#39;1.2.840.10008.5.1.4.1.1.200.2&#39;</span><span class="p">,</span>  <span class="c1"># A.82.1</span>
+    <span class="s1">&#39;RTImageStorage&#39;</span> <span class="p">:</span> <span class="s1">&#39;1.2.840.10008.5.1.4.1.1.481.1&#39;</span><span class="p">,</span>  <span class="c1"># A.17</span>
+    <span class="s1">&#39;RTDoseStorage&#39;</span> <span class="p">:</span> <span class="s1">&#39;1.2.840.10008.5.1.4.1.1.481.2&#39;</span><span class="p">,</span>  <span class="c1"># A.18</span>
+    <span class="s1">&#39;RTStructureSetStorage&#39;</span> <span class="p">:</span> <span class="s1">&#39;1.2.840.10008.5.1.4.1.1.481.3&#39;</span><span class="p">,</span>  <span class="c1"># A.19</span>
+    <span class="s1">&#39;RTBeamsTreatmentRecordStorage&#39;</span> <span class="p">:</span> <span class="s1">&#39;1.2.840.10008.5.1.4.1.1.481.4&#39;</span><span class="p">,</span>  <span class="c1"># A.29</span>
+    <span class="s1">&#39;RTPlanStorage&#39;</span> <span class="p">:</span> <span class="s1">&#39;1.2.840.10008.5.1.4.1.1.481.5&#39;</span><span class="p">,</span>  <span class="c1"># A.20</span>
+    <span class="s1">&#39;RTBrachyTreatmentRecordStorage&#39;</span> <span class="p">:</span> <span class="s1">&#39;1.2.840.10008.5.1.4.1.1.481.6&#39;</span><span class="p">,</span>  <span class="c1"># A.20</span>
+    <span class="s1">&#39;RTTreatmentSummaryRecordStorage&#39;</span> <span class="p">:</span> <span class="s1">&#39;1.2.840.10008.5.1.4.1.1.481.7&#39;</span><span class="p">,</span>  <span class="c1"># A.31</span>
+    <span class="s1">&#39;RTIonPlanStorage&#39;</span> <span class="p">:</span> <span class="s1">&#39;1.2.840.10008.5.1.4.1.1.481.8&#39;</span><span class="p">,</span>  <span class="c1"># A.49</span>
+    <span class="s1">&#39;RTIonBeamsTreatmentRecordStorage&#39;</span> <span class="p">:</span> <span class="s1">&#39;1.2.840.10008.5.1.4.1.1.481.9&#39;</span><span class="p">,</span>  <span class="c1"># A.50</span>
+    <span class="s1">&#39;RTBeamsDeliveryInstructionStorage&#39;</span> <span class="p">:</span> <span class="s1">&#39;1.2.840.10008.5.1.4.34.7&#39;</span><span class="p">,</span>  <span class="c1"># A.64</span>
+    <span class="s1">&#39;RTBrachyApplicationSetupDeliveryInstructionsStorage&#39;</span> <span class="p">:</span> <span class="s1">&#39;1.2.840.10008.5.1.4.34.10&#39;</span><span class="p">,</span>  <span class="c1"># A.79</span>
+<span class="p">}</span>
+
+<span class="n">_QR_CLASSES</span> <span class="o">=</span> <span class="p">{</span>
+    <span class="s1">&#39;PatientRootQueryRetrieveInformationModelFind&#39;</span> <span class="p">:</span> <span class="s1">&#39;1.2.840.10008.5.1.4.1.2.1.1&#39;</span><span class="p">,</span>
+    <span class="s1">&#39;PatientRootQueryRetrieveInformationModelMove&#39;</span> <span class="p">:</span> <span class="s1">&#39;1.2.840.10008.5.1.4.1.2.1.2&#39;</span><span class="p">,</span>
+    <span class="s1">&#39;PatientRootQueryRetrieveInformationModelGet&#39;</span> <span class="p">:</span> <span class="s1">&#39;1.2.840.10008.5.1.4.1.2.1.3&#39;</span><span class="p">,</span>
+    <span class="s1">&#39;StudyRootQueryRetrieveInformationModelFind&#39;</span> <span class="p">:</span> <span class="s1">&#39;1.2.840.10008.5.1.4.1.2.2.1&#39;</span><span class="p">,</span>
+    <span class="s1">&#39;StudyRootQueryRetrieveInformationModelMove&#39;</span> <span class="p">:</span> <span class="s1">&#39;1.2.840.10008.5.1.4.1.2.2.2&#39;</span><span class="p">,</span>
+    <span class="s1">&#39;StudyRootQueryRetrieveInformationModelGet&#39;</span> <span class="p">:</span> <span class="s1">&#39;1.2.840.10008.5.1.4.1.2.2.3&#39;</span><span class="p">,</span>
+    <span class="s1">&#39;PatientStudyOnlyQueryRetrieveInformationModelFind&#39;</span> <span class="p">:</span> <span class="s1">&#39;1.2.840.10008.5.1.4.1.2.3.1&#39;</span><span class="p">,</span>
+    <span class="s1">&#39;PatientStudyOnlyQueryRetrieveInformationModelMove&#39;</span> <span class="p">:</span> <span class="s1">&#39;1.2.840.10008.5.1.4.1.2.3.2&#39;</span><span class="p">,</span>
+    <span class="s1">&#39;PatientStudyOnlyQueryRetrieveInformationModelGet&#39;</span> <span class="p">:</span> <span class="s1">&#39;1.2.840.10008.5.1.4.1.2.3.3&#39;</span><span class="p">,</span>
+    <span class="s1">&#39;CompositeInstanceRootRetrieveMove&#39;</span> <span class="p">:</span> <span class="s1">&#39;1.2.840.10008.5.1.4.1.2.4.2&#39;</span><span class="p">,</span>
+    <span class="s1">&#39;CompositeInstanceRootRetrieveGet&#39;</span> <span class="p">:</span> <span class="s1">&#39;1.2.840.10008.5.1.4.1.2.4.3&#39;</span><span class="p">,</span>
+    <span class="s1">&#39;CompositeInstanceRetrieveWithoutBulkDataGet&#39;</span> <span class="p">:</span> <span class="s1">&#39;1.2.840.10008.5.1.4.1.2.5.3&#39;</span><span class="p">,</span>
+<span class="p">}</span>
+
+<span class="n">_BASIC_WORKLIST_CLASSES</span> <span class="o">=</span> <span class="p">{</span>
+    <span class="s1">&#39;ModalityWorklistInformationFind&#39;</span> <span class="p">:</span> <span class="s1">&#39;1.2.840.10008.5.1.4.31&#39;</span><span class="p">,</span>
+<span class="p">}</span>
+
+<span class="n">_RELEVANT_PATIENT_QUERY_CLASSES</span> <span class="o">=</span> <span class="p">{</span>
+    <span class="s1">&#39;GeneralRelevantPatientInformationQuery&#39;</span> <span class="p">:</span> <span class="s1">&#39;1.2.840.10008.5.1.4.37.1&#39;</span><span class="p">,</span>
+    <span class="s1">&#39;BreastImagingRelevantPatientInformationQuery&#39;</span> <span class="p">:</span> <span class="s1">&#39;1.2.840.10008.5.1.4.37.2&#39;</span><span class="p">,</span>
+    <span class="s1">&#39;CardiacRelevantPatientInformationQuery&#39;</span> <span class="p">:</span> <span class="s1">&#39;1.2.840.10008.5.1.4.37.3&#39;</span><span class="p">,</span>
+<span class="p">}</span>
+
+<span class="n">_SUBSTANCE_ADMINISTRATION_CLASSES</span> <span class="o">=</span> <span class="p">{</span>
+    <span class="s1">&#39;ProductCharacteristicsQueryInformationModelFind&#39;</span> <span class="p">:</span> <span class="s1">&#39;1.2.840.10008.5.1.4.41&#39;</span><span class="p">,</span>
+    <span class="s1">&#39;SubstanceApprovalQueryInformationModelFind&#39;</span> <span class="p">:</span> <span class="s1">&#39;1.2.840.10008.5.1.4.42&#39;</span>
+<span class="p">}</span>
+
+<span class="n">_NON_PATIENT_OBJECT_CLASSES</span> <span class="o">=</span> <span class="p">{</span>
+    <span class="s1">&#39;HangingProtocolStorage&#39;</span> <span class="p">:</span> <span class="s1">&#39;1.2.840.10008.5.1.4.38.1&#39;</span><span class="p">,</span>
+    <span class="s1">&#39;ColorPaletteStorage&#39;</span> <span class="p">:</span> <span class="s1">&#39;1.2.840.10008.5.1.4.39.1&#39;</span><span class="p">,</span>
+    <span class="s1">&#39;GenericImplantTemplateStorage&#39;</span> <span class="p">:</span> <span class="s1">&#39;1.2.840.10008.5.1.4.43.1&#39;</span><span class="p">,</span>
+    <span class="s1">&#39;ImplantAssemblyTemplateStorage&#39;</span> <span class="p">:</span> <span class="s1">&#39;1.2.840.10008.5.1.4.44.1&#39;</span><span class="p">,</span>
+    <span class="s1">&#39;ImplantTemplateGroupStorage&#39;</span> <span class="p">:</span> <span class="s1">&#39;1.2.840.10008.5.1.4.45.1&#39;</span><span class="p">,</span>
+    <span class="s1">&#39;CTDefinedProcedureProtocolStorage&#39;</span> <span class="p">:</span> <span class="s1">&#39;1.2.840.10008.5.1.4.1.1.200.1&#39;</span><span class="p">,</span>
+    <span class="s1">&#39;ProtocolApprovalStorage&#39;</span> <span class="p">:</span> <span class="s1">&#39;1.2.840.10008.5.1.4.1.1.200.3&#39;</span><span class="p">,</span>
+<span class="p">}</span>
+
+<span class="n">_HANGING_PROTOCOL_CLASSES</span> <span class="o">=</span> <span class="p">{</span>
+    <span class="s1">&#39;HangingProtocolInformationModelFind&#39;</span> <span class="p">:</span> <span class="s1">&#39;1.2.840.10008.5.1.4.38.2&#39;</span><span class="p">,</span>
+    <span class="s1">&#39;HangingProtocolInformationModelMove&#39;</span> <span class="p">:</span> <span class="s1">&#39;1.2.840.10008.5.1.4.38.3&#39;</span><span class="p">,</span>
+    <span class="s1">&#39;HangingProtocolInformationModelGet&#39;</span> <span class="p">:</span> <span class="s1">&#39;1.2.840.10008.5.1.4.38.4&#39;</span><span class="p">,</span>
+<span class="p">}</span>
+
+<span class="n">_DEFINED_PROCEDURE_CLASSES</span> <span class="o">=</span> <span class="p">{</span>
+    <span class="s1">&#39;DefinedProcedureProtocolInformationModelFind&#39;</span> <span class="p">:</span> <span class="s1">&#39;1.2.840.10008.5.1.4.20.1&#39;</span><span class="p">,</span>
+    <span class="s1">&#39;DefinedProcedureProtocolInformationModelMove&#39;</span> <span class="p">:</span> <span class="s1">&#39;1.2.840.10008.5.1.4.20.2&#39;</span><span class="p">,</span>
+    <span class="s1">&#39;DefinedProcedureProtocolInformationModelGet&#39;</span> <span class="p">:</span> <span class="s1">&#39;1.2.840.10008.5.1.4.20.3&#39;</span><span class="p">,</span>
+<span class="p">}</span>
+
+<span class="n">_COLOR_PALETTE_CLASSES</span> <span class="o">=</span> <span class="p">{</span>
+    <span class="s1">&#39;ColorPaletteInformationModelFind&#39;</span> <span class="p">:</span> <span class="s1">&#39;1.2.840.10008.5.1.4.39.2&#39;</span><span class="p">,</span>
+    <span class="s1">&#39;ColorPaletteInformationModelMove&#39;</span> <span class="p">:</span> <span class="s1">&#39;1.2.840.10008.5.1.4.39.3&#39;</span><span class="p">,</span>
+    <span class="s1">&#39;ColorPaletteInformationModelGet&#39;</span> <span class="p">:</span> <span class="s1">&#39;1.2.840.10008.5.1.4.39.4&#39;</span><span class="p">,</span>
+<span class="p">}</span>
+
+<span class="n">_IMPLANT_TEMPLATE_CLASSES</span> <span class="o">=</span> <span class="p">{</span>
+    <span class="s1">&#39;GenericImplantTemplateInformationModelFind&#39;</span> <span class="p">:</span> <span class="s1">&#39;1.2.840.10008.5.1.4.43.2&#39;</span><span class="p">,</span>
+    <span class="s1">&#39;GenericImplantTemplateInformationModelMove&#39;</span> <span class="p">:</span> <span class="s1">&#39;1.2.840.10008.5.1.4.43.3&#39;</span><span class="p">,</span>
+    <span class="s1">&#39;GenericImplantTemplateInformationModelGet&#39;</span> <span class="p">:</span> <span class="s1">&#39;1.2.840.10008.5.1.4.43.4&#39;</span><span class="p">,</span>
+    <span class="s1">&#39;ImplantAssemblyTemplateInformationModelFind&#39;</span> <span class="p">:</span> <span class="s1">&#39;1.2.840.10008.5.1.4.44.2&#39;</span><span class="p">,</span>
+    <span class="s1">&#39;ImplantAssemblyTemplateInformationModelMove&#39;</span> <span class="p">:</span> <span class="s1">&#39;1.2.840.10008.5.1.4.44.3&#39;</span><span class="p">,</span>
+    <span class="s1">&#39;ImplantAssemblyTemplateInformationModelGet&#39;</span> <span class="p">:</span> <span class="s1">&#39;1.2.840.10008.5.1.4.44.4&#39;</span><span class="p">,</span>
+    <span class="s1">&#39;ImplantTemplateGroupInformationModelFind&#39;</span> <span class="p">:</span> <span class="s1">&#39;1.2.840.10008.5.1.4.45.2&#39;</span><span class="p">,</span>
+    <span class="s1">&#39;ImplantTemplateGroupInformationModelMove&#39;</span> <span class="p">:</span> <span class="s1">&#39;1.2.840.10008.5.1.4.45.3&#39;</span><span class="p">,</span>
+    <span class="s1">&#39;ImplantTemplateGroupInformationModelGet&#39;</span> <span class="p">:</span> <span class="s1">&#39;1.2.840.10008.5.1.4.45.4&#39;</span><span class="p">,</span>
+<span class="p">}</span>
+
+<span class="n">_DISPLAY_SYSTEM_CLASSES</span> <span class="o">=</span> <span class="p">{</span>
+    <span class="s1">&#39;DisplaySystemSOPClass&#39;</span> <span class="p">:</span> <span class="s1">&#39;1.2.840.10008.5.1.1.40&#39;</span><span class="p">,</span>
+<span class="p">}</span>
+
+<span class="n">_PRINT_MANAGEMENT_CLASSES</span> <span class="o">=</span> <span class="p">{</span>
+    <span class="s1">&#39;BasicFilmSessionSOPClass&#39;</span> <span class="p">:</span> <span class="s1">&#39;1.2.840.10008.5.1.1.1&#39;</span><span class="p">,</span>
+    <span class="s1">&#39;BasicFilmBoxSOPClass&#39;</span> <span class="p">:</span> <span class="s1">&#39;1.2.840.10008.5.1.1.2&#39;</span><span class="p">,</span>
+    <span class="s1">&#39;BasicGrayscaleImageBoxSOPClass&#39;</span> <span class="p">:</span> <span class="s1">&#39;1.2.840.10008.5.1.1.4&#39;</span><span class="p">,</span>
+    <span class="s1">&#39;BasicColourImageBoxSOPClass&#39;</span> <span class="p">:</span> <span class="s1">&#39;1.2.840.10008.5.1.1.4.1&#39;</span><span class="p">,</span>
+    <span class="s1">&#39;PrintJobSOPClass&#39;</span> <span class="p">:</span> <span class="s1">&#39;1.2.840.10008.5.1.1.14&#39;</span><span class="p">,</span>
+    <span class="s1">&#39;BasicAnnotationBoxSOPClass&#39;</span> <span class="p">:</span> <span class="s1">&#39;1.2.840.10008.5.1.1.15&#39;</span><span class="p">,</span>
+    <span class="s1">&#39;PrinterSOPClass&#39;</span> <span class="p">:</span> <span class="s1">&#39;1.2.840.10008.5.1.1.16&#39;</span><span class="p">,</span>
+    <span class="s1">&#39;PrinterConfigurationRetrievalSOPClass&#39;</span> <span class="p">:</span> <span class="s1">&#39;1.2.840.10008.5.1.1.16.376&#39;</span><span class="p">,</span>
+    <span class="s1">&#39;PresentationLUTSOPClass&#39;</span> <span class="p">:</span> <span class="s1">&#39;1.2.840.10008.5.1.1.23&#39;</span><span class="p">,</span>
+<span class="p">}</span>
+
+<span class="n">_PROCEDURE_STEP_CLASSES</span> <span class="o">=</span> <span class="p">{</span>
+    <span class="s1">&#39;ModalityPerformedProcedureStepSOPClass&#39;</span> <span class="p">:</span> <span class="s1">&#39;1.2.840.10008.3.1.2.3.3&#39;</span><span class="p">,</span>
+    <span class="s1">&#39;ModalityPerformedProcedureStepRetrieveSOPClass&#39;</span> <span class="p">:</span> <span class="s1">&#39;1.2.840.10008.3.1.2.3.4&#39;</span><span class="p">,</span>
+    <span class="s1">&#39;ModalityPerformedProcedureStepNotificationSOPClass&#39;</span> <span class="p">:</span> <span class="s1">&#39;1.2.840.10008.3.1.2.3.5&#39;</span><span class="p">,</span>
+<span class="p">}</span>
+
+<span class="n">_MEDIA_STORAGE_CLASSES</span> <span class="o">=</span> <span class="p">{</span>
+    <span class="s1">&#39;MediaStorageDirectoryStorage&#39;</span> <span class="p">:</span> <span class="s1">&#39;1.2.840.10008.1.3.10&#39;</span><span class="p">,</span>
+<span class="p">}</span>
+
+<span class="n">_UNIFIED_PROCEDURE_STEP_CLASSES</span> <span class="o">=</span> <span class="p">{</span>
+    <span class="s1">&#39;UnitedProcedureStepPush&#39;</span> <span class="p">:</span> <span class="s1">&#39;1.2.840.10008.5.1.4.34.6.1&#39;</span><span class="p">,</span>
+    <span class="s1">&#39;UnitedProcedureStepWatch&#39;</span> <span class="p">:</span> <span class="s1">&#39;1.2.840.10008.5.1.4.34.6.2&#39;</span><span class="p">,</span>
+    <span class="s1">&#39;UnitedProcedureStepPull&#39;</span> <span class="p">:</span> <span class="s1">&#39;1.2.840.10008.5.1.4.34.6.3&#39;</span><span class="p">,</span>
+    <span class="s1">&#39;UnitedProcedureStepEvent&#39;</span> <span class="p">:</span> <span class="s1">&#39;1.2.840.10008.5.1.4.34.6.4&#39;</span><span class="p">,</span>
+<span class="p">}</span>
+
+<span class="n">_RT_MACHINE_VERIFICATION_CLASSES</span> <span class="o">=</span> <span class="p">{</span>
+    <span class="s1">&#39;RTConventionalMachineVerification&#39;</span> <span class="p">:</span> <span class="s1">&#39;1.2.840.10008.5.1.4.34.8&#39;</span><span class="p">,</span>
+    <span class="s1">&#39;RTIonMachineVerification&#39;</span> <span class="p">:</span> <span class="s1">&#39;1.2.840.10008.5.1.4.34.9&#39;</span><span class="p">,</span>
+<span class="p">}</span>
+
+<span class="c1"># pylint: enable=line-too-long</span>
+<span class="n">_generate_sop_classes</span><span class="p">(</span><span class="n">_VERIFICATION_CLASSES</span><span class="p">)</span>
+<span class="n">_generate_sop_classes</span><span class="p">(</span><span class="n">_STORAGE_CLASSES</span><span class="p">)</span>
+<span class="n">_generate_sop_classes</span><span class="p">(</span><span class="n">_QR_CLASSES</span><span class="p">)</span>
+<span class="n">_generate_sop_classes</span><span class="p">(</span><span class="n">_BASIC_WORKLIST_CLASSES</span><span class="p">)</span>
+<span class="n">_generate_sop_classes</span><span class="p">(</span><span class="n">_RELEVANT_PATIENT_QUERY_CLASSES</span><span class="p">)</span>
+<span class="n">_generate_sop_classes</span><span class="p">(</span><span class="n">_SUBSTANCE_ADMINISTRATION_CLASSES</span><span class="p">)</span>
+<span class="n">_generate_sop_classes</span><span class="p">(</span><span class="n">_NON_PATIENT_OBJECT_CLASSES</span><span class="p">)</span>
+<span class="n">_generate_sop_classes</span><span class="p">(</span><span class="n">_HANGING_PROTOCOL_CLASSES</span><span class="p">)</span>
+<span class="n">_generate_sop_classes</span><span class="p">(</span><span class="n">_DEFINED_PROCEDURE_CLASSES</span><span class="p">)</span>
+<span class="n">_generate_sop_classes</span><span class="p">(</span><span class="n">_COLOR_PALETTE_CLASSES</span><span class="p">)</span>
+<span class="n">_generate_sop_classes</span><span class="p">(</span><span class="n">_IMPLANT_TEMPLATE_CLASSES</span><span class="p">)</span>
+<span class="n">_generate_sop_classes</span><span class="p">(</span><span class="n">_DISPLAY_SYSTEM_CLASSES</span><span class="p">)</span>
+<span class="n">_generate_sop_classes</span><span class="p">(</span><span class="n">_PRINT_MANAGEMENT_CLASSES</span><span class="p">)</span>
+<span class="n">_generate_sop_classes</span><span class="p">(</span><span class="n">_PROCEDURE_STEP_CLASSES</span><span class="p">)</span>
+<span class="n">_generate_sop_classes</span><span class="p">(</span><span class="n">_MEDIA_STORAGE_CLASSES</span><span class="p">)</span>
+<span class="n">_generate_sop_classes</span><span class="p">(</span><span class="n">_UNIFIED_PROCEDURE_STEP_CLASSES</span><span class="p">)</span>
+<span class="n">_generate_sop_classes</span><span class="p">(</span><span class="n">_RT_MACHINE_VERIFICATION_CLASSES</span><span class="p">)</span>
+
+
+<div class="viewcode-block" id="uid_to_sop_class"><a class="viewcode-back" href="../../reference/generated/pynetdicom.sop_class.uid_to_sop_class.html#pynetdicom.sop_class.uid_to_sop_class">[docs]</a><span class="k">def</span> <span class="nf">uid_to_sop_class</span><span class="p">(</span><span class="n">uid</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;Return the SOPClass object corresponding to `uid`.</span>
+
+<span class="sd">    Parameters</span>
+<span class="sd">    ----------</span>
+<span class="sd">    uid : pydicom.uid.UID</span>
+
+<span class="sd">    Returns</span>
+<span class="sd">    -------</span>
+<span class="sd">    sop_class.SOPClass subclass</span>
+<span class="sd">        The SOP class corresponding to `uid`.</span>
+
+<span class="sd">    Raises</span>
+<span class="sd">    ------</span>
+<span class="sd">    NotImplementedError</span>
+<span class="sd">        If the SOP Class corresponding to the given UID has not been</span>
+<span class="sd">        implemented.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="c1"># Get a list of all the class members of the current module</span>
+    <span class="n">members</span> <span class="o">=</span> <span class="n">inspect</span><span class="o">.</span><span class="n">getmembers</span><span class="p">(</span>
+        <span class="n">sys</span><span class="o">.</span><span class="n">modules</span><span class="p">[</span><span class="vm">__name__</span><span class="p">],</span>
+        <span class="k">lambda</span> <span class="n">mbr</span><span class="p">:</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">mbr</span><span class="p">,</span> <span class="nb">str</span><span class="p">)</span>
+    <span class="p">)</span>
+
+    <span class="k">for</span> <span class="n">obj</span> <span class="ow">in</span> <span class="n">members</span><span class="p">:</span>
+        <span class="k">if</span> <span class="nb">hasattr</span><span class="p">(</span><span class="n">obj</span><span class="p">[</span><span class="mi">1</span><span class="p">],</span> <span class="s1">&#39;service_class&#39;</span><span class="p">)</span> <span class="ow">and</span> <span class="n">obj</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span> <span class="o">==</span> <span class="n">uid</span><span class="p">:</span>
+            <span class="k">return</span> <span class="n">obj</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span>
+
+    <span class="n">sop_class</span> <span class="o">=</span> <span class="n">SOPClass</span><span class="p">(</span><span class="n">uid</span><span class="p">)</span>
+    <span class="n">sop_class</span><span class="o">.</span><span class="n">_service_class</span> <span class="o">=</span> <span class="n">ServiceClass</span>
+
+    <span class="k">return</span> <span class="n">sop_class</span></div>
+</pre></div>
+
+           </div>
+           
+          </div>
+          <footer>
+  
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>
+        &copy; Copyright 2018-19, pynetdicom contributors
+
+    </p>
+  </div>
+  Built with <a href="http://sphinx-doc.org/">Sphinx</a> using a <a href="https://github.com/rtfd/sphinx_rtd_theme">theme</a> provided by <a href="https://readthedocs.org">Read the Docs</a>. 
+
+</footer>
+
+        </div>
+      </div>
+
+    </section>
+
+  </div>
+  
+
+
+  
+
+    
+    
+      <script type="text/javascript" id="documentation_options" data-url_root="../../" src="../../_static/documentation_options.js"></script>
+        <script type="text/javascript" src="../../_static/jquery.js"></script>
+        <script type="text/javascript" src="../../_static/underscore.js"></script>
+        <script type="text/javascript" src="../../_static/doctools.js"></script>
+        <script type="text/javascript" src="../../_static/language_data.js"></script>
+    
+
+  
+
+  <script type="text/javascript" src="../../_static/js/theme.js"></script>
+
+  <script type="text/javascript">
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script> 
+
+</body>
+</html>
