@@ -1,0 +1,38 @@
+pynetdicom.pdu.A\_ASSOCIATE\_RQ
+===============================
+
+.. currentmodule:: pynetdicom.pdu
+
+.. autoclass:: A_ASSOCIATE_RQ
+
+   
+   .. automethod:: __init__
+
+   
+   .. rubric:: Methods
+
+   .. autosummary::
+   
+      ~A_ASSOCIATE_RQ.__init__
+      ~A_ASSOCIATE_RQ.decode
+      ~A_ASSOCIATE_RQ.encode
+      ~A_ASSOCIATE_RQ.from_primitive
+      ~A_ASSOCIATE_RQ.to_primitive
+   
+   
+
+   
+   
+   .. rubric:: Attributes
+
+   .. autosummary::
+   
+      ~A_ASSOCIATE_RQ.application_context_name
+      ~A_ASSOCIATE_RQ.called_ae_title
+      ~A_ASSOCIATE_RQ.calling_ae_title
+      ~A_ASSOCIATE_RQ.pdu_length
+      ~A_ASSOCIATE_RQ.pdu_type
+      ~A_ASSOCIATE_RQ.presentation_context
+      ~A_ASSOCIATE_RQ.user_information
+   
+   

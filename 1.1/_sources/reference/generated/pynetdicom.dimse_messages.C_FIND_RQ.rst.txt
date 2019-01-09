@@ -1,0 +1,32 @@
+pynetdicom.dimse\_messages.C\_FIND\_RQ
+======================================
+
+.. currentmodule:: pynetdicom.dimse_messages
+
+.. autoclass:: C_FIND_RQ
+
+   
+   .. automethod:: __init__
+
+   
+   .. rubric:: Methods
+
+   .. autosummary::
+   
+      ~C_FIND_RQ.__init__
+      ~C_FIND_RQ.decode_msg
+      ~C_FIND_RQ.encode_msg
+      ~C_FIND_RQ.message_to_primitive
+      ~C_FIND_RQ.primitive_to_message
+   
+   
+
+   
+   
+   .. rubric:: Attributes
+
+   .. autosummary::
+   
+      ~C_FIND_RQ.ID
+   
+   

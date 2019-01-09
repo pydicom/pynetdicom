@@ -1,0 +1,29 @@
+pynetdicom.pdu\_primitives.ImplementationClassUIDNotification
+=============================================================
+
+.. currentmodule:: pynetdicom.pdu_primitives
+
+.. autoclass:: ImplementationClassUIDNotification
+
+   
+   .. automethod:: __init__
+
+   
+   .. rubric:: Methods
+
+   .. autosummary::
+   
+      ~ImplementationClassUIDNotification.__init__
+      ~ImplementationClassUIDNotification.from_primitive
+   
+   
+
+   
+   
+   .. rubric:: Attributes
+
+   .. autosummary::
+   
+      ~ImplementationClassUIDNotification.implementation_class_uid
+   
+   

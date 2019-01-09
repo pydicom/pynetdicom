@@ -1,0 +1,256 @@
+
+
+<!DOCTYPE html>
+<!--[if IE 8]><html class="no-js lt-ie9" lang="en" > <![endif]-->
+<!--[if gt IE 8]><!--> <html class="no-js" lang="en" > <!--<![endif]-->
+<head>
+  <meta charset="utf-8">
+  
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  
+  <title>Service Primitives (pynetdicom.dimse_primitives) &mdash; pynetdicom 1.1.0 documentation</title>
+  
+
+  
+  
+    <link rel="shortcut icon" href="../_static/favicon.ico"/>
+  
+  
+  
+
+  
+
+  
+  
+    
+
+  
+
+  <link rel="stylesheet" href="../_static/css/pynetdicom.css" type="text/css" />
+  <link rel="stylesheet" href="../_static/pygments.css" type="text/css" />
+  <link rel="stylesheet" href="../_static/css/pynetdicom.css" type="text/css" />
+    <link rel="index" title="Index" href="../genindex.html" />
+    <link rel="search" title="Search" href="../search.html" /> 
+
+  
+  <script src="../_static/js/modernizr.min.js"></script>
+
+</head>
+
+<body class="wy-body-for-nav">
+
+   
+  <div class="wy-grid-for-nav">
+
+    
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search">
+          
+
+          
+            <a href="../index.html" class="icon icon-home"> pynetdicom
+          
+
+          
+            
+            <img src="../_static/pydicom_flat_black.svg" class="logo" alt="Logo"/>
+          
+          </a>
+
+          
+            
+            
+              <div class="version">
+                1.1.0
+              </div>
+            
+          
+
+          
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="../search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+
+          
+        </div>
+
+        <div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="main navigation">
+          
+            
+            
+              
+            
+            
+              <ul>
+<li class="toctree-l1"><a class="reference internal" href="../verification_service_class.html">Verification Service Class</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../storage_service_class.html">Storage Service Class</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../query_retrieve_service_class.html">Query/Retrieve Service Class</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../basic_worklist_service_class.html">Basic Worklist Management Service Class</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../relevant_patient_service_class.html">Relevant Patient Information Query Service Class</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../substance_admin_service_class.html">Substance Administration Query Service Class</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../non_patient_service_class.html">Non-Patient Object Storage Service Class</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../color_palette_service_class.html">Color Palette Query/Retrieve Service Class</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../defined_procedure_service_class.html">Defined Procedure Protocol Query/Retrieve Service Class</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../hanging_protocol_service_class.html">Hanging Protocol Query/Retrieve Service Class</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../implant_template_service_class.html">Implant Template Query/Retrieve Service Class</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../display_system_service_class.html">Display System Management Service Class</a></li>
+</ul>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../user/index.html">User Guide</a></li>
+</ul>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../release_notes.html">1.1.0</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../release_notes.html#id2">1.0.0</a></li>
+</ul>
+
+            
+          
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap">
+
+      
+      <nav class="wy-nav-top" aria-label="top navigation">
+        
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="../index.html">pynetdicom</a>
+        
+      </nav>
+
+
+      <div class="wy-nav-content">
+        
+        <div class="rst-content">
+        
+          
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+<div role="navigation" aria-label="breadcrumbs navigation">
+
+  <ul class="wy-breadcrumbs">
+    
+      <li><a href="../index.html">Docs</a> &raquo;</li>
+        
+      <li>Service Primitives (<code class="docutils literal notranslate"><span class="pre">pynetdicom.dimse_primitives</span></code>)</li>
+    
+    
+      <li class="wy-breadcrumbs-aside">
+        
+            
+            <a href="../_sources/reference/dimse.primitives.rst.txt" rel="nofollow"> View page source</a>
+          
+        
+      </li>
+    
+  </ul>
+
+  
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+            
+  <div class="section" id="service-primitives-pynetdicom-dimse-primitives">
+<h1>Service Primitives (<code class="xref py py-mod docutils literal notranslate"><span class="pre">pynetdicom.dimse_primitives</span></code>)<a class="headerlink" href="#service-primitives-pynetdicom-dimse-primitives" title="Permalink to this headline">¶</a></h1>
+<div class="section" id="dimse-c-primitives">
+<h2>DIMSE-C Primitives<a class="headerlink" href="#dimse-c-primitives" title="Permalink to this headline">¶</a></h2>
+<table border="1" class="longtable docutils">
+<colgroup>
+<col width="10%" />
+<col width="90%" />
+</colgroup>
+<tbody valign="top">
+<tr class="row-odd"><td><a class="reference internal" href="generated/pynetdicom.dimse_primitives.C_CANCEL.html#pynetdicom.dimse_primitives.C_CANCEL" title="pynetdicom.dimse_primitives.C_CANCEL"><code class="xref py py-obj docutils literal notranslate"><span class="pre">C_CANCEL</span></code></a>()</td>
+<td>Represents a C-CANCEL primitive.</td>
+</tr>
+<tr class="row-even"><td><a class="reference internal" href="generated/pynetdicom.dimse_primitives.C_ECHO.html#pynetdicom.dimse_primitives.C_ECHO" title="pynetdicom.dimse_primitives.C_ECHO"><code class="xref py py-obj docutils literal notranslate"><span class="pre">C_ECHO</span></code></a>()</td>
+<td>Represents a C-ECHO primitive.</td>
+</tr>
+<tr class="row-odd"><td><a class="reference internal" href="generated/pynetdicom.dimse_primitives.C_FIND.html#pynetdicom.dimse_primitives.C_FIND" title="pynetdicom.dimse_primitives.C_FIND"><code class="xref py py-obj docutils literal notranslate"><span class="pre">C_FIND</span></code></a>()</td>
+<td>Represents a C-FIND primitive.</td>
+</tr>
+<tr class="row-even"><td><a class="reference internal" href="generated/pynetdicom.dimse_primitives.C_GET.html#pynetdicom.dimse_primitives.C_GET" title="pynetdicom.dimse_primitives.C_GET"><code class="xref py py-obj docutils literal notranslate"><span class="pre">C_GET</span></code></a>()</td>
+<td>Represents a C-GET primitive.</td>
+</tr>
+<tr class="row-odd"><td><a class="reference internal" href="generated/pynetdicom.dimse_primitives.C_MOVE.html#pynetdicom.dimse_primitives.C_MOVE" title="pynetdicom.dimse_primitives.C_MOVE"><code class="xref py py-obj docutils literal notranslate"><span class="pre">C_MOVE</span></code></a>()</td>
+<td>Represents a C-MOVE primitive.</td>
+</tr>
+<tr class="row-even"><td><a class="reference internal" href="generated/pynetdicom.dimse_primitives.C_STORE.html#pynetdicom.dimse_primitives.C_STORE" title="pynetdicom.dimse_primitives.C_STORE"><code class="xref py py-obj docutils literal notranslate"><span class="pre">C_STORE</span></code></a>()</td>
+<td>Represents a C-STORE primitive.</td>
+</tr>
+</tbody>
+</table>
+</div>
+</div>
+
+
+           </div>
+           
+          </div>
+          <footer>
+  
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>
+        &copy; Copyright 2018-19, pynetdicom contributors
+
+    </p>
+  </div>
+  Built with <a href="http://sphinx-doc.org/">Sphinx</a> using a <a href="https://github.com/rtfd/sphinx_rtd_theme">theme</a> provided by <a href="https://readthedocs.org">Read the Docs</a>. 
+
+</footer>
+
+        </div>
+      </div>
+
+    </section>
+
+  </div>
+  
+
+
+  
+
+    
+    
+      <script type="text/javascript" id="documentation_options" data-url_root="../" src="../_static/documentation_options.js"></script>
+        <script type="text/javascript" src="../_static/jquery.js"></script>
+        <script type="text/javascript" src="../_static/underscore.js"></script>
+        <script type="text/javascript" src="../_static/doctools.js"></script>
+        <script type="text/javascript" src="../_static/language_data.js"></script>
+    
+
+  
+
+  <script type="text/javascript" src="../_static/js/theme.js"></script>
+
+  <script type="text/javascript">
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script> 
+
+</body>
+</html>
