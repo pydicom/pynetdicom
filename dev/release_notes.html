@@ -8,7 +8,7 @@
   
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   
-  <title>1.1.0 &mdash; pynetdicom 1.1.0 documentation</title>
+  <title>1.1.0 &mdash; pynetdicom 1.2.0.dev0 documentation</title>
   
 
   
@@ -63,7 +63,7 @@
             
             
               <div class="version">
-                1.1.0
+                1.2.0.dev0
               </div>
             
           
@@ -111,10 +111,16 @@
 <li class="toctree-l2"><a class="reference internal" href="#changes">Changes</a></li>
 </ul>
 </li>
-<li class="toctree-l1"><a class="reference internal" href="#id2">1.0.0</a><ul>
+<li class="toctree-l1"><a class="reference internal" href="#id2">1.1.0</a><ul>
 <li class="toctree-l2"><a class="reference internal" href="#id3">Fixes</a></li>
-<li class="toctree-l2"><a class="reference internal" href="#id4">Changes</a></li>
-<li class="toctree-l2"><a class="reference internal" href="#id5">Enhancements</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#id4">Enhancements</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#id5">Changes</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="#id6">1.0.0</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="#id7">Fixes</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#id8">Changes</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#id9">Enhancements</a></li>
 </ul>
 </li>
 </ul>
@@ -185,6 +191,24 @@
 <h1>1.1.0<a class="headerlink" href="#id1" title="Permalink to this headline">¶</a></h1>
 <div class="section" id="fixes">
 <h2>Fixes<a class="headerlink" href="#fixes" title="Permalink to this headline">¶</a></h2>
+</div>
+<div class="section" id="enhancements">
+<h2>Enhancements<a class="headerlink" href="#enhancements" title="Permalink to this headline">¶</a></h2>
+</div>
+<div class="section" id="changes">
+<h2>Changes<a class="headerlink" href="#changes" title="Permalink to this headline">¶</a></h2>
+<ul class="simple">
+<li><code class="docutils literal notranslate"><span class="pre">AE.quit()</span></code> removed.</li>
+<li><code class="docutils literal notranslate"><span class="pre">DIMSEMessage.ID</span></code> removed</li>
+<li><code class="docutils literal notranslate"><span class="pre">ACSE.is_released</span></code> removed</li>
+<li><code class="docutils literal notranslate"><span class="pre">ACSE.release_association</span></code> removed</li>
+</ul>
+</div>
+</div>
+<div class="section" id="id2">
+<h1>1.1.0<a class="headerlink" href="#id2" title="Permalink to this headline">¶</a></h1>
+<div class="section" id="id3">
+<h2>Fixes<a class="headerlink" href="#id3" title="Permalink to this headline">¶</a></h2>
 <ul class="simple">
 <li>No longer using a list as the default value for the <code class="docutils literal notranslate"><span class="pre">transfer_syntax</span></code>
 keyword argument in <code class="docutils literal notranslate"><span class="pre">AE.add_requested_context()</span></code>,
@@ -201,8 +225,8 @@ close the connection and there was data still available to be read.
 (<a class="reference external" href="https://github.com/pydicom/pynetdicom/issues/272">#272</a>)</li>
 </ul>
 </div>
-<div class="section" id="enhancements">
-<h2>Enhancements<a class="headerlink" href="#enhancements" title="Permalink to this headline">¶</a></h2>
+<div class="section" id="id4">
+<h2>Enhancements<a class="headerlink" href="#id4" title="Permalink to this headline">¶</a></h2>
 <ul class="simple">
 <li>Added <code class="docutils literal notranslate"><span class="pre">select_timeout</span></code> parameter to <code class="docutils literal notranslate"><span class="pre">Association.start()</span></code> to allow the
 user to specify how long the select.select() call blocks for.
@@ -210,8 +234,8 @@ user to specify how long the select.select() call blocks for.
 <li>Improved the CPU usage of the AE when running idle as an SCP (<a class="reference external" href="https://github.com/pydicom/pynetdicom/issues/60">#60</a>).</li>
 </ul>
 </div>
-<div class="section" id="changes">
-<h2>Changes<a class="headerlink" href="#changes" title="Permalink to this headline">¶</a></h2>
+<div class="section" id="id5">
+<h2>Changes<a class="headerlink" href="#id5" title="Permalink to this headline">¶</a></h2>
 <ul class="simple">
 <li><code class="docutils literal notranslate"><span class="pre">AE.quit()</span></code> is deprecated and will be removed in v1.2. Use <code class="docutils literal notranslate"><span class="pre">AE.stop()</span></code>
 instead.</li>
@@ -240,10 +264,10 @@ are no accepted presentation contexts. The association requestor still does.</li
 </ul>
 </div>
 </div>
-<div class="section" id="id2">
-<h1>1.0.0<a class="headerlink" href="#id2" title="Permalink to this headline">¶</a></h1>
-<div class="section" id="id3">
-<h2>Fixes<a class="headerlink" href="#id3" title="Permalink to this headline">¶</a></h2>
+<div class="section" id="id6">
+<h1>1.0.0<a class="headerlink" href="#id6" title="Permalink to this headline">¶</a></h1>
+<div class="section" id="id7">
+<h2>Fixes<a class="headerlink" href="#id7" title="Permalink to this headline">¶</a></h2>
 <ul class="simple">
 <li>Fixed upstream pydicom changes to AE elements breaking logging
 (<a class="reference external" href="https://github.com/pydicom/pynetdicom/issues/195">#195</a>)</li>
@@ -253,8 +277,8 @@ set (as association requestor)</li>
 <li>Starting with v1.0.0, versioning should be consistent</li>
 </ul>
 </div>
-<div class="section" id="id4">
-<h2>Changes<a class="headerlink" href="#id4" title="Permalink to this headline">¶</a></h2>
+<div class="section" id="id8">
+<h2>Changes<a class="headerlink" href="#id8" title="Permalink to this headline">¶</a></h2>
 <ul class="simple">
 <li><code class="docutils literal notranslate"><span class="pre">applicationentity</span></code> module renamed <code class="docutils literal notranslate"><span class="pre">ae</span></code></li>
 <li><code class="docutils literal notranslate"><span class="pre">ApplicationEntity</span></code> interface updated<ul>
@@ -309,8 +333,8 @@ and acceptor.</li>
 <li>Project named changed from pynetdicom3 to pynetdicom</li>
 </ul>
 </div>
-<div class="section" id="id5">
-<h2>Enhancements<a class="headerlink" href="#id5" title="Permalink to this headline">¶</a></h2>
+<div class="section" id="id9">
+<h2>Enhancements<a class="headerlink" href="#id9" title="Permalink to this headline">¶</a></h2>
 <ul class="simple">
 <li>Add <code class="docutils literal notranslate"><span class="pre">context</span></code> and <code class="docutils literal notranslate"><span class="pre">info</span></code> parameters to on_c_* callbacks (<a class="reference external" href="https://github.com/pydicom/pynetdicom/issues/45">#45</a>,
 <a class="reference external" href="https://github.com/pydicom/pynetdicom/issues/54">#54</a>, <a class="reference external" href="https://github.com/pydicom/pynetdicom/issues/65">#65</a>, <a class="reference external" href="https://github.com/pydicom/pynetdicom/issues/106">#106</a>)</li>

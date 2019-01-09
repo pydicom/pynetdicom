@@ -43,7 +43,6 @@ pynetdicom.ae.ApplicationEntity
       ~ApplicationEntity.on_sop_class_common_extended
       ~ApplicationEntity.on_sop_class_extended
       ~ApplicationEntity.on_user_identity
-      ~ApplicationEntity.quit
       ~ApplicationEntity.remove_requested_context
       ~ApplicationEntity.remove_supported_context
       ~ApplicationEntity.start

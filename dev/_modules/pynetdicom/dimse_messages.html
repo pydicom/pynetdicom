@@ -8,7 +8,7 @@
   
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   
-  <title>pynetdicom.dimse_messages &mdash; pynetdicom 1.1.0 documentation</title>
+  <title>pynetdicom.dimse_messages &mdash; pynetdicom 1.2.0.dev0 documentation</title>
   
 
   
@@ -62,7 +62,7 @@
             
             
               <div class="version">
-                1.1.0
+                1.2.0.dev0
               </div>
             
           
@@ -105,7 +105,8 @@
 </ul>
 <ul>
 <li class="toctree-l1"><a class="reference internal" href="../../release_notes.html">1.1.0</a></li>
-<li class="toctree-l1"><a class="reference internal" href="../../release_notes.html#id2">1.0.0</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../release_notes.html#id2">1.1.0</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../release_notes.html#id6">1.0.0</a></li>
 </ul>
 
             
@@ -652,21 +653,6 @@
         <span class="k">for</span> <span class="n">ii</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="nb">int</span><span class="p">(</span><span class="n">no_pdv</span><span class="p">)):</span>
             <span class="k">yield</span> <span class="n">bytestream</span><span class="p">[</span><span class="n">offset</span><span class="p">:</span><span class="n">offset</span> <span class="o">+</span> <span class="n">fragment_length</span><span class="p">]</span>
             <span class="n">offset</span> <span class="o">+=</span> <span class="n">fragment_length</span>
-
-    <span class="nd">@property</span>
-    <span class="k">def</span> <span class="nf">ID</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
-        <span class="sd">&quot;&quot;&quot;Return the Context ID as int.&quot;&quot;&quot;</span>
-        <span class="n">warnings</span><span class="o">.</span><span class="n">warn</span><span class="p">(</span>
-            <span class="s2">&quot;DIMSEMessage.ID is deprecated and will be removed in v1.2.0, use &quot;</span>
-            <span class="s2">&quot;DIMSEMessage.context_id instead&quot;</span><span class="p">,</span>
-            <span class="ne">DeprecationWarning</span>
-        <span class="p">)</span>
-        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">context_id</span>
-
-    <span class="nd">@ID</span><span class="o">.</span><span class="n">setter</span>
-    <span class="k">def</span> <span class="nf">ID</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">value</span><span class="p">):</span>
-        <span class="sd">&quot;&quot;&quot;Set the Context ID.&quot;&quot;&quot;</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">context_id</span> <span class="o">=</span> <span class="n">value</span>
 
     <span class="k">def</span> <span class="nf">message_to_primitive</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;Convert the DIMSEMessage class to a DIMSE primitive.</span>

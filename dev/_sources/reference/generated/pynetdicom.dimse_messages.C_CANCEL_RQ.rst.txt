@@ -23,10 +23,4 @@ pynetdicom.dimse\_messages.C\_CANCEL\_RQ
 
    
    
-   .. rubric:: Attributes
-
-   .. autosummary::
-   
-      ~C_CANCEL_RQ.ID
-   
    

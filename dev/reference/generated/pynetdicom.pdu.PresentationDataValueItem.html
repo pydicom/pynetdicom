@@ -8,7 +8,7 @@
   
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   
-  <title>pynetdicom.pdu.PresentationDataValueItem &mdash; pynetdicom 1.1.0 documentation</title>
+  <title>pynetdicom.pdu.PresentationDataValueItem &mdash; pynetdicom 1.2.0.dev0 documentation</title>
   
 
   
@@ -62,7 +62,7 @@
             
             
               <div class="version">
-                1.1.0
+                1.2.0.dev0
               </div>
             
           
@@ -105,7 +105,8 @@
 </ul>
 <ul>
 <li class="toctree-l1"><a class="reference internal" href="../../release_notes.html">1.1.0</a></li>
-<li class="toctree-l1"><a class="reference internal" href="../../release_notes.html#id2">1.0.0</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../release_notes.html#id2">1.1.0</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../release_notes.html#id6">1.0.0</a></li>
 </ul>
 
             
@@ -174,7 +175,7 @@
 <h1>pynetdicom.pdu.PresentationDataValueItem<a class="headerlink" href="#pynetdicom-pdu-presentationdatavalueitem" title="Permalink to this headline">¶</a></h1>
 <dl class="class">
 <dt id="pynetdicom.pdu.PresentationDataValueItem">
-<em class="property">class </em><code class="descclassname">pynetdicom.pdu.</code><code class="descname">PresentationDataValueItem</code><a class="reference internal" href="../../_modules/pynetdicom/pdu_items.html#PresentationDataValueItem"><span class="viewcode-link">[source]</span></a><a class="reference external" href="https://github.com/pydicom/pynetdicom/blob/efac18f/pynetdicom/pdu_items.py#L3610"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pynetdicom.pdu.PresentationDataValueItem" title="Permalink to this definition">¶</a></dt>
+<em class="property">class </em><code class="descclassname">pynetdicom.pdu.</code><code class="descname">PresentationDataValueItem</code><a class="reference internal" href="../../_modules/pynetdicom/pdu_items.html#PresentationDataValueItem"><span class="viewcode-link">[source]</span></a><a class="reference external" href="https://github.com/pydicom/pynetdicom/blob/33a3932/pynetdicom/pdu_items.py#L3610"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pynetdicom.pdu.PresentationDataValueItem" title="Permalink to this definition">¶</a></dt>
 <dd><p>A Presentation Data Value Item.</p>
 <p>Presentation Data Value (PDV) Items are used to contain DIMSE Messages
 that have been fragmented into Command and Data fragments <a class="footnote-reference" href="#id4" id="id1">[1]</a>, with each
@@ -285,7 +286,7 @@ Python indexing). Items are always encoded using Big Endian <a class="footnote-r
 </table>
 <dl class="method">
 <dt id="pynetdicom.pdu.PresentationDataValueItem.__init__">
-<code class="descname">__init__</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="../../_modules/pynetdicom/pdu_items.html#PresentationDataValueItem.__init__"><span class="viewcode-link">[source]</span></a><a class="reference external" href="https://github.com/pydicom/pynetdicom/blob/efac18f/pynetdicom/pdu_items.py#L3660"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pynetdicom.pdu.PresentationDataValueItem.__init__" title="Permalink to this definition">¶</a></dt>
+<code class="descname">__init__</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="../../_modules/pynetdicom/pdu_items.html#PresentationDataValueItem.__init__"><span class="viewcode-link">[source]</span></a><a class="reference external" href="https://github.com/pydicom/pynetdicom/blob/33a3932/pynetdicom/pdu_items.py#L3660"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pynetdicom.pdu.PresentationDataValueItem.__init__" title="Permalink to this definition">¶</a></dt>
 <dd><p>Initialise a new Presentation Data Value Item.</p>
 </dd></dl>
 
@@ -345,7 +346,7 @@ Python indexing). Items are always encoded using Big Endian <a class="footnote-r
 
 <dl class="method">
 <dt id="pynetdicom.pdu.PresentationDataValueItem.decode">
-<code class="descname">decode</code><span class="sig-paren">(</span><em>bytestream</em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/pydicom/pynetdicom/blob/efac18f/pynetdicom/pdu_items.py#L76"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pynetdicom.pdu.PresentationDataValueItem.decode" title="Permalink to this definition">¶</a></dt>
+<code class="descname">decode</code><span class="sig-paren">(</span><em>bytestream</em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/pydicom/pynetdicom/blob/33a3932/pynetdicom/pdu_items.py#L76"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pynetdicom.pdu.PresentationDataValueItem.decode" title="Permalink to this definition">¶</a></dt>
 <dd><p>Decode <cite>bytestream</cite> and use the result to set the field values of
 the PDU item.</p>
 <table class="docutils field-list" frame="void" rules="none">
@@ -360,7 +361,7 @@ the PDU item.</p>
 
 <dl class="method">
 <dt id="pynetdicom.pdu.PresentationDataValueItem.encode">
-<code class="descname">encode</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference external" href="https://github.com/pydicom/pynetdicom/blob/efac18f/pynetdicom/pdu_items.py#L99"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pynetdicom.pdu.PresentationDataValueItem.encode" title="Permalink to this definition">¶</a></dt>
+<code class="descname">encode</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference external" href="https://github.com/pydicom/pynetdicom/blob/33a3932/pynetdicom/pdu_items.py#L99"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pynetdicom.pdu.PresentationDataValueItem.encode" title="Permalink to this definition">¶</a></dt>
 <dd><p>Return the encoded PDU as bytes.</p>
 <table class="docutils field-list" frame="void" rules="none">
 <col class="field-name" />

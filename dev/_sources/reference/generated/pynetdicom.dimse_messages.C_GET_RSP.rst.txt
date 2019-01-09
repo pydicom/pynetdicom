@@ -23,10 +23,4 @@ pynetdicom.dimse\_messages.C\_GET\_RSP
 
    
    
-   .. rubric:: Attributes
-
-   .. autosummary::
-   
-      ~C_GET_RSP.ID
-   
    
