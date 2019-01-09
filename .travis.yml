@@ -33,7 +33,7 @@ install: source build_tools/travis/install.sh
 
 # Command to run tests
 script:
-    - pytest --cov=pynetdicom --pyargs=pynetdicom --ignore=pydicom-master,pydicom 
+    - pytest --cov=pynetdicom --pyargs pynetdicom --ignore=pydicom-master,pydicom 
 
 # Upload coverage results to codecov.io
 after_success:
