@@ -1,12 +1,5 @@
 language: python
 
-# Supported python versions
-python:
-    - 2.7
-    - 3.4
-    - 3.5
-    - 3.6
-
 # Build against pydicom master and current release
 matrix:
     include:
