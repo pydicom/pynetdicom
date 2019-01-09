@@ -7,7 +7,7 @@ jobs:
             - checkout
             - run:
                 name: Build documentation
-                command: ./build_docs/circle/build_doc.sh
+                command: ./build_tools/circle/build_doc.sh
                 timeout: "3600" # seconds
             - store_artifacts:
                 path: docs/_build/html
@@ -19,4 +19,4 @@ jobs:
                 environment:
                     USERNAME: scaramallion
                     EMAIL: scaramallion@users.noreply.github.com
-                command: ./build_docs/circle/push_doc.sh
+                command: ./build_tools/circle/push_doc.sh

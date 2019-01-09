@@ -39,8 +39,8 @@ except ImportError:
 # directory, add these directories to sys.path here. If the directory
 # is relative to the documentation root, use os.path.abspath to make it
 # absolute, like shown here.
-sys.path.insert(0, os.path.abspath('../build_docs/sphinx'))
-print(os.path.abspath('../build_docs/sphinx'))
+sys.path.insert(0, os.path.abspath('../build_tools/sphinx'))
+print(os.path.abspath('../build_tools/sphinx'))
 from github_link import make_linkcode_resolve
 #sys.path.insert(0, os.path.abspath('sphinxext'))  # noqa
 #from github_link import make_linkcode_resolve
