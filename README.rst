@@ -5,10 +5,13 @@
     :target: https://travis-ci.org/pydicom/pynetdicom
 .. image:: https://circleci.com/gh/pydicom/pynetdicom/tree/master.svg?style=shield
     :target: https://circleci.com/gh/pydicom/pynetdicom/tree/master
-.. image:: https://img.shields.io/pypi/pyversions/pynetdicom.svg
-    :target: https://img.shields.io/pypi/pyversions/pynetdicom.svg
 .. image:: https://badge.fury.io/py/pynetdicom.svg
     :target: https://badge.fury.io/py/pynetdicom
+.. image:: https://img.shields.io/pypi/pyversions/pynetdicom.svg
+    :target: https://img.shields.io/pypi/pyversions/pynetdicom.svg
+.. image:: https://zenodo.org/badge/69436608.svg
+   :target: https://zenodo.org/badge/latestdoi/69436608
+
 
 
 pynetdicom

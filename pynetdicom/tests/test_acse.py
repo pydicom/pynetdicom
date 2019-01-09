@@ -152,23 +152,23 @@ class TestACSE(object):
         acse.send_ap_abort(self.assoc, 0x02)
         assert acse.is_aborted(self.assoc) is True
 
-    def test_is_released(self):
-        """Test ACSE.is_released"""
+    def test_is_release_requested(self):
+        """Test ACSE.is_release_requested"""
         acse = ACSE()
-        assert acse.is_released(self.assoc) is False
+        assert acse.is_release_requested(self.assoc) is False
 
         acse.send_release(self.assoc)
-        assert acse.is_released(self.assoc) is True
+        assert acse.is_release_requested(self.assoc) is True
         with pytest.raises(queue.Empty):
             self.assoc.dul.queue.get(block=False)
-        assert acse.is_released(self.assoc) is False
+        assert acse.is_release_requested(self.assoc) is False
 
         acse.send_release(self.assoc, is_response=True)
-        assert acse.is_released(self.assoc) is False
+        assert acse.is_release_requested(self.assoc) is False
         self.assoc.dul.queue.get()
         with pytest.raises(queue.Empty):
             self.assoc.dul.queue.get(block=False)
-        assert acse.is_released(self.assoc) is False
+        assert acse.is_release_requested(self.assoc) is False
 
 
 class TestNegotiationRequestor(object):

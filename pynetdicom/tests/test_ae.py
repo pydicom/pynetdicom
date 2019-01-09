@@ -571,12 +571,6 @@ class TestAEGoodAssociation(object):
             assert not assoc.is_established
             self.scp.stop()
 
-    def test_quit_deprecation(self):
-        """Test that the deprecation warning for AE.quit works."""
-        ae = AE()
-        with pytest.deprecated_call():
-            ae.quit()
-
 
 class TestAEBadAssociation(object):
     def test_raise(self):

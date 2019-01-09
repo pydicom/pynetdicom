@@ -830,14 +830,6 @@ class ApplicationEntity(object):
             raise ValueError("AE port number must be an integer greater then "
                              "or equal to 0")
 
-    def quit(self):
-        """Stop the SCP."""
-        warnings.warn(
-            "'AE.quit()' is deprecated and will be removed in v1.2.0",
-            DeprecationWarning
-        )
-        self.stop()
-
     def remove_requested_context(self, abstract_syntax, transfer_syntax=None):
         """Remove a requested Presentation Context.
 

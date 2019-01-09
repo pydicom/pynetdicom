@@ -482,21 +482,6 @@ class DIMSEMessage(object):
             yield bytestream[offset:offset + fragment_length]
             offset += fragment_length
 
-    @property
-    def ID(self):
-        """Return the Context ID as int."""
-        warnings.warn(
-            "DIMSEMessage.ID is deprecated and will be removed in v1.2.0, use "
-            "DIMSEMessage.context_id instead",
-            DeprecationWarning
-        )
-        return self.context_id
-
-    @ID.setter
-    def ID(self, value):
-        """Set the Context ID."""
-        self.context_id = value
-
     def message_to_primitive(self):
         """Convert the DIMSEMessage class to a DIMSE primitive.
 

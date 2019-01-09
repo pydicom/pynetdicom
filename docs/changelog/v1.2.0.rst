@@ -1,0 +1,16 @@
+1.1.0
+=====
+
+Fixes
+.....
+
+Enhancements
+............
+
+Changes
+.......
+
+* ``AE.quit()`` removed.
+* ``DIMSEMessage.ID`` removed
+* ``ACSE.is_released`` removed
+* ``ACSE.release_association`` removed
