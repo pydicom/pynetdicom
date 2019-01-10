@@ -14,7 +14,7 @@ DEFAULT_TRANSFER_SYNTAXES = [
     '1.2.840.10008.1.2.2',  # Explicit VR Big Endian,
 ]
 
-# The acceptor modes
+# The association operation modes
 MODE_ACCEPTOR = 'acceptor'
 MODE_REQUESTOR = 'requestor'
 

@@ -13,6 +13,7 @@ from pydicom.uid import UID
 
 from pynetdicom.association import Association
 from pynetdicom.presentation import PresentationContext
+from pynetdicom.transport import TransportService
 from pynetdicom.utils import validate_ae_title
 from pynetdicom._globals import (
     MODE_REQUESTOR,
@@ -204,6 +205,8 @@ class ApplicationEntity(object):
         self.acse_timeout = 30
         self.network_timeout = 60
         self.dimse_timeout = None
+
+        self.transport = TransportService()
 
         # Require Calling/Called AE titles to match if value is non-empty str
         self.require_calling_aet = []
@@ -527,7 +530,7 @@ class ApplicationEntity(object):
             raise
 
     def associate(self, addr, port, contexts=None, ae_title=b'ANY-SCP',
-                  max_pdu=DEFAULT_MAX_LENGTH, ext_neg=None):
+                  max_pdu=DEFAULT_MAX_LENGTH, ext_neg=None, client_port=0):
         """Send an association request to a remote AE.
 
         When requesting an association the local AE is acting as an SCU. The
@@ -553,6 +556,8 @@ class ApplicationEntity(object):
             association (default 16832).
         ext_neg : list of UserInformation objects, optional
             Used if extended association negotiation is required.
+        client_port : int
+            The local port number to use for the connection to the peer.
 
         Returns
         -------
@@ -1199,6 +1204,76 @@ class ApplicationEntity(object):
         self._require_calling_aet = [
             validate_ae_title(aet) for aet in ae_titles
         ]
+
+    def serve_forever(self, port=0, tls_args=None):
+        """Start the AE as an SCP.
+
+        When running the AE as an SCP this needs to be called to start the main
+        loop, it listens for connections on `local_socket` and if they request
+        association starts a new Association thread
+
+        Successful associations get added to `active_associations`
+
+        Parameters
+        ----------
+        port : int
+            The port number to use when listening for incoming association
+            requests.
+        """
+        self._quit = False
+        # If the SCP has no supported SOP Classes then there's no point
+        #   running as a server
+        if not self.supported_contexts:
+            msg = "No supported Presentation Contexts have been defined"
+            LOGGER.error(msg)
+            raise ValueError(msg)
+
+        bad_contexts = []
+        for cx in self.supported_contexts:
+            roles = (cx.scu_role, cx.scp_role)
+            if None in roles and roles != (None, None):
+                bad_contexts.append(cx.abstract_syntax)
+
+        if bad_contexts:
+            msg = (
+                "The following presentation contexts have inconsistent "
+                "scu_role/scp_role values (if one is None, both must be):\n  "
+            )
+            msg += '\n  '.join(bad_contexts)
+            LOGGER.warning(msg)
+            return
+
+        # Bind `self.local_socket` to the specified listen port
+        socket = self.transport.get_server_socket(
+            (self.bind_addr, port), tls_args
+        )
+
+        while not self._quit:
+
+            socket.serve_forever()
+
+            try:
+                # Returns a list if self.local_socket has data available
+                #   readable, writeable, exceptional
+                # `select_timeout` specifies that select blocks for
+                #   that many seconds before allowing the SCP to be killed
+                ready, _, _ = select.select(
+                    [self.local_socket], [], [], select_timeout
+                )
+
+                # We check self._quit in case the kill came in during select()
+                if ready and not self._quit:
+                    # socket.accept() blocks until a connection is available
+                    client_socket, _ = self.local_socket.accept()
+
+                    # Start a new association (as acceptor)
+                    self._handle_connection(client_socket)
+
+                # Delete any dead associations
+                self.cleanup_associations()
+            except KeyboardInterrupt:
+                self.stop()
+
 
     def start(self, select_timeout=0.5):
         """Start the AE as an SCP.
