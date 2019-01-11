@@ -108,11 +108,11 @@ class Association(threading.Thread):
     requestor : association.ServiceUser
         Representation of the association's requestor AE.
     """
-    def __init__(self, ae, mode, local_socket=None):
+    def __init__(self, ae, mode):
         """Create a new Association instance.
 
-        Association negotiation won't begin until Association.start() is
-        called.
+        The Association starts in State 1 (idle). Association negotiation
+        won't begin until Association.start() is called.
 
         Parameters
         ----------
@@ -120,12 +120,16 @@ class Association(threading.Thread):
             The local AE.
         mode : str
             Must be "requestor" or "acceptor".
-        local_socket : socket.socket or None
-            If `mode` is 'acceptor' then this is the connection to the
-            peer, otherwise will be None.
+        client_socket : transport.AssociationSocket
+            A wrapped socket.socket object used to communicate with the peer.
         """
         self._ae = ae
         self.mode = mode
+
+        # Timeouts (in seconds)
+        self.acse_timeout = 30
+        self.dimse_timeout = 30
+        self.network_timeout = 60
 
         # Represents the association requestor and acceptor users
         self.requestor = ServiceUser(self, MODE_REQUESTOR)
@@ -142,9 +146,7 @@ class Association(threading.Thread):
         self._rejected_cx = []
 
         # Service providers
-        self.dul = DULServiceProvider(socket=local_socket,
-                                      dul_timeout=ae.network_timeout,
-                                      assoc=self)
+        self.dul = DULServiceProvider(self)
         self.acse = ACSE(ae.acse_timeout)
         self.dimse = DIMSEServiceProvider(self.dul,
                                           self.ae.dimse_timeout)
@@ -160,6 +162,10 @@ class Association(threading.Thread):
         self.send_c_cancel_find = self._send_c_cancel
         self.send_c_cancel_move = self._send_c_cancel
         self.send_c_cancel_get = self._send_c_cancel
+
+        # The TLS keyword arguments for ssl.wrap_socket()
+        # Kept here because each association may require different TLS args
+        self._tls_kwargs = {}
 
         # Thread setup
         threading.Thread.__init__(self)

@@ -1,11 +1,11 @@
 """Implementation of the Transport Service."""
 
+from math import floor
 import select
-import ssl
 import socket
-from struct import unpack
+import ssl
+from struct import pack, unpack
 
-from pynetdicom.association import Association
 from pynetdicom._globals import MODE_ACCEPTOR
 
 # Transport service events
@@ -25,10 +25,333 @@ SOCKET_MAXIMUM_QUEUE = 5
 
 
 # Transport primitives
-CONNECTION_INDICATION = None
-CONNECTION_CONFIRMATION = None
-CONNECTION_OPEN = None
-CONNECTION_CLOSED = None
+CONNECT_REQUEST = None
+CONNECT_RESPONSE = None
+
+
+class AssociationSocket(object):
+    """A wrapper for the socket.socket object.
+
+    Provides an interface for socket.socket that is integrated nicely with a
+    pynetdicom Association instance and the state machine.
+
+    Attributes
+    ----------
+    socket : socket.socket or None
+        The wrapped socket, will be None if AssociationSocket.close() is called.
+    tls_kwargs : dict
+        If the socket should be wrapped by TLS then this is the keyword
+        arguments for ssl.wrap_socket, excluding `server_side`. By default
+        TLS is not used.
+    """
+    def __init__(self, assoc):
+        """Create a new AssociationSocket.
+
+        Parameters
+        ----------
+        assoc : association.Association
+            The Association instance that will be using the socket to
+            communicate.
+        """
+        self._assoc = assoc
+
+        self.socket = self._create_socket()
+        self.tls_kwargs = self.assoc._tls_kwargs or {}
+
+    @property
+    def assoc(self):
+        """Return the socket's parent Association instance."""
+        return self._assoc
+
+    def close(self):
+        """Close the connection to the peer and shutdown the socket.
+
+        Sets ``AssociationSocket.socket`` to ``None`` once complete.
+
+        *Events Emitted*
+
+        - Evt17: Transport connection closed
+        """
+        if self.socket is None:
+            return
+
+        try:
+            self.socket.shutdown(socket.SHUT_RDWR)
+        except (socket.error):
+            pass
+
+        self.socket.close()
+        self.socket = None
+        self.event_queue.put('Evt17')
+
+    def connect(self, address):
+        """Try and connect to a remote.
+
+        **Events Emitted**
+
+        - Evt2: Transport connection confirmed
+        - Evt17: Transport connection closed
+
+        Parameters
+        ----------
+        address : 2-tuple
+            The (host, port) IPv4 address to connect to.
+        """
+        if self.socket is None:
+            self.socket = self._create_socket()
+
+        try:
+            if self.tls_kwargs:
+                self.socket = ssl.wrap_socket(self.socket,
+                                              server_side=False,
+                                              **self.tls_kwargs)
+            # Try and connect to remote at (address, port)
+            #   raises socket.error if connection refused
+            self.socket.connect(address)
+            # Evt2: Transport connection confirmation
+            self.event_queue.put('Evt2')
+        except (socket.error, socket.timeout):
+            if self.socket is not None:
+                self.socket.close()
+            # Evt17: Transport connection closed
+            self.event_queue.put('Evt17')
+
+    def _create_socket(self):
+        """Create a new IPv4 TCP socket and set it up for use.
+
+        *Socket Options*
+
+        - SO_REUSEADDR is 1
+        - SO_RCVTIMEO is set to the Association's network_timeout value.
+
+        Returns
+        -------
+        socket.socket
+            An unbound and unconnected socket instance.
+        """
+        # AF_INET: IPv4, SOCK_STREAM: TCP socket
+        sock = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
+        # SO_REUSEADDR: reuse the socket in TIME_WAIT state without
+        #   waiting for its natural timeout to expire
+        #   Allows local address reuse
+        sock.setsockopt(socket.SOL_SOCKET, socket.SO_REUSEADDR, 1)
+        # If no timeout is set then recv() will block forever if
+        #   the connection is kept alive with no data sent
+        # SO_RCVTIMEO: the timeout on receive calls in seconds
+        #   set using a packed binary string containing two uint32s as
+        #   (seconds, microseconds)
+        timeout_seconds = floor(self.assoc.network_timeout)
+        timeout_microsec = int(self.assoc.network_timeout % 1 * 1000)
+        sock.setsockopt(
+            socket.SOL_SOCKET,
+            socket.SO_RCVTIMEO,
+            pack('ll', timeout_seconds, timeout_microsec)
+        )
+
+        return sock
+
+    @property
+    def event_queue(self):
+        """Return the Association's event queue."""
+        return self.assoc.dul.event_queue
+
+    @property
+    def ready(self):
+        """Return True if there is data available to be read.
+
+        *Events Emitted*
+
+        - None
+        - Evt17: Transport connection closed
+
+        Returns
+        -------
+        bool
+            True if the socket has data ready to be read, False otherwise.
+        """
+        try:
+            ready, _, _ = select.select(
+                [self.socket], [], [], self.select_timeout
+            )
+        except (socket.error, socket.timeout, ValueError):
+            # Evt17: transport connection closed indication
+            self.event_queue.put('Evt17')
+            return False
+
+        return ready
+
+    def recv(self, nr_bytes):
+        """Read `nr_bytes` from the socket.
+
+        *Events Emitted*
+
+        - None
+
+        Parameters
+        ----------
+        nr_bytes : int
+            The number of bytes to attempt to read from the socket.
+
+        Returns
+        -------
+        bytearray
+            The data read from the socket.
+        """
+        bytestream = bytearray()
+        nr_read = 0
+        # socket.recv() returns when the network buffer has been emptied
+        #   not necessarily when the number of bytes requested have been
+        #   read. Its up to us to keep calling recv() until we have all the
+        #   data we want
+        # **BLOCKING** until either all the data is read or an error occurs
+        while nr_read < nr_bytes:
+            # Python docs recommend reading a relatively small power of 2
+            #   such as 4096
+            bufsize = 4096
+            if (nr_bytes - nr_read) < bufsize:
+                bufsize = nr_bytes - nr_read
+
+            bytes_read = self.socket.recv(bufsize)
+
+            # If socket.recv() reads 0 bytes then the connection has been
+            #   broken, so return what we have so far
+            # Note: anything calling recv
+            if not bytes_read:
+                return bytestream
+
+            bytestream.extend(bytes_read)
+            nr_read += len(bytes_read)
+
+        return bytestream
+
+    def send(self, bytestream):
+        """Try and send `bystream` to the remote.
+
+        *Events Emitted*
+
+        - None
+        - Evt17: Transport connected closed.
+
+        Parameters
+        ----------
+        bytestream : bytes
+            The data to send to the remote.
+        """
+        total_sent = 0
+        length_data = len(bytestream)
+        try:
+            while nr_sent < length_data:
+                # Returns the number of bytes sent
+                nr_sent = self.socket.send(bytestream)
+                total_sent += nr_sent
+        except (socket.error, socket.timeout):
+            # Evt17: Transport connection closed
+            self.event_queue.put('Evt17')
+
+
+class ServerSocket(object):
+    def __init__(self, ae, address, tls_kwargs=None):
+
+        self._local = address
+        self._stop_server = False
+        self._mode = _SOCKET_MODE_SERVER
+
+        self.socket = None
+        self.select_timeout = 0.5
+
+        self._create_socket((addr, port), tls_kwargs or {})
+
+    def _create_socket(self, address, tls_kwargs=None):
+        # AF_INET: IPv4, SOCK_STREAM: TCP socket
+        socket = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
+        # SO_REUSEADDR: reuse the socket in TIME_WAIT state without
+        #   waiting for its natural timeout to expire
+        #   Allows local address reuse
+        socket.setsockopt(socket.SOL_SOCKET, socket.SO_REUSEADDR, 1)
+        # If no timeout is set then recv() will block forever if
+        #   the connection is kept alive with no data sent
+        # SO_RCVTIMEO: the timeout on receive calls in seconds
+        #   set using a packed binary string containing two uint32s as
+        #   (seconds, microseconds)
+        timeout_seconds = floor(self.ae.network_timeout)
+        timeout_microsec = int(self.ae.network_timeout % 1 * 1000)
+        socket.setsockopt(
+            socket.SOL_SOCKET,
+            socket.SO_RCVTIMEO,
+            pack('ll', timeout_seconds, timeout_microsec)
+        )
+
+        try:
+            # Bind the socket to an (address, port)
+            #   If address is '' then the socket is reachable by any
+            #   address the machine may have, otherwise is visible only on that
+            #   address
+            if tls_kwargs:
+                socket = ssl.wrap_socket(socket, server_side=True, **tls_kwargs)
+            socket.bind(address)
+            # Listen for connections made to the socket
+            # socket.listen() says to queue up to as many as N connect requests
+            #   before refusing outside connections
+            socket.listen(SOCKET_MAXIMUM_QUEUE)
+
+        except (socket.error, socket.timeout):
+            if socket is not None:
+                socket.close()
+
+            return
+
+        self.socket = socket
+
+    def serve_forever(self):
+        while not self._stop_server:
+            try:
+                ready, _, _ = select.select(
+                    [self.socket], [], [], self.select_timeout
+                )
+                if self.ready and not self._stop_server:
+                    try:
+                        # Wrap the client socket and start a new
+                        #   Association acceptor thread
+                        client = AssociationSocket(self.ae)
+                        client.socket = self.socket.accept()
+                        client.start_as_acceptor()
+                    except (socket.error, socket.timeout):
+                        if client.socket is not None:
+                            client.close()
+
+
+            except (socket.error, socket.timeout, ValueError):
+                return
+
+
+class StreamServer(object):
+    """AE's Association server."""
+    def __init__(self, ae):
+        self._ae = ae
+        self._socket = ServerSocket(ae)
+
+
+class BaseSocket(object):
+    def __init__(self, ae):
+        self._ae = ae
+        self.select_timeout = 0.5
+        self.socket = None
+        self._local = (None, None)
+        self._mode = None
+
+    @property
+    def ae(self):
+        return self._ae
+
+    @property
+    def is_client(self):
+        """Return True if the socket is in client mode, False otherwise."""
+        return self._mode == _SOCKET_MODE_CLIENT
+
+    @property
+    def is_server(self):
+        """Return True if the socket is in server mode, False otherwise."""
+        return self._mode == _SOCKET_MODE_SERVER
 
 
 class TransportService(object):
@@ -140,7 +463,7 @@ class TransportService(object):
 
         return sock.connect((addr, port), self.tls_args)
 
-    def get_server_socket(self, (addr, port), tls_args=None):
+    def get_server_socket(self, address, tls_args=None):
         """Return a server socket.
 
         Parameters
@@ -176,196 +499,6 @@ class TransportService(object):
                 self.read_data(assoc._socket)
 
 
-class BaseSocket(object):
-    def __init__(self, ae):
-        self._ae = ae
-        self.select_timeout = 0.5
-        self.socket = None
-        self._local = (None, None)
-        self._mode = None
-
-    @property
-    def ae(self):
-        return self._ae
-
-    @property
-    def is_client(self):
-        """Return True if the socket is in client mode, False otherwise."""
-        return self._mode == _SOCKET_MODE_CLIENT
-
-    @property
-    def is_server(self):
-        """Return True if the socket is in server mode, False otherwise."""
-        return self._mode == _SOCKET_MODE_SERVER
-
-
-
-class ServerSocket(BaseServer):
-    def __init__(self, ae, (addr, port), tls_args=None):
-        super(self).__init__(ae)
-
-        self._local = (addr, port)
-        self._stop_server = False
-        self._mode = _SOCKET_MODE_SERVER
-
-        self.socket = None
-        self.select_timeout = 0.5
-
-        self._create_socket((addr, port), tls_args or {})
-
-    def _create_socket(self, (addr, port), tls_args):
-        # AF_INET: IPv4, SOCK_STREAM: TCP socket
-        socket = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
-        # SO_REUSEADDR: reuse the socket in TIME_WAIT state without
-        #   waiting for its natural timeout to expire
-        #   Allows local address reuse
-        socket.setsockopt(socket.SOL_SOCKET, socket.SO_REUSEADDR, 1)
-        # If no timeout is set then recv() will block forever if
-        #   the connection is kept alive with no data sent
-        # SO_RCVTIMEO: the timeout on receive calls in seconds
-        #   set using a packed binary string containing two uint32s as
-        #   (seconds, microseconds)
-        timeout_seconds = floor(self.ae.network_timeout)
-        timeout_microsec = int(self.ae.network_timeout % 1 * 1000)
-        socket.setsockopt(
-            socket.SOL_SOCKET,
-            socket.SO_RCVTIMEO,
-            pack('ll', timeout_seconds, timeout_microsec)
-        )
-
-        try:
-            # Bind the socket to an (address, port)
-            #   If address is '' then the socket is reachable by any
-            #   address the machine may have, otherwise is visible only on that
-            #   address
-            if tls_args:
-                socket = ssl.wrap_socket(socket, server_side=True, **tls_args)
-            socket.bind((addr, port))
-            # Listen for connections made to the socket
-            # socket.listen() says to queue up to as many as N connect requests
-            #   before refusing outside connections
-            socket.listen(SOCKET_MAXIMUM_QUEUE)
-
-        except (socket.error, socket.timeout):
-            if socket is not None:
-                socket.close()
-
-            return
-
-        self.socket = socket
-
-    def serve_forever(self):
-        while not self._stop_server:
-            try:
-                ready, _, _ = select.select(
-                    [self.socket], [], [], self.select_timeout
-                )
-                if self.ready and not self._stop_server:
-                    try:
-                        # Wrap the client socket and start a new
-                        #   Association acceptor thread
-                        client = ClientSocket(self.ae)
-                        client.socket = self.socket.accept()
-                        client.start_as_acceptor()
-                    except (socket.error, socket.timeout):
-                        if client.socket is not None:
-                            client.close()
-
-
-            except (socket.error, socket.timeout, ValueError):
-                return
-
-
-class ClientSocket(BaseServer):
-    def __init__(self, ae):
-        self._ae = ae
-        self.socket = socket
-        self._assoc = None
-        self._mode = _SOCKET_MODE_CLIENT
-
-    @property
-    def assoc(self):
-        """Return the socket's parent Association instance."""
-        return self._assoc
-
-    def close(self):
-        if self._socket is None:
-            return
-
-        try:
-            self.socket.shutdown(socket.SHUT_RDWR)
-        except (socket.error):
-            pass
-
-        self.socket.close()
-        self.event_queue.put('Evt17')
-
-    def send(self, bytestream):
-        """Try and send `bystream` to the remote.
-
-        **Events Emitted**
-
-        - None
-        - Evt17: Transport connected closed.
-
-        Parameters
-        ----------
-        bytestream : bytes
-            The data to send to the remote.
-
-        Returns
-        -------
-        bool
-            True if the data was sent successfully (no event emitted),
-            False otherwise (Evt17 emitted).
-        """
-        if self._socket is None:
-            raise RuntimeError("The socket is not open")
-
-        total_sent = 0
-        length_data = len(bytestream)
-        while nr_sent < length_data:
-            try:
-                # Returns the number of bytes sent
-                nr_sent = self._socket.send(bytestream)
-                total_sent += nr_sent
-            except socket.error:
-                # Evt17: Transport connection closed
-                self.event_queue.put('Evt17')
-
-    def start_as_requestor(self):
-        pass
-        # bluh
-
-    def start_as_acceptor(self):
-        assoc = Association(self.ae, MODE_ACCEPTOR, self)
-        assoc.acse_timeout = self.ae.acse_timeout
-        assoc.dimse_timeout = self.ae.dimse_timeout
-        assoc.network_timeout = self.ae.network_timeout
-
-        # Association Acceptor object -> local AE
-        assoc.acceptor.maximum_length = self.ae.maximum_pdu_size
-        assoc.acceptor.ae_title = self.ae_title
-        assoc.acceptor.address = self.address
-        assoc.acceptor.port = self.port
-        assoc.acceptor.implementation_class_uid = (
-            self.ae.implementation_class_uid
-        )
-        assoc.acceptor.implementation_version_name = (
-            self.ae.implementation_version_name
-        )
-        assoc.acceptor.supported_contexts = deepcopy(
-            self.ae.supported_contexts
-        )
-
-        # Association Requestor object -> remote AE
-        assoc.requestor.address = client_socket.getpeername()[0]
-        assoc.requestor.port = client_socket.getpeername()[1]
-
-        assoc.start()
-        self.ae.active_associations.append(assoc)
-
-
 class TransportSocket(object):
     def __init__(self, socket=None):
         self._mode = None
@@ -379,7 +512,7 @@ class TransportSocket(object):
         if self.socket:
             self._handle_connection()
 
-    def connect(self, (addr, port), tls_args):
+    def connect(self, address, tls_args):
         """Try and connect to a remote.
 
         **Events Emitted**
@@ -463,15 +596,10 @@ class TransportSocket(object):
 
         return sock
 
-    @property
-    def event_queue(self):
-        """Return the Association's event queue."""
-        return self.assoc.dul.event_queue
-
     def _handle_connection(self):
         assoc = Association(mode=MODE_ACCEPTOR)
 
-    def listen(self, (addr, port), tls_args):
+    def listen(self, address, tls_args):
         """Try to bind the socket and listen for connections.
 
         **Events Emitted**
@@ -527,81 +655,6 @@ class TransportSocket(object):
     def local(self):
         """Return a 2-tuple of the local's (address, port)."""
         return self._local
-
-    # Maybe doesn't belong here
-    def read_pdu(self):
-        """Try and read a PDU sent by the remote.
-
-        PDUs are always encoded using big endian.
-
-        **Events Emitted**
-
-        - Evt3: A-ASSOCIATE-AC PDU received from remote
-        - Evt3: A-ASSOCIATE-RJ PDU received from remote
-        - Evt6: A-ASSOCIATE-RQ PDU received from remote
-        - Evt10: P-DATA-TF PDU received from remote
-        - Evt12: A-RELEASE-RQ PDU received from remote
-        - Evt13: A-RELEASE-RP PDU received from remote
-        - Evt16: A-ABORT PDU received from remote
-        - Evt17: Transport connection closed indication
-        - Evt19: Unrecognised or invalid PDU
-
-        """
-        bytestream = bytearray()
-
-        # Try and read the PDU type and length from the socket
-        try:
-            bytestream.extend(self.recv(6))
-        except (socket.error, socket.timeout):
-            # Evt17: Transport connection closed
-            self.event_queue.put('Evt17')
-            return None
-
-        try:
-            # Byte 1 is always the PDU type
-            # Byte 2 is always reserved
-            # Bytes 3-6 are always the PDU length
-            pdu_type, _, pdu_length = unpack('>BBL', bytestream)
-        except struct.error:
-            # Raised if there's not enough data
-            # Evt17: Transport connection closed
-            self.event_queue.put('Evt17')
-            return None
-
-        # If the `pdu_type` is unrecognised
-        if pdu_type not in PDU_TYPES:
-            # Evt19: Unrecognised or invalid PDU received
-            self.event_queue.put('Evt19')
-            return None
-
-        # Try and read the rest of the PDU
-        try:
-            bytestream += sock.recv(pdu_length)
-        except socket.error:
-            # Evt17: Transport connection closed
-            self.event_queue.put('Evt17')
-            return None
-
-        # Check that the PDU data was completely read
-        if len(bytestream) != 6 + pdu_length:
-            # Evt17: Transport connection closed
-            self.event_queue.put('Evt17')
-            return None
-
-        # Convert the bytestream to the corresponding PDU class
-        (pdu, event) = PDU_TYPES[pdu_type]
-        try:
-            # Decode the PDU data
-            pdu.decode(bytestream)
-            self.event_queue.put(event)
-        except Exception as exc:
-            LOGGER.error('Unable to decode the received PDU data')
-            LOGGER.exception(exc)
-            # Evt19: Unrecognised or invalid PDU received
-            self.event_queue.put('Evt19')
-            return None
-
-        return pdu
 
     @property
     def ready(self):
@@ -736,15 +789,3 @@ class TransportSocket(object):
                     .format(event[1])
                 )
                 LOGGER.exception(exc)
-
-
-# {PDU's first byte : (PDU class, PDU received on transport connection event)}
-PDU_TYPES = {
-    0x01 : (A_ASSOCIATE_RQ, 'Evt6'),
-    0x02 : (A_ASSOCIATE_AC, 'Evt3'),
-    0x03 : (A_ASSOCIATE_RJ, 'Evt4'),
-    0x04 : (P_DATA_TF, 'Evt10'),
-    0x05 : (A_RELEASE_RQ, 'Evt12'),
-    0x06 : (A_RELEASE_RP, 'Evt13'),
-    0x07 : (A_ABORT_RQ, 'Evt16'),
-}

@@ -30,131 +30,66 @@ LOGGER = logging.getLogger('pynetdicom.dul')
 class DULServiceProvider(Thread):
     """The DICOM Upper Layer Service Provider.
 
-    Three ways to call DULServiceProvider:
-
-    - If a port number is given, the DUL will wait for incoming connections on
-      this port.
-    - If a socket is given, the DUL will use this socket as the client socket.
-    - If neither is given, the DUL will not be able to accept connections (but
-      will be able to initiate them.)
-
     Attributes
     ----------
     artim_timer : timer.Timer
         The ARTIM timer
     association : association.Association
         The DUL's current Association
-    dul_from_user_queue : queue.Queue
+    client_socket : transport.AssociationSocket
+        A wrapped socket.socket object used to communicate with the peer.
+    to_provider_queue : queue.Queue
         Queue of PDUs from the DUL service user to be processed by the DUL
         provider
-    dul_to_user_queue : queue.Queue
+    to_user_queue : queue.Queue
         Queue of primitives from the DUL service to be processed by the DUL user
     event_queue : queue.Queue
         List of queued events to be processed by the state machine
-    scp_socket : socket.socket()
-        If the local AE is acting as an SCP, this is the connection from the
-        peer AE to the SCP
-    scu_socket : socket.socket()
-        If the local AE is acting as an SCU, this is the connection from the
-        local AE to the peer AE SCP
     state_machine : fsm.StateMachine
         The DICOM Upper Layer's State Machine
     """
-    def __init__(self, socket=None, port=None, dul_timeout=None, assoc=None):
+    def __init__(self, assoc):
         """
         Parameters
         ----------
-        socket : socket.socket, optional
-            The local AE's listen socket
-        port : int, optional
-            The port number on which to wait for incoming connections
-        dul_timeout : float, optional
-            The maximum amount of time to wait for connection responses
-            (in seconds)
         assoc : association.Association
-            The DUL's current Association
+            The DUL's parent Association instance.
         """
-        if socket and port:
-            raise ValueError("DULServiceProvider can't be instantiated with "
-                             "both socket and port parameters")
-
         # The association thread
         self.assoc = assoc
-
-        Thread.__init__(self)
+        self.socket = None
 
         # Current primitive and PDU
+        # TODO: Don't do it this way
         self.primitive = None
         self.pdu = None
 
-        # The event_queue tracks the events the DUL state machine needs to
-        #   process
+        # Tracks the events the state machine needs to process
         self.event_queue = queue.Queue()
-
         # These queues provide communication between the DUL service
         #   user and the DUL service provider.
         # An event occurs when the DUL service user adds to
         #   the to_provider_queue
         self.to_provider_queue = queue.Queue()
-
         # A primitive is sent to the service user when the DUL service provider
         # adds to the to_user_queue.
         self.to_user_queue = queue.Queue()
 
-        # Setup the idle timer, ARTIM timer and finite state machine
+        # Setup the idle and  ARTIM timer
         # FIXME: Why do we have an idle timer?
-        self._idle_timer = Timer(dul_timeout)
-
-        # ARTIM timer
-        self.artim_timer = Timer(dul_timeout)
+        self._idle_timer = Timer(self.assoc.network_timeout)
+        self.artim_timer = Timer(self.assoc.acse_timeout)
 
         # State machine - PS3.8 Section 9.2
         self.state_machine = StateMachine(self)
 
-        if socket:
-            # A client socket has been given, so the local AE is acting as
-            #   an SCP
-            # generate an event 5
-            self.event_queue.put('Evt5')
-            self.scu_socket = socket
-            self.peer_address = None
-            self.scp_socket = None
-        elif port:
-            # A port number has been given, so the local AE is acting as an
-            #   SCU. Create a new socket using the given port number
-            self.scp_socket = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
-            self.scp_socket.setsockopt(socket.SOL_SOCKET,
-                                       socket.SO_REUSEADDR,
-                                       1)
-
-            # The port number for the local AE to listen on
-            self.local_port = port
-            if self.local_port:
-                # pylint: disable=broad-except
-                try:
-                    local_address = os.popen('hostname').read()[:-1]
-                    self.scp_socket.bind((local_address, self.local_port))
-                except Exception as ex:
-                    LOGGER.exception(ex)
-
-                self.scp_socket.listen(1)
-
-            else:
-                self.scp_socket = None
-
-            self.scu_socket = None
-            self.peer_address = None
-        else:
-            # No port nor socket
-            self.scp_socket = None
-            self.scu_socket = None
-            self.peer_address = None
-
-        self._kill_thread = False
-        self.daemon = False
-
         # Controls the minimum delay between loops in run()
+        # TODO: try and make this event based rather than running loops
         self._run_loop_delay = 0.001
+
+        Thread.__init__(self)
+        self.daemon = False
+        self._kill_thread = False
 
     def idle_timer_expired(self):
         """
@@ -264,6 +199,7 @@ class DULServiceProvider(Thread):
 
             self.state_machine.do_action(event)
 
+    # TODO docstring
     def send_pdu(self, params):
         """
 
@@ -294,6 +230,85 @@ class DULServiceProvider(Thread):
 
         return False
 
+    # New, keep -> TODO docstring
+    def _receive_pdu(self):
+        bytestream = bytearray()
+
+        # Try and read the PDU type and length from the socket
+        try:
+            bytestream.extend(self.socket.recv(6))
+        except (socket.error, socket.timeout):
+            # Evt17: Transport connection closed
+            self.event_queue.put('Evt17')
+            return None
+
+        try:
+            # Byte 1 is always the PDU type
+            # Byte 2 is always reserved
+            # Bytes 3-6 are always the PDU length
+            pdu_type, _, pdu_length = unpack('>BBL', bytestream)
+        except struct.error:
+            # Raised if there's not enough data
+            # Evt17: Transport connection closed
+            self.event_queue.put('Evt17')
+            return None
+
+        # If the `pdu_type` is unrecognised
+        if pdu_type not in (0x01, 0x02, 0x03, 0x04, 0x05, 0x06, 0x07):
+            # Evt19: Unrecognised or invalid PDU received
+            self.event_queue.put('Evt19')
+            return None
+
+        # Try and read the rest of the PDU
+        try:
+            bytestream += self.socket.recv(pdu_length)
+        except (socket.error, socket.timeout):
+            # Evt17: Transport connection closed
+            self.event_queue.put('Evt17')
+            return None
+
+        # Check that the PDU data was completely read
+        if len(bytestream) != 6 + pdu_length:
+            # Evt17: Transport connection closed
+            self.event_queue.put('Evt17')
+            return None
+
+        try:
+            # Decode the PDU data, get corresponding FSM and callback events
+            pdu, event = self._process_pdu(bytestream)
+            self.event_queue.put(event)
+        except Exception as exc:
+            LOGGER.error('Unable to decode the received PDU data')
+            LOGGER.exception(exc)
+            # Evt19: Unrecognised or invalid PDU received
+            self.event_queue.put('Evt19')
+            return None
+
+        self.pdu = pdu
+        self.primitive = self.pdu.to_primitive()
+
+    # New, keep -> TODO: docstring
+    def _process_pdu(self, bytestream):
+        acse = self.assoc.acse
+        pdu_types = {
+            0x01 : (A_ASSOCIATE_RQ, 'Evt6', acse.debug_receive_associate_rq),
+            0x02 : (A_ASSOCIATE_AC, 'Evt3', acse.debug_receive_associate_ac),
+            0x03 : (A_ASSOCIATE_RJ, 'Evt4', acse.debug_receive_associate_rj),
+            0x04 : (P_DATA_TF, 'Evt10', acse.debug_receive_data_tf),
+            0x05 : (A_RELEASE_RQ, 'Evt12', acse.debug_receive_release_rq),
+            0x06 : (A_RELEASE_RP, 'Evt13', acse.debug_receive_release_rp),
+            0x07 : (A_ABORT_RQ, 'Evt16', acse.debug_receive_abort)
+        }
+
+        pdu, event, acse_callback = pdu_types[bytestream[0]]
+        pdu = pdu()
+        pdu.decode(bytestream)
+
+        # ACSE callback
+        acse_callback(pdu)
+
+        return pdu, event
+
     def _check_incoming_pdu(self):
         """
         Converts an incoming PDU from the peer AE back into a primitive (ie one
@@ -304,19 +319,17 @@ class DULServiceProvider(Thread):
         # Try and read data from the socket
         try:
             # Get the data from the socket
-            bytestream = self.scu_socket.recv(1)
+            bytestream = self.socket.recv(1)
         except socket.error:
             self.event_queue.put('Evt17')
-            self.scu_socket.close()
-            self.scu_socket = None
+            self.socket.close()
             LOGGER.error('DUL: Error reading data from the socket')
             return
 
         # Remote port has been closed
         if bytestream == bytes():
             self.event_queue.put('Evt17')
-            self.scu_socket.close()
-            self.scu_socket = None
+            self.socket.close()
             LOGGER.error('Peer has closed transport connection')
             return
 
@@ -368,6 +381,7 @@ class DULServiceProvider(Thread):
             #   object
             self.primitive = self.pdu.to_primitive()
 
+    # Neutral
     def _check_incoming_primitive(self):
         """Check the incoming primitive."""
         try:
@@ -395,6 +409,7 @@ class DULServiceProvider(Thread):
 
         return False
 
+    # Update -> docstring and check
     def _is_transport_event(self):
         """Check to see if the transport connection has incoming data
 
@@ -407,71 +422,45 @@ class DULServiceProvider(Thread):
         # however it may still receive data that needs to be acted on
         if self.state_machine.current_state == 'Sta13':
             # If we have no connection to the SCU
-            if self.scu_socket is None:
+            if self.socket is None:
                 return False
 
             # Check to see if there's more data to be read
             #   Might be any incoming PDU or valid/invalid data
-            # Make sure our check of the socket is non-blocking!
-            try:
-                ready, _, _ = select.select([self.scu_socket], [], [], 0)
-            except (socket.error, ValueError):
-                return False
-
-            if ready:
+            # AssociationSocket.ready will add an event if the connection closes
+            # TODO Check ^ works as expected
+            if self.socket.ready:
                 # Data still available, grab it
-                self._check_incoming_pdu()
+                self._receive_pdu()
                 return True
 
             # Once we have no more incoming data close the socket and
             #   add the corresponding event to the queue
-            self.scu_socket.shutdown(socket.SHUT_RDWR)
-            self.scu_socket.close()
-            self.scu_socket = None
+            #self.scu_socket.shutdown(socket.SHUT_RDWR)
+            self.socket.close()
 
-            # Issue the Transport connection closed indication (AR-5 -> Sta1)
-            self.event_queue.put('Evt17')
             return True
 
-        # If the local AE is an SCP, listen for incoming data
-        # The local AE is in Sta1, i.e. listening for Transport Connection
-        #   Indications
-        if self.scp_socket and not self.scu_socket:
-            read_list, _, _ = select.select([self.scp_socket], [], [], 0)
+        # If we are awaiting transport connection opening to complete
+        #   (from local transport service) then issue the corresponding
+        #   indication (Sta4 + Evt2 -> AE-2 -> Sta5)
+        if self.state_machine.current_state == 'Sta4':
+            # TODO: change so this is no longer implicit
+            self.event_queue.put('Evt2')
+            return True
 
-            # If theres incoming connection request, accept it
-            if read_list:
-                self.scu_socket, _ = self.scp_socket.accept()
-
-                # Add to event queue (Sta1 + Evt5 -> AE-5 -> Sta2
-                self.event_queue.put('Evt5')
-                return True
-
-        # If a local AE is an SCU, listen for incoming data
-        elif self.scu_socket:
-            # If we are awaiting transport connection opening to complete
-            #   (from local transport service) then issue the corresponding
-            #   indication (Sta4 + Evt2 -> AE-2 -> Sta5)
-            if self.state_machine.current_state == 'Sta4':
-                self.event_queue.put('Evt2')
-                return True
-
-            # By this point the connection should be established
-            #   If theres incoming data on the connection then check the PDU
-            #   type
-            # Fix for #28 - caused by peer disconnecting before run loop is
-            #   stopped by assoc.release()
-            try:
-                read_list, _, _ = select.select([self.scu_socket], [], [], 0)
-            except (socket.error, ValueError):
-                return False
-
-            if read_list:
-                self._check_incoming_pdu()
-                return True
+        # By this point the connection should be established
+        #   If theres incoming data on the connection then check the PDU
+        #   type
+        # Fix for #28 - caused by peer disconnecting before run loop is
+        #   stopped by assoc.release()
+        if self.socket.ready:
+            self._receive_pdu()
+            return True
 
         return False
 
+    # OBSOLETE, remove
     @staticmethod
     def _pdu_to_event(pdu):
         """Returns the event associated with the PDU.
@@ -547,6 +536,7 @@ class DULServiceProvider(Thread):
 
         return event_str
 
+    # OBSOLETE, remove
     @staticmethod
     def _recvn(sock, n_bytes):
         """Read `n_bytes` from a socket.
@@ -575,6 +565,7 @@ class DULServiceProvider(Thread):
 
         return ret
 
+    # OBSOLETE, remove
     def _socket_to_pdu(self, data):
         """Returns the PDU object associated with an incoming data stream.
 
