@@ -187,11 +187,10 @@ class AssociationSocket(object):
             True if the socket has data ready to be read, False otherwise.
         """
         try:
-            ready, _, _ = select.select([self.socket], [], [], 0.5)
+            # Use a timeout of 0 so we get an "instant" result
+            ready, _, _ = select.select([self.socket], [], [], 0)
         except (socket.error, socket.timeout, ValueError):
-            #    # Evt17: transport connection closed indication
-            #    print('socket.ready failed')
-            #    self.event_queue.put('Evt17')
+            self.event_queue.put('Evt17')
             return False
 
         return ready
@@ -279,6 +278,7 @@ class RequestHandler(BaseRequestHandler):
         assoc.acse_timeout = ae.acse_timeout
         assoc.dimse_timeout = ae.dimse_timeout
         assoc.network_timeout = ae.network_timeout
+
         assoc.dul.socket = AssociationSocket(assoc, self.request)
 
         # Association Acceptor object -> local AE
@@ -324,7 +324,7 @@ class AssociationServer(TCPServer):
     request_queue_size : int
         Default 5.
     """
-    def __init__(self, ae, tls_kwargs=None):
+    def __init__(self, ae, address, tls_kwargs=None):
         """Create a new AssociationServer, bind a socket and start listening.
 
         Parameters
@@ -342,7 +342,7 @@ class AssociationServer(TCPServer):
         self.allow_reuse_address = True
 
         super(AssociationServer, self).__init__(
-            (ae.bind_addr, ae.port),
+            address,
             RequestHandler,
             bind_and_activate=True
         )
@@ -414,10 +414,19 @@ class AssociationServer(TCPServer):
 
         self.socket.close()
 
+    def shutdown(self):
+        super(AssociationServer, self).shutdown()
+        self.server_close()
+
 
 class ThreadedAssociationServer(ThreadingMixIn, AssociationServer):
     """An AssociationServer suitable for threading."""
-    pass
+    def process_request_thread(self, request, client_address):
+        try:
+            self.finish_request(request, client_address)
+        except:
+            self.handle_error(request, client_address)
+            self.shutdown_request(request)
 
 
 ##### OLD AND BUSTED

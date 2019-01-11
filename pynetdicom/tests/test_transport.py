@@ -29,24 +29,21 @@ class TestAssociationSocket(object):
         assert isinstance(sock.socket, socket.socket)
 
 
-
-
 class TestAssociationServer(object):
     def test_init(self):
         ae = AE()
-        server = ThreadedAssociationServer(ae, ('', 11112), {})
-        thread = threading.Thread(target=server.serve_forever)
-        thread.daemon = True
-        thread.start()
+        ae.add_supported_context('1.2.840.10008.1.1')
+        server = ae.start_server(11112, block=False)
 
-        sock = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
-        sock.connect(('localhost', 11112))
+        time.sleep(10)
 
         server.shutdown()
-        server.server_close()
+        #server.server_close()
+        #ae.stop_server()
+        #server.server_close()
 
     def test_server(self):
         ae = AE(port=11113)
         ae.add_supported_context('1.2.840.10008.1.1')
-        server = AssociationServer(ae)
-        server.serve_forever()
+        server = ae.start_server(11112)
+        assert server is None

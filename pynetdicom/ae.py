@@ -6,6 +6,7 @@ import logging
 import select
 import socket
 from struct import pack
+import threading
 import time
 import warnings
 
@@ -13,6 +14,9 @@ from pydicom.uid import UID
 
 from pynetdicom.association import Association
 from pynetdicom.presentation import PresentationContext
+from pynetdicom.transport import (
+    AssociationSocket, AssociationServer, ThreadedAssociationServer
+)
 from pynetdicom.utils import validate_ae_title
 from pynetdicom._globals import (
     MODE_REQUESTOR,
@@ -703,7 +707,7 @@ class ApplicationEntity(object):
             The socket handling to the connection to the peer.
         """
         # Create a new Association
-        assoc = Association(self, MODE_ACCEPTOR, client_socket)
+        assoc = Association(self, MODE_ACCEPTOR)
         assoc.acse_timeout = self.acse_timeout
         assoc.dimse_timeout = self.dimse_timeout
         assoc.network_timeout = self.network_timeout
@@ -726,6 +730,8 @@ class ApplicationEntity(object):
         # Association Requestor object -> remote AE
         assoc.requestor.address = client_socket.getpeername()[0]
         assoc.requestor.port = client_socket.getpeername()[1]
+
+        assoc.dul.socket = AssociationSocket(assoc, client_socket)
 
         assoc.start()
         self.active_associations.append(assoc)
@@ -1206,6 +1212,7 @@ class ApplicationEntity(object):
             validate_ae_title(aet) for aet in ae_titles
         ]
 
+    # Deprecated, to be removed in v1.3: use start_server instead
     def start(self, select_timeout=0.5):
         """Start the AE as an SCP.
 
@@ -1286,22 +1293,33 @@ class ApplicationEntity(object):
         tls_kwargs : dict, optional
             A dict containing keyword arguments for ssl.wrap_socket, excluding
             `server_side`.
+
+        Returns
+        -------
+        transport.ThreadedAssociationServer or None
+            If `block` is False then returns the ThreadedAssociationServer
+            instance, otherwise returns None.
         """
         tls_kwargs = tls_kwargs or {}
 
-        server = StreamingServer(self, (self.bind_addr, port), tls_kwargs)
-
-        # Non-blocking server
-        if not block:
+        if block:
+            # Blocking server
+            server = AssociationServer(
+                self, (self.bind_addr, port), tls_kwargs
+            )
+            try:
+                server.serve_forever()
+            except KeyboardInterrupt:
+                server.shutdown()
+                #server.server_close()
+        else:
+            # Non-blocking server
+            server = ThreadedAssociationServer(
+                self, (self.bind_addr, port), tls_kwargs
+            )
             thread = threading.Thread(target=server.serve_forever)
             thread.start()
-            return
-
-        # Blocking server
-        try:
-            server.serve_forever()
-        except KeyboardInterrupt:
-            server.stop()
+            return server
 
     def stop(self):
         """Stop the SCP.
@@ -1328,8 +1346,9 @@ class ApplicationEntity(object):
         """Stop the AE acting as an association acceptor."""
         # When server is started non-blocking
         for thread in threading.enumerate():
-            if isinstance(thread, StreamingServer):
-                thread.stop()
+            if isinstance(thread, (ThreadedAssociationServer, AssociationServer)):
+                thread.shutdown()
+                thread.server_close()
 
     def __str__(self):
         """ Prints out the attribute values and status for the AE """
