@@ -76,10 +76,10 @@ class StateMachine(object):
             next_state = action[1](self.dul)
 
             # Useful for debugging
-            #print(
-            #    "{} + {} -> {} -> {}"
-            #    .format(self.current_state, event, action_name, next_state)
-            #)
+            print(
+                "{} + {} -> {} -> {}"
+                .format(self.current_state, event, action_name, next_state)
+            )
 
             # Move the state machine to the next state
             self.transition(next_state)
@@ -270,7 +270,7 @@ def AE_5(dul):
     """
     # Issue connection response primitive
     # TODO: make it so
-    dul.to_user_queue.put(CONNECT_RESPONSE)
+    #dul.to_user_queue.put(CONNECT_RESPONSE)
 
     # Start ARTIM timer
     dul.artim_timer.timeout_seconds = dul.assoc.acse_timeout

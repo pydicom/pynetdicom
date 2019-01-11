@@ -1,10 +1,13 @@
 """Implementation of the Transport Service."""
 
+from copy import deepcopy
 from math import floor
 import select
 import socket
+from socketserver import TCPServer, ThreadingMixIn, BaseRequestHandler
 import ssl
 from struct import pack, unpack
+import time
 
 from pynetdicom._globals import MODE_ACCEPTOR
 
@@ -18,15 +21,13 @@ EVT_TRANSPORT_OPEN = ('TRANSPORT', 'OPEN', 'Transport connection open')
 # Connection closed
 EVT_TRANSPORT_CLOSED = ('TRANSPORT', 'CLOSED', 'Transport connection closed')
 
-# Socket modes
-_SOCKET_MODE_CLIENT = "client"
-_SOCKET_MODE_SERVER = "server"
-SOCKET_MAXIMUM_QUEUE = 5
-
 
 # Transport primitives
 CONNECT_REQUEST = None
 CONNECT_RESPONSE = None
+
+
+##### NEW HOTNESS
 
 
 class AssociationSocket(object):
@@ -44,7 +45,7 @@ class AssociationSocket(object):
         arguments for ssl.wrap_socket, excluding `server_side`. By default
         TLS is not used.
     """
-    def __init__(self, assoc):
+    def __init__(self, assoc, socket=None):
         """Create a new AssociationSocket.
 
         Parameters
@@ -55,8 +56,16 @@ class AssociationSocket(object):
         """
         self._assoc = assoc
 
-        self.socket = self._create_socket()
+        if socket is None:
+            self.socket = self._create_socket()
+        else:
+            self.socket = socket
+            # Evt5: Transport connection indication
+            self.event_queue.put('Evt5')
+
+        #print('init', self.socket)
         self.tls_kwargs = self.assoc._tls_kwargs or {}
+        self.select_timeout = 0.5
 
     @property
     def assoc(self):
@@ -97,7 +106,7 @@ class AssociationSocket(object):
         address : 2-tuple
             The (host, port) IPv4 address to connect to.
         """
-        if self.socket is None:
+        if self.socket is None and self.is_requestor:
             self.socket = self._create_socket()
 
         try:
@@ -156,6 +165,14 @@ class AssociationSocket(object):
         return self.assoc.dul.event_queue
 
     @property
+    def is_acceptor(self):
+        return self.assoc.is_acceptor
+
+    @property
+    def is_requestor(self):
+        return self.assoc.is_requestor
+
+    @property
     def ready(self):
         """Return True if there is data available to be read.
 
@@ -170,12 +187,11 @@ class AssociationSocket(object):
             True if the socket has data ready to be read, False otherwise.
         """
         try:
-            ready, _, _ = select.select(
-                [self.socket], [], [], self.select_timeout
-            )
+            ready, _, _ = select.select([self.socket], [], [], 0.5)
         except (socket.error, socket.timeout, ValueError):
-            # Evt17: transport connection closed indication
-            self.event_queue.put('Evt17')
+            #    # Evt17: transport connection closed indication
+            #    print('socket.ready failed')
+            #    self.event_queue.put('Evt17')
             return False
 
         return ready
@@ -240,7 +256,7 @@ class AssociationSocket(object):
         total_sent = 0
         length_data = len(bytestream)
         try:
-            while nr_sent < length_data:
+            while total_sent < length_data:
                 # Returns the number of bytes sent
                 nr_sent = self.socket.send(bytestream)
                 total_sent += nr_sent
@@ -248,6 +264,163 @@ class AssociationSocket(object):
             # Evt17: Transport connection closed
             self.event_queue.put('Evt17')
 
+
+class RequestHandler(BaseRequestHandler):
+    def handle(self):
+        """Handle an association request."""
+        # self.request = request
+        # self.client_address = client_address
+        # self server = instance
+        from pynetdicom.association import Association
+
+        ae = self.server.ae
+
+        assoc = Association(ae, MODE_ACCEPTOR)
+        assoc.acse_timeout = ae.acse_timeout
+        assoc.dimse_timeout = ae.dimse_timeout
+        assoc.network_timeout = ae.network_timeout
+        assoc.dul.socket = AssociationSocket(assoc, self.request)
+
+        # Association Acceptor object -> local AE
+        assoc.acceptor.maximum_length = ae.maximum_pdu_size
+        assoc.acceptor.ae_title = ae.ae_title
+        assoc.acceptor.address = self.server.server_address[0]
+        assoc.acceptor.port = self.server.server_address[1]
+        assoc.acceptor.implementation_class_uid = (
+            ae.implementation_class_uid
+        )
+        assoc.acceptor.implementation_version_name = (
+            ae.implementation_version_name
+        )
+        assoc.acceptor.supported_contexts = deepcopy(ae.supported_contexts)
+
+        # Association Requestor object -> remote AE
+        assoc.requestor.address = self.client_address[0]
+        assoc.requestor.port = self.client_address[1]
+
+        assoc.start()
+
+        ae.active_associations.append(assoc)
+
+
+class AssociationServer(TCPServer):
+    """An Association server implementation.
+
+    Any attempts to connect will be assumed to be from association requestors.
+
+    The server should be started with ``serve_forever(poll_interval)``, where
+    ``poll_interval`` is the timeout (in seconds) that the ``select.select()``
+    call will block for (default 0.5). A value of 0 specifies a poll and never
+    blocks. A value of None blocks until a connection is ready.
+
+    Attributes
+    ----------
+    ae : ae.ApplicationEntity
+        The parent AE that is running the server.
+    server_address : 2-tuple
+        The (host, port) that the server is running on.
+    tls_kwargs : dict
+        A dict containing keyword arguments used with ssl.wrap_socket().
+    request_queue_size : int
+        Default 5.
+    """
+    def __init__(self, ae, tls_kwargs=None):
+        """Create a new AssociationServer, bind a socket and start listening.
+
+        Parameters
+        ----------
+        ae : ae.ApplicationEntity
+            The parent AE that's running the server.
+        address : 2-tuple
+            The (host, port) that the server should run on.
+        tls_kwargs : dict, optional
+            If TLS is to be used then this should be a dict containing the
+            keyword arguments to be used with ssl.wrap_socket().
+        """
+        self.ae = ae
+        self.tls_kwargs = tls_kwargs or {}
+        self.allow_reuse_address = True
+
+        super(AssociationServer, self).__init__(
+            (ae.bind_addr, ae.port),
+            RequestHandler,
+            bind_and_activate=True
+        )
+
+        self.timeout = 60
+
+    def server_bind(self):
+        """Bind the socket and set the socket options.
+
+        socket.SO_REUSEADDR is set to 1
+        socket.SO_RCVTIMEO is set to AE.network_timeout
+        """
+        # SO_REUSEADDR: reuse the socket in TIME_WAIT state without
+        #   waiting for its natural timeout to expire
+        #   Allows local address reuse
+        self.socket.setsockopt(socket.SOL_SOCKET, socket.SO_REUSEADDR, 1)
+        # If no timeout is set then recv() will block forever if
+        #   the connection is kept alive with no data sent
+        # SO_RCVTIMEO: the timeout on receive calls in seconds
+        #   set using a packed binary string containing two uint32s as
+        #   (seconds, microseconds)
+        #timeout_seconds = floor(self.ae.network_timeout)
+        #timeout_microsec = int(self.ae.network_timeout % 1 * 1000)
+        timeout_seconds = 60
+        timeout_microsec = 0
+        self.socket.setsockopt(socket.SOL_SOCKET,
+                               socket.SO_RCVTIMEO,
+                               pack('ll', timeout_seconds, timeout_microsec))
+
+        # Bind the socket to an (address, port)
+        #   If address is '' then the socket is reachable by any
+        #   address the machine may have, otherwise is visible only on that
+        #   address
+        self.socket.bind(self.server_address)
+        self.server_address = self.socket.getsockname()
+
+    def get_request(self):
+        """Handle a connection request.
+
+        If ``tls_kwargs`` is set then the client socket will be wrapped using
+        ``ssl.wrap_socket()``.
+
+        Returns
+        -------
+        client_socket : socket._socket
+            The connection request.
+        address : 2-tuple
+            The client's address as (host, port).
+        """
+        client_socket, address = self.socket.accept()
+        if self.tls_kwargs:
+            if 'server_side' in self.tls_kwargs:
+                del self.tls_kwargs['server_side']
+            client_socket = ssl.wrap_socket(client_socket,
+                                            server_side=True,
+                                            **self.tls_kwargs)
+
+        return client_socket, address
+
+    def process_request(self, request, client_address):
+        self.finish_request(request, client_address)
+
+    def server_close(self):
+        """Close the server."""
+        try:
+            self.socket.shutdown(socket.SHUT_RDWR)
+        except socket.error:
+            pass
+
+        self.socket.close()
+
+
+class ThreadedAssociationServer(ThreadingMixIn, AssociationServer):
+    """An AssociationServer suitable for threading."""
+    pass
+
+
+##### OLD AND BUSTED
 
 class ServerSocket(object):
     def __init__(self, ae, address, tls_kwargs=None):

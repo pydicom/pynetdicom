@@ -11,6 +11,7 @@ except ImportError:
 import select
 import socket
 from struct import unpack
+import struct
 from threading import Thread
 import time
 
@@ -302,7 +303,7 @@ class DULServiceProvider(Thread):
 
         pdu, event, acse_callback = pdu_types[bytestream[0]]
         pdu = pdu()
-        pdu.decode(bytestream)
+        pdu.decode(bytes(bytestream))
 
         # ACSE callback
         acse_callback(pdu)
