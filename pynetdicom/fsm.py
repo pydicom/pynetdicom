@@ -8,7 +8,7 @@ from pynetdicom.pdu import (
     P_DATA_TF, A_RELEASE_RQ, A_RELEASE_RP, A_ABORT_RQ
 )
 from pynetdicom.pdu_primitives import A_ABORT
-from pynetdicom.transport import CONNECT_REQUEST, CONNECT_RESPONSE
+from pynetdicom.transport import AssociationSocket
 
 
 LOGGER = logging.getLogger('pynetdicom.sm')
@@ -114,22 +114,20 @@ class StateMachine(object):
             raise ValueError(msg)
 
 
-# TODO: add CONNECT_REQUEST primitive implementation
 def AE_1(dul):
     """Association establishment action AE-1.
 
-    From Idle state, local AE issues a connection request to a remote. This
-    is the first step in associating a local AE (requestor) to a remote AE
-    (acceptor).
+    *Event*
 
-    Used when the local AE is acting as an SCU
+    Service user issued A-ASSOCIATE (request) to the service provider
 
-    State-event triggers: Sta1 + Evt1
+    *Action*
 
-    References
-    ----------
-    1. DICOM Standard 2015b, PS3.8, Table 9-7, "Associate Establishment
-       Related Actions"
+    Issue TRANSPORT CONNECT request primitive to the transport service.
+
+    *State/Event Triggers*
+
+    - Sta1 + Evt1
 
     Parameters
     ----------
@@ -140,12 +138,18 @@ def AE_1(dul):
     -------
     str
         'Sta4', the next state of the state machine.
+
+    References
+    ----------
+    1. DICOM Standard 2015b, PS3.8, Table 9-7, "Associate Establishment
+       Related Actions"
     """
-    # A-ASSOCIATE (request) primitive received by service provider
     # Issue TRANSPORT CONNECT request primitive to local transport service
     if dul.socket is None:
         dul.socket = AssociationSocket(dul.assoc)
 
+    # This is our "TRANSPORT CONNECT" primitive - it attempts to connect
+    #   to the peer, emitting either Evt2 or Evt17
     dul.socket.connect(dul.primitive.called_presentation_address)
 
     return 'Sta4'
@@ -243,7 +247,6 @@ def AE_4(dul):
 
     return 'Sta1'
 
-# TODO: add CONNECT_RESPONSE primitive implementation
 def AE_5(dul):
     """Association establishment action AE-5.
 
@@ -268,10 +271,6 @@ def AE_5(dul):
     str
         Sta2, the next state of the state machine
     """
-    # Issue connection response primitive
-    # TODO: make it so
-    #dul.to_user_queue.put(CONNECT_RESPONSE)
-
     # Start ARTIM timer
     dul.artim_timer.timeout_seconds = dul.assoc.acse_timeout
     dul.artim_timer.start()

@@ -371,6 +371,7 @@ class Association(threading.Thread):
 
     def run(self):
         """The main Association control."""
+        # Start the DUL thread
         self.dul.start()
 
         if self.is_acceptor:

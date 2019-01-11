@@ -183,7 +183,7 @@ class ApplicationEntity(object):
         self.implementation_version_name = PYNETDICOM_IMPLEMENTATION_VERSION
 
         self.address = socket.gethostbyname(socket.gethostname())
-        self.port = port
+        self.port = port  # Deprecated, to be removed in v1.3
         self.bind_addr = ''
         self.ae_title = ae_title
 
@@ -585,6 +585,7 @@ class ApplicationEntity(object):
         assoc.dimse_timeout = self.dimse_timeout
         assoc.network_timeout = self.network_timeout
         assoc._tls_kwargs = tls_kwargs or {}
+        assoc.dul.socket = AssociationSocket(assoc)
 
         # Association Acceptor object -> remote AE
         assoc.acceptor.ae_title = validate_ae_title(ae_title)
@@ -644,6 +645,7 @@ class ApplicationEntity(object):
 
         return assoc
 
+    # Deprecated, to be removed in v1.3
     def _bind_socket(self):
         """Set up and bind a socket for use with the SCP."""
         # The socket to listen for connections on, port is always specified
@@ -698,6 +700,7 @@ class ApplicationEntity(object):
             assoc.dimse_timeout = self.dimse_timeout
             assoc.dimse.dimse_timeout = self.dimse_timeout
 
+    # Deprecated, to be removed in v1.3
     def _handle_connection(self, client_socket):
         """Start a new Association thread to handle the connection request.
 
@@ -1212,7 +1215,7 @@ class ApplicationEntity(object):
             validate_ae_title(aet) for aet in ae_titles
         ]
 
-    # Deprecated, to be removed in v1.3: use start_server instead
+    # Deprecated, to be removed in v1.3: use start_server() instead
     def start(self, select_timeout=0.5):
         """Start the AE as an SCP.
 
@@ -1279,8 +1282,12 @@ class ApplicationEntity(object):
             except KeyboardInterrupt:
                 self.stop()
 
+    # New
     def start_server(self, port, block=True, tls_kwargs=None):
         """Start the AE as an association acceptor.
+
+        If set to non-blocking then a running ``ThreadedAssociationServer``
+        instance will be returned. This can be stopped using ``shutdown()``.
 
         Parameters
         ----------
@@ -1289,66 +1296,55 @@ class ApplicationEntity(object):
             requests.
         block : bool, optional
             If True (default) then the server will be block, otherwise it
-            will be start in a new thread and be non-blocking.
+            will start the server in a new thread and be non-blocking.
         tls_kwargs : dict, optional
-            A dict containing keyword arguments for ssl.wrap_socket, excluding
-            `server_side`.
+            If TLS is required then this should be a dict containing keyword
+            arguments for ``ssl.wrap_socket()``, otherwise no TLS will be used
+            (default).
 
         Returns
         -------
         transport.ThreadedAssociationServer or None
-            If `block` is False then returns the ThreadedAssociationServer
-            instance, otherwise returns None.
+            If `block` is False then returns the server instance, otherwise
+            returns None.
         """
         tls_kwargs = tls_kwargs or {}
 
         if block:
-            # Blocking server
-            server = AssociationServer(
-                self, (self.bind_addr, port), tls_kwargs
-            )
+            server = AssociationServer(self,
+                                       (self.bind_addr, port),
+                                       tls_kwargs)
             try:
+                # **BLOCKING**
                 server.serve_forever()
             except KeyboardInterrupt:
                 server.shutdown()
-                #server.server_close()
         else:
             # Non-blocking server
-            server = ThreadedAssociationServer(
-                self, (self.bind_addr, port), tls_kwargs
-            )
+            server = ThreadedAssociationServer(self,
+                                               (self.bind_addr, port),
+                                               tls_kwargs)
             thread = threading.Thread(target=server.serve_forever)
+            thread.daemon = True
             thread.start()
+
             return server
 
+    # Deprecated, will be removed in 1.3: use shutdown() instead
     def stop(self):
         """Stop the SCP.
 
         When running as an SCP, calling stop() will kill all associations
         and close the listen socket.
         """
-        self._quit = True
+        self.shutdown()
 
-        for assoc in self.active_associations:
-            assoc.abort()
-
-        # Give any associations time to abort and shutdown
-        time.sleep(0.1)
-
-        if self.local_socket:
-            # Ensure we shut the socket even if held open by the select()
-            # Close connection and send EOF
-            self.local_socket.shutdown(socket.SHUT_RDWR)
-            # Deallocate socket
-            self.local_socket.close()
-
-    def stop_server(self):
-        """Stop the AE acting as an association acceptor."""
-        # When server is started non-blocking
-        for thread in threading.enumerate():
-            if isinstance(thread, (ThreadedAssociationServer, AssociationServer)):
-                thread.shutdown()
-                thread.server_close()
+    # New
+    def shutdown(self):
+        """Stop any active association servers."""
+        for tt in threading.enumerate():
+            if isinstance(tt, (ThreadedAssociationServer, AssociationServer)):
+                tt.shutdown()
 
     def __str__(self):
         """ Prints out the attribute values and status for the AE """
