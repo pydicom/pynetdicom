@@ -185,3 +185,39 @@ interested in.
    ae.on_c_store = on_c_store
 
    ae.start()
+
+It's also possible to return the raw encoded dataset sent by the service
+requestor rather than a pydicom Dataset object by setting the
+``_config.DECODE_STORE_DATASETS`` value to False:
+
+.. code-block:: python
+
+   from pynetdicom import AE
+   from pynetdicom import _config
+   from pynetdicom.sop_class import CTImageStorage
+
+   # Return the raw encoded dataset
+   _config.DECODE_STORE_DATASETS = False
+
+   ae = AE(port=11112)
+
+   # Add a supported presentation context
+   ae.add_supported_context(CTImageStorage)
+
+   def on_c_store(ds, context, info):
+       with open('some_file.dcm', 'wb') as fp:
+           fp.write(ds)
+
+       return 0x0000
+
+   ae.on_c_store = on_c_store
+
+   ae.start()
+
+This has a couple of advantages over the default:
+
+* The Storage SCP should run faster as the dataset is no longer decoded
+* Writing the dataset to file should be faster as it no longer needs to be
+  re-encoded prior to writing.
+* Any issues with decoding the dataset (non-conformance, bugs in pydicom)
+  are bypassed.
