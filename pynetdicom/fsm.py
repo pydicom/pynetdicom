@@ -76,10 +76,10 @@ class StateMachine(object):
             next_state = action[1](self.dul)
 
             # Useful for debugging
-            LOGGER.error(
-                "{} + {} -> {} -> {}"
-                .format(self.current_state, event, action_name, next_state)
-            )
+            #LOGGER.error(
+            #    "{} + {} -> {} -> {}"
+            #    .format(self.current_state, event, action_name, next_state)
+            #)
 
             # Move the state machine to the next state
             self.transition(next_state)

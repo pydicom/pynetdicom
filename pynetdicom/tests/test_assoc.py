@@ -533,9 +533,9 @@ class TestAssociation(object):
         ae.acse_timeout = 5
         ae.dimse_timeout = 5
         assoc = ae.associate('localhost', 11112)
+        time.sleep(0.1)
         assert assoc.is_rejected
         assert not assoc.is_established
-        #self.assertRaises(SystemExit, ae.quit)
         self.scp.stop() # Important!
 
     def test_assoc_release(self):

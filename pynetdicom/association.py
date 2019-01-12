@@ -367,6 +367,9 @@ class Association(threading.Thread):
         """The main Association control."""
         # Start the DUL thread
         self.dul.start()
+        # Give the DUL time to start up, tends to cause intermittent
+        # test failures otherwise
+        time.sleep(0.05)
 
         if self.is_acceptor:
             primitive = self.dul.receive_pdu(wait=True,

@@ -14,6 +14,7 @@ from pynetdicom.transport import (
 from pynetdicom._globals import MODE_REQUESTOR, MODE_ACCEPTOR
 
 
+@pytest.mark.skip()
 class TestAssociationSocket(object):
     """Tests for the transport.AssociationSocket class."""
     def setup(self):
@@ -35,8 +36,9 @@ class TestAssociationSocket(object):
         if assoc.is_established:
             assoc.send_c_echo()
             assoc.release()
-            
 
+
+@pytest.mark.skip()
 class TestAssociationServer(object):
     def test_init(self):
         ae = AE()

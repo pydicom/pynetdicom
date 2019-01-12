@@ -188,10 +188,19 @@ class ApplicationEntity(object):
 
     @property
     def active_associations(self):
-        """Return a list of active Associations threads for this AE."""
+        """Return a list of the AE's active acceptor Associations threads.
+
+        Returns
+        -------
+        list of threading.Thread
+        """
         threads = threading.enumerate()
         t_assocs = [tt for tt in threads if isinstance(tt, Association)]
-        return [tt for tt in t_assocs if tt.is_alive() and tt.ae == self]
+        t_mine = [tt for tt in t_assocs if tt.ae == self]
+        t_requestors = [tt for tt in t_mine if tt.is_requestor]
+        t_acceptors = [tt for tt in t_mine if tt.is_acceptor]
+
+        return t_acceptors
 
     def add_requested_context(self, abstract_syntax, transfer_syntax=None):
         """Add a Presentation Context to be proposed when sending Association

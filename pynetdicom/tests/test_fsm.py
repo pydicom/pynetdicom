@@ -24,6 +24,7 @@ from pynetdicom.pdu_primitives import (
 )
 from pynetdicom.pdu import A_RELEASE_RQ
 from pynetdicom.sop_class import VerificationSOPClass
+from pynetdicom.transport import AssociationSocket
 from pynetdicom.utils import validate_ae_title
 from .dummy_c_scp import DummyVerificationSCP, DummyBaseSCP
 from .encoded_pdu_items import (
@@ -439,9 +440,8 @@ class TestStateBase(object):
         ae.dimse_timeout = 5
 
         assoc = Association(ae, mode='requestor')
-        assoc.acse_timeout = ae.acse_timeout
-        assoc.dimse_timeout = ae.dimse_timeout
-        assoc.network_timeout = ae.network_timeout
+
+        assoc.set_socket(AssociationSocket(assoc))
 
         # Association Acceptor object -> remote AE
         assoc.acceptor.ae_title = validate_ae_title(b'ANY_SCU')
@@ -585,10 +585,8 @@ class TestState01(TestStateBase):
     def test_evt01(self):
         """Test Sta1 + Evt1."""
         # Sta1 + Evt1 -> AE-1 -> Sta4
-        # Sta1: Idle
         # Evt1: A-ASSOCIATE (rq) primitive from <local user>
         # AE-1: Issue TRANSPORT_CONNECT primitive to <transport service>
-        # Sta4: Awaiting TRANSPORT_OPEN from <transport service>
         scp = DummyAE()
         scp.mode = 'acceptor'
         scp.queue.put(None)
@@ -597,7 +595,6 @@ class TestState01(TestStateBase):
         scp.start()
 
         assert self.fsm.current_state == 'Sta1'
-        assert self.assoc.dul.scu_socket is None
         self.assoc.start()
 
         time.sleep(0.1)
@@ -620,34 +617,35 @@ class TestState01(TestStateBase):
     def test_evt02(self):
         """Test Sta1 + Evt2."""
         # Sta1 + Evt2 -> <ignore> -> Sta1
-        # Sta1: Idle
         # Evt2: Receive TRANSPORT_OPEN from <transport service>
-        # Sta1: Idle
-        pass
+        self.assoc.start()
+        #self.assoc.acse._negotiate_as_requestor(self.assoc)
+
+        print(self.fsm._transition)
+        print(self.fsm._changes)
+        print(self.fsm._events)
 
     def test_evt03(self):
         """Test Sta1 + Evt3."""
         # Sta1 + Evt3 -> <ignore> -> Sta1
-        # Sta1: Idle
         # Evt3: Receive A-ASSOCIATE-AC PDU from <remote>
-        # Sta1: Idle
-        scp = DummyAE()
-        scp.remote_port = 11112
-        scp.address = ''
+
+        #scp = DummyAE()
+        #scp.remote_port = 11112
+        ##scp.address = ''
 
         assert self.fsm.current_state == 'Sta1'
-        assert self.assoc.dul.scu_socket is None
 
         self.assoc._mode = 'acceptor'
-        listen_socket = scp.bind_socket()
+        #listen_socket = scp.bind_socket()
 
-        send_socket = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
-        send_socket.connect(('localhost', 11112))
-        send_socket.send(a_associate_ac)
+        #send_socket = AssociationSocket(self.assoc)
+        #send_socket.connect(('localhost', 11112))
+        #send_socket.send(a_associate_ac)
 
         ready, _, _ = select.select([listen_socket], [], [], 0.5)
         if ready:
-            self.assoc.dul.scu_socket, _ = listen_socket.accept()
+            self.assoc.dul.socket, _ = listen_socket.accept()
 
         self.assoc.start()
 
@@ -671,7 +669,6 @@ class TestState01(TestStateBase):
         scp.address = ''
 
         assert self.fsm.current_state == 'Sta1'
-        assert self.assoc.dul.scu_socket is None
 
         self.assoc._mode = 'acceptor'
         listen_socket = scp.bind_socket()
@@ -682,7 +679,7 @@ class TestState01(TestStateBase):
 
         ready, _, _ = select.select([listen_socket], [], [], 0.5)
         if ready:
-            self.assoc.dul.scu_socket, _ = listen_socket.accept()
+            self.assoc.dul.socket, _ = listen_socket.accept()
 
         self.assoc.start()
 
@@ -709,7 +706,7 @@ class TestState01(TestStateBase):
         scp.address = ''
 
         assert self.fsm.current_state == 'Sta1'
-        assert self.assoc.dul.scu_socket is None
+
 
         self.assoc._mode = 'acceptor'
         listen_socket = scp.bind_socket()
@@ -720,7 +717,7 @@ class TestState01(TestStateBase):
 
         ready, _, _ = select.select([listen_socket], [], [], 0.5)
         if ready:
-            self.assoc.dul.scu_socket, _ = listen_socket.accept()
+            self.assoc.dul.socket, _ = listen_socket.accept()
 
         self.assoc.start()
 
@@ -744,7 +741,7 @@ class TestState01(TestStateBase):
         scp.address = ''
 
         assert self.fsm.current_state == 'Sta1'
-        assert self.assoc.dul.scu_socket is None
+
 
         self.assoc._mode = 'acceptor'
         listen_socket = scp.bind_socket()
@@ -755,7 +752,7 @@ class TestState01(TestStateBase):
 
         ready, _, _ = select.select([listen_socket], [], [], 0.5)
         if ready:
-            self.assoc.dul.scu_socket, _ = listen_socket.accept()
+            self.assoc.dul.socket, _ = listen_socket.accept()
 
         self.assoc.start()
 
@@ -839,7 +836,7 @@ class TestState01(TestStateBase):
         scp.address = ''
 
         assert self.fsm.current_state == 'Sta1'
-        assert self.assoc.dul.scu_socket is None
+
 
         self.assoc._mode = 'acceptor'
         listen_socket = scp.bind_socket()
@@ -850,7 +847,7 @@ class TestState01(TestStateBase):
 
         ready, _, _ = select.select([listen_socket], [], [], 0.5)
         if ready:
-            self.assoc.dul.scu_socket, _ = listen_socket.accept()
+            self.assoc.dul.socket, _ = listen_socket.accept()
 
         self.assoc.start()
 
@@ -894,7 +891,7 @@ class TestState01(TestStateBase):
         scp.address = ''
 
         assert self.fsm.current_state == 'Sta1'
-        assert self.assoc.dul.scu_socket is None
+
 
         self.assoc._mode = 'acceptor'
         listen_socket = scp.bind_socket()
@@ -905,7 +902,7 @@ class TestState01(TestStateBase):
 
         ready, _, _ = select.select([listen_socket], [], [], 0.5)
         if ready:
-            self.assoc.dul.scu_socket, _ = listen_socket.accept()
+            self.assoc.dul.socket, _ = listen_socket.accept()
 
         self.assoc.start()
 
@@ -929,7 +926,7 @@ class TestState01(TestStateBase):
         scp.address = ''
 
         assert self.fsm.current_state == 'Sta1'
-        assert self.assoc.dul.scu_socket is None
+
 
         self.assoc._mode = 'acceptor'
         listen_socket = scp.bind_socket()
@@ -940,7 +937,7 @@ class TestState01(TestStateBase):
 
         ready, _, _ = select.select([listen_socket], [], [], 0.5)
         if ready:
-            self.assoc.dul.scu_socket, _ = listen_socket.accept()
+            self.assoc.dul.socket, _ = listen_socket.accept()
 
         self.assoc.start()
 
@@ -1004,7 +1001,7 @@ class TestState01(TestStateBase):
         scp.address = ''
 
         assert self.fsm.current_state == 'Sta1'
-        assert self.assoc.dul.scu_socket is None
+
 
         self.assoc._mode = 'acceptor'
         listen_socket = scp.bind_socket()
@@ -1015,7 +1012,7 @@ class TestState01(TestStateBase):
 
         ready, _, _ = select.select([listen_socket], [], [], 0.5)
         if ready:
-            self.assoc.dul.scu_socket, _ = listen_socket.accept()
+            self.assoc.dul.socket, _ = listen_socket.accept()
 
         self.assoc.start()
 
@@ -1037,7 +1034,7 @@ class TestState01(TestStateBase):
         scp = DummyAE()
 
         assert self.fsm.current_state == 'Sta1'
-        assert self.assoc.dul.scu_socket is None
+
 
         self.assoc._mode = 'acceptor'
         listen_socket = scp.bind_socket()
@@ -1046,7 +1043,7 @@ class TestState01(TestStateBase):
         send_socket.connect(('localhost', 11112))
         send_socket.send(a_associate_ac)
 
-        self.assoc.dul.scu_socket = listen_socket
+        self.assoc.dul.socket = listen_socket
         self.assoc.start()
 
         time.sleep(0.1)
@@ -1092,7 +1089,7 @@ class TestState01(TestStateBase):
         scp.address = ''
 
         assert self.fsm.current_state == 'Sta1'
-        assert self.assoc.dul.scu_socket is None
+
 
         self.assoc._mode = 'acceptor'
         listen_socket = scp.bind_socket()
@@ -1105,7 +1102,7 @@ class TestState01(TestStateBase):
 
         ready, _, _ = select.select([listen_socket], [], [], 0.5)
         if ready:
-            self.assoc.dul.scu_socket, _ = listen_socket.accept()
+            self.assoc.dul.socket, _ = listen_socket.accept()
 
         self.assoc.start()
 
@@ -1268,7 +1265,7 @@ class TestState03(TestStateBase):
         scp.address = ''
 
         assert self.fsm.current_state == 'Sta1'
-        assert self.assoc.dul.scu_socket is None
+
 
         self.assoc._mode = 'acceptor'
         listen_socket = scp.bind_socket()
@@ -1279,7 +1276,7 @@ class TestState03(TestStateBase):
 
         ready, _, _ = select.select([listen_socket], [], [], 0.5)
         if ready:
-            self.assoc.dul.scu_socket, _ = listen_socket.accept()
+            self.assoc.dul.socket, _ = listen_socket.accept()
 
         self.assoc.start()
 
@@ -1303,7 +1300,7 @@ class TestState03(TestStateBase):
         scp.address = ''
 
         assert self.fsm.current_state == 'Sta1'
-        assert self.assoc.dul.scu_socket is None
+
 
         self.assoc._mode = 'acceptor'
         listen_socket = scp.bind_socket()
@@ -1314,7 +1311,7 @@ class TestState03(TestStateBase):
 
         ready, _, _ = select.select([listen_socket], [], [], 0.5)
         if ready:
-            self.assoc.dul.scu_socket, _ = listen_socket.accept()
+            self.assoc.dul.socket, _ = listen_socket.accept()
 
         self.assoc.start()
 
@@ -1341,7 +1338,7 @@ class TestState03(TestStateBase):
         scp.address = ''
 
         assert self.fsm.current_state == 'Sta1'
-        assert self.assoc.dul.scu_socket is None
+
 
         self.assoc._mode = 'acceptor'
         listen_socket = scp.bind_socket()
@@ -1352,7 +1349,7 @@ class TestState03(TestStateBase):
 
         ready, _, _ = select.select([listen_socket], [], [], 0.5)
         if ready:
-            self.assoc.dul.scu_socket, _ = listen_socket.accept()
+            self.assoc.dul.socket, _ = listen_socket.accept()
 
         self.assoc.start()
 
@@ -1376,7 +1373,7 @@ class TestState03(TestStateBase):
         scp.address = ''
 
         assert self.fsm.current_state == 'Sta1'
-        assert self.assoc.dul.scu_socket is None
+
 
         self.assoc._mode = 'acceptor'
         listen_socket = scp.bind_socket()
@@ -1387,7 +1384,7 @@ class TestState03(TestStateBase):
 
         ready, _, _ = select.select([listen_socket], [], [], 0.5)
         if ready:
-            self.assoc.dul.scu_socket, _ = listen_socket.accept()
+            self.assoc.dul.socket, _ = listen_socket.accept()
 
         self.assoc.start()
 
@@ -1471,7 +1468,7 @@ class TestState03(TestStateBase):
         scp.address = ''
 
         assert self.fsm.current_state == 'Sta1'
-        assert self.assoc.dul.scu_socket is None
+
 
         self.assoc._mode = 'acceptor'
         listen_socket = scp.bind_socket()
@@ -1482,7 +1479,7 @@ class TestState03(TestStateBase):
 
         ready, _, _ = select.select([listen_socket], [], [], 0.5)
         if ready:
-            self.assoc.dul.scu_socket, _ = listen_socket.accept()
+            self.assoc.dul.socket, _ = listen_socket.accept()
 
         self.assoc.start()
 
@@ -1526,7 +1523,7 @@ class TestState03(TestStateBase):
         scp.address = ''
 
         assert self.fsm.current_state == 'Sta1'
-        assert self.assoc.dul.scu_socket is None
+
 
         self.assoc._mode = 'acceptor'
         listen_socket = scp.bind_socket()
@@ -1537,7 +1534,7 @@ class TestState03(TestStateBase):
 
         ready, _, _ = select.select([listen_socket], [], [], 0.5)
         if ready:
-            self.assoc.dul.scu_socket, _ = listen_socket.accept()
+            self.assoc.dul.socket, _ = listen_socket.accept()
 
         self.assoc.start()
 
@@ -1561,7 +1558,7 @@ class TestState03(TestStateBase):
         scp.address = ''
 
         assert self.fsm.current_state == 'Sta1'
-        assert self.assoc.dul.scu_socket is None
+
 
         self.assoc._mode = 'acceptor'
         listen_socket = scp.bind_socket()
@@ -1572,7 +1569,7 @@ class TestState03(TestStateBase):
 
         ready, _, _ = select.select([listen_socket], [], [], 0.5)
         if ready:
-            self.assoc.dul.scu_socket, _ = listen_socket.accept()
+            self.assoc.dul.socket, _ = listen_socket.accept()
 
         self.assoc.start()
 
@@ -1636,7 +1633,7 @@ class TestState03(TestStateBase):
         scp.address = ''
 
         assert self.fsm.current_state == 'Sta1'
-        assert self.assoc.dul.scu_socket is None
+
 
         self.assoc._mode = 'acceptor'
         listen_socket = scp.bind_socket()
@@ -1647,7 +1644,7 @@ class TestState03(TestStateBase):
 
         ready, _, _ = select.select([listen_socket], [], [], 0.5)
         if ready:
-            self.assoc.dul.scu_socket, _ = listen_socket.accept()
+            self.assoc.dul.socket, _ = listen_socket.accept()
 
         self.assoc.start()
 
@@ -1669,7 +1666,7 @@ class TestState03(TestStateBase):
         scp = DummyAE()
 
         assert self.fsm.current_state == 'Sta1'
-        assert self.assoc.dul.scu_socket is None
+
 
         self.assoc._mode = 'acceptor'
         listen_socket = scp.bind_socket()
@@ -1678,7 +1675,7 @@ class TestState03(TestStateBase):
         send_socket.connect(('localhost', 11112))
         send_socket.send(a_associate_ac)
 
-        self.assoc.dul.scu_socket = listen_socket
+        self.assoc.dul.socket = listen_socket
         self.assoc.start()
 
         time.sleep(0.1)
@@ -1724,7 +1721,7 @@ class TestState03(TestStateBase):
         scp.address = ''
 
         assert self.fsm.current_state == 'Sta1'
-        assert self.assoc.dul.scu_socket is None
+
 
         self.assoc._mode = 'acceptor'
         listen_socket = scp.bind_socket()
@@ -1737,7 +1734,7 @@ class TestState03(TestStateBase):
 
         ready, _, _ = select.select([listen_socket], [], [], 0.5)
         if ready:
-            self.assoc.dul.scu_socket, _ = listen_socket.accept()
+            self.assoc.dul.socket, _ = listen_socket.accept()
 
         self.assoc.start()
 
@@ -1788,7 +1785,7 @@ class TestState04(TestStateBase):
         dul._is_transport_event = patch_xport_event
 
         assert self.fsm.current_state == 'Sta1'
-        assert self.assoc.dul.scu_socket is None
+
         self.assoc.start()
 
         time.sleep(0.2)
@@ -1824,7 +1821,7 @@ class TestState04(TestStateBase):
         scp.address = ''
 
         assert self.fsm.current_state == 'Sta1'
-        assert self.assoc.dul.scu_socket is None
+
 
         self.assoc._mode = 'acceptor'
         listen_socket = scp.bind_socket()
@@ -1835,7 +1832,7 @@ class TestState04(TestStateBase):
 
         ready, _, _ = select.select([listen_socket], [], [], 0.5)
         if ready:
-            self.assoc.dul.scu_socket, _ = listen_socket.accept()
+            self.assoc.dul.socket, _ = listen_socket.accept()
 
         self.assoc.start()
 
@@ -1859,7 +1856,7 @@ class TestState04(TestStateBase):
         scp.address = ''
 
         assert self.fsm.current_state == 'Sta1'
-        assert self.assoc.dul.scu_socket is None
+
 
         self.assoc._mode = 'acceptor'
         listen_socket = scp.bind_socket()
@@ -1870,7 +1867,7 @@ class TestState04(TestStateBase):
 
         ready, _, _ = select.select([listen_socket], [], [], 0.5)
         if ready:
-            self.assoc.dul.scu_socket, _ = listen_socket.accept()
+            self.assoc.dul.socket, _ = listen_socket.accept()
 
         self.assoc.start()
 
@@ -1897,7 +1894,7 @@ class TestState04(TestStateBase):
         scp.address = ''
 
         assert self.fsm.current_state == 'Sta1'
-        assert self.assoc.dul.scu_socket is None
+
 
         self.assoc._mode = 'acceptor'
         listen_socket = scp.bind_socket()
@@ -1908,7 +1905,7 @@ class TestState04(TestStateBase):
 
         ready, _, _ = select.select([listen_socket], [], [], 0.5)
         if ready:
-            self.assoc.dul.scu_socket, _ = listen_socket.accept()
+            self.assoc.dul.socket, _ = listen_socket.accept()
 
         self.assoc.start()
 
@@ -1932,7 +1929,7 @@ class TestState04(TestStateBase):
         scp.address = ''
 
         assert self.fsm.current_state == 'Sta1'
-        assert self.assoc.dul.scu_socket is None
+
 
         self.assoc._mode = 'acceptor'
         listen_socket = scp.bind_socket()
@@ -1943,7 +1940,7 @@ class TestState04(TestStateBase):
 
         ready, _, _ = select.select([listen_socket], [], [], 0.5)
         if ready:
-            self.assoc.dul.scu_socket, _ = listen_socket.accept()
+            self.assoc.dul.socket, _ = listen_socket.accept()
 
         self.assoc.start()
 
@@ -2027,7 +2024,7 @@ class TestState04(TestStateBase):
         scp.address = ''
 
         assert self.fsm.current_state == 'Sta1'
-        assert self.assoc.dul.scu_socket is None
+
 
         self.assoc._mode = 'acceptor'
         listen_socket = scp.bind_socket()
@@ -2038,7 +2035,7 @@ class TestState04(TestStateBase):
 
         ready, _, _ = select.select([listen_socket], [], [], 0.5)
         if ready:
-            self.assoc.dul.scu_socket, _ = listen_socket.accept()
+            self.assoc.dul.socket, _ = listen_socket.accept()
 
         self.assoc.start()
 
@@ -2082,7 +2079,7 @@ class TestState04(TestStateBase):
         scp.address = ''
 
         assert self.fsm.current_state == 'Sta1'
-        assert self.assoc.dul.scu_socket is None
+
 
         self.assoc._mode = 'acceptor'
         listen_socket = scp.bind_socket()
@@ -2093,7 +2090,7 @@ class TestState04(TestStateBase):
 
         ready, _, _ = select.select([listen_socket], [], [], 0.5)
         if ready:
-            self.assoc.dul.scu_socket, _ = listen_socket.accept()
+            self.assoc.dul.socket, _ = listen_socket.accept()
 
         self.assoc.start()
 
@@ -2117,7 +2114,7 @@ class TestState04(TestStateBase):
         scp.address = ''
 
         assert self.fsm.current_state == 'Sta1'
-        assert self.assoc.dul.scu_socket is None
+
 
         self.assoc._mode = 'acceptor'
         listen_socket = scp.bind_socket()
@@ -2128,7 +2125,7 @@ class TestState04(TestStateBase):
 
         ready, _, _ = select.select([listen_socket], [], [], 0.5)
         if ready:
-            self.assoc.dul.scu_socket, _ = listen_socket.accept()
+            self.assoc.dul.socket, _ = listen_socket.accept()
 
         self.assoc.start()
 
@@ -2192,7 +2189,7 @@ class TestState04(TestStateBase):
         scp.address = ''
 
         assert self.fsm.current_state == 'Sta1'
-        assert self.assoc.dul.scu_socket is None
+
 
         self.assoc._mode = 'acceptor'
         listen_socket = scp.bind_socket()
@@ -2203,7 +2200,7 @@ class TestState04(TestStateBase):
 
         ready, _, _ = select.select([listen_socket], [], [], 0.5)
         if ready:
-            self.assoc.dul.scu_socket, _ = listen_socket.accept()
+            self.assoc.dul.socket, _ = listen_socket.accept()
 
         self.assoc.start()
 
@@ -2225,7 +2222,7 @@ class TestState04(TestStateBase):
         scp = DummyAE()
 
         assert self.fsm.current_state == 'Sta1'
-        assert self.assoc.dul.scu_socket is None
+
 
         self.assoc._mode = 'acceptor'
         listen_socket = scp.bind_socket()
@@ -2234,7 +2231,7 @@ class TestState04(TestStateBase):
         send_socket.connect(('localhost', 11112))
         send_socket.send(a_associate_ac)
 
-        self.assoc.dul.scu_socket = listen_socket
+        self.assoc.dul.socket = listen_socket
         self.assoc.start()
 
         time.sleep(0.1)
@@ -2280,7 +2277,7 @@ class TestState04(TestStateBase):
         scp.address = ''
 
         assert self.fsm.current_state == 'Sta1'
-        assert self.assoc.dul.scu_socket is None
+
 
         self.assoc._mode = 'acceptor'
         listen_socket = scp.bind_socket()
@@ -2293,7 +2290,7 @@ class TestState04(TestStateBase):
 
         ready, _, _ = select.select([listen_socket], [], [], 0.5)
         if ready:
-            self.assoc.dul.scu_socket, _ = listen_socket.accept()
+            self.assoc.dul.socket, _ = listen_socket.accept()
 
         self.assoc.start()
 
@@ -2321,7 +2318,7 @@ class TestState05(TestStateBase):
         scp.start()
 
         assert self.fsm.current_state == 'Sta1'
-        assert self.assoc.dul.scu_socket is None
+
         self.assoc.start()
 
         time.sleep(0.3)
@@ -2360,7 +2357,7 @@ class TestState05(TestStateBase):
         scp.start()
 
         assert self.fsm.current_state == 'Sta1'
-        assert self.assoc.dul.scu_socket is None
+
         self.assoc.start()
 
         time.sleep(0.1)
@@ -2385,7 +2382,7 @@ class TestState05(TestStateBase):
         scp.start()
 
         assert self.fsm.current_state == 'Sta1'
-        assert self.assoc.dul.scu_socket is None
+
         self.assoc.start()
 
         time.sleep(0.1)
@@ -2420,7 +2417,7 @@ class TestState05(TestStateBase):
         scp.start()
 
         assert self.fsm.current_state == 'Sta1'
-        assert self.assoc.dul.scu_socket is None
+
         self.assoc.start()
 
         time.sleep(0.1)
@@ -2446,7 +2443,7 @@ class TestState05(TestStateBase):
         scp.start()
 
         assert self.fsm.current_state == 'Sta1'
-        assert self.assoc.dul.scu_socket is None
+
         self.assoc.acse_timeout = 1
         self.assoc.start()
 
@@ -2475,7 +2472,7 @@ class TestState05(TestStateBase):
         scp.start()
 
         assert self.fsm.current_state == 'Sta1'
-        assert self.assoc.dul.scu_socket is None
+
         self.assoc.acse_timeout = 1
         self.assoc.start()
 
@@ -2505,7 +2502,7 @@ class TestState05(TestStateBase):
         scp.start()
 
         assert self.fsm.current_state == 'Sta1'
-        assert self.assoc.dul.scu_socket is None
+
         self.assoc.acse_timeout = 1
         self.assoc.start()
 
@@ -2537,7 +2534,7 @@ class TestState05(TestStateBase):
         scp.start()
 
         assert self.fsm.current_state == 'Sta1'
-        assert self.assoc.dul.scu_socket is None
+
         self.assoc.start()
 
         time.sleep(0.1)
@@ -2564,7 +2561,7 @@ class TestState05(TestStateBase):
         scp.start()
 
         assert self.fsm.current_state == 'Sta1'
-        assert self.assoc.dul.scu_socket is None
+
         self.assoc.acse_timeout = 1
         self.assoc.start()
 
@@ -2596,7 +2593,7 @@ class TestState05(TestStateBase):
         scp.start()
 
         assert self.fsm.current_state == 'Sta1'
-        assert self.assoc.dul.scu_socket is None
+
         self.assoc.start()
 
         time.sleep(0.1)
@@ -2625,7 +2622,7 @@ class TestState05(TestStateBase):
         scp.start()
 
         assert self.fsm.current_state == 'Sta1'
-        assert self.assoc.dul.scu_socket is None
+
         self.assoc.start()
 
         time.sleep(0.1)
@@ -2652,7 +2649,7 @@ class TestState05(TestStateBase):
         scp.start()
 
         assert self.fsm.current_state == 'Sta1'
-        assert self.assoc.dul.scu_socket is None
+
         self.assoc.acse_timeout = 1
         self.assoc.start()
 
@@ -2685,7 +2682,7 @@ class TestState05(TestStateBase):
         scp.start()
 
         assert self.fsm.current_state == 'Sta1'
-        assert self.assoc.dul.scu_socket is None
+
         self.assoc.acse_timeout = 1
         self.assoc.start()
 
@@ -2725,7 +2722,7 @@ class TestState05(TestStateBase):
         scp.start()
 
         assert self.fsm.current_state == 'Sta1'
-        assert self.assoc.dul.scu_socket is None
+
         self.assoc.start()
 
         time.sleep(0.1)
@@ -2752,7 +2749,7 @@ class TestState05(TestStateBase):
         scp.start()
 
         assert self.fsm.current_state == 'Sta1'
-        assert self.assoc.dul.scu_socket is None
+
         self.assoc.start()
 
         time.sleep(0.5)
@@ -2778,7 +2775,7 @@ class TestState05(TestStateBase):
         scp.start()
 
         assert self.fsm.current_state == 'Sta1'
-        assert self.assoc.dul.scu_socket is None
+
         self.assoc.start()
 
         time.sleep(0.1)
@@ -2808,7 +2805,7 @@ class TestState05(TestStateBase):
         scp.start()
 
         assert self.fsm.current_state == 'Sta1'
-        assert self.assoc.dul.scu_socket is None
+
         self.assoc.start()
 
         time.sleep(0.1)
@@ -6541,7 +6538,7 @@ class TestState13(TestStateBase):
         dul._is_transport_event = patch_xport_event
 
         assert self.fsm.current_state == 'Sta1'
-        assert self.assoc.dul.scu_socket is None
+
         self.assoc.start()
 
         self.assoc.dul.send_pdu(self.get_associate('request'))
@@ -6589,7 +6586,7 @@ class TestState13(TestStateBase):
         self.assoc.acse._negotiate_as_requestor = patch_neg_rq
 
         assert self.fsm.current_state == 'Sta1'
-        assert self.assoc.dul.scu_socket is None
+
         self.assoc.start()
 
         self.assoc.dul.send_pdu(self.get_associate('request'))
@@ -6631,7 +6628,7 @@ class TestState13(TestStateBase):
         self.assoc.acse._negotiate_as_requestor = patch_neg_rq
 
         assert self.fsm.current_state == 'Sta1'
-        assert self.assoc.dul.scu_socket is None
+
         self.assoc.start()
 
         self.assoc.dul.send_pdu(self.get_associate('request'))
@@ -6680,7 +6677,7 @@ class TestState13(TestStateBase):
         self.assoc.acse._negotiate_as_requestor = patch_neg_rq
 
         assert self.fsm.current_state == 'Sta1'
-        assert self.assoc.dul.scu_socket is None
+
         self.assoc.start()
 
         self.assoc.dul.send_pdu(self.get_associate('request'))
@@ -6731,7 +6728,7 @@ class TestState13(TestStateBase):
         dul._is_transport_event = patch_xport_event
 
         assert self.fsm.current_state == 'Sta1'
-        assert self.assoc.dul.scu_socket is None
+
         self.assoc.start()
 
         self.assoc.dul.send_pdu(self.get_associate('request'))
@@ -6781,7 +6778,7 @@ class TestState13(TestStateBase):
         dul._is_transport_event = patch_xport_event
 
         assert self.fsm.current_state == 'Sta1'
-        assert self.assoc.dul.scu_socket is None
+
         self.assoc.start()
 
         self.assoc.dul.send_pdu(self.get_associate('request'))
@@ -6831,7 +6828,7 @@ class TestState13(TestStateBase):
         dul._is_transport_event = patch_xport_event
 
         assert self.fsm.current_state == 'Sta1'
-        assert self.assoc.dul.scu_socket is None
+
         self.assoc.start()
 
         self.assoc.dul.send_pdu(self.get_associate('request'))
@@ -6872,7 +6869,7 @@ class TestState13(TestStateBase):
         self.assoc.acse._negotiate_as_requestor = patch_neg_rq
 
         assert self.fsm.current_state == 'Sta1'
-        assert self.assoc.dul.scu_socket is None
+
         self.assoc.start()
 
         self.assoc.dul.send_pdu(self.get_associate('request'))
@@ -6923,7 +6920,7 @@ class TestState13(TestStateBase):
         dul._is_transport_event = patch_xport_event
 
         assert self.fsm.current_state == 'Sta1'
-        assert self.assoc.dul.scu_socket is None
+
         self.assoc.start()
 
         self.assoc.dul.send_pdu(self.get_associate('request'))
@@ -6964,7 +6961,7 @@ class TestState13(TestStateBase):
         self.assoc.acse._negotiate_as_requestor = patch_neg_rq
 
         assert self.fsm.current_state == 'Sta1'
-        assert self.assoc.dul.scu_socket is None
+
         self.assoc.start()
 
         self.assoc.dul.send_pdu(self.get_associate('request'))
@@ -7006,7 +7003,7 @@ class TestState13(TestStateBase):
         self.assoc.acse._negotiate_as_requestor = patch_neg_rq
 
         assert self.fsm.current_state == 'Sta1'
-        assert self.assoc.dul.scu_socket is None
+
         self.assoc.start()
 
         self.assoc.dul.send_pdu(self.get_associate('request'))
@@ -7057,7 +7054,7 @@ class TestState13(TestStateBase):
         dul._is_transport_event = patch_xport_event
 
         assert self.fsm.current_state == 'Sta1'
-        assert self.assoc.dul.scu_socket is None
+
         self.assoc.start()
 
         self.assoc.dul.send_pdu(self.get_associate('request'))
@@ -7107,7 +7104,7 @@ class TestState13(TestStateBase):
         dul._is_transport_event = patch_xport_event
 
         assert self.fsm.current_state == 'Sta1'
-        assert self.assoc.dul.scu_socket is None
+
         self.assoc.start()
 
         self.assoc.dul.send_pdu(self.get_associate('request'))
@@ -7148,7 +7145,7 @@ class TestState13(TestStateBase):
         self.assoc.acse._negotiate_as_requestor = patch_neg_rq
 
         assert self.fsm.current_state == 'Sta1'
-        assert self.assoc.dul.scu_socket is None
+
         self.assoc.start()
 
         self.assoc.dul.send_pdu(self.get_associate('request'))
@@ -7189,7 +7186,7 @@ class TestState13(TestStateBase):
         self.assoc.acse._negotiate_as_requestor = patch_neg_rq
 
         assert self.fsm.current_state == 'Sta1'
-        assert self.assoc.dul.scu_socket is None
+
         self.assoc.start()
 
         self.assoc.dul.send_pdu(self.get_associate('request'))
@@ -7242,7 +7239,7 @@ class TestState13(TestStateBase):
         dul._is_transport_event = patch_xport_event
 
         assert self.fsm.current_state == 'Sta1'
-        assert self.assoc.dul.scu_socket is None
+
         self.assoc.start()
 
         self.assoc.dul.send_pdu(self.get_associate('request'))
@@ -7285,7 +7282,7 @@ class TestState13(TestStateBase):
         self.assoc.acse._negotiate_as_requestor = patch_neg_rq
 
         assert self.fsm.current_state == 'Sta1'
-        assert self.assoc.dul.scu_socket is None
+
         self.assoc.start()
 
         self.assoc.dul.send_pdu(self.get_associate('request'))
@@ -7685,14 +7682,14 @@ class TestStateMachineFunctionalRequestor(object):
 
         def AR_4(dul):
             # Send C-ECHO-RQ
-            dul.scu_socket.send(p_data_tf)
+            dul.socket.send(p_data_tf)
 
             # Normal release response
             dul.pdu = A_RELEASE_RP()
             dul.pdu.from_primitive(dul.primitive)
             # Callback
             dul.assoc.acse.debug_send_release_rp(dul.pdu)
-            dul.scu_socket.send(dul.pdu.encode())
+            dul.socket.send(dul.pdu.encode())
             dul.artim_timer.start()
             return 'Sta13'
 
@@ -7890,7 +7887,7 @@ class TestStateMachineFunctionalAcceptor(object):
             # Callback
             dul.assoc.acse.debug_send_associate_rq(dul.pdu)
             bytestream = dul.pdu.encode()
-            dul.scu_socket.send(bytestream)
+            dul.socket.send(bytestream)
             return 'Sta5'
 
         FINITE_STATE.ACTIONS['AE-2'] = ('Bluh', AE_2, 'Sta5')

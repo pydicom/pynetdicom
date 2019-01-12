@@ -44,9 +44,10 @@ class DummyDUL(DULServiceProvider):
         self.assoc = DummyAssociation()
 
 
+@pytest.mark.skip()
 class TestDUL(object):
     """Run tests on DUL service provider."""
-    def test__pdu_to_event(self):
+    def test_pdu_to_event(self):
         """Test that good PDU paramters return expected results"""
         dul = DummyDUL()
         p2e = dul._pdu_to_event
