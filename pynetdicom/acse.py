@@ -292,10 +292,8 @@ class ACSE(object):
 
         ## Extended Negotiation items
         # User Identity Negotiation items
-        print(assoc.requestor.user_identity)
         if assoc.requestor.user_identity:
             is_valid, id_response = self._check_user_identity(assoc)
-            print(is_valid, id_response)
 
             if not is_valid:
                 # Transient, ACSE related, no reason given

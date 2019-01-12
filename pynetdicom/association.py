@@ -368,10 +368,7 @@ class Association(threading.Thread):
         # Start the DUL thread
         self.dul.start()
 
-        print('Running as', self.is_acceptor)
         if self.is_acceptor:
-            # Give the DUL time to start up
-            time.sleep(0.1)
             primitive = self.dul.receive_pdu(wait=True,
                                              timeout=self.acse_timeout)
 
@@ -393,7 +390,6 @@ class Association(threading.Thread):
                 return
 
             self.acse.negotiate_association(self)
-            print('Running as', self.is_acceptor)
             if self.is_established:
                 self.dimse.maximum_pdu_size = self.requestor.maximum_length
                 self._run_as_acceptor()

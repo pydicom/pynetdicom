@@ -76,7 +76,7 @@ class StateMachine(object):
             next_state = action[1](self.dul)
 
             # Useful for debugging
-            print(
+            LOGGER.error(
                 "{} + {} -> {} -> {}"
                 .format(self.current_state, event, action_name, next_state)
             )

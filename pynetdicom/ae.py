@@ -702,7 +702,7 @@ class ApplicationEntity(object):
         assoc.requestor.address = client_socket.getpeername()[0]
         assoc.requestor.port = client_socket.getpeername()[1]
 
-        assoc.dul.socket = AssociationSocket(assoc, client_socket)
+        assoc.set_socket(AssociationSocket(assoc, client_socket))
 
         assoc.start()
 
@@ -1369,7 +1369,7 @@ class ApplicationEntity(object):
         self._servers = []
 
         # Give everything a bit of time to shutdown
-        time.sleep(0.1)
+        #time.sleep(0.1)
 
     # TODO: refactor in v1.3
     def __str__(self):

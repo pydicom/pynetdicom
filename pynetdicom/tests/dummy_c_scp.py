@@ -60,7 +60,7 @@ from pynetdicom.sop_class import (
     ImplantTemplateGroupInformationModelMove,
 )
 from pynetdicom.status import code_to_category
-
+from pynetdicom.transport import AssociationSocket
 
 LOGGER = logging.getLogger('pynetdicom')
 LOGGER.setLevel(logging.CRITICAL)
@@ -77,6 +77,7 @@ class DummyBaseSCP(threading.Thread):
     bad_status = 0x0101
     def __init__(self):
         """Initialise the class"""
+        self.use_old_start = False
         self.ae.on_c_echo = self.on_c_echo
         self.ae.on_c_store = self.on_c_store
         self.ae.on_c_find = self.on_c_find
@@ -130,12 +131,17 @@ class DummyBaseSCP(threading.Thread):
 
     def run(self):
         """The thread run method"""
-        self.ae.start_server(('', self.port))
+        if self.use_old_start:
+            self.ae.start(select_timeout=self.select_timeout)
+        else:
+            self.ae.start_server(('', self.port))
 
     def abort(self):
         """Abort any associations"""
         for assoc in self.ae.active_associations:
             assoc.abort()
+
+        self.ae.shutdown()
 
     def release(self):
         """Release any associations"""
@@ -202,7 +208,7 @@ class DummyBaseSCP(threading.Thread):
         # Create a new Association
         assoc = Association(self.ae, "acceptor")
 
-        assoc.set_socket(client_socket)
+        assoc.set_socket(AssociationSocket(assoc, client_socket))
 
         # Association Acceptor object -> local AE
         assoc.acceptor.maximum_length = self.ae.maximum_pdu_size
@@ -227,7 +233,6 @@ class DummyBaseSCP(threading.Thread):
         assoc._a_p_abort_assoc_rq = self.send_ap_abort
 
         assoc.start()
-        self.ae.active_associations.append(assoc)
 
 
 class DummyVerificationSCP(DummyBaseSCP):

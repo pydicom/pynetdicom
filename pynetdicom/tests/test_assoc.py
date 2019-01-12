@@ -79,7 +79,7 @@ from .dummy_c_scp import (
 
 LOGGER = logging.getLogger('pynetdicom')
 LOGGER.setLevel(logging.CRITICAL)
-#LOGGER.setLevel(logging.DEBUG)
+LOGGER.setLevel(logging.DEBUG)
 
 TEST_DS_DIR = os.path.join(os.path.dirname(__file__), 'dicom_files')
 BIG_DATASET = dcmread(os.path.join(TEST_DS_DIR, 'RTImageStorage.dcm')) # 2.1 M
@@ -403,25 +403,12 @@ class TestAssociation(object):
     #             dimse_timout, max_pdu, ext_neg)
     def setup(self):
         """This function runs prior to all test methods"""
-        self.socket = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
-        self.socket.setsockopt(socket.SOL_SOCKET, socket.SO_REUSEADDR, 1)
-        self.socket.bind(('', 0))
-        self.socket.listen(1)
-        self.peer = {'ae_title' : 'PEER_AET',
-                     'port' : 11112,
-                     'address' : 'localhost'}
-        self.ext_neg = []
-
         self.scp = None
 
     def teardown(self):
         """This function runs after all test methods"""
-        self.socket.close()
-
         if self.scp:
             self.scp.abort()
-
-        time.sleep(0.1)
 
         for thread in threading.enumerate():
             if isinstance(thread, DummyBaseSCP):
@@ -433,6 +420,7 @@ class TestAssociation(object):
         self.scp = DummyVerificationSCP()
         self.scp.send_a_abort = True
         self.scp.ae._handle_connection = self.scp.dev_handle_connection
+        self.scp.use_old_start = True
         self.scp.start()
 
         ae = AE()
@@ -449,6 +437,7 @@ class TestAssociation(object):
         """Test SCP sending an A-P-ABORT instead of an A-ASSOCIATE response"""
         self.scp = DummyVerificationSCP()
         self.scp.send_ap_abort = True
+        self.scp.use_old_start = True
         self.scp.ae._handle_connection = self.scp.dev_handle_connection
         self.scp.start()
 
@@ -525,10 +514,13 @@ class TestAssociation(object):
         ae.dimse_timeout = 5
         assoc = ae.associate('localhost', 11112)
         assert assoc.is_established
+
         self.scp.abort()
-        time.sleep(0.1)
+
+        time.sleep(0.5)
         assert not assoc.is_established
         assert assoc.is_aborted
+
         self.scp.stop()
 
     def test_peer_rejects_assoc(self):
@@ -545,10 +537,6 @@ class TestAssociation(object):
         assert not assoc.is_established
         #self.assertRaises(SystemExit, ae.quit)
         self.scp.stop() # Important!
-
-    def test_kill(self):
-        """Test killing the association"""
-        pass
 
     def test_assoc_release(self):
         """Test Association release"""
@@ -748,14 +736,6 @@ class TestAssociation(object):
         assert assoc.is_rejected
         self.scp.stop()
 
-    def test_acse_timeout(self):
-        """Test that the ACSE timeout works"""
-        pass
-
-    def test_acse_timeout_release_no_reply(self):
-        """Test that the ACSE timeout works when waiting for an A-RELEASE reply"""
-        pass
-
     def test_dimse_timeout(self):
         """Test that the DIMSE timeout works"""
         self.scp = DummyVerificationSCP()
@@ -775,10 +755,6 @@ class TestAssociation(object):
         assert not assoc.is_released
         assert assoc.is_aborted
         self.scp.stop()
-
-    def test_dul_timeout(self):
-        """Test that the DUL timeout (ARTIM) works"""
-        pass
 
     def test_multiple_association_release_cycles(self):
         """Test repeatedly associating and releasing"""
@@ -929,8 +905,10 @@ class TestAssociationSendCEcho(object):
 
     def test_rsp_success(self):
         """Test receiving a success response from the peer"""
-        self.scp = DummyVerificationSCP()
-        self.scp.start()
+        scp = AE()
+        scp.add_supported_context(VerificationSOPClass)
+        scp.start_server(('', 11112), block=False)
+
         ae = AE()
         ae.add_requested_context(VerificationSOPClass)
         ae.acse_timeout = 5
@@ -941,13 +919,22 @@ class TestAssociationSendCEcho(object):
         assert result.Status == 0x0000
         assoc.release()
         assert assoc.is_released
-        self.scp.stop()
+
+        scp.shutdown()
 
     def test_rsp_failure(self):
         """Test receiving a failure response from the peer"""
-        self.scp = DummyVerificationSCP()
-        self.scp.status = 0x0210
-        self.scp.start()
+        #self.scp = DummyVerificationSCP()
+        #self.scp.status = 0x0210
+        #self.scp.start()
+        def on_c_echo(cx, info):
+            return 0x0210
+
+        scp = AE()
+        scp.add_supported_context(VerificationSOPClass)
+        scp.on_c_echo = on_c_echo
+        scp.start_server(('', 11112), block=False)
+
         ae = AE()
         ae.add_requested_context(VerificationSOPClass)
         ae.acse_timeout = 5
@@ -958,7 +945,9 @@ class TestAssociationSendCEcho(object):
         assert result.Status == 0x0210
         assoc.release()
         assert assoc.is_released
-        self.scp.stop()
+        #self.scp.stop()
+
+        scp.shutdown()
 
     def test_rsp_unknown_status(self):
         """Test unknown status value returned by peer"""
@@ -2879,6 +2868,7 @@ class TestAssociationSendCMove(object):
         self.scp.no_suboperations = 2
         self.scp.statuses = [0xFF00, 0xFF00]
         self.scp.datasets = [self.good, self.good]
+        self.scp.destination_ae = ('localhost', 11113)
         self.scp.start()
         ae = AE()
         ae.add_requested_context(PatientRootQueryRetrieveInformationModelMove)

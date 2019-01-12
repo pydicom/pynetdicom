@@ -1460,7 +1460,7 @@ class QueryRetrieveServiceClass(ServiceClass):
             self.dimse.send_msg(rsp, context.context_id)
 
             # FIXME - shouldn't have to manually close the socket like this
-            store_assoc.dul.scu_socket.close()
+            store_assoc.dul.socket.close()
             return
 
         # If not already done, send the final 'Success' or 'Warning' response

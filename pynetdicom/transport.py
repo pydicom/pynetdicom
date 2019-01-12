@@ -302,11 +302,9 @@ class RequestHandler(BaseRequestHandler):
         from pynetdicom.association import Association
 
         assoc = Association(self.ae, MODE_ACCEPTOR)
-        print('HANDLER', assoc.mode)
 
         socket = AssociationSocket(assoc, client_socket=self.request)
         assoc.set_socket(socket)
-        print('HANDLER2', assoc.mode)
 
         # Association Acceptor object -> local AE
         assoc.acceptor.maximum_length = self.ae.maximum_pdu_size
