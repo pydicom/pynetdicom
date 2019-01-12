@@ -142,9 +142,6 @@ class DummyBaseSCP(threading.Thread):
         for assoc in self.ae.active_associations:
             assoc.release()
 
-    def cleanup_associations(self):
-        self.ae.cleanup_associations()
-
     def on_c_echo(self, context, info):
         """Callback for ae.on_c_echo"""
         raise RuntimeError("You should not have been able to get here.")

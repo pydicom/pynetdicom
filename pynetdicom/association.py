@@ -127,9 +127,9 @@ class Association(threading.Thread):
         self.mode = mode
 
         # Timeouts (in seconds)
-        self.acse_timeout = 30
-        self.dimse_timeout = 30
-        self.network_timeout = 60
+        self.acse_timeout = self.ae.acse_timeout
+        self.dimse_timeout = self.ae.dimse_timeout
+        self.network_timeout = self.ae.network_timeout
 
         # Represents the association requestor and acceptor users
         self.requestor = ServiceUser(self, MODE_REQUESTOR)
@@ -147,7 +147,7 @@ class Association(threading.Thread):
 
         # Service providers
         self.dul = DULServiceProvider(self)
-        self.acse = ACSE(ae.acse_timeout)
+        self.acse = ACSE()
         self.dimse = DIMSEServiceProvider(self.dul,
                                           self.ae.dimse_timeout)
 
@@ -162,10 +162,6 @@ class Association(threading.Thread):
         self.send_c_cancel_find = self._send_c_cancel
         self.send_c_cancel_move = self._send_c_cancel
         self.send_c_cancel_get = self._send_c_cancel
-
-        # The TLS keyword arguments for ssl.wrap_socket()
-        # Kept here because each association may require different TLS args
-        self._tls_kwargs = {}
 
         # Thread setup
         threading.Thread.__init__(self)
@@ -312,8 +308,6 @@ class Association(threading.Thread):
         self.is_established = False
         while not self.dul.stop_dul():
             time.sleep(0.01)
-
-        self.ae.cleanup_associations()
 
     @property
     def local(self):
@@ -568,6 +562,25 @@ class Association(threading.Thread):
             if self.dul.idle_timer_expired():
                 self.kill()
                 return
+
+    def set_socket(self, socket):
+        """Set the socket to use for communicating with the peer.
+
+        Parameters
+        ----------
+        socket : transport.AssociationSocket
+            The socket to use.
+
+        Raises
+        ------
+        RuntimeError
+            If the Association already has a socket set.
+        """
+        if self.dul.socket is not None:
+            raise RuntimeError("The Association already has a socket set.")
+
+        self.dul.socket = socket
+
 
     # DIMSE-C services provided by the Association
     def _c_store_scp(self, req):

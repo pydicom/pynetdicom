@@ -145,9 +145,6 @@ def AE_1(dul):
        Related Actions"
     """
     # Issue TRANSPORT CONNECT request primitive to local transport service
-    if dul.socket is None:
-        dul.socket = AssociationSocket(dul.assoc)
-
     # This is our "TRANSPORT CONNECT" primitive - it attempts to connect
     #   to the peer, emitting either Evt2 or Evt17
     dul.socket.connect(dul.primitive.called_presentation_address)

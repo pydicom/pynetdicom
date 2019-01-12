@@ -28,8 +28,9 @@ Enhancements
     ``AE.start_server()`` and ``AE.associate()`` (:pull_release:`175`,
     :pull_release:`71`)
   * It should now be possible to both request a C-MOVE operation and act as the
-    destination for the request's C-STORE sub-operations within the same AE
-    instance by running a non-blocking Storage SCP. (:issue:`5`, :issue:`181`)
+    destination for the request's C-STORE sub-operations over a new association
+    within the same AE instance by running a non-blocking Storage SCP.
+    (:issue:`5`, :issue:`181`)
 
 Changes
 .......
@@ -45,3 +46,11 @@ Changes
 * The ``AE.port`` property and ``port`` argument for ``AE()`` are deprecated
   and will be removed in v1.3. Use the ``port`` parameter for
   ``AE.start_server()`` instead.
+* The ``AE.local_socket`` attribute is deprecated and will be removed in v1.3.
+* The ``AE.address`` attribute is deprecated and will be removed in v1.3.
+* The ``AE.bind_addr`` attribute is deprecated and will be removed in v1.3. Use
+  the ``address`` parameter for ``AE.start_server()`` and the ``bind_address``
+  for ``AE.associate()`` instead.
+* Changed the default DIMSE timeout to 30 s.
+* The ``acse_timeout`` parameter to ``ACSE()`` and ACSE.acse_timeout``
+  attribute removed, the ``Association.acse_timeout`` value is used instead.

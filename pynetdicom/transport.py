@@ -1,33 +1,18 @@
 """Implementation of the Transport Service."""
 
 from copy import deepcopy
+import logging
 from math import floor
 import select
 import socket
 from socketserver import TCPServer, ThreadingMixIn, BaseRequestHandler
 import ssl
-from struct import pack, unpack
-import time
+from struct import pack
 
 from pynetdicom._globals import MODE_ACCEPTOR
 
-# Transport service events
-# Connection requested
-EVT_TRANSPORT_INDICATION = (
-    'TRANSPORT', 'INDICATION', 'Transport connection indication'
-)
-# Connection confirmed
-EVT_TRANSPORT_OPEN = ('TRANSPORT', 'OPEN', 'Transport connection open')
-# Connection closed
-EVT_TRANSPORT_CLOSED = ('TRANSPORT', 'CLOSED', 'Transport connection closed')
 
-
-# Transport primitives
-CONNECT_REQUEST = None
-CONNECT_RESPONSE = None
-
-
-##### NEW HOTNESS
+LOGGER = logging.getLogger('pynetdicom.transport')
 
 
 class AssociationSocket(object):
@@ -38,14 +23,19 @@ class AssociationSocket(object):
 
     Attributes
     ----------
+    select_timeout : float or None
+        The timeout (in seconds) that select.select() calls in ``ready`` will
+        block for (default 0.5). A value of 0 specifies a poll and never
+        blocks. A value of None blocks until a connection is ready.
     socket : socket.socket or None
-        The wrapped socket, will be None if AssociationSocket.close() is called.
+        The wrapped socket, will be None if AssociationSocket.close() is
+        called.
     tls_kwargs : dict
         If the socket should be wrapped by TLS then this is the keyword
         arguments for ssl.wrap_socket, excluding `server_side`. By default
         TLS is not used.
     """
-    def __init__(self, assoc, socket=None):
+    def __init__(self, assoc, client_socket=None, address=('', 0)):
         """Create a new AssociationSocket.
 
         Parameters
@@ -53,20 +43,31 @@ class AssociationSocket(object):
         assoc : association.Association
             The Association instance that will be using the socket to
             communicate.
+        client_socket : socket.socket, optional
+            The socket to wrap, if not supplied then a new socket will be
+            created instead.
+        address : 2-tuple
+            If `client_socket` is None then this is the (host, port) to bind
+            the newly created socket to, which by default will be ('', 0).
         """
         self._assoc = assoc
 
-        if socket is None:
-            self.socket = self._create_socket()
+        if client_socket is not None and address != ('', 0):
+            LOGGER.warning(
+                "AssociationSocket instantiated with both a 'client_socket' "
+                "and bind 'address'. The original socket will not be rebound"
+            )
+
+        if client_socket is None:
+            self.socket = self._create_socket(address)
             self._is_connected = False
         else:
-            self.socket = socket
+            self.socket = client_socket
             self._is_connected = True
             # Evt5: Transport connection indication
             self.event_queue.put('Evt5')
 
-        #print('init', self.socket)
-        self.tls_kwargs = self.assoc._tls_kwargs or {}
+        self.tls_kwargs = {}
         self.select_timeout = 0.5
 
     @property
@@ -88,7 +89,7 @@ class AssociationSocket(object):
 
         try:
             self.socket.shutdown(socket.SHUT_RDWR)
-        except (socket.error):
+        except socket.error:
             pass
 
         self.socket.close()
@@ -109,7 +110,7 @@ class AssociationSocket(object):
         address : 2-tuple
             The (host, port) IPv4 address to connect to.
         """
-        if self.socket is None and self.is_requestor:
+        if self.socket is None:
             self.socket = self._create_socket()
 
         try:
@@ -129,13 +130,19 @@ class AssociationSocket(object):
             # Evt17: Transport connection closed
             self.event_queue.put('Evt17')
 
-    def _create_socket(self):
+    def _create_socket(self, address=('', 0)):
         """Create a new IPv4 TCP socket and set it up for use.
 
         *Socket Options*
 
         - SO_REUSEADDR is 1
         - SO_RCVTIMEO is set to the Association's network_timeout value.
+
+        Parameters
+        ----------
+        address : 2-tuple
+            The (host, port) to bind the socket to. By default the socket
+            is bound to ('', 0), i.e. the first available port.
 
         Returns
         -------
@@ -153,13 +160,16 @@ class AssociationSocket(object):
         # SO_RCVTIMEO: the timeout on receive calls in seconds
         #   set using a packed binary string containing two uint32s as
         #   (seconds, microseconds)
-        timeout_seconds = floor(self.assoc.network_timeout)
-        timeout_microsec = int(self.assoc.network_timeout % 1 * 1000)
-        sock.setsockopt(
-            socket.SOL_SOCKET,
-            socket.SO_RCVTIMEO,
-            pack('ll', timeout_seconds, timeout_microsec)
-        )
+        if self.assoc.network_timeout is not None:
+            timeout_seconds = floor(self.assoc.network_timeout)
+            timeout_microsec = int(self.assoc.network_timeout % 1 * 1000)
+            sock.setsockopt(
+                socket.SOL_SOCKET,
+                socket.SO_RCVTIMEO,
+                pack('ll', timeout_seconds, timeout_microsec)
+            )
+
+        sock.bind(address)
 
         self._is_connected = False
 
@@ -169,14 +179,6 @@ class AssociationSocket(object):
     def event_queue(self):
         """Return the Association's event queue."""
         return self.assoc.dul.event_queue
-
-    @property
-    def is_acceptor(self):
-        return self.assoc.is_acceptor
-
-    @property
-    def is_requestor(self):
-        return self.assoc.is_requestor
 
     @property
     def ready(self):
@@ -274,42 +276,66 @@ class AssociationSocket(object):
 
 
 class RequestHandler(BaseRequestHandler):
+    """Connection request handler for the AssociationServer.
+
+    Attributes
+    ----------
+    request : socket.socket
+        The (unaccepted) client socket.
+    client_address : 2-tuple
+        The (host, port) of the remote.
+    server : transport.AssociationServer or transport.ThreadedAssociationServer
+        The server that received the connection request.
+    """
+    @property
+    def ae(self):
+        """Return the server's parent AE."""
+        return self.server.ae
+
     def handle(self):
-        """Handle an association request."""
-        # self.request = request
-        # self.client_address = client_address
-        # self server = instance
+        """Handle an association request.
+
+        * Creates a new Association acceptor instance and configures it.
+        * Sets the Association's socket to the request's socket.
+        * Starts the Association reactor.
+        """
         from pynetdicom.association import Association
 
-        ae = self.server.ae
-
-        assoc = Association(ae, MODE_ACCEPTOR)
-        assoc.acse_timeout = ae.acse_timeout
-        assoc.dimse_timeout = ae.dimse_timeout
-        assoc.network_timeout = ae.network_timeout
-
-        assoc.dul.socket = AssociationSocket(assoc, self.request)
+        assoc = Association(self.ae, MODE_ACCEPTOR)
+    
+        socket = AssociationSocket(assoc, client_socket=self.request)
+        assoc.set_socket(socket)
 
         # Association Acceptor object -> local AE
-        assoc.acceptor.maximum_length = ae.maximum_pdu_size
-        assoc.acceptor.ae_title = ae.ae_title
-        assoc.acceptor.address = self.server.server_address[0]
-        assoc.acceptor.port = self.server.server_address[1]
+        assoc.acceptor.maximum_length = self.ae.maximum_pdu_size
+        assoc.acceptor.ae_title = self.ae.ae_title
+        assoc.acceptor.address = self.local[0]
+        assoc.acceptor.port = self.local[1]
         assoc.acceptor.implementation_class_uid = (
-            ae.implementation_class_uid
+            self.ae.implementation_class_uid
         )
         assoc.acceptor.implementation_version_name = (
-            ae.implementation_version_name
+            self.ae.implementation_version_name
         )
-        assoc.acceptor.supported_contexts = deepcopy(ae.supported_contexts)
+        assoc.acceptor.supported_contexts = deepcopy(
+            self.ae.supported_contexts
+        )
 
         # Association Requestor object -> remote AE
-        assoc.requestor.address = self.client_address[0]
-        assoc.requestor.port = self.client_address[1]
+        assoc.requestor.address = self.remote[0]
+        assoc.requestor.port = self.remote[1]
 
         assoc.start()
 
-        ae.active_associations.append(assoc)
+    @property
+    def local(self):
+        """Return a 2-tuple of the local server's (host, port) address."""
+        return self.server.server_address
+
+    @property
+    def remote(self):
+        """Return a 2-tuple of the remote client's (host, port) address."""
+        return self.client_address
 
 
 class AssociationServer(TCPServer):
@@ -361,8 +387,9 @@ class AssociationServer(TCPServer):
     def server_bind(self):
         """Bind the socket and set the socket options.
 
-        socket.SO_REUSEADDR is set to 1
-        socket.SO_RCVTIMEO is set to AE.network_timeout
+        - socket.SO_REUSEADDR is set to 1
+        - socket.SO_RCVTIMEO is set to AE.network_timeout unless the value is
+          None in which case it will be left unset.
         """
         # SO_REUSEADDR: reuse the socket in TIME_WAIT state without
         #   waiting for its natural timeout to expire
@@ -373,13 +400,14 @@ class AssociationServer(TCPServer):
         # SO_RCVTIMEO: the timeout on receive calls in seconds
         #   set using a packed binary string containing two uint32s as
         #   (seconds, microseconds)
-        #timeout_seconds = floor(self.ae.network_timeout)
-        #timeout_microsec = int(self.ae.network_timeout % 1 * 1000)
-        timeout_seconds = 60
-        timeout_microsec = 0
-        self.socket.setsockopt(socket.SOL_SOCKET,
-                               socket.SO_RCVTIMEO,
-                               pack('ll', timeout_seconds, timeout_microsec))
+        if self.ae.network_timeout is not None:
+            timeout_seconds = floor(self.ae.network_timeout)
+            timeout_microsec = int(self.ae.network_timeout % 1 * 1000)
+            self.socket.setsockopt(
+                socket.SOL_SOCKET,
+                socket.SO_RCVTIMEO,
+                pack('ll', timeout_seconds, timeout_microsec)
+            )
 
         # Bind the socket to an (address, port)
         #   If address is '' then the socket is reachable by any
@@ -412,6 +440,7 @@ class AssociationServer(TCPServer):
         return client_socket, address
 
     def process_request(self, request, client_address):
+        """Process a connection request."""
         self.finish_request(request, client_address)
 
     def server_close(self):
@@ -424,6 +453,7 @@ class AssociationServer(TCPServer):
         self.socket.close()
 
     def shutdown(self):
+        """Completely shutdown the server and close it's socket."""
         super(AssociationServer, self).shutdown()
         self.server_close()
 
@@ -431,8 +461,10 @@ class AssociationServer(TCPServer):
 class ThreadedAssociationServer(ThreadingMixIn, AssociationServer):
     """An AssociationServer suitable for threading."""
     def process_request_thread(self, request, client_address):
+        """Process a connection request."""
+        # pylint: disable=broad-except
         try:
             self.finish_request(request, client_address)
-        except:
+        except Exception:
             self.handle_error(request, client_address)
             self.shutdown_request(request)

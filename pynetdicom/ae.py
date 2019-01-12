@@ -52,20 +52,21 @@ class ApplicationEntity(object):
     acse_timeout : int or float or None
         The maximum amount of time (in seconds) to wait for association related
         messages. A value of ``None`` means no timeout. (default: 30)
-    active_associations : list of association.Association
-        The currently active associations between the local and peer AEs.
     address : str
-        The local AE's TCP/IP address.
+        The local AE's TCP/IP address. Deprecated and will be removed in v1.3.
     ae_title : bytes
         The local AE's AE title.
     bind_addr : str
         The network interface to listen to (default: all available network
-        interfaces on the machine).
-    client_socket : socket.socket
-        The socket used for connections with peer AEs
+        interfaces on the machine). This parameter is deprecated and will be
+        removed in v1.3. Use the ``address`` parameter for ``start_server()``
+        and the ``bind_address`` keyword parameter for ``associate()`` instead.
     dimse_timeout : int or float or None
         The maximum amount of time (in seconds) to wait for DIMSE related
-        messages. A value of ``None`` means no timeout. (default: None)
+        messages. A value of ``None`` means no timeout. (default: 30)
+    local_socket : socket.socket
+        The socket used for connections with peer AEs when acting as the
+        association acceptor. Deprecated and will be removed in v1.3.
     network_timeout : int or float or None
         The maximum amount of time (in seconds) to wait for network messages.
         A value of ``None`` means no timeout. (default: 60)
@@ -77,88 +78,18 @@ class ApplicationEntity(object):
     port : int
         The local AE's listen port number when acting as an SCP or connection
         port when acting as an SCU. A value of 0 indicates that the operating
-        system should choose the port.
+        system should choose the port. This parameter is deprecated and will
+        be removed in v1.3. Use the ``address`` parameter for
+        ``start_server()`` and the ``bind_address`` keyword parameter for
+        ``associate()`` instead.
     require_calling_aet : list of bytes
         If not an empty list, the association request's *Calling AE Title*
         value must match one of the values in `require_calling_aet`. If an
-        empty list then no matching will be performed (default). (SCP only).
+        empty list then no matching will be performed (default). (Association
+        acceptor only).
     require_called_aet : bool
         If True, the association request's *Called AE Title* value
-        must match AE.ae_title (default False). (SCP only).
-
-    Examples
-    --------
-
-    **SCP**
-
-    To use *AE* as an SCP, you need to specify:
-
-    * The listen `port` number that SCUs can use to send Association
-      requests and DIMSE messages
-    * The Presentation Contexts that the SCP supports.
-
-    If the SCP is being used for any DICOM Service Classes other than the
-    *Verification Service Class* you also need to implement one or more of
-    the callbacks corresponding to the DIMSE-C services (``on_c_store``,
-    ``on_c_find``, ``on_c_get``, ``on_c_move``).
-
-    The SCP can then be started using ``ApplicationEntity.start()``
-
-    **C-STORE SCP Example**
-
-    .. code-block:: python
-
-            from pynetdicom import AE, StoragePresentationContexts
-
-            # Create the AE and specify the listen port
-            ae = AE(port=11112)
-
-            # Set the supported Presentation Contexts
-            ae.supported_contexts = StoragePresentationContexts
-
-            # Define the callback for receiving a C-STORE request
-            def on_c_store(dataset, context, info):
-                # Insert your C-STORE handling code here
-
-                # Must return a valid C-STORE status - 0x0000 is Success
-                return 0x0000
-
-            ae.on_c_store = on_c_store
-
-            # Start the SCP
-            ae.start()
-
-    **SCU**
-
-    To use *AE* as an SCU you only need to specify the Presentation Contexts
-    that the SCU is requesting for support by the SCP. You can then call
-    ``ApplicationEntity.associate(addr, port)`` where *addr* and *port* are the
-    TCP/IP address and the listen port number of the peer SCP, respectively.
-
-    Once the Association is established you can then request the use of the
-    peer's DIMSE-C services.
-
-    **C-ECHO SCU Example**
-
-    .. code-block:: python
-
-            from pynetdicom import AE, VerificationPresentationContexts
-
-            # Create the AE with an AE Title 'MYAE'
-            ae = AE(ae_title=b'MYAE')
-
-            # Specify which SOP Classes are supported as an SCU
-            ae.requested_contexts = VerificationPresentationContexts
-
-            # Request an association with a peer SCP
-            assoc = ae.associate('192.168.2.1', 104)
-
-            if assoc.is_established:
-                # Send a C-ECHO request to the peer
-                status = assoc.send_c_echo()
-
-                # Release the association
-                assoc.release()
+        must match AE.ae_title (default False). (Association acceptor only).
     """
     # pylint: disable=too-many-instance-attributes,too-many-public-methods
     def __init__(self, ae_title=b'PYNETDICOM', port=0):
@@ -172,7 +103,12 @@ class ApplicationEntity(object):
             The port number to listen for association requests when acting as
             an SCP and to use when requesting an association as an SCU. When
             set to 0 the OS will use the first available port (default ``0``).
+            This parameter is deprecated and will be removed in v1.3. Use
+            the ``address`` parameter for ``start_server()`` and the
+            ``bind_address`` keyword parameter for ``associate()`` instead.
         """
+        self.ae_title = ae_title
+
         from pynetdicom import (
             PYNETDICOM_IMPLEMENTATION_UID,
             PYNETDICOM_IMPLEMENTATION_VERSION
@@ -182,10 +118,12 @@ class ApplicationEntity(object):
         self.implementation_class_uid = PYNETDICOM_IMPLEMENTATION_UID
         self.implementation_version_name = PYNETDICOM_IMPLEMENTATION_VERSION
 
+        # TODO: remove in v1.3
         self.address = socket.gethostbyname(socket.gethostname())
-        self.port = port  # Deprecated, to be removed in v1.3
+        # TODO: remove in v1.3
+        self.port = port
+        # TODO: remove in v1.3
         self.bind_addr = ''
-        self.ae_title = ae_title
 
         # List of PresentationContext
         self._requested_contexts = []
@@ -195,9 +133,6 @@ class ApplicationEntity(object):
         # The user may require the use of Extended Negotiation items
         self.extended_negotiation = []
 
-        # List of active association objects
-        self.active_associations = []
-
         # Default maximum simultaneous associations
         self.maximum_associations = 2
 
@@ -206,16 +141,18 @@ class ApplicationEntity(object):
 
         # Default timeouts - None means no timeout
         self.acse_timeout = 30
+        self.dimse_timeout = 30
         self.network_timeout = 60
-        self.dimse_timeout = None
 
         # Require Calling/Called AE titles to match if value is non-empty str
         self.require_calling_aet = []
         self.require_called_aet = False
 
+        # TODO: remove in v1.3
         self.local_socket = None
 
         # Used to terminate AE when running as an SCP
+        # TODO: remove in v1.3
         self._quit = False
 
     @property
@@ -238,6 +175,13 @@ class ApplicationEntity(object):
         for assoc in self.active_associations:
             assoc.acse_timeout = self.acse_timeout
             assoc.acse.acse_timeout = self.acse_timeout
+
+    @property
+    def active_associations(self):
+        """Return a list of active Associations threads."""
+        threads = threading.enumerate()
+        t_assocs = [tt for tt in threads if isinstance(tt, Association)]
+        return [tt for tt in t_assocs if tt.is_alive()]
 
     def add_requested_context(self, abstract_syntax, transfer_syntax=None):
         """Add a Presentation Context to be proposed when sending Association
@@ -530,9 +474,11 @@ class ApplicationEntity(object):
         except:
             raise
 
+    # TODO: refactor in v1.3
     def associate(self, addr, port, contexts=None, ae_title=b'ANY-SCP',
-                  max_pdu=DEFAULT_MAX_LENGTH, ext_neg=None, tls_kwargs=None):
-        """Send an association request to a remote AE.
+                  max_pdu=DEFAULT_MAX_LENGTH, ext_neg=None, tls_kwargs=None,
+                  bind_address=None):
+        """Request an Association with a remote AE.
 
         The Association thread is returned whether or not the association is
         accepted and should be checked using ``Association.is_established``
@@ -560,6 +506,10 @@ class ApplicationEntity(object):
             If TLS is to be used when communicating with the peer then this
             is the keyword arguments to pass ssl.wrap_socket(), excluding
             `server_side`.
+        bind_address : 2-tuple, optional
+            The (host, port) to bind the Association's communication socket
+            to. If not used then defaults to (AE.bind_addr, AE.port). After
+            v1.3 it will default to ('', 0).
 
         Returns
         -------
@@ -579,13 +529,18 @@ class ApplicationEntity(object):
         if not isinstance(port, int):
             raise TypeError("'port' must be a valid port number")
 
+        # AssociationSocket binding
+        if bind_address is None:
+            # Deprecated, after v1.3 this will be ('', 0)
+            bind_address = (self.bind_addr, self.port)
+
         # Association
         assoc = Association(self, MODE_REQUESTOR)
-        assoc.acse_timeout = self.acse_timeout
-        assoc.dimse_timeout = self.dimse_timeout
-        assoc.network_timeout = self.network_timeout
-        assoc._tls_kwargs = tls_kwargs or {}
-        assoc.dul.socket = AssociationSocket(assoc)
+
+        # Setup the association's communication socket
+        socket = AssociationSocket(assoc, address=bind_address)
+        socket.tls_kwargs = tls_kwargs or {}
+        assoc.set_socket(socket)
 
         # Association Acceptor object -> remote AE
         assoc.acceptor.ae_title = validate_ae_title(ae_title)
@@ -593,8 +548,8 @@ class ApplicationEntity(object):
         assoc.acceptor.port = port
 
         # Association Requestor object -> local AE
-        assoc.requestor.address = self.address
-        assoc.requestor.port = self.port
+        assoc.requestor.address = bind_address[0]
+        assoc.requestor.port = bind_address[1]
         assoc.requestor.ae_title = self.ae_title
         assoc.requestor.maximum_length = max_pdu
         assoc.requestor.implementation_class_uid = (
@@ -639,13 +594,9 @@ class ApplicationEntity(object):
                not assoc.is_aborted and not assoc.dul._kill_thread):
             time.sleep(0.05)
 
-        # If the Association was established
-        if assoc.is_established:
-            self.active_associations.append(assoc)
-
         return assoc
 
-    # Deprecated, to be removed in v1.3
+    # TODO: remove in v1.3
     def _bind_socket(self):
         """Set up and bind a socket for use with the SCP."""
         # The socket to listen for connections on, port is always specified
@@ -671,14 +622,6 @@ class ApplicationEntity(object):
         #   before refusing outside connections
         self.local_socket.listen(5)
 
-    def cleanup_associations(self):
-        """Remove dead associations."""
-        # We can use threading.enumerate() to list all alive threads
-        #   assoc.is_alive() is inherited from threading.thread
-        self.active_associations = [
-            assoc for assoc in self.active_associations if assoc.is_alive()
-        ]
-
     @property
     def dimse_timeout(self):
         """Get the DIMSE timeout."""
@@ -693,14 +636,14 @@ class ApplicationEntity(object):
         elif isinstance(value, (int, float)) and value >= 0:
             self._dimse_timeout = value
         else:
-            LOGGER.warning("dimse_timeout set to never expire")
-            self._dimse_timeout = None
+            LOGGER.warning("dimse_timeout set to 30 s")
+            self._dimse_timeout = 30
 
         for assoc in self.active_associations:
             assoc.dimse_timeout = self.dimse_timeout
             assoc.dimse.dimse_timeout = self.dimse_timeout
 
-    # Deprecated, to be removed in v1.3
+    # TODO: remove in v1.3
     def _handle_connection(self, client_socket):
         """Start a new Association thread to handle the connection request.
 
@@ -711,9 +654,6 @@ class ApplicationEntity(object):
         """
         # Create a new Association
         assoc = Association(self, MODE_ACCEPTOR)
-        assoc.acse_timeout = self.acse_timeout
-        assoc.dimse_timeout = self.dimse_timeout
-        assoc.network_timeout = self.network_timeout
 
         # Association Acceptor object -> local AE
         assoc.acceptor.maximum_length = self.maximum_pdu_size
@@ -737,7 +677,6 @@ class ApplicationEntity(object):
         assoc.dul.socket = AssociationSocket(assoc, client_socket)
 
         assoc.start()
-        self.active_associations.append(assoc)
 
     @property
     def implementation_class_uid(self):
@@ -832,12 +771,20 @@ class ApplicationEntity(object):
 
     @property
     def port(self):
-        """Return the port number as an int."""
+        """Return the port number as an int.
+
+        This property is deprecated and will be removed in v1.3.
+        """
         return self._port
 
     @port.setter
     def port(self, value):
-        """Set the port number."""
+        """Set the port number.
+
+        This property is deprecated and will be removed in v1.3. Use
+        the ``address`` parameter for ``start_server()`` and the
+        ``bind_address`` keyword parameter for ``associate()`` instead.
+        """
         # pylint: disable=attribute-defined-outside-init
         if isinstance(value, int) and value >= 0:
             self._port = value
@@ -1215,7 +1162,7 @@ class ApplicationEntity(object):
             validate_ae_title(aet) for aet in ae_titles
         ]
 
-    # Deprecated, to be removed in v1.3: use start_server() instead
+    # TODO: remove in v1.3
     def start(self, select_timeout=0.5):
         """Start the AE as an SCP.
 
@@ -1223,7 +1170,8 @@ class ApplicationEntity(object):
         loop, it listens for connections on `local_socket` and if they request
         association starts a new Association thread
 
-        Successful associations get added to `active_associations`
+        This method is deprecated and will be removed in v1.3. Use
+        ``start_server()`` instead.
 
         Parameters
         ----------
@@ -1276,14 +1224,10 @@ class ApplicationEntity(object):
 
                     # Start a new association (as acceptor)
                     self._handle_connection(client_socket)
-
-                # Delete any dead associations
-                self.cleanup_associations()
             except KeyboardInterrupt:
                 self.stop()
 
-    # New
-    def start_server(self, port, block=True, tls_kwargs=None):
+    def start_server(self, address, block=True, tls_kwargs=None):
         """Start the AE as an association acceptor.
 
         If set to non-blocking then a running ``ThreadedAssociationServer``
@@ -1291,8 +1235,8 @@ class ApplicationEntity(object):
 
         Parameters
         ----------
-        port : int
-            The port number to use when listening for incoming association
+        address : 2-tuple
+            The (host, port) to use when listening for incoming association
             requests.
         block : bool, optional
             If True (default) then the server will be block, otherwise it
@@ -1311,9 +1255,7 @@ class ApplicationEntity(object):
         tls_kwargs = tls_kwargs or {}
 
         if block:
-            server = AssociationServer(self,
-                                       (self.bind_addr, port),
-                                       tls_kwargs)
+            server = AssociationServer(self, address, tls_kwargs)
             try:
                 # **BLOCKING**
                 server.serve_forever()
@@ -1321,31 +1263,39 @@ class ApplicationEntity(object):
                 server.shutdown()
         else:
             # Non-blocking server
-            server = ThreadedAssociationServer(self,
-                                               (self.bind_addr, port),
-                                               tls_kwargs)
+            server = ThreadedAssociationServer(self, address, tls_kwargs)
             thread = threading.Thread(target=server.serve_forever)
             thread.daemon = True
             thread.start()
 
             return server
 
-    # Deprecated, will be removed in 1.3: use shutdown() instead
+    # TODO: remove in v1.3
     def stop(self):
         """Stop the SCP.
 
         When running as an SCP, calling stop() will kill all associations
         and close the listen socket.
+
+        This method is deprecated and will be removed in v1.3. Use
+        ``shutdown()`` instead.
         """
         self.shutdown()
 
-    # New
     def shutdown(self):
-        """Stop any active association servers."""
+        """Stop any active association servers and threads."""
+        for assoc in self.active_associations:
+            assoc.abort()
+
         for tt in threading.enumerate():
-            if isinstance(tt, (ThreadedAssociationServer, AssociationServer)):
+            # Also covers ThreadedAssociationServer
+            if isinstance(tt, AssociationServer):
                 tt.shutdown()
 
+        # Give everything time to shutdown
+        time.sleep(0.1)
+
+    # TODO: refactor in v1.3
     def __str__(self):
         """ Prints out the attribute values and status for the AE """
         str_out = "\n"
@@ -2420,14 +2370,12 @@ class ApplicationEntity(object):
     # Communication related callbacks
     def on_receive_connection(self):
         """Callback for a connection is received.
-
         ** NOT IMPLEMENTED **
         """
         raise NotImplementedError()
 
     def on_make_connection(self):
         """Callback for a connection is made.
-
         ** NOT IMPLEMENTED **
         """
         raise NotImplementedError()
@@ -2436,19 +2384,15 @@ class ApplicationEntity(object):
     # High-level Association related callbacks
     def on_association_requested(self, primitive):
         """Callback for an association is requested.
-
         ** NOT IMPLEMENTED **
         """
         pass
 
     def on_association_accepted(self, primitive):
         """Callback for when an association is accepted.
-
         ** NOT IMPLEMENTED **
-
         Placeholder for a function callback. Function will be called
         when an association attempt is accepted by either the local or peer AE
-
         Parameters
         ----------
         pdu_primitives.A_ASSOCIATE
@@ -2458,12 +2402,9 @@ class ApplicationEntity(object):
 
     def on_association_rejected(self, primitive):
         """Callback for when an association is rejected.
-
         ** NOT IMPLEMENTED **
-
         Placeholder for a function callback. Function will be called
         when an association attempt is rejected by a peer AE
-
         Parameters
         ----------
         associate_rq_pdu : pynetdicom.pdu.A_ASSOCIATE_RJ
@@ -2473,14 +2414,12 @@ class ApplicationEntity(object):
 
     def on_association_released(self, primitive=None):
         """Callback for when an association is released.
-
         ** NOT IMPLEMENTED **
         """
         pass
 
     def on_association_aborted(self, primitive=None):
         """Callback for when an association is aborted.
-
         ** NOT IMPLEMENTED **
         """
         # FIXME: Need to standardise callback parameters for A-ABORT
