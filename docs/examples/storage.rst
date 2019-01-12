@@ -196,7 +196,7 @@ requestor rather than a pydicom Dataset object by setting the
    from pynetdicom import _config
    from pynetdicom.sop_class import CTImageStorage
 
-   # Return the raw encoded dataset
+   # Pass the raw encoded dataset to on_c_store()
    _config.DECODE_STORE_DATASETS = False
 
    ae = AE(port=11112)
@@ -205,6 +205,7 @@ requestor rather than a pydicom Dataset object by setting the
    ae.add_supported_context(CTImageStorage)
 
    def on_c_store(ds, context, info):
+       # `ds` should now be a bytes object rather than pydicom Dataset
        with open('some_file.dcm', 'wb') as fp:
            fp.write(ds)
 
