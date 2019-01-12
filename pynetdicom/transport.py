@@ -2,7 +2,6 @@
 
 from copy import deepcopy
 import logging
-from math import floor
 import select
 import socket
 try:
@@ -170,7 +169,7 @@ class AssociationSocket(object):
         #   set using a packed binary string containing two uint32s as
         #   (seconds, microseconds)
         if self.assoc.network_timeout is not None:
-            timeout_seconds = floor(self.assoc.network_timeout)
+            timeout_seconds = int(self.assoc.network_timeout)
             timeout_microsec = int(self.assoc.network_timeout % 1 * 1000)
             sock.setsockopt(
                 socket.SOL_SOCKET,
@@ -413,7 +412,7 @@ class AssociationServer(TCPServer):
         #   set using a packed binary string containing two uint32s as
         #   (seconds, microseconds)
         if self.ae.network_timeout is not None:
-            timeout_seconds = floor(self.ae.network_timeout)
+            timeout_seconds = int(self.ae.network_timeout)
             timeout_microsec = int(self.ae.network_timeout % 1 * 1000)
             self.socket.setsockopt(
                 socket.SOL_SOCKET,

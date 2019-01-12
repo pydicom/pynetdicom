@@ -35,8 +35,6 @@ Enhancements
     destination for the request's C-STORE sub-operations over a new association
     within the same AE instance by running a non-blocking Storage SCP.
     (:issue:`5`, :issue:`181`)
-* Added ``AE.active_requestors`` and ``AE.active_acceptors`` properties which
-  return a list of active requestor/acceptor Association threads.
 
 Changes
 .......

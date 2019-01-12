@@ -190,11 +190,6 @@ class ApplicationEntity(object):
             assoc.acse.acse_timeout = self.acse_timeout
 
     @property
-    def active_acceptors(self):
-        """Return a list of the AE's active Association acceptor threads."""
-        return [tt for tt in self.active_associations if tt.is_acceptor]
-
-    @property
     def active_associations(self):
         """Return a list of the AE's active Associations threads.
 
@@ -208,11 +203,6 @@ class ApplicationEntity(object):
         t_assocs = [tt for tt in threads if isinstance(tt, Association)]
 
         return [tt for tt in t_assocs if tt.ae == self]
-
-    @property
-    def active_requestors(self):
-        """Return a list of the AE's active Association requestor threads."""
-        return [tt for tt in self.active_associations if tt.is_requestor]
 
     def add_requested_context(self, abstract_syntax, transfer_syntax=None):
         """Add a Presentation Context to be proposed when sending Association

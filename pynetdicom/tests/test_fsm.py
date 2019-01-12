@@ -132,7 +132,12 @@ class DummyAE(threading.Thread):
         #   If self.bind_addr is '' then the socket is reachable by any
         #   address the machine may have, otherwise is visible only on that
         #   address
-        sock.bind(('', self.local_port))
+        for ii in range(10):
+            try:
+                sock.bind(('', self.local_port))
+                break
+            except:
+                time.sleep(0.1)
 
         # Listen for connections made to the socket
         # socket.listen() says to queue up to as many as N connect requests
@@ -2294,7 +2299,7 @@ class TestState05(TestStateBase):
         scp = DummyAE()
         scp.mode = 'acceptor'
         scp.queue.put(None)
-        scp.queue.put(['wait', 0.2, 'shutdown'])
+        scp.queue.put(['wait', 0.1, 'shutdown'])
 
         scp.start()
 
@@ -2307,7 +2312,7 @@ class TestState05(TestStateBase):
         #self.assoc.acse.send_abort(self.assoc, 0x00)
         self.assoc.dul.send_pdu(self.get_associate('request'))
 
-        time.sleep(0.1)
+        time.sleep(0.2)
 
         self.fsm.current_state = 'Sta13'
 

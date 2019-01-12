@@ -326,7 +326,10 @@ class ACSE(object):
 
         ## DUL Presentation Related Rejections
         # Maximum number of associations reached (local-limit-exceeded)
-        if len(assoc.ae.active_acceptors) > assoc.ae.maximum_associations:
+        active_acceptors = [
+            tt for tt in assoc.ae.active_associations if tt.is_acceptor
+        ]
+        if len(active_acceptors) > assoc.ae.maximum_associations:
             reject_assoc_rsd = [0x02, 0x03, 0x02]
 
         if reject_assoc_rsd:
