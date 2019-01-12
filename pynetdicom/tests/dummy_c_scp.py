@@ -112,7 +112,6 @@ class DummyBaseSCP(threading.Thread):
 
         self.select_timeout = 0
 
-
     def stop(self):
         """Stop the SCP threads"""
         self.ae.shutdown()
@@ -262,7 +261,8 @@ class DummyVerificationSCP(DummyBaseSCP):
 class DummyStorageSCP(DummyBaseSCP):
     """A threaded dummy storage SCP used for testing"""
     def __init__(self, port=11112):
-        self.ae = AE(port=port)
+        self.ae = AE()
+        self.port = port
         self.ae.add_supported_context(PatientRootQueryRetrieveInformationModelMove)
         self.ae.add_supported_context(StudyRootQueryRetrieveInformationModelMove)
         self.ae.add_supported_context(PatientStudyOnlyQueryRetrieveInformationModelMove)
@@ -288,7 +288,8 @@ class DummyStorageSCP(DummyBaseSCP):
 class DummyFindSCP(DummyBaseSCP):
     """A threaded dummy find SCP used for testing"""
     def __init__(self, port=11112):
-        self.ae = AE(port=port)
+        self.ae = AE()
+        self.port = port
         self.ae.add_supported_context(PatientRootQueryRetrieveInformationModelFind)
         self.ae.add_supported_context(StudyRootQueryRetrieveInformationModelFind)
         self.ae.add_supported_context(ModalityWorklistInformationFind)
@@ -332,7 +333,8 @@ class DummyFindSCP(DummyBaseSCP):
 class DummyGetSCP(DummyBaseSCP):
     """A threaded dummy get SCP used for testing"""
     def __init__(self, port=11112):
-        self.ae = AE(port=port)
+        self.ae = AE()
+        self.port = port
         self.ae.add_supported_context(PatientRootQueryRetrieveInformationModelGet)
         self.ae.add_supported_context(StudyRootQueryRetrieveInformationModelGet)
         self.ae.add_supported_context(PatientStudyOnlyQueryRetrieveInformationModelGet)
@@ -383,7 +385,8 @@ class DummyGetSCP(DummyBaseSCP):
 class DummyMoveSCP(DummyBaseSCP):
     """A threaded dummy move SCP used for testing"""
     def __init__(self, port=11112):
-        self.ae = AE(port=port)
+        self.ae = AE()
+        self.port = port
         self.ae.add_supported_context(PatientRootQueryRetrieveInformationModelMove)
         self.ae.add_supported_context(StudyRootQueryRetrieveInformationModelMove)
         self.ae.add_supported_context(PatientStudyOnlyQueryRetrieveInformationModelMove)

@@ -1293,6 +1293,28 @@ class ApplicationEntity(object):
             If `block` is False then returns the server instance, otherwise
             returns None.
         """
+        # If the SCP has no supported SOP Classes then there's no point
+        #   running as a server
+        if not self.supported_contexts:
+            msg = "No supported Presentation Contexts have been defined"
+            LOGGER.error(msg)
+            raise ValueError(msg)
+
+        bad_contexts = []
+        for cx in self.supported_contexts:
+            roles = (cx.scu_role, cx.scp_role)
+            if None in roles and roles != (None, None):
+                bad_contexts.append(cx.abstract_syntax)
+
+        if bad_contexts:
+            msg = (
+                "The following presentation contexts have inconsistent "
+                "scu_role/scp_role values (if one is None, both must be):\n  "
+            )
+            msg += '\n  '.join(bad_contexts)
+            LOGGER.warning(msg)
+            return
+
         tls_kwargs = tls_kwargs or {}
 
         if block:

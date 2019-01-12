@@ -603,13 +603,13 @@ class TestAEGoodTimeoutSetters(object):
     def test_dimse_timeout(self):
         """ Check AE DIMSE timeout change produces good value """
         ae = AE()
-        assert ae.dimse_timeout is None
+        assert ae.dimse_timeout is 30
         ae.dimse_timeout = None
         assert ae.dimse_timeout is None
         ae.dimse_timeout = -100
-        assert ae.dimse_timeout is None
+        assert ae.dimse_timeout is 30
         ae.dimse_timeout = 'a'
-        assert ae.dimse_timeout is None
+        assert ae.dimse_timeout is 30
         ae.dimse_timeout = 0
         assert ae.dimse_timeout == 0
         ae.dimse_timeout = 30
