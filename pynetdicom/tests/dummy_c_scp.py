@@ -112,6 +112,11 @@ class DummyBaseSCP(threading.Thread):
 
         self.select_timeout = 0
 
+
+    def stop(self):
+        """Stop the SCP threads"""
+        self.ae.shutdown()
+
     @property
     def network_timeout(self):
         return self.ae.network_timeout
@@ -126,11 +131,7 @@ class DummyBaseSCP(threading.Thread):
 
     def run(self):
         """The thread run method"""
-        self.ae.start(select_timeout=self.select_timeout)
-
-    def stop(self):
-        """Stop the SCP thread"""
-        self.ae.stop()
+        self.ae.start_server(('', self.port))
 
     def abort(self):
         """Abort any associations"""
@@ -200,10 +201,9 @@ class DummyBaseSCP(threading.Thread):
 
     def dev_handle_connection(self, client_socket):
         # Create a new Association
-        assoc = Association(self.ae, "acceptor", client_socket)
-        assoc.acse_timeout = self.ae.acse_timeout
-        assoc.dimse_timeout = self.ae.dimse_timeout
-        assoc.network_timeout = self.ae.network_timeout
+        assoc = Association(self.ae, "acceptor")
+
+        assoc.set_socket(client_socket)
 
         # Association Acceptor object -> local AE
         assoc.acceptor.maximum_length = self.ae.maximum_pdu_size
@@ -234,7 +234,8 @@ class DummyBaseSCP(threading.Thread):
 class DummyVerificationSCP(DummyBaseSCP):
     """A threaded dummy verification SCP used for testing"""
     def __init__(self, port=11112):
-        self.ae = AE(port=port)
+        self.ae = AE()
+        self.port = port
         self.ae.supported_contexts = VerificationPresentationContexts
         self.ae.add_supported_context('1.2.3.4')
         DummyBaseSCP.__init__(self)

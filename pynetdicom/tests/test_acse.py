@@ -129,12 +129,7 @@ class TestACSE(object):
     def test_default(self):
         """Test default initialisation"""
         acse = ACSE()
-        assert acse.acse_timeout == 30
-
-    def test_args(self):
-        """Test initialising the ACSE with arguments."""
-        acse = ACSE(acse_timeout=20)
-        assert acse.acse_timeout == 20
+        assert hasattr(acse, 'acse_timeout') is False
 
     def test_is_aborted(self):
         """Test ACSE.is_aborted"""
@@ -568,6 +563,7 @@ class TestUserIdentityNegotiation(object):
             if isinstance(thread, DummyBaseSCP):
                 thread.abort()
                 thread.stop()
+                thread.close()
 
     @pytest.mark.parametrize("req, rsp", REFERENCE_USER_IDENTITY_REQUEST)
     def test_check_usrid_not_implemented(self, req, rsp):
@@ -598,13 +594,15 @@ class TestUserIdentityNegotiation(object):
         def on_user_identity(usr_type, primary, secondary, info):
             return False, rsp[1]
 
-        self.scp = DummyVerificationSCP()
-        self.scp.ae.on_user_identity = on_user_identity
-        self.scp.start()
+        scp = AE()
+        scp.add_supported_context(VerificationSOPClass)
+        scp.on_user_identity = on_user_identity
+        server = scp.start_server(('', 11112), block=False)
+
         ae = AE()
         ae.add_requested_context(VerificationSOPClass)
-        ae.acse_timeout = 5
-        ae.dimse_timeout = 5
+        ae.acse_timeout = 2
+        ae.dimse_timeout = 2
         assoc = ae.associate('localhost', 11112)
 
         assert assoc.is_established
@@ -615,7 +613,7 @@ class TestUserIdentityNegotiation(object):
         item.secondary_field = req[2]
         item.positive_response_requested = req[3]
 
-        scp_assoc = self.scp.ae.active_associations[0]
+        scp_assoc = scp.active_associations[0]
         scp_assoc.requestor.primitive.user_information.append(item)
         is_valid, response = scp_assoc.acse._check_user_identity(scp_assoc)
 
@@ -624,7 +622,7 @@ class TestUserIdentityNegotiation(object):
 
         assoc.release()
 
-        self.scp.stop()
+        scp.shutdown()
 
     @pytest.mark.parametrize("req, rsp", REFERENCE_USER_IDENTITY_REQUEST)
     def test_check_usrid_authorised(self, req, rsp):
@@ -633,9 +631,11 @@ class TestUserIdentityNegotiation(object):
         def on_user_identity(usr_type, primary, secondary, info):
             return True, rsp[1]
 
-        self.scp = DummyVerificationSCP()
-        self.scp.ae.on_user_identity = on_user_identity
-        self.scp.start()
+        scp = AE()
+        scp.add_supported_context(VerificationSOPClass)
+        scp.on_user_identity = on_user_identity
+        server = scp.start_server(('', 11112), block=False)
+
         ae = AE()
         ae.add_requested_context(VerificationSOPClass)
         ae.acse_timeout = 5
@@ -650,7 +650,7 @@ class TestUserIdentityNegotiation(object):
         item.secondary_field = req[2]
         item.positive_response_requested = req[3]
 
-        scp_assoc = self.scp.ae.active_associations[0]
+        scp_assoc = scp.active_associations[0]
         scp_assoc.requestor.primitive.user_information.append(item)
         is_valid, response = scp_assoc.acse._check_user_identity(scp_assoc)
 
@@ -663,7 +663,7 @@ class TestUserIdentityNegotiation(object):
 
         assoc.release()
 
-        self.scp.stop()
+        scp.shutdown()
 
     def test_check_usrid_callback_exception(self):
         """Check _check_user_identity if exception in callback"""

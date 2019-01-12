@@ -159,6 +159,8 @@ class ApplicationEntity(object):
         # TODO: remove in v1.3
         self.local_socket = None
 
+        self._servers = []
+
         # Used to terminate AE when running as an SCP
         # TODO: remove in v1.3
         self._quit = False
@@ -186,10 +188,10 @@ class ApplicationEntity(object):
 
     @property
     def active_associations(self):
-        """Return a list of active Associations threads."""
+        """Return a list of active Associations threads for this AE."""
         threads = threading.enumerate()
         t_assocs = [tt for tt in threads if isinstance(tt, Association)]
-        return [tt for tt in t_assocs if tt.is_alive()]
+        return [tt for tt in t_assocs if tt.is_alive() and tt.ae == self]
 
     def add_requested_context(self, abstract_syntax, transfer_syntax=None):
         """Add a Presentation Context to be proposed when sending Association
@@ -1295,6 +1297,7 @@ class ApplicationEntity(object):
 
         if block:
             server = AssociationServer(self, address, tls_kwargs)
+            self._servers.append(server)
             try:
                 # **BLOCKING**
                 server.serve_forever()
@@ -1306,6 +1309,8 @@ class ApplicationEntity(object):
             thread = threading.Thread(target=server.serve_forever)
             thread.daemon = True
             thread.start()
+
+            self._servers.append(server)
 
             return server
 
@@ -1324,6 +1329,8 @@ class ApplicationEntity(object):
             "shutdown() instead",
             DeprecationWarning
         )
+        self._quit = True
+
         self.shutdown()
 
     def shutdown(self):
@@ -1331,12 +1338,15 @@ class ApplicationEntity(object):
         for assoc in self.active_associations:
             assoc.abort()
 
-        for tt in threading.enumerate():
-            # Also covers ThreadedAssociationServer
-            if isinstance(tt, AssociationServer):
-                tt.shutdown()
+        # This is a bit hackish: server.shutdown() deletes the server
+        #   from `_servers` so we need to workaround this
+        original = self._servers[:]
+        for server in original:
+            server.shutdown()
 
-        # Give everything time to shutdown
+        self._servers = []
+
+        # Give everything a bit of time to shutdown
         time.sleep(0.1)
 
     # TODO: refactor in v1.3
