@@ -343,6 +343,41 @@ interested in.</p>
 <span class="n">ae</span><span class="o">.</span><span class="n">start</span><span class="p">()</span>
 </pre></div>
 </div>
+<p>It’s also possible to return the raw encoded dataset sent by the service
+requestor rather than a pydicom Dataset object by setting the
+<code class="docutils literal notranslate"><span class="pre">_config.DECODE_STORE_DATASETS</span></code> value to False:</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span> <span class="nn">pynetdicom</span> <span class="kn">import</span> <span class="n">AE</span>
+<span class="kn">from</span> <span class="nn">pynetdicom</span> <span class="kn">import</span> <span class="n">_config</span>
+<span class="kn">from</span> <span class="nn">pynetdicom.sop_class</span> <span class="kn">import</span> <span class="n">CTImageStorage</span>
+
+<span class="c1"># Pass the raw encoded dataset to on_c_store()</span>
+<span class="n">_config</span><span class="o">.</span><span class="n">DECODE_STORE_DATASETS</span> <span class="o">=</span> <span class="bp">False</span>
+
+<span class="n">ae</span> <span class="o">=</span> <span class="n">AE</span><span class="p">(</span><span class="n">port</span><span class="o">=</span><span class="mi">11112</span><span class="p">)</span>
+
+<span class="c1"># Add a supported presentation context</span>
+<span class="n">ae</span><span class="o">.</span><span class="n">add_supported_context</span><span class="p">(</span><span class="n">CTImageStorage</span><span class="p">)</span>
+
+<span class="k">def</span> <span class="nf">on_c_store</span><span class="p">(</span><span class="n">ds</span><span class="p">,</span> <span class="n">context</span><span class="p">,</span> <span class="n">info</span><span class="p">):</span>
+    <span class="c1"># `ds` should now be a bytes object rather than pydicom Dataset</span>
+    <span class="k">with</span> <span class="nb">open</span><span class="p">(</span><span class="s1">&#39;some_file.dcm&#39;</span><span class="p">,</span> <span class="s1">&#39;wb&#39;</span><span class="p">)</span> <span class="k">as</span> <span class="n">fp</span><span class="p">:</span>
+        <span class="n">fp</span><span class="o">.</span><span class="n">write</span><span class="p">(</span><span class="n">ds</span><span class="p">)</span>
+
+    <span class="k">return</span> <span class="mh">0x0000</span>
+
+<span class="n">ae</span><span class="o">.</span><span class="n">on_c_store</span> <span class="o">=</span> <span class="n">on_c_store</span>
+
+<span class="n">ae</span><span class="o">.</span><span class="n">start</span><span class="p">()</span>
+</pre></div>
+</div>
+<p>This has a couple of advantages over the default:</p>
+<ul class="simple">
+<li>The Storage SCP should run faster as the dataset is no longer decoded</li>
+<li>Writing the dataset to file should be faster as it no longer needs to be
+re-encoded prior to writing.</li>
+<li>Any issues with decoding the dataset (non-conformance, bugs in pydicom)
+are bypassed.</li>
+</ul>
 </div>
 </div>
 

@@ -1452,10 +1452,15 @@
         <span class="c1"># Give any associations time to abort and shutdown</span>
         <span class="n">time</span><span class="o">.</span><span class="n">sleep</span><span class="p">(</span><span class="mf">0.1</span><span class="p">)</span>
 
+        <span class="c1"># pylint: disable=broad-except</span>
         <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">local_socket</span><span class="p">:</span>
             <span class="c1"># Ensure we shut the socket even if held open by the select()</span>
             <span class="c1"># Close connection and send EOF</span>
-            <span class="bp">self</span><span class="o">.</span><span class="n">local_socket</span><span class="o">.</span><span class="n">shutdown</span><span class="p">(</span><span class="n">socket</span><span class="o">.</span><span class="n">SHUT_RDWR</span><span class="p">)</span>
+            <span class="k">try</span><span class="p">:</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">local_socket</span><span class="o">.</span><span class="n">shutdown</span><span class="p">(</span><span class="n">socket</span><span class="o">.</span><span class="n">SHUT_RDWR</span><span class="p">)</span>
+            <span class="k">except</span> <span class="ne">Exception</span><span class="p">:</span>
+                <span class="k">pass</span>
+
             <span class="c1"># Deallocate socket</span>
             <span class="bp">self</span><span class="o">.</span><span class="n">local_socket</span><span class="o">.</span><span class="n">close</span><span class="p">()</span></div>
 
@@ -2319,8 +2324,11 @@
 
 <span class="sd">        Parameters</span>
 <span class="sd">        ----------</span>
-<span class="sd">        dataset : pydicom.dataset.Dataset</span>
-<span class="sd">            The DICOM dataset sent by the peer in the C-STORE request.</span>
+<span class="sd">        dataset : pydicom.dataset.Dataset or bytes</span>
+<span class="sd">            The DICOM dataset sent by the peer in the C-STORE request as a</span>
+<span class="sd">            pydicom Dataset object (default). If _config.DECODE_STORE_DATASETS</span>
+<span class="sd">            is set to False then returns the raw encoded dataset sent by the</span>
+<span class="sd">            service requestor as bytes.</span>
 <span class="sd">        context : presentation.PresentationContextTuple</span>
 <span class="sd">            The presentation context that the C-STORE message was sent under</span>
 <span class="sd">            as a ``namedtuple`` with field names ``context_id``,</span>

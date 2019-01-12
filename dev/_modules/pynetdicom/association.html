@@ -183,6 +183,7 @@
 
 <span class="c1"># pylint: disable=no-name-in-module</span>
 <span class="kn">from</span> <span class="nn">pynetdicom.acse</span> <span class="k">import</span> <span class="n">ACSE</span>
+<span class="kn">from</span> <span class="nn">pynetdicom</span> <span class="k">import</span> <span class="n">_config</span>
 <span class="kn">from</span> <span class="nn">pynetdicom.dimse</span> <span class="k">import</span> <span class="n">DIMSEServiceProvider</span>
 <span class="kn">from</span> <span class="nn">pynetdicom.dimse_primitives</span> <span class="k">import</span> <span class="p">(</span>
     <span class="n">C_ECHO</span><span class="p">,</span> <span class="n">C_MOVE</span><span class="p">,</span> <span class="n">C_STORE</span><span class="p">,</span> <span class="n">C_GET</span><span class="p">,</span> <span class="n">C_FIND</span><span class="p">,</span> <span class="n">C_CANCEL</span><span class="p">,</span>
@@ -190,6 +191,10 @@
 <span class="p">)</span>
 <span class="kn">from</span> <span class="nn">pynetdicom.dsutils</span> <span class="k">import</span> <span class="n">decode</span><span class="p">,</span> <span class="n">encode</span>
 <span class="kn">from</span> <span class="nn">pynetdicom.dul</span> <span class="k">import</span> <span class="n">DULServiceProvider</span>
+<span class="kn">from</span> <span class="nn">pynetdicom._globals</span> <span class="k">import</span> <span class="p">(</span>
+    <span class="n">MODE_REQUESTOR</span><span class="p">,</span> <span class="n">MODE_ACCEPTOR</span><span class="p">,</span> <span class="n">DEFAULT_MAX_LENGTH</span><span class="p">,</span> <span class="n">STATUS_WARNING</span><span class="p">,</span>
+    <span class="n">STATUS_SUCCESS</span><span class="p">,</span> <span class="n">STATUS_CANCEL</span><span class="p">,</span> <span class="n">STATUS_PENDING</span><span class="p">,</span> <span class="n">STATUS_FAILURE</span>
+<span class="p">)</span>
 <span class="kn">from</span> <span class="nn">pynetdicom.sop_class</span> <span class="k">import</span> <span class="p">(</span>
     <span class="n">uid_to_service_class</span><span class="p">,</span>
     <span class="n">VerificationSOPClass</span><span class="p">,</span>
@@ -241,10 +246,6 @@
     <span class="n">SCP_SCU_RoleSelectionNegotiation</span><span class="p">,</span>
 <span class="p">)</span>
 <span class="kn">from</span> <span class="nn">pynetdicom.status</span> <span class="k">import</span> <span class="n">code_to_category</span><span class="p">,</span> <span class="n">STORAGE_SERVICE_CLASS_STATUS</span>
-<span class="kn">from</span> <span class="nn">pynetdicom._globals</span> <span class="k">import</span> <span class="p">(</span>
-    <span class="n">MODE_REQUESTOR</span><span class="p">,</span> <span class="n">MODE_ACCEPTOR</span><span class="p">,</span> <span class="n">DEFAULT_MAX_LENGTH</span><span class="p">,</span> <span class="n">STATUS_WARNING</span><span class="p">,</span>
-    <span class="n">STATUS_SUCCESS</span><span class="p">,</span> <span class="n">STATUS_CANCEL</span><span class="p">,</span> <span class="n">STATUS_PENDING</span><span class="p">,</span> <span class="n">STATUS_FAILURE</span>
-<span class="p">)</span>
 
 
 <span class="c1"># pylint: enable=no-name-in-module</span>
@@ -788,17 +789,20 @@
         <span class="c1"># Attempt to decode the dataset</span>
         <span class="c1"># pylint: disable=broad-except</span>
         <span class="n">transfer_syntax</span> <span class="o">=</span> <span class="n">context</span><span class="o">.</span><span class="n">transfer_syntax</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span>
-        <span class="k">try</span><span class="p">:</span>
-            <span class="n">ds</span> <span class="o">=</span> <span class="n">decode</span><span class="p">(</span><span class="n">req</span><span class="o">.</span><span class="n">DataSet</span><span class="p">,</span>
-                        <span class="n">transfer_syntax</span><span class="o">.</span><span class="n">is_implicit_VR</span><span class="p">,</span>
-                        <span class="n">transfer_syntax</span><span class="o">.</span><span class="n">is_little_endian</span><span class="p">)</span>
-        <span class="k">except</span> <span class="ne">Exception</span> <span class="k">as</span> <span class="n">ex</span><span class="p">:</span>
-            <span class="n">LOGGER</span><span class="o">.</span><span class="n">error</span><span class="p">(</span><span class="s1">&#39;Failed to decode the received dataset&#39;</span><span class="p">)</span>
-            <span class="n">LOGGER</span><span class="o">.</span><span class="n">exception</span><span class="p">(</span><span class="n">ex</span><span class="p">)</span>
-            <span class="n">rsp</span><span class="o">.</span><span class="n">Status</span> <span class="o">=</span> <span class="mh">0xC210</span>
-            <span class="n">rsp</span><span class="o">.</span><span class="n">ErrorComment</span> <span class="o">=</span> <span class="s1">&#39;Unable to decode the dataset&#39;</span>
-            <span class="bp">self</span><span class="o">.</span><span class="n">dimse</span><span class="o">.</span><span class="n">send_msg</span><span class="p">(</span><span class="n">rsp</span><span class="p">,</span> <span class="n">context</span><span class="o">.</span><span class="n">context_id</span><span class="p">)</span>
-            <span class="k">return</span>
+        <span class="k">if</span> <span class="n">_config</span><span class="o">.</span><span class="n">DECODE_STORE_DATASETS</span><span class="p">:</span>
+            <span class="k">try</span><span class="p">:</span>
+                <span class="n">ds</span> <span class="o">=</span> <span class="n">decode</span><span class="p">(</span><span class="n">req</span><span class="o">.</span><span class="n">DataSet</span><span class="p">,</span>
+                            <span class="n">transfer_syntax</span><span class="o">.</span><span class="n">is_implicit_VR</span><span class="p">,</span>
+                            <span class="n">transfer_syntax</span><span class="o">.</span><span class="n">is_little_endian</span><span class="p">)</span>
+            <span class="k">except</span> <span class="ne">Exception</span> <span class="k">as</span> <span class="n">ex</span><span class="p">:</span>
+                <span class="n">LOGGER</span><span class="o">.</span><span class="n">error</span><span class="p">(</span><span class="s1">&#39;Failed to decode the received dataset&#39;</span><span class="p">)</span>
+                <span class="n">LOGGER</span><span class="o">.</span><span class="n">exception</span><span class="p">(</span><span class="n">ex</span><span class="p">)</span>
+                <span class="n">rsp</span><span class="o">.</span><span class="n">Status</span> <span class="o">=</span> <span class="mh">0xC210</span>
+                <span class="n">rsp</span><span class="o">.</span><span class="n">ErrorComment</span> <span class="o">=</span> <span class="s1">&#39;Unable to decode the dataset&#39;</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">dimse</span><span class="o">.</span><span class="n">send_msg</span><span class="p">(</span><span class="n">rsp</span><span class="p">,</span> <span class="n">context</span><span class="o">.</span><span class="n">context_id</span><span class="p">)</span>
+                <span class="k">return</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="n">ds</span> <span class="o">=</span> <span class="n">req</span><span class="o">.</span><span class="n">DataSet</span><span class="o">.</span><span class="n">getvalue</span><span class="p">()</span>
 
         <span class="n">info</span> <span class="o">=</span> <span class="p">{</span>
             <span class="s1">&#39;acceptor&#39;</span> <span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">acceptor</span><span class="o">.</span><span class="n">info</span><span class="p">,</span>
