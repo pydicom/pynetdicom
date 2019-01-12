@@ -282,6 +282,7 @@ class DummyStorageSCP(DummyBaseSCP):
 
     def on_c_store(self, ds, context, info):
         """Callback for ae.on_c_store"""
+        self.dataset = ds
         self.context = context
         self.info = info
         time.sleep(self.delay)

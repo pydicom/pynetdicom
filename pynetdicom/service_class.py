@@ -6,8 +6,16 @@ import sys
 
 from pydicom.dataset import Dataset
 
+from pynetdicom import _config
 from pynetdicom.dsutils import decode, encode
 from pynetdicom.dimse_primitives import C_STORE, C_ECHO, C_MOVE, C_GET, C_FIND
+from pynetdicom._globals import (
+    STATUS_FAILURE,
+    STATUS_SUCCESS,
+    STATUS_WARNING,
+    STATUS_PENDING,
+    STATUS_CANCEL,
+)
 from pynetdicom.status import (
     VERIFICATION_SERVICE_CLASS_STATUS,
     STORAGE_SERVICE_CLASS_STATUS,
@@ -18,13 +26,6 @@ from pynetdicom.status import (
     RELEVANT_PATIENT_SERVICE_CLASS_STATUS,
     SUBSTANCE_ADMINISTRATION_SERVICE_CLASS_STATUS,
     NON_PATIENT_SERVICE_CLASS_STATUS,
-)
-from pynetdicom._globals import (
-    STATUS_FAILURE,
-    STATUS_SUCCESS,
-    STATUS_WARNING,
-    STATUS_PENDING,
-    STATUS_CANCEL,
 )
 
 
@@ -344,21 +345,24 @@ class StorageServiceClass(ServiceClass):
 
         # Attempt to decode the request's dataset
         transfer_syntax = context.transfer_syntax[0]
-        try:
-            ds = decode(req.DataSet,
-                        transfer_syntax.is_implicit_VR,
-                        transfer_syntax.is_little_endian)
-            # Trigger exception if bad dataset
-            for elem in ds:
-                pass
-        except Exception as ex:
-            LOGGER.error("Failed to decode the received dataset")
-            LOGGER.exception(ex)
-            # Failure: Cannot Understand - Dataset decoding error
-            rsp.Status = 0xC210
-            rsp.ErrorComment = 'Unable to decode the dataset'
-            self.dimse.send_msg(rsp, context.context_id)
-            return
+        if _config.DECODE_STORE_DATASETS:
+            try:
+                ds = decode(req.DataSet,
+                            transfer_syntax.is_implicit_VR,
+                            transfer_syntax.is_little_endian)
+                # Trigger exception if bad dataset
+                for elem in ds:
+                    pass
+            except Exception as ex:
+                LOGGER.error("Failed to decode the received dataset")
+                LOGGER.exception(ex)
+                # Failure: Cannot Understand - Dataset decoding error
+                rsp.Status = 0xC210
+                rsp.ErrorComment = 'Unable to decode the dataset'
+                self.dimse.send_msg(rsp, context.context_id)
+                return
+        else:
+            ds = req.DataSet.getvalue()
 
         info['parameters'] = {
             'message_id' : req.MessageID,

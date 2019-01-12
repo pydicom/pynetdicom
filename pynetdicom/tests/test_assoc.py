@@ -2401,6 +2401,96 @@ class TestAssociationSendCGet(object):
 
         self.scp.stop()
 
+    def test_config_return_dataset(self):
+        """Test the _config option DECODE_STORE_DATASETS = True."""
+        from pynetdicom import _config
+
+        orig_value = _config.DECODE_STORE_DATASETS
+        _config.DECODE_STORE_DATASETS = True
+
+        self.scp = DummyGetSCP()
+        self.scp.no_suboperations = 1
+        self.scp.statuses = [0xFF00]
+        self.scp.datasets = [self.good]
+
+        def on_c_store(ds, context, assoc_info):
+            assert isinstance(ds, Dataset)
+            return 0x0000
+
+        self.scp.start()
+        ae = AE()
+        ae.add_requested_context(PatientRootQueryRetrieveInformationModelGet)
+        ae.add_requested_context(CTImageStorage)
+
+        role = SCP_SCU_RoleSelectionNegotiation()
+        role.sop_class_uid = CTImageStorage
+        role.scu_role = False
+        role.scp_role = True
+
+        ae.acse_timeout = 5
+        ae.dimse_timeout = 5
+        ae.on_c_store = on_c_store
+        assoc = ae.associate('localhost', 11112, ext_neg=[role])
+        assert assoc.is_established
+        result = assoc.send_c_get(self.ds, query_model='P')
+        (status, ds) = next(result)
+        assert status.Status == 0xff00
+        assert ds is None
+        (status, ds) = next(result)
+        assert status.Status == 0x0000
+        assert ds is None
+        assoc.release()
+        assert assoc.is_released
+        self.scp.stop()
+
+        _config.DECODE_STORE_DATASETS = orig_value
+
+        self.scp.stop()
+
+    def test_config_return_bytes(self):
+        """Test the _config option DECODE_STORE_DATASETS = False."""
+        from pynetdicom import _config
+
+        orig_value = _config.DECODE_STORE_DATASETS
+        _config.DECODE_STORE_DATASETS = False
+
+        self.scp = DummyGetSCP()
+        self.scp.no_suboperations = 1
+        self.scp.statuses = [0xFF00]
+        self.scp.datasets = [self.good]
+
+        def on_c_store(ds, context, assoc_info):
+            assert isinstance(ds, bytes)
+            return 0x0000
+
+        self.scp.start()
+        ae = AE()
+        ae.add_requested_context(PatientRootQueryRetrieveInformationModelGet)
+        ae.add_requested_context(CTImageStorage)
+
+        role = SCP_SCU_RoleSelectionNegotiation()
+        role.sop_class_uid = CTImageStorage
+        role.scu_role = False
+        role.scp_role = True
+
+        ae.acse_timeout = 5
+        ae.dimse_timeout = 5
+        ae.on_c_store = on_c_store
+        assoc = ae.associate('localhost', 11112, ext_neg=[role])
+        assert assoc.is_established
+        result = assoc.send_c_get(self.ds, query_model='P')
+        (status, ds) = next(result)
+        assert status.Status == 0xff00
+        assert ds is None
+        (status, ds) = next(result)
+        assert status.Status == 0x0000
+        assert ds is None
+        assoc.release()
+        assert assoc.is_released
+        self.scp.stop()
+
+        _config.DECODE_STORE_DATASETS = orig_value
+
 
 class TestAssociationSendCCancelGet(object):
     """Run tests on Assocation send_c_cancel_find."""

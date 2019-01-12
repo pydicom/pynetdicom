@@ -11,6 +11,7 @@ from pydicom.uid import UID
 
 # pylint: disable=no-name-in-module
 from pynetdicom.acse import ACSE
+from pynetdicom import _config
 from pynetdicom.dimse import DIMSEServiceProvider
 from pynetdicom.dimse_primitives import (
     C_ECHO, C_MOVE, C_STORE, C_GET, C_FIND, C_CANCEL,
@@ -18,6 +19,10 @@ from pynetdicom.dimse_primitives import (
 )
 from pynetdicom.dsutils import decode, encode
 from pynetdicom.dul import DULServiceProvider
+from pynetdicom._globals import (
+    MODE_REQUESTOR, MODE_ACCEPTOR, DEFAULT_MAX_LENGTH, STATUS_WARNING,
+    STATUS_SUCCESS, STATUS_CANCEL, STATUS_PENDING, STATUS_FAILURE
+)
 from pynetdicom.sop_class import (
     uid_to_service_class,
     VerificationSOPClass,
@@ -69,10 +74,6 @@ from pynetdicom.pdu_primitives import (
     SCP_SCU_RoleSelectionNegotiation,
 )
 from pynetdicom.status import code_to_category, STORAGE_SERVICE_CLASS_STATUS
-from pynetdicom._globals import (
-    MODE_REQUESTOR, MODE_ACCEPTOR, DEFAULT_MAX_LENGTH, STATUS_WARNING,
-    STATUS_SUCCESS, STATUS_CANCEL, STATUS_PENDING, STATUS_FAILURE
-)
 
 
 # pylint: enable=no-name-in-module
@@ -637,17 +638,20 @@ class Association(threading.Thread):
         # Attempt to decode the dataset
         # pylint: disable=broad-except
         transfer_syntax = context.transfer_syntax[0]
-        try:
-            ds = decode(req.DataSet,
-                        transfer_syntax.is_implicit_VR,
-                        transfer_syntax.is_little_endian)
-        except Exception as ex:
-            LOGGER.error('Failed to decode the received dataset')
-            LOGGER.exception(ex)
-            rsp.Status = 0xC210
-            rsp.ErrorComment = 'Unable to decode the dataset'
-            self.dimse.send_msg(rsp, context.context_id)
-            return
+        if _config.DECODE_STORE_DATASETS:
+            try:
+                ds = decode(req.DataSet,
+                            transfer_syntax.is_implicit_VR,
+                            transfer_syntax.is_little_endian)
+            except Exception as ex:
+                LOGGER.error('Failed to decode the received dataset')
+                LOGGER.exception(ex)
+                rsp.Status = 0xC210
+                rsp.ErrorComment = 'Unable to decode the dataset'
+                self.dimse.send_msg(rsp, context.context_id)
+                return
+        else:
+            ds = req.DataSet.getvalue()
 
         info = {
             'acceptor' : self.acceptor.info,

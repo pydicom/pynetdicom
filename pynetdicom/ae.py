@@ -1377,9 +1377,6 @@ class ApplicationEntity(object):
 
         self._servers = []
 
-        # Give everything a bit of time to shutdown
-        #time.sleep(0.1)
-
     # TODO: refactor in v1.3
     def __str__(self):
         """ Prints out the attribute values and status for the AE """
@@ -2241,8 +2238,11 @@ class ApplicationEntity(object):
 
         Parameters
         ----------
-        dataset : pydicom.dataset.Dataset
-            The DICOM dataset sent by the peer in the C-STORE request.
+        dataset : pydicom.dataset.Dataset or bytes
+            The DICOM dataset sent by the peer in the C-STORE request as a
+            pydicom Dataset object (default). If _config.DECODE_STORE_DATASETS
+            is set to False then returns the raw encoded dataset sent by the
+            service requestor as bytes.
         context : presentation.PresentationContextTuple
             The presentation context that the C-STORE message was sent under
             as a ``namedtuple`` with field names ``context_id``,

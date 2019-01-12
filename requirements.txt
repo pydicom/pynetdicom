@@ -1,1 +1,1 @@
-git+git://github.com/pydicom/pydicom@master
+pydicom>=1.2.1

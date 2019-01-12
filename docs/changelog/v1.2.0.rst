@@ -9,6 +9,9 @@ Fixes
 Enhancements
 ............
 
+* Added ``_config`` module and the ability to skip the dataset decoding step in
+  C-STORE operations by setting ``_config.DECODE_STORE_DATASETS`` to False
+  (:issue:`282`)
 * Consolidated and improved the robustness of the transport related code
   (:issue:`42`):
 
