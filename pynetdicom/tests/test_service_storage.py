@@ -304,3 +304,53 @@ class TestStorageServiceClass(object):
         assert info['1.2.4'] == b'\x00\x02'
 
         self.scp.stop()
+
+    def test_config_return_dataset(self):
+        """Test the _config option DECODE_STORE_DATASETS = True."""
+        from pynetdicom import _config
+
+        orig_value = _config.DECODE_STORE_DATASETS
+        _config.DECODE_STORE_DATASETS = True
+
+        self.scp = DummyStorageSCP()
+        self.scp.status = Dataset()
+        self.scp.status.Status = 0x0001
+        self.scp.start()
+
+        ae = AE()
+        ae.add_requested_context(CTImageStorage)
+        assoc = ae.associate('localhost', 11112)
+        assert assoc.is_established
+        rsp = assoc.send_c_store(DATASET)
+        assert rsp.Status == 0x0001
+        assoc.release()
+        assert isinstance(self.scp.dataset, Dataset)
+
+        _config.DECODE_STORE_DATASETS = orig_value
+
+        self.scp.stop()
+
+    def test_config_return_bytes(self):
+        """Test the _config option DECODE_STORE_DATASETS = False."""
+        from pynetdicom import _config
+
+        orig_value = _config.DECODE_STORE_DATASETS
+        _config.DECODE_STORE_DATASETS = False
+
+        self.scp = DummyStorageSCP()
+        self.scp.status = Dataset()
+        self.scp.status.Status = 0x0001
+        self.scp.start()
+
+        ae = AE()
+        ae.add_requested_context(CTImageStorage)
+        assoc = ae.associate('localhost', 11112)
+        assert assoc.is_established
+        rsp = assoc.send_c_store(DATASET)
+        assert rsp.Status == 0x0001
+        assoc.release()
+        assert isinstance(self.scp.dataset, bytes)
+
+        _config.DECODE_STORE_DATASETS = orig_value
+
+        self.scp.stop()

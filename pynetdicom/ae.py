@@ -1280,10 +1280,15 @@ class ApplicationEntity(object):
         # Give any associations time to abort and shutdown
         time.sleep(0.1)
 
+        # pylint: disable=broad-except
         if self.local_socket:
             # Ensure we shut the socket even if held open by the select()
             # Close connection and send EOF
-            self.local_socket.shutdown(socket.SHUT_RDWR)
+            try:
+                self.local_socket.shutdown(socket.SHUT_RDWR)
+            except Exception:
+                pass
+
             # Deallocate socket
             self.local_socket.close()
 
@@ -2147,8 +2152,11 @@ class ApplicationEntity(object):
 
         Parameters
         ----------
-        dataset : pydicom.dataset.Dataset
-            The DICOM dataset sent by the peer in the C-STORE request.
+        dataset : pydicom.dataset.Dataset or bytes
+            The DICOM dataset sent by the peer in the C-STORE request as a
+            pydicom Dataset object (default). If _config.DECODE_STORE_DATASETS
+            is set to False then returns the raw encoded dataset sent by the
+            service requestor as bytes.
         context : presentation.PresentationContextTuple
             The presentation context that the C-STORE message was sent under
             as a ``namedtuple`` with field names ``context_id``,
