@@ -5,7 +5,10 @@ import logging
 from math import floor
 import select
 import socket
-from socketserver import TCPServer, ThreadingMixIn, BaseRequestHandler
+try:
+    from SocketServer import TCPServer, ThreadingMixIn, BaseRequestHandler
+except ImportError:
+    from socketserver import TCPServer, ThreadingMixIn, BaseRequestHandler
 import ssl
 from struct import pack
 import time
@@ -387,10 +390,8 @@ class AssociationServer(TCPServer):
         self.tls_kwargs = tls_kwargs or {}
         self.allow_reuse_address = True
 
-        super(AssociationServer, self).__init__(
-            address,
-            RequestHandler,
-            bind_and_activate=True
+        TCPServer.__init__(
+            self, address, RequestHandler, bind_and_activate=True
         )
 
         self.timeout = 60
@@ -475,7 +476,7 @@ class AssociationServer(TCPServer):
 
     def shutdown(self):
         """Completely shutdown the server and close it's socket."""
-        super(AssociationServer, self).shutdown()
+        TCPServer.shutdown(self)
         self.server_close()
         self.ae._servers.remove(self)
 

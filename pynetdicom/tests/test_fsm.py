@@ -1070,7 +1070,7 @@ class TestState01(TestStateBase):
         scp = DummyAE()
         scp.mode = 'acceptor'
         scp.queue.put(['skip', b'\x08\x00\x00\x00\x00\x00'])
-        scp.queue.put(['wait', 0.1, 'shutdown'])
+        scp.queue.put(['wait', 0.2, 'shutdown'])
         scp.start()
 
         assert self.fsm.current_state == 'Sta1'
@@ -1087,7 +1087,7 @@ class TestState01(TestStateBase):
 
         self.assoc.dul.socket._is_connected = True
 
-        time.sleep(0.2)
+        time.sleep(0.1)
 
         self.assoc.kill()
 
@@ -2294,7 +2294,7 @@ class TestState05(TestStateBase):
         scp = DummyAE()
         scp.mode = 'acceptor'
         scp.queue.put(None)
-        scp.queue.put(['wait', 0.4, 'shutdown'])
+        scp.queue.put(['wait', 0.2, 'shutdown'])
 
         scp.start()
 
@@ -2302,12 +2302,12 @@ class TestState05(TestStateBase):
 
         self.assoc.start()
 
-        time.sleep(0.3)
+        time.sleep(0.1)
 
         #self.assoc.acse.send_abort(self.assoc, 0x00)
         self.assoc.dul.send_pdu(self.get_associate('request'))
 
-        time.sleep(0.2)
+        time.sleep(0.1)
 
         self.fsm.current_state = 'Sta13'
 

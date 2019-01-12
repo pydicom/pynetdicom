@@ -18,9 +18,8 @@ Enhancements
   * Added ``transport`` module
   * Added ``AssociationSocket`` class that wraps a client ``socket.socket`` to
     provide integration with the Association state machine. In particular all
-    ``recv()`` and ``send()`` operations are now wrapped in try/except blocks
-    to emit state machine event 'Evt17' when the connection is closed.
-    (:issue:`204`)
+    receive and send operations should emit state machine event 'Evt17' when
+    the connection is closed. (:issue:`204`)
   * Added ``AssociationServer``, and ``ThreadedAssociationServer`` classes
     to provide association acceptor services.
   * ``fsm.AE_1`` is now properly implemented and state machine event 'Evt2' is
@@ -52,13 +51,15 @@ Changes
   ``AE.shutdown()`` instead.
 * The ``AE.port`` property and ``port`` argument for ``AE()`` are deprecated
   and will be removed in v1.3. Use the ``port`` parameter for
-  ``AE.start_server()`` instead.
+  ``AE.start_server()`` and the ``bind_address`` keyword parameter for
+  ``AE.associate()`` instead.
 * The ``AE.local_socket`` attribute is deprecated and will be removed in v1.3.
 * The ``AE.address`` attribute is deprecated and will be removed in v1.3.
 * The ``AE.bind_addr`` attribute is deprecated and will be removed in v1.3. Use
   the ``address`` parameter for ``AE.start_server()`` and the ``bind_address``
-  for ``AE.associate()`` instead.
+  keyword parameter for ``AE.associate()`` instead.
 * Changed the default DIMSE timeout to 30 s.
-* The ``acse_timeout`` parameter to ``ACSE()`` and ACSE.acse_timeout``
+* The ``acse_timeout`` parameter to ``ACSE()`` and ``ACSE.acse_timeout``
   attribute removed, the ``Association.acse_timeout`` value is used instead.
-* ``AE.active_associations`` changed from an attribute to a property.
+* ``AE.active_associations`` changed from an attribute to a property and
+  returns a list of all the AE's active Association threads.
