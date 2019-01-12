@@ -141,6 +141,9 @@ class DummyBaseSCP(threading.Thread):
         for assoc in self.ae.active_associations:
             assoc.abort()
 
+        if self.use_old_start:
+            self.ae.stop()
+
         self.ae.shutdown()
 
     def release(self):
@@ -206,6 +209,7 @@ class DummyBaseSCP(threading.Thread):
 
     def dev_handle_connection(self, client_socket):
         # Create a new Association
+        self.ae.port = self.port
         assoc = Association(self.ae, "acceptor")
 
         assoc.set_socket(AssociationSocket(assoc, client_socket))
@@ -214,7 +218,7 @@ class DummyBaseSCP(threading.Thread):
         assoc.acceptor.maximum_length = self.ae.maximum_pdu_size
         assoc.acceptor.ae_title = self.ae.ae_title
         assoc.acceptor.address = self.ae.address
-        assoc.acceptor.port = self.ae.port
+        assoc.acceptor.port = self.port
         assoc.acceptor.implementation_class_uid = (
             self.ae.implementation_class_uid
         )

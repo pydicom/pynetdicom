@@ -407,7 +407,8 @@ class DULServiceProvider(Thread):
                     self._kill_thread = True
 
             except Exception as exc:
-                # FIXME: This catch all should be removed
+                LOGGER.error("Exception in DUL.run()")
+                LOGGER.exception(exc)
                 self._kill_thread = True
                 raise
 

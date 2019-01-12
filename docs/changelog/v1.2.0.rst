@@ -36,6 +36,8 @@ Enhancements
     destination for the request's C-STORE sub-operations over a new association
     within the same AE instance by running a non-blocking Storage SCP.
     (:issue:`5`, :issue:`181`)
+* Added ``AE.active_requestors`` and ``AE.active_acceptors`` properties which
+  return a list of active requestor/acceptor Association threads.
 
 Changes
 .......
@@ -59,3 +61,4 @@ Changes
 * Changed the default DIMSE timeout to 30 s.
 * The ``acse_timeout`` parameter to ``ACSE()`` and ACSE.acse_timeout``
   attribute removed, the ``Association.acse_timeout`` value is used instead.
+* ``AE.active_associations`` changed from an attribute to a property.

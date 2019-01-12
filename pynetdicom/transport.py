@@ -8,6 +8,7 @@ import socket
 from socketserver import TCPServer, ThreadingMixIn, BaseRequestHandler
 import ssl
 from struct import pack
+import time
 
 from pynetdicom._globals import MODE_ACCEPTOR
 
@@ -95,6 +96,7 @@ class AssociationSocket(object):
         self.socket.close()
         self.socket = None
         self._is_connected = False
+        # Evt17: Transport connection closed
         self.event_queue.put('Evt17')
 
     def connect(self, address):
@@ -126,8 +128,12 @@ class AssociationSocket(object):
             self.event_queue.put('Evt2')
         except (socket.error, socket.timeout):
             if self.socket is not None:
+                try:
+                    self.socket.shutdown(socket.SHUT_RDWR)
+                except:
+                    pass
                 self.socket.close()
-            # Evt17: Transport connection closed
+                self.socket = None
             self.event_queue.put('Evt17')
 
     def _create_socket(self, address=('', 0)):
@@ -201,10 +207,11 @@ class AssociationSocket(object):
             # Use a timeout of 0 so we get an "instant" result
             ready, _, _ = select.select([self.socket], [], [], 0)
         except (socket.error, socket.timeout):
+            # Evt17: Transport connection closed
             self.event_queue.put('Evt17')
             return False
 
-        return ready
+        return bool(ready)
 
     def recv(self, nr_bytes):
         """Read `nr_bytes` from the socket.
@@ -273,6 +280,10 @@ class AssociationSocket(object):
         except (socket.error, socket.timeout):
             # Evt17: Transport connection closed
             self.event_queue.put('Evt17')
+
+    def __str__(self):
+        """Return the string output for `socket`."""
+        return self.socket.__str__()
 
 
 class RequestHandler(BaseRequestHandler):
@@ -413,7 +424,17 @@ class AssociationServer(TCPServer):
         #   If address is '' then the socket is reachable by any
         #   address the machine may have, otherwise is visible only on that
         #   address
-        self.socket.bind(self.server_address)
+        # Binding is attempted 10 times, then raises OSError
+        for ii in range(10):
+            try:
+                self.socket.bind(self.server_address)
+                break
+            except OSError:
+                if ii == 9:
+                    raise
+
+                time.sleep(0.1)
+
         self.server_address = self.socket.getsockname()
 
     def get_request(self):

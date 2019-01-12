@@ -44,30 +44,9 @@ class DummyDUL(DULServiceProvider):
         self.assoc = DummyAssociation()
 
 
-@pytest.mark.skip()
 class TestDUL(object):
     """Run tests on DUL service provider."""
-    def test_pdu_to_event(self):
-        """Test that good PDU paramters return expected results"""
-        dul = DummyDUL()
-        p2e = dul._pdu_to_event
-
-        pdu_types = [A_ASSOCIATE_RQ(), A_ASSOCIATE_AC(), A_ASSOCIATE_RJ(),
-                     P_DATA_TF(), A_RELEASE_RQ(), A_RELEASE_RP(),
-                     A_ABORT_RQ(), 'TEST']
-        event_str = ['Evt6', 'Evt3', 'Evt4',
-                     'Evt10', 'Evt12', 'Evt13',
-                     'Evt16', 'Evt19']
-
-        for pdu, evt in zip(pdu_types, event_str):
-            assert p2e(pdu) == evt
-
-    def test__socket_to_pdu(self):
-        """Test that good PDU paramters return expected results"""
-        dul = DummyDUL()
-        assert dul._socket_to_pdu(b'\x99\x98') is None
-
-    def test__primitive_to_event(self):
+    def test_primitive_to_event(self):
         """Test that parameter returns expected results"""
         dul = DummyDUL()
         p2e = dul._primitive_to_event

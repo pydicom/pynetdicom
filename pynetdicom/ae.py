@@ -3,6 +3,7 @@ The main user class, represents a DICOM Application Entity
 """
 from copy import deepcopy
 import logging
+from math import floor
 import select
 import socket
 from struct import pack
@@ -71,7 +72,9 @@ class ApplicationEntity(object):
         The maximum amount of time (in seconds) to wait for network messages.
         A value of ``None`` means no timeout. (default: 60)
     maximum_associations : int
-        The maximum number of simultaneous associations (default: 2)
+        The maximum number of simultaneous associations requested by remote
+        AEs (default: 2). Note that this does not include the number of
+        associations requested by the local AE.
     maximum_pdu_size : int
         The maximum PDU receive size in bytes. A value of 0 means there is no
         maximum size (default: 16382)
@@ -187,20 +190,29 @@ class ApplicationEntity(object):
             assoc.acse.acse_timeout = self.acse_timeout
 
     @property
+    def active_acceptors(self):
+        """Return a list of the AE's active Association acceptor threads."""
+        return [tt for tt in self.active_associations if tt.is_acceptor]
+
+    @property
     def active_associations(self):
-        """Return a list of the AE's active acceptor Associations threads.
+        """Return a list of the AE's active Associations threads.
 
         Returns
         -------
         list of threading.Thread
+            A list of all active association threads, both requestors and
+            acceptors.
         """
         threads = threading.enumerate()
         t_assocs = [tt for tt in threads if isinstance(tt, Association)]
-        t_mine = [tt for tt in t_assocs if tt.ae == self]
-        t_requestors = [tt for tt in t_mine if tt.is_requestor]
-        t_acceptors = [tt for tt in t_mine if tt.is_acceptor]
 
-        return t_acceptors
+        return [tt for tt in t_assocs if tt.ae == self]
+
+    @property
+    def active_requestors(self):
+        """Return a list of the AE's active Association requestor threads."""
+        return [tt for tt in self.active_associations if tt.is_requestor]
 
     def add_requested_context(self, abstract_syntax, transfer_syntax=None):
         """Add a Presentation Context to be proposed when sending Association
@@ -638,26 +650,33 @@ class ApplicationEntity(object):
         """Set up and bind a socket for use with the SCP."""
         # The socket to listen for connections on, port is always specified
         # AF_INET: IPv4, SOCK_STREAM: TCP socket
-        self.local_socket = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
+        sock = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
 
         # SOL_SOCKET: the level, SO_REUSEADDR: allow reuse of a port
         #   stuck in TIME_WAIT, 1: set SO_REUSEADDR to 1
         # This must be called prior to socket.bind()
-        self.local_socket.setsockopt(socket.SOL_SOCKET, socket.SO_REUSEADDR, 1)
-        self.local_socket.setsockopt(
-            socket.SOL_SOCKET, socket.SO_RCVTIMEO, pack('ll', 10, 0)
-        )
+        sock.setsockopt(socket.SOL_SOCKET, socket.SO_REUSEADDR, 1)
+        if self.network_timeout is not None:
+            timeout_seconds = floor(self.network_timeout)
+            timeout_microsec = int(self.network_timeout % 1 * 1000)
+            sock.setsockopt(
+                socket.SOL_SOCKET,
+                socket.SO_RCVTIMEO,
+                pack('ll', timeout_seconds, timeout_microsec)
+            )
 
         # Bind the socket to an address and port
         #   If self.bind_addr is '' then the socket is reachable by any
         #   address the machine may have, otherwise is visible only on that
         #   address
-        self.local_socket.bind((self.bind_addr, self.port))
+        sock.bind((self.bind_addr, self.port))
 
         # Listen for connections made to the socket
         # socket.listen() says to queue up to as many as N connect requests
         #   before refusing outside connections
-        self.local_socket.listen(5)
+        sock.listen(5)
+
+        return sock
 
     @property
     def dimse_timeout(self):
@@ -1254,23 +1273,21 @@ class ApplicationEntity(object):
             LOGGER.warning(msg)
             return
 
-        # Bind `self.local_socket` to the specified listen port
-        self._bind_socket()
+        # Bind `sock` to the specified listen port
+        sock = self._bind_socket()
 
         while not self._quit:
             try:
-                # Returns a list if self.local_socket has data available
+                # Returns a list if `sock` has data available
                 #   readable, writeable, exceptional
                 # `select_timeout` specifies that select blocks for
                 #   that many seconds before allowing the SCP to be killed
-                ready, _, _ = select.select(
-                    [self.local_socket], [], [], select_timeout
-                )
+                ready, _, _ = select.select([sock], [], [], select_timeout)
 
                 # We check self._quit in case the kill came in during select()
                 if ready and not self._quit:
                     # socket.accept() blocks until a connection is available
-                    client_socket, _ = self.local_socket.accept()
+                    client_socket, _ = sock.accept()
 
                     # Start a new association (as acceptor)
                     self._handle_connection(client_socket)
