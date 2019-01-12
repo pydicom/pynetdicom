@@ -121,9 +121,17 @@ class ApplicationEntity(object):
         # TODO: remove in v1.3
         self.address = socket.gethostbyname(socket.gethostname())
         # TODO: remove in v1.3
+        if port != 0:
+            warnings.warn(
+                "The `port` keywork parameter for AE() is deprecated and will "
+                "be removed in v1.3. Use the `address` parameter for "
+                "AE.start_server() or the `bind_address` keyword parameter "
+                "for AE.associate() instead",
+                DeprecationWarning
+            )
         self.port = port
         # TODO: remove in v1.3
-        self.bind_addr = ''
+        self._bind_addr = ''
 
         # List of PresentationContext
         self._requested_contexts = []
@@ -597,6 +605,24 @@ class ApplicationEntity(object):
         return assoc
 
     # TODO: remove in v1.3
+    @property
+    def bind_addr(self):
+        """Return the `bind_addr`, deprecated and will be removd in v1.3."""
+        return self._bind_addr
+
+    @bind_addr.setter
+    def bind_addr(self, addr):
+        """Set the `bind_addr`, deprecated and will be removd in v1.3."""
+        warnings.warn(
+            "The `bind_addr` property is deprecated and will "
+            "be removed in v1.3. Use the `address` parameter for "
+            "AE.start_server() or the `bind_address` keyword parameter "
+            "for AE.associate() instead",
+            DeprecationWarning
+        )
+        self._bind_addr = addr
+
+    # TODO: remove in v1.3
     def _bind_socket(self):
         """Set up and bind a socket for use with the SCP."""
         # The socket to listen for connections on, port is always specified
@@ -785,6 +811,13 @@ class ApplicationEntity(object):
         the ``address`` parameter for ``start_server()`` and the
         ``bind_address`` keyword parameter for ``associate()`` instead.
         """
+        warnings.warn(
+            "The `port` keywork parameter for AE() is deprecated and will "
+            "be removed in v1.3. Use the `address` parameter for "
+            "AE.start_server() or the `bind_address` keyword parameter "
+            "for AE.associate() instead",
+            DeprecationWarning
+        )
         # pylint: disable=attribute-defined-outside-init
         if isinstance(value, int) and value >= 0:
             self._port = value
@@ -1180,6 +1213,12 @@ class ApplicationEntity(object):
             for (default 0.5). A value of 0 specifies a poll and never blocks.
             A value of None blocks until a connection is ready.
         """
+        warnings.warn(
+            "start() is deprecated and will be removed in v1.3. Use "
+            "start_server() instead",
+            DeprecationWarning
+        )
+
         self._quit = False
 
         # If the SCP has no supported SOP Classes then there's no point
@@ -1280,6 +1319,11 @@ class ApplicationEntity(object):
         This method is deprecated and will be removed in v1.3. Use
         ``shutdown()`` instead.
         """
+        warnings.warn(
+            "stop() is deprecated and will be removed in v1.3. Use "
+            "shutdown() instead",
+            DeprecationWarning
+        )
         self.shutdown()
 
     def shutdown(self):
