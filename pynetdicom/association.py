@@ -113,7 +113,8 @@ class Association(threading.Thread):
         """Create a new Association instance.
 
         The Association starts in State 1 (idle). Association negotiation
-        won't begin until Association.start() is called.
+        won't begin until an AssociationSocket is assigned using set_socket()
+        and Association.start() is called.
 
         Parameters
         ----------
@@ -121,8 +122,6 @@ class Association(threading.Thread):
             The local AE.
         mode : str
             Must be "requestor" or "acceptor".
-        client_socket : transport.AssociationSocket
-            A wrapped socket.socket object used to communicate with the peer.
         """
         self._ae = ae
         self.mode = mode
@@ -147,10 +146,9 @@ class Association(threading.Thread):
         self._rejected_cx = []
 
         # Service providers
-        self.dul = DULServiceProvider(self)
         self.acse = ACSE()
-        self.dimse = DIMSEServiceProvider(self.dul,
-                                          self.ae.dimse_timeout)
+        self.dul = DULServiceProvider(self)
+        self.dimse = DIMSEServiceProvider(self.dul, self.dimse_timeout)
 
         # Kills the thread loop in run()
         self._kill = False
