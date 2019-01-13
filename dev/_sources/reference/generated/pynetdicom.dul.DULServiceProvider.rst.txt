@@ -41,5 +41,6 @@ pynetdicom.dul.DULServiceProvider
       ~DULServiceProvider.daemon
       ~DULServiceProvider.ident
       ~DULServiceProvider.name
+      ~DULServiceProvider.network_timeout
    
    

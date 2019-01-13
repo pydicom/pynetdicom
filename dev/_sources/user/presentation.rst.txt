@@ -175,9 +175,9 @@ In *pynetdicom* this is accomplished through one of the following methods:
     from pynetdicom import AE
     from pynetdicom.sop_class import VerificationSOPClass
 
-    ae = AE(port=11112)
+    ae = AE()
     ae.supported_contexts = [build_context(VerificationSOPClass)]
-    ae.start()
+    ae.start_server(('', 11112))
 
 
 2. Using the
@@ -190,9 +190,9 @@ In *pynetdicom* this is accomplished through one of the following methods:
     from pynetdicom import AE
     from pynetdicom.sop_class import VerificationSOPClass
 
-    ae = AE(port=11112)
+    ae = AE()
     ae.add_supported_context(VerificationSOPClass)
-    ae.start()
+    ae.start_server(('', 11112))
 
 The abstract syntaxes you support should correspond to the service classes that
 are being offered. For example, if you offer the Storage Service then you should
@@ -326,9 +326,9 @@ and ``scp_role`` arguments in ``AE.add_supported_context``:
     from pynetdicom.pdu_primitives import SCP_SCU_RoleSelectionNegotiation
     from pynetdicom.sop_class import CTImageStorage
 
-    ae = AE(port=11112)
+    ae = AE()
     ae.add_supported_context(CTImageStorage, scu_role=True, scp_role=False)
-    ae.start()
+    ae.start_server(('', 11112))
 
 Both ``scu_role`` and ``scp_role`` must be specified. A value of True indicates
 that the *Acceptor* will accept the proposed role. *pynetdicom* uses the

@@ -104,9 +104,9 @@
 <li class="toctree-l1"><a class="reference internal" href="../../user/index.html">User Guide</a></li>
 </ul>
 <ul>
-<li class="toctree-l1"><a class="reference internal" href="../../release_notes.html">1.1.0</a></li>
-<li class="toctree-l1"><a class="reference internal" href="../../release_notes.html#id2">1.1.0</a></li>
-<li class="toctree-l1"><a class="reference internal" href="../../release_notes.html#id6">1.0.0</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../release_notes.html">1.2.0</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../release_notes.html#v1-1-0">1.1.0</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../release_notes.html#v1-0-0">1.0.0</a></li>
 </ul>
 
             
@@ -175,7 +175,7 @@
 <h1>pynetdicom.pdu_items.SCP_SCU_RoleSelectionSubItem<a class="headerlink" href="#pynetdicom-pdu-items-scp-scu-roleselectionsubitem" title="Permalink to this headline">¶</a></h1>
 <dl class="class">
 <dt id="pynetdicom.pdu_items.SCP_SCU_RoleSelectionSubItem">
-<em class="property">class </em><code class="descclassname">pynetdicom.pdu_items.</code><code class="descname">SCP_SCU_RoleSelectionSubItem</code><a class="reference internal" href="../../_modules/pynetdicom/pdu_items.html#SCP_SCU_RoleSelectionSubItem"><span class="viewcode-link">[source]</span></a><a class="reference external" href="https://github.com/pydicom/pynetdicom/blob/8265f50/pynetdicom/pdu_items.py#L2235"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pynetdicom.pdu_items.SCP_SCU_RoleSelectionSubItem" title="Permalink to this definition">¶</a></dt>
+<em class="property">class </em><code class="descclassname">pynetdicom.pdu_items.</code><code class="descname">SCP_SCU_RoleSelectionSubItem</code><a class="reference internal" href="../../_modules/pynetdicom/pdu_items.html#SCP_SCU_RoleSelectionSubItem"><span class="viewcode-link">[source]</span></a><a class="reference external" href="https://github.com/pydicom/pynetdicom/blob/e11f2f9/pynetdicom/pdu_items.py#L2235"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pynetdicom.pdu_items.SCP_SCU_RoleSelectionSubItem" title="Permalink to this definition">¶</a></dt>
 <dd><p>An SCP/SCU Role Selection Sub-item.</p>
 <p>An SCU/SCU Role Selection Sub-item allows communicating Application Entities
 to negotiate the roles in which they will server for each SOP Class or
@@ -343,7 +343,7 @@ Part 5, Section 9.1 (ie NO trailing padding null byte).</p>
 </table>
 <dl class="method">
 <dt id="pynetdicom.pdu_items.SCP_SCU_RoleSelectionSubItem.__init__">
-<code class="descname">__init__</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="../../_modules/pynetdicom/pdu_items.html#SCP_SCU_RoleSelectionSubItem.__init__"><span class="viewcode-link">[source]</span></a><a class="reference external" href="https://github.com/pydicom/pynetdicom/blob/8265f50/pynetdicom/pdu_items.py#L2303"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pynetdicom.pdu_items.SCP_SCU_RoleSelectionSubItem.__init__" title="Permalink to this definition">¶</a></dt>
+<code class="descname">__init__</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="../../_modules/pynetdicom/pdu_items.html#SCP_SCU_RoleSelectionSubItem.__init__"><span class="viewcode-link">[source]</span></a><a class="reference external" href="https://github.com/pydicom/pynetdicom/blob/e11f2f9/pynetdicom/pdu_items.py#L2303"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pynetdicom.pdu_items.SCP_SCU_RoleSelectionSubItem.__init__" title="Permalink to this definition">¶</a></dt>
 <dd><p>Initialise a new SCP/SCU Role Selection Item.</p>
 </dd></dl>
 
@@ -409,7 +409,7 @@ Part 5, Section 9.1 (ie NO trailing padding null byte).</p>
 </table>
 <dl class="method">
 <dt id="pynetdicom.pdu_items.SCP_SCU_RoleSelectionSubItem.decode">
-<code class="descname">decode</code><span class="sig-paren">(</span><em>bytestream</em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/pydicom/pynetdicom/blob/8265f50/pynetdicom/pdu_items.py#L76"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pynetdicom.pdu_items.SCP_SCU_RoleSelectionSubItem.decode" title="Permalink to this definition">¶</a></dt>
+<code class="descname">decode</code><span class="sig-paren">(</span><em>bytestream</em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/pydicom/pynetdicom/blob/e11f2f9/pynetdicom/pdu_items.py#L76"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pynetdicom.pdu_items.SCP_SCU_RoleSelectionSubItem.decode" title="Permalink to this definition">¶</a></dt>
 <dd><p>Decode <cite>bytestream</cite> and use the result to set the field values of
 the PDU item.</p>
 <table class="docutils field-list" frame="void" rules="none">
@@ -424,7 +424,7 @@ the PDU item.</p>
 
 <dl class="method">
 <dt id="pynetdicom.pdu_items.SCP_SCU_RoleSelectionSubItem.encode">
-<code class="descname">encode</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference external" href="https://github.com/pydicom/pynetdicom/blob/8265f50/pynetdicom/pdu_items.py#L99"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pynetdicom.pdu_items.SCP_SCU_RoleSelectionSubItem.encode" title="Permalink to this definition">¶</a></dt>
+<code class="descname">encode</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference external" href="https://github.com/pydicom/pynetdicom/blob/e11f2f9/pynetdicom/pdu_items.py#L99"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pynetdicom.pdu_items.SCP_SCU_RoleSelectionSubItem.encode" title="Permalink to this definition">¶</a></dt>
 <dd><p>Return the encoded PDU as bytes.</p>
 <table class="docutils field-list" frame="void" rules="none">
 <col class="field-name" />
@@ -440,7 +440,7 @@ the PDU item.</p>
 
 <dl class="method">
 <dt id="pynetdicom.pdu_items.SCP_SCU_RoleSelectionSubItem.from_primitive">
-<code class="descname">from_primitive</code><span class="sig-paren">(</span><em>primitive</em><span class="sig-paren">)</span><a class="reference internal" href="../../_modules/pynetdicom/pdu_items.html#SCP_SCU_RoleSelectionSubItem.from_primitive"><span class="viewcode-link">[source]</span></a><a class="reference external" href="https://github.com/pydicom/pynetdicom/blob/8265f50/pynetdicom/pdu_items.py#L2310"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pynetdicom.pdu_items.SCP_SCU_RoleSelectionSubItem.from_primitive" title="Permalink to this definition">¶</a></dt>
+<code class="descname">from_primitive</code><span class="sig-paren">(</span><em>primitive</em><span class="sig-paren">)</span><a class="reference internal" href="../../_modules/pynetdicom/pdu_items.html#SCP_SCU_RoleSelectionSubItem.from_primitive"><span class="viewcode-link">[source]</span></a><a class="reference external" href="https://github.com/pydicom/pynetdicom/blob/e11f2f9/pynetdicom/pdu_items.py#L2310"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pynetdicom.pdu_items.SCP_SCU_RoleSelectionSubItem.from_primitive" title="Permalink to this definition">¶</a></dt>
 <dd><p>Set the item’s values using an SCP/SCU Role Selection primitive.</p>
 <table class="docutils field-list" frame="void" rules="none">
 <col class="field-name" />
@@ -496,7 +496,7 @@ the PDU item.</p>
 
 <dl class="method">
 <dt id="pynetdicom.pdu_items.SCP_SCU_RoleSelectionSubItem.to_primitive">
-<code class="descname">to_primitive</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="../../_modules/pynetdicom/pdu_items.html#SCP_SCU_RoleSelectionSubItem.to_primitive"><span class="viewcode-link">[source]</span></a><a class="reference external" href="https://github.com/pydicom/pynetdicom/blob/8265f50/pynetdicom/pdu_items.py#L2328"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pynetdicom.pdu_items.SCP_SCU_RoleSelectionSubItem.to_primitive" title="Permalink to this definition">¶</a></dt>
+<code class="descname">to_primitive</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="../../_modules/pynetdicom/pdu_items.html#SCP_SCU_RoleSelectionSubItem.to_primitive"><span class="viewcode-link">[source]</span></a><a class="reference external" href="https://github.com/pydicom/pynetdicom/blob/e11f2f9/pynetdicom/pdu_items.py#L2328"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pynetdicom.pdu_items.SCP_SCU_RoleSelectionSubItem.to_primitive" title="Permalink to this definition">¶</a></dt>
 <dd><p>Return an SCP/SCU Role Selection primitive from the current Item.</p>
 <table class="docutils field-list" frame="void" rules="none">
 <col class="field-name" />

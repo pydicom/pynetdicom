@@ -104,9 +104,9 @@
 <li class="toctree-l1"><a class="reference internal" href="../user/index.html">User Guide</a></li>
 </ul>
 <ul>
-<li class="toctree-l1"><a class="reference internal" href="../release_notes.html">1.1.0</a></li>
-<li class="toctree-l1"><a class="reference internal" href="../release_notes.html#id2">1.1.0</a></li>
-<li class="toctree-l1"><a class="reference internal" href="../release_notes.html#id6">1.0.0</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../release_notes.html">1.2.0</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../release_notes.html#v1-1-0">1.1.0</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../release_notes.html#v1-0-0">1.0.0</a></li>
 </ul>
 
             
@@ -240,7 +240,7 @@ containing the single tag (0008,0070).</p>
 <span class="kn">from</span> <span class="nn">pynetdicom.sop_class</span> <span class="kn">import</span> <span class="n">DisplaySystemSOPClass</span>
 
 <span class="c1"># Initialise the Application Entity and specify the listen port</span>
-<span class="n">ae</span> <span class="o">=</span> <span class="n">AE</span><span class="p">(</span><span class="n">port</span><span class="o">=</span><span class="mi">11112</span><span class="p">)</span>
+<span class="n">ae</span> <span class="o">=</span> <span class="n">AE</span><span class="p">()</span>
 
 <span class="c1"># Add the supported presentation context</span>
 <span class="n">ae</span><span class="o">.</span><span class="n">add_supported_context</span><span class="p">(</span><span class="n">DisplaySystemSOPClass</span><span class="p">)</span>
@@ -291,7 +291,7 @@ containing the single tag (0008,0070).</p>
 <span class="n">ae</span><span class="o">.</span><span class="n">on_n_get</span> <span class="o">=</span> <span class="n">on_n_get</span>
 
 <span class="c1"># Start listening for incoming association requests</span>
-<span class="n">ae</span><span class="o">.</span><span class="n">start</span><span class="p">()</span>
+<span class="n">ae</span><span class="o">.</span><span class="n">start_server</span><span class="p">((</span><span class="s1">&#39;&#39;</span><span class="p">,</span> <span class="mi">11112</span><span class="p">))</span>
 </pre></div>
 </div>
 </div>

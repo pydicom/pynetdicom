@@ -41,6 +41,7 @@ pynetdicom.association.Association
       ~Association.send_n_set
       ~Association.setDaemon
       ~Association.setName
+      ~Association.set_socket
       ~Association.start
    
    

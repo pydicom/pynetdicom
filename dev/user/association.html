@@ -31,7 +31,7 @@
   <link rel="stylesheet" href="../_static/css/pynetdicom.css" type="text/css" />
     <link rel="index" title="Index" href="../genindex.html" />
     <link rel="search" title="Search" href="../search.html" />
-    <link rel="next" title="1.1.0" href="../release_notes.html" />
+    <link rel="next" title="1.2.0" href="../release_notes.html" />
     <link rel="prev" title="Application Entity" href="ae.html" /> 
 
   
@@ -113,12 +113,16 @@
 <li class="toctree-l4"><a class="reference internal" href="#specifying-the-called-ae-title">Specifying the Called AE Title</a></li>
 <li class="toctree-l4"><a class="reference internal" href="#specifying-presentation-contexts-for-each-association">Specifying Presentation Contexts for each Association</a></li>
 <li class="toctree-l4"><a class="reference internal" href="#using-extended-negotiation">Using Extended Negotiation</a></li>
+<li class="toctree-l4"><a class="reference internal" href="#tls">TLS</a></li>
 <li class="toctree-l4"><a class="reference internal" href="#outcomes-of-an-association-request">Outcomes of an Association Request</a></li>
 </ul>
 </li>
 <li class="toctree-l3"><a class="reference internal" href="#using-an-association-scu">Using an Association (SCU)</a></li>
 <li class="toctree-l3"><a class="reference internal" href="#accessing-user-identity-responses">Accessing User Identity Responses</a></li>
-<li class="toctree-l3"><a class="reference internal" href="#listening-for-association-requests-scp">Listening for Association Requests (SCP)</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#listening-for-association-requests-scp">Listening for Association Requests (SCP)</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="#id2">TLS</a></li>
+</ul>
+</li>
 <li class="toctree-l3"><a class="reference internal" href="#providing-dimse-services-scp">Providing DIMSE Services (SCP)</a></li>
 </ul>
 </li>
@@ -126,9 +130,9 @@
 </li>
 </ul>
 <ul>
-<li class="toctree-l1"><a class="reference internal" href="../release_notes.html">1.1.0</a></li>
-<li class="toctree-l1"><a class="reference internal" href="../release_notes.html#id2">1.1.0</a></li>
-<li class="toctree-l1"><a class="reference internal" href="../release_notes.html#id6">1.0.0</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../release_notes.html">1.2.0</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../release_notes.html#v1-1-0">1.1.0</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../release_notes.html#v1-0-0">1.0.0</a></li>
 </ul>
 
             
@@ -299,6 +303,35 @@ also acting as a Storage SCP), plus a User Identity Negotiation item:</p>
 <li><a class="reference internal" href="../reference/generated/pynetdicom.pdu_primitives.UserIdentityNegotiation.html#pynetdicom.pdu_primitives.UserIdentityNegotiation" title="pynetdicom.pdu_primitives.UserIdentityNegotiation"><code class="xref py py-class docutils literal notranslate"><span class="pre">User</span> <span class="pre">Identity</span> <span class="pre">Negotiation</span></code></a></li>
 </ul>
 </div>
+<div class="section" id="tls">
+<h3>TLS<a class="headerlink" href="#tls" title="Permalink to this headline">¶</a></h3>
+<p>The client socket used for the association can be wrapped in TLS by supplying
+the <code class="docutils literal notranslate"><span class="pre">tls_args</span></code> keyword parameter to <code class="docutils literal notranslate"><span class="pre">associate()</span></code>:</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="kn">import</span> <span class="nn">ssl</span>
+
+<span class="kn">from</span> <span class="nn">pynetdicom</span> <span class="k">import</span> <span class="n">AE</span>
+<span class="kn">from</span> <span class="nn">pynetdicom.sop_class</span> <span class="k">import</span> <span class="n">VerificationSOPClass</span>
+
+<span class="n">ae</span> <span class="o">=</span> <span class="n">AE</span><span class="p">()</span>
+<span class="n">ae</span><span class="o">.</span><span class="n">add_requested_context</span><span class="p">(</span><span class="n">VerificationSOPClass</span><span class="p">)</span>
+
+<span class="c1"># Create the SSLContext, your requirements may vary</span>
+<span class="n">ssl_cx</span> <span class="o">=</span> <span class="n">ssl</span><span class="o">.</span><span class="n">create_default_context</span><span class="p">(</span><span class="n">ssl</span><span class="o">.</span><span class="n">Purpose</span><span class="o">.</span><span class="n">CLIENT_AUTH</span><span class="p">,</span> <span class="n">cafile</span><span class="o">=</span><span class="n">server</span><span class="o">.</span><span class="n">crt</span><span class="p">)</span>
+<span class="n">ssl_cx</span><span class="o">.</span><span class="n">verify_mode</span> <span class="o">=</span> <span class="n">ssl</span><span class="o">.</span><span class="n">CERT_REQUIRED</span>
+<span class="n">ssl_cx</span><span class="o">.</span><span class="n">load_cert_chain</span><span class="p">(</span><span class="n">certfile</span><span class="o">=</span><span class="n">client</span><span class="o">.</span><span class="n">crt</span><span class="p">,</span> <span class="n">keyfile</span><span class="o">=</span><span class="n">client</span><span class="o">.</span><span class="n">key</span><span class="p">)</span>
+
+<span class="n">assoc</span> <span class="o">=</span> <span class="n">ae</span><span class="o">.</span><span class="n">associate</span><span class="p">(</span><span class="s1">&#39;127.0.0.1&#39;</span><span class="p">,</span> <span class="mi">11112</span><span class="p">,</span> <span class="n">tls_args</span><span class="o">=</span><span class="p">(</span><span class="n">ssl_cx</span><span class="p">,</span> <span class="kc">None</span><span class="p">))</span>
+<span class="k">if</span> <span class="n">assoc</span><span class="o">.</span><span class="n">is_established</span><span class="p">:</span>
+    <span class="c1"># Do something with the association</span>
+    <span class="k">pass</span>
+
+    <span class="c1"># Once we are finished, release the association</span>
+    <span class="n">assoc</span><span class="o">.</span><span class="n">release</span><span class="p">()</span>
+</pre></div>
+</div>
+<p><code class="docutils literal notranslate"><span class="pre">tls_args</span></code> is (SSLContext, hostname), where <code class="docutils literal notranslate"><span class="pre">hostname</span></code> is the value of
+the <code class="docutils literal notranslate"><span class="pre">server_hostname</span></code> keyword parameter in <code class="docutils literal notranslate"><span class="pre">SSLContext.wrap_socket()</span></code>.</p>
+</div>
 <div class="section" id="outcomes-of-an-association-request">
 <h3>Outcomes of an Association Request<a class="headerlink" href="#outcomes-of-an-association-request" title="Permalink to this headline">¶</a></h3>
 <p>There are four potential outcomes of an association request: acceptance and
@@ -367,24 +400,61 @@ property after the association has been established.</p>
 </div>
 <div class="section" id="listening-for-association-requests-scp">
 <span id="assoc-scp"></span><h2>Listening for Association Requests (SCP)<a class="headerlink" href="#listening-for-association-requests-scp" title="Permalink to this headline">¶</a></h2>
-<p>Assuming you <a class="reference internal" href="ae.html#ae-create-scp"><span class="std std-ref">have an AE</span></a> set to listen on port 11112
-and have added your supported presentation contexts then you can start
+<p>Assuming you have added your supported presentation contexts then you can start
 listening for association requests from peers with the
-<a class="reference internal" href="../reference/generated/pynetdicom.ae.ApplicationEntity.html#pynetdicom.ae.ApplicationEntity.start" title="pynetdicom.ae.ApplicationEntity.start"><code class="xref py py-meth docutils literal notranslate"><span class="pre">AE.start()</span></code></a>
+<a class="reference internal" href="../reference/generated/pynetdicom.ae.ApplicationEntity.html#pynetdicom.ae.ApplicationEntity.start_server" title="pynetdicom.ae.ApplicationEntity.start_server"><code class="xref py py-meth docutils literal notranslate"><span class="pre">AE.start_server()</span></code></a>
 method:</p>
 <div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span> <span class="nn">pynetdicom</span> <span class="k">import</span> <span class="n">AE</span>
 <span class="kn">from</span> <span class="nn">pynetdicom.sop_class</span> <span class="k">import</span> <span class="n">VerificationSOPClass</span>
 
-<span class="n">ae</span> <span class="o">=</span> <span class="n">AE</span><span class="p">(</span><span class="n">port</span><span class="o">=</span><span class="mi">11112</span><span class="p">)</span>
 <span class="n">ae</span><span class="o">.</span><span class="n">add_supported_context</span><span class="p">(</span><span class="n">VerificationSOPClass</span><span class="p">)</span>
 
 <span class="c1"># Listen for association requests</span>
-<span class="n">ae</span><span class="o">.</span><span class="n">start</span><span class="p">()</span>
+<span class="n">ae</span><span class="o">.</span><span class="n">start_server</span><span class="p">((</span><span class="s1">&#39;&#39;</span><span class="p">,</span> <span class="mi">11112</span><span class="p">))</span>
 </pre></div>
 </div>
 <p>The above is suitable as an implementation of the Verification Service
 Class, however other service classes will require that you implement one
 or more of the AE service class callbacks.</p>
+<p>The association server can be started in both blocking (default) and
+non-blocking modes:</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span> <span class="nn">pynetdicom</span> <span class="k">import</span> <span class="n">AE</span>
+<span class="kn">from</span> <span class="nn">pynetdicom.sop_class</span> <span class="k">import</span> <span class="n">VerificationSOPClass</span>
+
+<span class="n">ae</span><span class="o">.</span><span class="n">add_supported_context</span><span class="p">(</span><span class="n">VerificationSOPClass</span><span class="p">)</span>
+
+<span class="c1"># Returns a ThreadedAssociationServer instance</span>
+<span class="n">server</span> <span class="o">=</span> <span class="n">ae</span><span class="o">.</span><span class="n">start_server</span><span class="p">((</span><span class="s1">&#39;&#39;</span><span class="p">,</span> <span class="mi">11112</span><span class="p">),</span> <span class="n">block</span><span class="o">=</span><span class="kc">False</span><span class="p">)</span>
+
+<span class="c1"># Blocks</span>
+<span class="n">ae</span><span class="o">.</span><span class="n">start_server</span><span class="p">((</span><span class="s1">&#39;&#39;</span><span class="p">,</span> <span class="mi">11113</span><span class="p">),</span> <span class="n">block</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+</pre></div>
+</div>
+<p>The returned ThreadedAssociationServer instances can be stopped using
+<code class="docutils literal notranslate"><span class="pre">shutdown()</span></code> and all active association can be stopped using
+<code class="docutils literal notranslate"><span class="pre">AE.shutdown()</span></code>.</p>
+<div class="section" id="id2">
+<h3>TLS<a class="headerlink" href="#id2" title="Permalink to this headline">¶</a></h3>
+<p>The client sockets generated by the association server can also be wrapped in
+TLS by  supplying a <a class="reference external" href="https://docs.python.org/2/library/ssl.html#ssl.SSLContext.wrap_socket">ssl.SSLContext</a>
+instance via the <code class="docutils literal notranslate"><span class="pre">ssl_context</span></code> keyword parameter:</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="kn">import</span> <span class="nn">ssl</span>
+
+<span class="kn">from</span> <span class="nn">pynetdicom</span> <span class="k">import</span> <span class="n">AE</span>
+<span class="kn">from</span> <span class="nn">pynetdicom.sop_class</span> <span class="k">import</span> <span class="n">VerificationSOPClass</span>
+
+<span class="n">ae</span><span class="o">.</span><span class="n">add_supported_context</span><span class="p">(</span><span class="n">VerificationSOPClass</span><span class="p">)</span>
+
+<span class="c1"># Create the SSLContext, your requirements may vary</span>
+<span class="n">ssl_cx</span> <span class="o">=</span> <span class="n">ssl</span><span class="o">.</span><span class="n">create_default_context</span><span class="p">(</span><span class="n">ssl</span><span class="o">.</span><span class="n">Purpose</span><span class="o">.</span><span class="n">CLIENT_AUTH</span><span class="p">)</span>
+<span class="n">ssl_cx</span><span class="o">.</span><span class="n">verify_mode</span> <span class="o">=</span> <span class="n">ssl</span><span class="o">.</span><span class="n">CERT_REQUIRED</span>
+<span class="n">ssl_cx</span><span class="o">.</span><span class="n">load_cert_chain</span><span class="p">(</span><span class="n">certfile</span><span class="o">=</span><span class="n">server</span><span class="o">.</span><span class="n">crt</span><span class="p">,</span> <span class="n">keyfile</span><span class="o">=</span><span class="n">server</span><span class="o">.</span><span class="n">key</span><span class="p">)</span>
+<span class="n">ssl_cx</span><span class="o">.</span><span class="n">load_verify_locations</span><span class="p">(</span><span class="n">cafile</span><span class="o">=</span><span class="n">client</span><span class="o">.</span><span class="n">crt</span><span class="p">)</span>
+
+<span class="n">server</span> <span class="o">=</span> <span class="n">ae</span><span class="o">.</span><span class="n">start_server</span><span class="p">((</span><span class="s1">&#39;&#39;</span><span class="p">,</span> <span class="mi">11112</span><span class="p">),</span> <span class="n">block</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span> <span class="n">ssl_context</span><span class="o">=</span><span class="n">ssl_cx</span><span class="p">)</span>
+</pre></div>
+</div>
+</div>
 </div>
 <div class="section" id="providing-dimse-services-scp">
 <h2>Providing DIMSE Services (SCP)<a class="headerlink" href="#providing-dimse-services-scp" title="Permalink to this headline">¶</a></h2>
@@ -404,7 +474,7 @@ implement the <code class="docutils literal notranslate"><span class="pre">on_c_
 <div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span> <span class="nn">pynetdicom</span> <span class="k">import</span> <span class="n">AE</span>
 <span class="kn">from</span> <span class="nn">pynetdicom.sop_class</span> <span class="k">import</span> <span class="n">VerificationSOPClass</span>
 
-<span class="n">ae</span> <span class="o">=</span> <span class="n">AE</span><span class="p">(</span><span class="n">port</span><span class="o">=</span><span class="mi">11112</span><span class="p">)</span>
+<span class="n">ae</span> <span class="o">=</span> <span class="n">AE</span><span class="p">()</span>
 <span class="n">ae</span><span class="o">.</span><span class="n">add_supported_context</span><span class="p">(</span><span class="n">VerificationSOPClass</span><span class="p">)</span>
 
 <span class="k">def</span> <span class="nf">on_c_store</span><span class="p">(</span><span class="n">ds</span><span class="p">,</span> <span class="n">context</span><span class="p">,</span> <span class="n">info</span><span class="p">):</span>
@@ -434,7 +504,7 @@ implement the <code class="docutils literal notranslate"><span class="pre">on_c_
 <span class="n">ae</span><span class="o">.</span><span class="n">on_c_store</span> <span class="o">=</span> <span class="n">on_c_store</span>
 
 <span class="c1"># Listen for association requests</span>
-<span class="n">ae</span><span class="o">.</span><span class="n">start</span><span class="p">()</span>
+<span class="n">ae</span><span class="o">.</span><span class="n">start_server</span><span class="p">((</span><span class="s1">&#39;&#39;</span><span class="p">,</span> <span class="mi">11112</span><span class="p">))</span>
 </pre></div>
 </div>
 <p>For more detailed information on implementing the DIMSE service
@@ -452,7 +522,7 @@ interested in.</p>
   
     <div class="rst-footer-buttons" role="navigation" aria-label="footer navigation">
       
-        <a href="../release_notes.html" class="btn btn-neutral float-right" title="1.1.0" accesskey="n" rel="next">Next <span class="fa fa-arrow-circle-right"></span></a>
+        <a href="../release_notes.html" class="btn btn-neutral float-right" title="1.2.0" accesskey="n" rel="next">Next <span class="fa fa-arrow-circle-right"></span></a>
       
       
         <a href="ae.html" class="btn btn-neutral" title="Application Entity" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left"></span> Previous</a>

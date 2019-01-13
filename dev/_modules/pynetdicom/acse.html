@@ -104,9 +104,9 @@
 <li class="toctree-l1"><a class="reference internal" href="../../user/index.html">User Guide</a></li>
 </ul>
 <ul>
-<li class="toctree-l1"><a class="reference internal" href="../../release_notes.html">1.1.0</a></li>
-<li class="toctree-l1"><a class="reference internal" href="../../release_notes.html#id2">1.1.0</a></li>
-<li class="toctree-l1"><a class="reference internal" href="../../release_notes.html#id6">1.0.0</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../release_notes.html">1.2.0</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../release_notes.html#v1-1-0">1.1.0</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../release_notes.html#v1-0-0">1.0.0</a></li>
 </ul>
 
             
@@ -170,11 +170,9 @@
            <div itemprop="articleBody">
             
   <h1>Source code for pynetdicom.acse</h1><div class="highlight"><pre>
-<span></span><span class="sd">&quot;&quot;&quot;</span>
-<span class="sd">ACSE service provider</span>
-<span class="sd">&quot;&quot;&quot;</span>
+<span></span><span class="sd">&quot;&quot;&quot;ACSE service provider&quot;&quot;&quot;</span>
+
 <span class="kn">import</span> <span class="nn">logging</span>
-<span class="kn">import</span> <span class="nn">warnings</span>
 
 <span class="kn">from</span> <span class="nn">pynetdicom.pdu_primitives</span> <span class="k">import</span> <span class="p">(</span>
     <span class="n">A_ASSOCIATE</span><span class="p">,</span> <span class="n">A_RELEASE</span><span class="p">,</span> <span class="n">A_ABORT</span><span class="p">,</span> <span class="n">A_P_ABORT</span><span class="p">,</span>
@@ -198,23 +196,10 @@
 
 <span class="sd">    The ACSE protocol handles association establishment, normal release of an</span>
 <span class="sd">    association and the abnormal release of an association.</span>
-
-<span class="sd">    Attributes</span>
-<span class="sd">    ----------</span>
-<span class="sd">    acse_timeout : int</span>
-<span class="sd">        The maximum time (in seconds) to wait for association related PDUs</span>
-<span class="sd">        from the peer.</span>
 <span class="sd">    &quot;&quot;&quot;</span>
-<div class="viewcode-block" id="ACSE.__init__"><a class="viewcode-back" href="../../reference/generated/pynetdicom.acse.ACSE.html#pynetdicom.acse.ACSE.__init__">[docs]</a>    <span class="k">def</span> <span class="nf">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">acse_timeout</span><span class="o">=</span><span class="mi">30</span><span class="p">):</span>
-        <span class="sd">&quot;&quot;&quot;Create the ACSE service provider.</span>
-
-<span class="sd">        Parameters</span>
-<span class="sd">        ----------</span>
-<span class="sd">        acse_timeout : int, optional</span>
-<span class="sd">            The maximum time (in seconds) to wait for A-ASSOCIATE related PDUs</span>
-<span class="sd">            from the peer (default: 30)</span>
-<span class="sd">        &quot;&quot;&quot;</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">acse_timeout</span> <span class="o">=</span> <span class="n">acse_timeout</span></div>
+<div class="viewcode-block" id="ACSE.__init__"><a class="viewcode-back" href="../../reference/generated/pynetdicom.acse.ACSE.html#pynetdicom.acse.ACSE.__init__">[docs]</a>    <span class="k">def</span> <span class="nf">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;Create the ACSE service provider.&quot;&quot;&quot;</span>
+        <span class="k">pass</span></div>
 
     <span class="nd">@staticmethod</span>
     <span class="k">def</span> <span class="nf">_check_async_ops</span><span class="p">(</span><span class="n">assoc</span><span class="p">):</span>
@@ -513,7 +498,10 @@
 
         <span class="c1">## DUL Presentation Related Rejections</span>
         <span class="c1"># Maximum number of associations reached (local-limit-exceeded)</span>
-        <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">assoc</span><span class="o">.</span><span class="n">ae</span><span class="o">.</span><span class="n">active_associations</span><span class="p">)</span> <span class="o">&gt;</span> <span class="n">assoc</span><span class="o">.</span><span class="n">ae</span><span class="o">.</span><span class="n">maximum_associations</span><span class="p">:</span>
+        <span class="n">active_acceptors</span> <span class="o">=</span> <span class="p">[</span>
+            <span class="n">tt</span> <span class="k">for</span> <span class="n">tt</span> <span class="ow">in</span> <span class="n">assoc</span><span class="o">.</span><span class="n">ae</span><span class="o">.</span><span class="n">active_associations</span> <span class="k">if</span> <span class="n">tt</span><span class="o">.</span><span class="n">is_acceptor</span>
+        <span class="p">]</span>
+        <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">active_acceptors</span><span class="p">)</span> <span class="o">&gt;</span> <span class="n">assoc</span><span class="o">.</span><span class="n">ae</span><span class="o">.</span><span class="n">maximum_associations</span><span class="p">:</span>
             <span class="n">reject_assoc_rsd</span> <span class="o">=</span> <span class="p">[</span><span class="mh">0x02</span><span class="p">,</span> <span class="mh">0x03</span><span class="p">,</span> <span class="mh">0x02</span><span class="p">]</span>
 
         <span class="k">if</span> <span class="n">reject_assoc_rsd</span><span class="p">:</span>
@@ -688,7 +676,7 @@
         <span class="n">is_collision</span> <span class="o">=</span> <span class="kc">False</span>
         <span class="k">while</span> <span class="kc">True</span><span class="p">:</span>
             <span class="n">primitive</span> <span class="o">=</span> <span class="n">assoc</span><span class="o">.</span><span class="n">dul</span><span class="o">.</span><span class="n">receive_pdu</span><span class="p">(</span><span class="n">wait</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span>
-                                              <span class="n">timeout</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">acse_timeout</span><span class="p">)</span>
+                                              <span class="n">timeout</span><span class="o">=</span><span class="n">assoc</span><span class="o">.</span><span class="n">acse_timeout</span><span class="p">)</span>
             <span class="k">if</span> <span class="n">primitive</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
                 <span class="c1"># No response received within timeout window</span>
                 <span class="bp">self</span><span class="o">.</span><span class="n">send_abort</span><span class="p">(</span><span class="n">assoc</span><span class="p">,</span> <span class="mh">0x02</span><span class="p">)</span>

@@ -118,8 +118,8 @@
 <li class="toctree-l4"><a class="reference internal" href="#adding-supported-presentation-contexts">Adding supported Presentation Contexts</a></li>
 <li class="toctree-l4"><a class="reference internal" href="#handling-scp-scu-role-selection-negotiation">Handling SCP/SCU Role Selection Negotiation</a></li>
 <li class="toctree-l4"><a class="reference internal" href="#handling-user-identity-negotiation">Handling User Identity Negotiation</a></li>
-<li class="toctree-l4"><a class="reference internal" href="#id6">Specifying the network port</a></li>
-<li class="toctree-l4"><a class="reference internal" href="#id7">Association</a></li>
+<li class="toctree-l4"><a class="reference internal" href="#specifying-the-bind-address">Specifying the bind address</a></li>
+<li class="toctree-l4"><a class="reference internal" href="#id6">Association</a></li>
 <li class="toctree-l4"><a class="reference internal" href="#references">References</a></li>
 </ul>
 </li>
@@ -130,9 +130,9 @@
 </li>
 </ul>
 <ul>
-<li class="toctree-l1"><a class="reference internal" href="../release_notes.html">1.1.0</a></li>
-<li class="toctree-l1"><a class="reference internal" href="../release_notes.html#id2">1.1.0</a></li>
-<li class="toctree-l1"><a class="reference internal" href="../release_notes.html#id6">1.0.0</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../release_notes.html">1.2.0</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../release_notes.html#v1-1-0">1.1.0</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../release_notes.html#v1-0-0">1.0.0</a></li>
 </ul>
 
             
@@ -222,17 +222,17 @@ title can set by supplying the <code class="docutils literal notranslate"><span 
 </div>
 <p>AE titles must meet the conditions of a DICOM data element with a
 <a class="reference external" href="http://dicom.nema.org/medical/dicom/current/output/chtml/part05/sect_6.2.html">Value Representation</a>
-of <strong>AE</strong> <a class="footnote-reference" href="#id8" id="id1">[1]</a>:</p>
+of <strong>AE</strong> <a class="footnote-reference" href="#id7" id="id1">[1]</a>:</p>
 <ul class="simple">
 <li>Leading and trailing spaces (<code class="docutils literal notranslate"><span class="pre">0x20</span></code>) are non-significant</li>
 <li>Maximum 16 characters (once non-significant characters are removed)</li>
 <li>Valid characters belong to the DICOM <a class="reference external" href="http://dicom.nema.org/medical/dicom/current/output/chtml/part05/chapter_E.html">Default Character Repertoire</a>
-<a class="footnote-reference" href="#id9" id="id2">[2]</a>, which is the basic G0 Set of the ISO646:1990 <a class="footnote-reference" href="#id12" id="id3">[5]</a> (ASCII) standard
-excluding backslash (‘\ ‘ <code class="docutils literal notranslate"><span class="pre">0x5c</span></code>) and all control characters <a class="footnote-reference" href="#id10" id="id4">[3]</a>.</li>
+<a class="footnote-reference" href="#id8" id="id2">[2]</a>, which is the basic G0 Set of the ISO646:1990 <a class="footnote-reference" href="#id11" id="id3">[5]</a> (ASCII) standard
+excluding backslash (‘\ ‘ <code class="docutils literal notranslate"><span class="pre">0x5c</span></code>) and all control characters <a class="footnote-reference" href="#id9" id="id4">[3]</a>.</li>
 </ul>
 <p>There’s also an extra restriction on Application Entity AE titles:</p>
 <ul class="simple">
-<li>An AE title made entirely of spaces is not allowed <a class="footnote-reference" href="#id11" id="id5">[4]</a></li>
+<li>An AE title made entirely of spaces is not allowed <a class="footnote-reference" href="#id10" id="id5">[4]</a></li>
 </ul>
 <p>AE titles in <em>pynetdicom</em> are checked for validity (using
 <a class="reference internal" href="../reference/generated/pynetdicom.utils.validate_ae_title.html#pynetdicom.utils.validate_ae_title" title="pynetdicom.utils.validate_ae_title"><code class="xref py py-meth docutils literal notranslate"><span class="pre">utils.validate_ae_title()</span></code></a>)
@@ -404,19 +404,15 @@ the <a class="reference internal" href="association.html#association"><span clas
 <h3>Specifying the network port<a class="headerlink" href="#specifying-the-network-port" title="Permalink to this headline">¶</a></h3>
 <p>In general it shouldn’t be necessary to specify the port when acting as an SCU.
 By default <em>pynetdicom</em> will use the first available port to communicate with a
-peer AE. To specify the port number you can use the <code class="docutils literal notranslate"><span class="pre">port</span></code> parameter when
-initialising the AE:</p>
-<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="kn">from</span> <span class="nn">pynetdicom</span> <span class="k">import</span> <span class="n">AE</span>
-<span class="gp">&gt;&gt;&gt; </span><span class="n">ae</span> <span class="o">=</span> <span class="n">AE</span><span class="p">(</span><span class="n">port</span><span class="o">=</span><span class="mi">11112</span><span class="p">)</span>
-</pre></div>
-</div>
-<p>Or you can set it afterwards:</p>
+peer AE. To specify the port number you can use the <code class="docutils literal notranslate"><span class="pre">bind_address</span></code> keyword
+parameter when requesting an association, which takes a 2-tuple of
+(host, port):</p>
 <div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="kn">from</span> <span class="nn">pynetdicom</span> <span class="k">import</span> <span class="n">AE</span>
 <span class="gp">&gt;&gt;&gt; </span><span class="n">ae</span> <span class="o">=</span> <span class="n">AE</span><span class="p">()</span>
-<span class="gp">&gt;&gt;&gt; </span><span class="n">ae</span><span class="o">.</span><span class="n">port</span> <span class="o">=</span> <span class="mi">11112</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">ae</span><span class="o">.</span><span class="n">add_requested_context</span><span class="p">(</span><span class="s1">&#39;1.2.840.10008.1.1&#39;</span><span class="p">)</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">assoc</span> <span class="o">=</span> <span class="n">ae</span><span class="o">.</span><span class="n">associate</span><span class="p">(</span><span class="s1">&#39;localhost&#39;</span><span class="p">,</span> <span class="mi">11112</span><span class="p">,</span> <span class="n">bind_address</span><span class="o">=</span><span class="p">(</span><span class="s1">&#39;&#39;</span><span class="p">,</span> <span class="mi">11113</span><span class="p">))</span>
 </pre></div>
 </div>
-<p>Setting the value to <code class="docutils literal notranslate"><span class="pre">0</span></code> will revert the port to the first available.</p>
 </div>
 <div class="section" id="association">
 <h3>Association<a class="headerlink" href="#association" title="Permalink to this headline">¶</a></h3>
@@ -655,67 +651,61 @@ callback.</p>
 
     <span class="k">return</span> <span class="n">is_verified</span><span class="p">,</span> <span class="n">response</span>
 
-<span class="n">ae</span> <span class="o">=</span> <span class="n">AE</span><span class="p">(</span><span class="n">port</span><span class="o">=</span><span class="mi">11112</span><span class="p">)</span>
+<span class="n">ae</span> <span class="o">=</span> <span class="n">AE</span><span class="p">()</span>
 <span class="n">ae</span><span class="o">.</span><span class="n">add_supported_context</span><span class="p">(</span><span class="n">VerificationSOPClass</span><span class="p">)</span>
 <span class="n">ae</span><span class="o">.</span><span class="n">on_user_identity</span> <span class="o">=</span> <span class="n">on_user_identity</span>
-<span class="n">ae</span><span class="o">.</span><span class="n">start</span><span class="p">()</span>
+<span class="n">ae</span><span class="o">.</span><span class="n">start_server</span><span class="p">((</span><span class="s1">&#39;&#39;</span><span class="p">,</span> <span class="mi">11112</span><span class="p">))</span>
+</pre></div>
+</div>
+</div>
+<div class="section" id="specifying-the-bind-address">
+<h3>Specifying the bind address<a class="headerlink" href="#specifying-the-bind-address" title="Permalink to this headline">¶</a></h3>
+<p>The bind address for the server socket is specified by the <code class="docutils literal notranslate"><span class="pre">address</span></code>
+parameter to <code class="docutils literal notranslate"><span class="pre">start_server()</span></code> as (host, port).</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="kn">from</span> <span class="nn">pynetdicom</span> <span class="k">import</span> <span class="n">AE</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">ae</span> <span class="o">=</span> <span class="n">AE</span><span class="p">()</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">ae</span><span class="o">.</span><span class="n">add_supported_context</span><span class="p">(</span><span class="s1">&#39;1.2.840.10008.1.1&#39;</span><span class="p">)</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">ae</span><span class="o">.</span><span class="n">start_server</span><span class="p">((</span><span class="s1">&#39;&#39;</span><span class="p">,</span> <span class="mi">11112</span><span class="p">))</span>
 </pre></div>
 </div>
 </div>
 <div class="section" id="id6">
-<h3>Specifying the network port<a class="headerlink" href="#id6" title="Permalink to this headline">¶</a></h3>
-<p>By default an SCP will use the first available port to listen on for
-association requests, which is generally a bad idea as it makes it difficult
-for peers to know what port to communicate with. To specify the port number
-you can use the <code class="docutils literal notranslate"><span class="pre">port</span></code> parameter when initialising the AE:</p>
-<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="kn">from</span> <span class="nn">pynetdicom</span> <span class="k">import</span> <span class="n">AE</span>
-<span class="gp">&gt;&gt;&gt; </span><span class="n">ae</span> <span class="o">=</span> <span class="n">AE</span><span class="p">(</span><span class="n">port</span><span class="o">=</span><span class="mi">11112</span><span class="p">)</span>
-</pre></div>
-</div>
-<p>Or you can set it afterwards:</p>
-<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="kn">from</span> <span class="nn">pynetdicom</span> <span class="k">import</span> <span class="n">AE</span>
-<span class="gp">&gt;&gt;&gt; </span><span class="n">ae</span> <span class="o">=</span> <span class="n">AE</span><span class="p">()</span>
-<span class="gp">&gt;&gt;&gt; </span><span class="n">ae</span><span class="o">.</span><span class="n">port</span> <span class="o">=</span> <span class="mi">11112</span>
-</pre></div>
-</div>
-</div>
-<div class="section" id="id7">
-<h3>Association<a class="headerlink" href="#id7" title="Permalink to this headline">¶</a></h3>
+<h3>Association<a class="headerlink" href="#id6" title="Permalink to this headline">¶</a></h3>
 <p>For information on how to start listening for association requests from peer
 AEs and how to handle their service requests see the
 <a class="reference internal" href="association.html#association"><span class="std std-ref">Association</span></a> page.</p>
 </div>
 <div class="section" id="references">
 <h3>References<a class="headerlink" href="#references" title="Permalink to this headline">¶</a></h3>
-<table class="docutils footnote" frame="void" id="id8" rules="none">
+<table class="docutils footnote" frame="void" id="id7" rules="none">
 <colgroup><col class="label" /><col /></colgroup>
 <tbody valign="top">
 <tr><td class="label"><a class="fn-backref" href="#id1">[1]</a></td><td>DICOM Standard, Part 5
 <a class="reference external" href="http://dicom.nema.org/medical/dicom/current/output/html/part05.html#sect_6.2">Section 6.2</a></td></tr>
 </tbody>
 </table>
-<table class="docutils footnote" frame="void" id="id9" rules="none">
+<table class="docutils footnote" frame="void" id="id8" rules="none">
 <colgroup><col class="label" /><col /></colgroup>
 <tbody valign="top">
 <tr><td class="label"><a class="fn-backref" href="#id2">[2]</a></td><td>DICOM Standard, Part 5
 <a class="reference external" href="http://dicom.nema.org/medical/dicom/current/output/html/part05.html#sect_6.1.3">Section 6.1.2.1</a></td></tr>
 </tbody>
 </table>
-<table class="docutils footnote" frame="void" id="id10" rules="none">
+<table class="docutils footnote" frame="void" id="id9" rules="none">
 <colgroup><col class="label" /><col /></colgroup>
 <tbody valign="top">
 <tr><td class="label"><a class="fn-backref" href="#id4">[3]</a></td><td>DICOM Standard, Part 5
 <a class="reference external" href="http://dicom.nema.org/medical/dicom/current/output/html/part05.html#sect_6.1.3">Section 6.1.3</a></td></tr>
 </tbody>
 </table>
-<table class="docutils footnote" frame="void" id="id11" rules="none">
+<table class="docutils footnote" frame="void" id="id10" rules="none">
 <colgroup><col class="label" /><col /></colgroup>
 <tbody valign="top">
 <tr><td class="label"><a class="fn-backref" href="#id5">[4]</a></td><td>DICOM Standard, Part 8
 <a class="reference external" href="http://dicom.nema.org/medical/dicom/current/output/html/part08.html#sect_9.3.2">Section 9.3.2</a></td></tr>
 </tbody>
 </table>
-<table class="docutils footnote" frame="void" id="id12" rules="none">
+<table class="docutils footnote" frame="void" id="id11" rules="none">
 <colgroup><col class="label" /><col /></colgroup>
 <tbody valign="top">
 <tr><td class="label"><a class="fn-backref" href="#id3">[5]</a></td><td><a class="reference external" href="https://www.iso.org/standard/4777.html">ISO/IEC 646:1991</a></td></tr>

@@ -104,9 +104,9 @@
 <li class="toctree-l1"><a class="reference internal" href="../../user/index.html">User Guide</a></li>
 </ul>
 <ul>
-<li class="toctree-l1"><a class="reference internal" href="../../release_notes.html">1.1.0</a></li>
-<li class="toctree-l1"><a class="reference internal" href="../../release_notes.html#id2">1.1.0</a></li>
-<li class="toctree-l1"><a class="reference internal" href="../../release_notes.html#id6">1.0.0</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../release_notes.html">1.2.0</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../release_notes.html#v1-1-0">1.1.0</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../release_notes.html#v1-0-0">1.0.0</a></li>
 </ul>
 
             
@@ -174,7 +174,6 @@
 <span class="sd">The DUL&#39;s finite state machine representation.</span>
 <span class="sd">&quot;&quot;&quot;</span>
 <span class="kn">import</span> <span class="nn">logging</span>
-<span class="kn">import</span> <span class="nn">socket</span>
 
 <span class="kn">from</span> <span class="nn">pynetdicom.pdu</span> <span class="k">import</span> <span class="p">(</span>
     <span class="n">A_ASSOCIATE_RQ</span><span class="p">,</span> <span class="n">A_ASSOCIATE_RJ</span><span class="p">,</span> <span class="n">A_ASSOCIATE_AC</span><span class="p">,</span>
@@ -289,18 +288,17 @@
 <div class="viewcode-block" id="AE_1"><a class="viewcode-back" href="../../reference/generated/pynetdicom.fsm.AE_1.html#pynetdicom.fsm.AE_1">[docs]</a><span class="k">def</span> <span class="nf">AE_1</span><span class="p">(</span><span class="n">dul</span><span class="p">):</span>
     <span class="sd">&quot;&quot;&quot;Association establishment action AE-1.</span>
 
-<span class="sd">    From Idle state, local AE issues a connection request to a remote. This</span>
-<span class="sd">    is the first step in associating a local AE (requestor) to a remote AE</span>
-<span class="sd">    (acceptor).</span>
+<span class="sd">    *Event*</span>
 
-<span class="sd">    Used when the local AE is acting as an SCU</span>
+<span class="sd">    Service user issued A-ASSOCIATE (request) to the service provider</span>
 
-<span class="sd">    State-event triggers: Sta1 + Evt1</span>
+<span class="sd">    *Action*</span>
 
-<span class="sd">    References</span>
-<span class="sd">    ----------</span>
-<span class="sd">    1. DICOM Standard 2015b, PS3.8, Table 9-7, &quot;Associate Establishment</span>
-<span class="sd">       Related Actions&quot;</span>
+<span class="sd">    Issue TRANSPORT CONNECT request primitive to the transport service.</span>
+
+<span class="sd">    *State/Event Triggers*</span>
+
+<span class="sd">    - Sta1 + Evt1</span>
 
 <span class="sd">    Parameters</span>
 <span class="sd">    ----------</span>
@@ -311,24 +309,16 @@
 <span class="sd">    -------</span>
 <span class="sd">    str</span>
 <span class="sd">        &#39;Sta4&#39;, the next state of the state machine.</span>
+
+<span class="sd">    References</span>
+<span class="sd">    ----------</span>
+<span class="sd">    1. DICOM Standard 2015b, PS3.8, Table 9-7, &quot;Associate Establishment</span>
+<span class="sd">       Related Actions&quot;</span>
 <span class="sd">    &quot;&quot;&quot;</span>
     <span class="c1"># Issue TRANSPORT CONNECT request primitive to local transport service</span>
-    <span class="n">dul</span><span class="o">.</span><span class="n">scu_socket</span> <span class="o">=</span> <span class="n">socket</span><span class="o">.</span><span class="n">socket</span><span class="p">(</span><span class="n">socket</span><span class="o">.</span><span class="n">AF_INET</span><span class="p">,</span> <span class="n">socket</span><span class="o">.</span><span class="n">SOCK_STREAM</span><span class="p">)</span>
-    <span class="k">try</span><span class="p">:</span>
-        <span class="c1"># CalledPresentationAddress is set by the ACSE and</span>
-        <span class="c1">#   is an (address, port) tuple</span>
-        <span class="n">dul</span><span class="o">.</span><span class="n">scu_socket</span><span class="o">.</span><span class="n">connect</span><span class="p">(</span><span class="n">dul</span><span class="o">.</span><span class="n">primitive</span><span class="o">.</span><span class="n">called_presentation_address</span><span class="p">)</span>
-    <span class="k">except</span> <span class="n">socket</span><span class="o">.</span><span class="n">error</span><span class="p">:</span>
-        <span class="c1"># Failed to connect</span>
-        <span class="n">LOGGER</span><span class="o">.</span><span class="n">error</span><span class="p">(</span><span class="s2">&quot;Association Request Failed: Failed to establish &quot;</span>
-                     <span class="s2">&quot;association&quot;</span><span class="p">)</span>
-        <span class="n">LOGGER</span><span class="o">.</span><span class="n">error</span><span class="p">(</span><span class="s2">&quot;Peer aborted Association (or never connected)&quot;</span><span class="p">)</span>
-        <span class="n">LOGGER</span><span class="o">.</span><span class="n">error</span><span class="p">(</span><span class="s2">&quot;TCP Initialisation Error: Connection refused&quot;</span><span class="p">)</span>
-        <span class="n">dul</span><span class="o">.</span><span class="n">to_user_queue</span><span class="o">.</span><span class="n">put</span><span class="p">(</span><span class="kc">None</span><span class="p">)</span>
-        <span class="n">dul</span><span class="o">.</span><span class="n">scu_socket</span><span class="o">.</span><span class="n">close</span><span class="p">()</span>
-        <span class="n">dul</span><span class="o">.</span><span class="n">kill_dul</span><span class="p">()</span>
-
-        <span class="k">return</span> <span class="s1">&#39;Sta1&#39;</span>
+    <span class="c1"># This is our &quot;TRANSPORT CONNECT&quot; primitive - it attempts to connect</span>
+    <span class="c1">#   to the peer, emitting either Evt2 or Evt17</span>
+    <span class="n">dul</span><span class="o">.</span><span class="n">socket</span><span class="o">.</span><span class="n">connect</span><span class="p">(</span><span class="n">dul</span><span class="o">.</span><span class="n">primitive</span><span class="o">.</span><span class="n">called_presentation_address</span><span class="p">)</span>
 
     <span class="k">return</span> <span class="s1">&#39;Sta4&#39;</span></div>
 
@@ -339,8 +329,6 @@
 <span class="sd">    This send a byte stream with the format given by Table 9-11</span>
 
 <span class="sd">    State-event triggers: Sta4 + Evt2</span>
-
-<span class="sd">    Callbacks: ApplicationEntity.on_send_associate_rq(PDU)</span>
 
 <span class="sd">    References</span>
 <span class="sd">    ----------</span>
@@ -365,7 +353,7 @@
     <span class="n">dul</span><span class="o">.</span><span class="n">assoc</span><span class="o">.</span><span class="n">acse</span><span class="o">.</span><span class="n">debug_send_associate_rq</span><span class="p">(</span><span class="n">dul</span><span class="o">.</span><span class="n">pdu</span><span class="p">)</span>
 
     <span class="n">bytestream</span> <span class="o">=</span> <span class="n">dul</span><span class="o">.</span><span class="n">pdu</span><span class="o">.</span><span class="n">encode</span><span class="p">()</span>
-    <span class="n">dul</span><span class="o">.</span><span class="n">scu_socket</span><span class="o">.</span><span class="n">send</span><span class="p">(</span><span class="n">bytestream</span><span class="p">)</span>
+    <span class="n">dul</span><span class="o">.</span><span class="n">socket</span><span class="o">.</span><span class="n">send</span><span class="p">(</span><span class="n">bytestream</span><span class="p">)</span>
 
     <span class="k">return</span> <span class="s1">&#39;Sta5&#39;</span></div>
 
@@ -422,8 +410,7 @@
     <span class="c1"># Issue A-ASSOCIATE confirmation (reject) primitive and close transport</span>
     <span class="c1"># connection</span>
     <span class="n">dul</span><span class="o">.</span><span class="n">to_user_queue</span><span class="o">.</span><span class="n">put</span><span class="p">(</span><span class="n">dul</span><span class="o">.</span><span class="n">primitive</span><span class="p">)</span>
-    <span class="n">dul</span><span class="o">.</span><span class="n">scu_socket</span><span class="o">.</span><span class="n">close</span><span class="p">()</span>
-    <span class="n">dul</span><span class="o">.</span><span class="n">peer_socket</span> <span class="o">=</span> <span class="kc">None</span>
+    <span class="n">dul</span><span class="o">.</span><span class="n">socket</span><span class="o">.</span><span class="n">close</span><span class="p">()</span>
     <span class="n">dul</span><span class="o">.</span><span class="n">kill_dul</span><span class="p">()</span>
 
     <span class="k">return</span> <span class="s1">&#39;Sta1&#39;</span></div>
@@ -452,9 +439,6 @@
 <span class="sd">    str</span>
 <span class="sd">        Sta2, the next state of the state machine</span>
 <span class="sd">    &quot;&quot;&quot;</span>
-    <span class="c1"># Issue connection response primitive</span>
-    <span class="c1"># not required due to implementation</span>
-
     <span class="c1"># Start ARTIM timer</span>
     <span class="n">dul</span><span class="o">.</span><span class="n">artim_timer</span><span class="o">.</span><span class="n">timeout_seconds</span> <span class="o">=</span> <span class="n">dul</span><span class="o">.</span><span class="n">assoc</span><span class="o">.</span><span class="n">acse_timeout</span>
     <span class="n">dul</span><span class="o">.</span><span class="n">artim_timer</span><span class="o">.</span><span class="n">start</span><span class="p">()</span>
@@ -512,7 +496,7 @@
         <span class="c1"># Callback</span>
         <span class="n">dul</span><span class="o">.</span><span class="n">assoc</span><span class="o">.</span><span class="n">acse</span><span class="o">.</span><span class="n">debug_send_associate_rj</span><span class="p">(</span><span class="n">dul</span><span class="o">.</span><span class="n">pdu</span><span class="p">)</span>
 
-        <span class="n">dul</span><span class="o">.</span><span class="n">scu_socket</span><span class="o">.</span><span class="n">send</span><span class="p">(</span><span class="n">dul</span><span class="o">.</span><span class="n">pdu</span><span class="o">.</span><span class="n">encode</span><span class="p">())</span>
+        <span class="n">dul</span><span class="o">.</span><span class="n">socket</span><span class="o">.</span><span class="n">send</span><span class="p">(</span><span class="n">dul</span><span class="o">.</span><span class="n">pdu</span><span class="o">.</span><span class="n">encode</span><span class="p">())</span>
         <span class="n">dul</span><span class="o">.</span><span class="n">artim_timer</span><span class="o">.</span><span class="n">timeout_seconds</span> <span class="o">=</span> <span class="n">dul</span><span class="o">.</span><span class="n">assoc</span><span class="o">.</span><span class="n">acse_timeout</span>
         <span class="n">dul</span><span class="o">.</span><span class="n">artim_timer</span><span class="o">.</span><span class="n">start</span><span class="p">()</span>
 
@@ -554,7 +538,7 @@
     <span class="n">dul</span><span class="o">.</span><span class="n">assoc</span><span class="o">.</span><span class="n">acse</span><span class="o">.</span><span class="n">debug_send_associate_ac</span><span class="p">(</span><span class="n">dul</span><span class="o">.</span><span class="n">pdu</span><span class="p">)</span>
 
     <span class="n">bytestream</span> <span class="o">=</span> <span class="n">dul</span><span class="o">.</span><span class="n">pdu</span><span class="o">.</span><span class="n">encode</span><span class="p">()</span>
-    <span class="n">dul</span><span class="o">.</span><span class="n">scu_socket</span><span class="o">.</span><span class="n">send</span><span class="p">(</span><span class="n">bytestream</span><span class="p">)</span>
+    <span class="n">dul</span><span class="o">.</span><span class="n">socket</span><span class="o">.</span><span class="n">send</span><span class="p">(</span><span class="n">bytestream</span><span class="p">)</span>
 
     <span class="k">return</span> <span class="s1">&#39;Sta6&#39;</span></div>
 
@@ -587,7 +571,7 @@
     <span class="c1"># Callback</span>
     <span class="n">dul</span><span class="o">.</span><span class="n">assoc</span><span class="o">.</span><span class="n">acse</span><span class="o">.</span><span class="n">debug_send_associate_rj</span><span class="p">(</span><span class="n">dul</span><span class="o">.</span><span class="n">pdu</span><span class="p">)</span>
 
-    <span class="n">dul</span><span class="o">.</span><span class="n">scu_socket</span><span class="o">.</span><span class="n">send</span><span class="p">(</span><span class="n">dul</span><span class="o">.</span><span class="n">pdu</span><span class="o">.</span><span class="n">encode</span><span class="p">())</span>
+    <span class="n">dul</span><span class="o">.</span><span class="n">socket</span><span class="o">.</span><span class="n">send</span><span class="p">(</span><span class="n">dul</span><span class="o">.</span><span class="n">pdu</span><span class="o">.</span><span class="n">encode</span><span class="p">())</span>
 
     <span class="n">dul</span><span class="o">.</span><span class="n">artim_timer</span><span class="o">.</span><span class="n">timeout_seconds</span> <span class="o">=</span> <span class="n">dul</span><span class="o">.</span><span class="n">assoc</span><span class="o">.</span><span class="n">acse_timeout</span>
     <span class="n">dul</span><span class="o">.</span><span class="n">artim_timer</span><span class="o">.</span><span class="n">start</span><span class="p">()</span>
@@ -620,13 +604,12 @@
     <span class="c1"># Send P-DATA-TF PDU</span>
     <span class="n">dul</span><span class="o">.</span><span class="n">pdu</span> <span class="o">=</span> <span class="n">P_DATA_TF</span><span class="p">()</span>
     <span class="n">dul</span><span class="o">.</span><span class="n">pdu</span><span class="o">.</span><span class="n">from_primitive</span><span class="p">(</span><span class="n">dul</span><span class="o">.</span><span class="n">primitive</span><span class="p">)</span>
-    <span class="n">dul</span><span class="o">.</span><span class="n">primitive</span> <span class="o">=</span> <span class="kc">None</span> <span class="c1"># Why this?</span>
+    <span class="n">dul</span><span class="o">.</span><span class="n">primitive</span> <span class="o">=</span> <span class="kc">None</span>  <span class="c1"># Why this?</span>
 
     <span class="c1"># Callback</span>
     <span class="n">dul</span><span class="o">.</span><span class="n">assoc</span><span class="o">.</span><span class="n">acse</span><span class="o">.</span><span class="n">debug_send_data_tf</span><span class="p">(</span><span class="n">dul</span><span class="o">.</span><span class="n">pdu</span><span class="p">)</span>
 
-    <span class="n">bytestream</span> <span class="o">=</span> <span class="n">dul</span><span class="o">.</span><span class="n">pdu</span><span class="o">.</span><span class="n">encode</span><span class="p">()</span>
-    <span class="n">dul</span><span class="o">.</span><span class="n">scu_socket</span><span class="o">.</span><span class="n">send</span><span class="p">(</span><span class="n">bytestream</span><span class="p">)</span>
+    <span class="n">dul</span><span class="o">.</span><span class="n">socket</span><span class="o">.</span><span class="n">send</span><span class="p">(</span><span class="n">dul</span><span class="o">.</span><span class="n">pdu</span><span class="o">.</span><span class="n">encode</span><span class="p">())</span>
 
     <span class="k">return</span> <span class="s1">&#39;Sta6&#39;</span></div>
 
@@ -687,8 +670,7 @@
     <span class="c1"># Callback</span>
     <span class="n">dul</span><span class="o">.</span><span class="n">assoc</span><span class="o">.</span><span class="n">acse</span><span class="o">.</span><span class="n">debug_send_release_rq</span><span class="p">(</span><span class="n">dul</span><span class="o">.</span><span class="n">pdu</span><span class="p">)</span>
 
-    <span class="n">bytestream</span> <span class="o">=</span> <span class="n">dul</span><span class="o">.</span><span class="n">pdu</span><span class="o">.</span><span class="n">encode</span><span class="p">()</span>
-    <span class="n">dul</span><span class="o">.</span><span class="n">scu_socket</span><span class="o">.</span><span class="n">send</span><span class="p">(</span><span class="n">bytestream</span><span class="p">)</span>
+    <span class="n">dul</span><span class="o">.</span><span class="n">socket</span><span class="o">.</span><span class="n">send</span><span class="p">(</span><span class="n">dul</span><span class="o">.</span><span class="n">pdu</span><span class="o">.</span><span class="n">encode</span><span class="p">())</span>
 
     <span class="k">return</span> <span class="s1">&#39;Sta7&#39;</span></div>
 
@@ -744,9 +726,7 @@
 <span class="sd">    &quot;&quot;&quot;</span>
     <span class="c1"># Issue A-RELEASE confirmation primitive and close transport connection</span>
     <span class="n">dul</span><span class="o">.</span><span class="n">to_user_queue</span><span class="o">.</span><span class="n">put</span><span class="p">(</span><span class="n">dul</span><span class="o">.</span><span class="n">primitive</span><span class="p">)</span>
-    <span class="n">dul</span><span class="o">.</span><span class="n">scu_socket</span><span class="o">.</span><span class="n">shutdown</span><span class="p">(</span><span class="n">socket</span><span class="o">.</span><span class="n">SHUT_RDWR</span><span class="p">)</span>
-    <span class="n">dul</span><span class="o">.</span><span class="n">scu_socket</span><span class="o">.</span><span class="n">close</span><span class="p">()</span>
-    <span class="n">dul</span><span class="o">.</span><span class="n">peer_socket</span> <span class="o">=</span> <span class="kc">None</span>
+    <span class="n">dul</span><span class="o">.</span><span class="n">socket</span><span class="o">.</span><span class="n">close</span><span class="p">()</span>
     <span class="n">dul</span><span class="o">.</span><span class="n">kill_dul</span><span class="p">()</span>
 
     <span class="k">return</span> <span class="s1">&#39;Sta1&#39;</span></div>
@@ -780,7 +760,7 @@
     <span class="c1"># Callback</span>
     <span class="n">dul</span><span class="o">.</span><span class="n">assoc</span><span class="o">.</span><span class="n">acse</span><span class="o">.</span><span class="n">debug_send_release_rp</span><span class="p">(</span><span class="n">dul</span><span class="o">.</span><span class="n">pdu</span><span class="p">)</span>
 
-    <span class="n">dul</span><span class="o">.</span><span class="n">scu_socket</span><span class="o">.</span><span class="n">send</span><span class="p">(</span><span class="n">dul</span><span class="o">.</span><span class="n">pdu</span><span class="o">.</span><span class="n">encode</span><span class="p">())</span>
+    <span class="n">dul</span><span class="o">.</span><span class="n">socket</span><span class="o">.</span><span class="n">send</span><span class="p">(</span><span class="n">dul</span><span class="o">.</span><span class="n">pdu</span><span class="o">.</span><span class="n">encode</span><span class="p">())</span>
     <span class="n">dul</span><span class="o">.</span><span class="n">artim_timer</span><span class="o">.</span><span class="n">timeout_seconds</span> <span class="o">=</span> <span class="n">dul</span><span class="o">.</span><span class="n">assoc</span><span class="o">.</span><span class="n">acse_timeout</span>
     <span class="n">dul</span><span class="o">.</span><span class="n">artim_timer</span><span class="o">.</span><span class="n">start</span><span class="p">()</span>
 
@@ -873,8 +853,7 @@
     <span class="c1"># Callback</span>
     <span class="n">dul</span><span class="o">.</span><span class="n">assoc</span><span class="o">.</span><span class="n">acse</span><span class="o">.</span><span class="n">debug_send_data_tf</span><span class="p">(</span><span class="n">dul</span><span class="o">.</span><span class="n">pdu</span><span class="p">)</span>
 
-    <span class="n">bytestream</span> <span class="o">=</span> <span class="n">dul</span><span class="o">.</span><span class="n">pdu</span><span class="o">.</span><span class="n">encode</span><span class="p">()</span>
-    <span class="n">dul</span><span class="o">.</span><span class="n">scu_socket</span><span class="o">.</span><span class="n">send</span><span class="p">(</span><span class="n">bytestream</span><span class="p">)</span>
+    <span class="n">dul</span><span class="o">.</span><span class="n">socket</span><span class="o">.</span><span class="n">send</span><span class="p">(</span><span class="n">dul</span><span class="o">.</span><span class="n">pdu</span><span class="o">.</span><span class="n">encode</span><span class="p">())</span>
 
     <span class="k">return</span> <span class="s1">&#39;Sta8&#39;</span></div>
 
@@ -937,7 +916,7 @@
     <span class="c1"># Callback</span>
     <span class="n">dul</span><span class="o">.</span><span class="n">assoc</span><span class="o">.</span><span class="n">acse</span><span class="o">.</span><span class="n">debug_send_release_rp</span><span class="p">(</span><span class="n">dul</span><span class="o">.</span><span class="n">pdu</span><span class="p">)</span>
 
-    <span class="n">dul</span><span class="o">.</span><span class="n">scu_socket</span><span class="o">.</span><span class="n">send</span><span class="p">(</span><span class="n">dul</span><span class="o">.</span><span class="n">pdu</span><span class="o">.</span><span class="n">encode</span><span class="p">())</span>
+    <span class="n">dul</span><span class="o">.</span><span class="n">socket</span><span class="o">.</span><span class="n">send</span><span class="p">(</span><span class="n">dul</span><span class="o">.</span><span class="n">pdu</span><span class="o">.</span><span class="n">encode</span><span class="p">())</span>
 
     <span class="k">return</span> <span class="s1">&#39;Sta11&#39;</span></div>
 
@@ -1004,7 +983,7 @@
     <span class="c1"># Callback</span>
     <span class="n">dul</span><span class="o">.</span><span class="n">assoc</span><span class="o">.</span><span class="n">acse</span><span class="o">.</span><span class="n">debug_send_abort</span><span class="p">(</span><span class="n">dul</span><span class="o">.</span><span class="n">pdu</span><span class="p">)</span>
 
-    <span class="n">dul</span><span class="o">.</span><span class="n">scu_socket</span><span class="o">.</span><span class="n">send</span><span class="p">(</span><span class="n">dul</span><span class="o">.</span><span class="n">pdu</span><span class="o">.</span><span class="n">encode</span><span class="p">())</span>
+    <span class="n">dul</span><span class="o">.</span><span class="n">socket</span><span class="o">.</span><span class="n">send</span><span class="p">(</span><span class="n">dul</span><span class="o">.</span><span class="n">pdu</span><span class="o">.</span><span class="n">encode</span><span class="p">())</span>
     <span class="n">dul</span><span class="o">.</span><span class="n">artim_timer</span><span class="o">.</span><span class="n">timeout_seconds</span> <span class="o">=</span> <span class="n">dul</span><span class="o">.</span><span class="n">assoc</span><span class="o">.</span><span class="n">acse_timeout</span>
     <span class="n">dul</span><span class="o">.</span><span class="n">artim_timer</span><span class="o">.</span><span class="n">restart</span><span class="p">()</span>
 
@@ -1035,9 +1014,7 @@
 <span class="sd">    &quot;&quot;&quot;</span>
     <span class="c1"># Stop ARTIM timer if running. Close transport connection.</span>
     <span class="n">dul</span><span class="o">.</span><span class="n">artim_timer</span><span class="o">.</span><span class="n">stop</span><span class="p">()</span>
-    <span class="n">dul</span><span class="o">.</span><span class="n">scu_socket</span><span class="o">.</span><span class="n">shutdown</span><span class="p">(</span><span class="n">socket</span><span class="o">.</span><span class="n">SHUT_RDWR</span><span class="p">)</span>
-    <span class="n">dul</span><span class="o">.</span><span class="n">scu_socket</span><span class="o">.</span><span class="n">close</span><span class="p">()</span>
-    <span class="n">dul</span><span class="o">.</span><span class="n">peer_socket</span> <span class="o">=</span> <span class="kc">None</span>
+    <span class="n">dul</span><span class="o">.</span><span class="n">socket</span><span class="o">.</span><span class="n">close</span><span class="p">()</span>
     <span class="n">dul</span><span class="o">.</span><span class="n">kill_dul</span><span class="p">()</span>
 
     <span class="k">return</span> <span class="s1">&#39;Sta1&#39;</span></div>
@@ -1072,8 +1049,7 @@
     <span class="c1">#   - Issue A-P-ABORT indication and close transport connection.</span>
     <span class="c1"># This action is triggered by the reception of an A-ABORT PDU</span>
     <span class="n">dul</span><span class="o">.</span><span class="n">to_user_queue</span><span class="o">.</span><span class="n">put</span><span class="p">(</span><span class="n">dul</span><span class="o">.</span><span class="n">primitive</span><span class="p">)</span>
-    <span class="n">dul</span><span class="o">.</span><span class="n">scu_socket</span><span class="o">.</span><span class="n">close</span><span class="p">()</span>
-    <span class="n">dul</span><span class="o">.</span><span class="n">peer_socket</span> <span class="o">=</span> <span class="kc">None</span>
+    <span class="n">dul</span><span class="o">.</span><span class="n">socket</span><span class="o">.</span><span class="n">close</span><span class="p">()</span>
     <span class="n">dul</span><span class="o">.</span><span class="n">kill_dul</span><span class="p">()</span>
 
     <span class="k">return</span> <span class="s1">&#39;Sta1&#39;</span></div>
@@ -1195,7 +1171,7 @@
     <span class="c1"># Callback</span>
     <span class="n">dul</span><span class="o">.</span><span class="n">assoc</span><span class="o">.</span><span class="n">acse</span><span class="o">.</span><span class="n">debug_send_abort</span><span class="p">(</span><span class="n">pdu</span><span class="p">)</span>
 
-    <span class="n">dul</span><span class="o">.</span><span class="n">scu_socket</span><span class="o">.</span><span class="n">send</span><span class="p">(</span><span class="n">pdu</span><span class="o">.</span><span class="n">encode</span><span class="p">())</span>
+    <span class="n">dul</span><span class="o">.</span><span class="n">socket</span><span class="o">.</span><span class="n">send</span><span class="p">(</span><span class="n">pdu</span><span class="o">.</span><span class="n">encode</span><span class="p">())</span>
 
     <span class="k">return</span> <span class="s1">&#39;Sta13&#39;</span></div>
 
@@ -1236,22 +1212,15 @@
     <span class="n">dul</span><span class="o">.</span><span class="n">primitive</span><span class="o">.</span><span class="n">result</span> <span class="o">=</span> <span class="mh">0x01</span>
     <span class="n">dul</span><span class="o">.</span><span class="n">primitive</span><span class="o">.</span><span class="n">diagnostic</span> <span class="o">=</span> <span class="mh">0x01</span>
 
-    <span class="k">if</span> <span class="n">dul</span><span class="o">.</span><span class="n">scu_socket</span><span class="p">:</span>
-        <span class="c1"># Callback</span>
-        <span class="n">dul</span><span class="o">.</span><span class="n">assoc</span><span class="o">.</span><span class="n">acse</span><span class="o">.</span><span class="n">debug_send_abort</span><span class="p">(</span><span class="n">dul</span><span class="o">.</span><span class="n">pdu</span><span class="p">)</span>
+    <span class="c1"># Callback</span>
+    <span class="n">dul</span><span class="o">.</span><span class="n">assoc</span><span class="o">.</span><span class="n">acse</span><span class="o">.</span><span class="n">debug_send_abort</span><span class="p">(</span><span class="n">dul</span><span class="o">.</span><span class="n">pdu</span><span class="p">)</span>
 
-        <span class="k">try</span><span class="p">:</span>
-            <span class="c1"># Encode and send A-ABORT to peer</span>
-            <span class="n">dul</span><span class="o">.</span><span class="n">scu_socket</span><span class="o">.</span><span class="n">send</span><span class="p">(</span><span class="n">dul</span><span class="o">.</span><span class="n">pdu</span><span class="o">.</span><span class="n">encode</span><span class="p">())</span>
-        <span class="k">except</span> <span class="n">socket</span><span class="o">.</span><span class="n">error</span><span class="p">:</span>
-            <span class="n">dul</span><span class="o">.</span><span class="n">scu_socket</span><span class="o">.</span><span class="n">close</span><span class="p">()</span>
-        <span class="k">except</span> <span class="ne">ConnectionResetError</span><span class="p">:</span>
-            <span class="n">dul</span><span class="o">.</span><span class="n">scu_socket</span><span class="o">.</span><span class="n">close</span><span class="p">()</span>
+    <span class="n">dul</span><span class="o">.</span><span class="n">socket</span><span class="o">.</span><span class="n">send</span><span class="p">(</span><span class="n">dul</span><span class="o">.</span><span class="n">pdu</span><span class="o">.</span><span class="n">encode</span><span class="p">())</span>
 
-        <span class="c1"># Issue A-P-ABORT to user</span>
-        <span class="n">dul</span><span class="o">.</span><span class="n">to_user_queue</span><span class="o">.</span><span class="n">put</span><span class="p">(</span><span class="n">dul</span><span class="o">.</span><span class="n">primitive</span><span class="p">)</span>
-        <span class="n">dul</span><span class="o">.</span><span class="n">artim_timer</span><span class="o">.</span><span class="n">timeout_seconds</span> <span class="o">=</span> <span class="n">dul</span><span class="o">.</span><span class="n">assoc</span><span class="o">.</span><span class="n">acse_timeout</span>
-        <span class="n">dul</span><span class="o">.</span><span class="n">artim_timer</span><span class="o">.</span><span class="n">start</span><span class="p">()</span>
+    <span class="c1"># Issue A-P-ABORT to user</span>
+    <span class="n">dul</span><span class="o">.</span><span class="n">to_user_queue</span><span class="o">.</span><span class="n">put</span><span class="p">(</span><span class="n">dul</span><span class="o">.</span><span class="n">primitive</span><span class="p">)</span>
+    <span class="n">dul</span><span class="o">.</span><span class="n">artim_timer</span><span class="o">.</span><span class="n">timeout_seconds</span> <span class="o">=</span> <span class="n">dul</span><span class="o">.</span><span class="n">assoc</span><span class="o">.</span><span class="n">acse_timeout</span>
+    <span class="n">dul</span><span class="o">.</span><span class="n">artim_timer</span><span class="o">.</span><span class="n">start</span><span class="p">()</span>
 
     <span class="k">return</span> <span class="s1">&#39;Sta13&#39;</span></div>
 

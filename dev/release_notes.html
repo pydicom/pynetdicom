@@ -8,7 +8,7 @@
   
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   
-  <title>1.1.0 &mdash; pynetdicom 1.2.0.dev0 documentation</title>
+  <title>1.2.0 &mdash; pynetdicom 1.2.0.dev0 documentation</title>
   
 
   
@@ -105,22 +105,22 @@
 <li class="toctree-l1"><a class="reference internal" href="user/index.html">User Guide</a></li>
 </ul>
 <ul class="current">
-<li class="toctree-l1 current"><a class="current reference internal" href="#">1.1.0</a><ul>
+<li class="toctree-l1 current"><a class="current reference internal" href="#">1.2.0</a><ul>
 <li class="toctree-l2"><a class="reference internal" href="#fixes">Fixes</a></li>
 <li class="toctree-l2"><a class="reference internal" href="#enhancements">Enhancements</a></li>
 <li class="toctree-l2"><a class="reference internal" href="#changes">Changes</a></li>
 </ul>
 </li>
-<li class="toctree-l1"><a class="reference internal" href="#id2">1.1.0</a><ul>
-<li class="toctree-l2"><a class="reference internal" href="#id3">Fixes</a></li>
-<li class="toctree-l2"><a class="reference internal" href="#id4">Enhancements</a></li>
-<li class="toctree-l2"><a class="reference internal" href="#id5">Changes</a></li>
+<li class="toctree-l1"><a class="reference internal" href="#v1-1-0">1.1.0</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="#id7">Fixes</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#id8">Enhancements</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#id9">Changes</a></li>
 </ul>
 </li>
-<li class="toctree-l1"><a class="reference internal" href="#id6">1.0.0</a><ul>
-<li class="toctree-l2"><a class="reference internal" href="#id7">Fixes</a></li>
-<li class="toctree-l2"><a class="reference internal" href="#id8">Changes</a></li>
-<li class="toctree-l2"><a class="reference internal" href="#id9">Enhancements</a></li>
+<li class="toctree-l1"><a class="reference internal" href="#v1-0-0">1.0.0</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="#id11">Fixes</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#id12">Changes</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#id13">Enhancements</a></li>
 </ul>
 </li>
 </ul>
@@ -168,7 +168,7 @@
     
       <li><a href="index.html">Docs</a> &raquo;</li>
         
-      <li>1.1.0</li>
+      <li>1.2.0</li>
     
     
       <li class="wy-breadcrumbs-aside">
@@ -187,8 +187,8 @@
           <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
            <div itemprop="articleBody">
             
-  <div class="section" id="id1">
-<h1>1.1.0<a class="headerlink" href="#id1" title="Permalink to this headline">¶</a></h1>
+  <div class="section" id="v1-2-0">
+<span id="id1"></span><h1>1.2.0<a class="headerlink" href="#v1-2-0" title="Permalink to this headline">¶</a></h1>
 <div class="section" id="fixes">
 <h2>Fixes<a class="headerlink" href="#fixes" title="Permalink to this headline">¶</a></h2>
 </div>
@@ -198,22 +198,64 @@
 <li>Added <code class="docutils literal notranslate"><span class="pre">_config</span></code> module and the ability to skip the dataset decoding step in
 C-STORE operations by setting <code class="docutils literal notranslate"><span class="pre">_config.DECODE_STORE_DATASETS</span></code> to False
 (<a class="reference external" href="https://github.com/pydicom/pynetdicom/issues/282">#282</a>)</li>
+<li>Consolidated and improved the robustness of the transport related code
+(<a class="reference external" href="https://github.com/pydicom/pynetdicom/issues/42">#42</a>):<ul>
+<li>Added <code class="docutils literal notranslate"><span class="pre">transport</span></code> module</li>
+<li>Added <code class="docutils literal notranslate"><span class="pre">AssociationSocket</span></code> class that wraps a client <code class="docutils literal notranslate"><span class="pre">socket.socket</span></code> to
+provide integration with the Association state machine. In particular all
+receive and send operations should emit state machine event ‘Evt17’ when
+the connection is closed. (<a class="reference external" href="https://github.com/pydicom/pynetdicom/issues/204">#204</a>)</li>
+<li>Added <code class="docutils literal notranslate"><span class="pre">AssociationServer</span></code>, and <code class="docutils literal notranslate"><span class="pre">ThreadedAssociationServer</span></code> classes
+to provide association acceptor services.</li>
+<li><code class="docutils literal notranslate"><span class="pre">fsm.AE_1</span></code> is now properly implemented and state machine event ‘Evt2’ is
+now emitted in a non-trivial manner.</li>
+<li>Added <code class="docutils literal notranslate"><span class="pre">AE.start_server()</span></code> which allows operation in both blocking and
+non-blocking modes.</li>
+<li>Added <code class="docutils literal notranslate"><span class="pre">AE.shutdown()</span></code> which allows the user to shutdown all non-blocking
+association servers that may be running.</li>
+<li>Support for TLS added via the <code class="docutils literal notranslate"><span class="pre">tls_kwargs</span></code> keyword parameter for
+<code class="docutils literal notranslate"><span class="pre">AE.start_server()</span></code> and <code class="docutils literal notranslate"><span class="pre">AE.associate()</span></code> (<a href="#id2"><span class="problematic" id="id3">:pull_release:`175`</span></a>,
+<a href="#id4"><span class="problematic" id="id5">:pull_release:`71`</span></a>)</li>
+<li>It should now be possible to both request a C-MOVE operation and act as the
+destination for the request’s C-STORE sub-operations over a new association
+within the same AE instance by running a non-blocking Storage SCP.
+(<a class="reference external" href="https://github.com/pydicom/pynetdicom/issues/5">#5</a>, <a class="reference external" href="https://github.com/pydicom/pynetdicom/issues/181">#181</a>)</li>
+</ul>
+</li>
 </ul>
 </div>
 <div class="section" id="changes">
 <h2>Changes<a class="headerlink" href="#changes" title="Permalink to this headline">¶</a></h2>
 <ul class="simple">
-<li><code class="docutils literal notranslate"><span class="pre">AE.quit()</span></code> removed.</li>
-<li><code class="docutils literal notranslate"><span class="pre">DIMSEMessage.ID</span></code> removed</li>
-<li><code class="docutils literal notranslate"><span class="pre">ACSE.is_released</span></code> removed</li>
-<li><code class="docutils literal notranslate"><span class="pre">ACSE.release_association</span></code> removed</li>
+<li><code class="docutils literal notranslate"><span class="pre">AE.quit()</span></code> removed as per planned deprecation.</li>
+<li><code class="docutils literal notranslate"><span class="pre">DIMSEMessage.ID</span></code> removed as per planned deprecation.</li>
+<li><code class="docutils literal notranslate"><span class="pre">ACSE.is_released()</span></code> removed as per planned deprecation.</li>
+<li><code class="docutils literal notranslate"><span class="pre">ACSE.release_association()</span></code> removed as per planned deprecation.</li>
+<li><code class="docutils literal notranslate"><span class="pre">AE.start()</span></code> is deprecated and will be removed in v1.3, use
+<code class="docutils literal notranslate"><span class="pre">AE.start_server()</span></code> instead.</li>
+<li><code class="docutils literal notranslate"><span class="pre">AE.stop()</span></code> is deprecated and will be removed in v1.3, use
+<code class="docutils literal notranslate"><span class="pre">AE.shutdown()</span></code> instead.</li>
+<li>The <code class="docutils literal notranslate"><span class="pre">AE.port</span></code> property and <code class="docutils literal notranslate"><span class="pre">port</span></code> argument for <code class="docutils literal notranslate"><span class="pre">AE()</span></code> are deprecated
+and will be removed in v1.3. Use the <code class="docutils literal notranslate"><span class="pre">port</span></code> parameter for
+<code class="docutils literal notranslate"><span class="pre">AE.start_server()</span></code> and the <code class="docutils literal notranslate"><span class="pre">bind_address</span></code> keyword parameter for
+<code class="docutils literal notranslate"><span class="pre">AE.associate()</span></code> instead.</li>
+<li>The <code class="docutils literal notranslate"><span class="pre">AE.local_socket</span></code> attribute is deprecated and will be removed in v1.3.</li>
+<li>The <code class="docutils literal notranslate"><span class="pre">AE.address</span></code> attribute is deprecated and will be removed in v1.3.</li>
+<li>The <code class="docutils literal notranslate"><span class="pre">AE.bind_addr</span></code> attribute is deprecated and will be removed in v1.3. Use
+the <code class="docutils literal notranslate"><span class="pre">address</span></code> parameter for <code class="docutils literal notranslate"><span class="pre">AE.start_server()</span></code> and the <code class="docutils literal notranslate"><span class="pre">bind_address</span></code>
+keyword parameter for <code class="docutils literal notranslate"><span class="pre">AE.associate()</span></code> instead.</li>
+<li>Changed the default DIMSE timeout to 30 s.</li>
+<li>The <code class="docutils literal notranslate"><span class="pre">acse_timeout</span></code> parameter to <code class="docutils literal notranslate"><span class="pre">ACSE()</span></code> and <code class="docutils literal notranslate"><span class="pre">ACSE.acse_timeout</span></code>
+attribute removed, the <code class="docutils literal notranslate"><span class="pre">Association.acse_timeout</span></code> value is used instead.</li>
+<li><code class="docutils literal notranslate"><span class="pre">AE.active_associations</span></code> changed from an attribute to a property and
+returns a list of all the AE’s active Association threads.</li>
 </ul>
 </div>
 </div>
-<div class="section" id="id2">
-<h1>1.1.0<a class="headerlink" href="#id2" title="Permalink to this headline">¶</a></h1>
-<div class="section" id="id3">
-<h2>Fixes<a class="headerlink" href="#id3" title="Permalink to this headline">¶</a></h2>
+<div class="section" id="v1-1-0">
+<span id="id6"></span><h1>1.1.0<a class="headerlink" href="#v1-1-0" title="Permalink to this headline">¶</a></h1>
+<div class="section" id="id7">
+<h2>Fixes<a class="headerlink" href="#id7" title="Permalink to this headline">¶</a></h2>
 <ul class="simple">
 <li>No longer using a list as the default value for the <code class="docutils literal notranslate"><span class="pre">transfer_syntax</span></code>
 keyword argument in <code class="docutils literal notranslate"><span class="pre">AE.add_requested_context()</span></code>,
@@ -230,8 +272,8 @@ close the connection and there was data still available to be read.
 (<a class="reference external" href="https://github.com/pydicom/pynetdicom/issues/272">#272</a>)</li>
 </ul>
 </div>
-<div class="section" id="id4">
-<h2>Enhancements<a class="headerlink" href="#id4" title="Permalink to this headline">¶</a></h2>
+<div class="section" id="id8">
+<h2>Enhancements<a class="headerlink" href="#id8" title="Permalink to this headline">¶</a></h2>
 <ul class="simple">
 <li>Added <code class="docutils literal notranslate"><span class="pre">select_timeout</span></code> parameter to <code class="docutils literal notranslate"><span class="pre">Association.start()</span></code> to allow the
 user to specify how long the select.select() call blocks for.
@@ -239,8 +281,8 @@ user to specify how long the select.select() call blocks for.
 <li>Improved the CPU usage of the AE when running idle as an SCP (<a class="reference external" href="https://github.com/pydicom/pynetdicom/issues/60">#60</a>).</li>
 </ul>
 </div>
-<div class="section" id="id5">
-<h2>Changes<a class="headerlink" href="#id5" title="Permalink to this headline">¶</a></h2>
+<div class="section" id="id9">
+<h2>Changes<a class="headerlink" href="#id9" title="Permalink to this headline">¶</a></h2>
 <ul class="simple">
 <li><code class="docutils literal notranslate"><span class="pre">AE.quit()</span></code> is deprecated and will be removed in v1.2. Use <code class="docutils literal notranslate"><span class="pre">AE.stop()</span></code>
 instead.</li>
@@ -269,10 +311,10 @@ are no accepted presentation contexts. The association requestor still does.</li
 </ul>
 </div>
 </div>
-<div class="section" id="id6">
-<h1>1.0.0<a class="headerlink" href="#id6" title="Permalink to this headline">¶</a></h1>
-<div class="section" id="id7">
-<h2>Fixes<a class="headerlink" href="#id7" title="Permalink to this headline">¶</a></h2>
+<div class="section" id="v1-0-0">
+<span id="id10"></span><h1>1.0.0<a class="headerlink" href="#v1-0-0" title="Permalink to this headline">¶</a></h1>
+<div class="section" id="id11">
+<h2>Fixes<a class="headerlink" href="#id11" title="Permalink to this headline">¶</a></h2>
 <ul class="simple">
 <li>Fixed upstream pydicom changes to AE elements breaking logging
 (<a class="reference external" href="https://github.com/pydicom/pynetdicom/issues/195">#195</a>)</li>
@@ -282,8 +324,8 @@ set (as association requestor)</li>
 <li>Starting with v1.0.0, versioning should be consistent</li>
 </ul>
 </div>
-<div class="section" id="id8">
-<h2>Changes<a class="headerlink" href="#id8" title="Permalink to this headline">¶</a></h2>
+<div class="section" id="id12">
+<h2>Changes<a class="headerlink" href="#id12" title="Permalink to this headline">¶</a></h2>
 <ul class="simple">
 <li><code class="docutils literal notranslate"><span class="pre">applicationentity</span></code> module renamed <code class="docutils literal notranslate"><span class="pre">ae</span></code></li>
 <li><code class="docutils literal notranslate"><span class="pre">ApplicationEntity</span></code> interface updated<ul>
@@ -338,8 +380,8 @@ and acceptor.</li>
 <li>Project named changed from pynetdicom3 to pynetdicom</li>
 </ul>
 </div>
-<div class="section" id="id9">
-<h2>Enhancements<a class="headerlink" href="#id9" title="Permalink to this headline">¶</a></h2>
+<div class="section" id="id13">
+<h2>Enhancements<a class="headerlink" href="#id13" title="Permalink to this headline">¶</a></h2>
 <ul class="simple">
 <li>Add <code class="docutils literal notranslate"><span class="pre">context</span></code> and <code class="docutils literal notranslate"><span class="pre">info</span></code> parameters to on_c_* callbacks (<a class="reference external" href="https://github.com/pydicom/pynetdicom/issues/45">#45</a>,
 <a class="reference external" href="https://github.com/pydicom/pynetdicom/issues/54">#54</a>, <a class="reference external" href="https://github.com/pydicom/pynetdicom/issues/65">#65</a>, <a class="reference external" href="https://github.com/pydicom/pynetdicom/issues/106">#106</a>)</li>
