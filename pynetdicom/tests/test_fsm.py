@@ -604,6 +604,25 @@ class TestStateBase(object):
 
         return fsm
 
+    def start_server(self, commands):
+        """Start the receiving server."""
+        server = ThreadedParrot(('', 11112), commands)
+        thread = threading.Thread(target=server.serve_forever)
+        thread.daemon = True
+        thread.start()
+
+        return server
+
+    def print_fsm_scp(self, fsm, scp=None):
+        """Print out some of the quantities we're interested in."""
+        print('Transitions', fsm._transitions)
+        print('Changes', fsm._changes)
+        print('Events', fsm._events)
+
+        if scp:
+            print('Received', scp.handlers[0].received)
+            print('Sent', scp.handlers[0].sent)
+
 
 class ParrotRequest(BaseRequestHandler):
     @property
@@ -739,7 +758,7 @@ class ParrotRequest(BaseRequestHandler):
                 self.kill_read = False
                 while not self.kill_read:
                     if self.ready:
-                        self.received.append(self.read_data)
+                        self.received.append(bytes(self.read_data))
                         self.kill_read = True
             elif cmd == 'send':
                 self.send(data)
@@ -810,25 +829,6 @@ class ThreadedParrot(ThreadingMixIn, Parrot):
 
 class TestState01(TestStateBase):
     """Tests for State 01: Idle."""
-    def start_server(self, commands):
-        """Start the receiving server."""
-        server = ThreadedParrot(('', 11112), commands)
-        thread = threading.Thread(target=server.serve_forever)
-        thread.daemon = True
-        thread.start()
-
-        return server
-
-    def print_fsm_scp(self, fsm, scp=None):
-        """Print out some of the quantities we're interested in."""
-        print(fsm._transitions)
-        print(fsm._changes)
-        print(fsm._events)
-
-        if scp:
-            print(scp.handlers[0].received)
-            print(scp.handlers[0].sent)
-
     def test_evt01(self):
         """Test Sta1 + Evt1."""
         # Sta1 + Evt1 -> AE-1 -> Sta4
@@ -2476,25 +2476,21 @@ class TestState05(TestStateBase):
         """Test Sta5 + Evt1."""
         # Sta5 + Evt1 -> <ignore> -> Sta5
         # Evt1: A-ASSOCIATE (rq) primitive from <local user>
-        scp = DummyAE()
-        scp.mode = 'acceptor'
-        scp.queue.put(None)
-        scp.queue.put(['wait', 0.4, 'shutdown'])
-
-        scp.start()
-
-        assert self.fsm.current_state == 'Sta1'
+        commands = [
+            ('recv', None),
+            ('wait', 0.5)
+        ]
+        scp = self.start_server(commands)
 
         self.assoc.start()
 
-        time.sleep(0.3)
-
-        #self.assoc.acse.send_abort(self.assoc, 0x00)
         self.assoc.dul.send_pdu(self.get_associate('request'))
 
-        time.sleep(0.2)
+        time.sleep(0.1)
 
-        self.fsm.current_state = 'Sta13'
+        #self.print_fsm_scp(self.fsm, scp)
+
+        scp.shutdown()
 
         assert self.fsm._changes[:2] == [
             ('Sta1', 'Evt1', 'AE-1'),
@@ -2515,24 +2511,26 @@ class TestState05(TestStateBase):
         # Sta5 + Evt3 -> AE-3 -> Sta6
         # Evt3: Receive A-ASSOCIATE-AC PDU from <remote>
         # AE-3: Issue A-ASSOCIATE (ac) primitive
-        scp = DummyAE()
-        scp.mode = 'acceptor'
-        scp.queue.put(None)
-        scp.queue.put([a_associate_ac, 'shutdown'])
-
-        scp.start()
-
-        assert self.fsm.current_state == 'Sta1'
+        commands = [
+            ('recv', None),
+            ('send', a_associate_ac),
+        ]
+        scp = self.start_server(commands)
 
         self.assoc.start()
 
         time.sleep(0.1)
+
+        #self.print_fsm_scp(self.fsm, scp)
+
+        scp.shutdown()
 
         assert self.fsm._changes[:3] == [
             ('Sta1', 'Evt1', 'AE-1'),
             ('Sta4', 'Evt2', 'AE-2'),
             ('Sta5', 'Evt3', 'AE-3'),
         ]
+        assert self.fsm._transitions[:3] == ['Sta4', 'Sta5', 'Sta6']
         assert self.fsm._events[:3] == ['Evt1', 'Evt2', 'Evt3']
 
     def test_evt04(self):
@@ -2540,24 +2538,26 @@ class TestState05(TestStateBase):
         # Sta5 + Evt4 -> AE-4 -> Sta1
         # Evt4: Receive A-ASSOCIATE-RJ PDU from <remote>
         # AE-4: Issue A-ASSOCIATE (rj) primitive
-        scp = DummyAE()
-        scp.mode = 'acceptor'
-        scp.queue.put(None)
-        scp.queue.put([a_associate_rj, 'shutdown'])
-
-        scp.start()
-
-        assert self.fsm.current_state == 'Sta1'
+        commands = [
+            ('recv', None),
+            ('send', a_associate_rj),
+        ]
+        scp = self.start_server(commands)
 
         self.assoc.start()
 
         time.sleep(0.1)
+
+        #self.print_fsm_scp(self.fsm, scp)
+
+        scp.shutdown()
 
         assert self.fsm._changes[:3] == [
             ('Sta1', 'Evt1', 'AE-1'),
             ('Sta4', 'Evt2', 'AE-2'),
             ('Sta5', 'Evt4', 'AE-4'),
         ]
+        assert self.fsm._transitions[:3] == ['Sta4', 'Sta5', 'Sta1']
         assert self.fsm._events[:3] == ['Evt1', 'Evt2', 'Evt4']
 
     @pytest.mark.skip()
@@ -2574,28 +2574,31 @@ class TestState05(TestStateBase):
         # Sta5 + Evt6 -> AA-8 -> Sta13
         # Evt6: Receive A-ASSOCIATE-RQ PDU from <remote>
         # AA-8: Send A-ABORT PDU, issue A-P-ABORT primitive, start ARTIM
-        scp = DummyAE()
-        scp.mode = 'acceptor'
-        scp.queue.put(None)
-        scp.queue.put(a_associate_rq)
-        scp.queue.put('shutdown')
-
-        scp.start()
-
-        assert self.fsm.current_state == 'Sta1'
+        commands = [
+            ('recv', None),
+            ('send', a_associate_rq),
+            ('recv', None),
+        ]
+        scp = self.start_server(commands)
 
         self.assoc.start()
 
         time.sleep(0.1)
+
+        #self.print_fsm_scp(self.fsm, scp)
+
+        scp.shutdown()
 
         assert self.fsm._changes[:3] == [
             ('Sta1', 'Evt1', 'AE-1'),
             ('Sta4', 'Evt2', 'AE-2'),
             ('Sta5', 'Evt6', 'AA-8'),
         ]
+        assert self.fsm._transitions == ['Sta4', 'Sta5', 'Sta13']
         assert self.fsm._events[:3] == ['Evt1', 'Evt2', 'Evt6']
-        # Issue A-ABORT PDU
-        assert scp.received[1] == b'\x07\x00\x00\x00\x00\x04\x00\x00\x02\x00'
+        assert scp.handlers[0].received[1] == (
+            b'\x07\x00\x00\x00\x00\x04\x00\x00\x02\x00'
+        )
 
     def test_evt07(self):
         """Test Sta5 + Evt7."""
@@ -2691,19 +2694,20 @@ class TestState05(TestStateBase):
         # Sta5 + Evt10 -> AA-8 -> Sta13
         # Evt10: Receive P-DATA-TF PDU from <remote>
         # AA-8: Send A-ABORT PDU, issue A-P-ABORT primitive, start ARTIM
-        scp = DummyAE()
-        scp.mode = 'acceptor'
-        scp.queue.put(None)
-        scp.queue.put(p_data_tf)
-        scp.queue.put('shutdown')
-
-        scp.start()
-
-        assert self.fsm.current_state == 'Sta1'
+        commands = [
+            ('recv', None),
+            ('send', p_data_tf),
+            ('recv', None),
+        ]
+        scp = self.start_server(commands)
 
         self.assoc.start()
 
         time.sleep(0.1)
+
+        #self.print_fsm_scp(self.fsm, scp)
+
+        scp.shutdown()
 
         assert self.fsm._changes[:3] == [
             ('Sta1', 'Evt1', 'AE-1'),
@@ -2713,7 +2717,9 @@ class TestState05(TestStateBase):
         assert self.fsm._transitions[:3] == ['Sta4', 'Sta5', 'Sta13']
         assert self.fsm._events[:3] == ['Evt1', 'Evt2', 'Evt10']
         # Issue A-ABORT PDU
-        assert scp.received[1] == b'\x07\x00\x00\x00\x00\x04\x00\x00\x02\x00'
+        assert scp.handlers[0].received[1] == (
+            b'\x07\x00\x00\x00\x00\x04\x00\x00\x02\x00'
+        )
 
     def test_evt11(self):
         """Test Sta5 + Evt11."""
