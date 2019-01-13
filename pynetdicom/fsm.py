@@ -2,7 +2,6 @@
 The DUL's finite state machine representation.
 """
 import logging
-import socket
 
 from pynetdicom.pdu import (
     A_ASSOCIATE_RQ, A_ASSOCIATE_RJ, A_ASSOCIATE_AC,
@@ -117,18 +116,17 @@ class StateMachine(object):
 def AE_1(dul):
     """Association establishment action AE-1.
 
-    From Idle state, local AE issues a connection request to a remote. This
-    is the first step in associating a local AE (requestor) to a remote AE
-    (acceptor).
+    *Event*
 
-    Used when the local AE is acting as an SCU
+    Service user issued A-ASSOCIATE (request) to the service provider
 
-    State-event triggers: Sta1 + Evt1
+    *Action*
 
-    References
-    ----------
-    1. DICOM Standard 2015b, PS3.8, Table 9-7, "Associate Establishment
-       Related Actions"
+    Issue TRANSPORT CONNECT request primitive to the transport service.
+
+    *State/Event Triggers*
+
+    - Sta1 + Evt1
 
     Parameters
     ----------
@@ -139,24 +137,16 @@ def AE_1(dul):
     -------
     str
         'Sta4', the next state of the state machine.
+
+    References
+    ----------
+    1. DICOM Standard 2015b, PS3.8, Table 9-7, "Associate Establishment
+       Related Actions"
     """
     # Issue TRANSPORT CONNECT request primitive to local transport service
-    dul.scu_socket = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
-    try:
-        # CalledPresentationAddress is set by the ACSE and
-        #   is an (address, port) tuple
-        dul.scu_socket.connect(dul.primitive.called_presentation_address)
-    except socket.error:
-        # Failed to connect
-        LOGGER.error("Association Request Failed: Failed to establish "
-                     "association")
-        LOGGER.error("Peer aborted Association (or never connected)")
-        LOGGER.error("TCP Initialisation Error: Connection refused")
-        dul.to_user_queue.put(None)
-        dul.scu_socket.close()
-        dul.kill_dul()
-
-        return 'Sta1'
+    # This is our "TRANSPORT CONNECT" primitive - it attempts to connect
+    #   to the peer, emitting either Evt2 or Evt17
+    dul.socket.connect(dul.primitive.called_presentation_address)
 
     return 'Sta4'
 
@@ -167,8 +157,6 @@ def AE_2(dul):
     This send a byte stream with the format given by Table 9-11
 
     State-event triggers: Sta4 + Evt2
-
-    Callbacks: ApplicationEntity.on_send_associate_rq(PDU)
 
     References
     ----------
@@ -193,7 +181,7 @@ def AE_2(dul):
     dul.assoc.acse.debug_send_associate_rq(dul.pdu)
 
     bytestream = dul.pdu.encode()
-    dul.scu_socket.send(bytestream)
+    dul.socket.send(bytestream)
 
     return 'Sta5'
 
@@ -250,8 +238,7 @@ def AE_4(dul):
     # Issue A-ASSOCIATE confirmation (reject) primitive and close transport
     # connection
     dul.to_user_queue.put(dul.primitive)
-    dul.scu_socket.close()
-    dul.peer_socket = None
+    dul.socket.close()
     dul.kill_dul()
 
     return 'Sta1'
@@ -280,9 +267,6 @@ def AE_5(dul):
     str
         Sta2, the next state of the state machine
     """
-    # Issue connection response primitive
-    # not required due to implementation
-
     # Start ARTIM timer
     dul.artim_timer.timeout_seconds = dul.assoc.acse_timeout
     dul.artim_timer.start()
@@ -340,7 +324,7 @@ def AE_6(dul):
         # Callback
         dul.assoc.acse.debug_send_associate_rj(dul.pdu)
 
-        dul.scu_socket.send(dul.pdu.encode())
+        dul.socket.send(dul.pdu.encode())
         dul.artim_timer.timeout_seconds = dul.assoc.acse_timeout
         dul.artim_timer.start()
 
@@ -382,7 +366,7 @@ def AE_7(dul):
     dul.assoc.acse.debug_send_associate_ac(dul.pdu)
 
     bytestream = dul.pdu.encode()
-    dul.scu_socket.send(bytestream)
+    dul.socket.send(bytestream)
 
     return 'Sta6'
 
@@ -415,7 +399,7 @@ def AE_8(dul):
     # Callback
     dul.assoc.acse.debug_send_associate_rj(dul.pdu)
 
-    dul.scu_socket.send(dul.pdu.encode())
+    dul.socket.send(dul.pdu.encode())
 
     dul.artim_timer.timeout_seconds = dul.assoc.acse_timeout
     dul.artim_timer.start()
@@ -448,13 +432,12 @@ def DT_1(dul):
     # Send P-DATA-TF PDU
     dul.pdu = P_DATA_TF()
     dul.pdu.from_primitive(dul.primitive)
-    dul.primitive = None # Why this?
+    dul.primitive = None  # Why this?
 
     # Callback
     dul.assoc.acse.debug_send_data_tf(dul.pdu)
 
-    bytestream = dul.pdu.encode()
-    dul.scu_socket.send(bytestream)
+    dul.socket.send(dul.pdu.encode())
 
     return 'Sta6'
 
@@ -515,8 +498,7 @@ def AR_1(dul):
     # Callback
     dul.assoc.acse.debug_send_release_rq(dul.pdu)
 
-    bytestream = dul.pdu.encode()
-    dul.scu_socket.send(bytestream)
+    dul.socket.send(dul.pdu.encode())
 
     return 'Sta7'
 
@@ -572,9 +554,7 @@ def AR_3(dul):
     """
     # Issue A-RELEASE confirmation primitive and close transport connection
     dul.to_user_queue.put(dul.primitive)
-    dul.scu_socket.shutdown(socket.SHUT_RDWR)
-    dul.scu_socket.close()
-    dul.peer_socket = None
+    dul.socket.close()
     dul.kill_dul()
 
     return 'Sta1'
@@ -608,7 +588,7 @@ def AR_4(dul):
     # Callback
     dul.assoc.acse.debug_send_release_rp(dul.pdu)
 
-    dul.scu_socket.send(dul.pdu.encode())
+    dul.socket.send(dul.pdu.encode())
     dul.artim_timer.timeout_seconds = dul.assoc.acse_timeout
     dul.artim_timer.start()
 
@@ -701,8 +681,7 @@ def AR_7(dul):
     # Callback
     dul.assoc.acse.debug_send_data_tf(dul.pdu)
 
-    bytestream = dul.pdu.encode()
-    dul.scu_socket.send(bytestream)
+    dul.socket.send(dul.pdu.encode())
 
     return 'Sta8'
 
@@ -765,7 +744,7 @@ def AR_9(dul):
     # Callback
     dul.assoc.acse.debug_send_release_rp(dul.pdu)
 
-    dul.scu_socket.send(dul.pdu.encode())
+    dul.socket.send(dul.pdu.encode())
 
     return 'Sta11'
 
@@ -832,7 +811,7 @@ def AA_1(dul):
     # Callback
     dul.assoc.acse.debug_send_abort(dul.pdu)
 
-    dul.scu_socket.send(dul.pdu.encode())
+    dul.socket.send(dul.pdu.encode())
     dul.artim_timer.timeout_seconds = dul.assoc.acse_timeout
     dul.artim_timer.restart()
 
@@ -863,9 +842,7 @@ def AA_2(dul):
     """
     # Stop ARTIM timer if running. Close transport connection.
     dul.artim_timer.stop()
-    dul.scu_socket.shutdown(socket.SHUT_RDWR)
-    dul.scu_socket.close()
-    dul.peer_socket = None
+    dul.socket.close()
     dul.kill_dul()
 
     return 'Sta1'
@@ -900,8 +877,7 @@ def AA_3(dul):
     #   - Issue A-P-ABORT indication and close transport connection.
     # This action is triggered by the reception of an A-ABORT PDU
     dul.to_user_queue.put(dul.primitive)
-    dul.scu_socket.close()
-    dul.peer_socket = None
+    dul.socket.close()
     dul.kill_dul()
 
     return 'Sta1'
@@ -1023,7 +999,7 @@ def AA_7(dul):
     # Callback
     dul.assoc.acse.debug_send_abort(pdu)
 
-    dul.scu_socket.send(pdu.encode())
+    dul.socket.send(pdu.encode())
 
     return 'Sta13'
 
@@ -1064,22 +1040,15 @@ def AA_8(dul):
     dul.primitive.result = 0x01
     dul.primitive.diagnostic = 0x01
 
-    if dul.scu_socket:
-        # Callback
-        dul.assoc.acse.debug_send_abort(dul.pdu)
+    # Callback
+    dul.assoc.acse.debug_send_abort(dul.pdu)
 
-        try:
-            # Encode and send A-ABORT to peer
-            dul.scu_socket.send(dul.pdu.encode())
-        except socket.error:
-            dul.scu_socket.close()
-        except ConnectionResetError:
-            dul.scu_socket.close()
+    dul.socket.send(dul.pdu.encode())
 
-        # Issue A-P-ABORT to user
-        dul.to_user_queue.put(dul.primitive)
-        dul.artim_timer.timeout_seconds = dul.assoc.acse_timeout
-        dul.artim_timer.start()
+    # Issue A-P-ABORT to user
+    dul.to_user_queue.put(dul.primitive)
+    dul.artim_timer.timeout_seconds = dul.assoc.acse_timeout
+    dul.artim_timer.start()
 
     return 'Sta13'
 

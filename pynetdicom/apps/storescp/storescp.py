@@ -37,7 +37,7 @@ def setup_logger():
 
 
 LOGGER = setup_logger()
-VERSION = '0.3.3'
+VERSION = '0.4.0'
 
 
 def _setup_argparser():
@@ -172,6 +172,7 @@ if isinstance(args.port, int):
     test_socket.setsockopt(socket.SOL_SOCKET, socket.SO_REUSEADDR, 1)
     try:
         test_socket.bind((os.popen('hostname').read()[:-1], args.port))
+        test_socket.close()
     except socket.error:
         LOGGER.error("Cannot listen on port {0:d}, insufficient priveleges".format(args.port))
         sys.exit()
@@ -309,9 +310,7 @@ if args.output_directory is not None:
         sys.exit()
 
 # Create application entity
-ae = AE(ae_title=args.aetitle, port=args.port)
-
-ae.bind_addr = args.bind_addr
+ae = AE(ae_title=args.aetitle)
 
 # Add presentation contexts with specified transfer syntaxes
 for context in StoragePresentationContexts:
@@ -328,4 +327,4 @@ ae.dimse_timeout = args.dimse_timeout
 
 ae.on_c_store = on_c_store
 
-ae.start()
+ae.start_server((args.bind_addr, args.port))

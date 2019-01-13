@@ -129,7 +129,7 @@ class TestACSELogging(object):
     """Tests for ACSE logging."""
     def setup(self):
         """Setup each test."""
-        self.acse = ACSE(5)
+        self.acse = ACSE()
 
         # A-ASSOCIATE (request)
         primitive = A_ASSOCIATE()

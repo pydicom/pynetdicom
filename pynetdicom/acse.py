@@ -1,8 +1,6 @@
-"""
-ACSE service provider
-"""
+"""ACSE service provider"""
+
 import logging
-import warnings
 
 from pynetdicom.pdu_primitives import (
     A_ASSOCIATE, A_RELEASE, A_ABORT, A_P_ABORT,
@@ -26,23 +24,10 @@ class ACSE(object):
 
     The ACSE protocol handles association establishment, normal release of an
     association and the abnormal release of an association.
-
-    Attributes
-    ----------
-    acse_timeout : int
-        The maximum time (in seconds) to wait for association related PDUs
-        from the peer.
     """
-    def __init__(self, acse_timeout=30):
-        """Create the ACSE service provider.
-
-        Parameters
-        ----------
-        acse_timeout : int, optional
-            The maximum time (in seconds) to wait for A-ASSOCIATE related PDUs
-            from the peer (default: 30)
-        """
-        self.acse_timeout = acse_timeout
+    def __init__(self):
+        """Create the ACSE service provider."""
+        pass
 
     @staticmethod
     def _check_async_ops(assoc):
@@ -341,7 +326,10 @@ class ACSE(object):
 
         ## DUL Presentation Related Rejections
         # Maximum number of associations reached (local-limit-exceeded)
-        if len(assoc.ae.active_associations) > assoc.ae.maximum_associations:
+        active_acceptors = [
+            tt for tt in assoc.ae.active_associations if tt.is_acceptor
+        ]
+        if len(active_acceptors) > assoc.ae.maximum_associations:
             reject_assoc_rsd = [0x02, 0x03, 0x02]
 
         if reject_assoc_rsd:
@@ -516,7 +504,7 @@ class ACSE(object):
         is_collision = False
         while True:
             primitive = assoc.dul.receive_pdu(wait=True,
-                                              timeout=self.acse_timeout)
+                                              timeout=assoc.acse_timeout)
             if primitive is None:
                 # No response received within timeout window
                 self.send_abort(assoc, 0x02)

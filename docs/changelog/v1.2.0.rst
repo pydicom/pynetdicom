@@ -1,4 +1,6 @@
-1.1.0
+.. _v1.2.0:
+
+1.2.0
 =====
 
 Fixes
@@ -10,11 +12,52 @@ Enhancements
 * Added ``_config`` module and the ability to skip the dataset decoding step in
   C-STORE operations by setting ``_config.DECODE_STORE_DATASETS`` to False
   (:issue:`282`)
+* Consolidated and improved the robustness of the transport related code
+  (:issue:`42`):
+
+  * Added ``transport`` module
+  * Added ``AssociationSocket`` class that wraps a client ``socket.socket`` to
+    provide integration with the Association state machine. In particular all
+    receive and send operations should emit state machine event 'Evt17' when
+    the connection is closed. (:issue:`204`)
+  * Added ``AssociationServer``, and ``ThreadedAssociationServer`` classes
+    to provide association acceptor services.
+  * ``fsm.AE_1`` is now properly implemented and state machine event 'Evt2' is
+    now emitted in a non-trivial manner.
+  * Added ``AE.start_server()`` which allows operation in both blocking and
+    non-blocking modes.
+  * Added ``AE.shutdown()`` which allows the user to shutdown all non-blocking
+    association servers that may be running.
+  * Support for TLS added via the ``tls_kwargs`` keyword parameter for
+    ``AE.start_server()`` and ``AE.associate()`` (:pull_release:`175`,
+    :pull_release:`71`)
+  * It should now be possible to both request a C-MOVE operation and act as the
+    destination for the request's C-STORE sub-operations over a new association
+    within the same AE instance by running a non-blocking Storage SCP.
+    (:issue:`5`, :issue:`181`)
 
 Changes
 .......
 
-* ``AE.quit()`` removed.
-* ``DIMSEMessage.ID`` removed
-* ``ACSE.is_released`` removed
-* ``ACSE.release_association`` removed
+* ``AE.quit()`` removed as per planned deprecation.
+* ``DIMSEMessage.ID`` removed as per planned deprecation.
+* ``ACSE.is_released()`` removed as per planned deprecation.
+* ``ACSE.release_association()`` removed as per planned deprecation.
+* ``AE.start()`` is deprecated and will be removed in v1.3, use
+  ``AE.start_server()`` instead.
+* ``AE.stop()`` is deprecated and will be removed in v1.3, use
+  ``AE.shutdown()`` instead.
+* The ``AE.port`` property and ``port`` argument for ``AE()`` are deprecated
+  and will be removed in v1.3. Use the ``port`` parameter for
+  ``AE.start_server()`` and the ``bind_address`` keyword parameter for
+  ``AE.associate()`` instead.
+* The ``AE.local_socket`` attribute is deprecated and will be removed in v1.3.
+* The ``AE.address`` attribute is deprecated and will be removed in v1.3.
+* The ``AE.bind_addr`` attribute is deprecated and will be removed in v1.3. Use
+  the ``address`` parameter for ``AE.start_server()`` and the ``bind_address``
+  keyword parameter for ``AE.associate()`` instead.
+* Changed the default DIMSE timeout to 30 s.
+* The ``acse_timeout`` parameter to ``ACSE()`` and ``ACSE.acse_timeout``
+  attribute removed, the ``Association.acse_timeout`` value is used instead.
+* ``AE.active_associations`` changed from an attribute to a property and
+  returns a list of all the AE's active Association threads.

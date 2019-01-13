@@ -113,7 +113,7 @@ which requires adding the File Meta Information.
    )
 
    # Initialise the Application Entity and specify the listen port
-   ae = AE(port=11112)
+   ae = AE()
 
    # Add the supported presentation contexts
    ae.supported_contexts = StoragePresentationContexts
@@ -163,7 +163,7 @@ which requires adding the File Meta Information.
    ae.on_c_store = on_c_store
 
    # Start listening for incoming association requests
-   ae.start()
+   ae.start_server(('', 11112))
 
 As with the SCU you can also just support only the contexts you're
 interested in.
@@ -173,7 +173,7 @@ interested in.
    from pynetdicom import AE
    from pynetdicom.sop_class import CTImageStorage
 
-   ae = AE(port=11112)
+   ae = AE()
 
    # Add a supported presentation context
    ae.add_supported_context(CTImageStorage)
@@ -184,7 +184,7 @@ interested in.
 
    ae.on_c_store = on_c_store
 
-   ae.start()
+   ae.start_server(('', 11112))
 
 It's also possible to return the raw encoded dataset sent by the service
 requestor rather than a pydicom Dataset object by setting the
@@ -199,7 +199,7 @@ requestor rather than a pydicom Dataset object by setting the
    # Pass the raw encoded dataset to on_c_store()
    _config.DECODE_STORE_DATASETS = False
 
-   ae = AE(port=11112)
+   ae = AE()
 
    # Add a supported presentation context
    ae.add_supported_context(CTImageStorage)
@@ -213,7 +213,7 @@ requestor rather than a pydicom Dataset object by setting the
 
    ae.on_c_store = on_c_store
 
-   ae.start()
+   ae.start_server(('', 11112))
 
 This has a couple of advantages over the default:
 

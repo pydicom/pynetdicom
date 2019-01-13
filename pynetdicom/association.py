@@ -109,11 +109,12 @@ class Association(threading.Thread):
     requestor : association.ServiceUser
         Representation of the association's requestor AE.
     """
-    def __init__(self, ae, mode, local_socket=None):
+    def __init__(self, ae, mode):
         """Create a new Association instance.
 
-        Association negotiation won't begin until Association.start() is
-        called.
+        The Association starts in State 1 (idle). Association negotiation
+        won't begin until an AssociationSocket is assigned using set_socket()
+        and Association.start() is called.
 
         Parameters
         ----------
@@ -121,12 +122,14 @@ class Association(threading.Thread):
             The local AE.
         mode : str
             Must be "requestor" or "acceptor".
-        local_socket : socket.socket or None
-            If `mode` is 'acceptor' then this is the connection to the
-            peer, otherwise will be None.
         """
         self._ae = ae
         self.mode = mode
+
+        # Timeouts (in seconds)
+        self.acse_timeout = self.ae.acse_timeout
+        self.dimse_timeout = self.ae.dimse_timeout
+        self.network_timeout = self.ae.network_timeout
 
         # Represents the association requestor and acceptor users
         self.requestor = ServiceUser(self, MODE_REQUESTOR)
@@ -143,12 +146,9 @@ class Association(threading.Thread):
         self._rejected_cx = []
 
         # Service providers
-        self.dul = DULServiceProvider(socket=local_socket,
-                                      dul_timeout=ae.network_timeout,
-                                      assoc=self)
-        self.acse = ACSE(ae.acse_timeout)
-        self.dimse = DIMSEServiceProvider(self.dul,
-                                          self.ae.dimse_timeout)
+        self.acse = ACSE()
+        self.dul = DULServiceProvider(self)
+        self.dimse = DIMSEServiceProvider(self.dul, self.dimse_timeout)
 
         # Kills the thread loop in run()
         self._kill = False
@@ -308,8 +308,6 @@ class Association(threading.Thread):
         while not self.dul.stop_dul():
             time.sleep(0.01)
 
-        self.ae.cleanup_associations()
-
     @property
     def local(self):
         """Return a dict with information about the local AE."""
@@ -366,13 +364,15 @@ class Association(threading.Thread):
 
     def run(self):
         """The main Association control."""
+        # Start the DUL thread
         self.dul.start()
+        # Give the DUL time to start up, tends to cause intermittent
+        # test failures otherwise
+        time.sleep(0.05)
 
         if self.is_acceptor:
-            # Give the DUL time to start up
-            time.sleep(0.1)
             primitive = self.dul.receive_pdu(wait=True,
-                                             timeout=self.acse.acse_timeout)
+                                             timeout=self.acse_timeout)
 
             # Timed out waiting for A-ASSOCIATE request
             if primitive is None:
@@ -562,6 +562,25 @@ class Association(threading.Thread):
             if self.dul.idle_timer_expired():
                 self.kill()
                 return
+
+    def set_socket(self, socket):
+        """Set the socket to use for communicating with the peer.
+
+        Parameters
+        ----------
+        socket : transport.AssociationSocket
+            The socket to use.
+
+        Raises
+        ------
+        RuntimeError
+            If the Association already has a socket set.
+        """
+        if self.dul.socket is not None:
+            raise RuntimeError("The Association already has a socket set.")
+
+        self.dul.socket = socket
+
 
     # DIMSE-C services provided by the Association
     def _c_store_scp(self, req):
@@ -1389,10 +1408,6 @@ class Association(threading.Thread):
             elif rsp.__class__ == C_STORE:
                 self._c_store_scp(rsp)
 
-            # Received a C-CANCEL request from the peer
-            elif rsp.__class__ == C_CANCEL and rsp.MessageID == msg_id:
-                pass
-
     def send_c_move(self, dataset, move_aet, msg_id=1, priority=2,
                     query_model='P'):
         """Send a C-MOVE request to the peer AE.
@@ -1679,10 +1694,6 @@ class Association(threading.Thread):
             #   C-STORE requests can be over the same association for C-MOVE
             elif rsp.__class__ == C_STORE:
                 self._c_store_scp(rsp)
-
-            # Received a C-CANCEL request from the peer
-            elif rsp.__class__ == C_CANCEL and rsp.MessageID == msg_id:
-                pass
 
     def send_c_store(self, dataset, msg_id=1, priority=2, originator_aet=None,
                      originator_id=None):

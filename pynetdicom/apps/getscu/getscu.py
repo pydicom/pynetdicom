@@ -33,7 +33,7 @@ LOGGER.addHandler(stream_logger)
 LOGGER.setLevel(logging.ERROR)
 
 
-VERSION = '0.2.2'
+VERSION = '0.3.0'
 
 
 def _setup_argparser():
@@ -135,7 +135,7 @@ LOGGER.debug('')
 
 # Create application entity
 # Binding to port 0 lets the OS pick an available port
-ae = AE(ae_title=args.calling_aet, port=0)
+ae = AE(ae_title=args.calling_aet)
 
 for context in QueryRetrievePresentationContexts:
     ae.add_requested_context(context.abstract_syntax)

@@ -28,7 +28,8 @@ LOGGER.setLevel(logging.CRITICAL)
 class DummyEventReportSCP(DummyBaseSCP):
     """A threaded dummy event report SCP used for testing"""
     def __init__(self, port=11112):
-        self.ae = AE(port=port)
+        self.ae = AE()
+        self.port = port
         self.ae.add_supported_context(PrintJobSOPClass)
         self.ae.add_supported_context(VerificationSOPClass)
         DummyBaseSCP.__init__(self)
@@ -53,7 +54,8 @@ class DummyEventReportSCP(DummyBaseSCP):
 class DummyGetSCP(DummyBaseSCP):
     """A threaded dummy get SCP used for testing"""
     def __init__(self, port=11112):
-        self.ae = AE(port=port)
+        self.ae = AE()
+        self.port = port
         self.ae.add_supported_context(DisplaySystemSOPClass)
         self.ae.add_supported_context(VerificationSOPClass)
         DummyBaseSCP.__init__(self)
@@ -78,7 +80,8 @@ class DummyGetSCP(DummyBaseSCP):
 class DummySetSCP(DummyBaseSCP):
     """A threaded dummy get SCP used for testing"""
     def __init__(self, port=11112):
-        self.ae = AE(port=port)
+        self.ae = AE()
+        self.port = port
         self.ae.add_supported_context(PrintJobSOPClass)
         self.ae.add_supported_context(VerificationSOPClass)
         DummyBaseSCP.__init__(self)
@@ -102,7 +105,8 @@ class DummySetSCP(DummyBaseSCP):
 class DummyActionSCP(DummyBaseSCP):
     """A threaded dummy get SCP used for testing"""
     def __init__(self, port=11112):
-        self.ae = AE(port=port)
+        self.ae = AE()
+        self.port = port
         self.ae.add_supported_context(PrintJobSOPClass)
         self.ae.add_supported_context(VerificationSOPClass)
         DummyBaseSCP.__init__(self)
@@ -126,7 +130,8 @@ class DummyActionSCP(DummyBaseSCP):
 class DummyCreateSCP(DummyBaseSCP):
     """A threaded dummy get SCP used for testing"""
     def __init__(self, port=11112):
-        self.ae = AE(port=port)
+        self.ae = AE()
+        self.port = port
         self.ae.add_supported_context(PrintJobSOPClass)
         self.ae.add_supported_context(VerificationSOPClass)
         DummyBaseSCP.__init__(self)
@@ -150,7 +155,8 @@ class DummyCreateSCP(DummyBaseSCP):
 class DummyDeleteSCP(DummyBaseSCP):
     """A threaded dummy delete SCP used for testing"""
     def __init__(self, port=11112):
-        self.ae = AE(port=port)
+        self.ae = AE()
+        self.port = port
         # Print Job SOP Class
         self.ae.add_supported_context(PrintJobSOPClass)
         self.ae.add_supported_context(VerificationSOPClass)

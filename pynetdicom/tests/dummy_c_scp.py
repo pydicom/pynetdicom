@@ -60,7 +60,7 @@ from pynetdicom.sop_class import (
     ImplantTemplateGroupInformationModelMove,
 )
 from pynetdicom.status import code_to_category
-
+from pynetdicom.transport import AssociationSocket
 
 LOGGER = logging.getLogger('pynetdicom')
 LOGGER.setLevel(logging.CRITICAL)
@@ -77,6 +77,7 @@ class DummyBaseSCP(threading.Thread):
     bad_status = 0x0101
     def __init__(self):
         """Initialise the class"""
+        self.use_old_start = False
         self.ae.on_c_echo = self.on_c_echo
         self.ae.on_c_store = self.on_c_store
         self.ae.on_c_find = self.on_c_find
@@ -112,6 +113,10 @@ class DummyBaseSCP(threading.Thread):
 
         self.select_timeout = 0
 
+    def stop(self):
+        """Stop the SCP threads"""
+        self.ae.shutdown()
+
     @property
     def network_timeout(self):
         return self.ae.network_timeout
@@ -126,24 +131,27 @@ class DummyBaseSCP(threading.Thread):
 
     def run(self):
         """The thread run method"""
-        self.ae.start(select_timeout=self.select_timeout)
-
-    def stop(self):
-        """Stop the SCP thread"""
-        self.ae.stop()
+        if self.use_old_start:
+            self.ae.bind_addr = ''
+            self.ae.port = self.port
+            self.ae.start(select_timeout=self.select_timeout)
+        else:
+            self.ae.start_server(('', self.port))
 
     def abort(self):
         """Abort any associations"""
         for assoc in self.ae.active_associations:
             assoc.abort()
 
+        if self.use_old_start:
+            self.ae.stop()
+
+        self.ae.shutdown()
+
     def release(self):
         """Release any associations"""
         for assoc in self.ae.active_associations:
             assoc.release()
-
-    def cleanup_associations(self):
-        self.ae.cleanup_associations()
 
     def on_c_echo(self, context, info):
         """Callback for ae.on_c_echo"""
@@ -203,16 +211,16 @@ class DummyBaseSCP(threading.Thread):
 
     def dev_handle_connection(self, client_socket):
         # Create a new Association
-        assoc = Association(self.ae, "acceptor", client_socket)
-        assoc.acse_timeout = self.ae.acse_timeout
-        assoc.dimse_timeout = self.ae.dimse_timeout
-        assoc.network_timeout = self.ae.network_timeout
+        self.ae.port = self.port
+        assoc = Association(self.ae, "acceptor")
+
+        assoc.set_socket(AssociationSocket(assoc, client_socket))
 
         # Association Acceptor object -> local AE
         assoc.acceptor.maximum_length = self.ae.maximum_pdu_size
         assoc.acceptor.ae_title = self.ae.ae_title
         assoc.acceptor.address = self.ae.address
-        assoc.acceptor.port = self.ae.port
+        assoc.acceptor.port = self.port
         assoc.acceptor.implementation_class_uid = (
             self.ae.implementation_class_uid
         )
@@ -231,13 +239,13 @@ class DummyBaseSCP(threading.Thread):
         assoc._a_p_abort_assoc_rq = self.send_ap_abort
 
         assoc.start()
-        self.ae.active_associations.append(assoc)
 
 
 class DummyVerificationSCP(DummyBaseSCP):
     """A threaded dummy verification SCP used for testing"""
     def __init__(self, port=11112):
-        self.ae = AE(port=port)
+        self.ae = AE()
+        self.port = port
         self.ae.supported_contexts = VerificationPresentationContexts
         self.ae.add_supported_context('1.2.3.4')
         DummyBaseSCP.__init__(self)
@@ -264,7 +272,8 @@ class DummyVerificationSCP(DummyBaseSCP):
 class DummyStorageSCP(DummyBaseSCP):
     """A threaded dummy storage SCP used for testing"""
     def __init__(self, port=11112):
-        self.ae = AE(port=port)
+        self.ae = AE()
+        self.port = port
         self.ae.add_supported_context(PatientRootQueryRetrieveInformationModelMove)
         self.ae.add_supported_context(StudyRootQueryRetrieveInformationModelMove)
         self.ae.add_supported_context(PatientStudyOnlyQueryRetrieveInformationModelMove)
@@ -291,7 +300,8 @@ class DummyStorageSCP(DummyBaseSCP):
 class DummyFindSCP(DummyBaseSCP):
     """A threaded dummy find SCP used for testing"""
     def __init__(self, port=11112):
-        self.ae = AE(port=port)
+        self.ae = AE()
+        self.port = port
         self.ae.add_supported_context(PatientRootQueryRetrieveInformationModelFind)
         self.ae.add_supported_context(StudyRootQueryRetrieveInformationModelFind)
         self.ae.add_supported_context(ModalityWorklistInformationFind)
@@ -335,7 +345,8 @@ class DummyFindSCP(DummyBaseSCP):
 class DummyGetSCP(DummyBaseSCP):
     """A threaded dummy get SCP used for testing"""
     def __init__(self, port=11112):
-        self.ae = AE(port=port)
+        self.ae = AE()
+        self.port = port
         self.ae.add_supported_context(PatientRootQueryRetrieveInformationModelGet)
         self.ae.add_supported_context(StudyRootQueryRetrieveInformationModelGet)
         self.ae.add_supported_context(PatientStudyOnlyQueryRetrieveInformationModelGet)
@@ -386,7 +397,8 @@ class DummyGetSCP(DummyBaseSCP):
 class DummyMoveSCP(DummyBaseSCP):
     """A threaded dummy move SCP used for testing"""
     def __init__(self, port=11112):
-        self.ae = AE(port=port)
+        self.ae = AE()
+        self.port = port
         self.ae.add_supported_context(PatientRootQueryRetrieveInformationModelMove)
         self.ae.add_supported_context(StudyRootQueryRetrieveInformationModelMove)
         self.ae.add_supported_context(PatientStudyOnlyQueryRetrieveInformationModelMove)

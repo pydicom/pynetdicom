@@ -80,13 +80,13 @@ to return an 0x0000 *Success* :ref:`status <verification_statuses>`.
    from pynetdicom.sop_class import VerificationSOPClass
 
    # Initialise the Application Entity and specify the listen port
-   ae = AE(port=11112)
+   ae = AE()
 
    # Add the supported presentation context
    ae.add_supported_context(VerificationSOPClass)
 
    # Start listening for incoming association requests
-   ae.start()
+   ae.start_server(('', 11112))
 
 You can also optionally implement the ``on_c_echo`` callback.
 
@@ -96,7 +96,7 @@ You can also optionally implement the ``on_c_echo`` callback.
    from pynetdicom.sop_class import VerificationSOPClass
 
    # Initialise the Application Entity and specify the listen port
-   ae = AE(port=11112)
+   ae = AE()
 
    # Add the supported presentation context
    ae.add_supported_context(VerificationSOPClass)
@@ -124,4 +124,4 @@ You can also optionally implement the ``on_c_echo`` callback.
    ae.on_c_echo = on_c_echo
 
    # Start listening for incoming association requests
-   ae.start()
+   ae.start_server(('', 11112))

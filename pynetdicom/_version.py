@@ -1,6 +1,6 @@
 """Version information for pynetdicom based on PEP396 and 440.
 
-Parts of extract_components` are taken from the pypa packaging project
+Parts of `extract_components` are taken from the pypa packaging project
 (https://github.com/pypa/packaging) which is dual licensed:
 > This file is dual licensed under the terms of the Apache License, Version
 > 2.0, and the BSD License. See the LICENSE file in the root of (the pypa)
@@ -8,6 +8,9 @@ Parts of extract_components` are taken from the pypa packaging project
 """
 
 import re
+
+
+__version__ = '1.2.0.dev0'
 
 
 VERSION_PATTERN = r"""
@@ -92,6 +95,5 @@ def extract_components(version):
     return components
 
 
-__version__ = '1.2.0.dev0'
 assert is_canonical(__version__)
 __version_info__ = extract_components(__version__)

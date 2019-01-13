@@ -189,7 +189,7 @@ query against that.
     from pynetdicom.sop_class import PatientRootQueryRetrieveInformationModelGet
 
     # Create application entity
-    ae = AE(port=11112)
+    ae = AE()
 
     # Add the supported presentation contexts (Storage SCU)
     ae.supported_contexts = StoragePresentationContexts
@@ -276,4 +276,4 @@ query against that.
     ae.on_c_get = on_c_get
 
     # Start listening for incoming association requests
-    ae.start()
+    ae.start_server(('', 11112))

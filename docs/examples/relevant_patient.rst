@@ -91,7 +91,7 @@ query against that.
     from pynetdicom.sop_class import GeneralRelevantPatientInformationQuery
 
     # Initialise the Application Entity and specify the listen port
-    ae = AE(port=11112)
+    ae = AE()
 
     # Add a requested presentation context
     ae.add_supported_context(GeneralRelevantPatientInformationQuery)
@@ -153,4 +153,4 @@ query against that.
     ae.on_c_find = on_c_find
 
     # Start listening for incoming association requests
-    ae.start()
+    ae.start_server(('', 11112))

@@ -34,7 +34,7 @@ def setup_logger():
 
 LOGGER = setup_logger()
 
-VERSION = '0.6.2'
+VERSION = '0.6.3'
 
 
 def _setup_argparser():
@@ -185,7 +185,7 @@ LOGGER.debug('')
 
 # Create local AE
 # Binding to port 0, OS will pick an available port
-ae = AE(ae_title=args.calling_aet, port=0)
+ae = AE(ae_title=args.calling_aet)
 
 ae.add_requested_context(VerificationSOPClass, transfer_syntax)
 

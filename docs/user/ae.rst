@@ -201,19 +201,15 @@ Specifying the network port
 ...........................
 In general it shouldn't be necessary to specify the port when acting as an SCU.
 By default *pynetdicom* will use the first available port to communicate with a
-peer AE. To specify the port number you can use the ``port`` parameter when
-initialising the AE:
-
->>> from pynetdicom import AE
->>> ae = AE(port=11112)
-
-Or you can set it afterwards:
+peer AE. To specify the port number you can use the ``bind_address`` keyword
+parameter when requesting an association, which takes a 2-tuple of
+(host, port):
 
 >>> from pynetdicom import AE
 >>> ae = AE()
->>> ae.port = 11112
+>>> ae.add_requested_context('1.2.840.10008.1.1')
+>>> assoc = ae.associate('localhost', 11112, bind_address=('', 11113))
 
-Setting the value to ``0`` will revert the port to the first available.
 
 Association
 ...........
@@ -453,27 +449,21 @@ callback.
 
         return is_verified, response
 
-    ae = AE(port=11112)
+    ae = AE()
     ae.add_supported_context(VerificationSOPClass)
     ae.on_user_identity = on_user_identity
-    ae.start()
+    ae.start_server(('', 11112))
 
 
-Specifying the network port
+Specifying the bind address
 ...........................
-By default an SCP will use the first available port to listen on for
-association requests, which is generally a bad idea as it makes it difficult
-for peers to know what port to communicate with. To specify the port number
-you can use the ``port`` parameter when initialising the AE:
-
->>> from pynetdicom import AE
->>> ae = AE(port=11112)
-
-Or you can set it afterwards:
+The bind address for the server socket is specified by the ``address``
+parameter to ``start_server()`` as (host, port).
 
 >>> from pynetdicom import AE
 >>> ae = AE()
->>> ae.port = 11112
+>>> ae.add_supported_context('1.2.840.10008.1.1')
+>>> ae.start_server(('', 11112))
 
 
 Association

@@ -480,8 +480,9 @@ class DIMSEServiceProvider(object):
                     cs.MessageID, dataset_type)
 
         s = []
-        s.append('===================== OUTGOING DIMSE MESSAGE ================'
-                 '====')
+        s.append(
+            '===================== OUTGOING DIMSE MESSAGE ===================='
+        )
         s.append('Message Type                  : {0!s}'.format('C-STORE RQ'))
         s.append('Message ID                    : {0!s}'.format(cs.MessageID))
         s.append('Affected SOP Class UID        : {0!s}'
@@ -490,8 +491,9 @@ class DIMSEServiceProvider(object):
                  .format(cs.AffectedSOPInstanceUID))
         s.append('Data Set                      : {0!s}'.format(dataset))
         s.append('Priority                      : {0!s}'.format(priority))
-        s.append('======================= END DIMSE MESSAGE ==================='
-                 '====')
+        s.append(
+            '======================= END DIMSE MESSAGE ======================='
+        )
         for line in s:
             LOGGER.debug(line)
 
@@ -544,17 +546,20 @@ class DIMSEServiceProvider(object):
         LOGGER.info("Sending Find Request: MsgID %s", cs.MessageID)
 
         s = []
-        s.append('===================== OUTGOING DIMSE MESSAGE ================'
-                 '====')
+        s.append(
+            '===================== OUTGOING DIMSE MESSAGE ===================='
+        )
         s.append('Message Type                  : {0!s}'.format('C-FIND RQ'))
-        s.append('Presentation Context ID       : {0!s}'.format(msg.context_id))
+        s.append('Presentation Context ID       : {0!s}'
+                 .format(msg.context_id))
         s.append('Message ID                    : {0!s}'.format(cs.MessageID))
         s.append('Affected SOP Class UID        : {0!s}'
                  .format(cs.AffectedSOPClassUID))
         s.append('Identifier                    : {0!s}'.format(dataset))
         s.append('Priority                      : {0!s}'.format(priority))
-        s.append('======================= END DIMSE MESSAGE ==================='
-                 '====')
+        s.append(
+            '======================= END DIMSE MESSAGE ======================='
+        )
 
         for line in s:
             LOGGER.debug(line)
@@ -583,8 +588,9 @@ class DIMSEServiceProvider(object):
             dataset = 'Present'
 
         s = []
-        s.append('===================== OUTGOING DIMSE MESSAGE ================'
-                 '====')
+        s.append(
+            '===================== OUTGOING DIMSE MESSAGE ===================='
+        )
         s.append('Message Type                  : {0!s}'.format('C-FIND RSP'))
         s.append('Message ID Being Responded To : {0!s}'
                  .format(cs.MessageIDBeingRespondedTo))
@@ -594,8 +600,9 @@ class DIMSEServiceProvider(object):
         s.append('Data Set                      : {0!s}'.format(dataset))
         s.append('DIMSE Status                  : 0x{0:04x}'.format(cs.Status))
 
-        s.append('======================= END DIMSE MESSAGE ==================='
-                 '====')
+        s.append(
+            '======================= END DIMSE MESSAGE ======================='
+        )
 
         for line in s:
             LOGGER.debug(line)
@@ -630,16 +637,18 @@ class DIMSEServiceProvider(object):
         LOGGER.info("Sending Get Request: MsgID %s", cs.MessageID)
 
         s = []
-        s.append('===================== OUTGOING DIMSE MESSAGE ================'
-                 '====')
+        s.append(
+            '===================== OUTGOING DIMSE MESSAGE ===================='
+        )
         s.append('Message Type                  : {0!s}'.format('C-GET RQ'))
         s.append('Message ID                    : {0!s}'.format(cs.MessageID))
         s.append('Affected SOP Class UID        : {0!s}'
                  .format(cs.AffectedSOPClassUID))
         s.append('Data Set                      : {0!s}'.format(dataset))
         s.append('Priority                      : {0!s}'.format(priority))
-        s.append('======================= END DIMSE MESSAGE ==================='
-                 '====')
+        s.append(
+            '======================= END DIMSE MESSAGE ======================='
+        )
         for line in s:
             LOGGER.debug(line)
 
@@ -673,8 +682,9 @@ class DIMSEServiceProvider(object):
         affected_sop = getattr(cs, 'AffectedSOPClassUID', 'None')
 
         s = []
-        s.append('===================== OUTGOING DIMSE MESSAGE ================'
-                 '====')
+        s.append(
+            '===================== OUTGOING DIMSE MESSAGE ===================='
+        )
         s.append('Message Type                  : {0!s}'.format('C-GET RSP'))
         s.append('Message ID Being Responded To : {0!s}'
                  .format(cs.MessageIDBeingRespondedTo))
@@ -684,8 +694,9 @@ class DIMSEServiceProvider(object):
         s.append('Data Set                      : {0!s}'.format(dataset))
         s.append('DIMSE Status                  : 0x{0:04x}'.format(cs.Status))
 
-        s.append('======================= END DIMSE MESSAGE ==================='
-                 '====')
+        s.append(
+            '======================= END DIMSE MESSAGE ======================='
+        )
 
         for line in s:
             LOGGER.debug(line)
@@ -721,8 +732,9 @@ class DIMSEServiceProvider(object):
         LOGGER.info("Sending Move Request: MsgID %s", cs.MessageID)
 
         s = []
-        s.append('===================== OUTGOING DIMSE MESSAGE ================'
-                 '====')
+        s.append(
+            '===================== OUTGOING DIMSE MESSAGE ===================='
+        )
         s.append('Message Type                  : {0!s}'.format('C-MOVE RQ'))
         s.append('Message ID                    : {0!s}'.format(cs.MessageID))
         s.append('Affected SOP Class UID        : {0!s}'
@@ -731,8 +743,9 @@ class DIMSEServiceProvider(object):
                  .format(cs.MoveDestination))
         s.append('Identifier                    : {0!s}'.format(identifier))
         s.append('Priority                      : {0!s}'.format(priority))
-        s.append('======================= END DIMSE MESSAGE ==================='
-                 '====')
+        s.append(
+            '======================= END DIMSE MESSAGE ======================='
+        )
         for line in s:
             LOGGER.debug(line)
         return None
@@ -765,8 +778,9 @@ class DIMSEServiceProvider(object):
             identifier = 'Present'
 
         s = []
-        s.append('===================== OUTGOING DIMSE MESSAGE ================'
-                 '====')
+        s.append(
+            '===================== OUTGOING DIMSE MESSAGE ===================='
+        )
         s.append('Message Type                  : {0!s}'.format('C-MOVE RSP'))
         s.append('Message ID Being Responded To : {0!s}'
                  .format(cs.MessageIDBeingRespondedTo))
@@ -778,8 +792,9 @@ class DIMSEServiceProvider(object):
         s.append('Identifier                    : {0!s}'.format(identifier))
         s.append('Status                        : 0x{0:04x}'.format(cs.Status))
 
-        s.append('======================= END DIMSE MESSAGE ==================='
-                 '====')
+        s.append(
+            '======================= END DIMSE MESSAGE ======================='
+        )
 
         for line in s:
             LOGGER.debug(line)
@@ -816,14 +831,17 @@ class DIMSEServiceProvider(object):
         LOGGER.info('Received Echo Request (MsgID %s)', cs.MessageID)
 
         s = []
-        s.append('===================== INCOMING DIMSE MESSAGE ================'
-                 '====')
+        s.append(
+            '===================== INCOMING DIMSE MESSAGE ===================='
+        )
         s.append('Message Type                  : {0!s}'.format('C-ECHO RQ'))
-        s.append('Presentation Context ID       : {0!s}'.format(msg.context_id))
+        s.append('Presentation Context ID       : {0!s}'
+                 .format(msg.context_id))
         s.append('Message ID                    : {0!s}'.format(cs.MessageID))
         s.append('Data Set                      : {0!s}'.format('none'))
-        s.append('======================= END DIMSE MESSAGE ==================='
-                 '====')
+        s.append(
+            '======================= END DIMSE MESSAGE ======================='
+        )
 
         for line in s:
             LOGGER.debug(line)
@@ -890,10 +908,12 @@ class DIMSEServiceProvider(object):
         LOGGER.info('Received Store Request')
 
         s = []
-        s.append('===================== INCOMING DIMSE MESSAGE ================'
-                 '====')
+        s.append(
+            '===================== INCOMING DIMSE MESSAGE ===================='
+        )
         s.append('Message Type                  : {0!s}'.format('C-STORE RQ'))
-        s.append('Presentation Context ID       : {0!s}'.format(msg.context_id))
+        s.append('Presentation Context ID       : {0!s}'
+                 .format(msg.context_id))
         s.append('Message ID                    : {0!s}'.format(cs.MessageID))
         s.append('Affected SOP Class UID        : {0!s}'
                  .format(cs.AffectedSOPClassUID))
@@ -904,8 +924,9 @@ class DIMSEServiceProvider(object):
                      .format(cs.MoveOriginatorApplicationEntityTitle))
         s.append('Data Set                      : {0!s}'.format(dataset))
         s.append('Priority                      : {0!s}'.format(priority))
-        s.append('======================= END DIMSE MESSAGE ==================='
-                 '====')
+        s.append(
+            '======================= END DIMSE MESSAGE ======================='
+        )
         for line in s:
             LOGGER.debug(line)
 
@@ -946,10 +967,12 @@ class DIMSEServiceProvider(object):
 
         LOGGER.info('Received Store Response')
         s = []
-        s.append('===================== INCOMING DIMSE MESSAGE ================'
-                 '====')
+        s.append(
+            '===================== INCOMING DIMSE MESSAGE ===================='
+        )
         s.append('Message Type                  : {0!s}'.format('C-STORE RSP'))
-        s.append('Presentation Context ID       : {0!s}'.format(msg.context_id))
+        s.append('Presentation Context ID       : {0!s}'
+                 .format(msg.context_id))
         s.append('Message ID Being Responded To : {0!s}'
                  .format(cs.MessageIDBeingRespondedTo))
         if 'AffectedSOPClassUID' in cs:
@@ -961,8 +984,9 @@ class DIMSEServiceProvider(object):
         s.append('Data Set                      : {0!s}'.format(dataset))
         s.append('DIMSE Status                  : {0!s}'.format(status_str))
 
-        s.append('======================= END DIMSE MESSAGE ==================='
-                 '====')
+        s.append(
+            '======================= END DIMSE MESSAGE ======================='
+        )
 
         for line in s:
             LOGGER.debug(line)
@@ -995,8 +1019,9 @@ class DIMSEServiceProvider(object):
             dataset = 'Present'
 
         s = []
-        s.append('===================== INCOMING DIMSE MESSAGE ================'
-                 '====')
+        s.append(
+            '===================== INCOMING DIMSE MESSAGE ===================='
+        )
         s.append('Message Type                  : {0!s}'.format('C-FIND RQ'))
         s.append('Message ID                    : {0!s}'.format(cs.MessageID))
         s.append('Affected SOP Class UID        : {0!s}'
@@ -1004,8 +1029,9 @@ class DIMSEServiceProvider(object):
         s.append('Data Set                      : {0!s}'.format(dataset))
         s.append('Priority                      : {0!s}'.format(priority))
 
-        s.append('======================= END DIMSE MESSAGE ==================='
-                 '====')
+        s.append(
+            '======================= END DIMSE MESSAGE ======================='
+        )
 
         for line in s:
             LOGGER.info(line)
@@ -1036,8 +1062,9 @@ class DIMSEServiceProvider(object):
             dataset = 'Present'
 
         s = []
-        s.append('===================== INCOMING DIMSE MESSAGE ================'
-                 '====')
+        s.append(
+            '===================== INCOMING DIMSE MESSAGE ===================='
+        )
         s.append('Message Type                  : {0!s}'.format('C-FIND RSP'))
         s.append('Message ID Being Responded To : {0!s}'
                  .format(cs.MessageIDBeingRespondedTo))
@@ -1047,8 +1074,9 @@ class DIMSEServiceProvider(object):
         s.append('Data Set                      : {0!s}'.format(dataset))
         s.append('DIMSE Status                  : 0x{0:04x}'.format(cs.Status))
 
-        s.append('======================= END DIMSE MESSAGE ==================='
-                 '====')
+        s.append(
+            '======================= END DIMSE MESSAGE ======================='
+        )
 
         for line in s:
             LOGGER.info(line)
@@ -1067,14 +1095,16 @@ class DIMSEServiceProvider(object):
         cs = msg.command_set
 
         s = []
-        s.append('===================== INCOMING DIMSE MESSAGE ================'
-                 '====')
+        s.append(
+            '===================== INCOMING DIMSE MESSAGE ===================='
+        )
         s.append('Message Type                  : {0!s}'.format('C-CANCEL RQ'))
         s.append('Message ID Being Responded To : {0!s}'
                  .format(cs.MessageIDBeingRespondedTo))
 
-        s.append('======================= END DIMSE MESSAGE ==================='
-                 '====')
+        s.append(
+            '======================= END DIMSE MESSAGE ======================='
+        )
 
         for line in s:
             LOGGER.info(line)
@@ -1107,8 +1137,9 @@ class DIMSEServiceProvider(object):
             dataset = 'Present'
 
         s = []
-        s.append('===================== INCOMING DIMSE MESSAGE ================'
-                 '====')
+        s.append(
+            '===================== INCOMING DIMSE MESSAGE ===================='
+        )
         s.append('Message Type                  : {0!s}'.format('C-GET RQ'))
         s.append('Message ID                    : {0!s}'.format(cs.MessageID))
         s.append('Affected SOP Class UID        : {0!s}'
@@ -1116,8 +1147,9 @@ class DIMSEServiceProvider(object):
         s.append('Data Set                      : {0!s}'.format(dataset))
         s.append('Priority                      : {0!s}'.format(priority))
 
-        s.append('======================= END DIMSE MESSAGE ==================='
-                 '====')
+        s.append(
+            '======================= END DIMSE MESSAGE ======================='
+        )
 
         for line in s:
             LOGGER.info(line)
@@ -1150,10 +1182,12 @@ class DIMSEServiceProvider(object):
             dataset = 'Present'
 
         s = []
-        s.append('===================== INCOMING DIMSE MESSAGE ================'
-                 '====')
+        s.append(
+            '===================== INCOMING DIMSE MESSAGE ===================='
+        )
         s.append('Message Type                  : {0!s}'.format('C-GET RSP'))
-        s.append('Presentation Context ID       : {0!s}'.format(msg.context_id))
+        s.append('Presentation Context ID       : {0!s}'
+                 .format(msg.context_id))
         s.append('Message ID Being Responded To : {0!s}'
                  .format(cs.MessageIDBeingRespondedTo))
         if 'AffectedSOPClassUID' in cs:
@@ -1174,8 +1208,9 @@ class DIMSEServiceProvider(object):
         s.append('Data Set                      : {0!s}'.format(dataset))
         s.append('DIMSE Status                  : 0x{0:04x}'.format(cs.Status))
 
-        s.append('======================= END DIMSE MESSAGE ==================='
-                 '====')
+        s.append(
+            '======================= END DIMSE MESSAGE ======================='
+        )
 
         for line in s:
             LOGGER.debug(line)
@@ -1227,8 +1262,9 @@ class DIMSEServiceProvider(object):
             identifier = 'Present'
 
         s = []
-        s.append('===================== INCOMING DIMSE MESSAGE ================'
-                 '====')
+        s.append(
+            '===================== INCOMING DIMSE MESSAGE ===================='
+        )
         s.append('Message Type                  : {0!s}'.format('C-MOVE RSP'))
         s.append('Message ID Being Responded To : {0!s}'
                  .format(cs.MessageIDBeingRespondedTo))
@@ -1250,8 +1286,9 @@ class DIMSEServiceProvider(object):
         s.append('Identifier                    : {0!s}'.format(identifier))
         s.append('DIMSE Status                  : 0x{0:04x}'.format(cs.Status))
 
-        s.append('======================= END DIMSE MESSAGE ==================='
-                 '====')
+        s.append(
+            '======================= END DIMSE MESSAGE ======================='
+        )
 
         for line in s:
             LOGGER.debug(line)
@@ -1272,8 +1309,9 @@ class DIMSEServiceProvider(object):
             evt_info = 'Present'
 
         s = []
-        s.append('===================== OUTGOING DIMSE MESSAGE ================'
-                 '====')
+        s.append(
+            '===================== OUTGOING DIMSE MESSAGE ===================='
+        )
         s.append('Message Type                  : {0!s}'
                  .format('N-EVENT-REPORT RQ'))
         s.append('Message ID                    : {0!s}'.format(cs.MessageID))
@@ -1284,8 +1322,9 @@ class DIMSEServiceProvider(object):
         s.append('Event Type ID                 : {0!s}'
                  .format(cs.EventTypeID))
         s.append('Event Information             : {0!s}'.format(evt_info))
-        s.append('======================= END DIMSE MESSAGE ==================='
-                 '====')
+        s.append(
+            '======================= END DIMSE MESSAGE ======================='
+        )
         for line in s:
             LOGGER.debug(line)
 
@@ -1305,8 +1344,9 @@ class DIMSEServiceProvider(object):
             evt_reply = 'Present'
 
         s = []
-        s.append('===================== OUTGOING DIMSE MESSAGE ================'
-                 '====')
+        s.append(
+            '===================== OUTGOING DIMSE MESSAGE ===================='
+        )
         s.append('Message Type                  : {0!s}'
                  .format('N-EVENT-REPORT RSP'))
         s.append('Message ID Being Responded To : {0!s}'
@@ -1350,8 +1390,9 @@ class DIMSEServiceProvider(object):
                 nr_attr = '{} identifiers'.format(nr_attr)
 
         s = []
-        s.append('===================== OUTGOING DIMSE MESSAGE ================'
-                 '====')
+        s.append(
+            '===================== OUTGOING DIMSE MESSAGE ===================='
+        )
         s.append('Message Type                  : {0!s}'.format('N-GET RQ'))
         s.append('Message ID                    : {0!s}'.format(cs.MessageID))
         s.append('Requested SOP Class UID       : {0!s}'
@@ -1359,8 +1400,9 @@ class DIMSEServiceProvider(object):
         s.append('Requested SOP Instance UID    : {0!s}'
                  .format(cs.RequestedSOPInstanceUID))
         s.append('Attribute Identifier List     : ({0!s})'.format(nr_attr))
-        s.append('======================= END DIMSE MESSAGE ==================='
-                 '====')
+        s.append(
+            '======================= END DIMSE MESSAGE ======================='
+        )
         for line in s:
             LOGGER.debug(line)
 
@@ -1380,8 +1422,9 @@ class DIMSEServiceProvider(object):
             attr_list = 'Present'
 
         s = []
-        s.append('===================== OUTGOING DIMSE MESSAGE ================'
-                 '====')
+        s.append(
+            '===================== OUTGOING DIMSE MESSAGE ===================='
+        )
         s.append('Message Type                  : {0!s}'.format('N-GET RSP'))
         s.append('Message ID Being Responded To : {0!s}'
                  .format(cs.MessageIDBeingRespondedTo))
@@ -1393,8 +1436,9 @@ class DIMSEServiceProvider(object):
                      .format(cs.AffectedSOPInstanceUID))
         s.append('Attribute List                : {0!s}'.format(attr_list))
         s.append('Status                        : 0x{0:04x}'.format(cs.Status))
-        s.append('======================= END DIMSE MESSAGE ==================='
-                 '====')
+        s.append(
+            '======================= END DIMSE MESSAGE ======================='
+        )
         for line in s:
             LOGGER.debug(line)
 
@@ -1414,8 +1458,9 @@ class DIMSEServiceProvider(object):
             mod_list = 'Present'
 
         s = []
-        s.append('===================== OUTGOING DIMSE MESSAGE ================'
-                 '====')
+        s.append(
+            '===================== OUTGOING DIMSE MESSAGE ===================='
+        )
         s.append('Message Type                  : {0!s}'.format('N-SET RQ'))
         s.append('Message ID                    : {0!s}'.format(cs.MessageID))
         s.append('Requested SOP Class UID       : {0!s}'
@@ -1423,8 +1468,9 @@ class DIMSEServiceProvider(object):
         s.append('Requested SOP Instance UID    : {0!s}'
                  .format(cs.RequestedSOPInstanceUID))
         s.append('Modification List             : {0!s}'.format(mod_list))
-        s.append('======================= END DIMSE MESSAGE ==================='
-                 '====')
+        s.append(
+            '======================= END DIMSE MESSAGE ======================='
+        )
         for line in s:
             LOGGER.debug(line)
 
@@ -1444,8 +1490,9 @@ class DIMSEServiceProvider(object):
             attr_list = 'Present'
 
         s = []
-        s.append('===================== OUTGOING DIMSE MESSAGE ================'
-                 '====')
+        s.append(
+            '===================== OUTGOING DIMSE MESSAGE ===================='
+        )
         s.append('Message Type                  : {0!s}'.format('N-SET RSP'))
         s.append('Message ID Being Responded To : {0!s}'
                  .format(cs.MessageIDBeingRespondedTo))
@@ -1457,8 +1504,9 @@ class DIMSEServiceProvider(object):
                      .format(cs.AffectedSOPInstanceUID))
         s.append('Attribute List                : {0!s}'.format(attr_list))
         s.append('Status                        : 0x{0:04x}'.format(cs.Status))
-        s.append('======================= END DIMSE MESSAGE ==================='
-                 '====')
+        s.append(
+            '======================= END DIMSE MESSAGE ======================='
+        )
         for line in s:
             LOGGER.debug(line)
 
@@ -1518,16 +1566,18 @@ class DIMSEServiceProvider(object):
         cs = msg.command_set
 
         s = []
-        s.append('===================== OUTGOING DIMSE MESSAGE ================'
-                 '====')
+        s.append(
+            '===================== OUTGOING DIMSE MESSAGE ===================='
+        )
         s.append('Message Type                  : {0!s}'.format('N-DELETE RQ'))
         s.append('Message ID                    : {0!s}'.format(cs.MessageID))
         s.append('Requested SOP Class UID       : {0!s}'
                  .format(cs.RequestedSOPClassUID))
         s.append('Requested SOP Instance UID    : {0!s}'
                  .format(cs.RequestedSOPInstanceUID))
-        s.append('======================= END DIMSE MESSAGE ==================='
-                 '====')
+        s.append(
+            '======================= END DIMSE MESSAGE ======================='
+        )
         for line in s:
             LOGGER.debug(line)
 
@@ -1543,8 +1593,9 @@ class DIMSEServiceProvider(object):
         cs = msg.command_set
 
         s = []
-        s.append('===================== OUTGOING DIMSE MESSAGE ================'
-                 '====')
+        s.append(
+            '===================== OUTGOING DIMSE MESSAGE ===================='
+        )
         s.append('Message Type                  : {0!s}'.format('N-DELETE RQ'))
         s.append('Message ID Being Responded To : {0!s}'
                  .format(cs.MessageIDBeingRespondedTo))
@@ -1555,8 +1606,9 @@ class DIMSEServiceProvider(object):
             s.append('Affected SOP Instance UID     : {0!s}'
                      .format(cs.AffectedSOPInstanceUID))
         s.append('Status                        : 0x{0:04x}'.format(cs.Status))
-        s.append('======================= END DIMSE MESSAGE ==================='
-                 '====')
+        s.append(
+            '======================= END DIMSE MESSAGE ======================='
+        )
         for line in s:
             LOGGER.debug(line)
 
@@ -1610,10 +1662,12 @@ class DIMSEServiceProvider(object):
 
         LOGGER.info('Received Get Response')
         s = []
-        s.append('===================== INCOMING DIMSE MESSAGE ================'
-                 '====')
+        s.append(
+            '===================== INCOMING DIMSE MESSAGE ===================='
+        )
         s.append('Message Type                  : {0!s}'.format('N-GET RSP'))
-        s.append('Presentation Context ID       : {0!s}'.format(msg.context_id))
+        s.append('Presentation Context ID       : {0!s}'
+                 .format(msg.context_id))
         s.append('Message ID Being Responded To : {0!s}'
                  .format(cs.MessageIDBeingRespondedTo))
         if 'AffectedSOPClassUID' in cs:
@@ -1624,8 +1678,9 @@ class DIMSEServiceProvider(object):
                      .format(cs.AffectedSOPInstanceUID))
         s.append('Attribute List                : {0!s}'.format(dataset))
         s.append('Status                        : 0x{0:04x}'.format(cs.Status))
-        s.append('======================= END DIMSE MESSAGE ==================='
-                 '====')
+        s.append(
+            '======================= END DIMSE MESSAGE ======================='
+        )
 
         for line in s:
             LOGGER.debug(line)

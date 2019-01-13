@@ -78,7 +78,7 @@ containing the single tag (0008,0070).
     from pynetdicom.sop_class import DisplaySystemSOPClass
 
     # Initialise the Application Entity and specify the listen port
-    ae = AE(port=11112)
+    ae = AE()
 
     # Add the supported presentation context
     ae.add_supported_context(DisplaySystemSOPClass)
@@ -129,4 +129,4 @@ containing the single tag (0008,0070).
     ae.on_n_get = on_n_get
 
     # Start listening for incoming association requests
-    ae.start()
+    ae.start_server(('', 11112))

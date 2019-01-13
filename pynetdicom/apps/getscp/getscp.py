@@ -31,7 +31,7 @@ logger.addHandler(stream_logger)
 logger.setLevel(logging.ERROR)
 
 
-VERSION = '0.2.1'
+VERSION = '0.3.0'
 
 
 def _setup_argparser():
@@ -139,6 +139,7 @@ if isinstance(args.port, int):
     test_socket.setsockopt(socket.SOL_SOCKET, socket.SO_REUSEADDR, 1)
     try:
         test_socket.bind((os.popen('hostname').read()[:-1], args.port))
+        test_socket.close()
     except socket.error:
         logger.error("Cannot listen on port {0:d}, insufficient priveleges".format(args.port))
         sys.exit()
@@ -161,10 +162,14 @@ if args.prefer_big and ExplicitVRBigEndian in transfer_syntax:
 
 def on_c_get(dataset, context, info):
     """Implement the on_c_get callback"""
-    basedir = '../../tests/dicom_files/'
-    dcm_files = ['RTImageStorage.dcm', 'CTImageStorage.dcm']
-    dcm_files = [os.path.join(basedir, x) for x in dcm_files]
-    yield len(dcm_files)
+    try:
+        basedir = '../../tests/dicom_files/'
+        dcm_files = ['RTImageStorage.dcm', 'CTImageStorage.dcm']
+        dcm_files = [os.path.join(basedir, x) for x in dcm_files]
+        yield len(dcm_files)
+    except:
+        dcm_files = []
+        yield 0
 
     for dcm in dcm_files:
         ds = dcmread(dcm, force=True)
@@ -172,7 +177,7 @@ def on_c_get(dataset, context, info):
 
 
 # Create application entity
-ae = AE(ae_title=args.aetitle, port=args.port)
+ae = AE(ae_title=args.aetitle)
 
 for context in StoragePresentationContexts:
     ae.add_supported_context(
@@ -190,4 +195,4 @@ ae.dimse_timeout = args.dimse_timeout
 
 ae.on_c_get = on_c_get
 
-ae.start()
+ae.start_server(('', args.port))
