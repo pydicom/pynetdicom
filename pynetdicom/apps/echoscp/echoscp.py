@@ -27,7 +27,7 @@ stream_logger.setFormatter(formatter)
 LOGGER.addHandler(stream_logger)
 LOGGER.setLevel(logging.ERROR)
 
-VERSION = '0.4.1'
+VERSION = '0.5.0'
 
 
 def _setup_argparser():
@@ -159,6 +159,7 @@ if isinstance(args.port, int):
     test_socket.setsockopt(socket.SOL_SOCKET, socket.SO_REUSEADDR, 1)
     try:
         test_socket.bind((os.popen('hostname').read()[:-1], args.port))
+        test_socket.close()
     except socket.error:
         LOGGER.error("Cannot listen on port {}, insufficient privileges or "
             "already in use".format(args.port))
@@ -195,7 +196,7 @@ def on_c_echo(context, info):
 
 
 # Create application entity
-ae = AE(ae_title=args.aetitle, port=args.port)
+ae = AE(ae_title=args.aetitle)
 ae.add_supported_context(VerificationSOPClass, transfer_syntax)
 ae.maximum_pdu_size = args.max_pdu
 
@@ -207,4 +208,4 @@ ae.dimse_timeout = args.dimse_timeout
 # Set callback
 ae.on_c_echo = on_c_echo
 
-ae.start()
+ae.start_server(('', args.port))

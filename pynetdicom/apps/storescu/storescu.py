@@ -27,7 +27,7 @@ stream_logger.setFormatter(formatter)
 logger.addHandler(stream_logger)
 logger.setLevel(logging.ERROR)
 
-VERSION = '0.1.3'
+VERSION = '0.2.0'
 
 def _setup_argparser():
     """Setup the command line arguments"""
@@ -142,7 +142,7 @@ elif args.request_implicit:
     transfer_syntax = [ImplicitVRLittleEndian]
 
 # Bind to port 0, OS will pick an available port
-ae = AE(ae_title=args.calling_aet, port=0)
+ae = AE(ae_title=args.calling_aet)
 
 for context in StoragePresentationContexts:
     ae.add_requested_context(context.abstract_syntax, transfer_syntax)
