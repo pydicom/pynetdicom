@@ -115,7 +115,6 @@ class AssociationSocket(object):
         address : 2-tuple
             The (host, port) IPv4 address to connect to.
         """
-        exc = None
         if self.socket is None:
             self.socket = self._create_socket()
 
@@ -137,14 +136,7 @@ class AssociationSocket(object):
             # Log exception if TLS issue to help with troubleshooting
             if isinstance(exc, ssl.SSLError):
                 LOGGER.exception(exc)
-            if self.socket:
-                try:
-                    self.socket.shutdown(socket.SHUT_RDWR)
-                except:
-                    pass
-                self.socket.close()
-                self.socket = None
-            self.event_queue.put('Evt17')
+            self.close()
 
     def _create_socket(self, address=('', 0)):
         """Create a new IPv4 TCP socket and set it up for use.
@@ -258,7 +250,6 @@ class AssociationSocket(object):
 
             # If socket.recv() reads 0 bytes then the connection has been
             #   broken, so return what we have so far
-            # Note: anything calling recv
             if not bytes_read:
                 return bytestream
 

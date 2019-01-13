@@ -28,9 +28,9 @@ Enhancements
     non-blocking modes.
   * Added ``AE.shutdown()`` which allows the user to shutdown all non-blocking
     association servers that may be running.
-  * Support for TLS added via the ``tls_kwargs`` keyword parameter for
-    ``AE.start_server()`` and ``AE.associate()`` (:pull_release:`175`,
-    :pull_release:`71`)
+  * Support for TLS added via the ``tls_args`` keyword parameter for
+    `AE.associate()`` and ``ssl_context`` keyword parameter for
+    ``AE.start_server()``(:pull_request:`175`, :pull_request:`71`)
   * It should now be possible to both request a C-MOVE operation and act as the
     destination for the request's C-STORE sub-operations over a new association
     within the same AE instance by running a non-blocking Storage SCP.
@@ -48,7 +48,7 @@ Changes
 * ``AE.stop()`` is deprecated and will be removed in v1.3, use
   ``AE.shutdown()`` instead.
 * The ``AE.port`` property and ``port`` argument for ``AE()`` are deprecated
-  and will be removed in v1.3. Use the ``port`` parameter for
+  and will be removed in v1.3. Use the ``address`` parameter for
   ``AE.start_server()`` and the ``bind_address`` keyword parameter for
   ``AE.associate()`` instead.
 * The ``AE.local_socket`` attribute is deprecated and will be removed in v1.3.

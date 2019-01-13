@@ -207,23 +207,23 @@ listen port number *port*):
             # Release the association
             assoc.release()
 
-Create a DICOM C-ECHO listen SCP on port 11112 (you may optionally implement
-the ``AE.on_c_echo`` callback if you want to return something other than a
-*Success* status):
+Create a blocking DICOM C-ECHO listen SCP on port 11112 (you may optionally
+implement the ``AE.on_c_echo`` callback if you want to return something other
+than a *Success* status:
 
 .. code-block:: python
 
         from pynetdicom import AE, VerificationPresentationContexts
 
-        ae = AE(ae_title=b'MY_ECHO_SCP', port=11112)
+        ae = AE(ae_title=b'MY_ECHO_SCP')
         # Or we can use the inbuilt VerificationPresentationContexts list,
         #   there's one for each of the supported Service Classes
         # In this case, we are supporting any requests to use Verification SOP
         #   Class in the association
         ae.supported_contexts = VerificationPresentationContexts
 
-        # Start the SCP
-        ae.start()
+        # Start the SCP on (host, port) in blocking mode
+        ae.start_server(('', 11112), block=True)
 
 Send the DICOM 'CT Image Storage' dataset in *file-in.dcm* to a peer Storage
 SCP (at TCP/IP address *addr*, listen port number *port*):

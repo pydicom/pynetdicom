@@ -1295,7 +1295,7 @@ class ApplicationEntity(object):
             The (host, port) to use when listening for incoming association
             requests.
         block : bool, optional
-            If True (default) then the server will be block, otherwise it
+            If True (default) then the server will be blocking, otherwise it
             will start the server in a new thread and be non-blocking.
         ssl_context : ssl.SSLContext, optional
             If TLS is required then this should the SSLContext instance to
