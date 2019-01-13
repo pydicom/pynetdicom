@@ -172,7 +172,7 @@ Installing development version
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 .. code-block:: sh
 
-        $ python -m pip install git+git://github.com/pydicom/pynetdicom.git
+        $ pip install git+git://github.com/pydicom/pynetdicom.git
 
 Examples
 --------

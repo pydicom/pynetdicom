@@ -225,39 +225,3 @@ class TestTLS(object):
         assert assoc.is_released
 
         server.shutdown()
-
-
-@pytest.mark.skip()
-class TestAssociationServer(object):
-    def test_init(self):
-        ae = AE()
-        ae.add_supported_context('1.2.840.10008.1.1')
-        server = ae.start_server(11112, block=False)
-
-        time.sleep(10)
-
-        server.shutdown()
-
-    def test_threaded_server_shutdown(self):
-        ae = AE()
-        ae.add_supported_context('1.2.840.10008.1.1')
-        server = ae.start_server(11112, block=False)
-
-        time.sleep(10)
-
-        server.shutdown()
-
-    def test_ae_server_shutdown(self):
-        ae = AE()
-        ae.add_supported_context('1.2.840.10008.1.1')
-        server = ae.start_server(11112, block=False)
-
-        time.sleep(10)
-
-        ae.shutdown()
-
-    def test_server(self):
-        ae = AE(port=11113)
-        ae.add_supported_context('1.2.840.10008.1.1')
-        server = ae.start_server(11112)
-        assert server is None
