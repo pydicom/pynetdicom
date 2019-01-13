@@ -3,19 +3,17 @@ Implements the DICOM Upper Layer service provider.
 """
 
 import logging
-import os
 try:
     import queue
 except ImportError:
     import Queue as queue  # Python 2 compatibility
-import select
 import socket
 from struct import unpack
 import struct
 from threading import Thread
 import time
 
-from pynetdicom.fsm import StateMachine, InvalidEventError
+from pynetdicom.fsm import StateMachine
 from pynetdicom.pdu import (
     A_ASSOCIATE_RQ, A_ASSOCIATE_AC, A_ASSOCIATE_RJ,
     P_DATA_TF, A_RELEASE_RQ, A_RELEASE_RP, A_ABORT_RQ

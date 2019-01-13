@@ -8,7 +8,6 @@ from pynetdicom.pdu import (
     P_DATA_TF, A_RELEASE_RQ, A_RELEASE_RP, A_ABORT_RQ
 )
 from pynetdicom.pdu_primitives import A_ABORT
-from pynetdicom.transport import AssociationSocket
 
 
 LOGGER = logging.getLogger('pynetdicom.sm')

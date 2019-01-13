@@ -1063,8 +1063,8 @@ class C_CANCEL(object):
     | Message ID Being Responded To | M       |
     +-------------------------------+---------+
 
-    | (=) - The value of the parameter is equal to the value of the parameter in
-      the column to the left
+    | (=) - The value of the parameter is equal to the value of the parameter
+      in the column to the left
     | C - The parameter is conditional.
     | M - Mandatory
     | MF - Mandatory with a fixed value

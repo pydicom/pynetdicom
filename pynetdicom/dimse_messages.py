@@ -4,7 +4,6 @@ from __future__ import division
 from io import BytesIO
 import logging
 from math import ceil
-import warnings
 
 from pydicom.dataset import Dataset
 from pydicom.tag import Tag

@@ -10,7 +10,6 @@ except ImportError:
     from socketserver import TCPServer, ThreadingMixIn, BaseRequestHandler
 import ssl
 from struct import pack
-import time
 
 from pynetdicom._globals import MODE_ACCEPTOR
 
