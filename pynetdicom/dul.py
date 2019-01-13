@@ -183,17 +183,8 @@ class DULServiceProvider(Thread):
         # Sta13: waiting for the transport connection to close
         # however it may still receive data that needs to be acted on
         if self.state_machine.current_state == 'Sta13':
-            # If we have no connection to the SCU
-            if self.socket is None:
-                return False
-
             # Check to see if there's more data to be read
             #   Might be any incoming PDU or valid/invalid data
-            # FIXME
-            # AssociationSocket.ready will add an event if the connection
-            #   closes which means we may return false even if an event is
-            #   added
-            # TODO Check ^ works as expected
             if self.socket and self.socket.ready:
                 # Data still available, grab it
                 self._read_pdu_data()

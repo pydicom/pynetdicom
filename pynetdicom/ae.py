@@ -493,7 +493,7 @@ class ApplicationEntity(object):
     # TODO: refactor in v1.3
     def associate(self, addr, port, contexts=None, ae_title=b'ANY-SCP',
                   max_pdu=DEFAULT_MAX_LENGTH, ext_neg=None, bind_address=None,
-                  tls_kwargs=None):
+                  tls_args=None):
         """Request an Association with a remote AE.
 
         The Association thread is returned whether or not the association is
@@ -522,10 +522,13 @@ class ApplicationEntity(object):
             The (host, port) to bind the Association's communication socket
             to. If not used then defaults to (AE.bind_addr, AE.port). After
             v1.3 it will default to ('', 0).
-        tls_kwargs : dict, optional
-            If TLS is to be used when communicating with the peer then this
-            is the keyword arguments to pass ssl.wrap_socket(), excluding
-            `server_side`.
+        tls_args : 2-tuple, optional
+            If TLS is required then this should be a 2-tuple containing a
+            (ssl_context, `server_hostname`), where ssl_context is the
+            ssl.SSLContext instance to use to wrap the client socket and
+            `server_hostname` is the value to use for the corresponding
+            keyword parameter in ``SSLContext.wrap_sockets()``. If no
+            `tls_args` is supplied then TLS will not be used (default).
 
         Returns
         -------
@@ -555,7 +558,7 @@ class ApplicationEntity(object):
 
         # Setup the association's communication socket
         sock = AssociationSocket(assoc, address=bind_address)
-        sock.tls_kwargs = tls_kwargs or {}
+        sock.tls_args = tls_args or {}
         assoc.set_socket(sock)
 
         # Association Acceptor object -> remote AE
@@ -1280,7 +1283,7 @@ class ApplicationEntity(object):
             except KeyboardInterrupt:
                 self.stop()
 
-    def start_server(self, address, block=True, tls_kwargs=None):
+    def start_server(self, address, block=True, ssl_context=None):
         """Start the AE as an association acceptor.
 
         If set to non-blocking then a running ``ThreadedAssociationServer``
@@ -1294,10 +1297,10 @@ class ApplicationEntity(object):
         block : bool, optional
             If True (default) then the server will be block, otherwise it
             will start the server in a new thread and be non-blocking.
-        tls_kwargs : dict, optional
-            If TLS is required then this should be a dict containing keyword
-            arguments for ``ssl.wrap_socket()``, otherwise no TLS will be used
-            (default).
+        ssl_context : ssl.SSLContext, optional
+            If TLS is required then this should the SSLContext instance to
+            use to wrap the client sockets, otherwise if None then no TLS will
+            be used (default).
 
         Returns
         -------
@@ -1327,10 +1330,8 @@ class ApplicationEntity(object):
             LOGGER.warning(msg)
             return
 
-        tls_kwargs = tls_kwargs or {}
-
         if block:
-            server = AssociationServer(self, address, tls_kwargs)
+            server = AssociationServer(self, address, ssl_context)
             self._servers.append(server)
             try:
                 # **BLOCKING**
@@ -1339,7 +1340,7 @@ class ApplicationEntity(object):
                 server.shutdown()
         else:
             # Non-blocking server
-            server = ThreadedAssociationServer(self, address, tls_kwargs)
+            server = ThreadedAssociationServer(self, address, ssl_context)
             thread = threading.Thread(target=server.serve_forever)
             thread.daemon = True
             thread.start()

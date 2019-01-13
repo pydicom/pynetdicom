@@ -33,10 +33,12 @@ class AssociationSocket(object):
     socket : socket.socket or None
         The wrapped socket, will be None if AssociationSocket.close() is
         called.
-    tls_kwargs : dict
-        If the socket should be wrapped by TLS then this is the keyword
-        arguments for ssl.wrap_socket, excluding `server_side`. By default
-        TLS is not used.
+    tls_args : 2-tuple or None
+        If the socket should be wrapped by TLS then this is
+        (context, hostname), where `context` is a ssl.SSLContext that will be
+        used to wrap the socket and `hostname` is the value to use for
+        the `server_hostname` keyword argument for ``SSLContext.wrap_socket()``
+        If TLS is not to be used then None (default).
     """
     def __init__(self, assoc, client_socket=None, address=('', 0)):
         """Create a new AssociationSocket.
@@ -70,7 +72,7 @@ class AssociationSocket(object):
             # Evt5: Transport connection indication
             self.event_queue.put('Evt5')
 
-        self.tls_kwargs = {}
+        self.tls_args = None
         self.select_timeout = 0.5
 
     @property
@@ -114,22 +116,29 @@ class AssociationSocket(object):
         address : 2-tuple
             The (host, port) IPv4 address to connect to.
         """
+        exc = None
         if self.socket is None:
             self.socket = self._create_socket()
 
         try:
-            if self.tls_kwargs:
-                self.socket = ssl.wrap_socket(self.socket,
-                                              server_side=False,
-                                              **self.tls_kwargs)
+            if self.tls_args:
+                context, server_hostname = self.tls_args
+                self.socket = context.wrap_socket(
+                    self.socket,
+                    server_side=False,
+                    server_hostname=server_hostname,
+                )
             # Try and connect to remote at (address, port)
             #   raises socket.error if connection refused
             self.socket.connect(address)
             self._is_connected = True
             # Evt2: Transport connection confirmation
             self.event_queue.put('Evt2')
-        except (socket.error, socket.timeout):
-            if self.socket is not None:
+        except (socket.error, socket.timeout) as exc:
+            # Log exception if TLS issue to help with troubleshooting
+            if isinstance(exc, ssl.SSLError):
+                LOGGER.exception(exc)
+            if self.socket:
                 try:
                     self.socket.shutdown(socket.SHUT_RDWR)
                 except:
@@ -367,12 +376,13 @@ class AssociationServer(TCPServer):
         The parent AE that is running the server.
     server_address : 2-tuple
         The (host, port) that the server is running on.
-    tls_kwargs : dict
-        A dict containing keyword arguments used with ssl.wrap_socket().
+    ssl_context : ssl.SSLContext or None
+        The SSLContext used to wrap client sockets, or None if no TLS is
+        required.
     request_queue_size : int
         Default 5.
     """
-    def __init__(self, ae, address, tls_kwargs=None):
+    def __init__(self, ae, address, ssl_context=None):
         """Create a new AssociationServer, bind a socket and start listening.
 
         Parameters
@@ -381,12 +391,13 @@ class AssociationServer(TCPServer):
             The parent AE that's running the server.
         address : 2-tuple
             The (host, port) that the server should run on.
-        tls_kwargs : dict, optional
-            If TLS is to be used then this should be a dict containing the
-            keyword arguments to be used with ssl.wrap_socket().
+        ssl_context : ssl.SSLContext, optional
+            If TLS is to be used then this should be the ssl.SSLContext used
+            to wrap the client sockets, otherwise if None then no TLS will be
+            used (default).
         """
         self.ae = ae
-        self.tls_kwargs = tls_kwargs or {}
+        self.ssl_context = ssl_context
         self.allow_reuse_address = True
 
         TCPServer.__init__(
@@ -424,24 +435,14 @@ class AssociationServer(TCPServer):
         #   If address is '' then the socket is reachable by any
         #   address the machine may have, otherwise is visible only on that
         #   address
-        # Binding is attempted 10 times, then raises OSError
-        for ii in range(10):
-            try:
-                self.socket.bind(self.server_address)
-                break
-            except OSError:
-                if ii == 9:
-                    raise
-
-                time.sleep(0.1)
-
+        self.socket.bind(self.server_address)
         self.server_address = self.socket.getsockname()
 
     def get_request(self):
         """Handle a connection request.
 
-        If ``tls_kwargs`` is set then the client socket will be wrapped using
-        ``ssl.wrap_socket()``.
+        If ``ssl_context`` is set then the client socket will be wrapped using
+        ``ssl_context.wrap_socket()``.
 
         Returns
         -------
@@ -451,12 +452,9 @@ class AssociationServer(TCPServer):
             The client's address as (host, port).
         """
         client_socket, address = self.socket.accept()
-        if self.tls_kwargs:
-            if 'server_side' in self.tls_kwargs:
-                del self.tls_kwargs['server_side']
-            client_socket = ssl.wrap_socket(client_socket,
-                                            server_side=True,
-                                            **self.tls_kwargs)
+        if self.ssl_context:
+            client_socket = self.ssl_context.wrap_socket(client_socket,
+                                                         server_side=True)
 
         return client_socket, address
 

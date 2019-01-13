@@ -27,6 +27,7 @@ from pynetdicom import AE, VerificationPresentationContexts
 from pynetdicom.association import Association
 from pynetdicom.dimse_primitives import C_STORE, C_FIND, C_GET, C_MOVE
 from pynetdicom.dsutils import encode, decode
+from pynetdicom._globals import MODE_REQUESTOR, MODE_ACCEPTOR
 from pynetdicom.pdu_primitives import (
     UserIdentityNegotiation, SOPClassExtendedNegotiation,
     SOPClassCommonExtendedNegotiation, SCP_SCU_RoleSelectionNegotiation,
@@ -803,6 +804,17 @@ class TestAssociation(object):
         )
         with pytest.raises(ValueError, match=msg):
             assoc = Association(None, 'nope')
+
+    def test_setting_socket_override_raises(self):
+        """Test that set_socket raises exception if socket set."""
+        ae = AE()
+        assoc = Association(ae, MODE_REQUESTOR)
+        assoc.dul.socket = 'abc'
+        msg = r"The Association already has a socket set."
+        with pytest.raises(RuntimeError, match=msg):
+            assoc.set_socket('cba')
+
+        assert assoc.dul.socket == 'abc'
 
 
 class TestAssociationSendCEcho(object):

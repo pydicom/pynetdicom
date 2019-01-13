@@ -35,7 +35,7 @@ from .encoded_pdu_items import (
 
 LOGGER = logging.getLogger("pynetdicom")
 LOGGER.setLevel(logging.CRITICAL)
-#LOGGER.setLevel(logging.DEBUG)
+LOGGER.setLevel(logging.DEBUG)
 
 
 REFERENCE_BAD_EVENTS = [
@@ -1102,99 +1102,114 @@ class TestState01(TestStateBase):
         assert self.fsm.current_state == 'Sta1'
 
 
-@pytest.mark.skip("Need a way to put the association in State 2")
 class TestState02(TestStateBase):
     """Tests for State 02: Connection open, waiting for A-ASSOCIATE-RQ."""
+    @pytest.mark.skip()
     def test_evt01(self):
         """Test Sta2 + Evt1."""
         # Sta2 + Evt1 -> <ignore> -> Sta2
         # Evt1: A-ASSOCIATE (rq) primitive from <local user>
         pass
 
+    @pytest.mark.skip()
     def test_evt02(self):
         """Test Sta2 + Evt2."""
         # Sta2 + Evt2 -> <ignore> -> Sta2
         # Evt2: Receive TRANSPORT_OPEN from <transport service>
         pass
 
+    @pytest.mark.skip()
     def test_evt03(self):
         """Test Sta2 + Evt3."""
         # Sta2 + Evt3 -> AA-1 -> Sta13
         # Evt3: Receive A-ASSOCIATE-AC PDU from <remote>
         pass
 
+    @pytest.mark.skip()
     def test_evt04(self):
         """Test Sta2 + Evt4."""
         # Sta2 + Evt4 -> AA-1 -> Sta13
         # Evt4: Receive A-ASSOCIATE-RJ PDU from <remote>
         pass
 
+    @pytest.mark.skip()
     def test_evt05(self):
         """Test Sta2 + Evt5."""
         # Sta2 + Evt5 -> <ignore> -> Sta2
         # Evt5: Receive TRANSPORT_INDICATION from <transport service>
         pass
 
+    @pytest.mark.skip()
     def test_evt06(self):
         """Test Sta2 + Evt6."""
         # Sta2 + Evt6 -> AE-6 -> Sta3 or Sta13
         # Evt6: Receive A-ASSOCIATE-RQ PDU from <remote>
         pass
 
+    @pytest.mark.skip()
     def test_evt07(self):
         """Test Sta2 + Evt7."""
         # Sta2 + Evt7 -> <ignore> -> Sta2
         # Evt7: Receive A-ASSOCIATE (accept) primitive from <local user>
         pass
 
+    @pytest.mark.skip()
     def test_evt08(self):
         """Test Sta2 + Evt8."""
         # Sta2 + Evt8 -> <ignore> -> Sta2
         # Evt8: Receive A-ASSOCIATE (reject) primitive from <local user>
         pass
 
+    @pytest.mark.skip()
     def test_evt09(self):
         """Test Sta2 + Evt9."""
         # Sta2 + Evt9 -> <ignore> -> Sta2
         # Evt9: Receive P-DATA primitive from <local user>
         pass
 
+    @pytest.mark.skip()
     def test_evt10(self):
         """Test Sta2 + Evt10."""
         # Sta2 + Evt10 -> AA-1 -> Sta13
         # Evt10: Receive P-DATA-TF PDU from <remote>
         pass
 
+    @pytest.mark.skip()
     def test_evt11(self):
         """Test Sta2 + Evt11."""
         # Sta2 + Evt11 -> <ignore> -> Sta2
         # Evt11: Receive A-RELEASE (rq) primitive from <local user>
         pass
 
+    @pytest.mark.skip()
     def test_evt12(self):
         """Test Sta2 + Evt12."""
         # Sta2 + Evt12 -> AA-1 -> Sta13
         # Evt12: Receive A-RELEASE-RQ PDU from <remote>
         pass
 
+    @pytest.mark.skip()
     def test_evt13(self):
         """Test Sta2 + Evt13."""
         # Sta2 + Evt13 -> AA-1 -> Sta13
         # Evt13: Receive A-RELEASE-RP PDU from <remote>
         pass
 
+    @pytest.mark.skip()
     def test_evt14(self):
         """Test Sta2 + Evt14."""
         # Sta2 + Evt14 -> <ignore> -> Sta2
         # Evt14: Receive A-RELEASE (rsp) primitive from <local user>
         pass
 
+    @pytest.mark.skip()
     def test_evt15(self):
         """Test Sta2 + Evt15."""
         # Sta2 + Evt15 -> <ignore> -> Sta2
         # Evt15: Receive A-ABORT (rq) primitive from <local user>
         pass
 
+    @pytest.mark.skip()
     def test_evt16(self):
         """Test Sta2 + Evt16."""
         # Sta2 + Evt16 -> AA-2 -> Sta1
@@ -1205,14 +1220,40 @@ class TestState02(TestStateBase):
         """Test Sta2 + Evt17."""
         # Sta2 + Evt17 -> AA-5 -> Sta1
         # Evt17: Receive TRANSPORT_CLOSED from <transport service>
-        pass
+        # AA-5: Stop ARTIM timer
+        scp = DummyAE()
+        scp.mode = 'acceptor'
+        scp.queue.put('shutdown')
 
+        scp.start()
+
+        assert self.fsm.current_state == 'Sta1'
+
+        self.assoc._mode = "acceptor"
+        self.assoc.dul.event_queue.put('Evt5')
+        self.assoc.start()
+
+        self.assoc.dul.socket.send(b'\x00')
+
+        time.sleep(0.5)
+
+        self.assoc.kill()
+
+        assert self.fsm._changes[:2] == [
+            ('Sta1', 'Evt5', 'AE-5'),
+            ('Sta2', 'Evt17', 'AA-5'),
+        ]
+        assert self.fsm._transitions[:2] == ['Sta2', 'Sta1']
+        assert self.fsm._events[:2] == ['Evt5', 'Evt17']
+
+    @pytest.mark.skip()
     def test_evt18(self):
         """Test Sta2 + Evt18."""
         # Sta2 + Evt18 -> AA-2 -> Sta1
         # Evt18: ARTIM timer expired from <local service>
         pass
 
+    @pytest.mark.skip()
     def test_evt19(self):
         """Test Sta2 + Evt19."""
         # Sta2 + Evt19 -> AA-1 -> Sta13

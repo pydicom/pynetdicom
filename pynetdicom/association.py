@@ -1408,10 +1408,6 @@ class Association(threading.Thread):
             elif rsp.__class__ == C_STORE:
                 self._c_store_scp(rsp)
 
-            # Received a C-CANCEL request from the peer
-            elif rsp.__class__ == C_CANCEL and rsp.MessageID == msg_id:
-                pass
-
     def send_c_move(self, dataset, move_aet, msg_id=1, priority=2,
                     query_model='P'):
         """Send a C-MOVE request to the peer AE.
@@ -1698,10 +1694,6 @@ class Association(threading.Thread):
             #   C-STORE requests can be over the same association for C-MOVE
             elif rsp.__class__ == C_STORE:
                 self._c_store_scp(rsp)
-
-            # Received a C-CANCEL request from the peer
-            elif rsp.__class__ == C_CANCEL and rsp.MessageID == msg_id:
-                pass
 
     def send_c_store(self, dataset, msg_id=1, priority=2, originator_aet=None,
                      originator_id=None):
