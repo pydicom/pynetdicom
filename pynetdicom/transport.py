@@ -217,7 +217,7 @@ class AssociationSocket(object):
         try:
             # Use a timeout of 0 so we get an "instant" result
             ready, _, _ = select.select([self.socket], [], [], 0)
-        except (socket.error, socket.timeout):
+        except (socket.error, socket.timeout, ValueError):
             # Evt17: Transport connection closed
             self.event_queue.put('Evt17')
             return False
