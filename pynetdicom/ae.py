@@ -3,7 +3,6 @@ The main user class, represents a DICOM Application Entity
 """
 from copy import deepcopy
 import logging
-from math import floor
 import select
 import socket
 from struct import pack
@@ -73,8 +72,8 @@ class ApplicationEntity(object):
         A value of ``None`` means no timeout. (default: 60)
     maximum_associations : int
         The maximum number of simultaneous associations requested by remote
-        AEs (default: 2). Note that this does not include the number of
-        associations requested by the local AE.
+        AEs. Note that this does not include the number of associations
+        requested by the local AE (default 2).
     maximum_pdu_size : int
         The maximum PDU receive size in bytes. A value of 0 means there is no
         maximum size (default: 16382)
@@ -126,7 +125,7 @@ class ApplicationEntity(object):
         # TODO: remove in v1.3
         if port != 0:
             warnings.warn(
-                "The `port` keywork parameter for AE() is deprecated and will "
+                "The `port` keyword parameter for AE() is deprecated and will "
                 "be removed in v1.3. Use the `address` parameter for "
                 "AE.start_server() or the `bind_address` keyword parameter "
                 "for AE.associate() instead",
@@ -140,9 +139,6 @@ class ApplicationEntity(object):
         self._requested_contexts = []
         # {abstract_syntax : PresentationContext}
         self._supported_contexts = {}
-
-        # The user may require the use of Extended Negotiation items
-        self.extended_negotiation = []
 
         # Default maximum simultaneous associations
         self.maximum_associations = 2
@@ -187,7 +183,6 @@ class ApplicationEntity(object):
 
         for assoc in self.active_associations:
             assoc.acse_timeout = self.acse_timeout
-            assoc.acse.acse_timeout = self.acse_timeout
 
     @property
     def active_associations(self):
@@ -497,8 +492,8 @@ class ApplicationEntity(object):
 
     # TODO: refactor in v1.3
     def associate(self, addr, port, contexts=None, ae_title=b'ANY-SCP',
-                  max_pdu=DEFAULT_MAX_LENGTH, ext_neg=None, tls_kwargs=None,
-                  bind_address=None):
+                  max_pdu=DEFAULT_MAX_LENGTH, ext_neg=None, bind_address=None,
+                  tls_kwargs=None):
         """Request an Association with a remote AE.
 
         The Association thread is returned whether or not the association is
@@ -523,14 +518,14 @@ class ApplicationEntity(object):
             association (default 16832).
         ext_neg : list of UserInformation objects, optional
             Used if extended association negotiation is required.
-        tls_kwargs : dict, optional
-            If TLS is to be used when communicating with the peer then this
-            is the keyword arguments to pass ssl.wrap_socket(), excluding
-            `server_side`.
         bind_address : 2-tuple, optional
             The (host, port) to bind the Association's communication socket
             to. If not used then defaults to (AE.bind_addr, AE.port). After
             v1.3 it will default to ('', 0).
+        tls_kwargs : dict, optional
+            If TLS is to be used when communicating with the peer then this
+            is the keyword arguments to pass ssl.wrap_socket(), excluding
+            `server_side`.
 
         Returns
         -------
@@ -559,9 +554,9 @@ class ApplicationEntity(object):
         assoc = Association(self, MODE_REQUESTOR)
 
         # Setup the association's communication socket
-        socket = AssociationSocket(assoc, address=bind_address)
-        socket.tls_kwargs = tls_kwargs or {}
-        assoc.set_socket(socket)
+        sock = AssociationSocket(assoc, address=bind_address)
+        sock.tls_kwargs = tls_kwargs or {}
+        assoc.set_socket(sock)
 
         # Association Acceptor object -> remote AE
         assoc.acceptor.ae_title = validate_ae_title(ae_title)
@@ -569,7 +564,7 @@ class ApplicationEntity(object):
         assoc.acceptor.port = port
 
         # Association Requestor object -> local AE
-        assoc.requestor.address = bind_address[0]
+        assoc.requestor.address = socket.gethostbyname(socket.gethostname())
         assoc.requestor.port = bind_address[1]
         assoc.requestor.ae_title = self.ae_title
         assoc.requestor.maximum_length = max_pdu
@@ -647,7 +642,7 @@ class ApplicationEntity(object):
         # This must be called prior to socket.bind()
         sock.setsockopt(socket.SOL_SOCKET, socket.SO_REUSEADDR, 1)
         if self.network_timeout is not None:
-            timeout_seconds = floor(self.network_timeout)
+            timeout_seconds = int(self.network_timeout)
             timeout_microsec = int(self.network_timeout % 1 * 1000)
             sock.setsockopt(
                 socket.SOL_SOCKET,
@@ -813,7 +808,7 @@ class ApplicationEntity(object):
             self._network_timeout = 60
 
         for assoc in self.active_associations:
-            assoc.dul.dul_timeout = self.network_timeout
+            assoc.network_timeout = self.network_timeout
 
     @property
     def port(self):
@@ -832,7 +827,7 @@ class ApplicationEntity(object):
         ``bind_address`` keyword parameter for ``associate()`` instead.
         """
         warnings.warn(
-            "The `port` keywork parameter for AE() is deprecated and will "
+            "The `port` keyword parameter for AE() is deprecated and will "
             "be removed in v1.3. Use the `address` parameter for "
             "AE.start_server() or the `bind_address` keyword parameter "
             "for AE.associate() instead",
@@ -1265,6 +1260,7 @@ class ApplicationEntity(object):
 
         # Bind `sock` to the specified listen port
         sock = self._bind_socket()
+        self.local_socket = sock
 
         while not self._quit:
             try:
@@ -1368,6 +1364,14 @@ class ApplicationEntity(object):
             DeprecationWarning
         )
         self._quit = True
+
+        if self.local_socket:
+            try:
+                self.local_socket.shutdown(socket.SHUT_RDWR)
+            except:
+                pass
+            self.local_socket.close()
+            self.local_socket = None
 
         self.shutdown()
 

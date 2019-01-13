@@ -316,8 +316,8 @@ class RequestHandler(BaseRequestHandler):
 
         assoc = Association(self.ae, MODE_ACCEPTOR)
 
-        socket = AssociationSocket(assoc, client_socket=self.request)
-        assoc.set_socket(socket)
+        sock = AssociationSocket(assoc, client_socket=self.request)
+        assoc.set_socket(sock)
 
         # Association Acceptor object -> local AE
         assoc.acceptor.maximum_length = self.ae.maximum_pdu_size

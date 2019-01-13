@@ -132,6 +132,8 @@ class DummyBaseSCP(threading.Thread):
     def run(self):
         """The thread run method"""
         if self.use_old_start:
+            self.ae.bind_addr = ''
+            self.ae.port = self.port
             self.ae.start(select_timeout=self.select_timeout)
         else:
             self.ae.start_server(('', self.port))

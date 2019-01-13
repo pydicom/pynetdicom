@@ -220,6 +220,11 @@ class DULServiceProvider(Thread):
         """Immediately interrupts the thread"""
         self._kill_thread = True
 
+    @property
+    def network_timeout(self):
+        """Return the network_timeout."""
+        return self.assoc.network_timeout
+
     def peek_next_pdu(self):
         """Check the next PDU to be processed."""
         try:
@@ -399,6 +404,7 @@ class DULServiceProvider(Thread):
             # Check the connection for incoming data
             try:
                 if self._is_transport_event() and self._idle_timer is not None:
+                    self._idle_timer.timeout_seconds = self.network_timeout
                     self._idle_timer.restart()
                 elif self._check_incoming_primitive():
                     pass

@@ -35,8 +35,8 @@ from pynetdicom.sop_class import (
 
 
 LOGGER = logging.getLogger('pynetdicom')
-#LOGGER.setLevel(logging.DEBUG)
 LOGGER.setLevel(logging.CRITICAL)
+#LOGGER.setLevel(logging.DEBUG)
 
 TEST_DS_DIR = os.path.join(os.path.dirname(__file__), 'dicom_files')
 DATASET = read_file(os.path.join(TEST_DS_DIR, 'RTImageStorage.dcm'))
@@ -78,12 +78,36 @@ class TestAEVerificationSCP(object):
 
         self.scp.stop()
 
-    def test_no_supported_contexts(self):
+    def test_no_supported_contexts_old(self):
         """Test starting with no contexts raises"""
-        """Test stopping the SCP with keyboard"""
         ae = AE(port=11112)
         with pytest.raises(ValueError, match=r"No supported Presentation"):
             ae.start()
+
+    def test_no_supported_contexts(self):
+        """Test starting with no contexts raises"""
+        ae = AE()
+        with pytest.raises(ValueError, match=r"No supported Presentation"):
+            ae.start_server(('', 11112))
+
+    @pytest.mark.skipif(sys.version_info[:2] == (3, 4), reason='no caplog')
+    def test_bad_supported_role(self, caplog):
+        """Test starting with a badly defined role selection raises"""
+        ae = AE()
+        ae.add_supported_context('1.2.840.10008.1.1', scp_role=True)
+        with caplog.at_level(logging.WARNING, logger='pynetdicom'):
+            ae.start_server(('', 11112))
+            assert "inconsistent scu_role/scp_role" in caplog.text
+
+    @pytest.mark.skipif(sys.version_info[:2] == (3, 4), reason='no caplog')
+    def test_bad_supported_role_old(self, caplog):
+        """Test starting with a badly defined role selection raises"""
+        ae = AE()
+        ae.port = 11112
+        ae.add_supported_context('1.2.840.10008.1.1', scp_role=True)
+        with caplog.at_level(logging.WARNING, logger='pynetdicom'):
+            ae.start()
+            assert "inconsistent scu_role/scp_role" in caplog.text
 
     def test_str_empty(self):
         """Test str output for default AE"""
@@ -427,6 +451,108 @@ class TestAEGoodCallbacks(object):
         ae.on_association_aborted(None)
 
 
+class TestAEGoodTimeoutSetters(object):
+    def test_acse_timeout(self):
+        """ Check AE ACSE timeout change produces good value """
+        ae = AE()
+        assert ae.acse_timeout == 30
+        ae.acse_timeout = None
+        assert ae.acse_timeout is None
+        ae.acse_timeout = -100
+        assert ae.acse_timeout == 30
+        ae.acse_timeout = 'a'
+        assert ae.acse_timeout == 30
+        ae.acse_timeout = 0
+        assert ae.acse_timeout == 0
+        ae.acse_timeout = 30
+        assert ae.acse_timeout == 30
+
+    def test_dimse_timeout(self):
+        """ Check AE DIMSE timeout change produces good value """
+        ae = AE()
+        assert ae.dimse_timeout is 30
+        ae.dimse_timeout = None
+        assert ae.dimse_timeout is None
+        ae.dimse_timeout = -100
+        assert ae.dimse_timeout is 30
+        ae.dimse_timeout = 'a'
+        assert ae.dimse_timeout is 30
+        ae.dimse_timeout = 0
+        assert ae.dimse_timeout == 0
+        ae.dimse_timeout = 30
+        assert ae.dimse_timeout == 30
+
+    def test_network_timeout(self):
+        """ Check AE network timeout change produces good value """
+        ae = AE()
+        assert ae.network_timeout == 60
+        ae.network_timeout = None
+        assert ae.network_timeout is None
+        ae.network_timeout = -100
+        assert ae.network_timeout == 60
+        ae.network_timeout = 'a'
+        assert ae.network_timeout == 60
+        ae.network_timeout = 0
+        assert ae.network_timeout == 0
+        ae.network_timeout = 30
+        assert ae.network_timeout == 30
+
+    def test_active_acse(self):
+        """Test changing acse_timeout with active associations."""
+        ae = AE()
+        ae.add_supported_context('1.2.840.10008.1.1')
+        scp = ae.start_server(('', 11112), block=False)
+
+        ae.add_requested_context('1.2.840.10008.1.1')
+        assoc = ae.associate('localhost', 11112)
+        assert assoc.is_established
+
+        assert assoc.acse_timeout == 30
+        ae.acse_timeout = 5
+        assert assoc.acse_timeout == 5
+
+        assoc.release()
+
+        scp.shutdown()
+        ae.shutdown()
+
+    def test_active_dimse(self):
+        """Test changing dimse_timeout with active associations."""
+        ae = AE()
+        ae.add_supported_context('1.2.840.10008.1.1')
+        scp = ae.start_server(('', 11112), block=False)
+
+        ae.add_requested_context('1.2.840.10008.1.1')
+        assoc = ae.associate('localhost', 11112)
+        assert assoc.is_established
+
+        assert assoc.dimse_timeout == 30
+        ae.dimse_timeout = 5
+        assert assoc.dimse_timeout == 5
+
+        assoc.release()
+
+        scp.shutdown()
+
+    def test_active_network(self):
+        """Test changing network_timeout with active associations."""
+        ae = AE()
+        ae.add_supported_context('1.2.840.10008.1.1')
+        scp = ae.start_server(('', 11112), block=False)
+
+        ae.add_requested_context('1.2.840.10008.1.1')
+        assoc = ae.associate('localhost', 11112)
+        assert assoc.is_established
+
+        assert assoc.network_timeout == 60
+        ae.network_timeout = 5
+        assert assoc.network_timeout == 5
+
+        assoc.release()
+
+        scp.shutdown()
+
+
 class TestAEGoodAssociation(object):
     def setup(self):
         """Run prior to each test"""
@@ -547,10 +673,6 @@ class TestAEGoodAssociation(object):
 
         self.scp.stop()
 
-    def test_association_contexts(self):
-        """Tests for the AE.associate method's context parameter."""
-        pass
-
     def test_select_timeout_okay(self):
         """Test that using start works OK with timeout."""
         # Multiple release/association in a sort time causes an OSError as
@@ -571,6 +693,24 @@ class TestAEGoodAssociation(object):
             assert not assoc.is_established
             self.scp.stop()
 
+    def test_deprecated_start(self):
+        """Test the deprecated start() method."""
+        self.scp = DummyVerificationSCP()
+        self.scp.use_old_start = True
+        self.scp.start()
+
+        ae = AE()
+        ae.add_requested_context('1.2.840.10008.1.1')
+        ae.acse_timeout = 5
+        ae.dimse_timeout = 5
+        assoc = ae.associate('localhost', 11112)
+        assert assoc.is_established
+        assoc.release()
+
+        self.scp.stop()
+        self.scp.ae.shutdown()
+        self.scp.ae.stop()
+
 
 class TestAEBadAssociation(object):
     def test_raise(self):
@@ -582,53 +722,6 @@ class TestAEBadAssociation(object):
             ae.associate(1112, 11112)
         with pytest.raises(TypeError):
             ae.associate('localhost', '1.2.3.4')
-
-
-class TestAEGoodTimeoutSetters(object):
-    def test_acse_timeout(self):
-        """ Check AE ACSE timeout change produces good value """
-        ae = AE()
-        assert ae.acse_timeout == 30
-        ae.acse_timeout = None
-        assert ae.acse_timeout is None
-        ae.acse_timeout = -100
-        assert ae.acse_timeout == 30
-        ae.acse_timeout = 'a'
-        assert ae.acse_timeout == 30
-        ae.acse_timeout = 0
-        assert ae.acse_timeout == 0
-        ae.acse_timeout = 30
-        assert ae.acse_timeout == 30
-
-    def test_dimse_timeout(self):
-        """ Check AE DIMSE timeout change produces good value """
-        ae = AE()
-        assert ae.dimse_timeout is 30
-        ae.dimse_timeout = None
-        assert ae.dimse_timeout is None
-        ae.dimse_timeout = -100
-        assert ae.dimse_timeout is 30
-        ae.dimse_timeout = 'a'
-        assert ae.dimse_timeout is 30
-        ae.dimse_timeout = 0
-        assert ae.dimse_timeout == 0
-        ae.dimse_timeout = 30
-        assert ae.dimse_timeout == 30
-
-    def test_network_timeout(self):
-        """ Check AE network timeout change produces good value """
-        ae = AE()
-        assert ae.network_timeout == 60
-        ae.network_timeout = None
-        assert ae.network_timeout is None
-        ae.network_timeout = -100
-        assert ae.network_timeout == 60
-        ae.network_timeout = 'a'
-        assert ae.network_timeout == 60
-        ae.network_timeout = 0
-        assert ae.network_timeout == 0
-        ae.network_timeout = 30
-        assert ae.network_timeout == 30
 
 
 class TestAEGoodMiscSetters(object):
@@ -789,6 +882,12 @@ class TestAEGoodMiscSetters(object):
         """Test the default implementation version name"""
         ae = AE()
         assert ae.implementation_version_name == PYNETDICOM_IMPLEMENTATION_VERSION
+
+    def test_bind_addr_warns(self):
+        """Test deprecation warning for bind_addr."""
+        with pytest.deprecated_call():
+            ae = AE()
+            ae.bind_addr = ''
 
 
 class TestAEBadInitialisation(object):

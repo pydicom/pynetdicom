@@ -1075,7 +1075,7 @@ class TestAssociationSendCEcho(object):
         assert assoc.is_established
         ae.network_timeout = 1
 
-        assert assoc.dul.dul_timeout == 1
+        assert assoc.dul.network_timeout == 1
         assoc.release()
         assert assoc.is_released
         self.scp.stop()
