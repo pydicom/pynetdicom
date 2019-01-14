@@ -19,6 +19,7 @@ from pydicom import read_file
 
 from dummy_c_scp import DummyStorageSCP
 from pynetdicom import AE
+from pynetdicom import _config
 from pynetdicom.sop_class import CTImageStorage, RTImageStorage
 
 
@@ -66,43 +67,25 @@ def init_yappi():
 
 LOGGER = logging.getLogger('pynetdicom')
 LOGGER.setLevel(logging.CRITICAL)
+#LOGGER.setLevel(logging.DEBUG)
 
 TEST_DS_DIR = os.path.join(os.path.dirname(__file__), 'dicom_files')
 BIG_DATASET = read_file(os.path.join(TEST_DS_DIR, 'RTImageStorage.dcm')) # 2.1 MB
 DATASET = read_file(os.path.join(TEST_DS_DIR, 'CTImageStorage.dcm')) # 39 kB
 
 
-class DummyStorageSCP(threading.Thread):
-    def __init__(self, port=11112):
-        """Initialise the class"""
-        self.ae = AE(b'DUMMY_SCP', port)
-        self.ae.add_supported_context(CTImageStorage)
-        self.ae.add_supported_context(RTImageStorage)
-        #self.ae.on_c_echo = self.on_c_echo
-        self.ae.on_c_store = self.on_c_store
-        #self.ae.on_c_find = self.on_c_find
-        #self.ae.on_c_get = self.on_c_get
-        #self.ae.on_c_move = self.on_c_move
-        threading.Thread.__init__(self)
-        self.daemon = True
-        self.RECEIVED_DS = 0
-
-    def run(self):
-        """The thread run method"""
-        self.ae.start()
-
-    def start(self):
-        """The thread run method"""
-        self.ae.start()
-
-    def stop(self):
-        """Stop the SCP thread"""
-        self.ae.stop()
-
-    def on_c_store(self, ds, context, info):
-        """Callback for ae.on_c_store"""
-        return 0x0000
+_config.DECODE_STORE_DATASETS = True
 
 
-scp = DummyStorageSCP(11112)
-scp.start()
+def on_c_store(ds, context, info):
+    """Callback for ae.on_c_store"""
+    return 0x0000
+
+
+ae = AE()
+ae.add_supported_context(CTImageStorage)
+ae.add_supported_context(RTImageStorage)
+
+ae.on_c_store = on_c_store
+
+ae.start_server(('', 11112))

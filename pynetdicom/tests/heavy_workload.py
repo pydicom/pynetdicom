@@ -20,8 +20,8 @@ import time
 
 from pydicom import read_file
 
-from dummy_c_scp import DummyStorageSCP
 from pynetdicom import AE
+from pynetdicom import _config
 from pynetdicom.sop_class import CTImageStorage, RTImageStorage
 
 LOGGER = logging.getLogger('pynetdicom')
@@ -31,10 +31,13 @@ TEST_DS_DIR = os.path.join(os.path.dirname(__file__), 'dicom_files')
 BIG_DATASET = read_file(os.path.join(TEST_DS_DIR, 'RTImageStorage.dcm')) # 2.1 MB
 DATASET = read_file(os.path.join(TEST_DS_DIR, 'CTImageStorage.dcm')) # 39 kB
 
-scp = DummyStorageSCP(11112)
-scp.start()
+# Do/don't decode the received dataset
+_config.DECODE_STORE_DATASETS = False
 
 ae = AE()
+ae.add_supported_context(CTImageStorage)
+scp = ae.start_server(('', 11112), block=False)
+
 ae.add_requested_context(CTImageStorage)
 ae.add_requested_context(RTImageStorage)
 assoc = ae.associate('localhost', 11112)
@@ -58,4 +61,4 @@ if assoc.is_established:
     print('Transfers complete, releasing association.')
     assoc.release()
 
-scp.stop()
+scp.shutdown()

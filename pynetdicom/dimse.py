@@ -224,6 +224,7 @@ class DIMSEServiceProvider(object):
 
         # Convert DIMSE primitive to DIMSE Message
         dimse_msg.primitive_to_message(primitive)
+        dimse_msg.context_id = context_id
 
         # Callbacks
         self.on_send_dimse_message(dimse_msg)
