@@ -4456,8 +4456,6 @@ class TestState08(TestStateBase):
 
         self.assoc.start()
         time.sleep(0.1)
-        self.assoc.dul.send_pdu(self.get_associate('request'))
-        time.sleep(0.1)
 
         #self.print_fsm_scp(self.fsm, scp)
 
@@ -4494,8 +4492,6 @@ class TestState08(TestStateBase):
         self.assoc.acse.is_release_requested = is_release_requested
 
         self.assoc.start()
-        time.sleep(0.1)
-        self.assoc.dul.send_pdu(self.get_associate('request'))
         time.sleep(0.1)
 
         #self.print_fsm_scp(self.fsm, scp)
@@ -4540,8 +4536,6 @@ class TestState08(TestStateBase):
         self.assoc.acse.is_release_requested = is_release_requested
 
         self.assoc.start()
-        time.sleep(0.1)
-        self.assoc.dul.send_pdu(self.get_associate('request'))
         time.sleep(0.1)
 
         #self.print_fsm_scp(self.fsm, scp)
@@ -4686,8 +4680,6 @@ class TestState08(TestStateBase):
 
         self.assoc.start()
         time.sleep(0.1)
-        self.assoc.dul.send_pdu(self.get_associate('request'))
-        time.sleep(0.1)
 
         #self.print_fsm_scp(self.fsm, scp)
 
@@ -4744,7 +4736,7 @@ class TestState08(TestStateBase):
         # Evt12: Receive A-RELEASE-RQ PDU from <remote>
         # AA-8: Send A-ABORT PDU, issue A-P-ABORT primitive, start ARTIM
         commands = [
-            ('recv', None),
+            ('recv', None),  # get a_assoc_rq
             ('send', a_associate_ac),
             ('send', a_release_rq),
             ('send', a_release_rq),
@@ -4759,8 +4751,6 @@ class TestState08(TestStateBase):
         self.assoc.acse.is_release_requested = is_release_requested
 
         self.assoc.start()
-        time.sleep(0.1)
-        self.assoc.dul.send_pdu(self.get_associate('request'))
         time.sleep(0.1)
 
         #self.print_fsm_scp(self.fsm, scp)
@@ -4798,8 +4788,6 @@ class TestState08(TestStateBase):
         self.assoc.acse.is_release_requested = is_release_requested
 
         self.assoc.start()
-        time.sleep(0.1)
-        self.assoc.dul.send_pdu(self.get_associate('request'))
         time.sleep(0.1)
 
         #self.print_fsm_scp(self.fsm, scp)
@@ -4909,8 +4897,6 @@ class TestState08(TestStateBase):
         self.assoc.acse.is_release_requested = is_release_requested
 
         self.assoc.start()
-        time.sleep(0.1)
-        self.assoc.dul.send_pdu(self.get_associate('request'))
         time.sleep(0.1)
 
         #self.print_fsm_scp(self.fsm, scp)
