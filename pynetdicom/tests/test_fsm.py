@@ -1332,251 +1332,618 @@ class TestState03(TestStateBase):
         pass
 
 
-@pytest.mark.skip("Need a way to put the association in State 4")
+#@pytest.mark.skip("Need a way to put the association in State 4")
 class TestState04(TestStateBase):
     """Tests for State 04: Awaiting TRANSPORT_OPEN from <transport service>."""
     def test_evt01(self):
-        """Test Sta1 + Evt1."""
+        """Test Sta4 + Evt1."""
         # Sta4 + Evt1 -> <ignore> -> Sta4
-        # Sta4: Awaiting TRANSPORT_OPEN from <transport service>
         # Evt1: A-ASSOCIATE (rq) primitive from <local user>
-        # Sta4: Awaiting TRANSPORT_OPEN from <transport service>
-        pass
+        commands = [
+            ('wait', 0.1)
+        ]
+        scp = self.start_server(commands)
+
+        def connect(address):
+            """Override the socket's connect so no event gets added."""
+            if self.assoc.dul.socket.socket is None:
+                self.assoc.dul.socket.socket = self.assoc.dul.socket._create_socket()
+
+            try:
+                self.assoc.dul.socket.socket.connect(address)
+                self.assoc.dul.socket._is_connected = True
+            except (socket.error, socket.timeout) as exc:
+                self.assoc.dul.socket.close()
+
+        self.assoc.dul.socket.connect = connect
+        self.assoc.start()
+
+        time.sleep(0.1)
+        self.assoc.dul.send_pdu(self.get_associate('request'))
+        time.sleep(0.1)
+
+        #self.print_fsm_scp(self.fsm, scp)
+
+        scp.shutdown()
+
+        assert self.fsm._transitions[:1] == ['Sta4']
+        assert self.fsm._changes[:1] == [
+            ('Sta1', 'Evt1', 'AE-1'),
+        ]
+        assert self.fsm._events[:2] == ['Evt1', 'Evt1']
 
     @pytest.mark.skip()
     def test_evt02(self):
-        """Test Sta1 + Evt2."""
-        # Sta1 + Evt2 -> <ignore> -> Sta1
-        # Sta1: Idle
+        """Test Sta4 + Evt2."""
+        # Sta4 + Evt2 -> <ignore> -> Sta4
         # Evt2: Receive TRANSPORT_OPEN from <transport service>
-        # Sta1: Idle
         pass
 
     def test_evt03(self):
-        """Test Sta1 + Evt3."""
-        # Sta1 + Evt3 -> <ignore> -> Sta1
-        # Sta1: Idle
+        """Test Sta4 + Evt3."""
+        # Sta4 + Evt3 -> <ignore> -> Sta4
         # Evt3: Receive A-ASSOCIATE-AC PDU from <remote>
-        # Sta1: Idle
-        pass
+        commands = [
+            ('send', a_associate_ac)
+        ]
+        scp = self.start_server(commands)
+
+        def connect(address):
+            """Override the socket's connect so no event gets added."""
+            if self.assoc.dul.socket.socket is None:
+                self.assoc.dul.socket.socket = self.assoc.dul.socket._create_socket()
+
+            try:
+                self.assoc.dul.socket.socket.connect(address)
+                self.assoc.dul.socket._is_connected = True
+            except (socket.error, socket.timeout) as exc:
+                self.assoc.dul.socket.close()
+
+        self.assoc.dul.socket.connect = connect
+        self.assoc.start()
+        time.sleep(0.1)
+
+        #self.print_fsm_scp(self.fsm, scp)
+
+        scp.shutdown()
+
+        assert self.fsm._transitions[:1] == ['Sta4']
+        assert self.fsm._changes[:1] == [
+            ('Sta1', 'Evt1', 'AE-1'),
+        ]
+        assert self.fsm._events[:2] == ['Evt1', 'Evt3']
 
     def test_evt04(self):
-        """Test Sta1 + Evt4."""
-        # Sta1 + Evt4 -> <ignore> -> Sta1
-        # Sta1: Idle
+        """Test Sta4 + Evt4."""
+        # Sta4 + Evt4 -> <ignore> -> Sta4
         # Evt4: Receive A-ASSOCIATE-RJ PDU from <remote>
-        # Sta1: Idle
-        pass
+        commands = [
+            ('send', a_associate_rj)
+        ]
+        scp = self.start_server(commands)
+
+        def connect(address):
+            """Override the socket's connect so no event gets added."""
+            if self.assoc.dul.socket.socket is None:
+                self.assoc.dul.socket.socket = self.assoc.dul.socket._create_socket()
+
+            try:
+                self.assoc.dul.socket.socket.connect(address)
+                self.assoc.dul.socket._is_connected = True
+            except (socket.error, socket.timeout) as exc:
+                self.assoc.dul.socket.close()
+
+        self.assoc.dul.socket.connect = connect
+        self.assoc.start()
+        time.sleep(0.1)
+
+        #self.print_fsm_scp(self.fsm, scp)
+
+        scp.shutdown()
+
+        assert self.fsm._transitions[:1] == ['Sta4']
+        assert self.fsm._changes[:1] == [
+            ('Sta1', 'Evt1', 'AE-1'),
+        ]
+        assert self.fsm._events[:2] == ['Evt1', 'Evt4']
 
     @pytest.mark.skip()
     def test_evt05(self):
-        """Test Sta1 + Evt5."""
-        # Sta1 + Evt5 -> AE-5 -> Sta2
-        # Sta1: Idle
+        """Test Sta4 + Evt5."""
+        # Sta4 + Evt5 -> AE-5 -> Sta2
         # Evt5: Receive TRANSPORT_INDICATION from <transport service>
         # AE-5: Issue TRANSPORT_RESPONSE to <transport service>
         #       Start ARTIM timer
-        # Sta2: Connection open, awaiting A-ASSOCIATE-RQ from <remote>
         pass
 
     def test_evt06(self):
-        """Test Sta1 + Evt6."""
-        # Sta1 + Evt6 -> <ignore> -> Sta1
-        # Sta1: Idle
+        """Test Sta4 + Evt6."""
+        # Sta4 + Evt6 -> <ignore> -> Sta4
         # Evt6: Receive A-ASSOCIATE-RQ PDU from <remote>
-        # Sta1: Idle
-        pass
+        commands = [
+            ('send', a_associate_rq)
+        ]
+        scp = self.start_server(commands)
+
+        def connect(address):
+            """Override the socket's connect so no event gets added."""
+            if self.assoc.dul.socket.socket is None:
+                self.assoc.dul.socket.socket = self.assoc.dul.socket._create_socket()
+
+            try:
+                self.assoc.dul.socket.socket.connect(address)
+                self.assoc.dul.socket._is_connected = True
+            except (socket.error, socket.timeout) as exc:
+                self.assoc.dul.socket.close()
+
+        self.assoc.dul.socket.connect = connect
+        self.assoc.start()
+        time.sleep(0.1)
+
+        #self.print_fsm_scp(self.fsm, scp)
+
+        scp.shutdown()
+
+        assert self.fsm._transitions[:1] == ['Sta4']
+        assert self.fsm._changes[:1] == [
+            ('Sta1', 'Evt1', 'AE-1'),
+        ]
+        assert self.fsm._events[:2] == ['Evt1', 'Evt6']
 
     def test_evt07(self):
-        """Test Sta1 + Evt7."""
-        # Sta1 + Evt7 -> <ignore> -> Sta1
-        # Sta1: Idle
+        """Test Sta4 + Evt7."""
+        # Sta4 + Evt7 -> <ignore> -> Sta4
         # Evt7: Receive A-ASSOCIATE (accept) primitive from <local user>
-        # Sta1: Idle
-        self.assoc._mode = "acceptor"
+        commands = [
+            ('wait', 0.1)
+        ]
+        scp = self.start_server(commands)
+
+        def connect(address):
+            """Override the socket's connect so no event gets added."""
+            if self.assoc.dul.socket.socket is None:
+                self.assoc.dul.socket.socket = self.assoc.dul.socket._create_socket()
+
+            try:
+                self.assoc.dul.socket.socket.connect(address)
+                self.assoc.dul.socket._is_connected = True
+            except (socket.error, socket.timeout) as exc:
+                self.assoc.dul.socket.close()
+
+        self.assoc.dul.socket.connect = connect
         self.assoc.start()
-
+        time.sleep(0.1)
         self.assoc.dul.send_pdu(self.get_associate('accept'))
-
         time.sleep(0.1)
 
-        self.assoc.kill()
+        #self.print_fsm_scp(self.fsm, scp)
 
-        assert self.fsm._transitions == []
-        assert self.fsm._changes == []
-        assert self.fsm._events[0] == 'Evt7'
-        assert self.fsm.current_state == 'Sta1'
+        scp.shutdown()
+
+        assert self.fsm._transitions[:1] == ['Sta4']
+        assert self.fsm._changes[:1] == [
+            ('Sta1', 'Evt1', 'AE-1'),
+        ]
+        assert self.fsm._events[:2] == ['Evt1', 'Evt7']
 
     def test_evt08(self):
-        """Test Sta1 + Evt8."""
-        # Sta1 + Evt8 -> <ignore> -> Sta1
-        # Sta1: Idle
+        """Test Sta4 + Evt8."""
+        # Sta4 + Evt8 -> <ignore> -> Sta4
         # Evt8: Receive A-ASSOCIATE (reject) primitive from <local user>
-        # Sta1: Idle
-        self.assoc._mode = "acceptor"
+        commands = [
+            ('wait', 0.1)
+        ]
+        scp = self.start_server(commands)
+
+        def connect(address):
+            """Override the socket's connect so no event gets added."""
+            if self.assoc.dul.socket.socket is None:
+                self.assoc.dul.socket.socket = self.assoc.dul.socket._create_socket()
+
+            try:
+                self.assoc.dul.socket.socket.connect(address)
+                self.assoc.dul.socket._is_connected = True
+            except (socket.error, socket.timeout) as exc:
+                self.assoc.dul.socket.close()
+
+        self.assoc.dul.socket.connect = connect
         self.assoc.start()
-
+        time.sleep(0.1)
         self.assoc.dul.send_pdu(self.get_associate('reject'))
-
         time.sleep(0.1)
 
-        self.assoc.kill()
+        #self.print_fsm_scp(self.fsm, scp)
 
-        assert self.fsm._transitions == []
-        assert self.fsm._changes == []
-        assert self.fsm._events[0] == 'Evt8'
-        assert self.fsm.current_state == 'Sta1'
+        scp.shutdown()
+
+        assert self.fsm._transitions[:1] == ['Sta4']
+        assert self.fsm._changes[:1] == [
+            ('Sta1', 'Evt1', 'AE-1'),
+        ]
+        assert self.fsm._events[:2] == ['Evt1', 'Evt08']
 
     def test_evt09(self):
-        """Test Sta1 + Evt9."""
-        # Sta1 + Evt9 -> <ignore> -> Sta1
-        # Sta1: Idle
+        """Test Sta4 + Evt9."""
+        # Sta4 + Evt9 -> <ignore> -> Sta4
         # Evt9: Receive P-DATA primitive from <local user>
-        # Sta1: Idle
-        self.assoc._mode = "acceptor"
+        commands = [
+            ('wait', 0.1)
+        ]
+        scp = self.start_server(commands)
+
+        def connect(address):
+            """Override the socket's connect so no event gets added."""
+            if self.assoc.dul.socket.socket is None:
+                self.assoc.dul.socket.socket = self.assoc.dul.socket._create_socket()
+
+            try:
+                self.assoc.dul.socket.socket.connect(address)
+                self.assoc.dul.socket._is_connected = True
+            except (socket.error, socket.timeout) as exc:
+                self.assoc.dul.socket.close()
+
+        self.assoc.dul.socket.connect = connect
         self.assoc.start()
-
+        time.sleep(0.1)
         self.assoc.dul.send_pdu(self.get_pdata())
-
         time.sleep(0.1)
 
-        self.assoc.kill()
+        #self.print_fsm_scp(self.fsm, scp)
 
-        assert self.fsm._transitions == []
-        assert self.fsm._changes == []
-        assert self.fsm._events[0] == 'Evt9'
-        assert self.fsm.current_state == 'Sta1'
+        scp.shutdown()
+
+        assert self.fsm._transitions[:1] == ['Sta4']
+        assert self.fsm._changes[:1] == [
+            ('Sta1', 'Evt1', 'AE-1'),
+        ]
+        assert self.fsm._events[:2] == ['Evt1', 'Evt9']
 
     def test_evt10(self):
-        """Test Sta1 + Evt10."""
-        # Sta1 + Evt10 -> <ignore> -> Sta1
-        # Sta1: Idle
+        """Test Sta4 + Evt10."""
+        # Sta4 + Evt10 -> <ignore> -> Sta4
         # Evt10: Receive P-DATA-TF PDU from <remote>
-        # Sta1: Idle
-        pass
+        commands = [
+            ('send', p_data_tf)
+        ]
+        scp = self.start_server(commands)
+
+        def connect(address):
+            """Override the socket's connect so no event gets added."""
+            if self.assoc.dul.socket.socket is None:
+                self.assoc.dul.socket.socket = self.assoc.dul.socket._create_socket()
+
+            try:
+                self.assoc.dul.socket.socket.connect(address)
+                self.assoc.dul.socket._is_connected = True
+            except (socket.error, socket.timeout) as exc:
+                self.assoc.dul.socket.close()
+
+        self.assoc.dul.socket.connect = connect
+        self.assoc.start()
+        time.sleep(0.1)
+
+        #self.print_fsm_scp(self.fsm, scp)
+
+        scp.shutdown()
+
+        assert self.fsm._transitions[:1] == ['Sta4']
+        assert self.fsm._changes[:1] == [
+            ('Sta1', 'Evt1', 'AE-1'),
+        ]
+        assert self.fsm._events[:2] == ['Evt1', 'Evt10']
 
     def test_evt11(self):
-        """Test Sta1 + Evt11."""
-        # Sta1 + Evt11 -> <ignore> -> Sta1
-        # Sta1: Idle
+        """Test Sta4 + Evt11."""
+        # Sta4 + Evt11 -> <ignore> -> Sta4
         # Evt11: Receive A-RELEASE (rq) primitive from <local user>
-        # Sta1: Idle
-        self.assoc._mode = "acceptor"
+        commands = [
+            ('wait', 0.1)
+        ]
+        scp = self.start_server(commands)
+
+        def connect(address):
+            """Override the socket's connect so no event gets added."""
+            if self.assoc.dul.socket.socket is None:
+                self.assoc.dul.socket.socket = self.assoc.dul.socket._create_socket()
+
+            try:
+                self.assoc.dul.socket.socket.connect(address)
+                self.assoc.dul.socket._is_connected = True
+            except (socket.error, socket.timeout) as exc:
+                self.assoc.dul.socket.close()
+
+        self.assoc.dul.socket.connect = connect
         self.assoc.start()
-
+        time.sleep(0.1)
         self.assoc.dul.send_pdu(self.get_release(False))
-
         time.sleep(0.1)
 
-        self.assoc.kill()
+        #self.print_fsm_scp(self.fsm, scp)
 
-        assert self.fsm._transitions == []
-        assert self.fsm._changes == []
-        assert self.fsm._events[0] == 'Evt11'
-        assert self.fsm.current_state == 'Sta1'
+        scp.shutdown()
+
+        assert self.fsm._transitions[:1] == ['Sta4']
+        assert self.fsm._changes[:1] == [
+            ('Sta1', 'Evt1', 'AE-1'),
+        ]
+        assert self.fsm._events[:2] == ['Evt1', 'Evt11']
 
     def test_evt12(self):
-        """Test Sta1 + Evt12."""
-        # Sta1 + Evt12 -> <ignore> -> Sta1
-        # Sta1: Idle
+        """Test Sta4 + Evt12."""
+        # Sta4 + Evt12 -> <ignore> -> Sta4
         # Evt12: Receive A-RELEASE-RQ PDU from <remote>
-        # Sta1: Idle
-        pass
+        commands = [
+            ('send', a_release_rq)
+        ]
+        scp = self.start_server(commands)
+
+        def connect(address):
+            """Override the socket's connect so no event gets added."""
+            if self.assoc.dul.socket.socket is None:
+                self.assoc.dul.socket.socket = self.assoc.dul.socket._create_socket()
+
+            try:
+                self.assoc.dul.socket.socket.connect(address)
+                self.assoc.dul.socket._is_connected = True
+            except (socket.error, socket.timeout) as exc:
+                self.assoc.dul.socket.close()
+
+        self.assoc.dul.socket.connect = connect
+        self.assoc.start()
+        time.sleep(0.1)
+
+        #self.print_fsm_scp(self.fsm, scp)
+
+        scp.shutdown()
+
+        assert self.fsm._transitions[:1] == ['Sta4']
+        assert self.fsm._changes[:1] == [
+            ('Sta1', 'Evt1', 'AE-1'),
+        ]
+        assert self.fsm._events[:2] == ['Evt1', 'Evt12']
 
     def test_evt13(self):
-        """Test Sta1 + Evt13."""
-        # Sta1 + Evt13 -> <ignore> -> Sta1
-        # Sta1: Idle
+        """Test Sta4 + Evt13."""
+        # Sta4 + Evt13 -> <ignore> -> Sta4
         # Evt13: Receive A-RELEASE-RP PDU from <remote>
-        # Sta1: Idle
-        pass
+        commands = [
+            ('send', a_release_rp)
+        ]
+        scp = self.start_server(commands)
+
+        def connect(address):
+            """Override the socket's connect so no event gets added."""
+            if self.assoc.dul.socket.socket is None:
+                self.assoc.dul.socket.socket = self.assoc.dul.socket._create_socket()
+
+            try:
+                self.assoc.dul.socket.socket.connect(address)
+                self.assoc.dul.socket._is_connected = True
+            except (socket.error, socket.timeout) as exc:
+                self.assoc.dul.socket.close()
+
+        self.assoc.dul.socket.connect = connect
+        self.assoc.start()
+        time.sleep(0.1)
+
+        #self.print_fsm_scp(self.fsm, scp)
+
+        scp.shutdown()
+
+        assert self.fsm._transitions[:1] == ['Sta4']
+        assert self.fsm._changes[:1] == [
+            ('Sta1', 'Evt1', 'AE-1'),
+        ]
+        assert self.fsm._events[:2] == ['Evt1', 'Evt13']
 
     def test_evt14(self):
-        """Test Sta1 + Evt14."""
-        # Sta1 + Evt14 -> <ignore> -> Sta1
-        # Sta1: Idle
+        """Test Sta4 + Evt14."""
+        # Sta4 + Evt14 -> <ignore> -> Sta4
         # Evt14: Receive A-RELEASE (rsp) primitive from <local user>
-        # Sta1: Idle
-        self.assoc._mode = "acceptor"
+        commands = [
+            ('wait', 0.1)
+        ]
+        scp = self.start_server(commands)
+
+        def connect(address):
+            """Override the socket's connect so no event gets added."""
+            if self.assoc.dul.socket.socket is None:
+                self.assoc.dul.socket.socket = self.assoc.dul.socket._create_socket()
+
+            try:
+                self.assoc.dul.socket.socket.connect(address)
+                self.assoc.dul.socket._is_connected = True
+            except (socket.error, socket.timeout) as exc:
+                self.assoc.dul.socket.close()
+
+        self.assoc.dul.socket.connect = connect
         self.assoc.start()
-
+        time.sleep(0.1)
         self.assoc.dul.send_pdu(self.get_release(True))
-
         time.sleep(0.1)
 
-        self.assoc.kill()
+        #self.print_fsm_scp(self.fsm, scp)
 
-        assert self.fsm._transitions == []
-        assert self.fsm._changes == []
-        assert self.fsm._events[0] == 'Evt14'
-        assert self.fsm.current_state == 'Sta1'
+        scp.shutdown()
+
+        assert self.fsm._transitions[:1] == ['Sta4']
+        assert self.fsm._changes[:1] == [
+            ('Sta1', 'Evt1', 'AE-1'),
+        ]
+        assert self.fsm._events[:2] == ['Evt1', 'Evt14']
 
     def test_evt15(self):
-        """Test Sta1 + Evt15."""
-        # Sta1 + Evt15 -> <ignore> -> Sta1
-        # Sta1: Idle
+        """Test Sta4 + Evt15."""
+        # Sta4 + Evt15 -> <ignore> -> Sta4
         # Evt15: Receive A-ABORT (rq) primitive from <local user>
-        # Sta1: Idle
-        self.assoc._mode = "acceptor"
+        commands = [
+            ('wait', 0.1)
+        ]
+        scp = self.start_server(commands)
+
+        def connect(address):
+            """Override the socket's connect so no event gets added."""
+            if self.assoc.dul.socket.socket is None:
+                self.assoc.dul.socket.socket = self.assoc.dul.socket._create_socket()
+
+            try:
+                self.assoc.dul.socket.socket.connect(address)
+                self.assoc.dul.socket._is_connected = True
+            except (socket.error, socket.timeout) as exc:
+                self.assoc.dul.socket.close()
+
+        self.assoc.dul.socket.connect = connect
         self.assoc.start()
-
-        self.assoc.dul.send_pdu(self.get_abort(False))
-
+        time.sleep(0.1)
+        self.assoc.dul.send_pdu(self.get_abort())
         time.sleep(0.1)
 
-        self.assoc.kill()
+        #self.print_fsm_scp(self.fsm, scp)
 
-        assert self.fsm._transitions == []
-        assert self.fsm._changes == []
-        assert self.fsm._events[0] == 'Evt15'
-        assert self.fsm.current_state == 'Sta1'
+        scp.shutdown()
+
+        assert self.fsm._transitions[:1] == ['Sta4']
+        assert self.fsm._changes[:1] == [
+            ('Sta1', 'Evt1', 'AE-1'),
+        ]
+        assert self.fsm._events[:2] == ['Evt1', 'Evt15']
 
     def test_evt16(self):
-        """Test Sta1 + Evt16."""
-        # Sta1 + Evt16 -> <ignore> -> Sta1
-        # Sta1: Idle
+        """Test Sta4 + Evt16."""
+        # Sta4 + Evt16 -> <ignore> -> Sta4
         # Evt16: Receive A-ABORT PDU from <remote>
-        # Sta1: Idle
-        pass
+        commands = [
+            ('send', a_abort)
+        ]
+        scp = self.start_server(commands)
+
+        def connect(address):
+            """Override the socket's connect so no event gets added."""
+            if self.assoc.dul.socket.socket is None:
+                self.assoc.dul.socket.socket = self.assoc.dul.socket._create_socket()
+
+            try:
+                self.assoc.dul.socket.socket.connect(address)
+                self.assoc.dul.socket._is_connected = True
+            except (socket.error, socket.timeout) as exc:
+                self.assoc.dul.socket.close()
+
+        self.assoc.dul.socket.connect = connect
+        self.assoc.start()
+        time.sleep(0.1)
+
+        #self.print_fsm_scp(self.fsm, scp)
+
+        scp.shutdown()
+
+        assert self.fsm._transitions[:1] == ['Sta4']
+        assert self.fsm._changes[:1] == [
+            ('Sta1', 'Evt1', 'AE-1'),
+        ]
+        assert self.fsm._events[:2] == ['Evt1', 'Evt16']
 
     def test_evt17(self):
-        """Test Sta1 + Evt17."""
-        # Sta1 + Evt17 -> <ignore> -> Sta1
-        # Sta1: Idle
+        """Test Sta4 + Evt17."""
+        # Sta4 + Evt17 -> <ignore> -> Sta4
         # Evt17: Receive TRANSPORT_CLOSED from <transport service>
-        # Sta1: Idle
-        pass
+        commands = []
+        scp = self.start_server(commands)
+
+        def connect(address):
+            """Override the socket's connect so no event gets added."""
+            if self.assoc.dul.socket.socket is None:
+                self.assoc.dul.socket.socket = self.assoc.dul.socket._create_socket()
+
+            try:
+                self.assoc.dul.socket.socket.connect(address)
+                self.assoc.dul.socket._is_connected = True
+            except (socket.error, socket.timeout) as exc:
+                self.assoc.dul.socket.close()
+
+        self.assoc.dul.socket.connect = connect
+        self.assoc.start()
+        time.sleep(0.1)
+
+        #self.print_fsm_scp(self.fsm, scp)
+
+        scp.shutdown()
+
+        assert self.fsm._transitions[:1] == ['Sta4']
+        assert self.fsm._changes[:1] == [
+            ('Sta1', 'Evt1', 'AE-1'),
+        ]
+        assert self.fsm._events[:2] == ['Evt1', 'Evt17']
 
     def test_evt18(self):
-        """Test Sta1 + Evt18."""
-        # Sta1 + Evt18 -> <ignore> -> Sta1
-        # Sta1: Idle
+        """Test Sta4 + Evt18."""
+        # Sta4 + Evt18 -> <ignore> -> Sta4
         # Evt18: ARTIM timer expired from <local service>
-        # Sta1: Idle
-        self.assoc._mode = "acceptor"
-        self.assoc.acse_timeout = 0.05
+        commands = [
+            ('wait', 0.1)
+        ]
+        scp = self.start_server(commands)
+
+        def connect(address):
+            """Override the socket's connect so no event gets added."""
+            if self.assoc.dul.socket.socket is None:
+                self.assoc.dul.socket.socket = self.assoc.dul.socket._create_socket()
+
+            try:
+                self.assoc.dul.socket.socket.connect(address)
+                self.assoc.dul.socket._is_connected = True
+            except (socket.error, socket.timeout) as exc:
+                self.assoc.dul.socket.close()
+
+        self.assoc.dul.socket.connect = connect
+        self.assoc.start()
+        time.sleep(0.1)
         self.assoc.dul.artim_timer.timeout_seconds = 0.05
         self.assoc.dul.artim_timer.start()
-        self.assoc.start()
+        time.sleep(0.1)
 
-        time.sleep(0.2)
+        #self.print_fsm_scp(self.fsm, scp)
 
-        self.assoc.kill()
+        scp.shutdown()
 
-        assert self.assoc.dul.artim_timer.is_expired
-
-        assert self.fsm._transitions == []
-        assert self.fsm._changes == []
-        assert self.fsm._events[0] == 'Evt18'
-        assert self.fsm.current_state == 'Sta1'
+        assert self.fsm._transitions[:1] == ['Sta4']
+        assert self.fsm._changes[:1] == [
+            ('Sta1', 'Evt1', 'AE-1'),
+        ]
+        assert self.fsm._events[:2] == ['Evt1', 'Evt18']
 
     def test_evt19(self):
-        """Test Sta1 + Evt19."""
-        # Sta1 + Evt19 -> <ignore> -> Sta1
-        # Sta1: Idle
+        """Test Sta4 + Evt19."""
+        # Sta4 + Evt19 -> <ignore> -> Sta4
         # Evt19: Received unrecognised or invalid PDU from <remote>
-        # Sta1: Idle
-        pass
+        commands = [
+            ('send', b'\x08\x00\x00\x00\x00\x00\x00\x00\x00')
+        ]
+        scp = self.start_server(commands)
+
+        def connect(address):
+            """Override the socket's connect so no event gets added."""
+            if self.assoc.dul.socket.socket is None:
+                self.assoc.dul.socket.socket = self.assoc.dul.socket._create_socket()
+
+            try:
+                self.assoc.dul.socket.socket.connect(address)
+                self.assoc.dul.socket._is_connected = True
+            except (socket.error, socket.timeout) as exc:
+                self.assoc.dul.socket.close()
+
+        self.assoc.dul.socket.connect = connect
+        self.assoc.start()
+        time.sleep(0.1)
+
+        #self.print_fsm_scp(self.fsm, scp)
+
+        scp.shutdown()
+
+        assert self.fsm._transitions[:1] == ['Sta4']
+        assert self.fsm._changes[:1] == [
+            ('Sta1', 'Evt1', 'AE-1'),
+        ]
+        assert self.fsm._events[:2] == ['Evt1', 'Evt19']
 
 
 class TestState05(TestStateBase):

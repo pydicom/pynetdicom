@@ -136,7 +136,16 @@ class AssociationSocket(object):
             # Log exception if TLS issue to help with troubleshooting
             if isinstance(exc, ssl.SSLError):
                 LOGGER.exception(exc)
-            self.close()
+            # Don't be tempted to replace this with a self.close() call -
+            #   it doesn't work because `_is_connected` is False
+            if self.socket:
+                try:
+                    self.socket.shutdown(socket.SHUT_RDWR)
+                except:
+                    pass
+                self.socket.close()
+                self.socket = None
+            self.event_queue.put('Evt17')
 
     def _create_socket(self, address=('', 0)):
         """Create a new IPv4 TCP socket and set it up for use.
