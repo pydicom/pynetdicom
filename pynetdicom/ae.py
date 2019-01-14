@@ -605,7 +605,6 @@ class ApplicationEntity(object):
 
         assoc.requestor.requested_contexts = contexts
 
-        # **BLOCKING**
         # Send an A-ASSOCIATE request to the peer and start negotiation
         assoc.request()
 

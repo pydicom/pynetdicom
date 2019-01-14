@@ -367,9 +367,6 @@ class Association(threading.Thread):
 
         A request can only be made once the Association instance has been
         configured for requestor mode and been assigned an AssociationSocket.
-
-        The request is blocking until association negotiation has completed or
-        the connection closed.
         """
         # Start the DUL thread if not already started
         self.dul.start()
@@ -377,7 +374,6 @@ class Association(threading.Thread):
         # test failures otherwise
         time.sleep(0.05)
         # Start association negotiation
-        # **BLOCKING**
         self.acse.negotiate_association(self)
 
     def run(self):
