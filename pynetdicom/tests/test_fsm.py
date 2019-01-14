@@ -1332,7 +1332,6 @@ class TestState03(TestStateBase):
         pass
 
 
-#@pytest.mark.skip("Need a way to put the association in State 4")
 class TestState04(TestStateBase):
     """Tests for State 04: Awaiting TRANSPORT_OPEN from <transport service>."""
     def test_evt01(self):
@@ -1560,7 +1559,7 @@ class TestState04(TestStateBase):
         assert self.fsm._changes[:1] == [
             ('Sta1', 'Evt1', 'AE-1'),
         ]
-        assert self.fsm._events[:2] == ['Evt1', 'Evt08']
+        assert self.fsm._events[:2] == ['Evt1', 'Evt8']
 
     def test_evt09(self):
         """Test Sta4 + Evt9."""
@@ -2070,7 +2069,7 @@ class TestState05(TestStateBase):
             ('Sta4', 'Evt2', 'AE-2'),
             ('Sta5', 'Evt6', 'AA-8'),
         ]
-        assert self.fsm._transitions == ['Sta4', 'Sta5', 'Sta13']
+        assert self.fsm._transitions[:3] == ['Sta4', 'Sta5', 'Sta13']
         assert self.fsm._events[:3] == ['Evt1', 'Evt2', 'Evt6']
         assert scp.handlers[0].received[1] == (
             b'\x07\x00\x00\x00\x00\x04\x00\x00\x02\x00'
