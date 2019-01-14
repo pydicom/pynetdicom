@@ -362,13 +362,28 @@ class Association(threading.Thread):
 
         return self.acceptor.info
 
-    def run(self):
-        """The main Association control."""
-        # Start the DUL thread
+    def request(self):
+        """Request an association with a peer.
+
+        A request can only be made once the Association instance has been
+        configured for requestor mode and been assigned an AssociationSocket.
+        """
+        # Start the DUL thread if not already started
         self.dul.start()
         # Give the DUL time to start up, tends to cause intermittent
         # test failures otherwise
         time.sleep(0.05)
+        # Start association negotiation
+        self.acse.negotiate_association(self)
+
+    def run(self):
+        """The main Association control."""
+        # Start the DUL thread if not already started
+        if not self.dul.is_alive():
+            self.dul.start()
+            # Give the DUL time to start up, tends to cause intermittent
+            # test failures otherwise
+            time.sleep(0.05)
 
         if self.is_acceptor:
             primitive = self.dul.receive_pdu(wait=True,
@@ -397,7 +412,11 @@ class Association(threading.Thread):
                 self._run_as_acceptor()
         else:
             # Association requestor
-            self.acse.negotiate_association(self)
+            # Allow non-blocking negotiation
+            if (not self.is_established and not self.is_aborted
+                    and not self.is_released and not self.is_rejected):
+                self.acse.negotiate_association(self)
+
             if self.is_established:
                 self.dimse.maximum_pdu_size = self.acceptor.maximum_length
                 self._run_as_requestor()

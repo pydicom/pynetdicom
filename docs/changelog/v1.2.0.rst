@@ -61,3 +61,5 @@ Changes
   attribute removed, the ``Association.acse_timeout`` value is used instead.
 * ``AE.active_associations`` changed from an attribute to a property and
   returns a list of all the AE's active Association threads.
+* ``AE.associate()`` is now synchronous until association negotiation has
+  completed or the connection closed (:issue:`108`).
