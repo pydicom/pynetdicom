@@ -603,15 +603,14 @@ class ApplicationEntity(object):
 
         assoc.requestor.requested_contexts = contexts
 
-        # Send an A-ASSOCIATE request to the peer
-        # TODO: Make association negotiation synchronous
-        assoc.start()
+        # **BLOCKING**
+        # Send an A-ASSOCIATE request to the peer and start negotiation
+        assoc.request()
 
-        # Endlessly loops while the Association negotiation is taking place
-        # TODO: If association negotiation is synchronous this wont be needed
-        while (not assoc.is_established and not assoc.is_rejected and
-               not assoc.is_aborted and not assoc.dul._kill_thread):
-            time.sleep(0.05)
+        # If the result of the negotiation was acceptance then start up
+        #   the Association thread
+        if assoc.is_established:
+            assoc.start()
 
         return assoc
 
