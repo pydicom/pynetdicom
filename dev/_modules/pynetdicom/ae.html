@@ -670,7 +670,8 @@
 
 <span class="sd">        The Association thread is returned whether or not the association is</span>
 <span class="sd">        accepted and should be checked using ``Association.is_established``</span>
-<span class="sd">        before sending any messages.</span>
+<span class="sd">        before sending any messages. The returned thread will only be running</span>
+<span class="sd">        if the association was established.</span>
 
 <span class="sd">        Parameters</span>
 <span class="sd">        ----------</span>
@@ -705,7 +706,8 @@
 <span class="sd">        Returns</span>
 <span class="sd">        -------</span>
 <span class="sd">        assoc : association.Association</span>
-<span class="sd">            The association thread.</span>
+<span class="sd">            If the association was established then a running Association</span>
+<span class="sd">            thread, otherwise returns a thread that hasn&#39;t been started.</span>
 
 <span class="sd">        Raises</span>
 <span class="sd">        ------</span>
@@ -775,15 +777,13 @@
 
         <span class="n">assoc</span><span class="o">.</span><span class="n">requestor</span><span class="o">.</span><span class="n">requested_contexts</span> <span class="o">=</span> <span class="n">contexts</span>
 
-        <span class="c1"># Send an A-ASSOCIATE request to the peer</span>
-        <span class="c1"># TODO: Make association negotiation synchronous</span>
-        <span class="n">assoc</span><span class="o">.</span><span class="n">start</span><span class="p">()</span>
+        <span class="c1"># Send an A-ASSOCIATE request to the peer and start negotiation</span>
+        <span class="n">assoc</span><span class="o">.</span><span class="n">request</span><span class="p">()</span>
 
-        <span class="c1"># Endlessly loops while the Association negotiation is taking place</span>
-        <span class="c1"># TODO: If association negotiation is synchronous this wont be needed</span>
-        <span class="k">while</span> <span class="p">(</span><span class="ow">not</span> <span class="n">assoc</span><span class="o">.</span><span class="n">is_established</span> <span class="ow">and</span> <span class="ow">not</span> <span class="n">assoc</span><span class="o">.</span><span class="n">is_rejected</span> <span class="ow">and</span>
-               <span class="ow">not</span> <span class="n">assoc</span><span class="o">.</span><span class="n">is_aborted</span> <span class="ow">and</span> <span class="ow">not</span> <span class="n">assoc</span><span class="o">.</span><span class="n">dul</span><span class="o">.</span><span class="n">_kill_thread</span><span class="p">):</span>
-            <span class="n">time</span><span class="o">.</span><span class="n">sleep</span><span class="p">(</span><span class="mf">0.05</span><span class="p">)</span>
+        <span class="c1"># If the result of the negotiation was acceptance then start up</span>
+        <span class="c1">#   the Association thread</span>
+        <span class="k">if</span> <span class="n">assoc</span><span class="o">.</span><span class="n">is_established</span><span class="p">:</span>
+            <span class="n">assoc</span><span class="o">.</span><span class="n">start</span><span class="p">()</span>
 
         <span class="k">return</span> <span class="n">assoc</span></div>
 

@@ -233,6 +233,8 @@ keyword parameter for <code class="docutils literal notranslate"><span class="pr
 attribute removed, the <code class="docutils literal notranslate"><span class="pre">Association.acse_timeout</span></code> value is used instead.</li>
 <li><code class="docutils literal notranslate"><span class="pre">AE.active_associations</span></code> changed from an attribute to a property and
 returns a list of all the AE’s active Association threads.</li>
+<li><code class="docutils literal notranslate"><span class="pre">AE.associate()</span></code> is now synchronous until association negotiation has
+completed or the connection closed (<a class="reference external" href="https://github.com/pydicom/pynetdicom/issues/108">#108</a>).</li>
 </ul>
 </div>
 </div>

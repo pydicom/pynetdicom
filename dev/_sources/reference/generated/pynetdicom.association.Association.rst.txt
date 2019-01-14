@@ -27,6 +27,7 @@ pynetdicom.association.Association
       ~Association.join
       ~Association.kill
       ~Association.release
+      ~Association.request
       ~Association.run
       ~Association.send_c_echo
       ~Association.send_c_find

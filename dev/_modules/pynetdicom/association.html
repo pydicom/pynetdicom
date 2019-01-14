@@ -534,13 +534,28 @@
 
         <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">acceptor</span><span class="o">.</span><span class="n">info</span>
 
-<div class="viewcode-block" id="Association.run"><a class="viewcode-back" href="../../reference/generated/pynetdicom.association.Association.html#pynetdicom.association.Association.run">[docs]</a>    <span class="k">def</span> <span class="nf">run</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
-        <span class="sd">&quot;&quot;&quot;The main Association control.&quot;&quot;&quot;</span>
-        <span class="c1"># Start the DUL thread</span>
+<div class="viewcode-block" id="Association.request"><a class="viewcode-back" href="../../reference/generated/pynetdicom.association.Association.html#pynetdicom.association.Association.request">[docs]</a>    <span class="k">def</span> <span class="nf">request</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;Request an association with a peer.</span>
+
+<span class="sd">        A request can only be made once the Association instance has been</span>
+<span class="sd">        configured for requestor mode and been assigned an AssociationSocket.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="c1"># Start the DUL thread if not already started</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">dul</span><span class="o">.</span><span class="n">start</span><span class="p">()</span>
         <span class="c1"># Give the DUL time to start up, tends to cause intermittent</span>
         <span class="c1"># test failures otherwise</span>
         <span class="n">time</span><span class="o">.</span><span class="n">sleep</span><span class="p">(</span><span class="mf">0.05</span><span class="p">)</span>
+        <span class="c1"># Start association negotiation</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">acse</span><span class="o">.</span><span class="n">negotiate_association</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span></div>
+
+<div class="viewcode-block" id="Association.run"><a class="viewcode-back" href="../../reference/generated/pynetdicom.association.Association.html#pynetdicom.association.Association.run">[docs]</a>    <span class="k">def</span> <span class="nf">run</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;The main Association control.&quot;&quot;&quot;</span>
+        <span class="c1"># Start the DUL thread if not already started</span>
+        <span class="k">if</span> <span class="ow">not</span> <span class="bp">self</span><span class="o">.</span><span class="n">dul</span><span class="o">.</span><span class="n">is_alive</span><span class="p">():</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">dul</span><span class="o">.</span><span class="n">start</span><span class="p">()</span>
+            <span class="c1"># Give the DUL time to start up, tends to cause intermittent</span>
+            <span class="c1"># test failures otherwise</span>
+            <span class="n">time</span><span class="o">.</span><span class="n">sleep</span><span class="p">(</span><span class="mf">0.05</span><span class="p">)</span>
 
         <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">is_acceptor</span><span class="p">:</span>
             <span class="n">primitive</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">dul</span><span class="o">.</span><span class="n">receive_pdu</span><span class="p">(</span><span class="n">wait</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span>
@@ -569,7 +584,11 @@
                 <span class="bp">self</span><span class="o">.</span><span class="n">_run_as_acceptor</span><span class="p">()</span>
         <span class="k">else</span><span class="p">:</span>
             <span class="c1"># Association requestor</span>
-            <span class="bp">self</span><span class="o">.</span><span class="n">acse</span><span class="o">.</span><span class="n">negotiate_association</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span>
+            <span class="c1"># Allow non-blocking negotiation</span>
+            <span class="k">if</span> <span class="p">(</span><span class="ow">not</span> <span class="bp">self</span><span class="o">.</span><span class="n">is_established</span> <span class="ow">and</span> <span class="ow">not</span> <span class="bp">self</span><span class="o">.</span><span class="n">is_aborted</span>
+                    <span class="ow">and</span> <span class="ow">not</span> <span class="bp">self</span><span class="o">.</span><span class="n">is_released</span> <span class="ow">and</span> <span class="ow">not</span> <span class="bp">self</span><span class="o">.</span><span class="n">is_rejected</span><span class="p">):</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">acse</span><span class="o">.</span><span class="n">negotiate_association</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span>
+
             <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">is_established</span><span class="p">:</span>
                 <span class="bp">self</span><span class="o">.</span><span class="n">dimse</span><span class="o">.</span><span class="n">maximum_pdu_size</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">acceptor</span><span class="o">.</span><span class="n">maximum_length</span>
                 <span class="bp">self</span><span class="o">.</span><span class="n">_run_as_requestor</span><span class="p">()</span></div>
