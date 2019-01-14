@@ -197,9 +197,9 @@ now emitted in a non-trivial manner.</li>
 non-blocking modes.</li>
 <li>Added <code class="docutils literal notranslate"><span class="pre">AE.shutdown()</span></code> which allows the user to shutdown all non-blocking
 association servers that may be running.</li>
-<li>Support for TLS added via the <code class="docutils literal notranslate"><span class="pre">tls_kwargs</span></code> keyword parameter for
-<code class="docutils literal notranslate"><span class="pre">AE.start_server()</span></code> and <code class="docutils literal notranslate"><span class="pre">AE.associate()</span></code> (<a href="#id2"><span class="problematic" id="id3">:pull_release:`175`</span></a>,
-<a href="#id4"><span class="problematic" id="id5">:pull_release:`71`</span></a>)</li>
+<li>Support for TLS added via the <code class="docutils literal notranslate"><span class="pre">tls_args</span></code> keyword parameter for
+<cite>AE.associate()`</cite> and <code class="docutils literal notranslate"><span class="pre">ssl_context</span></code> keyword parameter for
+<a href="#id2"><span class="problematic" id="id3">``</span></a>AE.start_server()``(<a class="reference external" href="https://github.com/pydicom/pynetdicom/pull/175">#175</a>, <a class="reference external" href="https://github.com/pydicom/pynetdicom/pull/71">#71</a>)</li>
 <li>It should now be possible to both request a C-MOVE operation and act as the
 destination for the request’s C-STORE sub-operations over a new association
 within the same AE instance by running a non-blocking Storage SCP.
@@ -220,7 +220,7 @@ within the same AE instance by running a non-blocking Storage SCP.
 <li><code class="docutils literal notranslate"><span class="pre">AE.stop()</span></code> is deprecated and will be removed in v1.3, use
 <code class="docutils literal notranslate"><span class="pre">AE.shutdown()</span></code> instead.</li>
 <li>The <code class="docutils literal notranslate"><span class="pre">AE.port</span></code> property and <code class="docutils literal notranslate"><span class="pre">port</span></code> argument for <code class="docutils literal notranslate"><span class="pre">AE()</span></code> are deprecated
-and will be removed in v1.3. Use the <code class="docutils literal notranslate"><span class="pre">port</span></code> parameter for
+and will be removed in v1.3. Use the <code class="docutils literal notranslate"><span class="pre">address</span></code> parameter for
 <code class="docutils literal notranslate"><span class="pre">AE.start_server()</span></code> and the <code class="docutils literal notranslate"><span class="pre">bind_address</span></code> keyword parameter for
 <code class="docutils literal notranslate"><span class="pre">AE.associate()</span></code> instead.</li>
 <li>The <code class="docutils literal notranslate"><span class="pre">AE.local_socket</span></code> attribute is deprecated and will be removed in v1.3.</li>

@@ -396,6 +396,7 @@
 
         <span class="c1"># Convert DIMSE primitive to DIMSE Message</span>
         <span class="n">dimse_msg</span><span class="o">.</span><span class="n">primitive_to_message</span><span class="p">(</span><span class="n">primitive</span><span class="p">)</span>
+        <span class="n">dimse_msg</span><span class="o">.</span><span class="n">context_id</span> <span class="o">=</span> <span class="n">context_id</span>
 
         <span class="c1"># Callbacks</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">on_send_dimse_message</span><span class="p">(</span><span class="n">dimse_msg</span><span class="p">)</span>
