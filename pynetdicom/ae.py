@@ -498,7 +498,8 @@ class ApplicationEntity(object):
 
         The Association thread is returned whether or not the association is
         accepted and should be checked using ``Association.is_established``
-        before sending any messages.
+        before sending any messages. The returned thread will only be running
+        if the association was established.
 
         Parameters
         ----------
@@ -533,7 +534,8 @@ class ApplicationEntity(object):
         Returns
         -------
         assoc : association.Association
-            The association thread.
+            If the association was established then a running Association
+            thread, otherwise returns a thread that hasn't been started.
 
         Raises
         ------
