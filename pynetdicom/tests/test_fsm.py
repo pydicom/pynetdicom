@@ -3900,7 +3900,7 @@ class TestState07(TestStateBase):
         scp = self.start_server(commands)
 
         self.assoc.start()
-        time.sleep(0.1)
+        time.sleep(0.2)
         self.assoc.dul.send_pdu(self.get_release(False))
         time.sleep(0.1)
 
@@ -5812,7 +5812,35 @@ class TestState10(TestStateBase):
         """Test Sta10 + Evt1."""
         # Sta10 + Evt1 -> <ignore> -> Sta10
         # Evt1: A-ASSOCIATE (rq) primitive from <local user>
-        pass
+        commands = [
+            ('send', a_associate_rq),
+            ('recv', None),
+            ('recv', None),
+            ('send', a_release_rq),
+            ('wait', 0.2)
+        ]
+        scp = self.start_server(commands)
+
+        assoc, fsm = self.get_acceptor_assoc()
+        assoc.start()
+
+        time.sleep(0.1)
+
+        assoc.dul.send_pdu(self.get_release(False))
+
+        time.sleep(0.1)
+
+        self.print_fsm_scp(fsm, scp)
+
+        scp.shutdown()
+
+        assert fsm._transitions[:3] == ['Sta2', 'Sta3', 'Sta6']
+        assert fsm._changes[:3] == [
+            ('Sta1', 'Evt5', 'AE-5'),
+            ('Sta2', 'Evt6', 'AE-6'),
+            ('Sta3', 'Evt7', 'AE-7')
+        ]
+        assert fsm._events[:3] == ['Evt5', 'Evt6', 'Evt7']
 
     @pytest.mark.skip()
     def test_evt02(self):
