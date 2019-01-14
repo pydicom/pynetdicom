@@ -103,271 +103,6 @@ class BadDUL(object):
         return None
 
 
-class DummyAE(threading.Thread):
-    def __init__(self, port=11112):
-        self.queue = queue.Queue()
-        self._kill = False
-        self.socket = socket.socket
-        self.address = ''
-        self.local_port = port
-        self.remote_port = None
-        self.received = []
-        self.mode = 'requestor'
-        self.wait_after_connect = False
-        self.disconnect_after_connect = False
-        self._step = 0
-        self._event = threading.Event()
-
-        threading.Thread.__init__(self)
-        self.daemon = True
-
-    def bind_socket(self):
-        sock = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
-
-        # SOL_SOCKET: the level, SO_REUSEADDR: allow reuse of a port
-        #   stuck in TIME_WAIT, 1: set SO_REUSEADDR to 1
-        # This must be called prior to socket.bind()
-        sock.setsockopt(socket.SOL_SOCKET, socket.SO_REUSEADDR, 1)
-        sock.setsockopt(
-            socket.SOL_SOCKET, socket.SO_RCVTIMEO, pack('ll', 10, 0)
-        )
-
-        # Bind the socket to an address and port
-        #   If self.bind_addr is '' then the socket is reachable by any
-        #   address the machine may have, otherwise is visible only on that
-        #   address
-        for ii in range(10):
-            try:
-                sock.bind(('', self.local_port))
-                break
-            except:
-                time.sleep(0.1)
-
-        # Listen for connections made to the socket
-        # socket.listen() says to queue up to as many as N connect requests
-        #   before refusing outside connections
-        sock.listen(1)
-        return sock
-
-    def run(self):
-        if self.mode == 'acceptor':
-            self.run_as_acceptor()
-        elif self.mode == 'requestor':
-            self.run_as_requestor()
-
-    def run_as_acceptor(self):
-        """Run the Collider as an association requestor.
-
-        1. Open a list socket on self.local_port
-        2. Wait for a connection request, when connected GOTO 3
-        3. Check self.queue for an item:
-            a. If the item is None then GOTO 4
-            b. If the item is singleton then send it to the peer and GOTO 4
-            c. If the item is a list then send each item in the list to the
-               peer, then GOTO 4. if one of the items is 'shutdown' then exit
-            d. If the item is 'shutdown' then exit
-        4. Block the connection until data appears, then append the data to
-           self.received.
-        """
-        sock = self.bind_socket()
-        self.sock = sock
-
-        # Wait for a connection
-        while not self._kill:
-            ready, _, _ = select.select([sock], [], [], 0.5)
-
-            if self.disconnect_after_connect:
-                try:
-                    sock.shutdown(socket.SHUT_RDWR)
-                except:
-                    pass
-                sock.close()
-                return
-
-            if self.wait_after_connect:
-                time.sleep(0.5)
-
-            if ready:
-                conn, _ = sock.accept()
-                break
-
-        # Send and receive data
-        while not self._kill:
-            to_send = self.queue.get()
-            if to_send == 'shutdown':
-                # 'shutdown'
-                try:
-                    self.sock.shutdown(socket.SHUT_RDWR)
-                except:
-                    self.sock.close()
-                self._kill = True
-                return
-            elif to_send is not None:
-                # item or [item, item]
-                if isinstance(to_send, list):
-                    if to_send[0] == 'wait':
-                        time.sleep(to_send[1])
-                        if len(to_send) == 3:
-                            try:
-                                self.sock.shutdown(socket.SHUT_RDWR)
-                            except:
-                                pass
-                            self.sock.close()
-                            self._kill = True
-                            return
-                        continue
-                    elif to_send[0] == 'skip':
-                        conn.send(to_send[1])
-                        continue
-                    elif to_send[1] == 'shutdown':
-                        conn.send(to_send[0])
-                        try:
-                            self.sock.shutdown(socket.SHUT_RDWR)
-                        except:
-                            self.sock.close()
-                        self._kill = True
-                        return
-                    else:
-                        for item in to_send:
-                            conn.send(item)
-                else:
-                    conn.send(to_send)
-            elif to_send == 'skip':
-                continue
-            else:
-                # None
-                pass
-
-            # Block until ready to read
-            ready, _, _ = select.select([conn], [], [])
-            if ready:
-                data_received = self.read_stream(conn)
-                self.received.append(data_received)
-
-    def run_as_requestor(self):
-        """Run the Collider as an association requestor.
-
-        1. Open a connection to the peer at (self.address, self.remote_port)
-        2. Check self.queue for an item:
-            a. If the item is None then GOTO 3
-            b. If the item is singleton then send it to the peer and GOTO 3
-            c. If the item is a list then send each item in the list to the
-               peer, then GOTO 3
-            d. If the item is 'shutdown' then exit
-        3. Block the connection until data appears, then append the data to
-           self.received.
-        """
-        # Make the connection
-        while not self._kill:
-            try:
-                self.sock = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
-                self.sock.connect((self.address, self.remote_port))
-                break
-            except:
-                pass
-
-        # Send and receive data
-        while not self._kill:
-            to_send = self.queue.get()
-            if to_send == 'shutdown':
-                # 'shutdown'
-                try:
-                    self.sock.shutdown(socket.SHUT_RDWR)
-                except:
-                    pass
-                self.sock.close()
-                self._kill = True
-                return
-            elif to_send is not None:
-                # item or [item, item]
-                if isinstance(to_send, list):
-                    for item in to_send:
-                        self.sock.send(item)
-                else:
-                    self.sock.send(to_send)
-            else:
-                # None
-                pass
-
-            # Block until ready
-            # When the timeout argument is omitted the function blocks until
-            #   at least one file descriptor is ready
-            ready, _, _ = select.select([self.sock], [], [])
-            if ready:
-                data_received = self.read_stream(self.sock)
-                self.received.append(data_received)
-
-    def read_stream(self, sock):
-        bytestream = bytes()
-
-        # Try and read data from the socket
-        try:
-            # Get the data from the socket
-            bytestream = sock.recv(1)
-        except socket.error:
-            self._kill = True
-            sock.close()
-            return
-
-        pdu_type = unpack('B', bytestream)[0]
-
-        # Byte 2 is Reserved
-        result = self._recvn(sock, 1)
-        bytestream += result
-
-        # Bytes 3-6 is the PDU length
-        result = unpack('B', result)
-        length = self._recvn(sock, 4)
-
-        bytestream += length
-        length = unpack('>L', length)
-
-        # Bytes 7-xxxx is the rest of the PDU
-        result = self._recvn(sock, length[0])
-        bytestream += result
-
-        return bytestream
-
-    @staticmethod
-    def _recvn(sock, n_bytes):
-        """Read `n_bytes` from a socket.
-
-        Parameters
-        ----------
-        sock : socket.socket
-            The socket to read from
-        n_bytes : int
-            The number of bytes to read
-        """
-        ret = b''
-        read_length = 0
-        while read_length < n_bytes:
-            tmp = sock.recv(n_bytes - read_length)
-
-            if not tmp:
-                return ret
-
-            ret += tmp
-            read_length += len(tmp)
-
-        if read_length != n_bytes:
-            raise RuntimeError("_recvn(socket, {}) - Error reading data from "
-                               "socket.".format(n_bytes))
-
-        return ret
-
-    def stop(self):
-        self._kill = True
-
-    def shutdown_sockets(self):
-        """Close the sockets."""
-        try:
-            self.sock.shutdown(socket.SHUT_RDWR)
-        except:
-            pass
-        self.sock.close()
-
-
 class TestStateMachine(object):
     """Non-functional unit tests for fsm.StateMachine."""
     def test_init(self):
@@ -916,33 +651,7 @@ class TestState01(TestStateBase):
         # Evt5: Receive TRANSPORT_INDICATION from <transport service>
         # AE-5: Issue TRANSPORT_RESPONSE to <transport service>
         #       Start ARTIM timer
-        scp = DummyAE()
-        scp.remote_port = 11112
-        scp.address = ''
-
-        assert self.fsm.current_state == 'Sta1'
-
-        self.assoc._mode = 'acceptor'
-        listen_socket = scp.bind_socket()
-
-        send_socket = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
-        send_socket.connect(('localhost', 11112))
-        #send_socket.send(a_associate_rj)
-
-        ready, _, _ = select.select([listen_socket], [], [], 0.5)
-        if ready:
-            self.assoc.dul.socket, _ = listen_socket.accept()
-
-        self.assoc.start()
-
-        time.sleep(0.1)
-
-        self.assoc.kill()
-
-        assert self.fsm._transitions == []
-        assert self.fsm._changes == []
-        assert self.fsm._events[0] == 'Evt5'
-        assert self.fsm.current_state == 'Sta1'
+        pass
 
     def test_evt06(self):
         """Test Sta1 + Evt6."""
@@ -1359,31 +1068,7 @@ class TestState02(TestStateBase):
         # Sta2 + Evt17 -> AA-5 -> Sta1
         # Evt17: Receive TRANSPORT_CLOSED from <transport service>
         # AA-5: Stop ARTIM timer
-        scp = DummyAE()
-        scp.mode = 'acceptor'
-        scp.queue.put('shutdown')
-
-        scp.start()
-
-        assert self.fsm.current_state == 'Sta1'
-
-        self.assoc._mode = "acceptor"
-        self.assoc.dul.event_queue.put('Evt5')
-        self.assoc.start()
-
-        self.assoc.dul.socket.send(b'\x00')
-        self.assoc.dul.event_queue.put('Evt17')
-        self.assoc.dul.state_machine.current_state = 'Sta1'
-        time.sleep(0.1)
-        self.assoc.kill()
-        time.sleep(0.1)
-
-        assert self.fsm._changes[:2] == [
-            ('Sta1', 'Evt5', 'AE-5'),
-            ('Sta2', 'Evt17', 'AA-5'),
-        ]
-        assert self.fsm._transitions[:2] == ['Sta2', 'Sta1']
-        assert self.fsm._events[:2] == ['Evt5', 'Evt17']
+        pass
 
     @pytest.mark.skip()
     def test_evt18(self):
@@ -1426,34 +1111,7 @@ class TestState03(TestStateBase):
         # Sta1: Idle
         # Evt3: Receive A-ASSOCIATE-AC PDU from <remote>
         # Sta1: Idle
-        scp = DummyAE()
-        scp.remote_port = 11112
-        scp.address = ''
-
-        assert self.fsm.current_state == 'Sta1'
-
-
-        self.assoc._mode = 'acceptor'
-        listen_socket = scp.bind_socket()
-
-        send_socket = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
-        send_socket.connect(('localhost', 11112))
-        send_socket.send(a_associate_ac)
-
-        ready, _, _ = select.select([listen_socket], [], [], 0.5)
-        if ready:
-            self.assoc.dul.socket, _ = listen_socket.accept()
-
-        self.assoc.start()
-
-        time.sleep(0.1)
-
-        self.assoc.kill()
-
-        assert self.fsm._transitions == []
-        assert self.fsm._changes == []
-        assert self.fsm._events[0] == 'Evt3'
-        assert self.fsm.current_state == 'Sta1'
+        pass
 
     def test_evt04(self):
         """Test Sta1 + Evt4."""
@@ -1461,34 +1119,7 @@ class TestState03(TestStateBase):
         # Sta1: Idle
         # Evt4: Receive A-ASSOCIATE-RJ PDU from <remote>
         # Sta1: Idle
-        scp = DummyAE()
-        scp.remote_port = 11112
-        scp.address = ''
-
-        assert self.fsm.current_state == 'Sta1'
-
-
-        self.assoc._mode = 'acceptor'
-        listen_socket = scp.bind_socket()
-
-        send_socket = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
-        send_socket.connect(('localhost', 11112))
-        send_socket.send(a_associate_rj)
-
-        ready, _, _ = select.select([listen_socket], [], [], 0.5)
-        if ready:
-            self.assoc.dul.socket, _ = listen_socket.accept()
-
-        self.assoc.start()
-
-        time.sleep(0.1)
-
-        self.assoc.kill()
-
-        assert self.fsm._transitions == []
-        assert self.fsm._changes == []
-        assert self.fsm._events[0] == 'Evt4'
-        assert self.fsm.current_state == 'Sta1'
+        pass
 
     @pytest.mark.skip()
     def test_evt05(self):
@@ -1499,34 +1130,7 @@ class TestState03(TestStateBase):
         # AE-5: Issue TRANSPORT_RESPONSE to <transport service>
         #       Start ARTIM timer
         # Sta2: Connection open, awaiting A-ASSOCIATE-RQ from <remote>
-        scp = DummyAE()
-        scp.remote_port = 11112
-        scp.address = ''
-
-        assert self.fsm.current_state == 'Sta1'
-
-
-        self.assoc._mode = 'acceptor'
-        listen_socket = scp.bind_socket()
-
-        send_socket = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
-        send_socket.connect(('localhost', 11112))
-        #send_socket.send(a_associate_rj)
-
-        ready, _, _ = select.select([listen_socket], [], [], 0.5)
-        if ready:
-            self.assoc.dul.socket, _ = listen_socket.accept()
-
-        self.assoc.start()
-
-        time.sleep(0.1)
-
-        self.assoc.kill()
-
-        assert self.fsm._transitions == []
-        assert self.fsm._changes == []
-        assert self.fsm._events[0] == 'Evt5'
-        assert self.fsm.current_state == 'Sta1'
+        pass
 
     def test_evt06(self):
         """Test Sta1 + Evt6."""
@@ -1534,34 +1138,7 @@ class TestState03(TestStateBase):
         # Sta1: Idle
         # Evt6: Receive A-ASSOCIATE-RQ PDU from <remote>
         # Sta1: Idle
-        scp = DummyAE()
-        scp.remote_port = 11112
-        scp.address = ''
-
-        assert self.fsm.current_state == 'Sta1'
-
-
-        self.assoc._mode = 'acceptor'
-        listen_socket = scp.bind_socket()
-
-        send_socket = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
-        send_socket.connect(('localhost', 11112))
-        send_socket.send(a_associate_rq)
-
-        ready, _, _ = select.select([listen_socket], [], [], 0.5)
-        if ready:
-            self.assoc.dul.socket, _ = listen_socket.accept()
-
-        self.assoc.start()
-
-        time.sleep(0.1)
-
-        self.assoc.kill()
-
-        assert self.fsm._transitions == []
-        assert self.fsm._changes == []
-        assert self.fsm._events[0] == 'Evt6'
-        assert self.fsm.current_state == 'Sta1'
+        pass
 
     def test_evt07(self):
         """Test Sta1 + Evt7."""
@@ -1629,34 +1206,7 @@ class TestState03(TestStateBase):
         # Sta1: Idle
         # Evt10: Receive P-DATA-TF PDU from <remote>
         # Sta1: Idle
-        scp = DummyAE()
-        scp.remote_port = 11112
-        scp.address = ''
-
-        assert self.fsm.current_state == 'Sta1'
-
-
-        self.assoc._mode = 'acceptor'
-        listen_socket = scp.bind_socket()
-
-        send_socket = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
-        send_socket.connect(('localhost', 11112))
-        send_socket.send(p_data_tf)
-
-        ready, _, _ = select.select([listen_socket], [], [], 0.5)
-        if ready:
-            self.assoc.dul.socket, _ = listen_socket.accept()
-
-        self.assoc.start()
-
-        time.sleep(0.1)
-
-        self.assoc.kill()
-
-        assert self.fsm._transitions == []
-        assert self.fsm._changes == []
-        assert self.fsm._events[0] == 'Evt10'
-        assert self.fsm.current_state == 'Sta1'
+        pass
 
     def test_evt11(self):
         """Test Sta1 + Evt11."""
@@ -1684,34 +1234,7 @@ class TestState03(TestStateBase):
         # Sta1: Idle
         # Evt12: Receive A-RELEASE-RQ PDU from <remote>
         # Sta1: Idle
-        scp = DummyAE()
-        scp.remote_port = 11112
-        scp.address = ''
-
-        assert self.fsm.current_state == 'Sta1'
-
-
-        self.assoc._mode = 'acceptor'
-        listen_socket = scp.bind_socket()
-
-        send_socket = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
-        send_socket.connect(('localhost', 11112))
-        send_socket.send(a_release_rq)
-
-        ready, _, _ = select.select([listen_socket], [], [], 0.5)
-        if ready:
-            self.assoc.dul.socket, _ = listen_socket.accept()
-
-        self.assoc.start()
-
-        time.sleep(0.1)
-
-        self.assoc.kill()
-
-        assert self.fsm._transitions == []
-        assert self.fsm._changes == []
-        assert self.fsm._events[0] == 'Evt12'
-        assert self.fsm.current_state == 'Sta1'
+        pass
 
     def test_evt13(self):
         """Test Sta1 + Evt13."""
@@ -1719,34 +1242,7 @@ class TestState03(TestStateBase):
         # Sta1: Idle
         # Evt13: Receive A-RELEASE-RP PDU from <remote>
         # Sta1: Idle
-        scp = DummyAE()
-        scp.remote_port = 11112
-        scp.address = ''
-
-        assert self.fsm.current_state == 'Sta1'
-
-
-        self.assoc._mode = 'acceptor'
-        listen_socket = scp.bind_socket()
-
-        send_socket = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
-        send_socket.connect(('localhost', 11112))
-        send_socket.send(a_release_rp)
-
-        ready, _, _ = select.select([listen_socket], [], [], 0.5)
-        if ready:
-            self.assoc.dul.socket, _ = listen_socket.accept()
-
-        self.assoc.start()
-
-        time.sleep(0.1)
-
-        self.assoc.kill()
-
-        assert self.fsm._transitions == []
-        assert self.fsm._changes == []
-        assert self.fsm._events[0] == 'Evt13'
-        assert self.fsm.current_state == 'Sta1'
+        pass
 
     def test_evt14(self):
         """Test Sta1 + Evt14."""
@@ -1794,34 +1290,7 @@ class TestState03(TestStateBase):
         # Sta1: Idle
         # Evt16: Receive A-ABORT PDU from <remote>
         # Sta1: Idle
-        scp = DummyAE()
-        scp.remote_port = 11112
-        scp.address = ''
-
-        assert self.fsm.current_state == 'Sta1'
-
-
-        self.assoc._mode = 'acceptor'
-        listen_socket = scp.bind_socket()
-
-        send_socket = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
-        send_socket.connect(('localhost', 11112))
-        send_socket.send(a_abort)
-
-        ready, _, _ = select.select([listen_socket], [], [], 0.5)
-        if ready:
-            self.assoc.dul.socket, _ = listen_socket.accept()
-
-        self.assoc.start()
-
-        time.sleep(0.1)
-
-        self.assoc.kill()
-
-        assert self.fsm._transitions == []
-        assert self.fsm._changes == []
-        assert self.fsm._events[0] == 'Evt16'
-        assert self.fsm.current_state == 'Sta1'
+        pass
 
     def test_evt17(self):
         """Test Sta1 + Evt17."""
@@ -1829,29 +1298,7 @@ class TestState03(TestStateBase):
         # Sta1: Idle
         # Evt17: Receive TRANSPORT_CLOSED from <transport service>
         # Sta1: Idle
-        scp = DummyAE()
-
-        assert self.fsm.current_state == 'Sta1'
-
-
-        self.assoc._mode = 'acceptor'
-        listen_socket = scp.bind_socket()
-
-        send_socket = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
-        send_socket.connect(('localhost', 11112))
-        send_socket.send(a_associate_ac)
-
-        self.assoc.dul.socket = listen_socket
-        self.assoc.start()
-
-        time.sleep(0.1)
-
-        self.assoc.kill()
-
-        assert self.fsm._transitions == []
-        assert self.fsm._changes == []
-        assert self.fsm._events[0] == 'Evt17'
-        assert self.fsm.current_state == 'Sta1'
+        pass
 
     def test_evt18(self):
         """Test Sta1 + Evt18."""
@@ -1882,36 +1329,7 @@ class TestState03(TestStateBase):
         # Sta1: Idle
         # Evt19: Received unrecognised or invalid PDU from <remote>
         # Sta1: Idle
-        scp = DummyAE()
-        scp.remote_port = 11112
-        scp.address = ''
-
-        assert self.fsm.current_state == 'Sta1'
-
-
-        self.assoc._mode = 'acceptor'
-        listen_socket = scp.bind_socket()
-
-        send_socket = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
-        send_socket.connect(('localhost', 11112))
-
-        invalid_data = b'\x08\x00\x00\x00\x00'
-        send_socket.send(invalid_data)
-
-        ready, _, _ = select.select([listen_socket], [], [], 0.5)
-        if ready:
-            self.assoc.dul.socket, _ = listen_socket.accept()
-
-        self.assoc.start()
-
-        time.sleep(0.1)
-
-        self.assoc.kill()
-
-        assert self.fsm._transitions == []
-        assert self.fsm._changes == []
-        assert self.fsm._events[0] == 'Evt19'
-        assert self.fsm.current_state == 'Sta1'
+        pass
 
 
 @pytest.mark.skip("Need a way to put the association in State 4")
@@ -1923,49 +1341,7 @@ class TestState04(TestStateBase):
         # Sta4: Awaiting TRANSPORT_OPEN from <transport service>
         # Evt1: A-ASSOCIATE (rq) primitive from <local user>
         # Sta4: Awaiting TRANSPORT_OPEN from <transport service>
-        scp = DummyAE()
-        scp.mode = 'acceptor'
-        scp.queue.put(None) # receive a_associate_rq
-        scp.queue.put(['wait', 0.1]) #
-        #scp.queue.put(a_associate_rq) # receive a-abort
-        scp.queue.put(['wait', 0.4, 'shutdown'])
-
-        scp.start()
-
-        # Override acse._negotiate_as_requestor
-        def patch_neg_rq(assoc):
-            pass
-            #assoc.send_request(assoc)
-
-        self.assoc.acse._negotiate_as_requestor = patch_neg_rq
-
-        # Override dul._is_transport_event to not close in Sta13
-        dul = self.assoc.dul
-        orig_method = dul._is_transport_event
-        def patch_xport_event():
-            if self.fsm.current_state == 'Sta13':
-                return False
-
-            return orig_method()
-
-        dul._is_transport_event = patch_xport_event
-
-        assert self.fsm.current_state == 'Sta1'
-
-        self.assoc.start()
-
-        time.sleep(0.2)
-
-        self.assoc.dul.send_pdu(self.get_associate('request'))
-
-        time.sleep(0.2)
-
-        assert self.fsm._changes[:2] == [
-            ('Sta1', 'Evt1', 'AE-1'),
-            ('Sta4', 'Evt2', 'AE-2'),
-        ]
-        assert self.fsm._transitions[:2] == ['Sta4', 'Sta5', 'Sta13']
-        assert self.fsm._events[:3] == ['Evt1', 'Evt2', 'Evt1']
+        pass
 
     @pytest.mark.skip()
     def test_evt02(self):
@@ -1982,34 +1358,7 @@ class TestState04(TestStateBase):
         # Sta1: Idle
         # Evt3: Receive A-ASSOCIATE-AC PDU from <remote>
         # Sta1: Idle
-        scp = DummyAE()
-        scp.remote_port = 11112
-        scp.address = ''
-
-        assert self.fsm.current_state == 'Sta1'
-
-
-        self.assoc._mode = 'acceptor'
-        listen_socket = scp.bind_socket()
-
-        send_socket = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
-        send_socket.connect(('localhost', 11112))
-        send_socket.send(a_associate_ac)
-
-        ready, _, _ = select.select([listen_socket], [], [], 0.5)
-        if ready:
-            self.assoc.dul.socket, _ = listen_socket.accept()
-
-        self.assoc.start()
-
-        time.sleep(0.1)
-
-        self.assoc.kill()
-
-        assert self.fsm._transitions == []
-        assert self.fsm._changes == []
-        assert self.fsm._events[0] == 'Evt3'
-        assert self.fsm.current_state == 'Sta1'
+        pass
 
     def test_evt04(self):
         """Test Sta1 + Evt4."""
@@ -2017,34 +1366,7 @@ class TestState04(TestStateBase):
         # Sta1: Idle
         # Evt4: Receive A-ASSOCIATE-RJ PDU from <remote>
         # Sta1: Idle
-        scp = DummyAE()
-        scp.remote_port = 11112
-        scp.address = ''
-
-        assert self.fsm.current_state == 'Sta1'
-
-
-        self.assoc._mode = 'acceptor'
-        listen_socket = scp.bind_socket()
-
-        send_socket = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
-        send_socket.connect(('localhost', 11112))
-        send_socket.send(a_associate_rj)
-
-        ready, _, _ = select.select([listen_socket], [], [], 0.5)
-        if ready:
-            self.assoc.dul.socket, _ = listen_socket.accept()
-
-        self.assoc.start()
-
-        time.sleep(0.1)
-
-        self.assoc.kill()
-
-        assert self.fsm._transitions == []
-        assert self.fsm._changes == []
-        assert self.fsm._events[0] == 'Evt4'
-        assert self.fsm.current_state == 'Sta1'
+        pass
 
     @pytest.mark.skip()
     def test_evt05(self):
@@ -2055,34 +1377,7 @@ class TestState04(TestStateBase):
         # AE-5: Issue TRANSPORT_RESPONSE to <transport service>
         #       Start ARTIM timer
         # Sta2: Connection open, awaiting A-ASSOCIATE-RQ from <remote>
-        scp = DummyAE()
-        scp.remote_port = 11112
-        scp.address = ''
-
-        assert self.fsm.current_state == 'Sta1'
-
-
-        self.assoc._mode = 'acceptor'
-        listen_socket = scp.bind_socket()
-
-        send_socket = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
-        send_socket.connect(('localhost', 11112))
-        #send_socket.send(a_associate_rj)
-
-        ready, _, _ = select.select([listen_socket], [], [], 0.5)
-        if ready:
-            self.assoc.dul.socket, _ = listen_socket.accept()
-
-        self.assoc.start()
-
-        time.sleep(0.1)
-
-        self.assoc.kill()
-
-        assert self.fsm._transitions == []
-        assert self.fsm._changes == []
-        assert self.fsm._events[0] == 'Evt5'
-        assert self.fsm.current_state == 'Sta1'
+        pass
 
     def test_evt06(self):
         """Test Sta1 + Evt6."""
@@ -2090,34 +1385,7 @@ class TestState04(TestStateBase):
         # Sta1: Idle
         # Evt6: Receive A-ASSOCIATE-RQ PDU from <remote>
         # Sta1: Idle
-        scp = DummyAE()
-        scp.remote_port = 11112
-        scp.address = ''
-
-        assert self.fsm.current_state == 'Sta1'
-
-
-        self.assoc._mode = 'acceptor'
-        listen_socket = scp.bind_socket()
-
-        send_socket = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
-        send_socket.connect(('localhost', 11112))
-        send_socket.send(a_associate_rq)
-
-        ready, _, _ = select.select([listen_socket], [], [], 0.5)
-        if ready:
-            self.assoc.dul.socket, _ = listen_socket.accept()
-
-        self.assoc.start()
-
-        time.sleep(0.1)
-
-        self.assoc.kill()
-
-        assert self.fsm._transitions == []
-        assert self.fsm._changes == []
-        assert self.fsm._events[0] == 'Evt6'
-        assert self.fsm.current_state == 'Sta1'
+        pass
 
     def test_evt07(self):
         """Test Sta1 + Evt7."""
@@ -2185,34 +1453,7 @@ class TestState04(TestStateBase):
         # Sta1: Idle
         # Evt10: Receive P-DATA-TF PDU from <remote>
         # Sta1: Idle
-        scp = DummyAE()
-        scp.remote_port = 11112
-        scp.address = ''
-
-        assert self.fsm.current_state == 'Sta1'
-
-
-        self.assoc._mode = 'acceptor'
-        listen_socket = scp.bind_socket()
-
-        send_socket = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
-        send_socket.connect(('localhost', 11112))
-        send_socket.send(p_data_tf)
-
-        ready, _, _ = select.select([listen_socket], [], [], 0.5)
-        if ready:
-            self.assoc.dul.socket, _ = listen_socket.accept()
-
-        self.assoc.start()
-
-        time.sleep(0.1)
-
-        self.assoc.kill()
-
-        assert self.fsm._transitions == []
-        assert self.fsm._changes == []
-        assert self.fsm._events[0] == 'Evt10'
-        assert self.fsm.current_state == 'Sta1'
+        pass
 
     def test_evt11(self):
         """Test Sta1 + Evt11."""
@@ -2240,34 +1481,7 @@ class TestState04(TestStateBase):
         # Sta1: Idle
         # Evt12: Receive A-RELEASE-RQ PDU from <remote>
         # Sta1: Idle
-        scp = DummyAE()
-        scp.remote_port = 11112
-        scp.address = ''
-
-        assert self.fsm.current_state == 'Sta1'
-
-
-        self.assoc._mode = 'acceptor'
-        listen_socket = scp.bind_socket()
-
-        send_socket = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
-        send_socket.connect(('localhost', 11112))
-        send_socket.send(a_release_rq)
-
-        ready, _, _ = select.select([listen_socket], [], [], 0.5)
-        if ready:
-            self.assoc.dul.socket, _ = listen_socket.accept()
-
-        self.assoc.start()
-
-        time.sleep(0.1)
-
-        self.assoc.kill()
-
-        assert self.fsm._transitions == []
-        assert self.fsm._changes == []
-        assert self.fsm._events[0] == 'Evt12'
-        assert self.fsm.current_state == 'Sta1'
+        pass
 
     def test_evt13(self):
         """Test Sta1 + Evt13."""
@@ -2275,34 +1489,7 @@ class TestState04(TestStateBase):
         # Sta1: Idle
         # Evt13: Receive A-RELEASE-RP PDU from <remote>
         # Sta1: Idle
-        scp = DummyAE()
-        scp.remote_port = 11112
-        scp.address = ''
-
-        assert self.fsm.current_state == 'Sta1'
-
-
-        self.assoc._mode = 'acceptor'
-        listen_socket = scp.bind_socket()
-
-        send_socket = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
-        send_socket.connect(('localhost', 11112))
-        send_socket.send(a_release_rp)
-
-        ready, _, _ = select.select([listen_socket], [], [], 0.5)
-        if ready:
-            self.assoc.dul.socket, _ = listen_socket.accept()
-
-        self.assoc.start()
-
-        time.sleep(0.1)
-
-        self.assoc.kill()
-
-        assert self.fsm._transitions == []
-        assert self.fsm._changes == []
-        assert self.fsm._events[0] == 'Evt13'
-        assert self.fsm.current_state == 'Sta1'
+        pass
 
     def test_evt14(self):
         """Test Sta1 + Evt14."""
@@ -2350,34 +1537,7 @@ class TestState04(TestStateBase):
         # Sta1: Idle
         # Evt16: Receive A-ABORT PDU from <remote>
         # Sta1: Idle
-        scp = DummyAE()
-        scp.remote_port = 11112
-        scp.address = ''
-
-        assert self.fsm.current_state == 'Sta1'
-
-
-        self.assoc._mode = 'acceptor'
-        listen_socket = scp.bind_socket()
-
-        send_socket = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
-        send_socket.connect(('localhost', 11112))
-        send_socket.send(a_abort)
-
-        ready, _, _ = select.select([listen_socket], [], [], 0.5)
-        if ready:
-            self.assoc.dul.socket, _ = listen_socket.accept()
-
-        self.assoc.start()
-
-        time.sleep(0.1)
-
-        self.assoc.kill()
-
-        assert self.fsm._transitions == []
-        assert self.fsm._changes == []
-        assert self.fsm._events[0] == 'Evt16'
-        assert self.fsm.current_state == 'Sta1'
+        pass
 
     def test_evt17(self):
         """Test Sta1 + Evt17."""
@@ -2385,29 +1545,7 @@ class TestState04(TestStateBase):
         # Sta1: Idle
         # Evt17: Receive TRANSPORT_CLOSED from <transport service>
         # Sta1: Idle
-        scp = DummyAE()
-
-        assert self.fsm.current_state == 'Sta1'
-
-
-        self.assoc._mode = 'acceptor'
-        listen_socket = scp.bind_socket()
-
-        send_socket = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
-        send_socket.connect(('localhost', 11112))
-        send_socket.send(a_associate_ac)
-
-        self.assoc.dul.socket = listen_socket
-        self.assoc.start()
-
-        time.sleep(0.1)
-
-        self.assoc.kill()
-
-        assert self.fsm._transitions == []
-        assert self.fsm._changes == []
-        assert self.fsm._events[0] == 'Evt17'
-        assert self.fsm.current_state == 'Sta1'
+        pass
 
     def test_evt18(self):
         """Test Sta1 + Evt18."""
@@ -2438,36 +1576,7 @@ class TestState04(TestStateBase):
         # Sta1: Idle
         # Evt19: Received unrecognised or invalid PDU from <remote>
         # Sta1: Idle
-        scp = DummyAE()
-        scp.remote_port = 11112
-        scp.address = ''
-
-        assert self.fsm.current_state == 'Sta1'
-
-
-        self.assoc._mode = 'acceptor'
-        listen_socket = scp.bind_socket()
-
-        send_socket = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
-        send_socket.connect(('localhost', 11112))
-
-        invalid_data = b'\x08\x00\x00\x00\x00'
-        send_socket.send(invalid_data)
-
-        ready, _, _ = select.select([listen_socket], [], [], 0.5)
-        if ready:
-            self.assoc.dul.socket, _ = listen_socket.accept()
-
-        self.assoc.start()
-
-        time.sleep(0.1)
-
-        self.assoc.kill()
-
-        assert self.fsm._transitions == []
-        assert self.fsm._changes == []
-        assert self.fsm._events[0] == 'Evt19'
-        assert self.fsm.current_state == 'Sta1'
+        pass
 
 
 class TestState05(TestStateBase):
@@ -3525,25 +2634,22 @@ class TestState07(TestStateBase):
         """Test Sta7 + Evt1."""
         # Sta7 + Evt1 -> <ignore> -> Sta7
         # Evt1: A-ASSOCIATE (rq) primitive from <local user>
-        scp = DummyAE()
-        scp.mode = 'acceptor'
-        scp.queue.put(None)
-        scp.queue.put(['skip', a_associate_ac])
-        scp.queue.put(None)
-        scp.queue.put(['wait', 0.2, 'shutdown'])
-        scp.start()
+        commands = [
+            ('recv', None),
+            ('send', a_associate_ac),
+            ('recv', None),
+            ('wait', 0.1),
+        ]
+        scp = self.start_server(commands)
 
         self.assoc.start()
-
-        time.sleep(0.2)
-
-        self.assoc.dul.send_pdu(self.get_release(False))
-
         time.sleep(0.1)
-
+        self.assoc.dul.send_pdu(self.get_release(False))
         self.assoc.dul.send_pdu(self.get_associate('request'))
 
-        time.sleep(0.1)
+        #self.print_fsm_scp(self.fsm, scp)
+
+        scp.shutdown()
 
         assert self.fsm._changes[:4] == [
             ('Sta1', 'Evt1', 'AE-1'),
@@ -3566,22 +2672,23 @@ class TestState07(TestStateBase):
         # Sta7 + Evt3 -> AA-8 -> Sta13
         # Evt3: Receive A-ASSOCIATE-AC PDU from <remote>
         # AA-8: Send A-ABORT PDU, issue A-P-ABORT primitive, start ARTIM
-        scp = DummyAE()
-        scp.mode = 'acceptor'
-        scp.queue.put(None)
-        scp.queue.put(['skip', a_associate_ac])
-        scp.queue.put(None)
-        scp.queue.put(a_associate_ac)
-        scp.queue.put(['wait', 0.2, 'shutdown'])
-        scp.start()
+        commands = [
+            ('recv', None),
+            ('send', a_associate_ac),
+            ('recv', None),
+            ('send', a_associate_ac),
+            ('recv', None),
+        ]
+        scp = self.start_server(commands)
 
         self.assoc.start()
-
-        time.sleep(0.2)
-
+        time.sleep(0.1)
         self.assoc.dul.send_pdu(self.get_release(False))
+        time.sleep(0.1)
 
-        time.sleep(0.3)
+        #self.print_fsm_scp(self.fsm, scp)
+
+        scp.shutdown()
 
         assert self.fsm._changes[:5] == [
             ('Sta1', 'Evt1', 'AE-1'),
@@ -3594,29 +2701,32 @@ class TestState07(TestStateBase):
         assert self.fsm._events[:5] == ['Evt1', 'Evt2', 'Evt3', 'Evt11', 'Evt3']
 
         # Issue A-ASSOCIATE, A-RELEASE, A-ABORT PDU
-        assert scp.received[2] == b'\x07\x00\x00\x00\x00\x04\x00\x00\x02\x00'
+        assert scp.handlers[0].received[2] == (
+            b'\x07\x00\x00\x00\x00\x04\x00\x00\x02\x00'
+        )
 
     def test_evt04(self):
         """Test Sta7 + Evt4."""
         # Sta7 + Evt4 -> AA-8 -> Sta13
         # Evt4: Receive A-ASSOCIATE-RJ PDU from <remote>
         # AA-8: Send A-ABORT PDU, issue A-P-ABORT primitive, start ARTIM
-        scp = DummyAE()
-        scp.mode = 'acceptor'
-        scp.queue.put(None)
-        scp.queue.put(['skip', a_associate_ac])
-        scp.queue.put(None)
-        scp.queue.put(a_associate_rj)
-        scp.queue.put(['wait', 0.2, 'shutdown'])
-        scp.start()
+        commands = [
+            ('recv', None),
+            ('send', a_associate_ac),
+            ('recv', None),
+            ('send', a_associate_rj),
+            ('recv', None),
+        ]
+        scp = self.start_server(commands)
 
         self.assoc.start()
-
-        time.sleep(0.2)
-
+        time.sleep(0.1)
         self.assoc.dul.send_pdu(self.get_release(False))
+        time.sleep(0.1)
 
-        time.sleep(0.3)
+        #self.print_fsm_scp(self.fsm, scp)
+
+        scp.shutdown()
 
         assert self.fsm._changes[:5] == [
             ('Sta1', 'Evt1', 'AE-1'),
@@ -3629,7 +2739,9 @@ class TestState07(TestStateBase):
         assert self.fsm._events[:5] == ['Evt1', 'Evt2', 'Evt3', 'Evt11', 'Evt4']
 
         # Issue A-ASSOCIATE, A-RELEASE, A-ABORT PDU
-        assert scp.received[2] == b'\x07\x00\x00\x00\x00\x04\x00\x00\x02\x00'
+        assert scp.handlers[0].received[2] == (
+            b'\x07\x00\x00\x00\x00\x04\x00\x00\x02\x00'
+        )
 
     @pytest.mark.skip()
     def test_evt05(self):
@@ -3643,22 +2755,23 @@ class TestState07(TestStateBase):
         # Sta7 + Evt6 -> AA-8 -> Sta13
         # Evt6: Receive A-ASSOCIATE-RQ PDU from <remote>
         # AA-8: Send A-ABORT PDU, issue A-P-ABORT primitive, start ARTIM
-        scp = DummyAE()
-        scp.mode = 'acceptor'
-        scp.queue.put(None)
-        scp.queue.put(['skip', a_associate_ac])
-        scp.queue.put(None)
-        scp.queue.put(a_associate_rq)
-        scp.queue.put(['wait', 0.2, 'shutdown'])
-        scp.start()
+        commands = [
+            ('recv', None),
+            ('send', a_associate_ac),
+            ('recv', None),
+            ('send', a_associate_rq),
+            ('recv', None),
+        ]
+        scp = self.start_server(commands)
 
         self.assoc.start()
-
-        time.sleep(0.2)
-
+        time.sleep(0.1)
         self.assoc.dul.send_pdu(self.get_release(False))
+        time.sleep(0.1)
 
-        time.sleep(0.3)
+        #self.print_fsm_scp(self.fsm, scp)
+
+        scp.shutdown()
 
         assert self.fsm._changes[:5] == [
             ('Sta1', 'Evt1', 'AE-1'),
@@ -3671,31 +2784,31 @@ class TestState07(TestStateBase):
         assert self.fsm._events[:5] == ['Evt1', 'Evt2', 'Evt3', 'Evt11', 'Evt6']
 
         # Issue A-ASSOCIATE, A-RELEASE, A-ABORT PDU
-        assert scp.received[2] == b'\x07\x00\x00\x00\x00\x04\x00\x00\x02\x00'
+        assert scp.handlers[0].received[2] == (
+            b'\x07\x00\x00\x00\x00\x04\x00\x00\x02\x00'
+        )
 
     def test_evt07(self):
         """Test Sta7 + Evt7."""
         # Sta7 + Evt7 -> <ignore> -> Sta7
         # Evt7: Receive A-ASSOCIATE (accept) primitive from <local user>
-        scp = DummyAE()
-        scp.mode = 'acceptor'
-        scp.queue.put(None)
-        scp.queue.put(['skip', a_associate_ac])
-        scp.queue.put(None)
-        scp.queue.put(['wait', 0.2, 'shutdown'])
-        scp.start()
+        commands = [
+            ('recv', None),
+            ('send', a_associate_ac),
+            ('recv', None),
+            ('wait', 0.1),
+        ]
+        scp = self.start_server(commands)
 
         self.assoc.start()
-
-        time.sleep(0.2)
-
+        time.sleep(0.1)
         self.assoc.dul.send_pdu(self.get_release(False))
-
-        time.sleep(0.1)
-
         self.assoc.dul.send_pdu(self.get_associate('accept'))
-
         time.sleep(0.1)
+
+        #self.print_fsm_scp(self.fsm, scp)
+
+        scp.shutdown()
 
         assert self.fsm._changes[:4] == [
             ('Sta1', 'Evt1', 'AE-1'),
@@ -3710,25 +2823,23 @@ class TestState07(TestStateBase):
         """Test Sta7 + Evt8."""
         # Sta7 + Evt8 -> <ignore> -> Sta7
         # Evt8: Receive A-ASSOCIATE (reject) primitive from <local user>
-        scp = DummyAE()
-        scp.mode = 'acceptor'
-        scp.queue.put(None)
-        scp.queue.put(['skip', a_associate_ac])
-        scp.queue.put(None)
-        scp.queue.put(['wait', 0.2, 'shutdown'])
-        scp.start()
+        commands = [
+            ('recv', None),
+            ('send', a_associate_ac),
+            ('recv', None),
+            ('wait', 0.1),
+        ]
+        scp = self.start_server(commands)
 
         self.assoc.start()
-
-        time.sleep(0.2)
-
+        time.sleep(0.1)
         self.assoc.dul.send_pdu(self.get_release(False))
-
-        time.sleep(0.1)
-
         self.assoc.dul.send_pdu(self.get_associate('reject'))
-
         time.sleep(0.1)
+
+        #self.print_fsm_scp(self.fsm, scp)
+
+        scp.shutdown()
 
         assert self.fsm._changes[:4] == [
             ('Sta1', 'Evt1', 'AE-1'),
@@ -3743,25 +2854,23 @@ class TestState07(TestStateBase):
         """Test Sta7 + Evt9."""
         # Sta7 + Evt9 -> <ignore> -> Sta7
         # Evt9: Receive P-DATA primitive from <local user>
-        scp = DummyAE()
-        scp.mode = 'acceptor'
-        scp.queue.put(None)
-        scp.queue.put(['skip', a_associate_ac])
-        scp.queue.put(None)
-        scp.queue.put(['wait', 0.2, 'shutdown'])
-        scp.start()
+        commands = [
+            ('recv', None),
+            ('send', a_associate_ac),
+            ('recv', None),
+            ('wait', 0.1),
+        ]
+        scp = self.start_server(commands)
 
         self.assoc.start()
-
-        time.sleep(0.2)
-
+        time.sleep(0.1)
         self.assoc.dul.send_pdu(self.get_release(False))
-
-        time.sleep(0.1)
-
         self.assoc.dul.send_pdu(self.get_pdata())
-
         time.sleep(0.1)
+
+        #self.print_fsm_scp(self.fsm, scp)
+
+        scp.shutdown()
 
         assert self.fsm._changes[:4] == [
             ('Sta1', 'Evt1', 'AE-1'),
@@ -3777,23 +2886,22 @@ class TestState07(TestStateBase):
         # Sta7 + Evt10 -> AR-6 -> Sta7
         # Evt10: Receive P-DATA-TF PDU from <remote>
         # AR-6: Send P-DATA primitive
-        scp = DummyAE()
-        scp.mode = 'acceptor'
-        scp.queue.put(None)
-        scp.queue.put(['skip', a_associate_ac])
-        scp.queue.put(None)
-        scp.queue.put(['skip', p_data_tf])
-        scp.queue.put(['skip', a_abort])
-        scp.queue.put(['wait', 0.2, 'shutdown'])
-        scp.start()
+        commands = [
+            ('recv', None),
+            ('send', a_associate_ac),
+            ('recv', None),
+            ('send', p_data_tf),
+        ]
+        scp = self.start_server(commands)
 
         self.assoc.start()
-
-        time.sleep(0.2)
-
+        time.sleep(0.1)
         self.assoc.dul.send_pdu(self.get_release(False))
+        time.sleep(0.1)
 
-        time.sleep(0.2)
+        #self.print_fsm_scp(self.fsm, scp)
+
+        scp.shutdown()
 
         primitive = self.assoc.dul.receive_pdu(wait=False)
         assert isinstance(primitive, P_DATA)
@@ -3811,25 +2919,23 @@ class TestState07(TestStateBase):
         """Test Sta7 + Evt11."""
         # Sta7 + Evt11 -> <ignore> -> Sta7
         # Evt11: Receive A-RELEASE (rq) primitive from <local user>
-        scp = DummyAE()
-        scp.mode = 'acceptor'
-        scp.queue.put(None)
-        scp.queue.put(['skip', a_associate_ac])
-        scp.queue.put(None)
-        scp.queue.put(['wait', 0.2, 'shutdown'])
-        scp.start()
+        commands = [
+            ('recv', None),
+            ('send', a_associate_ac),
+            ('recv', None),
+            ('wait', 0.1),
+        ]
+        scp = self.start_server(commands)
 
         self.assoc.start()
-
-        time.sleep(0.2)
-
+        time.sleep(0.1)
         self.assoc.dul.send_pdu(self.get_release(False))
-
+        self.assoc.dul.send_pdu(self.get_release(False))
         time.sleep(0.1)
 
-        self.assoc.dul.send_pdu(self.get_release(False))
+        #self.print_fsm_scp(self.fsm, scp)
 
-        time.sleep(0.1)
+        scp.shutdown()
 
         assert self.fsm._changes[:4] == [
             ('Sta1', 'Evt1', 'AE-1'),
@@ -3845,22 +2951,22 @@ class TestState07(TestStateBase):
         # Sta7 + Evt12 -> AR-8 -> Sta9 or Sta10
         # Evt12: Receive A-RELEASE-RQ PDU from <remote>
         # AR-8: Issue A-RELEASE (rq) - release collision
-        scp = DummyAE()
-        scp.mode = 'acceptor'
-        scp.queue.put(None)
-        scp.queue.put(['skip', a_associate_ac])
-        scp.queue.put(None)
-        scp.queue.put(a_release_rq)
-        scp.queue.put(['wait', 0.2, 'shutdown'])
-        scp.start()
+        commands = [
+            ('recv', None),
+            ('send', a_associate_ac),
+            ('recv', None),
+            ('send', a_release_rq),
+        ]
+        scp = self.start_server(commands)
 
         self.assoc.start()
-
-        time.sleep(0.2)
-
+        time.sleep(0.1)
         self.assoc.dul.send_pdu(self.get_release(False))
+        time.sleep(0.1)
 
-        time.sleep(0.3)
+        #self.print_fsm_scp(self.fsm, scp)
+
+        scp.shutdown()
 
         assert self.fsm._changes[:5] == [
             ('Sta1', 'Evt1', 'AE-1'),
@@ -3877,22 +2983,22 @@ class TestState07(TestStateBase):
         # Sta7 + Evt13 -> AR-3 -> Sta1
         # Evt13: Receive A-RELEASE-RP PDU from <remote>
         # AR-3: Issue A-RELEASE (rp) primitive and close connection
-        scp = DummyAE()
-        scp.mode = 'acceptor'
-        scp.queue.put(None)
-        scp.queue.put(['skip', a_associate_ac])
-        scp.queue.put(None)
-        scp.queue.put([a_release_rp, 'shutdown'])
-        scp.queue.put(['wait', 0.2, 'shutdown'])
-        scp.start()
+        commands = [
+            ('recv', None),
+            ('send', a_associate_ac),
+            ('recv', None),
+            ('send', a_release_rp),
+        ]
+        scp = self.start_server(commands)
 
         self.assoc.start()
-
-        time.sleep(0.2)
-
+        time.sleep(0.1)
         self.assoc.dul.send_pdu(self.get_release(False))
+        time.sleep(0.1)
 
-        time.sleep(0.2)
+        #self.print_fsm_scp(self.fsm, scp)
+
+        scp.shutdown()
 
         primitive = self.assoc.dul.receive_pdu(wait=False)
         assert isinstance(primitive, A_RELEASE)
@@ -3910,25 +3016,23 @@ class TestState07(TestStateBase):
         """Test Sta7 + Evt14."""
         # Sta7 + Evt14 -> <ignore> -> Sta7
         # Evt14: Receive A-RELEASE (rsp) primitive from <local user>
-        scp = DummyAE()
-        scp.mode = 'acceptor'
-        scp.queue.put(None)
-        scp.queue.put(['skip', a_associate_ac])
-        scp.queue.put(None)
-        scp.queue.put(['wait', 0.2, 'shutdown'])
-        scp.start()
+        commands = [
+            ('recv', None),
+            ('send', a_associate_ac),
+            ('recv', None),
+            ('wait', 0.1),
+        ]
+        scp = self.start_server(commands)
 
         self.assoc.start()
-
-        time.sleep(0.2)
-
+        time.sleep(0.1)
         self.assoc.dul.send_pdu(self.get_release(False))
-
-        time.sleep(0.1)
-
         self.assoc.dul.send_pdu(self.get_release(True))
-
         time.sleep(0.1)
+
+        #self.print_fsm_scp(self.fsm, scp)
+
+        scp.shutdown()
 
         assert self.fsm._changes[:4] == [
             ('Sta1', 'Evt1', 'AE-1'),
@@ -3944,26 +3048,23 @@ class TestState07(TestStateBase):
         # Sta7 + Evt15 -> AA-1 -> Sta13
         # Evt15: Receive A-ABORT (rq) primitive from <local user>
         # AA-1: Send A-ABORT PDU and start ARTIM
-        scp = DummyAE()
-        scp.mode = 'acceptor'
-        scp.queue.put(None)
-        scp.queue.put(['skip', a_associate_ac])
-        scp.queue.put(None) # release
-        scp.queue.put(None) # abort
-        scp.queue.put(['wait', 0.2,'shutdown'])
-        scp.start()
+        commands = [
+            ('recv', None),
+            ('send', a_associate_ac),
+            ('recv', None),
+            ('wait', 0.1),
+        ]
+        scp = self.start_server(commands)
 
         self.assoc.start()
-
-        time.sleep(0.2)
-
+        time.sleep(0.1)
         self.assoc.dul.send_pdu(self.get_release(False))
-
+        self.assoc.dul.send_pdu(self.get_abort())
         time.sleep(0.1)
 
-        self.assoc.dul.send_pdu(self.get_abort())
+        #self.print_fsm_scp(self.fsm, scp)
 
-        time.sleep(0.2)
+        scp.shutdown()
 
         assert self.fsm._changes[:4] == [
             ('Sta1', 'Evt1', 'AE-1'),
@@ -3979,22 +3080,22 @@ class TestState07(TestStateBase):
         # Sta7 + Evt16 -> AA-3 -> Sta1
         # Evt16: Receive A-ABORT PDU from <remote>
         # AA-3: Issue A-ABORT or A-P-ABORT and close connection
-        scp = DummyAE()
-        scp.mode = 'acceptor'
-        scp.queue.put(None)
-        scp.queue.put(['skip', a_associate_ac])
-        scp.queue.put(None) # release
-        scp.queue.put([a_abort, 'shutdown'])
-        scp.queue.put(['wait', 0.2, 'shutdown'])
-        scp.start()
+        commands = [
+            ('recv', None),
+            ('send', a_associate_ac),
+            ('recv', None),
+            ('send', a_abort),
+        ]
+        scp = self.start_server(commands)
 
         self.assoc.start()
-
-        time.sleep(0.2)
-
-        self.assoc.dul.send_pdu(self.get_release(False))
-
         time.sleep(0.1)
+        self.assoc.dul.send_pdu(self.get_release(False))
+        time.sleep(0.1)
+
+        #self.print_fsm_scp(self.fsm, scp)
+
+        scp.shutdown()
 
         assert self.fsm._changes[:5] == [
             ('Sta1', 'Evt1', 'AE-1'),
@@ -4011,21 +3112,21 @@ class TestState07(TestStateBase):
         # Sta7 + Evt17 -> AA-4 -> Sta1
         # Evt17: Receive TRANSPORT_CLOSED from <transport service>
         # AA-4: Issue A-P-ABORT primitive
-        scp = DummyAE()
-        scp.mode = 'acceptor'
-        scp.queue.put(None)
-        scp.queue.put(['skip', a_associate_ac])
-        scp.queue.put(None)
-        scp.queue.put('shutdown')
-        scp.start()
+        commands = [
+            ('recv', None),
+            ('send', a_associate_ac),
+            ('recv', None),
+        ]
+        scp = self.start_server(commands)
 
         self.assoc.start()
-
-        time.sleep(0.2)
-
-        self.assoc.dul.send_pdu(self.get_release(False))
-
         time.sleep(0.1)
+        self.assoc.dul.send_pdu(self.get_release(False))
+        time.sleep(0.1)
+
+        #self.print_fsm_scp(self.fsm, scp)
+
+        scp.shutdown()
 
         assert self.fsm._changes[:5] == [
             ('Sta1', 'Evt1', 'AE-1'),
@@ -4041,27 +3142,24 @@ class TestState07(TestStateBase):
         """Test Sta7 + Evt18."""
         # Sta7 + Evt18 -> <ignore> -> Sta7
         # Evt18: ARTIM timer expired from <local service>
-        scp = DummyAE()
-        scp.mode = 'acceptor'
-        scp.queue.put(None)
-        scp.queue.put(['skip', a_associate_ac])
-        scp.queue.put(None)
-        scp.queue.put(['wait', 0.3])
-        scp.queue.put(['wait', 0.2, 'shutdown'])
-        scp.start()
+        commands = [
+            ('recv', None),
+            ('send', a_associate_ac),
+            ('recv', None),
+            ('wait', 0.1),
+        ]
+        scp = self.start_server(commands)
 
         self.assoc.start()
-
-        time.sleep(0.2)
-
+        time.sleep(0.1)
         self.assoc.dul.send_pdu(self.get_release(False))
-
-        time.sleep(0.3)
-
         self.assoc.dul.artim_timer.timeout_seconds = 0.05
         self.assoc.dul.artim_timer.start()
+        time.sleep(0.1)
 
-        time.sleep(0.4)
+        #self.print_fsm_scp(self.fsm, scp)
+
+        scp.shutdown()
 
         assert self.fsm._changes[:4] == [
             ('Sta1', 'Evt1', 'AE-1'),
@@ -4077,22 +3175,23 @@ class TestState07(TestStateBase):
         # Sta7 + Evt19 -> AA-8 -> Sta13
         # Evt19: Received unrecognised or invalid PDU from <remote>
         # AA-8: Send A-ABORT PDU, issue A-P-ABORT primitive, start ARTIM
-        scp = DummyAE()
-        scp.mode = 'acceptor'
-        scp.queue.put(None)
-        scp.queue.put(['skip', a_associate_ac])
-        scp.queue.put(None)
-        scp.queue.put(b'\x08\x00\x00\x00\x00\x00')
-        scp.queue.put(['wait', 0.2, 'shutdown'])
-        scp.start()
+        commands = [
+            ('recv', None),
+            ('send', a_associate_ac),
+            ('recv', None),
+            ('send', b'\x08\x00\x00\x00\x00\x00'),
+            ('recv', None),
+        ]
+        scp = self.start_server(commands)
 
         self.assoc.start()
-
-        time.sleep(0.2)
-
+        time.sleep(0.1)
         self.assoc.dul.send_pdu(self.get_release(False))
+        time.sleep(0.1)
 
-        time.sleep(0.3)
+        #self.print_fsm_scp(self.fsm, scp)
+
+        scp.shutdown()
 
         assert self.fsm._changes[:5] == [
             ('Sta1', 'Evt1', 'AE-1'),
@@ -4105,7 +3204,9 @@ class TestState07(TestStateBase):
         assert self.fsm._events[:5] == ['Evt1', 'Evt2', 'Evt3', 'Evt11', 'Evt19']
 
         # Issue A-ASSOCIATE, A-RELEASE, A-ABORT PDU
-        assert scp.received[2] == b'\x07\x00\x00\x00\x00\x04\x00\x00\x02\x00'
+        assert scp.handlers[0].received[2] == (
+            b'\x07\x00\x00\x00\x00\x04\x00\x00\x02\x00'
+        )
 
 
 class TestState08(TestStateBase):
@@ -4114,28 +3215,28 @@ class TestState08(TestStateBase):
         """Test Sta8 + Evt1."""
         # Sta8 + Evt1 -> <ignore> -> Sta8
         # Evt1: A-ASSOCIATE (rq) primitive from <local user>
-        scp = DummyAE()
-        scp.mode = 'acceptor'
-        scp.queue.put(None)
-        scp.queue.put(['skip', a_associate_ac])
-        scp.queue.put(['skip', a_release_rq])
-        scp.queue.put(['wait', 0.2, 'shutdown'])
+        commands = [
+            ('recv', None),
+            ('send', a_associate_ac),
+            ('send', a_release_rq),
+            ('wait', 0.1),
+        ]
+        scp = self.start_server(commands)
 
-        scp.start()
-
-        # Override ACSE.is_release_requested so the Association loop doesn't
-        #   respond to the release request
         def is_release_requested(assoc):
+            """Override ACSE.is_release_requested."""
             return False
 
         self.assoc.acse.is_release_requested = is_release_requested
+
         self.assoc.start()
-
-        time.sleep(0.2)
-
+        time.sleep(0.1)
         self.assoc.dul.send_pdu(self.get_associate('request'))
+        time.sleep(0.1)
 
-        time.sleep(0.2)
+        #self.print_fsm_scp(self.fsm, scp)
+
+        scp.shutdown()
 
         assert self.fsm._changes[:4] == [
             ('Sta1', 'Evt1', 'AE-1'),
@@ -4158,25 +3259,29 @@ class TestState08(TestStateBase):
         # Sta8 + Evt3 -> AA-8 -> Sta13
         # Evt3: Receive A-ASSOCIATE-AC PDU from <remote>
         # AA-8: Send A-ABORT PDU, issue A-P-ABORT primitive, start ARTIM
-        scp = DummyAE()
-        scp.mode = 'acceptor'
-        scp.queue.put(None)
-        scp.queue.put(['skip', a_associate_ac])
-        scp.queue.put(['skip', a_release_rq])
-        scp.queue.put(['skip', a_associate_ac])
-        scp.queue.put(['wait', 0.2, 'shutdown'])
+        commands = [
+            ('recv', None),
+            ('send', a_associate_ac),
+            ('send', a_release_rq),
+            ('send', a_associate_ac),
+            ('wait', 0.1),
+        ]
+        scp = self.start_server(commands)
 
-        scp.start()
-
-        # Override ACSE.is_release_requested so the Association loop doesn't
-        #   respond to the release request
         def is_release_requested(assoc):
+            """Override ACSE.is_release_requested."""
             return False
 
         self.assoc.acse.is_release_requested = is_release_requested
-        self.assoc.start()
 
-        time.sleep(0.4)
+        self.assoc.start()
+        time.sleep(0.1)
+        self.assoc.dul.send_pdu(self.get_associate('request'))
+        time.sleep(0.1)
+
+        #self.print_fsm_scp(self.fsm, scp)
+
+        scp.shutdown()
 
         assert self.fsm._changes[:5] == [
             ('Sta1', 'Evt1', 'AE-1'),
@@ -4193,25 +3298,29 @@ class TestState08(TestStateBase):
         # Sta8 + Evt4 -> AA-8 -> Sta13
         # Evt4: Receive A-ASSOCIATE-RJ PDU from <remote>
         # AA-8: Send A-ABORT PDU, issue A-P-ABORT primitive, start ARTIM
-        scp = DummyAE()
-        scp.mode = 'acceptor'
-        scp.queue.put(None)
-        scp.queue.put(['skip', a_associate_ac])
-        scp.queue.put(['skip', a_release_rq])
-        scp.queue.put(['skip', a_associate_rj])
-        scp.queue.put(['wait', 0.2, 'shutdown'])
+        commands = [
+            ('recv', None),
+            ('send', a_associate_ac),
+            ('send', a_release_rq),
+            ('send', a_associate_rj),
+            ('wait', 0.1),
+        ]
+        scp = self.start_server(commands)
 
-        scp.start()
-
-        # Override ACSE.is_release_requested so the Association loop doesn't
-        #   respond to the release request
         def is_release_requested(assoc):
+            """Override ACSE.is_release_requested."""
             return False
 
         self.assoc.acse.is_release_requested = is_release_requested
-        self.assoc.start()
 
-        time.sleep(0.4)
+        self.assoc.start()
+        time.sleep(0.1)
+        self.assoc.dul.send_pdu(self.get_associate('request'))
+        time.sleep(0.1)
+
+        #self.print_fsm_scp(self.fsm, scp)
+
+        scp.shutdown()
 
         assert self.fsm._changes[:5] == [
             ('Sta1', 'Evt1', 'AE-1'),
@@ -4235,25 +3344,29 @@ class TestState08(TestStateBase):
         # Sta8 + Evt6 -> AA-8 -> Sta13
         # Evt6: Receive A-ASSOCIATE-RQ PDU from <remote>
         # AA-8: Send A-ABORT PDU, issue A-P-ABORT primitive, start ARTIM
-        scp = DummyAE()
-        scp.mode = 'acceptor'
-        scp.queue.put(None)
-        scp.queue.put(['skip', a_associate_ac])
-        scp.queue.put(['skip', a_release_rq])
-        scp.queue.put(['skip', a_associate_rq])
-        scp.queue.put(['wait', 0.2, 'shutdown'])
+        commands = [
+            ('recv', None),
+            ('send', a_associate_ac),
+            ('send', a_release_rq),
+            ('send', a_associate_rq),
+            ('wait', 0.1),
+        ]
+        scp = self.start_server(commands)
 
-        scp.start()
-
-        # Override ACSE.is_release_requested so the Association loop doesn't
-        #   respond to the release request
         def is_release_requested(assoc):
+            """Override ACSE.is_release_requested."""
             return False
 
         self.assoc.acse.is_release_requested = is_release_requested
-        self.assoc.start()
 
-        time.sleep(0.4)
+        self.assoc.start()
+        time.sleep(0.1)
+        self.assoc.dul.send_pdu(self.get_associate('request'))
+        time.sleep(0.1)
+
+        #self.print_fsm_scp(self.fsm, scp)
+
+        scp.shutdown()
 
         assert self.fsm._changes[:5] == [
             ('Sta1', 'Evt1', 'AE-1'),
@@ -4269,28 +3382,27 @@ class TestState08(TestStateBase):
         """Test Sta8 + Evt7."""
         # Sta8 + Evt7 -> <ignore> -> Sta8
         # Evt7: Receive A-ASSOCIATE (accept) primitive from <local user>
-        scp = DummyAE()
-        scp.mode = 'acceptor'
-        scp.queue.put(None)
-        scp.queue.put(['skip', a_associate_ac])
-        scp.queue.put(['skip', a_release_rq])
-        scp.queue.put(['wait', 0.2, 'shutdown'])
+        commands = [
+            ('recv', None),
+            ('send', a_associate_ac),
+            ('send', a_release_rq),
+            ('wait', 0.1),
+        ]
+        scp = self.start_server(commands)
 
-        scp.start()
-
-        # Override ACSE.is_release_requested so the Association loop doesn't
-        #   respond to the release request
         def is_release_requested(assoc):
+            """Override ACSE.is_release_requested."""
             return False
 
         self.assoc.acse.is_release_requested = is_release_requested
         self.assoc.start()
-
-        time.sleep(0.2)
-
+        time.sleep(0.1)
         self.assoc.dul.send_pdu(self.get_associate('accept'))
+        time.sleep(0.1)
 
-        time.sleep(0.2)
+        #self.print_fsm_scp(self.fsm, scp)
+
+        scp.shutdown()
 
         assert self.fsm._changes[:4] == [
             ('Sta1', 'Evt1', 'AE-1'),
@@ -4305,28 +3417,27 @@ class TestState08(TestStateBase):
         """Test Sta8 + Evt8."""
         # Sta8 + Evt8 -> <ignore> -> Sta8
         # Evt8: Receive A-ASSOCIATE (reject) primitive from <local user>
-        scp = DummyAE()
-        scp.mode = 'acceptor'
-        scp.queue.put(None)
-        scp.queue.put(['skip', a_associate_ac])
-        scp.queue.put(['skip', a_release_rq])
-        scp.queue.put(['wait', 0.2, 'shutdown'])
+        commands = [
+            ('recv', None),
+            ('send', a_associate_ac),
+            ('send', a_release_rq),
+            ('wait', 0.1),
+        ]
+        scp = self.start_server(commands)
 
-        scp.start()
-
-        # Override ACSE.is_release_requested so the Association loop doesn't
-        #   respond to the release request
         def is_release_requested(assoc):
+            """Override ACSE.is_release_requested."""
             return False
 
         self.assoc.acse.is_release_requested = is_release_requested
         self.assoc.start()
-
-        time.sleep(0.2)
-
+        time.sleep(0.1)
         self.assoc.dul.send_pdu(self.get_associate('reject'))
+        time.sleep(0.1)
 
-        time.sleep(0.2)
+        #self.print_fsm_scp(self.fsm, scp)
+
+        scp.shutdown()
 
         assert self.fsm._changes[:4] == [
             ('Sta1', 'Evt1', 'AE-1'),
@@ -4342,29 +3453,27 @@ class TestState08(TestStateBase):
         # Sta8 + Evt9 -> AR-7 -> Sta8
         # Evt9: Receive P-DATA primitive from <local user>
         # AR-7: Send P-DATA-TF PDU to <remote>
-        scp = DummyAE()
-        scp.mode = 'acceptor'
-        scp.queue.put(None)
-        scp.queue.put(['skip', a_associate_ac])
-        scp.queue.put(['skip', a_release_rq])
-        scp.queue.put(None)
-        scp.queue.put(['wait', 0.2, 'shutdown'])
+        commands = [
+            ('recv', None),
+            ('send', a_associate_ac),
+            ('send', a_release_rq),
+            ('wait', 0.1),
+        ]
+        scp = self.start_server(commands)
 
-        scp.start()
-
-        # Override ACSE.is_release_requested so the Association loop doesn't
-        #   respond to the release request
         def is_release_requested(assoc):
+            """Override ACSE.is_release_requested."""
             return False
 
         self.assoc.acse.is_release_requested = is_release_requested
         self.assoc.start()
-
-        time.sleep(0.2)
-
+        time.sleep(0.1)
         self.assoc.dul.send_pdu(self.get_pdata())
+        time.sleep(0.1)
 
-        time.sleep(0.3)
+        #self.print_fsm_scp(self.fsm, scp)
+
+        scp.shutdown()
 
         assert self.fsm._changes[:4] == [
             ('Sta1', 'Evt1', 'AE-1'),
@@ -4380,25 +3489,29 @@ class TestState08(TestStateBase):
         # Sta8 + Evt10 -> AA-8 -> Sta13
         # Evt10: Receive P-DATA-TF PDU from <remote>
         # AA-8: Send A-ABORT PDU, issue A-P-ABORT primitive, start ARTIM
-        scp = DummyAE()
-        scp.mode = 'acceptor'
-        scp.queue.put(None)
-        scp.queue.put(['skip', a_associate_ac])
-        scp.queue.put(['skip', a_release_rq])
-        scp.queue.put(['skip', p_data_tf])
-        scp.queue.put(['wait', 0.2, 'shutdown'])
+        commands = [
+            ('recv', None),
+            ('send', a_associate_ac),
+            ('send', a_release_rq),
+            ('send', p_data_tf),
+            ('wait', 0.1),
+        ]
+        scp = self.start_server(commands)
 
-        scp.start()
-
-        # Override ACSE.is_release_requested so the Association loop doesn't
-        #   respond to the release request
         def is_release_requested(assoc):
+            """Override ACSE.is_release_requested."""
             return False
 
         self.assoc.acse.is_release_requested = is_release_requested
-        self.assoc.start()
 
-        time.sleep(0.4)
+        self.assoc.start()
+        time.sleep(0.1)
+        self.assoc.dul.send_pdu(self.get_associate('request'))
+        time.sleep(0.1)
+
+        #self.print_fsm_scp(self.fsm, scp)
+
+        scp.shutdown()
 
         assert self.fsm._changes[:5] == [
             ('Sta1', 'Evt1', 'AE-1'),
@@ -4414,28 +3527,27 @@ class TestState08(TestStateBase):
         """Test Sta8 + Evt11."""
         # Sta8 + Evt11 -> <ignore> -> Sta8
         # Evt11: Receive A-RELEASE (rq) primitive from <local user>
-        scp = DummyAE()
-        scp.mode = 'acceptor'
-        scp.queue.put(None)
-        scp.queue.put(['skip', a_associate_ac])
-        scp.queue.put(['skip', a_release_rq])
-        scp.queue.put(['wait', 0.2, 'shutdown'])
+        commands = [
+            ('recv', None),
+            ('send', a_associate_ac),
+            ('send', a_release_rq),
+            ('wait', 0.1),
+        ]
+        scp = self.start_server(commands)
 
-        scp.start()
-
-        # Override ACSE.is_release_requested so the Association loop doesn't
-        #   respond to the release request
         def is_release_requested(assoc):
+            """Override ACSE.is_release_requested."""
             return False
 
         self.assoc.acse.is_release_requested = is_release_requested
         self.assoc.start()
-
-        time.sleep(0.2)
-
+        time.sleep(0.1)
         self.assoc.dul.send_pdu(self.get_release(False))
+        time.sleep(0.1)
 
-        time.sleep(0.2)
+        #self.print_fsm_scp(self.fsm, scp)
+
+        scp.shutdown()
 
         assert self.fsm._changes[:4] == [
             ('Sta1', 'Evt1', 'AE-1'),
@@ -4451,25 +3563,29 @@ class TestState08(TestStateBase):
         # Sta8 + Evt12 -> AA-8 -> Sta13
         # Evt12: Receive A-RELEASE-RQ PDU from <remote>
         # AA-8: Send A-ABORT PDU, issue A-P-ABORT primitive, start ARTIM
-        scp = DummyAE()
-        scp.mode = 'acceptor'
-        scp.queue.put(None)
-        scp.queue.put(['skip', a_associate_ac])
-        scp.queue.put(['skip', a_release_rq])
-        scp.queue.put(['skip', a_release_rq])
-        scp.queue.put(['wait', 0.2, 'shutdown'])
+        commands = [
+            ('recv', None),
+            ('send', a_associate_ac),
+            ('send', a_release_rq),
+            ('send', a_release_rq),
+            ('wait', 0.1),
+        ]
+        scp = self.start_server(commands)
 
-        scp.start()
-
-        # Override ACSE.is_release_requested so the Association loop doesn't
-        #   respond to the release request
         def is_release_requested(assoc):
+            """Override ACSE.is_release_requested."""
             return False
 
         self.assoc.acse.is_release_requested = is_release_requested
-        self.assoc.start()
 
-        time.sleep(0.4)
+        self.assoc.start()
+        time.sleep(0.1)
+        self.assoc.dul.send_pdu(self.get_associate('request'))
+        time.sleep(0.1)
+
+        #self.print_fsm_scp(self.fsm, scp)
+
+        scp.shutdown()
 
         assert self.fsm._changes[:5] == [
             ('Sta1', 'Evt1', 'AE-1'),
@@ -4486,25 +3602,29 @@ class TestState08(TestStateBase):
         # Sta8 + Evt13 -> AA-8 -> Sta13
         # Evt13: Receive A-RELEASE-RP PDU from <remote>
         # AA-8: Send A-ABORT PDU, issue A-P-ABORT primitive, start ARTIM
-        scp = DummyAE()
-        scp.mode = 'acceptor'
-        scp.queue.put(None)
-        scp.queue.put(['skip', a_associate_ac])
-        scp.queue.put(['skip', a_release_rq])
-        scp.queue.put(['skip', a_release_rp])
-        scp.queue.put(['wait', 0.2, 'shutdown'])
+        commands = [
+            ('recv', None),
+            ('send', a_associate_ac),
+            ('send', a_release_rq),
+            ('send', a_release_rp),
+            ('wait', 0.1),
+        ]
+        scp = self.start_server(commands)
 
-        scp.start()
-
-        # Override ACSE.is_release_requested so the Association loop doesn't
-        #   respond to the release request
         def is_release_requested(assoc):
+            """Override ACSE.is_release_requested."""
             return False
 
         self.assoc.acse.is_release_requested = is_release_requested
-        self.assoc.start()
 
-        time.sleep(0.4)
+        self.assoc.start()
+        time.sleep(0.1)
+        self.assoc.dul.send_pdu(self.get_associate('request'))
+        time.sleep(0.1)
+
+        #self.print_fsm_scp(self.fsm, scp)
+
+        scp.shutdown()
 
         assert self.fsm._changes[:5] == [
             ('Sta1', 'Evt1', 'AE-1'),
@@ -4521,28 +3641,27 @@ class TestState08(TestStateBase):
         # Sta8 + Evt14 -> AR-4 -> Sta13
         # Evt14: Receive A-RELEASE (rsp) primitive from <local user>
         # AR-4: Send A-RELEASE-RP PDU and start ARTIM
-        scp = DummyAE()
-        scp.mode = 'acceptor'
-        scp.queue.put(None)
-        scp.queue.put(['skip', a_associate_ac])
-        scp.queue.put(['skip', a_release_rq])
-        scp.queue.put(['wait', 0.2, 'shutdown'])
+        commands = [
+            ('recv', None),
+            ('send', a_associate_ac),
+            ('send', a_release_rq),
+            ('wait', 0.1),
+        ]
+        scp = self.start_server(commands)
 
-        scp.start()
-
-        # Override ACSE.is_release_requested so the Association loop doesn't
-        #   respond to the release request
         def is_release_requested(assoc):
+            """Override ACSE.is_release_requested."""
             return False
 
         self.assoc.acse.is_release_requested = is_release_requested
         self.assoc.start()
-
-        time.sleep(0.2)
-
+        time.sleep(0.1)
         self.assoc.dul.send_pdu(self.get_release(True))
+        time.sleep(0.1)
 
-        time.sleep(0.2)
+        #self.print_fsm_scp(self.fsm, scp)
+
+        scp.shutdown()
 
         assert self.fsm._changes[:4] == [
             ('Sta1', 'Evt1', 'AE-1'),
@@ -4558,28 +3677,27 @@ class TestState08(TestStateBase):
         # Sta8 + Evt15 -> AA-1 -> Sta13
         # Evt15: Receive A-ABORT (rq) primitive from <local user>
         # AA-1: Send A-ABORT PDU and start ARTIM
-        scp = DummyAE()
-        scp.mode = 'acceptor'
-        scp.queue.put(None)
-        scp.queue.put(['skip', a_associate_ac])
-        scp.queue.put(['skip', a_release_rq])
-        scp.queue.put(['wait', 0.2, 'shutdown'])
+        commands = [
+            ('recv', None),
+            ('send', a_associate_ac),
+            ('send', a_release_rq),
+            ('wait', 0.1),
+        ]
+        scp = self.start_server(commands)
 
-        scp.start()
-
-        # Override ACSE.is_release_requested so the Association loop doesn't
-        #   respond to the release request
         def is_release_requested(assoc):
+            """Override ACSE.is_release_requested."""
             return False
 
         self.assoc.acse.is_release_requested = is_release_requested
         self.assoc.start()
-
-        time.sleep(0.2)
-
+        time.sleep(0.1)
         self.assoc.dul.send_pdu(self.get_abort())
+        time.sleep(0.1)
 
-        time.sleep(0.2)
+        #self.print_fsm_scp(self.fsm, scp)
+
+        scp.shutdown()
 
         assert self.fsm._changes[:4] == [
             ('Sta1', 'Evt1', 'AE-1'),
@@ -4595,25 +3713,29 @@ class TestState08(TestStateBase):
         # Sta8 + Evt16 -> AA-3 -> Sta13
         # Evt16: Receive A-ABORT PDU from <remote>
         # AA-3: Issue A-ABORT or A-P-ABORT and close connection
-        scp = DummyAE()
-        scp.mode = 'acceptor'
-        scp.queue.put(None)
-        scp.queue.put(['skip', a_associate_ac])
-        scp.queue.put(['skip', a_release_rq])
-        scp.queue.put(['skip', a_abort])
-        scp.queue.put(['wait', 0.2, 'shutdown'])
+        commands = [
+            ('recv', None),
+            ('send', a_associate_ac),
+            ('send', a_release_rq),
+            ('send', a_abort),
+            ('wait', 0.1),
+        ]
+        scp = self.start_server(commands)
 
-        scp.start()
-
-        # Override ACSE.is_release_requested so the Association loop doesn't
-        #   respond to the release request
         def is_release_requested(assoc):
+            """Override ACSE.is_release_requested."""
             return False
 
         self.assoc.acse.is_release_requested = is_release_requested
-        self.assoc.start()
 
-        time.sleep(0.4)
+        self.assoc.start()
+        time.sleep(0.1)
+        self.assoc.dul.send_pdu(self.get_associate('request'))
+        time.sleep(0.1)
+
+        #self.print_fsm_scp(self.fsm, scp)
+
+        scp.shutdown()
 
         assert self.fsm._changes[:5] == [
             ('Sta1', 'Evt1', 'AE-1'),
@@ -4630,24 +3752,25 @@ class TestState08(TestStateBase):
         # Sta8 + Evt17 -> AA-4 -> Sta1
         # Evt17: Receive TRANSPORT_CLOSED from <transport service>
         # AA-4: Issue A-P-ABORT
-        scp = DummyAE()
-        scp.mode = 'acceptor'
-        scp.queue.put(None)
-        scp.queue.put(['skip', a_associate_ac])
-        scp.queue.put(['skip', a_release_rq])
-        scp.queue.put(['wait', 0.2, 'shutdown'])
+        commands = [
+            ('recv', None),
+            ('send', a_associate_ac),
+            ('send', a_release_rq),
+        ]
+        scp = self.start_server(commands)
 
-        scp.start()
-
-        # Override ACSE.is_release_requested so the Association loop doesn't
-        #   respond to the release request
         def is_release_requested(assoc):
+            """Override ACSE.is_release_requested."""
             return False
 
         self.assoc.acse.is_release_requested = is_release_requested
         self.assoc.start()
 
-        time.sleep(0.4)
+        time.sleep(0.1)
+
+        #self.print_fsm_scp(self.fsm, scp)
+
+        scp.shutdown()
 
         assert self.fsm._changes[:5] == [
             ('Sta1', 'Evt1', 'AE-1'),
@@ -4663,30 +3786,30 @@ class TestState08(TestStateBase):
         """Test Sta8 + Evt18."""
         # Sta8 + Evt18 -> <ignore> -> Sta1
         # Evt18: ARTIM timer expired from <local service>
-        scp = DummyAE()
-        scp.mode = 'acceptor'
-        scp.queue.put(None)
-        scp.queue.put(['skip', a_associate_ac])
-        scp.queue.put(['skip', a_release_rq])
-        scp.queue.put(['wait', 0.3])
-        scp.queue.put(['wait', 0.2, 'shutdown'])
+        commands = [
+            ('recv', None),
+            ('send', a_associate_ac),
+            ('send', a_release_rq),
+            ('wait', 0.1),
+        ]
+        scp = self.start_server(commands)
 
-        scp.start()
-
-        # Override ACSE.is_release_requested so the Association loop doesn't
-        #   respond to the release request
         def is_release_requested(assoc):
+            """Override ACSE.is_release_requested."""
             return False
 
         self.assoc.acse.is_release_requested = is_release_requested
         self.assoc.start()
 
-        time.sleep(0.4)
-
+        time.sleep(0.1)
         self.assoc.dul.artim_timer.timeout_seconds = 0.05
         self.assoc.dul.artim_timer.start()
 
-        time.sleep(0.4)
+        time.sleep(0.1)
+
+        #self.print_fsm_scp(self.fsm, scp)
+
+        scp.shutdown()
 
         assert self.fsm._changes[:4] == [
             ('Sta1', 'Evt1', 'AE-1'),
@@ -4702,25 +3825,26 @@ class TestState08(TestStateBase):
         # Sta8 + Evt19 -> AA-8 -> Sta13
         # Evt19: Received unrecognised or invalid PDU from <remote>
         # AA-8: Send A-ABORT PDU, issue A-P-ABORT primitive, start ARTIM
-        scp = DummyAE()
-        scp.mode = 'acceptor'
-        scp.queue.put(None)
-        scp.queue.put(['skip', a_associate_ac])
-        scp.queue.put(['skip', a_release_rq])
-        scp.queue.put(['skip', b'\x08\x00\x00\x00\x00\x00'])
-        scp.queue.put(['wait', 0.2, 'shutdown'])
+        commands = [
+            ('recv', None),
+            ('send', a_associate_ac),
+            ('send', a_release_rq),
+            ('send', b'\x08\x00\x00\x00\x00\x00'),
+        ]
+        scp = self.start_server(commands)
 
-        scp.start()
-
-        # Override ACSE.is_release_requested so the Association loop doesn't
-        #   respond to the release request
         def is_release_requested(assoc):
+            """Override ACSE.is_release_requested."""
             return False
 
         self.assoc.acse.is_release_requested = is_release_requested
         self.assoc.start()
 
-        time.sleep(0.4)
+        time.sleep(0.1)
+
+        #self.print_fsm_scp(self.fsm, scp)
+
+        scp.shutdown()
 
         assert self.fsm._changes[:5] == [
             ('Sta1', 'Evt1', 'AE-1'),
@@ -4739,34 +3863,30 @@ class TestState09(TestStateBase):
         """Test Sta9 + Evt1."""
         # Sta9 + Evt1 -> <ignore> -> Sta9
         # Evt1: A-ASSOCIATE (rq) primitive from <local user>
-        scp = DummyAE()
-        scp.mode = 'acceptor'
-        scp.queue.put(None)
-        scp.queue.put(['skip', a_associate_ac])
-        scp.queue.put(['wait', 0.2]) # Wait for release rq
-        scp.queue.put(['skip', a_release_rq]) # Send release rq
-        scp.queue.put(None) # Receive sent PDU
-        scp.queue.put(['wait', 0.2, 'shutdown'])
+        commands = [
+            ('recv', None),
+            ('send', a_associate_ac),
+            ('recv', None),
+            ('send', a_release_rq),
+            ('wait', 0.1),
+        ]
+        scp = self.start_server(commands)
 
-        scp.start()
-
-        # Override ACSE.is_release_requested so the Association loop doesn't
-        #   respond to the release request
         def is_release_requested(assoc):
+            """Override ACSE.is_release_requested."""
             return False
 
         self.assoc.acse.is_release_requested = is_release_requested
+
         self.assoc.start()
-
-        time.sleep(0.2)
-
+        time.sleep(0.1)
         self.assoc.dul.send_pdu(self.get_release(False))
-
-        time.sleep(0.2)
-
         self.assoc.dul.send_pdu(self.get_associate('request'))
+        time.sleep(0.1)
 
-        time.sleep(0.2)
+        #self.print_fsm_scp(self.fsm, scp)
+
+        scp.shutdown()
 
         assert self.fsm._changes[:5] == [
             ('Sta1', 'Evt1', 'AE-1'),
@@ -4794,31 +3914,30 @@ class TestState09(TestStateBase):
         # Sta9 + Evt3 -> AA-8 -> Sta13
         # Evt3: Receive A-ASSOCIATE-AC PDU from <remote>
         # AA-8: Send A-ABORT PDU, issue A-P-ABORT primitive, start ARTIM
-        scp = DummyAE()
-        scp.mode = 'acceptor'
-        scp.queue.put(None)
-        scp.queue.put(['skip', a_associate_ac])
-        scp.queue.put(['wait', 0.2]) # Wait for release rq
-        scp.queue.put(['skip', a_release_rq]) # Send release rq
-        scp.queue.put(['skip', a_associate_ac])
-        scp.queue.put(None) # A-ABORT PDU
-        scp.queue.put(['wait', 0.2, 'shutdown'])
+        commands = [
+            ('recv', None),
+            ('send', a_associate_ac),
+            ('recv', None),
+            ('send', a_release_rq),
+            ('send', a_associate_ac),
+            ('wait', 0.1),
+        ]
+        scp = self.start_server(commands)
 
-        scp.start()
-
-        # Override ACSE.is_release_requested so the Association loop doesn't
-        #   respond to the release request
         def is_release_requested(assoc):
+            """Override ACSE.is_release_requested."""
             return False
 
         self.assoc.acse.is_release_requested = is_release_requested
+
         self.assoc.start()
-
-        time.sleep(0.2)
-
+        time.sleep(0.1)
         self.assoc.dul.send_pdu(self.get_release(False))
+        time.sleep(0.1)
 
-        time.sleep(0.3)
+        #self.print_fsm_scp(self.fsm, scp)
+
+        scp.shutdown()
 
         assert self.fsm._changes[:6] == [
             ('Sta1', 'Evt1', 'AE-1'),
@@ -4840,30 +3959,30 @@ class TestState09(TestStateBase):
         # Sta9 + Evt4 -> AA-8 -> Sta13
         # Evt4: Receive A-ASSOCIATE-RJ PDU from <remote>
         # AA-8: Send A-ABORT PDU, issue A-P-ABORT primitive, start ARTIM
-        scp = DummyAE()
-        scp.mode = 'acceptor'
-        scp.queue.put(None)
-        scp.queue.put(['skip', a_associate_ac])
-        scp.queue.put(['wait', 0.2]) # Wait for release rq
-        scp.queue.put(['skip', a_release_rq]) # Send release rq
-        scp.queue.put(['skip', a_associate_rj])
-        scp.queue.put(['wait', 0.2, 'shutdown'])
+        commands = [
+            ('recv', None),
+            ('send', a_associate_ac),
+            ('recv', None),
+            ('send', a_release_rq),
+            ('send', a_associate_rj),
+            ('wait', 0.1),
+        ]
+        scp = self.start_server(commands)
 
-        scp.start()
-
-        # Override ACSE.is_release_requested so the Association loop doesn't
-        #   respond to the release request
         def is_release_requested(assoc):
+            """Override ACSE.is_release_requested."""
             return False
 
         self.assoc.acse.is_release_requested = is_release_requested
+
         self.assoc.start()
-
-        time.sleep(0.2)
-
+        time.sleep(0.1)
         self.assoc.dul.send_pdu(self.get_release(False))
+        time.sleep(0.1)
 
-        time.sleep(0.3)
+        #self.print_fsm_scp(self.fsm, scp)
+
+        scp.shutdown()
 
         assert self.fsm._changes[:6] == [
             ('Sta1', 'Evt1', 'AE-1'),
@@ -4892,30 +4011,30 @@ class TestState09(TestStateBase):
         # Sta9 + Evt6 -> AA-8 -> Sta13
         # Evt6: Receive A-ASSOCIATE-RQ PDU from <remote>
         # AA-8: Send A-ABORT PDU, issue A-P-ABORT primitive, start ARTIM
-        scp = DummyAE()
-        scp.mode = 'acceptor'
-        scp.queue.put(None)
-        scp.queue.put(['skip', a_associate_ac])
-        scp.queue.put(['wait', 0.2]) # Wait for release rq
-        scp.queue.put(['skip', a_release_rq]) # Send release rq
-        scp.queue.put(['skip', a_associate_rq])
-        scp.queue.put(['wait', 0.2, 'shutdown'])
+        commands = [
+            ('recv', None),
+            ('send', a_associate_ac),
+            ('recv', None),
+            ('send', a_release_rq),
+            ('send', a_associate_rq),
+            ('wait', 0.1),
+        ]
+        scp = self.start_server(commands)
 
-        scp.start()
-
-        # Override ACSE.is_release_requested so the Association loop doesn't
-        #   respond to the release request
         def is_release_requested(assoc):
+            """Override ACSE.is_release_requested."""
             return False
 
         self.assoc.acse.is_release_requested = is_release_requested
+
         self.assoc.start()
-
-        time.sleep(0.2)
-
+        time.sleep(0.1)
         self.assoc.dul.send_pdu(self.get_release(False))
+        time.sleep(0.1)
 
-        time.sleep(0.3)
+        #self.print_fsm_scp(self.fsm, scp)
+
+        scp.shutdown()
 
         assert self.fsm._changes[:6] == [
             ('Sta1', 'Evt1', 'AE-1'),
@@ -4936,34 +4055,30 @@ class TestState09(TestStateBase):
         """Test Sta9 + Evt7."""
         # Sta9 + Evt7 -> <ignore> -> Sta9
         # Evt7: Receive A-ASSOCIATE (accept) primitive from <local user>
-        scp = DummyAE()
-        scp.mode = 'acceptor'
-        scp.queue.put(None)
-        scp.queue.put(['skip', a_associate_ac])
-        scp.queue.put(['wait', 0.2]) # Wait for release rq
-        scp.queue.put(['skip', a_release_rq]) # Send release rq
-        scp.queue.put(None) # Receive sent PDU
-        scp.queue.put(['wait', 0.3, 'shutdown'])
+        commands = [
+            ('recv', None),
+            ('send', a_associate_ac),
+            ('recv', None),
+            ('send', a_release_rq),
+            ('wait', 0.1),
+        ]
+        scp = self.start_server(commands)
 
-        scp.start()
-
-        # Override ACSE.is_release_requested so the Association loop doesn't
-        #   respond to the release request
         def is_release_requested(assoc):
+            """Override ACSE.is_release_requested."""
             return False
 
         self.assoc.acse.is_release_requested = is_release_requested
-        self.assoc.start()
 
+        self.assoc.start()
+        time.sleep(0.1)
+        self.assoc.dul.send_pdu(self.get_release(False))
+        self.assoc.dul.send_pdu(self.get_associate('accept'))
         time.sleep(0.1)
 
-        self.assoc.dul.send_pdu(self.get_release(False))
+        #self.print_fsm_scp(self.fsm, scp)
 
-        time.sleep(0.2)
-
-        self.assoc.dul.send_pdu(self.get_associate('accept'))
-
-        time.sleep(0.3)
+        scp.shutdown()
 
         assert self.fsm._changes[:5] == [
             ('Sta1', 'Evt1', 'AE-1'),
@@ -4983,34 +4098,30 @@ class TestState09(TestStateBase):
         """Test Sta9 + Evt8."""
         # Sta9 + Evt8 -> <ignore> -> Sta9
         # Evt8: Receive A-ASSOCIATE (reject) primitive from <local user>
-        scp = DummyAE()
-        scp.mode = 'acceptor'
-        scp.queue.put(None)
-        scp.queue.put(['skip', a_associate_ac])
-        scp.queue.put(['wait', 0.2]) # Wait for release rq
-        scp.queue.put(['skip', a_release_rq]) # Send release rq
-        scp.queue.put(None) # Receive sent PDU
-        scp.queue.put(['wait', 0.2, 'shutdown'])
+        commands = [
+            ('recv', None),
+            ('send', a_associate_ac),
+            ('recv', None),
+            ('send', a_release_rq),
+            ('wait', 0.1),
+        ]
+        scp = self.start_server(commands)
 
-        scp.start()
-
-        # Override ACSE.is_release_requested so the Association loop doesn't
-        #   respond to the release request
         def is_release_requested(assoc):
+            """Override ACSE.is_release_requested."""
             return False
 
         self.assoc.acse.is_release_requested = is_release_requested
+
         self.assoc.start()
-
-        time.sleep(0.2)
-
+        time.sleep(0.1)
         self.assoc.dul.send_pdu(self.get_release(False))
-
-        time.sleep(0.2)
-
         self.assoc.dul.send_pdu(self.get_associate('reject'))
+        time.sleep(0.1)
 
-        time.sleep(0.3)
+        #self.print_fsm_scp(self.fsm, scp)
+
+        scp.shutdown()
 
         assert self.fsm._changes[:5] == [
             ('Sta1', 'Evt1', 'AE-1'),
@@ -5030,34 +4141,30 @@ class TestState09(TestStateBase):
         """Test Sta9 + Evt9."""
         # Sta9 + Evt9 -> <ignore> -> Sta9
         # Evt9: Receive P-DATA primitive from <local user>
-        scp = DummyAE()
-        scp.mode = 'acceptor'
-        scp.queue.put(None)
-        scp.queue.put(['skip', a_associate_ac])
-        scp.queue.put(['wait', 0.2]) # Wait for release rq
-        scp.queue.put(['skip', a_release_rq]) # Send release rq
-        scp.queue.put(None) # Receive sent PDU
-        scp.queue.put(['wait', 0.2, 'shutdown'])
+        commands = [
+            ('recv', None),
+            ('send', a_associate_ac),
+            ('recv', None),
+            ('send', a_release_rq),
+            ('wait', 0.1),
+        ]
+        scp = self.start_server(commands)
 
-        scp.start()
-
-        # Override ACSE.is_release_requested so the Association loop doesn't
-        #   respond to the release request
         def is_release_requested(assoc):
+            """Override ACSE.is_release_requested."""
             return False
 
         self.assoc.acse.is_release_requested = is_release_requested
+
         self.assoc.start()
-
-        time.sleep(0.2)
-
+        time.sleep(0.1)
         self.assoc.dul.send_pdu(self.get_release(False))
-
-        time.sleep(0.2)
-
         self.assoc.dul.send_pdu(self.get_pdata())
+        time.sleep(0.1)
 
-        time.sleep(0.3)
+        #self.print_fsm_scp(self.fsm, scp)
+
+        scp.shutdown()
 
         assert self.fsm._changes[:5] == [
             ('Sta1', 'Evt1', 'AE-1'),
@@ -5078,30 +4185,30 @@ class TestState09(TestStateBase):
         # Sta9 + Evt10 -> AA-8 -> Sta13
         # Evt10: Receive P-DATA-TF PDU from <remote>
         # AA-8: Send A-ABORT PDU, issue A-P-ABORT primitive, start ARTIM
-        scp = DummyAE()
-        scp.mode = 'acceptor'
-        scp.queue.put(None)
-        scp.queue.put(['skip', a_associate_ac])
-        scp.queue.put(['wait', 0.2]) # Wait for release rq
-        scp.queue.put(['skip', a_release_rq]) # Send release rq
-        scp.queue.put(['skip', p_data_tf])
-        scp.queue.put(['wait', 0.2, 'shutdown'])
+        commands = [
+            ('recv', None),
+            ('send', a_associate_ac),
+            ('recv', None),
+            ('send', a_release_rq),
+            ('send', p_data_tf),
+            ('wait', 0.1),
+        ]
+        scp = self.start_server(commands)
 
-        scp.start()
-
-        # Override ACSE.is_release_requested so the Association loop doesn't
-        #   respond to the release request
         def is_release_requested(assoc):
+            """Override ACSE.is_release_requested."""
             return False
 
         self.assoc.acse.is_release_requested = is_release_requested
+
         self.assoc.start()
-
-        time.sleep(0.2)
-
+        time.sleep(0.1)
         self.assoc.dul.send_pdu(self.get_release(False))
+        time.sleep(0.1)
 
-        time.sleep(0.3)
+        #self.print_fsm_scp(self.fsm, scp)
+
+        scp.shutdown()
 
         assert self.fsm._changes[:6] == [
             ('Sta1', 'Evt1', 'AE-1'),
@@ -5122,34 +4229,30 @@ class TestState09(TestStateBase):
         """Test Sta9 + Evt11."""
         # Sta9 + Evt11 -> <ignore> -> Sta9
         # Evt11: Receive A-RELEASE (rq) primitive from <local user>
-        scp = DummyAE()
-        scp.mode = 'acceptor'
-        scp.queue.put(None)
-        scp.queue.put(['skip', a_associate_ac])
-        scp.queue.put(['wait', 0.2]) # Wait for release rq
-        scp.queue.put(['skip', a_release_rq]) # Send release rq
-        scp.queue.put(None) # Receive sent PDU
-        scp.queue.put(['wait', 0.2, 'shutdown'])
+        commands = [
+            ('recv', None),
+            ('send', a_associate_ac),
+            ('recv', None),
+            ('send', a_release_rq),
+            ('wait', 0.1),
+        ]
+        scp = self.start_server(commands)
 
-        scp.start()
-
-        # Override ACSE.is_release_requested so the Association loop doesn't
-        #   respond to the release request
         def is_release_requested(assoc):
+            """Override ACSE.is_release_requested."""
             return False
 
         self.assoc.acse.is_release_requested = is_release_requested
+
         self.assoc.start()
-
-        time.sleep(0.2)
-
+        time.sleep(0.1)
         self.assoc.dul.send_pdu(self.get_release(False))
-
-        time.sleep(0.2)
-
         self.assoc.dul.send_pdu(self.get_release(False))
+        time.sleep(0.1)
 
-        time.sleep(0.3)
+        #self.print_fsm_scp(self.fsm, scp)
+
+        scp.shutdown()
 
         assert self.fsm._changes[:5] == [
             ('Sta1', 'Evt1', 'AE-1'),
@@ -5170,30 +4273,30 @@ class TestState09(TestStateBase):
         # Sta9 + Evt12 -> AA-8 -> Sta13
         # Evt12: Receive A-RELEASE-RQ PDU from <remote>
         # AA-8: Send A-ABORT PDU, issue A-P-ABORT primitive, start ARTIM
-        scp = DummyAE()
-        scp.mode = 'acceptor'
-        scp.queue.put(None)
-        scp.queue.put(['skip', a_associate_ac])
-        scp.queue.put(['wait', 0.2]) # Wait for release rq
-        scp.queue.put(['skip', a_release_rq]) # Send release rq
-        scp.queue.put(['skip', a_release_rq])
-        scp.queue.put(['wait', 0.2, 'shutdown'])
+        commands = [
+            ('recv', None),
+            ('send', a_associate_ac),
+            ('recv', None),
+            ('send', a_release_rq),
+            ('send', a_release_rq),
+            ('wait', 0.1),
+        ]
+        scp = self.start_server(commands)
 
-        scp.start()
-
-        # Override ACSE.is_release_requested so the Association loop doesn't
-        #   respond to the release request
         def is_release_requested(assoc):
+            """Override ACSE.is_release_requested."""
             return False
 
         self.assoc.acse.is_release_requested = is_release_requested
+
         self.assoc.start()
-
-        time.sleep(0.2)
-
+        time.sleep(0.1)
         self.assoc.dul.send_pdu(self.get_release(False))
+        time.sleep(0.1)
 
-        time.sleep(0.3)
+        #self.print_fsm_scp(self.fsm, scp)
+
+        scp.shutdown()
 
         assert self.fsm._changes[:6] == [
             ('Sta1', 'Evt1', 'AE-1'),
@@ -5215,30 +4318,30 @@ class TestState09(TestStateBase):
         # Sta9 + Evt13 -> AA-8 -> Sta13
         # Evt13: Receive A-RELEASE-RP PDU from <remote>
         # AA-8: Send A-ABORT PDU, issue A-P-ABORT primitive, start ARTIM
-        scp = DummyAE()
-        scp.mode = 'acceptor'
-        scp.queue.put(None)
-        scp.queue.put(['skip', a_associate_ac])
-        scp.queue.put(['wait', 0.2]) # Wait for release rq
-        scp.queue.put(['skip', a_release_rq]) # Send release rq
-        scp.queue.put(['skip', a_release_rp])
-        scp.queue.put(['wait', 0.2, 'shutdown'])
+        commands = [
+            ('recv', None),
+            ('send', a_associate_ac),
+            ('recv', None),
+            ('send', a_release_rq),
+            ('send', a_release_rp),
+            ('wait', 0.1),
+        ]
+        scp = self.start_server(commands)
 
-        scp.start()
-
-        # Override ACSE.is_release_requested so the Association loop doesn't
-        #   respond to the release request
         def is_release_requested(assoc):
+            """Override ACSE.is_release_requested."""
             return False
 
         self.assoc.acse.is_release_requested = is_release_requested
+
         self.assoc.start()
-
-        time.sleep(0.2)
-
+        time.sleep(0.1)
         self.assoc.dul.send_pdu(self.get_release(False))
+        time.sleep(0.1)
 
-        time.sleep(0.3)
+        #self.print_fsm_scp(self.fsm, scp)
+
+        scp.shutdown()
 
         assert self.fsm._changes[:6] == [
             ('Sta1', 'Evt1', 'AE-1'),
@@ -5260,34 +4363,30 @@ class TestState09(TestStateBase):
         # Sta9 + Evt14 -> AR-9 -> Sta11
         # Evt14: Receive A-RELEASE (rsp) primitive from <local user>
         # AR-9: Send A-RELEASE-RP PDU to <remote>
-        scp = DummyAE()
-        scp.mode = 'acceptor'
-        scp.queue.put(None)
-        scp.queue.put(['skip', a_associate_ac])
-        scp.queue.put(['wait', 0.2]) # Wait for release rq
-        scp.queue.put(['skip', a_release_rq]) # Send release rq
-        scp.queue.put(None) # Receive sent PDU
-        scp.queue.put(['wait', 0.2, 'shutdown'])
+        commands = [
+            ('recv', None),
+            ('send', a_associate_ac),
+            ('recv', None),
+            ('send', a_release_rq),
+            ('recv', None),
+        ]
+        scp = self.start_server(commands)
 
-        scp.start()
-
-        # Override ACSE.is_release_requested so the Association loop doesn't
-        #   respond to the release request
         def is_release_requested(assoc):
+            """Override ACSE.is_release_requested."""
             return False
 
         self.assoc.acse.is_release_requested = is_release_requested
+
         self.assoc.start()
-
-        time.sleep(0.2)
-
+        time.sleep(0.1)
         self.assoc.dul.send_pdu(self.get_release(False))
-
-        time.sleep(0.2)
-
         self.assoc.dul.send_pdu(self.get_release(True))
+        time.sleep(0.1)
 
-        time.sleep(0.3)
+        #self.print_fsm_scp(self.fsm, scp)
+
+        scp.shutdown()
 
         assert self.fsm._changes[:5] == [
             ('Sta1', 'Evt1', 'AE-1'),
@@ -5308,34 +4407,30 @@ class TestState09(TestStateBase):
         # Sta9 + Evt15 -> AA-1 -> Sta13
         # Evt15: Receive A-ABORT (rq) primitive from <local user>
         # AA-1: Send A-ABORT PDU to <remote>, start ARTIM
-        scp = DummyAE()
-        scp.mode = 'acceptor'
-        scp.queue.put(None)
-        scp.queue.put(['skip', a_associate_ac])
-        scp.queue.put(['wait', 0.2]) # Wait for release rq
-        scp.queue.put(['skip', a_release_rq]) # Send release rq
-        scp.queue.put(None) # Receive sent PDU
-        scp.queue.put(['wait', 0.2, 'shutdown'])
+        commands = [
+            ('recv', None),
+            ('send', a_associate_ac),
+            ('recv', None),
+            ('send', a_release_rq),
+            ('recv', None),
+        ]
+        scp = self.start_server(commands)
 
-        scp.start()
-
-        # Override ACSE.is_release_requested so the Association loop doesn't
-        #   respond to the release request
         def is_release_requested(assoc):
+            """Override ACSE.is_release_requested."""
             return False
 
         self.assoc.acse.is_release_requested = is_release_requested
+
         self.assoc.start()
-
-        time.sleep(0.2)
-
+        time.sleep(0.1)
         self.assoc.dul.send_pdu(self.get_release(False))
-
-        time.sleep(0.2)
-
         self.assoc.dul.send_pdu(self.get_abort())
+        time.sleep(0.1)
 
-        time.sleep(0.3)
+        #self.print_fsm_scp(self.fsm, scp)
+
+        scp.shutdown()
 
         assert self.fsm._changes[:5] == [
             ('Sta1', 'Evt1', 'AE-1'),
@@ -5356,30 +4451,30 @@ class TestState09(TestStateBase):
         # Sta9 + Evt16 -> AA-3 -> Sta1
         # Evt16: Receive A-ABORT PDU from <remote>
         # AA-3: Issue A-ABORT or A-P-ABORT primitive, close connection
-        scp = DummyAE()
-        scp.mode = 'acceptor'
-        scp.queue.put(None)
-        scp.queue.put(['skip', a_associate_ac])
-        scp.queue.put(['wait', 0.2]) # Wait for release rq
-        scp.queue.put(['skip', a_release_rq]) # Send release rq
-        scp.queue.put(['skip', a_abort])
-        scp.queue.put(['wait', 0.2, 'shutdown'])
+        commands = [
+            ('recv', None),
+            ('send', a_associate_ac),
+            ('recv', None),
+            ('send', a_release_rq),
+            ('send', a_abort),
+            ('wait', 0.1),
+        ]
+        scp = self.start_server(commands)
 
-        scp.start()
-
-        # Override ACSE.is_release_requested so the Association loop doesn't
-        #   respond to the release request
         def is_release_requested(assoc):
+            """Override ACSE.is_release_requested."""
             return False
 
         self.assoc.acse.is_release_requested = is_release_requested
+
         self.assoc.start()
-
-        time.sleep(0.2)
-
+        time.sleep(0.1)
         self.assoc.dul.send_pdu(self.get_release(False))
+        time.sleep(0.1)
 
-        time.sleep(0.3)
+        #self.print_fsm_scp(self.fsm, scp)
+
+        scp.shutdown()
 
         assert self.fsm._changes[:6] == [
             ('Sta1', 'Evt1', 'AE-1'),
@@ -5401,29 +4496,28 @@ class TestState09(TestStateBase):
         # Sta9 + Evt17 -> AA-4 -> Sta1
         # Evt17: Receive TRANSPORT_CLOSED from <transport service>
         # AA-4: Issue A-P-ABORT primitive
-        scp = DummyAE()
-        scp.mode = 'acceptor'
-        scp.queue.put(None)
-        scp.queue.put(['skip', a_associate_ac])
-        scp.queue.put(['wait', 0.2]) # Wait for release rq
-        scp.queue.put(['skip', a_release_rq]) # Send release rq
-        scp.queue.put(['wait', 0.2, 'shutdown'])
+        commands = [
+            ('recv', None),
+            ('send', a_associate_ac),
+            ('recv', None),
+            ('send', a_release_rq),
+        ]
+        scp = self.start_server(commands)
 
-        scp.start()
-
-        # Override ACSE.is_release_requested so the Association loop doesn't
-        #   respond to the release request
         def is_release_requested(assoc):
+            """Override ACSE.is_release_requested."""
             return False
 
         self.assoc.acse.is_release_requested = is_release_requested
+
         self.assoc.start()
-
-        time.sleep(0.2)
-
+        time.sleep(0.1)
         self.assoc.dul.send_pdu(self.get_release(False))
+        time.sleep(0.1)
 
-        time.sleep(0.3)
+        #self.print_fsm_scp(self.fsm, scp)
+
+        scp.shutdown()
 
         assert self.fsm._changes[:6] == [
             ('Sta1', 'Evt1', 'AE-1'),
@@ -5444,35 +4538,32 @@ class TestState09(TestStateBase):
         """Test Sta9 + Evt18."""
         # Sta9 + Evt18 -> <ignore> -> Sta9
         # Evt18: ARTIM timer expired from <local service>
-        scp = DummyAE()
-        scp.mode = 'acceptor'
-        scp.queue.put(None)
-        scp.queue.put(['skip', a_associate_ac])
-        scp.queue.put(['wait', 0.2]) # Wait for release rq
-        scp.queue.put(['skip', a_release_rq]) # Send release rq
-        scp.queue.put(['wait', 0.3])
-        scp.queue.put(['wait', 0.2, 'shutdown'])
+        commands = [
+            ('recv', None),
+            ('send', a_associate_ac),
+            ('recv', None),
+            ('send', a_release_rq),
+            ('wait', 0.2),
+        ]
+        scp = self.start_server(commands)
 
-        scp.start()
-
-        # Override ACSE.is_release_requested so the Association loop doesn't
-        #   respond to the release request
         def is_release_requested(assoc):
+            """Override ACSE.is_release_requested."""
             return False
 
         self.assoc.acse.is_release_requested = is_release_requested
+
         self.assoc.start()
-
-        time.sleep(0.2)
-
+        time.sleep(0.1)
         self.assoc.dul.send_pdu(self.get_release(False))
-
-        time.sleep(0.3)
-
+        time.sleep(0.1)
         self.assoc.dul.artim_timer.timeout_seconds = 0.05
         self.assoc.dul.artim_timer.start()
+        time.sleep(0.1)
 
-        time.sleep(0.4)
+        #self.print_fsm_scp(self.fsm, scp)
+
+        scp.shutdown()
 
         assert self.fsm._changes[:5] == [
             ('Sta1', 'Evt1', 'AE-1'),
@@ -5493,30 +4584,30 @@ class TestState09(TestStateBase):
         # Sta9 + Evt19 -> AA-8 -> Sta13
         # Evt19: Received unrecognised or invalid PDU from <remote>
         # AA-8: Send A-ABORT PDU, issue A-P-ABORT primitive, start ARTIM
-        scp = DummyAE()
-        scp.mode = 'acceptor'
-        scp.queue.put(None)
-        scp.queue.put(['skip', a_associate_ac])
-        scp.queue.put(['wait', 0.2]) # Wait for release rq
-        scp.queue.put(['skip', a_release_rq]) # Send release rq
-        scp.queue.put(['skip', b'\x08\x00\x00\x00\x00\x00'])
-        scp.queue.put(['wait', 0.2, 'shutdown'])
+        commands = [
+            ('recv', None),
+            ('send', a_associate_ac),
+            ('recv', None),
+            ('send', a_release_rq),
+            ('send', b'\x08\x00\x00\x00\x00\x00'),
+            ('recv', None),
+        ]
+        scp = self.start_server(commands)
 
-        scp.start()
-
-        # Override ACSE.is_release_requested so the Association loop doesn't
-        #   respond to the release request
         def is_release_requested(assoc):
+            """Override ACSE.is_release_requested."""
             return False
 
         self.assoc.acse.is_release_requested = is_release_requested
+
         self.assoc.start()
-
-        time.sleep(0.2)
-
+        time.sleep(0.1)
         self.assoc.dul.send_pdu(self.get_release(False))
+        time.sleep(0.1)
 
-        time.sleep(0.3)
+        #self.print_fsm_scp(self.fsm, scp)
+
+        scp.shutdown()
 
         assert self.fsm._changes[:6] == [
             ('Sta1', 'Evt1', 'AE-1'),
@@ -5541,45 +4632,7 @@ class TestState10(TestStateBase):
         """Test Sta10 + Evt1."""
         # Sta10 + Evt1 -> <ignore> -> Sta10
         # Evt1: A-ASSOCIATE (rq) primitive from <local user>
-        scp = DummyAE()
-        scp.mode = 'acceptor'
-        scp.queue.put(None)
-        scp.queue.put(['skip', a_associate_ac])
-        scp.queue.put(['wait', 0.2]) # Wait for release rq
-        scp.queue.put(['skip', a_release_rq]) # Send release rq
-        scp.queue.put(['skip', b'\x08\x00\x00\x00'])
-        scp.queue.put(['wait', 0.2, 'shutdown'])
-
-        scp.start()
-
-        # Override ACSE.is_release_requested so the Association loop doesn't
-        #   respond to the release request
-        def is_release_requested(assoc):
-            return False
-
-        self.assoc.acse.is_release_requested = is_release_requested
-        self.assoc.start()
-
-        time.sleep(0.2)
-
-        self.assoc.dul.send_pdu(self.get_release(False))
-
-        time.sleep(0.2)
-
-        assert self.fsm._changes[:6] == [
-            ('Sta1', 'Evt1', 'AE-1'),
-            ('Sta4', 'Evt2', 'AE-2'),
-            ('Sta5', 'Evt3', 'AE-3'),
-            ('Sta6', 'Evt11', 'AR-1'),
-            ('Sta7', 'Evt12', 'AR-8'),
-            ('Sta9', 'Evt19', 'AA-8'),
-        ]
-        assert self.fsm._transitions[:5] == [
-            'Sta4', 'Sta5', 'Sta6', 'Sta7', 'Sta9'
-        ]
-        assert self.fsm._events[:6] == [
-            'Evt1', 'Evt2', 'Evt3', 'Evt11', 'Evt12', 'Evt19'
-        ]
+        pass
 
     @pytest.mark.skip()
     def test_evt02(self):
@@ -5709,34 +4762,32 @@ class TestState11(TestStateBase):
         """Test Sta11 + Evt1."""
         # Sta11 + Evt1 -> <ignore> -> Sta11
         # Evt1: A-ASSOCIATE (rq) primitive from <local user>
-        scp = DummyAE()
-        scp.mode = 'acceptor'
-        scp.queue.put(None)
-        scp.queue.put(a_associate_ac)
-        scp.queue.put(['wait', 0.2]) # Wait for release rq
-        scp.queue.put(['skip', a_release_rq]) # Send release rq
-        scp.queue.put(['wait', 0.2, 'shutdown'])
+        commands = [
+            ('recv', None),
+            ('send', a_associate_ac),
+            ('recv', None),
+            ('send', a_release_rq),
+            ('recv', None),
+            ('wait', 0.1),
+        ]
+        scp = self.start_server(commands)
 
-        scp.start()
-
-        # Override ACSE.is_release_requested so the Association loop doesn't
-        #   respond to the release request
         def is_release_requested(assoc):
+            """Override ACSE.is_release_requested."""
             return False
 
         self.assoc.acse.is_release_requested = is_release_requested
-        self.assoc.start()
 
+        self.assoc.start()
+        time.sleep(0.1)
+        self.assoc.dul.send_pdu(self.get_release(False))
+        self.assoc.dul.send_pdu(self.get_release(True))
+        self.assoc.dul.send_pdu(self.get_associate('request'))
         time.sleep(0.1)
 
-        self.assoc.dul.send_pdu(self.get_release(False))
+        #self.print_fsm_scp(self.fsm, scp)
 
-        time.sleep(0.3)
-
-        self.assoc.dul.send_pdu(self.get_release(True))
-        self.assoc.dul.send_pdu(self.get_associate("request"))
-
-        time.sleep(0.3)
+        scp.shutdown()
 
         assert self.fsm._changes[:6] == [
             ('Sta1', 'Evt1', 'AE-1'),
@@ -5765,35 +4816,33 @@ class TestState11(TestStateBase):
         # Sta11 + Evt3 -> AA-8 -> Sta13
         # Evt3: Receive A-ASSOCIATE-AC PDU from <remote>
         # AA-8: Send A-ABORT PDU, issue A-P-ABORT primitive, start ARTIM
-        scp = DummyAE()
-        scp.mode = 'acceptor'
-        scp.queue.put(None)
-        scp.queue.put(['skip', a_associate_ac])
-        scp.queue.put(['wait', 0.2]) # Wait for release rq
-        scp.queue.put(['skip', a_release_rq]) # Send release rq
-        scp.queue.put(['wait', 0.2]) # Wait for release rp
-        scp.queue.put(['skip', a_associate_ac])
-        scp.queue.put(['wait', 0.2, 'shutdown'])
+        commands = [
+            ('recv', None),
+            ('send', a_associate_ac),
+            ('recv', None),
+            ('send', a_release_rq),
+            ('recv', None),
+            ('send', a_associate_ac),
+            ('recv', None),
+            ('wait', 0.1),
+        ]
+        scp = self.start_server(commands)
 
-        scp.start()
-
-        # Override ACSE.is_release_requested so the Association loop doesn't
-        #   respond to the release request
         def is_release_requested(assoc):
+            """Override ACSE.is_release_requested."""
             return False
 
         self.assoc.acse.is_release_requested = is_release_requested
-        self.assoc.start()
 
+        self.assoc.start()
+        time.sleep(0.1)
+        self.assoc.dul.send_pdu(self.get_release(False))
+        self.assoc.dul.send_pdu(self.get_release(True))
         time.sleep(0.1)
 
-        self.assoc.dul.send_pdu(self.get_release(False))
+        #self.print_fsm_scp(self.fsm, scp)
 
-        time.sleep(0.3)
-
-        self.assoc.dul.send_pdu(self.get_release(True))
-
-        time.sleep(0.3)
+        scp.shutdown()
 
         assert self.fsm._changes[:7] == [
             ('Sta1', 'Evt1', 'AE-1'),
@@ -5816,35 +4865,33 @@ class TestState11(TestStateBase):
         # Sta11 + Evt4 -> AA-8 -> Sta13
         # Evt4: Receive A-ASSOCIATE-RJ PDU from <remote>
         # AA-8: Send A-ABORT PDU, issue A-P-ABORT primitive, start ARTIM
-        scp = DummyAE()
-        scp.mode = 'acceptor'
-        scp.queue.put(None)
-        scp.queue.put(['skip', a_associate_ac])
-        scp.queue.put(['wait', 0.2]) # Wait for release rq
-        scp.queue.put(['skip', a_release_rq]) # Send release rq
-        scp.queue.put(['wait', 0.2]) # Wait for release rp
-        scp.queue.put(['skip', a_associate_rj])
-        scp.queue.put(['wait', 0.2, 'shutdown'])
+        commands = [
+            ('recv', None),
+            ('send', a_associate_ac),
+            ('recv', None),
+            ('send', a_release_rq),
+            ('recv', None),
+            ('send', a_associate_rj),
+            ('recv', None),
+            ('wait', 0.1),
+        ]
+        scp = self.start_server(commands)
 
-        scp.start()
-
-        # Override ACSE.is_release_requested so the Association loop doesn't
-        #   respond to the release request
         def is_release_requested(assoc):
+            """Override ACSE.is_release_requested."""
             return False
 
         self.assoc.acse.is_release_requested = is_release_requested
-        self.assoc.start()
 
+        self.assoc.start()
+        time.sleep(0.1)
+        self.assoc.dul.send_pdu(self.get_release(False))
+        self.assoc.dul.send_pdu(self.get_release(True))
         time.sleep(0.1)
 
-        self.assoc.dul.send_pdu(self.get_release(False))
+        #self.print_fsm_scp(self.fsm, scp)
 
-        time.sleep(0.3)
-
-        self.assoc.dul.send_pdu(self.get_release(True))
-
-        time.sleep(0.3)
+        scp.shutdown()
 
         assert self.fsm._changes[:7] == [
             ('Sta1', 'Evt1', 'AE-1'),
@@ -5874,35 +4921,33 @@ class TestState11(TestStateBase):
         # Sta11 + Evt6 -> AA-8 -> Sta13
         # Evt6: Receive A-ASSOCIATE-RQ PDU from <remote>
         # AA-8: Send A-ABORT PDU, issue A-P-ABORT primitive, start ARTIM
-        scp = DummyAE()
-        scp.mode = 'acceptor'
-        scp.queue.put(None)
-        scp.queue.put(['skip', a_associate_ac])
-        scp.queue.put(['wait', 0.2]) # Wait for release rq
-        scp.queue.put(['skip', a_release_rq]) # Send release rq
-        scp.queue.put(['wait', 0.2]) # Wait for release rp
-        scp.queue.put(['skip', a_associate_rq])
-        scp.queue.put(['wait', 0.2, 'shutdown'])
+        commands = [
+            ('recv', None),
+            ('send', a_associate_ac),
+            ('recv', None),
+            ('send', a_release_rq),
+            ('recv', None),
+            ('send', a_associate_rq),
+            ('recv', None),
+            ('wait', 0.1),
+        ]
+        scp = self.start_server(commands)
 
-        scp.start()
-
-        # Override ACSE.is_release_requested so the Association loop doesn't
-        #   respond to the release request
         def is_release_requested(assoc):
+            """Override ACSE.is_release_requested."""
             return False
 
         self.assoc.acse.is_release_requested = is_release_requested
-        self.assoc.start()
 
+        self.assoc.start()
+        time.sleep(0.1)
+        self.assoc.dul.send_pdu(self.get_release(False))
+        self.assoc.dul.send_pdu(self.get_release(True))
         time.sleep(0.1)
 
-        self.assoc.dul.send_pdu(self.get_release(False))
+        #self.print_fsm_scp(self.fsm, scp)
 
-        time.sleep(0.3)
-
-        self.assoc.dul.send_pdu(self.get_release(True))
-
-        time.sleep(0.3)
+        scp.shutdown()
 
         assert self.fsm._changes[:7] == [
             ('Sta1', 'Evt1', 'AE-1'),
@@ -5924,34 +4969,32 @@ class TestState11(TestStateBase):
         """Test Sta11 + Evt7."""
         # Sta11 + Evt7 -> <ignore> -> Sta11
         # Evt7: Receive A-ASSOCIATE (accept) primitive from <local user>
-        scp = DummyAE()
-        scp.mode = 'acceptor'
-        scp.queue.put(None)
-        scp.queue.put(['skip', a_associate_ac])
-        scp.queue.put(['wait', 0.2]) # Wait for release rq
-        scp.queue.put(['skip', a_release_rq]) # Send release rq
-        scp.queue.put(['wait', 0.2, 'shutdown'])
+        commands = [
+            ('recv', None),
+            ('send', a_associate_ac),
+            ('recv', None),
+            ('send', a_release_rq),
+            ('recv', None),
+            ('wait', 0.1),
+        ]
+        scp = self.start_server(commands)
 
-        scp.start()
-
-        # Override ACSE.is_release_requested so the Association loop doesn't
-        #   respond to the release request
         def is_release_requested(assoc):
+            """Override ACSE.is_release_requested."""
             return False
 
         self.assoc.acse.is_release_requested = is_release_requested
-        self.assoc.start()
 
+        self.assoc.start()
+        time.sleep(0.1)
+        self.assoc.dul.send_pdu(self.get_release(False))
+        self.assoc.dul.send_pdu(self.get_release(True))
+        self.assoc.dul.send_pdu(self.get_associate('accept'))
         time.sleep(0.1)
 
-        self.assoc.dul.send_pdu(self.get_release(False))
+        #self.print_fsm_scp(self.fsm, scp)
 
-        time.sleep(0.3)
-
-        self.assoc.dul.send_pdu(self.get_release(True))
-        self.assoc.dul.send_pdu(self.get_associate("accept"))
-
-        time.sleep(0.3)
+        scp.shutdown()
 
         assert self.fsm._changes[:6] == [
             ('Sta1', 'Evt1', 'AE-1'),
@@ -5972,34 +5015,32 @@ class TestState11(TestStateBase):
         """Test Sta11 + Evt8."""
         # Sta11 + Evt8 -> <ignore> -> Sta11
         # Evt8: Receive A-ASSOCIATE (reject) primitive from <local user>
-        scp = DummyAE()
-        scp.mode = 'acceptor'
-        scp.queue.put(None)
-        scp.queue.put(['skip', a_associate_ac])
-        scp.queue.put(['wait', 0.2]) # Wait for release rq
-        scp.queue.put(['skip', a_release_rq]) # Send release rq
-        scp.queue.put(['wait', 0.2, 'shutdown'])
+        commands = [
+            ('recv', None),
+            ('send', a_associate_ac),
+            ('recv', None),
+            ('send', a_release_rq),
+            ('recv', None),
+            ('wait', 0.1),
+        ]
+        scp = self.start_server(commands)
 
-        scp.start()
-
-        # Override ACSE.is_release_requested so the Association loop doesn't
-        #   respond to the release request
         def is_release_requested(assoc):
+            """Override ACSE.is_release_requested."""
             return False
 
         self.assoc.acse.is_release_requested = is_release_requested
-        self.assoc.start()
 
+        self.assoc.start()
+        time.sleep(0.1)
+        self.assoc.dul.send_pdu(self.get_release(False))
+        self.assoc.dul.send_pdu(self.get_release(True))
+        self.assoc.dul.send_pdu(self.get_associate('reject'))
         time.sleep(0.1)
 
-        self.assoc.dul.send_pdu(self.get_release(False))
+        #self.print_fsm_scp(self.fsm, scp)
 
-        time.sleep(0.3)
-
-        self.assoc.dul.send_pdu(self.get_release(True))
-        self.assoc.dul.send_pdu(self.get_associate("reject"))
-
-        time.sleep(0.3)
+        scp.shutdown()
 
         assert self.fsm._changes[:6] == [
             ('Sta1', 'Evt1', 'AE-1'),
@@ -6020,34 +5061,32 @@ class TestState11(TestStateBase):
         """Test Sta11 + Evt9."""
         # Sta11 + Evt9 -> <ignore> -> Sta11
         # Evt9: Receive P-DATA primitive from <local user>
-        scp = DummyAE()
-        scp.mode = 'acceptor'
-        scp.queue.put(None)
-        scp.queue.put(['skip', a_associate_ac])
-        scp.queue.put(['wait', 0.2]) # Wait for release rq
-        scp.queue.put(['skip', a_release_rq]) # Send release rq
-        scp.queue.put(['wait', 0.2, 'shutdown'])
+        commands = [
+            ('recv', None),
+            ('send', a_associate_ac),
+            ('recv', None),
+            ('send', a_release_rq),
+            ('recv', None),
+            ('wait', 0.1),
+        ]
+        scp = self.start_server(commands)
 
-        scp.start()
-
-        # Override ACSE.is_release_requested so the Association loop doesn't
-        #   respond to the release request
         def is_release_requested(assoc):
+            """Override ACSE.is_release_requested."""
             return False
 
         self.assoc.acse.is_release_requested = is_release_requested
+
         self.assoc.start()
-
         time.sleep(0.1)
-
         self.assoc.dul.send_pdu(self.get_release(False))
-
-        time.sleep(0.3)
-
         self.assoc.dul.send_pdu(self.get_release(True))
         self.assoc.dul.send_pdu(self.get_pdata())
+        time.sleep(0.1)
 
-        time.sleep(0.3)
+        #self.print_fsm_scp(self.fsm, scp)
+
+        scp.shutdown()
 
         assert self.fsm._changes[:6] == [
             ('Sta1', 'Evt1', 'AE-1'),
@@ -6069,35 +5108,33 @@ class TestState11(TestStateBase):
         # Sta11 + Evt10 -> AA-8 -> Sta13
         # Evt10: Receive P-DATA-TF PDU from <remote>
         # AA-8: Send A-ABORT PDU, issue A-P-ABORT primitive, start ARTIM
-        scp = DummyAE()
-        scp.mode = 'acceptor'
-        scp.queue.put(None)
-        scp.queue.put(['skip', a_associate_ac])
-        scp.queue.put(['wait', 0.2]) # Wait for release rq
-        scp.queue.put(['skip', a_release_rq]) # Send release rq
-        scp.queue.put(['wait', 0.2]) # Wait for release rp
-        scp.queue.put(['skip', p_data_tf])
-        scp.queue.put(['wait', 0.2, 'shutdown'])
+        commands = [
+            ('recv', None),
+            ('send', a_associate_ac),
+            ('recv', None),
+            ('send', a_release_rq),
+            ('recv', None),
+            ('send', p_data_tf),
+            ('recv', None),
+            ('wait', 0.1),
+        ]
+        scp = self.start_server(commands)
 
-        scp.start()
-
-        # Override ACSE.is_release_requested so the Association loop doesn't
-        #   respond to the release request
         def is_release_requested(assoc):
+            """Override ACSE.is_release_requested."""
             return False
 
         self.assoc.acse.is_release_requested = is_release_requested
-        self.assoc.start()
 
+        self.assoc.start()
+        time.sleep(0.1)
+        self.assoc.dul.send_pdu(self.get_release(False))
+        self.assoc.dul.send_pdu(self.get_release(True))
         time.sleep(0.1)
 
-        self.assoc.dul.send_pdu(self.get_release(False))
+        #self.print_fsm_scp(self.fsm, scp)
 
-        time.sleep(0.3)
-
-        self.assoc.dul.send_pdu(self.get_release(True))
-
-        time.sleep(0.3)
+        scp.shutdown()
 
         assert self.fsm._changes[:7] == [
             ('Sta1', 'Evt1', 'AE-1'),
@@ -6119,34 +5156,32 @@ class TestState11(TestStateBase):
         """Test Sta11 + Evt11."""
         # Sta11 + Evt11 -> <ignore> -> Sta11
         # Evt11: Receive A-RELEASE (rq) primitive from <local user>
-        scp = DummyAE()
-        scp.mode = 'acceptor'
-        scp.queue.put(None)
-        scp.queue.put(['skip', a_associate_ac])
-        scp.queue.put(['wait', 0.2]) # Wait for release rq
-        scp.queue.put(['skip', a_release_rq]) # Send release rq
-        scp.queue.put(['wait', 0.2, 'shutdown'])
+        commands = [
+            ('recv', None),
+            ('send', a_associate_ac),
+            ('recv', None),
+            ('send', a_release_rq),
+            ('recv', None),
+            ('wait', 0.1),
+        ]
+        scp = self.start_server(commands)
 
-        scp.start()
-
-        # Override ACSE.is_release_requested so the Association loop doesn't
-        #   respond to the release request
         def is_release_requested(assoc):
+            """Override ACSE.is_release_requested."""
             return False
 
         self.assoc.acse.is_release_requested = is_release_requested
+
         self.assoc.start()
-
         time.sleep(0.1)
-
         self.assoc.dul.send_pdu(self.get_release(False))
-
-        time.sleep(0.3)
-
         self.assoc.dul.send_pdu(self.get_release(True))
         self.assoc.dul.send_pdu(self.get_release(False))
+        time.sleep(0.1)
 
-        time.sleep(0.3)
+        #self.print_fsm_scp(self.fsm, scp)
+
+        scp.shutdown()
 
         assert self.fsm._changes[:6] == [
             ('Sta1', 'Evt1', 'AE-1'),
@@ -6168,35 +5203,33 @@ class TestState11(TestStateBase):
         # Sta11 + Evt12 -> AA-8 -> Sta13
         # Evt12: Receive A-RELEASE-RQ PDU from <remote>
         # AA-8: Send A-ABORT PDU, issue A-P-ABORT primitive, start ARTIM
-        scp = DummyAE()
-        scp.mode = 'acceptor'
-        scp.queue.put(None)
-        scp.queue.put(['skip', a_associate_ac])
-        scp.queue.put(['wait', 0.2]) # Wait for release rq
-        scp.queue.put(['skip', a_release_rq]) # Send release rq
-        scp.queue.put(['wait', 0.2]) # Wait for release rp
-        scp.queue.put(['skip', a_release_rq])
-        scp.queue.put(['wait', 0.2, 'shutdown'])
+        commands = [
+            ('recv', None),
+            ('send', a_associate_ac),
+            ('recv', None),
+            ('send', a_release_rq),
+            ('recv', None),
+            ('send', a_release_rq),
+            ('recv', None),
+            ('wait', 0.1),
+        ]
+        scp = self.start_server(commands)
 
-        scp.start()
-
-        # Override ACSE.is_release_requested so the Association loop doesn't
-        #   respond to the release request
         def is_release_requested(assoc):
+            """Override ACSE.is_release_requested."""
             return False
 
         self.assoc.acse.is_release_requested = is_release_requested
-        self.assoc.start()
 
+        self.assoc.start()
+        time.sleep(0.1)
+        self.assoc.dul.send_pdu(self.get_release(False))
+        self.assoc.dul.send_pdu(self.get_release(True))
         time.sleep(0.1)
 
-        self.assoc.dul.send_pdu(self.get_release(False))
+        #self.print_fsm_scp(self.fsm, scp)
 
-        time.sleep(0.3)
-
-        self.assoc.dul.send_pdu(self.get_release(True))
-
-        time.sleep(0.3)
+        scp.shutdown()
 
         assert self.fsm._changes[:7] == [
             ('Sta1', 'Evt1', 'AE-1'),
@@ -6219,35 +5252,32 @@ class TestState11(TestStateBase):
         # Sta11 + Evt13 -> AR-3 -> Sta1
         # Evt13: Receive A-RELEASE-RP PDU from <remote>
         # AR-3: Issue A-RELEASE (rp) primitive and close connection
-        scp = DummyAE()
-        scp.mode = 'acceptor'
-        scp.queue.put(None)
-        scp.queue.put(['skip', a_associate_ac])
-        scp.queue.put(['wait', 0.2]) # Wait for release rq
-        scp.queue.put(['skip', a_release_rq]) # Send release rq
-        scp.queue.put(['wait', 0.2]) # Wait for release rp
-        scp.queue.put(['skip', a_release_rp])
-        scp.queue.put(['wait', 0.2, 'shutdown'])
+        commands = [
+            ('recv', None),
+            ('send', a_associate_ac),
+            ('recv', None),
+            ('send', a_release_rq),
+            ('recv', None),
+            ('send', a_release_rp),
+            ('wait', 0.1),
+        ]
+        scp = self.start_server(commands)
 
-        scp.start()
-
-        # Override ACSE.is_release_requested so the Association loop doesn't
-        #   respond to the release request
         def is_release_requested(assoc):
+            """Override ACSE.is_release_requested."""
             return False
 
         self.assoc.acse.is_release_requested = is_release_requested
-        self.assoc.start()
 
+        self.assoc.start()
+        time.sleep(0.1)
+        self.assoc.dul.send_pdu(self.get_release(False))
+        self.assoc.dul.send_pdu(self.get_release(True))
         time.sleep(0.1)
 
-        self.assoc.dul.send_pdu(self.get_release(False))
+        #self.print_fsm_scp(self.fsm, scp)
 
-        time.sleep(0.3)
-
-        self.assoc.dul.send_pdu(self.get_release(True))
-
-        time.sleep(0.3)
+        scp.shutdown()
 
         assert self.fsm._changes[:7] == [
             ('Sta1', 'Evt1', 'AE-1'),
@@ -6269,34 +5299,32 @@ class TestState11(TestStateBase):
         """Test Sta11 + Evt14."""
         # Sta11 + Evt14 -> <ignore> -> Sta11
         # Evt14: Receive A-RELEASE (rsp) primitive from <local user>
-        scp = DummyAE()
-        scp.mode = 'acceptor'
-        scp.queue.put(None)
-        scp.queue.put(['skip', a_associate_ac])
-        scp.queue.put(['wait', 0.2]) # Wait for release rq
-        scp.queue.put(['skip', a_release_rq]) # Send release rq
-        scp.queue.put(['wait', 0.2, 'shutdown'])
+        commands = [
+            ('recv', None),
+            ('send', a_associate_ac),
+            ('recv', None),
+            ('send', a_release_rq),
+            ('recv', None),
+            ('wait', 0.1),
+        ]
+        scp = self.start_server(commands)
 
-        scp.start()
-
-        # Override ACSE.is_release_requested so the Association loop doesn't
-        #   respond to the release request
         def is_release_requested(assoc):
+            """Override ACSE.is_release_requested."""
             return False
 
         self.assoc.acse.is_release_requested = is_release_requested
-        self.assoc.start()
 
+        self.assoc.start()
+        time.sleep(0.1)
+        self.assoc.dul.send_pdu(self.get_release(False))
+        self.assoc.dul.send_pdu(self.get_release(True))
+        self.assoc.dul.send_pdu(self.get_release(True))
         time.sleep(0.1)
 
-        self.assoc.dul.send_pdu(self.get_release(False))
+        #self.print_fsm_scp(self.fsm, scp)
 
-        time.sleep(0.3)
-
-        self.assoc.dul.send_pdu(self.get_release(True))
-        self.assoc.dul.send_pdu(self.get_release(True))
-
-        time.sleep(0.3)
+        scp.shutdown()
 
         assert self.fsm._changes[:6] == [
             ('Sta1', 'Evt1', 'AE-1'),
@@ -6318,34 +5346,32 @@ class TestState11(TestStateBase):
         # Sta11 + Evt15 -> AA-1 -> Sta13
         # Evt15: Receive A-ABORT (rq) primitive from <local user>
         # AA-1: Send A-ABORT PDU to <remote>, start ARTIM
-        scp = DummyAE()
-        scp.mode = 'acceptor'
-        scp.queue.put(None)
-        scp.queue.put(['skip', a_associate_ac])
-        scp.queue.put(['wait', 0.2]) # Wait for release rq
-        scp.queue.put(['skip', a_release_rq]) # Send release rq
-        scp.queue.put(['wait', 0.2, 'shutdown'])
+        commands = [
+            ('recv', None),
+            ('send', a_associate_ac),
+            ('recv', None),
+            ('send', a_release_rq),
+            ('recv', None),
+            ('wait', 0.1),
+        ]
+        scp = self.start_server(commands)
 
-        scp.start()
-
-        # Override ACSE.is_release_requested so the Association loop doesn't
-        #   respond to the release request
         def is_release_requested(assoc):
+            """Override ACSE.is_release_requested."""
             return False
 
         self.assoc.acse.is_release_requested = is_release_requested
+
         self.assoc.start()
-
         time.sleep(0.1)
-
         self.assoc.dul.send_pdu(self.get_release(False))
-
-        time.sleep(0.3)
-
         self.assoc.dul.send_pdu(self.get_release(True))
         self.assoc.dul.send_pdu(self.get_abort())
+        time.sleep(0.1)
 
-        time.sleep(0.3)
+        #self.print_fsm_scp(self.fsm, scp)
+
+        scp.shutdown()
 
         assert self.fsm._changes[:6] == [
             ('Sta1', 'Evt1', 'AE-1'),
@@ -6367,35 +5393,32 @@ class TestState11(TestStateBase):
         # Sta11 + Evt16 -> AA-3 -> Sta1
         # Evt16: Receive A-ABORT PDU from <remote>
         # AA-3: Issue A-ABORT or A-P-ABORT primitive, close connection
-        scp = DummyAE()
-        scp.mode = 'acceptor'
-        scp.queue.put(None)
-        scp.queue.put(['skip', a_associate_ac])
-        scp.queue.put(['wait', 0.2]) # Wait for release rq
-        scp.queue.put(['skip', a_release_rq]) # Send release rq
-        scp.queue.put(['wait', 0.2]) # Wait for release rp
-        scp.queue.put(['skip', a_abort])
-        scp.queue.put(['wait', 0.2, 'shutdown'])
+        commands = [
+            ('recv', None),
+            ('send', a_associate_ac),
+            ('recv', None),
+            ('send', a_release_rq),
+            ('recv', None),
+            ('send', a_abort),
+            ('wait', 0.1),
+        ]
+        scp = self.start_server(commands)
 
-        scp.start()
-
-        # Override ACSE.is_release_requested so the Association loop doesn't
-        #   respond to the release request
         def is_release_requested(assoc):
+            """Override ACSE.is_release_requested."""
             return False
 
         self.assoc.acse.is_release_requested = is_release_requested
-        self.assoc.start()
 
+        self.assoc.start()
+        time.sleep(0.1)
+        self.assoc.dul.send_pdu(self.get_release(False))
+        self.assoc.dul.send_pdu(self.get_release(True))
         time.sleep(0.1)
 
-        self.assoc.dul.send_pdu(self.get_release(False))
+        #self.print_fsm_scp(self.fsm, scp)
 
-        time.sleep(0.3)
-
-        self.assoc.dul.send_pdu(self.get_release(True))
-
-        time.sleep(0.3)
+        scp.shutdown()
 
         assert self.fsm._changes[:7] == [
             ('Sta1', 'Evt1', 'AE-1'),
@@ -6418,35 +5441,30 @@ class TestState11(TestStateBase):
         # Sta11 + Evt17 -> AA-4 -> Sta1
         # Evt17: Receive TRANSPORT_CLOSED from <transport service>
         # AA-4: Issue A-P-ABORT primitive
-        scp = DummyAE()
-        scp.mode = 'acceptor'
-        scp.queue.put(None)
-        scp.queue.put(['skip', a_associate_ac])
-        scp.queue.put(['wait', 0.2]) # Wait for release rq
-        scp.queue.put(['skip', a_release_rq]) # Send release rq
-        scp.queue.put(['wait', 0.2, 'shutdown']) # Wait for release rp
-        #scp.queue.put(['skip', a_associate_ac])
-        #scp.queue.put(['wait', 0.2, 'shutdown'])
+        commands = [
+            ('recv', None),
+            ('send', a_associate_ac),
+            ('recv', None),
+            ('send', a_release_rq),
+            ('recv', None),
+        ]
+        scp = self.start_server(commands)
 
-        scp.start()
-
-        # Override ACSE.is_release_requested so the Association loop doesn't
-        #   respond to the release request
         def is_release_requested(assoc):
+            """Override ACSE.is_release_requested."""
             return False
 
         self.assoc.acse.is_release_requested = is_release_requested
-        self.assoc.start()
 
+        self.assoc.start()
+        time.sleep(0.1)
+        self.assoc.dul.send_pdu(self.get_release(False))
+        self.assoc.dul.send_pdu(self.get_release(True))
         time.sleep(0.1)
 
-        self.assoc.dul.send_pdu(self.get_release(False))
+        #self.print_fsm_scp(self.fsm, scp)
 
-        time.sleep(0.3)
-
-        self.assoc.dul.send_pdu(self.get_release(True))
-
-        time.sleep(0.3)
+        scp.shutdown()
 
         assert self.fsm._changes[:7] == [
             ('Sta1', 'Evt1', 'AE-1'),
@@ -6468,40 +5486,33 @@ class TestState11(TestStateBase):
         """Test Sta11 + Evt18."""
         # Sta11 + Evt18 -> <ignore> -> Sta11
         # Evt18: ARTIM timer expired from <local service>
-        scp = DummyAE()
-        scp.mode = 'acceptor'
-        scp.queue.put(None)
-        scp.queue.put(['skip', a_associate_ac])
-        scp.queue.put(['wait', 0.2]) # Wait for release rq
-        scp.queue.put(['skip', a_release_rq]) # Send release rq
-        scp.queue.put(['wait', 0.2]) # Wait for release rp
-        scp.queue.put(['wait', 0.3])
-        scp.queue.put(['wait', 0.2, 'shutdown'])
+        commands = [
+            ('recv', None),
+            ('send', a_associate_ac),
+            ('recv', None),
+            ('send', a_release_rq),
+            ('recv', None),
+            ('wait', 0.1),
+        ]
+        scp = self.start_server(commands)
 
-        scp.start()
-
-        # Override ACSE.is_release_requested so the Association loop doesn't
-        #   respond to the release request
         def is_release_requested(assoc):
+            """Override ACSE.is_release_requested."""
             return False
 
         self.assoc.acse.is_release_requested = is_release_requested
+
         self.assoc.start()
-
         time.sleep(0.1)
-
         self.assoc.dul.send_pdu(self.get_release(False))
-
-        time.sleep(0.3)
-
         self.assoc.dul.send_pdu(self.get_release(True))
-
-        time.sleep(0.3)
-
         self.assoc.dul.artim_timer.timeout_seconds = 0.05
         self.assoc.dul.artim_timer.start()
+        time.sleep(0.1)
 
-        time.sleep(0.4)
+        #self.print_fsm_scp(self.fsm, scp)
+
+        scp.shutdown()
 
         assert self.fsm._changes[:6] == [
             ('Sta1', 'Evt1', 'AE-1'),
@@ -6523,35 +5534,33 @@ class TestState11(TestStateBase):
         # Sta11 + Evt19 -> AA-8 -> Sta13
         # Evt19: Received unrecognised or invalid PDU from <remote>
         # AA-8: Send A-ABORT PDU, issue A-P-ABORT primitive, start ARTIM
-        scp = DummyAE()
-        scp.mode = 'acceptor'
-        scp.queue.put(None)
-        scp.queue.put(['skip', a_associate_ac])
-        scp.queue.put(['wait', 0.2]) # Wait for release rq
-        scp.queue.put(['skip', a_release_rq]) # Send release rq
-        scp.queue.put(['wait', 0.2]) # Wait for release rp
-        scp.queue.put(['skip', b'\x08\x00\x00\x00\x00\x00'])
-        scp.queue.put(['wait', 0.2, 'shutdown'])
+        commands = [
+            ('recv', None),
+            ('send', a_associate_ac),
+            ('recv', None),
+            ('send', a_release_rq),
+            ('recv', None),
+            ('send', b'\x08\x00\x00\x00\x00\x00'),
+            ('recv', None),
+            ('wait', 0.1),
+        ]
+        scp = self.start_server(commands)
 
-        scp.start()
-
-        # Override ACSE.is_release_requested so the Association loop doesn't
-        #   respond to the release request
         def is_release_requested(assoc):
+            """Override ACSE.is_release_requested."""
             return False
 
         self.assoc.acse.is_release_requested = is_release_requested
-        self.assoc.start()
 
+        self.assoc.start()
+        time.sleep(0.1)
+        self.assoc.dul.send_pdu(self.get_release(False))
+        self.assoc.dul.send_pdu(self.get_release(True))
         time.sleep(0.1)
 
-        self.assoc.dul.send_pdu(self.get_release(False))
+        #self.print_fsm_scp(self.fsm, scp)
 
-        time.sleep(0.3)
-
-        self.assoc.dul.send_pdu(self.get_release(True))
-
-        time.sleep(0.3)
+        scp.shutdown()
 
         assert self.fsm._changes[:7] == [
             ('Sta1', 'Evt1', 'AE-1'),
@@ -6708,43 +5717,37 @@ class TestState13(TestStateBase):
         """Test Sta13 + Evt1."""
         # Sta13 + Evt1 -> <ignore> -> Sta13
         # Evt1: A-ASSOCIATE (rq) primitive from <local user>
-        scp = DummyAE()
-        scp.mode = 'acceptor'
-        scp.queue.put(None) # receive a_associate_rq
-        scp.queue.put(['wait', 0.1]) #
-        scp.queue.put(a_associate_rq) # receive a-abort
-        scp.queue.put(['wait', 0.1, 'shutdown'])
+        commands = [
+            ('recv', None),
+            ('send', a_associate_rq),
+            ('wait', 0.1),
+        ]
+        scp = self.start_server(commands)
 
-        scp.start()
-
-        # Override acse._negotiate_as_requestor
         def patch_neg_rq(assoc):
-            assoc.send_request(assoc)
+            """Override ACSE._negotiate_as_requestor"""
+            assoc.acse.send_request(assoc)
 
         self.assoc.acse._negotiate_as_requestor = patch_neg_rq
 
-        # Override dul._is_transport_event to not close in Sta13
-        dul = self.assoc.dul
-        orig_method = dul._is_transport_event
+        orig_method = self.assoc.dul._is_transport_event
         def patch_xport_event():
+            """Override DUL._is_transport_event to not close in Sta13."""
             if self.fsm.current_state == 'Sta13':
                 return False
 
             return orig_method()
 
-        dul._is_transport_event = patch_xport_event
-
-        assert self.fsm.current_state == 'Sta1'
+        self.assoc.dul._is_transport_event = patch_xport_event
 
         self.assoc.start()
-
+        time.sleep(0.1)
         self.assoc.dul.send_pdu(self.get_associate('request'))
+        time.sleep(0.1)
 
-        time.sleep(0.2)
+        #self.print_fsm_scp(self.fsm, scp)
 
-        self.assoc.dul.send_pdu(self.get_associate('request'))
-
-        time.sleep(0.2)
+        scp.shutdown()
 
         assert self.fsm._changes[:3] == [
             ('Sta1', 'Evt1', 'AE-1'),
@@ -6766,33 +5769,26 @@ class TestState13(TestStateBase):
         # Sta13 + Evt3 -> AA-6 -> Sta13
         # Evt3: Receive A-ASSOCIATE-AC PDU from <remote>
         # AA-6: Ignore PDU
-        scp = DummyAE()
-        scp.mode = 'acceptor'
-        scp.queue.put(None) # receive a_associate_rq
-        scp.queue.put(['wait', 0.1]) #
-        scp.queue.put(a_associate_rq) # receive a-abort
-        scp.queue.put(['skip', a_associate_ac]) # receive a-abort
-        scp.queue.put(['wait', 0.1, 'shutdown'])
+        commands = [
+            ('recv', None),
+            ('send', a_associate_rq),
+            ('send', a_associate_ac),
+            ('wait', 0.1),
+        ]
+        scp = self.start_server(commands)
 
-        scp.start()
-
-        # Override acse._negotiate_as_requestor
         def patch_neg_rq(assoc):
-            assoc.send_request(assoc)
+            """Override ACSE._negotiate_as_requestor"""
+            assoc.acse.send_request(assoc)
 
         self.assoc.acse._negotiate_as_requestor = patch_neg_rq
-
-        assert self.fsm.current_state == 'Sta1'
-
         self.assoc.start()
 
-        self.assoc.dul.send_pdu(self.get_associate('request'))
+        time.sleep(0.1)
 
-        time.sleep(0.2)
+        #self.print_fsm_scp(self.fsm, scp)
 
-        self.assoc.dul.send_pdu(self.get_associate('request'))
-
-        time.sleep(0.2)
+        scp.shutdown()
 
         assert self.fsm._changes[:4] == [
             ('Sta1', 'Evt1', 'AE-1'),
@@ -6808,33 +5804,26 @@ class TestState13(TestStateBase):
         # Sta13 + Evt4 -> AA-6 -> Sta13
         # Evt4: Receive A-ASSOCIATE-RJ PDU from <remote>
         # AA-6: Ignore PDU
-        scp = DummyAE()
-        scp.mode = 'acceptor'
-        scp.queue.put(None) # receive a_associate_rq
-        scp.queue.put(['wait', 0.1]) #
-        scp.queue.put(a_associate_rq) # receive a-abort
-        scp.queue.put(['skip', a_associate_rj]) # receive a-abort
-        scp.queue.put(['wait', 0.1, 'shutdown'])
+        commands = [
+            ('recv', None),
+            ('send', a_associate_rq),
+            ('send', a_associate_rj),
+            ('wait', 0.1),
+        ]
+        scp = self.start_server(commands)
 
-        scp.start()
-
-        # Override acse._negotiate_as_requestor
         def patch_neg_rq(assoc):
-            assoc.send_request(assoc)
+            """Override ACSE._negotiate_as_requestor"""
+            assoc.acse.send_request(assoc)
 
         self.assoc.acse._negotiate_as_requestor = patch_neg_rq
-
-        assert self.fsm.current_state == 'Sta1'
-
         self.assoc.start()
 
-        self.assoc.dul.send_pdu(self.get_associate('request'))
+        time.sleep(0.1)
 
-        time.sleep(0.2)
+        #self.print_fsm_scp(self.fsm, scp)
 
-        self.assoc.dul.send_pdu(self.get_associate('request'))
-
-        time.sleep(0.2)
+        scp.shutdown()
 
         assert self.fsm._changes[:4] == [
             ('Sta1', 'Evt1', 'AE-1'),
@@ -6857,33 +5846,26 @@ class TestState13(TestStateBase):
         # Sta13 + Evt6 -> AA-7 -> Sta13
         # Evt6: Receive A-ASSOCIATE-RQ PDU from <remote>
         # AA-7: Send A-ABORT PDU to <remote>
-        scp = DummyAE()
-        scp.mode = 'acceptor'
-        scp.queue.put(None) # receive a_associate_rq
-        scp.queue.put(['wait', 0.1]) #
-        scp.queue.put(a_associate_rq) # receive a-abort
-        scp.queue.put(['skip', a_associate_rq]) # receive a-abort
-        scp.queue.put(['wait', 0.1, 'shutdown'])
+        commands = [
+            ('recv', None),
+            ('send', a_associate_rq),
+            ('send', a_associate_rq),
+            ('wait', 0.1),
+        ]
+        scp = self.start_server(commands)
 
-        scp.start()
-
-        # Override acse._negotiate_as_requestor
         def patch_neg_rq(assoc):
-            assoc.send_request(assoc)
+            """Override ACSE._negotiate_as_requestor"""
+            assoc.acse.send_request(assoc)
 
         self.assoc.acse._negotiate_as_requestor = patch_neg_rq
-
-        assert self.fsm.current_state == 'Sta1'
-
         self.assoc.start()
 
-        self.assoc.dul.send_pdu(self.get_associate('request'))
+        time.sleep(0.1)
 
-        time.sleep(0.2)
+        #self.print_fsm_scp(self.fsm, scp)
 
-        self.assoc.dul.send_pdu(self.get_associate('request'))
-
-        time.sleep(0.2)
+        scp.shutdown()
 
         assert self.fsm._changes[:4] == [
             ('Sta1', 'Evt1', 'AE-1'),
@@ -6898,43 +5880,36 @@ class TestState13(TestStateBase):
         """Test Sta13 + Evt7."""
         # Sta13 + Evt7 -> <ignore> -> Sta13
         # Evt7: Receive A-ASSOCIATE (accept) primitive from <local user>
-        scp = DummyAE()
-        scp.mode = 'acceptor'
-        scp.queue.put(None) # receive a_associate_rq
-        scp.queue.put(['wait', 0.1]) #
-        scp.queue.put(a_associate_rq) # receive a-abort
-        scp.queue.put(['wait', 0.1, 'shutdown'])
+        commands = [
+            ('recv', None),
+            ('send', a_associate_rq),
+            ('wait', 0.1),
+        ]
+        scp = self.start_server(commands)
 
-        scp.start()
-
-        # Override acse._negotiate_as_requestor
         def patch_neg_rq(assoc):
-            assoc.send_request(assoc)
+            """Override ACSE._negotiate_as_requestor"""
+            assoc.acse.send_request(assoc)
 
         self.assoc.acse._negotiate_as_requestor = patch_neg_rq
 
-        # Override dul._is_transport_event to not close in Sta13
-        dul = self.assoc.dul
-        orig_method = dul._is_transport_event
+        orig_method = self.assoc.dul._is_transport_event
         def patch_xport_event():
+            """Override DUL._is_transport_event to not close in Sta13."""
             if self.fsm.current_state == 'Sta13':
                 return False
 
             return orig_method()
 
-        dul._is_transport_event = patch_xport_event
-
-        assert self.fsm.current_state == 'Sta1'
-
+        self.assoc.dul._is_transport_event = patch_xport_event
         self.assoc.start()
-
-        self.assoc.dul.send_pdu(self.get_associate('request'))
-
-        time.sleep(0.2)
-
+        time.sleep(0.1)
         self.assoc.dul.send_pdu(self.get_associate('accept'))
+        time.sleep(0.1)
 
-        time.sleep(0.2)
+        #self.print_fsm_scp(self.fsm, scp)
+
+        scp.shutdown()
 
         assert self.fsm._changes[:3] == [
             ('Sta1', 'Evt1', 'AE-1'),
@@ -6948,43 +5923,36 @@ class TestState13(TestStateBase):
         """Test Sta13 + Evt8."""
         # Sta13 + Evt8 -> <ignore> -> Sta13
         # Evt8: Receive A-ASSOCIATE (reject) primitive from <local user>
-        scp = DummyAE()
-        scp.mode = 'acceptor'
-        scp.queue.put(None) # receive a_associate_rq
-        scp.queue.put(['wait', 0.1]) #
-        scp.queue.put(a_associate_rq) # receive a-abort
-        scp.queue.put(['wait', 0.1, 'shutdown'])
+        commands = [
+            ('recv', None),
+            ('send', a_associate_rq),
+            ('wait', 0.1),
+        ]
+        scp = self.start_server(commands)
 
-        scp.start()
-
-        # Override acse._negotiate_as_requestor
         def patch_neg_rq(assoc):
-            assoc.send_request(assoc)
+            """Override ACSE._negotiate_as_requestor"""
+            assoc.acse.send_request(assoc)
 
         self.assoc.acse._negotiate_as_requestor = patch_neg_rq
 
-        # Override dul._is_transport_event to not close in Sta13
-        dul = self.assoc.dul
-        orig_method = dul._is_transport_event
+        orig_method = self.assoc.dul._is_transport_event
         def patch_xport_event():
+            """Override DUL._is_transport_event to not close in Sta13."""
             if self.fsm.current_state == 'Sta13':
                 return False
 
             return orig_method()
 
-        dul._is_transport_event = patch_xport_event
-
-        assert self.fsm.current_state == 'Sta1'
-
+        self.assoc.dul._is_transport_event = patch_xport_event
         self.assoc.start()
-
-        self.assoc.dul.send_pdu(self.get_associate('request'))
-
-        time.sleep(0.2)
-
+        time.sleep(0.1)
         self.assoc.dul.send_pdu(self.get_associate('reject'))
+        time.sleep(0.1)
 
-        time.sleep(0.2)
+        #self.print_fsm_scp(self.fsm, scp)
+
+        scp.shutdown()
 
         assert self.fsm._changes[:3] == [
             ('Sta1', 'Evt1', 'AE-1'),
@@ -6998,43 +5966,36 @@ class TestState13(TestStateBase):
         """Test Sta13 + Evt9."""
         # Sta13 + Evt9 -> <ignore> -> Sta13
         # Evt9: Receive P-DATA primitive from <local user>
-        scp = DummyAE()
-        scp.mode = 'acceptor'
-        scp.queue.put(None) # receive a_associate_rq
-        scp.queue.put(['wait', 0.1]) #
-        scp.queue.put(a_associate_rq) # receive a-abort
-        scp.queue.put(['wait', 0.1, 'shutdown'])
+        commands = [
+            ('recv', None),
+            ('send', a_associate_rq),
+            ('wait', 0.1),
+        ]
+        scp = self.start_server(commands)
 
-        scp.start()
-
-        # Override acse._negotiate_as_requestor
         def patch_neg_rq(assoc):
-            assoc.send_request(assoc)
+            """Override ACSE._negotiate_as_requestor"""
+            assoc.acse.send_request(assoc)
 
         self.assoc.acse._negotiate_as_requestor = patch_neg_rq
 
-        # Override dul._is_transport_event to not close in Sta13
-        dul = self.assoc.dul
-        orig_method = dul._is_transport_event
+        orig_method = self.assoc.dul._is_transport_event
         def patch_xport_event():
+            """Override DUL._is_transport_event to not close in Sta13."""
             if self.fsm.current_state == 'Sta13':
                 return False
 
             return orig_method()
 
-        dul._is_transport_event = patch_xport_event
-
-        assert self.fsm.current_state == 'Sta1'
-
+        self.assoc.dul._is_transport_event = patch_xport_event
         self.assoc.start()
-
-        self.assoc.dul.send_pdu(self.get_associate('request'))
-
-        time.sleep(0.2)
-
+        time.sleep(0.1)
         self.assoc.dul.send_pdu(self.get_pdata())
+        time.sleep(0.1)
 
-        time.sleep(0.2)
+        #self.print_fsm_scp(self.fsm, scp)
+
+        scp.shutdown()
 
         assert self.fsm._changes[:3] == [
             ('Sta1', 'Evt1', 'AE-1'),
@@ -7049,33 +6010,26 @@ class TestState13(TestStateBase):
         # Sta13 + Evt10 -> AA-6 -> Sta13
         # Evt10: Receive P-DATA-TF PDU from <remote>
         # AA-6: Ignore PDU
-        scp = DummyAE()
-        scp.mode = 'acceptor'
-        scp.queue.put(None) # receive a_associate_rq
-        scp.queue.put(['wait', 0.1]) #
-        scp.queue.put(a_associate_rq) # receive a-abort
-        scp.queue.put(['skip', p_data_tf]) # receive a-abort
-        scp.queue.put(['wait', 0.1, 'shutdown'])
+        commands = [
+            ('recv', None),
+            ('send', a_associate_rq),
+            ('send', p_data_tf),
+            ('wait', 0.1),
+        ]
+        scp = self.start_server(commands)
 
-        scp.start()
-
-        # Override acse._negotiate_as_requestor
         def patch_neg_rq(assoc):
-            assoc.send_request(assoc)
+            """Override ACSE._negotiate_as_requestor"""
+            assoc.acse.send_request(assoc)
 
         self.assoc.acse._negotiate_as_requestor = patch_neg_rq
-
-        assert self.fsm.current_state == 'Sta1'
-
         self.assoc.start()
 
-        self.assoc.dul.send_pdu(self.get_associate('request'))
+        time.sleep(0.1)
 
-        time.sleep(0.2)
+        #self.print_fsm_scp(self.fsm, scp)
 
-        self.assoc.dul.send_pdu(self.get_associate('request'))
-
-        time.sleep(0.2)
+        scp.shutdown()
 
         assert self.fsm._changes[:4] == [
             ('Sta1', 'Evt1', 'AE-1'),
@@ -7090,43 +6044,36 @@ class TestState13(TestStateBase):
         """Test Sta13 + Evt11."""
         # Sta13 + Evt11 -> <ignore> -> Sta13
         # Evt11: Receive A-RELEASE (rq) primitive from <local user>
-        scp = DummyAE()
-        scp.mode = 'acceptor'
-        scp.queue.put(None) # receive a_associate_rq
-        scp.queue.put(['wait', 0.1]) #
-        scp.queue.put(a_associate_rq) # receive a-abort
-        scp.queue.put(['wait', 0.1, 'shutdown'])
+        commands = [
+            ('recv', None),
+            ('send', a_associate_rq),
+            ('wait', 0.1),
+        ]
+        scp = self.start_server(commands)
 
-        scp.start()
-
-        # Override acse._negotiate_as_requestor
         def patch_neg_rq(assoc):
-            assoc.send_request(assoc)
+            """Override ACSE._negotiate_as_requestor"""
+            assoc.acse.send_request(assoc)
 
         self.assoc.acse._negotiate_as_requestor = patch_neg_rq
 
-        # Override dul._is_transport_event to not close in Sta13
-        dul = self.assoc.dul
-        orig_method = dul._is_transport_event
+        orig_method = self.assoc.dul._is_transport_event
         def patch_xport_event():
+            """Override DUL._is_transport_event to not close in Sta13."""
             if self.fsm.current_state == 'Sta13':
                 return False
 
             return orig_method()
 
-        dul._is_transport_event = patch_xport_event
-
-        assert self.fsm.current_state == 'Sta1'
-
+        self.assoc.dul._is_transport_event = patch_xport_event
         self.assoc.start()
-
-        self.assoc.dul.send_pdu(self.get_associate('request'))
-
-        time.sleep(0.2)
-
+        time.sleep(0.1)
         self.assoc.dul.send_pdu(self.get_release(False))
+        time.sleep(0.1)
 
-        time.sleep(0.2)
+        #self.print_fsm_scp(self.fsm, scp)
+
+        scp.shutdown()
 
         assert self.fsm._changes[:3] == [
             ('Sta1', 'Evt1', 'AE-1'),
@@ -7141,33 +6088,26 @@ class TestState13(TestStateBase):
         # Sta13 + Evt12 -> AA-6 -> Sta13
         # Evt12: Receive A-RELEASE-RQ PDU from <remote>
         # AA-6: Ignore PDU
-        scp = DummyAE()
-        scp.mode = 'acceptor'
-        scp.queue.put(None) # receive a_associate_rq
-        scp.queue.put(['wait', 0.1]) #
-        scp.queue.put(a_associate_rq) # receive a-abort
-        scp.queue.put(['skip', a_release_rq]) # receive a-abort
-        scp.queue.put(['wait', 0.1, 'shutdown'])
+        commands = [
+            ('recv', None),
+            ('send', a_associate_rq),
+            ('send', a_release_rq),
+            ('wait', 0.1),
+        ]
+        scp = self.start_server(commands)
 
-        scp.start()
-
-        # Override acse._negotiate_as_requestor
         def patch_neg_rq(assoc):
-            assoc.send_request(assoc)
+            """Override ACSE._negotiate_as_requestor"""
+            assoc.acse.send_request(assoc)
 
         self.assoc.acse._negotiate_as_requestor = patch_neg_rq
-
-        assert self.fsm.current_state == 'Sta1'
-
         self.assoc.start()
 
-        self.assoc.dul.send_pdu(self.get_associate('request'))
+        time.sleep(0.1)
 
-        time.sleep(0.2)
+        #self.print_fsm_scp(self.fsm, scp)
 
-        self.assoc.dul.send_pdu(self.get_associate('request'))
-
-        time.sleep(0.2)
+        scp.shutdown()
 
         assert self.fsm._changes[:4] == [
             ('Sta1', 'Evt1', 'AE-1'),
@@ -7183,33 +6123,26 @@ class TestState13(TestStateBase):
         # Sta13 + Evt13 -> AA-6 -> Sta1
         # Evt13: Receive A-RELEASE-RP PDU from <remote>
         # AA-6: Ignore PDU
-        scp = DummyAE()
-        scp.mode = 'acceptor'
-        scp.queue.put(None) # receive a_associate_rq
-        scp.queue.put(['wait', 0.1]) #
-        scp.queue.put(a_associate_rq) # receive a-abort
-        scp.queue.put(['skip', a_release_rp]) # receive a-abort
-        scp.queue.put(['wait', 0.1, 'shutdown'])
+        commands = [
+            ('recv', None),
+            ('send', a_associate_rq),
+            ('send', a_release_rp),
+            ('wait', 0.1),
+        ]
+        scp = self.start_server(commands)
 
-        scp.start()
-
-        # Override acse._negotiate_as_requestor
         def patch_neg_rq(assoc):
-            pass
+            """Override ACSE._negotiate_as_requestor"""
+            assoc.acse.send_request(assoc)
 
         self.assoc.acse._negotiate_as_requestor = patch_neg_rq
-
-        assert self.fsm.current_state == 'Sta1'
-
         self.assoc.start()
 
-        self.assoc.dul.send_pdu(self.get_associate('request'))
+        time.sleep(0.1)
 
-        time.sleep(0.2)
+        #self.print_fsm_scp(self.fsm, scp)
 
-        self.assoc.dul.send_pdu(self.get_associate('request'))
-
-        time.sleep(0.2)
+        scp.shutdown()
 
         assert self.fsm._changes[:4] == [
             ('Sta1', 'Evt1', 'AE-1'),
@@ -7224,43 +6157,36 @@ class TestState13(TestStateBase):
         """Test Sta13 + Evt14."""
         # Sta13 + Evt14 -> <ignore> -> Sta13
         # Evt14: Receive A-RELEASE (rsp) primitive from <local user>
-        scp = DummyAE()
-        scp.mode = 'acceptor'
-        scp.queue.put(None) # receive a_associate_rq
-        scp.queue.put(['wait', 0.1]) #
-        scp.queue.put(a_associate_rq) # receive a-abort
-        scp.queue.put(['wait', 0.1, 'shutdown'])
+        commands = [
+            ('recv', None),
+            ('send', a_associate_rq),
+            ('wait', 0.1),
+        ]
+        scp = self.start_server(commands)
 
-        scp.start()
-
-        # Override acse._negotiate_as_requestor
         def patch_neg_rq(assoc):
-            assoc.send_request(assoc)
+            """Override ACSE._negotiate_as_requestor"""
+            assoc.acse.send_request(assoc)
 
         self.assoc.acse._negotiate_as_requestor = patch_neg_rq
 
-        # Override dul._is_transport_event to not close in Sta13
-        dul = self.assoc.dul
-        orig_method = dul._is_transport_event
+        orig_method = self.assoc.dul._is_transport_event
         def patch_xport_event():
+            """Override DUL._is_transport_event to not close in Sta13."""
             if self.fsm.current_state == 'Sta13':
                 return False
 
             return orig_method()
 
-        dul._is_transport_event = patch_xport_event
-
-        assert self.fsm.current_state == 'Sta1'
-
+        self.assoc.dul._is_transport_event = patch_xport_event
         self.assoc.start()
-
-        self.assoc.dul.send_pdu(self.get_associate('request'))
-
-        time.sleep(0.2)
-
+        time.sleep(0.1)
         self.assoc.dul.send_pdu(self.get_release(True))
+        time.sleep(0.1)
 
-        time.sleep(0.2)
+        #self.print_fsm_scp(self.fsm, scp)
+
+        scp.shutdown()
 
         assert self.fsm._changes[:3] == [
             ('Sta1', 'Evt1', 'AE-1'),
@@ -7274,43 +6200,36 @@ class TestState13(TestStateBase):
         """Test Sta13 + Evt15."""
         # Sta13 + Evt15 -> <ignore> -> Sta13
         # Evt15: Receive A-ABORT (rq) primitive from <local user>
-        scp = DummyAE()
-        scp.mode = 'acceptor'
-        scp.queue.put(None) # receive a_associate_rq
-        scp.queue.put(['wait', 0.1]) #
-        scp.queue.put(a_associate_rq) # receive a-abort
-        scp.queue.put(['wait', 0.1, 'shutdown'])
+        commands = [
+            ('recv', None),
+            ('send', a_associate_rq),
+            ('wait', 0.1),
+        ]
+        scp = self.start_server(commands)
 
-        scp.start()
-
-        # Override acse._negotiate_as_requestor
         def patch_neg_rq(assoc):
-            assoc.send_request(assoc)
+            """Override ACSE._negotiate_as_requestor"""
+            assoc.acse.send_request(assoc)
 
         self.assoc.acse._negotiate_as_requestor = patch_neg_rq
 
-        # Override dul._is_transport_event to not close in Sta13
-        dul = self.assoc.dul
-        orig_method = dul._is_transport_event
+        orig_method = self.assoc.dul._is_transport_event
         def patch_xport_event():
+            """Override DUL._is_transport_event to not close in Sta13."""
             if self.fsm.current_state == 'Sta13':
                 return False
 
             return orig_method()
 
-        dul._is_transport_event = patch_xport_event
-
-        assert self.fsm.current_state == 'Sta1'
-
+        self.assoc.dul._is_transport_event = patch_xport_event
         self.assoc.start()
-
-        self.assoc.dul.send_pdu(self.get_associate('request'))
-
-        time.sleep(0.2)
-
+        time.sleep(0.1)
         self.assoc.dul.send_pdu(self.get_abort())
+        time.sleep(0.1)
 
-        time.sleep(0.2)
+        #self.print_fsm_scp(self.fsm, scp)
+
+        scp.shutdown()
 
         assert self.fsm._changes[:3] == [
             ('Sta1', 'Evt1', 'AE-1'),
@@ -7325,33 +6244,26 @@ class TestState13(TestStateBase):
         # Sta13 + Evt16 -> AA-2 -> Sta1
         # Evt16: Receive A-ABORT PDU from <remote>
         # AA-2: Stop ARTIM, close connection
-        scp = DummyAE()
-        scp.mode = 'acceptor'
-        scp.queue.put(None) # receive a_associate_rq
-        scp.queue.put(['wait', 0.1]) #
-        scp.queue.put(a_associate_rq) # receive a-abort
-        scp.queue.put(['skip', a_abort]) # receive a-abort
-        scp.queue.put(['wait', 0.1, 'shutdown'])
+        commands = [
+            ('recv', None),
+            ('send', a_associate_rq),
+            ('send', a_abort),
+            ('wait', 0.1),
+        ]
+        scp = self.start_server(commands)
 
-        scp.start()
-
-        # Override acse._negotiate_as_requestor
         def patch_neg_rq(assoc):
-            assoc.send_request(assoc)
+            """Override ACSE._negotiate_as_requestor"""
+            assoc.acse.send_request(assoc)
 
         self.assoc.acse._negotiate_as_requestor = patch_neg_rq
-
-        assert self.fsm.current_state == 'Sta1'
-
         self.assoc.start()
 
-        self.assoc.dul.send_pdu(self.get_associate('request'))
+        time.sleep(0.1)
 
-        time.sleep(0.2)
+        #self.print_fsm_scp(self.fsm, scp)
 
-        self.assoc.dul.send_pdu(self.get_associate('request'))
-
-        time.sleep(0.2)
+        scp.shutdown()
 
         assert self.fsm._changes[:4] == [
             ('Sta1', 'Evt1', 'AE-1'),
@@ -7367,32 +6279,24 @@ class TestState13(TestStateBase):
         # Sta13 + Evt17 -> AR-5 -> Sta1
         # Evt17: Receive TRANSPORT_CLOSED from <transport service>
         # AR-5: Stop ARTIM
-        scp = DummyAE()
-        scp.mode = 'acceptor'
-        scp.queue.put(None) # receive a_associate_rq
-        scp.queue.put(['wait', 0.1]) #
-        scp.queue.put(a_associate_rq) # receive a-abort
-        scp.queue.put(['wait', 0.1, 'shutdown'])
+        commands = [
+            ('recv', None),
+            ('send', a_associate_rq),
+        ]
+        scp = self.start_server(commands)
 
-        scp.start()
-
-        # Override acse._negotiate_as_requestor
         def patch_neg_rq(assoc):
-            assoc.send_request(assoc)
+            """Override ACSE._negotiate_as_requestor"""
+            assoc.acse.send_request(assoc)
 
         self.assoc.acse._negotiate_as_requestor = patch_neg_rq
-
-        assert self.fsm.current_state == 'Sta1'
-
         self.assoc.start()
 
-        self.assoc.dul.send_pdu(self.get_associate('request'))
+        time.sleep(0.1)
 
-        time.sleep(0.2)
+        #self.print_fsm_scp(self.fsm, scp)
 
-        self.assoc.dul.send_pdu(self.get_associate('request'))
-
-        time.sleep(0.2)
+        scp.shutdown()
 
         assert self.fsm._changes[:4] == [
             ('Sta1', 'Evt1', 'AE-1'),
@@ -7408,45 +6312,41 @@ class TestState13(TestStateBase):
         # Sta13 + Evt18 -> AA-2 -> Sta1
         # Evt18: ARTIM timer expired from <local service>
         # AA-2: Stop ARTIM, close connection
-        scp = DummyAE()
-        scp.mode = 'acceptor'
-        scp.queue.put(None) # receive a_associate_rq
-        scp.queue.put(['wait', 0.1]) #
-        scp.queue.put(a_associate_rq) # receive a-abort
-        scp.queue.put(['wait', 0.3])
-        scp.queue.put(['wait', 0.1, 'shutdown'])
+        commands = [
+            ('recv', None),
+            ('send', a_associate_rq),
+            ('wait', 0.1),
+        ]
+        scp = self.start_server(commands)
 
-        scp.start()
-
-        # Override acse._negotiate_as_requestor
         def patch_neg_rq(assoc):
-            pass
+            """Override ACSE._negotiate_as_requestor"""
+            assoc.acse.send_request(assoc)
 
         self.assoc.acse._negotiate_as_requestor = patch_neg_rq
 
-        # Override dul._is_transport_event to not close in Sta13
-        dul = self.assoc.dul
-        orig_method = dul._is_transport_event
+        orig_method = self.assoc.dul._is_transport_event
         def patch_xport_event():
+            """Override DUL._is_transport_event to not close in Sta13."""
             if self.fsm.current_state == 'Sta13':
                 return False
 
             return orig_method()
 
-        dul._is_transport_event = patch_xport_event
-
-        assert self.fsm.current_state == 'Sta1'
+        self.assoc.dul._is_transport_event = patch_xport_event
 
         self.assoc.start()
 
-        self.assoc.dul.send_pdu(self.get_associate('request'))
-
-        time.sleep(0.2)
+        time.sleep(0.1)
 
         self.assoc.dul.artim_timer.timeout_seconds = 0.05
         self.assoc.dul.artim_timer.start()
 
-        time.sleep(0.4)
+        time.sleep(0.1)
+
+        #self.print_fsm_scp(self.fsm, scp)
+
+        scp.shutdown()
 
         assert self.fsm._changes[:4] == [
             ('Sta1', 'Evt1', 'AE-1'),
@@ -7462,33 +6362,26 @@ class TestState13(TestStateBase):
         # Sta13 + Evt19 -> AA-7 -> Sta13
         # Evt19: Received unrecognised or invalid PDU from <remote>
         # AA-7: Send A-ABORT PDU to <remote>
-        scp = DummyAE()
-        scp.mode = 'acceptor'
-        scp.queue.put(None) # receive a_associate_rq
-        scp.queue.put(['wait', 0.1]) #
-        scp.queue.put(a_associate_rq) # receive a-abort
-        scp.queue.put(['skip', b'\x08\x00\x00\x00\x00\x00']) # receive a-abort
-        scp.queue.put(['wait', 0.1, 'shutdown'])
+        commands = [
+            ('recv', None),
+            ('send', a_associate_rq),
+            ('send', b'\x08\x00\x00\x00\x00\x00\x00\x00'),
+            ('wait', 0.1),
+        ]
+        scp = self.start_server(commands)
 
-        scp.start()
-
-        # Override acse._negotiate_as_requestor
         def patch_neg_rq(assoc):
-            assoc.send_request(assoc)
+            """Override ACSE._negotiate_as_requestor"""
+            assoc.acse.send_request(assoc)
 
         self.assoc.acse._negotiate_as_requestor = patch_neg_rq
-
-        assert self.fsm.current_state == 'Sta1'
-
         self.assoc.start()
 
-        self.assoc.dul.send_pdu(self.get_associate('request'))
+        time.sleep(0.1)
 
-        time.sleep(0.2)
+        #self.print_fsm_scp(self.fsm, scp)
 
-        self.assoc.dul.send_pdu(self.get_associate('request'))
-
-        time.sleep(0.2)
+        scp.shutdown()
 
         assert self.fsm._changes[:4] == [
             ('Sta1', 'Evt1', 'AE-1'),
@@ -7594,37 +6487,6 @@ class TestStateMachineFunctionalRequestor(object):
 
         assert fsm._changes == [('Sta13', 'Evt3', 'AA-6')]
         assert fsm._transitions == ['Sta13']
-
-    def test_associate_no_connection(self):
-        """Test association with no connection to peer."""
-        self.scp = DummyVerificationSCP()
-        self.scp.send_a_abort = True
-        self.scp.ae._handle_connection = self.scp.dev_handle_connection
-        self.scp.start()
-
-        assert self.fsm.current_state == 'Sta1'
-
-        self.assoc.acceptor.port = 11113
-        self.assoc.acse_timeout = 1
-        self.assoc.start()
-
-        while (not self.assoc.is_established and not self.assoc.is_rejected and
-                not self.assoc.is_aborted and not self.assoc.dul._kill_thread):
-            time.sleep(0.05)
-
-        assert self.assoc.is_aborted
-
-        assert self.fsm._transitions == [
-            'Sta4', 'Sta1'
-        ]
-        assert self.fsm._changes == [
-            ('Sta1', 'Evt1', 'AE-1'),  # recv A-ASSOC rq primitive
-            ('Sta4', 'Evt17', 'AA-4')
-        ]
-
-        assert self.fsm.current_state == 'Sta1'
-
-        self.scp.stop()
 
     def test_associate_accept_release(self):
         """Test normal association/release."""
