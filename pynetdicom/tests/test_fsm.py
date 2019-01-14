@@ -227,6 +227,11 @@ class TestStateBase(object):
         self.assoc = assoc
         self.fsm = self.monkey_patch(assoc.dul.state_machine)
 
+    def teardown(self):
+        for thread in threading.enumerate():
+            if isinstance(thread, ThreadedParrot):
+                thread.shutdown()
+
     def get_associate(self, assoc_type):
         primitive = A_ASSOCIATE()
         if assoc_type == 'request':
@@ -6627,7 +6632,7 @@ class TestState11(TestStateBase):
             ('recv', None),
             ('send', a_release_rq),
             ('recv', None),
-            ('wait', 0.1),
+            ('wait', 0.2),
         ]
         scp = self.start_server(commands)
 
@@ -6640,7 +6645,9 @@ class TestState11(TestStateBase):
         self.assoc.start()
         time.sleep(0.1)
         self.assoc.dul.send_pdu(self.get_release(False))
+        time.sleep(0.1)
         self.assoc.dul.send_pdu(self.get_release(True))
+        time.sleep(0.1)
         self.assoc.dul.send_pdu(self.get_associate('request'))
         time.sleep(0.1)
 
@@ -6696,6 +6703,7 @@ class TestState11(TestStateBase):
         self.assoc.start()
         time.sleep(0.1)
         self.assoc.dul.send_pdu(self.get_release(False))
+        time.sleep(0.1)
         self.assoc.dul.send_pdu(self.get_release(True))
         time.sleep(0.1)
 
@@ -6745,6 +6753,7 @@ class TestState11(TestStateBase):
         self.assoc.start()
         time.sleep(0.1)
         self.assoc.dul.send_pdu(self.get_release(False))
+        time.sleep(0.1)
         self.assoc.dul.send_pdu(self.get_release(True))
         time.sleep(0.1)
 
@@ -6801,6 +6810,7 @@ class TestState11(TestStateBase):
         self.assoc.start()
         time.sleep(0.1)
         self.assoc.dul.send_pdu(self.get_release(False))
+        time.sleep(0.1)
         self.assoc.dul.send_pdu(self.get_release(True))
         time.sleep(0.1)
 
@@ -6834,7 +6844,7 @@ class TestState11(TestStateBase):
             ('recv', None),
             ('send', a_release_rq),
             ('recv', None),
-            ('wait', 0.1),
+            ('wait', 0.2),
         ]
         scp = self.start_server(commands)
 
@@ -6847,7 +6857,9 @@ class TestState11(TestStateBase):
         self.assoc.start()
         time.sleep(0.1)
         self.assoc.dul.send_pdu(self.get_release(False))
+        time.sleep(0.1)
         self.assoc.dul.send_pdu(self.get_release(True))
+        time.sleep(0.1)
         self.assoc.dul.send_pdu(self.get_associate('accept'))
         time.sleep(0.1)
 
@@ -6880,7 +6892,7 @@ class TestState11(TestStateBase):
             ('recv', None),
             ('send', a_release_rq),
             ('recv', None),
-            ('wait', 0.1),
+            ('wait', 0.2),
         ]
         scp = self.start_server(commands)
 
@@ -6893,7 +6905,9 @@ class TestState11(TestStateBase):
         self.assoc.start()
         time.sleep(0.1)
         self.assoc.dul.send_pdu(self.get_release(False))
+        time.sleep(0.1)
         self.assoc.dul.send_pdu(self.get_release(True))
+        time.sleep(0.1)
         self.assoc.dul.send_pdu(self.get_associate('reject'))
         time.sleep(0.1)
 
@@ -6926,7 +6940,7 @@ class TestState11(TestStateBase):
             ('recv', None),
             ('send', a_release_rq),
             ('recv', None),
-            ('wait', 0.1),
+            ('wait', 0.2),
         ]
         scp = self.start_server(commands)
 
@@ -6939,7 +6953,9 @@ class TestState11(TestStateBase):
         self.assoc.start()
         time.sleep(0.1)
         self.assoc.dul.send_pdu(self.get_release(False))
+        time.sleep(0.1)
         self.assoc.dul.send_pdu(self.get_release(True))
+        time.sleep(0.1)
         self.assoc.dul.send_pdu(self.get_pdata())
         time.sleep(0.1)
 
@@ -6988,6 +7004,7 @@ class TestState11(TestStateBase):
         self.assoc.start()
         time.sleep(0.1)
         self.assoc.dul.send_pdu(self.get_release(False))
+        time.sleep(0.1)
         self.assoc.dul.send_pdu(self.get_release(True))
         time.sleep(0.1)
 
@@ -7021,7 +7038,7 @@ class TestState11(TestStateBase):
             ('recv', None),
             ('send', a_release_rq),
             ('recv', None),
-            ('wait', 0.1),
+            ('wait', 0.2),
         ]
         scp = self.start_server(commands)
 
@@ -7034,7 +7051,9 @@ class TestState11(TestStateBase):
         self.assoc.start()
         time.sleep(0.1)
         self.assoc.dul.send_pdu(self.get_release(False))
+        time.sleep(0.1)
         self.assoc.dul.send_pdu(self.get_release(True))
+        time.sleep(0.1)
         self.assoc.dul.send_pdu(self.get_release(False))
         time.sleep(0.1)
 
@@ -7083,6 +7102,7 @@ class TestState11(TestStateBase):
         self.assoc.start()
         time.sleep(0.1)
         self.assoc.dul.send_pdu(self.get_release(False))
+        time.sleep(0.1)
         self.assoc.dul.send_pdu(self.get_release(True))
         time.sleep(0.1)
 
@@ -7118,7 +7138,7 @@ class TestState11(TestStateBase):
             ('send', a_release_rq),
             ('recv', None),
             ('send', a_release_rp),
-            ('wait', 0.1),
+            ('wait', 0.2),
         ]
         scp = self.start_server(commands)
 
@@ -7131,6 +7151,7 @@ class TestState11(TestStateBase):
         self.assoc.start()
         time.sleep(0.1)
         self.assoc.dul.send_pdu(self.get_release(False))
+        time.sleep(0.1)
         self.assoc.dul.send_pdu(self.get_release(True))
         time.sleep(0.1)
 
@@ -7164,7 +7185,7 @@ class TestState11(TestStateBase):
             ('recv', None),
             ('send', a_release_rq),
             ('recv', None),
-            ('wait', 0.1),
+            ('wait', 0.2),
         ]
         scp = self.start_server(commands)
 
@@ -7177,7 +7198,9 @@ class TestState11(TestStateBase):
         self.assoc.start()
         time.sleep(0.1)
         self.assoc.dul.send_pdu(self.get_release(False))
+        time.sleep(0.1)
         self.assoc.dul.send_pdu(self.get_release(True))
+        time.sleep(0.1)
         self.assoc.dul.send_pdu(self.get_release(True))
         time.sleep(0.1)
 
@@ -7211,7 +7234,7 @@ class TestState11(TestStateBase):
             ('recv', None),
             ('send', a_release_rq),
             ('recv', None),
-            ('wait', 0.1),
+            ('wait', 0.2),
         ]
         scp = self.start_server(commands)
 
@@ -7224,7 +7247,9 @@ class TestState11(TestStateBase):
         self.assoc.start()
         time.sleep(0.1)
         self.assoc.dul.send_pdu(self.get_release(False))
+        time.sleep(0.1)
         self.assoc.dul.send_pdu(self.get_release(True))
+        time.sleep(0.1)
         self.assoc.dul.send_pdu(self.get_abort())
         time.sleep(0.1)
 
@@ -7259,7 +7284,7 @@ class TestState11(TestStateBase):
             ('send', a_release_rq),
             ('recv', None),
             ('send', a_abort),
-            ('wait', 0.1),
+            ('wait', 0.2),
         ]
         scp = self.start_server(commands)
 
@@ -7272,6 +7297,7 @@ class TestState11(TestStateBase):
         self.assoc.start()
         time.sleep(0.1)
         self.assoc.dul.send_pdu(self.get_release(False))
+        time.sleep(0.1)
         self.assoc.dul.send_pdu(self.get_release(True))
         time.sleep(0.1)
 
@@ -7318,6 +7344,7 @@ class TestState11(TestStateBase):
         self.assoc.start()
         time.sleep(0.1)
         self.assoc.dul.send_pdu(self.get_release(False))
+        time.sleep(0.1)
         self.assoc.dul.send_pdu(self.get_release(True))
         time.sleep(0.1)
 
@@ -7351,7 +7378,7 @@ class TestState11(TestStateBase):
             ('recv', None),
             ('send', a_release_rq),
             ('recv', None),
-            ('wait', 0.1),
+            ('wait', 0.2),
         ]
         scp = self.start_server(commands)
 
@@ -7364,7 +7391,9 @@ class TestState11(TestStateBase):
         self.assoc.start()
         time.sleep(0.1)
         self.assoc.dul.send_pdu(self.get_release(False))
+        time.sleep(0.1)
         self.assoc.dul.send_pdu(self.get_release(True))
+        time.sleep(0.1)
         self.assoc.dul.artim_timer.timeout_seconds = 0.05
         self.assoc.dul.artim_timer.start()
         time.sleep(0.1)
@@ -7414,6 +7443,7 @@ class TestState11(TestStateBase):
         self.assoc.start()
         time.sleep(0.1)
         self.assoc.dul.send_pdu(self.get_release(False))
+        time.sleep(0.1)
         self.assoc.dul.send_pdu(self.get_release(True))
         time.sleep(0.1)
 
@@ -8916,6 +8946,93 @@ class TestState13(TestStateBase):
         ]
         assert self.fsm._transitions[:4] == ['Sta4', 'Sta5', 'Sta13', 'Sta13']
         assert self.fsm._events[:4] == ['Evt1', 'Evt2', 'Evt6', 'Evt19']
+
+
+class TestParrotAttack(TestStateBase):
+    """Test a parrot attack on the association."""
+    def test_requestor(self):
+        commands = [
+            ('recv', None),
+            ('send', a_associate_ac),
+            ('send', p_data_tf),
+            ('send', p_data_tf),
+            ('send', p_data_tf),
+            ('send', p_data_tf),
+            ('send', p_data_tf),
+            ('send', p_data_tf),
+            ('send', p_data_tf),
+            ('send', p_data_tf),
+            ('send', a_release_rq),
+            ('wait', 0.1)
+        ]
+        scp = self.start_server(commands)
+
+        self.assoc.start()
+
+        time.sleep(0.5)
+
+        #self.print_fsm_scp(self.fsm, scp)
+
+        scp.shutdown()
+
+        assert self.fsm._changes[:14] == [
+            ('Sta1', 'Evt1', 'AE-1'),
+            ('Sta4', 'Evt2', 'AE-2'),
+            ('Sta5', 'Evt3', 'AE-3'),
+            ('Sta6', 'Evt10', 'DT-2'),
+            ('Sta6', 'Evt10', 'DT-2'),
+            ('Sta6', 'Evt10', 'DT-2'),
+            ('Sta6', 'Evt10', 'DT-2'),
+            ('Sta6', 'Evt10', 'DT-2'),
+            ('Sta6', 'Evt10', 'DT-2'),
+            ('Sta6', 'Evt10', 'DT-2'),
+            ('Sta6', 'Evt10', 'DT-2'),
+            ('Sta6', 'Evt12', 'AR-2'),
+            ('Sta8', 'Evt17', 'AA-4'),
+        ]
+
+    def test_acceptor(self):
+        commands = [
+            ('send', a_associate_rq),
+            ('recv', None),
+            ('send', p_data_tf),
+            ('send', p_data_tf),
+            ('send', p_data_tf),
+            ('send', p_data_tf),
+            ('send', p_data_tf),
+            ('send', p_data_tf),
+            ('send', p_data_tf),
+            ('send', p_data_tf),
+            ('send', a_release_rq),
+            ('wait', 0.1)
+        ]
+        scp = self.start_server(commands)
+
+        assoc, fsm = self.get_acceptor_assoc()
+        assoc.start()
+
+        time.sleep(0.5)
+
+        #self.print_fsm_scp(self.fsm, scp)
+
+        scp.shutdown()
+
+        assert fsm._changes[:14] == [
+            ('Sta1', 'Evt5', 'AE-5'),
+            ('Sta2', 'Evt6', 'AE-6'),
+            ('Sta3', 'Evt7', 'AE-7'),
+            ('Sta6', 'Evt10', 'DT-2'),
+            ('Sta6', 'Evt10', 'DT-2'),
+            ('Sta6', 'Evt10', 'DT-2'),
+            ('Sta6', 'Evt10', 'DT-2'),
+            ('Sta6', 'Evt10', 'DT-2'),
+            ('Sta6', 'Evt10', 'DT-2'),
+            ('Sta6', 'Evt10', 'DT-2'),
+            ('Sta6', 'Evt10', 'DT-2'),
+            ('Sta6', 'Evt12', 'AR-2'),
+            ('Sta8', 'Evt14', 'AR-4'),
+            ('Sta13', 'Evt17', 'AR-5'),
+        ]
 
 
 class TestStateMachineFunctionalRequestor(object):
