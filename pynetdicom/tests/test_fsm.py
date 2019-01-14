@@ -1529,7 +1529,7 @@ class TestState03(TestStateBase):
         assoc.acse._negotiate_as_acceptor = _neg_as_acc
         assoc.start()
 
-        time.sleep(0.1)
+        time.sleep(0.15)
 
         assoc.dul.send_pdu(self.get_associate('request'))
 
@@ -1578,7 +1578,7 @@ class TestState03(TestStateBase):
         assoc.acse._negotiate_as_acceptor = _neg_as_acc
         assoc.start()
 
-        time.sleep(0.1)
+        time.sleep(0.15)
 
         #self.print_fsm_scp(fsm, scp)
 
@@ -1617,7 +1617,7 @@ class TestState03(TestStateBase):
         assoc.acse._negotiate_as_acceptor = _neg_as_acc
         assoc.start()
 
-        time.sleep(0.1)
+        time.sleep(0.15)
 
         #self.print_fsm_scp(fsm, scp)
 
@@ -1663,7 +1663,7 @@ class TestState03(TestStateBase):
         assoc.acse._negotiate_as_acceptor = _neg_as_acc
         assoc.start()
 
-        time.sleep(0.1)
+        time.sleep(0.15)
 
         #self.print_fsm_scp(fsm, scp)
 
@@ -1692,7 +1692,7 @@ class TestState03(TestStateBase):
         assoc, fsm = self.get_acceptor_assoc()
         assoc.start()
 
-        time.sleep(0.1)
+        time.sleep(0.15)
 
         #self.print_fsm_scp(fsm, scp)
 
@@ -1728,7 +1728,7 @@ class TestState03(TestStateBase):
         assoc.acse._negotiate_as_acceptor = _neg_as_acc
         assoc.start()
 
-        time.sleep(0.1)
+        time.sleep(0.15)
 
         #self.print_fsm_scp(fsm, scp)
 
@@ -1763,7 +1763,7 @@ class TestState03(TestStateBase):
         assoc.acse._negotiate_as_acceptor = _neg_as_acc
         assoc.start()
 
-        time.sleep(0.1)
+        time.sleep(0.15)
 
         #self.print_fsm_scp(fsm, scp)
 
@@ -1801,7 +1801,7 @@ class TestState03(TestStateBase):
         assoc.acse._negotiate_as_acceptor = _neg_as_acc
         assoc.start()
 
-        time.sleep(0.1)
+        time.sleep(0.15)
 
         #self.print_fsm_scp(fsm, scp)
 
@@ -1836,7 +1836,7 @@ class TestState03(TestStateBase):
         assoc.acse._negotiate_as_acceptor = _neg_as_acc
         assoc.start()
 
-        time.sleep(0.1)
+        time.sleep(0.15)
 
         #self.print_fsm_scp(fsm, scp)
 
@@ -1874,7 +1874,7 @@ class TestState03(TestStateBase):
         assoc.acse._negotiate_as_acceptor = _neg_as_acc
         assoc.start()
 
-        time.sleep(0.1)
+        time.sleep(0.15)
 
         #self.print_fsm_scp(fsm, scp)
 
@@ -1913,7 +1913,7 @@ class TestState03(TestStateBase):
         assoc.acse._negotiate_as_acceptor = _neg_as_acc
         assoc.start()
 
-        time.sleep(0.1)
+        time.sleep(0.15)
 
         #self.print_fsm_scp(fsm, scp)
 
@@ -1948,7 +1948,7 @@ class TestState03(TestStateBase):
         assoc.acse._negotiate_as_acceptor = _neg_as_acc
         assoc.start()
 
-        time.sleep(0.1)
+        time.sleep(0.15)
 
         #self.print_fsm_scp(fsm, scp)
 
@@ -1983,7 +1983,7 @@ class TestState03(TestStateBase):
         assoc.acse._negotiate_as_acceptor = _neg_as_acc
         assoc.start()
 
-        time.sleep(0.1)
+        time.sleep(0.15)
 
         #self.print_fsm_scp(fsm, scp)
 
@@ -2022,7 +2022,7 @@ class TestState03(TestStateBase):
         assoc.acse._negotiate_as_acceptor = _neg_as_acc
         assoc.start()
 
-        time.sleep(0.1)
+        time.sleep(0.15)
 
         #self.print_fsm_scp(fsm, scp)
 
@@ -2059,7 +2059,7 @@ class TestState03(TestStateBase):
         assoc.acse._negotiate_as_acceptor = _neg_as_acc
         assoc.start()
 
-        time.sleep(0.1)
+        time.sleep(0.15)
 
         #self.print_fsm_scp(fsm, scp)
 
@@ -2098,7 +2098,7 @@ class TestState03(TestStateBase):
         assoc.acse._negotiate_as_acceptor = _neg_as_acc
         assoc.start()
 
-        time.sleep(0.1)
+        time.sleep(0.15)
 
         #self.print_fsm_scp(fsm, scp)
 
@@ -2136,7 +2136,7 @@ class TestState03(TestStateBase):
         assoc.acse._negotiate_as_acceptor = _neg_as_acc
         assoc.start()
 
-        time.sleep(0.1)
+        time.sleep(0.15)
 
         #self.print_fsm_scp(fsm, scp)
 
