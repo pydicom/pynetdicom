@@ -490,10 +490,9 @@ class Association(threading.Thread):
                     class_uid = msg.RequestedSOPClassUID
                 else:
                     # Received a C-CANCEL request outside of service
-                    #   operation
-                    LOGGER.error("Received unexpected C-CANCEL request")
-                    self.abort()
-                    return
+                    #   operation, ignore it
+                    LOGGER.warning("Received unexpected C-CANCEL request")
+                    continue
 
                 # SOP Class Common Extended Negotiation
                 try:
@@ -787,12 +786,12 @@ class Association(threading.Thread):
         Returns
         -------
         status : pydicom.dataset.Dataset
-            If the peer timed out or sent an invalid response then returns an
-            empty ``Dataset``. If a valid response was received from the peer
-            then returns a ``Dataset`` containing at least a (0000,0900)
-            *Status* element, and, depending on the returned Status value, may
-            optionally contain additional elements (see DICOM Standard Part 7,
-            Annex C).
+            If the peer timed out, aborted or sent an invalid response then
+            returns an empty ``Dataset``. If a valid response was received from
+            the peer then returns a ``Dataset`` containing at least a
+            (0000,0900) *Status* element, and, depending on the returned
+            Status value, may optionally contain additional elements (see
+            DICOM Standard Part 7, Annex C).
 
             The DICOM Standard Part 7, Table 9.3-13 indicates that the Status
             value of a C-ECHO response "shall have a value of Success". However
@@ -857,7 +856,7 @@ class Association(threading.Thread):
         if rsp is None:
             LOGGER.error("Connection closed or timed-out")
             self.abort()
-            return
+            return Dataset()
 
         # Determine validity of the response and get the status
         status = self._check_received_status(rsp)
@@ -923,12 +922,12 @@ class Association(threading.Thread):
         Yields
         ------
         status : pydicom.dataset.Dataset
-            If the peer timed out or sent an invalid response then yields an
-            empty ``Dataset``. If a response was received from the peer then
-            yields a ``Dataset`` containing at least a (0000,0900) *Status*
-            element, and depending on the returned value, may optionally
-            contain additional elements (see the DICOM Standard, Part 7,
-            Section 9.1.2.1.5 and Annex C).
+            If the peer timed out, aborted or sent an invalid response then
+            yields an empty ``Dataset``. If a response was received from the
+            peer then yields a ``Dataset`` containing at least a (0000,0900)
+            *Status* element, and depending on the returned value, may
+            optionally contain additional elements (see the DICOM Standard,
+            Part 7, Section 9.1.2.1.5 and Annex C).
 
             The status for the requested C-FIND operation should be one of the
             following values, but as the returned value depends
@@ -1101,12 +1100,14 @@ class Association(threading.Thread):
             if rsp is None:
                 LOGGER.error("Connection closed or timed-out")
                 self.abort()
+                yield Dataset(), None
                 return
             elif not rsp.is_valid_response:
                 LOGGER.error(
                     'Received an invalid C-FIND response from the peer'
                 )
                 self.abort()
+                yield Dataset(), None
                 return
 
             # Status may be 'Failure', 'Cancel', 'Success' or 'Pending'
@@ -1209,12 +1210,12 @@ class Association(threading.Thread):
         Yields
         ------
         status : pydicom.dataset.Dataset
-            If the peer timed out or sent an invalid response then yields an
-            empty ``Dataset``. If a response was received from the peer then
-            yields a ``Dataset`` containing at least a (0000,0900) *Status*
-            element, and depending on the returned value may optionally contain
-            additional elements (see DICOM Standard Part 7, Section 9.1.2.1.5
-            and Annex C).
+            If the peer timed out, aborted or sent an invalid response then
+            yields an empty ``Dataset``. If a response was received from the
+            peer then yields a ``Dataset`` containing at least a (0000,0900)
+            *Status* element, and depending on the returned value may
+            optionally contain additional elements (see DICOM Standard Part 7,
+            Section 9.1.2.1.5 and Annex C).
 
             The status for the requested C-GET operation should be one of the
             following values, but as the returned value depends on the
@@ -1378,6 +1379,7 @@ class Association(threading.Thread):
             if rsp is None:
                 LOGGER.error("Connection closed or timed-out")
                 self.abort()
+                yield Dataset(), None
                 return
 
             # Received a C-GET response from the peer
@@ -1511,12 +1513,12 @@ class Association(threading.Thread):
         Yields
         ------
         status : pydicom.dataset.Dataset
-            If the peer timed out or sent an invalid response then yields an
-            empty ``Dataset``. If a response was received from the peer then
-            yields a ``Dataset`` containing at least a (0000,0900) *Status*
-            element, and depending on the returned value, may optionally
-            contain additional elements (see DICOM Standard Part 7, Section
-            9.1.4 and Annex C).
+            If the peer timed out, aborted or sent an invalid response then
+            yields an empty ``Dataset``. If a response was received from the
+            peer then yields a ``Dataset`` containing at least a (0000,0900)
+            *Status* element, and depending on the returned value, may
+            optionally contain additional elements (see DICOM Standard Part 7,
+            Section 9.1.4 and Annex C).
 
             The status for the requested C-MOVE operation should be one of the
             following values, but as the returned value depends
@@ -1665,6 +1667,7 @@ class Association(threading.Thread):
             if rsp is None:
                 LOGGER.error("Connection closed or timed-out")
                 self.abort()
+                yield Dataset(), None
                 return
 
             # Received a C-MOVE response from the peer
@@ -1770,12 +1773,12 @@ class Association(threading.Thread):
         Returns
         -------
         status : pydicom.dataset.Dataset
-            If the peer timed out or sent an invalid response then returns an
-            empty ``Dataset``. If a valid response was received from the peer
-            then returns a ``Dataset`` containing at least a (0000,0900)
-            *Status* element, and, depending on the returned value, may
-            optionally contain additional elements (see DICOM Standard Part 7,
-            Annex C).
+            If the peer timed out, aborted or sent an invalid response then
+            returns an empty ``Dataset``. If a valid response was received
+            from the peer then returns a ``Dataset`` containing at least a
+            (0000,0900) *Status* element, and, depending on the returned
+            value, may optionally contain additional elements (see DICOM
+            Standard Part 7, Annex C).
 
             The status for the requested C-STORE operation should be one of the
             following, but as the value depends on the peer SCP this can't be
@@ -1910,7 +1913,7 @@ class Association(threading.Thread):
         if rsp is None:
             LOGGER.error("Connection closed or timed-out")
             self.abort()
-            return
+            return Dataset()
 
         # Determine validity of the response and get the status
         status = self._check_received_status(rsp)
@@ -1942,12 +1945,12 @@ class Association(threading.Thread):
         Returns
         -------
         status : pydicom.dataset.Dataset
-            If the peer timed out or sent an invalid response then yields an
-            empty ``Dataset``. If a response was received from the peer then
-            yields a ``Dataset`` containing at least a (0000,0900) *Status*
-            element, and depending on the returned value, may optionally
-            contain additional elements (see the DICOM Standard, Part 7,
-            Section 9.1.2.1.5 and Annex C).
+            If the peer timed out, aborted or sent an invalid response then
+            returns an empty ``Dataset``. If a response was received from the
+            peer then returns a ``Dataset`` containing at least a (0000,0900)
+            *Status* element, and depending on the returned value, may
+            optionally contain additional elements (see the DICOM Standard,
+            Part 7, Section 9.1.2.1.5 and Annex C).
 
             General N-ACTION (DICOM Standard Part 7, Section 10.1.4 and
             Annex C)
@@ -2035,7 +2038,7 @@ class Association(threading.Thread):
         if rsp is None:
             LOGGER.error("Connection closed or timed-out")
             self.abort()
-            return
+            return Dataset(), None
 
         # Determine validity of the response and get the status
         status = self._check_received_status(rsp)
@@ -2083,12 +2086,12 @@ class Association(threading.Thread):
         Returns
         -------
         status : pydicom.dataset.Dataset
-            If the peer timed out or sent an invalid response then yields an
-            empty ``Dataset``. If a response was received from the peer then
-            yields a ``Dataset`` containing at least a (0000,0900) *Status*
-            element, and depending on the returned value, may optionally
-            contain additional elements (see the DICOM Standard, Part 7,
-            Section 9.1.2.1.5 and Annex C).
+            If the peer timed out, aborted or sent an invalid response then
+            returns an empty ``Dataset``. If a response was received from the
+            peer then returns a ``Dataset`` containing at least a (0000,0900)
+            *Status* element, and depending on the returned value, may
+            optionally contain additional elements (see the DICOM Standard,
+            Part 7, Section 9.1.2.1.5 and Annex C).
 
             General N-CREATE (DICOM Standard Part 7, Section 10.1.5 and
             Annex C)
@@ -2174,7 +2177,7 @@ class Association(threading.Thread):
         if rsp is None:
             LOGGER.error("Connection closed or timed-out")
             self.abort()
-            return
+            return Dataset(), None
 
         # Determine validity of the response and get the status
         status = self._check_received_status(rsp)
@@ -2219,12 +2222,12 @@ class Association(threading.Thread):
         Returns
         -------
         status : pydicom.dataset.Dataset
-            If the peer timed out or sent an invalid response then yields an
-            empty ``Dataset``. If a response was received from the peer then
-            yields a ``Dataset`` containing at least a (0000,0900) *Status*
-            element, and depending on the returned value, may optionally
-            contain additional elements (see the DICOM Standard, Part 7,
-            Section 9.1.2.1.5 and Annex C).
+            If the peer timed out, aborted or sent an invalid response then
+            returns an empty ``Dataset``. If a response was received from the
+            peer then returns a ``Dataset`` containing at least a (0000,0900)
+            *Status* element, and depending on the returned value, may
+            optionally contain additional elements (see the DICOM Standard,
+            Part 7, Section 9.1.2.1.5 and Annex C).
 
             General N-DELETE (DICOM Standard Part 7, Section 10.1.6 and
             Annex C)
@@ -2287,7 +2290,7 @@ class Association(threading.Thread):
         if rsp is None:
             LOGGER.error("Connection closed or timed-out")
             self.abort()
-            return
+            return Dataset()
 
         # Determine validity of the response and get the status
         status = self._check_received_status(rsp)
@@ -2319,12 +2322,12 @@ class Association(threading.Thread):
         Returns
         -------
         status : pydicom.dataset.Dataset
-            If the peer timed out or sent an invalid response then yields an
-            empty ``Dataset``. If a response was received from the peer then
-            yields a ``Dataset`` containing at least a (0000,0900) *Status*
-            element, and depending on the returned value, may optionally
-            contain additional elements (see the DICOM Standard, Part 7,
-            Section 9.1.2.1.5 and Annex C).
+            If the peer timed out, aborted or sent an invalid response then
+            returns an empty ``Dataset``. If a response was received from the
+            peer then returns a ``Dataset`` containing at least a (0000,0900)
+            *Status* element, and depending on the returned value, may
+            optionally contain additional elements (see the DICOM Standard,
+            Part 7, Section 9.1.2.1.5 and Annex C).
 
             General N-EVENT-REPORT (DICOM Standard Part 7, Section 10.1.1
             and Annex C)
@@ -2414,7 +2417,7 @@ class Association(threading.Thread):
         if rsp is None:
             LOGGER.error("Connection closed or timed-out")
             self.abort()
-            return
+            return Dataset(), None
 
         # Determine validity of the response and get the status
         status = self._check_received_status(rsp)
@@ -2464,12 +2467,12 @@ class Association(threading.Thread):
         Returns
         -------
         status : pydicom.dataset.Dataset
-            If the peer timed out or sent an invalid response then yields an
-            empty ``Dataset``. If a response was received from the peer then
-            yields a ``Dataset`` containing at least a (0000,0900) *Status*
-            element, and depending on the returned value, may optionally
-            contain additional elements (see the DICOM Standard, Part 7,
-            Section 9.1.2.1.5 and Annex C).
+            If the peer timed out, aborted or sent an invalid response then
+            returns an empty ``Dataset``. If a response was received from the
+            peer then returns a ``Dataset`` containing at least a (0000,0900)
+            *Status* element, and depending on the returned value, may
+            optionally contain additional elements (see the DICOM Standard,
+            Part 7, Section 9.1.2.1.5 and Annex C).
 
             General N-GET (DICOM Standard Part 7, Section 10.1.2 and Annex C)
 
@@ -2548,7 +2551,7 @@ class Association(threading.Thread):
         if rsp is None:
             LOGGER.error("Connection closed or timed-out")
             self.abort()
-            return
+            return Dataset(), None
 
         # Determine validity of the response and get the status
         status = self._check_received_status(rsp)
@@ -2596,12 +2599,12 @@ class Association(threading.Thread):
         Returns
         -------
         status : pydicom.dataset.Dataset
-            If the peer timed out or sent an invalid response then yields an
-            empty ``Dataset``. If a response was received from the peer then
-            yields a ``Dataset`` containing at least a (0000,0900) *Status*
-            element, and depending on the returned value, may optionally
-            contain additional elements (see the DICOM Standard, Part 7,
-            Section 9.1.2.1.5 and Annex C).
+            If the peer timed out, aborted or sent an invalid response then
+            returns an empty ``Dataset``. If a response was received from the
+            peer then returns a ``Dataset`` containing at least a (0000,0900)
+            *Status* element, and depending on the returned value, may
+            optionally contain additional elements (see the DICOM Standard,
+            Part 7, Section 9.1.2.1.5 and Annex C).
 
             General N-SET (DICOM Standard Part 7, Section 10.1.3 and Annex C)
 
@@ -2692,7 +2695,7 @@ class Association(threading.Thread):
         if rsp is None:
             LOGGER.error("Connection closed or timed-out")
             self.abort()
-            return
+            return Dataset(), None
 
         # Determine validity of the response and get the status
         status = self._check_received_status(rsp)

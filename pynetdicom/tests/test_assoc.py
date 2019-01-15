@@ -96,6 +96,9 @@ class DummyDIMSE(object):
     def send_msg(self, rsp, context_id):
         self.status = rsp.Status
 
+    def get_msg(self, block=False):
+        return None, None
+
 
 class TestCStoreSCP(object):
     """Tests for Association._c_store_scp"""
@@ -375,13 +378,13 @@ class TestCStoreSCP(object):
                 assert args[1].ErrorComment == "Unable to decode the dataset"
                 return
 
-            def receive_msg(*args, **kwargs):
+            def get_msg(*args, **kwargs):
                 status = Dataset()
                 status.Status = 0x0000
 
                 rsp = DummyMessage()
 
-                return rsp, None
+                return None, rsp
 
         req = C_STORE()
         req.MessageID = 1
@@ -880,7 +883,7 @@ class TestAssociationSendCEcho(object):
         assoc = ae.associate('localhost', 11112)
         class DummyDIMSE():
             def send_msg(*args, **kwargs): return
-            def receive_msg(*args, **kwargs): return None, None
+            def get_msg(*args, **kwargs): return None, None
 
         assoc.dimse = DummyDIMSE()
         if assoc.is_established:
@@ -905,7 +908,7 @@ class TestAssociationSendCEcho(object):
 
         class DummyDIMSE():
             def send_msg(*args, **kwargs): return
-            def receive_msg(*args, **kwargs): return DummyResponse(), None
+            def get_msg(*args, **kwargs): return None, DummyResponse()
 
         assoc.dimse = DummyDIMSE()
         if assoc.is_established:
@@ -1127,6 +1130,7 @@ class TestAssociationSendCEcho(object):
 
         scp.shutdown()
 
+
 class TestAssociationSendCStore(object):
     """Run tests on Assocation send_c_store."""
     def setup(self):
@@ -1239,7 +1243,7 @@ class TestAssociationSendCStore(object):
         assoc = ae.associate('localhost', 11112)
         class DummyDIMSE():
             def send_msg(*args, **kwargs): return
-            def receive_msg(*args, **kwargs): return None, None
+            def get_msg(*args, **kwargs): return None, None
 
         assoc.dimse = DummyDIMSE()
         assert assoc.is_established
@@ -1264,7 +1268,7 @@ class TestAssociationSendCStore(object):
 
         class DummyDIMSE():
             def send_msg(*args, **kwargs): return
-            def receive_msg(*args, **kwargs): return DummyResponse(), None
+            def get_msg(*args, **kwargs): return DummyResponse(), None
 
         assoc.dimse = DummyDIMSE()
         assert assoc.is_established
@@ -1711,7 +1715,7 @@ class TestAssociationSendCFind(object):
 
         class DummyDIMSE():
             def send_msg(*args, **kwargs): return
-            def receive_msg(*args, **kwargs): return DummyResponse(), None
+            def get_msg(*args, **kwargs): return DummyResponse(), None
 
         assoc.dimse = DummyDIMSE()
         assert assoc.is_established
@@ -1784,13 +1788,14 @@ class TestAssociationSendCFind(object):
             def send_msg(*args, **kwargs):
                 return
 
-            def receive_msg(*args, **kwargs):
+            def get_msg(*args, **kwargs):
                 return None, None
 
         assoc.dimse = DummyDIMSE()
         assert assoc.is_established
 
         results = assoc.send_c_find(self.ds, query_model='P')
+        assert next(results) == (Dataset(), None)
         with pytest.raises(StopIteration):
             next(results)
 
@@ -1822,12 +1827,12 @@ class TestAssociationSendCFind(object):
             def send_msg(*args, **kwargs):
                 return
 
-            def receive_msg(*args, **kwargs):
+            def get_msg(*args, **kwargs):
                 rsp = C_FIND()
                 rsp.Status = 0xFF00
                 rsp.MessageIDBeingRespondedTo = 1
                 rsp.Identifier = BytesIO(b'\x08\x00\x01\x00\x04\x00\x00\x00\x00\x08\x00\x49')
-                return rsp, 1
+                return 1, rsp
 
         assoc.dimse = DummyDIMSE()
         assert assoc.is_established
@@ -2378,13 +2383,14 @@ class TestAssociationSendCGet(object):
             def send_msg(*args, **kwargs):
                 return
 
-            def receive_msg(*args, **kwargs):
+            def get_msg(*args, **kwargs):
                 return None, None
 
         assoc.dimse = DummyDIMSE()
         assert assoc.is_established
 
         results = assoc.send_c_get(self.ds, query_model='P')
+        assert next(results) == (Dataset(), None)
         with pytest.raises(StopIteration):
             next(results)
 
@@ -2430,11 +2436,11 @@ class TestAssociationSendCGet(object):
             def send_msg(*args, **kwargs):
                 return
 
-            def receive_msg(*args, **kwargs):
+            def get_msg(*args, **kwargs):
                 rsp = C_GET()
                 rsp.Status = 0xC000
                 rsp.Identifier = BytesIO(b'\x08\x00\x01\x00\x04\x00\x00\x00\x00\x08\x00\x49')
-                return rsp, 1
+                return 1, rsp
 
         assoc.dimse = DummyDIMSE()
         assert assoc.is_established
@@ -3058,13 +3064,14 @@ class TestAssociationSendCMove(object):
             def send_msg(*args, **kwargs):
                 return
 
-            def receive_msg(*args, **kwargs):
+            def get_msg(*args, **kwargs):
                 return None, None
 
         assoc.dimse = DummyDIMSE()
         assert assoc.is_established
 
         results = assoc.send_c_move(self.ds, b'TEST', query_model='P')
+        assert next(results) == (Dataset(), None)
         with pytest.raises(StopIteration):
             next(results)
 
@@ -3104,11 +3111,11 @@ class TestAssociationSendCMove(object):
             def send_msg(*args, **kwargs):
                 return
 
-            def receive_msg(*args, **kwargs):
+            def get_msg(*args, **kwargs):
                 rsp = C_MOVE()
                 rsp.Status = 0xC000
                 rsp.Identifier = BytesIO(b'\x08\x00\x01\x00\x04\x00\x00\x00\x00\x08\x00\x49')
-                return rsp, 1
+                return 1, rsp
 
         assoc.dimse = DummyDIMSE()
         assert assoc.is_established
