@@ -178,7 +178,10 @@ class Association(threading.Thread):
     @property
     def accepted_contexts(self):
         """Return a list of accepted Presentation Contexts."""
-        return self._accepted_cx
+        # Accepted contexts are stored internally as {context ID : context}
+        cx = sorted(self._accepted_cx.values(), key=lambda x: x.context_id)
+        #return self._accepted_cx
+        return cx
 
     @property
     def acse_timeout(self):
@@ -471,13 +474,11 @@ class Association(threading.Thread):
         while not self._kill:
             time.sleep(0.001)
 
-            # Check with the DIMSE provider for incoming messages
-            #   all messages should be a DIMSEMessage subclass
-            msg, msg_context_id = self.dimse.receive_msg(wait=False)
+            # Check with the DIMSE provider to see if a completely decoded
+            #   message is available
+            msg_context_id, msg = self.dimse.get_msg(block=False)
 
-            # DIMSE message received
-            # TODO: This is not a good way to handle messages, they should
-            #   be managed via their message ID and/or SOP Class UIDs
+            # DIMSE message received, should be a service request
             if msg:
                 # Use the Message's Affected SOP Class UID or Requested SOP
                 #   Class UID to determine which service to use
@@ -490,12 +491,9 @@ class Association(threading.Thread):
                     # N-GET, N-SET, N-ACTION, N-DELETE use RequestedSOPClassUID
                     class_uid = msg.RequestedSOPClassUID
                 else:
-                    # FIXME: C-CANCEL requests are not being handled correctly
-                    #   need a way to identify which service it belongs to
-                    #   or maybe just call the callback now?
-                    LOGGER.warning(
-                        "C-CANCEL requests are not implemented"
-                    )
+                    # Received a C-CANCEL request outside of service
+                    #   operation
+                    LOGGER.error("Received unexpected C-CANCEL request")
                     self.abort()
                     return
 
@@ -511,25 +509,24 @@ class Association(threading.Thread):
                 # Convert the SOP/Service UID to the corresponding service
                 service_class = uid_to_service_class(class_uid)(self)
 
-                # TODO: Index contexts in a dict using context ID
-                for context in self.accepted_contexts:
-                    if context.context_id == msg_context_id:
-                        # Run corresponding Service Class in SCP mode
-                        try:
-                            service_class.SCP(msg, context, info)
-                        except NotImplementedError:
-                            # SCP isn't implemented
-                            LOGGER.warning(
-                                "No service class implementation for '{}'"
-                                .format(context.abstract_syntax)
-                            )
-                            self.abort()
-                            return
-                        break
-                else:
+                try:
+                    context = self._accepted_cx[msg_context_id]
+                except KeyError:
                     LOGGER.info("Received message with invalid or rejected "
                                 "context ID %d", msg_context_id)
                     LOGGER.debug("%s", msg)
+
+                # Run corresponding Service Class in SCP mode
+                try:
+                    service_class.SCP(msg, context, info)
+                except NotImplementedError:
+                    # SCP isn't implemented
+                    LOGGER.warning(
+                        "No service class implementation for '{}'"
+                        .format(context.abstract_syntax)
+                    )
+                    self.abort()
+                    return
 
             # Check for release request
             if self.acse.is_release_requested(self):
@@ -854,7 +851,13 @@ class Association(threading.Thread):
 
         # Send C-ECHO request to the peer via DIMSE and wait for the response
         self.dimse.send_msg(primitive, context.context_id)
-        rsp, _ = self.dimse.receive_msg(wait=True)
+        cx_id, rsp = self.dimse.get_msg(block=True)
+
+        # If `rsp` is None then the DIMSE timeout expired so abort
+        if rsp is None:
+            LOGGER.error("Connection closed or timed-out")
+            self.abort()
+            return
 
         # Determine validity of the response and get the status
         status = self._check_received_status(rsp)
@@ -1092,10 +1095,10 @@ class Association(threading.Thread):
         ii = 1
         while True:
             # Wait for C-FIND response
-            rsp, _ = self.dimse.receive_msg(wait=True)
+            cx_id, rsp = self.dimse.get_msg(block=True)
 
-            # If no response received, start loop again
-            if not rsp:
+            # If `rsp` is None then the DIMSE timeout expired so abort
+            if rsp is None:
                 LOGGER.error("Connection closed or timed-out")
                 self.abort()
                 return
@@ -1369,10 +1372,10 @@ class Association(threading.Thread):
         while True:
             # Wait for DIMSE message, may be either a C-GET response or a
             #   C-STORE request
-            rsp, _ = self.dimse.receive_msg(wait=True)
+            cx_id, rsp = self.dimse.get_msg(block=True)
 
-            # If nothing received from the peer, try again
-            if not rsp:
+            # If `rsp` is None then the DIMSE timeout expired so abort
+            if rsp is None:
                 LOGGER.error("Connection closed or timed-out")
                 self.abort()
                 return
@@ -1656,10 +1659,10 @@ class Association(threading.Thread):
         # Get the responses from peer
         operation_no = 1
         while True:
-            rsp, _ = self.dimse.receive_msg(wait=True)
+            cx_id, rsp = self.dimse.get_msg(block=True)
 
-            # If nothing received from the peer, try again
-            if not rsp:
+            # If `rsp` is None then the DIMSE timeout expired so abort
+            if rsp is None:
                 LOGGER.error("Connection closed or timed-out")
                 self.abort()
                 return
@@ -1901,7 +1904,13 @@ class Association(threading.Thread):
 
         # Send C-STORE request to the peer via DIMSE and wait for the response
         self.dimse.send_msg(req, context.context_id)
-        rsp, _ = self.dimse.receive_msg(wait=True)
+        cx_id, rsp = self.dimse.get_msg(block=True)
+
+        # If `rsp` is None then the DIMSE timeout expired so abort
+        if rsp is None:
+            LOGGER.error("Connection closed or timed-out")
+            self.abort()
+            return
 
         # Determine validity of the response and get the status
         status = self._check_received_status(rsp)
@@ -2020,7 +2029,13 @@ class Association(threading.Thread):
 
         # Send N-ACTION request to the peer via DIMSE and wait for the response
         self.dimse.send_msg(req, context.context_id)
-        rsp, _ = self.dimse.receive_msg(wait=True)
+        cx_id, rsp = self.get_msg(wait=True)
+
+        # If `rsp` is None then the DIMSE timeout expired so abort
+        if rsp is None:
+            LOGGER.error("Connection closed or timed-out")
+            self.abort()
+            return
 
         # Determine validity of the response and get the status
         status = self._check_received_status(rsp)
@@ -2153,7 +2168,13 @@ class Association(threading.Thread):
 
         # Send N-CREATE request to the peer via DIMSE and wait for the response
         self.dimse.send_msg(req, context.context_id)
-        rsp, _ = self.dimse.receive_msg(wait=True)
+        cx_id, rsp = self.dimse.get_msg(block=True)
+
+        # If `rsp` is None then the DIMSE timeout expired so abort
+        if rsp is None:
+            LOGGER.error("Connection closed or timed-out")
+            self.abort()
+            return
 
         # Determine validity of the response and get the status
         status = self._check_received_status(rsp)
@@ -2260,7 +2281,13 @@ class Association(threading.Thread):
 
         # Send N-DELETE request to the peer via DIMSE and wait for the response
         self.dimse.send_msg(req, context.context_id)
-        rsp, _ = self.dimse.receive_msg(wait=True)
+        cx_id, rsp = self.dimse.get_msg(block=True)
+
+        # If `rsp` is None then the DIMSE timeout expired so abort
+        if rsp is None:
+            LOGGER.error("Connection closed or timed-out")
+            self.abort()
+            return
 
         # Determine validity of the response and get the status
         status = self._check_received_status(rsp)
@@ -2381,7 +2408,13 @@ class Association(threading.Thread):
         # Send N-EVENT-REPORT request to the peer via DIMSE and wait for
         # the response primitive
         self.dimse.send_msg(req, context.context_id)
-        rsp, _ = self.dimse.receive_msg(wait=True)
+        cx_id, rsp = self.dimse.get_msg(block=True)
+
+        # If `rsp` is None then the DIMSE timeout expired so abort
+        if rsp is None:
+            LOGGER.error("Connection closed or timed-out")
+            self.abort()
+            return
 
         # Determine validity of the response and get the status
         status = self._check_received_status(rsp)
@@ -2509,7 +2542,13 @@ class Association(threading.Thread):
 
         # Send N-GET request to the peer via DIMSE and wait for the response
         self.dimse.send_msg(req, context.context_id)
-        rsp, _ = self.dimse.receive_msg(wait=True)
+        cx_id, rsp = self.dimse.get_msg(block=True)
+
+        # If `rsp` is None then the DIMSE timeout expired so abort
+        if rsp is None:
+            LOGGER.error("Connection closed or timed-out")
+            self.abort()
+            return
 
         # Determine validity of the response and get the status
         status = self._check_received_status(rsp)
@@ -2647,7 +2686,13 @@ class Association(threading.Thread):
 
         # Send N-SET request to the peer via DIMSE and wait for the response
         self.dimse.send_msg(req, context.context_id)
-        rsp, _ = self.dimse.receive_msg(wait=True)
+        cx_id, rsp = self.dimse.get_msg(block=True)
+
+        # If `rsp` is None then the DIMSE timeout expired so abort
+        if rsp is None:
+            LOGGER.error("Connection closed or timed-out")
+            self.abort()
+            return
 
         # Determine validity of the response and get the status
         status = self._check_received_status(rsp)

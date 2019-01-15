@@ -3,6 +3,10 @@ Implementation of the DIMSE service provider.
 """
 from io import BytesIO
 import logging
+try:
+    import queue
+except ImportError:
+    import Queue as queue  # Python 2 compatibility
 import time
 
 # pylint: disable=no-name-in-module
@@ -200,11 +204,85 @@ class DIMSEServiceProvider(object):
             None indicates no timeout.
         maximum_pdu_size : int
             The maximum PDU size when sending DIMSE messages, default 16382.
+        msg_queue: queue.queue of dimse_messages.DIMSEMessage
+            A queue holding decoded DIMSE Message primitives received from the
+            peer.
         """
         self.dimse_timeout = dimse_timeout
         self.dul = dul
         self.maximum_pdu_size = maximum_pdu_size
         self.message = None
+        self.msg_queue = queue.Queue()
+
+    def get_msg(self, block=False):
+        """Get the next available DIMSE message.
+
+        Parameters
+        ----------
+        block : bool
+            If True then the function will block until either a message is
+            available or `dimse_timeout` expires, otherwise non-blocking.
+
+        Returns
+        -------
+        int, dimse_messages.DIMSEMessage or None, None
+            The next available (context ID, DIMSE message), which is taken off
+            the queue, or (None, None) if no messages are available within
+            the `dimse_timeout` period.
+        """
+        try:
+            return self.msg_queue.get(block=block, timeout=self.dimse_timeout)
+        except queue.Empty:
+            return None, None
+
+    def peek_msg(self):
+        """Return the first message in the message queue or None.
+
+        Returns
+        -------
+        int, dimse_messages.DIMSEMessage or None, None
+            The first (context ID, message) in the queue if one is available,
+            otherwise (None, None). No messages are taken out of the queue.
+        """
+        try:
+            return self.msg_queue.queue[0]
+        except (queue.Empty, IndexError):
+            return None, None
+
+    def receive_primitive(self, primitive):
+        """Process a P-DATA primitive received from the remote.
+
+        A DIMSE message is split into one or more P-DATA primitives, which
+        must be sent in sequential order. While waiting for all the P-DATA
+        primitives associated with a message the encoded data is stored in
+        self.message, which is decoded only when complete and converted
+        into a DIMSE Message primitive which is added to the `msg_queue`.
+
+        This makes it possible to process incoming P-DATA primitives into
+        DIMSE messages while a service class implementation is running.
+
+        Parameters
+        ----------
+        primitive : pdu_primitives.P_DATA
+            A P-DATA primitive received from the peer to be processed.
+        """
+        if self.message is None:
+            self.message = DIMSEMessage()
+
+        if self.message.decode_msg(primitive):
+            # Callback
+            # TODO: Make this a package level option to increase speed
+            self.on_receive_dimse_message(self.message)
+
+            context_id = self.message.context_id
+            primitive = self.message.message_to_primitive()
+            self.msg_queue.put((context_id, primitive))
+
+            # Fix for memory leak, Issue #41
+            #   Reset the DIMSE message, ready for the next one
+            self.message.encoded_command_set = BytesIO()
+            self.message.data_set = BytesIO()
+            self.message = None
 
     def send_msg(self, primitive, context_id):
         """Send a DIMSE-C or DIMSE-N message to the peer AE.
@@ -233,100 +311,6 @@ class DIMSEServiceProvider(object):
         #   each below the max_pdu size
         for pdata in dimse_msg.encode_msg(context_id, self.maximum_pdu_size):
             self.dul.send_pdu(pdata)
-
-    def receive_msg(self, wait=False):
-        """Receive a DIMSE message from the peer.
-
-        Set the DIMSE provider in a mode ready to receive a response from the
-        peer
-
-        Parameters
-        ----------
-        wait : bool, optional
-            Wait until a response has been received (default: False).
-
-        Returns
-        -------
-        dimse_messages.DIMSEMessage, int or None, None
-            Returns the complete DIMSE message and its presentation context ID
-            or None, None.
-        """
-        if self.message is None:
-            self.message = DIMSEMessage()
-
-        timeout = Timer(self.dimse_timeout)
-        timeout.start()
-
-        if wait:
-            # Loop until complete DIMSE message is received
-            #   message may be split into 1 or more fragments
-            while True:
-
-                # Fix for issue #38
-                # Because we only progress once the next PDU arrives to be
-                #   peeked at, the DIMSE timeout in receive_pdu() doesn't
-                #   actually do anything.
-                if timeout.expired:
-                    return None, None
-
-                # Race condition: sometimes the DUL will be killed before the
-                #   loop exits
-                if not self.dul.is_alive():
-                    return None, None
-
-                time.sleep(0.001)
-
-                nxt = self.dul.peek_next_pdu()
-                if nxt is None:
-                    continue
-
-                if nxt.__class__ is not P_DATA:
-                    continue
-
-                pdu = self.dul.receive_pdu(wait, self.dimse_timeout)
-
-                if self.message.decode_msg(pdu):
-                    # Callback
-                    # TODO: Make this a package level option to increase speed
-                    self.on_receive_dimse_message(self.message)
-
-                    context_id = self.message.context_id
-                    primitive = self.message.message_to_primitive()
-
-                    # Fix for memory leak, Issue #41
-                    #   Reset the DIMSE message, ready for the next one
-                    self.message.encoded_command_set = BytesIO()
-                    self.message.data_set = BytesIO()
-                    self.message = None
-
-                    return primitive, context_id
-
-        else:
-            # Check to make sure the next PDU is a P-DATA-TF PDU
-            #   if not then return
-            pdu = self.dul.peek_next_pdu()
-            if not pdu or pdu.__class__ != P_DATA:
-                return None, None
-
-            pdu = self.dul.receive_pdu(wait, self.dimse_timeout)
-
-            if self.message.decode_msg(pdu):
-                # Callback
-                # TODO: Make this a package level option to increase speed
-                self.on_receive_dimse_message(self.message)
-
-                context_id = self.message.context_id
-                primitive = self.message.message_to_primitive()
-
-                # Fix for memory leak, Issue #41
-                #   Reset the DIMSE message, ready for the next one
-                self.message.encoded_command_set = BytesIO()
-                self.message.data_set = BytesIO()
-                self.message = None
-
-                return primitive, context_id
-
-            return None, None
 
     # Debugging and AE callbacks
     def on_send_dimse_message(self, message):

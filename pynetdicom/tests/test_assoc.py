@@ -80,7 +80,7 @@ from .dummy_c_scp import (
 
 LOGGER = logging.getLogger('pynetdicom')
 LOGGER.setLevel(logging.CRITICAL)
-#LOGGER.setLevel(logging.DEBUG)
+LOGGER.setLevel(logging.DEBUG)
 
 TEST_DS_DIR = os.path.join(os.path.dirname(__file__), 'dicom_files')
 BIG_DATASET = dcmread(os.path.join(TEST_DS_DIR, 'RTImageStorage.dcm')) # 2.1 M
@@ -1092,7 +1092,7 @@ class TestAssociationSendCEcho(object):
         assert assoc.is_released
         self.scp.stop()
 
-    def test_network_times_out(self):
+    def test_network_times_out_requestor(self):
         """Regression test for #286."""
         ae = AE()
         ae.add_requested_context(VerificationSOPClass)
@@ -1105,6 +1105,23 @@ class TestAssociationSendCEcho(object):
         assoc.network_timeout = 0.5
         assert assoc.network_timeout == 0.5
 
+        time.sleep(1.0)
+        assert assoc.is_aborted
+
+        scp.shutdown()
+
+    def test_network_times_out_acceptor(self):
+        """Regression test for #286."""
+        ae = AE()
+        ae.add_requested_context(VerificationSOPClass)
+        ae.add_supported_context(VerificationSOPClass)
+        scp = ae.start_server(('', 11113), block=False)
+
+        assoc = ae.associate('localhost', 11113)
+        ae.network_timeout = 0.5
+        assoc.network_timeout = 60
+        assert assoc.network_timeout == 60
+        assert assoc.is_established
         time.sleep(1.0)
         assert assoc.is_aborted
 

@@ -8,6 +8,9 @@ Fixes
 * Fixed `network_timeout` not working when acting as the association requestor
   and an A-ABORT not being sent when the timeout expired. (:issue:`286`)
 * Fixed changing `network_timeout` value not propagating to the actual timer.
+* All DIMSE service requests should now properly abort the association if no
+  response is received within the DIMSE timeout window.
+
 
 Enhancements
 ............
@@ -38,6 +41,12 @@ Enhancements
     destination for the request's C-STORE sub-operations over a new association
     within the same AE instance by running a non-blocking Storage SCP.
     (:issue:`5`, :issue:`181`)
+* Received P-DATA primitives are now processed when received rather than when
+  processing is requested.
+* Added ``DIMSEServiceProvider.get_msg()``,
+  ``DIMSEServiceProvider.receive_primitive()``,
+  ``DIMSEServiceProvider.peek_msg()`` and ``DIMSEServiceProvider.msg_queue``
+  to be used with the new P-DATA processing.
 
 Changes
 .......
@@ -66,3 +75,4 @@ Changes
   returns a list of all the AE's active Association threads.
 * ``AE.associate()`` is now synchronous until association negotiation has
   completed or the connection closed (:issue:`108`).
+* Removed ``DIMSEServiceProvider.receive_msg()``.

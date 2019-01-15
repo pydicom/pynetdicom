@@ -459,8 +459,8 @@ def DT_2(dul):
     str
         Sta6, the next state of the state machine
     """
-    # Send P-DATA indication primitive to DUL
-    dul.to_user_queue.put(dul.primitive)
+    # Send P-DATA indication primitive directly to DIMSE for processing
+    dul.assoc.dimse.receive_primitive(dul.primitive)
 
     return 'Sta6'
 

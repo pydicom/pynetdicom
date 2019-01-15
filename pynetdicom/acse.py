@@ -355,7 +355,10 @@ class ACSE(object):
         )
 
         # pylint: disable=protected-access
-        assoc._accepted_cx = [cx for cx in result if cx.result == 0x00]
+        # Accepted contexts are stored as {context ID : context}
+        assoc._accepted_cx = {
+            cx.context_id:cx for cx in result if cx.result == 0x00
+        }
         assoc._rejected_cx = [cx for cx in result if cx.result != 0x00]
         # pylint: enable=protected-access
 
@@ -431,9 +434,14 @@ class ACSE(object):
                 )
 
                 # pylint: disable=protected-access
-                assoc._accepted_cx = [
-                    cx for cx in negotiated_contexts if cx.result == 0x00
-                ]
+                #assoc._accepted_cx = [
+                #    cx for cx in negotiated_contexts if cx.result == 0x00
+                #]
+                # Accepted contexts are stored as {context ID : context}
+                assoc._accepted_cx = {
+                    cx.context_id:cx
+                    for cx in negotiated_contexts if cx.result == 0x00
+                }
                 assoc._rejected_cx = [
                     cx for cx in negotiated_contexts if cx.result != 0x00
                 ]
