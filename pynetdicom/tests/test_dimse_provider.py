@@ -78,7 +78,7 @@ class TestDIMSEProvider(object):
 
     def test_receive_not_pdata(self):
         """Test we get back None if not a P_DATA"""
-        assert self.dimse.receive_msg(True) == (None, None)
+        assert self.dimse.get_msg(True) == (None, None)
 
     @pytest.mark.parametrize("primitive, cls_name", REFERENCE_MSG)
     def test_send_msg(self, primitive, cls_name):

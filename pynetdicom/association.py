@@ -2032,7 +2032,7 @@ class Association(threading.Thread):
 
         # Send N-ACTION request to the peer via DIMSE and wait for the response
         self.dimse.send_msg(req, context.context_id)
-        cx_id, rsp = self.get_msg(wait=True)
+        cx_id, rsp = self.dimse.get_msg(block=True)
 
         # If `rsp` is None then the DIMSE timeout expired so abort
         if rsp is None:
