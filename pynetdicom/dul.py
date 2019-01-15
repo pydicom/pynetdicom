@@ -76,8 +76,9 @@ class DULServiceProvider(Thread):
         self.to_user_queue = queue.Queue()
 
         # Set the (network) idle and ARTIM timers
-        self._idle_timer = Timer(self.assoc.network_timeout)
-        self.artim_timer = Timer(self.assoc.acse_timeout)
+        # Timeouts gets set after DUL init so these are temporary
+        self._idle_timer = Timer(60)
+        self.artim_timer = Timer(30)
 
         # State machine - PS3.8 Section 9.2
         self.state_machine = StateMachine(self)
@@ -142,27 +143,24 @@ class DULServiceProvider(Thread):
         Returns
         -------
         bool
-            True if the idle timer has expired, False otherwise
+            True if the idle timer has expired, False otherwise.
         """
         if self._idle_timer is None:
             return False
 
-        if self._idle_timer.is_expired:
-            return True
-
-        return False
+        return self._idle_timer.expired
 
     def _is_artim_expired(self):
         """Return if the state machine's ARTIM timer has expired.
 
         If it has then 'Evt18' is added to the event queue.
 
-        Returns
+        Returns`
         -------
         bool
             True if the ARTIM timer has expired, False otherwise
         """
-        if self.artim_timer.is_expired:
+        if self.artim_timer.expired:
             self.event_queue.put('Evt18')
             return True
 
@@ -393,7 +391,6 @@ class DULServiceProvider(Thread):
             # Check the connection for incoming data
             try:
                 if self._is_transport_event() and self._idle_timer is not None:
-                    self._idle_timer.timeout_seconds = self.network_timeout
                     self._idle_timer.restart()
                 elif self._check_incoming_primitive():
                     pass

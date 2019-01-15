@@ -1092,6 +1092,23 @@ class TestAssociationSendCEcho(object):
         assert assoc.is_released
         self.scp.stop()
 
+    def test_network_times_out(self):
+        """Regression test for #286."""
+        ae = AE()
+        ae.add_requested_context(VerificationSOPClass)
+        ae.add_supported_context(VerificationSOPClass)
+        scp = ae.start_server(('', 11112), block=False)
+
+        assoc = ae.associate('localhost', 11112)
+        assert assoc.is_established
+        assert assoc.network_timeout == 60
+        assoc.network_timeout = 0.5
+        assert assoc.network_timeout == 0.5
+
+        time.sleep(1.0)
+        assert assoc.is_aborted
+
+        scp.shutdown()
 
 class TestAssociationSendCStore(object):
     """Run tests on Assocation send_c_store."""
