@@ -16,16 +16,19 @@ class Timer(object):
     This class may also be used as a general purpose expiry timer.
 
     A `timeout` of None implies that `expired` always returns False and
-    `remaining` always returns -1.
+    `remaining` always returns 1.
     A `timeout` of float implies that:
-        - If not yet started, `expired` returns False and remaining returns
-          `timeout`
-        - If started then `expired` returns False until the time since starting
-          is greater than `timeout` after which it returns True. `remaining`
-          returns the number of seconds before `expired` returns True (will
-          return negative value after expiry)
-        - If started then stopped `expired` always return False and remaining
-          returns `timeout`.
+
+    - If not yet started, `expired` returns False and remaining returns
+      `timeout`
+    - If started then `expired` returns False until the time since starting
+      is greater than `timeout` after which it returns True. `remaining`
+      returns the number of seconds until `expired` returns True (will
+      return negative value after expiry)
+    - If started then stopped before the timeout then `expired` returns
+      False, if stopped after the time since starting is greater than `timeout`
+      then returns True. `remaining` always returns the number of seconds
+      until `expired` returns True.
 
     References
     ----------

@@ -182,19 +182,23 @@ class Association(threading.Thread):
 
     @property
     def acse_timeout(self):
+        """Return the ACSE timeout in seconds."""
         return self._acse_timeout
 
     @acse_timeout.setter
     def acse_timeout(self, value):
+        """Set the ACSE timeout using numeric or None."""
         self.dul.artim_timer.timeout = value
         self._acse_timeout = value
 
     @property
     def network_timeout(self):
+        """Return the network timeout in seconds."""
         return self._network_timeout
 
     @network_timeout.setter
     def network_timeout(self, value):
+        """Set the network timeout using numeric or None."""
         self.dul._idle_timer.timeout = value
         self._network_timeout = value
 

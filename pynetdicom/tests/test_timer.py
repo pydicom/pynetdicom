@@ -102,3 +102,21 @@ class TestTimer(object):
         timer.stop()
         assert timer.expired is True
         assert timer.remaining < 0
+
+    def test_timeout_stop(self):
+        """Test stopping the timer."""
+        timer = Timer(0.1)
+        assert timer.timeout == 0.1
+        assert timer.expired is False
+        assert timer.remaining == 0.1
+        timer.start()
+        timer.stop()
+        assert timer.timeout == 0.1
+        assert timer.expired is False
+        assert timer.remaining > 0
+        timer.start()
+        time.sleep(0.2)
+        timer.stop()
+        assert timer.timeout == 0.1
+        assert timer.expired is True
+        assert timer.remaining < 0

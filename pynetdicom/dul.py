@@ -145,9 +145,6 @@ class DULServiceProvider(Thread):
         bool
             True if the idle timer has expired, False otherwise.
         """
-        if self._idle_timer is None:
-            return False
-
         return self._idle_timer.expired
 
     def _is_artim_expired(self):
@@ -155,7 +152,7 @@ class DULServiceProvider(Thread):
 
         If it has then 'Evt18' is added to the event queue.
 
-        Returns`
+        Returns
         -------
         bool
             True if the ARTIM timer has expired, False otherwise
@@ -378,8 +375,7 @@ class DULServiceProvider(Thread):
         categorises it and add its to the `to_user_queue`.
         """
         # Main DUL loop
-        if self._idle_timer is not None:
-            self._idle_timer.start()
+        self._idle_timer.start()
 
         while True:
             # This effectively controls how often the DUL checks the network
@@ -390,7 +386,7 @@ class DULServiceProvider(Thread):
 
             # Check the connection for incoming data
             try:
-                if self._is_transport_event() and self._idle_timer is not None:
+                if self._is_transport_event():
                     self._idle_timer.restart()
                 elif self._check_incoming_primitive():
                     pass
