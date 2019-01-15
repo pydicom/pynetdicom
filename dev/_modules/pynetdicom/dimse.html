@@ -438,7 +438,7 @@
                 <span class="c1"># Because we only progress once the next PDU arrives to be</span>
                 <span class="c1">#   peeked at, the DIMSE timeout in receive_pdu() doesn&#39;t</span>
                 <span class="c1">#   actually do anything.</span>
-                <span class="k">if</span> <span class="n">timeout</span><span class="o">.</span><span class="n">is_expired</span><span class="p">:</span>
+                <span class="k">if</span> <span class="n">timeout</span><span class="o">.</span><span class="n">expired</span><span class="p">:</span>
                     <span class="k">return</span> <span class="kc">None</span><span class="p">,</span> <span class="kc">None</span>
 
                 <span class="c1"># Race condition: sometimes the DUL will be killed before the</span>

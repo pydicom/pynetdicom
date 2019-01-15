@@ -5,6 +5,9 @@
 
 Fixes
 .....
+* Fixed `network_timeout` not working when acting as the association requestor
+  and an A-ABORT not being sent when the timeout expired. (:issue:`286`)
+* Fixed changing `network_timeout` value not propagating to the actual timer.
 
 Enhancements
 ............

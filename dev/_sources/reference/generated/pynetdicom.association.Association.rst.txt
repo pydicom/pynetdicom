@@ -54,6 +54,7 @@ pynetdicom.association.Association
    .. autosummary::
    
       ~Association.accepted_contexts
+      ~Association.acse_timeout
       ~Association.ae
       ~Association.daemon
       ~Association.ident
@@ -62,6 +63,7 @@ pynetdicom.association.Association
       ~Association.local
       ~Association.mode
       ~Association.name
+      ~Association.network_timeout
       ~Association.rejected_contexts
       ~Association.remote
    

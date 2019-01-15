@@ -298,11 +298,6 @@
         <span class="bp">self</span><span class="o">.</span><span class="n">_ae</span> <span class="o">=</span> <span class="n">ae</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">mode</span> <span class="o">=</span> <span class="n">mode</span>
 
-        <span class="c1"># Timeouts (in seconds)</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">acse_timeout</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">ae</span><span class="o">.</span><span class="n">acse_timeout</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">dimse_timeout</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">ae</span><span class="o">.</span><span class="n">dimse_timeout</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">network_timeout</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">ae</span><span class="o">.</span><span class="n">network_timeout</span>
-
         <span class="c1"># Represents the association requestor and acceptor users</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">requestor</span> <span class="o">=</span> <span class="n">ServiceUser</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">MODE_REQUESTOR</span><span class="p">)</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">acceptor</span> <span class="o">=</span> <span class="n">ServiceUser</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">MODE_ACCEPTOR</span><span class="p">)</span>
@@ -320,7 +315,12 @@
         <span class="c1"># Service providers</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">acse</span> <span class="o">=</span> <span class="n">ACSE</span><span class="p">()</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">dul</span> <span class="o">=</span> <span class="n">DULServiceProvider</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">dimse</span> <span class="o">=</span> <span class="n">DIMSEServiceProvider</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">dul</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">dimse_timeout</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">dimse</span> <span class="o">=</span> <span class="n">DIMSEServiceProvider</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">dul</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">ae</span><span class="o">.</span><span class="n">dimse_timeout</span><span class="p">)</span>
+
+        <span class="c1"># Timeouts (in seconds), needs to be set after DUL init</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">acse_timeout</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">ae</span><span class="o">.</span><span class="n">acse_timeout</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">dimse_timeout</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">ae</span><span class="o">.</span><span class="n">dimse_timeout</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">network_timeout</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">ae</span><span class="o">.</span><span class="n">network_timeout</span>
 
         <span class="c1"># Kills the thread loop in run()</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">_kill</span> <span class="o">=</span> <span class="kc">False</span>
@@ -351,6 +351,28 @@
     <span class="k">def</span> <span class="nf">accepted_contexts</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;Return a list of accepted Presentation Contexts.&quot;&quot;&quot;</span>
         <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_accepted_cx</span>
+
+    <span class="nd">@property</span>
+    <span class="k">def</span> <span class="nf">acse_timeout</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;Return the ACSE timeout in seconds.&quot;&quot;&quot;</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_acse_timeout</span>
+
+    <span class="nd">@acse_timeout</span><span class="o">.</span><span class="n">setter</span>
+    <span class="k">def</span> <span class="nf">acse_timeout</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">value</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;Set the ACSE timeout using numeric or None.&quot;&quot;&quot;</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">dul</span><span class="o">.</span><span class="n">artim_timer</span><span class="o">.</span><span class="n">timeout</span> <span class="o">=</span> <span class="n">value</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_acse_timeout</span> <span class="o">=</span> <span class="n">value</span>
+
+    <span class="nd">@property</span>
+    <span class="k">def</span> <span class="nf">network_timeout</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;Return the network timeout in seconds.&quot;&quot;&quot;</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_network_timeout</span>
+
+    <span class="nd">@network_timeout</span><span class="o">.</span><span class="n">setter</span>
+    <span class="k">def</span> <span class="nf">network_timeout</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">value</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;Set the network timeout using numeric or None.&quot;&quot;&quot;</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">dul</span><span class="o">.</span><span class="n">_idle_timer</span><span class="o">.</span><span class="n">timeout</span> <span class="o">=</span> <span class="n">value</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_network_timeout</span> <span class="o">=</span> <span class="n">value</span>
 
     <span class="nd">@property</span>
     <span class="k">def</span> <span class="nf">ae</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
@@ -477,7 +499,7 @@
         <span class="sd">&quot;&quot;&quot;Kill the main association thread loop.&quot;&quot;&quot;</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">_kill</span> <span class="o">=</span> <span class="kc">True</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">is_established</span> <span class="o">=</span> <span class="kc">False</span>
-        <span class="k">while</span> <span class="ow">not</span> <span class="bp">self</span><span class="o">.</span><span class="n">dul</span><span class="o">.</span><span class="n">stop_dul</span><span class="p">():</span>
+        <span class="k">while</span> <span class="bp">self</span><span class="o">.</span><span class="n">dul</span><span class="o">.</span><span class="n">is_alive</span><span class="p">()</span> <span class="ow">and</span> <span class="ow">not</span> <span class="bp">self</span><span class="o">.</span><span class="n">dul</span><span class="o">.</span><span class="n">stop_dul</span><span class="p">():</span>
             <span class="n">time</span><span class="o">.</span><span class="n">sleep</span><span class="p">(</span><span class="mf">0.01</span><span class="p">)</span></div>
 
     <span class="nd">@property</span>
@@ -711,8 +733,9 @@
 
             <span class="c1"># Check if idle timer has expired</span>
             <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">dul</span><span class="o">.</span><span class="n">idle_timer_expired</span><span class="p">():</span>
-                <span class="n">LOGGER</span><span class="o">.</span><span class="n">debug</span><span class="p">(</span><span class="s2">&quot;DUL timeout expired&quot;</span><span class="p">)</span>
                 <span class="bp">self</span><span class="o">.</span><span class="n">abort</span><span class="p">()</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">kill</span><span class="p">()</span>
+                <span class="k">return</span>
 
     <span class="k">def</span> <span class="nf">_run_as_requestor</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;Run the association as the requestor.&quot;&quot;&quot;</span>
@@ -751,6 +774,7 @@
 
             <span class="c1"># Check if idle timer has expired</span>
             <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">dul</span><span class="o">.</span><span class="n">idle_timer_expired</span><span class="p">():</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">abort</span><span class="p">()</span>
                 <span class="bp">self</span><span class="o">.</span><span class="n">kill</span><span class="p">()</span>
                 <span class="k">return</span>
 

@@ -175,6 +175,11 @@
 <span id="id1"></span><h1>1.2.0<a class="headerlink" href="#v1-2-0" title="Permalink to this headline">¶</a></h1>
 <div class="section" id="fixes">
 <h2>Fixes<a class="headerlink" href="#fixes" title="Permalink to this headline">¶</a></h2>
+<ul class="simple">
+<li>Fixed <cite>network_timeout</cite> not working when acting as the association requestor
+and an A-ABORT not being sent when the timeout expired. (<a class="reference external" href="https://github.com/pydicom/pynetdicom/issues/286">#286</a>)</li>
+<li>Fixed changing <cite>network_timeout</cite> value not propagating to the actual timer.</li>
+</ul>
 </div>
 <div class="section" id="enhancements">
 <h2>Enhancements<a class="headerlink" href="#enhancements" title="Permalink to this headline">¶</a></h2>

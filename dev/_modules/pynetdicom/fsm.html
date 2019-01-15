@@ -440,7 +440,6 @@
 <span class="sd">        Sta2, the next state of the state machine</span>
 <span class="sd">    &quot;&quot;&quot;</span>
     <span class="c1"># Start ARTIM timer</span>
-    <span class="n">dul</span><span class="o">.</span><span class="n">artim_timer</span><span class="o">.</span><span class="n">timeout_seconds</span> <span class="o">=</span> <span class="n">dul</span><span class="o">.</span><span class="n">assoc</span><span class="o">.</span><span class="n">acse_timeout</span>
     <span class="n">dul</span><span class="o">.</span><span class="n">artim_timer</span><span class="o">.</span><span class="n">start</span><span class="p">()</span>
 
     <span class="k">return</span> <span class="s1">&#39;Sta2&#39;</span></div>
@@ -497,7 +496,6 @@
         <span class="n">dul</span><span class="o">.</span><span class="n">assoc</span><span class="o">.</span><span class="n">acse</span><span class="o">.</span><span class="n">debug_send_associate_rj</span><span class="p">(</span><span class="n">dul</span><span class="o">.</span><span class="n">pdu</span><span class="p">)</span>
 
         <span class="n">dul</span><span class="o">.</span><span class="n">socket</span><span class="o">.</span><span class="n">send</span><span class="p">(</span><span class="n">dul</span><span class="o">.</span><span class="n">pdu</span><span class="o">.</span><span class="n">encode</span><span class="p">())</span>
-        <span class="n">dul</span><span class="o">.</span><span class="n">artim_timer</span><span class="o">.</span><span class="n">timeout_seconds</span> <span class="o">=</span> <span class="n">dul</span><span class="o">.</span><span class="n">assoc</span><span class="o">.</span><span class="n">acse_timeout</span>
         <span class="n">dul</span><span class="o">.</span><span class="n">artim_timer</span><span class="o">.</span><span class="n">start</span><span class="p">()</span>
 
         <span class="k">return</span> <span class="s1">&#39;Sta13&#39;</span>
@@ -572,8 +570,6 @@
     <span class="n">dul</span><span class="o">.</span><span class="n">assoc</span><span class="o">.</span><span class="n">acse</span><span class="o">.</span><span class="n">debug_send_associate_rj</span><span class="p">(</span><span class="n">dul</span><span class="o">.</span><span class="n">pdu</span><span class="p">)</span>
 
     <span class="n">dul</span><span class="o">.</span><span class="n">socket</span><span class="o">.</span><span class="n">send</span><span class="p">(</span><span class="n">dul</span><span class="o">.</span><span class="n">pdu</span><span class="o">.</span><span class="n">encode</span><span class="p">())</span>
-
-    <span class="n">dul</span><span class="o">.</span><span class="n">artim_timer</span><span class="o">.</span><span class="n">timeout_seconds</span> <span class="o">=</span> <span class="n">dul</span><span class="o">.</span><span class="n">assoc</span><span class="o">.</span><span class="n">acse_timeout</span>
     <span class="n">dul</span><span class="o">.</span><span class="n">artim_timer</span><span class="o">.</span><span class="n">start</span><span class="p">()</span>
 
     <span class="k">return</span> <span class="s1">&#39;Sta13&#39;</span></div>
@@ -761,7 +757,6 @@
     <span class="n">dul</span><span class="o">.</span><span class="n">assoc</span><span class="o">.</span><span class="n">acse</span><span class="o">.</span><span class="n">debug_send_release_rp</span><span class="p">(</span><span class="n">dul</span><span class="o">.</span><span class="n">pdu</span><span class="p">)</span>
 
     <span class="n">dul</span><span class="o">.</span><span class="n">socket</span><span class="o">.</span><span class="n">send</span><span class="p">(</span><span class="n">dul</span><span class="o">.</span><span class="n">pdu</span><span class="o">.</span><span class="n">encode</span><span class="p">())</span>
-    <span class="n">dul</span><span class="o">.</span><span class="n">artim_timer</span><span class="o">.</span><span class="n">timeout_seconds</span> <span class="o">=</span> <span class="n">dul</span><span class="o">.</span><span class="n">assoc</span><span class="o">.</span><span class="n">acse_timeout</span>
     <span class="n">dul</span><span class="o">.</span><span class="n">artim_timer</span><span class="o">.</span><span class="n">start</span><span class="p">()</span>
 
     <span class="k">return</span> <span class="s1">&#39;Sta13&#39;</span></div>
@@ -984,7 +979,6 @@
     <span class="n">dul</span><span class="o">.</span><span class="n">assoc</span><span class="o">.</span><span class="n">acse</span><span class="o">.</span><span class="n">debug_send_abort</span><span class="p">(</span><span class="n">dul</span><span class="o">.</span><span class="n">pdu</span><span class="p">)</span>
 
     <span class="n">dul</span><span class="o">.</span><span class="n">socket</span><span class="o">.</span><span class="n">send</span><span class="p">(</span><span class="n">dul</span><span class="o">.</span><span class="n">pdu</span><span class="o">.</span><span class="n">encode</span><span class="p">())</span>
-    <span class="n">dul</span><span class="o">.</span><span class="n">artim_timer</span><span class="o">.</span><span class="n">timeout_seconds</span> <span class="o">=</span> <span class="n">dul</span><span class="o">.</span><span class="n">assoc</span><span class="o">.</span><span class="n">acse_timeout</span>
     <span class="n">dul</span><span class="o">.</span><span class="n">artim_timer</span><span class="o">.</span><span class="n">restart</span><span class="p">()</span>
 
     <span class="k">return</span> <span class="s1">&#39;Sta13&#39;</span></div>
@@ -1219,7 +1213,6 @@
 
     <span class="c1"># Issue A-P-ABORT to user</span>
     <span class="n">dul</span><span class="o">.</span><span class="n">to_user_queue</span><span class="o">.</span><span class="n">put</span><span class="p">(</span><span class="n">dul</span><span class="o">.</span><span class="n">primitive</span><span class="p">)</span>
-    <span class="n">dul</span><span class="o">.</span><span class="n">artim_timer</span><span class="o">.</span><span class="n">timeout_seconds</span> <span class="o">=</span> <span class="n">dul</span><span class="o">.</span><span class="n">assoc</span><span class="o">.</span><span class="n">acse_timeout</span>
     <span class="n">dul</span><span class="o">.</span><span class="n">artim_timer</span><span class="o">.</span><span class="n">start</span><span class="p">()</span>
 
     <span class="k">return</span> <span class="s1">&#39;Sta13&#39;</span></div>
