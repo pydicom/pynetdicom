@@ -268,7 +268,6 @@ def AE_5(dul):
         Sta2, the next state of the state machine
     """
     # Start ARTIM timer
-    dul.artim_timer.timeout_seconds = dul.assoc.acse_timeout
     dul.artim_timer.start()
 
     return 'Sta2'
@@ -325,7 +324,6 @@ def AE_6(dul):
         dul.assoc.acse.debug_send_associate_rj(dul.pdu)
 
         dul.socket.send(dul.pdu.encode())
-        dul.artim_timer.timeout_seconds = dul.assoc.acse_timeout
         dul.artim_timer.start()
 
         return 'Sta13'
@@ -400,8 +398,6 @@ def AE_8(dul):
     dul.assoc.acse.debug_send_associate_rj(dul.pdu)
 
     dul.socket.send(dul.pdu.encode())
-
-    dul.artim_timer.timeout_seconds = dul.assoc.acse_timeout
     dul.artim_timer.start()
 
     return 'Sta13'
@@ -589,7 +585,6 @@ def AR_4(dul):
     dul.assoc.acse.debug_send_release_rp(dul.pdu)
 
     dul.socket.send(dul.pdu.encode())
-    dul.artim_timer.timeout_seconds = dul.assoc.acse_timeout
     dul.artim_timer.start()
 
     return 'Sta13'
@@ -812,7 +807,6 @@ def AA_1(dul):
     dul.assoc.acse.debug_send_abort(dul.pdu)
 
     dul.socket.send(dul.pdu.encode())
-    dul.artim_timer.timeout_seconds = dul.assoc.acse_timeout
     dul.artim_timer.restart()
 
     return 'Sta13'
@@ -1047,7 +1041,6 @@ def AA_8(dul):
 
     # Issue A-P-ABORT to user
     dul.to_user_queue.put(dul.primitive)
-    dul.artim_timer.timeout_seconds = dul.assoc.acse_timeout
     dul.artim_timer.start()
 
     return 'Sta13'

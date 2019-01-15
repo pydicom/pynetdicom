@@ -126,11 +126,6 @@ class Association(threading.Thread):
         self._ae = ae
         self.mode = mode
 
-        # Timeouts (in seconds)
-        self.acse_timeout = self.ae.acse_timeout
-        self.dimse_timeout = self.ae.dimse_timeout
-        self.network_timeout = self.ae.network_timeout
-
         # Represents the association requestor and acceptor users
         self.requestor = ServiceUser(self, MODE_REQUESTOR)
         self.acceptor = ServiceUser(self, MODE_ACCEPTOR)
@@ -148,7 +143,12 @@ class Association(threading.Thread):
         # Service providers
         self.acse = ACSE()
         self.dul = DULServiceProvider(self)
-        self.dimse = DIMSEServiceProvider(self.dul, self.dimse_timeout)
+        self.dimse = DIMSEServiceProvider(self.dul, self.ae.dimse_timeout)
+
+        # Timeouts (in seconds), needs to be set after DUL init
+        self.acse_timeout = self.ae.acse_timeout
+        self.dimse_timeout = self.ae.dimse_timeout
+        self.network_timeout = self.ae.network_timeout
 
         # Kills the thread loop in run()
         self._kill = False
@@ -179,6 +179,28 @@ class Association(threading.Thread):
     def accepted_contexts(self):
         """Return a list of accepted Presentation Contexts."""
         return self._accepted_cx
+
+    @property
+    def acse_timeout(self):
+        """Return the ACSE timeout in seconds."""
+        return self._acse_timeout
+
+    @acse_timeout.setter
+    def acse_timeout(self, value):
+        """Set the ACSE timeout using numeric or None."""
+        self.dul.artim_timer.timeout = value
+        self._acse_timeout = value
+
+    @property
+    def network_timeout(self):
+        """Return the network timeout in seconds."""
+        return self._network_timeout
+
+    @network_timeout.setter
+    def network_timeout(self, value):
+        """Set the network timeout using numeric or None."""
+        self.dul._idle_timer.timeout = value
+        self._network_timeout = value
 
     @property
     def ae(self):
@@ -305,7 +327,7 @@ class Association(threading.Thread):
         """Kill the main association thread loop."""
         self._kill = True
         self.is_established = False
-        while not self.dul.stop_dul():
+        while self.dul.is_alive() and not self.dul.stop_dul():
             time.sleep(0.01)
 
     @property
@@ -539,8 +561,9 @@ class Association(threading.Thread):
 
             # Check if idle timer has expired
             if self.dul.idle_timer_expired():
-                LOGGER.debug("DUL timeout expired")
                 self.abort()
+                self.kill()
+                return
 
     def _run_as_requestor(self):
         """Run the association as the requestor."""
@@ -579,6 +602,7 @@ class Association(threading.Thread):
 
             # Check if idle timer has expired
             if self.dul.idle_timer_expired():
+                self.abort()
                 self.kill()
                 return
 

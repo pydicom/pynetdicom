@@ -266,7 +266,7 @@ class DIMSEServiceProvider(object):
                 # Because we only progress once the next PDU arrives to be
                 #   peeked at, the DIMSE timeout in receive_pdu() doesn't
                 #   actually do anything.
-                if timeout.is_expired:
+                if timeout.expired:
                     return None, None
 
                 # Race condition: sometimes the DUL will be killed before the

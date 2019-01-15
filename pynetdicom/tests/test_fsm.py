@@ -958,7 +958,7 @@ class TestState01(TestStateBase):
         # Evt18: ARTIM timer expired from <local service>
         self.assoc._mode = "acceptor"
         self.assoc.acse_timeout = 0.05
-        self.assoc.dul.artim_timer.timeout_seconds = 0.05
+        self.assoc.dul.artim_timer.timeout = 0.05
         self.assoc.dul.artim_timer.start()
         self.assoc.start()
 
@@ -966,7 +966,7 @@ class TestState01(TestStateBase):
 
         self.assoc.kill()
 
-        assert self.assoc.dul.artim_timer.is_expired
+        assert self.assoc.dul.artim_timer.expired
 
         assert self.fsm._transitions == []
         assert self.fsm._changes == []
@@ -1465,7 +1465,7 @@ class TestState02(TestStateBase):
 
         time.sleep(0.1)
 
-        assoc.dul.artim_timer.timeout_seconds = 0.05
+        assoc.dul.artim_timer.timeout = 0.05
         assoc.dul.artim_timer.start()
 
         time.sleep(0.1)
@@ -2090,7 +2090,7 @@ class TestState03(TestStateBase):
         def _neg_as_acc(assoc):
             """Override ACSE._negotiate_as_acceptor so no A-ASSOCIATE (rsp)."""
             # Keep the state machine in Sta3 for 0.5 s
-            assoc.dul.artim_timer.timeout_seconds = 0.05
+            assoc.dul.artim_timer.timeout = 0.05
             assoc.dul.artim_timer.start()
             time.sleep(0.5)
             orig(assoc)
@@ -2715,7 +2715,7 @@ class TestState04(TestStateBase):
         self.assoc.dul.socket.connect = connect
         self.assoc.start()
         time.sleep(0.1)
-        self.assoc.dul.artim_timer.timeout_seconds = 0.05
+        self.assoc.dul.artim_timer.timeout = 0.05
         self.assoc.dul.artim_timer.start()
         time.sleep(0.1)
 
@@ -3222,7 +3222,7 @@ class TestState05(TestStateBase):
 
         self.assoc.start()
         time.sleep(0.1)
-        self.assoc.dul.artim_timer.timeout_seconds = 0.05
+        self.assoc.dul.artim_timer.timeout = 0.05
         self.assoc.dul.artim_timer.start()
         time.sleep(0.1)
 
@@ -3762,7 +3762,7 @@ class TestState06(TestStateBase):
 
         time.sleep(0.1)
 
-        self.assoc.dul.artim_timer.timeout_seconds = 0.05
+        self.assoc.dul.artim_timer.timeout = 0.05
         self.assoc.dul.artim_timer.start()
 
         time.sleep(0.2)
@@ -4338,7 +4338,7 @@ class TestState07(TestStateBase):
         self.assoc.start()
         time.sleep(0.1)
         self.assoc.dul.send_pdu(self.get_release(False))
-        self.assoc.dul.artim_timer.timeout_seconds = 0.05
+        self.assoc.dul.artim_timer.timeout = 0.05
         self.assoc.dul.artim_timer.start()
         time.sleep(0.1)
 
@@ -4973,7 +4973,7 @@ class TestState08(TestStateBase):
         self.assoc.start()
 
         time.sleep(0.1)
-        self.assoc.dul.artim_timer.timeout_seconds = 0.05
+        self.assoc.dul.artim_timer.timeout = 0.05
         self.assoc.dul.artim_timer.start()
 
         time.sleep(0.1)
@@ -5752,7 +5752,7 @@ class TestState09(TestStateBase):
         time.sleep(0.1)
         self.assoc.dul.send_pdu(self.get_release(False))
         time.sleep(0.1)
-        self.assoc.dul.artim_timer.timeout_seconds = 0.05
+        self.assoc.dul.artim_timer.timeout = 0.05
         self.assoc.dul.artim_timer.start()
         time.sleep(0.1)
 
@@ -6550,7 +6550,7 @@ class TestState10(TestStateBase):
 
         time.sleep(0.1)
 
-        assoc.dul.artim_timer.timeout_seconds = 0.05
+        assoc.dul.artim_timer.timeout = 0.05
         assoc.dul.artim_timer.start()
 
         time.sleep(0.1)
@@ -7394,7 +7394,7 @@ class TestState11(TestStateBase):
         time.sleep(0.1)
         self.assoc.dul.send_pdu(self.get_release(True))
         time.sleep(0.1)
-        self.assoc.dul.artim_timer.timeout_seconds = 0.05
+        self.assoc.dul.artim_timer.timeout = 0.05
         self.assoc.dul.artim_timer.start()
         time.sleep(0.1)
 
@@ -8194,7 +8194,7 @@ class TestState12(TestStateBase):
         time.sleep(0.1)
         assoc.dul.send_pdu(self.get_release(False))
         time.sleep(0.1)
-        assoc.dul.artim_timer.timeout_seconds = 0.05
+        assoc.dul.artim_timer.timeout = 0.05
         assoc.dul.artim_timer.start()
         time.sleep(0.1)
 
@@ -8894,7 +8894,7 @@ class TestState13(TestStateBase):
 
         time.sleep(0.1)
 
-        self.assoc.dul.artim_timer.timeout_seconds = 0.05
+        self.assoc.dul.artim_timer.timeout = 0.05
         self.assoc.dul.artim_timer.start()
 
         time.sleep(0.1)
