@@ -434,9 +434,6 @@ class ACSE(object):
                 )
 
                 # pylint: disable=protected-access
-                #assoc._accepted_cx = [
-                #    cx for cx in negotiated_contexts if cx.result == 0x00
-                #]
                 # Accepted contexts are stored as {context ID : context}
                 assoc._accepted_cx = {
                     cx.context_id:cx

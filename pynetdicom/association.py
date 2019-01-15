@@ -179,9 +179,7 @@ class Association(threading.Thread):
     def accepted_contexts(self):
         """Return a list of accepted Presentation Contexts."""
         # Accepted contexts are stored internally as {context ID : context}
-        cx = sorted(self._accepted_cx.values(), key=lambda x: x.context_id)
-        #return self._accepted_cx
-        return cx
+        return sorted(self._accepted_cx.values(), key=lambda x: x.context_id)
 
     @property
     def acse_timeout(self):
@@ -515,6 +513,8 @@ class Association(threading.Thread):
                     LOGGER.info("Received message with invalid or rejected "
                                 "context ID %d", msg_context_id)
                     LOGGER.debug("%s", msg)
+                    self.abort()
+                    return
 
                 # Run corresponding Service Class in SCP mode
                 try:
