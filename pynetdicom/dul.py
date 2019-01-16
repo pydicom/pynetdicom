@@ -378,7 +378,11 @@ class DULServiceProvider(Thread):
         self._idle_timer.start()
 
         while True:
-            # This effectively controls how often the DUL checks the network
+            # Let the assoc reactor off the leash
+            if not self.assoc._dul_ready.is_set():
+                self.assoc._dul_ready.set()
+
+            # This effectively controls how quickly the DUL does anything
             time.sleep(self._run_loop_delay)
 
             if self._kill_thread:

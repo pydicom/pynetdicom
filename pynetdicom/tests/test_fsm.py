@@ -749,12 +749,11 @@ class TestState01(TestStateBase):
         # Sta1 + Evt18 -> <ignore> -> Sta1
         # Evt18: ARTIM timer expired from <local service>
         self.assoc._mode = "acceptor"
-        self.assoc.acse_timeout = 0.05
+        self.assoc.start()
         self.assoc.dul.artim_timer.timeout = 0.05
         self.assoc.dul.artim_timer.start()
-        self.assoc.start()
 
-        time.sleep(0.2)
+        time.sleep(0.1)
 
         self.assoc.kill()
 
@@ -1872,7 +1871,7 @@ class TestState03(TestStateBase):
         commands = [
             ('wait', 0.1),
             ('send', a_associate_rq),
-            ('wait', 1)
+            ('wait', 0.5)
         ]
         scp = self.start_server(commands)
 
@@ -1884,7 +1883,7 @@ class TestState03(TestStateBase):
             # Keep the state machine in Sta3 for 0.5 s
             assoc.dul.artim_timer.timeout = 0.05
             assoc.dul.artim_timer.start()
-            time.sleep(0.5)
+            time.sleep(0.2)
             orig(assoc)
 
         assoc.acse._negotiate_as_acceptor = _neg_as_acc
@@ -2489,7 +2488,7 @@ class TestState04(TestStateBase):
         # Sta4 + Evt18 -> <ignore> -> Sta4
         # Evt18: ARTIM timer expired from <local service>
         commands = [
-            ('wait', 0.1)
+            ('wait', 0.2)
         ]
         scp = self.start_server(commands)
 
@@ -3076,9 +3075,8 @@ class TestState06(TestStateBase):
         scp = self.start_server(commands)
 
         self.assoc.start()
-
+        time.sleep(0.05)
         self.assoc.dul.send_pdu(self.get_associate('request'))
-
         time.sleep(0.1)
 
         #self.print_fsm_scp(self.fsm, scp)
@@ -3546,7 +3544,7 @@ class TestState06(TestStateBase):
         commands = [
             ('recv', None),
             ('send', a_associate_ac),
-            ('wait', 0.1),
+            ('wait', 0.2),
         ]
         scp = self.start_server(commands)
 
@@ -3557,7 +3555,7 @@ class TestState06(TestStateBase):
         self.assoc.dul.artim_timer.timeout = 0.05
         self.assoc.dul.artim_timer.start()
 
-        time.sleep(0.2)
+        time.sleep(0.1)
 
         scp.shutdown()
 
@@ -4753,7 +4751,7 @@ class TestState08(TestStateBase):
             ('recv', None),
             ('send', a_associate_ac),
             ('send', a_release_rq),
-            ('wait', 0.1),
+            ('wait', 0.2),
         ]
         scp = self.start_server(commands)
 
@@ -4767,7 +4765,6 @@ class TestState08(TestStateBase):
         time.sleep(0.1)
         self.assoc.dul.artim_timer.timeout = 0.05
         self.assoc.dul.artim_timer.start()
-
         time.sleep(0.1)
 
         #self.print_fsm_scp(self.fsm, scp)
@@ -8424,7 +8421,7 @@ class TestState13(TestStateBase):
         commands = [
             ('recv', None),
             ('send', a_associate_rq),
-            ('wait', 0.1),
+            ('wait', 0.2),
         ]
         scp = self.start_server(commands)
 

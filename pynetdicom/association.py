@@ -154,6 +154,8 @@ class Association(threading.Thread):
         self._kill = False
         # Flag for whether or not the DUL thread has been started
         self._started_dul = False
+        # Used to pause the association reactor until the DUL is ready
+        self._dul_ready = threading.Event()
 
         # Send A-ABORT/A-P-ABORT when an A-ASSOCIATE request is received
         self._a_abort_assoc_rq = False
@@ -407,9 +409,8 @@ class Association(threading.Thread):
         # Start the DUL thread if not already started
         self.dul.start()
         self._started_dul = True
-        # Give the DUL time to start up, tends to cause intermittent
-        # test failures otherwise
-        time.sleep(0.05)
+        # Wait until the DUL is up and running
+        self._dul_ready.wait()
         # Start association negotiation
         self.acse.negotiate_association(self)
 
@@ -419,9 +420,9 @@ class Association(threading.Thread):
         if not self._started_dul:
             self.dul.start()
             self._started_dul = True
-            # Give the DUL time to start up, tends to cause intermittent
-            # test failures otherwise
-            time.sleep(0.05)
+            # Wait until the DUL is up and running
+            self._dul_ready.wait()
+            #time.sleep(0.05)
 
         if self.is_acceptor:
             primitive = self.dul.receive_pdu(wait=True,
