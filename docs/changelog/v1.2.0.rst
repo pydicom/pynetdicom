@@ -10,7 +10,7 @@ Fixes
 * Fixed changing `network_timeout` value not propagating to the actual timer.
 * All DIMSE service requests should now properly abort the association if no
   response is received within the DIMSE timeout window and return/yield
-  expected values.
+  expected values. (:issue:`119`)
 * Any outgoing primitives are now sent to the peer before incoming PDUs are
   processed (:issue:`120`)
 

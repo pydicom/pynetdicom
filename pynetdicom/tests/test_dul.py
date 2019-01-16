@@ -103,6 +103,7 @@ class TestDUL(object):
         time.sleep(0.2)
         assert assoc.is_aborted
 
+
         scp.shutdown()
 
     def test_recv_short_aborts(self):
@@ -115,6 +116,7 @@ class TestDUL(object):
         scp = start_server(commands)
 
         ae = AE()
+        ae.network_timeout = 0.05
         ae.add_requested_context('1.2.840.10008.1.1')
         assoc = ae.associate('localhost', 11112)
         assert assoc.is_established
@@ -134,6 +136,7 @@ class TestDUL(object):
         scp = start_server(commands)
 
         ae = AE()
+        ae.network_timeout = 0.05
         ae.add_requested_context('1.2.840.10008.1.1')
         assoc = ae.associate('localhost', 11112)
         assert assoc.is_established
