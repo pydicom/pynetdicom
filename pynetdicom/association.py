@@ -152,8 +152,10 @@ class Association(threading.Thread):
 
         # Kills the thread loop in run()
         self._kill = False
+        # Flag for whether or not the DUL thread has been started
+        self._started_dul = False
 
-        # Send A-ABORT when an A-ASSOCIATE request is received
+        # Send A-ABORT/A-P-ABORT when an A-ASSOCIATE request is received
         self._a_abort_assoc_rq = False
         self._a_p_abort_assoc_rq = False
 
@@ -404,6 +406,7 @@ class Association(threading.Thread):
         """
         # Start the DUL thread if not already started
         self.dul.start()
+        self._started_dul = True
         # Give the DUL time to start up, tends to cause intermittent
         # test failures otherwise
         time.sleep(0.05)
@@ -413,8 +416,9 @@ class Association(threading.Thread):
     def run(self):
         """The main Association control."""
         # Start the DUL thread if not already started
-        if not self.dul.is_alive():
+        if not self._started_dul:
             self.dul.start()
+            self._started_dul = True
             # Give the DUL time to start up, tends to cause intermittent
             # test failures otherwise
             time.sleep(0.05)

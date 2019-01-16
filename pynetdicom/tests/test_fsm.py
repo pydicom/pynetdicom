@@ -7333,7 +7333,7 @@ class TestState12(TestStateBase):
         assoc.acse.is_release_requested = is_release_requested
         assoc.start()
 
-        time.sleep(0.1)
+        time.sleep(0.2)
         assoc.dul.send_pdu(self.get_release(False))
         time.sleep(0.1)
         assoc.dul.send_pdu(self.get_associate('request'))
@@ -7389,10 +7389,8 @@ class TestState12(TestStateBase):
         assoc.acse.is_release_requested = is_release_requested
         assoc.start()
 
-        time.sleep(0.1)
-
+        time.sleep(0.2)
         assoc.dul.send_pdu(self.get_release(False))
-
         time.sleep(0.1)
 
         #self.print_fsm_scp(fsm, scp)
@@ -7442,10 +7440,8 @@ class TestState12(TestStateBase):
         assoc.acse.is_release_requested = is_release_requested
         assoc.start()
 
-        time.sleep(0.1)
-
+        time.sleep(0.2)
         assoc.dul.send_pdu(self.get_release(False))
-
         time.sleep(0.1)
 
         #self.print_fsm_scp(fsm, scp)
@@ -7502,7 +7498,7 @@ class TestState12(TestStateBase):
         assoc.acse.is_release_requested = is_release_requested
         assoc.start()
 
-        time.sleep(0.1)
+        time.sleep(0.2)
 
         assoc.dul.send_pdu(self.get_release(False))
 
@@ -7553,7 +7549,7 @@ class TestState12(TestStateBase):
         assoc.acse.is_release_requested = is_release_requested
         assoc.start()
 
-        time.sleep(0.1)
+        time.sleep(0.2)
         assoc.dul.send_pdu(self.get_release(False))
         time.sleep(0.1)
         assoc.dul.send_pdu(self.get_associate('accept'))
@@ -7600,7 +7596,7 @@ class TestState12(TestStateBase):
         assoc.acse.is_release_requested = is_release_requested
         assoc.start()
 
-        time.sleep(0.1)
+        time.sleep(0.2)
         assoc.dul.send_pdu(self.get_release(False))
         time.sleep(0.1)
         assoc.dul.send_pdu(self.get_associate('reject'))
@@ -7647,7 +7643,7 @@ class TestState12(TestStateBase):
         assoc.acse.is_release_requested = is_release_requested
         assoc.start()
 
-        time.sleep(0.1)
+        time.sleep(0.2)
         assoc.dul.send_pdu(self.get_release(False))
         time.sleep(0.1)
         assoc.dul.send_pdu(self.get_pdata())
@@ -7696,7 +7692,7 @@ class TestState12(TestStateBase):
         assoc.acse.is_release_requested = is_release_requested
         assoc.start()
 
-        time.sleep(0.1)
+        time.sleep(0.2)
 
         assoc.dul.send_pdu(self.get_release(False))
 
@@ -7747,7 +7743,7 @@ class TestState12(TestStateBase):
         assoc.acse.is_release_requested = is_release_requested
         assoc.start()
 
-        time.sleep(0.1)
+        time.sleep(0.2)
         assoc.dul.send_pdu(self.get_release(False))
         time.sleep(0.1)
         assoc.dul.send_pdu(self.get_release(False))
@@ -7796,10 +7792,8 @@ class TestState12(TestStateBase):
         assoc.acse.is_release_requested = is_release_requested
         assoc.start()
 
-        time.sleep(0.1)
-
+        time.sleep(0.2)
         assoc.dul.send_pdu(self.get_release(False))
-
         time.sleep(0.1)
 
         #self.print_fsm_scp(fsm, scp)
@@ -7849,10 +7843,8 @@ class TestState12(TestStateBase):
         assoc.acse.is_release_requested = is_release_requested
         assoc.start()
 
-        time.sleep(0.1)
-
+        time.sleep(0.2)
         assoc.dul.send_pdu(self.get_release(False))
-
         time.sleep(0.1)
 
         #self.print_fsm_scp(fsm, scp)
@@ -7901,7 +7893,7 @@ class TestState12(TestStateBase):
         assoc.acse.is_release_requested = is_release_requested
         assoc.start()
 
-        time.sleep(0.1)
+        time.sleep(0.2)
         assoc.dul.send_pdu(self.get_release(False))
         time.sleep(0.1)
         assoc.dul.send_pdu(self.get_release(True))
@@ -7953,7 +7945,7 @@ class TestState12(TestStateBase):
         assoc.acse.is_release_requested = is_release_requested
         assoc.start()
 
-        time.sleep(0.1)
+        time.sleep(0.2)
         assoc.dul.send_pdu(self.get_release(False))
         time.sleep(0.1)
         assoc.dul.send_pdu(self.get_abort())
@@ -8005,10 +7997,8 @@ class TestState12(TestStateBase):
         assoc.acse.is_release_requested = is_release_requested
         assoc.start()
 
-        time.sleep(0.1)
-
+        time.sleep(0.2)
         assoc.dul.send_pdu(self.get_release(False))
-
         time.sleep(0.1)
 
         #self.print_fsm_scp(fsm, scp)
@@ -8053,10 +8043,8 @@ class TestState12(TestStateBase):
         assoc.acse.is_release_requested = is_release_requested
         assoc.start()
 
-        time.sleep(0.1)
-
+        time.sleep(0.2)
         assoc.dul.send_pdu(self.get_release(False))
-
         time.sleep(0.1)
 
         #self.print_fsm_scp(fsm, scp)
@@ -8100,7 +8088,7 @@ class TestState12(TestStateBase):
 
         assoc.acse.is_release_requested = is_release_requested
         assoc.start()
-        time.sleep(0.1)
+        time.sleep(0.2)
         assoc.dul.send_pdu(self.get_release(False))
         time.sleep(0.1)
         assoc.dul.artim_timer.timeout = 0.05
@@ -8150,10 +8138,8 @@ class TestState12(TestStateBase):
         assoc.acse.is_release_requested = is_release_requested
         assoc.start()
 
-        time.sleep(0.1)
-
+        time.sleep(0.2)
         assoc.dul.send_pdu(self.get_release(False))
-
         time.sleep(0.1)
 
         #self.print_fsm_scp(fsm, scp)

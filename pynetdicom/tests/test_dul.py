@@ -89,20 +89,19 @@ class TestDUL(object):
         commands = [
             ('recv', None),  # recv a-associate-rq
             ('send', a_associate_ac),
+            ('wait', 0.1),  # Don't want to accidentally kill the DUL
             ('send', b"\x07\x00\x00\x00\x00\x04"),
-            ('wait', 0.1)
+            ('wait', 0.3)
         ]
         scp = start_server(commands)
 
         ae = AE()
-        ae.network_timeout = 0.05
+        ae.network_timeout = 0.2
         ae.add_requested_context('1.2.840.10008.1.1')
         assoc = ae.associate('localhost', 11112)
         assert assoc.is_established
-
-        time.sleep(0.2)
+        time.sleep(0.4)
         assert assoc.is_aborted
-
 
         scp.shutdown()
 
@@ -111,17 +110,19 @@ class TestDUL(object):
         commands = [
             ('recv', None),  # recv a-associate-rq
             ('send', a_associate_ac),
+            ('wait', 0.1),  # Don't want to accidentally kill the DUL
             ('send', b"\x07\x00\x00\x00\x00\x04\x00\x00"),
+            ('wait', 0.3),
         ]
         scp = start_server(commands)
 
         ae = AE()
-        ae.network_timeout = 0.05
+        ae.network_timeout = 0.2
         ae.add_requested_context('1.2.840.10008.1.1')
         assoc = ae.associate('localhost', 11112)
         assert assoc.is_established
 
-        time.sleep(0.2)
+        time.sleep(0.4)
         assert assoc.is_aborted
 
         scp.shutdown()
@@ -131,17 +132,18 @@ class TestDUL(object):
         commands = [
             ('recv', None),  # recv a-associate-rq
             ('send', a_associate_ac),
+            ('wait', 0.1),  # Don't want to accidentally kill the DUL
             ('send', b"\x07\x00\x00\x00\x00\x02\x00\x00"),
         ]
         scp = start_server(commands)
 
         ae = AE()
-        ae.network_timeout = 0.05
+        ae.network_timeout = 0.2
         ae.add_requested_context('1.2.840.10008.1.1')
         assoc = ae.associate('localhost', 11112)
         assert assoc.is_established
 
-        time.sleep(0.2)
+        time.sleep(0.4)
         assert assoc.is_aborted
 
         scp.shutdown()
