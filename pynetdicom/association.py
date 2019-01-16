@@ -509,8 +509,10 @@ class Association(threading.Thread):
                 try:
                     context = self._accepted_cx[msg_context_id]
                 except KeyError:
-                    LOGGER.info("Received message with invalid or rejected "
-                                "context ID %d", msg_context_id)
+                    LOGGER.info(
+                        "Received DIMSE message with invalid or rejected "
+                        "context ID: %d", msg_context_id
+                    )
                     LOGGER.debug("%s", msg)
                     self.abort()
                     return

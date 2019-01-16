@@ -386,10 +386,12 @@ class DULServiceProvider(Thread):
 
             # Check the connection for incoming data
             try:
-                if self._is_transport_event():
-                    self._idle_timer.restart()
-                elif self._check_incoming_primitive():
+                if self._check_incoming_primitive():
                     pass
+                elif self._is_transport_event():
+                    self._idle_timer.restart()
+                #elif self._check_incoming_primitive():
+                #    pass
 
                 if self._is_artim_expired():
                     self._kill_thread = True

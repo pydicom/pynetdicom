@@ -356,7 +356,9 @@ class TestStateBase(object):
     def print_fsm_scp(self, fsm, scp=None):
         """Print out some of the quantities we're interested in."""
         print('Transitions', fsm._transitions)
-        print('Changes', fsm._changes)
+        print('Changes')
+        for change in fsm._changes:
+            print('\t{}'.format(change))
         print('Events', fsm._events)
 
         if scp and scp.handlers:
@@ -375,7 +377,7 @@ class TestStateBase(object):
         sock.connect(('', 11112))
 
         ae = AE()
-        ae.add_requested_context(VerificationSOPClass)
+        ae.add_supported_context(VerificationSOPClass)
         ae.acse_timeout = 5
         ae.dimse_timeout = 5
 
@@ -402,7 +404,7 @@ class TestStateBase(object):
 
         cx = build_context(VerificationSOPClass)
         cx.context_id = 1
-        assoc.requestor.requested_contexts = [cx]
+        assoc.acceptor.supported_contexts = [cx]
 
 
         fsm = self.monkey_patch(assoc.dul.state_machine)
@@ -5052,6 +5054,7 @@ class TestState09(TestStateBase):
         self.assoc.start()
         time.sleep(0.1)
         self.assoc.dul.send_pdu(self.get_release(False))
+        time.sleep(0.1)
         self.assoc.dul.send_pdu(self.get_associate('request'))
         time.sleep(0.1)
 
@@ -5253,6 +5256,7 @@ class TestState09(TestStateBase):
         self.assoc.start()
         time.sleep(0.1)
         self.assoc.dul.send_pdu(self.get_release(False))
+        time.sleep(0.1)
         self.assoc.dul.send_pdu(self.get_associate('accept'))
         time.sleep(0.1)
 
@@ -5296,6 +5300,7 @@ class TestState09(TestStateBase):
         self.assoc.start()
         time.sleep(0.1)
         self.assoc.dul.send_pdu(self.get_release(False))
+        time.sleep(0.1)
         self.assoc.dul.send_pdu(self.get_associate('reject'))
         time.sleep(0.1)
 
@@ -5339,6 +5344,7 @@ class TestState09(TestStateBase):
         self.assoc.start()
         time.sleep(0.1)
         self.assoc.dul.send_pdu(self.get_release(False))
+        time.sleep(0.1)
         self.assoc.dul.send_pdu(self.get_pdata())
         time.sleep(0.1)
 
@@ -5430,6 +5436,7 @@ class TestState09(TestStateBase):
         self.assoc.start()
         time.sleep(0.1)
         self.assoc.dul.send_pdu(self.get_release(False))
+        time.sleep(0.1)
         self.assoc.dul.send_pdu(self.get_release(False))
         time.sleep(0.1)
 
@@ -5570,6 +5577,7 @@ class TestState09(TestStateBase):
         self.assoc.start()
         time.sleep(0.1)
         self.assoc.dul.send_pdu(self.get_release(False))
+        time.sleep(0.1)
         self.assoc.dul.send_pdu(self.get_release(True))
         time.sleep(0.1)
 
@@ -5617,6 +5625,7 @@ class TestState09(TestStateBase):
         self.assoc.start()
         time.sleep(0.1)
         self.assoc.dul.send_pdu(self.get_release(False))
+        time.sleep(0.1)
         self.assoc.dul.send_pdu(self.get_abort())
         time.sleep(0.1)
 
@@ -5831,21 +5840,24 @@ class TestState10(TestStateBase):
         # Evt1: A-ASSOCIATE (rq) primitive from <local user>
         commands = [
             ('send', a_associate_rq),
-            ('recv', None),
-            ('recv', None),
-            ('send', a_release_rq),
+            ('recv', None),  # recv a-associate-ac
+            ('recv', None),  # recv a-release-rq
+            ('send', a_release_rq),  # collide
             ('wait', 0.2)
         ]
         scp = self.start_server(commands)
 
         assoc, fsm = self.get_acceptor_assoc()
+        def is_release_requested(assoc):
+            """Override ACSE.is_release_requested."""
+            return False
+
+        assoc.acse.is_release_requested = is_release_requested
         assoc.start()
-
         time.sleep(0.1)
-
         assoc.dul.send_pdu(self.get_release(False))
+        time.sleep(0.1)
         assoc.dul.send_pdu(self.get_associate('request'))
-
         time.sleep(0.1)
 
         #self.print_fsm_scp(fsm, scp)
@@ -5889,6 +5901,11 @@ class TestState10(TestStateBase):
         scp = self.start_server(commands)
 
         assoc, fsm = self.get_acceptor_assoc()
+        def is_release_requested(assoc):
+            """Override ACSE.is_release_requested."""
+            return False
+
+        assoc.acse.is_release_requested = is_release_requested
         assoc.start()
 
         time.sleep(0.1)
@@ -5935,6 +5952,11 @@ class TestState10(TestStateBase):
         scp = self.start_server(commands)
 
         assoc, fsm = self.get_acceptor_assoc()
+        def is_release_requested(assoc):
+            """Override ACSE.is_release_requested."""
+            return False
+
+        assoc.acse.is_release_requested = is_release_requested
         assoc.start()
 
         time.sleep(0.1)
@@ -5988,6 +6010,11 @@ class TestState10(TestStateBase):
         scp = self.start_server(commands)
 
         assoc, fsm = self.get_acceptor_assoc()
+        def is_release_requested(assoc):
+            """Override ACSE.is_release_requested."""
+            return False
+
+        assoc.acse.is_release_requested = is_release_requested
         assoc.start()
 
         time.sleep(0.1)
@@ -6041,10 +6068,9 @@ class TestState10(TestStateBase):
         assoc.start()
 
         time.sleep(0.1)
-
         assoc.dul.send_pdu(self.get_release(False))
+        time.sleep(0.1)
         assoc.dul.send_pdu(self.get_associate('accept'))
-
         time.sleep(0.1)
 
         #self.print_fsm_scp(fsm, scp)
@@ -6088,10 +6114,9 @@ class TestState10(TestStateBase):
         assoc.start()
 
         time.sleep(0.1)
-
         assoc.dul.send_pdu(self.get_release(False))
+        time.sleep(0.1)
         assoc.dul.send_pdu(self.get_associate('reject'))
-
         time.sleep(0.1)
 
         #self.print_fsm_scp(fsm, scp)
@@ -6135,10 +6160,9 @@ class TestState10(TestStateBase):
         assoc.start()
 
         time.sleep(0.1)
-
         assoc.dul.send_pdu(self.get_release(False))
+        time.sleep(0.1)
         assoc.dul.send_pdu(self.get_pdata())
-
         time.sleep(0.1)
 
         #self.print_fsm_scp(fsm, scp)
@@ -6175,6 +6199,11 @@ class TestState10(TestStateBase):
         scp = self.start_server(commands)
 
         assoc, fsm = self.get_acceptor_assoc()
+        def is_release_requested(assoc):
+            """Override ACSE.is_release_requested."""
+            return False
+
+        assoc.acse.is_release_requested = is_release_requested
         assoc.start()
 
         time.sleep(0.1)
@@ -6228,10 +6257,9 @@ class TestState10(TestStateBase):
         assoc.start()
 
         time.sleep(0.1)
-
         assoc.dul.send_pdu(self.get_release(False))
+        time.sleep(0.1)
         assoc.dul.send_pdu(self.get_release(False))
-
         time.sleep(0.1)
 
         #self.print_fsm_scp(fsm, scp)
@@ -6268,6 +6296,11 @@ class TestState10(TestStateBase):
         scp = self.start_server(commands)
 
         assoc, fsm = self.get_acceptor_assoc()
+        def is_release_requested(assoc):
+            """Override ACSE.is_release_requested."""
+            return False
+
+        assoc.acse.is_release_requested = is_release_requested
         assoc.start()
 
         time.sleep(0.1)
@@ -6313,6 +6346,11 @@ class TestState10(TestStateBase):
         scp = self.start_server(commands)
 
         assoc, fsm = self.get_acceptor_assoc()
+        def is_release_requested(assoc):
+            """Override ACSE.is_release_requested."""
+            return False
+
+        assoc.acse.is_release_requested = is_release_requested
         assoc.start()
 
         time.sleep(0.1)
@@ -6363,10 +6401,9 @@ class TestState10(TestStateBase):
         assoc.start()
 
         time.sleep(0.1)
-
         assoc.dul.send_pdu(self.get_release(False))
+        time.sleep(0.1)
         assoc.dul.send_pdu(self.get_release(True))
-
         time.sleep(0.1)
 
         #self.print_fsm_scp(fsm, scp)
@@ -6411,10 +6448,9 @@ class TestState10(TestStateBase):
         assoc.start()
 
         time.sleep(0.1)
-
         assoc.dul.send_pdu(self.get_release(False))
+        time.sleep(0.1)
         assoc.dul.send_pdu(self.get_abort())
-
         time.sleep(0.1)
 
         #self.print_fsm_scp(fsm, scp)
@@ -6454,6 +6490,11 @@ class TestState10(TestStateBase):
         scp = self.start_server(commands)
 
         assoc, fsm = self.get_acceptor_assoc()
+        def is_release_requested(assoc):
+            """Override ACSE.is_release_requested."""
+            return False
+
+        assoc.acse.is_release_requested = is_release_requested
         assoc.start()
 
         time.sleep(0.1)
@@ -6495,6 +6536,11 @@ class TestState10(TestStateBase):
         scp = self.start_server(commands)
 
         assoc, fsm = self.get_acceptor_assoc()
+        def is_release_requested(assoc):
+            """Override ACSE.is_release_requested."""
+            return False
+
+        assoc.acse.is_release_requested = is_release_requested
         assoc.start()
 
         time.sleep(0.1)
@@ -6589,6 +6635,11 @@ class TestState10(TestStateBase):
         scp = self.start_server(commands)
 
         assoc, fsm = self.get_acceptor_assoc()
+        def is_release_requested(assoc):
+            """Override ACSE.is_release_requested."""
+            return False
+
+        assoc.acse.is_release_requested = is_release_requested
         assoc.start()
 
         time.sleep(0.1)
@@ -7485,13 +7536,17 @@ class TestState12(TestStateBase):
         scp = self.start_server(commands)
 
         assoc, fsm = self.get_acceptor_assoc()
+        def is_release_requested(assoc):
+            """Override ACSE.is_release_requested."""
+            return False
+
+        assoc.acse.is_release_requested = is_release_requested
         assoc.start()
 
         time.sleep(0.1)
-
         assoc.dul.send_pdu(self.get_release(False))
+        time.sleep(0.1)
         assoc.dul.send_pdu(self.get_associate('request'))
-
         time.sleep(0.1)
 
         #self.print_fsm_scp(fsm, scp)
@@ -7537,6 +7592,11 @@ class TestState12(TestStateBase):
         scp = self.start_server(commands)
 
         assoc, fsm = self.get_acceptor_assoc()
+        def is_release_requested(assoc):
+            """Override ACSE.is_release_requested."""
+            return False
+
+        assoc.acse.is_release_requested = is_release_requested
         assoc.start()
 
         time.sleep(0.1)
@@ -7585,6 +7645,11 @@ class TestState12(TestStateBase):
         scp = self.start_server(commands)
 
         assoc, fsm = self.get_acceptor_assoc()
+        def is_release_requested(assoc):
+            """Override ACSE.is_release_requested."""
+            return False
+
+        assoc.acse.is_release_requested = is_release_requested
         assoc.start()
 
         time.sleep(0.1)
@@ -7640,6 +7705,11 @@ class TestState12(TestStateBase):
         scp = self.start_server(commands)
 
         assoc, fsm = self.get_acceptor_assoc()
+        def is_release_requested(assoc):
+            """Override ACSE.is_release_requested."""
+            return False
+
+        assoc.acse.is_release_requested = is_release_requested
         assoc.start()
 
         time.sleep(0.1)
@@ -7686,13 +7756,17 @@ class TestState12(TestStateBase):
         scp = self.start_server(commands)
 
         assoc, fsm = self.get_acceptor_assoc()
+        def is_release_requested(assoc):
+            """Override ACSE.is_release_requested."""
+            return False
+
+        assoc.acse.is_release_requested = is_release_requested
         assoc.start()
 
         time.sleep(0.1)
-
         assoc.dul.send_pdu(self.get_release(False))
+        time.sleep(0.1)
         assoc.dul.send_pdu(self.get_associate('accept'))
-
         time.sleep(0.1)
 
         #self.print_fsm_scp(fsm, scp)
@@ -7729,13 +7803,17 @@ class TestState12(TestStateBase):
         scp = self.start_server(commands)
 
         assoc, fsm = self.get_acceptor_assoc()
+        def is_release_requested(assoc):
+            """Override ACSE.is_release_requested."""
+            return False
+
+        assoc.acse.is_release_requested = is_release_requested
         assoc.start()
 
         time.sleep(0.1)
-
         assoc.dul.send_pdu(self.get_release(False))
+        time.sleep(0.1)
         assoc.dul.send_pdu(self.get_associate('reject'))
-
         time.sleep(0.1)
 
         #self.print_fsm_scp(fsm, scp)
@@ -7772,13 +7850,17 @@ class TestState12(TestStateBase):
         scp = self.start_server(commands)
 
         assoc, fsm = self.get_acceptor_assoc()
+        def is_release_requested(assoc):
+            """Override ACSE.is_release_requested."""
+            return False
+
+        assoc.acse.is_release_requested = is_release_requested
         assoc.start()
 
         time.sleep(0.1)
-
         assoc.dul.send_pdu(self.get_release(False))
+        time.sleep(0.1)
         assoc.dul.send_pdu(self.get_pdata())
-
         time.sleep(0.1)
 
         #self.print_fsm_scp(fsm, scp)
@@ -7817,6 +7899,11 @@ class TestState12(TestStateBase):
         scp = self.start_server(commands)
 
         assoc, fsm = self.get_acceptor_assoc()
+        def is_release_requested(assoc):
+            """Override ACSE.is_release_requested."""
+            return False
+
+        assoc.acse.is_release_requested = is_release_requested
         assoc.start()
 
         time.sleep(0.1)
@@ -7863,13 +7950,17 @@ class TestState12(TestStateBase):
         scp = self.start_server(commands)
 
         assoc, fsm = self.get_acceptor_assoc()
+        def is_release_requested(assoc):
+            """Override ACSE.is_release_requested."""
+            return False
+
+        assoc.acse.is_release_requested = is_release_requested
         assoc.start()
 
         time.sleep(0.1)
-
         assoc.dul.send_pdu(self.get_release(False))
+        time.sleep(0.1)
         assoc.dul.send_pdu(self.get_release(False))
-
         time.sleep(0.1)
 
         #self.print_fsm_scp(fsm, scp)
@@ -7908,6 +7999,11 @@ class TestState12(TestStateBase):
         scp = self.start_server(commands)
 
         assoc, fsm = self.get_acceptor_assoc()
+        def is_release_requested(assoc):
+            """Override ACSE.is_release_requested."""
+            return False
+
+        assoc.acse.is_release_requested = is_release_requested
         assoc.start()
 
         time.sleep(0.1)
@@ -7956,6 +8052,11 @@ class TestState12(TestStateBase):
         scp = self.start_server(commands)
 
         assoc, fsm = self.get_acceptor_assoc()
+        def is_release_requested(assoc):
+            """Override ACSE.is_release_requested."""
+            return False
+
+        assoc.acse.is_release_requested = is_release_requested
         assoc.start()
 
         time.sleep(0.1)
@@ -8003,13 +8104,17 @@ class TestState12(TestStateBase):
         scp = self.start_server(commands)
 
         assoc, fsm = self.get_acceptor_assoc()
+        def is_release_requested(assoc):
+            """Override ACSE.is_release_requested."""
+            return False
+
+        assoc.acse.is_release_requested = is_release_requested
         assoc.start()
 
         time.sleep(0.1)
-
         assoc.dul.send_pdu(self.get_release(False))
+        time.sleep(0.1)
         assoc.dul.send_pdu(self.get_release(True))
-
         time.sleep(0.1)
 
         #self.print_fsm_scp(fsm, scp)
@@ -8051,13 +8156,17 @@ class TestState12(TestStateBase):
         scp = self.start_server(commands)
 
         assoc, fsm = self.get_acceptor_assoc()
+        def is_release_requested(assoc):
+            """Override ACSE.is_release_requested."""
+            return False
+
+        assoc.acse.is_release_requested = is_release_requested
         assoc.start()
 
         time.sleep(0.1)
-
         assoc.dul.send_pdu(self.get_release(False))
+        time.sleep(0.1)
         assoc.dul.send_pdu(self.get_abort())
-
         time.sleep(0.1)
 
         #self.print_fsm_scp(fsm, scp)
@@ -8099,6 +8208,11 @@ class TestState12(TestStateBase):
         scp = self.start_server(commands)
 
         assoc, fsm = self.get_acceptor_assoc()
+        def is_release_requested(assoc):
+            """Override ACSE.is_release_requested."""
+            return False
+
+        assoc.acse.is_release_requested = is_release_requested
         assoc.start()
 
         time.sleep(0.1)
@@ -8142,6 +8256,11 @@ class TestState12(TestStateBase):
         scp = self.start_server(commands)
 
         assoc, fsm = self.get_acceptor_assoc()
+        def is_release_requested(assoc):
+            """Override ACSE.is_release_requested."""
+            return False
+
+        assoc.acse.is_release_requested = is_release_requested
         assoc.start()
 
         time.sleep(0.1)
@@ -8234,6 +8353,11 @@ class TestState12(TestStateBase):
         scp = self.start_server(commands)
 
         assoc, fsm = self.get_acceptor_assoc()
+        def is_release_requested(assoc):
+            """Override ACSE.is_release_requested."""
+            return False
+
+        assoc.acse.is_release_requested = is_release_requested
         assoc.start()
 
         time.sleep(0.1)
@@ -8992,17 +9116,37 @@ class TestParrotAttack(TestStateBase):
         ]
 
     def test_acceptor(self):
+        """Test hitting the acceptor with PDUs."""
+        # C-ECHO-RQ
+        # 80 total length
+        echo_rq = (
+            b"\x04\x00\x00\x00\x00\x4a" # P-DATA-TF 74
+            b"\x00\x00\x00\x46\x01" # PDV Item 70
+            b"\x03"  # PDV: 2 -> 69
+            b"\x00\x00\x00\x00\x04\x00\x00\x00\x42\x00\x00\x00"  # 12 Command Group Length
+            b"\x00\x00\x02\x00\x12\x00\x00\x00\x31\x2e\x32\x2e\x38"
+            b"\x34\x30\x2e\x31\x30\x30\x30\x38\x2e\x31\x2e\x31\x00"  # 26
+            b"\x00\x00\x00\x01\x02\x00\x00\x00\x30\x00"  # 10 Command Field
+            b"\x00\x00\x10\x01\x02\x00\x00\x00\x01\x00"  # 10 Message ID
+            b"\x00\x00\x00\x08\x02\x00\x00\x00\x01\x01"  # 10 Command Data Set Type
+        )
+
+        # Send associate request then c-echo requests then release request
         commands = [
             ('send', a_associate_rq),
             ('recv', None),
-            ('send', p_data_tf),
-            ('send', p_data_tf),
-            ('send', p_data_tf),
-            ('send', p_data_tf),
-            ('send', p_data_tf),
-            ('send', p_data_tf),
-            ('send', p_data_tf),
-            ('send', p_data_tf),
+            ('send', echo_rq),
+            ('send', echo_rq),
+            ('send', echo_rq),
+            ('send', echo_rq),
+            ('send', echo_rq),
+            ('send', echo_rq),
+            ('send', echo_rq),
+            ('send', echo_rq),
+            ('send', echo_rq),
+            ('send', echo_rq),
+            ('send', echo_rq),
+            ('send', echo_rq),
             ('send', a_release_rq),
             ('wait', 0.1)
         ]
@@ -9013,26 +9157,42 @@ class TestParrotAttack(TestStateBase):
 
         time.sleep(0.5)
 
-        #self.print_fsm_scp(self.fsm, scp)
+        #self.print_fsm_scp(fsm, scp=None)
 
         scp.shutdown()
 
-        assert fsm._changes[:14] == [
+        assert [
             ('Sta1', 'Evt5', 'AE-5'),
             ('Sta2', 'Evt6', 'AE-6'),
             ('Sta3', 'Evt7', 'AE-7'),
             ('Sta6', 'Evt10', 'DT-2'),
+            ('Sta6', 'Evt9', 'DT-1'),
             ('Sta6', 'Evt10', 'DT-2'),
+            ('Sta6', 'Evt9', 'DT-1'),
             ('Sta6', 'Evt10', 'DT-2'),
+            ('Sta6', 'Evt9', 'DT-1'),
             ('Sta6', 'Evt10', 'DT-2'),
+            ('Sta6', 'Evt9', 'DT-1'),
             ('Sta6', 'Evt10', 'DT-2'),
+            ('Sta6', 'Evt9', 'DT-1'),
             ('Sta6', 'Evt10', 'DT-2'),
+            ('Sta6', 'Evt9', 'DT-1'),
             ('Sta6', 'Evt10', 'DT-2'),
+            ('Sta6', 'Evt9', 'DT-1'),
             ('Sta6', 'Evt10', 'DT-2'),
+            ('Sta6', 'Evt9', 'DT-1'),
+            ('Sta6', 'Evt10', 'DT-2'),
+            ('Sta6', 'Evt9', 'DT-1'),
+            ('Sta6', 'Evt10', 'DT-2'),
+            ('Sta6', 'Evt9', 'DT-1'),
+            ('Sta6', 'Evt10', 'DT-2'),
+            ('Sta6', 'Evt9', 'DT-1'),
+            ('Sta6', 'Evt10', 'DT-2'),
+            ('Sta6', 'Evt9', 'DT-1'),
             ('Sta6', 'Evt12', 'AR-2'),
             ('Sta8', 'Evt14', 'AR-4'),
             ('Sta13', 'Evt17', 'AR-5'),
-        ]
+        ] == fsm._changes[:30]
 
 
 class TestStateMachineFunctionalRequestor(object):
