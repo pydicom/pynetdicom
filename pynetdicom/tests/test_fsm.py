@@ -9117,6 +9117,7 @@ class TestParrotAttack(TestStateBase):
 
     def test_acceptor(self):
         """Test hitting the acceptor with PDUs."""
+        # Also a regression test for #120
         # C-ECHO-RQ
         # 80 total length
         echo_rq = (

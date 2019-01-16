@@ -75,7 +75,7 @@ class TestStorageServiceClass(object):
 
         # Send C-STORE request to DIMSE and get response
         assoc.dimse.send_msg(req, 1)
-        rsp, _ = assoc.dimse.receive_msg(True)
+        cx_id, rsp = assoc.dimse.get_msg(True)
 
         assert rsp.Status == 0xC210
         assert rsp.ErrorComment == 'Unable to decode the dataset'
