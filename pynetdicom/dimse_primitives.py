@@ -352,9 +352,9 @@ class C_STORE(DIMSEPrimitive):
         if isinstance(value, str):
             value = codecs.encode(value, 'ascii')
 
-        if value is not None:
-            self._move_originator_application_entity_title = validate_ae_title(
-                value
+        if value:
+            self._move_originator_application_entity_title = (
+                validate_ae_title(value)
             )
         else:
             self._move_originator_application_entity_title = None
@@ -367,6 +367,7 @@ class C_STORE(DIMSEPrimitive):
     @MoveOriginatorMessageID.setter
     def MoveOriginatorMessageID(self, value):
         """Set the *Move Originator Message ID*."""
+        # Fix for peers sending a value consisting of nulls
         if isinstance(value, int):
             if 0 <= value < 2**16:
                 self._move_originator_message_id = value

@@ -275,7 +275,13 @@ class DIMSEServiceProvider(object):
             self.on_receive_dimse_message(self.message)
 
             context_id = self.message.context_id
-            primitive = self.message.message_to_primitive()
+            try:
+                primitive = self.message.message_to_primitive()
+            except Exception as exc:
+                LOGGER.error("Received an invalid DIMSE message")
+                LOGGER.exception(exc)
+                self.dul.event_queue.put('Evt19')
+                return
             self.msg_queue.put((context_id, primitive))
 
             # Fix for memory leak, Issue #41
@@ -905,7 +911,7 @@ class DIMSEServiceProvider(object):
         s.append('Affected SOP Instance UID     : {0!s}'
                  .format(cs.AffectedSOPInstanceUID))
         if 'MoveOriginatorApplicationEntityTitle' in cs:
-            s.append('Move Originator     : {0!s}'
+            s.append('Move Originator               : {0!s}'
                      .format(cs.MoveOriginatorApplicationEntityTitle))
         s.append('Data Set                      : {0!s}'.format(dataset))
         s.append('Priority                      : {0!s}'.format(priority))

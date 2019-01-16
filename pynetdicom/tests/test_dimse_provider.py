@@ -3,7 +3,10 @@
 
 TODO: Add testing of maximum pdu length flow from assoc negotiation
 """
-
+try:
+    import queue
+except ImportError:
+    import Queue as queue
 from io import BytesIO
 import logging
 
@@ -24,11 +27,14 @@ from pynetdicom.dimse_primitives import (
     N_ACTION, N_CREATE, N_DELETE, C_CANCEL
 )
 from pynetdicom.dsutils import encode
+from pynetdicom.pdu_primitives import P_DATA
+from pynetdicom.pdu import P_DATA_TF
 from .encoded_dimse_msg import c_store_ds
 from .encoded_dimse_n_msg import (
     n_er_rq_ds, n_er_rsp_ds, n_get_rsp_ds, n_set_rq_ds, n_set_rsp_ds,
     n_action_rq_ds, n_action_rsp_ds, n_create_rq_ds, n_create_rsp_ds
 )
+from .encoded_pdu_items import p_data_tf
 
 LOGGER = logging.getLogger('pynetdicom')
 LOGGER.setLevel(logging.CRITICAL)
@@ -117,6 +123,29 @@ class TestDIMSEProvider(object):
         primitive = C_STORE()
         dimse.msg_queue.put((14, primitive))
         assert dimse.peek_msg() == (14, primitive)
+
+    def test_invalid_message(self):
+        class DummyDUL(object):
+            def __init__(self):
+                self.event_queue = queue.Queue()
+
+        dul = DummyDUL()
+        dimse = DIMSEServiceProvider(dul, 0.5)
+        p_data_tf = (
+            b"\x04\x00\x00\x00\x00\x48" # P-DATA-TF 74
+            b"\x00\x00\x00\x44\x01" # PDV Item 70
+            b"\x03"  # PDV: 2 -> 69
+            b"\x00\x00\x00\x00\x04\x00\x00\x00\x40\x00\x00\x00"  # 12 Command Group Length
+            b"\x00\x00\x02\x00\x12\x00\x00\x00\x31\x2e\x32\x2e\x38\x34\x30\x2e\x31\x30\x30\x30\x38\x2e\x31\x2e\x31\x00"  # 26
+            b"\x00\x00\x00\x01\x02\x00\x00\x00\x30\x00"  # 10 Command Field
+            b"\x00\x00\x10\x01\x00\x00\x00\x00"  # 10 Message ID
+            b"\x00\x00\x00\x08\x02\x00\x00\x00\x01\x01"  # 10 Command Data Set Type
+        )
+        pdata = P_DATA_TF()
+        pdata.decode(p_data_tf)
+        pdata = pdata.to_primitive()
+        dimse.receive_primitive(pdata)
+        assert dul.event_queue.get() == 'Evt19'
 
 
 class TestDIMSEProviderCallbacks(object):

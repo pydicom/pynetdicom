@@ -64,6 +64,8 @@ def validate_ae_title(ae_title):
 
     # Strip out any leading or trailing spaces
     ae_title = ae_title.strip()
+    # Strip out any leading or trailing nulls - non-conformant
+    ae_title = ae_title.strip('\0')
     if not ae_title:
         raise ValueError(
             "AE titles are not allowed to consist entirely of only spaces"
