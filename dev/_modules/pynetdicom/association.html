@@ -326,6 +326,8 @@
         <span class="bp">self</span><span class="o">.</span><span class="n">_kill</span> <span class="o">=</span> <span class="kc">False</span>
         <span class="c1"># Flag for whether or not the DUL thread has been started</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">_started_dul</span> <span class="o">=</span> <span class="kc">False</span>
+        <span class="c1"># Used to pause the association reactor until the DUL is ready</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_dul_ready</span> <span class="o">=</span> <span class="n">threading</span><span class="o">.</span><span class="n">Event</span><span class="p">()</span>
 
         <span class="c1"># Send A-ABORT/A-P-ABORT when an A-ASSOCIATE request is received</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">_a_abort_assoc_rq</span> <span class="o">=</span> <span class="kc">False</span>
@@ -579,9 +581,8 @@
         <span class="c1"># Start the DUL thread if not already started</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">dul</span><span class="o">.</span><span class="n">start</span><span class="p">()</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">_started_dul</span> <span class="o">=</span> <span class="kc">True</span>
-        <span class="c1"># Give the DUL time to start up, tends to cause intermittent</span>
-        <span class="c1"># test failures otherwise</span>
-        <span class="n">time</span><span class="o">.</span><span class="n">sleep</span><span class="p">(</span><span class="mf">0.05</span><span class="p">)</span>
+        <span class="c1"># Wait until the DUL is up and running</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_dul_ready</span><span class="o">.</span><span class="n">wait</span><span class="p">()</span>
         <span class="c1"># Start association negotiation</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">acse</span><span class="o">.</span><span class="n">negotiate_association</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span></div>
 
@@ -591,9 +592,9 @@
         <span class="k">if</span> <span class="ow">not</span> <span class="bp">self</span><span class="o">.</span><span class="n">_started_dul</span><span class="p">:</span>
             <span class="bp">self</span><span class="o">.</span><span class="n">dul</span><span class="o">.</span><span class="n">start</span><span class="p">()</span>
             <span class="bp">self</span><span class="o">.</span><span class="n">_started_dul</span> <span class="o">=</span> <span class="kc">True</span>
-            <span class="c1"># Give the DUL time to start up, tends to cause intermittent</span>
-            <span class="c1"># test failures otherwise</span>
-            <span class="n">time</span><span class="o">.</span><span class="n">sleep</span><span class="p">(</span><span class="mf">0.05</span><span class="p">)</span>
+            <span class="c1"># Wait until the DUL is up and running</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">_dul_ready</span><span class="o">.</span><span class="n">wait</span><span class="p">()</span>
+            <span class="c1">#time.sleep(0.05)</span>
 
         <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">is_acceptor</span><span class="p">:</span>
             <span class="n">primitive</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">dul</span><span class="o">.</span><span class="n">receive_pdu</span><span class="p">(</span><span class="n">wait</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span>

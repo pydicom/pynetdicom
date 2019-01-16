@@ -50,6 +50,7 @@ Enhancements
   ``DIMSEServiceProvider.receive_primitive()``,
   ``DIMSEServiceProvider.peek_msg()`` and ``DIMSEServiceProvider.msg_queue``
   to be used with the new P-DATA processing.
+* Time required to start an association improved significantly.
 
 Changes
 .......

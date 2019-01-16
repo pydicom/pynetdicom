@@ -550,7 +550,11 @@
         <span class="bp">self</span><span class="o">.</span><span class="n">_idle_timer</span><span class="o">.</span><span class="n">start</span><span class="p">()</span>
 
         <span class="k">while</span> <span class="kc">True</span><span class="p">:</span>
-            <span class="c1"># This effectively controls how often the DUL checks the network</span>
+            <span class="c1"># Let the assoc reactor off the leash</span>
+            <span class="k">if</span> <span class="ow">not</span> <span class="bp">self</span><span class="o">.</span><span class="n">assoc</span><span class="o">.</span><span class="n">_dul_ready</span><span class="o">.</span><span class="n">is_set</span><span class="p">():</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">assoc</span><span class="o">.</span><span class="n">_dul_ready</span><span class="o">.</span><span class="n">set</span><span class="p">()</span>
+
+            <span class="c1"># This effectively controls how quickly the DUL does anything</span>
             <span class="n">time</span><span class="o">.</span><span class="n">sleep</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_run_loop_delay</span><span class="p">)</span>
 
             <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">_kill_thread</span><span class="p">:</span>
