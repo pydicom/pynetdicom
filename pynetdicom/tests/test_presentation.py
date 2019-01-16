@@ -161,6 +161,10 @@ class TestPresentationContext(object):
         pc._as_scp = False
         assert 'Role: (none)' in pc.__str__()
 
+        pc._transfer_syntax = []
+        print(pc)
+        assert '    (none)' in pc.__str__()
+
     def test_context_id(self):
         """Test setting context_id."""
         pc = PresentationContext()
@@ -1458,6 +1462,48 @@ class TestNegotiateAsRequestor(object):
             else:
                 assert results[ii].result == 0x00
                 assert results[ii].transfer_syntax == ['1.2.840.10008.1.2']
+
+    def test_acceptor_empty_context(self):
+        """Test negotiation when the acceptor cx has no transfer syntax."""
+        # Requestor contexts
+        context_a = PresentationContext()
+        context_a.context_id = 1
+        context_a.abstract_syntax = '1.2.840.10008.5.1.4.1.1.2'
+        context_a.transfer_syntax = ['1.2.840.10008.1.2',
+                                     '1.2.840.10008.1.2.1']
+        context_b = PresentationContext()
+        context_b.context_id = 3
+        context_b.abstract_syntax = '1.2.840.10008.5.1.4.1.1.2.1'
+        context_b.transfer_syntax = ['1.2.840.10008.1.2',
+                                     '1.2.840.10008.1.2.1']
+        rq_contexts = [context_a, context_b]
+
+        # Acceptor contexts
+        context_c = PresentationContext()
+        context_c.context_id = 1
+        context_c.transfer_syntax = ['1.2.840.10008.1.2']
+        context_c.result = 0x00
+
+        context_d = PresentationContext()
+        context_d.context_id = 3
+        context_d.result = 0x01
+        acc_contexts = [context_c, context_d]
+
+        #acc_contexts, roles = self.test_acc(rq_contexts, [context_b])
+
+        result = self.test_func(rq_contexts, acc_contexts)
+        for ii in result:
+            print(ii)
+
+        assert len(result) == 2
+        context = result[0]
+        assert context.context_id == 1
+        assert context.abstract_syntax == '1.2.840.10008.5.1.4.1.1.2'
+        assert context.result == 0x00
+        context = result[1]
+        assert context.context_id == 3
+        assert context.abstract_syntax == '1.2.840.10008.5.1.4.1.1.2.1'
+        assert context.result == 0x01
 
 
 def test_default_transfer_syntaxes():

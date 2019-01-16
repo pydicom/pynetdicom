@@ -431,7 +431,10 @@ class PresentationContext(object):
         s += 'Transfer Syntax(es):\n'
         for syntax in self.transfer_syntax[:-1]:
             s += '    ={0!s}\n'.format(syntax.name)
-        s += '    ={0!s}'.format(self.transfer_syntax[-1].name)
+        if self.transfer_syntax:
+            s += '    ={0!s}'.format(self.transfer_syntax[-1].name)
+        else:
+            s += '    (none)'
 
         if self.result is not None:
             s += '\nResult: {0!s}'.format(self.status)
@@ -707,7 +710,8 @@ def negotiate_as_requestor(rq_contexts, ac_contexts, roles=None):
             ac_context = acceptor_contexts[context_id]
 
             # Update with accepted values
-            context.transfer_syntax = [ac_context.transfer_syntax[0]]
+            if ac_context.transfer_syntax:
+                context.transfer_syntax = [ac_context.transfer_syntax[0]]
             context.result = ac_context.result
 
             ## SCP/SCU Role Selection Negotiation

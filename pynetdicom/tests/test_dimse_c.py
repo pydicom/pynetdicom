@@ -175,8 +175,9 @@ class TestPrimitive_C_STORE(object):
         with pytest.raises(TypeError):
             primitive.MoveOriginatorApplicationEntityTitle = 100
 
-        with pytest.raises(ValueError):
-            primitive.MoveOriginatorApplicationEntityTitle = ''
+        primitive.MoveOriginatorApplicationEntityTitle = ''
+        assert primitive.MoveOriginatorApplicationEntityTitle is None
+
 
         with pytest.raises(ValueError):
             primitive.MoveOriginatorApplicationEntityTitle = '    '
