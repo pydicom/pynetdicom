@@ -108,7 +108,7 @@ class TestQRFindServiceClass(object):
         req.Priority = 2
         req.Identifier = BytesIO(b'\x08\x00\x01\x00\x04\x00\x00\x00\x00\x08\x00\x49')
         assoc.dimse.send_msg(req, 1)
-        rsp, _ = assoc.dimse.receive_msg(True)
+        cx_id, rsp = assoc.dimse.get_msg(True)
         assert rsp.Status == 0xC310
 
         assoc.release()
@@ -568,7 +568,7 @@ class TestQRGetServiceClass(object):
         req.Priority = 2
         req.Identifier = BytesIO(b'\x08\x00\x01\x00\x04\x00\x00\x00\x00\x08\x00\x49')
         assoc.dimse.send_msg(req, 1)
-        status, _ = assoc.dimse.receive_msg(True)
+        cx_id, status = assoc.dimse.get_msg(True)
         assert status.Status == 0xC410
 
         assoc.release()
@@ -1716,7 +1716,7 @@ class TestQRMoveServiceClass(object):
         # Encoded as Implicit VR Little
         req.Identifier = BytesIO(b'\x08\x00\x01\x00\x04\x00\x00\x00\x00\x08\x00\x49')
         assoc.dimse.send_msg(req, 1)
-        status, _ = assoc.dimse.receive_msg(True)
+        cx_id, status = assoc.dimse.get_msg(True)
         assert status.Status == 0xC510
 
         assoc.release()

@@ -38,8 +38,8 @@ from .dummy_n_scp import (
 )
 
 LOGGER = logging.getLogger('pynetdicom')
-#LOGGER.setLevel(logging.CRITICAL)
-LOGGER.setLevel(logging.DEBUG)
+LOGGER.setLevel(logging.CRITICAL)
+#LOGGER.setLevel(logging.DEBUG)
 
 
 class TestAssociationSendNEventReport(object):
@@ -162,7 +162,7 @@ class TestAssociationSendNEventReport(object):
         class DummyDIMSE():
             def send_msg(*args, **kwargs): return
 
-            def receive_msg(*args, **kwargs): return None, None
+            def get_msg(*args, **kwargs): return None, None
 
         assoc.dimse = DummyDIMSE()
         assert assoc.is_established
@@ -193,7 +193,7 @@ class TestAssociationSendNEventReport(object):
 
         class DummyDIMSE():
             def send_msg(*args, **kwargs): return
-            def receive_msg(*args, **kwargs): return DummyResponse(), None
+            def get_msg(*args, **kwargs): return None, DummyResponse()
 
         assoc.dimse = DummyDIMSE()
         assert assoc.is_established
@@ -328,13 +328,13 @@ class TestAssociationSendNEventReport(object):
             def send_msg(*args, **kwargs):
                 return
 
-            def receive_msg(*args, **kwargs):
+            def get_msg(*args, **kwargs):
                 status = Dataset()
                 status.Status = 0x0000
 
                 rsp = DummyMessage()
 
-                return rsp, None
+                return None, rsp
 
         assoc.dimse = DummyDIMSE()
         assert assoc.is_established
@@ -454,7 +454,7 @@ class TestAssociationSendNGet(object):
         class DummyDIMSE():
             def send_msg(*args, **kwargs): return
 
-            def receive_msg(*args, **kwargs): return None, None
+            def get_msg(*args, **kwargs): return None, None
 
         assoc.dimse = DummyDIMSE()
         assert assoc.is_established
@@ -483,7 +483,7 @@ class TestAssociationSendNGet(object):
 
         class DummyDIMSE():
             def send_msg(*args, **kwargs): return
-            def receive_msg(*args, **kwargs): return DummyResponse(), None
+            def get_msg(*args, **kwargs): return None, DummyResponse()
 
         assoc.dimse = DummyDIMSE()
         assert assoc.is_established
@@ -603,13 +603,13 @@ class TestAssociationSendNGet(object):
             def send_msg(*args, **kwargs):
                 return
 
-            def receive_msg(*args, **kwargs):
+            def get_msg(*args, **kwargs):
                 status = Dataset()
                 status.Status = 0x0000
 
                 rsp = DummyMessage()
 
-                return rsp, None
+                return None, rsp
 
         assoc.dimse = DummyDIMSE()
         assert assoc.is_established
@@ -766,7 +766,7 @@ class TestAssociationSendNSet(object):
         class DummyDIMSE():
             def send_msg(*args, **kwargs): return
 
-            def receive_msg(*args, **kwargs): return None, None
+            def get_msg(*args, **kwargs): return None, None
 
         assoc.dimse = DummyDIMSE()
         assert assoc.is_established
@@ -797,7 +797,7 @@ class TestAssociationSendNSet(object):
 
         class DummyDIMSE():
             def send_msg(*args, **kwargs): return
-            def receive_msg(*args, **kwargs): return DummyResponse(), None
+            def get_msg(*args, **kwargs): return None, DummyResponse()
 
         assoc.dimse = DummyDIMSE()
         assert assoc.is_established
@@ -932,13 +932,13 @@ class TestAssociationSendNSet(object):
             def send_msg(*args, **kwargs):
                 return
 
-            def receive_msg(*args, **kwargs):
+            def get_msg(*args, **kwargs):
                 status = Dataset()
                 status.Status = 0x0000
 
                 rsp = DummyMessage()
 
-                return rsp, None
+                return None, rsp
 
         assoc.dimse = DummyDIMSE()
         assert assoc.is_established
@@ -1103,7 +1103,7 @@ class TestAssociationSendNAction(object):
         class DummyDIMSE():
             def send_msg(*args, **kwargs): return
 
-            def receive_msg(*args, **kwargs): return None, None
+            def get_msg(*args, **kwargs): return None, None
 
         assoc.dimse = DummyDIMSE()
         assert assoc.is_established
@@ -1134,7 +1134,7 @@ class TestAssociationSendNAction(object):
 
         class DummyDIMSE():
             def send_msg(*args, **kwargs): return
-            def receive_msg(*args, **kwargs): return DummyResponse(), None
+            def get_msg(*args, **kwargs): return None, DummyResponse()
 
         assoc.dimse = DummyDIMSE()
         assert assoc.is_established
@@ -1269,13 +1269,13 @@ class TestAssociationSendNAction(object):
             def send_msg(*args, **kwargs):
                 return
 
-            def receive_msg(*args, **kwargs):
+            def get_msg(*args, **kwargs):
                 status = Dataset()
                 status.Status = 0x0000
 
                 rsp = DummyMessage()
 
-                return rsp, None
+                return None, rsp
 
         assoc.dimse = DummyDIMSE()
         assert assoc.is_established
@@ -1438,7 +1438,7 @@ class TestAssociationSendNCreate(object):
         class DummyDIMSE():
             def send_msg(*args, **kwargs): return
 
-            def receive_msg(*args, **kwargs): return None, None
+            def get_msg(*args, **kwargs): return None, None
 
         assoc.dimse = DummyDIMSE()
         assert assoc.is_established
@@ -1469,7 +1469,7 @@ class TestAssociationSendNCreate(object):
 
         class DummyDIMSE():
             def send_msg(*args, **kwargs): return
-            def receive_msg(*args, **kwargs): return DummyResponse(), None
+            def get_msg(*args, **kwargs): return None, DummyResponse()
 
         assoc.dimse = DummyDIMSE()
         assert assoc.is_established
@@ -1604,13 +1604,13 @@ class TestAssociationSendNCreate(object):
             def send_msg(*args, **kwargs):
                 return
 
-            def receive_msg(*args, **kwargs):
+            def get_msg(*args, **kwargs):
                 status = Dataset()
                 status.Status = 0x0000
 
                 rsp = DummyMessage()
 
-                return rsp, None
+                return None, rsp
 
         assoc.dimse = DummyDIMSE()
         assert assoc.is_established
@@ -1749,7 +1749,7 @@ class TestAssociationSendNDelete(object):
         class DummyDIMSE():
             def send_msg(*args, **kwargs): return
 
-            def receive_msg(*args, **kwargs): return None, None
+            def get_msg(*args, **kwargs): return None, None
 
         assoc.dimse = DummyDIMSE()
         assert assoc.is_established
@@ -1776,7 +1776,7 @@ class TestAssociationSendNDelete(object):
 
         class DummyDIMSE():
             def send_msg(*args, **kwargs): return
-            def receive_msg(*args, **kwargs): return DummyResponse(), None
+            def get_msg(*args, **kwargs): return None, DummyResponse()
 
         assoc.dimse = DummyDIMSE()
         assert assoc.is_established

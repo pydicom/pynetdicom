@@ -7,6 +7,7 @@ import os
 import select
 import socket
 from struct import pack
+import sys
 import time
 import threading
 
@@ -77,10 +78,13 @@ from .dummy_c_scp import (
     DummyVerificationSCP, DummyStorageSCP, DummyFindSCP, DummyGetSCP,
     DummyMoveSCP, DummyBaseSCP
 )
+from .encoded_pdu_items import a_associate_ac
+from .parrot import start_server, ThreadedParrot
+
 
 LOGGER = logging.getLogger('pynetdicom')
 LOGGER.setLevel(logging.CRITICAL)
-#LOGGER.setLevel(logging.DEBUG)
+LOGGER.setLevel(logging.DEBUG)
 
 TEST_DS_DIR = os.path.join(os.path.dirname(__file__), 'dicom_files')
 BIG_DATASET = dcmread(os.path.join(TEST_DS_DIR, 'RTImageStorage.dcm')) # 2.1 M
@@ -95,6 +99,9 @@ class DummyDIMSE(object):
 
     def send_msg(self, rsp, context_id):
         self.status = rsp.Status
+
+    def get_msg(self, block=False):
+        return None, None
 
 
 class TestCStoreSCP(object):
@@ -375,13 +382,13 @@ class TestCStoreSCP(object):
                 assert args[1].ErrorComment == "Unable to decode the dataset"
                 return
 
-            def receive_msg(*args, **kwargs):
+            def get_msg(*args, **kwargs):
                 status = Dataset()
                 status.Status = 0x0000
 
                 rsp = DummyMessage()
 
-                return rsp, None
+                return None, rsp
 
         req = C_STORE()
         req.MessageID = 1
@@ -816,6 +823,55 @@ class TestAssociation(object):
 
         assert assoc.dul.socket == 'abc'
 
+    @pytest.mark.skipif(sys.version_info[:2] == (3, 4), reason='no caplog')
+    def test_unexpected_cancel(self, caplog):
+        """Test receiving an unexpected C-CANCEL request."""
+        with caplog.at_level(logging.WARNING, logger='pynetdicom'):
+            ae = AE()
+            ae.add_requested_context(VerificationSOPClass)
+            ae.add_supported_context(VerificationSOPClass)
+            scp = ae.start_server(('', 11112), block=False)
+
+            assoc = ae.associate('localhost', 11112)
+            assoc.send_c_cancel_move(1)
+
+            assoc.release()
+
+            assert 'Received unexpected C-CANCEL request' in caplog.text
+
+            scp.shutdown()
+
+    @pytest.mark.skipif(sys.version_info[:2] == (3, 4), reason='no caplog')
+    def test_invalid_context(self, caplog):
+        """Test receiving an unexpected C-CANCEL request."""
+        with caplog.at_level(logging.INFO, logger='pynetdicom'):
+            ae = AE()
+            ae.add_requested_context(VerificationSOPClass)
+            ae.add_requested_context(CTImageStorage)
+            ae.add_supported_context(VerificationSOPClass)
+            scp = ae.start_server(('', 11112), block=False)
+
+            assoc = ae.associate('localhost', 11112)
+            assoc.dimse_timeout = 0.1
+            assert assoc.is_established
+            assoc._accepted_cx[3] = assoc._rejected_cx[0]
+            assoc._accepted_cx[3].result = 0x00
+            assoc._accepted_cx[3]._as_scu = True
+            assoc._accepted_cx[3]._as_scp = True
+            ds = Dataset()
+            ds.SOPClassUID = CTImageStorage
+            ds.SOPInstanceUID = '1.2.3.4'
+            ds.file_meta = Dataset()
+            ds.file_meta.TransferSyntaxUID = ImplicitVRLittleEndian
+            result = assoc.send_c_store(ds)
+            time.sleep(0.1)
+            assert assoc.is_aborted
+            assert (
+                'Received DIMSE message with invalid or rejected context ID'
+            ) in caplog.text
+
+            scp.shutdown()
+
 
 class TestAssociationSendCEcho(object):
     """Run tests on Assocation send_c_echo."""
@@ -880,7 +936,7 @@ class TestAssociationSendCEcho(object):
         assoc = ae.associate('localhost', 11112)
         class DummyDIMSE():
             def send_msg(*args, **kwargs): return
-            def receive_msg(*args, **kwargs): return None, None
+            def get_msg(*args, **kwargs): return None, None
 
         assoc.dimse = DummyDIMSE()
         if assoc.is_established:
@@ -905,7 +961,7 @@ class TestAssociationSendCEcho(object):
 
         class DummyDIMSE():
             def send_msg(*args, **kwargs): return
-            def receive_msg(*args, **kwargs): return DummyResponse(), None
+            def get_msg(*args, **kwargs): return None, DummyResponse()
 
         assoc.dimse = DummyDIMSE()
         if assoc.is_established:
@@ -1092,7 +1148,7 @@ class TestAssociationSendCEcho(object):
         assert assoc.is_released
         self.scp.stop()
 
-    def test_network_times_out(self):
+    def test_network_times_out_requestor(self):
         """Regression test for #286."""
         ae = AE()
         ae.add_requested_context(VerificationSOPClass)
@@ -1109,6 +1165,24 @@ class TestAssociationSendCEcho(object):
         assert assoc.is_aborted
 
         scp.shutdown()
+
+    def test_network_times_out_acceptor(self):
+        """Regression test for #286."""
+        ae = AE()
+        ae.add_requested_context(VerificationSOPClass)
+        ae.add_supported_context(VerificationSOPClass)
+        scp = ae.start_server(('', 11113), block=False)
+
+        assoc = ae.associate('localhost', 11113)
+        ae.network_timeout = 0.5
+        assoc.network_timeout = 60
+        assert assoc.network_timeout == 60
+        assert assoc.is_established
+        time.sleep(1.0)
+        assert assoc.is_aborted
+
+        scp.shutdown()
+
 
 class TestAssociationSendCStore(object):
     """Run tests on Assocation send_c_store."""
@@ -1222,7 +1296,7 @@ class TestAssociationSendCStore(object):
         assoc = ae.associate('localhost', 11112)
         class DummyDIMSE():
             def send_msg(*args, **kwargs): return
-            def receive_msg(*args, **kwargs): return None, None
+            def get_msg(*args, **kwargs): return None, None
 
         assoc.dimse = DummyDIMSE()
         assert assoc.is_established
@@ -1247,7 +1321,7 @@ class TestAssociationSendCStore(object):
 
         class DummyDIMSE():
             def send_msg(*args, **kwargs): return
-            def receive_msg(*args, **kwargs): return DummyResponse(), None
+            def get_msg(*args, **kwargs): return DummyResponse(), None
 
         assoc.dimse = DummyDIMSE()
         assert assoc.is_established
@@ -1694,7 +1768,7 @@ class TestAssociationSendCFind(object):
 
         class DummyDIMSE():
             def send_msg(*args, **kwargs): return
-            def receive_msg(*args, **kwargs): return DummyResponse(), None
+            def get_msg(*args, **kwargs): return DummyResponse(), None
 
         assoc.dimse = DummyDIMSE()
         assert assoc.is_established
@@ -1767,13 +1841,14 @@ class TestAssociationSendCFind(object):
             def send_msg(*args, **kwargs):
                 return
 
-            def receive_msg(*args, **kwargs):
+            def get_msg(*args, **kwargs):
                 return None, None
 
         assoc.dimse = DummyDIMSE()
         assert assoc.is_established
 
         results = assoc.send_c_find(self.ds, query_model='P')
+        assert next(results) == (Dataset(), None)
         with pytest.raises(StopIteration):
             next(results)
 
@@ -1805,12 +1880,12 @@ class TestAssociationSendCFind(object):
             def send_msg(*args, **kwargs):
                 return
 
-            def receive_msg(*args, **kwargs):
+            def get_msg(*args, **kwargs):
                 rsp = C_FIND()
                 rsp.Status = 0xFF00
                 rsp.MessageIDBeingRespondedTo = 1
                 rsp.Identifier = BytesIO(b'\x08\x00\x01\x00\x04\x00\x00\x00\x00\x08\x00\x49')
-                return rsp, 1
+                return 1, rsp
 
         assoc.dimse = DummyDIMSE()
         assert assoc.is_established
@@ -2361,13 +2436,14 @@ class TestAssociationSendCGet(object):
             def send_msg(*args, **kwargs):
                 return
 
-            def receive_msg(*args, **kwargs):
+            def get_msg(*args, **kwargs):
                 return None, None
 
         assoc.dimse = DummyDIMSE()
         assert assoc.is_established
 
         results = assoc.send_c_get(self.ds, query_model='P')
+        assert next(results) == (Dataset(), None)
         with pytest.raises(StopIteration):
             next(results)
 
@@ -2413,11 +2489,11 @@ class TestAssociationSendCGet(object):
             def send_msg(*args, **kwargs):
                 return
 
-            def receive_msg(*args, **kwargs):
+            def get_msg(*args, **kwargs):
                 rsp = C_GET()
                 rsp.Status = 0xC000
                 rsp.Identifier = BytesIO(b'\x08\x00\x01\x00\x04\x00\x00\x00\x00\x08\x00\x49')
-                return rsp, 1
+                return 1, rsp
 
         assoc.dimse = DummyDIMSE()
         assert assoc.is_established
@@ -3041,13 +3117,14 @@ class TestAssociationSendCMove(object):
             def send_msg(*args, **kwargs):
                 return
 
-            def receive_msg(*args, **kwargs):
+            def get_msg(*args, **kwargs):
                 return None, None
 
         assoc.dimse = DummyDIMSE()
         assert assoc.is_established
 
         results = assoc.send_c_move(self.ds, b'TEST', query_model='P')
+        assert next(results) == (Dataset(), None)
         with pytest.raises(StopIteration):
             next(results)
 
@@ -3087,11 +3164,11 @@ class TestAssociationSendCMove(object):
             def send_msg(*args, **kwargs):
                 return
 
-            def receive_msg(*args, **kwargs):
+            def get_msg(*args, **kwargs):
                 rsp = C_MOVE()
                 rsp.Status = 0xC000
                 rsp.Identifier = BytesIO(b'\x08\x00\x01\x00\x04\x00\x00\x00\x00\x08\x00\x49')
-                return rsp, 1
+                return 1, rsp
 
         assoc.dimse = DummyDIMSE()
         assert assoc.is_established

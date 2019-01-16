@@ -78,7 +78,7 @@ class TestDIMSEProvider(object):
 
     def test_receive_not_pdata(self):
         """Test we get back None if not a P_DATA"""
-        assert self.dimse.receive_msg(True) == (None, None)
+        assert self.dimse.get_msg(True) == (None, None)
 
     @pytest.mark.parametrize("primitive, cls_name", REFERENCE_MSG)
     def test_send_msg(self, primitive, cls_name):
@@ -106,54 +106,17 @@ class TestDIMSEProvider(object):
         self.dimse.on_send_dimse_message = test_callback
         self.dimse.send_msg(primitive, 1)
 
-    # Receive tests
-    def test_receive_timeout(self):
-        """Test the DIMSE timeout on Receive works"""
-        pass
+    def test_peek_empty(self):
+        """Test peek_msg with nothing on the queue."""
+        dimse = DIMSEServiceProvider(None, 0.5)
+        assert dimse.peek_msg() == (None, None)
 
-    def test_receive_c_echo(self):
-        """Check receiving DIMSE C-ECHO messages."""
-        pass
-
-    def test_receive_c_store(self):
-        """Check receiving DIMSE C-STORE messages."""
-        pass
-
-    def test_receive_c_find(self):
-        """Check receiving DIMSE C-FIND messages."""
-        pass
-
-    def test_receive_c_get(self):
-        """Check receiving DIMSE C-GET messages."""
-        pass
-
-    def test_receive_c_move(self):
-        """Check receiving DIMSE C-MOVE messages."""
-        pass
-
-    def test_receive_n_event_report(self):
-        """Check receiving DIMSE N-EVENT-REPORT messages."""
-        pass
-
-    def test_receive_n_get(self):
-        """Check receiving DIMSE N-GET messages."""
-        pass
-
-    def test_receive_n_set(self):
-        """Check receiving DIMSE N-SET messages."""
-        pass
-
-    def test_receive_n_action(self):
-        """Check receiving DIMSE N-ACTION messages."""
-        pass
-
-    def test_receive_n_create(self):
-        """Check receiving DIMSE N-CREATE messages."""
-        pass
-
-    def test_receive_n_delete(self):
-        """Check receiving DIMSE N-DELETE messages."""
-        pass
+    def test_peek_item(self):
+        """Test peek_msg with nothing on the queue."""
+        dimse = DIMSEServiceProvider(None, 0.5)
+        primitive = C_STORE()
+        dimse.msg_queue.put((14, primitive))
+        assert dimse.peek_msg() == (14, primitive)
 
 
 class TestDIMSEProviderCallbacks(object):

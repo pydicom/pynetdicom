@@ -3,13 +3,18 @@
 
 import logging
 import socket
+import threading
+import time
 
 import pytest
 
+from pynetdicom import AE
 from pynetdicom.dul import DULServiceProvider
 from pynetdicom.pdu import A_ASSOCIATE_RQ, A_ASSOCIATE_AC, A_ASSOCIATE_RJ, \
                             A_RELEASE_RQ, A_RELEASE_RP, P_DATA_TF, A_ABORT_RQ
 from pynetdicom.pdu_primitives import A_ASSOCIATE, A_RELEASE, A_ABORT, P_DATA
+from .encoded_pdu_items import a_associate_ac
+from .parrot import start_server, ThreadedParrot
 
 LOGGER = logging.getLogger('pynetdicom')
 LOGGER.setLevel(logging.CRITICAL)
@@ -46,6 +51,11 @@ class DummyDUL(DULServiceProvider):
 
 class TestDUL(object):
     """Run tests on DUL service provider."""
+    def teardown(self):
+        for thread in threading.enumerate():
+            if isinstance(thread, ThreadedParrot):
+                thread.shutdown()
+
     def test_primitive_to_event(self):
         """Test that parameter returns expected results"""
         dul = DummyDUL()
@@ -73,3 +83,67 @@ class TestDUL(object):
 
         with pytest.raises(ValueError):
             p2e('TEST')
+
+    def test_recv_failure_aborts(self):
+        """Test connection close during PDU recv causes abort."""
+        commands = [
+            ('recv', None),  # recv a-associate-rq
+            ('send', a_associate_ac),
+            ('wait', 0.1),  # Don't want to accidentally kill the DUL
+            ('send', b"\x07\x00\x00\x00\x00\x04"),
+            ('wait', 0.3)
+        ]
+        scp = start_server(commands)
+
+        ae = AE()
+        ae.network_timeout = 0.2
+        ae.add_requested_context('1.2.840.10008.1.1')
+        assoc = ae.associate('localhost', 11112)
+        assert assoc.is_established
+        time.sleep(0.4)
+        assert assoc.is_aborted
+
+        scp.shutdown()
+
+    def test_recv_short_aborts(self):
+        """Test receiving short PDU causes abort."""
+        commands = [
+            ('recv', None),  # recv a-associate-rq
+            ('send', a_associate_ac),
+            ('wait', 0.1),  # Don't want to accidentally kill the DUL
+            ('send', b"\x07\x00\x00\x00\x00\x04\x00\x00"),
+            ('wait', 0.3),
+        ]
+        scp = start_server(commands)
+
+        ae = AE()
+        ae.network_timeout = 0.2
+        ae.add_requested_context('1.2.840.10008.1.1')
+        assoc = ae.associate('localhost', 11112)
+        assert assoc.is_established
+
+        time.sleep(0.4)
+        assert assoc.is_aborted
+
+        scp.shutdown()
+
+    def test_recv_bad_pdu_aborts(self):
+        """Test receiving undecodable PDU causes abort."""
+        commands = [
+            ('recv', None),  # recv a-associate-rq
+            ('send', a_associate_ac),
+            ('wait', 0.1),  # Don't want to accidentally kill the DUL
+            ('send', b"\x07\x00\x00\x00\x00\x02\x00\x00"),
+        ]
+        scp = start_server(commands)
+
+        ae = AE()
+        ae.network_timeout = 0.2
+        ae.add_requested_context('1.2.840.10008.1.1')
+        assoc = ae.associate('localhost', 11112)
+        assert assoc.is_established
+
+        time.sleep(0.4)
+        assert assoc.is_aborted
+
+        scp.shutdown()
