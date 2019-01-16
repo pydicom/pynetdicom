@@ -447,7 +447,13 @@
             <span class="bp">self</span><span class="o">.</span><span class="n">on_receive_dimse_message</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">message</span><span class="p">)</span>
 
             <span class="n">context_id</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">message</span><span class="o">.</span><span class="n">context_id</span>
-            <span class="n">primitive</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">message</span><span class="o">.</span><span class="n">message_to_primitive</span><span class="p">()</span>
+            <span class="k">try</span><span class="p">:</span>
+                <span class="n">primitive</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">message</span><span class="o">.</span><span class="n">message_to_primitive</span><span class="p">()</span>
+            <span class="k">except</span> <span class="ne">Exception</span> <span class="k">as</span> <span class="n">exc</span><span class="p">:</span>
+                <span class="n">LOGGER</span><span class="o">.</span><span class="n">error</span><span class="p">(</span><span class="s2">&quot;Received an invalid DIMSE message&quot;</span><span class="p">)</span>
+                <span class="n">LOGGER</span><span class="o">.</span><span class="n">exception</span><span class="p">(</span><span class="n">exc</span><span class="p">)</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">dul</span><span class="o">.</span><span class="n">event_queue</span><span class="o">.</span><span class="n">put</span><span class="p">(</span><span class="s1">&#39;Evt19&#39;</span><span class="p">)</span>
+                <span class="k">return</span>
             <span class="bp">self</span><span class="o">.</span><span class="n">msg_queue</span><span class="o">.</span><span class="n">put</span><span class="p">((</span><span class="n">context_id</span><span class="p">,</span> <span class="n">primitive</span><span class="p">))</span>
 
             <span class="c1"># Fix for memory leak, Issue #41</span>
@@ -1077,7 +1083,7 @@
         <span class="n">s</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="s1">&#39;Affected SOP Instance UID     : </span><span class="si">{0!s}</span><span class="s1">&#39;</span>
                  <span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">cs</span><span class="o">.</span><span class="n">AffectedSOPInstanceUID</span><span class="p">))</span>
         <span class="k">if</span> <span class="s1">&#39;MoveOriginatorApplicationEntityTitle&#39;</span> <span class="ow">in</span> <span class="n">cs</span><span class="p">:</span>
-            <span class="n">s</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="s1">&#39;Move Originator     : </span><span class="si">{0!s}</span><span class="s1">&#39;</span>
+            <span class="n">s</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="s1">&#39;Move Originator               : </span><span class="si">{0!s}</span><span class="s1">&#39;</span>
                      <span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">cs</span><span class="o">.</span><span class="n">MoveOriginatorApplicationEntityTitle</span><span class="p">))</span>
         <span class="n">s</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="s1">&#39;Data Set                      : </span><span class="si">{0!s}</span><span class="s1">&#39;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">dataset</span><span class="p">))</span>
         <span class="n">s</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="s1">&#39;Priority                      : </span><span class="si">{0!s}</span><span class="s1">&#39;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">priority</span><span class="p">))</span>
