@@ -7,6 +7,7 @@ import os
 import select
 import socket
 from struct import pack
+import sys
 import time
 import threading
 
@@ -77,10 +78,13 @@ from .dummy_c_scp import (
     DummyVerificationSCP, DummyStorageSCP, DummyFindSCP, DummyGetSCP,
     DummyMoveSCP, DummyBaseSCP
 )
+from .encoded_pdu_items import a_associate_ac
+from .parrot import start_server, ThreadedParrot
+
 
 LOGGER = logging.getLogger('pynetdicom')
 LOGGER.setLevel(logging.CRITICAL)
-#LOGGER.setLevel(logging.DEBUG)
+LOGGER.setLevel(logging.DEBUG)
 
 TEST_DS_DIR = os.path.join(os.path.dirname(__file__), 'dicom_files')
 BIG_DATASET = dcmread(os.path.join(TEST_DS_DIR, 'RTImageStorage.dcm')) # 2.1 M
@@ -818,6 +822,55 @@ class TestAssociation(object):
             assoc.set_socket('cba')
 
         assert assoc.dul.socket == 'abc'
+
+    @pytest.mark.skipif(sys.version_info[:2] == (3, 4), reason='no caplog')
+    def test_unexpected_cancel(self, caplog):
+        """Test receiving an unexpected C-CANCEL request."""
+        with caplog.at_level(logging.WARNING, logger='pynetdicom'):
+            ae = AE()
+            ae.add_requested_context(VerificationSOPClass)
+            ae.add_supported_context(VerificationSOPClass)
+            scp = ae.start_server(('', 11112), block=False)
+
+            assoc = ae.associate('localhost', 11112)
+            assoc.send_c_cancel_move(1)
+
+            assoc.release()
+
+            assert 'Received unexpected C-CANCEL request' in caplog.text
+
+            scp.shutdown()
+
+    @pytest.mark.skipif(sys.version_info[:2] == (3, 4), reason='no caplog')
+    def test_invalid_context(self, caplog):
+        """Test receiving an unexpected C-CANCEL request."""
+        with caplog.at_level(logging.INFO, logger='pynetdicom'):
+            ae = AE()
+            ae.add_requested_context(VerificationSOPClass)
+            ae.add_requested_context(CTImageStorage)
+            ae.add_supported_context(VerificationSOPClass)
+            scp = ae.start_server(('', 11112), block=False)
+
+            assoc = ae.associate('localhost', 11112)
+            assoc.dimse_timeout = 0.1
+            assert assoc.is_established
+            assoc._accepted_cx[3] = assoc._rejected_cx[0]
+            assoc._accepted_cx[3].result = 0x00
+            assoc._accepted_cx[3]._as_scu = True
+            assoc._accepted_cx[3]._as_scp = True
+            ds = Dataset()
+            ds.SOPClassUID = CTImageStorage
+            ds.SOPInstanceUID = '1.2.3.4'
+            ds.file_meta = Dataset()
+            ds.file_meta.TransferSyntaxUID = ImplicitVRLittleEndian
+            result = assoc.send_c_store(ds)
+            time.sleep(0.1)
+            assert assoc.is_aborted
+            assert (
+                'Received DIMSE message with invalid or rejected context ID'
+            ) in caplog.text
+
+            scp.shutdown()
 
 
 class TestAssociationSendCEcho(object):

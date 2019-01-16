@@ -193,6 +193,17 @@ class Association(threading.Thread):
         self._acse_timeout = value
 
     @property
+    def dimse_timeout(self):
+        """Return the DIMSE timeout in seconds."""
+        return self._dimse_timeout
+
+    @dimse_timeout.setter
+    def dimse_timeout(self, value):
+        """Set the DIMSE timeout using numeric or None."""
+        self.dimse.dimse_timeout = value
+        self._dimse_timeout = value
+
+    @property
     def network_timeout(self):
         """Return the network timeout in seconds."""
         return self._network_timeout
@@ -856,8 +867,9 @@ class Association(threading.Thread):
 
         # If `rsp` is None then the DIMSE timeout expired so abort
         if rsp is None:
-            LOGGER.error("Connection closed or timed-out")
-            self.abort()
+            if self.is_established:
+                LOGGER.error("Connection closed or timed-out")
+                self.abort()
             return Dataset()
 
         # Determine validity of the response and get the status
@@ -1100,8 +1112,9 @@ class Association(threading.Thread):
 
             # If `rsp` is None then the DIMSE timeout expired so abort
             if rsp is None:
-                LOGGER.error("Connection closed or timed-out")
-                self.abort()
+                if self.is_established:
+                    LOGGER.error("Connection closed or timed-out")
+                    self.abort()
                 yield Dataset(), None
                 return
             elif not rsp.is_valid_response:
@@ -1379,8 +1392,9 @@ class Association(threading.Thread):
 
             # If `rsp` is None then the DIMSE timeout expired so abort
             if rsp is None:
-                LOGGER.error("Connection closed or timed-out")
-                self.abort()
+                if self.is_established:
+                    LOGGER.error("Connection closed or timed-out")
+                    self.abort()
                 yield Dataset(), None
                 return
 
@@ -1667,8 +1681,9 @@ class Association(threading.Thread):
 
             # If `rsp` is None then the DIMSE timeout expired so abort
             if rsp is None:
-                LOGGER.error("Connection closed or timed-out")
-                self.abort()
+                if self.is_established:
+                    LOGGER.error("Connection closed or timed-out")
+                    self.abort()
                 yield Dataset(), None
                 return
 
@@ -1913,8 +1928,9 @@ class Association(threading.Thread):
 
         # If `rsp` is None then the DIMSE timeout expired so abort
         if rsp is None:
-            LOGGER.error("Connection closed or timed-out")
-            self.abort()
+            if self.is_established:
+                LOGGER.error("Connection closed or timed-out")
+                self.abort()
             return Dataset()
 
         # Determine validity of the response and get the status
@@ -2038,8 +2054,9 @@ class Association(threading.Thread):
 
         # If `rsp` is None then the DIMSE timeout expired so abort
         if rsp is None:
-            LOGGER.error("Connection closed or timed-out")
-            self.abort()
+            if self.is_established:
+                LOGGER.error("Connection closed or timed-out")
+                self.abort()
             return Dataset(), None
 
         # Determine validity of the response and get the status
@@ -2177,8 +2194,9 @@ class Association(threading.Thread):
 
         # If `rsp` is None then the DIMSE timeout expired so abort
         if rsp is None:
-            LOGGER.error("Connection closed or timed-out")
-            self.abort()
+            if self.is_established:
+                LOGGER.error("Connection closed or timed-out")
+                self.abort()
             return Dataset(), None
 
         # Determine validity of the response and get the status
@@ -2290,8 +2308,9 @@ class Association(threading.Thread):
 
         # If `rsp` is None then the DIMSE timeout expired so abort
         if rsp is None:
-            LOGGER.error("Connection closed or timed-out")
-            self.abort()
+            if self.is_established:
+                LOGGER.error("Connection closed or timed-out")
+                self.abort()
             return Dataset()
 
         # Determine validity of the response and get the status
@@ -2417,8 +2436,9 @@ class Association(threading.Thread):
 
         # If `rsp` is None then the DIMSE timeout expired so abort
         if rsp is None:
-            LOGGER.error("Connection closed or timed-out")
-            self.abort()
+            if self.is_established:
+                LOGGER.error("Connection closed or timed-out")
+                self.abort()
             return Dataset(), None
 
         # Determine validity of the response and get the status
@@ -2551,8 +2571,9 @@ class Association(threading.Thread):
 
         # If `rsp` is None then the DIMSE timeout expired so abort
         if rsp is None:
-            LOGGER.error("Connection closed or timed-out")
-            self.abort()
+            if self.is_established:
+                LOGGER.error("Connection closed or timed-out")
+                self.abort()
             return Dataset(), None
 
         # Determine validity of the response and get the status
@@ -2695,8 +2716,9 @@ class Association(threading.Thread):
 
         # If `rsp` is None then the DIMSE timeout expired so abort
         if rsp is None:
-            LOGGER.error("Connection closed or timed-out")
-            self.abort()
+            if self.is_established:
+                LOGGER.error("Connection closed or timed-out")
+                self.abort()
             return Dataset(), None
 
         # Determine validity of the response and get the status
