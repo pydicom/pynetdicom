@@ -558,10 +558,10 @@
 
             <span class="c1"># Check the connection for incoming data</span>
             <span class="k">try</span><span class="p">:</span>
-                <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">_is_transport_event</span><span class="p">():</span>
-                    <span class="bp">self</span><span class="o">.</span><span class="n">_idle_timer</span><span class="o">.</span><span class="n">restart</span><span class="p">()</span>
-                <span class="k">elif</span> <span class="bp">self</span><span class="o">.</span><span class="n">_check_incoming_primitive</span><span class="p">():</span>
+                <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">_check_incoming_primitive</span><span class="p">():</span>
                     <span class="k">pass</span>
+                <span class="k">elif</span> <span class="bp">self</span><span class="o">.</span><span class="n">_is_transport_event</span><span class="p">():</span>
+                    <span class="bp">self</span><span class="o">.</span><span class="n">_idle_timer</span><span class="o">.</span><span class="n">restart</span><span class="p">()</span>
 
                 <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">_is_artim_expired</span><span class="p">():</span>
                     <span class="bp">self</span><span class="o">.</span><span class="n">_kill_thread</span> <span class="o">=</span> <span class="kc">True</span>

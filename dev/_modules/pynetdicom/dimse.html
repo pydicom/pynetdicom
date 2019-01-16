@@ -175,6 +175,10 @@
 <span class="sd">&quot;&quot;&quot;</span>
 <span class="kn">from</span> <span class="nn">io</span> <span class="k">import</span> <span class="n">BytesIO</span>
 <span class="kn">import</span> <span class="nn">logging</span>
+<span class="k">try</span><span class="p">:</span>
+    <span class="kn">import</span> <span class="nn">queue</span>
+<span class="k">except</span> <span class="ne">ImportError</span><span class="p">:</span>
+    <span class="kn">import</span> <span class="nn">Queue</span> <span class="k">as</span> <span class="nn">queue</span>  <span class="c1"># Python 2 compatibility</span>
 <span class="kn">import</span> <span class="nn">time</span>
 
 <span class="c1"># pylint: disable=no-name-in-module</span>
@@ -372,11 +376,85 @@
 <span class="sd">            None indicates no timeout.</span>
 <span class="sd">        maximum_pdu_size : int</span>
 <span class="sd">            The maximum PDU size when sending DIMSE messages, default 16382.</span>
+<span class="sd">        msg_queue: queue.queue of dimse_messages.DIMSEMessage</span>
+<span class="sd">            A queue holding decoded DIMSE Message primitives received from the</span>
+<span class="sd">            peer.</span>
 <span class="sd">        &quot;&quot;&quot;</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">dimse_timeout</span> <span class="o">=</span> <span class="n">dimse_timeout</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">dul</span> <span class="o">=</span> <span class="n">dul</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">maximum_pdu_size</span> <span class="o">=</span> <span class="n">maximum_pdu_size</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">message</span> <span class="o">=</span> <span class="kc">None</span></div>
+        <span class="bp">self</span><span class="o">.</span><span class="n">message</span> <span class="o">=</span> <span class="kc">None</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">msg_queue</span> <span class="o">=</span> <span class="n">queue</span><span class="o">.</span><span class="n">Queue</span><span class="p">()</span></div>
+
+<div class="viewcode-block" id="DIMSEServiceProvider.get_msg"><a class="viewcode-back" href="../../reference/generated/pynetdicom.dimse.DIMSEServiceProvider.html#pynetdicom.dimse.DIMSEServiceProvider.get_msg">[docs]</a>    <span class="k">def</span> <span class="nf">get_msg</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">block</span><span class="o">=</span><span class="kc">False</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;Get the next available DIMSE message.</span>
+
+<span class="sd">        Parameters</span>
+<span class="sd">        ----------</span>
+<span class="sd">        block : bool</span>
+<span class="sd">            If True then the function will block until either a message is</span>
+<span class="sd">            available or `dimse_timeout` expires, otherwise non-blocking.</span>
+
+<span class="sd">        Returns</span>
+<span class="sd">        -------</span>
+<span class="sd">        int, dimse_messages.DIMSEMessage or None, None</span>
+<span class="sd">            The next available (context ID, DIMSE message), which is taken off</span>
+<span class="sd">            the queue, or (None, None) if no messages are available within</span>
+<span class="sd">            the `dimse_timeout` period.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">try</span><span class="p">:</span>
+            <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">msg_queue</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="n">block</span><span class="o">=</span><span class="n">block</span><span class="p">,</span> <span class="n">timeout</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">dimse_timeout</span><span class="p">)</span>
+        <span class="k">except</span> <span class="n">queue</span><span class="o">.</span><span class="n">Empty</span><span class="p">:</span>
+            <span class="k">return</span> <span class="kc">None</span><span class="p">,</span> <span class="kc">None</span></div>
+
+<div class="viewcode-block" id="DIMSEServiceProvider.peek_msg"><a class="viewcode-back" href="../../reference/generated/pynetdicom.dimse.DIMSEServiceProvider.html#pynetdicom.dimse.DIMSEServiceProvider.peek_msg">[docs]</a>    <span class="k">def</span> <span class="nf">peek_msg</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;Return the first message in the message queue or None.</span>
+
+<span class="sd">        Returns</span>
+<span class="sd">        -------</span>
+<span class="sd">        int, dimse_messages.DIMSEMessage or None, None</span>
+<span class="sd">            The first (context ID, message) in the queue if one is available,</span>
+<span class="sd">            otherwise (None, None). No messages are taken out of the queue.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">try</span><span class="p">:</span>
+            <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">msg_queue</span><span class="o">.</span><span class="n">queue</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span>
+        <span class="k">except</span> <span class="p">(</span><span class="n">queue</span><span class="o">.</span><span class="n">Empty</span><span class="p">,</span> <span class="ne">IndexError</span><span class="p">):</span>
+            <span class="k">return</span> <span class="kc">None</span><span class="p">,</span> <span class="kc">None</span></div>
+
+<div class="viewcode-block" id="DIMSEServiceProvider.receive_primitive"><a class="viewcode-back" href="../../reference/generated/pynetdicom.dimse.DIMSEServiceProvider.html#pynetdicom.dimse.DIMSEServiceProvider.receive_primitive">[docs]</a>    <span class="k">def</span> <span class="nf">receive_primitive</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">primitive</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;Process a P-DATA primitive received from the remote.</span>
+
+<span class="sd">        A DIMSE message is split into one or more P-DATA primitives, which</span>
+<span class="sd">        must be sent in sequential order. While waiting for all the P-DATA</span>
+<span class="sd">        primitives associated with a message the encoded data is stored in</span>
+<span class="sd">        self.message, which is decoded only when complete and converted</span>
+<span class="sd">        into a DIMSE Message primitive which is added to the `msg_queue`.</span>
+
+<span class="sd">        This makes it possible to process incoming P-DATA primitives into</span>
+<span class="sd">        DIMSE messages while a service class implementation is running.</span>
+
+<span class="sd">        Parameters</span>
+<span class="sd">        ----------</span>
+<span class="sd">        primitive : pdu_primitives.P_DATA</span>
+<span class="sd">            A P-DATA primitive received from the peer to be processed.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">message</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">message</span> <span class="o">=</span> <span class="n">DIMSEMessage</span><span class="p">()</span>
+
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">message</span><span class="o">.</span><span class="n">decode_msg</span><span class="p">(</span><span class="n">primitive</span><span class="p">):</span>
+            <span class="c1"># Callback</span>
+            <span class="c1"># TODO: Make this a package level option to increase speed</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">on_receive_dimse_message</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">message</span><span class="p">)</span>
+
+            <span class="n">context_id</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">message</span><span class="o">.</span><span class="n">context_id</span>
+            <span class="n">primitive</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">message</span><span class="o">.</span><span class="n">message_to_primitive</span><span class="p">()</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">msg_queue</span><span class="o">.</span><span class="n">put</span><span class="p">((</span><span class="n">context_id</span><span class="p">,</span> <span class="n">primitive</span><span class="p">))</span>
+
+            <span class="c1"># Fix for memory leak, Issue #41</span>
+            <span class="c1">#   Reset the DIMSE message, ready for the next one</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">message</span><span class="o">.</span><span class="n">encoded_command_set</span> <span class="o">=</span> <span class="n">BytesIO</span><span class="p">()</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">message</span><span class="o">.</span><span class="n">data_set</span> <span class="o">=</span> <span class="n">BytesIO</span><span class="p">()</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">message</span> <span class="o">=</span> <span class="kc">None</span></div>
 
 <div class="viewcode-block" id="DIMSEServiceProvider.send_msg"><a class="viewcode-back" href="../../reference/generated/pynetdicom.dimse.DIMSEServiceProvider.html#pynetdicom.dimse.DIMSEServiceProvider.send_msg">[docs]</a>    <span class="k">def</span> <span class="nf">send_msg</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">primitive</span><span class="p">,</span> <span class="n">context_id</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;Send a DIMSE-C or DIMSE-N message to the peer AE.</span>
@@ -405,100 +483,6 @@
         <span class="c1">#   each below the max_pdu size</span>
         <span class="k">for</span> <span class="n">pdata</span> <span class="ow">in</span> <span class="n">dimse_msg</span><span class="o">.</span><span class="n">encode_msg</span><span class="p">(</span><span class="n">context_id</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">maximum_pdu_size</span><span class="p">):</span>
             <span class="bp">self</span><span class="o">.</span><span class="n">dul</span><span class="o">.</span><span class="n">send_pdu</span><span class="p">(</span><span class="n">pdata</span><span class="p">)</span></div>
-
-<div class="viewcode-block" id="DIMSEServiceProvider.receive_msg"><a class="viewcode-back" href="../../reference/generated/pynetdicom.dimse.DIMSEServiceProvider.html#pynetdicom.dimse.DIMSEServiceProvider.receive_msg">[docs]</a>    <span class="k">def</span> <span class="nf">receive_msg</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">wait</span><span class="o">=</span><span class="kc">False</span><span class="p">):</span>
-        <span class="sd">&quot;&quot;&quot;Receive a DIMSE message from the peer.</span>
-
-<span class="sd">        Set the DIMSE provider in a mode ready to receive a response from the</span>
-<span class="sd">        peer</span>
-
-<span class="sd">        Parameters</span>
-<span class="sd">        ----------</span>
-<span class="sd">        wait : bool, optional</span>
-<span class="sd">            Wait until a response has been received (default: False).</span>
-
-<span class="sd">        Returns</span>
-<span class="sd">        -------</span>
-<span class="sd">        dimse_messages.DIMSEMessage, int or None, None</span>
-<span class="sd">            Returns the complete DIMSE message and its presentation context ID</span>
-<span class="sd">            or None, None.</span>
-<span class="sd">        &quot;&quot;&quot;</span>
-        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">message</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
-            <span class="bp">self</span><span class="o">.</span><span class="n">message</span> <span class="o">=</span> <span class="n">DIMSEMessage</span><span class="p">()</span>
-
-        <span class="n">timeout</span> <span class="o">=</span> <span class="n">Timer</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">dimse_timeout</span><span class="p">)</span>
-        <span class="n">timeout</span><span class="o">.</span><span class="n">start</span><span class="p">()</span>
-
-        <span class="k">if</span> <span class="n">wait</span><span class="p">:</span>
-            <span class="c1"># Loop until complete DIMSE message is received</span>
-            <span class="c1">#   message may be split into 1 or more fragments</span>
-            <span class="k">while</span> <span class="kc">True</span><span class="p">:</span>
-
-                <span class="c1"># Fix for issue #38</span>
-                <span class="c1"># Because we only progress once the next PDU arrives to be</span>
-                <span class="c1">#   peeked at, the DIMSE timeout in receive_pdu() doesn&#39;t</span>
-                <span class="c1">#   actually do anything.</span>
-                <span class="k">if</span> <span class="n">timeout</span><span class="o">.</span><span class="n">expired</span><span class="p">:</span>
-                    <span class="k">return</span> <span class="kc">None</span><span class="p">,</span> <span class="kc">None</span>
-
-                <span class="c1"># Race condition: sometimes the DUL will be killed before the</span>
-                <span class="c1">#   loop exits</span>
-                <span class="k">if</span> <span class="ow">not</span> <span class="bp">self</span><span class="o">.</span><span class="n">dul</span><span class="o">.</span><span class="n">is_alive</span><span class="p">():</span>
-                    <span class="k">return</span> <span class="kc">None</span><span class="p">,</span> <span class="kc">None</span>
-
-                <span class="n">time</span><span class="o">.</span><span class="n">sleep</span><span class="p">(</span><span class="mf">0.001</span><span class="p">)</span>
-
-                <span class="n">nxt</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">dul</span><span class="o">.</span><span class="n">peek_next_pdu</span><span class="p">()</span>
-                <span class="k">if</span> <span class="n">nxt</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
-                    <span class="k">continue</span>
-
-                <span class="k">if</span> <span class="n">nxt</span><span class="o">.</span><span class="vm">__class__</span> <span class="ow">is</span> <span class="ow">not</span> <span class="n">P_DATA</span><span class="p">:</span>
-                    <span class="k">continue</span>
-
-                <span class="n">pdu</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">dul</span><span class="o">.</span><span class="n">receive_pdu</span><span class="p">(</span><span class="n">wait</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">dimse_timeout</span><span class="p">)</span>
-
-                <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">message</span><span class="o">.</span><span class="n">decode_msg</span><span class="p">(</span><span class="n">pdu</span><span class="p">):</span>
-                    <span class="c1"># Callback</span>
-                    <span class="c1"># TODO: Make this a package level option to increase speed</span>
-                    <span class="bp">self</span><span class="o">.</span><span class="n">on_receive_dimse_message</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">message</span><span class="p">)</span>
-
-                    <span class="n">context_id</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">message</span><span class="o">.</span><span class="n">context_id</span>
-                    <span class="n">primitive</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">message</span><span class="o">.</span><span class="n">message_to_primitive</span><span class="p">()</span>
-
-                    <span class="c1"># Fix for memory leak, Issue #41</span>
-                    <span class="c1">#   Reset the DIMSE message, ready for the next one</span>
-                    <span class="bp">self</span><span class="o">.</span><span class="n">message</span><span class="o">.</span><span class="n">encoded_command_set</span> <span class="o">=</span> <span class="n">BytesIO</span><span class="p">()</span>
-                    <span class="bp">self</span><span class="o">.</span><span class="n">message</span><span class="o">.</span><span class="n">data_set</span> <span class="o">=</span> <span class="n">BytesIO</span><span class="p">()</span>
-                    <span class="bp">self</span><span class="o">.</span><span class="n">message</span> <span class="o">=</span> <span class="kc">None</span>
-
-                    <span class="k">return</span> <span class="n">primitive</span><span class="p">,</span> <span class="n">context_id</span>
-
-        <span class="k">else</span><span class="p">:</span>
-            <span class="c1"># Check to make sure the next PDU is a P-DATA-TF PDU</span>
-            <span class="c1">#   if not then return</span>
-            <span class="n">pdu</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">dul</span><span class="o">.</span><span class="n">peek_next_pdu</span><span class="p">()</span>
-            <span class="k">if</span> <span class="ow">not</span> <span class="n">pdu</span> <span class="ow">or</span> <span class="n">pdu</span><span class="o">.</span><span class="vm">__class__</span> <span class="o">!=</span> <span class="n">P_DATA</span><span class="p">:</span>
-                <span class="k">return</span> <span class="kc">None</span><span class="p">,</span> <span class="kc">None</span>
-
-            <span class="n">pdu</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">dul</span><span class="o">.</span><span class="n">receive_pdu</span><span class="p">(</span><span class="n">wait</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">dimse_timeout</span><span class="p">)</span>
-
-            <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">message</span><span class="o">.</span><span class="n">decode_msg</span><span class="p">(</span><span class="n">pdu</span><span class="p">):</span>
-                <span class="c1"># Callback</span>
-                <span class="c1"># TODO: Make this a package level option to increase speed</span>
-                <span class="bp">self</span><span class="o">.</span><span class="n">on_receive_dimse_message</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">message</span><span class="p">)</span>
-
-                <span class="n">context_id</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">message</span><span class="o">.</span><span class="n">context_id</span>
-                <span class="n">primitive</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">message</span><span class="o">.</span><span class="n">message_to_primitive</span><span class="p">()</span>
-
-                <span class="c1"># Fix for memory leak, Issue #41</span>
-                <span class="c1">#   Reset the DIMSE message, ready for the next one</span>
-                <span class="bp">self</span><span class="o">.</span><span class="n">message</span><span class="o">.</span><span class="n">encoded_command_set</span> <span class="o">=</span> <span class="n">BytesIO</span><span class="p">()</span>
-                <span class="bp">self</span><span class="o">.</span><span class="n">message</span><span class="o">.</span><span class="n">data_set</span> <span class="o">=</span> <span class="n">BytesIO</span><span class="p">()</span>
-                <span class="bp">self</span><span class="o">.</span><span class="n">message</span> <span class="o">=</span> <span class="kc">None</span>
-
-                <span class="k">return</span> <span class="n">primitive</span><span class="p">,</span> <span class="n">context_id</span>
-
-            <span class="k">return</span> <span class="kc">None</span><span class="p">,</span> <span class="kc">None</span></div>
 
     <span class="c1"># Debugging and AE callbacks</span>
 <div class="viewcode-block" id="DIMSEServiceProvider.on_send_dimse_message"><a class="viewcode-back" href="../../reference/generated/pynetdicom.dimse.DIMSEServiceProvider.html#pynetdicom.dimse.DIMSEServiceProvider.on_send_dimse_message">[docs]</a>    <span class="k">def</span> <span class="nf">on_send_dimse_message</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">message</span><span class="p">):</span>

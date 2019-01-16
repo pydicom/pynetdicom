@@ -527,7 +527,10 @@
         <span class="p">)</span>
 
         <span class="c1"># pylint: disable=protected-access</span>
-        <span class="n">assoc</span><span class="o">.</span><span class="n">_accepted_cx</span> <span class="o">=</span> <span class="p">[</span><span class="n">cx</span> <span class="k">for</span> <span class="n">cx</span> <span class="ow">in</span> <span class="n">result</span> <span class="k">if</span> <span class="n">cx</span><span class="o">.</span><span class="n">result</span> <span class="o">==</span> <span class="mh">0x00</span><span class="p">]</span>
+        <span class="c1"># Accepted contexts are stored as {context ID : context}</span>
+        <span class="n">assoc</span><span class="o">.</span><span class="n">_accepted_cx</span> <span class="o">=</span> <span class="p">{</span>
+            <span class="n">cx</span><span class="o">.</span><span class="n">context_id</span><span class="p">:</span><span class="n">cx</span> <span class="k">for</span> <span class="n">cx</span> <span class="ow">in</span> <span class="n">result</span> <span class="k">if</span> <span class="n">cx</span><span class="o">.</span><span class="n">result</span> <span class="o">==</span> <span class="mh">0x00</span>
+        <span class="p">}</span>
         <span class="n">assoc</span><span class="o">.</span><span class="n">_rejected_cx</span> <span class="o">=</span> <span class="p">[</span><span class="n">cx</span> <span class="k">for</span> <span class="n">cx</span> <span class="ow">in</span> <span class="n">result</span> <span class="k">if</span> <span class="n">cx</span><span class="o">.</span><span class="n">result</span> <span class="o">!=</span> <span class="mh">0x00</span><span class="p">]</span>
         <span class="c1"># pylint: enable=protected-access</span>
 
@@ -603,9 +606,11 @@
                 <span class="p">)</span>
 
                 <span class="c1"># pylint: disable=protected-access</span>
-                <span class="n">assoc</span><span class="o">.</span><span class="n">_accepted_cx</span> <span class="o">=</span> <span class="p">[</span>
-                    <span class="n">cx</span> <span class="k">for</span> <span class="n">cx</span> <span class="ow">in</span> <span class="n">negotiated_contexts</span> <span class="k">if</span> <span class="n">cx</span><span class="o">.</span><span class="n">result</span> <span class="o">==</span> <span class="mh">0x00</span>
-                <span class="p">]</span>
+                <span class="c1"># Accepted contexts are stored as {context ID : context}</span>
+                <span class="n">assoc</span><span class="o">.</span><span class="n">_accepted_cx</span> <span class="o">=</span> <span class="p">{</span>
+                    <span class="n">cx</span><span class="o">.</span><span class="n">context_id</span><span class="p">:</span><span class="n">cx</span>
+                    <span class="k">for</span> <span class="n">cx</span> <span class="ow">in</span> <span class="n">negotiated_contexts</span> <span class="k">if</span> <span class="n">cx</span><span class="o">.</span><span class="n">result</span> <span class="o">==</span> <span class="mh">0x00</span>
+                <span class="p">}</span>
                 <span class="n">assoc</span><span class="o">.</span><span class="n">_rejected_cx</span> <span class="o">=</span> <span class="p">[</span>
                     <span class="n">cx</span> <span class="k">for</span> <span class="n">cx</span> <span class="ow">in</span> <span class="n">negotiated_contexts</span> <span class="k">if</span> <span class="n">cx</span><span class="o">.</span><span class="n">result</span> <span class="o">!=</span> <span class="mh">0x00</span>
                 <span class="p">]</span>

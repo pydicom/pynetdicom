@@ -781,10 +781,10 @@
 </li>
       <li><a href="reference/generated/pynetdicom.dimse.DIMSEServiceProvider.html#pynetdicom.dimse.DIMSEServiceProvider.debug_send_n_delete_rq">debug_send_n_delete_rq() (pynetdicom.dimse.DIMSEServiceProvider static method)</a>
 </li>
-  </ul></td>
-  <td style="width: 33%; vertical-align: top;"><ul>
       <li><a href="reference/generated/pynetdicom.dimse.DIMSEServiceProvider.html#pynetdicom.dimse.DIMSEServiceProvider.debug_send_n_delete_rsp">debug_send_n_delete_rsp() (pynetdicom.dimse.DIMSEServiceProvider static method)</a>
 </li>
+  </ul></td>
+  <td style="width: 33%; vertical-align: top;"><ul>
       <li><a href="reference/generated/pynetdicom.dimse.DIMSEServiceProvider.html#pynetdicom.dimse.DIMSEServiceProvider.debug_send_n_event_report_rq">debug_send_n_event_report_rq() (pynetdicom.dimse.DIMSEServiceProvider static method)</a>
 </li>
       <li><a href="reference/generated/pynetdicom.dimse.DIMSEServiceProvider.html#pynetdicom.dimse.DIMSEServiceProvider.debug_send_n_event_report_rsp">debug_send_n_event_report_rsp() (pynetdicom.dimse.DIMSEServiceProvider static method)</a>
@@ -896,6 +896,8 @@
       <li><a href="reference/generated/pynetdicom.ae.ApplicationEntity.html#pynetdicom.ae.ApplicationEntity.dimse_timeout">dimse_timeout (pynetdicom.ae.ApplicationEntity attribute)</a>, <a href="reference/generated/pynetdicom.ae.ApplicationEntity.html#pynetdicom.ae.ApplicationEntity.dimse_timeout">[1]</a>
 
       <ul>
+        <li><a href="reference/generated/pynetdicom.association.Association.html#pynetdicom.association.Association.dimse_timeout">(pynetdicom.association.Association attribute)</a>
+</li>
         <li><a href="reference/generated/pynetdicom.dimse.DIMSEServiceProvider.html#pynetdicom.dimse.DIMSEServiceProvider.dimse_timeout">(pynetdicom.dimse.DIMSEServiceProvider attribute)</a>
 </li>
       </ul></li>
@@ -1104,6 +1106,10 @@
 <table style="width: 100%" class="indextable genindextable"><tr>
   <td style="width: 33%; vertical-align: top;"><ul>
       <li><a href="reference/generated/pynetdicom.association.ServiceUser.html#pynetdicom.association.ServiceUser.get_contexts">get_contexts() (pynetdicom.association.ServiceUser method)</a>
+</li>
+  </ul></td>
+  <td style="width: 33%; vertical-align: top;"><ul>
+      <li><a href="reference/generated/pynetdicom.dimse.DIMSEServiceProvider.html#pynetdicom.dimse.DIMSEServiceProvider.get_msg">get_msg() (pynetdicom.dimse.DIMSEServiceProvider method)</a>
 </li>
   </ul></td>
 </tr></table>
@@ -1699,6 +1705,8 @@
         <li><a href="reference/generated/pynetdicom.pdu.P_DATA_TF.html#pynetdicom.pdu.P_DATA_TF.pdu_type">(pynetdicom.pdu.P_DATA_TF attribute)</a>, <a href="reference/generated/pynetdicom.pdu.P_DATA_TF.html#pynetdicom.pdu.P_DATA_TF.pdu_type">[1]</a>
 </li>
       </ul></li>
+      <li><a href="reference/generated/pynetdicom.dimse.DIMSEServiceProvider.html#pynetdicom.dimse.DIMSEServiceProvider.peek_msg">peek_msg() (pynetdicom.dimse.DIMSEServiceProvider method)</a>
+</li>
       <li><a href="reference/generated/pynetdicom.dul.DULServiceProvider.html#pynetdicom.dul.DULServiceProvider.peek_next_pdu">peek_next_pdu() (pynetdicom.dul.DULServiceProvider method)</a>
 </li>
       <li><a href="reference/generated/pynetdicom.ae.ApplicationEntity.html#pynetdicom.ae.ApplicationEntity.port">port (pynetdicom.ae.ApplicationEntity attribute)</a>, <a href="reference/generated/pynetdicom.ae.ApplicationEntity.html#pynetdicom.ae.ApplicationEntity.port">[1]</a>
@@ -1845,9 +1853,9 @@
         <li><a href="reference/generated/pynetdicom.pdu.A_ASSOCIATE_RJ.html#pynetdicom.pdu.A_ASSOCIATE_RJ.reason_str">(pynetdicom.pdu.A_ASSOCIATE_RJ attribute)</a>
 </li>
       </ul></li>
-      <li><a href="reference/generated/pynetdicom.dimse.DIMSEServiceProvider.html#pynetdicom.dimse.DIMSEServiceProvider.receive_msg">receive_msg() (pynetdicom.dimse.DIMSEServiceProvider method)</a>
-</li>
       <li><a href="reference/generated/pynetdicom.dul.DULServiceProvider.html#pynetdicom.dul.DULServiceProvider.receive_pdu">receive_pdu() (pynetdicom.dul.DULServiceProvider method)</a>
+</li>
+      <li><a href="reference/generated/pynetdicom.dimse.DIMSEServiceProvider.html#pynetdicom.dimse.DIMSEServiceProvider.receive_primitive">receive_primitive() (pynetdicom.dimse.DIMSEServiceProvider method)</a>
 </li>
       <li><a href="reference/generated/pynetdicom.association.Association.html#pynetdicom.association.Association.rejected_contexts">rejected_contexts (pynetdicom.association.Association attribute)</a>
 </li>

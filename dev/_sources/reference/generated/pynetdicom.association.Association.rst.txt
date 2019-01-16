@@ -57,6 +57,7 @@ pynetdicom.association.Association
       ~Association.acse_timeout
       ~Association.ae
       ~Association.daemon
+      ~Association.dimse_timeout
       ~Association.ident
       ~Association.is_acceptor
       ~Association.is_requestor

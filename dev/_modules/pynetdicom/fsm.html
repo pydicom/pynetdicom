@@ -631,8 +631,8 @@
 <span class="sd">    str</span>
 <span class="sd">        Sta6, the next state of the state machine</span>
 <span class="sd">    &quot;&quot;&quot;</span>
-    <span class="c1"># Send P-DATA indication primitive to DUL</span>
-    <span class="n">dul</span><span class="o">.</span><span class="n">to_user_queue</span><span class="o">.</span><span class="n">put</span><span class="p">(</span><span class="n">dul</span><span class="o">.</span><span class="n">primitive</span><span class="p">)</span>
+    <span class="c1"># Send P-DATA indication primitive directly to DIMSE for processing</span>
+    <span class="n">dul</span><span class="o">.</span><span class="n">assoc</span><span class="o">.</span><span class="n">dimse</span><span class="o">.</span><span class="n">receive_primitive</span><span class="p">(</span><span class="n">dul</span><span class="o">.</span><span class="n">primitive</span><span class="p">)</span>
 
     <span class="k">return</span> <span class="s1">&#39;Sta6&#39;</span></div>
 

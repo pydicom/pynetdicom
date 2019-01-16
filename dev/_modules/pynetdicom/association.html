@@ -324,8 +324,10 @@
 
         <span class="c1"># Kills the thread loop in run()</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">_kill</span> <span class="o">=</span> <span class="kc">False</span>
+        <span class="c1"># Flag for whether or not the DUL thread has been started</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_started_dul</span> <span class="o">=</span> <span class="kc">False</span>
 
-        <span class="c1"># Send A-ABORT when an A-ASSOCIATE request is received</span>
+        <span class="c1"># Send A-ABORT/A-P-ABORT when an A-ASSOCIATE request is received</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">_a_abort_assoc_rq</span> <span class="o">=</span> <span class="kc">False</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">_a_p_abort_assoc_rq</span> <span class="o">=</span> <span class="kc">False</span>
 
@@ -350,7 +352,8 @@
     <span class="nd">@property</span>
     <span class="k">def</span> <span class="nf">accepted_contexts</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;Return a list of accepted Presentation Contexts.&quot;&quot;&quot;</span>
-        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_accepted_cx</span>
+        <span class="c1"># Accepted contexts are stored internally as {context ID : context}</span>
+        <span class="k">return</span> <span class="nb">sorted</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_accepted_cx</span><span class="o">.</span><span class="n">values</span><span class="p">(),</span> <span class="n">key</span><span class="o">=</span><span class="k">lambda</span> <span class="n">x</span><span class="p">:</span> <span class="n">x</span><span class="o">.</span><span class="n">context_id</span><span class="p">)</span>
 
     <span class="nd">@property</span>
     <span class="k">def</span> <span class="nf">acse_timeout</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
@@ -362,6 +365,17 @@
         <span class="sd">&quot;&quot;&quot;Set the ACSE timeout using numeric or None.&quot;&quot;&quot;</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">dul</span><span class="o">.</span><span class="n">artim_timer</span><span class="o">.</span><span class="n">timeout</span> <span class="o">=</span> <span class="n">value</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">_acse_timeout</span> <span class="o">=</span> <span class="n">value</span>
+
+    <span class="nd">@property</span>
+    <span class="k">def</span> <span class="nf">dimse_timeout</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;Return the DIMSE timeout in seconds.&quot;&quot;&quot;</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_dimse_timeout</span>
+
+    <span class="nd">@dimse_timeout</span><span class="o">.</span><span class="n">setter</span>
+    <span class="k">def</span> <span class="nf">dimse_timeout</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">value</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;Set the DIMSE timeout using numeric or None.&quot;&quot;&quot;</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">dimse</span><span class="o">.</span><span class="n">dimse_timeout</span> <span class="o">=</span> <span class="n">value</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_dimse_timeout</span> <span class="o">=</span> <span class="n">value</span>
 
     <span class="nd">@property</span>
     <span class="k">def</span> <span class="nf">network_timeout</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
@@ -564,6 +578,7 @@
 <span class="sd">        &quot;&quot;&quot;</span>
         <span class="c1"># Start the DUL thread if not already started</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">dul</span><span class="o">.</span><span class="n">start</span><span class="p">()</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_started_dul</span> <span class="o">=</span> <span class="kc">True</span>
         <span class="c1"># Give the DUL time to start up, tends to cause intermittent</span>
         <span class="c1"># test failures otherwise</span>
         <span class="n">time</span><span class="o">.</span><span class="n">sleep</span><span class="p">(</span><span class="mf">0.05</span><span class="p">)</span>
@@ -573,8 +588,9 @@
 <div class="viewcode-block" id="Association.run"><a class="viewcode-back" href="../../reference/generated/pynetdicom.association.Association.html#pynetdicom.association.Association.run">[docs]</a>    <span class="k">def</span> <span class="nf">run</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;The main Association control.&quot;&quot;&quot;</span>
         <span class="c1"># Start the DUL thread if not already started</span>
-        <span class="k">if</span> <span class="ow">not</span> <span class="bp">self</span><span class="o">.</span><span class="n">dul</span><span class="o">.</span><span class="n">is_alive</span><span class="p">():</span>
+        <span class="k">if</span> <span class="ow">not</span> <span class="bp">self</span><span class="o">.</span><span class="n">_started_dul</span><span class="p">:</span>
             <span class="bp">self</span><span class="o">.</span><span class="n">dul</span><span class="o">.</span><span class="n">start</span><span class="p">()</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">_started_dul</span> <span class="o">=</span> <span class="kc">True</span>
             <span class="c1"># Give the DUL time to start up, tends to cause intermittent</span>
             <span class="c1"># test failures otherwise</span>
             <span class="n">time</span><span class="o">.</span><span class="n">sleep</span><span class="p">(</span><span class="mf">0.05</span><span class="p">)</span>
@@ -643,13 +659,11 @@
         <span class="k">while</span> <span class="ow">not</span> <span class="bp">self</span><span class="o">.</span><span class="n">_kill</span><span class="p">:</span>
             <span class="n">time</span><span class="o">.</span><span class="n">sleep</span><span class="p">(</span><span class="mf">0.001</span><span class="p">)</span>
 
-            <span class="c1"># Check with the DIMSE provider for incoming messages</span>
-            <span class="c1">#   all messages should be a DIMSEMessage subclass</span>
-            <span class="n">msg</span><span class="p">,</span> <span class="n">msg_context_id</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">dimse</span><span class="o">.</span><span class="n">receive_msg</span><span class="p">(</span><span class="n">wait</span><span class="o">=</span><span class="kc">False</span><span class="p">)</span>
+            <span class="c1"># Check with the DIMSE provider to see if a completely decoded</span>
+            <span class="c1">#   message is available</span>
+            <span class="n">msg_context_id</span><span class="p">,</span> <span class="n">msg</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">dimse</span><span class="o">.</span><span class="n">get_msg</span><span class="p">(</span><span class="n">block</span><span class="o">=</span><span class="kc">False</span><span class="p">)</span>
 
-            <span class="c1"># DIMSE message received</span>
-            <span class="c1"># TODO: This is not a good way to handle messages, they should</span>
-            <span class="c1">#   be managed via their message ID and/or SOP Class UIDs</span>
+            <span class="c1"># DIMSE message received, should be a service request</span>
             <span class="k">if</span> <span class="n">msg</span><span class="p">:</span>
                 <span class="c1"># Use the Message&#39;s Affected SOP Class UID or Requested SOP</span>
                 <span class="c1">#   Class UID to determine which service to use</span>
@@ -662,14 +676,10 @@
                     <span class="c1"># N-GET, N-SET, N-ACTION, N-DELETE use RequestedSOPClassUID</span>
                     <span class="n">class_uid</span> <span class="o">=</span> <span class="n">msg</span><span class="o">.</span><span class="n">RequestedSOPClassUID</span>
                 <span class="k">else</span><span class="p">:</span>
-                    <span class="c1"># FIXME: C-CANCEL requests are not being handled correctly</span>
-                    <span class="c1">#   need a way to identify which service it belongs to</span>
-                    <span class="c1">#   or maybe just call the callback now?</span>
-                    <span class="n">LOGGER</span><span class="o">.</span><span class="n">warning</span><span class="p">(</span>
-                        <span class="s2">&quot;C-CANCEL requests are not implemented&quot;</span>
-                    <span class="p">)</span>
-                    <span class="bp">self</span><span class="o">.</span><span class="n">abort</span><span class="p">()</span>
-                    <span class="k">return</span>
+                    <span class="c1"># Received a C-CANCEL request outside of service</span>
+                    <span class="c1">#   operation, ignore it</span>
+                    <span class="n">LOGGER</span><span class="o">.</span><span class="n">warning</span><span class="p">(</span><span class="s2">&quot;Received unexpected C-CANCEL request&quot;</span><span class="p">)</span>
+                    <span class="k">continue</span>
 
                 <span class="c1"># SOP Class Common Extended Negotiation</span>
                 <span class="k">try</span><span class="p">:</span>
@@ -683,25 +693,28 @@
                 <span class="c1"># Convert the SOP/Service UID to the corresponding service</span>
                 <span class="n">service_class</span> <span class="o">=</span> <span class="n">uid_to_service_class</span><span class="p">(</span><span class="n">class_uid</span><span class="p">)(</span><span class="bp">self</span><span class="p">)</span>
 
-                <span class="c1"># TODO: Index contexts in a dict using context ID</span>
-                <span class="k">for</span> <span class="n">context</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">accepted_contexts</span><span class="p">:</span>
-                    <span class="k">if</span> <span class="n">context</span><span class="o">.</span><span class="n">context_id</span> <span class="o">==</span> <span class="n">msg_context_id</span><span class="p">:</span>
-                        <span class="c1"># Run corresponding Service Class in SCP mode</span>
-                        <span class="k">try</span><span class="p">:</span>
-                            <span class="n">service_class</span><span class="o">.</span><span class="n">SCP</span><span class="p">(</span><span class="n">msg</span><span class="p">,</span> <span class="n">context</span><span class="p">,</span> <span class="n">info</span><span class="p">)</span>
-                        <span class="k">except</span> <span class="ne">NotImplementedError</span><span class="p">:</span>
-                            <span class="c1"># SCP isn&#39;t implemented</span>
-                            <span class="n">LOGGER</span><span class="o">.</span><span class="n">warning</span><span class="p">(</span>
-                                <span class="s2">&quot;No service class implementation for &#39;</span><span class="si">{}</span><span class="s2">&#39;&quot;</span>
-                                <span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">context</span><span class="o">.</span><span class="n">abstract_syntax</span><span class="p">)</span>
-                            <span class="p">)</span>
-                            <span class="bp">self</span><span class="o">.</span><span class="n">abort</span><span class="p">()</span>
-                            <span class="k">return</span>
-                        <span class="k">break</span>
-                <span class="k">else</span><span class="p">:</span>
-                    <span class="n">LOGGER</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="s2">&quot;Received message with invalid or rejected &quot;</span>
-                                <span class="s2">&quot;context ID </span><span class="si">%d</span><span class="s2">&quot;</span><span class="p">,</span> <span class="n">msg_context_id</span><span class="p">)</span>
+                <span class="k">try</span><span class="p">:</span>
+                    <span class="n">context</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_accepted_cx</span><span class="p">[</span><span class="n">msg_context_id</span><span class="p">]</span>
+                <span class="k">except</span> <span class="ne">KeyError</span><span class="p">:</span>
+                    <span class="n">LOGGER</span><span class="o">.</span><span class="n">info</span><span class="p">(</span>
+                        <span class="s2">&quot;Received DIMSE message with invalid or rejected &quot;</span>
+                        <span class="s2">&quot;context ID: </span><span class="si">%d</span><span class="s2">&quot;</span><span class="p">,</span> <span class="n">msg_context_id</span>
+                    <span class="p">)</span>
                     <span class="n">LOGGER</span><span class="o">.</span><span class="n">debug</span><span class="p">(</span><span class="s2">&quot;</span><span class="si">%s</span><span class="s2">&quot;</span><span class="p">,</span> <span class="n">msg</span><span class="p">)</span>
+                    <span class="bp">self</span><span class="o">.</span><span class="n">abort</span><span class="p">()</span>
+                    <span class="k">return</span>
+
+                <span class="c1"># Run corresponding Service Class in SCP mode</span>
+                <span class="k">try</span><span class="p">:</span>
+                    <span class="n">service_class</span><span class="o">.</span><span class="n">SCP</span><span class="p">(</span><span class="n">msg</span><span class="p">,</span> <span class="n">context</span><span class="p">,</span> <span class="n">info</span><span class="p">)</span>
+                <span class="k">except</span> <span class="ne">NotImplementedError</span><span class="p">:</span>
+                    <span class="c1"># SCP isn&#39;t implemented</span>
+                    <span class="n">LOGGER</span><span class="o">.</span><span class="n">warning</span><span class="p">(</span>
+                        <span class="s2">&quot;No service class implementation for &#39;</span><span class="si">{}</span><span class="s2">&#39;&quot;</span>
+                        <span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">context</span><span class="o">.</span><span class="n">abstract_syntax</span><span class="p">)</span>
+                    <span class="p">)</span>
+                    <span class="bp">self</span><span class="o">.</span><span class="n">abort</span><span class="p">()</span>
+                    <span class="k">return</span>
 
             <span class="c1"># Check for release request</span>
             <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">acse</span><span class="o">.</span><span class="n">is_release_requested</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
@@ -962,12 +975,12 @@
 <span class="sd">        Returns</span>
 <span class="sd">        -------</span>
 <span class="sd">        status : pydicom.dataset.Dataset</span>
-<span class="sd">            If the peer timed out or sent an invalid response then returns an</span>
-<span class="sd">            empty ``Dataset``. If a valid response was received from the peer</span>
-<span class="sd">            then returns a ``Dataset`` containing at least a (0000,0900)</span>
-<span class="sd">            *Status* element, and, depending on the returned Status value, may</span>
-<span class="sd">            optionally contain additional elements (see DICOM Standard Part 7,</span>
-<span class="sd">            Annex C).</span>
+<span class="sd">            If the peer timed out, aborted or sent an invalid response then</span>
+<span class="sd">            returns an empty ``Dataset``. If a valid response was received from</span>
+<span class="sd">            the peer then returns a ``Dataset`` containing at least a</span>
+<span class="sd">            (0000,0900) *Status* element, and, depending on the returned</span>
+<span class="sd">            Status value, may optionally contain additional elements (see</span>
+<span class="sd">            DICOM Standard Part 7, Annex C).</span>
 
 <span class="sd">            The DICOM Standard Part 7, Table 9.3-13 indicates that the Status</span>
 <span class="sd">            value of a C-ECHO response &quot;shall have a value of Success&quot;. However</span>
@@ -1026,7 +1039,14 @@
 
         <span class="c1"># Send C-ECHO request to the peer via DIMSE and wait for the response</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">dimse</span><span class="o">.</span><span class="n">send_msg</span><span class="p">(</span><span class="n">primitive</span><span class="p">,</span> <span class="n">context</span><span class="o">.</span><span class="n">context_id</span><span class="p">)</span>
-        <span class="n">rsp</span><span class="p">,</span> <span class="n">_</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">dimse</span><span class="o">.</span><span class="n">receive_msg</span><span class="p">(</span><span class="n">wait</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+        <span class="n">cx_id</span><span class="p">,</span> <span class="n">rsp</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">dimse</span><span class="o">.</span><span class="n">get_msg</span><span class="p">(</span><span class="n">block</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+
+        <span class="c1"># If `rsp` is None then the DIMSE timeout expired so abort</span>
+        <span class="k">if</span> <span class="n">rsp</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">is_established</span><span class="p">:</span>
+                <span class="n">LOGGER</span><span class="o">.</span><span class="n">error</span><span class="p">(</span><span class="s2">&quot;Connection closed or timed-out&quot;</span><span class="p">)</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">abort</span><span class="p">()</span>
+            <span class="k">return</span> <span class="n">Dataset</span><span class="p">()</span>
 
         <span class="c1"># Determine validity of the response and get the status</span>
         <span class="n">status</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_check_received_status</span><span class="p">(</span><span class="n">rsp</span><span class="p">)</span>
@@ -1092,12 +1112,12 @@
 <span class="sd">        Yields</span>
 <span class="sd">        ------</span>
 <span class="sd">        status : pydicom.dataset.Dataset</span>
-<span class="sd">            If the peer timed out or sent an invalid response then yields an</span>
-<span class="sd">            empty ``Dataset``. If a response was received from the peer then</span>
-<span class="sd">            yields a ``Dataset`` containing at least a (0000,0900) *Status*</span>
-<span class="sd">            element, and depending on the returned value, may optionally</span>
-<span class="sd">            contain additional elements (see the DICOM Standard, Part 7,</span>
-<span class="sd">            Section 9.1.2.1.5 and Annex C).</span>
+<span class="sd">            If the peer timed out, aborted or sent an invalid response then</span>
+<span class="sd">            yields an empty ``Dataset``. If a response was received from the</span>
+<span class="sd">            peer then yields a ``Dataset`` containing at least a (0000,0900)</span>
+<span class="sd">            *Status* element, and depending on the returned value, may</span>
+<span class="sd">            optionally contain additional elements (see the DICOM Standard,</span>
+<span class="sd">            Part 7, Section 9.1.2.1.5 and Annex C).</span>
 
 <span class="sd">            The status for the requested C-FIND operation should be one of the</span>
 <span class="sd">            following values, but as the returned value depends</span>
@@ -1264,18 +1284,21 @@
         <span class="n">ii</span> <span class="o">=</span> <span class="mi">1</span>
         <span class="k">while</span> <span class="kc">True</span><span class="p">:</span>
             <span class="c1"># Wait for C-FIND response</span>
-            <span class="n">rsp</span><span class="p">,</span> <span class="n">_</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">dimse</span><span class="o">.</span><span class="n">receive_msg</span><span class="p">(</span><span class="n">wait</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+            <span class="n">cx_id</span><span class="p">,</span> <span class="n">rsp</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">dimse</span><span class="o">.</span><span class="n">get_msg</span><span class="p">(</span><span class="n">block</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
 
-            <span class="c1"># If no response received, start loop again</span>
-            <span class="k">if</span> <span class="ow">not</span> <span class="n">rsp</span><span class="p">:</span>
-                <span class="n">LOGGER</span><span class="o">.</span><span class="n">error</span><span class="p">(</span><span class="s2">&quot;Connection closed or timed-out&quot;</span><span class="p">)</span>
-                <span class="bp">self</span><span class="o">.</span><span class="n">abort</span><span class="p">()</span>
+            <span class="c1"># If `rsp` is None then the DIMSE timeout expired so abort</span>
+            <span class="k">if</span> <span class="n">rsp</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+                <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">is_established</span><span class="p">:</span>
+                    <span class="n">LOGGER</span><span class="o">.</span><span class="n">error</span><span class="p">(</span><span class="s2">&quot;Connection closed or timed-out&quot;</span><span class="p">)</span>
+                    <span class="bp">self</span><span class="o">.</span><span class="n">abort</span><span class="p">()</span>
+                <span class="k">yield</span> <span class="n">Dataset</span><span class="p">(),</span> <span class="kc">None</span>
                 <span class="k">return</span>
             <span class="k">elif</span> <span class="ow">not</span> <span class="n">rsp</span><span class="o">.</span><span class="n">is_valid_response</span><span class="p">:</span>
                 <span class="n">LOGGER</span><span class="o">.</span><span class="n">error</span><span class="p">(</span>
                     <span class="s1">&#39;Received an invalid C-FIND response from the peer&#39;</span>
                 <span class="p">)</span>
                 <span class="bp">self</span><span class="o">.</span><span class="n">abort</span><span class="p">()</span>
+                <span class="k">yield</span> <span class="n">Dataset</span><span class="p">(),</span> <span class="kc">None</span>
                 <span class="k">return</span>
 
             <span class="c1"># Status may be &#39;Failure&#39;, &#39;Cancel&#39;, &#39;Success&#39; or &#39;Pending&#39;</span>
@@ -1378,12 +1401,12 @@
 <span class="sd">        Yields</span>
 <span class="sd">        ------</span>
 <span class="sd">        status : pydicom.dataset.Dataset</span>
-<span class="sd">            If the peer timed out or sent an invalid response then yields an</span>
-<span class="sd">            empty ``Dataset``. If a response was received from the peer then</span>
-<span class="sd">            yields a ``Dataset`` containing at least a (0000,0900) *Status*</span>
-<span class="sd">            element, and depending on the returned value may optionally contain</span>
-<span class="sd">            additional elements (see DICOM Standard Part 7, Section 9.1.2.1.5</span>
-<span class="sd">            and Annex C).</span>
+<span class="sd">            If the peer timed out, aborted or sent an invalid response then</span>
+<span class="sd">            yields an empty ``Dataset``. If a response was received from the</span>
+<span class="sd">            peer then yields a ``Dataset`` containing at least a (0000,0900)</span>
+<span class="sd">            *Status* element, and depending on the returned value may</span>
+<span class="sd">            optionally contain additional elements (see DICOM Standard Part 7,</span>
+<span class="sd">            Section 9.1.2.1.5 and Annex C).</span>
 
 <span class="sd">            The status for the requested C-GET operation should be one of the</span>
 <span class="sd">            following values, but as the returned value depends on the</span>
@@ -1541,12 +1564,14 @@
         <span class="k">while</span> <span class="kc">True</span><span class="p">:</span>
             <span class="c1"># Wait for DIMSE message, may be either a C-GET response or a</span>
             <span class="c1">#   C-STORE request</span>
-            <span class="n">rsp</span><span class="p">,</span> <span class="n">_</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">dimse</span><span class="o">.</span><span class="n">receive_msg</span><span class="p">(</span><span class="n">wait</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+            <span class="n">cx_id</span><span class="p">,</span> <span class="n">rsp</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">dimse</span><span class="o">.</span><span class="n">get_msg</span><span class="p">(</span><span class="n">block</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
 
-            <span class="c1"># If nothing received from the peer, try again</span>
-            <span class="k">if</span> <span class="ow">not</span> <span class="n">rsp</span><span class="p">:</span>
-                <span class="n">LOGGER</span><span class="o">.</span><span class="n">error</span><span class="p">(</span><span class="s2">&quot;Connection closed or timed-out&quot;</span><span class="p">)</span>
-                <span class="bp">self</span><span class="o">.</span><span class="n">abort</span><span class="p">()</span>
+            <span class="c1"># If `rsp` is None then the DIMSE timeout expired so abort</span>
+            <span class="k">if</span> <span class="n">rsp</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+                <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">is_established</span><span class="p">:</span>
+                    <span class="n">LOGGER</span><span class="o">.</span><span class="n">error</span><span class="p">(</span><span class="s2">&quot;Connection closed or timed-out&quot;</span><span class="p">)</span>
+                    <span class="bp">self</span><span class="o">.</span><span class="n">abort</span><span class="p">()</span>
+                <span class="k">yield</span> <span class="n">Dataset</span><span class="p">(),</span> <span class="kc">None</span>
                 <span class="k">return</span>
 
             <span class="c1"># Received a C-GET response from the peer</span>
@@ -1680,12 +1705,12 @@
 <span class="sd">        Yields</span>
 <span class="sd">        ------</span>
 <span class="sd">        status : pydicom.dataset.Dataset</span>
-<span class="sd">            If the peer timed out or sent an invalid response then yields an</span>
-<span class="sd">            empty ``Dataset``. If a response was received from the peer then</span>
-<span class="sd">            yields a ``Dataset`` containing at least a (0000,0900) *Status*</span>
-<span class="sd">            element, and depending on the returned value, may optionally</span>
-<span class="sd">            contain additional elements (see DICOM Standard Part 7, Section</span>
-<span class="sd">            9.1.4 and Annex C).</span>
+<span class="sd">            If the peer timed out, aborted or sent an invalid response then</span>
+<span class="sd">            yields an empty ``Dataset``. If a response was received from the</span>
+<span class="sd">            peer then yields a ``Dataset`` containing at least a (0000,0900)</span>
+<span class="sd">            *Status* element, and depending on the returned value, may</span>
+<span class="sd">            optionally contain additional elements (see DICOM Standard Part 7,</span>
+<span class="sd">            Section 9.1.4 and Annex C).</span>
 
 <span class="sd">            The status for the requested C-MOVE operation should be one of the</span>
 <span class="sd">            following values, but as the returned value depends</span>
@@ -1828,12 +1853,14 @@
         <span class="c1"># Get the responses from peer</span>
         <span class="n">operation_no</span> <span class="o">=</span> <span class="mi">1</span>
         <span class="k">while</span> <span class="kc">True</span><span class="p">:</span>
-            <span class="n">rsp</span><span class="p">,</span> <span class="n">_</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">dimse</span><span class="o">.</span><span class="n">receive_msg</span><span class="p">(</span><span class="n">wait</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+            <span class="n">cx_id</span><span class="p">,</span> <span class="n">rsp</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">dimse</span><span class="o">.</span><span class="n">get_msg</span><span class="p">(</span><span class="n">block</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
 
-            <span class="c1"># If nothing received from the peer, try again</span>
-            <span class="k">if</span> <span class="ow">not</span> <span class="n">rsp</span><span class="p">:</span>
-                <span class="n">LOGGER</span><span class="o">.</span><span class="n">error</span><span class="p">(</span><span class="s2">&quot;Connection closed or timed-out&quot;</span><span class="p">)</span>
-                <span class="bp">self</span><span class="o">.</span><span class="n">abort</span><span class="p">()</span>
+            <span class="c1"># If `rsp` is None then the DIMSE timeout expired so abort</span>
+            <span class="k">if</span> <span class="n">rsp</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+                <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">is_established</span><span class="p">:</span>
+                    <span class="n">LOGGER</span><span class="o">.</span><span class="n">error</span><span class="p">(</span><span class="s2">&quot;Connection closed or timed-out&quot;</span><span class="p">)</span>
+                    <span class="bp">self</span><span class="o">.</span><span class="n">abort</span><span class="p">()</span>
+                <span class="k">yield</span> <span class="n">Dataset</span><span class="p">(),</span> <span class="kc">None</span>
                 <span class="k">return</span>
 
             <span class="c1"># Received a C-MOVE response from the peer</span>
@@ -1939,12 +1966,12 @@
 <span class="sd">        Returns</span>
 <span class="sd">        -------</span>
 <span class="sd">        status : pydicom.dataset.Dataset</span>
-<span class="sd">            If the peer timed out or sent an invalid response then returns an</span>
-<span class="sd">            empty ``Dataset``. If a valid response was received from the peer</span>
-<span class="sd">            then returns a ``Dataset`` containing at least a (0000,0900)</span>
-<span class="sd">            *Status* element, and, depending on the returned value, may</span>
-<span class="sd">            optionally contain additional elements (see DICOM Standard Part 7,</span>
-<span class="sd">            Annex C).</span>
+<span class="sd">            If the peer timed out, aborted or sent an invalid response then</span>
+<span class="sd">            returns an empty ``Dataset``. If a valid response was received</span>
+<span class="sd">            from the peer then returns a ``Dataset`` containing at least a</span>
+<span class="sd">            (0000,0900) *Status* element, and, depending on the returned</span>
+<span class="sd">            value, may optionally contain additional elements (see DICOM</span>
+<span class="sd">            Standard Part 7, Annex C).</span>
 
 <span class="sd">            The status for the requested C-STORE operation should be one of the</span>
 <span class="sd">            following, but as the value depends on the peer SCP this can&#39;t be</span>
@@ -2073,7 +2100,14 @@
 
         <span class="c1"># Send C-STORE request to the peer via DIMSE and wait for the response</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">dimse</span><span class="o">.</span><span class="n">send_msg</span><span class="p">(</span><span class="n">req</span><span class="p">,</span> <span class="n">context</span><span class="o">.</span><span class="n">context_id</span><span class="p">)</span>
-        <span class="n">rsp</span><span class="p">,</span> <span class="n">_</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">dimse</span><span class="o">.</span><span class="n">receive_msg</span><span class="p">(</span><span class="n">wait</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+        <span class="n">cx_id</span><span class="p">,</span> <span class="n">rsp</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">dimse</span><span class="o">.</span><span class="n">get_msg</span><span class="p">(</span><span class="n">block</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+
+        <span class="c1"># If `rsp` is None then the DIMSE timeout expired so abort</span>
+        <span class="k">if</span> <span class="n">rsp</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">is_established</span><span class="p">:</span>
+                <span class="n">LOGGER</span><span class="o">.</span><span class="n">error</span><span class="p">(</span><span class="s2">&quot;Connection closed or timed-out&quot;</span><span class="p">)</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">abort</span><span class="p">()</span>
+            <span class="k">return</span> <span class="n">Dataset</span><span class="p">()</span>
 
         <span class="c1"># Determine validity of the response and get the status</span>
         <span class="n">status</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_check_received_status</span><span class="p">(</span><span class="n">rsp</span><span class="p">)</span>
@@ -2105,12 +2139,12 @@
 <span class="sd">        Returns</span>
 <span class="sd">        -------</span>
 <span class="sd">        status : pydicom.dataset.Dataset</span>
-<span class="sd">            If the peer timed out or sent an invalid response then yields an</span>
-<span class="sd">            empty ``Dataset``. If a response was received from the peer then</span>
-<span class="sd">            yields a ``Dataset`` containing at least a (0000,0900) *Status*</span>
-<span class="sd">            element, and depending on the returned value, may optionally</span>
-<span class="sd">            contain additional elements (see the DICOM Standard, Part 7,</span>
-<span class="sd">            Section 9.1.2.1.5 and Annex C).</span>
+<span class="sd">            If the peer timed out, aborted or sent an invalid response then</span>
+<span class="sd">            returns an empty ``Dataset``. If a response was received from the</span>
+<span class="sd">            peer then returns a ``Dataset`` containing at least a (0000,0900)</span>
+<span class="sd">            *Status* element, and depending on the returned value, may</span>
+<span class="sd">            optionally contain additional elements (see the DICOM Standard,</span>
+<span class="sd">            Part 7, Section 9.1.2.1.5 and Annex C).</span>
 
 <span class="sd">            General N-ACTION (DICOM Standard Part 7, Section 10.1.4 and</span>
 <span class="sd">            Annex C)</span>
@@ -2192,7 +2226,14 @@
 
         <span class="c1"># Send N-ACTION request to the peer via DIMSE and wait for the response</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">dimse</span><span class="o">.</span><span class="n">send_msg</span><span class="p">(</span><span class="n">req</span><span class="p">,</span> <span class="n">context</span><span class="o">.</span><span class="n">context_id</span><span class="p">)</span>
-        <span class="n">rsp</span><span class="p">,</span> <span class="n">_</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">dimse</span><span class="o">.</span><span class="n">receive_msg</span><span class="p">(</span><span class="n">wait</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+        <span class="n">cx_id</span><span class="p">,</span> <span class="n">rsp</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">dimse</span><span class="o">.</span><span class="n">get_msg</span><span class="p">(</span><span class="n">block</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+
+        <span class="c1"># If `rsp` is None then the DIMSE timeout expired so abort</span>
+        <span class="k">if</span> <span class="n">rsp</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">is_established</span><span class="p">:</span>
+                <span class="n">LOGGER</span><span class="o">.</span><span class="n">error</span><span class="p">(</span><span class="s2">&quot;Connection closed or timed-out&quot;</span><span class="p">)</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">abort</span><span class="p">()</span>
+            <span class="k">return</span> <span class="n">Dataset</span><span class="p">(),</span> <span class="kc">None</span>
 
         <span class="c1"># Determine validity of the response and get the status</span>
         <span class="n">status</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_check_received_status</span><span class="p">(</span><span class="n">rsp</span><span class="p">)</span>
@@ -2240,12 +2281,12 @@
 <span class="sd">        Returns</span>
 <span class="sd">        -------</span>
 <span class="sd">        status : pydicom.dataset.Dataset</span>
-<span class="sd">            If the peer timed out or sent an invalid response then yields an</span>
-<span class="sd">            empty ``Dataset``. If a response was received from the peer then</span>
-<span class="sd">            yields a ``Dataset`` containing at least a (0000,0900) *Status*</span>
-<span class="sd">            element, and depending on the returned value, may optionally</span>
-<span class="sd">            contain additional elements (see the DICOM Standard, Part 7,</span>
-<span class="sd">            Section 9.1.2.1.5 and Annex C).</span>
+<span class="sd">            If the peer timed out, aborted or sent an invalid response then</span>
+<span class="sd">            returns an empty ``Dataset``. If a response was received from the</span>
+<span class="sd">            peer then returns a ``Dataset`` containing at least a (0000,0900)</span>
+<span class="sd">            *Status* element, and depending on the returned value, may</span>
+<span class="sd">            optionally contain additional elements (see the DICOM Standard,</span>
+<span class="sd">            Part 7, Section 9.1.2.1.5 and Annex C).</span>
 
 <span class="sd">            General N-CREATE (DICOM Standard Part 7, Section 10.1.5 and</span>
 <span class="sd">            Annex C)</span>
@@ -2325,7 +2366,14 @@
 
         <span class="c1"># Send N-CREATE request to the peer via DIMSE and wait for the response</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">dimse</span><span class="o">.</span><span class="n">send_msg</span><span class="p">(</span><span class="n">req</span><span class="p">,</span> <span class="n">context</span><span class="o">.</span><span class="n">context_id</span><span class="p">)</span>
-        <span class="n">rsp</span><span class="p">,</span> <span class="n">_</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">dimse</span><span class="o">.</span><span class="n">receive_msg</span><span class="p">(</span><span class="n">wait</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+        <span class="n">cx_id</span><span class="p">,</span> <span class="n">rsp</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">dimse</span><span class="o">.</span><span class="n">get_msg</span><span class="p">(</span><span class="n">block</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+
+        <span class="c1"># If `rsp` is None then the DIMSE timeout expired so abort</span>
+        <span class="k">if</span> <span class="n">rsp</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">is_established</span><span class="p">:</span>
+                <span class="n">LOGGER</span><span class="o">.</span><span class="n">error</span><span class="p">(</span><span class="s2">&quot;Connection closed or timed-out&quot;</span><span class="p">)</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">abort</span><span class="p">()</span>
+            <span class="k">return</span> <span class="n">Dataset</span><span class="p">(),</span> <span class="kc">None</span>
 
         <span class="c1"># Determine validity of the response and get the status</span>
         <span class="n">status</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_check_received_status</span><span class="p">(</span><span class="n">rsp</span><span class="p">)</span>
@@ -2370,12 +2418,12 @@
 <span class="sd">        Returns</span>
 <span class="sd">        -------</span>
 <span class="sd">        status : pydicom.dataset.Dataset</span>
-<span class="sd">            If the peer timed out or sent an invalid response then yields an</span>
-<span class="sd">            empty ``Dataset``. If a response was received from the peer then</span>
-<span class="sd">            yields a ``Dataset`` containing at least a (0000,0900) *Status*</span>
-<span class="sd">            element, and depending on the returned value, may optionally</span>
-<span class="sd">            contain additional elements (see the DICOM Standard, Part 7,</span>
-<span class="sd">            Section 9.1.2.1.5 and Annex C).</span>
+<span class="sd">            If the peer timed out, aborted or sent an invalid response then</span>
+<span class="sd">            returns an empty ``Dataset``. If a response was received from the</span>
+<span class="sd">            peer then returns a ``Dataset`` containing at least a (0000,0900)</span>
+<span class="sd">            *Status* element, and depending on the returned value, may</span>
+<span class="sd">            optionally contain additional elements (see the DICOM Standard,</span>
+<span class="sd">            Part 7, Section 9.1.2.1.5 and Annex C).</span>
 
 <span class="sd">            General N-DELETE (DICOM Standard Part 7, Section 10.1.6 and</span>
 <span class="sd">            Annex C)</span>
@@ -2432,7 +2480,14 @@
 
         <span class="c1"># Send N-DELETE request to the peer via DIMSE and wait for the response</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">dimse</span><span class="o">.</span><span class="n">send_msg</span><span class="p">(</span><span class="n">req</span><span class="p">,</span> <span class="n">context</span><span class="o">.</span><span class="n">context_id</span><span class="p">)</span>
-        <span class="n">rsp</span><span class="p">,</span> <span class="n">_</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">dimse</span><span class="o">.</span><span class="n">receive_msg</span><span class="p">(</span><span class="n">wait</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+        <span class="n">cx_id</span><span class="p">,</span> <span class="n">rsp</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">dimse</span><span class="o">.</span><span class="n">get_msg</span><span class="p">(</span><span class="n">block</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+
+        <span class="c1"># If `rsp` is None then the DIMSE timeout expired so abort</span>
+        <span class="k">if</span> <span class="n">rsp</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">is_established</span><span class="p">:</span>
+                <span class="n">LOGGER</span><span class="o">.</span><span class="n">error</span><span class="p">(</span><span class="s2">&quot;Connection closed or timed-out&quot;</span><span class="p">)</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">abort</span><span class="p">()</span>
+            <span class="k">return</span> <span class="n">Dataset</span><span class="p">()</span>
 
         <span class="c1"># Determine validity of the response and get the status</span>
         <span class="n">status</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_check_received_status</span><span class="p">(</span><span class="n">rsp</span><span class="p">)</span>
@@ -2464,12 +2519,12 @@
 <span class="sd">        Returns</span>
 <span class="sd">        -------</span>
 <span class="sd">        status : pydicom.dataset.Dataset</span>
-<span class="sd">            If the peer timed out or sent an invalid response then yields an</span>
-<span class="sd">            empty ``Dataset``. If a response was received from the peer then</span>
-<span class="sd">            yields a ``Dataset`` containing at least a (0000,0900) *Status*</span>
-<span class="sd">            element, and depending on the returned value, may optionally</span>
-<span class="sd">            contain additional elements (see the DICOM Standard, Part 7,</span>
-<span class="sd">            Section 9.1.2.1.5 and Annex C).</span>
+<span class="sd">            If the peer timed out, aborted or sent an invalid response then</span>
+<span class="sd">            returns an empty ``Dataset``. If a response was received from the</span>
+<span class="sd">            peer then returns a ``Dataset`` containing at least a (0000,0900)</span>
+<span class="sd">            *Status* element, and depending on the returned value, may</span>
+<span class="sd">            optionally contain additional elements (see the DICOM Standard,</span>
+<span class="sd">            Part 7, Section 9.1.2.1.5 and Annex C).</span>
 
 <span class="sd">            General N-EVENT-REPORT (DICOM Standard Part 7, Section 10.1.1</span>
 <span class="sd">            and Annex C)</span>
@@ -2553,7 +2608,14 @@
         <span class="c1"># Send N-EVENT-REPORT request to the peer via DIMSE and wait for</span>
         <span class="c1"># the response primitive</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">dimse</span><span class="o">.</span><span class="n">send_msg</span><span class="p">(</span><span class="n">req</span><span class="p">,</span> <span class="n">context</span><span class="o">.</span><span class="n">context_id</span><span class="p">)</span>
-        <span class="n">rsp</span><span class="p">,</span> <span class="n">_</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">dimse</span><span class="o">.</span><span class="n">receive_msg</span><span class="p">(</span><span class="n">wait</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+        <span class="n">cx_id</span><span class="p">,</span> <span class="n">rsp</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">dimse</span><span class="o">.</span><span class="n">get_msg</span><span class="p">(</span><span class="n">block</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+
+        <span class="c1"># If `rsp` is None then the DIMSE timeout expired so abort</span>
+        <span class="k">if</span> <span class="n">rsp</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">is_established</span><span class="p">:</span>
+                <span class="n">LOGGER</span><span class="o">.</span><span class="n">error</span><span class="p">(</span><span class="s2">&quot;Connection closed or timed-out&quot;</span><span class="p">)</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">abort</span><span class="p">()</span>
+            <span class="k">return</span> <span class="n">Dataset</span><span class="p">(),</span> <span class="kc">None</span>
 
         <span class="c1"># Determine validity of the response and get the status</span>
         <span class="n">status</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_check_received_status</span><span class="p">(</span><span class="n">rsp</span><span class="p">)</span>
@@ -2603,12 +2665,12 @@
 <span class="sd">        Returns</span>
 <span class="sd">        -------</span>
 <span class="sd">        status : pydicom.dataset.Dataset</span>
-<span class="sd">            If the peer timed out or sent an invalid response then yields an</span>
-<span class="sd">            empty ``Dataset``. If a response was received from the peer then</span>
-<span class="sd">            yields a ``Dataset`` containing at least a (0000,0900) *Status*</span>
-<span class="sd">            element, and depending on the returned value, may optionally</span>
-<span class="sd">            contain additional elements (see the DICOM Standard, Part 7,</span>
-<span class="sd">            Section 9.1.2.1.5 and Annex C).</span>
+<span class="sd">            If the peer timed out, aborted or sent an invalid response then</span>
+<span class="sd">            returns an empty ``Dataset``. If a response was received from the</span>
+<span class="sd">            peer then returns a ``Dataset`` containing at least a (0000,0900)</span>
+<span class="sd">            *Status* element, and depending on the returned value, may</span>
+<span class="sd">            optionally contain additional elements (see the DICOM Standard,</span>
+<span class="sd">            Part 7, Section 9.1.2.1.5 and Annex C).</span>
 
 <span class="sd">            General N-GET (DICOM Standard Part 7, Section 10.1.2 and Annex C)</span>
 
@@ -2681,7 +2743,14 @@
 
         <span class="c1"># Send N-GET request to the peer via DIMSE and wait for the response</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">dimse</span><span class="o">.</span><span class="n">send_msg</span><span class="p">(</span><span class="n">req</span><span class="p">,</span> <span class="n">context</span><span class="o">.</span><span class="n">context_id</span><span class="p">)</span>
-        <span class="n">rsp</span><span class="p">,</span> <span class="n">_</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">dimse</span><span class="o">.</span><span class="n">receive_msg</span><span class="p">(</span><span class="n">wait</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+        <span class="n">cx_id</span><span class="p">,</span> <span class="n">rsp</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">dimse</span><span class="o">.</span><span class="n">get_msg</span><span class="p">(</span><span class="n">block</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+
+        <span class="c1"># If `rsp` is None then the DIMSE timeout expired so abort</span>
+        <span class="k">if</span> <span class="n">rsp</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">is_established</span><span class="p">:</span>
+                <span class="n">LOGGER</span><span class="o">.</span><span class="n">error</span><span class="p">(</span><span class="s2">&quot;Connection closed or timed-out&quot;</span><span class="p">)</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">abort</span><span class="p">()</span>
+            <span class="k">return</span> <span class="n">Dataset</span><span class="p">(),</span> <span class="kc">None</span>
 
         <span class="c1"># Determine validity of the response and get the status</span>
         <span class="n">status</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_check_received_status</span><span class="p">(</span><span class="n">rsp</span><span class="p">)</span>
@@ -2729,12 +2798,12 @@
 <span class="sd">        Returns</span>
 <span class="sd">        -------</span>
 <span class="sd">        status : pydicom.dataset.Dataset</span>
-<span class="sd">            If the peer timed out or sent an invalid response then yields an</span>
-<span class="sd">            empty ``Dataset``. If a response was received from the peer then</span>
-<span class="sd">            yields a ``Dataset`` containing at least a (0000,0900) *Status*</span>
-<span class="sd">            element, and depending on the returned value, may optionally</span>
-<span class="sd">            contain additional elements (see the DICOM Standard, Part 7,</span>
-<span class="sd">            Section 9.1.2.1.5 and Annex C).</span>
+<span class="sd">            If the peer timed out, aborted or sent an invalid response then</span>
+<span class="sd">            returns an empty ``Dataset``. If a response was received from the</span>
+<span class="sd">            peer then returns a ``Dataset`` containing at least a (0000,0900)</span>
+<span class="sd">            *Status* element, and depending on the returned value, may</span>
+<span class="sd">            optionally contain additional elements (see the DICOM Standard,</span>
+<span class="sd">            Part 7, Section 9.1.2.1.5 and Annex C).</span>
 
 <span class="sd">            General N-SET (DICOM Standard Part 7, Section 10.1.3 and Annex C)</span>
 
@@ -2819,7 +2888,14 @@
 
         <span class="c1"># Send N-SET request to the peer via DIMSE and wait for the response</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">dimse</span><span class="o">.</span><span class="n">send_msg</span><span class="p">(</span><span class="n">req</span><span class="p">,</span> <span class="n">context</span><span class="o">.</span><span class="n">context_id</span><span class="p">)</span>
-        <span class="n">rsp</span><span class="p">,</span> <span class="n">_</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">dimse</span><span class="o">.</span><span class="n">receive_msg</span><span class="p">(</span><span class="n">wait</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+        <span class="n">cx_id</span><span class="p">,</span> <span class="n">rsp</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">dimse</span><span class="o">.</span><span class="n">get_msg</span><span class="p">(</span><span class="n">block</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+
+        <span class="c1"># If `rsp` is None then the DIMSE timeout expired so abort</span>
+        <span class="k">if</span> <span class="n">rsp</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">is_established</span><span class="p">:</span>
+                <span class="n">LOGGER</span><span class="o">.</span><span class="n">error</span><span class="p">(</span><span class="s2">&quot;Connection closed or timed-out&quot;</span><span class="p">)</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">abort</span><span class="p">()</span>
+            <span class="k">return</span> <span class="n">Dataset</span><span class="p">(),</span> <span class="kc">None</span>
 
         <span class="c1"># Determine validity of the response and get the status</span>
         <span class="n">status</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_check_received_status</span><span class="p">(</span><span class="n">rsp</span><span class="p">)</span>
