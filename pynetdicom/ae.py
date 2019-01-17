@@ -1843,6 +1843,13 @@ class ApplicationEntity(object):
               'sop_class_extended' : {
                   SOP Class UID : Service Class Application Information,
               }
+              'cancelled' : callable_function
+
+            Where *callable_function* is a function that takes an `msg_id`
+            parameter (as int ) and returns True if a C-CANCEL message has
+            been received with a *Message ID Being Responded To* value that
+            corresponds to `msg_id`, False otherwise. For example:
+            ``is_cancelled = info['cancelled'](msg_id)``
 
         Yields
         ------
@@ -1898,18 +1905,6 @@ class ApplicationEntity(object):
         """
         raise NotImplementedError("User must implement the AE.on_c_find "
                                   "function prior to calling AE.start()")
-
-    def on_c_find_cancel(self):
-        """Callback for when a C-FIND-CANCEL request is received.
-
-        Returns
-        -------
-        bool
-            True if you want to stop the C-FIND operation, False otherwise.
-        """
-        raise NotImplementedError("User must implement the "
-                                  "AE.on_c_find_cancel function prior to "
-                                  "calling AE.start()")
 
     def on_c_get(self, dataset, context, info):
         """Callback for when a C-GET request is received.
@@ -1990,6 +1985,13 @@ class ApplicationEntity(object):
               'sop_class_extended' : {
                   SOP Class UID : Service Class Application Information,
               }
+              'cancelled' : callable_function
+
+            Where *callable_function* is a function that takes an `msg_id`
+            parameter (as int ) and returns True if a C-CANCEL message has
+            been received with a *Message ID Being Responded To* value that
+            corresponds to `msg_id`, False otherwise. For example:
+            ``is_cancelled = info['cancelled'](msg_id)``
 
         Yields
         ------
@@ -2046,12 +2048,6 @@ class ApplicationEntity(object):
         """
         raise NotImplementedError("User must implement the AE.on_c_get "
                                   "function prior to calling AE.start()")
-
-    def on_c_get_cancel(self):
-        """Callback for when a C-GET-CANCEL request is received."""
-        raise NotImplementedError("User must implement the "
-                                  "AE.on_c_get_cancel function prior to "
-                                  "calling AE.start()")
 
     def on_c_move(self, dataset, move_aet, context, info):
         """Callback for when a C-MOVE request is received.
@@ -2142,6 +2138,13 @@ class ApplicationEntity(object):
               'sop_class_extended' : {
                   SOP Class UID : Service Class Application Information,
               }
+              'cancelled' : callable_function
+
+            Where *callable_function* is a function that takes a `msg_id`
+            parameter (as int) and returns True if a C-CANCEL message has
+            been received with a *Message ID Being Responded To* value that
+            corresponds to `msg_id`, False otherwise. For example:
+            ``is_cancelled = info['cancelled'](msg_id)``
 
         Yields
         ------
@@ -2203,12 +2206,6 @@ class ApplicationEntity(object):
         """
         raise NotImplementedError("User must implement the AE.on_c_move "
                                   "function prior to calling AE.start()")
-
-    def on_c_move_cancel(self):
-        """Callback for when a C-MOVE-CANCEL request is received."""
-        raise NotImplementedError("User must implement the "
-                                  "AE.on_c_move_cancel function prior to "
-                                  "calling AE.start()")
 
     def on_c_store(self, dataset, context, info):
         """Callback for when a C-STORE request is received.

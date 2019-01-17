@@ -8193,7 +8193,7 @@ class TestState13(TestStateBase):
         self.assoc.dul._is_transport_event = patch_xport_event
 
         self.assoc.start()
-        time.sleep(0.1)
+        time.sleep(0.2)
         self.assoc.dul.send_pdu(self.get_associate('request'))
         time.sleep(0.1)
 
@@ -8236,7 +8236,7 @@ class TestState13(TestStateBase):
         self.assoc.acse._negotiate_as_requestor = patch_neg_rq
         self.assoc.start()
 
-        time.sleep(0.1)
+        time.sleep(0.2)
 
         #self.print_fsm_scp(self.fsm, scp)
 
@@ -8271,7 +8271,7 @@ class TestState13(TestStateBase):
         self.assoc.acse._negotiate_as_requestor = patch_neg_rq
         self.assoc.start()
 
-        time.sleep(0.1)
+        time.sleep(0.2)
 
         #self.print_fsm_scp(self.fsm, scp)
 
@@ -8313,7 +8313,7 @@ class TestState13(TestStateBase):
         self.assoc.acse._negotiate_as_requestor = patch_neg_rq
         self.assoc.start()
 
-        time.sleep(0.1)
+        time.sleep(0.2)
 
         #self.print_fsm_scp(self.fsm, scp)
 
@@ -8355,7 +8355,7 @@ class TestState13(TestStateBase):
 
         self.assoc.dul._is_transport_event = patch_xport_event
         self.assoc.start()
-        time.sleep(0.1)
+        time.sleep(0.2)
         self.assoc.dul.send_pdu(self.get_associate('accept'))
         time.sleep(0.1)
 
@@ -8398,7 +8398,7 @@ class TestState13(TestStateBase):
 
         self.assoc.dul._is_transport_event = patch_xport_event
         self.assoc.start()
-        time.sleep(0.1)
+        time.sleep(0.2)
         self.assoc.dul.send_pdu(self.get_associate('reject'))
         time.sleep(0.1)
 
@@ -8441,7 +8441,7 @@ class TestState13(TestStateBase):
 
         self.assoc.dul._is_transport_event = patch_xport_event
         self.assoc.start()
-        time.sleep(0.1)
+        time.sleep(0.2)
         self.assoc.dul.send_pdu(self.get_pdata())
         time.sleep(0.1)
 
@@ -8477,7 +8477,7 @@ class TestState13(TestStateBase):
         self.assoc.acse._negotiate_as_requestor = patch_neg_rq
         self.assoc.start()
 
-        time.sleep(0.1)
+        time.sleep(0.2)
 
         #self.print_fsm_scp(self.fsm, scp)
 
@@ -8519,7 +8519,7 @@ class TestState13(TestStateBase):
 
         self.assoc.dul._is_transport_event = patch_xport_event
         self.assoc.start()
-        time.sleep(0.1)
+        time.sleep(0.2)
         self.assoc.dul.send_pdu(self.get_release(False))
         time.sleep(0.1)
 
@@ -8555,7 +8555,7 @@ class TestState13(TestStateBase):
         self.assoc.acse._negotiate_as_requestor = patch_neg_rq
         self.assoc.start()
 
-        time.sleep(0.1)
+        time.sleep(0.2)
 
         #self.print_fsm_scp(self.fsm, scp)
 
@@ -8576,8 +8576,8 @@ class TestState13(TestStateBase):
         # Evt13: Receive A-RELEASE-RP PDU from <remote>
         # AA-6: Ignore PDU
         commands = [
-            ('recv', None),
-            ('send', a_associate_rq),
+            ('recv', None),  # recv a-associate-rq
+            ('send', a_associate_rq),  # trigger evt6 -> AA-8 -> sta13
             ('send', a_release_rp),
             ('wait', 0.1),
         ]
@@ -8590,7 +8590,7 @@ class TestState13(TestStateBase):
         self.assoc.acse._negotiate_as_requestor = patch_neg_rq
         self.assoc.start()
 
-        time.sleep(0.1)
+        time.sleep(0.2)
 
         #self.print_fsm_scp(self.fsm, scp)
 
@@ -8632,7 +8632,7 @@ class TestState13(TestStateBase):
 
         self.assoc.dul._is_transport_event = patch_xport_event
         self.assoc.start()
-        time.sleep(0.1)
+        time.sleep(0.2)
         self.assoc.dul.send_pdu(self.get_release(True))
         time.sleep(0.1)
 
@@ -8675,7 +8675,7 @@ class TestState13(TestStateBase):
 
         self.assoc.dul._is_transport_event = patch_xport_event
         self.assoc.start()
-        time.sleep(0.1)
+        time.sleep(0.2)
         self.assoc.dul.send_pdu(self.get_abort())
         time.sleep(0.1)
 
@@ -8711,7 +8711,7 @@ class TestState13(TestStateBase):
         self.assoc.acse._negotiate_as_requestor = patch_neg_rq
         self.assoc.start()
 
-        time.sleep(0.1)
+        time.sleep(0.2)
 
         #self.print_fsm_scp(self.fsm, scp)
 
@@ -8744,7 +8744,7 @@ class TestState13(TestStateBase):
         self.assoc.acse._negotiate_as_requestor = patch_neg_rq
         self.assoc.start()
 
-        time.sleep(0.1)
+        time.sleep(0.2)
 
         #self.print_fsm_scp(self.fsm, scp)
 
@@ -8829,7 +8829,7 @@ class TestState13(TestStateBase):
         self.assoc.acse._negotiate_as_requestor = patch_neg_rq
         self.assoc.start()
 
-        time.sleep(0.1)
+        time.sleep(0.2)
 
         #self.print_fsm_scp(self.fsm, scp)
 

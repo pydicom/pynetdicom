@@ -51,6 +51,17 @@ Enhancements
   ``DIMSEServiceProvider.peek_msg()`` and ``DIMSEServiceProvider.msg_queue``
   to be used with the new P-DATA processing.
 * Time required to start an association improved significantly.
+* Implemented C-CANCEL support
+
+  * Added ``is_cancelled()`` methods to the QR-like service classes to allow
+    checking whether a C-CANCEL message corresponding to a message ID value
+    has been received.
+  * Added 'cancelled' key to the ``info`` parameter passed to
+    ``AE.on_c_get()``, ``AE.on_c_find()`` and ``AE.on_c_move()``. The
+    corresponding value is a callable function (``is_cancelled()``) that
+    takes a *Message ID* and and returns True if a C-CANCEL message with a
+    corresponding *Message ID Being Responded To* value has been received.
+
 
 Changes
 .......
@@ -80,3 +91,8 @@ Changes
 * ``AE.associate()`` is now synchronous until association negotiation has
   completed or the connection closed (:issue:`108`).
 * Removed ``DIMSEServiceProvider.receive_msg()``.
+* ``Association.send_c_cancel_get()``, ``send_c_cancel_find()`` and
+  ``send_c_cancel_move()`` are deprecated and will be removed in v1.3. Use
+  ``Association.send_c_cancel()`` instead.
+* Removed ``AE.on_c_get_cancel()``, ``AE.on_c_find_cancel()``,
+  ``AE.on_c_move_cancel()``.
