@@ -131,12 +131,9 @@ operations by implementing one (or more) of the following ``AE`` callbacks:
 
 - C-ECHO: ``AE.on_c_echo(context, info)``
 - C-STORE: ``AE.on_c_store(dataset, context, info)``
-- C-FIND: ``AE.on_c_find(dataset, context, info)`` and
-  ``AE.on_c_find_cancel()``
-- C-GET: ``AE.on_c_get(dataset, context, info)`` and
-  ``AE.on_c_get_cancel()``
-- C-MOVE: ``AE.on_c_move(dataset, move_aet, context, info)`` and
-  ``AE.on_c_move_cancel()``
+- C-FIND: ``AE.on_c_find(dataset, context, info)``
+- C-GET: ``AE.on_c_get(dataset, context, info)``
+- C-MOVE: ``AE.on_c_move(dataset, move_aet, context, info)``
 - N-GET: ``AE.on_n_get(attr, context, info)``
 
 Where *dataset* is a pydicom

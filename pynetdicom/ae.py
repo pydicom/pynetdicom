@@ -1845,7 +1845,7 @@ class ApplicationEntity(object):
               }
               'cancelled' : callable_function
 
-            Where *callable_function* is a function that takes an `msg_id`
+            Where *callable_function* is a function that takes a `msg_id`
             parameter (as int ) and returns True if a C-CANCEL message has
             been received with a *Message ID Being Responded To* value that
             corresponds to `msg_id`, False otherwise. For example:
@@ -1987,7 +1987,7 @@ class ApplicationEntity(object):
               }
               'cancelled' : callable_function
 
-            Where *callable_function* is a function that takes an `msg_id`
+            Where *callable_function* is a function that takes a `msg_id`
             parameter (as int ) and returns True if a C-CANCEL message has
             been received with a *Message ID Being Responded To* value that
             corresponds to `msg_id`, False otherwise. For example:

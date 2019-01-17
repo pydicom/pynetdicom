@@ -347,35 +347,17 @@ class TestAEGoodCallbacks(object):
         with pytest.raises(NotImplementedError):
             ae.on_c_find(None, None, None)
 
-    def test_on_c_find_cancel(self):
-        """Test default callback raises exception"""
-        ae = AE()
-        with pytest.raises(NotImplementedError):
-            ae.on_c_find_cancel()
-
     def test_on_c_get(self):
         """Test default callback raises exception"""
         ae = AE()
         with pytest.raises(NotImplementedError):
             ae.on_c_get(None, None, None)
 
-    def test_on_c_get_cancel(self):
-        """Test default callback raises exception"""
-        ae = AE()
-        with pytest.raises(NotImplementedError):
-            ae.on_c_get_cancel()
-
     def test_on_c_move(self):
         """Test default callback raises exception"""
         ae = AE()
         with pytest.raises(NotImplementedError):
             ae.on_c_move(None, None, None, None)
-
-    def test_on_c_move_cancel(self):
-        """Test default callback raises exception"""
-        ae = AE()
-        with pytest.raises(NotImplementedError):
-            ae.on_c_move_cancel()
 
     def test_on_n_event_report(self):
         """Test default callback raises exception"""

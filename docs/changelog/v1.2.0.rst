@@ -5,9 +5,9 @@
 
 Fixes
 .....
-* Fixed `network_timeout` not working when acting as the association requestor
+* Fixed ``network_timeout`` not working when acting as the association requestor
   and an A-ABORT not being sent when the timeout expired. (:issue:`286`)
-* Fixed changing `network_timeout` value not propagating to the actual timer.
+* Fixed changing ``network_timeout`` value not propagating to the actual timer.
 * All DIMSE service requests should now properly abort the association if no
   response is received within the DIMSE timeout window and return/yield
   expected values. (:issue:`119`)
@@ -38,8 +38,8 @@ Enhancements
   * Added ``AE.shutdown()`` which allows the user to shutdown all non-blocking
     association servers that may be running.
   * Support for TLS added via the ``tls_args`` keyword parameter for
-    `AE.associate()`` and ``ssl_context`` keyword parameter for
-    ``AE.start_server()``(:pull_request:`175`, :pull_request:`71`)
+    ``AE.associate()`` and ``ssl_context`` keyword parameter for
+    ``AE.start_server()`` (:pull_request:`175`, :pull_request:`71`)
   * It should now be possible to both request a C-MOVE operation and act as the
     destination for the request's C-STORE sub-operations over a new association
     within the same AE instance by running a non-blocking Storage SCP.
@@ -53,7 +53,7 @@ Enhancements
 * Time required to start an association improved significantly.
 * Implemented C-CANCEL support
 
-  * Added ``is_cancelled()`` methods to the QR-like service classes to allow
+  * Added ``ServiceClass.is_cancelled()`` methods to allow
     checking whether a C-CANCEL message corresponding to a message ID value
     has been received.
   * Added 'cancelled' key to the ``info`` parameter passed to

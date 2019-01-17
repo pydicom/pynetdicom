@@ -54,6 +54,30 @@ class ServiceClass(object):
         """Return the DIMSE service provider."""
         return self.assoc.dimse
 
+    def is_cancelled(self, msg_id):
+        """Return True if a C-CANCEL message with `msg_id` has been received.
+
+        Parameters
+        ----------
+        msg_id : int
+            The (0000,0120) *Message ID Being Responded To* value to use to
+            match against.
+
+        Returns
+        -------
+        bool
+            True if a C-CANCEL message has been received with a *Message ID
+            Being Responded To* corresponding to `msg_id`, False otherwise.
+        """
+        msg = self.dimse.peek_msg()
+        if isinstance(msg, C_CANCEL):
+            if msg.MessageID == msg_id:
+                # Take the message off the queue
+                cx_id, msg = self.dimse.get_msg(block=False)
+                return True
+
+        return False
+
     def is_valid_status(self, status):
         """Return True if `status` is valid for the service class.
 
@@ -834,8 +858,8 @@ class QueryRetrieveServiceClass(ServiceClass):
             return
 
         info['parameters'] = {
-            'message_id' : req.MessageID,
-            'priority' : req.Priority
+             'message_id' : req.MessageID,
+             'priority' : req.Priority
         }
         # Add callable to the info so user can check if cancelled
         info['cancelled'] = self.is_cancelled
@@ -1218,8 +1242,8 @@ class QueryRetrieveServiceClass(ServiceClass):
             return
 
         info['parameters'] = {
-            'message_id' : req.MessageID,
-            'priority' : req.Priority
+             'message_id' : req.MessageID,
+             'priority' : req.Priority
         }
         # Add callable to the info so user can check if cancelled
         info['cancelled'] = self.is_cancelled
@@ -1498,30 +1522,6 @@ class QueryRetrieveServiceClass(ServiceClass):
 
         self.dimse.send_msg(rsp, context.context_id)
 
-    def is_cancelled(self, msg_id):
-        """Return True if a C-CANCEL message with `msg_id` has been received.
-
-        Parameters
-        ----------
-        msg_id : int
-            The (0000,0120) *Message ID Being Responded To* value to use to
-            match against.
-
-        Returns
-        -------
-        bool
-            True if a C-CANCEL message has been received with a *Message ID
-            Being Responded To* corresponding to `msg_id`, False otherwise.
-        """
-        msg = self.dimse.peek_msg()
-        if isinstance(msg, C_CANCEL):
-            if msg.MessageID == msg_id:
-                # Take the message off the queue
-                cx_id, msg = self.dimse.get_msg(block=False)
-                return True
-
-        return False
-
 
 class BasicWorklistManagementServiceClass(QueryRetrieveServiceClass):
     """Implementation of the Basic Worklist Management Service Class."""
@@ -1744,10 +1744,10 @@ class RelevantPatientInformationQueryServiceClass(ServiceClass):
             return
 
         info['parameters'] = {
-            'message_id' : req.MessageID,
-            'priority' : req.Priority,
-            'cancelled' : self.is_cancelled,
+             'message_id' : req.MessageID,
+             'priority' : req.Priority,
         }
+        info['cancelled'] = self.is_cancelled
 
         # Relevant Patient Query only allows the following responses:
         #   pending + match; success
@@ -1834,30 +1834,6 @@ class RelevantPatientInformationQueryServiceClass(ServiceClass):
             rsp.Status = 0x0000
             LOGGER.info('Find SCP Response: (Success)')
             self.dimse.send_msg(rsp, context.context_id)
-
-    def is_cancelled(self, msg_id):
-        """Return True if a C-CANCEL message with `msg_id` has been received.
-
-        Parameters
-        ----------
-        msg_id : int
-            The (0000,0120) *Message ID Being Responded To* value to use to
-            match against.
-
-        Returns
-        -------
-        bool
-            True if a C-CANCEL message has been received with a *Message ID
-            Being Responded To* corresponding to `msg_id`, False otherwise.
-        """
-        msg = self.dimse.peek_msg()
-        if isinstance(msg, C_CANCEL):
-            if msg.MessageID == msg_id:
-                # Take the message off the queue
-                cx_id, msg = self.dimse.get_msg(block=False)
-                return True
-
-        return False
 
 
 class SubstanceAdministrationQueryServiceClass(QueryRetrieveServiceClass):

@@ -3618,7 +3618,7 @@ class TestState07(TestStateBase):
         scp = self.start_server(commands)
 
         self.assoc.start()
-        time.sleep(0.1)
+        time.sleep(0.2)
         self.assoc.dul.send_pdu(self.get_release(False))
         self.assoc.dul.send_pdu(self.get_associate('request'))
 
@@ -3657,7 +3657,7 @@ class TestState07(TestStateBase):
         scp = self.start_server(commands)
 
         self.assoc.start()
-        time.sleep(0.1)
+        time.sleep(0.2)
         self.assoc.dul.send_pdu(self.get_release(False))
         time.sleep(0.1)
 
@@ -3740,7 +3740,7 @@ class TestState07(TestStateBase):
         scp = self.start_server(commands)
 
         self.assoc.start()
-        time.sleep(0.1)
+        time.sleep(0.2)
         self.assoc.dul.send_pdu(self.get_release(False))
         time.sleep(0.1)
 
@@ -3776,7 +3776,7 @@ class TestState07(TestStateBase):
         scp = self.start_server(commands)
 
         self.assoc.start()
-        time.sleep(0.1)
+        time.sleep(0.2)
         self.assoc.dul.send_pdu(self.get_release(False))
         self.assoc.dul.send_pdu(self.get_associate('accept'))
         time.sleep(0.1)
@@ -3807,7 +3807,7 @@ class TestState07(TestStateBase):
         scp = self.start_server(commands)
 
         self.assoc.start()
-        time.sleep(0.1)
+        time.sleep(0.2)
         self.assoc.dul.send_pdu(self.get_release(False))
         self.assoc.dul.send_pdu(self.get_associate('reject'))
         time.sleep(0.1)
@@ -3838,7 +3838,7 @@ class TestState07(TestStateBase):
         scp = self.start_server(commands)
 
         self.assoc.start()
-        time.sleep(0.1)
+        time.sleep(0.2)
         self.assoc.dul.send_pdu(self.get_release(False))
         self.assoc.dul.send_pdu(self.get_pdata())
         time.sleep(0.1)
@@ -3870,7 +3870,7 @@ class TestState07(TestStateBase):
         scp = self.start_server(commands)
 
         self.assoc.start()
-        time.sleep(0.1)
+        time.sleep(0.2)
         self.assoc.dul.send_pdu(self.get_release(False))
         time.sleep(0.1)
 
@@ -3903,7 +3903,7 @@ class TestState07(TestStateBase):
         scp = self.start_server(commands)
 
         self.assoc.start()
-        time.sleep(0.1)
+        time.sleep(0.2)
         self.assoc.dul.send_pdu(self.get_release(False))
         self.assoc.dul.send_pdu(self.get_release(False))
         time.sleep(0.1)
@@ -3935,7 +3935,7 @@ class TestState07(TestStateBase):
         scp = self.start_server(commands)
 
         self.assoc.start()
-        time.sleep(0.1)
+        time.sleep(0.2)
         self.assoc.dul.send_pdu(self.get_release(False))
         time.sleep(0.1)
 
@@ -3967,7 +3967,7 @@ class TestState07(TestStateBase):
         scp = self.start_server(commands)
 
         self.assoc.start()
-        time.sleep(0.1)
+        time.sleep(0.2)
         self.assoc.dul.send_pdu(self.get_release(False))
         time.sleep(0.1)
 
@@ -4000,7 +4000,7 @@ class TestState07(TestStateBase):
         scp = self.start_server(commands)
 
         self.assoc.start()
-        time.sleep(0.1)
+        time.sleep(0.2)
         self.assoc.dul.send_pdu(self.get_release(False))
         self.assoc.dul.send_pdu(self.get_release(True))
         time.sleep(0.1)
@@ -4064,7 +4064,7 @@ class TestState07(TestStateBase):
         scp = self.start_server(commands)
 
         self.assoc.start()
-        time.sleep(0.1)
+        time.sleep(0.2)
         self.assoc.dul.send_pdu(self.get_release(False))
         time.sleep(0.1)
 
@@ -4095,7 +4095,7 @@ class TestState07(TestStateBase):
         scp = self.start_server(commands)
 
         self.assoc.start()
-        time.sleep(0.1)
+        time.sleep(0.2)
         self.assoc.dul.send_pdu(self.get_release(False))
         time.sleep(0.1)
 
@@ -4126,7 +4126,7 @@ class TestState07(TestStateBase):
         scp = self.start_server(commands)
 
         self.assoc.start()
-        time.sleep(0.1)
+        time.sleep(0.2)
         self.assoc.dul.send_pdu(self.get_release(False))
         self.assoc.dul.artim_timer.timeout = 0.05
         self.assoc.dul.artim_timer.start()
@@ -4160,7 +4160,7 @@ class TestState07(TestStateBase):
         scp = self.start_server(commands)
 
         self.assoc.start()
-        time.sleep(0.1)
+        time.sleep(0.2)
         self.assoc.dul.send_pdu(self.get_release(False))
         time.sleep(0.1)
 

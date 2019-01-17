@@ -1747,16 +1747,18 @@ class Association(threading.Thread):
                     self.abort()
                 yield Dataset(), None
                 return
-            elif not rsp.is_valid_response:
-                LOGGER.error(
-                    'Received an invalid {} response from the peer'
-                    .format(rsp_type)
-                )
-                self.abort()
-                yield Dataset(), None
-                return
 
             if isinstance(rsp, (C_FIND, C_GET, C_MOVE)):
+                # Don't check C-STORE *request*
+                if not rsp.is_valid_response:
+                    LOGGER.error(
+                        'Received an invalid {} response from the peer'
+                        .format(rsp_type)
+                    )
+                    self.abort()
+                    yield Dataset(), None
+                    return
+
                 # Status may be 'Failure', 'Cancel', 'Warning', 'Success'
                 #   or 'Pending'
                 status = Dataset()
@@ -1806,6 +1808,11 @@ class Association(threading.Thread):
                 identifier = None
                 if category in [STATUS_PENDING]:
                     operation_no += 1
+                    # C-GET and C-MOVE have no identifier if Pending
+                    if isinstance(rsp, (C_GET, C_MOVE)):
+                        yield status, identifier
+                        continue
+
                     try:
                         identifier = decode(rsp.Identifier,
                                             transfer_syntax.is_implicit_VR,
@@ -1830,31 +1837,32 @@ class Association(threading.Thread):
                                                    STATUS_WARNING,
                                                    STATUS_FAILURE]:
 
-                    # From Part 4, Annex C.4.3, responses with these
-                    #   statuses should contain an Identifier dataset
-                    #   with a (0008,0058) Failed SOP Instance UID List
-                    #    element however this can't be assumed
-                    # pylint: disable=broad-except
-                    try:
-                        identifier = decode(
-                            rsp.Identifier,
-                            transfer_syntax.is_implicit_VR,
-                            transfer_syntax.is_little_endian
-                        )
-
-                        # C-GET/C-MOVE only
-                        if isinstance(rsp, (C_GET, C_MOVE)):
+                    # Only C-GET and C-MOVE have an Identifier if
+                    #   cancelled/warning/failure
+                    if isinstance(rsp, (C_GET, C_MOVE)):
+                        # From Part 4, Annex C.4.3, responses with these
+                        #   statuses should contain an Identifier dataset
+                        #   with a (0008,0058) Failed SOP Instance UID List
+                        #    element however this can't be assumed
+                        # pylint: disable=broad-except
+                        try:
+                            identifier = decode(
+                                rsp.Identifier,
+                                transfer_syntax.is_implicit_VR,
+                                transfer_syntax.is_little_endian
+                            )
                             LOGGER.debug('')
                             LOGGER.debug('# DICOM Dataset')
                             for elem in identifier:
                                 LOGGER.debug(elem)
                             LOGGER.debug('')
-                    except Exception as ex:
-                        LOGGER.error(
-                            "Failed to decode the received Identifier dataset"
-                        )
-                        LOGGER.exception(ex)
-                        identifier = None
+                        except Exception as ex:
+                            LOGGER.error(
+                                "Failed to decode the received Identifier "
+                                "dataset"
+                            )
+                            LOGGER.exception(ex)
+                            identifier = None
 
                 # Only reach this point if status is Sucess, Warning, Failure
                 #   or Cancel
