@@ -515,6 +515,48 @@ class TestQRFindServiceClass(object):
 
         self.scp.stop()
 
+    @pytest.mark.skip()
+    def test_scp_callback_cancelled(self):
+        """Test is_cancelled works as expected."""
+        cancel_results = []
+
+        def on_c_find(ds, cx, info):
+            msg_id = info['parameters']['message_id']
+            cancel_results.append(info['callable'](msg_id))
+            yield 0xFF00, Dataset()
+            time.sleep(0.5)
+            cancel_results.append(info['callable'](1))
+            cancel_results.append(info['callable'](msg_id))
+            yield 0xFE00, None
+
+        ae = AE()
+        ae.add_supported_context()
+        ae.add_requested_context()
+        ae.on_c_find = on_c_find
+        scp = ae.start_server(('', 11112), block=False)
+
+        assoc = ae.associate('localhost', 11112)
+        assert assoc.is_established
+
+        identifier = Dataset()
+        identifier.SOPClassUID =
+        results = assoc.send_c_find(identifier, msg_id=11142, query_model='P')
+        assoc.send_c_cancel(11142, 1)
+
+        status, ds = next(results)
+        status, ds = next(results)
+
+        with pytest.
+
+        assoc.release()
+
+        scp.shutdown()
+
+    @pytest.mark.skip()
+    def test_scp_cancelled(self):
+        """Test cancelling a C-FIND request."""
+        pass
+
 
 class TestQRGetServiceClass(object):
     def setup(self):
