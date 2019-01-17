@@ -834,7 +834,7 @@ class TestAEGoodMiscSetters(object):
         ae.require_called_aet = True
         assert 'Explicit VR' in ae.__str__()
         assert 'Verification' in ae.__str__()
-        assert '0/2' in ae.__str__()
+        assert '0/10' in ae.__str__()
         assert 'something' in ae.__str__()
         assert 'Require called AE title: True' in ae.__str__()
         ae.supported_contexts = StoragePresentationContexts

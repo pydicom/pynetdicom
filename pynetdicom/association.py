@@ -224,10 +224,7 @@ class Association(threading.Thread):
         msg_type = msg_type.replace('_', '-')
 
         status = Dataset()
-        if rsp is None:
-            LOGGER.error('DIMSE service timed out')
-            self.abort()
-        elif rsp.is_valid_response:
+        if rsp.is_valid_response:
             status.Status = rsp.Status
             for keyword in rsp.STATUS_OPTIONAL_KEYWORDS:
                 if getattr(rsp, keyword, None) is not None:
@@ -1747,6 +1744,7 @@ class Association(threading.Thread):
                 yield Dataset(), None
                 return
 
+            # TODO: Unit test
             if not isinstance(rsp, C_FIND):
                 LOGGER.error(
                     'Received an unexpected DIMSE C-FIND message from the peer'
@@ -1755,6 +1753,7 @@ class Association(threading.Thread):
                 yield Dataset(), None
                 return
 
+            # TODO: Unit test
             if not rsp.is_valid_response:
                 LOGGER.error(
                     'Received an invalid C-FIND response from the peer'
@@ -1858,6 +1857,7 @@ class Association(threading.Thread):
                 yield Dataset(), None
                 return
 
+            # TODO: Unit test
             if not isinstance(rsp, (C_STORE, C_GET, C_MOVE)):
                 LOGGER.error(
                     'Received an unexpected {} message from the peer'
@@ -1873,7 +1873,7 @@ class Association(threading.Thread):
                 self._c_store_scp(rsp)
                 continue
 
-            ## Can only be C_GET or C_MOVE from here
+            # TODO: Unit test
             if not rsp.is_valid_response:
                 LOGGER.error(
                     'Received an invalid {} response from the peer'

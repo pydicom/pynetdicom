@@ -53,23 +53,21 @@ Enhancements
 * Time required to start an association improved significantly.
 * Implemented C-CANCEL support
 
-  * Added ``ServiceClass.is_cancelled()`` methods to allow
+  * Added ``ServiceClass.is_cancelled()`` method to allow
     checking whether a C-CANCEL message corresponding to a message ID value
     has been received.
   * Added 'cancelled' key to the ``info`` parameter passed to
     ``AE.on_c_get()``, ``AE.on_c_find()`` and ``AE.on_c_move()``. The
     corresponding value is a callable function (``is_cancelled()``) that
-    takes a *Message ID* and and returns True if a C-CANCEL message with a
-    corresponding *Message ID Being Responded To* value has been received.
+    takes a *Message ID* value and and returns True if a C-CANCEL message with
+    a corresponding *Message ID Being Responded To* value has been received.
 
 
 Changes
 .......
 
-* ``AE.quit()`` removed as per planned deprecation.
-* ``DIMSEMessage.ID`` removed as per planned deprecation.
-* ``ACSE.is_released()`` removed as per planned deprecation.
-* ``ACSE.release_association()`` removed as per planned deprecation.
+* ``AE.quit()``, ``DIMSEMessage.ID``, ``ACSE.is_released()`` and
+  ``ACSE.release_association()`` removed as per planned deprecation.
 * ``AE.start()`` is deprecated and will be removed in v1.3, use
   ``AE.start_server()`` instead.
 * ``AE.stop()`` is deprecated and will be removed in v1.3, use
@@ -84,6 +82,7 @@ Changes
   the ``address`` parameter for ``AE.start_server()`` and the ``bind_address``
   keyword parameter for ``AE.associate()`` instead.
 * Changed the default DIMSE timeout to 30 s.
+* Changed the default number of maximum associations to 10.
 * The ``acse_timeout`` parameter to ``ACSE()`` and ``ACSE.acse_timeout``
   attribute removed, the ``Association.acse_timeout`` value is used instead.
 * ``AE.active_associations`` changed from an attribute to a property and

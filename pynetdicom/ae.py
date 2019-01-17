@@ -73,7 +73,7 @@ class ApplicationEntity(object):
     maximum_associations : int
         The maximum number of simultaneous associations requested by remote
         AEs. Note that this does not include the number of associations
-        requested by the local AE (default 2).
+        requested by the local AE (default 10).
     maximum_pdu_size : int
         The maximum PDU receive size in bytes. A value of 0 means there is no
         maximum size (default: 16382)
@@ -141,7 +141,7 @@ class ApplicationEntity(object):
         self._supported_contexts = {}
 
         # Default maximum simultaneous associations
-        self.maximum_associations = 2
+        self.maximum_associations = 10
 
         # Default maximum PDU receive size (in bytes)
         self.maximum_pdu_size = DEFAULT_MAX_LENGTH

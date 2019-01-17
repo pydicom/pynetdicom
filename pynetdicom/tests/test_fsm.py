@@ -2744,7 +2744,7 @@ class TestState05(TestStateBase):
         # Evt9: Receive P-DATA primitive from <local user>
         commands = [
             ('recv', None),
-            ('wait', 0.2),
+            ('wait', 0.3),
         ]
         scp = self.start_server(commands)
 

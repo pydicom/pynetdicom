@@ -8,7 +8,9 @@ from pydicom.dataset import Dataset
 
 from pynetdicom import _config
 from pynetdicom.dsutils import decode, encode
-from pynetdicom.dimse_primitives import C_STORE, C_ECHO, C_MOVE, C_GET, C_FIND
+from pynetdicom.dimse_primitives import (
+    C_STORE, C_ECHO, C_MOVE, C_GET, C_FIND, C_CANCEL
+)
 from pynetdicom._globals import (
     STATUS_FAILURE,
     STATUS_SUCCESS,
@@ -69,9 +71,9 @@ class ServiceClass(object):
             True if a C-CANCEL message has been received with a *Message ID
             Being Responded To* corresponding to `msg_id`, False otherwise.
         """
-        msg = self.dimse.peek_msg()
+        cx_id, msg = self.dimse.peek_msg()
         if isinstance(msg, C_CANCEL):
-            if msg.MessageID == msg_id:
+            if msg.MessageIDBeingRespondedTo == msg_id:
                 # Take the message off the queue
                 cx_id, msg = self.dimse.get_msg(block=False)
                 return True

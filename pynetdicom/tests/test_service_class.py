@@ -1,15 +1,43 @@
 """Tests for the service_class module."""
 
+try:
+    import queue
+except ImportError:
+    import Queue as queue
+
 import pytest
 
 from pydicom.dataset import Dataset
 
 from pynetdicom import build_context
-from pynetdicom.dimse_primitives import C_STORE
+from pynetdicom.dimse_primitives import C_STORE, C_GET, C_MOVE, C_CANCEL
 from pynetdicom.service_class import (
     StorageServiceClass,
     ServiceClass
 )
+
+
+class DummyAssoc(object):
+    def __init__(self):
+        self.dimse = DummyDIMSE()
+
+
+class DummyDIMSE(object):
+    def __init__(self):
+        self.msg_queue = queue.Queue()
+        self.dimse_timeout = 0.5
+
+    def get_msg(self, block=True):
+        try:
+            return self.msg_queue.get(block=block)
+        except queue.Empty:
+            return (None, None)
+
+    def peek_msg(self):
+        try:
+            return self.msg_queue.queue[0]
+        except (queue.Empty, IndexError):
+            return (None, None)
 
 
 class TestServiceClass(object):
@@ -86,3 +114,52 @@ class TestServiceClass(object):
         )
         with pytest.raises(NotImplementedError, match=msg):
             service.SCP(None, build_context('1.2.3'), None)
+
+    def test_is_cancelled_no_msg(self):
+        """Test is_cancelled with no DIMSE messages in the queue."""
+        assoc = DummyAssoc()
+        service = ServiceClass(assoc)
+        assert service.is_cancelled(1) is False
+        assert service.is_cancelled(2) is False
+
+    def test_is_cancelled_not_cancel(self):
+        """Test is_cancelled with non-Cancel message in the queue."""
+        assoc = DummyAssoc()
+        assoc.dimse.msg_queue.put((1, C_GET()))
+        assoc.dimse.msg_queue.put((2, C_CANCEL()))
+        assoc.dimse.msg_queue.put((3, C_MOVE()))
+        service = ServiceClass(assoc)
+        assert service.is_cancelled(1) is False
+        assert service.is_cancelled(2) is False
+
+    def test_is_cancelled_no_match(self):
+        """Test is_cancelled with no matching C-CANCEL."""
+        assoc = DummyAssoc()
+        cancel = C_CANCEL()
+        cancel.MessageIDBeingRespondedTo = 5
+        assoc.dimse.msg_queue.put((1, cancel))
+        assoc.dimse.msg_queue.put((2, C_CANCEL()))
+        assoc.dimse.msg_queue.put((3, C_MOVE()))
+        service = ServiceClass(assoc)
+        assert service.is_cancelled(1) is False
+        assert service.is_cancelled(2) is False
+
+    def test_is_cancelled_match(self):
+        """Test is_cancelled with matching C-CANCEL."""
+        assoc = DummyAssoc()
+        cancel = C_CANCEL()
+        cancel.MessageIDBeingRespondedTo = 5
+        cancel2 = C_CANCEL()
+        cancel2.MessageIDBeingRespondedTo = 1
+        move = C_MOVE()
+        assoc.dimse.msg_queue.put((1, cancel))
+        assoc.dimse.msg_queue.put((2, cancel2))
+        assoc.dimse.msg_queue.put((3, move))
+        service = ServiceClass(assoc)
+        assert service.is_cancelled(1) is False
+        assert service.is_cancelled(2) is False
+        assert service.is_cancelled(5) is True
+        assert service.is_cancelled(5) is False
+        assert assoc.dimse.get_msg(block=False) == (2, cancel2)
+        assert assoc.dimse.get_msg(block=False) == (3, move)
+        assert assoc.dimse.get_msg(block=False) == (None, None)
