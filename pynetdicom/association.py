@@ -198,28 +198,6 @@ class Association(threading.Thread):
         self._acse_timeout = value
 
     @property
-    def dimse_timeout(self):
-        """Return the DIMSE timeout in seconds."""
-        return self._dimse_timeout
-
-    @dimse_timeout.setter
-    def dimse_timeout(self, value):
-        """Set the DIMSE timeout using numeric or None."""
-        self.dimse.dimse_timeout = value
-        self._dimse_timeout = value
-
-    @property
-    def network_timeout(self):
-        """Return the network timeout in seconds."""
-        return self._network_timeout
-
-    @network_timeout.setter
-    def network_timeout(self, value):
-        """Set the network timeout using numeric or None."""
-        self.dul._idle_timer.timeout = value
-        self._network_timeout = value
-
-    @property
     def ae(self):
         """Return the Association's parent ApplicationEntity."""
         return self._ae
@@ -262,6 +240,17 @@ class Association(threading.Thread):
             self.abort()
 
         return status
+
+    @property
+    def dimse_timeout(self):
+        """Return the DIMSE timeout in seconds."""
+        return self._dimse_timeout
+
+    @dimse_timeout.setter
+    def dimse_timeout(self, value):
+        """Set the DIMSE timeout using numeric or None."""
+        self.dimse.dimse_timeout = value
+        self._dimse_timeout = value
 
     def _get_valid_context(self, ab_syntax, tr_syntax, role, context_id=None):
         """Return a valid Presentation Context matching the parameters.
@@ -382,6 +371,17 @@ class Association(threading.Thread):
 
         # pylint: disable=attribute-defined-outside-init
         self._mode = mode
+
+    @property
+    def network_timeout(self):
+        """Return the network timeout in seconds."""
+        return self._network_timeout
+
+    @network_timeout.setter
+    def network_timeout(self, value):
+        """Set the network timeout using numeric or None."""
+        self.dul._idle_timer.timeout = value
+        self._network_timeout = value
 
     @property
     def rejected_contexts(self):
@@ -1107,7 +1107,7 @@ class Association(threading.Thread):
         # Wrap the generator so the C-FIND-RQ is sent immediately on
         #   executing this function, otherwise sending C-CANCEL requests
         #   may end up being sent first unless next() is called
-        return self._wrap_responses(transfer_syntax)
+        return self._wrap_find_responses(transfer_syntax)
 
     def send_c_get(self, dataset, msg_id=1, priority=2, query_model='P'):
         """Send a C-GET request to the peer AE.
@@ -1328,7 +1328,7 @@ class Association(threading.Thread):
         # Wrap the generator so the C-GET-RQ is sent immediately on
         #   executing this function, otherwise sending C-CANCEL requests
         #   may end up being sent first unless next() is called
-        return self._wrap_responses(transfer_syntax)
+        return self._wrap_get_move_responses(transfer_syntax)
 
     def send_c_move(self, dataset, move_aet, msg_id=1, priority=2,
                     query_model='P'):
@@ -1536,7 +1536,7 @@ class Association(threading.Thread):
         # Wrap the generator so the C-MOVE-RQ is sent immediately on
         #   executing this function, otherwise sending C-CANCEL requests
         #   may end up being sent first unless next() is called
-        return self._wrap_responses(transfer_syntax)
+        return self._wrap_get_move_responses(transfer_syntax)
 
     def send_c_store(self, dataset, msg_id=1, priority=2, originator_aet=None,
                      originator_id=None):
@@ -1715,11 +1715,14 @@ class Association(threading.Thread):
 
         return status
 
-    def _wrap_responses(self, transfer_syntax):
-        """Wrapper for the C-FIND/C-GET/C-MOVE response generators.
+    def _wrap_find_responses(self, transfer_syntax):
+        """Wrapper for the C-FIND response generator.
 
         Wrapping the response generators allows us to immediately send the
-        service request on calling the respective ``send_c_*()`` function.
+        service request on calling the ``send_c_find()`` function. This is
+        important when it comes to reliably sending C-CANCEL requests
+        because otherwise the C-CANCEL may end up being sent prior to the
+        C-GET/MOVE request.
 
         Parameters
         ----------
@@ -1728,16 +1731,12 @@ class Association(threading.Thread):
 
         Yields
         ------
-        See ``send_c_find()``, ``send_c_get()`` and ``send_c_move()``.
+        See ``send_c_find()``.
         """
         operation_no = 1
         while True:
-            # Wait for DIMSE message, should be either a C-FIND, C-GET, or
-            #   C-MOVE response or a C-STORE request
+            # Wait for DIMSE message
             cx_id, rsp = self.dimse.get_msg(block=True)
-            # Used to describe the response in the log output
-            rsp_type = rsp.__class__.__name__.replace('_', '-')
-            rsp_name = {'C-FIND' : 'Find', 'C-GET' : 'Get', 'C-MOVE' : 'Move'}
 
             # If `rsp` is None then the DIMSE timeout expired
             #   so abort if the association hasn't already been aborted
@@ -1748,139 +1747,218 @@ class Association(threading.Thread):
                 yield Dataset(), None
                 return
 
-            if isinstance(rsp, (C_FIND, C_GET, C_MOVE)):
-                # Don't check C-STORE *request*
-                if not rsp.is_valid_response:
-                    LOGGER.error(
-                        'Received an invalid {} response from the peer'
-                        .format(rsp_type)
-                    )
-                    self.abort()
-                    yield Dataset(), None
-                    return
-
-                # Status may be 'Failure', 'Cancel', 'Warning', 'Success'
-                #   or 'Pending'
-                status = Dataset()
-                status.Status = rsp.Status
-                # Add optional status related elements
-                for keyword in rsp.STATUS_OPTIONAL_KEYWORDS:
-                    if getattr(rsp, keyword) is not None:
-                        setattr(status, keyword, getattr(rsp, keyword))
-
-                # If the Status is 'Pending' then the processing of
-                #   matches and sub-operations is initiated or continuing
-                # If the Status is 'Cancel', 'Failure', 'Warning' or 'Success'
-                #   then we are finished
-                category = code_to_category(status.Status)
-
-                LOGGER.debug('')
-                if category == STATUS_PENDING:
-                    LOGGER.info(
-                        "{} SCP Response: {} (Pending)"
-                        .format(rsp_name[rsp_type], operation_no)
-                    )
-                elif category in [STATUS_SUCCESS, STATUS_CANCEL,
-                                  STATUS_WARNING]:
-                    LOGGER.info(
-                        '{} SCP Result: ({})'
-                        .format(rsp_name[rsp_type], category)
-                    )
-                elif category == STATUS_FAILURE:
-                    LOGGER.info(
-                        '{} SCP Result: (Failure - 0x{:04x})'
-                        .format(rsp_name[rsp_type], status.Status)
-                    )
-
-                # Log number of remaining sub-operations - C-GET/C-MOVE only
-                if isinstance(rsp, (C_GET, C_MOVE)):
-                    LOGGER.info(
-                        "Sub-Operations Remaining: %s, Completed: %s, "
-                        "Failed: %s, Warning: %s",
-                        rsp.NumberOfRemainingSuboperations or '0',
-                        rsp.NumberOfCompletedSuboperations or '0',
-                        rsp.NumberOfFailedSuboperations or '0',
-                        rsp.NumberOfWarningSuboperations or '0'
-                    )
-
-                # 'Success', 'Warning', 'Failure', 'Cancel' are final yields,
-                #   'Pending' means more to come
-                identifier = None
-                if category in [STATUS_PENDING]:
-                    operation_no += 1
-                    # C-GET and C-MOVE have no identifier if Pending
-                    if isinstance(rsp, (C_GET, C_MOVE)):
-                        yield status, identifier
-                        continue
-
-                    try:
-                        identifier = decode(rsp.Identifier,
-                                            transfer_syntax.is_implicit_VR,
-                                            transfer_syntax.is_little_endian)
-
-                        LOGGER.debug('')
-                        LOGGER.debug('# DICOM Dataset')
-                        for elem in identifier:
-                            LOGGER.debug(elem)
-                        LOGGER.debug('')
-                    except Exception:
-                        LOGGER.error(
-                            "Failed to decode the received Identifier dataset"
-                        )
-                        yield status, None
-                        continue
-
-                    yield status, identifier
-                    continue
-
-                if rsp.Identifier and category in [STATUS_CANCEL,
-                                                   STATUS_WARNING,
-                                                   STATUS_FAILURE]:
-
-                    # Only C-GET and C-MOVE have an Identifier if
-                    #   cancelled/warning/failure
-                    if isinstance(rsp, (C_GET, C_MOVE)):
-                        # From Part 4, Annex C.4.3, responses with these
-                        #   statuses should contain an Identifier dataset
-                        #   with a (0008,0058) Failed SOP Instance UID List
-                        #    element however this can't be assumed
-                        # pylint: disable=broad-except
-                        try:
-                            identifier = decode(
-                                rsp.Identifier,
-                                transfer_syntax.is_implicit_VR,
-                                transfer_syntax.is_little_endian
-                            )
-                            LOGGER.debug('')
-                            LOGGER.debug('# DICOM Dataset')
-                            for elem in identifier:
-                                LOGGER.debug(elem)
-                            LOGGER.debug('')
-                        except Exception as ex:
-                            LOGGER.error(
-                                "Failed to decode the received Identifier "
-                                "dataset"
-                            )
-                            LOGGER.exception(ex)
-                            identifier = None
-
-                # Only reach this point if status is Sucess, Warning, Failure
-                #   or Cancel
-                yield status, identifier
-                break
-
-            elif isinstance(rsp, C_STORE):
-                # Received a C-STORE request from the peer
-                # Should occur during C-GET and may occur during C-MOVE
-                self._c_store_scp(rsp)
-            else:
+            if not isinstance(rsp, C_FIND):
                 LOGGER.error(
-                    'Received an unexpected DIMSE {} message from the peer'
+                    'Received an unexpected DIMSE C-FIND message from the peer'
+                )
+                self.abort()
+                yield Dataset(), None
+                return
+
+            if not rsp.is_valid_response:
+                LOGGER.error(
+                    'Received an invalid C-FIND response from the peer'
+                )
+                self.abort()
+                yield Dataset(), None
+                return
+
+            # Status may be 'Failure', 'Cancel', 'Warning', 'Success'
+            #   or 'Pending'
+            status = Dataset()
+            status.Status = rsp.Status
+            # Add optional status related elements
+            for keyword in rsp.STATUS_OPTIONAL_KEYWORDS:
+                if getattr(rsp, keyword) is not None:
+                    setattr(status, keyword, getattr(rsp, keyword))
+
+            # If the Status is 'Pending' then the processing of
+            #   matches and sub-operations is initiated or continuing
+            # If the Status is 'Cancel', 'Failure', 'Warning' or 'Success'
+            #   then we are finished
+            category = code_to_category(status.Status)
+
+            LOGGER.debug('')
+            if category == STATUS_PENDING:
+                LOGGER.info(
+                    "Find SCP Response: {} (Pending)".format(operation_no)
+                )
+            elif category in [STATUS_SUCCESS, STATUS_CANCEL, STATUS_WARNING]:
+                LOGGER.info(
+                    'Find SCP Result: ({})'.format(category)
+                )
+            elif category == STATUS_FAILURE:
+                LOGGER.info(
+                    'Find SCP Result: (Failure - 0x{:04x})'
+                    .format(status.Status)
+                )
+
+            # 'Success', 'Warning', 'Failure', 'Cancel' are final yields,
+            #   'Pending' means more to come
+            identifier = None
+            if category in [STATUS_PENDING]:
+                operation_no += 1
+
+                try:
+                    identifier = decode(rsp.Identifier,
+                                        transfer_syntax.is_implicit_VR,
+                                        transfer_syntax.is_little_endian)
+                    LOGGER.debug('')
+                    LOGGER.debug('# DICOM Dataset')
+                    for elem in identifier:
+                        LOGGER.debug(elem)
+                    LOGGER.debug('')
+                except Exception:
+                    LOGGER.error(
+                        "Failed to decode the received Identifier dataset"
+                    )
+                    yield status, None
+
+                yield status, identifier
+                continue
+
+            # Only reach this point if status is Sucess, Warning, Failure
+            #   or Cancel
+            yield status, identifier
+            break
+
+    def _wrap_get_move_responses(self, transfer_syntax):
+        """Wrapper for the C-GET/C-MOVE response generators.
+
+        Wrapping the response generators allows us to immediately send the
+        service request on calling the respective ``send_c_*()`` function.
+        This is important when it comes to reliably sending C-CANCEL requests
+        because otherwise the C-CANCEL may end up being sent prior to the
+        C-GET/MOVE request.
+
+        Parameters
+        ----------
+        transfer_syntax : pydicom.uid.UID
+            The transfer syntax UID used to encode the responses.
+
+        Yields
+        ------
+        See ``send_c_get()`` and ``send_c_move()``.
+        """
+        operation_no = 1
+        while True:
+            # Wait for DIMSE message, should be either a C-GET or
+            #   C-MOVE response or a C-STORE request
+            cx_id, rsp = self.dimse.get_msg(block=True)
+            # Used to describe the response in the log output
+            rsp_type = rsp.__class__.__name__.replace('_', '-')
+            rsp_name = {'C-GET' : 'Get', 'C-MOVE' : 'Move'}
+
+            # If `rsp` is None then the DIMSE timeout expired
+            #   so abort if the association hasn't already been aborted
+            if rsp is None:
+                if self.is_established:
+                    LOGGER.error("Connection closed or timed-out")
+                    self.abort()
+                yield Dataset(), None
+                return
+
+            if not isinstance(rsp, (C_STORE, C_GET, C_MOVE)):
+                LOGGER.error(
+                    'Received an unexpected {} message from the peer'
                     .format(rsp_type)
                 )
                 self.abort()
                 yield Dataset(), None
                 return
+
+            if isinstance(rsp, C_STORE):
+                # Received a C-STORE request from the peer
+                # Should occur during C-GET and may occur during C-MOVE
+                self._c_store_scp(rsp)
+                continue
+
+            ## Can only be C_GET or C_MOVE from here
+            if not rsp.is_valid_response:
+                LOGGER.error(
+                    'Received an invalid {} response from the peer'
+                    .format(rsp_type)
+                )
+                self.abort()
+                yield Dataset(), None
+                return
+
+            # Status may be 'Failure', 'Cancel', 'Warning', 'Success'
+            #   or 'Pending'
+            status = Dataset()
+            status.Status = rsp.Status
+            # Add optional status related elements
+            for keyword in rsp.STATUS_OPTIONAL_KEYWORDS:
+                if getattr(rsp, keyword) is not None:
+                    setattr(status, keyword, getattr(rsp, keyword))
+
+            # If the Status is 'Pending' then the processing of
+            #   matches and sub-operations is initiated or continuing
+            # If the Status is 'Cancel', 'Failure', 'Warning' or 'Success'
+            #   then we are finished
+            category = code_to_category(status.Status)
+
+            LOGGER.debug('')
+            if category == STATUS_PENDING:
+                LOGGER.info(
+                    "{} SCP Response: {} (Pending)"
+                    .format(rsp_name[rsp_type], operation_no)
+                )
+            elif category in [STATUS_SUCCESS, STATUS_CANCEL, STATUS_WARNING]:
+                LOGGER.info(
+                    '{} SCP Result: ({})'.format(rsp_name[rsp_type], category)
+                )
+            elif category == STATUS_FAILURE:
+                LOGGER.info(
+                    '{} SCP Result: (Failure - 0x{:04x})'
+                    .format(rsp_name[rsp_type], status.Status)
+                )
+
+            # Log number of remaining sub-operations - C-GET/C-MOVE only
+            LOGGER.info(
+                "Sub-Operations Remaining: %s, Completed: %s, "
+                "Failed: %s, Warning: %s",
+                rsp.NumberOfRemainingSuboperations or '0',
+                rsp.NumberOfCompletedSuboperations or '0',
+                rsp.NumberOfFailedSuboperations or '0',
+                rsp.NumberOfWarningSuboperations or '0'
+            )
+
+            # 'Success', 'Warning', 'Failure', 'Cancel' are final yields,
+            #   'Pending' means more to come
+            identifier = None
+            if category in [STATUS_PENDING]:
+                operation_no += 1
+                yield status, identifier
+                continue
+
+            if (rsp.Identifier and category in
+                    [STATUS_CANCEL, STATUS_WARNING, STATUS_FAILURE]):
+                # From Part 4, Annex C.4.3, responses with these
+                #   statuses should contain an Identifier dataset
+                #   with a (0008,0058) Failed SOP Instance UID List
+                #    element however this can't be assumed
+                # pylint: disable=broad-except
+                try:
+                    identifier = decode(rsp.Identifier,
+                                        transfer_syntax.is_implicit_VR,
+                                        transfer_syntax.is_little_endian)
+                    LOGGER.debug('')
+                    LOGGER.debug('# DICOM Dataset')
+                    for elem in identifier:
+                        LOGGER.debug(elem)
+                    LOGGER.debug('')
+                except Exception as ex:
+                    LOGGER.error(
+                        "Failed to decode the received Identifier dataset"
+                    )
+                    LOGGER.exception(ex)
+                    identifier = None
+
+            # Only reach this point if status is Sucess, Warning, Failure
+            #   or Cancel
+            yield status, identifier
+            break
 
     # DIMSE-N services provided by the Association
     def send_n_action(self, dataset, action_type, class_uid, instance_uid,

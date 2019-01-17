@@ -539,14 +539,14 @@ class TestQRFindServiceClass(object):
         assert assoc.is_established
 
         identifier = Dataset()
-        identifier.SOPClassUID =
+        #identifier.SOPClassUID =
         results = assoc.send_c_find(identifier, msg_id=11142, query_model='P')
         assoc.send_c_cancel(11142, 1)
 
         status, ds = next(results)
         status, ds = next(results)
 
-        with pytest.
+        #with pytest.
 
         assoc.release()
 
