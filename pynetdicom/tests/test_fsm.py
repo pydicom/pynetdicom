@@ -3071,12 +3071,14 @@ class TestState06(TestStateBase):
         commands = [
             ('recv', None),
             ('send', a_associate_ac),
-            ('wait', 0.1)
+            ('wait', 0.3)
         ]
         scp = self.start_server(commands)
 
         self.assoc.start()
-        time.sleep(0.05)
+        while not self.assoc.is_established:
+            time.sleep(0.05)
+        time.sleep(0.2)
         self.assoc.dul.send_pdu(self.get_associate('request'))
         time.sleep(0.1)
 
@@ -3114,7 +3116,9 @@ class TestState06(TestStateBase):
 
         self.assoc.start()
 
-        time.sleep(0.1)
+        while not self.assoc.is_established:
+            time.sleep(0.05)
+        time.sleep(0.2)
 
         #self.print_fsm_scp(self.fsm, scp)
 
@@ -3149,7 +3153,9 @@ class TestState06(TestStateBase):
 
         self.assoc.start()
 
-        time.sleep(0.1)
+        while not self.assoc.is_established:
+            time.sleep(0.05)
+        time.sleep(0.2)
 
         #self.print_fsm_scp(self.fsm, scp)
 
@@ -3191,7 +3197,9 @@ class TestState06(TestStateBase):
 
         self.assoc.start()
 
-        time.sleep(0.1)
+        while not self.assoc.is_established:
+            time.sleep(0.05)
+        time.sleep(0.2)
 
         #self.print_fsm_scp(self.fsm, scp)
 
@@ -3218,12 +3226,14 @@ class TestState06(TestStateBase):
         commands = [
             ('recv', None),
             ('send', a_associate_ac),
-            ('wait', 0.1),
+            ('wait', 0.3),
         ]
         scp = self.start_server(commands)
 
         self.assoc.start()
-        time.sleep(0.1)
+        while not self.assoc.is_established:
+            time.sleep(0.05)
+        time.sleep(0.2)
         self.assoc.dul.send_pdu(self.get_associate('accept'))
         time.sleep(0.1)
 
@@ -3246,12 +3256,14 @@ class TestState06(TestStateBase):
         commands = [
             ('recv', None),
             ('send', a_associate_ac),
-            ('wait', 0.1),
+            ('wait', 0.3),
         ]
         scp = self.start_server(commands)
 
         self.assoc.start()
-        time.sleep(0.1)
+        while not self.assoc.is_established:
+            time.sleep(0.05)
+        time.sleep(0.2)
         self.assoc.dul.send_pdu(self.get_associate('reject'))
         time.sleep(0.1)
 
@@ -3275,11 +3287,13 @@ class TestState06(TestStateBase):
         commands = [
             ('recv', None),
             ('send', a_associate_ac),
-            ('wait', 0.2),
+            ('wait', 0.3),
         ]
         scp = self.start_server(commands)
 
         self.assoc.start()
+        while not self.assoc.is_established:
+            time.sleep(0.05)
         time.sleep(0.2)
         self.assoc.dul.send_pdu(self.get_pdata())
         time.sleep(0.1)
@@ -3311,7 +3325,9 @@ class TestState06(TestStateBase):
 
         self.assoc.start()
 
-        time.sleep(0.1)
+        while not self.assoc.is_established:
+            time.sleep(0.05)
+        time.sleep(0.2)
 
         #self.print_fsm_scp(self.fsm, scp)
 
@@ -3333,12 +3349,14 @@ class TestState06(TestStateBase):
         commands = [
             ('recv', None),
             ('send', a_associate_ac),
-            ('wait', 0.1),
+            ('wait', 0.3),
         ]
         scp = self.start_server(commands)
 
         self.assoc.start()
-        time.sleep(0.1)
+        while not self.assoc.is_established:
+            time.sleep(0.05)
+        time.sleep(0.2)
         self.assoc.dul.send_pdu(self.get_release(False))
         time.sleep(0.1)
 
@@ -3368,7 +3386,9 @@ class TestState06(TestStateBase):
 
         self.assoc.start()
 
-        time.sleep(0.1)
+        while not self.assoc.is_established:
+            time.sleep(0.05)
+        time.sleep(0.2)
 
         #self.print_fsm_scp(self.fsm, scp)
 
@@ -3398,7 +3418,9 @@ class TestState06(TestStateBase):
 
         self.assoc.start()
 
-        time.sleep(0.1)
+        while not self.assoc.is_established:
+            time.sleep(0.05)
+        time.sleep(0.2)
 
         #self.print_fsm_scp(self.fsm, scp)
 
@@ -3425,12 +3447,14 @@ class TestState06(TestStateBase):
         commands = [
             ('recv', None),
             ('send', a_associate_ac),
-            ('wait', 0.1),
+            ('wait', 0.3),
         ]
         scp = self.start_server(commands)
 
         self.assoc.start()
-        time.sleep(0.1)
+        while not self.assoc.is_established:
+            time.sleep(0.05)
+        time.sleep(0.2)
         self.assoc.dul.send_pdu(self.get_release(True))
         time.sleep(0.1)
 
@@ -3460,7 +3484,9 @@ class TestState06(TestStateBase):
 
         self.assoc.start()
 
-        time.sleep(0.1)
+        while not self.assoc.is_established:
+            time.sleep(0.05)
+        time.sleep(0.2)
 
         self.assoc.abort()
 
@@ -3495,7 +3521,9 @@ class TestState06(TestStateBase):
 
         self.assoc.start()
 
-        time.sleep(0.1)
+        while not self.assoc.is_established:
+            time.sleep(0.05)
+        time.sleep(0.2)
 
         #self.print_fsm_scp(self.fsm, scp)
 
@@ -3523,7 +3551,9 @@ class TestState06(TestStateBase):
 
         self.assoc.start()
 
-        time.sleep(0.1)
+        while not self.assoc.is_established:
+            time.sleep(0.05)
+        time.sleep(0.2)
 
         #self.print_fsm_scp(self.fsm, scp)
 
@@ -3545,13 +3575,15 @@ class TestState06(TestStateBase):
         commands = [
             ('recv', None),
             ('send', a_associate_ac),
-            ('wait', 0.2),
+            ('wait', 0.3),
         ]
         scp = self.start_server(commands)
 
         self.assoc.start()
 
-        time.sleep(0.1)
+        while not self.assoc.is_established:
+            time.sleep(0.05)
+        time.sleep(0.2)
 
         self.assoc.dul.artim_timer.timeout = 0.05
         self.assoc.dul.artim_timer.start()
@@ -3583,7 +3615,9 @@ class TestState06(TestStateBase):
 
         self.assoc.start()
 
-        time.sleep(0.1)
+        while not self.assoc.is_established:
+            time.sleep(0.05)
+        time.sleep(0.2)
 
         #self.print_fsm_scp(self.fsm, scp)
 
@@ -3614,11 +3648,13 @@ class TestState07(TestStateBase):
             ('recv', None),
             ('send', a_associate_ac),
             ('recv', None),
-            ('wait', 0.1),
+            ('wait', 0.3),
         ]
         scp = self.start_server(commands)
 
         self.assoc.start()
+        while not self.assoc.is_established:
+            time.sleep(0.05)
         time.sleep(0.2)
         self.assoc.dul.send_pdu(self.get_release(False))
         self.assoc.dul.send_pdu(self.get_associate('request'))
@@ -3658,6 +3694,8 @@ class TestState07(TestStateBase):
         scp = self.start_server(commands)
 
         self.assoc.start()
+        while not self.assoc.is_established:
+            time.sleep(0.05)
         time.sleep(0.2)
         self.assoc.dul.send_pdu(self.get_release(False))
         time.sleep(0.1)
@@ -3696,6 +3734,8 @@ class TestState07(TestStateBase):
         scp = self.start_server(commands)
 
         self.assoc.start()
+        while not self.assoc.is_established:
+            time.sleep(0.05)
         time.sleep(0.2)
         self.assoc.dul.send_pdu(self.get_release(False))
         time.sleep(0.1)
@@ -3741,6 +3781,8 @@ class TestState07(TestStateBase):
         scp = self.start_server(commands)
 
         self.assoc.start()
+        while not self.assoc.is_established:
+            time.sleep(0.05)
         time.sleep(0.2)
         self.assoc.dul.send_pdu(self.get_release(False))
         time.sleep(0.1)
@@ -3772,11 +3814,13 @@ class TestState07(TestStateBase):
             ('recv', None),
             ('send', a_associate_ac),
             ('recv', None),
-            ('wait', 0.1),
+            ('wait', 0.3),
         ]
         scp = self.start_server(commands)
 
         self.assoc.start()
+        while not self.assoc.is_established:
+            time.sleep(0.05)
         time.sleep(0.2)
         self.assoc.dul.send_pdu(self.get_release(False))
         self.assoc.dul.send_pdu(self.get_associate('accept'))
@@ -3803,11 +3847,13 @@ class TestState07(TestStateBase):
             ('recv', None),
             ('send', a_associate_ac),
             ('recv', None),
-            ('wait', 0.1),
+            ('wait', 0.3),
         ]
         scp = self.start_server(commands)
 
         self.assoc.start()
+        while not self.assoc.is_established:
+            time.sleep(0.05)
         time.sleep(0.2)
         self.assoc.dul.send_pdu(self.get_release(False))
         self.assoc.dul.send_pdu(self.get_associate('reject'))
@@ -3834,11 +3880,13 @@ class TestState07(TestStateBase):
             ('recv', None),
             ('send', a_associate_ac),
             ('recv', None),
-            ('wait', 0.1),
+            ('wait', 0.3),
         ]
         scp = self.start_server(commands)
 
         self.assoc.start()
+        while not self.assoc.is_established:
+            time.sleep(0.05)
         time.sleep(0.2)
         self.assoc.dul.send_pdu(self.get_release(False))
         self.assoc.dul.send_pdu(self.get_pdata())
@@ -3871,6 +3919,8 @@ class TestState07(TestStateBase):
         scp = self.start_server(commands)
 
         self.assoc.start()
+        while not self.assoc.is_established:
+            time.sleep(0.05)
         time.sleep(0.2)
         self.assoc.dul.send_pdu(self.get_release(False))
         time.sleep(0.1)
@@ -3899,11 +3949,13 @@ class TestState07(TestStateBase):
             ('recv', None),
             ('send', a_associate_ac),
             ('recv', None),
-            ('wait', 0.1),
+            ('wait', 0.3),
         ]
         scp = self.start_server(commands)
 
         self.assoc.start()
+        while not self.assoc.is_established:
+            time.sleep(0.05)
         time.sleep(0.2)
         self.assoc.dul.send_pdu(self.get_release(False))
         self.assoc.dul.send_pdu(self.get_release(False))
@@ -3936,6 +3988,8 @@ class TestState07(TestStateBase):
         scp = self.start_server(commands)
 
         self.assoc.start()
+        while not self.assoc.is_established:
+            time.sleep(0.05)
         time.sleep(0.2)
         self.assoc.dul.send_pdu(self.get_release(False))
         time.sleep(0.1)
@@ -3968,6 +4022,8 @@ class TestState07(TestStateBase):
         scp = self.start_server(commands)
 
         self.assoc.start()
+        while not self.assoc.is_established:
+            time.sleep(0.05)
         time.sleep(0.2)
         self.assoc.dul.send_pdu(self.get_release(False))
         time.sleep(0.1)
@@ -3996,11 +4052,13 @@ class TestState07(TestStateBase):
             ('recv', None),
             ('send', a_associate_ac),
             ('recv', None),
-            ('wait', 0.2),
+            ('wait', 0.3),
         ]
         scp = self.start_server(commands)
 
         self.assoc.start()
+        while not self.assoc.is_established:
+            time.sleep(0.05)
         time.sleep(0.2)
         self.assoc.dul.send_pdu(self.get_release(False))
         self.assoc.dul.send_pdu(self.get_release(True))
@@ -4028,12 +4086,14 @@ class TestState07(TestStateBase):
             ('recv', None),
             ('send', a_associate_ac),
             ('recv', None),
-            ('wait', 0.1),
+            ('wait', 0.3),
         ]
         scp = self.start_server(commands)
 
         self.assoc.start()
-        time.sleep(0.1)
+        while not self.assoc.is_established:
+            time.sleep(0.05)
+        time.sleep(0.2)
         self.assoc.dul.send_pdu(self.get_release(False))
         self.assoc.dul.send_pdu(self.get_abort())
         time.sleep(0.1)
@@ -4065,6 +4125,8 @@ class TestState07(TestStateBase):
         scp = self.start_server(commands)
 
         self.assoc.start()
+        while not self.assoc.is_established:
+            time.sleep(0.05)
         time.sleep(0.2)
         self.assoc.dul.send_pdu(self.get_release(False))
         time.sleep(0.1)
@@ -4096,6 +4158,8 @@ class TestState07(TestStateBase):
         scp = self.start_server(commands)
 
         self.assoc.start()
+        while not self.assoc.is_established:
+            time.sleep(0.05)
         time.sleep(0.2)
         self.assoc.dul.send_pdu(self.get_release(False))
         time.sleep(0.1)
@@ -4122,11 +4186,13 @@ class TestState07(TestStateBase):
             ('recv', None),
             ('send', a_associate_ac),
             ('recv', None),
-            ('wait', 0.1),
+            ('wait', 0.3),
         ]
         scp = self.start_server(commands)
 
         self.assoc.start()
+        while not self.assoc.is_established:
+            time.sleep(0.05)
         time.sleep(0.2)
         self.assoc.dul.send_pdu(self.get_release(False))
         self.assoc.dul.artim_timer.timeout = 0.05
@@ -4161,6 +4227,8 @@ class TestState07(TestStateBase):
         scp = self.start_server(commands)
 
         self.assoc.start()
+        while not self.assoc.is_established:
+            time.sleep(0.05)
         time.sleep(0.2)
         self.assoc.dul.send_pdu(self.get_release(False))
         time.sleep(0.1)
@@ -4195,7 +4263,7 @@ class TestState08(TestStateBase):
             ('recv', None),
             ('send', a_associate_ac),
             ('send', a_release_rq),
-            ('wait', 0.1),
+            ('wait', 0.3),
         ]
         scp = self.start_server(commands)
 
@@ -4206,7 +4274,9 @@ class TestState08(TestStateBase):
         self.assoc.acse.is_release_requested = is_release_requested
 
         self.assoc.start()
-        time.sleep(0.1)
+        while not self.assoc.is_established:
+            time.sleep(0.05)
+        time.sleep(0.2)
         self.assoc.dul.send_pdu(self.get_associate('request'))
         time.sleep(0.1)
 
@@ -4240,7 +4310,7 @@ class TestState08(TestStateBase):
             ('send', a_associate_ac),
             ('send', a_release_rq),
             ('send', a_associate_ac),
-            ('wait', 0.1),
+            ('wait', 0.3),
         ]
         scp = self.start_server(commands)
 
@@ -4251,7 +4321,9 @@ class TestState08(TestStateBase):
         self.assoc.acse.is_release_requested = is_release_requested
 
         self.assoc.start()
-        time.sleep(0.1)
+        while not self.assoc.is_established:
+            time.sleep(0.05)
+        time.sleep(0.2)
 
         #self.print_fsm_scp(self.fsm, scp)
 
@@ -4277,7 +4349,7 @@ class TestState08(TestStateBase):
             ('send', a_associate_ac),
             ('send', a_release_rq),
             ('send', a_associate_rj),
-            ('wait', 0.1),
+            ('wait', 0.3),
         ]
         scp = self.start_server(commands)
 
@@ -4288,7 +4360,9 @@ class TestState08(TestStateBase):
         self.assoc.acse.is_release_requested = is_release_requested
 
         self.assoc.start()
-        time.sleep(0.1)
+        while not self.assoc.is_established:
+            time.sleep(0.05)
+        time.sleep(0.2)
 
         #self.print_fsm_scp(self.fsm, scp)
 
@@ -4321,7 +4395,7 @@ class TestState08(TestStateBase):
             ('send', a_associate_ac),
             ('send', a_release_rq),
             ('send', a_associate_rq),
-            ('wait', 0.1),
+            ('wait', 0.3),
         ]
         scp = self.start_server(commands)
 
@@ -4332,7 +4406,9 @@ class TestState08(TestStateBase):
         self.assoc.acse.is_release_requested = is_release_requested
 
         self.assoc.start()
-        time.sleep(0.1)
+        while not self.assoc.is_established:
+            time.sleep(0.05)
+        time.sleep(0.2)
 
         #self.print_fsm_scp(self.fsm, scp)
 
@@ -4356,7 +4432,7 @@ class TestState08(TestStateBase):
             ('recv', None),
             ('send', a_associate_ac),
             ('send', a_release_rq),
-            ('wait', 0.1),
+            ('wait', 0.3),
         ]
         scp = self.start_server(commands)
 
@@ -4366,7 +4442,9 @@ class TestState08(TestStateBase):
 
         self.assoc.acse.is_release_requested = is_release_requested
         self.assoc.start()
-        time.sleep(0.1)
+        while not self.assoc.is_established:
+            time.sleep(0.05)
+        time.sleep(0.2)
         self.assoc.dul.send_pdu(self.get_associate('accept'))
         time.sleep(0.1)
 
@@ -4391,7 +4469,7 @@ class TestState08(TestStateBase):
             ('recv', None),
             ('send', a_associate_ac),
             ('send', a_release_rq),
-            ('wait', 0.1),
+            ('wait', 0.3),
         ]
         scp = self.start_server(commands)
 
@@ -4401,7 +4479,9 @@ class TestState08(TestStateBase):
 
         self.assoc.acse.is_release_requested = is_release_requested
         self.assoc.start()
-        time.sleep(0.1)
+        while not self.assoc.is_established:
+            time.sleep(0.05)
+        time.sleep(0.2)
         self.assoc.dul.send_pdu(self.get_associate('reject'))
         time.sleep(0.1)
 
@@ -4427,7 +4507,7 @@ class TestState08(TestStateBase):
             ('recv', None),
             ('send', a_associate_ac),
             ('send', a_release_rq),
-            ('wait', 0.1),
+            ('wait', 0.3),
         ]
         scp = self.start_server(commands)
 
@@ -4437,7 +4517,9 @@ class TestState08(TestStateBase):
 
         self.assoc.acse.is_release_requested = is_release_requested
         self.assoc.start()
-        time.sleep(0.1)
+        while not self.assoc.is_established:
+            time.sleep(0.05)
+        time.sleep(0.2)
         self.assoc.dul.send_pdu(self.get_pdata())
         time.sleep(0.1)
 
@@ -4464,7 +4546,7 @@ class TestState08(TestStateBase):
             ('send', a_associate_ac),
             ('send', a_release_rq),
             ('send', p_data_tf),
-            ('wait', 0.1),
+            ('wait', 0.3),
         ]
         scp = self.start_server(commands)
 
@@ -4475,7 +4557,9 @@ class TestState08(TestStateBase):
         self.assoc.acse.is_release_requested = is_release_requested
 
         self.assoc.start()
-        time.sleep(0.1)
+        while not self.assoc.is_established:
+            time.sleep(0.05)
+        time.sleep(0.2)
 
         #self.print_fsm_scp(self.fsm, scp)
 
@@ -4499,7 +4583,7 @@ class TestState08(TestStateBase):
             ('recv', None),
             ('send', a_associate_ac),
             ('send', a_release_rq),
-            ('wait', 0.1),
+            ('wait', 0.3),
         ]
         scp = self.start_server(commands)
 
@@ -4509,7 +4593,9 @@ class TestState08(TestStateBase):
 
         self.assoc.acse.is_release_requested = is_release_requested
         self.assoc.start()
-        time.sleep(0.1)
+        while not self.assoc.is_established:
+            time.sleep(0.05)
+        time.sleep(0.2)
         self.assoc.dul.send_pdu(self.get_release(False))
         time.sleep(0.1)
 
@@ -4536,7 +4622,7 @@ class TestState08(TestStateBase):
             ('send', a_associate_ac),
             ('send', a_release_rq),
             ('send', a_release_rq),
-            ('wait', 0.1),
+            ('wait', 0.3),
         ]
         scp = self.start_server(commands)
 
@@ -4547,7 +4633,9 @@ class TestState08(TestStateBase):
         self.assoc.acse.is_release_requested = is_release_requested
 
         self.assoc.start()
-        time.sleep(0.1)
+        while not self.assoc.is_established:
+            time.sleep(0.05)
+        time.sleep(0.2)
 
         #self.print_fsm_scp(self.fsm, scp)
 
@@ -4573,7 +4661,7 @@ class TestState08(TestStateBase):
             ('send', a_associate_ac),
             ('send', a_release_rq),
             ('send', a_release_rp),
-            ('wait', 0.1),
+            ('wait', 0.3),
         ]
         scp = self.start_server(commands)
 
@@ -4584,7 +4672,9 @@ class TestState08(TestStateBase):
         self.assoc.acse.is_release_requested = is_release_requested
 
         self.assoc.start()
-        time.sleep(0.1)
+        while not self.assoc.is_established:
+            time.sleep(0.05)
+        time.sleep(0.2)
 
         #self.print_fsm_scp(self.fsm, scp)
 
@@ -4609,7 +4699,7 @@ class TestState08(TestStateBase):
             ('recv', None),
             ('send', a_associate_ac),
             ('send', a_release_rq),
-            ('wait', 0.1),
+            ('wait', 0.3),
         ]
         scp = self.start_server(commands)
 
@@ -4619,7 +4709,9 @@ class TestState08(TestStateBase):
 
         self.assoc.acse.is_release_requested = is_release_requested
         self.assoc.start()
-        time.sleep(0.1)
+        while not self.assoc.is_established:
+            time.sleep(0.05)
+        time.sleep(0.2)
         self.assoc.dul.send_pdu(self.get_release(True))
         time.sleep(0.1)
 
@@ -4645,7 +4737,7 @@ class TestState08(TestStateBase):
             ('recv', None),
             ('send', a_associate_ac),
             ('send', a_release_rq),
-            ('wait', 0.1),
+            ('wait', 0.3),
         ]
         scp = self.start_server(commands)
 
@@ -4655,7 +4747,9 @@ class TestState08(TestStateBase):
 
         self.assoc.acse.is_release_requested = is_release_requested
         self.assoc.start()
-        time.sleep(0.1)
+        while not self.assoc.is_established:
+            time.sleep(0.05)
+        time.sleep(0.2)
         self.assoc.dul.send_pdu(self.get_abort())
         time.sleep(0.1)
 
@@ -4682,7 +4776,7 @@ class TestState08(TestStateBase):
             ('send', a_associate_ac),
             ('send', a_release_rq),
             ('send', a_abort),
-            ('wait', 0.1),
+            ('wait', 0.3),
         ]
         scp = self.start_server(commands)
 
@@ -4693,7 +4787,9 @@ class TestState08(TestStateBase):
         self.assoc.acse.is_release_requested = is_release_requested
 
         self.assoc.start()
-        time.sleep(0.1)
+        while not self.assoc.is_established:
+            time.sleep(0.05)
+        time.sleep(0.2)
 
         #self.print_fsm_scp(self.fsm, scp)
 
@@ -4728,7 +4824,9 @@ class TestState08(TestStateBase):
         self.assoc.acse.is_release_requested = is_release_requested
         self.assoc.start()
 
-        time.sleep(0.1)
+        while not self.assoc.is_established:
+            time.sleep(0.05)
+        time.sleep(0.2)
 
         #self.print_fsm_scp(self.fsm, scp)
 
@@ -4752,7 +4850,7 @@ class TestState08(TestStateBase):
             ('recv', None),
             ('send', a_associate_ac),
             ('send', a_release_rq),
-            ('wait', 0.2),
+            ('wait', 0.3),
         ]
         scp = self.start_server(commands)
 
@@ -4763,7 +4861,9 @@ class TestState08(TestStateBase):
         self.assoc.acse.is_release_requested = is_release_requested
         self.assoc.start()
 
-        time.sleep(0.1)
+        while not self.assoc.is_established:
+            time.sleep(0.05)
+        time.sleep(0.2)
         self.assoc.dul.artim_timer.timeout = 0.05
         self.assoc.dul.artim_timer.start()
         time.sleep(0.1)
@@ -4801,7 +4901,9 @@ class TestState08(TestStateBase):
         self.assoc.acse.is_release_requested = is_release_requested
         self.assoc.start()
 
-        time.sleep(0.1)
+        while not self.assoc.is_established:
+            time.sleep(0.05)
+        time.sleep(0.2)
 
         #self.print_fsm_scp(self.fsm, scp)
 
@@ -4840,7 +4942,9 @@ class TestState09(TestStateBase):
         self.assoc.acse.is_release_requested = is_release_requested
 
         self.assoc.start()
-        time.sleep(0.1)
+        while not self.assoc.is_established:
+            time.sleep(0.05)
+        time.sleep(0.2)
         self.assoc.dul.send_pdu(self.get_release(False))
         time.sleep(0.1)
         self.assoc.dul.send_pdu(self.get_associate('request'))
@@ -4893,7 +4997,9 @@ class TestState09(TestStateBase):
         self.assoc.acse.is_release_requested = is_release_requested
 
         self.assoc.start()
-        time.sleep(0.1)
+        while not self.assoc.is_established:
+            time.sleep(0.05)
+        time.sleep(0.2)
         self.assoc.dul.send_pdu(self.get_release(False))
         time.sleep(0.1)
 
@@ -4941,7 +5047,9 @@ class TestState09(TestStateBase):
         self.assoc.acse.is_release_requested = is_release_requested
 
         self.assoc.start()
-        time.sleep(0.1)
+        while not self.assoc.is_established:
+            time.sleep(0.05)
+        time.sleep(0.2)
         self.assoc.dul.send_pdu(self.get_release(False))
         time.sleep(0.1)
 
@@ -4996,7 +5104,9 @@ class TestState09(TestStateBase):
         self.assoc.acse.is_release_requested = is_release_requested
 
         self.assoc.start()
-        time.sleep(0.1)
+        while not self.assoc.is_established:
+            time.sleep(0.05)
+        time.sleep(0.2)
         self.assoc.dul.send_pdu(self.get_release(False))
         time.sleep(0.1)
 
@@ -5042,7 +5152,9 @@ class TestState09(TestStateBase):
         self.assoc.acse.is_release_requested = is_release_requested
 
         self.assoc.start()
-        time.sleep(0.1)
+        while not self.assoc.is_established:
+            time.sleep(0.05)
+        time.sleep(0.2)
         self.assoc.dul.send_pdu(self.get_release(False))
         time.sleep(0.1)
         self.assoc.dul.send_pdu(self.get_associate('accept'))
@@ -5086,7 +5198,9 @@ class TestState09(TestStateBase):
         self.assoc.acse.is_release_requested = is_release_requested
 
         self.assoc.start()
-        time.sleep(0.1)
+        while not self.assoc.is_established:
+            time.sleep(0.05)
+        time.sleep(0.2)
         self.assoc.dul.send_pdu(self.get_release(False))
         time.sleep(0.1)
         self.assoc.dul.send_pdu(self.get_associate('reject'))
@@ -5130,7 +5244,9 @@ class TestState09(TestStateBase):
         self.assoc.acse.is_release_requested = is_release_requested
 
         self.assoc.start()
-        time.sleep(0.1)
+        while not self.assoc.is_established:
+            time.sleep(0.05)
+        time.sleep(0.2)
         self.assoc.dul.send_pdu(self.get_release(False))
         time.sleep(0.1)
         self.assoc.dul.send_pdu(self.get_pdata())
@@ -5176,7 +5292,9 @@ class TestState09(TestStateBase):
         self.assoc.acse.is_release_requested = is_release_requested
 
         self.assoc.start()
-        time.sleep(0.1)
+        while not self.assoc.is_established:
+            time.sleep(0.05)
+        time.sleep(0.2)
         self.assoc.dul.send_pdu(self.get_release(False))
         time.sleep(0.1)
 
@@ -5222,7 +5340,9 @@ class TestState09(TestStateBase):
         self.assoc.acse.is_release_requested = is_release_requested
 
         self.assoc.start()
-        time.sleep(0.1)
+        while not self.assoc.is_established:
+            time.sleep(0.05)
+        time.sleep(0.2)
         self.assoc.dul.send_pdu(self.get_release(False))
         time.sleep(0.1)
         self.assoc.dul.send_pdu(self.get_release(False))
@@ -5268,7 +5388,9 @@ class TestState09(TestStateBase):
         self.assoc.acse.is_release_requested = is_release_requested
 
         self.assoc.start()
-        time.sleep(0.1)
+        while not self.assoc.is_established:
+            time.sleep(0.05)
+        time.sleep(0.2)
         self.assoc.dul.send_pdu(self.get_release(False))
         time.sleep(0.1)
 
@@ -5316,7 +5438,9 @@ class TestState09(TestStateBase):
         self.assoc.acse.is_release_requested = is_release_requested
 
         self.assoc.start()
-        time.sleep(0.1)
+        while not self.assoc.is_established:
+            time.sleep(0.05)
+        time.sleep(0.2)
         self.assoc.dul.send_pdu(self.get_release(False))
         time.sleep(0.1)
 
@@ -5363,7 +5487,9 @@ class TestState09(TestStateBase):
         self.assoc.acse.is_release_requested = is_release_requested
 
         self.assoc.start()
-        time.sleep(0.1)
+        while not self.assoc.is_established:
+            time.sleep(0.05)
+        time.sleep(0.2)
         self.assoc.dul.send_pdu(self.get_release(False))
         time.sleep(0.1)
         self.assoc.dul.send_pdu(self.get_release(True))
@@ -5411,7 +5537,9 @@ class TestState09(TestStateBase):
         self.assoc.acse.is_release_requested = is_release_requested
 
         self.assoc.start()
-        time.sleep(0.1)
+        while not self.assoc.is_established:
+            time.sleep(0.05)
+        time.sleep(0.2)
         self.assoc.dul.send_pdu(self.get_release(False))
         time.sleep(0.1)
         self.assoc.dul.send_pdu(self.get_abort())
@@ -5460,7 +5588,9 @@ class TestState09(TestStateBase):
         self.assoc.acse.is_release_requested = is_release_requested
 
         self.assoc.start()
-        time.sleep(0.1)
+        while not self.assoc.is_established:
+            time.sleep(0.05)
+        time.sleep(0.2)
         self.assoc.dul.send_pdu(self.get_release(False))
         time.sleep(0.1)
 
@@ -5503,7 +5633,9 @@ class TestState09(TestStateBase):
         self.assoc.acse.is_release_requested = is_release_requested
 
         self.assoc.start()
-        time.sleep(0.1)
+        while not self.assoc.is_established:
+            time.sleep(0.05)
+        time.sleep(0.2)
         self.assoc.dul.send_pdu(self.get_release(False))
         time.sleep(0.1)
 
@@ -5546,7 +5678,9 @@ class TestState09(TestStateBase):
         self.assoc.acse.is_release_requested = is_release_requested
 
         self.assoc.start()
-        time.sleep(0.1)
+        while not self.assoc.is_established:
+            time.sleep(0.05)
+        time.sleep(0.2)
         self.assoc.dul.send_pdu(self.get_release(False))
         time.sleep(0.1)
         self.assoc.dul.artim_timer.timeout = 0.05
@@ -5593,7 +5727,9 @@ class TestState09(TestStateBase):
         self.assoc.acse.is_release_requested = is_release_requested
 
         self.assoc.start()
-        time.sleep(0.1)
+        while not self.assoc.is_established:
+            time.sleep(0.05)
+        time.sleep(0.2)
         self.assoc.dul.send_pdu(self.get_release(False))
         time.sleep(0.1)
 
@@ -5642,7 +5778,9 @@ class TestState10(TestStateBase):
 
         assoc.acse.is_release_requested = is_release_requested
         assoc.start()
-        time.sleep(0.1)
+        while not assoc.is_established:
+            time.sleep(0.05)
+        time.sleep(0.2)
         assoc.dul.send_pdu(self.get_release(False))
         time.sleep(0.1)
         assoc.dul.send_pdu(self.get_associate('request'))
@@ -5695,11 +5833,10 @@ class TestState10(TestStateBase):
 
         assoc.acse.is_release_requested = is_release_requested
         assoc.start()
-
-        time.sleep(0.1)
-
+        while not assoc.is_established:
+            time.sleep(0.05)
+        time.sleep(0.2)
         assoc.dul.send_pdu(self.get_release(False))
-
         time.sleep(0.1)
 
         #self.print_fsm_scp(fsm, scp)
@@ -5746,11 +5883,10 @@ class TestState10(TestStateBase):
 
         assoc.acse.is_release_requested = is_release_requested
         assoc.start()
-
-        time.sleep(0.1)
-
+        while not assoc.is_established:
+            time.sleep(0.05)
+        time.sleep(0.2)
         assoc.dul.send_pdu(self.get_release(False))
-
         time.sleep(0.1)
 
         #self.print_fsm_scp(fsm, scp)
@@ -5804,11 +5940,10 @@ class TestState10(TestStateBase):
 
         assoc.acse.is_release_requested = is_release_requested
         assoc.start()
-
-        time.sleep(0.1)
-
+        while not assoc.is_established:
+            time.sleep(0.05)
+        time.sleep(0.2)
         assoc.dul.send_pdu(self.get_release(False))
-
         time.sleep(0.1)
 
         #self.print_fsm_scp(fsm, scp)
@@ -5854,8 +5989,9 @@ class TestState10(TestStateBase):
 
         assoc.acse.is_release_requested = is_release_requested
         assoc.start()
-
-        time.sleep(0.1)
+        while not assoc.is_established:
+            time.sleep(0.05)
+        time.sleep(0.2)
         assoc.dul.send_pdu(self.get_release(False))
         time.sleep(0.1)
         assoc.dul.send_pdu(self.get_associate('accept'))
@@ -5900,8 +6036,9 @@ class TestState10(TestStateBase):
 
         assoc.acse.is_release_requested = is_release_requested
         assoc.start()
-
-        time.sleep(0.1)
+        while not assoc.is_established:
+            time.sleep(0.05)
+        time.sleep(0.2)
         assoc.dul.send_pdu(self.get_release(False))
         time.sleep(0.1)
         assoc.dul.send_pdu(self.get_associate('reject'))
@@ -5946,8 +6083,9 @@ class TestState10(TestStateBase):
 
         assoc.acse.is_release_requested = is_release_requested
         assoc.start()
-
-        time.sleep(0.1)
+        while not assoc.is_established:
+            time.sleep(0.05)
+        time.sleep(0.2)
         assoc.dul.send_pdu(self.get_release(False))
         time.sleep(0.1)
         assoc.dul.send_pdu(self.get_pdata())
@@ -5993,11 +6131,10 @@ class TestState10(TestStateBase):
 
         assoc.acse.is_release_requested = is_release_requested
         assoc.start()
-
-        time.sleep(0.1)
-
+        while not assoc.is_established:
+            time.sleep(0.05)
+        time.sleep(0.2)
         assoc.dul.send_pdu(self.get_release(False))
-
         time.sleep(0.1)
 
         #self.print_fsm_scp(fsm, scp)
@@ -6043,8 +6180,9 @@ class TestState10(TestStateBase):
 
         assoc.acse.is_release_requested = is_release_requested
         assoc.start()
-
-        time.sleep(0.1)
+        while not assoc.is_established:
+            time.sleep(0.05)
+        time.sleep(0.2)
         assoc.dul.send_pdu(self.get_release(False))
         time.sleep(0.1)
         assoc.dul.send_pdu(self.get_release(False))
@@ -6090,11 +6228,10 @@ class TestState10(TestStateBase):
 
         assoc.acse.is_release_requested = is_release_requested
         assoc.start()
-
-        time.sleep(0.1)
-
+        while not assoc.is_established:
+            time.sleep(0.05)
+        time.sleep(0.2)
         assoc.dul.send_pdu(self.get_release(False))
-
         time.sleep(0.1)
 
         #self.print_fsm_scp(fsm, scp)
@@ -6140,11 +6277,10 @@ class TestState10(TestStateBase):
 
         assoc.acse.is_release_requested = is_release_requested
         assoc.start()
-
-        time.sleep(0.1)
-
+        while not assoc.is_established:
+            time.sleep(0.05)
+        time.sleep(0.2)
         assoc.dul.send_pdu(self.get_release(False))
-
         time.sleep(0.1)
 
         #self.print_fsm_scp(fsm, scp)
@@ -6188,7 +6324,9 @@ class TestState10(TestStateBase):
         assoc.acse.is_release_requested = is_release_requested
         assoc.start()
 
-        time.sleep(0.1)
+        while not assoc.is_established:
+            time.sleep(0.05)
+        time.sleep(0.2)
         assoc.dul.send_pdu(self.get_release(False))
         time.sleep(0.1)
         assoc.dul.send_pdu(self.get_release(True))
@@ -6235,7 +6373,9 @@ class TestState10(TestStateBase):
         assoc.acse.is_release_requested = is_release_requested
         assoc.start()
 
-        time.sleep(0.1)
+        while not assoc.is_established:
+            time.sleep(0.05)
+        time.sleep(0.2)
         assoc.dul.send_pdu(self.get_release(False))
         time.sleep(0.1)
         assoc.dul.send_pdu(self.get_abort())
@@ -6285,10 +6425,10 @@ class TestState10(TestStateBase):
         assoc.acse.is_release_requested = is_release_requested
         assoc.start()
 
-        time.sleep(0.1)
-
+        while not assoc.is_established:
+            time.sleep(0.05)
+        time.sleep(0.2)
         assoc.dul.send_pdu(self.get_release(False))
-
         time.sleep(0.1)
 
         #self.print_fsm_scp(fsm, scp)
@@ -6331,10 +6471,10 @@ class TestState10(TestStateBase):
         assoc.acse.is_release_requested = is_release_requested
         assoc.start()
 
-        time.sleep(0.1)
-
+        while not assoc.is_established:
+            time.sleep(0.05)
+        time.sleep(0.2)
         assoc.dul.send_pdu(self.get_release(False))
-
         time.sleep(0.1)
 
         #self.print_fsm_scp(fsm, scp)
@@ -6378,10 +6518,10 @@ class TestState10(TestStateBase):
         assoc.acse.is_release_requested = is_release_requested
         assoc.start()
 
-        time.sleep(0.1)
-
+        while not assoc.is_established:
+            time.sleep(0.05)
+        time.sleep(0.2)
         assoc.dul.send_pdu(self.get_release(False))
-
         time.sleep(0.1)
 
         assoc.dul.artim_timer.timeout = 0.05
@@ -6430,10 +6570,10 @@ class TestState10(TestStateBase):
         assoc.acse.is_release_requested = is_release_requested
         assoc.start()
 
-        time.sleep(0.1)
-
+        while not assoc.is_established:
+            time.sleep(0.05)
+        time.sleep(0.2)
         assoc.dul.send_pdu(self.get_release(False))
-
         time.sleep(0.1)
 
         #self.print_fsm_scp(fsm, scp)
@@ -8261,7 +8401,8 @@ class TestState13(TestStateBase):
         self.assoc.dul._is_transport_event = patch_xport_event
 
         self.assoc.start()
-        time.sleep(0.2)
+        while self.fsm.current_state != 'Sta13':
+            time.sleep(0.05)
         self.assoc.dul.send_pdu(self.get_associate('request'))
         time.sleep(0.1)
 
@@ -8423,7 +8564,8 @@ class TestState13(TestStateBase):
 
         self.assoc.dul._is_transport_event = patch_xport_event
         self.assoc.start()
-        time.sleep(0.2)
+        while self.fsm.current_state != 'Sta13':
+            time.sleep(0.05)
         self.assoc.dul.send_pdu(self.get_associate('accept'))
         time.sleep(0.1)
 
@@ -8466,7 +8608,8 @@ class TestState13(TestStateBase):
 
         self.assoc.dul._is_transport_event = patch_xport_event
         self.assoc.start()
-        time.sleep(0.2)
+        while self.fsm.current_state != 'Sta13':
+            time.sleep(0.05)
         self.assoc.dul.send_pdu(self.get_associate('reject'))
         time.sleep(0.1)
 
@@ -8509,7 +8652,8 @@ class TestState13(TestStateBase):
 
         self.assoc.dul._is_transport_event = patch_xport_event
         self.assoc.start()
-        time.sleep(0.2)
+        while self.fsm.current_state != 'Sta13':
+            time.sleep(0.05)
         self.assoc.dul.send_pdu(self.get_pdata())
         time.sleep(0.1)
 
@@ -8587,7 +8731,8 @@ class TestState13(TestStateBase):
 
         self.assoc.dul._is_transport_event = patch_xport_event
         self.assoc.start()
-        time.sleep(0.2)
+        while self.fsm.current_state != 'Sta13':
+            time.sleep(0.05)
         self.assoc.dul.send_pdu(self.get_release(False))
         time.sleep(0.1)
 
@@ -8700,7 +8845,8 @@ class TestState13(TestStateBase):
 
         self.assoc.dul._is_transport_event = patch_xport_event
         self.assoc.start()
-        time.sleep(0.2)
+        while self.fsm.current_state != 'Sta13':
+            time.sleep(0.05)
         self.assoc.dul.send_pdu(self.get_release(True))
         time.sleep(0.1)
 
@@ -8743,7 +8889,8 @@ class TestState13(TestStateBase):
 
         self.assoc.dul._is_transport_event = patch_xport_event
         self.assoc.start()
-        time.sleep(0.2)
+        while self.fsm.current_state != 'Sta13':
+            time.sleep(0.05)
         self.assoc.dul.send_pdu(self.get_abort())
         time.sleep(0.1)
 
@@ -8857,7 +9004,8 @@ class TestState13(TestStateBase):
 
         self.assoc.start()
 
-        time.sleep(0.1)
+        while self.fsm.current_state != 'Sta13':
+            time.sleep(0.05)
 
         self.assoc.dul.artim_timer.timeout = 0.05
         self.assoc.dul.artim_timer.start()
