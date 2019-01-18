@@ -2562,16 +2562,16 @@ class TestState05(TestStateBase):
         # Sta5 + Evt1 -> <ignore> -> Sta5
         # Evt1: A-ASSOCIATE (rq) primitive from <local user>
         commands = [
-            ('recv', None),
+            ('recv', None),  # recv a-associate-rq
             ('wait', 0.2)
         ]
         scp = self.start_server(commands)
 
         self.assoc.start()
-        time.sleep(0.2)
-
+        while self.fsm.current_state != 'Sta5':
+            time.sleep(0.05)
+        time.sleep(0.1)
         self.assoc.dul.send_pdu(self.get_associate('request'))
-
         time.sleep(0.1)
 
         #self.print_fsm_scp(self.fsm, scp)
@@ -2697,7 +2697,9 @@ class TestState05(TestStateBase):
         scp = self.start_server(commands)
 
         self.assoc.start()
-        time.sleep(0.2)
+        while self.fsm.current_state != 'Sta5':
+            time.sleep(0.05)
+        time.sleep(0.1)
         self.assoc.dul.send_pdu(self.get_associate('accept'))
         time.sleep(0.1)
 
@@ -2723,7 +2725,9 @@ class TestState05(TestStateBase):
         scp = self.start_server(commands)
 
         self.assoc.start()
-        time.sleep(0.2)
+        while self.fsm.current_state != 'Sta5':
+            time.sleep(0.05)
+        time.sleep(0.1)
         self.assoc.dul.send_pdu(self.get_associate('reject'))
         time.sleep(0.1)
 
@@ -2744,12 +2748,14 @@ class TestState05(TestStateBase):
         # Evt9: Receive P-DATA primitive from <local user>
         commands = [
             ('recv', None),  # recv a-associate-rq
-            ('wait', 0.3),
+            ('wait', 0.2),
         ]
         scp = self.start_server(commands)
 
         self.assoc.start()
-        time.sleep(0.2)
+        while self.fsm.current_state != 'Sta5':
+            time.sleep(0.05)
+        time.sleep(0.1)
         self.assoc.dul.send_pdu(self.get_pdata())
         time.sleep(0.1)
 
@@ -2807,7 +2813,9 @@ class TestState05(TestStateBase):
         scp = self.start_server(commands)
 
         self.assoc.start()
-        time.sleep(0.2)
+        while self.fsm.current_state != 'Sta5':
+            time.sleep(0.05)
+        time.sleep(0.1)
         self.assoc.dul.send_pdu(self.get_release(False))
         time.sleep(0.1)
 
@@ -2897,7 +2905,9 @@ class TestState05(TestStateBase):
         scp = self.start_server(commands)
 
         self.assoc.start()
-        time.sleep(0.2)
+        while self.fsm.current_state != 'Sta5':
+            time.sleep(0.05)
+        time.sleep(0.1)
         self.assoc.dul.send_pdu(self.get_release(True))
         time.sleep(0.1)
 
@@ -2924,7 +2934,9 @@ class TestState05(TestStateBase):
         scp = self.start_server(commands)
 
         self.assoc.start()
-        time.sleep(0.2)
+        while self.fsm.current_state != 'Sta5':
+            time.sleep(0.05)
+        time.sleep(0.1)
         self.assoc.dul.send_pdu(self.get_abort())
         time.sleep(0.1)
 
@@ -3013,7 +3025,9 @@ class TestState05(TestStateBase):
         scp = self.start_server(commands)
 
         self.assoc.start()
-        time.sleep(0.2)
+        while self.fsm.current_state != 'Sta5':
+            time.sleep(0.05)
+        time.sleep(0.1)
         self.assoc.dul.artim_timer.timeout = 0.05
         self.assoc.dul.artim_timer.start()
         time.sleep(0.1)
