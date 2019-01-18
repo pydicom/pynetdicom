@@ -3589,7 +3589,7 @@ class TestState06(TestStateBase):
         commands = [
             ('recv', None),
             ('send', a_associate_ac),
-            ('wait', 0.3),
+            ('wait', 0.4),
         ]
         scp = self.start_server(commands)
 
@@ -3611,7 +3611,7 @@ class TestState06(TestStateBase):
             ('Sta4', 'Evt2', 'AE-2'),
             ('Sta5', 'Evt3', 'AE-3'),
         ]
-        assert self.fsm._transitions[:4] == ['Sta4', 'Sta5', 'Sta6']
+        assert self.fsm._transitions[:3] == ['Sta4', 'Sta5', 'Sta6']
         assert self.fsm._events[:4] == ['Evt1', 'Evt2', 'Evt3', 'Evt18']
 
     def test_evt19(self):
