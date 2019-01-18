@@ -32,7 +32,7 @@ from .parrot import ThreadedParrot
 
 LOGGER = logging.getLogger("pynetdicom")
 LOGGER.setLevel(logging.CRITICAL)
-#LOGGER.setLevel(logging.DEBUG)
+LOGGER.setLevel(logging.DEBUG)
 
 
 REFERENCE_BAD_EVENTS = [
@@ -2743,7 +2743,7 @@ class TestState05(TestStateBase):
         # Sta5 + Evt9 -> <ignore> -> Sta5
         # Evt9: Receive P-DATA primitive from <local user>
         commands = [
-            ('recv', None),
+            ('recv', None),  # recv a-associate-rq
             ('wait', 0.3),
         ]
         scp = self.start_server(commands)
@@ -6482,6 +6482,8 @@ class TestState11(TestStateBase):
         self.assoc.acse.is_release_requested = is_release_requested
 
         self.assoc.start()
+        while not self.assoc.is_established:
+            time.sleep(0.05)
         time.sleep(0.2)
         self.assoc.dul.send_pdu(self.get_release(False))
         time.sleep(0.1)
@@ -6540,6 +6542,8 @@ class TestState11(TestStateBase):
         self.assoc.acse.is_release_requested = is_release_requested
 
         self.assoc.start()
+        while not self.assoc.is_established:
+            time.sleep(0.05)
         time.sleep(0.2)
         self.assoc.dul.send_pdu(self.get_release(False))
         time.sleep(0.1)
@@ -6590,6 +6594,8 @@ class TestState11(TestStateBase):
         self.assoc.acse.is_release_requested = is_release_requested
 
         self.assoc.start()
+        while not self.assoc.is_established:
+            time.sleep(0.05)
         time.sleep(0.2)
         self.assoc.dul.send_pdu(self.get_release(False))
         time.sleep(0.1)
@@ -6647,6 +6653,8 @@ class TestState11(TestStateBase):
         self.assoc.acse.is_release_requested = is_release_requested
 
         self.assoc.start()
+        while not self.assoc.is_established:
+            time.sleep(0.05)
         time.sleep(0.2)
         self.assoc.dul.send_pdu(self.get_release(False))
         time.sleep(0.1)
@@ -6694,6 +6702,8 @@ class TestState11(TestStateBase):
         self.assoc.acse.is_release_requested = is_release_requested
 
         self.assoc.start()
+        while not self.assoc.is_established:
+            time.sleep(0.05)
         time.sleep(0.2)
         self.assoc.dul.send_pdu(self.get_release(False))
         time.sleep(0.1)
@@ -6742,6 +6752,8 @@ class TestState11(TestStateBase):
         self.assoc.acse.is_release_requested = is_release_requested
 
         self.assoc.start()
+        while not self.assoc.is_established:
+            time.sleep(0.05)
         time.sleep(0.2)
         self.assoc.dul.send_pdu(self.get_release(False))
         time.sleep(0.1)
@@ -6790,6 +6802,8 @@ class TestState11(TestStateBase):
         self.assoc.acse.is_release_requested = is_release_requested
 
         self.assoc.start()
+        while not self.assoc.is_established:
+            time.sleep(0.05)
         time.sleep(0.2)
         self.assoc.dul.send_pdu(self.get_release(False))
         time.sleep(0.1)
@@ -6841,6 +6855,8 @@ class TestState11(TestStateBase):
         self.assoc.acse.is_release_requested = is_release_requested
 
         self.assoc.start()
+        while not self.assoc.is_established:
+            time.sleep(0.05)
         time.sleep(0.2)
         self.assoc.dul.send_pdu(self.get_release(False))
         time.sleep(0.1)
@@ -6888,6 +6904,8 @@ class TestState11(TestStateBase):
         self.assoc.acse.is_release_requested = is_release_requested
 
         self.assoc.start()
+        while not self.assoc.is_established:
+            time.sleep(0.05)
         time.sleep(0.2)
         self.assoc.dul.send_pdu(self.get_release(False))
         time.sleep(0.1)
@@ -6939,6 +6957,8 @@ class TestState11(TestStateBase):
         self.assoc.acse.is_release_requested = is_release_requested
 
         self.assoc.start()
+        while not self.assoc.is_established:
+            time.sleep(0.05)
         time.sleep(0.2)
         self.assoc.dul.send_pdu(self.get_release(False))
         time.sleep(0.1)
@@ -6988,6 +7008,8 @@ class TestState11(TestStateBase):
         self.assoc.acse.is_release_requested = is_release_requested
 
         self.assoc.start()
+        while not self.assoc.is_established:
+            time.sleep(0.05)
         time.sleep(0.2)
         self.assoc.dul.send_pdu(self.get_release(False))
         time.sleep(0.1)
@@ -7035,6 +7057,8 @@ class TestState11(TestStateBase):
         self.assoc.acse.is_release_requested = is_release_requested
 
         self.assoc.start()
+        while not self.assoc.is_established:
+            time.sleep(0.05)
         time.sleep(0.2)
         self.assoc.dul.send_pdu(self.get_release(False))
         time.sleep(0.1)
@@ -7068,11 +7092,12 @@ class TestState11(TestStateBase):
         # Evt15: Receive A-ABORT (rq) primitive from <local user>
         # AA-1: Send A-ABORT PDU to <remote>, start ARTIM
         commands = [
-            ('recv', None),
+            ('recv', None),  # recv a-associate-rq
             ('send', a_associate_ac),
-            ('recv', None),
-            ('send', a_release_rq),
-            ('recv', None),
+            ('recv', None),  # recv a-release-rq
+            ('send', a_release_rq),  # collide
+            ('recv', None),  # recv a-release-rp
+            ('recv', None),  # recv a-abort
             ('wait', 0.2),
         ]
         scp = self.start_server(commands)
@@ -7084,9 +7109,11 @@ class TestState11(TestStateBase):
         self.assoc.acse.is_release_requested = is_release_requested
 
         self.assoc.start()
+        while not self.assoc.is_established:
+            time.sleep(0.05)
         time.sleep(0.2)
         self.assoc.dul.send_pdu(self.get_release(False))
-        time.sleep(0.1)
+        time.sleep(0.2)
         self.assoc.dul.send_pdu(self.get_release(True))
         time.sleep(0.1)
         self.assoc.dul.send_pdu(self.get_abort())
@@ -7134,6 +7161,8 @@ class TestState11(TestStateBase):
         self.assoc.acse.is_release_requested = is_release_requested
 
         self.assoc.start()
+        while not self.assoc.is_established:
+            time.sleep(0.05)
         time.sleep(0.2)
         self.assoc.dul.send_pdu(self.get_release(False))
         time.sleep(0.1)
@@ -7181,6 +7210,8 @@ class TestState11(TestStateBase):
         self.assoc.acse.is_release_requested = is_release_requested
 
         self.assoc.start()
+        while not self.assoc.is_established:
+            time.sleep(0.05)
         time.sleep(0.2)
         self.assoc.dul.send_pdu(self.get_release(False))
         time.sleep(0.1)
@@ -7228,6 +7259,8 @@ class TestState11(TestStateBase):
         self.assoc.acse.is_release_requested = is_release_requested
 
         self.assoc.start()
+        while not self.assoc.is_established:
+            time.sleep(0.05)
         time.sleep(0.2)
         self.assoc.dul.send_pdu(self.get_release(False))
         time.sleep(0.1)
@@ -7280,6 +7313,8 @@ class TestState11(TestStateBase):
         self.assoc.acse.is_release_requested = is_release_requested
 
         self.assoc.start()
+        while not self.assoc.is_established:
+            time.sleep(0.05)
         time.sleep(0.2)
         self.assoc.dul.send_pdu(self.get_release(False))
         time.sleep(0.1)
@@ -7330,7 +7365,8 @@ class TestState12(TestStateBase):
 
         assoc.acse.is_release_requested = is_release_requested
         assoc.start()
-
+        while not assoc.is_established:
+            time.sleep(0.05)
         time.sleep(0.2)
         assoc.dul.send_pdu(self.get_release(False))
         time.sleep(0.1)
@@ -7386,7 +7422,8 @@ class TestState12(TestStateBase):
 
         assoc.acse.is_release_requested = is_release_requested
         assoc.start()
-
+        while not assoc.is_established:
+            time.sleep(0.05)
         time.sleep(0.2)
         assoc.dul.send_pdu(self.get_release(False))
         time.sleep(0.1)
@@ -7438,6 +7475,8 @@ class TestState12(TestStateBase):
         assoc.acse.is_release_requested = is_release_requested
         assoc.start()
 
+        while not assoc.is_established:
+            time.sleep(0.05)
         time.sleep(0.2)
         assoc.dul.send_pdu(self.get_release(False))
         time.sleep(0.1)
@@ -7496,6 +7535,8 @@ class TestState12(TestStateBase):
         assoc.acse.is_release_requested = is_release_requested
         assoc.start()
 
+        while not assoc.is_established:
+            time.sleep(0.05)
         time.sleep(0.2)
 
         assoc.dul.send_pdu(self.get_release(False))
@@ -7547,6 +7588,8 @@ class TestState12(TestStateBase):
         assoc.acse.is_release_requested = is_release_requested
         assoc.start()
 
+        while not assoc.is_established:
+            time.sleep(0.05)
         time.sleep(0.2)
         assoc.dul.send_pdu(self.get_release(False))
         time.sleep(0.1)
@@ -7594,6 +7637,8 @@ class TestState12(TestStateBase):
         assoc.acse.is_release_requested = is_release_requested
         assoc.start()
 
+        while not assoc.is_established:
+            time.sleep(0.05)
         time.sleep(0.2)
         assoc.dul.send_pdu(self.get_release(False))
         time.sleep(0.1)
@@ -7641,6 +7686,8 @@ class TestState12(TestStateBase):
         assoc.acse.is_release_requested = is_release_requested
         assoc.start()
 
+        while not assoc.is_established:
+            time.sleep(0.05)
         time.sleep(0.2)
         assoc.dul.send_pdu(self.get_release(False))
         time.sleep(0.1)
@@ -7690,6 +7737,8 @@ class TestState12(TestStateBase):
         assoc.acse.is_release_requested = is_release_requested
         assoc.start()
 
+        while not assoc.is_established:
+            time.sleep(0.05)
         time.sleep(0.2)
 
         assoc.dul.send_pdu(self.get_release(False))
@@ -7741,6 +7790,8 @@ class TestState12(TestStateBase):
         assoc.acse.is_release_requested = is_release_requested
         assoc.start()
 
+        while not assoc.is_established:
+            time.sleep(0.05)
         time.sleep(0.2)
         assoc.dul.send_pdu(self.get_release(False))
         time.sleep(0.1)
@@ -7790,6 +7841,8 @@ class TestState12(TestStateBase):
         assoc.acse.is_release_requested = is_release_requested
         assoc.start()
 
+        while not assoc.is_established:
+            time.sleep(0.05)
         time.sleep(0.2)
         assoc.dul.send_pdu(self.get_release(False))
         time.sleep(0.1)
@@ -7841,6 +7894,8 @@ class TestState12(TestStateBase):
         assoc.acse.is_release_requested = is_release_requested
         assoc.start()
 
+        while not assoc.is_established:
+            time.sleep(0.05)
         time.sleep(0.2)
         assoc.dul.send_pdu(self.get_release(False))
         time.sleep(0.1)
@@ -7891,6 +7946,8 @@ class TestState12(TestStateBase):
         assoc.acse.is_release_requested = is_release_requested
         assoc.start()
 
+        while not assoc.is_established:
+            time.sleep(0.05)
         time.sleep(0.2)
         assoc.dul.send_pdu(self.get_release(False))
         time.sleep(0.1)
@@ -7943,6 +8000,8 @@ class TestState12(TestStateBase):
         assoc.acse.is_release_requested = is_release_requested
         assoc.start()
 
+        while not assoc.is_established:
+            time.sleep(0.05)
         time.sleep(0.2)
         assoc.dul.send_pdu(self.get_release(False))
         time.sleep(0.1)
@@ -7995,6 +8054,8 @@ class TestState12(TestStateBase):
         assoc.acse.is_release_requested = is_release_requested
         assoc.start()
 
+        while not assoc.is_established:
+            time.sleep(0.05)
         time.sleep(0.2)
         assoc.dul.send_pdu(self.get_release(False))
         time.sleep(0.1)
@@ -8041,6 +8102,8 @@ class TestState12(TestStateBase):
         assoc.acse.is_release_requested = is_release_requested
         assoc.start()
 
+        while not assoc.is_established:
+            time.sleep(0.05)
         time.sleep(0.2)
         assoc.dul.send_pdu(self.get_release(False))
         time.sleep(0.1)
@@ -8086,6 +8149,8 @@ class TestState12(TestStateBase):
 
         assoc.acse.is_release_requested = is_release_requested
         assoc.start()
+        while not assoc.is_established:
+            time.sleep(0.05)
         time.sleep(0.2)
         assoc.dul.send_pdu(self.get_release(False))
         time.sleep(0.1)
@@ -8136,6 +8201,8 @@ class TestState12(TestStateBase):
         assoc.acse.is_release_requested = is_release_requested
         assoc.start()
 
+        while not assoc.is_established:
+            time.sleep(0.05)
         time.sleep(0.2)
         assoc.dul.send_pdu(self.get_release(False))
         time.sleep(0.1)
