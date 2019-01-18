@@ -8,7 +8,7 @@
   
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   
-  <title>1.2.0 &mdash; pynetdicom 1.2.0b1 documentation</title>
+  <title>1.2.0 &mdash; pynetdicom 1.2.0b2 documentation</title>
   
 
   
@@ -63,7 +63,7 @@
             
             
               <div class="version">
-                1.2.0b1
+                1.2.0b2
               </div>
             
           
@@ -200,6 +200,8 @@ response is received within the DIMSE timeout window and return/yield
 expected values. (<a class="reference external" href="https://github.com/pydicom/pynetdicom/issues/119">#119</a>)</li>
 <li>Any outgoing primitives are now sent to the peer before incoming PDUs are
 processed (<a class="reference external" href="https://github.com/pydicom/pynetdicom/issues/120">#120</a>)</li>
+<li>Fixed not setting requestor presentation context roles to False when only
+one role is specified during Role Selection negotiation. (<a class="reference external" href="https://github.com/pydicom/pynetdicom/issues/293">#293</a>)</li>
 </ul>
 </div>
 <div class="section" id="enhancements">
@@ -250,6 +252,7 @@ takes a <em>Message ID</em> value and and returns True if a C-CANCEL message wit
 a corresponding <em>Message ID Being Responded To</em> value has been received.</li>
 </ul>
 </li>
+<li>Added thread names (<a class="reference external" href="mailto:'threadtype&#37;&#52;&#48;timestamp">‘threadtype<span>&#64;</span>timestamp</a>’).</li>
 </ul>
 </div>
 <div class="section" id="changes">

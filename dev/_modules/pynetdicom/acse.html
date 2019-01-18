@@ -8,7 +8,7 @@
   
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   
-  <title>pynetdicom.acse &mdash; pynetdicom 1.2.0b1 documentation</title>
+  <title>pynetdicom.acse &mdash; pynetdicom 1.2.0b2 documentation</title>
   
 
   
@@ -62,7 +62,7 @@
             
             
               <div class="version">
-                1.2.0b1
+                1.2.0b2
               </div>
             
           
@@ -588,6 +588,10 @@
                             <span class="p">(</span><span class="n">cx</span><span class="o">.</span><span class="n">scu_role</span><span class="p">,</span> <span class="n">cx</span><span class="o">.</span><span class="n">scp_role</span><span class="p">)</span> <span class="o">=</span> <span class="n">rq_roles</span><span class="p">[</span>
                                 <span class="n">cx</span><span class="o">.</span><span class="n">abstract_syntax</span>
                             <span class="p">]</span>
+                            <span class="c1"># If no role was specified then use False</span>
+                            <span class="c1">#   see SCP_SCU_RoleSelectionSubItem.from_primitive</span>
+                            <span class="n">cx</span><span class="o">.</span><span class="n">scu_role</span> <span class="o">=</span> <span class="n">cx</span><span class="o">.</span><span class="n">scu_role</span> <span class="ow">or</span> <span class="kc">False</span>
+                            <span class="n">cx</span><span class="o">.</span><span class="n">scp_role</span> <span class="o">=</span> <span class="n">cx</span><span class="o">.</span><span class="n">scp_role</span> <span class="ow">or</span> <span class="kc">False</span>
                         <span class="k">except</span> <span class="ne">KeyError</span><span class="p">:</span>
                             <span class="k">pass</span>
 
