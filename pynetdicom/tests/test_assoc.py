@@ -24,7 +24,7 @@ from pydicom.uid import (
     JPEG2000Lossless,
 )
 
-from pynetdicom import AE, VerificationPresentationContexts
+from pynetdicom import AE, VerificationPresentationContexts, build_context
 from pynetdicom.association import Association
 from pynetdicom.dimse_primitives import C_STORE, C_FIND, C_GET, C_MOVE
 from pynetdicom.dsutils import encode, decode
@@ -824,26 +824,8 @@ class TestAssociation(object):
         assert assoc.dul.socket == 'abc'
 
     @pytest.mark.skipif(sys.version_info[:2] == (3, 4), reason='no caplog')
-    def test_unexpected_cancel(self, caplog):
-        """Test receiving an unexpected C-CANCEL request."""
-        with caplog.at_level(logging.WARNING, logger='pynetdicom'):
-            ae = AE()
-            ae.add_requested_context(VerificationSOPClass)
-            ae.add_supported_context(VerificationSOPClass)
-            scp = ae.start_server(('', 11112), block=False)
-
-            assoc = ae.associate('localhost', 11112)
-            assoc.send_c_cancel_move(1)
-
-            assoc.release()
-
-            assert 'Received unexpected C-CANCEL request' in caplog.text
-
-            scp.shutdown()
-
-    @pytest.mark.skipif(sys.version_info[:2] == (3, 4), reason='no caplog')
     def test_invalid_context(self, caplog):
-        """Test receiving an unexpected C-CANCEL request."""
+        """Test receiving an message with invalid context ID"""
         with caplog.at_level(logging.INFO, logger='pynetdicom'):
             ae = AE()
             ae.add_requested_context(VerificationSOPClass)
@@ -1898,9 +1880,63 @@ class TestAssociationSendCFind(object):
 
         self.scp.stop()
 
+    @pytest.mark.skipif(sys.version_info[:2] == (3, 4), reason='no caplog')
+    def test_rsp_not_find(self, caplog):
+        """Test receiving a non C-FIND message in response."""
+        with caplog.at_level(logging.ERROR, logger='pynetdicom'):
+            ae = AE()
+            assoc = Association(ae, 'requestor')
+            dimse = assoc.dimse
+            dimse.msg_queue.put((3, C_STORE()))
+            cx = build_context(PatientRootQueryRetrieveInformationModelFind)
+            cx._as_scu = True
+            cx._as_scp = False
+            cx.context_id = 1
+            assoc._accepted_cx = {1 : cx}
+            identifier = Dataset()
+            identifier.PatientID = '*'
+            assoc.is_established = True
+            results = assoc.send_c_find(identifier, query_model='P')
+            status, ds = next(results)
+            assert status == Dataset()
+            assert ds is None
+            with pytest.raises(StopIteration):
+                next(results)
+            assert (
+                'Received an unexpected C-STORE message from the peer'
+            ) in caplog.text
+            assert assoc.is_aborted
 
-class TestAssociationSendCCancelFind(object):
-    """Run tests on Assocation send_c_cancel_find."""
+    @pytest.mark.skipif(sys.version_info[:2] == (3, 4), reason='no caplog')
+    def test_rsp_invalid_find(self, caplog):
+        """Test receiving an invalid C-FIND message in response."""
+        with caplog.at_level(logging.ERROR, logger='pynetdicom'):
+            ae = AE()
+            assoc = Association(ae, 'requestor')
+            dimse = assoc.dimse
+            dimse.msg_queue.put((3, C_FIND()))
+            cx = build_context(PatientRootQueryRetrieveInformationModelFind)
+            cx._as_scu = True
+            cx._as_scp = False
+            cx.context_id = 1
+            assoc._accepted_cx = {1 : cx}
+            identifier = Dataset()
+            identifier.PatientID = '*'
+            assoc.is_established = True
+            results = assoc.send_c_find(identifier, query_model='P')
+            status, ds = next(results)
+            assert status == Dataset()
+            assert ds is None
+            with pytest.raises(StopIteration):
+                next(results)
+            assert (
+                'Received an invalid C-FIND response from the peer'
+            ) in caplog.text
+            assert assoc.is_aborted
+
+
+class TestAssociationSendCCancel(object):
+    """Run tests on Assocation send_c_cancel."""
     def setup(self):
         """Run prior to each test"""
         self.scp = None
@@ -1931,7 +1967,7 @@ class TestAssociationSendCCancelFind(object):
         assert assoc.is_released
         assert not assoc.is_established
         with pytest.raises(RuntimeError):
-            assoc.send_c_cancel_find(1)
+            assoc.send_c_cancel(1, 1)
         self.scp.stop()
 
     def test_good_send(self):
@@ -1944,23 +1980,7 @@ class TestAssociationSendCCancelFind(object):
         ae.dimse_timeout = 5
         assoc = ae.associate('localhost', 11112)
         assert assoc.is_established
-        assoc.send_c_cancel_find(1)
-        self.scp.stop()
-
-    def test_bad_send(self):
-        """Test send_c_cancel_move"""
-        self.scp = DummyFindSCP()
-        self.scp.start()
-        ae = AE()
-        ae.add_requested_context(PatientRootQueryRetrieveInformationModelFind)
-        ae.acse_timeout = 5
-        ae.dimse_timeout = 5
-        assoc = ae.associate('localhost', 11112)
-        assert assoc.is_established
-        with pytest.raises(TypeError):
-            assoc.send_c_cancel_find('a')
-        assoc.release()
-        assert assoc.is_released
+        assoc.send_c_cancel(1, 1)
         self.scp.stop()
 
 
@@ -2038,6 +2058,7 @@ class TestAssociationSendCGet(object):
         assoc = ae.associate('localhost', 11112, ext_neg=[role])
         assert assoc.is_established
         result = assoc.send_c_get(self.ds, query_model='P')
+        time.sleep(0.2)
         (status, ds) = next(result)
         assert status.Status == 0xff00
         assert ds is None
@@ -2492,6 +2513,7 @@ class TestAssociationSendCGet(object):
             def get_msg(*args, **kwargs):
                 rsp = C_GET()
                 rsp.Status = 0xC000
+                rsp.MessageIDBeingRespondedTo = 1
                 rsp.Identifier = BytesIO(b'\x08\x00\x01\x00\x04\x00\x00\x00\x00\x08\x00\x49')
                 return 1, rsp
 
@@ -2596,41 +2618,59 @@ class TestAssociationSendCGet(object):
 
         _config.DECODE_STORE_DATASETS = orig_value
 
+    @pytest.mark.skipif(sys.version_info[:2] == (3, 4), reason='no caplog')
+    def test_rsp_not_get(self, caplog):
+        """Test receiving a non C-GET/C-STORE message in response."""
+        with caplog.at_level(logging.ERROR, logger='pynetdicom'):
+            ae = AE()
+            assoc = Association(ae, 'requestor')
+            dimse = assoc.dimse
+            dimse.msg_queue.put((3, C_FIND()))
+            cx = build_context(PatientRootQueryRetrieveInformationModelGet)
+            cx._as_scu = True
+            cx._as_scp = False
+            cx.context_id = 1
+            assoc._accepted_cx = {1 : cx}
+            identifier = Dataset()
+            identifier.PatientID = '*'
+            assoc.is_established = True
+            results = assoc.send_c_get(identifier, query_model='P')
+            status, ds = next(results)
+            assert status == Dataset()
+            assert ds is None
+            with pytest.raises(StopIteration):
+                next(results)
+            assert (
+                'Received an unexpected C-FIND message from the peer'
+            ) in caplog.text
+            assert assoc.is_aborted
 
-class TestAssociationSendCCancelGet(object):
-    """Run tests on Assocation send_c_cancel_find."""
-    def setup(self):
-        """Run prior to each test"""
-        self.scp = None
-
-    def teardown(self):
-        """Clear any active threads"""
-        if self.scp:
-            self.scp.abort()
-
-        time.sleep(0.1)
-
-        for thread in threading.enumerate():
-            if isinstance(thread, DummyBaseSCP):
-                thread.abort()
-                thread.stop()
-
-    def test_must_be_associated(self):
-        """Test can't send without association."""
-        # Test raise if assoc not established
-        self.scp = DummyGetSCP()
-        self.scp.start()
-        ae = AE()
-        ae.add_requested_context(PatientRootQueryRetrieveInformationModelGet)
-        ae.acse_timeout = 5
-        ae.dimse_timeout = 5
-        assoc = ae.associate('localhost', 11112)
-        assoc.release()
-        assert assoc.is_released
-        assert not assoc.is_established
-        with pytest.raises(RuntimeError):
-            assoc.send_c_cancel_get(1)
-        self.scp.stop()
+    @pytest.mark.skipif(sys.version_info[:2] == (3, 4), reason='no caplog')
+    def test_rsp_invalid_get(self, caplog):
+        """Test receiving an invalid C-GET message in response."""
+        with caplog.at_level(logging.ERROR, logger='pynetdicom'):
+            ae = AE()
+            assoc = Association(ae, 'requestor')
+            dimse = assoc.dimse
+            dimse.msg_queue.put((3, C_GET()))
+            cx = build_context(PatientRootQueryRetrieveInformationModelGet)
+            cx._as_scu = True
+            cx._as_scp = False
+            cx.context_id = 1
+            assoc._accepted_cx = {1 : cx}
+            identifier = Dataset()
+            identifier.PatientID = '*'
+            assoc.is_established = True
+            results = assoc.send_c_get(identifier, query_model='P')
+            status, ds = next(results)
+            assert status == Dataset()
+            assert ds is None
+            with pytest.raises(StopIteration):
+                next(results)
+            assert (
+                'Received an invalid C-GET response from the peer'
+            ) in caplog.text
+            assert assoc.is_aborted
 
 
 class TestAssociationSendCMove(object):
@@ -3166,6 +3206,7 @@ class TestAssociationSendCMove(object):
 
             def get_msg(*args, **kwargs):
                 rsp = C_MOVE()
+                rsp.MessageIDBeingRespondedTo = 1
                 rsp.Status = 0xC000
                 rsp.Identifier = BytesIO(b'\x08\x00\x01\x00\x04\x00\x00\x00\x00\x08\x00\x49')
                 return 1, rsp
@@ -3181,40 +3222,59 @@ class TestAssociationSendCMove(object):
 
         self.scp.stop()
 
+    @pytest.mark.skipif(sys.version_info[:2] == (3, 4), reason='no caplog')
+    def test_rsp_not_move(self, caplog):
+        """Test receiving a non C-MOVE/C-STORE message in response."""
+        with caplog.at_level(logging.ERROR, logger='pynetdicom'):
+            ae = AE()
+            assoc = Association(ae, 'requestor')
+            dimse = assoc.dimse
+            dimse.msg_queue.put((3, C_FIND()))
+            cx = build_context(PatientRootQueryRetrieveInformationModelMove)
+            cx._as_scu = True
+            cx._as_scp = False
+            cx.context_id = 1
+            assoc._accepted_cx = {1 : cx}
+            identifier = Dataset()
+            identifier.PatientID = '*'
+            assoc.is_established = True
+            results = assoc.send_c_move(identifier, move_aet=b'A', query_model='P')
+            status, ds = next(results)
+            assert status == Dataset()
+            assert ds is None
+            with pytest.raises(StopIteration):
+                next(results)
+            assert (
+                'Received an unexpected C-FIND message from the peer'
+            ) in caplog.text
+            assert assoc.is_aborted
 
-class TestAssociationSendCCancelMove(object):
-    """Run tests on Assocation send_c_cancel_move."""
-    def setup(self):
-        self.scp = None
-
-    def teardown(self):
-        """Clear any active threads"""
-        if self.scp:
-            self.scp.abort()
-
-        time.sleep(0.1)
-
-        for thread in threading.enumerate():
-            if isinstance(thread, DummyBaseSCP):
-                thread.abort()
-                thread.stop()
-
-    def test_must_be_associated(self):
-        """Test can't send without association."""
-        # Test raise if assoc not established
-        self.scp = DummyMoveSCP()
-        self.scp.start()
-        ae = AE()
-        ae.add_requested_context(PatientRootQueryRetrieveInformationModelMove)
-        ae.acse_timeout = 5
-        ae.dimse_timeout = 5
-        assoc = ae.associate('localhost', 11112)
-        assoc.release()
-        assert assoc.is_released
-        assert not assoc.is_established
-        with pytest.raises(RuntimeError):
-            assoc.send_c_cancel_move(1)
-        self.scp.stop()
+    @pytest.mark.skipif(sys.version_info[:2] == (3, 4), reason='no caplog')
+    def test_rsp_invalid_move(self, caplog):
+        """Test receiving an invalid C-MOVE message in response."""
+        with caplog.at_level(logging.ERROR, logger='pynetdicom'):
+            ae = AE()
+            assoc = Association(ae, 'requestor')
+            dimse = assoc.dimse
+            dimse.msg_queue.put((3, C_MOVE()))
+            cx = build_context(PatientRootQueryRetrieveInformationModelMove)
+            cx._as_scu = True
+            cx._as_scp = False
+            cx.context_id = 1
+            assoc._accepted_cx = {1 : cx}
+            identifier = Dataset()
+            identifier.PatientID = '*'
+            assoc.is_established = True
+            results = assoc.send_c_move(identifier, move_aet=b'A', query_model='P')
+            status, ds = next(results)
+            assert status == Dataset()
+            assert ds is None
+            with pytest.raises(StopIteration):
+                next(results)
+            assert (
+                'Received an invalid C-MOVE response from the peer'
+            ) in caplog.text
+            assert assoc.is_aborted
 
 
 class TestAssociationCallbacks(object):

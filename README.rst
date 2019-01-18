@@ -39,11 +39,11 @@ The main user class is ``AE``, which is used to represent a DICOM Application
 Entity. Once the ``AE`` has been created you would typically either:
 
 - Start the application as an SCP by specifying the presentation contexts that
-  you will support, then calling ``AE.start()`` and waiting for incoming
-  association requests
+  you will support, then calling ``AE.start_server((host, port))`` and waiting
+  for incoming association requests
 - Use the application as an SCU by specifying the presentation contexts you
   want the peer SCP to support, then requesting an association
-  via the ``AE.associate(addr, port)`` method, which returns an ``Association``
+  via the ``AE.associate(host, port)`` method, which returns an ``Association``
   thread.
 
 Once the application is associated with a peer AE, DICOM data can be sent between
@@ -131,12 +131,9 @@ operations by implementing one (or more) of the following ``AE`` callbacks:
 
 - C-ECHO: ``AE.on_c_echo(context, info)``
 - C-STORE: ``AE.on_c_store(dataset, context, info)``
-- C-FIND: ``AE.on_c_find(dataset, context, info)`` and
-  ``AE.on_c_find_cancel()``
-- C-GET: ``AE.on_c_get(dataset, context, info)`` and
-  ``AE.on_c_get_cancel()``
-- C-MOVE: ``AE.on_c_move(dataset, move_aet, context, info)`` and
-  ``AE.on_c_move_cancel()``
+- C-FIND: ``AE.on_c_find(dataset, context, info)``
+- C-GET: ``AE.on_c_get(dataset, context, info)``
+- C-MOVE: ``AE.on_c_move(dataset, move_aet, context, info)``
 - N-GET: ``AE.on_n_get(attr, context, info)``
 
 Where *dataset* is a pydicom
@@ -209,7 +206,7 @@ listen port number *port*):
 
 Create a blocking DICOM C-ECHO listen SCP on port 11112 (you may optionally
 implement the ``AE.on_c_echo`` callback if you want to return something other
-than a *Success* status:
+than a *Success* status):
 
 .. code-block:: python
 
@@ -224,6 +221,31 @@ than a *Success* status:
 
         # Start the SCP on (host, port) in blocking mode
         ae.start_server(('', 11112), block=True)
+
+Alternatively, you can start the SCP in non-blocking mode, which returns the
+running server instance. This can be useful when you want to run a Storage SCP
+and make C-MOVE requests within the same AE:
+
+.. code-block:: python
+
+        from pynetdicom import AE, VerificationPresentationContexts
+
+        ae = AE(ae_title=b'MY_ECHO_SCP')
+        ae.supported_contexts = VerificationPresentationContexts
+
+        # Start the SCP in non-blocking mode
+        scp = ae.start_server(('', 11112), block=False)
+
+        # Let's send a C-ECHO request to our own Verification SCP
+        ae.add_requested_context('1.2.840.10008.1.1')
+        assoc = ae.associate('localhost', 11112)
+        if assoc.is_established:
+            status = assoc.send_c_echo()
+            assoc.release()
+
+        # Shutdown the SCP
+        scp.shutdown()
+
 
 Send the DICOM 'CT Image Storage' dataset in *file-in.dcm* to a peer Storage
 SCP (at TCP/IP address *addr*, listen port number *port*):

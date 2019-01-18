@@ -73,7 +73,7 @@ class ApplicationEntity(object):
     maximum_associations : int
         The maximum number of simultaneous associations requested by remote
         AEs. Note that this does not include the number of associations
-        requested by the local AE (default 2).
+        requested by the local AE (default 10).
     maximum_pdu_size : int
         The maximum PDU receive size in bytes. A value of 0 means there is no
         maximum size (default: 16382)
@@ -141,7 +141,7 @@ class ApplicationEntity(object):
         self._supported_contexts = {}
 
         # Default maximum simultaneous associations
-        self.maximum_associations = 2
+        self.maximum_associations = 10
 
         # Default maximum PDU receive size (in bytes)
         self.maximum_pdu_size = DEFAULT_MAX_LENGTH
@@ -1327,8 +1327,7 @@ class ApplicationEntity(object):
                 "scu_role/scp_role values (if one is None, both must be):\n  "
             )
             msg += '\n  '.join(bad_contexts)
-            LOGGER.warning(msg)
-            return
+            raise ValueError(msg)
 
         if block:
             server = AssociationServer(self, address, ssl_context)
@@ -1843,6 +1842,13 @@ class ApplicationEntity(object):
               'sop_class_extended' : {
                   SOP Class UID : Service Class Application Information,
               }
+              'cancelled' : callable_function
+
+            Where *callable_function* is a function that takes a `msg_id`
+            parameter (as int ) and returns True if a C-CANCEL message has
+            been received with a *Message ID Being Responded To* value that
+            corresponds to `msg_id`, False otherwise. For example:
+            ``is_cancelled = info['cancelled'](msg_id)``
 
         Yields
         ------
@@ -1898,18 +1904,6 @@ class ApplicationEntity(object):
         """
         raise NotImplementedError("User must implement the AE.on_c_find "
                                   "function prior to calling AE.start()")
-
-    def on_c_find_cancel(self):
-        """Callback for when a C-FIND-CANCEL request is received.
-
-        Returns
-        -------
-        bool
-            True if you want to stop the C-FIND operation, False otherwise.
-        """
-        raise NotImplementedError("User must implement the "
-                                  "AE.on_c_find_cancel function prior to "
-                                  "calling AE.start()")
 
     def on_c_get(self, dataset, context, info):
         """Callback for when a C-GET request is received.
@@ -1990,6 +1984,13 @@ class ApplicationEntity(object):
               'sop_class_extended' : {
                   SOP Class UID : Service Class Application Information,
               }
+              'cancelled' : callable_function
+
+            Where *callable_function* is a function that takes a `msg_id`
+            parameter (as int ) and returns True if a C-CANCEL message has
+            been received with a *Message ID Being Responded To* value that
+            corresponds to `msg_id`, False otherwise. For example:
+            ``is_cancelled = info['cancelled'](msg_id)``
 
         Yields
         ------
@@ -2046,12 +2047,6 @@ class ApplicationEntity(object):
         """
         raise NotImplementedError("User must implement the AE.on_c_get "
                                   "function prior to calling AE.start()")
-
-    def on_c_get_cancel(self):
-        """Callback for when a C-GET-CANCEL request is received."""
-        raise NotImplementedError("User must implement the "
-                                  "AE.on_c_get_cancel function prior to "
-                                  "calling AE.start()")
 
     def on_c_move(self, dataset, move_aet, context, info):
         """Callback for when a C-MOVE request is received.
@@ -2142,6 +2137,13 @@ class ApplicationEntity(object):
               'sop_class_extended' : {
                   SOP Class UID : Service Class Application Information,
               }
+              'cancelled' : callable_function
+
+            Where *callable_function* is a function that takes a `msg_id`
+            parameter (as int) and returns True if a C-CANCEL message has
+            been received with a *Message ID Being Responded To* value that
+            corresponds to `msg_id`, False otherwise. For example:
+            ``is_cancelled = info['cancelled'](msg_id)``
 
         Yields
         ------
@@ -2203,12 +2205,6 @@ class ApplicationEntity(object):
         """
         raise NotImplementedError("User must implement the AE.on_c_move "
                                   "function prior to calling AE.start()")
-
-    def on_c_move_cancel(self):
-        """Callback for when a C-MOVE-CANCEL request is received."""
-        raise NotImplementedError("User must implement the "
-                                  "AE.on_c_move_cancel function prior to "
-                                  "calling AE.start()")
 
     def on_c_store(self, dataset, context, info):
         """Callback for when a C-STORE request is received.

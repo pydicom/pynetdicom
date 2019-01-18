@@ -8,7 +8,9 @@ from pydicom.dataset import Dataset
 
 from pynetdicom import _config
 from pynetdicom.dsutils import decode, encode
-from pynetdicom.dimse_primitives import C_STORE, C_ECHO, C_MOVE, C_GET, C_FIND
+from pynetdicom.dimse_primitives import (
+    C_STORE, C_ECHO, C_MOVE, C_GET, C_FIND, C_CANCEL
+)
 from pynetdicom._globals import (
     STATUS_FAILURE,
     STATUS_SUCCESS,
@@ -53,6 +55,27 @@ class ServiceClass(object):
     def dimse(self):
         """Return the DIMSE service provider."""
         return self.assoc.dimse
+
+    def is_cancelled(self, msg_id):
+        """Return True if a C-CANCEL message with `msg_id` has been received.
+
+        Parameters
+        ----------
+        msg_id : int
+            The (0000,0120) *Message ID Being Responded To* value to use to
+            match against.
+
+        Returns
+        -------
+        bool
+            True if a C-CANCEL message has been received with a *Message ID
+            Being Responded To* corresponding to `msg_id`, False otherwise.
+        """
+        if msg_id in self.dimse.cancel_req.keys():
+            del self.dimse.cancel_req[msg_id]
+            return True
+
+        return False
 
     def is_valid_status(self, status):
         """Return True if `status` is valid for the service class.
@@ -583,9 +606,11 @@ class QueryRetrieveServiceClass(ServiceClass):
             return
 
         info['parameters'] = {
-            'message_id' : req.MessageID,
-            'priority' : req.Priority
+             'message_id' : req.MessageID,
+             'priority' : req.Priority,
         }
+        # Add callable to the info so user can check if cancelled
+        info['cancelled'] = self.is_cancelled
 
         stopper = object()
         # This will wrap exceptions during iteration and return a good value.
@@ -832,9 +857,11 @@ class QueryRetrieveServiceClass(ServiceClass):
             return
 
         info['parameters'] = {
-            'message_id' : req.MessageID,
-            'priority' : req.Priority
+             'message_id' : req.MessageID,
+             'priority' : req.Priority
         }
+        # Add callable to the info so user can check if cancelled
+        info['cancelled'] = self.is_cancelled
 
         # Callback - C-GET
         try:
@@ -1010,6 +1037,7 @@ class QueryRetrieveServiceClass(ServiceClass):
                 except Exception as ex:
                     # An exception implies a C-STORE failure
                     LOGGER.warning("C-STORE sub-operation failed.")
+                    LOGGER.exception(ex)
                     store_status = [STATUS_FAILURE, 'Unknown']
 
                 LOGGER.info('Get SCP: Received Store SCU response (%s)',
@@ -1214,9 +1242,11 @@ class QueryRetrieveServiceClass(ServiceClass):
             return
 
         info['parameters'] = {
-            'message_id' : req.MessageID,
-            'priority' : req.Priority
+             'message_id' : req.MessageID,
+             'priority' : req.Priority
         }
+        # Add callable to the info so user can check if cancelled
+        info['cancelled'] = self.is_cancelled
 
         # Callback - C-MOVE
         try:
@@ -1412,7 +1442,7 @@ class QueryRetrieveServiceClass(ServiceClass):
                         self.dimse.send_msg(rsp, context.context_id)
                         continue
 
-                    LOGGER.info('Move SCP Response %s (Pending)', ii)
+                    LOGGER.info('Move SCP Response %s (Pending)', ii + 1)
 
                     # Send `dataset` via C-STORE sub-operations over the
                     #   association and check that the response's Status exists
@@ -1714,9 +1744,10 @@ class RelevantPatientInformationQueryServiceClass(ServiceClass):
             return
 
         info['parameters'] = {
-            'message_id' : req.MessageID,
-            'priority' : req.Priority
+             'message_id' : req.MessageID,
+             'priority' : req.Priority,
         }
+        info['cancelled'] = self.is_cancelled
 
         # Relevant Patient Query only allows the following responses:
         #   pending + match; success
