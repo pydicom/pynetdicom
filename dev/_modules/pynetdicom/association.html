@@ -8,7 +8,7 @@
   
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   
-  <title>pynetdicom.association &mdash; pynetdicom 1.2.0.dev0 documentation</title>
+  <title>pynetdicom.association &mdash; pynetdicom 1.2.0b1 documentation</title>
   
 
   
@@ -62,7 +62,7 @@
             
             
               <div class="version">
-                1.2.0.dev0
+                1.2.0b1
               </div>
             
           
@@ -334,9 +334,10 @@
         <span class="bp">self</span><span class="o">.</span><span class="n">_a_p_abort_assoc_rq</span> <span class="o">=</span> <span class="kc">False</span>
 
         <span class="c1"># Point the public send_c_cancel_* functions to the actual function</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">send_c_cancel_find</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_send_c_cancel</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">send_c_cancel_move</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_send_c_cancel</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">send_c_cancel_get</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_send_c_cancel</span>
+        <span class="c1"># TODO: Deprecated, to be removed in v1.3</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">send_c_cancel_find</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">send_c_cancel</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">send_c_cancel_move</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">send_c_cancel</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">send_c_cancel_get</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">send_c_cancel</span>
 
         <span class="c1"># Thread setup</span>
         <span class="n">threading</span><span class="o">.</span><span class="n">Thread</span><span class="o">.</span><span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span>
@@ -369,28 +370,6 @@
         <span class="bp">self</span><span class="o">.</span><span class="n">_acse_timeout</span> <span class="o">=</span> <span class="n">value</span>
 
     <span class="nd">@property</span>
-    <span class="k">def</span> <span class="nf">dimse_timeout</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
-        <span class="sd">&quot;&quot;&quot;Return the DIMSE timeout in seconds.&quot;&quot;&quot;</span>
-        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_dimse_timeout</span>
-
-    <span class="nd">@dimse_timeout</span><span class="o">.</span><span class="n">setter</span>
-    <span class="k">def</span> <span class="nf">dimse_timeout</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">value</span><span class="p">):</span>
-        <span class="sd">&quot;&quot;&quot;Set the DIMSE timeout using numeric or None.&quot;&quot;&quot;</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">dimse</span><span class="o">.</span><span class="n">dimse_timeout</span> <span class="o">=</span> <span class="n">value</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">_dimse_timeout</span> <span class="o">=</span> <span class="n">value</span>
-
-    <span class="nd">@property</span>
-    <span class="k">def</span> <span class="nf">network_timeout</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
-        <span class="sd">&quot;&quot;&quot;Return the network timeout in seconds.&quot;&quot;&quot;</span>
-        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_network_timeout</span>
-
-    <span class="nd">@network_timeout</span><span class="o">.</span><span class="n">setter</span>
-    <span class="k">def</span> <span class="nf">network_timeout</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">value</span><span class="p">):</span>
-        <span class="sd">&quot;&quot;&quot;Set the network timeout using numeric or None.&quot;&quot;&quot;</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">dul</span><span class="o">.</span><span class="n">_idle_timer</span><span class="o">.</span><span class="n">timeout</span> <span class="o">=</span> <span class="n">value</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">_network_timeout</span> <span class="o">=</span> <span class="n">value</span>
-
-    <span class="nd">@property</span>
     <span class="k">def</span> <span class="nf">ae</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;Return the Association&#39;s parent ApplicationEntity.&quot;&quot;&quot;</span>
         <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_ae</span>
@@ -417,10 +396,7 @@
         <span class="n">msg_type</span> <span class="o">=</span> <span class="n">msg_type</span><span class="o">.</span><span class="n">replace</span><span class="p">(</span><span class="s1">&#39;_&#39;</span><span class="p">,</span> <span class="s1">&#39;-&#39;</span><span class="p">)</span>
 
         <span class="n">status</span> <span class="o">=</span> <span class="n">Dataset</span><span class="p">()</span>
-        <span class="k">if</span> <span class="n">rsp</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
-            <span class="n">LOGGER</span><span class="o">.</span><span class="n">error</span><span class="p">(</span><span class="s1">&#39;DIMSE service timed out&#39;</span><span class="p">)</span>
-            <span class="bp">self</span><span class="o">.</span><span class="n">abort</span><span class="p">()</span>
-        <span class="k">elif</span> <span class="n">rsp</span><span class="o">.</span><span class="n">is_valid_response</span><span class="p">:</span>
+        <span class="k">if</span> <span class="n">rsp</span><span class="o">.</span><span class="n">is_valid_response</span><span class="p">:</span>
             <span class="n">status</span><span class="o">.</span><span class="n">Status</span> <span class="o">=</span> <span class="n">rsp</span><span class="o">.</span><span class="n">Status</span>
             <span class="k">for</span> <span class="n">keyword</span> <span class="ow">in</span> <span class="n">rsp</span><span class="o">.</span><span class="n">STATUS_OPTIONAL_KEYWORDS</span><span class="p">:</span>
                 <span class="k">if</span> <span class="nb">getattr</span><span class="p">(</span><span class="n">rsp</span><span class="p">,</span> <span class="n">keyword</span><span class="p">,</span> <span class="kc">None</span><span class="p">)</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
@@ -433,6 +409,17 @@
             <span class="bp">self</span><span class="o">.</span><span class="n">abort</span><span class="p">()</span>
 
         <span class="k">return</span> <span class="n">status</span>
+
+    <span class="nd">@property</span>
+    <span class="k">def</span> <span class="nf">dimse_timeout</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;Return the DIMSE timeout in seconds.&quot;&quot;&quot;</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_dimse_timeout</span>
+
+    <span class="nd">@dimse_timeout</span><span class="o">.</span><span class="n">setter</span>
+    <span class="k">def</span> <span class="nf">dimse_timeout</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">value</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;Set the DIMSE timeout using numeric or None.&quot;&quot;&quot;</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">dimse</span><span class="o">.</span><span class="n">dimse_timeout</span> <span class="o">=</span> <span class="n">value</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_dimse_timeout</span> <span class="o">=</span> <span class="n">value</span>
 
     <span class="k">def</span> <span class="nf">_get_valid_context</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">ab_syntax</span><span class="p">,</span> <span class="n">tr_syntax</span><span class="p">,</span> <span class="n">role</span><span class="p">,</span> <span class="n">context_id</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;Return a valid Presentation Context matching the parameters.</span>
@@ -553,6 +540,17 @@
 
         <span class="c1"># pylint: disable=attribute-defined-outside-init</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">_mode</span> <span class="o">=</span> <span class="n">mode</span>
+
+    <span class="nd">@property</span>
+    <span class="k">def</span> <span class="nf">network_timeout</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;Return the network timeout in seconds.&quot;&quot;&quot;</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_network_timeout</span>
+
+    <span class="nd">@network_timeout</span><span class="o">.</span><span class="n">setter</span>
+    <span class="k">def</span> <span class="nf">network_timeout</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">value</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;Set the network timeout using numeric or None.&quot;&quot;&quot;</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">dul</span><span class="o">.</span><span class="n">_idle_timer</span><span class="o">.</span><span class="n">timeout</span> <span class="o">=</span> <span class="n">value</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_network_timeout</span> <span class="o">=</span> <span class="n">value</span>
 
     <span class="nd">@property</span>
     <span class="k">def</span> <span class="nf">rejected_contexts</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
@@ -676,11 +674,6 @@
                 <span class="k">elif</span> <span class="nb">getattr</span><span class="p">(</span><span class="n">msg</span><span class="p">,</span> <span class="s1">&#39;RequestedSOPClassUID&#39;</span><span class="p">,</span> <span class="kc">None</span><span class="p">)</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
                     <span class="c1"># N-GET, N-SET, N-ACTION, N-DELETE use RequestedSOPClassUID</span>
                     <span class="n">class_uid</span> <span class="o">=</span> <span class="n">msg</span><span class="o">.</span><span class="n">RequestedSOPClassUID</span>
-                <span class="k">else</span><span class="p">:</span>
-                    <span class="c1"># Received a C-CANCEL request outside of service</span>
-                    <span class="c1">#   operation, ignore it</span>
-                    <span class="n">LOGGER</span><span class="o">.</span><span class="n">warning</span><span class="p">(</span><span class="s2">&quot;Received unexpected C-CANCEL request&quot;</span><span class="p">)</span>
-                    <span class="k">continue</span>
 
                 <span class="c1"># SOP Class Common Extended Negotiation</span>
                 <span class="k">try</span><span class="p">:</span>
@@ -707,7 +700,11 @@
 
                 <span class="c1"># Run corresponding Service Class in SCP mode</span>
                 <span class="k">try</span><span class="p">:</span>
+                    <span class="c1"># Clear out any C-CANCEL requests received beforehand</span>
+                    <span class="bp">self</span><span class="o">.</span><span class="n">dimse</span><span class="o">.</span><span class="n">cancel_req</span> <span class="o">=</span> <span class="p">{}</span>
                     <span class="n">service_class</span><span class="o">.</span><span class="n">SCP</span><span class="p">(</span><span class="n">msg</span><span class="p">,</span> <span class="n">context</span><span class="p">,</span> <span class="n">info</span><span class="p">)</span>
+                    <span class="c1"># Clear out any unacted upon requests received during</span>
+                    <span class="bp">self</span><span class="o">.</span><span class="n">dimse</span><span class="o">.</span><span class="n">cancel_req</span> <span class="o">=</span> <span class="p">{}</span>
                 <span class="k">except</span> <span class="ne">NotImplementedError</span><span class="p">:</span>
                     <span class="c1"># SCP isn&#39;t implemented</span>
                     <span class="n">LOGGER</span><span class="o">.</span><span class="n">warning</span><span class="p">(</span>
@@ -809,7 +806,6 @@
             <span class="k">raise</span> <span class="ne">RuntimeError</span><span class="p">(</span><span class="s2">&quot;The Association already has a socket set.&quot;</span><span class="p">)</span>
 
         <span class="bp">self</span><span class="o">.</span><span class="n">dul</span><span class="o">.</span><span class="n">socket</span> <span class="o">=</span> <span class="n">socket</span></div>
-
 
     <span class="c1"># DIMSE-C services provided by the Association</span>
     <span class="k">def</span> <span class="nf">_c_store_scp</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">req</span><span class="p">):</span>
@@ -932,27 +928,22 @@
         <span class="c1"># Send C-STORE confirmation back to peer</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">dimse</span><span class="o">.</span><span class="n">send_msg</span><span class="p">(</span><span class="n">rsp</span><span class="p">,</span> <span class="n">context</span><span class="o">.</span><span class="n">context_id</span><span class="p">)</span>
 
-    <span class="k">def</span> <span class="nf">_send_c_cancel</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">msg_id</span><span class="p">):</span>
-        <span class="sd">&quot;&quot;&quot;Send a C-CANCEL-* request to the peer AE.</span>
-
-<span class="sd">        See PS3.7 9.3.2.3</span>
+<div class="viewcode-block" id="Association.send_c_cancel"><a class="viewcode-back" href="../../reference/generated/pynetdicom.association.Association.html#pynetdicom.association.Association.send_c_cancel">[docs]</a>    <span class="k">def</span> <span class="nf">send_c_cancel</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">msg_id</span><span class="p">,</span> <span class="n">context_id</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;Send a C-CANCEL request to the peer AE.</span>
 
 <span class="sd">        Parameters</span>
 <span class="sd">        ----------</span>
 <span class="sd">        msg_id : int</span>
 <span class="sd">            The message ID of the C-GET/MOVE/FIND operation we want to cancel.</span>
 <span class="sd">            Must be between 0 and 65535, inclusive.</span>
+<span class="sd">        context_id : int</span>
+<span class="sd">            The presentation context ID of the original C-GET/MOVE/FIND</span>
+<span class="sd">            service request.</span>
 <span class="sd">        &quot;&quot;&quot;</span>
         <span class="c1"># Can&#39;t send a C-CANCEL without an Association</span>
         <span class="k">if</span> <span class="ow">not</span> <span class="bp">self</span><span class="o">.</span><span class="n">is_established</span><span class="p">:</span>
             <span class="k">raise</span> <span class="ne">RuntimeError</span><span class="p">(</span><span class="s2">&quot;The association with a peer SCP must be &quot;</span>
                                <span class="s2">&quot;established before sending a C-CANCEL request.&quot;</span><span class="p">)</span>
-
-        <span class="k">if</span> <span class="ow">not</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">msg_id</span><span class="p">,</span> <span class="nb">int</span><span class="p">):</span>
-            <span class="c1"># FIXME: Add more detail to exception</span>
-            <span class="k">raise</span> <span class="ne">TypeError</span><span class="p">(</span><span class="s2">&quot;msg_id must be an integer.&quot;</span><span class="p">)</span>
-
-        <span class="c1"># FIXME: Add validity checks to msg_id value</span>
 
         <span class="c1"># Build C-CANCEL primitive</span>
         <span class="n">primitive</span> <span class="o">=</span> <span class="n">C_CANCEL</span><span class="p">()</span>
@@ -961,8 +952,7 @@
         <span class="n">LOGGER</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="s1">&#39;Sending C-CANCEL&#39;</span><span class="p">)</span>
 
         <span class="c1"># Send C-CANCEL request</span>
-        <span class="c1"># FIXME: need context ID, not msg ID. maybe</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">dimse</span><span class="o">.</span><span class="n">send_msg</span><span class="p">(</span><span class="n">primitive</span><span class="p">,</span> <span class="n">msg_id</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">dimse</span><span class="o">.</span><span class="n">send_msg</span><span class="p">(</span><span class="n">primitive</span><span class="p">,</span> <span class="n">context_id</span><span class="p">)</span></div>
 
 <div class="viewcode-block" id="Association.send_c_echo"><a class="viewcode-back" href="../../reference/generated/pynetdicom.association.Association.html#pynetdicom.association.Association.send_c_echo">[docs]</a>    <span class="k">def</span> <span class="nf">send_c_echo</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">msg_id</span><span class="o">=</span><span class="mi">1</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;Send a C-ECHO request to the peer AE.</span>
@@ -1282,68 +1272,10 @@
         <span class="bp">self</span><span class="o">.</span><span class="n">dimse</span><span class="o">.</span><span class="n">send_msg</span><span class="p">(</span><span class="n">req</span><span class="p">,</span> <span class="n">context</span><span class="o">.</span><span class="n">context_id</span><span class="p">)</span>
 
         <span class="c1"># Get the responses from the peer</span>
-        <span class="n">ii</span> <span class="o">=</span> <span class="mi">1</span>
-        <span class="k">while</span> <span class="kc">True</span><span class="p">:</span>
-            <span class="c1"># Wait for C-FIND response</span>
-            <span class="n">cx_id</span><span class="p">,</span> <span class="n">rsp</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">dimse</span><span class="o">.</span><span class="n">get_msg</span><span class="p">(</span><span class="n">block</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
-
-            <span class="c1"># If `rsp` is None then the DIMSE timeout expired so abort</span>
-            <span class="k">if</span> <span class="n">rsp</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
-                <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">is_established</span><span class="p">:</span>
-                    <span class="n">LOGGER</span><span class="o">.</span><span class="n">error</span><span class="p">(</span><span class="s2">&quot;Connection closed or timed-out&quot;</span><span class="p">)</span>
-                    <span class="bp">self</span><span class="o">.</span><span class="n">abort</span><span class="p">()</span>
-                <span class="k">yield</span> <span class="n">Dataset</span><span class="p">(),</span> <span class="kc">None</span>
-                <span class="k">return</span>
-            <span class="k">elif</span> <span class="ow">not</span> <span class="n">rsp</span><span class="o">.</span><span class="n">is_valid_response</span><span class="p">:</span>
-                <span class="n">LOGGER</span><span class="o">.</span><span class="n">error</span><span class="p">(</span>
-                    <span class="s1">&#39;Received an invalid C-FIND response from the peer&#39;</span>
-                <span class="p">)</span>
-                <span class="bp">self</span><span class="o">.</span><span class="n">abort</span><span class="p">()</span>
-                <span class="k">yield</span> <span class="n">Dataset</span><span class="p">(),</span> <span class="kc">None</span>
-                <span class="k">return</span>
-
-            <span class="c1"># Status may be &#39;Failure&#39;, &#39;Cancel&#39;, &#39;Success&#39; or &#39;Pending&#39;</span>
-            <span class="n">status</span> <span class="o">=</span> <span class="n">Dataset</span><span class="p">()</span>
-            <span class="n">status</span><span class="o">.</span><span class="n">Status</span> <span class="o">=</span> <span class="n">rsp</span><span class="o">.</span><span class="n">Status</span>
-            <span class="k">for</span> <span class="n">keyword</span> <span class="ow">in</span> <span class="n">rsp</span><span class="o">.</span><span class="n">STATUS_OPTIONAL_KEYWORDS</span><span class="p">:</span>
-                <span class="k">if</span> <span class="nb">getattr</span><span class="p">(</span><span class="n">rsp</span><span class="p">,</span> <span class="n">keyword</span><span class="p">)</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
-                    <span class="nb">setattr</span><span class="p">(</span><span class="n">status</span><span class="p">,</span> <span class="n">keyword</span><span class="p">,</span> <span class="nb">getattr</span><span class="p">(</span><span class="n">rsp</span><span class="p">,</span> <span class="n">keyword</span><span class="p">))</span>
-
-            <span class="n">status_category</span> <span class="o">=</span> <span class="n">code_to_category</span><span class="p">(</span><span class="n">status</span><span class="o">.</span><span class="n">Status</span><span class="p">)</span>
-
-            <span class="n">LOGGER</span><span class="o">.</span><span class="n">debug</span><span class="p">(</span><span class="s1">&#39;-&#39;</span> <span class="o">*</span> <span class="mi">65</span><span class="p">)</span>
-            <span class="n">LOGGER</span><span class="o">.</span><span class="n">debug</span><span class="p">(</span><span class="s1">&#39;Find SCP Response: </span><span class="si">{2}</span><span class="s1"> (0x</span><span class="si">{0:04x}</span><span class="s1"> - </span><span class="si">{1}</span><span class="s1">)&#39;</span>
-                         <span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">status</span><span class="o">.</span><span class="n">Status</span><span class="p">,</span> <span class="n">status_category</span><span class="p">,</span> <span class="n">ii</span><span class="p">))</span>
-
-            <span class="c1"># We want to exit the wait loop if we receive a Failure, Cancel or</span>
-            <span class="c1">#   Success status type</span>
-            <span class="k">if</span> <span class="n">status_category</span> <span class="o">!=</span> <span class="n">STATUS_PENDING</span><span class="p">:</span>
-                <span class="n">identifier</span> <span class="o">=</span> <span class="kc">None</span>
-                <span class="k">break</span>
-
-            <span class="c1"># Status must be Pending, so decode the Identifier dataset</span>
-            <span class="c1"># pylint: disable=broad-except</span>
-            <span class="k">try</span><span class="p">:</span>
-                <span class="n">identifier</span> <span class="o">=</span> <span class="n">decode</span><span class="p">(</span><span class="n">rsp</span><span class="o">.</span><span class="n">Identifier</span><span class="p">,</span>
-                                    <span class="n">transfer_syntax</span><span class="o">.</span><span class="n">is_implicit_VR</span><span class="p">,</span>
-                                    <span class="n">transfer_syntax</span><span class="o">.</span><span class="n">is_little_endian</span><span class="p">)</span>
-
-                <span class="n">LOGGER</span><span class="o">.</span><span class="n">debug</span><span class="p">(</span><span class="s1">&#39;&#39;</span><span class="p">)</span>
-                <span class="n">LOGGER</span><span class="o">.</span><span class="n">debug</span><span class="p">(</span><span class="s1">&#39;# DICOM Dataset&#39;</span><span class="p">)</span>
-                <span class="k">for</span> <span class="n">elem</span> <span class="ow">in</span> <span class="n">identifier</span><span class="p">:</span>
-                    <span class="n">LOGGER</span><span class="o">.</span><span class="n">debug</span><span class="p">(</span><span class="n">elem</span><span class="p">)</span>
-                <span class="n">LOGGER</span><span class="o">.</span><span class="n">debug</span><span class="p">(</span><span class="s1">&#39;&#39;</span><span class="p">)</span>
-            <span class="k">except</span> <span class="ne">Exception</span><span class="p">:</span>
-                <span class="n">LOGGER</span><span class="o">.</span><span class="n">error</span><span class="p">(</span>
-                    <span class="s2">&quot;Failed to decode the received Identifier dataset&quot;</span>
-                <span class="p">)</span>
-                <span class="k">yield</span> <span class="n">status</span><span class="p">,</span> <span class="kc">None</span>
-
-            <span class="n">ii</span> <span class="o">+=</span> <span class="mi">1</span>
-
-            <span class="k">yield</span> <span class="n">status</span><span class="p">,</span> <span class="n">identifier</span>
-
-        <span class="k">yield</span> <span class="n">status</span><span class="p">,</span> <span class="n">identifier</span></div>
+        <span class="c1"># Wrap the generator so the C-FIND-RQ is sent immediately on</span>
+        <span class="c1">#   executing this function, otherwise sending C-CANCEL requests</span>
+        <span class="c1">#   may end up being sent first unless next() is called</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_wrap_find_responses</span><span class="p">(</span><span class="n">transfer_syntax</span><span class="p">)</span></div>
 
 <div class="viewcode-block" id="Association.send_c_get"><a class="viewcode-back" href="../../reference/generated/pynetdicom.association.Association.html#pynetdicom.association.Association.send_c_get">[docs]</a>    <span class="k">def</span> <span class="nf">send_c_get</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">dataset</span><span class="p">,</span> <span class="n">msg_id</span><span class="o">=</span><span class="mi">1</span><span class="p">,</span> <span class="n">priority</span><span class="o">=</span><span class="mi">2</span><span class="p">,</span> <span class="n">query_model</span><span class="o">=</span><span class="s1">&#39;P&#39;</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;Send a C-GET request to the peer AE.</span>
@@ -1561,93 +1493,10 @@
         <span class="bp">self</span><span class="o">.</span><span class="n">dimse</span><span class="o">.</span><span class="n">send_msg</span><span class="p">(</span><span class="n">req</span><span class="p">,</span> <span class="n">context</span><span class="o">.</span><span class="n">context_id</span><span class="p">)</span>
 
         <span class="c1"># Get the responses from the peer</span>
-        <span class="n">operation_no</span> <span class="o">=</span> <span class="mi">1</span>
-        <span class="k">while</span> <span class="kc">True</span><span class="p">:</span>
-            <span class="c1"># Wait for DIMSE message, may be either a C-GET response or a</span>
-            <span class="c1">#   C-STORE request</span>
-            <span class="n">cx_id</span><span class="p">,</span> <span class="n">rsp</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">dimse</span><span class="o">.</span><span class="n">get_msg</span><span class="p">(</span><span class="n">block</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
-
-            <span class="c1"># If `rsp` is None then the DIMSE timeout expired so abort</span>
-            <span class="k">if</span> <span class="n">rsp</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
-                <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">is_established</span><span class="p">:</span>
-                    <span class="n">LOGGER</span><span class="o">.</span><span class="n">error</span><span class="p">(</span><span class="s2">&quot;Connection closed or timed-out&quot;</span><span class="p">)</span>
-                    <span class="bp">self</span><span class="o">.</span><span class="n">abort</span><span class="p">()</span>
-                <span class="k">yield</span> <span class="n">Dataset</span><span class="p">(),</span> <span class="kc">None</span>
-                <span class="k">return</span>
-
-            <span class="c1"># Received a C-GET response from the peer</span>
-            <span class="k">if</span> <span class="n">rsp</span><span class="o">.</span><span class="vm">__class__</span> <span class="o">==</span> <span class="n">C_GET</span><span class="p">:</span>
-                <span class="n">status</span> <span class="o">=</span> <span class="n">Dataset</span><span class="p">()</span>
-                <span class="n">status</span><span class="o">.</span><span class="n">Status</span> <span class="o">=</span> <span class="n">rsp</span><span class="o">.</span><span class="n">Status</span>
-                <span class="k">for</span> <span class="n">keyword</span> <span class="ow">in</span> <span class="n">rsp</span><span class="o">.</span><span class="n">STATUS_OPTIONAL_KEYWORDS</span><span class="p">:</span>
-                    <span class="k">if</span> <span class="nb">getattr</span><span class="p">(</span><span class="n">rsp</span><span class="p">,</span> <span class="n">keyword</span><span class="p">)</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
-                        <span class="nb">setattr</span><span class="p">(</span><span class="n">status</span><span class="p">,</span> <span class="n">keyword</span><span class="p">,</span> <span class="nb">getattr</span><span class="p">(</span><span class="n">rsp</span><span class="p">,</span> <span class="n">keyword</span><span class="p">))</span>
-
-                <span class="c1"># If the Status is &#39;Pending&#39; then the processing of</span>
-                <span class="c1">#   matches and sub-operations are initiated or continuing</span>
-                <span class="c1"># If the Status is &#39;Cancel&#39;, &#39;Failure&#39;, &#39;Warning&#39; or &#39;Success&#39;</span>
-                <span class="c1">#   then we are finished</span>
-                <span class="n">category</span> <span class="o">=</span> <span class="n">code_to_category</span><span class="p">(</span><span class="n">status</span><span class="o">.</span><span class="n">Status</span><span class="p">)</span>
-
-                <span class="c1"># Log status type</span>
-                <span class="n">LOGGER</span><span class="o">.</span><span class="n">debug</span><span class="p">(</span><span class="s1">&#39;&#39;</span><span class="p">)</span>
-                <span class="k">if</span> <span class="n">category</span> <span class="o">==</span> <span class="n">STATUS_PENDING</span><span class="p">:</span>
-                    <span class="n">LOGGER</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="s2">&quot;Get SCP Response: </span><span class="si">%s</span><span class="s2"> (Pending)&quot;</span><span class="p">,</span> <span class="n">operation_no</span><span class="p">)</span>
-                <span class="k">elif</span> <span class="n">category</span> <span class="ow">in</span> <span class="p">[</span><span class="n">STATUS_SUCCESS</span><span class="p">,</span> <span class="n">STATUS_CANCEL</span><span class="p">,</span>
-                                  <span class="n">STATUS_WARNING</span><span class="p">]:</span>
-                    <span class="n">LOGGER</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="s1">&#39;Get SCP Result: (</span><span class="si">%s</span><span class="s1">)&#39;</span><span class="p">,</span> <span class="n">category</span><span class="p">)</span>
-                <span class="k">elif</span> <span class="n">category</span> <span class="o">==</span> <span class="n">STATUS_FAILURE</span><span class="p">:</span>
-                    <span class="n">LOGGER</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="s1">&#39;Get SCP Result: (Failure - 0x</span><span class="si">%04x</span><span class="s1">)&#39;</span><span class="p">,</span>
-                                <span class="n">status</span><span class="o">.</span><span class="n">Status</span><span class="p">)</span>
-
-                <span class="c1"># Log number of remaining sub-operations</span>
-                <span class="n">LOGGER</span><span class="o">.</span><span class="n">info</span><span class="p">(</span>
-                    <span class="s2">&quot;Sub-Operations Remaining: </span><span class="si">%s</span><span class="s2">, Completed: </span><span class="si">%s</span><span class="s2">, &quot;</span>
-                    <span class="s2">&quot;Failed: </span><span class="si">%s</span><span class="s2">, Warning: </span><span class="si">%s</span><span class="s2">&quot;</span><span class="p">,</span>
-                    <span class="n">rsp</span><span class="o">.</span><span class="n">NumberOfRemainingSuboperations</span> <span class="ow">or</span> <span class="s1">&#39;0&#39;</span><span class="p">,</span>
-                    <span class="n">rsp</span><span class="o">.</span><span class="n">NumberOfCompletedSuboperations</span> <span class="ow">or</span> <span class="s1">&#39;0&#39;</span><span class="p">,</span>
-                    <span class="n">rsp</span><span class="o">.</span><span class="n">NumberOfFailedSuboperations</span> <span class="ow">or</span> <span class="s1">&#39;0&#39;</span><span class="p">,</span>
-                    <span class="n">rsp</span><span class="o">.</span><span class="n">NumberOfWarningSuboperations</span> <span class="ow">or</span> <span class="s1">&#39;0&#39;</span>
-                <span class="p">)</span>
-
-                <span class="c1"># Yields - &#39;Success&#39;, &#39;Warning&#39;, &#39;Failure&#39;, &#39;Cancel&#39; are</span>
-                <span class="c1">#   final yields, &#39;Pending&#39; means more to come</span>
-                <span class="n">identifier</span> <span class="o">=</span> <span class="kc">None</span>
-                <span class="k">if</span> <span class="n">category</span> <span class="ow">in</span> <span class="p">[</span><span class="n">STATUS_PENDING</span><span class="p">]:</span>
-                    <span class="n">operation_no</span> <span class="o">+=</span> <span class="mi">1</span>
-                    <span class="k">yield</span> <span class="n">status</span><span class="p">,</span> <span class="n">identifier</span>
-                    <span class="k">continue</span>
-                <span class="k">elif</span> <span class="n">rsp</span><span class="o">.</span><span class="n">Identifier</span> <span class="ow">and</span> <span class="n">category</span> <span class="ow">in</span> <span class="p">[</span><span class="n">STATUS_CANCEL</span><span class="p">,</span>
-                                                     <span class="n">STATUS_WARNING</span><span class="p">,</span>
-                                                     <span class="n">STATUS_FAILURE</span><span class="p">]:</span>
-                    <span class="c1"># From Part 4, Annex C.4.3, responses with these statuses</span>
-                    <span class="c1">#   should contain an Identifier dataset with a</span>
-                    <span class="c1">#   (0008,0058) Failed SOP Instance UID List element</span>
-                    <span class="c1">#   however this can&#39;t be assumed</span>
-                    <span class="c1"># pylint: disable=broad-except</span>
-                    <span class="k">try</span><span class="p">:</span>
-                        <span class="n">identifier</span> <span class="o">=</span> <span class="n">decode</span><span class="p">(</span><span class="n">rsp</span><span class="o">.</span><span class="n">Identifier</span><span class="p">,</span>
-                                            <span class="n">transfer_syntax</span><span class="o">.</span><span class="n">is_implicit_VR</span><span class="p">,</span>
-                                            <span class="n">transfer_syntax</span><span class="o">.</span><span class="n">is_little_endian</span><span class="p">)</span>
-
-                        <span class="n">LOGGER</span><span class="o">.</span><span class="n">debug</span><span class="p">(</span><span class="s1">&#39;&#39;</span><span class="p">)</span>
-                        <span class="n">LOGGER</span><span class="o">.</span><span class="n">debug</span><span class="p">(</span><span class="s1">&#39;# DICOM Dataset&#39;</span><span class="p">)</span>
-                        <span class="k">for</span> <span class="n">elem</span> <span class="ow">in</span> <span class="n">identifier</span><span class="p">:</span>
-                            <span class="n">LOGGER</span><span class="o">.</span><span class="n">debug</span><span class="p">(</span><span class="n">elem</span><span class="p">)</span>
-                        <span class="n">LOGGER</span><span class="o">.</span><span class="n">debug</span><span class="p">(</span><span class="s1">&#39;&#39;</span><span class="p">)</span>
-                    <span class="k">except</span> <span class="ne">Exception</span> <span class="k">as</span> <span class="n">ex</span><span class="p">:</span>
-                        <span class="n">LOGGER</span><span class="o">.</span><span class="n">error</span><span class="p">(</span>
-                            <span class="s2">&quot;Failed to decode the received Identifier dataset&quot;</span>
-                        <span class="p">)</span>
-                        <span class="n">LOGGER</span><span class="o">.</span><span class="n">exception</span><span class="p">(</span><span class="n">ex</span><span class="p">)</span>
-                        <span class="n">identifier</span> <span class="o">=</span> <span class="kc">None</span>
-
-                <span class="k">yield</span> <span class="n">status</span><span class="p">,</span> <span class="n">identifier</span>
-                <span class="k">break</span>
-
-            <span class="c1"># Received a C-STORE request from the peer</span>
-            <span class="k">elif</span> <span class="n">rsp</span><span class="o">.</span><span class="vm">__class__</span> <span class="o">==</span> <span class="n">C_STORE</span><span class="p">:</span>
-                <span class="bp">self</span><span class="o">.</span><span class="n">_c_store_scp</span><span class="p">(</span><span class="n">rsp</span><span class="p">)</span></div>
+        <span class="c1"># Wrap the generator so the C-GET-RQ is sent immediately on</span>
+        <span class="c1">#   executing this function, otherwise sending C-CANCEL requests</span>
+        <span class="c1">#   may end up being sent first unless next() is called</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_wrap_get_move_responses</span><span class="p">(</span><span class="n">transfer_syntax</span><span class="p">)</span></div>
 
 <div class="viewcode-block" id="Association.send_c_move"><a class="viewcode-back" href="../../reference/generated/pynetdicom.association.Association.html#pynetdicom.association.Association.send_c_move">[docs]</a>    <span class="k">def</span> <span class="nf">send_c_move</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">dataset</span><span class="p">,</span> <span class="n">move_aet</span><span class="p">,</span> <span class="n">msg_id</span><span class="o">=</span><span class="mi">1</span><span class="p">,</span> <span class="n">priority</span><span class="o">=</span><span class="mi">2</span><span class="p">,</span>
                     <span class="n">query_model</span><span class="o">=</span><span class="s1">&#39;P&#39;</span><span class="p">):</span>
@@ -1851,92 +1700,11 @@
         <span class="c1"># Send C-MOVE request to the peer via DIMSE and wait for the response</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">dimse</span><span class="o">.</span><span class="n">send_msg</span><span class="p">(</span><span class="n">req</span><span class="p">,</span> <span class="n">context</span><span class="o">.</span><span class="n">context_id</span><span class="p">)</span>
 
-        <span class="c1"># Get the responses from peer</span>
-        <span class="n">operation_no</span> <span class="o">=</span> <span class="mi">1</span>
-        <span class="k">while</span> <span class="kc">True</span><span class="p">:</span>
-            <span class="n">cx_id</span><span class="p">,</span> <span class="n">rsp</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">dimse</span><span class="o">.</span><span class="n">get_msg</span><span class="p">(</span><span class="n">block</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
-
-            <span class="c1"># If `rsp` is None then the DIMSE timeout expired so abort</span>
-            <span class="k">if</span> <span class="n">rsp</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
-                <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">is_established</span><span class="p">:</span>
-                    <span class="n">LOGGER</span><span class="o">.</span><span class="n">error</span><span class="p">(</span><span class="s2">&quot;Connection closed or timed-out&quot;</span><span class="p">)</span>
-                    <span class="bp">self</span><span class="o">.</span><span class="n">abort</span><span class="p">()</span>
-                <span class="k">yield</span> <span class="n">Dataset</span><span class="p">(),</span> <span class="kc">None</span>
-                <span class="k">return</span>
-
-            <span class="c1"># Received a C-MOVE response from the peer</span>
-            <span class="k">if</span> <span class="n">rsp</span><span class="o">.</span><span class="vm">__class__</span> <span class="o">==</span> <span class="n">C_MOVE</span><span class="p">:</span>
-                <span class="n">status</span> <span class="o">=</span> <span class="n">Dataset</span><span class="p">()</span>
-                <span class="n">status</span><span class="o">.</span><span class="n">Status</span> <span class="o">=</span> <span class="n">rsp</span><span class="o">.</span><span class="n">Status</span>
-                <span class="k">for</span> <span class="n">keyword</span> <span class="ow">in</span> <span class="n">rsp</span><span class="o">.</span><span class="n">STATUS_OPTIONAL_KEYWORDS</span><span class="p">:</span>
-                    <span class="k">if</span> <span class="nb">getattr</span><span class="p">(</span><span class="n">rsp</span><span class="p">,</span> <span class="n">keyword</span><span class="p">)</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
-                        <span class="nb">setattr</span><span class="p">(</span><span class="n">status</span><span class="p">,</span> <span class="n">keyword</span><span class="p">,</span> <span class="nb">getattr</span><span class="p">(</span><span class="n">rsp</span><span class="p">,</span> <span class="n">keyword</span><span class="p">))</span>
-
-                <span class="c1"># If the Status is &#39;Pending&#39; then the processing of matches</span>
-                <span class="c1">#   and sub-operations are initiated or continuing</span>
-                <span class="c1"># If the Status is &#39;Cancel&#39;, &#39;Failure&#39;, &#39;Warning&#39; or &#39;Success&#39;</span>
-                <span class="c1">#   then we are finished</span>
-                <span class="n">category</span> <span class="o">=</span> <span class="n">code_to_category</span><span class="p">(</span><span class="n">status</span><span class="o">.</span><span class="n">Status</span><span class="p">)</span>
-
-                <span class="c1"># Log status type</span>
-                <span class="n">LOGGER</span><span class="o">.</span><span class="n">debug</span><span class="p">(</span><span class="s1">&#39;&#39;</span><span class="p">)</span>
-                <span class="k">if</span> <span class="n">category</span> <span class="o">==</span> <span class="n">STATUS_PENDING</span><span class="p">:</span>
-                    <span class="n">LOGGER</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="s2">&quot;Move SCP Response: </span><span class="si">%s</span><span class="s2"> (Pending)&quot;</span><span class="p">,</span> <span class="n">operation_no</span><span class="p">)</span>
-                <span class="k">elif</span> <span class="n">category</span> <span class="ow">in</span> <span class="p">[</span><span class="n">STATUS_SUCCESS</span><span class="p">,</span> <span class="n">STATUS_CANCEL</span><span class="p">,</span>
-                                  <span class="n">STATUS_WARNING</span><span class="p">]:</span>
-                    <span class="n">LOGGER</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="s2">&quot;Move SCP Result: (</span><span class="si">%s</span><span class="s2">)&quot;</span><span class="p">,</span> <span class="n">category</span><span class="p">)</span>
-                <span class="k">elif</span> <span class="n">category</span> <span class="o">==</span> <span class="n">STATUS_FAILURE</span><span class="p">:</span>
-                    <span class="n">LOGGER</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="s2">&quot;Move SCP Result: (Failure - 0x</span><span class="si">%04x</span><span class="s2">)&quot;</span><span class="p">,</span>
-                                <span class="n">status</span><span class="o">.</span><span class="n">Status</span><span class="p">)</span>
-
-                <span class="c1"># Log number of remaining sub-operations</span>
-                <span class="n">LOGGER</span><span class="o">.</span><span class="n">info</span><span class="p">(</span>
-                    <span class="s2">&quot;Sub-Operations Remaining: </span><span class="si">%s</span><span class="s2">, Completed: </span><span class="si">%s</span><span class="s2">, &quot;</span>
-                    <span class="s2">&quot;Failed: </span><span class="si">%s</span><span class="s2">, Warning: </span><span class="si">%s</span><span class="s2">&quot;</span><span class="p">,</span>
-                    <span class="n">rsp</span><span class="o">.</span><span class="n">NumberOfRemainingSuboperations</span> <span class="ow">or</span> <span class="s1">&#39;0&#39;</span><span class="p">,</span>
-                    <span class="n">rsp</span><span class="o">.</span><span class="n">NumberOfCompletedSuboperations</span> <span class="ow">or</span> <span class="s1">&#39;0&#39;</span><span class="p">,</span>
-                    <span class="n">rsp</span><span class="o">.</span><span class="n">NumberOfFailedSuboperations</span> <span class="ow">or</span> <span class="s1">&#39;0&#39;</span><span class="p">,</span>
-                    <span class="n">rsp</span><span class="o">.</span><span class="n">NumberOfWarningSuboperations</span> <span class="ow">or</span> <span class="s1">&#39;0&#39;</span>
-                <span class="p">)</span>
-
-                <span class="c1"># Yields - &#39;Success&#39;, &#39;Warning&#39;, &#39;Cancel&#39;, &#39;Failure&#39; are final</span>
-                <span class="c1">#   yields, &#39;Pending&#39; means more to come</span>
-                <span class="n">identifier</span> <span class="o">=</span> <span class="kc">None</span>
-                <span class="k">if</span> <span class="n">category</span> <span class="o">==</span> <span class="n">STATUS_PENDING</span><span class="p">:</span>
-                    <span class="n">operation_no</span> <span class="o">+=</span> <span class="mi">1</span>
-                    <span class="k">yield</span> <span class="n">status</span><span class="p">,</span> <span class="n">identifier</span>
-                    <span class="k">continue</span>
-                <span class="k">elif</span> <span class="n">rsp</span><span class="o">.</span><span class="n">Identifier</span> <span class="ow">and</span> <span class="n">category</span> <span class="ow">in</span> <span class="p">[</span><span class="n">STATUS_CANCEL</span><span class="p">,</span>
-                                                     <span class="n">STATUS_WARNING</span><span class="p">,</span>
-                                                     <span class="n">STATUS_FAILURE</span><span class="p">]:</span>
-                    <span class="c1"># From Part 4, Annex C.4.2, responses with these statuses</span>
-                    <span class="c1">#   should contain an Identifier dataset with a</span>
-                    <span class="c1">#   (0008,0058) Failed SOP Instance UID List element</span>
-                    <span class="c1">#   however this can&#39;t be assumed</span>
-                    <span class="c1"># pylint: disable=broad-except</span>
-                    <span class="k">try</span><span class="p">:</span>
-                        <span class="n">identifier</span> <span class="o">=</span> <span class="n">decode</span><span class="p">(</span><span class="n">rsp</span><span class="o">.</span><span class="n">Identifier</span><span class="p">,</span>
-                                            <span class="n">transfer_syntax</span><span class="o">.</span><span class="n">is_implicit_VR</span><span class="p">,</span>
-                                            <span class="n">transfer_syntax</span><span class="o">.</span><span class="n">is_little_endian</span><span class="p">)</span>
-
-                        <span class="n">LOGGER</span><span class="o">.</span><span class="n">debug</span><span class="p">(</span><span class="s1">&#39;&#39;</span><span class="p">)</span>
-                        <span class="n">LOGGER</span><span class="o">.</span><span class="n">debug</span><span class="p">(</span><span class="s1">&#39;# DICOM Dataset&#39;</span><span class="p">)</span>
-                        <span class="k">for</span> <span class="n">elem</span> <span class="ow">in</span> <span class="n">identifier</span><span class="p">:</span>
-                            <span class="n">LOGGER</span><span class="o">.</span><span class="n">debug</span><span class="p">(</span><span class="n">elem</span><span class="p">)</span>
-                        <span class="n">LOGGER</span><span class="o">.</span><span class="n">debug</span><span class="p">(</span><span class="s1">&#39;&#39;</span><span class="p">)</span>
-                    <span class="k">except</span> <span class="ne">Exception</span> <span class="k">as</span> <span class="n">ex</span><span class="p">:</span>
-                        <span class="n">LOGGER</span><span class="o">.</span><span class="n">error</span><span class="p">(</span><span class="s2">&quot;Failed to decode the received Identifier &quot;</span>
-                                     <span class="s2">&quot;dataset&quot;</span><span class="p">)</span>
-                        <span class="n">LOGGER</span><span class="o">.</span><span class="n">exception</span><span class="p">(</span><span class="n">ex</span><span class="p">)</span>
-                        <span class="n">identifier</span> <span class="o">=</span> <span class="kc">None</span>
-
-                <span class="k">yield</span> <span class="n">status</span><span class="p">,</span> <span class="n">identifier</span>
-                <span class="k">break</span>
-
-            <span class="c1"># Received a C-STORE request from the peer</span>
-            <span class="c1">#   C-STORE requests can be over the same association for C-MOVE</span>
-            <span class="k">elif</span> <span class="n">rsp</span><span class="o">.</span><span class="vm">__class__</span> <span class="o">==</span> <span class="n">C_STORE</span><span class="p">:</span>
-                <span class="bp">self</span><span class="o">.</span><span class="n">_c_store_scp</span><span class="p">(</span><span class="n">rsp</span><span class="p">)</span></div>
+        <span class="c1"># Get the responses from the peer</span>
+        <span class="c1"># Wrap the generator so the C-MOVE-RQ is sent immediately on</span>
+        <span class="c1">#   executing this function, otherwise sending C-CANCEL requests</span>
+        <span class="c1">#   may end up being sent first unless next() is called</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_wrap_get_move_responses</span><span class="p">(</span><span class="n">transfer_syntax</span><span class="p">)</span></div>
 
 <div class="viewcode-block" id="Association.send_c_store"><a class="viewcode-back" href="../../reference/generated/pynetdicom.association.Association.html#pynetdicom.association.Association.send_c_store">[docs]</a>    <span class="k">def</span> <span class="nf">send_c_store</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">dataset</span><span class="p">,</span> <span class="n">msg_id</span><span class="o">=</span><span class="mi">1</span><span class="p">,</span> <span class="n">priority</span><span class="o">=</span><span class="mi">2</span><span class="p">,</span> <span class="n">originator_aet</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
                      <span class="n">originator_id</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
@@ -2114,6 +1882,251 @@
         <span class="n">status</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_check_received_status</span><span class="p">(</span><span class="n">rsp</span><span class="p">)</span>
 
         <span class="k">return</span> <span class="n">status</span></div>
+
+    <span class="k">def</span> <span class="nf">_wrap_find_responses</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">transfer_syntax</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;Wrapper for the C-FIND response generator.</span>
+
+<span class="sd">        Wrapping the response generators allows us to immediately send the</span>
+<span class="sd">        service request on calling the ``send_c_find()`` function. This is</span>
+<span class="sd">        important when it comes to reliably sending C-CANCEL requests</span>
+<span class="sd">        because otherwise the C-CANCEL may end up being sent prior to the</span>
+<span class="sd">        C-FIND request.</span>
+
+<span class="sd">        Parameters</span>
+<span class="sd">        ----------</span>
+<span class="sd">        transfer_syntax : pydicom.uid.UID</span>
+<span class="sd">            The transfer syntax UID used to encode the responses.</span>
+
+<span class="sd">        Yields</span>
+<span class="sd">        ------</span>
+<span class="sd">        See ``send_c_find()``.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">operation_no</span> <span class="o">=</span> <span class="mi">1</span>
+        <span class="k">while</span> <span class="kc">True</span><span class="p">:</span>
+            <span class="c1"># Wait for DIMSE message</span>
+            <span class="n">cx_id</span><span class="p">,</span> <span class="n">rsp</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">dimse</span><span class="o">.</span><span class="n">get_msg</span><span class="p">(</span><span class="n">block</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+
+            <span class="c1"># If `rsp` is None then the DIMSE timeout expired</span>
+            <span class="c1">#   so abort if the association hasn&#39;t already been aborted</span>
+            <span class="k">if</span> <span class="n">rsp</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+                <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">is_established</span><span class="p">:</span>
+                    <span class="n">LOGGER</span><span class="o">.</span><span class="n">error</span><span class="p">(</span><span class="s2">&quot;Connection closed or timed-out&quot;</span><span class="p">)</span>
+                    <span class="bp">self</span><span class="o">.</span><span class="n">abort</span><span class="p">()</span>
+                <span class="k">yield</span> <span class="n">Dataset</span><span class="p">(),</span> <span class="kc">None</span>
+                <span class="k">return</span>
+
+            <span class="k">if</span> <span class="ow">not</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">rsp</span><span class="p">,</span> <span class="n">C_FIND</span><span class="p">):</span>
+                <span class="n">LOGGER</span><span class="o">.</span><span class="n">error</span><span class="p">(</span>
+                    <span class="s1">&#39;Received an unexpected </span><span class="si">{}</span><span class="s1"> message from the peer&#39;</span>
+                    <span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">rsp</span><span class="o">.</span><span class="vm">__class__</span><span class="o">.</span><span class="vm">__name__</span><span class="o">.</span><span class="n">replace</span><span class="p">(</span><span class="s1">&#39;_&#39;</span><span class="p">,</span> <span class="s1">&#39;-&#39;</span><span class="p">))</span>
+                <span class="p">)</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">abort</span><span class="p">()</span>
+                <span class="k">yield</span> <span class="n">Dataset</span><span class="p">(),</span> <span class="kc">None</span>
+                <span class="k">return</span>
+
+            <span class="k">if</span> <span class="ow">not</span> <span class="n">rsp</span><span class="o">.</span><span class="n">is_valid_response</span><span class="p">:</span>
+                <span class="n">LOGGER</span><span class="o">.</span><span class="n">error</span><span class="p">(</span>
+                    <span class="s1">&#39;Received an invalid C-FIND response from the peer&#39;</span>
+                <span class="p">)</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">abort</span><span class="p">()</span>
+                <span class="k">yield</span> <span class="n">Dataset</span><span class="p">(),</span> <span class="kc">None</span>
+                <span class="k">return</span>
+
+            <span class="c1"># Status may be &#39;Failure&#39;, &#39;Cancel&#39;, &#39;Warning&#39;, &#39;Success&#39;</span>
+            <span class="c1">#   or &#39;Pending&#39;</span>
+            <span class="n">status</span> <span class="o">=</span> <span class="n">Dataset</span><span class="p">()</span>
+            <span class="n">status</span><span class="o">.</span><span class="n">Status</span> <span class="o">=</span> <span class="n">rsp</span><span class="o">.</span><span class="n">Status</span>
+            <span class="c1"># Add optional status related elements</span>
+            <span class="k">for</span> <span class="n">keyword</span> <span class="ow">in</span> <span class="n">rsp</span><span class="o">.</span><span class="n">STATUS_OPTIONAL_KEYWORDS</span><span class="p">:</span>
+                <span class="k">if</span> <span class="nb">getattr</span><span class="p">(</span><span class="n">rsp</span><span class="p">,</span> <span class="n">keyword</span><span class="p">)</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+                    <span class="nb">setattr</span><span class="p">(</span><span class="n">status</span><span class="p">,</span> <span class="n">keyword</span><span class="p">,</span> <span class="nb">getattr</span><span class="p">(</span><span class="n">rsp</span><span class="p">,</span> <span class="n">keyword</span><span class="p">))</span>
+
+            <span class="c1"># If the Status is &#39;Pending&#39; then the processing of</span>
+            <span class="c1">#   matches and sub-operations is initiated or continuing</span>
+            <span class="c1"># If the Status is &#39;Cancel&#39;, &#39;Failure&#39;, &#39;Warning&#39; or &#39;Success&#39;</span>
+            <span class="c1">#   then we are finished</span>
+            <span class="n">category</span> <span class="o">=</span> <span class="n">code_to_category</span><span class="p">(</span><span class="n">status</span><span class="o">.</span><span class="n">Status</span><span class="p">)</span>
+
+            <span class="n">LOGGER</span><span class="o">.</span><span class="n">debug</span><span class="p">(</span><span class="s1">&#39;&#39;</span><span class="p">)</span>
+            <span class="k">if</span> <span class="n">category</span> <span class="o">==</span> <span class="n">STATUS_PENDING</span><span class="p">:</span>
+                <span class="n">LOGGER</span><span class="o">.</span><span class="n">info</span><span class="p">(</span>
+                    <span class="s2">&quot;Find SCP Response: </span><span class="si">{}</span><span class="s2"> (Pending)&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">operation_no</span><span class="p">)</span>
+                <span class="p">)</span>
+            <span class="k">elif</span> <span class="n">category</span> <span class="ow">in</span> <span class="p">[</span><span class="n">STATUS_SUCCESS</span><span class="p">,</span> <span class="n">STATUS_CANCEL</span><span class="p">,</span> <span class="n">STATUS_WARNING</span><span class="p">]:</span>
+                <span class="n">LOGGER</span><span class="o">.</span><span class="n">info</span><span class="p">(</span>
+                    <span class="s1">&#39;Find SCP Result: (</span><span class="si">{}</span><span class="s1">)&#39;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">category</span><span class="p">)</span>
+                <span class="p">)</span>
+            <span class="k">elif</span> <span class="n">category</span> <span class="o">==</span> <span class="n">STATUS_FAILURE</span><span class="p">:</span>
+                <span class="n">LOGGER</span><span class="o">.</span><span class="n">info</span><span class="p">(</span>
+                    <span class="s1">&#39;Find SCP Result: (Failure - 0x</span><span class="si">{:04x}</span><span class="s1">)&#39;</span>
+                    <span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">status</span><span class="o">.</span><span class="n">Status</span><span class="p">)</span>
+                <span class="p">)</span>
+
+            <span class="c1"># &#39;Success&#39;, &#39;Warning&#39;, &#39;Failure&#39;, &#39;Cancel&#39; are final yields,</span>
+            <span class="c1">#   &#39;Pending&#39; means more to come</span>
+            <span class="n">identifier</span> <span class="o">=</span> <span class="kc">None</span>
+            <span class="k">if</span> <span class="n">category</span> <span class="ow">in</span> <span class="p">[</span><span class="n">STATUS_PENDING</span><span class="p">]:</span>
+                <span class="n">operation_no</span> <span class="o">+=</span> <span class="mi">1</span>
+
+                <span class="k">try</span><span class="p">:</span>
+                    <span class="n">identifier</span> <span class="o">=</span> <span class="n">decode</span><span class="p">(</span><span class="n">rsp</span><span class="o">.</span><span class="n">Identifier</span><span class="p">,</span>
+                                        <span class="n">transfer_syntax</span><span class="o">.</span><span class="n">is_implicit_VR</span><span class="p">,</span>
+                                        <span class="n">transfer_syntax</span><span class="o">.</span><span class="n">is_little_endian</span><span class="p">)</span>
+                    <span class="n">LOGGER</span><span class="o">.</span><span class="n">debug</span><span class="p">(</span><span class="s1">&#39;&#39;</span><span class="p">)</span>
+                    <span class="n">LOGGER</span><span class="o">.</span><span class="n">debug</span><span class="p">(</span><span class="s1">&#39;# DICOM Dataset&#39;</span><span class="p">)</span>
+                    <span class="k">for</span> <span class="n">elem</span> <span class="ow">in</span> <span class="n">identifier</span><span class="p">:</span>
+                        <span class="n">LOGGER</span><span class="o">.</span><span class="n">debug</span><span class="p">(</span><span class="n">elem</span><span class="p">)</span>
+                    <span class="n">LOGGER</span><span class="o">.</span><span class="n">debug</span><span class="p">(</span><span class="s1">&#39;&#39;</span><span class="p">)</span>
+                <span class="k">except</span> <span class="ne">Exception</span><span class="p">:</span>
+                    <span class="n">LOGGER</span><span class="o">.</span><span class="n">error</span><span class="p">(</span>
+                        <span class="s2">&quot;Failed to decode the received Identifier dataset&quot;</span>
+                    <span class="p">)</span>
+                    <span class="k">yield</span> <span class="n">status</span><span class="p">,</span> <span class="kc">None</span>
+
+                <span class="k">yield</span> <span class="n">status</span><span class="p">,</span> <span class="n">identifier</span>
+                <span class="k">continue</span>
+
+            <span class="c1"># Only reach this point if status is Sucess, Warning, Failure</span>
+            <span class="c1">#   or Cancel</span>
+            <span class="k">yield</span> <span class="n">status</span><span class="p">,</span> <span class="n">identifier</span>
+            <span class="k">break</span>
+
+    <span class="k">def</span> <span class="nf">_wrap_get_move_responses</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">transfer_syntax</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;Wrapper for the C-GET/C-MOVE response generators.</span>
+
+<span class="sd">        Wrapping the response generators allows us to immediately send the</span>
+<span class="sd">        service request on calling the respective ``send_c_*()`` function.</span>
+<span class="sd">        This is important when it comes to reliably sending C-CANCEL requests</span>
+<span class="sd">        because otherwise the C-CANCEL may end up being sent prior to the</span>
+<span class="sd">        C-GET/MOVE request.</span>
+
+<span class="sd">        Parameters</span>
+<span class="sd">        ----------</span>
+<span class="sd">        transfer_syntax : pydicom.uid.UID</span>
+<span class="sd">            The transfer syntax UID used to encode the responses.</span>
+
+<span class="sd">        Yields</span>
+<span class="sd">        ------</span>
+<span class="sd">        See ``send_c_get()`` and ``send_c_move()``.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">operation_no</span> <span class="o">=</span> <span class="mi">1</span>
+        <span class="k">while</span> <span class="kc">True</span><span class="p">:</span>
+            <span class="c1"># Wait for DIMSE message, should be either a C-GET or</span>
+            <span class="c1">#   C-MOVE response or a C-STORE request</span>
+            <span class="n">cx_id</span><span class="p">,</span> <span class="n">rsp</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">dimse</span><span class="o">.</span><span class="n">get_msg</span><span class="p">(</span><span class="n">block</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+            <span class="c1"># Used to describe the response in the log output</span>
+            <span class="n">rsp_type</span> <span class="o">=</span> <span class="n">rsp</span><span class="o">.</span><span class="vm">__class__</span><span class="o">.</span><span class="vm">__name__</span><span class="o">.</span><span class="n">replace</span><span class="p">(</span><span class="s1">&#39;_&#39;</span><span class="p">,</span> <span class="s1">&#39;-&#39;</span><span class="p">)</span>
+            <span class="n">rsp_name</span> <span class="o">=</span> <span class="p">{</span><span class="s1">&#39;C-GET&#39;</span> <span class="p">:</span> <span class="s1">&#39;Get&#39;</span><span class="p">,</span> <span class="s1">&#39;C-MOVE&#39;</span> <span class="p">:</span> <span class="s1">&#39;Move&#39;</span><span class="p">}</span>
+
+            <span class="c1"># If `rsp` is None then the DIMSE timeout expired</span>
+            <span class="c1">#   so abort if the association hasn&#39;t already been aborted</span>
+            <span class="k">if</span> <span class="n">rsp</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+                <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">is_established</span><span class="p">:</span>
+                    <span class="n">LOGGER</span><span class="o">.</span><span class="n">error</span><span class="p">(</span><span class="s2">&quot;Connection closed or timed-out&quot;</span><span class="p">)</span>
+                    <span class="bp">self</span><span class="o">.</span><span class="n">abort</span><span class="p">()</span>
+                <span class="k">yield</span> <span class="n">Dataset</span><span class="p">(),</span> <span class="kc">None</span>
+                <span class="k">return</span>
+
+            <span class="k">if</span> <span class="ow">not</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">rsp</span><span class="p">,</span> <span class="p">(</span><span class="n">C_STORE</span><span class="p">,</span> <span class="n">C_GET</span><span class="p">,</span> <span class="n">C_MOVE</span><span class="p">)):</span>
+                <span class="n">LOGGER</span><span class="o">.</span><span class="n">error</span><span class="p">(</span>
+                    <span class="s1">&#39;Received an unexpected </span><span class="si">{}</span><span class="s1"> message from the peer&#39;</span>
+                    <span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">rsp_type</span><span class="p">)</span>
+                <span class="p">)</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">abort</span><span class="p">()</span>
+                <span class="k">yield</span> <span class="n">Dataset</span><span class="p">(),</span> <span class="kc">None</span>
+                <span class="k">return</span>
+
+            <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">rsp</span><span class="p">,</span> <span class="n">C_STORE</span><span class="p">):</span>
+                <span class="c1"># Received a C-STORE request from the peer</span>
+                <span class="c1"># Should occur during C-GET and may occur during C-MOVE</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">_c_store_scp</span><span class="p">(</span><span class="n">rsp</span><span class="p">)</span>
+                <span class="k">continue</span>
+
+            <span class="k">if</span> <span class="ow">not</span> <span class="n">rsp</span><span class="o">.</span><span class="n">is_valid_response</span><span class="p">:</span>
+                <span class="n">LOGGER</span><span class="o">.</span><span class="n">error</span><span class="p">(</span>
+                    <span class="s1">&#39;Received an invalid </span><span class="si">{}</span><span class="s1"> response from the peer&#39;</span>
+                    <span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">rsp_type</span><span class="p">)</span>
+                <span class="p">)</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">abort</span><span class="p">()</span>
+                <span class="k">yield</span> <span class="n">Dataset</span><span class="p">(),</span> <span class="kc">None</span>
+                <span class="k">return</span>
+
+            <span class="c1"># Status may be &#39;Failure&#39;, &#39;Cancel&#39;, &#39;Warning&#39;, &#39;Success&#39;</span>
+            <span class="c1">#   or &#39;Pending&#39;</span>
+            <span class="n">status</span> <span class="o">=</span> <span class="n">Dataset</span><span class="p">()</span>
+            <span class="n">status</span><span class="o">.</span><span class="n">Status</span> <span class="o">=</span> <span class="n">rsp</span><span class="o">.</span><span class="n">Status</span>
+            <span class="c1"># Add optional status related elements</span>
+            <span class="k">for</span> <span class="n">keyword</span> <span class="ow">in</span> <span class="n">rsp</span><span class="o">.</span><span class="n">STATUS_OPTIONAL_KEYWORDS</span><span class="p">:</span>
+                <span class="k">if</span> <span class="nb">getattr</span><span class="p">(</span><span class="n">rsp</span><span class="p">,</span> <span class="n">keyword</span><span class="p">)</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+                    <span class="nb">setattr</span><span class="p">(</span><span class="n">status</span><span class="p">,</span> <span class="n">keyword</span><span class="p">,</span> <span class="nb">getattr</span><span class="p">(</span><span class="n">rsp</span><span class="p">,</span> <span class="n">keyword</span><span class="p">))</span>
+
+            <span class="c1"># If the Status is &#39;Pending&#39; then the processing of</span>
+            <span class="c1">#   matches and sub-operations is initiated or continuing</span>
+            <span class="c1"># If the Status is &#39;Cancel&#39;, &#39;Failure&#39;, &#39;Warning&#39; or &#39;Success&#39;</span>
+            <span class="c1">#   then we are finished</span>
+            <span class="n">category</span> <span class="o">=</span> <span class="n">code_to_category</span><span class="p">(</span><span class="n">status</span><span class="o">.</span><span class="n">Status</span><span class="p">)</span>
+
+            <span class="n">LOGGER</span><span class="o">.</span><span class="n">debug</span><span class="p">(</span><span class="s1">&#39;&#39;</span><span class="p">)</span>
+            <span class="k">if</span> <span class="n">category</span> <span class="o">==</span> <span class="n">STATUS_PENDING</span><span class="p">:</span>
+                <span class="n">LOGGER</span><span class="o">.</span><span class="n">info</span><span class="p">(</span>
+                    <span class="s2">&quot;</span><span class="si">{}</span><span class="s2"> SCP Response: </span><span class="si">{}</span><span class="s2"> (Pending)&quot;</span>
+                    <span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">rsp_name</span><span class="p">[</span><span class="n">rsp_type</span><span class="p">],</span> <span class="n">operation_no</span> <span class="o">+</span> <span class="mi">1</span><span class="p">)</span>
+                <span class="p">)</span>
+            <span class="k">elif</span> <span class="n">category</span> <span class="ow">in</span> <span class="p">[</span><span class="n">STATUS_SUCCESS</span><span class="p">,</span> <span class="n">STATUS_CANCEL</span><span class="p">,</span> <span class="n">STATUS_WARNING</span><span class="p">]:</span>
+                <span class="n">LOGGER</span><span class="o">.</span><span class="n">info</span><span class="p">(</span>
+                    <span class="s1">&#39;</span><span class="si">{}</span><span class="s1"> SCP Result: (</span><span class="si">{}</span><span class="s1">)&#39;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">rsp_name</span><span class="p">[</span><span class="n">rsp_type</span><span class="p">],</span> <span class="n">category</span><span class="p">)</span>
+                <span class="p">)</span>
+            <span class="k">elif</span> <span class="n">category</span> <span class="o">==</span> <span class="n">STATUS_FAILURE</span><span class="p">:</span>
+                <span class="n">LOGGER</span><span class="o">.</span><span class="n">info</span><span class="p">(</span>
+                    <span class="s1">&#39;</span><span class="si">{}</span><span class="s1"> SCP Result: (Failure - 0x</span><span class="si">{:04x}</span><span class="s1">)&#39;</span>
+                    <span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">rsp_name</span><span class="p">[</span><span class="n">rsp_type</span><span class="p">],</span> <span class="n">status</span><span class="o">.</span><span class="n">Status</span><span class="p">)</span>
+                <span class="p">)</span>
+
+            <span class="c1"># Log number of remaining sub-operations - C-GET/C-MOVE only</span>
+            <span class="n">LOGGER</span><span class="o">.</span><span class="n">info</span><span class="p">(</span>
+                <span class="s2">&quot;Sub-Operations Remaining: </span><span class="si">%s</span><span class="s2">, Completed: </span><span class="si">%s</span><span class="s2">, &quot;</span>
+                <span class="s2">&quot;Failed: </span><span class="si">%s</span><span class="s2">, Warning: </span><span class="si">%s</span><span class="s2">&quot;</span><span class="p">,</span>
+                <span class="n">rsp</span><span class="o">.</span><span class="n">NumberOfRemainingSuboperations</span> <span class="ow">or</span> <span class="s1">&#39;0&#39;</span><span class="p">,</span>
+                <span class="n">rsp</span><span class="o">.</span><span class="n">NumberOfCompletedSuboperations</span> <span class="ow">or</span> <span class="s1">&#39;0&#39;</span><span class="p">,</span>
+                <span class="n">rsp</span><span class="o">.</span><span class="n">NumberOfFailedSuboperations</span> <span class="ow">or</span> <span class="s1">&#39;0&#39;</span><span class="p">,</span>
+                <span class="n">rsp</span><span class="o">.</span><span class="n">NumberOfWarningSuboperations</span> <span class="ow">or</span> <span class="s1">&#39;0&#39;</span>
+            <span class="p">)</span>
+
+            <span class="c1"># &#39;Success&#39;, &#39;Warning&#39;, &#39;Failure&#39;, &#39;Cancel&#39; are final yields,</span>
+            <span class="c1">#   &#39;Pending&#39; means more to come</span>
+            <span class="n">identifier</span> <span class="o">=</span> <span class="kc">None</span>
+            <span class="k">if</span> <span class="n">category</span> <span class="ow">in</span> <span class="p">[</span><span class="n">STATUS_PENDING</span><span class="p">]:</span>
+                <span class="n">operation_no</span> <span class="o">+=</span> <span class="mi">1</span>
+                <span class="k">yield</span> <span class="n">status</span><span class="p">,</span> <span class="n">identifier</span>
+                <span class="k">continue</span>
+
+            <span class="k">if</span> <span class="p">(</span><span class="n">rsp</span><span class="o">.</span><span class="n">Identifier</span> <span class="ow">and</span> <span class="n">category</span> <span class="ow">in</span>
+                    <span class="p">[</span><span class="n">STATUS_CANCEL</span><span class="p">,</span> <span class="n">STATUS_WARNING</span><span class="p">,</span> <span class="n">STATUS_FAILURE</span><span class="p">]):</span>
+                <span class="c1"># From Part 4, Annex C.4.3, responses with these</span>
+                <span class="c1">#   statuses should contain an Identifier dataset</span>
+                <span class="c1">#   with a (0008,0058) Failed SOP Instance UID List</span>
+                <span class="c1">#    element however this can&#39;t be assumed</span>
+                <span class="c1"># pylint: disable=broad-except</span>
+                <span class="k">try</span><span class="p">:</span>
+                    <span class="n">identifier</span> <span class="o">=</span> <span class="n">decode</span><span class="p">(</span><span class="n">rsp</span><span class="o">.</span><span class="n">Identifier</span><span class="p">,</span>
+                                        <span class="n">transfer_syntax</span><span class="o">.</span><span class="n">is_implicit_VR</span><span class="p">,</span>
+                                        <span class="n">transfer_syntax</span><span class="o">.</span><span class="n">is_little_endian</span><span class="p">)</span>
+                    <span class="n">LOGGER</span><span class="o">.</span><span class="n">debug</span><span class="p">(</span><span class="s1">&#39;&#39;</span><span class="p">)</span>
+                    <span class="n">LOGGER</span><span class="o">.</span><span class="n">debug</span><span class="p">(</span><span class="s1">&#39;# DICOM Dataset&#39;</span><span class="p">)</span>
+                    <span class="k">for</span> <span class="n">elem</span> <span class="ow">in</span> <span class="n">identifier</span><span class="p">:</span>
+                        <span class="n">LOGGER</span><span class="o">.</span><span class="n">debug</span><span class="p">(</span><span class="n">elem</span><span class="p">)</span>
+                    <span class="n">LOGGER</span><span class="o">.</span><span class="n">debug</span><span class="p">(</span><span class="s1">&#39;&#39;</span><span class="p">)</span>
+                <span class="k">except</span> <span class="ne">Exception</span> <span class="k">as</span> <span class="n">ex</span><span class="p">:</span>
+                    <span class="n">LOGGER</span><span class="o">.</span><span class="n">error</span><span class="p">(</span>
+                        <span class="s2">&quot;Failed to decode the received Identifier dataset&quot;</span>
+                    <span class="p">)</span>
+                    <span class="n">LOGGER</span><span class="o">.</span><span class="n">exception</span><span class="p">(</span><span class="n">ex</span><span class="p">)</span>
+                    <span class="n">identifier</span> <span class="o">=</span> <span class="kc">None</span>
+
+            <span class="c1"># Only reach this point if status is Sucess, Warning, Failure</span>
+            <span class="c1">#   or Cancel</span>
+            <span class="k">yield</span> <span class="n">status</span><span class="p">,</span> <span class="n">identifier</span>
+            <span class="k">break</span>
 
     <span class="c1"># DIMSE-N services provided by the Association</span>
 <div class="viewcode-block" id="Association.send_n_action"><a class="viewcode-back" href="../../reference/generated/pynetdicom.association.Association.html#pynetdicom.association.Association.send_n_action">[docs]</a>    <span class="k">def</span> <span class="nf">send_n_action</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">dataset</span><span class="p">,</span> <span class="n">action_type</span><span class="p">,</span> <span class="n">class_uid</span><span class="p">,</span> <span class="n">instance_uid</span><span class="p">,</span>

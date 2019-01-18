@@ -15,6 +15,7 @@ pynetdicom.service\_class.StorageServiceClass
    
       ~StorageServiceClass.SCP
       ~StorageServiceClass.__init__
+      ~StorageServiceClass.is_cancelled
       ~StorageServiceClass.is_valid_status
       ~StorageServiceClass.validate_status
    

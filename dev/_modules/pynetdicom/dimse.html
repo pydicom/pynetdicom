@@ -8,7 +8,7 @@
   
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   
-  <title>pynetdicom.dimse &mdash; pynetdicom 1.2.0.dev0 documentation</title>
+  <title>pynetdicom.dimse &mdash; pynetdicom 1.2.0b1 documentation</title>
   
 
   
@@ -62,7 +62,7 @@
             
             
               <div class="version">
-                1.2.0.dev0
+                1.2.0b1
               </div>
             
           
@@ -347,6 +347,10 @@
 
 <span class="sd">    Attributes</span>
 <span class="sd">    ----------</span>
+<span class="sd">    cancel_rq : dict</span>
+<span class="sd">        A dict of {MessageIDBeingRespondedTo : C_CANCEL} messages received.</span>
+<span class="sd">        The dict is cleared out at the start and end of Service Class</span>
+<span class="sd">        operations and is limited to a maximum of 10 messages.</span>
 <span class="sd">    dimse_timeout : numeric or None</span>
 <span class="sd">        The number of seconds before the DIMSE service timeout. A value of</span>
 <span class="sd">        ``None`` indicates no timeout.</span>
@@ -356,6 +360,9 @@
 <span class="sd">            The maximum PDU size when sending DIMSE messages.</span>
 <span class="sd">    message : dimse_messages.DIMSEMessage</span>
 <span class="sd">        The DIMSE message.</span>
+<span class="sd">    msg_queue: queue.queue of dimse_messages.DIMSEMessage</span>
+<span class="sd">        A queue holding decoded DIMSE Message primitives received from the</span>
+<span class="sd">        peer, except for C-CANCEL requests.</span>
 
 <span class="sd">    References</span>
 <span class="sd">    ----------</span>
@@ -376,10 +383,8 @@
 <span class="sd">            None indicates no timeout.</span>
 <span class="sd">        maximum_pdu_size : int</span>
 <span class="sd">            The maximum PDU size when sending DIMSE messages, default 16382.</span>
-<span class="sd">        msg_queue: queue.queue of dimse_messages.DIMSEMessage</span>
-<span class="sd">            A queue holding decoded DIMSE Message primitives received from the</span>
-<span class="sd">            peer.</span>
 <span class="sd">        &quot;&quot;&quot;</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">cancel_req</span> <span class="o">=</span> <span class="p">{}</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">dimse_timeout</span> <span class="o">=</span> <span class="n">dimse_timeout</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">dul</span> <span class="o">=</span> <span class="n">dul</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">maximum_pdu_size</span> <span class="o">=</span> <span class="n">maximum_pdu_size</span>
@@ -454,7 +459,14 @@
                 <span class="n">LOGGER</span><span class="o">.</span><span class="n">exception</span><span class="p">(</span><span class="n">exc</span><span class="p">)</span>
                 <span class="bp">self</span><span class="o">.</span><span class="n">dul</span><span class="o">.</span><span class="n">event_queue</span><span class="o">.</span><span class="n">put</span><span class="p">(</span><span class="s1">&#39;Evt19&#39;</span><span class="p">)</span>
                 <span class="k">return</span>
-            <span class="bp">self</span><span class="o">.</span><span class="n">msg_queue</span><span class="o">.</span><span class="n">put</span><span class="p">((</span><span class="n">context_id</span><span class="p">,</span> <span class="n">primitive</span><span class="p">))</span>
+
+            <span class="c1"># Keep C-CANCEL requests separate from other messages</span>
+            <span class="c1"># Only allow up to 10 C-CANCEL requests</span>
+            <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">primitive</span><span class="p">,</span> <span class="n">C_CANCEL</span><span class="p">)</span> <span class="ow">and</span> <span class="nb">len</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">cancel_req</span><span class="p">)</span> <span class="o">&lt;</span> <span class="mi">10</span><span class="p">:</span>
+                <span class="n">msg_id</span> <span class="o">=</span> <span class="n">primitive</span><span class="o">.</span><span class="n">MessageIDBeingRespondedTo</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">cancel_req</span><span class="p">[</span><span class="n">msg_id</span><span class="p">]</span> <span class="o">=</span> <span class="n">primitive</span>
+            <span class="k">else</span><span class="p">:</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">msg_queue</span><span class="o">.</span><span class="n">put</span><span class="p">((</span><span class="n">context_id</span><span class="p">,</span> <span class="n">primitive</span><span class="p">))</span>
 
             <span class="c1"># Fix for memory leak, Issue #41</span>
             <span class="c1">#   Reset the DIMSE message, ready for the next one</span>

@@ -15,6 +15,7 @@ pynetdicom.service\_class.BasicWorklistManagementServiceClass
    
       ~BasicWorklistManagementServiceClass.SCP
       ~BasicWorklistManagementServiceClass.__init__
+      ~BasicWorklistManagementServiceClass.is_cancelled
       ~BasicWorklistManagementServiceClass.is_valid_status
       ~BasicWorklistManagementServiceClass.validate_status
    

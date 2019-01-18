@@ -8,7 +8,7 @@
   
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   
-  <title>1.2.0 &mdash; pynetdicom 1.2.0.dev0 documentation</title>
+  <title>1.2.0 &mdash; pynetdicom 1.2.0b1 documentation</title>
   
 
   
@@ -62,7 +62,7 @@
             
             
               <div class="version">
-                1.2.0.dev0
+                1.2.0b1
               </div>
             
           
@@ -176,9 +176,9 @@
 <div class="section" id="fixes">
 <h2>Fixes<a class="headerlink" href="#fixes" title="Permalink to this headline">¶</a></h2>
 <ul class="simple">
-<li>Fixed <cite>network_timeout</cite> not working when acting as the association requestor
+<li>Fixed <code class="docutils literal notranslate"><span class="pre">network_timeout</span></code> not working when acting as the association requestor
 and an A-ABORT not being sent when the timeout expired. (<a class="reference external" href="https://github.com/pydicom/pynetdicom/issues/286">#286</a>)</li>
-<li>Fixed changing <cite>network_timeout</cite> value not propagating to the actual timer.</li>
+<li>Fixed changing <code class="docutils literal notranslate"><span class="pre">network_timeout</span></code> value not propagating to the actual timer.</li>
 <li>All DIMSE service requests should now properly abort the association if no
 response is received within the DIMSE timeout window and return/yield
 expected values. (<a class="reference external" href="https://github.com/pydicom/pynetdicom/issues/119">#119</a>)</li>
@@ -208,8 +208,8 @@ non-blocking modes.</li>
 <li>Added <code class="docutils literal notranslate"><span class="pre">AE.shutdown()</span></code> which allows the user to shutdown all non-blocking
 association servers that may be running.</li>
 <li>Support for TLS added via the <code class="docutils literal notranslate"><span class="pre">tls_args</span></code> keyword parameter for
-<cite>AE.associate()`</cite> and <code class="docutils literal notranslate"><span class="pre">ssl_context</span></code> keyword parameter for
-<a href="#id2"><span class="problematic" id="id3">``</span></a>AE.start_server()``(<a class="reference external" href="https://github.com/pydicom/pynetdicom/pull/175">#175</a>, <a class="reference external" href="https://github.com/pydicom/pynetdicom/pull/71">#71</a>)</li>
+<code class="docutils literal notranslate"><span class="pre">AE.associate()</span></code> and <code class="docutils literal notranslate"><span class="pre">ssl_context</span></code> keyword parameter for
+<code class="docutils literal notranslate"><span class="pre">AE.start_server()</span></code> (<a class="reference external" href="https://github.com/pydicom/pynetdicom/pull/175">#175</a>, <a class="reference external" href="https://github.com/pydicom/pynetdicom/pull/71">#71</a>)</li>
 <li>It should now be possible to both request a C-MOVE operation and act as the
 destination for the request’s C-STORE sub-operations over a new association
 within the same AE instance by running a non-blocking Storage SCP.
@@ -223,15 +223,24 @@ processing is requested.</li>
 <code class="docutils literal notranslate"><span class="pre">DIMSEServiceProvider.peek_msg()</span></code> and <code class="docutils literal notranslate"><span class="pre">DIMSEServiceProvider.msg_queue</span></code>
 to be used with the new P-DATA processing.</li>
 <li>Time required to start an association improved significantly.</li>
+<li>Implemented C-CANCEL support<ul>
+<li>Added <code class="docutils literal notranslate"><span class="pre">ServiceClass.is_cancelled()</span></code> method to allow
+checking whether a C-CANCEL message corresponding to a message ID value
+has been received.</li>
+<li>Added ‘cancelled’ key to the <code class="docutils literal notranslate"><span class="pre">info</span></code> parameter passed to
+<code class="docutils literal notranslate"><span class="pre">AE.on_c_get()</span></code>, <code class="docutils literal notranslate"><span class="pre">AE.on_c_find()</span></code> and <code class="docutils literal notranslate"><span class="pre">AE.on_c_move()</span></code>. The
+corresponding value is a callable function (<code class="docutils literal notranslate"><span class="pre">is_cancelled()</span></code>) that
+takes a <em>Message ID</em> value and and returns True if a C-CANCEL message with
+a corresponding <em>Message ID Being Responded To</em> value has been received.</li>
+</ul>
+</li>
 </ul>
 </div>
 <div class="section" id="changes">
 <h2>Changes<a class="headerlink" href="#changes" title="Permalink to this headline">¶</a></h2>
 <ul class="simple">
-<li><code class="docutils literal notranslate"><span class="pre">AE.quit()</span></code> removed as per planned deprecation.</li>
-<li><code class="docutils literal notranslate"><span class="pre">DIMSEMessage.ID</span></code> removed as per planned deprecation.</li>
-<li><code class="docutils literal notranslate"><span class="pre">ACSE.is_released()</span></code> removed as per planned deprecation.</li>
-<li><code class="docutils literal notranslate"><span class="pre">ACSE.release_association()</span></code> removed as per planned deprecation.</li>
+<li><code class="docutils literal notranslate"><span class="pre">AE.quit()</span></code>, <code class="docutils literal notranslate"><span class="pre">DIMSEMessage.ID</span></code>, <code class="docutils literal notranslate"><span class="pre">ACSE.is_released()</span></code> and
+<code class="docutils literal notranslate"><span class="pre">ACSE.release_association()</span></code> removed as per planned deprecation.</li>
 <li><code class="docutils literal notranslate"><span class="pre">AE.start()</span></code> is deprecated and will be removed in v1.3, use
 <code class="docutils literal notranslate"><span class="pre">AE.start_server()</span></code> instead.</li>
 <li><code class="docutils literal notranslate"><span class="pre">AE.stop()</span></code> is deprecated and will be removed in v1.3, use
@@ -246,6 +255,7 @@ and will be removed in v1.3. Use the <code class="docutils literal notranslate">
 the <code class="docutils literal notranslate"><span class="pre">address</span></code> parameter for <code class="docutils literal notranslate"><span class="pre">AE.start_server()</span></code> and the <code class="docutils literal notranslate"><span class="pre">bind_address</span></code>
 keyword parameter for <code class="docutils literal notranslate"><span class="pre">AE.associate()</span></code> instead.</li>
 <li>Changed the default DIMSE timeout to 30 s.</li>
+<li>Changed the default number of maximum associations to 10.</li>
 <li>The <code class="docutils literal notranslate"><span class="pre">acse_timeout</span></code> parameter to <code class="docutils literal notranslate"><span class="pre">ACSE()</span></code> and <code class="docutils literal notranslate"><span class="pre">ACSE.acse_timeout</span></code>
 attribute removed, the <code class="docutils literal notranslate"><span class="pre">Association.acse_timeout</span></code> value is used instead.</li>
 <li><code class="docutils literal notranslate"><span class="pre">AE.active_associations</span></code> changed from an attribute to a property and
@@ -253,6 +263,11 @@ returns a list of all the AE’s active Association threads.</li>
 <li><code class="docutils literal notranslate"><span class="pre">AE.associate()</span></code> is now synchronous until association negotiation has
 completed or the connection closed (<a class="reference external" href="https://github.com/pydicom/pynetdicom/issues/108">#108</a>).</li>
 <li>Removed <code class="docutils literal notranslate"><span class="pre">DIMSEServiceProvider.receive_msg()</span></code>.</li>
+<li><code class="docutils literal notranslate"><span class="pre">Association.send_c_cancel_get()</span></code>, <code class="docutils literal notranslate"><span class="pre">send_c_cancel_find()</span></code> and
+<code class="docutils literal notranslate"><span class="pre">send_c_cancel_move()</span></code> are deprecated and will be removed in v1.3. Use
+<code class="docutils literal notranslate"><span class="pre">Association.send_c_cancel()</span></code> instead.</li>
+<li>Removed <code class="docutils literal notranslate"><span class="pre">AE.on_c_get_cancel()</span></code>, <code class="docutils literal notranslate"><span class="pre">AE.on_c_find_cancel()</span></code>,
+<code class="docutils literal notranslate"><span class="pre">AE.on_c_move_cancel()</span></code>.</li>
 </ul>
 </div>
 </div>

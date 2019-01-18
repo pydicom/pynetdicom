@@ -8,7 +8,7 @@
   
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   
-  <title>pynetdicom.ae &mdash; pynetdicom 1.2.0.dev0 documentation</title>
+  <title>pynetdicom.ae &mdash; pynetdicom 1.2.0b1 documentation</title>
   
 
   
@@ -62,7 +62,7 @@
             
             
               <div class="version">
-                1.2.0.dev0
+                1.2.0b1
               </div>
             
           
@@ -245,7 +245,7 @@
 <span class="sd">    maximum_associations : int</span>
 <span class="sd">        The maximum number of simultaneous associations requested by remote</span>
 <span class="sd">        AEs. Note that this does not include the number of associations</span>
-<span class="sd">        requested by the local AE (default 2).</span>
+<span class="sd">        requested by the local AE (default 10).</span>
 <span class="sd">    maximum_pdu_size : int</span>
 <span class="sd">        The maximum PDU receive size in bytes. A value of 0 means there is no</span>
 <span class="sd">        maximum size (default: 16382)</span>
@@ -313,7 +313,7 @@
         <span class="bp">self</span><span class="o">.</span><span class="n">_supported_contexts</span> <span class="o">=</span> <span class="p">{}</span>
 
         <span class="c1"># Default maximum simultaneous associations</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">maximum_associations</span> <span class="o">=</span> <span class="mi">2</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">maximum_associations</span> <span class="o">=</span> <span class="mi">10</span>
 
         <span class="c1"># Default maximum PDU receive size (in bytes)</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">maximum_pdu_size</span> <span class="o">=</span> <span class="n">DEFAULT_MAX_LENGTH</span>
@@ -1499,8 +1499,7 @@
                 <span class="s2">&quot;scu_role/scp_role values (if one is None, both must be):</span><span class="se">\n</span><span class="s2">  &quot;</span>
             <span class="p">)</span>
             <span class="n">msg</span> <span class="o">+=</span> <span class="s1">&#39;</span><span class="se">\n</span><span class="s1">  &#39;</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">bad_contexts</span><span class="p">)</span>
-            <span class="n">LOGGER</span><span class="o">.</span><span class="n">warning</span><span class="p">(</span><span class="n">msg</span><span class="p">)</span>
-            <span class="k">return</span>
+            <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="n">msg</span><span class="p">)</span>
 
         <span class="k">if</span> <span class="n">block</span><span class="p">:</span>
             <span class="n">server</span> <span class="o">=</span> <span class="n">AssociationServer</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">address</span><span class="p">,</span> <span class="n">ssl_context</span><span class="p">)</span>
@@ -2015,6 +2014,13 @@
 <span class="sd">              &#39;sop_class_extended&#39; : {</span>
 <span class="sd">                  SOP Class UID : Service Class Application Information,</span>
 <span class="sd">              }</span>
+<span class="sd">              &#39;cancelled&#39; : callable_function</span>
+
+<span class="sd">            Where *callable_function* is a function that takes a `msg_id`</span>
+<span class="sd">            parameter (as int ) and returns True if a C-CANCEL message has</span>
+<span class="sd">            been received with a *Message ID Being Responded To* value that</span>
+<span class="sd">            corresponds to `msg_id`, False otherwise. For example:</span>
+<span class="sd">            ``is_cancelled = info[&#39;cancelled&#39;](msg_id)``</span>
 
 <span class="sd">        Yields</span>
 <span class="sd">        ------</span>
@@ -2070,18 +2076,6 @@
 <span class="sd">        &quot;&quot;&quot;</span>
         <span class="k">raise</span> <span class="ne">NotImplementedError</span><span class="p">(</span><span class="s2">&quot;User must implement the AE.on_c_find &quot;</span>
                                   <span class="s2">&quot;function prior to calling AE.start()&quot;</span><span class="p">)</span></div>
-
-<div class="viewcode-block" id="ApplicationEntity.on_c_find_cancel"><a class="viewcode-back" href="../../reference/generated/pynetdicom.ae.ApplicationEntity.html#pynetdicom.ae.ApplicationEntity.on_c_find_cancel">[docs]</a>    <span class="k">def</span> <span class="nf">on_c_find_cancel</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
-        <span class="sd">&quot;&quot;&quot;Callback for when a C-FIND-CANCEL request is received.</span>
-
-<span class="sd">        Returns</span>
-<span class="sd">        -------</span>
-<span class="sd">        bool</span>
-<span class="sd">            True if you want to stop the C-FIND operation, False otherwise.</span>
-<span class="sd">        &quot;&quot;&quot;</span>
-        <span class="k">raise</span> <span class="ne">NotImplementedError</span><span class="p">(</span><span class="s2">&quot;User must implement the &quot;</span>
-                                  <span class="s2">&quot;AE.on_c_find_cancel function prior to &quot;</span>
-                                  <span class="s2">&quot;calling AE.start()&quot;</span><span class="p">)</span></div>
 
 <div class="viewcode-block" id="ApplicationEntity.on_c_get"><a class="viewcode-back" href="../../reference/generated/pynetdicom.ae.ApplicationEntity.html#pynetdicom.ae.ApplicationEntity.on_c_get">[docs]</a>    <span class="k">def</span> <span class="nf">on_c_get</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">dataset</span><span class="p">,</span> <span class="n">context</span><span class="p">,</span> <span class="n">info</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;Callback for when a C-GET request is received.</span>
@@ -2162,6 +2156,13 @@
 <span class="sd">              &#39;sop_class_extended&#39; : {</span>
 <span class="sd">                  SOP Class UID : Service Class Application Information,</span>
 <span class="sd">              }</span>
+<span class="sd">              &#39;cancelled&#39; : callable_function</span>
+
+<span class="sd">            Where *callable_function* is a function that takes a `msg_id`</span>
+<span class="sd">            parameter (as int ) and returns True if a C-CANCEL message has</span>
+<span class="sd">            been received with a *Message ID Being Responded To* value that</span>
+<span class="sd">            corresponds to `msg_id`, False otherwise. For example:</span>
+<span class="sd">            ``is_cancelled = info[&#39;cancelled&#39;](msg_id)``</span>
 
 <span class="sd">        Yields</span>
 <span class="sd">        ------</span>
@@ -2218,12 +2219,6 @@
 <span class="sd">        &quot;&quot;&quot;</span>
         <span class="k">raise</span> <span class="ne">NotImplementedError</span><span class="p">(</span><span class="s2">&quot;User must implement the AE.on_c_get &quot;</span>
                                   <span class="s2">&quot;function prior to calling AE.start()&quot;</span><span class="p">)</span></div>
-
-<div class="viewcode-block" id="ApplicationEntity.on_c_get_cancel"><a class="viewcode-back" href="../../reference/generated/pynetdicom.ae.ApplicationEntity.html#pynetdicom.ae.ApplicationEntity.on_c_get_cancel">[docs]</a>    <span class="k">def</span> <span class="nf">on_c_get_cancel</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
-        <span class="sd">&quot;&quot;&quot;Callback for when a C-GET-CANCEL request is received.&quot;&quot;&quot;</span>
-        <span class="k">raise</span> <span class="ne">NotImplementedError</span><span class="p">(</span><span class="s2">&quot;User must implement the &quot;</span>
-                                  <span class="s2">&quot;AE.on_c_get_cancel function prior to &quot;</span>
-                                  <span class="s2">&quot;calling AE.start()&quot;</span><span class="p">)</span></div>
 
 <div class="viewcode-block" id="ApplicationEntity.on_c_move"><a class="viewcode-back" href="../../reference/generated/pynetdicom.ae.ApplicationEntity.html#pynetdicom.ae.ApplicationEntity.on_c_move">[docs]</a>    <span class="k">def</span> <span class="nf">on_c_move</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">dataset</span><span class="p">,</span> <span class="n">move_aet</span><span class="p">,</span> <span class="n">context</span><span class="p">,</span> <span class="n">info</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;Callback for when a C-MOVE request is received.</span>
@@ -2314,6 +2309,13 @@
 <span class="sd">              &#39;sop_class_extended&#39; : {</span>
 <span class="sd">                  SOP Class UID : Service Class Application Information,</span>
 <span class="sd">              }</span>
+<span class="sd">              &#39;cancelled&#39; : callable_function</span>
+
+<span class="sd">            Where *callable_function* is a function that takes a `msg_id`</span>
+<span class="sd">            parameter (as int) and returns True if a C-CANCEL message has</span>
+<span class="sd">            been received with a *Message ID Being Responded To* value that</span>
+<span class="sd">            corresponds to `msg_id`, False otherwise. For example:</span>
+<span class="sd">            ``is_cancelled = info[&#39;cancelled&#39;](msg_id)``</span>
 
 <span class="sd">        Yields</span>
 <span class="sd">        ------</span>
@@ -2375,12 +2377,6 @@
 <span class="sd">        &quot;&quot;&quot;</span>
         <span class="k">raise</span> <span class="ne">NotImplementedError</span><span class="p">(</span><span class="s2">&quot;User must implement the AE.on_c_move &quot;</span>
                                   <span class="s2">&quot;function prior to calling AE.start()&quot;</span><span class="p">)</span></div>
-
-<div class="viewcode-block" id="ApplicationEntity.on_c_move_cancel"><a class="viewcode-back" href="../../reference/generated/pynetdicom.ae.ApplicationEntity.html#pynetdicom.ae.ApplicationEntity.on_c_move_cancel">[docs]</a>    <span class="k">def</span> <span class="nf">on_c_move_cancel</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
-        <span class="sd">&quot;&quot;&quot;Callback for when a C-MOVE-CANCEL request is received.&quot;&quot;&quot;</span>
-        <span class="k">raise</span> <span class="ne">NotImplementedError</span><span class="p">(</span><span class="s2">&quot;User must implement the &quot;</span>
-                                  <span class="s2">&quot;AE.on_c_move_cancel function prior to &quot;</span>
-                                  <span class="s2">&quot;calling AE.start()&quot;</span><span class="p">)</span></div>
 
 <div class="viewcode-block" id="ApplicationEntity.on_c_store"><a class="viewcode-back" href="../../reference/generated/pynetdicom.ae.ApplicationEntity.html#pynetdicom.ae.ApplicationEntity.on_c_store">[docs]</a>    <span class="k">def</span> <span class="nf">on_c_store</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">dataset</span><span class="p">,</span> <span class="n">context</span><span class="p">,</span> <span class="n">info</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;Callback for when a C-STORE request is received.</span>
