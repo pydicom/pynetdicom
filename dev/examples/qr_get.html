@@ -251,6 +251,7 @@ which requires adding the File Meta Information.</p>
 <span class="n">role</span> <span class="o">=</span> <span class="n">SCP_SCU_RoleSelectionNegotiation</span><span class="p">()</span>
 <span class="n">role</span><span class="o">.</span><span class="n">sop_class_uid</span> <span class="o">=</span> <span class="n">CTImageStorage</span>
 <span class="c1"># We will be acting as an SCP for CT Image Storage</span>
+<span class="n">role</span><span class="o">.</span><span class="n">scu_role</span> <span class="o">=</span> <span class="bp">False</span>
 <span class="n">role</span><span class="o">.</span><span class="n">scp_role</span> <span class="o">=</span> <span class="bp">True</span>
 
 <span class="c1"># Extended negotiation items</span>
@@ -366,7 +367,7 @@ query against that.</p>
 
 <span class="c1"># Accept the association requestor&#39;s proposed SCP role in the</span>
 <span class="c1">#   SCP/SCU Role Selection Negotiation items</span>
-<span class="k">for</span> <span class="n">cx</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">supported_contexts</span><span class="p">:</span>
+<span class="k">for</span> <span class="n">cx</span> <span class="ow">in</span> <span class="n">ae</span><span class="o">.</span><span class="n">supported_contexts</span><span class="p">:</span>
     <span class="n">cx</span><span class="o">.</span><span class="n">scp_role</span> <span class="o">=</span> <span class="bp">True</span>
     <span class="n">cx</span><span class="o">.</span><span class="n">scu_role</span> <span class="o">=</span> <span class="bp">False</span>
 
@@ -374,7 +375,7 @@ query against that.</p>
 <span class="n">ae</span><span class="o">.</span><span class="n">add_supported_context</span><span class="p">(</span><span class="n">PatientRootQueryRetrieveInformationModelGet</span><span class="p">)</span>
 
 <span class="c1"># Implement the AE.on_c_get callback</span>
-<span class="k">def</span> <span class="nf">on_c_get</span><span class="p">(</span><span class="n">dataset</span><span class="p">,</span> <span class="n">context</span><span class="p">,</span> <span class="n">info</span><span class="p">):</span>
+<span class="k">def</span> <span class="nf">on_c_get</span><span class="p">(</span><span class="n">ds</span><span class="p">,</span> <span class="n">context</span><span class="p">,</span> <span class="n">info</span><span class="p">):</span>
     <span class="sd">&quot;&quot;&quot;Respond to a C-GET request Identifier `ds`.</span>
 
 <span class="sd">    Parameters</span>
@@ -420,6 +421,7 @@ query against that.</p>
 
     <span class="c1"># Import stored SOP Instances</span>
     <span class="n">instances</span> <span class="o">=</span> <span class="p">[]</span>
+    <span class="n">matching</span> <span class="o">=</span> <span class="p">[]</span>
     <span class="n">fdir</span> <span class="o">=</span> <span class="s1">&#39;/path/to/directory&#39;</span>
     <span class="k">for</span> <span class="n">fpath</span> <span class="ow">in</span> <span class="n">os</span><span class="o">.</span><span class="n">listdir</span><span class="p">(</span><span class="n">fdir</span><span class="p">):</span>
         <span class="n">instances</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">dcmread</span><span class="p">(</span><span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">fdir</span><span class="p">,</span> <span class="n">fpath</span><span class="p">)))</span>
