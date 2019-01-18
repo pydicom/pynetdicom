@@ -13,6 +13,8 @@ Fixes
   expected values. (:issue:`119`)
 * Any outgoing primitives are now sent to the peer before incoming PDUs are
   processed (:issue:`120`)
+* Fixed not setting requestor presentation context roles to False when only
+  one role is specified during Role Selection negotiation. (:issue:`293`)
 
 
 Enhancements
@@ -61,6 +63,7 @@ Enhancements
     corresponding value is a callable function (``is_cancelled()``) that
     takes a *Message ID* value and and returns True if a C-CANCEL message with
     a corresponding *Message ID Being Responded To* value has been received.
+* Added thread names ('threadtype@timestamp').
 
 
 Changes

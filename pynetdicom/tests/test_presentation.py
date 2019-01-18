@@ -7,7 +7,8 @@ import pytest
 from pydicom._uid_dict import UID_dictionary
 from pydicom.uid import UID
 
-from pynetdicom import StoragePresentationContexts
+from pynetdicom import StoragePresentationContexts, AE
+from pynetdicom.pdu_primitives import SCP_SCU_RoleSelectionNegotiation
 from pynetdicom.presentation import (
     PresentationContext,
     negotiate_as_acceptor,
@@ -1148,6 +1149,46 @@ class TestNegotiateAsRequestorWithRoleSelection(object):
         assert len(out_03) == 8
         assert len(out_04) == 8
         assert len(out_na) == 0
+
+    def test_one_role_only_scu(self):
+        """Test only specifying scu_role in the role selection."""
+        ae = AE()
+        ae.add_supported_context('1.2.840.10008.1.1', scu_role=True, scp_role=True)
+        ae.add_requested_context('1.2.840.10008.1.1')
+        scp = ae.start_server(('', 11112), block=False)
+
+        role = SCP_SCU_RoleSelectionNegotiation()
+        role.sop_class_uid = '1.2.840.10008.1.1'
+        role.scu_role = True
+
+        assoc = ae.associate('localhost', 11112, ext_neg=[role])
+        assert assoc.is_established
+        cx = assoc.accepted_contexts[0]
+        assert cx.as_scu is True
+        assert cx.as_scp is False
+        assoc.release()
+
+        scp.shutdown()
+
+    def test_one_role_only_scp(self):
+        """Test only specifying scp_role in the role selection."""
+        ae = AE()
+        ae.add_supported_context('1.2.840.10008.1.1', scu_role=True, scp_role=True)
+        ae.add_requested_context('1.2.840.10008.1.1')
+        scp = ae.start_server(('', 11112), block=False)
+
+        role = SCP_SCU_RoleSelectionNegotiation()
+        role.sop_class_uid = '1.2.840.10008.1.1'
+        role.scp_role = True
+
+        assoc = ae.associate('localhost', 11112, ext_neg=[role])
+        assert assoc.is_established
+        cx = assoc.accepted_contexts[0]
+        assert cx.as_scu is False
+        assert cx.as_scp is True
+        assoc.release()
+
+        scp.shutdown()
 
 
 
