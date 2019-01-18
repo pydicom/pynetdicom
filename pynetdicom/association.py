@@ -1706,9 +1706,6 @@ class Association(threading.Thread):
                 self.abort()
             return Dataset()
 
-        if not isinstance(rsp, C_STORE):
-            pass
-
         # Determine validity of the response and get the status
         status = self._check_received_status(rsp)
 
