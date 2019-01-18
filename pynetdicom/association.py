@@ -502,11 +502,6 @@ class Association(threading.Thread):
                 elif getattr(msg, 'RequestedSOPClassUID', None) is not None:
                     # N-GET, N-SET, N-ACTION, N-DELETE use RequestedSOPClassUID
                     class_uid = msg.RequestedSOPClassUID
-                else:
-                    # Received a C-CANCEL request outside of service
-                    #   operation, ignore it
-                    LOGGER.info("Received late C-CANCEL request, ignoring")
-                    continue
 
                 # SOP Class Common Extended Negotiation
                 try:
@@ -533,7 +528,11 @@ class Association(threading.Thread):
 
                 # Run corresponding Service Class in SCP mode
                 try:
+                    # Clear out any C-CANCEL requests received beforehand
+                    self.dimse.cancel_req = {}
                     service_class.SCP(msg, context, info)
+                    # Clear out any unacted upon requests received during
+                    self.dimse.cancel_req = {}
                 except NotImplementedError:
                     # SCP isn't implemented
                     LOGGER.warning(
@@ -1707,6 +1706,9 @@ class Association(threading.Thread):
                 self.abort()
             return Dataset()
 
+        if not isinstance(rsp, C_STORE):
+            pass
+
         # Determine validity of the response and get the status
         status = self._check_received_status(rsp)
 
@@ -1719,7 +1721,7 @@ class Association(threading.Thread):
         service request on calling the ``send_c_find()`` function. This is
         important when it comes to reliably sending C-CANCEL requests
         because otherwise the C-CANCEL may end up being sent prior to the
-        C-GET/MOVE request.
+        C-FIND request.
 
         Parameters
         ----------
@@ -1744,16 +1746,15 @@ class Association(threading.Thread):
                 yield Dataset(), None
                 return
 
-            # TODO: Unit test
             if not isinstance(rsp, C_FIND):
                 LOGGER.error(
-                    'Received an unexpected DIMSE C-FIND message from the peer'
+                    'Received an unexpected {} message from the peer'
+                    .format(rsp.__class__.__name__.replace('_', '-'))
                 )
                 self.abort()
                 yield Dataset(), None
                 return
 
-            # TODO: Unit test
             if not rsp.is_valid_response:
                 LOGGER.error(
                     'Received an invalid C-FIND response from the peer'
@@ -1857,7 +1858,6 @@ class Association(threading.Thread):
                 yield Dataset(), None
                 return
 
-            # TODO: Unit test
             if not isinstance(rsp, (C_STORE, C_GET, C_MOVE)):
                 LOGGER.error(
                     'Received an unexpected {} message from the peer'
@@ -1873,7 +1873,6 @@ class Association(threading.Thread):
                 self._c_store_scp(rsp)
                 continue
 
-            # TODO: Unit test
             if not rsp.is_valid_response:
                 LOGGER.error(
                     'Received an invalid {} response from the peer'
@@ -1902,7 +1901,7 @@ class Association(threading.Thread):
             if category == STATUS_PENDING:
                 LOGGER.info(
                     "{} SCP Response: {} (Pending)"
-                    .format(rsp_name[rsp_type], operation_no)
+                    .format(rsp_name[rsp_type], operation_no + 1)
                 )
             elif category in [STATUS_SUCCESS, STATUS_CANCEL, STATUS_WARNING]:
                 LOGGER.info(

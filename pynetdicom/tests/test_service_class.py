@@ -26,6 +26,7 @@ class DummyDIMSE(object):
     def __init__(self):
         self.msg_queue = queue.Queue()
         self.dimse_timeout = 0.5
+        self.cancel_req = {}
 
     def get_msg(self, block=True):
         try:
@@ -122,24 +123,13 @@ class TestServiceClass(object):
         assert service.is_cancelled(1) is False
         assert service.is_cancelled(2) is False
 
-    def test_is_cancelled_not_cancel(self):
-        """Test is_cancelled with non-Cancel message in the queue."""
-        assoc = DummyAssoc()
-        assoc.dimse.msg_queue.put((1, C_GET()))
-        assoc.dimse.msg_queue.put((2, C_CANCEL()))
-        assoc.dimse.msg_queue.put((3, C_MOVE()))
-        service = ServiceClass(assoc)
-        assert service.is_cancelled(1) is False
-        assert service.is_cancelled(2) is False
-
     def test_is_cancelled_no_match(self):
         """Test is_cancelled with no matching C-CANCEL."""
         assoc = DummyAssoc()
         cancel = C_CANCEL()
         cancel.MessageIDBeingRespondedTo = 5
-        assoc.dimse.msg_queue.put((1, cancel))
-        assoc.dimse.msg_queue.put((2, C_CANCEL()))
-        assoc.dimse.msg_queue.put((3, C_MOVE()))
+        assoc.dimse.cancel_req[5] = cancel
+        assoc.dimse.cancel_req[3] = cancel
         service = ServiceClass(assoc)
         assert service.is_cancelled(1) is False
         assert service.is_cancelled(2) is False
@@ -149,17 +139,14 @@ class TestServiceClass(object):
         assoc = DummyAssoc()
         cancel = C_CANCEL()
         cancel.MessageIDBeingRespondedTo = 5
-        cancel2 = C_CANCEL()
-        cancel2.MessageIDBeingRespondedTo = 1
-        move = C_MOVE()
-        assoc.dimse.msg_queue.put((1, cancel))
-        assoc.dimse.msg_queue.put((2, cancel2))
-        assoc.dimse.msg_queue.put((3, move))
+        assoc.dimse.cancel_req[4] = C_GET()
+        assoc.dimse.cancel_req[3] = cancel
         service = ServiceClass(assoc)
         assert service.is_cancelled(1) is False
         assert service.is_cancelled(2) is False
-        assert service.is_cancelled(5) is True
-        assert service.is_cancelled(5) is False
-        assert assoc.dimse.get_msg(block=False) == (2, cancel2)
-        assert assoc.dimse.get_msg(block=False) == (3, move)
-        assert assoc.dimse.get_msg(block=False) == (None, None)
+        assert service.is_cancelled(3) is True
+        service = ServiceClass(assoc)
+        assert service.is_cancelled(1) is False
+        assert service.is_cancelled(2) is False
+        assert service.is_cancelled(3) is False
+        assert cancel not in assoc.dimse.cancel_req.values()

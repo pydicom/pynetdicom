@@ -71,12 +71,9 @@ class ServiceClass(object):
             True if a C-CANCEL message has been received with a *Message ID
             Being Responded To* corresponding to `msg_id`, False otherwise.
         """
-        cx_id, msg = self.dimse.peek_msg()
-        if isinstance(msg, C_CANCEL):
-            if msg.MessageIDBeingRespondedTo == msg_id:
-                # Take the message off the queue
-                cx_id, msg = self.dimse.get_msg(block=False)
-                return True
+        if msg_id in self.dimse.cancel_req.keys():
+            del self.dimse.cancel_req[msg_id]
+            return True
 
         return False
 
@@ -1040,6 +1037,7 @@ class QueryRetrieveServiceClass(ServiceClass):
                 except Exception as ex:
                     # An exception implies a C-STORE failure
                     LOGGER.warning("C-STORE sub-operation failed.")
+                    LOGGER.exception(ex)
                     store_status = [STATUS_FAILURE, 'Unknown']
 
                 LOGGER.info('Get SCP: Received Store SCU response (%s)',
@@ -1444,7 +1442,7 @@ class QueryRetrieveServiceClass(ServiceClass):
                         self.dimse.send_msg(rsp, context.context_id)
                         continue
 
-                    LOGGER.info('Move SCP Response %s (Pending)', ii)
+                    LOGGER.info('Move SCP Response %s (Pending)', ii + 1)
 
                     # Send `dataset` via C-STORE sub-operations over the
                     #   association and check that the response's Status exists

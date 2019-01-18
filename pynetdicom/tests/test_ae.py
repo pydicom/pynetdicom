@@ -90,14 +90,13 @@ class TestAEVerificationSCP(object):
         with pytest.raises(ValueError, match=r"No supported Presentation"):
             ae.start_server(('', 11112))
 
-    @pytest.mark.skipif(sys.version_info[:2] == (3, 4), reason='no caplog')
-    def test_bad_supported_role(self, caplog):
-        """Test starting with a badly defined role selection raises"""
+    def test_new_scu_scp_warning(self, caplog):
+        """Test that a warning is given if scu_role and scp_role bad."""
         ae = AE()
-        ae.add_supported_context('1.2.840.10008.1.1', scp_role=True)
-        with caplog.at_level(logging.WARNING, logger='pynetdicom'):
-            ae.start_server(('', 11112))
-            assert "inconsistent scu_role/scp_role" in caplog.text
+        ae.add_supported_context('1.2.3.4', scp_role=False)
+        msg = r"The following presentation contexts have "
+        with pytest.raises(ValueError, match=msg):
+            scp = ae.start_server(('', 11112))
 
     @pytest.mark.skipif(sys.version_info[:2] == (3, 4), reason='no caplog')
     def test_bad_supported_role_old(self, caplog):
@@ -113,21 +112,6 @@ class TestAEVerificationSCP(object):
         """Test str output for default AE"""
         ae = AE(port=11112)
         ae.__str__()
-
-    @pytest.mark.skipif(sys.version_info[:2] == (3, 4),
-                        reason='pytest missing caplog')
-    def test_scu_scp_warning(self, caplog):
-        """Test that a warning is given if scu_role and scp_role bad."""
-        with caplog.at_level(logging.WARNING, logger='pynetdicom'):
-            self.scp = DummyVerificationSCP()
-            self.scp.ae.add_supported_context('1.2.3', scp_role=False)
-            self.scp.start()
-
-            # Give the SCP time to start
-            time.sleep(0.1)
-            assert "The following presentation contexts have " in caplog.text
-
-            self.scp.stop()
 
 
 class TestAEPresentationSCU(object):

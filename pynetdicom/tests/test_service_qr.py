@@ -515,23 +515,25 @@ class TestQRFindServiceClass(object):
 
         self.scp.stop()
 
-    @pytest.mark.skip()
-    def test_scp_callback_cancelled(self):
+    def test_scp_cancelled(self):
         """Test is_cancelled works as expected."""
         cancel_results = []
 
         def on_c_find(ds, cx, info):
+            ds = Dataset()
+            ds.PatientID = '123456'
             msg_id = info['parameters']['message_id']
-            cancel_results.append(info['callable'](msg_id))
-            yield 0xFF00, Dataset()
+            cancel_results.append(info['cancelled'](msg_id))
+            yield 0xFF00, ds
             time.sleep(0.5)
-            cancel_results.append(info['callable'](1))
-            cancel_results.append(info['callable'](msg_id))
+            cancel_results.append(info['cancelled'](1))
+            cancel_results.append(info['cancelled'](msg_id))
+            cancel_results.append(info['cancelled'](12))
             yield 0xFE00, None
 
         ae = AE()
-        ae.add_supported_context()
-        ae.add_requested_context()
+        ae.add_supported_context(PatientRootQueryRetrieveInformationModelFind)
+        ae.add_requested_context(PatientRootQueryRetrieveInformationModelFind)
         ae.on_c_find = on_c_find
         scp = ae.start_server(('', 11112), block=False)
 
@@ -539,23 +541,28 @@ class TestQRFindServiceClass(object):
         assert assoc.is_established
 
         identifier = Dataset()
-        #identifier.SOPClassUID =
+        identifier.PatientID = '*'
         results = assoc.send_c_find(identifier, msg_id=11142, query_model='P')
+        time.sleep(0.2)
         assoc.send_c_cancel(11142, 1)
+        assoc.send_c_cancel(1, 3)
 
         status, ds = next(results)
+        assert status.Status == 0xFF00
+        assert ds.PatientID == '123456'
         status, ds = next(results)
+        assert status.Status == 0xFE00  # Cancelled
+        assert ds is None
 
-        #with pytest.
+        with pytest.raises(StopIteration):
+            next(results)
 
         assoc.release()
+        assert assoc.is_released
+
+        assert cancel_results == [False, True, True, False]
 
         scp.shutdown()
-
-    @pytest.mark.skip()
-    def test_scp_cancelled(self):
-        """Test cancelling a C-FIND request."""
-        pass
 
 
 class TestQRGetServiceClass(object):
@@ -1704,6 +1711,73 @@ class TestQRGetServiceClass(object):
         assoc.release()
         self.scp.stop()
 
+    def test_scp_cancelled(self):
+        """Test is_cancelled works as expected."""
+        cancel_results = []
+
+        def on_c_get(ds, cx, info):
+            ds = Dataset()
+            ds.SOPClassUID = CTImageStorage
+            ds.SOPInstanceUID = '1.2.3.4'
+            ds.file_meta = Dataset()
+            ds.file_meta.TransferSyntaxUID = ImplicitVRLittleEndian
+            yield 2
+            msg_id = info['parameters']['message_id']
+            cancel_results.append(info['cancelled'](msg_id))
+            yield 0xFF00, ds
+            time.sleep(0.5)
+            cancel_results.append(info['cancelled'](1))
+            cancel_results.append(info['cancelled'](msg_id))
+            cancel_results.append(info['cancelled'](12))
+            yield 0xFE00, None
+
+        def on_c_store(ds, cx, info):
+            return 0x0000
+
+        ae = AE()
+        ae.add_supported_context(PatientRootQueryRetrieveInformationModelGet)
+        ae.add_supported_context(CTImageStorage, scu_role=True, scp_role=True)
+        ae.add_requested_context(PatientRootQueryRetrieveInformationModelGet)
+        ae.add_requested_context(CTImageStorage)
+        ae.on_c_get = on_c_get
+        ae.on_c_store = on_c_store
+        scp = ae.start_server(('', 11112), block=False)
+
+        role = SCP_SCU_RoleSelectionNegotiation()
+        role.sop_class_uid = CTImageStorage
+        role.scu_role = True
+        role.scp_role = True
+        assoc = ae.associate('localhost', 11112, ext_neg=[role])
+        assert assoc.is_established
+
+        identifier = Dataset()
+        identifier.PatientID = '*'
+        results = assoc.send_c_get(identifier, msg_id=11142, query_model='P')
+        time.sleep(0.2)
+        assoc.send_c_cancel(11142, 1)
+        assoc.send_c_cancel(1, 3)
+
+        status, ds = next(results)
+        assert status.Status == 0xFF00
+        assert ds is None
+        status, ds = next(results)
+        assert status.Status == 0xFE00  # Cancelled
+        assert status.NumberOfFailedSuboperations == 0
+        assert status.NumberOfCompletedSuboperations == 1
+        assert status.NumberOfRemainingSuboperations == 1
+        assert status.NumberOfWarningSuboperations == 0
+        assert ds.FailedSOPInstanceUIDList == ''
+
+        with pytest.raises(StopIteration):
+            next(results)
+
+        assoc.release()
+        assert assoc.is_released
+
+        assert cancel_results == [False, True, True, False]
+
+        scp.shutdown()
+
 
 class TestQRMoveServiceClass(object):
     def setup(self):
@@ -2722,6 +2796,78 @@ class TestQRMoveServiceClass(object):
         assert self.scp.move_aet == b'TESTMOVE        '
 
         self.scp.stop()
+
+    def test_scp_cancelled(self):
+        """Test is_cancelled works as expected."""
+        cancel_results = []
+
+        def on_c_move(ds, move_aet, cx, info):
+            ds = Dataset()
+            ds.SOPClassUID = CTImageStorage
+            ds.SOPInstanceUID = '1.2.3.4'
+            ds.file_meta = Dataset()
+            ds.file_meta.TransferSyntaxUID = ImplicitVRLittleEndian
+            yield ('localhost', 11113)
+            yield 2
+            msg_id = info['parameters']['message_id']
+            cancel_results.append(info['cancelled'](msg_id))
+            yield 0xFF00, ds
+            time.sleep(0.5)
+            cancel_results.append(info['cancelled'](1))
+            cancel_results.append(info['cancelled'](msg_id))
+            cancel_results.append(info['cancelled'](12))
+            yield 0xFE00, None
+
+        def on_c_store(ds, cx, info):
+            return 0x0000
+
+        ae = AE()
+        ae.add_supported_context(PatientRootQueryRetrieveInformationModelMove)
+        ae.add_supported_context(CTImageStorage, scu_role=True, scp_role=True)
+        ae.add_requested_context(PatientRootQueryRetrieveInformationModelMove)
+        ae.add_requested_context(CTImageStorage)
+        ae.on_c_move = on_c_move
+        ae.on_c_store = on_c_store
+        move_scp = ae.start_server(('', 11112), block=False)
+        store_scp = ae.start_server(('', 11113), block=False)
+
+        role = SCP_SCU_RoleSelectionNegotiation()
+        role.sop_class_uid = CTImageStorage
+        role.scu_role = True
+        role.scp_role = True
+        assoc = ae.associate('localhost', 11112, ext_neg=[role])
+        assert assoc.is_established
+
+        identifier = Dataset()
+        identifier.PatientID = '*'
+        results = assoc.send_c_move(identifier, move_aet=b'A',
+                                    msg_id=11142, query_model='P')
+        time.sleep(0.2)
+        assoc.send_c_cancel(11142, 1)
+        assoc.send_c_cancel(1, 3)
+
+        status, ds = next(results)
+        assert status.Status == 0xFF00
+        assert ds is None
+        status, ds = next(results)
+        assert status.Status == 0xFE00  # Cancelled
+        assert status.NumberOfFailedSuboperations == 0
+        assert status.NumberOfCompletedSuboperations == 1
+        assert status.NumberOfRemainingSuboperations == 1
+        assert status.NumberOfWarningSuboperations == 0
+        assert ds.FailedSOPInstanceUIDList == ''
+
+        with pytest.raises(StopIteration):
+            next(results)
+
+        assoc.release()
+        assert assoc.is_released
+
+        assert cancel_results == [False, True, True, False]
+
+        move_scp.shutdown()
+        store_scp.shutdown()
+
 
 
 class TestQRCompositeInstanceWithoutBulk(object):

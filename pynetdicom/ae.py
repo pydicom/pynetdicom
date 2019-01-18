@@ -1327,8 +1327,7 @@ class ApplicationEntity(object):
                 "scu_role/scp_role values (if one is None, both must be):\n  "
             )
             msg += '\n  '.join(bad_contexts)
-            LOGGER.warning(msg)
-            return
+            raise ValueError(msg)
 
         if block:
             server = AssociationServer(self, address, ssl_context)

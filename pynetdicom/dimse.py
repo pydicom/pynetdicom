@@ -175,6 +175,10 @@ class DIMSEServiceProvider(object):
 
     Attributes
     ----------
+    cancel_rq : dict
+        A dict of {MessageIDBeingRespondedTo : C_CANCEL} messages received.
+        The dict is cleared out at the start and end of Service Class
+        operations and is limited to a maximum of 10 messages.
     dimse_timeout : numeric or None
         The number of seconds before the DIMSE service timeout. A value of
         ``None`` indicates no timeout.
@@ -184,6 +188,9 @@ class DIMSEServiceProvider(object):
             The maximum PDU size when sending DIMSE messages.
     message : dimse_messages.DIMSEMessage
         The DIMSE message.
+    msg_queue: queue.queue of dimse_messages.DIMSEMessage
+        A queue holding decoded DIMSE Message primitives received from the
+        peer, except for C-CANCEL requests.
 
     References
     ----------
@@ -204,10 +211,8 @@ class DIMSEServiceProvider(object):
             None indicates no timeout.
         maximum_pdu_size : int
             The maximum PDU size when sending DIMSE messages, default 16382.
-        msg_queue: queue.queue of dimse_messages.DIMSEMessage
-            A queue holding decoded DIMSE Message primitives received from the
-            peer.
         """
+        self.cancel_req = {}
         self.dimse_timeout = dimse_timeout
         self.dul = dul
         self.maximum_pdu_size = maximum_pdu_size
@@ -282,7 +287,14 @@ class DIMSEServiceProvider(object):
                 LOGGER.exception(exc)
                 self.dul.event_queue.put('Evt19')
                 return
-            self.msg_queue.put((context_id, primitive))
+
+            # Keep C-CANCEL requests separate from other messages
+            # Only allow up to 10 C-CANCEL requests
+            if isinstance(primitive, C_CANCEL) and len(self.cancel_req) < 10:
+                msg_id = primitive.MessageIDBeingRespondedTo
+                self.cancel_req[msg_id] = primitive
+            else:
+                self.msg_queue.put((context_id, primitive))
 
             # Fix for memory leak, Issue #41
             #   Reset the DIMSE message, ready for the next one
