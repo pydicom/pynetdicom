@@ -15,3 +15,14 @@
 #   from pynetdicom import _config
 #   _config.DECODE_STORE_DATASETS = [True|False]
 DECODE_STORE_DATASETS = True
+
+
+# Default (non-user) event logging
+#   * If 'none' then events will not be logged at all, however there will still
+#     be some logging (warnings, errors, etc)
+#   * If 'standard' then certain events will be logged (association
+#     negotiation, DIMSE messaging, etc)
+# Usage:
+#   from pynetdicom import _config
+#   _config.LOG_EVENT_LEVEL = ['none'|'standard']
+LOG_EVENT_LEVEL = 'standard'

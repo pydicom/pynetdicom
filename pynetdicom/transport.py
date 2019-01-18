@@ -51,7 +51,7 @@ class AssociationSocket(object):
         client_socket : socket.socket, optional
             The socket to wrap, if not supplied then a new socket will be
             created instead.
-        address : 2-tuple
+        address : 2-tuple, optional
             If `client_socket` is None then this is the (host, port) to bind
             the newly created socket to, which by default will be ('', 0).
         """
@@ -158,14 +158,14 @@ class AssociationSocket(object):
 
         Parameters
         ----------
-        address : 2-tuple
+        address : 2-tuple, optional
             The (host, port) to bind the socket to. By default the socket
             is bound to ('', 0), i.e. the first available port.
 
         Returns
         -------
         socket.socket
-            An unbound and unconnected socket instance.
+            A bound and unconnected socket instance.
         """
         # AF_INET: IPv4, SOCK_STREAM: TCP socket
         sock = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
@@ -269,7 +269,7 @@ class AssociationSocket(object):
         return bytestream
 
     def send(self, bytestream):
-        """Try and send `bystream` to the remote.
+        """Try and send the data in `bytestream` to the remote.
 
         *Events Emitted*
 
@@ -302,10 +302,10 @@ class RequestHandler(BaseRequestHandler):
 
     Attributes
     ----------
-    request : socket.socket
-        The (unaccepted) client socket.
     client_address : 2-tuple
         The (host, port) of the remote.
+    request : socket.socket
+        The (unaccepted) client socket.
     server : transport.AssociationServer or transport.ThreadedAssociationServer
         The server that received the connection request.
     """
@@ -378,13 +378,13 @@ class AssociationServer(TCPServer):
     ----------
     ae : ae.ApplicationEntity
         The parent AE that is running the server.
+    request_queue_size : int
+        Default 5.
     server_address : 2-tuple
         The (host, port) that the server is running on.
     ssl_context : ssl.SSLContext or None
         The SSLContext used to wrap client sockets, or None if no TLS is
         required.
-    request_queue_size : int
-        Default 5.
     """
     def __init__(self, ae, address, ssl_context=None):
         """Create a new AssociationServer, bind a socket and start listening.

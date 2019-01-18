@@ -8449,18 +8449,16 @@ class TestState13(TestStateBase):
         # AA-6: Ignore PDU
         commands = [
             ('recv', None),
-            ('send', a_associate_rq),
+            ('send', a_associate_ac),
+            ('send', a_associate_ac),
             ('send', a_associate_ac),
             ('wait', 0.1),
         ]
         scp = self.start_server(commands)
 
-        def patch_neg_rq(assoc):
-            """Override ACSE._negotiate_as_requestor"""
-            assoc.acse.send_request(assoc)
-
-        self.assoc.acse._negotiate_as_requestor = patch_neg_rq
         self.assoc.start()
+        while not self.assoc.is_established:
+            time.sleep(0.05)
 
         time.sleep(0.2)
 
@@ -8468,14 +8466,19 @@ class TestState13(TestStateBase):
 
         scp.shutdown()
 
-        assert self.fsm._changes[:4] == [
+        assert self.fsm._changes[:5] == [
             ('Sta1', 'Evt1', 'AE-1'),
             ('Sta4', 'Evt2', 'AE-2'),
-            ('Sta5', 'Evt6', 'AA-8'),
+            ('Sta5', 'Evt3', 'AE-3'),
+            ('Sta6', 'Evt3', 'AA-8'),
             ('Sta13', 'Evt3', 'AA-6'),
         ]
-        assert self.fsm._transitions[:4] == ['Sta4', 'Sta5', 'Sta13', 'Sta13']
-        assert self.fsm._events[:4] == ['Evt1', 'Evt2', 'Evt6', 'Evt3']
+        assert self.fsm._transitions[:4] == [
+            'Sta4', 'Sta5', 'Sta6', 'Sta13'
+        ]
+        assert self.fsm._events[:5] == [
+            'Evt1', 'Evt2', 'Evt3', 'Evt3', 'Evt3'
+        ]
 
     def test_evt04(self):
         """Test Sta13 + Evt4."""
@@ -8484,18 +8487,16 @@ class TestState13(TestStateBase):
         # AA-6: Ignore PDU
         commands = [
             ('recv', None),
-            ('send', a_associate_rq),
+            ('send', a_associate_ac),
+            ('send', a_associate_ac),
             ('send', a_associate_rj),
             ('wait', 0.1),
         ]
         scp = self.start_server(commands)
 
-        def patch_neg_rq(assoc):
-            """Override ACSE._negotiate_as_requestor"""
-            assoc.acse.send_request(assoc)
-
-        self.assoc.acse._negotiate_as_requestor = patch_neg_rq
         self.assoc.start()
+        while not self.assoc.is_established:
+            time.sleep(0.05)
 
         time.sleep(0.2)
 
@@ -8503,14 +8504,19 @@ class TestState13(TestStateBase):
 
         scp.shutdown()
 
-        assert self.fsm._changes[:4] == [
+        assert self.fsm._changes[:5] == [
             ('Sta1', 'Evt1', 'AE-1'),
             ('Sta4', 'Evt2', 'AE-2'),
-            ('Sta5', 'Evt6', 'AA-8'),
+            ('Sta5', 'Evt3', 'AE-3'),
+            ('Sta6', 'Evt3', 'AA-8'),
             ('Sta13', 'Evt4', 'AA-6'),
         ]
-        assert self.fsm._transitions[:4] == ['Sta4', 'Sta5', 'Sta13', 'Sta13']
-        assert self.fsm._events[:4] == ['Evt1', 'Evt2', 'Evt6', 'Evt4']
+        assert self.fsm._transitions[:4] == [
+            'Sta4', 'Sta5', 'Sta6', 'Sta13'
+        ]
+        assert self.fsm._events[:5] == [
+            'Evt1', 'Evt2', 'Evt3', 'Evt3', 'Evt4'
+        ]
 
     @pytest.mark.skip()
     def test_evt05(self):
@@ -8526,18 +8532,16 @@ class TestState13(TestStateBase):
         # AA-7: Send A-ABORT PDU to <remote>
         commands = [
             ('recv', None),
-            ('send', a_associate_rq),
+            ('send', a_associate_ac),
+            ('send', a_associate_ac),
             ('send', a_associate_rq),
             ('wait', 0.1),
         ]
         scp = self.start_server(commands)
 
-        def patch_neg_rq(assoc):
-            """Override ACSE._negotiate_as_requestor"""
-            assoc.acse.send_request(assoc)
-
-        self.assoc.acse._negotiate_as_requestor = patch_neg_rq
         self.assoc.start()
+        while not self.assoc.is_established:
+            time.sleep(0.05)
 
         time.sleep(0.2)
 
@@ -8545,14 +8549,19 @@ class TestState13(TestStateBase):
 
         scp.shutdown()
 
-        assert self.fsm._changes[:4] == [
+        assert self.fsm._changes[:5] == [
             ('Sta1', 'Evt1', 'AE-1'),
             ('Sta4', 'Evt2', 'AE-2'),
-            ('Sta5', 'Evt6', 'AA-8'),
+            ('Sta5', 'Evt3', 'AE-3'),
+            ('Sta6', 'Evt3', 'AA-8'),
             ('Sta13', 'Evt6', 'AA-7'),
         ]
-        assert self.fsm._transitions[:4] == ['Sta4', 'Sta5', 'Sta13', 'Sta13']
-        assert self.fsm._events[:4] == ['Evt1', 'Evt2', 'Evt6', 'Evt6']
+        assert self.fsm._transitions[:4] == [
+            'Sta4', 'Sta5', 'Sta6', 'Sta13'
+        ]
+        assert self.fsm._events[:5] == [
+            'Evt1', 'Evt2', 'Evt3', 'Evt3', 'Evt6'
+        ]
 
     def test_evt07(self):
         """Test Sta13 + Evt7."""
@@ -8693,18 +8702,16 @@ class TestState13(TestStateBase):
         # AA-6: Ignore PDU
         commands = [
             ('recv', None),
-            ('send', a_associate_rq),
+            ('send', a_associate_ac),
+            ('send', a_associate_ac),
             ('send', p_data_tf),
             ('wait', 0.1),
         ]
         scp = self.start_server(commands)
 
-        def patch_neg_rq(assoc):
-            """Override ACSE._negotiate_as_requestor"""
-            assoc.acse.send_request(assoc)
-
-        self.assoc.acse._negotiate_as_requestor = patch_neg_rq
         self.assoc.start()
+        while not self.assoc.is_established:
+            time.sleep(0.05)
 
         time.sleep(0.2)
 
@@ -8712,14 +8719,19 @@ class TestState13(TestStateBase):
 
         scp.shutdown()
 
-        assert self.fsm._changes[:4] == [
+        assert self.fsm._changes[:5] == [
             ('Sta1', 'Evt1', 'AE-1'),
             ('Sta4', 'Evt2', 'AE-2'),
-            ('Sta5', 'Evt6', 'AA-8'),
+            ('Sta5', 'Evt3', 'AE-3'),
+            ('Sta6', 'Evt3', 'AA-8'),
             ('Sta13', 'Evt10', 'AA-6'),
         ]
-        assert self.fsm._transitions[:4] == ['Sta4', 'Sta5', 'Sta13', 'Sta13']
-        assert self.fsm._events[:4] == ['Evt1', 'Evt2', 'Evt6', 'Evt10']
+        assert self.fsm._transitions[:4] == [
+            'Sta4', 'Sta5', 'Sta6', 'Sta13'
+        ]
+        assert self.fsm._events[:5] == [
+            'Evt1', 'Evt2', 'Evt3', 'Evt3', 'Evt10'
+        ]
 
     def test_evt11(self):
         """Test Sta13 + Evt11."""
@@ -8772,18 +8784,16 @@ class TestState13(TestStateBase):
         # AA-6: Ignore PDU
         commands = [
             ('recv', None),
-            ('send', a_associate_rq),
+            ('send', a_associate_ac),
+            ('send', a_associate_ac),
             ('send', a_release_rq),
             ('wait', 0.1),
         ]
         scp = self.start_server(commands)
 
-        def patch_neg_rq(assoc):
-            """Override ACSE._negotiate_as_requestor"""
-            assoc.acse.send_request(assoc)
-
-        self.assoc.acse._negotiate_as_requestor = patch_neg_rq
         self.assoc.start()
+        while not self.assoc.is_established:
+            time.sleep(0.05)
 
         time.sleep(0.2)
 
@@ -8791,14 +8801,19 @@ class TestState13(TestStateBase):
 
         scp.shutdown()
 
-        assert self.fsm._changes[:4] == [
+        assert self.fsm._changes[:5] == [
             ('Sta1', 'Evt1', 'AE-1'),
             ('Sta4', 'Evt2', 'AE-2'),
-            ('Sta5', 'Evt6', 'AA-8'),
+            ('Sta5', 'Evt3', 'AE-3'),
+            ('Sta6', 'Evt3', 'AA-8'),
             ('Sta13', 'Evt12', 'AA-6'),
         ]
-        assert self.fsm._transitions[:4] == ['Sta4', 'Sta5', 'Sta13', 'Sta13']
-        assert self.fsm._events[:4] == ['Evt1', 'Evt2', 'Evt6', 'Evt12']
+        assert self.fsm._transitions[:4] == [
+            'Sta4', 'Sta5', 'Sta6', 'Sta13'
+        ]
+        assert self.fsm._events[:5] == [
+            'Evt1', 'Evt2', 'Evt3', 'Evt3', 'Evt12'
+        ]
 
     def test_evt13(self):
         """Test Sta13 + Evt13."""
@@ -8807,18 +8822,16 @@ class TestState13(TestStateBase):
         # AA-6: Ignore PDU
         commands = [
             ('recv', None),  # recv a-associate-rq
-            ('send', a_associate_rq),  # trigger evt6 -> AA-8 -> sta13
+            ('send', a_associate_ac),
+            ('send', a_associate_ac),
             ('send', a_release_rp),
             ('wait', 0.1),
         ]
         scp = self.start_server(commands)
 
-        def patch_neg_rq(assoc):
-            """Override ACSE._negotiate_as_requestor"""
-            assoc.acse.send_request(assoc)
-
-        self.assoc.acse._negotiate_as_requestor = patch_neg_rq
         self.assoc.start()
+        while not self.assoc.is_established:
+            time.sleep(0.05)
 
         time.sleep(0.2)
 
@@ -8826,14 +8839,19 @@ class TestState13(TestStateBase):
 
         scp.shutdown()
 
-        assert self.fsm._changes[:4] == [
+        assert self.fsm._changes[:5] == [
             ('Sta1', 'Evt1', 'AE-1'),
             ('Sta4', 'Evt2', 'AE-2'),
-            ('Sta5', 'Evt6', 'AA-8'),
+            ('Sta5', 'Evt3', 'AE-3'),
+            ('Sta6', 'Evt3', 'AA-8'),
             ('Sta13', 'Evt13', 'AA-6'),
         ]
-        assert self.fsm._transitions[:4] == ['Sta4', 'Sta5', 'Sta13', 'Sta13']
-        assert self.fsm._events[:4] == ['Evt1', 'Evt2', 'Evt6', 'Evt13']
+        assert self.fsm._transitions[:4] == [
+            'Sta4', 'Sta5', 'Sta6', 'Sta13'
+        ]
+        assert self.fsm._events[:5] == [
+            'Evt1', 'Evt2', 'Evt3', 'Evt3', 'Evt13'
+        ]
 
     def test_evt14(self):
         """Test Sta13 + Evt14."""
@@ -8930,18 +8948,16 @@ class TestState13(TestStateBase):
         # AA-2: Stop ARTIM, close connection
         commands = [
             ('recv', None),
-            ('send', a_associate_rq),
+            ('send', a_associate_ac),
+            ('send', a_associate_ac),
             ('send', a_abort),
             ('wait', 0.1),
         ]
         scp = self.start_server(commands)
 
-        def patch_neg_rq(assoc):
-            """Override ACSE._negotiate_as_requestor"""
-            assoc.acse.send_request(assoc)
-
-        self.assoc.acse._negotiate_as_requestor = patch_neg_rq
         self.assoc.start()
+        while not self.assoc.is_established:
+            time.sleep(0.05)
 
         time.sleep(0.2)
 
@@ -8949,14 +8965,19 @@ class TestState13(TestStateBase):
 
         scp.shutdown()
 
-        assert self.fsm._changes[:4] == [
+        assert self.fsm._changes[:5] == [
             ('Sta1', 'Evt1', 'AE-1'),
             ('Sta4', 'Evt2', 'AE-2'),
-            ('Sta5', 'Evt6', 'AA-8'),
+            ('Sta5', 'Evt3', 'AE-3'),
+            ('Sta6', 'Evt3', 'AA-8'),
             ('Sta13', 'Evt16', 'AA-2'),
         ]
-        assert self.fsm._transitions[:4] == ['Sta4', 'Sta5', 'Sta13', 'Sta1']
-        assert self.fsm._events[:4] == ['Evt1', 'Evt2', 'Evt6', 'Evt16']
+        assert self.fsm._transitions[:4] == [
+            'Sta4', 'Sta5', 'Sta6', 'Sta13'
+        ]
+        assert self.fsm._events[:5] == [
+            'Evt1', 'Evt2', 'Evt3', 'Evt3', 'Evt16'
+        ]
 
     def test_evt17(self):
         """Test Sta13 + Evt17."""
@@ -8965,16 +8986,14 @@ class TestState13(TestStateBase):
         # AR-5: Stop ARTIM
         commands = [
             ('recv', None),
-            ('send', a_associate_rq),
+            ('send', a_associate_ac),
+            ('send', a_associate_ac),
         ]
         scp = self.start_server(commands)
 
-        def patch_neg_rq(assoc):
-            """Override ACSE._negotiate_as_requestor"""
-            assoc.acse.send_request(assoc)
-
-        self.assoc.acse._negotiate_as_requestor = patch_neg_rq
         self.assoc.start()
+        while not self.assoc.is_established:
+            time.sleep(0.05)
 
         time.sleep(0.2)
 
@@ -8982,14 +9001,19 @@ class TestState13(TestStateBase):
 
         scp.shutdown()
 
-        assert self.fsm._changes[:4] == [
+        assert self.fsm._changes[:5] == [
             ('Sta1', 'Evt1', 'AE-1'),
             ('Sta4', 'Evt2', 'AE-2'),
-            ('Sta5', 'Evt6', 'AA-8'),
+            ('Sta5', 'Evt3', 'AE-3'),
+            ('Sta6', 'Evt3', 'AA-8'),
             ('Sta13', 'Evt17', 'AR-5'),
         ]
-        assert self.fsm._transitions[:4] == ['Sta4', 'Sta5', 'Sta13', 'Sta1']
-        assert self.fsm._events[:4] == ['Evt1', 'Evt2', 'Evt6', 'Evt17']
+        assert self.fsm._transitions[:4] == [
+            'Sta4', 'Sta5', 'Sta6', 'Sta13'
+        ]
+        assert self.fsm._events[:5] == [
+            'Evt1', 'Evt2', 'Evt3', 'Evt3', 'Evt17'
+        ]
 
     def test_evt18(self):
         """Test Sta13 + Evt18."""
@@ -9049,18 +9073,16 @@ class TestState13(TestStateBase):
         # AA-7: Send A-ABORT PDU to <remote>
         commands = [
             ('recv', None),
-            ('send', a_associate_rq),
+            ('send', a_associate_ac),
+            ('send', a_associate_ac),
             ('send', b'\x08\x00\x00\x00\x00\x00\x00\x00'),
             ('wait', 0.1),
         ]
         scp = self.start_server(commands)
 
-        def patch_neg_rq(assoc):
-            """Override ACSE._negotiate_as_requestor"""
-            assoc.acse.send_request(assoc)
-
-        self.assoc.acse._negotiate_as_requestor = patch_neg_rq
         self.assoc.start()
+        while not self.assoc.is_established:
+            time.sleep(0.05)
 
         time.sleep(0.2)
 
@@ -9068,14 +9090,19 @@ class TestState13(TestStateBase):
 
         scp.shutdown()
 
-        assert self.fsm._changes[:4] == [
+        assert self.fsm._changes[:5] == [
             ('Sta1', 'Evt1', 'AE-1'),
             ('Sta4', 'Evt2', 'AE-2'),
-            ('Sta5', 'Evt6', 'AA-8'),
+            ('Sta5', 'Evt3', 'AE-3'),
+            ('Sta6', 'Evt3', 'AA-8'),
             ('Sta13', 'Evt19', 'AA-7'),
         ]
-        assert self.fsm._transitions[:4] == ['Sta4', 'Sta5', 'Sta13', 'Sta13']
-        assert self.fsm._events[:4] == ['Evt1', 'Evt2', 'Evt6', 'Evt19']
+        assert self.fsm._transitions[:4] == [
+            'Sta4', 'Sta5', 'Sta6', 'Sta13'
+        ]
+        assert self.fsm._events[:5] == [
+            'Evt1', 'Evt2', 'Evt3', 'Evt3', 'Evt19'
+        ]
 
 
 class TestParrotAttack(TestStateBase):
