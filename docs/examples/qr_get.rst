@@ -74,6 +74,7 @@ which requires adding the File Meta Information.
     role = SCP_SCU_RoleSelectionNegotiation()
     role.sop_class_uid = CTImageStorage
     # We will be acting as an SCP for CT Image Storage
+    role.scu_role = False
     role.scp_role = True
 
     # Extended negotiation items
@@ -196,7 +197,7 @@ query against that.
 
     # Accept the association requestor's proposed SCP role in the
     #   SCP/SCU Role Selection Negotiation items
-    for cx in self.supported_contexts:
+    for cx in ae.supported_contexts:
         cx.scp_role = True
         cx.scu_role = False
 
@@ -204,7 +205,7 @@ query against that.
     ae.add_supported_context(PatientRootQueryRetrieveInformationModelGet)
 
     # Implement the AE.on_c_get callback
-    def on_c_get(dataset, context, info):
+    def on_c_get(ds, context, info):
         """Respond to a C-GET request Identifier `ds`.
 
         Parameters
@@ -250,6 +251,7 @@ query against that.
 
         # Import stored SOP Instances
         instances = []
+        matching = []
         fdir = '/path/to/directory'
         for fpath in os.listdir(fdir):
             instances.append(dcmread(os.path.join(fdir, fpath)))
