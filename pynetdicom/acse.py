@@ -416,6 +416,10 @@ class ACSE(object):
                             (cx.scu_role, cx.scp_role) = rq_roles[
                                 cx.abstract_syntax
                             ]
+                            # If no role was specified then use False
+                            #   see SCP_SCU_RoleSelectionSubItem.from_primitive
+                            cx.scu_role = cx.scu_role or False
+                            cx.scp_role = cx.scp_role or False
                         except KeyError:
                             pass
 

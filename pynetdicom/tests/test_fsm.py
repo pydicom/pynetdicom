@@ -2333,6 +2333,9 @@ class TestState04(TestStateBase):
 
         self.assoc.dul.socket.connect = connect
         self.assoc.start()
+        while not self.fsm.current_state == 'Sta4':
+            time.sleep(0.05)
+
         time.sleep(0.2)
 
         #self.print_fsm_scp(self.fsm, scp)

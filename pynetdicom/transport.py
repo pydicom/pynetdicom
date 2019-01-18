@@ -1,6 +1,7 @@
 """Implementation of the Transport Service."""
 
 from copy import deepcopy
+from datetime import datetime
 import logging
 import select
 import socket
@@ -323,6 +324,10 @@ class RequestHandler(BaseRequestHandler):
         from pynetdicom.association import Association
 
         assoc = Association(self.ae, MODE_ACCEPTOR)
+
+        # Set the thread name
+        timestamp = datetime.strftime(datetime.now(), "%Y%m%d%H%M%S")
+        assoc.name = "AcceptorThread@{}".format(timestamp)
 
         sock = AssociationSocket(assoc, client_socket=self.request)
         assoc.set_socket(sock)

@@ -2320,6 +2320,7 @@ class SCP_SCU_RoleSelectionSubItem(PDUItem):
             self.scu_role = int(primitive.scu_role)
         else:
             self.scu_role = False
+
         if primitive.scp_role is not None:
             self.scp_role = int(primitive.scp_role)
         else:

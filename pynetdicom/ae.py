@@ -2,6 +2,7 @@
 The main user class, represents a DICOM Application Entity
 """
 from copy import deepcopy
+from datetime import datetime
 import logging
 import select
 import socket
@@ -557,6 +558,10 @@ class ApplicationEntity(object):
 
         # Association
         assoc = Association(self, MODE_REQUESTOR)
+
+        # Set the thread name
+        timestamp = datetime.strftime(datetime.now(), "%Y%m%d%H%M%S")
+        assoc.name = "RequestorThread@{}".format(timestamp)
 
         # Setup the association's communication socket
         sock = AssociationSocket(assoc, address=bind_address)
@@ -1339,8 +1344,12 @@ class ApplicationEntity(object):
                 server.shutdown()
         else:
             # Non-blocking server
+            timestamp = datetime.strftime(datetime.now(), "%Y%m%d%H%M%S")
             server = ThreadedAssociationServer(self, address, ssl_context)
-            thread = threading.Thread(target=server.serve_forever)
+            thread = threading.Thread(
+                target=server.serve_forever,
+                name="AcceptorServer@{}".format(timestamp)
+            )
             thread.daemon = True
             thread.start()
 
