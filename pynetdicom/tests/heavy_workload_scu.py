@@ -23,6 +23,7 @@ from pydicom import dcmread
 
 #from dummy_c_scp import DummyStorageSCP
 from pynetdicom import AE
+from pynetdicom import _config
 from pynetdicom.sop_class import CTImageStorage, RTImageStorage
 
 def init_yappi():
@@ -73,6 +74,8 @@ LOGGER.setLevel(logging.CRITICAL)
 TEST_DS_DIR = os.path.join(os.path.dirname(__file__), 'dicom_files')
 BIG_DATASET = dcmread(os.path.join(TEST_DS_DIR, 'RTImageStorage.dcm')) # 2.1 MB
 DATASET = dcmread(os.path.join(TEST_DS_DIR, 'CTImageStorage.dcm')) # 39 kB
+
+#_config.LOG_HANDLER_LEVEL = 'none'
 
 no_runs = 8
 ds_per_run = 50

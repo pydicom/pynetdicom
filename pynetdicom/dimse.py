@@ -7,27 +7,14 @@ try:
     import queue
 except ImportError:
     import Queue as queue  # Python 2 compatibility
-import time
 
 from pynetdicom import evt, _config
-# pylint: disable=no-name-in-module
-from pynetdicom.dimse_messages import (
-    C_STORE_RQ, C_STORE_RSP, C_FIND_RQ, C_FIND_RSP, C_GET_RQ, C_GET_RSP,
-    C_MOVE_RQ, C_MOVE_RSP, C_ECHO_RQ, C_ECHO_RSP, C_CANCEL_RQ,
-    N_EVENT_REPORT_RQ, N_EVENT_REPORT_RSP, N_GET_RQ, N_GET_RSP, N_SET_RQ,
-    N_SET_RSP, N_ACTION_RQ, N_ACTION_RSP, N_CREATE_RQ, N_CREATE_RSP,
-    N_DELETE_RQ, N_DELETE_RSP, DIMSEMessage
-)
-# pylint: enable=no-name-in-module
-from pynetdicom.dimse_primitives import (
-    C_STORE, C_FIND, C_GET, C_MOVE, C_ECHO, N_EVENT_REPORT, N_GET, N_SET,
-    N_ACTION, N_CREATE, N_DELETE, C_CANCEL
-)
+from pynetdicom.dimse_messages import *
+from pynetdicom.dimse_primitives import *
+from pynetdicom._globals import DEFAULT_MAX_LENGTH
 from pynetdicom._handlers import send_message_handler, recv_message_handler
 from pynetdicom.pdu_primitives import P_DATA
-from pynetdicom.sop_class import uid_to_service_class
-from pynetdicom.timer import Timer
-from pynetdicom._globals import DEFAULT_MAX_LENGTH
+
 
 LOGGER = logging.getLogger('pynetdicom.dimse')
 
@@ -198,7 +185,6 @@ class DIMSEServiceProvider(object):
 
     * DICOM Standard, Part 7
     """
-    # pylint: disable=too-many-public-methods
     def __init__(self, dul, dimse_timeout=None,
                  maximum_pdu_size=DEFAULT_MAX_LENGTH):
         """Start the DIMSE service provider.
@@ -238,7 +224,6 @@ class DIMSEServiceProvider(object):
         handler : callable
             The function that will be called if the event occurs.
         """
-        # Bind our own events
         if event in self._handlers and handler not in self._handlers[event]:
             self._handlers[event].append(handler)
 
@@ -370,11 +355,9 @@ class DIMSEServiceProvider(object):
         handler : callable
             The function that will no longer be called if the event occurs.
         """
-        # Unbind from our own events
         if event in self._handlers and handler in self._handlers[event]:
             self._handlers[event].remove(handler)
 
-    # DIMSE callbacks
     # TODO: Deprecated, to be removed in v1.5
     def on_send_dimse_message(self, message):
         """Controls which debugging function is called when sending.

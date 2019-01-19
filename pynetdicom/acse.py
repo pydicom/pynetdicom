@@ -2,6 +2,8 @@
 
 import logging
 
+from pynetdicom import evt, _config
+from pynetdicom._globals import APPLICATION_CONTEXT_NAME
 from pynetdicom.pdu_primitives import (
     A_ASSOCIATE, A_RELEASE, A_ABORT, A_P_ABORT,
     AsynchronousOperationsWindowNegotiation,
@@ -13,7 +15,6 @@ from pynetdicom.presentation import (
     negotiate_as_requestor, negotiate_as_acceptor
 )
 from pynetdicom.utils import pretty_bytes
-from pynetdicom._globals import APPLICATION_CONTEXT_NAME
 
 
 LOGGER = logging.getLogger('pynetdicom.acse')
@@ -27,7 +28,27 @@ class ACSE(object):
     """
     def __init__(self):
         """Create the ACSE service provider."""
-        pass
+        # Event handlers
+        self._handlers = {}
+
+        # Add logging handlers
+        if _config.LOG_HANDLER_LEVEL == 'standard':
+            #self.bind(evt.EVT_MESSAGE_SENT, send_message_handler)
+            #self.bind(evt.EVT_MESSAGE_RECV, recv_message_handler)
+            pass
+
+    def bind(self, event, handler):
+        """Bind a callable `handler` to an `event`.
+
+        Parameters
+        ----------
+        event : 3-tuple
+            The event to bind the function to.
+        handler : callable
+            The function that will be called if the event occurs.
+        """
+        if event in self._handlers and handler not in self._handlers[event]:
+            self._handlers[event].append(handler)
 
     @staticmethod
     def _check_async_ops(assoc):
@@ -819,6 +840,18 @@ class ACSE(object):
         LOGGER.info("Requesting Association")
         assoc.dul.send_pdu(primitive)
 
+    def unbind(self, event, handler):
+        """Unbind a callable `func` from an `event`.
+
+        Parameters
+        ----------
+        event : 3-tuple
+            The event to unbind the function from.
+        handler : callable
+            The function that will no longer be called if the event occurs.
+        """
+        if event in self._handlers and handler in self._handlers[event]:
+            self._handlers[event].remove(handler)
 
     # ACSE logging/debugging functions
     # pylint: disable=too-many-branches,unused-argument

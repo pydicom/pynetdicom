@@ -225,6 +225,8 @@ class Association(threading.Thread):
             self.dul.socket.bind(event, handler)
         elif event[0] == "DIMSE":
             self.dimse.bind(event, handler)
+        elif event[0] == "ACSE":
+            self.acse.bind(event, handler)
 
     def _check_received_status(self, rsp):
         """Return a pydicom Dataset containing status related elements.
@@ -679,6 +681,8 @@ class Association(threading.Thread):
             self.dul.socket.unbind(event, handler)
         elif event[0] == "DIMSE":
             self.dimse.unbind(event, handler)
+        elif event[0] == "ACSE":
+            self.acse.unbind(event, handler)
 
     # DIMSE-C services provided by the Association
     def _c_store_scp(self, req):
