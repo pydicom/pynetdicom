@@ -16,7 +16,7 @@ import time
 
 import pytest
 
-from pynetdicom import AE
+from pynetdicom import AE, evt
 from pynetdicom.association import Association
 from pynetdicom.transport import (
     AssociationSocket, AssociationServer, ThreadedAssociationServer
@@ -225,3 +225,31 @@ class TestTLS(object):
         assert assoc.is_released
 
         server.shutdown()
+
+
+class TestAssociationServer(object):
+    @pytest.mark.skip()
+    def test_multi_assoc(self):
+        """Test that multiple requestors can association when blocking."""
+        ae = AE()
+        ae.maximum_associations = 10
+        ae.add_supported_context('1.2.840.10008.1.1')
+        ae.start_server(('', 11112))
+
+    def test_multi_assoc_non(self):
+        """Test that multiple requestors can association when non-blocking."""
+        ae = AE()
+        ae.maximum_associations = 10
+        ae.add_supported_context('1.2.840.10008.1.1')
+        scp = ae.start_server(('', 11112), block=False)
+
+        def on_open(evt):
+            print(evt.address)
+            print(evt.event)
+            print(evt.timestamp)
+
+        scp.bind(evt.EVT_CONNECTION_OPEN, on_open)
+
+        time.sleep(10)
+
+        scp.shutdown()

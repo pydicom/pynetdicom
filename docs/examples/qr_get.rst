@@ -210,7 +210,7 @@ query against that.
 
         Parameters
         ----------
-        dataset : pydicom.dataset.Dataset
+        ds : pydicom.dataset.Dataset
             The Identifier dataset sent by the peer.
         context : presentation.PresentationContextTuple
             The presentation context that the C-GET message was sent under.

@@ -2469,20 +2469,6 @@ class ApplicationEntity(object):
                                   "AE.start()")
 
 
-    # Communication related callbacks
-    def on_receive_connection(self):
-        """Callback for a connection is received.
-        ** NOT IMPLEMENTED **
-        """
-        raise NotImplementedError()
-
-    def on_make_connection(self):
-        """Callback for a connection is made.
-        ** NOT IMPLEMENTED **
-        """
-        raise NotImplementedError()
-
-
     # High-level Association related callbacks
     def on_association_requested(self, primitive):
         """Callback for an association is requested.

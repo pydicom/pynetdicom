@@ -12,6 +12,7 @@ except ImportError:
 import ssl
 from struct import pack
 
+from pynetdicom import evt
 from pynetdicom._globals import MODE_ACCEPTOR
 
 
@@ -40,6 +41,9 @@ class AssociationSocket(object):
         the `server_hostname` keyword argument for ``SSLContext.wrap_socket()``
         If TLS is not to be used then None (default).
     """
+    _callbacks = {evt.EVT_CONNECTION_CLOSED : [],
+                  evt.EVT_CONNECTION_OPEN : []}
+
     def __init__(self, assoc, client_socket=None, address=('', 0)):
         """Create a new AssociationSocket.
 
@@ -85,9 +89,13 @@ class AssociationSocket(object):
 
         Sets ``AssociationSocket.socket`` to ``None`` once complete.
 
-        *Events Emitted*
+        **Events Emitted**
 
         - Evt17: Transport connection closed
+
+        **Triggers**
+
+        - evt.EVT_CONNECTION_CLOSED
         """
         if self.socket is None or self._is_connected is False:
             return
@@ -98,6 +106,8 @@ class AssociationSocket(object):
             pass
 
         self.socket.close()
+        # Trigger event
+        evt.trigger(self, evt.EVT_CONNECTION_CLOSED, {})
         self.socket = None
         self._is_connected = False
         # Evt17: Transport connection closed
@@ -110,6 +120,10 @@ class AssociationSocket(object):
 
         - Evt2: Transport connection confirmed
         - Evt17: Transport connection closed
+
+        **Triggers**
+
+        - evt.EVT_CONNECTION_OPEN
 
         Parameters
         ----------
@@ -130,6 +144,8 @@ class AssociationSocket(object):
             # Try and connect to remote at (address, port)
             #   raises socket.error if connection refused
             self.socket.connect(address)
+            # Trigger event
+            evt.trigger(self, evt.EVT_CONNECTION_OPEN, {'address' : address})
             self._is_connected = True
             # Evt2: Transport connection confirmation
             self.event_queue.put('Evt2')
@@ -353,6 +369,9 @@ class RequestHandler(BaseRequestHandler):
 
         assoc.start()
 
+        # Track the server's associations
+        self.server._children.append(assoc)
+
     @property
     def local(self):
         """Return a 2-tuple of the local server's (host, port) address."""
@@ -374,6 +393,14 @@ class AssociationServer(TCPServer):
     call will block for (default 0.5). A value of 0 specifies a poll and never
     blocks. A value of None blocks until a connection is ready.
 
+    **Events**
+
+    +----------------------+-------------------------------+----------------+
+    | Event                | Description                   | Attributes     |
+    +======================+===============================+================+
+    | EVT_CONNECTION_OPEN  | Connection with remote opened | address        |
+    +----------------------+-------------------------------+----------------+
+
     Attributes
     ----------
     ae : ae.ApplicationEntity
@@ -386,7 +413,9 @@ class AssociationServer(TCPServer):
         The SSLContext used to wrap client sockets, or None if no TLS is
         required.
     """
-    def __init__(self, ae, address, ssl_context=None):
+    _callbacks = {evt.EVT_CONNECTION_OPEN : []}
+
+    def __init__(self, ae, address, ssl_context=None, events=None):
         """Create a new AssociationServer, bind a socket and start listening.
 
         Parameters
@@ -399,6 +428,9 @@ class AssociationServer(TCPServer):
             If TLS is to be used then this should be the ssl.SSLContext used
             to wrap the client sockets, otherwise if None then no TLS will be
             used (default).
+        events : list of 2-tuple, optional
+            A list of (event, callable), the `callable` function to run when
+            `event` occurs.
         """
         self.ae = ae
         self.ssl_context = ssl_context
@@ -408,7 +440,80 @@ class AssociationServer(TCPServer):
             self, address, RequestHandler, bind_and_activate=True
         )
 
+        self._children = []
+        self._events = {}
+
+        # Bind the functions to their events
+        for event in (events or []):
+            self.bind(*event)
+
         self.timeout = 60
+
+    # Note: should apply to the current server and all client Associations
+    def bind(self, evt, func):
+        """Bind a callable `func` to an `evt`.
+
+        Parameters
+        ----------
+        event : 3-tuple
+            The event to bind the function to, taken from pynetdicom.evt.
+        func : callable
+            The function that will be called if the event occurs.
+        """
+        ## Note:
+        # When operating in blocking mode this is only called on __init__
+        # When operating in non-blocking mode this may be called at any time
+
+        # Update the stored events so future associations get bound
+        if evt not in self._events:
+            self._events[evt] = []
+
+        if func not in self._events[evt]:
+            self._events[evt].append(func)
+
+        # Bind our own events
+        if evt in self._callbacks and func not in self._callbacks[evt]:
+            self._callbacks[evt].append(func)
+            return
+
+        # Bind our child Association events - the children are responsible
+        #   for error handling
+        #for assoc in self.active_associations:
+        #    assoc.bind(evt, func)
+
+    @property
+    def active_associations(self):
+        """Return the server's running Association acceptor instances"""
+        self._children = [
+            child for child in self._children if child.is_alive()]
+        return self._children
+
+    def get_request(self):
+        """Handle a connection request.
+
+        If ``ssl_context`` is set then the client socket will be wrapped using
+        ``ssl_context.wrap_socket()``.
+
+        Returns
+        -------
+        client_socket : socket._socket
+            The connection request.
+        address : 2-tuple
+            The client's address as (host, port).
+        """
+        client_socket, address = self.socket.accept()
+        if self.ssl_context:
+            client_socket = self.ssl_context.wrap_socket(client_socket,
+                                                         server_side=True)
+
+        # Trigger event
+        evt.trigger(self, evt.EVT_CONNECTION_OPEN, {'address' : address})
+
+        return client_socket, address
+
+    def process_request(self, request, client_address):
+        """Process a connection request."""
+        self.finish_request(request, client_address)
 
     def server_bind(self):
         """Bind the socket and set the socket options.
@@ -442,30 +547,6 @@ class AssociationServer(TCPServer):
         self.socket.bind(self.server_address)
         self.server_address = self.socket.getsockname()
 
-    def get_request(self):
-        """Handle a connection request.
-
-        If ``ssl_context`` is set then the client socket will be wrapped using
-        ``ssl_context.wrap_socket()``.
-
-        Returns
-        -------
-        client_socket : socket._socket
-            The connection request.
-        address : 2-tuple
-            The client's address as (host, port).
-        """
-        client_socket, address = self.socket.accept()
-        if self.ssl_context:
-            client_socket = self.ssl_context.wrap_socket(client_socket,
-                                                         server_side=True)
-
-        return client_socket, address
-
-    def process_request(self, request, client_address):
-        """Process a connection request."""
-        self.finish_request(request, client_address)
-
     def server_close(self):
         """Close the server."""
         try:
@@ -480,6 +561,37 @@ class AssociationServer(TCPServer):
         TCPServer.shutdown(self)
         self.server_close()
         self.ae._servers.remove(self)
+
+    def unbind(self, evt, func):
+        """Unbind a callable `func` from a transport service `evt`.
+
+        Parameters
+        ----------
+        event : 3-tuple
+            The event to unbind the function from.
+        func : callable
+            The function that will no longer be called if the event occurs.
+        """
+        ## Note:
+        # When operating in blocking mode this is only called on __init__
+        # When operating in non-blocking mode this may be called at any time
+
+        # Update the stored events so future associations don't get bound
+        if evt not in self._events or func not in self._events[evt]:
+            # Can't be an event if not already in `_events`
+            return
+
+        self._events[evt].remove(func)
+
+        # Unbind from our own events
+        if evt in self._callbacks and func in self._callbacks[evt]:
+            self._callbacks[evt].remove(func)
+            return
+
+        # Unbind from our child Association events - the children are
+        #   responsible for error handling
+        #for assoc in self.active_associations:
+        #    assoc.unbind(evt, func)
 
 
 class ThreadedAssociationServer(ThreadingMixIn, AssociationServer):

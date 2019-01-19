@@ -126,13 +126,17 @@ the ``tls_args`` keyword parameter to ``associate()``:
     from pynetdicom import AE
     from pynetdicom.sop_class import VerificationSOPClass
 
+    server_crt = 'path/to/server.crt'
+    client_crt = 'path/to/client.crt'
+    client_key = 'path/to/client.key'
+
     ae = AE()
     ae.add_requested_context(VerificationSOPClass)
 
     # Create the SSLContext, your requirements may vary
-    ssl_cx = ssl.create_default_context(ssl.Purpose.CLIENT_AUTH, cafile=server.crt)
+    ssl_cx = ssl.create_default_context(ssl.Purpose.CLIENT_AUTH, cafile=server_crt)
     ssl_cx.verify_mode = ssl.CERT_REQUIRED
-    ssl_cx.load_cert_chain(certfile=client.crt, keyfile=client.key)
+    ssl_cx.load_cert_chain(certfile=client_crt, keyfile=client_key)
 
     assoc = ae.associate('127.0.0.1', 11112, tls_args=(ssl_cx, None))
     if assoc.is_established:
@@ -142,7 +146,7 @@ the ``tls_args`` keyword parameter to ``associate()``:
         # Once we are finished, release the association
         assoc.release()
 
-``tls_args`` is (SSLContext, hostname), where ``hostname`` is the value of
+*tls_args* is (SSLContext, hostname), where *hostname* is the value of
 the ``server_hostname`` keyword parameter in ``SSLContext.wrap_socket()``.
 
 
@@ -194,9 +198,12 @@ of the following DIMSE-C services:
   callback (as outlined :ref:`here <assoc_scp>`)
 * C-MOVE, through the
   :py:meth:`Association.send_c_move() <pynetdicom.association.Association.send_c_move>`
-  method. The current implementation of pynetdicom doesn't support the C-MOVE
-  SCU being the destination for the storage of requested datasets (the C-STORE
-  SCP).
+  method. The move destination can either be a different AE or the AE that made
+  the C-MOVE request (provided a non-blocking Storage SCP has been started). Some
+  implementations will return the requested datasets over the same association
+  so even if not running a non-blocking Storage SCP you should also implement the
+  :py:meth:`AE.on_c_store() <pynetdicom.ae.ApplicationEntity.on_c_store>`
+  callback (as outlined :ref:`here <assoc_scp>`)
 
 Attempting to use a service without an established association will raise a
 ``RuntimeError``, while attempting to use a service that is not supported by
@@ -254,7 +261,7 @@ non-blocking modes:
     # Blocks
     ae.start_server(('', 11113), block=True)
 
-The returned ThreadedAssociationServer instances can be stopped using
+The returned ``ThreadedAssociationServer`` instances can be stopped using
 ``shutdown()`` and all active association can be stopped using
 ``AE.shutdown()``.
 
@@ -273,13 +280,17 @@ instance via the ``ssl_context`` keyword parameter:
     from pynetdicom import AE
     from pynetdicom.sop_class import VerificationSOPClass
 
+    server_crt = '/path/to/server.crt'
+    server_key = '/path/to/server.key'
+    client_crt = '/path/to/client.crt'
+
     ae.add_supported_context(VerificationSOPClass)
 
     # Create the SSLContext, your requirements may vary
     ssl_cx = ssl.create_default_context(ssl.Purpose.CLIENT_AUTH)
     ssl_cx.verify_mode = ssl.CERT_REQUIRED
-    ssl_cx.load_cert_chain(certfile=server.crt, keyfile=server.key)
-    ssl_cx.load_verify_locations(cafile=client.crt)
+    ssl_cx.load_cert_chain(certfile=server_crt, keyfile=server_key)
+    ssl_cx.load_verify_locations(cafile=client_crt)
 
     server = ae.start_server(('', 11112), block=False, ssl_context=ssl_cx)
 
