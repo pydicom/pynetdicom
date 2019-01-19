@@ -11,7 +11,7 @@ from pydicom.uid import UID
 
 # pylint: disable=no-name-in-module
 from pynetdicom.acse import ACSE
-from pynetdicom import _config
+from pynetdicom import _config, evt
 from pynetdicom.dimse import DIMSEServiceProvider
 from pynetdicom.dimse_primitives import (
     C_ECHO, C_MOVE, C_STORE, C_GET, C_FIND, C_CANCEL,
@@ -157,6 +157,10 @@ class Association(threading.Thread):
         # Used to pause the association reactor until the DUL is ready
         self._dul_ready = threading.Event()
 
+        self._events = {}
+        self._handlers = {evt.EVT_ESTABLISHED : [], evt.EVT_RELEASED : [],
+                          evt.EVT_ABORTED : [], evt.EVT_REJECTED : []}
+
         # Send A-ABORT/A-P-ABORT when an A-ASSOCIATE request is received
         self._a_abort_assoc_rq = False
         self._a_p_abort_assoc_rq = False
@@ -201,6 +205,37 @@ class Association(threading.Thread):
     def ae(self):
         """Return the Association's parent ApplicationEntity."""
         return self._ae
+
+    def bind(self, event, handler):
+        """Bind a callable `handler` to an `event`.
+
+        Parameters
+        ----------
+        event : 3-tuple
+            The event to bind the function to.
+        handler : callable
+            The function that will be called if the event occurs.
+        """
+        # Update the stored events so future associations get bound
+        if event not in self._events:
+            self._events[event] = []
+
+        if handler not in self._events[event]:
+            self._events[event].append(handler)
+
+        # Bind our own events
+        if event in self._handlers and handler not in self._handlers[event]:
+            self._handlers[event].append(handler)
+
+        # Bind other events
+        if event[0] == "TRANSPORT":
+            self.dul.socket.bind(event, handler)
+        #if event[0] == "ACSE":
+        #    self.acse.bind(event, handler)
+        #elif event[0] == 'DIMSE':
+        #    self.dimse.bind(event, handler)
+        #elif event[0] == "DUL":
+        #    self.dul.bind(event, handler)
 
     def _check_received_status(self, rsp):
         """Return a pydicom Dataset containing status related elements.
@@ -634,6 +669,32 @@ class Association(threading.Thread):
             raise RuntimeError("The Association already has a socket set.")
 
         self.dul.socket = socket
+
+    def unbind(self, event, handler):
+        """Unbind a callable `func` from an `event`.
+
+        Parameters
+        ----------
+        event : 3-tuple
+            The event to unbind the function from.
+        handler : callable
+            The function that will no longer be called if the event occurs.
+        """
+        # Update the stored events so future associations don't get bound
+        if event not in self._events or handler not in self._events[event]:
+            # Can't be an event if not already in `_events` unless shenanigans
+            return
+
+        self._events[event].remove(handler)
+
+        # Unbind from our own events
+        if event in self._handlers and handler in self._handlers[event]:
+            self._handlers[event].remove(handler)
+            return
+
+        # Unbind other events
+        if event[0] == "TRANSPORT":
+            self.dul.socket.unbind(event, handler)
 
     # DIMSE-C services provided by the Association
     def _c_store_scp(self, req):

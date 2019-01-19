@@ -60,6 +60,7 @@ EVT_CONNECTION_CLOSE = ('TRANSPORT', 'CONNECTION CLOSE', 'Connection with remote
 EVT_ESTABLISHED = ('ASSOCIATION', 'ESTABLISHED', 'Association established', True)
 EVT_RELEASED = ('ASSOCIATION', 'RELEASED', 'Association release completed', True)
 EVT_ABORTED = ('ASSOCIATION', 'ABORTED', 'Association aborted', True)
+EVT_REJECTED = ('ASSOCIATION', 'REJECTED', 'Association rejected', True)
 
 # ACSE Service
 EVT_USER_IDENTITY = ('ACSE', 'USER IDENTITY', 'User Identity request sent/received', False)
@@ -87,7 +88,7 @@ EVT_GET = ('QR', 'GET ACTION', 'C-GET request received by service', False)
 EVT_MOVE = ('QR', 'MOVE ACTION', 'C-MOVE request received by service', False)
 
 
-def trigger(cls, event, attrs=None, is_singleton=False):
+def trigger(cls, event, attrs=None):
     """Trigger an `event`.
 
     Parameters
@@ -104,19 +105,25 @@ def trigger(cls, event, attrs=None, is_singleton=False):
         True if only one callable function is allowed, False otherwise
         (default).
     """
-    if event not in cls._callbacks:
+    if event not in cls._handlers:
         return
 
+    attrs = attrs or {}
+
     evt = Event(event)
+    evt.source = cls
     for kk, vv in attrs.items():
         setattr(evt, kk, vv)
 
     try:
-        for func in cls._callbacks[event]:
-            if is_singleton:
-                return func(evt)
+        for func in cls._handlers[event]:
             func(evt)
     except Exception as exc:
+        print(
+            "Exception raised in user's '{}' event handler '{}'"
+            .format(event[1], func.__name__)
+        )
+        print(exc)
         LOGGER.error(
             "Exception raised in user's '{}' event handler '{}'"
             .format(event[1], func.__name__)
@@ -137,9 +144,5 @@ class Event(object):
     """
     def __init__(self, event):
         self.event = event
+        self.source = None
         self.timestamp = datetime.now()
-
-    @property
-    def help(self):
-        """Prints a help statement to stdout."""
-        print(self.event[])

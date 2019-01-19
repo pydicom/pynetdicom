@@ -3,6 +3,7 @@ The DUL's finite state machine representation.
 """
 import logging
 
+from pynetdicom import evt
 from pynetdicom.pdu import (
     A_ASSOCIATE_RQ, A_ASSOCIATE_RJ, A_ASSOCIATE_AC,
     P_DATA_TF, A_RELEASE_RQ, A_RELEASE_RP, A_ABORT_RQ
@@ -615,6 +616,7 @@ def AR_5(dul):
     # Stop ARTIM timer
     dul.artim_timer.stop()
     dul.kill_dul()
+    evt.trigger(dul.socket, evt.EVT_CONNECTION_CLOSE)
 
     return 'Sta1'
 
@@ -903,6 +905,7 @@ def AA_4(dul):
     dul.primitive = A_ABORT()
     dul.to_user_queue.put(dul.primitive)
     dul.kill_dul()
+    evt.trigger(dul.socket, evt.EVT_CONNECTION_CLOSE)
 
     return 'Sta1'
 
@@ -932,6 +935,7 @@ def AA_5(dul):
     # Stop ARTIM timer.
     dul.artim_timer.stop()
     dul.kill_dul()
+    evt.trigger(dul.socket, evt.EVT_CONNECTION_CLOSE)
 
     return 'Sta1'
 

@@ -1,5 +1,6 @@
 """Unit tests for the transport module."""
 
+from datetime import datetime
 import logging
 try:
     import queue
@@ -18,10 +19,12 @@ import pytest
 
 from pynetdicom import AE, evt
 from pynetdicom.association import Association
+from pynetdicom.events import Event
+from pynetdicom._globals import MODE_REQUESTOR, MODE_ACCEPTOR
 from pynetdicom.transport import (
     AssociationSocket, AssociationServer, ThreadedAssociationServer
 )
-from pynetdicom._globals import MODE_REQUESTOR, MODE_ACCEPTOR
+from pynetdicom.sop_class import VerificationSOPClass
 
 
 # This is the directory that contains test data
@@ -253,3 +256,478 @@ class TestAssociationServer(object):
         time.sleep(10)
 
         scp.shutdown()
+
+
+class TestTransportEventsAcceptor(object):
+    """Test the transport events and handling as acceptor."""
+    def setup(self):
+        self.ae = None
+
+    def teardown(self):
+        if self.ae:
+            self.ae.shutdown()
+
+    def test_no_handlers(self):
+        """Test associations as acceptor with no handlers bound."""
+        self.ae = ae = AE()
+        ae.add_supported_context(VerificationSOPClass)
+        ae.add_requested_context(VerificationSOPClass)
+        scp = ae.start_server(('', 11112), block=False)
+        assert scp._handlers[evt.EVT_CONNECTION_OPEN] == []
+        assoc = ae.associate('localhost', 11112)
+
+        assert scp._handlers[evt.EVT_CONNECTION_OPEN] == []
+        assert assoc.is_established
+        assert assoc.dul.socket._handlers[evt.EVT_CONNECTION_OPEN] == []
+        assert assoc.dul.socket._handlers[evt.EVT_CONNECTION_CLOSE] == []
+
+        assert len(scp.active_associations) == 1
+        scp_assoc = scp.active_associations[0]
+        assert scp_assoc.dul.socket._handlers[evt.EVT_CONNECTION_OPEN] == []
+        assert scp_assoc.dul.socket._handlers[evt.EVT_CONNECTION_CLOSE] == []
+
+        assoc.release()
+        scp.shutdown()
+
+    def test_bind_evt_connection_open(self):
+        """Test associations as acceptor with EVT_CONNECTION_OPEN bound."""
+        triggered_events = []
+        def on_conn_open(event):
+            triggered_events.append(event)
+
+        self.ae = ae = AE()
+        ae.add_supported_context(VerificationSOPClass)
+        ae.add_requested_context(VerificationSOPClass)
+        scp = ae.start_server(
+            ('', 11112),
+            block=False,
+            evt_handlers=[(evt.EVT_CONNECTION_OPEN, on_conn_open)]
+        )
+        assert scp._handlers[evt.EVT_CONNECTION_OPEN] == [on_conn_open]
+
+        # Start association
+        assoc = ae.associate('localhost', 11112)
+        # Make sure requestor didn't bind anything
+        assert assoc.dul.socket._handlers[evt.EVT_CONNECTION_OPEN] == []
+
+        assert scp._handlers[evt.EVT_CONNECTION_OPEN] == [on_conn_open]
+        assert assoc.is_established
+
+        sock = scp.active_associations[0].dul.socket
+        assert sock._handlers[evt.EVT_CONNECTION_OPEN] == [on_conn_open]
+        assert sock._handlers[evt.EVT_CONNECTION_CLOSE] == []
+
+        # Only the acceptor server's connection open event should trigger
+        #   not the acceptor association's client socket
+        assert len(triggered_events) == 1
+        event = triggered_events[0]
+        assert isinstance(event, Event)
+        assert isinstance(event.timestamp, datetime)
+        assert isinstance(event.address[0], str)
+        assert isinstance(event.address[1], int)
+
+        assoc.release()
+        scp.shutdown()
+
+    def test_bind_evt_connection_open_running(self):
+        """Test binding EVT_CONNECTION_OPEN while running with no assocs."""
+        triggered_events = []
+        def on_conn_open(event):
+            triggered_events.append(event)
+
+        self.ae = ae = AE()
+        ae.add_supported_context(VerificationSOPClass)
+        ae.add_requested_context(VerificationSOPClass)
+        scp = ae.start_server(('', 11112), block=False)
+        assert scp._handlers[evt.EVT_CONNECTION_OPEN] == []
+
+        scp.bind(evt.EVT_CONNECTION_OPEN, on_conn_open)
+        assert scp._handlers[evt.EVT_CONNECTION_OPEN] == [on_conn_open]
+
+        assoc = ae.associate('localhost', 11112)
+        assert assoc.dul.socket._handlers[evt.EVT_CONNECTION_OPEN] == []
+        assert assoc.is_established
+
+        sock = scp.active_associations[0].dul.socket
+        assert sock._handlers[evt.EVT_CONNECTION_OPEN] == [on_conn_open]
+        assert sock._handlers[evt.EVT_CONNECTION_CLOSE] == []
+
+        assert len(scp.active_associations) == 1
+
+        assert len(triggered_events) == 1
+        event = triggered_events[0]
+        assert isinstance(event, Event)
+        assert isinstance(event.timestamp, datetime)
+        assert isinstance(event.address[0], str)
+        assert isinstance(event.address[1], int)
+
+        assoc.release()
+
+        time.sleep(0.1)
+
+        assert len(scp.active_associations) == 0
+
+        scp.shutdown()
+
+    def test_bind_evt_connection_open_during(self):
+        """Test binding EVT_CONNECTION_OPEN while assocs are running."""
+        triggered_events = []
+        def on_conn_open(event):
+            triggered_events.append(event)
+
+        self.ae = ae = AE()
+        ae.add_supported_context(VerificationSOPClass)
+        ae.add_requested_context(VerificationSOPClass)
+        scp = ae.start_server(('', 11112), block=False)
+        assert scp._handlers[evt.EVT_CONNECTION_OPEN] == []
+
+        assoc = ae.associate('localhost', 11112)
+        assert assoc.dul.socket._handlers[evt.EVT_CONNECTION_OPEN] == []
+
+        assert scp._handlers[evt.EVT_CONNECTION_OPEN] == []
+        assert assoc.is_established
+
+        sock = scp.active_associations[0].dul.socket
+        assert sock._handlers[evt.EVT_CONNECTION_OPEN] == []
+        assert sock._handlers[evt.EVT_CONNECTION_CLOSE] == []
+        assert len(triggered_events) == 0
+
+        scp.bind(evt.EVT_CONNECTION_OPEN, on_conn_open)
+
+        assoc2 = ae.associate('localhost', 11112)
+        assert assoc2.is_established
+
+        assert len(scp.active_associations) == 2
+        sock = scp.active_associations[0].dul.socket
+        assert sock._handlers[evt.EVT_CONNECTION_OPEN] == [on_conn_open]
+        sock = scp.active_associations[1].dul.socket
+        assert sock._handlers[evt.EVT_CONNECTION_OPEN] == [on_conn_open]
+
+        assert len(triggered_events) == 1
+        event = triggered_events[0]
+        assert isinstance(event, Event)
+        assert isinstance(event.timestamp, datetime)
+        assert isinstance(event.address[0], str)
+        assert isinstance(event.address[1], int)
+
+        assoc.release()
+
+        time.sleep(0.1)
+
+        assert len(scp.active_associations) == 1
+
+        assoc2.release()
+
+        time.sleep(0.1)
+
+        assert len(scp.active_associations) == 0
+
+        scp.shutdown()
+
+    def test_unbind_evt_connection_open_running(self):
+        """Test unbinding an event while running with no assocs."""
+        triggered_events = []
+        def on_conn_open(event):
+            triggered_events.append(event)
+
+        self.ae = ae = AE()
+        ae.add_supported_context(VerificationSOPClass)
+        ae.add_requested_context(VerificationSOPClass)
+        scp = ae.start_server(
+            ('', 11112),
+            block=False,
+            evt_handlers=[(evt.EVT_CONNECTION_OPEN, on_conn_open)]
+        )
+        assert scp._handlers[evt.EVT_CONNECTION_OPEN] == [on_conn_open]
+
+        scp.unbind(evt.EVT_CONNECTION_OPEN, on_conn_open)
+        assert scp._handlers[evt.EVT_CONNECTION_OPEN] == []
+
+        # Start association
+        assoc = ae.associate('localhost', 11112)
+        assert assoc.is_established
+
+        sock = scp.active_associations[0].dul.socket
+        assert sock._handlers[evt.EVT_CONNECTION_OPEN] == []
+        assert sock._handlers[evt.EVT_CONNECTION_CLOSE] == []
+
+        assert len(triggered_events) == 0
+
+        assoc.release()
+        scp.shutdown()
+
+    def test_unbind_evt_connection_open_during(self):
+        """Test unbinding EVT_CONNECTION_OPEN while assoc is established."""
+        triggered_events = []
+        def on_conn_open(event):
+            triggered_events.append(event)
+
+        self.ae = ae = AE()
+        ae.add_supported_context(VerificationSOPClass)
+        ae.add_requested_context(VerificationSOPClass)
+        scp = ae.start_server(
+            ('', 11112),
+            block=False,
+            evt_handlers=[(evt.EVT_CONNECTION_OPEN, on_conn_open)]
+        )
+        assert scp._handlers[evt.EVT_CONNECTION_OPEN] == [on_conn_open]
+
+        assoc = ae.associate('localhost', 11112)
+        assert assoc.dul.socket._handlers[evt.EVT_CONNECTION_OPEN] == []
+
+        assert scp._handlers[evt.EVT_CONNECTION_OPEN] == [on_conn_open]
+        assert assoc.is_established
+
+        sock = scp.active_associations[0].dul.socket
+        assert sock._handlers[evt.EVT_CONNECTION_OPEN] == [on_conn_open]
+        assert sock._handlers[evt.EVT_CONNECTION_CLOSE] == []
+
+        # Only the acceptor server's connection open event should trigger
+        #   not the acceptor association's client socket
+        assert len(triggered_events) == 1
+        event = triggered_events[0]
+        assert isinstance(event, Event)
+        assert isinstance(event.timestamp, datetime)
+        assert isinstance(event.address[0], str)
+        assert isinstance(event.address[1], int)
+
+        assoc.release()
+
+        time.sleep(0.1)
+        
+        assert len(scp.active_associations) == 0
+
+        scp.unbind(evt.EVT_CONNECTION_OPEN, on_conn_open)
+        assert scp._handlers[evt.EVT_CONNECTION_OPEN] == []
+        assoc = ae.associate('localhost', 11112)
+        assert scp._handlers[evt.EVT_CONNECTION_OPEN] == []
+        assert assoc.is_established
+
+        assert len(triggered_events) == 1
+
+        assoc.release()
+        scp.shutdown()
+
+    def test_bind_evt_connection_close(self):
+        """Test associations as acceptor with EVT_CONNECTION_CLOSE bound."""
+        triggered_events = []
+        def on_conn_close(event):
+            triggered_events.append(event)
+
+        self.ae = ae = AE()
+        ae.add_supported_context(VerificationSOPClass)
+        ae.add_requested_context(VerificationSOPClass)
+        scp = ae.start_server(
+            ('', 11112),
+            block=False,
+            evt_handlers=[(evt.EVT_CONNECTION_CLOSE, on_conn_close)]
+        )
+        # Start association
+        assoc = ae.associate('localhost', 11112)
+        # Make sure requestor didn't bind anything
+        assert assoc.dul.socket._handlers[evt.EVT_CONNECTION_CLOSE] == []
+
+        assert evt.EVT_CONNECTION_CLOSE not in scp._handlers
+        assert assoc.is_established
+
+        sock = scp.active_associations[0].dul.socket
+        assert sock._handlers[evt.EVT_CONNECTION_CLOSE] == [on_conn_close]
+        assert sock._handlers[evt.EVT_CONNECTION_OPEN] == []
+
+        assert len(triggered_events) == 0
+
+        assoc.release()
+
+        time.sleep(0.1)
+
+        assert len(triggered_events) == 1
+        event = triggered_events[0]
+        assert isinstance(event, Event)
+        assert isinstance(event.timestamp, datetime)
+        assert not hasattr(event, 'address')
+
+        scp.shutdown()
+
+    def test_bind_evt_connection_close_running(self):
+        """Test binding EVT_CONNECTION_CLOSE while running with no assocs."""
+        triggered_events = []
+        def on_conn_close(event):
+            triggered_events.append(event)
+
+        self.ae = ae = AE()
+        ae.add_supported_context(VerificationSOPClass)
+        ae.add_requested_context(VerificationSOPClass)
+        scp = ae.start_server(('', 11112), block=False)
+
+        scp.bind(evt.EVT_CONNECTION_CLOSE, on_conn_close)
+
+        # Start association
+        assoc = ae.associate('localhost', 11112)
+        # Make sure requestor didn't bind anything
+        assert assoc.dul.socket._handlers[evt.EVT_CONNECTION_CLOSE] == []
+
+        assert evt.EVT_CONNECTION_CLOSE not in scp._handlers
+        assert assoc.is_established
+
+        sock = scp.active_associations[0].dul.socket
+        assert sock._handlers[evt.EVT_CONNECTION_CLOSE] == [on_conn_close]
+        assert sock._handlers[evt.EVT_CONNECTION_OPEN] == []
+
+        assert len(triggered_events) == 0
+
+        assoc.release()
+
+        time.sleep(0.1)
+
+        assert len(triggered_events) == 1
+        event = triggered_events[0]
+        assert isinstance(event, Event)
+        assert isinstance(event.timestamp, datetime)
+        assert not hasattr(event, 'address')
+
+        scp.shutdown()
+
+    def test_bind_evt_connection_close_during(self):
+        """Test binding EVT_CONNECTION_CLOSE while associated."""
+        triggered_events = []
+        def on_conn_close(event):
+            triggered_events.append(event)
+
+        self.ae = ae = AE()
+        ae.add_supported_context(VerificationSOPClass)
+        ae.add_requested_context(VerificationSOPClass)
+        scp = ae.start_server(('', 11112), block=False)
+
+        # Start association
+        assoc = ae.associate('localhost', 11112)
+        # Make sure requestor didn't bind anything
+        assert assoc.dul.socket._handlers[evt.EVT_CONNECTION_CLOSE] == []
+
+        assert evt.EVT_CONNECTION_CLOSE not in scp._handlers
+        assert assoc.is_established
+
+        sock = scp.active_associations[0].dul.socket
+        assert sock._handlers[evt.EVT_CONNECTION_CLOSE] == []
+        assert sock._handlers[evt.EVT_CONNECTION_OPEN] == []
+
+        scp.bind(evt.EVT_CONNECTION_CLOSE, on_conn_close)
+
+        assert assoc.dul.socket._handlers[evt.EVT_CONNECTION_CLOSE] == []
+        assert sock._handlers[evt.EVT_CONNECTION_CLOSE] == [on_conn_close]
+        assert sock._handlers[evt.EVT_CONNECTION_OPEN] == []
+
+        assert len(triggered_events) == 0
+
+        assoc.release()
+
+        time.sleep(0.1)
+
+        assert len(triggered_events) == 1
+        event = triggered_events[0]
+        assert isinstance(event, Event)
+        assert isinstance(event.timestamp, datetime)
+        assert not hasattr(event, 'address')
+
+        scp.shutdown()
+
+    def test_unbind_evt_connection_close_running(self):
+        """Test unbinding EVT_CONNECTION_CLOSE."""
+        triggered_events = []
+        def on_conn_close(event):
+            triggered_events.append(event)
+
+        self.ae = ae = AE()
+        ae.add_supported_context(VerificationSOPClass)
+        ae.add_requested_context(VerificationSOPClass)
+        scp = ae.start_server(
+            ('', 11112),
+            block=False,
+            evt_handlers=[(evt.EVT_CONNECTION_CLOSE, on_conn_close)]
+        )
+        scp.unbind(evt.EVT_CONNECTION_CLOSE, on_conn_close)
+        # Start association
+        assoc = ae.associate('localhost', 11112)
+        # Make sure requestor didn't bind anything
+        assert assoc.dul.socket._handlers[evt.EVT_CONNECTION_CLOSE] == []
+
+        assert evt.EVT_CONNECTION_CLOSE not in scp._handlers
+        assert assoc.is_established
+
+        sock = scp.active_associations[0].dul.socket
+        assert sock._handlers[evt.EVT_CONNECTION_CLOSE] == []
+        assert sock._handlers[evt.EVT_CONNECTION_OPEN] == []
+
+        assoc.release()
+
+        time.sleep(0.1)
+
+        assert len(triggered_events) == 0
+
+        scp.shutdown()
+
+    def test_unbind_evt_connection_close_during(self):
+        """Test unbinding EVT_CONNECTION_CLOSE while associated."""
+        triggered_events = []
+        def on_conn_close(event):
+            triggered_events.append(event)
+
+        self.ae = ae = AE()
+        ae.add_supported_context(VerificationSOPClass)
+        ae.add_requested_context(VerificationSOPClass)
+        evts = [(evt.EVT_CONNECTION_CLOSE, on_conn_close)]
+        scp = ae.start_server(('', 11112), block=False, evt_handlers=evts)
+
+        # Start association
+        assoc = ae.associate('localhost', 11112)
+        # Make sure requestor didn't bind anything
+        assert assoc.dul.socket._handlers[evt.EVT_CONNECTION_CLOSE] == []
+
+        assert evt.EVT_CONNECTION_CLOSE not in scp._handlers
+        assert assoc.is_established
+
+        sock = scp.active_associations[0].dul.socket
+        assert sock._handlers[evt.EVT_CONNECTION_CLOSE] == [on_conn_close]
+        assert sock._handlers[evt.EVT_CONNECTION_OPEN] == []
+
+        scp.unbind(evt.EVT_CONNECTION_CLOSE, on_conn_close)
+
+        assert sock._handlers[evt.EVT_CONNECTION_CLOSE] == []
+        assert sock._handlers[evt.EVT_CONNECTION_OPEN] == []
+
+        assoc.release()
+
+        time.sleep(0.1)
+
+        assert len(triggered_events) == 0
+
+        scp.shutdown()
+
+
+class TestTransportEventsRequestor(object):
+    """Test the transport events and handling as requestor."""
+    def test_no_handlers(self):
+        """Test associations as requestor with no handlers bound."""
+        self.ae = ae = AE()
+        ae.add_supported_context(VerificationSOPClass)
+        ae.add_requested_context(VerificationSOPClass)
+        scp = ae.start_server(('', 11112), block=False)
+        assoc = ae.associate('localhost', 11112)
+
+        assert assoc.is_established
+        assert assoc.dul.socket._handlers[evt.EVT_CONNECTION_OPEN] == []
+        assert assoc.dul.socket._handlers[evt.EVT_CONNECTION_CLOSE] == []
+
+        assoc.release()
+        scp.shutdown()
+
+    def test_bind_evt_connection_open(self):
+        pass
+
+    def test_unbind_evt_connection_open(self):
+        pass
+
+    def test_bind_evt_connection_close(self):
+        pass
+
+    def test_unbind_evt_connection_close(self):
+        pass

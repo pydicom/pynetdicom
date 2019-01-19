@@ -25,6 +25,16 @@ class AssociationSocket(object):
     Provides an interface for socket.socket that is integrated nicely with a
     pynetdicom Association instance and the state machine.
 
+    **Events**
+
+    +----------------------+-------------------------------+----------------+
+    | Event                | Description                   | Attributes     |
+    +======================+===============================+================+
+    | EVT_CONNECTION_OPEN  | Connection with remote opened | address        |
+    +----------------------+-------------------------------+----------------+
+    | EVT_CONNECTION_CLOSE | Connection with remote closed |                |
+    +----------------------+-------------------------------+----------------+
+
     Attributes
     ----------
     select_timeout : float or None
@@ -41,9 +51,6 @@ class AssociationSocket(object):
         the `server_hostname` keyword argument for ``SSLContext.wrap_socket()``
         If TLS is not to be used then None (default).
     """
-    _callbacks = {evt.EVT_CONNECTION_CLOSED : [],
-                  evt.EVT_CONNECTION_OPEN : []}
-
     def __init__(self, assoc, client_socket=None, address=('', 0)):
         """Create a new AssociationSocket.
 
@@ -79,10 +86,26 @@ class AssociationSocket(object):
         self.tls_args = None
         self.select_timeout = 0.5
 
+        self._handlers = {evt.EVT_CONNECTION_CLOSE : [],
+                          evt.EVT_CONNECTION_OPEN : []}
+
     @property
     def assoc(self):
         """Return the socket's parent Association instance."""
         return self._assoc
+
+    def bind(self, event, handler):
+        """Bind a callable `handler` to an `event`.
+
+        Parameters
+        ----------
+        event : 3-tuple
+            The event to bind the function to.
+        handler : callable
+            The function that will be called if the event occurs.
+        """
+        if event in self._handlers and handler not in self._handlers[event]:
+            self._handlers[event].append(handler)
 
     def close(self):
         """Close the connection to the peer and shutdown the socket.
@@ -95,7 +118,7 @@ class AssociationSocket(object):
 
         **Triggers**
 
-        - evt.EVT_CONNECTION_CLOSED
+        - evt.EVT_CONNECTION_CLOSE
         """
         if self.socket is None or self._is_connected is False:
             return
@@ -107,7 +130,7 @@ class AssociationSocket(object):
 
         self.socket.close()
         # Trigger event
-        evt.trigger(self, evt.EVT_CONNECTION_CLOSED, {})
+        evt.trigger(self, evt.EVT_CONNECTION_CLOSE)
         self.socket = None
         self._is_connected = False
         # Evt17: Transport connection closed
@@ -308,11 +331,25 @@ class AssociationSocket(object):
             # Evt17: Transport connection closed
             self.event_queue.put('Evt17')
 
+    def unbind(self, event, handler):
+        """Unbind a callable `handler` from an `event`.
+
+        Parameters
+        ----------
+        event : 3-tuple
+            The event to unbind the function to.
+        handler : callable
+            The function that will no longer be called if the event occurs.
+        """
+        if event in self._handlers and handler in self._handlers[event]:
+            self._handlers[event].remove(handler)
+
     def __str__(self):
         """Return the string output for `socket`."""
         return self.socket.__str__()
 
 
+# TODO: bind events to handlers
 class RequestHandler(BaseRequestHandler):
     """Connection request handler for the AssociationServer.
 
@@ -367,6 +404,11 @@ class RequestHandler(BaseRequestHandler):
         assoc.requestor.address = self.remote[0]
         assoc.requestor.port = self.remote[1]
 
+        # Bind events to handlers
+        for event in self.server._events:
+            for handler in self.server._events[event]:
+                assoc.bind(event, handler)
+
         assoc.start()
 
         # Track the server's associations
@@ -413,8 +455,6 @@ class AssociationServer(TCPServer):
         The SSLContext used to wrap client sockets, or None if no TLS is
         required.
     """
-    _callbacks = {evt.EVT_CONNECTION_OPEN : []}
-
     def __init__(self, ae, address, ssl_context=None, events=None):
         """Create a new AssociationServer, bind a socket and start listening.
 
@@ -440,46 +480,44 @@ class AssociationServer(TCPServer):
             self, address, RequestHandler, bind_and_activate=True
         )
 
+        # Tracks child Association acceptors
         self._children = []
+        # Stores all currently bound events so future children can be bound
         self._events = {}
+        # The event handlers as {event : [list of handlers]}
+        self._handlers = {evt.EVT_CONNECTION_OPEN : []}
 
         # Bind the functions to their events
-        for event in (events or []):
-            self.bind(*event)
+        for (event, handler) in (events or []):
+            self.bind(event, handler)
 
         self.timeout = 60
 
     # Note: should apply to the current server and all client Associations
-    def bind(self, evt, func):
-        """Bind a callable `func` to an `evt`.
+    def bind(self, event, handler):
+        """Bind a callable `handler` to an `event`.
 
         Parameters
         ----------
         event : 3-tuple
-            The event to bind the function to, taken from pynetdicom.evt.
-        func : callable
+            The event to bind the function to.
+        handler : callable
             The function that will be called if the event occurs.
         """
-        ## Note:
-        # When operating in blocking mode this is only called on __init__
-        # When operating in non-blocking mode this may be called at any time
-
         # Update the stored events so future associations get bound
-        if evt not in self._events:
-            self._events[evt] = []
+        if event not in self._events:
+            self._events[event] = []
 
-        if func not in self._events[evt]:
-            self._events[evt].append(func)
+        if handler not in self._events[event]:
+            self._events[event].append(handler)
 
         # Bind our own events
-        if evt in self._callbacks and func not in self._callbacks[evt]:
-            self._callbacks[evt].append(func)
-            return
+        if event in self._handlers and handler not in self._handlers[event]:
+            self._handlers[event].append(handler)
 
-        # Bind our child Association events - the children are responsible
-        #   for error handling
-        #for assoc in self.active_associations:
-        #    assoc.bind(evt, func)
+        # Bind our child Association events
+        for assoc in self.active_associations:
+            assoc.bind(event, handler)
 
     @property
     def active_associations(self):
@@ -562,36 +600,31 @@ class AssociationServer(TCPServer):
         self.server_close()
         self.ae._servers.remove(self)
 
-    def unbind(self, evt, func):
-        """Unbind a callable `func` from a transport service `evt`.
+    def unbind(self, event, handler):
+        """Unbind a callable `handler` from an `event`.
 
         Parameters
         ----------
         event : 3-tuple
             The event to unbind the function from.
-        func : callable
+        handler : callable
             The function that will no longer be called if the event occurs.
         """
-        ## Note:
-        # When operating in blocking mode this is only called on __init__
-        # When operating in non-blocking mode this may be called at any time
-
         # Update the stored events so future associations don't get bound
-        if evt not in self._events or func not in self._events[evt]:
-            # Can't be an event if not already in `_events`
+        if event not in self._events or handler not in self._events[event]:
+            # Can't be an event if not already in `_events` unless shenanigans
             return
 
-        self._events[evt].remove(func)
+        self._events[event].remove(handler)
 
         # Unbind from our own events
-        if evt in self._callbacks and func in self._callbacks[evt]:
-            self._callbacks[evt].remove(func)
+        if event in self._handlers and handler in self._handlers[event]:
+            self._handlers[event].remove(handler)
             return
 
-        # Unbind from our child Association events - the children are
-        #   responsible for error handling
-        #for assoc in self.active_associations:
-        #    assoc.unbind(evt, func)
+        # Unbind from our child Association events
+        for assoc in self.active_associations:
+            assoc.unbind(event, handler)
 
 
 class ThreadedAssociationServer(ThreadingMixIn, AssociationServer):
