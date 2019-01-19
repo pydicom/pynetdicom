@@ -86,6 +86,7 @@ class AssociationSocket(object):
         self.tls_args = None
         self.select_timeout = 0.5
 
+        # Event handlers
         self._handlers = {evt.EVT_CONNECTION_CLOSE : [],
                           evt.EVT_CONNECTION_OPEN : []}
 
@@ -349,7 +350,6 @@ class AssociationSocket(object):
         return self.socket.__str__()
 
 
-# TODO: bind events to handlers
 class RequestHandler(BaseRequestHandler):
     """Connection request handler for the AssociationServer.
 
@@ -484,7 +484,7 @@ class AssociationServer(TCPServer):
         self._children = []
         # Stores all currently bound events so future children can be bound
         self._events = {}
-        # The event handlers as {event : [list of handlers]}
+        # Event handlers
         self._handlers = {evt.EVT_CONNECTION_OPEN : []}
 
         # Bind the functions to their events
@@ -493,7 +493,6 @@ class AssociationServer(TCPServer):
 
         self.timeout = 60
 
-    # Note: should apply to the current server and all client Associations
     def bind(self, event, handler):
         """Bind a callable `handler` to an `event`.
 

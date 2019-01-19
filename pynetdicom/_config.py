@@ -24,5 +24,5 @@ DECODE_STORE_DATASETS = True
 #     negotiation, DIMSE messaging, etc)
 # Usage:
 #   from pynetdicom import _config
-#   _config.LOG_EVENT_LEVEL = ['none'|'standard']
-LOG_EVENT_LEVEL = 'standard'
+#   _config.LOG_HANDLER_LEVEL = ['none'|'standard']
+LOG_HANDLER_LEVEL = 'standard'

@@ -1,20 +1,4 @@
-"""Module used to support Event handling.
-
-**Events**
-
-.. _evt_transport:
-
-*Transport Service*
-
-+----------------------+-------------------------------+----------------+
-| Event                | Description                   | Attributes     |
-+======================+===============================+================+
-| EVT_CONNECTION_OPEN  | Connection with remote opened | address        |
-+----------------------+-------------------------------+----------------+
-
-
-
-"""
+"""Module used to support Event handling."""
 
 from datetime import datetime
 import logging
@@ -22,39 +6,17 @@ import logging
 
 LOGGER = logging.getLogger('pynetdicom.events')
 
-"""
 
-We want to be able to tie specific events to user callable functions as a
-way to update the current AE.on_c_echo, etc, pattern.
-
-def on_c_echo(evt):
-    evt.dataset - pydicom Dataset
-    evt.context - PresentationContextTupleThing
-    evt.message - C-ECHO-RQ
-    evt.is_cancelled() - function, returns bool
-    evt.timestamp - time event occurred
-    evt.type - evt.DIMSEEvent
-
-Which implies that evt is a class instance.
-
-ae = AE()
-ae.bind(event, callable)  # AE event binding
-
-events = (event, callable)
-
-# Association specific event binding
-assoc = ae.associate(host, port, evt_handlers=[(evt, func)])
-
-scp = ae.start_server((host, port), evt_handlers=[(evt, func)])
-
-I'd like to use the event binding system to replace the current logging methods
-
-"""
 # Possible events
 # (source, name, description, multiple handers)
 # Transport Service
 EVT_CONNECTION_OPEN = ('TRANSPORT', 'CONNECTION OPEN', 'Connection with remote opened', True)
 EVT_CONNECTION_CLOSE = ('TRANSPORT', 'CONNECTION CLOSE', 'Connection with remote closed', True)
+
+# DIMSE Service
+EVT_MESSAGE_RECV = ('DIMSE', 'MESSAGE RECV', 'DIMSE message received', True)
+EVT_MESSAGE_SENT = ('DIMSE', 'MESSAGE SENT', 'DIMSE message sent', True)
+
 
 # Association
 EVT_ESTABLISHED = ('ASSOCIATION', 'ESTABLISHED', 'Association established', True)
@@ -73,10 +35,6 @@ EVT_ACCEPT = ('ACSE', 'ASSOCIATION ACCEPT', 'Association accept sent/received')
 EVT_REJECT = ('ACSE', 'ASSOCIATION REJECT', 'Association reject sent/received')
 EVT_ABORT = ('ACSE', 'ASSOCIATION ABORT', 'Association abort sent/received')
 EVT_RELEASE = ('ACSE', 'ASSOCIATION RELEASE', 'Association release sent/received')
-
-# DIMSE Service
-EVT_MESSAGE_RECV = ('DIMSE', 'MESSAGE RECV', 'DIMSE message received', True)
-EVT_MESSAGE_SENT = ('DIMSE', 'MESSAGE SENT', 'DIMSE message sent', True)
 
 # Verificiation Service
 EVT_ECHO = ('VERIFICATION', 'ECHO ACTION', 'C-ECHO request received by service', False)

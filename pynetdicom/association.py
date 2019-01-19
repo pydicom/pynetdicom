@@ -157,7 +157,7 @@ class Association(threading.Thread):
         # Used to pause the association reactor until the DUL is ready
         self._dul_ready = threading.Event()
 
-        self._events = {}
+        # Event handlers
         self._handlers = {evt.EVT_ESTABLISHED : [], evt.EVT_RELEASED : [],
                           evt.EVT_ABORTED : [], evt.EVT_REJECTED : []}
 
@@ -216,26 +216,15 @@ class Association(threading.Thread):
         handler : callable
             The function that will be called if the event occurs.
         """
-        # Update the stored events so future associations get bound
-        if event not in self._events:
-            self._events[event] = []
-
-        if handler not in self._events[event]:
-            self._events[event].append(handler)
-
         # Bind our own events
         if event in self._handlers and handler not in self._handlers[event]:
             self._handlers[event].append(handler)
 
-        # Bind other events
+        # Bind our service's events
         if event[0] == "TRANSPORT":
             self.dul.socket.bind(event, handler)
-        #if event[0] == "ACSE":
-        #    self.acse.bind(event, handler)
-        #elif event[0] == 'DIMSE':
-        #    self.dimse.bind(event, handler)
-        #elif event[0] == "DUL":
-        #    self.dul.bind(event, handler)
+        elif event[0] == "DIMSE":
+            self.dimse.bind(event, handler)
 
     def _check_received_status(self, rsp):
         """Return a pydicom Dataset containing status related elements.
@@ -680,21 +669,16 @@ class Association(threading.Thread):
         handler : callable
             The function that will no longer be called if the event occurs.
         """
-        # Update the stored events so future associations don't get bound
-        if event not in self._events or handler not in self._events[event]:
-            # Can't be an event if not already in `_events` unless shenanigans
-            return
-
-        self._events[event].remove(handler)
-
         # Unbind from our own events
         if event in self._handlers and handler in self._handlers[event]:
             self._handlers[event].remove(handler)
             return
 
-        # Unbind other events
+        # Unbind our service's events
         if event[0] == "TRANSPORT":
             self.dul.socket.unbind(event, handler)
+        elif event[0] == "DIMSE":
+            self.dimse.unbind(event, handler)
 
     # DIMSE-C services provided by the Association
     def _c_store_scp(self, req):
