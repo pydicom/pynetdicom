@@ -812,6 +812,35 @@ def build_context(abstract_syntax, transfer_syntax=None):
     return context
 
 
+def build_role(uid, scu_role=False, scp_role=False):
+    """Return a SCP/SCU Role Selection Negotiation item.
+
+    Parameters
+    ----------
+    uid : str or UID or sop_class.SOPClass
+        The UID or SOPClass instance to use as the *SOP Class UID* parameter
+        value.
+    scu_role : bool, optional
+        True to propose the SCU role for the *Requestor*, False otherwise
+        (default).
+    scp_role : bool, optional
+        True to propose the SCP role for the *Requestor*, False otherwise
+        (default).
+
+    Returns
+    -------
+    pdu_primitives.SCP_SCU_RoleSelectionNegotiation
+        The role selection item.
+    """
+    from pynetdicom.pdu_primitives import SCP_SCU_RoleSelectionNegotiation
+
+    role = SCP_SCU_RoleSelectionNegotiation()
+    role.sop_class_uid = uid
+    role.scu_role = scu_role
+    role.scp_role = scp_role
+    return role
+
+
 # Service specific pre-generated Presentation Contexts
 # pylint: disable=line-too-long,invalid-name
 VerificationPresentationContexts = [
