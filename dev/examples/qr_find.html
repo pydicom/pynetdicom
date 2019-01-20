@@ -181,7 +181,7 @@ DIMSE C-FIND service.</p>
 <div class="section" id="query-retrieve-find-scu">
 <h2>Query/Retrieve (Find) SCU<a class="headerlink" href="#query-retrieve-find-scu" title="Permalink to this headline">¶</a></h2>
 <p>Associate with a peer DICOM Application Entity and request the SCP search for
-SOP Instances with a <em>Patient Name</em> matching ‘CITIZEN^Jan’ using the <em>Patient
+SOP Instances with a <em>Patient Name</em> matching <code class="docutils literal notranslate"><span class="pre">CITIZEN^Jan</span></code> using the <em>Patient
 Root Query/Retrieve Information Model - Find</em> at the <em>Patient</em> level.</p>
 <div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span> <span class="nn">pydicom.dataset</span> <span class="kn">import</span> <span class="n">Dataset</span>
 
@@ -209,23 +209,26 @@ Root Query/Retrieve Information Model - Find</em> at the <em>Patient</em> level.
     <span class="n">responses</span> <span class="o">=</span> <span class="n">assoc</span><span class="o">.</span><span class="n">send_c_find</span><span class="p">(</span><span class="n">ds</span><span class="p">,</span> <span class="n">query_model</span><span class="o">=</span><span class="s1">&#39;P&#39;</span><span class="p">)</span>
 
     <span class="k">for</span> <span class="p">(</span><span class="n">status</span><span class="p">,</span> <span class="n">identifier</span><span class="p">)</span> <span class="ow">in</span> <span class="n">responses</span><span class="p">:</span>
-        <span class="k">print</span><span class="p">(</span><span class="s1">&#39;C-FIND query status: 0x{0:04x}&#39;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">status</span><span class="o">.</span><span class="n">Status</span><span class="p">))</span>
+        <span class="k">if</span> <span class="n">status</span><span class="p">:</span>
+           <span class="k">print</span><span class="p">(</span><span class="s1">&#39;C-FIND query status: 0x{0:04x}&#39;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">status</span><span class="o">.</span><span class="n">Status</span><span class="p">))</span>
 
-        <span class="c1"># If the status is &#39;Pending&#39; then identifier is the C-FIND response</span>
-        <span class="k">if</span> <span class="n">status</span><span class="o">.</span><span class="n">Status</span> <span class="ow">in</span> <span class="p">(</span><span class="mh">0xFF00</span><span class="p">,</span> <span class="mh">0xFF01</span><span class="p">):</span>
-            <span class="k">print</span><span class="p">(</span><span class="n">identifier</span><span class="p">)</span>
+           <span class="c1"># If the status is &#39;Pending&#39; then `identifier` is the C-FIND response</span>
+           <span class="k">if</span> <span class="n">status</span><span class="o">.</span><span class="n">Status</span> <span class="ow">in</span> <span class="p">(</span><span class="mh">0xFF00</span><span class="p">,</span> <span class="mh">0xFF01</span><span class="p">):</span>
+               <span class="k">print</span><span class="p">(</span><span class="n">identifier</span><span class="p">)</span>
+        <span class="k">else</span><span class="p">:</span>
+           <span class="k">print</span><span class="p">(</span><span class="s1">&#39;Connection timed out, was aborted or received invalid response&#39;</span><span class="p">)</span>
 
     <span class="c1"># Release the association</span>
     <span class="n">assoc</span><span class="o">.</span><span class="n">release</span><span class="p">()</span>
 <span class="k">else</span><span class="p">:</span>
-    <span class="k">print</span><span class="p">(</span><span class="s1">&#39;Association rejected or aborted&#39;</span><span class="p">)</span>
+    <span class="k">print</span><span class="p">(</span><span class="s1">&#39;Association rejected, aborted or never connected&#39;</span><span class="p">)</span>
 </pre></div>
 </div>
 <p>The responses received from the SCP are dependent on the <em>Identifier</em> dataset
 keys and values, the Query/Retrieve level and the information model. For
 example, the following query dataset should yield C-FIND responses containing
 the various <em>SOP Class UIDs</em> that make are in each study for a patient with
-<em>Patient ID</em> ‘1234567’.</p>
+<em>Patient ID</em> <code class="docutils literal notranslate"><span class="pre">1234567</span></code>.</p>
 <div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="n">ds</span> <span class="o">=</span> <span class="n">Dataset</span><span class="p">()</span>
 <span class="n">ds</span><span class="o">.</span><span class="n">SOPClassesInStudy</span> <span class="o">=</span> <span class="s1">&#39;&#39;</span>
 <span class="n">ds</span><span class="o">.</span><span class="n">PatientID</span> <span class="o">=</span> <span class="s1">&#39;1234567&#39;</span>
@@ -295,6 +298,7 @@ query against that.</p>
 <span class="sd">    &quot;&quot;&quot;</span>
     <span class="c1"># Import stored SOP Instances</span>
     <span class="n">instances</span> <span class="o">=</span> <span class="p">[]</span>
+    <span class="n">matching</span> <span class="o">=</span> <span class="p">[]</span>
     <span class="n">fdir</span> <span class="o">=</span> <span class="s1">&#39;/path/to/directory&#39;</span>
     <span class="k">for</span> <span class="n">fpath</span> <span class="ow">in</span> <span class="n">os</span><span class="o">.</span><span class="n">listdir</span><span class="p">(</span><span class="n">fdir</span><span class="p">):</span>
         <span class="n">instances</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">dcmread</span><span class="p">(</span><span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">fdir</span><span class="p">,</span> <span class="n">fpath</span><span class="p">)))</span>

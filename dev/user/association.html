@@ -117,7 +117,10 @@
 <li class="toctree-l4"><a class="reference internal" href="#outcomes-of-an-association-request">Outcomes of an Association Request</a></li>
 </ul>
 </li>
-<li class="toctree-l3"><a class="reference internal" href="#using-an-association-scu">Using an Association (SCU)</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#using-an-association-scu">Using an Association (SCU)</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="#releasing-an-association">Releasing an Association</a></li>
+</ul>
+</li>
 <li class="toctree-l3"><a class="reference internal" href="#accessing-user-identity-responses">Accessing User Identity Responses</a></li>
 <li class="toctree-l3"><a class="reference internal" href="#listening-for-association-requests-scp">Listening for Association Requests (SCP)</a><ul>
 <li class="toctree-l4"><a class="reference internal" href="#id2">TLS</a></li>
@@ -316,9 +319,9 @@ the <code class="docutils literal notranslate"><span class="pre">tls_args</span>
 <span class="n">ae</span><span class="o">.</span><span class="n">add_requested_context</span><span class="p">(</span><span class="n">VerificationSOPClass</span><span class="p">)</span>
 
 <span class="c1"># Create the SSLContext, your requirements may vary</span>
-<span class="n">ssl_cx</span> <span class="o">=</span> <span class="n">ssl</span><span class="o">.</span><span class="n">create_default_context</span><span class="p">(</span><span class="n">ssl</span><span class="o">.</span><span class="n">Purpose</span><span class="o">.</span><span class="n">CLIENT_AUTH</span><span class="p">,</span> <span class="n">cafile</span><span class="o">=</span><span class="n">server</span><span class="o">.</span><span class="n">crt</span><span class="p">)</span>
+<span class="n">ssl_cx</span> <span class="o">=</span> <span class="n">ssl</span><span class="o">.</span><span class="n">create_default_context</span><span class="p">(</span><span class="n">ssl</span><span class="o">.</span><span class="n">Purpose</span><span class="o">.</span><span class="n">CLIENT_AUTH</span><span class="p">,</span> <span class="n">cafile</span><span class="o">=</span><span class="s1">&#39;server.crt&#39;</span><span class="p">)</span>
 <span class="n">ssl_cx</span><span class="o">.</span><span class="n">verify_mode</span> <span class="o">=</span> <span class="n">ssl</span><span class="o">.</span><span class="n">CERT_REQUIRED</span>
-<span class="n">ssl_cx</span><span class="o">.</span><span class="n">load_cert_chain</span><span class="p">(</span><span class="n">certfile</span><span class="o">=</span><span class="n">client</span><span class="o">.</span><span class="n">crt</span><span class="p">,</span> <span class="n">keyfile</span><span class="o">=</span><span class="n">client</span><span class="o">.</span><span class="n">key</span><span class="p">)</span>
+<span class="n">ssl_cx</span><span class="o">.</span><span class="n">load_cert_chain</span><span class="p">(</span><span class="n">certfile</span><span class="o">=</span><span class="s1">&#39;client.crt&#39;</span><span class="p">,</span> <span class="n">keyfile</span><span class="o">=</span><span class="s1">&#39;client.key&#39;</span><span class="p">)</span>
 
 <span class="n">assoc</span> <span class="o">=</span> <span class="n">ae</span><span class="o">.</span><span class="n">associate</span><span class="p">(</span><span class="s1">&#39;127.0.0.1&#39;</span><span class="p">,</span> <span class="mi">11112</span><span class="p">,</span> <span class="n">tls_args</span><span class="o">=</span><span class="p">(</span><span class="n">ssl_cx</span><span class="p">,</span> <span class="kc">None</span><span class="p">))</span>
 <span class="k">if</span> <span class="n">assoc</span><span class="o">.</span><span class="n">is_established</span><span class="p">:</span>
@@ -329,8 +332,9 @@ the <code class="docutils literal notranslate"><span class="pre">tls_args</span>
     <span class="n">assoc</span><span class="o">.</span><span class="n">release</span><span class="p">()</span>
 </pre></div>
 </div>
-<p><code class="docutils literal notranslate"><span class="pre">tls_args</span></code> is (SSLContext, hostname), where <code class="docutils literal notranslate"><span class="pre">hostname</span></code> is the value of
-the <code class="docutils literal notranslate"><span class="pre">server_hostname</span></code> keyword parameter in <code class="docutils literal notranslate"><span class="pre">SSLContext.wrap_socket()</span></code>.</p>
+<p><code class="docutils literal notranslate"><span class="pre">tls_args</span></code> is
+(<a class="reference external" href="https://docs.python.org/3/library/ssl.html#ssl.SSLContext.wrap_socket">SSLContext</a>,
+<em>host</em>), where <em>host</em> is the value of the <code class="docutils literal notranslate"><span class="pre">server_hostname</span></code> keyword parameter in <code class="docutils literal notranslate"><span class="pre">SSLContext.wrap_socket()</span></code>.</p>
 </div>
 <div class="section" id="outcomes-of-an-association-request">
 <h3>Outcomes of an Association Request<a class="headerlink" href="#outcomes-of-an-association-request" title="Permalink to this headline">¶</a></h3>
@@ -379,9 +383,11 @@ service and must implement the
 callback (as outlined <a class="reference internal" href="#assoc-scp"><span class="std std-ref">here</span></a>)</li>
 <li>C-MOVE, through the
 <a class="reference internal" href="../reference/generated/pynetdicom.association.Association.html#pynetdicom.association.Association.send_c_move" title="pynetdicom.association.Association.send_c_move"><code class="xref py py-meth docutils literal notranslate"><span class="pre">Association.send_c_move()</span></code></a>
-method. The current implementation of pynetdicom doesn’t support the C-MOVE
-SCU being the destination for the storage of requested datasets (the C-STORE
-SCP).</li>
+method. The performing SCP may either send the requested datasets over a new
+association to the move destination or (if the SCU is the destination) over
+the existing association so in that case you should implement the
+<a class="reference internal" href="../reference/generated/pynetdicom.ae.ApplicationEntity.html#pynetdicom.ae.ApplicationEntity.on_c_store" title="pynetdicom.ae.ApplicationEntity.on_c_store"><code class="xref py py-meth docutils literal notranslate"><span class="pre">AE.on_c_store()</span></code></a>
+callback.</li>
 </ul>
 <p>Attempting to use a service without an established association will raise a
 <code class="docutils literal notranslate"><span class="pre">RuntimeError</span></code>, while attempting to use a service that is not supported by
@@ -389,12 +395,20 @@ the association will raise a <code class="docutils literal notranslate"><span cl
 <p>For more information on using the services available to an association please
 read through the <a class="reference internal" href="../index.html#index-examples"><span class="std std-ref">examples</span></a> corresponding to the
 service class you’re interested in.</p>
+<div class="section" id="releasing-an-association">
+<h3>Releasing an Association<a class="headerlink" href="#releasing-an-association" title="Permalink to this headline">¶</a></h3>
+<p>Once your association has been established and you’ve finished using it, its a
+good idea to release the association using <code class="docutils literal notranslate"><span class="pre">Association.release()</span></code>, otherwise
+the association will remain open until the network timeout expires or the
+peer aborts or closes the connection.</p>
+</div>
 </div>
 <div class="section" id="accessing-user-identity-responses">
 <h2>Accessing User Identity Responses<a class="headerlink" href="#accessing-user-identity-responses" title="Permalink to this headline">¶</a></h2>
-<p>If the association requestor has sent a User Identity Negotiation item as
-part of the extended negotiation and has requested a response in the event of
-a positive identification then it can be accessed via the
+<p>If the association <em>Requestor</em> has sent a
+<a class="reference external" href="http://dicom.nema.org/medical/dicom/current/output/chtml/part07/sect_D.3.3.7.html">User Identity Negotiation</a>
+item as part of the extended negotiation and has requested a response in the
+event of a positive identification then it can be accessed via the
 <code class="xref py py-meth docutils literal notranslate"><span class="pre">Assocation.acceptor.user_identity</span></code>
 property after the association has been established.</p>
 </div>
@@ -430,13 +444,14 @@ non-blocking modes:</p>
 <span class="n">ae</span><span class="o">.</span><span class="n">start_server</span><span class="p">((</span><span class="s1">&#39;&#39;</span><span class="p">,</span> <span class="mi">11113</span><span class="p">),</span> <span class="n">block</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
 </pre></div>
 </div>
-<p>The returned ThreadedAssociationServer instances can be stopped using
-<code class="docutils literal notranslate"><span class="pre">shutdown()</span></code> and all active association can be stopped using
-<code class="docutils literal notranslate"><span class="pre">AE.shutdown()</span></code>.</p>
+<p>The returned
+<a class="reference internal" href="../reference/generated/pynetdicom.transport.ThreadedAssociationServer.html#pynetdicom.transport.ThreadedAssociationServer" title="pynetdicom.transport.ThreadedAssociationServer"><code class="xref py py-class docutils literal notranslate"><span class="pre">ThreadedAssociationServer</span></code></a>
+instances can be stopped using <code class="docutils literal notranslate"><span class="pre">shutdown()</span></code> and all active association
+can be stopped using <code class="docutils literal notranslate"><span class="pre">AE.shutdown()</span></code>.</p>
 <div class="section" id="id2">
 <h3>TLS<a class="headerlink" href="#id2" title="Permalink to this headline">¶</a></h3>
 <p>The client sockets generated by the association server can also be wrapped in
-TLS by  supplying a <a class="reference external" href="https://docs.python.org/2/library/ssl.html#ssl.SSLContext.wrap_socket">ssl.SSLContext</a>
+TLS by  supplying a <a class="reference external" href="https://docs.python.org/3/library/ssl.html#ssl.SSLContext.wrap_socket">ssl.SSLContext</a>
 instance via the <code class="docutils literal notranslate"><span class="pre">ssl_context</span></code> keyword parameter:</p>
 <div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="kn">import</span> <span class="nn">ssl</span>
 
@@ -448,8 +463,8 @@ instance via the <code class="docutils literal notranslate"><span class="pre">ss
 <span class="c1"># Create the SSLContext, your requirements may vary</span>
 <span class="n">ssl_cx</span> <span class="o">=</span> <span class="n">ssl</span><span class="o">.</span><span class="n">create_default_context</span><span class="p">(</span><span class="n">ssl</span><span class="o">.</span><span class="n">Purpose</span><span class="o">.</span><span class="n">CLIENT_AUTH</span><span class="p">)</span>
 <span class="n">ssl_cx</span><span class="o">.</span><span class="n">verify_mode</span> <span class="o">=</span> <span class="n">ssl</span><span class="o">.</span><span class="n">CERT_REQUIRED</span>
-<span class="n">ssl_cx</span><span class="o">.</span><span class="n">load_cert_chain</span><span class="p">(</span><span class="n">certfile</span><span class="o">=</span><span class="n">server</span><span class="o">.</span><span class="n">crt</span><span class="p">,</span> <span class="n">keyfile</span><span class="o">=</span><span class="n">server</span><span class="o">.</span><span class="n">key</span><span class="p">)</span>
-<span class="n">ssl_cx</span><span class="o">.</span><span class="n">load_verify_locations</span><span class="p">(</span><span class="n">cafile</span><span class="o">=</span><span class="n">client</span><span class="o">.</span><span class="n">crt</span><span class="p">)</span>
+<span class="n">ssl_cx</span><span class="o">.</span><span class="n">load_cert_chain</span><span class="p">(</span><span class="n">certfile</span><span class="o">=</span><span class="s1">&#39;server.crt&#39;</span><span class="p">,</span> <span class="n">keyfile</span><span class="o">=</span><span class="s1">&#39;server.key&#39;</span><span class="p">)</span>
+<span class="n">ssl_cx</span><span class="o">.</span><span class="n">load_verify_locations</span><span class="p">(</span><span class="n">cafile</span><span class="o">=</span><span class="s1">&#39;client.crt&#39;</span><span class="p">)</span>
 
 <span class="n">server</span> <span class="o">=</span> <span class="n">ae</span><span class="o">.</span><span class="n">start_server</span><span class="p">((</span><span class="s1">&#39;&#39;</span><span class="p">,</span> <span class="mi">11112</span><span class="p">),</span> <span class="n">block</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span> <span class="n">ssl_context</span><span class="o">=</span><span class="n">ssl_cx</span><span class="p">)</span>
 </pre></div>

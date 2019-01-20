@@ -13,8 +13,9 @@ Query/Retrieve (Get) SCU
 ........................
 
 Associate with a peer DICOM Application Entity and request the retrieval of
-all CT datasets for the patient with *Patient ID* '1234567' belonging to the
-series with *Study Instance UID* '1.2.3' and *Series Instance UID* '1.2.3.4'.
+all CT datasets for the patient with *Patient ID* ``1234567`` belonging to the
+series with *Study Instance UID* ``1.2.3`` and *Series Instance UID*
+``1.2.3.4``.
 
 The value of the *Query Retrieve Level* determines what SOP Instances are
 actually transferred; to transfer all datasets in the series we use
@@ -146,16 +147,19 @@ which requires adding the File Meta Information.
         responses = assoc.send_c_get(ds, query_model='P')
 
         for (status, identifier) in responses:
-            print('C-GET query status: 0x{0:04x}'.format(status.Status))
+            if status:
+                print('C-GET query status: 0x{0:04x}'.format(status.Status))
 
-            # If the status is 'Pending' then identifier is the C-GET response
-            if status.Status in (0xFF00, 0xFF01):
-                print(identifier)
+                # If the status is 'Pending' then `identifier` is the C-GET response
+                if status.Status in (0xFF00, 0xFF01):
+                    print(identifier)
+            else:
+                print('Connection timed out, was aborted or received invalid response')
 
         # Release the association
         assoc.release()
     else:
-        print('Association rejected or aborted')
+        print('Association rejected, aborted or never connected')
 
 
 The responses received from the SCP are dependent on the *Identifier* dataset
@@ -210,7 +214,7 @@ query against that.
 
         Parameters
         ----------
-        dataset : pydicom.dataset.Dataset
+        ds : pydicom.dataset.Dataset
             The Identifier dataset sent by the peer.
         context : presentation.PresentationContextTuple
             The presentation context that the C-GET message was sent under.

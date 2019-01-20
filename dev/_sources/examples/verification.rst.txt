@@ -44,16 +44,16 @@ Verification Service.
        status = assoc.send_c_echo()
 
        # Check the status of the verification request
-       if 'Status' in status:
+       if status:
            # If the verification request succeeded this will be 0x0000
            print('C-ECHO request status: 0x{0:04x}'.format(status.Status))
        else:
-           print('Connection timed out or invalid response from peer')
+           print('Connection timed out, was aborted or received invalid response')
 
        # Release the association
        assoc.release()
    else:
-       print('Association rejected or aborted')
+       print('Association rejected, aborted or never connected')
 
 You can also use the inbuilt ``VerificationPresentationContexts`` when setting
 the requested contexts.
@@ -85,12 +85,14 @@ to return an 0x0000 *Success* :ref:`status <verification_statuses>`.
    # Add the supported presentation context
    ae.add_supported_context(VerificationSOPClass)
 
-   # Start listening for incoming association requests
-   ae.start_server(('', 11112))
+   # Start listening for incoming association requests in blocking mode
+   ae.start_server(('', 11112), block=True)
 
 You can also optionally implement the ``on_c_echo`` callback.
 
 .. code-block:: python
+
+   import time
 
    from pynetdicom import AE
    from pynetdicom.sop_class import VerificationSOPClass
@@ -123,5 +125,11 @@ You can also optionally implement the ``on_c_echo`` callback.
 
    ae.on_c_echo = on_c_echo
 
-   # Start listening for incoming association requests
-   ae.start_server(('', 11112))
+   # Start listening for incoming association requests in non-blocking mode
+   scp = ae.start_server(('', 11112), block=False)
+
+   # Zzzzz
+   time.sleep(60)
+
+   # Shutdown the listen server
+   scp.shutdown()

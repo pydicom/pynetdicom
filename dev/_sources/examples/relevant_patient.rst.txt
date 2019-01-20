@@ -10,7 +10,7 @@ Relevant Patient Information SCU
 ................................
 
 Associate with a peer DICOM Application Entity and request information on a
-single patient with ID '1234567'.
+single patient with ID ``1234567``.
 
 .. code-block:: python
 

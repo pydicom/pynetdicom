@@ -12,7 +12,7 @@ Query/Retrieve (Find) SCU
 .........................
 
 Associate with a peer DICOM Application Entity and request the SCP search for
-SOP Instances with a *Patient Name* matching 'CITIZEN^Jan' using the *Patient
+SOP Instances with a *Patient Name* matching ``CITIZEN^Jan`` using the *Patient
 Root Query/Retrieve Information Model - Find* at the *Patient* level.
 
 .. code-block:: python
@@ -43,22 +43,25 @@ Root Query/Retrieve Information Model - Find* at the *Patient* level.
        responses = assoc.send_c_find(ds, query_model='P')
 
        for (status, identifier) in responses:
-           print('C-FIND query status: 0x{0:04x}'.format(status.Status))
+           if status:
+              print('C-FIND query status: 0x{0:04x}'.format(status.Status))
 
-           # If the status is 'Pending' then identifier is the C-FIND response
-           if status.Status in (0xFF00, 0xFF01):
-               print(identifier)
+              # If the status is 'Pending' then `identifier` is the C-FIND response
+              if status.Status in (0xFF00, 0xFF01):
+                  print(identifier)
+           else:
+              print('Connection timed out, was aborted or received invalid response')
 
        # Release the association
        assoc.release()
    else:
-       print('Association rejected or aborted')
+       print('Association rejected, aborted or never connected')
 
 The responses received from the SCP are dependent on the *Identifier* dataset
 keys and values, the Query/Retrieve level and the information model. For
 example, the following query dataset should yield C-FIND responses containing
 the various *SOP Class UIDs* that make are in each study for a patient with
-*Patient ID* '1234567'.
+*Patient ID* ``1234567``.
 
 .. code-block:: python
 
@@ -136,6 +139,7 @@ query against that.
        """
        # Import stored SOP Instances
        instances = []
+       matching = []
        fdir = '/path/to/directory'
        for fpath in os.listdir(fdir):
            instances.append(dcmread(os.path.join(fdir, fpath)))

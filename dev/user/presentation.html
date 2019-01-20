@@ -199,21 +199,32 @@
 <span id="user-presentation"></span><h1>Presentation Contexts<a class="headerlink" href="#presentation-contexts" title="Permalink to this headline">¶</a></h1>
 <div class="section" id="introduction">
 <h2>Introduction<a class="headerlink" href="#introduction" title="Permalink to this headline">¶</a></h2>
-<p>Presentation Contexts are used in DICOM to fully define the content and the
+<p><a class="reference external" href="http://dicom.nema.org/medical/dicom/current/output/chtml/part08/chapter_7.html#sect_7.1.1.13">Presentation Contexts</a>
+are used in DICOM to fully define the content and the
 encoding of a piece of data (typically a DICOM dataset). They consist of three
-main parts; a Context ID, an Abstract Syntax and one or more Transfer Syntaxes.</p>
+main parts; a <em>Context ID</em>, an <em>Abstract Syntax</em> and one or more
+<em>Transfer Syntaxes</em>.</p>
 <ul class="simple">
-<li>The Context ID is an odd-integer between 1 and 255 (inclusive) and identifies
-the context. With <em>pynetdicom</em> this is not something you typically have to
-worry about.</li>
-<li>The Abstract Syntax defines what the data represents, usually identified by
-a DICOM SOP Class UID such as ‘1.2.840.10008.1.1’ (Verification SOP Class)
-or ‘1.2.840.10008.5.1.4.1.1’ (CT Image Storage). Private abstract syntaxes
-are also allowed.</li>
-<li>The Transfer Syntax defines how the data is encoded, usually identified by
-a DICOM transfer syntax UID such as ‘1.2.840.10008.1.2’ (Implicit VR Little
-Endian) or ‘1.2.840.10008.1.2.4.50’ (JPEG Baseline). Private transfer
-syntaxes are also allowed.</li>
+<li>The <a class="reference external" href="http://dicom.nema.org/medical/dicom/current/output/chtml/part08/sect_9.3.2.2.html">Context ID</a>
+is an odd-integer between 1 and 255 (inclusive) and
+identifies the context. With <em>pynetdicom</em> this is not something you typically
+have to worry about.</li>
+<li>The <a class="reference external" href="http://dicom.nema.org/medical/dicom/current/output/chtml/part08/chapter_B.html">Abstract Syntax</a>
+defines what the data represents, usually identified by
+a DICOM SOP Class UID (however private abstract syntaxes are also allowed)
+such as:<ul>
+<li>1.2.840.10008.1.1 - <em>Verification SOP Class</em></li>
+<li>1.2.840.10008.5.1.4.1.1 - <em>CT Image Storage</em></li>
+</ul>
+</li>
+<li>The <a class="reference external" href="http://dicom.nema.org/medical/dicom/current/output/chtml/part05/chapter_10.html">Transfer Syntax</a>
+defines how the data is encoded, usually identified by
+a DICOM transfer syntax UID (however private transfer syntaxes are also
+allowed) such as:<ul>
+<li>1.2.840.10008.1.2 - <em>Implicit VR Little Endian</em></li>
+<li>1.2.840.10008.1.2.4.50 - <em>JPEG Baseline</em></li>
+</ul>
+</li>
 </ul>
 <div class="section" id="representation-in-pynetdicom">
 <h3>Representation in pynetdicom<a class="headerlink" href="#representation-in-pynetdicom" title="Permalink to this headline">¶</a></h3>
@@ -309,8 +320,8 @@ you’re intending to use the storage service then you’d propose one or more
 abstract syntaxes from the <a class="reference external" href="http://dicom.nema.org/medical/dicom/current/output/chtml/part04/sect_B.5.html">corresponding SOP Class UIDs</a>.</p>
 <p>The transfer syntaxes you propose for each abstract syntax should match the
 transfer syntax of the data you wish to send. For example, if you have
-a CT Image Storage dataset with a (0002,0010) <em>Transfer Syntax UID</em> value of
-‘1.2.840.10008.1.2.4.50’ (JPEG Baseline) then you won’t be able to send it
+a <em>CT Image Storage</em> dataset with a (0002,0010) <em>Transfer Syntax UID</em> value of
+1.2.840.10008.1.2.4.50 (<em>JPEG Baseline</em>) then you won’t be able to send it
 unless you propose (and get accepted) a presentation context with a matching
 transfer syntax.</p>
 <div class="admonition note">
@@ -338,10 +349,10 @@ transfer syntaxes:</p>
 <span class="go">    =JPEG Baseline (Process 1)</span>
 </pre></div>
 </div>
-<p>Provided both get accepted then its becomes possible to transfer CT Image
-datasets encoded in both JPEG Baseline and Implicit VR Little Endian.
+<p>Provided both contexts get accepted then its becomes possible to transfer CT
+Image datasets encoded in <em>JPEG Baseline</em> and/or <em>Implicit VR Little Endian</em>.
 Alternatively it may be necessary to decompress datasets prior to sending (as
-Implicit VR Little Endian should always be acceptable).</p>
+Implicit VR Little Endian should always be accepted).</p>
 </div>
 <div class="section" id="presentation-contexts-and-the-association-acceptor">
 <h2>Presentation Contexts and the Association Acceptor<a class="headerlink" href="#presentation-contexts-and-the-association-acceptor" title="Permalink to this headline">¶</a></h2>
@@ -405,7 +416,7 @@ syntaxes:</p>
 </ul>
 </li>
 </ul>
-<p>If the <em>Requestor</em> proposes the following presentation contexts:</p>
+<p>And a <em>Requestor</em> that proposes the following presentation contexts:</p>
 <ul class="simple">
 <li>Context 1: Verification SOP Class<ul>
 <li>Implicit VR Little Endian</li>
@@ -431,15 +442,15 @@ syntaxes:</p>
 </ul>
 </li>
 </ul>
-<p>Then the outcome of the association negotiation will be:</p>
+<p>Then the outcome of the presentation context negotiation will be:</p>
 <ul class="simple">
-<li>Context 1: Accepted (with the <em>Acceptor</em> choosing one of Implicit or
-Explicit VR Little Endian to use as the transfer syntax)</li>
-<li>Context 3: Accepted with Implicit VR Little Endian transfer syntax</li>
+<li>Context 1: Accepted (with the <em>Acceptor</em> choosing either <em>Implicit</em> or
+<em>Explicit VR Little Endian</em> to use as the transfer syntax)</li>
+<li>Context 3: Accepted with <em>Implicit VR Little Endian</em> transfer syntax</li>
 <li>Context 5: Rejected (transfer syntax not supported) because the <em>Acceptor</em>
 and <em>Requestor</em> have no matching transfer syntax for the context.</li>
 <li>Context 7: Rejected (abstract syntax not supported) because the <em>Acceptor</em>
-doesn’t support the CR Image Storage abstract syntax.</li>
+doesn’t support the <em>CR Image Storage</em> abstract syntax.</li>
 </ul>
 <p>Contexts 1 and 3 have been accepted and can be used for sending data while
 5 and 7 have been rejected and are not available.</p>
@@ -467,7 +478,7 @@ the <em>Requestor</em> proposes the following:</p>
 </pre></div>
 </div>
 </div></blockquote>
-<p>Then the accepted transfer syntax will be Explicit VR Little Endian.</p>
+<p>Then the accepted transfer syntax will be <em>Explicit VR Little Endian</em>.</p>
 </div>
 </div>
 <div class="section" id="scp-scu-role-selection">
@@ -475,8 +486,9 @@ the <em>Requestor</em> proposes the following:</p>
 <p>The final wrinkle in presentation context negotiation is <a class="reference external" href="http://dicom.nema.org/medical/dicom/current/output/chtml/part07/sect_D.3.3.4.html">SCP/SCU Role
 Selection</a>,
 which allows an association <em>Requestor</em> to propose its role (SCU, SCP, or
-SCU and SCP) for each proposed abstract syntax. Role selection is used for services such as the Query/Retrieve Service’s C-GET
-requests, where the association <em>Acceptor</em> sends data back to the <em>Requestor</em>.</p>
+SCU and SCP) for each proposed abstract syntax. Role selection is used for
+services such as the Query/Retrieve Service’s C-GET requests, where the
+association <em>Acceptor</em> sends data back to the <em>Requestor</em>.</p>
 <p>To propose SCP/SCU Role Selection as a <em>Requestor</em> you should include
 <a class="reference internal" href="../reference/generated/pynetdicom.pdu_primitives.SCP_SCU_RoleSelectionNegotiation.html#pynetdicom.pdu_primitives.SCP_SCU_RoleSelectionNegotiation" title="pynetdicom.pdu_primitives.SCP_SCU_RoleSelectionNegotiation"><code class="xref py py-class docutils literal notranslate"><span class="pre">SCP_SCU_RoleSelectionNegotiation</span></code></a>
 items in the extended negotiation:</p>
@@ -497,6 +509,8 @@ items in the extended negotiation:</p>
 </pre></div>
 </div>
 </div></blockquote>
+<p>When acting as the <em>Requestor</em> you can set <strong>either or both</strong> of <code class="docutils literal notranslate"><span class="pre">scu_role</span></code> and
+<code class="docutils literal notranslate"><span class="pre">scp_role</span></code>, with the non-specified role assumed to be <code class="docutils literal notranslate"><span class="pre">False</span></code>.</p>
 <p>To support SCP/SCU Role Selection as an <em>Acceptor</em> you can use the <code class="docutils literal notranslate"><span class="pre">scu_role</span></code>
 and <code class="docutils literal notranslate"><span class="pre">scp_role</span></code> arguments in <code class="docutils literal notranslate"><span class="pre">AE.add_supported_context</span></code>:</p>
 <blockquote>
@@ -510,10 +524,11 @@ and <code class="docutils literal notranslate"><span class="pre">scp_role</span>
 </pre></div>
 </div>
 </div></blockquote>
-<p>Both <code class="docutils literal notranslate"><span class="pre">scu_role</span></code> and <code class="docutils literal notranslate"><span class="pre">scp_role</span></code> must be specified. A value of True indicates
-that the <em>Acceptor</em> will accept the proposed role. <em>pynetdicom</em> uses the
-following table to decide the outcome of role selection negotiation:</p>
-<table border="1" class="docutils">
+<p>When acting as the <em>Acceptor</em> <strong>both</strong> <code class="docutils literal notranslate"><span class="pre">scu_role</span></code> and <code class="docutils literal notranslate"><span class="pre">scp_role</span></code> must be
+specified. A value of <code class="docutils literal notranslate"><span class="pre">True</span></code> indicates that the <em>Acceptor</em> will accept the
+proposed role. <em>pynetdicom</em> uses the following table to decide the outcome
+of role selection negotiation:</p>
+<table border="1" class="docutils" id="role-selection-negotiation">
 <colgroup>
 <col width="14%" />
 <col width="14%" />
@@ -608,10 +623,10 @@ following table to decide the outcome of role selection negotiation:</p>
 </table>
 <p>As can be seen there are four possible outcomes:</p>
 <ul class="simple">
-<li><em>Requestor</em> is SCU, <em>acceptor</em> is SCP (default roles)</li>
-<li><em>Requestor</em> is SCP, <em>acceptor</em> is SCU</li>
-<li><em>Requestor</em> and <em>acceptor</em> are both SCU/SCP</li>
-<li><em>Requestor</em> and <em>acceptor</em> are neither (context rejected)</li>
+<li><em>Requestor</em> is SCU, <em>Acceptor</em> is SCP (default roles)</li>
+<li><em>Requestor</em> is SCP, <em>Acceptor</em> is SCU</li>
+<li><em>Requestor</em> and <em>Acceptor</em> are both SCU/SCP</li>
+<li><em>Requestor</em> and <em>Acceptor</em> are neither (context rejected)</li>
 </ul>
 <div class="admonition warning">
 <p class="first admonition-title">Warning</p>

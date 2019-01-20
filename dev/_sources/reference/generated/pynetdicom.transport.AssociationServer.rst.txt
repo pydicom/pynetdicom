@@ -1,0 +1,48 @@
+pynetdicom.transport.AssociationServer
+======================================
+
+.. currentmodule:: pynetdicom.transport
+
+.. autoclass:: AssociationServer
+
+   
+   .. automethod:: __init__
+
+   
+   .. rubric:: Methods
+
+   .. autosummary::
+   
+      ~AssociationServer.__init__
+      ~AssociationServer.close_request
+      ~AssociationServer.fileno
+      ~AssociationServer.finish_request
+      ~AssociationServer.get_request
+      ~AssociationServer.handle_error
+      ~AssociationServer.handle_request
+      ~AssociationServer.handle_timeout
+      ~AssociationServer.process_request
+      ~AssociationServer.serve_forever
+      ~AssociationServer.server_activate
+      ~AssociationServer.server_bind
+      ~AssociationServer.server_close
+      ~AssociationServer.service_actions
+      ~AssociationServer.shutdown
+      ~AssociationServer.shutdown_request
+      ~AssociationServer.verify_request
+   
+   
+
+   
+   
+   .. rubric:: Attributes
+
+   .. autosummary::
+   
+      ~AssociationServer.address_family
+      ~AssociationServer.allow_reuse_address
+      ~AssociationServer.request_queue_size
+      ~AssociationServer.socket_type
+      ~AssociationServer.timeout
+   
+   

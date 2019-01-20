@@ -208,16 +208,16 @@ Verification Service.</p>
     <span class="n">status</span> <span class="o">=</span> <span class="n">assoc</span><span class="o">.</span><span class="n">send_c_echo</span><span class="p">()</span>
 
     <span class="c1"># Check the status of the verification request</span>
-    <span class="k">if</span> <span class="s1">&#39;Status&#39;</span> <span class="ow">in</span> <span class="n">status</span><span class="p">:</span>
+    <span class="k">if</span> <span class="n">status</span><span class="p">:</span>
         <span class="c1"># If the verification request succeeded this will be 0x0000</span>
         <span class="k">print</span><span class="p">(</span><span class="s1">&#39;C-ECHO request status: 0x{0:04x}&#39;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">status</span><span class="o">.</span><span class="n">Status</span><span class="p">))</span>
     <span class="k">else</span><span class="p">:</span>
-        <span class="k">print</span><span class="p">(</span><span class="s1">&#39;Connection timed out or invalid response from peer&#39;</span><span class="p">)</span>
+        <span class="k">print</span><span class="p">(</span><span class="s1">&#39;Connection timed out, was aborted or received invalid response&#39;</span><span class="p">)</span>
 
     <span class="c1"># Release the association</span>
     <span class="n">assoc</span><span class="o">.</span><span class="n">release</span><span class="p">()</span>
 <span class="k">else</span><span class="p">:</span>
-    <span class="k">print</span><span class="p">(</span><span class="s1">&#39;Association rejected or aborted&#39;</span><span class="p">)</span>
+    <span class="k">print</span><span class="p">(</span><span class="s1">&#39;Association rejected, aborted or never connected&#39;</span><span class="p">)</span>
 </pre></div>
 </div>
 <p>You can also use the inbuilt <code class="docutils literal notranslate"><span class="pre">VerificationPresentationContexts</span></code> when setting
@@ -244,12 +244,14 @@ to return an 0x0000 <em>Success</em> <a class="reference internal" href="../veri
 <span class="c1"># Add the supported presentation context</span>
 <span class="n">ae</span><span class="o">.</span><span class="n">add_supported_context</span><span class="p">(</span><span class="n">VerificationSOPClass</span><span class="p">)</span>
 
-<span class="c1"># Start listening for incoming association requests</span>
-<span class="n">ae</span><span class="o">.</span><span class="n">start_server</span><span class="p">((</span><span class="s1">&#39;&#39;</span><span class="p">,</span> <span class="mi">11112</span><span class="p">))</span>
+<span class="c1"># Start listening for incoming association requests in blocking mode</span>
+<span class="n">ae</span><span class="o">.</span><span class="n">start_server</span><span class="p">((</span><span class="s1">&#39;&#39;</span><span class="p">,</span> <span class="mi">11112</span><span class="p">),</span> <span class="n">block</span><span class="o">=</span><span class="bp">True</span><span class="p">)</span>
 </pre></div>
 </div>
 <p>You can also optionally implement the <code class="docutils literal notranslate"><span class="pre">on_c_echo</span></code> callback.</p>
-<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span> <span class="nn">pynetdicom</span> <span class="kn">import</span> <span class="n">AE</span>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">import</span> <span class="nn">time</span>
+
+<span class="kn">from</span> <span class="nn">pynetdicom</span> <span class="kn">import</span> <span class="n">AE</span>
 <span class="kn">from</span> <span class="nn">pynetdicom.sop_class</span> <span class="kn">import</span> <span class="n">VerificationSOPClass</span>
 
 <span class="c1"># Initialise the Application Entity and specify the listen port</span>
@@ -280,8 +282,14 @@ to return an 0x0000 <em>Success</em> <a class="reference internal" href="../veri
 
 <span class="n">ae</span><span class="o">.</span><span class="n">on_c_echo</span> <span class="o">=</span> <span class="n">on_c_echo</span>
 
-<span class="c1"># Start listening for incoming association requests</span>
-<span class="n">ae</span><span class="o">.</span><span class="n">start_server</span><span class="p">((</span><span class="s1">&#39;&#39;</span><span class="p">,</span> <span class="mi">11112</span><span class="p">))</span>
+<span class="c1"># Start listening for incoming association requests in non-blocking mode</span>
+<span class="n">scp</span> <span class="o">=</span> <span class="n">ae</span><span class="o">.</span><span class="n">start_server</span><span class="p">((</span><span class="s1">&#39;&#39;</span><span class="p">,</span> <span class="mi">11112</span><span class="p">),</span> <span class="n">block</span><span class="o">=</span><span class="bp">False</span><span class="p">)</span>
+
+<span class="c1"># Zzzzz</span>
+<span class="n">time</span><span class="o">.</span><span class="n">sleep</span><span class="p">(</span><span class="mi">60</span><span class="p">)</span>
+
+<span class="c1"># Shutdown the listen server</span>
+<span class="n">scp</span><span class="o">.</span><span class="n">shutdown</span><span class="p">()</span>
 </pre></div>
 </div>
 </div>
