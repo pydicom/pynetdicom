@@ -309,23 +309,29 @@ association *Acceptor* sends data back to the *Requestor*.
 
 To propose SCP/SCU Role Selection as a *Requestor* you should include
 :py:class:`SCP_SCU_RoleSelectionNegotiation <pynetdicom.pdu_primitives.SCP_SCU_RoleSelectionNegotiation>`
-items in the extended negotiation:
+items in the extended negotiation, either through creating
+SCP_SCU_RoleSelectionNegotiation items from scratch or using the
+:py:meth:`build_role() <pynetdicom.presentation.build_role>` convenience
+function:
 
   ::
 
-    from pynetdicom import AE
+    from pynetdicom import AE, build_role
     from pynetdicom.pdu_primitives import SCP_SCU_RoleSelectionNegotiation
-    from pynetdicom.sop_class import CTImageStorage
+    from pynetdicom.sop_class import CTImageStorage, MRImageStorage
 
     ae = AE()
     ae.add_requested_context(CTImageStorage)
+    ae.add_requested_context(MRImageStorage)
 
-    item = SCP_SCU_RoleSelectionNegotiation()
-    item.sop_class_uid = CTImageStorage
-    item.scu_role = True
-    item.scp_role = True
+    role_a = SCP_SCU_RoleSelectionNegotiation()
+    role_a.sop_class_uid = CTImageStorage
+    role_a.scu_role = True
+    role_a.scp_role = True
 
-    assoc = ae.associate('127.0.0.1', 11112, ext_neg=[item])
+    role_b = build_role(MRImageStorage, scp_role=True)
+
+    assoc = ae.associate('127.0.0.1', 11112, ext_neg=[role_a, role_b])
 
 When acting as the *Requestor* you can set **either or both** of ``scu_role`` and
 ``scp_role``, with the non-specified role assumed to be ``False``.

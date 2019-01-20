@@ -258,18 +258,18 @@ per-association basis you can use the <code class="docutils literal notranslate"
 then you can supply the <code class="docutils literal notranslate"><span class="pre">ext_neg</span></code> parameter. Some extended negotiation
 items can only be singular and some can occur multiple times depending on the
 service class and intended usage. The following example shows how to add
-SCP/SCU Role Selection Negotiation items when requesting the use of the
+<em>SCP/SCU Role Selection Negotiation</em> items using
+<a class="reference internal" href="../reference/generated/pynetdicom.presentation.build_role.html#pynetdicom.presentation.build_role" title="pynetdicom.presentation.build_role"><code class="xref py py-meth docutils literal notranslate"><span class="pre">build_role()</span></code></a>
+when requesting the use of the
 Query/Retrieve (QR) Service Class’ C-GET service (in this example the QR SCU is
-also acting as a Storage SCP), plus a User Identity Negotiation item:</p>
+also acting as a Storage SCP), plus a <em>User Identity Negotiation</em> item:</p>
 <div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span> <span class="nn">pynetdicom</span> <span class="k">import</span> <span class="p">(</span>
     <span class="n">AE</span><span class="p">,</span>
     <span class="n">StoragePresentationContexts</span><span class="p">,</span>
-    <span class="n">QueryRetrievePresentationContexts</span>
+    <span class="n">QueryRetrievePresentationContexts</span><span class="p">,</span>
+    <span class="n">build_role</span>
 <span class="p">)</span>
-<span class="kn">from</span> <span class="nn">pynetdicom.pdu_primitives</span> <span class="k">import</span> <span class="p">(</span>
-    <span class="n">SCP_SCU_RoleSelectionNegotiation</span><span class="p">,</span>
-    <span class="n">UserIdentityNegotiation</span><span class="p">,</span>
-<span class="p">)</span>
+<span class="kn">from</span> <span class="nn">pynetdicom.pdu_primitives</span> <span class="k">import</span> <span class="n">UserIdentityNegotiation</span>
 
 <span class="n">ae</span> <span class="o">=</span> <span class="n">AE</span><span class="p">()</span>
 <span class="c1"># Presentation contexts proposed as a QR SCU</span>
@@ -281,9 +281,7 @@ also acting as a Storage SCP), plus a User Identity Negotiation item:</p>
 <span class="c1">#   as an SCP</span>
 <span class="n">negotiation_items</span> <span class="o">=</span> <span class="p">[]</span>
 <span class="k">for</span> <span class="n">context</span> <span class="ow">in</span> <span class="n">StoragePresentationContexts</span><span class="p">:</span>
-    <span class="n">role</span> <span class="o">=</span> <span class="n">SCP_SCU_RoleSelectionNegotiation</span><span class="p">()</span>
-    <span class="n">role</span><span class="o">.</span><span class="n">sop_class_uid</span> <span class="o">=</span> <span class="n">context</span><span class="o">.</span><span class="n">abstract_syntax</span>
-    <span class="n">role</span><span class="o">.</span><span class="n">scp_role</span> <span class="o">=</span> <span class="kc">True</span>
+    <span class="n">role</span> <span class="o">=</span> <span class="n">build_role</span><span class="p">(</span><span class="n">context</span><span class="o">.</span><span class="n">abstract_syntax</span><span class="p">,</span> <span class="n">scp_role</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
     <span class="n">negotiation_items</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">role</span><span class="p">)</span>
 
 <span class="c1"># Add user identity negotiation request</span>

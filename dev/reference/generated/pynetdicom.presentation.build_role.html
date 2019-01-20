@@ -8,7 +8,7 @@
   
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   
-  <title>pynetdicom.presentation.negotiate_as_acceptor &mdash; pynetdicom 1.2.0b2 documentation</title>
+  <title>pynetdicom.presentation.build_role &mdash; pynetdicom 1.2.0b2 documentation</title>
   
 
   
@@ -152,13 +152,13 @@
     
       <li><a href="../../index.html">Docs</a> &raquo;</li>
         
-      <li>pynetdicom.presentation.negotiate_as_acceptor</li>
+      <li>pynetdicom.presentation.build_role</li>
     
     
       <li class="wy-breadcrumbs-aside">
         
             
-            <a href="../../_sources/reference/generated/pynetdicom.presentation.negotiate_as_acceptor.rst.txt" rel="nofollow"> View page source</a>
+            <a href="../../_sources/reference/generated/pynetdicom.presentation.build_role.rst.txt" rel="nofollow"> View page source</a>
           
         
       </li>
@@ -171,36 +171,30 @@
           <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
            <div itemprop="articleBody">
             
-  <div class="section" id="pynetdicom-presentation-negotiate-as-acceptor">
-<h1>pynetdicom.presentation.negotiate_as_acceptor<a class="headerlink" href="#pynetdicom-presentation-negotiate-as-acceptor" title="Permalink to this headline">¶</a></h1>
+  <div class="section" id="pynetdicom-presentation-build-role">
+<h1>pynetdicom.presentation.build_role<a class="headerlink" href="#pynetdicom-presentation-build-role" title="Permalink to this headline">¶</a></h1>
 <dl class="function">
-<dt id="pynetdicom.presentation.negotiate_as_acceptor">
-<code class="descclassname">pynetdicom.presentation.</code><code class="descname">negotiate_as_acceptor</code><span class="sig-paren">(</span><em>rq_contexts</em>, <em>ac_contexts</em>, <em>roles=None</em><span class="sig-paren">)</span><a class="reference internal" href="../../_modules/pynetdicom/presentation.html#negotiate_as_acceptor"><span class="viewcode-link">[source]</span></a><a class="reference external" href="https://github.com/pydicom/pynetdicom/blob/c5660fc/pynetdicom/presentation.py#L483"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pynetdicom.presentation.negotiate_as_acceptor" title="Permalink to this definition">¶</a></dt>
-<dd><p>Process the Presentation Contexts as an Association acceptor.</p>
+<dt id="pynetdicom.presentation.build_role">
+<code class="descclassname">pynetdicom.presentation.</code><code class="descname">build_role</code><span class="sig-paren">(</span><em>uid</em>, <em>scu_role=False</em>, <em>scp_role=False</em><span class="sig-paren">)</span><a class="reference internal" href="../../_modules/pynetdicom/presentation.html#build_role"><span class="viewcode-link">[source]</span></a><a class="reference external" href="https://github.com/pydicom/pynetdicom/blob/c5660fc/pynetdicom/presentation.py#L815"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pynetdicom.presentation.build_role" title="Permalink to this definition">¶</a></dt>
+<dd><p>Return a SCP/SCU Role Selection Negotiation item.</p>
 <table class="docutils field-list" frame="void" rules="none">
 <col class="field-name" />
 <col class="field-body" />
 <tbody valign="top">
 <tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first simple">
-<li><strong>rq_contexts</strong> (<em>list of PresentationContext</em>) – The Presentation Contexts proposed by the peer. Each item has
-values for Context ID, Abstract Syntax and Transfer Syntax.</li>
-<li><strong>ac_contexts</strong> (<em>list of PresentationContext</em>) – The Presentation Contexts supported by the local AE when acting
-as an Association acceptor. Each item has values for Context ID
-Abstract Syntax and Transfer Syntax.</li>
-<li><strong>roles</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#dict" title="(in Python v3.7)"><em>dict</em></a><em> or </em><a class="reference external" href="https://docs.python.org/3/library/constants.html#None" title="(in Python v3.7)"><em>None</em></a>) – If the requestor has included one or more SCP/SCU Role Selection
-Negotiation items then this will be a dict of
-{SOP Class UID : (SCU role, SCP role)}, otherwise None (default)</li>
+<li><strong>uid</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.7)"><em>str</em></a><em> or </em><em>UID</em><em> or </em><a class="reference internal" href="pynetdicom.sop_class.SOPClass.html#pynetdicom.sop_class.SOPClass" title="pynetdicom.sop_class.SOPClass"><em>sop_class.SOPClass</em></a>) – The UID or SOPClass instance to use as the <em>SOP Class UID</em> parameter
+value.</li>
+<li><strong>scu_role</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#bool" title="(in Python v3.7)"><em>bool</em></a><em>, </em><em>optional</em>) – True to propose the SCU role for the <em>Requestor</em>, False otherwise
+(default).</li>
+<li><strong>scp_role</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#bool" title="(in Python v3.7)"><em>bool</em></a><em>, </em><em>optional</em>) – True to propose the SCP role for the <em>Requestor</em>, False otherwise
+(default).</li>
 </ul>
 </td>
 </tr>
-<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body"><p class="first last"><ul class="simple">
-<li><em>list of PresentationContext</em> – The accepted presentation context items, each with a Result value
-a Context ID, an Abstract Syntax and one Transfer Syntax item.
-Items are sorted in increasing Context ID value.</li>
-<li><em>list of SCP_SCU_RoleSelectionNegotiation</em> – If <cite>roles</cite> is not None then this is a list of SCP/SCU Role Selection
-Negotiation items that can be sent back to the requestor.</li>
-</ul>
-</p>
+<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body"><p class="first">The role selection item.</p>
+</td>
+</tr>
+<tr class="field-odd field"><th class="field-name">Return type:</th><td class="field-body"><p class="first last"><a class="reference internal" href="pynetdicom.pdu_primitives.SCP_SCU_RoleSelectionNegotiation.html#pynetdicom.pdu_primitives.SCP_SCU_RoleSelectionNegotiation" title="pynetdicom.pdu_primitives.SCP_SCU_RoleSelectionNegotiation">pdu_primitives.SCP_SCU_RoleSelectionNegotiation</a></p>
 </td>
 </tr>
 </tbody>

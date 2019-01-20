@@ -491,21 +491,27 @@ services such as the Query/Retrieve Service’s C-GET requests, where the
 association <em>Acceptor</em> sends data back to the <em>Requestor</em>.</p>
 <p>To propose SCP/SCU Role Selection as a <em>Requestor</em> you should include
 <a class="reference internal" href="../reference/generated/pynetdicom.pdu_primitives.SCP_SCU_RoleSelectionNegotiation.html#pynetdicom.pdu_primitives.SCP_SCU_RoleSelectionNegotiation" title="pynetdicom.pdu_primitives.SCP_SCU_RoleSelectionNegotiation"><code class="xref py py-class docutils literal notranslate"><span class="pre">SCP_SCU_RoleSelectionNegotiation</span></code></a>
-items in the extended negotiation:</p>
+items in the extended negotiation, either through creating
+SCP_SCU_RoleSelectionNegotiation items from scratch or using the
+<a class="reference internal" href="../reference/generated/pynetdicom.presentation.build_role.html#pynetdicom.presentation.build_role" title="pynetdicom.presentation.build_role"><code class="xref py py-meth docutils literal notranslate"><span class="pre">build_role()</span></code></a> convenience
+function:</p>
 <blockquote>
-<div><div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span> <span class="nn">pynetdicom</span> <span class="k">import</span> <span class="n">AE</span>
+<div><div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span> <span class="nn">pynetdicom</span> <span class="k">import</span> <span class="n">AE</span><span class="p">,</span> <span class="n">build_role</span>
 <span class="kn">from</span> <span class="nn">pynetdicom.pdu_primitives</span> <span class="k">import</span> <span class="n">SCP_SCU_RoleSelectionNegotiation</span>
-<span class="kn">from</span> <span class="nn">pynetdicom.sop_class</span> <span class="k">import</span> <span class="n">CTImageStorage</span>
+<span class="kn">from</span> <span class="nn">pynetdicom.sop_class</span> <span class="k">import</span> <span class="n">CTImageStorage</span><span class="p">,</span> <span class="n">MRImageStorage</span>
 
 <span class="n">ae</span> <span class="o">=</span> <span class="n">AE</span><span class="p">()</span>
 <span class="n">ae</span><span class="o">.</span><span class="n">add_requested_context</span><span class="p">(</span><span class="n">CTImageStorage</span><span class="p">)</span>
+<span class="n">ae</span><span class="o">.</span><span class="n">add_requested_context</span><span class="p">(</span><span class="n">MRImageStorage</span><span class="p">)</span>
 
-<span class="n">item</span> <span class="o">=</span> <span class="n">SCP_SCU_RoleSelectionNegotiation</span><span class="p">()</span>
-<span class="n">item</span><span class="o">.</span><span class="n">sop_class_uid</span> <span class="o">=</span> <span class="n">CTImageStorage</span>
-<span class="n">item</span><span class="o">.</span><span class="n">scu_role</span> <span class="o">=</span> <span class="kc">True</span>
-<span class="n">item</span><span class="o">.</span><span class="n">scp_role</span> <span class="o">=</span> <span class="kc">True</span>
+<span class="n">role_a</span> <span class="o">=</span> <span class="n">SCP_SCU_RoleSelectionNegotiation</span><span class="p">()</span>
+<span class="n">role_a</span><span class="o">.</span><span class="n">sop_class_uid</span> <span class="o">=</span> <span class="n">CTImageStorage</span>
+<span class="n">role_a</span><span class="o">.</span><span class="n">scu_role</span> <span class="o">=</span> <span class="kc">True</span>
+<span class="n">role_a</span><span class="o">.</span><span class="n">scp_role</span> <span class="o">=</span> <span class="kc">True</span>
 
-<span class="n">assoc</span> <span class="o">=</span> <span class="n">ae</span><span class="o">.</span><span class="n">associate</span><span class="p">(</span><span class="s1">&#39;127.0.0.1&#39;</span><span class="p">,</span> <span class="mi">11112</span><span class="p">,</span> <span class="n">ext_neg</span><span class="o">=</span><span class="p">[</span><span class="n">item</span><span class="p">])</span>
+<span class="n">role_b</span> <span class="o">=</span> <span class="n">build_role</span><span class="p">(</span><span class="n">MRImageStorage</span><span class="p">,</span> <span class="n">scp_role</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+
+<span class="n">assoc</span> <span class="o">=</span> <span class="n">ae</span><span class="o">.</span><span class="n">associate</span><span class="p">(</span><span class="s1">&#39;127.0.0.1&#39;</span><span class="p">,</span> <span class="mi">11112</span><span class="p">,</span> <span class="n">ext_neg</span><span class="o">=</span><span class="p">[</span><span class="n">role_a</span><span class="p">,</span> <span class="n">role_b</span><span class="p">])</span>
 </pre></div>
 </div>
 </div></blockquote>
