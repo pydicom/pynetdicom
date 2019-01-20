@@ -63,21 +63,21 @@ If you require the use of :ref:`extended negotiation <concepts_negotiation>`
 then you can supply the ``ext_neg`` parameter. Some extended negotiation
 items can only be singular and some can occur multiple times depending on the
 service class and intended usage. The following example shows how to add
-SCP/SCU Role Selection Negotiation items when requesting the use of the
+*SCP/SCU Role Selection Negotiation* items using
+:py:meth:`build_role() <pynetdicom.presentation.build_role>`
+when requesting the use of the
 Query/Retrieve (QR) Service Class' C-GET service (in this example the QR SCU is
-also acting as a Storage SCP), plus a User Identity Negotiation item:
+also acting as a Storage SCP), plus a *User Identity Negotiation* item:
 
 ::
 
     from pynetdicom import (
         AE,
         StoragePresentationContexts,
-        QueryRetrievePresentationContexts
+        QueryRetrievePresentationContexts,
+        build_role
     )
-    from pynetdicom.pdu_primitives import (
-        SCP_SCU_RoleSelectionNegotiation,
-        UserIdentityNegotiation,
-    )
+    from pynetdicom.pdu_primitives import UserIdentityNegotiation
 
     ae = AE()
     # Presentation contexts proposed as a QR SCU
@@ -89,9 +89,7 @@ also acting as a Storage SCP), plus a User Identity Negotiation item:
     #   as an SCP
     negotiation_items = []
     for context in StoragePresentationContexts:
-        role = SCP_SCU_RoleSelectionNegotiation()
-        role.sop_class_uid = context.abstract_syntax
-        role.scp_role = True
+        role = build_role(context.abstract_syntax, scp_role=True)
         negotiation_items.append(role)
 
     # Add user identity negotiation request
