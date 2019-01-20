@@ -103,4 +103,198 @@ class Event(object):
     def __init__(self, event):
         self.event = event
         self.source = None
+        self.assoc = None
         self.timestamp = datetime.now()
+        self._has_dataset = False
+        self._has_identifier = False
+
+    @property
+    def dataset(self):
+        """
+
+        Returns
+        -------
+
+        Raises
+        ------
+
+        """
+        if self._has_dataset:
+            t_syntax = self.context.transfer_syntax
+            ds = decode(self.message.DataSet,
+                        t_syntax.is_implicit_VR,
+                        t_syntax.is_little_endian)
+            return ds
+
+        raise AttributeError("")
+
+    @property
+    def identifier(self):
+        pass
+
+
+def default_c_echo_handler(event):
+    """Default handler for when a C-ECHO request is received.
+
+    User implementation of this event handler is optional.
+
+    **Supported Service Classes**
+
+    *Verification Service Class*
+
+    **Status**
+
+    Success
+      | ``0x0000`` Success
+
+    Failure
+      | ``0x0122`` Refused: SOP Class Not Supported
+      | ``0x0210`` Refused: Duplicate Invocation
+      | ``0x0211`` Refused: Unrecognised Operation
+      | ``0x0212`` Refused: Mistyped Argument
+
+    Parameters
+    ----------
+    event : event.Event
+        The event representing a service class receiving a C-ECHO
+        request message. Event attributes are:
+
+        * ``assoc`` : the
+          :py:class:`association <pynetdicom.association.Association>`
+          that is running the service
+        * ``context`` : the
+          :py:class:`presentation context <pynetdicom.presentation.PresentationContext>`
+          the request was sent using
+        * message : the dimse_messages.C_ECHO_RQ message received
+        * ``timestamp`` : the `datetime <https://docs.python.org/3/library/datetime.html#datetime-objects>`_
+          that the event occurred at
+
+    Returns
+    -------
+    status : pydicom.dataset.Dataset or int
+        The status returned to the peer AE in the C-ECHO response. Must be
+        a valid C-ECHO status value for the applicable Service Class as
+        either an ``int`` or a ``Dataset`` object containing (at a minimum)
+        a (0000,0900) *Status* element. If returning a ``Dataset`` object
+        then it may also contain optional elements related to the Status
+        (as in the DICOM Standard Part 7, Annex C).
+
+
+    See Also
+    --------
+    association.Association.send_c_echo
+    dimse_primitives.C_ECHO
+    service_class.VerificationServiceClass
+
+    References
+    ----------
+
+    * DICOM Standard Part 4, `Annex A <http://dicom.nema.org/medical/dicom/current/output/html/part04.html#chapter_A>`_
+    * DICOM Standard Part 7, Sections
+      `9.1.5 <http://dicom.nema.org/medical/dicom/current/output/html/part07.html#sect_9.1.5>`_,
+      `9.3.5 <http://dicom.nema.org/medical/dicom/current/output/html/part07.html#sect_9.3.5>`_
+      and `Annex C <http://dicom.nema.org/medical/dicom/current/output/html/part07.html#chapter_C>`_
+    """
+    pass
+
+
+def default_c_store_handler(event):
+    """
+
+    If the user is storing the dataset in the DICOM File Format (as in the
+    DICOM Standard Part 10, Section 7) then they are responsible for adding
+    the DICOM File Meta Information.
+
+    **Supported Service Classes**
+
+    * *Storage Service Class*
+    * *Non-Patient Object Storage Service Class*
+
+    **Status**
+
+    Success
+      | ``0x0000`` - Success
+
+    Warning
+      | ``0xB000`` Coercion of data elements
+      | ``0xB006`` Elements discarded
+      | ``0xB007`` Dataset does not match SOP class
+
+    Failure
+      | ``0x0117`` Invalid SOP instance
+      | ``0x0122`` SOP class not supported
+      | ``0x0124`` Not authorised
+      | ``0x0210`` Duplicate invocation
+      | ``0x0211`` Unrecognised operation
+      | ``0x0212`` Mistyped argument
+      | ``0xA700`` to ``0xA7FF`` Out of resources
+      | ``0xA900`` to ``0xA9FF`` Dataset does not match SOP class
+      | ``0xC000`` to ``0xCFFF`` Cannot understand
+
+    Parameters
+    ----------
+    event : event.Event
+        The event representing a service class receiving a C-STORE
+        request message. Event attributes are:
+
+        * ``assoc`` : the
+          :py:class:`association <pynetdicom.association.Association>`
+          that is running the service
+        * ``context`` : the
+          :py:class:`presentation context <pynetdicom.presentation.PresentationContext>`
+          the request was sent using
+        * ``message`` : the received
+          :py:class:`C-STORE-RQ <pynetdicom.dimse_messages.C_STORE_RQ>`
+        * ``timestamp`` : the
+          `date and time <https://docs.python.org/3/library/datetime.html#datetime-objects>`_
+          that the event occurred at
+
+        Event properties are:
+
+        * ``dataset`` : the decoded
+          :py:class:`Dataset <pydicom.dataset.Dataset>` contained within the
+          C-STORE-RQ message's *DataSet* parameter. Because *pydicom* uses
+          a deferred read when decoding data, the returned
+          ``Dataset`` will only raise an exception because of a decoding
+          failure at the time of use.
+
+    Returns
+    -------
+    status : pydicom.dataset.Dataset or int
+        The status returned to the requesting AE in the C-STORE response. Must
+        be a valid C-STORE status value for the applicable Service Class as
+        either an ``int`` or a ``Dataset`` object containing (at a
+        minimum) a (0000,0900) *Status* element. If returning a Dataset
+        object then it may also contain optional elements related to the
+        Status (as in the DICOM Standard Part 7, Annex C).
+
+    Raises
+    ------
+    NotImplementedError
+        If the handler has not been implemented and bound by the user.
+
+    See Also
+    --------
+    association.Association.send_c_store
+    dimse_primitives.C_STORE
+    service_class.StorageServiceClass
+    service_class.NonPatientObjectStorageServiceClass
+
+    References
+    ----------
+
+    * DICOM Standard Part 4, Annexes
+      `B <http://dicom.nema.org/medical/dicom/current/output/html/part04.html#chapter_B>`_,
+      `AA <http://dicom.nema.org/medical/dicom/current/output/html/part04.html#chapter_AA>`_,
+      `FF <http://dicom.nema.org/medical/dicom/current/output/html/part04.html#chapter_FF>`_
+      and `GG <http://dicom.nema.org/medical/dicom/current/output/html/part04.html#chapter_GG>`_
+    * DICOM Standard Part 7, Sections
+      `9.1.1 <http://dicom.nema.org/medical/dicom/current/output/html/part07.html#sect_9.1.1>`_,
+      `9.3.1 <http://dicom.nema.org/medical/dicom/current/output/html/part07.html#sect_9.3.1>`_
+      and `Annex C <http://dicom.nema.org/medical/dicom/current/output/html/part07.html#chapter_C>`_
+    * DICOM Standard Part 10,
+      `Section 7 <http://dicom.nema.org/medical/dicom/current/output/html/part10.html#chapter_7>`_
+    """
+    raise NotImplementedError(
+        "No handler has been bound to evt.EVT_X "
+    )
