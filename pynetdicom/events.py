@@ -17,7 +17,7 @@ EVT_CONNECTION_CLOSE = ('TRANSPORT', 'CONNECTION CLOSE', 'Connection with remote
 EVT_MESSAGE_RECV = ('DIMSE', 'MESSAGE RECV', 'DIMSE message received', True)
 EVT_MESSAGE_SENT = ('DIMSE', 'MESSAGE SENT', 'DIMSE message sent', True)
 
-
+## WIP
 # Association
 EVT_ESTABLISHED = ('ASSOCIATION', 'ESTABLISHED', 'Association established', True)
 EVT_RELEASED = ('ASSOCIATION', 'RELEASED', 'Association release completed', True)
@@ -36,15 +36,18 @@ EVT_REJECT = ('ACSE', 'ASSOCIATION REJECT', 'Association reject sent/received')
 EVT_ABORT = ('ACSE', 'ASSOCIATION ABORT', 'Association abort sent/received')
 EVT_RELEASE = ('ACSE', 'ASSOCIATION RELEASE', 'Association release sent/received')
 
-# Verificiation Service
-EVT_ECHO = ('VERIFICATION', 'ECHO ACTION', 'C-ECHO request received by service', False)
-# Storage Service
-EVT_STORE = ('STORAGE', 'STORE ACTION', 'C-STORE request received by service', False)
-# Query/Retrieve Service
-EVT_FIND = ('QR', 'FIND ACTION', 'C-FIND request received by service', False)
-EVT_GET = ('QR', 'GET ACTION', 'C-GET request received by service', False)
-EVT_MOVE = ('QR', 'MOVE ACTION', 'C-MOVE request received by service', False)
-
+# Service Class event handlers
+EVT_C_ECHO = ('VERIFICATION', 'ECHO ACTION', 'C-ECHO request received by service', False)
+EVT_C_STORE = ('STORAGE', 'STORE ACTION', 'C-STORE request received by service', False)
+EVT_C_FIND = ('QR', 'FIND ACTION', 'C-FIND request received by service', False)
+EVT_C_GET = ('QR', 'GET ACTION', 'C-GET request received by service', False)
+EVT_C_MOVE = ('QR', 'MOVE ACTION', 'C-MOVE request received by service', False)
+EVT_N_ACTION = ()
+EVT_N_CREATE = ()
+EVT_N_DELETE = ()
+EVT_N_EVENT_REPORT = ()
+EVT_N_GET = ()
+EVT_N_SET = ()
 
 def trigger(cls, event, attrs=None):
     """Trigger an `event`.
@@ -77,11 +80,6 @@ def trigger(cls, event, attrs=None):
         for func in cls._handlers[event]:
             func(evt)
     except Exception as exc:
-        print(
-            "Exception raised in user's '{}' event handler '{}'"
-            .format(event[1], func.__name__)
-        )
-        print(exc)
         LOGGER.error(
             "Exception raised in user's '{}' event handler '{}'"
             .format(event[1], func.__name__)
@@ -105,32 +103,36 @@ class Event(object):
         self.source = None
         self.assoc = None
         self.timestamp = datetime.now()
-        self._has_dataset = False
-        self._has_identifier = False
 
     @property
     def dataset(self):
-        """
+        """Return the `message.DataSet` as a *pydicom* Dataset (if available).
+
+        Because *pydicom* defers data parsing during decoding until an element
+        is actually required the returned ``Dataset`` may raise an exception
+        when first used. It's therefore important that proper error handling
+        be part of any handler bound to an event that includes a dataset.
 
         Returns
         -------
+        pydicom.dataset.Dataset
+            The decoded dataset.
 
         Raises
         ------
-
+        AttributeError
+            If the event has no `message` or the `message` has no `DataSet`.
         """
-        if self._has_dataset:
+        try:
             t_syntax = self.context.transfer_syntax
             ds = decode(self.message.DataSet,
                         t_syntax.is_implicit_VR,
                         t_syntax.is_little_endian)
             return ds
+        except AttributeError:
+            pass
 
-        raise AttributeError("")
-
-    @property
-    def identifier(self):
-        pass
+        raise AttributeError("'Event' object has no attribute 'dataset'")
 
 
 def default_c_echo_handler(event):
@@ -255,8 +257,8 @@ def default_c_store_handler(event):
           :py:class:`Dataset <pydicom.dataset.Dataset>` contained within the
           C-STORE-RQ message's *DataSet* parameter. Because *pydicom* uses
           a deferred read when decoding data, the returned
-          ``Dataset`` will only raise an exception because of a decoding
-          failure at the time of use.
+          ``Dataset`` will only raise a decoding failure exception at the
+          time of use.
 
     Returns
     -------
@@ -295,6 +297,4 @@ def default_c_store_handler(event):
     * DICOM Standard Part 10,
       `Section 7 <http://dicom.nema.org/medical/dicom/current/output/html/part10.html#chapter_7>`_
     """
-    raise NotImplementedError(
-        "No handler has been bound to evt.EVT_X "
-    )
+    raise NotImplementedError("No handler has been bound to evt.EVT_C_STORE")
