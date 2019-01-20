@@ -42,16 +42,16 @@ single CT dataset.
        status = assoc.send_c_store(ds)
 
        # Check the status of the storage request
-       if 'Status' in status:
+       if status:
            # If the storage request succeeded this will be 0x0000
            print('C-STORE request status: 0x{0:04x}'.format(status.Status))
        else:
-           print('Connection timed out or invalid response from peer')
+           print('Connection timed out, was aborted or received invalid response')
 
        # Release the association
        assoc.release()
    else:
-       print('Association rejected or aborted')
+       print('Association rejected, aborted or never connected')
 
 Of course it's rarely the case that someone wants to store just CT images,
 so you can also use the inbuilt ``StoragePresentationContexts`` when setting
@@ -162,13 +162,15 @@ which requires adding the File Meta Information.
 
    ae.on_c_store = on_c_store
 
-   # Start listening for incoming association requests
-   ae.start_server(('', 11112))
+   # Start listening for incoming association requests in blocking mode
+   ae.start_server(('', 11112), block=True)
 
 As with the SCU you can also just support only the contexts you're
 interested in.
 
 .. code-block:: python
+
+   import time
 
    from pynetdicom import AE
    from pynetdicom.sop_class import CTImageStorage
@@ -184,10 +186,17 @@ interested in.
 
    ae.on_c_store = on_c_store
 
-   ae.start_server(('', 11112))
+   # Start server in non-blocking mode
+   scp = ae.start_server(('', 11112), block=False)
+
+   # Listen for incoming connection requests
+   time.sleep(60)
+
+   # Shutdown the listen server
+   scp.shutdown()
 
 It's also possible to return the raw encoded dataset sent by the service
-requestor rather than a pydicom Dataset object by setting the
+requestor rather than a pydicom ``Dataset`` object by setting the
 ``_config.DECODE_STORE_DATASETS`` value to False:
 
 .. code-block:: python
@@ -222,3 +231,9 @@ This has a couple of advantages over the default:
   re-encoded prior to writing.
 * Any issues with decoding the dataset (non-conformance, bugs in pydicom)
   are bypassed.
+
+And a couple of caveats:
+
+* You need to decode the dataset yourself
+* You need to provide error handling if the decode fails and return the
+  correct status if that happens
