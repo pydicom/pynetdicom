@@ -27,6 +27,7 @@ from pynetdicom.presentation import (
     ImplantTemplatePresentationContexts,
     DisplaySystemPresentationContexts,
     build_context,
+    build_role,
 )
 from pynetdicom.sop_class import (
     VerificationSOPClass,
@@ -1191,7 +1192,6 @@ class TestNegotiateAsRequestorWithRoleSelection(object):
         scp.shutdown()
 
 
-
 class TestNegotiateAsRequestor(object):
     """Tests negotiate_as_requestor."""
     def setup(self):
@@ -1732,3 +1732,31 @@ class TestServiceContexts(object):
             assert context.context_id is None
 
         assert contexts[0].abstract_syntax == '1.2.840.10008.5.1.1.40'
+
+
+class TestBuildRole(object):
+    """Tests for presentation.build_role."""
+    def test_default(self):
+        """Test the default role."""
+        role = build_role('1.2.3')
+
+        assert role.sop_class_uid == '1.2.3'
+        assert role.scu_role is False
+        assert role.scp_role is False
+
+    def test_various(self):
+        """Test various combinations of role."""
+        role = build_role('1.2.3', scu_role=True)
+        assert role.sop_class_uid == '1.2.3'
+        assert role.scu_role is True
+        assert role.scp_role is False
+
+        role = build_role('1.2.3', scp_role=True)
+        assert role.sop_class_uid == '1.2.3'
+        assert role.scu_role is False
+        assert role.scp_role is True
+
+        role = build_role('1.2.3', scu_role=True, scp_role=True)
+        assert role.sop_class_uid == '1.2.3'
+        assert role.scu_role is True
+        assert role.scp_role is True
