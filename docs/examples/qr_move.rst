@@ -12,17 +12,16 @@ know in advance the details (AE title, IP address, port number) of the
 destination Storage SCP. If the Move SCP doesn't know the destination AE then
 it will usually respond with an ``0xA801`` status code.
 
-Due to the way pynetdicom is currently implemented it does not support the
-QR Move SCU being able to also act as the destination Storage SCP. In order to
-have a destination Storage SCP it is necessary to create it in a separate AE.
+With *pynetdicom* its possible to start a non-blocking Storage SCP and use
+that as the destination for a C-MOVE request sent by the same AE instance.
 
 Query/Retrieve (Move) SCU
 .........................
 
 Associate with a peer DICOM Application Entity and request it send
-all SOP Instances for the patient with *Patient ID* '1234567' belonging to the
-series with *Study Instance UID* '1.2.3' and *Series Instance UID* '1.2.3.4' to
-the Storage SCP with AE title b'STORE_SCP'.
+all SOP Instances for the patient with *Patient ID* ``1234567`` belonging to the
+series with *Study Instance UID* ``1.2.3`` and *Series Instance UID*
+``1.2.3.4`` to a Storage SCP with AE title ``b'STORE_SCP'``.
 
 .. code-block:: python
 
@@ -57,19 +56,83 @@ the Storage SCP with AE title b'STORE_SCP'.
         responses = assoc.send_c_move(ds, b'STORE_SCP', query_model='P')
 
         for (status, identifier) in responses:
-            print('C-MOVE query status: 0x{0:04x}'.format(status.Status))
+            if status:
+                print('C-MOVE query status: 0x{0:04x}'.format(status.Status))
 
-            # If the status is 'Pending' then the identifier is the C-MOVE response
-            if status.Status in (0xFF00, 0xFF01):
-                print(identifier)
+                # If the status is 'Pending' then the identifier is the C-MOVE response
+                if status.Status in (0xFF00, 0xFF01):
+                    print(identifier)
+            else:
+                print('Connection timed out, was aborted or received invalid response')
 
         # Release the association
         assoc.release()
     else:
-        print('Association rejected or aborted')
+        print('Association rejected, aborted or never connected')
 
 The responses received from the SCP include notifications on whether or not
 the storage sub-operations have been successful.
+
+Do the same thing, but send the SOP Instances to a non-blocking Storage SCP
+being run from the same AE as the C-MOVE request:
+
+.. code-block:: python
+
+    from pydicom.dataset import Dataset
+
+    from pynetdicom import AE, StoragePresentationContexts
+    from pynetdicom.sop_class import PatientRootQueryRetrieveInformationModelMove
+
+    # Initialise the Application Entity
+    ae = AE()
+
+    # Add the storage SCP's supported presentation contexts
+    ae.supported_contexts = StoragePresentationContexts
+
+    # Implement the on_c_store callback
+    def on_c_store(ds, context, info):
+        # Don't store anything, just return Success
+        return 0x0000
+
+    # Start the storage SCP on port 11113
+    ae.ae_title = b'STORE_SCP'
+    ae.on_c_store = on_c_store
+    scp = ae.start_server(('', 11113), block=False)
+
+    # Add a requested presentation context
+    ae.add_requested_context(PatientRootQueryRetrieveInformationModelMove)
+
+    # Create out identifier (query) dataset
+    ds = Dataset()
+    ds.QueryRetrieveLevel = 'SERIES'
+    # Unique key for PATIENT level
+    ds.PatientID = '1234567'
+    # Unique key for STUDY level
+    ds.StudyInstanceUID = '1.2.3'
+    # Unique key for SERIES level
+    ds.SeriesInstanceUID = '1.2.3.4'
+
+    # Associate with peer AE at IP 127.0.0.1 and port 11112
+    # Note: the peer AE must know the IP and port for our move destination
+    assoc = ae.associate('127.0.0.1', 11112)
+
+    if assoc.is_established:
+        responses = assoc.send_c_move(ds, b'STORE_SCP', query_model='P')
+
+        for (status, identifier) in responses:
+            if status:
+                print('C-MOVE query status: 0x{0:04x}'.format(status.Status))
+                if status.Status in (0xFF00, 0xFF01):
+                    print(identifier)
+            else:
+                print('Connection timed out, was aborted or received invalid response')
+
+        assoc.release()
+    else:
+        print('Association rejected, aborted or never connected')
+
+    # Shutdown the storage SCP
+    scp.shutdown()
 
 
 Query/Retrieve (Move) SCP
@@ -78,8 +141,8 @@ Query/Retrieve (Move) SCP
 The following represents a toy implementation of a Query/Retrieve (Move) SCP
 where the SCU has sent the following *Identifier* dataset under the *Patient
 Root Query Retrieve Information Model - Move* context and the move destination
-AE title b'STORE_SCP' is known to correspond to the IP address '127.0.0.1' and
-listen port number '11113'.
+AE title ``b'STORE_SCP`` is known to correspond to the IP address ``127.0.0.1``
+and listen port number ``11113``.
 
 .. code-block:: python
 
@@ -110,12 +173,12 @@ query against that.
     ae.add_supported_context(PatientRootQueryRetrieveInformationModelMove)
 
     # Implement the AE.on_c_move callback
-    def on_c_move(self, dataset, move_aet, context, info):
+    def on_c_move(self, ds, move_aet, context, info):
         """Respond to a C-MOVE request Identifier `ds`.
 
         Parameters
         ----------
-        dataset : pydicom.dataset.Dataset
+        ds : pydicom.dataset.Dataset
             The Identifier dataset sent by the peer.
         move_aet : bytes
             The destination AE title that matching SOP Instances will be sent
@@ -181,6 +244,7 @@ query against that.
 
         # Import stored SOP Instances
         instances = []
+        matching = []
         fdir = '/path/to/directory'
         for fpath in os.listdir(fdir):
             instances.append(dcmread(os.path.join(fdir, fpath)))
