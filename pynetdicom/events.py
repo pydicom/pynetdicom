@@ -7,6 +7,42 @@ import logging
 LOGGER = logging.getLogger('pynetdicom.events')
 
 
+# Events
+# Transport service
+EVT_CONN_OPEN = ("TRANSPORT", "Connection opened")
+EVT_CONN_CLOSE = ("TRANSPORT", "Connection closed")
+# Service classes
+EVT_C_CANCEL = ("SERVICE", "C-CANCEL request received")
+EVT_C_ECHO = ("SERVICE", "C-ECHO request received")
+EVT_C_FIND = ("SERVICE", "C-FIND request received")
+EVT_C_GET = ("SERVICE", "C-GET request received")
+EVT_C_MOVE = ("SERVICE", "C-MOVE request received")
+EVT_C_STORE = ("SERVICE", "C-STORE request received")
+EVT_N_ACTION = ("SERVICE", "N-ACTION request received")
+EVT_N_CREATE = ("SERVICE", "N-CREATE request received")
+EVT_N_DELETE = ("SERVICE", "N-DELETE request received")
+EVT_N_EVENT_REPORT = ("SERVICE", "N-EVENT-REPORT request received")
+EVT_N_GET = ("SERVICE", "N-GET request received")
+EVT_N_SET = ("SERVICE", "N-SET request received")
+# DIMSE
+EVT_DIMSE_SENT = ("DIMSE", "DIMSE message sent")
+EVT_DIMSE_RECV = ("DIMSE", "DIMSE message received")
+# ACSE
+EVT_ACSE_SENT = ("ACSE", "ACSE message sent")
+EVT_ACSE_RECV = ("ACSE", "ACSE message received")
+EVT_USER_ID = ("ACSE", "User identity negotiation requested")
+EVT_ASYNC_OPS = ("ACSE", "Asynchronous operations negotiation requested")
+EVT_SOP_EXTENDED = ("ACSE", "SOP class extended negotiation requested")
+EVT_SOP_COMMON = ("ACSE", "SOP class common extended negotiation requested")
+# Association
+EVT_REJECTED = ("ASSOCIATION", "Association request rejected")
+EVT_ACCEPTED = ("ASSOCIATION", "Association request accepted")
+EVT_RELEASED = ("ASSOCIATION", "Association released")
+EVT_ABORTED = ("ASSOCIATION", "Association aborted")
+# DUL
+EVT_FSM_TRANSITION = ("DUL", "State machine transition occurred")
+
+
 # Possible events
 # (source, name, description, multiple handers)
 # Transport Service
