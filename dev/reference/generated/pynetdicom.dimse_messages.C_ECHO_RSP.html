@@ -175,10 +175,10 @@
 <h1>pynetdicom.dimse_messages.C_ECHO_RSP<a class="headerlink" href="#pynetdicom-dimse-messages-c-echo-rsp" title="Permalink to this headline">¶</a></h1>
 <dl class="class">
 <dt id="pynetdicom.dimse_messages.C_ECHO_RSP">
-<em class="property">class </em><code class="descclassname">pynetdicom.dimse_messages.</code><code class="descname">C_ECHO_RSP</code><a class="reference external" href="https://github.com/pydicom/pynetdicom/blob/c5660fc/pynetdicom/dimse_messages.py#L"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pynetdicom.dimse_messages.C_ECHO_RSP" title="Permalink to this definition">¶</a></dt>
+<em class="property">class </em><code class="descclassname">pynetdicom.dimse_messages.</code><code class="descname">C_ECHO_RSP</code><a class="reference external" href="https://github.com/pydicom/pynetdicom/blob/b11c842/pynetdicom/dimse_messages.py#L"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pynetdicom.dimse_messages.C_ECHO_RSP" title="Permalink to this definition">¶</a></dt>
 <dd><dl class="method">
 <dt id="pynetdicom.dimse_messages.C_ECHO_RSP.__init__">
-<code class="descname">__init__</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference external" href="https://github.com/pydicom/pynetdicom/blob/c5660fc/pynetdicom/dimse_messages.py#L652"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pynetdicom.dimse_messages.C_ECHO_RSP.__init__" title="Permalink to this definition">¶</a></dt>
+<code class="descname">__init__</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference external" href="https://github.com/pydicom/pynetdicom/blob/b11c842/pynetdicom/dimse_messages.py#L652"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pynetdicom.dimse_messages.C_ECHO_RSP.__init__" title="Permalink to this definition">¶</a></dt>
 <dd></dd></dl>
 
 <p class="rubric">Methods</p>
@@ -207,7 +207,7 @@
 </table>
 <dl class="method">
 <dt id="pynetdicom.dimse_messages.C_ECHO_RSP.decode_msg">
-<code class="descname">decode_msg</code><span class="sig-paren">(</span><em>primitive</em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/pydicom/pynetdicom/blob/c5660fc/pynetdicom/dimse_messages.py#L219"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pynetdicom.dimse_messages.C_ECHO_RSP.decode_msg" title="Permalink to this definition">¶</a></dt>
+<code class="descname">decode_msg</code><span class="sig-paren">(</span><em>primitive</em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/pydicom/pynetdicom/blob/b11c842/pynetdicom/dimse_messages.py#L219"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pynetdicom.dimse_messages.C_ECHO_RSP.decode_msg" title="Permalink to this definition">¶</a></dt>
 <dd><p>Converts P-DATA primitives into a DIMSEMessage sub-class.</p>
 <p>Decodes the data from the P-DATA service primitive (which
 may contain the results of one or more P-DATA-TF PDUs) into the
@@ -233,7 +233,7 @@ may contain the results of one or more P-DATA-TF PDUs) into the
 
 <dl class="method">
 <dt id="pynetdicom.dimse_messages.C_ECHO_RSP.encode_msg">
-<code class="descname">encode_msg</code><span class="sig-paren">(</span><em>context_id</em>, <em>max_pdu_length</em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/pydicom/pynetdicom/blob/c5660fc/pynetdicom/dimse_messages.py#L330"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pynetdicom.dimse_messages.C_ECHO_RSP.encode_msg" title="Permalink to this definition">¶</a></dt>
+<code class="descname">encode_msg</code><span class="sig-paren">(</span><em>context_id</em>, <em>max_pdu_length</em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/pydicom/pynetdicom/blob/b11c842/pynetdicom/dimse_messages.py#L330"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pynetdicom.dimse_messages.C_ECHO_RSP.encode_msg" title="Permalink to this definition">¶</a></dt>
 <dd><p>Yield P-DATA primitive(s) for the current DIMSE Message.</p>
 <p><strong>Encoding</strong></p>
 <p>The encoding of the Command Set shall be Little Endian Implicit VR,
@@ -272,7 +272,7 @@ primitives.</p>
 
 <dl class="method">
 <dt id="pynetdicom.dimse_messages.C_ECHO_RSP.message_to_primitive">
-<code class="descname">message_to_primitive</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference external" href="https://github.com/pydicom/pynetdicom/blob/c5660fc/pynetdicom/dimse_messages.py#L484"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pynetdicom.dimse_messages.C_ECHO_RSP.message_to_primitive" title="Permalink to this definition">¶</a></dt>
+<code class="descname">message_to_primitive</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference external" href="https://github.com/pydicom/pynetdicom/blob/b11c842/pynetdicom/dimse_messages.py#L484"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pynetdicom.dimse_messages.C_ECHO_RSP.message_to_primitive" title="Permalink to this definition">¶</a></dt>
 <dd><p>Convert the DIMSEMessage class to a DIMSE primitive.</p>
 <table class="docutils field-list" frame="void" rules="none">
 <col class="field-name" />
@@ -290,7 +290,7 @@ the current DIMSEMessage.</td>
 
 <dl class="method">
 <dt id="pynetdicom.dimse_messages.C_ECHO_RSP.primitive_to_message">
-<code class="descname">primitive_to_message</code><span class="sig-paren">(</span><em>primitive</em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/pydicom/pynetdicom/blob/c5660fc/pynetdicom/dimse_messages.py#L542"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pynetdicom.dimse_messages.C_ECHO_RSP.primitive_to_message" title="Permalink to this definition">¶</a></dt>
+<code class="descname">primitive_to_message</code><span class="sig-paren">(</span><em>primitive</em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/pydicom/pynetdicom/blob/b11c842/pynetdicom/dimse_messages.py#L542"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pynetdicom.dimse_messages.C_ECHO_RSP.primitive_to_message" title="Permalink to this definition">¶</a></dt>
 <dd><p>Convert a DIMSE <cite>primitive</cite> to the current DIMSEMessage object.</p>
 <table class="docutils field-list" frame="void" rules="none">
 <col class="field-name" />

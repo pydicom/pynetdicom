@@ -319,22 +319,6 @@
 <span class="sd">        &quot;&quot;&quot;</span>
         <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_idle_timer</span><span class="o">.</span><span class="n">expired</span></div>
 
-    <span class="k">def</span> <span class="nf">_is_artim_expired</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
-        <span class="sd">&quot;&quot;&quot;Return if the state machine&#39;s ARTIM timer has expired.</span>
-
-<span class="sd">        If it has then &#39;Evt18&#39; is added to the event queue.</span>
-
-<span class="sd">        Returns</span>
-<span class="sd">        -------</span>
-<span class="sd">        bool</span>
-<span class="sd">            True if the ARTIM timer has expired, False otherwise</span>
-<span class="sd">        &quot;&quot;&quot;</span>
-        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">artim_timer</span><span class="o">.</span><span class="n">expired</span><span class="p">:</span>
-            <span class="bp">self</span><span class="o">.</span><span class="n">event_queue</span><span class="o">.</span><span class="n">put</span><span class="p">(</span><span class="s1">&#39;Evt18&#39;</span><span class="p">)</span>
-            <span class="k">return</span> <span class="kc">True</span>
-
-        <span class="k">return</span> <span class="kc">False</span>
-
     <span class="k">def</span> <span class="nf">_is_transport_event</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;Check to see if the socket has incoming data</span>
 
@@ -560,21 +544,36 @@
             <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">_kill_thread</span><span class="p">:</span>
                 <span class="k">break</span>
 
+            <span class="c1"># Check the ARTIM timer first so its event is placed on the queue</span>
+            <span class="c1">#   ahead of any other events this loop</span>
+            <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">artim_timer</span><span class="o">.</span><span class="n">expired</span><span class="p">:</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">event_queue</span><span class="o">.</span><span class="n">put</span><span class="p">(</span><span class="s1">&#39;Evt18&#39;</span><span class="p">)</span>
+
             <span class="c1"># Check the connection for incoming data</span>
             <span class="k">try</span><span class="p">:</span>
+                <span class="c1"># We can either encode and send a primitive **OR**</span>
+                <span class="c1">#   receive and decode a PDU per loop of the reactor</span>
                 <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">_check_incoming_primitive</span><span class="p">():</span>
                     <span class="k">pass</span>
                 <span class="k">elif</span> <span class="bp">self</span><span class="o">.</span><span class="n">_is_transport_event</span><span class="p">():</span>
                     <span class="bp">self</span><span class="o">.</span><span class="n">_idle_timer</span><span class="o">.</span><span class="n">restart</span><span class="p">()</span>
-
-                <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">_is_artim_expired</span><span class="p">():</span>
-                    <span class="bp">self</span><span class="o">.</span><span class="n">_kill_thread</span> <span class="o">=</span> <span class="kc">True</span>
-
             <span class="k">except</span> <span class="ne">Exception</span> <span class="k">as</span> <span class="n">exc</span><span class="p">:</span>
-                <span class="n">LOGGER</span><span class="o">.</span><span class="n">error</span><span class="p">(</span><span class="s2">&quot;Exception in DUL.run()&quot;</span><span class="p">)</span>
+                <span class="n">LOGGER</span><span class="o">.</span><span class="n">error</span><span class="p">(</span><span class="s2">&quot;Exception in DUL.run(), aborting association&quot;</span><span class="p">)</span>
                 <span class="n">LOGGER</span><span class="o">.</span><span class="n">exception</span><span class="p">(</span><span class="n">exc</span><span class="p">)</span>
+                <span class="c1"># Bypass the state machine and send an A-ABORT</span>
+                <span class="c1">#   we do it this way because an exception here will mess up</span>
+                <span class="c1">#   the state machine and we can&#39;t guarantee it&#39;ll get sent</span>
+                <span class="c1">#   otherwise</span>
+                <span class="n">abort_pdu</span> <span class="o">=</span> <span class="n">A_ABORT_RQ</span><span class="p">()</span>
+                <span class="n">abort_pdu</span><span class="o">.</span><span class="n">source</span> <span class="o">=</span> <span class="mh">0x02</span>
+                <span class="n">abort_pdu</span><span class="o">.</span><span class="n">reason_diagnostic</span> <span class="o">=</span> <span class="mh">0x00</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">socket</span><span class="o">.</span><span class="n">send</span><span class="p">(</span><span class="n">abort_pdu</span><span class="o">.</span><span class="n">encode</span><span class="p">())</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">assoc</span><span class="o">.</span><span class="n">is_aborted</span> <span class="o">=</span> <span class="kc">True</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">assoc</span><span class="o">.</span><span class="n">is_established</span> <span class="o">=</span> <span class="kc">False</span>
+                <span class="c1"># Hard shutdown of the Association and DUL reactors</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">assoc</span><span class="o">.</span><span class="n">_kill</span> <span class="o">=</span> <span class="kc">True</span>
                 <span class="bp">self</span><span class="o">.</span><span class="n">_kill_thread</span> <span class="o">=</span> <span class="kc">True</span>
-                <span class="k">raise</span>
+                <span class="k">return</span>
 
             <span class="c1"># Check the event queue to see if there is anything to do</span>
             <span class="k">try</span><span class="p">:</span>
