@@ -3,6 +3,7 @@
 import logging
 import os
 import signal
+import socket
 import sys
 import threading
 import time
@@ -61,22 +62,53 @@ class TestAEVerificationSCP(object):
                 thread.abort()
                 thread.stop()
 
-    @pytest.mark.skip("Can't figure out how to simulate KeyboardInterrupt")
-    def test_stop_scp_keyboard(self):
+    def test_start_server_keyboard_interrupt(self):
         """Test stopping the SCP with keyboard"""
-        self.scp = DummyVerificationSCP()
-        self.scp.start()
+        pid = os.getpid()
 
-        # Give the SCP time to start
-        time.sleep(0.05)
+        def trigger_signal():
+            time.sleep(0.1)
+            os.kill(pid, signal.SIGINT)
 
-        assert self.scp.ae._quit is False
+        ae = AE()
+        ae.add_supported_context('1.2.3')
+        thread = threading.Thread(target=trigger_signal)
+        thread.daemon = True
+        thread.start()
 
-        # Simulate KeyboardInterrupt in self.scp somehow...
+        ae.start_server(('', 11112))
 
-        assert self.scp.ae._quit is True
+        ae.stop()
+        ae.shutdown()
 
-        self.scp.stop()
+    def test_start_keyboard_interrupt(self):
+        """Test stopping the SCP with keyboard"""
+        pid = os.getpid()
+
+        def trigger_signal():
+            time.sleep(0.1)
+            os.kill(pid, signal.SIGINT)
+
+        ae = AE()
+        ae.add_supported_context('1.2.3')
+        thread = threading.Thread(target=trigger_signal)
+        thread.daemon = True
+        thread.start()
+
+        ae.port = 11112
+        ae.start()
+
+        ae.shutdown()
+
+    def test_stop_no_socket(self):
+        """Test stop with the socket closed"""
+        ae = AE()
+        ae.add_supported_context('1.2.3')
+
+        server = ae.start_server(('', 11112), block=False)
+        ae.local_socket = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
+        ae.local_socket.close()
+        ae.stop()
 
     def test_no_supported_contexts_old(self):
         """Test starting with no contexts raises"""

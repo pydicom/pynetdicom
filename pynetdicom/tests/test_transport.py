@@ -225,3 +225,42 @@ class TestTLS(object):
         assert assoc.is_released
 
         server.shutdown()
+
+
+class TestAssociationServer(object):
+    """Tests for transport.AssociationServer."""
+    def test_shutdown(self):
+        """Test trying to shutdown a socket that's already closed."""
+        ae = AE()
+        ae.add_supported_context('1.2.840.10008.1.1')
+        server = ae.start_server(('', 11112), block=False)
+        server.socket.close()
+        server.shutdown()
+
+    def test_exception_in_handler(self):
+        """Test an exception raised by the handler doesn't shut the server."""
+        class DummyAE(object):
+            network_timeout = 5
+            _servers = []
+
+        dummy = DummyAE()
+        server = ThreadedAssociationServer(dummy, ('', 11112))
+        dummy._servers.append(server)
+        thread = threading.Thread(target=server.serve_forever)
+        thread.daemon = True
+        thread.start()
+
+        ae = AE()
+        ae.add_requested_context('1.2.840.10008.1.1')
+        # assoc.dul is Thread-2
+        assoc = ae.associate('', 11112)
+
+        assert server.socket.fileno() != -1
+
+        server.shutdown()
+
+        if sys.version_info[0] == 2:
+            with pytest.raises(socket.error):
+                server.socket.fileno()
+        else:
+            assert server.socket.fileno() == -1
