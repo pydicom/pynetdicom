@@ -18,7 +18,7 @@ from .parrot import start_server, ThreadedParrot
 
 LOGGER = logging.getLogger('pynetdicom')
 LOGGER.setLevel(logging.CRITICAL)
-LOGGER.setLevel(logging.DEBUG)
+#LOGGER.setLevel(logging.DEBUG)
 
 
 class DummyACSE(object):

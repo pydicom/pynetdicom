@@ -61,22 +61,28 @@ class TestAEVerificationSCP(object):
                 thread.abort()
                 thread.stop()
 
-    @pytest.mark.skip("Can't figure out how to simulate KeyboardInterrupt")
-    def test_stop_scp_keyboard(self):
+    def test_start_server_keyboard_interrupt(self):
         """Test stopping the SCP with keyboard"""
-        self.scp = DummyVerificationSCP()
-        self.scp.start()
+        child = os.fork()
+        if child == 0:
+            ae = AE()
+            ae.add_supported_context('1.2.840.10008.1.1')
+            ae.start_server(('', 11112), block=True)
+        else:
+            time.sleep(0.2)
+            os.kill(child, signal.SIGINT)
 
-        # Give the SCP time to start
-        time.sleep(0.05)
-
-        assert self.scp.ae._quit is False
-
-        # Simulate KeyboardInterrupt in self.scp somehow...
-
-        assert self.scp.ae._quit is True
-
-        self.scp.stop()
+    def test_start_keyboard_interrupt(self):
+        """Test stopping the SCP with keyboard"""
+        child = os.fork()
+        if child == 0:
+            ae = AE()
+            ae.add_supported_context('1.2.840.10008.1.1')
+            ae.port = 11112
+            ae.start()
+        else:
+            time.sleep(0.2)
+            os.kill(child, signal.SIGINT)
 
     def test_no_supported_contexts_old(self):
         """Test starting with no contexts raises"""

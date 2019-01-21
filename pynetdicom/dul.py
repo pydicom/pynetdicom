@@ -147,22 +147,6 @@ class DULServiceProvider(Thread):
         """
         return self._idle_timer.expired
 
-    def _is_artim_expired(self):
-        """Return if the state machine's ARTIM timer has expired.
-
-        If it has then 'Evt18' is added to the event queue.
-
-        Returns
-        -------
-        bool
-            True if the ARTIM timer has expired, False otherwise
-        """
-        if self.artim_timer.expired:
-            self.event_queue.put('Evt18')
-            return True
-
-        return False
-
     def _is_transport_event(self):
         """Check to see if the socket has incoming data
 
@@ -388,15 +372,19 @@ class DULServiceProvider(Thread):
             if self._kill_thread:
                 break
 
+            # Check the ARTIM timer first so its event is placed on the queue
+            #   ahead of any other events this loop
+            if self.artim_timer.expired:
+                self.event_queue.put('Evt18')
+
             # Check the connection for incoming data
             try:
                 # We can either encode and send a primitive **OR**
-                #   receive and decode a PDU in one loop
+                #   receive and decode a PDU per loop of the reactor
                 if self._check_incoming_primitive():
                     pass
                 elif self._is_transport_event():
                     self._idle_timer.restart()
-
             except Exception as exc:
                 LOGGER.error("Exception in DUL.run(), aborting association")
                 LOGGER.exception(exc)
@@ -414,11 +402,6 @@ class DULServiceProvider(Thread):
                 self.assoc._kill = True
                 self._kill_thread = True
                 return
-
-            # I don't understand this, if ARTIM has expired then the
-            #   corresponding event should be placed in the event queue
-            if self._is_artim_expired():
-                pass #self._kill_thread = True
 
             # Check the event queue to see if there is anything to do
             try:
