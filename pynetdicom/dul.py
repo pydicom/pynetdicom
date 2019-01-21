@@ -390,19 +390,35 @@ class DULServiceProvider(Thread):
 
             # Check the connection for incoming data
             try:
+                # We can either encode and send a primitive **OR**
+                #   receive and decode a PDU in one loop
                 if self._check_incoming_primitive():
                     pass
                 elif self._is_transport_event():
                     self._idle_timer.restart()
 
-                if self._is_artim_expired():
-                    self._kill_thread = True
-
             except Exception as exc:
-                LOGGER.error("Exception in DUL.run()")
+                LOGGER.error("Exception in DUL.run(), aborting association")
                 LOGGER.exception(exc)
+                # Bypass the state machine and send an A-ABORT
+                #   we do it this way because an exception here will mess up
+                #   the state machine and we can't guarantee it'll get sent
+                #   otherwise
+                abort_pdu = A_ABORT_RQ()
+                abort_pdu.source = 0x02
+                abort_pdu.reason_diagnostic = 0x00
+                self.socket.send(abort_pdu.encode())
+                self.assoc.is_aborted = True
+                self.assoc.is_established = False
+                # Hard shutdown of the Association and DUL reactors
+                self.assoc._kill = True
                 self._kill_thread = True
-                raise
+                return
+
+            # I don't understand this, if ARTIM has expired then the
+            #   corresponding event should be placed in the event queue
+            if self._is_artim_expired():
+                pass #self._kill_thread = True
 
             # Check the event queue to see if there is anything to do
             try:

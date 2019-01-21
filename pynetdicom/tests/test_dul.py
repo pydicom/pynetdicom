@@ -13,11 +13,12 @@ from pynetdicom.dul import DULServiceProvider
 from pynetdicom.pdu import A_ASSOCIATE_RQ, A_ASSOCIATE_AC, A_ASSOCIATE_RJ, \
                             A_RELEASE_RQ, A_RELEASE_RP, P_DATA_TF, A_ABORT_RQ
 from pynetdicom.pdu_primitives import A_ASSOCIATE, A_RELEASE, A_ABORT, P_DATA
-from .encoded_pdu_items import a_associate_ac
+from .encoded_pdu_items import a_associate_ac, a_release_rq
 from .parrot import start_server, ThreadedParrot
 
 LOGGER = logging.getLogger('pynetdicom')
 LOGGER.setLevel(logging.CRITICAL)
+LOGGER.setLevel(logging.DEBUG)
 
 
 class DummyACSE(object):
@@ -141,6 +142,36 @@ class TestDUL(object):
         ae.add_requested_context('1.2.840.10008.1.1')
         assoc = ae.associate('localhost', 11112)
         assert assoc.is_established
+
+        time.sleep(0.4)
+        assert assoc.is_aborted
+
+        scp.shutdown()
+
+    def test_exception_in_reactor(self):
+        """Test that an exception being raised in the DUL reactor kills the
+        DUL and aborts the association.
+        """
+        commands = [
+            ('recv', None),  # recv a-associate-rq
+            ('send', a_associate_ac),
+            ('wait', 0.1),  # Give some time to monkey patch
+            ('send', a_release_rq),  # Trigger the exception
+            ('recv', None),  # recv a-abort
+            ('wait', 0.2),
+        ]
+        scp = start_server(commands)
+
+        ae = AE()
+        ae.network_timeout = 0.2
+        ae.add_requested_context('1.2.840.10008.1.1')
+        assoc = ae.associate('localhost', 11112)
+        assert assoc.is_established
+
+        def patch_read_pdu():
+            raise NotImplementedError
+
+        assoc.dul._read_pdu_data = patch_read_pdu
 
         time.sleep(0.4)
         assert assoc.is_aborted
