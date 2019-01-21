@@ -1342,7 +1342,6 @@ class ApplicationEntity(object):
                 server.serve_forever()
             except KeyboardInterrupt:
                 server.shutdown()
-                print(server.socket)
         else:
             # Non-blocking server
             timestamp = datetime.strftime(datetime.now(), "%Y%m%d%H%M%S")

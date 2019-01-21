@@ -324,6 +324,7 @@ class RequestHandler(BaseRequestHandler):
         from pynetdicom.association import Association
 
         assoc = Association(self.ae, MODE_ACCEPTOR)
+        print(assoc)
 
         # Set the thread name
         timestamp = datetime.strftime(datetime.now(), "%Y%m%d%H%M%S")
@@ -480,7 +481,6 @@ class AssociationServer(TCPServer):
         TCPServer.shutdown(self)
         self.server_close()
         self.ae._servers.remove(self)
-        self.socket = None
 
 
 class ThreadedAssociationServer(ThreadingMixIn, AssociationServer):
@@ -491,5 +491,6 @@ class ThreadedAssociationServer(ThreadingMixIn, AssociationServer):
         try:
             self.finish_request(request, client_address)
         except Exception:
+            print('Exception')
             self.handle_error(request, client_address)
             self.shutdown_request(request)
