@@ -491,6 +491,5 @@ class ThreadedAssociationServer(ThreadingMixIn, AssociationServer):
         try:
             self.finish_request(request, client_address)
         except Exception:
-            print('Exception')
             self.handle_error(request, client_address)
             self.shutdown_request(request)
