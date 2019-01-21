@@ -66,23 +66,19 @@ class TestAEVerificationSCP(object):
         child = os.fork()
         if child == 0:
             ae = AE()
+            ae.port = 11112
             ae.add_supported_context('1.2.840.10008.1.1')
             ae.start_server(('', 11112), block=True)
-        else:
-            time.sleep(0.2)
-            os.kill(child, signal.SIGINT)
-
-    def test_start_keyboard_interrupt(self):
-        """Test stopping the SCP with keyboard"""
-        child = os.fork()
-        if child == 0:
-            ae = AE()
-            ae.add_supported_context('1.2.840.10008.1.1')
-            ae.port = 11112
             ae.start()
         else:
-            time.sleep(0.2)
+            time.sleep(0.1)
             os.kill(child, signal.SIGINT)
+            time.sleep(0.1)
+            os.kill(child, signal.SIGINT)
+
+        os.kill(child, signal.SIGKILL)
+
+        time.sleep(0.2)
 
     def test_no_supported_contexts_old(self):
         """Test starting with no contexts raises"""

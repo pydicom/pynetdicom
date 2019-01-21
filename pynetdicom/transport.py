@@ -480,6 +480,7 @@ class AssociationServer(TCPServer):
         TCPServer.shutdown(self)
         self.server_close()
         self.ae._servers.remove(self)
+        self.socket = None
 
 
 class ThreadedAssociationServer(ThreadingMixIn, AssociationServer):
