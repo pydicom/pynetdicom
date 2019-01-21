@@ -3,6 +3,7 @@
 import logging
 import os
 import signal
+import socket
 import sys
 import threading
 import time
@@ -63,22 +64,51 @@ class TestAEVerificationSCP(object):
 
     def test_start_server_keyboard_interrupt(self):
         """Test stopping the SCP with keyboard"""
-        child = os.fork()
-        if child == 0:
-            ae = AE()
-            ae.port = 11112
-            ae.add_supported_context('1.2.840.10008.1.1')
-            ae.start_server(('', 11112), block=True)
-            ae.start()
-        else:
-            time.sleep(0.1)
-            os.kill(child, signal.SIGINT)
-            time.sleep(0.1)
-            os.kill(child, signal.SIGINT)
+        pid = os.getpid()
 
-        os.kill(child, signal.SIGKILL)
+        def trigger_signal():
+            time.sleep(0.1)
+            os.kill(pid, signal.SIGINT)
 
-        time.sleep(0.2)
+        ae = AE()
+        ae.add_supported_context('1.2.3')
+        thread = threading.Thread(target=trigger_signal)
+        thread.daemon = True
+        thread.start()
+
+        ae.start_server(('', 11112))
+
+        ae.stop()
+        ae.shutdown()
+
+    def test_start_keyboard_interrupt(self):
+        """Test stopping the SCP with keyboard"""
+        pid = os.getpid()
+
+        def trigger_signal():
+            time.sleep(0.1)
+            os.kill(pid, signal.SIGINT)
+
+        ae = AE()
+        ae.add_supported_context('1.2.3')
+        thread = threading.Thread(target=trigger_signal)
+        thread.daemon = True
+        thread.start()
+
+        ae.port = 11112
+        ae.start()
+
+        ae.shutdown()
+
+    def test_stop_no_socket(self):
+        """Test stop with the socket closed"""
+        ae = AE()
+        ae.add_supported_context('1.2.3')
+
+        server = ae.start_server(('', 11112), block=False)
+        ae.local_socket = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
+        ae.local_socket.close()
+        ae.stop()
 
     def test_no_supported_contexts_old(self):
         """Test starting with no contexts raises"""
