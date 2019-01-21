@@ -110,15 +110,14 @@ class TestDUL(object):
         commands = [
             ('recv', None),  # recv a-associate-rq
             ('send', a_associate_ac),
-            ('wait', 0.1),  # Don't want to accidentally kill the DUL
-            ('send', b"\x07\x00\x00\x00\x00\x04\x00\x00"),
-            ('wait', 0.3),
+            ('send', b"\x07\x00\x00\x00\x00\x04\x00\x00"),  # Send short PDU
+            ('wait', 0.3),  # Keep connection open
         ]
         scp = start_server(commands)
 
         ae = AE()
-        ae.network_timeout = 0.2
         ae.add_requested_context('1.2.840.10008.1.1')
+        # Sends a-associate-rq
         assoc = ae.associate('localhost', 11112)
         assert assoc.is_established
 
