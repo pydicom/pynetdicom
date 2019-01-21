@@ -324,7 +324,6 @@ class RequestHandler(BaseRequestHandler):
         from pynetdicom.association import Association
 
         assoc = Association(self.ae, MODE_ACCEPTOR)
-        print(assoc)
 
         # Set the thread name
         timestamp = datetime.strftime(datetime.now(), "%Y%m%d%H%M%S")
