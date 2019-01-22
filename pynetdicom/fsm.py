@@ -76,6 +76,17 @@ class StateMachine(object):
             next_state = action[1](self.dul)
 
             # Useful for debugging
+            evt.trigger(
+                self.dul.assoc,
+                evt.EVT_FSM_TRANSITION,
+                self.dul._handlers[evt.EVT_FSM_TRANSITION],
+                {
+                    'current_state' : self.current_state,
+                    'event' : event
+                    'action' : action_name,
+                    'next_state' : next_state
+                }
+            )
             #print(
             #    "{} + {} -> {} -> {}"
             #    .format(self.current_state, event, action_name, next_state)
@@ -178,6 +189,13 @@ def AE_2(dul):
     dul.pdu = A_ASSOCIATE_RQ()
     dul.pdu.from_primitive(dul.primitive)
 
+    # Event handler
+    evt.trigger(
+        dul.assoc,
+        evt.EVT_ACSE_SENT,
+        dul.assoc.acse._handlers[evt.EVT_ACSE_SENT],
+        {'message' : dul.primitive}
+    )
     # Callback
     dul.assoc.acse.debug_send_associate_rq(dul.pdu)
 
@@ -321,6 +339,13 @@ def AE_6(dul):
         dul.pdu = A_ASSOCIATE_RJ()
         dul.pdu.from_primitive(dul.primitive)
 
+        # Event handler
+        evt.trigger(
+            dul.assoc,
+            evt.EVT_ACSE_SENT,
+            dul.assoc.acse._handlers[evt.EVT_ACSE_SENT],
+            {'message' : dul.primitive}
+        )
         # Callback
         dul.assoc.acse.debug_send_associate_rj(dul.pdu)
 
@@ -361,6 +386,13 @@ def AE_7(dul):
     dul.pdu = A_ASSOCIATE_AC()
     dul.pdu.from_primitive(dul.primitive)
 
+    # Event handler
+    evt.trigger(
+        dul.assoc,
+        evt.EVT_ACSE_SENT,
+        dul.assoc.acse._handlers[evt.EVT_ACSE_SENT],
+        {'message' : dul.primitive}
+    )
     # Callback
     dul.assoc.acse.debug_send_associate_ac(dul.pdu)
 
@@ -395,6 +427,13 @@ def AE_8(dul):
     dul.pdu = A_ASSOCIATE_RJ()
     dul.pdu.from_primitive(dul.primitive)
 
+    # Event handler
+    evt.trigger(
+        dul.assoc,
+        evt.EVT_ACSE_SENT,
+        dul.assoc.acse._handlers[evt.EVT_ACSE_SENT],
+        {'message' : dul.primitive}
+    )
     # Callback
     dul.assoc.acse.debug_send_associate_rj(dul.pdu)
 
@@ -429,10 +468,18 @@ def DT_1(dul):
     # Send P-DATA-TF PDU
     dul.pdu = P_DATA_TF()
     dul.pdu.from_primitive(dul.primitive)
-    dul.primitive = None  # Why this?
 
+    # Event handler
+    evt.trigger(
+        dul.assoc,
+        evt.EVT_ACSE_SENT,
+        dul.assoc.acse._handlers[evt.EVT_ACSE_SENT],
+        {'message' : dul.primitive}
+    )
     # Callback
     dul.assoc.acse.debug_send_data_tf(dul.pdu)
+
+    dul.primitive = None  # Why this?
 
     dul.socket.send(dul.pdu.encode())
 
@@ -492,6 +539,13 @@ def AR_1(dul):
     dul.pdu = A_RELEASE_RQ()
     dul.pdu.from_primitive(dul.primitive)
 
+    # Event handler
+    evt.trigger(
+        dul.assoc,
+        evt.EVT_ACSE_SENT,
+        dul.assoc.acse._handlers[evt.EVT_ACSE_SENT],
+        {'message' : dul.primitive}
+    )
     # Callback
     dul.assoc.acse.debug_send_release_rq(dul.pdu)
 
@@ -582,6 +636,13 @@ def AR_4(dul):
     dul.pdu = A_RELEASE_RP()
     dul.pdu.from_primitive(dul.primitive)
 
+    # Event handler
+    evt.trigger(
+        dul.assoc,
+        evt.EVT_ACSE_SENT,
+        dul.assoc.acse._handlers[evt.EVT_ACSE_SENT],
+        {'message' : dul.primitive}
+    )
     # Callback
     dul.assoc.acse.debug_send_release_rp(dul.pdu)
 
@@ -616,7 +677,7 @@ def AR_5(dul):
     # Stop ARTIM timer
     dul.artim_timer.stop()
     dul.kill_dul()
-    evt.trigger(dul.socket, evt.EVT_CONNECTION_CLOSE)
+    evt.trigger(dul.socket, evt.EVT_CONN_CLOSE)
 
     return 'Sta1'
 
@@ -675,6 +736,13 @@ def AR_7(dul):
     dul.pdu = P_DATA_TF()
     dul.pdu.from_primitive(dul.primitive)
 
+    # Event handler
+    evt.trigger(
+        dul.assoc,
+        evt.EVT_ACSE_SENT,
+        dul.assoc.acse._handlers[evt.EVT_ACSE_SENT],
+        {'message' : dul.primitive}
+    )
     # Callback
     dul.assoc.acse.debug_send_data_tf(dul.pdu)
 
@@ -738,6 +806,13 @@ def AR_9(dul):
     dul.pdu = A_RELEASE_RP()
     dul.pdu.from_primitive(dul.primitive)
 
+    # Event handler
+    evt.trigger(
+        dul.assoc,
+        evt.EVT_ACSE_SENT,
+        dul.assoc.acse._handlers[evt.EVT_ACSE_SENT],
+        {'message' : dul.primitive}
+    )
     # Callback
     dul.assoc.acse.debug_send_release_rp(dul.pdu)
 
@@ -805,6 +880,13 @@ def AA_1(dul):
     dul.pdu.reason_diagnostic = 0x00
     dul.pdu.from_primitive(dul.primitive)
 
+    # Event handler
+    evt.trigger(
+        dul.assoc,
+        evt.EVT_ACSE_SENT,
+        dul.assoc.acse._handlers[evt.EVT_ACSE_SENT],
+        {'message' : dul.primitive}
+    )
     # Callback
     dul.assoc.acse.debug_send_abort(dul.pdu)
 
@@ -905,7 +987,7 @@ def AA_4(dul):
     dul.primitive = A_ABORT()
     dul.to_user_queue.put(dul.primitive)
     dul.kill_dul()
-    evt.trigger(dul.socket, evt.EVT_CONNECTION_CLOSE)
+    evt.trigger(dul.socket, evt.EVT_CONN_CLOSE)
 
     return 'Sta1'
 
@@ -935,7 +1017,7 @@ def AA_5(dul):
     # Stop ARTIM timer.
     dul.artim_timer.stop()
     dul.kill_dul()
-    evt.trigger(dul.socket, evt.EVT_CONNECTION_CLOSE)
+    evt.trigger(dul.socket, evt.EVT_CONN_CLOSE)
 
     return 'Sta1'
 
@@ -969,8 +1051,8 @@ def AA_6(dul):
 def AA_7(dul):
     """Association abort AA-7.
 
-    If receive a association request or invalid PDU while waiting for connection
-    to close, issue A-ABORT
+    If receive a association request or invalid PDU while waiting for
+    connection to close, issue A-ABORT
 
     State-event triggers: Sta13 + Evt6/Evt19
 
@@ -989,11 +1071,20 @@ def AA_7(dul):
     str
         Sta13, the next state of the state machine
     """
+    primitive = A_P_ABORT()
+    primitive.provider_reason = 0x02
+
     # Send A-ABORT PDU.
     pdu = A_ABORT_RQ()
-    pdu.source = 0x02
-    pdu.reason_diagnostic = 0x02
+    pdu.from_primitive(primitive)
 
+    # Event handler
+    evt.trigger(
+        dul.assoc,
+        evt.EVT_ACSE_SENT,
+        dul.assoc.acse._handlers[evt.EVT_ACSE_SENT],
+        {'message' : primitive}
+    )
     # Callback
     dul.assoc.acse.debug_send_abort(pdu)
 
@@ -1038,6 +1129,13 @@ def AA_8(dul):
     dul.primitive.result = 0x01
     dul.primitive.diagnostic = 0x01
 
+    # Event handler
+    evt.trigger(
+        dul.assoc,
+        evt.EVT_ACSE_SENT,
+        dul.assoc.acse._handlers[evt.EVT_ACSE_SENT],
+        {'message' : dul.primitve}
+    )
     # Callback
     dul.assoc.acse.debug_send_abort(dul.pdu)
 

@@ -757,7 +757,7 @@ def send_message_handler(event):
     Parameters
     ----------
     event : event.Event
-        The evt.EVT_MESSAGE_SENT event that occurred.
+        The evt.EVT_DIMSE_SENT event that occurred.
     """
     msg_handlers = {
         C_ECHO_RQ: send_c_echo_rq,
@@ -793,7 +793,7 @@ def recv_message_handler(event):
     Parameters
     ----------
     event : event.Event
-        The evt.EVT_MESSAGE_RECV event that occurred.
+        The evt.EVT_DIMSE_RECV event that occurred.
     """
     msg_handlers = {
         C_ECHO_RQ: recv_c_echo_rq,
@@ -835,7 +835,7 @@ def send_c_echo_rq(event):
     Parameters
     ----------
     event : event.Event
-        The evt.EVT_MESSAGE_SENT event that occurred.
+        The evt.EVT_DIMSE_SENT event that occurred.
     """
     msg = event.message
     cs = msg.command_set
@@ -854,7 +854,7 @@ def send_c_echo_rsp(event):
     Parameters
     ----------
     event : event.Event
-        The evt.EVT_MESSAGE_SENT event that occurred.
+        The evt.EVT_DIMSE_SENT event that occurred.
     """
     pass
 
@@ -874,7 +874,7 @@ def send_c_store_rq(event):
     Parameters
     ----------
     event : event.Event
-        The evt.EVT_MESSAGE_SENT event that occurred.
+        The evt.EVT_DIMSE_SENT event that occurred.
     """
     msg = event.message
     cs = msg.command_set
@@ -930,7 +930,7 @@ def send_c_store_rsp(event):
     Parameters
     ----------
     event : event.Event
-        The evt.EVT_MESSAGE_SENT event that occurred.
+        The evt.EVT_DIMSE_SENT event that occurred.
     """
     pass
 
@@ -947,7 +947,7 @@ def send_c_find_rq(event):
     Parameters
     ----------
     event : event.Event
-        The evt.EVT_MESSAGE_SENT event that occurred.
+        The evt.EVT_DIMSE_SENT event that occurred.
     """
     msg = event.message
     cs = msg.command_set
@@ -996,7 +996,7 @@ def send_c_find_rsp(event):
     Parameters
     ----------
     event : event.Event
-        The evt.EVT_MESSAGE_SENT event that occurred.
+        The evt.EVT_DIMSE_SENT event that occurred.
     """
     msg = event.message
     cs = msg.command_set
@@ -1038,7 +1038,7 @@ def send_c_get_rq(event):
     Parameters
     ----------
     event : event.Event
-        The evt.EVT_MESSAGE_SENT event that occurred.
+        The evt.EVT_DIMSE_SENT event that occurred.
     """
     msg = event.message
     cs = msg.command_set
@@ -1088,7 +1088,7 @@ def send_c_get_rsp(event):
     Parameters
     ----------
     event : event.Event
-        The evt.EVT_MESSAGE_SENT event that occurred.
+        The evt.EVT_DIMSE_SENT event that occurred.
     """
     msg = event.message
     cs = msg.command_set
@@ -1133,7 +1133,7 @@ def send_c_move_rq(event):
     Parameters
     ----------
     event : event.Event
-        The evt.EVT_MESSAGE_SENT event that occurred.
+        The evt.EVT_DIMSE_SENT event that occurred.
     """
     msg = event.message
     cs = msg.command_set
@@ -1186,7 +1186,7 @@ def send_c_move_rsp(event):
     Parameters
     ----------
     event : event.Event
-        The evt.EVT_MESSAGE_SENT event that occurred.
+        The evt.EVT_DIMSE_SENT event that occurred.
     """
     msg = event.message
     cs = msg.command_set
@@ -1225,7 +1225,7 @@ def send_c_cancel_rq(event):
     Parameters
     ----------
     event : event.Event
-        The evt.EVT_MESSAGE_SENT event that occurred.
+        The evt.EVT_DIMSE_SENT event that occurred.
     """
     pass
 
@@ -1240,7 +1240,7 @@ def recv_c_echo_rq(event):
     Parameters
     ----------
     event : event.Event
-        The evt.EVT_MESSAGE_RECV event that occurred.
+        The evt.EVT_DIMSE_RECV event that occurred.
     """
     msg = event.message
     cs = msg.command_set
@@ -1276,7 +1276,7 @@ def recv_c_echo_rsp(event):
     Parameters
     ----------
     event : event.Event
-        The evt.EVT_MESSAGE_RECV event that occurred.
+        The evt.EVT_DIMSE_RECV event that occurred.
     """
     msg = event.message
     cs = msg.command_set
@@ -1308,7 +1308,7 @@ def recv_c_store_rq(event):
     Parameters
     ----------
     event : event.Event
-        The evt.EVT_MESSAGE_RECV event that occurred.
+        The evt.EVT_DIMSE_RECV event that occurred.
     """
     msg = event.message
     cs = msg.command_set
@@ -1361,7 +1361,7 @@ def recv_c_store_rsp(event):
     Parameters
     ----------
     event : event.Event
-        The evt.EVT_MESSAGE_RECV event that occurred.
+        The evt.EVT_DIMSE_RECV event that occurred.
     """
     msg = event.message
     cs = msg.command_set
@@ -1421,7 +1421,7 @@ def recv_c_find_rq(event):
     Parameters
     ----------
     event : event.Event
-        The evt.EVT_MESSAGE_RECV event that occurred.
+        The evt.EVT_DIMSE_RECV event that occurred.
     """
     msg = event.message
     cs = msg.command_set
@@ -1467,7 +1467,7 @@ def recv_c_find_rsp(event):
     Parameters
     ----------
     event : event.Event
-        The evt.EVT_MESSAGE_RECV event that occurred.
+        The evt.EVT_DIMSE_RECV event that occurred.
     """
     msg = event.message
     cs = msg.command_set
@@ -1506,7 +1506,7 @@ def recv_c_cancel_rq(event):
     Parameters
     ----------
     event : event.Event
-        The evt.EVT_MESSAGE_RECV event that occurred.
+        The evt.EVT_DIMSE_RECV event that occurred.
     """
     msg = event.message
     cs = msg.command_set
@@ -1539,7 +1539,7 @@ def recv_c_get_rq(event):
     Parameters
     ----------
     event : event.Event
-        The evt.EVT_MESSAGE_RECV event that occurred.
+        The evt.EVT_DIMSE_RECV event that occurred.
     """
     msg = event.message
     cs = msg.command_set
@@ -1589,7 +1589,7 @@ def recv_c_get_rsp(event):
     Parameters
     ----------
     event : event.Event
-        The evt.EVT_MESSAGE_RECV event that occurred.
+        The evt.EVT_DIMSE_RECV event that occurred.
     """
     msg = event.message
     cs = msg.command_set
@@ -1646,7 +1646,7 @@ def recv_c_move_rq(event):
     Parameters
     ----------
     event : event.Event
-        The evt.EVT_MESSAGE_RECV event that occurred.
+        The evt.EVT_DIMSE_RECV event that occurred.
     """
     pass
 
@@ -1668,7 +1668,7 @@ def recv_c_move_rsp(event):
     Parameters
     ----------
     event : event.Event
-        The evt.EVT_MESSAGE_RECV event that occurred.
+        The evt.EVT_DIMSE_RECV event that occurred.
     """
     msg = event.message
     cs = msg.command_set
@@ -1715,7 +1715,7 @@ def send_n_event_report_rq(event):
     Parameters
     ----------
     event : event.Event
-        The evt.EVT_MESSAGE_SENT event that occurred.
+        The evt.EVT_DIMSE_SENT event that occurred.
     """
     msg = event.message
     cs = msg.command_set
@@ -1750,7 +1750,7 @@ def send_n_event_report_rsp(event):
     Parameters
     ----------
     event : event.Event
-        The evt.EVT_MESSAGE_SENT event that occurred.
+        The evt.EVT_DIMSE_SENT event that occurred.
     """
     msg = event.message
     cs = msg.command_set
@@ -1792,7 +1792,7 @@ def send_n_get_rq(event):
     Parameters
     ----------
     event : event.Event
-        The evt.EVT_MESSAGE_SENT event that occurred.
+        The evt.EVT_DIMSE_SENT event that occurred.
     """
     msg = event.message
     cs = msg.command_set
@@ -1828,7 +1828,7 @@ def send_n_get_rsp(event):
     Parameters
     ----------
     event : event.Event
-        The evt.EVT_MESSAGE_SENT event that occurred.
+        The evt.EVT_DIMSE_SENT event that occurred.
     """
     msg = event.message
     cs = msg.command_set
@@ -1864,7 +1864,7 @@ def send_n_set_rq(event):
     Parameters
     ----------
     event : event.Event
-        The evt.EVT_MESSAGE_SENT event that occurred.
+        The evt.EVT_DIMSE_SENT event that occurred.
     """
     msg = event.message
     cs = msg.command_set
@@ -1896,7 +1896,7 @@ def send_n_set_rsp(event):
     Parameters
     ----------
     event : event.Event
-        The evt.EVT_MESSAGE_SENT event that occurred.
+        The evt.EVT_DIMSE_SENT event that occurred.
     """
     msg = event.message
     cs = msg.command_set
@@ -1932,7 +1932,7 @@ def send_n_action_rq(event):
     Parameters
     ----------
     event : event.Event
-        The evt.EVT_MESSAGE_SENT event that occurred.
+        The evt.EVT_DIMSE_SENT event that occurred.
     """
     pass
 
@@ -1942,7 +1942,7 @@ def send_n_action_rsp(event):
     Parameters
     ----------
     event : event.Event
-        The evt.EVT_MESSAGE_SENT event that occurred.
+        The evt.EVT_DIMSE_SENT event that occurred.
     """
     pass
 
@@ -1952,7 +1952,7 @@ def send_n_create_rq(event):
     Parameters
     ----------
     event : event.Event
-        The evt.EVT_MESSAGE_SENT event that occurred.
+        The evt.EVT_DIMSE_SENT event that occurred.
     """
     pass
 
@@ -1962,7 +1962,7 @@ def send_n_create_rsp(event):
     Parameters
     ----------
     event : event.Event
-        The evt.EVT_MESSAGE_SENT event that occurred.
+        The evt.EVT_DIMSE_SENT event that occurred.
     """
     pass
 
@@ -1972,7 +1972,7 @@ def send_n_delete_rq(event):
     Parameters
     ----------
     event : event.Event
-        The evt.EVT_MESSAGE_SENT event that occurred.
+        The evt.EVT_DIMSE_SENT event that occurred.
     """
     msg = event.message
     cs = msg.command_set
@@ -1999,7 +1999,7 @@ def send_n_delete_rsp(event):
     Parameters
     ----------
     event : event.Event
-        The evt.EVT_MESSAGE_SENT event that occurred.
+        The evt.EVT_DIMSE_SENT event that occurred.
     """
     msg = event.message
     cs = msg.command_set
@@ -2030,7 +2030,7 @@ def recv_n_event_report_rq(event):
     Parameters
     ----------
     event : event.Event
-        The evt.EVT_MESSAGE_RECV event that occurred.
+        The evt.EVT_DIMSE_RECV event that occurred.
     """
     pass
 
@@ -2040,7 +2040,7 @@ def recv_n_event_report_rsp(event):
     Parameters
     ----------
     event : event.Event
-        The evt.EVT_MESSAGE_RECV event that occurred.
+        The evt.EVT_DIMSE_RECV event that occurred.
     """
     pass
 
@@ -2050,7 +2050,7 @@ def recv_n_get_rq(event):
     Parameters
     ----------
     event : event.Event
-        The evt.EVT_MESSAGE_RECV event that occurred.
+        The evt.EVT_DIMSE_RECV event that occurred.
     """
     pass
 
@@ -2060,7 +2060,7 @@ def recv_n_get_rsp(event):
     Parameters
     ----------
     event : event.Event
-        The evt.EVT_MESSAGE_RECV event that occurred.
+        The evt.EVT_DIMSE_RECV event that occurred.
     """
     msg = event.message
     cs = msg.command_set
@@ -2100,7 +2100,7 @@ def recv_n_set_rq(event):
     Parameters
     ----------
     event : event.Event
-        The evt.EVT_MESSAGE_RECV event that occurred.
+        The evt.EVT_DIMSE_RECV event that occurred.
     """
     pass
 
@@ -2110,7 +2110,7 @@ def recv_n_set_rsp(event):
     Parameters
     ----------
     event : event.Event
-        The evt.EVT_MESSAGE_RECV event that occurred.
+        The evt.EVT_DIMSE_RECV event that occurred.
     """
     pass
 
@@ -2120,7 +2120,7 @@ def recv_n_action_rq(event):
     Parameters
     ----------
     event : event.Event
-        The evt.EVT_MESSAGE_RECV event that occurred.
+        The evt.EVT_DIMSE_RECV event that occurred.
     """
     pass
 
@@ -2130,7 +2130,7 @@ def recv_n_action_rsp(event):
     Parameters
     ----------
     event : event.Event
-        The evt.EVT_MESSAGE_RECV event that occurred.
+        The evt.EVT_DIMSE_RECV event that occurred.
     """
     pass
 
@@ -2140,7 +2140,7 @@ def recv_n_create_rq(event):
     Parameters
     ----------
     event : event.Event
-        The evt.EVT_MESSAGE_RECV event that occurred.
+        The evt.EVT_DIMSE_RECV event that occurred.
     """
     pass
 
@@ -2150,7 +2150,7 @@ def recv_n_create_rsp(event):
     Parameters
     ----------
     event : event.Event
-        The evt.EVT_MESSAGE_RECV event that occurred.
+        The evt.EVT_DIMSE_RECV event that occurred.
     """
     pass
 
@@ -2160,7 +2160,7 @@ def recv_n_delete_rq(event):
     Parameters
     ----------
     event : event.Event
-        The evt.EVT_MESSAGE_RECV event that occurred.
+        The evt.EVT_DIMSE_RECV event that occurred.
     """
     pass
 
@@ -2170,6 +2170,6 @@ def recv_n_delete_rsp(event):
     Parameters
     ----------
     event : event.Event
-        The evt.EVT_MESSAGE_RECV event that occurred.
+        The evt.EVT_DIMSE_RECV event that occurred.
     """
     pass

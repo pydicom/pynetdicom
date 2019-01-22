@@ -29,12 +29,16 @@ class ACSE(object):
     def __init__(self):
         """Create the ACSE service provider."""
         # Event handlers
-        self._handlers = {}
+        self._handlers = {
+            evt.EVT_DIMSE_RECV : [], evt.EVT_DIMSE_SENT : []
+            evt.EVT_ASYNC_OPS : None, evt.EVT_SOP_COMMON : None,
+            evt.EVT_SOP_EXTENDED : None, evt.EVT_USER_ID : None
+        }
 
         # Add logging handlers
         if _config.LOG_HANDLER_LEVEL == 'standard':
-            #self.bind(evt.EVT_MESSAGE_SENT, send_message_handler)
-            #self.bind(evt.EVT_MESSAGE_RECV, recv_message_handler)
+            #self.bind(evt.EVT_DIMSE_SENT, send_message_handler)
+            #self.bind(evt.EVT_DIMSE_RECV, recv_message_handler)
             pass
 
     def bind(self, event, handler):
@@ -71,9 +75,21 @@ class ACSE(object):
         # pylint: disable=broad-except
         try:
             # Response is always ignored as async ops is not supported
-            _ = assoc.ae.on_async_ops_window(
-                *assoc.requestor.asynchronous_operations
-            )
+            if self._handlers[evt.EVT_ASYNC_OPS]:
+                invoked, performed = assoc.requestor.asynchronous_operations
+                _ = evt.trigger(
+                    assoc,
+                    evt.EVT_ASYNC_OPS,
+                    self._handlers[evt.EVT_ASYNC_OPS],
+                    {
+                        'nr_invoked' : invoked,
+                        'nr_performed' : performed
+                    }
+                )
+            else:
+                _ = assoc.ae.on_async_ops_window(
+                    *assoc.requestor.asynchronous_operations
+                )
         except NotImplementedError:
             return None
         except Exception as exc:
@@ -108,9 +124,19 @@ class ACSE(object):
         """
         # pylint: disable=broad-except
         try:
-            rsp = assoc.ae.on_sop_class_common_extended(
-                assoc.requestor.sop_class_common_extended
-            )
+            if self._handlers[evt.EVT_SOP_COMMON]:
+                _ = evt.trigger(
+                    assoc,
+                    evt.EVT_SOP_COMMON,
+                    self._handlers[evt.EVT_SOP_COMMON],
+                    {
+                        'items' : assoc.requestor.sop_class_common_extended
+                    }
+                )
+            else:
+                rsp = assoc.ae.on_sop_class_common_extended(
+                    assoc.requestor.sop_class_common_extended
+                )
         except Exception as exc:
             LOGGER.error(
                 "Exception raised in user's 'on_sop_class_common_extended' "
@@ -143,9 +169,19 @@ class ACSE(object):
         """
         # pylint: disable=broad-except
         try:
-            user_response = assoc.ae.on_sop_class_extended(
-                assoc.requestor.sop_class_extended
-            )
+            if self._handlers[evt.EVT_SOP_EXTENDED]:
+                user_response = evt.trigger(
+                    assoc,
+                    evt.EVT_SOP_EXTENDED,
+                    self._handlers[evt.EVT_SOP_EXTENDED],
+                    {
+                        'app_info' : assoc.requestor.sop_class_extended
+                    }
+                )
+            else:
+                user_response = assoc.ae.on_sop_class_extended(
+                    assoc.requestor.sop_class_extended
+                )
         except Exception as exc:
             user_response = None
             LOGGER.error(
@@ -203,14 +239,26 @@ class ACSE(object):
         # The UserIdentityNegotiation (request) item
         req = assoc.requestor.user_identity
         try:
-            identity_verified, response = assoc.ae.on_user_identity(
-                req.user_identity_type,
-                req.primary_field,
-                req.secondary_field,
-                {
-                    'requestor' : assoc.requestor.info,
-                }
-            )
+            if self._handlers[evt.EVT_USER_ID]:
+                identity_verified, response = evt.trigger(
+                    assoc,
+                    evt.EVT_USER_ID,
+                    self._handlers[evt.EVT_USER_ID],
+                    {
+                        'user_id_type' : req.user_identity_type,
+                        'primary_field' : req.primary_field,
+                        'secondary_field' : req.secondary_field,
+                    }
+                )
+            else:
+                identity_verified, response = assoc.ae.on_user_identity(
+                    req.user_identity_type,
+                    req.primary_field,
+                    req.secondary_field,
+                    {
+                        'requestor' : assoc.requestor.info,
+                    }
+                )
         except NotImplementedError:
             # If the user hasn't implemented identity negotiation then
             #   default to accepting the association

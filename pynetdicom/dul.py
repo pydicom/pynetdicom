@@ -13,6 +13,7 @@ import struct
 from threading import Thread
 import time
 
+from pynetdicom import evt
 from pynetdicom.fsm import StateMachine
 from pynetdicom.pdu import (
     A_ASSOCIATE_RQ, A_ASSOCIATE_AC, A_ASSOCIATE_RJ,
@@ -83,6 +84,9 @@ class DULServiceProvider(Thread):
         # State machine - PS3.8 Section 9.2
         self.state_machine = StateMachine(self)
 
+        # Event handlers
+        self._handlers = {evt.EVT_FSM_TRANSITION : []}
+
         # Controls the minimum delay between loops in run()
         # TODO: try and make this event based rather than running loops
         self._run_loop_delay = 0.001
@@ -90,6 +94,19 @@ class DULServiceProvider(Thread):
         Thread.__init__(self)
         self.daemon = False
         self._kill_thread = False
+
+    def bind(self, event, handler):
+        """Bind a callable `handler` to an `event`.
+
+        Parameters
+        ----------
+        event : 3-tuple
+            The event to bind the function to.
+        handler : callable
+            The function that will be called if the event occurs.
+        """
+        if event in self._handlers and handler not in self._handlers[event]:
+            self._handlers[event].append(handler)
 
     def _check_incoming_primitive(self):
         """Check the incoming primitive."""
@@ -332,6 +349,13 @@ class DULServiceProvider(Thread):
 
         self.pdu = pdu
         self.primitive = self.pdu.to_primitive()
+        # ACSE handler
+        evt.trigger(
+            self.assoc,
+            evt.EVT_ACSE_RECV,
+            self.assoc.acse._handlers[evt.EVT_ACSE_RECV],
+            {'message' : self.primitive}
+        )
 
     def receive_pdu(self, wait=False, timeout=None):
         """
@@ -446,3 +470,16 @@ class DULServiceProvider(Thread):
             return True
 
         return False
+
+    def unbind(self, event, handler):
+        """Unbind a callable `func` from an `event`.
+
+        Parameters
+        ----------
+        event : 3-tuple
+            The event to unbind the function from.
+        handler : callable
+            The function that will no longer be called if the event occurs.
+        """
+        if event in self._handlers and handler in self._handlers[event]:
+            self._handlers[event].remove(handler)

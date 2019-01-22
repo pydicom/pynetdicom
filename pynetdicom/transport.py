@@ -30,9 +30,9 @@ class AssociationSocket(object):
     +----------------------+-------------------------------+----------------+
     | Event                | Description                   | Attributes     |
     +======================+===============================+================+
-    | EVT_CONNECTION_OPEN  | Connection with remote opened | address        |
+    | EVT_CONN_OPEN  | Connection with remote opened | address        |
     +----------------------+-------------------------------+----------------+
-    | EVT_CONNECTION_CLOSE | Connection with remote closed |                |
+    | EVT_CONN_CLOSE | Connection with remote closed |                |
     +----------------------+-------------------------------+----------------+
 
     Attributes
@@ -87,8 +87,8 @@ class AssociationSocket(object):
         self.select_timeout = 0.5
 
         # Event handlers
-        self._handlers = {evt.EVT_CONNECTION_CLOSE : [],
-                          evt.EVT_CONNECTION_OPEN : []}
+        self._handlers = {evt.EVT_CONN_CLOSE : [],
+                          evt.EVT_CONN_OPEN : []}
 
     @property
     def assoc(self):
@@ -119,7 +119,7 @@ class AssociationSocket(object):
 
         **Triggers**
 
-        - evt.EVT_CONNECTION_CLOSE
+        - evt.EVT_CONN_CLOSE
         """
         if self.socket is None or self._is_connected is False:
             return
@@ -131,7 +131,12 @@ class AssociationSocket(object):
 
         self.socket.close()
         # Trigger event
-        evt.trigger(self, evt.EVT_CONNECTION_CLOSE)
+        evt.trigger(
+            self.assoc,
+            evt.EVT_CONN_CLOSE,
+            self._handlers[evt.EVT_CONN_CLOSE],
+            {}
+        )
         self.socket = None
         self._is_connected = False
         # Evt17: Transport connection closed
@@ -147,7 +152,7 @@ class AssociationSocket(object):
 
         **Triggers**
 
-        - evt.EVT_CONNECTION_OPEN
+        - evt.EVT_CONN_OPEN
 
         Parameters
         ----------
@@ -169,7 +174,7 @@ class AssociationSocket(object):
             #   raises socket.error if connection refused
             self.socket.connect(address)
             # Trigger event
-            evt.trigger(self, evt.EVT_CONNECTION_OPEN, {'address' : address})
+            evt.trigger(self, evt.EVT_CONN_OPEN, {'address' : address})
             self._is_connected = True
             # Evt2: Transport connection confirmation
             self.event_queue.put('Evt2')
@@ -440,7 +445,7 @@ class AssociationServer(TCPServer):
     +----------------------+-------------------------------+----------------+
     | Event                | Description                   | Attributes     |
     +======================+===============================+================+
-    | EVT_CONNECTION_OPEN  | Connection with remote opened | address        |
+    | EVT_CONN_OPEN  | Connection with remote opened | address        |
     +----------------------+-------------------------------+----------------+
 
     Attributes
@@ -485,7 +490,7 @@ class AssociationServer(TCPServer):
         # Stores all currently bound events so future children can be bound
         self._events = {}
         # Event handlers
-        self._handlers = {evt.EVT_CONNECTION_OPEN : []}
+        self._handlers = {evt.EVT_CONN_OPEN : []}
 
         # Bind the functions to their events
         for (event, handler) in (events or []):
@@ -544,7 +549,7 @@ class AssociationServer(TCPServer):
                                                          server_side=True)
 
         # Trigger event
-        evt.trigger(self, evt.EVT_CONNECTION_OPEN, {'address' : address})
+        evt.trigger(self, evt.EVT_CONN_OPEN, {'address' : address})
 
         return client_socket, address
 

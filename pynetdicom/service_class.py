@@ -6,7 +6,7 @@ import sys
 
 from pydicom.dataset import Dataset
 
-from pynetdicom import _config
+from pynetdicom import _config, evt
 from pynetdicom.dsutils import decode, encode
 from pynetdicom.dimse_primitives import (
     C_STORE, C_ECHO, C_MOVE, C_GET, C_FIND, C_CANCEL
@@ -45,11 +45,41 @@ class ServiceClass(object):
     def __init__(self, assoc):
         """Create a new ServiceClass."""
         self.assoc = assoc
+        # Event handlers - interventional events
+        # TODO: update with default handlers in v1.5
+        self._handlers = {
+            evt.EVT_C_ECHO : None,
+            evt.EVT_C_FIND : None,
+            evt.EVT_C_GET : None,
+            evt.EVT_C_MOVE : None,
+            evt.EVT_C_STORE : None,
+            evt.EVT_N_ACTION : None,
+            evt.EVT_N_CREATE : None,
+            evt.EVT_N_DELETE : None,
+            evt.EVT_N_EVENT_REPORT : None,
+            evt.EVT_N_GET : None,
+            evt.EVT_N_SET : None
+        }
 
     @property
     def ae(self):
         """Return the AE."""
         return self.assoc.ae
+
+    def bind(self, event, handler):
+        """Bind a callable `handler` to an `event`.
+
+        Parameters
+        ----------
+        event : 3-tuple
+            The event to bind the function to.
+        handler : callable
+            The function that will be called if the event occurs.
+        """
+        # Bind our interventional events
+        if event in self._handlers and handler != self._handlers[event]:
+            # Replace existing handler
+            self._handlers[event] = handler
 
     @property
     def dimse(self):
@@ -113,6 +143,21 @@ class ServiceClass(object):
         )
         LOGGER.error(msg)
         raise NotImplementedError(msg)
+
+    def unbind(self, event, handler):
+        """Unbind a callable `func` from an `event`.
+
+        Parameters
+        ----------
+        event : 3-tuple
+            The event to unbind the function from.
+        handler : callable
+            The function that will no longer be called if the event occurs.
+        """
+        # Unbind our interventional events
+        # TODO: update with default handlers in v1.5
+        if event in self._handlers and self._handlers[event] == handler:
+            self._handlers[event] = None
 
     def validate_status(self, status, rsp):
         """Validate `status` and set `rsp.Status` accordingly.
@@ -247,7 +292,17 @@ class VerificationServiceClass(ServiceClass):
         #   the Status as either an int or Dataset, and any failures in the
         #   callback results in 0x0000 'Success'
         try:
-            status = self.ae.on_c_echo(context.as_tuple, info)
+            # Use either event-handler OR override
+            if self._handlers[evt.EVT_C_ECHO]:
+                status = evt.trigger(
+                    self.assoc,
+                    evt.EVT_C_ECHO,
+                    self._handlers[evt.EVT_C_ECHO],
+                    {'request' : req, 'context' : context.as_tuple}
+                )
+            else:
+                status = self.ae.on_c_echo(context.as_tuple, info)
+
             if isinstance(status, Dataset):
                 if 'Status' not in status:
                     raise AttributeError("The 'status' dataset returned by "
@@ -368,7 +423,8 @@ class StorageServiceClass(ServiceClass):
 
         # Attempt to decode the request's dataset
         transfer_syntax = context.transfer_syntax[0]
-        if _config.DECODE_STORE_DATASETS:
+        # Don't both decoding if using event handler
+        if _config.DECODE_STORE_DATASETS or self._handlers[evt.EVT_C_STORE]:
             try:
                 ds = decode(req.DataSet,
                             transfer_syntax.is_implicit_VR,
@@ -396,7 +452,15 @@ class StorageServiceClass(ServiceClass):
 
         # Attempt to run the ApplicationEntity's on_c_store callback
         try:
-            rsp_status = self.ae.on_c_store(ds, context.as_tuple, info)
+            if self._handlers[evt.EVT_C_STORE]
+                rsp_status = evt.trigger(
+                    self.assoc,
+                    evt.EVT_C_STORE,
+                    self._handlers[evt.EVT_C_STORE],
+                    {'request' : req, 'context' : context.as_tuple}
+                )
+            else:
+                rsp_status = self.ae.on_c_store(ds, context.as_tuple, info)
         except Exception as ex:
             LOGGER.error("Exception in the ApplicationEntity.on_c_store() "
                          "callback")
@@ -617,10 +681,24 @@ class QueryRetrieveServiceClass(ServiceClass):
         def wrap_on_c_find():
             """Wrapper for exceptions"""
             try:
-                # We unpack here so that the error is still caught
-                for val1, val2 in self.ae.on_c_find(identifier,
-                                                    context.as_tuple,
-                                                    info):
+                if self._handlers[evt.EVT_C_FIND]
+                    rsp = evt.trigger(
+                        self.assoc,
+                        evt.EVT_C_FIND,
+                        self._handlers[evt.EVT_C_FIND],
+                        {
+                            'request' : req,
+                            'context' : context.as_tuple,
+                            '_is_cancelled' : self.is_cancelled
+                        }
+                    )
+                else:
+                    # We unpack here so that the error is still caught
+                    rsp = self.ae.on_c_find(
+                        identifier, context.as_tuple, info
+                    )
+
+                for val1, val2 in rsp:
                     yield val1, val2
             except Exception:
                 # TODO: special (singleton) value
@@ -866,7 +944,19 @@ class QueryRetrieveServiceClass(ServiceClass):
         # Callback - C-GET
         try:
             # yields int, (status, dataset), ...
-            result = self.ae.on_c_get(identifier, context.as_tuple, info)
+            if self._handlers[evt.EVT_C_GET]
+                result = evt.trigger(
+                    self.assoc,
+                    evt.EVT_C_GET,
+                    self._handlers[evt.EVT_C_GET],
+                    {
+                        'request' : req,
+                        'context' : context.as_tuple,
+                        '_is_cancelled' : self.is_cancelled
+                    }
+                )
+            else:
+                result = self.ae.on_c_get(identifier, context.as_tuple, info)
         except Exception as ex:
             LOGGER.error("Exception in user's on_c_get implementation.")
             LOGGER.exception(ex)
@@ -1251,10 +1341,22 @@ class QueryRetrieveServiceClass(ServiceClass):
         # Callback - C-MOVE
         try:
             # yields (addr, port), int, (status, dataset), ...
-            result = self.ae.on_c_move(identifier,
-                                       req.MoveDestination,
-                                       context.as_tuple,
-                                       info)
+            if self._handlers[evt.EVT_C_MOVE]
+                result = evt.trigger(
+                    self.assoc,
+                    evt.EVT_C_MOVE,
+                    self._handlers[evt.EVT_C_MOVE],
+                    {
+                        'request' : req,
+                        'context' : context.as_tuple,
+                        '_is_cancelled' : self.is_cancelled
+                    }
+                )
+            else:
+                result = self.ae.on_c_move(identifier,
+                                           req.MoveDestination,
+                                           context.as_tuple,
+                                           info)
         except Exception as ex:
             LOGGER.error("Exception in user's on_c_move implementation.")
             LOGGER.exception(ex)
@@ -1759,7 +1861,21 @@ class RelevantPatientInformationQueryServiceClass(ServiceClass):
             #   if the yield is pending, send message then success and return
             #   if the yield is cancel or failure, send message and return
             #   if StopIteration send success and return
-            responses = self.ae.on_c_find(identifier, context.as_tuple, info)
+            if self._handlers[evt.EVT_C_FIND]
+                responses = evt.trigger(
+                    self.assoc,
+                    evt.EVT_C_FIND,
+                    self._handlers[evt.EVT_C_FIND],
+                    {
+                        'request' : req,
+                        'context' : context.as_tuple,
+                        '_is_cancelled' : self.is_cancelled
+                    }
+                )
+            else:
+                responses = self.ae.on_c_find(
+                    identifier, context.as_tuple, info
+                )
             (rsp_status, rsp_identifier) = next(responses)
         except StopIteration:
             # There were no matches, so return Success

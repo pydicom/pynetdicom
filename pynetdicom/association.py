@@ -157,9 +157,14 @@ class Association(threading.Thread):
         # Used to pause the association reactor until the DUL is ready
         self._dul_ready = threading.Event()
 
+        # Events - track so service class instances get their events bound
+        self._events = []
         # Event handlers
-        self._handlers = {evt.EVT_ESTABLISHED : [], evt.EVT_RELEASED : [],
-                          evt.EVT_ABORTED : [], evt.EVT_REJECTED : []}
+        self._handlers = {
+            evt.EVT_ABORTED : [], evt.EVT_ACCEPTED : [],
+            evt.EVT_REJECTED : [], evt.EVT_RELEASED : [],
+            evt.EVT_REQUESTED : []
+        }
 
         # Send A-ABORT/A-P-ABORT when an A-ASSOCIATE request is received
         self._a_abort_assoc_rq = False
@@ -216,6 +221,13 @@ class Association(threading.Thread):
         handler : callable
             The function that will be called if the event occurs.
         """
+        # Update the stored events so future service classes get bound
+        if event not in self._events:
+            self._events[event] = []
+
+        if handler not in self._events[event]:
+            self._events[event].append(handler)
+
         # Bind our own events
         if event in self._handlers and handler not in self._handlers[event]:
             self._handlers[event].append(handler)
@@ -227,6 +239,8 @@ class Association(threading.Thread):
             self.dimse.bind(event, handler)
         elif event[0] == "ACSE":
             self.acse.bind(event, handler)
+        elif event[0] == "DUL":
+            self.dul.bind(event, handler)
 
     def _check_received_status(self, rsp):
         """Return a pydicom Dataset containing status related elements.
@@ -541,6 +555,12 @@ class Association(threading.Thread):
                 # Convert the SOP/Service UID to the corresponding service
                 service_class = uid_to_service_class(class_uid)(self)
 
+                # Bind events to their handlers
+                for event in self._events:
+                    if event[0] == "SERVICE":
+                        for handler in self._events[event]:
+                            service_class.bind(event, handler)
+
                 try:
                     context = self._accepted_cx[msg_context_id]
                 except KeyError:
@@ -671,6 +691,13 @@ class Association(threading.Thread):
         handler : callable
             The function that will no longer be called if the event occurs.
         """
+        # Update the stored events so future service classes don't get bound
+        if event not in self._events or handler not in self._events[event]:
+            # Can't be an event if not already in `_events` unless shenanigans
+            return
+
+        self._events[event].remove(handler)
+
         # Unbind from our own events
         if event in self._handlers and handler in self._handlers[event]:
             self._handlers[event].remove(handler)
@@ -683,6 +710,8 @@ class Association(threading.Thread):
             self.dimse.unbind(event, handler)
         elif event[0] == "ACSE":
             self.acse.unbind(event, handler)
+        elif event[0] == "DUL":
+            self.dul.unbind(event, handler)
 
     # DIMSE-C services provided by the Association
     def _c_store_scp(self, req):

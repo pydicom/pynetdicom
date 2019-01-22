@@ -207,12 +207,12 @@ class DIMSEServiceProvider(object):
         self.msg_queue = queue.Queue()
 
         # Event handlers
-        self._handlers = {evt.EVT_MESSAGE_RECV : [], evt.EVT_MESSAGE_SENT : []}
+        self._handlers = {evt.EVT_DIMSE_RECV : [], evt.EVT_DIMSE_SENT : []}
 
         # Add logging handlers
         if _config.LOG_HANDLER_LEVEL == 'standard':
-            self.bind(evt.EVT_MESSAGE_SENT, send_message_handler)
-            self.bind(evt.EVT_MESSAGE_RECV, recv_message_handler)
+            self.bind(evt.EVT_DIMSE_SENT, send_message_handler)
+            self.bind(evt.EVT_DIMSE_RECV, recv_message_handler)
 
     def bind(self, event, handler):
         """Bind a callable `handler` to an `event`.
@@ -284,7 +284,7 @@ class DIMSEServiceProvider(object):
 
         if self.message.decode_msg(primitive):
             # Trigger event
-            evt.trigger(self, evt.EVT_MESSAGE_RECV, {'message' : self.message})
+            evt.trigger(self, evt.EVT_DIMSE_RECV, {'message' : self.message})
 
             # Callback
             # TODO: To be removed in v1.5
@@ -334,7 +334,7 @@ class DIMSEServiceProvider(object):
         dimse_msg.context_id = context_id
 
         # Trigger event
-        evt.trigger(self, evt.EVT_MESSAGE_SENT, {'message' : dimse_msg})
+        evt.trigger(self, evt.EVT_DIMSE_SENT, {'message' : dimse_msg})
 
         # Callbacks
         # TODO: To be removed in v1.5
