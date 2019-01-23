@@ -914,6 +914,8 @@ class ACSE(object):
 
                 str_roles = '/'.join(str_roles)
                 s.append("    SCP/SCU Role: {}".format(str_roles))
+        else:
+            s.append("Role Selection: None")
 
         ## Extended Negotiation
         if user_info.ext_neg:
@@ -1231,7 +1233,9 @@ class ACSE(object):
         assoc_ac = a_associate_ac
 
         app_context = assoc_ac.application_context_name.title()
-        pres_contexts = assoc_ac.presentation_context
+        pres_contexts = sorted(
+            assoc_ac.presentation_context, key=lambda x: x.context_id
+        )
         user_info = assoc_ac.user_information
         async_ops = user_info.async_ops_window
         roles = user_info.role_selection
@@ -1283,6 +1287,8 @@ class ACSE(object):
 
                 str_roles = '/'.join(str_roles)
                 s.append("    SCP/SCU Role: {}".format(str_roles))
+        else:
+            s.append("Role Selection: None")
 
         ## Extended Negotiation
         if user_info.ext_neg:
@@ -1373,7 +1379,9 @@ class ACSE(object):
         pdu = a_associate_rq
 
         app_context = pdu.application_context_name.title()
-        pres_contexts = pdu.presentation_context
+        pres_contexts = sorted(
+            pdu.presentation_context, key=lambda x: x.context_id
+        )
         user_info = pdu.user_information
 
         #responding_ae = 'resp. AP Title'
