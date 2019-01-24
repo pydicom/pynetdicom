@@ -458,7 +458,7 @@
         <span class="k">try</span><span class="p">:</span>
             <span class="k">while</span> <span class="n">total_sent</span> <span class="o">&lt;</span> <span class="n">length_data</span><span class="p">:</span>
                 <span class="c1"># Returns the number of bytes sent</span>
-                <span class="n">nr_sent</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">socket</span><span class="o">.</span><span class="n">send</span><span class="p">(</span><span class="n">bytestream</span><span class="p">)</span>
+                <span class="n">nr_sent</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">socket</span><span class="o">.</span><span class="n">send</span><span class="p">(</span><span class="n">bytestream</span><span class="p">[</span><span class="n">total_sent</span><span class="p">:])</span>
                 <span class="n">total_sent</span> <span class="o">+=</span> <span class="n">nr_sent</span>
         <span class="k">except</span> <span class="p">(</span><span class="n">socket</span><span class="o">.</span><span class="n">error</span><span class="p">,</span> <span class="n">socket</span><span class="o">.</span><span class="n">timeout</span><span class="p">):</span>
             <span class="c1"># Evt17: Transport connection closed</span>
