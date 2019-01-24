@@ -314,6 +314,7 @@ class Association(threading.Thread):
             msg += " with a transfer syntax of '{}'".format(tr_syntax.name)
 
         LOGGER.error(msg)
+        self.abort()
         raise ValueError(msg)
 
     @property
