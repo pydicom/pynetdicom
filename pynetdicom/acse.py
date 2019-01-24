@@ -26,33 +26,20 @@ class ACSE(object):
     The ACSE protocol handles association establishment, normal release of an
     association and the abnormal release of an association.
     """
-    def __init__(self):
-        """Create the ACSE service provider."""
-        # Event handlers
-        self._handlers = {
-            evt.EVT_DIMSE_RECV : [], evt.EVT_DIMSE_SENT : []
-            evt.EVT_ASYNC_OPS : None, evt.EVT_SOP_COMMON : None,
-            evt.EVT_SOP_EXTENDED : None, evt.EVT_USER_ID : None
-        }
-
-        # Add logging handlers
-        if _config.LOG_HANDLER_LEVEL == 'standard':
-            #self.bind(evt.EVT_DIMSE_SENT, send_message_handler)
-            #self.bind(evt.EVT_DIMSE_RECV, recv_message_handler)
-            pass
-
-    def bind(self, event, handler):
-        """Bind a callable `handler` to an `event`.
+    def __init__(self, assoc):
+        """Create the ACSE service provider.
 
         Parameters
         ----------
-        event : 3-tuple
-            The event to bind the function to.
-        handler : callable
-            The function that will be called if the event occurs.
+        assoc : association.Association
+            The Association to provide ACSE services for.
         """
-        if event in self._handlers and handler not in self._handlers[event]:
-            self._handlers[event].append(handler)
+        self._assoc = assoc
+
+    @property
+    def assoc(self):
+        """Return the ACSE's Association."""
+        return self._assoc
 
     @staticmethod
     def _check_async_ops(assoc):
@@ -75,12 +62,11 @@ class ACSE(object):
         # pylint: disable=broad-except
         try:
             # Response is always ignored as async ops is not supported
-            if self._handlers[evt.EVT_ASYNC_OPS]:
+            if self.assoc._handlers[evt.EVT_ASYNC_OPS]:
                 invoked, performed = assoc.requestor.asynchronous_operations
                 _ = evt.trigger(
-                    assoc,
+                    self.assoc,
                     evt.EVT_ASYNC_OPS,
-                    self._handlers[evt.EVT_ASYNC_OPS],
                     {
                         'nr_invoked' : invoked,
                         'nr_performed' : performed
@@ -124,11 +110,10 @@ class ACSE(object):
         """
         # pylint: disable=broad-except
         try:
-            if self._handlers[evt.EVT_SOP_COMMON]:
+            if self.assoc._handlers[evt.EVT_SOP_COMMON]:
                 _ = evt.trigger(
-                    assoc,
+                    self.assoc,
                     evt.EVT_SOP_COMMON,
-                    self._handlers[evt.EVT_SOP_COMMON],
                     {
                         'items' : assoc.requestor.sop_class_common_extended
                     }
@@ -169,11 +154,10 @@ class ACSE(object):
         """
         # pylint: disable=broad-except
         try:
-            if self._handlers[evt.EVT_SOP_EXTENDED]:
+            if self.assoc._handlers[evt.EVT_SOP_EXTENDED]:
                 user_response = evt.trigger(
-                    assoc,
+                    self.assoc,
                     evt.EVT_SOP_EXTENDED,
-                    self._handlers[evt.EVT_SOP_EXTENDED],
                     {
                         'app_info' : assoc.requestor.sop_class_extended
                     }
@@ -239,11 +223,10 @@ class ACSE(object):
         # The UserIdentityNegotiation (request) item
         req = assoc.requestor.user_identity
         try:
-            if self._handlers[evt.EVT_USER_ID]:
+            if self.assoc._handlers[evt.EVT_USER_ID]:
                 identity_verified, response = evt.trigger(
-                    assoc,
+                    self.assoc,
                     evt.EVT_USER_ID,
-                    self._handlers[evt.EVT_USER_ID],
                     {
                         'user_id_type' : req.user_identity_type,
                         'primary_field' : req.primary_field,
@@ -404,6 +387,7 @@ class ACSE(object):
         if reject_assoc_rsd:
             # pylint: disable=no-value-for-parameter
             self.send_reject(assoc, *reject_assoc_rsd)
+            evt.trigger(self.assoc, evt.EVT_REJECTED, {})
             assoc.debug_association_rejected(assoc.acceptor.primitive)
             assoc.ae.on_association_rejected(assoc.acceptor.primitive)
             assoc.kill()
@@ -441,9 +425,11 @@ class ACSE(object):
         # Callbacks/Logging
         assoc.debug_association_accepted(assoc.acceptor.primitive)
         assoc.ae.on_association_accepted(assoc.acceptor.primitive)
+        evt.trigger(self.assoc, evt.EVT_ACCEPTED, {})
 
         # Assocation established OK
         assoc.is_established = True
+        evt.trigger(self.assoc, evt.EVT_ESTABLISHED, {})
 
     def _negotiate_as_requestor(self, assoc):
         """Perform an association negotiation as the association requestor.
@@ -519,6 +505,7 @@ class ACSE(object):
 
                 assoc.debug_association_accepted(rsp)
                 assoc.ae.on_association_accepted(rsp)
+                evt.trigger(self.assoc, evt.EVT_ACCEPTED, {})
 
                 # No acceptable presentation contexts
                 if not assoc.accepted_contexts:
@@ -526,9 +513,11 @@ class ACSE(object):
                     self.send_abort(assoc, 0x02)
                     assoc.is_aborted = True
                     assoc.is_established = False
+                    evt.trigger(self.assoc, evt.EVT_ABORTED, {})
                     assoc.kill()
                 else:
                     assoc.is_established = True
+                    evt.trigger(self.assoc, evt.EVT_ESTABLISHED, {})
 
             elif hasattr(rsp, 'result') and rsp.result in [0x01, 0x02]:
                 # 0x01 is rejected (permanent)
@@ -537,6 +526,7 @@ class ACSE(object):
                 assoc.debug_association_rejected(rsp)
                 assoc.is_rejected = True
                 assoc.is_established = False
+                evt.trigger(self.assoc, evt.EVT_REJECTED, {})
                 assoc.dul.kill_dul()
             else:
                 LOGGER.warning(
@@ -545,6 +535,8 @@ class ACSE(object):
                 self.send_abort(assoc, 0x02)
                 assoc.is_aborted = True
                 assoc.is_established = False
+                # Event handler - association aborted
+                evt.trigger(self.assoc, evt.EVT_ABORTED, {})
                 assoc.kill()
 
         # Association aborted
@@ -553,6 +545,7 @@ class ACSE(object):
             assoc.debug_association_aborted(rsp)
             assoc.is_established = False
             assoc.is_aborted = True
+            evt.trigger(self.assoc, evt.EVT_ABORTED, {})
             assoc.dul.kill_dul()
         else:
             assoc.is_established = False
@@ -588,6 +581,7 @@ class ACSE(object):
                 self.send_abort(assoc, 0x02)
                 assoc.is_aborted = True
                 assoc.is_established = False
+                evt.trigger(self.assoc, evt.EVT_ABORTED, {})
                 assoc.kill()
                 return
 
@@ -595,6 +589,7 @@ class ACSE(object):
                 # Received A-ABORT/A-P-ABORT during association release
                 assoc.is_aborted = True
                 assoc.is_established = False
+                evt.trigger(self.assoc, evt.EVT_ABORTED, {})
                 assoc.kill()
                 return
 
@@ -629,6 +624,7 @@ class ACSE(object):
 
                 assoc.is_released = True
                 assoc.is_established = False
+                evt.trigger(self.assoc, evt.EVT_RELEASED, {})
                 assoc.kill()
                 return
 
@@ -888,18 +884,6 @@ class ACSE(object):
         LOGGER.info("Requesting Association")
         assoc.dul.send_pdu(primitive)
 
-    def unbind(self, event, handler):
-        """Unbind a callable `func` from an `event`.
-
-        Parameters
-        ----------
-        event : 3-tuple
-            The event to unbind the function from.
-        handler : callable
-            The function that will no longer be called if the event occurs.
-        """
-        if event in self._handlers and handler in self._handlers[event]:
-            self._handlers[event].remove(handler)
 
     # ACSE logging/debugging functions
     # pylint: disable=too-many-branches,unused-argument

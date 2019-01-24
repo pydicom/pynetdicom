@@ -13,38 +13,41 @@ LOGGER = logging.getLogger('pynetdicom.events')
 #   No returns/yields needed, can have multiple handlers
 EVT_CONN_CLOSE = ("TRANSPORT", "Connection closed", False)
 EVT_CONN_OPEN = ("TRANSPORT", "Connection opened", False)
-EVT_DIMSE_RECV = ("DIMSE", "DIMSE message received", False)
-EVT_DIMSE_SENT = ("DIMSE", "DIMSE message sent", False)
+EVT_DIMSE_RECV = ("DIMSE", "DIMSE message received", False)  # OK
+EVT_DIMSE_SENT = ("DIMSE", "DIMSE message sent", False)  # OK
 
-EVT_ACSE_RECV = ("ACSE", "ACSE message received", False)
-EVT_ACSE_SENT = ("ACSE", "ACSE message sent", False)
+EVT_ACSE_RECV = ("ACSE", "ACSE message received", False)  # OK
+EVT_ACSE_SENT = ("ACSE", "ACSE message sent", False)  # OK
 EVT_ABORTED = ("ASSOCIATION", "Association aborted", False)
 EVT_ACCEPTED = ("ASSOCIATION", "Association request accepted", False)
+EVT_ESTABLISHED = ("ASSOCIATION", "Association established", False)
 EVT_REJECTED = ("ASSOCIATION", "Association request rejected", False)
 EVT_RELEASED = ("ASSOCIATION", "Association released", False)
 EVT_REQUESTED = ("ASSOCIATION", "Association requested", False)
-EVT_FSM_TRANSITION = ("DUL", "State machine transition occurred", False)
+EVT_FSM_TRANSITION = ("DUL", "State machine transition occurred", False)  # OK
+EVT_PDU_RECV = ("DUL", "PDU data received", False)  # OK
+EVT_PDU_SENT = ("DUL", "PDU data sent", False)  # OK
 
 # Intervention events
 #   Returns/yields needed if bound, can only have one handler
-EVT_ASYNC_OPS = ("ACSE", "Asynchronous operations negotiation requested", True)
-EVT_SOP_COMMON = ("ACSE", "SOP class common extended negotiation requested", True)
-EVT_SOP_EXTENDED = ("ACSE", "SOP class extended negotiation requested", True)
-EVT_USER_ID = ("ACSE", "User identity negotiation requested", True)
-EVT_C_ECHO = ("SERVICE", "C-ECHO request received", True)
-EVT_C_FIND = ("SERVICE", "C-FIND request received", True)
-EVT_C_GET = ("SERVICE", "C-GET request received", True)
-EVT_C_MOVE = ("SERVICE", "C-MOVE request received", True)
-EVT_C_STORE = ("SERVICE", "C-STORE request received", True)
-EVT_N_ACTION = ("SERVICE", "N-ACTION request received", True)
-EVT_N_CREATE = ("SERVICE", "N-CREATE request received", True)
-EVT_N_DELETE = ("SERVICE", "N-DELETE request received", True)
-EVT_N_EVENT_REPORT = ("SERVICE", "N-EVENT-REPORT request received", True)
-EVT_N_GET = ("SERVICE", "N-GET request received", True)
-EVT_N_SET = ("SERVICE", "N-SET request received", True)
+EVT_ASYNC_OPS = ("ACSE", "Asynchronous operations negotiation requested", True)  # OK
+EVT_SOP_COMMON = ("ACSE", "SOP class common extended negotiation requested", True)  # OK
+EVT_SOP_EXTENDED = ("ACSE", "SOP class extended negotiation requested", True)  # OK
+EVT_USER_ID = ("ACSE", "User identity negotiation requested", True)  # OK
+EVT_C_ECHO = ("SERVICE", "C-ECHO request received", True)  # OK
+EVT_C_FIND = ("SERVICE", "C-FIND request received", True)  # OK
+EVT_C_GET = ("SERVICE", "C-GET request received", True)  # OK
+EVT_C_MOVE = ("SERVICE", "C-MOVE request received", True)  # OK
+EVT_C_STORE = ("SERVICE", "C-STORE request received", True)  # OK
+EVT_N_ACTION = ("SERVICE", "N-ACTION request received", True)  # OK
+EVT_N_CREATE = ("SERVICE", "N-CREATE request received", True)  # OK
+EVT_N_DELETE = ("SERVICE", "N-DELETE request received", True)  # OK
+EVT_N_EVENT_REPORT = ("SERVICE", "N-EVENT-REPORT request received", True)  # OK
+EVT_N_GET = ("SERVICE", "N-GET request received", True)  # OK
+EVT_N_SET = ("SERVICE", "N-SET request received", True)  # OK
 
 
-def trigger(cls, event, handlers, attrs=None):
+def trigger(assoc, event, attrs=None):
     """Trigger an `event` and call any bound handler(s).
 
     Notification events can be bound to multiple handlers, intervention events
@@ -77,42 +80,50 @@ def trigger(cls, event, handlers, attrs=None):
 
     Parameters
     ----------
-    cls : object
-        The object triggering the event.
-    event : 3-tuple of str
-        The event to trigger ('source', 'event', 'description').
-    handlers : callable or list of callable
-        The handlers for the event, may be None or an empty list if no
-        handlers are available.
+    assoc : assoc.Association
+        The association in which the event occurred.
+    event : 3-tuple
+        The event to trigger ('source', 'description', is_interventional).
     attrs : dict, optional
         The attributes to set in the Event instance that is passed to
         the event's corresponding handler functions as
         {attribute name : value}, default {}.
+
+    Raises
+    ------
+    Exception
+        If an exception occurs in an intervention event handler then the
+        exception will be raised. If an exception occurs in a notification
+        handler then the exception will be caught and logged instead.
     """
+    # Get the handler(s) bound to the event
+    #   notification events: returns a list of callable
+    #   intervention events: returns a callable or None
+    handlers = assoc.get_handlers(event)
     if not handlers:
         return
 
-    evt = Event(event, attrs)
+    evt = Event(assoc, event, attrs)
 
     try:
-        if not event[2]:
-            # Notification event - multiple
-            for func in handlers:
-                func(evt)
-        else:
-            # Intervention event - singular
-            return handlers[event](evt)
+        # Intervention event - only singule handler allowed
+        if event[2]:
+            return handlers(evt)
+
+        # Notification event - multiple handlers are allowed
+        for func in handlers:
+            func(evt)
     except Exception as exc:
-        if not event[2]:
-            # Capture exceptions for notification events
-            LOGGER.error(
-                "Exception raised in user's '{}' event handler '{}'"
-                .format(event[1], func.__name__)
-            )
-            LOGGER.exception(exc)
-        else:
-            # Intervention exceptions get raised
+        # Intervention exceptions get raised
+        if event[2]:
             raise
+
+        # Capture exceptions for notification events
+        LOGGER.error(
+            "Exception raised in user's 'evt.{}' event handler '{}'"
+            .format(event.__name__, func.__name__)
+        )
+        LOGGER.exception(exc)
 
 
 class Event(object):
@@ -120,22 +131,27 @@ class Event(object):
 
     Attributes
     ----------
+    assoc : association.Association
+        The association in which the event occurred.
     event : tuple
         The event that occurred.
     timestamp : datetime.datetime
         The date/time the event was created. Will be slightly before or after
         the actual event that this object represents.
     """
-    def __init__(self, event, attrs):
+    def __init__(self, assoc, event, attrs):
         """Create a new Event.
 
         Parameters
         ----------
+        assoc : association.Association
+            The association in which the event occurred.
         event : tuple
             The representation of the event.
         attrs : dict
             The {attribute : value} to set for the Event.
         """
+        self.assoc = assoc
         self.event = event
         self.timestamp = datetime.now()
 

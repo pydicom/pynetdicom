@@ -75,11 +75,10 @@ class StateMachine(object):
             # Execute the required action
             next_state = action[1](self.dul)
 
-            # Useful for debugging
+            # Event handler - FSM transition
             evt.trigger(
                 self.dul.assoc,
                 evt.EVT_FSM_TRANSITION,
-                self.dul._handlers[evt.EVT_FSM_TRANSITION],
                 {
                     'current_state' : self.current_state,
                     'event' : event
@@ -189,17 +188,12 @@ def AE_2(dul):
     dul.pdu = A_ASSOCIATE_RQ()
     dul.pdu.from_primitive(dul.primitive)
 
-    # Event handler
-    evt.trigger(
-        dul.assoc,
-        evt.EVT_ACSE_SENT,
-        dul.assoc.acse._handlers[evt.EVT_ACSE_SENT],
-        {'message' : dul.primitive}
-    )
     # Callback
     dul.assoc.acse.debug_send_associate_rq(dul.pdu)
 
     bytestream = dul.pdu.encode()
+    # Event handler - PDU sent to peer
+    evt.trigger(dul.assoc, evt.EVT_PDU_SENT, {'data' : bytestream})
     dul.socket.send(bytestream)
 
     return 'Sta5'
@@ -339,17 +333,13 @@ def AE_6(dul):
         dul.pdu = A_ASSOCIATE_RJ()
         dul.pdu.from_primitive(dul.primitive)
 
-        # Event handler
-        evt.trigger(
-            dul.assoc,
-            evt.EVT_ACSE_SENT,
-            dul.assoc.acse._handlers[evt.EVT_ACSE_SENT],
-            {'message' : dul.primitive}
-        )
         # Callback
         dul.assoc.acse.debug_send_associate_rj(dul.pdu)
 
-        dul.socket.send(dul.pdu.encode())
+        bytestream = dul.pdu.encode()
+        # Event handler - PDU sent to peer
+        evt.trigger(dul.assoc, evt.EVT_PDU_SENT, {'data' : bytestream})
+        dul.socket.send(bytestream)
         dul.artim_timer.start()
 
         return 'Sta13'
@@ -386,17 +376,12 @@ def AE_7(dul):
     dul.pdu = A_ASSOCIATE_AC()
     dul.pdu.from_primitive(dul.primitive)
 
-    # Event handler
-    evt.trigger(
-        dul.assoc,
-        evt.EVT_ACSE_SENT,
-        dul.assoc.acse._handlers[evt.EVT_ACSE_SENT],
-        {'message' : dul.primitive}
-    )
     # Callback
     dul.assoc.acse.debug_send_associate_ac(dul.pdu)
 
     bytestream = dul.pdu.encode()
+    # Event handler - PDU sent to peer
+    evt.trigger(dul.assoc, evt.EVT_PDU_SENT, {'data' : bytestream})
     dul.socket.send(bytestream)
 
     return 'Sta6'
@@ -427,17 +412,13 @@ def AE_8(dul):
     dul.pdu = A_ASSOCIATE_RJ()
     dul.pdu.from_primitive(dul.primitive)
 
-    # Event handler
-    evt.trigger(
-        dul.assoc,
-        evt.EVT_ACSE_SENT,
-        dul.assoc.acse._handlers[evt.EVT_ACSE_SENT],
-        {'message' : dul.primitive}
-    )
     # Callback
     dul.assoc.acse.debug_send_associate_rj(dul.pdu)
 
-    dul.socket.send(dul.pdu.encode())
+    bytestream = dul.pdu.encode()
+    # Event handler - PDU sent to peer
+    evt.trigger(dul.assoc, evt.EVT_PDU_SENT, {'data' : bytestream})
+    dul.socket.send(bytestream)
     dul.artim_timer.start()
 
     return 'Sta13'
@@ -469,19 +450,15 @@ def DT_1(dul):
     dul.pdu = P_DATA_TF()
     dul.pdu.from_primitive(dul.primitive)
 
-    # Event handler
-    evt.trigger(
-        dul.assoc,
-        evt.EVT_ACSE_SENT,
-        dul.assoc.acse._handlers[evt.EVT_ACSE_SENT],
-        {'message' : dul.primitive}
-    )
     # Callback
     dul.assoc.acse.debug_send_data_tf(dul.pdu)
 
     dul.primitive = None  # Why this?
 
-    dul.socket.send(dul.pdu.encode())
+    bytestream = dul.pdu.encode()
+    # Event handler - PDU sent to peer
+    evt.trigger(dul.assoc, evt.EVT_PDU_SENT, {'data' : bytestream})
+    dul.socket.send(bytestream)
 
     return 'Sta6'
 
@@ -539,17 +516,13 @@ def AR_1(dul):
     dul.pdu = A_RELEASE_RQ()
     dul.pdu.from_primitive(dul.primitive)
 
-    # Event handler
-    evt.trigger(
-        dul.assoc,
-        evt.EVT_ACSE_SENT,
-        dul.assoc.acse._handlers[evt.EVT_ACSE_SENT],
-        {'message' : dul.primitive}
-    )
     # Callback
     dul.assoc.acse.debug_send_release_rq(dul.pdu)
 
-    dul.socket.send(dul.pdu.encode())
+    bytestream = dul.pdu.encode()
+    # Event handler - PDU sent to peer
+    evt.trigger(dul.assoc, evt.EVT_PDU_SENT, {'data' : bytestream})
+    dul.socket.send(bytestream)
 
     return 'Sta7'
 
@@ -636,17 +609,13 @@ def AR_4(dul):
     dul.pdu = A_RELEASE_RP()
     dul.pdu.from_primitive(dul.primitive)
 
-    # Event handler
-    evt.trigger(
-        dul.assoc,
-        evt.EVT_ACSE_SENT,
-        dul.assoc.acse._handlers[evt.EVT_ACSE_SENT],
-        {'message' : dul.primitive}
-    )
     # Callback
     dul.assoc.acse.debug_send_release_rp(dul.pdu)
 
-    dul.socket.send(dul.pdu.encode())
+    bytestream = dul.pdu.encode()
+    # Event handler - PDU sent to peer
+    evt.trigger(dul.assoc, evt.EVT_PDU_SENT, {'data' : bytestream})
+    dul.socket.send(bytestream)
     dul.artim_timer.start()
 
     return 'Sta13'
@@ -677,7 +646,7 @@ def AR_5(dul):
     # Stop ARTIM timer
     dul.artim_timer.stop()
     dul.kill_dul()
-    evt.trigger(dul.socket, evt.EVT_CONN_CLOSE)
+    evt.trigger(dul.assoc, evt.EVT_CONN_CLOSE, {})
 
     return 'Sta1'
 
@@ -736,17 +705,13 @@ def AR_7(dul):
     dul.pdu = P_DATA_TF()
     dul.pdu.from_primitive(dul.primitive)
 
-    # Event handler
-    evt.trigger(
-        dul.assoc,
-        evt.EVT_ACSE_SENT,
-        dul.assoc.acse._handlers[evt.EVT_ACSE_SENT],
-        {'message' : dul.primitive}
-    )
     # Callback
     dul.assoc.acse.debug_send_data_tf(dul.pdu)
 
-    dul.socket.send(dul.pdu.encode())
+    bytestream = dul.pdu.encode()
+    # Event handler - PDU sent to peer
+    evt.trigger(dul.assoc, evt.EVT_PDU_SENT, {'data' : bytestream})
+    dul.socket.send(bytestream)
 
     return 'Sta8'
 
@@ -806,17 +771,13 @@ def AR_9(dul):
     dul.pdu = A_RELEASE_RP()
     dul.pdu.from_primitive(dul.primitive)
 
-    # Event handler
-    evt.trigger(
-        dul.assoc,
-        evt.EVT_ACSE_SENT,
-        dul.assoc.acse._handlers[evt.EVT_ACSE_SENT],
-        {'message' : dul.primitive}
-    )
     # Callback
     dul.assoc.acse.debug_send_release_rp(dul.pdu)
 
-    dul.socket.send(dul.pdu.encode())
+    bytestream = dul.pdu.encode()
+    # Event handler - PDU sent to peer
+    evt.trigger(dul.assoc, evt.EVT_PDU_SENT, {'data' : bytestream})
+    dul.socket.send(bytestream)
 
     return 'Sta11'
 
@@ -880,17 +841,13 @@ def AA_1(dul):
     dul.pdu.reason_diagnostic = 0x00
     dul.pdu.from_primitive(dul.primitive)
 
-    # Event handler
-    evt.trigger(
-        dul.assoc,
-        evt.EVT_ACSE_SENT,
-        dul.assoc.acse._handlers[evt.EVT_ACSE_SENT],
-        {'message' : dul.primitive}
-    )
     # Callback
     dul.assoc.acse.debug_send_abort(dul.pdu)
 
-    dul.socket.send(dul.pdu.encode())
+    bytestream = dul.pdu.encode()
+    # Event handler - PDU sent to peer
+    evt.trigger(dul.assoc, evt.EVT_PDU_SENT, {'data' : bytestream})
+    dul.socket.send(bytestream)
     dul.artim_timer.restart()
 
     return 'Sta13'
@@ -987,7 +944,7 @@ def AA_4(dul):
     dul.primitive = A_ABORT()
     dul.to_user_queue.put(dul.primitive)
     dul.kill_dul()
-    evt.trigger(dul.socket, evt.EVT_CONN_CLOSE)
+    evt.trigger(dul.assoc, evt.EVT_CONN_CLOSE, {})
 
     return 'Sta1'
 
@@ -1017,7 +974,7 @@ def AA_5(dul):
     # Stop ARTIM timer.
     dul.artim_timer.stop()
     dul.kill_dul()
-    evt.trigger(dul.socket, evt.EVT_CONN_CLOSE)
+    evt.trigger(dul.assoc, evt.EVT_CONN_CLOSE, {})
 
     return 'Sta1'
 
@@ -1078,17 +1035,13 @@ def AA_7(dul):
     pdu = A_ABORT_RQ()
     pdu.from_primitive(primitive)
 
-    # Event handler
-    evt.trigger(
-        dul.assoc,
-        evt.EVT_ACSE_SENT,
-        dul.assoc.acse._handlers[evt.EVT_ACSE_SENT],
-        {'message' : primitive}
-    )
     # Callback
     dul.assoc.acse.debug_send_abort(pdu)
 
-    dul.socket.send(pdu.encode())
+    bytestream = dul.pdu.encode()
+    dul.socket.send(bytestream)
+    evt.trigger(dul.assoc, evt.EVT_PDU_SENT, {'data' : bytestream})
+    evt.trigger(dul.assoc, evt.EVT_ABORTED, {})
 
     return 'Sta13'
 
@@ -1129,20 +1082,16 @@ def AA_8(dul):
     dul.primitive.result = 0x01
     dul.primitive.diagnostic = 0x01
 
-    # Event handler
-    evt.trigger(
-        dul.assoc,
-        evt.EVT_ACSE_SENT,
-        dul.assoc.acse._handlers[evt.EVT_ACSE_SENT],
-        {'message' : dul.primitve}
-    )
     # Callback
     dul.assoc.acse.debug_send_abort(dul.pdu)
 
+    bytestream =
     dul.socket.send(dul.pdu.encode())
+    
 
     # Issue A-P-ABORT to user
     dul.to_user_queue.put(dul.primitive)
+    evt.trigger(dul.assoc, evt.EVT_ABORTED, {})
     dul.artim_timer.start()
 
     return 'Sta13'

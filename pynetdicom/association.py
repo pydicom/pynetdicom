@@ -11,7 +11,7 @@ from pydicom.uid import UID
 
 # pylint: disable=no-name-in-module
 from pynetdicom.acse import ACSE
-from pynetdicom import _config, evt
+from pynetdicom import _config, evt, _handlers
 from pynetdicom.dimse import DIMSEServiceProvider
 from pynetdicom.dimse_primitives import (
     C_ECHO, C_MOVE, C_STORE, C_GET, C_FIND, C_CANCEL,
@@ -141,9 +141,9 @@ class Association(threading.Thread):
         self._rejected_cx = []
 
         # Service providers
-        self.acse = ACSE()
+        self.acse = ACSE(self)
         self.dul = DULServiceProvider(self)
-        self.dimse = DIMSEServiceProvider(self.dul, self.ae.dimse_timeout)
+        self.dimse = DIMSEServiceProvider(self)
 
         # Timeouts (in seconds), needs to be set after DUL init
         self.acse_timeout = self.ae.acse_timeout
@@ -157,14 +157,8 @@ class Association(threading.Thread):
         # Used to pause the association reactor until the DUL is ready
         self._dul_ready = threading.Event()
 
-        # Events - track so service class instances get their events bound
-        self._events = []
         # Event handlers
-        self._handlers = {
-            evt.EVT_ABORTED : [], evt.EVT_ACCEPTED : [],
-            evt.EVT_REJECTED : [], evt.EVT_RELEASED : [],
-            evt.EVT_REQUESTED : []
-        }
+        self._handlers = {}
 
         # Send A-ABORT/A-P-ABORT when an A-ASSOCIATE request is received
         self._a_abort_assoc_rq = False
@@ -184,6 +178,8 @@ class Association(threading.Thread):
         """Sends an A-ABORT to the remote AE and kills the Association."""
         if not self.is_released:
             self.acse.send_abort(self, 0x00)
+            # Event handler - association aborted
+            evt.trigger(self, evt.EVT_ABORTED, {})
             self.kill()
 
         # Add short delay to ensure everything shuts down
@@ -221,26 +217,48 @@ class Association(threading.Thread):
         handler : callable
             The function that will be called if the event occurs.
         """
-        # Update the stored events so future service classes get bound
-        if event not in self._events:
-            self._events[event] = []
+        # Notification events - multiple handlers allowed
+        if not event[2]:
+            if event not in self._handlers:
+                self._handlers[event] = []
+            if handler not in self._handlers[event]:
+                self._handlers[event].append(handler)
 
-        if handler not in self._events[event]:
-            self._events[event].append(handler)
+        # Intervention events - only one handler allowed
+        if event[2]:
+            if event not in self._handlers:
+                self._handlers[event] = None
 
-        # Bind our own events
-        if event in self._handlers and handler not in self._handlers[event]:
-            self._handlers[event].append(handler)
+            if self._handlers[event] != handler:
+                self._handlers[event] = handler
 
-        # Bind our service's events
-        if event[0] == "TRANSPORT":
-            self.dul.socket.bind(event, handler)
-        elif event[0] == "DIMSE":
-            self.dimse.bind(event, handler)
-        elif event[0] == "ACSE":
-            self.acse.bind(event, handler)
-        elif event[0] == "DUL":
-            self.dul.bind(event, handler)
+    def _bind_defaults(self):
+        """Bind the default event handlers."""
+        # Intervention event handlers
+        # Extended negotiation
+        self.bind(evt.EVT_ASYNC_OPS, evt.default_async_ops_handler)
+        self.bind(evt.EVT_SOP_COMMON, evt.default_sop_common_handler)
+        self.bind(evt.EVT_SOP_EXTENDED, evt.default_sop_extended_handler)
+        self.bind(evt.EVT_USER_ID, evt.default_user_identity_handler)
+        # Service classes
+        self.bind(evt.EVT_C_ECHO, evt.default_c_echo_handler)
+        self.bind(evt.EVT_C_FIND, evt.default_c_find_handler)
+        self.bind(evt.EVT_C_GET, evt.default_c_get_handler)
+        self.bind(evt.EVT_C_MOVE, evt.default_c_move_handler)
+        self.bind(evt.EVT_C_STORE, evt.default_c_store_handler)
+        self.bind(evt.EVT_N_ACTION, evt.default_n_action_handler)
+        self.bind(evt.EVT_N_CREATE, evt.default_n_create_handler)
+        self.bind(evt.EVT_N_DELETE, evt.default_n_delete_handler)
+        self.bind(evt.EVT_N_EVENT_REPORT, evt.default_n_event_report_handler)
+        self.bind(evt.EVT_N_GET, evt.default_n_get_handler)
+        self.bind(evt.EVT_N_SET, evt.default_n_set_handler)
+
+        # Notification event handlers
+        if _config.LOG_HANDLER_LEVEL == 'standard':
+            self.bind(evt.EVT_DIMSE_RECV, _handlers.standard_dimse_recv_handler)
+            self.bind(evt.EVT_DIMSE_SENT, _handlers.standard_dimse_sent_handler)
+            self.bind(evt.EVT_ACSE_RECV, _handlers.standard_acse_recv_handler)
+            self.bind(evt.EVT_ACSE_SENT, _handlers.standard_acse_sent_handler)
 
     def _check_received_status(self, rsp):
         """Return a pydicom Dataset containing status related elements.
@@ -288,6 +306,29 @@ class Association(threading.Thread):
         """Set the DIMSE timeout using numeric or None."""
         self.dimse.dimse_timeout = value
         self._dimse_timeout = value
+
+    def get_handlers(self, event):
+        """Return a list of bound handlers for `event`.
+
+        Parameters
+        ----------
+        event : tuple
+            The event corresponding to the handlers being returned.
+
+        Returns
+        -------
+        callable, list of callable or None
+            If the event is a notification event then returns a list of
+            callable functions bound to `event`, if the event is an
+            intervention event then returns either a callable function if a
+            handler is bound to the event or None if no handler has been bound.
+        """
+        # Intervention events
+        if event[2]:
+            return self._handlers[event]
+
+        # Notification events
+        return self._handlers[event]
 
     def _get_valid_context(self, ab_syntax, tr_syntax, role, context_id=None):
         """Return a valid Presentation Context matching the parameters.
@@ -476,10 +517,14 @@ class Association(threading.Thread):
             # (Optionally) send an A-ABORT/A-P-ABORT in response
             if self._a_abort_assoc_rq:
                 self.acse.send_abort(self, 0x00)
+                # Event handler - association aborted
+                evt.trigger(self, evt.EVT_ABORTED, {})
                 self.kill()
                 return
             elif self._a_p_abort_assoc_rq:
                 self.acse.send_ap_abort(self, 0x00)
+                # Event handler - association aborted
+                evt.trigger(self, evt.EVT_ABORTED, {})
                 self.kill()
                 return
 
@@ -554,12 +599,6 @@ class Association(threading.Thread):
 
                 # Convert the SOP/Service UID to the corresponding service
                 service_class = uid_to_service_class(class_uid)(self)
-
-                # Bind events to their handlers
-                for event in self._events:
-                    if event[0] == "SERVICE":
-                        for handler in self._events[event]:
-                            service_class.bind(event, handler)
 
                 try:
                     context = self._accepted_cx[msg_context_id]
@@ -691,27 +730,17 @@ class Association(threading.Thread):
         handler : callable
             The function that will no longer be called if the event occurs.
         """
-        # Update the stored events so future service classes don't get bound
-        if event not in self._events or handler not in self._events[event]:
-            # Can't be an event if not already in `_events` unless shenanigans
+        if event not in self._handlers:
             return
 
-        self._events[event].remove(handler)
-
-        # Unbind from our own events
-        if event in self._handlers and handler in self._handlers[event]:
+        # Notification events
+        if not event[2] and handler in self._handlers:
             self._handlers[event].remove(handler)
-            return
 
-        # Unbind our service's events
-        if event[0] == "TRANSPORT":
-            self.dul.socket.unbind(event, handler)
-        elif event[0] == "DIMSE":
-            self.dimse.unbind(event, handler)
-        elif event[0] == "ACSE":
-            self.acse.unbind(event, handler)
-        elif event[0] == "DUL":
-            self.dul.unbind(event, handler)
+        # Intervention events
+        if event[2] and self._handlers[event] == handler:
+            # TODO: if standard logging then replace with default
+            self._handlers[event] = None
 
     # DIMSE-C services provided by the Association
     def _c_store_scp(self, req):

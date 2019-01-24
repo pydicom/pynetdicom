@@ -130,13 +130,9 @@ class AssociationSocket(object):
             pass
 
         self.socket.close()
-        # Trigger event
-        evt.trigger(
-            self.assoc,
-            evt.EVT_CONN_CLOSE,
-            self._handlers[evt.EVT_CONN_CLOSE],
-            {}
-        )
+        # Event handler - connection closed
+        evt.trigger(self.assoc, evt.EVT_CONN_CLOSE, {})
+
         self.socket = None
         self._is_connected = False
         # Evt17: Transport connection closed
@@ -173,8 +169,8 @@ class AssociationSocket(object):
             # Try and connect to remote at (address, port)
             #   raises socket.error if connection refused
             self.socket.connect(address)
-            # Trigger event
-            evt.trigger(self, evt.EVT_CONN_OPEN, {'address' : address})
+            # Trigger event - connection open
+            evt.trigger(self.assoc, evt.EVT_CONN_OPEN, {'address' : address})
             self._is_connected = True
             # Evt2: Transport connection confirmation
             self.event_queue.put('Evt2')
@@ -331,8 +327,10 @@ class AssociationSocket(object):
         try:
             while total_sent < length_data:
                 # Returns the number of bytes sent
-                nr_sent = self.socket.send(bytestream)
+                nr_sent = self.socket.send(bytestream[total_sent:])
                 total_sent += nr_sent
+
+            evt.trigger(self.assoc, evt.EVT_PDU_SENT, {'data' : bytestream})
         except (socket.error, socket.timeout):
             # Evt17: Transport connection closed
             self.event_queue.put('Evt17')
@@ -485,18 +483,16 @@ class AssociationServer(TCPServer):
             self, address, RequestHandler, bind_and_activate=True
         )
 
+        self.timeout = 60
+
         # Tracks child Association acceptors
         self._children = []
         # Stores all currently bound events so future children can be bound
         self._events = {}
-        # Event handlers
-        self._handlers = {evt.EVT_CONN_OPEN : []}
 
         # Bind the functions to their events
         for (event, handler) in (events or []):
             self.bind(event, handler)
-
-        self.timeout = 60
 
     def bind(self, event, handler):
         """Bind a callable `handler` to an `event`.
@@ -514,10 +510,6 @@ class AssociationServer(TCPServer):
 
         if handler not in self._events[event]:
             self._events[event].append(handler)
-
-        # Bind our own events
-        if event in self._handlers and handler not in self._handlers[event]:
-            self._handlers[event].append(handler)
 
         # Bind our child Association events
         for assoc in self.active_associations:
@@ -547,9 +539,6 @@ class AssociationServer(TCPServer):
         if self.ssl_context:
             client_socket = self.ssl_context.wrap_socket(client_socket,
                                                          server_side=True)
-
-        # Trigger event
-        evt.trigger(self, evt.EVT_CONN_OPEN, {'address' : address})
 
         return client_socket, address
 
@@ -620,11 +609,6 @@ class AssociationServer(TCPServer):
             return
 
         self._events[event].remove(handler)
-
-        # Unbind from our own events
-        if event in self._handlers and handler in self._handlers[event]:
-            self._handlers[event].remove(handler)
-            return
 
         # Unbind from our child Association events
         for assoc in self.active_associations:

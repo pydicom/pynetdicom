@@ -35,8 +35,6 @@ class DULServiceProvider(Thread):
     ----------
     artim_timer : timer.Timer
         The ARTIM timer
-    association : association.Association
-        The DUL's current Association
     socket : transport.AssociationSocket
         A wrapped socket.socket object used to communicate with the peer.
     to_provider_queue : queue.Queue
@@ -57,7 +55,7 @@ class DULServiceProvider(Thread):
             The DUL's parent Association instance.
         """
         # The association thread
-        self.assoc = assoc
+        self._assoc = assoc
         self.socket = None
 
         # Current primitive and PDU
@@ -84,9 +82,6 @@ class DULServiceProvider(Thread):
         # State machine - PS3.8 Section 9.2
         self.state_machine = StateMachine(self)
 
-        # Event handlers
-        self._handlers = {evt.EVT_FSM_TRANSITION : []}
-
         # Controls the minimum delay between loops in run()
         # TODO: try and make this event based rather than running loops
         self._run_loop_delay = 0.001
@@ -95,18 +90,10 @@ class DULServiceProvider(Thread):
         self.daemon = False
         self._kill_thread = False
 
-    def bind(self, event, handler):
-        """Bind a callable `handler` to an `event`.
-
-        Parameters
-        ----------
-        event : 3-tuple
-            The event to bind the function to.
-        handler : callable
-            The function that will be called if the event occurs.
-        """
-        if event in self._handlers and handler not in self._handlers[event]:
-            self._handlers[event].append(handler)
+    @property
+    def assoc(self):
+        """Return the Association we are providing DUL services for."""
+        return self._assoc
 
     def _check_incoming_primitive(self):
         """Check the incoming primitive."""
@@ -133,6 +120,10 @@ class DULServiceProvider(Thread):
             The PDU subclass corresponding to the PDU and the event string
             corresponding to receiving that PDU type.
         """
+        # Event handler - PDU received from peer
+        #   trigger before PDU is decoded to help with debugging
+        evt.trigger(self.assoc, evt.EVT_PDU_RECV, {'data' : bytestream})
+
         acse = self.assoc.acse
         pdu_types = {
             0x01 : (A_ASSOCIATE_RQ, 'Evt6', acse.debug_receive_associate_rq),
@@ -349,16 +340,15 @@ class DULServiceProvider(Thread):
 
         self.pdu = pdu
         self.primitive = self.pdu.to_primitive()
-        # ACSE handler
+
+        # Event handler - ACSE primitive received from peer
         evt.trigger(
-            self.assoc,
-            evt.EVT_ACSE_RECV,
-            self.assoc.acse._handlers[evt.EVT_ACSE_RECV],
-            {'message' : self.primitive}
+            self.assoc, evt.EVT_ACSE_RECV, {'message' : self.primitive}
         )
 
     def receive_pdu(self, wait=False, timeout=None):
-        """
+        """Return an item from the queue if one is available.
+
         Get the next item to be processed out of the queue of items sent
         from the DUL service provider to the service user
 
@@ -380,14 +370,21 @@ class DULServiceProvider(Thread):
             If the queue is empty.
         """
         try:
-            # Remove and return an item from the queue
-            #   If block is True and timeout is None then block until an item
-            #       is available.
-            #   If timeout is a positive number, blocks timeout seconds and
-            #       raises queue.Empty if no item was available in that time.
-            #   If block is False, return an item if one is immediately
-            #       available, otherwise raise queue.Empty
+            # If block is True and timeout is None then block until an item
+            #   is available.
+            # If timeout is a positive number, blocks timeout seconds and
+            #   raises queue.Empty if no item was available in that time.
+            # If block is False, return an item if one is immediately
+            #   available, otherwise raise queue.Empty
             queue_item = self.to_user_queue.get(block=wait, timeout=timeout)
+
+            # Event handler - ACSE received primitive from DUL service
+            acse_primitives = (A_ASSOCIATE, A_RELEASE, A_ABORT, A_P_ABORT)
+            if isinstance(queue_item, acse_primitives):
+                evt.trigger(
+                    self.assoc, evt.EVT_ACSE_RECV, {'message' : queue_item}
+                )
+
             return queue_item
         except queue.Empty:
             return None
@@ -449,6 +446,9 @@ class DULServiceProvider(Thread):
             A service primitive, one of A_ASSOCIATE, A_RELEASE, A_ABORT,
             A_P_ABORT or P_DATA.
         """
+        # Event handler - ACSE sent primitive to the DUL service
+        evt.trigger(self.assoc, evt.EVT_ACSE_SENT, {'message' : primitive})
+
         self.to_provider_queue.put(primitive)
 
     def stop_dul(self):
@@ -470,16 +470,3 @@ class DULServiceProvider(Thread):
             return True
 
         return False
-
-    def unbind(self, event, handler):
-        """Unbind a callable `func` from an `event`.
-
-        Parameters
-        ----------
-        event : 3-tuple
-            The event to unbind the function from.
-        handler : callable
-            The function that will no longer be called if the event occurs.
-        """
-        if event in self._handlers and handler in self._handlers[event]:
-            self._handlers[event].remove(handler)

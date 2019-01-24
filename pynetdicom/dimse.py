@@ -167,13 +167,6 @@ class DIMSEServiceProvider(object):
         A dict of {MessageIDBeingRespondedTo : C_CANCEL} messages received.
         The dict is cleared out at the start and end of Service Class
         operations and is limited to a maximum of 10 messages.
-    dimse_timeout : numeric or None
-        The number of seconds before the DIMSE service timeout. A value of
-        ``None`` indicates no timeout.
-    dul : dul.DULServiceProvider
-        The DICOM Upper Layer service provider.
-    maximum_pdu_size : int
-            The maximum PDU size when sending DIMSE messages.
     message : dimse_messages.DIMSEMessage
         The DIMSE message.
     msg_queue: queue.queue of dimse_messages.DIMSEMessage
@@ -185,47 +178,34 @@ class DIMSEServiceProvider(object):
 
     * DICOM Standard, Part 7
     """
-    def __init__(self, dul, dimse_timeout=None,
-                 maximum_pdu_size=DEFAULT_MAX_LENGTH):
-        """Start the DIMSE service provider.
+    def __init__(self, assoc):
+        """Initialise the DIMSE service provider.
 
         Parameters
         ----------
-        dul : dul.DULServiceProvider
-            The DICOM Upper Layer service provider.
-        dimse_timeout : int or float or None
-            The number of seconds before the DIMSE service timeout. A value of
-            None indicates no timeout.
-        maximum_pdu_size : int
-            The maximum PDU size when sending DIMSE messages, default 16382.
+        assoc : association.Association
+            The Association to provide DIMSE services for.
         """
+        self._assoc = assoc
+
         self.cancel_req = {}
-        self.dimse_timeout = dimse_timeout
-        self.dul = dul
-        self.maximum_pdu_size = maximum_pdu_size
         self.message = None
         self.msg_queue = queue.Queue()
 
-        # Event handlers
-        self._handlers = {evt.EVT_DIMSE_RECV : [], evt.EVT_DIMSE_SENT : []}
+    @property
+    def assoc(self):
+        """Return the ACSE's Association."""
+        return self._assoc
 
-        # Add logging handlers
-        if _config.LOG_HANDLER_LEVEL == 'standard':
-            self.bind(evt.EVT_DIMSE_SENT, send_message_handler)
-            self.bind(evt.EVT_DIMSE_RECV, recv_message_handler)
+    @property
+    def dimse_timeout(self):
+        """Return the DIMSE timeout as numeric or None."""
+        return self.assoc.dimse_timeout
 
-    def bind(self, event, handler):
-        """Bind a callable `handler` to an `event`.
-
-        Parameters
-        ----------
-        event : 3-tuple
-            The event to bind the function to.
-        handler : callable
-            The function that will be called if the event occurs.
-        """
-        if event in self._handlers and handler not in self._handlers[event]:
-            self._handlers[event].append(handler)
+    @property
+    def dul(self):
+        """Return the Association's DUL service provider."""
+        return self.assoc.dul
 
     def get_msg(self, block=False):
         """Get the next available DIMSE message.
@@ -247,6 +227,14 @@ class DIMSEServiceProvider(object):
             return self.msg_queue.get(block=block, timeout=self.dimse_timeout)
         except queue.Empty:
             return None, None
+
+    @property
+    def maximum_pdu_size(self):
+        """Return the peer's maximum PDU length."""
+        if assoc.is_requestor:
+            return assoc.acceptor.maximum_length
+        elif assoc.is_acceptor:
+            return assoc.requestor.maximum_length
 
     def peek_msg(self):
         """Return the first message in the message queue or None.
@@ -284,7 +272,9 @@ class DIMSEServiceProvider(object):
 
         if self.message.decode_msg(primitive):
             # Trigger event
-            evt.trigger(self, evt.EVT_DIMSE_RECV, {'message' : self.message})
+            evt.trigger(
+                self.assoc, evt.EVT_DIMSE_RECV, {'message' : self.message}
+            )
 
             # Callback
             # TODO: To be removed in v1.5
@@ -334,7 +324,9 @@ class DIMSEServiceProvider(object):
         dimse_msg.context_id = context_id
 
         # Trigger event
-        evt.trigger(self, evt.EVT_DIMSE_SENT, {'message' : dimse_msg})
+        evt.trigger(
+            self.assoc, evt.EVT_DIMSE_SENT, {'message' : dimse_msg}
+        )
 
         # Callbacks
         # TODO: To be removed in v1.5
@@ -344,19 +336,6 @@ class DIMSEServiceProvider(object):
         #   each below the max_pdu size
         for pdata in dimse_msg.encode_msg(context_id, self.maximum_pdu_size):
             self.dul.send_pdu(pdata)
-
-    def unbind(self, event, handler):
-        """Unbind a callable `func` from an `event`.
-
-        Parameters
-        ----------
-        event : 3-tuple
-            The event to unbind the function from.
-        handler : callable
-            The function that will no longer be called if the event occurs.
-        """
-        if event in self._handlers and handler in self._handlers[event]:
-            self._handlers[event].remove(handler)
 
     # TODO: Deprecated, to be removed in v1.5
     def on_send_dimse_message(self, message):

@@ -45,41 +45,11 @@ class ServiceClass(object):
     def __init__(self, assoc):
         """Create a new ServiceClass."""
         self.assoc = assoc
-        # Event handlers - interventional events
-        # TODO: update with default handlers in v1.5
-        self._handlers = {
-            evt.EVT_C_ECHO : None,
-            evt.EVT_C_FIND : None,
-            evt.EVT_C_GET : None,
-            evt.EVT_C_MOVE : None,
-            evt.EVT_C_STORE : None,
-            evt.EVT_N_ACTION : None,
-            evt.EVT_N_CREATE : None,
-            evt.EVT_N_DELETE : None,
-            evt.EVT_N_EVENT_REPORT : None,
-            evt.EVT_N_GET : None,
-            evt.EVT_N_SET : None
-        }
 
     @property
     def ae(self):
         """Return the AE."""
         return self.assoc.ae
-
-    def bind(self, event, handler):
-        """Bind a callable `handler` to an `event`.
-
-        Parameters
-        ----------
-        event : 3-tuple
-            The event to bind the function to.
-        handler : callable
-            The function that will be called if the event occurs.
-        """
-        # Bind our interventional events
-        if event in self._handlers and handler != self._handlers[event]:
-            # Replace existing handler
-            self._handlers[event] = handler
 
     @property
     def dimse(self):
@@ -143,21 +113,6 @@ class ServiceClass(object):
         )
         LOGGER.error(msg)
         raise NotImplementedError(msg)
-
-    def unbind(self, event, handler):
-        """Unbind a callable `func` from an `event`.
-
-        Parameters
-        ----------
-        event : 3-tuple
-            The event to unbind the function from.
-        handler : callable
-            The function that will no longer be called if the event occurs.
-        """
-        # Unbind our interventional events
-        # TODO: update with default handlers in v1.5
-        if event in self._handlers and self._handlers[event] == handler:
-            self._handlers[event] = None
 
     def validate_status(self, status, rsp):
         """Validate `status` and set `rsp.Status` accordingly.
@@ -293,11 +248,10 @@ class VerificationServiceClass(ServiceClass):
         #   callback results in 0x0000 'Success'
         try:
             # Use either event-handler OR override
-            if self._handlers[evt.EVT_C_ECHO]:
+            if self.assoc._handlers[evt.EVT_C_ECHO]:
                 status = evt.trigger(
                     self.assoc,
                     evt.EVT_C_ECHO,
-                    self._handlers[evt.EVT_C_ECHO],
                     {'request' : req, 'context' : context.as_tuple}
                 )
             else:
@@ -424,7 +378,8 @@ class StorageServiceClass(ServiceClass):
         # Attempt to decode the request's dataset
         transfer_syntax = context.transfer_syntax[0]
         # Don't both decoding if using event handler
-        if _config.DECODE_STORE_DATASETS or self._handlers[evt.EVT_C_STORE]:
+        if (_config.DECODE_STORE_DATASETS
+                or self.assoc._handlers[evt.EVT_C_STORE]):
             try:
                 ds = decode(req.DataSet,
                             transfer_syntax.is_implicit_VR,
@@ -452,11 +407,10 @@ class StorageServiceClass(ServiceClass):
 
         # Attempt to run the ApplicationEntity's on_c_store callback
         try:
-            if self._handlers[evt.EVT_C_STORE]
+            if self.assoc._handlers[evt.EVT_C_STORE]
                 rsp_status = evt.trigger(
                     self.assoc,
                     evt.EVT_C_STORE,
-                    self._handlers[evt.EVT_C_STORE],
                     {'request' : req, 'context' : context.as_tuple}
                 )
             else:
@@ -681,11 +635,10 @@ class QueryRetrieveServiceClass(ServiceClass):
         def wrap_on_c_find():
             """Wrapper for exceptions"""
             try:
-                if self._handlers[evt.EVT_C_FIND]
+                if self.assoc._handlers[evt.EVT_C_FIND]
                     rsp = evt.trigger(
                         self.assoc,
                         evt.EVT_C_FIND,
-                        self._handlers[evt.EVT_C_FIND],
                         {
                             'request' : req,
                             'context' : context.as_tuple,
@@ -944,11 +897,10 @@ class QueryRetrieveServiceClass(ServiceClass):
         # Callback - C-GET
         try:
             # yields int, (status, dataset), ...
-            if self._handlers[evt.EVT_C_GET]
+            if self.assoc._handlers[evt.EVT_C_GET]
                 result = evt.trigger(
                     self.assoc,
                     evt.EVT_C_GET,
-                    self._handlers[evt.EVT_C_GET],
                     {
                         'request' : req,
                         'context' : context.as_tuple,
@@ -1341,11 +1293,10 @@ class QueryRetrieveServiceClass(ServiceClass):
         # Callback - C-MOVE
         try:
             # yields (addr, port), int, (status, dataset), ...
-            if self._handlers[evt.EVT_C_MOVE]
+            if self.assoc._handlers[evt.EVT_C_MOVE]
                 result = evt.trigger(
                     self.assoc,
                     evt.EVT_C_MOVE,
-                    self._handlers[evt.EVT_C_MOVE],
                     {
                         'request' : req,
                         'context' : context.as_tuple,
@@ -1861,11 +1812,10 @@ class RelevantPatientInformationQueryServiceClass(ServiceClass):
             #   if the yield is pending, send message then success and return
             #   if the yield is cancel or failure, send message and return
             #   if StopIteration send success and return
-            if self._handlers[evt.EVT_C_FIND]
+            if self.assoc._handlers[evt.EVT_C_FIND]
                 responses = evt.trigger(
                     self.assoc,
                     evt.EVT_C_FIND,
-                    self._handlers[evt.EVT_C_FIND],
                     {
                         'request' : req,
                         'context' : context.as_tuple,

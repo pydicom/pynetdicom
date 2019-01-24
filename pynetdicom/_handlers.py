@@ -10,6 +10,13 @@ LOGGER = logging.getLogger('pynetdicom.events')
 
 
 # ACSE
+def standard_acse_recv_handler(event):
+    pass
+
+def standard_acse_sent_handler(event):
+    pass
+
+# ACSE sub-handlers
 def send_abort(event):
     """
     Placeholder for a function callback. Function will be called
@@ -751,7 +758,7 @@ def recv_release_rq(event):
 
 
 # DIMSE
-def send_message_handler(event):
+def standard_dimse_send_handler(event):
     """Standard logging handler for when a DIMSE message is sent.
 
     Parameters
@@ -787,7 +794,7 @@ def send_message_handler(event):
 
     msg_handlers[type(event.message)](event)
 
-def recv_message_handler(event):
+def standard_dimse_send_handler(event):
     """Standard logging handler for when a DIMSE message is received.
 
     Parameters
