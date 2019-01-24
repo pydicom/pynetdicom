@@ -286,7 +286,7 @@ class AssociationSocket(object):
         try:
             while total_sent < length_data:
                 # Returns the number of bytes sent
-                nr_sent = self.socket.send(bytestream)
+                nr_sent = self.socket.send(bytestream[total_sent:])
                 total_sent += nr_sent
         except (socket.error, socket.timeout):
             # Evt17: Transport connection closed
