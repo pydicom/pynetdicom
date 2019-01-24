@@ -794,7 +794,7 @@ def standard_dimse_send_handler(event):
 
     msg_handlers[type(event.message)](event)
 
-def standard_dimse_send_handler(event):
+def standard_dimse_recv_handler(event):
     """Standard logging handler for when a DIMSE message is received.
 
     Parameters

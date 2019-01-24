@@ -407,7 +407,7 @@ class StorageServiceClass(ServiceClass):
 
         # Attempt to run the ApplicationEntity's on_c_store callback
         try:
-            if self.assoc._handlers[evt.EVT_C_STORE]
+            if self.assoc._handlers[evt.EVT_C_STORE]:
                 rsp_status = evt.trigger(
                     self.assoc,
                     evt.EVT_C_STORE,
@@ -635,7 +635,7 @@ class QueryRetrieveServiceClass(ServiceClass):
         def wrap_on_c_find():
             """Wrapper for exceptions"""
             try:
-                if self.assoc._handlers[evt.EVT_C_FIND]
+                if self.assoc._handlers[evt.EVT_C_FIND]:
                     rsp = evt.trigger(
                         self.assoc,
                         evt.EVT_C_FIND,
@@ -897,7 +897,7 @@ class QueryRetrieveServiceClass(ServiceClass):
         # Callback - C-GET
         try:
             # yields int, (status, dataset), ...
-            if self.assoc._handlers[evt.EVT_C_GET]
+            if self.assoc._handlers[evt.EVT_C_GET]:
                 result = evt.trigger(
                     self.assoc,
                     evt.EVT_C_GET,
@@ -1293,7 +1293,7 @@ class QueryRetrieveServiceClass(ServiceClass):
         # Callback - C-MOVE
         try:
             # yields (addr, port), int, (status, dataset), ...
-            if self.assoc._handlers[evt.EVT_C_MOVE]
+            if self.assoc._handlers[evt.EVT_C_MOVE]:
                 result = evt.trigger(
                     self.assoc,
                     evt.EVT_C_MOVE,
@@ -1812,7 +1812,7 @@ class RelevantPatientInformationQueryServiceClass(ServiceClass):
             #   if the yield is pending, send message then success and return
             #   if the yield is cancel or failure, send message and return
             #   if StopIteration send success and return
-            if self.assoc._handlers[evt.EVT_C_FIND]
+            if self.assoc._handlers[evt.EVT_C_FIND]:
                 responses = evt.trigger(
                     self.assoc,
                     evt.EVT_C_FIND,

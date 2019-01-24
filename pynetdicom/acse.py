@@ -449,6 +449,7 @@ class ACSE(object):
 
         # Build and send an A-ASSOCIATE (request) PDU to the peer
         self.send_request(assoc)
+        evt.trigger(self.assoc, evt.EVT_REQUESTED, {})
 
         # Wait for response
         rsp = assoc.dul.receive_pdu(wait=True, timeout=assoc.acse_timeout)

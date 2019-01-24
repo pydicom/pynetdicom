@@ -11,7 +11,7 @@ from pydicom.uid import UID
 
 # pylint: disable=no-name-in-module
 from pynetdicom.acse import ACSE
-from pynetdicom import _config, evt, _handlers
+from pynetdicom import _config, evt
 from pynetdicom.dimse import DIMSEServiceProvider
 from pynetdicom.dimse_primitives import (
     C_ECHO, C_MOVE, C_STORE, C_GET, C_FIND, C_CANCEL,
@@ -22,6 +22,9 @@ from pynetdicom.dul import DULServiceProvider
 from pynetdicom._globals import (
     MODE_REQUESTOR, MODE_ACCEPTOR, DEFAULT_MAX_LENGTH, STATUS_WARNING,
     STATUS_SUCCESS, STATUS_CANCEL, STATUS_PENDING, STATUS_FAILURE
+)
+from pynetdicom._handlers import (
+    standard_dimse_recv_handler, standard_dimse_send_handler
 )
 from pynetdicom.sop_class import (
     uid_to_service_class,
@@ -159,6 +162,7 @@ class Association(threading.Thread):
 
         # Event handlers
         self._handlers = {}
+        self._bind_defaults()
 
         # Send A-ABORT/A-P-ABORT when an A-ASSOCIATE request is received
         self._a_abort_assoc_rq = False
@@ -235,30 +239,16 @@ class Association(threading.Thread):
     def _bind_defaults(self):
         """Bind the default event handlers."""
         # Intervention event handlers
-        # Extended negotiation
-        self.bind(evt.EVT_ASYNC_OPS, evt.default_async_ops_handler)
-        self.bind(evt.EVT_SOP_COMMON, evt.default_sop_common_handler)
-        self.bind(evt.EVT_SOP_EXTENDED, evt.default_sop_extended_handler)
-        self.bind(evt.EVT_USER_ID, evt.default_user_identity_handler)
-        # Service classes
-        self.bind(evt.EVT_C_ECHO, evt.default_c_echo_handler)
-        self.bind(evt.EVT_C_FIND, evt.default_c_find_handler)
-        self.bind(evt.EVT_C_GET, evt.default_c_get_handler)
-        self.bind(evt.EVT_C_MOVE, evt.default_c_move_handler)
-        self.bind(evt.EVT_C_STORE, evt.default_c_store_handler)
-        self.bind(evt.EVT_N_ACTION, evt.default_n_action_handler)
-        self.bind(evt.EVT_N_CREATE, evt.default_n_create_handler)
-        self.bind(evt.EVT_N_DELETE, evt.default_n_delete_handler)
-        self.bind(evt.EVT_N_EVENT_REPORT, evt.default_n_event_report_handler)
-        self.bind(evt.EVT_N_GET, evt.default_n_get_handler)
-        self.bind(evt.EVT_N_SET, evt.default_n_set_handler)
+        for event in evt._INTERVENTION_EVENTS:
+            handler = evt.get_default_handler(event)
+            self.bind(event, handler)
 
         # Notification event handlers
         if _config.LOG_HANDLER_LEVEL == 'standard':
-            self.bind(evt.EVT_DIMSE_RECV, _handlers.standard_dimse_recv_handler)
-            self.bind(evt.EVT_DIMSE_SENT, _handlers.standard_dimse_sent_handler)
-            self.bind(evt.EVT_ACSE_RECV, _handlers.standard_acse_recv_handler)
-            self.bind(evt.EVT_ACSE_SENT, _handlers.standard_acse_sent_handler)
+            self.bind(evt.EVT_DIMSE_RECV, standard_dimse_recv_handler)
+            self.bind(evt.EVT_DIMSE_SENT, standard_dimse_send_handler)
+        #    self.bind(evt.EVT_ACSE_RECV, standard_acse_recv_handler)
+        #    self.bind(evt.EVT_ACSE_SENT, standard_acse_sent_handler)
 
     def _check_received_status(self, rsp):
         """Return a pydicom Dataset containing status related elements.
@@ -304,7 +294,6 @@ class Association(threading.Thread):
     @dimse_timeout.setter
     def dimse_timeout(self, value):
         """Set the DIMSE timeout using numeric or None."""
-        self.dimse.dimse_timeout = value
         self._dimse_timeout = value
 
     def get_handlers(self, event):
@@ -323,6 +312,9 @@ class Association(threading.Thread):
             intervention event then returns either a callable function if a
             handler is bound to the event or None if no handler has been bound.
         """
+        if event not in self._handlers:
+            return None
+
         # Intervention events
         if event[2]:
             return self._handlers[event]
@@ -530,7 +522,6 @@ class Association(threading.Thread):
 
             self.acse.negotiate_association(self)
             if self.is_established:
-                self.dimse.maximum_pdu_size = self.requestor.maximum_length
                 self._run_as_acceptor()
         else:
             # Association requestor
@@ -540,7 +531,6 @@ class Association(threading.Thread):
                 self.acse.negotiate_association(self)
 
             if self.is_established:
-                self.dimse.maximum_pdu_size = self.acceptor.maximum_length
                 self._run_as_requestor()
 
     def _run_as_acceptor(self):
@@ -737,10 +727,9 @@ class Association(threading.Thread):
         if not event[2] and handler in self._handlers:
             self._handlers[event].remove(handler)
 
-        # Intervention events
+        # Intervention events - unbind and replace with default
         if event[2] and self._handlers[event] == handler:
-            # TODO: if standard logging then replace with default
-            self._handlers[event] = None
+            self._handlers[event] = evt.get_default_handler(event)
 
     # DIMSE-C services provided by the Association
     def _c_store_scp(self, req):

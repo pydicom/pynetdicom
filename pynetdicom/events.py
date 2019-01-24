@@ -1,4 +1,6 @@
-"""Module used to support Event handling."""
+"""Module used to support events and event handling, not to be confused with
+the state machine events.
+"""
 
 from datetime import datetime
 import logging
@@ -10,26 +12,25 @@ LOGGER = logging.getLogger('pynetdicom.events')
 
 
 # Notification events
-#   No returns/yields needed, can have multiple handlers
-EVT_CONN_CLOSE = ("TRANSPORT", "Connection closed", False)
-EVT_CONN_OPEN = ("TRANSPORT", "Connection opened", False)
+#   No returns/yields needed, can have multiple handlers per event
+EVT_CONN_CLOSE = ("TRANSPORT", "Connection closed", False)  # OK
+EVT_CONN_OPEN = ("TRANSPORT", "Connection opened", False)  # OK
 EVT_DIMSE_RECV = ("DIMSE", "DIMSE message received", False)  # OK
 EVT_DIMSE_SENT = ("DIMSE", "DIMSE message sent", False)  # OK
-
 EVT_ACSE_RECV = ("ACSE", "ACSE message received", False)  # OK
 EVT_ACSE_SENT = ("ACSE", "ACSE message sent", False)  # OK
 EVT_ABORTED = ("ASSOCIATION", "Association aborted", False)
-EVT_ACCEPTED = ("ASSOCIATION", "Association request accepted", False)
-EVT_ESTABLISHED = ("ASSOCIATION", "Association established", False)
-EVT_REJECTED = ("ASSOCIATION", "Association request rejected", False)
-EVT_RELEASED = ("ASSOCIATION", "Association released", False)
+EVT_ACCEPTED = ("ASSOCIATION", "Association request accepted", False)  # OK
+EVT_ESTABLISHED = ("ASSOCIATION", "Association established", False)  # OK
+EVT_REJECTED = ("ASSOCIATION", "Association request rejected", False)  # OK
+EVT_RELEASED = ("ASSOCIATION", "Association released", False)  # OK
 EVT_REQUESTED = ("ASSOCIATION", "Association requested", False)
 EVT_FSM_TRANSITION = ("DUL", "State machine transition occurred", False)  # OK
 EVT_PDU_RECV = ("DUL", "PDU data received", False)  # OK
 EVT_PDU_SENT = ("DUL", "PDU data sent", False)  # OK
 
 # Intervention events
-#   Returns/yields needed if bound, can only have one handler
+#   Returns/yields needed if bound, can only have one handler per event
 EVT_ASYNC_OPS = ("ACSE", "Asynchronous operations negotiation requested", True)  # OK
 EVT_SOP_COMMON = ("ACSE", "SOP class common extended negotiation requested", True)  # OK
 EVT_SOP_EXTENDED = ("ACSE", "SOP class extended negotiation requested", True)  # OK
@@ -45,6 +46,36 @@ EVT_N_DELETE = ("SERVICE", "N-DELETE request received", True)  # OK
 EVT_N_EVENT_REPORT = ("SERVICE", "N-EVENT-REPORT request received", True)  # OK
 EVT_N_GET = ("SERVICE", "N-GET request received", True)  # OK
 EVT_N_SET = ("SERVICE", "N-SET request received", True)  # OK
+
+
+_INTERVENTION_EVENTS = [
+    EVT_ASYNC_OPS, EVT_SOP_COMMON, EVT_SOP_EXTENDED, EVT_USER_ID,
+    EVT_C_ECHO, EVT_C_FIND, EVT_C_GET, EVT_C_MOVE, EVT_C_STORE,
+    EVT_N_ACTION, EVT_N_CREATE, EVT_N_DELETE, EVT_N_EVENT_REPORT,
+    EVT_N_GET, EVT_N_SET
+]
+
+
+def get_default_handler(event):
+    """Get the default handler for an intervention `event`."""
+    handlers = {
+        EVT_ASYNC_OPS : default_async_ops_handler,
+        EVT_SOP_COMMON : default_sop_common_handler,
+        EVT_SOP_EXTENDED : default_sop_extended_handler,
+        EVT_USER_ID : default_user_identity_handler,
+        EVT_C_ECHO : default_c_echo_handler,
+        EVT_C_FIND : default_c_find_handler,
+        EVT_C_GET : default_c_get_handler,
+        EVT_C_MOVE : default_c_move_handler,
+        EVT_C_STORE : default_c_store_handler,
+        EVT_N_ACTION : default_n_action_handler,
+        EVT_N_CREATE : default_n_create_handler,
+        EVT_N_DELETE : default_n_delete_handler,
+        EVT_N_EVENT_REPORT : default_n_event_report_handler,
+        EVT_N_GET : default_n_get_handler,
+        EVT_N_SET : default_n_set_handler,
+    }
+    return handlers[event]
 
 
 def trigger(assoc, event, attrs=None):

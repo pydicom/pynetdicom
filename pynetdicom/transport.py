@@ -388,6 +388,8 @@ class RequestHandler(BaseRequestHandler):
         sock = AssociationSocket(assoc, client_socket=self.request)
         assoc.set_socket(sock)
 
+        evt.trigger(assoc, evt.EVT_CONN_OPEN, {'address' : client_address})
+
         # Association Acceptor object -> local AE
         assoc.acceptor.maximum_length = self.ae.maximum_pdu_size
         assoc.acceptor.ae_title = self.ae.ae_title
@@ -487,8 +489,10 @@ class AssociationServer(TCPServer):
 
         # Tracks child Association acceptors
         self._children = []
-        # Stores all currently bound events so future children can be bound
-        self._events = {}
+        # Stores all currently bound event handlers so future
+        #   children can be bound
+        self._handlers = {}
+        self._bind_defaults()
 
         # Bind the functions to their events
         for (event, handler) in (events or []):
@@ -504,16 +508,32 @@ class AssociationServer(TCPServer):
         handler : callable
             The function that will be called if the event occurs.
         """
-        # Update the stored events so future associations get bound
-        if event not in self._events:
-            self._events[event] = []
+        # Notification events - multiple handlers allowed
+        if not event[2]:
+            if event not in self._handlers:
+                self._handlers[event] = []
 
-        if handler not in self._events[event]:
-            self._events[event].append(handler)
+            if handler not in self._handlers[event]:
+                self._handlers[event].append(handler)
+
+        # Intervention events - only one handler allowed
+        if event[2]:
+            if event not in self._handlers:
+                self._handlers[event] = None
+
+            if self._handlers[event] != handler:
+                self._handlers[event] = handler
 
         # Bind our child Association events
         for assoc in self.active_associations:
             assoc.bind(event, handler)
+
+    def _bind_defaults(self):
+        """Bind the default event handlers."""
+        # Intervention event handlers
+        for event in evt._INTERVENTION_EVENTS:
+            handler = evt.get_default_handler(event)
+            self.bind(event, handler)
 
     @property
     def active_associations(self):
@@ -603,12 +623,16 @@ class AssociationServer(TCPServer):
         handler : callable
             The function that will no longer be called if the event occurs.
         """
-        # Update the stored events so future associations don't get bound
-        if event not in self._events or handler not in self._events[event]:
-            # Can't be an event if not already in `_events` unless shenanigans
+        if event not in self._handlers:
             return
 
-        self._events[event].remove(handler)
+        # Notification events
+        if not event[2] and handler in self._handlers:
+            self._handlers[event].remove(handler)
+
+        # Intervention events - unbind and replace with default
+        if event[2] and self._handlers[event] == handler:
+            self._handlers[event] = evt.get_default_handler(event)
 
         # Unbind from our child Association events
         for assoc in self.active_associations:

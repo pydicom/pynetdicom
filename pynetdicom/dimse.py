@@ -12,7 +12,6 @@ from pynetdicom import evt, _config
 from pynetdicom.dimse_messages import *
 from pynetdicom.dimse_primitives import *
 from pynetdicom._globals import DEFAULT_MAX_LENGTH
-from pynetdicom._handlers import send_message_handler, recv_message_handler
 from pynetdicom.pdu_primitives import P_DATA
 
 
@@ -231,10 +230,10 @@ class DIMSEServiceProvider(object):
     @property
     def maximum_pdu_size(self):
         """Return the peer's maximum PDU length."""
-        if assoc.is_requestor:
-            return assoc.acceptor.maximum_length
-        elif assoc.is_acceptor:
-            return assoc.requestor.maximum_length
+        if self.assoc.is_requestor:
+            return self.assoc.acceptor.maximum_length
+        elif self.assoc.is_acceptor:
+            return self.assoc.requestor.maximum_length
 
     def peek_msg(self):
         """Return the first message in the message queue or None.

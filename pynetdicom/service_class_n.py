@@ -96,7 +96,7 @@ class DisplaySystemManagementServiceClass(ServiceClass):
         # pylint: disable=broad-except
         try:
             # Send the value rather than the element
-            if self.assoc._handlers[evt.EVT_N_GET]
+            if self.assoc._handlers[evt.EVT_N_GET]:
                 (rsp_status, ds) = evt.trigger(
                     self.assoc,
                     evt.EVT_N_GET,
