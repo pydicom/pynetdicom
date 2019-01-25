@@ -126,13 +126,13 @@ class DULServiceProvider(Thread):
 
         acse = self.assoc.acse
         pdu_types = {
-            0x01 : (A_ASSOCIATE_RQ, 'Evt6', acse.debug_receive_associate_rq),
-            0x02 : (A_ASSOCIATE_AC, 'Evt3', acse.debug_receive_associate_ac),
+            0x01 : (A_ASSOCIATE_RQ, 'Evt6', None),
+            0x02 : (A_ASSOCIATE_AC, 'Evt3', None),
             0x03 : (A_ASSOCIATE_RJ, 'Evt4', acse.debug_receive_associate_rj),
-            0x04 : (P_DATA_TF, 'Evt10', acse.debug_receive_data_tf),
+            0x04 : (P_DATA_TF, 'Evt10', None),
             0x05 : (A_RELEASE_RQ, 'Evt12', acse.debug_receive_release_rq),
             0x06 : (A_RELEASE_RP, 'Evt13', acse.debug_receive_release_rp),
-            0x07 : (A_ABORT_RQ, 'Evt16', acse.debug_receive_abort)
+            0x07 : (A_ABORT_RQ, 'Evt16', None)
         }
 
         pdu, event, acse_callback = pdu_types[bytestream[0]]
@@ -140,7 +140,10 @@ class DULServiceProvider(Thread):
         pdu.decode(bytes(bytestream))
 
         # ACSE callback
-        acse_callback(pdu)
+        try:
+            acse_callback(pdu)
+        except TypeError:
+            pass
 
         return pdu, event
 
@@ -341,11 +344,6 @@ class DULServiceProvider(Thread):
         self.pdu = pdu
         self.primitive = self.pdu.to_primitive()
 
-        # Event handler - ACSE primitive received from peer
-        evt.trigger(
-            self.assoc, evt.EVT_ACSE_RECV, {'message' : self.primitive}
-        )
-
     def receive_pdu(self, wait=False, timeout=None):
         """Return an item from the queue if one is available.
 
@@ -447,7 +445,9 @@ class DULServiceProvider(Thread):
             A_P_ABORT or P_DATA.
         """
         # Event handler - ACSE sent primitive to the DUL service
-        evt.trigger(self.assoc, evt.EVT_ACSE_SENT, {'message' : primitive})
+        acse_primitives = (A_ASSOCIATE, A_RELEASE, A_ABORT, A_P_ABORT)
+        if isinstance(primitive, acse_primitives):
+            evt.trigger(self.assoc, evt.EVT_ACSE_SENT, {'message' : primitive})
 
         self.to_provider_queue.put(primitive)
 

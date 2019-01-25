@@ -388,7 +388,9 @@ class RequestHandler(BaseRequestHandler):
         sock = AssociationSocket(assoc, client_socket=self.request)
         assoc.set_socket(sock)
 
-        evt.trigger(assoc, evt.EVT_CONN_OPEN, {'address' : client_address})
+        evt.trigger(
+            assoc, evt.EVT_CONN_OPEN, {'address' : self.client_address}
+        )
 
         # Association Acceptor object -> local AE
         assoc.acceptor.maximum_length = self.ae.maximum_pdu_size
@@ -410,9 +412,14 @@ class RequestHandler(BaseRequestHandler):
         assoc.requestor.port = self.remote[1]
 
         # Bind events to handlers
-        for event in self.server._events:
-            for handler in self.server._events[event]:
-                assoc.bind(event, handler)
+        for event in self.server._handlers:
+            # Intervention events
+            if event[2] and self.server._handlers[event]:
+                assoc.bind(event, self.server._handlers[event])
+            elif not event[2]:
+                for handler in self.server._handlers[event]:
+                    assoc.bind(event, handler)
+
 
         assoc.start()
 

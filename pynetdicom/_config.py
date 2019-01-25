@@ -14,6 +14,8 @@
 # Usage:
 #   from pynetdicom import _config
 #   _config.DECODE_STORE_DATASETS = [True|False]
+# Deprecated and will be removed in v1.5, use the event handler system instead
+#   as it provides all the benefits listed above by default
 DECODE_STORE_DATASETS = True
 
 

@@ -24,7 +24,8 @@ from pynetdicom._globals import (
     STATUS_SUCCESS, STATUS_CANCEL, STATUS_PENDING, STATUS_FAILURE
 )
 from pynetdicom._handlers import (
-    standard_dimse_recv_handler, standard_dimse_send_handler
+    standard_dimse_recv_handler, standard_dimse_send_handler,
+    standard_acse_recv_handler, standard_acse_sent_handler
 )
 from pynetdicom.sop_class import (
     uid_to_service_class,
@@ -247,8 +248,14 @@ class Association(threading.Thread):
         if _config.LOG_HANDLER_LEVEL == 'standard':
             self.bind(evt.EVT_DIMSE_RECV, standard_dimse_recv_handler)
             self.bind(evt.EVT_DIMSE_SENT, standard_dimse_send_handler)
-        #    self.bind(evt.EVT_ACSE_RECV, standard_acse_recv_handler)
-        #    self.bind(evt.EVT_ACSE_SENT, standard_acse_sent_handler)
+            self.bind(evt.EVT_ACSE_RECV, standard_acse_recv_handler)
+            self.bind(evt.EVT_ACSE_SENT, standard_acse_sent_handler)
+            self.bind(evt.EVT_ACCEPTED, logging_accepted_handler)
+            self.bind(evt.EVT_REQUESTED, logging_requested_handler)
+            self.bind(evt.EVT_REJECTED, logging_rejected_handler)
+            self.bind(evt.EVT_ABORTED, logging_aborted_handler)
+            self.bind(evt.EVT_RELEASED, logging_released_handler)
+            self.bind(evt.EVT_ESTABLISHED, logging_established_handler)
 
     def _check_received_status(self, rsp):
         """Return a pydicom Dataset containing status related elements.
@@ -296,13 +303,17 @@ class Association(threading.Thread):
         """Set the DIMSE timeout using numeric or None."""
         self._dimse_timeout = value
 
+    def get_events(self):
+        """Return a list of currently bound events."""
+        return self._handlers.keys()
+
     def get_handlers(self, event):
-        """Return a list of bound handlers for `event`.
+        """Return handlers bound to a specific `event`.
 
         Parameters
         ----------
         event : tuple
-            The event corresponding to the handlers being returned.
+            The event bound to the handlers.
 
         Returns
         -------
@@ -315,11 +326,6 @@ class Association(threading.Thread):
         if event not in self._handlers:
             return None
 
-        # Intervention events
-        if event[2]:
-            return self._handlers[event]
-
-        # Notification events
         return self._handlers[event]
 
     def _get_valid_context(self, ab_syntax, tr_syntax, role, context_id=None):
@@ -485,6 +491,19 @@ class Association(threading.Thread):
         # Start association negotiation
         self.acse.negotiate_association(self)
 
+    def reset_handlers(self):
+        """Reset the event handlers.
+
+        Unbinds all notification event handlers and resets the intervention
+        event handlers back to the default implementations.
+        """
+        self._handlers = {}
+
+        # Intervention event handlers
+        for event in evt._INTERVENTION_EVENTS:
+            handler = evt.get_default_handler(event)
+            self.bind(event, handler)
+
     def run(self):
         """The main Association control."""
         # Start the DUL thread if not already started
@@ -625,7 +644,6 @@ class Association(threading.Thread):
                 self.is_established = False
                 # Callback triggers
                 self.ae.on_association_released()
-                self.debug_association_released()
                 self.kill()
                 return
 
@@ -634,7 +652,6 @@ class Association(threading.Thread):
                 self.is_aborted = True
                 self.is_established = False
                 # Callback trigger
-                self.debug_association_aborted()
                 self.ae.on_association_aborted(None)
                 self.kill()
                 return
@@ -665,7 +682,6 @@ class Association(threading.Thread):
                 self.is_established = False
                 # Callback triggers
                 self.ae.on_association_released()
-                self.debug_association_released()
                 self.kill()
                 return
 
@@ -675,7 +691,6 @@ class Association(threading.Thread):
                 self.is_established = False
                 # Callback trigger
                 self.ae.on_association_aborted()
-                self.debug_association_aborted()
                 self.kill()
                 return
 
@@ -2859,99 +2874,6 @@ class Association(threading.Thread):
                 status.Status = 0x0110
 
         return status, attribute_list
-
-    # Association logging/debugging functions
-    @staticmethod
-    def debug_association_aborted(primitive=None):
-        """Debugging information when an A-ABORT request received.
-
-        Parameters
-        ----------
-        assoc_primitive : pynetdicom.pdu_primitives.A_ABORT
-            The A-ABORT (RQ) primitive received from the DICOM Upper Layer
-        """
-        LOGGER.error('Association Aborted')
-
-    @staticmethod
-    def debug_association_accepted(primitive):
-        """Debugging information when an A-ASSOCIATE accept is received.
-
-        Parameters
-        ----------
-        primitive : pynetdicom.pdu_primitives.A_ASSOCIATE
-            The A-ASSOCIATE (AC) PDU received from the DICOM Upper Layer
-        """
-        pass
-
-    @staticmethod
-    def debug_association_rejected(primitive):
-        """Debugging information when an A-ASSOCIATE rejection received.
-
-        Parameters
-        ----------
-        assoc_primitive : pynetdicom.pdu_primitives.A_ASSOCIATE
-            The A-ASSOCIATE (RJ) primitive received from the DICOM Upper Layer
-        """
-        # See PS3.8 Section 7.1.1.9 but mainly Section 9.3.4 and Table 9-21
-        #   for information on the result and diagnostic information
-        source = primitive.result_source
-        result = primitive.result
-        reason = primitive.diagnostic
-
-        source_str = {1 : 'Service User',
-                      2 : 'Service Provider (ACSE)',
-                      3 : 'Service Provider (Presentation)'}
-
-        reason_str = [{1 : 'No reason given',
-                       2 : 'Application context name not supported',
-                       3 : 'Calling AE title not recognised',
-                       4 : 'Reserved',
-                       5 : 'Reserved',
-                       6 : 'Reserved',
-                       7 : 'Called AE title not recognised',
-                       8 : 'Reserved',
-                       9 : 'Reserved',
-                       10 : 'Reserved'},
-                      {1 : 'No reason given',
-                       2 : 'Protocol version not supported'},
-                      {0 : 'Reserved',
-                       1 : 'Temporary congestion',
-                       2 : 'Local limit exceeded',
-                       3 : 'Reserved',
-                       4 : 'Reserved',
-                       5 : 'Reserved',
-                       6 : 'Reserved',
-                       7 : 'Reserved'}]
-
-        result_str = {1 : 'Rejected Permanent',
-                      2 : 'Rejected Transient'}
-
-        LOGGER.error('Association Rejected:')
-        LOGGER.error('Result: %s, Source: %s', result_str[result],
-                     source_str[source])
-        LOGGER.error('Reason: %s', reason_str[source - 1][reason])
-
-    @staticmethod
-    def debug_association_released(primitive=None):
-        """Debugging information when an A-RELEASE request received.
-
-        Parameters
-        ----------
-        assoc_primitive : pynetdicom.pdu_primitives.A_RELEASE
-            The A-RELEASE (RQ) primitive received from the DICOM Upper Layer
-        """
-        LOGGER.info('Association Released')
-
-    @staticmethod
-    def debug_association_requested(primitive):
-        """Debugging information when an A-ASSOCIATE request received.
-
-        Parameters
-        ----------
-        primitive : pynetdicom.pdu_primitives.A_ASSOCIATE
-            The A-ASSOCIATE (RQ) PDU received from the DICOM Upper Layer
-        """
-        pass
 
 
 class ServiceUser(object):

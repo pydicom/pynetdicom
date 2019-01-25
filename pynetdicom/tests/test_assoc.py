@@ -3277,38 +3277,6 @@ class TestAssociationSendCMove(object):
             assert assoc.is_aborted
 
 
-class TestAssociationCallbacks(object):
-    """Run tests on Assocation callbacks."""
-    def setup(self):
-        self.scp = None
-
-    def teardown(self):
-        """Clear any active threads"""
-        if self.scp:
-            self.scp.abort()
-
-        time.sleep(0.1)
-
-        for thread in threading.enumerate():
-            if isinstance(thread, DummyBaseSCP):
-                thread.abort()
-                thread.stop()
-
-    def test_debug_assoc_rq(self):
-        """Test the callback"""
-        self.scp = DummyVerificationSCP()
-        self.scp.start()
-        ae = AE()
-        ae.add_requested_context(VerificationSOPClass)
-        ae.acse_timeout = 5
-        ae.dimse_timeout = 5
-        assoc = ae.associate('localhost', 11112)
-        assoc.debug_association_requested(None)
-        assoc.release()
-        assert assoc.is_released
-        self.scp.stop()
-
-
 class TestGetValidContext(object):
     """Tests for Association._get_valid_context."""
     def setup(self):

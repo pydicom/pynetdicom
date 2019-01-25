@@ -1372,12 +1372,12 @@ class ApplicationEntity(object):
                 server.shutdown()
         else:
             # Non-blocking server
+            timestamp = datetime.strftime(datetime.now(), "%Y%m%d%H%M%S")
             server = ThreadedAssociationServer(self, address, ssl_context)
             # Bind events to the handlers
             for (event, handler) in evt_handlers:
                 server.bind(event, handler)
 
-            timestamp = datetime.strftime(datetime.now(), "%Y%m%d%H%M%S")
             thread = threading.Thread(
                 target=server.serve_forever,
                 name="AcceptorServer@{}".format(timestamp)
@@ -2502,17 +2502,15 @@ class ApplicationEntity(object):
 
 
     # High-level Association related callbacks
-    def on_association_requested(self, primitive):
-        """Callback for an association is requested.
-        ** NOT IMPLEMENTED **
-        """
-        pass
-
     def on_association_accepted(self, primitive):
         """Callback for when an association is accepted.
-        ** NOT IMPLEMENTED **
+
+        Deprecated and will be removed in v1.5. Bind a handler to
+        ``evt.EVT_ACCEPTED`` instead.
+
         Placeholder for a function callback. Function will be called
         when an association attempt is accepted by either the local or peer AE
+
         Parameters
         ----------
         pdu_primitives.A_ASSOCIATE
@@ -2522,9 +2520,13 @@ class ApplicationEntity(object):
 
     def on_association_rejected(self, primitive):
         """Callback for when an association is rejected.
-        ** NOT IMPLEMENTED **
+
+        Deprecated and will be removed in v1.5. Bind a handler to
+        ``evt.EVT_REJECTED`` instead.
+
         Placeholder for a function callback. Function will be called
         when an association attempt is rejected by a peer AE
+
         Parameters
         ----------
         associate_rq_pdu : pynetdicom.pdu.A_ASSOCIATE_RJ
@@ -2534,13 +2536,16 @@ class ApplicationEntity(object):
 
     def on_association_released(self, primitive=None):
         """Callback for when an association is released.
-        ** NOT IMPLEMENTED **
+
+        Deprecated and will be removed in v1.5. Bind a handler to
+        ``evt.EVT_RELEASED`` instead.
         """
         pass
 
     def on_association_aborted(self, primitive=None):
         """Callback for when an association is aborted.
-        ** NOT IMPLEMENTED **
+
+        Deprecated and will be removed in v1.5. Bind a handler to
+        ``evt.EVT_ABORTED`` instead.
         """
-        # FIXME: Need to standardise callback parameters for A-ABORT
         pass

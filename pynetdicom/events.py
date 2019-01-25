@@ -13,39 +13,39 @@ LOGGER = logging.getLogger('pynetdicom.events')
 
 # Notification events
 #   No returns/yields needed, can have multiple handlers per event
-EVT_CONN_CLOSE = ("TRANSPORT", "Connection closed", False)  # OK
-EVT_CONN_OPEN = ("TRANSPORT", "Connection opened", False)  # OK
-EVT_DIMSE_RECV = ("DIMSE", "DIMSE message received", False)  # OK
-EVT_DIMSE_SENT = ("DIMSE", "DIMSE message sent", False)  # OK
-EVT_ACSE_RECV = ("ACSE", "ACSE message received", False)  # OK
-EVT_ACSE_SENT = ("ACSE", "ACSE message sent", False)  # OK
-EVT_ABORTED = ("ASSOCIATION", "Association aborted", False)
-EVT_ACCEPTED = ("ASSOCIATION", "Association request accepted", False)  # OK
-EVT_ESTABLISHED = ("ASSOCIATION", "Association established", False)  # OK
-EVT_REJECTED = ("ASSOCIATION", "Association request rejected", False)  # OK
-EVT_RELEASED = ("ASSOCIATION", "Association released", False)  # OK
-EVT_REQUESTED = ("ASSOCIATION", "Association requested", False)
-EVT_FSM_TRANSITION = ("DUL", "State machine transition occurred", False)  # OK
-EVT_PDU_RECV = ("DUL", "PDU data received", False)  # OK
-EVT_PDU_SENT = ("DUL", "PDU data sent", False)  # OK
+EVT_CONN_CLOSE = ("TRANSPORT", "Connection closed", False, "EVT_CONN_CLOSE")  # OK
+EVT_CONN_OPEN = ("TRANSPORT", "Connection opened", False, "EVT_CONN_OPEN")  # OK
+EVT_DIMSE_RECV = ("DIMSE", "DIMSE message received", False, "EVT_DIMSE_RECV")  # OK
+EVT_DIMSE_SENT = ("DIMSE", "DIMSE message sent", False, "EVT_DIMSE_SENT")  # OK
+EVT_ACSE_RECV = ("ACSE", "ACSE message received", False, "EVT_ACSE_RECV")  # OK
+EVT_ACSE_SENT = ("ACSE", "ACSE message sent", False, "EVT_ACSE_SENT")  # OK
+EVT_ABORTED = ("ASSOCIATION", "Association aborted", False, "EVT_ABORTED")
+EVT_ACCEPTED = ("ASSOCIATION", "Association request accepted", False, "EVT_ACCEPTED")  # OK
+EVT_ESTABLISHED = ("ASSOCIATION", "Association established", False, "EVT_ESTABLISHED")  # OK
+EVT_REJECTED = ("ASSOCIATION", "Association request rejected", False, "EVT_REJECTED")  # OK
+EVT_RELEASED = ("ASSOCIATION", "Association released", False, "EVT_RELEASED")  # OK
+EVT_REQUESTED = ("ASSOCIATION", "Association requested", False, "EVT_REQUESTED")
+EVT_FSM_TRANSITION = ("DUL", "State machine transition occurred", False, "EVT_FSM_TRANSITION")  # OK
+EVT_PDU_RECV = ("DUL", "PDU data received", False, "EVT_PDU_RECV")  # OK
+EVT_PDU_SENT = ("DUL", "PDU data sent", False, "EVT_PDU_SENT")  # OK
 
 # Intervention events
 #   Returns/yields needed if bound, can only have one handler per event
-EVT_ASYNC_OPS = ("ACSE", "Asynchronous operations negotiation requested", True)  # OK
-EVT_SOP_COMMON = ("ACSE", "SOP class common extended negotiation requested", True)  # OK
-EVT_SOP_EXTENDED = ("ACSE", "SOP class extended negotiation requested", True)  # OK
-EVT_USER_ID = ("ACSE", "User identity negotiation requested", True)  # OK
-EVT_C_ECHO = ("SERVICE", "C-ECHO request received", True)  # OK
-EVT_C_FIND = ("SERVICE", "C-FIND request received", True)  # OK
-EVT_C_GET = ("SERVICE", "C-GET request received", True)  # OK
-EVT_C_MOVE = ("SERVICE", "C-MOVE request received", True)  # OK
-EVT_C_STORE = ("SERVICE", "C-STORE request received", True)  # OK
-EVT_N_ACTION = ("SERVICE", "N-ACTION request received", True)  # OK
-EVT_N_CREATE = ("SERVICE", "N-CREATE request received", True)  # OK
-EVT_N_DELETE = ("SERVICE", "N-DELETE request received", True)  # OK
-EVT_N_EVENT_REPORT = ("SERVICE", "N-EVENT-REPORT request received", True)  # OK
-EVT_N_GET = ("SERVICE", "N-GET request received", True)  # OK
-EVT_N_SET = ("SERVICE", "N-SET request received", True)  # OK
+EVT_ASYNC_OPS = ("ACSE", "Asynchronous operations negotiation requested", True, "EVT_ASYNC_OPS")  # OK
+EVT_SOP_COMMON = ("ACSE", "SOP class common extended negotiation requested", True, "EVT_SOP_COMMON")  # OK
+EVT_SOP_EXTENDED = ("ACSE", "SOP class extended negotiation requested", True, "EVT_SOP_EXTENDED")  # OK
+EVT_USER_ID = ("ACSE", "User identity negotiation requested", True, "EVT_USER_ID")  # OK
+EVT_C_ECHO = ("SERVICE", "C-ECHO request received", True, "EVT_C_ECHO")  # OK
+EVT_C_FIND = ("SERVICE", "C-FIND request received", True, "EVT_C_FIND")  # OK
+EVT_C_GET = ("SERVICE", "C-GET request received", True, "EVT_C_GET")  # OK
+EVT_C_MOVE = ("SERVICE", "C-MOVE request received", True, "EVT_C_MOVE")  # OK
+EVT_C_STORE = ("SERVICE", "C-STORE request received", True, "EVT_C_STORE")  # OK
+EVT_N_ACTION = ("SERVICE", "N-ACTION request received", True, "EVT_N_ACTION")  # OK
+EVT_N_CREATE = ("SERVICE", "N-CREATE request received", True, "EVT_N_CREATE")  # OK
+EVT_N_DELETE = ("SERVICE", "N-DELETE request received", True, "EVT_N_DELETE")  # OK
+EVT_N_EVENT_REPORT = ("SERVICE", "N-EVENT-REPORT request received", True, "EVT_N_EVENT_REPORT")  # OK
+EVT_N_GET = ("SERVICE", "N-GET request received", True, "EVT_N_GET")  # OK
+EVT_N_SET = ("SERVICE", "N-SET request received", True, "EVT_N_SET")  # OK
 
 
 _INTERVENTION_EVENTS = [
@@ -53,6 +53,12 @@ _INTERVENTION_EVENTS = [
     EVT_C_ECHO, EVT_C_FIND, EVT_C_GET, EVT_C_MOVE, EVT_C_STORE,
     EVT_N_ACTION, EVT_N_CREATE, EVT_N_DELETE, EVT_N_EVENT_REPORT,
     EVT_N_GET, EVT_N_SET
+]
+_NOTIFICATION_EVENTS = [
+    EVT_CONN_CLOSE, EVT_CONN_OPEN, EVT_DIMSE_RECV, EVT_DIMSE_SENT,
+    EVT_ACSE_RECV, EVT_ACSE_SENT, EVT_ABORTED, EVT_ACCEPTED,
+    EVT_ESTABLISHED, EVT_REJECTED, EVT_RELEASED, EVT_REQUESTED,
+    EVT_FSM_TRANSITION, EVT_PDU_RECV, EVT_PDU_SENT
 ]
 
 
@@ -113,7 +119,7 @@ def trigger(assoc, event, attrs=None):
     ----------
     assoc : assoc.Association
         The association in which the event occurred.
-    event : 3-tuple
+    event : tuple
         The event to trigger ('source', 'description', is_interventional).
     attrs : dict, optional
         The attributes to set in the Event instance that is passed to
@@ -152,7 +158,7 @@ def trigger(assoc, event, attrs=None):
         # Capture exceptions for notification events
         LOGGER.error(
             "Exception raised in user's 'evt.{}' event handler '{}'"
-            .format(event.__name__, func.__name__)
+            .format(event[3], func.__name__)
         )
         LOGGER.exception(exc)
 
@@ -619,7 +625,7 @@ def default_c_echo_handler(event):
         * ``context`` : the
           :py:class:`presentation context <pynetdicom.presentation.PresentationContext>`
           the request was sent under.
-        * request : the
+        * ``request`` : the
           :py:class:C-ECHO request <pynetdicom.dimse_primitives.C_ECHO>``
           received.
         * ``timestamp`` : the

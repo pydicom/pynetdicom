@@ -189,7 +189,7 @@ def AE_2(dul):
     dul.pdu.from_primitive(dul.primitive)
 
     # Callback
-    dul.assoc.acse.debug_send_associate_rq(dul.pdu)
+    #dul.assoc.acse.debug_send_associate_rq(dul.pdu)
 
     dul.socket.send(dul.pdu.encode())
 
@@ -370,9 +370,6 @@ def AE_7(dul):
     dul.pdu = A_ASSOCIATE_AC()
     dul.pdu.from_primitive(dul.primitive)
 
-    # Callback
-    dul.assoc.acse.debug_send_associate_ac(dul.pdu)
-
     dul.socket.send(dul.pdu.encode())
 
     return 'Sta6'
@@ -437,10 +434,6 @@ def DT_1(dul):
     # Send P-DATA-TF PDU
     dul.pdu = P_DATA_TF()
     dul.pdu.from_primitive(dul.primitive)
-
-    # Callback
-    dul.assoc.acse.debug_send_data_tf(dul.pdu)
-
     dul.primitive = None  # Why this?
 
     dul.socket.send(dul.pdu.encode())
@@ -815,9 +808,6 @@ def AA_1(dul):
     dul.pdu.reason_diagnostic = 0x00
     dul.pdu.from_primitive(dul.primitive)
 
-    # Callback
-    dul.assoc.acse.debug_send_abort(dul.pdu)
-
     dul.socket.send(dul.pdu.encode())
     dul.artim_timer.restart()
 
@@ -1008,9 +998,6 @@ def AA_7(dul):
     pdu = A_ABORT_RQ()
     pdu.from_primitive(primitive)
 
-    # Callback
-    dul.assoc.acse.debug_send_abort(pdu)
-
     dul.socket.send(dul.pdu.encode())
 
     return 'Sta13'
@@ -1051,9 +1038,6 @@ def AA_8(dul):
     dul.primitive.abort_source = 0x02
     dul.primitive.result = 0x01
     dul.primitive.diagnostic = 0x01
-
-    # Callback
-    dul.assoc.acse.debug_send_abort(dul.pdu)
 
     dul.socket.send(dul.pdu.encode())
 

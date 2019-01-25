@@ -112,11 +112,6 @@ class DummyAssociation(object):
     def supported_contexts(self):
         return self.requestor.get_contexts('supported')
 
-    def debug_association_rejected(self, primitive):
-        pass
-
-    debug_association_aborted = debug_association_rejected
-
 
 class TestACSE(object):
     """Tests for initialising the ACSE class"""

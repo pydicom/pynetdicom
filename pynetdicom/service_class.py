@@ -248,7 +248,7 @@ class VerificationServiceClass(ServiceClass):
         #   callback results in 0x0000 'Success'
         try:
             # Use either event-handler OR override
-            if self.assoc._handlers[evt.EVT_C_ECHO]:
+            if self.assoc.get_handlers(evt.EVT_C_ECHO):
                 status = evt.trigger(
                     self.assoc,
                     evt.EVT_C_ECHO,
@@ -379,7 +379,7 @@ class StorageServiceClass(ServiceClass):
         transfer_syntax = context.transfer_syntax[0]
         # Don't both decoding if using event handler
         if (_config.DECODE_STORE_DATASETS
-                or self.assoc._handlers[evt.EVT_C_STORE]):
+                or self.assoc.get_handlers(evt.EVT_C_STORE)):
             try:
                 ds = decode(req.DataSet,
                             transfer_syntax.is_implicit_VR,
@@ -407,7 +407,7 @@ class StorageServiceClass(ServiceClass):
 
         # Attempt to run the ApplicationEntity's on_c_store callback
         try:
-            if self.assoc._handlers[evt.EVT_C_STORE]:
+            if self.assoc.get_handlers(evt.EVT_C_STORE):
                 rsp_status = evt.trigger(
                     self.assoc,
                     evt.EVT_C_STORE,
@@ -635,7 +635,7 @@ class QueryRetrieveServiceClass(ServiceClass):
         def wrap_on_c_find():
             """Wrapper for exceptions"""
             try:
-                if self.assoc._handlers[evt.EVT_C_FIND]:
+                if self.assoc.get_handlers(evt.EVT_C_FIND):
                     rsp = evt.trigger(
                         self.assoc,
                         evt.EVT_C_FIND,
@@ -897,7 +897,7 @@ class QueryRetrieveServiceClass(ServiceClass):
         # Callback - C-GET
         try:
             # yields int, (status, dataset), ...
-            if self.assoc._handlers[evt.EVT_C_GET]:
+            if self.assoc.get_handlers(evt.EVT_C_GET):
                 result = evt.trigger(
                     self.assoc,
                     evt.EVT_C_GET,
@@ -1293,7 +1293,7 @@ class QueryRetrieveServiceClass(ServiceClass):
         # Callback - C-MOVE
         try:
             # yields (addr, port), int, (status, dataset), ...
-            if self.assoc._handlers[evt.EVT_C_MOVE]:
+            if self.assoc.get_handlers(evt.EVT_C_MOVE):
                 result = evt.trigger(
                     self.assoc,
                     evt.EVT_C_MOVE,
@@ -1812,7 +1812,7 @@ class RelevantPatientInformationQueryServiceClass(ServiceClass):
             #   if the yield is pending, send message then success and return
             #   if the yield is cancel or failure, send message and return
             #   if StopIteration send success and return
-            if self.assoc._handlers[evt.EVT_C_FIND]:
+            if self.assoc.get_handlers(evt.EVT_C_FIND):
                 responses = evt.trigger(
                     self.assoc,
                     evt.EVT_C_FIND,

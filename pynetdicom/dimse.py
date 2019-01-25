@@ -8,10 +8,9 @@ try:
 except ImportError:
     import Queue as queue  # Python 2 compatibility
 
-from pynetdicom import evt, _config
+from pynetdicom import evt
 from pynetdicom.dimse_messages import *
 from pynetdicom.dimse_primitives import *
-from pynetdicom._globals import DEFAULT_MAX_LENGTH
 from pynetdicom.pdu_primitives import P_DATA
 
 
