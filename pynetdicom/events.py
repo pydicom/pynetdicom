@@ -4,7 +4,9 @@ the state machine events.
 
 from collections import namedtuple
 from datetime import datetime
+import inspect
 import logging
+import sys
 
 from pynetdicom.dsutils import decode
 
@@ -19,6 +21,8 @@ NotificationEvent.is_intervention = False
 NotificationEvent.is_notification = True
 
 # Tested and OK
+EVT_ABORTED = NotificationEvent("EVT_ABORTED", "Association aborted")
+EVT_ACCEPTED = NotificationEvent("EVT_ACCEPTED", "Association request accepted")
 EVT_ACSE_RECV = NotificationEvent("EVT_ACSE_RECV", "ACSE primitive received from DUL")
 EVT_ACSE_SENT = NotificationEvent("EVT_ACSE_SENT", "ACSE primitive sent to DUL")
 EVT_CONN_CLOSE = NotificationEvent("EVT_CONN_CLOSE", "Connection closed")
@@ -27,14 +31,10 @@ EVT_DATA_RECV = NotificationEvent("EVT_DATA_RECV", "PDU data received from remot
 EVT_DATA_SENT = NotificationEvent("EVT_DATA_SENT", "PDU data sent to remote")
 EVT_DIMSE_RECV = NotificationEvent("EVT_DIMSE_RECV", "Complete DIMSE message received and decoded")
 EVT_DIMSE_SENT = NotificationEvent("EVT_DIMSE_SENT", "DIMSE message encoded and P-DATA primitives sent to DUL")
+EVT_ESTABLISHED = NotificationEvent("EVT_ESTABLISHED", "Association established")
 EVT_FSM_TRANSITION = NotificationEvent("EVT_FSM_TRANSITION", "State machine about to transition")
 EVT_PDU_RECV = NotificationEvent("EVT_PDU_RECV", "PDU received and decoded")
 EVT_PDU_SENT = NotificationEvent("EVT_PDU_SENT", "PDU encoded and sent")
-
-# To be tested
-EVT_ABORTED = NotificationEvent("EVT_ABORTED", "Association aborted")
-EVT_ACCEPTED = NotificationEvent("EVT_ACCEPTED", "Association request accepted")
-EVT_ESTABLISHED = NotificationEvent("EVT_ESTABLISHED", "Association established")
 EVT_REJECTED = NotificationEvent("EVT_REJECTED", "Association request rejected")
 EVT_RELEASED = NotificationEvent("EVT_RELEASED", "Association released")
 EVT_REQUESTED = NotificationEvent("EVT_REQUESTED", "Association requested")
@@ -63,18 +63,13 @@ EVT_N_GET = InterventionEvent("EVT_N_GET", "N-GET request received")
 EVT_N_SET = InterventionEvent("EVT_N_SET", "N-SET request received")
 
 
-_INTERVENTION_EVENTS = [
-    EVT_ASYNC_OPS, EVT_SOP_COMMON, EVT_SOP_EXTENDED, EVT_USER_ID,
-    EVT_C_ECHO, EVT_C_FIND, EVT_C_GET, EVT_C_MOVE, EVT_C_STORE,
-    EVT_N_ACTION, EVT_N_CREATE, EVT_N_DELETE, EVT_N_EVENT_REPORT,
-    EVT_N_GET, EVT_N_SET
-]
-_NOTIFICATION_EVENTS = [
-    EVT_CONN_CLOSE, EVT_CONN_OPEN, EVT_DIMSE_RECV, EVT_DIMSE_SENT,
-    EVT_ACSE_RECV, EVT_ACSE_SENT, EVT_ABORTED, EVT_ACCEPTED,
-    EVT_ESTABLISHED, EVT_REJECTED, EVT_RELEASED, EVT_REQUESTED,
-    EVT_FSM_TRANSITION, EVT_PDU_RECV, EVT_PDU_SENT
-]
+_INTERVENTION_EVENTS = inspect.getmembers(
+    sys.modules[__name__],
+    lambda x: isinstance(x, InterventionEvent)
+)
+_NOTIFICATION_EVENTS = inspect.getmembers(
+    sys.modules[__name__], lambda x: isinstance(x, NotificationEvent)
+)
 
 
 def get_default_handler(event):
