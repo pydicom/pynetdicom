@@ -120,30 +120,24 @@ class DULServiceProvider(Thread):
             The PDU subclass corresponding to the PDU and the event string
             corresponding to receiving that PDU type.
         """
-        # Event handler - PDU received from peer
-        #   trigger before PDU is decoded to help with debugging
-        evt.trigger(self.assoc, evt.EVT_PDU_RECV, {'data' : bytestream})
+        # Trigger before data is decoded in case of exception in decoding
+        evt.trigger(self.assoc, evt.EVT_DATA_RECV, {'data' : bytestream})
 
-        acse = self.assoc.acse
         pdu_types = {
-            0x01 : (A_ASSOCIATE_RQ, 'Evt6', None),
-            0x02 : (A_ASSOCIATE_AC, 'Evt3', None),
-            0x03 : (A_ASSOCIATE_RJ, 'Evt4', acse.debug_receive_associate_rj),
-            0x04 : (P_DATA_TF, 'Evt10', None),
-            0x05 : (A_RELEASE_RQ, 'Evt12', acse.debug_receive_release_rq),
-            0x06 : (A_RELEASE_RP, 'Evt13', acse.debug_receive_release_rp),
-            0x07 : (A_ABORT_RQ, 'Evt16', None)
+            0x01 : (A_ASSOCIATE_RQ, 'Evt6'),
+            0x02 : (A_ASSOCIATE_AC, 'Evt3'),
+            0x03 : (A_ASSOCIATE_RJ, 'Evt4'),
+            0x04 : (P_DATA_TF, 'Evt10'),
+            0x05 : (A_RELEASE_RQ, 'Evt12'),
+            0x06 : (A_RELEASE_RP, 'Evt13'),
+            0x07 : (A_ABORT_RQ, 'Evt16')
         }
 
-        pdu, event, acse_callback = pdu_types[bytestream[0]]
+        pdu, event = pdu_types[bytestream[0]]
         pdu = pdu()
         pdu.decode(bytes(bytestream))
 
-        # ACSE callback
-        try:
-            acse_callback(pdu)
-        except TypeError:
-            pass
+        evt.trigger(self.assoc, evt.EVT_PDU_RECV, {'pdu' : pdu})
 
         return pdu, event
 

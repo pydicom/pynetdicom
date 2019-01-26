@@ -223,14 +223,14 @@ class Association(threading.Thread):
             The function that will be called if the event occurs.
         """
         # Notification events - multiple handlers allowed
-        if not event[2]:
+        if event.is_notification:
             if event not in self._handlers:
                 self._handlers[event] = []
             if handler not in self._handlers[event]:
                 self._handlers[event].append(handler)
 
         # Intervention events - only one handler allowed
-        if event[2]:
+        if event.is_intervention:
             if event not in self._handlers:
                 self._handlers[event] = None
 
@@ -248,14 +248,18 @@ class Association(threading.Thread):
         if _config.LOG_HANDLER_LEVEL == 'standard':
             self.bind(evt.EVT_DIMSE_RECV, standard_dimse_recv_handler)
             self.bind(evt.EVT_DIMSE_SENT, standard_dimse_send_handler)
-            self.bind(evt.EVT_ACSE_RECV, standard_acse_recv_handler)
-            self.bind(evt.EVT_ACSE_SENT, standard_acse_sent_handler)
-            self.bind(evt.EVT_ACCEPTED, logging_accepted_handler)
-            self.bind(evt.EVT_REQUESTED, logging_requested_handler)
-            self.bind(evt.EVT_REJECTED, logging_rejected_handler)
-            self.bind(evt.EVT_ABORTED, logging_aborted_handler)
-            self.bind(evt.EVT_RELEASED, logging_released_handler)
-            self.bind(evt.EVT_ESTABLISHED, logging_established_handler)
+            #self.bind(evt.EVT_PDU_RECV, standard_pdu_recv_handler)
+            #self.bind(evt.EVT_PDU_SENT, standard_pdu_send_handler)
+
+            #self.bind(evt.EVT_ACSE_RECV, standard_acse_recv_handler)
+            #self.bind(evt.EVT_ACSE_SENT, standard_acse_sent_handler)
+
+            #self.bind(evt.EVT_ACCEPTED, logging_accepted_handler)
+            #self.bind(evt.EVT_REQUESTED, logging_requested_handler)
+            #self.bind(evt.EVT_REJECTED, logging_rejected_handler)
+            #self.bind(evt.EVT_ABORTED, logging_aborted_handler)
+            #self.bind(evt.EVT_RELEASED, logging_released_handler)
+            #self.bind(evt.EVT_ESTABLISHED, logging_established_handler)
 
     def _check_received_status(self, rsp):
         """Return a pydicom Dataset containing status related elements.
@@ -324,7 +328,7 @@ class Association(threading.Thread):
             handler is bound to the event or None if no handler has been bound.
         """
         if event not in self._handlers:
-            return None
+            return []
 
         return self._handlers[event]
 
@@ -739,11 +743,11 @@ class Association(threading.Thread):
             return
 
         # Notification events
-        if not event[2] and handler in self._handlers:
+        if event.is_notification and handler in self._handlers[event]:
             self._handlers[event].remove(handler)
 
         # Intervention events - unbind and replace with default
-        if event[2] and self._handlers[event] == handler:
+        if event.is_intervention and self._handlers[event] == handler:
             self._handlers[event] = evt.get_default_handler(event)
 
     # DIMSE-C services provided by the Association
@@ -797,45 +801,64 @@ class Association(threading.Thread):
             self.dimse.send_msg(rsp, 1)
             return
 
-        # Attempt to decode the dataset
-        # pylint: disable=broad-except
         transfer_syntax = context.transfer_syntax[0]
-        if _config.DECODE_STORE_DATASETS:
+
+        # Attempt to handle the service request
+        # TODO: refactor in v1.4
+        default_handler = evt.get_default_handler(evt.EVT_C_STORE)
+        if self.assoc.get_handlers(evt.EVT_C_STORE) != default_handler:
             try:
-                ds = decode(req.DataSet,
-                            transfer_syntax.is_implicit_VR,
-                            transfer_syntax.is_little_endian)
+                status = evt.trigger(
+                    self,
+                    evt.EVT_C_STORE,
+                    {'request' : req, 'context' : context.as_tuple}
+                )
             except Exception as ex:
-                LOGGER.error('Failed to decode the received dataset')
+                LOGGER.error(
+                    "Exception in the handler bound to 'evt.EVT_C_STORE'"
+                )
                 LOGGER.exception(ex)
-                rsp.Status = 0xC210
-                rsp.ErrorComment = 'Unable to decode the dataset'
+                rsp.Status = 0xC211
                 self.dimse.send_msg(rsp, context.context_id)
                 return
         else:
-            ds = req.DataSet.getvalue()
+            if _config.DECODE_STORE_DATASETS:
+                # Attempt to decode the dataset
+                # pylint: disable=broad-except
+                try:
+                    ds = decode(req.DataSet,
+                                transfer_syntax.is_implicit_VR,
+                                transfer_syntax.is_little_endian)
+                except Exception as ex:
+                    LOGGER.error('Failed to decode the received dataset')
+                    LOGGER.exception(ex)
+                    rsp.Status = 0xC210
+                    rsp.ErrorComment = 'Unable to decode the dataset'
+                    self.dimse.send_msg(rsp, context.context_id)
+                    return
+            else:
+                ds = req.DataSet.getvalue()
 
-        info = {
-            'acceptor' : self.acceptor.info,
-            'requestor': self.requestor.info,
-            'parameters' : {
-                'message_id' : req.MessageID,
-                'priority' : req.Priority,
-                'originator_aet' : req.MoveOriginatorApplicationEntityTitle,
-                'original_message_id' : req.MoveOriginatorMessageID
+            info = {
+                'acceptor' : self.acceptor.info,
+                'requestor': self.requestor.info,
+                'parameters' : {
+                    'message_id' : req.MessageID,
+                    'priority' : req.Priority,
+                    'originator_aet' : req.MoveOriginatorApplicationEntityTitle,
+                    'original_message_id' : req.MoveOriginatorMessageID
+                }
             }
-        }
 
-        #  Attempt to run the ApplicationEntity's on_c_store callback
-        try:
-            status = self.ae.on_c_store(ds, context.as_tuple, info)
-        except Exception as ex:
-            LOGGER.error("Exception in the "
-                         "ApplicationEntity.on_c_store() callback")
-            LOGGER.exception(ex)
-            rsp.Status = 0xC211
-            self.dimse.send_msg(rsp, context.context_id)
-            return
+            try:
+                status = self.ae.on_c_store(ds, context.as_tuple, info)
+            except Exception as ex:
+                LOGGER.error("Exception in the "
+                             "ApplicationEntity.on_c_store() callback")
+                LOGGER.exception(ex)
+                rsp.Status = 0xC211
+                self.dimse.send_msg(rsp, context.context_id)
+                return
 
         # Check the callback's returned status
         if isinstance(status, Dataset):

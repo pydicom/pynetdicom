@@ -125,32 +125,58 @@ Supported DIMSE SCP Services
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
 When the AE is acting as an SCP the following DIMSE-C and -N services are
-available to the peer once an association has been established. With the
-exception of ``on_c_echo()``, the user is expected to handle the required
-operations by implementing one (or more) of the following ``AE`` callbacks:
+available to the peer once an association has been established:
 
-- C-ECHO: ``AE.on_c_echo(context, info)``
-- C-STORE: ``AE.on_c_store(dataset, context, info)``
-- C-FIND: ``AE.on_c_find(dataset, context, info)``
-- C-GET: ``AE.on_c_get(dataset, context, info)``
-- C-MOVE: ``AE.on_c_move(dataset, move_aet, context, info)``
-- N-GET: ``AE.on_n_get(attr, context, info)``
+* C-ECHO
+* C-FIND
+* C-GET
+* C-MOVE
+* C-STORE
+* N-GET
 
-Where *dataset* is a pydicom
-`Dataset <https://pydicom.github.io/pydicom/stable/ref_guide.html#dataset>`_
-object, *context* is a ``namedtuple`` with details of the Presentation Context
-used to transfer *dataset*, *info* is a ``dict`` containing information about
-the association and the message request (such as the peer's IP address and AE
-title and the message priority), *move_aet* is the Move Destination AE
-title and *attr* is a list of pydicom
-`Tag <https://pydicom.github.io/pydicom/stable/api_ref.html#pydicom.tag.Tag>`_
-objects.
+With the exception of the C-ECHO service, a user-defined handler must be bound
+to a corresponding event in order to complete a DIMSE service request. The
+service request specific events are:
+
++---------------+---------------------+---------------------------------------+
+| DIMSE service | Event               | Example handler                       |
++===============+=====================+=======================================+
+| C-ECHO        | ``evt.EVT_C_ECHO``  |                                       |
++---------------+---------------------+---------------------------------------+
+| C-FIND        | ``evt.EVT_C_FIND``  |                                       |
++---------------+---------------------+---------------------------------------+
+| C-GET         | ``evt.EVT_C_GET``   |                                       |
++---------------+---------------------+---------------------------------------+
+| C-MOVE        | ``evt.EVT_C_MOVE``  |                                       |
++---------------+---------------------+---------------------------------------+
+| C-STORE       | ``evt.EVT_C_STORE`` |                                       |
++---------------+---------------------+---------------------------------------+
+| N-GET         | ``evt.EVT_N_GET``   |                                       |
++---------------+---------------------+---------------------------------------+
+
+Events can be imported with ``from pynetdicom import evt``and a handler can be
+bound to an event prior to starting an association through the *evt_handlers*
+keyword parameters in ``AE.start_server()`` and ``AE.associate()`` which is a
+list of ``(event, handler)`` tuples.
+
+When an event occurs the *handler* function is called and passed a single
+parameter *event*, which is an ``evt.Event`` object whose specific attributes
+are dependent on the type of event that occurred. Handlers bound to DIMSE
+service requests must also return or yield certain values. See the event
+documentation for information on what attributes are available in ``Event``
+for each event type and what the expected returns/yields are for their
+corresponding handlers.
 
 
 Documentation
 -------------
-The *pynetdicom* `user guide <https://pydicom.github.io/pynetdicom/stable/#user-guide>`_, `code examples <https://pydicom.github.io/pynetdicom/stable/#examples>`_ and `API reference <https://pydicom.github.io/pynetdicom/stable/reference/index.html>`_ documentation is available for the `current release <https://pydicom.github.io/pynetdicom/>`_ as well as the `development version
-<https://pydicom.github.io/pynetdicom/dev>`_.
+The *pynetdicom*
+`user guide <https://pydicom.github.io/pynetdicom/stable/#user-guide>`_,
+`code examples <https://pydicom.github.io/pynetdicom/stable/#examples>`_ and
+`API reference <https://pydicom.github.io/pynetdicom/stable/reference/index.html>`_
+documentation is available for the
+`current release <https://pydicom.github.io/pynetdicom/>`_ as well as the
+`development version <https://pydicom.github.io/pynetdicom/dev>`_.
 
 
 Installation
@@ -205,8 +231,8 @@ listen port number *port*):
             assoc.release()
 
 Create a blocking DICOM C-ECHO listen SCP on port 11112 (you may optionally
-implement the ``AE.on_c_echo`` callback if you want to return something other
-than a *Success* status):
+bind a handler to the ``evt.EVT_C_ECHO`` event if you want to return something
+other than a *Success* status):
 
 .. code-block:: python
 
@@ -224,17 +250,57 @@ than a *Success* status):
 
 Alternatively, you can start the SCP in non-blocking mode, which returns the
 running server instance. This can be useful when you want to run a Storage SCP
-and make C-MOVE requests within the same AE:
+and make C-MOVE requests within the same AE. In the next example we'll create a
+non-blocking Verification SCP and bind a handler for the C-ECHO service
+request event ``evt.EVT_C_ECHO`` that logs the requestor's address and port
+number and the timestamp for the event.
 
 .. code-block:: python
 
-        from pynetdicom import AE, VerificationPresentationContexts
+        import logging
+
+        from pynetdicom import AE, evt, VerificationPresentationContexts
+
+        LOGGER = logging.getLogger('pynetdicom')
+        LOGGER.setLevel(logging.DEBUG)
 
         ae = AE(ae_title=b'MY_ECHO_SCP')
         ae.supported_contexts = VerificationPresentationContexts
 
+        # Create out EVT_C_ECHO handler
+        def handle_echo(event):
+            """Handle a C-ECHO service request.
+
+            Parameters
+            ----------
+            event : evt.Event
+                The C-ECHO service request event.
+
+            Returns
+            -------
+            int or pydicom.dataset.Dataset
+                The status returned to the peer AE in the C-ECHO response.
+                Must be a valid C-ECHO status value as either an ``int`` or a
+                ``Dataset`` object containing an (0000,0900) *Status* element.
+            """
+            # Every *Event* includes `assoc` and `timestamp` attributes
+            #   which are the *Association* instance the event occurred in
+            #   and the *datetime.datetime* the event occurred at
+            requestor = event.assoc.requestor
+            timestamp = event.timestamp.strftime("%Y-%m-%d %H:%M:%S")
+            msg = (
+                "Received C-ECHO service request from ({}, {}) at {}"
+                .format(requestor.address, requestor.port, timestamp)
+            )
+            LOGGER.info(msg)
+
+            # Return a *Success* status
+            return 0x0000
+
+        handlers = [(evt.EVT_C_ECHO, handle_echo)]
+
         # Start the SCP in non-blocking mode
-        scp = ae.start_server(('', 11112), block=False)
+        scp = ae.start_server(('', 11112), block=False, evt_handlers=handlers)
 
         # Let's send a C-ECHO request to our own Verification SCP
         ae.add_requested_context('1.2.840.10008.1.1')

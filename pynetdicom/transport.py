@@ -178,6 +178,12 @@ class AssociationSocket(object):
             # Log exception if TLS issue to help with troubleshooting
             if isinstance(exc, ssl.SSLError):
                 LOGGER.exception(exc)
+
+            # Log connection failure
+            LOGGER.error("Association Request Failed: Failed to establish "
+                     "association")
+            LOGGER.error("Peer aborted Association (or never connected)")
+            LOGGER.error("TCP Initialisation Error: Connection refused")
             # Don't be tempted to replace this with a self.close() call -
             #   it doesn't work because `_is_connected` is False
             if self.socket:
@@ -330,7 +336,7 @@ class AssociationSocket(object):
                 nr_sent = self.socket.send(bytestream[total_sent:])
                 total_sent += nr_sent
 
-            evt.trigger(self.assoc, evt.EVT_PDU_SENT, {'data' : bytestream})
+            evt.trigger(self.assoc, evt.EVT_DATA_SENT, {'data' : bytestream})
         except (socket.error, socket.timeout):
             # Evt17: Transport connection closed
             self.event_queue.put('Evt17')
@@ -388,10 +394,6 @@ class RequestHandler(BaseRequestHandler):
         sock = AssociationSocket(assoc, client_socket=self.request)
         assoc.set_socket(sock)
 
-        evt.trigger(
-            assoc, evt.EVT_CONN_OPEN, {'address' : self.client_address}
-        )
-
         # Association Acceptor object -> local AE
         assoc.acceptor.maximum_length = self.ae.maximum_pdu_size
         assoc.acceptor.ae_title = self.ae.ae_title
@@ -414,12 +416,16 @@ class RequestHandler(BaseRequestHandler):
         # Bind events to handlers
         for event in self.server._handlers:
             # Intervention events
-            if event[2] and self.server._handlers[event]:
+            if event.is_intervention and self.server._handlers[event]:
                 assoc.bind(event, self.server._handlers[event])
-            elif not event[2]:
+            elif event.is_notification:
                 for handler in self.server._handlers[event]:
                     assoc.bind(event, handler)
 
+        # Trigger must be after binding the events
+        evt.trigger(
+            assoc, evt.EVT_CONN_OPEN, {'address' : self.client_address}
+        )
 
         assoc.start()
 
@@ -516,7 +522,7 @@ class AssociationServer(TCPServer):
             The function that will be called if the event occurs.
         """
         # Notification events - multiple handlers allowed
-        if not event[2]:
+        if event.is_notification:
             if event not in self._handlers:
                 self._handlers[event] = []
 
@@ -524,7 +530,7 @@ class AssociationServer(TCPServer):
                 self._handlers[event].append(handler)
 
         # Intervention events - only one handler allowed
-        if event[2]:
+        if event.is_intervention:
             if event not in self._handlers:
                 self._handlers[event] = None
 
@@ -548,6 +554,31 @@ class AssociationServer(TCPServer):
         self._children = [
             child for child in self._children if child.is_alive()]
         return self._children
+
+    def get_events(self):
+        """Return a list of currently bound events."""
+        return self._handlers.keys()
+
+    def get_handlers(self, event):
+        """Return handlers bound to a specific `event`.
+
+        Parameters
+        ----------
+        event : tuple
+            The event bound to the handlers.
+
+        Returns
+        -------
+        callable, list of callable or None
+            If the event is a notification event then returns a list of
+            callable functions bound to `event`, if the event is an
+            intervention event then returns either a callable function if a
+            handler is bound to the event or None if no handler has been bound.
+        """
+        if event not in self._handlers:
+            return []
+
+        return self._handlers[event]
 
     def get_request(self):
         """Handle a connection request.
@@ -634,11 +665,11 @@ class AssociationServer(TCPServer):
             return
 
         # Notification events
-        if not event[2] and handler in self._handlers:
+        if event.is_notification and handler in self._handlers[event]:
             self._handlers[event].remove(handler)
 
         # Intervention events - unbind and replace with default
-        if event[2] and self._handlers[event] == handler:
+        if event.is_intervention and self._handlers[event] == handler:
             self._handlers[event] = evt.get_default_handler(event)
 
         # Unbind from our child Association events

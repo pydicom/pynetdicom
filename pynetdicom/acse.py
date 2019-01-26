@@ -41,14 +41,8 @@ class ACSE(object):
         """Return the Association to provide ACSE services for."""
         return self._assoc
 
-    def _check_async_ops(self, assoc):
+    def _check_async_ops(self):
         """Check the user's response to an Asynchronous Operations request.
-
-        Parameters
-        ----------
-        assoc : association.Association
-            The Association instance that received the Asynchronous Operations
-            Window Negotiation item in an A-ASSOCIATE (request) primitive.
 
         Returns
         -------
@@ -60,18 +54,18 @@ class ACSE(object):
         """
         # pylint: disable=broad-except
         try:
-            # TODO: refactor in v1.5
+            # TODO: refactor in v1.4
             # Response is always ignored as async ops is not supported
             if self.assoc.get_handlers(evt.EVT_ASYNC_OPS):
-                invoked, performed = assoc.requestor.asynchronous_operations
+                inv, perf = self.assoc.requestor.asynchronous_operations
                 _ = evt.trigger(
                     self.assoc,
                     evt.EVT_ASYNC_OPS,
-                    {'nr_invoked' : invoked, 'nr_performed' : performed}
+                    {'nr_invoked' : inv, 'nr_performed' : perf}
                 )
             else:
-                _ = assoc.ae.on_async_ops_window(
-                    *assoc.requestor.asynchronous_operations
+                _ = self.assoc.ae.on_async_ops_window(
+                    *self.assoc.requestor.asynchronous_operations
                 )
         except NotImplementedError:
             return None
@@ -88,15 +82,8 @@ class ACSE(object):
 
         return item
 
-    def _check_sop_class_common_extended(self, assoc):
+    def _check_sop_class_common_extended(self):
         """Check the user's response to a SOP Class Common Extended request.
-
-        Parameters
-        ----------
-        assoc : association.Association
-            The Association instance that received one or more SOP Class
-            Common Extended Negotiation items in an A-ASSOCIATE (request)
-            primitive.
 
         Returns
         -------
@@ -110,11 +97,11 @@ class ACSE(object):
                 rsp = evt.trigger(
                     self.assoc,
                     evt.EVT_SOP_COMMON,
-                    {'items' : assoc.requestor.sop_class_common_extended}
+                    {'items' : self.assoc.requestor.sop_class_common_extended}
                 )
             else:
-                rsp = assoc.ae.on_sop_class_common_extended(
-                    assoc.requestor.sop_class_common_extended
+                rsp = self.assoc.ae.on_sop_class_common_extended(
+                    self.assoc.requestor.sop_class_common_extended
                 )
         except Exception as exc:
             LOGGER.error(
@@ -131,14 +118,8 @@ class ACSE(object):
 
         return rsp
 
-    def _check_sop_class_extended(self, assoc):
+    def _check_sop_class_extended(self):
         """Check the user's response to a SOP Class Extended request.
-
-        Parameters
-        ----------
-        assoc : association.Association
-            The Association instance that received one or more SOP Class
-            Extended Negotiation items in an A-ASSOCIATE (request) primitive.
 
         Returns
         -------
@@ -151,11 +132,11 @@ class ACSE(object):
                 user_response = evt.trigger(
                     self.assoc,
                     evt.EVT_SOP_EXTENDED,
-                    {'app_info' : assoc.requestor.sop_class_extended}
+                    {'app_info' : self.assoc.requestor.sop_class_extended}
                 )
             else:
-                user_response = assoc.ae.on_sop_class_extended(
-                    assoc.requestor.sop_class_extended
+                user_response = self.assoc.ae.on_sop_class_extended(
+                    self.assoc.requestor.sop_class_extended
                 )
         except Exception as exc:
             user_response = None
@@ -192,14 +173,8 @@ class ACSE(object):
 
         return items
 
-    def _check_user_identity(self, assoc):
+    def _check_user_identity(self):
         """Check the user's response to a User Identity request.
-
-        Parameters
-        ----------
-        assoc : association.Association
-            The Association instance that received the User Identity
-            Negotiation item in an A-ASSOCIATE (request) primitive.
 
         Returns
         -------
@@ -211,7 +186,7 @@ class ACSE(object):
         """
         # pylint: disable=broad-except
         # The UserIdentityNegotiation (request) item
-        req = assoc.requestor.user_identity
+        req = self.assoc.requestor.user_identity
         try:
             if self.assoc.get_handlers(evt.EVT_USER_ID):
                 identity_verified, response = evt.trigger(
@@ -224,12 +199,12 @@ class ACSE(object):
                     }
                 )
             else:
-                identity_verified, response = assoc.ae.on_user_identity(
+                identity_verified, response = self.assoc.ae.on_user_identity(
                     req.user_identity_type,
                     req.primary_field,
                     req.secondary_field,
                     {
-                        'requestor' : assoc.requestor.info,
+                        'requestor' : self.assoc.requestor.info,
                     }
                 )
         except NotImplementedError:
@@ -335,7 +310,7 @@ class ACSE(object):
         ## Extended Negotiation items
         # User Identity Negotiation items
         if assoc.requestor.user_identity:
-            is_valid, id_response = self._check_user_identity(assoc)
+            is_valid, id_response = self._check_user_identity()
 
             if not is_valid:
                 # Transient, ACSE related, no reason given
@@ -347,20 +322,20 @@ class ACSE(object):
                 assoc.acceptor.add_negotiation_item(id_response)
 
         # SOP Class Extended Negotiation items
-        for item in self._check_sop_class_extended(assoc):
+        for item in self._check_sop_class_extended():
             assoc.acceptor.add_negotiation_item(item)
 
         # SOP Class Common Extended Negotiation items
         #   Note: No response items are allowed
         # pylint: disable=protected-access
         assoc.acceptor._common_ext = (
-            self._check_sop_class_common_extended(assoc)
+            self._check_sop_class_common_extended()
         )
         # pylint: enable=protected-access
 
         # Asynchronous Operations Window Negotiation items
         if assoc.requestor.asynchronous_operations != (1, 1):
-            async_rsp = self._check_async_ops(assoc)
+            async_rsp = self._check_async_ops()
 
             # Add any Async Ops (response) item
             if async_rsp:

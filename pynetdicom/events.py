@@ -2,6 +2,7 @@
 the state machine events.
 """
 
+from collections import namedtuple
 from datetime import datetime
 import logging
 
@@ -13,39 +14,53 @@ LOGGER = logging.getLogger('pynetdicom.events')
 
 # Notification events
 #   No returns/yields needed, can have multiple handlers per event
-EVT_CONN_CLOSE = ("TRANSPORT", "Connection closed", False, "EVT_CONN_CLOSE")  # OK
-EVT_CONN_OPEN = ("TRANSPORT", "Connection opened", False, "EVT_CONN_OPEN")  # OK
-EVT_DIMSE_RECV = ("DIMSE", "DIMSE message received", False, "EVT_DIMSE_RECV")  # OK
-EVT_DIMSE_SENT = ("DIMSE", "DIMSE message sent", False, "EVT_DIMSE_SENT")  # OK
-EVT_ACSE_RECV = ("ACSE", "ACSE message received", False, "EVT_ACSE_RECV")  # OK
-EVT_ACSE_SENT = ("ACSE", "ACSE message sent", False, "EVT_ACSE_SENT")  # OK
-EVT_ABORTED = ("ASSOCIATION", "Association aborted", False, "EVT_ABORTED")
-EVT_ACCEPTED = ("ASSOCIATION", "Association request accepted", False, "EVT_ACCEPTED")  # OK
-EVT_ESTABLISHED = ("ASSOCIATION", "Association established", False, "EVT_ESTABLISHED")  # OK
-EVT_REJECTED = ("ASSOCIATION", "Association request rejected", False, "EVT_REJECTED")  # OK
-EVT_RELEASED = ("ASSOCIATION", "Association released", False, "EVT_RELEASED")  # OK
-EVT_REQUESTED = ("ASSOCIATION", "Association requested", False, "EVT_REQUESTED")
-EVT_FSM_TRANSITION = ("DUL", "State machine transition occurred", False, "EVT_FSM_TRANSITION")  # OK
-EVT_PDU_RECV = ("DUL", "PDU data received", False, "EVT_PDU_RECV")  # OK
-EVT_PDU_SENT = ("DUL", "PDU data sent", False, "EVT_PDU_SENT")  # OK
+NotificationEvent = namedtuple('NotificationEvent', ['name', 'description'])
+NotificationEvent.is_intervention = False
+NotificationEvent.is_notification = True
+
+# Tested and OK
+EVT_CONN_CLOSE = NotificationEvent("EVT_CONN_CLOSE", "Connection closed")
+EVT_CONN_OPEN = NotificationEvent("EVT_CONN_OPEN", "Connection opened")
+
+# To be tested
+EVT_DIMSE_RECV = NotificationEvent("EVT_DIMSE_RECV", "Complete DIMSE message received and decoded")
+EVT_DIMSE_SENT = NotificationEvent("EVT_DIMSE_SENT", "DIMSE message encoded and P-DATA primitives sent to DUL")
+EVT_ACSE_RECV = NotificationEvent("EVT_ACSE_RECV", "ACSE primitive received from DUL")
+EVT_ACSE_SENT = NotificationEvent("EVT_ACSE_SENT", "ACSE primitive sent to DUL")
+EVT_ABORTED = NotificationEvent("EVT_ABORTED", "Association aborted")
+EVT_ACCEPTED = NotificationEvent("EVT_ACCEPTED", "Association request accepted")
+EVT_ESTABLISHED = NotificationEvent("EVT_ESTABLISHED", "Association established")
+EVT_REJECTED = NotificationEvent("EVT_REJECTED", "Association request rejected")
+EVT_RELEASED = NotificationEvent("EVT_RELEASED", "Association released")
+EVT_REQUESTED = NotificationEvent("EVT_REQUESTED", "Association requested")
+EVT_FSM_TRANSITION = NotificationEvent("EVT_FSM_TRANSITION", "State machine about to transition")
+EVT_DATA_RECV = NotificationEvent("EVT_DATA_RECV", "PDU data received from remote")
+EVT_DATA_SENT = NotificationEvent("EVT_DATA_SENT", "PDU data sent to remote")
+EVT_PDU_RECV = NotificationEvent("EVT_PDU_RECV", "PDU received and decoded")
+EVT_PDU_SENT = NotificationEvent("EVT_PDU_SENT", "PDU encoded and sent")
 
 # Intervention events
 #   Returns/yields needed if bound, can only have one handler per event
-EVT_ASYNC_OPS = ("ACSE", "Asynchronous operations negotiation requested", True, "EVT_ASYNC_OPS")  # OK
-EVT_SOP_COMMON = ("ACSE", "SOP class common extended negotiation requested", True, "EVT_SOP_COMMON")  # OK
-EVT_SOP_EXTENDED = ("ACSE", "SOP class extended negotiation requested", True, "EVT_SOP_EXTENDED")  # OK
-EVT_USER_ID = ("ACSE", "User identity negotiation requested", True, "EVT_USER_ID")  # OK
-EVT_C_ECHO = ("SERVICE", "C-ECHO request received", True, "EVT_C_ECHO")  # OK
-EVT_C_FIND = ("SERVICE", "C-FIND request received", True, "EVT_C_FIND")  # OK
-EVT_C_GET = ("SERVICE", "C-GET request received", True, "EVT_C_GET")  # OK
-EVT_C_MOVE = ("SERVICE", "C-MOVE request received", True, "EVT_C_MOVE")  # OK
-EVT_C_STORE = ("SERVICE", "C-STORE request received", True, "EVT_C_STORE")  # OK
-EVT_N_ACTION = ("SERVICE", "N-ACTION request received", True, "EVT_N_ACTION")  # OK
-EVT_N_CREATE = ("SERVICE", "N-CREATE request received", True, "EVT_N_CREATE")  # OK
-EVT_N_DELETE = ("SERVICE", "N-DELETE request received", True, "EVT_N_DELETE")  # OK
-EVT_N_EVENT_REPORT = ("SERVICE", "N-EVENT-REPORT request received", True, "EVT_N_EVENT_REPORT")  # OK
-EVT_N_GET = ("SERVICE", "N-GET request received", True, "EVT_N_GET")  # OK
-EVT_N_SET = ("SERVICE", "N-SET request received", True, "EVT_N_SET")  # OK
+InterventionEvent = namedtuple('InterventionEvent', ['name', 'description'])
+InterventionEvent.is_intervention = True
+InterventionEvent.is_notification = False
+
+# To be tested
+EVT_ASYNC_OPS = InterventionEvent("EVT_ASYNC_OPS", "Asynchronous operations negotiation requested")
+EVT_SOP_COMMON = InterventionEvent("EVT_SOP_COMMON", "SOP class common extended negotiation requested")
+EVT_SOP_EXTENDED = InterventionEvent("EVT_SOP_EXTENDED", "SOP class extended negotiation requested")
+EVT_USER_ID = InterventionEvent("EVT_USER_ID", "User identity negotiation requested")
+EVT_C_ECHO = InterventionEvent("EVT_C_ECHO", "C-ECHO request received")
+EVT_C_FIND = InterventionEvent("EVT_C_FIND", "C-FIND request received")
+EVT_C_GET = InterventionEvent("EVT_C_GET", "C-GET request received")
+EVT_C_MOVE = InterventionEvent("EVT_C_MOVE", "C-MOVE request received")
+EVT_C_STORE = InterventionEvent("EVT_C_STORE", "C-STORE request received")
+EVT_N_ACTION = InterventionEvent("EVT_N_ACTION", "N-ACTION request received")
+EVT_N_CREATE = InterventionEvent("EVT_N_CREATE", "N-CREATE request received")
+EVT_N_DELETE = InterventionEvent("EVT_N_DELETE", "N-DELETE request received")
+EVT_N_EVENT_REPORT = InterventionEvent("EVT_N_EVENT_REPORT", "N-EVENT-REPORT request received")
+EVT_N_GET = InterventionEvent("EVT_N_GET", "N-GET request received")
+EVT_N_SET = InterventionEvent("EVT_N_SET", "N-SET request received")
 
 
 _INTERVENTION_EVENTS = [
@@ -119,8 +134,8 @@ def trigger(assoc, event, attrs=None):
     ----------
     assoc : assoc.Association
         The association in which the event occurred.
-    event : tuple
-        The event to trigger ('source', 'description', is_interventional).
+    event : event.NotificationEvent or event.InterventionEvent
+        The event to trigger.
     attrs : dict, optional
         The attributes to set in the Event instance that is passed to
         the event's corresponding handler functions as
@@ -144,7 +159,7 @@ def trigger(assoc, event, attrs=None):
 
     try:
         # Intervention event - only singule handler allowed
-        if event[2]:
+        if event.is_intervention:
             return handlers(evt)
 
         # Notification event - multiple handlers are allowed
@@ -152,13 +167,13 @@ def trigger(assoc, event, attrs=None):
             func(evt)
     except Exception as exc:
         # Intervention exceptions get raised
-        if event[2]:
+        if event.is_intervention:
             raise
 
         # Capture exceptions for notification events
         LOGGER.error(
             "Exception raised in user's 'evt.{}' event handler '{}'"
-            .format(event[3], func.__name__)
+            .format(event.name, func.__name__)
         )
         LOGGER.exception(exc)
 
@@ -183,7 +198,7 @@ class Event(object):
         ----------
         assoc : association.Association
             The association in which the event occurred.
-        event : tuple
+        event : event.NotificationEvent or event.InterventionEvent
             The representation of the event.
         attrs : dict
             The {attribute : value} to set for the Event.

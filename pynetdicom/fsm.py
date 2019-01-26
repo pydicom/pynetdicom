@@ -8,7 +8,7 @@ from pynetdicom.pdu import (
     A_ASSOCIATE_RQ, A_ASSOCIATE_RJ, A_ASSOCIATE_AC,
     P_DATA_TF, A_RELEASE_RQ, A_RELEASE_RP, A_ABORT_RQ
 )
-from pynetdicom.pdu_primitives import A_ABORT
+from pynetdicom.pdu_primitives import A_ABORT, A_P_ABORT
 
 
 LOGGER = logging.getLogger('pynetdicom.sm')
@@ -188,10 +188,8 @@ def AE_2(dul):
     dul.pdu = A_ASSOCIATE_RQ()
     dul.pdu.from_primitive(dul.primitive)
 
-    # Callback
-    #dul.assoc.acse.debug_send_associate_rq(dul.pdu)
-
     dul.socket.send(dul.pdu.encode())
+    evt.trigger(dul.assoc, evt.EVT_PDU_SENT, {'pdu' : dul.pdu})
 
     return 'Sta5'
 
@@ -330,10 +328,8 @@ def AE_6(dul):
         dul.pdu = A_ASSOCIATE_RJ()
         dul.pdu.from_primitive(dul.primitive)
 
-        # Callback
-        dul.assoc.acse.debug_send_associate_rj(dul.pdu)
-
         dul.socket.send(dul.pdu.encode())
+        evt.trigger(dul.assoc, evt.EVT_PDU_SENT, {'pdu' : dul.pdu})
         dul.artim_timer.start()
 
         return 'Sta13'
@@ -371,6 +367,7 @@ def AE_7(dul):
     dul.pdu.from_primitive(dul.primitive)
 
     dul.socket.send(dul.pdu.encode())
+    evt.trigger(dul.assoc, evt.EVT_PDU_SENT, {'pdu' : dul.pdu})
 
     return 'Sta6'
 
@@ -400,10 +397,8 @@ def AE_8(dul):
     dul.pdu = A_ASSOCIATE_RJ()
     dul.pdu.from_primitive(dul.primitive)
 
-    # Callback
-    dul.assoc.acse.debug_send_associate_rj(dul.pdu)
-
     dul.socket.send(dul.pdu.encode())
+    evt.trigger(dul.assoc, evt.EVT_PDU_SENT, {'pdu' : dul.pdu})
     dul.artim_timer.start()
 
     return 'Sta13'
@@ -437,6 +432,7 @@ def DT_1(dul):
     dul.primitive = None  # Why this?
 
     dul.socket.send(dul.pdu.encode())
+    evt.trigger(dul.assoc, evt.EVT_PDU_SENT, {'pdu' : dul.pdu})
 
     return 'Sta6'
 
@@ -494,10 +490,8 @@ def AR_1(dul):
     dul.pdu = A_RELEASE_RQ()
     dul.pdu.from_primitive(dul.primitive)
 
-    # Callback
-    dul.assoc.acse.debug_send_release_rq(dul.pdu)
-
     dul.socket.send(dul.pdu.encode())
+    evt.trigger(dul.assoc, evt.EVT_PDU_SENT, {'pdu' : dul.pdu})
 
     return 'Sta7'
 
@@ -584,10 +578,8 @@ def AR_4(dul):
     dul.pdu = A_RELEASE_RP()
     dul.pdu.from_primitive(dul.primitive)
 
-    # Callback
-    dul.assoc.acse.debug_send_release_rp(dul.pdu)
-
     dul.socket.send(dul.pdu.encode())
+    evt.trigger(dul.assoc, evt.EVT_PDU_SENT, {'pdu' : dul.pdu})
     dul.artim_timer.start()
 
     return 'Sta13'
@@ -678,10 +670,8 @@ def AR_7(dul):
     dul.pdu = P_DATA_TF()
     dul.pdu.from_primitive(dul.primitive)
 
-    # Callback
-    dul.assoc.acse.debug_send_data_tf(dul.pdu)
-
     dul.socket.send(dul.pdu.encode())
+    evt.trigger(dul.assoc, evt.EVT_PDU_SENT, {'pdu' : dul.pdu})
 
     return 'Sta8'
 
@@ -741,10 +731,8 @@ def AR_9(dul):
     dul.pdu = A_RELEASE_RP()
     dul.pdu.from_primitive(dul.primitive)
 
-    # Callback
-    dul.assoc.acse.debug_send_release_rp(dul.pdu)
-
     dul.socket.send(dul.pdu.encode())
+    evt.trigger(dul.assoc, evt.EVT_PDU_SENT, {'pdu' : dul.pdu})
 
     return 'Sta11'
 
@@ -809,6 +797,7 @@ def AA_1(dul):
     dul.pdu.from_primitive(dul.primitive)
 
     dul.socket.send(dul.pdu.encode())
+    evt.trigger(dul.assoc, evt.EVT_PDU_SENT, {'pdu' : dul.pdu})
     dul.artim_timer.restart()
 
     return 'Sta13'
@@ -904,8 +893,9 @@ def AA_4(dul):
     evt.trigger(dul.assoc, evt.EVT_CONN_CLOSE, {})
 
     # Issue A-P-ABORT indication primitive.
-    dul.primitive = A_ABORT()
-    dul.to_user_queue.put(dul.primitive)
+    primitive = A_P_ABORT()
+    primitive.provider_reason = 0x00
+    dul.to_user_queue.put(primitive)
     dul.kill_dul()
 
     return 'Sta1'
@@ -999,14 +989,15 @@ def AA_7(dul):
     pdu.from_primitive(primitive)
 
     dul.socket.send(dul.pdu.encode())
+    evt.trigger(dul.assoc, evt.EVT_PDU_SENT, {'pdu' : dul.pdu})
 
     return 'Sta13'
 
 def AA_8(dul):
     """Association abort AA-8.
 
-    If receive invalid event, send A-ABORT, issue A-P-ABORT indication and start
-    ARTIM timer
+    If receive invalid event, send A-ABORT, issue A-P-ABORT indication and
+    start ARTIM timer
 
     State-event triggers: Evt3 + Sta3/6/7/8/9/10/11/12,
     Evt4 + Sta3/5/6/7/8/9/10/11/12, Evt6 + Sta3/5/6/7/8/9/10/11/12,
@@ -1040,9 +1031,12 @@ def AA_8(dul):
     dul.primitive.diagnostic = 0x01
 
     dul.socket.send(dul.pdu.encode())
+    evt.trigger(dul.assoc, evt.EVT_PDU_SENT, {'pdu' : dul.pdu})
 
     # Issue A-P-ABORT to user
-    dul.to_user_queue.put(dul.primitive)
+    primitive = A_P_ABORT()
+    primitive.provider_reason = 0x05
+    dul.to_user_queue.put(primitive)
     dul.artim_timer.start()
 
     return 'Sta13'

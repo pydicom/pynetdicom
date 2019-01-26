@@ -223,17 +223,11 @@ def logging_released_handler(event):
 # OK
 def _recv_a_abort(event):
     """Handler for the ACSE receiving an A-ABORT from the DUL service."""
-    source = event.message.abort_source
-    sources = {
-        0 : 'DUL service-user',
-        1 : 'Reserved',
-        2 : 'DUL service-provider'
-    }
     s = ['Abort Parameters:']
     s.append(
         '========================== BEGIN A-ABORT ========================'
     )
-    s.append('Abort Source: {0!s}'.format(sources[source]))
+    s.append('Abort Source: DUL service-user')
     s.append(
         '=========================== END A-ABORT ========================='
     )
@@ -257,6 +251,7 @@ def _recv_ap_abort(event):
     s.append(
         '========================= BEGIN A-P-ABORT ======================='
     )
+    s.append('Abort Source: DUL service-provider')
     s.append('Abort Reason: {0!s}'.format(reasons[reason]))
     s.append(
         '========================== END A-P-ABORT ========================'
