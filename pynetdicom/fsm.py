@@ -7,7 +7,7 @@ from pynetdicom.pdu import (
     A_ASSOCIATE_RQ, A_ASSOCIATE_RJ, A_ASSOCIATE_AC,
     P_DATA_TF, A_RELEASE_RQ, A_RELEASE_RP, A_ABORT_RQ
 )
-from pynetdicom.pdu_primitives import A_ABORT
+from pynetdicom.pdu_primitives import A_ABORT, A_P_ABORT
 
 
 LOGGER = logging.getLogger('pynetdicom.sm')
@@ -178,6 +178,7 @@ def AE_2(dul):
     dul.pdu.from_primitive(dul.primitive)
 
     # Callback
+    LOGGER.info("Requesting Association")
     dul.assoc.acse.debug_send_associate_rq(dul.pdu)
 
     bytestream = dul.pdu.encode()
@@ -900,7 +901,8 @@ def AA_4(dul):
         Sta1, the next state of the state machine
     """
     # Issue A-P-ABORT indication primitive.
-    dul.primitive = A_ABORT()
+    dul.primitive = A_P_ABORT()
+    dul.primitive.provider_reason = 0x00
     dul.to_user_queue.put(dul.primitive)
     dul.kill_dul()
 
