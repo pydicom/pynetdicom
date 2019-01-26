@@ -179,7 +179,7 @@
     <span class="n">A_ASSOCIATE_RQ</span><span class="p">,</span> <span class="n">A_ASSOCIATE_RJ</span><span class="p">,</span> <span class="n">A_ASSOCIATE_AC</span><span class="p">,</span>
     <span class="n">P_DATA_TF</span><span class="p">,</span> <span class="n">A_RELEASE_RQ</span><span class="p">,</span> <span class="n">A_RELEASE_RP</span><span class="p">,</span> <span class="n">A_ABORT_RQ</span>
 <span class="p">)</span>
-<span class="kn">from</span> <span class="nn">pynetdicom.pdu_primitives</span> <span class="k">import</span> <span class="n">A_ABORT</span>
+<span class="kn">from</span> <span class="nn">pynetdicom.pdu_primitives</span> <span class="k">import</span> <span class="n">A_ABORT</span><span class="p">,</span> <span class="n">A_P_ABORT</span>
 
 
 <span class="n">LOGGER</span> <span class="o">=</span> <span class="n">logging</span><span class="o">.</span><span class="n">getLogger</span><span class="p">(</span><span class="s1">&#39;pynetdicom.sm&#39;</span><span class="p">)</span>
@@ -350,6 +350,7 @@
     <span class="n">dul</span><span class="o">.</span><span class="n">pdu</span><span class="o">.</span><span class="n">from_primitive</span><span class="p">(</span><span class="n">dul</span><span class="o">.</span><span class="n">primitive</span><span class="p">)</span>
 
     <span class="c1"># Callback</span>
+    <span class="n">LOGGER</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="s2">&quot;Requesting Association&quot;</span><span class="p">)</span>
     <span class="n">dul</span><span class="o">.</span><span class="n">assoc</span><span class="o">.</span><span class="n">acse</span><span class="o">.</span><span class="n">debug_send_associate_rq</span><span class="p">(</span><span class="n">dul</span><span class="o">.</span><span class="n">pdu</span><span class="p">)</span>
 
     <span class="n">bytestream</span> <span class="o">=</span> <span class="n">dul</span><span class="o">.</span><span class="n">pdu</span><span class="o">.</span><span class="n">encode</span><span class="p">()</span>
@@ -1072,7 +1073,8 @@
 <span class="sd">        Sta1, the next state of the state machine</span>
 <span class="sd">    &quot;&quot;&quot;</span>
     <span class="c1"># Issue A-P-ABORT indication primitive.</span>
-    <span class="n">dul</span><span class="o">.</span><span class="n">primitive</span> <span class="o">=</span> <span class="n">A_ABORT</span><span class="p">()</span>
+    <span class="n">dul</span><span class="o">.</span><span class="n">primitive</span> <span class="o">=</span> <span class="n">A_P_ABORT</span><span class="p">()</span>
+    <span class="n">dul</span><span class="o">.</span><span class="n">primitive</span><span class="o">.</span><span class="n">provider_reason</span> <span class="o">=</span> <span class="mh">0x00</span>
     <span class="n">dul</span><span class="o">.</span><span class="n">to_user_queue</span><span class="o">.</span><span class="n">put</span><span class="p">(</span><span class="n">dul</span><span class="o">.</span><span class="n">primitive</span><span class="p">)</span>
     <span class="n">dul</span><span class="o">.</span><span class="n">kill_dul</span><span class="p">()</span>
 

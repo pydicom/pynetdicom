@@ -306,6 +306,11 @@
             <span class="c1"># Evt2: Transport connection confirmation</span>
             <span class="bp">self</span><span class="o">.</span><span class="n">event_queue</span><span class="o">.</span><span class="n">put</span><span class="p">(</span><span class="s1">&#39;Evt2&#39;</span><span class="p">)</span>
         <span class="k">except</span> <span class="p">(</span><span class="n">socket</span><span class="o">.</span><span class="n">error</span><span class="p">,</span> <span class="n">socket</span><span class="o">.</span><span class="n">timeout</span><span class="p">)</span> <span class="k">as</span> <span class="n">exc</span><span class="p">:</span>
+            <span class="c1"># Log connection failure</span>
+            <span class="n">LOGGER</span><span class="o">.</span><span class="n">error</span><span class="p">(</span>
+                <span class="s2">&quot;Association request failed: unable to connect to remote&quot;</span>
+            <span class="p">)</span>
+            <span class="n">LOGGER</span><span class="o">.</span><span class="n">error</span><span class="p">(</span><span class="s2">&quot;TCP Initialisation Error: Connection refused&quot;</span><span class="p">)</span>
             <span class="c1"># Log exception if TLS issue to help with troubleshooting</span>
             <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">exc</span><span class="p">,</span> <span class="n">ssl</span><span class="o">.</span><span class="n">SSLError</span><span class="p">):</span>
                 <span class="n">LOGGER</span><span class="o">.</span><span class="n">exception</span><span class="p">(</span><span class="n">exc</span><span class="p">)</span>
