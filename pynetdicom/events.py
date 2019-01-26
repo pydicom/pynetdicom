@@ -283,7 +283,7 @@ class Event(object):
         """
         try:
             # If no change in encoded data then return stored decode
-            if self._hash == hash(self.request.ActionReply):
+            if self._hash == hash(self.request.AttributeList):
                 return self._decoded
 
             t_syntax = self.context.transfer_syntax
@@ -292,7 +292,7 @@ class Event(object):
                         t_syntax.is_little_endian)
 
             # Store the decoded dataset in case its accessed again
-            self._hash = hash(self.request.ActionReply)
+            self._hash = hash(self.request.AttributeList)
             self._decoded = ds
 
             return ds
@@ -325,7 +325,7 @@ class Event(object):
         """
         try:
             # If no change in encoded data then return stored decode
-            if self._hash == hash(self.request.ActionReply):
+            if self._hash == hash(self.request.DataSet):
                 return self._decoded
 
             t_syntax = self.context.transfer_syntax
@@ -334,7 +334,7 @@ class Event(object):
                         t_syntax.is_little_endian)
 
             # Store the decoded dataset in case its accessed again
-            self._hash = hash(self.request.ActionReply)
+            self._hash = hash(self.request.DataSet)
             self._decoded = ds
 
             return ds
@@ -373,7 +373,7 @@ class Event(object):
         """
         try:
             # If no change in encoded data then return stored decode
-            if self._hash == hash(self.request.ActionReply):
+            if self._hash == hash(self.request.EventReply):
                 return self._decoded
 
             t_syntax = self.context.transfer_syntax
@@ -382,7 +382,7 @@ class Event(object):
                         t_syntax.is_little_endian)
 
             # Store the decoded dataset in case its accessed again
-            self._hash = hash(self.request.ActionReply)
+            self._hash = hash(self.request.EventReply)
             self._decoded = ds
 
             return ds
@@ -417,7 +417,7 @@ class Event(object):
         """
         try:
             # If no change in encoded data then return stored decode
-            if self._hash == hash(self.request.ActionReply):
+            if self._hash == hash(self.request.Identifier):
                 return self._decoded
 
             t_syntax = self.context.transfer_syntax
@@ -426,7 +426,7 @@ class Event(object):
                         t_syntax.is_little_endian)
 
             # Store the decoded dataset in case its accessed again
-            self._hash = hash(self.request.ActionReply)
+            self._hash = hash(self.request.Identifier)
             self._decoded = ds
 
             return ds

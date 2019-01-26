@@ -425,7 +425,7 @@ class StorageServiceClass(ServiceClass):
                 LOGGER.error(
                     "Exception in the handler bound to 'evt.EVT_C_STORE'"
                 )
-                LOGGER.exception(ex)
+                LOGGER.exception(exc)
                 rsp.Status = 0xC211
                 self.dimse.send_msg(rsp, context.context_id)
                 return

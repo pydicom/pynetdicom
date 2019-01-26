@@ -56,7 +56,8 @@ class ACSE(object):
         try:
             # TODO: refactor in v1.4
             # Response is always ignored as async ops is not supported
-            if self.assoc.get_handlers(evt.EVT_ASYNC_OPS):
+            default = evt.get_default_handler(evt.EVT_ASYNC_OPS)
+            if self.assoc.get_handlers(evt.EVT_ASYNC_OPS) != default:
                 inv, perf = self.assoc.requestor.asynchronous_operations
                 _ = evt.trigger(
                     self.assoc,
@@ -93,7 +94,8 @@ class ACSE(object):
         """
         # pylint: disable=broad-except
         try:
-            if self.assoc.get_handlers(evt.EVT_SOP_COMMON):
+            default = evt.get_default_handler(evt.EVT_SOP_COMMON)
+            if self.assoc.get_handlers(evt.EVT_SOP_COMMON) != default:
                 rsp = evt.trigger(
                     self.assoc,
                     evt.EVT_SOP_COMMON,
@@ -128,7 +130,8 @@ class ACSE(object):
         """
         # pylint: disable=broad-except
         try:
-            if self.assoc.get_handlers(evt.EVT_SOP_EXTENDED):
+            default = evt.get_default_handler(evt.EVT_SOP_EXTENDED)
+            if self.assoc.get_handlers(evt.EVT_SOP_EXTENDED) != default:
                 user_response = evt.trigger(
                     self.assoc,
                     evt.EVT_SOP_EXTENDED,
@@ -188,7 +191,8 @@ class ACSE(object):
         # The UserIdentityNegotiation (request) item
         req = self.assoc.requestor.user_identity
         try:
-            if self.assoc.get_handlers(evt.EVT_USER_ID):
+            default = evt.get_default_handler(evt.EVT_SOP_EXTENDED)
+            if self.assoc.get_handlers(evt.EVT_USER_ID) != default:
                 identity_verified, response = evt.trigger(
                     self.assoc,
                     evt.EVT_USER_ID,
