@@ -2700,6 +2700,45 @@ class TestEventHandlingRequestor(object):
 
         scp.shutdown()
 
+    def test_acse_sent_ap_abort(self):
+        """Test binding to EVT_ACSE_SENT."""
+        triggered = []
+        def handle(event):
+            triggered.append(event)
+
+        self.ae = ae = AE()
+        ae.add_supported_context(VerificationSOPClass)
+        ae.add_requested_context(VerificationSOPClass)
+        handlers = [(evt.EVT_ACSE_SENT, handle)]
+        scp = ae.start_server(('', 11112), block=False)
+        assert scp.get_handlers(evt.EVT_ACSE_SENT) == []
+
+        assoc = ae.associate('localhost', 11112, evt_handlers=handlers)
+        assert assoc.is_established
+        assert len(scp.active_associations) == 1
+        assert scp.get_handlers(evt.EVT_ACSE_SENT) == []
+        assert assoc.get_handlers(evt.EVT_ACSE_SENT) == [handle]
+
+        child = scp.active_associations[0]
+        assert child.get_handlers(evt.EVT_ACSE_SENT) == []
+
+        assoc.acse.send_ap_abort(assoc, 0x00)
+
+        while scp.active_associations:
+            time.sleep(0.05)
+
+        assert len(triggered) == 2
+        event = triggered[0]
+        assert isinstance(event, Event)
+        assert isinstance(event.assoc, Association)
+        assert isinstance(event.timestamp, datetime)
+        assert event.name == 'EVT_ACSE_SENT'
+
+        assert isinstance(triggered[0].primitive, A_ASSOCIATE)
+        assert isinstance(triggered[1].primitive, A_P_ABORT)
+
+        scp.shutdown()
+
     def test_acse_sent_bind(self):
         """Test binding to EVT_ACSE_SENT."""
         triggered = []
@@ -2853,6 +2892,26 @@ class TestEventHandlingRequestor(object):
         assert event.name == 'EVT_ACSE_RECV'
 
         scp.shutdown()
+
+    def test_acse_recv_ap_abort(self):
+        """Test A-P-ABORT with EVT_ACSE_RECV."""
+        triggered = []
+        def handle(event):
+            triggered.append(event)
+
+        self.ae = ae = AE()
+        ae.add_requested_context(VerificationSOPClass)
+        handlers = [(evt.EVT_ACSE_RECV, handle)]
+        assoc = ae.associate('localhost', 11113, evt_handlers=handlers)
+        assert assoc.is_aborted
+
+        assert len(triggered) == 1
+        event = triggered[0]
+        assert isinstance(event, Event)
+        assert isinstance(event.assoc, Association)
+        assert isinstance(event.timestamp, datetime)
+        assert isinstance(triggered[0].primitive, A_P_ABORT)
+        assert event.name == 'EVT_ACSE_RECV'
 
     def test_acse_recv_bind(self):
         """Test binding to EVT_ACSE_RECV."""
