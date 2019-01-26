@@ -246,45 +246,80 @@ class VerificationServiceClass(ServiceClass):
         # Try and run the user's on_c_echo callback. The callback should return
         #   the Status as either an int or Dataset, and any failures in the
         #   callback results in 0x0000 'Success'
-        try:
-            # Use either event-handler OR override
-            if self.assoc.get_handlers(evt.EVT_C_ECHO):
+        # TODO: refactor in v1.4
+        default_handler = evt.get_default_handler(evt.EVT_C_ECHO)
+        if self.assoc.get_handlers(evt.EVT_C_ECHO) != default_handler:
+            try:
                 status = evt.trigger(
                     self.assoc,
                     evt.EVT_C_ECHO,
                     {'request' : req, 'context' : context.as_tuple}
                 )
-            else:
-                status = self.ae.on_c_echo(context.as_tuple, info)
+                if isinstance(status, Dataset):
+                    if 'Status' not in status:
+                        raise AttributeError(
+                            "The 'status' dataset returned by the handler "
+                            "bound to 'evt.EVT_C_ECHO' must contain"
+                            "a (0000,0900) Status element"
+                        )
+                    for elem in status:
+                        if hasattr(rsp, elem.keyword):
+                            setattr(rsp, elem.keyword, elem.value)
+                        else:
+                            LOGGER.warning(
+                                "The 'status' dataset returned by the handler "
+                                "bound to 'evt.EVT_C_ECHO' contained an "
+                                "unsupported Element '%s'.", elem.keyword)
+                elif isinstance(status, int):
+                    rsp.Status = status
+                else:
+                    raise TypeError(
+                        "Invalid 'status' returned by the handler bound to "
+                        "'evt.EVT_C_ECHO'"
+                    )
 
-            if isinstance(status, Dataset):
-                if 'Status' not in status:
-                    raise AttributeError("The 'status' dataset returned by "
-                                         "'on_c_echo' must contain"
-                                         "a (0000,0900) Status element")
-                for elem in status:
-                    if hasattr(rsp, elem.keyword):
-                        setattr(rsp, elem.keyword, elem.value)
-                    else:
-                        LOGGER.warning("The 'status' dataset returned by "
-                                       "'on_c_echo' contained an unsupported "
-                                       "Element '%s'.", elem.keyword)
-            elif isinstance(status, int):
-                rsp.Status = status
-            else:
-                raise TypeError("Invalid 'status' returned by 'on_c_echo'")
-
-            # Check Status validity
-            if not self.is_valid_status(rsp.Status):
-                LOGGER.warning(
-                    "Unknown 'status' value returned by 'on_c_echo' "
-                    "callback - 0x{0:04x}".format(rsp.Status)
+            except Exception as ex:
+                LOGGER.error(
+                    "Exception in the handler bound to 'evt.EVT_C_ECHO', "
+                    "responding with a default 'Status' value of 0x0000 "
+                    "(Success)"
                 )
-        except Exception as ex:
-            LOGGER.exception(ex)
-            LOGGER.error("Exception in the 'on_c_echo' callback, responding "
-                         "with default 'status' value of 0x0000 (Success).")
-            rsp.Status = 0x0000
+                LOGGER.exception(ex)
+                rsp.Status = 0x0000
+        else:
+            try:
+                status = self.ae.on_c_echo(context.as_tuple, info)
+                if isinstance(status, Dataset):
+                    if 'Status' not in status:
+                        raise AttributeError("The 'status' dataset returned by "
+                                             "'on_c_echo' must contain"
+                                             "a (0000,0900) Status element")
+                    for elem in status:
+                        if hasattr(rsp, elem.keyword):
+                            setattr(rsp, elem.keyword, elem.value)
+                        else:
+                            LOGGER.warning("The 'status' dataset returned by "
+                                           "'on_c_echo' contained an unsupported "
+                                           "Element '%s'.", elem.keyword)
+                elif isinstance(status, int):
+                    rsp.Status = status
+                else:
+                    raise TypeError("Invalid 'status' returned by 'on_c_echo'")
+
+            except Exception as ex:
+                LOGGER.error(
+                    "Exception in the 'on_c_echo' callback, responding "
+                    "with default 'Status' value of 0x0000 (Success)"
+                )
+                LOGGER.exception(ex)
+                rsp.Status = 0x0000
+
+        # Check Status validity
+        if not self.is_valid_status(rsp.Status):
+            LOGGER.warning(
+                "Unknown 'status' value returned by 'on_c_echo' "
+                "callback - 0x{0:04x}".format(rsp.Status)
+            )
 
         # Send primitive
         self.dimse.send_msg(rsp, context.context_id)
@@ -614,39 +649,16 @@ class QueryRetrieveServiceClass(ServiceClass):
 
         # Decode and log Identifier
         transfer_syntax = context.transfer_syntax[0]
-        try:
-            identifier = decode(req.Identifier,
-                                transfer_syntax.is_implicit_VR,
-                                transfer_syntax.is_little_endian)
-            LOGGER.info('Find SCP Request Identifiers:')
-            LOGGER.info('')
-            LOGGER.debug('# DICOM Dataset')
-            for elem in identifier.iterall():
-                LOGGER.info(elem)
-            LOGGER.info('')
-        except Exception as ex:
-            LOGGER.error("Failed to decode the request's Identifier dataset.")
-            LOGGER.exception(ex)
-            # Failure - Unable to Process - Failed to decode Identifier
-            rsp.Status = 0xC310
-            rsp.ErrorComment = 'Unable to decode the dataset'
-            self.dimse.send_msg(rsp, context.context_id)
-            return
-
-        info['parameters'] = {
-             'message_id' : req.MessageID,
-             'priority' : req.Priority,
-        }
-        # Add callable to the info so user can check if cancelled
-        info['cancelled'] = self.is_cancelled
 
         stopper = object()
         # This will wrap exceptions during iteration and return a good value.
         def wrap_on_c_find():
             """Wrapper for exceptions"""
-            try:
-                if self.assoc.get_handlers(evt.EVT_C_FIND):
-                    rsp = evt.trigger(
+            # TODO: refactor in v1.4
+            default_handler = evt.get_default_handler(evt.EVT_C_FIND)
+            if self.assoc.get_handlers(evt.EVT_C_FIND) != default_handler:
+                try:
+                    user_rsp = evt.trigger(
                         self.assoc,
                         evt.EVT_C_FIND,
                         {
@@ -655,17 +667,49 @@ class QueryRetrieveServiceClass(ServiceClass):
                             '_is_cancelled' : self.is_cancelled
                         }
                     )
-                else:
+                    for val1, val2 in user_rsp:
+                        yield val1, val2
+                except Exception:
+                    # TODO: special (singleton) value
+                    yield stopper, sys.exc_info()
+            else:
+                try:
+                    identifier = decode(req.Identifier,
+                                        transfer_syntax.is_implicit_VR,
+                                        transfer_syntax.is_little_endian)
+                    LOGGER.info('Find SCP Request Identifiers:')
+                    LOGGER.info('')
+                    LOGGER.debug('# DICOM Dataset')
+                    for elem in identifier.iterall():
+                        LOGGER.info(elem)
+                    LOGGER.info('')
+                except Exception as ex:
+                    LOGGER.error("Failed to decode the request's Identifier dataset.")
+                    LOGGER.exception(ex)
+                    # Failure - Unable to Process - Failed to decode Identifier
+                    rsp.Status = 0xC310
+                    rsp.ErrorComment = 'Unable to decode the dataset'
+                    self.dimse.send_msg(rsp, context.context_id)
+                    return
+
+                info['parameters'] = {
+                     'message_id' : req.MessageID,
+                     'priority' : req.Priority,
+                }
+                # Add callable to the info so user can check if cancelled
+                info['cancelled'] = self.is_cancelled
+
+                try:
                     # We unpack here so that the error is still caught
-                    rsp = self.ae.on_c_find(
+                    user_rsp = self.ae.on_c_find(
                         identifier, context.as_tuple, info
                     )
 
-                for val1, val2 in rsp:
-                    yield val1, val2
-            except Exception:
-                # TODO: special (singleton) value
-                yield stopper, sys.exc_info()
+                    for val1, val2 in user_rsp:
+                        yield val1, val2
+                except Exception:
+                    # TODO: special (singleton) value
+                    yield stopper, sys.exc_info()
 
         ii = -1  # So if there are no results, log below doesn't break
         # Iterate through the results
@@ -878,36 +922,10 @@ class QueryRetrieveServiceClass(ServiceClass):
 
         # Attempt to decode the request's Identifier dataset
         transfer_syntax = context.transfer_syntax[0]
-        try:
-            identifier = decode(req.Identifier,
-                                transfer_syntax.is_implicit_VR,
-                                transfer_syntax.is_little_endian)
-            LOGGER.info('Get SCP Request Identifier:')
-            LOGGER.info('')
-            LOGGER.debug('# DICOM Data Set')
-            for elem in identifier.iterall():
-                LOGGER.info(elem)
-            LOGGER.info('')
-        except Exception as ex:
-            LOGGER.error("Failed to decode the request's Identifier dataset")
-            LOGGER.exception(ex)
-            # Failure: Cannot Understand - Dataset decoding error
-            rsp.Status = 0xC410
-            rsp.ErrorComment = 'Unable to decode the dataset'
-            self.dimse.send_msg(rsp, context.context_id)
-            return
-
-        info['parameters'] = {
-             'message_id' : req.MessageID,
-             'priority' : req.Priority
-        }
-        # Add callable to the info so user can check if cancelled
-        info['cancelled'] = self.is_cancelled
-
-        # Callback - C-GET
-        try:
-            # yields int, (status, dataset), ...
-            if self.assoc.get_handlers(evt.EVT_C_GET):
+        # TODO: refactor in v1.4
+        default_handler = evt.get_default_handler(evt.EVT_C_FIND)
+        if self.assoc.get_handlers(evt.EVT_C_FIND) != default_handler:
+            try:
                 result = evt.trigger(
                     self.assoc,
                     evt.EVT_C_GET,
@@ -917,14 +935,49 @@ class QueryRetrieveServiceClass(ServiceClass):
                         '_is_cancelled' : self.is_cancelled
                     }
                 )
-            else:
+            except Exception as exc:
+                LOGGER.error("Exception in handler bound to 'evt.EVT_C_FIND'")
+                LOGGER.exception(ex)
+                rsp.Status = 0xC411
+                self.dimse.send_msg(rsp, context.context_id)
+                return
+        else:
+            try:
+                # TODO: consider keeping this with new handlers
+                identifier = decode(req.Identifier,
+                                    transfer_syntax.is_implicit_VR,
+                                    transfer_syntax.is_little_endian)
+                LOGGER.info('Get SCP Request Identifier:')
+                LOGGER.info('')
+                LOGGER.debug('# DICOM Data Set')
+                for elem in identifier.iterall():
+                    LOGGER.info(elem)
+                LOGGER.info('')
+            except Exception as ex:
+                LOGGER.error("Failed to decode the request's Identifier dataset")
+                LOGGER.exception(ex)
+                # Failure: Cannot Understand - Dataset decoding error
+                rsp.Status = 0xC410
+                rsp.ErrorComment = 'Unable to decode the dataset'
+                self.dimse.send_msg(rsp, context.context_id)
+                return
+
+            info['parameters'] = {
+                 'message_id' : req.MessageID,
+                 'priority' : req.Priority
+            }
+            # Add callable to the info so user can check if cancelled
+            info['cancelled'] = self.is_cancelled
+
+            # Callback - C-GET
+            try:
                 result = self.ae.on_c_get(identifier, context.as_tuple, info)
-        except Exception as ex:
-            LOGGER.error("Exception in user's on_c_get implementation.")
-            LOGGER.exception(ex)
-            rsp.Status = 0xC411
-            self.dimse.send_msg(rsp, context.context_id)
-            return
+            except Exception as ex:
+                LOGGER.error("Exception in user's on_c_get implementation.")
+                LOGGER.exception(ex)
+                rsp.Status = 0xC411
+                self.dimse.send_msg(rsp, context.context_id)
+                return
 
         # Number of C-STORE sub-operations
         try:
@@ -1274,36 +1327,10 @@ class QueryRetrieveServiceClass(ServiceClass):
 
         # Attempt to decode the request's Identifier dataset
         transfer_syntax = context.transfer_syntax[0]
-        try:
-            identifier = decode(req.Identifier,
-                                transfer_syntax.is_implicit_VR,
-                                transfer_syntax.is_little_endian)
-            LOGGER.info('Move SCP Request Identifier:')
-            LOGGER.info('')
-            LOGGER.debug('# DICOM Data Set')
-            for elem in identifier.iterall():
-                LOGGER.info(elem)
-            LOGGER.info('')
-        except Exception as ex:
-            LOGGER.error("Failed to decode the request's Identifier dataset")
-            LOGGER.exception(ex)
-            # Failure: Cannot Understand - Dataset decoding error
-            rsp.Status = 0xC510
-            rsp.ErrorComment = 'Unable to decode the dataset'
-            self.dimse.send_msg(rsp, context.context_id)
-            return
-
-        info['parameters'] = {
-             'message_id' : req.MessageID,
-             'priority' : req.Priority
-        }
-        # Add callable to the info so user can check if cancelled
-        info['cancelled'] = self.is_cancelled
-
-        # Callback - C-MOVE
-        try:
-            # yields (addr, port), int, (status, dataset), ...
-            if self.assoc.get_handlers(evt.EVT_C_MOVE):
+        # TODO: refactor in v1.4
+        default_handler = evt.get_default_handler(evt.EVT_C_MOVE)
+        if self.assoc.get_handlers(evt.EVT_C_MOVE) != default_handler:
+            try:
                 result = evt.trigger(
                     self.assoc,
                     evt.EVT_C_MOVE,
@@ -1313,18 +1340,53 @@ class QueryRetrieveServiceClass(ServiceClass):
                         '_is_cancelled' : self.is_cancelled
                     }
                 )
-            else:
+            except Exception as exc:
+                LOGGER.error("Exception in handler bound to 'evt.EVT_C_MOVE'")
+                LOGGER.exception(ex)
+                # Failure - Unable to process - Error in on_c_move callback
+                rsp.Status = 0xC511
+                self.dimse.send_msg(rsp, context.context_id)
+                return
+        else
+            try:
+                identifier = decode(req.Identifier,
+                                    transfer_syntax.is_implicit_VR,
+                                    transfer_syntax.is_little_endian)
+                LOGGER.info('Move SCP Request Identifier:')
+                LOGGER.info('')
+                LOGGER.debug('# DICOM Data Set')
+                for elem in identifier.iterall():
+                    LOGGER.info(elem)
+                LOGGER.info('')
+            except Exception as ex:
+                LOGGER.error("Failed to decode the request's Identifier dataset")
+                LOGGER.exception(ex)
+                # Failure: Cannot Understand - Dataset decoding error
+                rsp.Status = 0xC510
+                rsp.ErrorComment = 'Unable to decode the dataset'
+                self.dimse.send_msg(rsp, context.context_id)
+                return
+
+            info['parameters'] = {
+                 'message_id' : req.MessageID,
+                 'priority' : req.Priority
+            }
+            # Add callable to the info so user can check if cancelled
+            info['cancelled'] = self.is_cancelled
+
+            # Callback - C-MOVE
+            try:
                 result = self.ae.on_c_move(identifier,
                                            req.MoveDestination,
                                            context.as_tuple,
                                            info)
-        except Exception as ex:
-            LOGGER.error("Exception in user's on_c_move implementation.")
-            LOGGER.exception(ex)
-            # Failure - Unable to process - Error in on_c_move callback
-            rsp.Status = 0xC511
-            self.dimse.send_msg(rsp, context.context_id)
-            return
+            except Exception as ex:
+                LOGGER.error("Exception in user's on_c_move implementation.")
+                LOGGER.exception(ex)
+                # Failure - Unable to process - Error in on_c_move callback
+                rsp.Status = 0xC511
+                self.dimse.send_msg(rsp, context.context_id)
+                return
 
         try:
             destination = next(result)
@@ -1806,23 +1868,10 @@ class RelevantPatientInformationQueryServiceClass(ServiceClass):
             self.dimse.send_msg(rsp, context.context_id)
             return
 
-        info['parameters'] = {
-             'message_id' : req.MessageID,
-             'priority' : req.Priority,
-        }
-        info['cancelled'] = self.is_cancelled
-
-        # Relevant Patient Query only allows the following responses:
-        #   pending + match; success
-        #   cancel or failure
-        #   success (no match)
-        # In other words there can only be 1 or 2 responses
-        try:
-            # If we get a valid yield then send the corresponding message
-            #   if the yield is pending, send message then success and return
-            #   if the yield is cancel or failure, send message and return
-            #   if StopIteration send success and return
-            if self.assoc.get_handlers(evt.EVT_C_FIND):
+        # TODO: refactor in v1.4
+        default_handler = evt.get_default_handler(evt.EVT_C_MOVE)
+        if self.assoc.get_handlers(evt.EVT_C_MOVE) != default_handler:
+            try:
                 responses = evt.trigger(
                     self.assoc,
                     evt.EVT_C_FIND,
@@ -1832,24 +1881,50 @@ class RelevantPatientInformationQueryServiceClass(ServiceClass):
                         '_is_cancelled' : self.is_cancelled
                     }
                 )
-            else:
+            except StopIteration:
+                # There were no matches, so return Success
+                # If success, then rsp_identifier is None
+                rsp.Status = 0x0000
+                LOGGER.info('Find SCP Response: (Success)')
+                self.dimse.send_msg(rsp, context.context_id)
+                return
+            except Exception as ex:
+                LOGGER.error("Exception in handler bound to 'evt.EVT_C_FIND'")
+                LOGGER.exception(ex)
+                rsp.Status = 0xC311
+                self.dimse.send_msg(rsp, context.context_id)
+                return
+        else:
+
+            info['parameters'] = {
+                 'message_id' : req.MessageID,
+                 'priority' : req.Priority,
+            }
+            info['cancelled'] = self.is_cancelled
+
+            # Relevant Patient Query only allows the following responses:
+            #   pending + match; success
+            #   cancel or failure
+            #   success (no match)
+            # In other words there can only be 1 or 2 responses
+            try:
                 responses = self.ae.on_c_find(
                     identifier, context.as_tuple, info
                 )
-            (rsp_status, rsp_identifier) = next(responses)
-        except StopIteration:
-            # There were no matches, so return Success
-            # If success, then rsp_identifier is None
-            rsp.Status = 0x0000
-            LOGGER.info('Find SCP Response: (Success)')
-            self.dimse.send_msg(rsp, context.context_id)
-            return
-        except Exception as ex:
-            LOGGER.error("Exception in user's on_c_find implementation.")
-            LOGGER.exception(ex)
-            rsp.Status = 0xC311
-            self.dimse.send_msg(rsp, context.context_id)
-            return
+                (rsp_status, rsp_identifier) = next(responses)
+            except StopIteration:
+                # There were no matches, so return Success
+                # If success, then rsp_identifier is None
+                rsp.Status = 0x0000
+                LOGGER.info('Find SCP Response: (Success)')
+                self.dimse.send_msg(rsp, context.context_id)
+                return
+            except Exception as ex:
+                LOGGER.error("Exception in user's on_c_find implementation.")
+                LOGGER.exception(ex)
+                rsp.Status = 0xC311
+                self.dimse.send_msg(rsp, context.context_id)
+                return
 
         rsp = self.validate_status(rsp_status, rsp)
 

@@ -557,7 +557,7 @@ class AssociationServer(TCPServer):
 
     def get_events(self):
         """Return a list of currently bound events."""
-        return self._handlers.keys()
+        return sorted(self._handlers.keys(), key=lambda x: x.name)
 
     def get_handlers(self, event):
         """Return handlers bound to a specific `event`.
@@ -671,6 +671,9 @@ class AssociationServer(TCPServer):
         # Intervention events - unbind and replace with default
         if event.is_intervention and self._handlers[event] == handler:
             self._handlers[event] = evt.get_default_handler(event)
+
+            if not self._handlers[event]:
+                del self._handlers[event]
 
         # Unbind from our child Association events
         for assoc in self.active_associations:

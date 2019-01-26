@@ -858,8 +858,16 @@ class TestAssociation(object):
 
             scp.shutdown()
 
+    def test_get_events(self):
+        """Test Association.get_events()."""
+        ae = AE()
+        ae.add_requested_context(VerificationSOPClass)
+        assoc = ae.associate('localhost', 11112)
+        assert evt.EVT_C_STORE in assoc.get_events()
+        assert evt.EVT_USER_ID in assoc.get_events()
 
-class TestAssociationSendCEcho(object):
+
+class TestAssociationSendCEcho_Old(object):
     """Run tests on Assocation send_c_echo."""
     def setup(self):
         """Run prior to each test"""
@@ -1044,6 +1052,198 @@ class TestAssociationSendCEcho(object):
         assert assoc.is_released
         self.scp.stop()
 
+
+class TestAssociationSendCEcho(object):
+    """Run tests on Assocation evt.EVT_C_ECHO handler."""
+    def setup(self):
+        """Run prior to each test"""
+        self.scp = None
+        self.ae = None
+
+    def teardown(self):
+        """Clear any active threads"""
+        if self.scp:
+            self.scp.abort()
+
+        if self.ae:
+            self.ae.shutdown()
+
+        time.sleep(0.1)
+
+        for thread in threading.enumerate():
+            if isinstance(thread, DummyBaseSCP):
+                thread.abort()
+                thread.stop()
+
+    def test_must_be_associated(self):
+        """Test can't send without association."""
+        # Test raise if assoc not established
+        self.scp = DummyVerificationSCP()
+        self.scp.start()
+        ae = AE()
+        ae.add_requested_context(VerificationSOPClass)
+        ae.acse_timeout = 5
+        ae.dimse_timeout = 5
+        assoc = ae.associate('localhost', 11112)
+        assert assoc.is_established
+        assoc.release()
+        assert assoc.is_released
+        assert not assoc.is_established
+        with pytest.raises(RuntimeError):
+            assoc.send_c_echo()
+        self.scp.stop()
+
+    def test_no_abstract_syntax_match(self):
+        """Test SCU when no accepted abstract syntax"""
+        self.scp = DummyStorageSCP()
+        self.scp.start()
+        ae = AE()
+        ae.add_requested_context(CTImageStorage)
+        ae.acse_timeout = 5
+        ae.dimse_timeout = 5
+        assoc = ae.associate('localhost', 11112)
+        assert assoc.is_established
+        with pytest.raises(ValueError):
+            assoc.send_c_echo()
+        assoc.release()
+        assert assoc.is_released
+        self.scp.stop()
+
+    def test_rsp_none(self):
+        """Test no response from peer"""
+        self.scp = DummyVerificationSCP()
+        self.scp.start()
+        ae = AE()
+        ae.add_requested_context(VerificationSOPClass)
+        ae.acse_timeout = 5
+        ae.dimse_timeout = 5
+        assoc = ae.associate('localhost', 11112)
+        class DummyDIMSE():
+            def send_msg(*args, **kwargs): return
+            def get_msg(*args, **kwargs): return None, None
+
+        assoc.dimse = DummyDIMSE()
+        if assoc.is_established:
+            assoc.send_c_echo()
+
+        assert assoc.is_aborted
+
+        self.scp.stop()
+
+    def test_rsp_invalid(self):
+        """Test invalid response received from peer"""
+        self.scp = DummyVerificationSCP()
+        self.scp.start()
+        ae = AE()
+        ae.add_requested_context(VerificationSOPClass)
+        ae.acse_timeout = 5
+        ae.dimse_timeout = 5
+        assoc = ae.associate('localhost', 11112)
+
+        class DummyResponse():
+            is_valid_response = False
+
+        class DummyDIMSE():
+            def send_msg(*args, **kwargs): return
+            def get_msg(*args, **kwargs): return None, DummyResponse()
+
+        assoc.dimse = DummyDIMSE()
+        if assoc.is_established:
+            assoc.send_c_echo()
+
+        assert assoc.is_aborted
+
+        self.scp.stop()
+
+    def test_rsp_success(self):
+        """Test receiving a success response from the peer"""
+        scp = AE()
+        scp.add_supported_context(VerificationSOPClass)
+        scp.start_server(('', 11112), block=False)
+
+        ae = AE()
+        ae.add_requested_context(VerificationSOPClass)
+        ae.acse_timeout = 5
+        ae.dimse_timeout = 5
+        assoc = ae.associate('localhost', 11112)
+        assert assoc.is_established
+        result = assoc.send_c_echo()
+        assert result.Status == 0x0000
+        assoc.release()
+        assert assoc.is_released
+
+        scp.shutdown()
+
+    def test_rsp_failure(self):
+        """Test receiving a failure response from the peer"""
+        def handler(event):
+            return 0x0210
+
+        self.ae = ae = AE()
+        ae.add_supported_context(VerificationSOPClass)
+        handlers = [(evt.EVT_C_ECHO, handler)]
+        scp = ae.start_server(('', 11112), block=False, evt_handlers=handlers)
+
+        ae.add_requested_context(VerificationSOPClass)
+        ae.acse_timeout = 5
+        ae.dimse_timeout = 5
+        assoc = ae.associate('localhost', 11112)
+        assert assoc.is_established
+        result = assoc.send_c_echo()
+        assert result.Status == 0x0210
+        assoc.release()
+        assert assoc.is_released
+
+        scp.shutdown()
+
+    def test_rsp_unknown_status(self):
+        """Test unknown status value returned by peer"""
+        def handler(event):
+            return 0xFFF0
+
+        self.ae = ae = AE()
+        ae.add_supported_context(VerificationSOPClass)
+        handlers = [(evt.EVT_C_ECHO, handler)]
+        scp = ae.start_server(('', 11112), block=False, evt_handlers=handlers)
+
+        ae.add_requested_context(VerificationSOPClass)
+        ae.acse_timeout = 5
+        ae.dimse_timeout = 5
+        assoc = ae.associate('localhost', 11112)
+        assert assoc.is_established
+        result = assoc.send_c_echo()
+        assert result.Status == 0xFFF0
+        assoc.release()
+        assert assoc.is_released
+
+        scp.shutdown()
+
+    def test_rsp_multi_status(self):
+        """Test receiving a status with extra elements"""
+        def handler(event):
+            ds = Dataset()
+            ds.Status = 0x0122
+            ds.ErrorComment = 'Some comment'
+            return ds
+
+        self.ae = ae = AE()
+        ae.add_supported_context(VerificationSOPClass)
+        handlers = [(evt.EVT_C_ECHO, handler)]
+        scp = ae.start_server(('', 11112), block=False, evt_handlers=handlers)
+
+        ae.add_requested_context(VerificationSOPClass)
+        ae.acse_timeout = 5
+        ae.dimse_timeout = 5
+        assoc = ae.associate('localhost', 11112)
+        assert assoc.is_established
+        result = assoc.send_c_echo()
+        assert result.Status == 0x0122
+        assert result.ErrorComment == 'Some comment'
+        assoc.release()
+        assert assoc.is_released
+
+        scp.shutdown()
+
     def test_abort_during(self):
         """Test aborting the association during message exchange"""
         self.scp = DummyVerificationSCP()
@@ -1098,10 +1298,11 @@ class TestAssociationSendCEcho(object):
     def test_common_ext_neg_no_general_sop(self):
         """Test sending SOP Class Common Extended Negotiation."""
         # With no Related General SOP Classes
-        self.scp = DummyVerificationSCP()
-        self.scp.start()
-        ae = AE()
+        self.ae = ae = AE()
+        ae.add_supported_context(VerificationSOPClass)
         ae.add_requested_context(VerificationSOPClass)
+        scp = ae.start_server(('', 11112), block=False)
+
         ae.acse_timeout = 5
         ae.dimse_timeout = 5
 
@@ -1115,14 +1316,16 @@ class TestAssociationSendCEcho(object):
         assert result.Status == 0x0000
         assoc.release()
         assert assoc.is_released
-        self.scp.stop()
+
+        scp.shutdown()
 
     def test_changing_network_timeout(self):
         """Test changing timeout after associated."""
-        self.scp = DummyVerificationSCP()
-        self.scp.start()
-        ae = AE()
+        self.ae = ae = AE()
+        ae.add_supported_context(VerificationSOPClass)
         ae.add_requested_context(VerificationSOPClass)
+        scp = ae.start_server(('', 11112), block=False)
+
         ae.acse_timeout = 5
         ae.dimse_timeout = 5
         assoc = ae.associate('localhost', 11112)
@@ -1132,11 +1335,12 @@ class TestAssociationSendCEcho(object):
         assert assoc.dul.network_timeout == 1
         assoc.release()
         assert assoc.is_released
-        self.scp.stop()
+
+        scp.shutdown()
 
     def test_network_times_out_requestor(self):
         """Regression test for #286."""
-        ae = AE()
+        self.ae = ae = AE()
         ae.add_requested_context(VerificationSOPClass)
         ae.add_supported_context(VerificationSOPClass)
         scp = ae.start_server(('', 11112), block=False)
@@ -1154,7 +1358,7 @@ class TestAssociationSendCEcho(object):
 
     def test_network_times_out_acceptor(self):
         """Regression test for #286."""
-        ae = AE()
+        self.ae = ae = AE()
         ae.add_requested_context(VerificationSOPClass)
         ae.add_supported_context(VerificationSOPClass)
         scp = ae.start_server(('', 11113), block=False)

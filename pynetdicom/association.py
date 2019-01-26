@@ -309,7 +309,7 @@ class Association(threading.Thread):
 
     def get_events(self):
         """Return a list of currently bound events."""
-        return self._handlers.keys()
+        return sorted(self._handlers.keys(), key=lambda x: x.name)
 
     def get_handlers(self, event):
         """Return handlers bound to a specific `event`.
@@ -494,19 +494,6 @@ class Association(threading.Thread):
         self._dul_ready.wait()
         # Start association negotiation
         self.acse.negotiate_association(self)
-
-    def reset_handlers(self):
-        """Reset the event handlers.
-
-        Unbinds all notification event handlers and resets the intervention
-        event handlers back to the default implementations.
-        """
-        self._handlers = {}
-
-        # Intervention event handlers
-        for event in evt._INTERVENTION_EVENTS:
-            handler = evt.get_default_handler(event)
-            self.bind(event, handler)
 
     def run(self):
         """The main Association control."""
@@ -750,6 +737,9 @@ class Association(threading.Thread):
         # Notification events
         if event.is_notification and handler in self._handlers[event]:
             self._handlers[event].remove(handler)
+
+            if not self._handlers[event]:
+                del self._handlers[event]
 
         # Intervention events - unbind and replace with default
         if event.is_intervention and self._handlers[event] == handler:
