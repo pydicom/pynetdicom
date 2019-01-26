@@ -1347,7 +1347,7 @@ class QueryRetrieveServiceClass(ServiceClass):
                 rsp.Status = 0xC511
                 self.dimse.send_msg(rsp, context.context_id)
                 return
-        else
+        else:
             try:
                 identifier = decode(req.Identifier,
                                     transfer_syntax.is_implicit_VR,
