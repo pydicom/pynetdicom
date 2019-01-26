@@ -528,6 +528,7 @@ class Association(threading.Thread):
                 return
 
             self.requestor.primitive = primitive
+            evt.trigger(self, evt.EVT_REQUESTED, {})
 
             # (Optionally) send an A-ABORT/A-P-ABORT in response
             if self._a_abort_assoc_rq:
@@ -646,6 +647,7 @@ class Association(threading.Thread):
                 self.acse.send_release(self, is_response=True)
                 self.is_released = True
                 self.is_established = False
+                evt.trigger(self, evt.EVT_RELEASED, {})
                 # Callback triggers
                 self.ae.on_association_released()
                 self.kill()
@@ -655,6 +657,7 @@ class Association(threading.Thread):
             if self.acse.is_aborted(self):
                 self.is_aborted = True
                 self.is_established = False
+                evt.trigger(self, evt.EVT_ABORTED, {})
                 # Callback trigger
                 self.ae.on_association_aborted(None)
                 self.kill()
@@ -684,6 +687,7 @@ class Association(threading.Thread):
                 self.acse.send_release(self, is_response=True)
                 self.is_released = True
                 self.is_established = False
+                evt.trigger(self, evt.EVT_RELEASED, {})
                 # Callback triggers
                 self.ae.on_association_released()
                 self.kill()
@@ -693,6 +697,7 @@ class Association(threading.Thread):
             if self.acse.is_aborted(self):
                 self.is_aborted = True
                 self.is_established = False
+                evt.trigger(self, evt.EVT_ABORTED, {})
                 # Callback trigger
                 self.ae.on_association_aborted()
                 self.kill()
