@@ -5,6 +5,7 @@ import logging
 import select
 import socket
 from struct import pack
+import sys
 import threading
 import time
 
@@ -10079,3 +10080,32 @@ class TestEventHandling(object):
         assert states[:3] == ['Sta1', 'Sta4', 'Sta5']
 
         scp.shutdown()
+
+    @pytest.mark.skipif(sys.version_info[:2] == (3, 4), reason='no caplog')
+    def test_transition_raises(self, caplog):
+        """Test the handler for EVT_FSM_TRANSITION raising exception."""
+        def handle(event):
+            raise NotImplementedError("Exception description")
+
+        self.ae = ae = AE()
+        ae.add_supported_context(VerificationSOPClass)
+        ae.add_requested_context(VerificationSOPClass)
+        handlers = [(evt.EVT_FSM_TRANSITION, handle)]
+        scp = ae.start_server(('', 11112), block=False, evt_handlers=handlers)
+
+        with caplog.at_level(logging.ERROR, logger='pynetdicom'):
+            assoc = ae.associate('localhost', 11112)
+            assert assoc.is_established
+            assoc.release()
+
+            while scp.active_associations:
+                time.sleep(0.05)
+
+            scp.shutdown()
+
+            msg = (
+                "Exception raised in user's 'evt.EVT_FSM_TRANSITION' event "
+                "handler 'handle'"
+            )
+            assert msg in caplog.text
+            assert "Exception description" in caplog.text

@@ -44,7 +44,7 @@ CLIENT_CERT, CLIENT_KEY = (
 
 LOGGER = logging.getLogger('pynetdicom')
 LOGGER.setLevel(logging.CRITICAL)
-#LOGGER.setLevel(logging.DEBUG)
+LOGGER.setLevel(logging.DEBUG)
 
 
 class TestAssociationSocket(object):
@@ -465,6 +465,35 @@ class TestEventHandlingAcceptor(object):
         assoc2.release()
         scp.shutdown()
 
+    @pytest.mark.skipif(sys.version_info[:2] == (3, 4), reason='no caplog')
+    def test_conn_open_raises(self, caplog):
+        """Test the handler for EVT_CONN_OPEN raising exception."""
+        def handle(event):
+            raise NotImplementedError("Exception description")
+
+        self.ae = ae = AE()
+        ae.add_supported_context(VerificationSOPClass)
+        ae.add_requested_context(VerificationSOPClass)
+        handlers = [(evt.EVT_CONN_OPEN, handle)]
+        scp = ae.start_server(('', 11112), block=False, evt_handlers=handlers)
+
+        with caplog.at_level(logging.ERROR, logger='pynetdicom'):
+            assoc = ae.associate('localhost', 11112)
+            assert assoc.is_established
+            assoc.release()
+
+            while scp.active_associations:
+                time.sleep(0.05)
+
+            scp.shutdown()
+
+            msg = (
+                "Exception raised in user's 'evt.EVT_CONN_OPEN' event handler"
+                " 'handle'"
+            )
+            assert msg in caplog.text
+            assert "Exception description" in caplog.text
+
     def test_bind_evt_conn_close(self):
         """Test associations as acceptor with EVT_CONN_CLOSE bound."""
         triggered_events = []
@@ -607,6 +636,35 @@ class TestEventHandlingAcceptor(object):
 
         scp.shutdown()
 
+    @pytest.mark.skipif(sys.version_info[:2] == (3, 4), reason='no caplog')
+    def test_conn_close_raises(self, caplog):
+        """Test the handler for EVT_CONN_CLOSE raising exception."""
+        def handle(event):
+            raise NotImplementedError("Exception description")
+
+        self.ae = ae = AE()
+        ae.add_supported_context(VerificationSOPClass)
+        ae.add_requested_context(VerificationSOPClass)
+        handlers = [(evt.EVT_CONN_CLOSE, handle)]
+        scp = ae.start_server(('', 11112), block=False, evt_handlers=handlers)
+
+        with caplog.at_level(logging.ERROR, logger='pynetdicom'):
+            assoc = ae.associate('localhost', 11112)
+            assert assoc.is_established
+            assoc.release()
+
+            while scp.active_associations:
+                time.sleep(0.05)
+
+            scp.shutdown()
+
+            msg = (
+                "Exception raised in user's 'evt.EVT_CONN_CLOSE' event handler"
+                " 'handle'"
+            )
+            assert msg in caplog.text
+            assert "Exception description" in caplog.text
+
     def test_data_sent(self):
         """Test binding to EVT_DATA_SENT."""
         triggered = []
@@ -722,6 +780,35 @@ class TestEventHandlingAcceptor(object):
         assert triggered[0].data[0:1] == b'\x02'  # A-ASSOCIATE-AC
 
         scp.shutdown()
+
+    @pytest.mark.skipif(sys.version_info[:2] == (3, 4), reason='no caplog')
+    def test_data_sent_raises(self, caplog):
+        """Test the handler for EVT_DATA_SENT raising exception."""
+        def handle(event):
+            raise NotImplementedError("Exception description")
+
+        self.ae = ae = AE()
+        ae.add_supported_context(VerificationSOPClass)
+        ae.add_requested_context(VerificationSOPClass)
+        handlers = [(evt.EVT_DATA_SENT, handle)]
+        scp = ae.start_server(('', 11112), block=False, evt_handlers=handlers)
+
+        with caplog.at_level(logging.ERROR, logger='pynetdicom'):
+            assoc = ae.associate('localhost', 11112)
+            assert assoc.is_established
+            assoc.release()
+
+            while scp.active_associations:
+                time.sleep(0.05)
+
+            scp.shutdown()
+
+            msg = (
+                "Exception raised in user's 'evt.EVT_DATA_SENT' event handler"
+                " 'handle'"
+            )
+            assert msg in caplog.text
+            assert "Exception description" in caplog.text
 
     def test_data_recv(self):
         """Test starting bound to EVT_DATA_RECV."""
@@ -842,6 +929,35 @@ class TestEventHandlingAcceptor(object):
         assert event.name == 'EVT_DATA_RECV'
 
         scp.shutdown()
+
+    @pytest.mark.skipif(sys.version_info[:2] == (3, 4), reason='no caplog')
+    def test_data_recv_raises(self, caplog):
+        """Test the handler for EVT_DATA_RECV raising exception."""
+        def handle(event):
+            raise NotImplementedError("Exception description")
+
+        self.ae = ae = AE()
+        ae.add_supported_context(VerificationSOPClass)
+        ae.add_requested_context(VerificationSOPClass)
+        handlers = [(evt.EVT_DATA_RECV, handle)]
+        scp = ae.start_server(('', 11112), block=False, evt_handlers=handlers)
+
+        with caplog.at_level(logging.ERROR, logger='pynetdicom'):
+            assoc = ae.associate('localhost', 11112)
+            assert assoc.is_established
+            assoc.release()
+
+            while scp.active_associations:
+                time.sleep(0.05)
+
+            scp.shutdown()
+
+            msg = (
+                "Exception raised in user's 'evt.EVT_DATA_RECV' event handler"
+                " 'handle'"
+            )
+            assert msg in caplog.text
+            assert "Exception description" in caplog.text
 
 
 class TestEventHandlingRequestor(object):
