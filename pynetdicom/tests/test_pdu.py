@@ -1726,6 +1726,36 @@ class TestEventHandlingRequestor(object):
 
         scp.shutdown()
 
+    def test_pdu_sent_abort_pdata(self):
+        """Test A-ABORT and P-DATA PDUs with EVT_PDU_SENT."""
+        triggered = []
+        def handle(event):
+            triggered.append(event)
+
+        self.ae = ae = AE()
+        ae.add_supported_context(VerificationSOPClass)
+        ae.add_requested_context(VerificationSOPClass)
+        handlers = [(evt.EVT_PDU_SENT, handle)]
+        scp = ae.start_server(('', 11112), block=False)
+
+        assoc = ae.associate('localhost', 11112, evt_handlers=handlers)
+        assert assoc.is_established
+
+        assoc.send_c_echo()
+
+        assoc.abort()
+
+        while scp.active_associations:
+            time.sleep(0.05)
+
+        assert len(triggered) == 3
+
+        assert isinstance(triggered[0].pdu, A_ASSOCIATE_RQ)
+        assert isinstance(triggered[1].pdu, P_DATA_TF)
+        assert isinstance(triggered[2].pdu, A_ABORT_RQ)
+
+        scp.shutdown()
+
     def test_pdu_sent_bind(self):
         """Test binding to EVT_PDU_SENT."""
         triggered = []
@@ -1866,6 +1896,35 @@ class TestEventHandlingRequestor(object):
         assert isinstance(triggered[0].pdu, A_ASSOCIATE_AC)
         assert isinstance(triggered[1].pdu, A_RELEASE_RP)
         assert event.name == 'EVT_PDU_RECV'
+
+        scp.shutdown()
+
+    def test_pdu_recv_abort_pdata(self):
+        """Test A-ABORT and P-DATA PDUs with EVT_PDU_RECV."""
+        triggered = []
+        def handle(event):
+            triggered.append(event)
+
+        self.ae = ae = AE()
+        ae.add_supported_context(VerificationSOPClass)
+        ae.add_requested_context(VerificationSOPClass)
+        handlers = [(evt.EVT_PDU_RECV, handle)]
+        scp = ae.start_server(('', 11112), block=False)
+
+        assoc = ae.associate('localhost', 11112, evt_handlers=handlers)
+        assert assoc.is_established
+
+        assoc.send_c_echo()
+
+        assoc.abort()
+
+        while scp.active_associations:
+            time.sleep(0.05)
+
+        assert len(triggered) == 2
+
+        assert isinstance(triggered[0].pdu, A_ASSOCIATE_AC)
+        assert isinstance(triggered[1].pdu, P_DATA_TF)
 
         scp.shutdown()
 
