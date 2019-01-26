@@ -1,5 +1,6 @@
 """Unit tests for fsm.py"""
 
+import datetime
 import logging
 import select
 import socket
@@ -9,7 +10,7 @@ import time
 
 import pytest
 
-from pynetdicom import AE, build_context
+from pynetdicom import AE, build_context, evt
 from pynetdicom.association import Association
 from pynetdicom import fsm as FINITE_STATE
 from pynetdicom.fsm import *
@@ -32,7 +33,7 @@ from .parrot import ThreadedParrot
 
 LOGGER = logging.getLogger("pynetdicom")
 LOGGER.setLevel(logging.CRITICAL)
-LOGGER.setLevel(logging.DEBUG)
+#LOGGER.setLevel(logging.DEBUG)
 
 
 REFERENCE_BAD_EVENTS = [
@@ -9818,3 +9819,263 @@ class TestStateMachineFunctionalAcceptor(object):
 
         self.scp.stop()
         FINITE_STATE.ACTIONS['AE-2']= orig_entry
+
+
+class TestEventHandling(object):
+    """Test the FSM event handlers."""
+    def setup(self):
+        self.ae = None
+
+    def teardown(self):
+        if self.ae:
+            self.ae.shutdown()
+
+    def test_no_handlers(self):
+        """Test with no handlers bound."""
+        self.ae = ae = AE()
+        ae.add_supported_context('1.2.840.10008.1.1')
+        ae.add_requested_context('1.2.840.10008.1.1')
+        scp = ae.start_server(('', 11112), block=False)
+        assert scp.get_handlers(evt.EVT_FSM_TRANSITION) == []
+
+        assoc = ae.associate('localhost', 11112)
+        assert assoc.is_established
+        assert assoc.get_handlers(evt.EVT_FSM_TRANSITION) == []
+
+        child = scp.active_associations[0]
+        assert child.get_handlers(evt.EVT_FSM_TRANSITION) == []
+
+        assoc.release()
+
+        scp.shutdown()
+
+    def test_transition_acceptor(self):
+        """Test EVT_FSM_TRANSITION as acceptor."""
+        triggered = []
+        def handle(event):
+            triggered.append(event)
+
+        self.ae = ae = AE()
+        ae.add_supported_context('1.2.840.10008.1.1')
+        ae.add_requested_context('1.2.840.10008.1.1')
+        handlers = [(evt.EVT_FSM_TRANSITION, handle)]
+        scp = ae.start_server(('', 11112), block=False, evt_handlers=handlers)
+        assert scp.get_handlers(evt.EVT_FSM_TRANSITION) == [handle]
+
+        assoc = ae.associate('localhost', 11112)
+        assert assoc.is_established
+        assert assoc.get_handlers(evt.EVT_FSM_TRANSITION) == []
+
+        child = scp.active_associations[0]
+        assert child.get_handlers(evt.EVT_FSM_TRANSITION) == [handle]
+
+        assoc.release()
+        while scp.active_associations:
+            time.sleep(0.05)
+
+        for event in triggered:
+            assert hasattr(event, 'current_state')
+            assert hasattr(event, 'event')
+            assert hasattr(event, 'action')
+            assert hasattr(event, 'next_state')
+            assert isinstance(event.assoc, Association)
+            assert isinstance(event.timestamp, datetime.datetime)
+            assert event.name == 'EVT_FSM_TRANSITION'
+            assert event.description == "State machine about to transition"
+
+        states = [ee.current_state for ee in triggered]
+        assert states[:6] == ['Sta1', 'Sta2', 'Sta3', 'Sta6', 'Sta8', 'Sta13']
+
+        scp.shutdown()
+
+    def test_transition_acceptor_bind(self):
+        """Test EVT_FSM_TRANSITION as acceptor."""
+        triggered = []
+        def handle(event):
+            triggered.append(event)
+
+        self.ae = ae = AE()
+        ae.add_supported_context('1.2.840.10008.1.1')
+        ae.add_requested_context('1.2.840.10008.1.1')
+        scp = ae.start_server(('', 11112), block=False)
+        assert scp.get_handlers(evt.EVT_FSM_TRANSITION) == []
+
+        assoc = ae.associate('localhost', 11112)
+        assert assoc.is_established
+        assert assoc.get_handlers(evt.EVT_FSM_TRANSITION) == []
+        child = scp.active_associations[0]
+        assert child.get_handlers(evt.EVT_FSM_TRANSITION) == []
+
+        scp.bind(evt.EVT_FSM_TRANSITION, handle)
+        assert scp.get_handlers(evt.EVT_FSM_TRANSITION) == [handle]
+        child = scp.active_associations[0]
+        assert child.get_handlers(evt.EVT_FSM_TRANSITION) == [handle]
+
+        assoc.release()
+        while scp.active_associations:
+            time.sleep(0.05)
+
+        for event in triggered:
+            assert hasattr(event, 'current_state')
+            assert hasattr(event, 'event')
+            assert hasattr(event, 'action')
+            assert hasattr(event, 'next_state')
+            assert isinstance(event.assoc, Association)
+            assert isinstance(event.timestamp, datetime.datetime)
+
+        states = [ee.current_state for ee in triggered]
+        assert states[:3] == ['Sta6', 'Sta8', 'Sta13']
+
+    def test_transition_acceptor_unbind(self):
+        """Test EVT_FSM_TRANSITION as acceptor."""
+        triggered = []
+        def handle(event):
+            triggered.append(event)
+
+        self.ae = ae = AE()
+        ae.add_supported_context('1.2.840.10008.1.1')
+        ae.add_requested_context('1.2.840.10008.1.1')
+        handlers = [(evt.EVT_FSM_TRANSITION, handle)]
+        scp = ae.start_server(('', 11112), block=False, evt_handlers=handlers)
+        assert scp.get_handlers(evt.EVT_FSM_TRANSITION) == [handle]
+
+        assoc = ae.associate('localhost', 11112)
+        assert assoc.is_established
+        child = scp.active_associations[0]
+        assert child.get_handlers(evt.EVT_FSM_TRANSITION) == [handle]
+
+        scp.unbind(evt.EVT_FSM_TRANSITION, handle)
+        assert scp.get_handlers(evt.EVT_FSM_TRANSITION) == []
+        child = scp.active_associations[0]
+        assert child.get_handlers(evt.EVT_FSM_TRANSITION) == []
+
+        assoc.release()
+        while scp.active_associations:
+            time.sleep(0.05)
+
+        for event in triggered:
+            assert hasattr(event, 'current_state')
+            assert hasattr(event, 'event')
+            assert hasattr(event, 'action')
+            assert hasattr(event, 'next_state')
+            assert isinstance(event.assoc, Association)
+            assert isinstance(event.timestamp, datetime.datetime)
+
+        states = [ee.current_state for ee in triggered]
+        assert states[:3] == ['Sta1', 'Sta2', 'Sta3']
+
+        scp.shutdown()
+
+    def test_transition_requestor(self):
+        """Test EVT_FSM_TRANSITION as requestor."""
+        triggered = []
+        def handle(event):
+            triggered.append(event)
+
+        self.ae = ae = AE()
+        ae.add_supported_context('1.2.840.10008.1.1')
+        ae.add_requested_context('1.2.840.10008.1.1')
+        handlers = [(evt.EVT_FSM_TRANSITION, handle)]
+        scp = ae.start_server(('', 11112), block=False)
+
+        assoc = ae.associate('localhost', 11112, evt_handlers=handlers)
+        assert assoc.get_handlers(evt.EVT_FSM_TRANSITION) == [handle]
+        assert assoc.is_established
+        assert scp.get_handlers(evt.EVT_FSM_TRANSITION) == []
+        child = scp.active_associations[0]
+        assert child.get_handlers(evt.EVT_FSM_TRANSITION) == []
+        assoc.release()
+        while not assoc.is_released:
+            time.sleep(0.05)
+
+        for event in triggered:
+            assert hasattr(event, 'current_state')
+            assert hasattr(event, 'event')
+            assert hasattr(event, 'action')
+            assert hasattr(event, 'next_state')
+            assert isinstance(event.assoc, Association)
+            assert isinstance(event.timestamp, datetime.datetime)
+
+        states = [ee.current_state for ee in triggered]
+        assert states[:5] == ['Sta1', 'Sta4', 'Sta5', 'Sta6', 'Sta7']
+
+        scp.shutdown()
+
+    def test_transition_requestor_bind(self):
+        """Test EVT_FSM_TRANSITION as requestor."""
+        triggered = []
+        def handle(event):
+            triggered.append(event)
+
+        self.ae = ae = AE()
+        ae.add_supported_context('1.2.840.10008.1.1')
+        ae.add_requested_context('1.2.840.10008.1.1')
+        scp = ae.start_server(('', 11112), block=False)
+
+        assoc = ae.associate('localhost', 11112)
+        assert assoc.is_established
+        assert assoc.get_handlers(evt.EVT_FSM_TRANSITION) == []
+
+        assoc.bind(evt.EVT_FSM_TRANSITION, handle)
+        assert assoc.get_handlers(evt.EVT_FSM_TRANSITION) == [handle]
+
+        assert scp.get_handlers(evt.EVT_FSM_TRANSITION) == []
+        child = scp.active_associations[0]
+        assert child.get_handlers(evt.EVT_FSM_TRANSITION) == []
+
+        assoc.release()
+        while not assoc.is_released:
+            time.sleep(0.05)
+
+        for event in triggered:
+            assert hasattr(event, 'current_state')
+            assert hasattr(event, 'event')
+            assert hasattr(event, 'action')
+            assert hasattr(event, 'next_state')
+            assert isinstance(event.assoc, Association)
+            assert isinstance(event.timestamp, datetime.datetime)
+
+        states = [ee.current_state for ee in triggered]
+        assert states[:2] == ['Sta6', 'Sta7']
+
+        scp.shutdown()
+
+    def test_transition_requestor_unbind(self):
+        """Test EVT_FSM_TRANSITION as requestor."""
+        triggered = []
+        def handle(event):
+            triggered.append(event)
+
+        self.ae = ae = AE()
+        ae.add_supported_context('1.2.840.10008.1.1')
+        ae.add_requested_context('1.2.840.10008.1.1')
+        handlers = [(evt.EVT_FSM_TRANSITION, handle)]
+        scp = ae.start_server(('', 11112), block=False)
+
+        assoc = ae.associate('localhost', 11112, evt_handlers=handlers)
+        assert assoc.is_established
+        assert assoc.get_handlers(evt.EVT_FSM_TRANSITION) == [handle]
+
+        assoc.unbind(evt.EVT_FSM_TRANSITION, handle)
+        assert assoc.get_handlers(evt.EVT_FSM_TRANSITION) == []
+
+        assert scp.get_handlers(evt.EVT_FSM_TRANSITION) == []
+        child = scp.active_associations[0]
+        assert child.get_handlers(evt.EVT_FSM_TRANSITION) == []
+
+        assoc.release()
+        while not assoc.is_released:
+            time.sleep(0.05)
+
+        for event in triggered:
+            assert hasattr(event, 'current_state')
+            assert hasattr(event, 'event')
+            assert hasattr(event, 'action')
+            assert hasattr(event, 'next_state')
+            assert isinstance(event.assoc, Association)
+            assert isinstance(event.timestamp, datetime.datetime)
+
+        states = [ee.current_state for ee in triggered]
+        assert states[:3] == ['Sta1', 'Sta4', 'Sta5']
+
+        scp.shutdown()

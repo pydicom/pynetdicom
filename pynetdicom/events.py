@@ -21,6 +21,9 @@ NotificationEvent.is_notification = True
 # Tested and OK
 EVT_CONN_CLOSE = NotificationEvent("EVT_CONN_CLOSE", "Connection closed")
 EVT_CONN_OPEN = NotificationEvent("EVT_CONN_OPEN", "Connection opened")
+EVT_DATA_RECV = NotificationEvent("EVT_DATA_RECV", "PDU data received from remote")
+EVT_DATA_SENT = NotificationEvent("EVT_DATA_SENT", "PDU data sent to remote")
+EVT_FSM_TRANSITION = NotificationEvent("EVT_FSM_TRANSITION", "State machine about to transition")
 
 # To be tested
 EVT_DIMSE_RECV = NotificationEvent("EVT_DIMSE_RECV", "Complete DIMSE message received and decoded")
@@ -33,9 +36,6 @@ EVT_ESTABLISHED = NotificationEvent("EVT_ESTABLISHED", "Association established"
 EVT_REJECTED = NotificationEvent("EVT_REJECTED", "Association request rejected")
 EVT_RELEASED = NotificationEvent("EVT_RELEASED", "Association released")
 EVT_REQUESTED = NotificationEvent("EVT_REQUESTED", "Association requested")
-EVT_FSM_TRANSITION = NotificationEvent("EVT_FSM_TRANSITION", "State machine about to transition")
-EVT_DATA_RECV = NotificationEvent("EVT_DATA_RECV", "PDU data received from remote")
-EVT_DATA_SENT = NotificationEvent("EVT_DATA_SENT", "PDU data sent to remote")
 EVT_PDU_RECV = NotificationEvent("EVT_PDU_RECV", "PDU received and decoded")
 EVT_PDU_SENT = NotificationEvent("EVT_PDU_SENT", "PDU encoded and sent")
 
@@ -204,11 +204,16 @@ class Event(object):
             The {attribute : value} to set for the Event.
         """
         self.assoc = assoc
-        self.event = event
+        self._event = event
         self.timestamp = datetime.now()
 
         attrs = attrs or {}
         for kk, vv in attrs.items():
+            if hasattr(self, kk):
+                raise AttributeError(
+                    "'Event' object already has an attribute '{}'"
+                    .format(kk)
+                )
             setattr(self, kk, vv)
 
     @property
@@ -313,6 +318,10 @@ class Event(object):
         )
 
     @property
+    def description(self):
+        return self._event.description
+
+    @property
     def event_reply(self):
         """Return an N-EVENT-REPORT request's `Event Reply` as a *pydicom*
         Dataset.
@@ -403,6 +412,10 @@ class Event(object):
             pass
 
         return False
+
+    @property
+    def name(self):
+        return self._event.name
 
 
 # Default extended negotiation item handlers

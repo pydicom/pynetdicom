@@ -121,6 +121,7 @@ class DULServiceProvider(Thread):
             corresponding to receiving that PDU type.
         """
         # Trigger before data is decoded in case of exception in decoding
+        bytestream = bytes(bytestream)
         evt.trigger(self.assoc, evt.EVT_DATA_RECV, {'data' : bytestream})
 
         pdu_types = {
@@ -135,7 +136,7 @@ class DULServiceProvider(Thread):
 
         pdu, event = pdu_types[bytestream[0]]
         pdu = pdu()
-        pdu.decode(bytes(bytestream))
+        pdu.decode(bytestream)
 
         evt.trigger(self.assoc, evt.EVT_PDU_RECV, {'pdu' : pdu})
 

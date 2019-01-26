@@ -127,17 +127,6 @@ Supported DIMSE SCP Services
 When the AE is acting as an SCP the following DIMSE-C and -N services are
 available to the peer once an association has been established:
 
-* C-ECHO
-* C-FIND
-* C-GET
-* C-MOVE
-* C-STORE
-* N-GET
-
-With the exception of the C-ECHO service, a user-defined handler must be bound
-to a corresponding event in order to complete a DIMSE service request. The
-service request specific events are:
-
 +---------------+---------------------+---------------------------------------+
 | DIMSE service | Event               | Example handler                       |
 +===============+=====================+=======================================+
@@ -154,7 +143,9 @@ service request specific events are:
 | N-GET         | ``evt.EVT_N_GET``   |                                       |
 +---------------+---------------------+---------------------------------------+
 
-Events can be imported with ``from pynetdicom import evt``and a handler can be
+With the exception of the C-ECHO service, a user-defined handler must be bound
+to a corresponding event in order to complete a DIMSE service request. Events
+can be imported with ``from pynetdicom import evt``and a handler can be
 bound to an event prior to starting an association through the *evt_handlers*
 keyword parameters in ``AE.start_server()`` and ``AE.associate()`` which is a
 list of ``(event, handler)`` tuples.
