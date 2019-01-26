@@ -912,7 +912,6 @@ class TestDIMSEProviderCallbacks(object):
         self.dimse.debug_receive_n_delete_rsp(msg)
 
 
-
 class TestEventHandlingAcceptor(object):
     """Test the transport events and handling as acceptor."""
     def setup(self):

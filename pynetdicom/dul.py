@@ -375,7 +375,7 @@ class DULServiceProvider(Thread):
             acse_primitives = (A_ASSOCIATE, A_RELEASE, A_ABORT, A_P_ABORT)
             if isinstance(queue_item, acse_primitives):
                 evt.trigger(
-                    self.assoc, evt.EVT_ACSE_RECV, {'message' : queue_item}
+                    self.assoc, evt.EVT_ACSE_RECV, {'primitive' : queue_item}
                 )
 
             return queue_item
@@ -442,7 +442,9 @@ class DULServiceProvider(Thread):
         # Event handler - ACSE sent primitive to the DUL service
         acse_primitives = (A_ASSOCIATE, A_RELEASE, A_ABORT, A_P_ABORT)
         if isinstance(primitive, acse_primitives):
-            evt.trigger(self.assoc, evt.EVT_ACSE_SENT, {'message' : primitive})
+            evt.trigger(
+                self.assoc, evt.EVT_ACSE_SENT, {'primitive' : primitive}
+            )
 
         self.to_provider_queue.put(primitive)
 
