@@ -30,6 +30,7 @@ EVT_PDU_SENT = NotificationEvent("EVT_PDU_SENT", "PDU encoded and sent")
 # To be tested
 EVT_DIMSE_RECV = NotificationEvent("EVT_DIMSE_RECV", "Complete DIMSE message received and decoded")
 EVT_DIMSE_SENT = NotificationEvent("EVT_DIMSE_SENT", "DIMSE message encoded and P-DATA primitives sent to DUL")
+
 EVT_ACSE_RECV = NotificationEvent("EVT_ACSE_RECV", "ACSE primitive received from DUL")
 EVT_ACSE_SENT = NotificationEvent("EVT_ACSE_SENT", "ACSE primitive sent to DUL")
 EVT_ABORTED = NotificationEvent("EVT_ABORTED", "Association aborted")
