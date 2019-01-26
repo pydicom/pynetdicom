@@ -816,7 +816,6 @@ class ACSE(object):
         assoc.requestor.primitive = primitive
 
         # Send the A-ASSOCIATE request primitive to the peer
-        LOGGER.info("Requesting Association")
         assoc.dul.send_pdu(primitive)
 
 
