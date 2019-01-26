@@ -63,13 +63,16 @@ EVT_N_GET = InterventionEvent("EVT_N_GET", "N-GET request received")
 EVT_N_SET = InterventionEvent("EVT_N_SET", "N-SET request received")
 
 
-_INTERVENTION_EVENTS = inspect.getmembers(
-    sys.modules[__name__],
-    lambda x: isinstance(x, InterventionEvent)
-)
-_NOTIFICATION_EVENTS = inspect.getmembers(
-    sys.modules[__name__], lambda x: isinstance(x, NotificationEvent)
-)
+_INTERVENTION_EVENTS = [
+    ii[1] for ii in inspect.getmembers(
+        sys.modules[__name__], lambda x: isinstance(x, InterventionEvent)
+    )
+]
+_NOTIFICATION_EVENTS = [
+    ii[1] for ii in inspect.getmembers(
+        sys.modules[__name__], lambda x: isinstance(x, NotificationEvent)
+    )
+]
 
 
 def get_default_handler(event):
@@ -186,7 +189,7 @@ class Event(object):
         The date/time the event was created. Will be slightly before or after
         the actual event that this object represents.
     """
-    def __init__(self, assoc, event, attrs):
+    def __init__(self, assoc, event, attrs=None):
         """Create a new Event.
 
         Parameters
@@ -195,7 +198,7 @@ class Event(object):
             The association in which the event occurred.
         event : event.NotificationEvent or event.InterventionEvent
             The representation of the event.
-        attrs : dict
+        attrs : dict, optional
             The {attribute : value} to set for the Event.
         """
         self.assoc = assoc
@@ -210,6 +213,10 @@ class Event(object):
                     .format(kk)
                 )
             setattr(self, kk, vv)
+
+        # Only decode a dataset when necessary
+        self._hash = None
+        self._decoded = None
 
     @property
     def action_reply(self):
@@ -231,10 +238,19 @@ class Event(object):
             If the corresponding event is not an N-ACTION request.
         """
         try:
+            # If no change in encoded data then return stored decode
+            if self._hash == hash(self.request.ActionReply):
+                return self._decoded
+
             t_syntax = self.context.transfer_syntax
             ds = decode(self.request.ActionReply,
                         t_syntax.is_implicit_VR,
                         t_syntax.is_little_endian)
+
+            # Store the decoded dataset in case its accessed again
+            self._hash = hash(self.request.ActionReply)
+            self._decoded = ds
+
             return ds
         except AttributeError:
             pass
@@ -266,10 +282,19 @@ class Event(object):
             request.
         """
         try:
+            # If no change in encoded data then return stored decode
+            if self._hash == hash(self.request.ActionReply):
+                return self._decoded
+
             t_syntax = self.context.transfer_syntax
             ds = decode(self.request.AttributeList,
                         t_syntax.is_implicit_VR,
                         t_syntax.is_little_endian)
+
+            # Store the decoded dataset in case its accessed again
+            self._hash = hash(self.request.ActionReply)
+            self._decoded = ds
+
             return ds
         except AttributeError:
             pass
@@ -299,10 +324,19 @@ class Event(object):
             If the corresponding event is not a C-STORE request.
         """
         try:
+            # If no change in encoded data then return stored decode
+            if self._hash == hash(self.request.ActionReply):
+                return self._decoded
+
             t_syntax = self.context.transfer_syntax
             ds = decode(self.request.DataSet,
                         t_syntax.is_implicit_VR,
                         t_syntax.is_little_endian)
+
+            # Store the decoded dataset in case its accessed again
+            self._hash = hash(self.request.ActionReply)
+            self._decoded = ds
+
             return ds
         except AttributeError:
             pass
@@ -314,6 +348,7 @@ class Event(object):
 
     @property
     def description(self):
+        """Return a description of the event as a str."""
         return self._event.description
 
     @property
@@ -337,10 +372,19 @@ class Event(object):
             If the corresponding event is not an N-EVENT-REPORT request.
         """
         try:
+            # If no change in encoded data then return stored decode
+            if self._hash == hash(self.request.ActionReply):
+                return self._decoded
+
             t_syntax = self.context.transfer_syntax
             ds = decode(self.request.EventReply,
                         t_syntax.is_implicit_VR,
                         t_syntax.is_little_endian)
+
+            # Store the decoded dataset in case its accessed again
+            self._hash = hash(self.request.ActionReply)
+            self._decoded = ds
+
             return ds
         except AttributeError:
             pass
@@ -352,13 +396,13 @@ class Event(object):
 
     @property
     def identifier(self):
-        """Return a C-FIND C-GET or C-MOVE request's `Identifier` as a
+        """Return a C-FIND, C-GET or C-MOVE request's `Identifier` as a
         *pydicom* Dataset.
 
         Because *pydicom* defers data parsing during decoding until an element
         is actually required the returned ``Dataset`` may raise an exception
         when first used. It's therefore important that proper error handling
-        be part of any handler bound to an event that includes a dataset.
+        be part of any handler bound to an event that includes a Dataset.
 
         Returns
         -------
@@ -372,10 +416,19 @@ class Event(object):
             request.
         """
         try:
+            # If no change in encoded data then return stored decode
+            if self._hash == hash(self.request.ActionReply):
+                return self._decoded
+
             t_syntax = self.context.transfer_syntax
             ds = decode(self.request.Identifier,
                         t_syntax.is_implicit_VR,
                         t_syntax.is_little_endian)
+
+            # Store the decoded dataset in case its accessed again
+            self._hash = hash(self.request.ActionReply)
+            self._decoded = ds
+
             return ds
         except AttributeError:
             pass
@@ -410,6 +463,7 @@ class Event(object):
 
     @property
     def name(self):
+        """Return the name of the event as a str."""
         return self._event.name
 
 

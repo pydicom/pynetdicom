@@ -265,6 +265,103 @@ class TestAssociationServer(object):
 
         scp.shutdown()
 
+    def test_init_handlers(self):
+        """Test AssociationServer.__init__()."""
+        def handle(event):
+            pass
+
+        def handle_echo(event):
+            return 0x0000
+
+        def handle_echo_b(event):
+            return 0x0000
+
+        self.ae = ae = AE()
+        handlers = [
+            (evt.EVT_DATA_RECV, handle),
+            (evt.EVT_DATA_RECV, handle),
+            (evt.EVT_C_ECHO, handle_echo),
+            (evt.EVT_C_ECHO, handle_echo_b),
+            (evt.EVT_DATA_SENT, handle_echo_b),
+            (evt.EVT_DATA_SENT, handle_echo),
+            (evt.EVT_DATA_SENT, handle),
+        ]
+        ae.add_supported_context(VerificationSOPClass)
+        scp = ae.start_server(('', 11112), block=False, evt_handlers=handlers)
+
+        assert evt.EVT_DATA_RECV in scp._handlers
+        assert evt.EVT_C_ECHO in scp._handlers
+        # Duplicates not added
+        assert len(scp._handlers[evt.EVT_DATA_RECV]) == 1
+        # Multiples allowed
+        assert len(scp._handlers[evt.EVT_DATA_SENT]) == 3
+        # Only a single handler allowed
+        assert scp._handlers[evt.EVT_C_ECHO] == handle_echo_b
+
+    def test_get_events(self):
+        """Test AssociationServer.get_events()."""
+        def handle(event):
+            pass
+
+        def handle_echo(event):
+            return 0x0000
+
+        def handle_echo_b(event):
+            return 0x0000
+
+        self.ae = ae = AE()
+        handlers = [
+            (evt.EVT_DATA_RECV, handle),
+            (evt.EVT_DATA_RECV, handle),
+            (evt.EVT_C_ECHO, handle_echo),
+            (evt.EVT_C_ECHO, handle_echo_b),
+            (evt.EVT_DATA_SENT, handle_echo_b),
+            (evt.EVT_DATA_SENT, handle_echo),
+            (evt.EVT_DATA_SENT, handle),
+        ]
+        ae.add_supported_context(VerificationSOPClass)
+        scp = ae.start_server(('', 11112), block=False, evt_handlers=handlers)
+
+        bound_events = scp.get_events()
+        assert evt.EVT_DATA_RECV in bound_events
+        assert evt.EVT_DATA_SENT in bound_events
+        assert evt.EVT_C_ECHO in bound_events
+
+        scp.shutdown()
+
+    def test_get_handlers(self):
+        """Test AssociationServer.get_handlers()."""
+        def handle(event):
+            pass
+
+        def handle_echo(event):
+            return 0x0000
+
+        def handle_echo_b(event):
+            return 0x0000
+
+        self.ae = ae = AE()
+        handlers = [
+            (evt.EVT_DATA_RECV, handle),
+            (evt.EVT_DATA_RECV, handle),
+            (evt.EVT_C_ECHO, handle_echo),
+            (evt.EVT_C_ECHO, handle_echo_b),
+            (evt.EVT_DATA_SENT, handle_echo_b),
+            (evt.EVT_DATA_SENT, handle_echo),
+            (evt.EVT_DATA_SENT, handle),
+        ]
+        ae.add_supported_context(VerificationSOPClass)
+        scp = ae.start_server(('', 11112), block=False, evt_handlers=handlers)
+
+        assert scp.get_handlers(evt.EVT_DATA_RECV) == [handle]
+        assert handle in scp.get_handlers(evt.EVT_DATA_SENT)
+        assert handle_echo in scp.get_handlers(evt.EVT_DATA_SENT)
+        assert handle_echo_b in scp.get_handlers(evt.EVT_DATA_SENT)
+        assert scp.get_handlers(evt.EVT_C_ECHO) == handle_echo_b
+        assert scp.get_handlers(evt.EVT_PDU_SENT) == []
+
+        scp.shutdown()
+
 
 class TestEventHandlingAcceptor(object):
     """Test the transport events and handling as acceptor."""
