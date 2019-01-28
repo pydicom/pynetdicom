@@ -525,6 +525,22 @@ class TestStorageServiceClass(object):
 
         scp.shutdown()
 
+    def test_scp_handler_exception_default(self):
+        """Test default handler raises an exception"""
+        self.ae = ae = AE()
+        ae.add_supported_context(CTImageStorage)
+        ae.add_requested_context(CTImageStorage)
+        scp = ae.start_server(('', 11112), block=False)
+
+        assoc = ae.associate('localhost', 11112)
+        assert assoc.is_established
+        rsp = assoc.send_c_store(DATASET)
+        assert rsp.Status == 0xC211
+        assoc.release()
+        assert assoc.is_released
+
+        scp.shutdown()
+
     def test_scp_handler_exception(self):
         """Test handler raising an exception"""
         def handle(event):
