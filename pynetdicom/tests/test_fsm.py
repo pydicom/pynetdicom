@@ -9603,7 +9603,6 @@ class TestStateMachineFunctionalRequestor(object):
             dul.pdu = A_RELEASE_RP()
             dul.pdu.from_primitive(dul.primitive)
             # Callback
-            dul.assoc.acse.debug_send_release_rp(dul.pdu)
             dul.socket.send(dul.pdu.encode())
             dul.artim_timer.start()
             return 'Sta13'
@@ -9797,8 +9796,6 @@ class TestStateMachineFunctionalAcceptor(object):
             dul.pdu = A_ASSOCIATE_RQ()
             dul.pdu.from_primitive(dul.primitive)
             dul.pdu.protocol_version = 0x0002
-            # Callback
-            dul.assoc.acse.debug_send_associate_rq(dul.pdu)
             bytestream = dul.pdu.encode()
             dul.socket.send(bytestream)
             return 'Sta5'

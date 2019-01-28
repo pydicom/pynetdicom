@@ -703,7 +703,6 @@ class ApplicationEntity(object):
 
         for assoc in self.active_associations:
             assoc.dimse_timeout = self.dimse_timeout
-            assoc.dimse.dimse_timeout = self.dimse_timeout
 
     # TODO: remove in v1.3
     def _handle_connection(self, client_socket):

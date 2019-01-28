@@ -17,7 +17,7 @@ from .dummy_c_scp import (DummyVerificationSCP, DummyStorageSCP,
                           DummyFindSCP, DummyGetSCP, DummyMoveSCP,
                           DummyBaseSCP)
 from pynetdicom import (
-    AE,
+    AE, evt,
     DEFAULT_TRANSFER_SYNTAXES,
     StoragePresentationContexts,
     VerificationPresentationContexts,
@@ -322,79 +322,62 @@ class TestAEGoodCallbacks(object):
     def test_on_c_store(self):
         """Test default callback raises exception"""
         ae = AE()
-        with pytest.raises(NotImplementedError):
+        with pytest.raises(evt.HandlerNotImplementedError):
             ae.on_c_store(None, None, None)
 
     def test_on_c_find(self):
         """Test default callback raises exception"""
         ae = AE()
-        with pytest.raises(NotImplementedError):
+        with pytest.raises(evt.HandlerNotImplementedError):
             ae.on_c_find(None, None, None)
 
     def test_on_c_get(self):
         """Test default callback raises exception"""
         ae = AE()
-        with pytest.raises(NotImplementedError):
+        with pytest.raises(evt.HandlerNotImplementedError):
             ae.on_c_get(None, None, None)
 
     def test_on_c_move(self):
         """Test default callback raises exception"""
         ae = AE()
-        with pytest.raises(NotImplementedError):
+        with pytest.raises(evt.HandlerNotImplementedError):
             ae.on_c_move(None, None, None, None)
 
     def test_on_n_event_report(self):
         """Test default callback raises exception"""
         ae = AE()
-        with pytest.raises(NotImplementedError):
+        with pytest.raises(evt.HandlerNotImplementedError):
             ae.on_n_event_report(None, None, None)
 
     def test_on_n_get(self):
         """Test default callback raises exception"""
         ae = AE()
-        with pytest.raises(NotImplementedError):
+        with pytest.raises(evt.HandlerNotImplementedError):
             ae.on_n_get(None, None, None)
 
     def test_on_n_set(self):
         """Test default callback raises exception"""
         ae = AE()
-        with pytest.raises(NotImplementedError):
+        with pytest.raises(evt.HandlerNotImplementedError):
             ae.on_n_set(None, None, None)
 
     def test_on_n_action(self):
         """Test default callback raises exception"""
         ae = AE()
-        with pytest.raises(NotImplementedError):
+        with pytest.raises(evt.HandlerNotImplementedError):
             ae.on_n_action(None, None, None)
 
     def test_on_n_create(self):
         """Test default callback raises exception"""
         ae = AE()
-        with pytest.raises(NotImplementedError):
+        with pytest.raises(evt.HandlerNotImplementedError):
             ae.on_n_create(None, None, None)
 
     def test_on_n_delete(self):
         """Test default callback raises exception"""
         ae = AE()
-        with pytest.raises(NotImplementedError):
+        with pytest.raises(evt.HandlerNotImplementedError):
             ae.on_n_delete(None, None)
-
-    def test_on_receive_connection(self):
-        """Test default callback raises exception"""
-        ae = AE()
-        with pytest.raises(NotImplementedError):
-            ae.on_receive_connection()
-
-    def test_on_make_connection(self):
-        """Test default callback raises exception"""
-        ae = AE()
-        with pytest.raises(NotImplementedError):
-            ae.on_make_connection()
-
-    def test_association_requested(self):
-        """Test default callback raises exception"""
-        ae = AE()
-        ae.on_association_requested(None)
 
     def test_association_accepted(self):
         """Test default callback raises exception"""
@@ -523,9 +506,13 @@ class TestAEGoodAssociation(object):
     def setup(self):
         """Run prior to each test"""
         self.scp = None
+        self.ae = None
 
     def teardown(self):
         """Clear any active threads"""
+        if self.ae:
+            self.ae.shutdown()
+
         if self.scp:
             self.scp.abort()
 
@@ -555,19 +542,22 @@ class TestAEGoodAssociation(object):
 
     def test_associate_max_pdu(self):
         """ Check Association has correct max PDUs on either end """
-        self.scp = DummyVerificationSCP()
-        self.scp.ae.maximum_pdu_size = 54321
-        self.scp.start()
+        self.ae = ae = AE()
+        ae.add_supported_context(VerificationSOPClass)
+        ae.add_requested_context(VerificationSOPClass)
+        ae.maximum_pdu_size = 54321
+        scp = ae.start_server(('', 11112), block=False)
 
         ae = AE()
         ae.add_requested_context(VerificationSOPClass)
         ae.acse_timeout = 5
         ae.dimse_timeout = 5
         assoc = ae.associate('localhost', 11112, max_pdu=12345)
-        assert self.scp.ae.active_associations[0].acceptor.maximum_length == (
+
+        assert scp.active_associations[0].acceptor.maximum_length == (
             54321
         )
-        assert self.scp.ae.active_associations[0].requestor.maximum_length == (
+        assert scp.active_associations[0].requestor.maximum_length == (
             12345
         )
         assert assoc.requestor.maximum_length == 12345
@@ -577,11 +567,11 @@ class TestAEGoodAssociation(object):
         # Check 0 max pdu value - max PDU value maps to 0x10000 internally
         assoc = ae.associate('localhost', 11112, max_pdu=0)
         assert assoc.requestor.maximum_length == 0
-        assert self.scp.ae.active_associations[0].requestor.maximum_length == 0
+        assert scp.active_associations[0].requestor.maximum_length == 0
 
         assoc.release()
 
-        self.scp.stop()
+        scp.shutdown()
 
     def test_association_timeouts(self):
         """ Check that the Association timeouts are being set correctly and

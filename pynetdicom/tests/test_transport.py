@@ -873,6 +873,8 @@ class TestEventHandlingAcceptor(object):
         while scp.active_associations:
             time.sleep(0.05)
 
+        time.sleep(0.1)
+
         assert len(triggered) == 1
         assert triggered[0].data[0:1] == b'\x02'  # A-ASSOCIATE-AC
 
