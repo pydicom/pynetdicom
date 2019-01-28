@@ -719,9 +719,7 @@ class QueryRetrieveServiceClass(ServiceClass):
                 LOGGER.error(
                     "Exception raised by user's C-FIND request handler",
                     exc_info=rsp_identifier)
-                rsp.Status = 0xC311
-                self.dimse.send_msg(rsp, context.context_id)
-                return
+                rsp_status = 0xC311
 
             # Validate rsp_status and set rsp.Status accordingly
             rsp = self.validate_status(rsp_status, rsp)
@@ -1007,8 +1005,6 @@ class QueryRetrieveServiceClass(ServiceClass):
                     "Exception raised by user's C-GET request handler",
                     exc_info=dataset)
                 rsp_status = 0xC411
-                #self.dimse.send_msg(rsp, context.context_id)
-                #return
 
             # All sub-operations are complete
             if store_results[0] <= 0:
@@ -1336,6 +1332,25 @@ class QueryRetrieveServiceClass(ServiceClass):
 
         # Attempt to decode the request's Identifier dataset
         transfer_syntax = context.transfer_syntax[0]
+        try:
+            identifier = decode(req.Identifier,
+                                transfer_syntax.is_implicit_VR,
+                                transfer_syntax.is_little_endian)
+            LOGGER.info('Move SCP Request Identifier:')
+            LOGGER.info('')
+            LOGGER.debug('# DICOM Data Set')
+            for elem in identifier.iterall():
+                LOGGER.info(elem)
+            LOGGER.info('')
+        except Exception as ex:
+            LOGGER.error("Failed to decode the request's Identifier dataset")
+            LOGGER.exception(ex)
+            # Failure: Cannot Understand - Dataset decoding error
+            rsp.Status = 0xC510
+            rsp.ErrorComment = 'Unable to decode the dataset'
+            self.dimse.send_msg(rsp, context.context_id)
+            return
+
         # TODO: refactor in v1.4
         default_handler = evt.get_default_handler(evt.EVT_C_MOVE)
         if self.assoc.get_handlers(evt.EVT_C_MOVE) != default_handler:
@@ -1357,25 +1372,6 @@ class QueryRetrieveServiceClass(ServiceClass):
                 self.dimse.send_msg(rsp, context.context_id)
                 return
         else:
-            try:
-                identifier = decode(req.Identifier,
-                                    transfer_syntax.is_implicit_VR,
-                                    transfer_syntax.is_little_endian)
-                LOGGER.info('Move SCP Request Identifier:')
-                LOGGER.info('')
-                LOGGER.debug('# DICOM Data Set')
-                for elem in identifier.iterall():
-                    LOGGER.info(elem)
-                LOGGER.info('')
-            except Exception as ex:
-                LOGGER.error("Failed to decode the request's Identifier dataset")
-                LOGGER.exception(ex)
-                # Failure: Cannot Understand - Dataset decoding error
-                rsp.Status = 0xC510
-                rsp.ErrorComment = 'Unable to decode the dataset'
-                self.dimse.send_msg(rsp, context.context_id)
-                return
-
             info['parameters'] = {
                  'message_id' : req.MessageID,
                  'priority' : req.Priority
@@ -1400,11 +1396,12 @@ class QueryRetrieveServiceClass(ServiceClass):
         try:
             destination = next(result)
             no_suboperations = next(result)
-        except StopIteration:
-            LOGGER.exception("The on_c_move callback must yield the (address, "
-                             "port) of the destination AE, then yield the "
-                             "number of sub-operations, then yield (status "
-                             "dataset) pairs.")
+        except Exception as exc:
+            LOGGER.exception(
+                "The C-MOVE request handler must yield the (address, port) "
+                "of the destination AE, then yield the number of "
+                "sub-operations, then yield (status dataset) pairs."
+            )
             # Failure - Unable to process - Error in on_c_move yield
             rsp.Status = 0xC514
             self.dimse.send_msg(rsp, context.context_id)
@@ -1414,8 +1411,10 @@ class QueryRetrieveServiceClass(ServiceClass):
         try:
             no_suboperations = int(no_suboperations)
         except Exception as ex:
-            LOGGER.error("'on_c_move' yielded an invalid number of "
-                         "sub-operations value")
+            LOGGER.error(
+                "The C-MOVE request handler yielded an invalid number of "
+                "sub-operations value"
+            )
             LOGGER.exception(ex)
             rsp.Status = 0xC513
             self.dimse.send_msg(rsp, context.context_id)
@@ -1458,13 +1457,21 @@ class QueryRetrieveServiceClass(ServiceClass):
 
         if store_assoc.is_established:
             # Iterate through the remaining callback (status, dataset) yields
-            for ii, (rsp_status, dataset) in enumerate(result):
+            for ii, (rsp_status, dataset) in enumerate(self._wrap_handler(result)):
+                # Exception raised by handler
+                if isinstance(rsp_status, Exception):
+                    LOGGER.error(
+                        "Exception raised by user's C-MOVE request handler",
+                        exc_info=dataset)
+                    rsp_status = 0xC511
+
                 # All sub-operations are complete
                 if store_results[0] <= 0:
-                    LOGGER.warning("'on_c_move' yielded further (status, "
-                                   "dataset) results but these will be "
-                                   "ignored as the sub-operations are "
-                                   "complete")
+                    LOGGER.warning(
+                        "User's C-MOVE request handler yielded further "
+                        "(status, dataset) results but these will be "
+                        "ignored as the sub-operations are complete"
+                    )
                     break
 
                 # Validate rsp_status and set rsp.Status accordingly

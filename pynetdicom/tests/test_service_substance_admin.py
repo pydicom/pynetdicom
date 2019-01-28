@@ -1,4 +1,4 @@
-"""Tests for the QueryRetrieveServiceClass."""
+"""Tests for the SubstanceAdministrationQueryServiceClass."""
 
 from io import BytesIO
 import logging

@@ -24,7 +24,7 @@ LOGGER.setLevel(logging.CRITICAL)
 #LOGGER.setLevel(logging.DEBUG)
 
 
-class TestVerificationServiceClass_Old(object):
+class TestVerificationServiceClass_Deprecated(object):
     """Test the VerifictionSOPClass"""
     def setup(self):
         """Run prior to each test"""
