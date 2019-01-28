@@ -3,6 +3,7 @@
 from io import BytesIO
 import logging
 import sys
+import traceback
 
 from pydicom.dataset import Dataset
 
@@ -164,6 +165,16 @@ class ServiceClass(object):
                            "callback - 0x{0:04x}".format(rsp.Status))
 
         return rsp
+
+    def _wrap_handler(self, handler):
+        try:
+            for result in handler:
+                yield result
+        except Exception as exc:
+            tb = traceback.print_exception(
+                exc.__class__, exc, exc.__traceback__
+            )
+            yield exc, tb
 
 
 # Service Class implementations
@@ -649,82 +660,69 @@ class QueryRetrieveServiceClass(ServiceClass):
 
         # Decode and log Identifier
         transfer_syntax = context.transfer_syntax[0]
+        try:
+            identifier = decode(req.Identifier,
+                                transfer_syntax.is_implicit_VR,
+                                transfer_syntax.is_little_endian)
+            LOGGER.info('Find SCP Request Identifiers:')
+            LOGGER.info('')
+            LOGGER.debug('# DICOM Dataset')
+            for elem in identifier.iterall():
+                LOGGER.info(elem)
+            LOGGER.info('')
+        except Exception as ex:
+            LOGGER.error("Failed to decode the request's Identifier dataset.")
+            LOGGER.exception(ex)
+            # Failure - Unable to Process - Failed to decode Identifier
+            rsp.Status = 0xC310
+            rsp.ErrorComment = 'Unable to decode the dataset'
+            self.dimse.send_msg(rsp, context.context_id)
+            return
 
-        stopper = object()
-        # This will wrap exceptions during iteration and return a good value.
-        def wrap_on_c_find():
-            """Wrapper for exceptions"""
-            # TODO: refactor in v1.4
-            default_handler = evt.get_default_handler(evt.EVT_C_FIND)
-            if self.assoc.get_handlers(evt.EVT_C_FIND) != default_handler:
-                try:
-                    user_rsp = evt.trigger(
-                        self.assoc,
-                        evt.EVT_C_FIND,
-                        {
-                            'request' : req,
-                            'context' : context.as_tuple,
-                            '_is_cancelled' : self.is_cancelled
-                        }
-                    )
-                    for val1, val2 in user_rsp:
-                        yield val1, val2
-                except Exception:
-                    # TODO: special (singleton) value
-                    yield stopper, sys.exc_info()
-            else:
-                try:
-                    identifier = decode(req.Identifier,
-                                        transfer_syntax.is_implicit_VR,
-                                        transfer_syntax.is_little_endian)
-                    LOGGER.info('Find SCP Request Identifiers:')
-                    LOGGER.info('')
-                    LOGGER.debug('# DICOM Dataset')
-                    for elem in identifier.iterall():
-                        LOGGER.info(elem)
-                    LOGGER.info('')
-                except Exception as ex:
-                    LOGGER.error("Failed to decode the request's Identifier dataset.")
-                    LOGGER.exception(ex)
-                    # Failure - Unable to Process - Failed to decode Identifier
-                    rsp.Status = 0xC310
-                    rsp.ErrorComment = 'Unable to decode the dataset'
-                    self.dimse.send_msg(rsp, context.context_id)
-                    return
-
-                info['parameters'] = {
-                     'message_id' : req.MessageID,
-                     'priority' : req.Priority,
+        # TODO: refactor in v1.4
+        # Pass the C-FIND request to the user to handle
+        default_handler = evt.get_default_handler(evt.EVT_C_FIND)
+        if self.assoc.get_handlers(evt.EVT_C_FIND) != default_handler:
+            handler = evt.trigger(
+                self.assoc,
+                evt.EVT_C_FIND,
+                {
+                    'request' : req,
+                    'context' : context.as_tuple,
+                    '_is_cancelled' : self.is_cancelled
                 }
-                # Add callable to the info so user can check if cancelled
-                info['cancelled'] = self.is_cancelled
+            )
+        else:
+            info['parameters'] = {
+                 'message_id' : req.MessageID,
+                 'priority' : req.Priority,
+            }
+            # Add callable to the info so user can check if cancelled
+            info['cancelled'] = self.is_cancelled
 
-                try:
-                    # We unpack here so that the error is still caught
-                    user_rsp = self.ae.on_c_find(
-                        identifier, context.as_tuple, info
-                    )
-
-                    for val1, val2 in user_rsp:
-                        yield val1, val2
-                except Exception:
-                    # TODO: special (singleton) value
-                    yield stopper, sys.exc_info()
-
-        ii = -1  # So if there are no results, log below doesn't break
-        # Iterate through the results
-        for ii, (rsp_status, rsp_identifier) in enumerate(wrap_on_c_find()):
-            # We only want to catch exceptions in the user code, not in ours.
-            if rsp_status is stopper:
-                exc_info = rsp_identifier
-                LOGGER.exception(
-                    "Exception in user's on_c_find implementation.",
-                    exc_info=exc_info
+            try:
+                handler = self.ae.on_c_find(identifier, context.as_tuple, info)
+            except Exception as exc:
+                LOGGER.error(
+                    "Exception raised by user's C-FIND request handler"
                 )
-                # Failure - Unable to Process - Error in on_c_find callback
+                LOGGER.exception(exc)
                 rsp.Status = 0xC311
                 self.dimse.send_msg(rsp, context.context_id)
                 return
+
+        ii = -1  # So if there are no results, log below doesn't break
+        # Iterate through the results
+        for ii, (rsp_status, rsp_identifier) in enumerate(self._wrap_handler(handler)):
+            # Exception raised by user's generator
+            if isinstance(rsp_status, Exception):
+                LOGGER.error(
+                    "Exception raised by user's C-FIND request handler",
+                    exc_info=rsp_identifier)
+                rsp.Status = 0xC311
+                self.dimse.send_msg(rsp, context.context_id)
+                return
+
             # Validate rsp_status and set rsp.Status accordingly
             rsp = self.validate_status(rsp_status, rsp)
 
@@ -923,8 +921,8 @@ class QueryRetrieveServiceClass(ServiceClass):
         # Attempt to decode the request's Identifier dataset
         transfer_syntax = context.transfer_syntax[0]
         # TODO: refactor in v1.4
-        default_handler = evt.get_default_handler(evt.EVT_C_FIND)
-        if self.assoc.get_handlers(evt.EVT_C_FIND) != default_handler:
+        default_handler = evt.get_default_handler(evt.EVT_C_GET)
+        if self.assoc.get_handlers(evt.EVT_C_GET) != default_handler:
             try:
                 result = evt.trigger(
                     self.assoc,
@@ -937,7 +935,7 @@ class QueryRetrieveServiceClass(ServiceClass):
                 )
             except Exception as exc:
                 LOGGER.error("Exception in handler bound to 'evt.EVT_C_FIND'")
-                LOGGER.exception(ex)
+                LOGGER.exception(exc)
                 rsp.Status = 0xC411
                 self.dimse.send_msg(rsp, context.context_id)
                 return
@@ -953,9 +951,9 @@ class QueryRetrieveServiceClass(ServiceClass):
                 for elem in identifier.iterall():
                     LOGGER.info(elem)
                 LOGGER.info('')
-            except Exception as ex:
+            except Exception as exc:
                 LOGGER.error("Failed to decode the request's Identifier dataset")
-                LOGGER.exception(ex)
+                LOGGER.exception(exc)
                 # Failure: Cannot Understand - Dataset decoding error
                 rsp.Status = 0xC410
                 rsp.ErrorComment = 'Unable to decode the dataset'
@@ -982,10 +980,10 @@ class QueryRetrieveServiceClass(ServiceClass):
         # Number of C-STORE sub-operations
         try:
             no_suboperations = int(next(result))
-        except Exception as ex:
-            LOGGER.error("'on_c_get' yielded an invalid number of "
-                         "sub-operations value")
-            LOGGER.exception(ex)
+        except Exception as exc:
+            LOGGER.error("User's C-GET' generator yielded an invalid number "
+                         "of sub-operations value")
+            LOGGER.exception(exc)
             rsp.Status = 0xC413
             self.dimse.send_msg(rsp, context.context_id)
             return
@@ -1002,12 +1000,23 @@ class QueryRetrieveServiceClass(ServiceClass):
 
         # Iterate through the results
         # C-GET Pending responses are optional!
-        for ii, (rsp_status, dataset) in enumerate(result):
+        for ii, (rsp_status, dataset) in enumerate(self._wrap_handler(result)):
+            # Exception raised by user's generator
+            if isinstance(rsp_status, Exception):
+                LOGGER.error(
+                    "Exception raised by user's C-GET request handler",
+                    exc_info=dataset)
+                rsp_status = 0xC411
+                #self.dimse.send_msg(rsp, context.context_id)
+                #return
+
             # All sub-operations are complete
             if store_results[0] <= 0:
-                LOGGER.warning("'on_c_get' yielded further (status, dataset) "
-                               "results but these will be ignored as the "
-                               "sub-operations are complete")
+                LOGGER.warning(
+                    "User's C-GET generator yielded further (status, dataset) "
+                    "results but these will be ignored as the sub-operations "
+                    "are complete"
+                )
                 break
 
             # Validate rsp_status and set rsp.Status accordingly

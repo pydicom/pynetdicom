@@ -801,7 +801,7 @@ class Association(threading.Thread):
         # Attempt to handle the service request
         # TODO: refactor in v1.4
         default_handler = evt.get_default_handler(evt.EVT_C_STORE)
-        if self.assoc.get_handlers(evt.EVT_C_STORE) != default_handler:
+        if self.get_handlers(evt.EVT_C_STORE) != default_handler:
             try:
                 status = evt.trigger(
                     self,
@@ -2068,11 +2068,12 @@ class Association(threading.Thread):
                     identifier = decode(rsp.Identifier,
                                         transfer_syntax.is_implicit_VR,
                                         transfer_syntax.is_little_endian)
-                    LOGGER.debug('')
-                    LOGGER.debug('# DICOM Dataset')
-                    for elem in identifier:
-                        LOGGER.debug(elem)
-                    LOGGER.debug('')
+                    if identifier:
+                        LOGGER.debug('')
+                        LOGGER.debug('# DICOM Dataset')
+                        for elem in identifier:
+                            LOGGER.debug(elem)
+                        LOGGER.debug('')
                 except Exception as ex:
                     LOGGER.error(
                         "Failed to decode the received Identifier dataset"

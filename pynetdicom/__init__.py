@@ -29,6 +29,7 @@ from pynetdicom.ae import ApplicationEntity as AE
 from pynetdicom.association import Association
 from pynetdicom.presentation import (
     build_context,
+    build_role,
     DEFAULT_TRANSFER_SYNTAXES,
     VerificationPresentationContexts,
     StoragePresentationContexts,

@@ -13,6 +13,7 @@ import warnings
 
 from pydicom.uid import UID
 
+from pynetdicom import evt
 from pynetdicom.association import Association
 from pynetdicom.presentation import PresentationContext
 from pynetdicom.transport import (
@@ -1943,7 +1944,7 @@ class ApplicationEntity(object):
           `9.3.2 <http://dicom.nema.org/medical/dicom/current/output/html/part07.html#sect_9.3.2>`_
           and `Annex C <http://dicom.nema.org/medical/dicom/current/output/html/part07.html#chapter_C>`_
         """
-        raise NotImplementedError("User must implement the AE.on_c_find "
+        raise evt.HandlerNotImplementedError("User must implement the AE.on_c_find "
                                   "function prior to calling AE.start()")
 
     def on_c_get(self, dataset, context, info):
@@ -2086,7 +2087,7 @@ class ApplicationEntity(object):
           `9.3.3 <http://dicom.nema.org/medical/dicom/current/output/html/part07.html#sect_9.3.3>`_
           and `Annex C <http://dicom.nema.org/medical/dicom/current/output/html/part07.html#chapter_C>`_
         """
-        raise NotImplementedError("User must implement the AE.on_c_get "
+        raise evt.HandlerNotImplementedError("User must implement the AE.on_c_get "
                                   "function prior to calling AE.start()")
 
     def on_c_move(self, dataset, move_aet, context, info):
@@ -2244,7 +2245,7 @@ class ApplicationEntity(object):
           `9.3.4 <http://dicom.nema.org/medical/dicom/current/output/html/part07.html#sect_9.3.4>`_
           and `Annex C <http://dicom.nema.org/medical/dicom/current/output/html/part07.html#chapter_C>`_
         """
-        raise NotImplementedError("User must implement the AE.on_c_move "
+        raise evt.HandlerNotImplementedError("User must implement the AE.on_c_move "
                                   "function prior to calling AE.start()")
 
     def on_c_store(self, dataset, context, info):
@@ -2362,7 +2363,7 @@ class ApplicationEntity(object):
         * DICOM Standard Part 10,
           `Section 7 <http://dicom.nema.org/medical/dicom/current/output/html/part10.html#chapter_7>`_
         """
-        raise NotImplementedError("User must implement the AE.on_c_store "
+        raise evt.HandlerNotImplementedError("User must implement the AE.on_c_store "
                                   "function prior to calling AE.start()")
 
 
@@ -2374,7 +2375,7 @@ class ApplicationEntity(object):
         ----------
         DICOM Standard Part 4, Annexes H, J, P, S, CC and DD
         """
-        raise NotImplementedError("User must implement the "
+        raise evt.HandlerNotImplementedError("User must implement the "
                                   "AE.on_n_action function prior to calling "
                                   "AE.start()")
 
@@ -2385,7 +2386,7 @@ class ApplicationEntity(object):
         ----------
         DICOM Standard Part 4, Annexes F, H, R, S, CC and DD
         """
-        raise NotImplementedError("User must implement the "
+        raise evt.HandlerNotImplementedError("User must implement the "
                                   "AE.on_n_create function prior to calling "
                                   "AE.start()")
 
@@ -2396,7 +2397,7 @@ class ApplicationEntity(object):
         ----------
         DICOM Standard Part 4, Annexes H and DD
         """
-        raise NotImplementedError("User must implement the "
+        raise evt.HandlerNotImplementedError("User must implement the "
                                   "AE.on_n_delete function prior to calling "
                                   "AE.start()")
 
@@ -2407,7 +2408,7 @@ class ApplicationEntity(object):
         ----------
         DICOM Standard Part 4, Annexes F, H, J, CC and DD
         """
-        raise NotImplementedError("User must implement the "
+        raise evt.HandlerNotImplementedError("User must implement the "
                                   "AE.on_n_event_report function prior to "
                                   "calling AE.start()")
 
@@ -2484,7 +2485,7 @@ class ApplicationEntity(object):
         * DICOM Standard Part 4, `Annex DD <http://dicom.nema.org/medical/dicom/current/output/html/part04.html#chapter_DD>`_
         * DICOM Standard Part 4, `Annex EE <http://dicom.nema.org/medical/dicom/current/output/html/part04.html#chapter_EE>`_
         """
-        raise NotImplementedError(
+        raise evt.HandlerNotImplementedError(
             "User must implement the AE.on_n_get function prior to calling "
             "AE.start()"
         )
@@ -2496,7 +2497,7 @@ class ApplicationEntity(object):
         ----------
         DICOM Standard Part 4, Annexes F, H, CC and DD
         """
-        raise NotImplementedError("User must implement the "
+        raise evt.HandlerNotImplementedError("User must implement the "
                                   "AE.on_n_set function prior to calling "
                                   "AE.start()")
 

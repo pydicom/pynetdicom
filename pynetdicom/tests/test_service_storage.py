@@ -599,8 +599,8 @@ class TestStorageServiceClass(object):
         status = assoc.send_c_store(DATASET)
         assert status.Status == 0x0000
 
-        assoc = attrs['assoc']
-        assert assoc == scp.active_associations[0]
+        scp_assoc = attrs['assoc']
+        assert scp_assoc == scp.active_associations[0]
 
         assoc.release()
         assert assoc.is_released

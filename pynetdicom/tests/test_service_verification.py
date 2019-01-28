@@ -460,8 +460,8 @@ class TestVerificationServiceClass(object):
         rsp = assoc.send_c_echo()
         assert rsp.Status == 0x0000
 
-        assoc = attr['assoc']
-        assert assoc == scp.active_associations[0]
+        scp_assoc = attr['assoc']
+        assert scp_assoc == scp.active_associations[0]
 
         assoc.release()
         assert assoc.is_released
