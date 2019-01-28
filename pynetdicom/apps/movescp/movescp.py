@@ -18,7 +18,7 @@ from pydicom.uid import (
 )
 
 from pynetdicom import (
-    AE,
+    AE, evt,
     QueryRetrievePresentationContexts,
     StoragePresentationContexts
 )
@@ -31,7 +31,7 @@ LOGGER.addHandler(stream_logger)
 LOGGER.setLevel(logging.ERROR)
 
 
-VERSION = '0.3.0'
+VERSION = '0.4.0'
 
 
 def _setup_argparser():
@@ -160,7 +160,7 @@ if args.prefer_big and ExplicitVRBigEndian in transfer_syntax:
         transfer_syntax.remove(ExplicitVRBigEndian)
         transfer_syntax.insert(0, ExplicitVRBigEndian)
 
-def on_c_move(dataset, move_aet, context, info):
+def handle_move(event):
     """Implement the on_c_move callback"""
     basedir = '../../tests/dicom_files/'
     dcm_files = ['RTImageStorage.dcm']
@@ -168,7 +168,7 @@ def on_c_move(dataset, move_aet, context, info):
 
     # Address and port to send to
     if move_aet == b'ANY-SCP         ':
-        yield '127.0.0.1', 104
+        yield '127.0.0.1', 11112
     else:
         yield None, None
 
@@ -179,6 +179,12 @@ def on_c_move(dataset, move_aet, context, info):
     for dcm in dcm_files:
         ds = dcmread(dcm, force=True)
         yield 0xff00, ds
+
+def handle_store(event):
+    return 0x0000
+
+# Allow our SCP to act as the move destination
+handlers = [(evt.EVT_C_MOVE, handle_move), (evt.EVT_C_STORE, handle_store)]
 
 # Create application entity
 ae = AE(ae_title=args.aetitle)
@@ -198,6 +204,4 @@ ae.network_timeout = args.timeout
 ae.acse_timeout = args.acse_timeout
 ae.dimse_timeout = args.dimse_timeout
 
-ae.on_c_move = on_c_move
-
-ae.start_server(('', args.port))
+ae.start_server(('', args.port), evt_handlers=handlers)

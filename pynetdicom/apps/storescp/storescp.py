@@ -16,7 +16,7 @@ from pydicom.uid import (
 )
 
 from pynetdicom import (
-    AE,
+    AE, evt,
     StoragePresentationContexts,
     VerificationPresentationContexts,
     PYNETDICOM_IMPLEMENTATION_UID,
@@ -37,7 +37,7 @@ def setup_logger():
 
 
 LOGGER = setup_logger()
-VERSION = '0.4.0'
+VERSION = '0.5.0'
 
 
 def _setup_argparser():
@@ -118,29 +118,6 @@ def _setup_argparser():
     out_opts.add_argument('-od', "--output-directory", metavar="[d]irectory",
                           help="write received objects to existing directory d",
                           type=str)
-    """
-    out_opts.add_argument('-su', "--sort-on-study-uid",
-                          help="sort studies into subdirectories using "
-                                "Study Instance UID",
-                          action="store_true")
-    out_opts.add_argument('-su', "--sort-on-patient-id",
-                          help="sort studies into subdirectories using "
-                                "Patient ID and a timestamp",
-                          action="store_true")
-    out_opts.add_argument('-uf', "--default-filenames",
-                          help="generate filenames from instance UID",
-                          action="store_true",
-                          default=True)
-    """
-    """
-    # Event Options
-    event_opts = parser.add_argument_group('Event Options')
-    event_opts.add_argument('-xcr', "--exec-on-reception",
-                            metavar="[c]ommand",
-                            help="execute command c after receiving and "
-                                "processing one C-STORE-RQ message",
-                            type=str)
-    """
 
     # Miscellaneous
     misc_opts = parser.add_argument_group('Miscellaneous')
@@ -198,25 +175,35 @@ if args.prefer_big and ExplicitVRBigEndian in transfer_syntax:
     transfer_syntax.remove(ExplicitVRBigEndian)
     transfer_syntax.insert(0, ExplicitVRBigEndian)
 
-
-def on_c_store(ds, context, info):
-    """Store the pydicom Dataset `ds` in the DICOM File Format.
+def handle_store(event):
+    """Handle a C-STORE request.
 
     Parameters
     ----------
-    ds : pydicom.Dataset
-        The DICOM dataset sent in the C-STORE request.
-    context : pynetdicom.presentation.PresentationContextTuple
-        Details of the presentation context the dataset was sent under.
-    info : dict
-        A dict containing information about the association and DIMSE message.
+    event : pynetdicom.event.event
+        The event corresponding to a C-STORE request. Attributes are:
+
+        * *assoc*: the ``association.Association`` instance that received the
+          request
+        * *context*: the presentation context used for the request's *Data
+          Set* as a ``namedtuple``
+        * *request*: the C-STORE request as a ``dimse_primitives.C_STORE``
+          instance
+
+        Properties are:
+
+        * *dataset*: the C-STORE request's decoded *Data Set* as a pydicom
+          ``Dataset``
 
     Returns
     -------
     status : pynetdicom.sop_class.Status or int
         A valid return status code, see PS3.4 Annex B.2.3 or the
-        StorageServiceClass implementation for the available statuses
+        ``StorageServiceClass`` implementation for the available statuses
     """
+    if args.ignore:
+        return 0x0000
+
     mode_prefixes = {
         'CT Image Storage' : 'CT',
         'Enhanced CT Image Storage' : 'CTE',
@@ -237,16 +224,32 @@ def on_c_store(ds, context, info):
         'Secondary Capture Image Storage' : 'SC'
     }
 
+    ds = event.dataset
+
+    # Because pydicom uses deferred reads for its decoding, decoding errors
+    #   are hidden until encountered by accessing a faulty element
     try:
-        mode_prefix = mode_prefixes[ds.SOPClassUID.name]
+        sop_class = ds.SOPClassUID
+        sop_instance = ds.SOPInstanceUID
+    except Exception as exc:
+        # Unable to decode dataset
+        return 0xC210
+
+    try:
+        # Get the elements we need
+        sop_class = ds.SOPClassUID
+        mode_prefix = mode_prefixes[sop_class.name]
     except KeyError:
         mode_prefix = 'UN'
 
-    filename = '{0!s}.{1!s}'.format(mode_prefix, ds.SOPInstanceUID)
+    filename = '{0!s}.{1!s}'.format(mode_prefix, sop_instance)
     LOGGER.info('Storing DICOM file: {0!s}'.format(filename))
 
     if os.path.exists(filename):
         LOGGER.warning('DICOM file already exists, overwriting')
+
+    # Presentation context
+    cx = event.context
 
     ## DICOM File Format - File Meta Information Header
     # If a DICOM dataset is to be stored in the DICOM File Format then the
@@ -261,45 +264,46 @@ def on_c_store(ds, context, info):
     # Of these, we should update the following as pydicom will take care of
     #   the remainder
     meta = Dataset()
-    meta.MediaStorageSOPClassUID = ds.SOPClassUID
-    meta.MediaStorageSOPInstanceUID = ds.SOPInstanceUID
+    meta.MediaStorageSOPClassUID = sop_class
+    meta.MediaStorageSOPInstanceUID = sop_instance
     meta.ImplementationClassUID = PYNETDICOM_IMPLEMENTATION_UID
-    meta.TransferSyntaxUID = context.transfer_syntax
+    meta.TransferSyntaxUID = cx.transfer_syntax
 
     # The following is not mandatory, set for convenience
     meta.ImplementationVersionName = PYNETDICOM_IMPLEMENTATION_VERSION
 
     ds.file_meta = meta
-    ds.is_little_endian = context.transfer_syntax.is_little_endian
-    ds.is_implicit_VR = context.transfer_syntax.is_implicit_VR
+    ds.is_little_endian = cx.transfer_syntax.is_little_endian
+    ds.is_implicit_VR = cx.transfer_syntax.is_implicit_VR
 
     status_ds = Dataset()
     status_ds.Status = 0x0000
 
-    if not args.ignore:
-        # Try to save to output-directory
-        if args.output_directory is not None:
-            filename = os.path.join(args.output_directory, filename)
+    # Try to save to output-directory
+    if args.output_directory is not None:
+        filename = os.path.join(args.output_directory, filename)
 
-        try:
-            # We use `write_like_original=False` to ensure that a compliant
-            #   File Meta Information Header is written
-            ds.save_as(filename, write_like_original=False)
-            status_ds.Status = 0x0000 # Success
-        except IOError:
-            LOGGER.error('Could not write file to specified directory:')
-            LOGGER.error("    {0!s}".format(os.path.dirname(filename)))
-            LOGGER.error('Directory may not exist or you may not have write '
-                         'permission')
-            # Failed - Out of Resources - IOError
-            status_ds.Status = 0xA700
-        except:
-            LOGGER.error('Could not write file to specified directory:')
-            LOGGER.error("    {0!s}".format(os.path.dirname(filename)))
-            # Failed - Out of Resources - Miscellaneous error
-            status_ds.Status = 0xA701
+    try:
+        # We use `write_like_original=False` to ensure that a compliant
+        #   File Meta Information Header is written
+        ds.save_as(filename, write_like_original=False)
+        status_ds.Status = 0x0000 # Success
+    except IOError:
+        LOGGER.error('Could not write file to specified directory:')
+        LOGGER.error("    {0!s}".format(os.path.dirname(filename)))
+        LOGGER.error('Directory may not exist or you may not have write '
+                     'permission')
+        # Failed - Out of Resources - IOError
+        status_ds.Status = 0xA700
+    except:
+        LOGGER.error('Could not write file to specified directory:')
+        LOGGER.error("    {0!s}".format(os.path.dirname(filename)))
+        # Failed - Out of Resources - Miscellaneous error
+        status_ds.Status = 0xA701
 
     return status_ds
+
+handlers = [(evt.EVT_C_STORE, handle_store)]
 
 # Test output-directory
 if args.output_directory is not None:
@@ -325,6 +329,4 @@ ae.network_timeout = args.timeout
 ae.acse_timeout = args.acse_timeout
 ae.dimse_timeout = args.dimse_timeout
 
-ae.on_c_store = on_c_store
-
-ae.start_server((args.bind_addr, args.port))
+ae.start_server((args.bind_addr, args.port), evt_handlers=handlers)

@@ -17,7 +17,7 @@ from pydicom.uid import (
     ExplicitVRLittleEndian, ImplicitVRLittleEndian, ExplicitVRBigEndian
 )
 
-from pynetdicom import AE, QueryRetrievePresentationContexts
+from pynetdicom import AE, QueryRetrievePresentationContexts, evt
 
 logger = logging.Logger('findscp')
 stream_logger = logging.StreamHandler()
@@ -27,7 +27,7 @@ logger.addHandler(stream_logger)
 logger.setLevel(logging.ERROR)
 
 
-VERSION = '0.3.0'
+VERSION = '0.4.0'
 
 
 def _setup_argparser():
@@ -157,8 +157,8 @@ if args.prefer_big and ExplicitVRBigEndian in transfer_syntax:
         transfer_syntax.insert(0, ExplicitVRBigEndian)
 
 
-def on_c_find(dataset, context, info):
-    """Implement the ae.on_c_find callback."""
+def handle_find(event):
+    """Handle a C-FIND request."""
     basedir = '../../tests/dicom_files/'
     dcm_files = ['RTImageStorage.dcm']
     dcm_files = [os.path.join(basedir, x) for x in dcm_files]
@@ -176,6 +176,9 @@ def on_c_find(dataset, context, info):
         yield status_ds, ds
 
 
+handlers = [(evt.EVT_C_FIND, handle_find)]
+
+
 # Create application entity
 ae = AE(ae_title=args.aetitle)
 for context in QueryRetrievePresentationContexts:
@@ -190,4 +193,4 @@ ae.dimse_timeout = args.dimse_timeout
 
 ae.on_c_find = on_c_find
 
-ae.start_server(('', args.port))
+ae.start_server(('', args.port), evt_handlers=handlers)

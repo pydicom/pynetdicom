@@ -113,10 +113,17 @@ class ACSE(object):
             LOGGER.exception(exc)
             return {}
 
-        rsp = {
-            uid:ii for uid, ii in rsp.items()
-            if isinstance(ii, SOPClassCommonExtendedNegotiation)
-        }
+        try:
+            rsp = {
+                uid:ii for uid, ii in rsp.items()
+                if isinstance(ii, SOPClassCommonExtendedNegotiation)
+            }
+        except Exception as exc:
+            LOGGER.error(
+                "Invalid type returned by user's 'evt.EVT_SOP_COMMON' handler"
+            )
+            LOGGER.exception(exc)
+            return {}
 
         return rsp
 
@@ -191,7 +198,7 @@ class ACSE(object):
         # The UserIdentityNegotiation (request) item
         req = self.assoc.requestor.user_identity
         try:
-            default = evt.get_default_handler(evt.EVT_SOP_EXTENDED)
+            default = evt.get_default_handler(evt.EVT_USER_ID)
             if self.assoc.get_handlers(evt.EVT_USER_ID) != default:
                 identity_verified, response = evt.trigger(
                     self.assoc,
