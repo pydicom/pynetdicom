@@ -338,9 +338,6 @@ class Event(object):
         return self._event.name
 
 
-class HandlerNotImplementedError(Exception): pass
-
-
 # Default extended negotiation item handlers
 def default_async_ops_handler(event):
     """Default handler for when an Asynchronous Operations Window Negotiation
@@ -391,7 +388,7 @@ def default_async_ops_handler(event):
         currently supported the return value will be ignored and (1, 1).
         sent in response.
     """
-    raise HandlerNotImplementedError(
+    raise NotImplementedError(
         "No Asynchronous Operations Window Negotiation response will be "
         "sent"
     )
@@ -537,7 +534,7 @@ def default_user_identity_handler(event):
 
     * DICOM Standard Part 7, `Annex D.3.3.7 <http://dicom.nema.org/medical/dicom/current/output/chtml/part07/sect_D.3.3.7.html>`_
     """
-    raise HandlerNotImplementedError("No handler has been bound to evt.EVT_USER_ID")
+    raise NotImplementedError("No handler has been bound to evt.EVT_USER_ID")
 
 # Default service class request handlers
 def default_c_echo_handler(event):
@@ -739,7 +736,7 @@ def default_c_find_handler(event):
       `9.3.2 <http://dicom.nema.org/medical/dicom/current/output/html/part07.html#sect_9.3.2>`_
       and `Annex C <http://dicom.nema.org/medical/dicom/current/output/html/part07.html#chapter_C>`_
     """
-    raise HandlerNotImplementedError("No handler has been bound to evt.EVT_C_FIND")
+    raise NotImplementedError("No handler has been bound to evt.EVT_C_FIND")
 
 def default_c_get_handler(event):
     """Default handler for when a C-GET request is received.
@@ -877,7 +874,7 @@ def default_c_get_handler(event):
       `9.3.3 <http://dicom.nema.org/medical/dicom/current/output/html/part07.html#sect_9.3.3>`_
       and `Annex C <http://dicom.nema.org/medical/dicom/current/output/html/part07.html#chapter_C>`_
     """
-    raise HandlerNotImplementedError("No handler has been bound to evt.EVT_C_GET")
+    raise NotImplementedError("No handler has been bound to evt.EVT_C_GET")
 
 def default_c_move_handler(event):
     """Default handler for when a C-MOVE request is received.
@@ -1026,7 +1023,7 @@ def default_c_move_handler(event):
       `9.3.4 <http://dicom.nema.org/medical/dicom/current/output/html/part07.html#sect_9.3.4>`_
       and `Annex C <http://dicom.nema.org/medical/dicom/current/output/html/part07.html#chapter_C>`_
     """
-    raise HandlerNotImplementedError("No handler has been bound to evt.EVT_C_MOVE")
+    raise NotImplementedError("No handler has been bound to evt.EVT_C_MOVE")
 
 def default_c_store_handler(event):
     """Default handler for when a C-STORE request is received.
@@ -1133,7 +1130,7 @@ def default_c_store_handler(event):
     * DICOM Standard Part 10,
       `Section 7 <http://dicom.nema.org/medical/dicom/current/output/html/part10.html#chapter_7>`_
     """
-    raise HandlerNotImplementedError("No handler has been bound to evt.EVT_C_STORE")
+    raise NotImplementedError("No handler has been bound to evt.EVT_C_STORE")
 
 def default_n_action_handler(event):
     """Default handler for when an N-ACTION request is received.
@@ -1149,7 +1146,7 @@ def default_n_action_handler(event):
     ----------
     DICOM Standard Part 4, Annexes H, J, P, S, CC and DD
     """
-    raise HandlerNotImplementedError("No handler has been bound to evt.EVT_N_ACTION")
+    raise NotImplementedError("No handler has been bound to evt.EVT_N_ACTION")
 
 def default_n_create_handler(event):
     """Default handler for when an N-CREATE request is received.
@@ -1165,7 +1162,7 @@ def default_n_create_handler(event):
     ----------
     DICOM Standard Part 4, Annexes F, H, R, S, CC and DD
     """
-    raise HandlerNotImplementedError("No handler has been bound to evt.EVT_N_CREATE")
+    raise NotImplementedError("No handler has been bound to evt.EVT_N_CREATE")
 
 def default_n_delete_handler(event):
     """Default handler for when an N-DELETE request is received.
@@ -1181,7 +1178,7 @@ def default_n_delete_handler(event):
     ----------
     DICOM Standard Part 4, Annexes H and DD
     """
-    raise HandlerNotImplementedError("No handler has been bound to evt.EVT_N_DELETE")
+    raise NotImplementedError("No handler has been bound to evt.EVT_N_DELETE")
 
 def default_n_event_report_handler(event):
     """Default handler for when an N-EVENT-REPORT request is received.
@@ -1197,7 +1194,7 @@ def default_n_event_report_handler(event):
     ----------
     DICOM Standard Part 4, Annexes F, H, J, CC and DD
     """
-    raise HandlerNotImplementedError(
+    raise NotImplementedError(
         "No handler has been bound to evt.EVT_N_EVENT_REPORT"
     )
 
@@ -1263,7 +1260,7 @@ def default_n_get_handler(event):
     * DICOM Standard Part 4, `Annex DD <http://dicom.nema.org/medical/dicom/current/output/html/part04.html#chapter_DD>`_
     * DICOM Standard Part 4, `Annex EE <http://dicom.nema.org/medical/dicom/current/output/html/part04.html#chapter_EE>`_
     """
-    raise HandlerNotImplementedError("No handler has been bound to evt.EVT_N_GET")
+    raise NotImplementedError("No handler has been bound to evt.EVT_N_GET")
 
 def default_n_set_handler(event):
     """Default handler for when an N-SET request is received.
@@ -1279,4 +1276,4 @@ def default_n_set_handler(event):
     ----------
     DICOM Standard Part 4, Annexes H, J, P, S, CC and DD
     """
-    raise HandlerNotImplementedError("No handler has been bound to evt.EVT_N_SET")
+    raise NotImplementedError("No handler has been bound to evt.EVT_N_SET")
