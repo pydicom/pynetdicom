@@ -5,8 +5,8 @@ Events
 
 *pynetdicom* uses an event handler-based system to give the user access to the
 data exchanged between different services within an AE as well as the PDUs
-received from and sent to the peer AE. Two different types of events are used:
-*notification events* and *intervention events*.
+and data sent between the local and peer AEs. Two different types of events
+are used: *notification events* and *intervention events*.
 
 
 Notification Events
@@ -14,8 +14,8 @@ Notification Events
 
 Notification events are those events for which the event handler doesn't need
 to return or yield anything (i.e. the user is *notified* some event has
-occurred). Notification events can have multiple handlers
-bound to each event and any exceptions raised by any bound handlers are caught
+occurred). Each notification events can have multiple handlers
+bound to it and any exceptions raised by the handlers are caught
 and the exception message logged instead. The table below lists the available
 notification events.
 
@@ -36,6 +36,10 @@ notification events.
 +----------------------------+-----------------------------------+
 | ``evt.EVT_CONN_OPEN``      | Connection with remote opened     |
 +----------------------------+-----------------------------------+
+| ``evt.EVT_DATA_RECV``      | Data received from the peer AE    |
++----------------------------+-----------------------------------+
+| ``evt.EVT_DATA_SENT``      | Data sent to the peer AE          |
++----------------------------+-----------------------------------+
 | ``evt.EVT_DIMSE_RECV``     | DIMSE service received and        |
 |                            | decoded a message                 |
 +----------------------------+-----------------------------------+
@@ -48,17 +52,7 @@ notification events.
 +----------------------------+-----------------------------------+
 | ``evt.EVT_PDU_RECV``       | PDU received from the peer AE     |
 +----------------------------+-----------------------------------+
-| ``evt.EVT_DPU_SENT``       | PDU sent to the peer AE           |
-+----------------------------+-----------------------------------+
-| ``evt.EVT_PEER_ABORTED``   | Association aborted by peer AE    |
-+----------------------------+-----------------------------------+
-| ``evt.EVT_PEER_ACCEPTED``  | Association accepted by peer AE   |
-+----------------------------+-----------------------------------+
-| ``evt.EVT_PEER_REJECTED``  | Association rejected by peer AE   |
-+----------------------------+-----------------------------------+
-| ``evt.EVT_PEER_RELEASED``  | Association released by peer AE   |
-+----------------------------+-----------------------------------+
-| ``evt.EVT_PEER_REQUESTED`` | Association requested by peer AE  |
+| ``evt.EVT_PDU_SENT``       | PDU sent to the peer AE           |
 +----------------------------+-----------------------------------+
 | ``evt.EVT_REJECTED``       | Association rejected by local AE  |
 +----------------------------+-----------------------------------+
@@ -138,13 +132,13 @@ table below lists the possible intervention events.
 |                            | N-SET request                  |                           |
 +----------------------------+--------------------------------+---------------------------+
 
-Intervention events cover two broad classes of events; those related to
-extended association negotiation and those related to supporting service
-requests once an association has been established. For example, if a peer AE
-requests the use of the Storage service, then the ``evt.EVT_C_STORE`` event
-will be triggered and the user expected to handle storing the requested
-dataset and returning a *status* value.
-
 
 Event Handlers
 ..............
+
+All handlers bound to an event are passed a single parameter *event* which is
+an :py:class:`Event <pynetdicom.events.Event>` instance. All ``Event`` objects
+come with ``Event.assoc`` and ``Event.timestamp`` attributes which are the
+:py:class:`Association <pynetdicom.association.Association>` in which the event
+occurred and the date and time the event occurred at (as a python ``datetime``).
+Additional attributes and properties are available depending on the event type:
