@@ -1885,8 +1885,8 @@ class RelevantPatientInformationQueryServiceClass(ServiceClass):
             return
 
         # TODO: refactor in v1.4
-        default_handler = evt.get_default_handler(evt.EVT_C_MOVE)
-        if self.assoc.get_handlers(evt.EVT_C_MOVE) != default_handler:
+        default_handler = evt.get_default_handler(evt.EVT_C_FIND)
+        if self.assoc.get_handlers(evt.EVT_C_FIND) != default_handler:
             try:
                 responses = evt.trigger(
                     self.assoc,
@@ -1897,7 +1897,8 @@ class RelevantPatientInformationQueryServiceClass(ServiceClass):
                         '_is_cancelled' : self.is_cancelled
                     }
                 )
-            except StopIteration:
+                (rsp_status, rsp_identifier) = next(responses)
+            except (StopIteration, TypeError):
                 # There were no matches, so return Success
                 # If success, then rsp_identifier is None
                 rsp.Status = 0x0000
