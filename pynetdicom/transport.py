@@ -25,16 +25,6 @@ class AssociationSocket(object):
     Provides an interface for socket.socket that is integrated nicely with a
     pynetdicom Association instance and the state machine.
 
-    **Events**
-
-    +----------------------+-------------------------------+----------------+
-    | Event                | Description                   | Attributes     |
-    +======================+===============================+================+
-    | EVT_CONN_OPEN  | Connection with remote opened | address        |
-    +----------------------+-------------------------------+----------------+
-    | EVT_CONN_CLOSE | Connection with remote closed |                |
-    +----------------------+-------------------------------+----------------+
-
     Attributes
     ----------
     select_timeout : float or None
@@ -452,14 +442,6 @@ class AssociationServer(TCPServer):
     ``poll_interval`` is the timeout (in seconds) that the ``select.select()``
     call will block for (default 0.5). A value of 0 specifies a poll and never
     blocks. A value of None blocks until a connection is ready.
-
-    **Events**
-
-    +----------------------+-------------------------------+----------------+
-    | Event                | Description                   | Attributes     |
-    +======================+===============================+================+
-    | EVT_CONN_OPEN  | Connection with remote opened | address        |
-    +----------------------+-------------------------------+----------------+
 
     Attributes
     ----------

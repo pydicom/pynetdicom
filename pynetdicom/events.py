@@ -76,21 +76,21 @@ _NOTIFICATION_EVENTS = [
 def get_default_handler(event):
     """Get the default handler for an intervention `event`."""
     handlers = {
-        EVT_ASYNC_OPS : default_async_ops_handler,
-        EVT_SOP_COMMON : default_sop_common_handler,
-        EVT_SOP_EXTENDED : default_sop_extended_handler,
-        EVT_USER_ID : default_user_identity_handler,
-        EVT_C_ECHO : default_c_echo_handler,
-        EVT_C_FIND : default_c_find_handler,
-        EVT_C_GET : default_c_get_handler,
-        EVT_C_MOVE : default_c_move_handler,
-        EVT_C_STORE : default_c_store_handler,
-        EVT_N_ACTION : default_n_action_handler,
-        EVT_N_CREATE : default_n_create_handler,
-        EVT_N_DELETE : default_n_delete_handler,
-        EVT_N_EVENT_REPORT : default_n_event_report_handler,
-        EVT_N_GET : default_n_get_handler,
-        EVT_N_SET : default_n_set_handler,
+        EVT_ASYNC_OPS : _async_ops_handler,
+        EVT_SOP_COMMON : _sop_common_handler,
+        EVT_SOP_EXTENDED : _sop_extended_handler,
+        EVT_USER_ID : _user_identity_handler,
+        EVT_C_ECHO : _c_echo_handler,
+        EVT_C_FIND : _c_find_handler,
+        EVT_C_GET : _c_get_handler,
+        EVT_C_MOVE : _c_move_handler,
+        EVT_C_STORE : _c_store_handler,
+        EVT_N_ACTION : _n_action_handler,
+        EVT_N_CREATE : _n_create_handler,
+        EVT_N_DELETE : _n_delete_handler,
+        EVT_N_EVENT_REPORT : _n_event_report_handler,
+        EVT_N_GET : _n_get_handler,
+        EVT_N_SET : _n_set_handler,
     }
     return handlers[event]
 
@@ -197,6 +197,10 @@ class Event(object):
         self._event = event
         self.timestamp = datetime.now()
 
+        # Only decode a dataset when necessary
+        self._hash = None
+        self._decoded = None
+
         attrs = attrs or {}
         for kk, vv in attrs.items():
             if hasattr(self, kk):
@@ -206,18 +210,15 @@ class Event(object):
                 )
             setattr(self, kk, vv)
 
-        # Only decode a dataset when necessary
-        self._hash = None
-        self._decoded = None
-
     @property
     def dataset(self):
         """Return a C-STORE request's `Data Set` as a *pydicom* Dataset.
 
         Because *pydicom* defers data parsing during decoding until an element
         is actually required the returned ``Dataset`` may raise an exception
-        when first used. It's therefore important that proper error handling
-        be part of any handler bound to an event that includes a dataset.
+        when any element is first accessed. It's therefore important that
+        proper error handling be part of any handler bound to an event
+        that includes a dataset.
 
         Returns
         -------
@@ -264,8 +265,9 @@ class Event(object):
 
         Because *pydicom* defers data parsing during decoding until an element
         is actually required the returned ``Dataset`` may raise an exception
-        when first used. It's therefore important that proper error handling
-        be part of any handler bound to an event that includes a Dataset.
+        when any element is first accessed. It's therefore important that
+        proper error handling be part of any handler bound to an event that
+        includes a Dataset.
 
         Returns
         -------
@@ -329,54 +331,12 @@ class Event(object):
         return self._event.name
 
 
-# Default extended negotiation item handlers
-def default_async_ops_handler(event):
+# Default extended negotiation event handlers
+def _async_ops_handler(event):
     """Default handler for when an Asynchronous Operations Window Negotiation
     item is include in the association request.
 
-    Asynchronous operations are not supported by *pynetdicom* and any
-    request will always return the default number of operations
-    invoked/performed (1, 1), regardless of what values are returned by
-    the handler.
-
-    If the handler is not implemented then no response to the Asynchronous
-    Operations Window Negotiation will be sent in reply to the association
-    requestor.
-
-    **Event**
-
-    ``evt.EVT_ASYNC_OPS``
-
-    Parameters
-    ----------
-    event : event.Event
-        The event representing an association request being received which
-        contains an Asynchronous Operations Window Negotiation item. Event
-        attributes are:
-
-        * ``assoc`` : the
-          :py:class:`association <pynetdicom.association.Association>`
-          that is running the service that received the asynchronous operations
-          window negotiation request.
-        * ``invoked`` : the *Maximum Number Operations Invoked* parameter
-          value of the Asynchronous Operations Window request as an ``int``.
-          If the value is 0 then an unlimited number of invocations are
-          requested.
-        * ``performed`` : the *Maximum Number Operations Performed*
-          parameter value of the Asynchronous Operations Window request as an
-          ``int``. If the value is 0 then an unlimited number of performances
-          are requested.
-        * ``timestamp`` : the
-          `date and time <https://docs.python.org/3/library/datetime.html#datetime-objects>`_
-          that the negotiation request was processed by the ACSE.
-
-    Returns
-    -------
-    int, int
-        The (maximum number operations invoked, maximum number operations
-        performed). A value of 0 indicates that an unlimited number of
-        operations is supported. As asynchronous operations are not
-        supported the return value will be ignored and (1, 1) sent in response.
+    See _handlers.doc_handle_async for detailed documentation.
     """
     raise NotImplementedError(
         "No handler has been bound to 'evt.EVT_ASYNC_OPS', so no "
@@ -384,146 +344,27 @@ def default_async_ops_handler(event):
         "sent"
     )
 
-def default_sop_common_handler(event):
+def _sop_common_handler(event):
     """Default handler for when one or more SOP Class Common Extended
     Negotiation items are included in the association request.
 
-    **Event**
-
-    ``evt.EVT_SOP_COMMON``
-
-    Parameters
-    ----------
-    event : event.Event
-        The event representing an association request being received which
-        contains an Asynchronous Operations Window Negotiation item. Event
-        attributes are:
-
-        * ``assoc`` : the
-          :py:class:`association <pynetdicom.association.Association>`
-          that is running the service that received the SOP class common
-          extended negotiation request.
-        * ``items`` : the {*SOP Class UID* : SOPClassCommonExtendedNegotiation}
-          items sent by the requestor.
-        * ``timestamp`` : the
-          `date and time <https://docs.python.org/3/library/datetime.html#datetime-objects>`_
-          that the negotiation request was processed by the ACSE.
-
-    Returns
-    -------
-    dict
-        The {*SOP Class UID* : SOPClassCommonExtendedNegotiation} items
-        accepted by the acceptor. When receiving DIMSE messages containing
-        datasets corresponding to the *SOP Class UID* in an accepted item
-        the corresponding Service Class will be used.
-
-    References
-    ----------
-
-    * DICOM Standard Part 7, `Annex D.3.3.6 <http://dicom.nema.org/medical/dicom/current/output/chtml/part07/sect_D.3.3.6.html>`_
+    See _handlers.doc_handle_sop_common for detailed documentation.
     """
     return {}
 
-def default_sop_extended_handler(event):
+def _sop_extended_handler(event):
     """Default handler for when one or more SOP Class Extended Negotiation
     items are included in the association request.
 
-    **Event**
-
-    ``evt.EVT_SOP_EXTENDED``
-
-    Parameters
-    ----------
-    event : event.Event
-        The event representing an association request being received which
-        contains an Asynchronous Operations Window Negotiation item. Event
-        attributes are:
-
-        * ``app_info`` : the {*SOP Class UID* : *Service Class Application
-          Information*} parameter values for the included items, with the
-          service class application information being the raw encoded data sent
-          by the requestor (as ``bytes``).
-        * ``assoc`` : the
-          :py:class:`association <pynetdicom.association.Association>`
-          that is running the service that received the user identity
-          negotiation request.
-        * ``timestamp`` : the
-          `date and time <https://docs.python.org/3/library/datetime.html#datetime-objects>`_
-          that the negotiation request was processed by the ACSE.
-
-    Returns
-    -------
-    dict of pydicom.uid.UID, bytes
-        The {*SOP Class UID* : *Service Class Application Information*}
-        parameter values to be sent in response to the request, with the
-        service class application information being the encoded data that
-        will be sent to the peer as-is. Return an empty dict if no response is
-        to be sent.
-
-    References
-    ----------
-
-    * DICOM Standard Part 7, `Annex D.3.3.5 <http://dicom.nema.org/medical/dicom/current/output/chtml/part07/sect_D.3.3.5.html>`_
+    See _handlers.doc_handler_sop_extended for detailed documentation.
     """
     return {}
 
-def default_user_identity_handler(event):
+def _user_identity_handler(event):
     """Default hander for when a user identity negotiation item is included
     with the association request.
 
-    If not implemented by the user then the association will be accepted
-    (provided there's no other reason to reject it) and no User Identity
-    response will be sent in reply even if one is requested.
-
-    **Event**
-
-    ``evt.EVT_USER_ID``
-
-    Parameters
-    ----------
-    event : event.Event
-        The event representing an association request being received which
-        contains a User Identity Negotiation item. Event attributes are:
-
-        * ``assoc`` : the
-          :py:class:`association <pynetdicom.association.Association>`
-          that is running the service that received the user identity
-          negotiation request.
-        * ``primary_field`` : the *Primary Field* value (as ``bytes``),
-          contains the username, the encoded Kerberos ticket or the JSON web
-          token.
-        * ``secondary_field`` : the *Secondary Field* value. Will be ``None``
-          unless the ``user_id_type`` is ``2`` in which case it will be
-          ``bytes``.
-        * ``timestamp`` : the
-          `date and time <https://docs.python.org/3/library/datetime.html#datetime-objects>`_
-          that the negotiation request was processed by the ACSE.
-        * ``user_id_type`` : the *User Identity Type* value (as an ``int``),
-          which indicates the form of user identity being provided:
-
-          * 1 - Username as a UTF-8 string
-          * 2 - Username as a UTF-8 string and passcode
-          * 3 - Kerberos Service ticket
-          * 4 - SAML Assertion
-          * 5 - JSON Web Token
-
-    Returns
-    -------
-    is_verified : bool
-        Return True if the user identity has been confirmed and you wish
-        to proceed with association establishment, False otherwise.
-    response : bytes or None
-        If ``user_id_type`` is:
-
-        * 1 or 2, then return None
-        * 3 then return the Kerberos Server ticket as bytes
-        * 4 then return the SAML response as bytes
-        * 5 then return the JSON web token as bytes
-
-    References
-    ----------
-
-    * DICOM Standard Part 7, `Annex D.3.3.7 <http://dicom.nema.org/medical/dicom/current/output/chtml/part07/sect_D.3.3.7.html>`_
+    See _handlers.doc_handler_userid for detailed documentation.
     """
     raise NotImplementedError(
         "No handler has been bound to 'evt.EVT_USER_ID', so the User Identity "
@@ -532,57 +373,88 @@ def default_user_identity_handler(event):
     )
 
 # Default service class request handlers
-def default_c_echo_handler(event):
+def _c_echo_handler(event):
     """Default handler for when a C-ECHO request is received.
 
-    See _handlers.handle_echo for detailed documentation.
+    See _handlers.doc_handle_echo for detailed documentation.
     """
     return 0x0000
 
-def default_c_find_handler(event):
-    """Default handler for when a C-FIND request is received."""
+def _c_find_handler(event):
+    """Default handler for when a C-FIND request is received.
+
+    See _handlers.doc_handle_find for detailed documentation.
+    """
     raise NotImplementedError("No handler has been bound to 'evt.EVT_C_FIND'")
 
-def default_c_get_handler(event):
-    """Default handler for when a C-GET request is received."""
+def _c_get_handler(event):
+    """Default handler for when a C-GET request is received.
+
+    See _handlers.doc_handle_c_get for detailed documentation.
+    """
     raise NotImplementedError("No handler has been bound to 'evt.EVT_C_GET'")
 
-def default_c_move_handler(event):
-    """Default handler for when a C-MOVE request is received."""
+def _c_move_handler(event):
+    """Default handler for when a C-MOVE request is received.
+
+    See _handlers.doc_handle_move for detailed documentation.
+    """
     raise NotImplementedError("No handler has been bound to 'evt.EVT_C_MOVE'")
 
-def default_c_store_handler(event):
-    """Default handler for when a C-STORE request is received."""
+def _c_store_handler(event):
+    """Default handler for when a C-STORE request is received.
+
+    See _handlers.doc_handle_store for detailed documentation.
+    """
     raise NotImplementedError("No handler has been bound to 'evt.EVT_C_STORE'")
 
-def default_n_action_handler(event):
-    """Default handler for when an N-ACTION request is received."""
+def _n_action_handler(event):
+    """Default handler for when an N-ACTION request is received.
+
+    See _handlers.doc_handle_action for detailed documentation.
+    """
     raise NotImplementedError(
         "No handler has been bound to 'evt.EVT_N_ACTION'"
     )
 
-def default_n_create_handler(event):
-    """Default handler for when an N-CREATE request is received."""
+def _n_create_handler(event):
+    """Default handler for when an N-CREATE request is received.
+
+    See _handlers.doc_handle_create for detailed documentation.
+    """
     raise NotImplementedError(
         "No handler has been bound to 'evt.EVT_N_CREATE'"
     )
 
-def default_n_delete_handler(event):
-    """Default handler for when an N-DELETE request is received."""
+def _n_delete_handler(event):
+    """Default handler for when an N-DELETE request is received.
+
+    See _handlers.doc_handle_delete for detailed documentation.
+    """
     raise NotImplementedError(
         "No handler has been bound to 'evt.EVT_N_DELETE'"
     )
 
-def default_n_event_report_handler(event):
-    """Default handler for when an N-EVENT-REPORT request is received."""
+def _n_event_report_handler(event):
+    """Default handler for when an N-EVENT-REPORT request is received.
+
+    See _handlers.doc_handle_event_report for detailed documentation.
+    """
     raise NotImplementedError(
         "No handler has been bound to 'evt.EVT_N_EVENT_REPORT'"
     )
 
-def default_n_get_handler(event):
-    """Default handler for when an N-GET request is received."""
+def _n_get_handler(event):
+    """Default handler for when an N-GET request is received.
+
+    See _handlers.doc_handle_n_get for detailed documentation.
+    """
     raise NotImplementedError("No handler has been bound to 'evt.EVT_N_GET'")
 
-def default_n_set_handler(event):
-    """Default handler for when an N-SET request is received."""
+def _n_set_handler(event):
+    """Default handler for when an N-SET request is received.
+
+
+    See _handlers.doc_handle_set for detailed documentation.
+    """
     raise NotImplementedError("No handler has been bound to 'evt.EVT_N_SET'")

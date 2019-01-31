@@ -1,4 +1,4 @@
-"""Default logging handlers."""
+"""Standard logging event handlers."""
 
 import logging
 
@@ -2040,143 +2040,13 @@ def _recv_n_delete_rsp(event):
 
 
 # Example handlers used for the documentation
-# Notification event handlers
-def doc_handle_association_event(event):
-    """Handler bound to one of the association events.
-
-    Parameters
-    ----------
-    event : pynetdicom.events.Event
-        An association event with attributes:
-
-        * assoc : association.Association, the association the event
-          occurred in
-        * description : str, a description of the event
-        * name : str, the name of the event
-        * timestamp : datetime.datetime, the time the event occurred
-    """
-    pass
-
-def doc_handle_acse_event(event):
-    """Handler bound to one of the ACSE events.
-
-    Parameters
-    ----------
-    event : pynetdicom.events.Event
-        An association event with attributes:
-
-        * assoc : association.Association, the association the event
-          occurred in
-        * description : str, a description of the event
-        * name : str, the name of the event
-        * primitive : pdu_primitives.A_ASSOCIATE, A_RELEASE, A_ABORT
-          or A_P_ABORT, the primitive sent to or received from the
-          DUL service provider.
-        * timestamp : datetime.datetime, the time the event occurred
-    """
-    pass
-
-def doc_handle_dimse_event(event):
-    """Handler bound to one of the transport events.
-
-    Parameters
-    ----------
-    event : pynetdicom.events.Event
-        An association event with attributes:
-
-        * assoc : association.Association, the association the event
-          occurred in
-        * description : str, a description of the event
-        * message : dimse_messages.C_ECHO_RQ, C_ECHO_RSP, C_FIND_RQ,
-          C_FIND_RSP, C_GET_RQ, C_GET_RSP, C_STORE_RQ, C_STORE_RSP,
-          N_ACTION_RQ, N_ACTION_RSP, N_CREATE_RQ, N_CREATE_RSP,
-          N_DELETE_RQ, N_DELETE_RSP, N_EVENT_REPORT_RQ, N_EVENT_REPORT_RSP,
-          N_GET_RQ, N_GET_RSP, N_SET_RQ or N_SET_RSP, the DIMSE message
-          sent or received
-        * name : str, the name of the event
-        * timestamp : datetime.datetime, the time the event occurred
-    """
-    pass
-
-def doc_handle_transport_event(event):
-    """Handler bound to one of the transport events.
-
-    Parameters
-    ----------
-    event : pynetdicom.events.Event
-        An association event with attributes:
-
-        * address : tuple of (host, port), the address of the remote
-        * assoc : association.Association, the association the event
-          occurred in
-        * description : str, a description of the event
-        * name : str, the name of the event
-        * timestamp : datetime.datetime, the time the event occurred
-    """
-    pass
-
-def doc_handle_fsm_event(event):
-    """Handler bound to one of the transport events.
-
-    Parameters
-    ----------
-    event : pynetdicom.events.Event
-        An association event with attributes:
-
-        * action : str, the state machine action to perform
-        * assoc : association.Association, the association the event
-          occurred in
-        * current_state : str, the current state of the state machine
-        * description : str, a description of the event
-        * event_name : str, the state machine event that occurred
-        * name : str, the name of the event
-        * next_state : str, the next state of the state machine once the
-          action has taken place
-        * timestamp : datetime.datetime, the time the event occurred
-    """
-    pass
-
-def doc_handle_pdu_event(event):
-    """Handler bound to one of the transport events.
-
-    Parameters
-    ----------
-    event : pynetdicom.events.Event
-        An association event with attributes:
-
-        * assoc : association.Association, the association the event
-          occurred in
-        * description : str, a description of the event
-        * name : str, the name of the event
-        * pdu : pdu.A_ASSOCIATE_RQ, A_ASSOCIATE_AC, A_ASSOCIATE_RJ,
-          A_RELEASE_RQ, A_RELEASE_RP, A_ABORT_RQ, P_DATA_TF, the PDU
-          received from or sent to the peer.
-        * timestamp : datetime.datetime, the time the event occurred
-    """
-    pass
-
-def doc_handle_data_event(event):
-    """Handler bound to one of the data events.
-
-    Parameters
-    ----------
-    event : pynetdicom.events.Event
-        An association event with attributes:
-
-        * assoc : association.Association, the association the event
-          occurred in
-        * description : str, a description of the event
-        * data : bytes, the data sent to or received from the peer
-        * name : str, the name of the event
-        * timestamp : datetime.datetime, the time the event occurred
-    """
-    pass
-
 # Intervention event handler documentation
 def doc_handle_echo(event):
-    """Documentation for a handler bound to evt.EVT_C_ECHO.
+    """Documentation for handlers bound to evt.EVT_C_ECHO.
 
-    User implementation of this event handler is optional.
+    User implementation of this event handler is optional. If a handler is
+    not implemented and bound to evt.EVT_C_ECHO then the C-ECHO request
+    will be responded to using a  *Status* value of ``0x0000`` - Success.
 
     **Event**
 
@@ -2206,11 +2076,10 @@ def doc_handle_echo(event):
         * ``assoc`` : the
           :py:class:`association <pynetdicom.association.Association>`
           that is running the DICOM service that received the C-ECHO request.
-        * ``context`` : the
-          :py:class:`presentation context <pynetdicom.presentation.PresentationContext>`
-          the request was sent under.
+        * ``context`` : the presentation context the request was sent under
+          as a ``presentation.PresentationContextTuple``.
         * ``request`` : the received
-          :py:class:C-ECHO request <pynetdicom.dimse_primitives.C_ECHO>``
+          :py:class:`C-ECHO request <pynetdicom.dimse_primitives.C_ECHO>`
         * ``timestamp`` : the
           `date and time <https://docs.python.org/3/library/datetime.html#datetime-objects>`_
           that the C-ECHO request was processed by the service.
@@ -2228,9 +2097,9 @@ def doc_handle_echo(event):
     See Also
     --------
 
-    * :py:meth:`send_c_echo() <pynetdicom.association.Association.send_c_echo>`
-    * :py:class:`C_ECHO<pynetdicom.dimse_primitives.C_ECHO>`
-    * :py:class:`VerificationServiceClass<pynetdicom.service_class.VerificationServiceClass>`
+    :py:meth:`send_c_echo() <pynetdicom.association.Association.send_c_echo>`
+    :py:class:`C_ECHO<pynetdicom.dimse_primitives.C_ECHO>`
+    :py:class:`VerificationServiceClass<pynetdicom.service_class.VerificationServiceClass>`
 
     References
     ----------
@@ -2244,10 +2113,12 @@ def doc_handle_echo(event):
     pass
 
 def doc_handle_find(event):
-    """Documentation for a handler bound to evt.EVT_C_FIND.
+    """Documentation for handlers bound to evt.EVT_C_FIND.
 
     User implementation of this event handler is required if one or more
-    services that use C-FIND are to be supported.
+    services that use C-FIND are to be supported. If a handler is
+    not implemented and bound to evt.EVT_C_FIND then the C-FIND request
+    will be responded to using a  *Status* value of ``0xC311`` - Failure.
 
     Yields ``(status, identifier)`` pairs, where *status* is either an
     ``int`` or pydicom ``Dataset`` containing a (0000,0900) *Status*
@@ -2298,9 +2169,8 @@ def doc_handle_find(event):
         * ``assoc`` : the
           :py:class:`association <pynetdicom.association.Association>`
           that is running the service that received the C-FIND request.
-        * ``context`` : the
-          :py:class:`presentation context <pynetdicom.presentation.PresentationContext>`
-          the request was sent under.
+        * ``context`` : the presentation context the request was sent under
+          as a ``presentation.PresentationContextTuple``.
         * ``request`` : the received
           :py:class:`C-FIND request <pynetdicom.dimse_primitives.C_FIND>`
         * ``timestamp`` : the
@@ -2342,16 +2212,16 @@ def doc_handle_find(event):
 
     See Also
     --------
-    association.Association.send_c_find
-    dimse_primitives.C_FIND
-    service_class.QueryRetrieveFindServiceClass
-    service_class.BasicWorklistManagementServiceClass
-    service_class.RelevantPatientInformationQueryServiceClass
-    service_class.SubstanceAdministrationQueryServiceClass
-    service_class.HangingProtocolQueryRetrieveServiceClass
-    service_class.DefinedProcedureProtocolQueryRetrieveServiceClass
-    service_class.ColorPaletteQueryRetrieveServiceClass
-    service_class.ImplantTemplateQueryRetrieveServiceClass
+    :py:meth:`send_c_find()<pynetdicom.association.Association.send_c_find>`
+    :py:class:`C_FIND<pynetdicom.dimse_primitives.C_FIND>`
+    :py:class:`QueryRetrieveServiceClass<pynetdicom.service_class.QueryRetrieveServiceClass>`
+    :py:class:`BasicWorklistManagementServiceClass<pynetdicom.service_class.BasicWorklistManagementServiceClass>`
+    :py:class:`RelevantPatientInformationQueryServiceClass<pynetdicom.service_class.RelevantPatientInformationQueryServiceClass>`
+    :py:class:`SubstanceAdministrationQueryServiceClass<pynetdicom.service_class.SubstanceAdministrationQueryServiceClass>`
+    :py:class:`HangingProtocolQueryRetrieveServiceClass<pynetdicom.service_class.HangingProtocolQueryRetrieveServiceClass>`
+    :py:class:`DefinedProcedureProtocolQueryRetrieveServiceClass<pynetdicom.service_class.DefinedProcedureProtocolQueryRetrieveServiceClass>`
+    :py:class:`ColorPaletteQueryRetrieveServiceClass<pynetdicom.service_class.ColorPaletteQueryRetrieveServiceClass>`
+    :py:class:`ImplantTemplateQueryRetrieveServiceClass<pynetdicom.service_class.ImplantTemplateQueryRetrieveServiceClass>`
 
     References
     ----------
@@ -2374,10 +2244,12 @@ def doc_handle_find(event):
     pass
 
 def doc_handle_c_get(event):
-    """Documentation for a handler bound to evt.EVT_C_GET.
+    """Documentation for handlers bound to evt.EVT_C_GET.
 
     User implementation of this event handler is required if one or more
-    services that use C-GET are to be supported.
+    services that use C-GET are to be supported. If a handler is
+    not implemented and bound to evt.EVT_C_GET then the C-GET request
+    will be responded to using a  *Status* value of ``0xC411`` - Failure.
 
     Yields an ``int`` containing the total number of C-STORE sub-operations,
     then yields ``(status, dataset)`` pairs.
@@ -2434,9 +2306,8 @@ def doc_handle_c_get(event):
         * ``assoc`` : the
           :py:class:`association <pynetdicom.association.Association>`
           that is running the service that received the C-GET request.
-        * ``context`` : the
-          :py:class:`presentation context <pynetdicom.presentation.PresentationContext>`
-          the request was sent under.
+        * ``context`` : the presentation context the request was sent under
+          as a ``presentation.PresentationContextTuple``.
         * ``request`` : the received
           :py:class:`C-GET request <pynetdicom.dimse_primitives.C_GET>`
         * ``timestamp`` : the
@@ -2484,13 +2355,13 @@ def doc_handle_c_get(event):
 
     See Also
     --------
-    association.Association.send_c_get
-    dimse_primitives.C_GET
-    service_class.QueryRetrieveGetServiceClass
-    service_class.HangingProtocolQueryRetrieveServiceClass
-    service_class.DefinedProcedureProtocolQueryRetrieveServiceClass
-    service_class.ColorPaletteQueryRetrieveServiceClass
-    service_class.ImplantTemplateQueryRetrieveServiceClass
+    :py:meth:`send_c_get()<pynetdicom.association.Association.send_c_get>`
+    :py:class:`C_GET<pynetdicom.dimse_primitives.C_GET>`
+    :py:class:`QueryRetrieveServiceClass<pynetdicom.service_class.QueryRetrieveServiceClass>`
+    :py:class:`HangingProtocolQueryRetrieveServiceClass<pynetdicom.service_class.HangingProtocolQueryRetrieveServiceClass>`
+    :py:class:`DefinedProcedureProtocolQueryRetrieveServiceClass<pynetdicom.service_class.DefinedProcedureProtocolQueryRetrieveServiceClass>`
+    :py:class:`ColorPaletteQueryRetrieveServiceClass<pynetdicom.service_class.ColorPaletteQueryRetrieveServiceClass>`
+    :py:class:`ImplantTemplateQueryRetrieveServiceClass<pynetdicom.service_class.ImplantTemplateQueryRetrieveServiceClass>`
 
     References
     ----------
@@ -2511,10 +2382,12 @@ def doc_handle_c_get(event):
     pass
 
 def doc_handle_move(event):
-    """Documentation for a handler bound to evt.EVT_C_MOVE.
+    """Documentation for handlers bound to evt.EVT_C_MOVE.
 
     User implementation of this event handler is required if one or more
-    services that use C-MOVE are to be supported.
+    services that use C-MOVE are to be supported. If a handler is
+    not implemented and bound to evt.EVT_C_MOVE then the C-MOVE request
+    will be responded to using a  *Status* value of ``0xC511`` - Failure.
 
     The first yield should be the ``(addr, port)`` of the move destination,
     the second yield the number of required C-STORE sub-operations as an
@@ -2577,9 +2450,8 @@ def doc_handle_move(event):
         * ``assoc`` : the
           :py:class:`association <pynetdicom.association.Association>`
           that is running the service that received the C-MOVE request.
-        * ``context`` : the
-          :py:class:`presentation context <pynetdicom.presentation.PresentationContext>`
-          the request was sent under.
+        * ``context`` : the presentation context the request was sent under
+          as a ``presentation.PresentationContextTuple``.
         * ``request`` : the received
           :py:class:`C-MOVE request <pynetdicom.dimse_primitives.C_MOVE>`
         * ``timestamp`` : the
@@ -2595,8 +2467,8 @@ def doc_handle_move(event):
           ``Dataset`` will only raise an exception at the time of use.
         * ``is_cancelled`` : returns ``True`` if a
           C-CANCEL request has been received, False otherwise. If a C-CANCEL
-          is received then the handler should ``yield (0xFE00, None)`` and
-          return.
+          is received then the handler should yield a ``(0xFE00, None)``
+          status/dataset pair and return.
 
     Yields
     ------
@@ -2633,13 +2505,13 @@ def doc_handle_move(event):
 
     See Also
     --------
-    association.Association.send_c_move
-    dimse_primitives.C_MOVE
-    service_class.QueryRetrieveMoveServiceClass
-    service_class.HangingProtocolQueryRetrieveServiceClass
-    service_class.DefinedProcedureProtocolQueryRetrieveServiceClass
-    service_class.ColorPaletteQueryRetrieveServiceClass
-    service_class.ImplantTemplateQueryRetrieveServiceClass
+    :py:meth:`send_c_move()<pynetdicom.association.Association.send_c_move>`
+    :py:class:`C_MOVE<pynetdicom.dimse_primitives.C_MOVE>`
+    :py:class:`QueryRetrieveServiceClass<pynetdicom.service_class.QueryRetrieveServiceClass>`
+    :py:class:`HangingProtocolQueryRetrieveServiceClass<pynetdicom.service_class.HangingProtocolQueryRetrieveServiceClass>`
+    :py:class:`DefinedProcedureProtocolQueryRetrieveServiceClass<pynetdicom.service_class.DefinedProcedureProtocolQueryRetrieveServiceClass>`
+    :py:class:`ColorPaletteQueryRetrieveServiceClass<pynetdicom.service_class.ColorPaletteQueryRetrieveServiceClass>`
+    :py:class:`ImplantTemplateQueryRetrieveServiceClass<pynetdicom.service_class.ImplantTemplateQueryRetrieveServiceClass>`
 
     References
     ----------
@@ -2659,10 +2531,12 @@ def doc_handle_move(event):
     pass
 
 def doc_handle_store(event):
-    """Documentation for a handler bound to evt.EVT_C_STORE.
+    """Documentation for handlers bound to evt.EVT_C_STORE.
 
     User implementation of this event handler is required if one or more
-    services that use C-STORE are to be supported.
+    services that use C-STORE are to be supported. If a handler is
+    not implemented and bound to evt.EVT_C_STORE then the C-STORE request
+    will be responded to using a  *Status* value of ``0xC211`` - Failure.
 
     If the user is storing the dataset in the DICOM File Format (as in the
     DICOM Standard Part 10, Section 7) then they are responsible for adding
@@ -2707,9 +2581,8 @@ def doc_handle_store(event):
         * ``assoc`` : the
           :py:class:`association <pynetdicom.association.Association>`
           that is running the service that received the C-STORE request.
-        * ``context`` : the
-          :py:class:`presentation context <pynetdicom.presentation.PresentationContext>`
-          the request was sent under.
+        * ``context`` : the presentation context the request was sent under
+          as a ``presentation.PresentationContextTuple``.
         * ``request`` : the received
           :py:class:`C-STORE request <pynetdicom.dimse_primitives.C_STORE>`
         * ``timestamp`` : the
@@ -2742,10 +2615,10 @@ def doc_handle_store(event):
 
     See Also
     --------
-    association.Association.send_c_store
-    dimse_primitives.C_STORE
-    service_class.StorageServiceClass
-    service_class.NonPatientObjectStorageServiceClass
+    :py:meth:`send_c_store()<pynetdicom.association.Association.send_c_store>`
+    :py:class:`C_STORE<pynetdicom.dimse_primitives.C_STORE>`
+    :py:class:`StorageServiceClass<pynetdicom.service_class.StorageServiceClass>`
+    :py:class:`NonPatientObjectStorageServiceClass<pynetdicom.service_class.NonPatientObjectStorageServiceClass>`
 
     References
     ----------
@@ -2765,7 +2638,7 @@ def doc_handle_store(event):
     pass
 
 def doc_handle_action(event):
-    """Documentation for a handler bound to evt.EVT_N_ACTION.
+    """Documentation for handlers bound to evt.EVT_N_ACTION.
 
     User implementation of this event handler is required if one or more
     services that use N-ACTION are to be supported.
@@ -2781,7 +2654,7 @@ def doc_handle_action(event):
     pass
 
 def doc_handle_create(event):
-    """Documentation for a handler bound to evt.EVT_N_CREATE.
+    """Documentation for handlers bound to evt.EVT_N_CREATE.
 
     User implementation of this event handler is required if one or more
     services that use N-CREATE are to be supported.
@@ -2797,7 +2670,7 @@ def doc_handle_create(event):
     pass
 
 def doc_handle_delete(event):
-    """Documentation for a handler bound to evt.EVT_N_DELETE.
+    """Documentation for handlers bound to evt.EVT_N_DELETE.
 
     User implementation of this event handler is required if one or more
     services that use N-DELETE are to be supported.
@@ -2813,7 +2686,7 @@ def doc_handle_delete(event):
     pass
 
 def doc_handle_event_report(event):
-    """Documentation for a handler bound to evt.EVT_N_EVENT_REPORT.
+    """Documentation for handlers bound to evt.EVT_N_EVENT_REPORT.
 
     User implementation of this event handler is required if one or more
     services that use N-EVENT-REPORT are to be supported.
@@ -2829,10 +2702,12 @@ def doc_handle_event_report(event):
     pass
 
 def doc_handle_n_get(event):
-    """Documentation for a handler bound to evt.EVT_N_GET.
+    """Documentation for handlers bound to evt.EVT_N_GET.
 
     User implementation of this event handler is required if one or more
-    services that use N-GET are to be supported.
+    services that use N-GET are to be supported. If a handler is
+    not implemented and bound to evt.EVT_N_GET then the N_GET request
+    will be responded to using a  *Status* value of ``0x0110`` - Failure.
 
     **Event**
 
@@ -2847,9 +2722,8 @@ def doc_handle_n_get(event):
         * ``assoc`` : the
           :py:class:`association <pynetdicom.association.Association>`
           that is running the service that received the N-GET request.
-        * ``context`` : the
-          :py:class:`presentation context <pynetdicom.presentation.PresentationContext>`
-          the request was sent under.
+        * ``context`` : the presentation context the request was sent under
+          as a ``presentation.PresentationContextTuple``.
         * ``request`` : the received
           :py:class:`N-GET request <pynetdicom.dimse_primitives.N_GET>`
         * ``timestamp`` : the
@@ -2875,9 +2749,9 @@ def doc_handle_n_get(event):
 
     See Also
     --------
-    association.Association.send_n_get
-    dimse_primitives.N_GET
-    service_class.DisplaySystemManagementServiceClass
+    :py:meth:`send_n_get()<pynetdicom.association.Association.send_n_get>`
+    :py:class:`N_GET<pynetdicom.dimse_primitives.N_GET>`
+    :py:class:`DisplaySystemManagementServiceClass<pynetdicom.service_class_n.DisplaySystemManagementServiceClass>`
 
     References
     ----------
@@ -2892,7 +2766,7 @@ def doc_handle_n_get(event):
     pass
 
 def doc_handle_set(event):
-    """Documentation for a handler bound to evt.EVT_N_SET.
+    """Documentation for handlers bound to evt.EVT_N_SET.
 
     User implementation of this event handler is required if one or more
     services that use N-SET are to be supported.
@@ -2904,5 +2778,395 @@ def doc_handle_set(event):
     References
     ----------
     DICOM Standard Part 4, Annexes H, J, P, S, CC and DD
+    """
+    pass
+
+def doc_handle_async(event):
+    """Documentation for handlers bound to evt.EVT_ASYNC_OPS.
+
+    User implementation of this event handler is optional. If a handler is
+    not implemented and bound to evt.EVT_ASYNC_OPS then no response to the
+    Asynchronous Operations Window
+    Negotiation item will be sent in reply to the association requestor.
+
+    Because *pynetdicom* doesn't support asynchronous operations if the
+    handler is implemented then the response to the asynchronous
+    operations window negotiation request will always return the default
+    number of operations invoked/performed, (1, 1), regardless of what
+    values are returned by the handler.
+
+    **Event**
+
+    ``evt.EVT_ASYNC_OPS``
+
+    Parameters
+    ----------
+    event : event.Event
+        The event representing an association request being received which
+        contains an Asynchronous Operations Window Negotiation item. Event
+        attributes are:
+
+        * ``assoc`` : the
+          :py:class:`association <pynetdicom.association.Association>`
+          that received the Asynchronous Operations Window Negotiation request.
+        * ``invoked`` : the *Maximum Number Operations Invoked* parameter
+          value of the Asynchronous Operations Window Negotiation request as
+          an ``int``. If the value is 0 then an unlimited number of
+          invocations are requested.
+        * ``performed`` : the *Maximum Number Operations Performed*
+          parameter value of the Asynchronous Operations Window Negotiation
+          request as an ``int``. If the value is 0 then an unlimited number
+          of performances are requested.
+        * ``timestamp`` : the
+          `date and time <https://docs.python.org/3/library/datetime.html#datetime-objects>`_
+          that the negotiation request was processed by the ACSE.
+
+    Returns
+    -------
+    int, int
+        The (maximum number operations invoked, maximum number operations
+        performed). A value of 0 indicates that an unlimited number of
+        operations is supported. As asynchronous operations are not
+        supported the returned values will be ignored and (1, 1) sent in
+        response.
+    """
+    pass
+
+def doc_handle_sop_common(event):
+    """Documentation for handlers bound to evt.EVT_SOP_COMMON.
+
+    User implementation of this event handler is required only if SOP Class
+    Common Extended Negotiation is to be supported by the association.
+
+    **Event**
+
+    ``evt.EVT_SOP_COMMON``
+
+    Parameters
+    ----------
+    event : event.Event
+        The event representing an association request being received which
+        contains one or more SOP Class Common Extended Negotiation items. Event
+        attributes are:
+
+        * ``assoc`` : the
+          :py:class:`association <pynetdicom.association.Association>`
+          that received the SOP Class Common Extended Negotiation request.
+        * ``items`` : the {*SOP Class UID* :
+          py:class:`SOP Class Common Extended Negotiation
+          <pynetdicom.pdu_primitives.SOPClassCommonExtendedNegotiation>`}
+          items sent by the requestor.
+        * ``timestamp`` : the
+          `date and time <https://docs.python.org/3/library/datetime.html#datetime-objects>`_
+          that the negotiation request was processed by the ACSE.
+
+    Returns
+    -------
+    dict
+        The {*SOP Class UID* :
+        py:class:`SOP Class Common Extended Negotiation
+        <pynetdicom.pdu_primitives.SOPClassCommonExtendedNegotiation>`} items
+        accepted by the acceptor. When receiving DIMSE messages containing
+        datasets corresponding to the *SOP Class UID* in an accepted item
+        the corresponding Service Class will be used (if available).
+
+    References
+    ----------
+
+    * DICOM Standard Part 7, `Annex D.3.3.6 <http://dicom.nema.org/medical/dicom/current/output/chtml/part07/sect_D.3.3.6.html>`_
+    """
+    pass
+
+def doc_handle_sop_extended(event):
+    """Documentation for handlers bound to evt.EVT_SOP_EXTENDED.
+
+    User implementation of this event handler is required only if SOP Class
+    Extended Negotiation is to be supported by the association. If a handler
+    is not implemented and bound to evt.EVT_SOP_EXTENDED then no response
+    will be sent to the SOP Class Extended Negotiation request.
+
+    **Event**
+
+    ``evt.EVT_SOP_EXTENDED``
+
+    Parameters
+    ----------
+    event : event.Event
+        The event representing an association request being received which
+        contains one or more SOP Class Extended Negotiation item. Event
+        attributes are:
+
+        * ``app_info`` : the {*SOP Class UID* : *Service Class Application
+          Information*} parameter values for the included items, with the
+          service class application information being the raw encoded data sent
+          by the requestor (as ``bytes``).
+        * ``assoc`` : the
+          :py:class:`association <pynetdicom.association.Association>`
+          that is running the service that received the user identity
+          negotiation request.
+        * ``timestamp`` : the
+          `date and time <https://docs.python.org/3/library/datetime.html#datetime-objects>`_
+          that the negotiation request was processed by the ACSE.
+
+    Returns
+    -------
+    dict of pydicom.uid.UID, bytes
+        The {*SOP Class UID* : *Service Class Application Information*}
+        parameter values to be sent in response to the request, with the
+        service class application information being the encoded data that
+        will be sent to the peer as-is. Return an empty ``dict`` if no
+        response is to be sent.
+
+    References
+    ----------
+
+    * DICOM Standard Part 7, `Annex D.3.3.5 <http://dicom.nema.org/medical/dicom/current/output/chtml/part07/sect_D.3.3.5.html>`_
+    """
+    pass
+
+def doc_handle_userid(event):
+    """Documentation for handlers bound to evt.EVT_USER_ID.
+
+    User implementation of this handler is required if User Identity
+    Negotiation is to be supported by the association. If no handler is
+    implemented and bound to evt.EVT_USER_ID
+    then the association will be accepted (provided there's no other reason
+    to reject it) and no User Identity Negotiation response will be sent in
+    reply even if one is requested.
+
+    **Event**
+
+    ``evt.EVT_USER_ID``
+
+    Parameters
+    ----------
+    event : event.Event
+        The event representing an association request being received which
+        contains a User Identity Negotiation item. Event attributes are:
+
+        * ``assoc`` : the
+          :py:class:`association <pynetdicom.association.Association>`
+          that is running the service that received the user identity
+          negotiation request.
+        * ``primary_field`` : the *Primary Field* value (as ``bytes``),
+          contains the username, the encoded Kerberos ticket or the JSON web
+          token, depending on the value of ``user_id_type``.
+        * ``secondary_field`` : the *Secondary Field* value. Will be ``None``
+          unless the ``user_id_type`` is ``2`` in which case it will be
+          ``bytes``.
+        * ``timestamp`` : the
+          `date and time <https://docs.python.org/3/library/datetime.html#datetime-objects>`_
+          that the negotiation request was processed by the ACSE.
+        * ``user_id_type`` : the *User Identity Type* value (as an ``int``),
+          which indicates the form of user identity being provided:
+
+          * 1 - Username as a UTF-8 string
+          * 2 - Username as a UTF-8 string and passcode
+          * 3 - Kerberos Service ticket
+          * 4 - SAML Assertion
+          * 5 - JSON Web Token
+
+    Returns
+    -------
+    is_verified : bool
+        Return True if the user identity has been confirmed and you wish
+        to proceed with association establishment, False otherwise.
+    response : bytes or None
+        If ``user_id_type`` is:
+
+        * 1 or 2, then return None
+        * 3 then return the Kerberos Server ticket as bytes
+        * 4 then return the SAML response as bytes
+        * 5 then return the JSON web token as bytes
+
+    References
+    ----------
+
+    * DICOM Standard Part 7, `Annex D.3.3.7 <http://dicom.nema.org/medical/dicom/current/output/chtml/part07/sect_D.3.3.7.html>`_
+    """
+    pass
+
+# Notification event handler documentation
+def doc_handle_acse(event):
+    """Documentation for handlers bound to evt.EVT_ACSE_RECV or
+    evt.EVT_ACSE_SENT.
+
+    Parameters
+    ----------
+    event : event.Event
+        Represents the ACSE service provider receiving or sending an
+        association related primitive to/from the DUL service provider.
+        Event attributes are:
+
+        * ``assoc`` : the
+          :py:class:`association <pynetdicom.association.Association>`
+          that is running the service that received the user identity
+          negotiation request.
+        * ``primitive`` : the ACSE primitive sent to or received from the
+          DUL service provider. One of
+          :py:class:`A_ASSOCIATE<pynetdicom.pdu_primitives.A_ASSOCIATE>`,
+          :py:class:`A_RELEASE<pynetdicom.pdu_primitives.A_RELEASE>`,
+          :py:class:`A_ABORT<pynetdicom.pdu_primitives.A_ABORT>` or
+          :py:class:`A_P_ABORT<pynetdicom.pdu_primitives.A_P_ABORT>`.
+        * ``timestamp`` : the
+          `date and time <https://docs.python.org/3/library/datetime.html#datetime-objects>`_
+          that the negotiation request was processed by the ACSE.
+    """
+    pass
+
+def doc_handle_dimse(event):
+    """Documentation for handlers bound to evt.EVT_DIMSE_RECV or
+    evt.EVT_DIMSE_SENT.
+
+    Parameters
+    ----------
+    event : event.Event
+        Represents the DIMSE service provider decoding a DIMSE message after
+        receiving the final P-DATA primitive that contained it, or encoding
+        and converting a DIMSE message into P-DATA primitives. Event
+        attributes are:
+
+        * ``assoc`` : the
+          :py:class:`association <pynetdicom.association.Association>`
+          that is running the service that received the user identity
+          negotiation request.
+        * ``message`` : the DIMSE message encoding or decoded. One of
+          :py:class:`C_ECHO_RQ<pynetdicom.dimse_messages.C_ECHO_RQ>`,
+          :py:class:`C_ECHO_RQ<pynetdicom.dimse_messages.C_ECHO_RSP>`,
+          :py:class:`C_FIND_RQ<pynetdicom.dimse_messages.C_FIND_RQ>`,
+          :py:class:`C_FIND_RSP<pynetdicom.dimse_messages.C_FIND_RSP>`,
+          :py:class:`C_GET_RQ<pynetdicom.dimse_messages.C_GET_RQ>`,
+          :py:class:`C_GET_RSP<pynetdicom.dimse_messages.C_GET_RSP>`,
+          :py:class:`C_MOVE_RQ<pynetdicom.dimse_messages.C_MOVE_RQ>`,
+          :py:class:`C_MOVE_RSP<pynetdicom.dimse_messages.C_MOVE_RSP>`,
+          :py:class:`C_STORE_RQ<pynetdicom.dimse_messages.C_STORE_RQ>`,
+          :py:class:`C_STORE_RSP<pynetdicom.dimse_messages.C_STORE_RSP>`,
+          :py:class:`N_ACTION_RQ<pynetdicom.dimse_messages.N_ACTION_RQ>`,
+          :py:class:`N_ACTION_RSP<pynetdicom.dimse_messages.N_ACTION_RSP>`,
+          :py:class:`N_CREATE_RQ<pynetdicom.dimse_messages.N_CREATE_RQ>`,
+          :py:class:`N_CREATE_RSP<pynetdicom.dimse_messages.N_CREATE_RSP>`,
+          :py:class:`N_DELETE_RQ<pynetdicom.dimse_messages.N_DELETE_RQ>`,
+          :py:class:`N_DELETE_RSP<pynetdicom.dimse_messages.N_DELETE_RSP>`,
+          :py:class:`N_EVENT_REPORT_RQ<pynetdicom.dimse_messages.N_EVENT_REPORT_RQ>`,
+          :py:class:`N_EVENT_REPORT_RSP<pynetdicom.dimse_messages.N_EVENT_REPORT_RSP>`,
+          :py:class:`N_GET_RQ<pynetdicom.dimse_messages.N_GET_RQ>`,
+          :py:class:`N_GET_RSP<pynetdicom.dimse_messages.N_GET_RSP>`,
+          :py:class:`N_SET_RQ<pynetdicom.dimse_messages.N_SET_RQ>` or
+          :py:class:`N_SET_RSP<pynetdicom.dimse_messages.N_SET_RSP>`
+        * ``timestamp`` : the
+          `date and time <https://docs.python.org/3/library/datetime.html#datetime-objects>`_
+          that the negotiation request was processed by the ACSE.
+    """
+    pass
+
+def doc_handle_data(event):
+    """Documentation for handlers bound to evt.EVT_DATA_RECV or
+    evt.EVT_DATA_SENT.
+
+    Parameters
+    ----------
+    event : event.Event
+        Represents data being sent to or received from the remote over the
+        socket. Event attributes are:
+
+        * ``assoc`` : the
+          :py:class:`association <pynetdicom.association.Association>`
+          that is running the service that received the user identity
+          negotiation request.
+        * ``data`` : the data sent to or received from the remote (as
+          ``bytes``).
+        * ``timestamp`` : the
+          `date and time <https://docs.python.org/3/library/datetime.html#datetime-objects>`_
+          that the negotiation request was processed by the ACSE.
+    """
+    pass
+
+def doc_handle_pdu(event):
+    """Documentation for handlers bound to evt.EVT_PDU_RECV or
+    evt.EVT_PDU_SENT.
+
+    Parameters
+    ----------
+    event : event.Event
+        Represents the DUL service provider sending or receiving a PDU.
+        Event attributes are:
+
+        * ``assoc`` : the
+          :py:class:`association <pynetdicom.association.Association>`
+          that is running the service that received the user identity
+          negotiation request.
+        * ``pdu`` : the PDU sent to or received from the peer. One of:
+          :py:class:`A_ASSOCIATE_RQ<pynetdicom.pdu.A_ASSOCIATE_RQ>`,
+          :py:class:`A_ASSOCIATE_RJ<pynetdicom.pdu.A_ASSOCIATE_RJ>`,
+          :py:class:`A_ASSOCIATE_AC<pynetdicom.pdu.A_ASSOCIATE_AC>`,
+          :py:class:`A_RELEASE_RQ<pynetdicom.pdu.A_RELEASE_RQ>`,
+          :py:class:`A_RELEASE_RP<pynetdicom.pdu.A_RELEASE_RP>`,
+          :py:class:`A_ABORT_RQ<pynetdicom.pdu.A_ABORT_RQ>` or
+          :py:class:`P_DATA_TF<pynetdicom.pdu.P_DATA_TF>`.
+        * ``timestamp`` : the
+          `date and time <https://docs.python.org/3/library/datetime.html#datetime-objects>`_
+          that the negotiation request was processed by the ACSE.
+    """
+    pass
+
+def doc_handle_transport(event):
+    """Documentation for handlers bound to evt.EVT_CONN_OPEN or
+    evt.EVT_CONN_CLOSE.
+
+    Parameters
+    ----------
+    event : event.Event
+        Represents opening or closing a transport connection. Event
+        attributes are:
+
+        * ``address`` : the (host, port) of the remote as (str, int).
+        * ``assoc`` : the
+          :py:class:`association <pynetdicom.association.Association>`
+          that is running the service that received the user identity
+          negotiation request.
+        * ``timestamp`` : the
+          `date and time <https://docs.python.org/3/library/datetime.html#datetime-objects>`_
+          that the negotiation request was processed by the ACSE.
+    """
+    pass
+
+def doc_handle_assoc(event):
+    """Documentation for handlers bound to evt.EVT_ACCEPTED,
+    evt.EVT_ESTABLISHED, evt.EVT_REJECTED, evt.EVT_REQUESTED, evt.EVT_RELEASED
+    or EVT_ABORTED.
+
+    Parameters
+    ----------
+    event : event.Event
+        Represents moving to one of the main association states. Event
+        attributes are:
+
+        * ``address`` : the (host, port) of the remote as (str, int).
+        * ``timestamp`` : the
+          `date and time <https://docs.python.org/3/library/datetime.html#datetime-objects>`_
+          that the negotiation request was processed by the ACSE.
+    """
+    pass
+
+def doc_handle_fsm(event):
+    """Documentation for handlers bound to evt.EVT_FSM_TRANSITION.
+
+    Parameters
+    ----------
+    event : event.Event
+        Represents the state machine receiving a triggering event and being
+        about to perform the action that will take it to the next state.
+        Event attributes are:
+
+        * ``action`` : the name of the action that's to be performed.
+        * ``address`` : the (host, port) of the remote as (str, int).
+        * ``current_state`` : the current state of the state machine as str.
+        * ``fsm_event`` : the name of the state machine event that occurred,
+          triggering the transition.
+        * ``next_state`` : the state the state machine will be in after the
+          action has been performed.
+        * ``timestamp`` : the
+          `date and time <https://docs.python.org/3/library/datetime.html#datetime-objects>`_
+          that the negotiation request was processed by the ACSE.
     """
     pass

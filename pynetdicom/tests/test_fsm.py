@@ -9873,7 +9873,7 @@ class TestEventHandling(object):
 
         for event in triggered:
             assert hasattr(event, 'current_state')
-            assert hasattr(event, 'event')
+            assert hasattr(event, 'fsm_event')
             assert hasattr(event, 'action')
             assert hasattr(event, 'next_state')
             assert isinstance(event.assoc, Association)
@@ -9915,7 +9915,7 @@ class TestEventHandling(object):
 
         for event in triggered:
             assert hasattr(event, 'current_state')
-            assert hasattr(event, 'event')
+            assert hasattr(event, 'fsm_event')
             assert hasattr(event, 'action')
             assert hasattr(event, 'next_state')
             assert isinstance(event.assoc, Association)
@@ -9953,7 +9953,7 @@ class TestEventHandling(object):
 
         for event in triggered:
             assert hasattr(event, 'current_state')
-            assert hasattr(event, 'event')
+            assert hasattr(event, 'fsm_event')
             assert hasattr(event, 'action')
             assert hasattr(event, 'next_state')
             assert isinstance(event.assoc, Association)
@@ -9988,7 +9988,7 @@ class TestEventHandling(object):
 
         for event in triggered:
             assert hasattr(event, 'current_state')
-            assert hasattr(event, 'event')
+            assert hasattr(event, 'fsm_event')
             assert hasattr(event, 'action')
             assert hasattr(event, 'next_state')
             assert isinstance(event.assoc, Association)
@@ -10027,7 +10027,7 @@ class TestEventHandling(object):
 
         for event in triggered:
             assert hasattr(event, 'current_state')
-            assert hasattr(event, 'event')
+            assert hasattr(event, 'fsm_event')
             assert hasattr(event, 'action')
             assert hasattr(event, 'next_state')
             assert isinstance(event.assoc, Association)
@@ -10067,7 +10067,7 @@ class TestEventHandling(object):
 
         for event in triggered:
             assert hasattr(event, 'current_state')
-            assert hasattr(event, 'event')
+            assert hasattr(event, 'fsm_event')
             assert hasattr(event, 'action')
             assert hasattr(event, 'next_state')
             assert isinstance(event.assoc, Association)

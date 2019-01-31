@@ -80,9 +80,9 @@ class StateMachine(object):
                 self.dul.assoc,
                 evt.EVT_FSM_TRANSITION,
                 {
-                    'current_state' : self.current_state,
-                    'event' : event,
                     'action' : action_name,
+                    'current_state' : self.current_state,
+                    'fsm_event' : event,
                     'next_state' : next_state
                 }
             )
