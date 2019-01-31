@@ -296,6 +296,8 @@ class TestNegotiationRequestor(object):
         """Test kill if A-ASSOCIATE result is rejection."""
         primitive = A_ASSOCIATE()
         primitive._result = 0x01
+        primitive._result_source = 0x02
+        primitive._diagnostic = 0x01
 
         self.assoc.dul.queue.put(primitive)
         assert self.assoc.is_aborted is False

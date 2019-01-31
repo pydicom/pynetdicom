@@ -3,6 +3,10 @@
 import logging
 
 from pynetdicom.dimse_messages import *
+from pynetdicom.pdu import (
+    A_ASSOCIATE_RQ, A_ASSOCIATE_AC, A_ASSOCIATE_RJ, A_RELEASE_RQ,
+    A_RELEASE_RP, A_ABORT_RQ, P_DATA_TF
+)
 from pynetdicom.pdu_primitives import (
     A_ASSOCIATE, A_RELEASE, A_ABORT, A_P_ABORT,
     SOPClassExtendedNegotiation,
@@ -19,60 +23,74 @@ LOGGER = logging.getLogger('pynetdicom.events')
 
 
 # Standard logging handlers
-def standard_acse_recv_handler(event):
-    """Standard handler for the ACSE receiving a primitive from the DUL.
+def standard_pdu_recv_handler(event):
+    """Standard handler when a PDU is received and decoded.
+
+    **Event**
+
+    ``evt.EVT_PDU_RECV``
 
     Parameters
     ----------
     event : event.Event
-        The ``evt.EVT_ACSE_RECV`` event corresponding to the ACSE receiving
-        a primitive from the DUL service provider. Event attributes are:
+        The ``evt.EVT_PDU_RECV`` event corresponding to receiving and decoding
+        a PDU from the peer. Event attributes are:
 
         * ``assoc`` : the
           :py:class:`association <pynetdicom.association.Association>`
-          that the ACSE is providing services for.
-        * ``message`` : the ACSE primitive that was received, either
-        ``A_ASSOCIATE``, ``A_RELEASE``, ``A_ABORT`` or ``A_P_ABORT``.
+          that received the PDU.
+        * ``pdu`` : the PDU that was received, one of the ``pdu.PDU``
+          subclasses.
         * ``timestamp`` : the
           `date and time <https://docs.python.org/3/library/datetime.html#datetime-objects>`_
-          that the primitive was received.
+          that the PDU was received.
     """
-    primitive = event.message
+    pdu = event.pdu
     handlers = {
-        A_ASSOCIATE : _recv_a_associate,
-        A_RELEASE : _recv_a_release,
-        A_ABORT : _recv_a_abort,
-        A_P_ABORT : _recv_ap_abort,
+        A_ASSOCIATE_AC : _receive_associate_ac,
+        A_ASSOCIATE_RJ : _receive_associate_rj,
+        A_ASSOCIATE_RQ : _receive_associate_rq,
+        A_RELEASE_RQ : _receive_release_rq,
+        A_RELEASE_RP : _receive_release_rp,
+        A_ABORT_RQ : _receive_abort_pdu,
+        P_DATA_TF : _receive_data_tf,
     }
+    if handlers[type(pdu)]:
+        handlers[type(pdu)](event)
 
-    handlers[type(primitive)](event)
+def standard_pdu_sent_handler(event):
+    """Standard handler when a PDU is encoded and sent.
 
-def standard_acse_sent_handler(event):
-    """Standard handler for the ACSE sending a primitive to the DUL.
+    **Event**
+
+    ``evt.EVT_PDU_SENT``
 
     Parameters
     ----------
     event : event.Event
-        The ``evt.EVT_ACSE_SENT`` event corresponding to the ACSE receiving
-        a primitive from the DUL service provider. Event attributes are:
+        The ``evt.EVT_PDU_SENT`` event corresponding to encoding and sending
+        a PDU to the peer. Event attributes are:
 
         * ``assoc`` : the
           :py:class:`association <pynetdicom.association.Association>`
-          that the ACSE is providing services for.
-        * ``message`` : the ACSE primitive that was sent, either
-        ``A_ASSOCIATE``, ``A_RELEASE``, ``A_ABORT`` or ``A_P_ABORT``.
+          that sent the PDU.
+        * ``pdu`` : the PDU that was sent, one of the ``pdu.PDU`` subclasses.
         * ``timestamp`` : the
           `date and time <https://docs.python.org/3/library/datetime.html#datetime-objects>`_
-          that the primitive was sent.
+          that the PDU was sent.
     """
-    primitive = event.message
+    pdu = event.pdu
     handlers = {
-        A_ASSOCIATE : _send_a_associate,
-        A_RELEASE : _send_a_release,
-        A_ABORT : _send_a_abort,
-        A_P_ABORT : _send_ap_abort,
+        A_ASSOCIATE_AC : _send_associate_ac,
+        A_ASSOCIATE_RJ : _send_associate_rj,
+        A_ASSOCIATE_RQ : _send_associate_rq,
+        A_RELEASE_RQ : _send_release_rq,
+        A_RELEASE_RP : _send_release_rp,
+        A_ABORT_RQ : _send_abort,
+        P_DATA_TF : _send_data_tf,
     }
-    handlers[type(primitive)](event)
+    if handlers[type(pdu)]:
+        handlers[type(pdu)](event)
 
 def standard_dimse_recv_handler(event):
     """Standard handler for the ACSE receiving a primitive from the DUL.
@@ -119,7 +137,7 @@ def standard_dimse_recv_handler(event):
 
     handlers[type(event.message)](event)
 
-def standard_dimse_send_handler(event):
+def standard_dimse_sent_handler(event):
     """Standard handler for the ACSE receiving a primitive from the DUL.
 
     Parameters
@@ -164,213 +182,222 @@ def standard_dimse_send_handler(event):
 
     handlers[type(event.message)](event)
 
-def logging_aborted_handler(event):
-    LOGGER.error('Association Aborted')
 
-def logging_accepted_handler(event):
-    pass
-
-def logging_rejected_handler(event):
-    primitive = event.message
-    source = primitive.result_source
-    result = primitive.result
-    reason = primitive.diagnostic
-
-    source_str = {1 : 'Service User',
-                  2 : 'Service Provider (ACSE)',
-                  3 : 'Service Provider (Presentation)'}
-
-    reason_str = [{1 : 'No reason given',
-                   2 : 'Application context name not supported',
-                   3 : 'Calling AE title not recognised',
-                   4 : 'Reserved',
-                   5 : 'Reserved',
-                   6 : 'Reserved',
-                   7 : 'Called AE title not recognised',
-                   8 : 'Reserved',
-                   9 : 'Reserved',
-                   10 : 'Reserved'},
-                  {1 : 'No reason given',
-                   2 : 'Protocol version not supported'},
-                  {0 : 'Reserved',
-                   1 : 'Temporary congestion',
-                   2 : 'Local limit exceeded',
-                   3 : 'Reserved',
-                   4 : 'Reserved',
-                   5 : 'Reserved',
-                   6 : 'Reserved',
-                   7 : 'Reserved'}]
-
-    result_str = {1 : 'Rejected Permanent',
-                  2 : 'Rejected Transient'}
-
-    LOGGER.error('Association Rejected:')
-    LOGGER.error('Result: %s, Source: %s', result_str[result],
-                 source_str[source])
-    LOGGER.error('Reason: %s', reason_str[source - 1][reason])
-
-def logging_requested_handler(event):
-    pass
-
-def logging_established_handler(event):
-    pass
-
-def logging_released_handler(event):
-    LOGGER.info('Association Released')
-
-
-# ACSE sub-handlers
-# OK
-def _recv_a_abort(event):
-    """Handler for the ACSE receiving an A-ABORT from the DUL service."""
+# PDU sub-handlers
+def _receive_abort_pdu(event):
+    """Standard logging handler for receiving an A-ABORT PDU."""
     s = ['Abort Parameters:']
-    s.append(
-        '========================== BEGIN A-ABORT ========================'
-    )
-    s.append('Abort Source: DUL service-user')
-    s.append(
-        '=========================== END A-ABORT ========================='
-    )
+    s.append('{:=^76}'.format(' BEGIN A-ABORT PDU '))
+    s.append('Abort Source: {0!s}'.format(event.pdu.source_str))
+    s.append('Abort Reason: {0!s}'.format(event.pdu.reason_str))
+    s.append('{:=^76}'.format(' END A-ABORT PDU '))
+
     for line in s:
         LOGGER.debug(line)
 
-# OK
-def _recv_ap_abort(event):
-    """Handler for the ACSE receiving an A-P-ABORT from the DUL service."""
-    reason = event.message.provider_reason
-    reasons = {
-        0 : "No reason given",
-        1 : "Unrecognised PDU",
-        2 : "Unexpected PDU",
-        3 : "Reserved",
-        4 : "Unrecognised PDU parameter",
-        5 : "Unexpected PDU parameter",
-        6 : "Invalid PDU parameter value"
-    }
-    s = ['Abort Parameters:']
-    s.append(
-        '========================= BEGIN A-P-ABORT ======================='
+def _receive_associate_ac(event):
+    """Standard logging handler for receiving an A-ASSOCIATE-AC PDU."""
+    assoc_ac = event.pdu
+
+    app_context = assoc_ac.application_context_name.title()
+    pres_contexts = sorted(
+        assoc_ac.presentation_context, key=lambda x: x.context_id
     )
-    s.append('Abort Source: DUL service-provider')
-    s.append('Abort Reason: {0!s}'.format(reasons[reason]))
-    s.append(
-        '========================== END A-P-ABORT ========================'
-    )
-    for line in s:
-        LOGGER.debug(line)
+    user_info = assoc_ac.user_information
+    async_ops = user_info.async_ops_window
+    roles = user_info.role_selection
 
-# OK
-def _recv_a_associate(event):
-    """Handler for the ACSE receiving an A-ASSOCIATE from the DUL service."""
-    if event.message.result is None:
-        # A-ASSOCIATE Request
-        _recv_a_associate_rq(event)
-    elif event.message.result == 0x00:
-        # A-ASSOCIATE Response (accept)
-        _recv_a_associate_ac(event)
-    else:
-        # A-ASSOCIATE Response (reject)
-        _recv_a_associate_rj(event)
+    req_contexts = event.assoc.requestor.requested_contexts
+    req_contexts = {ii.context_id:ii for ii in req_contexts}
 
-# OK
-def _recv_a_associate_rq(event):
-    """Handler for the ACSE receiving an A-ASSOCIATE (request) from the DUL."""
-    LOGGER.info("Association Received")
-
-    req = event.message
-
-    app_context = req.application_context_name.title()
-    pres_contexts = req.presentation_context_definition_list
-    user_info = req.user_information
-    ext_neg = {
-        ii.sop_class_uid:ii for ii in req.user_information
-        if isinstance(ii, SOPClassExtendedNegotiation)
-    }
-    com_neg = {
-        ii.sop_class_uid:ii for ii in req.user_information
-        if isinstance(ii, SOPClassCommonExtendedNegotiation)
-    }
-    role_items = {
-        ii.sop_class_uid:ii for ii in req.user_information
-        if isinstance(ii, SCP_SCU_RoleSelectionNegotiation)
-    }
-    user_id = [
-        ii for ii in req.user_information
-        if isinstance(ii, UserIdentityNegotiation)
-    ]
-    async_ops = [
-        ii for ii in req.user_information
-        if isinstance(ii, AsynchronousOperationsWindowNegotiation)
-    ]
-    version_name = [
-        ii for ii in req.user_information
-        if isinstance(ii, ImplementationVersionNameNotification)
-    ]
-    if version_name:
-        version_name = version_name[0].implementation_version_name.decode('ascii')
-    else:
-        version_name = 'unknown'
-
-    #responding_ae = 'resp. AP Title'
     their_class_uid = 'unknown'
-    if req.implementation_class_uid:
-        their_class_uid = req.implementation_class_uid
+    their_version = b'unknown'
 
-    s = ['Request Parameters:']
-    s.append('====================== BEGIN A-ASSOCIATE-RQ ================'
-             '=====')
-    s.append('Their Implementation Class UID:      {0!s}'
+    if user_info.implementation_class_uid:
+        their_class_uid = user_info.implementation_class_uid
+    if user_info.implementation_version_name:
+        their_version = user_info.implementation_version_name
+
+    s = ['Accept Parameters:']
+    s.append('{:=^76}'.format(' BEGIN A-ASSOCIATE-AC PDU '))
+    s.append('Their Implementation Class UID:    {0!s}'
              .format(their_class_uid))
-    s.append('Their Implementation Version Name:   {0!s}'.format(version_name))
-    s.append('Application Context Name:    {0!s}'
-             .format(app_context))
+    s.append('Their Implementation Version Name: {0!s}'
+             .format(their_version.decode('ascii')))
+    s.append('Application Context Name:    {0!s}'.format(app_context))
     s.append('Calling Application Name:    {0!s}'
-             .format(req.calling_ae_title.decode('ascii')))
+             .format(assoc_ac.calling_ae_title.decode('ascii')))
     s.append('Called Application Name:     {0!s}'
-             .format(req.called_ae_title.decode('ascii')))
+             .format(assoc_ac.called_ae_title.decode('ascii')))
     s.append('Their Max PDU Receive Size:  {0!s}'
-             .format(req.maximum_length_received))
-
-    ## Presentation Contexts
+             .format(user_info.maximum_length))
     s.append('Presentation Contexts:')
 
     for cx in pres_contexts:
-        s.append('  Context ID:        {0!s} '
-                 '(Proposed)'.format((cx.context_id)))
-        s.append('    Abstract Syntax: ='
-                 '{0!s}'.format(cx.abstract_syntax.name))
+        s.append('  Context ID:        {0!s} ({1!s})'
+                 .format(cx.context_id, cx.result_str))
+        # Grab the abstract syntax from the requestor
+        a_syntax = req_contexts[cx.context_id].abstract_syntax
+        s.append('    Abstract Syntax: ={0!s}'.format(a_syntax.name))
 
         # Add SCP/SCU Role Selection Negotiation
         # Roles are: SCU, SCP/SCU, SCP, Default
-        try:
-            role = role_items[cx.abstract_syntax]
-            roles = []
-            if role.scp_role:
-                roles.append('SCP')
-            if role.scu_role:
-                roles.append('SCU')
+        if cx.result == 0:
+            try:
+                role = roles[a_syntax]
+                cx_roles = []
+                if role.scp_role:
+                    cx_roles.append('SCP')
+                if role.scu_role:
+                    cx_roles.append('SCU')
+                scp_scu_role = '/'.join(cx_roles)
+            except KeyError:
+                scp_scu_role = 'Default'
 
-            scp_scu_role = '/'.join(roles)
-        except KeyError:
+            s.append('    Accepted SCP/SCU Role: {0!s}'.format(scp_scu_role))
+            s.append(
+                '    Accepted Transfer Syntax: ={0!s}'
+                .format(cx.transfer_syntax.name)
+            )
+
+    ## Extended Negotiation
+    if user_info.ext_neg:
+        s.append('Accepted Extended Negotiation:')
+
+        for item in user_info.ext_neg:
+            s.append('  SOP Class: ={0!s}'.format(item.uid))
+            app_info = pretty_bytes(item.app_info)
+            app_info[0] = '[' + app_info[0][1:]
+            app_info[-1] = app_info[-1] + ' ]'
+            for line in app_info:
+                s.append('    {0!s}'.format(line))
+    else:
+        s.append('Accepted Extended Negotiation: None')
+
+    ## Asynchronous Operations
+    if async_ops:
+        s.append(
+            "Accepted Asynchronous Operations Window Negotiation:"
+        )
+        s.append(
+            "  Maximum Invoked Operations:     {}"
+            .format(async_ops.maximum_number_operations_invoked)
+        )
+        s.append(
+            "  Maximum Performed Operations:   {}"
+            .format(async_ops.maximum_number_operations_performed)
+        )
+    else:
+        s.append(
+            "Accepted Asynchronous Operations Window Negotiation: None"
+        )
+
+    ## User Identity
+    usr_id = 'Yes' if user_info.user_identity else 'None'
+
+    s.append('User Identity Negotiation Response: {0!s}'.format(usr_id))
+    s.append('{:=^76}'.format(' END A-ASSOCIATE-AC PDU '))
+
+    for line in s:
+        LOGGER.debug(line)
+
+def _receive_associate_rj(event):
+    """Standard logging handler for receiving an A-ASSOCIATE-RJ PDU."""
+    s = ['Reject Parameters:']
+    s.append('{:=^76}'.format(' BEGIN A-ASSOCIATE-RJ PDU '))
+    s.append('Result:    {0!s}'.format(event.pdu.result_str))
+    s.append('Source:    {0!s}'.format(event.pdu.source_str))
+    s.append('Reason:    {0!s}'.format(event.pdu.reason_str))
+    s.append('{:=^76}'.format(' END A-ASSOCIATE-RJ PDU '))
+
+    for line in s:
+        LOGGER.debug(line)
+
+def _receive_associate_rq(event):
+    """Standard logging handler for receiving an A-ASSOCIATE-RQ PDU."""
+    pdu = event.pdu
+
+    app_context = pdu.application_context_name.title()
+    pres_contexts = sorted(
+        pdu.presentation_context, key=lambda x: x.context_id
+    )
+    user_info = pdu.user_information
+
+    #responding_ae = 'resp. AP Title'
+    their_class_uid = 'unknown'
+    their_version = b'unknown'
+
+    if user_info.implementation_class_uid:
+        their_class_uid = user_info.implementation_class_uid
+    if user_info.implementation_version_name:
+        their_version = user_info.implementation_version_name
+
+    s = ['Request Parameters:']
+    s.append('{:=^76}'.format(' BEGIN A-ASSOCIATE-RQ PDU '))
+    s.append('Their Implementation Class UID:      {0!s}'
+             .format(their_class_uid))
+    s.append('Their Implementation Version Name:   {0!s}'
+             .format(their_version.decode('ascii')))
+    s.append('Application Context Name:    {0!s}'
+             .format(app_context))
+    s.append('Calling Application Name:    {0!s}'
+             .format(pdu.calling_ae_title.decode('ascii')))
+    s.append('Called Application Name:     {0!s}'
+             .format(pdu.called_ae_title.decode('ascii')))
+    s.append('Their Max PDU Receive Size:  {0!s}'
+             .format(user_info.maximum_length))
+
+    ## Presentation Contexts
+    if len(pres_contexts) == 1:
+        s.append('Presentation Context:')
+    else:
+        s.append('Presentation Contexts:')
+
+    for context in pres_contexts:
+        s.append('  Context ID:        {0!s} '
+                 '(Proposed)'.format((context.context_id)))
+        s.append('    Abstract Syntax: ='
+                 '{0!s}'.format(context.abstract_syntax.name))
+
+        # Add SCP/SCU Role Selection Negotiation
+        # Roles are: SCU, SCP/SCU, SCP, Default
+        if pdu.user_information.role_selection:
+            try:
+                role = pdu.user_information.role_selection[
+                    context.abstract_syntax
+                ]
+                roles = []
+                if role.scp_role:
+                    roles.append('SCP')
+                if role.scu_role:
+                    roles.append('SCU')
+
+                scp_scu_role = '/'.join(roles)
+            except KeyError:
+                scp_scu_role = 'Default'
+        else:
             scp_scu_role = 'Default'
 
         s.append('    Proposed SCP/SCU Role: {0!s}'.format(scp_scu_role))
 
         # Transfer Syntaxes
-        if len(cx.transfer_syntax) == 1:
+        if len(context.transfer_syntax) == 1:
             s.append('    Proposed Transfer Syntax:')
         else:
             s.append('    Proposed Transfer Syntaxes:')
 
-        for ts in cx.transfer_syntax:
+        for ts in context.transfer_syntax:
             s.append('      ={0!s}'.format(ts.name))
 
     ## Extended Negotiation
-    if ext_neg:
+    if pdu.user_information.ext_neg:
         s.append('Requested Extended Negotiation:')
 
-        for item in ext_neg:
+        for item in pdu.user_information.ext_neg:
             s.append('  SOP Class: ={0!s}'.format(item.uid))
+            #s.append('    Application Information, length: %d bytes'
+            #                                       %len(item.app_info))
+
             app_info = pretty_bytes(item.app_info)
             app_info[0] = '[' + app_info[0][1:]
             app_info[-1] = app_info[-1] + ' ]'
@@ -380,10 +407,10 @@ def _recv_a_associate_rq(event):
         s.append('Requested Extended Negotiation: None')
 
     ## Common Extended Negotiation
-    if com_neg:
+    if pdu.user_information.common_ext_neg:
         s.append('Requested Common Extended Negotiation:')
 
-        for item in com_neg:
+        for item in pdu.user_information.common_ext_neg:
 
             s.append('  SOP Class: ={0!s}'.format(item.sop_class_uid.name))
             s.append(
@@ -402,8 +429,8 @@ def _recv_a_associate_rq(event):
         s.append('Requested Common Extended Negotiation: None')
 
     ## Asynchronous Operations Window Negotiation
-    if async_ops:
-        async_ops = async_ops[0]
+    async_ops = pdu.user_information.async_ops_window
+    if async_ops is not None:
         s.append('Requested Asynchronous Operations Window Negotiation:')
         s.append(
             "  Maximum Invoked Operations:     {}"
@@ -419,8 +446,8 @@ def _recv_a_associate_rq(event):
         )
 
     ## User Identity
-    if user_id:
-        usid = user_id[0]
+    if user_info.user_identity is not None:
+        usid = user_info.user_identity
         s.append('Requested User Identity Negotiation:')
         s.append('  Authentication Mode: {0:d} - {1!s}'
                  .format(usid.id_type, usid.id_type_str))
@@ -449,328 +476,64 @@ def _recv_a_associate_rq(event):
     else:
         s.append('Requested User Identity Negotiation: None')
 
-    s.append(
-        '======================= END A-ASSOCIATE-RQ ======================'
-    )
+    s.append('{:=^76}'.format(' END A-ASSOCIATE-RQ PDU '))
 
     for line in s:
         LOGGER.debug(line)
 
-# OK
-def _recv_a_associate_ac(event):
-    """Handler for the ACSE receiving an A-ASSOCIATE (accept) from the DUL."""
-    # To receive an A-ASSOCIATE (accept) we should be the requestor
-    rsp = event.message
-    assoc = event.assoc
+def _receive_data_tf(event):
+    """Standard logging handler for receiving a P-DATA-TF PDU."""
+    pass
 
-    # Returns list, index as {ID : cx}
-    req_contexts = assoc.requestor.requested_contexts
+def _receive_release_rp(event):
+    """Standard logging handler for receiving an A-RELEASE-RP PDU."""
+    pass
+
+def _receive_release_rq(event):
+    """Standard logging handler for receiving an A-RELEASE-RQ PDU."""
+    pass
+
+def _send_abort(event):
+    """Standard logging handler for sending an A-ABORT PDU."""
+    s = ['Abort Parameters:']
+    s.append('{:=^76}'.format(' BEGIN A-ABORT PDU '))
+    s.append('Abort Source: {0!s}'.format(event.pdu.source_str))
+    s.append('Abort Reason: {0!s}'.format(event.pdu.reason_str))
+    s.append('{:=^76}'.format(' END A-ABORT PDU '))
+
+    for line in s:
+        LOGGER.debug(line)
+
+def _send_associate_ac(event):
+    """Standard logging handler for sending an A-ASSOCIATE-AC PDU."""
+    assoc_ac = event.pdu
+
+    req_contexts = event.assoc.requestor.get_contexts('pcdl')
     req_contexts = {ii.context_id:ii for ii in req_contexts}
 
-    app_context = rsp.application_context_name.title()
-    pres_contexts = rsp.presentation_context_definition_results_list
-    pres_contexts = sorted(pres_contexts, key=lambda x: x.context_id)
-    user_info = rsp.user_information
-
-    ext_neg = {
-        ii.sop_class_uid:ii for ii in rsp.user_information
-        if isinstance(ii, SOPClassExtendedNegotiation)
-    }
-    com_neg = {
-        ii.sop_class_uid:ii for ii in rsp.user_information
-        if isinstance(ii, SOPClassCommonExtendedNegotiation)
-    }
-    role_items = {
-        ii.sop_class_uid:ii for ii in rsp.user_information
-        if isinstance(ii, SCP_SCU_RoleSelectionNegotiation)
-    }
-    user_id = [
-        ii for ii in rsp.user_information
-        if isinstance(ii, UserIdentityNegotiation)
-    ]
-    async_ops = [
-        ii for ii in rsp.user_information
-        if isinstance(ii, AsynchronousOperationsWindowNegotiation)
-    ]
-    version_name = [
-        ii for ii in rsp.user_information
-        if isinstance(ii, ImplementationVersionNameNotification)
-    ]
-    if version_name:
-        version_name = version_name[0].implementation_version_name.decode('ascii')
-    else:
-        version_name = 'unknown'
-
-    their_class_uid = 'unknown'
-
-    cx_results = {
-        0 : 'Accepted',
-        1 : 'User Rejection',
-        2 : 'Provider Rejection',
-        3 : 'Abstract Syntax Not Supported',
-        4 : 'Transfer Syntax Not Supported'
-    }
-
-    if rsp.implementation_class_uid:
-        their_class_uid = rsp.implementation_class_uid
-
-    s = ['Accept Parameters:']
-    s.append('====================== BEGIN A-ASSOCIATE-AC ================'
-             '=====')
-
-    s.append('Their Implementation Class UID:    {0!s}'
-             .format(their_class_uid))
-    s.append('Their Implementation Version Name: {0!s}'.format(version_name))
-    s.append('Application Context Name:    {0!s}'.format(app_context))
-    s.append('Calling Application Name:    {0!s}'
-             .format(rsp.calling_ae_title.decode('ascii')))
-    s.append('Called Application Name:     {0!s}'
-             .format(rsp.called_ae_title.decode('ascii')))
-    s.append('Their Max PDU Receive Size:  {0!s}'
-             .format(rsp.maximum_length_received))
-    s.append('Presentation Contexts:')
-
-    for cx in pres_contexts:
-        s.append('  Context ID:        {0!s} ({1!s})'
-                 .format(cx.context_id, cx_results[cx.result]))
-        # Grab the abstract syntax
-        a_syntax = req_contexts[cx.context_id].abstract_syntax
-        s.append('    Abstract Syntax: ={0!s}'.format(a_syntax.name))
-
-        # Add SCP/SCU Role Selection Negotiation
-        # Roles are: SCU, SCP/SCU, SCP, Default
-        if cx.result == 0:
-            try:
-                role = role_items[a_syntax]
-                cx_roles = []
-                if role.scp_role:
-                    cx_roles.append('SCP')
-                if role.scu_role:
-                    cx_roles.append('SCU')
-
-                scp_scu_role = '/'.join(cx_roles)
-            except KeyError:
-                scp_scu_role = 'Default'
-
-            s.append('    Accepted SCP/SCU Role: {0!s}'.format(scp_scu_role))
-            s.append('    Accepted Transfer Syntax: ={0!s}'
-                     .format(cx.transfer_syntax[0].name))
-
-    ## Extended Negotiation
-    if ext_neg:
-        s.append('Accepted Extended Negotiation:')
-
-        for item in ext_neg:
-            s.append('  SOP Class: ={0!s}'.format(item.uid))
-            app_info = pretty_bytes(item.app_info)
-            app_info[0] = '[' + app_info[0][1:]
-            app_info[-1] = app_info[-1] + ' ]'
-            for line in app_info:
-                s.append('    {0!s}'.format(line))
-    else:
-        s.append('Accepted Extended Negotiation: None')
-
-    ## Asynchronous Operations
-    if async_ops:
-        s.append(
-            "Accepted Asynchronous Operations Window Negotiation:"
-        )
-        s.append(
-            "  Maximum Invoked Operations:     {}"
-            .format(async_ops.maximum_number_operations_invoked)
-        )
-        s.append(
-            "  Maximum Performed Operations:   {}"
-            .format(async_ops.maximum_number_operations_performed)
-        )
-    else:
-        s.append(
-            "Accepted Asynchronous Operations Window Negotiation: None"
-        )
-
-    ## User Identity
-    usr_id = 'Yes' if user_id else 'None'
-
-    s.append('User Identity Negotiation Response: {0!s}'.format(usr_id))
-    s.append(
-        '======================= END A-ASSOCIATE-AC ======================'
-    )
-
-    for line in s:
-        LOGGER.debug(line)
-
-    LOGGER.info('Association Accepted')
-
-# Test
-def _recv_a_associate_rj(event):
-    """
-    """
-    rej = event.message
-    reasons = {
-        1 : {
-            1 : "No reason given",
-            2 : "Application context name not supported",
-            3 : "Calling AE title not recognised",
-            4 : "Reserved",
-            5 : "Reserved",
-            6 : "Reserved",
-            7 : "Called AE title not recognised",
-            8 : "Reserved",
-            9 : "Reserved",
-            10 : "Reserved"
-        },
-        2 : {
-            1 : "No reason given",
-            2 : "Protocol version not supported"
-        },
-        3 : {
-            0 : "Reserved",
-            1 : "Temporary congestion",
-            2 : "Local limit exceeded",
-            3 : "Reserved",
-            4 : "Reserved",
-            5: "Reserved",
-            6 : "Reserved",
-            7 : "Reserved"
-        }
-    }
-    reasons = reasons[rej.result_source]
-    sources = {
-        1 : 'DUL service-user',
-        2 : 'DUL service-provider (ACSE related)',
-        3 : 'DUL service-provider (presentation related)'
-    }
-    results = {
-        1 : 'Rejected (Permanent)',
-        2 : 'Rejected (Transient)'
-    }
-
-    s = ['Reject Parameters:']
-    s.append(
-        '====================== BEGIN A-ASSOCIATE-RJ ====================='
-    )
-    s.append('Result:    {0!s}'.format(results[rej.result]))
-    s.append('Source:    {0!s}'.format(sources[rej.result_source]))
-    s.append('Reason:    {0!s}'.format(reasons[rej.diagnostic]))
-    s.append(
-        '======================= END A-ASSOCIATE-RJ ======================'
-    )
-    for line in s:
-        LOGGER.debug(line)
-
-# Test
-def _recv_a_release(event):
-    """
-    """
-    if event.message.result:
-        _recv_a_release_rp(event)
-    else:
-        _recv_a_release_rq(event)
-
-# OK
-def _recv_a_release_rp(event):
-    """
-    """
-    pass
-
-# OK
-def _recv_a_release_rq(event):
-    """
-    """
-    pass
-
-# OK
-def _send_a_abort(event):
-    """Handler for the ACSE sending an A-ABORT to the DUL service."""
-    LOGGER.info('Aborting Association')
-
-# OK
-def _send_ap_abort(event):
-    """Handler for the ACSE sending an A-ABORT to the DUL service."""
-    LOGGER.info('Aborting Association')
-
-# OK
-def _send_a_associate(event):
-    """Handler for the ACSE sending an A-ASSOCIATE to the DUL service."""
-    if event.message.result is None:
-        # A-ASSOCIATE Request
-        _send_a_associate_rq(event)
-    elif event.message.result == 0x00:
-        # A-ASSOCIATE Response (accept)
-        _send_a_associate_ac(event)
-    else:
-        # A-ASSOCIATE Response (reject)
-        _send_a_associate_rj(event)
-
-# OK
-def _send_a_associate_ac(event):
-    """
-    """
-    LOGGER.info("Association Accepted")
-    # To send an A-ASSOCIATE (accept) we should be the acceptor
-    rsp = event.message
-    assoc = event.assoc
-
-    app_context = rsp.application_context_name.title()
-    pres_contexts = rsp.presentation_context_definition_results_list
-    pres_contexts = sorted(pres_contexts, key=lambda x: x.context_id)
-    user_info = rsp.user_information
-
-    ext_neg = {
-        ii.sop_class_uid:ii for ii in rsp.user_information
-        if isinstance(ii, SOPClassExtendedNegotiation)
-    }
-    com_neg = {
-        ii.sop_class_uid:ii for ii in rsp.user_information
-        if isinstance(ii, SOPClassCommonExtendedNegotiation)
-    }
-    role_items = {
-        ii.sop_class_uid:ii for ii in rsp.user_information
-        if isinstance(ii, SCP_SCU_RoleSelectionNegotiation)
-    }
-    user_id = [
-        ii for ii in rsp.user_information
-        if isinstance(ii, UserIdentityNegotiation)
-    ]
-    async_ops = [
-        ii for ii in rsp.user_information
-        if isinstance(ii, AsynchronousOperationsWindowNegotiation)
-    ]
-    version_name = [
-        ii for ii in rsp.user_information
-        if isinstance(ii, ImplementationVersionNameNotification)
-    ]
-    if version_name:
-        version_name = version_name[0].implementation_version_name.decode('ascii')
-    else:
-        version_name = '(none)'
-
-    cx_results = {
-        0 : 'Accepted',
-        1 : 'User Rejection',
-        2 : 'Provider Rejection',
-        3 : 'Abstract Syntax Not Supported',
-        4 : 'Transfer Syntax Not Supported'
-    }
-
-    their_class_uid = 'unknown'
-    if rsp.implementation_class_uid:
-        their_class_uid = rsp.implementation_class_uid
+    # Needs some cleanup
+    app_context = assoc_ac.application_context_name.title()
+    pres_contexts = assoc_ac.presentation_context
+    user_info = assoc_ac.user_information
+    async_ops = user_info.async_ops_window
+    roles = user_info.role_selection
 
     responding_ae = 'resp. AE Title'
 
     s = ['Accept Parameters:']
-    s.append('====================== BEGIN A-ASSOCIATE-AC ================'
-             '=====')
-
+    s.append('{:=^76}'.format(' BEGIN A-ASSOCIATE-AC PDU '))
     s.append('Our Implementation Class UID:      '
-             '{0!s}'.format(their_class_uid))
+             '{0!s}'.format(user_info.implementation_class_uid))
 
-    s.append("Our Implementation Version Name:   {0!s}".format(version_name))
+    if user_info.implementation_version_name:
+        s.append(
+            "Our Implementation Version Name:   {0!s}"
+            .format(user_info.implementation_version_name.decode('ascii'))
+        )
     s.append('Application Context Name:    {0!s}'.format(app_context))
     s.append('Responding Application Name: {0!s}'.format(responding_ae))
     s.append('Our Max PDU Receive Size:    '
-             '{0!s}'.format(rsp.maximum_length_received))
+             '{0!s}'.format(user_info.maximum_length))
     s.append('Presentation Contexts:')
 
     if not pres_contexts:
@@ -779,34 +542,46 @@ def _send_a_associate_ac(event):
     # Sort by context ID
     for cx in sorted(pres_contexts, key=lambda x: x.context_id):
         s.append('  Context ID:        {0!s} ({1!s})'
-                 .format(cx.context_id, cx_results[cx.result]))
-        s.append('    Abstract Syntax: ={0!s}'.format(cx.abstract_syntax.name))
+                 .format(cx.context_id, cx.result_str))
+        a_syntax = req_contexts[cx.context_id].abstract_syntax
+        s.append('    Abstract Syntax: ={0!s}'.format(a_syntax.name))
 
         # If Presentation Context was accepted
         if cx.result == 0:
-
             try:
-                role = role_items[cx.abstract_syntax]
+                role = roles[a_syntax]
                 cx_roles = []
                 if role.scp_role:
                     cx_roles.append('SCP')
                 if role.scu_role:
                     cx_roles.append('SCU')
-
                 scp_scu_role = '/'.join(cx_roles)
             except KeyError:
                 scp_scu_role = 'Default'
-
             s.append('    Accepted SCP/SCU Role: {0!s}'.format(scp_scu_role))
-
             s.append('    Accepted Transfer Syntax: ={0!s}'
-                     .format(cx.transfer_syntax[0].name))
+                     .format(cx.transfer_syntax.name))
+
+    ## Role Selection
+    if roles:
+        s.append("Accepted Role Selection:")
+
+        for uid in sorted(roles.keys()):
+            s.append("  SOP Class: ={}".format(uid.name))
+            str_roles = []
+            if roles[uid].scp_role:
+                str_roles.append('SCP')
+            if roles[uid].scu_role:
+                str_roles.append('SCU')
+
+            str_roles = '/'.join(str_roles)
+            s.append("    SCP/SCU Role: {}".format(str_roles))
 
     ## Extended Negotiation
-    if ext_neg:
+    if user_info.ext_neg:
         s.append('Accepted Extended Negotiation:')
 
-        for item in ext_neg:
+        for item in user_info.ext_neg:
             s.append('  SOP Class: ={0!s}'.format(item.uid))
             app_info = pretty_bytes(item.app_info)
             app_info[0] = '[' + app_info[0][1:]
@@ -818,7 +593,6 @@ def _send_a_associate_ac(event):
 
     ## Asynchronous Operations
     if async_ops:
-        async_ops = async_ops[0]
         s.append(
             "Accepted Asynchronous Operations Window Negotiation:"
         )
@@ -836,95 +610,80 @@ def _send_a_associate_ac(event):
         )
 
     ## User Identity Negotiation
-    usr_id = 'Yes' if user_id else 'None'
+    usr_id = 'Yes' if user_info.user_identity is not None else 'None'
 
 
     s.append('User Identity Negotiation Response: {0!s}'.format(usr_id))
-    s.append(
-        '======================= END A-ASSOCIATE-AC ======================'
-    )
+    s.append('{:=^76}'.format(' END A-ASSOCIATE-AC PDU '))
 
     for line in s:
         LOGGER.debug(line)
 
-# OK
-def _send_a_associate_rj(event):
-    """
-    """
-    LOGGER.info("Association Rejected")
+def _send_associate_rj(event):
+    """Standard logging handler for sending an A-ASSOCIATE-RJ PDU."""
+    s = ['Reject Parameters:']
+    s.append('{:=^76}'.format(' BEGIN A-ASSOCIATE-RJ PDU '))
+    s.append('Result:    {0!s}'.format(event.pdu.result_str))
+    s.append('Source:    {0!s}'.format(event.pdu.source_str))
+    s.append('Reason:    {0!s}'.format(event.pdu.reason_str))
+    s.append('{:=^76}'.format(' END A-ASSOCIATE-RJ PDU '))
 
-# OK
-def _send_a_associate_rq(event):
-    """"""
-    req = event.message
+    for line in s:
+        LOGGER.debug(line)
 
-    app_context = req.application_context_name.title()
-    pres_contexts = req.presentation_context_definition_list
-    user_info = req.user_information
-    ext_neg = {
-        ii.sop_class_uid:ii for ii in req.user_information
-        if isinstance(ii, SOPClassExtendedNegotiation)
-    }
-    com_neg = {
-        ii.sop_class_uid:ii for ii in req.user_information
-        if isinstance(ii, SOPClassCommonExtendedNegotiation)
-    }
-    role_items = {
-        ii.sop_class_uid:ii for ii in req.user_information
-        if isinstance(ii, SCP_SCU_RoleSelectionNegotiation)
-    }
-    user_id = [
-        ii for ii in req.user_information
-        if isinstance(ii, UserIdentityNegotiation)
-    ]
-    async_ops = [
-        ii for ii in req.user_information
-        if isinstance(ii, AsynchronousOperationsWindowNegotiation)
-    ]
-    version_name = [
-        ii for ii in req.user_information
-        if isinstance(ii, ImplementationVersionNameNotification)
-    ]
-    if version_name:
-        version_name = version_name[0].implementation_version_name.decode('ascii')
-    else:
-        version_name = '(none)'
+def _send_associate_rq(event):
+    """Standard logging handler for sending an A-ASSOCIATE-RQ PDU."""
+    pdu = event.pdu
+
+    app_context = pdu.application_context_name.title()
+    pres_contexts = pdu.presentation_context
+    user_info = pdu.user_information
 
     s = ['Request Parameters:']
-    s.append(
-        '====================== BEGIN A-ASSOCIATE-RQ ====================='
-    )
+    s.append('{:=^76}'.format(' BEGIN A-ASSOCIATE-RQ PDU '))
 
     s.append('Our Implementation Class UID:      '
-             '{0!s}'.format(req.implementation_class_uid))
-    s.append('Our Implementation Version Name:   {0!s}'.format(version_name))
+             '{0!s}'.format(user_info.implementation_class_uid))
+    if user_info.implementation_version_name:
+        s.append(
+            'Our Implementation Version Name:   {0!s}'.format(
+                user_info.implementation_version_name.decode('ascii')
+            )
+        )
     s.append('Application Context Name:    {0!s}'.format(app_context))
     s.append('Calling Application Name:    '
-             '{0!s}'.format(req.calling_ae_title.decode('ascii')))
+             '{0!s}'.format(pdu.calling_ae_title.decode('ascii')))
     s.append('Called Application Name:     '
-             '{0!s}'.format(req.called_ae_title.decode('ascii')))
+             '{0!s}'.format(pdu.called_ae_title.decode('ascii')))
     s.append('Our Max PDU Receive Size:    '
-             '{0!s}'.format(req.maximum_length_received))
+             '{0!s}'.format(user_info.maximum_length))
 
     ## Presentation Contexts
-    s.append('Presentation Contexts:')
-    for cx in pres_contexts:
+    if len(pres_contexts) == 1:
+        s.append('Presentation Context:')
+    else:
+        s.append('Presentation Contexts:')
+
+    for context in pres_contexts:
         s.append('  Context ID:        {0!s} '
-                 '(Proposed)'.format((cx.context_id)))
-        s.append('    Abstract Syntax: ={0!s}'.format(cx.abstract_syntax.name))
+                 '(Proposed)'.format((context.context_id)))
+        s.append('    Abstract Syntax: ='
+                 '{0!s}'.format(context.abstract_syntax.name))
 
         # Add SCP/SCU Role Selection Negotiation
         # Roles are: SCU, SCP/SCU, SCP, Default
-        if role_items:
+        if pdu.user_information.role_selection:
             try:
-                role = role_items[cx.abstract_syntax]
-                cx_roles = []
+                role = pdu.user_information.role_selection[
+                    context.abstract_syntax
+                ]
+                roles = []
                 if role.scp_role:
-                    cx_roles.append('SCP')
+                    roles.append('SCP')
                 if role.scu_role:
-                    cx_roles.append('SCU')
+                    roles.append('SCU')
 
-                scp_scu_role = '/'.join(cx_roles)
+                scp_scu_role = '/'.join(roles)
             except KeyError:
                 scp_scu_role = 'Default'
         else:
@@ -933,20 +692,22 @@ def _send_a_associate_rq(event):
         s.append('    Proposed SCP/SCU Role: {0!s}'.format(scp_scu_role))
 
         # Transfer Syntaxes
-        if len(cx.transfer_syntax) == 1:
+        if len(context.transfer_syntax) == 1:
             s.append('    Proposed Transfer Syntax:')
         else:
             s.append('    Proposed Transfer Syntaxes:')
 
-        for ts in cx.transfer_syntax:
+        for ts in context.transfer_syntax:
             s.append('      ={0!s}'.format(ts.name))
 
     ## Extended Negotiation
-    if ext_neg:
+    if pdu.user_information.ext_neg:
         s.append('Requested Extended Negotiation:')
 
-        for item in ext_neg:
+        for item in pdu.user_information.ext_neg:
             s.append('  SOP Class: ={0!s}'.format(item.uid))
+            #s.append('    Application Information, length: %d bytes'
+            #                                       %len(item.app_info))
 
             app_info = pretty_bytes(item.app_info)
             app_info[0] = '[' + app_info[0][1:]
@@ -957,10 +718,10 @@ def _send_a_associate_rq(event):
         s.append('Requested Extended Negotiation: None')
 
     ## Common Extended Negotiation
-    if com_neg:
+    if pdu.user_information.common_ext_neg:
         s.append('Requested Common Extended Negotiation:')
 
-        for item in com_neg:
+        for item in pdu.user_information.common_ext_neg:
 
             s.append('  SOP Class: ={0!s}'.format(item.sop_class_uid.name))
             s.append(
@@ -979,8 +740,8 @@ def _send_a_associate_rq(event):
         s.append('Requested Common Extended Negotiation: None')
 
     ## Asynchronous Operations Window Negotiation
-    if async_ops:
-        async_ops = async_ops[0]
+    async_ops = pdu.user_information.async_ops_window
+    if async_ops is not None:
         s.append('Requested Asynchronous Operations Window Negotiation:')
         s.append(
             "  Maximum Invoked Operations:     {}"
@@ -996,8 +757,8 @@ def _send_a_associate_rq(event):
         )
 
     ## User Identity
-    if user_id:
-        usid = user_id[0]
+    if user_info.user_identity is not None:
+        usid = user_info.user_identity
         s.append('Requested User Identity Negotiation:')
         s.append('  Authentication Mode: {0:d} - '
                  '{1!s}'.format(usid.id_type, usid.id_type_str))
@@ -1026,34 +787,22 @@ def _send_a_associate_rq(event):
     else:
         s.append('Requested User Identity Negotiation: None')
 
-    s.append(
-        '======================= END A-ASSOCIATE-RQ ======================'
-    )
+    s.append('{:=^76}'.format(' END A-ASSOCIATE-RQ PDU '))
 
     for line in s:
         LOGGER.debug(line)
 
-# Test
-def _send_a_release(event):
-    """
-    """
-    if event.message.result:
-        _send_a_release_rp(event)
-    else:
-        _send_a_release_rq(event)
-
-# OK
-def _send_a_release_rp(event):
-    """
-    """
+def _send_data_tf(event):
+    """Standard logging handler for sending a P-DATA-TF PDU."""
     pass
 
-# OK
-def _send_a_release_rq(event):
-    """
-    """
+def _send_release_rp(event):
+    """Standard logging handler for sending an A-RELEASE-RP PDU."""
     pass
 
+def _send_release_rq(event):
+    """Standard logging handler for sending an A-RELEASE-RQ PDU."""
+    pass
 
 
 # DIMSE sub-handlers
@@ -1070,9 +819,7 @@ def _send_c_echo_rq(event):
     event : event.Event
         The evt.EVT_DIMSE_SENT event that occurred.
     """
-    msg = event.message
-    cs = msg.command_set
-    LOGGER.info("Sending Echo Request: MsgID %s", cs.MessageID)
+    pass
 
 def _send_c_echo_rsp(event):
     """Logging handler for when a C-ECHO-RSP is sent.
@@ -1132,9 +879,7 @@ def _send_c_store_rq(event):
                 cs.MessageID, dataset_type)
 
     s = []
-    s.append(
-        '===================== OUTGOING DIMSE MESSAGE ===================='
-    )
+    s.append('{:=^76}'.format(' OUTGOING DIMSE MESSAGE '))
     s.append('Message Type                  : {0!s}'.format('C-STORE RQ'))
     s.append('Message ID                    : {0!s}'.format(cs.MessageID))
     s.append('Affected SOP Class UID        : {0!s}'
@@ -1143,9 +888,7 @@ def _send_c_store_rq(event):
              .format(cs.AffectedSOPInstanceUID))
     s.append('Data Set                      : {0!s}'.format(dataset))
     s.append('Priority                      : {0!s}'.format(priority))
-    s.append(
-        '======================= END DIMSE MESSAGE ======================='
-    )
+    s.append('{:=^76}'.format(' END DIMSE MESSAGE '))
     for line in s:
         LOGGER.debug(line)
 
@@ -1194,12 +937,8 @@ def _send_c_find_rq(event):
     if msg.data_set and msg.data_set.getvalue() != b'':
         dataset = 'Present'
 
-    LOGGER.info("Sending Find Request: MsgID %s", cs.MessageID)
-
     s = []
-    s.append(
-        '===================== OUTGOING DIMSE MESSAGE ===================='
-    )
+    s.append('{:=^76}'.format(' OUTGOING DIMSE MESSAGE '))
     s.append('Message Type                  : {0!s}'.format('C-FIND RQ'))
     s.append('Presentation Context ID       : {0!s}'
              .format(msg.context_id))
@@ -1208,9 +947,7 @@ def _send_c_find_rq(event):
              .format(cs.AffectedSOPClassUID))
     s.append('Identifier                    : {0!s}'.format(dataset))
     s.append('Priority                      : {0!s}'.format(priority))
-    s.append(
-        '======================= END DIMSE MESSAGE ======================='
-    )
+    s.append('{:=^76}'.format(' END DIMSE MESSAGE '))
 
     for line in s:
         LOGGER.debug(line)
@@ -1239,21 +976,16 @@ def _send_c_find_rsp(event):
         dataset = 'Present'
 
     s = []
-    s.append(
-        '===================== OUTGOING DIMSE MESSAGE ===================='
-    )
+    s.append('{:=^76}'.format(' OUTGOING DIMSE MESSAGE '))
     s.append('Message Type                  : {0!s}'.format('C-FIND RSP'))
     s.append('Message ID Being Responded To : {0!s}'
              .format(cs.MessageIDBeingRespondedTo))
     if 'AffectedSOPClassUID' in cs:
         s.append('Affected SOP Class UID        : {0!s}'
                  .format(cs.AffectedSOPClassUID))
-    s.append('Data Set                      : {0!s}'.format(dataset))
+    s.append('Identifier                    : {0!s}'.format(dataset))
     s.append('DIMSE Status                  : 0x{0:04x}'.format(cs.Status))
-
-    s.append(
-        '======================= END DIMSE MESSAGE ======================='
-    )
+    s.append('{:=^76}'.format(' END DIMSE MESSAGE '))
 
     for line in s:
         LOGGER.debug(line)
@@ -1285,21 +1017,15 @@ def _send_c_get_rq(event):
     if msg.data_set and msg.data_set.getvalue() != b'':
         dataset = 'Present'
 
-    LOGGER.info("Sending Get Request: MsgID %s", cs.MessageID)
-
     s = []
-    s.append(
-        '===================== OUTGOING DIMSE MESSAGE ===================='
-    )
+    s.append('{:=^76}'.format(' OUTGOING DIMSE MESSAGE '))
     s.append('Message Type                  : {0!s}'.format('C-GET RQ'))
     s.append('Message ID                    : {0!s}'.format(cs.MessageID))
     s.append('Affected SOP Class UID        : {0!s}'
              .format(cs.AffectedSOPClassUID))
-    s.append('Data Set                      : {0!s}'.format(dataset))
+    s.append('Identifier                    : {0!s}'.format(dataset))
     s.append('Priority                      : {0!s}'.format(priority))
-    s.append(
-        '======================= END DIMSE MESSAGE ======================='
-    )
+    s.append('{:=^76}'.format(' END DIMSE MESSAGE '))
     for line in s:
         LOGGER.debug(line)
 
@@ -1333,21 +1059,16 @@ def _send_c_get_rsp(event):
     affected_sop = getattr(cs, 'AffectedSOPClassUID', 'None')
 
     s = []
-    s.append(
-        '===================== OUTGOING DIMSE MESSAGE ===================='
-    )
+    s.append('{:=^76}'.format(' OUTGOING DIMSE MESSAGE '))
     s.append('Message Type                  : {0!s}'.format('C-GET RSP'))
     s.append('Message ID Being Responded To : {0!s}'
              .format(cs.MessageIDBeingRespondedTo))
     if 'AffectedSOPClassUID' in cs:
         s.append('Affected SOP Class UID        : {0!s}'
                  .format(affected_sop))
-    s.append('Data Set                      : {0!s}'.format(dataset))
+    s.append('Identifier                    : {0!s}'.format(dataset))
     s.append('DIMSE Status                  : 0x{0:04x}'.format(cs.Status))
-
-    s.append(
-        '======================= END DIMSE MESSAGE ======================='
-    )
+    s.append('{:=^76}'.format(' END DIMSE MESSAGE '))
 
     for line in s:
         LOGGER.debug(line)
@@ -1380,12 +1101,8 @@ def _send_c_move_rq(event):
     if msg.data_set and msg.data_set.getvalue() != b'':
         identifier = 'Present'
 
-    LOGGER.info("Sending Move Request: MsgID %s", cs.MessageID)
-
     s = []
-    s.append(
-        '===================== OUTGOING DIMSE MESSAGE ===================='
-    )
+    s.append('{:=^76}'.format(' OUTGOING DIMSE MESSAGE '))
     s.append('Message Type                  : {0!s}'.format('C-MOVE RQ'))
     s.append('Message ID                    : {0!s}'.format(cs.MessageID))
     s.append('Affected SOP Class UID        : {0!s}'
@@ -1394,9 +1111,7 @@ def _send_c_move_rq(event):
              .format(cs.MoveDestination))
     s.append('Identifier                    : {0!s}'.format(identifier))
     s.append('Priority                      : {0!s}'.format(priority))
-    s.append(
-        '======================= END DIMSE MESSAGE ======================='
-    )
+    s.append('{:=^76}'.format(' END DIMSE MESSAGE '))
     for line in s:
         LOGGER.debug(line)
     return None
@@ -1429,9 +1144,7 @@ def _send_c_move_rsp(event):
         identifier = 'Present'
 
     s = []
-    s.append(
-        '===================== OUTGOING DIMSE MESSAGE ===================='
-    )
+    s.append('{:=^76}'.format(' OUTGOING DIMSE MESSAGE '))
     s.append('Message Type                  : {0!s}'.format('C-MOVE RSP'))
     s.append('Message ID Being Responded To : {0!s}'
              .format(cs.MessageIDBeingRespondedTo))
@@ -1442,10 +1155,7 @@ def _send_c_move_rsp(event):
         s.append('Affected SOP Class UID        : none')
     s.append('Identifier                    : {0!s}'.format(identifier))
     s.append('Status                        : 0x{0:04x}'.format(cs.Status))
-
-    s.append(
-        '======================= END DIMSE MESSAGE ======================='
-    )
+    s.append('{:=^76}'.format(' END DIMSE MESSAGE '))
 
     for line in s:
         LOGGER.debug(line)
@@ -1481,17 +1191,13 @@ def _recv_c_echo_rq(event):
     LOGGER.info('Received Echo Request (MsgID %s)', cs.MessageID)
 
     s = []
-    s.append(
-        '===================== INCOMING DIMSE MESSAGE ===================='
-    )
+    s.append('{:=^76}'.format(' INCOMING DIMSE MESSAGE '))
     s.append('Message Type                  : {0!s}'.format('C-ECHO RQ'))
     s.append('Presentation Context ID       : {0!s}'
              .format(msg.context_id))
     s.append('Message ID                    : {0!s}'.format(cs.MessageID))
     s.append('Data Set                      : {0!s}'.format('none'))
-    s.append(
-        '======================= END DIMSE MESSAGE ======================='
-    )
+    s.append('{:=^76}'.format(' END DIMSE MESSAGE '))
 
     for line in s:
         LOGGER.debug(line)
@@ -1558,9 +1264,7 @@ def _recv_c_store_rq(event):
     LOGGER.info('Received Store Request')
 
     s = []
-    s.append(
-        '===================== INCOMING DIMSE MESSAGE ===================='
-    )
+    s.append('{:=^76}'.format(' INCOMING DIMSE MESSAGE '))
     s.append('Message Type                  : {0!s}'.format('C-STORE RQ'))
     s.append('Presentation Context ID       : {0!s}'
              .format(msg.context_id))
@@ -1574,9 +1278,7 @@ def _recv_c_store_rq(event):
                  .format(cs.MoveOriginatorApplicationEntityTitle))
     s.append('Data Set                      : {0!s}'.format(dataset))
     s.append('Priority                      : {0!s}'.format(priority))
-    s.append(
-        '======================= END DIMSE MESSAGE ======================='
-    )
+    s.append('{:=^76}'.format(' END DIMSE MESSAGE '))
     for line in s:
         LOGGER.debug(line)
 
@@ -1617,9 +1319,7 @@ def _recv_c_store_rsp(event):
 
     LOGGER.info('Received Store Response')
     s = []
-    s.append(
-        '===================== INCOMING DIMSE MESSAGE ===================='
-    )
+    s.append('{:=^76}'.format(' INCOMING DIMSE MESSAGE '))
     s.append('Message Type                  : {0!s}'.format('C-STORE RSP'))
     s.append('Presentation Context ID       : {0!s}'
              .format(msg.context_id))
@@ -1633,10 +1333,7 @@ def _recv_c_store_rsp(event):
                  .format(cs.AffectedSOPInstanceUID))
     s.append('Data Set                      : {0!s}'.format(dataset))
     s.append('DIMSE Status                  : {0!s}'.format(status_str))
-
-    s.append(
-        '======================= END DIMSE MESSAGE ======================='
-    )
+    s.append('{:=^76}'.format(' END DIMSE MESSAGE '))
 
     for line in s:
         LOGGER.debug(line)
@@ -1669,19 +1366,14 @@ def _recv_c_find_rq(event):
         dataset = 'Present'
 
     s = []
-    s.append(
-        '===================== INCOMING DIMSE MESSAGE ===================='
-    )
+    s.append('{:=^76}'.format(' INCOMING DIMSE MESSAGE '))
     s.append('Message Type                  : {0!s}'.format('C-FIND RQ'))
     s.append('Message ID                    : {0!s}'.format(cs.MessageID))
     s.append('Affected SOP Class UID        : {0!s}'
              .format(cs.AffectedSOPClassUID))
-    s.append('Data Set                      : {0!s}'.format(dataset))
+    s.append('Identifier                    : {0!s}'.format(dataset))
     s.append('Priority                      : {0!s}'.format(priority))
-
-    s.append(
-        '======================= END DIMSE MESSAGE ======================='
-    )
+    s.append('{:=^76}'.format(' END DIMSE MESSAGE '))
 
     for line in s:
         LOGGER.info(line)
@@ -1712,24 +1404,19 @@ def _recv_c_find_rsp(event):
         dataset = 'Present'
 
     s = []
-    s.append(
-        '===================== INCOMING DIMSE MESSAGE ===================='
-    )
+    s.append('{:=^76}'.format(' INCOMING DIMSE MESSAGE '))
     s.append('Message Type                  : {0!s}'.format('C-FIND RSP'))
     s.append('Message ID Being Responded To : {0!s}'
              .format(cs.MessageIDBeingRespondedTo))
     if 'AffectedSOPClassUID' in cs:
         s.append('Affected SOP Class UID        : {0!s}'
                  .format(cs.AffectedSOPClassUID))
-    s.append('Data Set                      : {0!s}'.format(dataset))
+    s.append('Identifier                    : {0!s}'.format(dataset))
     s.append('DIMSE Status                  : 0x{0:04x}'.format(cs.Status))
-
-    s.append(
-        '======================= END DIMSE MESSAGE ======================='
-    )
+    s.append('{:=^76}'.format(' END DIMSE MESSAGE '))
 
     for line in s:
-        LOGGER.info(line)
+        LOGGER.debug(line)
 
 def _recv_c_cancel_rq(event):
     """Logging handler when a C-CANCEL-RQ is received.
@@ -1745,16 +1432,11 @@ def _recv_c_cancel_rq(event):
     cs = msg.command_set
 
     s = []
-    s.append(
-        '===================== INCOMING DIMSE MESSAGE ===================='
-    )
+    s.append('{:=^76}'.format(' INCOMING DIMSE MESSAGE '))
     s.append('Message Type                  : {0!s}'.format('C-CANCEL RQ'))
     s.append('Message ID Being Responded To : {0!s}'
              .format(cs.MessageIDBeingRespondedTo))
-
-    s.append(
-        '======================= END DIMSE MESSAGE ======================='
-    )
+    s.append('{:=^76}'.format(' END DIMSE MESSAGE '))
 
     for line in s:
         LOGGER.info(line)
@@ -1787,19 +1469,14 @@ def _recv_c_get_rq(event):
         dataset = 'Present'
 
     s = []
-    s.append(
-        '===================== INCOMING DIMSE MESSAGE ===================='
-    )
+    s.append('{:=^76}'.format(' INCOMING DIMSE MESSAGE '))
     s.append('Message Type                  : {0!s}'.format('C-GET RQ'))
     s.append('Message ID                    : {0!s}'.format(cs.MessageID))
     s.append('Affected SOP Class UID        : {0!s}'
              .format(cs.AffectedSOPClassUID))
-    s.append('Data Set                      : {0!s}'.format(dataset))
+    s.append('Identifier                    : {0!s}'.format(dataset))
     s.append('Priority                      : {0!s}'.format(priority))
-
-    s.append(
-        '======================= END DIMSE MESSAGE ======================='
-    )
+    s.append('{:=^76}'.format(' END DIMSE MESSAGE '))
 
     for line in s:
         LOGGER.info(line)
@@ -1832,9 +1509,7 @@ def _recv_c_get_rsp(event):
         dataset = 'Present'
 
     s = []
-    s.append(
-        '===================== INCOMING DIMSE MESSAGE ===================='
-    )
+    s.append('{:=^76}'.format(' INCOMING DIMSE MESSAGE '))
     s.append('Message Type                  : {0!s}'.format('C-GET RSP'))
     s.append('Presentation Context ID       : {0!s}'
              .format(msg.context_id))
@@ -1855,12 +1530,9 @@ def _recv_c_get_rsp(event):
     if 'NumberOfWarningSuboperations' in cs:
         s.append('Warning Sub-operations        : {0!s}'
                  .format(cs.NumberOfWarningSuboperations))
-    s.append('Data Set                      : {0!s}'.format(dataset))
+    s.append('Identifier                    : {0!s}'.format(dataset))
     s.append('DIMSE Status                  : 0x{0:04x}'.format(cs.Status))
-
-    s.append(
-        '======================= END DIMSE MESSAGE ======================='
-    )
+    s.append('{:=^76}'.format(' END DIMSE MESSAGE '))
 
     for line in s:
         LOGGER.debug(line)
@@ -1911,9 +1583,7 @@ def _recv_c_move_rsp(event):
         identifier = 'Present'
 
     s = []
-    s.append(
-        '===================== INCOMING DIMSE MESSAGE ===================='
-    )
+    s.append('{:=^76}'.format(' INCOMING DIMSE MESSAGE '))
     s.append('Message Type                  : {0!s}'.format('C-MOVE RSP'))
     s.append('Message ID Being Responded To : {0!s}'
              .format(cs.MessageIDBeingRespondedTo))
@@ -1934,10 +1604,7 @@ def _recv_c_move_rsp(event):
                  .format(cs.NumberOfWarningSuboperations))
     s.append('Identifier                    : {0!s}'.format(identifier))
     s.append('DIMSE Status                  : 0x{0:04x}'.format(cs.Status))
-
-    s.append(
-        '======================= END DIMSE MESSAGE ======================='
-    )
+    s.append('{:=^76}'.format(' END DIMSE MESSAGE '))
 
     for line in s:
         LOGGER.debug(line)
@@ -1958,9 +1625,7 @@ def _send_n_event_report_rq(event):
         evt_info = 'Present'
 
     s = []
-    s.append(
-        '===================== OUTGOING DIMSE MESSAGE ===================='
-    )
+    s.append('{:=^76}'.format(' OUTGOING DIMSE MESSAGE '))
     s.append('Message Type                  : {0!s}'
              .format('N-EVENT-REPORT RQ'))
     s.append('Message ID                    : {0!s}'.format(cs.MessageID))
@@ -1971,9 +1636,7 @@ def _send_n_event_report_rq(event):
     s.append('Event Type ID                 : {0!s}'
              .format(cs.EventTypeID))
     s.append('Event Information             : {0!s}'.format(evt_info))
-    s.append(
-        '======================= END DIMSE MESSAGE ======================='
-    )
+    s.append('{:=^76}'.format(' END DIMSE MESSAGE '))
     for line in s:
         LOGGER.debug(line)
 
@@ -1993,9 +1656,7 @@ def _send_n_event_report_rsp(event):
         evt_reply = 'Present'
 
     s = []
-    s.append(
-        '===================== OUTGOING DIMSE MESSAGE ===================='
-    )
+    s.append('{:=^76}'.format(' OUTGOING DIMSE MESSAGE '))
     s.append('Message Type                  : {0!s}'
              .format('N-EVENT-REPORT RSP'))
     s.append('Message ID Being Responded To : {0!s}'
@@ -2013,9 +1674,7 @@ def _send_n_event_report_rsp(event):
         )
     s.append('Event Reply                       : {0!s}'.format(evt_reply))
     s.append('Status                        : 0x{0:04x}'.format(cs.Status))
-    s.append(
-        '======================= END DIMSE MESSAGE ======================='
-    )
+    s.append('{:=^76}'.format(' END DIMSE MESSAGE '))
     for line in s:
         LOGGER.debug(line)
 
@@ -2039,9 +1698,7 @@ def _send_n_get_rq(event):
             nr_attr = '{} identifiers'.format(nr_attr)
 
     s = []
-    s.append(
-        '===================== OUTGOING DIMSE MESSAGE ===================='
-    )
+    s.append('{:=^76}'.format(' OUTGOING DIMSE MESSAGE '))
     s.append('Message Type                  : {0!s}'.format('N-GET RQ'))
     s.append('Message ID                    : {0!s}'.format(cs.MessageID))
     s.append('Requested SOP Class UID       : {0!s}'
@@ -2049,9 +1706,7 @@ def _send_n_get_rq(event):
     s.append('Requested SOP Instance UID    : {0!s}'
              .format(cs.RequestedSOPInstanceUID))
     s.append('Attribute Identifier List     : ({0!s})'.format(nr_attr))
-    s.append(
-        '======================= END DIMSE MESSAGE ======================='
-    )
+    s.append('{:=^76}'.format(' END DIMSE MESSAGE '))
     for line in s:
         LOGGER.debug(line)
 
@@ -2071,9 +1726,7 @@ def _send_n_get_rsp(event):
         attr_list = 'Present'
 
     s = []
-    s.append(
-        '===================== OUTGOING DIMSE MESSAGE ===================='
-    )
+    s.append('{:=^76}'.format(' OUTGOING DIMSE MESSAGE '))
     s.append('Message Type                  : {0!s}'.format('N-GET RSP'))
     s.append('Message ID Being Responded To : {0!s}'
              .format(cs.MessageIDBeingRespondedTo))
@@ -2085,9 +1738,7 @@ def _send_n_get_rsp(event):
                  .format(cs.AffectedSOPInstanceUID))
     s.append('Attribute List                : {0!s}'.format(attr_list))
     s.append('Status                        : 0x{0:04x}'.format(cs.Status))
-    s.append(
-        '======================= END DIMSE MESSAGE ======================='
-    )
+    s.append('{:=^76}'.format(' END DIMSE MESSAGE '))
     for line in s:
         LOGGER.debug(line)
 
@@ -2107,9 +1758,7 @@ def _send_n_set_rq(event):
         mod_list = 'Present'
 
     s = []
-    s.append(
-        '===================== OUTGOING DIMSE MESSAGE ===================='
-    )
+    s.append('{:=^76}'.format(' OUTGOING DIMSE MESSAGE '))
     s.append('Message Type                  : {0!s}'.format('N-SET RQ'))
     s.append('Message ID                    : {0!s}'.format(cs.MessageID))
     s.append('Requested SOP Class UID       : {0!s}'
@@ -2117,9 +1766,7 @@ def _send_n_set_rq(event):
     s.append('Requested SOP Instance UID    : {0!s}'
              .format(cs.RequestedSOPInstanceUID))
     s.append('Modification List             : {0!s}'.format(mod_list))
-    s.append(
-        '======================= END DIMSE MESSAGE ======================='
-    )
+    s.append('{:=^76}'.format(' END DIMSE MESSAGE '))
     for line in s:
         LOGGER.debug(line)
 
@@ -2139,9 +1786,7 @@ def _send_n_set_rsp(event):
         attr_list = 'Present'
 
     s = []
-    s.append(
-        '===================== OUTGOING DIMSE MESSAGE ===================='
-    )
+    s.append('{:=^76}'.format(' OUTGOING DIMSE MESSAGE '))
     s.append('Message Type                  : {0!s}'.format('N-SET RSP'))
     s.append('Message ID Being Responded To : {0!s}'
              .format(cs.MessageIDBeingRespondedTo))
@@ -2153,9 +1798,7 @@ def _send_n_set_rsp(event):
                  .format(cs.AffectedSOPInstanceUID))
     s.append('Attribute List                : {0!s}'.format(attr_list))
     s.append('Status                        : 0x{0:04x}'.format(cs.Status))
-    s.append(
-        '======================= END DIMSE MESSAGE ======================='
-    )
+    s.append('{:=^76}'.format(' END DIMSE MESSAGE '))
     for line in s:
         LOGGER.debug(line)
 
@@ -2211,18 +1854,14 @@ def _send_n_delete_rq(event):
     cs = msg.command_set
 
     s = []
-    s.append(
-        '===================== OUTGOING DIMSE MESSAGE ===================='
-    )
+    s.append('{:=^76}'.format(' OUTGOING DIMSE MESSAGE '))
     s.append('Message Type                  : {0!s}'.format('N-DELETE RQ'))
     s.append('Message ID                    : {0!s}'.format(cs.MessageID))
     s.append('Requested SOP Class UID       : {0!s}'
              .format(cs.RequestedSOPClassUID))
     s.append('Requested SOP Instance UID    : {0!s}'
              .format(cs.RequestedSOPInstanceUID))
-    s.append(
-        '======================= END DIMSE MESSAGE ======================='
-    )
+    s.append('{:=^76}'.format(' END DIMSE MESSAGE '))
     for line in s:
         LOGGER.debug(line)
 
@@ -2238,9 +1877,7 @@ def _send_n_delete_rsp(event):
     cs = msg.command_set
 
     s = []
-    s.append(
-        '===================== OUTGOING DIMSE MESSAGE ===================='
-    )
+    s.append('{:=^76}'.format(' OUTGOING DIMSE MESSAGE '))
     s.append('Message Type                  : {0!s}'.format('N-DELETE RQ'))
     s.append('Message ID Being Responded To : {0!s}'
              .format(cs.MessageIDBeingRespondedTo))
@@ -2251,9 +1888,7 @@ def _send_n_delete_rsp(event):
         s.append('Affected SOP Instance UID     : {0!s}'
                  .format(cs.AffectedSOPInstanceUID))
     s.append('Status                        : 0x{0:04x}'.format(cs.Status))
-    s.append(
-        '======================= END DIMSE MESSAGE ======================='
-    )
+    s.append('{:=^76}'.format(' END DIMSE MESSAGE '))
     for line in s:
         LOGGER.debug(line)
 
@@ -2304,9 +1939,7 @@ def _recv_n_get_rsp(event):
 
     LOGGER.info('Received Get Response')
     s = []
-    s.append(
-        '===================== INCOMING DIMSE MESSAGE ===================='
-    )
+    s.append('{:=^76}'.format(' INCOMING DIMSE MESSAGE '))
     s.append('Message Type                  : {0!s}'.format('N-GET RSP'))
     s.append('Presentation Context ID       : {0!s}'
              .format(msg.context_id))
@@ -2320,9 +1953,7 @@ def _recv_n_get_rsp(event):
                  .format(cs.AffectedSOPInstanceUID))
     s.append('Attribute List                : {0!s}'.format(dataset))
     s.append('Status                        : 0x{0:04x}'.format(cs.Status))
-    s.append(
-        '======================= END DIMSE MESSAGE ======================='
-    )
+    s.append('{:=^76}'.format(' END DIMSE MESSAGE '))
 
     for line in s:
         LOGGER.debug(line)
@@ -2404,5 +2035,874 @@ def _recv_n_delete_rsp(event):
     ----------
     event : event.Event
         The evt.EVT_DIMSE_RECV event that occurred.
+    """
+    pass
+
+
+# Example handlers used for the documentation
+# Notification event handlers
+def doc_handle_association_event(event):
+    """Handler bound to one of the association events.
+
+    Parameters
+    ----------
+    event : pynetdicom.events.Event
+        An association event with attributes:
+
+        * assoc : association.Association, the association the event
+          occurred in
+        * description : str, a description of the event
+        * name : str, the name of the event
+        * timestamp : datetime.datetime, the time the event occurred
+    """
+    pass
+
+def doc_handle_acse_event(event):
+    """Handler bound to one of the ACSE events.
+
+    Parameters
+    ----------
+    event : pynetdicom.events.Event
+        An association event with attributes:
+
+        * assoc : association.Association, the association the event
+          occurred in
+        * description : str, a description of the event
+        * name : str, the name of the event
+        * primitive : pdu_primitives.A_ASSOCIATE, A_RELEASE, A_ABORT
+          or A_P_ABORT, the primitive sent to or received from the
+          DUL service provider.
+        * timestamp : datetime.datetime, the time the event occurred
+    """
+    pass
+
+def doc_handle_dimse_event(event):
+    """Handler bound to one of the transport events.
+
+    Parameters
+    ----------
+    event : pynetdicom.events.Event
+        An association event with attributes:
+
+        * assoc : association.Association, the association the event
+          occurred in
+        * description : str, a description of the event
+        * message : dimse_messages.C_ECHO_RQ, C_ECHO_RSP, C_FIND_RQ,
+          C_FIND_RSP, C_GET_RQ, C_GET_RSP, C_STORE_RQ, C_STORE_RSP,
+          N_ACTION_RQ, N_ACTION_RSP, N_CREATE_RQ, N_CREATE_RSP,
+          N_DELETE_RQ, N_DELETE_RSP, N_EVENT_REPORT_RQ, N_EVENT_REPORT_RSP,
+          N_GET_RQ, N_GET_RSP, N_SET_RQ or N_SET_RSP, the DIMSE message
+          sent or received
+        * name : str, the name of the event
+        * timestamp : datetime.datetime, the time the event occurred
+    """
+    pass
+
+def doc_handle_transport_event(event):
+    """Handler bound to one of the transport events.
+
+    Parameters
+    ----------
+    event : pynetdicom.events.Event
+        An association event with attributes:
+
+        * address : tuple of (host, port), the address of the remote
+        * assoc : association.Association, the association the event
+          occurred in
+        * description : str, a description of the event
+        * name : str, the name of the event
+        * timestamp : datetime.datetime, the time the event occurred
+    """
+    pass
+
+def doc_handle_fsm_event(event):
+    """Handler bound to one of the transport events.
+
+    Parameters
+    ----------
+    event : pynetdicom.events.Event
+        An association event with attributes:
+
+        * action : str, the state machine action to perform
+        * assoc : association.Association, the association the event
+          occurred in
+        * current_state : str, the current state of the state machine
+        * description : str, a description of the event
+        * event_name : str, the state machine event that occurred
+        * name : str, the name of the event
+        * next_state : str, the next state of the state machine once the
+          action has taken place
+        * timestamp : datetime.datetime, the time the event occurred
+    """
+    pass
+
+def doc_handle_pdu_event(event):
+    """Handler bound to one of the transport events.
+
+    Parameters
+    ----------
+    event : pynetdicom.events.Event
+        An association event with attributes:
+
+        * assoc : association.Association, the association the event
+          occurred in
+        * description : str, a description of the event
+        * name : str, the name of the event
+        * pdu : pdu.A_ASSOCIATE_RQ, A_ASSOCIATE_AC, A_ASSOCIATE_RJ,
+          A_RELEASE_RQ, A_RELEASE_RP, A_ABORT_RQ, P_DATA_TF, the PDU
+          received from or sent to the peer.
+        * timestamp : datetime.datetime, the time the event occurred
+    """
+    pass
+
+def doc_handle_data_event(event):
+    """Handler bound to one of the data events.
+
+    Parameters
+    ----------
+    event : pynetdicom.events.Event
+        An association event with attributes:
+
+        * assoc : association.Association, the association the event
+          occurred in
+        * description : str, a description of the event
+        * data : bytes, the data sent to or received from the peer
+        * name : str, the name of the event
+        * timestamp : datetime.datetime, the time the event occurred
+    """
+    pass
+
+# Intervention event handler documentation
+def doc_handle_echo(event):
+    """Documentation for a handler bound to evt.EVT_C_ECHO.
+
+    User implementation of this event handler is optional.
+
+    **Event**
+
+    ``evt.EVT_C_ECHO``
+
+    **Supported Service Classes**
+
+    *Verification Service Class*
+
+    **Status**
+
+    Success
+      | ``0x0000`` Success
+
+    Failure
+      | ``0x0122`` Refused: SOP Class Not Supported
+      | ``0x0210`` Refused: Duplicate Invocation
+      | ``0x0211`` Refused: Unrecognised Operation
+      | ``0x0212`` Refused: Mistyped Argument
+
+    Parameters
+    ----------
+    event : event.Event
+        The event representing a service class receiving a C-ECHO
+        request message. Event attributes are:
+
+        * ``assoc`` : the
+          :py:class:`association <pynetdicom.association.Association>`
+          that is running the DICOM service that received the C-ECHO request.
+        * ``context`` : the
+          :py:class:`presentation context <pynetdicom.presentation.PresentationContext>`
+          the request was sent under.
+        * ``request`` : the received
+          :py:class:C-ECHO request <pynetdicom.dimse_primitives.C_ECHO>``
+        * ``timestamp`` : the
+          `date and time <https://docs.python.org/3/library/datetime.html#datetime-objects>`_
+          that the C-ECHO request was processed by the service.
+
+    Returns
+    -------
+    status : pydicom.dataset.Dataset or int
+        The status returned to the peer AE in the C-ECHO response. Must be
+        a valid C-ECHO status value for the applicable Service Class as
+        either an ``int`` or a ``Dataset`` object containing (at a minimum)
+        a (0000,0900) *Status* element. If returning a ``Dataset`` object
+        then it may also contain optional elements related to the Status
+        (as in the DICOM Standard Part 7, Annex C).
+
+    See Also
+    --------
+
+    * :py:meth:`send_c_echo() <pynetdicom.association.Association.send_c_echo>`
+    * :py:class:`C_ECHO<pynetdicom.dimse_primitives.C_ECHO>`
+    * :py:class:`VerificationServiceClass<pynetdicom.service_class.VerificationServiceClass>`
+
+    References
+    ----------
+
+    * DICOM Standard Part 4, `Annex A <http://dicom.nema.org/medical/dicom/current/output/html/part04.html#chapter_A>`_
+    * DICOM Standard Part 7, Sections
+      `9.1.5 <http://dicom.nema.org/medical/dicom/current/output/html/part07.html#sect_9.1.5>`_,
+      `9.3.5 <http://dicom.nema.org/medical/dicom/current/output/html/part07.html#sect_9.3.5>`_
+      and `Annex C <http://dicom.nema.org/medical/dicom/current/output/html/part07.html#chapter_C>`_
+    """
+    pass
+
+def doc_handle_find(event):
+    """Documentation for a handler bound to evt.EVT_C_FIND.
+
+    User implementation of this event handler is required if one or more
+    services that use C-FIND are to be supported.
+
+    Yields ``(status, identifier)`` pairs, where *status* is either an
+    ``int`` or pydicom ``Dataset`` containing a (0000,0900) *Status*
+    element and *identifier* is a C-FIND *Identifier* ``Dataset``.
+
+    **Event**
+
+    ``evt.EVT_C_FIND``
+
+    **Supported Service Classes**
+
+    * *Query/Retrieve Service Class*
+    * *Basic Worklist Management Service*
+    * *Relevant Patient Information Query Service*
+    * *Substance Administration Query Service*
+    * *Hanging Protocol Query/Retrieve Service*
+    * *Defined Procedure Protocol Query/Retrieve Service*
+    * *Color Palette Query/Retrieve Service*
+    * *Implant Template Query/Retrieve Service*
+
+    **Status**
+
+    Success
+      | ``0x0000`` Success
+
+    Failure
+      | ``0xA700`` Out of resources
+      | ``0xA900`` Identifier does not match SOP class
+      | ``0xC000`` to ``0xCFFF`` Unable to process
+
+    Cancel
+      | ``0xFE00`` Matching terminated due to Cancel request
+
+    Pending
+      | ``0xFF00`` Matches are continuing: current match is supplied and
+         any Optional Keys were supported in the same manner as Required
+         Keys
+      | ``0xFF01`` Matches are continuing: warning that one or more Optional
+        Keys were not supported for existence and/or matching for this
+        Identifier
+
+    Parameters
+    ----------
+    event : event.Event
+        The event representing a service class receiving a C-FIND
+        request message. Event attributes are:
+
+        * ``assoc`` : the
+          :py:class:`association <pynetdicom.association.Association>`
+          that is running the service that received the C-FIND request.
+        * ``context`` : the
+          :py:class:`presentation context <pynetdicom.presentation.PresentationContext>`
+          the request was sent under.
+        * ``request`` : the received
+          :py:class:`C-FIND request <pynetdicom.dimse_primitives.C_FIND>`
+        * ``timestamp`` : the
+          `date and time <https://docs.python.org/3/library/datetime.html#datetime-objects>`_
+          that the C-FIND request was processed by the service.
+
+        Event properties are:
+
+        * ``identifier`` : the decoded
+          :py:class:`Dataset <pydicom.dataset.Dataset>` contained within the
+          C-FIND request's *Identifier* parameter. Because *pydicom* uses
+          a deferred read when decoding data, if the decode fails the returned
+          ``Dataset`` will only raise an exception at the time of use.
+        * ``is_cancelled`` : returns ``True`` if a
+          C-CANCEL request has been received, False otherwise. If a C-CANCEL
+          is received then the handler should ``yield (0xFE00, None)`` and
+          return.
+
+    Yields
+    ------
+    status : pydicom.dataset.Dataset or int
+        The status returned to the peer AE in the C-FIND response. Must be
+        a valid C-FIND status vuale for the applicable Service Class as
+        either an ``int`` or a ``Dataset`` object containing (at a minimum)
+        a (0000,0900) *Status* element. If returning a Dataset object then
+        it may also contain optional elements related to the Status (as in
+        DICOM Standard Part 7, Annex C).
+    identifier : pydicom.dataset.Dataset or None
+        If the status is 'Pending' then the *Identifier* ``Dataset`` for a
+        matching SOP Instance. The exact requirements for the C-FIND
+        response *Identifier* are Service Class specific (see the
+        DICOM Standard, Part 4).
+
+        If the status is 'Failure' or 'Cancel' then yield ``None``.
+
+        If the status is 'Success' then yield ``None``, however yielding a
+        final 'Success' status is not required and will be ignored if
+        necessary.
+
+    See Also
+    --------
+    association.Association.send_c_find
+    dimse_primitives.C_FIND
+    service_class.QueryRetrieveFindServiceClass
+    service_class.BasicWorklistManagementServiceClass
+    service_class.RelevantPatientInformationQueryServiceClass
+    service_class.SubstanceAdministrationQueryServiceClass
+    service_class.HangingProtocolQueryRetrieveServiceClass
+    service_class.DefinedProcedureProtocolQueryRetrieveServiceClass
+    service_class.ColorPaletteQueryRetrieveServiceClass
+    service_class.ImplantTemplateQueryRetrieveServiceClass
+
+    References
+    ----------
+
+    * DICOM Standard Part 4, Annexes
+      `C <http://dicom.nema.org/medical/dicom/current/output/html/part04.html#chapter_C>`_,
+      `K <http://dicom.nema.org/medical/dicom/current/output/html/part04.html#chapter_K>`_,
+      `Q <http://dicom.nema.org/medical/dicom/current/output/html/part04.html#chapter_Q>`_,
+      `U <http://dicom.nema.org/medical/dicom/current/output/html/part04.html#chapter_U>`_,
+      `V <http://dicom.nema.org/medical/dicom/current/output/html/part04.html#chapter_V>`_,
+      `X <http://dicom.nema.org/medical/dicom/current/output/html/part04.html#chapter_X>`_,
+      `BB <http://dicom.nema.org/medical/dicom/current/output/html/part04.html#chapter_BB>`_,
+      `CC <http://dicom.nema.org/medical/dicom/current/output/html/part04.html#chapter_CC>`_
+      and `HH <http://dicom.nema.org/medical/dicom/current/output/html/part04.html#chapter_HH>`_
+    * DICOM Standard Part 7, Sections
+      `9.1.2 <http://dicom.nema.org/medical/dicom/current/output/html/part07.html#sect_9.1.2>`_,
+      `9.3.2 <http://dicom.nema.org/medical/dicom/current/output/html/part07.html#sect_9.3.2>`_
+      and `Annex C <http://dicom.nema.org/medical/dicom/current/output/html/part07.html#chapter_C>`_
+    """
+    pass
+
+def doc_handle_c_get(event):
+    """Documentation for a handler bound to evt.EVT_C_GET.
+
+    User implementation of this event handler is required if one or more
+    services that use C-GET are to be supported.
+
+    Yields an ``int`` containing the total number of C-STORE sub-operations,
+    then yields ``(status, dataset)`` pairs.
+
+    **Event**
+
+    ``evt.EVT_C_GET``
+
+    **Supported Service Classes**
+
+    * *Query/Retrieve Service Class*
+    * *Hanging Protocol Query/Retrieve Service*
+    * *Defined Procedure Protocol Query/Retrieve Service*
+    * *Color Palette Query/Retrieve Service*
+    * *Implant Template Query/Retrieve Service*
+
+    **Status**
+
+    Success
+      | ``0x0000`` Sub-operations complete, no failures or warnings
+
+    Failure
+      | ``0xA701`` Out of resources: unable to calculate the number of
+        matches
+      | ``0xA702`` Out of resources: unable to perform sub-operations
+      | ``0xA900`` Identifier does not match SOP class
+      | ``0xAA00`` None of the frames requested were found in the SOP
+        instance
+      | ``0xAA01`` Unable to create new object for this SOP class
+      | ``0xAA02`` Unable to extract frames
+      | ``0xAA03`` Time-based request received for a non-time-based
+        original SOP Instance
+      | ``0xAA04`` Invalid request
+      | ``0xC000`` to ``0xCFFF`` Unable to process
+
+    Cancel
+      | ``0xFE00`` Sub-operations terminated due to Cancel request
+
+    Warning
+      | ``0xB000`` Sub-operations complete, one or more failures or
+        warnings
+
+    Pending
+      | ``0xFF00`` Matches are continuing - Current Match is supplied and
+        any Optional Keys were supported in the same manner as Required
+        Keys
+
+    Parameters
+    ----------
+    event : event.Event
+        The event representing a service class receiving a C-GET
+        request message. Event attributes are:
+
+        * ``assoc`` : the
+          :py:class:`association <pynetdicom.association.Association>`
+          that is running the service that received the C-GET request.
+        * ``context`` : the
+          :py:class:`presentation context <pynetdicom.presentation.PresentationContext>`
+          the request was sent under.
+        * ``request`` : the received
+          :py:class:`C-GET request <pynetdicom.dimse_primitives.C_GET>`
+        * ``timestamp`` : the
+          `date and time <https://docs.python.org/3/library/datetime.html#datetime-objects>`_
+          that the C-GET request was processed by the service.
+
+        Event properties are:
+
+        * ``identifier`` : the decoded
+          :py:class:`Dataset <pydicom.dataset.Dataset>` contained within the
+          C-GET request's *Identifier* parameter. Because *pydicom* uses
+          a deferred read when decoding data, if the decode fails the returned
+          ``Dataset`` will only raise an exception at the time of use.
+        * ``is_cancelled`` : returns ``True`` if a
+          C-CANCEL request has been received, False otherwise. If a C-CANCEL
+          is received then the handler should ``yield (0xFE00, None)`` and
+          return.
+
+    Yields
+    ------
+    int
+        The first yielded value should be the total number of C-STORE
+        sub-operations necessary to complete the C-GET operation. In other
+        words, this is the number of matching SOP Instances to be sent to
+        the peer.
+    status : pydicom.dataset.Dataset or int
+        The status returned to the peer AE in the C-GET response. Must be a
+        valid C-GET status value for the applicable Service Class as either
+        an ``int`` or a ``Dataset`` object containing (at a minimum) a
+        (0000,0900) *Status* element. If returning a Dataset object then
+        it may also contain optional elements related to the Status (as in
+        DICOM Standard Part 7, Annex C).
+    dataset : pydicom.dataset.Dataset or None
+        If the status is 'Pending' then yield the ``Dataset`` to send to
+        the peer via a C-STORE sub-operation over the current association.
+
+        If the status is 'Failed', 'Warning' or 'Cancel' then yield a
+        ``Dataset`` with a (0008,0058) *Failed SOP Instance UID List*
+        element containing a list of the C-STORE sub-operation SOP Instance
+        UIDs for which the C-GET operation has failed.
+
+        If the status is 'Success' then yield ``None``, although yielding a
+        final 'Success' status is not required and will be ignored if
+        necessary.
+
+    See Also
+    --------
+    association.Association.send_c_get
+    dimse_primitives.C_GET
+    service_class.QueryRetrieveGetServiceClass
+    service_class.HangingProtocolQueryRetrieveServiceClass
+    service_class.DefinedProcedureProtocolQueryRetrieveServiceClass
+    service_class.ColorPaletteQueryRetrieveServiceClass
+    service_class.ImplantTemplateQueryRetrieveServiceClass
+
+    References
+    ----------
+
+    * DICOM Standard Part 4, Annexes
+      `C <http://dicom.nema.org/medical/dicom/current/output/html/part04.html#chapter_C>`_,
+      `U <http://dicom.nema.org/medical/dicom/current/output/html/part04.html#chapter_U>`_,
+      `X <http://dicom.nema.org/medical/dicom/current/output/html/part04.html#chapter_X>`_,
+      `Y <http://dicom.nema.org/medical/dicom/current/output/html/part04.html#chapter_Y>`_,
+      `Z <http://dicom.nema.org/medical/dicom/current/output/html/part04.html#chapter_Z>`_,
+      `BB <http://dicom.nema.org/medical/dicom/current/output/html/part04.html#chapter_BB>`_
+      and `HH <http://dicom.nema.org/medical/dicom/current/output/html/part04.html#chapter_HH>`_
+    * DICOM Standard Part 7, Sections
+      `9.1.3 <http://dicom.nema.org/medical/dicom/current/output/html/part07.html#sect_9.1.3>`_,
+      `9.3.3 <http://dicom.nema.org/medical/dicom/current/output/html/part07.html#sect_9.3.3>`_
+      and `Annex C <http://dicom.nema.org/medical/dicom/current/output/html/part07.html#chapter_C>`_
+    """
+    pass
+
+def doc_handle_move(event):
+    """Documentation for a handler bound to evt.EVT_C_MOVE.
+
+    User implementation of this event handler is required if one or more
+    services that use C-MOVE are to be supported.
+
+    The first yield should be the ``(addr, port)`` of the move destination,
+    the second yield the number of required C-STORE sub-operations as an
+    ``int``, and the remaining yields the ``(status, dataset)`` pairs.
+
+    Matching SOP Instances will be sent to the peer AE with AE title
+    ``move_aet`` over a new association. If ``move_aet`` is unknown then
+    the SCP will send a response with a 'Failure' status of ``0xA801``
+    'Move Destination Unknown'.
+
+    **Event**
+
+    ``evt.EVT_C_MOVE``
+
+    **Supported Service Classes**
+
+    * *Query/Retrieve Service*
+    * *Hanging Protocol Query/Retrieve Service*
+    * *Defined Procedure Protocol Query/Retrieve Service*
+    * *Color Palette Query/Retrieve Service*
+    * *Implant Template Query/Retrieve Service*
+
+    **Status**
+
+    Success
+      | ``0x0000`` Sub-operations complete, no failures
+
+    Pending
+      | ``0xFF00`` Sub-operations are continuing
+
+    Cancel
+      | ``0xFE00`` Sub-operations terminated due to Cancel indication
+
+    Failure
+      | ``0x0122`` SOP class not supported
+      | ``0x0124`` Not authorised
+      | ``0x0210`` Duplicate invocation
+      | ``0x0211`` Unrecognised operation
+      | ``0x0212`` Mistyped argument
+      | ``0xA701`` Out of resources: unable to calculate number of matches
+      | ``0xA702`` Out of resources: unable to perform sub-operations
+      | ``0xA801`` Move destination unknown
+      | ``0xA900`` Identifier does not match SOP class
+      | ``0xAA00`` None of the frames requested were found in the SOP
+        instance
+      | ``0xAA01`` Unable to create new object for this SOP class
+      | ``0xAA02`` Unable to extract frames
+      | ``0xAA03`` Time-based request received for a non-time-based
+        original SOP Instance
+      | ``0xAA04`` Invalid request
+      | ``0xC000`` to ``0xCFFF`` Unable to process
+
+
+    Parameters
+    ----------
+    event : event.Event
+        The event representing a service class receiving a C-MOVE
+        request message. Event attributes are:
+
+        * ``assoc`` : the
+          :py:class:`association <pynetdicom.association.Association>`
+          that is running the service that received the C-MOVE request.
+        * ``context`` : the
+          :py:class:`presentation context <pynetdicom.presentation.PresentationContext>`
+          the request was sent under.
+        * ``request`` : the received
+          :py:class:`C-MOVE request <pynetdicom.dimse_primitives.C_MOVE>`
+        * ``timestamp`` : the
+          `date and time <https://docs.python.org/3/library/datetime.html#datetime-objects>`_
+          that the C-MOVE request was processed by the service.
+
+        Event properties are:
+
+        * ``identifier`` : the decoded
+          :py:class:`Dataset <pydicom.dataset.Dataset>` contained within the
+          C-MOVE request's *Identifier* parameter. Because *pydicom* uses
+          a deferred read when decoding data, if the decode fails the returned
+          ``Dataset`` will only raise an exception at the time of use.
+        * ``is_cancelled`` : returns ``True`` if a
+          C-CANCEL request has been received, False otherwise. If a C-CANCEL
+          is received then the handler should ``yield (0xFE00, None)`` and
+          return.
+
+    Yields
+    ------
+    addr, port : str, int or None, None
+        The first yield should be the TCP/IP address and port number of the
+        destination AE (if known) or ``(None, None)`` if unknown. If
+        ``(None, None)`` is yielded then the SCP will send a C-MOVE
+        response with a 'Failure' Status of ``0xA801`` (move destination
+        unknown), in which case nothing more needs to be yielded.
+    int
+        The second yield should be the number of C-STORE sub-operations
+        required to complete the C-MOVE operation. In other words, this is
+        the number of matching SOP Instances to be sent to the peer.
+    status : pydiom.dataset.Dataset or int
+        The status returned to the peer AE in the C-MOVE response. Must be
+        a valid C-MOVE status value for the applicable Service Class as
+        either an ``int`` or a ``Dataset`` containing (at a minimum) a
+        (0000,0900) *Status* element. If returning a ``Dataset`` then it
+        may also contain optional elements related to the Status (as in
+        DICOM Standard Part 7, Annex C).
+    dataset : pydicom.dataset.Dataset or None
+        If the status is 'Pending' then yield the ``Dataset``
+        to send to the peer via a C-STORE sub-operation over a new
+        association.
+
+        If the status is 'Failed', 'Warning' or 'Cancel' then yield a
+        ``Dataset`` with a (0008,0058) *Failed SOP Instance UID List*
+        element containing the list of the C-STORE sub-operation SOP
+        Instance UIDs for which the C-MOVE operation has failed.
+
+        If the status is 'Success' then yield ``None``, although yielding a
+        final 'Success' status is not required and will be ignored if
+        necessary.
+
+    See Also
+    --------
+    association.Association.send_c_move
+    dimse_primitives.C_MOVE
+    service_class.QueryRetrieveMoveServiceClass
+    service_class.HangingProtocolQueryRetrieveServiceClass
+    service_class.DefinedProcedureProtocolQueryRetrieveServiceClass
+    service_class.ColorPaletteQueryRetrieveServiceClass
+    service_class.ImplantTemplateQueryRetrieveServiceClass
+
+    References
+    ----------
+
+    * DICOM Standard Part 4, Annexes
+      `C <http://dicom.nema.org/medical/dicom/current/output/html/part04.html#chapter_C>`_,
+      `U <http://dicom.nema.org/medical/dicom/current/output/html/part04.html#chapter_U>`_,
+      `X <http://dicom.nema.org/medical/dicom/current/output/html/part04.html#chapter_X>`_,
+      `Y <http://dicom.nema.org/medical/dicom/current/output/html/part04.html#chapter_Y>`_,
+      `BB <http://dicom.nema.org/medical/dicom/current/output/html/part04.html#chapter_BB>`_
+      and `HH <http://dicom.nema.org/medical/dicom/current/output/html/part04.html#chapter_HH>`_
+    * DICOM Standard Part 7, Sections
+      `9.1.4 <http://dicom.nema.org/medical/dicom/current/output/html/part07.html#sect_9.1.4>`_,
+      `9.3.4 <http://dicom.nema.org/medical/dicom/current/output/html/part07.html#sect_9.3.4>`_
+      and `Annex C <http://dicom.nema.org/medical/dicom/current/output/html/part07.html#chapter_C>`_
+    """
+    pass
+
+def doc_handle_store(event):
+    """Documentation for a handler bound to evt.EVT_C_STORE.
+
+    User implementation of this event handler is required if one or more
+    services that use C-STORE are to be supported.
+
+    If the user is storing the dataset in the DICOM File Format (as in the
+    DICOM Standard Part 10, Section 7) then they are responsible for adding
+    the DICOM File Meta Information.
+
+    **Event**
+
+    ``evt.EVT_C_STORE``
+
+    **Supported Service Classes**
+
+    * *Storage Service Class*
+    * *Non-Patient Object Storage Service Class*
+
+    **Status**
+
+    Success
+      | ``0x0000`` - Success
+
+    Warning
+      | ``0xB000`` Coercion of data elements
+      | ``0xB006`` Elements discarded
+      | ``0xB007`` Dataset does not match SOP class
+
+    Failure
+      | ``0x0117`` Invalid SOP instance
+      | ``0x0122`` SOP class not supported
+      | ``0x0124`` Not authorised
+      | ``0x0210`` Duplicate invocation
+      | ``0x0211`` Unrecognised operation
+      | ``0x0212`` Mistyped argument
+      | ``0xA700`` to ``0xA7FF`` Out of resources
+      | ``0xA900`` to ``0xA9FF`` Dataset does not match SOP class
+      | ``0xC000`` to ``0xCFFF`` Cannot understand
+
+    Parameters
+    ----------
+    event : event.Event
+        The event representing a service class receiving a C-STORE
+        request message. Event attributes are:
+
+        * ``assoc`` : the
+          :py:class:`association <pynetdicom.association.Association>`
+          that is running the service that received the C-STORE request.
+        * ``context`` : the
+          :py:class:`presentation context <pynetdicom.presentation.PresentationContext>`
+          the request was sent under.
+        * ``request`` : the received
+          :py:class:`C-STORE request <pynetdicom.dimse_primitives.C_STORE>`
+        * ``timestamp`` : the
+          `date and time <https://docs.python.org/3/library/datetime.html#datetime-objects>`_
+          that the C-STORE request was processed by the service.
+
+        Event properties are:
+
+        * ``dataset`` : the decoded
+          :py:class:`Dataset <pydicom.dataset.Dataset>` contained within the
+          C-STORE request's *Data Set* parameter. Because *pydicom* uses
+          a deferred read when decoding data, if the decode fails the returned
+          ``Dataset`` will only raise an exception at the time of use.
+
+    Returns
+    -------
+    status : pydicom.dataset.Dataset or int
+        The status returned to the requesting AE in the C-STORE response. Must
+        be a valid C-STORE status value for the applicable Service Class as
+        either an ``int`` or a ``Dataset`` object containing (at a
+        minimum) a (0000,0900) *Status* element. If returning a Dataset
+        object then it may also contain optional elements related to the
+        Status (as in the DICOM Standard Part 7, Annex C).
+
+    Raises
+    ------
+    NotImplementedError
+        If the handler has not been implemented and bound to
+        ``evt.EVT_C_STORE`` by the user.
+
+    See Also
+    --------
+    association.Association.send_c_store
+    dimse_primitives.C_STORE
+    service_class.StorageServiceClass
+    service_class.NonPatientObjectStorageServiceClass
+
+    References
+    ----------
+
+    * DICOM Standard Part 4, Annexes
+      `B <http://dicom.nema.org/medical/dicom/current/output/html/part04.html#chapter_B>`_,
+      `AA <http://dicom.nema.org/medical/dicom/current/output/html/part04.html#chapter_AA>`_,
+      `FF <http://dicom.nema.org/medical/dicom/current/output/html/part04.html#chapter_FF>`_
+      and `GG <http://dicom.nema.org/medical/dicom/current/output/html/part04.html#chapter_GG>`_
+    * DICOM Standard Part 7, Sections
+      `9.1.1 <http://dicom.nema.org/medical/dicom/current/output/html/part07.html#sect_9.1.1>`_,
+      `9.3.1 <http://dicom.nema.org/medical/dicom/current/output/html/part07.html#sect_9.3.1>`_
+      and `Annex C <http://dicom.nema.org/medical/dicom/current/output/html/part07.html#chapter_C>`_
+    * DICOM Standard Part 10,
+      `Section 7 <http://dicom.nema.org/medical/dicom/current/output/html/part10.html#chapter_7>`_
+    """
+    pass
+
+def doc_handle_action(event):
+    """Documentation for a handler bound to evt.EVT_N_ACTION.
+
+    User implementation of this event handler is required if one or more
+    services that use N-ACTION are to be supported.
+
+    **Event**
+
+    ``evt.EVT_N_ACTION``
+
+    References
+    ----------
+    DICOM Standard Part 4, Annexes H, J, P, S, CC and DD
+    """
+    pass
+
+def doc_handle_create(event):
+    """Documentation for a handler bound to evt.EVT_N_CREATE.
+
+    User implementation of this event handler is required if one or more
+    services that use N-CREATE are to be supported.
+
+    **Event**
+
+    ``evt.EVT_N_CREATE``
+
+    References
+    ----------
+    DICOM Standard Part 4, Annexes F, H, R, S, CC and DD
+    """
+    pass
+
+def doc_handle_delete(event):
+    """Documentation for a handler bound to evt.EVT_N_DELETE.
+
+    User implementation of this event handler is required if one or more
+    services that use N-DELETE are to be supported.
+
+    **Event**
+
+    ``evt.EVT_N_DELETE``
+
+    References
+    ----------
+    DICOM Standard Part 4, Annexes H and DD
+    """
+    pass
+
+def doc_handle_event_report(event):
+    """Documentation for a handler bound to evt.EVT_N_EVENT_REPORT.
+
+    User implementation of this event handler is required if one or more
+    services that use N-EVENT-REPORT are to be supported.
+
+    **Event**
+
+    ``evt.EVT_N_EVENT_REPORT``
+
+    References
+    ----------
+    DICOM Standard Part 4, Annexes F, H, J, CC and DD
+    """
+    pass
+
+def doc_handle_n_get(event):
+    """Documentation for a handler bound to evt.EVT_N_GET.
+
+    User implementation of this event handler is required if one or more
+    services that use N-GET are to be supported.
+
+    **Event**
+
+    ``evt.EVT_N_GET``
+
+    Parameters
+    ----------
+    event : event.Event
+        The event representing a service class receiving an N-GET
+        request message. Event attributes are:
+
+        * ``assoc`` : the
+          :py:class:`association <pynetdicom.association.Association>`
+          that is running the service that received the N-GET request.
+        * ``context`` : the
+          :py:class:`presentation context <pynetdicom.presentation.PresentationContext>`
+          the request was sent under.
+        * ``request`` : the received
+          :py:class:`N-GET request <pynetdicom.dimse_primitives.N_GET>`
+        * ``timestamp`` : the
+          `date and time <https://docs.python.org/3/library/datetime.html#datetime-objects>`_
+          that the N-GET request was processed by the service.
+
+    Returns
+    -------
+    status : pydicom.dataset.Dataset or int
+        The status returned to the peer AE in the N-GET response. Must be a
+        valid N-GET status value for the applicable Service Class as either
+        an ``int`` or a ``Dataset`` object containing (at a minimum) a
+        (0000,0900) *Status* element. If returning a Dataset object then
+        it may also contain optional elements related to the Status (as in
+        DICOM Standard Part 7, Annex C).
+    dataset : pydicom.dataset.Dataset or None
+        If the status category is 'Success' or 'Warning' then a dataset
+        containing elements matching the request's Attribute List
+        conformant to the specifications in the corresponding Service
+        Class.
+
+        If the status is not 'Successs' or 'Warning' then None.
+
+    See Also
+    --------
+    association.Association.send_n_get
+    dimse_primitives.N_GET
+    service_class.DisplaySystemManagementServiceClass
+
+    References
+    ----------
+
+    * DICOM Standart Part 4, `Annex F <http://dicom.nema.org/medical/dicom/current/output/html/part04.html#chapter_F>`_
+    * DICOM Standart Part 4, `Annex H <http://dicom.nema.org/medical/dicom/current/output/html/part04.html#chapter_H>`_
+    * DICOM Standard Part 4, `Annex S <http://dicom.nema.org/medical/dicom/current/output/html/part04.html#chapter_S>`_
+    * DICOM Standard Part 4, `Annex CC <http://dicom.nema.org/medical/dicom/current/output/html/part04.html#chapter_CC>`_
+    * DICOM Standard Part 4, `Annex DD <http://dicom.nema.org/medical/dicom/current/output/html/part04.html#chapter_DD>`_
+    * DICOM Standard Part 4, `Annex EE <http://dicom.nema.org/medical/dicom/current/output/html/part04.html#chapter_EE>`_
+    """
+    pass
+
+def doc_handle_set(event):
+    """Documentation for a handler bound to evt.EVT_N_SET.
+
+    User implementation of this event handler is required if one or more
+    services that use N-SET are to be supported.
+
+    **Event**
+
+    ``evt.EVT_N_SET``
+
+    References
+    ----------
+    DICOM Standard Part 4, Annexes H, J, P, S, CC and DD
     """
     pass

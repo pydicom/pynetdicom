@@ -149,7 +149,7 @@ class ACSE(object):
                     self.assoc.requestor.sop_class_extended
                 )
         except Exception as exc:
-            user_response = None
+            user_response = {}
             LOGGER.error(
                 "Exception raised in user's 'on_sop_class_extended' "
                 "implementation"
@@ -161,9 +161,9 @@ class ACSE(object):
                 "Invalid type returned by user's 'on_sop_class_extended' "
                 "implementation"
             )
-            user_response = None
+            user_response = {}
 
-        if user_response is None:
+        if not user_response:
             return []
 
         items = []
@@ -362,6 +362,7 @@ class ACSE(object):
 
         if reject_assoc_rsd:
             # pylint: disable=no-value-for-parameter
+            LOGGER.info("Rejecting Association")
             self.send_reject(assoc, *reject_assoc_rsd)
             evt.trigger(self.assoc, evt.EVT_REJECTED, {})
             assoc.ae.on_association_rejected(assoc.acceptor.primitive)
@@ -395,6 +396,7 @@ class ACSE(object):
             assoc.acceptor.add_negotiation_item(item)
 
         # Send the A-ASSOCIATE (accept) primitive
+        LOGGER.info("Accepting Association")
         self.send_accept(assoc)
 
         # Callbacks/Logging
@@ -490,12 +492,19 @@ class ACSE(object):
                     evt.trigger(self.assoc, evt.EVT_ABORTED, {})
                     assoc.kill()
                 else:
+                    LOGGER.info('Association Accepted')
                     assoc.is_established = True
                     evt.trigger(self.assoc, evt.EVT_ESTABLISHED, {})
 
             elif hasattr(rsp, 'result') and rsp.result in [0x01, 0x02]:
                 # 0x01 is rejected (permanent)
                 # 0x02 is rejected (transient)
+                LOGGER.info('Association Rejected:')
+                LOGGER.info(
+                    'Result: {}, Source: {}'
+                    .format(rsp.result_str, rsp.source_str)
+                )
+                LOGGER.info('Reason: {}'.format(rsp.reason_str))
                 assoc.ae.on_association_rejected(rsp)
                 assoc.is_rejected = True
                 assoc.is_established = False
@@ -505,6 +514,7 @@ class ACSE(object):
                 LOGGER.warning(
                     "Received an invalid A-ASSOCIATE response from the peer"
                 )
+                LOGGER.info("Aborting Association")
                 self.send_abort(assoc, 0x02)
                 assoc.is_aborted = True
                 assoc.is_established = False
@@ -515,6 +525,7 @@ class ACSE(object):
         # Association aborted
         elif isinstance(rsp, (A_ABORT, A_P_ABORT)):
             assoc.ae.on_association_aborted(rsp)
+            LOGGER.info("Association Aborted")
             assoc.is_established = False
             assoc.is_aborted = True
             evt.trigger(self.assoc, evt.EVT_ABORTED, {})
@@ -550,6 +561,7 @@ class ACSE(object):
                                               timeout=assoc.acse_timeout)
             if primitive is None:
                 # No response received within timeout window
+                LOGGER.info("Aborting Association")
                 self.send_abort(assoc, 0x02)
                 assoc.is_aborted = True
                 assoc.is_established = False
@@ -559,6 +571,7 @@ class ACSE(object):
 
             if isinstance(primitive, (A_ABORT, A_P_ABORT)):
                 # Received A-ABORT/A-P-ABORT during association release
+                LOGGER.info("Association Aborted")
                 assoc.is_aborted = True
                 assoc.is_established = False
                 evt.trigger(self.assoc, evt.EVT_ABORTED, {})
@@ -853,5 +866,4 @@ class ACSE(object):
         assoc.requestor.primitive = primitive
 
         # Send the A-ASSOCIATE request primitive to the peer
-        LOGGER.info("Requesting Association")
         assoc.dul.send_pdu(primitive)

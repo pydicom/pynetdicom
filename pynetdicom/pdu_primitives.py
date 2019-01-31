@@ -420,6 +420,12 @@ class A_ASSOCIATE(object):
         self._result = value
 
     @property
+    def result_str(self):
+        """Return the result as str."""
+        results = {1 : "Rejected Permanent", 2 : "Rejected Transient"}
+        return results[self.result]
+
+    @property
     def result_source(self):
         """Return the Result Source parameter."""
         return self._result_source
@@ -445,6 +451,16 @@ class A_ASSOCIATE(object):
             raise ValueError("Unknown A_ASSOCIATE.result_source value")
 
         self._result_source = value
+
+    @property
+    def source_str(self):
+        """Return the reject source as str."""
+        sources = {
+            1 : 'Service User',
+            2 : 'Service Provider (ACSE)',
+            3 : 'Service Provider (Presentation)'
+        }
+        return sources[self.result_source]
 
     @property
     def diagnostic(self):
@@ -486,6 +502,39 @@ class A_ASSOCIATE(object):
             raise ValueError("Unknown A_ASSOCIATE.diagnostic value")
 
         self._diagnostic = value
+
+    @property
+    def reason_str(self):
+        """Return the rejection reason as str."""
+        reasons = {
+            1 : {
+                1 : 'No reason given',
+                2 : 'Application context name not supported',
+                3 : 'Called AE title not recognised',
+                4 : 'Reserved',
+                5 : 'Reserved',
+                6 : 'Reserved',
+                7 : 'Calling AE title not recognised',
+                8 : 'Reserved',
+                9 : 'Reserved',
+                10 : 'Reserved',
+            },
+            2 : {
+                1 : 'No reason given',
+                2: 'Protocol version not supported'
+            },
+            3 : {
+                0 : "Reserved",
+                1 : "Temporary congestion",
+                2 : "Local limit exceeded",
+                3 : 'Reserved',
+                4 : 'Reserved',
+                5 : 'Reserved',
+                6 : 'Reserved',
+                7 : 'Reserved',
+            }
+        }
+        return reasons[self.result_source][self.diagnostic]
 
     @property
     def calling_presentation_address(self):

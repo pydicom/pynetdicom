@@ -26,8 +26,8 @@ from .dummy_c_scp import (
 )
 
 LOGGER = logging.getLogger('pynetdicom')
-#LOGGER.setLevel(logging.DEBUG)
 LOGGER.setLevel(logging.CRITICAL)
+#LOGGER.setLevel(logging.DEBUG)
 
 
 class TestQRFindServiceClass_Deprecated(object):

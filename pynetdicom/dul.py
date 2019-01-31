@@ -125,16 +125,16 @@ class DULServiceProvider(Thread):
         evt.trigger(self.assoc, evt.EVT_DATA_RECV, {'data' : bytestream})
 
         pdu_types = {
-            0x01 : (A_ASSOCIATE_RQ, 'Evt6'),
-            0x02 : (A_ASSOCIATE_AC, 'Evt3'),
-            0x03 : (A_ASSOCIATE_RJ, 'Evt4'),
-            0x04 : (P_DATA_TF, 'Evt10'),
-            0x05 : (A_RELEASE_RQ, 'Evt12'),
-            0x06 : (A_RELEASE_RP, 'Evt13'),
-            0x07 : (A_ABORT_RQ, 'Evt16')
+            b'\x01' : (A_ASSOCIATE_RQ, 'Evt6'),
+            b'\x02' : (A_ASSOCIATE_AC, 'Evt3'),
+            b'\x03' : (A_ASSOCIATE_RJ, 'Evt4'),
+            b'\x04' : (P_DATA_TF, 'Evt10'),
+            b'\x05' : (A_RELEASE_RQ, 'Evt12'),
+            b'\x06' : (A_RELEASE_RP, 'Evt13'),
+            b'\x07' : (A_ABORT_RQ, 'Evt16')
         }
 
-        pdu, event = pdu_types[bytestream[0]]
+        pdu, event = pdu_types[bytestream[0:1]]
         pdu = pdu()
         pdu.decode(bytestream)
 
@@ -326,7 +326,7 @@ class DULServiceProvider(Thread):
             return
 
         try:
-            # Decode the PDU data, get corresponding FSM and callback events
+            # Decode the PDU data, get corresponding FSM event
             pdu, event = self._decode_pdu(bytestream)
             self.event_queue.put(event)
         except Exception as exc:

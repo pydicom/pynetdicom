@@ -24,8 +24,8 @@ from pynetdicom._globals import (
     STATUS_SUCCESS, STATUS_CANCEL, STATUS_PENDING, STATUS_FAILURE
 )
 from pynetdicom._handlers import (
-    standard_dimse_recv_handler, standard_dimse_send_handler,
-    standard_acse_recv_handler, standard_acse_sent_handler
+    standard_dimse_recv_handler, standard_dimse_sent_handler,
+    standard_pdu_recv_handler, standard_pdu_sent_handler,
 )
 from pynetdicom.sop_class import (
     uid_to_service_class,
@@ -169,12 +169,6 @@ class Association(threading.Thread):
         self._a_abort_assoc_rq = False
         self._a_p_abort_assoc_rq = False
 
-        # Point the public send_c_cancel_* functions to the actual function
-        # TODO: Deprecated, to be removed in v1.3
-        self.send_c_cancel_find = self.send_c_cancel
-        self.send_c_cancel_move = self.send_c_cancel
-        self.send_c_cancel_get = self.send_c_cancel
-
         # Thread setup
         threading.Thread.__init__(self)
         self.daemon = True
@@ -182,6 +176,7 @@ class Association(threading.Thread):
     def abort(self):
         """Sends an A-ABORT to the remote AE and kills the Association."""
         if not self.is_released:
+            LOGGER.info('Aborting Association')
             self.acse.send_abort(self, 0x00)
             # Event handler - association aborted
             evt.trigger(self, evt.EVT_ABORTED, {})
@@ -204,8 +199,9 @@ class Association(threading.Thread):
     @acse_timeout.setter
     def acse_timeout(self, value):
         """Set the ACSE timeout using numeric or None."""
-        self.dul.artim_timer.timeout = value
-        self._acse_timeout = value
+        with threading.Lock():
+            self.dul.artim_timer.timeout = value
+            self._acse_timeout = value
 
     @property
     def ae(self):
@@ -222,20 +218,22 @@ class Association(threading.Thread):
         handler : callable
             The function that will be called if the event occurs.
         """
-        # Notification events - multiple handlers allowed
-        if event.is_notification:
-            if event not in self._handlers:
-                self._handlers[event] = []
-            if handler not in self._handlers[event]:
-                self._handlers[event].append(handler)
+        # Make sure no access to `_handlers` while its being changed
+        with threading.Lock():
+            # Notification events - multiple handlers allowed
+            if event.is_notification:
+                if event not in self._handlers:
+                    self._handlers[event] = []
+                if handler not in self._handlers[event]:
+                    self._handlers[event].append(handler)
 
-        # Intervention events - only one handler allowed
-        if event.is_intervention:
-            if event not in self._handlers:
-                self._handlers[event] = None
+            # Intervention events - only one handler allowed
+            if event.is_intervention:
+                if event not in self._handlers:
+                    self._handlers[event] = None
 
-            if self._handlers[event] != handler:
-                self._handlers[event] = handler
+                if self._handlers[event] != handler:
+                    self._handlers[event] = handler
 
     def _bind_defaults(self):
         """Bind the default event handlers."""
@@ -247,19 +245,9 @@ class Association(threading.Thread):
         # Notification event handlers
         if _config.LOG_HANDLER_LEVEL == 'standard':
             self.bind(evt.EVT_DIMSE_RECV, standard_dimse_recv_handler)
-            self.bind(evt.EVT_DIMSE_SENT, standard_dimse_send_handler)
-            #self.bind(evt.EVT_PDU_RECV, standard_pdu_recv_handler)
-            #self.bind(evt.EVT_PDU_SENT, standard_pdu_send_handler)
-
-            #self.bind(evt.EVT_ACSE_RECV, standard_acse_recv_handler)
-            #self.bind(evt.EVT_ACSE_SENT, standard_acse_sent_handler)
-
-            #self.bind(evt.EVT_ACCEPTED, logging_accepted_handler)
-            #self.bind(evt.EVT_REQUESTED, logging_requested_handler)
-            #self.bind(evt.EVT_REJECTED, logging_rejected_handler)
-            #self.bind(evt.EVT_ABORTED, logging_aborted_handler)
-            #self.bind(evt.EVT_RELEASED, logging_released_handler)
-            #self.bind(evt.EVT_ESTABLISHED, logging_established_handler)
+            self.bind(evt.EVT_DIMSE_SENT, standard_dimse_sent_handler)
+            self.bind(evt.EVT_PDU_RECV, standard_pdu_recv_handler)
+            self.bind(evt.EVT_PDU_SENT, standard_pdu_sent_handler)
 
     def _check_received_status(self, rsp):
         """Return a pydicom Dataset containing status related elements.
@@ -305,7 +293,8 @@ class Association(threading.Thread):
     @dimse_timeout.setter
     def dimse_timeout(self, value):
         """Set the DIMSE timeout using numeric or None."""
-        self._dimse_timeout = value
+        with threading.Lock():
+            self._dimse_timeout = value
 
     def get_events(self):
         """Return a list of currently bound events."""
@@ -460,8 +449,9 @@ class Association(threading.Thread):
     @network_timeout.setter
     def network_timeout(self, value):
         """Set the network timeout using numeric or None."""
-        self.dul._idle_timer.timeout = value
-        self._network_timeout = value
+        with threading.Lock():
+            self.dul._idle_timer.timeout = value
+            self._network_timeout = value
 
     @property
     def rejected_contexts(self):
@@ -471,6 +461,7 @@ class Association(threading.Thread):
     def release(self):
         """Send an A-RELEASE request and initiate association release."""
         if self.is_established:
+            LOGGER.info('Releasing Association')
             self.acse.negotiate_release(self)
 
     @property
@@ -493,6 +484,7 @@ class Association(threading.Thread):
         # Wait until the DUL is up and running
         self._dul_ready.wait()
         # Start association negotiation
+        LOGGER.info("Requesting Association")
         self.acse.negotiate_association(self)
 
     def run(self):
@@ -632,6 +624,7 @@ class Association(threading.Thread):
             if self.acse.is_release_requested(self):
                 # Send A-RELEASE response
                 self.acse.send_release(self, is_response=True)
+                LOGGER.info('Association Released')
                 self.is_released = True
                 self.is_established = False
                 evt.trigger(self, evt.EVT_RELEASED, {})
@@ -642,6 +635,7 @@ class Association(threading.Thread):
 
             # Check for abort
             if self.acse.is_aborted(self):
+                LOGGER.info('Association Aborted')
                 self.is_aborted = True
                 self.is_established = False
                 evt.trigger(self, evt.EVT_ABORTED, {})
@@ -672,6 +666,7 @@ class Association(threading.Thread):
             if self.acse.is_release_requested(self):
                 # Send A-RELEASE response
                 self.acse.send_release(self, is_response=True)
+                LOGGER.info('Association Released')
                 self.is_released = True
                 self.is_established = False
                 evt.trigger(self, evt.EVT_RELEASED, {})
@@ -682,6 +677,7 @@ class Association(threading.Thread):
 
             # Check for abort
             if self.acse.is_aborted(self):
+                LOGGER.info('Association Aborted')
                 self.is_aborted = True
                 self.is_established = False
                 evt.trigger(self, evt.EVT_ABORTED, {})
@@ -734,16 +730,18 @@ class Association(threading.Thread):
         if event not in self._handlers:
             return
 
-        # Notification events
-        if event.is_notification and handler in self._handlers[event]:
-            self._handlers[event].remove(handler)
+        # Make sure no access to `_handlers` while its being changed
+        with threading.Lock():
+            # Notification events
+            if event.is_notification and handler in self._handlers[event]:
+                self._handlers[event].remove(handler)
 
-            if not self._handlers[event]:
-                del self._handlers[event]
+                if not self._handlers[event]:
+                    del self._handlers[event]
 
-        # Intervention events - unbind and replace with default
-        if event.is_intervention and self._handlers[event] == handler:
-            self._handlers[event] = evt.get_default_handler(event)
+            # Intervention events - unbind and replace with default
+            if event.is_intervention and self._handlers[event] == handler:
+                self._handlers[event] = evt.get_default_handler(event)
 
     # DIMSE-C services provided by the Association
     def _c_store_scp(self, req):
@@ -986,6 +984,7 @@ class Association(threading.Thread):
         primitive.AffectedSOPClassUID = VerificationSOPClass
 
         # Send C-ECHO request to the peer via DIMSE and wait for the response
+        LOGGER.info('Sending Echo Request: MsgID {}'.format(msg_id))
         self.dimse.send_msg(primitive, context.context_id)
         cx_id, rsp = self.dimse.get_msg(block=True)
 
@@ -1218,9 +1217,9 @@ class Association(threading.Thread):
             LOGGER.error("Failed to encode the supplied Dataset")
             raise ValueError('Failed to encode the supplied Dataset')
 
-        LOGGER.info('Find SCU Request Identifiers:')
+        LOGGER.info('Sending Find Request: MsgID {}'.format(msg_id))
         LOGGER.info('')
-        LOGGER.info('# DICOM Dataset')
+        LOGGER.info('# Identifier DICOM Dataset')
         for elem in dataset:
             LOGGER.info(elem)
         LOGGER.info('')
@@ -1439,9 +1438,9 @@ class Association(threading.Thread):
             raise ValueError('Failed to encode the supplied Identifer '
                              'dataset')
 
-        LOGGER.info('Get SCU Request Identifier:')
+        LOGGER.info('Sending Get Request: MsgID {}'.format(msg_id))
         LOGGER.info('')
-        LOGGER.info('# DICOM Dataset')
+        LOGGER.info('# Identifier DICOM Dataset')
         for elem in dataset:
             LOGGER.info(elem)
         LOGGER.info('')
@@ -1647,9 +1646,9 @@ class Association(threading.Thread):
             raise ValueError('Failed to encode the supplied Identifier '
                              'dataset')
 
-        LOGGER.info('Move SCU Request Identifier:')
+        LOGGER.info('Sending Move Request: MsgID {}'.format(msg_id))
         LOGGER.info('')
-        LOGGER.info('# DICOM Dataset')
+        LOGGER.info('# Identifier DICOM Dataset')
         for elem in dataset:
             LOGGER.info(elem)
         LOGGER.info('')
@@ -1825,6 +1824,7 @@ class Association(threading.Thread):
             raise ValueError('Failed to encode the supplied Dataset')
 
         # Send C-STORE request to the peer via DIMSE and wait for the response
+        LOGGER.info('Sending Store Request: MsgID {}'.format(msg_id))
         self.dimse.send_msg(req, context.context_id)
         cx_id, rsp = self.dimse.get_msg(block=True)
 
@@ -1907,16 +1907,13 @@ class Association(threading.Thread):
             LOGGER.debug('')
             if category == STATUS_PENDING:
                 LOGGER.info(
-                    "Find SCP Response: {} (Pending)".format(operation_no)
+                    "Find SCP Response: {} - 0x{:04x} (Pending)"
+                    .format(operation_no, status.Status)
                 )
-            elif category in [STATUS_SUCCESS, STATUS_CANCEL, STATUS_WARNING]:
+            else:
                 LOGGER.info(
-                    'Find SCP Result: ({})'.format(category)
-                )
-            elif category == STATUS_FAILURE:
-                LOGGER.info(
-                    'Find SCP Result: (Failure - 0x{:04x})'
-                    .format(status.Status)
+                    'Find SCP Result: 0x{:04x} ({})'
+                    .format(status.Status, category)
                 )
 
             # 'Success', 'Warning', 'Failure', 'Cancel' are final yields,
@@ -1930,7 +1927,7 @@ class Association(threading.Thread):
                                         transfer_syntax.is_implicit_VR,
                                         transfer_syntax.is_little_endian)
                     LOGGER.debug('')
-                    LOGGER.debug('# DICOM Dataset')
+                    LOGGER.debug('# Identifier DICOM Dataset')
                     for elem in identifier:
                         LOGGER.debug(elem)
                     LOGGER.debug('')
@@ -2026,17 +2023,13 @@ class Association(threading.Thread):
             LOGGER.debug('')
             if category == STATUS_PENDING:
                 LOGGER.info(
-                    "{} SCP Response: {} (Pending)"
-                    .format(rsp_name[rsp_type], operation_no + 1)
+                    "{} SCP Response: {} - 0x{:04x} (Pending)"
+                    .format(rsp_name[rsp_type], operation_no, status.Status)
                 )
-            elif category in [STATUS_SUCCESS, STATUS_CANCEL, STATUS_WARNING]:
+            else:
                 LOGGER.info(
-                    '{} SCP Result: ({})'.format(rsp_name[rsp_type], category)
-                )
-            elif category == STATUS_FAILURE:
-                LOGGER.info(
-                    '{} SCP Result: (Failure - 0x{:04x})'
-                    .format(rsp_name[rsp_type], status.Status)
+                    '{} SCP Result: 0x{:04x} ({})'
+                    .format(rsp_name[rsp_type], status.Status, category)
                 )
 
             # Log number of remaining sub-operations - C-GET/C-MOVE only
@@ -2070,7 +2063,7 @@ class Association(threading.Thread):
                                         transfer_syntax.is_little_endian)
                     if identifier:
                         LOGGER.debug('')
-                        LOGGER.debug('# DICOM Dataset')
+                        LOGGER.debug('# Identifier DICOM Dataset')
                         for elem in identifier:
                             LOGGER.debug(elem)
                         LOGGER.debug('')
@@ -2197,6 +2190,7 @@ class Association(threading.Thread):
             raise ValueError('Failed to encode the supplied Dataset')
 
         # Send N-ACTION request to the peer via DIMSE and wait for the response
+        LOGGER.info('Sending Action Request: MsgID {}'.format(msg_id))
         self.dimse.send_msg(req, context.context_id)
         cx_id, rsp = self.dimse.get_msg(block=True)
 
@@ -2337,6 +2331,7 @@ class Association(threading.Thread):
             raise ValueError('Failed to encode the supplied Dataset')
 
         # Send N-CREATE request to the peer via DIMSE and wait for the response
+        LOGGER.info('Sending Create Request: MsgID {}'.format(msg_id))
         self.dimse.send_msg(req, context.context_id)
         cx_id, rsp = self.dimse.get_msg(block=True)
 
@@ -2451,6 +2446,7 @@ class Association(threading.Thread):
         req.RequestedSOPInstanceUID = instance_uid
 
         # Send N-DELETE request to the peer via DIMSE and wait for the response
+        LOGGER.info('Sending Delete Request: MsgID {}'.format(msg_id))
         self.dimse.send_msg(req, context.context_id)
         cx_id, rsp = self.dimse.get_msg(block=True)
 
@@ -2579,6 +2575,7 @@ class Association(threading.Thread):
 
         # Send N-EVENT-REPORT request to the peer via DIMSE and wait for
         # the response primitive
+        LOGGER.info('Sending Event Report Request: MsgID {}'.format(msg_id))
         self.dimse.send_msg(req, context.context_id)
         cx_id, rsp = self.dimse.get_msg(block=True)
 
@@ -2714,6 +2711,7 @@ class Association(threading.Thread):
         req.AttributeIdentifierList = identifier_list
 
         # Send N-GET request to the peer via DIMSE and wait for the response
+        LOGGER.info('Sending Get Request: MsgID {}'.format(msg_id))
         self.dimse.send_msg(req, context.context_id)
         cx_id, rsp = self.dimse.get_msg(block=True)
 
@@ -2859,6 +2857,7 @@ class Association(threading.Thread):
             raise ValueError('Failed to encode the supplied Dataset')
 
         # Send N-SET request to the peer via DIMSE and wait for the response
+        LOGGER.info('Sending Set Request: MsgID {}'.format(msg_id))
         self.dimse.send_msg(req, context.context_id)
         cx_id, rsp = self.dimse.get_msg(block=True)
 

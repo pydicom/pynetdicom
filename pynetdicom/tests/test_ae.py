@@ -322,61 +322,61 @@ class TestAEGoodCallbacks(object):
     def test_on_c_store(self):
         """Test default callback raises exception"""
         ae = AE()
-        with pytest.raises(evt.HandlerNotImplementedError):
+        with pytest.raises(NotImplementedError):
             ae.on_c_store(None, None, None)
 
     def test_on_c_find(self):
         """Test default callback raises exception"""
         ae = AE()
-        with pytest.raises(evt.HandlerNotImplementedError):
+        with pytest.raises(NotImplementedError):
             ae.on_c_find(None, None, None)
 
     def test_on_c_get(self):
         """Test default callback raises exception"""
         ae = AE()
-        with pytest.raises(evt.HandlerNotImplementedError):
+        with pytest.raises(NotImplementedError):
             ae.on_c_get(None, None, None)
 
     def test_on_c_move(self):
         """Test default callback raises exception"""
         ae = AE()
-        with pytest.raises(evt.HandlerNotImplementedError):
+        with pytest.raises(NotImplementedError):
             ae.on_c_move(None, None, None, None)
 
     def test_on_n_event_report(self):
         """Test default callback raises exception"""
         ae = AE()
-        with pytest.raises(evt.HandlerNotImplementedError):
+        with pytest.raises(NotImplementedError):
             ae.on_n_event_report(None, None, None)
 
     def test_on_n_get(self):
         """Test default callback raises exception"""
         ae = AE()
-        with pytest.raises(evt.HandlerNotImplementedError):
+        with pytest.raises(NotImplementedError):
             ae.on_n_get(None, None, None)
 
     def test_on_n_set(self):
         """Test default callback raises exception"""
         ae = AE()
-        with pytest.raises(evt.HandlerNotImplementedError):
+        with pytest.raises(NotImplementedError):
             ae.on_n_set(None, None, None)
 
     def test_on_n_action(self):
         """Test default callback raises exception"""
         ae = AE()
-        with pytest.raises(evt.HandlerNotImplementedError):
+        with pytest.raises(NotImplementedError):
             ae.on_n_action(None, None, None)
 
     def test_on_n_create(self):
         """Test default callback raises exception"""
         ae = AE()
-        with pytest.raises(evt.HandlerNotImplementedError):
+        with pytest.raises(NotImplementedError):
             ae.on_n_create(None, None, None)
 
     def test_on_n_delete(self):
         """Test default callback raises exception"""
         ae = AE()
-        with pytest.raises(evt.HandlerNotImplementedError):
+        with pytest.raises(NotImplementedError):
             ae.on_n_delete(None, None)
 
     def test_association_accepted(self):

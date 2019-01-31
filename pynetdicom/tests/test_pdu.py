@@ -10,7 +10,7 @@ import pytest
 
 from pydicom.uid import UID
 
-from pynetdicom import AE, evt, Association
+from pynetdicom import AE, evt, Association, _config
 from pynetdicom.events import Event
 from pynetdicom.pdu import (
     A_ASSOCIATE_RQ, A_ASSOCIATE_AC, A_ASSOCIATE_RJ, P_DATA_TF, A_RELEASE_RQ,
@@ -1335,10 +1335,13 @@ class TestEventHandlingAcceptor(object):
     """Test the transport events and handling as acceptor."""
     def setup(self):
         self.ae = None
+        _config.LOG_HANDLER_LEVEL = 'none'
 
     def teardown(self):
         if self.ae:
             self.ae.shutdown()
+
+        _config.LOG_HANDLER_LEVEL = 'standard'
 
     def test_no_handlers(self):
         """Test with no transport event handlers bound."""
@@ -1658,10 +1661,13 @@ class TestEventHandlingRequestor(object):
     """Test the transport events and handling as requestor."""
     def setup(self):
         self.ae = None
+        _config.LOG_HANDLER_LEVEL = 'none'
 
     def teardown(self):
         if self.ae:
             self.ae.shutdown()
+
+        _config.LOG_HANDLER_LEVEL = 'standard'
 
     def test_no_handlers(self):
         """Test with no transport event handlers bound."""

@@ -167,14 +167,25 @@ class ServiceClass(object):
         return rsp
 
     def _wrap_handler(self, handler):
+        """Wrap a generator handler to catch exceptions.
+
+        Parameters
+        ----------
+        handler : generator
+            A generator returned by a user's handler.
+
+        Yields
+        ------
+        object or Exception, str
+            The normal yields of the generator, unless an exception occurs
+            within the generator in which case the exception and traceback
+            are yielded instead.
+        """
         try:
             for result in handler:
                 yield result
         except Exception as exc:
-            tb = traceback.print_exception(
-                exc.__class__, exc, exc.__traceback__
-            )
-            yield exc, tb
+            yield exc, traceback.print_exc()
 
 
 # Service Class implementations
