@@ -42,7 +42,7 @@ Transfer Syntax(es):
     =Implicit VR Little Endian
     =JPEG Baseline (Process 1)
 
-However its more convenient to use the
+However its easier to use the
 :py:meth:`build_context <pynetdicom.presentation.build_context>`
 convenience function which returns a ``PresentationContext`` instance:
 

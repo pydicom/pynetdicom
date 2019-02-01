@@ -189,17 +189,12 @@ of the following DIMSE-C services:
 * C-GET, through the
   :py:meth:`Association.send_c_get() <pynetdicom.association.Association.send_c_get>`
   method. Any AE that uses the C-GET service will also be providing the C-STORE
-  service and must implement the
-  :py:meth:`AE.on_c_store() <pynetdicom.ae.ApplicationEntity.on_c_store>`
-  callback (as outlined :ref:`here <assoc_scp>`)
+  service and must implement and bind a handler for ``evt.EVT_C_STORE`` (as
+  outlined :ref:`here <assoc_scp>`)
 * C-MOVE, through the
   :py:meth:`Association.send_c_move() <pynetdicom.association.Association.send_c_move>`
   method. The move destination can either be a different AE or the AE that made
-  the C-MOVE request (provided a non-blocking Storage SCP has been started). Some
-  implementations will return the requested datasets over the same association
-  so even if not running a non-blocking Storage SCP you should also implement the
-  :py:meth:`AE.on_c_store() <pynetdicom.ae.ApplicationEntity.on_c_store>`
-  callback (as outlined :ref:`here <assoc_scp>`)
+  the C-MOVE request (provided a non-blocking Storage SCP has been started).
 
 Attempting to use a service without an established association will raise a
 ``RuntimeError``, while attempting to use a service that is not supported by
@@ -291,57 +286,51 @@ Providing DIMSE Services (SCP)
 ------------------------------
 
 If the association supports a service class that uses one or more of the
-DIMSE-C services then the corresponding callback(s) should be implemented
-(excluding C-ECHO which has a default implementation that always returns a
-0x0000 *Success* response):
+DIMSE-C or -N services then a handler must be implemented and bound to the
+event corresponding the the service (excluding C-ECHO which has a default
+implementation that always returns a 0x0000 *Success* response):
 
-* C-ECHO: :py:meth:`AE.on_c_echo() <pynetdicom.ae.ApplicationEntity.on_c_echo>`
-* C-STORE: :py:meth:`AE.on_c_store() <pynetdicom.ae.ApplicationEntity.on_c_store>`
-* C-FIND: :py:meth:`AE.on_c_find() <pynetdicom.ae.ApplicationEntity.on_c_find>`
-* C-GET: :py:meth:`AE.on_c_get() <pynetdicom.ae.ApplicationEntity.on_c_get>`
-* C-MOVE: :py:meth:`AE.on_c_move() <pynetdicom.ae.ApplicationEntity.on_c_move>`
++---------------+---------------------+
+| DIMSE service | Event               |
++===============+=====================+
+| C-ECHO        | ``evt.EVT_C_ECHO``  |
++---------------+---------------------+
+| C-FIND        | ``evt.EVT_C_FIND``  |
++---------------+---------------------+
+| C-GET         | ``evt.EVT_C_GET``   |
++---------------+---------------------+
+| C-MOVE        | ``evt.EVT_C_MOVE``  |
++---------------+---------------------+
+| C-STORE       | ``evt.EVT_C_STORE`` |
++---------------+---------------------+
+| N-GET         | ``evt.EVT_N_GET``   |
++---------------+---------------------+
 
 For instance, if your SCP is to support the Storage Service then you would
-implement the ``on_c_store`` callback in manner similar to:
+implement and bind a handler for the ``evt.EVT_C_STORE`` event in manner
+similar to:
 
 ::
 
-    from pynetdicom import AE
+    from pynetdicom import AE, evt
     from pynetdicom.sop_class import VerificationSOPClass
 
     ae = AE()
     ae.add_supported_context(VerificationSOPClass)
 
-    def on_c_store(ds, context, info):
-        """Store the pydicom Dataset `ds`.
-
-        Parameters
-        ----------
-        ds : pydicom.dataset.Dataset
-            The dataset that the peer has requested be stored.
-        context : namedtuple
-            The presentation context that the dataset was sent under.
-        info : dict
-            Information about the association and storage request.
-
-        Returns
-        -------
-        status : int or pydicom.dataset.Dataset
-            The status returned to the peer AE in the C-STORE response. Must be
-            a valid C-STORE status value for the applicable Service Class as
-            either an ``int`` or a ``Dataset`` object containing (at a
-            minimum) a (0000,0900) *Status* element.
-        """
+    def handle_store(event):
+        """Handle evt.EVT_C_STORE"""
         # This is just a toy implementation that doesn't store anything and
         # always returns a Success response
         return 0x0000
 
-    ae.on_c_store = on_c_store
+    handlers = [(evt.EVT_C_STORE, handle_store)]
 
     # Listen for association requests
-    ae.start_server(('', 11112))
+    ae.start_server(('', 11112), evt_handlers=handlers)
 
 For more detailed information on implementing the DIMSE service
-provider callbacks please see their API reference documentation and the
+provider handlers please see their API :ref:`reference documentation<api_events>`
+and the
 :ref:`examples <index_examples>` corresponding to the service class you're
 interested in.

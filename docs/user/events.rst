@@ -3,7 +3,7 @@
 Events
 ------
 
-*pynetdicom* uses an event handler-based system to give the user access to the
+*pynetdicom* uses an event-handler system to give the user access to the
 data exchanged between different services within an AE as well as the PDUs
 and data sent between the local and peer AEs. Two different types of events
 are used: *notification events* and *intervention events*.
@@ -23,9 +23,9 @@ notification events.
 +----------------------------+-----------------------------------+
 | Event                      | Description                       |
 +============================+===================================+
-| ``evt.EVT_ABORTED``        | Association aborted by local AE   |
+| ``evt.EVT_ABORTED``        | Association aborted               |
 +----------------------------+-----------------------------------+
-| ``evt.EVT_ACCEPTED``       | Association accepted by local AE  |
+| ``evt.EVT_ACCEPTED``       | Association accepted              |
 +----------------------------+-----------------------------------+
 | ``evt.EVT_ACSE_RECV``      | ACSE received a primitive         |
 |                            | from the DUL service provider     |
@@ -55,11 +55,11 @@ notification events.
 +----------------------------+-----------------------------------+
 | ``evt.EVT_PDU_SENT``       | PDU sent to the peer AE           |
 +----------------------------+-----------------------------------+
-| ``evt.EVT_REJECTED``       | Association rejected by local AE  |
+| ``evt.EVT_REJECTED``       | Association rejected              |
 +----------------------------+-----------------------------------+
-| ``evt.EVT_RELEASED``       | Association released by local AE  |
+| ``evt.EVT_RELEASED``       | Association released              |
 +----------------------------+-----------------------------------+
-| ``evt.EVT_REQUESTED``      | Association requested by local AE |
+| ``evt.EVT_REQUESTED``      | Association requested             |
 +----------------------------+-----------------------------------+
 
 .. _events_intervention:
@@ -70,69 +70,53 @@ Intervention Events
 Intervention events are those events for which the event handler must return
 or yield certain expected values so that *pynetdicom* can complete an action
 (i.e. user *intervention* is required).
-Each intervention event has only a single handler bound to it at all times
-and any exceptions raised by the bound handler will be caught and logged
-instead. If the user hasn't bound their own handler then a default will be
+Each intervention event has only a single handler bound to it at all times.
+If the user hasn't bound their own handler then a default will be
 used, which usually returns a negative response (i.e. service request failed,
 or extended negotiation ignored). The sole exception is the default handler
 for ``evt.EVT_C_ECHO`` which returns an ``0x0000`` *Success* status. The
 table below lists the possible intervention events.
 
-+----------------------------+--------------------------------+---------------------------+
-| Event                      | Description                    | Handler Example           |
-+============================+================================+===========================+
-| Association request includes extended negotiation items                                 |
-+----------------------------+--------------------------------+---------------------------+
-| ``evt.EVT_ASYNC_OPS``      | Association request includes   | :ref:`example <ex_async>` |
-|                            | Asynchronous Operations Window |                           |
-|                            | negotiation item               |                           |
-+----------------------------+--------------------------------+---------------------------+
-| ``evt.EVT_SOP_COMMON``     | Association request includes   |                           |
-|                            | SOP Class Common Extended      |                           |
-|                            | negotiation item(s)            |                           |
-+----------------------------+--------------------------------+---------------------------+
-| ``evt.EVT_SOP_EXTENDED``   | Association request includes   |                           |
-|                            | SOP Class Extended negotiation |                           |
-|                            | item(s)                        |                           |
-+----------------------------+--------------------------------+---------------------------+
-| ``evt.EVT_USER_ID``        | Association request includes   |                           |
-|                            | User Identity negotiation item |                           |
-+----------------------------+--------------------------------+---------------------------+
-| Service class received a DIMSE service request                                          |
-+----------------------------+--------------------------------+---------------------------+
-| ``evt.EVT_C_ECHO``         | Service class received         | :ref:`example <ex_verify>`|
-|                            | C-ECHO request                 |                           |
-+----------------------------+--------------------------------+---------------------------+
-| ``evt.EVT_C_FIND``         | Service class received         |                           |
-|                            | C-FIND request                 |                           |
-+----------------------------+--------------------------------+---------------------------+
-| ``evt.EVT_C_GET``          | Service class received         |                           |
-|                            | C-GET request                  |                           |
-+----------------------------+--------------------------------+---------------------------+
-| ``evt.EVT_C_MOVE``         | Service class received         |                           |
-|                            | C-MOVE request                 |                           |
-+----------------------------+--------------------------------+---------------------------+
-| ``evt.EVT_C_STORE``        | Service class received         |                           |
-|                            | C-STORE request                |                           |
-+----------------------------+--------------------------------+---------------------------+
-| ``evt.EVT_N_ACTION``       | Service class received         |                           |
-|                            | N-ACTION request               |                           |
-+----------------------------+--------------------------------+---------------------------+
-| ``evt.EVT_N_CREATE``       | Service class received         |                           |
-|                            | N-CREATE request               |                           |
-+----------------------------+--------------------------------+---------------------------+
-| ``evt.EVT_N_DELETE``       | Service class received         |                           |
-|                            | N-DELETE request               |                           |
-+----------------------------+--------------------------------+---------------------------+
-| ``evt.EVT_N_EVENT_REPORT`` | Service class received         |                           |
-|                            | N-EVENT-REPORT request         |                           |
-+----------------------------+--------------------------------+---------------------------+
-| ``evt.EVT_N_GET``          | Service class received         |                           |
-|                            | N-GET request                  |                           |
-+----------------------------+--------------------------------+---------------------------+
-| ``evt.EVT_N_SET``          | Service class received         |                           |
-|                            | N-SET request                  |                           |
-+----------------------------+--------------------------------+---------------------------+
++----------------------------+--------------------------------+------------------------------------------------------------------------------+
+| Event                      | Description                    |                                                                              |
++============================+================================+==============================================================================+
+| Association request includes extended negotiation items                                                                                    |
++----------------------------+--------------------------------+------------------------------------------------------------------------------+
+| ``evt.EVT_ASYNC_OPS``      | Association request includes   | `Handler documentation                                                       |
+|                            | Asynchronous Operations Window | <../reference/generated/pynetdicom._handlers.doc_handle_async.html>`_        |
+|                            | negotiation item               |                                                                              |
++----------------------------+--------------------------------+------------------------------------------------------------------------------+
+| ``evt.EVT_SOP_COMMON``     | Association request includes   | `Handler documentation                                                       |
+|                            | SOP Class Common Extended      | <../reference/generated/pynetdicom._handlers.doc_handle_sop_common.html>`_   |
+|                            | negotiation item(s)            |                                                                              |
++----------------------------+--------------------------------+------------------------------------------------------------------------------+
+| ``evt.EVT_SOP_EXTENDED``   | Association request includes   | `Handler documentation                                                       |
+|                            | SOP Class Extended negotiation | <../reference/generated/pynetdicom._handlers.doc_handle_sop_extended.html>`_ |
+|                            | item(s)                        |                                                                              |
++----------------------------+--------------------------------+------------------------------------------------------------------------------+
+| ``evt.EVT_USER_ID``        | Association request includes   | `Handler documentation                                                       |
+|                            | User Identity negotiation item | <../reference/generated/pynetdicom._handlers.doc_handle_userid.html>`_       |
++----------------------------+--------------------------------+------------------------------------------------------------------------------+
+| Service class received a DIMSE service request                                                                                             |
++----------------------------+--------------------------------+------------------------------------------------------------------------------+
+| ``evt.EVT_C_ECHO``         | Service class received         | `Handler documentation                                                       |
+|                            | C-ECHO request                 | <../reference/generated/pynetdicom._handlers.doc_handle_echo.html>`_         |
++----------------------------+--------------------------------+------------------------------------------------------------------------------+
+| ``evt.EVT_C_FIND``         | Service class received         | `Handler documentation                                                       |
+|                            | C-FIND request                 | <../reference/generated/pynetdicom._handlers.doc_handle_find.html>`_         |
++----------------------------+--------------------------------+------------------------------------------------------------------------------+
+| ``evt.EVT_C_GET``          | Service class received         | `Handler documentation                                                       |
+|                            | C-GET request                  | <../reference/generated/pynetdicom._handlers.doc_handle_c_get.html>`_        |
++----------------------------+--------------------------------+------------------------------------------------------------------------------+
+| ``evt.EVT_C_MOVE``         | Service class received         | `Handler documentation                                                       |
+|                            | C-MOVE request                 | <../reference/generated/pynetdicom._handlers.doc_handle_move.html>`_         |
++----------------------------+--------------------------------+------------------------------------------------------------------------------+
+| ``evt.EVT_C_STORE``        | Service class received         | `Handler documentation                                                       |
+|                            | C-STORE request                | <../reference/generated/pynetdicom._handlers.doc_handle_store.html>`_        |
++----------------------------+--------------------------------+------------------------------------------------------------------------------+
+| ``evt.EVT_N_GET``          | Service class received         | `Handler documentation                                                       |
+|                            | N-GET request                  | <../reference/generated/pynetdicom._handlers.doc_handle_n_get.html>`_        |
++----------------------------+--------------------------------+------------------------------------------------------------------------------+
 
 
 Event Handlers
@@ -140,7 +124,14 @@ Event Handlers
 
 All handlers bound to an event are passed a single parameter *event* which is
 an :py:class:`Event <pynetdicom.events.Event>` instance. All ``Event`` objects
-come with ``Event.assoc`` and ``Event.timestamp`` attributes which are the
-:py:class:`Association <pynetdicom.association.Association>` in which the event
-occurred and the date and time the event occurred at (as a python ``datetime``).
-Additional attributes and properties are available depending on the event type:
+come with at least four attributes:
+
+* ``Event.assoc`` - the
+  :py:class:`Association <pynetdicom.association.Association>` in which the
+  event occurred
+* ``Event.description`` - a str description of the event
+* ``Event.name`` - the name of the event
+* ``Event.timestamp`` - the date and time the event occurred at (as a python ``datetime``).
+
+Additional attributes and properties are available depending on the event type,
+see the `documentation <../reference/events.html>`_ for more information.

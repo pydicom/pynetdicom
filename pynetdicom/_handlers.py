@@ -2868,7 +2868,7 @@ def doc_handle_sop_common(event):
           that received the SOP Class Common Extended Negotiation request.
         * ``description`` : a description of the event that occurred as str.
         * ``items`` : the {*SOP Class UID* :
-          py:class:`SOP Class Common Extended Negotiation
+          :py:class:`SOP Class Common Extended Negotiation
           <pynetdicom.pdu_primitives.SOPClassCommonExtendedNegotiation>`}
           items sent by the requestor.
         * ``name`` : the name of the event that occurred as str.
@@ -2880,7 +2880,7 @@ def doc_handle_sop_common(event):
     -------
     dict
         The {*SOP Class UID* :
-        py:class:`SOP Class Common Extended Negotiation
+        :py:class:`SOP Class Common Extended Negotiation
         <pynetdicom.pdu_primitives.SOPClassCommonExtendedNegotiation>`} items
         accepted by the acceptor. When receiving DIMSE messages containing
         datasets corresponding to the *SOP Class UID* in an accepted item
@@ -3022,6 +3022,8 @@ def doc_handle_acse(event):
           :py:class:`association <pynetdicom.association.Association>`
           that is running the service that received the user identity
           negotiation request.
+        * ``description`` : a description of the event that occurred as str.
+        * ``name`` : the name of the event that occurred as str.
         * ``primitive`` : the ACSE primitive sent to or received from the
           DUL service provider. One of
           :py:class:`A_ASSOCIATE<pynetdicom.pdu_primitives.A_ASSOCIATE>`,
@@ -3050,6 +3052,7 @@ def doc_handle_dimse(event):
           :py:class:`association <pynetdicom.association.Association>`
           that is running the service that received the user identity
           negotiation request.
+        * ``description`` : a description of the event that occurred as str.
         * ``message`` : the DIMSE message encoding or decoded. One of
           :py:class:`C_ECHO_RQ<pynetdicom.dimse_messages.C_ECHO_RQ>`,
           :py:class:`C_ECHO_RQ<pynetdicom.dimse_messages.C_ECHO_RSP>`,
@@ -3073,6 +3076,7 @@ def doc_handle_dimse(event):
           :py:class:`N_GET_RSP<pynetdicom.dimse_messages.N_GET_RSP>`,
           :py:class:`N_SET_RQ<pynetdicom.dimse_messages.N_SET_RQ>` or
           :py:class:`N_SET_RSP<pynetdicom.dimse_messages.N_SET_RSP>`
+        * ``name`` : the name of the event that occurred as str.
         * ``timestamp`` : the
           `date and time <https://docs.python.org/3/library/datetime.html#datetime-objects>`_
           that the negotiation request was processed by the ACSE.
@@ -3095,6 +3099,8 @@ def doc_handle_data(event):
           negotiation request.
         * ``data`` : the data sent to or received from the remote (as
           ``bytes``).
+        * ``description`` : a description of the event that occurred as str.
+        * ``name`` : the name of the event that occurred as str.
         * ``timestamp`` : the
           `date and time <https://docs.python.org/3/library/datetime.html#datetime-objects>`_
           that the negotiation request was processed by the ACSE.
@@ -3115,6 +3121,8 @@ def doc_handle_pdu(event):
           :py:class:`association <pynetdicom.association.Association>`
           that is running the service that received the user identity
           negotiation request.
+        * ``description`` : a description of the event that occurred as str.
+        * ``name`` : the name of the event that occurred as str.
         * ``pdu`` : the PDU sent to or received from the peer. One of:
           :py:class:`A_ASSOCIATE_RQ<pynetdicom.pdu.A_ASSOCIATE_RQ>`,
           :py:class:`A_ASSOCIATE_RJ<pynetdicom.pdu.A_ASSOCIATE_RJ>`,
@@ -3144,6 +3152,8 @@ def doc_handle_transport(event):
           :py:class:`association <pynetdicom.association.Association>`
           that is running the service that received the user identity
           negotiation request.
+        * ``description`` : a description of the event that occurred as str.
+        * ``name`` : the name of the event that occurred as str.
         * ``timestamp`` : the
           `date and time <https://docs.python.org/3/library/datetime.html#datetime-objects>`_
           that the negotiation request was processed by the ACSE.
@@ -3161,7 +3171,12 @@ def doc_handle_assoc(event):
         Represents moving to one of the main association states. Event
         attributes are:
 
-        * ``address`` : the (host, port) of the remote as (str, int).
+        * ``assoc`` : the
+          :py:class:`association <pynetdicom.association.Association>`
+          that is running the service that received the user identity
+          negotiation request.
+        * ``description`` : a description of the event that occurred as str.
+        * ``name`` : the name of the event that occurred as str.
         * ``timestamp`` : the
           `date and time <https://docs.python.org/3/library/datetime.html#datetime-objects>`_
           that the negotiation request was processed by the ACSE.
@@ -3179,10 +3194,15 @@ def doc_handle_fsm(event):
         Event attributes are:
 
         * ``action`` : the name of the action that's to be performed.
-        * ``address`` : the (host, port) of the remote as (str, int).
+        * ``assoc`` : the
+          :py:class:`association <pynetdicom.association.Association>`
+          that is running the service that received the user identity
+          negotiation request.
         * ``current_state`` : the current state of the state machine as str.
+        * ``description`` : a description of the event that occurred as str.
         * ``fsm_event`` : the name of the state machine event that occurred,
           triggering the transition.
+        * ``name`` : the name of the event that occurred as str.
         * ``next_state`` : the state the state machine will be in after the
           action has been performed.
         * ``timestamp`` : the

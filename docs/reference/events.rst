@@ -1,4 +1,4 @@
-.. _api_fsm:
+.. _api_events:
 
 Events and Handlers (:mod:`pynetdicom.events`)
 ==============================================
@@ -9,7 +9,6 @@ Events and Handlers (:mod:`pynetdicom.events`)
    :toctree: generated/
 
    Event
-   get_default_handler
 
 Documentation for Intervention Event Handlers
 ---------------------------------------------

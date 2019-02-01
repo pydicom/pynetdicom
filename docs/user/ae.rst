@@ -402,57 +402,30 @@ By default all association requests that include user identity negotiation
 are accepted (provided there's no other reason to reject) and
 no user identity negotiation response is sent even if one is requested.
 
-To handle the user identity negotiation yourself you should implement the
-:py:meth:`AE.on_user_identity <pynetdicom.ae.ApplicationEntity.on_user_identity>`
-callback.
+To handle a user identity negotiation yourself you
+should implement and bind a :ref:`handler <user_events>` to the
+``evt.EVT_USER_ID`` event. Check the
+`documentation <../reference/generated/pynetdicom._handlers.doc_handle_userid.html>`_
+to see the requirements for implementations of the ``evt.EVT_USER_ID`` handler.
 
 .. code-block:: python
 
-    from pynetdicom import AE
+    from pynetdicom import AE, evt
     from pynetdicom.sop_class import VerificationSOPClass
 
-    def on_user_identity(identity_type, primary_field, secondary_field, info):
-        """Handle user identity negotiation requests.
-
-        Parameters
-        ----------
-        identity_type : int
-            * 1 - Username as a UTF-8 string
-            * 2 - Username as a UTF-8 string and passcode
-            * 3 - Kerberos Service ticket
-            * 4 - SAML Assertion
-            * 5 - JSON Web Token
-        primary_field : bytes
-            The value of the request's *Primary Field* parameter.
-        secondary_field : bytes or None
-            If the `identity_type` is 2 then the passcode, otherwise None.
-        info : dict
-            A dict containing information about the association requestor.
-
-        Returns
-        -------
-        is_verified : bool
-            Return True if the user identity has been confirmed and you wish
-            to proceed with association establishment, False otherwise.
-        response : bytes or None
-            If a positive response is requested and the identity is verified
-            then this will be the value of the response's *Server Response*
-            parameter. If ``user_id_type`` is:
-
-            * 1 or 2, then return None
-            * 3 then return the Kerberos Server ticket as bytes
-            * 4 then return the SAML response as bytes
-            * 5 then return the JSON web token as bytes
-        """
+    def handle_user_id(event):
+        """Handle evt.EVT_USER_ID."""
         # Identity verification code is outside the scope of pynetdicom
         is_verified, response = some_user_function()
 
         return is_verified, response
 
+    handlers = [(evt.EVT_USER_ID, handle_user_id)]
+
     ae = AE()
     ae.add_supported_context(VerificationSOPClass)
     ae.on_user_identity = on_user_identity
-    ae.start_server(('', 11112))
+    ae.start_server(('', 11112), evt_handlers=handlers)
 
 
 Specifying the bind address

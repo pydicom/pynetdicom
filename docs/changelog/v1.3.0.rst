@@ -29,15 +29,15 @@ Enhancements
 Changes
 .......
 
-* All callback related class functions are deprecated and will be removed in
+* All callback related class methods are deprecated and will be removed in
   v1.4. Use the event-handler system instead.
-* _config.DECODE_STORE_DATASETS is deprecated and will be removed in v1.4. Use
-  the event-handler system instead.
+* ``_config.DECODE_STORE_DATASETS`` is deprecated and will be removed in v1.4.
+  Use the event-handler system instead.
 * ``send_c_cancel_find()``, ``send_c_cancel_get()`` and
   ``send_c_cancel_move()`` removed from ``Association`` as per planned
   deprecation.
 * The following removed from ``AE`` as per planned deprecation: ``start()``,
   ``stop()``, ``local_socket``, ``port``, and ``address``.
 * ``DIMSEServiceProvider`` init now takes the ``Association`` as its only
-  parameter. ``dul``,``dimse_timeout`` and ``maximum_pdu_size`` properties
+  parameter. ``dul``, ``dimse_timeout`` and ``maximum_pdu_size`` properties
   added instead.

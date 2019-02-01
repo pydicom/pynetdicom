@@ -175,7 +175,7 @@ class Event(object):
     ----------
     assoc : association.Association
         The association in which the event occurred.
-    event : tuple
+    event : namedtuple
         The event that occurred.
     timestamp : datetime.datetime
         The date/time the event was created. Will be slightly before or after
@@ -188,7 +188,7 @@ class Event(object):
         ----------
         assoc : association.Association
             The association in which the event occurred.
-        event : event.NotificationEvent or event.InterventionEvent
+        event : events.NotificationEvent or events.InterventionEvent
             The representation of the event.
         attrs : dict, optional
             The {attribute : value} to set for the Event.
