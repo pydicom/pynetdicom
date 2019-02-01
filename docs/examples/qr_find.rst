@@ -43,16 +43,19 @@ Root Query/Retrieve Information Model - Find* at the *Patient* level.
        responses = assoc.send_c_find(ds, query_model='P')
 
        for (status, identifier) in responses:
-           print('C-FIND query status: 0x{0:04x}'.format(status.Status))
+            if status:
+                print('C-FIND query status: 0x{0:04x}'.format(status.Status))
 
-           # If the status is 'Pending' then identifier is the C-FIND response
-           if status.Status in (0xFF00, 0xFF01):
-               print(identifier)
+                # If the status is 'Pending' then identifier is the C-FIND response
+                if status.Status in (0xFF00, 0xFF01):
+                    print(identifier)
 
+            else:
+                print('Connection timed out, was aborted or received invalid response')
        # Release the association
        assoc.release()
    else:
-       print('Association rejected or aborted')
+       print('Association rejected, aborted or never connected')
 
 The responses received from the SCP are dependent on the *Identifier* dataset
 keys and values, the Query/Retrieve level and the information model. For
@@ -86,87 +89,69 @@ This is a very bad way of managing stored SOP Instances, in reality its
 probably best to store the instance attributes in a database and run the
 query against that.
 
+Check the
+:py:meth:`documentation<pynetdicom._handlers.doc_handle_find>`
+to see the requirements for implementations of the evt.EVT_C_FIND handler.
+
 .. code-block:: python
 
-   import os
+    import os
 
-   from pydicom import dcmread
-   from pydicom.dataset import Dataset
+    from pydicom import dcmread
+    from pydicom.dataset import Dataset
 
-   from pynetdicom import AE
-   from pynetdicom.sop_class import PatientRootQueryRetrieveInformationModelFind
+    from pynetdicom import AE, evt
+    from pynetdicom.sop_class import PatientRootQueryRetrieveInformationModelFind
 
-   # Initialise the Application Entity and specify the listen port
-   ae = AE()
+    # Initialise the Application Entity and specify the listen port
+    ae = AE()
 
-   # Add a requested presentation context
-   ae.add_supported_context(PatientRootQueryRetrieveInformationModelFind)
+    # Add a requested presentation context
+    ae.add_supported_context(PatientRootQueryRetrieveInformationModelFind)
 
-   # Implement the AE.on_c_store callback
-   def on_c_find(ds, context, info):
-       """Respond to a C-FIND request Identifier `ds`.
+    # Implement the handler for evt.EVT_C_FIND
+    def handle_find(event):
+        """Handle a C-FIND request event."""
+        ds = event.identifier
 
-       Parameters
-       ----------
-       ds : pydicom.dataset.Dataset
-           The Identifier dataset send by the peer.
-       context : namedtuple
-           The presentation context that the dataset was sent under.
-       info : dict
-           Information about the association and query/retrieve request.
+        # Import stored SOP Instances
+        instances = []
+        fdir = '/path/to/directory'
+        for fpath in os.listdir(fdir):
+            instances.append(dcmread(os.path.join(fdir, fpath)))
 
-       Yields
-       ------
-       status : int or pydicom.dataset.Dataset
-           The status returned to the peer AE in the C-FIND response. Must be
-           a valid C-FIND status value for the applicable Service Class as
-           either an ``int`` or a ``Dataset`` object containing (at a
-           minimum) a (0000,0900) *Status* element.
-       identifier : pydicom.dataset.Dataset
-           If the status is 'Pending' then the *Identifier* ``Dataset`` for a
-           matching SOP Instance. The exact requirements for the C-FIND
-           response *Identifier* are Service Class specific (see the
-           DICOM Standard, Part 4).
-
-           If the status is 'Failure' or 'Cancel' then yield ``None``.
-
-           If the status is 'Success' then yield ``None``, however yielding a
-           final 'Success' status is not required and will be ignored if
-           necessary.
-       """
-       # Import stored SOP Instances
-       instances = []
-       fdir = '/path/to/directory'
-       for fpath in os.listdir(fdir):
-           instances.append(dcmread(os.path.join(fdir, fpath)))
-
-       if 'QueryRetrieveLevel' not in ds:
-           # Failure
-           yield 0xC000, None
-           return
+        if 'QueryRetrieveLevel' not in ds:
+            # Failure
+            yield 0xC000, None
+            return
 
        if ds.QueryRetrieveLevel == 'PATIENT':
-           if 'PatientName' in ds:
-               if ds.PatientName not in ['*', '', '?']:
-                   matching = [
-                       inst for inst in instances if inst.PatientName == ds.PatientName
-                   ]
+            if 'PatientName' in ds:
+                if ds.PatientName not in ['*', '', '?']:
+                    matching = [
+                        inst for inst in instances if inst.PatientName == ds.PatientName
+                    ]
 
-               # Skip the other possibile values...
+                # Skip the other possibile values...
 
-           # Skip the other possible attributes...
+            # Skip the other possible attributes...
 
-       # Skip the other QR levels...
+        # Skip the other QR levels...
 
-       for instance in matching:
-           identifier = Dataset()
-           identifier.PatientName = instance.PatientName
-           identifier.QueryRetrieveLevel = ds.QueryRetrieveLevel
+        for instance in matching:
+            # Check if C-CANCEL has been received
+            if event.is_cancelled:
+                yield (0xFE00, None)
+                return
 
-           # Pending
-           yield (0xFF00, identifier)
+            identifier = Dataset()
+            identifier.PatientName = instance.PatientName
+            identifier.QueryRetrieveLevel = ds.QueryRetrieveLevel
 
-   ae.on_c_find = on_c_find
+            # Pending
+            yield (0xFF00, identifier)
+
+   handlers = [(evt.EVT_C_FIND, handle_find)]
 
    # Start listening for incoming association requests
-   ae.start_server(('', 11112))
+   ae.start_server(('', 11112), evt_handlers=handlers)

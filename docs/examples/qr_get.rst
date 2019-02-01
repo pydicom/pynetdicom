@@ -47,16 +47,21 @@ that you ensure the file is conformant with the
 `DICOM File Format <http://dicom.nema.org/medical/dicom/current/output/html/part10.html#chapter_7>`_,
 which requires adding the File Meta Information.
 
+Check the
+:py:meth:`documentation<pynetdicom._handlers.doc_handle_store>`
+to see the requirements for implementations of the evt.EVT_C_STORE handler.
+
 .. code-block:: python
 
     from pydicom.dataset import Dataset
 
     from pynetdicom import (
         AE,
+        evt,
+        build_role,
         PYNETDICOM_IMPLEMENTATION_UID,
         PYNETDICOM_IMPLEMENTATION_VERSION
     )
-    from pynetdicom.pdu_primitives import SCP_SCU_RoleSelectionNegotiation
     from pynetdicom.sop_class import (
         PatientRootQueryRetrieveInformationModelGet,
         CTImageStorage
@@ -70,15 +75,8 @@ which requires adding the File Meta Information.
     # Add the requested presentation context (Storage SCP)
     ae.add_requested_context(CTImageStorage)
 
-    # Add an SCP/SCU Role Selection Negotiation item for CT Image Storage
-    role = SCP_SCU_RoleSelectionNegotiation()
-    role.sop_class_uid = CTImageStorage
-    # We will be acting as an SCP for CT Image Storage
-    role.scu_role = False
-    role.scp_role = True
-
-    # Extended negotiation items
-    ext_neg = [role]
+    # Create an SCP/SCU Role Selection Negotiation item for CT Image Storage
+    role = build_role(CTImageStorage, scp_role=True)
 
     # Create our Identifier (query) dataset
     # We need to supply a Unique Key Attribute for each level above the
@@ -92,27 +90,12 @@ which requires adding the File Meta Information.
     # Unique key for SERIES level
     ds.SeriesInstanceUID = '1.2.3.4'
 
-    # Implement the AE.on_c_store callback
-    def on_c_store(ds, context, info):
-        """Store the pydicom Dataset `ds`.
+    # Implement the handler for evt.EVT_C_STORE
+    def handle_store(event):
+        """Handle a C-STORE request event."""
+        ds = event.dataset
+        context = event.context
 
-        Parameters
-        ----------
-        ds : pydicom.dataset.Dataset
-            The dataset that the peer has requested be stored.
-        context : namedtuple
-            The presentation context that the dataset was sent under.
-        info : dict
-            Information about the association and storage request.
-
-        Returns
-        -------
-        status : int or pydicom.dataset.Dataset
-            The status returned to the peer AE in the C-STORE response. Must be
-            a valid C-STORE status value for the applicable Service Class as
-            either an ``int`` or a ``Dataset`` object containing (at a
-            minimum) a (0000,0900) *Status* element.
-        """
         # Add the DICOM File Meta Information
         meta = Dataset()
         meta.MediaStorageSOPClassUID = ds.SOPClassUID
@@ -134,10 +117,10 @@ which requires adding the File Meta Information.
         # Return a 'Success' status
         return 0x0000
 
-    ae.on_c_store = on_c_store
+    handlers = [(evt.EVT_C_STORE, handle_store)]
 
     # Associate with peer AE at IP 127.0.0.1 and port 11112
-    assoc = ae.associate('127.0.0.1', 11112, ext_neg=ext_neg)
+    assoc = ae.associate('127.0.0.1', 11112, ext_neg=[role], evt_handlers=handlers)
 
     if assoc.is_established:
         # Use the C-GET service to send the identifier
@@ -146,16 +129,19 @@ which requires adding the File Meta Information.
         responses = assoc.send_c_get(ds, query_model='P')
 
         for (status, identifier) in responses:
-            print('C-GET query status: 0x{0:04x}'.format(status.Status))
+            if status:
+                print('C-GET query status: 0x{0:04x}'.format(status.Status))
 
-            # If the status is 'Pending' then identifier is the C-GET response
-            if status.Status in (0xFF00, 0xFF01):
-                print(identifier)
+                # If the status is 'Pending' then identifier is the C-GET response
+                if status.Status in (0xFF00, 0xFF01):
+                    print(identifier)
+            else:
+                print('Connection timed out, was aborted or received invalid response')
 
         # Release the association
         assoc.release()
     else:
-        print('Association rejected or aborted')
+        print('Association rejected, aborted or never connected')
 
 
 The responses received from the SCP are dependent on the *Identifier* dataset
@@ -179,6 +165,10 @@ This is a very bad way of managing stored SOP Instances, in reality its
 probably best to store the instance attributes in a database and run the
 query against that.
 
+Check the
+:py:meth:`documentation<pynetdicom._handlers.doc_handle_c_get>`
+to see the requirements for implementations of the evt.EVT_C_GET handler.
+
 .. code-block:: python
 
     import os
@@ -186,7 +176,7 @@ query against that.
     from pydicom import dcmread
     from pydicom.dataset import Dataset
 
-    from pynetdicom import AE, StoragePresentationContexts
+    from pynetdicom import AE, StoragePresentationContexts, evt
     from pynetdicom.sop_class import PatientRootQueryRetrieveInformationModelGet
 
     # Create application entity
@@ -204,46 +194,11 @@ query against that.
     # Add a supported presentation context (QR Get SCP)
     ae.add_supported_context(PatientRootQueryRetrieveInformationModelGet)
 
-    # Implement the AE.on_c_get callback
-    def on_c_get(ds, context, info):
-        """Respond to a C-GET request Identifier `ds`.
+    # Implement the handler for evt.EVT_C_GET
+    def handle_get(event):
+        """Handle a C-GET request event."""
+        ds = event.identifier
 
-        Parameters
-        ----------
-        ds : pydicom.dataset.Dataset
-            The Identifier dataset sent by the peer.
-        context : presentation.PresentationContextTuple
-            The presentation context that the C-GET message was sent under.
-        info : dict
-            A dict containing information about the current association.
-
-        Yields
-        ------
-        int
-            The first yielded value should be the total number of C-STORE
-            sub-operations necessary to complete the C-GET operation. In other
-            words, this is the number of matching SOP Instances to be sent to
-            the peer.
-        status : pydicom.dataset.Dataset or int
-            The status returned to the peer AE in the C-GET response. Must be a
-            valid C-GET status value for the applicable Service Class as either
-            an ``int`` or a ``Dataset`` object containing (at a minimum) a
-            (0000,0900) *Status* element. If returning a Dataset object then
-            it may also contain optional elements related to the Status (as in
-            DICOM Standard Part 7, Annex C).
-        dataset : pydicom.dataset.Dataset or None
-            If the status is 'Pending' then yield the ``Dataset`` to send to
-            the peer via a C-STORE sub-operation over the current association.
-
-            If the status is 'Failed', 'Warning' or 'Cancel' then yield a
-            ``Dataset`` with a (0008,0058) *Failed SOP Instance UID List*
-            element containing a list of the C-STORE sub-operation SOP Instance
-            UIDs for which the C-GET operation has failed.
-
-            If the status is 'Success' then yield ``None``, although yielding a
-            final 'Success' status is not required and will be ignored if
-            necessary
-        """
         if 'QueryRetrieveLevel' not in ds:
             # Failure
             yield 0xC000, None
@@ -271,11 +226,15 @@ query against that.
 
         # Yield the matching instances
         for instance in matching:
+            # Check if C-CANCEL has been received
+            if event.is_cancelled:
+                yield (0xFE00, None)
+                return
+
             # Pending
             yield (0xFF00, instance)
 
-
-    ae.on_c_get = on_c_get
+    handlers = [(evt.EVT_C_GET), handle_get]
 
     # Start listening for incoming association requests
-    ae.start_server(('', 11112))
+    ae.start_server(('', 11112), evt_handlers=handlers)

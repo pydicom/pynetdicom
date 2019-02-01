@@ -2078,6 +2078,8 @@ def doc_handle_echo(event):
           that is running the DICOM service that received the C-ECHO request.
         * ``context`` : the presentation context the request was sent under
           as a ``presentation.PresentationContextTuple``.
+        * ``description`` : a description of the event that occurred as str.
+        * ``name`` : the name of the event that occurred as str.
         * ``request`` : the received
           :py:class:`C-ECHO request <pynetdicom.dimse_primitives.C_ECHO>`
         * ``timestamp`` : the
@@ -2171,6 +2173,8 @@ def doc_handle_find(event):
           that is running the service that received the C-FIND request.
         * ``context`` : the presentation context the request was sent under
           as a ``presentation.PresentationContextTuple``.
+        * ``description`` : a description of the event that occurred as str.
+        * ``name`` : the name of the event that occurred as str.
         * ``request`` : the received
           :py:class:`C-FIND request <pynetdicom.dimse_primitives.C_FIND>`
         * ``timestamp`` : the
@@ -2308,6 +2312,8 @@ def doc_handle_c_get(event):
           that is running the service that received the C-GET request.
         * ``context`` : the presentation context the request was sent under
           as a ``presentation.PresentationContextTuple``.
+        * ``description`` : a description of the event that occurred as str.
+        * ``name`` : the name of the event that occurred as str.
         * ``request`` : the received
           :py:class:`C-GET request <pynetdicom.dimse_primitives.C_GET>`
         * ``timestamp`` : the
@@ -2452,6 +2458,8 @@ def doc_handle_move(event):
           that is running the service that received the C-MOVE request.
         * ``context`` : the presentation context the request was sent under
           as a ``presentation.PresentationContextTuple``.
+        * ``description`` : a description of the event that occurred as str.
+        * ``name`` : the name of the event that occurred as str.
         * ``request`` : the received
           :py:class:`C-MOVE request <pynetdicom.dimse_primitives.C_MOVE>`
         * ``timestamp`` : the
@@ -2583,6 +2591,8 @@ def doc_handle_store(event):
           that is running the service that received the C-STORE request.
         * ``context`` : the presentation context the request was sent under
           as a ``presentation.PresentationContextTuple``.
+        * ``description`` : a description of the event that occurred as str.
+        * ``name`` : the name of the event that occurred as str.
         * ``request`` : the received
           :py:class:`C-STORE request <pynetdicom.dimse_primitives.C_STORE>`
         * ``timestamp`` : the
@@ -2724,6 +2734,8 @@ def doc_handle_n_get(event):
           that is running the service that received the N-GET request.
         * ``context`` : the presentation context the request was sent under
           as a ``presentation.PresentationContextTuple``.
+        * ``description`` : a description of the event that occurred as str.
+        * ``name`` : the name of the event that occurred as str.
         * ``request`` : the received
           :py:class:`N-GET request <pynetdicom.dimse_primitives.N_GET>`
         * ``timestamp`` : the
@@ -2809,10 +2821,12 @@ def doc_handle_async(event):
         * ``assoc`` : the
           :py:class:`association <pynetdicom.association.Association>`
           that received the Asynchronous Operations Window Negotiation request.
+        * ``description`` : a description of the event that occurred as str.
         * ``invoked`` : the *Maximum Number Operations Invoked* parameter
           value of the Asynchronous Operations Window Negotiation request as
           an ``int``. If the value is 0 then an unlimited number of
           invocations are requested.
+        * ``name`` : the name of the event that occurred as str.
         * ``performed`` : the *Maximum Number Operations Performed*
           parameter value of the Asynchronous Operations Window Negotiation
           request as an ``int``. If the value is 0 then an unlimited number
@@ -2852,10 +2866,12 @@ def doc_handle_sop_common(event):
         * ``assoc`` : the
           :py:class:`association <pynetdicom.association.Association>`
           that received the SOP Class Common Extended Negotiation request.
+        * ``description`` : a description of the event that occurred as str.
         * ``items`` : the {*SOP Class UID* :
           py:class:`SOP Class Common Extended Negotiation
           <pynetdicom.pdu_primitives.SOPClassCommonExtendedNegotiation>`}
           items sent by the requestor.
+        * ``name`` : the name of the event that occurred as str.
         * ``timestamp`` : the
           `date and time <https://docs.python.org/3/library/datetime.html#datetime-objects>`_
           that the negotiation request was processed by the ACSE.
@@ -2904,6 +2920,8 @@ def doc_handle_sop_extended(event):
           :py:class:`association <pynetdicom.association.Association>`
           that is running the service that received the user identity
           negotiation request.
+        * ``description`` : a description of the event that occurred as str.
+        * ``name`` : the name of the event that occurred as str.
         * ``timestamp`` : the
           `date and time <https://docs.python.org/3/library/datetime.html#datetime-objects>`_
           that the negotiation request was processed by the ACSE.
@@ -2948,6 +2966,8 @@ def doc_handle_userid(event):
           :py:class:`association <pynetdicom.association.Association>`
           that is running the service that received the user identity
           negotiation request.
+        * ``description`` : a description of the event that occurred as str.
+        * ``name`` : the name of the event that occurred as str.
         * ``primary_field`` : the *Primary Field* value (as ``bytes``),
           contains the username, the encoded Kerberos ticket or the JSON web
           token, depending on the value of ``user_id_type``.
