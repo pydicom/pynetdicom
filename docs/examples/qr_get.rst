@@ -147,6 +147,7 @@ to see the requirements for implementations of the evt.EVT_C_STORE handler.
 The responses received from the SCP are dependent on the *Identifier* dataset
 keys and values, the Query/Retrieve level and the information model.
 
+.. _example_qrget_scp:
 
 Query/Retrieve (Get) SCP
 ........................

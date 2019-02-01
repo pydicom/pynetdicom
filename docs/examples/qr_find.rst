@@ -71,6 +71,7 @@ the various *SOP Class UIDs* that make are in each study for a patient with
     ds.StudyInstanceUID = '*'
     ds.QueryRetrieveLevel = 'STUDY'
 
+.. _example_qrfind_scp:
 
 Query/Retrieve (Find) SCP
 .........................

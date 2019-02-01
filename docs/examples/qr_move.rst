@@ -141,6 +141,7 @@ to see the requirements for implementations of the evt.EVT_C_STORE handler.
     # Stop our Storage SCP
     scp.shutdown()
 
+.. _example_qrmove_scp:
 
 Query/Retrieve (Move) SCP
 .........................

@@ -67,6 +67,8 @@ the requested contexts.
    ae.requested_contexts = VerificationPresentationContexts
 
 
+.. _example_verification_scp:
+
 Verification SCP
 ................
 

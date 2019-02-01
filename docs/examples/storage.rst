@@ -87,6 +87,7 @@ You can also set the requested contexts on a per association basis.
    assoc = ae.associate('127.0.0.1', 11112, contexts=[mr_context])
    assoc.release()
 
+.. _example_storage_scp:
 
 Storage SCP
 ...........

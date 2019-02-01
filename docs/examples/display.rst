@@ -65,6 +65,8 @@ the requested contexts.
    ae.requested_contexts = DisplaySystemPresentationContexts
 
 
+.. _example_nget_scp:
+
 Display System Management SCP
 .............................
 

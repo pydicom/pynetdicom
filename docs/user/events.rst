@@ -8,13 +8,14 @@ data exchanged between different services within an AE as well as the PDUs
 and data sent between the local and peer AEs. Two different types of events
 are used: *notification events* and *intervention events*.
 
+.. _events_notification:
 
 Notification Events
 ...................
 
 Notification events are those events for which the event handler doesn't need
 to return or yield anything (i.e. the user is *notified* some event has
-occurred). Each notification events can have multiple handlers
+occurred). Each notification event can have multiple handlers
 bound to it and any exceptions raised by the handlers are caught
 and the exception message logged instead. The table below lists the available
 notification events.
@@ -61,6 +62,7 @@ notification events.
 | ``evt.EVT_REQUESTED``      | Association requested by local AE |
 +----------------------------+-----------------------------------+
 
+.. _events_intervention:
 
 Intervention Events
 ...................

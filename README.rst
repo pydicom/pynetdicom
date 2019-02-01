@@ -47,9 +47,10 @@ Entity. Once the ``AE`` has been created you would typically either:
   thread.
 
 Once the application is associated with a peer AE, DICOM data can be sent between
-them by utilising the DIMSE-C services (see the DICOM Standard Part 7,
+them by utilising the DIMSE-C and -N services (see the DICOM Standard Part 7,
 Sections `7.5 <http://dicom.nema.org/medical/dicom/current/output/html/part07.html#sect_7.5>`_,
-and `9 <http://dicom.nema.org/medical/dicom/current/output/html/part07.html#chapter_9>`_).
+`9 <http://dicom.nema.org/medical/dicom/current/output/html/part07.html#chapter_9>`_,
+and `10 <http://dicom.nema.org/medical/dicom/current/output/html/part07.html#chapter_10>`_).
 
 
 Supported Service Classes
@@ -88,8 +89,6 @@ corresponding Presentation Context has been accepted):
 
 - C-ECHO: ``Association.send_c_echo()`` used to verify end-to-end
   communications with the peer.
-- C-STORE: ``Association.send_c_store(dataset)`` requests the storage of the
-  Composite SOP Instance *dataset* by the peer.
 - C-FIND: ``Association.send_c_find(dataset)`` requests the peer search its set
   of managed SOP Instances for those that match the attributes given in
   *dataset*.
@@ -100,18 +99,20 @@ corresponding Presentation Context has been accepted):
   search its set of managed SOP Instances for those that match the attributes
   given in *dataset* and then copy those matching Instances to the AE with title
   *move_aet* over a new association.
-- N-EVENT-REPORT: ``Association.send_n_event_report(dataset, event_type,
-  class_uid, instance_uid)`` reports the events in *dataset* to the peer.
-- N-GET: ``Association.send_n_get(identifier_list, class_uid, instance_uid)``
-  requests the retrieval of attribute values from a peer.
-- N-SET: ``Association.send_n_set(dataset, class_uid, instance_uid)`` requests
-  the peer modify a SOP Instance using the attribute values in *dataset*.
+- C-STORE: ``Association.send_c_store(dataset)`` requests the storage of the
+  Composite SOP Instance *dataset* by the peer.
 - N-ACTION: ``Association.send_n_action(dataset, action_type, class_uid,
   instance_uid)`` requests the peer perform an action.
 - N-CREATE: ``Association.send_n_create(dataset, class_uid, instance_uid)``
   requests the peer create a new SOP Instance.
 - N-DELETE: ``Association.send_n_delete(class_uid, instance_uid)`` requests the
   peer delete the specified SOP Instance.
+- N-EVENT-REPORT: ``Association.send_n_event_report(dataset, event_type,
+  class_uid, instance_uid)`` reports the events in *dataset* to the peer.
+- N-GET: ``Association.send_n_get(identifier_list, class_uid, instance_uid)``
+  requests the retrieval of attribute values from a peer.
+- N-SET: ``Association.send_n_set(dataset, class_uid, instance_uid)`` requests
+  the peer modify a SOP Instance using the attribute values in *dataset*.
 
 Where *dataset* is a pydicom
 `Dataset <https://pydicom.github.io/pydicom/stable/ref_guide.html#dataset>`_
@@ -127,34 +128,36 @@ Supported DIMSE SCP Services
 When the AE is acting as an SCP the following DIMSE-C and -N services are
 available to the peer once an association has been established:
 
-+---------------+---------------------+---------------------------------------+
-| DIMSE service | Event               | Example handler                       |
-+===============+=====================+=======================================+
-| C-ECHO        | ``evt.EVT_C_ECHO``  |                                       |
-+---------------+---------------------+---------------------------------------+
-| C-FIND        | ``evt.EVT_C_FIND``  |                                       |
-+---------------+---------------------+---------------------------------------+
-| C-GET         | ``evt.EVT_C_GET``   |                                       |
-+---------------+---------------------+---------------------------------------+
-| C-MOVE        | ``evt.EVT_C_MOVE``  |                                       |
-+---------------+---------------------+---------------------------------------+
-| C-STORE       | ``evt.EVT_C_STORE`` |                                       |
-+---------------+---------------------+---------------------------------------+
-| N-GET         | ``evt.EVT_N_GET``   |                                       |
-+---------------+---------------------+---------------------------------------+
++---------------+---------------------+--------------------------------------------------------------------------------------------------------------------------+
+| DIMSE service | Event               | Handler Requirements                                                                                                     |
++===============+=====================+==========================================================================================================================+
+| C-ECHO        | ``evt.EVT_C_ECHO``  | `documentation <https://pydicom.github.io/pynetdicom/stable/reference/generated/pynetdicom._handlers/doc_handle_echo>`_  |
++---------------+---------------------+--------------------------------------------------------------------------------------------------------------------------+
+| C-FIND        | ``evt.EVT_C_FIND``  | `documentation <https://pydicom.github.io/pynetdicom/stable/reference/generated/pynetdicom._handlers/doc_handle_find>`_  |
++---------------+---------------------+--------------------------------------------------------------------------------------------------------------------------+
+| C-GET         | ``evt.EVT_C_GET``   | `documentation <https://pydicom.github.io/pynetdicom/stable/reference/generated/pynetdicom._handlers/doc_handle_c_get>`_ |
++---------------+---------------------+--------------------------------------------------------------------------------------------------------------------------+
+| C-MOVE        | ``evt.EVT_C_MOVE``  | `documentation <https://pydicom.github.io/pynetdicom/stable/reference/generated/pynetdicom._handlers/doc_handle_move>`_  |
++---------------+---------------------+--------------------------------------------------------------------------------------------------------------------------+
+| C-STORE       | ``evt.EVT_C_STORE`` | `documentation <https://pydicom.github.io/pynetdicom/stable/reference/generated/pynetdicom._handlers/doc_handle_store>`_ |
++---------------+---------------------+--------------------------------------------------------------------------------------------------------------------------+
+| N-GET         | ``evt.EVT_N_GET``   | `documentation <https://pydicom.github.io/pynetdicom/stable/reference/generated/pynetdicom._handlers/doc_handle_n_get>`_ |
++---------------+---------------------+--------------------------------------------------------------------------------------------------------------------------+
 
 With the exception of the C-ECHO service, a user-defined handler must be bound
 to a corresponding event in order to complete a DIMSE service request. Events
-can be imported with ``from pynetdicom import evt``and a handler can be
+can be imported with ``from pynetdicom import evt`` and a handler can be
 bound to an event prior to starting an association through the *evt_handlers*
 keyword parameters in ``AE.start_server()`` and ``AE.associate()`` which is a
 list of ``(event, handler)`` tuples.
 
 When an event occurs the *handler* function is called and passed a single
 parameter *event*, which is an ``evt.Event`` object whose specific attributes
-are dependent on the type of event that occurred. Handlers bound to DIMSE
-service requests must also return or yield certain values. See the event
-documentation for information on what attributes are available in ``Event``
+are dependent on the type of event that occurred. Handlers bound to
+`intervention events` <https://pydicom.github.io/pynetdicom/stable/user/events#intervention-events>`_
+must also return or yield certain values. See the
+`handler documentation <https://pydicom.github.io/pynetdicom/stable/reference/events>`_
+for information on what attributes and properties are available in ``Event``
 for each event type and what the expected returns/yields are for their
 corresponding handlers.
 

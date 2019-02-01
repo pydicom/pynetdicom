@@ -126,17 +126,13 @@ the ``tls_args`` keyword parameter to ``associate()``:
     from pynetdicom import AE
     from pynetdicom.sop_class import VerificationSOPClass
 
-    server_crt = 'path/to/server.crt'
-    client_crt = 'path/to/client.crt'
-    client_key = 'path/to/client.key'
-
     ae = AE()
     ae.add_requested_context(VerificationSOPClass)
 
     # Create the SSLContext, your requirements may vary
-    ssl_cx = ssl.create_default_context(ssl.Purpose.CLIENT_AUTH, cafile=server_crt)
+    ssl_cx = ssl.create_default_context(ssl.Purpose.CLIENT_AUTH, cafile='server.crt')
     ssl_cx.verify_mode = ssl.CERT_REQUIRED
-    ssl_cx.load_cert_chain(certfile=client_crt, keyfile=client_key)
+    ssl_cx.load_cert_chain(certfile='client.crt', keyfile='client.key')
 
     assoc = ae.associate('127.0.0.1', 11112, tls_args=(ssl_cx, None))
     if assoc.is_established:
@@ -280,17 +276,13 @@ instance via the ``ssl_context`` keyword parameter:
     from pynetdicom import AE
     from pynetdicom.sop_class import VerificationSOPClass
 
-    server_crt = '/path/to/server.crt'
-    server_key = '/path/to/server.key'
-    client_crt = '/path/to/client.crt'
-
     ae.add_supported_context(VerificationSOPClass)
 
     # Create the SSLContext, your requirements may vary
     ssl_cx = ssl.create_default_context(ssl.Purpose.CLIENT_AUTH)
     ssl_cx.verify_mode = ssl.CERT_REQUIRED
-    ssl_cx.load_cert_chain(certfile=server_crt, keyfile=server_key)
-    ssl_cx.load_verify_locations(cafile=client_crt)
+    ssl_cx.load_cert_chain(certfile='server.crt', keyfile='server.key')
+    ssl_cx.load_verify_locations(cafile='client.crt')
 
     server = ae.start_server(('', 11112), block=False, ssl_context=ssl_cx)
 
