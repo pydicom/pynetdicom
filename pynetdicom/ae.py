@@ -2504,7 +2504,7 @@ class ApplicationEntity(object):
     def on_association_accepted(self, primitive):
         """Callback for when an association is accepted.
 
-        Deprecated and will be removed in v1.5. Bind a handler to
+        Deprecated and will be removed in v1.4. Bind a handler to
         ``evt.EVT_ACCEPTED`` instead.
 
         Placeholder for a function callback. Function will be called
@@ -2520,7 +2520,7 @@ class ApplicationEntity(object):
     def on_association_rejected(self, primitive):
         """Callback for when an association is rejected.
 
-        Deprecated and will be removed in v1.5. Bind a handler to
+        Deprecated and will be removed in v1.4. Bind a handler to
         ``evt.EVT_REJECTED`` instead.
 
         Placeholder for a function callback. Function will be called
@@ -2536,7 +2536,7 @@ class ApplicationEntity(object):
     def on_association_released(self, primitive=None):
         """Callback for when an association is released.
 
-        Deprecated and will be removed in v1.5. Bind a handler to
+        Deprecated and will be removed in v1.4. Bind a handler to
         ``evt.EVT_RELEASED`` instead.
         """
         pass
@@ -2544,7 +2544,7 @@ class ApplicationEntity(object):
     def on_association_aborted(self, primitive=None):
         """Callback for when an association is aborted.
 
-        Deprecated and will be removed in v1.5. Bind a handler to
+        Deprecated and will be removed in v1.4. Bind a handler to
         ``evt.EVT_ABORTED`` instead.
         """
         pass

@@ -275,7 +275,7 @@ class DIMSEServiceProvider(object):
             )
 
             # Callback
-            # TODO: To be removed in v1.5
+            # TODO: To be removed in v1.4
             self.on_receive_dimse_message(self.message)
 
             context_id = self.message.context_id
@@ -327,7 +327,7 @@ class DIMSEServiceProvider(object):
         )
 
         # Callbacks
-        # TODO: To be removed in v1.5
+        # TODO: To be removed in v1.4
         self.on_send_dimse_message(dimse_msg)
 
         # Split the full messages into P-DATA chunks,
@@ -335,7 +335,7 @@ class DIMSEServiceProvider(object):
         for pdata in dimse_msg.encode_msg(context_id, self.maximum_pdu_size):
             self.dul.send_pdu(pdata)
 
-    # TODO: Deprecated, to be removed in v1.5
+    # TODO: Deprecated, to be removed in v1.4
     def on_send_dimse_message(self, message):
         """Controls which debugging function is called when sending.
 
@@ -349,7 +349,7 @@ class DIMSEServiceProvider(object):
         """
         pass
 
-    # TODO: Deprecated, to be removed in v1.5
+    # TODO: Deprecated, to be removed in v1.4
     def on_receive_dimse_message(self, message):
         """Controls which debugging function is called when receiving.
 

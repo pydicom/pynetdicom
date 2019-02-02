@@ -11,7 +11,7 @@ Basic Worklist Management SCU
 -----------------------------
 
 Associate with a peer DICOM Application Entity and request the
-worklist for the application with AE title 'CTSCANNER' for the 5th October
+worklist for the application with AE title ``CTSCANNER`` for the 5th October
 2018. The approach is very similar to that of a Query/Retrieve (Find) SCU,
 however BWM uses a different
 `set of attributes <http://dicom.nema.org/medical/dicom/current/output/chtml/part04/sect_K.6.html#sect_K.6.1.2>`_

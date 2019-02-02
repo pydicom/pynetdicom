@@ -20,26 +20,25 @@ LOGGER = logging.getLogger('pynetdicom.transport')
 
 
 class AssociationSocket(object):
-    """A wrapper for the socket.socket object.
+    """A wrapper for a ``socket.socket`` object.
 
-    Provides an interface for socket.socket that is integrated nicely with a
-    pynetdicom Association instance and the state machine.
+    Provides an interface for ``socket.socket`` that is integrated nicely with
+    an ``Association`` instance and the state machine.
 
     Attributes
     ----------
     select_timeout : float or None
-        The timeout (in seconds) that select.select() calls in ``ready`` will
-        block for (default 0.5). A value of 0 specifies a poll and never
-        blocks. A value of None blocks until a connection is ready.
+        The timeout (in seconds) that ``select.select()`` calls in :meth:`ready`
+        will block for (default ``0.5``). A value of ``0`` specifies a poll and never
+        blocks. A value of ``None`` blocks until a connection is ready.
     socket : socket.socket or None
-        The wrapped socket, will be None if AssociationSocket.close() is
-        called.
+        The wrapped socket, will be ``None``if :meth:`close()` is called.
     tls_args : 2-tuple or None
         If the socket should be wrapped by TLS then this is
-        (context, hostname), where `context` is a ssl.SSLContext that will be
-        used to wrap the socket and `hostname` is the value to use for
-        the `server_hostname` keyword argument for ``SSLContext.wrap_socket()``
-        If TLS is not to be used then None (default).
+        ``(context, hostname)``, where *context* is a ``ssl.SSLContext`` that
+        will be used to wrap the socket and *hostname* is the value to use for
+        the *server_hostname* keyword argument for ``SSLContext.wrap_socket()``
+        If TLS is not to be used then ``None`` (default).
     """
     def __init__(self, assoc, client_socket=None, address=('', 0)):
         """Create a new AssociationSocket.
@@ -47,14 +46,15 @@ class AssociationSocket(object):
         Parameters
         ----------
         assoc : association.Association
-            The Association instance that will be using the socket to
+            The ``Association`` instance that will be using the socket to
             communicate.
         client_socket : socket.socket, optional
-            The socket to wrap, if not supplied then a new socket will be
+            The ``socket`` to wrap, if not supplied then a new socket will be
             created instead.
         address : 2-tuple, optional
-            If `client_socket` is None then this is the (host, port) to bind
-            the newly created socket to, which by default will be ('', 0).
+            If *client_socket* is ``None`` then this is the ``(host, port)`` to
+            bind the newly created socket to, which by default will be
+            ``('', 0)``.
         """
         self._assoc = assoc
 
@@ -76,27 +76,10 @@ class AssociationSocket(object):
         self.tls_args = None
         self.select_timeout = 0.5
 
-        # Event handlers
-        self._handlers = {evt.EVT_CONN_CLOSE : [],
-                          evt.EVT_CONN_OPEN : []}
-
     @property
     def assoc(self):
-        """Return the socket's parent Association instance."""
+        """Return the socket's parent ``Association`` instance."""
         return self._assoc
-
-    def bind(self, event, handler):
-        """Bind a callable `handler` to an `event`.
-
-        Parameters
-        ----------
-        event : 3-tuple
-            The event to bind the function to.
-        handler : callable
-            The function that will be called if the event occurs.
-        """
-        if event in self._handlers and handler not in self._handlers[event]:
-            self._handlers[event].append(handler)
 
     def close(self):
         """Close the connection to the peer and shutdown the socket.
@@ -106,10 +89,6 @@ class AssociationSocket(object):
         **Events Emitted**
 
         - Evt17: Transport connection closed
-
-        **Triggers**
-
-        - evt.EVT_CONN_CLOSE
         """
         if self.socket is None or self._is_connected is False:
             return
@@ -121,7 +100,13 @@ class AssociationSocket(object):
 
         self.socket.close()
         # Event handler - connection closed
-        evt.trigger(self.assoc, evt.EVT_CONN_CLOSE, {})
+        if self.assoc.is_requestor:
+            remote = self.assoc.acceptor
+        else:
+            remote = self.assoc.requestor
+
+        address = (remote.address, remote.port)
+        evt.trigger(self.assoc, evt.EVT_CONN_CLOSE, {'address' : address})
 
         self.socket = None
         self._is_connected = False
@@ -129,21 +114,17 @@ class AssociationSocket(object):
         self.event_queue.put('Evt17')
 
     def connect(self, address):
-        """Try and connect to a remote.
+        """Try and connect to a remote at `address`.
 
         **Events Emitted**
 
         - Evt2: Transport connection confirmed
         - Evt17: Transport connection closed
 
-        **Triggers**
-
-        - evt.EVT_CONN_OPEN
-
         Parameters
         ----------
         address : 2-tuple
-            The (host, port) IPv4 address to connect to.
+            The ``(host, port)`` IPv4 address to connect to.
         """
         if self.socket is None:
             self.socket = self._create_socket()
@@ -171,7 +152,7 @@ class AssociationSocket(object):
 
             # Log connection failure
             LOGGER.error("Association Request Failed: Failed to establish "
-                     "association")
+                         "association")
             LOGGER.error("Peer aborted Association (or never connected)")
             LOGGER.error("TCP Initialisation Error: Connection refused")
             # Don't be tempted to replace this with a self.close() call -
@@ -190,14 +171,15 @@ class AssociationSocket(object):
 
         *Socket Options*
 
-        - SO_REUSEADDR is 1
-        - SO_RCVTIMEO is set to the Association's network_timeout value.
+        - ``SO_REUSEADDR`` is 1
+        - ``SO_RCVTIMEO`` is set to the Association's ``network_timeout``
+          value.
 
         Parameters
         ----------
         address : 2-tuple, optional
-            The (host, port) to bind the socket to. By default the socket
-            is bound to ('', 0), i.e. the first available port.
+            The ``(host, port)`` to bind the socket to. By default the socket
+            is bound to ``('', 0)``, i.e. the first available port.
 
         Returns
         -------
@@ -237,7 +219,7 @@ class AssociationSocket(object):
 
     @property
     def ready(self):
-        """Return True if there is data available to be read.
+        """Return ``True`` if there is data available to be read.
 
         *Events Emitted*
 
@@ -247,7 +229,8 @@ class AssociationSocket(object):
         Returns
         -------
         bool
-            True if the socket has data ready to be read, False otherwise.
+            ``True`` if the socket has data ready to be read, ``False``
+            otherwise.
         """
         if self.socket is None or self._is_connected is False:
             return False
@@ -331,31 +314,18 @@ class AssociationSocket(object):
             # Evt17: Transport connection closed
             self.event_queue.put('Evt17')
 
-    def unbind(self, event, handler):
-        """Unbind a callable `handler` from an `event`.
-
-        Parameters
-        ----------
-        event : 3-tuple
-            The event to unbind the function to.
-        handler : callable
-            The function that will no longer be called if the event occurs.
-        """
-        if event in self._handlers and handler in self._handlers[event]:
-            self._handlers[event].remove(handler)
-
     def __str__(self):
-        """Return the string output for `socket`."""
+        """Return the string output for ``socket``."""
         return self.socket.__str__()
 
 
 class RequestHandler(BaseRequestHandler):
-    """Connection request handler for the AssociationServer.
+    """Connection request handler for the ``AssociationServer``.
 
     Attributes
     ----------
     client_address : 2-tuple
-        The (host, port) of the remote.
+        The ``(host, port)`` of the remote.
     request : socket.socket
         The (unaccepted) client socket.
     server : transport.AssociationServer or transport.ThreadedAssociationServer
@@ -424,12 +394,12 @@ class RequestHandler(BaseRequestHandler):
 
     @property
     def local(self):
-        """Return a 2-tuple of the local server's (host, port) address."""
+        """Return a 2-tuple of the local server's ``(host, port)`` address."""
         return self.server.server_address
 
     @property
     def remote(self):
-        """Return a 2-tuple of the remote client's (host, port) address."""
+        """Return a 2-tuple of the remote client's ``(host, port)`` address."""
         return self.client_address
 
 
@@ -440,20 +410,20 @@ class AssociationServer(TCPServer):
 
     The server should be started with ``serve_forever(poll_interval)``, where
     ``poll_interval`` is the timeout (in seconds) that the ``select.select()``
-    call will block for (default 0.5). A value of 0 specifies a poll and never
-    blocks. A value of None blocks until a connection is ready.
+    call will block for (default ``0.5``). A value of ``0`` specifies a poll
+    and never blocks. A value of ``None`` blocks until a connection is ready.
 
     Attributes
     ----------
     ae : ae.ApplicationEntity
         The parent AE that is running the server.
     request_queue_size : int
-        Default 5.
+        Default ``5``.
     server_address : 2-tuple
-        The (host, port) that the server is running on.
+        The ``(host, port)`` that the server is running on.
     ssl_context : ssl.SSLContext or None
-        The SSLContext used to wrap client sockets, or None if no TLS is
-        required.
+        The ``SSLContext`` used to wrap client sockets, or ``None`` if no TLS
+        is required (default).
     """
     def __init__(self, ae, address, ssl_context=None, events=None):
         """Create a new AssociationServer, bind a socket and start listening.
@@ -463,14 +433,14 @@ class AssociationServer(TCPServer):
         ae : ae.ApplicationEntity
             The parent AE that's running the server.
         address : 2-tuple
-            The (host, port) that the server should run on.
+            The ``(host, port)`` that the server should run on.
         ssl_context : ssl.SSLContext, optional
-            If TLS is to be used then this should be the ssl.SSLContext used
-            to wrap the client sockets, otherwise if None then no TLS will be
-            used (default).
+            If TLS is to be used then this should be the ``ssl.SSLContext``
+            used to wrap the client sockets, otherwise if ``None`` then no
+            TLS will beused (default).
         events : list of 2-tuple, optional
-            A list of (event, callable), the `callable` function to run when
-            `event` occurs.
+            A list of ``(event, callable)``, the *callable* function to run
+            when *event* occurs.
         """
         self.ae = ae
         self.ssl_context = ssl_context
@@ -532,7 +502,7 @@ class AssociationServer(TCPServer):
 
     @property
     def active_associations(self):
-        """Return the server's running Association acceptor instances"""
+        """Return the server's running ``Association`` acceptor instances"""
         self._children = [
             child for child in self._children if child.is_alive()]
         return self._children
@@ -553,9 +523,10 @@ class AssociationServer(TCPServer):
         -------
         callable, list of callable or None
             If the event is a notification event then returns a list of
-            callable functions bound to `event`, if the event is an
+            callable functions bound to ``event``, if the event is an
             intervention event then returns either a callable function if a
-            handler is bound to the event or None if no handler has been bound.
+            handler is bound to the event or ``None`` if no handler has been
+            bound.
         """
         if event not in self._handlers:
             return []
@@ -573,7 +544,7 @@ class AssociationServer(TCPServer):
         client_socket : socket._socket
             The connection request.
         address : 2-tuple
-            The client's address as (host, port).
+            The client's address as ``(host, port)``.
         """
         client_socket, address = self.socket.accept()
         if self.ssl_context:
@@ -589,9 +560,9 @@ class AssociationServer(TCPServer):
     def server_bind(self):
         """Bind the socket and set the socket options.
 
-        - socket.SO_REUSEADDR is set to 1
-        - socket.SO_RCVTIMEO is set to AE.network_timeout unless the value is
-          None in which case it will be left unset.
+        - ``socket.SO_REUSEADDR`` is set to 1
+        - ``socket.SO_RCVTIMEO`` is set to ``AE.network_timeout`` unless the
+          value is ``None`` in which case it will be left unset.
         """
         # SO_REUSEADDR: reuse the socket in TIME_WAIT state without
         #   waiting for its natural timeout to expire
@@ -663,7 +634,7 @@ class AssociationServer(TCPServer):
 
 
 class ThreadedAssociationServer(ThreadingMixIn, AssociationServer):
-    """An AssociationServer suitable for threading."""
+    """An ``AssociationServer`` suitable for threading."""
     def process_request_thread(self, request, client_address):
         """Process a connection request."""
         # pylint: disable=broad-except

@@ -965,7 +965,7 @@ class Association(threading.Thread):
         * DICOM Standard Part 4, `Annex A <http://dicom.nema.org/medical/dicom/current/output/html/part04.html#chapter_A>`_
         * DICOM Standard Part 7, Sections
           `9.1.5 <http://dicom.nema.org/medical/dicom/current/output/html/part07.html#sect_9.1.5>`_,
-           and `9.3.5 <http://dicom.nema.org/medical/dicom/current/output/html/part07.html#sect_9.3.5>`_
+          and `9.3.5 <http://dicom.nema.org/medical/dicom/current/output/html/part07.html#sect_9.3.5>`_
           `Annex C <http://dicom.nema.org/medical/dicom/current/output/html/part07.html#chapter_C>`_
         """
         # Can't send a C-ECHO without an Association
@@ -1158,7 +1158,7 @@ class Association(threading.Thread):
           `9.1.2 <http://dicom.nema.org/medical/dicom/current/output/html/part07.html#sect_9.1.2>`_,
           `9.3.2 <http://dicom.nema.org/medical/dicom/current/output/html/part07.html#sect_9.3.2>`_,
           Annexes `C <http://dicom.nema.org/medical/dicom/current/output/html/part07.html#chapter_C>`_
-           and `K <http://dicom.nema.org/medical/dicom/current/output/html/part07.html#chapter_K>`_
+          and `K <http://dicom.nema.org/medical/dicom/current/output/html/part07.html#chapter_K>`_
         """
         # Can't send a C-FIND without an Association
         if not self.is_established:

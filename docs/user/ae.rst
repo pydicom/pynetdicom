@@ -30,9 +30,6 @@ of **AE** [1]_:
 * Valid characters belong to the DICOM `Default Character Repertoire <http://dicom.nema.org/medical/dicom/current/output/chtml/part05/chapter_E.html>`_
   [2]_, which is the basic G0 Set of the ISO646:1990 [5]_ (ASCII) standard
   excluding backslash ('\\ ' ``0x5c``) and all control characters [3]_.
-
-There's also an extra restriction on Application Entity AE titles:
-
 * An AE title made entirely of spaces is not allowed [4]_
 
 AE titles in *pynetdicom* are checked for validity (using
@@ -279,7 +276,7 @@ Combining the all-at-once and one-by-one approaches:
 >>> ae.supported_contexts = StoragePresentationContexts
 >>> ae.add_supported_context(VerificationSOPClass)
 
-As the association acceptor you're not limited in the number of presentation
+As the association *Acceptor* you're not limited in the number of presentation
 contexts that you can support.
 
 When you add presentation contexts as shown above, the following transfer
@@ -332,7 +329,7 @@ Transfer Syntax(es):
     =Explicit VR Little Endian
     =Explicit VR Big Endian
 
-For the association acceptor its not possible to have multiple supported
+For the association *Acceptor* its not possible to have multiple supported
 presentation contexts for the same abstract syntax, instead any additional
 transfer syntaxes will be combined with the pre-existing context:
 

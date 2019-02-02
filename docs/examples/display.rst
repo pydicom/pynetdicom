@@ -72,20 +72,17 @@ Display System Management SCP
 
 The following represents a toy implementation of a Display System Management
 SCP, where the SCU has sent a request with an *Attribute Identifier List*
-containing the single tag (0008,0070). Check the
-:py:meth:`documentation<pynetdicom._handlers.doc_handle_n_get>`
-to see the requirements for implementations of the evt.EVT_N_GET handler.
+containing the single tag (0008,0070).
+
+Check the
+`handler implementation documentation
+<../reference/generated/pynetdicom._handlers.doc_handle_n_get.html>`_
+to see the requirements for the ``evt.EVT_N_GET`` handler.
 
 .. code-block:: python
 
     from pynetdicom import AE, evt
     from pynetdicom.sop_class import DisplaySystemSOPClass
-
-    # Initialise the Application Entity and specify the listen port
-    ae = AE()
-
-    # Add the supported presentation context
-    ae.add_supported_context(DisplaySystemSOPClass)
 
     # Implement a handler evt.EVT_N_GET
     def handle_get(event):
@@ -105,6 +102,12 @@ to see the requirements for implementations of the evt.EVT_N_GET handler.
         return 0x0000, dataset
 
     handlers = [(evt.EVT_N_GET, handle_get)]
+
+    # Initialise the Application Entity and specify the listen port
+    ae = AE()
+
+    # Add the supported presentation context
+    ae.add_supported_context(DisplaySystemSOPClass)
 
     # Start listening for incoming association requests
     ae.start_server(('', 11112), evt_handlers=handlers)

@@ -175,8 +175,6 @@ class Event(object):
     ----------
     assoc : association.Association
         The association in which the event occurred.
-    event : namedtuple
-        The event that occurred.
     timestamp : datetime.datetime
         The date/time the event was created. Will be slightly before or after
         the actual event that this object represents.
@@ -189,9 +187,9 @@ class Event(object):
         assoc : association.Association
             The association in which the event occurred.
         event : events.NotificationEvent or events.InterventionEvent
-            The representation of the event.
+            The representation of the event that occurred.
         attrs : dict, optional
-            The {attribute : value} to set for the Event.
+            The {attribute : value} pairs to use to set the Event's attributes.
         """
         self.assoc = assoc
         self._event = event
@@ -217,8 +215,8 @@ class Event(object):
         Because *pydicom* defers data parsing during decoding until an element
         is actually required the returned ``Dataset`` may raise an exception
         when any element is first accessed. It's therefore important that
-        proper error handling be part of any handler bound to an event
-        that includes a dataset.
+        proper error handling be part of any handler 
+        that uses the returned ``Dataset``.
 
         Returns
         -------
@@ -266,8 +264,8 @@ class Event(object):
         Because *pydicom* defers data parsing during decoding until an element
         is actually required the returned ``Dataset`` may raise an exception
         when any element is first accessed. It's therefore important that
-        proper error handling be part of any handler bound to an event that
-        includes a Dataset.
+        proper error handling be part of any handler that
+        uses the returned ``Dataset``.
 
         Returns
         -------

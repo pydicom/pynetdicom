@@ -129,7 +129,7 @@ When the AE is acting as an SCP the following DIMSE-C and -N services are
 available to the peer once an association has been established:
 
 +---------------+---------------------+--------------------------------------------------------------------------------------------------------------------------+
-| DIMSE service | Event               | Handler Requirements                                                                                                     |
+| DIMSE service | Event               | Handler Implementation Documentation                                                                                     |
 +===============+=====================+==========================================================================================================================+
 | C-ECHO        | ``evt.EVT_C_ECHO``  | `documentation <https://pydicom.github.io/pynetdicom/stable/reference/generated/pynetdicom._handlers/doc_handle_echo>`_  |
 +---------------+---------------------+--------------------------------------------------------------------------------------------------------------------------+

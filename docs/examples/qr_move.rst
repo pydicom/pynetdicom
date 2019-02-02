@@ -17,9 +17,9 @@ Query/Retrieve (Move) SCU
 .........................
 
 Associate with a peer DICOM Application Entity and request it send
-all SOP Instances for the patient with *Patient ID* '1234567' belonging to the
-series with *Study Instance UID* '1.2.3' and *Series Instance UID* '1.2.3.4' to
-a separate Storage SCP with AE title b'STORE_SCP'.
+all SOP Instances for the patient with *Patient ID* ``1234567`` belonging to the
+series with *Study Instance UID* ``1.2.3`` and *Series Instance UID* ``1.2.3.4`` to
+a separate Storage SCP with AE title ``b'STORE_SCP'``.
 
 .. code-block:: python
 
@@ -74,8 +74,9 @@ the storage sub-operations have been successful.
 In the next example we use a Storage SCP running within the same AE as the
 *Move Destination*. Remember that the Move SCP must first be configured with
 the IP and port number of the corresponding AE title. Check the
-:py:meth:`documentation<pynetdicom._handlers.doc_handle_store>`
-to see the requirements for implementations of the evt.EVT_C_STORE handler.
+`handler implementation documentation
+<../reference/generated/pynetdicom._handlers.doc_handle_store.html>`_
+to see the requirements for the ``evt.EVT_C_STORE`` handler.
 
 .. code-block:: python
 
@@ -83,6 +84,13 @@ to see the requirements for implementations of the evt.EVT_C_STORE handler.
 
     from pynetdicom import AE, evt, StoragePresentationContexts
     from pynetdicom.sop_class import PatientRootQueryRetrieveInformationModelMove
+
+    def handle_store(event):
+        """Handle a C-STORE service request"""
+        # Ignore the request and return Success
+        return 0x0000
+
+    handlers = [(evt.EVT_C_STORE, handle_store)]
 
     # Initialise the Application Entity
     ae = AE()
@@ -92,13 +100,6 @@ to see the requirements for implementations of the evt.EVT_C_STORE handler.
 
     # Add the Storage SCP's supported presentation contexts
     ae.supported_contexts = StoragePresentationContexts
-
-    def handle_store(event):
-        """Handle a C-STORE service request"""
-        # Ignore the request and return Success
-        return 0x0000
-
-    handlers = [(evt.EVT_C_STORE, handle_store)]
 
     # Start our Storage SCP in non-blocking mode, listening on port 11120
     ae.ae_title = b'OUR_STORE_SCP'
@@ -149,8 +150,8 @@ Query/Retrieve (Move) SCP
 The following represents a toy implementation of a Query/Retrieve (Move) SCP
 where the SCU has sent the following *Identifier* dataset under the *Patient
 Root Query Retrieve Information Model - Move* context and the move destination
-AE title b'STORE_SCP' is known to correspond to the IP address '127.0.0.1' and
-listen port number '11113'.
+AE title ``b'STORE_SCP'`` is known to correspond to the IP address ``127.0.0.1`` and
+listen port number ``11113``.
 
 .. code-block:: python
 
@@ -160,9 +161,11 @@ listen port number '11113'.
 
 This is a very bad way of managing stored SOP Instances, in reality its
 probably best to store the instance attributes in a database and run the
-query against that. Check the
-:py:meth:`documentation<pynetdicom._handlers.doc_handle_move>`
-to see the requirements for implementations of the evt.EVT_C_MOVE handler.
+query against that.
+
+Check the `handler implementation documentation
+<../reference/generated/pynetdicom._handlers.doc_handle_move.html>`_
+to see the requirements for the ``evt.EVT_C_MOVE`` handler.
 
 .. code-block:: python
 
@@ -173,14 +176,6 @@ to see the requirements for implementations of the evt.EVT_C_MOVE handler.
 
     from pynetdicom import AE, StoragePresentationContexts, evt
     from pynetdicom.sop_class import PatientRootQueryRetrieveInformationModelMove
-
-    # Create application entity
-    ae = AE()
-
-    # Add the requested presentation contexts (Storage SCU)
-    ae.requested_contexts = StoragePresentationContexts
-    # Add a supported presentation context (QR Move SCP)
-    ae.add_supported_context(PatientRootQueryRetrieveInformationModelMove)
 
     # Implement the evt.EVT_C_MOVE handler
     def handle_move(event):
@@ -237,6 +232,14 @@ to see the requirements for implementations of the evt.EVT_C_MOVE handler.
             yield (0xFF00, instance)
 
     handlers = [(evt.EVT_C_MOVE, handle_move)]
+
+    # Create application entity
+    ae = AE()
+
+    # Add the requested presentation contexts (Storage SCU)
+    ae.requested_contexts = StoragePresentationContexts
+    # Add a supported presentation context (QR Move SCP)
+    ae.add_supported_context(PatientRootQueryRetrieveInformationModelMove)
 
     # Start listening for incoming association requests
     ae.start_server(('', 11112), evt_handlers=handlers)

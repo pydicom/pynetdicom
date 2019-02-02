@@ -2042,15 +2042,15 @@ def _recv_n_delete_rsp(event):
 # Example handlers used for the documentation
 # Intervention event handler documentation
 def doc_handle_echo(event):
-    """Documentation for handlers bound to evt.EVT_C_ECHO.
+    """Documentation for handlers bound to ``evt.EVT_C_ECHO``.
 
     User implementation of this event handler is optional. If a handler is
-    not implemented and bound to evt.EVT_C_ECHO then the C-ECHO request
+    not implemented and bound to ``evt.EVT_C_ECHO`` then the C-ECHO request
     will be responded to using a  *Status* value of ``0x0000`` - Success.
 
     **Event**
 
-    ``evt.EVT_C_ECHO``
+    `evt.EVT_C_ECHO`
 
     **Supported Service Classes**
 
@@ -2115,11 +2115,11 @@ def doc_handle_echo(event):
     pass
 
 def doc_handle_find(event):
-    """Documentation for handlers bound to evt.EVT_C_FIND.
+    """Documentation for handlers bound to ``evt.EVT_C_FIND``.
 
     User implementation of this event handler is required if one or more
     services that use C-FIND are to be supported. If a handler is
-    not implemented and bound to evt.EVT_C_FIND then the C-FIND request
+    not implemented and bound to ``evt.EVT_C_FIND`` then the C-FIND request
     will be responded to using a  *Status* value of ``0xC311`` - Failure.
 
     Yields ``(status, identifier)`` pairs, where *status* is either an
@@ -2248,11 +2248,11 @@ def doc_handle_find(event):
     pass
 
 def doc_handle_c_get(event):
-    """Documentation for handlers bound to evt.EVT_C_GET.
+    """Documentation for handlers bound to ``evt.EVT_C_GET``.
 
     User implementation of this event handler is required if one or more
     services that use C-GET are to be supported. If a handler is
-    not implemented and bound to evt.EVT_C_GET then the C-GET request
+    not implemented and bound to ``evt.EVT_C_GET`` then the C-GET request
     will be responded to using a  *Status* value of ``0xC411`` - Failure.
 
     Yields an ``int`` containing the total number of C-STORE sub-operations,
@@ -2388,11 +2388,11 @@ def doc_handle_c_get(event):
     pass
 
 def doc_handle_move(event):
-    """Documentation for handlers bound to evt.EVT_C_MOVE.
+    """Documentation for handlers bound to ``evt.EVT_C_MOVE``.
 
     User implementation of this event handler is required if one or more
     services that use C-MOVE are to be supported. If a handler is
-    not implemented and bound to evt.EVT_C_MOVE then the C-MOVE request
+    not implemented and bound to ``evt.EVT_C_MOVE`` then the C-MOVE request
     will be responded to using a  *Status* value of ``0xC511`` - Failure.
 
     The first yield should be the ``(addr, port)`` of the move destination,
@@ -2539,11 +2539,11 @@ def doc_handle_move(event):
     pass
 
 def doc_handle_store(event):
-    """Documentation for handlers bound to evt.EVT_C_STORE.
+    """Documentation for handlers bound to ``evt.EVT_C_STORE``.
 
     User implementation of this event handler is required if one or more
     services that use C-STORE are to be supported. If a handler is
-    not implemented and bound to evt.EVT_C_STORE then the C-STORE request
+    not implemented and bound to ``evt.EVT_C_STORE`` then the C-STORE request
     will be responded to using a  *Status* value of ``0xC211`` - Failure.
 
     If the user is storing the dataset in the DICOM File Format (as in the
@@ -2648,7 +2648,7 @@ def doc_handle_store(event):
     pass
 
 def doc_handle_action(event):
-    """Documentation for handlers bound to evt.EVT_N_ACTION.
+    """Documentation for handlers bound to ``evt.EVT_N_ACTION``.
 
     User implementation of this event handler is required if one or more
     services that use N-ACTION are to be supported.
@@ -2664,7 +2664,7 @@ def doc_handle_action(event):
     pass
 
 def doc_handle_create(event):
-    """Documentation for handlers bound to evt.EVT_N_CREATE.
+    """Documentation for handlers bound to ``evt.EVT_N_CREATE``.
 
     User implementation of this event handler is required if one or more
     services that use N-CREATE are to be supported.
@@ -2680,7 +2680,7 @@ def doc_handle_create(event):
     pass
 
 def doc_handle_delete(event):
-    """Documentation for handlers bound to evt.EVT_N_DELETE.
+    """Documentation for handlers bound to ``evt.EVT_N_DELETE``.
 
     User implementation of this event handler is required if one or more
     services that use N-DELETE are to be supported.
@@ -2696,7 +2696,7 @@ def doc_handle_delete(event):
     pass
 
 def doc_handle_event_report(event):
-    """Documentation for handlers bound to evt.EVT_N_EVENT_REPORT.
+    """Documentation for handlers bound to ``evt.EVT_N_EVENT_REPORT``.
 
     User implementation of this event handler is required if one or more
     services that use N-EVENT-REPORT are to be supported.
@@ -2712,11 +2712,11 @@ def doc_handle_event_report(event):
     pass
 
 def doc_handle_n_get(event):
-    """Documentation for handlers bound to evt.EVT_N_GET.
+    """Documentation for handlers bound to ``evt.EVT_N_GET``.
 
     User implementation of this event handler is required if one or more
     services that use N-GET are to be supported. If a handler is
-    not implemented and bound to evt.EVT_N_GET then the N_GET request
+    not implemented and bound to ``evt.EVT_N_GET`` then the N_GET request
     will be responded to using a  *Status* value of ``0x0110`` - Failure.
 
     **Event**
@@ -2778,7 +2778,7 @@ def doc_handle_n_get(event):
     pass
 
 def doc_handle_set(event):
-    """Documentation for handlers bound to evt.EVT_N_SET.
+    """Documentation for handlers bound to ``evt.EVT_N_SET``.
 
     User implementation of this event handler is required if one or more
     services that use N-SET are to be supported.
@@ -2794,10 +2794,10 @@ def doc_handle_set(event):
     pass
 
 def doc_handle_async(event):
-    """Documentation for handlers bound to evt.EVT_ASYNC_OPS.
+    """Documentation for handlers bound to ``evt.EVT_ASYNC_OPS``.
 
     User implementation of this event handler is optional. If a handler is
-    not implemented and bound to evt.EVT_ASYNC_OPS then no response to the
+    not implemented and bound to ``evt.EVT_ASYNC_OPS`` then no response to the
     Asynchronous Operations Window
     Negotiation item will be sent in reply to the association requestor.
 
@@ -2847,7 +2847,7 @@ def doc_handle_async(event):
     pass
 
 def doc_handle_sop_common(event):
-    """Documentation for handlers bound to evt.EVT_SOP_COMMON.
+    """Documentation for handlers bound to ``evt.EVT_SOP_COMMON``.
 
     User implementation of this event handler is required only if SOP Class
     Common Extended Negotiation is to be supported by the association.
@@ -2894,11 +2894,11 @@ def doc_handle_sop_common(event):
     pass
 
 def doc_handle_sop_extended(event):
-    """Documentation for handlers bound to evt.EVT_SOP_EXTENDED.
+    """Documentation for handlers bound to ``evt.EVT_SOP_EXTENDED``.
 
     User implementation of this event handler is required only if SOP Class
     Extended Negotiation is to be supported by the association. If a handler
-    is not implemented and bound to evt.EVT_SOP_EXTENDED then no response
+    is not implemented and bound to ``evt.EVT_SOP_EXTENDED`` then no response
     will be sent to the SOP Class Extended Negotiation request.
 
     **Event**
@@ -2943,11 +2943,11 @@ def doc_handle_sop_extended(event):
     pass
 
 def doc_handle_userid(event):
-    """Documentation for handlers bound to evt.EVT_USER_ID.
+    """Documentation for handlers bound to ``evt.EVT_USER_ID``.
 
     User implementation of this handler is required if User Identity
     Negotiation is to be supported by the association. If no handler is
-    implemented and bound to evt.EVT_USER_ID
+    implemented and bound to ``evt.EVT_USER_ID``
     then the association will be accepted (provided there's no other reason
     to reject it) and no User Identity Negotiation response will be sent in
     reply even if one is requested.
@@ -3008,8 +3008,8 @@ def doc_handle_userid(event):
 
 # Notification event handler documentation
 def doc_handle_acse(event):
-    """Documentation for handlers bound to evt.EVT_ACSE_RECV or
-    evt.EVT_ACSE_SENT.
+    """Documentation for handlers bound to ``evt.EVT_ACSE_RECV`` or
+    ``evt.EVT_ACSE_SENT``.
 
     Parameters
     ----------
@@ -3037,8 +3037,8 @@ def doc_handle_acse(event):
     pass
 
 def doc_handle_dimse(event):
-    """Documentation for handlers bound to evt.EVT_DIMSE_RECV or
-    evt.EVT_DIMSE_SENT.
+    """Documentation for handlers bound to ``evt.EVT_DIMSE_RECV`` or
+    ``evt.EVT_DIMSE_SENT``.
 
     Parameters
     ----------
@@ -3084,8 +3084,8 @@ def doc_handle_dimse(event):
     pass
 
 def doc_handle_data(event):
-    """Documentation for handlers bound to evt.EVT_DATA_RECV or
-    evt.EVT_DATA_SENT.
+    """Documentation for handlers bound to ``evt.EVT_DATA_RECV`` or
+    ``evt.EVT_DATA_SENT``.
 
     Parameters
     ----------
@@ -3108,8 +3108,8 @@ def doc_handle_data(event):
     pass
 
 def doc_handle_pdu(event):
-    """Documentation for handlers bound to evt.EVT_PDU_RECV or
-    evt.EVT_PDU_SENT.
+    """Documentation for handlers bound to ``evt.EVT_PDU_RECV`` or
+    ``evt.EVT_PDU_SENT``.
 
     Parameters
     ----------
@@ -3138,8 +3138,8 @@ def doc_handle_pdu(event):
     pass
 
 def doc_handle_transport(event):
-    """Documentation for handlers bound to evt.EVT_CONN_OPEN or
-    evt.EVT_CONN_CLOSE.
+    """Documentation for handlers bound to ``evt.EVT_CONN_OPEN`` or
+    ``evt.EVT_CONN_CLOSE``.
 
     Parameters
     ----------
@@ -3161,9 +3161,9 @@ def doc_handle_transport(event):
     pass
 
 def doc_handle_assoc(event):
-    """Documentation for handlers bound to evt.EVT_ACCEPTED,
-    evt.EVT_ESTABLISHED, evt.EVT_REJECTED, evt.EVT_REQUESTED, evt.EVT_RELEASED
-    or EVT_ABORTED.
+    """Documentation for handlers bound to ``evt.EVT_ACCEPTED``,
+    ``evt.EVT_ESTABLISHED``, ``evt.EVT_REJECTED``, ``evt.EVT_REQUESTED``,
+    ``evt.EVT_RELEASED`` or ``evt.EVT_ABORTED``.
 
     Parameters
     ----------
@@ -3184,7 +3184,7 @@ def doc_handle_assoc(event):
     pass
 
 def doc_handle_fsm(event):
-    """Documentation for handlers bound to evt.EVT_FSM_TRANSITION.
+    """Documentation for handlers bound to ``evt.EVT_FSM_TRANSITION``.
 
     Parameters
     ----------

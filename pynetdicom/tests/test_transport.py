@@ -630,6 +630,8 @@ class TestEventHandlingAcceptor(object):
         assert isinstance(event, Event)
         assert isinstance(event.assoc, Association)
         assert isinstance(event.timestamp, datetime)
+        assert isinstance(event.address[0], str)
+        assert isinstance(event.address[1], int)
         assert event.name == 'EVT_CONN_CLOSE'
 
         scp.shutdown()

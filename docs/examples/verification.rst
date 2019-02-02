@@ -8,8 +8,8 @@ itself and another AE by using the DIMSE C-ECHO service. It only has a single
 
 The Verification Service is mostly used to verify basic connectivity and as a
 starting point when troubleshooting associations, particularly when handlers
-are bound to the more fundamental events like ``evt.EVT_PDU_RECV`` or
-``evt.EVT_DATA_RECV`` or with the log level set to debug:
+are bound to the more fundamental :ref:`notification events<events_notification>`
+like  ``evt.EVT_PDU_RECV`` or ``evt.EVT_DATA_RECV`` or with the log level set to debug:
 
 ::
 
@@ -49,7 +49,7 @@ Verification Service.
            # If the verification request succeeded this will be 0x0000
            print('C-ECHO request status: 0x{0:04x}'.format(status.Status))
        else:
-           print('Connection timed out, aborted or invalid response from peer')
+           print('Connection timed out, was aborted or received invalid response')
 
        # Release the association
        assoc.release()
@@ -79,39 +79,35 @@ to return an 0x0000 *Success* :ref:`status <verification_statuses>`.
 
 .. code-block:: python
 
-   from pynetdicom import AE
-   from pynetdicom.sop_class import VerificationSOPClass
+    from pynetdicom import AE
+    from pynetdicom.sop_class import VerificationSOPClass
 
-   # Initialise the Application Entity and specify the listen port
-   ae = AE()
+    # Initialise the Application Entity
+    ae = AE()
 
-   # Add the supported presentation context
-   ae.add_supported_context(VerificationSOPClass)
+    # Add the supported presentation context
+    ae.add_supported_context(VerificationSOPClass)
 
-   # Start listening for incoming association requests
-   ae.start_server(('', 11112))
+    # Start listening for incoming association requests
+    ae.start_server(('', 11112))
 
 You can also optionally bind your own handler to ``evt.EVT_C_ECHO``. Check the
-:py:meth:`documentation<pynetdicom._handlers.doc_handle_echo>`  to see the
-requirements for implementations of the evt.EVT_C_ECHO handler.
+`handler implementation documentation
+<../reference/generated/pynetdicom._handlers.doc_handle_echo.html>`_
+to see the requirements for the ``evt.EVT_C_ECHO`` handler.
 
 .. code-block:: python
 
-   from pynetdicom import AE, evt
-   from pynetdicom.sop_class import VerificationSOPClass
+    from pynetdicom import AE, evt
+    from pynetdicom.sop_class import VerificationSOPClass
 
-   # Initialise the Application Entity
-   ae = AE()
+    # Implement a handler for evt.EVT_C_ECHO
+    def handle_echo(event):
+        """Handle a C-ECHO request event."""
+        return 0x0000
 
-   # Add the supported presentation context
-   ae.add_supported_context(VerificationSOPClass)
+    handlers = [(evt.EVT_C_ECHO, handle_echo)]
 
-   # Implement a handler for evt.EVT_C_ECHO
-   def handle_echo(event):
-       """Handle a C-ECHO request event."""
-       return 0x0000
-
-  handlers = [(evt.EVT_C_ECHO, handle_echo)]
-
-   # Start listening for incoming association requests
-   ae.start_server(('', 11112), evt_handlers=handlers)
+    ae = AE()
+    ae.add_supported_context(VerificationSOPClass)
+    ae.start_server(('', 11112), evt_handlers=handlers)

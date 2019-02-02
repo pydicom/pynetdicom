@@ -6,14 +6,15 @@ Events
 *pynetdicom* uses an event-handler system to give the user access to the
 data exchanged between different services within an AE as well as the PDUs
 and data sent between the local and peer AEs. Two different types of events
-are used: *notification events* and *intervention events*.
+are used: *notification events* and *intervention events*. Events are imported
+using ``from pynetdicom import evt``.
 
 .. _events_notification:
 
 Notification Events
 ...................
 
-Notification events are those events for which the event handler doesn't need
+Notification events are those events where bound event handlers don't need
 to return or yield anything (i.e. the user is *notified* some event has
 occurred). Each notification event can have multiple handlers
 bound to it and any exceptions raised by the handlers are caught
@@ -67,7 +68,7 @@ notification events.
 Intervention Events
 ...................
 
-Intervention events are those events for which the event handler must return
+Intervention events are those events where the bound event handler must return
 or yield certain expected values so that *pynetdicom* can complete an action
 (i.e. user *intervention* is required).
 Each intervention event has only a single handler bound to it at all times.
@@ -131,7 +132,17 @@ come with at least four attributes:
   event occurred
 * ``Event.description`` - a str description of the event
 * ``Event.name`` - the name of the event
-* ``Event.timestamp`` - the date and time the event occurred at (as a python ``datetime``).
+* ``Event.timestamp`` - the date and time the event occurred at (as a python
+  `datetime <https://docs.python.org/3/library/datetime.html#datetime-objects>`_).
 
 Additional attributes and properties are available depending on the event type,
-see the `documentation <../reference/events.html>`_ for more information.
+see the `handler implementation documentation
+<../reference/events.html>`_ for more information.
+
+Handlers can be bound to events through the ``bind(event, handler)`` methods
+in the ``Association`` and ``AssociationServer`` classes or by using the
+``evt_handler`` keyword parameter to ``AE.associate()`` and
+``AE.start_server()``. Handlers can be unbound with the
+``unbind(event, handler)`` methods in the ``Association`` and
+``AssociationServer`` classes. See the :ref:`Association<association>`
+guide for more details.

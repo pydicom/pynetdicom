@@ -103,26 +103,20 @@ that you ensure the file is conformant with the
 which requires adding the File Meta Information.
 
 Check the
-:py:meth:`documentation<pynetdicom._handlers.doc_handle_store>`
-to see the requirements for implementations of the evt.EVT_C_STORE handler.
+`handler implementation documentation
+<../reference/generated/pynetdicom._handlers.doc_handle_store.html>`_
+to see the requirements for the ``evt.EVT_C_STORE`` handler.
 
 .. code-block:: python
 
    from pydicom.dataset import Dataset
 
    from pynetdicom import (
-       AE,
-       evt,
+       AE, evt,
        StoragePresentationContexts,
        PYNETDICOM_IMPLEMENTATION_UID,
        PYNETDICOM_IMPLEMENTATION_VERSION
    )
-
-   # Initialise the Application Entity
-   ae = AE()
-
-   # Add the supported presentation contexts
-   ae.supported_contexts = StoragePresentationContexts
 
    # Implement a handler evt.EVT_C_STORE
    def handle_store(event):
@@ -152,6 +146,12 @@ to see the requirements for implementations of the evt.EVT_C_STORE handler.
        return 0x0000
 
    handlers = [(evt.EVT_C_STORE, handle_store)]
+
+   # Initialise the Application Entity
+   ae = AE()
+
+   # Add the supported presentation contexts
+   ae.supported_contexts = StoragePresentationContexts
 
    # Start listening for incoming association requests
    ae.start_server(('', 11112), evt_handlers=handlers)

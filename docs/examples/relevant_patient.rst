@@ -10,7 +10,7 @@ Relevant Patient Information SCU
 ................................
 
 Associate with a peer DICOM Application Entity and request information on a
-single patient with ID '1234567'.
+single patient with ID ``1234567``.
 
 .. code-block:: python
 
@@ -81,9 +81,12 @@ requested template.
 
 This is a very bad way of managing stored SOP Instances, in reality its
 probably best to store the instance attributes in a database and run the
-query against that. Check the
-:py:meth:`documentation<pynetdicom._handlers.doc_handle_find>`
-to see the requirements for implementations of the evt.EVT_C_FIND handler.
+query against that.
+
+Check the
+`handler implementation documentation
+<../reference/generated/pynetdicom._handlers.doc_handle_find.html>`_
+to see the requirements for the ``evt.EVT_C_FIND`` handler.
 
 .. code-block:: python
 
@@ -94,12 +97,6 @@ to see the requirements for implementations of the evt.EVT_C_FIND handler.
 
     from pynetdicom import AE, evt
     from pynetdicom.sop_class import GeneralRelevantPatientInformationQuery
-
-    # Initialise the Application Entity and specify the listen port
-    ae = AE()
-
-    # Add a requested presentation context
-    ae.add_supported_context(GeneralRelevantPatientInformationQuery)
 
     # Implement the evt.EVT_C_FIND handler
     def handle_find(event):
@@ -129,6 +126,12 @@ to see the requirements for implementations of the evt.EVT_C_FIND handler.
             yield (0xC100, None)
 
     handlers = [(evt.EVT_C_FIND, handle_find)]
+
+    # Initialise the Application Entity and specify the listen port
+    ae = AE()
+
+    # Add the supported presentation context
+    ae.add_supported_context(GeneralRelevantPatientInformationQuery)
 
     # Start listening for incoming association requests
     ae.start_server(('', 11112), evt_handlers=handlers)

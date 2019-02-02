@@ -607,7 +607,13 @@ def AR_5(dul):
     str
         Sta1, the next state of the state machine
     """
-    evt.trigger(dul.assoc, evt.EVT_CONN_CLOSE, {})
+    if dul.assoc.is_requestor:
+        remote = dul.assoc.acceptor
+    else:
+        remote = dul.assoc.requestor
+
+    address = (remote.address, remote.port)
+    evt.trigger(dul.assoc, evt.EVT_CONN_CLOSE, {'address' : address})
 
     # Stop ARTIM timer
     dul.artim_timer.stop()
@@ -890,7 +896,13 @@ def AA_4(dul):
     str
         Sta1, the next state of the state machine
     """
-    evt.trigger(dul.assoc, evt.EVT_CONN_CLOSE, {})
+    if dul.assoc.is_requestor:
+        remote = dul.assoc.acceptor
+    else:
+        remote = dul.assoc.requestor
+
+    address = (remote.address, remote.port)
+    evt.trigger(dul.assoc, evt.EVT_CONN_CLOSE, {'address' : address})
 
     # Issue A-P-ABORT indication primitive.
     primitive = A_P_ABORT()
@@ -923,7 +935,13 @@ def AA_5(dul):
     str
         Sta1, the next state of the state machine
     """
-    evt.trigger(dul.assoc, evt.EVT_CONN_CLOSE, {})
+    if dul.assoc.is_requestor:
+        remote = dul.assoc.acceptor
+    else:
+        remote = dul.assoc.requestor
+
+    address = (remote.address, remote.port)
+    evt.trigger(dul.assoc, evt.EVT_CONN_CLOSE, {'address' : address})
 
     # Stop ARTIM timer.
     dul.artim_timer.stop()
@@ -962,7 +980,7 @@ def AA_7(dul):
     """Association abort AA-7.
 
     If receive a association request or invalid PDU while waiting for
-    connection to close, issue A-ABORT
+    connection to close, send A-ABORT PDU
 
     State-event triggers: Sta13 + Evt6/Evt19
 

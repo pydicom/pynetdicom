@@ -26,10 +26,20 @@ thread:
     # Associate with the peer at IP address 127.0.0.1 and port 11112
     assoc = ae.associate('127.0.0.1', 11112)
 
+    # Release the association
+    if assoc.is_established:
+        assoc.release()
+
 This sends an association request to the IP address '127.0.0.1' on port 11112
 with the request containing the presentation contexts from
 :py:obj:`AE.requested_contexts <pynetdicom.ae.ApplicationEntity.requested_contexts>`
 and the default *Called AE Title* parameter of ``b'ANY-SCP         '``.
+
+Established associations should always be released or aborted (using
+``Association.release()`` or ``Associations.abort()``), otherwise the
+association will remain open until either the peer or local AE hits a timeout
+and aborts.
+
 
 Specifying the Called AE Title
 ..............................
@@ -37,7 +47,9 @@ Some SCPs will reject an association request if the *Called AE Title* parameter
 value doesn't match its own title, so this can be set using the ``ae_title``
 parameter:
 
->>> assoc = ae.associate('127.0.0.1', 11112, ae_title=b'STORE_SCP')
+::
+
+    assoc = ae.associate('127.0.0.1', 11112, ae_title=b'STORE_SCP')
 
 Specifying Presentation Contexts for each Association
 .....................................................
@@ -56,6 +68,9 @@ per-association basis you can use the ``contexts`` parameter:
     ae = AE()
     requested_contexts = [build_context('1.2.840.10008.1.1')]
     assoc = ae.associate('127.0.0.1', 11112, contexts=requested_contexts)
+
+    if assoc.is_established:
+        assoc.release()
 
 Using Extended Negotiation
 ..........................
@@ -104,6 +119,9 @@ also acting as a Storage SCP), plus a User Identity Negotiation item:
     # Associate with the peer at IP address 127.0.0.1 and port 11112
     assoc = ae.associate('127.0.0.1', 11112, ext_neg=negotiation_items)
 
+    if assoc.is_established:
+        assoc.release()
+
 Possible extended negotiation items are:
 
 * :py:class:`Asynchronous Operations Window Negotiation <pynetdicom.pdu_primitives.AsynchronousOperationsWindowNegotiation>`
@@ -111,6 +129,61 @@ Possible extended negotiation items are:
 * :py:class:`SOP Class Extended Negotiation <pynetdicom.pdu_primitives.SOPClassExtendedNegotiation>`
 * :py:class:`SOP Class Common Negotiation <pynetdicom.pdu_primitives.SOPClassCommonExtendedNegotiation>`
 * :py:class:`User Identity Negotiation <pynetdicom.pdu_primitives.UserIdentityNegotiation>`
+
+Binding Event Handlers
+......................
+
+If you want to bind handlers to any events within a new ``Association`` you can
+use the ``evt_handlers`` keyword parameter:
+
+::
+
+    from pynetdicom import AE, evt
+    from pynetdicom.sop_class import VerificationSOPClass
+
+    def handle_open(event):
+        """Print the remote's (host, port) when connected."""
+        msg = 'Connected with remote at ({})'.format(event.address)
+        LOGGER.info(msg)
+
+    handlers = [(evt.EVT_CONN_OPEN, handle_open)]
+
+    ae = AE()
+    ae.add_requested_context(VerificationSOPClass)
+    assoc = ae.associate('', 11112, evt_handlers=handlers)
+
+    if assoc.is_established:
+        assoc.release()
+
+Handlers can also be bound and unbound from events in an existing
+``Association``:
+
+::
+
+    from pynetdicom import AE, evt
+    from pynetdicom.sop_class import VerificationSOPClass
+
+    def handle_open(event):
+        """Print the remote's (host, port) when connected."""
+        msg = 'Connected with remote at ({})'.format(event.address)
+        LOGGER.info(msg)
+
+    def handle_close(event):
+        """Print the remote's (host, port) when disconnected."""
+        msg = 'Disconnected from remote at ({})'.format(event.address)
+        LOGGER.info(msg)
+
+    handlers = [(evt.EVT_CONN_OPEN, handle_open)]
+
+    ae = AE()
+    ae.add_requested_context(VerificationSOPClass)
+    assoc = ae.associate('', 11112, evt_handlers=handlers)
+
+    assoc.unbind(evt.EVT_CONN_OPEN, handle_open)
+    assoc.bind(evt.EVT_CONN_CLOSE, handle_close)
+
+    if assoc.is_established:
+        assoc.release()
 
 
 TLS
@@ -135,11 +208,8 @@ the ``tls_args`` keyword parameter to ``associate()``:
     ssl_cx.load_cert_chain(certfile='client.crt', keyfile='client.key')
 
     assoc = ae.associate('127.0.0.1', 11112, tls_args=(ssl_cx, None))
-    if assoc.is_established:
-        # Do something with the association
-        pass
 
-        # Once we are finished, release the association
+    if assoc.is_established:
         assoc.release()
 
 *tls_args* is (SSLContext, hostname), where *hostname* is the value of
@@ -163,11 +233,12 @@ the Association:
 
     # Associate with the peer at IP address 127.0.0.1 and port 11112
     assoc = ae.associate('127.0.0.1', 11112)
+
     if assoc.is_established:
-        # Do something with the association
+        # Do something useful...
         pass
 
-        # Once we are finished, release the association
+        # Release
         assoc.release()
 
 
@@ -207,7 +278,7 @@ service class you're interested in.
 Accessing User Identity Responses
 ---------------------------------
 
-If the association requestor has sent a User Identity Negotiation item as
+If the association *Requestor* has sent a User Identity Negotiation item as
 part of the extended negotiation and has requested a response in the event of
 a positive identification then it can be accessed via the
 :py:meth:`Assocation.acceptor.user_identity <pynetdicom.association.Association.acceptor.user_identity>`
@@ -233,8 +304,8 @@ method:
     ae.start_server(('', 11112))
 
 The above is suitable as an implementation of the Verification Service
-Class, however other service classes will require that you implement one
-or more of the AE service class callbacks.
+Class, however other service classes will require that you implement and bind
+one or more of the :ref:`intervention event handlers<events_intervention>`.
 
 The association server can be started in both blocking (default) and
 non-blocking modes:
@@ -255,6 +326,68 @@ non-blocking modes:
 The returned ``ThreadedAssociationServer`` instances can be stopped using
 ``shutdown()`` and all active association can be stopped using
 ``AE.shutdown()``.
+
+
+Binding Event Handlers
+......................
+
+If you want to bind handlers to any events within any ``Association`` instances
+generated by the SCP you can use the ``evt_handlers`` keyword parameter:
+
+::
+
+    from pynetdicom import AE, evt
+    from pynetdicom.sop_class import VerificationSOPClass
+
+    def handle_open(event):
+        """Print the remote's (host, port) when connected."""
+        msg = 'Connected with remote at ({})'.format(event.address)
+        LOGGER.info(msg)
+
+    handlers = [(evt.EVT_CONN_OPEN, handle_open)]
+
+    ae = AE()
+    ae.add_supported_context(VerificationSOPClass)
+    ae.start_server(('', 11112), evt_handlers=handlers)
+
+
+Handlers can also be bound and unbound from events in an existing
+``ThreadedAssociationServer``, provided you run in non-blocking mode:
+
+::
+
+    from pynetdicom import AE, evt
+    from pynetdicom.sop_class import VerificationSOPClass
+
+    def handle_open(event):
+        """Print the remote's (host, port) when connected."""
+        msg = 'Connected with remote at ({})'.format(event.address)
+        LOGGER.info(msg)
+
+    def handle_close(event):
+        """Print the remote's (host, port) when disconnected."""
+        msg = 'Disconnected from remote at ({})'.format(event.address)
+        LOGGER.info(msg)
+
+    handlers = [(evt.EVT_CONN_OPEN, handle_open)]
+
+    ae = AE()
+    ae.add_supported_context(VerificationSOPClass)
+    scp = ae.start_server(('', 11112), block=False, evt_handlers=handlers)
+
+    time.sleep(60)
+
+    scp.unbind(evt.EVT_CONN_OPEN, handle_open)
+    scp.bind(evt.EVT_CONN_CLOSE, handle_close)
+
+    time.sleep(60)
+
+    scp.shutdown()
+
+This will bind/unbind the handler from all currently running ``Association``
+instances generated  by the server as well as new ``Association`` instances
+generated in response to future association requests. ``Associations`` created
+using ``AE.associate()`` will be unaffected.
 
 
 TLS
@@ -330,7 +463,7 @@ similar to:
     ae.start_server(('', 11112), evt_handlers=handlers)
 
 For more detailed information on implementing the DIMSE service
-provider handlers please see their API :ref:`reference documentation<api_events>`
-and the
+provider handlers please see the
+:ref:`handler implementation documentation<api_events>` and the
 :ref:`examples <index_examples>` corresponding to the service class you're
 interested in.

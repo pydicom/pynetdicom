@@ -12,7 +12,7 @@ Query/Retrieve (Find) SCU
 .........................
 
 Associate with a peer DICOM Application Entity and request the SCP search for
-SOP Instances with a *Patient Name* matching 'CITIZEN^Jan' using the *Patient
+SOP Instances with a *Patient Name* matching ``CITIZEN^Jan`` using the *Patient
 Root Query/Retrieve Information Model - Find* at the *Patient* level.
 
 .. code-block:: python
@@ -49,9 +49,9 @@ Root Query/Retrieve Information Model - Find* at the *Patient* level.
                 # If the status is 'Pending' then identifier is the C-FIND response
                 if status.Status in (0xFF00, 0xFF01):
                     print(identifier)
-
             else:
                 print('Connection timed out, was aborted or received invalid response')
+
        # Release the association
        assoc.release()
    else:
@@ -61,7 +61,7 @@ The responses received from the SCP are dependent on the *Identifier* dataset
 keys and values, the Query/Retrieve level and the information model. For
 example, the following query dataset should yield C-FIND responses containing
 the various *SOP Class UIDs* that make are in each study for a patient with
-*Patient ID* '1234567'.
+*Patient ID* ``1234567``.
 
 .. code-block:: python
 
@@ -91,8 +91,9 @@ probably best to store the instance attributes in a database and run the
 query against that.
 
 Check the
-:py:meth:`documentation<pynetdicom._handlers.doc_handle_find>`
-to see the requirements for implementations of the evt.EVT_C_FIND handler.
+`handler implementation documentation
+<../reference/generated/pynetdicom._handlers.doc_handle_find.html>`_
+to see the requirements for the ``evt.EVT_C_FIND`` handler.
 
 .. code-block:: python
 
@@ -103,12 +104,6 @@ to see the requirements for implementations of the evt.EVT_C_FIND handler.
 
     from pynetdicom import AE, evt
     from pynetdicom.sop_class import PatientRootQueryRetrieveInformationModelFind
-
-    # Initialise the Application Entity and specify the listen port
-    ae = AE()
-
-    # Add a requested presentation context
-    ae.add_supported_context(PatientRootQueryRetrieveInformationModelFind)
 
     # Implement the handler for evt.EVT_C_FIND
     def handle_find(event):
@@ -153,6 +148,12 @@ to see the requirements for implementations of the evt.EVT_C_FIND handler.
             yield (0xFF00, identifier)
 
    handlers = [(evt.EVT_C_FIND, handle_find)]
+
+   # Initialise the Application Entity and specify the listen port
+   ae = AE()
+
+   # Add the supported presentation context
+   ae.add_supported_context(PatientRootQueryRetrieveInformationModelFind)
 
    # Start listening for incoming association requests
    ae.start_server(('', 11112), evt_handlers=handlers)

@@ -13,8 +13,9 @@ Query/Retrieve (Get) SCU
 ........................
 
 Associate with a peer DICOM Application Entity and request the retrieval of
-all CT datasets for the patient with *Patient ID* '1234567' belonging to the
-series with *Study Instance UID* '1.2.3' and *Series Instance UID* '1.2.3.4'.
+all CT datasets for the patient with *Patient ID* ``1234567`` belonging to the
+series with *Study Instance UID* ``1.2.3`` and *Series Instance UID*
+``1.2.3.4``.
 
 The value of the *Query Retrieve Level* determines what SOP Instances are
 actually transferred; to transfer all datasets in the series we use
@@ -48,17 +49,16 @@ that you ensure the file is conformant with the
 which requires adding the File Meta Information.
 
 Check the
-:py:meth:`documentation<pynetdicom._handlers.doc_handle_store>`
-to see the requirements for implementations of the evt.EVT_C_STORE handler.
+`handler implementation documentation
+<../reference/generated/pynetdicom._handlers.doc_handle_store.html>`_
+to see the requirements for the ``evt.EVT_C_STORE`` handler.
 
 .. code-block:: python
 
     from pydicom.dataset import Dataset
 
     from pynetdicom import (
-        AE,
-        evt,
-        build_role,
+        AE, evt, build_role,
         PYNETDICOM_IMPLEMENTATION_UID,
         PYNETDICOM_IMPLEMENTATION_VERSION
     )
@@ -66,29 +66,6 @@ to see the requirements for implementations of the evt.EVT_C_STORE handler.
         PatientRootQueryRetrieveInformationModelGet,
         CTImageStorage
     )
-
-    # Initialise the Application Entity
-    ae = AE()
-
-    # Add the requested presentation contexts (QR SCU)
-    ae.add_requested_context(PatientRootQueryRetrieveInformationModelGet)
-    # Add the requested presentation context (Storage SCP)
-    ae.add_requested_context(CTImageStorage)
-
-    # Create an SCP/SCU Role Selection Negotiation item for CT Image Storage
-    role = build_role(CTImageStorage, scp_role=True)
-
-    # Create our Identifier (query) dataset
-    # We need to supply a Unique Key Attribute for each level above the
-    #   Query/Retrieve level
-    ds = Dataset()
-    ds.QueryRetrieveLevel = 'SERIES'
-    # Unique key for PATIENT level
-    ds.PatientID = '1234567'
-    # Unique key for STUDY level
-    ds.StudyInstanceUID = '1.2.3'
-    # Unique key for SERIES level
-    ds.SeriesInstanceUID = '1.2.3.4'
 
     # Implement the handler for evt.EVT_C_STORE
     def handle_store(event):
@@ -118,6 +95,29 @@ to see the requirements for implementations of the evt.EVT_C_STORE handler.
         return 0x0000
 
     handlers = [(evt.EVT_C_STORE, handle_store)]
+
+    # Initialise the Application Entity
+    ae = AE()
+
+    # Add the requested presentation contexts (QR SCU)
+    ae.add_requested_context(PatientRootQueryRetrieveInformationModelGet)
+    # Add the requested presentation context (Storage SCP)
+    ae.add_requested_context(CTImageStorage)
+
+    # Create an SCP/SCU Role Selection Negotiation item for CT Image Storage
+    role = build_role(CTImageStorage, scp_role=True)
+
+    # Create our Identifier (query) dataset
+    # We need to supply a Unique Key Attribute for each level above the
+    #   Query/Retrieve level
+    ds = Dataset()
+    ds.QueryRetrieveLevel = 'SERIES'
+    # Unique key for PATIENT level
+    ds.PatientID = '1234567'
+    # Unique key for STUDY level
+    ds.StudyInstanceUID = '1.2.3'
+    # Unique key for SERIES level
+    ds.SeriesInstanceUID = '1.2.3.4'
 
     # Associate with peer AE at IP 127.0.0.1 and port 11112
     assoc = ae.associate('127.0.0.1', 11112, ext_neg=[role], evt_handlers=handlers)
@@ -167,8 +167,9 @@ probably best to store the instance attributes in a database and run the
 query against that.
 
 Check the
-:py:meth:`documentation<pynetdicom._handlers.doc_handle_c_get>`
-to see the requirements for implementations of the evt.EVT_C_GET handler.
+`handler implementation documentation
+<../reference/generated/pynetdicom._handlers.doc_handle_c_get.html>`_
+to see the requirements for the ``evt.EVT_C_GET`` handler.
 
 .. code-block:: python
 
@@ -179,21 +180,6 @@ to see the requirements for implementations of the evt.EVT_C_GET handler.
 
     from pynetdicom import AE, StoragePresentationContexts, evt
     from pynetdicom.sop_class import PatientRootQueryRetrieveInformationModelGet
-
-    # Create application entity
-    ae = AE()
-
-    # Add the supported presentation contexts (Storage SCU)
-    ae.supported_contexts = StoragePresentationContexts
-
-    # Accept the association requestor's proposed SCP role in the
-    #   SCP/SCU Role Selection Negotiation items
-    for cx in ae.supported_contexts:
-        cx.scp_role = True
-        cx.scu_role = False
-
-    # Add a supported presentation context (QR Get SCP)
-    ae.add_supported_context(PatientRootQueryRetrieveInformationModelGet)
 
     # Implement the handler for evt.EVT_C_GET
     def handle_get(event):
@@ -236,6 +222,21 @@ to see the requirements for implementations of the evt.EVT_C_GET handler.
             yield (0xFF00, instance)
 
     handlers = [(evt.EVT_C_GET), handle_get]
+    
+    # Create application entity
+    ae = AE()
+
+    # Add the supported presentation contexts (Storage SCU)
+    ae.supported_contexts = StoragePresentationContexts
+
+    # Accept the association requestor's proposed SCP role in the
+    #   SCP/SCU Role Selection Negotiation items
+    for cx in ae.supported_contexts:
+        cx.scp_role = True
+        cx.scu_role = False
+
+    # Add a supported presentation context (QR Get SCP)
+    ae.add_supported_context(PatientRootQueryRetrieveInformationModelGet)
 
     # Start listening for incoming association requests
     ae.start_server(('', 11112), evt_handlers=handlers)

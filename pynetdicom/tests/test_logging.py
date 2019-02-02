@@ -14,7 +14,7 @@ from pydicom.uid import (
     generate_uid,
 )
 
-from pynetdicom import build_context
+from pynetdicom import build_context, evt
 from pynetdicom.acse import ACSE, APPLICATION_CONTEXT_NAME
 from pynetdicom.pdu import (
     A_ASSOCIATE_RQ, A_ASSOCIATE_AC,
@@ -125,8 +125,8 @@ REFERENCE_USER_ID = [
 
 @pytest.mark.skip()
 @pytest.mark.skipif(sys.version_info[:2] == (3, 4), reason='no caplog')
-class TestACSELogging(object):
-    """Tests for ACSE logging."""
+class TestStandardLogging(object):
+    """Tests for standard logging handlers."""
     def setup(self):
         """Setup each test."""
         self.acse = ACSE(None)
