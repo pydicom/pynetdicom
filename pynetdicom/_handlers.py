@@ -17,6 +17,7 @@ from pynetdicom.pdu_primitives import (
     ImplementationVersionNameNotification
 )
 from pynetdicom.sop_class import uid_to_service_class
+from pynetdicom.utils import pretty_bytes
 
 
 LOGGER = logging.getLogger('pynetdicom.events')
@@ -267,10 +268,8 @@ def _receive_associate_ac(event):
         for item in user_info.ext_neg:
             s.append('  SOP Class: ={0!s}'.format(item.uid))
             app_info = pretty_bytes(item.app_info)
-            app_info[0] = '[' + app_info[0][1:]
-            app_info[-1] = app_info[-1] + ' ]'
             for line in app_info:
-                s.append('    {0!s}'.format(line))
+                s.append('  {0!s}'.format(line))
     else:
         s.append('Accepted Extended Negotiation: None')
 
@@ -399,10 +398,8 @@ def _receive_associate_rq(event):
             #                                       %len(item.app_info))
 
             app_info = pretty_bytes(item.app_info)
-            app_info[0] = '[' + app_info[0][1:]
-            app_info[-1] = app_info[-1] + ' ]'
             for line in app_info:
-                s.append('    {0!s}'.format(line))
+                s.append('  {0!s}'.format(line))
     else:
         s.append('Requested Extended Negotiation: None')
 
@@ -470,9 +467,9 @@ def _receive_associate_rq(event):
                      '{0:d}'.format(len(usid.primary)))
 
         if usid.response_requested:
-            s.append('  Positive Response requested: Yes')
+            s.append('  Positive Response Requested: Yes')
         else:
-            s.append('  Positive Response requested: None')
+            s.append('  Positive Response Requested: None')
     else:
         s.append('Requested User Identity Negotiation: None')
 
@@ -562,21 +559,6 @@ def _send_associate_ac(event):
             s.append('    Accepted Transfer Syntax: ={0!s}'
                      .format(cx.transfer_syntax.name))
 
-    ## Role Selection
-    if roles:
-        s.append("Accepted Role Selection:")
-
-        for uid in sorted(roles.keys()):
-            s.append("  SOP Class: ={}".format(uid.name))
-            str_roles = []
-            if roles[uid].scp_role:
-                str_roles.append('SCP')
-            if roles[uid].scu_role:
-                str_roles.append('SCU')
-
-            str_roles = '/'.join(str_roles)
-            s.append("    SCP/SCU Role: {}".format(str_roles))
-
     ## Extended Negotiation
     if user_info.ext_neg:
         s.append('Accepted Extended Negotiation:')
@@ -584,10 +566,8 @@ def _send_associate_ac(event):
         for item in user_info.ext_neg:
             s.append('  SOP Class: ={0!s}'.format(item.uid))
             app_info = pretty_bytes(item.app_info)
-            app_info[0] = '[' + app_info[0][1:]
-            app_info[-1] = app_info[-1] + ' ]'
             for line in app_info:
-                s.append('    {0!s}'.format(line))
+                s.append('  {0!s}'.format(line))
     else:
         s.append('Accepted Extended Negotiation: None')
 
@@ -710,10 +690,8 @@ def _send_associate_rq(event):
             #                                       %len(item.app_info))
 
             app_info = pretty_bytes(item.app_info)
-            app_info[0] = '[' + app_info[0][1:]
-            app_info[-1] = app_info[-1] + ' ]'
             for line in app_info:
-                s.append('    {0!s}'.format(line))
+                s.append('   {0!s}'.format(line))
     else:
         s.append('Requested Extended Negotiation: None')
 
