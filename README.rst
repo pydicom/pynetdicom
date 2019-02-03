@@ -84,42 +84,46 @@ Supported DIMSE SCU Services
 
 When the AE is acting as an SCU and an association has been established with a
 peer SCP, the following DIMSE-C and -N services are available (provided the
-peer supports the Service Class corresponding to the *dataset* and a
-corresponding Presentation Context has been accepted):
+peer supports the Service Class and a corresponding Presentation Context has
+been accepted):
 
-- C-ECHO: ``Association.send_c_echo()`` used to verify end-to-end
-  communications with the peer.
-- C-FIND: ``Association.send_c_find(dataset)`` requests the peer search its set
-  of managed SOP Instances for those that match the attributes given in
-  *dataset*.
-- C-GET: ``Association.send_c_get(dataset)`` requests the peer search its set
-  of managed SOP Instances for those that match the attributes given in
-  *dataset* then return those matching Instances to the SCU.
-- C-MOVE: ``Association.send_c_move(dataset, move_aet)`` requests the peer
-  search its set of managed SOP Instances for those that match the attributes
-  given in *dataset* and then copy those matching Instances to the AE with title
-  *move_aet* over a new association.
-- C-STORE: ``Association.send_c_store(dataset)`` requests the storage of the
-  Composite SOP Instance *dataset* by the peer.
-- N-ACTION: ``Association.send_n_action(dataset, action_type, class_uid,
-  instance_uid)`` requests the peer perform an action.
-- N-CREATE: ``Association.send_n_create(dataset, class_uid, instance_uid)``
-  requests the peer create a new SOP Instance.
-- N-DELETE: ``Association.send_n_delete(class_uid, instance_uid)`` requests the
-  peer delete the specified SOP Instance.
-- N-EVENT-REPORT: ``Association.send_n_event_report(dataset, event_type,
-  class_uid, instance_uid)`` reports the events in *dataset* to the peer.
-- N-GET: ``Association.send_n_get(identifier_list, class_uid, instance_uid)``
-  requests the retrieval of attribute values from a peer.
-- N-SET: ``Association.send_n_set(dataset, class_uid, instance_uid)`` requests
-  the peer modify a SOP Instance using the attribute values in *dataset*.
+
++----------------+----------------------------------------------------------+
+| DIMSE service  | ``Association`` method                                       |
++================+==========================================================+
+| C-ECHO         | ``send_c_echo()``                                        |
++----------------+----------------------------------------------------------+
+| C-FIND         | ``send_c_find(dataset)``                                 |
++----------------+----------------------------------------------------------+
+| C-GET          | ``send_c_get(dataset)``                                  |
++----------------+----------------------------------------------------------+
+| C-MOVE         | ``send_c_move(dataset, move_aet)``                       |
++----------------+----------------------------------------------------------+
+| C-STORE        | ``send_c_store(dataset)``                                |
++----------------+----------------------------------------------------------+
+| N-ACTION       | ``send_n_action(dataset, action_type, class_uid,         |
+|                | instance_uid)``                                          |
++----------------+----------------------------------------------------------+
+| N-CREATE       | ``send_n_create(dataset, class_uid, instance_uid)``      |
++----------------+----------------------------------------------------------+
+| N-DELETE       | ``send_n_delete(class_uid, instance_uid)``               |
++----------------+----------------------------------------------------------+
+| N-EVENT-REPORT | ``send_n_event_report(dataset, event_type,               |
+|                |  class_uid, instance_uid)``                              |
++----------------+----------------------------------------------------------+
+| N-GET          | ``send_n_get(identifier_list, class_uid, instance_uid)`` |
++----------------+----------------------------------------------------------+
+| N-GET          | ``send_n_set(dataset, class_uid, instance_uid)``         |
++----------------+----------------------------------------------------------+
 
 Where *dataset* is a pydicom
 `Dataset <https://pydicom.github.io/pydicom/stable/ref_guide.html#dataset>`_
 object, *identifier_list* is a list of pydicom
 `Tag <https://pydicom.github.io/pydicom/stable/api_ref.html#pydicom.tag.Tag>`_
 objects, *event_type* and *action_type* are ints and *class_uid* and
-*instance_uid* are UID strings.
+*instance_uid* are UID strings. See the
+`Association documentation<https://pydicom.github.io/pynetdicom/stable/reference/generated/pynetdicom.association.Association.html>`_
+for more information.
 
 
 Supported DIMSE SCP Services
@@ -128,34 +132,35 @@ Supported DIMSE SCP Services
 When the AE is acting as an SCP the following DIMSE-C and -N services are
 available to the peer once an association has been established:
 
-+---------------+---------------------+--------------------------------------------------------------------------------------------------------------------------+
-| DIMSE service | Event               | Handler Implementation Documentation                                                                                     |
-+===============+=====================+==========================================================================================================================+
-| C-ECHO        | ``evt.EVT_C_ECHO``  | `documentation <https://pydicom.github.io/pynetdicom/stable/reference/generated/pynetdicom._handlers/doc_handle_echo>`_  |
-+---------------+---------------------+--------------------------------------------------------------------------------------------------------------------------+
-| C-FIND        | ``evt.EVT_C_FIND``  | `documentation <https://pydicom.github.io/pynetdicom/stable/reference/generated/pynetdicom._handlers/doc_handle_find>`_  |
-+---------------+---------------------+--------------------------------------------------------------------------------------------------------------------------+
-| C-GET         | ``evt.EVT_C_GET``   | `documentation <https://pydicom.github.io/pynetdicom/stable/reference/generated/pynetdicom._handlers/doc_handle_c_get>`_ |
-+---------------+---------------------+--------------------------------------------------------------------------------------------------------------------------+
-| C-MOVE        | ``evt.EVT_C_MOVE``  | `documentation <https://pydicom.github.io/pynetdicom/stable/reference/generated/pynetdicom._handlers/doc_handle_move>`_  |
-+---------------+---------------------+--------------------------------------------------------------------------------------------------------------------------+
-| C-STORE       | ``evt.EVT_C_STORE`` | `documentation <https://pydicom.github.io/pynetdicom/stable/reference/generated/pynetdicom._handlers/doc_handle_store>`_ |
-+---------------+---------------------+--------------------------------------------------------------------------------------------------------------------------+
-| N-GET         | ``evt.EVT_N_GET``   | `documentation <https://pydicom.github.io/pynetdicom/stable/reference/generated/pynetdicom._handlers/doc_handle_n_get>`_ |
-+---------------+---------------------+--------------------------------------------------------------------------------------------------------------------------+
++---------------+---------------------+
+| DIMSE service | Intervention Event  |
++===============+=====================+
+| C-ECHO        | ``evt.EVT_C_ECHO``  |
++---------------+---------------------+
+| C-FIND        | ``evt.EVT_C_FIND``  |
++---------------+---------------------+
+| C-GET         | ``evt.EVT_C_GET``   |
++---------------+---------------------+
+| C-MOVE        | ``evt.EVT_C_MOVE``  |
++---------------+---------------------+
+| C-STORE       | ``evt.EVT_C_STORE`` |
++---------------+---------------------+
+| N-GET         | ``evt.EVT_N_GET``   |
++---------------+---------------------+
 
 With the exception of the C-ECHO service, a user-defined handler must be bound
-to a corresponding event in order to complete a DIMSE service request. Events
+to the corresponding
+`intervention event<https://pydicom.github.io/pynetdicom/stable/user/events#intervention-events>`_
+in order to complete a DIMSE service request. Events
 can be imported with ``from pynetdicom import evt`` and a handler can be
 bound to an event prior to starting an association through the *evt_handlers*
-keyword parameters in ``AE.start_server()`` and ``AE.associate()`` which is a
+keyword parameters in ``AE.start_server()`` and ``AE.associate()`` with a
 list of ``(event, handler)`` tuples.
 
 When an event occurs the *handler* function is called and passed a single
-parameter *event*, which is an ``evt.Event`` object whose specific attributes
+parameter, *event*, which is an ``evt.Event`` object whose specific attributes
 are dependent on the type of event that occurred. Handlers bound to
-`intervention events` <https://pydicom.github.io/pynetdicom/stable/user/events#intervention-events>`_
-must also return or yield certain values. See the
+intervention events must  return or yield certain values. See the
 `handler documentation <https://pydicom.github.io/pynetdicom/stable/reference/events>`_
 for information on what attributes and properties are available in ``Event``
 for each event type and what the expected returns/yields are for their
@@ -296,7 +301,7 @@ number and the timestamp for the event.
         # Start the SCP in non-blocking mode
         scp = ae.start_server(('', 11112), block=False, evt_handlers=handlers)
 
-        # Let's send a C-ECHO request to our own Verification SCP
+        # Send a C-ECHO request to our own Verification SCP
         ae.add_requested_context('1.2.840.10008.1.1')
         assoc = ae.associate('localhost', 11112)
         if assoc.is_established:
@@ -307,7 +312,7 @@ number and the timestamp for the event.
         scp.shutdown()
 
 
-Send the DICOM 'CT Image Storage' dataset in *file-in.dcm* to a peer Storage
+Send the DICOM *CT Image Storage* dataset in *file-in.dcm* to a peer Storage
 SCP (at TCP/IP address *addr*, listen port number *port*):
 
 .. code-block:: python
