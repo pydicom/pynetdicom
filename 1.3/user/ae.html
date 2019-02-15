@@ -1,0 +1,775 @@
+
+
+<!DOCTYPE html>
+<!--[if IE 8]><html class="no-js lt-ie9" lang="en" > <![endif]-->
+<!--[if gt IE 8]><!--> <html class="no-js" lang="en" > <!--<![endif]-->
+<head>
+  <meta charset="utf-8">
+  
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  
+  <title>Application Entity &mdash; pynetdicom 1.2.0 documentation</title>
+  
+
+  
+  
+    <link rel="shortcut icon" href="../_static/favicon.ico"/>
+  
+  
+  
+
+  
+  <script type="text/javascript" src="../_static/js/modernizr.min.js"></script>
+  
+    
+      <script type="text/javascript" id="documentation_options" data-url_root="../" src="../_static/documentation_options.js"></script>
+        <script type="text/javascript" src="../_static/jquery.js"></script>
+        <script type="text/javascript" src="../_static/underscore.js"></script>
+        <script type="text/javascript" src="../_static/doctools.js"></script>
+        <script type="text/javascript" src="../_static/language_data.js"></script>
+    
+    <script type="text/javascript" src="../_static/js/theme.js"></script>
+
+    
+
+  
+  <link rel="stylesheet" href="../_static/css/pynetdicom.css" type="text/css" />
+  <link rel="stylesheet" href="../_static/pygments.css" type="text/css" />
+  <link rel="stylesheet" href="../_static/css/pynetdicom.css" type="text/css" />
+    <link rel="index" title="Index" href="../genindex.html" />
+    <link rel="search" title="Search" href="../search.html" />
+    <link rel="next" title="Association" href="association.html" />
+    <link rel="prev" title="Presentation Contexts" href="presentation.html" /> 
+</head>
+
+<body class="wy-body-for-nav">
+
+   
+  <div class="wy-grid-for-nav">
+    
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search" >
+          
+
+          
+            <a href="../index.html" class="icon icon-home"> pynetdicom
+          
+
+          
+            
+            <img src="../_static/pydicom_flat_black.svg" class="logo" alt="Logo"/>
+          
+          </a>
+
+          
+            
+            
+              <div class="version">
+                1.2.0
+              </div>
+            
+          
+
+          
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="../search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+
+          
+        </div>
+
+        <div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="main navigation">
+          
+            
+            
+              
+            
+            
+              <ul>
+<li class="toctree-l1"><a class="reference internal" href="../verification_service_class.html">Verification Service Class</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../storage_service_class.html">Storage Service Class</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../query_retrieve_service_class.html">Query/Retrieve Service Class</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../basic_worklist_service_class.html">Basic Worklist Management Service Class</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../relevant_patient_service_class.html">Relevant Patient Information Query Service Class</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../substance_admin_service_class.html">Substance Administration Query Service Class</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../non_patient_service_class.html">Non-Patient Object Storage Service Class</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../color_palette_service_class.html">Color Palette Query/Retrieve Service Class</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../defined_procedure_service_class.html">Defined Procedure Protocol Query/Retrieve Service Class</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../hanging_protocol_service_class.html">Hanging Protocol Query/Retrieve Service Class</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../implant_template_service_class.html">Implant Template Query/Retrieve Service Class</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../display_system_service_class.html">Display System Management Service Class</a></li>
+</ul>
+<ul class="current">
+<li class="toctree-l1 current"><a class="reference internal" href="index.html">User Guide</a><ul class="current">
+<li class="toctree-l2"><a class="reference internal" href="installation.html">Installation</a></li>
+<li class="toctree-l2"><a class="reference internal" href="concepts.html">Important Concepts</a></li>
+<li class="toctree-l2"><a class="reference internal" href="presentation.html">Presentation Contexts</a></li>
+<li class="toctree-l2 current"><a class="current reference internal" href="#">Application Entity</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="#creating-an-scu">Creating an SCU</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="#adding-requested-presentation-contexts">Adding requested Presentation Contexts</a></li>
+<li class="toctree-l4"><a class="reference internal" href="#specifying-the-network-port">Specifying the network port</a></li>
+<li class="toctree-l4"><a class="reference internal" href="#association">Association</a></li>
+</ul>
+</li>
+<li class="toctree-l3"><a class="reference internal" href="#creating-an-scp">Creating an SCP</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="#adding-supported-presentation-contexts">Adding supported Presentation Contexts</a></li>
+<li class="toctree-l4"><a class="reference internal" href="#handling-scp-scu-role-selection-negotiation">Handling SCP/SCU Role Selection Negotiation</a></li>
+<li class="toctree-l4"><a class="reference internal" href="#handling-user-identity-negotiation">Handling User Identity Negotiation</a></li>
+<li class="toctree-l4"><a class="reference internal" href="#specifying-the-bind-address">Specifying the bind address</a></li>
+<li class="toctree-l4"><a class="reference internal" href="#id7">Association</a></li>
+<li class="toctree-l4"><a class="reference internal" href="#references">References</a></li>
+</ul>
+</li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="association.html">Association</a></li>
+</ul>
+</li>
+</ul>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../release_notes.html">1.2.0</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../release_notes.html#v1-1-0">1.1.0</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../release_notes.html#v1-0-0">1.0.0</a></li>
+</ul>
+
+            
+          
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap">
+
+      
+      <nav class="wy-nav-top" aria-label="top navigation">
+        
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="../index.html">pynetdicom</a>
+        
+      </nav>
+
+
+      <div class="wy-nav-content">
+        
+        <div class="rst-content">
+        
+          
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+<div role="navigation" aria-label="breadcrumbs navigation">
+
+  <ul class="wy-breadcrumbs">
+    
+      <li><a href="../index.html">Docs</a> &raquo;</li>
+        
+          <li><a href="index.html">User Guide</a> &raquo;</li>
+        
+      <li>Application Entity</li>
+    
+    
+      <li class="wy-breadcrumbs-aside">
+        
+            
+            <a href="../_sources/user/ae.rst.txt" rel="nofollow"> View page source</a>
+          
+        
+      </li>
+    
+  </ul>
+
+  
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+            
+  <div class="section" id="application-entity">
+<h1>Application Entity<a class="headerlink" href="#application-entity" title="Permalink to this headline">¶</a></h1>
+<p>The first step in DICOM networking with <em>pynetdicom</em> is the creation of an
+<a class="reference internal" href="concepts.html#concepts-ae"><span class="std std-ref">Application Entity</span></a> (or AE). A minimal initialisation of
+<code class="docutils literal notranslate"><span class="pre">AE</span></code> requires no arguments.</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="kn">from</span> <span class="nn">pynetdicom</span> <span class="k">import</span> <span class="n">AE</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">ae</span> <span class="o">=</span> <span class="n">AE</span><span class="p">()</span>
+</pre></div>
+</div>
+<p>This will create an AE with an <em>AE Title</em> of <code class="docutils literal notranslate"><span class="pre">b'PYNETDICOM</span>&#160;&#160;&#160;&#160;&#160; <span class="pre">'</span></code>. The AE
+title can set by supplying the <code class="docutils literal notranslate"><span class="pre">ae_title</span></code> parameter during initialisation:</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="kn">from</span> <span class="nn">pynetdicom</span> <span class="k">import</span> <span class="n">AE</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">ae</span> <span class="o">=</span> <span class="n">AE</span><span class="p">(</span><span class="n">ae_title</span><span class="o">=</span><span class="sa">b</span><span class="s1">&#39;MY_AE_TITLE&#39;</span><span class="p">)</span>
+</pre></div>
+</div>
+<p>Or afterwards with the <code class="docutils literal notranslate"><span class="pre">AE.ae_title</span></code> property:</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="kn">from</span> <span class="nn">pynetdicom</span> <span class="k">import</span> <span class="n">AE</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">ae</span> <span class="o">=</span> <span class="n">AE</span><span class="p">()</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">ae</span><span class="o">.</span><span class="n">ae_title</span> <span class="o">=</span> <span class="sa">b</span><span class="s1">&#39;MY_AE_TITLE&#39;</span>
+</pre></div>
+</div>
+<p>AE titles must meet the conditions of a DICOM data element with a
+<a class="reference external" href="http://dicom.nema.org/medical/dicom/current/output/chtml/part05/sect_6.2.html">Value Representation</a>
+of <strong>AE</strong> <a class="footnote-reference" href="#id8" id="id1">[1]</a>:</p>
+<ul class="simple">
+<li>Leading and trailing spaces (<code class="docutils literal notranslate"><span class="pre">0x20</span></code>) are non-significant</li>
+<li>Maximum 16 characters (once non-significant characters are removed)</li>
+<li>Valid characters belong to the DICOM <a class="reference external" href="http://dicom.nema.org/medical/dicom/current/output/chtml/part05/chapter_E.html">Default Character Repertoire</a>
+<a class="footnote-reference" href="#id9" id="id2">[2]</a>, which is the basic G0 Set of the ISO646:1990 <a class="footnote-reference" href="#id12" id="id3">[5]</a> (ASCII) standard
+excluding backslash (‘\ ‘ <code class="docutils literal notranslate"><span class="pre">0x5c</span></code>) and all control characters <a class="footnote-reference" href="#id10" id="id4">[3]</a>.</li>
+</ul>
+<p>There’s also an extra restriction on Application Entity AE titles:</p>
+<ul class="simple">
+<li>An AE title made entirely of spaces is not allowed <a class="footnote-reference" href="#id11" id="id5">[4]</a></li>
+</ul>
+<p>AE titles in <em>pynetdicom</em> are checked for validity (using
+<a class="reference internal" href="../reference/generated/pynetdicom.utils.validate_ae_title.html#pynetdicom.utils.validate_ae_title" title="pynetdicom.utils.validate_ae_title"><code class="xref py py-meth docutils literal notranslate"><span class="pre">utils.validate_ae_title()</span></code></a>)
+and then stored as length 16 <code class="docutils literal notranslate"><span class="pre">bytes</span></code>, with
+trailing spaces added as padding if required. This can be important to
+remember when dealing with AE titles as the value you set may not be the
+value that gets stored.</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="n">ae</span><span class="o">.</span><span class="n">ae_title</span> <span class="o">=</span> <span class="sa">b</span><span class="s1">&#39;MY_AE_TITLE&#39;</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">ae</span><span class="o">.</span><span class="n">ae_title</span> <span class="o">==</span> <span class="sa">b</span><span class="s1">&#39;MY_AE_TITLE&#39;</span>
+<span class="go">False</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">ae</span><span class="o">.</span><span class="n">ae_title</span>
+<span class="go">b&#39;MY_AE_TITLE     &#39;</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="nb">len</span><span class="p">(</span><span class="n">ae</span><span class="o">.</span><span class="n">ae_title</span><span class="p">)</span>
+<span class="go">16</span>
+</pre></div>
+</div>
+<div class="section" id="creating-an-scu">
+<span id="ae-create-scu"></span><h2>Creating an SCU<a class="headerlink" href="#creating-an-scu" title="Permalink to this headline">¶</a></h2>
+<div class="section" id="adding-requested-presentation-contexts">
+<h3>Adding requested Presentation Contexts<a class="headerlink" href="#adding-requested-presentation-contexts" title="Permalink to this headline">¶</a></h3>
+<p>If you intend to use your AE as a <em>Service Class User</em> then you need to
+specify the <a class="reference internal" href="presentation.html#user-presentation"><span class="std std-ref">Presentation Contexts</span></a>
+that will be <em>requested</em> during
+Association negotiation. This can be done in two ways:</p>
+<ul class="simple">
+<li>You can add requested contexts on a one-by-one basis using the
+<a class="reference internal" href="../reference/generated/pynetdicom.ae.ApplicationEntity.html#pynetdicom.ae.ApplicationEntity.add_requested_context" title="pynetdicom.ae.ApplicationEntity.add_requested_context"><code class="xref py py-meth docutils literal notranslate"><span class="pre">AE.add_requested_context()</span></code></a>
+method.</li>
+<li>You can set all the requested contexts at once using the
+<a class="reference internal" href="../reference/generated/pynetdicom.ae.ApplicationEntity.html#pynetdicom.ae.ApplicationEntity.requested_contexts" title="pynetdicom.ae.ApplicationEntity.requested_contexts"><code class="xref py py-obj docutils literal notranslate"><span class="pre">AE.requested_contexts</span></code></a>
+property. Additional contexts can still be added on a one-by-one basis afterwards.</li>
+</ul>
+<p>Adding presentation contexts one-by-one:</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="kn">from</span> <span class="nn">pydicom.uid</span> <span class="k">import</span> <span class="n">UID</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="kn">from</span> <span class="nn">pynetdicom</span> <span class="k">import</span> <span class="n">AE</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="kn">from</span> <span class="nn">pynetdicom.sop_class</span> <span class="k">import</span> <span class="n">CTImageStorage</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">ae</span> <span class="o">=</span> <span class="n">AE</span><span class="p">()</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">ae</span><span class="o">.</span><span class="n">add_requested_context</span><span class="p">(</span><span class="s1">&#39;1.2.840.10008.1.1&#39;</span><span class="p">)</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">ae</span><span class="o">.</span><span class="n">add_requested_context</span><span class="p">(</span><span class="n">UID</span><span class="p">(</span><span class="s1">&#39;1.2.840.10008.5.1.4.1.1.4&#39;</span><span class="p">))</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">ae</span><span class="o">.</span><span class="n">add_requested_context</span><span class="p">(</span><span class="n">CTImageStorage</span><span class="p">)</span>
+</pre></div>
+</div>
+<p>Adding presentation contexts all at once:</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="kn">from</span> <span class="nn">pynetdicom</span> <span class="k">import</span> <span class="n">AE</span><span class="p">,</span> <span class="n">StoragePresentationContexts</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">ae</span> <span class="o">=</span> <span class="n">AE</span><span class="p">()</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">ae</span><span class="o">.</span><span class="n">requested_contexts</span> <span class="o">=</span> <span class="n">StoragePresentationContexts</span>
+</pre></div>
+</div>
+<p>Here <code class="docutils literal notranslate"><span class="pre">StoragePresentationContexts</span></code> is a prebuilt list of presentation
+contexts containing (almost) all the Storage Service Class’
+<a class="reference external" href="http://dicom.nema.org/medical/dicom/current/output/chtml/part04/sect_B.5.html">supported SOP Classes</a>,
+and there’s a similar list for
+all the supported service classes. Alternatively you can build your own list
+of presentation contexts, either through creating new
+<a class="reference internal" href="../reference/generated/pynetdicom.presentation.PresentationContext.html#pynetdicom.presentation.PresentationContext" title="pynetdicom.presentation.PresentationContext"><code class="xref py py-class docutils literal notranslate"><span class="pre">PresentationContext</span></code></a>
+instances or by using the
+<a class="reference internal" href="../reference/generated/pynetdicom.presentation.build_context.html#pynetdicom.presentation.build_context" title="pynetdicom.presentation.build_context"><code class="xref py py-meth docutils literal notranslate"><span class="pre">build_context</span></code></a>
+convenience function:</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="kn">from</span> <span class="nn">pynetdicom</span> <span class="k">import</span> <span class="n">AE</span><span class="p">,</span> <span class="n">build_context</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="kn">from</span> <span class="nn">pynetdicom.sop_class</span> <span class="k">import</span> <span class="n">CTImageStorage</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">ae</span> <span class="o">=</span> <span class="n">AE</span><span class="p">()</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">contexts</span> <span class="o">=</span> <span class="p">[</span>
+<span class="gp">... </span>    <span class="n">build_context</span><span class="p">(</span><span class="n">CTImageStorage</span><span class="p">),</span>
+<span class="gp">... </span>    <span class="n">build_context</span><span class="p">(</span><span class="s1">&#39;1.2.840.10008.1.1&#39;</span><span class="p">)</span>
+<span class="gp">... </span><span class="p">]</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">ae</span><span class="o">.</span><span class="n">requested_contexts</span> <span class="o">=</span> <span class="n">contexts</span>
+</pre></div>
+</div>
+<p>Combining the all-at-once and one-by-one approaches:</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="kn">from</span> <span class="nn">pynetdicom</span> <span class="k">import</span> <span class="n">AE</span><span class="p">,</span> <span class="n">StoragePresentationContexts</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="kn">from</span> <span class="nn">pynetdicom.sop_class</span> <span class="k">import</span> <span class="n">VerificationSOPClass</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">ae</span> <span class="o">=</span> <span class="n">AE</span><span class="p">()</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">ae</span><span class="o">.</span><span class="n">requested_contexts</span> <span class="o">=</span> <span class="n">StoragePresentationContexts</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">ae</span><span class="o">.</span><span class="n">add_requested_context</span><span class="p">(</span><span class="n">VerificationSOPClass</span><span class="p">)</span>
+</pre></div>
+</div>
+<p>As the association <em>Requestor</em> you’re limited to a total of 128 requested
+presentation contexts, so attempting to add more than 128 contexts will raise
+a <code class="docutils literal notranslate"><span class="pre">ValueError</span></code> exception.</p>
+<p>When you add presentation contexts as shown above, the following transfer
+syntaxes are used by default for each context:</p>
+<table border="1" class="docutils">
+<colgroup>
+<col width="41%" />
+<col width="59%" />
+</colgroup>
+<tbody valign="top">
+<tr class="row-odd"><td>1.2.840.10008.1.2</td>
+<td>Implicit VR Little Endian</td>
+</tr>
+<tr class="row-even"><td>1.2.840.10008.1.2.1</td>
+<td>Explicit VR Little Endian</td>
+</tr>
+<tr class="row-odd"><td>1.2.840.10008.1.2.2</td>
+<td>Explicit VR Big Endian</td>
+</tr>
+</tbody>
+</table>
+<p>Specifying your own transfer syntax(es) can be done with the
+<code class="docutils literal notranslate"><span class="pre">transfer_syntax</span></code> parameter as either a single str/UID or a list of str/UIDs:</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="kn">from</span> <span class="nn">pydicom.uid</span> <span class="k">import</span> <span class="n">ImplicitVRLittleEndian</span><span class="p">,</span> <span class="n">ExplicitVRLittleEndian</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="kn">from</span> <span class="nn">pynetdicom</span> <span class="k">import</span> <span class="n">AE</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="kn">from</span> <span class="nn">pynetdicom.sop_class</span> <span class="k">import</span> <span class="n">CTImageStorage</span><span class="p">,</span> <span class="n">MRImageStorage</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">ae</span> <span class="o">=</span> <span class="n">AE</span><span class="p">()</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">ae</span><span class="o">.</span><span class="n">add_requested_context</span><span class="p">(</span><span class="n">CTImageStorage</span><span class="p">,</span> <span class="n">transfer_syntax</span><span class="o">=</span><span class="s1">&#39;1.2.840.10008.1.2&#39;</span><span class="p">)</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">ae</span><span class="o">.</span><span class="n">add_requested_context</span><span class="p">(</span><span class="n">MRImageStorage</span><span class="p">,</span>
+<span class="gp">... </span>                         <span class="p">[</span><span class="n">ImplicitVRLittleEndian</span><span class="p">,</span> <span class="n">ExplicitVRLittleEndian</span><span class="p">])</span>
+</pre></div>
+</div>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="kn">from</span> <span class="nn">pydicom.uid</span> <span class="k">import</span> <span class="n">ImplicitVRLittleEndian</span><span class="p">,</span> <span class="n">ExplicitVRLittleEndian</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="kn">from</span> <span class="nn">pynetdicom</span> <span class="k">import</span> <span class="n">AE</span><span class="p">,</span> <span class="n">build_context</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="kn">from</span> <span class="nn">pynetdicom.sop_class</span> <span class="k">import</span> <span class="n">CTImageStorage</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">ae</span> <span class="o">=</span> <span class="n">AE</span><span class="p">()</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">context_a</span> <span class="o">=</span> <span class="n">build_context</span><span class="p">(</span><span class="n">CTImageStorage</span><span class="p">,</span> <span class="n">ImplicitVRLittleEndian</span><span class="p">))</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">context_b</span> <span class="o">=</span> <span class="n">build_context</span><span class="p">(</span><span class="s1">&#39;1.2.840.10008.1.1&#39;</span><span class="p">,</span>
+<span class="gp">... </span>                          <span class="p">[</span><span class="n">ImplicitVRLittleEndian</span><span class="p">,</span> <span class="n">ExplicitVRBigEndian</span><span class="p">])</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">ae</span><span class="o">.</span><span class="n">requested_contexts</span> <span class="o">=</span> <span class="p">[</span><span class="n">context_a</span><span class="p">,</span> <span class="n">context_b</span><span class="p">]</span>
+</pre></div>
+</div>
+<p>The requested presentation contexts can be accessed with the
+<a class="reference internal" href="../reference/generated/pynetdicom.ae.ApplicationEntity.html#pynetdicom.ae.ApplicationEntity.requested_contexts" title="pynetdicom.ae.ApplicationEntity.requested_contexts"><code class="xref py py-obj docutils literal notranslate"><span class="pre">AE.requested_contexts</span></code></a>
+property and they are returned in the order they were added:</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="kn">from</span> <span class="nn">pynetdicom</span> <span class="k">import</span> <span class="n">AE</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="kn">from</span> <span class="nn">pynetdicom.sop_class</span> <span class="k">import</span> <span class="n">VerificationSOPClass</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">ae</span> <span class="o">=</span> <span class="n">AE</span><span class="p">()</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="nb">len</span><span class="p">(</span><span class="n">ae</span><span class="o">.</span><span class="n">requested_contexts</span><span class="p">)</span>
+<span class="go">0</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">ae</span><span class="o">.</span><span class="n">add_requested_context</span><span class="p">(</span><span class="n">VerificationSOPClass</span><span class="p">)</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="nb">len</span><span class="p">(</span><span class="n">ae</span><span class="o">.</span><span class="n">requested_contexts</span><span class="p">)</span>
+<span class="go">1</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="nb">print</span><span class="p">(</span><span class="n">ae</span><span class="o">.</span><span class="n">requested_contexts</span><span class="p">[</span><span class="mi">0</span><span class="p">])</span>
+<span class="go">Abstract Syntax: Verification SOP Class</span>
+<span class="go">Transfer Syntax(es):</span>
+<span class="go">    =Implicit VR Little Endian</span>
+<span class="go">    =Explicit VR Little Endian</span>
+<span class="go">    =Explicit VR Big Endian</span>
+</pre></div>
+</div>
+<p>Its also possible to have multiple requested presentation contexts for the
+same abstract syntax.</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="kn">from</span> <span class="nn">pydicom.uid</span> <span class="k">import</span> <span class="n">ImplicitVRLittleEndian</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="kn">from</span> <span class="nn">pynetdicom</span> <span class="k">import</span> <span class="n">AE</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="kn">from</span> <span class="nn">pynetdicom.sop_class</span> <span class="k">import</span> <span class="n">CTImageStorage</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">ae</span> <span class="o">=</span> <span class="n">AE</span><span class="p">()</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">ae</span><span class="o">.</span><span class="n">add_requested_context</span><span class="p">(</span><span class="n">CTImageStorage</span><span class="p">)</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">ae</span><span class="o">.</span><span class="n">add_requested_context</span><span class="p">(</span><span class="n">CTImageStorage</span><span class="p">,</span> <span class="n">ImplicitVRLittleEndian</span><span class="p">)</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="nb">len</span><span class="p">(</span><span class="n">ae</span><span class="o">.</span><span class="n">requested_contexts</span><span class="p">)</span>
+<span class="go">2</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="nb">print</span><span class="p">(</span><span class="n">ae</span><span class="o">.</span><span class="n">requested_contexts</span><span class="p">[</span><span class="mi">0</span><span class="p">])</span>
+<span class="go">Abstract Syntax: CT Image Storage</span>
+<span class="go">Transfer Syntax(es):</span>
+<span class="go">    =Implicit VR Little Endian</span>
+<span class="go">    =Explicit VR Little Endian</span>
+<span class="go">    =Explicit VR Big Endian</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="nb">print</span><span class="p">(</span><span class="n">ae</span><span class="o">.</span><span class="n">requested_contexts</span><span class="p">[</span><span class="mi">1</span><span class="p">])</span>
+<span class="go">Abstract Syntax: CT Image Storage</span>
+<span class="go">Transfer Syntax(es):</span>
+<span class="go">    =Implicit VR Little Endian</span>
+</pre></div>
+</div>
+<p>All the above examples set the requested presentation contexts on the
+Application Entity level, i.e. the same contexts will be used for all
+association requests. To set the requested presentation contexts on a
+per-association basis (i.e. each association request can have different
+requested contexts) you can use the <code class="docutils literal notranslate"><span class="pre">context</span></code> parameter when calling
+<a class="reference internal" href="../reference/generated/pynetdicom.ae.ApplicationEntity.html#pynetdicom.ae.ApplicationEntity.associate" title="pynetdicom.ae.ApplicationEntity.associate"><code class="xref py py-meth docutils literal notranslate"><span class="pre">AE.associate()</span></code></a> (see
+the <a class="reference internal" href="association.html#association"><span class="std std-ref">Association</span></a> page for more information).</p>
+</div>
+<div class="section" id="specifying-the-network-port">
+<h3>Specifying the network port<a class="headerlink" href="#specifying-the-network-port" title="Permalink to this headline">¶</a></h3>
+<p>In general it shouldn’t be necessary to specify the port when acting as an SCU.
+By default <em>pynetdicom</em> will use the first available port to communicate with a
+peer AE. To specify the port number you can use the <code class="docutils literal notranslate"><span class="pre">bind_address</span></code> keyword
+parameter when requesting an association, which takes a 2-tuple of
+(str <em>host</em>, int <em>port</em>):</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="kn">from</span> <span class="nn">pynetdicom</span> <span class="k">import</span> <span class="n">AE</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">ae</span> <span class="o">=</span> <span class="n">AE</span><span class="p">()</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">ae</span><span class="o">.</span><span class="n">add_requested_context</span><span class="p">(</span><span class="s1">&#39;1.2.840.10008.1.1&#39;</span><span class="p">)</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">assoc</span> <span class="o">=</span> <span class="n">ae</span><span class="o">.</span><span class="n">associate</span><span class="p">(</span><span class="s1">&#39;localhost&#39;</span><span class="p">,</span> <span class="mi">11112</span><span class="p">,</span> <span class="n">bind_address</span><span class="o">=</span><span class="p">(</span><span class="s1">&#39;&#39;</span><span class="p">,</span> <span class="mi">11113</span><span class="p">))</span>
+</pre></div>
+</div>
+</div>
+<div class="section" id="association">
+<h3>Association<a class="headerlink" href="#association" title="Permalink to this headline">¶</a></h3>
+<p>For information on how request an association with a peer AE when acting as an
+SCU please see the <a class="reference internal" href="association.html#association"><span class="std std-ref">Association</span></a> page.</p>
+</div>
+</div>
+<div class="section" id="creating-an-scp">
+<span id="ae-create-scp"></span><h2>Creating an SCP<a class="headerlink" href="#creating-an-scp" title="Permalink to this headline">¶</a></h2>
+<div class="section" id="adding-supported-presentation-contexts">
+<h3>Adding supported Presentation Contexts<a class="headerlink" href="#adding-supported-presentation-contexts" title="Permalink to this headline">¶</a></h3>
+<p>If you intend to use your AE as a <em>Service Class Provider</em> then you need to
+specify the <a class="reference internal" href="presentation.html#user-presentation"><span class="std std-ref">Presentation Contexts</span></a>
+that will be <em>supported</em> during
+Association negotiation. This can be done in two ways:</p>
+<ul class="simple">
+<li>You can add supported contexts on a one-by-one basis using the
+<a class="reference internal" href="../reference/generated/pynetdicom.ae.ApplicationEntity.html#pynetdicom.ae.ApplicationEntity.add_supported_context" title="pynetdicom.ae.ApplicationEntity.add_supported_context"><code class="xref py py-meth docutils literal notranslate"><span class="pre">AE.add_supported_context()</span></code></a>
+method.</li>
+<li>You can set all the supported contexts at once using the
+<a class="reference internal" href="../reference/generated/pynetdicom.ae.ApplicationEntity.html#pynetdicom.ae.ApplicationEntity.supported_contexts" title="pynetdicom.ae.ApplicationEntity.supported_contexts"><code class="xref py py-obj docutils literal notranslate"><span class="pre">AE.supported_contexts</span></code></a>
+property. Additional contexts can still be added on a one-by-one basis
+afterwards.</li>
+</ul>
+<p>Adding presentation contexts one-by-one:</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="kn">from</span> <span class="nn">pydicom.uid</span> <span class="k">import</span> <span class="n">UID</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="kn">from</span> <span class="nn">pynetdicom</span> <span class="k">import</span> <span class="n">AE</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="kn">from</span> <span class="nn">pynetdicom.sop_class</span> <span class="k">import</span> <span class="n">CTImageStorage</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">ae</span> <span class="o">=</span> <span class="n">AE</span><span class="p">()</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">ae</span><span class="o">.</span><span class="n">add_supported_context</span><span class="p">(</span><span class="s1">&#39;1.2.840.10008.1.1&#39;</span><span class="p">)</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">ae</span><span class="o">.</span><span class="n">add_supported_context</span><span class="p">(</span><span class="n">UID</span><span class="p">(</span><span class="s1">&#39;1.2.840.10008.5.1.4.1.1.4&#39;</span><span class="p">))</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">ae</span><span class="o">.</span><span class="n">add_supported_context</span><span class="p">(</span><span class="n">CTImageStorage</span><span class="p">)</span>
+</pre></div>
+</div>
+<p>Adding presentation contexts all at once:</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="kn">from</span> <span class="nn">pynetdicom</span> <span class="k">import</span> <span class="n">AE</span><span class="p">,</span> <span class="n">StoragePresentationContexts</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">ae</span> <span class="o">=</span> <span class="n">AE</span><span class="p">()</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">ae</span><span class="o">.</span><span class="n">supported_contexts</span> <span class="o">=</span> <span class="n">StoragePresentationContexts</span>
+</pre></div>
+</div>
+<p>Here <code class="docutils literal notranslate"><span class="pre">StoragePresentationContexts</span></code> is a prebuilt list of presentation
+contexts containing (almost) all the Storage Service Class’
+<a class="reference external" href="http://dicom.nema.org/medical/dicom/current/output/chtml/part04/sect_B.5.html">supported SOP Classes</a>,
+and there’s a similar list for
+all the supported service classes. Alternatively you can build your own list
+of presentation contexts, either through creating new
+<a class="reference internal" href="../reference/generated/pynetdicom.presentation.PresentationContext.html#pynetdicom.presentation.PresentationContext" title="pynetdicom.presentation.PresentationContext"><code class="xref py py-class docutils literal notranslate"><span class="pre">PresentationContext</span></code></a>
+instances or by using the
+<a class="reference internal" href="../reference/generated/pynetdicom.presentation.build_context.html#pynetdicom.presentation.build_context" title="pynetdicom.presentation.build_context"><code class="xref py py-meth docutils literal notranslate"><span class="pre">build_context</span></code></a>
+convenience function:</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="kn">from</span> <span class="nn">pynetdicom</span> <span class="k">import</span> <span class="n">AE</span><span class="p">,</span> <span class="n">build_context</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="kn">from</span> <span class="nn">pynetdicom.sop_class</span> <span class="k">import</span> <span class="n">CTImageStorage</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">ae</span> <span class="o">=</span> <span class="n">AE</span><span class="p">()</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">contexts</span> <span class="o">=</span> <span class="p">[</span>
+<span class="gp">... </span>    <span class="n">build_context</span><span class="p">(</span><span class="n">CTImageStorage</span><span class="p">),</span>
+<span class="gp">... </span>    <span class="n">build_context</span><span class="p">(</span><span class="s1">&#39;1.2.840.10008.1.1&#39;</span><span class="p">)</span>
+<span class="gp">... </span><span class="p">]</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">ae</span><span class="o">.</span><span class="n">supported_contexts</span> <span class="o">=</span> <span class="n">contexts</span>
+</pre></div>
+</div>
+<p>Combining the all-at-once and one-by-one approaches:</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="kn">from</span> <span class="nn">pynetdicom</span> <span class="k">import</span> <span class="n">AE</span><span class="p">,</span> <span class="n">StoragePresentationContexts</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="kn">from</span> <span class="nn">pynetdicom.sop_class</span> <span class="k">import</span> <span class="n">VerificationSOPClass</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">ae</span> <span class="o">=</span> <span class="n">AE</span><span class="p">()</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">ae</span><span class="o">.</span><span class="n">supported_contexts</span> <span class="o">=</span> <span class="n">StoragePresentationContexts</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">ae</span><span class="o">.</span><span class="n">add_supported_context</span><span class="p">(</span><span class="n">VerificationSOPClass</span><span class="p">)</span>
+</pre></div>
+</div>
+<p>As the association <em>Acceptor</em> you’re not limited in the number of presentation
+contexts that you can support.</p>
+<p>When you add presentation contexts as shown above, the following transfer
+syntaxes are used by default for each context:</p>
+<table border="1" class="docutils">
+<colgroup>
+<col width="41%" />
+<col width="59%" />
+</colgroup>
+<tbody valign="top">
+<tr class="row-odd"><td>1.2.840.10008.1.2</td>
+<td>Implicit VR Little Endian</td>
+</tr>
+<tr class="row-even"><td>1.2.840.10008.1.2.1</td>
+<td>Explicit VR Little Endian</td>
+</tr>
+<tr class="row-odd"><td>1.2.840.10008.1.2.2</td>
+<td>Explicit VR Big Endian</td>
+</tr>
+</tbody>
+</table>
+<p>Specifying your own transfer syntax(es) can be done with the
+<code class="docutils literal notranslate"><span class="pre">transfer_syntax</span></code> parameter as either a single str/UID or a list of str/UIDs:</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="kn">from</span> <span class="nn">pydicom.uid</span> <span class="k">import</span> <span class="n">ImplicitVRLittleEndian</span><span class="p">,</span> <span class="n">ExplicitVRLittleEndian</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="kn">from</span> <span class="nn">pynetdicom</span> <span class="k">import</span> <span class="n">AE</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="kn">from</span> <span class="nn">pynetdicom.sop_class</span> <span class="k">import</span> <span class="n">CTImageStorage</span><span class="p">,</span> <span class="n">MRImageStorage</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">ae</span> <span class="o">=</span> <span class="n">AE</span><span class="p">()</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">ae</span><span class="o">.</span><span class="n">add_supported_context</span><span class="p">(</span><span class="n">CTImageStorage</span><span class="p">,</span> <span class="n">transfer_syntax</span><span class="o">=</span><span class="s1">&#39;1.2.840.10008.1.2&#39;</span><span class="p">)</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">ae</span><span class="o">.</span><span class="n">add_supported_context</span><span class="p">(</span><span class="n">MRImageStorage</span><span class="p">,</span>
+<span class="gp">... </span>                         <span class="p">[</span><span class="n">ImplicitVRLittleEndian</span><span class="p">,</span> <span class="n">ExplicitVRLittleEndian</span><span class="p">])</span>
+</pre></div>
+</div>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="kn">from</span> <span class="nn">pydicom.uid</span> <span class="k">import</span> <span class="n">ImplicitVRLittleEndian</span><span class="p">,</span> <span class="n">ExplicitVRLittleEndian</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="kn">from</span> <span class="nn">pynetdicom</span> <span class="k">import</span> <span class="n">AE</span><span class="p">,</span> <span class="n">build_context</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="kn">from</span> <span class="nn">pynetdicom.sop_class</span> <span class="k">import</span> <span class="n">CTImageStorage</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">ae</span> <span class="o">=</span> <span class="n">AE</span><span class="p">()</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">context_a</span> <span class="o">=</span> <span class="n">build_context</span><span class="p">(</span><span class="n">CTImageStorage</span><span class="p">,</span> <span class="n">ImplicitVRLittleEndian</span><span class="p">))</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">context_b</span> <span class="o">=</span> <span class="n">build_context</span><span class="p">(</span><span class="s1">&#39;1.2.840.10008.1.1&#39;</span><span class="p">,</span>
+<span class="gp">... </span>                          <span class="p">[</span><span class="n">ImplicitVRLittleEndian</span><span class="p">,</span> <span class="n">ExplicitVRBigEndian</span><span class="p">])</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">ae</span><span class="o">.</span><span class="n">supported_contexts</span> <span class="o">=</span> <span class="p">[</span><span class="n">context_a</span><span class="p">,</span> <span class="n">context_b</span><span class="p">]</span>
+</pre></div>
+</div>
+<p>The supported presentation contexts can be accessed with the
+<a class="reference internal" href="../reference/generated/pynetdicom.ae.ApplicationEntity.html#pynetdicom.ae.ApplicationEntity.supported_contexts" title="pynetdicom.ae.ApplicationEntity.supported_contexts"><code class="xref py py-obj docutils literal notranslate"><span class="pre">AE.supported_contexts</span></code></a>
+property and they are returned in order of their abstract syntax UID value:</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="kn">from</span> <span class="nn">pynetdicom</span> <span class="k">import</span> <span class="n">AE</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="kn">from</span> <span class="nn">pynetdicom.sop_class</span> <span class="k">import</span> <span class="n">VerificationSOPClass</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">ae</span> <span class="o">=</span> <span class="n">AE</span><span class="p">()</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="nb">len</span><span class="p">(</span><span class="n">ae</span><span class="o">.</span><span class="n">supported_contexts</span><span class="p">)</span>
+<span class="go">0</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">ae</span><span class="o">.</span><span class="n">add_supported_context</span><span class="p">(</span><span class="n">VerificationSOPClass</span><span class="p">)</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="nb">len</span><span class="p">(</span><span class="n">ae</span><span class="o">.</span><span class="n">supported_contexts</span><span class="p">)</span>
+<span class="go">1</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="nb">print</span><span class="p">(</span><span class="n">ae</span><span class="o">.</span><span class="n">supported_contexts</span><span class="p">[</span><span class="mi">0</span><span class="p">])</span>
+<span class="go">Abstract Syntax: Verification SOP Class</span>
+<span class="go">Transfer Syntax(es):</span>
+<span class="go">    =Implicit VR Little Endian</span>
+<span class="go">    =Explicit VR Little Endian</span>
+<span class="go">    =Explicit VR Big Endian</span>
+</pre></div>
+</div>
+<p>For the association <em>Acceptor</em> its not possible to have multiple supported
+presentation contexts for the same abstract syntax, instead any additional
+transfer syntaxes will be combined with the pre-existing context:</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="kn">from</span> <span class="nn">pydicom.uid</span> <span class="k">import</span> <span class="n">ImplicitVRLittleEndian</span><span class="p">,</span> <span class="n">ExplicitVRLittleEndian</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="kn">from</span> <span class="nn">pynetdicom</span> <span class="k">import</span> <span class="n">AE</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="kn">from</span> <span class="nn">pynetdicom.sop_class</span> <span class="k">import</span> <span class="n">CTImageStorage</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">ae</span> <span class="o">=</span> <span class="n">AE</span><span class="p">()</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">ae</span><span class="o">.</span><span class="n">add_supported_context</span><span class="p">(</span><span class="n">CTImageStorage</span><span class="p">,</span> <span class="n">ExplicitVRLittleEndian</span><span class="p">)</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">ae</span><span class="o">.</span><span class="n">add_supported_context</span><span class="p">(</span><span class="n">CTImageStorage</span><span class="p">,</span> <span class="n">ImplicitVRLittleEndian</span><span class="p">)</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="nb">len</span><span class="p">(</span><span class="n">ae</span><span class="o">.</span><span class="n">supported_contexts</span><span class="p">)</span>
+<span class="go">1</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="nb">print</span><span class="p">(</span><span class="n">ae</span><span class="o">.</span><span class="n">supported_contexts</span><span class="p">[</span><span class="mi">0</span><span class="p">])</span>
+<span class="go">Abstract Syntax: CT Image Storage</span>
+<span class="go">Transfer Syntax(es):</span>
+<span class="go">    =Implicit VR Little Endian</span>
+<span class="go">    =Explicit VR Little Endian</span>
+</pre></div>
+</div>
+</div>
+<div class="section" id="handling-scp-scu-role-selection-negotiation">
+<h3>Handling SCP/SCU Role Selection Negotiation<a class="headerlink" href="#handling-scp-scu-role-selection-negotiation" title="Permalink to this headline">¶</a></h3>
+<p>Depending on the requirements of the service class, an association <em>Requestor</em>
+may include
+<a class="reference external" href="http://dicom.nema.org/medical/dicom/current/output/chtml/part07/sect_D.3.3.4.html">SCP/SCU Role Selection Negotiation</a>
+items in the association request and it’s up to the association <em>Acceptor</em>
+to decide whether or not to accept the proposed roles. This can be done
+through the <code class="docutils literal notranslate"><span class="pre">scu_role</span></code> and <code class="docutils literal notranslate"><span class="pre">scp_role</span></code> parameters, which control whether
+or not the association <em>Acceptor</em> will accept or reject the proposal:</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="kn">from</span> <span class="nn">pynetdicom</span> <span class="k">import</span> <span class="n">AE</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="kn">from</span> <span class="nn">pynetdicom.sop_class</span> <span class="k">import</span> <span class="n">CTImageStorage</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">ae</span> <span class="o">=</span> <span class="n">AE</span><span class="p">()</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">ae</span><span class="o">.</span><span class="n">add_supported_context</span><span class="p">(</span><span class="n">CTImageStorage</span><span class="p">,</span> <span class="n">scu_role</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span> <span class="n">scp_role</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+</pre></div>
+</div>
+<p>If either <code class="docutils literal notranslate"><span class="pre">scu_role</span></code> or <code class="docutils literal notranslate"><span class="pre">scp_role</span></code> is None (the default) then no response
+to the role selection will be sent and the default roles assumed. If you wish
+to accept a proposed role then set the corresponding parameter to <code class="docutils literal notranslate"><span class="pre">True</span></code>. In
+the above example if the <em>Requestor</em> proposes the SCP role then the <em>Acceptor</em>
+will accept it while rejecting the proposed SCU role (and therefore the
+<em>Acceptor</em> will be SCU and <em>Requestor</em> SCP).</p>
+<p>To reiterate, if you wish to respond to the proposed role selection then
+<strong>both</strong> <code class="docutils literal notranslate"><span class="pre">scu_role</span></code> and <code class="docutils literal notranslate"><span class="pre">scp_role</span></code> must be set, and the value you set
+indicates whether or not to accept or reject the proposal.</p>
+<p>There are <a class="reference internal" href="presentation.html#role-selection-negotiation"><span class="std std-ref">four possible outcomes</span></a>
+for the role selection negotiation, depending
+on what was proposed and what was accepted:</p>
+<ul class="simple">
+<li>The proposed roles aren’t acceptable and the context is rejected</li>
+<li>The <em>Acceptor</em> acts as the SCP and the <em>Requestor</em> the SCU (default)</li>
+<li>The <em>Acceptor</em> acts as the SCU and the <em>Requestor</em> the SCP</li>
+<li>Both <em>Acceptor</em> and <em>Requestor</em> act as SCU and SCP</li>
+</ul>
+</div>
+<div class="section" id="handling-user-identity-negotiation">
+<h3>Handling User Identity Negotiation<a class="headerlink" href="#handling-user-identity-negotiation" title="Permalink to this headline">¶</a></h3>
+<p>An association <em>Requestor</em> may include a
+<a class="reference external" href="http://dicom.nema.org/medical/dicom/current/output/chtml/part07/sect_D.3.3.7.html">User Identity Negotiation</a>
+item in the association request with the aim of providing the <em>Acceptor</em> a
+method of verifying its identity. Possible forms of identity confirmation
+methods are:</p>
+<ul class="simple">
+<li>Username</li>
+<li>Username and password (sent in the clear)</li>
+<li>Kerberos service ticket</li>
+<li>SAML assertion</li>
+<li>JSON web token</li>
+</ul>
+<p>By default all association requests that include user identity negotiation
+are accepted (provided there’s no other reason to reject) and
+no user identity negotiation response is sent even if one is requested.</p>
+<p>To handle the user identity negotiation yourself you should implement the
+<a class="reference internal" href="../reference/generated/pynetdicom.ae.ApplicationEntity.html#pynetdicom.ae.ApplicationEntity.on_user_identity" title="pynetdicom.ae.ApplicationEntity.on_user_identity"><code class="xref py py-meth docutils literal notranslate"><span class="pre">AE.on_user_identity</span></code></a>
+callback.</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span> <span class="nn">pynetdicom</span> <span class="kn">import</span> <span class="n">AE</span>
+<span class="kn">from</span> <span class="nn">pynetdicom.sop_class</span> <span class="kn">import</span> <span class="n">VerificationSOPClass</span>
+
+<span class="k">def</span> <span class="nf">on_user_identity</span><span class="p">(</span><span class="n">identity_type</span><span class="p">,</span> <span class="n">primary_field</span><span class="p">,</span> <span class="n">secondary_field</span><span class="p">,</span> <span class="n">info</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;Handle user identity negotiation requests.</span>
+
+<span class="sd">    Parameters</span>
+<span class="sd">    ----------</span>
+<span class="sd">    identity_type : int</span>
+<span class="sd">        * 1 - Username as a UTF-8 string</span>
+<span class="sd">        * 2 - Username as a UTF-8 string and passcode</span>
+<span class="sd">        * 3 - Kerberos Service ticket</span>
+<span class="sd">        * 4 - SAML Assertion</span>
+<span class="sd">        * 5 - JSON Web Token</span>
+<span class="sd">    primary_field : bytes</span>
+<span class="sd">        The value of the request&#39;s *Primary Field* parameter.</span>
+<span class="sd">    secondary_field : bytes or None</span>
+<span class="sd">        If the `identity_type` is 2 then the passcode, otherwise None.</span>
+<span class="sd">    info : dict</span>
+<span class="sd">        A dict containing information about the association requestor.</span>
+
+<span class="sd">    Returns</span>
+<span class="sd">    -------</span>
+<span class="sd">    is_verified : bool</span>
+<span class="sd">        Return True if the user identity has been confirmed and you wish</span>
+<span class="sd">        to proceed with association establishment, False otherwise.</span>
+<span class="sd">    response : bytes or None</span>
+<span class="sd">        If a positive response is requested and the identity is verified</span>
+<span class="sd">        then this will be the value of the response&#39;s *Server Response*</span>
+<span class="sd">        parameter. If ``user_id_type`` is:</span>
+
+<span class="sd">        * 1 or 2, then return None</span>
+<span class="sd">        * 3 then return the Kerberos Server ticket as bytes</span>
+<span class="sd">        * 4 then return the SAML response as bytes</span>
+<span class="sd">        * 5 then return the JSON web token as bytes</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="c1"># Identity verification code is outside the scope of pynetdicom</span>
+    <span class="n">is_verified</span><span class="p">,</span> <span class="n">response</span> <span class="o">=</span> <span class="n">some_user_function</span><span class="p">()</span>
+
+    <span class="k">return</span> <span class="n">is_verified</span><span class="p">,</span> <span class="n">response</span>
+
+<span class="n">ae</span> <span class="o">=</span> <span class="n">AE</span><span class="p">()</span>
+<span class="n">ae</span><span class="o">.</span><span class="n">add_supported_context</span><span class="p">(</span><span class="n">VerificationSOPClass</span><span class="p">)</span>
+<span class="n">ae</span><span class="o">.</span><span class="n">on_user_identity</span> <span class="o">=</span> <span class="n">on_user_identity</span>
+<span class="n">ae</span><span class="o">.</span><span class="n">start_server</span><span class="p">((</span><span class="s1">&#39;&#39;</span><span class="p">,</span> <span class="mi">11112</span><span class="p">))</span>
+</pre></div>
+</div>
+</div>
+<div class="section" id="specifying-the-bind-address">
+<h3>Specifying the bind address<a class="headerlink" href="#specifying-the-bind-address" title="Permalink to this headline">¶</a></h3>
+<p>The bind address for the server socket is specified by the <code class="docutils literal notranslate"><span class="pre">address</span></code>
+parameter to <code class="docutils literal notranslate"><span class="pre">start_server()</span></code> as (str <em>host</em>, int <em>port</em>).</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="kn">from</span> <span class="nn">pynetdicom</span> <span class="k">import</span> <span class="n">AE</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">ae</span> <span class="o">=</span> <span class="n">AE</span><span class="p">()</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">ae</span><span class="o">.</span><span class="n">add_supported_context</span><span class="p">(</span><span class="s1">&#39;1.2.840.10008.1.1&#39;</span><span class="p">)</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">ae</span><span class="o">.</span><span class="n">start_server</span><span class="p">((</span><span class="s1">&#39;&#39;</span><span class="p">,</span> <span class="mi">11112</span><span class="p">))</span>
+</pre></div>
+</div>
+</div>
+<div class="section" id="id7">
+<h3>Association<a class="headerlink" href="#id7" title="Permalink to this headline">¶</a></h3>
+<p>For information on how to start listening for association requests from peer
+AEs and how to handle their service requests see the
+<a class="reference internal" href="association.html#association"><span class="std std-ref">Association</span></a> page.</p>
+</div>
+<div class="section" id="references">
+<h3>References<a class="headerlink" href="#references" title="Permalink to this headline">¶</a></h3>
+<table class="docutils footnote" frame="void" id="id8" rules="none">
+<colgroup><col class="label" /><col /></colgroup>
+<tbody valign="top">
+<tr><td class="label"><a class="fn-backref" href="#id1">[1]</a></td><td>DICOM Standard, Part 5
+<a class="reference external" href="http://dicom.nema.org/medical/dicom/current/output/html/part05.html#sect_6.2">Section 6.2</a></td></tr>
+</tbody>
+</table>
+<table class="docutils footnote" frame="void" id="id9" rules="none">
+<colgroup><col class="label" /><col /></colgroup>
+<tbody valign="top">
+<tr><td class="label"><a class="fn-backref" href="#id2">[2]</a></td><td>DICOM Standard, Part 5
+<a class="reference external" href="http://dicom.nema.org/medical/dicom/current/output/html/part05.html#sect_6.1.3">Section 6.1.2.1</a></td></tr>
+</tbody>
+</table>
+<table class="docutils footnote" frame="void" id="id10" rules="none">
+<colgroup><col class="label" /><col /></colgroup>
+<tbody valign="top">
+<tr><td class="label"><a class="fn-backref" href="#id4">[3]</a></td><td>DICOM Standard, Part 5
+<a class="reference external" href="http://dicom.nema.org/medical/dicom/current/output/html/part05.html#sect_6.1.3">Section 6.1.3</a></td></tr>
+</tbody>
+</table>
+<table class="docutils footnote" frame="void" id="id11" rules="none">
+<colgroup><col class="label" /><col /></colgroup>
+<tbody valign="top">
+<tr><td class="label"><a class="fn-backref" href="#id5">[4]</a></td><td>DICOM Standard, Part 8
+<a class="reference external" href="http://dicom.nema.org/medical/dicom/current/output/html/part08.html#sect_9.3.2">Section 9.3.2</a></td></tr>
+</tbody>
+</table>
+<table class="docutils footnote" frame="void" id="id12" rules="none">
+<colgroup><col class="label" /><col /></colgroup>
+<tbody valign="top">
+<tr><td class="label"><a class="fn-backref" href="#id3">[5]</a></td><td><a class="reference external" href="https://www.iso.org/standard/4777.html">ISO/IEC 646:1991</a></td></tr>
+</tbody>
+</table>
+</div>
+</div>
+</div>
+
+
+           </div>
+           
+          </div>
+          <footer>
+  
+    <div class="rst-footer-buttons" role="navigation" aria-label="footer navigation">
+      
+        <a href="association.html" class="btn btn-neutral float-right" title="Association" accesskey="n" rel="next">Next <span class="fa fa-arrow-circle-right"></span></a>
+      
+      
+        <a href="presentation.html" class="btn btn-neutral float-left" title="Presentation Contexts" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left"></span> Previous</a>
+      
+    </div>
+  
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>
+        &copy; Copyright 2018-19, pynetdicom contributors
+
+    </p>
+  </div>
+  Built with <a href="http://sphinx-doc.org/">Sphinx</a> using a <a href="https://github.com/rtfd/sphinx_rtd_theme">theme</a> provided by <a href="https://readthedocs.org">Read the Docs</a>. 
+
+</footer>
+
+        </div>
+      </div>
+
+    </section>
+
+  </div>
+  
+
+
+  <script type="text/javascript">
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script>
+
+  
+  
+    
+   
+
+</body>
+</html>

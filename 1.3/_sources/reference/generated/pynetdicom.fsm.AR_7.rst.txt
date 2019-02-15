@@ -1,0 +1,6 @@
+pynetdicom.fsm.AR\_7
+====================
+
+.. currentmodule:: pynetdicom.fsm
+
+.. autofunction:: AR_7

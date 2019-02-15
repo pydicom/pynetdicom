@@ -1,0 +1,446 @@
+
+
+<!DOCTYPE html>
+<!--[if IE 8]><html class="no-js lt-ie9" lang="en" > <![endif]-->
+<!--[if gt IE 8]><!--> <html class="no-js" lang="en" > <!--<![endif]-->
+<head>
+  <meta charset="utf-8">
+  
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  
+  <title>Important Concepts &mdash; pynetdicom 1.2.0 documentation</title>
+  
+
+  
+  
+    <link rel="shortcut icon" href="../_static/favicon.ico"/>
+  
+  
+  
+
+  
+  <script type="text/javascript" src="../_static/js/modernizr.min.js"></script>
+  
+    
+      <script type="text/javascript" id="documentation_options" data-url_root="../" src="../_static/documentation_options.js"></script>
+        <script type="text/javascript" src="../_static/jquery.js"></script>
+        <script type="text/javascript" src="../_static/underscore.js"></script>
+        <script type="text/javascript" src="../_static/doctools.js"></script>
+        <script type="text/javascript" src="../_static/language_data.js"></script>
+    
+    <script type="text/javascript" src="../_static/js/theme.js"></script>
+
+    
+
+  
+  <link rel="stylesheet" href="../_static/css/pynetdicom.css" type="text/css" />
+  <link rel="stylesheet" href="../_static/pygments.css" type="text/css" />
+  <link rel="stylesheet" href="../_static/css/pynetdicom.css" type="text/css" />
+    <link rel="index" title="Index" href="../genindex.html" />
+    <link rel="search" title="Search" href="../search.html" />
+    <link rel="next" title="Presentation Contexts" href="presentation.html" />
+    <link rel="prev" title="Installation" href="installation.html" /> 
+</head>
+
+<body class="wy-body-for-nav">
+
+   
+  <div class="wy-grid-for-nav">
+    
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search" >
+          
+
+          
+            <a href="../index.html" class="icon icon-home"> pynetdicom
+          
+
+          
+            
+            <img src="../_static/pydicom_flat_black.svg" class="logo" alt="Logo"/>
+          
+          </a>
+
+          
+            
+            
+              <div class="version">
+                1.2.0
+              </div>
+            
+          
+
+          
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="../search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+
+          
+        </div>
+
+        <div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="main navigation">
+          
+            
+            
+              
+            
+            
+              <ul>
+<li class="toctree-l1"><a class="reference internal" href="../verification_service_class.html">Verification Service Class</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../storage_service_class.html">Storage Service Class</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../query_retrieve_service_class.html">Query/Retrieve Service Class</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../basic_worklist_service_class.html">Basic Worklist Management Service Class</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../relevant_patient_service_class.html">Relevant Patient Information Query Service Class</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../substance_admin_service_class.html">Substance Administration Query Service Class</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../non_patient_service_class.html">Non-Patient Object Storage Service Class</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../color_palette_service_class.html">Color Palette Query/Retrieve Service Class</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../defined_procedure_service_class.html">Defined Procedure Protocol Query/Retrieve Service Class</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../hanging_protocol_service_class.html">Hanging Protocol Query/Retrieve Service Class</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../implant_template_service_class.html">Implant Template Query/Retrieve Service Class</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../display_system_service_class.html">Display System Management Service Class</a></li>
+</ul>
+<ul class="current">
+<li class="toctree-l1 current"><a class="reference internal" href="index.html">User Guide</a><ul class="current">
+<li class="toctree-l2"><a class="reference internal" href="installation.html">Installation</a></li>
+<li class="toctree-l2 current"><a class="current reference internal" href="#">Important Concepts</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="#uids">UIDs</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#dicom-information-model">DICOM Information Model</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="#information-object-definition-iod">Information Object Definition (IOD)</a></li>
+<li class="toctree-l4"><a class="reference internal" href="#sop-classes">SOP Classes</a></li>
+<li class="toctree-l4"><a class="reference internal" href="#service-classes">Service Classes</a></li>
+</ul>
+</li>
+<li class="toctree-l3"><a class="reference internal" href="#application-entities">Application Entities</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#presentation-contexts">Presentation Contexts</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="#abstract-syntax">Abstract Syntax</a></li>
+<li class="toctree-l4"><a class="reference internal" href="#transfer-syntax">Transfer Syntax</a></li>
+</ul>
+</li>
+<li class="toctree-l3"><a class="reference internal" href="#association">Association</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="#association-negotiation-and-extended-negotiation">Association Negotiation and Extended Negotiation</a></li>
+</ul>
+</li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="presentation.html">Presentation Contexts</a></li>
+<li class="toctree-l2"><a class="reference internal" href="ae.html">Application Entity</a></li>
+<li class="toctree-l2"><a class="reference internal" href="association.html">Association</a></li>
+</ul>
+</li>
+</ul>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../release_notes.html">1.2.0</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../release_notes.html#v1-1-0">1.1.0</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../release_notes.html#v1-0-0">1.0.0</a></li>
+</ul>
+
+            
+          
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap">
+
+      
+      <nav class="wy-nav-top" aria-label="top navigation">
+        
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="../index.html">pynetdicom</a>
+        
+      </nav>
+
+
+      <div class="wy-nav-content">
+        
+        <div class="rst-content">
+        
+          
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+<div role="navigation" aria-label="breadcrumbs navigation">
+
+  <ul class="wy-breadcrumbs">
+    
+      <li><a href="../index.html">Docs</a> &raquo;</li>
+        
+          <li><a href="index.html">User Guide</a> &raquo;</li>
+        
+      <li>Important Concepts</li>
+    
+    
+      <li class="wy-breadcrumbs-aside">
+        
+            
+            <a href="../_sources/user/concepts.rst.txt" rel="nofollow"> View page source</a>
+          
+        
+      </li>
+    
+  </ul>
+
+  
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+            
+  <div class="section" id="important-concepts">
+<h1>Important Concepts<a class="headerlink" href="#important-concepts" title="Permalink to this headline">¶</a></h1>
+<div class="section" id="uids">
+<span id="concepts-uids"></span><h2>UIDs<a class="headerlink" href="#uids" title="Permalink to this headline">¶</a></h2>
+<p>Unique identifiers (UIDs) are a way of uniquely identifying a wide variety
+of items in a way that guarantees uniqueness across multiple countries, sites,
+vendors and equipment. The UID identification scheme used by DICOM is based on
+the numeric form of the OSI Object Identification as defined by <a class="reference external" href="https://www.iso.org/standard/68350.html">ISO/IEC 8824</a>
+(<a class="reference external" href="https://www.itu.int/itu-t/recommendations/rec.aspx?rec=x.680">ITU X.680</a>).</p>
+<p>Each UID is composed of two parts, an &lt;org root&gt; and a &lt;suffix&gt;:
+UID = &lt;org root&gt;.&lt;suffix&gt;</p>
+<p>The &lt;org root&gt; uniquely identifies an organisation and is composed of numeric
+components as defined by ISO/IEC 8824. The &lt;suffix&gt; portion of the UID is also
+composed of a number of numeric components, however it is generated by the
+application and must be unique within the scope of the &lt;org root&gt;.</p>
+<p>The DICOM &lt;org root&gt; is 1.2.840.10008 and is reserved for use for DICOM defined
+items and shall not be used for privately defined items.</p>
+<p>As an example of an official DICOM UID, the UID for <em>CT Image Storage</em> is
+1.2.840.10008.5.1.4.1.1.2</p>
+<p>Each component of a UID (‘1’, ‘2’, ‘840’, ‘10008’, etc, are all components)
+must not start with 0 unless the component itself is 0 (i.e. 1.2.0.4 is
+valid but 1.2.08.4 is invalid) and the maximum length of a UID is 64 total
+characters.</p>
+<p>More information on DICOM UIDs is available in <a class="reference external" href="http://dicom.nema.org/medical/dicom/current/output/html/part03.html">Part 5</a>
+of the DICOM Standard.</p>
+</div>
+<div class="section" id="dicom-information-model">
+<h2>DICOM Information Model<a class="headerlink" href="#dicom-information-model" title="Permalink to this headline">¶</a></h2>
+<div class="section" id="information-object-definition-iod">
+<span id="concepts-iods"></span><h3>Information Object Definition (IOD)<a class="headerlink" href="#information-object-definition-iod" title="Permalink to this headline">¶</a></h3>
+<p>An IOD is an object-orientated abstract data model use to specify information
+about a class of real-world objects that share the same properties.
+For example, a <em>Patient</em>, a <em>Study</em>, an imaging <em>Series</em> and a piece of imaging
+<em>Equipment</em> are all real world objects. An IOD, then, is the data model used to
+define the relationship between the objects (the <em>Patient</em> has
+one or more <em>Studies</em>, each <em>Study</em> contains one or more <em>Series</em> and each
+<em>Series</em> is created by a piece of <em>Equipment</em>).</p>
+<p>IODs come in two types; composite and normalised IODs. Normalised IODs
+generally represent only a single class of real-world objects (such as the
+<a class="reference external" href="http://dicom.nema.org/medical/dicom/current/output/chtml/part03/sect_B.11.2.html">Print Job IOD</a>
+). Composite IODs include
+information about related real-world objects (such as the
+<a class="reference external" href="http://dicom.nema.org/medical/dicom/current/output/chtml/part03/sect_A.3.3.html">CT Image IOD</a>
+which contains objects like <em>Patient</em>, <em>Study</em>, <em>Series</em>, <em>Equipment</em>, etc).</p>
+<p>There are many different DICOM IODs and they’re all defined in
+<a class="reference external" href="http://dicom.nema.org/medical/dicom/current/output/html/part03.html">Part 3</a>
+of the DICOM Standard.</p>
+</div>
+<div class="section" id="sop-classes">
+<span id="concepts-sop-classes"></span><h3>SOP Classes<a class="headerlink" href="#sop-classes" title="Permalink to this headline">¶</a></h3>
+<p>A Service-Object Pair (SOP) Class is defined by the union of an IOD and a DIMSE
+service group:</p>
+<ul class="simple">
+<li><strong>Composite SOP Classes</strong> are the union of Composite IODs and
+DIMSE-C services. An example of a Composite SOP Class is the <em>CT Image
+Storage SOP Class</em>, which is the union of the <em>CT Image IOD</em> and the DIMSE
+C-STORE service. A <em>CT Image Storage</em> instance stores information about a
+single slice of a patient’s CT scan. A complete scan (a <em>Series</em>) would
+then be made up of one or more <em>CT Image Storage SOP Class</em> instances, all
+with the same <em>Study Instance UID</em> and <em>Series Instance UID</em> values but
+differing <em>SOP Instance UID</em> values (one for each SOP instance within the
+<em>Series</em>).</li>
+<li><strong>Normalised SOP Classes</strong> are the union of Normalised IODs and DIMSE-N
+services. An example of a Normalised SOP Class is the <em>Print Job SOP
+Class</em>, which is the union of the <em>Print Job IOD</em> and the DIMSE
+N-EVENT-REPORT and N-GET services. The <em>Print Job SOP Class</em> is an
+abstraction of a print job containing one or more films to be printed.</li>
+</ul>
+<p>The DIMSE-C and DIMSE-N services are defined in
+<a class="reference external" href="http://dicom.nema.org/medical/dicom/current/output/html/part07.html">Part 7</a>
+of the DICOM Standard. Every DICOM SOP class has its own UID that can be found in
+<a class="reference external" href="http://dicom.nema.org/medical/dicom/current/output/chtml/part06/chapter_A.html">Part 6</a>.</p>
+</div>
+<div class="section" id="service-classes">
+<span id="concepts-service-classes"></span><h3>Service Classes<a class="headerlink" href="#service-classes" title="Permalink to this headline">¶</a></h3>
+<p>A DICOM Service Class defines a group of one or more SOP Classes related to a
+service that is to be used by communicating application  entities, as well as
+the rules that are to govern the provision of the service. Services
+include storage of SOP Class instances (<em>Storage Service Class</em>), verification
+of DICOM connectivity (<em>Verification Service Class</em>), querying and retrieval
+of managed SOP instances (<em>Query/Retrieve Service Class</em>), printing of images
+(<em>Print Management Service Class</em>) and many others.</p>
+<p>Service Classes are defined in <a class="reference external" href="http://dicom.nema.org/medical/dicom/current/output/html/part04.html">Part 4</a>
+of the DICOM Standard.</p>
+</div>
+</div>
+<div class="section" id="application-entities">
+<span id="concepts-ae"></span><h2>Application Entities<a class="headerlink" href="#application-entities" title="Permalink to this headline">¶</a></h2>
+<p>A DICOM <em>Application Entity</em> (AE) is an application that supports the DICOM
+standard in general, and especially IODs, service classes and dataset
+encoding/decoding.</p>
+<p>In DICOM networking, AEs are identified by their <em>AE Title</em>.</p>
+</div>
+<div class="section" id="presentation-contexts">
+<span id="concepts-presentation-contexts"></span><h2>Presentation Contexts<a class="headerlink" href="#presentation-contexts" title="Permalink to this headline">¶</a></h2>
+<p>Presentation Contexts are used during the negotiation of an association to
+provide a method for communicating AEs to agree on a set of supported services.
+Each Presentation Context consists of an Abstract Syntax and one or more
+Transfer Syntaxes, along with an ID value.</p>
+<ul class="simple">
+<li>The association <em>requestor</em> may propose multiple presentation contexts per
+association but is limited to a maximum of 128 proposed contexts.</li>
+<li>Each proposed presentation context contains one Abstract Syntax and one or
+more Transfer Syntaxes.</li>
+<li>The <em>requestor</em> may propose multiple contexts with the same Abstract Syntax</li>
+<li>The association <em>acceptor</em> may accept or reject each presentation context
+individually, but only one Transfer Syntax may be accepted per presentation
+context.</li>
+<li>The <em>acceptor</em> selects a suitable Transfer Syntax for each accepted
+presentation context.</li>
+</ul>
+<p>A more detailed guide to presentation contexts and how to use them with
+<em>pynetdicom</em> is available <a class="reference internal" href="presentation.html#user-presentation"><span class="std std-ref">here</span></a>.</p>
+<div class="section" id="abstract-syntax">
+<span id="concepts-abstract-syntax"></span><h3>Abstract Syntax<a class="headerlink" href="#abstract-syntax" title="Permalink to this headline">¶</a></h3>
+<p>An <a class="reference external" href="http://dicom.nema.org/medical/dicom/current/output/chtml/part08/chapter_B.html">Abstract Syntax</a>
+is a specification of a set of data elements and their associated semantics.
+Each Abstract Syntax is identified by an <em>Abstract Syntax Name</em> in the form
+of a UID. Abstract syntax names used with DICOM are usually the officially
+registered SOP class UIDs (and the abstract syntax is therefore the SOP class
+itself), but the standard also allows the use of private
+abstract syntaxes. While pynetdicom can handle association negotiation
+containing private abstract syntaxes the implementation of the associated
+services/semantics is up to the end user.</p>
+</div>
+<div class="section" id="transfer-syntax">
+<span id="concepts-transfer-syntax"></span><h3>Transfer Syntax<a class="headerlink" href="#transfer-syntax" title="Permalink to this headline">¶</a></h3>
+<p>A <a class="reference external" href="http://dicom.nema.org/medical/dicom/current/output/chtml/part08/sect_B.2.html">Transfer Syntax</a>
+defines a set of encoding rules able to unambiguously
+represent the data elements defined by one or more Abstract Syntaxes. In
+particular, the negotiation of transfer syntaxes allows communicating AEs to
+agree on the encoding techniques they are able to support (i.e. byte ordering,
+compression, etc.).</p>
+<p>The official DICOM transfer syntaxes are defined in
+<a class="reference external" href="http://dicom.nema.org/medical/dicom/current/output/html/part05.html#chapter_8">Part 5</a>
+of the DICOM Standard. The Standard also allows the use of privately defined
+transfer syntaxes. While pynetdicom is able to handle association
+negotiation containing private transfer syntaxes, the implementation of the
+associated encoding requirements is the responsibility of the end user.</p>
+</div>
+</div>
+<div class="section" id="association">
+<span id="concepts-association"></span><h2>Association<a class="headerlink" href="#association" title="Permalink to this headline">¶</a></h2>
+<p>When peer AEs want to communicate they must first set up an Association.</p>
+<ul class="simple">
+<li>The AE that is initiating the association (the <em>requestor</em>) sends
+an A-ASSOCIATE message to the peer AE (the <em>acceptor</em>) which contains a list
+of proposed presentation contexts and association negotiation items.</li>
+<li>The <em>acceptor</em> receives the request and responds with:<ul>
+<li>acceptance, which results is an association being established, or</li>
+<li>rejection, which results in no association, or</li>
+<li>abort, which results in no association</li>
+</ul>
+</li>
+</ul>
+<p>An association may be rejected because none of the proposed presentation
+contexts are supported, or because the <em>requestor</em> hasn’t identified itself
+correctly or for a <a class="reference external" href="http://dicom.nema.org/medical/dicom/current/output/chtml/part08/sect_9.3.4.html">number of other reasons</a>.</p>
+<p>The full service procedure for an association is found in
+<a class="reference external" href="http://dicom.nema.org/medical/dicom/current/output/chtml/part08/chapter_7.html#sect_7.1.2">Part 8</a>
+of the DICOM Standard.</p>
+<div class="section" id="association-negotiation-and-extended-negotiation">
+<span id="concepts-negotiation"></span><h3>Association Negotiation and Extended Negotiation<a class="headerlink" href="#association-negotiation-and-extended-negotiation" title="Permalink to this headline">¶</a></h3>
+<p>Standard association negotiation usually involves the peer AEs agreeing on a
+set of abstract syntax/transfer syntax combinations through the mechanism
+provided by presentation contexts. In some cases it may be necessary for
+communicating AEs to exchange more detailed information about features and
+services they may optionally require/support. This is accomplished by sending
+additional user information items during the association request:</p>
+<ul class="simple">
+<li>Asynchronous Operations Window Negotiation</li>
+<li>SCP/SCU Role Selection Negotiation</li>
+<li>SOP Class Extended Negotiation</li>
+<li>SOP Class Common Extended Negotiation</li>
+<li>User Identity Negotiation</li>
+</ul>
+<p>Some of these items are conditionally required,
+depending on the requested service class (such as SCP/SCU role selection
+negotiation
+when the Query/Retrieve service class’ C-GET operation is requested).
+Association negotiation involving these additional items is usually referred
+to as <em>extended negotiation</em>.</p>
+<p>Extended negotiation items are defined in
+<a class="reference external" href="http://dicom.nema.org/medical/dicom/current/output/chtml/part07/chapter_D.html">Part 7</a>
+and
+<a class="reference external" href="http://dicom.nema.org/medical/dicom/current/output/chtml/part08/chapter_D.html">Part 8</a>
+of the DICOM Standard.</p>
+</div>
+</div>
+</div>
+
+
+           </div>
+           
+          </div>
+          <footer>
+  
+    <div class="rst-footer-buttons" role="navigation" aria-label="footer navigation">
+      
+        <a href="presentation.html" class="btn btn-neutral float-right" title="Presentation Contexts" accesskey="n" rel="next">Next <span class="fa fa-arrow-circle-right"></span></a>
+      
+      
+        <a href="installation.html" class="btn btn-neutral float-left" title="Installation" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left"></span> Previous</a>
+      
+    </div>
+  
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>
+        &copy; Copyright 2018-19, pynetdicom contributors
+
+    </p>
+  </div>
+  Built with <a href="http://sphinx-doc.org/">Sphinx</a> using a <a href="https://github.com/rtfd/sphinx_rtd_theme">theme</a> provided by <a href="https://readthedocs.org">Read the Docs</a>. 
+
+</footer>
+
+        </div>
+      </div>
+
+    </section>
+
+  </div>
+  
+
+
+  <script type="text/javascript">
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script>
+
+  
+  
+    
+   
+
+</body>
+</html>

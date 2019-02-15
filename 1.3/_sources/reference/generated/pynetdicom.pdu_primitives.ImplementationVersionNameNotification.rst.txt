@@ -1,0 +1,29 @@
+pynetdicom.pdu\_primitives.ImplementationVersionNameNotification
+================================================================
+
+.. currentmodule:: pynetdicom.pdu_primitives
+
+.. autoclass:: ImplementationVersionNameNotification
+
+   
+   .. automethod:: __init__
+
+   
+   .. rubric:: Methods
+
+   .. autosummary::
+   
+      ~ImplementationVersionNameNotification.__init__
+      ~ImplementationVersionNameNotification.from_primitive
+   
+   
+
+   
+   
+   .. rubric:: Attributes
+
+   .. autosummary::
+   
+      ~ImplementationVersionNameNotification.implementation_version_name
+   
+   

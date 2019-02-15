@@ -1,0 +1,317 @@
+
+
+<!DOCTYPE html>
+<!--[if IE 8]><html class="no-js lt-ie9" lang="en" > <![endif]-->
+<!--[if gt IE 8]><!--> <html class="no-js" lang="en" > <!--<![endif]-->
+<head>
+  <meta charset="utf-8">
+  
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  
+  <title>A-ASSOCIATE-RQ PDU &mdash; pynetdicom 1.2.0 documentation</title>
+  
+
+  
+  
+    <link rel="shortcut icon" href="../_static/favicon.ico"/>
+  
+  
+  
+
+  
+  <script type="text/javascript" src="../_static/js/modernizr.min.js"></script>
+  
+    
+      <script type="text/javascript" id="documentation_options" data-url_root="../" src="../_static/documentation_options.js"></script>
+        <script type="text/javascript" src="../_static/jquery.js"></script>
+        <script type="text/javascript" src="../_static/underscore.js"></script>
+        <script type="text/javascript" src="../_static/doctools.js"></script>
+        <script type="text/javascript" src="../_static/language_data.js"></script>
+    
+    <script type="text/javascript" src="../_static/js/theme.js"></script>
+
+    
+
+  
+  <link rel="stylesheet" href="../_static/css/pynetdicom.css" type="text/css" />
+  <link rel="stylesheet" href="../_static/pygments.css" type="text/css" />
+  <link rel="stylesheet" href="../_static/css/pynetdicom.css" type="text/css" />
+    <link rel="index" title="Index" href="../genindex.html" />
+    <link rel="search" title="Search" href="../search.html" /> 
+</head>
+
+<body class="wy-body-for-nav">
+
+   
+  <div class="wy-grid-for-nav">
+    
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search" >
+          
+
+          
+            <a href="../index.html" class="icon icon-home"> pynetdicom
+          
+
+          
+            
+            <img src="../_static/pydicom_flat_black.svg" class="logo" alt="Logo"/>
+          
+          </a>
+
+          
+            
+            
+              <div class="version">
+                1.2.0
+              </div>
+            
+          
+
+          
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="../search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+
+          
+        </div>
+
+        <div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="main navigation">
+          
+            
+            
+              
+            
+            
+              <ul>
+<li class="toctree-l1"><a class="reference internal" href="../verification_service_class.html">Verification Service Class</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../storage_service_class.html">Storage Service Class</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../query_retrieve_service_class.html">Query/Retrieve Service Class</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../basic_worklist_service_class.html">Basic Worklist Management Service Class</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../relevant_patient_service_class.html">Relevant Patient Information Query Service Class</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../substance_admin_service_class.html">Substance Administration Query Service Class</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../non_patient_service_class.html">Non-Patient Object Storage Service Class</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../color_palette_service_class.html">Color Palette Query/Retrieve Service Class</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../defined_procedure_service_class.html">Defined Procedure Protocol Query/Retrieve Service Class</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../hanging_protocol_service_class.html">Hanging Protocol Query/Retrieve Service Class</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../implant_template_service_class.html">Implant Template Query/Retrieve Service Class</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../display_system_service_class.html">Display System Management Service Class</a></li>
+</ul>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../user/index.html">User Guide</a></li>
+</ul>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../release_notes.html">1.2.0</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../release_notes.html#v1-1-0">1.1.0</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../release_notes.html#v1-0-0">1.0.0</a></li>
+</ul>
+
+            
+          
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap">
+
+      
+      <nav class="wy-nav-top" aria-label="top navigation">
+        
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="../index.html">pynetdicom</a>
+        
+      </nav>
+
+
+      <div class="wy-nav-content">
+        
+        <div class="rst-content">
+        
+          
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+<div role="navigation" aria-label="breadcrumbs navigation">
+
+  <ul class="wy-breadcrumbs">
+    
+      <li><a href="../index.html">Docs</a> &raquo;</li>
+        
+      <li>A-ASSOCIATE-RQ PDU</li>
+    
+    
+      <li class="wy-breadcrumbs-aside">
+        
+            
+            <a href="../_sources/reference/dul.pdu.a_associate_rq.rst.txt" rel="nofollow"> View page source</a>
+          
+        
+      </li>
+    
+  </ul>
+
+  
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+            
+  <div class="section" id="a-associate-rq-pdu">
+<h1>A-ASSOCIATE-RQ PDU<a class="headerlink" href="#a-associate-rq-pdu" title="Permalink to this headline">¶</a></h1>
+<p>An A-ASSOCIATE-RQ PDU is made of a sequence of mandatory fields followed by a
+variable length field that must contain one Application Context item, one or
+more Presentation Context items and one User Information item. Sub-items shall
+exist for the Presentation Context and User Information items.</p>
+<div class="section" id="pdu">
+<h2>PDU<a class="headerlink" href="#pdu" title="Permalink to this headline">¶</a></h2>
+<table border="1" class="longtable docutils">
+<colgroup>
+<col width="10%" />
+<col width="90%" />
+</colgroup>
+<tbody valign="top">
+<tr class="row-odd"><td><a class="reference internal" href="generated/pynetdicom.pdu.A_ASSOCIATE_RQ.html#pynetdicom.pdu.A_ASSOCIATE_RQ" title="pynetdicom.pdu.A_ASSOCIATE_RQ"><code class="xref py py-obj docutils literal notranslate"><span class="pre">A_ASSOCIATE_RQ</span></code></a>()</td>
+<td>An A-ASSOCIATE-RQ PDU.</td>
+</tr>
+</tbody>
+</table>
+</div>
+<div class="section" id="variable-items">
+<h2>Variable Items<a class="headerlink" href="#variable-items" title="Permalink to this headline">¶</a></h2>
+<table border="1" class="longtable docutils">
+<colgroup>
+<col width="10%" />
+<col width="90%" />
+</colgroup>
+<tbody valign="top">
+<tr class="row-odd"><td><a class="reference internal" href="generated/pynetdicom.pdu_items.ApplicationContextItem.html#pynetdicom.pdu_items.ApplicationContextItem" title="pynetdicom.pdu_items.ApplicationContextItem"><code class="xref py py-obj docutils literal notranslate"><span class="pre">ApplicationContextItem</span></code></a>()</td>
+<td>An Application Context Item.</td>
+</tr>
+<tr class="row-even"><td><a class="reference internal" href="generated/pynetdicom.pdu_items.PresentationContextItemRQ.html#pynetdicom.pdu_items.PresentationContextItemRQ" title="pynetdicom.pdu_items.PresentationContextItemRQ"><code class="xref py py-obj docutils literal notranslate"><span class="pre">PresentationContextItemRQ</span></code></a>()</td>
+<td>A Presentation Context (RQ) Item.</td>
+</tr>
+<tr class="row-odd"><td><a class="reference internal" href="generated/pynetdicom.pdu_items.UserInformationItem.html#pynetdicom.pdu_items.UserInformationItem" title="pynetdicom.pdu_items.UserInformationItem"><code class="xref py py-obj docutils literal notranslate"><span class="pre">UserInformationItem</span></code></a>()</td>
+<td>A User Information Item.</td>
+</tr>
+</tbody>
+</table>
+</div>
+<div class="section" id="presentation-context-sub-items">
+<h2>Presentation Context Sub-items<a class="headerlink" href="#presentation-context-sub-items" title="Permalink to this headline">¶</a></h2>
+<table border="1" class="longtable docutils">
+<colgroup>
+<col width="10%" />
+<col width="90%" />
+</colgroup>
+<tbody valign="top">
+<tr class="row-odd"><td><a class="reference internal" href="generated/pynetdicom.pdu_items.AbstractSyntaxSubItem.html#pynetdicom.pdu_items.AbstractSyntaxSubItem" title="pynetdicom.pdu_items.AbstractSyntaxSubItem"><code class="xref py py-obj docutils literal notranslate"><span class="pre">AbstractSyntaxSubItem</span></code></a>()</td>
+<td>An Abstract Syntax Sub-item.</td>
+</tr>
+<tr class="row-even"><td><a class="reference internal" href="generated/pynetdicom.pdu_items.TransferSyntaxSubItem.html#pynetdicom.pdu_items.TransferSyntaxSubItem" title="pynetdicom.pdu_items.TransferSyntaxSubItem"><code class="xref py py-obj docutils literal notranslate"><span class="pre">TransferSyntaxSubItem</span></code></a>()</td>
+<td>A Transfer Syntax Sub-item.</td>
+</tr>
+</tbody>
+</table>
+</div>
+<div class="section" id="user-information-sub-items">
+<h2>User Information Sub-items<a class="headerlink" href="#user-information-sub-items" title="Permalink to this headline">¶</a></h2>
+<table border="1" class="longtable docutils">
+<colgroup>
+<col width="10%" />
+<col width="90%" />
+</colgroup>
+<tbody valign="top">
+<tr class="row-odd"><td><a class="reference internal" href="generated/pynetdicom.pdu_items.MaximumLengthSubItem.html#pynetdicom.pdu_items.MaximumLengthSubItem" title="pynetdicom.pdu_items.MaximumLengthSubItem"><code class="xref py py-obj docutils literal notranslate"><span class="pre">MaximumLengthSubItem</span></code></a>()</td>
+<td>A Maximum Length Sub-item.</td>
+</tr>
+<tr class="row-even"><td><a class="reference internal" href="generated/pynetdicom.pdu_items.ImplementationClassUIDSubItem.html#pynetdicom.pdu_items.ImplementationClassUIDSubItem" title="pynetdicom.pdu_items.ImplementationClassUIDSubItem"><code class="xref py py-obj docutils literal notranslate"><span class="pre">ImplementationClassUIDSubItem</span></code></a>()</td>
+<td>An Implementation Class UID Sub-item.</td>
+</tr>
+<tr class="row-odd"><td><a class="reference internal" href="generated/pynetdicom.pdu_items.ImplementationVersionNameSubItem.html#pynetdicom.pdu_items.ImplementationVersionNameSubItem" title="pynetdicom.pdu_items.ImplementationVersionNameSubItem"><code class="xref py py-obj docutils literal notranslate"><span class="pre">ImplementationVersionNameSubItem</span></code></a>()</td>
+<td>An Implementation Version Name Sub-item.</td>
+</tr>
+<tr class="row-even"><td><a class="reference internal" href="generated/pynetdicom.pdu_items.SCP_SCU_RoleSelectionSubItem.html#pynetdicom.pdu_items.SCP_SCU_RoleSelectionSubItem" title="pynetdicom.pdu_items.SCP_SCU_RoleSelectionSubItem"><code class="xref py py-obj docutils literal notranslate"><span class="pre">SCP_SCU_RoleSelectionSubItem</span></code></a>()</td>
+<td>An SCP/SCU Role Selection Sub-item.</td>
+</tr>
+<tr class="row-odd"><td><a class="reference internal" href="generated/pynetdicom.pdu_items.AsynchronousOperationsWindowSubItem.html#pynetdicom.pdu_items.AsynchronousOperationsWindowSubItem" title="pynetdicom.pdu_items.AsynchronousOperationsWindowSubItem"><code class="xref py py-obj docutils literal notranslate"><span class="pre">AsynchronousOperationsWindowSubItem</span></code></a>()</td>
+<td>An Asynchronous Operations Window Sub-item.</td>
+</tr>
+<tr class="row-even"><td><a class="reference internal" href="generated/pynetdicom.pdu_items.UserIdentitySubItemRQ.html#pynetdicom.pdu_items.UserIdentitySubItemRQ" title="pynetdicom.pdu_items.UserIdentitySubItemRQ"><code class="xref py py-obj docutils literal notranslate"><span class="pre">UserIdentitySubItemRQ</span></code></a>()</td>
+<td>A User Identity (RQ) Sub-item.</td>
+</tr>
+<tr class="row-odd"><td><a class="reference internal" href="generated/pynetdicom.pdu_items.SOPClassExtendedNegotiationSubItem.html#pynetdicom.pdu_items.SOPClassExtendedNegotiationSubItem" title="pynetdicom.pdu_items.SOPClassExtendedNegotiationSubItem"><code class="xref py py-obj docutils literal notranslate"><span class="pre">SOPClassExtendedNegotiationSubItem</span></code></a>()</td>
+<td>A SOP Class Extended Negotiation Sub-item.</td>
+</tr>
+<tr class="row-even"><td><a class="reference internal" href="generated/pynetdicom.pdu_items.SOPClassCommonExtendedNegotiationSubItem.html#pynetdicom.pdu_items.SOPClassCommonExtendedNegotiationSubItem" title="pynetdicom.pdu_items.SOPClassCommonExtendedNegotiationSubItem"><code class="xref py py-obj docutils literal notranslate"><span class="pre">SOPClassCommonExtendedNegotiationSubItem</span></code></a>()</td>
+<td>A SOP Class Common Extended Negotiation Sub-item.</td>
+</tr>
+</tbody>
+</table>
+</div>
+<div class="section" id="references">
+<h2>References<a class="headerlink" href="#references" title="Permalink to this headline">¶</a></h2>
+<ol class="arabic simple">
+<li>DICOM Standard, Part 8, Section
+<a class="reference external" href="http://dicom.nema.org/medical/dicom/current/output/html/part08.html#sect_9.3.2">9.3.2</a></li>
+</ol>
+</div>
+</div>
+
+
+           </div>
+           
+          </div>
+          <footer>
+  
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>
+        &copy; Copyright 2018-19, pynetdicom contributors
+
+    </p>
+  </div>
+  Built with <a href="http://sphinx-doc.org/">Sphinx</a> using a <a href="https://github.com/rtfd/sphinx_rtd_theme">theme</a> provided by <a href="https://readthedocs.org">Read the Docs</a>. 
+
+</footer>
+
+        </div>
+      </div>
+
+    </section>
+
+  </div>
+  
+
+
+  <script type="text/javascript">
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script>
+
+  
+  
+    
+   
+
+</body>
+</html>

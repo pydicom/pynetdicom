@@ -1,0 +1,351 @@
+
+
+<!DOCTYPE html>
+<!--[if IE 8]><html class="no-js lt-ie9" lang="en" > <![endif]-->
+<!--[if gt IE 8]><!--> <html class="no-js" lang="en" > <!--<![endif]-->
+<head>
+  <meta charset="utf-8">
+  
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  
+  <title>pynetdicom Documentation &mdash; pynetdicom 1.2.0 documentation</title>
+  
+
+  
+  
+    <link rel="shortcut icon" href="_static/favicon.ico"/>
+  
+  
+  
+
+  
+  <script type="text/javascript" src="_static/js/modernizr.min.js"></script>
+  
+    
+      <script type="text/javascript" id="documentation_options" data-url_root="./" src="_static/documentation_options.js"></script>
+        <script type="text/javascript" src="_static/jquery.js"></script>
+        <script type="text/javascript" src="_static/underscore.js"></script>
+        <script type="text/javascript" src="_static/doctools.js"></script>
+        <script type="text/javascript" src="_static/language_data.js"></script>
+    
+    <script type="text/javascript" src="_static/js/theme.js"></script>
+
+    
+
+  
+  <link rel="stylesheet" href="_static/css/pynetdicom.css" type="text/css" />
+  <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
+  <link rel="stylesheet" href="_static/css/pynetdicom.css" type="text/css" />
+    <link rel="index" title="Index" href="genindex.html" />
+    <link rel="search" title="Search" href="search.html" />
+    <link rel="next" title="Verification Service Class" href="verification_service_class.html" /> 
+</head>
+
+<body class="wy-body-for-nav">
+
+   
+  <div class="wy-grid-for-nav">
+    
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search" >
+          
+
+          
+            <a href="#" class="icon icon-home"> pynetdicom
+          
+
+          
+            
+            <img src="_static/pydicom_flat_black.svg" class="logo" alt="Logo"/>
+          
+          </a>
+
+          
+            
+            
+              <div class="version">
+                1.2.0
+              </div>
+            
+          
+
+          
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+
+          
+        </div>
+
+        <div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="main navigation">
+          
+            
+            
+              
+            
+            
+              <ul>
+<li class="toctree-l1"><a class="reference internal" href="verification_service_class.html">Verification Service Class</a></li>
+<li class="toctree-l1"><a class="reference internal" href="storage_service_class.html">Storage Service Class</a></li>
+<li class="toctree-l1"><a class="reference internal" href="query_retrieve_service_class.html">Query/Retrieve Service Class</a></li>
+<li class="toctree-l1"><a class="reference internal" href="basic_worklist_service_class.html">Basic Worklist Management Service Class</a></li>
+<li class="toctree-l1"><a class="reference internal" href="relevant_patient_service_class.html">Relevant Patient Information Query Service Class</a></li>
+<li class="toctree-l1"><a class="reference internal" href="substance_admin_service_class.html">Substance Administration Query Service Class</a></li>
+<li class="toctree-l1"><a class="reference internal" href="non_patient_service_class.html">Non-Patient Object Storage Service Class</a></li>
+<li class="toctree-l1"><a class="reference internal" href="color_palette_service_class.html">Color Palette Query/Retrieve Service Class</a></li>
+<li class="toctree-l1"><a class="reference internal" href="defined_procedure_service_class.html">Defined Procedure Protocol Query/Retrieve Service Class</a></li>
+<li class="toctree-l1"><a class="reference internal" href="hanging_protocol_service_class.html">Hanging Protocol Query/Retrieve Service Class</a></li>
+<li class="toctree-l1"><a class="reference internal" href="implant_template_service_class.html">Implant Template Query/Retrieve Service Class</a></li>
+<li class="toctree-l1"><a class="reference internal" href="display_system_service_class.html">Display System Management Service Class</a></li>
+</ul>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="user/index.html">User Guide</a></li>
+</ul>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="release_notes.html">1.2.0</a></li>
+<li class="toctree-l1"><a class="reference internal" href="release_notes.html#v1-1-0">1.1.0</a></li>
+<li class="toctree-l1"><a class="reference internal" href="release_notes.html#v1-0-0">1.0.0</a></li>
+</ul>
+
+            
+          
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap">
+
+      
+      <nav class="wy-nav-top" aria-label="top navigation">
+        
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="#">pynetdicom</a>
+        
+      </nav>
+
+
+      <div class="wy-nav-content">
+        
+        <div class="rst-content">
+        
+          
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+<div role="navigation" aria-label="breadcrumbs navigation">
+
+  <ul class="wy-breadcrumbs">
+    
+      <li><a href="#">Docs</a> &raquo;</li>
+        
+      <li>pynetdicom Documentation</li>
+    
+    
+      <li class="wy-breadcrumbs-aside">
+        
+            
+            <a href="_sources/index.rst.txt" rel="nofollow"> View page source</a>
+          
+        
+      </li>
+    
+  </ul>
+
+  
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+            
+  <div class="section" id="pynetdicom-documentation">
+<h1>pynetdicom Documentation<a class="headerlink" href="#pynetdicom-documentation" title="Permalink to this headline">¶</a></h1>
+<div class="section" id="dicom">
+<h2>DICOM<a class="headerlink" href="#dicom" title="Permalink to this headline">¶</a></h2>
+<p><a class="reference external" href="http://dicom.nema.org/">DICOM</a> is the international standard for medical
+images and related information. It defines the formats and communication
+protocols for media exchange in radiology, cardiology, radiotherapy and
+other medical domains. If you’ve ever had an X-ray or an ultrasound or one of
+many other medical procedures, then the chances are that the DICOM standard was
+involved in some way.</p>
+</div>
+<div class="section" id="pynetdicom">
+<h2>pynetdicom<a class="headerlink" href="#pynetdicom" title="Permalink to this headline">¶</a></h2>
+<p><a class="reference external" href="https://github.com/pydicom/pynetdicom">pynetdicom</a> is a pure Python
+2.7/3.4+ package that implements the DICOM networking protocol. Working with
+<a class="reference external" href="https://github.com/pydicom/pydicom">pydicom</a>, it allows the easy creation
+of DICOM Application Entities (AEs), which can then act as <em>Service Class
+Users</em> (SCUs) and <em>Service Class Providers</em> (SCPs) by associating with other
+AEs and using or providing the services available to the association.</p>
+</div>
+<div class="section" id="supported-service-classes">
+<h2>Supported Service Classes<a class="headerlink" href="#supported-service-classes" title="Permalink to this headline">¶</a></h2>
+<p>pynetdicom currently supports the following DICOM service classes:</p>
+<div class="toctree-wrapper compound">
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="verification_service_class.html">Verification Service Class</a></li>
+<li class="toctree-l1"><a class="reference internal" href="storage_service_class.html">Storage Service Class</a></li>
+<li class="toctree-l1"><a class="reference internal" href="query_retrieve_service_class.html">Query/Retrieve Service Class</a></li>
+<li class="toctree-l1"><a class="reference internal" href="basic_worklist_service_class.html">Basic Worklist Management Service Class</a></li>
+<li class="toctree-l1"><a class="reference internal" href="relevant_patient_service_class.html">Relevant Patient Information Query Service Class</a></li>
+<li class="toctree-l1"><a class="reference internal" href="substance_admin_service_class.html">Substance Administration Query Service Class</a></li>
+<li class="toctree-l1"><a class="reference internal" href="non_patient_service_class.html">Non-Patient Object Storage Service Class</a></li>
+<li class="toctree-l1"><a class="reference internal" href="color_palette_service_class.html">Color Palette Query/Retrieve Service Class</a></li>
+<li class="toctree-l1"><a class="reference internal" href="defined_procedure_service_class.html">Defined Procedure Protocol Query/Retrieve Service Class</a></li>
+<li class="toctree-l1"><a class="reference internal" href="hanging_protocol_service_class.html">Hanging Protocol Query/Retrieve Service Class</a></li>
+<li class="toctree-l1"><a class="reference internal" href="implant_template_service_class.html">Implant Template Query/Retrieve Service Class</a></li>
+<li class="toctree-l1"><a class="reference internal" href="display_system_service_class.html">Display System Management Service Class</a></li>
+</ul>
+</div>
+</div>
+</div>
+<div class="section" id="user-guide">
+<h1>User Guide<a class="headerlink" href="#user-guide" title="Permalink to this headline">¶</a></h1>
+<p>The <a class="reference internal" href="user/index.html#user-guide"><span class="std std-ref">User Guide</span></a> is intended as an introduction to pynetdicom and
+explains how to install the API and covers basic usage. For detailed
+documentation of the functions and classes see the
+<a class="reference internal" href="reference/index.html#reference"><span class="std std-ref">API reference</span></a>.</p>
+<div class="toctree-wrapper compound">
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="user/index.html">User Guide</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="user/installation.html">Installation</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="user/installation.html#installing-the-current-release">Installing the current release</a></li>
+<li class="toctree-l3"><a class="reference internal" href="user/installation.html#installing-the-development-version">Installing the development version</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="user/concepts.html">Important Concepts</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="user/concepts.html#uids">UIDs</a></li>
+<li class="toctree-l3"><a class="reference internal" href="user/concepts.html#dicom-information-model">DICOM Information Model</a></li>
+<li class="toctree-l3"><a class="reference internal" href="user/concepts.html#application-entities">Application Entities</a></li>
+<li class="toctree-l3"><a class="reference internal" href="user/concepts.html#presentation-contexts">Presentation Contexts</a></li>
+<li class="toctree-l3"><a class="reference internal" href="user/concepts.html#association">Association</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="user/presentation.html">Presentation Contexts</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="user/presentation.html#introduction">Introduction</a></li>
+<li class="toctree-l3"><a class="reference internal" href="user/presentation.html#presentation-contexts-and-the-association-requestor">Presentation Contexts and the Association Requestor</a></li>
+<li class="toctree-l3"><a class="reference internal" href="user/presentation.html#presentation-contexts-and-the-association-acceptor">Presentation Contexts and the Association Acceptor</a></li>
+<li class="toctree-l3"><a class="reference internal" href="user/presentation.html#presentation-context-negotiation">Presentation Context Negotiation</a></li>
+<li class="toctree-l3"><a class="reference internal" href="user/presentation.html#scp-scu-role-selection">SCP/SCU Role Selection</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="user/ae.html">Application Entity</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="user/ae.html#creating-an-scu">Creating an SCU</a></li>
+<li class="toctree-l3"><a class="reference internal" href="user/ae.html#creating-an-scp">Creating an SCP</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="user/association.html">Association</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="user/association.html#requesting-an-association-scu">Requesting an Association (SCU)</a></li>
+<li class="toctree-l3"><a class="reference internal" href="user/association.html#using-an-association-scu">Using an Association (SCU)</a></li>
+<li class="toctree-l3"><a class="reference internal" href="user/association.html#accessing-user-identity-responses">Accessing User Identity Responses</a></li>
+<li class="toctree-l3"><a class="reference internal" href="user/association.html#listening-for-association-requests-scp">Listening for Association Requests (SCP)</a></li>
+<li class="toctree-l3"><a class="reference internal" href="user/association.html#providing-dimse-services-scp">Providing DIMSE Services (SCP)</a></li>
+</ul>
+</li>
+</ul>
+</li>
+</ul>
+</div>
+</div>
+<div class="section" id="examples">
+<span id="index-examples"></span><h1>Examples<a class="headerlink" href="#examples" title="Permalink to this headline">¶</a></h1>
+<ul class="simple">
+<li><a class="reference internal" href="examples/verification.html"><span class="doc">Verification Service Examples</span></a></li>
+<li><a class="reference internal" href="examples/storage.html"><span class="doc">Storage Service Examples</span></a></li>
+<li><a class="reference internal" href="examples/qr_find.html"><span class="doc">Query/Retrieve (Find) Service Examples</span></a></li>
+<li><a class="reference internal" href="examples/qr_get.html"><span class="doc">Query/Retrieve (Get) Service Examples</span></a></li>
+<li><a class="reference internal" href="examples/qr_move.html"><span class="doc">Query/Retrieve (Move) Service Examples</span></a></li>
+<li><a class="reference internal" href="examples/basic_worklist.html"><span class="doc">Basic Worklist Management Service Examples</span></a></li>
+<li><a class="reference internal" href="examples/relevant_patient.html"><span class="doc">Relevant Patient Information Query Service Examples</span></a></li>
+<li><a class="reference internal" href="examples/display.html"><span class="doc">Display System Management Service Examples</span></a></li>
+</ul>
+</div>
+<div class="section" id="api-reference">
+<h1>API Reference<a class="headerlink" href="#api-reference" title="Permalink to this headline">¶</a></h1>
+<p>The <a class="reference internal" href="reference/index.html"><span class="doc">API Reference</span></a> provides documentation of the
+important functions and classes.</p>
+</div>
+<div class="section" id="applications">
+<h1>Applications<a class="headerlink" href="#applications" title="Permalink to this headline">¶</a></h1>
+<ul class="simple">
+<li><a class="reference internal" href="apps/echoscu.html"><span class="doc">echoscu</span></a></li>
+<li><a class="reference internal" href="apps/echoscp.html"><span class="doc">echoscp</span></a></li>
+<li><a class="reference internal" href="apps/storescu.html"><span class="doc">storescu</span></a></li>
+<li><a class="reference internal" href="apps/storescp.html"><span class="doc">storescp</span></a></li>
+</ul>
+</div>
+<div class="section" id="release-notes">
+<h1>Release Notes<a class="headerlink" href="#release-notes" title="Permalink to this headline">¶</a></h1>
+<div class="toctree-wrapper compound">
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="release_notes.html">1.2.0</a></li>
+<li class="toctree-l1"><a class="reference internal" href="release_notes.html#v1-1-0">1.1.0</a></li>
+<li class="toctree-l1"><a class="reference internal" href="release_notes.html#v1-0-0">1.0.0</a></li>
+</ul>
+</div>
+</div>
+
+
+           </div>
+           
+          </div>
+          <footer>
+  
+    <div class="rst-footer-buttons" role="navigation" aria-label="footer navigation">
+      
+        <a href="verification_service_class.html" class="btn btn-neutral float-right" title="Verification Service Class" accesskey="n" rel="next">Next <span class="fa fa-arrow-circle-right"></span></a>
+      
+      
+    </div>
+  
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>
+        &copy; Copyright 2018-19, pynetdicom contributors
+
+    </p>
+  </div>
+  Built with <a href="http://sphinx-doc.org/">Sphinx</a> using a <a href="https://github.com/rtfd/sphinx_rtd_theme">theme</a> provided by <a href="https://readthedocs.org">Read the Docs</a>. 
+
+</footer>
+
+        </div>
+      </div>
+
+    </section>
+
+  </div>
+  
+
+
+  <script type="text/javascript">
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script>
+
+  
+  
+    
+   
+
+</body>
+</html>
