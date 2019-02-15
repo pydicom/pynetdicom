@@ -63,21 +63,21 @@ If you require the use of :ref:`extended negotiation <concepts_negotiation>`
 then you can supply the ``ext_neg`` parameter. Some extended negotiation
 items can only be singular and some can occur multiple times depending on the
 service class and intended usage. The following example shows how to add
-SCP/SCU Role Selection Negotiation items when requesting the use of the
+*SCP/SCU Role Selection Negotiation* items using
+:py:meth:`build_role() <pynetdicom.presentation.build_role>`
+when requesting the use of the
 Query/Retrieve (QR) Service Class' C-GET service (in this example the QR SCU is
-also acting as a Storage SCP), plus a User Identity Negotiation item:
+also acting as a Storage SCP), plus a *User Identity Negotiation* item:
 
 ::
 
     from pynetdicom import (
         AE,
         StoragePresentationContexts,
-        QueryRetrievePresentationContexts
+        QueryRetrievePresentationContexts,
+        build_role
     )
-    from pynetdicom.pdu_primitives import (
-        SCP_SCU_RoleSelectionNegotiation,
-        UserIdentityNegotiation,
-    )
+    from pynetdicom.pdu_primitives import UserIdentityNegotiation
 
     ae = AE()
     # Presentation contexts proposed as a QR SCU
@@ -89,9 +89,7 @@ also acting as a Storage SCP), plus a User Identity Negotiation item:
     #   as an SCP
     negotiation_items = []
     for context in StoragePresentationContexts:
-        role = SCP_SCU_RoleSelectionNegotiation()
-        role.sop_class_uid = context.abstract_syntax
-        role.scp_role = True
+        role = build_role(context.abstract_syntax, scp_role=True)
         negotiation_items.append(role)
 
     # Add user identity negotiation request
@@ -111,6 +109,40 @@ Possible extended negotiation items are:
 * :py:class:`SOP Class Extended Negotiation <pynetdicom.pdu_primitives.SOPClassExtendedNegotiation>`
 * :py:class:`SOP Class Common Negotiation <pynetdicom.pdu_primitives.SOPClassCommonExtendedNegotiation>`
 * :py:class:`User Identity Negotiation <pynetdicom.pdu_primitives.UserIdentityNegotiation>`
+
+
+TLS
+...
+
+The client socket used for the association can be wrapped in TLS by supplying
+the ``tls_args`` keyword parameter to ``associate()``:
+
+::
+
+    import ssl
+
+    from pynetdicom import AE
+    from pynetdicom.sop_class import VerificationSOPClass
+
+    ae = AE()
+    ae.add_requested_context(VerificationSOPClass)
+
+    # Create the SSLContext, your requirements may vary
+    ssl_cx = ssl.create_default_context(ssl.Purpose.CLIENT_AUTH, cafile='server.crt')
+    ssl_cx.verify_mode = ssl.CERT_REQUIRED
+    ssl_cx.load_cert_chain(certfile='client.crt', keyfile='client.key')
+
+    assoc = ae.associate('127.0.0.1', 11112, tls_args=(ssl_cx, None))
+    if assoc.is_established:
+        # Do something with the association
+        pass
+
+        # Once we are finished, release the association
+        assoc.release()
+
+``tls_args`` is
+(`SSLContext <https://docs.python.org/3/library/ssl.html#ssl.SSLContext.wrap_socket>`_,
+*host*), where *host* is the value of the ``server_hostname`` keyword parameter in ``SSLContext.wrap_socket()``.
 
 
 Outcomes of an Association Request
@@ -161,9 +193,11 @@ of the following DIMSE-C services:
   callback (as outlined :ref:`here <assoc_scp>`)
 * C-MOVE, through the
   :py:meth:`Association.send_c_move() <pynetdicom.association.Association.send_c_move>`
-  method. The current implementation of pynetdicom doesn't support the C-MOVE
-  SCU being the destination for the storage of requested datasets (the C-STORE
-  SCP).
+  method. The performing SCP may either send the requested datasets over a new
+  association to the move destination or (if the SCU is the destination) over
+  the existing association so in that case you should implement the
+  :py:meth:`AE.on_c_store() <pynetdicom.ae.ApplicationEntity.on_c_store>`
+  callback.
 
 Attempting to use a service without an established association will raise a
 ``RuntimeError``, while attempting to use a service that is not supported by
@@ -173,12 +207,21 @@ For more information on using the services available to an association please
 read through the :ref:`examples <index_examples>` corresponding to the
 service class you're interested in.
 
+Releasing an Association
+........................
+
+Once your association has been established and you've finished using it, its a
+good idea to release the association using ``Association.release()``, otherwise
+the association will remain open until the network timeout expires or the
+peer aborts or closes the connection.
+
 Accessing User Identity Responses
 ---------------------------------
 
-If the association requestor has sent a User Identity Negotiation item as
-part of the extended negotiation and has requested a response in the event of
-a positive identification then it can be accessed via the
+If the association *Requestor* has sent a
+`User Identity Negotiation <http://dicom.nema.org/medical/dicom/current/output/chtml/part07/sect_D.3.3.7.html>`_
+item as part of the extended negotiation and has requested a response in the
+event of a positive identification then it can be accessed via the
 :py:meth:`Assocation.acceptor.user_identity <pynetdicom.association.Association.acceptor.user_identity>`
 property after the association has been established.
 
@@ -186,10 +229,9 @@ property after the association has been established.
 
 Listening for Association Requests (SCP)
 ----------------------------------------
-Assuming you :ref:`have an AE <ae_create_scp>` set to listen on port 11112
-and have added your supported presentation contexts then you can start
+Assuming you have added your supported presentation contexts then you can start
 listening for association requests from peers with the
-:py:meth:`AE.start() <pynetdicom.ae.ApplicationEntity.start>`
+:py:meth:`AE.start_server() <pynetdicom.ae.ApplicationEntity.start_server>`
 method:
 
 ::
@@ -197,15 +239,61 @@ method:
     from pynetdicom import AE
     from pynetdicom.sop_class import VerificationSOPClass
 
-    ae = AE(port=11112)
     ae.add_supported_context(VerificationSOPClass)
 
     # Listen for association requests
-    ae.start()
+    ae.start_server(('', 11112))
 
 The above is suitable as an implementation of the Verification Service
 Class, however other service classes will require that you implement one
 or more of the AE service class callbacks.
+
+The association server can be started in both blocking (default) and
+non-blocking modes:
+
+::
+
+    from pynetdicom import AE
+    from pynetdicom.sop_class import VerificationSOPClass
+
+    ae.add_supported_context(VerificationSOPClass)
+
+    # Returns a ThreadedAssociationServer instance
+    server = ae.start_server(('', 11112), block=False)
+
+    # Blocks
+    ae.start_server(('', 11113), block=True)
+
+The returned
+:py:class:`ThreadedAssociationServer <pynetdicom.transport.ThreadedAssociationServer>`
+instances can be stopped using ``shutdown()`` and all active association
+can be stopped using ``AE.shutdown()``.
+
+
+TLS
+...
+
+The client sockets generated by the association server can also be wrapped in
+TLS by  supplying a `ssl.SSLContext <https://docs.python.org/3/library/ssl.html#ssl.SSLContext.wrap_socket>`_
+instance via the ``ssl_context`` keyword parameter:
+
+::
+
+    import ssl
+
+    from pynetdicom import AE
+    from pynetdicom.sop_class import VerificationSOPClass
+
+    ae.add_supported_context(VerificationSOPClass)
+
+    # Create the SSLContext, your requirements may vary
+    ssl_cx = ssl.create_default_context(ssl.Purpose.CLIENT_AUTH)
+    ssl_cx.verify_mode = ssl.CERT_REQUIRED
+    ssl_cx.load_cert_chain(certfile='server.crt', keyfile='server.key')
+    ssl_cx.load_verify_locations(cafile='client.crt')
+
+    server = ae.start_server(('', 11112), block=False, ssl_context=ssl_cx)
+
 
 Providing DIMSE Services (SCP)
 ------------------------------
@@ -229,7 +317,7 @@ implement the ``on_c_store`` callback in manner similar to:
     from pynetdicom import AE
     from pynetdicom.sop_class import VerificationSOPClass
 
-    ae = AE(port=11112)
+    ae = AE()
     ae.add_supported_context(VerificationSOPClass)
 
     def on_c_store(ds, context, info):
@@ -259,7 +347,7 @@ implement the ``on_c_store`` callback in manner similar to:
     ae.on_c_store = on_c_store
 
     # Listen for association requests
-    ae.start()
+    ae.start_server(('', 11112))
 
 For more detailed information on implementing the DIMSE service
 provider callbacks please see their API reference documentation and the

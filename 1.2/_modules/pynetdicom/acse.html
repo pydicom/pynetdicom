@@ -8,7 +8,7 @@
   
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   
-  <title>pynetdicom.acse &mdash; pynetdicom 1.1.0 documentation</title>
+  <title>pynetdicom.acse &mdash; pynetdicom 1.2.0 documentation</title>
   
 
   
@@ -19,33 +19,35 @@
   
 
   
+  <script type="text/javascript" src="../../_static/js/modernizr.min.js"></script>
+  
+    
+      <script type="text/javascript" id="documentation_options" data-url_root="../../" src="../../_static/documentation_options.js"></script>
+        <script type="text/javascript" src="../../_static/jquery.js"></script>
+        <script type="text/javascript" src="../../_static/underscore.js"></script>
+        <script type="text/javascript" src="../../_static/doctools.js"></script>
+        <script type="text/javascript" src="../../_static/language_data.js"></script>
+    
+    <script type="text/javascript" src="../../_static/js/theme.js"></script>
 
-  
-  
     
 
   
-
   <link rel="stylesheet" href="../../_static/css/pynetdicom.css" type="text/css" />
   <link rel="stylesheet" href="../../_static/pygments.css" type="text/css" />
   <link rel="stylesheet" href="../../_static/css/pynetdicom.css" type="text/css" />
     <link rel="index" title="Index" href="../../genindex.html" />
     <link rel="search" title="Search" href="../../search.html" /> 
-
-  
-  <script src="../../_static/js/modernizr.min.js"></script>
-
 </head>
 
 <body class="wy-body-for-nav">
 
    
   <div class="wy-grid-for-nav">
-
     
     <nav data-toggle="wy-nav-shift" class="wy-nav-side">
       <div class="wy-side-scroll">
-        <div class="wy-side-nav-search">
+        <div class="wy-side-nav-search" >
           
 
           
@@ -62,7 +64,7 @@
             
             
               <div class="version">
-                1.1.0
+                1.2.0
               </div>
             
           
@@ -104,8 +106,9 @@
 <li class="toctree-l1"><a class="reference internal" href="../../user/index.html">User Guide</a></li>
 </ul>
 <ul>
-<li class="toctree-l1"><a class="reference internal" href="../../release_notes.html">1.1.0</a></li>
-<li class="toctree-l1"><a class="reference internal" href="../../release_notes.html#id2">1.0.0</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../release_notes.html">1.2.0</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../release_notes.html#v1-1-0">1.1.0</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../release_notes.html#v1-0-0">1.0.0</a></li>
 </ul>
 
             
@@ -169,11 +172,9 @@
            <div itemprop="articleBody">
             
   <h1>Source code for pynetdicom.acse</h1><div class="highlight"><pre>
-<span></span><span class="sd">&quot;&quot;&quot;</span>
-<span class="sd">ACSE service provider</span>
-<span class="sd">&quot;&quot;&quot;</span>
+<span></span><span class="sd">&quot;&quot;&quot;ACSE service provider&quot;&quot;&quot;</span>
+
 <span class="kn">import</span> <span class="nn">logging</span>
-<span class="kn">import</span> <span class="nn">warnings</span>
 
 <span class="kn">from</span> <span class="nn">pynetdicom.pdu_primitives</span> <span class="k">import</span> <span class="p">(</span>
     <span class="n">A_ASSOCIATE</span><span class="p">,</span> <span class="n">A_RELEASE</span><span class="p">,</span> <span class="n">A_ABORT</span><span class="p">,</span> <span class="n">A_P_ABORT</span><span class="p">,</span>
@@ -197,23 +198,10 @@
 
 <span class="sd">    The ACSE protocol handles association establishment, normal release of an</span>
 <span class="sd">    association and the abnormal release of an association.</span>
-
-<span class="sd">    Attributes</span>
-<span class="sd">    ----------</span>
-<span class="sd">    acse_timeout : int</span>
-<span class="sd">        The maximum time (in seconds) to wait for association related PDUs</span>
-<span class="sd">        from the peer.</span>
 <span class="sd">    &quot;&quot;&quot;</span>
-<div class="viewcode-block" id="ACSE.__init__"><a class="viewcode-back" href="../../reference/generated/pynetdicom.acse.ACSE.html#pynetdicom.acse.ACSE.__init__">[docs]</a>    <span class="k">def</span> <span class="nf">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">acse_timeout</span><span class="o">=</span><span class="mi">30</span><span class="p">):</span>
-        <span class="sd">&quot;&quot;&quot;Create the ACSE service provider.</span>
-
-<span class="sd">        Parameters</span>
-<span class="sd">        ----------</span>
-<span class="sd">        acse_timeout : int, optional</span>
-<span class="sd">            The maximum time (in seconds) to wait for A-ASSOCIATE related PDUs</span>
-<span class="sd">            from the peer (default: 30)</span>
-<span class="sd">        &quot;&quot;&quot;</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">acse_timeout</span> <span class="o">=</span> <span class="n">acse_timeout</span></div>
+<div class="viewcode-block" id="ACSE.__init__"><a class="viewcode-back" href="../../reference/generated/pynetdicom.acse.ACSE.html#pynetdicom.acse.ACSE.__init__">[docs]</a>    <span class="k">def</span> <span class="nf">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;Create the ACSE service provider.&quot;&quot;&quot;</span>
+        <span class="k">pass</span></div>
 
     <span class="nd">@staticmethod</span>
     <span class="k">def</span> <span class="nf">_check_async_ops</span><span class="p">(</span><span class="n">assoc</span><span class="p">):</span>
@@ -436,16 +424,6 @@
 
         <span class="k">return</span> <span class="kc">False</span></div>
 
-    <span class="c1"># Deprecated, to be removed in v1.2</span>
-<div class="viewcode-block" id="ACSE.is_released"><a class="viewcode-back" href="../../reference/generated/pynetdicom.acse.ACSE.html#pynetdicom.acse.ACSE.is_released">[docs]</a>    <span class="k">def</span> <span class="nf">is_released</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">assoc</span><span class="p">):</span>
-        <span class="sd">&quot;&quot;&quot;Return True if an A-RELEASE response has been received.&quot;&quot;&quot;</span>
-        <span class="n">warnings</span><span class="o">.</span><span class="n">warn</span><span class="p">(</span>
-            <span class="s2">&quot;ACSE.is_released is deprecated and will be remove in v1.2, &quot;</span>
-            <span class="s2">&quot;use ACSE.is_release_requested instead&quot;</span><span class="p">,</span>
-            <span class="ne">DeprecationWarning</span>
-        <span class="p">)</span>
-        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">is_release_requested</span><span class="p">(</span><span class="n">assoc</span><span class="p">)</span></div>
-
 <div class="viewcode-block" id="ACSE.negotiate_association"><a class="viewcode-back" href="../../reference/generated/pynetdicom.acse.ACSE.html#pynetdicom.acse.ACSE.negotiate_association">[docs]</a>    <span class="k">def</span> <span class="nf">negotiate_association</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">assoc</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;Perform an association negotiation as either the requestor or</span>
 <span class="sd">        acceptor.</span>
@@ -522,7 +500,10 @@
 
         <span class="c1">## DUL Presentation Related Rejections</span>
         <span class="c1"># Maximum number of associations reached (local-limit-exceeded)</span>
-        <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">assoc</span><span class="o">.</span><span class="n">ae</span><span class="o">.</span><span class="n">active_associations</span><span class="p">)</span> <span class="o">&gt;</span> <span class="n">assoc</span><span class="o">.</span><span class="n">ae</span><span class="o">.</span><span class="n">maximum_associations</span><span class="p">:</span>
+        <span class="n">active_acceptors</span> <span class="o">=</span> <span class="p">[</span>
+            <span class="n">tt</span> <span class="k">for</span> <span class="n">tt</span> <span class="ow">in</span> <span class="n">assoc</span><span class="o">.</span><span class="n">ae</span><span class="o">.</span><span class="n">active_associations</span> <span class="k">if</span> <span class="n">tt</span><span class="o">.</span><span class="n">is_acceptor</span>
+        <span class="p">]</span>
+        <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">active_acceptors</span><span class="p">)</span> <span class="o">&gt;</span> <span class="n">assoc</span><span class="o">.</span><span class="n">ae</span><span class="o">.</span><span class="n">maximum_associations</span><span class="p">:</span>
             <span class="n">reject_assoc_rsd</span> <span class="o">=</span> <span class="p">[</span><span class="mh">0x02</span><span class="p">,</span> <span class="mh">0x03</span><span class="p">,</span> <span class="mh">0x02</span><span class="p">]</span>
 
         <span class="k">if</span> <span class="n">reject_assoc_rsd</span><span class="p">:</span>
@@ -548,7 +529,10 @@
         <span class="p">)</span>
 
         <span class="c1"># pylint: disable=protected-access</span>
-        <span class="n">assoc</span><span class="o">.</span><span class="n">_accepted_cx</span> <span class="o">=</span> <span class="p">[</span><span class="n">cx</span> <span class="k">for</span> <span class="n">cx</span> <span class="ow">in</span> <span class="n">result</span> <span class="k">if</span> <span class="n">cx</span><span class="o">.</span><span class="n">result</span> <span class="o">==</span> <span class="mh">0x00</span><span class="p">]</span>
+        <span class="c1"># Accepted contexts are stored as {context ID : context}</span>
+        <span class="n">assoc</span><span class="o">.</span><span class="n">_accepted_cx</span> <span class="o">=</span> <span class="p">{</span>
+            <span class="n">cx</span><span class="o">.</span><span class="n">context_id</span><span class="p">:</span><span class="n">cx</span> <span class="k">for</span> <span class="n">cx</span> <span class="ow">in</span> <span class="n">result</span> <span class="k">if</span> <span class="n">cx</span><span class="o">.</span><span class="n">result</span> <span class="o">==</span> <span class="mh">0x00</span>
+        <span class="p">}</span>
         <span class="n">assoc</span><span class="o">.</span><span class="n">_rejected_cx</span> <span class="o">=</span> <span class="p">[</span><span class="n">cx</span> <span class="k">for</span> <span class="n">cx</span> <span class="ow">in</span> <span class="n">result</span> <span class="k">if</span> <span class="n">cx</span><span class="o">.</span><span class="n">result</span> <span class="o">!=</span> <span class="mh">0x00</span><span class="p">]</span>
         <span class="c1"># pylint: enable=protected-access</span>
 
@@ -606,6 +590,10 @@
                             <span class="p">(</span><span class="n">cx</span><span class="o">.</span><span class="n">scu_role</span><span class="p">,</span> <span class="n">cx</span><span class="o">.</span><span class="n">scp_role</span><span class="p">)</span> <span class="o">=</span> <span class="n">rq_roles</span><span class="p">[</span>
                                 <span class="n">cx</span><span class="o">.</span><span class="n">abstract_syntax</span>
                             <span class="p">]</span>
+                            <span class="c1"># If no role was specified then use False</span>
+                            <span class="c1">#   see SCP_SCU_RoleSelectionSubItem.from_primitive</span>
+                            <span class="n">cx</span><span class="o">.</span><span class="n">scu_role</span> <span class="o">=</span> <span class="n">cx</span><span class="o">.</span><span class="n">scu_role</span> <span class="ow">or</span> <span class="kc">False</span>
+                            <span class="n">cx</span><span class="o">.</span><span class="n">scp_role</span> <span class="o">=</span> <span class="n">cx</span><span class="o">.</span><span class="n">scp_role</span> <span class="ow">or</span> <span class="kc">False</span>
                         <span class="k">except</span> <span class="ne">KeyError</span><span class="p">:</span>
                             <span class="k">pass</span>
 
@@ -624,9 +612,11 @@
                 <span class="p">)</span>
 
                 <span class="c1"># pylint: disable=protected-access</span>
-                <span class="n">assoc</span><span class="o">.</span><span class="n">_accepted_cx</span> <span class="o">=</span> <span class="p">[</span>
-                    <span class="n">cx</span> <span class="k">for</span> <span class="n">cx</span> <span class="ow">in</span> <span class="n">negotiated_contexts</span> <span class="k">if</span> <span class="n">cx</span><span class="o">.</span><span class="n">result</span> <span class="o">==</span> <span class="mh">0x00</span>
-                <span class="p">]</span>
+                <span class="c1"># Accepted contexts are stored as {context ID : context}</span>
+                <span class="n">assoc</span><span class="o">.</span><span class="n">_accepted_cx</span> <span class="o">=</span> <span class="p">{</span>
+                    <span class="n">cx</span><span class="o">.</span><span class="n">context_id</span><span class="p">:</span><span class="n">cx</span>
+                    <span class="k">for</span> <span class="n">cx</span> <span class="ow">in</span> <span class="n">negotiated_contexts</span> <span class="k">if</span> <span class="n">cx</span><span class="o">.</span><span class="n">result</span> <span class="o">==</span> <span class="mh">0x00</span>
+                <span class="p">}</span>
                 <span class="n">assoc</span><span class="o">.</span><span class="n">_rejected_cx</span> <span class="o">=</span> <span class="p">[</span>
                     <span class="n">cx</span> <span class="k">for</span> <span class="n">cx</span> <span class="ow">in</span> <span class="n">negotiated_contexts</span> <span class="k">if</span> <span class="n">cx</span><span class="o">.</span><span class="n">result</span> <span class="o">!=</span> <span class="mh">0x00</span>
                 <span class="p">]</span>
@@ -697,7 +687,7 @@
         <span class="n">is_collision</span> <span class="o">=</span> <span class="kc">False</span>
         <span class="k">while</span> <span class="kc">True</span><span class="p">:</span>
             <span class="n">primitive</span> <span class="o">=</span> <span class="n">assoc</span><span class="o">.</span><span class="n">dul</span><span class="o">.</span><span class="n">receive_pdu</span><span class="p">(</span><span class="n">wait</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span>
-                                              <span class="n">timeout</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">acse_timeout</span><span class="p">)</span>
+                                              <span class="n">timeout</span><span class="o">=</span><span class="n">assoc</span><span class="o">.</span><span class="n">acse_timeout</span><span class="p">)</span>
             <span class="k">if</span> <span class="n">primitive</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
                 <span class="c1"># No response received within timeout window</span>
                 <span class="bp">self</span><span class="o">.</span><span class="n">send_abort</span><span class="p">(</span><span class="n">assoc</span><span class="p">,</span> <span class="mh">0x02</span><span class="p">)</span>
@@ -746,22 +736,6 @@
                 <span class="n">assoc</span><span class="o">.</span><span class="n">is_established</span> <span class="o">=</span> <span class="kc">False</span>
                 <span class="n">assoc</span><span class="o">.</span><span class="n">kill</span><span class="p">()</span>
                 <span class="k">return</span></div>
-
-<div class="viewcode-block" id="ACSE.release_association"><a class="viewcode-back" href="../../reference/generated/pynetdicom.acse.ACSE.html#pynetdicom.acse.ACSE.release_association">[docs]</a>    <span class="k">def</span> <span class="nf">release_association</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">assoc</span><span class="p">):</span>
-        <span class="sd">&quot;&quot;&quot;Negotiate association release.</span>
-
-<span class="sd">        Parameters</span>
-<span class="sd">        ----------</span>
-<span class="sd">        assoc : association.Association</span>
-<span class="sd">            The association instance that wants to initiate association</span>
-<span class="sd">            release.</span>
-<span class="sd">        &quot;&quot;&quot;</span>
-        <span class="n">warnings</span><span class="o">.</span><span class="n">warn</span><span class="p">(</span>
-            <span class="s2">&quot;ACSE.release_association is deprecated and will be removed &quot;</span>
-            <span class="s2">&quot;in v1.2, use ACSE.negotiate_release instead&quot;</span><span class="p">,</span>
-            <span class="ne">DeprecationWarning</span>
-        <span class="p">)</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">negotiate_release</span><span class="p">(</span><span class="n">assoc</span><span class="p">)</span></div>
 
 <div class="viewcode-block" id="ACSE.send_abort"><a class="viewcode-back" href="../../reference/generated/pynetdicom.acse.ACSE.html#pynetdicom.acse.ACSE.send_abort">[docs]</a>    <span class="nd">@staticmethod</span>
     <span class="k">def</span> <span class="nf">send_abort</span><span class="p">(</span><span class="n">assoc</span><span class="p">,</span> <span class="n">source</span><span class="p">):</span>
@@ -1016,7 +990,6 @@
         <span class="n">assoc</span><span class="o">.</span><span class="n">requestor</span><span class="o">.</span><span class="n">primitive</span> <span class="o">=</span> <span class="n">primitive</span>
 
         <span class="c1"># Send the A-ASSOCIATE request primitive to the peer</span>
-        <span class="n">LOGGER</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="s2">&quot;Requesting Association&quot;</span><span class="p">)</span>
         <span class="n">assoc</span><span class="o">.</span><span class="n">dul</span><span class="o">.</span><span class="n">send_pdu</span><span class="p">(</span><span class="n">primitive</span><span class="p">)</span></div>
 
 
@@ -1114,6 +1087,8 @@
 
                 <span class="n">str_roles</span> <span class="o">=</span> <span class="s1">&#39;/&#39;</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">str_roles</span><span class="p">)</span>
                 <span class="n">s</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="s2">&quot;    SCP/SCU Role: </span><span class="si">{}</span><span class="s2">&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">str_roles</span><span class="p">))</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="n">s</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="s2">&quot;Role Selection: None&quot;</span><span class="p">)</span>
 
         <span class="c1">## Extended Negotiation</span>
         <span class="k">if</span> <span class="n">user_info</span><span class="o">.</span><span class="n">ext_neg</span><span class="p">:</span>
@@ -1431,7 +1406,9 @@
         <span class="n">assoc_ac</span> <span class="o">=</span> <span class="n">a_associate_ac</span>
 
         <span class="n">app_context</span> <span class="o">=</span> <span class="n">assoc_ac</span><span class="o">.</span><span class="n">application_context_name</span><span class="o">.</span><span class="n">title</span><span class="p">()</span>
-        <span class="n">pres_contexts</span> <span class="o">=</span> <span class="n">assoc_ac</span><span class="o">.</span><span class="n">presentation_context</span>
+        <span class="n">pres_contexts</span> <span class="o">=</span> <span class="nb">sorted</span><span class="p">(</span>
+            <span class="n">assoc_ac</span><span class="o">.</span><span class="n">presentation_context</span><span class="p">,</span> <span class="n">key</span><span class="o">=</span><span class="k">lambda</span> <span class="n">x</span><span class="p">:</span> <span class="n">x</span><span class="o">.</span><span class="n">context_id</span>
+        <span class="p">)</span>
         <span class="n">user_info</span> <span class="o">=</span> <span class="n">assoc_ac</span><span class="o">.</span><span class="n">user_information</span>
         <span class="n">async_ops</span> <span class="o">=</span> <span class="n">user_info</span><span class="o">.</span><span class="n">async_ops_window</span>
         <span class="n">roles</span> <span class="o">=</span> <span class="n">user_info</span><span class="o">.</span><span class="n">role_selection</span>
@@ -1483,6 +1460,8 @@
 
                 <span class="n">str_roles</span> <span class="o">=</span> <span class="s1">&#39;/&#39;</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">str_roles</span><span class="p">)</span>
                 <span class="n">s</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="s2">&quot;    SCP/SCU Role: </span><span class="si">{}</span><span class="s2">&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">str_roles</span><span class="p">))</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="n">s</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="s2">&quot;Role Selection: None&quot;</span><span class="p">)</span>
 
         <span class="c1">## Extended Negotiation</span>
         <span class="k">if</span> <span class="n">user_info</span><span class="o">.</span><span class="n">ext_neg</span><span class="p">:</span>
@@ -1573,7 +1552,9 @@
         <span class="n">pdu</span> <span class="o">=</span> <span class="n">a_associate_rq</span>
 
         <span class="n">app_context</span> <span class="o">=</span> <span class="n">pdu</span><span class="o">.</span><span class="n">application_context_name</span><span class="o">.</span><span class="n">title</span><span class="p">()</span>
-        <span class="n">pres_contexts</span> <span class="o">=</span> <span class="n">pdu</span><span class="o">.</span><span class="n">presentation_context</span>
+        <span class="n">pres_contexts</span> <span class="o">=</span> <span class="nb">sorted</span><span class="p">(</span>
+            <span class="n">pdu</span><span class="o">.</span><span class="n">presentation_context</span><span class="p">,</span> <span class="n">key</span><span class="o">=</span><span class="k">lambda</span> <span class="n">x</span><span class="p">:</span> <span class="n">x</span><span class="o">.</span><span class="n">context_id</span>
+        <span class="p">)</span>
         <span class="n">user_info</span> <span class="o">=</span> <span class="n">pdu</span><span class="o">.</span><span class="n">user_information</span>
 
         <span class="c1">#responding_ae = &#39;resp. AP Title&#39;</span>
@@ -1804,26 +1785,16 @@
   
 
 
-  
-
-    
-    
-      <script type="text/javascript" id="documentation_options" data-url_root="../../" src="../../_static/documentation_options.js"></script>
-        <script type="text/javascript" src="../../_static/jquery.js"></script>
-        <script type="text/javascript" src="../../_static/underscore.js"></script>
-        <script type="text/javascript" src="../../_static/doctools.js"></script>
-        <script type="text/javascript" src="../../_static/language_data.js"></script>
-    
-
-  
-
-  <script type="text/javascript" src="../../_static/js/theme.js"></script>
-
   <script type="text/javascript">
       jQuery(function () {
           SphinxRtdTheme.Navigation.enable(true);
       });
-  </script> 
+  </script>
+
+  
+  
+    
+   
 
 </body>
 </html>

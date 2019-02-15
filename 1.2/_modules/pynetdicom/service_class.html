@@ -8,7 +8,7 @@
   
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   
-  <title>pynetdicom.service_class &mdash; pynetdicom 1.1.0 documentation</title>
+  <title>pynetdicom.service_class &mdash; pynetdicom 1.2.0 documentation</title>
   
 
   
@@ -19,33 +19,35 @@
   
 
   
+  <script type="text/javascript" src="../../_static/js/modernizr.min.js"></script>
+  
+    
+      <script type="text/javascript" id="documentation_options" data-url_root="../../" src="../../_static/documentation_options.js"></script>
+        <script type="text/javascript" src="../../_static/jquery.js"></script>
+        <script type="text/javascript" src="../../_static/underscore.js"></script>
+        <script type="text/javascript" src="../../_static/doctools.js"></script>
+        <script type="text/javascript" src="../../_static/language_data.js"></script>
+    
+    <script type="text/javascript" src="../../_static/js/theme.js"></script>
 
-  
-  
     
 
   
-
   <link rel="stylesheet" href="../../_static/css/pynetdicom.css" type="text/css" />
   <link rel="stylesheet" href="../../_static/pygments.css" type="text/css" />
   <link rel="stylesheet" href="../../_static/css/pynetdicom.css" type="text/css" />
     <link rel="index" title="Index" href="../../genindex.html" />
     <link rel="search" title="Search" href="../../search.html" /> 
-
-  
-  <script src="../../_static/js/modernizr.min.js"></script>
-
 </head>
 
 <body class="wy-body-for-nav">
 
    
   <div class="wy-grid-for-nav">
-
     
     <nav data-toggle="wy-nav-shift" class="wy-nav-side">
       <div class="wy-side-scroll">
-        <div class="wy-side-nav-search">
+        <div class="wy-side-nav-search" >
           
 
           
@@ -62,7 +64,7 @@
             
             
               <div class="version">
-                1.1.0
+                1.2.0
               </div>
             
           
@@ -104,8 +106,9 @@
 <li class="toctree-l1"><a class="reference internal" href="../../user/index.html">User Guide</a></li>
 </ul>
 <ul>
-<li class="toctree-l1"><a class="reference internal" href="../../release_notes.html">1.1.0</a></li>
-<li class="toctree-l1"><a class="reference internal" href="../../release_notes.html#id2">1.0.0</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../release_notes.html">1.2.0</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../release_notes.html#v1-1-0">1.1.0</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../release_notes.html#v1-0-0">1.0.0</a></li>
 </ul>
 
             
@@ -177,8 +180,18 @@
 
 <span class="kn">from</span> <span class="nn">pydicom.dataset</span> <span class="k">import</span> <span class="n">Dataset</span>
 
+<span class="kn">from</span> <span class="nn">pynetdicom</span> <span class="k">import</span> <span class="n">_config</span>
 <span class="kn">from</span> <span class="nn">pynetdicom.dsutils</span> <span class="k">import</span> <span class="n">decode</span><span class="p">,</span> <span class="n">encode</span>
-<span class="kn">from</span> <span class="nn">pynetdicom.dimse_primitives</span> <span class="k">import</span> <span class="n">C_STORE</span><span class="p">,</span> <span class="n">C_ECHO</span><span class="p">,</span> <span class="n">C_MOVE</span><span class="p">,</span> <span class="n">C_GET</span><span class="p">,</span> <span class="n">C_FIND</span>
+<span class="kn">from</span> <span class="nn">pynetdicom.dimse_primitives</span> <span class="k">import</span> <span class="p">(</span>
+    <span class="n">C_STORE</span><span class="p">,</span> <span class="n">C_ECHO</span><span class="p">,</span> <span class="n">C_MOVE</span><span class="p">,</span> <span class="n">C_GET</span><span class="p">,</span> <span class="n">C_FIND</span><span class="p">,</span> <span class="n">C_CANCEL</span>
+<span class="p">)</span>
+<span class="kn">from</span> <span class="nn">pynetdicom._globals</span> <span class="k">import</span> <span class="p">(</span>
+    <span class="n">STATUS_FAILURE</span><span class="p">,</span>
+    <span class="n">STATUS_SUCCESS</span><span class="p">,</span>
+    <span class="n">STATUS_WARNING</span><span class="p">,</span>
+    <span class="n">STATUS_PENDING</span><span class="p">,</span>
+    <span class="n">STATUS_CANCEL</span><span class="p">,</span>
+<span class="p">)</span>
 <span class="kn">from</span> <span class="nn">pynetdicom.status</span> <span class="k">import</span> <span class="p">(</span>
     <span class="n">VERIFICATION_SERVICE_CLASS_STATUS</span><span class="p">,</span>
     <span class="n">STORAGE_SERVICE_CLASS_STATUS</span><span class="p">,</span>
@@ -189,13 +202,6 @@
     <span class="n">RELEVANT_PATIENT_SERVICE_CLASS_STATUS</span><span class="p">,</span>
     <span class="n">SUBSTANCE_ADMINISTRATION_SERVICE_CLASS_STATUS</span><span class="p">,</span>
     <span class="n">NON_PATIENT_SERVICE_CLASS_STATUS</span><span class="p">,</span>
-<span class="p">)</span>
-<span class="kn">from</span> <span class="nn">pynetdicom._globals</span> <span class="k">import</span> <span class="p">(</span>
-    <span class="n">STATUS_FAILURE</span><span class="p">,</span>
-    <span class="n">STATUS_SUCCESS</span><span class="p">,</span>
-    <span class="n">STATUS_WARNING</span><span class="p">,</span>
-    <span class="n">STATUS_PENDING</span><span class="p">,</span>
-    <span class="n">STATUS_CANCEL</span><span class="p">,</span>
 <span class="p">)</span>
 
 
@@ -223,6 +229,27 @@
     <span class="k">def</span> <span class="nf">dimse</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;Return the DIMSE service provider.&quot;&quot;&quot;</span>
         <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">assoc</span><span class="o">.</span><span class="n">dimse</span>
+
+    <span class="k">def</span> <span class="nf">is_cancelled</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">msg_id</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;Return True if a C-CANCEL message with `msg_id` has been received.</span>
+
+<span class="sd">        Parameters</span>
+<span class="sd">        ----------</span>
+<span class="sd">        msg_id : int</span>
+<span class="sd">            The (0000,0120) *Message ID Being Responded To* value to use to</span>
+<span class="sd">            match against.</span>
+
+<span class="sd">        Returns</span>
+<span class="sd">        -------</span>
+<span class="sd">        bool</span>
+<span class="sd">            True if a C-CANCEL message has been received with a *Message ID</span>
+<span class="sd">            Being Responded To* corresponding to `msg_id`, False otherwise.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">if</span> <span class="n">msg_id</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">dimse</span><span class="o">.</span><span class="n">cancel_req</span><span class="o">.</span><span class="n">keys</span><span class="p">():</span>
+            <span class="k">del</span> <span class="bp">self</span><span class="o">.</span><span class="n">dimse</span><span class="o">.</span><span class="n">cancel_req</span><span class="p">[</span><span class="n">msg_id</span><span class="p">]</span>
+            <span class="k">return</span> <span class="kc">True</span>
+
+        <span class="k">return</span> <span class="kc">False</span>
 
     <span class="k">def</span> <span class="nf">is_valid_status</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">status</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;Return True if `status` is valid for the service class.</span>
@@ -515,21 +542,24 @@
 
         <span class="c1"># Attempt to decode the request&#39;s dataset</span>
         <span class="n">transfer_syntax</span> <span class="o">=</span> <span class="n">context</span><span class="o">.</span><span class="n">transfer_syntax</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span>
-        <span class="k">try</span><span class="p">:</span>
-            <span class="n">ds</span> <span class="o">=</span> <span class="n">decode</span><span class="p">(</span><span class="n">req</span><span class="o">.</span><span class="n">DataSet</span><span class="p">,</span>
-                        <span class="n">transfer_syntax</span><span class="o">.</span><span class="n">is_implicit_VR</span><span class="p">,</span>
-                        <span class="n">transfer_syntax</span><span class="o">.</span><span class="n">is_little_endian</span><span class="p">)</span>
-            <span class="c1"># Trigger exception if bad dataset</span>
-            <span class="k">for</span> <span class="n">elem</span> <span class="ow">in</span> <span class="n">ds</span><span class="p">:</span>
-                <span class="k">pass</span>
-        <span class="k">except</span> <span class="ne">Exception</span> <span class="k">as</span> <span class="n">ex</span><span class="p">:</span>
-            <span class="n">LOGGER</span><span class="o">.</span><span class="n">error</span><span class="p">(</span><span class="s2">&quot;Failed to decode the received dataset&quot;</span><span class="p">)</span>
-            <span class="n">LOGGER</span><span class="o">.</span><span class="n">exception</span><span class="p">(</span><span class="n">ex</span><span class="p">)</span>
-            <span class="c1"># Failure: Cannot Understand - Dataset decoding error</span>
-            <span class="n">rsp</span><span class="o">.</span><span class="n">Status</span> <span class="o">=</span> <span class="mh">0xC210</span>
-            <span class="n">rsp</span><span class="o">.</span><span class="n">ErrorComment</span> <span class="o">=</span> <span class="s1">&#39;Unable to decode the dataset&#39;</span>
-            <span class="bp">self</span><span class="o">.</span><span class="n">dimse</span><span class="o">.</span><span class="n">send_msg</span><span class="p">(</span><span class="n">rsp</span><span class="p">,</span> <span class="n">context</span><span class="o">.</span><span class="n">context_id</span><span class="p">)</span>
-            <span class="k">return</span>
+        <span class="k">if</span> <span class="n">_config</span><span class="o">.</span><span class="n">DECODE_STORE_DATASETS</span><span class="p">:</span>
+            <span class="k">try</span><span class="p">:</span>
+                <span class="n">ds</span> <span class="o">=</span> <span class="n">decode</span><span class="p">(</span><span class="n">req</span><span class="o">.</span><span class="n">DataSet</span><span class="p">,</span>
+                            <span class="n">transfer_syntax</span><span class="o">.</span><span class="n">is_implicit_VR</span><span class="p">,</span>
+                            <span class="n">transfer_syntax</span><span class="o">.</span><span class="n">is_little_endian</span><span class="p">)</span>
+                <span class="c1"># Trigger exception if bad dataset</span>
+                <span class="k">for</span> <span class="n">elem</span> <span class="ow">in</span> <span class="n">ds</span><span class="p">:</span>
+                    <span class="k">pass</span>
+            <span class="k">except</span> <span class="ne">Exception</span> <span class="k">as</span> <span class="n">ex</span><span class="p">:</span>
+                <span class="n">LOGGER</span><span class="o">.</span><span class="n">error</span><span class="p">(</span><span class="s2">&quot;Failed to decode the received dataset&quot;</span><span class="p">)</span>
+                <span class="n">LOGGER</span><span class="o">.</span><span class="n">exception</span><span class="p">(</span><span class="n">ex</span><span class="p">)</span>
+                <span class="c1"># Failure: Cannot Understand - Dataset decoding error</span>
+                <span class="n">rsp</span><span class="o">.</span><span class="n">Status</span> <span class="o">=</span> <span class="mh">0xC210</span>
+                <span class="n">rsp</span><span class="o">.</span><span class="n">ErrorComment</span> <span class="o">=</span> <span class="s1">&#39;Unable to decode the dataset&#39;</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">dimse</span><span class="o">.</span><span class="n">send_msg</span><span class="p">(</span><span class="n">rsp</span><span class="p">,</span> <span class="n">context</span><span class="o">.</span><span class="n">context_id</span><span class="p">)</span>
+                <span class="k">return</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="n">ds</span> <span class="o">=</span> <span class="n">req</span><span class="o">.</span><span class="n">DataSet</span><span class="o">.</span><span class="n">getvalue</span><span class="p">()</span>
 
         <span class="n">info</span><span class="p">[</span><span class="s1">&#39;parameters&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="p">{</span>
             <span class="s1">&#39;message_id&#39;</span> <span class="p">:</span> <span class="n">req</span><span class="o">.</span><span class="n">MessageID</span><span class="p">,</span>
@@ -750,9 +780,11 @@
             <span class="k">return</span>
 
         <span class="n">info</span><span class="p">[</span><span class="s1">&#39;parameters&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="p">{</span>
-            <span class="s1">&#39;message_id&#39;</span> <span class="p">:</span> <span class="n">req</span><span class="o">.</span><span class="n">MessageID</span><span class="p">,</span>
-            <span class="s1">&#39;priority&#39;</span> <span class="p">:</span> <span class="n">req</span><span class="o">.</span><span class="n">Priority</span>
+             <span class="s1">&#39;message_id&#39;</span> <span class="p">:</span> <span class="n">req</span><span class="o">.</span><span class="n">MessageID</span><span class="p">,</span>
+             <span class="s1">&#39;priority&#39;</span> <span class="p">:</span> <span class="n">req</span><span class="o">.</span><span class="n">Priority</span><span class="p">,</span>
         <span class="p">}</span>
+        <span class="c1"># Add callable to the info so user can check if cancelled</span>
+        <span class="n">info</span><span class="p">[</span><span class="s1">&#39;cancelled&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">is_cancelled</span>
 
         <span class="n">stopper</span> <span class="o">=</span> <span class="nb">object</span><span class="p">()</span>
         <span class="c1"># This will wrap exceptions during iteration and return a good value.</span>
@@ -999,9 +1031,11 @@
             <span class="k">return</span>
 
         <span class="n">info</span><span class="p">[</span><span class="s1">&#39;parameters&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="p">{</span>
-            <span class="s1">&#39;message_id&#39;</span> <span class="p">:</span> <span class="n">req</span><span class="o">.</span><span class="n">MessageID</span><span class="p">,</span>
-            <span class="s1">&#39;priority&#39;</span> <span class="p">:</span> <span class="n">req</span><span class="o">.</span><span class="n">Priority</span>
+             <span class="s1">&#39;message_id&#39;</span> <span class="p">:</span> <span class="n">req</span><span class="o">.</span><span class="n">MessageID</span><span class="p">,</span>
+             <span class="s1">&#39;priority&#39;</span> <span class="p">:</span> <span class="n">req</span><span class="o">.</span><span class="n">Priority</span>
         <span class="p">}</span>
+        <span class="c1"># Add callable to the info so user can check if cancelled</span>
+        <span class="n">info</span><span class="p">[</span><span class="s1">&#39;cancelled&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">is_cancelled</span>
 
         <span class="c1"># Callback - C-GET</span>
         <span class="k">try</span><span class="p">:</span>
@@ -1177,6 +1211,7 @@
                 <span class="k">except</span> <span class="ne">Exception</span> <span class="k">as</span> <span class="n">ex</span><span class="p">:</span>
                     <span class="c1"># An exception implies a C-STORE failure</span>
                     <span class="n">LOGGER</span><span class="o">.</span><span class="n">warning</span><span class="p">(</span><span class="s2">&quot;C-STORE sub-operation failed.&quot;</span><span class="p">)</span>
+                    <span class="n">LOGGER</span><span class="o">.</span><span class="n">exception</span><span class="p">(</span><span class="n">ex</span><span class="p">)</span>
                     <span class="n">store_status</span> <span class="o">=</span> <span class="p">[</span><span class="n">STATUS_FAILURE</span><span class="p">,</span> <span class="s1">&#39;Unknown&#39;</span><span class="p">]</span>
 
                 <span class="n">LOGGER</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="s1">&#39;Get SCP: Received Store SCU response (</span><span class="si">%s</span><span class="s1">)&#39;</span><span class="p">,</span>
@@ -1381,9 +1416,11 @@
             <span class="k">return</span>
 
         <span class="n">info</span><span class="p">[</span><span class="s1">&#39;parameters&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="p">{</span>
-            <span class="s1">&#39;message_id&#39;</span> <span class="p">:</span> <span class="n">req</span><span class="o">.</span><span class="n">MessageID</span><span class="p">,</span>
-            <span class="s1">&#39;priority&#39;</span> <span class="p">:</span> <span class="n">req</span><span class="o">.</span><span class="n">Priority</span>
+             <span class="s1">&#39;message_id&#39;</span> <span class="p">:</span> <span class="n">req</span><span class="o">.</span><span class="n">MessageID</span><span class="p">,</span>
+             <span class="s1">&#39;priority&#39;</span> <span class="p">:</span> <span class="n">req</span><span class="o">.</span><span class="n">Priority</span>
         <span class="p">}</span>
+        <span class="c1"># Add callable to the info so user can check if cancelled</span>
+        <span class="n">info</span><span class="p">[</span><span class="s1">&#39;cancelled&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">is_cancelled</span>
 
         <span class="c1"># Callback - C-MOVE</span>
         <span class="k">try</span><span class="p">:</span>
@@ -1579,7 +1616,7 @@
                         <span class="bp">self</span><span class="o">.</span><span class="n">dimse</span><span class="o">.</span><span class="n">send_msg</span><span class="p">(</span><span class="n">rsp</span><span class="p">,</span> <span class="n">context</span><span class="o">.</span><span class="n">context_id</span><span class="p">)</span>
                         <span class="k">continue</span>
 
-                    <span class="n">LOGGER</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="s1">&#39;Move SCP Response </span><span class="si">%s</span><span class="s1"> (Pending)&#39;</span><span class="p">,</span> <span class="n">ii</span><span class="p">)</span>
+                    <span class="n">LOGGER</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="s1">&#39;Move SCP Response </span><span class="si">%s</span><span class="s1"> (Pending)&#39;</span><span class="p">,</span> <span class="n">ii</span> <span class="o">+</span> <span class="mi">1</span><span class="p">)</span>
 
                     <span class="c1"># Send `dataset` via C-STORE sub-operations over the</span>
                     <span class="c1">#   association and check that the response&#39;s Status exists</span>
@@ -1631,7 +1668,7 @@
             <span class="bp">self</span><span class="o">.</span><span class="n">dimse</span><span class="o">.</span><span class="n">send_msg</span><span class="p">(</span><span class="n">rsp</span><span class="p">,</span> <span class="n">context</span><span class="o">.</span><span class="n">context_id</span><span class="p">)</span>
 
             <span class="c1"># FIXME - shouldn&#39;t have to manually close the socket like this</span>
-            <span class="n">store_assoc</span><span class="o">.</span><span class="n">dul</span><span class="o">.</span><span class="n">scu_socket</span><span class="o">.</span><span class="n">close</span><span class="p">()</span>
+            <span class="n">store_assoc</span><span class="o">.</span><span class="n">dul</span><span class="o">.</span><span class="n">socket</span><span class="o">.</span><span class="n">close</span><span class="p">()</span>
             <span class="k">return</span>
 
         <span class="c1"># If not already done, send the final &#39;Success&#39; or &#39;Warning&#39; response</span>
@@ -1881,9 +1918,10 @@
             <span class="k">return</span>
 
         <span class="n">info</span><span class="p">[</span><span class="s1">&#39;parameters&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="p">{</span>
-            <span class="s1">&#39;message_id&#39;</span> <span class="p">:</span> <span class="n">req</span><span class="o">.</span><span class="n">MessageID</span><span class="p">,</span>
-            <span class="s1">&#39;priority&#39;</span> <span class="p">:</span> <span class="n">req</span><span class="o">.</span><span class="n">Priority</span>
+             <span class="s1">&#39;message_id&#39;</span> <span class="p">:</span> <span class="n">req</span><span class="o">.</span><span class="n">MessageID</span><span class="p">,</span>
+             <span class="s1">&#39;priority&#39;</span> <span class="p">:</span> <span class="n">req</span><span class="o">.</span><span class="n">Priority</span><span class="p">,</span>
         <span class="p">}</span>
+        <span class="n">info</span><span class="p">[</span><span class="s1">&#39;cancelled&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">is_cancelled</span>
 
         <span class="c1"># Relevant Patient Query only allows the following responses:</span>
         <span class="c1">#   pending + match; success</span>
@@ -2110,26 +2148,16 @@
   
 
 
-  
-
-    
-    
-      <script type="text/javascript" id="documentation_options" data-url_root="../../" src="../../_static/documentation_options.js"></script>
-        <script type="text/javascript" src="../../_static/jquery.js"></script>
-        <script type="text/javascript" src="../../_static/underscore.js"></script>
-        <script type="text/javascript" src="../../_static/doctools.js"></script>
-        <script type="text/javascript" src="../../_static/language_data.js"></script>
-    
-
-  
-
-  <script type="text/javascript" src="../../_static/js/theme.js"></script>
-
   <script type="text/javascript">
       jQuery(function () {
           SphinxRtdTheme.Navigation.enable(true);
       });
-  </script> 
+  </script>
+
+  
+  
+    
+   
 
 </body>
 </html>

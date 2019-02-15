@@ -60,9 +60,11 @@ pynetdicom.dimse.DIMSEServiceProvider
       ~DIMSEServiceProvider.debug_send_n_get_rsp
       ~DIMSEServiceProvider.debug_send_n_set_rq
       ~DIMSEServiceProvider.debug_send_n_set_rsp
+      ~DIMSEServiceProvider.get_msg
       ~DIMSEServiceProvider.on_receive_dimse_message
       ~DIMSEServiceProvider.on_send_dimse_message
-      ~DIMSEServiceProvider.receive_msg
+      ~DIMSEServiceProvider.peek_msg
+      ~DIMSEServiceProvider.receive_primitive
       ~DIMSEServiceProvider.send_msg
    
    

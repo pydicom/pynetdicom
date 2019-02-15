@@ -9,7 +9,7 @@
   
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   
-  <title>Index &mdash; pynetdicom 1.1.0 documentation</title>
+  <title>Index &mdash; pynetdicom 1.2.0 documentation</title>
   
 
   
@@ -20,33 +20,35 @@
   
 
   
+  <script type="text/javascript" src="_static/js/modernizr.min.js"></script>
+  
+    
+      <script type="text/javascript" id="documentation_options" data-url_root="./" src="_static/documentation_options.js"></script>
+        <script type="text/javascript" src="_static/jquery.js"></script>
+        <script type="text/javascript" src="_static/underscore.js"></script>
+        <script type="text/javascript" src="_static/doctools.js"></script>
+        <script type="text/javascript" src="_static/language_data.js"></script>
+    
+    <script type="text/javascript" src="_static/js/theme.js"></script>
 
-  
-  
     
 
   
-
   <link rel="stylesheet" href="_static/css/pynetdicom.css" type="text/css" />
   <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
   <link rel="stylesheet" href="_static/css/pynetdicom.css" type="text/css" />
     <link rel="index" title="Index" href="#" />
     <link rel="search" title="Search" href="search.html" /> 
-
-  
-  <script src="_static/js/modernizr.min.js"></script>
-
 </head>
 
 <body class="wy-body-for-nav">
 
    
   <div class="wy-grid-for-nav">
-
     
     <nav data-toggle="wy-nav-shift" class="wy-nav-side">
       <div class="wy-side-scroll">
-        <div class="wy-side-nav-search">
+        <div class="wy-side-nav-search" >
           
 
           
@@ -63,7 +65,7 @@
             
             
               <div class="version">
-                1.1.0
+                1.2.0
               </div>
             
           
@@ -105,8 +107,9 @@
 <li class="toctree-l1"><a class="reference internal" href="user/index.html">User Guide</a></li>
 </ul>
 <ul>
-<li class="toctree-l1"><a class="reference internal" href="release_notes.html">1.1.0</a></li>
-<li class="toctree-l1"><a class="reference internal" href="release_notes.html#id2">1.0.0</a></li>
+<li class="toctree-l1"><a class="reference internal" href="release_notes.html">1.2.0</a></li>
+<li class="toctree-l1"><a class="reference internal" href="release_notes.html#v1-1-0">1.1.0</a></li>
+<li class="toctree-l1"><a class="reference internal" href="release_notes.html#v1-0-0">1.0.0</a></li>
 </ul>
 
             
@@ -181,6 +184,7 @@
  | <a href="#E"><strong>E</strong></a>
  | <a href="#F"><strong>F</strong></a>
  | <a href="#G"><strong>G</strong></a>
+ | <a href="#H"><strong>H</strong></a>
  | <a href="#I"><strong>I</strong></a>
  | <a href="#J"><strong>J</strong></a>
  | <a href="#K"><strong>K</strong></a>
@@ -341,6 +345,12 @@
 </li>
         <li><a href="reference/generated/pynetdicom.timer.Timer.html#pynetdicom.timer.Timer.__init__">(pynetdicom.timer.Timer method)</a>
 </li>
+        <li><a href="reference/generated/pynetdicom.transport.AssociationServer.html#pynetdicom.transport.AssociationServer.__init__">(pynetdicom.transport.AssociationServer method)</a>
+</li>
+        <li><a href="reference/generated/pynetdicom.transport.AssociationSocket.html#pynetdicom.transport.AssociationSocket.__init__">(pynetdicom.transport.AssociationSocket method)</a>
+</li>
+        <li><a href="reference/generated/pynetdicom.transport.ThreadedAssociationServer.html#pynetdicom.transport.ThreadedAssociationServer.__init__">(pynetdicom.transport.ThreadedAssociationServer method)</a>
+</li>
       </ul></li>
   </ul></td>
 </tr></table>
@@ -412,10 +422,10 @@
 </li>
       <li><a href="reference/generated/pynetdicom.association.Association.html#pynetdicom.association.Association.acse">acse (pynetdicom.association.Association attribute)</a>
 </li>
-      <li><a href="reference/generated/pynetdicom.acse.ACSE.html#pynetdicom.acse.ACSE.acse_timeout">acse_timeout (pynetdicom.acse.ACSE attribute)</a>
+      <li><a href="reference/generated/pynetdicom.ae.ApplicationEntity.html#pynetdicom.ae.ApplicationEntity.acse_timeout">acse_timeout (pynetdicom.ae.ApplicationEntity attribute)</a>, <a href="reference/generated/pynetdicom.ae.ApplicationEntity.html#pynetdicom.ae.ApplicationEntity.acse_timeout">[1]</a>
 
       <ul>
-        <li><a href="reference/generated/pynetdicom.ae.ApplicationEntity.html#pynetdicom.ae.ApplicationEntity.acse_timeout">(pynetdicom.ae.ApplicationEntity attribute)</a>, <a href="reference/generated/pynetdicom.ae.ApplicationEntity.html#pynetdicom.ae.ApplicationEntity.acse_timeout">[1]</a>
+        <li><a href="reference/generated/pynetdicom.association.Association.html#pynetdicom.association.Association.acse_timeout">(pynetdicom.association.Association attribute)</a>
 </li>
       </ul></li>
       <li><a href="reference/generated/pynetdicom.ae.ApplicationEntity.html#pynetdicom.ae.ApplicationEntity.active_associations">active_associations (pynetdicom.ae.ApplicationEntity attribute)</a>
@@ -446,6 +456,8 @@
         <li><a href="reference/generated/pynetdicom.service_class.StorageServiceClass.html#pynetdicom.service_class.StorageServiceClass.ae">(pynetdicom.service_class.StorageServiceClass attribute)</a>
 </li>
         <li><a href="reference/generated/pynetdicom.service_class.VerificationServiceClass.html#pynetdicom.service_class.VerificationServiceClass.ae">(pynetdicom.service_class.VerificationServiceClass attribute)</a>
+</li>
+        <li><a href="reference/generated/pynetdicom.transport.AssociationServer.html#pynetdicom.transport.AssociationServer.ae">(pynetdicom.transport.AssociationServer attribute)</a>
 </li>
       </ul></li>
   </ul></td>
@@ -530,11 +542,17 @@
 </li>
       <li><a href="reference/generated/pynetdicom.presentation.PresentationContext.html#pynetdicom.presentation.PresentationContext.as_tuple">as_tuple (pynetdicom.presentation.PresentationContext attribute)</a>
 </li>
+      <li><a href="reference/generated/pynetdicom.transport.AssociationSocket.html#pynetdicom.transport.AssociationSocket.assoc">assoc (pynetdicom.transport.AssociationSocket attribute)</a>
+</li>
       <li><a href="reference/generated/pynetdicom.ae.ApplicationEntity.html#pynetdicom.ae.ApplicationEntity.associate">associate() (pynetdicom.ae.ApplicationEntity method)</a>
 </li>
       <li><a href="reference/generated/pynetdicom.association.Association.html#pynetdicom.association.Association">Association (class in pynetdicom.association)</a>
 </li>
       <li><a href="reference/generated/pynetdicom.dul.DULServiceProvider.html#pynetdicom.dul.DULServiceProvider.association">association (pynetdicom.dul.DULServiceProvider attribute)</a>
+</li>
+      <li><a href="reference/generated/pynetdicom.transport.AssociationServer.html#pynetdicom.transport.AssociationServer">AssociationServer (class in pynetdicom.transport)</a>
+</li>
+      <li><a href="reference/generated/pynetdicom.transport.AssociationSocket.html#pynetdicom.transport.AssociationSocket">AssociationSocket (class in pynetdicom.transport)</a>
 </li>
       <li><a href="reference/generated/pynetdicom.pdu_items.UserInformationItem.html#pynetdicom.pdu_items.UserInformationItem.async_ops_window">async_ops_window (pynetdicom.pdu_items.UserInformationItem attribute)</a>, <a href="reference/generated/pynetdicom.pdu_items.UserInformationItem.html#pynetdicom.pdu_items.UserInformationItem.async_ops_window">[1]</a>
 </li>
@@ -552,11 +570,13 @@
   <td style="width: 33%; vertical-align: top;"><ul>
       <li><a href="reference/generated/pynetdicom.service_class.BasicWorklistManagementServiceClass.html#pynetdicom.service_class.BasicWorklistManagementServiceClass">BasicWorklistManagementServiceClass (class in pynetdicom.service_class)</a>
 </li>
+      <li><a href="reference/generated/pynetdicom.ae.ApplicationEntity.html#pynetdicom.ae.ApplicationEntity.bind_addr">bind_addr (pynetdicom.ae.ApplicationEntity attribute)</a>, <a href="reference/generated/pynetdicom.ae.ApplicationEntity.html#pynetdicom.ae.ApplicationEntity.bind_addr">[1]</a>
+</li>
   </ul></td>
   <td style="width: 33%; vertical-align: top;"><ul>
-      <li><a href="reference/generated/pynetdicom.ae.ApplicationEntity.html#pynetdicom.ae.ApplicationEntity.bind_addr">bind_addr (pynetdicom.ae.ApplicationEntity attribute)</a>
-</li>
       <li><a href="reference/generated/pynetdicom.presentation.build_context.html#pynetdicom.presentation.build_context">build_context() (in module pynetdicom.presentation)</a>
+</li>
+      <li><a href="reference/generated/pynetdicom.presentation.build_role.html#pynetdicom.presentation.build_role">build_role() (in module pynetdicom.presentation)</a>
 </li>
   </ul></td>
 </tr></table>
@@ -606,10 +626,10 @@
         <li><a href="reference/generated/pynetdicom.pdu_primitives.A_ASSOCIATE.html#pynetdicom.pdu_primitives.A_ASSOCIATE.called_ae_title">(pynetdicom.pdu_primitives.A_ASSOCIATE attribute)</a>, <a href="reference/generated/pynetdicom.pdu_primitives.A_ASSOCIATE.html#pynetdicom.pdu_primitives.A_ASSOCIATE.called_ae_title">[1]</a>
 </li>
       </ul></li>
-  </ul></td>
-  <td style="width: 33%; vertical-align: top;"><ul>
       <li><a href="reference/generated/pynetdicom.pdu_primitives.A_ASSOCIATE.html#pynetdicom.pdu_primitives.A_ASSOCIATE.called_presentation_address">called_presentation_address (pynetdicom.pdu_primitives.A_ASSOCIATE attribute)</a>, <a href="reference/generated/pynetdicom.pdu_primitives.A_ASSOCIATE.html#pynetdicom.pdu_primitives.A_ASSOCIATE.called_presentation_address">[1]</a>
 </li>
+  </ul></td>
+  <td style="width: 33%; vertical-align: top;"><ul>
       <li><a href="reference/generated/pynetdicom.pdu.A_ASSOCIATE_AC.html#pynetdicom.pdu.A_ASSOCIATE_AC.calling_ae_title">calling_ae_title (pynetdicom.pdu.A_ASSOCIATE_AC attribute)</a>, <a href="reference/generated/pynetdicom.pdu.A_ASSOCIATE_AC.html#pynetdicom.pdu.A_ASSOCIATE_AC.calling_ae_title">[1]</a>
 
       <ul>
@@ -620,21 +640,29 @@
       </ul></li>
       <li><a href="reference/generated/pynetdicom.pdu_primitives.A_ASSOCIATE.html#pynetdicom.pdu_primitives.A_ASSOCIATE.calling_presentation_address">calling_presentation_address (pynetdicom.pdu_primitives.A_ASSOCIATE attribute)</a>, <a href="reference/generated/pynetdicom.pdu_primitives.A_ASSOCIATE.html#pynetdicom.pdu_primitives.A_ASSOCIATE.calling_presentation_address">[1]</a>
 </li>
+      <li><a href="reference/generated/pynetdicom.dimse.DIMSEServiceProvider.html#pynetdicom.dimse.DIMSEServiceProvider.cancel_rq">cancel_rq (pynetdicom.dimse.DIMSEServiceProvider attribute)</a>
+</li>
       <li><a href="reference/generated/pynetdicom.sop_class.SOPClass.html#pynetdicom.sop_class.SOPClass.capitalize">capitalize() (pynetdicom.sop_class.SOPClass method)</a>
 </li>
       <li><a href="reference/generated/pynetdicom.sop_class.SOPClass.html#pynetdicom.sop_class.SOPClass.casefold">casefold() (pynetdicom.sop_class.SOPClass method)</a>
 </li>
       <li><a href="reference/generated/pynetdicom.sop_class.SOPClass.html#pynetdicom.sop_class.SOPClass.center">center() (pynetdicom.sop_class.SOPClass method)</a>
 </li>
-      <li><a href="reference/generated/pynetdicom.ae.ApplicationEntity.html#pynetdicom.ae.ApplicationEntity.cleanup_associations">cleanup_associations() (pynetdicom.ae.ApplicationEntity method)</a>
+      <li><a href="reference/generated/pynetdicom.transport.AssociationSocket.html#pynetdicom.transport.AssociationSocket.close">close() (pynetdicom.transport.AssociationSocket method)</a>
 </li>
-      <li><a href="reference/generated/pynetdicom.ae.ApplicationEntity.html#pynetdicom.ae.ApplicationEntity.client_socket">client_socket (pynetdicom.ae.ApplicationEntity attribute)</a>
+      <li><a href="reference/generated/pynetdicom.transport.AssociationServer.html#pynetdicom.transport.AssociationServer.close_request">close_request() (pynetdicom.transport.AssociationServer method)</a>
+
+      <ul>
+        <li><a href="reference/generated/pynetdicom.transport.ThreadedAssociationServer.html#pynetdicom.transport.ThreadedAssociationServer.close_request">(pynetdicom.transport.ThreadedAssociationServer method)</a>
 </li>
+      </ul></li>
       <li><a href="reference/generated/pynetdicom.status.code_to_category.html#pynetdicom.status.code_to_category">code_to_category() (in module pynetdicom.status)</a>
 </li>
       <li><a href="reference/generated/pynetdicom.status.code_to_status.html#pynetdicom.status.code_to_status">code_to_status() (in module pynetdicom.status)</a>
 </li>
       <li><a href="reference/generated/pynetdicom.pdu_items.UserInformationItem.html#pynetdicom.pdu_items.UserInformationItem.common_ext_neg">common_ext_neg (pynetdicom.pdu_items.UserInformationItem attribute)</a>, <a href="reference/generated/pynetdicom.pdu_items.UserInformationItem.html#pynetdicom.pdu_items.UserInformationItem.common_ext_neg">[1]</a>
+</li>
+      <li><a href="reference/generated/pynetdicom.transport.AssociationSocket.html#pynetdicom.transport.AssociationSocket.connect">connect() (pynetdicom.transport.AssociationSocket method)</a>
 </li>
       <li><a href="reference/generated/pynetdicom.pdu.PresentationDataValueItem.html#pynetdicom.pdu.PresentationDataValueItem.context_id">context_id (pynetdicom.pdu.PresentationDataValueItem attribute)</a>
 
@@ -899,6 +927,8 @@
       <li><a href="reference/generated/pynetdicom.ae.ApplicationEntity.html#pynetdicom.ae.ApplicationEntity.dimse_timeout">dimse_timeout (pynetdicom.ae.ApplicationEntity attribute)</a>, <a href="reference/generated/pynetdicom.ae.ApplicationEntity.html#pynetdicom.ae.ApplicationEntity.dimse_timeout">[1]</a>
 
       <ul>
+        <li><a href="reference/generated/pynetdicom.association.Association.html#pynetdicom.association.Association.dimse_timeout">(pynetdicom.association.Association attribute)</a>
+</li>
         <li><a href="reference/generated/pynetdicom.dimse.DIMSEServiceProvider.html#pynetdicom.dimse.DIMSEServiceProvider.dimse_timeout">(pynetdicom.dimse.DIMSEServiceProvider attribute)</a>
 </li>
       </ul></li>
@@ -918,10 +948,6 @@
         <li><a href="reference/generated/pynetdicom.fsm.StateMachine.html#pynetdicom.fsm.StateMachine.dul">(pynetdicom.fsm.StateMachine attribute)</a>
 </li>
       </ul></li>
-      <li><a href="reference/generated/pynetdicom.dul.DULServiceProvider.html#pynetdicom.dul.DULServiceProvider.dul_from_user_queue">dul_from_user_queue (pynetdicom.dul.DULServiceProvider attribute)</a>
-</li>
-      <li><a href="reference/generated/pynetdicom.dul.DULServiceProvider.html#pynetdicom.dul.DULServiceProvider.dul_to_user_queue">dul_to_user_queue (pynetdicom.dul.DULServiceProvider attribute)</a>
-</li>
       <li><a href="reference/generated/pynetdicom.dul.DULServiceProvider.html#pynetdicom.dul.DULServiceProvider">DULServiceProvider (class in pynetdicom.dul)</a>
 </li>
   </ul></td>
@@ -1027,8 +1053,14 @@
 </li>
       </ul></li>
       <li><a href="reference/generated/pynetdicom.dul.DULServiceProvider.html#pynetdicom.dul.DULServiceProvider.event_queue">event_queue (pynetdicom.dul.DULServiceProvider attribute)</a>
+
+      <ul>
+        <li><a href="reference/generated/pynetdicom.transport.AssociationSocket.html#pynetdicom.transport.AssociationSocket.event_queue">(pynetdicom.transport.AssociationSocket attribute)</a>
 </li>
+      </ul></li>
       <li><a href="reference/generated/pynetdicom.sop_class.SOPClass.html#pynetdicom.sop_class.SOPClass.expandtabs">expandtabs() (pynetdicom.sop_class.SOPClass method)</a>
+</li>
+      <li><a href="reference/generated/pynetdicom.timer.Timer.html#pynetdicom.timer.Timer.expired">expired (pynetdicom.timer.Timer attribute)</a>
 </li>
       <li><a href="reference/generated/pynetdicom.pdu_items.UserInformationItem.html#pynetdicom.pdu_items.UserInformationItem.ext_neg">ext_neg (pynetdicom.pdu_items.UserInformationItem attribute)</a>, <a href="reference/generated/pynetdicom.pdu_items.UserInformationItem.html#pynetdicom.pdu_items.UserInformationItem.ext_neg">[1]</a>
 </li>
@@ -1040,8 +1072,20 @@
 <h2 id="F">F</h2>
 <table style="width: 100%" class="indextable genindextable"><tr>
   <td style="width: 33%; vertical-align: top;"><ul>
+      <li><a href="reference/generated/pynetdicom.transport.AssociationServer.html#pynetdicom.transport.AssociationServer.fileno">fileno() (pynetdicom.transport.AssociationServer method)</a>
+
+      <ul>
+        <li><a href="reference/generated/pynetdicom.transport.ThreadedAssociationServer.html#pynetdicom.transport.ThreadedAssociationServer.fileno">(pynetdicom.transport.ThreadedAssociationServer method)</a>
+</li>
+      </ul></li>
       <li><a href="reference/generated/pynetdicom.sop_class.SOPClass.html#pynetdicom.sop_class.SOPClass.find">find() (pynetdicom.sop_class.SOPClass method)</a>
 </li>
+      <li><a href="reference/generated/pynetdicom.transport.AssociationServer.html#pynetdicom.transport.AssociationServer.finish_request">finish_request() (pynetdicom.transport.AssociationServer method)</a>
+
+      <ul>
+        <li><a href="reference/generated/pynetdicom.transport.ThreadedAssociationServer.html#pynetdicom.transport.ThreadedAssociationServer.finish_request">(pynetdicom.transport.ThreadedAssociationServer method)</a>
+</li>
+      </ul></li>
       <li><a href="reference/generated/pynetdicom.sop_class.SOPClass.html#pynetdicom.sop_class.SOPClass.format">format() (pynetdicom.sop_class.SOPClass method)</a>
 </li>
       <li><a href="reference/generated/pynetdicom.sop_class.SOPClass.html#pynetdicom.sop_class.SOPClass.format_map">format_map() (pynetdicom.sop_class.SOPClass method)</a>
@@ -1110,36 +1154,48 @@
   <td style="width: 33%; vertical-align: top;"><ul>
       <li><a href="reference/generated/pynetdicom.association.ServiceUser.html#pynetdicom.association.ServiceUser.get_contexts">get_contexts() (pynetdicom.association.ServiceUser method)</a>
 </li>
+      <li><a href="reference/generated/pynetdicom.dimse.DIMSEServiceProvider.html#pynetdicom.dimse.DIMSEServiceProvider.get_msg">get_msg() (pynetdicom.dimse.DIMSEServiceProvider method)</a>
+</li>
+  </ul></td>
+  <td style="width: 33%; vertical-align: top;"><ul>
+      <li><a href="reference/generated/pynetdicom.transport.AssociationServer.html#pynetdicom.transport.AssociationServer.get_request">get_request() (pynetdicom.transport.AssociationServer method)</a>
+
+      <ul>
+        <li><a href="reference/generated/pynetdicom.transport.ThreadedAssociationServer.html#pynetdicom.transport.ThreadedAssociationServer.get_request">(pynetdicom.transport.ThreadedAssociationServer method)</a>
+</li>
+      </ul></li>
+  </ul></td>
+</tr></table>
+
+<h2 id="H">H</h2>
+<table style="width: 100%" class="indextable genindextable"><tr>
+  <td style="width: 33%; vertical-align: top;"><ul>
+      <li><a href="reference/generated/pynetdicom.transport.AssociationServer.html#pynetdicom.transport.AssociationServer.handle_error">handle_error() (pynetdicom.transport.AssociationServer method)</a>
+
+      <ul>
+        <li><a href="reference/generated/pynetdicom.transport.ThreadedAssociationServer.html#pynetdicom.transport.ThreadedAssociationServer.handle_error">(pynetdicom.transport.ThreadedAssociationServer method)</a>
+</li>
+      </ul></li>
+      <li><a href="reference/generated/pynetdicom.transport.AssociationServer.html#pynetdicom.transport.AssociationServer.handle_request">handle_request() (pynetdicom.transport.AssociationServer method)</a>
+
+      <ul>
+        <li><a href="reference/generated/pynetdicom.transport.ThreadedAssociationServer.html#pynetdicom.transport.ThreadedAssociationServer.handle_request">(pynetdicom.transport.ThreadedAssociationServer method)</a>
+</li>
+      </ul></li>
+  </ul></td>
+  <td style="width: 33%; vertical-align: top;"><ul>
+      <li><a href="reference/generated/pynetdicom.transport.AssociationServer.html#pynetdicom.transport.AssociationServer.handle_timeout">handle_timeout() (pynetdicom.transport.AssociationServer method)</a>
+
+      <ul>
+        <li><a href="reference/generated/pynetdicom.transport.ThreadedAssociationServer.html#pynetdicom.transport.ThreadedAssociationServer.handle_timeout">(pynetdicom.transport.ThreadedAssociationServer method)</a>
+</li>
+      </ul></li>
   </ul></td>
 </tr></table>
 
 <h2 id="I">I</h2>
 <table style="width: 100%" class="indextable genindextable"><tr>
   <td style="width: 33%; vertical-align: top;"><ul>
-      <li><a href="reference/generated/pynetdicom.dimse_messages.C_CANCEL_RQ.html#pynetdicom.dimse_messages.C_CANCEL_RQ.ID">ID (pynetdicom.dimse_messages.C_CANCEL_RQ attribute)</a>
-
-      <ul>
-        <li><a href="reference/generated/pynetdicom.dimse_messages.C_ECHO_RQ.html#pynetdicom.dimse_messages.C_ECHO_RQ.ID">(pynetdicom.dimse_messages.C_ECHO_RQ attribute)</a>
-</li>
-        <li><a href="reference/generated/pynetdicom.dimse_messages.C_ECHO_RSP.html#pynetdicom.dimse_messages.C_ECHO_RSP.ID">(pynetdicom.dimse_messages.C_ECHO_RSP attribute)</a>
-</li>
-        <li><a href="reference/generated/pynetdicom.dimse_messages.C_FIND_RQ.html#pynetdicom.dimse_messages.C_FIND_RQ.ID">(pynetdicom.dimse_messages.C_FIND_RQ attribute)</a>
-</li>
-        <li><a href="reference/generated/pynetdicom.dimse_messages.C_FIND_RSP.html#pynetdicom.dimse_messages.C_FIND_RSP.ID">(pynetdicom.dimse_messages.C_FIND_RSP attribute)</a>
-</li>
-        <li><a href="reference/generated/pynetdicom.dimse_messages.C_GET_RQ.html#pynetdicom.dimse_messages.C_GET_RQ.ID">(pynetdicom.dimse_messages.C_GET_RQ attribute)</a>
-</li>
-        <li><a href="reference/generated/pynetdicom.dimse_messages.C_GET_RSP.html#pynetdicom.dimse_messages.C_GET_RSP.ID">(pynetdicom.dimse_messages.C_GET_RSP attribute)</a>
-</li>
-        <li><a href="reference/generated/pynetdicom.dimse_messages.C_MOVE_RQ.html#pynetdicom.dimse_messages.C_MOVE_RQ.ID">(pynetdicom.dimse_messages.C_MOVE_RQ attribute)</a>
-</li>
-        <li><a href="reference/generated/pynetdicom.dimse_messages.C_MOVE_RSP.html#pynetdicom.dimse_messages.C_MOVE_RSP.ID">(pynetdicom.dimse_messages.C_MOVE_RSP attribute)</a>
-</li>
-        <li><a href="reference/generated/pynetdicom.dimse_messages.C_STORE_RQ.html#pynetdicom.dimse_messages.C_STORE_RQ.ID">(pynetdicom.dimse_messages.C_STORE_RQ attribute)</a>
-</li>
-        <li><a href="reference/generated/pynetdicom.dimse_messages.C_STORE_RSP.html#pynetdicom.dimse_messages.C_STORE_RSP.ID">(pynetdicom.dimse_messages.C_STORE_RSP attribute)</a>
-</li>
-      </ul></li>
       <li><a href="reference/generated/pynetdicom.pdu_items.UserIdentitySubItemRQ.html#pynetdicom.pdu_items.UserIdentitySubItemRQ.id_type">id_type (pynetdicom.pdu_items.UserIdentitySubItemRQ attribute)</a>
 </li>
       <li><a href="reference/generated/pynetdicom.pdu_items.UserIdentitySubItemRQ.html#pynetdicom.pdu_items.UserIdentitySubItemRQ.id_type_str">id_type_str (pynetdicom.pdu_items.UserIdentitySubItemRQ attribute)</a>
@@ -1218,6 +1274,18 @@
         <li><a href="reference/generated/pynetdicom.dul.DULServiceProvider.html#pynetdicom.dul.DULServiceProvider.is_alive">(pynetdicom.dul.DULServiceProvider method)</a>
 </li>
       </ul></li>
+      <li><a href="reference/generated/pynetdicom.service_class.BasicWorklistManagementServiceClass.html#pynetdicom.service_class.BasicWorklistManagementServiceClass.is_cancelled">is_cancelled() (pynetdicom.service_class.BasicWorklistManagementServiceClass method)</a>
+
+      <ul>
+        <li><a href="reference/generated/pynetdicom.service_class.QueryRetrieveServiceClass.html#pynetdicom.service_class.QueryRetrieveServiceClass.is_cancelled">(pynetdicom.service_class.QueryRetrieveServiceClass method)</a>
+</li>
+        <li><a href="reference/generated/pynetdicom.service_class.RelevantPatientInformationQueryServiceClass.html#pynetdicom.service_class.RelevantPatientInformationQueryServiceClass.is_cancelled">(pynetdicom.service_class.RelevantPatientInformationQueryServiceClass method)</a>
+</li>
+        <li><a href="reference/generated/pynetdicom.service_class.StorageServiceClass.html#pynetdicom.service_class.StorageServiceClass.is_cancelled">(pynetdicom.service_class.StorageServiceClass method)</a>
+</li>
+        <li><a href="reference/generated/pynetdicom.service_class.VerificationServiceClass.html#pynetdicom.service_class.VerificationServiceClass.is_cancelled">(pynetdicom.service_class.VerificationServiceClass method)</a>
+</li>
+      </ul></li>
       <li><a href="reference/generated/pynetdicom.sop_class.SOPClass.html#pynetdicom.sop_class.SOPClass.is_compressed">is_compressed (pynetdicom.sop_class.SOPClass attribute)</a>
 </li>
       <li><a href="reference/generated/pynetdicom.sop_class.SOPClass.html#pynetdicom.sop_class.SOPClass.is_deflated">is_deflated (pynetdicom.sop_class.SOPClass attribute)</a>
@@ -1225,8 +1293,6 @@
       <li><a href="reference/generated/pynetdicom.sop_class.SOPClass.html#pynetdicom.sop_class.SOPClass.is_encapsulated">is_encapsulated (pynetdicom.sop_class.SOPClass attribute)</a>
 </li>
       <li><a href="reference/generated/pynetdicom.association.Association.html#pynetdicom.association.Association.is_established">is_established (pynetdicom.association.Association attribute)</a>
-</li>
-      <li><a href="reference/generated/pynetdicom.timer.Timer.html#pynetdicom.timer.Timer.is_expired">is_expired (pynetdicom.timer.Timer attribute)</a>
 </li>
       <li><a href="reference/generated/pynetdicom.sop_class.SOPClass.html#pynetdicom.sop_class.SOPClass.is_implicit_VR">is_implicit_VR (pynetdicom.sop_class.SOPClass attribute)</a>
 </li>
@@ -1239,8 +1305,6 @@
       <li><a href="reference/generated/pynetdicom.acse.ACSE.html#pynetdicom.acse.ACSE.is_release_requested">is_release_requested() (pynetdicom.acse.ACSE static method)</a>
 </li>
       <li><a href="reference/generated/pynetdicom.association.Association.html#pynetdicom.association.Association.is_released">is_released (pynetdicom.association.Association attribute)</a>
-</li>
-      <li><a href="reference/generated/pynetdicom.acse.ACSE.html#pynetdicom.acse.ACSE.is_released">is_released() (pynetdicom.acse.ACSE method)</a>
 </li>
       <li><a href="reference/generated/pynetdicom.association.Association.html#pynetdicom.association.Association.is_requestor">is_requestor (pynetdicom.association.Association attribute)</a>
 
@@ -1430,6 +1494,8 @@
 </li>
   </ul></td>
   <td style="width: 33%; vertical-align: top;"><ul>
+      <li><a href="reference/generated/pynetdicom.ae.ApplicationEntity.html#pynetdicom.ae.ApplicationEntity.local_socket">local_socket (pynetdicom.ae.ApplicationEntity attribute)</a>
+</li>
       <li><a href="reference/generated/pynetdicom.sop_class.SOPClass.html#pynetdicom.sop_class.SOPClass.lower">lower() (pynetdicom.sop_class.SOPClass method)</a>
 </li>
       <li><a href="reference/generated/pynetdicom.sop_class.SOPClass.html#pynetdicom.sop_class.SOPClass.lstrip">lstrip() (pynetdicom.sop_class.SOPClass method)</a>
@@ -1558,6 +1624,8 @@
 </li>
       <li><a href="reference/generated/pynetdicom.dimse_primitives.C_STORE.html#pynetdicom.dimse_primitives.C_STORE.MoveOriginatorMessageID">MoveOriginatorMessageID (pynetdicom.dimse_primitives.C_STORE attribute)</a>, <a href="reference/generated/pynetdicom.dimse_primitives.C_STORE.html#pynetdicom.dimse_primitives.C_STORE.MoveOriginatorMessageID">[1]</a>
 </li>
+      <li><a href="reference/generated/pynetdicom.dimse.DIMSEServiceProvider.html#pynetdicom.dimse.DIMSEServiceProvider.msg_queue">msg_queue (pynetdicom.dimse.DIMSEServiceProvider attribute)</a>
+</li>
   </ul></td>
 </tr></table>
 
@@ -1581,7 +1649,13 @@
       <li><a href="reference/generated/pynetdicom.acse.ACSE.html#pynetdicom.acse.ACSE.negotiate_release">negotiate_release() (pynetdicom.acse.ACSE method)</a>
 </li>
       <li><a href="reference/generated/pynetdicom.ae.ApplicationEntity.html#pynetdicom.ae.ApplicationEntity.network_timeout">network_timeout (pynetdicom.ae.ApplicationEntity attribute)</a>, <a href="reference/generated/pynetdicom.ae.ApplicationEntity.html#pynetdicom.ae.ApplicationEntity.network_timeout">[1]</a>
+
+      <ul>
+        <li><a href="reference/generated/pynetdicom.association.Association.html#pynetdicom.association.Association.network_timeout">(pynetdicom.association.Association attribute)</a>
 </li>
+        <li><a href="reference/generated/pynetdicom.dul.DULServiceProvider.html#pynetdicom.dul.DULServiceProvider.network_timeout">(pynetdicom.dul.DULServiceProvider attribute)</a>
+</li>
+      </ul></li>
   </ul></td>
   <td style="width: 33%; vertical-align: top;"><ul>
       <li><a href="reference/generated/pynetdicom.dimse_primitives.C_GET.html#pynetdicom.dimse_primitives.C_GET.NumberOfCompletedSuboperations">NumberOfCompletedSuboperations (pynetdicom.dimse_primitives.C_GET attribute)</a>, <a href="reference/generated/pynetdicom.dimse_primitives.C_GET.html#pynetdicom.dimse_primitives.C_GET.NumberOfCompletedSuboperations">[1]</a>
@@ -1640,18 +1714,12 @@
 </li>
       <li><a href="reference/generated/pynetdicom.ae.ApplicationEntity.html#pynetdicom.ae.ApplicationEntity.on_c_find">on_c_find() (pynetdicom.ae.ApplicationEntity method)</a>
 </li>
-      <li><a href="reference/generated/pynetdicom.ae.ApplicationEntity.html#pynetdicom.ae.ApplicationEntity.on_c_find_cancel">on_c_find_cancel() (pynetdicom.ae.ApplicationEntity method)</a>
-</li>
       <li><a href="reference/generated/pynetdicom.ae.ApplicationEntity.html#pynetdicom.ae.ApplicationEntity.on_c_get">on_c_get() (pynetdicom.ae.ApplicationEntity method)</a>
 </li>
-      <li><a href="reference/generated/pynetdicom.ae.ApplicationEntity.html#pynetdicom.ae.ApplicationEntity.on_c_get_cancel">on_c_get_cancel() (pynetdicom.ae.ApplicationEntity method)</a>
+      <li><a href="reference/generated/pynetdicom.ae.ApplicationEntity.html#pynetdicom.ae.ApplicationEntity.on_c_move">on_c_move() (pynetdicom.ae.ApplicationEntity method)</a>
 </li>
   </ul></td>
   <td style="width: 33%; vertical-align: top;"><ul>
-      <li><a href="reference/generated/pynetdicom.ae.ApplicationEntity.html#pynetdicom.ae.ApplicationEntity.on_c_move">on_c_move() (pynetdicom.ae.ApplicationEntity method)</a>
-</li>
-      <li><a href="reference/generated/pynetdicom.ae.ApplicationEntity.html#pynetdicom.ae.ApplicationEntity.on_c_move_cancel">on_c_move_cancel() (pynetdicom.ae.ApplicationEntity method)</a>
-</li>
       <li><a href="reference/generated/pynetdicom.ae.ApplicationEntity.html#pynetdicom.ae.ApplicationEntity.on_c_store">on_c_store() (pynetdicom.ae.ApplicationEntity method)</a>
 </li>
       <li><a href="reference/generated/pynetdicom.ae.ApplicationEntity.html#pynetdicom.ae.ApplicationEntity.on_make_connection">on_make_connection() (pynetdicom.ae.ApplicationEntity method)</a>
@@ -1724,6 +1792,8 @@
         <li><a href="reference/generated/pynetdicom.pdu.P_DATA_TF.html#pynetdicom.pdu.P_DATA_TF.pdu_type">(pynetdicom.pdu.P_DATA_TF attribute)</a>, <a href="reference/generated/pynetdicom.pdu.P_DATA_TF.html#pynetdicom.pdu.P_DATA_TF.pdu_type">[1]</a>
 </li>
       </ul></li>
+      <li><a href="reference/generated/pynetdicom.dimse.DIMSEServiceProvider.html#pynetdicom.dimse.DIMSEServiceProvider.peek_msg">peek_msg() (pynetdicom.dimse.DIMSEServiceProvider method)</a>
+</li>
       <li><a href="reference/generated/pynetdicom.dul.DULServiceProvider.html#pynetdicom.dul.DULServiceProvider.peek_next_pdu">peek_next_pdu() (pynetdicom.dul.DULServiceProvider method)</a>
 </li>
       <li><a href="reference/generated/pynetdicom.ae.ApplicationEntity.html#pynetdicom.ae.ApplicationEntity.port">port (pynetdicom.ae.ApplicationEntity attribute)</a>, <a href="reference/generated/pynetdicom.ae.ApplicationEntity.html#pynetdicom.ae.ApplicationEntity.port">[1]</a>
@@ -1764,10 +1834,10 @@
         <li><a href="reference/generated/pynetdicom.pdu_items.PresentationDataValueItem.html#pynetdicom.pdu_items.PresentationDataValueItem.presentation_data_value">(pynetdicom.pdu_items.PresentationDataValueItem attribute)</a>
 </li>
       </ul></li>
-  </ul></td>
-  <td style="width: 33%; vertical-align: top;"><ul>
       <li><a href="reference/generated/pynetdicom.pdu.P_DATA_TF.html#pynetdicom.pdu.P_DATA_TF.presentation_data_value_items">presentation_data_value_items (pynetdicom.pdu.P_DATA_TF attribute)</a>
 </li>
+  </ul></td>
+  <td style="width: 33%; vertical-align: top;"><ul>
       <li><a href="reference/generated/pynetdicom.pdu_primitives.P_DATA.html#pynetdicom.pdu_primitives.P_DATA.presentation_data_value_list">presentation_data_value_list (pynetdicom.pdu_primitives.P_DATA attribute)</a>, <a href="reference/generated/pynetdicom.pdu_primitives.P_DATA.html#pynetdicom.pdu_primitives.P_DATA.presentation_data_value_list">[1]</a>
 </li>
       <li><a href="reference/generated/pynetdicom.pdu_primitives.A_ASSOCIATE.html#pynetdicom.pdu_primitives.A_ASSOCIATE.presentation_requirements">presentation_requirements (pynetdicom.pdu_primitives.A_ASSOCIATE attribute)</a>, <a href="reference/generated/pynetdicom.pdu_primitives.A_ASSOCIATE.html#pynetdicom.pdu_primitives.A_ASSOCIATE.presentation_requirements">[1]</a>
@@ -1832,6 +1902,14 @@
         <li><a href="reference/generated/pynetdicom.dimse_primitives.C_STORE.html#pynetdicom.dimse_primitives.C_STORE.Priority">(pynetdicom.dimse_primitives.C_STORE attribute)</a>, <a href="reference/generated/pynetdicom.dimse_primitives.C_STORE.html#pynetdicom.dimse_primitives.C_STORE.Priority">[1]</a>
 </li>
       </ul></li>
+      <li><a href="reference/generated/pynetdicom.transport.AssociationServer.html#pynetdicom.transport.AssociationServer.process_request">process_request() (pynetdicom.transport.AssociationServer method)</a>
+
+      <ul>
+        <li><a href="reference/generated/pynetdicom.transport.ThreadedAssociationServer.html#pynetdicom.transport.ThreadedAssociationServer.process_request">(pynetdicom.transport.ThreadedAssociationServer method)</a>
+</li>
+      </ul></li>
+      <li><a href="reference/generated/pynetdicom.transport.ThreadedAssociationServer.html#pynetdicom.transport.ThreadedAssociationServer.process_request_thread">process_request_thread() (pynetdicom.transport.ThreadedAssociationServer method)</a>
+</li>
       <li><a href="reference/generated/pynetdicom.pdu.A_ASSOCIATE_AC.html#pynetdicom.pdu.A_ASSOCIATE_AC.protocol_version">protocol_version (pynetdicom.pdu.A_ASSOCIATE_AC attribute)</a>
 
       <ul>
@@ -1851,15 +1929,13 @@
       <li><a href="reference/generated/pynetdicom.service_class.QueryRetrieveServiceClass.html#pynetdicom.service_class.QueryRetrieveServiceClass">QueryRetrieveServiceClass (class in pynetdicom.service_class)</a>
 </li>
   </ul></td>
-  <td style="width: 33%; vertical-align: top;"><ul>
-      <li><a href="reference/generated/pynetdicom.ae.ApplicationEntity.html#pynetdicom.ae.ApplicationEntity.quit">quit() (pynetdicom.ae.ApplicationEntity method)</a>
-</li>
-  </ul></td>
 </tr></table>
 
 <h2 id="R">R</h2>
 <table style="width: 100%" class="indextable genindextable"><tr>
   <td style="width: 33%; vertical-align: top;"><ul>
+      <li><a href="reference/generated/pynetdicom.transport.AssociationSocket.html#pynetdicom.transport.AssociationSocket.ready">ready (pynetdicom.transport.AssociationSocket attribute)</a>
+</li>
       <li><a href="reference/generated/pynetdicom.pdu_primitives.A_RELEASE.html#pynetdicom.pdu_primitives.A_RELEASE.reason">reason (pynetdicom.pdu_primitives.A_RELEASE attribute)</a>, <a href="reference/generated/pynetdicom.pdu_primitives.A_RELEASE.html#pynetdicom.pdu_primitives.A_RELEASE.reason">[1]</a>
 </li>
       <li><a href="reference/generated/pynetdicom.pdu.A_ABORT_RQ.html#pynetdicom.pdu.A_ABORT_RQ.reason_diagnostic">reason_diagnostic (pynetdicom.pdu.A_ABORT_RQ attribute)</a>
@@ -1874,9 +1950,11 @@
         <li><a href="reference/generated/pynetdicom.pdu.A_ASSOCIATE_RJ.html#pynetdicom.pdu.A_ASSOCIATE_RJ.reason_str">(pynetdicom.pdu.A_ASSOCIATE_RJ attribute)</a>
 </li>
       </ul></li>
-      <li><a href="reference/generated/pynetdicom.dimse.DIMSEServiceProvider.html#pynetdicom.dimse.DIMSEServiceProvider.receive_msg">receive_msg() (pynetdicom.dimse.DIMSEServiceProvider method)</a>
-</li>
       <li><a href="reference/generated/pynetdicom.dul.DULServiceProvider.html#pynetdicom.dul.DULServiceProvider.receive_pdu">receive_pdu() (pynetdicom.dul.DULServiceProvider method)</a>
+</li>
+      <li><a href="reference/generated/pynetdicom.dimse.DIMSEServiceProvider.html#pynetdicom.dimse.DIMSEServiceProvider.receive_primitive">receive_primitive() (pynetdicom.dimse.DIMSEServiceProvider method)</a>
+</li>
+      <li><a href="reference/generated/pynetdicom.transport.AssociationSocket.html#pynetdicom.transport.AssociationSocket.recv">recv() (pynetdicom.transport.AssociationSocket method)</a>
 </li>
       <li><a href="reference/generated/pynetdicom.association.Association.html#pynetdicom.association.Association.rejected_contexts">rejected_contexts (pynetdicom.association.Association attribute)</a>
 </li>
@@ -1890,9 +1968,9 @@
 </li>
       <li><a href="reference/generated/pynetdicom.association.Association.html#pynetdicom.association.Association.release">release() (pynetdicom.association.Association method)</a>
 </li>
-      <li><a href="reference/generated/pynetdicom.acse.ACSE.html#pynetdicom.acse.ACSE.release_association">release_association() (pynetdicom.acse.ACSE method)</a>
-</li>
       <li><a href="reference/generated/pynetdicom.service_class.RelevantPatientInformationQueryServiceClass.html#pynetdicom.service_class.RelevantPatientInformationQueryServiceClass">RelevantPatientInformationQueryServiceClass (class in pynetdicom.service_class)</a>
+</li>
+      <li><a href="reference/generated/pynetdicom.timer.Timer.html#pynetdicom.timer.Timer.remaining">remaining (pynetdicom.timer.Timer attribute)</a>
 </li>
       <li><a href="reference/generated/pynetdicom.association.Association.html#pynetdicom.association.Association.remote">remote (pynetdicom.association.Association attribute)</a>
 </li>
@@ -1904,6 +1982,10 @@
 </li>
       <li><a href="reference/generated/pynetdicom.sop_class.SOPClass.html#pynetdicom.sop_class.SOPClass.replace">replace() (pynetdicom.sop_class.SOPClass method)</a>
 </li>
+      <li><a href="reference/generated/pynetdicom.association.Association.html#pynetdicom.association.Association.request">request() (pynetdicom.association.Association method)</a>
+</li>
+      <li><a href="reference/generated/pynetdicom.transport.AssociationServer.html#pynetdicom.transport.AssociationServer.request_queue_size">request_queue_size (pynetdicom.transport.AssociationServer attribute)</a>
+</li>
       <li><a href="reference/generated/pynetdicom.ae.ApplicationEntity.html#pynetdicom.ae.ApplicationEntity.requested_contexts">requested_contexts (pynetdicom.ae.ApplicationEntity attribute)</a>
 
       <ul>
@@ -1912,12 +1994,12 @@
       </ul></li>
       <li><a href="reference/generated/pynetdicom.association.Association.html#pynetdicom.association.Association.requestor">requestor (pynetdicom.association.Association attribute)</a>
 </li>
+  </ul></td>
+  <td style="width: 33%; vertical-align: top;"><ul>
       <li><a href="reference/generated/pynetdicom.ae.ApplicationEntity.html#pynetdicom.ae.ApplicationEntity.require_called_aet">require_called_aet (pynetdicom.ae.ApplicationEntity attribute)</a>, <a href="reference/generated/pynetdicom.ae.ApplicationEntity.html#pynetdicom.ae.ApplicationEntity.require_called_aet">[1]</a>
 </li>
       <li><a href="reference/generated/pynetdicom.ae.ApplicationEntity.html#pynetdicom.ae.ApplicationEntity.require_calling_aet">require_calling_aet (pynetdicom.ae.ApplicationEntity attribute)</a>, <a href="reference/generated/pynetdicom.ae.ApplicationEntity.html#pynetdicom.ae.ApplicationEntity.require_calling_aet">[1]</a>
 </li>
-  </ul></td>
-  <td style="width: 33%; vertical-align: top;"><ul>
       <li><a href="reference/generated/pynetdicom.association.ServiceUser.html#pynetdicom.association.ServiceUser.reset_negotiation_items">reset_negotiation_items() (pynetdicom.association.ServiceUser method)</a>
 </li>
       <li><a href="reference/generated/pynetdicom.pdu_primitives.A_ASSOCIATE.html#pynetdicom.pdu_primitives.A_ASSOCIATE.responding_ae_title">responding_ae_title (pynetdicom.pdu_primitives.A_ASSOCIATE attribute)</a>, <a href="reference/generated/pynetdicom.pdu_primitives.A_ASSOCIATE.html#pynetdicom.pdu_primitives.A_ASSOCIATE.responding_ae_title">[1]</a>
@@ -2008,8 +2090,6 @@
 </li>
       <li><a href="reference/generated/pynetdicom.pdu_items.SCP_SCU_RoleSelectionSubItem.html#pynetdicom.pdu_items.SCP_SCU_RoleSelectionSubItem">SCP_SCU_RoleSelectionSubItem (class in pynetdicom.pdu_items)</a>
 </li>
-      <li><a href="reference/generated/pynetdicom.dul.DULServiceProvider.html#pynetdicom.dul.DULServiceProvider.scp_socket">scp_socket (pynetdicom.dul.DULServiceProvider attribute)</a>
-</li>
       <li><a href="reference/generated/pynetdicom.pdu_items.SCP_SCU_RoleSelectionSubItem.html#pynetdicom.pdu_items.SCP_SCU_RoleSelectionSubItem.scu">scu (pynetdicom.pdu_items.SCP_SCU_RoleSelectionSubItem attribute)</a>
 </li>
       <li><a href="reference/generated/pynetdicom.pdu_items.SCP_SCU_RoleSelectionSubItem.html#pynetdicom.pdu_items.SCP_SCU_RoleSelectionSubItem.scu_role">scu_role (pynetdicom.pdu_items.SCP_SCU_RoleSelectionSubItem attribute)</a>, <a href="reference/generated/pynetdicom.pdu_items.SCP_SCU_RoleSelectionSubItem.html#pynetdicom.pdu_items.SCP_SCU_RoleSelectionSubItem.scu_role">[1]</a>
@@ -2020,8 +2100,6 @@
         <li><a href="reference/generated/pynetdicom.presentation.PresentationContext.html#pynetdicom.presentation.PresentationContext.scu_role">(pynetdicom.presentation.PresentationContext attribute)</a>, <a href="reference/generated/pynetdicom.presentation.PresentationContext.html#pynetdicom.presentation.PresentationContext.scu_role">[1]</a>
 </li>
       </ul></li>
-      <li><a href="reference/generated/pynetdicom.dul.DULServiceProvider.html#pynetdicom.dul.DULServiceProvider.scu_socket">scu_socket (pynetdicom.dul.DULServiceProvider attribute)</a>
-</li>
       <li><a href="reference/generated/pynetdicom.pdu_items.UserIdentitySubItemRQ.html#pynetdicom.pdu_items.UserIdentitySubItemRQ.secondary">secondary (pynetdicom.pdu_items.UserIdentitySubItemRQ attribute)</a>
 </li>
       <li><a href="reference/generated/pynetdicom.pdu_items.UserIdentitySubItemRQ.html#pynetdicom.pdu_items.UserIdentitySubItemRQ.secondary_field">secondary_field (pynetdicom.pdu_items.UserIdentitySubItemRQ attribute)</a>
@@ -2032,11 +2110,17 @@
       </ul></li>
       <li><a href="reference/generated/pynetdicom.pdu_items.UserIdentitySubItemRQ.html#pynetdicom.pdu_items.UserIdentitySubItemRQ.secondary_field_length">secondary_field_length (pynetdicom.pdu_items.UserIdentitySubItemRQ attribute)</a>, <a href="reference/generated/pynetdicom.pdu_items.UserIdentitySubItemRQ.html#pynetdicom.pdu_items.UserIdentitySubItemRQ.secondary_field_length">[1]</a>
 </li>
+      <li><a href="reference/generated/pynetdicom.transport.AssociationSocket.html#pynetdicom.transport.AssociationSocket.select_timeout">select_timeout (pynetdicom.transport.AssociationSocket attribute)</a>
+</li>
+      <li><a href="reference/generated/pynetdicom.transport.AssociationSocket.html#pynetdicom.transport.AssociationSocket.send">send() (pynetdicom.transport.AssociationSocket method)</a>
+</li>
       <li><a href="reference/generated/pynetdicom.acse.ACSE.html#pynetdicom.acse.ACSE.send_abort">send_abort() (pynetdicom.acse.ACSE static method)</a>
 </li>
       <li><a href="reference/generated/pynetdicom.acse.ACSE.html#pynetdicom.acse.ACSE.send_accept">send_accept() (pynetdicom.acse.ACSE static method)</a>
 </li>
       <li><a href="reference/generated/pynetdicom.acse.ACSE.html#pynetdicom.acse.ACSE.send_ap_abort">send_ap_abort() (pynetdicom.acse.ACSE static method)</a>
+</li>
+      <li><a href="reference/generated/pynetdicom.association.Association.html#pynetdicom.association.Association.send_c_cancel">send_c_cancel() (pynetdicom.association.Association method)</a>
 </li>
       <li><a href="reference/generated/pynetdicom.association.Association.html#pynetdicom.association.Association.send_c_echo">send_c_echo() (pynetdicom.association.Association method)</a>
 </li>
@@ -2070,6 +2154,28 @@
 </li>
       <li><a href="reference/generated/pynetdicom.acse.ACSE.html#pynetdicom.acse.ACSE.send_request">send_request() (pynetdicom.acse.ACSE static method)</a>
 </li>
+      <li><a href="reference/generated/pynetdicom.transport.AssociationServer.html#pynetdicom.transport.AssociationServer.serve_forever">serve_forever() (pynetdicom.transport.AssociationServer method)</a>
+
+      <ul>
+        <li><a href="reference/generated/pynetdicom.transport.ThreadedAssociationServer.html#pynetdicom.transport.ThreadedAssociationServer.serve_forever">(pynetdicom.transport.ThreadedAssociationServer method)</a>
+</li>
+      </ul></li>
+      <li><a href="reference/generated/pynetdicom.transport.AssociationServer.html#pynetdicom.transport.AssociationServer.server_activate">server_activate() (pynetdicom.transport.AssociationServer method)</a>
+
+      <ul>
+        <li><a href="reference/generated/pynetdicom.transport.ThreadedAssociationServer.html#pynetdicom.transport.ThreadedAssociationServer.server_activate">(pynetdicom.transport.ThreadedAssociationServer method)</a>
+</li>
+      </ul></li>
+      <li><a href="reference/generated/pynetdicom.transport.AssociationServer.html#pynetdicom.transport.AssociationServer.server_address">server_address (pynetdicom.transport.AssociationServer attribute)</a>
+</li>
+      <li><a href="reference/generated/pynetdicom.transport.AssociationServer.html#pynetdicom.transport.AssociationServer.server_bind">server_bind() (pynetdicom.transport.AssociationServer method)</a>
+
+      <ul>
+        <li><a href="reference/generated/pynetdicom.transport.ThreadedAssociationServer.html#pynetdicom.transport.ThreadedAssociationServer.server_bind">(pynetdicom.transport.ThreadedAssociationServer method)</a>
+</li>
+      </ul></li>
+      <li><a href="reference/generated/pynetdicom.transport.AssociationServer.html#pynetdicom.transport.AssociationServer.server_close">server_close() (pynetdicom.transport.AssociationServer method)</a>
+</li>
       <li><a href="reference/generated/pynetdicom.pdu_items.UserIdentitySubItemAC.html#pynetdicom.pdu_items.UserIdentitySubItemAC.server_response">server_response (pynetdicom.pdu_items.UserIdentitySubItemAC attribute)</a>
 
       <ul>
@@ -2078,6 +2184,12 @@
       </ul></li>
       <li><a href="reference/generated/pynetdicom.pdu_items.UserIdentitySubItemAC.html#pynetdicom.pdu_items.UserIdentitySubItemAC.server_response_length">server_response_length (pynetdicom.pdu_items.UserIdentitySubItemAC attribute)</a>, <a href="reference/generated/pynetdicom.pdu_items.UserIdentitySubItemAC.html#pynetdicom.pdu_items.UserIdentitySubItemAC.server_response_length">[1]</a>
 </li>
+      <li><a href="reference/generated/pynetdicom.transport.AssociationServer.html#pynetdicom.transport.AssociationServer.service_actions">service_actions() (pynetdicom.transport.AssociationServer method)</a>
+
+      <ul>
+        <li><a href="reference/generated/pynetdicom.transport.ThreadedAssociationServer.html#pynetdicom.transport.ThreadedAssociationServer.service_actions">(pynetdicom.transport.ThreadedAssociationServer method)</a>
+</li>
+      </ul></li>
       <li><a href="reference/generated/pynetdicom.sop_class.SOPClass.html#pynetdicom.sop_class.SOPClass.service_class">service_class (pynetdicom.sop_class.SOPClass attribute)</a>
 </li>
       <li><a href="reference/generated/pynetdicom.pdu_items.SOPClassExtendedNegotiationSubItem.html#pynetdicom.pdu_items.SOPClassExtendedNegotiationSubItem.service_class_application_information">service_class_application_information (pynetdicom.pdu_items.SOPClassExtendedNegotiationSubItem attribute)</a>
@@ -2086,20 +2198,42 @@
         <li><a href="reference/generated/pynetdicom.pdu_primitives.SOPClassExtendedNegotiation.html#pynetdicom.pdu_primitives.SOPClassExtendedNegotiation.service_class_application_information">(pynetdicom.pdu_primitives.SOPClassExtendedNegotiation attribute)</a>, <a href="reference/generated/pynetdicom.pdu_primitives.SOPClassExtendedNegotiation.html#pynetdicom.pdu_primitives.SOPClassExtendedNegotiation.service_class_application_information">[1]</a>
 </li>
       </ul></li>
+  </ul></td>
+  <td style="width: 33%; vertical-align: top;"><ul>
       <li><a href="reference/generated/pynetdicom.pdu_items.SOPClassCommonExtendedNegotiationSubItem.html#pynetdicom.pdu_items.SOPClassCommonExtendedNegotiationSubItem.service_class_uid">service_class_uid (pynetdicom.pdu_items.SOPClassCommonExtendedNegotiationSubItem attribute)</a>, <a href="reference/generated/pynetdicom.pdu_items.SOPClassCommonExtendedNegotiationSubItem.html#pynetdicom.pdu_items.SOPClassCommonExtendedNegotiationSubItem.service_class_uid">[1]</a>
 
       <ul>
         <li><a href="reference/generated/pynetdicom.pdu_primitives.SOPClassCommonExtendedNegotiation.html#pynetdicom.pdu_primitives.SOPClassCommonExtendedNegotiation.service_class_uid">(pynetdicom.pdu_primitives.SOPClassCommonExtendedNegotiation attribute)</a>, <a href="reference/generated/pynetdicom.pdu_primitives.SOPClassCommonExtendedNegotiation.html#pynetdicom.pdu_primitives.SOPClassCommonExtendedNegotiation.service_class_uid">[1]</a>
 </li>
       </ul></li>
-  </ul></td>
-  <td style="width: 33%; vertical-align: top;"><ul>
       <li><a href="reference/generated/pynetdicom.pdu_items.SOPClassCommonExtendedNegotiationSubItem.html#pynetdicom.pdu_items.SOPClassCommonExtendedNegotiationSubItem.service_class_uid_length">service_class_uid_length (pynetdicom.pdu_items.SOPClassCommonExtendedNegotiationSubItem attribute)</a>, <a href="reference/generated/pynetdicom.pdu_items.SOPClassCommonExtendedNegotiationSubItem.html#pynetdicom.pdu_items.SOPClassCommonExtendedNegotiationSubItem.service_class_uid_length">[1]</a>
 </li>
       <li><a href="reference/generated/pynetdicom.association.ServiceUser.html#pynetdicom.association.ServiceUser">ServiceUser (class in pynetdicom.association)</a>
 </li>
       <li><a href="reference/generated/pynetdicom.pdu_primitives.A_ASSOCIATE.html#pynetdicom.pdu_primitives.A_ASSOCIATE.session_requirements">session_requirements (pynetdicom.pdu_primitives.A_ASSOCIATE attribute)</a>, <a href="reference/generated/pynetdicom.pdu_primitives.A_ASSOCIATE.html#pynetdicom.pdu_primitives.A_ASSOCIATE.session_requirements">[1]</a>
 </li>
+      <li><a href="reference/generated/pynetdicom.association.Association.html#pynetdicom.association.Association.set_socket">set_socket() (pynetdicom.association.Association method)</a>
+</li>
+      <li><a href="reference/generated/pynetdicom.ae.ApplicationEntity.html#pynetdicom.ae.ApplicationEntity.shutdown">shutdown() (pynetdicom.ae.ApplicationEntity method)</a>
+
+      <ul>
+        <li><a href="reference/generated/pynetdicom.transport.AssociationServer.html#pynetdicom.transport.AssociationServer.shutdown">(pynetdicom.transport.AssociationServer method)</a>
+</li>
+        <li><a href="reference/generated/pynetdicom.transport.ThreadedAssociationServer.html#pynetdicom.transport.ThreadedAssociationServer.shutdown">(pynetdicom.transport.ThreadedAssociationServer method)</a>
+</li>
+      </ul></li>
+      <li><a href="reference/generated/pynetdicom.transport.AssociationServer.html#pynetdicom.transport.AssociationServer.shutdown_request">shutdown_request() (pynetdicom.transport.AssociationServer method)</a>
+
+      <ul>
+        <li><a href="reference/generated/pynetdicom.transport.ThreadedAssociationServer.html#pynetdicom.transport.ThreadedAssociationServer.shutdown_request">(pynetdicom.transport.ThreadedAssociationServer method)</a>
+</li>
+      </ul></li>
+      <li><a href="reference/generated/pynetdicom.dul.DULServiceProvider.html#pynetdicom.dul.DULServiceProvider.socket">socket (pynetdicom.dul.DULServiceProvider attribute)</a>
+
+      <ul>
+        <li><a href="reference/generated/pynetdicom.transport.AssociationSocket.html#pynetdicom.transport.AssociationSocket.socket">(pynetdicom.transport.AssociationSocket attribute)</a>
+</li>
+      </ul></li>
       <li><a href="reference/generated/pynetdicom.association.ServiceUser.html#pynetdicom.association.ServiceUser.sop_class_common_extended">sop_class_common_extended (pynetdicom.association.ServiceUser attribute)</a>
 </li>
       <li><a href="reference/generated/pynetdicom.association.ServiceUser.html#pynetdicom.association.ServiceUser.sop_class_extended">sop_class_extended (pynetdicom.association.ServiceUser attribute)</a>
@@ -2150,6 +2284,8 @@
 </li>
       <li><a href="reference/generated/pynetdicom.sop_class.SOPClass.html#pynetdicom.sop_class.SOPClass.splitlines">splitlines() (pynetdicom.sop_class.SOPClass method)</a>
 </li>
+      <li><a href="reference/generated/pynetdicom.transport.AssociationServer.html#pynetdicom.transport.AssociationServer.ssl_context">ssl_context (pynetdicom.transport.AssociationServer attribute)</a>
+</li>
       <li><a href="reference/generated/pynetdicom.ae.ApplicationEntity.html#pynetdicom.ae.ApplicationEntity.start">start() (pynetdicom.ae.ApplicationEntity method)</a>
 
       <ul>
@@ -2160,6 +2296,8 @@
         <li><a href="reference/generated/pynetdicom.timer.Timer.html#pynetdicom.timer.Timer.start">(pynetdicom.timer.Timer method)</a>
 </li>
       </ul></li>
+      <li><a href="reference/generated/pynetdicom.ae.ApplicationEntity.html#pynetdicom.ae.ApplicationEntity.start_server">start_server() (pynetdicom.ae.ApplicationEntity method)</a>
+</li>
       <li><a href="reference/generated/pynetdicom.sop_class.SOPClass.html#pynetdicom.sop_class.SOPClass.startswith">startswith() (pynetdicom.sop_class.SOPClass method)</a>
 </li>
       <li><a href="reference/generated/pynetdicom.dul.DULServiceProvider.html#pynetdicom.dul.DULServiceProvider.state_machine">state_machine (pynetdicom.dul.DULServiceProvider attribute)</a>
@@ -2208,13 +2346,15 @@
 <h2 id="T">T</h2>
 <table style="width: 100%" class="indextable genindextable"><tr>
   <td style="width: 33%; vertical-align: top;"><ul>
-      <li><a href="reference/generated/pynetdicom.timer.Timer.html#pynetdicom.timer.Timer.time_remaining">time_remaining (pynetdicom.timer.Timer attribute)</a>
+      <li><a href="reference/generated/pynetdicom.transport.ThreadedAssociationServer.html#pynetdicom.transport.ThreadedAssociationServer">ThreadedAssociationServer (class in pynetdicom.transport)</a>
 </li>
-      <li><a href="reference/generated/pynetdicom.timer.Timer.html#pynetdicom.timer.Timer.timeout_seconds">timeout_seconds (pynetdicom.timer.Timer attribute)</a>
+      <li><a href="reference/generated/pynetdicom.timer.Timer.html#pynetdicom.timer.Timer.timeout">timeout (pynetdicom.timer.Timer attribute)</a>
 </li>
       <li><a href="reference/generated/pynetdicom.timer.Timer.html#pynetdicom.timer.Timer">Timer (class in pynetdicom.timer)</a>
 </li>
       <li><a href="reference/generated/pynetdicom.sop_class.SOPClass.html#pynetdicom.sop_class.SOPClass.title">title() (pynetdicom.sop_class.SOPClass method)</a>
+</li>
+      <li><a href="reference/generated/pynetdicom.transport.AssociationSocket.html#pynetdicom.transport.AssociationSocket.tls_args">tls_args (pynetdicom.transport.AssociationSocket attribute)</a>
 </li>
       <li><a href="reference/generated/pynetdicom.pdu.A_ABORT_RQ.html#pynetdicom.pdu.A_ABORT_RQ.to_primitive">to_primitive() (pynetdicom.pdu.A_ABORT_RQ method)</a>
 
@@ -2258,6 +2398,10 @@
       </ul></li>
   </ul></td>
   <td style="width: 33%; vertical-align: top;"><ul>
+      <li><a href="reference/generated/pynetdicom.dul.DULServiceProvider.html#pynetdicom.dul.DULServiceProvider.to_provider_queue">to_provider_queue (pynetdicom.dul.DULServiceProvider attribute)</a>
+</li>
+      <li><a href="reference/generated/pynetdicom.dul.DULServiceProvider.html#pynetdicom.dul.DULServiceProvider.to_user_queue">to_user_queue (pynetdicom.dul.DULServiceProvider attribute)</a>
+</li>
       <li><a href="reference/generated/pynetdicom.pdu_items.PresentationContextItemAC.html#pynetdicom.pdu_items.PresentationContextItemAC.transfer_syntax">transfer_syntax (pynetdicom.pdu_items.PresentationContextItemAC attribute)</a>, <a href="reference/generated/pynetdicom.pdu_items.PresentationContextItemAC.html#pynetdicom.pdu_items.PresentationContextItemAC.transfer_syntax">[1]</a>
 
       <ul>
@@ -2362,6 +2506,12 @@
       </ul></li>
       <li><a href="reference/generated/pynetdicom.service_class.VerificationServiceClass.html#pynetdicom.service_class.VerificationServiceClass">VerificationServiceClass (class in pynetdicom.service_class)</a>
 </li>
+      <li><a href="reference/generated/pynetdicom.transport.AssociationServer.html#pynetdicom.transport.AssociationServer.verify_request">verify_request() (pynetdicom.transport.AssociationServer method)</a>
+
+      <ul>
+        <li><a href="reference/generated/pynetdicom.transport.ThreadedAssociationServer.html#pynetdicom.transport.ThreadedAssociationServer.verify_request">(pynetdicom.transport.ThreadedAssociationServer method)</a>
+</li>
+      </ul></li>
   </ul></td>
 </tr></table>
 
@@ -2410,26 +2560,16 @@
   
 
 
-  
-
-    
-    
-      <script type="text/javascript" id="documentation_options" data-url_root="./" src="_static/documentation_options.js"></script>
-        <script type="text/javascript" src="_static/jquery.js"></script>
-        <script type="text/javascript" src="_static/underscore.js"></script>
-        <script type="text/javascript" src="_static/doctools.js"></script>
-        <script type="text/javascript" src="_static/language_data.js"></script>
-    
-
-  
-
-  <script type="text/javascript" src="_static/js/theme.js"></script>
-
   <script type="text/javascript">
       jQuery(function () {
           SphinxRtdTheme.Navigation.enable(true);
       });
-  </script> 
+  </script>
+
+  
+  
+    
+   
 
 </body>
 </html>

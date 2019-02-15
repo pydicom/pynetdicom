@@ -27,7 +27,9 @@ pynetdicom.association.Association
       ~Association.join
       ~Association.kill
       ~Association.release
+      ~Association.request
       ~Association.run
+      ~Association.send_c_cancel
       ~Association.send_c_echo
       ~Association.send_c_find
       ~Association.send_c_get
@@ -41,6 +43,7 @@ pynetdicom.association.Association
       ~Association.send_n_set
       ~Association.setDaemon
       ~Association.setName
+      ~Association.set_socket
       ~Association.start
    
    
@@ -52,14 +55,17 @@ pynetdicom.association.Association
    .. autosummary::
    
       ~Association.accepted_contexts
+      ~Association.acse_timeout
       ~Association.ae
       ~Association.daemon
+      ~Association.dimse_timeout
       ~Association.ident
       ~Association.is_acceptor
       ~Association.is_requestor
       ~Association.local
       ~Association.mode
       ~Association.name
+      ~Association.network_timeout
       ~Association.rejected_contexts
       ~Association.remote
    

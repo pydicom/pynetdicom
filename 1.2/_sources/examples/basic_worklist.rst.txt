@@ -11,7 +11,7 @@ Basic Worklist Management SCU
 -----------------------------
 
 Associate with a peer DICOM Application Entity and request the
-worklist for the application with AE title 'CTSCANNER' for the 5th October
+worklist for the application with AE title ``'CTSCANNER'`` for the 5th October
 2018. The approach is very similar to that of a Query/Retrieve (Find) SCU,
 however BWM uses a different
 `set of attributes <http://dicom.nema.org/medical/dicom/current/output/chtml/part04/sect_K.6.html#sect_K.6.1.2>`_
@@ -50,16 +50,19 @@ for the *Identifier*.
        responses = assoc.send_c_find(ds, query_model='W')
 
        for (status, identifier) in responses:
-           print('C-FIND query status: 0x{0:04x}'.format(status.Status))
+          if status:
+              print('C-FIND query status: 0x{0:04x}'.format(status.Status))
 
-           # If the status is 'Pending' then identifier is the C-FIND response
-           if status.Status in (0xFF00, 0xFF01):
-               print(identifier)
+              # If the status is 'Pending' then identifier is the C-FIND response
+              if status.Status in (0xFF00, 0xFF01):
+                  print(identifier)
+          else:
+              print('Connection timed out, was aborted or received invalid response')
 
        # Release the association
        assoc.release()
    else:
-       print('Association rejected or aborted')
+       print('Association rejected, aborted or never connected')
 
 
 Basic Worklist Management SCP

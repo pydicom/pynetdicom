@@ -8,7 +8,7 @@
   
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   
-  <title>Application Entity &mdash; pynetdicom 1.1.0 documentation</title>
+  <title>Application Entity &mdash; pynetdicom 1.2.0 documentation</title>
   
 
   
@@ -19,13 +19,20 @@
   
 
   
+  <script type="text/javascript" src="../_static/js/modernizr.min.js"></script>
+  
+    
+      <script type="text/javascript" id="documentation_options" data-url_root="../" src="../_static/documentation_options.js"></script>
+        <script type="text/javascript" src="../_static/jquery.js"></script>
+        <script type="text/javascript" src="../_static/underscore.js"></script>
+        <script type="text/javascript" src="../_static/doctools.js"></script>
+        <script type="text/javascript" src="../_static/language_data.js"></script>
+    
+    <script type="text/javascript" src="../_static/js/theme.js"></script>
 
-  
-  
     
 
   
-
   <link rel="stylesheet" href="../_static/css/pynetdicom.css" type="text/css" />
   <link rel="stylesheet" href="../_static/pygments.css" type="text/css" />
   <link rel="stylesheet" href="../_static/css/pynetdicom.css" type="text/css" />
@@ -33,21 +40,16 @@
     <link rel="search" title="Search" href="../search.html" />
     <link rel="next" title="Association" href="association.html" />
     <link rel="prev" title="Presentation Contexts" href="presentation.html" /> 
-
-  
-  <script src="../_static/js/modernizr.min.js"></script>
-
 </head>
 
 <body class="wy-body-for-nav">
 
    
   <div class="wy-grid-for-nav">
-
     
     <nav data-toggle="wy-nav-shift" class="wy-nav-side">
       <div class="wy-side-scroll">
-        <div class="wy-side-nav-search">
+        <div class="wy-side-nav-search" >
           
 
           
@@ -64,7 +66,7 @@
             
             
               <div class="version">
-                1.1.0
+                1.2.0
               </div>
             
           
@@ -118,7 +120,7 @@
 <li class="toctree-l4"><a class="reference internal" href="#adding-supported-presentation-contexts">Adding supported Presentation Contexts</a></li>
 <li class="toctree-l4"><a class="reference internal" href="#handling-scp-scu-role-selection-negotiation">Handling SCP/SCU Role Selection Negotiation</a></li>
 <li class="toctree-l4"><a class="reference internal" href="#handling-user-identity-negotiation">Handling User Identity Negotiation</a></li>
-<li class="toctree-l4"><a class="reference internal" href="#id6">Specifying the network port</a></li>
+<li class="toctree-l4"><a class="reference internal" href="#specifying-the-bind-address">Specifying the bind address</a></li>
 <li class="toctree-l4"><a class="reference internal" href="#id7">Association</a></li>
 <li class="toctree-l4"><a class="reference internal" href="#references">References</a></li>
 </ul>
@@ -130,8 +132,9 @@
 </li>
 </ul>
 <ul>
-<li class="toctree-l1"><a class="reference internal" href="../release_notes.html">1.1.0</a></li>
-<li class="toctree-l1"><a class="reference internal" href="../release_notes.html#id2">1.0.0</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../release_notes.html">1.2.0</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../release_notes.html#v1-1-0">1.1.0</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../release_notes.html#v1-0-0">1.0.0</a></li>
 </ul>
 
             
@@ -253,7 +256,7 @@ value that gets stored.</p>
 <div class="section" id="adding-requested-presentation-contexts">
 <h3>Adding requested Presentation Contexts<a class="headerlink" href="#adding-requested-presentation-contexts" title="Permalink to this headline">¶</a></h3>
 <p>If you intend to use your AE as a <em>Service Class User</em> then you need to
-specify the <a class="reference internal" href="concepts.html#concepts-presentation-contexts"><span class="std std-ref">Presentation Contexts</span></a>
+specify the <a class="reference internal" href="presentation.html#user-presentation"><span class="std std-ref">Presentation Contexts</span></a>
 that will be <em>requested</em> during
 Association negotiation. This can be done in two ways:</p>
 <ul class="simple">
@@ -281,8 +284,9 @@ property. Additional contexts can still be added on a one-by-one basis afterward
 </pre></div>
 </div>
 <p>Here <code class="docutils literal notranslate"><span class="pre">StoragePresentationContexts</span></code> is a prebuilt list of presentation
-contexts containing (almost) all the Storage Service Class’ supported SOP
-Classes, and there’s a similar list for
+contexts containing (almost) all the Storage Service Class’
+<a class="reference external" href="http://dicom.nema.org/medical/dicom/current/output/chtml/part04/sect_B.5.html">supported SOP Classes</a>,
+and there’s a similar list for
 all the supported service classes. Alternatively you can build your own list
 of presentation contexts, either through creating new
 <a class="reference internal" href="../reference/generated/pynetdicom.presentation.PresentationContext.html#pynetdicom.presentation.PresentationContext" title="pynetdicom.presentation.PresentationContext"><code class="xref py py-class docutils literal notranslate"><span class="pre">PresentationContext</span></code></a>
@@ -307,7 +311,7 @@ convenience function:</p>
 <span class="gp">&gt;&gt;&gt; </span><span class="n">ae</span><span class="o">.</span><span class="n">add_requested_context</span><span class="p">(</span><span class="n">VerificationSOPClass</span><span class="p">)</span>
 </pre></div>
 </div>
-<p>As the association requestor you’re limited to a total of 128 requested
+<p>As the association <em>Requestor</em> you’re limited to a total of 128 requested
 presentation contexts, so attempting to add more than 128 contexts will raise
 a <code class="docutils literal notranslate"><span class="pre">ValueError</span></code> exception.</p>
 <p>When you add presentation contexts as shown above, the following transfer
@@ -403,19 +407,15 @@ the <a class="reference internal" href="association.html#association"><span clas
 <h3>Specifying the network port<a class="headerlink" href="#specifying-the-network-port" title="Permalink to this headline">¶</a></h3>
 <p>In general it shouldn’t be necessary to specify the port when acting as an SCU.
 By default <em>pynetdicom</em> will use the first available port to communicate with a
-peer AE. To specify the port number you can use the <code class="docutils literal notranslate"><span class="pre">port</span></code> parameter when
-initialising the AE:</p>
-<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="kn">from</span> <span class="nn">pynetdicom</span> <span class="k">import</span> <span class="n">AE</span>
-<span class="gp">&gt;&gt;&gt; </span><span class="n">ae</span> <span class="o">=</span> <span class="n">AE</span><span class="p">(</span><span class="n">port</span><span class="o">=</span><span class="mi">11112</span><span class="p">)</span>
-</pre></div>
-</div>
-<p>Or you can set it afterwards:</p>
+peer AE. To specify the port number you can use the <code class="docutils literal notranslate"><span class="pre">bind_address</span></code> keyword
+parameter when requesting an association, which takes a 2-tuple of
+(str <em>host</em>, int <em>port</em>):</p>
 <div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="kn">from</span> <span class="nn">pynetdicom</span> <span class="k">import</span> <span class="n">AE</span>
 <span class="gp">&gt;&gt;&gt; </span><span class="n">ae</span> <span class="o">=</span> <span class="n">AE</span><span class="p">()</span>
-<span class="gp">&gt;&gt;&gt; </span><span class="n">ae</span><span class="o">.</span><span class="n">port</span> <span class="o">=</span> <span class="mi">11112</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">ae</span><span class="o">.</span><span class="n">add_requested_context</span><span class="p">(</span><span class="s1">&#39;1.2.840.10008.1.1&#39;</span><span class="p">)</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">assoc</span> <span class="o">=</span> <span class="n">ae</span><span class="o">.</span><span class="n">associate</span><span class="p">(</span><span class="s1">&#39;localhost&#39;</span><span class="p">,</span> <span class="mi">11112</span><span class="p">,</span> <span class="n">bind_address</span><span class="o">=</span><span class="p">(</span><span class="s1">&#39;&#39;</span><span class="p">,</span> <span class="mi">11113</span><span class="p">))</span>
 </pre></div>
 </div>
-<p>Setting the value to <code class="docutils literal notranslate"><span class="pre">0</span></code> will revert the port to the first available.</p>
 </div>
 <div class="section" id="association">
 <h3>Association<a class="headerlink" href="#association" title="Permalink to this headline">¶</a></h3>
@@ -428,7 +428,7 @@ SCU please see the <a class="reference internal" href="association.html#associat
 <div class="section" id="adding-supported-presentation-contexts">
 <h3>Adding supported Presentation Contexts<a class="headerlink" href="#adding-supported-presentation-contexts" title="Permalink to this headline">¶</a></h3>
 <p>If you intend to use your AE as a <em>Service Class Provider</em> then you need to
-specify the <a class="reference internal" href="concepts.html#concepts-presentation-contexts"><span class="std std-ref">Presentation Contexts</span></a>
+specify the <a class="reference internal" href="presentation.html#user-presentation"><span class="std std-ref">Presentation Contexts</span></a>
 that will be <em>supported</em> during
 Association negotiation. This can be done in two ways:</p>
 <ul class="simple">
@@ -457,8 +457,9 @@ afterwards.</li>
 </pre></div>
 </div>
 <p>Here <code class="docutils literal notranslate"><span class="pre">StoragePresentationContexts</span></code> is a prebuilt list of presentation
-contexts containing (almost) all the Storage Service Class’ supported SOP
-Classes, and there’s a similar list for
+contexts containing (almost) all the Storage Service Class’
+<a class="reference external" href="http://dicom.nema.org/medical/dicom/current/output/chtml/part04/sect_B.5.html">supported SOP Classes</a>,
+and there’s a similar list for
 all the supported service classes. Alternatively you can build your own list
 of presentation contexts, either through creating new
 <a class="reference internal" href="../reference/generated/pynetdicom.presentation.PresentationContext.html#pynetdicom.presentation.PresentationContext" title="pynetdicom.presentation.PresentationContext"><code class="xref py py-class docutils literal notranslate"><span class="pre">PresentationContext</span></code></a>
@@ -483,7 +484,7 @@ convenience function:</p>
 <span class="gp">&gt;&gt;&gt; </span><span class="n">ae</span><span class="o">.</span><span class="n">add_supported_context</span><span class="p">(</span><span class="n">VerificationSOPClass</span><span class="p">)</span>
 </pre></div>
 </div>
-<p>As the association acceptor you’re not limited in the number of presentation
+<p>As the association <em>Acceptor</em> you’re not limited in the number of presentation
 contexts that you can support.</p>
 <p>When you add presentation contexts as shown above, the following transfer
 syntaxes are used by default for each context:</p>
@@ -544,7 +545,7 @@ property and they are returned in order of their abstract syntax UID value:</p>
 <span class="go">    =Explicit VR Big Endian</span>
 </pre></div>
 </div>
-<p>For the association acceptor its not possible to have multiple supported
+<p>For the association <em>Acceptor</em> its not possible to have multiple supported
 presentation contexts for the same abstract syntax, instead any additional
 transfer syntaxes will be combined with the pre-existing context:</p>
 <div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="kn">from</span> <span class="nn">pydicom.uid</span> <span class="k">import</span> <span class="n">ImplicitVRLittleEndian</span><span class="p">,</span> <span class="n">ExplicitVRLittleEndian</span>
@@ -565,12 +566,13 @@ transfer syntaxes will be combined with the pre-existing context:</p>
 </div>
 <div class="section" id="handling-scp-scu-role-selection-negotiation">
 <h3>Handling SCP/SCU Role Selection Negotiation<a class="headerlink" href="#handling-scp-scu-role-selection-negotiation" title="Permalink to this headline">¶</a></h3>
-<p>Depending on the requirements of the service class, an association requestor
-may include SCP/SCU Role Selection Negotiation items
-in the association request and it’s up to the association acceptor to decide
-whether or not to accept the proposed roles. This can be done through the
-<code class="docutils literal notranslate"><span class="pre">scu_role</span></code> and <code class="docutils literal notranslate"><span class="pre">scp_role</span></code> parameters, which control whether or not the
-association acceptor will accept or reject the proposal:</p>
+<p>Depending on the requirements of the service class, an association <em>Requestor</em>
+may include
+<a class="reference external" href="http://dicom.nema.org/medical/dicom/current/output/chtml/part07/sect_D.3.3.4.html">SCP/SCU Role Selection Negotiation</a>
+items in the association request and it’s up to the association <em>Acceptor</em>
+to decide whether or not to accept the proposed roles. This can be done
+through the <code class="docutils literal notranslate"><span class="pre">scu_role</span></code> and <code class="docutils literal notranslate"><span class="pre">scp_role</span></code> parameters, which control whether
+or not the association <em>Acceptor</em> will accept or reject the proposal:</p>
 <div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="kn">from</span> <span class="nn">pynetdicom</span> <span class="k">import</span> <span class="n">AE</span>
 <span class="gp">&gt;&gt;&gt; </span><span class="kn">from</span> <span class="nn">pynetdicom.sop_class</span> <span class="k">import</span> <span class="n">CTImageStorage</span>
 <span class="gp">&gt;&gt;&gt; </span><span class="n">ae</span> <span class="o">=</span> <span class="n">AE</span><span class="p">()</span>
@@ -580,26 +582,29 @@ association acceptor will accept or reject the proposal:</p>
 <p>If either <code class="docutils literal notranslate"><span class="pre">scu_role</span></code> or <code class="docutils literal notranslate"><span class="pre">scp_role</span></code> is None (the default) then no response
 to the role selection will be sent and the default roles assumed. If you wish
 to accept a proposed role then set the corresponding parameter to <code class="docutils literal notranslate"><span class="pre">True</span></code>. In
-the above example if the requestor proposes the SCP role then the acceptor will
-accept it while rejecting the proposed SCU role (and therefore the acceptor
-will be SCU and requestor SCP).</p>
+the above example if the <em>Requestor</em> proposes the SCP role then the <em>Acceptor</em>
+will accept it while rejecting the proposed SCU role (and therefore the
+<em>Acceptor</em> will be SCU and <em>Requestor</em> SCP).</p>
 <p>To reiterate, if you wish to respond to the proposed role selection then
 <strong>both</strong> <code class="docutils literal notranslate"><span class="pre">scu_role</span></code> and <code class="docutils literal notranslate"><span class="pre">scp_role</span></code> must be set, and the value you set
 indicates whether or not to accept or reject the proposal.</p>
-<p>There are four possible outcomes for the role selection negotiation, depending
+<p>There are <a class="reference internal" href="presentation.html#role-selection-negotiation"><span class="std std-ref">four possible outcomes</span></a>
+for the role selection negotiation, depending
 on what was proposed and what was accepted:</p>
 <ul class="simple">
 <li>The proposed roles aren’t acceptable and the context is rejected</li>
-<li>The acceptor acts as the SCP and the requestor the SCU (default)</li>
-<li>The acceptor acts as the SCU and the requestor the SCP</li>
-<li>Both acceptor and requestor act as SCU and SCP</li>
+<li>The <em>Acceptor</em> acts as the SCP and the <em>Requestor</em> the SCU (default)</li>
+<li>The <em>Acceptor</em> acts as the SCU and the <em>Requestor</em> the SCP</li>
+<li>Both <em>Acceptor</em> and <em>Requestor</em> act as SCU and SCP</li>
 </ul>
 </div>
 <div class="section" id="handling-user-identity-negotiation">
 <h3>Handling User Identity Negotiation<a class="headerlink" href="#handling-user-identity-negotiation" title="Permalink to this headline">¶</a></h3>
-<p>An association requestor may include a User Identity Negotiation item in the
-association request with the aim of providing the acceptor a method of
-verifying its identity. Possible forms of identity confirmation methods are:</p>
+<p>An association <em>Requestor</em> may include a
+<a class="reference external" href="http://dicom.nema.org/medical/dicom/current/output/chtml/part07/sect_D.3.3.7.html">User Identity Negotiation</a>
+item in the association request with the aim of providing the <em>Acceptor</em> a
+method of verifying its identity. Possible forms of identity confirmation
+methods are:</p>
 <ul class="simple">
 <li>Username</li>
 <li>Username and password (sent in the clear)</li>
@@ -654,27 +659,21 @@ callback.</p>
 
     <span class="k">return</span> <span class="n">is_verified</span><span class="p">,</span> <span class="n">response</span>
 
-<span class="n">ae</span> <span class="o">=</span> <span class="n">AE</span><span class="p">(</span><span class="n">port</span><span class="o">=</span><span class="mi">11112</span><span class="p">)</span>
+<span class="n">ae</span> <span class="o">=</span> <span class="n">AE</span><span class="p">()</span>
 <span class="n">ae</span><span class="o">.</span><span class="n">add_supported_context</span><span class="p">(</span><span class="n">VerificationSOPClass</span><span class="p">)</span>
 <span class="n">ae</span><span class="o">.</span><span class="n">on_user_identity</span> <span class="o">=</span> <span class="n">on_user_identity</span>
-<span class="n">ae</span><span class="o">.</span><span class="n">start</span><span class="p">()</span>
+<span class="n">ae</span><span class="o">.</span><span class="n">start_server</span><span class="p">((</span><span class="s1">&#39;&#39;</span><span class="p">,</span> <span class="mi">11112</span><span class="p">))</span>
 </pre></div>
 </div>
 </div>
-<div class="section" id="id6">
-<h3>Specifying the network port<a class="headerlink" href="#id6" title="Permalink to this headline">¶</a></h3>
-<p>By default an SCP will use the first available port to listen on for
-association requests, which is generally a bad idea as it makes it difficult
-for peers to know what port to communicate with. To specify the port number
-you can use the <code class="docutils literal notranslate"><span class="pre">port</span></code> parameter when initialising the AE:</p>
-<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="kn">from</span> <span class="nn">pynetdicom</span> <span class="k">import</span> <span class="n">AE</span>
-<span class="gp">&gt;&gt;&gt; </span><span class="n">ae</span> <span class="o">=</span> <span class="n">AE</span><span class="p">(</span><span class="n">port</span><span class="o">=</span><span class="mi">11112</span><span class="p">)</span>
-</pre></div>
-</div>
-<p>Or you can set it afterwards:</p>
+<div class="section" id="specifying-the-bind-address">
+<h3>Specifying the bind address<a class="headerlink" href="#specifying-the-bind-address" title="Permalink to this headline">¶</a></h3>
+<p>The bind address for the server socket is specified by the <code class="docutils literal notranslate"><span class="pre">address</span></code>
+parameter to <code class="docutils literal notranslate"><span class="pre">start_server()</span></code> as (str <em>host</em>, int <em>port</em>).</p>
 <div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="kn">from</span> <span class="nn">pynetdicom</span> <span class="k">import</span> <span class="n">AE</span>
 <span class="gp">&gt;&gt;&gt; </span><span class="n">ae</span> <span class="o">=</span> <span class="n">AE</span><span class="p">()</span>
-<span class="gp">&gt;&gt;&gt; </span><span class="n">ae</span><span class="o">.</span><span class="n">port</span> <span class="o">=</span> <span class="mi">11112</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">ae</span><span class="o">.</span><span class="n">add_supported_context</span><span class="p">(</span><span class="s1">&#39;1.2.840.10008.1.1&#39;</span><span class="p">)</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">ae</span><span class="o">.</span><span class="n">start_server</span><span class="p">((</span><span class="s1">&#39;&#39;</span><span class="p">,</span> <span class="mi">11112</span><span class="p">))</span>
 </pre></div>
 </div>
 </div>
@@ -735,7 +734,7 @@ AEs and how to handle their service requests see the
         <a href="association.html" class="btn btn-neutral float-right" title="Association" accesskey="n" rel="next">Next <span class="fa fa-arrow-circle-right"></span></a>
       
       
-        <a href="presentation.html" class="btn btn-neutral" title="Presentation Contexts" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left"></span> Previous</a>
+        <a href="presentation.html" class="btn btn-neutral float-left" title="Presentation Contexts" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left"></span> Previous</a>
       
     </div>
   
@@ -761,26 +760,16 @@ AEs and how to handle their service requests see the
   
 
 
-  
-
-    
-    
-      <script type="text/javascript" id="documentation_options" data-url_root="../" src="../_static/documentation_options.js"></script>
-        <script type="text/javascript" src="../_static/jquery.js"></script>
-        <script type="text/javascript" src="../_static/underscore.js"></script>
-        <script type="text/javascript" src="../_static/doctools.js"></script>
-        <script type="text/javascript" src="../_static/language_data.js"></script>
-    
-
-  
-
-  <script type="text/javascript" src="../_static/js/theme.js"></script>
-
   <script type="text/javascript">
       jQuery(function () {
           SphinxRtdTheme.Navigation.enable(true);
       });
-  </script> 
+  </script>
+
+  
+  
+    
+   
 
 </body>
 </html>

@@ -8,7 +8,7 @@
   
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   
-  <title>pynetdicom.dimse_primitives &mdash; pynetdicom 1.1.0 documentation</title>
+  <title>pynetdicom.dimse_primitives &mdash; pynetdicom 1.2.0 documentation</title>
   
 
   
@@ -19,33 +19,35 @@
   
 
   
+  <script type="text/javascript" src="../../_static/js/modernizr.min.js"></script>
+  
+    
+      <script type="text/javascript" id="documentation_options" data-url_root="../../" src="../../_static/documentation_options.js"></script>
+        <script type="text/javascript" src="../../_static/jquery.js"></script>
+        <script type="text/javascript" src="../../_static/underscore.js"></script>
+        <script type="text/javascript" src="../../_static/doctools.js"></script>
+        <script type="text/javascript" src="../../_static/language_data.js"></script>
+    
+    <script type="text/javascript" src="../../_static/js/theme.js"></script>
 
-  
-  
     
 
   
-
   <link rel="stylesheet" href="../../_static/css/pynetdicom.css" type="text/css" />
   <link rel="stylesheet" href="../../_static/pygments.css" type="text/css" />
   <link rel="stylesheet" href="../../_static/css/pynetdicom.css" type="text/css" />
     <link rel="index" title="Index" href="../../genindex.html" />
     <link rel="search" title="Search" href="../../search.html" /> 
-
-  
-  <script src="../../_static/js/modernizr.min.js"></script>
-
 </head>
 
 <body class="wy-body-for-nav">
 
    
   <div class="wy-grid-for-nav">
-
     
     <nav data-toggle="wy-nav-shift" class="wy-nav-side">
       <div class="wy-side-scroll">
-        <div class="wy-side-nav-search">
+        <div class="wy-side-nav-search" >
           
 
           
@@ -62,7 +64,7 @@
             
             
               <div class="version">
-                1.1.0
+                1.2.0
               </div>
             
           
@@ -104,8 +106,9 @@
 <li class="toctree-l1"><a class="reference internal" href="../../user/index.html">User Guide</a></li>
 </ul>
 <ul>
-<li class="toctree-l1"><a class="reference internal" href="../../release_notes.html">1.1.0</a></li>
-<li class="toctree-l1"><a class="reference internal" href="../../release_notes.html#id2">1.0.0</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../release_notes.html">1.2.0</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../release_notes.html#v1-1-0">1.1.0</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../release_notes.html#v1-0-0">1.0.0</a></li>
 </ul>
 
             
@@ -523,9 +526,9 @@
         <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">value</span><span class="p">,</span> <span class="nb">str</span><span class="p">):</span>
             <span class="n">value</span> <span class="o">=</span> <span class="n">codecs</span><span class="o">.</span><span class="n">encode</span><span class="p">(</span><span class="n">value</span><span class="p">,</span> <span class="s1">&#39;ascii&#39;</span><span class="p">)</span>
 
-        <span class="k">if</span> <span class="n">value</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
-            <span class="bp">self</span><span class="o">.</span><span class="n">_move_originator_application_entity_title</span> <span class="o">=</span> <span class="n">validate_ae_title</span><span class="p">(</span>
-                <span class="n">value</span>
+        <span class="k">if</span> <span class="n">value</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">_move_originator_application_entity_title</span> <span class="o">=</span> <span class="p">(</span>
+                <span class="n">validate_ae_title</span><span class="p">(</span><span class="n">value</span><span class="p">)</span>
             <span class="p">)</span>
         <span class="k">else</span><span class="p">:</span>
             <span class="bp">self</span><span class="o">.</span><span class="n">_move_originator_application_entity_title</span> <span class="o">=</span> <span class="kc">None</span>
@@ -538,6 +541,7 @@
     <span class="nd">@MoveOriginatorMessageID</span><span class="o">.</span><span class="n">setter</span>
     <span class="k">def</span> <span class="nf">MoveOriginatorMessageID</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">value</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;Set the *Move Originator Message ID*.&quot;&quot;&quot;</span>
+        <span class="c1"># Fix for peers sending a value consisting of nulls</span>
         <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">value</span><span class="p">,</span> <span class="nb">int</span><span class="p">):</span>
             <span class="k">if</span> <span class="mi">0</span> <span class="o">&lt;=</span> <span class="n">value</span> <span class="o">&lt;</span> <span class="mi">2</span><span class="o">**</span><span class="mi">16</span><span class="p">:</span>
                 <span class="bp">self</span><span class="o">.</span><span class="n">_move_originator_message_id</span> <span class="o">=</span> <span class="n">value</span>
@@ -1234,8 +1238,8 @@
 <span class="sd">    | Message ID Being Responded To | M       |</span>
 <span class="sd">    +-------------------------------+---------+</span>
 
-<span class="sd">    | (=) - The value of the parameter is equal to the value of the parameter in</span>
-<span class="sd">      the column to the left</span>
+<span class="sd">    | (=) - The value of the parameter is equal to the value of the parameter</span>
+<span class="sd">      in the column to the left</span>
 <span class="sd">    | C - The parameter is conditional.</span>
 <span class="sd">    | M - Mandatory</span>
 <span class="sd">    | MF - Mandatory with a fixed value</span>
@@ -2384,26 +2388,16 @@
   
 
 
-  
-
-    
-    
-      <script type="text/javascript" id="documentation_options" data-url_root="../../" src="../../_static/documentation_options.js"></script>
-        <script type="text/javascript" src="../../_static/jquery.js"></script>
-        <script type="text/javascript" src="../../_static/underscore.js"></script>
-        <script type="text/javascript" src="../../_static/doctools.js"></script>
-        <script type="text/javascript" src="../../_static/language_data.js"></script>
-    
-
-  
-
-  <script type="text/javascript" src="../../_static/js/theme.js"></script>
-
   <script type="text/javascript">
       jQuery(function () {
           SphinxRtdTheme.Navigation.enable(true);
       });
-  </script> 
+  </script>
+
+  
+  
+    
+   
 
 </body>
 </html>

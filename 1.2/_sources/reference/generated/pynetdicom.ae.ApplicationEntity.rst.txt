@@ -17,7 +17,6 @@ pynetdicom.ae.ApplicationEntity
       ~ApplicationEntity.add_requested_context
       ~ApplicationEntity.add_supported_context
       ~ApplicationEntity.associate
-      ~ApplicationEntity.cleanup_associations
       ~ApplicationEntity.on_association_aborted
       ~ApplicationEntity.on_association_accepted
       ~ApplicationEntity.on_association_rejected
@@ -26,11 +25,8 @@ pynetdicom.ae.ApplicationEntity
       ~ApplicationEntity.on_async_ops_window
       ~ApplicationEntity.on_c_echo
       ~ApplicationEntity.on_c_find
-      ~ApplicationEntity.on_c_find_cancel
       ~ApplicationEntity.on_c_get
-      ~ApplicationEntity.on_c_get_cancel
       ~ApplicationEntity.on_c_move
-      ~ApplicationEntity.on_c_move_cancel
       ~ApplicationEntity.on_c_store
       ~ApplicationEntity.on_make_connection
       ~ApplicationEntity.on_n_action
@@ -43,10 +39,11 @@ pynetdicom.ae.ApplicationEntity
       ~ApplicationEntity.on_sop_class_common_extended
       ~ApplicationEntity.on_sop_class_extended
       ~ApplicationEntity.on_user_identity
-      ~ApplicationEntity.quit
       ~ApplicationEntity.remove_requested_context
       ~ApplicationEntity.remove_supported_context
+      ~ApplicationEntity.shutdown
       ~ApplicationEntity.start
+      ~ApplicationEntity.start_server
       ~ApplicationEntity.stop
    
    
@@ -58,7 +55,9 @@ pynetdicom.ae.ApplicationEntity
    .. autosummary::
    
       ~ApplicationEntity.acse_timeout
+      ~ApplicationEntity.active_associations
       ~ApplicationEntity.ae_title
+      ~ApplicationEntity.bind_addr
       ~ApplicationEntity.dimse_timeout
       ~ApplicationEntity.implementation_class_uid
       ~ApplicationEntity.implementation_version_name

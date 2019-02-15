@@ -26,8 +26,8 @@ pynetdicom.timer.Timer
 
    .. autosummary::
    
-      ~Timer.is_expired
-      ~Timer.time_remaining
-      ~Timer.timeout_seconds
+      ~Timer.expired
+      ~Timer.remaining
+      ~Timer.timeout
    
    

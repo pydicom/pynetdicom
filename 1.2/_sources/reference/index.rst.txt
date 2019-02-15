@@ -27,4 +27,5 @@ pynetdicom.
    sop_classes
    status
    timer
+   transport
    utils

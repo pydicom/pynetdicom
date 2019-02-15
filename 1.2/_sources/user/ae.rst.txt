@@ -59,7 +59,7 @@ Adding requested Presentation Contexts
 ......................................
 
 If you intend to use your AE as a *Service Class User* then you need to
-specify the :ref:`Presentation Contexts <concepts_presentation_contexts>`
+specify the :ref:`Presentation Contexts <user_presentation>`
 that will be *requested* during
 Association negotiation. This can be done in two ways:
 
@@ -87,8 +87,9 @@ Adding presentation contexts all at once:
 >>> ae.requested_contexts = StoragePresentationContexts
 
 Here ``StoragePresentationContexts`` is a prebuilt list of presentation
-contexts containing (almost) all the Storage Service Class' supported SOP
-Classes, and there's a similar list for
+contexts containing (almost) all the Storage Service Class'
+`supported SOP Classes <http://dicom.nema.org/medical/dicom/current/output/chtml/part04/sect_B.5.html>`_,
+and there's a similar list for
 all the supported service classes. Alternatively you can build your own list
 of presentation contexts, either through creating new
 :py:class:`PresentationContext <pynetdicom.presentation.PresentationContext>`
@@ -113,7 +114,7 @@ Combining the all-at-once and one-by-one approaches:
 >>> ae.requested_contexts = StoragePresentationContexts
 >>> ae.add_requested_context(VerificationSOPClass)
 
-As the association requestor you're limited to a total of 128 requested
+As the association *Requestor* you're limited to a total of 128 requested
 presentation contexts, so attempting to add more than 128 contexts will raise
 a ``ValueError`` exception.
 
@@ -201,19 +202,15 @@ Specifying the network port
 ...........................
 In general it shouldn't be necessary to specify the port when acting as an SCU.
 By default *pynetdicom* will use the first available port to communicate with a
-peer AE. To specify the port number you can use the ``port`` parameter when
-initialising the AE:
-
->>> from pynetdicom import AE
->>> ae = AE(port=11112)
-
-Or you can set it afterwards:
+peer AE. To specify the port number you can use the ``bind_address`` keyword
+parameter when requesting an association, which takes a 2-tuple of
+(str *host*, int *port*):
 
 >>> from pynetdicom import AE
 >>> ae = AE()
->>> ae.port = 11112
+>>> ae.add_requested_context('1.2.840.10008.1.1')
+>>> assoc = ae.associate('localhost', 11112, bind_address=('', 11113))
 
-Setting the value to ``0`` will revert the port to the first available.
 
 Association
 ...........
@@ -228,7 +225,7 @@ Adding supported Presentation Contexts
 ......................................
 
 If you intend to use your AE as a *Service Class Provider* then you need to
-specify the :ref:`Presentation Contexts <concepts_presentation_contexts>`
+specify the :ref:`Presentation Contexts <user_presentation>`
 that will be *supported* during
 Association negotiation. This can be done in two ways:
 
@@ -257,8 +254,9 @@ Adding presentation contexts all at once:
 >>> ae.supported_contexts = StoragePresentationContexts
 
 Here ``StoragePresentationContexts`` is a prebuilt list of presentation
-contexts containing (almost) all the Storage Service Class' supported SOP
-Classes, and there's a similar list for
+contexts containing (almost) all the Storage Service Class'
+`supported SOP Classes <http://dicom.nema.org/medical/dicom/current/output/chtml/part04/sect_B.5.html>`_,
+and there's a similar list for
 all the supported service classes. Alternatively you can build your own list
 of presentation contexts, either through creating new
 :py:class:`PresentationContext <pynetdicom.presentation.PresentationContext>`
@@ -283,7 +281,7 @@ Combining the all-at-once and one-by-one approaches:
 >>> ae.supported_contexts = StoragePresentationContexts
 >>> ae.add_supported_context(VerificationSOPClass)
 
-As the association acceptor you're not limited in the number of presentation
+As the association *Acceptor* you're not limited in the number of presentation
 contexts that you can support.
 
 When you add presentation contexts as shown above, the following transfer
@@ -336,7 +334,7 @@ Transfer Syntax(es):
     =Explicit VR Little Endian
     =Explicit VR Big Endian
 
-For the association acceptor its not possible to have multiple supported
+For the association *Acceptor* its not possible to have multiple supported
 presentation contexts for the same abstract syntax, instead any additional
 transfer syntaxes will be combined with the pre-existing context:
 
@@ -358,12 +356,13 @@ Transfer Syntax(es):
 Handling SCP/SCU Role Selection Negotiation
 ...........................................
 
-Depending on the requirements of the service class, an association requestor
-may include SCP/SCU Role Selection Negotiation items
-in the association request and it's up to the association acceptor to decide
-whether or not to accept the proposed roles. This can be done through the
-``scu_role`` and ``scp_role`` parameters, which control whether or not the
-association acceptor will accept or reject the proposal:
+Depending on the requirements of the service class, an association *Requestor*
+may include
+`SCP/SCU Role Selection Negotiation <http://dicom.nema.org/medical/dicom/current/output/chtml/part07/sect_D.3.3.4.html>`_
+items in the association request and it's up to the association *Acceptor*
+to decide whether or not to accept the proposed roles. This can be done
+through the ``scu_role`` and ``scp_role`` parameters, which control whether
+or not the association *Acceptor* will accept or reject the proposal:
 
 >>> from pynetdicom import AE
 >>> from pynetdicom.sop_class import CTImageStorage
@@ -373,28 +372,31 @@ association acceptor will accept or reject the proposal:
 If either ``scu_role`` or ``scp_role`` is None (the default) then no response
 to the role selection will be sent and the default roles assumed. If you wish
 to accept a proposed role then set the corresponding parameter to ``True``. In
-the above example if the requestor proposes the SCP role then the acceptor will
-accept it while rejecting the proposed SCU role (and therefore the acceptor
-will be SCU and requestor SCP).
+the above example if the *Requestor* proposes the SCP role then the *Acceptor*
+will accept it while rejecting the proposed SCU role (and therefore the
+*Acceptor* will be SCU and *Requestor* SCP).
 
 To reiterate, if you wish to respond to the proposed role selection then
 **both** ``scu_role`` and ``scp_role`` must be set, and the value you set
 indicates whether or not to accept or reject the proposal.
 
-There are four possible outcomes for the role selection negotiation, depending
+There are :ref:`four possible outcomes <role_selection_negotiation>`
+for the role selection negotiation, depending
 on what was proposed and what was accepted:
 
 * The proposed roles aren't acceptable and the context is rejected
-* The acceptor acts as the SCP and the requestor the SCU (default)
-* The acceptor acts as the SCU and the requestor the SCP
-* Both acceptor and requestor act as SCU and SCP
+* The *Acceptor* acts as the SCP and the *Requestor* the SCU (default)
+* The *Acceptor* acts as the SCU and the *Requestor* the SCP
+* Both *Acceptor* and *Requestor* act as SCU and SCP
 
 Handling User Identity Negotiation
 ..................................
 
-An association requestor may include a User Identity Negotiation item in the
-association request with the aim of providing the acceptor a method of
-verifying its identity. Possible forms of identity confirmation methods are:
+An association *Requestor* may include a
+`User Identity Negotiation <http://dicom.nema.org/medical/dicom/current/output/chtml/part07/sect_D.3.3.7.html>`_
+item in the association request with the aim of providing the *Acceptor* a
+method of verifying its identity. Possible forms of identity confirmation
+methods are:
 
 * Username
 * Username and password (sent in the clear)
@@ -453,27 +455,21 @@ callback.
 
         return is_verified, response
 
-    ae = AE(port=11112)
+    ae = AE()
     ae.add_supported_context(VerificationSOPClass)
     ae.on_user_identity = on_user_identity
-    ae.start()
+    ae.start_server(('', 11112))
 
 
-Specifying the network port
+Specifying the bind address
 ...........................
-By default an SCP will use the first available port to listen on for
-association requests, which is generally a bad idea as it makes it difficult
-for peers to know what port to communicate with. To specify the port number
-you can use the ``port`` parameter when initialising the AE:
-
->>> from pynetdicom import AE
->>> ae = AE(port=11112)
-
-Or you can set it afterwards:
+The bind address for the server socket is specified by the ``address``
+parameter to ``start_server()`` as (str *host*, int *port*).
 
 >>> from pynetdicom import AE
 >>> ae = AE()
->>> ae.port = 11112
+>>> ae.add_supported_context('1.2.840.10008.1.1')
+>>> ae.start_server(('', 11112))
 
 
 Association
