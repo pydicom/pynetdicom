@@ -114,7 +114,7 @@ class Association(threading.Thread):
 
         The Association starts in State 1 (idle). Association negotiation
         won't begin until an AssociationSocket is assigned using set_socket()
-        and Association.start() is called.
+        and Association.start_server() is called.
 
         Parameters
         ----------

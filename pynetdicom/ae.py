@@ -1427,7 +1427,7 @@ class ApplicationEntity(object):
 
         User implementation is not required for the C-ECHO service, but if you
         intend to do so it should be defined prior to calling
-        ``ApplicationEntity.start()`` and
+        ``ApplicationEntity.start_server()`` and
         must return either an ``int`` or a pydicom ``Dataset`` containing a
         (0000,0900) *Status* element with a valid C-ECHO status value.
 
@@ -1513,8 +1513,8 @@ class ApplicationEntity(object):
     def on_c_find(self, dataset, context, info):
         """Callback for when a C-FIND request is received.
 
-        Must be defined by the user prior to calling ``AE.start()`` and must
-        yield ``(status, identifier)`` pairs, where *status* is either an
+        Must be defined by the user prior to calling ``AE.start_server()`` and
+        must yield ``(status, identifier)`` pairs, where *status* is either an
         ``int`` or pydicom ``Dataset`` containing a (0000,0900) *Status*
         element and *identifier* is a C-FIND *Identifier* ``Dataset``.
 
@@ -1643,16 +1643,18 @@ class ApplicationEntity(object):
           `9.3.2 <http://dicom.nema.org/medical/dicom/current/output/html/part07.html#sect_9.3.2>`_
           and `Annex C <http://dicom.nema.org/medical/dicom/current/output/html/part07.html#chapter_C>`_
         """
-        raise NotImplementedError("User must implement the AE.on_c_find "
-                                  "function prior to calling AE.start()")
+        raise NotImplementedError(
+            "User must implement the AE.on_c_find function prior to "
+            "calling AE.start_server()"
+        )
 
     def on_c_get(self, dataset, context, info):
         """Callback for when a C-GET request is received.
 
         Must be defined by the user prior to calling
-        ``ApplicationEntity.start()`` and must yield a ``int`` containing the
-        total number of C-STORE sub-operations, then yield ``(status,
-        dataset)`` pairs.
+        ``ApplicationEntity.start_server()`` and must yield a ``int``
+        containing the total number of C-STORE sub-operations, then yield
+        ``(status, dataset)`` pairs.
 
         **Supported Service Classes**
 
@@ -1786,14 +1788,16 @@ class ApplicationEntity(object):
           `9.3.3 <http://dicom.nema.org/medical/dicom/current/output/html/part07.html#sect_9.3.3>`_
           and `Annex C <http://dicom.nema.org/medical/dicom/current/output/html/part07.html#chapter_C>`_
         """
-        raise NotImplementedError("User must implement the AE.on_c_get "
-                                  "function prior to calling AE.start()")
+        raise NotImplementedError(
+            "User must implement the AE.on_c_get function prior to "
+            "calling AE.start_server()"
+        )
 
     def on_c_move(self, dataset, move_aet, context, info):
         """Callback for when a C-MOVE request is received.
 
         Must be defined by the user prior to calling
-        ``ApplicationEntity.start()``.
+        ``ApplicationEntity.start_server()``.
 
         The first yield should be the ``(addr, port)`` of the move destination,
         the second yield the number of required C-STORE sub-operations as an
@@ -1944,14 +1948,16 @@ class ApplicationEntity(object):
           `9.3.4 <http://dicom.nema.org/medical/dicom/current/output/html/part07.html#sect_9.3.4>`_
           and `Annex C <http://dicom.nema.org/medical/dicom/current/output/html/part07.html#chapter_C>`_
         """
-        raise NotImplementedError("User must implement the AE.on_c_move "
-                                  "function prior to calling AE.start()")
+        raise NotImplementedError(
+            "User must implement the AE.on_c_move function prior to "
+            "calling AE.start_server()"
+        )
 
     def on_c_store(self, dataset, context, info):
         """Callback for when a C-STORE request is received.
 
         Must be defined by the user prior to calling
-        ``ApplicationEntity.start()`` and must return
+        ``ApplicationEntity.start_server()`` and must return
         either an ``int`` or a pydicom ``Dataset`` containing a (0000,0900)
         *Status* element with a valid C-STORE status value.
 
@@ -2062,8 +2068,10 @@ class ApplicationEntity(object):
         * DICOM Standard Part 10,
           `Section 7 <http://dicom.nema.org/medical/dicom/current/output/html/part10.html#chapter_7>`_
         """
-        raise NotImplementedError("User must implement the AE.on_c_store "
-                                  "function prior to calling AE.start()")
+        raise NotImplementedError(
+            "User must implement the AE.on_c_store function prior to "
+            "calling AE.start_server()"
+        )
 
 
     # High-level DIMSE-N callbacks - user should implement these as required
@@ -2074,9 +2082,10 @@ class ApplicationEntity(object):
         ----------
         DICOM Standard Part 4, Annexes H, J, P, S, CC and DD
         """
-        raise NotImplementedError("User must implement the "
-                                  "AE.on_n_action function prior to calling "
-                                  "AE.start()")
+        raise NotImplementedError(
+            "User must implement the AE.on_n_action function prior to "
+            "calling AE.start_server()"
+        )
 
     def on_n_create(self, dataset, context, info):
         """Callback for when a N-CREATE is received.
@@ -2085,9 +2094,10 @@ class ApplicationEntity(object):
         ----------
         DICOM Standard Part 4, Annexes F, H, R, S, CC and DD
         """
-        raise NotImplementedError("User must implement the "
-                                  "AE.on_n_create function prior to calling "
-                                  "AE.start()")
+        raise NotImplementedError(
+            "User must implement the AE.on_n_create function prior to "
+            "calling AE.start_server()"
+        )
 
     def on_n_delete(self, context, info):
         """Callback for when a N-DELETE is received.
@@ -2096,9 +2106,10 @@ class ApplicationEntity(object):
         ----------
         DICOM Standard Part 4, Annexes H and DD
         """
-        raise NotImplementedError("User must implement the "
-                                  "AE.on_n_delete function prior to calling "
-                                  "AE.start()")
+        raise NotImplementedError(
+            "User must implement the AE.on_n_delete function prior to "
+            "calling AE.start_server()"
+        )
 
     def on_n_event_report(self, dataset, context, info):
         """Callback for when a N-EVENT-REPORT is received.
@@ -2107,9 +2118,10 @@ class ApplicationEntity(object):
         ----------
         DICOM Standard Part 4, Annexes F, H, J, CC and DD
         """
-        raise NotImplementedError("User must implement the "
-                                  "AE.on_n_event_report function prior to "
-                                  "calling AE.start()")
+        raise NotImplementedError(
+            "User must implement the AE.on_n_event_report function prior to "
+            "calling AE.start_server()"
+        )
 
     def on_n_get(self, attr, context, info):
         """Callback for when an N-GET request is received.
@@ -2185,8 +2197,8 @@ class ApplicationEntity(object):
         * DICOM Standard Part 4, `Annex EE <http://dicom.nema.org/medical/dicom/current/output/html/part04.html#chapter_EE>`_
         """
         raise NotImplementedError(
-            "User must implement the AE.on_n_get function prior to calling "
-            "AE.start()"
+            "User must implement the AE.on_n_get function prior to "
+            "calling AE.start_server()"
         )
 
     def on_n_set(self, dataset, context, info):
@@ -2196,9 +2208,10 @@ class ApplicationEntity(object):
         ----------
         DICOM Standard Part 4, Annexes F, H, CC and DD
         """
-        raise NotImplementedError("User must implement the "
-                                  "AE.on_n_set function prior to calling "
-                                  "AE.start()")
+        raise NotImplementedError(
+            "User must implement the AE.on_n_set function prior to "
+            "calling AE.start_server()"
+        )
 
 
     # Communication related callbacks
