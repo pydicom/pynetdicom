@@ -161,12 +161,6 @@ class Association(threading.Thread):
         self._a_abort_assoc_rq = False
         self._a_p_abort_assoc_rq = False
 
-        # Point the public send_c_cancel_* functions to the actual function
-        # TODO: Deprecated, to be removed in v1.3
-        self.send_c_cancel_find = self.send_c_cancel
-        self.send_c_cancel_move = self.send_c_cancel
-        self.send_c_cancel_get = self.send_c_cancel
-
         # Thread setup
         threading.Thread.__init__(self)
         self.daemon = True
