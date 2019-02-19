@@ -8,7 +8,7 @@
   
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   
-  <title>P-DATA-TF PDU &mdash; pynetdicom 1.3.0.dev0 documentation</title>
+  <title>1.3.0 &mdash; pynetdicom 1.3.0.dev0 documentation</title>
   
 
   
@@ -155,13 +155,13 @@
     
       <li><a href="../index.html">Docs</a> &raquo;</li>
         
-      <li>P-DATA-TF PDU</li>
+      <li>1.3.0</li>
     
     
       <li class="wy-breadcrumbs-aside">
         
             
-            <a href="../_sources/reference/dul.pdu.p_data_tf.rst.txt" rel="nofollow"> View page source</a>
+            <a href="../_sources/changelog/v1.3.0.rst.txt" rel="nofollow"> View page source</a>
           
         
       </li>
@@ -174,45 +174,25 @@
           <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
            <div itemprop="articleBody">
             
-  <div class="section" id="p-data-tf-pdu">
-<h1>P-DATA-TF PDU<a class="headerlink" href="#p-data-tf-pdu" title="Permalink to this headline">¶</a></h1>
-<p>A P-DATA-TF PDU is made of a sequence of mandatory fields followed by a
-variable length field. The variable data field shall contain one or more
-Presentation Data Value items.</p>
-<div class="section" id="pdu">
-<h2>PDU<a class="headerlink" href="#pdu" title="Permalink to this headline">¶</a></h2>
-<table border="1" class="longtable docutils">
-<colgroup>
-<col width="10%" />
-<col width="90%" />
-</colgroup>
-<tbody valign="top">
-<tr class="row-odd"><td><a class="reference internal" href="generated/pynetdicom.pdu.P_DATA_TF.html#pynetdicom.pdu.P_DATA_TF" title="pynetdicom.pdu.P_DATA_TF"><code class="xref py py-obj docutils literal notranslate"><span class="pre">P_DATA_TF</span></code></a>()</td>
-<td>A P-DATA-TF PDU.</td>
-</tr>
-</tbody>
-</table>
+  <div class="section" id="v1-3-0">
+<span id="id1"></span><h1>1.3.0<a class="headerlink" href="#v1-3-0" title="Permalink to this headline">¶</a></h1>
+<div class="section" id="fixes">
+<h2>Fixes<a class="headerlink" href="#fixes" title="Permalink to this headline">¶</a></h2>
 </div>
-<div class="section" id="variable-items">
-<h2>Variable Items<a class="headerlink" href="#variable-items" title="Permalink to this headline">¶</a></h2>
-<table border="1" class="longtable docutils">
-<colgroup>
-<col width="10%" />
-<col width="90%" />
-</colgroup>
-<tbody valign="top">
-<tr class="row-odd"><td><a class="reference internal" href="generated/pynetdicom.pdu.PresentationDataValueItem.html#pynetdicom.pdu.PresentationDataValueItem" title="pynetdicom.pdu.PresentationDataValueItem"><code class="xref py py-obj docutils literal notranslate"><span class="pre">PresentationDataValueItem</span></code></a>()</td>
-<td>A Presentation Data Value Item.</td>
-</tr>
-</tbody>
-</table>
+<div class="section" id="enhancements">
+<h2>Enhancements<a class="headerlink" href="#enhancements" title="Permalink to this headline">¶</a></h2>
 </div>
-<div class="section" id="references">
-<h2>References<a class="headerlink" href="#references" title="Permalink to this headline">¶</a></h2>
-<ol class="arabic simple">
-<li>DICOM Standard, Part 8, Section
-<a class="reference external" href="http://dicom.nema.org/medical/dicom/current/output/html/part08.html#sect_9.3.5">9.3.5</a></li>
-</ol>
+<div class="section" id="changes">
+<h2>Changes<a class="headerlink" href="#changes" title="Permalink to this headline">¶</a></h2>
+<ul class="simple">
+<li>The following have been removed as per planned deprecation:<ul>
+<li><code class="docutils literal notranslate"><span class="pre">AE.start()</span></code>, <code class="docutils literal notranslate"><span class="pre">AE.stop()</span></code>, <code class="docutils literal notranslate"><span class="pre">AE.address</span></code>, <code class="docutils literal notranslate"><span class="pre">AE.bind_address</span></code>,
+<code class="docutils literal notranslate"><span class="pre">AE.local_socket</span></code>, <code class="docutils literal notranslate"><span class="pre">AE.port</span></code></li>
+<li><code class="docutils literal notranslate"><span class="pre">Association.send_c_cancel_find()</span></code>, <code class="docutils literal notranslate"><span class="pre">Association.send_c_cancel_get()</span></code>,
+<code class="docutils literal notranslate"><span class="pre">Association.send_c_cancel_move()</span></code></li>
+</ul>
+</li>
+</ul>
 </div>
 </div>
 

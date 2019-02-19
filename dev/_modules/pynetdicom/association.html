@@ -8,7 +8,7 @@
   
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   
-  <title>pynetdicom.association &mdash; pynetdicom 1.2.0 documentation</title>
+  <title>pynetdicom.association &mdash; pynetdicom 1.3.0.dev0 documentation</title>
   
 
   
@@ -64,7 +64,7 @@
             
             
               <div class="version">
-                1.2.0
+                1.3.0.dev0
               </div>
             
           
@@ -106,7 +106,8 @@
 <li class="toctree-l1"><a class="reference internal" href="../../user/index.html">User Guide</a></li>
 </ul>
 <ul>
-<li class="toctree-l1"><a class="reference internal" href="../../release_notes.html">1.2.0</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../release_notes.html">1.3.0</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../release_notes.html#v1-2-0">1.2.0</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../../release_notes.html#v1-1-0">1.1.0</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../../release_notes.html#v1-0-0">1.0.0</a></li>
 </ul>
@@ -288,7 +289,7 @@
 
 <span class="sd">        The Association starts in State 1 (idle). Association negotiation</span>
 <span class="sd">        won&#39;t begin until an AssociationSocket is assigned using set_socket()</span>
-<span class="sd">        and Association.start() is called.</span>
+<span class="sd">        and Association.start_server() is called.</span>
 
 <span class="sd">        Parameters</span>
 <span class="sd">        ----------</span>
@@ -311,7 +312,7 @@
         <span class="bp">self</span><span class="o">.</span><span class="n">is_released</span> <span class="o">=</span> <span class="kc">False</span>
 
         <span class="c1"># Accepted and rejected presentation contexts</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">_accepted_cx</span> <span class="o">=</span> <span class="p">[]</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_accepted_cx</span> <span class="o">=</span> <span class="p">{}</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">_rejected_cx</span> <span class="o">=</span> <span class="p">[]</span>
 
         <span class="c1"># Service providers</span>
@@ -330,16 +331,6 @@
         <span class="bp">self</span><span class="o">.</span><span class="n">_started_dul</span> <span class="o">=</span> <span class="kc">False</span>
         <span class="c1"># Used to pause the association reactor until the DUL is ready</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">_dul_ready</span> <span class="o">=</span> <span class="n">threading</span><span class="o">.</span><span class="n">Event</span><span class="p">()</span>
-
-        <span class="c1"># Send A-ABORT/A-P-ABORT when an A-ASSOCIATE request is received</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">_a_abort_assoc_rq</span> <span class="o">=</span> <span class="kc">False</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">_a_p_abort_assoc_rq</span> <span class="o">=</span> <span class="kc">False</span>
-
-        <span class="c1"># Point the public send_c_cancel_* functions to the actual function</span>
-        <span class="c1"># TODO: Deprecated, to be removed in v1.3</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">send_c_cancel_find</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">send_c_cancel</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">send_c_cancel_move</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">send_c_cancel</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">send_c_cancel_get</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">send_c_cancel</span>
 
         <span class="c1"># Thread setup</span>
         <span class="n">threading</span><span class="o">.</span><span class="n">Thread</span><span class="o">.</span><span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span>
@@ -606,16 +597,6 @@
                 <span class="k">return</span>
 
             <span class="bp">self</span><span class="o">.</span><span class="n">requestor</span><span class="o">.</span><span class="n">primitive</span> <span class="o">=</span> <span class="n">primitive</span>
-
-            <span class="c1"># (Optionally) send an A-ABORT/A-P-ABORT in response</span>
-            <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">_a_abort_assoc_rq</span><span class="p">:</span>
-                <span class="bp">self</span><span class="o">.</span><span class="n">acse</span><span class="o">.</span><span class="n">send_abort</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="mh">0x00</span><span class="p">)</span>
-                <span class="bp">self</span><span class="o">.</span><span class="n">kill</span><span class="p">()</span>
-                <span class="k">return</span>
-            <span class="k">elif</span> <span class="bp">self</span><span class="o">.</span><span class="n">_a_p_abort_assoc_rq</span><span class="p">:</span>
-                <span class="bp">self</span><span class="o">.</span><span class="n">acse</span><span class="o">.</span><span class="n">send_ap_abort</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="mh">0x00</span><span class="p">)</span>
-                <span class="bp">self</span><span class="o">.</span><span class="n">kill</span><span class="p">()</span>
-                <span class="k">return</span>
 
             <span class="bp">self</span><span class="o">.</span><span class="n">acse</span><span class="o">.</span><span class="n">negotiate_association</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span>
             <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">is_established</span><span class="p">:</span>
@@ -944,8 +925,10 @@
 <span class="sd">        &quot;&quot;&quot;</span>
         <span class="c1"># Can&#39;t send a C-CANCEL without an Association</span>
         <span class="k">if</span> <span class="ow">not</span> <span class="bp">self</span><span class="o">.</span><span class="n">is_established</span><span class="p">:</span>
-            <span class="k">raise</span> <span class="ne">RuntimeError</span><span class="p">(</span><span class="s2">&quot;The association with a peer SCP must be &quot;</span>
-                               <span class="s2">&quot;established before sending a C-CANCEL request.&quot;</span><span class="p">)</span>
+            <span class="k">raise</span> <span class="ne">RuntimeError</span><span class="p">(</span>
+                <span class="s2">&quot;The association with a peer SCP must be &quot;</span>
+                <span class="s2">&quot;established before sending a C-CANCEL request.&quot;</span>
+            <span class="p">)</span>
 
         <span class="c1"># Build C-CANCEL primitive</span>
         <span class="n">primitive</span> <span class="o">=</span> <span class="n">C_CANCEL</span><span class="p">()</span>

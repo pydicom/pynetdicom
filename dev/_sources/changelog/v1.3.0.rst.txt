@@ -1,0 +1,20 @@
+.. _v1.3.0:
+
+1.3.0
+=====
+
+Fixes
+.....
+
+Enhancements
+............
+
+Changes
+.......
+
+* The following have been removed as per planned deprecation:
+
+  * ``AE.start()``, ``AE.stop()``, ``AE.address``, ``AE.bind_address``,
+    ``AE.local_socket``, ``AE.port``
+  * ``Association.send_c_cancel_find()``, ``Association.send_c_cancel_get()``,
+    ``Association.send_c_cancel_move()``

@@ -8,7 +8,7 @@
   
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   
-  <title>pynetdicom.ae &mdash; pynetdicom 1.2.0 documentation</title>
+  <title>pynetdicom.ae &mdash; pynetdicom 1.3.0.dev0 documentation</title>
   
 
   
@@ -64,7 +64,7 @@
             
             
               <div class="version">
-                1.2.0
+                1.3.0.dev0
               </div>
             
           
@@ -106,7 +106,8 @@
 <li class="toctree-l1"><a class="reference internal" href="../../user/index.html">User Guide</a></li>
 </ul>
 <ul>
-<li class="toctree-l1"><a class="reference internal" href="../../release_notes.html">1.2.0</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../release_notes.html">1.3.0</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../release_notes.html#v1-2-0">1.2.0</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../../release_notes.html#v1-1-0">1.1.0</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../../release_notes.html#v1-0-0">1.0.0</a></li>
 </ul>
@@ -178,12 +179,8 @@
 <span class="kn">from</span> <span class="nn">copy</span> <span class="k">import</span> <span class="n">deepcopy</span>
 <span class="kn">from</span> <span class="nn">datetime</span> <span class="k">import</span> <span class="n">datetime</span>
 <span class="kn">import</span> <span class="nn">logging</span>
-<span class="kn">import</span> <span class="nn">select</span>
 <span class="kn">import</span> <span class="nn">socket</span>
-<span class="kn">from</span> <span class="nn">struct</span> <span class="k">import</span> <span class="n">pack</span>
 <span class="kn">import</span> <span class="nn">threading</span>
-<span class="kn">import</span> <span class="nn">time</span>
-<span class="kn">import</span> <span class="nn">warnings</span>
 
 <span class="kn">from</span> <span class="nn">pydicom.uid</span> <span class="k">import</span> <span class="n">UID</span>
 
@@ -195,7 +192,6 @@
 <span class="kn">from</span> <span class="nn">pynetdicom.utils</span> <span class="k">import</span> <span class="n">validate_ae_title</span>
 <span class="kn">from</span> <span class="nn">pynetdicom._globals</span> <span class="k">import</span> <span class="p">(</span>
     <span class="n">MODE_REQUESTOR</span><span class="p">,</span>
-    <span class="n">MODE_ACCEPTOR</span><span class="p">,</span>
     <span class="n">DEFAULT_MAX_LENGTH</span><span class="p">,</span>
     <span class="n">DEFAULT_TRANSFER_SYNTAXES</span>
 <span class="p">)</span>
@@ -227,21 +223,11 @@
 <span class="sd">    acse_timeout : int or float or None</span>
 <span class="sd">        The maximum amount of time (in seconds) to wait for association related</span>
 <span class="sd">        messages. A value of ``None`` means no timeout. (default: 30)</span>
-<span class="sd">    address : str</span>
-<span class="sd">        The local AE&#39;s TCP/IP address. Deprecated and will be removed in v1.3.</span>
 <span class="sd">    ae_title : bytes</span>
 <span class="sd">        The local AE&#39;s AE title.</span>
-<span class="sd">    bind_addr : str</span>
-<span class="sd">        The network interface to listen to (default: all available network</span>
-<span class="sd">        interfaces on the machine). This parameter is deprecated and will be</span>
-<span class="sd">        removed in v1.3. Use the ``address`` parameter for ``start_server()``</span>
-<span class="sd">        and the ``bind_address`` keyword parameter for ``associate()`` instead.</span>
 <span class="sd">    dimse_timeout : int or float or None</span>
 <span class="sd">        The maximum amount of time (in seconds) to wait for DIMSE related</span>
 <span class="sd">        messages. A value of ``None`` means no timeout. (default: 30)</span>
-<span class="sd">    local_socket : socket.socket</span>
-<span class="sd">        The socket used for connections with peer AEs when acting as the</span>
-<span class="sd">        association acceptor. Deprecated and will be removed in v1.3.</span>
 <span class="sd">    network_timeout : int or float or None</span>
 <span class="sd">        The maximum amount of time (in seconds) to wait for network messages.</span>
 <span class="sd">        A value of ``None`` means no timeout. (default: 60)</span>
@@ -252,13 +238,6 @@
 <span class="sd">    maximum_pdu_size : int</span>
 <span class="sd">        The maximum PDU receive size in bytes. A value of 0 means there is no</span>
 <span class="sd">        maximum size (default: 16382)</span>
-<span class="sd">    port : int</span>
-<span class="sd">        The local AE&#39;s listen port number when acting as an SCP or connection</span>
-<span class="sd">        port when acting as an SCU. A value of 0 indicates that the operating</span>
-<span class="sd">        system should choose the port. This parameter is deprecated and will</span>
-<span class="sd">        be removed in v1.3. Use the ``address`` parameter for</span>
-<span class="sd">        ``start_server()`` and the ``bind_address`` keyword parameter for</span>
-<span class="sd">        ``associate()`` instead.</span>
 <span class="sd">    require_calling_aet : list of bytes</span>
 <span class="sd">        If not an empty list, the association request&#39;s *Calling AE Title*</span>
 <span class="sd">        value must match one of the values in `require_calling_aet`. If an</span>
@@ -269,20 +248,13 @@
 <span class="sd">        must match AE.ae_title (default False). (Association acceptor only).</span>
 <span class="sd">    &quot;&quot;&quot;</span>
     <span class="c1"># pylint: disable=too-many-instance-attributes,too-many-public-methods</span>
-<div class="viewcode-block" id="ApplicationEntity.__init__"><a class="viewcode-back" href="../../reference/generated/pynetdicom.ae.ApplicationEntity.html#pynetdicom.ae.ApplicationEntity.__init__">[docs]</a>    <span class="k">def</span> <span class="nf">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">ae_title</span><span class="o">=</span><span class="sa">b</span><span class="s1">&#39;PYNETDICOM&#39;</span><span class="p">,</span> <span class="n">port</span><span class="o">=</span><span class="mi">0</span><span class="p">):</span>
+<div class="viewcode-block" id="ApplicationEntity.__init__"><a class="viewcode-back" href="../../reference/generated/pynetdicom.ae.ApplicationEntity.html#pynetdicom.ae.ApplicationEntity.__init__">[docs]</a>    <span class="k">def</span> <span class="nf">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">ae_title</span><span class="o">=</span><span class="sa">b</span><span class="s1">&#39;PYNETDICOM&#39;</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;Create a new Application Entity.</span>
 
 <span class="sd">        Parameters</span>
 <span class="sd">        ----------</span>
 <span class="sd">        ae_title : bytes, optional</span>
 <span class="sd">            The AE title of the Application Entity (default: ``b&#39;PYNETDICOM&#39;``)</span>
-<span class="sd">        port : int, optional</span>
-<span class="sd">            The port number to listen for association requests when acting as</span>
-<span class="sd">            an SCP and to use when requesting an association as an SCU. When</span>
-<span class="sd">            set to 0 the OS will use the first available port (default ``0``).</span>
-<span class="sd">            This parameter is deprecated and will be removed in v1.3. Use</span>
-<span class="sd">            the ``address`` parameter for ``start_server()`` and the</span>
-<span class="sd">            ``bind_address`` keyword parameter for ``associate()`` instead.</span>
 <span class="sd">        &quot;&quot;&quot;</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">ae_title</span> <span class="o">=</span> <span class="n">ae_title</span>
 
@@ -294,21 +266,6 @@
         <span class="c1"># Default Implementation Class UID and Version Name</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">implementation_class_uid</span> <span class="o">=</span> <span class="n">PYNETDICOM_IMPLEMENTATION_UID</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">implementation_version_name</span> <span class="o">=</span> <span class="n">PYNETDICOM_IMPLEMENTATION_VERSION</span>
-
-        <span class="c1"># TODO: remove in v1.3</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">address</span> <span class="o">=</span> <span class="n">socket</span><span class="o">.</span><span class="n">gethostbyname</span><span class="p">(</span><span class="n">socket</span><span class="o">.</span><span class="n">gethostname</span><span class="p">())</span>
-        <span class="c1"># TODO: remove in v1.3</span>
-        <span class="k">if</span> <span class="n">port</span> <span class="o">!=</span> <span class="mi">0</span><span class="p">:</span>
-            <span class="n">warnings</span><span class="o">.</span><span class="n">warn</span><span class="p">(</span>
-                <span class="s2">&quot;The `port` keyword parameter for AE() is deprecated and will &quot;</span>
-                <span class="s2">&quot;be removed in v1.3. Use the `address` parameter for &quot;</span>
-                <span class="s2">&quot;AE.start_server() or the `bind_address` keyword parameter &quot;</span>
-                <span class="s2">&quot;for AE.associate() instead&quot;</span><span class="p">,</span>
-                <span class="ne">DeprecationWarning</span>
-            <span class="p">)</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">port</span> <span class="o">=</span> <span class="n">port</span>
-        <span class="c1"># TODO: remove in v1.3</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">_bind_addr</span> <span class="o">=</span> <span class="s1">&#39;&#39;</span>
 
         <span class="c1"># List of PresentationContext</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">_requested_contexts</span> <span class="o">=</span> <span class="p">[]</span>
@@ -330,14 +287,7 @@
         <span class="bp">self</span><span class="o">.</span><span class="n">require_calling_aet</span> <span class="o">=</span> <span class="p">[]</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">require_called_aet</span> <span class="o">=</span> <span class="kc">False</span>
 
-        <span class="c1"># TODO: remove in v1.3</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">local_socket</span> <span class="o">=</span> <span class="kc">None</span>
-
-        <span class="bp">self</span><span class="o">.</span><span class="n">_servers</span> <span class="o">=</span> <span class="p">[]</span>
-
-        <span class="c1"># Used to terminate AE when running as an SCP</span>
-        <span class="c1"># TODO: remove in v1.3</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">_quit</span> <span class="o">=</span> <span class="kc">False</span></div>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_servers</span> <span class="o">=</span> <span class="p">[]</span></div>
 
     <span class="nd">@property</span>
     <span class="k">def</span> <span class="nf">acse_timeout</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
@@ -665,10 +615,9 @@
         <span class="k">except</span><span class="p">:</span>
             <span class="k">raise</span>
 
-    <span class="c1"># TODO: refactor in v1.3</span>
 <div class="viewcode-block" id="ApplicationEntity.associate"><a class="viewcode-back" href="../../reference/generated/pynetdicom.ae.ApplicationEntity.html#pynetdicom.ae.ApplicationEntity.associate">[docs]</a>    <span class="k">def</span> <span class="nf">associate</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">addr</span><span class="p">,</span> <span class="n">port</span><span class="p">,</span> <span class="n">contexts</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">ae_title</span><span class="o">=</span><span class="sa">b</span><span class="s1">&#39;ANY-SCP&#39;</span><span class="p">,</span>
-                  <span class="n">max_pdu</span><span class="o">=</span><span class="n">DEFAULT_MAX_LENGTH</span><span class="p">,</span> <span class="n">ext_neg</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">bind_address</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
-                  <span class="n">tls_args</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
+                  <span class="n">max_pdu</span><span class="o">=</span><span class="n">DEFAULT_MAX_LENGTH</span><span class="p">,</span> <span class="n">ext_neg</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
+                  <span class="n">bind_address</span><span class="o">=</span><span class="p">(</span><span class="s1">&#39;&#39;</span><span class="p">,</span> <span class="mi">0</span><span class="p">),</span> <span class="n">tls_args</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;Request an Association with a remote AE.</span>
 
 <span class="sd">        The Association thread is returned whether or not the association is</span>
@@ -696,8 +645,7 @@
 <span class="sd">            Used if extended association negotiation is required.</span>
 <span class="sd">        bind_address : 2-tuple, optional</span>
 <span class="sd">            The (host, port) to bind the Association&#39;s communication socket</span>
-<span class="sd">            to. If not used then defaults to (AE.bind_addr, AE.port). After</span>
-<span class="sd">            v1.3 it will default to (&#39;&#39;, 0).</span>
+<span class="sd">            to, default (&#39;&#39;, 0).</span>
 <span class="sd">        tls_args : 2-tuple, optional</span>
 <span class="sd">            If TLS is required then this should be a 2-tuple containing a</span>
 <span class="sd">            (ssl_context, `server_hostname`), where ssl_context is the</span>
@@ -724,11 +672,6 @@
 
         <span class="k">if</span> <span class="ow">not</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">port</span><span class="p">,</span> <span class="nb">int</span><span class="p">):</span>
             <span class="k">raise</span> <span class="ne">TypeError</span><span class="p">(</span><span class="s2">&quot;&#39;port&#39; must be a valid port number&quot;</span><span class="p">)</span>
-
-        <span class="c1"># AssociationSocket binding</span>
-        <span class="k">if</span> <span class="n">bind_address</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
-            <span class="c1"># Deprecated, after v1.3 this will be (&#39;&#39;, 0)</span>
-            <span class="n">bind_address</span> <span class="o">=</span> <span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">bind_addr</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">port</span><span class="p">)</span>
 
         <span class="c1"># Association</span>
         <span class="n">assoc</span> <span class="o">=</span> <span class="n">Association</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">MODE_REQUESTOR</span><span class="p">)</span>
@@ -794,57 +737,6 @@
 
         <span class="k">return</span> <span class="n">assoc</span></div>
 
-    <span class="c1"># TODO: remove in v1.3</span>
-    <span class="nd">@property</span>
-    <span class="k">def</span> <span class="nf">bind_addr</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
-        <span class="sd">&quot;&quot;&quot;Return the `bind_addr`, deprecated and will be removd in v1.3.&quot;&quot;&quot;</span>
-        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_bind_addr</span>
-
-    <span class="nd">@bind_addr</span><span class="o">.</span><span class="n">setter</span>
-    <span class="k">def</span> <span class="nf">bind_addr</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">addr</span><span class="p">):</span>
-        <span class="sd">&quot;&quot;&quot;Set the `bind_addr`, deprecated and will be removd in v1.3.&quot;&quot;&quot;</span>
-        <span class="n">warnings</span><span class="o">.</span><span class="n">warn</span><span class="p">(</span>
-            <span class="s2">&quot;The `bind_addr` property is deprecated and will &quot;</span>
-            <span class="s2">&quot;be removed in v1.3. Use the `address` parameter for &quot;</span>
-            <span class="s2">&quot;AE.start_server() or the `bind_address` keyword parameter &quot;</span>
-            <span class="s2">&quot;for AE.associate() instead&quot;</span><span class="p">,</span>
-            <span class="ne">DeprecationWarning</span>
-        <span class="p">)</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">_bind_addr</span> <span class="o">=</span> <span class="n">addr</span>
-
-    <span class="c1"># TODO: remove in v1.3</span>
-    <span class="k">def</span> <span class="nf">_bind_socket</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
-        <span class="sd">&quot;&quot;&quot;Set up and bind a socket for use with the SCP.&quot;&quot;&quot;</span>
-        <span class="c1"># The socket to listen for connections on, port is always specified</span>
-        <span class="c1"># AF_INET: IPv4, SOCK_STREAM: TCP socket</span>
-        <span class="n">sock</span> <span class="o">=</span> <span class="n">socket</span><span class="o">.</span><span class="n">socket</span><span class="p">(</span><span class="n">socket</span><span class="o">.</span><span class="n">AF_INET</span><span class="p">,</span> <span class="n">socket</span><span class="o">.</span><span class="n">SOCK_STREAM</span><span class="p">)</span>
-
-        <span class="c1"># SOL_SOCKET: the level, SO_REUSEADDR: allow reuse of a port</span>
-        <span class="c1">#   stuck in TIME_WAIT, 1: set SO_REUSEADDR to 1</span>
-        <span class="c1"># This must be called prior to socket.bind()</span>
-        <span class="n">sock</span><span class="o">.</span><span class="n">setsockopt</span><span class="p">(</span><span class="n">socket</span><span class="o">.</span><span class="n">SOL_SOCKET</span><span class="p">,</span> <span class="n">socket</span><span class="o">.</span><span class="n">SO_REUSEADDR</span><span class="p">,</span> <span class="mi">1</span><span class="p">)</span>
-        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">network_timeout</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
-            <span class="n">timeout_seconds</span> <span class="o">=</span> <span class="nb">int</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">network_timeout</span><span class="p">)</span>
-            <span class="n">timeout_microsec</span> <span class="o">=</span> <span class="nb">int</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">network_timeout</span> <span class="o">%</span> <span class="mi">1</span> <span class="o">*</span> <span class="mi">1000</span><span class="p">)</span>
-            <span class="n">sock</span><span class="o">.</span><span class="n">setsockopt</span><span class="p">(</span>
-                <span class="n">socket</span><span class="o">.</span><span class="n">SOL_SOCKET</span><span class="p">,</span>
-                <span class="n">socket</span><span class="o">.</span><span class="n">SO_RCVTIMEO</span><span class="p">,</span>
-                <span class="n">pack</span><span class="p">(</span><span class="s1">&#39;ll&#39;</span><span class="p">,</span> <span class="n">timeout_seconds</span><span class="p">,</span> <span class="n">timeout_microsec</span><span class="p">)</span>
-            <span class="p">)</span>
-
-        <span class="c1"># Bind the socket to an address and port</span>
-        <span class="c1">#   If self.bind_addr is &#39;&#39; then the socket is reachable by any</span>
-        <span class="c1">#   address the machine may have, otherwise is visible only on that</span>
-        <span class="c1">#   address</span>
-        <span class="n">sock</span><span class="o">.</span><span class="n">bind</span><span class="p">((</span><span class="bp">self</span><span class="o">.</span><span class="n">bind_addr</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">port</span><span class="p">))</span>
-
-        <span class="c1"># Listen for connections made to the socket</span>
-        <span class="c1"># socket.listen() says to queue up to as many as N connect requests</span>
-        <span class="c1">#   before refusing outside connections</span>
-        <span class="n">sock</span><span class="o">.</span><span class="n">listen</span><span class="p">(</span><span class="mi">5</span><span class="p">)</span>
-
-        <span class="k">return</span> <span class="n">sock</span>
-
     <span class="nd">@property</span>
     <span class="k">def</span> <span class="nf">dimse_timeout</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;Get the DIMSE timeout.&quot;&quot;&quot;</span>
@@ -865,41 +757,6 @@
         <span class="k">for</span> <span class="n">assoc</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">active_associations</span><span class="p">:</span>
             <span class="n">assoc</span><span class="o">.</span><span class="n">dimse_timeout</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">dimse_timeout</span>
             <span class="n">assoc</span><span class="o">.</span><span class="n">dimse</span><span class="o">.</span><span class="n">dimse_timeout</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">dimse_timeout</span>
-
-    <span class="c1"># TODO: remove in v1.3</span>
-    <span class="k">def</span> <span class="nf">_handle_connection</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">client_socket</span><span class="p">):</span>
-        <span class="sd">&quot;&quot;&quot;Start a new Association thread to handle the connection request.</span>
-
-<span class="sd">        Parameters</span>
-<span class="sd">        ----------</span>
-<span class="sd">        client_socket : socket.socket</span>
-<span class="sd">            The socket handling to the connection to the peer.</span>
-<span class="sd">        &quot;&quot;&quot;</span>
-        <span class="c1"># Create a new Association</span>
-        <span class="n">assoc</span> <span class="o">=</span> <span class="n">Association</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">MODE_ACCEPTOR</span><span class="p">)</span>
-
-        <span class="c1"># Association Acceptor object -&gt; local AE</span>
-        <span class="n">assoc</span><span class="o">.</span><span class="n">acceptor</span><span class="o">.</span><span class="n">maximum_length</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">maximum_pdu_size</span>
-        <span class="n">assoc</span><span class="o">.</span><span class="n">acceptor</span><span class="o">.</span><span class="n">ae_title</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">ae_title</span>
-        <span class="n">assoc</span><span class="o">.</span><span class="n">acceptor</span><span class="o">.</span><span class="n">address</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">address</span>
-        <span class="n">assoc</span><span class="o">.</span><span class="n">acceptor</span><span class="o">.</span><span class="n">port</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">port</span>
-        <span class="n">assoc</span><span class="o">.</span><span class="n">acceptor</span><span class="o">.</span><span class="n">implementation_class_uid</span> <span class="o">=</span> <span class="p">(</span>
-            <span class="bp">self</span><span class="o">.</span><span class="n">implementation_class_uid</span>
-        <span class="p">)</span>
-        <span class="n">assoc</span><span class="o">.</span><span class="n">acceptor</span><span class="o">.</span><span class="n">implementation_version_name</span> <span class="o">=</span> <span class="p">(</span>
-            <span class="bp">self</span><span class="o">.</span><span class="n">implementation_version_name</span>
-        <span class="p">)</span>
-        <span class="n">assoc</span><span class="o">.</span><span class="n">acceptor</span><span class="o">.</span><span class="n">supported_contexts</span> <span class="o">=</span> <span class="n">deepcopy</span><span class="p">(</span>
-            <span class="bp">self</span><span class="o">.</span><span class="n">supported_contexts</span>
-        <span class="p">)</span>
-
-        <span class="c1"># Association Requestor object -&gt; remote AE</span>
-        <span class="n">assoc</span><span class="o">.</span><span class="n">requestor</span><span class="o">.</span><span class="n">address</span> <span class="o">=</span> <span class="n">client_socket</span><span class="o">.</span><span class="n">getpeername</span><span class="p">()[</span><span class="mi">0</span><span class="p">]</span>
-        <span class="n">assoc</span><span class="o">.</span><span class="n">requestor</span><span class="o">.</span><span class="n">port</span> <span class="o">=</span> <span class="n">client_socket</span><span class="o">.</span><span class="n">getpeername</span><span class="p">()[</span><span class="mi">1</span><span class="p">]</span>
-
-        <span class="n">assoc</span><span class="o">.</span><span class="n">set_socket</span><span class="p">(</span><span class="n">AssociationSocket</span><span class="p">(</span><span class="n">assoc</span><span class="p">,</span> <span class="n">client_socket</span><span class="p">))</span>
-
-        <span class="n">assoc</span><span class="o">.</span><span class="n">start</span><span class="p">()</span>
 
     <span class="nd">@property</span>
     <span class="k">def</span> <span class="nf">implementation_class_uid</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
@@ -991,36 +848,6 @@
 
         <span class="k">for</span> <span class="n">assoc</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">active_associations</span><span class="p">:</span>
             <span class="n">assoc</span><span class="o">.</span><span class="n">network_timeout</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">network_timeout</span>
-
-    <span class="nd">@property</span>
-    <span class="k">def</span> <span class="nf">port</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
-        <span class="sd">&quot;&quot;&quot;Return the port number as an int.</span>
-
-<span class="sd">        This property is deprecated and will be removed in v1.3.</span>
-<span class="sd">        &quot;&quot;&quot;</span>
-        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_port</span>
-
-    <span class="nd">@port</span><span class="o">.</span><span class="n">setter</span>
-    <span class="k">def</span> <span class="nf">port</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">value</span><span class="p">):</span>
-        <span class="sd">&quot;&quot;&quot;Set the port number.</span>
-
-<span class="sd">        This property is deprecated and will be removed in v1.3. Use</span>
-<span class="sd">        the ``address`` parameter for ``start_server()`` and the</span>
-<span class="sd">        ``bind_address`` keyword parameter for ``associate()`` instead.</span>
-<span class="sd">        &quot;&quot;&quot;</span>
-        <span class="n">warnings</span><span class="o">.</span><span class="n">warn</span><span class="p">(</span>
-            <span class="s2">&quot;The `port` keyword parameter for AE() is deprecated and will &quot;</span>
-            <span class="s2">&quot;be removed in v1.3. Use the `address` parameter for &quot;</span>
-            <span class="s2">&quot;AE.start_server() or the `bind_address` keyword parameter &quot;</span>
-            <span class="s2">&quot;for AE.associate() instead&quot;</span><span class="p">,</span>
-            <span class="ne">DeprecationWarning</span>
-        <span class="p">)</span>
-        <span class="c1"># pylint: disable=attribute-defined-outside-init</span>
-        <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">value</span><span class="p">,</span> <span class="nb">int</span><span class="p">)</span> <span class="ow">and</span> <span class="n">value</span> <span class="o">&gt;=</span> <span class="mi">0</span><span class="p">:</span>
-            <span class="bp">self</span><span class="o">.</span><span class="n">_port</span> <span class="o">=</span> <span class="n">value</span>
-        <span class="k">else</span><span class="p">:</span>
-            <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s2">&quot;AE port number must be an integer greater then &quot;</span>
-                             <span class="s2">&quot;or equal to 0&quot;</span><span class="p">)</span>
 
 <div class="viewcode-block" id="ApplicationEntity.remove_requested_context"><a class="viewcode-back" href="../../reference/generated/pynetdicom.ae.ApplicationEntity.html#pynetdicom.ae.ApplicationEntity.remove_requested_context">[docs]</a>    <span class="k">def</span> <span class="nf">remove_requested_context</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">abstract_syntax</span><span class="p">,</span> <span class="n">transfer_syntax</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;Remove a requested Presentation Context.</span>
@@ -1295,8 +1122,8 @@
 
 <span class="sd">        Examples</span>
 <span class="sd">        --------</span>
-<span class="sd">        Set the requested presentation contexts using an inbuilt list of service</span>
-<span class="sd">        specific `PresentationContext` items:</span>
+<span class="sd">        Set the requested presentation contexts using an inbuilt list of</span>
+<span class="sd">        service specific `PresentationContext` items:</span>
 
 <span class="sd">        &gt;&gt;&gt; from pynetdicom import AE, StoragePresentationContexts</span>
 <span class="sd">        &gt;&gt;&gt; ae = AE()</span>
@@ -1392,76 +1219,6 @@
             <span class="n">validate_ae_title</span><span class="p">(</span><span class="n">aet</span><span class="p">)</span> <span class="k">for</span> <span class="n">aet</span> <span class="ow">in</span> <span class="n">ae_titles</span>
         <span class="p">]</span>
 
-    <span class="c1"># TODO: remove in v1.3</span>
-<div class="viewcode-block" id="ApplicationEntity.start"><a class="viewcode-back" href="../../reference/generated/pynetdicom.ae.ApplicationEntity.html#pynetdicom.ae.ApplicationEntity.start">[docs]</a>    <span class="k">def</span> <span class="nf">start</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">select_timeout</span><span class="o">=</span><span class="mf">0.5</span><span class="p">):</span>
-        <span class="sd">&quot;&quot;&quot;Start the AE as an SCP.</span>
-
-<span class="sd">        When running the AE as an SCP this needs to be called to start the main</span>
-<span class="sd">        loop, it listens for connections on `local_socket` and if they request</span>
-<span class="sd">        association starts a new Association thread</span>
-
-<span class="sd">        This method is deprecated and will be removed in v1.3. Use</span>
-<span class="sd">        ``start_server()`` instead.</span>
-
-<span class="sd">        Parameters</span>
-<span class="sd">        ----------</span>
-<span class="sd">        select_timeout : float or None, optional</span>
-<span class="sd">            The timeout (in seconds) that the select.select() call will block</span>
-<span class="sd">            for (default 0.5). A value of 0 specifies a poll and never blocks.</span>
-<span class="sd">            A value of None blocks until a connection is ready.</span>
-<span class="sd">        &quot;&quot;&quot;</span>
-        <span class="n">warnings</span><span class="o">.</span><span class="n">warn</span><span class="p">(</span>
-            <span class="s2">&quot;start() is deprecated and will be removed in v1.3. Use &quot;</span>
-            <span class="s2">&quot;start_server() instead&quot;</span><span class="p">,</span>
-            <span class="ne">DeprecationWarning</span>
-        <span class="p">)</span>
-
-        <span class="bp">self</span><span class="o">.</span><span class="n">_quit</span> <span class="o">=</span> <span class="kc">False</span>
-
-        <span class="c1"># If the SCP has no supported SOP Classes then there&#39;s no point</span>
-        <span class="c1">#   running as a server</span>
-        <span class="k">if</span> <span class="ow">not</span> <span class="bp">self</span><span class="o">.</span><span class="n">supported_contexts</span><span class="p">:</span>
-            <span class="n">msg</span> <span class="o">=</span> <span class="s2">&quot;No supported Presentation Contexts have been defined&quot;</span>
-            <span class="n">LOGGER</span><span class="o">.</span><span class="n">error</span><span class="p">(</span><span class="n">msg</span><span class="p">)</span>
-            <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="n">msg</span><span class="p">)</span>
-
-        <span class="n">bad_contexts</span> <span class="o">=</span> <span class="p">[]</span>
-        <span class="k">for</span> <span class="n">cx</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">supported_contexts</span><span class="p">:</span>
-            <span class="n">roles</span> <span class="o">=</span> <span class="p">(</span><span class="n">cx</span><span class="o">.</span><span class="n">scu_role</span><span class="p">,</span> <span class="n">cx</span><span class="o">.</span><span class="n">scp_role</span><span class="p">)</span>
-            <span class="k">if</span> <span class="kc">None</span> <span class="ow">in</span> <span class="n">roles</span> <span class="ow">and</span> <span class="n">roles</span> <span class="o">!=</span> <span class="p">(</span><span class="kc">None</span><span class="p">,</span> <span class="kc">None</span><span class="p">):</span>
-                <span class="n">bad_contexts</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">cx</span><span class="o">.</span><span class="n">abstract_syntax</span><span class="p">)</span>
-
-        <span class="k">if</span> <span class="n">bad_contexts</span><span class="p">:</span>
-            <span class="n">msg</span> <span class="o">=</span> <span class="p">(</span>
-                <span class="s2">&quot;The following presentation contexts have inconsistent &quot;</span>
-                <span class="s2">&quot;scu_role/scp_role values (if one is None, both must be):</span><span class="se">\n</span><span class="s2">  &quot;</span>
-            <span class="p">)</span>
-            <span class="n">msg</span> <span class="o">+=</span> <span class="s1">&#39;</span><span class="se">\n</span><span class="s1">  &#39;</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">bad_contexts</span><span class="p">)</span>
-            <span class="n">LOGGER</span><span class="o">.</span><span class="n">warning</span><span class="p">(</span><span class="n">msg</span><span class="p">)</span>
-            <span class="k">return</span>
-
-        <span class="c1"># Bind `sock` to the specified listen port</span>
-        <span class="n">sock</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_bind_socket</span><span class="p">()</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">local_socket</span> <span class="o">=</span> <span class="n">sock</span>
-
-        <span class="k">while</span> <span class="ow">not</span> <span class="bp">self</span><span class="o">.</span><span class="n">_quit</span><span class="p">:</span>
-            <span class="k">try</span><span class="p">:</span>
-                <span class="c1"># Returns a list if `sock` has data available</span>
-                <span class="c1">#   readable, writeable, exceptional</span>
-                <span class="c1"># `select_timeout` specifies that select blocks for</span>
-                <span class="c1">#   that many seconds before allowing the SCP to be killed</span>
-                <span class="n">ready</span><span class="p">,</span> <span class="n">_</span><span class="p">,</span> <span class="n">_</span> <span class="o">=</span> <span class="n">select</span><span class="o">.</span><span class="n">select</span><span class="p">([</span><span class="n">sock</span><span class="p">],</span> <span class="p">[],</span> <span class="p">[],</span> <span class="n">select_timeout</span><span class="p">)</span>
-
-                <span class="c1"># We check self._quit in case the kill came in during select()</span>
-                <span class="k">if</span> <span class="n">ready</span> <span class="ow">and</span> <span class="ow">not</span> <span class="bp">self</span><span class="o">.</span><span class="n">_quit</span><span class="p">:</span>
-                    <span class="c1"># socket.accept() blocks until a connection is available</span>
-                    <span class="n">client_socket</span><span class="p">,</span> <span class="n">_</span> <span class="o">=</span> <span class="n">sock</span><span class="o">.</span><span class="n">accept</span><span class="p">()</span>
-
-                    <span class="c1"># Start a new association (as acceptor)</span>
-                    <span class="bp">self</span><span class="o">.</span><span class="n">_handle_connection</span><span class="p">(</span><span class="n">client_socket</span><span class="p">)</span>
-            <span class="k">except</span> <span class="ne">KeyboardInterrupt</span><span class="p">:</span>
-                <span class="bp">self</span><span class="o">.</span><span class="n">stop</span><span class="p">()</span></div>
-
 <div class="viewcode-block" id="ApplicationEntity.start_server"><a class="viewcode-back" href="../../reference/generated/pynetdicom.ae.ApplicationEntity.html#pynetdicom.ae.ApplicationEntity.start_server">[docs]</a>    <span class="k">def</span> <span class="nf">start_server</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">address</span><span class="p">,</span> <span class="n">block</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span> <span class="n">ssl_context</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;Start the AE as an association acceptor.</span>
 
@@ -1531,33 +1288,6 @@
 
             <span class="k">return</span> <span class="n">server</span></div>
 
-    <span class="c1"># TODO: remove in v1.3</span>
-<div class="viewcode-block" id="ApplicationEntity.stop"><a class="viewcode-back" href="../../reference/generated/pynetdicom.ae.ApplicationEntity.html#pynetdicom.ae.ApplicationEntity.stop">[docs]</a>    <span class="k">def</span> <span class="nf">stop</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
-        <span class="sd">&quot;&quot;&quot;Stop the SCP.</span>
-
-<span class="sd">        When running as an SCP, calling stop() will kill all associations</span>
-<span class="sd">        and close the listen socket.</span>
-
-<span class="sd">        This method is deprecated and will be removed in v1.3. Use</span>
-<span class="sd">        ``shutdown()`` instead.</span>
-<span class="sd">        &quot;&quot;&quot;</span>
-        <span class="n">warnings</span><span class="o">.</span><span class="n">warn</span><span class="p">(</span>
-            <span class="s2">&quot;stop() is deprecated and will be removed in v1.3. Use &quot;</span>
-            <span class="s2">&quot;shutdown() instead&quot;</span><span class="p">,</span>
-            <span class="ne">DeprecationWarning</span>
-        <span class="p">)</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">_quit</span> <span class="o">=</span> <span class="kc">True</span>
-
-        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">local_socket</span><span class="p">:</span>
-            <span class="k">try</span><span class="p">:</span>
-                <span class="bp">self</span><span class="o">.</span><span class="n">local_socket</span><span class="o">.</span><span class="n">shutdown</span><span class="p">(</span><span class="n">socket</span><span class="o">.</span><span class="n">SHUT_RDWR</span><span class="p">)</span>
-            <span class="k">except</span><span class="p">:</span>
-                <span class="k">pass</span>
-            <span class="bp">self</span><span class="o">.</span><span class="n">local_socket</span><span class="o">.</span><span class="n">close</span><span class="p">()</span>
-            <span class="bp">self</span><span class="o">.</span><span class="n">local_socket</span> <span class="o">=</span> <span class="kc">None</span>
-
-        <span class="bp">self</span><span class="o">.</span><span class="n">shutdown</span><span class="p">()</span></div>
-
 <div class="viewcode-block" id="ApplicationEntity.shutdown"><a class="viewcode-back" href="../../reference/generated/pynetdicom.ae.ApplicationEntity.html#pynetdicom.ae.ApplicationEntity.shutdown">[docs]</a>    <span class="k">def</span> <span class="nf">shutdown</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;Stop any active association servers and threads.&quot;&quot;&quot;</span>
         <span class="k">for</span> <span class="n">assoc</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">active_associations</span><span class="p">:</span>
@@ -1571,12 +1301,10 @@
 
         <span class="bp">self</span><span class="o">.</span><span class="n">_servers</span> <span class="o">=</span> <span class="p">[]</span></div>
 
-    <span class="c1"># TODO: refactor in v1.3</span>
     <span class="k">def</span> <span class="nf">__str__</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot; Prints out the attribute values and status for the AE &quot;&quot;&quot;</span>
         <span class="n">str_out</span> <span class="o">=</span> <span class="s2">&quot;</span><span class="se">\n</span><span class="s2">&quot;</span>
-        <span class="n">str_out</span> <span class="o">+=</span> <span class="s2">&quot;Application Entity &#39;</span><span class="si">{0!s}</span><span class="s2">&#39; on </span><span class="si">{1!s}</span><span class="s2">:</span><span class="si">{2!s}</span><span class="se">\n</span><span class="s2">&quot;</span> \
-                   <span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">ae_title</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">address</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">port</span><span class="p">)</span>
+        <span class="n">str_out</span> <span class="o">+=</span> <span class="s2">&quot;Application Entity &#39;</span><span class="si">{0!s}</span><span class="s2">&#39;</span><span class="se">\n</span><span class="s2">&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">ae_title</span><span class="p">)</span>
 
         <span class="n">str_out</span> <span class="o">+=</span> <span class="s2">&quot;</span><span class="se">\n</span><span class="s2">&quot;</span>
         <span class="n">str_out</span> <span class="o">+=</span> <span class="s2">&quot;  Requested Presentation Contexts:</span><span class="se">\n</span><span class="s2">&quot;</span>
@@ -1664,8 +1392,8 @@
 <span class="sd">        &gt;&gt;&gt; ae = AE()</span>
 <span class="sd">        &gt;&gt;&gt; ae.supported_contexts = [context]</span>
 
-<span class="sd">        Set the supported presentation contexts using an inbuilt list of service</span>
-<span class="sd">        specific `PresentationContext` items:</span>
+<span class="sd">        Set the supported presentation contexts using an inbuilt list of</span>
+<span class="sd">        service specific `PresentationContext` items:</span>
 
 <span class="sd">        &gt;&gt;&gt; from pynetdicom import AE, StoragePresentationContexts</span>
 <span class="sd">        &gt;&gt;&gt; ae = AE()</span>
@@ -1700,8 +1428,8 @@
 <span class="sd">        &quot;&quot;&quot;</span>
         <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">contexts</span><span class="p">)</span> <span class="o">&gt;</span> <span class="mi">128</span><span class="p">:</span>
             <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span>
-                <span class="s2">&quot;The maximum allowed number of requested presentation contexts &quot;</span>
-                <span class="s2">&quot;is 128&quot;</span>
+                <span class="s2">&quot;The maximum allowed number of requested presentation &quot;</span>
+                <span class="s2">&quot;contexts is 128&quot;</span>
             <span class="p">)</span>
 
         <span class="k">for</span> <span class="n">item</span> <span class="ow">in</span> <span class="n">contexts</span><span class="p">:</span>
@@ -1869,7 +1597,7 @@
 
 <span class="sd">        User implementation is not required for the C-ECHO service, but if you</span>
 <span class="sd">        intend to do so it should be defined prior to calling</span>
-<span class="sd">        ``ApplicationEntity.start()`` and</span>
+<span class="sd">        ``ApplicationEntity.start_server()`` and</span>
 <span class="sd">        must return either an ``int`` or a pydicom ``Dataset`` containing a</span>
 <span class="sd">        (0000,0900) *Status* element with a valid C-ECHO status value.</span>
 
@@ -1955,8 +1683,8 @@
 <div class="viewcode-block" id="ApplicationEntity.on_c_find"><a class="viewcode-back" href="../../reference/generated/pynetdicom.ae.ApplicationEntity.html#pynetdicom.ae.ApplicationEntity.on_c_find">[docs]</a>    <span class="k">def</span> <span class="nf">on_c_find</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">dataset</span><span class="p">,</span> <span class="n">context</span><span class="p">,</span> <span class="n">info</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;Callback for when a C-FIND request is received.</span>
 
-<span class="sd">        Must be defined by the user prior to calling ``AE.start()`` and must</span>
-<span class="sd">        yield ``(status, identifier)`` pairs, where *status* is either an</span>
+<span class="sd">        Must be defined by the user prior to calling ``AE.start_server()`` and</span>
+<span class="sd">        must yield ``(status, identifier)`` pairs, where *status* is either an</span>
 <span class="sd">        ``int`` or pydicom ``Dataset`` containing a (0000,0900) *Status*</span>
 <span class="sd">        element and *identifier* is a C-FIND *Identifier* ``Dataset``.</span>
 
@@ -1988,9 +1716,9 @@
 <span class="sd">          | ``0xFF00`` Matches are continuing: current match is supplied and</span>
 <span class="sd">             any Optional Keys were supported in the same manner as Required</span>
 <span class="sd">             Keys</span>
-<span class="sd">          | ``0xFF01`` Matches are continuing: warning that one or more Optional</span>
-<span class="sd">            Keys were not supported for existence and/or matching for this</span>
-<span class="sd">            Identifier</span>
+<span class="sd">          | ``0xFF01`` Matches are continuing: warning that one or more</span>
+<span class="sd">            Optional Keys were not supported for existence and/or matching</span>
+<span class="sd">            for this Identifier</span>
 
 <span class="sd">        Parameters</span>
 <span class="sd">        ----------</span>
@@ -2085,16 +1813,18 @@
 <span class="sd">          `9.3.2 &lt;http://dicom.nema.org/medical/dicom/current/output/html/part07.html#sect_9.3.2&gt;`_</span>
 <span class="sd">          and `Annex C &lt;http://dicom.nema.org/medical/dicom/current/output/html/part07.html#chapter_C&gt;`_</span>
 <span class="sd">        &quot;&quot;&quot;</span>
-        <span class="k">raise</span> <span class="ne">NotImplementedError</span><span class="p">(</span><span class="s2">&quot;User must implement the AE.on_c_find &quot;</span>
-                                  <span class="s2">&quot;function prior to calling AE.start()&quot;</span><span class="p">)</span></div>
+        <span class="k">raise</span> <span class="ne">NotImplementedError</span><span class="p">(</span>
+            <span class="s2">&quot;User must implement the AE.on_c_find function prior to &quot;</span>
+            <span class="s2">&quot;calling AE.start_server()&quot;</span>
+        <span class="p">)</span></div>
 
 <div class="viewcode-block" id="ApplicationEntity.on_c_get"><a class="viewcode-back" href="../../reference/generated/pynetdicom.ae.ApplicationEntity.html#pynetdicom.ae.ApplicationEntity.on_c_get">[docs]</a>    <span class="k">def</span> <span class="nf">on_c_get</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">dataset</span><span class="p">,</span> <span class="n">context</span><span class="p">,</span> <span class="n">info</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;Callback for when a C-GET request is received.</span>
 
 <span class="sd">        Must be defined by the user prior to calling</span>
-<span class="sd">        ``ApplicationEntity.start()`` and must yield a ``int`` containing the</span>
-<span class="sd">        total number of C-STORE sub-operations, then yield ``(status,</span>
-<span class="sd">        dataset)`` pairs.</span>
+<span class="sd">        ``ApplicationEntity.start_server()`` and must yield a ``int``</span>
+<span class="sd">        containing the total number of C-STORE sub-operations, then yield</span>
+<span class="sd">        ``(status, dataset)`` pairs.</span>
 
 <span class="sd">        **Supported Service Classes**</span>
 
@@ -2228,14 +1958,16 @@
 <span class="sd">          `9.3.3 &lt;http://dicom.nema.org/medical/dicom/current/output/html/part07.html#sect_9.3.3&gt;`_</span>
 <span class="sd">          and `Annex C &lt;http://dicom.nema.org/medical/dicom/current/output/html/part07.html#chapter_C&gt;`_</span>
 <span class="sd">        &quot;&quot;&quot;</span>
-        <span class="k">raise</span> <span class="ne">NotImplementedError</span><span class="p">(</span><span class="s2">&quot;User must implement the AE.on_c_get &quot;</span>
-                                  <span class="s2">&quot;function prior to calling AE.start()&quot;</span><span class="p">)</span></div>
+        <span class="k">raise</span> <span class="ne">NotImplementedError</span><span class="p">(</span>
+            <span class="s2">&quot;User must implement the AE.on_c_get function prior to &quot;</span>
+            <span class="s2">&quot;calling AE.start_server()&quot;</span>
+        <span class="p">)</span></div>
 
 <div class="viewcode-block" id="ApplicationEntity.on_c_move"><a class="viewcode-back" href="../../reference/generated/pynetdicom.ae.ApplicationEntity.html#pynetdicom.ae.ApplicationEntity.on_c_move">[docs]</a>    <span class="k">def</span> <span class="nf">on_c_move</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">dataset</span><span class="p">,</span> <span class="n">move_aet</span><span class="p">,</span> <span class="n">context</span><span class="p">,</span> <span class="n">info</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;Callback for when a C-MOVE request is received.</span>
 
 <span class="sd">        Must be defined by the user prior to calling</span>
-<span class="sd">        ``ApplicationEntity.start()``.</span>
+<span class="sd">        ``ApplicationEntity.start_server()``.</span>
 
 <span class="sd">        The first yield should be the ``(addr, port)`` of the move destination,</span>
 <span class="sd">        the second yield the number of required C-STORE sub-operations as an</span>
@@ -2287,7 +2019,8 @@
 <span class="sd">        Parameters</span>
 <span class="sd">        ----------</span>
 <span class="sd">        dataset : pydicom.dataset.Dataset</span>
-<span class="sd">            The DICOM Identifier dataset sent by the peer in the C-MOVE request.</span>
+<span class="sd">            The DICOM Identifier dataset sent by the peer in the C-MOVE</span>
+<span class="sd">            request.</span>
 <span class="sd">        move_aet : bytes</span>
 <span class="sd">            The destination AE title that matching SOP Instances will be sent</span>
 <span class="sd">            to using C-STORE sub-operations. ``move_aet`` will be a correctly</span>
@@ -2386,14 +2119,16 @@
 <span class="sd">          `9.3.4 &lt;http://dicom.nema.org/medical/dicom/current/output/html/part07.html#sect_9.3.4&gt;`_</span>
 <span class="sd">          and `Annex C &lt;http://dicom.nema.org/medical/dicom/current/output/html/part07.html#chapter_C&gt;`_</span>
 <span class="sd">        &quot;&quot;&quot;</span>
-        <span class="k">raise</span> <span class="ne">NotImplementedError</span><span class="p">(</span><span class="s2">&quot;User must implement the AE.on_c_move &quot;</span>
-                                  <span class="s2">&quot;function prior to calling AE.start()&quot;</span><span class="p">)</span></div>
+        <span class="k">raise</span> <span class="ne">NotImplementedError</span><span class="p">(</span>
+            <span class="s2">&quot;User must implement the AE.on_c_move function prior to &quot;</span>
+            <span class="s2">&quot;calling AE.start_server()&quot;</span>
+        <span class="p">)</span></div>
 
 <div class="viewcode-block" id="ApplicationEntity.on_c_store"><a class="viewcode-back" href="../../reference/generated/pynetdicom.ae.ApplicationEntity.html#pynetdicom.ae.ApplicationEntity.on_c_store">[docs]</a>    <span class="k">def</span> <span class="nf">on_c_store</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">dataset</span><span class="p">,</span> <span class="n">context</span><span class="p">,</span> <span class="n">info</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;Callback for when a C-STORE request is received.</span>
 
 <span class="sd">        Must be defined by the user prior to calling</span>
-<span class="sd">        ``ApplicationEntity.start()`` and must return</span>
+<span class="sd">        ``ApplicationEntity.start_server()`` and must return</span>
 <span class="sd">        either an ``int`` or a pydicom ``Dataset`` containing a (0000,0900)</span>
 <span class="sd">        *Status* element with a valid C-STORE status value.</span>
 
@@ -2504,8 +2239,10 @@
 <span class="sd">        * DICOM Standard Part 10,</span>
 <span class="sd">          `Section 7 &lt;http://dicom.nema.org/medical/dicom/current/output/html/part10.html#chapter_7&gt;`_</span>
 <span class="sd">        &quot;&quot;&quot;</span>
-        <span class="k">raise</span> <span class="ne">NotImplementedError</span><span class="p">(</span><span class="s2">&quot;User must implement the AE.on_c_store &quot;</span>
-                                  <span class="s2">&quot;function prior to calling AE.start()&quot;</span><span class="p">)</span></div>
+        <span class="k">raise</span> <span class="ne">NotImplementedError</span><span class="p">(</span>
+            <span class="s2">&quot;User must implement the AE.on_c_store function prior to &quot;</span>
+            <span class="s2">&quot;calling AE.start_server()&quot;</span>
+        <span class="p">)</span></div>
 
 
     <span class="c1"># High-level DIMSE-N callbacks - user should implement these as required</span>
@@ -2516,9 +2253,10 @@
 <span class="sd">        ----------</span>
 <span class="sd">        DICOM Standard Part 4, Annexes H, J, P, S, CC and DD</span>
 <span class="sd">        &quot;&quot;&quot;</span>
-        <span class="k">raise</span> <span class="ne">NotImplementedError</span><span class="p">(</span><span class="s2">&quot;User must implement the &quot;</span>
-                                  <span class="s2">&quot;AE.on_n_action function prior to calling &quot;</span>
-                                  <span class="s2">&quot;AE.start()&quot;</span><span class="p">)</span></div>
+        <span class="k">raise</span> <span class="ne">NotImplementedError</span><span class="p">(</span>
+            <span class="s2">&quot;User must implement the AE.on_n_action function prior to &quot;</span>
+            <span class="s2">&quot;calling AE.start_server()&quot;</span>
+        <span class="p">)</span></div>
 
 <div class="viewcode-block" id="ApplicationEntity.on_n_create"><a class="viewcode-back" href="../../reference/generated/pynetdicom.ae.ApplicationEntity.html#pynetdicom.ae.ApplicationEntity.on_n_create">[docs]</a>    <span class="k">def</span> <span class="nf">on_n_create</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">dataset</span><span class="p">,</span> <span class="n">context</span><span class="p">,</span> <span class="n">info</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;Callback for when a N-CREATE is received.</span>
@@ -2527,9 +2265,10 @@
 <span class="sd">        ----------</span>
 <span class="sd">        DICOM Standard Part 4, Annexes F, H, R, S, CC and DD</span>
 <span class="sd">        &quot;&quot;&quot;</span>
-        <span class="k">raise</span> <span class="ne">NotImplementedError</span><span class="p">(</span><span class="s2">&quot;User must implement the &quot;</span>
-                                  <span class="s2">&quot;AE.on_n_create function prior to calling &quot;</span>
-                                  <span class="s2">&quot;AE.start()&quot;</span><span class="p">)</span></div>
+        <span class="k">raise</span> <span class="ne">NotImplementedError</span><span class="p">(</span>
+            <span class="s2">&quot;User must implement the AE.on_n_create function prior to &quot;</span>
+            <span class="s2">&quot;calling AE.start_server()&quot;</span>
+        <span class="p">)</span></div>
 
 <div class="viewcode-block" id="ApplicationEntity.on_n_delete"><a class="viewcode-back" href="../../reference/generated/pynetdicom.ae.ApplicationEntity.html#pynetdicom.ae.ApplicationEntity.on_n_delete">[docs]</a>    <span class="k">def</span> <span class="nf">on_n_delete</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">context</span><span class="p">,</span> <span class="n">info</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;Callback for when a N-DELETE is received.</span>
@@ -2538,9 +2277,10 @@
 <span class="sd">        ----------</span>
 <span class="sd">        DICOM Standard Part 4, Annexes H and DD</span>
 <span class="sd">        &quot;&quot;&quot;</span>
-        <span class="k">raise</span> <span class="ne">NotImplementedError</span><span class="p">(</span><span class="s2">&quot;User must implement the &quot;</span>
-                                  <span class="s2">&quot;AE.on_n_delete function prior to calling &quot;</span>
-                                  <span class="s2">&quot;AE.start()&quot;</span><span class="p">)</span></div>
+        <span class="k">raise</span> <span class="ne">NotImplementedError</span><span class="p">(</span>
+            <span class="s2">&quot;User must implement the AE.on_n_delete function prior to &quot;</span>
+            <span class="s2">&quot;calling AE.start_server()&quot;</span>
+        <span class="p">)</span></div>
 
 <div class="viewcode-block" id="ApplicationEntity.on_n_event_report"><a class="viewcode-back" href="../../reference/generated/pynetdicom.ae.ApplicationEntity.html#pynetdicom.ae.ApplicationEntity.on_n_event_report">[docs]</a>    <span class="k">def</span> <span class="nf">on_n_event_report</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">dataset</span><span class="p">,</span> <span class="n">context</span><span class="p">,</span> <span class="n">info</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;Callback for when a N-EVENT-REPORT is received.</span>
@@ -2549,9 +2289,10 @@
 <span class="sd">        ----------</span>
 <span class="sd">        DICOM Standard Part 4, Annexes F, H, J, CC and DD</span>
 <span class="sd">        &quot;&quot;&quot;</span>
-        <span class="k">raise</span> <span class="ne">NotImplementedError</span><span class="p">(</span><span class="s2">&quot;User must implement the &quot;</span>
-                                  <span class="s2">&quot;AE.on_n_event_report function prior to &quot;</span>
-                                  <span class="s2">&quot;calling AE.start()&quot;</span><span class="p">)</span></div>
+        <span class="k">raise</span> <span class="ne">NotImplementedError</span><span class="p">(</span>
+            <span class="s2">&quot;User must implement the AE.on_n_event_report function prior to &quot;</span>
+            <span class="s2">&quot;calling AE.start_server()&quot;</span>
+        <span class="p">)</span></div>
 
 <div class="viewcode-block" id="ApplicationEntity.on_n_get"><a class="viewcode-back" href="../../reference/generated/pynetdicom.ae.ApplicationEntity.html#pynetdicom.ae.ApplicationEntity.on_n_get">[docs]</a>    <span class="k">def</span> <span class="nf">on_n_get</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">attr</span><span class="p">,</span> <span class="n">context</span><span class="p">,</span> <span class="n">info</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;Callback for when an N-GET request is received.</span>
@@ -2627,8 +2368,8 @@
 <span class="sd">        * DICOM Standard Part 4, `Annex EE &lt;http://dicom.nema.org/medical/dicom/current/output/html/part04.html#chapter_EE&gt;`_</span>
 <span class="sd">        &quot;&quot;&quot;</span>
         <span class="k">raise</span> <span class="ne">NotImplementedError</span><span class="p">(</span>
-            <span class="s2">&quot;User must implement the AE.on_n_get function prior to calling &quot;</span>
-            <span class="s2">&quot;AE.start()&quot;</span>
+            <span class="s2">&quot;User must implement the AE.on_n_get function prior to &quot;</span>
+            <span class="s2">&quot;calling AE.start_server()&quot;</span>
         <span class="p">)</span></div>
 
 <div class="viewcode-block" id="ApplicationEntity.on_n_set"><a class="viewcode-back" href="../../reference/generated/pynetdicom.ae.ApplicationEntity.html#pynetdicom.ae.ApplicationEntity.on_n_set">[docs]</a>    <span class="k">def</span> <span class="nf">on_n_set</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">dataset</span><span class="p">,</span> <span class="n">context</span><span class="p">,</span> <span class="n">info</span><span class="p">):</span>
@@ -2638,9 +2379,10 @@
 <span class="sd">        ----------</span>
 <span class="sd">        DICOM Standard Part 4, Annexes F, H, CC and DD</span>
 <span class="sd">        &quot;&quot;&quot;</span>
-        <span class="k">raise</span> <span class="ne">NotImplementedError</span><span class="p">(</span><span class="s2">&quot;User must implement the &quot;</span>
-                                  <span class="s2">&quot;AE.on_n_set function prior to calling &quot;</span>
-                                  <span class="s2">&quot;AE.start()&quot;</span><span class="p">)</span></div>
+        <span class="k">raise</span> <span class="ne">NotImplementedError</span><span class="p">(</span>
+            <span class="s2">&quot;User must implement the AE.on_n_set function prior to &quot;</span>
+            <span class="s2">&quot;calling AE.start_server()&quot;</span>
+        <span class="p">)</span></div>
 
 
     <span class="c1"># Communication related callbacks</span>
