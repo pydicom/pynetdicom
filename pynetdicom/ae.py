@@ -4,12 +4,8 @@ The main user class, represents a DICOM Application Entity
 from copy import deepcopy
 from datetime import datetime
 import logging
-import select
 import socket
-from struct import pack
 import threading
-import time
-import warnings
 
 from pydicom.uid import UID
 
@@ -21,7 +17,6 @@ from pynetdicom.transport import (
 from pynetdicom.utils import validate_ae_title
 from pynetdicom._globals import (
     MODE_REQUESTOR,
-    MODE_ACCEPTOR,
     DEFAULT_MAX_LENGTH,
     DEFAULT_TRANSFER_SYNTAXES
 )
@@ -78,7 +73,7 @@ class ApplicationEntity(object):
         must match AE.ae_title (default False). (Association acceptor only).
     """
     # pylint: disable=too-many-instance-attributes,too-many-public-methods
-    def __init__(self, ae_title=b'PYNETDICOM', port=0):
+    def __init__(self, ae_title=b'PYNETDICOM'):
         """Create a new Application Entity.
 
         Parameters
@@ -952,8 +947,8 @@ class ApplicationEntity(object):
 
         Examples
         --------
-        Set the requested presentation contexts using an inbuilt list of service
-        specific `PresentationContext` items:
+        Set the requested presentation contexts using an inbuilt list of
+        service specific `PresentationContext` items:
 
         >>> from pynetdicom import AE, StoragePresentationContexts
         >>> ae = AE()
@@ -1222,8 +1217,8 @@ class ApplicationEntity(object):
         >>> ae = AE()
         >>> ae.supported_contexts = [context]
 
-        Set the supported presentation contexts using an inbuilt list of service
-        specific `PresentationContext` items:
+        Set the supported presentation contexts using an inbuilt list of
+        service specific `PresentationContext` items:
 
         >>> from pynetdicom import AE, StoragePresentationContexts
         >>> ae = AE()
@@ -1258,8 +1253,8 @@ class ApplicationEntity(object):
         """
         if len(contexts) > 128:
             raise ValueError(
-                "The maximum allowed number of requested presentation contexts "
-                "is 128"
+                "The maximum allowed number of requested presentation "
+                "contexts is 128"
             )
 
         for item in contexts:
@@ -1546,9 +1541,9 @@ class ApplicationEntity(object):
           | ``0xFF00`` Matches are continuing: current match is supplied and
              any Optional Keys were supported in the same manner as Required
              Keys
-          | ``0xFF01`` Matches are continuing: warning that one or more Optional
-            Keys were not supported for existence and/or matching for this
-            Identifier
+          | ``0xFF01`` Matches are continuing: warning that one or more
+            Optional Keys were not supported for existence and/or matching
+            for this Identifier
 
         Parameters
         ----------
@@ -1849,7 +1844,8 @@ class ApplicationEntity(object):
         Parameters
         ----------
         dataset : pydicom.dataset.Dataset
-            The DICOM Identifier dataset sent by the peer in the C-MOVE request.
+            The DICOM Identifier dataset sent by the peer in the C-MOVE
+            request.
         move_aet : bytes
             The destination AE title that matching SOP Instances will be sent
             to using C-STORE sub-operations. ``move_aet`` will be a correctly
