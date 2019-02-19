@@ -77,7 +77,6 @@ class DummyBaseSCP(threading.Thread):
     bad_status = 0x0101
     def __init__(self):
         """Initialise the class"""
-        self.use_old_start = False
         self.ae.on_c_echo = self.on_c_echo
         self.ae.on_c_store = self.on_c_store
         self.ae.on_c_find = self.on_c_find
@@ -131,20 +130,12 @@ class DummyBaseSCP(threading.Thread):
 
     def run(self):
         """The thread run method"""
-        if self.use_old_start:
-            self.ae.bind_addr = ''
-            self.ae.port = self.port
-            self.ae.start(select_timeout=self.select_timeout)
-        else:
-            self.ae.start_server(('', self.port))
+        self.ae.start_server(('', self.port))
 
     def abort(self):
         """Abort any associations"""
         for assoc in self.ae.active_associations:
             assoc.abort()
-
-        if self.use_old_start:
-            self.ae.stop()
 
         self.ae.shutdown()
 

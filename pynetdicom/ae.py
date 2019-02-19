@@ -4,12 +4,8 @@ The main user class, represents a DICOM Application Entity
 from copy import deepcopy
 from datetime import datetime
 import logging
-import select
 import socket
-from struct import pack
 import threading
-import time
-import warnings
 
 from pydicom.uid import UID
 
@@ -21,7 +17,6 @@ from pynetdicom.transport import (
 from pynetdicom.utils import validate_ae_title
 from pynetdicom._globals import (
     MODE_REQUESTOR,
-    MODE_ACCEPTOR,
     DEFAULT_MAX_LENGTH,
     DEFAULT_TRANSFER_SYNTAXES
 )
@@ -53,21 +48,11 @@ class ApplicationEntity(object):
     acse_timeout : int or float or None
         The maximum amount of time (in seconds) to wait for association related
         messages. A value of ``None`` means no timeout. (default: 30)
-    address : str
-        The local AE's TCP/IP address. Deprecated and will be removed in v1.3.
     ae_title : bytes
         The local AE's AE title.
-    bind_addr : str
-        The network interface to listen to (default: all available network
-        interfaces on the machine). This parameter is deprecated and will be
-        removed in v1.3. Use the ``address`` parameter for ``start_server()``
-        and the ``bind_address`` keyword parameter for ``associate()`` instead.
     dimse_timeout : int or float or None
         The maximum amount of time (in seconds) to wait for DIMSE related
         messages. A value of ``None`` means no timeout. (default: 30)
-    local_socket : socket.socket
-        The socket used for connections with peer AEs when acting as the
-        association acceptor. Deprecated and will be removed in v1.3.
     network_timeout : int or float or None
         The maximum amount of time (in seconds) to wait for network messages.
         A value of ``None`` means no timeout. (default: 60)
@@ -78,13 +63,6 @@ class ApplicationEntity(object):
     maximum_pdu_size : int
         The maximum PDU receive size in bytes. A value of 0 means there is no
         maximum size (default: 16382)
-    port : int
-        The local AE's listen port number when acting as an SCP or connection
-        port when acting as an SCU. A value of 0 indicates that the operating
-        system should choose the port. This parameter is deprecated and will
-        be removed in v1.3. Use the ``address`` parameter for
-        ``start_server()`` and the ``bind_address`` keyword parameter for
-        ``associate()`` instead.
     require_calling_aet : list of bytes
         If not an empty list, the association request's *Calling AE Title*
         value must match one of the values in `require_calling_aet`. If an
@@ -95,20 +73,13 @@ class ApplicationEntity(object):
         must match AE.ae_title (default False). (Association acceptor only).
     """
     # pylint: disable=too-many-instance-attributes,too-many-public-methods
-    def __init__(self, ae_title=b'PYNETDICOM', port=0):
+    def __init__(self, ae_title=b'PYNETDICOM'):
         """Create a new Application Entity.
 
         Parameters
         ----------
         ae_title : bytes, optional
             The AE title of the Application Entity (default: ``b'PYNETDICOM'``)
-        port : int, optional
-            The port number to listen for association requests when acting as
-            an SCP and to use when requesting an association as an SCU. When
-            set to 0 the OS will use the first available port (default ``0``).
-            This parameter is deprecated and will be removed in v1.3. Use
-            the ``address`` parameter for ``start_server()`` and the
-            ``bind_address`` keyword parameter for ``associate()`` instead.
         """
         self.ae_title = ae_title
 
@@ -120,21 +91,6 @@ class ApplicationEntity(object):
         # Default Implementation Class UID and Version Name
         self.implementation_class_uid = PYNETDICOM_IMPLEMENTATION_UID
         self.implementation_version_name = PYNETDICOM_IMPLEMENTATION_VERSION
-
-        # TODO: remove in v1.3
-        self.address = socket.gethostbyname(socket.gethostname())
-        # TODO: remove in v1.3
-        if port != 0:
-            warnings.warn(
-                "The `port` keyword parameter for AE() is deprecated and will "
-                "be removed in v1.3. Use the `address` parameter for "
-                "AE.start_server() or the `bind_address` keyword parameter "
-                "for AE.associate() instead",
-                DeprecationWarning
-            )
-        self.port = port
-        # TODO: remove in v1.3
-        self._bind_addr = ''
 
         # List of PresentationContext
         self._requested_contexts = []
@@ -156,14 +112,7 @@ class ApplicationEntity(object):
         self.require_calling_aet = []
         self.require_called_aet = False
 
-        # TODO: remove in v1.3
-        self.local_socket = None
-
         self._servers = []
-
-        # Used to terminate AE when running as an SCP
-        # TODO: remove in v1.3
-        self._quit = False
 
     @property
     def acse_timeout(self):
@@ -491,10 +440,9 @@ class ApplicationEntity(object):
         except:
             raise
 
-    # TODO: refactor in v1.3
     def associate(self, addr, port, contexts=None, ae_title=b'ANY-SCP',
-                  max_pdu=DEFAULT_MAX_LENGTH, ext_neg=None, bind_address=None,
-                  tls_args=None):
+                  max_pdu=DEFAULT_MAX_LENGTH, ext_neg=None,
+                  bind_address=('', 0), tls_args=None):
         """Request an Association with a remote AE.
 
         The Association thread is returned whether or not the association is
@@ -522,8 +470,7 @@ class ApplicationEntity(object):
             Used if extended association negotiation is required.
         bind_address : 2-tuple, optional
             The (host, port) to bind the Association's communication socket
-            to. If not used then defaults to (AE.bind_addr, AE.port). After
-            v1.3 it will default to ('', 0).
+            to, default ('', 0).
         tls_args : 2-tuple, optional
             If TLS is required then this should be a 2-tuple containing a
             (ssl_context, `server_hostname`), where ssl_context is the
@@ -550,11 +497,6 @@ class ApplicationEntity(object):
 
         if not isinstance(port, int):
             raise TypeError("'port' must be a valid port number")
-
-        # AssociationSocket binding
-        if bind_address is None:
-            # Deprecated, after v1.3 this will be ('', 0)
-            bind_address = (self.bind_addr, self.port)
 
         # Association
         assoc = Association(self, MODE_REQUESTOR)
@@ -620,57 +562,6 @@ class ApplicationEntity(object):
 
         return assoc
 
-    # TODO: remove in v1.3
-    @property
-    def bind_addr(self):
-        """Return the `bind_addr`, deprecated and will be removd in v1.3."""
-        return self._bind_addr
-
-    @bind_addr.setter
-    def bind_addr(self, addr):
-        """Set the `bind_addr`, deprecated and will be removd in v1.3."""
-        warnings.warn(
-            "The `bind_addr` property is deprecated and will "
-            "be removed in v1.3. Use the `address` parameter for "
-            "AE.start_server() or the `bind_address` keyword parameter "
-            "for AE.associate() instead",
-            DeprecationWarning
-        )
-        self._bind_addr = addr
-
-    # TODO: remove in v1.3
-    def _bind_socket(self):
-        """Set up and bind a socket for use with the SCP."""
-        # The socket to listen for connections on, port is always specified
-        # AF_INET: IPv4, SOCK_STREAM: TCP socket
-        sock = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
-
-        # SOL_SOCKET: the level, SO_REUSEADDR: allow reuse of a port
-        #   stuck in TIME_WAIT, 1: set SO_REUSEADDR to 1
-        # This must be called prior to socket.bind()
-        sock.setsockopt(socket.SOL_SOCKET, socket.SO_REUSEADDR, 1)
-        if self.network_timeout is not None:
-            timeout_seconds = int(self.network_timeout)
-            timeout_microsec = int(self.network_timeout % 1 * 1000)
-            sock.setsockopt(
-                socket.SOL_SOCKET,
-                socket.SO_RCVTIMEO,
-                pack('ll', timeout_seconds, timeout_microsec)
-            )
-
-        # Bind the socket to an address and port
-        #   If self.bind_addr is '' then the socket is reachable by any
-        #   address the machine may have, otherwise is visible only on that
-        #   address
-        sock.bind((self.bind_addr, self.port))
-
-        # Listen for connections made to the socket
-        # socket.listen() says to queue up to as many as N connect requests
-        #   before refusing outside connections
-        sock.listen(5)
-
-        return sock
-
     @property
     def dimse_timeout(self):
         """Get the DIMSE timeout."""
@@ -691,41 +582,6 @@ class ApplicationEntity(object):
         for assoc in self.active_associations:
             assoc.dimse_timeout = self.dimse_timeout
             assoc.dimse.dimse_timeout = self.dimse_timeout
-
-    # TODO: remove in v1.3
-    def _handle_connection(self, client_socket):
-        """Start a new Association thread to handle the connection request.
-
-        Parameters
-        ----------
-        client_socket : socket.socket
-            The socket handling to the connection to the peer.
-        """
-        # Create a new Association
-        assoc = Association(self, MODE_ACCEPTOR)
-
-        # Association Acceptor object -> local AE
-        assoc.acceptor.maximum_length = self.maximum_pdu_size
-        assoc.acceptor.ae_title = self.ae_title
-        assoc.acceptor.address = self.address
-        assoc.acceptor.port = self.port
-        assoc.acceptor.implementation_class_uid = (
-            self.implementation_class_uid
-        )
-        assoc.acceptor.implementation_version_name = (
-            self.implementation_version_name
-        )
-        assoc.acceptor.supported_contexts = deepcopy(
-            self.supported_contexts
-        )
-
-        # Association Requestor object -> remote AE
-        assoc.requestor.address = client_socket.getpeername()[0]
-        assoc.requestor.port = client_socket.getpeername()[1]
-
-        assoc.set_socket(AssociationSocket(assoc, client_socket))
-
-        assoc.start()
 
     @property
     def implementation_class_uid(self):
@@ -817,36 +673,6 @@ class ApplicationEntity(object):
 
         for assoc in self.active_associations:
             assoc.network_timeout = self.network_timeout
-
-    @property
-    def port(self):
-        """Return the port number as an int.
-
-        This property is deprecated and will be removed in v1.3.
-        """
-        return self._port
-
-    @port.setter
-    def port(self, value):
-        """Set the port number.
-
-        This property is deprecated and will be removed in v1.3. Use
-        the ``address`` parameter for ``start_server()`` and the
-        ``bind_address`` keyword parameter for ``associate()`` instead.
-        """
-        warnings.warn(
-            "The `port` keyword parameter for AE() is deprecated and will "
-            "be removed in v1.3. Use the `address` parameter for "
-            "AE.start_server() or the `bind_address` keyword parameter "
-            "for AE.associate() instead",
-            DeprecationWarning
-        )
-        # pylint: disable=attribute-defined-outside-init
-        if isinstance(value, int) and value >= 0:
-            self._port = value
-        else:
-            raise ValueError("AE port number must be an integer greater then "
-                             "or equal to 0")
 
     def remove_requested_context(self, abstract_syntax, transfer_syntax=None):
         """Remove a requested Presentation Context.
@@ -1121,8 +947,8 @@ class ApplicationEntity(object):
 
         Examples
         --------
-        Set the requested presentation contexts using an inbuilt list of service
-        specific `PresentationContext` items:
+        Set the requested presentation contexts using an inbuilt list of
+        service specific `PresentationContext` items:
 
         >>> from pynetdicom import AE, StoragePresentationContexts
         >>> ae = AE()
@@ -1218,76 +1044,6 @@ class ApplicationEntity(object):
             validate_ae_title(aet) for aet in ae_titles
         ]
 
-    # TODO: remove in v1.3
-    def start(self, select_timeout=0.5):
-        """Start the AE as an SCP.
-
-        When running the AE as an SCP this needs to be called to start the main
-        loop, it listens for connections on `local_socket` and if they request
-        association starts a new Association thread
-
-        This method is deprecated and will be removed in v1.3. Use
-        ``start_server()`` instead.
-
-        Parameters
-        ----------
-        select_timeout : float or None, optional
-            The timeout (in seconds) that the select.select() call will block
-            for (default 0.5). A value of 0 specifies a poll and never blocks.
-            A value of None blocks until a connection is ready.
-        """
-        warnings.warn(
-            "start() is deprecated and will be removed in v1.3. Use "
-            "start_server() instead",
-            DeprecationWarning
-        )
-
-        self._quit = False
-
-        # If the SCP has no supported SOP Classes then there's no point
-        #   running as a server
-        if not self.supported_contexts:
-            msg = "No supported Presentation Contexts have been defined"
-            LOGGER.error(msg)
-            raise ValueError(msg)
-
-        bad_contexts = []
-        for cx in self.supported_contexts:
-            roles = (cx.scu_role, cx.scp_role)
-            if None in roles and roles != (None, None):
-                bad_contexts.append(cx.abstract_syntax)
-
-        if bad_contexts:
-            msg = (
-                "The following presentation contexts have inconsistent "
-                "scu_role/scp_role values (if one is None, both must be):\n  "
-            )
-            msg += '\n  '.join(bad_contexts)
-            LOGGER.warning(msg)
-            return
-
-        # Bind `sock` to the specified listen port
-        sock = self._bind_socket()
-        self.local_socket = sock
-
-        while not self._quit:
-            try:
-                # Returns a list if `sock` has data available
-                #   readable, writeable, exceptional
-                # `select_timeout` specifies that select blocks for
-                #   that many seconds before allowing the SCP to be killed
-                ready, _, _ = select.select([sock], [], [], select_timeout)
-
-                # We check self._quit in case the kill came in during select()
-                if ready and not self._quit:
-                    # socket.accept() blocks until a connection is available
-                    client_socket, _ = sock.accept()
-
-                    # Start a new association (as acceptor)
-                    self._handle_connection(client_socket)
-            except KeyboardInterrupt:
-                self.stop()
-
     def start_server(self, address, block=True, ssl_context=None):
         """Start the AE as an association acceptor.
 
@@ -1357,33 +1113,6 @@ class ApplicationEntity(object):
 
             return server
 
-    # TODO: remove in v1.3
-    def stop(self):
-        """Stop the SCP.
-
-        When running as an SCP, calling stop() will kill all associations
-        and close the listen socket.
-
-        This method is deprecated and will be removed in v1.3. Use
-        ``shutdown()`` instead.
-        """
-        warnings.warn(
-            "stop() is deprecated and will be removed in v1.3. Use "
-            "shutdown() instead",
-            DeprecationWarning
-        )
-        self._quit = True
-
-        if self.local_socket:
-            try:
-                self.local_socket.shutdown(socket.SHUT_RDWR)
-            except:
-                pass
-            self.local_socket.close()
-            self.local_socket = None
-
-        self.shutdown()
-
     def shutdown(self):
         """Stop any active association servers and threads."""
         for assoc in self.active_associations:
@@ -1397,12 +1126,10 @@ class ApplicationEntity(object):
 
         self._servers = []
 
-    # TODO: refactor in v1.3
     def __str__(self):
         """ Prints out the attribute values and status for the AE """
         str_out = "\n"
-        str_out += "Application Entity '{0!s}' on {1!s}:{2!s}\n" \
-                   .format(self.ae_title, self.address, self.port)
+        str_out += "Application Entity '{0!s}'\n".format(self.ae_title)
 
         str_out += "\n"
         str_out += "  Requested Presentation Contexts:\n"
@@ -1490,8 +1217,8 @@ class ApplicationEntity(object):
         >>> ae = AE()
         >>> ae.supported_contexts = [context]
 
-        Set the supported presentation contexts using an inbuilt list of service
-        specific `PresentationContext` items:
+        Set the supported presentation contexts using an inbuilt list of
+        service specific `PresentationContext` items:
 
         >>> from pynetdicom import AE, StoragePresentationContexts
         >>> ae = AE()
@@ -1526,8 +1253,8 @@ class ApplicationEntity(object):
         """
         if len(contexts) > 128:
             raise ValueError(
-                "The maximum allowed number of requested presentation contexts "
-                "is 128"
+                "The maximum allowed number of requested presentation "
+                "contexts is 128"
             )
 
         for item in contexts:
@@ -1695,7 +1422,7 @@ class ApplicationEntity(object):
 
         User implementation is not required for the C-ECHO service, but if you
         intend to do so it should be defined prior to calling
-        ``ApplicationEntity.start()`` and
+        ``ApplicationEntity.start_server()`` and
         must return either an ``int`` or a pydicom ``Dataset`` containing a
         (0000,0900) *Status* element with a valid C-ECHO status value.
 
@@ -1781,8 +1508,8 @@ class ApplicationEntity(object):
     def on_c_find(self, dataset, context, info):
         """Callback for when a C-FIND request is received.
 
-        Must be defined by the user prior to calling ``AE.start()`` and must
-        yield ``(status, identifier)`` pairs, where *status* is either an
+        Must be defined by the user prior to calling ``AE.start_server()`` and
+        must yield ``(status, identifier)`` pairs, where *status* is either an
         ``int`` or pydicom ``Dataset`` containing a (0000,0900) *Status*
         element and *identifier* is a C-FIND *Identifier* ``Dataset``.
 
@@ -1814,9 +1541,9 @@ class ApplicationEntity(object):
           | ``0xFF00`` Matches are continuing: current match is supplied and
              any Optional Keys were supported in the same manner as Required
              Keys
-          | ``0xFF01`` Matches are continuing: warning that one or more Optional
-            Keys were not supported for existence and/or matching for this
-            Identifier
+          | ``0xFF01`` Matches are continuing: warning that one or more
+            Optional Keys were not supported for existence and/or matching
+            for this Identifier
 
         Parameters
         ----------
@@ -1911,16 +1638,18 @@ class ApplicationEntity(object):
           `9.3.2 <http://dicom.nema.org/medical/dicom/current/output/html/part07.html#sect_9.3.2>`_
           and `Annex C <http://dicom.nema.org/medical/dicom/current/output/html/part07.html#chapter_C>`_
         """
-        raise NotImplementedError("User must implement the AE.on_c_find "
-                                  "function prior to calling AE.start()")
+        raise NotImplementedError(
+            "User must implement the AE.on_c_find function prior to "
+            "calling AE.start_server()"
+        )
 
     def on_c_get(self, dataset, context, info):
         """Callback for when a C-GET request is received.
 
         Must be defined by the user prior to calling
-        ``ApplicationEntity.start()`` and must yield a ``int`` containing the
-        total number of C-STORE sub-operations, then yield ``(status,
-        dataset)`` pairs.
+        ``ApplicationEntity.start_server()`` and must yield a ``int``
+        containing the total number of C-STORE sub-operations, then yield
+        ``(status, dataset)`` pairs.
 
         **Supported Service Classes**
 
@@ -2054,14 +1783,16 @@ class ApplicationEntity(object):
           `9.3.3 <http://dicom.nema.org/medical/dicom/current/output/html/part07.html#sect_9.3.3>`_
           and `Annex C <http://dicom.nema.org/medical/dicom/current/output/html/part07.html#chapter_C>`_
         """
-        raise NotImplementedError("User must implement the AE.on_c_get "
-                                  "function prior to calling AE.start()")
+        raise NotImplementedError(
+            "User must implement the AE.on_c_get function prior to "
+            "calling AE.start_server()"
+        )
 
     def on_c_move(self, dataset, move_aet, context, info):
         """Callback for when a C-MOVE request is received.
 
         Must be defined by the user prior to calling
-        ``ApplicationEntity.start()``.
+        ``ApplicationEntity.start_server()``.
 
         The first yield should be the ``(addr, port)`` of the move destination,
         the second yield the number of required C-STORE sub-operations as an
@@ -2113,7 +1844,8 @@ class ApplicationEntity(object):
         Parameters
         ----------
         dataset : pydicom.dataset.Dataset
-            The DICOM Identifier dataset sent by the peer in the C-MOVE request.
+            The DICOM Identifier dataset sent by the peer in the C-MOVE
+            request.
         move_aet : bytes
             The destination AE title that matching SOP Instances will be sent
             to using C-STORE sub-operations. ``move_aet`` will be a correctly
@@ -2212,14 +1944,16 @@ class ApplicationEntity(object):
           `9.3.4 <http://dicom.nema.org/medical/dicom/current/output/html/part07.html#sect_9.3.4>`_
           and `Annex C <http://dicom.nema.org/medical/dicom/current/output/html/part07.html#chapter_C>`_
         """
-        raise NotImplementedError("User must implement the AE.on_c_move "
-                                  "function prior to calling AE.start()")
+        raise NotImplementedError(
+            "User must implement the AE.on_c_move function prior to "
+            "calling AE.start_server()"
+        )
 
     def on_c_store(self, dataset, context, info):
         """Callback for when a C-STORE request is received.
 
         Must be defined by the user prior to calling
-        ``ApplicationEntity.start()`` and must return
+        ``ApplicationEntity.start_server()`` and must return
         either an ``int`` or a pydicom ``Dataset`` containing a (0000,0900)
         *Status* element with a valid C-STORE status value.
 
@@ -2330,8 +2064,10 @@ class ApplicationEntity(object):
         * DICOM Standard Part 10,
           `Section 7 <http://dicom.nema.org/medical/dicom/current/output/html/part10.html#chapter_7>`_
         """
-        raise NotImplementedError("User must implement the AE.on_c_store "
-                                  "function prior to calling AE.start()")
+        raise NotImplementedError(
+            "User must implement the AE.on_c_store function prior to "
+            "calling AE.start_server()"
+        )
 
 
     # High-level DIMSE-N callbacks - user should implement these as required
@@ -2342,9 +2078,10 @@ class ApplicationEntity(object):
         ----------
         DICOM Standard Part 4, Annexes H, J, P, S, CC and DD
         """
-        raise NotImplementedError("User must implement the "
-                                  "AE.on_n_action function prior to calling "
-                                  "AE.start()")
+        raise NotImplementedError(
+            "User must implement the AE.on_n_action function prior to "
+            "calling AE.start_server()"
+        )
 
     def on_n_create(self, dataset, context, info):
         """Callback for when a N-CREATE is received.
@@ -2353,9 +2090,10 @@ class ApplicationEntity(object):
         ----------
         DICOM Standard Part 4, Annexes F, H, R, S, CC and DD
         """
-        raise NotImplementedError("User must implement the "
-                                  "AE.on_n_create function prior to calling "
-                                  "AE.start()")
+        raise NotImplementedError(
+            "User must implement the AE.on_n_create function prior to "
+            "calling AE.start_server()"
+        )
 
     def on_n_delete(self, context, info):
         """Callback for when a N-DELETE is received.
@@ -2364,9 +2102,10 @@ class ApplicationEntity(object):
         ----------
         DICOM Standard Part 4, Annexes H and DD
         """
-        raise NotImplementedError("User must implement the "
-                                  "AE.on_n_delete function prior to calling "
-                                  "AE.start()")
+        raise NotImplementedError(
+            "User must implement the AE.on_n_delete function prior to "
+            "calling AE.start_server()"
+        )
 
     def on_n_event_report(self, dataset, context, info):
         """Callback for when a N-EVENT-REPORT is received.
@@ -2375,9 +2114,10 @@ class ApplicationEntity(object):
         ----------
         DICOM Standard Part 4, Annexes F, H, J, CC and DD
         """
-        raise NotImplementedError("User must implement the "
-                                  "AE.on_n_event_report function prior to "
-                                  "calling AE.start()")
+        raise NotImplementedError(
+            "User must implement the AE.on_n_event_report function prior to "
+            "calling AE.start_server()"
+        )
 
     def on_n_get(self, attr, context, info):
         """Callback for when an N-GET request is received.
@@ -2453,8 +2193,8 @@ class ApplicationEntity(object):
         * DICOM Standard Part 4, `Annex EE <http://dicom.nema.org/medical/dicom/current/output/html/part04.html#chapter_EE>`_
         """
         raise NotImplementedError(
-            "User must implement the AE.on_n_get function prior to calling "
-            "AE.start()"
+            "User must implement the AE.on_n_get function prior to "
+            "calling AE.start_server()"
         )
 
     def on_n_set(self, dataset, context, info):
@@ -2464,9 +2204,10 @@ class ApplicationEntity(object):
         ----------
         DICOM Standard Part 4, Annexes F, H, CC and DD
         """
-        raise NotImplementedError("User must implement the "
-                                  "AE.on_n_set function prior to calling "
-                                  "AE.start()")
+        raise NotImplementedError(
+            "User must implement the AE.on_n_set function prior to "
+            "calling AE.start_server()"
+        )
 
 
     # Communication related callbacks

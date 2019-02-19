@@ -1,0 +1,2 @@
+include pynetdicom/tests/cert_files/*
+include pynetdicom/tests/dicom_files/*
