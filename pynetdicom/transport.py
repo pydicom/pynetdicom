@@ -146,6 +146,11 @@ class AssociationSocket(object):
             # Evt2: Transport connection confirmation
             self.event_queue.put('Evt2')
         except (socket.error, socket.timeout) as exc:
+            # Log connection failure
+            LOGGER.error(
+                "Association request failed: unable to connect to remote"
+            )
+            LOGGER.error("TCP Initialisation Error: Connection refused")
             # Log exception if TLS issue to help with troubleshooting
             if isinstance(exc, ssl.SSLError):
                 LOGGER.exception(exc)

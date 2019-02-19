@@ -3,6 +3,7 @@
 import logging
 import os
 import signal
+import socket
 import sys
 import threading
 import time
@@ -47,70 +48,48 @@ class TestAEVerificationSCP(object):
     """Check verification SCP"""
     def setup(self):
         """Run prior to each test"""
-        self.scp = None
+        self.ae = None
 
     def teardown(self):
         """Clear any active threads"""
-        if self.scp:
-            self.scp.abort()
+        if self.ae:
+            self.ae.shutdown()
 
-        time.sleep(0.1)
-
-        for thread in threading.enumerate():
-            if isinstance(thread, DummyBaseSCP):
-                thread.abort()
-                thread.stop()
-
-    @pytest.mark.skip("Can't figure out how to simulate KeyboardInterrupt")
-    def test_stop_scp_keyboard(self):
+    def test_start_server_keyboard_interrupt(self):
         """Test stopping the SCP with keyboard"""
-        self.scp = DummyVerificationSCP()
-        self.scp.start()
+        pid = os.getpid()
 
-        # Give the SCP time to start
-        time.sleep(0.05)
+        def trigger_signal():
+            time.sleep(0.1)
+            os.kill(pid, signal.SIGINT)
 
-        assert self.scp.ae._quit is False
+        self.ae = ae = AE()
+        ae.add_supported_context('1.2.3')
+        thread = threading.Thread(target=trigger_signal)
+        thread.daemon = True
+        thread.start()
 
-        # Simulate KeyboardInterrupt in self.scp somehow...
+        ae.start_server(('', 11112))
 
-        assert self.scp.ae._quit is True
-
-        self.scp.stop()
-
-    def test_no_supported_contexts_old(self):
-        """Test starting with no contexts raises"""
-        ae = AE(port=11112)
-        with pytest.raises(ValueError, match=r"No supported Presentation"):
-            ae.start()
+        ae.shutdown()
 
     def test_no_supported_contexts(self):
         """Test starting with no contexts raises"""
-        ae = AE()
+        self.ae = ae = AE()
         with pytest.raises(ValueError, match=r"No supported Presentation"):
             ae.start_server(('', 11112))
 
     def test_new_scu_scp_warning(self, caplog):
         """Test that a warning is given if scu_role and scp_role bad."""
-        ae = AE()
+        self.ae = ae = AE()
         ae.add_supported_context('1.2.3.4', scp_role=False)
         msg = r"The following presentation contexts have "
         with pytest.raises(ValueError, match=msg):
             scp = ae.start_server(('', 11112))
 
-    @pytest.mark.skipif(sys.version_info[:2] == (3, 4), reason='no caplog')
-    def test_bad_supported_role_old(self, caplog):
-        """Test starting with a badly defined role selection raises"""
-        ae = AE()
-        ae.port = 11112
-        ae.add_supported_context('1.2.840.10008.1.1', scp_role=True)
-        with caplog.at_level(logging.WARNING, logger='pynetdicom'):
-            ae.start()
-            assert "inconsistent scu_role/scp_role" in caplog.text
-
     def test_str_empty(self):
         """Test str output for default AE"""
-        ae = AE(port=11112)
+        self.ae = ae = AE()
         ae.__str__()
 
 
@@ -118,27 +97,20 @@ class TestAEPresentationSCU(object):
     """Tests for AE presentation contexts when running as an SCU"""
     def setup(self):
         """Run prior to each test"""
-        self.scp = None
+        self.ae = None
 
     def teardown(self):
         """Clear any active threads"""
-        if self.scp:
-            self.scp.abort()
-
-        time.sleep(0.1)
-
-        for thread in threading.enumerate():
-            if isinstance(thread, (AE, DummyBaseSCP)):
-                thread.abort()
-                thread.stop()
+        if self.ae:
+            self.ae.shutdown()
 
     def test_associate_context(self):
         """Test that AE.associate doesn't modify the supplied contexts"""
-        self.scp = DummyVerificationSCP()
-        self.scp.start()
-
         # Test AE.requested_contexts
-        ae = AE()
+        self.ae = ae = AE()
+        ae.add_supported_context(VerificationSOPClass)
+        scp = ae.start_server(('', 11112), block=False)
+
         ae.requested_contexts = VerificationPresentationContexts
         ae.acse_timeout = 5
         ae.dimse_timeout = 5
@@ -172,11 +144,11 @@ class TestAEPresentationSCU(object):
         assert not assoc.is_established
         assert assoc.is_released
 
-        self.scp.stop()
+        scp.shutdown()
 
     def test_associate_context_raises(self):
         """Test that AE.associate raises exception if no requested contexts"""
-        ae = AE()
+        self.ae = ae = AE()
         with pytest.raises(RuntimeError):
             assoc = ae.associate('localhost', 11112)
 
@@ -184,26 +156,19 @@ class TestAEPresentationSCU(object):
 class TestAEGoodCallbacks(object):
     def setup(self):
         """Run prior to each test"""
-        self.scp = None
+        self.ae = None
 
     def teardown(self):
         """Clear any active threads"""
-        if self.scp:
-            self.scp.abort()
-
-        time.sleep(0.1)
-
-        for thread in threading.enumerate():
-            if isinstance(thread, (AE, DummyBaseSCP)):
-                thread.abort()
-                thread.stop()
+        if self.ae:
+            self.ae.shutdown()
 
     def test_on_c_echo_called(self):
         """ Check that SCP AE.on_c_echo() was called """
-        self.scp = DummyVerificationSCP()
-        self.scp.start()
+        self.ae = ae = AE()
+        ae.add_supported_context(VerificationSOPClass)
+        scp = ae.start_server(('', 11112), block=False)
 
-        ae = AE()
         ae.add_requested_context(VerificationSOPClass)
         ae.acse_timeout = 5
         ae.dimse_timeout = 5
@@ -218,12 +183,17 @@ class TestAEGoodCallbacks(object):
         assert assoc.is_released
         assert not assoc.is_established
 
-        self.scp.stop()
+        scp.shutdown()
 
     def test_on_c_store_called(self):
         """ Check that SCP AE.on_c_store(dataset) was called """
-        self.scp = DummyStorageSCP()
-        self.scp.start()
+        def on_c_store(ds, cx, info):
+            return 0x0000
+
+        self.ae = ae = AE()
+        ae.on_c_store = on_c_store
+        ae.add_supported_context(RTImageStorage)
+        scp = ae.start_server(('', 11112), block=False)
 
         ae = AE()
         ae.add_requested_context(RTImageStorage)
@@ -240,7 +210,7 @@ class TestAEGoodCallbacks(object):
         assert assoc.is_released
         assert not assoc.is_established
 
-        self.scp.stop()
+        scp.shutdown()
 
     def test_on_c_find_called(self):
         """ Check that SCP AE.on_c_find(dataset) was called """
@@ -649,24 +619,6 @@ class TestAEGoodAssociation(object):
             assert not assoc.is_established
             self.scp.stop()
 
-    def test_deprecated_start(self):
-        """Test the deprecated start() method."""
-        self.scp = DummyVerificationSCP()
-        self.scp.use_old_start = True
-        self.scp.start()
-
-        ae = AE()
-        ae.add_requested_context('1.2.840.10008.1.1')
-        ae.acse_timeout = 5
-        ae.dimse_timeout = 5
-        assoc = ae.associate('localhost', 11112)
-        assert assoc.is_established
-        assoc.release()
-
-        self.scp.stop()
-        self.scp.ae.shutdown()
-        self.scp.ae.stop()
-
 
 class TestAEBadAssociation(object):
     def test_raise(self):
@@ -839,43 +791,22 @@ class TestAEGoodMiscSetters(object):
         ae = AE()
         assert ae.implementation_version_name == PYNETDICOM_IMPLEMENTATION_VERSION
 
-    def test_bind_addr_warns(self):
-        """Test deprecation warning for bind_addr."""
-        with pytest.deprecated_call():
-            ae = AE()
-            ae.bind_addr = ''
-
 
 class TestAEBadInitialisation(object):
     def test_ae_title_all_spaces(self):
         """AE should fail if ae_title is all spaces"""
         with pytest.raises(ValueError):
-            AE(ae_title=b'                ', port=0)
+            AE(ae_title=b'                ')
 
     def test_ae_title_empty_str(self):
         """AE should fail if ae_title is an empty str"""
         with pytest.raises(ValueError):
-            AE(ae_title=b'', port=0)
+            AE(ae_title=b'')
 
     def test_ae_title_invalid_chars(self):
         """ AE should fail if ae_title is not a str """
         with pytest.raises(ValueError):
-            AE(ae_title=b'TEST\ME', port=0)
-
-    def test_port_not_numeric(self):
-        """AE should fail if port is not numeric"""
-        with pytest.raises(ValueError):
-            AE(port='a')
-
-    def test_port_not_int(self):
-        """AE should fail if port is not a int"""
-        with pytest.raises(ValueError):
-            AE(port=100.8)
-
-    def test_port_not_positive(self):
-        """AE should fail if port is not >= 0"""
-        with pytest.raises(ValueError):
-            AE(port=-1)
+            AE(ae_title=b'TEST\ME')
 
 
 class TestAE_GoodRelease(object):

@@ -18,8 +18,8 @@ Query/Retrieve (Move) SCU
 
 Associate with a peer DICOM Application Entity and request it send
 all SOP Instances for the patient with *Patient ID* ``1234567`` belonging to the
-series with *Study Instance UID* ``1.2.3`` and *Series Instance UID* ``1.2.3.4`` to
-a separate Storage SCP with AE title ``b'STORE_SCP'``.
+series with *Study Instance UID* ``1.2.3`` and *Series Instance UID*
+``1.2.3.4`` to a Storage SCP with AE title ``b'STORE_SCP'``.
 
 .. code-block:: python
 
@@ -128,7 +128,7 @@ to see the requirements for the ``evt.EVT_C_STORE`` handler.
             if status:
                 print('C-MOVE query status: 0x{0:04x}'.format(status.Status))
 
-                # If the status is 'Pending' then the identifier is the C-MOVE response
+                # If the status is 'Pending' then `identifier` is the C-MOVE response
                 if status.Status in (0xFF00, 0xFF01):
                     print(identifier)
             else:
@@ -150,8 +150,8 @@ Query/Retrieve (Move) SCP
 The following represents a toy implementation of a Query/Retrieve (Move) SCP
 where the SCU has sent the following *Identifier* dataset under the *Patient
 Root Query Retrieve Information Model - Move* context and the move destination
-AE title ``b'STORE_SCP'`` is known to correspond to the IP address ``127.0.0.1`` and
-listen port number ``11113``.
+AE title ``b'STORE_SCP`` is known to correspond to the IP address ``127.0.0.1``
+and listen port number ``11113``.
 
 .. code-block:: python
 
@@ -204,6 +204,7 @@ to see the requirements for the ``evt.EVT_C_MOVE`` handler.
 
         # Import stored SOP Instances
         instances = []
+        matching = []
         fdir = '/path/to/directory'
         for fpath in os.listdir(fdir):
             instances.append(dcmread(os.path.join(fdir, fpath)))

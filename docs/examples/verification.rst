@@ -88,8 +88,8 @@ to return an 0x0000 *Success* :ref:`status <verification_statuses>`.
     # Add the supported presentation context
     ae.add_supported_context(VerificationSOPClass)
 
-    # Start listening for incoming association requests
-    ae.start_server(('', 11112))
+   # Start listening for incoming association requests in blocking mode
+   ae.start_server(('', 11112), block=True)
 
 You can also optionally bind your own handler to ``evt.EVT_C_ECHO``. Check the
 `handler implementation documentation

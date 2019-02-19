@@ -814,6 +814,7 @@ def build_context(abstract_syntax, transfer_syntax=None):
 
 def build_role(uid, scu_role=False, scp_role=False):
     """Return a SCP/SCU Role Selection Negotiation item.
+
     Parameters
     ----------
     uid : str or UID or sop_class.SOPClass
@@ -825,6 +826,7 @@ def build_role(uid, scu_role=False, scp_role=False):
     scp_role : bool, optional
         True to propose the SCP role for the *Requestor*, False otherwise
         (default).
+
     Returns
     -------
     pdu_primitives.SCP_SCU_RoleSelectionNegotiation

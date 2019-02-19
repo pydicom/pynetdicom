@@ -15,6 +15,7 @@ Creation
 
    PresentationContext
    build_context
+   build_role
 
 Negotiation
 

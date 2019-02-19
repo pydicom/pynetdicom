@@ -9,8 +9,8 @@
     :target: https://badge.fury.io/py/pynetdicom
 .. image:: https://img.shields.io/pypi/pyversions/pynetdicom.svg
     :target: https://img.shields.io/pypi/pyversions/pynetdicom.svg
-.. image:: https://zenodo.org/badge/69436608.svg
-   :target: https://zenodo.org/badge/latestdoi/69436608
+.. image:: https://zenodo.org/badge/DOI/10.5281/zenodo.2565798.svg
+   :target: https://doi.org/10.5281/zenodo.2565798
 
 
 

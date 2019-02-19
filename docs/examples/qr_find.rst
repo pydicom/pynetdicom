@@ -36,13 +36,13 @@ Root Query/Retrieve Information Model - Find* at the *Patient* level.
    # Associate with peer AE at IP 127.0.0.1 and port 11112
    assoc = ae.associate('127.0.0.1', 11112)
 
-   if assoc.is_established:
-       # Use the C-FIND service to send the identifier
-       # A query_model value of 'P' means use the 'Patient Root Query Retrieve
-       #     Information Model - Find' presentation context
-       responses = assoc.send_c_find(ds, query_model='P')
+    if assoc.is_established:
+        # Use the C-FIND service to send the identifier
+        # A query_model value of 'P' means use the 'Patient Root Query Retrieve
+        #     Information Model - Find' presentation context
+        responses = assoc.send_c_find(ds, query_model='P')
 
-       for (status, identifier) in responses:
+        for (status, identifier) in responses:
             if status:
                 print('C-FIND query status: 0x{0:04x}'.format(status.Status))
 
@@ -52,10 +52,10 @@ Root Query/Retrieve Information Model - Find* at the *Patient* level.
             else:
                 print('Connection timed out, was aborted or received invalid response')
 
-       # Release the association
-       assoc.release()
-   else:
-       print('Association rejected, aborted or never connected')
+        # Release the association
+        assoc.release()
+    else:
+        print('Association rejected, aborted or never connected')
 
 The responses received from the SCP are dependent on the *Identifier* dataset
 keys and values, the Query/Retrieve level and the information model. For
@@ -121,7 +121,7 @@ to see the requirements for the ``evt.EVT_C_FIND`` handler.
             yield 0xC000, None
             return
 
-       if ds.QueryRetrieveLevel == 'PATIENT':
+        if ds.QueryRetrieveLevel == 'PATIENT':
             if 'PatientName' in ds:
                 if ds.PatientName not in ['*', '', '?']:
                     matching = [

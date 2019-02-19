@@ -6,9 +6,11 @@ Presentation Contexts
 Introduction
 ............
 
-Presentation Contexts are used in DICOM to fully define the content and the
+`Presentation Contexts <http://dicom.nema.org/medical/dicom/current/output/chtml/part08/chapter_7.html#sect_7.1.1.13>`_
+are used in DICOM to fully define the content and the
 encoding of a piece of data (typically a DICOM dataset). They consist of three
-main parts; a Context ID, an Abstract Syntax and one or more Transfer Syntaxes.
+main parts; a *Context ID*, an *Abstract Syntax* and one or more
+*Transfer Syntaxes*.
 
 * The `Context ID <http://dicom.nema.org/medical/dicom/current/output/chtml/part08/sect_9.3.2.2.html>`_
   is an odd-integer between 1 and 255 (inclusive) and
@@ -130,8 +132,8 @@ abstract syntaxes from the `corresponding SOP Class UIDs
 
 The transfer syntaxes you propose for each abstract syntax should match the
 transfer syntax of the data you wish to send. For example, if you have
-a CT Image Storage dataset with a (0002,0010) *Transfer Syntax UID* value of
-'1.2.840.10008.1.2.4.50' (JPEG Baseline) then you won't be able to send it
+a *CT Image Storage* dataset with a (0002,0010) *Transfer Syntax UID* value of
+1.2.840.10008.1.2.4.50 (*JPEG Baseline*) then you won't be able to send it
 unless you propose (and get accepted) a presentation context with a matching
 transfer syntax.
 
@@ -231,7 +233,7 @@ syntaxes:
 
   * JPEG Baseline
 
-If the *Requestor* proposes the following presentation contexts:
+And a *Requestor* that proposes the following presentation contexts:
 
 * Context 1: Verification SOP Class
 
@@ -253,9 +255,9 @@ If the *Requestor* proposes the following presentation contexts:
   * Implicit VR Little Endian
   * Explicit VR Little Endian
 
-Then the outcome of the association negotiation will be:
+Then the outcome of the presentation context negotiation will be:
 
-* Context 1: Accepted (with the *Acceptor* choosing one of *Implicit* or
+* Context 1: Accepted (with the *Acceptor* choosing either *Implicit* or
   *Explicit VR Little Endian* to use as the transfer syntax)
 * Context 3: Accepted with *Implicit VR Little Endian* transfer syntax
 * Context 5: Rejected (transfer syntax not supported) because the *Acceptor*

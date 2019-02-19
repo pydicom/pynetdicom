@@ -161,39 +161,39 @@ interested in.
 
 .. code-block:: python
 
-   from pynetdicom import AE, evt
-   from pynetdicom.sop_class import CTImageStorage
+    from pynetdicom import AE, evt
+    from pynetdicom.sop_class import CTImageStorage
 
-   ae = AE()
+    ae = AE()
 
-   # Add a supported presentation context
-   ae.add_supported_context(CTImageStorage)
+    # Add a supported presentation context
+    ae.add_supported_context(CTImageStorage)
 
-   def handle_store(event):
-       # Don't store anything but respond with `Success`
-       return 0x0000
+    def handle_store(event):
+        # Don't store anything but respond with `Success`
+        return 0x0000
 
-   handlers = [(evt.EVT_C_STORE, handle_store)]
+    handlers = [(evt.EVT_C_STORE, handle_store)]
 
-   ae.start_server(('', 11112), evt_handlers=handlers)
+    ae.start_server(('', 11112), evt_handlers=handlers)
 
 You can also start the SCP in non-blocking mode:
 
 .. code-block:: python
 
-   from pynetdicom import AE, evt
-   from pynetdicom.sop_class import CTImageStorage
+    from pynetdicom import AE, evt
+    from pynetdicom.sop_class import CTImageStorage
 
-   def handle_store(event):
-       return 0x0000
+    def handle_store(event):
+        return 0x0000
 
-   handlers = [(evt.EVT_C_STORE, handle_store)]
+    handlers = [(evt.EVT_C_STORE, handle_store)]
 
-   ae = AE()
-   ae.add_supported_context(CTImageStorage)
-   scp = ae.start_server(('', 11112), block=False evt_handlers=handlers)
+    ae = AE()
+    ae.add_supported_context(CTImageStorage)
+    scp = ae.start_server(('', 11112), block=False evt_handlers=handlers)
 
-   # Zzzz
-   time.sleep(60)
+    # Zzzz
+    time.sleep(60)
 
-   scp.shutdown()
+    scp.shutdown()

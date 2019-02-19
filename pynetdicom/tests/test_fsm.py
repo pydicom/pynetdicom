@@ -204,8 +204,8 @@ class TestStateBase(object):
         assoc.acceptor.port = 11112
 
         # Association Requestor object -> local AE
-        assoc.requestor.address = ae.address
-        assoc.requestor.port = ae.port
+        assoc.requestor.address = ''
+        assoc.requestor.port = 11113
         assoc.requestor.ae_title = ae.ae_title
         assoc.requestor.maximum_length = 16382
         assoc.requestor.implementation_class_uid = (
@@ -386,8 +386,8 @@ class TestStateBase(object):
         assoc.acceptor.port = 11112
 
         # Association Requestor object -> local AE
-        assoc.requestor.address = ae.address
-        assoc.requestor.port = ae.port
+        assoc.requestor.address = ''
+        assoc.requestor.port = 11113
         assoc.requestor.ae_title = ae.ae_title
         assoc.requestor.maximum_length = 16382
         assoc.requestor.implementation_class_uid = (
@@ -9263,8 +9263,8 @@ class TestStateMachineFunctionalRequestor(object):
         assoc.acceptor.port = 11112
 
         # Association Requestor object -> local AE
-        assoc.requestor.address = ae.address
-        assoc.requestor.port = ae.port
+        assoc.requestor.address = ''
+        assoc.requestor.port = 11113
         assoc.requestor.ae_title = ae.ae_title
         assoc.requestor.maximum_length = 16382
         assoc.requestor.implementation_class_uid = (
@@ -9398,41 +9398,6 @@ class TestStateMachineFunctionalRequestor(object):
             ('Sta1', 'Evt1', 'AE-1'),  # recv A-ASSOC rq primitive
             ('Sta4', 'Evt2', 'AE-2'),  # connection confirmed
             ('Sta5', 'Evt4', 'AE-4'),  # A-ASSOC-RJ PDU recv
-        ]
-
-        assert self.fsm.current_state == 'Sta1'
-
-        self.scp.stop()
-
-    def test_associate_peer_aborts(self):
-        """Test association negotiation aborted by peer."""
-        self.scp = DummyVerificationSCP()
-        self.scp.ae.port = 11112
-        self.scp.send_a_abort = True
-        self.scp.use_old_start = True
-        self.scp.select_timeout = 0.5
-        self.scp.ae._handle_connection = self.scp.dev_handle_connection
-        self.scp.start()
-
-        assert self.fsm.current_state == 'Sta1'
-
-        self.assoc.start()
-
-        while (not self.assoc.is_established and not self.assoc.is_rejected and
-               not self.assoc.is_aborted and not self.assoc.dul._kill_thread):
-            time.sleep(0.05)
-
-        assert self.assoc.is_aborted
-
-        assert self.fsm._transitions == [
-            'Sta4',  # Waiting for connection to complete
-            'Sta5',  # Waiting for A-ASSOC-AC or -RJ PDU
-            'Sta1'  # Idle
-        ]
-        assert self.fsm._changes == [
-            ('Sta1', 'Evt1', 'AE-1'),  # recv A-ASSOC rq primitive
-            ('Sta4', 'Evt2', 'AE-2'),  # connection confirmed
-            ('Sta5', 'Evt16', 'AA-3'),  # A-ABORT PDU recv
         ]
 
         assert self.fsm.current_state == 'Sta1'
@@ -9725,8 +9690,8 @@ class TestStateMachineFunctionalAcceptor(object):
         assoc.acceptor.port = 11112
 
         # Association Requestor object -> local AE
-        assoc.requestor.address = ae.address
-        assoc.requestor.port = ae.port
+        assoc.requestor.address = ''
+        assoc.requestor.port = 11113
         assoc.requestor.ae_title = ae.ae_title
         assoc.requestor.maximum_length = 16382
         assoc.requestor.implementation_class_uid = (

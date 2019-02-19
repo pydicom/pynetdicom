@@ -132,7 +132,7 @@ to see the requirements for the ``evt.EVT_C_STORE`` handler.
             if status:
                 print('C-GET query status: 0x{0:04x}'.format(status.Status))
 
-                # If the status is 'Pending' then identifier is the C-GET response
+                # If the status is 'Pending' then `identifier` is the C-GET response
                 if status.Status in (0xFF00, 0xFF01):
                     print(identifier)
             else:
@@ -185,7 +185,6 @@ to see the requirements for the ``evt.EVT_C_GET`` handler.
     def handle_get(event):
         """Handle a C-GET request event."""
         ds = event.identifier
-
         if 'QueryRetrieveLevel' not in ds:
             # Failure
             yield 0xC000, None
@@ -222,7 +221,7 @@ to see the requirements for the ``evt.EVT_C_GET`` handler.
             yield (0xFF00, instance)
 
     handlers = [(evt.EVT_C_GET), handle_get]
-    
+
     # Create application entity
     ae = AE()
 

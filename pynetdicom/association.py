@@ -118,7 +118,7 @@ class Association(threading.Thread):
 
         The Association starts in State 1 (idle). Association negotiation
         won't begin until an AssociationSocket is assigned using set_socket()
-        and Association.start() is called.
+        and Association.start_server() is called.
 
         Parameters
         ----------
@@ -141,7 +141,7 @@ class Association(threading.Thread):
         self.is_released = False
 
         # Accepted and rejected presentation contexts
-        self._accepted_cx = []
+        self._accepted_cx = {}
         self._rejected_cx = []
 
         # Service providers
@@ -160,14 +160,6 @@ class Association(threading.Thread):
         self._started_dul = False
         # Used to pause the association reactor until the DUL is ready
         self._dul_ready = threading.Event()
-
-        # Event handlers
-        self._handlers = {}
-        self._bind_defaults()
-
-        # Send A-ABORT/A-P-ABORT when an A-ASSOCIATE request is received
-        self._a_abort_assoc_rq = False
-        self._a_p_abort_assoc_rq = False
 
         # Thread setup
         threading.Thread.__init__(self)
@@ -508,20 +500,6 @@ class Association(threading.Thread):
 
             self.requestor.primitive = primitive
             evt.trigger(self, evt.EVT_REQUESTED, {})
-
-            # (Optionally) send an A-ABORT/A-P-ABORT in response
-            if self._a_abort_assoc_rq:
-                self.acse.send_abort(self, 0x00)
-                # Event handler - association aborted
-                evt.trigger(self, evt.EVT_ABORTED, {})
-                self.kill()
-                return
-            elif self._a_p_abort_assoc_rq:
-                self.acse.send_ap_abort(self, 0x00)
-                # Event handler - association aborted
-                evt.trigger(self, evt.EVT_ABORTED, {})
-                self.kill()
-                return
 
             self.acse.negotiate_association(self)
             if self.is_established:
@@ -897,8 +875,10 @@ class Association(threading.Thread):
         """
         # Can't send a C-CANCEL without an Association
         if not self.is_established:
-            raise RuntimeError("The association with a peer SCP must be "
-                               "established before sending a C-CANCEL request.")
+            raise RuntimeError(
+                "The association with a peer SCP must be "
+                "established before sending a C-CANCEL request."
+            )
 
         # Build C-CANCEL primitive
         primitive = C_CANCEL()
