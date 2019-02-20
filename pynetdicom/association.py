@@ -154,6 +154,10 @@ class Association(threading.Thread):
         self.dimse_timeout = self.ae.dimse_timeout
         self.network_timeout = self.ae.network_timeout
 
+        # Event handlers
+        self._handlers = {}
+        self._bind_defaults()
+
         # Kills the thread loop in run()
         self._kill = False
         # Flag for whether or not the DUL thread has been started

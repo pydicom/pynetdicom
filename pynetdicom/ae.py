@@ -442,7 +442,7 @@ class ApplicationEntity(object):
 
     def associate(self, addr, port, contexts=None, ae_title=b'ANY-SCP',
                   max_pdu=DEFAULT_MAX_LENGTH, ext_neg=None,
-                  bind_address=('', 0), tls_args=None):
+                  bind_address=('', 0), tls_args=None, evt_handlers=None):
         """Request an Association with a remote AE.
 
         The Association thread is returned whether or not the association is
@@ -1055,7 +1055,8 @@ class ApplicationEntity(object):
             validate_ae_title(aet) for aet in ae_titles
         ]
 
-    def start_server(self, address, block=True, ssl_context=None):
+    def start_server(self, address, block=True, ssl_context=None,
+                     evt_handlers=None):
         """Start the AE as an association acceptor.
 
         If set to non-blocking then a running ``ThreadedAssociationServer``
