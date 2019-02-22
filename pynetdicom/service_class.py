@@ -109,10 +109,9 @@ class ServiceClass(object):
             A dict containing details about the association.
         """
         msg = (
-            "No service has been implemented for the SOP Class UID '{}'"
+            "No service class has been implemented for the SOP Class UID '{}'"
             .format(context.abstract_syntax)
         )
-        LOGGER.error(msg)
         raise NotImplementedError(msg)
 
     def validate_status(self, status, rsp):

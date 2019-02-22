@@ -556,6 +556,7 @@ class Association(threading.Thread):
                 #   Class UID to determine which service to use
                 # If there's no AffectedSOPClassUID or RequestedSOPClassUID
                 #   then we received a C-CANCEL request
+                class_uid = ''
                 if getattr(msg, 'AffectedSOPClassUID', None) is not None:
                     # DIMSE-C, N-EVENT-REPORT, N-CREATE use AffectedSOPClassUID
                     class_uid = msg.AffectedSOPClassUID
@@ -595,9 +596,9 @@ class Association(threading.Thread):
                     self.dimse.cancel_req = {}
                 except NotImplementedError:
                     # SCP isn't implemented
-                    LOGGER.warning(
-                        "No service class implementation for '{}'"
-                        .format(context.abstract_syntax)
+                    LOGGER.error(
+                        "No supported service class available for the SOP "
+                        "Class UID '{}'".format(class_uid)
                     )
                     self.abort()
                     return

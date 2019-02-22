@@ -1,5 +1,6 @@
 """Unit test coverage for the logging."""
 
+from io import BytesIO
 import logging
 import sys
 
@@ -16,6 +17,15 @@ from pydicom.uid import (
 
 from pynetdicom import build_context, evt, AE, build_role
 from pynetdicom.acse import ACSE, APPLICATION_CONTEXT_NAME
+from pynetdicom.dimse_primitives import C_MOVE, N_EVENT_REPORT, N_GET, N_DELETE
+from pynetdicom._handlers import (
+    doc_handle_echo, doc_handle_find, doc_handle_c_get, doc_handle_move,
+    doc_handle_store, doc_handle_action, doc_handle_create, doc_handle_delete,
+    doc_handle_event_report, doc_handle_n_get, doc_handle_set,
+    doc_handle_async, doc_handle_sop_common, doc_handle_sop_extended,
+    doc_handle_userid, doc_handle_acse, doc_handle_dimse, doc_handle_data,
+    doc_handle_pdu, doc_handle_transport, doc_handle_assoc, doc_handle_fsm
+)
 from pynetdicom.pdu import (
     A_ASSOCIATE_RQ, A_ASSOCIATE_AC,
 )
@@ -35,7 +45,7 @@ from pynetdicom.sop_class import CTImageStorage, VerificationSOPClass
 
 LOGGER = logging.getLogger('pynetdicom')
 LOGGER.setLevel(logging.CRITICAL)
-#LOGGER.setLevel(logging.DEBUG)
+LOGGER.setLevel(logging.DEBUG)
 
 
 REFERENCE_USER_ID = [
@@ -122,6 +132,122 @@ REFERENCE_USER_ID = [
         ],
     )
 ]
+
+
+DOC_HANDLERS = [
+    doc_handle_echo, doc_handle_find, doc_handle_c_get, doc_handle_move,
+    doc_handle_store, doc_handle_action, doc_handle_create, doc_handle_delete,
+    doc_handle_event_report, doc_handle_n_get, doc_handle_set,
+    doc_handle_async, doc_handle_sop_common, doc_handle_sop_extended,
+    doc_handle_userid, doc_handle_acse, doc_handle_dimse, doc_handle_data,
+    doc_handle_pdu, doc_handle_transport, doc_handle_assoc, doc_handle_fsm
+]
+
+
+class TestDocHandlers(object):
+    """Dummy tests to coverage for handler documentation functions."""
+    @pytest.mark.parametrize('handler', DOC_HANDLERS)
+    def test_doc_handlers(self, handler):
+        handler(None)
+
+
+class TestStandardDIMSE(object):
+    def setup(self):
+        """Setup each test."""
+        self.ae = None
+
+    def teardown(self):
+        """Cleanup after each test"""
+        if self.ae:
+            self.ae.shutdown()
+
+    def test_send_n_delete_rsp(self):
+        """Test the handler for N-DELETE rsp"""
+        self.ae = ae = AE()
+        ae.add_supported_context('1.2.840.10008.1.1')
+        ae.add_requested_context('1.2.840.10008.1.1')
+        scp = ae.start_server(('', 11112), block=False)
+
+        assoc = ae.associate('localhost', 11112)
+        assert assoc.is_established
+
+        msg = N_DELETE()
+        msg.MessageIDBeingRespondedTo = 1
+        msg.AffectedSOPClassUID = '1.2.3'
+        msg.AffectedSOPInstanceUID = '1.2.3.4'
+        msg.Status = 0x0000
+
+        assoc.dimse.send_msg(msg, 1)
+
+        assoc.release()
+        scp.shutdown()
+
+    def test_send_n_get_rq_multiple_attr(self):
+        """Test the handler for N-GET rq with multiple Attribute Identifiers"""
+        self.ae = ae = AE()
+        ae.add_supported_context('1.2.840.10008.1.1')
+        ae.add_requested_context('1.2.840.10008.1.1')
+        scp = ae.start_server(('', 11112), block=False)
+
+        assoc = ae.associate('localhost', 11112)
+        assert assoc.is_established
+
+        msg = N_GET()
+        msg.MessageID = 1
+        msg.RequestedSOPClassUID = '1.2.3'
+        msg.RequestedSOPInstanceUID = '1.2.3.4'
+        msg.AttributeIdentifierList = [(0x0000,0x0010), (0x00080010)]
+
+        assoc.dimse.send_msg(msg, 1)
+
+        assoc.release()
+        scp.shutdown()
+
+    def test_send_n_event_report_rsp(self):
+        """Test the handler for N-EVENT-REPORT rsp with Event Type ID."""
+        self.ae = ae = AE()
+        ae.add_supported_context('1.2.840.10008.1.1')
+        ae.add_requested_context('1.2.840.10008.1.1')
+        scp = ae.start_server(('', 11112), block=False)
+
+        assoc = ae.associate('localhost', 11112)
+        assert assoc.is_established
+
+        msg = N_EVENT_REPORT()
+        msg.MessageIDBeingRespondedTo = 1
+        msg.AffectedSOPClassUID = '1.2.3'
+        msg.AffectedSOPInstanceUID = '1.2.3.4'
+        msg.EventTypeID = 1  # US
+        msg.EventReply = BytesIO(b'\x00\x01')  # Dataset
+        msg.Status = 0x0000
+
+        assoc.dimse.send_msg(msg, 1)
+
+        assoc.release()
+        scp.shutdown()
+
+    def test_send_c_move_rsp_no_affected_sop(self):
+        """Test the handler for C-MOVE rsp with no Affected SOP Class UID."""
+        self.ae = ae = AE()
+        ae.add_supported_context('1.2.840.10008.1.1')
+        ae.add_requested_context('1.2.840.10008.1.1')
+        scp = ae.start_server(('', 11112), block=False)
+
+        assoc = ae.associate('localhost', 11112)
+        assert assoc.is_established
+
+        msg = C_MOVE()
+        msg.MessageIDBeingRespondedTo = 1
+        msg.Status = 0x0000
+        msg.NumberOfRemainingSuboperations = 0
+        msg.NumberOfCompletedSuboperations = 0
+        msg.NumberOfFailedSuboperations = 0
+        msg.NumberOfWarningSuboperations = 0
+
+        assoc.dimse.send_msg(msg, 1)
+
+        assoc.release()
+        scp.shutdown()
 
 
 @pytest.mark.skipif(sys.version_info[:2] == (3, 4), reason='no caplog')

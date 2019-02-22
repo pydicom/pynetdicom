@@ -1130,7 +1130,7 @@ def _send_c_move_rsp(event):
         s.append('Affected SOP Class UID        : {0!s}'
                  .format(cs.AffectedSOPClassUID))
     else:
-        s.append('Affected SOP Class UID        : none')
+        s.append('Affected SOP Class UID        : None')
     s.append('Identifier                    : {0!s}'.format(identifier))
     s.append('Status                        : 0x{0:04x}'.format(cs.Status))
     s.append('{:=^76}'.format(' END DIMSE MESSAGE '))
@@ -1174,7 +1174,7 @@ def _recv_c_echo_rq(event):
     s.append('Presentation Context ID       : {0!s}'
              .format(msg.context_id))
     s.append('Message ID                    : {0!s}'.format(cs.MessageID))
-    s.append('Data Set                      : {0!s}'.format('none'))
+    s.append('Data Set                      : None')
     s.append('{:=^76}'.format(' END DIMSE MESSAGE '))
 
     for line in s:
@@ -1279,10 +1279,6 @@ def _recv_c_store_rsp(event):
     msg = event.message
     cs = msg.command_set
 
-    dataset = 'None'
-    if msg.data_set and msg.data_set.getvalue() != b'':
-        dataset = 'Present'
-
     # See PS3.4 Annex B.2.3 for Storage Service Class Statuses
     status_str = '0x{0:04x} - Unknown'.format(cs.Status)
     # Try and get the status from the affected SOP class UID
@@ -1309,7 +1305,6 @@ def _recv_c_store_rsp(event):
     if 'AffectedSOPInstanceUID' in cs:
         s.append('Affected SOP Instance UID     : {0!s}'
                  .format(cs.AffectedSOPInstanceUID))
-    s.append('Data Set                      : {0!s}'.format(dataset))
     s.append('DIMSE Status                  : {0!s}'.format(status_str))
     s.append('{:=^76}'.format(' END DIMSE MESSAGE '))
 
@@ -1650,7 +1645,7 @@ def _send_n_event_report_rsp(event):
             'Event Type ID                 : {!s}'
             .format(cs.EventTypeID)
         )
-    s.append('Event Reply                       : {0!s}'.format(evt_reply))
+    s.append('Event Reply                   : {0!s}'.format(evt_reply))
     s.append('Status                        : 0x{0:04x}'.format(cs.Status))
     s.append('{:=^76}'.format(' END DIMSE MESSAGE '))
     for line in s:
@@ -1671,9 +1666,9 @@ def _send_n_get_rq(event):
     if 'AttributeIdentifierList' in cs:
         nr_attr = len(cs.AttributeIdentifierList)
         if nr_attr == 1:
-            nr_attr = '{} identifier'.format(nr_attr)
+            nr_attr = '{} Attribute Tag'.format(nr_attr)
         else:
-            nr_attr = '{} identifiers'.format(nr_attr)
+            nr_attr = '{} Attribute Tags'.format(nr_attr)
 
     s = []
     s.append('{:=^76}'.format(' OUTGOING DIMSE MESSAGE '))
@@ -1856,7 +1851,7 @@ def _send_n_delete_rsp(event):
 
     s = []
     s.append('{:=^76}'.format(' OUTGOING DIMSE MESSAGE '))
-    s.append('Message Type                  : {0!s}'.format('N-DELETE RQ'))
+    s.append('Message Type                  : {0!s}'.format('N-DELETE RSP'))
     s.append('Message ID Being Responded To : {0!s}'
              .format(cs.MessageIDBeingRespondedTo))
     if 'AffectedSOPClassUID' in cs:
