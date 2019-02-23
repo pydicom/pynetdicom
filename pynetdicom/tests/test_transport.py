@@ -17,7 +17,7 @@ import time
 
 import pytest
 
-from pynetdicom import AE, evt
+from pynetdicom import AE, evt, _config
 from pynetdicom.association import Association
 from pynetdicom.events import Event
 from pynetdicom._globals import MODE_REQUESTOR, MODE_ACCEPTOR
@@ -331,6 +331,8 @@ class TestAssociationServer(object):
 
     def test_get_handlers(self):
         """Test AssociationServer.get_handlers()."""
+        _config.LOG_HANDLER_LEVEL = 'none'
+
         def handle(event):
             pass
 
