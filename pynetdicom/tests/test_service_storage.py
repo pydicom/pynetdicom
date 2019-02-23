@@ -29,7 +29,7 @@ from .dummy_c_scp import (
 
 LOGGER = logging.getLogger('pynetdicom')
 LOGGER.setLevel(logging.CRITICAL)
-LOGGER.setLevel(logging.DEBUG)
+#LOGGER.setLevel(logging.DEBUG)
 
 TEST_DS_DIR = os.path.join(os.path.dirname(__file__), 'dicom_files')
 DATASET = dcmread(os.path.join(TEST_DS_DIR, 'CTImageStorage.dcm'))
@@ -760,3 +760,132 @@ class TestStorageServiceClass(object):
         assert ext['1.2.4'] == b'\x00\x02'
 
         scp.shutdown()
+
+    def test_event_ds_modify(self):
+        """Test modifying event.dataset in-place."""
+        event_out = []
+        def handle(event):
+            meta = Dataset()
+            meta.TransferSyntaxUID = event.context.transfer_syntax
+            event.dataset.file_meta = meta
+
+            event_out.append(event.dataset)
+
+            return 0x0000
+
+        handlers = [(evt.EVT_C_STORE, handle)]
+
+        self.ae = ae = AE()
+        ae.add_supported_context(CTImageStorage)
+        ae.add_requested_context(CTImageStorage)
+        scp = ae.start_server(('', 11112), block=False, evt_handlers=handlers)
+
+        assoc = ae.associate('localhost', 11112)
+        assert assoc.is_established
+        rsp = assoc.send_c_store(DATASET)
+        assert rsp.Status == 0x0000
+        assert not 'ErrorComment' in rsp
+        assoc.release()
+        assert assoc.is_released
+
+        scp.shutdown()
+
+        assert 'TransferSyntaxUID' in event_out[0].file_meta
+
+    def test_event_ds_change(self):
+        """Test that event.dataset is redecoded if request.DataSet changes."""
+
+        def handle(event):
+            assert event._hash is None
+            assert event._decoded is None
+            ds = event.dataset
+            assert event._decoded == ds
+            assert event._hash == hash(event.request.DataSet)
+            event._hash = None
+            ds = event.dataset
+            assert event._hash == hash(event.request.DataSet)
+            assert event._decoded == ds
+
+            return 0x0000
+
+        handlers = [(evt.EVT_C_STORE, handle)]
+
+        self.ae = ae = AE()
+        ae.add_supported_context(CTImageStorage)
+        ae.add_requested_context(CTImageStorage)
+        scp = ae.start_server(('', 11112), block=False, evt_handlers=handlers)
+
+        assoc = ae.associate('localhost', 11112)
+        assert assoc.is_established
+        rsp = assoc.send_c_store(DATASET)
+        assert rsp.Status == 0x0000
+        assert not 'ErrorComment' in rsp
+        assoc.release()
+        assert assoc.is_released
+
+        scp.shutdown()
+
+    def test_event_file_meta(self):
+        """Test basic functioning of event.file_meta"""
+        event_out = []
+        def handle(event):
+            ds = event.dataset
+            ds.file_meta = event.file_meta
+
+            event_out.append(ds)
+
+            return 0x0000
+
+        handlers = [(evt.EVT_C_STORE, handle)]
+
+        self.ae = ae = AE()
+        ae.add_supported_context(CTImageStorage)
+        ts = ae.supported_contexts[0].transfer_syntax[0]
+        ae.add_requested_context(CTImageStorage)
+        scp = ae.start_server(('', 11112), block=False, evt_handlers=handlers)
+
+        assoc = ae.associate('localhost', 11112)
+        assert assoc.is_established
+        rsp = assoc.send_c_store(DATASET)
+        assert rsp.Status == 0x0000
+        assert not 'ErrorComment' in rsp
+        assoc.release()
+        assert assoc.is_released
+
+        scp.shutdown()
+
+        ds = event_out[0]
+        meta = event_out[0].file_meta
+        assert meta.MediaStorageSOPClassUID == CTImageStorage
+        assert meta.MediaStorageSOPInstanceUID == ds.SOPInstanceUID
+        assert meta.TransferSyntaxUID == ts
+
+    def test_event_file_meta_bad(self):
+        """Test event.file_meta when not a C-STORE request."""
+        event_exc = []
+        def handle(event):
+            try:
+                event.file_meta
+            except Exception as exc:
+                event_exc.append(exc)
+
+            return 0x0000
+
+        handlers = [(evt.EVT_C_ECHO, handle)]
+
+        self.ae = ae = AE()
+        ae.add_supported_context(VerificationSOPClass)
+        ae.add_requested_context(VerificationSOPClass)
+        scp = ae.start_server(('', 11112), block=False, evt_handlers=handlers)
+
+        assoc = ae.associate('localhost', 11112)
+        assert assoc.is_established
+        rsp = assoc.send_c_echo()
+        assert rsp.Status == 0x0000
+        assoc.release()
+        assert assoc.is_released
+
+        scp.shutdown()
+
+        exc = event_exc[0]
+        assert isinstance(exc, AttributeError)

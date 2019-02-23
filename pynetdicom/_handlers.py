@@ -2579,6 +2579,10 @@ def doc_handle_store(event):
           C-STORE request's *Data Set* parameter. Because *pydicom* uses
           a deferred read when decoding data, if the decode fails the returned
           ``Dataset`` will only raise an exception at the time of use.
+        * ``file_meta`` : a
+          :py:class:`Dataset <pydicom.dataset.Dataset>` containing DICOM
+          conformant File Meta Information that can be used with the decoded
+          dataset when saving to file: `ds.file_meta = event.file_meta`.
 
     Returns
     -------

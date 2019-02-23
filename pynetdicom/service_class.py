@@ -942,7 +942,7 @@ class QueryRetrieveServiceClass(ServiceClass):
                     }
                 )
             except Exception as exc:
-                LOGGER.error("Exception in handler bound to 'evt.EVT_C_FIND'")
+                LOGGER.error("Exception in handler bound to 'evt.EVT_C_GET'")
                 LOGGER.exception(exc)
                 rsp.Status = 0xC411
                 self.dimse.send_msg(rsp, context.context_id)
@@ -1352,9 +1352,9 @@ class QueryRetrieveServiceClass(ServiceClass):
             for elem in identifier.iterall():
                 LOGGER.info(elem)
             LOGGER.info('')
-        except Exception as ex:
+        except Exception as exc:
             LOGGER.error("Failed to decode the request's Identifier dataset")
-            LOGGER.exception(ex)
+            LOGGER.exception(exc)
             # Failure: Cannot Understand - Dataset decoding error
             rsp.Status = 0xC510
             rsp.ErrorComment = 'Unable to decode the dataset'
@@ -1376,7 +1376,7 @@ class QueryRetrieveServiceClass(ServiceClass):
                 )
             except Exception as exc:
                 LOGGER.error("Exception in handler bound to 'evt.EVT_C_MOVE'")
-                LOGGER.exception(ex)
+                LOGGER.exception(exc)
                 # Failure - Unable to process - Error in on_c_move callback
                 rsp.Status = 0xC511
                 self.dimse.send_msg(rsp, context.context_id)
@@ -1395,9 +1395,9 @@ class QueryRetrieveServiceClass(ServiceClass):
                                            req.MoveDestination,
                                            context.as_tuple,
                                            info)
-            except Exception as ex:
+            except Exception as exc:
                 LOGGER.error("Exception in user's on_c_move implementation.")
-                LOGGER.exception(ex)
+                LOGGER.exception(exc)
                 # Failure - Unable to process - Error in on_c_move callback
                 rsp.Status = 0xC511
                 self.dimse.send_msg(rsp, context.context_id)

@@ -5149,7 +5149,35 @@ class TestEventHandlingRequestor(object):
         assoc.release()
         scp.shutdown()
 
-    def test_unbind_intervention_assoc(self):
+    def test_unbind_notification_none(self):
+        """Test unbinding a handler thats not bound."""
+        def dummy(event):
+            pass
+
+        def dummy2(event):
+            pass
+
+        self.ae = ae = AE()
+        ae.add_supported_context(VerificationSOPClass)
+        ae.add_requested_context(VerificationSOPClass)
+        scp = ae.start_server(('', 11112), block=False)
+
+        assoc = ae.associate('localhost', 11112)
+
+        assert assoc.is_established
+        assert len(scp.active_associations) == 1
+
+        assoc.bind(evt.EVT_DIMSE_SENT, dummy)
+
+        assert assoc.get_handlers(evt.EVT_DIMSE_SENT) == [dummy]
+        assoc.unbind(evt.EVT_DIMSE_SENT, dummy2)
+        assert assoc.get_handlers(evt.EVT_DIMSE_SENT) == [dummy]
+
+        assoc.release()
+
+        scp.shutdown()
+
+    def test_unbind_intervention(self):
         """Test unbinding a user intervention handler."""
         def dummy(event):
             pass

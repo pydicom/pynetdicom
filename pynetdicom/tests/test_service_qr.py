@@ -1284,6 +1284,8 @@ class TestQRFindServiceClass(object):
             attrs['assoc'] = event.assoc
             attrs['request'] = event.request
             attrs['identifier'] = event.identifier
+
+            ds = event.identifier
             yield 0xFF00, self.query
 
         handlers = [(evt.EVT_C_FIND, handle)]
@@ -2930,6 +2932,41 @@ class TestQRGetServiceClass(object):
         assert assoc.is_released
         scp.shutdown()
 
+    def test_get_handler_exception_prior(self):
+        """Test handler raises exception"""
+
+        def handle_store(event):
+            return 0x0000
+
+        def handle_get(event):
+            raise ValueError
+            return 0xFF00, self.query
+
+
+        self.ae = ae = AE()
+        ae.add_supported_context(PatientRootQueryRetrieveInformationModelGet)
+        ae.add_supported_context(CTImageStorage, scu_role=False, scp_role=True)
+        ae.add_requested_context(PatientRootQueryRetrieveInformationModelGet)
+        ae.add_requested_context(CTImageStorage)
+        scp = ae.start_server(('', 11112), block=False,
+                              evt_handlers=[(evt.EVT_C_GET, handle_get)])
+
+        role = build_role(CTImageStorage, scp_role=True)
+        handlers = [(evt.EVT_C_STORE, handle_store)]
+
+        ae.acse_timeout = 5
+        ae.dimse_timeout = 5
+        assoc = ae.associate('localhost', 11112, ext_neg=[role], evt_handlers=handlers)
+        assert assoc.is_established
+        result = assoc.send_c_get(self.query, query_model='P')
+        status, identifier = next(result)
+        assert status.Status == 0xC411
+        assert identifier == Dataset()
+        pytest.raises(StopIteration, next, result)
+        assoc.release()
+        assert assoc.is_released
+        scp.shutdown()
+
     def test_get_handler_exception_before(self):
         """Test SCP handles handler yielding an exception after no subops"""
         def handle(event):
@@ -4155,7 +4192,6 @@ class TestQRGetServiceClass(object):
         assert assoc.is_released
 
         scp.shutdown()
-
 
     def test_contexts(self):
         """Test multiple presentation contexts work OK."""
@@ -5799,11 +5835,44 @@ class TestQRMoveServiceClass(object):
         scp.shutdown()
 
     def test_move_handler_exception_default(self):
-        """Test SCP handles handler yielding an exception before destination"""
+        """Test SCP default handler"""
         def handle_store(event):
             return 0x0000
 
         handlers = [(evt.EVT_C_STORE, handle_store)]
+
+        self.ae = ae = AE()
+        ae.add_supported_context(PatientRootQueryRetrieveInformationModelMove)
+        ae.add_supported_context(CTImageStorage, scu_role=False, scp_role=True)
+        ae.add_requested_context(PatientRootQueryRetrieveInformationModelMove)
+        ae.add_requested_context(CTImageStorage)
+        scp = ae.start_server(('', 11112), block=False, evt_handlers=handlers)
+
+        ae.acse_timeout = 5
+        ae.dimse_timeout = 5
+        assoc = ae.associate('localhost', 11112)
+        assert assoc.is_established
+        result = assoc.send_c_move(self.query, b'TESTMOVE', query_model='P')
+        status, identifier = next(result)
+        assert status.Status == 0xC511
+        assert identifier == Dataset()
+        pytest.raises(StopIteration, next, result)
+        assoc.release()
+        scp.shutdown()
+
+    def test_move_handler_exception_prior(self):
+        """Test SCP handles handler yielding an exception before destination"""
+        def handle_store(event):
+            return 0x0000
+
+        def handle_move(event):
+            raise ValueError
+            return 0x0000, None
+
+        handlers = [
+            (evt.EVT_C_STORE, handle_store),
+            (evt.EVT_C_MOVE, handle_move),
+        ]
 
         self.ae = ae = AE()
         ae.add_supported_context(PatientRootQueryRetrieveInformationModelMove)

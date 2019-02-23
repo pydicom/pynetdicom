@@ -10,7 +10,13 @@ import time
 import pytest
 
 from pynetdicom import AE, evt, _config, Association
-from pynetdicom.events import Event, trigger
+from pynetdicom.events import (
+    Event, trigger, _async_ops_handler, _sop_common_handler,
+    _sop_extended_handler, _user_identity_handler, _c_echo_handler,
+    _c_get_handler, _c_find_handler, _c_move_handler, _c_store_handler,
+    _n_action_handler, _n_create_handler, _n_delete_handler,
+    _n_event_report_handler, _n_get_handler, _n_set_handler
+)
 from pynetdicom.sop_class import VerificationSOPClass
 
 LOGGER = logging.getLogger('pynetdicom')
@@ -146,3 +152,22 @@ class TestEvent(object):
         msg = r"'Event' object already has an attribute 'assoc'"
         with pytest.raises(AttributeError, match=msg):
             event = evt.Event(None, evt.EVT_C_STORE, {'assoc' : None})
+
+
+# TODO: Should be able to remove in v1.4
+INTERVENTION_HANDLERS = [
+    _async_ops_handler, _sop_common_handler,
+    _sop_extended_handler, _user_identity_handler, _c_echo_handler,
+    _c_get_handler, _c_find_handler, _c_move_handler, _c_store_handler,
+    _n_action_handler, _n_create_handler, _n_delete_handler,
+    _n_event_report_handler, _n_get_handler, _n_set_handler
+]
+
+@pytest.mark.parametrize('handler', INTERVENTION_HANDLERS)
+def test_default_handlers(handler):
+    if handler not in [_sop_common_handler, _sop_extended_handler,
+                       _c_echo_handler]:
+        with pytest.raises(NotImplementedError):
+            handler(None)
+    else:
+        handler(None)

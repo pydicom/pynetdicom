@@ -8,6 +8,8 @@ import inspect
 import logging
 import sys
 
+from pydicom.dataset import Dataset
+
 from pynetdicom.dsutils import decode
 
 
@@ -215,7 +217,7 @@ class Event(object):
         Because *pydicom* defers data parsing during decoding until an element
         is actually required the returned ``Dataset`` may raise an exception
         when any element is first accessed. It's therefore important that
-        proper error handling be part of any handler 
+        proper error handling be part of any handler
         that uses the returned ``Dataset``.
 
         Returns
@@ -255,6 +257,74 @@ class Event(object):
     def description(self):
         """Return a description of the event as a str."""
         return self._event.description
+
+    @property
+    def file_meta(self):
+        """Return a *pydicom* Dataset with the File Meta Information for a
+        C-STORE request's `Data Set`.
+
+        Contains the following File Meta Information elements:
+
+        * (0002,0002) MediaStorageSOPClassUID, UI
+        * (0002,0003) MediaStorageSOPInstanceUID, UI
+        * (0002,0010) TransferSyntaxUID, UI
+        * (0002,0012) ImplementationClassUID, UI
+        * (0002,0013) ImplementationVersionName, SH
+
+        Examples
+        --------
+
+        Add the File Meta Information to the decoded *Data Set* and save it to
+        the DICOM File Format.
+
+        >>> ds = event.dataset
+        >>> ds.file_meta = event.file_meta
+        >>> ds.save_as('example.dcm')
+
+        Write the C-STORE request's encoded *Data Set* directly to the DICOM
+        File Format without decoding it.
+
+        >>> from io import BytesIO
+        >>> bytestream = BytesIO()
+        >>> meta = event.file_meta
+        >>> meta.save_as(bytestream)
+        >>> fp.write(event.request.DataSet)
+        >>> with open('example.dcm', 'wb') as fp:
+        >>>     fp.write(bytestream.getvalue())
+
+        Returns
+        -------
+        pydicom.dataset.Dataset
+            The File Meta Information suitable for use with the decoded C-STORE
+            request's *Data Set*.
+
+        Raises
+        ------
+        AttributeError
+            If the corresponding event is not a C-STORE request.
+        """
+        if not hasattr(self.request, 'DataSet'):
+            raise AttributeError(
+                "The corresponding event is not a C-STORE request"
+            )
+
+        from pynetdicom import PYNETDICOM_IMPLEMENTATION_UID
+        from pynetdicom import PYNETDICOM_IMPLEMENTATION_VERSION
+
+        # A C-STORE request must have AffectedSOPClassUID and
+        #   AffectedSOPInstanceUID
+        meta = Dataset()
+        meta.MediaStorageSOPClassUID = self.request.AffectedSOPClassUID
+        meta.MediaStorageSOPInstanceUID = self.request.AffectedSOPInstanceUID
+        meta.TransferSyntaxUID = self.context.transfer_syntax
+        meta.ImplementationClassUID = PYNETDICOM_IMPLEMENTATION_UID
+        meta.ImplementationVersionName = PYNETDICOM_IMPLEMENTATION_VERSION
+
+        # File Meta Information is always encoded as Explicit VR Little Endian
+        meta.is_little_endian = True
+        meta.is_implicit_VR = False
+
+        return meta
 
     @property
     def identifier(self):
