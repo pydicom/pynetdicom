@@ -3928,6 +3928,87 @@ class TestEventHandlingAcceptor(object):
         assoc.release()
         scp.shutdown()
 
+    def test_no_handlers_unbind(self):
+        """Test unbinding a handler that's not bound."""
+        _config.LOG_HANDLER_LEVEL = 'standard'
+
+        def dummy(event):
+            pass
+
+        self.ae = ae = AE()
+        ae.add_supported_context(VerificationSOPClass)
+        ae.add_requested_context(VerificationSOPClass)
+        scp = ae.start_server(('', 11112), block=False)
+
+        assert dummy not in scp._handlers[evt.EVT_DIMSE_SENT]
+        scp.unbind(evt.EVT_DIMSE_SENT, dummy)
+        assert dummy not in scp._handlers[evt.EVT_DIMSE_SENT]
+
+        assoc = ae.associate('localhost', 11112)
+
+        assert assoc.is_established
+        assert len(scp.active_associations) == 1
+
+        assert dummy not in assoc._handlers[evt.EVT_DIMSE_SENT]
+        assoc.unbind(evt.EVT_DIMSE_SENT, dummy)
+        assert dummy not in assoc._handlers[evt.EVT_DIMSE_SENT]
+
+
+        child = scp.active_associations[0]
+        assert dummy not in child._handlers[evt.EVT_DIMSE_SENT]
+        child.unbind(evt.EVT_DIMSE_SENT, dummy)
+        assert dummy not in child._handlers[evt.EVT_DIMSE_SENT]
+
+        assoc.release()
+        scp.shutdown()
+
+    def test_unbind_intervention(self):
+        """Test unbinding a user intervention handler."""
+        def dummy(event):
+            pass
+
+        self.ae = ae = AE()
+        ae.add_supported_context(VerificationSOPClass)
+        ae.add_requested_context(VerificationSOPClass)
+        scp = ae.start_server(('', 11112), block=False)
+        scp.bind(evt.EVT_C_ECHO, dummy)
+        assert scp.get_handlers(evt.EVT_C_ECHO) == dummy
+        scp.unbind(evt.EVT_C_ECHO, dummy)
+        assert scp.get_handlers(evt.EVT_C_ECHO) != dummy
+        assert scp.get_handlers(evt.EVT_C_ECHO) == evt._c_echo_handler
+
+        scp.shutdown()
+
+    def test_unbind_intervention_assoc(self):
+        """Test unbinding a user intervention handler."""
+        def dummy(event):
+            pass
+
+        self.ae = ae = AE()
+        ae.add_supported_context(VerificationSOPClass)
+        ae.add_requested_context(VerificationSOPClass)
+        scp = ae.start_server(('', 11112), block=False)
+        scp.bind(evt.EVT_C_ECHO, dummy)
+        assert scp.get_handlers(evt.EVT_C_ECHO) == dummy
+
+        assoc = ae.associate('localhost', 11112)
+
+        assert assoc.is_established
+        assert len(scp.active_associations) == 1
+
+        child = scp.active_associations[0]
+        assert child.get_handlers(evt.EVT_C_ECHO) == dummy
+
+        scp.unbind(evt.EVT_C_ECHO, dummy)
+        assert scp.get_handlers(evt.EVT_C_ECHO) != dummy
+        assert scp.get_handlers(evt.EVT_C_ECHO) == evt._c_echo_handler
+        assert child.get_handlers(evt.EVT_C_ECHO) != dummy
+        assert child.get_handlers(evt.EVT_C_ECHO) == evt._c_echo_handler
+
+        assoc.release()
+
+        scp.shutdown()
+
     def test_abort(self):
         """Test starting with handler bound to EVT_ABORTED."""
         triggered = []
@@ -5066,6 +5147,31 @@ class TestEventHandlingRequestor(object):
         assert child.get_handlers(evt.EVT_REQUESTED) == []
 
         assoc.release()
+        scp.shutdown()
+
+    def test_unbind_intervention_assoc(self):
+        """Test unbinding a user intervention handler."""
+        def dummy(event):
+            pass
+
+        self.ae = ae = AE()
+        ae.add_supported_context(VerificationSOPClass)
+        ae.add_requested_context(VerificationSOPClass)
+        scp = ae.start_server(('', 11112), block=False)
+
+        assoc = ae.associate('localhost', 11112)
+
+        assert assoc.is_established
+        assert len(scp.active_associations) == 1
+
+        assoc.bind(evt.EVT_C_ECHO, dummy)
+        assert assoc.get_handlers(evt.EVT_C_ECHO) == dummy
+        assoc.unbind(evt.EVT_C_ECHO, dummy)
+        assert assoc.get_handlers(evt.EVT_C_ECHO) != dummy
+        assert assoc.get_handlers(evt.EVT_C_ECHO) == evt._c_echo_handler
+
+        assoc.release()
+
         scp.shutdown()
 
     def test_abort(self):

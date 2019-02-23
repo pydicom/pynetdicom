@@ -595,7 +595,8 @@ class TestEventHandlingAcceptor(object):
         """Test associations as acceptor with EVT_CONN_CLOSE bound."""
         triggered_events = []
         def on_conn_close(event):
-            triggered_events.append(event)
+            with threading.Lock():
+                triggered_events.append(event)
 
         self.ae = ae = AE()
         ae.add_supported_context(VerificationSOPClass)

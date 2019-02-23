@@ -12,8 +12,12 @@ except ImportError:
 import ssl
 from struct import pack
 
-from pynetdicom import evt
+from pynetdicom import evt, _config
 from pynetdicom._globals import MODE_ACCEPTOR
+from pynetdicom._handlers import (
+    standard_dimse_recv_handler, standard_dimse_sent_handler,
+    standard_pdu_recv_handler, standard_pdu_sent_handler,
+)
 
 
 LOGGER = logging.getLogger('pynetdicom.transport')
@@ -504,6 +508,13 @@ class AssociationServer(TCPServer):
         for event in evt._INTERVENTION_EVENTS:
             handler = evt.get_default_handler(event)
             self.bind(event, handler)
+
+        # Notification event handlers
+        if _config.LOG_HANDLER_LEVEL == 'standard':
+            self.bind(evt.EVT_DIMSE_RECV, standard_dimse_recv_handler)
+            self.bind(evt.EVT_DIMSE_SENT, standard_dimse_sent_handler)
+            self.bind(evt.EVT_PDU_RECV, standard_pdu_recv_handler)
+            self.bind(evt.EVT_PDU_SENT, standard_pdu_sent_handler)
 
     @property
     def active_associations(self):

@@ -4116,6 +4116,47 @@ class TestQRGetServiceClass(object):
 
         scp.shutdown()
 
+    def test_store_handler_bad(self):
+        """Test C-STORE handler event's assoc attribute"""
+        attrs = {}
+        def handle(event):
+            yield 1
+            yield 0xFF00, self.ds
+
+        def handle_store(event):
+            raise ValueError
+
+        handlers = [(evt.EVT_C_GET, handle)]
+
+        self.ae = ae = AE()
+        ae.add_supported_context(PatientRootQueryRetrieveInformationModelGet)
+        ae.add_supported_context(CTImageStorage, scu_role=False, scp_role=True)
+        ae.add_requested_context(PatientRootQueryRetrieveInformationModelGet)
+        ae.add_requested_context(CTImageStorage)
+        scp = ae.start_server(('', 11112), block=False, evt_handlers=handlers)
+
+        role = build_role(CTImageStorage, scp_role=True)
+        handlers = [(evt.EVT_C_STORE, handle_store)]
+
+        ae.acse_timeout = 5
+        ae.dimse_timeout = 5
+        assoc = ae.associate('localhost', 11112, ext_neg=[role], evt_handlers=handlers)
+        assert assoc.is_established
+        result = assoc.send_c_get(self.query, query_model='P')
+        status, identifier = next(result)
+        assert status.Status == 0xFF00
+        assert identifier is None
+        status, identifier = next(result)
+        assert status.Status == 0xB000
+        assert identifier.FailedSOPInstanceUIDList == '1.1.1'
+        pytest.raises(StopIteration, next, result)
+
+        assoc.release()
+        assert assoc.is_released
+
+        scp.shutdown()
+
+
     def test_contexts(self):
         """Test multiple presentation contexts work OK."""
         def handle(event):

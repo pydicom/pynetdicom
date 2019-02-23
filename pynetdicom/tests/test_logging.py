@@ -45,7 +45,7 @@ from pynetdicom.sop_class import CTImageStorage, VerificationSOPClass
 
 LOGGER = logging.getLogger('pynetdicom')
 LOGGER.setLevel(logging.CRITICAL)
-LOGGER.setLevel(logging.DEBUG)
+#LOGGER.setLevel(logging.DEBUG)
 
 
 REFERENCE_USER_ID = [

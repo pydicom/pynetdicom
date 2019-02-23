@@ -44,6 +44,28 @@ DATASET = read_file(os.path.join(TEST_DS_DIR, 'RTImageStorage.dcm'))
 COMP_DATASET = read_file(os.path.join(TEST_DS_DIR, 'MRImageStorage_JPG2000_Lossless.dcm'))
 
 
+def test_blocking_handler():
+    ae = AE()
+    ae.add_supported_context('1.2.840.10008.1.1')
+
+    def handle_echo(event):
+        return 0x0000
+
+    handlers = [(evt.EVT_C_ECHO, handle_echo)]
+
+    thread = threading.Thread(
+        target=ae.start_server,
+        args=(('', 11112), ),
+        kwargs={'evt_handlers' : handlers}
+    )
+    thread.daemon = True
+    thread.start()
+
+    time.sleep(0.1)
+
+    ae.shutdown()
+
+
 class TestAEVerificationSCP(object):
     """Check verification SCP"""
     def setup(self):
