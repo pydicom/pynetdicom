@@ -11,6 +11,8 @@ Fixes
   now handled properly.
 * ``fsm.AA_4`` and ``fsm.AA_8`` now send A-P-ABORT to the service user rather
   than an A-ABORT
+* Fixed rejected contexts not being included in the Presentation Context
+  Definition Results List when acting as the association Acceptor.
 
 
 Enhancements

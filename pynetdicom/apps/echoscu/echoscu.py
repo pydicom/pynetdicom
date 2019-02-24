@@ -17,7 +17,7 @@ from pydicom.uid import (
 )
 
 from pynetdicom import AE
-from pynetdicom.sop_class import VerificationSOPClass, CTImageStorage
+from pynetdicom.sop_class import VerificationSOPClass
 
 
 def setup_logger():
@@ -188,7 +188,6 @@ LOGGER.debug('')
 ae = AE(ae_title=args.calling_aet)
 
 ae.add_requested_context(VerificationSOPClass, transfer_syntax)
-ae.add_requested_context(CTImageStorage, transfer_syntax)
 
 # Set timeouts
 ae.network_timeout = args.timeout

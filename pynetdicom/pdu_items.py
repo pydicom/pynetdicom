@@ -945,8 +945,8 @@ class PresentationContextItemAC(PDUItem):
             0 : 'Accepted',
             1 : 'User Rejection',
             2 : 'Provider Rejection',
-            3 : 'Abstract Syntax Not Supported',
-            4 : 'Transfer Syntax Not Supported'
+            3 : 'Rejected - Abstract Syntax Not Supported',
+            4 : 'Rejected - Transfer Syntax Not Supported'
         }
         return _result[self.result_reason]
 
