@@ -674,7 +674,7 @@ class ACSE(object):
         primitive.result_source = 0x01
 
         primitive.presentation_context_definition_results_list = (
-            assoc.accepted_contexts
+            assoc.accepted_contexts + assoc.rejected_contexts
         )
 
         ## User Information - PS3.7 Annex D.3.3

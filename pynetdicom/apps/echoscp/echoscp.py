@@ -206,7 +206,4 @@ ae.network_timeout = args.timeout
 ae.acse_timeout = args.acse_timeout
 ae.dimse_timeout = args.dimse_timeout
 
-# Set callback
-ae.on_c_echo = on_c_echo
-
 ae.start_server(('', args.port), evt_handlers=handlers)

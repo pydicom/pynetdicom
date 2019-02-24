@@ -35,7 +35,7 @@ from pynetdicom.pdu_primitives import (
     SCP_SCU_RoleSelectionNegotiation,
 )
 from pynetdicom.pdu import P_DATA_TF
-from pynetdicom.sop_class import VerificationSOPClass
+from pynetdicom.sop_class import VerificationSOPClass, CTImageStorage
 
 from .dummy_c_scp import DummyVerificationSCP, DummyBaseSCP
 from .encoded_pdu_items import (
@@ -336,7 +336,32 @@ class TestNegotiationRequestor(object):
 class TestNegotiationAcceptor(object):
     """Test ACSE negotiation as acceptor."""
     def setup(self):
-        pass
+        self.ae = None
+
+    def teardown(self):
+        if self.ae:
+            self.ae.shutdown()
+
+    def test_response_has_rejected(self):
+        """Test that the A-ASSOCIATE-AC contains rejected contexts."""
+        self.ae = ae = AE()
+        ae.add_requested_context(VerificationSOPClass)
+        ae.add_requested_context(CTImageStorage)
+        ae.add_supported_context(VerificationSOPClass)
+        scp = ae.start_server(('', 11112), block=False)
+
+        assoc = ae.associate('', 11112)
+        assert assoc.is_established
+
+        pcdrl = assoc.acceptor.get_contexts('pcdrl')
+        cxs = {cx.context_id:cx for cx in pcdrl}
+        assert 3 in cxs
+
+        assoc.release()
+        assert assoc.is_released
+
+        scp.shutdown()
+
 
 
 REFERENCE_REJECT_GOOD = [
