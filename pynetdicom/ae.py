@@ -483,8 +483,8 @@ class ApplicationEntity(object):
             tuple and `handler` is a callable function that will be bound to
             the event. The handler should take a single ``event.Event``
             parameter and may return or yield objects depending on the exact
-            event that the handler is bound to. TODO: Add link to Event
-            documentation.
+            event that the handler is bound to. For more information see the
+            :ref:`documentation<user_events>`.
 
         Returns
         -------
@@ -1079,8 +1079,8 @@ class ApplicationEntity(object):
             tuple and `handler` is a callable function that will be bound to
             the event. The handler should take a single ``event.Event``
             parameter and may return or yield objects depending on the exact
-            event that the handler is bound to. TODO: Add link to Event
-            documentation.
+            event that the handler is bound to. For more information see the
+            :ref:`documentation<user_events>`.
 
         Returns
         -------
