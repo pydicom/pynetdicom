@@ -237,7 +237,6 @@ def handle_store(event):
 
     try:
         # Get the elements we need
-        sop_class = ds.SOPClassUID
         mode_prefix = mode_prefixes[sop_class.name]
     except KeyError:
         mode_prefix = 'UN'
