@@ -109,7 +109,7 @@ been accepted):
 | N-DELETE       | ``send_n_delete(class_uid, instance_uid)``               |
 +----------------+----------------------------------------------------------+
 | N-EVENT-REPORT | ``send_n_event_report(dataset, event_type,               |
-|                |  class_uid, instance_uid)``                              |
+|                | class_uid, instance_uid)``                               |
 +----------------+----------------------------------------------------------+
 | N-GET          | ``send_n_get(identifier_list, class_uid, instance_uid)`` |
 +----------------+----------------------------------------------------------+
@@ -148,14 +148,13 @@ available to the peer once an association has been established:
 | N-GET         | ``evt.EVT_N_GET``   |
 +---------------+---------------------+
 
-With the exception of the C-ECHO service, a user-defined handler must be bound
+With the exception of the C-ECHO service, a user-defined *handler* must be bound
 to the corresponding
 `intervention event <https://pydicom.github.io/pynetdicom/dev/user/events#intervention-events>`_
 in order to complete a DIMSE service request. Events
 can be imported with ``from pynetdicom import evt`` and a handler can be
 bound to an event prior to starting an association through the *evt_handlers*
-keyword parameters in ``AE.start_server()`` and ``AE.associate()`` with a
-list of ``(event, handler)`` tuples.
+keyword parameters in ``AE.start_server()`` and ``AE.associate()``.
 
 When an event occurs the *handler* function is called and passed a single
 parameter, *event*, which is an ``evt.Event`` object whose specific attributes
@@ -163,7 +162,7 @@ are dependent on the type of event that occurred. Handlers bound to
 intervention events must  return or yield certain values. See the
 `handler documentation <https://pydicom.github.io/pynetdicom/dev/reference/events>`_
 for information on what attributes and properties are available in ``Event``
-for each event type and what the expected returns/yields are for their
+for each event type and the expected returns/yields for the
 corresponding handlers.
 
 
