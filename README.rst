@@ -89,7 +89,7 @@ been accepted):
 
 
 +----------------+----------------------------------------------------------+
-| DIMSE service  | ``Association`` method                                       |
+| DIMSE service  | ``Association`` method                                   |
 +================+==========================================================+
 | C-ECHO         | ``send_c_echo()``                                        |
 +----------------+----------------------------------------------------------+
@@ -122,7 +122,7 @@ object, *identifier_list* is a list of pydicom
 `Tag <https://pydicom.github.io/pydicom/stable/api_ref.html#pydicom.tag.Tag>`_
 objects, *event_type* and *action_type* are ints and *class_uid* and
 *instance_uid* are UID strings. See the
-`Association documentation<https://pydicom.github.io/pynetdicom/stable/reference/generated/pynetdicom.association.Association.html>`_
+`Association documentation <https://pydicom.github.io/pynetdicom/stable/reference/generated/pynetdicom.association.Association.html>`_
 for more information.
 
 
@@ -150,7 +150,7 @@ available to the peer once an association has been established:
 
 With the exception of the C-ECHO service, a user-defined handler must be bound
 to the corresponding
-`intervention event<https://pydicom.github.io/pynetdicom/stable/user/events#intervention-events>`_
+`intervention event <https://pydicom.github.io/pynetdicom/dev/user/events#intervention-events>`_
 in order to complete a DIMSE service request. Events
 can be imported with ``from pynetdicom import evt`` and a handler can be
 bound to an event prior to starting an association through the *evt_handlers*
@@ -161,7 +161,7 @@ When an event occurs the *handler* function is called and passed a single
 parameter, *event*, which is an ``evt.Event`` object whose specific attributes
 are dependent on the type of event that occurred. Handlers bound to
 intervention events must  return or yield certain values. See the
-`handler documentation <https://pydicom.github.io/pynetdicom/stable/reference/events>`_
+`handler documentation <https://pydicom.github.io/pynetdicom/dev/reference/events>`_
 for information on what attributes and properties are available in ``Event``
 for each event type and what the expected returns/yields are for their
 corresponding handlers.
@@ -266,7 +266,7 @@ number and the timestamp for the event.
         ae = AE(ae_title=b'MY_ECHO_SCP')
         ae.supported_contexts = VerificationPresentationContexts
 
-        # Create out EVT_C_ECHO handler
+        # Implement the EVT_C_ECHO handler
         def handle_echo(event):
             """Handle a C-ECHO service request.
 

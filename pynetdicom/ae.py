@@ -1126,10 +1126,9 @@ class ApplicationEntity(object):
         else:
             # Non-blocking server
             timestamp = datetime.strftime(datetime.now(), "%Y%m%d%H%M%S")
-            server = ThreadedAssociationServer(self, address, ssl_context)
-            # Bind events to the handlers
-            for (event, handler) in evt_handlers:
-                server.bind(event, handler)
+            server = ThreadedAssociationServer(
+                self, address, ssl_context, evt_handlers=evt_handlers
+            )
 
             thread = threading.Thread(
                 target=server.serve_forever,

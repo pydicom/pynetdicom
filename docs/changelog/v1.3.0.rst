@@ -21,9 +21,9 @@ Enhancements
 * Added event-handler system as a replacement for the callback
   system
 
-  * Added events.py module with the defined events, Event class and
+  * Added `events.py` module with the defined events, `Event` class and
     event-related support functions.
-  * Added _handlers.py module with standard logging handlers
+  * Added `_handlers.py` module with standard logging handlers
   * Added ``bind()``, ``unbind()``, ``get_handlers()`` and ``get_events()``
     to ``Association`` and ``AssociationServer`` classes.
   * Add ``assoc`` properties to ``DIMSEServiceProvider`` and ``ACSE`` classes
