@@ -524,6 +524,7 @@ class TestPrimitiveConstruction(object):
         # So we have the request available
         acse.send_request(self.assoc)
         self.assoc.accepted_contexts = [build_context('1.2.840.10008.1.1')]
+        self.assoc.rejected_contexts = []
         acse.send_accept(self.assoc)
 
         self.assoc.dul.queue.get()  # The request

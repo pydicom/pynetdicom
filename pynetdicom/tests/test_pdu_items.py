@@ -581,8 +581,8 @@ class TestPresentationContextAC(object):
             0 : 'Accepted',
             1 : 'User Rejection',
             2 : 'Provider Rejection',
-            3 : 'Abstract Syntax Not Supported',
-            4 : 'Transfer Syntax Not Supported'
+            3 : 'Rejected - Abstract Syntax Not Supported',
+            4 : 'Rejected - Transfer Syntax Not Supported'
         }
 
         for result in [0, 1, 2, 3, 4]:

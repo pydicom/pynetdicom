@@ -247,6 +247,13 @@ def AE_4(dul):
     # connection
     dul.to_user_queue.put(dul.primitive)
     dul.socket.close()
+
+    assoc = dul.assoc
+    remote = assoc.acceptor if assoc.is_requestor else assoc.requestor
+
+    address = (remote.address, remote.port)
+    evt.trigger(dul.assoc, evt.EVT_CONN_CLOSE, {'address' : address})
+
     dul.kill_dul()
 
     return 'Sta1'
@@ -548,6 +555,13 @@ def AR_3(dul):
     # Issue A-RELEASE confirmation primitive and close transport connection
     dul.to_user_queue.put(dul.primitive)
     dul.socket.close()
+
+    assoc = dul.assoc
+    remote = assoc.acceptor if assoc.is_requestor else assoc.requestor
+
+    address = (remote.address, remote.port)
+    evt.trigger(dul.assoc, evt.EVT_CONN_CLOSE, {'address' : address})
+
     dul.kill_dul()
 
     return 'Sta1'
@@ -607,10 +621,8 @@ def AR_5(dul):
     str
         Sta1, the next state of the state machine
     """
-    if dul.assoc.is_requestor:
-        remote = dul.assoc.acceptor
-    else:
-        remote = dul.assoc.requestor
+    assoc = dul.assoc
+    remote = assoc.acceptor if assoc.is_requestor else assoc.requestor
 
     address = (remote.address, remote.port)
     evt.trigger(dul.assoc, evt.EVT_CONN_CLOSE, {'address' : address})
@@ -834,6 +846,13 @@ def AA_2(dul):
     # Stop ARTIM timer if running. Close transport connection.
     dul.artim_timer.stop()
     dul.socket.close()
+
+    assoc = dul.assoc
+    remote = assoc.acceptor if assoc.is_requestor else assoc.requestor
+
+    address = (remote.address, remote.port)
+    evt.trigger(dul.assoc, evt.EVT_CONN_CLOSE, {'address' : address})
+
     dul.kill_dul()
 
     return 'Sta1'
@@ -869,6 +888,13 @@ def AA_3(dul):
     # This action is triggered by the reception of an A-ABORT PDU
     dul.to_user_queue.put(dul.primitive)
     dul.socket.close()
+
+    assoc = dul.assoc
+    remote = assoc.acceptor if assoc.is_requestor else assoc.requestor
+
+    address = (remote.address, remote.port)
+    evt.trigger(dul.assoc, evt.EVT_CONN_CLOSE, {'address' : address})
+
     dul.kill_dul()
 
     return 'Sta1'
@@ -896,10 +922,8 @@ def AA_4(dul):
     str
         Sta1, the next state of the state machine
     """
-    if dul.assoc.is_requestor:
-        remote = dul.assoc.acceptor
-    else:
-        remote = dul.assoc.requestor
+    assoc = dul.assoc
+    remote = assoc.acceptor if assoc.is_requestor else assoc.requestor
 
     address = (remote.address, remote.port)
     evt.trigger(dul.assoc, evt.EVT_CONN_CLOSE, {'address' : address})
