@@ -104,15 +104,6 @@ class AssociationSocket(object):
             pass
 
         self.socket.close()
-        # Event handler - connection closed
-        if self.assoc.is_requestor:
-            remote = self.assoc.acceptor
-        else:
-            remote = self.assoc.requestor
-
-        address = (remote.address, remote.port)
-        evt.trigger(self.assoc, evt.EVT_CONN_CLOSE, {'address' : address})
-
         self.socket = None
         self._is_connected = False
         # Evt17: Transport connection closed

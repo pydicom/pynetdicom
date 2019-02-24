@@ -754,6 +754,9 @@ class TestEventHandlingAcceptor(object):
         assert child.get_handlers(evt.EVT_CONN_CLOSE) == [on_conn_close]
 
         assoc.release()
+        assert assoc.is_released
+
+        time.sleep(0.1)
 
         assert len(triggered_events) == 1
         event = triggered_events[0]
