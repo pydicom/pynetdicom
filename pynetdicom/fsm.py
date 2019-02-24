@@ -935,10 +935,8 @@ def AA_5(dul):
     str
         Sta1, the next state of the state machine
     """
-    if dul.assoc.is_requestor:
-        remote = dul.assoc.acceptor
-    else:
-        remote = dul.assoc.requestor
+    assoc = dul.assoc
+    remote = assoc.acceptor if assoc.is_requestor else assoc.requestor
 
     address = (remote.address, remote.port)
     evt.trigger(dul.assoc, evt.EVT_CONN_CLOSE, {'address' : address})
