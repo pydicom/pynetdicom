@@ -5,9 +5,9 @@ coverage:
     project:
       default:
         # Commits pushed to master should not make the overall
-        # project coverage decrease by more than 1%:
+        # project coverage decrease by more than 0.1%:
         target: auto
-        threshold: 1%
+        threshold: 0.1%
     patch:
       default:
         # Be tolerant on slight code coverage diff on PRs to limit
@@ -18,7 +18,7 @@ coverage:
         # extension:
         # https://github.com/codecov/browser-extension
         target: auto
-        threshold: 1%
+        threshold: 0.1%
 ignore:
   - "pynetdicom/tests"
   - "pynetdicom/apps"

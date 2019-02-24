@@ -11,6 +11,7 @@ except ImportError:
     from socketserver import TCPServer, ThreadingMixIn, BaseRequestHandler
 import ssl
 from struct import pack
+import threading
 
 from pynetdicom import evt, _config
 from pynetdicom._globals import MODE_ACCEPTOR
@@ -434,7 +435,7 @@ class AssociationServer(TCPServer):
         The ``SSLContext`` used to wrap client sockets, or ``None`` if no TLS
         is required (default).
     """
-    def __init__(self, ae, address, ssl_context=None, events=None):
+    def __init__(self, ae, address, ssl_context=None, evt_handlers=None):
         """Create a new AssociationServer, bind a socket and start listening.
 
         Parameters
@@ -447,7 +448,7 @@ class AssociationServer(TCPServer):
             If TLS is to be used then this should be the ``ssl.SSLContext``
             used to wrap the client sockets, otherwise if ``None`` then no
             TLS will beused (default).
-        events : list of 2-tuple, optional
+        evt_handlers : list of 2-tuple, optional
             A list of ``(event, callable)``, the *callable* function to run
             when *event* occurs.
         """
@@ -469,7 +470,7 @@ class AssociationServer(TCPServer):
         self._bind_defaults()
 
         # Bind the functions to their events
-        for (event, handler) in (events or []):
+        for (event, handler) in (evt_handlers or {}):
             self.bind(event, handler)
 
     def bind(self, event, handler):
@@ -633,20 +634,22 @@ class AssociationServer(TCPServer):
         if event not in self._handlers:
             return
 
-        # Notification events
-        if event.is_notification and handler in self._handlers[event]:
-            self._handlers[event].remove(handler)
+        # Make sure no access to `_handlers` while its being changed
+        with threading.Lock():
+            # Notification events
+            if event.is_notification and handler in self._handlers[event]:
+                self._handlers[event].remove(handler)
 
-        # Intervention events - unbind and replace with default
-        if event.is_intervention and self._handlers[event] == handler:
-            self._handlers[event] = evt.get_default_handler(event)
+                if not self._handlers[event]:
+                    del self._handlers[event]
 
-            if not self._handlers[event]:
-                del self._handlers[event]
+            # Intervention events - unbind and replace with default
+            if event.is_intervention and self._handlers[event] == handler:
+                self._handlers[event] = evt.get_default_handler(event)
 
-        # Unbind from our child Association events
-        for assoc in self.active_associations:
-            assoc.unbind(event, handler)
+            # Unbind from our child Association events
+            for assoc in self.active_associations:
+                assoc.unbind(event, handler)
 
 
 class ThreadedAssociationServer(ThreadingMixIn, AssociationServer):

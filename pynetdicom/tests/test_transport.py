@@ -364,6 +364,41 @@ class TestAssociationServer(object):
 
         scp.shutdown()
 
+    def test_shutdown(self):
+        """test tring to shutdown a socket that's already closed."""
+        self.ae = ae = AE()
+        ae.add_supported_context('1.2.840.10008.1.1')
+        server = ae.start_server(('', 11112), block=False)
+        server.socket.close()
+        server.shutdown()
+
+    def test_exception_in_handler(self):
+        """Test exc raised by the handler doesn't shut down the server."""
+        class DummyAE(object):
+            network_timeout = 5
+            _servers = []
+
+        dummy = DummyAE()
+        server = ThreadedAssociationServer(dummy, ('', 11112))
+        dummy._servers.append(server)
+        thread = threading.Thread(target=server.serve_forever)
+        thread.daemon = True
+        thread.start()
+
+        ae = AE()
+        ae.add_requested_context('1.2.840.10008.1.1')
+        assoc = ae.associate('', 11112)
+
+        assert server.socket.fileno() != -1
+
+        server.shutdown()
+
+        if sys.version_info[0] == 2:
+            with pytest.raises(socket.error):
+                server.socket.fileno()
+        else:
+            assert server.socket.fileno() == -1
+
 
 class TestEventHandlingAcceptor(object):
     """Test the transport events and handling as acceptor."""
@@ -562,6 +597,40 @@ class TestEventHandlingAcceptor(object):
 
         assoc.release()
         assoc2.release()
+        scp.shutdown()
+
+    def test_unbind_no_event(self):
+        """Test unbinding if no event bound."""
+        def dummy(event):
+            pass
+
+        self.ae = ae = AE()
+        ae.add_supported_context(VerificationSOPClass)
+        ae.add_requested_context(VerificationSOPClass)
+        scp = ae.start_server(('', 11112), block=False)
+        assert scp.get_handlers(evt.EVT_CONN_CLOSE) == []
+
+        scp.unbind(evt.EVT_CONN_CLOSE, dummy)
+        assert scp.get_handlers(evt.EVT_CONN_CLOSE) == []
+
+        scp.shutdown()
+
+    def test_unbind_last_handler(self):
+        """Test unbinding if no event bound."""
+        def dummy(event):
+            pass
+
+        self.ae = ae = AE()
+        ae.add_supported_context(VerificationSOPClass)
+        ae.add_requested_context(VerificationSOPClass)
+        scp = ae.start_server(('', 11112), block=False)
+        scp.bind(evt.EVT_CONN_CLOSE, dummy)
+        assert scp.get_handlers(evt.EVT_CONN_CLOSE) == [dummy]
+
+        scp.unbind(evt.EVT_CONN_CLOSE, dummy)
+        assert scp.get_handlers(evt.EVT_CONN_CLOSE) == []
+        assert evt.EVT_CONN_CLOSE not in scp._handlers
+
         scp.shutdown()
 
     @pytest.mark.skipif(sys.version_info[:2] == (3, 4), reason='no caplog')

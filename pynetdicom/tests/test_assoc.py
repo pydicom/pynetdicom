@@ -5149,6 +5149,29 @@ class TestEventHandlingRequestor(object):
         assoc.release()
         scp.shutdown()
 
+    def test_unbind_not_event(self):
+        """Test unbind a handler if no events bound."""
+        def dummy(event):
+            pass
+
+        self.ae = ae = AE()
+        ae.add_supported_context(VerificationSOPClass)
+        ae.add_requested_context(VerificationSOPClass)
+        scp = ae.start_server(('', 11112), block=False)
+
+        assoc = ae.associate('localhost', 11112)
+
+        assert assoc.is_established
+        assert len(scp.active_associations) == 1
+
+        assert assoc.get_handlers(evt.EVT_DIMSE_SENT) == []
+        assoc.unbind(evt.EVT_DIMSE_SENT, dummy)
+        assert assoc.get_handlers(evt.EVT_DIMSE_SENT) == []
+
+        assoc.release()
+
+        scp.shutdown()
+
     def test_unbind_notification_none(self):
         """Test unbinding a handler thats not bound."""
         def dummy(event):

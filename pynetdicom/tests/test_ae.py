@@ -45,6 +45,7 @@ COMP_DATASET = read_file(os.path.join(TEST_DS_DIR, 'MRImageStorage_JPG2000_Lossl
 
 
 def test_blocking_handler():
+    """Test binding events to the blocking AssociationServer."""
     ae = AE()
     ae.add_supported_context('1.2.840.10008.1.1')
 

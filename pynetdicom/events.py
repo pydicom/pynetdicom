@@ -281,17 +281,6 @@ class Event(object):
         >>> ds.file_meta = event.file_meta
         >>> ds.save_as('example.dcm')
 
-        Write the C-STORE request's encoded *Data Set* directly to the DICOM
-        File Format without decoding it.
-
-        >>> from io import BytesIO
-        >>> bytestream = BytesIO()
-        >>> meta = event.file_meta
-        >>> meta.save_as(bytestream)
-        >>> fp.write(event.request.DataSet)
-        >>> with open('example.dcm', 'wb') as fp:
-        >>>     fp.write(bytestream.getvalue())
-
         Returns
         -------
         pydicom.dataset.Dataset

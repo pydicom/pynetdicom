@@ -1113,11 +1113,9 @@ class ApplicationEntity(object):
 
         if block:
             # Blocking server
-            server = AssociationServer(self, address, ssl_context)
-            # Bind events to the handlers
-            for (event, handler) in evt_handlers:
-                server.bind(event, handler)
-
+            server = AssociationServer(
+                self, address, ssl_context, evt_handlers=evt_handlers
+            )
             self._servers.append(server)
 
             try:
