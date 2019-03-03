@@ -1,12 +1,17 @@
 """Tests for the pynetdicom.pdu module."""
 
+from datetime import datetime
 from io import BytesIO
 import logging
+import sys
+import time
 
 import pytest
 
 from pydicom.uid import UID
 
+from pynetdicom import AE, evt, Association, _config
+from pynetdicom.events import Event
 from pynetdicom.pdu import (
     A_ASSOCIATE_RQ, A_ASSOCIATE_AC, A_ASSOCIATE_RJ, P_DATA_TF, A_RELEASE_RQ,
     A_RELEASE_RP, A_ABORT_RQ, PDU, ApplicationContextItem,
@@ -34,6 +39,7 @@ from .encoded_pdu_items import (
     a_release_rp, a_abort, a_p_abort, p_data_tf,
     a_associate_rq_user_id_ext_neg
 )
+from pynetdicom.sop_class import VerificationSOPClass
 from pynetdicom.utils import pretty_bytes
 
 LOGGER = logging.getLogger('pynetdicom')
@@ -1323,3 +1329,717 @@ class TestABORT(object):
         assert pdu.reason_str == "Unexpected PDU parameter"
         pdu.reason_diagnostic = 6
         assert pdu.reason_str == "Invalid PDU parameter value"
+
+
+class TestEventHandlingAcceptor(object):
+    """Test the transport events and handling as acceptor."""
+    def setup(self):
+        self.ae = None
+        _config.LOG_HANDLER_LEVEL = 'none'
+
+    def teardown(self):
+        if self.ae:
+            self.ae.shutdown()
+
+        _config.LOG_HANDLER_LEVEL = 'standard'
+
+    def test_no_handlers(self):
+        """Test with no transport event handlers bound."""
+        self.ae = ae = AE()
+        ae.add_supported_context(VerificationSOPClass)
+        ae.add_requested_context(VerificationSOPClass)
+        scp = ae.start_server(('', 11112), block=False)
+        assert scp.get_handlers(evt.EVT_PDU_RECV) == []
+        assert scp.get_handlers(evt.EVT_PDU_SENT) == []
+        assoc = ae.associate('localhost', 11112)
+
+        assert assoc.is_established
+        assert len(scp.active_associations) == 1
+        assert scp.get_handlers(evt.EVT_PDU_RECV) == []
+        assert scp.get_handlers(evt.EVT_PDU_SENT) == []
+        assert assoc.get_handlers(evt.EVT_PDU_RECV) == []
+        assert assoc.get_handlers(evt.EVT_PDU_SENT) == []
+
+        child = scp.active_associations[0]
+        assert child.get_handlers(evt.EVT_PDU_RECV) == []
+        assert child.get_handlers(evt.EVT_PDU_SENT) == []
+
+        assoc.release()
+        scp.shutdown()
+
+    def test_pdu_sent(self):
+        """Test binding to EVT_PDU_SENT."""
+        triggered = []
+        def handle(event):
+            triggered.append(event)
+
+        self.ae = ae = AE()
+        ae.add_supported_context(VerificationSOPClass)
+        ae.add_requested_context(VerificationSOPClass)
+        handlers = [(evt.EVT_PDU_SENT, handle)]
+        scp = ae.start_server(('', 11112), block=False, evt_handlers=handlers)
+        assert scp.get_handlers(evt.EVT_PDU_SENT) == [handle]
+
+        assoc = ae.associate('localhost', 11112)
+        assert assoc.is_established
+        assert len(scp.active_associations) == 1
+        assert scp.get_handlers(evt.EVT_PDU_SENT) == [handle]
+        assert assoc.get_handlers(evt.EVT_PDU_SENT) == []
+
+        child = scp.active_associations[0]
+        assert child.get_handlers(evt.EVT_PDU_SENT) == [handle]
+
+        assoc.release()
+
+        while scp.active_associations:
+            time.sleep(0.05)
+
+        assert len(triggered) == 2
+        event = triggered[0]
+        assert isinstance(event, Event)
+        assert isinstance(event.assoc, Association)
+        assert isinstance(event.timestamp, datetime)
+        assert event.name == 'EVT_PDU_SENT'
+
+        assert isinstance(triggered[0].pdu, A_ASSOCIATE_AC)
+        assert isinstance(triggered[1].pdu, A_RELEASE_RP)
+
+        scp.shutdown()
+
+    def test_pdu_sent_bind(self):
+        """Test binding to EVT_PDU_SENT."""
+        triggered = []
+        def handle(event):
+            triggered.append(event)
+
+        self.ae = ae = AE()
+        ae.add_supported_context(VerificationSOPClass)
+        ae.add_requested_context(VerificationSOPClass)
+        handlers = [(evt.EVT_PDU_SENT, handle)]
+        scp = ae.start_server(('', 11112), block=False)
+        assert scp.get_handlers(evt.EVT_PDU_SENT) == []
+
+        assoc = ae.associate('localhost', 11112)
+        assert assoc.is_established
+
+        scp.bind(evt.EVT_PDU_SENT, handle)
+
+        assert len(scp.active_associations) == 1
+        assert scp.get_handlers(evt.EVT_PDU_SENT) == [handle]
+        assert assoc.get_handlers(evt.EVT_PDU_SENT) == []
+
+        child = scp.active_associations[0]
+        assert child.get_handlers(evt.EVT_PDU_SENT) == [handle]
+
+        assoc.release()
+
+        while scp.active_associations:
+            time.sleep(0.05)
+
+        assert len(triggered) == 1
+        event = triggered[0]
+        assert isinstance(event, Event)
+        assert isinstance(event.assoc, Association)
+        assert isinstance(event.timestamp, datetime)
+        assert event.name == 'EVT_PDU_SENT'
+
+        assert isinstance(triggered[0].pdu, A_RELEASE_RP)
+
+        scp.shutdown()
+
+    def test_pdu_sent_unbind(self):
+        """Test unbinding EVT_PDU_SENT."""
+        triggered = []
+        def handle(event):
+            triggered.append(event)
+
+        self.ae = ae = AE()
+        ae.add_supported_context(VerificationSOPClass)
+        ae.add_requested_context(VerificationSOPClass)
+        handlers = [(evt.EVT_PDU_SENT, handle)]
+        scp = ae.start_server(('', 11112), block=False, evt_handlers=handlers)
+        assert scp.get_handlers(evt.EVT_PDU_SENT) == [handle]
+
+        assoc = ae.associate('localhost', 11112)
+        assert assoc.is_established
+        assert len(scp.active_associations) == 1
+        assert scp.get_handlers(evt.EVT_PDU_SENT) == [handle]
+        assert assoc.get_handlers(evt.EVT_PDU_SENT) == []
+
+        child = scp.active_associations[0]
+        assert child.get_handlers(evt.EVT_PDU_SENT) == [handle]
+
+        scp.unbind(evt.EVT_PDU_SENT, handle)
+
+        assoc.release()
+
+        while scp.active_associations:
+            time.sleep(0.05)
+
+        assert len(triggered) == 1
+        assert isinstance(triggered[0].pdu, A_ASSOCIATE_AC)
+
+        scp.shutdown()
+
+    @pytest.mark.skipif(sys.version_info[:2] == (3, 4), reason='no caplog')
+    def test_pdu_sent_raises(self, caplog):
+        """Test the handler for EVT_PDU_SENT raising exception."""
+        def handle(event):
+            raise NotImplementedError("Exception description")
+
+        self.ae = ae = AE()
+        ae.add_supported_context(VerificationSOPClass)
+        ae.add_requested_context(VerificationSOPClass)
+        handlers = [(evt.EVT_PDU_SENT, handle)]
+        scp = ae.start_server(('', 11112), block=False, evt_handlers=handlers)
+
+        with caplog.at_level(logging.ERROR, logger='pynetdicom'):
+            assoc = ae.associate('localhost', 11112)
+            assert assoc.is_established
+            assoc.release()
+
+            while scp.active_associations:
+                time.sleep(0.05)
+
+            scp.shutdown()
+
+            msg = (
+                "Exception raised in user's 'evt.EVT_PDU_SENT' event handler"
+                " 'handle'"
+            )
+            assert msg in caplog.text
+            assert "Exception description" in caplog.text
+
+    def test_pdu_recv(self):
+        """Test starting bound to EVT_PDU_RECV."""
+        triggered = []
+        def handle(event):
+            triggered.append(event)
+
+        self.ae = ae = AE()
+        ae.add_supported_context(VerificationSOPClass)
+        ae.add_requested_context(VerificationSOPClass)
+        handlers = [(evt.EVT_PDU_RECV, handle)]
+        scp = ae.start_server(('', 11112), block=False, evt_handlers=handlers)
+        assert scp.get_handlers(evt.EVT_PDU_RECV) == [handle]
+
+        assoc = ae.associate('localhost', 11112)
+        assert assoc.is_established
+        assert len(scp.active_associations) == 1
+        assert scp.get_handlers(evt.EVT_PDU_RECV) == [handle]
+        assert assoc.get_handlers(evt.EVT_PDU_RECV) == []
+
+        child = scp.active_associations[0]
+        assert child.get_handlers(evt.EVT_PDU_RECV) == [handle]
+
+        assoc.release()
+
+        while scp.active_associations:
+            time.sleep(0.05)
+
+        assert len(triggered) == 2
+        event = triggered[0]
+        assert isinstance(event, Event)
+        assert isinstance(event.assoc, Association)
+        assert isinstance(event.timestamp, datetime)
+        assert isinstance(triggered[0].pdu, A_ASSOCIATE_RQ)
+        assert isinstance(triggered[1].pdu, A_RELEASE_RQ)
+        assert event.name == 'EVT_PDU_RECV'
+
+        scp.shutdown()
+
+    def test_pdu_recv_bind(self):
+        """Test binding to EVT_PDU_RECV."""
+        triggered = []
+        def handle(event):
+            triggered.append(event)
+
+        self.ae = ae = AE()
+        ae.add_supported_context(VerificationSOPClass)
+        ae.add_requested_context(VerificationSOPClass)
+        scp = ae.start_server(('', 11112), block=False)
+        assert scp.get_handlers(evt.EVT_PDU_RECV) == []
+
+        assoc = ae.associate('localhost', 11112)
+        assert assoc.is_established
+        assert len(scp.active_associations) == 1
+
+        scp.bind(evt.EVT_PDU_RECV, handle)
+
+        assert scp.get_handlers(evt.EVT_PDU_RECV) == [handle]
+        assert assoc.get_handlers(evt.EVT_PDU_RECV) == []
+
+        child = scp.active_associations[0]
+        assert child.get_handlers(evt.EVT_PDU_RECV) == [handle]
+
+        assoc.release()
+
+        while scp.active_associations:
+            time.sleep(0.05)
+
+        assert len(triggered) == 1
+        event = triggered[0]
+        assert isinstance(event, Event)
+        assert isinstance(event.assoc, Association)
+        assert isinstance(event.timestamp, datetime)
+        assert isinstance(triggered[0].pdu, A_RELEASE_RQ)
+        assert event.name == 'EVT_PDU_RECV'
+
+        scp.shutdown()
+
+    def test_pdu_recv_unbind(self):
+        """Test unbinding to EVT_PDU_RECV."""
+        triggered = []
+        def handle(event):
+            triggered.append(event)
+
+        self.ae = ae = AE()
+        ae.add_supported_context(VerificationSOPClass)
+        ae.add_requested_context(VerificationSOPClass)
+        handlers = [(evt.EVT_PDU_RECV, handle)]
+        scp = ae.start_server(('', 11112), block=False, evt_handlers=handlers)
+        assert scp.get_handlers(evt.EVT_PDU_RECV) == [handle]
+
+        assoc = ae.associate('localhost', 11112)
+        assert assoc.is_established
+
+        scp.unbind(evt.EVT_PDU_RECV, handle)
+
+        assert len(scp.active_associations) == 1
+        assert scp.get_handlers(evt.EVT_PDU_RECV) == []
+        assert assoc.get_handlers(evt.EVT_PDU_RECV) == []
+
+        child = scp.active_associations[0]
+        assert child.get_handlers(evt.EVT_PDU_RECV) == []
+
+        assoc.release()
+
+        while scp.active_associations:
+            time.sleep(0.05)
+
+        assert len(triggered) == 1
+        event = triggered[0]
+        assert isinstance(event, Event)
+        assert isinstance(event.assoc, Association)
+        assert isinstance(event.timestamp, datetime)
+        assert isinstance(triggered[0].pdu, A_ASSOCIATE_RQ)
+        assert event.name == 'EVT_PDU_RECV'
+
+        scp.shutdown()
+
+    @pytest.mark.skipif(sys.version_info[:2] == (3, 4), reason='no caplog')
+    def test_pdu_recv_raises(self, caplog):
+        """Test the handler for EVT_PDU_RECV raising exception."""
+        def handle(event):
+            raise NotImplementedError("Exception description")
+
+        self.ae = ae = AE()
+        ae.add_supported_context(VerificationSOPClass)
+        ae.add_requested_context(VerificationSOPClass)
+        handlers = [(evt.EVT_PDU_RECV, handle)]
+        scp = ae.start_server(('', 11112), block=False, evt_handlers=handlers)
+
+        with caplog.at_level(logging.ERROR, logger='pynetdicom'):
+            assoc = ae.associate('localhost', 11112)
+            assert assoc.is_established
+            assoc.release()
+
+            while scp.active_associations:
+                time.sleep(0.05)
+
+            scp.shutdown()
+
+            msg = (
+                "Exception raised in user's 'evt.EVT_PDU_RECV' event handler"
+                " 'handle'"
+            )
+            assert msg in caplog.text
+            assert "Exception description" in caplog.text
+
+
+class TestEventHandlingRequestor(object):
+    """Test the transport events and handling as requestor."""
+    def setup(self):
+        self.ae = None
+        _config.LOG_HANDLER_LEVEL = 'none'
+
+    def teardown(self):
+        if self.ae:
+            self.ae.shutdown()
+
+        _config.LOG_HANDLER_LEVEL = 'standard'
+
+    def test_no_handlers(self):
+        """Test with no transport event handlers bound."""
+        self.ae = ae = AE()
+        ae.add_supported_context(VerificationSOPClass)
+        ae.add_requested_context(VerificationSOPClass)
+        scp = ae.start_server(('', 11112), block=False)
+        assert scp.get_handlers(evt.EVT_PDU_RECV) == []
+        assert scp.get_handlers(evt.EVT_PDU_SENT) == []
+        assoc = ae.associate('localhost', 11112)
+
+        assert assoc.is_established
+        assert len(scp.active_associations) == 1
+        assert scp.get_handlers(evt.EVT_PDU_RECV) == []
+        assert scp.get_handlers(evt.EVT_PDU_SENT) == []
+        assert assoc.get_handlers(evt.EVT_PDU_RECV) == []
+        assert assoc.get_handlers(evt.EVT_PDU_SENT) == []
+
+        child = scp.active_associations[0]
+        assert child.get_handlers(evt.EVT_PDU_RECV) == []
+        assert child.get_handlers(evt.EVT_PDU_SENT) == []
+
+        assoc.release()
+        scp.shutdown()
+
+    def test_pdu_sent(self):
+        """Test binding to EVT_PDU_SENT."""
+        triggered = []
+        def handle(event):
+            triggered.append(event)
+
+        self.ae = ae = AE()
+        ae.add_supported_context(VerificationSOPClass)
+        ae.add_requested_context(VerificationSOPClass)
+        handlers = [(evt.EVT_PDU_SENT, handle)]
+        scp = ae.start_server(('', 11112), block=False)
+        assert scp.get_handlers(evt.EVT_PDU_SENT) == []
+
+        assoc = ae.associate('localhost', 11112, evt_handlers=handlers)
+        assert assoc.is_established
+        assert len(scp.active_associations) == 1
+        assert scp.get_handlers(evt.EVT_PDU_SENT) == []
+        assert assoc.get_handlers(evt.EVT_PDU_SENT) == [handle]
+
+        child = scp.active_associations[0]
+        assert child.get_handlers(evt.EVT_PDU_SENT) == []
+
+        assoc.release()
+
+        while scp.active_associations:
+            time.sleep(0.05)
+
+        assert len(triggered) == 2
+        event = triggered[0]
+        assert isinstance(event, Event)
+        assert isinstance(event.assoc, Association)
+        assert isinstance(event.timestamp, datetime)
+        assert event.name == 'EVT_PDU_SENT'
+
+        assert isinstance(triggered[0].pdu, A_ASSOCIATE_RQ)
+        assert isinstance(triggered[1].pdu, A_RELEASE_RQ)
+
+        scp.shutdown()
+
+    def test_pdu_sent_abort_pdata(self):
+        """Test A-ABORT and P-DATA PDUs with EVT_PDU_SENT."""
+        triggered = []
+        def handle(event):
+            triggered.append(event)
+
+        self.ae = ae = AE()
+        ae.add_supported_context(VerificationSOPClass)
+        ae.add_requested_context(VerificationSOPClass)
+        handlers = [(evt.EVT_PDU_SENT, handle)]
+        scp = ae.start_server(('', 11112), block=False)
+
+        assoc = ae.associate('localhost', 11112, evt_handlers=handlers)
+        assert assoc.is_established
+
+        assoc.send_c_echo()
+
+        assoc.abort()
+
+        while scp.active_associations:
+            time.sleep(0.05)
+
+        assert len(triggered) == 3
+
+        assert isinstance(triggered[0].pdu, A_ASSOCIATE_RQ)
+        assert isinstance(triggered[1].pdu, P_DATA_TF)
+        assert isinstance(triggered[2].pdu, A_ABORT_RQ)
+
+        scp.shutdown()
+
+    def test_pdu_sent_bind(self):
+        """Test binding to EVT_PDU_SENT."""
+        triggered = []
+        def handle(event):
+            triggered.append(event)
+
+        self.ae = ae = AE()
+        ae.add_supported_context(VerificationSOPClass)
+        ae.add_requested_context(VerificationSOPClass)
+        handlers = [(evt.EVT_PDU_SENT, handle)]
+        scp = ae.start_server(('', 11112), block=False)
+        assert scp.get_handlers(evt.EVT_PDU_SENT) == []
+
+        assoc = ae.associate('localhost', 11112)
+        assert assoc.get_handlers(evt.EVT_PDU_SENT) == []
+        assert assoc.is_established
+
+        assoc.bind(evt.EVT_PDU_SENT, handle)
+
+        assert len(scp.active_associations) == 1
+        assert scp.get_handlers(evt.EVT_PDU_SENT) == []
+        assert assoc.get_handlers(evt.EVT_PDU_SENT) == [handle]
+
+        child = scp.active_associations[0]
+        assert child.get_handlers(evt.EVT_PDU_SENT) == []
+
+        assoc.release()
+
+        while scp.active_associations:
+            time.sleep(0.05)
+
+        assert len(triggered) == 1
+        event = triggered[0]
+        assert isinstance(event, Event)
+        assert isinstance(event.assoc, Association)
+        assert isinstance(event.timestamp, datetime)
+        assert event.name == 'EVT_PDU_SENT'
+
+        assert isinstance(triggered[0].pdu, A_RELEASE_RQ)
+
+        scp.shutdown()
+
+    def test_pdu_sent_unbind(self):
+        """Test unbinding EVT_PDU_SENT."""
+        triggered = []
+        def handle(event):
+            triggered.append(event)
+
+        self.ae = ae = AE()
+        ae.add_supported_context(VerificationSOPClass)
+        ae.add_requested_context(VerificationSOPClass)
+        handlers = [(evt.EVT_PDU_SENT, handle)]
+        scp = ae.start_server(('', 11112), block=False)
+        assert scp.get_handlers(evt.EVT_PDU_SENT) == []
+
+        assoc = ae.associate('localhost', 11112, evt_handlers=handlers)
+        assert assoc.is_established
+        assert len(scp.active_associations) == 1
+        assert scp.get_handlers(evt.EVT_PDU_SENT) == []
+        assert assoc.get_handlers(evt.EVT_PDU_SENT) == [handle]
+
+        child = scp.active_associations[0]
+        assert child.get_handlers(evt.EVT_PDU_SENT) == []
+
+        assoc.unbind(evt.EVT_PDU_SENT, handle)
+
+        assoc.release()
+
+        while scp.active_associations:
+            time.sleep(0.05)
+
+        assert len(triggered) == 1
+        assert isinstance(triggered[0].pdu, A_ASSOCIATE_RQ)
+
+        scp.shutdown()
+
+    @pytest.mark.skipif(sys.version_info[:2] == (3, 4), reason='no caplog')
+    def test_pdu_sent_raises(self, caplog):
+        """Test the handler for EVT_PDU_SENT raising exception."""
+        def handle(event):
+            raise NotImplementedError("Exception description")
+
+        self.ae = ae = AE()
+        ae.add_supported_context(VerificationSOPClass)
+        ae.add_requested_context(VerificationSOPClass)
+        handlers = [(evt.EVT_PDU_SENT, handle)]
+        scp = ae.start_server(('', 11112), block=False)
+
+        with caplog.at_level(logging.ERROR, logger='pynetdicom'):
+            assoc = ae.associate('localhost', 11112, evt_handlers=handlers)
+            assert assoc.is_established
+            assoc.release()
+
+            while scp.active_associations:
+                time.sleep(0.05)
+
+            scp.shutdown()
+
+            msg = (
+                "Exception raised in user's 'evt.EVT_PDU_SENT' event handler"
+                " 'handle'"
+            )
+            assert msg in caplog.text
+            assert "Exception description" in caplog.text
+
+    def test_pdu_recv(self):
+        """Test starting bound to EVT_PDU_RECV."""
+        triggered = []
+        def handle(event):
+            triggered.append(event)
+
+        self.ae = ae = AE()
+        ae.add_supported_context(VerificationSOPClass)
+        ae.add_requested_context(VerificationSOPClass)
+        handlers = [(evt.EVT_PDU_RECV, handle)]
+        scp = ae.start_server(('', 11112), block=False)
+        assert scp.get_handlers(evt.EVT_PDU_RECV) == []
+
+        assoc = ae.associate('localhost', 11112, evt_handlers=handlers)
+        assert assoc.is_established
+        assert len(scp.active_associations) == 1
+        assert scp.get_handlers(evt.EVT_PDU_RECV) == []
+        assert assoc.get_handlers(evt.EVT_PDU_RECV) == [handle]
+
+        child = scp.active_associations[0]
+        assert child.get_handlers(evt.EVT_PDU_RECV) == []
+
+        assoc.release()
+
+        while scp.active_associations:
+            time.sleep(0.05)
+
+        assert len(triggered) == 2
+        event = triggered[0]
+        assert isinstance(event, Event)
+        assert isinstance(event.assoc, Association)
+        assert isinstance(event.timestamp, datetime)
+        assert isinstance(triggered[0].pdu, A_ASSOCIATE_AC)
+        assert isinstance(triggered[1].pdu, A_RELEASE_RP)
+        assert event.name == 'EVT_PDU_RECV'
+
+        scp.shutdown()
+
+    def test_pdu_recv_abort_pdata(self):
+        """Test A-ABORT and P-DATA PDUs with EVT_PDU_RECV."""
+        triggered = []
+        def handle(event):
+            triggered.append(event)
+
+        self.ae = ae = AE()
+        ae.add_supported_context(VerificationSOPClass)
+        ae.add_requested_context(VerificationSOPClass)
+        handlers = [(evt.EVT_PDU_RECV, handle)]
+        scp = ae.start_server(('', 11112), block=False)
+
+        assoc = ae.associate('localhost', 11112, evt_handlers=handlers)
+        assert assoc.is_established
+
+        assoc.send_c_echo()
+
+        assoc.abort()
+
+        while scp.active_associations:
+            time.sleep(0.05)
+
+        assert len(triggered) == 2
+
+        assert isinstance(triggered[0].pdu, A_ASSOCIATE_AC)
+        assert isinstance(triggered[1].pdu, P_DATA_TF)
+
+        scp.shutdown()
+
+    def test_pdu_recv_bind(self):
+        """Test binding to EVT_PDU_RECV."""
+        triggered = []
+        def handle(event):
+            triggered.append(event)
+
+        self.ae = ae = AE()
+        ae.add_supported_context(VerificationSOPClass)
+        ae.add_requested_context(VerificationSOPClass)
+        scp = ae.start_server(('', 11112), block=False)
+        assert scp.get_handlers(evt.EVT_PDU_RECV) == []
+
+        assoc = ae.associate('localhost', 11112)
+        assert assoc.is_established
+        assert len(scp.active_associations) == 1
+        assert assoc.get_handlers(evt.EVT_PDU_RECV) == []
+
+        assoc.bind(evt.EVT_PDU_RECV, handle)
+
+        assert scp.get_handlers(evt.EVT_PDU_RECV) == []
+        assert assoc.get_handlers(evt.EVT_PDU_RECV) == [handle]
+
+        child = scp.active_associations[0]
+        assert child.get_handlers(evt.EVT_PDU_RECV) == []
+
+        assoc.release()
+
+        while scp.active_associations:
+            time.sleep(0.05)
+
+        assert len(triggered) == 1
+        event = triggered[0]
+        assert isinstance(event, Event)
+        assert isinstance(event.assoc, Association)
+        assert isinstance(event.timestamp, datetime)
+        assert isinstance(triggered[0].pdu, A_RELEASE_RP)
+        assert event.name == 'EVT_PDU_RECV'
+
+        scp.shutdown()
+
+    def test_pdu_recv_unbind(self):
+        """Test unbinding to EVT_PDU_RECV."""
+        triggered = []
+        def handle(event):
+            triggered.append(event)
+
+        self.ae = ae = AE()
+        ae.add_supported_context(VerificationSOPClass)
+        ae.add_requested_context(VerificationSOPClass)
+        handlers = [(evt.EVT_PDU_RECV, handle)]
+        scp = ae.start_server(('', 11112), block=False)
+        assert scp.get_handlers(evt.EVT_PDU_RECV) == []
+
+        assoc = ae.associate('localhost', 11112, evt_handlers=handlers)
+        assert assoc.is_established
+        assert assoc.get_handlers(evt.EVT_PDU_RECV) == [handle]
+
+        assoc.unbind(evt.EVT_PDU_RECV, handle)
+
+        assert len(scp.active_associations) == 1
+        assert scp.get_handlers(evt.EVT_PDU_RECV) == []
+        assert assoc.get_handlers(evt.EVT_PDU_RECV) == []
+
+        child = scp.active_associations[0]
+        assert child.get_handlers(evt.EVT_PDU_RECV) == []
+
+        assoc.release()
+
+        while scp.active_associations:
+            time.sleep(0.05)
+
+        assert len(triggered) == 1
+        event = triggered[0]
+        assert isinstance(event, Event)
+        assert isinstance(event.assoc, Association)
+        assert isinstance(event.timestamp, datetime)
+        assert isinstance(triggered[0].pdu, A_ASSOCIATE_AC)
+        assert event.name == 'EVT_PDU_RECV'
+
+        scp.shutdown()
+
+    @pytest.mark.skipif(sys.version_info[:2] == (3, 4), reason='no caplog')
+    def test_pdu_recv_raises(self, caplog):
+        """Test the handler for EVT_PDU_RECV raising exception."""
+        def handle(event):
+            raise NotImplementedError("Exception description")
+
+        self.ae = ae = AE()
+        ae.add_supported_context(VerificationSOPClass)
+        ae.add_requested_context(VerificationSOPClass)
+        handlers = [(evt.EVT_PDU_RECV, handle)]
+        scp = ae.start_server(('', 11112), block=False, evt_handlers=handlers)
+
+        with caplog.at_level(logging.ERROR, logger='pynetdicom'):
+            assoc = ae.associate('localhost', 11112)
+            assert assoc.is_established
+            assoc.release()
+
+            while scp.active_associations:
+                time.sleep(0.05)
+
+            scp.shutdown()
+
+            msg = (
+                "Exception raised in user's 'evt.EVT_PDU_RECV' event handler"
+                " 'handle'"
+            )
+            assert msg in caplog.text
+            assert "Exception description" in caplog.text

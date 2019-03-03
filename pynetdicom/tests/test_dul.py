@@ -44,12 +44,6 @@ class DummyAssociation(object):
     acse = DummyACSE()
 
 
-class DummyDUL(DULServiceProvider):
-    """Dummy DUL class"""
-    def __init__(self):
-        self.assoc = DummyAssociation()
-
-
 class TestDUL(object):
     """Run tests on DUL service provider."""
     def teardown(self):
@@ -59,7 +53,7 @@ class TestDUL(object):
 
     def test_primitive_to_event(self):
         """Test that parameter returns expected results"""
-        dul = DummyDUL()
+        dul = DULServiceProvider(DummyAssociation())
         p2e = dul._primitive_to_event
 
         primitive = A_ASSOCIATE()

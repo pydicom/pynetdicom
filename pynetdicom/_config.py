@@ -14,4 +14,17 @@
 # Usage:
 #   from pynetdicom import _config
 #   _config.DECODE_STORE_DATASETS = [True|False]
+# Deprecated and will be removed in v1.4, use the event handler system instead
+#   as it provides all the benefits listed above by default
 DECODE_STORE_DATASETS = True
+
+
+# Default (non-user) event logging
+#   * If 'none' then events will not be logged at all, however there will still
+#     be some logging (warnings, errors, etc)
+#   * If 'standard' then certain events will be logged (association
+#     negotiation, DIMSE messaging, etc)
+# Usage:
+#   from pynetdicom import _config
+#   _config.LOG_HANDLER_LEVEL = ['none'|'standard']
+LOG_HANDLER_LEVEL = 'standard'

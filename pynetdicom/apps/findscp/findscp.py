@@ -17,7 +17,7 @@ from pydicom.uid import (
     ExplicitVRLittleEndian, ImplicitVRLittleEndian, ExplicitVRBigEndian
 )
 
-from pynetdicom import AE, QueryRetrievePresentationContexts
+from pynetdicom import AE, QueryRetrievePresentationContexts, evt
 
 logger = logging.Logger('findscp')
 stream_logger = logging.StreamHandler()
@@ -27,7 +27,7 @@ logger.addHandler(stream_logger)
 logger.setLevel(logging.ERROR)
 
 
-VERSION = '0.3.0'
+VERSION = '0.4.0'
 
 
 def _setup_argparser():
@@ -157,23 +157,29 @@ if args.prefer_big and ExplicitVRBigEndian in transfer_syntax:
         transfer_syntax.insert(0, ExplicitVRBigEndian)
 
 
-def on_c_find(dataset, context, info):
-    """Implement the ae.on_c_find callback."""
-    basedir = '../../tests/dicom_files/'
+def handle_find(event):
+    """Handle a C-FIND request."""
+    APP_DIR = os.path.join(os.path.dirname(__file__))
+    DATA_DIR = os.path.join(APP_DIR, '../', '../', 'tests', 'dicom_files')
     dcm_files = ['RTImageStorage.dcm']
-    dcm_files = [os.path.join(basedir, x) for x in dcm_files]
+    dcm_files = [os.path.join(DATA_DIR, x) for x in dcm_files]
     for dcm in dcm_files:
         data = dcmread(dcm, force=True)
 
+        identifier = event.identifier
+
         ds = Dataset()
-        if 'QueryRetrieveLevel' in dataset:
-            ds.QueryRetrieveLevel = dataset.QueryRetrieveLevel
+        if 'QueryRetrieveLevel' in identifier:
+            ds.QueryRetrieveLevel = identifier.QueryRetrieveLevel
         ds.RetrieveAETitle = args.aetitle
         ds.PatientName = data.PatientName
 
         status_ds = Dataset()
         status_ds.Status = 0xFF00
         yield status_ds, ds
+
+
+handlers = [(evt.EVT_C_FIND, handle_find)]
 
 
 # Create application entity
@@ -188,6 +194,4 @@ ae.network_timeout = args.timeout
 ae.acse_timeout = args.acse_timeout
 ae.dimse_timeout = args.dimse_timeout
 
-ae.on_c_find = on_c_find
-
-ae.start_server(('', args.port))
+ae.start_server(('', args.port), evt_handlers=handlers)

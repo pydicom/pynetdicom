@@ -2,6 +2,8 @@
 
 import logging
 
+from pynetdicom import evt
+from pynetdicom._globals import APPLICATION_CONTEXT_NAME
 from pynetdicom.pdu_primitives import (
     A_ASSOCIATE, A_RELEASE, A_ABORT, A_P_ABORT,
     AsynchronousOperationsWindowNegotiation,
@@ -13,7 +15,6 @@ from pynetdicom.presentation import (
     negotiate_as_requestor, negotiate_as_acceptor
 )
 from pynetdicom.utils import pretty_bytes
-from pynetdicom._globals import APPLICATION_CONTEXT_NAME
 
 
 LOGGER = logging.getLogger('pynetdicom.acse')
@@ -25,19 +26,23 @@ class ACSE(object):
     The ACSE protocol handles association establishment, normal release of an
     association and the abnormal release of an association.
     """
-    def __init__(self):
-        """Create the ACSE service provider."""
-        pass
-
-    @staticmethod
-    def _check_async_ops(assoc):
-        """Check the user's response to an Asynchronous Operations request.
+    def __init__(self, assoc):
+        """Create the ACSE service provider.
 
         Parameters
         ----------
         assoc : association.Association
-            The Association instance that received the Asynchronous Operations
-            Window Negotiation item in an A-ASSOCIATE (request) primitive.
+            The Association to provide ACSE services for.
+        """
+        self._assoc = assoc
+
+    @property
+    def assoc(self):
+        """Return the Association to provide ACSE services for."""
+        return self._assoc
+
+    def _check_async_ops(self):
+        """Check the user's response to an Asynchronous Operations request.
 
         Returns
         -------
@@ -49,10 +54,20 @@ class ACSE(object):
         """
         # pylint: disable=broad-except
         try:
+            # TODO: refactor in v1.4
             # Response is always ignored as async ops is not supported
-            _ = assoc.ae.on_async_ops_window(
-                *assoc.requestor.asynchronous_operations
-            )
+            default = evt.get_default_handler(evt.EVT_ASYNC_OPS)
+            if self.assoc.get_handlers(evt.EVT_ASYNC_OPS) != default:
+                inv, perf = self.assoc.requestor.asynchronous_operations
+                _ = evt.trigger(
+                    self.assoc,
+                    evt.EVT_ASYNC_OPS,
+                    {'nr_invoked' : inv, 'nr_performed' : perf}
+                )
+            else:
+                _ = self.assoc.ae.on_async_ops_window(
+                    *self.assoc.requestor.asynchronous_operations
+                )
         except NotImplementedError:
             return None
         except Exception as exc:
@@ -68,16 +83,8 @@ class ACSE(object):
 
         return item
 
-    @staticmethod
-    def _check_sop_class_common_extended(assoc):
+    def _check_sop_class_common_extended(self):
         """Check the user's response to a SOP Class Common Extended request.
-
-        Parameters
-        ----------
-        assoc : association.Association
-            The Association instance that received one or more SOP Class
-            Common Extended Negotiation items in an A-ASSOCIATE (request)
-            primitive.
 
         Returns
         -------
@@ -87,9 +94,17 @@ class ACSE(object):
         """
         # pylint: disable=broad-except
         try:
-            rsp = assoc.ae.on_sop_class_common_extended(
-                assoc.requestor.sop_class_common_extended
-            )
+            default = evt.get_default_handler(evt.EVT_SOP_COMMON)
+            if self.assoc.get_handlers(evt.EVT_SOP_COMMON) != default:
+                rsp = evt.trigger(
+                    self.assoc,
+                    evt.EVT_SOP_COMMON,
+                    {'items' : self.assoc.requestor.sop_class_common_extended}
+                )
+            else:
+                rsp = self.assoc.ae.on_sop_class_common_extended(
+                    self.assoc.requestor.sop_class_common_extended
+                )
         except Exception as exc:
             LOGGER.error(
                 "Exception raised in user's 'on_sop_class_common_extended' "
@@ -98,22 +113,22 @@ class ACSE(object):
             LOGGER.exception(exc)
             return {}
 
-        rsp = {
-            uid:ii for uid, ii in rsp.items()
-            if isinstance(ii, SOPClassCommonExtendedNegotiation)
-        }
+        try:
+            rsp = {
+                uid:ii for uid, ii in rsp.items()
+                if isinstance(ii, SOPClassCommonExtendedNegotiation)
+            }
+        except Exception as exc:
+            LOGGER.error(
+                "Invalid type returned by user's 'evt.EVT_SOP_COMMON' handler"
+            )
+            LOGGER.exception(exc)
+            return {}
 
         return rsp
 
-    @staticmethod
-    def _check_sop_class_extended(assoc):
+    def _check_sop_class_extended(self):
         """Check the user's response to a SOP Class Extended request.
-
-        Parameters
-        ----------
-        assoc : association.Association
-            The Association instance that received one or more SOP Class
-            Extended Negotiation items in an A-ASSOCIATE (request) primitive.
 
         Returns
         -------
@@ -122,11 +137,19 @@ class ACSE(object):
         """
         # pylint: disable=broad-except
         try:
-            user_response = assoc.ae.on_sop_class_extended(
-                assoc.requestor.sop_class_extended
-            )
+            default = evt.get_default_handler(evt.EVT_SOP_EXTENDED)
+            if self.assoc.get_handlers(evt.EVT_SOP_EXTENDED) != default:
+                user_response = evt.trigger(
+                    self.assoc,
+                    evt.EVT_SOP_EXTENDED,
+                    {'app_info' : self.assoc.requestor.sop_class_extended}
+                )
+            else:
+                user_response = self.assoc.ae.on_sop_class_extended(
+                    self.assoc.requestor.sop_class_extended
+                )
         except Exception as exc:
-            user_response = None
+            user_response = {}
             LOGGER.error(
                 "Exception raised in user's 'on_sop_class_extended' "
                 "implementation"
@@ -138,9 +161,9 @@ class ACSE(object):
                 "Invalid type returned by user's 'on_sop_class_extended' "
                 "implementation"
             )
-            user_response = None
+            user_response = {}
 
-        if user_response is None:
+        if not user_response:
             return []
 
         items = []
@@ -160,15 +183,8 @@ class ACSE(object):
 
         return items
 
-    @staticmethod
-    def _check_user_identity(assoc):
+    def _check_user_identity(self):
         """Check the user's response to a User Identity request.
-
-        Parameters
-        ----------
-        assoc : association.Association
-            The Association instance that received the User Identity
-            Negotiation item in an A-ASSOCIATE (request) primitive.
 
         Returns
         -------
@@ -180,16 +196,28 @@ class ACSE(object):
         """
         # pylint: disable=broad-except
         # The UserIdentityNegotiation (request) item
-        req = assoc.requestor.user_identity
+        req = self.assoc.requestor.user_identity
         try:
-            identity_verified, response = assoc.ae.on_user_identity(
-                req.user_identity_type,
-                req.primary_field,
-                req.secondary_field,
-                {
-                    'requestor' : assoc.requestor.info,
-                }
-            )
+            default = evt.get_default_handler(evt.EVT_USER_ID)
+            if self.assoc.get_handlers(evt.EVT_USER_ID) != default:
+                identity_verified, response = evt.trigger(
+                    self.assoc,
+                    evt.EVT_USER_ID,
+                    {
+                        'user_id_type' : req.user_identity_type,
+                        'primary_field' : req.primary_field,
+                        'secondary_field' : req.secondary_field,
+                    }
+                )
+            else:
+                identity_verified, response = self.assoc.ae.on_user_identity(
+                    req.user_identity_type,
+                    req.primary_field,
+                    req.secondary_field,
+                    {
+                        'requestor' : self.assoc.requestor.info,
+                    }
+                )
         except NotImplementedError:
             # If the user hasn't implemented identity negotiation then
             #   default to accepting the association
@@ -293,7 +321,7 @@ class ACSE(object):
         ## Extended Negotiation items
         # User Identity Negotiation items
         if assoc.requestor.user_identity:
-            is_valid, id_response = self._check_user_identity(assoc)
+            is_valid, id_response = self._check_user_identity()
 
             if not is_valid:
                 # Transient, ACSE related, no reason given
@@ -305,20 +333,20 @@ class ACSE(object):
                 assoc.acceptor.add_negotiation_item(id_response)
 
         # SOP Class Extended Negotiation items
-        for item in self._check_sop_class_extended(assoc):
+        for item in self._check_sop_class_extended():
             assoc.acceptor.add_negotiation_item(item)
 
         # SOP Class Common Extended Negotiation items
         #   Note: No response items are allowed
         # pylint: disable=protected-access
         assoc.acceptor._common_ext = (
-            self._check_sop_class_common_extended(assoc)
+            self._check_sop_class_common_extended()
         )
         # pylint: enable=protected-access
 
         # Asynchronous Operations Window Negotiation items
         if assoc.requestor.asynchronous_operations != (1, 1):
-            async_rsp = self._check_async_ops(assoc)
+            async_rsp = self._check_async_ops()
 
             # Add any Async Ops (response) item
             if async_rsp:
@@ -334,8 +362,9 @@ class ACSE(object):
 
         if reject_assoc_rsd:
             # pylint: disable=no-value-for-parameter
+            LOGGER.info("Rejecting Association")
             self.send_reject(assoc, *reject_assoc_rsd)
-            assoc.debug_association_rejected(assoc.acceptor.primitive)
+            evt.trigger(self.assoc, evt.EVT_REJECTED, {})
             assoc.ae.on_association_rejected(assoc.acceptor.primitive)
             assoc.kill()
             return
@@ -367,14 +396,16 @@ class ACSE(object):
             assoc.acceptor.add_negotiation_item(item)
 
         # Send the A-ASSOCIATE (accept) primitive
+        LOGGER.info("Accepting Association")
         self.send_accept(assoc)
 
         # Callbacks/Logging
-        assoc.debug_association_accepted(assoc.acceptor.primitive)
         assoc.ae.on_association_accepted(assoc.acceptor.primitive)
+        evt.trigger(self.assoc, evt.EVT_ACCEPTED, {})
 
         # Assocation established OK
         assoc.is_established = True
+        evt.trigger(self.assoc, evt.EVT_ESTABLISHED, {})
 
     def _negotiate_as_requestor(self, assoc):
         """Perform an association negotiation as the association requestor.
@@ -394,6 +425,7 @@ class ACSE(object):
 
         # Build and send an A-ASSOCIATE (request) PDU to the peer
         self.send_request(assoc)
+        evt.trigger(self.assoc, evt.EVT_REQUESTED, {})
 
         # Wait for response
         rsp = assoc.dul.receive_pdu(wait=True, timeout=assoc.acse_timeout)
@@ -448,8 +480,8 @@ class ACSE(object):
                 ]
                 # pylint: enable=protected-access
 
-                assoc.debug_association_accepted(rsp)
                 assoc.ae.on_association_accepted(rsp)
+                evt.trigger(self.assoc, evt.EVT_ACCEPTED, {})
 
                 # No acceptable presentation contexts
                 if not assoc.accepted_contexts:
@@ -457,33 +489,46 @@ class ACSE(object):
                     self.send_abort(assoc, 0x02)
                     assoc.is_aborted = True
                     assoc.is_established = False
+                    evt.trigger(self.assoc, evt.EVT_ABORTED, {})
                     assoc.kill()
                 else:
+                    LOGGER.info('Association Accepted')
                     assoc.is_established = True
+                    evt.trigger(self.assoc, evt.EVT_ESTABLISHED, {})
 
             elif hasattr(rsp, 'result') and rsp.result in [0x01, 0x02]:
                 # 0x01 is rejected (permanent)
                 # 0x02 is rejected (transient)
+                LOGGER.info('Association Rejected:')
+                LOGGER.info(
+                    'Result: {}, Source: {}'
+                    .format(rsp.result_str, rsp.source_str)
+                )
+                LOGGER.info('Reason: {}'.format(rsp.reason_str))
                 assoc.ae.on_association_rejected(rsp)
-                assoc.debug_association_rejected(rsp)
                 assoc.is_rejected = True
                 assoc.is_established = False
+                evt.trigger(self.assoc, evt.EVT_REJECTED, {})
                 assoc.dul.kill_dul()
             else:
                 LOGGER.warning(
                     "Received an invalid A-ASSOCIATE response from the peer"
                 )
+                LOGGER.info("Aborting Association")
                 self.send_abort(assoc, 0x02)
                 assoc.is_aborted = True
                 assoc.is_established = False
+                # Event handler - association aborted
+                evt.trigger(self.assoc, evt.EVT_ABORTED, {})
                 assoc.kill()
 
         # Association aborted
         elif isinstance(rsp, (A_ABORT, A_P_ABORT)):
             assoc.ae.on_association_aborted(rsp)
-            assoc.debug_association_aborted(rsp)
+            LOGGER.info("Association Aborted")
             assoc.is_established = False
             assoc.is_aborted = True
+            evt.trigger(self.assoc, evt.EVT_ABORTED, {})
             assoc.dul.kill_dul()
         else:
             assoc.is_established = False
@@ -516,16 +561,20 @@ class ACSE(object):
                                               timeout=assoc.acse_timeout)
             if primitive is None:
                 # No response received within timeout window
+                LOGGER.info("Aborting Association")
                 self.send_abort(assoc, 0x02)
                 assoc.is_aborted = True
                 assoc.is_established = False
+                evt.trigger(self.assoc, evt.EVT_ABORTED, {})
                 assoc.kill()
                 return
 
             if isinstance(primitive, (A_ABORT, A_P_ABORT)):
                 # Received A-ABORT/A-P-ABORT during association release
+                LOGGER.info("Association Aborted")
                 assoc.is_aborted = True
                 assoc.is_established = False
+                evt.trigger(self.assoc, evt.EVT_ABORTED, {})
                 assoc.kill()
                 return
 
@@ -560,6 +609,7 @@ class ACSE(object):
 
                 assoc.is_released = True
                 assoc.is_established = False
+                evt.trigger(self.assoc, evt.EVT_RELEASED, {})
                 assoc.kill()
                 return
 
@@ -624,7 +674,7 @@ class ACSE(object):
         primitive.result_source = 0x01
 
         primitive.presentation_context_definition_results_list = (
-            assoc.accepted_contexts
+            assoc.accepted_contexts + assoc.rejected_contexts
         )
 
         ## User Information - PS3.7 Annex D.3.3
@@ -817,768 +867,3 @@ class ACSE(object):
 
         # Send the A-ASSOCIATE request primitive to the peer
         assoc.dul.send_pdu(primitive)
-
-
-    # ACSE logging/debugging functions
-    # pylint: disable=too-many-branches,unused-argument
-    # pylint: disable=too-many-locals,too-many-statements
-    @staticmethod
-    def debug_send_abort(a_abort_rq):
-        """
-        Placeholder for a function callback. Function will be called
-        immediately prior to encoding and sending an A-ABORT to a peer AE
-
-        Parameters
-        ----------
-        a_abort : pdu.A_ABORT_RQ
-            The A-ABORT PDU instance
-        """
-        LOGGER.info('Aborting Association')
-
-    @staticmethod
-    def debug_send_associate_ac(a_associate_ac):
-        """
-        Placeholder for a function callback. Function will be called
-        immediately prior to encoding and sending an A-ASSOCIATE-AC to a peer
-        AE
-
-        Parameters
-        ----------
-        a_associate_ac : pdu.A_ASSOCIATE_AC
-            The A-ASSOCIATE-AC PDU instance
-        """
-        LOGGER.info("Association Accepted")
-
-        # Shorthand
-        assoc_ac = a_associate_ac
-
-        # Needs some cleanup
-        app_context = assoc_ac.application_context_name.title()
-        pres_contexts = assoc_ac.presentation_context
-        user_info = assoc_ac.user_information
-        async_ops = user_info.async_ops_window
-        roles = user_info.role_selection
-
-        responding_ae = 'resp. AE Title'
-
-        s = ['Accept Parameters:']
-        s.append('====================== BEGIN A-ASSOCIATE-AC ================'
-                 '=====')
-
-        s.append('Our Implementation Class UID:      '
-                 '{0!s}'.format(user_info.implementation_class_uid))
-
-        if user_info.implementation_version_name:
-            s.append(
-                "Our Implementation Version Name:   {0!s}"
-                .format(user_info.implementation_version_name.decode('ascii'))
-            )
-        s.append('Application Context Name:    {0!s}'.format(app_context))
-        s.append('Responding Application Name: {0!s}'.format(responding_ae))
-        s.append('Our Max PDU Receive Size:    '
-                 '{0!s}'.format(user_info.maximum_length))
-        s.append('Presentation Contexts:')
-
-        if not pres_contexts:
-            s.append('    (no valid presentation contexts)')
-
-        # Sort by context ID
-        for item in sorted(pres_contexts, key=lambda x: x.context_id):
-            s.append('  Context ID:        {0!s} ({1!s})'
-                     .format(item.context_id, item.result_str))
-
-            # If Presentation Context was accepted
-            if item.result == 0:
-                #if item.scu_role is None and item.scp_role is None:
-                #    ac_scp_scu_role = 'Default'
-                #else:
-                #    ac_scp_scu_role = '{0!s}/{1!s}'.format(item.scp_role,
-                #item.scu_role)
-                #s.append('    Accepted SCP/SCU Role: {0!s}'
-                #         .format(ac_scp_scu_role))
-                s.append('    Accepted Transfer Syntax: ={0!s}'
-                         .format(item.transfer_syntax.name))
-
-        ## Role Selection
-        if roles:
-            s.append("Accepted Role Selection:")
-
-            for uid in sorted(roles.keys()):
-                s.append("  SOP Class: ={}".format(uid.name))
-                str_roles = []
-                if roles[uid].scp_role:
-                    str_roles.append('SCP')
-                if roles[uid].scu_role:
-                    str_roles.append('SCU')
-
-                str_roles = '/'.join(str_roles)
-                s.append("    SCP/SCU Role: {}".format(str_roles))
-        else:
-            s.append("Role Selection: None")
-
-        ## Extended Negotiation
-        if user_info.ext_neg:
-            s.append('Accepted Extended Negotiation:')
-
-            for item in user_info.ext_neg:
-                s.append('  SOP Class: ={0!s}'.format(item.uid))
-                app_info = pretty_bytes(item.app_info)
-                app_info[0] = '[' + app_info[0][1:]
-                app_info[-1] = app_info[-1] + ' ]'
-                for line in app_info:
-                    s.append('    {0!s}'.format(line))
-        else:
-            s.append('Accepted Extended Negotiation: None')
-
-        ## Asynchronous Operations
-        if async_ops:
-            s.append(
-                "Accepted Asynchronous Operations Window Negotiation:"
-            )
-            s.append(
-                "  Maximum Invoked Operations:     {}"
-                .format(async_ops.maximum_number_operations_invoked)
-            )
-            s.append(
-                "  Maximum Performed Operations:   {}"
-                .format(async_ops.maximum_number_operations_performed)
-            )
-        else:
-            s.append(
-                "Accepted Asynchronous Operations Window Negotiation: None"
-            )
-
-        ## User Identity Negotiation
-        usr_id = 'Yes' if user_info.user_identity is not None else 'None'
-
-
-        s.append('User Identity Negotiation Response: {0!s}'.format(usr_id))
-        s.append(
-            '======================= END A-ASSOCIATE-AC ======================'
-        )
-
-        for line in s:
-            LOGGER.debug(line)
-
-    @staticmethod
-    def debug_send_associate_rj(a_associate_rj):
-        """
-        Placeholder for a function callback. Function will be called
-        immediately prior to encoding and sending an A-ASSOCIATE-RJ to a peer
-        AE.
-
-        Parameters
-        ----------
-        a_associate_rj : pdu.A_ASSOCIATE_RJ
-            The A-ASSOCIATE-RJ PDU instance
-        """
-        LOGGER.info("Association Rejected")
-
-    @staticmethod
-    def debug_send_associate_rq(a_associate_rq):
-        """
-        Placeholder for a function callback. Function will be called
-        immediately prior to encoding and sending an A-ASSOCIATE-RQ to
-        a peer AE
-
-        The default implementation is used for logging debugging information
-
-        Parameters
-        ----------
-        a_associate_rq : pdu.A_ASSOCIATE_RQ
-            The A-ASSOCIATE-RQ PDU instance to be encoded and sent
-        """
-        # Shorthand
-        pdu = a_associate_rq
-
-        app_context = pdu.application_context_name.title()
-        pres_contexts = pdu.presentation_context
-        user_info = pdu.user_information
-
-        s = ['Request Parameters:']
-        s.append('====================== BEGIN A-ASSOCIATE-RQ ================'
-                 '=====')
-
-        s.append('Our Implementation Class UID:      '
-                 '{0!s}'.format(user_info.implementation_class_uid))
-        if user_info.implementation_version_name:
-            s.append(
-                'Our Implementation Version Name:   {0!s}'.format(
-                    user_info.implementation_version_name.decode('ascii')
-                )
-            )
-        s.append('Application Context Name:    {0!s}'.format(app_context))
-        s.append('Calling Application Name:    '
-                 '{0!s}'.format(pdu.calling_ae_title.decode('ascii')))
-        s.append('Called Application Name:     '
-                 '{0!s}'.format(pdu.called_ae_title.decode('ascii')))
-        s.append('Our Max PDU Receive Size:    '
-                 '{0!s}'.format(user_info.maximum_length))
-
-        ## Presentation Contexts
-        if len(pres_contexts) == 1:
-            s.append('Presentation Context:')
-        else:
-            s.append('Presentation Contexts:')
-
-        for context in pres_contexts:
-            s.append('  Context ID:        {0!s} '
-                     '(Proposed)'.format((context.context_id)))
-            s.append('    Abstract Syntax: ='
-                     '{0!s}'.format(context.abstract_syntax.name))
-
-            # Add SCP/SCU Role Selection Negotiation
-            # Roles are: SCU, SCP/SCU, SCP, Default
-            if pdu.user_information.role_selection:
-                try:
-                    role = pdu.user_information.role_selection[
-                        context.abstract_syntax
-                    ]
-                    roles = []
-                    if role.scp_role:
-                        roles.append('SCP')
-                    if role.scu_role:
-                        roles.append('SCU')
-
-                    scp_scu_role = '/'.join(roles)
-                except KeyError:
-                    scp_scu_role = 'Default'
-            else:
-                scp_scu_role = 'Default'
-
-            s.append('    Proposed SCP/SCU Role: {0!s}'.format(scp_scu_role))
-
-            # Transfer Syntaxes
-            if len(context.transfer_syntax) == 1:
-                s.append('    Proposed Transfer Syntax:')
-            else:
-                s.append('    Proposed Transfer Syntaxes:')
-
-            for ts in context.transfer_syntax:
-                s.append('      ={0!s}'.format(ts.name))
-
-        ## Extended Negotiation
-        if pdu.user_information.ext_neg:
-            s.append('Requested Extended Negotiation:')
-
-            for item in pdu.user_information.ext_neg:
-                s.append('  SOP Class: ={0!s}'.format(item.uid))
-                #s.append('    Application Information, length: %d bytes'
-                #                                       %len(item.app_info))
-
-                app_info = pretty_bytes(item.app_info)
-                app_info[0] = '[' + app_info[0][1:]
-                app_info[-1] = app_info[-1] + ' ]'
-                for line in app_info:
-                    s.append('    {0!s}'.format(line))
-        else:
-            s.append('Requested Extended Negotiation: None')
-
-        ## Common Extended Negotiation
-        if pdu.user_information.common_ext_neg:
-            s.append('Requested Common Extended Negotiation:')
-
-            for item in pdu.user_information.common_ext_neg:
-
-                s.append('  SOP Class: ={0!s}'.format(item.sop_class_uid.name))
-                s.append(
-                    "    Service Class: ={0!s}"
-                    .format(item.service_class_uid.name)
-                )
-
-                related_uids = item.related_general_sop_class_identification
-                if related_uids:
-                    s.append('    Related General SOP Class(es):')
-                    for sub_field in related_uids:
-                        s.append('      ={0!s}'.format(sub_field.name))
-                else:
-                    s.append('    Related General SOP Classes: None')
-        else:
-            s.append('Requested Common Extended Negotiation: None')
-
-        ## Asynchronous Operations Window Negotiation
-        async_ops = pdu.user_information.async_ops_window
-        if async_ops is not None:
-            s.append('Requested Asynchronous Operations Window Negotiation:')
-            s.append(
-                "  Maximum Invoked Operations:     {}"
-                .format(async_ops.maximum_number_operations_invoked)
-            )
-            s.append(
-                "  Maximum Performed Operations:   {}"
-                .format(async_ops.maximum_number_operations_performed)
-            )
-        else:
-            s.append(
-                "Requested Asynchronous Operations Window Negotiation: None"
-            )
-
-        ## User Identity
-        if user_info.user_identity is not None:
-            usid = user_info.user_identity
-            s.append('Requested User Identity Negotiation:')
-            s.append('  Authentication Mode: {0:d} - '
-                     '{1!s}'.format(usid.id_type, usid.id_type_str))
-            if usid.id_type == 1:
-                s.append('  Username: '
-                         '[{0!s}]'.format(usid.primary.decode('utf-8')))
-            elif usid.id_type == 2:
-                s.append('  Username: '
-                         '[{0!s}]'.format(usid.primary.decode('utf-8')))
-                s.append('  Password: '
-                         '[{0!s}]'.format(usid.secondary.decode('utf-8')))
-            elif usid.id_type == 3:
-                s.append('  Kerberos Service Ticket (not dumped) length: '
-                         '{0:d}'.format(len(usid.primary)))
-            elif usid.id_type == 4:
-                s.append('  SAML Assertion (not dumped) length: '
-                         '{0:d}'.format(len(usid.primary)))
-            elif usid.id_type == 5:
-                s.append('  JSON Web Token (not dumped) length: '
-                         '{0:d}'.format(len(usid.primary)))
-
-            if usid.response_requested:
-                s.append('  Positive Response Requested: Yes')
-            else:
-                s.append('  Positive Response Requested: No')
-        else:
-            s.append('Requested User Identity Negotiation: None')
-
-        s.append(
-            '======================= END A-ASSOCIATE-RQ ======================'
-        )
-
-        for line in s:
-            LOGGER.debug(line)
-
-    @staticmethod
-    def debug_send_data_tf(p_data_tf):
-        """
-        Placeholder for a function callback. Function will be called
-        immediately prior to encoding and sending an P-DATA-TF to a peer AE
-
-        Parameters
-        ----------
-        a_release_rq : pdu.P_DATA_TF
-            The P-DATA-TF PDU instance
-        """
-        pass
-
-    @staticmethod
-    def debug_send_release_rp(a_release_rp):
-        """
-        Placeholder for a function callback. Function will be called
-        immediately prior to encoding and sending an A-RELEASE-RP to a peer AE
-
-        Parameters
-        ----------
-        a_release_rp : pdu.A_RELEASE_RP
-            The A-RELEASE-RP PDU instance
-        """
-        pass
-
-    @staticmethod
-    def debug_send_release_rq(a_release_rq):
-        """
-        Placeholder for a function callback. Function will be called
-        immediately prior to encoding and sending an A-RELEASE-RQ to a peer AE
-
-        Parameters
-        ----------
-        a_release_rq : pdu.A_RELEASE_RQ
-            The A-RELEASE-RQ PDU instance
-        """
-        pass
-
-    @staticmethod
-    def debug_receive_abort(a_abort):
-        """
-        Placeholder for a function callback. Function will be called
-        immediately after receiving and decoding an A-ABORT
-
-        Parameters
-        ----------
-        a_abort : pdu.A_ABORT_RQ
-            The A-ABORT PDU instance
-        """
-        s = ['Abort Parameters:']
-        s.append(
-            '========================== BEGIN A-ABORT ========================'
-        )
-        s.append('Abort Source: {0!s}'.format(a_abort.source_str))
-        s.append('Abort Reason: {0!s}'.format(a_abort.reason_str))
-        s.append(
-            '=========================== END A-ABORT ========================='
-        )
-        for line in s:
-            LOGGER.debug(line)
-
-    @staticmethod
-    def debug_receive_associate_ac(a_associate_ac):
-        """
-        Placeholder for a function callback. Function will be called
-        immediately after receiving and decoding an A-ASSOCIATE-AC
-
-        The default implementation is used for logging debugging information
-
-        Most of this should be moved to on_association_accepted()
-
-        Parameters
-        ----------
-        a_associate_ac : pdu.A_ASSOCIATE_AC
-            The A-ASSOCIATE-AC PDU instance
-        """
-        # Shorthand
-        assoc_ac = a_associate_ac
-
-        app_context = assoc_ac.application_context_name.title()
-        pres_contexts = sorted(
-            assoc_ac.presentation_context, key=lambda x: x.context_id
-        )
-        user_info = assoc_ac.user_information
-        async_ops = user_info.async_ops_window
-        roles = user_info.role_selection
-
-        their_class_uid = 'unknown'
-        their_version = b'unknown'
-
-        if user_info.implementation_class_uid:
-            their_class_uid = user_info.implementation_class_uid
-        if user_info.implementation_version_name:
-            their_version = user_info.implementation_version_name
-
-        s = ['Accept Parameters:']
-        s.append('====================== BEGIN A-ASSOCIATE-AC ================'
-                 '=====')
-
-        s.append('Their Implementation Class UID:    {0!s}'
-                 .format(their_class_uid))
-        s.append('Their Implementation Version Name: {0!s}'
-                 .format(their_version.decode('ascii')))
-        s.append('Application Context Name:    {0!s}'.format(app_context))
-        s.append('Calling Application Name:    {0!s}'
-                 .format(assoc_ac.calling_ae_title.decode('ascii')))
-        s.append('Called Application Name:     {0!s}'
-                 .format(assoc_ac.called_ae_title.decode('ascii')))
-        s.append('Their Max PDU Receive Size:  {0!s}'
-                 .format(user_info.maximum_length))
-        s.append('Presentation Contexts:')
-
-        for item in pres_contexts:
-            s.append('  Context ID:        {0!s} ({1!s})'
-                     .format(item.context_id, item.result_str))
-
-            if item.result == 0:
-                s.append('    Accepted Transfer Syntax: ={0!s}'
-                         .format(item.transfer_syntax.name))
-
-        ## Role Selection
-        if roles:
-            s.append("Accepted Role Selection:")
-
-            for uid in sorted(roles.keys()):
-                s.append("  SOP Class: ={}".format(uid.name))
-                str_roles = []
-                if roles[uid].scp_role:
-                    str_roles.append('SCP')
-                if roles[uid].scu_role:
-                    str_roles.append('SCU')
-
-                str_roles = '/'.join(str_roles)
-                s.append("    SCP/SCU Role: {}".format(str_roles))
-        else:
-            s.append("Role Selection: None")
-
-        ## Extended Negotiation
-        if user_info.ext_neg:
-            s.append('Accepted Extended Negotiation:')
-
-            for item in user_info.ext_neg:
-                s.append('  SOP Class: ={0!s}'.format(item.uid))
-                app_info = pretty_bytes(item.app_info)
-                app_info[0] = '[' + app_info[0][1:]
-                app_info[-1] = app_info[-1] + ' ]'
-                for line in app_info:
-                    s.append('    {0!s}'.format(line))
-        else:
-            s.append('Accepted Extended Negotiation: None')
-
-        ## Asynchronous Operations
-        if async_ops:
-            s.append(
-                "Accepted Asynchronous Operations Window Negotiation:"
-            )
-            s.append(
-                "  Maximum Invoked Operations:     {}"
-                .format(async_ops.maximum_number_operations_invoked)
-            )
-            s.append(
-                "  Maximum Performed Operations:   {}"
-                .format(async_ops.maximum_number_operations_performed)
-            )
-        else:
-            s.append(
-                "Accepted Asynchronous Operations Window Negotiation: None"
-            )
-
-        ## User Identity
-        usr_id = 'Yes' if user_info.user_identity is not None else 'None'
-
-        s.append('User Identity Negotiation Response: {0!s}'.format(usr_id))
-        s.append(
-            '======================= END A-ASSOCIATE-AC ======================'
-        )
-
-        for line in s:
-            LOGGER.debug(line)
-
-        LOGGER.info('Association Accepted')
-
-    @staticmethod
-    def debug_receive_associate_rj(a_associate_rj):
-        """
-        Placeholder for a function callback. Function will be called
-        immediately after receiving and decoding an A-ASSOCIATE-RJ
-
-        Parameters
-        ----------
-        a_associate_rj : pdu.A_ASSOCIATE_RJ
-            The A-ASSOCIATE-RJ PDU instance
-        """
-        # Shorthand
-        assoc_rj = a_associate_rj
-
-        s = ['Reject Parameters:']
-        s.append(
-            '====================== BEGIN A-ASSOCIATE-RJ ====================='
-        )
-        s.append('Result:    {0!s}'.format(assoc_rj.result_str))
-        s.append('Source:    {0!s}'.format(assoc_rj.source_str))
-        s.append('Reason:    {0!s}'.format(assoc_rj.reason_str))
-        s.append(
-            '======================= END A-ASSOCIATE-RJ ======================'
-        )
-        for line in s:
-            LOGGER.debug(line)
-
-    @staticmethod
-    def debug_receive_associate_rq(a_associate_rq):
-        """
-        Placeholder for a function callback. Function will be called
-        immediately after receiving and decoding an A-ASSOCIATE-RQ
-
-        Parameters
-        ----------
-        a_associate_rq : pdu.A_ASSOCIATE_RQ
-            The A-ASSOCIATE-RQ PDU instance
-        """
-        LOGGER.info("Association Received")
-
-        # Shorthand
-        pdu = a_associate_rq
-
-        app_context = pdu.application_context_name.title()
-        pres_contexts = sorted(
-            pdu.presentation_context, key=lambda x: x.context_id
-        )
-        user_info = pdu.user_information
-
-        #responding_ae = 'resp. AP Title'
-        their_class_uid = 'unknown'
-        their_version = b'unknown'
-
-        if user_info.implementation_class_uid:
-            their_class_uid = user_info.implementation_class_uid
-        if user_info.implementation_version_name:
-            their_version = user_info.implementation_version_name
-
-        s = ['Request Parameters:']
-        s.append('====================== BEGIN A-ASSOCIATE-RQ ================'
-                 '=====')
-        s.append('Their Implementation Class UID:      {0!s}'
-                 .format(their_class_uid))
-        s.append('Their Implementation Version Name:   {0!s}'
-                 .format(their_version.decode('ascii')))
-        s.append('Application Context Name:    {0!s}'
-                 .format(app_context))
-        s.append('Calling Application Name:    {0!s}'
-                 .format(pdu.calling_ae_title.decode('ascii')))
-        s.append('Called Application Name:     {0!s}'
-                 .format(pdu.called_ae_title.decode('ascii')))
-        s.append('Their Max PDU Receive Size:  {0!s}'
-                 .format(user_info.maximum_length))
-
-        ## Presentation Contexts
-        if len(pres_contexts) == 1:
-            s.append('Presentation Context:')
-        else:
-            s.append('Presentation Contexts:')
-
-        for context in pres_contexts:
-            s.append('  Context ID:        {0!s} '
-                     '(Proposed)'.format((context.context_id)))
-            s.append('    Abstract Syntax: ='
-                     '{0!s}'.format(context.abstract_syntax.name))
-
-            # Add SCP/SCU Role Selection Negotiation
-            # Roles are: SCU, SCP/SCU, SCP, Default
-            if pdu.user_information.role_selection:
-                try:
-                    role = pdu.user_information.role_selection[
-                        context.abstract_syntax
-                    ]
-                    roles = []
-                    if role.scp_role:
-                        roles.append('SCP')
-                    if role.scu_role:
-                        roles.append('SCU')
-
-                    scp_scu_role = '/'.join(roles)
-                except KeyError:
-                    scp_scu_role = 'Default'
-            else:
-                scp_scu_role = 'Default'
-
-            s.append('    Proposed SCP/SCU Role: {0!s}'.format(scp_scu_role))
-
-            # Transfer Syntaxes
-            if len(context.transfer_syntax) == 1:
-                s.append('    Proposed Transfer Syntax:')
-            else:
-                s.append('    Proposed Transfer Syntaxes:')
-
-            for ts in context.transfer_syntax:
-                s.append('      ={0!s}'.format(ts.name))
-
-        ## Extended Negotiation
-        if pdu.user_information.ext_neg:
-            s.append('Requested Extended Negotiation:')
-
-            for item in pdu.user_information.ext_neg:
-                s.append('  SOP Class: ={0!s}'.format(item.uid))
-                #s.append('    Application Information, length: %d bytes'
-                #                                       %len(item.app_info))
-
-                app_info = pretty_bytes(item.app_info)
-                app_info[0] = '[' + app_info[0][1:]
-                app_info[-1] = app_info[-1] + ' ]'
-                for line in app_info:
-                    s.append('    {0!s}'.format(line))
-        else:
-            s.append('Requested Extended Negotiation: None')
-
-        ## Common Extended Negotiation
-        if pdu.user_information.common_ext_neg:
-            s.append('Requested Common Extended Negotiation:')
-
-            for item in pdu.user_information.common_ext_neg:
-
-                s.append('  SOP Class: ={0!s}'.format(item.sop_class_uid.name))
-                s.append(
-                    "    Service Class: ={0!s}"
-                    .format(item.service_class_uid.name)
-                )
-
-                related_uids = item.related_general_sop_class_identification
-                if related_uids:
-                    s.append('    Related General SOP Class(es):')
-                    for sub_field in related_uids:
-                        s.append('      ={0!s}'.format(sub_field.name))
-                else:
-                    s.append('    Related General SOP Classes: None')
-        else:
-            s.append('Requested Common Extended Negotiation: None')
-
-        ## Asynchronous Operations Window Negotiation
-        async_ops = pdu.user_information.async_ops_window
-        if async_ops is not None:
-            s.append('Requested Asynchronous Operations Window Negotiation:')
-            s.append(
-                "  Maximum Invoked Operations:     {}"
-                .format(async_ops.maximum_number_operations_invoked)
-            )
-            s.append(
-                "  Maximum Performed Operations:   {}"
-                .format(async_ops.maximum_number_operations_performed)
-            )
-        else:
-            s.append(
-                "Requested Asynchronous Operations Window Negotiation: None"
-            )
-
-        ## User Identity
-        if user_info.user_identity is not None:
-            usid = user_info.user_identity
-            s.append('Requested User Identity Negotiation:')
-            s.append('  Authentication Mode: {0:d} - {1!s}'
-                     .format(usid.id_type, usid.id_type_str))
-            if usid.id_type == 1:
-                s.append('  Username: [{0!s}]'
-                         .format(usid.primary.decode('utf-8')))
-            elif usid.id_type == 2:
-                s.append('  Username: [{0!s}]'
-                         .format(usid.primary.decode('utf-8')))
-                s.append('  Password: [{0!s}]'
-                         .format(usid.secondary.decode('utf-8')))
-            elif usid.id_type == 3:
-                s.append('  Kerberos Service Ticket (not dumped) length: '
-                         '{0:d}'.format(len(usid.primary)))
-            elif usid.id_type == 4:
-                s.append('  SAML Assertion (not dumped) length: '
-                         '{0:d}'.format(len(usid.primary)))
-            elif usid.id_type == 5:
-                s.append('  JSON Web Token (not dumped) length: '
-                         '{0:d}'.format(len(usid.primary)))
-
-            if usid.response_requested:
-                s.append('  Positive Response requested: Yes')
-            else:
-                s.append('  Positive Response requested: None')
-        else:
-            s.append('Requested User Identity Negotiation: None')
-
-        s.append(
-            '======================= END A-ASSOCIATE-RQ ======================'
-        )
-
-        for line in s:
-            LOGGER.debug(line)
-
-    @staticmethod
-    def debug_receive_data_tf(p_data_tf):
-        """
-        Placeholder for a function callback. Function will be called
-        immediately after receiving and decoding an P-DATA-TF
-
-        Parameters
-        ----------
-        p_data_tf : pdu.P_DATA_TF
-            The P-DATA-TF PDU instance
-        """
-        pass
-
-    @staticmethod
-    def debug_receive_release_rp(a_release_rp):
-        """
-        Placeholder for a function callback. Function will be called
-        immediately after receiving and decoding an A-RELEASE-RP
-
-        Parameters
-        ----------
-        a_release_rp : pdu.A_RELEASE_RP
-            The A-RELEASE-RP PDU instance
-        """
-        pass
-
-    @staticmethod
-    def debug_receive_release_rq(a_release_rq):
-        """
-        Placeholder for a function callback. Function will be called
-        immediately after receiving and decoding an A-RELEASE-RQ
-
-        Parameters
-        ----------
-        a_release_rq : pdu.A_RELEASE_RQ
-            The A-RELEASE-RQ PDU instance
-        """
-        pass

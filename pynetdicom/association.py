@@ -11,7 +11,7 @@ from pydicom.uid import UID
 
 # pylint: disable=no-name-in-module
 from pynetdicom.acse import ACSE
-from pynetdicom import _config
+from pynetdicom import _config, evt
 from pynetdicom.dimse import DIMSEServiceProvider
 from pynetdicom.dimse_primitives import (
     C_ECHO, C_MOVE, C_STORE, C_GET, C_FIND, C_CANCEL,
@@ -22,6 +22,10 @@ from pynetdicom.dul import DULServiceProvider
 from pynetdicom._globals import (
     MODE_REQUESTOR, MODE_ACCEPTOR, DEFAULT_MAX_LENGTH, STATUS_WARNING,
     STATUS_SUCCESS, STATUS_CANCEL, STATUS_PENDING, STATUS_FAILURE
+)
+from pynetdicom._handlers import (
+    standard_dimse_recv_handler, standard_dimse_sent_handler,
+    standard_pdu_recv_handler, standard_pdu_sent_handler,
 )
 from pynetdicom.sop_class import (
     uid_to_service_class,
@@ -141,14 +145,18 @@ class Association(threading.Thread):
         self._rejected_cx = []
 
         # Service providers
-        self.acse = ACSE()
+        self.acse = ACSE(self)
         self.dul = DULServiceProvider(self)
-        self.dimse = DIMSEServiceProvider(self.dul, self.ae.dimse_timeout)
+        self.dimse = DIMSEServiceProvider(self)
 
         # Timeouts (in seconds), needs to be set after DUL init
         self.acse_timeout = self.ae.acse_timeout
         self.dimse_timeout = self.ae.dimse_timeout
         self.network_timeout = self.ae.network_timeout
+
+        # Event handlers
+        self._handlers = {}
+        self._bind_defaults()
 
         # Kills the thread loop in run()
         self._kill = False
@@ -164,7 +172,10 @@ class Association(threading.Thread):
     def abort(self):
         """Sends an A-ABORT to the remote AE and kills the Association."""
         if not self.is_released:
+            LOGGER.info('Aborting Association')
             self.acse.send_abort(self, 0x00)
+            # Event handler - association aborted
+            evt.trigger(self, evt.EVT_ABORTED, {})
             self.kill()
 
         # Add short delay to ensure everything shuts down
@@ -184,13 +195,55 @@ class Association(threading.Thread):
     @acse_timeout.setter
     def acse_timeout(self, value):
         """Set the ACSE timeout using numeric or None."""
-        self.dul.artim_timer.timeout = value
-        self._acse_timeout = value
+        with threading.Lock():
+            self.dul.artim_timer.timeout = value
+            self._acse_timeout = value
 
     @property
     def ae(self):
         """Return the Association's parent ApplicationEntity."""
         return self._ae
+
+    def bind(self, event, handler):
+        """Bind a callable `handler` to an `event`.
+
+        Parameters
+        ----------
+        event : 3-tuple
+            The event to bind the function to.
+        handler : callable
+            The function that will be called if the event occurs.
+        """
+        # Make sure no access to `_handlers` while its being changed
+        with threading.Lock():
+            # Notification events - multiple handlers allowed
+            if event.is_notification:
+                if event not in self._handlers:
+                    self._handlers[event] = []
+                if handler not in self._handlers[event]:
+                    self._handlers[event].append(handler)
+
+            # Intervention events - only one handler allowed
+            if event.is_intervention:
+                if event not in self._handlers:
+                    self._handlers[event] = None
+
+                if self._handlers[event] != handler:
+                    self._handlers[event] = handler
+
+    def _bind_defaults(self):
+        """Bind the default event handlers."""
+        # Intervention event handlers
+        for event in evt._INTERVENTION_EVENTS:
+            handler = evt.get_default_handler(event)
+            self.bind(event, handler)
+
+        # Notification event handlers
+        if _config.LOG_HANDLER_LEVEL == 'standard':
+            self.bind(evt.EVT_DIMSE_RECV, standard_dimse_recv_handler)
+            self.bind(evt.EVT_DIMSE_SENT, standard_dimse_sent_handler)
+            self.bind(evt.EVT_PDU_RECV, standard_pdu_recv_handler)
+            self.bind(evt.EVT_PDU_SENT, standard_pdu_sent_handler)
 
     def _check_received_status(self, rsp):
         """Return a pydicom Dataset containing status related elements.
@@ -236,8 +289,33 @@ class Association(threading.Thread):
     @dimse_timeout.setter
     def dimse_timeout(self, value):
         """Set the DIMSE timeout using numeric or None."""
-        self.dimse.dimse_timeout = value
-        self._dimse_timeout = value
+        with threading.Lock():
+            self._dimse_timeout = value
+
+    def get_events(self):
+        """Return a list of currently bound events."""
+        return sorted(self._handlers.keys(), key=lambda x: x.name)
+
+    def get_handlers(self, event):
+        """Return handlers bound to a specific `event`.
+
+        Parameters
+        ----------
+        event : tuple
+            The event bound to the handlers.
+
+        Returns
+        -------
+        callable, list of callable or None
+            If the event is a notification event then returns a list of
+            callable functions bound to `event`, if the event is an
+            intervention event then returns either a callable function if a
+            handler is bound to the event or None if no handler has been bound.
+        """
+        if event not in self._handlers:
+            return []
+
+        return self._handlers[event]
 
     def _get_valid_context(self, ab_syntax, tr_syntax, role, context_id=None):
         """Return a valid Presentation Context matching the parameters.
@@ -367,8 +445,9 @@ class Association(threading.Thread):
     @network_timeout.setter
     def network_timeout(self, value):
         """Set the network timeout using numeric or None."""
-        self.dul._idle_timer.timeout = value
-        self._network_timeout = value
+        with threading.Lock():
+            self.dul._idle_timer.timeout = value
+            self._network_timeout = value
 
     @property
     def rejected_contexts(self):
@@ -378,6 +457,7 @@ class Association(threading.Thread):
     def release(self):
         """Send an A-RELEASE request and initiate association release."""
         if self.is_established:
+            LOGGER.info('Releasing Association')
             self.acse.negotiate_release(self)
 
     @property
@@ -400,6 +480,7 @@ class Association(threading.Thread):
         # Wait until the DUL is up and running
         self._dul_ready.wait()
         # Start association negotiation
+        LOGGER.info("Requesting Association")
         self.acse.negotiate_association(self)
 
     def run(self):
@@ -422,10 +503,10 @@ class Association(threading.Thread):
                 return
 
             self.requestor.primitive = primitive
+            evt.trigger(self, evt.EVT_REQUESTED, {})
 
             self.acse.negotiate_association(self)
             if self.is_established:
-                self.dimse.maximum_pdu_size = self.requestor.maximum_length
                 self._run_as_acceptor()
         else:
             # Association requestor
@@ -435,7 +516,6 @@ class Association(threading.Thread):
                 self.acse.negotiate_association(self)
 
             if self.is_established:
-                self.dimse.maximum_pdu_size = self.acceptor.maximum_length
                 self._run_as_requestor()
 
     def _run_as_acceptor(self):
@@ -476,6 +556,7 @@ class Association(threading.Thread):
                 #   Class UID to determine which service to use
                 # If there's no AffectedSOPClassUID or RequestedSOPClassUID
                 #   then we received a C-CANCEL request
+                class_uid = ''
                 if getattr(msg, 'AffectedSOPClassUID', None) is not None:
                     # DIMSE-C, N-EVENT-REPORT, N-CREATE use AffectedSOPClassUID
                     class_uid = msg.AffectedSOPClassUID
@@ -515,9 +596,9 @@ class Association(threading.Thread):
                     self.dimse.cancel_req = {}
                 except NotImplementedError:
                     # SCP isn't implemented
-                    LOGGER.warning(
-                        "No service class implementation for '{}'"
-                        .format(context.abstract_syntax)
+                    LOGGER.error(
+                        "No supported service class available for the SOP "
+                        "Class UID '{}'".format(class_uid)
                     )
                     self.abort()
                     return
@@ -526,20 +607,22 @@ class Association(threading.Thread):
             if self.acse.is_release_requested(self):
                 # Send A-RELEASE response
                 self.acse.send_release(self, is_response=True)
+                LOGGER.info('Association Released')
                 self.is_released = True
                 self.is_established = False
+                evt.trigger(self, evt.EVT_RELEASED, {})
                 # Callback triggers
                 self.ae.on_association_released()
-                self.debug_association_released()
                 self.kill()
                 return
 
             # Check for abort
             if self.acse.is_aborted(self):
+                LOGGER.info('Association Aborted')
                 self.is_aborted = True
                 self.is_established = False
+                evt.trigger(self, evt.EVT_ABORTED, {})
                 # Callback trigger
-                self.debug_association_aborted()
                 self.ae.on_association_aborted(None)
                 self.kill()
                 return
@@ -566,21 +649,23 @@ class Association(threading.Thread):
             if self.acse.is_release_requested(self):
                 # Send A-RELEASE response
                 self.acse.send_release(self, is_response=True)
+                LOGGER.info('Association Released')
                 self.is_released = True
                 self.is_established = False
+                evt.trigger(self, evt.EVT_RELEASED, {})
                 # Callback triggers
                 self.ae.on_association_released()
-                self.debug_association_released()
                 self.kill()
                 return
 
             # Check for abort
             if self.acse.is_aborted(self):
+                LOGGER.info('Association Aborted')
                 self.is_aborted = True
                 self.is_established = False
+                evt.trigger(self, evt.EVT_ABORTED, {})
                 # Callback trigger
                 self.ae.on_association_aborted()
-                self.debug_association_aborted()
                 self.kill()
                 return
 
@@ -614,6 +699,32 @@ class Association(threading.Thread):
             raise RuntimeError("The Association already has a socket set.")
 
         self.dul.socket = socket
+
+    def unbind(self, event, handler):
+        """Unbind a callable `func` from an `event`.
+
+        Parameters
+        ----------
+        event : 3-tuple
+            The event to unbind the function from.
+        handler : callable
+            The function that will no longer be called if the event occurs.
+        """
+        if event not in self._handlers:
+            return
+
+        # Make sure no access to `_handlers` while its being changed
+        with threading.Lock():
+            # Notification events
+            if event.is_notification and handler in self._handlers[event]:
+                self._handlers[event].remove(handler)
+
+                if not self._handlers[event]:
+                    del self._handlers[event]
+
+            # Intervention events - unbind and replace with default
+            if event.is_intervention and self._handlers[event] == handler:
+                self._handlers[event] = evt.get_default_handler(event)
 
     # DIMSE-C services provided by the Association
     def _c_store_scp(self, req):
@@ -666,45 +777,64 @@ class Association(threading.Thread):
             self.dimse.send_msg(rsp, 1)
             return
 
-        # Attempt to decode the dataset
-        # pylint: disable=broad-except
         transfer_syntax = context.transfer_syntax[0]
-        if _config.DECODE_STORE_DATASETS:
+
+        # Attempt to handle the service request
+        # TODO: refactor in v1.4
+        default_handler = evt.get_default_handler(evt.EVT_C_STORE)
+        if self.get_handlers(evt.EVT_C_STORE) != default_handler:
             try:
-                ds = decode(req.DataSet,
-                            transfer_syntax.is_implicit_VR,
-                            transfer_syntax.is_little_endian)
+                status = evt.trigger(
+                    self,
+                    evt.EVT_C_STORE,
+                    {'request' : req, 'context' : context.as_tuple}
+                )
             except Exception as ex:
-                LOGGER.error('Failed to decode the received dataset')
+                LOGGER.error(
+                    "Exception in the handler bound to 'evt.EVT_C_STORE'"
+                )
                 LOGGER.exception(ex)
-                rsp.Status = 0xC210
-                rsp.ErrorComment = 'Unable to decode the dataset'
+                rsp.Status = 0xC211
                 self.dimse.send_msg(rsp, context.context_id)
                 return
         else:
-            ds = req.DataSet.getvalue()
+            if _config.DECODE_STORE_DATASETS:
+                # Attempt to decode the dataset
+                # pylint: disable=broad-except
+                try:
+                    ds = decode(req.DataSet,
+                                transfer_syntax.is_implicit_VR,
+                                transfer_syntax.is_little_endian)
+                except Exception as ex:
+                    LOGGER.error('Failed to decode the received dataset')
+                    LOGGER.exception(ex)
+                    rsp.Status = 0xC210
+                    rsp.ErrorComment = 'Unable to decode the dataset'
+                    self.dimse.send_msg(rsp, context.context_id)
+                    return
+            else:
+                ds = req.DataSet.getvalue()
 
-        info = {
-            'acceptor' : self.acceptor.info,
-            'requestor': self.requestor.info,
-            'parameters' : {
-                'message_id' : req.MessageID,
-                'priority' : req.Priority,
-                'originator_aet' : req.MoveOriginatorApplicationEntityTitle,
-                'original_message_id' : req.MoveOriginatorMessageID
+            info = {
+                'acceptor' : self.acceptor.info,
+                'requestor': self.requestor.info,
+                'parameters' : {
+                    'message_id' : req.MessageID,
+                    'priority' : req.Priority,
+                    'originator_aet' : req.MoveOriginatorApplicationEntityTitle,
+                    'original_message_id' : req.MoveOriginatorMessageID
+                }
             }
-        }
 
-        #  Attempt to run the ApplicationEntity's on_c_store callback
-        try:
-            status = self.ae.on_c_store(ds, context.as_tuple, info)
-        except Exception as ex:
-            LOGGER.error("Exception in the "
-                         "ApplicationEntity.on_c_store() callback")
-            LOGGER.exception(ex)
-            rsp.Status = 0xC211
-            self.dimse.send_msg(rsp, context.context_id)
-            return
+            try:
+                status = self.ae.on_c_store(ds, context.as_tuple, info)
+            except Exception as ex:
+                LOGGER.error("Exception in the "
+                             "ApplicationEntity.on_c_store() callback")
+                LOGGER.exception(ex)
+                rsp.Status = 0xC211
+                self.dimse.send_msg(rsp, context.context_id)
+                return
 
         # Check the callback's returned status
         if isinstance(status, Dataset):
@@ -820,8 +950,8 @@ class Association(threading.Thread):
         * DICOM Standard Part 4, `Annex A <http://dicom.nema.org/medical/dicom/current/output/html/part04.html#chapter_A>`_
         * DICOM Standard Part 7, Sections
           `9.1.5 <http://dicom.nema.org/medical/dicom/current/output/html/part07.html#sect_9.1.5>`_,
-           and `9.3.5 <http://dicom.nema.org/medical/dicom/current/output/html/part07.html#sect_9.3.5>`_
-          `Annex C <http://dicom.nema.org/medical/dicom/current/output/html/part07.html#chapter_C>`_
+          `9.3.5 <http://dicom.nema.org/medical/dicom/current/output/html/part07.html#sect_9.3.5>`_,
+          and `Annex C <http://dicom.nema.org/medical/dicom/current/output/html/part07.html#chapter_C>`_
         """
         # Can't send a C-ECHO without an Association
         if not self.is_established:
@@ -839,6 +969,7 @@ class Association(threading.Thread):
         primitive.AffectedSOPClassUID = VerificationSOPClass
 
         # Send C-ECHO request to the peer via DIMSE and wait for the response
+        LOGGER.info('Sending Echo Request: MsgID {}'.format(msg_id))
         self.dimse.send_msg(primitive, context.context_id)
         cx_id, rsp = self.dimse.get_msg(block=True)
 
@@ -1012,7 +1143,7 @@ class Association(threading.Thread):
           `9.1.2 <http://dicom.nema.org/medical/dicom/current/output/html/part07.html#sect_9.1.2>`_,
           `9.3.2 <http://dicom.nema.org/medical/dicom/current/output/html/part07.html#sect_9.3.2>`_,
           Annexes `C <http://dicom.nema.org/medical/dicom/current/output/html/part07.html#chapter_C>`_
-           and `K <http://dicom.nema.org/medical/dicom/current/output/html/part07.html#chapter_K>`_
+          and `K <http://dicom.nema.org/medical/dicom/current/output/html/part07.html#chapter_K>`_
         """
         # Can't send a C-FIND without an Association
         if not self.is_established:
@@ -1071,9 +1202,9 @@ class Association(threading.Thread):
             LOGGER.error("Failed to encode the supplied Dataset")
             raise ValueError('Failed to encode the supplied Dataset')
 
-        LOGGER.info('Find SCU Request Identifiers:')
+        LOGGER.info('Sending Find Request: MsgID {}'.format(msg_id))
         LOGGER.info('')
-        LOGGER.info('# DICOM Dataset')
+        LOGGER.info('# Identifier DICOM Dataset')
         for elem in dataset:
             LOGGER.info(elem)
         LOGGER.info('')
@@ -1292,9 +1423,9 @@ class Association(threading.Thread):
             raise ValueError('Failed to encode the supplied Identifer '
                              'dataset')
 
-        LOGGER.info('Get SCU Request Identifier:')
+        LOGGER.info('Sending Get Request: MsgID {}'.format(msg_id))
         LOGGER.info('')
-        LOGGER.info('# DICOM Dataset')
+        LOGGER.info('# Identifier DICOM Dataset')
         for elem in dataset:
             LOGGER.info(elem)
         LOGGER.info('')
@@ -1500,9 +1631,9 @@ class Association(threading.Thread):
             raise ValueError('Failed to encode the supplied Identifier '
                              'dataset')
 
-        LOGGER.info('Move SCU Request Identifier:')
+        LOGGER.info('Sending Move Request: MsgID {}'.format(msg_id))
         LOGGER.info('')
-        LOGGER.info('# DICOM Dataset')
+        LOGGER.info('# Identifier DICOM Dataset')
         for elem in dataset:
             LOGGER.info(elem)
         LOGGER.info('')
@@ -1760,16 +1891,13 @@ class Association(threading.Thread):
             LOGGER.debug('')
             if category == STATUS_PENDING:
                 LOGGER.info(
-                    "Find SCP Response: {} (Pending)".format(operation_no)
+                    "Find SCP Response: {} - 0x{:04x} (Pending)"
+                    .format(operation_no, status.Status)
                 )
-            elif category in [STATUS_SUCCESS, STATUS_CANCEL, STATUS_WARNING]:
+            else:
                 LOGGER.info(
-                    'Find SCP Result: ({})'.format(category)
-                )
-            elif category == STATUS_FAILURE:
-                LOGGER.info(
-                    'Find SCP Result: (Failure - 0x{:04x})'
-                    .format(status.Status)
+                    'Find SCP Result: 0x{:04x} ({})'
+                    .format(status.Status, category)
                 )
 
             # 'Success', 'Warning', 'Failure', 'Cancel' are final yields,
@@ -1783,7 +1911,7 @@ class Association(threading.Thread):
                                         transfer_syntax.is_implicit_VR,
                                         transfer_syntax.is_little_endian)
                     LOGGER.debug('')
-                    LOGGER.debug('# DICOM Dataset')
+                    LOGGER.debug('# Identifier DICOM Dataset')
                     for elem in identifier:
                         LOGGER.debug(elem)
                     LOGGER.debug('')
@@ -1879,17 +2007,13 @@ class Association(threading.Thread):
             LOGGER.debug('')
             if category == STATUS_PENDING:
                 LOGGER.info(
-                    "{} SCP Response: {} (Pending)"
-                    .format(rsp_name[rsp_type], operation_no + 1)
+                    "{} SCP Response: {} - 0x{:04x} (Pending)"
+                    .format(rsp_name[rsp_type], operation_no, status.Status)
                 )
-            elif category in [STATUS_SUCCESS, STATUS_CANCEL, STATUS_WARNING]:
+            else:
                 LOGGER.info(
-                    '{} SCP Result: ({})'.format(rsp_name[rsp_type], category)
-                )
-            elif category == STATUS_FAILURE:
-                LOGGER.info(
-                    '{} SCP Result: (Failure - 0x{:04x})'
-                    .format(rsp_name[rsp_type], status.Status)
+                    '{} SCP Result: 0x{:04x} ({})'
+                    .format(rsp_name[rsp_type], status.Status, category)
                 )
 
             # Log number of remaining sub-operations - C-GET/C-MOVE only
@@ -1921,11 +2045,12 @@ class Association(threading.Thread):
                     identifier = decode(rsp.Identifier,
                                         transfer_syntax.is_implicit_VR,
                                         transfer_syntax.is_little_endian)
-                    LOGGER.debug('')
-                    LOGGER.debug('# DICOM Dataset')
-                    for elem in identifier:
-                        LOGGER.debug(elem)
-                    LOGGER.debug('')
+                    if identifier:
+                        LOGGER.debug('')
+                        LOGGER.debug('# Identifier DICOM Dataset')
+                        for elem in identifier:
+                            LOGGER.debug(elem)
+                        LOGGER.debug('')
                 except Exception as ex:
                     LOGGER.error(
                         "Failed to decode the received Identifier dataset"
@@ -2049,6 +2174,7 @@ class Association(threading.Thread):
             raise ValueError('Failed to encode the supplied Dataset')
 
         # Send N-ACTION request to the peer via DIMSE and wait for the response
+        LOGGER.info('Sending Action Request: MsgID {}'.format(msg_id))
         self.dimse.send_msg(req, context.context_id)
         cx_id, rsp = self.dimse.get_msg(block=True)
 
@@ -2189,6 +2315,7 @@ class Association(threading.Thread):
             raise ValueError('Failed to encode the supplied Dataset')
 
         # Send N-CREATE request to the peer via DIMSE and wait for the response
+        LOGGER.info('Sending Create Request: MsgID {}'.format(msg_id))
         self.dimse.send_msg(req, context.context_id)
         cx_id, rsp = self.dimse.get_msg(block=True)
 
@@ -2303,6 +2430,7 @@ class Association(threading.Thread):
         req.RequestedSOPInstanceUID = instance_uid
 
         # Send N-DELETE request to the peer via DIMSE and wait for the response
+        LOGGER.info('Sending Delete Request: MsgID {}'.format(msg_id))
         self.dimse.send_msg(req, context.context_id)
         cx_id, rsp = self.dimse.get_msg(block=True)
 
@@ -2431,6 +2559,7 @@ class Association(threading.Thread):
 
         # Send N-EVENT-REPORT request to the peer via DIMSE and wait for
         # the response primitive
+        LOGGER.info('Sending Event Report Request: MsgID {}'.format(msg_id))
         self.dimse.send_msg(req, context.context_id)
         cx_id, rsp = self.dimse.get_msg(block=True)
 
@@ -2566,6 +2695,7 @@ class Association(threading.Thread):
         req.AttributeIdentifierList = identifier_list
 
         # Send N-GET request to the peer via DIMSE and wait for the response
+        LOGGER.info('Sending Get Request: MsgID {}'.format(msg_id))
         self.dimse.send_msg(req, context.context_id)
         cx_id, rsp = self.dimse.get_msg(block=True)
 
@@ -2711,6 +2841,7 @@ class Association(threading.Thread):
             raise ValueError('Failed to encode the supplied Dataset')
 
         # Send N-SET request to the peer via DIMSE and wait for the response
+        LOGGER.info('Sending Set Request: MsgID {}'.format(msg_id))
         self.dimse.send_msg(req, context.context_id)
         cx_id, rsp = self.dimse.get_msg(block=True)
 
@@ -2745,99 +2876,6 @@ class Association(threading.Thread):
                 status.Status = 0x0110
 
         return status, attribute_list
-
-    # Association logging/debugging functions
-    @staticmethod
-    def debug_association_aborted(primitive=None):
-        """Debugging information when an A-ABORT request received.
-
-        Parameters
-        ----------
-        assoc_primitive : pynetdicom.pdu_primitives.A_ABORT
-            The A-ABORT (RQ) primitive received from the DICOM Upper Layer
-        """
-        LOGGER.error('Association Aborted')
-
-    @staticmethod
-    def debug_association_accepted(primitive):
-        """Debugging information when an A-ASSOCIATE accept is received.
-
-        Parameters
-        ----------
-        primitive : pynetdicom.pdu_primitives.A_ASSOCIATE
-            The A-ASSOCIATE (AC) PDU received from the DICOM Upper Layer
-        """
-        pass
-
-    @staticmethod
-    def debug_association_rejected(primitive):
-        """Debugging information when an A-ASSOCIATE rejection received.
-
-        Parameters
-        ----------
-        assoc_primitive : pynetdicom.pdu_primitives.A_ASSOCIATE
-            The A-ASSOCIATE (RJ) primitive received from the DICOM Upper Layer
-        """
-        # See PS3.8 Section 7.1.1.9 but mainly Section 9.3.4 and Table 9-21
-        #   for information on the result and diagnostic information
-        source = primitive.result_source
-        result = primitive.result
-        reason = primitive.diagnostic
-
-        source_str = {1 : 'Service User',
-                      2 : 'Service Provider (ACSE)',
-                      3 : 'Service Provider (Presentation)'}
-
-        reason_str = [{1 : 'No reason given',
-                       2 : 'Application context name not supported',
-                       3 : 'Calling AE title not recognised',
-                       4 : 'Reserved',
-                       5 : 'Reserved',
-                       6 : 'Reserved',
-                       7 : 'Called AE title not recognised',
-                       8 : 'Reserved',
-                       9 : 'Reserved',
-                       10 : 'Reserved'},
-                      {1 : 'No reason given',
-                       2 : 'Protocol version not supported'},
-                      {0 : 'Reserved',
-                       1 : 'Temporary congestion',
-                       2 : 'Local limit exceeded',
-                       3 : 'Reserved',
-                       4 : 'Reserved',
-                       5 : 'Reserved',
-                       6 : 'Reserved',
-                       7 : 'Reserved'}]
-
-        result_str = {1 : 'Rejected Permanent',
-                      2 : 'Rejected Transient'}
-
-        LOGGER.error('Association Rejected:')
-        LOGGER.error('Result: %s, Source: %s', result_str[result],
-                     source_str[source])
-        LOGGER.error('Reason: %s', reason_str[source - 1][reason])
-
-    @staticmethod
-    def debug_association_released(primitive=None):
-        """Debugging information when an A-RELEASE request received.
-
-        Parameters
-        ----------
-        assoc_primitive : pynetdicom.pdu_primitives.A_RELEASE
-            The A-RELEASE (RQ) primitive received from the DICOM Upper Layer
-        """
-        LOGGER.info('Association Released')
-
-    @staticmethod
-    def debug_association_requested(primitive):
-        """Debugging information when an A-ASSOCIATE request received.
-
-        Parameters
-        ----------
-        primitive : pynetdicom.pdu_primitives.A_ASSOCIATE
-            The A-ASSOCIATE (RQ) PDU received from the DICOM Upper Layer
-        """
-        pass
 
 
 class ServiceUser(object):

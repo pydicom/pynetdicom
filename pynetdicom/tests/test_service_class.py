@@ -111,7 +111,8 @@ class TestServiceClass(object):
         """Test that ServiceClass.SCP raises exception"""
         service = ServiceClass(None)
         msg = (
-            r"No service has been implemented for the SOP Class UID '1.2.3'"
+            r"No service class has been implemented for the "
+            r"SOP Class UID '1.2.3'"
         )
         with pytest.raises(NotImplementedError, match=msg):
             service.SCP(None, build_context('1.2.3'), None)

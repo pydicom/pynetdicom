@@ -18,7 +18,7 @@ import threading
 from pydicom import read_file
 
 from dummy_c_scp import DummyStorageSCP
-from pynetdicom import AE
+from pynetdicom import AE, evt
 from pynetdicom import _config
 from pynetdicom.sop_class import CTImageStorage, RTImageStorage
 
@@ -74,11 +74,11 @@ BIG_DATASET = read_file(os.path.join(TEST_DS_DIR, 'RTImageStorage.dcm')) # 2.1 M
 DATASET = read_file(os.path.join(TEST_DS_DIR, 'CTImageStorage.dcm')) # 39 kB
 
 
-_config.DECODE_STORE_DATASETS = True
+#_config.DECODE_STORE_DATASETS = True
 
 
-def on_c_store(ds, context, info):
-    """Callback for ae.on_c_store"""
+def handle(event):
+    """Handler for evt.EVT_C_STORE"""
     return 0x0000
 
 
@@ -86,6 +86,6 @@ ae = AE()
 ae.add_supported_context(CTImageStorage)
 ae.add_supported_context(RTImageStorage)
 
-ae.on_c_store = on_c_store
+handlers = [(evt.EVT_C_STORE, handle)]
 
-ae.start_server(('', 11112))
+ae.start_server(('', 11112), evt_handlers=handlers)

@@ -51,7 +51,7 @@ Transfer Syntax(es):
     =Implicit VR Little Endian
     =JPEG Baseline (Process 1)
 
-However its more convenient to use the
+However its easier to use the
 :py:meth:`build_context <pynetdicom.presentation.build_context>`
 convenience function which returns a ``PresentationContext`` instance:
 
@@ -164,7 +164,7 @@ Transfer Syntax(es):
 Provided both contexts get accepted then its becomes possible to transfer CT
 Image datasets encoded in *JPEG Baseline* and/or *Implicit VR Little Endian*.
 Alternatively it may be necessary to decompress datasets prior to sending (as
-Implicit VR Little Endian should always be accepted).
+*Implicit VR Little Endian* should always be accepted).
 
 
 Presentation Contexts and the Association Acceptor
@@ -309,10 +309,9 @@ association *Acceptor* sends data back to the *Requestor*.
 
 To propose SCP/SCU Role Selection as a *Requestor* you should include
 :py:class:`SCP_SCU_RoleSelectionNegotiation <pynetdicom.pdu_primitives.SCP_SCU_RoleSelectionNegotiation>`
-items in the extended negotiation, either through creating
-SCP_SCU_RoleSelectionNegotiation items from scratch or using the
-:py:meth:`build_role() <pynetdicom.presentation.build_role>` convenience
-function:
+items in the extended negotiation, either by creating them from scratch or
+using the :py:meth:`build_role() <pynetdicom.presentation.build_role>`
+convenience function:
 
   ::
 

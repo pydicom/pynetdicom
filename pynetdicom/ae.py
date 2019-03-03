@@ -442,7 +442,7 @@ class ApplicationEntity(object):
 
     def associate(self, addr, port, contexts=None, ae_title=b'ANY-SCP',
                   max_pdu=DEFAULT_MAX_LENGTH, ext_neg=None,
-                  bind_address=('', 0), tls_args=None):
+                  bind_address=('', 0), tls_args=None, evt_handlers=None):
         """Request an Association with a remote AE.
 
         The Association thread is returned whether or not the association is
@@ -478,6 +478,13 @@ class ApplicationEntity(object):
             `server_hostname` is the value to use for the corresponding
             keyword parameter in ``SSLContext.wrap_sockets()``. If no
             `tls_args` is supplied then TLS will not be used (default).
+        evt_handlers : list of 2-tuple, optional
+            A list of (event, handler), where `event` is an ``evt.EVT_*`` event
+            tuple and `handler` is a callable function that will be bound to
+            the event. The handler should take a single ``event.Event``
+            parameter and may return or yield objects depending on the exact
+            event that the handler is bound to. For more information see the
+            :ref:`documentation<user_events>`.
 
         Returns
         -------
@@ -552,6 +559,11 @@ class ApplicationEntity(object):
 
         assoc.requestor.requested_contexts = contexts
 
+        # Bind events to the handlers
+        evt_handlers = evt_handlers or {}
+        for (event, handler) in evt_handlers:
+            assoc.bind(event, handler)
+
         # Send an A-ASSOCIATE request to the peer and start negotiation
         assoc.request()
 
@@ -581,7 +593,6 @@ class ApplicationEntity(object):
 
         for assoc in self.active_associations:
             assoc.dimse_timeout = self.dimse_timeout
-            assoc.dimse.dimse_timeout = self.dimse_timeout
 
     @property
     def implementation_class_uid(self):
@@ -1044,7 +1055,8 @@ class ApplicationEntity(object):
             validate_ae_title(aet) for aet in ae_titles
         ]
 
-    def start_server(self, address, block=True, ssl_context=None):
+    def start_server(self, address, block=True, ssl_context=None,
+                     evt_handlers=None):
         """Start the AE as an association acceptor.
 
         If set to non-blocking then a running ``ThreadedAssociationServer``
@@ -1062,6 +1074,13 @@ class ApplicationEntity(object):
             If TLS is required then this should the SSLContext instance to
             use to wrap the client sockets, otherwise if None then no TLS will
             be used (default).
+        evt_handlers : list of 2-tuple, optional
+            A list of (event, handler), where `event` is an ``evt.EVT_*`` event
+            tuple and `handler` is a callable function that will be bound to
+            the event. The handler should take a single ``event.Event``
+            parameter and may return or yield objects depending on the exact
+            event that the handler is bound to. For more information see the
+            :ref:`documentation<user_events>`.
 
         Returns
         -------
@@ -1090,9 +1109,15 @@ class ApplicationEntity(object):
             msg += '\n  '.join(bad_contexts)
             raise ValueError(msg)
 
+        evt_handlers = evt_handlers or {}
+
         if block:
-            server = AssociationServer(self, address, ssl_context)
+            # Blocking server
+            server = AssociationServer(
+                self, address, ssl_context, evt_handlers=evt_handlers
+            )
             self._servers.append(server)
+
             try:
                 # **BLOCKING**
                 server.serve_forever()
@@ -1101,7 +1126,10 @@ class ApplicationEntity(object):
         else:
             # Non-blocking server
             timestamp = datetime.strftime(datetime.now(), "%Y%m%d%H%M%S")
-            server = ThreadedAssociationServer(self, address, ssl_context)
+            server = ThreadedAssociationServer(
+                self, address, ssl_context, evt_handlers=evt_handlers
+            )
+
             thread = threading.Thread(
                 target=server.serve_forever,
                 name="AcceptorServer@{}".format(timestamp)
@@ -2210,32 +2238,16 @@ class ApplicationEntity(object):
         )
 
 
-    # Communication related callbacks
-    def on_receive_connection(self):
-        """Callback for a connection is received.
-        ** NOT IMPLEMENTED **
-        """
-        raise NotImplementedError()
-
-    def on_make_connection(self):
-        """Callback for a connection is made.
-        ** NOT IMPLEMENTED **
-        """
-        raise NotImplementedError()
-
-
     # High-level Association related callbacks
-    def on_association_requested(self, primitive):
-        """Callback for an association is requested.
-        ** NOT IMPLEMENTED **
-        """
-        pass
-
     def on_association_accepted(self, primitive):
         """Callback for when an association is accepted.
-        ** NOT IMPLEMENTED **
+
+        Deprecated and will be removed in v1.4. Bind a handler to
+        ``evt.EVT_ACCEPTED`` instead.
+
         Placeholder for a function callback. Function will be called
         when an association attempt is accepted by either the local or peer AE
+
         Parameters
         ----------
         pdu_primitives.A_ASSOCIATE
@@ -2245,9 +2257,13 @@ class ApplicationEntity(object):
 
     def on_association_rejected(self, primitive):
         """Callback for when an association is rejected.
-        ** NOT IMPLEMENTED **
+
+        Deprecated and will be removed in v1.4. Bind a handler to
+        ``evt.EVT_REJECTED`` instead.
+
         Placeholder for a function callback. Function will be called
         when an association attempt is rejected by a peer AE
+
         Parameters
         ----------
         associate_rq_pdu : pynetdicom.pdu.A_ASSOCIATE_RJ
@@ -2257,13 +2273,16 @@ class ApplicationEntity(object):
 
     def on_association_released(self, primitive=None):
         """Callback for when an association is released.
-        ** NOT IMPLEMENTED **
+
+        Deprecated and will be removed in v1.4. Bind a handler to
+        ``evt.EVT_RELEASED`` instead.
         """
         pass
 
     def on_association_aborted(self, primitive=None):
         """Callback for when an association is aborted.
-        ** NOT IMPLEMENTED **
+
+        Deprecated and will be removed in v1.4. Bind a handler to
+        ``evt.EVT_ABORTED`` instead.
         """
-        # FIXME: Need to standardise callback parameters for A-ABORT
         pass

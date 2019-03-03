@@ -18,7 +18,7 @@ from pydicom.uid import (
 )
 
 from pynetdicom import (
-    AE,
+    AE, evt,
     QueryRetrievePresentationContexts,
     StoragePresentationContexts
 )
@@ -31,7 +31,7 @@ logger.addHandler(stream_logger)
 logger.setLevel(logging.ERROR)
 
 
-VERSION = '0.3.0'
+VERSION = '0.4.0'
 
 
 def _setup_argparser():
@@ -160,12 +160,13 @@ if args.prefer_big and ExplicitVRBigEndian in transfer_syntax:
         transfer_syntax.remove(ExplicitVRBigEndian)
         transfer_syntax.insert(0, ExplicitVRBigEndian)
 
-def on_c_get(dataset, context, info):
+def handle_get(event):
     """Implement the on_c_get callback"""
     try:
-        basedir = '../../tests/dicom_files/'
+        APP_DIR = os.path.join(os.path.dirname(__file__))
+        DATA_DIR = os.path.join(APP_DIR, '../', '../', 'tests', 'dicom_files')
         dcm_files = ['RTImageStorage.dcm', 'CTImageStorage.dcm']
-        dcm_files = [os.path.join(basedir, x) for x in dcm_files]
+        dcm_files = [os.path.join(DATA_DIR, x) for x in dcm_files]
         yield len(dcm_files)
     except:
         dcm_files = []
@@ -175,6 +176,7 @@ def on_c_get(dataset, context, info):
         ds = dcmread(dcm, force=True)
         yield 0xFF00, ds
 
+handlers = [(evt.EVT_C_GET, handle_get)]
 
 # Create application entity
 ae = AE(ae_title=args.aetitle)
@@ -193,6 +195,4 @@ ae.network_timeout = args.timeout
 ae.acse_timeout = args.acse_timeout
 ae.dimse_timeout = args.dimse_timeout
 
-ae.on_c_get = on_c_get
-
-ae.start_server(('', args.port))
+ae.start_server(('', args.port), evt_handlers=handlers)

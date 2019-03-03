@@ -37,7 +37,7 @@ Display System Management Service.
         )
 
         # Check the status of the display system request
-        if 'Status' in status:
+        if status:
             print('N-GET request status: 0x{0:04x}'.format(status.Status))
 
             # If the display system request succeeded the status category may
@@ -47,12 +47,12 @@ Display System Management Service.
                 # `attr_list` is a pydicom Dataset containing attribute values
                 print(attr_list)
         else:
-            print('Connection timed out or invalid response from peer')
+            print('Connection timed out, was aborted or received invalid response')
 
         # Release the association
         assoc.release()
     else:
-        print('Association rejected or aborted')
+        print('Association rejected, aborted or never connected')
 
 You can also use the inbuilt ``DisplaySystemPresentationContexts`` when setting
 the requested contexts.
@@ -65,6 +65,8 @@ the requested contexts.
    ae.requested_contexts = DisplaySystemPresentationContexts
 
 
+.. _example_nget_scp:
+
 Display System Management SCP
 .............................
 
@@ -72,47 +74,20 @@ The following represents a toy implementation of a Display System Management
 SCP, where the SCU has sent a request with an *Attribute Identifier List*
 containing the single tag (0008,0070).
 
+Check the
+`handler implementation documentation
+<../reference/generated/pynetdicom._handlers.doc_handle_n_get.html>`_
+to see the requirements for the ``evt.EVT_N_GET`` handler.
+
 .. code-block:: python
 
-    from pynetdicom import AE
+    from pynetdicom import AE, evt
     from pynetdicom.sop_class import DisplaySystemSOPClass
 
-    # Initialise the Application Entity and specify the listen port
-    ae = AE()
-
-    # Add the supported presentation context
-    ae.add_supported_context(DisplaySystemSOPClass)
-
-    def on_n_get(attr, context, info):
-        """Callback for when an N-GET request is received.
-
-        Parameters
-        ----------
-        attr : list of pydicom.tag.Tag
-            The value of the (0000,1005) *Attribute Idenfier List* element
-            containing the attribute tags for the N-GET operation.
-        context : presentation.PresentationContextTuple
-            The presentation context that the N-GET message was sent under.
-        info : dict
-            A dict containing information about the current association.
-
-        Returns
-        -------
-        status : pydicom.dataset.Dataset or int
-            The status returned to the peer AE in the N-GET response. Must be a
-            valid N-GET status value for the applicable Service Class as either
-            an ``int`` or a ``Dataset`` object containing (at a minimum) a
-            (0000,0900) *Status* element. If returning a Dataset object then
-            it may also contain optional elements related to the Status (as in
-            DICOM Standard Part 7, Annex C).
-        dataset : pydicom.dataset.Dataset or None
-            If the status category is 'Success' or 'Warning' then a dataset
-            containing elements matching the request's Attribute List
-            conformant to the specifications in the corresponding Service
-            Class.
-
-            If the status is not 'Successs' or 'Warning' then return None.
-        """
+    # Implement a handler evt.EVT_N_GET
+    def handle_get(event):
+        """Handle an N-GET request event."""
+        attr = event.request.AttributeIdentifierList
         # User defined function to generate the required attribute list dataset
         # implementation is outside the scope of the current example
         # We pretend it returns a pydicom Dataset
@@ -126,7 +101,13 @@ containing the single tag (0008,0070).
         # Return status, dataset
         return 0x0000, dataset
 
-    ae.on_n_get = on_n_get
+    handlers = [(evt.EVT_N_GET, handle_get)]
+
+    # Initialise the Application Entity and specify the listen port
+    ae = AE()
+
+    # Add the supported presentation context
+    ae.add_supported_context(DisplaySystemSOPClass)
 
     # Start listening for incoming association requests
-    ae.start_server(('', 11112))
+    ae.start_server(('', 11112), evt_handlers=handlers)

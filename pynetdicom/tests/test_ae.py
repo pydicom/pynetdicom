@@ -18,7 +18,7 @@ from .dummy_c_scp import (DummyVerificationSCP, DummyStorageSCP,
                           DummyFindSCP, DummyGetSCP, DummyMoveSCP,
                           DummyBaseSCP)
 from pynetdicom import (
-    AE,
+    AE, evt,
     DEFAULT_TRANSFER_SYNTAXES,
     StoragePresentationContexts,
     VerificationPresentationContexts,
@@ -42,6 +42,29 @@ LOGGER.setLevel(logging.CRITICAL)
 TEST_DS_DIR = os.path.join(os.path.dirname(__file__), 'dicom_files')
 DATASET = read_file(os.path.join(TEST_DS_DIR, 'RTImageStorage.dcm'))
 COMP_DATASET = read_file(os.path.join(TEST_DS_DIR, 'MRImageStorage_JPG2000_Lossless.dcm'))
+
+
+def test_blocking_handler():
+    """Test binding events to the blocking AssociationServer."""
+    ae = AE()
+    ae.add_supported_context('1.2.840.10008.1.1')
+
+    def handle_echo(event):
+        return 0x0000
+
+    handlers = [(evt.EVT_C_ECHO, handle_echo)]
+
+    thread = threading.Thread(
+        target=ae.start_server,
+        args=(('', 11112), ),
+        kwargs={'evt_handlers' : handlers}
+    )
+    thread.daemon = True
+    thread.start()
+
+    time.sleep(0.1)
+
+    ae.shutdown()
 
 
 class TestAEVerificationSCP(object):
@@ -349,23 +372,6 @@ class TestAEGoodCallbacks(object):
         with pytest.raises(NotImplementedError):
             ae.on_n_delete(None, None)
 
-    def test_on_receive_connection(self):
-        """Test default callback raises exception"""
-        ae = AE()
-        with pytest.raises(NotImplementedError):
-            ae.on_receive_connection()
-
-    def test_on_make_connection(self):
-        """Test default callback raises exception"""
-        ae = AE()
-        with pytest.raises(NotImplementedError):
-            ae.on_make_connection()
-
-    def test_association_requested(self):
-        """Test default callback raises exception"""
-        ae = AE()
-        ae.on_association_requested(None)
-
     def test_association_accepted(self):
         """Test default callback raises exception"""
         ae = AE()
@@ -493,9 +499,13 @@ class TestAEGoodAssociation(object):
     def setup(self):
         """Run prior to each test"""
         self.scp = None
+        self.ae = None
 
     def teardown(self):
         """Clear any active threads"""
+        if self.ae:
+            self.ae.shutdown()
+
         if self.scp:
             self.scp.abort()
 
@@ -525,19 +535,22 @@ class TestAEGoodAssociation(object):
 
     def test_associate_max_pdu(self):
         """ Check Association has correct max PDUs on either end """
-        self.scp = DummyVerificationSCP()
-        self.scp.ae.maximum_pdu_size = 54321
-        self.scp.start()
+        self.ae = ae = AE()
+        ae.add_supported_context(VerificationSOPClass)
+        ae.add_requested_context(VerificationSOPClass)
+        ae.maximum_pdu_size = 54321
+        scp = ae.start_server(('', 11112), block=False)
 
         ae = AE()
         ae.add_requested_context(VerificationSOPClass)
         ae.acse_timeout = 5
         ae.dimse_timeout = 5
         assoc = ae.associate('localhost', 11112, max_pdu=12345)
-        assert self.scp.ae.active_associations[0].acceptor.maximum_length == (
+
+        assert scp.active_associations[0].acceptor.maximum_length == (
             54321
         )
-        assert self.scp.ae.active_associations[0].requestor.maximum_length == (
+        assert scp.active_associations[0].requestor.maximum_length == (
             12345
         )
         assert assoc.requestor.maximum_length == 12345
@@ -547,11 +560,11 @@ class TestAEGoodAssociation(object):
         # Check 0 max pdu value - max PDU value maps to 0x10000 internally
         assoc = ae.associate('localhost', 11112, max_pdu=0)
         assert assoc.requestor.maximum_length == 0
-        assert self.scp.ae.active_associations[0].requestor.maximum_length == 0
+        assert scp.active_associations[0].requestor.maximum_length == 0
 
         assoc.release()
 
-        self.scp.stop()
+        scp.shutdown()
 
     def test_association_timeouts(self):
         """ Check that the Association timeouts are being set correctly and

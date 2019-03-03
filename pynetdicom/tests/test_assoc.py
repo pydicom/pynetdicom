@@ -1,6 +1,7 @@
 """Association testing"""
 
 from copy import deepcopy
+from datetime import datetime
 from io import BytesIO
 import logging
 import os
@@ -24,10 +25,13 @@ from pydicom.uid import (
     JPEG2000Lossless,
 )
 
-from pynetdicom import AE, VerificationPresentationContexts, build_context
+from pynetdicom import (
+    AE, VerificationPresentationContexts, build_context, evt, _config
+)
 from pynetdicom.association import Association
 from pynetdicom.dimse_primitives import C_STORE, C_FIND, C_GET, C_MOVE
 from pynetdicom.dsutils import encode, decode
+from pynetdicom.events import Event
 from pynetdicom._globals import MODE_REQUESTOR, MODE_ACCEPTOR
 from pynetdicom.pdu_primitives import (
     UserIdentityNegotiation, SOPClassExtendedNegotiation,
@@ -818,8 +822,16 @@ class TestAssociation(object):
 
             scp.shutdown()
 
+    def test_get_events(self):
+        """Test Association.get_events()."""
+        ae = AE()
+        ae.add_requested_context(VerificationSOPClass)
+        assoc = ae.associate('localhost', 11112)
+        assert evt.EVT_C_STORE in assoc.get_events()
+        assert evt.EVT_USER_ID in assoc.get_events()
 
-class TestAssociationSendCEcho(object):
+
+class TestAssociationSendCEcho_Old(object):
     """Run tests on Assocation send_c_echo."""
     def setup(self):
         """Run prior to each test"""
@@ -1004,6 +1016,198 @@ class TestAssociationSendCEcho(object):
         assert assoc.is_released
         self.scp.stop()
 
+
+class TestAssociationSendCEcho(object):
+    """Run tests on Assocation evt.EVT_C_ECHO handler."""
+    def setup(self):
+        """Run prior to each test"""
+        self.scp = None
+        self.ae = None
+
+    def teardown(self):
+        """Clear any active threads"""
+        if self.scp:
+            self.scp.abort()
+
+        if self.ae:
+            self.ae.shutdown()
+
+        time.sleep(0.1)
+
+        for thread in threading.enumerate():
+            if isinstance(thread, DummyBaseSCP):
+                thread.abort()
+                thread.stop()
+
+    def test_must_be_associated(self):
+        """Test can't send without association."""
+        # Test raise if assoc not established
+        self.scp = DummyVerificationSCP()
+        self.scp.start()
+        ae = AE()
+        ae.add_requested_context(VerificationSOPClass)
+        ae.acse_timeout = 5
+        ae.dimse_timeout = 5
+        assoc = ae.associate('localhost', 11112)
+        assert assoc.is_established
+        assoc.release()
+        assert assoc.is_released
+        assert not assoc.is_established
+        with pytest.raises(RuntimeError):
+            assoc.send_c_echo()
+        self.scp.stop()
+
+    def test_no_abstract_syntax_match(self):
+        """Test SCU when no accepted abstract syntax"""
+        self.scp = DummyStorageSCP()
+        self.scp.start()
+        ae = AE()
+        ae.add_requested_context(CTImageStorage)
+        ae.acse_timeout = 5
+        ae.dimse_timeout = 5
+        assoc = ae.associate('localhost', 11112)
+        assert assoc.is_established
+        with pytest.raises(ValueError):
+            assoc.send_c_echo()
+        assoc.release()
+        assert assoc.is_released
+        self.scp.stop()
+
+    def test_rsp_none(self):
+        """Test no response from peer"""
+        self.scp = DummyVerificationSCP()
+        self.scp.start()
+        ae = AE()
+        ae.add_requested_context(VerificationSOPClass)
+        ae.acse_timeout = 5
+        ae.dimse_timeout = 5
+        assoc = ae.associate('localhost', 11112)
+        class DummyDIMSE():
+            def send_msg(*args, **kwargs): return
+            def get_msg(*args, **kwargs): return None, None
+
+        assoc.dimse = DummyDIMSE()
+        if assoc.is_established:
+            assoc.send_c_echo()
+
+        assert assoc.is_aborted
+
+        self.scp.stop()
+
+    def test_rsp_invalid(self):
+        """Test invalid response received from peer"""
+        self.scp = DummyVerificationSCP()
+        self.scp.start()
+        ae = AE()
+        ae.add_requested_context(VerificationSOPClass)
+        ae.acse_timeout = 5
+        ae.dimse_timeout = 5
+        assoc = ae.associate('localhost', 11112)
+
+        class DummyResponse():
+            is_valid_response = False
+
+        class DummyDIMSE():
+            def send_msg(*args, **kwargs): return
+            def get_msg(*args, **kwargs): return None, DummyResponse()
+
+        assoc.dimse = DummyDIMSE()
+        if assoc.is_established:
+            assoc.send_c_echo()
+
+        assert assoc.is_aborted
+
+        self.scp.stop()
+
+    def test_rsp_success(self):
+        """Test receiving a success response from the peer"""
+        scp = AE()
+        scp.add_supported_context(VerificationSOPClass)
+        scp.start_server(('', 11112), block=False)
+
+        ae = AE()
+        ae.add_requested_context(VerificationSOPClass)
+        ae.acse_timeout = 5
+        ae.dimse_timeout = 5
+        assoc = ae.associate('localhost', 11112)
+        assert assoc.is_established
+        result = assoc.send_c_echo()
+        assert result.Status == 0x0000
+        assoc.release()
+        assert assoc.is_released
+
+        scp.shutdown()
+
+    def test_rsp_failure(self):
+        """Test receiving a failure response from the peer"""
+        def handler(event):
+            return 0x0210
+
+        self.ae = ae = AE()
+        ae.add_supported_context(VerificationSOPClass)
+        handlers = [(evt.EVT_C_ECHO, handler)]
+        scp = ae.start_server(('', 11112), block=False, evt_handlers=handlers)
+
+        ae.add_requested_context(VerificationSOPClass)
+        ae.acse_timeout = 5
+        ae.dimse_timeout = 5
+        assoc = ae.associate('localhost', 11112)
+        assert assoc.is_established
+        result = assoc.send_c_echo()
+        assert result.Status == 0x0210
+        assoc.release()
+        assert assoc.is_released
+
+        scp.shutdown()
+
+    def test_rsp_unknown_status(self):
+        """Test unknown status value returned by peer"""
+        def handler(event):
+            return 0xFFF0
+
+        self.ae = ae = AE()
+        ae.add_supported_context(VerificationSOPClass)
+        handlers = [(evt.EVT_C_ECHO, handler)]
+        scp = ae.start_server(('', 11112), block=False, evt_handlers=handlers)
+
+        ae.add_requested_context(VerificationSOPClass)
+        ae.acse_timeout = 5
+        ae.dimse_timeout = 5
+        assoc = ae.associate('localhost', 11112)
+        assert assoc.is_established
+        result = assoc.send_c_echo()
+        assert result.Status == 0xFFF0
+        assoc.release()
+        assert assoc.is_released
+
+        scp.shutdown()
+
+    def test_rsp_multi_status(self):
+        """Test receiving a status with extra elements"""
+        def handler(event):
+            ds = Dataset()
+            ds.Status = 0x0122
+            ds.ErrorComment = 'Some comment'
+            return ds
+
+        self.ae = ae = AE()
+        ae.add_supported_context(VerificationSOPClass)
+        handlers = [(evt.EVT_C_ECHO, handler)]
+        scp = ae.start_server(('', 11112), block=False, evt_handlers=handlers)
+
+        ae.add_requested_context(VerificationSOPClass)
+        ae.acse_timeout = 5
+        ae.dimse_timeout = 5
+        assoc = ae.associate('localhost', 11112)
+        assert assoc.is_established
+        result = assoc.send_c_echo()
+        assert result.Status == 0x0122
+        assert result.ErrorComment == 'Some comment'
+        assoc.release()
+        assert assoc.is_released
+
+        scp.shutdown()
+
     def test_abort_during(self):
         """Test aborting the association during message exchange"""
         self.scp = DummyVerificationSCP()
@@ -1058,10 +1262,11 @@ class TestAssociationSendCEcho(object):
     def test_common_ext_neg_no_general_sop(self):
         """Test sending SOP Class Common Extended Negotiation."""
         # With no Related General SOP Classes
-        self.scp = DummyVerificationSCP()
-        self.scp.start()
-        ae = AE()
+        self.ae = ae = AE()
+        ae.add_supported_context(VerificationSOPClass)
         ae.add_requested_context(VerificationSOPClass)
+        scp = ae.start_server(('', 11112), block=False)
+
         ae.acse_timeout = 5
         ae.dimse_timeout = 5
 
@@ -1075,14 +1280,16 @@ class TestAssociationSendCEcho(object):
         assert result.Status == 0x0000
         assoc.release()
         assert assoc.is_released
-        self.scp.stop()
+
+        scp.shutdown()
 
     def test_changing_network_timeout(self):
         """Test changing timeout after associated."""
-        self.scp = DummyVerificationSCP()
-        self.scp.start()
-        ae = AE()
+        self.ae = ae = AE()
+        ae.add_supported_context(VerificationSOPClass)
         ae.add_requested_context(VerificationSOPClass)
+        scp = ae.start_server(('', 11112), block=False)
+
         ae.acse_timeout = 5
         ae.dimse_timeout = 5
         assoc = ae.associate('localhost', 11112)
@@ -1092,11 +1299,12 @@ class TestAssociationSendCEcho(object):
         assert assoc.dul.network_timeout == 1
         assoc.release()
         assert assoc.is_released
-        self.scp.stop()
+
+        scp.shutdown()
 
     def test_network_times_out_requestor(self):
         """Regression test for #286."""
-        ae = AE()
+        self.ae = ae = AE()
         ae.add_requested_context(VerificationSOPClass)
         ae.add_supported_context(VerificationSOPClass)
         scp = ae.start_server(('', 11112), block=False)
@@ -1114,7 +1322,7 @@ class TestAssociationSendCEcho(object):
 
     def test_network_times_out_acceptor(self):
         """Regression test for #286."""
-        ae = AE()
+        self.ae = ae = AE()
         ae.add_requested_context(VerificationSOPClass)
         ae.add_supported_context(VerificationSOPClass)
         scp = ae.start_server(('', 11113), block=False)
@@ -3241,38 +3449,6 @@ class TestAssociationSendCMove(object):
             assert assoc.is_aborted
 
 
-class TestAssociationCallbacks(object):
-    """Run tests on Assocation callbacks."""
-    def setup(self):
-        self.scp = None
-
-    def teardown(self):
-        """Clear any active threads"""
-        if self.scp:
-            self.scp.abort()
-
-        time.sleep(0.1)
-
-        for thread in threading.enumerate():
-            if isinstance(thread, DummyBaseSCP):
-                thread.abort()
-                thread.stop()
-
-    def test_debug_assoc_rq(self):
-        """Test the callback"""
-        self.scp = DummyVerificationSCP()
-        self.scp.start()
-        ae = AE()
-        ae.add_requested_context(VerificationSOPClass)
-        ae.acse_timeout = 5
-        ae.dimse_timeout = 5
-        assoc = ae.associate('localhost', 11112)
-        assoc.debug_association_requested(None)
-        assoc.release()
-        assert assoc.is_released
-        self.scp.stop()
-
-
 class TestGetValidContext(object):
     """Tests for Association._get_valid_context."""
     def setup(self):
@@ -3697,3 +3873,1951 @@ class TestGetValidContext(object):
             assoc._get_valid_context(CTImageStorage,
                                      ImplicitVRLittleEndian,
                                      'scu')
+
+
+class TestEventHandlingAcceptor(object):
+    """Test the transport events and handling as acceptor."""
+    def setup(self):
+        self.ae = None
+        _config.LOG_HANDLER_LEVEL = 'none'
+
+    def teardown(self):
+        if self.ae:
+            self.ae.shutdown()
+
+        _config.LOG_HANDLER_LEVEL = 'standard'
+
+    def test_no_handlers(self):
+        """Test with no association event handlers bound."""
+        self.ae = ae = AE()
+        ae.add_supported_context(VerificationSOPClass)
+        ae.add_requested_context(VerificationSOPClass)
+        scp = ae.start_server(('', 11112), block=False)
+        assert scp.get_handlers(evt.EVT_ABORTED) == []
+        assert scp.get_handlers(evt.EVT_ACCEPTED) == []
+        assert scp.get_handlers(evt.EVT_ESTABLISHED) == []
+        assert scp.get_handlers(evt.EVT_REJECTED) == []
+        assert scp.get_handlers(evt.EVT_RELEASED) == []
+        assert scp.get_handlers(evt.EVT_REQUESTED) == []
+        assoc = ae.associate('localhost', 11112)
+
+        assert assoc.is_established
+        assert len(scp.active_associations) == 1
+        assert scp.get_handlers(evt.EVT_ABORTED) == []
+        assert scp.get_handlers(evt.EVT_ACCEPTED) == []
+        assert scp.get_handlers(evt.EVT_ESTABLISHED) == []
+        assert scp.get_handlers(evt.EVT_REJECTED) == []
+        assert scp.get_handlers(evt.EVT_RELEASED) == []
+        assert scp.get_handlers(evt.EVT_REQUESTED) == []
+
+        assert assoc.get_handlers(evt.EVT_ABORTED) == []
+        assert assoc.get_handlers(evt.EVT_ACCEPTED) == []
+        assert assoc.get_handlers(evt.EVT_ESTABLISHED) == []
+        assert assoc.get_handlers(evt.EVT_REJECTED) == []
+        assert assoc.get_handlers(evt.EVT_RELEASED) == []
+        assert assoc.get_handlers(evt.EVT_REQUESTED) == []
+
+        child = scp.active_associations[0]
+        assert child.get_handlers(evt.EVT_ABORTED) == []
+        assert child.get_handlers(evt.EVT_ACCEPTED) == []
+        assert child.get_handlers(evt.EVT_ESTABLISHED) == []
+        assert child.get_handlers(evt.EVT_REJECTED) == []
+        assert child.get_handlers(evt.EVT_RELEASED) == []
+        assert child.get_handlers(evt.EVT_REQUESTED) == []
+
+        assoc.release()
+        scp.shutdown()
+
+    def test_no_handlers_unbind(self):
+        """Test unbinding a handler that's not bound."""
+        _config.LOG_HANDLER_LEVEL = 'standard'
+
+        def dummy(event):
+            pass
+
+        self.ae = ae = AE()
+        ae.add_supported_context(VerificationSOPClass)
+        ae.add_requested_context(VerificationSOPClass)
+        scp = ae.start_server(('', 11112), block=False)
+
+        assert dummy not in scp._handlers[evt.EVT_DIMSE_SENT]
+        scp.unbind(evt.EVT_DIMSE_SENT, dummy)
+        assert dummy not in scp._handlers[evt.EVT_DIMSE_SENT]
+
+        assoc = ae.associate('localhost', 11112)
+
+        assert assoc.is_established
+        assert len(scp.active_associations) == 1
+
+        assert dummy not in assoc._handlers[evt.EVT_DIMSE_SENT]
+        assoc.unbind(evt.EVT_DIMSE_SENT, dummy)
+        assert dummy not in assoc._handlers[evt.EVT_DIMSE_SENT]
+
+
+        child = scp.active_associations[0]
+        assert dummy not in child._handlers[evt.EVT_DIMSE_SENT]
+        child.unbind(evt.EVT_DIMSE_SENT, dummy)
+        assert dummy not in child._handlers[evt.EVT_DIMSE_SENT]
+
+        assoc.release()
+        scp.shutdown()
+
+    def test_unbind_intervention(self):
+        """Test unbinding a user intervention handler."""
+        def dummy(event):
+            pass
+
+        self.ae = ae = AE()
+        ae.add_supported_context(VerificationSOPClass)
+        ae.add_requested_context(VerificationSOPClass)
+        scp = ae.start_server(('', 11112), block=False)
+        scp.bind(evt.EVT_C_ECHO, dummy)
+        assert scp.get_handlers(evt.EVT_C_ECHO) == dummy
+        scp.unbind(evt.EVT_C_ECHO, dummy)
+        assert scp.get_handlers(evt.EVT_C_ECHO) != dummy
+        assert scp.get_handlers(evt.EVT_C_ECHO) == evt._c_echo_handler
+
+        scp.shutdown()
+
+    def test_unbind_intervention_assoc(self):
+        """Test unbinding a user intervention handler."""
+        def dummy(event):
+            pass
+
+        self.ae = ae = AE()
+        ae.add_supported_context(VerificationSOPClass)
+        ae.add_requested_context(VerificationSOPClass)
+        scp = ae.start_server(('', 11112), block=False)
+        scp.bind(evt.EVT_C_ECHO, dummy)
+        assert scp.get_handlers(evt.EVT_C_ECHO) == dummy
+
+        assoc = ae.associate('localhost', 11112)
+
+        assert assoc.is_established
+        assert len(scp.active_associations) == 1
+
+        child = scp.active_associations[0]
+        assert child.get_handlers(evt.EVT_C_ECHO) == dummy
+
+        scp.unbind(evt.EVT_C_ECHO, dummy)
+        assert scp.get_handlers(evt.EVT_C_ECHO) != dummy
+        assert scp.get_handlers(evt.EVT_C_ECHO) == evt._c_echo_handler
+        assert child.get_handlers(evt.EVT_C_ECHO) != dummy
+        assert child.get_handlers(evt.EVT_C_ECHO) == evt._c_echo_handler
+
+        assoc.release()
+
+        scp.shutdown()
+
+    def test_abort(self):
+        """Test starting with handler bound to EVT_ABORTED."""
+        triggered = []
+        def handle(event):
+            triggered.append(event)
+
+        self.ae = ae = AE()
+        ae.add_supported_context(VerificationSOPClass)
+        ae.add_requested_context(VerificationSOPClass)
+        handlers = [(evt.EVT_ABORTED, handle)]
+        scp = ae.start_server(('', 11112), block=False, evt_handlers=handlers)
+        assert scp.get_handlers(evt.EVT_ABORTED) == [handle]
+        assert scp.get_handlers(evt.EVT_ACCEPTED) == []
+        assert scp.get_handlers(evt.EVT_ESTABLISHED) == []
+        assert scp.get_handlers(evt.EVT_REJECTED) == []
+        assert scp.get_handlers(evt.EVT_RELEASED) == []
+        assert scp.get_handlers(evt.EVT_REQUESTED) == []
+
+        assoc = ae.associate('localhost', 11112)
+        assert assoc.is_established
+        assert len(scp.active_associations) == 1
+
+        assert scp.get_handlers(evt.EVT_ABORTED) == [handle]
+        assert scp.get_handlers(evt.EVT_ACCEPTED) == []
+        assert scp.get_handlers(evt.EVT_ESTABLISHED) == []
+        assert scp.get_handlers(evt.EVT_REJECTED) == []
+        assert scp.get_handlers(evt.EVT_RELEASED) == []
+        assert scp.get_handlers(evt.EVT_REQUESTED) == []
+
+        assert assoc.get_handlers(evt.EVT_ABORTED) == []
+        assert assoc.get_handlers(evt.EVT_ACCEPTED) == []
+        assert assoc.get_handlers(evt.EVT_ESTABLISHED) == []
+        assert assoc.get_handlers(evt.EVT_REJECTED) == []
+        assert assoc.get_handlers(evt.EVT_RELEASED) == []
+        assert assoc.get_handlers(evt.EVT_REQUESTED) == []
+
+        child = scp.active_associations[0]
+        assert child.get_handlers(evt.EVT_ABORTED) == [handle]
+        assert child.get_handlers(evt.EVT_ACCEPTED) == []
+        assert child.get_handlers(evt.EVT_ESTABLISHED) == []
+        assert child.get_handlers(evt.EVT_REJECTED) == []
+        assert child.get_handlers(evt.EVT_RELEASED) == []
+        assert child.get_handlers(evt.EVT_REQUESTED) == []
+
+        assoc.abort()
+
+        while scp.active_associations:
+            time.sleep(0.05)
+
+        assert len(triggered) == 1
+        event = triggered[0]
+        assert isinstance(event, Event)
+        assert isinstance(event.assoc, Association)
+        assert isinstance(event.timestamp, datetime)
+        assert event.name == 'EVT_ABORTED'
+
+        scp.shutdown()
+
+    def test_abort_bind(self):
+        """Test binding a handler to EVT_ABORTED."""
+        triggered = []
+        def handle(event):
+            triggered.append(event)
+
+        self.ae = ae = AE()
+        ae.add_supported_context(VerificationSOPClass)
+        ae.add_requested_context(VerificationSOPClass)
+        handlers = [(evt.EVT_ABORTED, handle)]
+        scp = ae.start_server(('', 11112), block=False)
+        assert scp.get_handlers(evt.EVT_ABORTED) == []
+        assert scp.get_handlers(evt.EVT_ACCEPTED) == []
+        assert scp.get_handlers(evt.EVT_ESTABLISHED) == []
+        assert scp.get_handlers(evt.EVT_REJECTED) == []
+        assert scp.get_handlers(evt.EVT_RELEASED) == []
+        assert scp.get_handlers(evt.EVT_REQUESTED) == []
+
+        assoc = ae.associate('localhost', 11112)
+        assert assoc.is_established
+        assert len(scp.active_associations) == 1
+
+        assert scp.get_handlers(evt.EVT_ABORTED) == []
+        assert scp.get_handlers(evt.EVT_ACCEPTED) == []
+        assert scp.get_handlers(evt.EVT_ESTABLISHED) == []
+        assert scp.get_handlers(evt.EVT_REJECTED) == []
+        assert scp.get_handlers(evt.EVT_RELEASED) == []
+        assert scp.get_handlers(evt.EVT_REQUESTED) == []
+
+        assert assoc.get_handlers(evt.EVT_ABORTED) == []
+        assert assoc.get_handlers(evt.EVT_ACCEPTED) == []
+        assert assoc.get_handlers(evt.EVT_ESTABLISHED) == []
+        assert assoc.get_handlers(evt.EVT_REJECTED) == []
+        assert assoc.get_handlers(evt.EVT_RELEASED) == []
+        assert assoc.get_handlers(evt.EVT_REQUESTED) == []
+
+        child = scp.active_associations[0]
+        assert child.get_handlers(evt.EVT_ABORTED) == []
+        assert child.get_handlers(evt.EVT_ACCEPTED) == []
+        assert child.get_handlers(evt.EVT_ESTABLISHED) == []
+        assert child.get_handlers(evt.EVT_REJECTED) == []
+        assert child.get_handlers(evt.EVT_RELEASED) == []
+        assert child.get_handlers(evt.EVT_REQUESTED) == []
+
+        scp.bind(evt.EVT_ABORTED, handle)
+
+        assert scp.get_handlers(evt.EVT_ABORTED) == [handle]
+        assert scp.get_handlers(evt.EVT_ACCEPTED) == []
+        assert scp.get_handlers(evt.EVT_ESTABLISHED) == []
+        assert scp.get_handlers(evt.EVT_REJECTED) == []
+        assert scp.get_handlers(evt.EVT_RELEASED) == []
+        assert scp.get_handlers(evt.EVT_REQUESTED) == []
+
+        assert assoc.get_handlers(evt.EVT_ABORTED) == []
+        assert assoc.get_handlers(evt.EVT_ACCEPTED) == []
+        assert assoc.get_handlers(evt.EVT_ESTABLISHED) == []
+        assert assoc.get_handlers(evt.EVT_REJECTED) == []
+        assert assoc.get_handlers(evt.EVT_RELEASED) == []
+        assert assoc.get_handlers(evt.EVT_REQUESTED) == []
+
+        child = scp.active_associations[0]
+        assert child.get_handlers(evt.EVT_ABORTED) == [handle]
+        assert child.get_handlers(evt.EVT_ACCEPTED) == []
+        assert child.get_handlers(evt.EVT_ESTABLISHED) == []
+        assert child.get_handlers(evt.EVT_REJECTED) == []
+        assert child.get_handlers(evt.EVT_RELEASED) == []
+        assert child.get_handlers(evt.EVT_REQUESTED) == []
+
+        assoc.abort()
+
+        while scp.active_associations:
+            time.sleep(0.05)
+
+        assert len(triggered) == 1
+        event = triggered[0]
+        assert isinstance(event, Event)
+        assert isinstance(event.assoc, Association)
+        assert isinstance(event.timestamp, datetime)
+        assert event.name == 'EVT_ABORTED'
+
+        scp.shutdown()
+
+    def test_abort_unbind(self):
+        """Test starting with handler bound to EVT_ABORTED."""
+        triggered = []
+        def handle(event):
+            triggered.append(event)
+
+        self.ae = ae = AE()
+        ae.add_supported_context(VerificationSOPClass)
+        ae.add_requested_context(VerificationSOPClass)
+        handlers = [(evt.EVT_ABORTED, handle)]
+        scp = ae.start_server(('', 11112), block=False, evt_handlers=handlers)
+        assert scp.get_handlers(evt.EVT_ABORTED) == [handle]
+        assert scp.get_handlers(evt.EVT_ACCEPTED) == []
+        assert scp.get_handlers(evt.EVT_ESTABLISHED) == []
+        assert scp.get_handlers(evt.EVT_REJECTED) == []
+        assert scp.get_handlers(evt.EVT_RELEASED) == []
+        assert scp.get_handlers(evt.EVT_RELEASED) == []
+
+        assoc = ae.associate('localhost', 11112)
+        assert assoc.is_established
+        assert len(scp.active_associations) == 1
+
+        assert scp.get_handlers(evt.EVT_ABORTED) == [handle]
+        assert scp.get_handlers(evt.EVT_ACCEPTED) == []
+        assert scp.get_handlers(evt.EVT_ESTABLISHED) == []
+        assert scp.get_handlers(evt.EVT_REJECTED) == []
+        assert scp.get_handlers(evt.EVT_RELEASED) == []
+        assert scp.get_handlers(evt.EVT_REQUESTED) == []
+
+        assert assoc.get_handlers(evt.EVT_ABORTED) == []
+        assert assoc.get_handlers(evt.EVT_ACCEPTED) == []
+        assert assoc.get_handlers(evt.EVT_ESTABLISHED) == []
+        assert assoc.get_handlers(evt.EVT_REJECTED) == []
+        assert assoc.get_handlers(evt.EVT_RELEASED) == []
+        assert assoc.get_handlers(evt.EVT_REQUESTED) == []
+
+        child = scp.active_associations[0]
+        assert child.get_handlers(evt.EVT_ABORTED) == [handle]
+        assert child.get_handlers(evt.EVT_ACCEPTED) == []
+        assert child.get_handlers(evt.EVT_ESTABLISHED) == []
+        assert child.get_handlers(evt.EVT_REJECTED) == []
+        assert child.get_handlers(evt.EVT_RELEASED) == []
+        assert child.get_handlers(evt.EVT_REQUESTED) == []
+
+        scp.unbind(evt.EVT_ABORTED, handle)
+
+        assert scp.get_handlers(evt.EVT_ABORTED) == []
+        assert scp.get_handlers(evt.EVT_ACCEPTED) == []
+        assert scp.get_handlers(evt.EVT_ESTABLISHED) == []
+        assert scp.get_handlers(evt.EVT_REJECTED) == []
+        assert scp.get_handlers(evt.EVT_RELEASED) == []
+        assert scp.get_handlers(evt.EVT_REQUESTED) == []
+
+        assert assoc.get_handlers(evt.EVT_ABORTED) == []
+        assert assoc.get_handlers(evt.EVT_ACCEPTED) == []
+        assert assoc.get_handlers(evt.EVT_ESTABLISHED) == []
+        assert assoc.get_handlers(evt.EVT_REJECTED) == []
+        assert assoc.get_handlers(evt.EVT_RELEASED) == []
+        assert assoc.get_handlers(evt.EVT_REQUESTED) == []
+
+        child = scp.active_associations[0]
+        assert child.get_handlers(evt.EVT_ABORTED) == []
+        assert child.get_handlers(evt.EVT_ACCEPTED) == []
+        assert child.get_handlers(evt.EVT_ESTABLISHED) == []
+        assert child.get_handlers(evt.EVT_REJECTED) == []
+        assert child.get_handlers(evt.EVT_RELEASED) == []
+        assert child.get_handlers(evt.EVT_REQUESTED) == []
+
+        assoc.abort()
+
+        while scp.active_associations:
+            time.sleep(0.05)
+
+        assert len(triggered) == 0
+
+        scp.shutdown()
+
+    def test_abort_local(self):
+        """Test the handler bound to EVT_ABORTED with local requested abort."""
+        triggered = []
+        def handle(event):
+            triggered.append(event)
+
+        self.ae = ae = AE()
+        ae.add_supported_context(VerificationSOPClass)
+        ae.add_requested_context(VerificationSOPClass)
+        handlers = [(evt.EVT_ABORTED, handle)]
+        scp = ae.start_server(('', 11112), block=False, evt_handlers=handlers)
+
+        assoc = ae.associate('localhost', 11112)
+        assert assoc.is_established
+        assert len(scp.active_associations) == 1
+
+
+        scp.active_associations[0].abort()
+
+        while scp.active_associations:
+            time.sleep(0.05)
+
+        assert len(triggered) == 1
+        event = triggered[0]
+        assert isinstance(event, Event)
+        assert isinstance(event.assoc, Association)
+        assert isinstance(event.timestamp, datetime)
+        assert event.name == 'EVT_ABORTED'
+
+        scp.shutdown()
+
+    @pytest.mark.skipif(sys.version_info[:2] == (3, 4), reason='no caplog')
+    def test_abort_raises(self, caplog):
+        """Test the handler for EVT_ACCEPTED raising exception."""
+        def handle(event):
+            raise NotImplementedError("Exception description")
+
+        self.ae = ae = AE()
+        ae.add_supported_context(VerificationSOPClass)
+        ae.add_requested_context(VerificationSOPClass)
+        handlers = [(evt.EVT_ABORTED, handle)]
+        scp = ae.start_server(('', 11112), block=False, evt_handlers=handlers)
+
+        with caplog.at_level(logging.ERROR, logger='pynetdicom'):
+            assoc = ae.associate('localhost', 11112)
+            assert assoc.is_established
+            assoc.abort()
+
+            while scp.active_associations:
+                time.sleep(0.05)
+
+            scp.shutdown()
+
+            msg = (
+                "Exception raised in user's 'evt.EVT_ABORTED' event handler"
+                " 'handle'"
+            )
+            assert msg in caplog.text
+            assert "Exception description" in caplog.text
+
+    def test_accept(self):
+        """Test starting with handler bound to EVT_ACCEPTED."""
+        triggered = []
+        def handle(event):
+            triggered.append(event)
+
+        self.ae = ae = AE()
+        ae.add_supported_context(VerificationSOPClass)
+        ae.add_requested_context(VerificationSOPClass)
+        handlers = [(evt.EVT_ACCEPTED, handle)]
+        scp = ae.start_server(('', 11112), block=False, evt_handlers=handlers)
+        assert scp.get_handlers(evt.EVT_ABORTED) == []
+        assert scp.get_handlers(evt.EVT_ACCEPTED) == [handle]
+        assert scp.get_handlers(evt.EVT_ESTABLISHED) == []
+        assert scp.get_handlers(evt.EVT_REJECTED) == []
+        assert scp.get_handlers(evt.EVT_RELEASED) == []
+        assert scp.get_handlers(evt.EVT_REQUESTED) == []
+
+        assoc = ae.associate('localhost', 11112)
+        assert assoc.is_established
+        assert len(scp.active_associations) == 1
+
+        assert scp.get_handlers(evt.EVT_ABORTED) == []
+        assert scp.get_handlers(evt.EVT_ACCEPTED) == [handle]
+        assert scp.get_handlers(evt.EVT_ESTABLISHED) == []
+        assert scp.get_handlers(evt.EVT_REJECTED) == []
+        assert scp.get_handlers(evt.EVT_RELEASED) == []
+        assert scp.get_handlers(evt.EVT_REQUESTED) == []
+
+        assert assoc.get_handlers(evt.EVT_ABORTED) == []
+        assert assoc.get_handlers(evt.EVT_ACCEPTED) == []
+        assert assoc.get_handlers(evt.EVT_ESTABLISHED) == []
+        assert assoc.get_handlers(evt.EVT_REJECTED) == []
+        assert assoc.get_handlers(evt.EVT_RELEASED) == []
+        assert assoc.get_handlers(evt.EVT_REQUESTED) == []
+
+        child = scp.active_associations[0]
+        assert child.get_handlers(evt.EVT_ABORTED) == []
+        assert child.get_handlers(evt.EVT_ACCEPTED) == [handle]
+        assert child.get_handlers(evt.EVT_ESTABLISHED) == []
+        assert child.get_handlers(evt.EVT_REJECTED) == []
+        assert child.get_handlers(evt.EVT_RELEASED) == []
+        assert child.get_handlers(evt.EVT_REQUESTED) == []
+
+        assoc.abort()
+
+        while scp.active_associations:
+            time.sleep(0.05)
+
+        assert len(triggered) == 1
+        event = triggered[0]
+        assert isinstance(event, Event)
+        assert isinstance(event.assoc, Association)
+        assert isinstance(event.timestamp, datetime)
+        assert event.name == 'EVT_ACCEPTED'
+
+        scp.shutdown()
+
+    def test_accept_bind(self):
+        """Test binding a handler to EVT_ACCEPTED."""
+        triggered = []
+        def handle(event):
+            triggered.append(event)
+
+        self.ae = ae = AE()
+        ae.add_supported_context(VerificationSOPClass)
+        ae.add_requested_context(VerificationSOPClass)
+        handlers = [(evt.EVT_ACCEPTED, handle)]
+        scp = ae.start_server(('', 11112), block=False)
+        assert scp.get_handlers(evt.EVT_ACCEPTED) == []
+
+        assoc = ae.associate('localhost', 11112)
+        assert assoc.is_established
+        assert len(scp.active_associations) == 1
+        assert scp.get_handlers(evt.EVT_ACCEPTED) == []
+        assert assoc.get_handlers(evt.EVT_ACCEPTED) == []
+        child = scp.active_associations[0]
+        assert child.get_handlers(evt.EVT_ACCEPTED) == []
+
+        assert len(triggered) == 0
+
+        scp.bind(evt.EVT_ACCEPTED, handle)
+
+        assert scp.get_handlers(evt.EVT_ACCEPTED) == [handle]
+        assert assoc.get_handlers(evt.EVT_ACCEPTED) == []
+        assert child.get_handlers(evt.EVT_ACCEPTED) == [handle]
+
+        assoc2 = ae.associate('localhost', 11112)
+
+        assoc.release()
+        assoc2.release()
+
+        while scp.active_associations:
+            time.sleep(0.05)
+
+        assert len(triggered) == 1
+        assert triggered[0].name == 'EVT_ACCEPTED'
+
+        scp.shutdown()
+
+    def test_accept_unbind(self):
+        """Test starting with handler bound to EVT_ACCEPTED."""
+        triggered = []
+        def handle(event):
+            triggered.append(event)
+
+        self.ae = ae = AE()
+        ae.add_supported_context(VerificationSOPClass)
+        ae.add_requested_context(VerificationSOPClass)
+        handlers = [(evt.EVT_ACCEPTED, handle)]
+        scp = ae.start_server(('', 11112), block=False, evt_handlers=handlers)
+        assert scp.get_handlers(evt.EVT_ACCEPTED) == [handle]
+
+        assoc = ae.associate('localhost', 11112)
+        assert assoc.is_established
+        assert len(scp.active_associations) == 1
+
+        assert scp.get_handlers(evt.EVT_ACCEPTED) == [handle]
+        assert assoc.get_handlers(evt.EVT_ACCEPTED) == []
+        child = scp.active_associations[0]
+        assert child.get_handlers(evt.EVT_ACCEPTED) == [handle]
+
+        assert len(triggered) == 1
+        assert triggered[0].name == "EVT_ACCEPTED"
+
+        scp.unbind(evt.EVT_ACCEPTED, handle)
+
+        assert scp.get_handlers(evt.EVT_ACCEPTED) == []
+        assert assoc.get_handlers(evt.EVT_ACCEPTED) == []
+        child = scp.active_associations[0]
+        assert child.get_handlers(evt.EVT_ACCEPTED) == []
+
+        assoc2 = ae.associate('localhost', 11112)
+
+        assoc.release()
+        assoc2.release()
+
+        while scp.active_associations:
+            time.sleep(0.05)
+
+        assert len(triggered) == 1
+
+        scp.shutdown()
+
+    @pytest.mark.skipif(sys.version_info[:2] == (3, 4), reason='no caplog')
+    def test_accept_raises(self, caplog):
+        """Test the handler for EVT_ACCEPTED raising exception."""
+        def handle(event):
+            raise NotImplementedError("Exception description")
+
+        self.ae = ae = AE()
+        ae.add_supported_context(VerificationSOPClass)
+        ae.add_requested_context(VerificationSOPClass)
+        handlers = [(evt.EVT_ACCEPTED, handle)]
+        scp = ae.start_server(('', 11112), block=False, evt_handlers=handlers)
+
+        with caplog.at_level(logging.ERROR, logger='pynetdicom'):
+            assoc = ae.associate('localhost', 11112)
+            assert assoc.is_established
+            assoc.abort()
+
+            while scp.active_associations:
+                time.sleep(0.05)
+
+            scp.shutdown()
+
+            msg = (
+                "Exception raised in user's 'evt.EVT_ACCEPTED' event handler"
+                " 'handle'"
+            )
+            assert msg in caplog.text
+            assert "Exception description" in caplog.text
+
+    def test_release(self):
+        """Test starting with handler bound to EVT_RELEASED."""
+        triggered = []
+        def handle(event):
+            triggered.append(event)
+
+        self.ae = ae = AE()
+        ae.add_supported_context(VerificationSOPClass)
+        ae.add_requested_context(VerificationSOPClass)
+        handlers = [(evt.EVT_RELEASED, handle)]
+        scp = ae.start_server(('', 11112), block=False, evt_handlers=handlers)
+        assert scp.get_handlers(evt.EVT_ABORTED) == []
+        assert scp.get_handlers(evt.EVT_ACCEPTED) == []
+        assert scp.get_handlers(evt.EVT_ESTABLISHED) == []
+        assert scp.get_handlers(evt.EVT_REJECTED) == []
+        assert scp.get_handlers(evt.EVT_RELEASED) == [handle]
+        assert scp.get_handlers(evt.EVT_REQUESTED) == []
+
+        assoc = ae.associate('localhost', 11112)
+        assert assoc.is_established
+        assert len(scp.active_associations) == 1
+
+        assert scp.get_handlers(evt.EVT_ABORTED) == []
+        assert scp.get_handlers(evt.EVT_ACCEPTED) == []
+        assert scp.get_handlers(evt.EVT_ESTABLISHED) == []
+        assert scp.get_handlers(evt.EVT_REJECTED) == []
+        assert scp.get_handlers(evt.EVT_RELEASED) == [handle]
+        assert scp.get_handlers(evt.EVT_REQUESTED) == []
+
+        assert assoc.get_handlers(evt.EVT_ABORTED) == []
+        assert assoc.get_handlers(evt.EVT_ACCEPTED) == []
+        assert assoc.get_handlers(evt.EVT_ESTABLISHED) == []
+        assert assoc.get_handlers(evt.EVT_REJECTED) == []
+        assert assoc.get_handlers(evt.EVT_RELEASED) == []
+        assert assoc.get_handlers(evt.EVT_REQUESTED) == []
+
+        child = scp.active_associations[0]
+        assert child.get_handlers(evt.EVT_ABORTED) == []
+        assert child.get_handlers(evt.EVT_ACCEPTED) == []
+        assert child.get_handlers(evt.EVT_ESTABLISHED) == []
+        assert child.get_handlers(evt.EVT_REJECTED) == []
+        assert child.get_handlers(evt.EVT_RELEASED) == [handle]
+        assert child.get_handlers(evt.EVT_REQUESTED) == []
+
+        assoc.release()
+
+        while scp.active_associations:
+            time.sleep(0.05)
+
+        assert len(triggered) == 1
+        event = triggered[0]
+        assert isinstance(event, Event)
+        assert isinstance(event.assoc, Association)
+        assert isinstance(event.timestamp, datetime)
+        assert event.name == 'EVT_RELEASED'
+
+        scp.shutdown()
+
+    def test_release_bind(self):
+        """Test binding a handler to EVT_RELEASED."""
+        triggered = []
+        def handle(event):
+            triggered.append(event)
+
+        self.ae = ae = AE()
+        ae.add_supported_context(VerificationSOPClass)
+        ae.add_requested_context(VerificationSOPClass)
+        handlers = [(evt.EVT_RELEASED, handle)]
+        scp = ae.start_server(('', 11112), block=False)
+        assert scp.get_handlers(evt.EVT_RELEASED) == []
+
+        assoc = ae.associate('localhost', 11112)
+        assert assoc.is_established
+        assert len(scp.active_associations) == 1
+
+        assert scp.get_handlers(evt.EVT_RELEASED) == []
+        assert assoc.get_handlers(evt.EVT_RELEASED) == []
+
+        child = scp.active_associations[0]
+        assert child.get_handlers(evt.EVT_RELEASED) == []
+
+        scp.bind(evt.EVT_RELEASED, handle)
+
+        assert scp.get_handlers(evt.EVT_RELEASED) == [handle]
+        assert assoc.get_handlers(evt.EVT_RELEASED) == []
+        child = scp.active_associations[0]
+        assert child.get_handlers(evt.EVT_RELEASED) == [handle]
+
+        assoc.release()
+
+        while scp.active_associations:
+            time.sleep(0.05)
+
+        assert len(triggered) == 1
+        event = triggered[0]
+        assert isinstance(event, Event)
+        assert isinstance(event.assoc, Association)
+        assert isinstance(event.timestamp, datetime)
+        assert event.name == 'EVT_RELEASED'
+
+        scp.shutdown()
+
+    def test_release_unbind(self):
+        """Test starting with handler bound to EVT_ABORTED."""
+        triggered = []
+        def handle(event):
+            triggered.append(event)
+
+        self.ae = ae = AE()
+        ae.add_supported_context(VerificationSOPClass)
+        ae.add_requested_context(VerificationSOPClass)
+        handlers = [(evt.EVT_RELEASED, handle)]
+        scp = ae.start_server(('', 11112), block=False, evt_handlers=handlers)
+
+        assoc = ae.associate('localhost', 11112)
+        assert assoc.is_established
+        assert len(scp.active_associations) == 1
+
+        scp.unbind(evt.EVT_RELEASED, handle)
+
+        assert scp.get_handlers(evt.EVT_RELEASED) == []
+        assert assoc.get_handlers(evt.EVT_RELEASED) == []
+        child = scp.active_associations[0]
+        assert child.get_handlers(evt.EVT_RELEASED) == []
+
+        assoc.release()
+
+        while scp.active_associations:
+            time.sleep(0.05)
+
+        assert len(triggered) == 0
+
+        scp.shutdown()
+
+    def test_release_local(self):
+        """Test the handler bound to EVT_RELEASED with local requested abort."""
+        triggered = []
+        def handle(event):
+            triggered.append(event)
+
+        self.ae = ae = AE()
+        ae.add_supported_context(VerificationSOPClass)
+        ae.add_requested_context(VerificationSOPClass)
+        handlers = [(evt.EVT_RELEASED, handle)]
+        scp = ae.start_server(('', 11112), block=False, evt_handlers=handlers)
+
+        assoc = ae.associate('localhost', 11112)
+        assert assoc.is_established
+        assert len(scp.active_associations) == 1
+
+
+        scp.active_associations[0].release()
+
+        while scp.active_associations:
+            time.sleep(0.05)
+
+        assert len(triggered) == 1
+        event = triggered[0]
+        assert isinstance(event, Event)
+        assert isinstance(event.assoc, Association)
+        assert isinstance(event.timestamp, datetime)
+        assert event.name == 'EVT_RELEASED'
+
+        scp.shutdown()
+
+    @pytest.mark.skipif(sys.version_info[:2] == (3, 4), reason='no caplog')
+    def test_release_raises(self, caplog):
+        """Test the handler for EVT_RELEASED raising exception."""
+        def handle(event):
+            raise NotImplementedError("Exception description")
+
+        self.ae = ae = AE()
+        ae.add_supported_context(VerificationSOPClass)
+        ae.add_requested_context(VerificationSOPClass)
+        handlers = [(evt.EVT_RELEASED, handle)]
+        scp = ae.start_server(('', 11112), block=False, evt_handlers=handlers)
+
+        with caplog.at_level(logging.ERROR, logger='pynetdicom'):
+            assoc = ae.associate('localhost', 11112)
+            assert assoc.is_established
+            assoc.release()
+
+            while scp.active_associations:
+                time.sleep(0.05)
+
+            scp.shutdown()
+
+            msg = (
+                "Exception raised in user's 'evt.EVT_RELEASED' event handler"
+                " 'handle'"
+            )
+            assert msg in caplog.text
+            assert "Exception description" in caplog.text
+
+    def test_established(self):
+        """Test starting with handler bound to EVT_ESTABLISHED."""
+        triggered = []
+        def handle(event):
+            triggered.append(event)
+
+        self.ae = ae = AE()
+        ae.add_supported_context(VerificationSOPClass)
+        ae.add_requested_context(VerificationSOPClass)
+        handlers = [(evt.EVT_ESTABLISHED, handle)]
+        scp = ae.start_server(('', 11112), block=False, evt_handlers=handlers)
+        assert scp.get_handlers(evt.EVT_ABORTED) == []
+        assert scp.get_handlers(evt.EVT_ACCEPTED) == []
+        assert scp.get_handlers(evt.EVT_ESTABLISHED) == [handle]
+        assert scp.get_handlers(evt.EVT_REJECTED) == []
+        assert scp.get_handlers(evt.EVT_RELEASED) == []
+        assert scp.get_handlers(evt.EVT_REQUESTED) == []
+
+        assoc = ae.associate('localhost', 11112)
+        assert assoc.is_established
+        assert len(scp.active_associations) == 1
+
+        assert scp.get_handlers(evt.EVT_ABORTED) == []
+        assert scp.get_handlers(evt.EVT_ACCEPTED) == []
+        assert scp.get_handlers(evt.EVT_ESTABLISHED) == [handle]
+        assert scp.get_handlers(evt.EVT_REJECTED) == []
+        assert scp.get_handlers(evt.EVT_RELEASED) == []
+        assert scp.get_handlers(evt.EVT_REQUESTED) == []
+
+        assert assoc.get_handlers(evt.EVT_ABORTED) == []
+        assert assoc.get_handlers(evt.EVT_ACCEPTED) == []
+        assert assoc.get_handlers(evt.EVT_ESTABLISHED) == []
+        assert assoc.get_handlers(evt.EVT_REJECTED) == []
+        assert assoc.get_handlers(evt.EVT_ESTABLISHED) == []
+        assert assoc.get_handlers(evt.EVT_REQUESTED) == []
+
+        child = scp.active_associations[0]
+        assert child.get_handlers(evt.EVT_ABORTED) == []
+        assert child.get_handlers(evt.EVT_ACCEPTED) == []
+        assert child.get_handlers(evt.EVT_ESTABLISHED) == [handle]
+        assert child.get_handlers(evt.EVT_REJECTED) == []
+        assert child.get_handlers(evt.EVT_RELEASED) == []
+        assert child.get_handlers(evt.EVT_REQUESTED) == []
+
+        assoc.release()
+
+        while scp.active_associations:
+            time.sleep(0.05)
+
+        assert len(triggered) == 1
+        event = triggered[0]
+        assert isinstance(event, Event)
+        assert isinstance(event.assoc, Association)
+        assert isinstance(event.timestamp, datetime)
+        assert event.name == 'EVT_ESTABLISHED'
+
+        scp.shutdown()
+
+    def test_established_bind(self):
+        """Test binding a handler to EVT_ESTABLISHED."""
+        triggered = []
+        def handle(event):
+            triggered.append(event)
+
+        self.ae = ae = AE()
+        ae.add_supported_context(VerificationSOPClass)
+        ae.add_requested_context(VerificationSOPClass)
+        handlers = [(evt.EVT_ESTABLISHED, handle)]
+        scp = ae.start_server(('', 11112), block=False)
+        assert scp.get_handlers(evt.EVT_ESTABLISHED) == []
+
+        scp.bind(evt.EVT_ESTABLISHED, handle)
+
+        assoc = ae.associate('localhost', 11112)
+        assert assoc.is_established
+        assert len(scp.active_associations) == 1
+
+        assert scp.get_handlers(evt.EVT_ESTABLISHED) == [handle]
+        assert assoc.get_handlers(evt.EVT_ESTABLISHED) == []
+        child = scp.active_associations[0]
+        assert child.get_handlers(evt.EVT_ESTABLISHED) == [handle]
+
+        assoc.release()
+
+        while scp.active_associations:
+            time.sleep(0.05)
+
+        assert len(triggered) == 1
+        event = triggered[0]
+        assert isinstance(event, Event)
+        assert isinstance(event.assoc, Association)
+        assert isinstance(event.timestamp, datetime)
+        assert event.name == 'EVT_ESTABLISHED'
+
+        scp.shutdown()
+
+    def test_established_unbind(self):
+        """Test starting with handler bound to EVT_ABORTED."""
+        triggered = []
+        def handle(event):
+            triggered.append(event)
+
+        self.ae = ae = AE()
+        ae.add_supported_context(VerificationSOPClass)
+        ae.add_requested_context(VerificationSOPClass)
+        handlers = [(evt.EVT_ESTABLISHED, handle)]
+        scp = ae.start_server(('', 11112), block=False, evt_handlers=handlers)
+
+        scp.unbind(evt.EVT_ESTABLISHED, handle)
+
+        assoc = ae.associate('localhost', 11112)
+        assert assoc.is_established
+        assert len(scp.active_associations) == 1
+
+        assert scp.get_handlers(evt.EVT_ESTABLISHED) == []
+        assert assoc.get_handlers(evt.EVT_ESTABLISHED) == []
+        child = scp.active_associations[0]
+        assert child.get_handlers(evt.EVT_ESTABLISHED) == []
+
+        assoc.release()
+
+        while scp.active_associations:
+            time.sleep(0.05)
+
+        assert len(triggered) == 0
+
+        scp.shutdown()
+
+    @pytest.mark.skipif(sys.version_info[:2] == (3, 4), reason='no caplog')
+    def test_established_raises(self, caplog):
+        """Test the handler for EVT_ESTABLISHED raising exception."""
+        def handle(event):
+            raise NotImplementedError("Exception description")
+
+        self.ae = ae = AE()
+        ae.add_supported_context(VerificationSOPClass)
+        ae.add_requested_context(VerificationSOPClass)
+        handlers = [(evt.EVT_ESTABLISHED, handle)]
+        scp = ae.start_server(('', 11112), block=False, evt_handlers=handlers)
+
+        with caplog.at_level(logging.ERROR, logger='pynetdicom'):
+            assoc = ae.associate('localhost', 11112)
+            assert assoc.is_established
+            assoc.release()
+
+            while scp.active_associations:
+                time.sleep(0.05)
+
+            scp.shutdown()
+
+            msg = (
+                "Exception raised in user's 'evt.EVT_ESTABLISHED' event handler"
+                " 'handle'"
+            )
+            assert msg in caplog.text
+            assert "Exception description" in caplog.text
+
+    def test_requested(self):
+        """Test starting with handler bound to EVT_REQUESTED."""
+        triggered = []
+        def handle(event):
+            triggered.append(event)
+
+        self.ae = ae = AE()
+        ae.add_supported_context(VerificationSOPClass)
+        ae.add_requested_context(VerificationSOPClass)
+        handlers = [(evt.EVT_REQUESTED, handle)]
+        scp = ae.start_server(('', 11112), block=False, evt_handlers=handlers)
+        assert scp.get_handlers(evt.EVT_ABORTED) == []
+        assert scp.get_handlers(evt.EVT_ACCEPTED) == []
+        assert scp.get_handlers(evt.EVT_ESTABLISHED) == []
+        assert scp.get_handlers(evt.EVT_REJECTED) == []
+        assert scp.get_handlers(evt.EVT_RELEASED) == []
+        assert scp.get_handlers(evt.EVT_REQUESTED) == [handle]
+
+        assoc = ae.associate('localhost', 11112)
+        assert assoc.is_established
+        assert len(scp.active_associations) == 1
+
+        assert scp.get_handlers(evt.EVT_ABORTED) == []
+        assert scp.get_handlers(evt.EVT_ACCEPTED) == []
+        assert scp.get_handlers(evt.EVT_ESTABLISHED) == []
+        assert scp.get_handlers(evt.EVT_REJECTED) == []
+        assert scp.get_handlers(evt.EVT_RELEASED) == []
+        assert scp.get_handlers(evt.EVT_REQUESTED) == [handle]
+
+        assert assoc.get_handlers(evt.EVT_ABORTED) == []
+        assert assoc.get_handlers(evt.EVT_ACCEPTED) == []
+        assert assoc.get_handlers(evt.EVT_REQUESTED) == []
+        assert assoc.get_handlers(evt.EVT_REJECTED) == []
+        assert assoc.get_handlers(evt.EVT_REQUESTED) == []
+        assert assoc.get_handlers(evt.EVT_REQUESTED) == []
+
+        child = scp.active_associations[0]
+        assert child.get_handlers(evt.EVT_ABORTED) == []
+        assert child.get_handlers(evt.EVT_ACCEPTED) == []
+        assert child.get_handlers(evt.EVT_ESTABLISHED) == []
+        assert child.get_handlers(evt.EVT_REJECTED) == []
+        assert child.get_handlers(evt.EVT_RELEASED) == []
+        assert child.get_handlers(evt.EVT_REQUESTED) == [handle]
+
+        assoc.release()
+
+        while scp.active_associations:
+            time.sleep(0.05)
+
+        assert len(triggered) == 1
+        event = triggered[0]
+        assert isinstance(event, Event)
+        assert isinstance(event.assoc, Association)
+        assert isinstance(event.timestamp, datetime)
+        assert event.name == 'EVT_REQUESTED'
+
+        scp.shutdown()
+
+    def test_requested_bind(self):
+        """Test binding a handler to EVT_REQUESTED."""
+        triggered = []
+        def handle(event):
+            triggered.append(event)
+
+        self.ae = ae = AE()
+        ae.add_supported_context(VerificationSOPClass)
+        ae.add_requested_context(VerificationSOPClass)
+        handlers = [(evt.EVT_REQUESTED, handle)]
+        scp = ae.start_server(('', 11112), block=False)
+        assert scp.get_handlers(evt.EVT_REQUESTED) == []
+
+        scp.bind(evt.EVT_REQUESTED, handle)
+
+        assoc = ae.associate('localhost', 11112)
+        assert assoc.is_established
+        assert len(scp.active_associations) == 1
+
+        assert scp.get_handlers(evt.EVT_REQUESTED) == [handle]
+        assert assoc.get_handlers(evt.EVT_REQUESTED) == []
+        child = scp.active_associations[0]
+        assert child.get_handlers(evt.EVT_REQUESTED) == [handle]
+
+        assoc.release()
+
+        while scp.active_associations:
+            time.sleep(0.05)
+
+        assert len(triggered) == 1
+        event = triggered[0]
+        assert isinstance(event, Event)
+        assert isinstance(event.assoc, Association)
+        assert isinstance(event.timestamp, datetime)
+        assert event.name == 'EVT_REQUESTED'
+
+        scp.shutdown()
+
+    def test_requested_unbind(self):
+        """Test starting with handler bound to EVT_ABORTED."""
+        triggered = []
+        def handle(event):
+            triggered.append(event)
+
+        self.ae = ae = AE()
+        ae.add_supported_context(VerificationSOPClass)
+        ae.add_requested_context(VerificationSOPClass)
+        handlers = [(evt.EVT_REQUESTED, handle)]
+        scp = ae.start_server(('', 11112), block=False, evt_handlers=handlers)
+
+        scp.unbind(evt.EVT_REQUESTED, handle)
+
+        assoc = ae.associate('localhost', 11112)
+        assert assoc.is_established
+        assert len(scp.active_associations) == 1
+
+        assert scp.get_handlers(evt.EVT_REQUESTED) == []
+        assert assoc.get_handlers(evt.EVT_REQUESTED) == []
+        child = scp.active_associations[0]
+        assert child.get_handlers(evt.EVT_REQUESTED) == []
+
+        assoc.release()
+
+        while scp.active_associations:
+            time.sleep(0.05)
+
+        assert len(triggered) == 0
+
+        scp.shutdown()
+
+    @pytest.mark.skipif(sys.version_info[:2] == (3, 4), reason='no caplog')
+    def test_requested_raises(self, caplog):
+        """Test the handler for EVT_REQUESTED raising exception."""
+        def handle(event):
+            raise NotImplementedError("Exception description")
+
+        self.ae = ae = AE()
+        ae.add_supported_context(VerificationSOPClass)
+        ae.add_requested_context(VerificationSOPClass)
+        handlers = [(evt.EVT_REQUESTED, handle)]
+        scp = ae.start_server(('', 11112), block=False, evt_handlers=handlers)
+
+        with caplog.at_level(logging.ERROR, logger='pynetdicom'):
+            assoc = ae.associate('localhost', 11112)
+            assert assoc.is_established
+            assoc.release()
+
+            while scp.active_associations:
+                time.sleep(0.05)
+
+            scp.shutdown()
+
+            msg = (
+                "Exception raised in user's 'evt.EVT_REQUESTED' event handler"
+                " 'handle'"
+            )
+            assert msg in caplog.text
+            assert "Exception description" in caplog.text
+
+    def test_rejected(self):
+        """Test starting with handler bound to EVT_REJECTED."""
+        triggered = []
+        def handle(event):
+            triggered.append(event)
+
+        self.ae = ae = AE()
+        ae.require_called_aet = True
+        ae.add_supported_context(CTImageStorage)
+        ae.add_requested_context(VerificationSOPClass)
+        handlers = [(evt.EVT_REJECTED, handle)]
+        scp = ae.start_server(('', 11112), block=False, evt_handlers=handlers)
+        assert scp.get_handlers(evt.EVT_ABORTED) == []
+        assert scp.get_handlers(evt.EVT_ACCEPTED) == []
+        assert scp.get_handlers(evt.EVT_ESTABLISHED) == []
+        assert scp.get_handlers(evt.EVT_REJECTED) == [handle]
+        assert scp.get_handlers(evt.EVT_RELEASED) == []
+        assert scp.get_handlers(evt.EVT_REQUESTED) == []
+
+        assoc = ae.associate('localhost', 11112)
+        assert assoc.is_rejected
+
+        assert scp.get_handlers(evt.EVT_ABORTED) == []
+        assert scp.get_handlers(evt.EVT_ACCEPTED) == []
+        assert scp.get_handlers(evt.EVT_ESTABLISHED) == []
+        assert scp.get_handlers(evt.EVT_REJECTED) == [handle]
+        assert scp.get_handlers(evt.EVT_RELEASED) == []
+        assert scp.get_handlers(evt.EVT_REQUESTED) == []
+
+        assert assoc.get_handlers(evt.EVT_ABORTED) == []
+        assert assoc.get_handlers(evt.EVT_ACCEPTED) == []
+        assert assoc.get_handlers(evt.EVT_REJECTED) == []
+        assert assoc.get_handlers(evt.EVT_REJECTED) == []
+        assert assoc.get_handlers(evt.EVT_REJECTED) == []
+        assert assoc.get_handlers(evt.EVT_REQUESTED) == []
+
+        assert len(triggered) == 1
+        event = triggered[0]
+        assert isinstance(event, Event)
+        assert isinstance(event.assoc, Association)
+        assert isinstance(event.timestamp, datetime)
+        assert event.name == 'EVT_REJECTED'
+
+        scp.shutdown()
+
+    def test_rejected_bind(self):
+        """Test binding a handler to EVT_REJECTED."""
+        triggered = []
+        def handle(event):
+            triggered.append(event)
+
+        self.ae = ae = AE()
+        ae.require_called_aet = True
+        ae.add_supported_context(VerificationSOPClass)
+        ae.add_requested_context(VerificationSOPClass)
+        handlers = [(evt.EVT_REJECTED, handle)]
+        scp = ae.start_server(('', 11112), block=False)
+        assert scp.get_handlers(evt.EVT_REJECTED) == []
+
+        scp.bind(evt.EVT_REJECTED, handle)
+
+        assoc = ae.associate('localhost', 11112)
+        assert assoc.is_rejected
+
+        assert scp.get_handlers(evt.EVT_REJECTED) == [handle]
+        assert assoc.get_handlers(evt.EVT_REJECTED) == []
+
+        assert len(triggered) == 1
+        event = triggered[0]
+        assert isinstance(event, Event)
+        assert isinstance(event.assoc, Association)
+        assert isinstance(event.timestamp, datetime)
+        assert event.name == 'EVT_REJECTED'
+
+        scp.shutdown()
+
+    def test_rejected_unbind(self):
+        """Test starting with handler bound to EVT_ABORTED."""
+        triggered = []
+        def handle(event):
+            triggered.append(event)
+
+        self.ae = ae = AE()
+        ae.require_called_aet = True
+        ae.add_supported_context(VerificationSOPClass)
+        ae.add_requested_context(VerificationSOPClass)
+        handlers = [(evt.EVT_REJECTED, handle)]
+        scp = ae.start_server(('', 11112), block=False, evt_handlers=handlers)
+
+        scp.unbind(evt.EVT_REJECTED, handle)
+
+        assoc = ae.associate('localhost', 11112)
+        assert assoc.is_rejected
+
+        assert scp.get_handlers(evt.EVT_REJECTED) == []
+        assert assoc.get_handlers(evt.EVT_REJECTED) == []
+
+        assoc.release()
+
+        assert len(triggered) == 0
+
+        scp.shutdown()
+
+    @pytest.mark.skipif(sys.version_info[:2] == (3, 4), reason='no caplog')
+    def test_rejected_raises(self, caplog):
+        """Test the handler for EVT_REJECTED raising exception."""
+        def handle(event):
+            raise NotImplementedError("Exception description")
+
+        self.ae = ae = AE()
+        ae.require_called_aet = True
+        ae.add_supported_context(VerificationSOPClass)
+        ae.add_requested_context(VerificationSOPClass)
+        handlers = [(evt.EVT_REJECTED, handle)]
+        scp = ae.start_server(('', 11112), block=False, evt_handlers=handlers)
+
+        with caplog.at_level(logging.ERROR, logger='pynetdicom'):
+            assoc = ae.associate('localhost', 11112)
+            assert assoc.is_rejected
+            scp.shutdown()
+
+            msg = (
+                "Exception raised in user's 'evt.EVT_REJECTED' event handler"
+                " 'handle'"
+            )
+            assert msg in caplog.text
+            assert "Exception description" in caplog.text
+
+
+class TestEventHandlingRequestor(object):
+    """Test the transport events and handling as acceptor."""
+    def setup(self):
+        self.ae = None
+        _config.LOG_HANDLER_LEVEL = 'none'
+
+    def teardown(self):
+        if self.ae:
+            self.ae.shutdown()
+
+        _config.LOG_HANDLER_LEVEL = 'standard'
+
+    def test_no_handlers(self):
+        """Test with no association event handlers bound."""
+        self.ae = ae = AE()
+        ae.add_supported_context(VerificationSOPClass)
+        ae.add_requested_context(VerificationSOPClass)
+        scp = ae.start_server(('', 11112), block=False)
+        assert scp.get_handlers(evt.EVT_ABORTED) == []
+        assert scp.get_handlers(evt.EVT_ACCEPTED) == []
+        assert scp.get_handlers(evt.EVT_ESTABLISHED) == []
+        assert scp.get_handlers(evt.EVT_REJECTED) == []
+        assert scp.get_handlers(evt.EVT_RELEASED) == []
+        assert scp.get_handlers(evt.EVT_REQUESTED) == []
+        assoc = ae.associate('localhost', 11112)
+
+        assert assoc.is_established
+        assert len(scp.active_associations) == 1
+        assert scp.get_handlers(evt.EVT_ABORTED) == []
+        assert scp.get_handlers(evt.EVT_ACCEPTED) == []
+        assert scp.get_handlers(evt.EVT_ESTABLISHED) == []
+        assert scp.get_handlers(evt.EVT_REJECTED) == []
+        assert scp.get_handlers(evt.EVT_RELEASED) == []
+        assert scp.get_handlers(evt.EVT_REQUESTED) == []
+
+        assert assoc.get_handlers(evt.EVT_ABORTED) == []
+        assert assoc.get_handlers(evt.EVT_ACCEPTED) == []
+        assert assoc.get_handlers(evt.EVT_ESTABLISHED) == []
+        assert assoc.get_handlers(evt.EVT_REJECTED) == []
+        assert assoc.get_handlers(evt.EVT_RELEASED) == []
+        assert assoc.get_handlers(evt.EVT_REQUESTED) == []
+
+        child = scp.active_associations[0]
+        assert child.get_handlers(evt.EVT_ABORTED) == []
+        assert child.get_handlers(evt.EVT_ACCEPTED) == []
+        assert child.get_handlers(evt.EVT_ESTABLISHED) == []
+        assert child.get_handlers(evt.EVT_REJECTED) == []
+        assert child.get_handlers(evt.EVT_RELEASED) == []
+        assert child.get_handlers(evt.EVT_REQUESTED) == []
+
+        assoc.release()
+        scp.shutdown()
+
+    def test_unbind_not_event(self):
+        """Test unbind a handler if no events bound."""
+        def dummy(event):
+            pass
+
+        self.ae = ae = AE()
+        ae.add_supported_context(VerificationSOPClass)
+        ae.add_requested_context(VerificationSOPClass)
+        scp = ae.start_server(('', 11112), block=False)
+
+        assoc = ae.associate('localhost', 11112)
+
+        assert assoc.is_established
+        assert len(scp.active_associations) == 1
+
+        assert assoc.get_handlers(evt.EVT_DIMSE_SENT) == []
+        assoc.unbind(evt.EVT_DIMSE_SENT, dummy)
+        assert assoc.get_handlers(evt.EVT_DIMSE_SENT) == []
+
+        assoc.release()
+
+        scp.shutdown()
+
+    def test_unbind_notification_none(self):
+        """Test unbinding a handler thats not bound."""
+        def dummy(event):
+            pass
+
+        def dummy2(event):
+            pass
+
+        self.ae = ae = AE()
+        ae.add_supported_context(VerificationSOPClass)
+        ae.add_requested_context(VerificationSOPClass)
+        scp = ae.start_server(('', 11112), block=False)
+
+        assoc = ae.associate('localhost', 11112)
+
+        assert assoc.is_established
+        assert len(scp.active_associations) == 1
+
+        assoc.bind(evt.EVT_DIMSE_SENT, dummy)
+
+        assert assoc.get_handlers(evt.EVT_DIMSE_SENT) == [dummy]
+        assoc.unbind(evt.EVT_DIMSE_SENT, dummy2)
+        assert assoc.get_handlers(evt.EVT_DIMSE_SENT) == [dummy]
+
+        assoc.release()
+
+        scp.shutdown()
+
+    def test_unbind_intervention(self):
+        """Test unbinding a user intervention handler."""
+        def dummy(event):
+            pass
+
+        self.ae = ae = AE()
+        ae.add_supported_context(VerificationSOPClass)
+        ae.add_requested_context(VerificationSOPClass)
+        scp = ae.start_server(('', 11112), block=False)
+
+        assoc = ae.associate('localhost', 11112)
+
+        assert assoc.is_established
+        assert len(scp.active_associations) == 1
+
+        assoc.bind(evt.EVT_C_ECHO, dummy)
+        assert assoc.get_handlers(evt.EVT_C_ECHO) == dummy
+        assoc.unbind(evt.EVT_C_ECHO, dummy)
+        assert assoc.get_handlers(evt.EVT_C_ECHO) != dummy
+        assert assoc.get_handlers(evt.EVT_C_ECHO) == evt._c_echo_handler
+
+        assoc.release()
+
+        scp.shutdown()
+
+    def test_abort(self):
+        """Test starting with handler bound to EVT_ABORTED."""
+        triggered = []
+        def handle(event):
+            triggered.append(event)
+
+        self.ae = ae = AE()
+        ae.add_supported_context(VerificationSOPClass)
+        ae.add_requested_context(VerificationSOPClass)
+        handlers = [(evt.EVT_ABORTED, handle)]
+        scp = ae.start_server(('', 11112), block=False)
+        assoc = ae.associate('localhost', 11112, evt_handlers=handlers)
+        assert assoc.is_established
+        assert len(scp.active_associations) == 1
+
+        assert assoc.get_handlers(evt.EVT_ABORTED) == [handle]
+        assert assoc.get_handlers(evt.EVT_ACCEPTED) == []
+        assert assoc.get_handlers(evt.EVT_ESTABLISHED) == []
+        assert assoc.get_handlers(evt.EVT_REJECTED) == []
+        assert assoc.get_handlers(evt.EVT_RELEASED) == []
+        assert assoc.get_handlers(evt.EVT_REQUESTED) == []
+
+        assoc.abort()
+
+        while scp.active_associations:
+            time.sleep(0.05)
+
+        assert len(triggered) == 1
+        event = triggered[0]
+        assert isinstance(event, Event)
+        assert isinstance(event.assoc, Association)
+        assert isinstance(event.timestamp, datetime)
+        assert event.name == 'EVT_ABORTED'
+
+        scp.shutdown()
+
+    def test_abort_bind(self):
+        """Test binding a handler to EVT_ABORTED."""
+        triggered = []
+        def handle(event):
+            triggered.append(event)
+
+        self.ae = ae = AE()
+        ae.add_supported_context(VerificationSOPClass)
+        ae.add_requested_context(VerificationSOPClass)
+        handlers = [(evt.EVT_ABORTED, handle)]
+        scp = ae.start_server(('', 11112), block=False)
+
+        assoc = ae.associate('localhost', 11112)
+        assert assoc.is_established
+        assert len(scp.active_associations) == 1
+
+        assert assoc.get_handlers(evt.EVT_ABORTED) == []
+        assert assoc.get_handlers(evt.EVT_ACCEPTED) == []
+        assert assoc.get_handlers(evt.EVT_ESTABLISHED) == []
+        assert assoc.get_handlers(evt.EVT_REJECTED) == []
+        assert assoc.get_handlers(evt.EVT_RELEASED) == []
+        assert assoc.get_handlers(evt.EVT_REQUESTED) == []
+
+        assoc.bind(evt.EVT_ABORTED, handle)
+
+        assert assoc.get_handlers(evt.EVT_ABORTED) == [handle]
+        assert assoc.get_handlers(evt.EVT_ACCEPTED) == []
+        assert assoc.get_handlers(evt.EVT_ESTABLISHED) == []
+        assert assoc.get_handlers(evt.EVT_REJECTED) == []
+        assert assoc.get_handlers(evt.EVT_RELEASED) == []
+        assert assoc.get_handlers(evt.EVT_REQUESTED) == []
+
+        assoc.abort()
+
+        while scp.active_associations:
+            time.sleep(0.05)
+
+        assert len(triggered) == 1
+        event = triggered[0]
+        assert isinstance(event, Event)
+        assert isinstance(event.assoc, Association)
+        assert isinstance(event.timestamp, datetime)
+        assert event.name == 'EVT_ABORTED'
+
+        scp.shutdown()
+
+    def test_abort_unbind(self):
+        """Test starting with handler bound to EVT_ABORTED."""
+        triggered = []
+        def handle(event):
+            triggered.append(event)
+
+        self.ae = ae = AE()
+        ae.add_supported_context(VerificationSOPClass)
+        ae.add_requested_context(VerificationSOPClass)
+        handlers = [(evt.EVT_ABORTED, handle)]
+        scp = ae.start_server(('', 11112), block=False)
+
+        assoc = ae.associate('localhost', 11112, evt_handlers=handlers)
+        assert assoc.is_established
+        assert len(scp.active_associations) == 1
+
+        assert assoc.get_handlers(evt.EVT_ABORTED) == [handle]
+        assert assoc.get_handlers(evt.EVT_ACCEPTED) == []
+        assert assoc.get_handlers(evt.EVT_ESTABLISHED) == []
+        assert assoc.get_handlers(evt.EVT_REJECTED) == []
+        assert assoc.get_handlers(evt.EVT_RELEASED) == []
+        assert assoc.get_handlers(evt.EVT_REQUESTED) == []
+
+        assoc.unbind(evt.EVT_ABORTED, handle)
+
+        assert assoc.get_handlers(evt.EVT_ABORTED) == []
+        assert assoc.get_handlers(evt.EVT_ACCEPTED) == []
+        assert assoc.get_handlers(evt.EVT_ESTABLISHED) == []
+        assert assoc.get_handlers(evt.EVT_REJECTED) == []
+        assert assoc.get_handlers(evt.EVT_RELEASED) == []
+        assert assoc.get_handlers(evt.EVT_REQUESTED) == []
+
+        assoc.abort()
+
+        while scp.active_associations:
+            time.sleep(0.05)
+
+        assert len(triggered) == 0
+
+        scp.shutdown()
+
+    def test_abort_remote(self):
+        """Test the handler bound to EVT_ABORTED with local requested abort."""
+        triggered = []
+        def handle(event):
+            triggered.append(event)
+
+        self.ae = ae = AE()
+        ae.add_supported_context(VerificationSOPClass)
+        ae.add_requested_context(VerificationSOPClass)
+        handlers = [(evt.EVT_ABORTED, handle)]
+        scp = ae.start_server(('', 11112), block=False)
+
+        assoc = ae.associate('localhost', 11112, evt_handlers=handlers)
+        assert assoc.is_established
+        assert len(scp.active_associations) == 1
+
+        scp.active_associations[0].abort()
+
+        while scp.active_associations:
+            time.sleep(0.05)
+
+        assert len(triggered) == 1
+        event = triggered[0]
+        assert isinstance(event, Event)
+        assert isinstance(event.assoc, Association)
+        assert isinstance(event.timestamp, datetime)
+        assert event.name == 'EVT_ABORTED'
+
+        scp.shutdown()
+
+    @pytest.mark.skipif(sys.version_info[:2] == (3, 4), reason='no caplog')
+    def test_abort_raises(self, caplog):
+        """Test the handler for EVT_ACCEPTED raising exception."""
+        def handle(event):
+            raise NotImplementedError("Exception description")
+
+        self.ae = ae = AE()
+        ae.add_supported_context(VerificationSOPClass)
+        ae.add_requested_context(VerificationSOPClass)
+        handlers = [(evt.EVT_ABORTED, handle)]
+        scp = ae.start_server(('', 11112), block=False)
+
+        with caplog.at_level(logging.ERROR, logger='pynetdicom'):
+            assoc = ae.associate('localhost', 11112, evt_handlers=handlers)
+            assert assoc.is_established
+            assoc.abort()
+
+            while scp.active_associations:
+                time.sleep(0.05)
+
+            scp.shutdown()
+
+            msg = (
+                "Exception raised in user's 'evt.EVT_ABORTED' event handler"
+                " 'handle'"
+            )
+            assert msg in caplog.text
+            assert "Exception description" in caplog.text
+
+    def test_accept(self):
+        """Test starting with handler bound to EVT_ACCEPTED."""
+        triggered = []
+        def handle(event):
+            triggered.append(event)
+
+        self.ae = ae = AE()
+        ae.add_supported_context(VerificationSOPClass)
+        ae.add_requested_context(VerificationSOPClass)
+        handlers = [(evt.EVT_ACCEPTED, handle)]
+        scp = ae.start_server(('', 11112), block=False)
+
+        assoc = ae.associate('localhost', 11112, evt_handlers=handlers)
+        assert assoc.is_established
+        assert len(scp.active_associations) == 1
+
+        assert assoc.get_handlers(evt.EVT_ABORTED) == []
+        assert assoc.get_handlers(evt.EVT_ACCEPTED) == [handle]
+        assert assoc.get_handlers(evt.EVT_ESTABLISHED) == []
+        assert assoc.get_handlers(evt.EVT_REJECTED) == []
+        assert assoc.get_handlers(evt.EVT_RELEASED) == []
+        assert assoc.get_handlers(evt.EVT_REQUESTED) == []
+
+        assoc.abort()
+
+        while scp.active_associations:
+            time.sleep(0.05)
+
+        assert len(triggered) == 1
+        event = triggered[0]
+        assert isinstance(event, Event)
+        assert isinstance(event.assoc, Association)
+        assert isinstance(event.timestamp, datetime)
+        assert event.name == 'EVT_ACCEPTED'
+
+        scp.shutdown()
+
+    @pytest.mark.skipif(sys.version_info[:2] == (3, 4), reason='no caplog')
+    def test_accept_raises(self, caplog):
+        """Test the handler for EVT_ACCEPTED raising exception."""
+        def handle(event):
+            raise NotImplementedError("Exception description")
+
+        self.ae = ae = AE()
+        ae.add_supported_context(VerificationSOPClass)
+        ae.add_requested_context(VerificationSOPClass)
+        handlers = [(evt.EVT_ACCEPTED, handle)]
+        scp = ae.start_server(('', 11112), block=False)
+
+        with caplog.at_level(logging.ERROR, logger='pynetdicom'):
+            assoc = ae.associate('localhost', 11112, evt_handlers=handlers)
+            assert assoc.is_established
+            assoc.abort()
+
+            while scp.active_associations:
+                time.sleep(0.05)
+
+            scp.shutdown()
+
+            msg = (
+                "Exception raised in user's 'evt.EVT_ACCEPTED' event handler"
+                " 'handle'"
+            )
+            assert msg in caplog.text
+            assert "Exception description" in caplog.text
+
+    def test_release(self):
+        """Test starting with handler bound to EVT_RELEASED."""
+        triggered = []
+        def handle(event):
+            triggered.append(event)
+
+        self.ae = ae = AE()
+        ae.add_supported_context(VerificationSOPClass)
+        ae.add_requested_context(VerificationSOPClass)
+        handlers = [(evt.EVT_RELEASED, handle)]
+        scp = ae.start_server(('', 11112), block=False)
+
+        assoc = ae.associate('localhost', 11112, evt_handlers=handlers)
+        assert assoc.is_established
+        assert len(scp.active_associations) == 1
+
+        assert assoc.get_handlers(evt.EVT_ABORTED) == []
+        assert assoc.get_handlers(evt.EVT_ACCEPTED) == []
+        assert assoc.get_handlers(evt.EVT_ESTABLISHED) == []
+        assert assoc.get_handlers(evt.EVT_REJECTED) == []
+        assert assoc.get_handlers(evt.EVT_RELEASED) == [handle]
+        assert assoc.get_handlers(evt.EVT_REQUESTED) == []
+
+        assoc.release()
+
+        while scp.active_associations:
+            time.sleep(0.05)
+
+        assert len(triggered) == 1
+        event = triggered[0]
+        assert isinstance(event, Event)
+        assert isinstance(event.assoc, Association)
+        assert isinstance(event.timestamp, datetime)
+        assert event.name == 'EVT_RELEASED'
+
+        scp.shutdown()
+
+    def test_release_bind(self):
+        """Test binding a handler to EVT_RELEASED."""
+        triggered = []
+        def handle(event):
+            triggered.append(event)
+
+        self.ae = ae = AE()
+        ae.add_supported_context(VerificationSOPClass)
+        ae.add_requested_context(VerificationSOPClass)
+        handlers = [(evt.EVT_RELEASED, handle)]
+        scp = ae.start_server(('', 11112), block=False)
+
+        assoc = ae.associate('localhost', 11112)
+        assert assoc.is_established
+        assert len(scp.active_associations) == 1
+        assert assoc.get_handlers(evt.EVT_RELEASED) == []
+
+        assoc.bind(evt.EVT_RELEASED, handle)
+        assert assoc.get_handlers(evt.EVT_RELEASED) == [handle]
+
+        assoc.release()
+
+        while scp.active_associations:
+            time.sleep(0.05)
+
+        assert len(triggered) == 1
+        event = triggered[0]
+        assert isinstance(event, Event)
+        assert isinstance(event.assoc, Association)
+        assert isinstance(event.timestamp, datetime)
+        assert event.name == 'EVT_RELEASED'
+
+        scp.shutdown()
+
+    def test_release_unbind(self):
+        """Test starting with handler bound to EVT_ABORTED."""
+        triggered = []
+        def handle(event):
+            triggered.append(event)
+
+        self.ae = ae = AE()
+        ae.add_supported_context(VerificationSOPClass)
+        ae.add_requested_context(VerificationSOPClass)
+        handlers = [(evt.EVT_RELEASED, handle)]
+        scp = ae.start_server(('', 11112), block=False)
+
+        assoc = ae.associate('localhost', 11112, evt_handlers=handlers)
+        assert assoc.is_established
+        assert len(scp.active_associations) == 1
+
+        assert assoc.get_handlers(evt.EVT_RELEASED) == [handle]
+
+        assoc.unbind(evt.EVT_RELEASED, handle)
+
+        assert assoc.get_handlers(evt.EVT_RELEASED) == []
+
+        assoc.release()
+
+        while scp.active_associations:
+            time.sleep(0.05)
+
+        assert len(triggered) == 0
+
+        scp.shutdown()
+
+    def test_release_remote(self):
+        """Test the handler bound to EVT_RELEASED with local requested abort."""
+        triggered = []
+        def handle(event):
+            triggered.append(event)
+
+        self.ae = ae = AE()
+        ae.add_supported_context(VerificationSOPClass)
+        ae.add_requested_context(VerificationSOPClass)
+        handlers = [(evt.EVT_RELEASED, handle)]
+        scp = ae.start_server(('', 11112), block=False)
+
+        assoc = ae.associate('localhost', 11112, evt_handlers=handlers)
+        assert assoc.is_established
+        assert len(scp.active_associations) == 1
+
+        scp.active_associations[0].release()
+
+        while scp.active_associations:
+            time.sleep(0.05)
+
+        assert len(triggered) == 1
+        event = triggered[0]
+        assert isinstance(event, Event)
+        assert isinstance(event.assoc, Association)
+        assert isinstance(event.timestamp, datetime)
+        assert event.name == 'EVT_RELEASED'
+
+        scp.shutdown()
+
+    @pytest.mark.skipif(sys.version_info[:2] == (3, 4), reason='no caplog')
+    def test_release_raises(self, caplog):
+        """Test the handler for EVT_RELEASED raising exception."""
+        def handle(event):
+            raise NotImplementedError("Exception description")
+
+        self.ae = ae = AE()
+        ae.add_supported_context(VerificationSOPClass)
+        ae.add_requested_context(VerificationSOPClass)
+        handlers = [(evt.EVT_RELEASED, handle)]
+        scp = ae.start_server(('', 11112), block=False)
+
+        with caplog.at_level(logging.ERROR, logger='pynetdicom'):
+            assoc = ae.associate('localhost', 11112, evt_handlers=handlers)
+            assert assoc.is_established
+            assoc.release()
+
+            while scp.active_associations:
+                time.sleep(0.05)
+
+            scp.shutdown()
+
+            msg = (
+                "Exception raised in user's 'evt.EVT_RELEASED' event handler"
+                " 'handle'"
+            )
+            assert msg in caplog.text
+            assert "Exception description" in caplog.text
+
+    def test_established(self):
+        """Test starting with handler bound to EVT_ESTABLISHED."""
+        triggered = []
+        def handle(event):
+            triggered.append(event)
+
+        self.ae = ae = AE()
+        ae.add_supported_context(VerificationSOPClass)
+        ae.add_requested_context(VerificationSOPClass)
+        handlers = [(evt.EVT_ESTABLISHED, handle)]
+        scp = ae.start_server(('', 11112), block=False)
+
+        assoc = ae.associate('localhost', 11112, evt_handlers=handlers)
+        assert assoc.is_established
+        assert len(scp.active_associations) == 1
+
+        assert assoc.get_handlers(evt.EVT_ABORTED) == []
+        assert assoc.get_handlers(evt.EVT_ACCEPTED) == []
+        assert assoc.get_handlers(evt.EVT_ESTABLISHED) == [handle]
+        assert assoc.get_handlers(evt.EVT_REJECTED) == []
+        assert assoc.get_handlers(evt.EVT_RELEASED) == []
+        assert assoc.get_handlers(evt.EVT_REQUESTED) == []
+
+        assoc.release()
+
+        while scp.active_associations:
+            time.sleep(0.05)
+
+        assert len(triggered) == 1
+        event = triggered[0]
+        assert isinstance(event, Event)
+        assert isinstance(event.assoc, Association)
+        assert isinstance(event.timestamp, datetime)
+        assert event.name == 'EVT_ESTABLISHED'
+
+        scp.shutdown()
+
+    @pytest.mark.skipif(sys.version_info[:2] == (3, 4), reason='no caplog')
+    def test_established_raises(self, caplog):
+        """Test the handler for EVT_ESTABLISHED raising exception."""
+        def handle(event):
+            raise NotImplementedError("Exception description")
+
+        self.ae = ae = AE()
+        ae.add_supported_context(VerificationSOPClass)
+        ae.add_requested_context(VerificationSOPClass)
+        handlers = [(evt.EVT_ESTABLISHED, handle)]
+        scp = ae.start_server(('', 11112), block=False)
+
+        with caplog.at_level(logging.ERROR, logger='pynetdicom'):
+            assoc = ae.associate('localhost', 11112, evt_handlers=handlers)
+            assert assoc.is_established
+            assoc.release()
+
+            while scp.active_associations:
+                time.sleep(0.05)
+
+            scp.shutdown()
+
+            msg = (
+                "Exception raised in user's 'evt.EVT_ESTABLISHED' event handler"
+                " 'handle'"
+            )
+            assert msg in caplog.text
+            assert "Exception description" in caplog.text
+
+    def test_requested(self):
+        """Test starting with handler bound to EVT_REQUESTED."""
+        triggered = []
+        def handle(event):
+            triggered.append(event)
+
+        self.ae = ae = AE()
+        ae.add_supported_context(VerificationSOPClass)
+        ae.add_requested_context(VerificationSOPClass)
+        handlers = [(evt.EVT_REQUESTED, handle)]
+        scp = ae.start_server(('', 11112), block=False)
+
+        assoc = ae.associate('localhost', 11112, evt_handlers=handlers)
+        assert assoc.is_established
+        assert len(scp.active_associations) == 1
+        assert assoc.get_handlers(evt.EVT_ABORTED) == []
+        assert assoc.get_handlers(evt.EVT_ACCEPTED) == []
+        assert assoc.get_handlers(evt.EVT_ESTABLISHED) == []
+        assert assoc.get_handlers(evt.EVT_REJECTED) == []
+        assert assoc.get_handlers(evt.EVT_RELEASED) == []
+        assert assoc.get_handlers(evt.EVT_REQUESTED) == [handle]
+
+        assoc.release()
+
+        while scp.active_associations:
+            time.sleep(0.05)
+
+        assert len(triggered) == 1
+        event = triggered[0]
+        assert isinstance(event, Event)
+        assert isinstance(event.assoc, Association)
+        assert isinstance(event.timestamp, datetime)
+        assert event.name == 'EVT_REQUESTED'
+
+        scp.shutdown()
+
+    @pytest.mark.skipif(sys.version_info[:2] == (3, 4), reason='no caplog')
+    def test_requested_raises(self, caplog):
+        """Test the handler for EVT_REQUESTED raising exception."""
+        def handle(event):
+            raise NotImplementedError("Exception description")
+
+        self.ae = ae = AE()
+        ae.add_supported_context(VerificationSOPClass)
+        ae.add_requested_context(VerificationSOPClass)
+        handlers = [(evt.EVT_REQUESTED, handle)]
+        scp = ae.start_server(('', 11112), block=False)
+
+        with caplog.at_level(logging.ERROR, logger='pynetdicom'):
+            assoc = ae.associate('localhost', 11112, evt_handlers=handlers)
+            assert assoc.is_established
+            assoc.release()
+
+            while scp.active_associations:
+                time.sleep(0.05)
+
+            scp.shutdown()
+
+            msg = (
+                "Exception raised in user's 'evt.EVT_REQUESTED' event handler"
+                " 'handle'"
+            )
+            assert msg in caplog.text
+            assert "Exception description" in caplog.text
+
+    def test_rejected(self):
+        """Test starting with handler bound to EVT_REJECTED."""
+        triggered = []
+        def handle(event):
+            triggered.append(event)
+
+        self.ae = ae = AE()
+        ae.require_called_aet = True
+        ae.add_supported_context(CTImageStorage)
+        ae.add_requested_context(VerificationSOPClass)
+        handlers = [(evt.EVT_REJECTED, handle)]
+        scp = ae.start_server(('', 11112), block=False)
+
+        assoc = ae.associate('localhost', 11112, evt_handlers=handlers)
+        assert assoc.is_rejected
+
+        assert assoc.get_handlers(evt.EVT_ABORTED) == []
+        assert assoc.get_handlers(evt.EVT_ACCEPTED) == []
+        assert assoc.get_handlers(evt.EVT_ESTABLISHED) == []
+        assert assoc.get_handlers(evt.EVT_REJECTED) == [handle]
+        assert assoc.get_handlers(evt.EVT_RELEASED) == []
+        assert assoc.get_handlers(evt.EVT_REQUESTED) == []
+
+        assert len(triggered) == 1
+        event = triggered[0]
+        assert isinstance(event, Event)
+        assert isinstance(event.assoc, Association)
+        assert isinstance(event.timestamp, datetime)
+        assert event.name == 'EVT_REJECTED'
+
+        scp.shutdown()
+
+    @pytest.mark.skipif(sys.version_info[:2] == (3, 4), reason='no caplog')
+    def test_rejected_raises(self, caplog):
+        """Test the handler for EVT_REJECTED raising exception."""
+        def handle(event):
+            raise NotImplementedError("Exception description")
+
+        self.ae = ae = AE()
+        ae.require_called_aet = True
+        ae.add_supported_context(VerificationSOPClass)
+        ae.add_requested_context(VerificationSOPClass)
+        handlers = [(evt.EVT_REJECTED, handle)]
+        scp = ae.start_server(('', 11112), block=False)
+
+        with caplog.at_level(logging.ERROR, logger='pynetdicom'):
+            assoc = ae.associate('localhost', 11112, evt_handlers=handlers)
+            assert assoc.is_rejected
+            scp.shutdown()
+
+            msg = (
+                "Exception raised in user's 'evt.EVT_REJECTED' event handler"
+                " 'handle'"
+            )
+            assert msg in caplog.text
+            assert "Exception description" in caplog.text

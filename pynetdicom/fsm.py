@@ -3,6 +3,7 @@ The DUL's finite state machine representation.
 """
 import logging
 
+from pynetdicom import evt
 from pynetdicom.pdu import (
     A_ASSOCIATE_RQ, A_ASSOCIATE_RJ, A_ASSOCIATE_AC,
     P_DATA_TF, A_RELEASE_RQ, A_RELEASE_RP, A_ABORT_RQ
@@ -74,7 +75,17 @@ class StateMachine(object):
             # Execute the required action
             next_state = action[1](self.dul)
 
-            # Useful for debugging
+            # Event handler - FSM transition
+            evt.trigger(
+                self.dul.assoc,
+                evt.EVT_FSM_TRANSITION,
+                {
+                    'action' : action_name,
+                    'current_state' : self.current_state,
+                    'fsm_event' : event,
+                    'next_state' : next_state
+                }
+            )
             #print(
             #    "{} + {} -> {} -> {}"
             #    .format(self.current_state, event, action_name, next_state)
@@ -177,12 +188,8 @@ def AE_2(dul):
     dul.pdu = A_ASSOCIATE_RQ()
     dul.pdu.from_primitive(dul.primitive)
 
-    # Callback
-    LOGGER.info("Requesting Association")
-    dul.assoc.acse.debug_send_associate_rq(dul.pdu)
-
-    bytestream = dul.pdu.encode()
-    dul.socket.send(bytestream)
+    dul.socket.send(dul.pdu.encode())
+    evt.trigger(dul.assoc, evt.EVT_PDU_SENT, {'pdu' : dul.pdu})
 
     return 'Sta5'
 
@@ -240,6 +247,13 @@ def AE_4(dul):
     # connection
     dul.to_user_queue.put(dul.primitive)
     dul.socket.close()
+
+    assoc = dul.assoc
+    remote = assoc.acceptor if assoc.is_requestor else assoc.requestor
+
+    address = (remote.address, remote.port)
+    evt.trigger(dul.assoc, evt.EVT_CONN_CLOSE, {'address' : address})
+
     dul.kill_dul()
 
     return 'Sta1'
@@ -321,10 +335,8 @@ def AE_6(dul):
         dul.pdu = A_ASSOCIATE_RJ()
         dul.pdu.from_primitive(dul.primitive)
 
-        # Callback
-        dul.assoc.acse.debug_send_associate_rj(dul.pdu)
-
         dul.socket.send(dul.pdu.encode())
+        evt.trigger(dul.assoc, evt.EVT_PDU_SENT, {'pdu' : dul.pdu})
         dul.artim_timer.start()
 
         return 'Sta13'
@@ -361,11 +373,8 @@ def AE_7(dul):
     dul.pdu = A_ASSOCIATE_AC()
     dul.pdu.from_primitive(dul.primitive)
 
-    # Callback
-    dul.assoc.acse.debug_send_associate_ac(dul.pdu)
-
-    bytestream = dul.pdu.encode()
-    dul.socket.send(bytestream)
+    dul.socket.send(dul.pdu.encode())
+    evt.trigger(dul.assoc, evt.EVT_PDU_SENT, {'pdu' : dul.pdu})
 
     return 'Sta6'
 
@@ -395,10 +404,8 @@ def AE_8(dul):
     dul.pdu = A_ASSOCIATE_RJ()
     dul.pdu.from_primitive(dul.primitive)
 
-    # Callback
-    dul.assoc.acse.debug_send_associate_rj(dul.pdu)
-
     dul.socket.send(dul.pdu.encode())
+    evt.trigger(dul.assoc, evt.EVT_PDU_SENT, {'pdu' : dul.pdu})
     dul.artim_timer.start()
 
     return 'Sta13'
@@ -431,10 +438,8 @@ def DT_1(dul):
     dul.pdu.from_primitive(dul.primitive)
     dul.primitive = None  # Why this?
 
-    # Callback
-    dul.assoc.acse.debug_send_data_tf(dul.pdu)
-
     dul.socket.send(dul.pdu.encode())
+    evt.trigger(dul.assoc, evt.EVT_PDU_SENT, {'pdu' : dul.pdu})
 
     return 'Sta6'
 
@@ -492,10 +497,8 @@ def AR_1(dul):
     dul.pdu = A_RELEASE_RQ()
     dul.pdu.from_primitive(dul.primitive)
 
-    # Callback
-    dul.assoc.acse.debug_send_release_rq(dul.pdu)
-
     dul.socket.send(dul.pdu.encode())
+    evt.trigger(dul.assoc, evt.EVT_PDU_SENT, {'pdu' : dul.pdu})
 
     return 'Sta7'
 
@@ -552,6 +555,13 @@ def AR_3(dul):
     # Issue A-RELEASE confirmation primitive and close transport connection
     dul.to_user_queue.put(dul.primitive)
     dul.socket.close()
+
+    assoc = dul.assoc
+    remote = assoc.acceptor if assoc.is_requestor else assoc.requestor
+
+    address = (remote.address, remote.port)
+    evt.trigger(dul.assoc, evt.EVT_CONN_CLOSE, {'address' : address})
+
     dul.kill_dul()
 
     return 'Sta1'
@@ -582,10 +592,8 @@ def AR_4(dul):
     dul.pdu = A_RELEASE_RP()
     dul.pdu.from_primitive(dul.primitive)
 
-    # Callback
-    dul.assoc.acse.debug_send_release_rp(dul.pdu)
-
     dul.socket.send(dul.pdu.encode())
+    evt.trigger(dul.assoc, evt.EVT_PDU_SENT, {'pdu' : dul.pdu})
     dul.artim_timer.start()
 
     return 'Sta13'
@@ -613,6 +621,12 @@ def AR_5(dul):
     str
         Sta1, the next state of the state machine
     """
+    assoc = dul.assoc
+    remote = assoc.acceptor if assoc.is_requestor else assoc.requestor
+
+    address = (remote.address, remote.port)
+    evt.trigger(dul.assoc, evt.EVT_CONN_CLOSE, {'address' : address})
+
     # Stop ARTIM timer
     dul.artim_timer.stop()
     dul.kill_dul()
@@ -674,10 +688,8 @@ def AR_7(dul):
     dul.pdu = P_DATA_TF()
     dul.pdu.from_primitive(dul.primitive)
 
-    # Callback
-    dul.assoc.acse.debug_send_data_tf(dul.pdu)
-
     dul.socket.send(dul.pdu.encode())
+    evt.trigger(dul.assoc, evt.EVT_PDU_SENT, {'pdu' : dul.pdu})
 
     return 'Sta8'
 
@@ -737,10 +749,8 @@ def AR_9(dul):
     dul.pdu = A_RELEASE_RP()
     dul.pdu.from_primitive(dul.primitive)
 
-    # Callback
-    dul.assoc.acse.debug_send_release_rp(dul.pdu)
-
     dul.socket.send(dul.pdu.encode())
+    evt.trigger(dul.assoc, evt.EVT_PDU_SENT, {'pdu' : dul.pdu})
 
     return 'Sta11'
 
@@ -804,10 +814,8 @@ def AA_1(dul):
     dul.pdu.reason_diagnostic = 0x00
     dul.pdu.from_primitive(dul.primitive)
 
-    # Callback
-    dul.assoc.acse.debug_send_abort(dul.pdu)
-
     dul.socket.send(dul.pdu.encode())
+    evt.trigger(dul.assoc, evt.EVT_PDU_SENT, {'pdu' : dul.pdu})
     dul.artim_timer.restart()
 
     return 'Sta13'
@@ -838,6 +846,13 @@ def AA_2(dul):
     # Stop ARTIM timer if running. Close transport connection.
     dul.artim_timer.stop()
     dul.socket.close()
+
+    assoc = dul.assoc
+    remote = assoc.acceptor if assoc.is_requestor else assoc.requestor
+
+    address = (remote.address, remote.port)
+    evt.trigger(dul.assoc, evt.EVT_CONN_CLOSE, {'address' : address})
+
     dul.kill_dul()
 
     return 'Sta1'
@@ -873,6 +888,13 @@ def AA_3(dul):
     # This action is triggered by the reception of an A-ABORT PDU
     dul.to_user_queue.put(dul.primitive)
     dul.socket.close()
+
+    assoc = dul.assoc
+    remote = assoc.acceptor if assoc.is_requestor else assoc.requestor
+
+    address = (remote.address, remote.port)
+    evt.trigger(dul.assoc, evt.EVT_CONN_CLOSE, {'address' : address})
+
     dul.kill_dul()
 
     return 'Sta1'
@@ -900,10 +922,16 @@ def AA_4(dul):
     str
         Sta1, the next state of the state machine
     """
+    assoc = dul.assoc
+    remote = assoc.acceptor if assoc.is_requestor else assoc.requestor
+
+    address = (remote.address, remote.port)
+    evt.trigger(dul.assoc, evt.EVT_CONN_CLOSE, {'address' : address})
+
     # Issue A-P-ABORT indication primitive.
-    dul.primitive = A_P_ABORT()
-    dul.primitive.provider_reason = 0x00
-    dul.to_user_queue.put(dul.primitive)
+    primitive = A_P_ABORT()
+    primitive.provider_reason = 0x00
+    dul.to_user_queue.put(primitive)
     dul.kill_dul()
 
     return 'Sta1'
@@ -931,6 +959,12 @@ def AA_5(dul):
     str
         Sta1, the next state of the state machine
     """
+    assoc = dul.assoc
+    remote = assoc.acceptor if assoc.is_requestor else assoc.requestor
+
+    address = (remote.address, remote.port)
+    evt.trigger(dul.assoc, evt.EVT_CONN_CLOSE, {'address' : address})
+
     # Stop ARTIM timer.
     dul.artim_timer.stop()
     dul.kill_dul()
@@ -967,8 +1001,8 @@ def AA_6(dul):
 def AA_7(dul):
     """Association abort AA-7.
 
-    If receive a association request or invalid PDU while waiting for connection
-    to close, issue A-ABORT
+    If receive a association request or invalid PDU while waiting for
+    connection to close, send A-ABORT PDU
 
     State-event triggers: Sta13 + Evt6/Evt19
 
@@ -987,23 +1021,23 @@ def AA_7(dul):
     str
         Sta13, the next state of the state machine
     """
+    primitive = A_P_ABORT()
+    primitive.provider_reason = 0x02
+
     # Send A-ABORT PDU.
     pdu = A_ABORT_RQ()
-    pdu.source = 0x02
-    pdu.reason_diagnostic = 0x02
+    pdu.from_primitive(primitive)
 
-    # Callback
-    dul.assoc.acse.debug_send_abort(pdu)
-
-    dul.socket.send(pdu.encode())
+    dul.socket.send(dul.pdu.encode())
+    evt.trigger(dul.assoc, evt.EVT_PDU_SENT, {'pdu' : dul.pdu})
 
     return 'Sta13'
 
 def AA_8(dul):
     """Association abort AA-8.
 
-    If receive invalid event, send A-ABORT, issue A-P-ABORT indication and start
-    ARTIM timer
+    If receive invalid event, send A-ABORT, issue A-P-ABORT indication and
+    start ARTIM timer
 
     State-event triggers: Evt3 + Sta3/6/7/8/9/10/11/12,
     Evt4 + Sta3/5/6/7/8/9/10/11/12, Evt6 + Sta3/5/6/7/8/9/10/11/12,
@@ -1036,13 +1070,13 @@ def AA_8(dul):
     dul.primitive.result = 0x01
     dul.primitive.diagnostic = 0x01
 
-    # Callback
-    dul.assoc.acse.debug_send_abort(dul.pdu)
-
     dul.socket.send(dul.pdu.encode())
+    evt.trigger(dul.assoc, evt.EVT_PDU_SENT, {'pdu' : dul.pdu})
 
     # Issue A-P-ABORT to user
-    dul.to_user_queue.put(dul.primitive)
+    primitive = A_P_ABORT()
+    primitive.provider_reason = 0x05
+    dul.to_user_queue.put(primitive)
     dul.artim_timer.start()
 
     return 'Sta13'

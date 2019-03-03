@@ -66,20 +66,21 @@ of the DICOM Standard.
 
 SOP Classes
 ~~~~~~~~~~~
-A Service-Object Pair (SOP) Class is defined by the union of an IOD and a DIMSE
-service group:
+A Service-Object Pair (SOP) Class is defined by the union of an IOD and a
+`DICOM Message Service Element <http://dicom.nema.org/medical/dicom/current/output/chtml/part07/PS3.7.html>`_
+(DIMSE) service group:
 
 * **Composite SOP Classes** are the union of Composite IODs and
-  DIMSE-C services. An example of a Composite SOP Class is the *CT Image
-  Storage SOP Class*, which is the union of the *CT Image IOD* and the DIMSE
-  C-STORE service. A *CT Image Storage* instance stores information about a
-  single slice of a patient's CT scan. A complete scan (a *Series*) would
-  then be made up of one or more *CT Image Storage SOP Class* instances, all
+  the DIMSE-C service group. An example of a Composite SOP Class is the
+  *CT Image Storage SOP Class*, which is the union of the *CT Image IOD* and
+  the DIMSE C-STORE service. A *CT Image Storage* instance stores information
+  about a single slice of a patient's CT scan. A complete scan (a *Series*) is
+  made up of one or more *CT Image Storage SOP Class* instances, all
   with the same *Study Instance UID* and *Series Instance UID* values but
   differing *SOP Instance UID* values (one for each SOP instance within the
   *Series*).
 * **Normalised SOP Classes** are the union of Normalised IODs and DIMSE-N
-  services. An example of a Normalised SOP Class is the *Print Job SOP
+  service group. An example of a Normalised SOP Class is the *Print Job SOP
   Class*, which is the union of the *Print Job IOD* and the DIMSE
   N-EVENT-REPORT and N-GET services. The *Print Job SOP Class* is an
   abstraction of a print job containing one or more films to be printed.
@@ -101,6 +102,9 @@ include storage of SOP Class instances (*Storage Service Class*), verification
 of DICOM connectivity (*Verification Service Class*), querying and retrieval
 of managed SOP instances (*Query/Retrieve Service Class*), printing of images
 (*Print Management Service Class*) and many others.
+
+The labels *Service Class User* and *Service Class Provider* are derived from
+whether or not an AE *uses* or *provides* the services in a Service Class.
 
 Service Classes are defined in `Part 4 <http://dicom.nema.org/medical/dicom/current/output/html/part04.html>`_
 of the DICOM Standard.
@@ -150,7 +154,7 @@ Each Abstract Syntax is identified by an *Abstract Syntax Name* in the form
 of a UID. Abstract syntax names used with DICOM are usually the officially
 registered SOP class UIDs (and the abstract syntax is therefore the SOP class
 itself), but the standard also allows the use of private
-abstract syntaxes. While pynetdicom can handle association negotiation
+abstract syntaxes. While *pynetdicom* can handle association negotiation
 containing private abstract syntaxes the implementation of the associated
 services/semantics is up to the end user.
 
@@ -168,7 +172,7 @@ compression, etc.).
 The official DICOM transfer syntaxes are defined in
 `Part 5 <http://dicom.nema.org/medical/dicom/current/output/html/part05.html#chapter_8>`_
 of the DICOM Standard. The Standard also allows the use of privately defined
-transfer syntaxes. While pynetdicom is able to handle association
+transfer syntaxes. While *pynetdicom* is able to handle association
 negotiation containing private transfer syntaxes, the implementation of the
 associated encoding requirements is the responsibility of the end user.
 
@@ -177,10 +181,10 @@ associated encoding requirements is the responsibility of the end user.
 
 Association
 -----------
-When peer AEs want to communicate they must first set up an Association.
+When peer AEs want to communicate they must first establish an Association.
 
-* The AE that is initiating the association (the *requestor*) sends
-  an A-ASSOCIATE message to the peer AE (the *acceptor*) which contains a list
+* The AE that is initiating the association (the *Requestor*) sends
+  an A-ASSOCIATE message to the peer AE (the *Acceptor*) which contains a list
   of proposed presentation contexts and association negotiation items.
 * The *acceptor* receives the request and responds with:
 
@@ -189,7 +193,7 @@ When peer AEs want to communicate they must first set up an Association.
   * abort, which results in no association
 
 An association may be rejected because none of the proposed presentation
-contexts are supported, or because the *requestor* hasn't identified itself
+contexts are supported, or because the *Requestor* hasn't identified itself
 correctly or for a `number of other reasons <http://dicom.nema.org/medical/dicom/current/output/chtml/part08/sect_9.3.4.html>`_.
 
 The full service procedure for an association is found in
