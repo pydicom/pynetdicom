@@ -1351,8 +1351,7 @@ class TestEventHandlingRequestor(object):
             assert assoc.is_aborted
 
             messages = [
-                "Association Request Failed: Failed to establish association",
-                "Peer aborted Association (or never connected)",
+                "Association request failed: unable to connect to remote",
                 "TCP Initialisation Error: Connection refused"
             ]
             for msg in messages:
