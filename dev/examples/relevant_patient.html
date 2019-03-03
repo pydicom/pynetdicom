@@ -214,16 +214,19 @@ single patient with ID <code class="docutils literal notranslate"><span class="p
     <span class="n">responses</span> <span class="o">=</span> <span class="n">assoc</span><span class="o">.</span><span class="n">send_c_find</span><span class="p">(</span><span class="n">ds</span><span class="p">,</span> <span class="n">query_model</span><span class="o">=</span><span class="s1">&#39;G&#39;</span><span class="p">)</span>
 
     <span class="k">for</span> <span class="p">(</span><span class="n">status</span><span class="p">,</span> <span class="n">identifier</span><span class="p">)</span> <span class="ow">in</span> <span class="n">responses</span><span class="p">:</span>
-        <span class="k">print</span><span class="p">(</span><span class="s1">&#39;C-FIND query status: 0x{0:04x}&#39;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">status</span><span class="o">.</span><span class="n">Status</span><span class="p">))</span>
+        <span class="k">if</span> <span class="n">status</span><span class="p">:</span>
+            <span class="k">print</span><span class="p">(</span><span class="s1">&#39;C-FIND query status: 0x{0:04x}&#39;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">status</span><span class="o">.</span><span class="n">Status</span><span class="p">))</span>
 
-        <span class="c1"># If the status is &#39;Pending&#39; then identifier is the C-FIND response</span>
-        <span class="k">if</span> <span class="n">status</span><span class="o">.</span><span class="n">Status</span> <span class="ow">in</span> <span class="p">(</span><span class="mh">0xFF00</span><span class="p">,</span> <span class="mh">0xFF01</span><span class="p">):</span>
-            <span class="k">print</span><span class="p">(</span><span class="n">identifier</span><span class="p">)</span>
+            <span class="c1"># If the status is &#39;Pending&#39; then identifier is the C-FIND response</span>
+            <span class="k">if</span> <span class="n">status</span><span class="o">.</span><span class="n">Status</span> <span class="ow">in</span> <span class="p">(</span><span class="mh">0xFF00</span><span class="p">,</span> <span class="mh">0xFF01</span><span class="p">):</span>
+                <span class="k">print</span><span class="p">(</span><span class="n">identifier</span><span class="p">)</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="k">print</span><span class="p">(</span><span class="s1">&#39;Connection timed out, was aborted or received invalid response&#39;</span><span class="p">)</span>
 
     <span class="c1"># Release the association</span>
     <span class="n">assoc</span><span class="o">.</span><span class="n">release</span><span class="p">()</span>
 <span class="k">else</span><span class="p">:</span>
-    <span class="k">print</span><span class="p">(</span><span class="s1">&#39;Association rejected or aborted&#39;</span><span class="p">)</span>
+    <span class="k">print</span><span class="p">(</span><span class="s1">&#39;Association rejected, aborted or never connected&#39;</span><span class="p">)</span>
 </pre></div>
 </div>
 </div>
@@ -246,52 +249,22 @@ requested template.</p>
 <p>This is a very bad way of managing stored SOP Instances, in reality its
 probably best to store the instance attributes in a database and run the
 query against that.</p>
+<p>Check the
+<a class="reference external" href="../reference/generated/pynetdicom._handlers.doc_handle_find.html">handler implementation documentation</a>
+to see the requirements for the <code class="docutils literal notranslate"><span class="pre">evt.EVT_C_FIND</span></code> handler.</p>
 <div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">import</span> <span class="nn">os</span>
 
 <span class="kn">from</span> <span class="nn">pydicom</span> <span class="kn">import</span> <span class="n">dcmread</span>
 <span class="kn">from</span> <span class="nn">pydicom.dataset</span> <span class="kn">import</span> <span class="n">Dataset</span>
 
-<span class="kn">from</span> <span class="nn">pynetdicom</span> <span class="kn">import</span> <span class="n">AE</span>
+<span class="kn">from</span> <span class="nn">pynetdicom</span> <span class="kn">import</span> <span class="n">AE</span><span class="p">,</span> <span class="n">evt</span>
 <span class="kn">from</span> <span class="nn">pynetdicom.sop_class</span> <span class="kn">import</span> <span class="n">GeneralRelevantPatientInformationQuery</span>
 
-<span class="c1"># Initialise the Application Entity and specify the listen port</span>
-<span class="n">ae</span> <span class="o">=</span> <span class="n">AE</span><span class="p">()</span>
+<span class="c1"># Implement the evt.EVT_C_FIND handler</span>
+<span class="k">def</span> <span class="nf">handle_find</span><span class="p">(</span><span class="n">event</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;Handle a C-FIND service request&quot;&quot;&quot;</span>
+    <span class="n">ds</span> <span class="o">=</span> <span class="n">event</span><span class="o">.</span><span class="n">identifier</span>
 
-<span class="c1"># Add a requested presentation context</span>
-<span class="n">ae</span><span class="o">.</span><span class="n">add_supported_context</span><span class="p">(</span><span class="n">GeneralRelevantPatientInformationQuery</span><span class="p">)</span>
-
-<span class="c1"># Implement the AE.on_c_store callback</span>
-<span class="k">def</span> <span class="nf">on_c_find</span><span class="p">(</span><span class="n">ds</span><span class="p">,</span> <span class="n">context</span><span class="p">,</span> <span class="n">info</span><span class="p">):</span>
-    <span class="sd">&quot;&quot;&quot;Respond to a C-FIND request Identifier `ds`.</span>
-
-<span class="sd">    Parameters</span>
-<span class="sd">    ----------</span>
-<span class="sd">    ds : pydicom.dataset.Dataset</span>
-<span class="sd">       The Identifier dataset send by the peer.</span>
-<span class="sd">    context : namedtuple</span>
-<span class="sd">       The presentation context that the dataset was sent under.</span>
-<span class="sd">    info : dict</span>
-<span class="sd">       Information about the association and relevant patient info request.</span>
-
-<span class="sd">    Yields</span>
-<span class="sd">    ------</span>
-<span class="sd">    status : int or pydicom.dataset.Dataset</span>
-<span class="sd">       The status returned to the peer AE in the C-FIND response. Must be</span>
-<span class="sd">       a valid C-FIND status value for the applicable Service Class as</span>
-<span class="sd">       either an ``int`` or a ``Dataset`` object containing (at a</span>
-<span class="sd">       minimum) a (0000,0900) *Status* element.</span>
-<span class="sd">    identifier : pydicom.dataset.Dataset</span>
-<span class="sd">       If the status is &#39;Pending&#39; then the *Identifier* ``Dataset`` for a</span>
-<span class="sd">       matching SOP Instance. The exact requirements for the C-FIND</span>
-<span class="sd">       response *Identifier* are Service Class specific (see the</span>
-<span class="sd">       DICOM Standard, Part 4).</span>
-
-<span class="sd">       If the status is &#39;Failure&#39; or &#39;Cancel&#39; then yield ``None``.</span>
-
-<span class="sd">       If the status is &#39;Success&#39; then yield ``None``, however yielding a</span>
-<span class="sd">       final &#39;Success&#39; status is not required and will be ignored if</span>
-<span class="sd">       necessary.</span>
-<span class="sd">    &quot;&quot;&quot;</span>
     <span class="c1"># Import stored SOP Instances</span>
     <span class="n">instances</span> <span class="o">=</span> <span class="p">[]</span>
     <span class="n">fdir</span> <span class="o">=</span> <span class="s1">&#39;/path/to/directory&#39;</span>
@@ -314,10 +287,16 @@ query against that.</p>
         <span class="c1"># More than 1 match found</span>
         <span class="k">yield</span> <span class="p">(</span><span class="mh">0xC100</span><span class="p">,</span> <span class="bp">None</span><span class="p">)</span>
 
-<span class="n">ae</span><span class="o">.</span><span class="n">on_c_find</span> <span class="o">=</span> <span class="n">on_c_find</span>
+<span class="n">handlers</span> <span class="o">=</span> <span class="p">[(</span><span class="n">evt</span><span class="o">.</span><span class="n">EVT_C_FIND</span><span class="p">,</span> <span class="n">handle_find</span><span class="p">)]</span>
+
+<span class="c1"># Initialise the Application Entity and specify the listen port</span>
+<span class="n">ae</span> <span class="o">=</span> <span class="n">AE</span><span class="p">()</span>
+
+<span class="c1"># Add the supported presentation context</span>
+<span class="n">ae</span><span class="o">.</span><span class="n">add_supported_context</span><span class="p">(</span><span class="n">GeneralRelevantPatientInformationQuery</span><span class="p">)</span>
 
 <span class="c1"># Start listening for incoming association requests</span>
-<span class="n">ae</span><span class="o">.</span><span class="n">start_server</span><span class="p">((</span><span class="s1">&#39;&#39;</span><span class="p">,</span> <span class="mi">11112</span><span class="p">))</span>
+<span class="n">ae</span><span class="o">.</span><span class="n">start_server</span><span class="p">((</span><span class="s1">&#39;&#39;</span><span class="p">,</span> <span class="mi">11112</span><span class="p">),</span> <span class="n">evt_handlers</span><span class="o">=</span><span class="n">handlers</span><span class="p">)</span>
 </pre></div>
 </div>
 </div>

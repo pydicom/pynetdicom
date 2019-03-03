@@ -178,7 +178,7 @@
 <h1>pynetdicom.pdu_primitives.A_ASSOCIATE<a class="headerlink" href="#pynetdicom-pdu-primitives-a-associate" title="Permalink to this headline">¶</a></h1>
 <dl class="class">
 <dt id="pynetdicom.pdu_primitives.A_ASSOCIATE">
-<em class="property">class </em><code class="descclassname">pynetdicom.pdu_primitives.</code><code class="descname">A_ASSOCIATE</code><a class="reference internal" href="../../_modules/pynetdicom/pdu_primitives.html#A_ASSOCIATE"><span class="viewcode-link">[source]</span></a><a class="reference external" href="https://github.com/pydicom/pynetdicom/blob/0469adc/pynetdicom/pdu_primitives.py#L44"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pynetdicom.pdu_primitives.A_ASSOCIATE" title="Permalink to this definition">¶</a></dt>
+<em class="property">class </em><code class="descclassname">pynetdicom.pdu_primitives.</code><code class="descname">A_ASSOCIATE</code><a class="reference internal" href="../../_modules/pynetdicom/pdu_primitives.html#A_ASSOCIATE"><span class="viewcode-link">[source]</span></a><a class="reference external" href="https://github.com/pydicom/pynetdicom/blob/6af7812/pynetdicom/pdu_primitives.py#L44"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pynetdicom.pdu_primitives.A_ASSOCIATE" title="Permalink to this definition">¶</a></dt>
 <dd><p>An A-ASSOCIATE primitive.</p>
 <p>The establishment of an association between two AEs shall be performed
 through ACSE A-ASSOCIATE request, indication, response and confirmation
@@ -637,7 +637,7 @@ Only one Transfer Syntax per presentation context shall be agreed to</p>
 </ul>
 <dl class="method">
 <dt id="pynetdicom.pdu_primitives.A_ASSOCIATE.__init__">
-<code class="descname">__init__</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="../../_modules/pynetdicom/pdu_primitives.html#A_ASSOCIATE.__init__"><span class="viewcode-link">[source]</span></a><a class="reference external" href="https://github.com/pydicom/pynetdicom/blob/0469adc/pynetdicom/pdu_primitives.py#L250"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pynetdicom.pdu_primitives.A_ASSOCIATE.__init__" title="Permalink to this definition">¶</a></dt>
+<code class="descname">__init__</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="../../_modules/pynetdicom/pdu_primitives.html#A_ASSOCIATE.__init__"><span class="viewcode-link">[source]</span></a><a class="reference external" href="https://github.com/pydicom/pynetdicom/blob/6af7812/pynetdicom/pdu_primitives.py#L250"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pynetdicom.pdu_primitives.A_ASSOCIATE.__init__" title="Permalink to this definition">¶</a></dt>
 <dd><p>Initialize self.  See help(type(self)) for accurate signature.</p>
 </dd></dl>
 
@@ -696,22 +696,31 @@ Only one Transfer Syntax per presentation context shall be agreed to</p>
 <tr class="row-even"><td><a class="reference internal" href="#pynetdicom.pdu_primitives.A_ASSOCIATE.presentation_requirements" title="pynetdicom.pdu_primitives.A_ASSOCIATE.presentation_requirements"><code class="xref py py-obj docutils literal notranslate"><span class="pre">presentation_requirements</span></code></a></td>
 <td>Get the Presentation Kernel.</td>
 </tr>
-<tr class="row-odd"><td><a class="reference internal" href="#pynetdicom.pdu_primitives.A_ASSOCIATE.responding_ae_title" title="pynetdicom.pdu_primitives.A_ASSOCIATE.responding_ae_title"><code class="xref py py-obj docutils literal notranslate"><span class="pre">responding_ae_title</span></code></a></td>
+<tr class="row-odd"><td><a class="reference internal" href="#pynetdicom.pdu_primitives.A_ASSOCIATE.reason_str" title="pynetdicom.pdu_primitives.A_ASSOCIATE.reason_str"><code class="xref py py-obj docutils literal notranslate"><span class="pre">reason_str</span></code></a></td>
+<td>Return the rejection reason as str.</td>
+</tr>
+<tr class="row-even"><td><a class="reference internal" href="#pynetdicom.pdu_primitives.A_ASSOCIATE.responding_ae_title" title="pynetdicom.pdu_primitives.A_ASSOCIATE.responding_ae_title"><code class="xref py py-obj docutils literal notranslate"><span class="pre">responding_ae_title</span></code></a></td>
 <td>Return the Responding AE Title parameter.</td>
 </tr>
-<tr class="row-even"><td><a class="reference internal" href="#pynetdicom.pdu_primitives.A_ASSOCIATE.responding_presentation_address" title="pynetdicom.pdu_primitives.A_ASSOCIATE.responding_presentation_address"><code class="xref py py-obj docutils literal notranslate"><span class="pre">responding_presentation_address</span></code></a></td>
+<tr class="row-odd"><td><a class="reference internal" href="#pynetdicom.pdu_primitives.A_ASSOCIATE.responding_presentation_address" title="pynetdicom.pdu_primitives.A_ASSOCIATE.responding_presentation_address"><code class="xref py py-obj docutils literal notranslate"><span class="pre">responding_presentation_address</span></code></a></td>
 <td>Get the Responding Presentation Address parameter.</td>
 </tr>
-<tr class="row-odd"><td><a class="reference internal" href="#pynetdicom.pdu_primitives.A_ASSOCIATE.result" title="pynetdicom.pdu_primitives.A_ASSOCIATE.result"><code class="xref py py-obj docutils literal notranslate"><span class="pre">result</span></code></a></td>
+<tr class="row-even"><td><a class="reference internal" href="#pynetdicom.pdu_primitives.A_ASSOCIATE.result" title="pynetdicom.pdu_primitives.A_ASSOCIATE.result"><code class="xref py py-obj docutils literal notranslate"><span class="pre">result</span></code></a></td>
 <td>Return te Result parameter.</td>
 </tr>
-<tr class="row-even"><td><a class="reference internal" href="#pynetdicom.pdu_primitives.A_ASSOCIATE.result_source" title="pynetdicom.pdu_primitives.A_ASSOCIATE.result_source"><code class="xref py py-obj docutils literal notranslate"><span class="pre">result_source</span></code></a></td>
+<tr class="row-odd"><td><a class="reference internal" href="#pynetdicom.pdu_primitives.A_ASSOCIATE.result_source" title="pynetdicom.pdu_primitives.A_ASSOCIATE.result_source"><code class="xref py py-obj docutils literal notranslate"><span class="pre">result_source</span></code></a></td>
 <td>Return the Result Source parameter.</td>
+</tr>
+<tr class="row-even"><td><a class="reference internal" href="#pynetdicom.pdu_primitives.A_ASSOCIATE.result_str" title="pynetdicom.pdu_primitives.A_ASSOCIATE.result_str"><code class="xref py py-obj docutils literal notranslate"><span class="pre">result_str</span></code></a></td>
+<td>Return the result as str.</td>
 </tr>
 <tr class="row-odd"><td><a class="reference internal" href="#pynetdicom.pdu_primitives.A_ASSOCIATE.session_requirements" title="pynetdicom.pdu_primitives.A_ASSOCIATE.session_requirements"><code class="xref py py-obj docutils literal notranslate"><span class="pre">session_requirements</span></code></a></td>
 <td>Get the Session Requirements.</td>
 </tr>
-<tr class="row-even"><td><a class="reference internal" href="#pynetdicom.pdu_primitives.A_ASSOCIATE.user_information" title="pynetdicom.pdu_primitives.A_ASSOCIATE.user_information"><code class="xref py py-obj docutils literal notranslate"><span class="pre">user_information</span></code></a></td>
+<tr class="row-even"><td><a class="reference internal" href="#pynetdicom.pdu_primitives.A_ASSOCIATE.source_str" title="pynetdicom.pdu_primitives.A_ASSOCIATE.source_str"><code class="xref py py-obj docutils literal notranslate"><span class="pre">source_str</span></code></a></td>
+<td>Return the reject source as str.</td>
+</tr>
+<tr class="row-odd"><td><a class="reference internal" href="#pynetdicom.pdu_primitives.A_ASSOCIATE.user_information" title="pynetdicom.pdu_primitives.A_ASSOCIATE.user_information"><code class="xref py py-obj docutils literal notranslate"><span class="pre">user_information</span></code></a></td>
 <td>Return the User Information parameter.</td>
 </tr>
 </tbody>
@@ -789,6 +798,12 @@ Only one Transfer Syntax per presentation context shall be agreed to</p>
 </dd></dl>
 
 <dl class="attribute">
+<dt id="pynetdicom.pdu_primitives.A_ASSOCIATE.reason_str">
+<code class="descname">reason_str</code><a class="headerlink" href="#pynetdicom.pdu_primitives.A_ASSOCIATE.reason_str" title="Permalink to this definition">¶</a></dt>
+<dd><p>Return the rejection reason as str.</p>
+</dd></dl>
+
+<dl class="attribute">
 <dt>
 <code class="descname">responding_ae_title</code></dt>
 <dd><p>Return the Responding AE Title parameter.</p>
@@ -813,9 +828,21 @@ Only one Transfer Syntax per presentation context shall be agreed to</p>
 </dd></dl>
 
 <dl class="attribute">
+<dt id="pynetdicom.pdu_primitives.A_ASSOCIATE.result_str">
+<code class="descname">result_str</code><a class="headerlink" href="#pynetdicom.pdu_primitives.A_ASSOCIATE.result_str" title="Permalink to this definition">¶</a></dt>
+<dd><p>Return the result as str.</p>
+</dd></dl>
+
+<dl class="attribute">
 <dt>
 <code class="descname">session_requirements</code></dt>
 <dd><p>Get the Session Requirements.</p>
+</dd></dl>
+
+<dl class="attribute">
+<dt id="pynetdicom.pdu_primitives.A_ASSOCIATE.source_str">
+<code class="descname">source_str</code><a class="headerlink" href="#pynetdicom.pdu_primitives.A_ASSOCIATE.source_str" title="Permalink to this definition">¶</a></dt>
+<dd><p>Return the reject source as str.</p>
 </dd></dl>
 
 <dl class="attribute">

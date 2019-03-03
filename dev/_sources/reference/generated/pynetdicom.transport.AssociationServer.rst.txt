@@ -14,9 +14,12 @@ pynetdicom.transport.AssociationServer
    .. autosummary::
    
       ~AssociationServer.__init__
+      ~AssociationServer.bind
       ~AssociationServer.close_request
       ~AssociationServer.fileno
       ~AssociationServer.finish_request
+      ~AssociationServer.get_events
+      ~AssociationServer.get_handlers
       ~AssociationServer.get_request
       ~AssociationServer.handle_error
       ~AssociationServer.handle_request
@@ -29,6 +32,7 @@ pynetdicom.transport.AssociationServer
       ~AssociationServer.service_actions
       ~AssociationServer.shutdown
       ~AssociationServer.shutdown_request
+      ~AssociationServer.unbind
       ~AssociationServer.verify_request
    
    
@@ -39,6 +43,7 @@ pynetdicom.transport.AssociationServer
 
    .. autosummary::
    
+      ~AssociationServer.active_associations
       ~AssociationServer.address_family
       ~AssociationServer.allow_reuse_address
       ~AssociationServer.request_queue_size

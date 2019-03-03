@@ -595,6 +595,12 @@
         <span class="bp">self</span><span class="o">.</span><span class="n">_result</span> <span class="o">=</span> <span class="n">value</span>
 
     <span class="nd">@property</span>
+    <span class="k">def</span> <span class="nf">result_str</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;Return the result as str.&quot;&quot;&quot;</span>
+        <span class="n">results</span> <span class="o">=</span> <span class="p">{</span><span class="mi">1</span> <span class="p">:</span> <span class="s2">&quot;Rejected Permanent&quot;</span><span class="p">,</span> <span class="mi">2</span> <span class="p">:</span> <span class="s2">&quot;Rejected Transient&quot;</span><span class="p">}</span>
+        <span class="k">return</span> <span class="n">results</span><span class="p">[</span><span class="bp">self</span><span class="o">.</span><span class="n">result</span><span class="p">]</span>
+
+    <span class="nd">@property</span>
     <span class="k">def</span> <span class="nf">result_source</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;Return the Result Source parameter.&quot;&quot;&quot;</span>
         <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_result_source</span>
@@ -620,6 +626,16 @@
             <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s2">&quot;Unknown A_ASSOCIATE.result_source value&quot;</span><span class="p">)</span>
 
         <span class="bp">self</span><span class="o">.</span><span class="n">_result_source</span> <span class="o">=</span> <span class="n">value</span>
+
+    <span class="nd">@property</span>
+    <span class="k">def</span> <span class="nf">source_str</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;Return the reject source as str.&quot;&quot;&quot;</span>
+        <span class="n">sources</span> <span class="o">=</span> <span class="p">{</span>
+            <span class="mi">1</span> <span class="p">:</span> <span class="s1">&#39;Service User&#39;</span><span class="p">,</span>
+            <span class="mi">2</span> <span class="p">:</span> <span class="s1">&#39;Service Provider (ACSE)&#39;</span><span class="p">,</span>
+            <span class="mi">3</span> <span class="p">:</span> <span class="s1">&#39;Service Provider (Presentation)&#39;</span>
+        <span class="p">}</span>
+        <span class="k">return</span> <span class="n">sources</span><span class="p">[</span><span class="bp">self</span><span class="o">.</span><span class="n">result_source</span><span class="p">]</span>
 
     <span class="nd">@property</span>
     <span class="k">def</span> <span class="nf">diagnostic</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
@@ -661,6 +677,39 @@
             <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s2">&quot;Unknown A_ASSOCIATE.diagnostic value&quot;</span><span class="p">)</span>
 
         <span class="bp">self</span><span class="o">.</span><span class="n">_diagnostic</span> <span class="o">=</span> <span class="n">value</span>
+
+    <span class="nd">@property</span>
+    <span class="k">def</span> <span class="nf">reason_str</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;Return the rejection reason as str.&quot;&quot;&quot;</span>
+        <span class="n">reasons</span> <span class="o">=</span> <span class="p">{</span>
+            <span class="mi">1</span> <span class="p">:</span> <span class="p">{</span>
+                <span class="mi">1</span> <span class="p">:</span> <span class="s1">&#39;No reason given&#39;</span><span class="p">,</span>
+                <span class="mi">2</span> <span class="p">:</span> <span class="s1">&#39;Application context name not supported&#39;</span><span class="p">,</span>
+                <span class="mi">3</span> <span class="p">:</span> <span class="s1">&#39;Called AE title not recognised&#39;</span><span class="p">,</span>
+                <span class="mi">4</span> <span class="p">:</span> <span class="s1">&#39;Reserved&#39;</span><span class="p">,</span>
+                <span class="mi">5</span> <span class="p">:</span> <span class="s1">&#39;Reserved&#39;</span><span class="p">,</span>
+                <span class="mi">6</span> <span class="p">:</span> <span class="s1">&#39;Reserved&#39;</span><span class="p">,</span>
+                <span class="mi">7</span> <span class="p">:</span> <span class="s1">&#39;Calling AE title not recognised&#39;</span><span class="p">,</span>
+                <span class="mi">8</span> <span class="p">:</span> <span class="s1">&#39;Reserved&#39;</span><span class="p">,</span>
+                <span class="mi">9</span> <span class="p">:</span> <span class="s1">&#39;Reserved&#39;</span><span class="p">,</span>
+                <span class="mi">10</span> <span class="p">:</span> <span class="s1">&#39;Reserved&#39;</span><span class="p">,</span>
+            <span class="p">},</span>
+            <span class="mi">2</span> <span class="p">:</span> <span class="p">{</span>
+                <span class="mi">1</span> <span class="p">:</span> <span class="s1">&#39;No reason given&#39;</span><span class="p">,</span>
+                <span class="mi">2</span><span class="p">:</span> <span class="s1">&#39;Protocol version not supported&#39;</span>
+            <span class="p">},</span>
+            <span class="mi">3</span> <span class="p">:</span> <span class="p">{</span>
+                <span class="mi">0</span> <span class="p">:</span> <span class="s2">&quot;Reserved&quot;</span><span class="p">,</span>
+                <span class="mi">1</span> <span class="p">:</span> <span class="s2">&quot;Temporary congestion&quot;</span><span class="p">,</span>
+                <span class="mi">2</span> <span class="p">:</span> <span class="s2">&quot;Local limit exceeded&quot;</span><span class="p">,</span>
+                <span class="mi">3</span> <span class="p">:</span> <span class="s1">&#39;Reserved&#39;</span><span class="p">,</span>
+                <span class="mi">4</span> <span class="p">:</span> <span class="s1">&#39;Reserved&#39;</span><span class="p">,</span>
+                <span class="mi">5</span> <span class="p">:</span> <span class="s1">&#39;Reserved&#39;</span><span class="p">,</span>
+                <span class="mi">6</span> <span class="p">:</span> <span class="s1">&#39;Reserved&#39;</span><span class="p">,</span>
+                <span class="mi">7</span> <span class="p">:</span> <span class="s1">&#39;Reserved&#39;</span><span class="p">,</span>
+            <span class="p">}</span>
+        <span class="p">}</span>
+        <span class="k">return</span> <span class="n">reasons</span><span class="p">[</span><span class="bp">self</span><span class="o">.</span><span class="n">result_source</span><span class="p">][</span><span class="bp">self</span><span class="o">.</span><span class="n">diagnostic</span><span class="p">]</span>
 
     <span class="nd">@property</span>
     <span class="k">def</span> <span class="nf">calling_presentation_address</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>

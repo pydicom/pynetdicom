@@ -188,6 +188,7 @@
 <span class="kn">from</span> <span class="nn">threading</span> <span class="k">import</span> <span class="n">Thread</span>
 <span class="kn">import</span> <span class="nn">time</span>
 
+<span class="kn">from</span> <span class="nn">pynetdicom</span> <span class="k">import</span> <span class="n">evt</span>
 <span class="kn">from</span> <span class="nn">pynetdicom.fsm</span> <span class="k">import</span> <span class="n">StateMachine</span>
 <span class="kn">from</span> <span class="nn">pynetdicom.pdu</span> <span class="k">import</span> <span class="p">(</span>
     <span class="n">A_ASSOCIATE_RQ</span><span class="p">,</span> <span class="n">A_ASSOCIATE_AC</span><span class="p">,</span> <span class="n">A_ASSOCIATE_RJ</span><span class="p">,</span>
@@ -209,8 +210,6 @@
 <span class="sd">    ----------</span>
 <span class="sd">    artim_timer : timer.Timer</span>
 <span class="sd">        The ARTIM timer</span>
-<span class="sd">    association : association.Association</span>
-<span class="sd">        The DUL&#39;s current Association</span>
 <span class="sd">    socket : transport.AssociationSocket</span>
 <span class="sd">        A wrapped socket.socket object used to communicate with the peer.</span>
 <span class="sd">    to_provider_queue : queue.Queue</span>
@@ -231,7 +230,7 @@
 <span class="sd">            The DUL&#39;s parent Association instance.</span>
 <span class="sd">        &quot;&quot;&quot;</span>
         <span class="c1"># The association thread</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">assoc</span> <span class="o">=</span> <span class="n">assoc</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_assoc</span> <span class="o">=</span> <span class="n">assoc</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">socket</span> <span class="o">=</span> <span class="kc">None</span>
 
         <span class="c1"># Current primitive and PDU</span>
@@ -266,6 +265,11 @@
         <span class="bp">self</span><span class="o">.</span><span class="n">daemon</span> <span class="o">=</span> <span class="kc">False</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">_kill_thread</span> <span class="o">=</span> <span class="kc">False</span></div>
 
+    <span class="nd">@property</span>
+    <span class="k">def</span> <span class="nf">assoc</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;Return the Association we are providing DUL services for.&quot;&quot;&quot;</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_assoc</span>
+
     <span class="k">def</span> <span class="nf">_check_incoming_primitive</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;Check the incoming primitive.&quot;&quot;&quot;</span>
         <span class="k">try</span><span class="p">:</span>
@@ -291,23 +295,25 @@
 <span class="sd">            The PDU subclass corresponding to the PDU and the event string</span>
 <span class="sd">            corresponding to receiving that PDU type.</span>
 <span class="sd">        &quot;&quot;&quot;</span>
-        <span class="n">acse</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">assoc</span><span class="o">.</span><span class="n">acse</span>
+        <span class="c1"># Trigger before data is decoded in case of exception in decoding</span>
+        <span class="n">bytestream</span> <span class="o">=</span> <span class="nb">bytes</span><span class="p">(</span><span class="n">bytestream</span><span class="p">)</span>
+        <span class="n">evt</span><span class="o">.</span><span class="n">trigger</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">assoc</span><span class="p">,</span> <span class="n">evt</span><span class="o">.</span><span class="n">EVT_DATA_RECV</span><span class="p">,</span> <span class="p">{</span><span class="s1">&#39;data&#39;</span> <span class="p">:</span> <span class="n">bytestream</span><span class="p">})</span>
+
         <span class="n">pdu_types</span> <span class="o">=</span> <span class="p">{</span>
-            <span class="mh">0x01</span> <span class="p">:</span> <span class="p">(</span><span class="n">A_ASSOCIATE_RQ</span><span class="p">,</span> <span class="s1">&#39;Evt6&#39;</span><span class="p">,</span> <span class="n">acse</span><span class="o">.</span><span class="n">debug_receive_associate_rq</span><span class="p">),</span>
-            <span class="mh">0x02</span> <span class="p">:</span> <span class="p">(</span><span class="n">A_ASSOCIATE_AC</span><span class="p">,</span> <span class="s1">&#39;Evt3&#39;</span><span class="p">,</span> <span class="n">acse</span><span class="o">.</span><span class="n">debug_receive_associate_ac</span><span class="p">),</span>
-            <span class="mh">0x03</span> <span class="p">:</span> <span class="p">(</span><span class="n">A_ASSOCIATE_RJ</span><span class="p">,</span> <span class="s1">&#39;Evt4&#39;</span><span class="p">,</span> <span class="n">acse</span><span class="o">.</span><span class="n">debug_receive_associate_rj</span><span class="p">),</span>
-            <span class="mh">0x04</span> <span class="p">:</span> <span class="p">(</span><span class="n">P_DATA_TF</span><span class="p">,</span> <span class="s1">&#39;Evt10&#39;</span><span class="p">,</span> <span class="n">acse</span><span class="o">.</span><span class="n">debug_receive_data_tf</span><span class="p">),</span>
-            <span class="mh">0x05</span> <span class="p">:</span> <span class="p">(</span><span class="n">A_RELEASE_RQ</span><span class="p">,</span> <span class="s1">&#39;Evt12&#39;</span><span class="p">,</span> <span class="n">acse</span><span class="o">.</span><span class="n">debug_receive_release_rq</span><span class="p">),</span>
-            <span class="mh">0x06</span> <span class="p">:</span> <span class="p">(</span><span class="n">A_RELEASE_RP</span><span class="p">,</span> <span class="s1">&#39;Evt13&#39;</span><span class="p">,</span> <span class="n">acse</span><span class="o">.</span><span class="n">debug_receive_release_rp</span><span class="p">),</span>
-            <span class="mh">0x07</span> <span class="p">:</span> <span class="p">(</span><span class="n">A_ABORT_RQ</span><span class="p">,</span> <span class="s1">&#39;Evt16&#39;</span><span class="p">,</span> <span class="n">acse</span><span class="o">.</span><span class="n">debug_receive_abort</span><span class="p">)</span>
+            <span class="sa">b</span><span class="s1">&#39;</span><span class="se">\x01</span><span class="s1">&#39;</span> <span class="p">:</span> <span class="p">(</span><span class="n">A_ASSOCIATE_RQ</span><span class="p">,</span> <span class="s1">&#39;Evt6&#39;</span><span class="p">),</span>
+            <span class="sa">b</span><span class="s1">&#39;</span><span class="se">\x02</span><span class="s1">&#39;</span> <span class="p">:</span> <span class="p">(</span><span class="n">A_ASSOCIATE_AC</span><span class="p">,</span> <span class="s1">&#39;Evt3&#39;</span><span class="p">),</span>
+            <span class="sa">b</span><span class="s1">&#39;</span><span class="se">\x03</span><span class="s1">&#39;</span> <span class="p">:</span> <span class="p">(</span><span class="n">A_ASSOCIATE_RJ</span><span class="p">,</span> <span class="s1">&#39;Evt4&#39;</span><span class="p">),</span>
+            <span class="sa">b</span><span class="s1">&#39;</span><span class="se">\x04</span><span class="s1">&#39;</span> <span class="p">:</span> <span class="p">(</span><span class="n">P_DATA_TF</span><span class="p">,</span> <span class="s1">&#39;Evt10&#39;</span><span class="p">),</span>
+            <span class="sa">b</span><span class="s1">&#39;</span><span class="se">\x05</span><span class="s1">&#39;</span> <span class="p">:</span> <span class="p">(</span><span class="n">A_RELEASE_RQ</span><span class="p">,</span> <span class="s1">&#39;Evt12&#39;</span><span class="p">),</span>
+            <span class="sa">b</span><span class="s1">&#39;</span><span class="se">\x06</span><span class="s1">&#39;</span> <span class="p">:</span> <span class="p">(</span><span class="n">A_RELEASE_RP</span><span class="p">,</span> <span class="s1">&#39;Evt13&#39;</span><span class="p">),</span>
+            <span class="sa">b</span><span class="s1">&#39;</span><span class="se">\x07</span><span class="s1">&#39;</span> <span class="p">:</span> <span class="p">(</span><span class="n">A_ABORT_RQ</span><span class="p">,</span> <span class="s1">&#39;Evt16&#39;</span><span class="p">)</span>
         <span class="p">}</span>
 
-        <span class="n">pdu</span><span class="p">,</span> <span class="n">event</span><span class="p">,</span> <span class="n">acse_callback</span> <span class="o">=</span> <span class="n">pdu_types</span><span class="p">[</span><span class="n">bytestream</span><span class="p">[</span><span class="mi">0</span><span class="p">]]</span>
+        <span class="n">pdu</span><span class="p">,</span> <span class="n">event</span> <span class="o">=</span> <span class="n">pdu_types</span><span class="p">[</span><span class="n">bytestream</span><span class="p">[</span><span class="mi">0</span><span class="p">:</span><span class="mi">1</span><span class="p">]]</span>
         <span class="n">pdu</span> <span class="o">=</span> <span class="n">pdu</span><span class="p">()</span>
-        <span class="n">pdu</span><span class="o">.</span><span class="n">decode</span><span class="p">(</span><span class="nb">bytes</span><span class="p">(</span><span class="n">bytestream</span><span class="p">))</span>
+        <span class="n">pdu</span><span class="o">.</span><span class="n">decode</span><span class="p">(</span><span class="n">bytestream</span><span class="p">)</span>
 
-        <span class="c1"># ACSE callback</span>
-        <span class="n">acse_callback</span><span class="p">(</span><span class="n">pdu</span><span class="p">)</span>
+        <span class="n">evt</span><span class="o">.</span><span class="n">trigger</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">assoc</span><span class="p">,</span> <span class="n">evt</span><span class="o">.</span><span class="n">EVT_PDU_RECV</span><span class="p">,</span> <span class="p">{</span><span class="s1">&#39;pdu&#39;</span> <span class="p">:</span> <span class="n">pdu</span><span class="p">})</span>
 
         <span class="k">return</span> <span class="n">pdu</span><span class="p">,</span> <span class="n">event</span>
 
@@ -479,7 +485,7 @@
             <span class="k">return</span>
 
         <span class="k">try</span><span class="p">:</span>
-            <span class="c1"># Decode the PDU data, get corresponding FSM and callback events</span>
+            <span class="c1"># Decode the PDU data, get corresponding FSM event</span>
             <span class="n">pdu</span><span class="p">,</span> <span class="n">event</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_decode_pdu</span><span class="p">(</span><span class="n">bytestream</span><span class="p">)</span>
             <span class="bp">self</span><span class="o">.</span><span class="n">event_queue</span><span class="o">.</span><span class="n">put</span><span class="p">(</span><span class="n">event</span><span class="p">)</span>
         <span class="k">except</span> <span class="ne">Exception</span> <span class="k">as</span> <span class="n">exc</span><span class="p">:</span>
@@ -493,7 +499,8 @@
         <span class="bp">self</span><span class="o">.</span><span class="n">primitive</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">pdu</span><span class="o">.</span><span class="n">to_primitive</span><span class="p">()</span>
 
 <div class="viewcode-block" id="DULServiceProvider.receive_pdu"><a class="viewcode-back" href="../../reference/generated/pynetdicom.dul.DULServiceProvider.html#pynetdicom.dul.DULServiceProvider.receive_pdu">[docs]</a>    <span class="k">def</span> <span class="nf">receive_pdu</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">wait</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span> <span class="n">timeout</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
-        <span class="sd">&quot;&quot;&quot;</span>
+        <span class="sd">&quot;&quot;&quot;Return an item from the queue if one is available.</span>
+
 <span class="sd">        Get the next item to be processed out of the queue of items sent</span>
 <span class="sd">        from the DUL service provider to the service user</span>
 
@@ -515,14 +522,21 @@
 <span class="sd">            If the queue is empty.</span>
 <span class="sd">        &quot;&quot;&quot;</span>
         <span class="k">try</span><span class="p">:</span>
-            <span class="c1"># Remove and return an item from the queue</span>
-            <span class="c1">#   If block is True and timeout is None then block until an item</span>
-            <span class="c1">#       is available.</span>
-            <span class="c1">#   If timeout is a positive number, blocks timeout seconds and</span>
-            <span class="c1">#       raises queue.Empty if no item was available in that time.</span>
-            <span class="c1">#   If block is False, return an item if one is immediately</span>
-            <span class="c1">#       available, otherwise raise queue.Empty</span>
+            <span class="c1"># If block is True and timeout is None then block until an item</span>
+            <span class="c1">#   is available.</span>
+            <span class="c1"># If timeout is a positive number, blocks timeout seconds and</span>
+            <span class="c1">#   raises queue.Empty if no item was available in that time.</span>
+            <span class="c1"># If block is False, return an item if one is immediately</span>
+            <span class="c1">#   available, otherwise raise queue.Empty</span>
             <span class="n">queue_item</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">to_user_queue</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="n">block</span><span class="o">=</span><span class="n">wait</span><span class="p">,</span> <span class="n">timeout</span><span class="o">=</span><span class="n">timeout</span><span class="p">)</span>
+
+            <span class="c1"># Event handler - ACSE received primitive from DUL service</span>
+            <span class="n">acse_primitives</span> <span class="o">=</span> <span class="p">(</span><span class="n">A_ASSOCIATE</span><span class="p">,</span> <span class="n">A_RELEASE</span><span class="p">,</span> <span class="n">A_ABORT</span><span class="p">,</span> <span class="n">A_P_ABORT</span><span class="p">)</span>
+            <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">queue_item</span><span class="p">,</span> <span class="n">acse_primitives</span><span class="p">):</span>
+                <span class="n">evt</span><span class="o">.</span><span class="n">trigger</span><span class="p">(</span>
+                    <span class="bp">self</span><span class="o">.</span><span class="n">assoc</span><span class="p">,</span> <span class="n">evt</span><span class="o">.</span><span class="n">EVT_ACSE_RECV</span><span class="p">,</span> <span class="p">{</span><span class="s1">&#39;primitive&#39;</span> <span class="p">:</span> <span class="n">queue_item</span><span class="p">}</span>
+                <span class="p">)</span>
+
             <span class="k">return</span> <span class="n">queue_item</span>
         <span class="k">except</span> <span class="n">queue</span><span class="o">.</span><span class="n">Empty</span><span class="p">:</span>
             <span class="k">return</span> <span class="kc">None</span></div>
@@ -599,6 +613,13 @@
 <span class="sd">            A service primitive, one of A_ASSOCIATE, A_RELEASE, A_ABORT,</span>
 <span class="sd">            A_P_ABORT or P_DATA.</span>
 <span class="sd">        &quot;&quot;&quot;</span>
+        <span class="c1"># Event handler - ACSE sent primitive to the DUL service</span>
+        <span class="n">acse_primitives</span> <span class="o">=</span> <span class="p">(</span><span class="n">A_ASSOCIATE</span><span class="p">,</span> <span class="n">A_RELEASE</span><span class="p">,</span> <span class="n">A_ABORT</span><span class="p">,</span> <span class="n">A_P_ABORT</span><span class="p">)</span>
+        <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">primitive</span><span class="p">,</span> <span class="n">acse_primitives</span><span class="p">):</span>
+            <span class="n">evt</span><span class="o">.</span><span class="n">trigger</span><span class="p">(</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">assoc</span><span class="p">,</span> <span class="n">evt</span><span class="o">.</span><span class="n">EVT_ACSE_SENT</span><span class="p">,</span> <span class="p">{</span><span class="s1">&#39;primitive&#39;</span> <span class="p">:</span> <span class="n">primitive</span><span class="p">}</span>
+            <span class="p">)</span>
+
         <span class="bp">self</span><span class="o">.</span><span class="n">to_provider_queue</span><span class="o">.</span><span class="n">put</span><span class="p">(</span><span class="n">primitive</span><span class="p">)</span></div>
 
 <div class="viewcode-block" id="DULServiceProvider.stop_dul"><a class="viewcode-back" href="../../reference/generated/pynetdicom.dul.DULServiceProvider.html#pynetdicom.dul.DULServiceProvider.stop_dul">[docs]</a>    <span class="k">def</span> <span class="nf">stop_dul</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>

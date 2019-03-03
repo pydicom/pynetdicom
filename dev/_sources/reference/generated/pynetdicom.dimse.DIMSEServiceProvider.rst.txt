@@ -14,52 +14,6 @@ pynetdicom.dimse.DIMSEServiceProvider
    .. autosummary::
    
       ~DIMSEServiceProvider.__init__
-      ~DIMSEServiceProvider.debug_receive_c_cancel_rq
-      ~DIMSEServiceProvider.debug_receive_c_echo_rq
-      ~DIMSEServiceProvider.debug_receive_c_echo_rsp
-      ~DIMSEServiceProvider.debug_receive_c_find_rq
-      ~DIMSEServiceProvider.debug_receive_c_find_rsp
-      ~DIMSEServiceProvider.debug_receive_c_get_rq
-      ~DIMSEServiceProvider.debug_receive_c_get_rsp
-      ~DIMSEServiceProvider.debug_receive_c_move_rq
-      ~DIMSEServiceProvider.debug_receive_c_move_rsp
-      ~DIMSEServiceProvider.debug_receive_c_store_rq
-      ~DIMSEServiceProvider.debug_receive_c_store_rsp
-      ~DIMSEServiceProvider.debug_receive_n_action_rq
-      ~DIMSEServiceProvider.debug_receive_n_action_rsp
-      ~DIMSEServiceProvider.debug_receive_n_create_rq
-      ~DIMSEServiceProvider.debug_receive_n_create_rsp
-      ~DIMSEServiceProvider.debug_receive_n_delete_rq
-      ~DIMSEServiceProvider.debug_receive_n_delete_rsp
-      ~DIMSEServiceProvider.debug_receive_n_event_report_rq
-      ~DIMSEServiceProvider.debug_receive_n_event_report_rsp
-      ~DIMSEServiceProvider.debug_receive_n_get_rq
-      ~DIMSEServiceProvider.debug_receive_n_get_rsp
-      ~DIMSEServiceProvider.debug_receive_n_set_rq
-      ~DIMSEServiceProvider.debug_receive_n_set_rsp
-      ~DIMSEServiceProvider.debug_send_c_cancel_rq
-      ~DIMSEServiceProvider.debug_send_c_echo_rq
-      ~DIMSEServiceProvider.debug_send_c_echo_rsp
-      ~DIMSEServiceProvider.debug_send_c_find_rq
-      ~DIMSEServiceProvider.debug_send_c_find_rsp
-      ~DIMSEServiceProvider.debug_send_c_get_rq
-      ~DIMSEServiceProvider.debug_send_c_get_rsp
-      ~DIMSEServiceProvider.debug_send_c_move_rq
-      ~DIMSEServiceProvider.debug_send_c_move_rsp
-      ~DIMSEServiceProvider.debug_send_c_store_rq
-      ~DIMSEServiceProvider.debug_send_c_store_rsp
-      ~DIMSEServiceProvider.debug_send_n_action_rq
-      ~DIMSEServiceProvider.debug_send_n_action_rsp
-      ~DIMSEServiceProvider.debug_send_n_create_rq
-      ~DIMSEServiceProvider.debug_send_n_create_rsp
-      ~DIMSEServiceProvider.debug_send_n_delete_rq
-      ~DIMSEServiceProvider.debug_send_n_delete_rsp
-      ~DIMSEServiceProvider.debug_send_n_event_report_rq
-      ~DIMSEServiceProvider.debug_send_n_event_report_rsp
-      ~DIMSEServiceProvider.debug_send_n_get_rq
-      ~DIMSEServiceProvider.debug_send_n_get_rsp
-      ~DIMSEServiceProvider.debug_send_n_set_rq
-      ~DIMSEServiceProvider.debug_send_n_set_rsp
       ~DIMSEServiceProvider.get_msg
       ~DIMSEServiceProvider.on_receive_dimse_message
       ~DIMSEServiceProvider.on_send_dimse_message
@@ -70,5 +24,14 @@ pynetdicom.dimse.DIMSEServiceProvider
    
 
    
+   
+   .. rubric:: Attributes
+
+   .. autosummary::
+   
+      ~DIMSEServiceProvider.assoc
+      ~DIMSEServiceProvider.dimse_timeout
+      ~DIMSEServiceProvider.dul
+      ~DIMSEServiceProvider.maximum_pdu_size
    
    

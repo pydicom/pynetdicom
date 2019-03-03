@@ -186,7 +186,7 @@
 
 <span class="c1"># pylint: disable=no-name-in-module</span>
 <span class="kn">from</span> <span class="nn">pynetdicom.acse</span> <span class="k">import</span> <span class="n">ACSE</span>
-<span class="kn">from</span> <span class="nn">pynetdicom</span> <span class="k">import</span> <span class="n">_config</span>
+<span class="kn">from</span> <span class="nn">pynetdicom</span> <span class="k">import</span> <span class="n">_config</span><span class="p">,</span> <span class="n">evt</span>
 <span class="kn">from</span> <span class="nn">pynetdicom.dimse</span> <span class="k">import</span> <span class="n">DIMSEServiceProvider</span>
 <span class="kn">from</span> <span class="nn">pynetdicom.dimse_primitives</span> <span class="k">import</span> <span class="p">(</span>
     <span class="n">C_ECHO</span><span class="p">,</span> <span class="n">C_MOVE</span><span class="p">,</span> <span class="n">C_STORE</span><span class="p">,</span> <span class="n">C_GET</span><span class="p">,</span> <span class="n">C_FIND</span><span class="p">,</span> <span class="n">C_CANCEL</span><span class="p">,</span>
@@ -197,6 +197,10 @@
 <span class="kn">from</span> <span class="nn">pynetdicom._globals</span> <span class="k">import</span> <span class="p">(</span>
     <span class="n">MODE_REQUESTOR</span><span class="p">,</span> <span class="n">MODE_ACCEPTOR</span><span class="p">,</span> <span class="n">DEFAULT_MAX_LENGTH</span><span class="p">,</span> <span class="n">STATUS_WARNING</span><span class="p">,</span>
     <span class="n">STATUS_SUCCESS</span><span class="p">,</span> <span class="n">STATUS_CANCEL</span><span class="p">,</span> <span class="n">STATUS_PENDING</span><span class="p">,</span> <span class="n">STATUS_FAILURE</span>
+<span class="p">)</span>
+<span class="kn">from</span> <span class="nn">pynetdicom._handlers</span> <span class="k">import</span> <span class="p">(</span>
+    <span class="n">standard_dimse_recv_handler</span><span class="p">,</span> <span class="n">standard_dimse_sent_handler</span><span class="p">,</span>
+    <span class="n">standard_pdu_recv_handler</span><span class="p">,</span> <span class="n">standard_pdu_sent_handler</span><span class="p">,</span>
 <span class="p">)</span>
 <span class="kn">from</span> <span class="nn">pynetdicom.sop_class</span> <span class="k">import</span> <span class="p">(</span>
     <span class="n">uid_to_service_class</span><span class="p">,</span>
@@ -316,14 +320,18 @@
         <span class="bp">self</span><span class="o">.</span><span class="n">_rejected_cx</span> <span class="o">=</span> <span class="p">[]</span>
 
         <span class="c1"># Service providers</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">acse</span> <span class="o">=</span> <span class="n">ACSE</span><span class="p">()</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">acse</span> <span class="o">=</span> <span class="n">ACSE</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">dul</span> <span class="o">=</span> <span class="n">DULServiceProvider</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">dimse</span> <span class="o">=</span> <span class="n">DIMSEServiceProvider</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">dul</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">ae</span><span class="o">.</span><span class="n">dimse_timeout</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">dimse</span> <span class="o">=</span> <span class="n">DIMSEServiceProvider</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span>
 
         <span class="c1"># Timeouts (in seconds), needs to be set after DUL init</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">acse_timeout</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">ae</span><span class="o">.</span><span class="n">acse_timeout</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">dimse_timeout</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">ae</span><span class="o">.</span><span class="n">dimse_timeout</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">network_timeout</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">ae</span><span class="o">.</span><span class="n">network_timeout</span>
+
+        <span class="c1"># Event handlers</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_handlers</span> <span class="o">=</span> <span class="p">{}</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_bind_defaults</span><span class="p">()</span>
 
         <span class="c1"># Kills the thread loop in run()</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">_kill</span> <span class="o">=</span> <span class="kc">False</span>
@@ -339,7 +347,10 @@
 <div class="viewcode-block" id="Association.abort"><a class="viewcode-back" href="../../reference/generated/pynetdicom.association.Association.html#pynetdicom.association.Association.abort">[docs]</a>    <span class="k">def</span> <span class="nf">abort</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;Sends an A-ABORT to the remote AE and kills the Association.&quot;&quot;&quot;</span>
         <span class="k">if</span> <span class="ow">not</span> <span class="bp">self</span><span class="o">.</span><span class="n">is_released</span><span class="p">:</span>
+            <span class="n">LOGGER</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="s1">&#39;Aborting Association&#39;</span><span class="p">)</span>
             <span class="bp">self</span><span class="o">.</span><span class="n">acse</span><span class="o">.</span><span class="n">send_abort</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="mh">0x00</span><span class="p">)</span>
+            <span class="c1"># Event handler - association aborted</span>
+            <span class="n">evt</span><span class="o">.</span><span class="n">trigger</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">evt</span><span class="o">.</span><span class="n">EVT_ABORTED</span><span class="p">,</span> <span class="p">{})</span>
             <span class="bp">self</span><span class="o">.</span><span class="n">kill</span><span class="p">()</span>
 
         <span class="c1"># Add short delay to ensure everything shuts down</span>
@@ -359,13 +370,55 @@
     <span class="nd">@acse_timeout</span><span class="o">.</span><span class="n">setter</span>
     <span class="k">def</span> <span class="nf">acse_timeout</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">value</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;Set the ACSE timeout using numeric or None.&quot;&quot;&quot;</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">dul</span><span class="o">.</span><span class="n">artim_timer</span><span class="o">.</span><span class="n">timeout</span> <span class="o">=</span> <span class="n">value</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">_acse_timeout</span> <span class="o">=</span> <span class="n">value</span>
+        <span class="k">with</span> <span class="n">threading</span><span class="o">.</span><span class="n">Lock</span><span class="p">():</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">dul</span><span class="o">.</span><span class="n">artim_timer</span><span class="o">.</span><span class="n">timeout</span> <span class="o">=</span> <span class="n">value</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">_acse_timeout</span> <span class="o">=</span> <span class="n">value</span>
 
     <span class="nd">@property</span>
     <span class="k">def</span> <span class="nf">ae</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;Return the Association&#39;s parent ApplicationEntity.&quot;&quot;&quot;</span>
         <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_ae</span>
+
+<div class="viewcode-block" id="Association.bind"><a class="viewcode-back" href="../../reference/generated/pynetdicom.association.Association.html#pynetdicom.association.Association.bind">[docs]</a>    <span class="k">def</span> <span class="nf">bind</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">event</span><span class="p">,</span> <span class="n">handler</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;Bind a callable `handler` to an `event`.</span>
+
+<span class="sd">        Parameters</span>
+<span class="sd">        ----------</span>
+<span class="sd">        event : 3-tuple</span>
+<span class="sd">            The event to bind the function to.</span>
+<span class="sd">        handler : callable</span>
+<span class="sd">            The function that will be called if the event occurs.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="c1"># Make sure no access to `_handlers` while its being changed</span>
+        <span class="k">with</span> <span class="n">threading</span><span class="o">.</span><span class="n">Lock</span><span class="p">():</span>
+            <span class="c1"># Notification events - multiple handlers allowed</span>
+            <span class="k">if</span> <span class="n">event</span><span class="o">.</span><span class="n">is_notification</span><span class="p">:</span>
+                <span class="k">if</span> <span class="n">event</span> <span class="ow">not</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">_handlers</span><span class="p">:</span>
+                    <span class="bp">self</span><span class="o">.</span><span class="n">_handlers</span><span class="p">[</span><span class="n">event</span><span class="p">]</span> <span class="o">=</span> <span class="p">[]</span>
+                <span class="k">if</span> <span class="n">handler</span> <span class="ow">not</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">_handlers</span><span class="p">[</span><span class="n">event</span><span class="p">]:</span>
+                    <span class="bp">self</span><span class="o">.</span><span class="n">_handlers</span><span class="p">[</span><span class="n">event</span><span class="p">]</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">handler</span><span class="p">)</span>
+
+            <span class="c1"># Intervention events - only one handler allowed</span>
+            <span class="k">if</span> <span class="n">event</span><span class="o">.</span><span class="n">is_intervention</span><span class="p">:</span>
+                <span class="k">if</span> <span class="n">event</span> <span class="ow">not</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">_handlers</span><span class="p">:</span>
+                    <span class="bp">self</span><span class="o">.</span><span class="n">_handlers</span><span class="p">[</span><span class="n">event</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span>
+
+                <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">_handlers</span><span class="p">[</span><span class="n">event</span><span class="p">]</span> <span class="o">!=</span> <span class="n">handler</span><span class="p">:</span>
+                    <span class="bp">self</span><span class="o">.</span><span class="n">_handlers</span><span class="p">[</span><span class="n">event</span><span class="p">]</span> <span class="o">=</span> <span class="n">handler</span></div>
+
+    <span class="k">def</span> <span class="nf">_bind_defaults</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;Bind the default event handlers.&quot;&quot;&quot;</span>
+        <span class="c1"># Intervention event handlers</span>
+        <span class="k">for</span> <span class="n">event</span> <span class="ow">in</span> <span class="n">evt</span><span class="o">.</span><span class="n">_INTERVENTION_EVENTS</span><span class="p">:</span>
+            <span class="n">handler</span> <span class="o">=</span> <span class="n">evt</span><span class="o">.</span><span class="n">get_default_handler</span><span class="p">(</span><span class="n">event</span><span class="p">)</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">bind</span><span class="p">(</span><span class="n">event</span><span class="p">,</span> <span class="n">handler</span><span class="p">)</span>
+
+        <span class="c1"># Notification event handlers</span>
+        <span class="k">if</span> <span class="n">_config</span><span class="o">.</span><span class="n">LOG_HANDLER_LEVEL</span> <span class="o">==</span> <span class="s1">&#39;standard&#39;</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">bind</span><span class="p">(</span><span class="n">evt</span><span class="o">.</span><span class="n">EVT_DIMSE_RECV</span><span class="p">,</span> <span class="n">standard_dimse_recv_handler</span><span class="p">)</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">bind</span><span class="p">(</span><span class="n">evt</span><span class="o">.</span><span class="n">EVT_DIMSE_SENT</span><span class="p">,</span> <span class="n">standard_dimse_sent_handler</span><span class="p">)</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">bind</span><span class="p">(</span><span class="n">evt</span><span class="o">.</span><span class="n">EVT_PDU_RECV</span><span class="p">,</span> <span class="n">standard_pdu_recv_handler</span><span class="p">)</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">bind</span><span class="p">(</span><span class="n">evt</span><span class="o">.</span><span class="n">EVT_PDU_SENT</span><span class="p">,</span> <span class="n">standard_pdu_sent_handler</span><span class="p">)</span>
 
     <span class="k">def</span> <span class="nf">_check_received_status</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">rsp</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;Return a pydicom Dataset containing status related elements.</span>
@@ -411,8 +464,33 @@
     <span class="nd">@dimse_timeout</span><span class="o">.</span><span class="n">setter</span>
     <span class="k">def</span> <span class="nf">dimse_timeout</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">value</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;Set the DIMSE timeout using numeric or None.&quot;&quot;&quot;</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">dimse</span><span class="o">.</span><span class="n">dimse_timeout</span> <span class="o">=</span> <span class="n">value</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">_dimse_timeout</span> <span class="o">=</span> <span class="n">value</span>
+        <span class="k">with</span> <span class="n">threading</span><span class="o">.</span><span class="n">Lock</span><span class="p">():</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">_dimse_timeout</span> <span class="o">=</span> <span class="n">value</span>
+
+<div class="viewcode-block" id="Association.get_events"><a class="viewcode-back" href="../../reference/generated/pynetdicom.association.Association.html#pynetdicom.association.Association.get_events">[docs]</a>    <span class="k">def</span> <span class="nf">get_events</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;Return a list of currently bound events.&quot;&quot;&quot;</span>
+        <span class="k">return</span> <span class="nb">sorted</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_handlers</span><span class="o">.</span><span class="n">keys</span><span class="p">(),</span> <span class="n">key</span><span class="o">=</span><span class="k">lambda</span> <span class="n">x</span><span class="p">:</span> <span class="n">x</span><span class="o">.</span><span class="n">name</span><span class="p">)</span></div>
+
+<div class="viewcode-block" id="Association.get_handlers"><a class="viewcode-back" href="../../reference/generated/pynetdicom.association.Association.html#pynetdicom.association.Association.get_handlers">[docs]</a>    <span class="k">def</span> <span class="nf">get_handlers</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">event</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;Return handlers bound to a specific `event`.</span>
+
+<span class="sd">        Parameters</span>
+<span class="sd">        ----------</span>
+<span class="sd">        event : tuple</span>
+<span class="sd">            The event bound to the handlers.</span>
+
+<span class="sd">        Returns</span>
+<span class="sd">        -------</span>
+<span class="sd">        callable, list of callable or None</span>
+<span class="sd">            If the event is a notification event then returns a list of</span>
+<span class="sd">            callable functions bound to `event`, if the event is an</span>
+<span class="sd">            intervention event then returns either a callable function if a</span>
+<span class="sd">            handler is bound to the event or None if no handler has been bound.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">if</span> <span class="n">event</span> <span class="ow">not</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">_handlers</span><span class="p">:</span>
+            <span class="k">return</span> <span class="p">[]</span>
+
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_handlers</span><span class="p">[</span><span class="n">event</span><span class="p">]</span></div>
 
     <span class="k">def</span> <span class="nf">_get_valid_context</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">ab_syntax</span><span class="p">,</span> <span class="n">tr_syntax</span><span class="p">,</span> <span class="n">role</span><span class="p">,</span> <span class="n">context_id</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;Return a valid Presentation Context matching the parameters.</span>
@@ -542,8 +620,9 @@
     <span class="nd">@network_timeout</span><span class="o">.</span><span class="n">setter</span>
     <span class="k">def</span> <span class="nf">network_timeout</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">value</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;Set the network timeout using numeric or None.&quot;&quot;&quot;</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">dul</span><span class="o">.</span><span class="n">_idle_timer</span><span class="o">.</span><span class="n">timeout</span> <span class="o">=</span> <span class="n">value</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">_network_timeout</span> <span class="o">=</span> <span class="n">value</span>
+        <span class="k">with</span> <span class="n">threading</span><span class="o">.</span><span class="n">Lock</span><span class="p">():</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">dul</span><span class="o">.</span><span class="n">_idle_timer</span><span class="o">.</span><span class="n">timeout</span> <span class="o">=</span> <span class="n">value</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">_network_timeout</span> <span class="o">=</span> <span class="n">value</span>
 
     <span class="nd">@property</span>
     <span class="k">def</span> <span class="nf">rejected_contexts</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
@@ -553,6 +632,7 @@
 <div class="viewcode-block" id="Association.release"><a class="viewcode-back" href="../../reference/generated/pynetdicom.association.Association.html#pynetdicom.association.Association.release">[docs]</a>    <span class="k">def</span> <span class="nf">release</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;Send an A-RELEASE request and initiate association release.&quot;&quot;&quot;</span>
         <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">is_established</span><span class="p">:</span>
+            <span class="n">LOGGER</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="s1">&#39;Releasing Association&#39;</span><span class="p">)</span>
             <span class="bp">self</span><span class="o">.</span><span class="n">acse</span><span class="o">.</span><span class="n">negotiate_release</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span></div>
 
     <span class="nd">@property</span>
@@ -575,6 +655,7 @@
         <span class="c1"># Wait until the DUL is up and running</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">_dul_ready</span><span class="o">.</span><span class="n">wait</span><span class="p">()</span>
         <span class="c1"># Start association negotiation</span>
+        <span class="n">LOGGER</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="s2">&quot;Requesting Association&quot;</span><span class="p">)</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">acse</span><span class="o">.</span><span class="n">negotiate_association</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span></div>
 
 <div class="viewcode-block" id="Association.run"><a class="viewcode-back" href="../../reference/generated/pynetdicom.association.Association.html#pynetdicom.association.Association.run">[docs]</a>    <span class="k">def</span> <span class="nf">run</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
@@ -597,10 +678,10 @@
                 <span class="k">return</span>
 
             <span class="bp">self</span><span class="o">.</span><span class="n">requestor</span><span class="o">.</span><span class="n">primitive</span> <span class="o">=</span> <span class="n">primitive</span>
+            <span class="n">evt</span><span class="o">.</span><span class="n">trigger</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">evt</span><span class="o">.</span><span class="n">EVT_REQUESTED</span><span class="p">,</span> <span class="p">{})</span>
 
             <span class="bp">self</span><span class="o">.</span><span class="n">acse</span><span class="o">.</span><span class="n">negotiate_association</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span>
             <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">is_established</span><span class="p">:</span>
-                <span class="bp">self</span><span class="o">.</span><span class="n">dimse</span><span class="o">.</span><span class="n">maximum_pdu_size</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">requestor</span><span class="o">.</span><span class="n">maximum_length</span>
                 <span class="bp">self</span><span class="o">.</span><span class="n">_run_as_acceptor</span><span class="p">()</span>
         <span class="k">else</span><span class="p">:</span>
             <span class="c1"># Association requestor</span>
@@ -610,7 +691,6 @@
                 <span class="bp">self</span><span class="o">.</span><span class="n">acse</span><span class="o">.</span><span class="n">negotiate_association</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span>
 
             <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">is_established</span><span class="p">:</span>
-                <span class="bp">self</span><span class="o">.</span><span class="n">dimse</span><span class="o">.</span><span class="n">maximum_pdu_size</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">acceptor</span><span class="o">.</span><span class="n">maximum_length</span>
                 <span class="bp">self</span><span class="o">.</span><span class="n">_run_as_requestor</span><span class="p">()</span></div>
 
     <span class="k">def</span> <span class="nf">_run_as_acceptor</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
@@ -651,6 +731,7 @@
                 <span class="c1">#   Class UID to determine which service to use</span>
                 <span class="c1"># If there&#39;s no AffectedSOPClassUID or RequestedSOPClassUID</span>
                 <span class="c1">#   then we received a C-CANCEL request</span>
+                <span class="n">class_uid</span> <span class="o">=</span> <span class="s1">&#39;&#39;</span>
                 <span class="k">if</span> <span class="nb">getattr</span><span class="p">(</span><span class="n">msg</span><span class="p">,</span> <span class="s1">&#39;AffectedSOPClassUID&#39;</span><span class="p">,</span> <span class="kc">None</span><span class="p">)</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
                     <span class="c1"># DIMSE-C, N-EVENT-REPORT, N-CREATE use AffectedSOPClassUID</span>
                     <span class="n">class_uid</span> <span class="o">=</span> <span class="n">msg</span><span class="o">.</span><span class="n">AffectedSOPClassUID</span>
@@ -690,9 +771,9 @@
                     <span class="bp">self</span><span class="o">.</span><span class="n">dimse</span><span class="o">.</span><span class="n">cancel_req</span> <span class="o">=</span> <span class="p">{}</span>
                 <span class="k">except</span> <span class="ne">NotImplementedError</span><span class="p">:</span>
                     <span class="c1"># SCP isn&#39;t implemented</span>
-                    <span class="n">LOGGER</span><span class="o">.</span><span class="n">warning</span><span class="p">(</span>
-                        <span class="s2">&quot;No service class implementation for &#39;</span><span class="si">{}</span><span class="s2">&#39;&quot;</span>
-                        <span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">context</span><span class="o">.</span><span class="n">abstract_syntax</span><span class="p">)</span>
+                    <span class="n">LOGGER</span><span class="o">.</span><span class="n">error</span><span class="p">(</span>
+                        <span class="s2">&quot;No supported service class available for the SOP &quot;</span>
+                        <span class="s2">&quot;Class UID &#39;</span><span class="si">{}</span><span class="s2">&#39;&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">class_uid</span><span class="p">)</span>
                     <span class="p">)</span>
                     <span class="bp">self</span><span class="o">.</span><span class="n">abort</span><span class="p">()</span>
                     <span class="k">return</span>
@@ -701,20 +782,22 @@
             <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">acse</span><span class="o">.</span><span class="n">is_release_requested</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
                 <span class="c1"># Send A-RELEASE response</span>
                 <span class="bp">self</span><span class="o">.</span><span class="n">acse</span><span class="o">.</span><span class="n">send_release</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">is_response</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+                <span class="n">LOGGER</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="s1">&#39;Association Released&#39;</span><span class="p">)</span>
                 <span class="bp">self</span><span class="o">.</span><span class="n">is_released</span> <span class="o">=</span> <span class="kc">True</span>
                 <span class="bp">self</span><span class="o">.</span><span class="n">is_established</span> <span class="o">=</span> <span class="kc">False</span>
+                <span class="n">evt</span><span class="o">.</span><span class="n">trigger</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">evt</span><span class="o">.</span><span class="n">EVT_RELEASED</span><span class="p">,</span> <span class="p">{})</span>
                 <span class="c1"># Callback triggers</span>
                 <span class="bp">self</span><span class="o">.</span><span class="n">ae</span><span class="o">.</span><span class="n">on_association_released</span><span class="p">()</span>
-                <span class="bp">self</span><span class="o">.</span><span class="n">debug_association_released</span><span class="p">()</span>
                 <span class="bp">self</span><span class="o">.</span><span class="n">kill</span><span class="p">()</span>
                 <span class="k">return</span>
 
             <span class="c1"># Check for abort</span>
             <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">acse</span><span class="o">.</span><span class="n">is_aborted</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+                <span class="n">LOGGER</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="s1">&#39;Association Aborted&#39;</span><span class="p">)</span>
                 <span class="bp">self</span><span class="o">.</span><span class="n">is_aborted</span> <span class="o">=</span> <span class="kc">True</span>
                 <span class="bp">self</span><span class="o">.</span><span class="n">is_established</span> <span class="o">=</span> <span class="kc">False</span>
+                <span class="n">evt</span><span class="o">.</span><span class="n">trigger</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">evt</span><span class="o">.</span><span class="n">EVT_ABORTED</span><span class="p">,</span> <span class="p">{})</span>
                 <span class="c1"># Callback trigger</span>
-                <span class="bp">self</span><span class="o">.</span><span class="n">debug_association_aborted</span><span class="p">()</span>
                 <span class="bp">self</span><span class="o">.</span><span class="n">ae</span><span class="o">.</span><span class="n">on_association_aborted</span><span class="p">(</span><span class="kc">None</span><span class="p">)</span>
                 <span class="bp">self</span><span class="o">.</span><span class="n">kill</span><span class="p">()</span>
                 <span class="k">return</span>
@@ -741,21 +824,23 @@
             <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">acse</span><span class="o">.</span><span class="n">is_release_requested</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
                 <span class="c1"># Send A-RELEASE response</span>
                 <span class="bp">self</span><span class="o">.</span><span class="n">acse</span><span class="o">.</span><span class="n">send_release</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">is_response</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+                <span class="n">LOGGER</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="s1">&#39;Association Released&#39;</span><span class="p">)</span>
                 <span class="bp">self</span><span class="o">.</span><span class="n">is_released</span> <span class="o">=</span> <span class="kc">True</span>
                 <span class="bp">self</span><span class="o">.</span><span class="n">is_established</span> <span class="o">=</span> <span class="kc">False</span>
+                <span class="n">evt</span><span class="o">.</span><span class="n">trigger</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">evt</span><span class="o">.</span><span class="n">EVT_RELEASED</span><span class="p">,</span> <span class="p">{})</span>
                 <span class="c1"># Callback triggers</span>
                 <span class="bp">self</span><span class="o">.</span><span class="n">ae</span><span class="o">.</span><span class="n">on_association_released</span><span class="p">()</span>
-                <span class="bp">self</span><span class="o">.</span><span class="n">debug_association_released</span><span class="p">()</span>
                 <span class="bp">self</span><span class="o">.</span><span class="n">kill</span><span class="p">()</span>
                 <span class="k">return</span>
 
             <span class="c1"># Check for abort</span>
             <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">acse</span><span class="o">.</span><span class="n">is_aborted</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+                <span class="n">LOGGER</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="s1">&#39;Association Aborted&#39;</span><span class="p">)</span>
                 <span class="bp">self</span><span class="o">.</span><span class="n">is_aborted</span> <span class="o">=</span> <span class="kc">True</span>
                 <span class="bp">self</span><span class="o">.</span><span class="n">is_established</span> <span class="o">=</span> <span class="kc">False</span>
+                <span class="n">evt</span><span class="o">.</span><span class="n">trigger</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">evt</span><span class="o">.</span><span class="n">EVT_ABORTED</span><span class="p">,</span> <span class="p">{})</span>
                 <span class="c1"># Callback trigger</span>
                 <span class="bp">self</span><span class="o">.</span><span class="n">ae</span><span class="o">.</span><span class="n">on_association_aborted</span><span class="p">()</span>
-                <span class="bp">self</span><span class="o">.</span><span class="n">debug_association_aborted</span><span class="p">()</span>
                 <span class="bp">self</span><span class="o">.</span><span class="n">kill</span><span class="p">()</span>
                 <span class="k">return</span>
 
@@ -789,6 +874,32 @@
             <span class="k">raise</span> <span class="ne">RuntimeError</span><span class="p">(</span><span class="s2">&quot;The Association already has a socket set.&quot;</span><span class="p">)</span>
 
         <span class="bp">self</span><span class="o">.</span><span class="n">dul</span><span class="o">.</span><span class="n">socket</span> <span class="o">=</span> <span class="n">socket</span></div>
+
+<div class="viewcode-block" id="Association.unbind"><a class="viewcode-back" href="../../reference/generated/pynetdicom.association.Association.html#pynetdicom.association.Association.unbind">[docs]</a>    <span class="k">def</span> <span class="nf">unbind</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">event</span><span class="p">,</span> <span class="n">handler</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;Unbind a callable `func` from an `event`.</span>
+
+<span class="sd">        Parameters</span>
+<span class="sd">        ----------</span>
+<span class="sd">        event : 3-tuple</span>
+<span class="sd">            The event to unbind the function from.</span>
+<span class="sd">        handler : callable</span>
+<span class="sd">            The function that will no longer be called if the event occurs.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">if</span> <span class="n">event</span> <span class="ow">not</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">_handlers</span><span class="p">:</span>
+            <span class="k">return</span>
+
+        <span class="c1"># Make sure no access to `_handlers` while its being changed</span>
+        <span class="k">with</span> <span class="n">threading</span><span class="o">.</span><span class="n">Lock</span><span class="p">():</span>
+            <span class="c1"># Notification events</span>
+            <span class="k">if</span> <span class="n">event</span><span class="o">.</span><span class="n">is_notification</span> <span class="ow">and</span> <span class="n">handler</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">_handlers</span><span class="p">[</span><span class="n">event</span><span class="p">]:</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">_handlers</span><span class="p">[</span><span class="n">event</span><span class="p">]</span><span class="o">.</span><span class="n">remove</span><span class="p">(</span><span class="n">handler</span><span class="p">)</span>
+
+                <span class="k">if</span> <span class="ow">not</span> <span class="bp">self</span><span class="o">.</span><span class="n">_handlers</span><span class="p">[</span><span class="n">event</span><span class="p">]:</span>
+                    <span class="k">del</span> <span class="bp">self</span><span class="o">.</span><span class="n">_handlers</span><span class="p">[</span><span class="n">event</span><span class="p">]</span>
+
+            <span class="c1"># Intervention events - unbind and replace with default</span>
+            <span class="k">if</span> <span class="n">event</span><span class="o">.</span><span class="n">is_intervention</span> <span class="ow">and</span> <span class="bp">self</span><span class="o">.</span><span class="n">_handlers</span><span class="p">[</span><span class="n">event</span><span class="p">]</span> <span class="o">==</span> <span class="n">handler</span><span class="p">:</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">_handlers</span><span class="p">[</span><span class="n">event</span><span class="p">]</span> <span class="o">=</span> <span class="n">evt</span><span class="o">.</span><span class="n">get_default_handler</span><span class="p">(</span><span class="n">event</span><span class="p">)</span></div>
 
     <span class="c1"># DIMSE-C services provided by the Association</span>
     <span class="k">def</span> <span class="nf">_c_store_scp</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">req</span><span class="p">):</span>
@@ -841,45 +952,64 @@
             <span class="bp">self</span><span class="o">.</span><span class="n">dimse</span><span class="o">.</span><span class="n">send_msg</span><span class="p">(</span><span class="n">rsp</span><span class="p">,</span> <span class="mi">1</span><span class="p">)</span>
             <span class="k">return</span>
 
-        <span class="c1"># Attempt to decode the dataset</span>
-        <span class="c1"># pylint: disable=broad-except</span>
         <span class="n">transfer_syntax</span> <span class="o">=</span> <span class="n">context</span><span class="o">.</span><span class="n">transfer_syntax</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span>
-        <span class="k">if</span> <span class="n">_config</span><span class="o">.</span><span class="n">DECODE_STORE_DATASETS</span><span class="p">:</span>
+
+        <span class="c1"># Attempt to handle the service request</span>
+        <span class="c1"># TODO: refactor in v1.4</span>
+        <span class="n">default_handler</span> <span class="o">=</span> <span class="n">evt</span><span class="o">.</span><span class="n">get_default_handler</span><span class="p">(</span><span class="n">evt</span><span class="o">.</span><span class="n">EVT_C_STORE</span><span class="p">)</span>
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">get_handlers</span><span class="p">(</span><span class="n">evt</span><span class="o">.</span><span class="n">EVT_C_STORE</span><span class="p">)</span> <span class="o">!=</span> <span class="n">default_handler</span><span class="p">:</span>
             <span class="k">try</span><span class="p">:</span>
-                <span class="n">ds</span> <span class="o">=</span> <span class="n">decode</span><span class="p">(</span><span class="n">req</span><span class="o">.</span><span class="n">DataSet</span><span class="p">,</span>
-                            <span class="n">transfer_syntax</span><span class="o">.</span><span class="n">is_implicit_VR</span><span class="p">,</span>
-                            <span class="n">transfer_syntax</span><span class="o">.</span><span class="n">is_little_endian</span><span class="p">)</span>
+                <span class="n">status</span> <span class="o">=</span> <span class="n">evt</span><span class="o">.</span><span class="n">trigger</span><span class="p">(</span>
+                    <span class="bp">self</span><span class="p">,</span>
+                    <span class="n">evt</span><span class="o">.</span><span class="n">EVT_C_STORE</span><span class="p">,</span>
+                    <span class="p">{</span><span class="s1">&#39;request&#39;</span> <span class="p">:</span> <span class="n">req</span><span class="p">,</span> <span class="s1">&#39;context&#39;</span> <span class="p">:</span> <span class="n">context</span><span class="o">.</span><span class="n">as_tuple</span><span class="p">}</span>
+                <span class="p">)</span>
             <span class="k">except</span> <span class="ne">Exception</span> <span class="k">as</span> <span class="n">ex</span><span class="p">:</span>
-                <span class="n">LOGGER</span><span class="o">.</span><span class="n">error</span><span class="p">(</span><span class="s1">&#39;Failed to decode the received dataset&#39;</span><span class="p">)</span>
+                <span class="n">LOGGER</span><span class="o">.</span><span class="n">error</span><span class="p">(</span>
+                    <span class="s2">&quot;Exception in the handler bound to &#39;evt.EVT_C_STORE&#39;&quot;</span>
+                <span class="p">)</span>
                 <span class="n">LOGGER</span><span class="o">.</span><span class="n">exception</span><span class="p">(</span><span class="n">ex</span><span class="p">)</span>
-                <span class="n">rsp</span><span class="o">.</span><span class="n">Status</span> <span class="o">=</span> <span class="mh">0xC210</span>
-                <span class="n">rsp</span><span class="o">.</span><span class="n">ErrorComment</span> <span class="o">=</span> <span class="s1">&#39;Unable to decode the dataset&#39;</span>
+                <span class="n">rsp</span><span class="o">.</span><span class="n">Status</span> <span class="o">=</span> <span class="mh">0xC211</span>
                 <span class="bp">self</span><span class="o">.</span><span class="n">dimse</span><span class="o">.</span><span class="n">send_msg</span><span class="p">(</span><span class="n">rsp</span><span class="p">,</span> <span class="n">context</span><span class="o">.</span><span class="n">context_id</span><span class="p">)</span>
                 <span class="k">return</span>
         <span class="k">else</span><span class="p">:</span>
-            <span class="n">ds</span> <span class="o">=</span> <span class="n">req</span><span class="o">.</span><span class="n">DataSet</span><span class="o">.</span><span class="n">getvalue</span><span class="p">()</span>
+            <span class="k">if</span> <span class="n">_config</span><span class="o">.</span><span class="n">DECODE_STORE_DATASETS</span><span class="p">:</span>
+                <span class="c1"># Attempt to decode the dataset</span>
+                <span class="c1"># pylint: disable=broad-except</span>
+                <span class="k">try</span><span class="p">:</span>
+                    <span class="n">ds</span> <span class="o">=</span> <span class="n">decode</span><span class="p">(</span><span class="n">req</span><span class="o">.</span><span class="n">DataSet</span><span class="p">,</span>
+                                <span class="n">transfer_syntax</span><span class="o">.</span><span class="n">is_implicit_VR</span><span class="p">,</span>
+                                <span class="n">transfer_syntax</span><span class="o">.</span><span class="n">is_little_endian</span><span class="p">)</span>
+                <span class="k">except</span> <span class="ne">Exception</span> <span class="k">as</span> <span class="n">ex</span><span class="p">:</span>
+                    <span class="n">LOGGER</span><span class="o">.</span><span class="n">error</span><span class="p">(</span><span class="s1">&#39;Failed to decode the received dataset&#39;</span><span class="p">)</span>
+                    <span class="n">LOGGER</span><span class="o">.</span><span class="n">exception</span><span class="p">(</span><span class="n">ex</span><span class="p">)</span>
+                    <span class="n">rsp</span><span class="o">.</span><span class="n">Status</span> <span class="o">=</span> <span class="mh">0xC210</span>
+                    <span class="n">rsp</span><span class="o">.</span><span class="n">ErrorComment</span> <span class="o">=</span> <span class="s1">&#39;Unable to decode the dataset&#39;</span>
+                    <span class="bp">self</span><span class="o">.</span><span class="n">dimse</span><span class="o">.</span><span class="n">send_msg</span><span class="p">(</span><span class="n">rsp</span><span class="p">,</span> <span class="n">context</span><span class="o">.</span><span class="n">context_id</span><span class="p">)</span>
+                    <span class="k">return</span>
+            <span class="k">else</span><span class="p">:</span>
+                <span class="n">ds</span> <span class="o">=</span> <span class="n">req</span><span class="o">.</span><span class="n">DataSet</span><span class="o">.</span><span class="n">getvalue</span><span class="p">()</span>
 
-        <span class="n">info</span> <span class="o">=</span> <span class="p">{</span>
-            <span class="s1">&#39;acceptor&#39;</span> <span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">acceptor</span><span class="o">.</span><span class="n">info</span><span class="p">,</span>
-            <span class="s1">&#39;requestor&#39;</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">requestor</span><span class="o">.</span><span class="n">info</span><span class="p">,</span>
-            <span class="s1">&#39;parameters&#39;</span> <span class="p">:</span> <span class="p">{</span>
-                <span class="s1">&#39;message_id&#39;</span> <span class="p">:</span> <span class="n">req</span><span class="o">.</span><span class="n">MessageID</span><span class="p">,</span>
-                <span class="s1">&#39;priority&#39;</span> <span class="p">:</span> <span class="n">req</span><span class="o">.</span><span class="n">Priority</span><span class="p">,</span>
-                <span class="s1">&#39;originator_aet&#39;</span> <span class="p">:</span> <span class="n">req</span><span class="o">.</span><span class="n">MoveOriginatorApplicationEntityTitle</span><span class="p">,</span>
-                <span class="s1">&#39;original_message_id&#39;</span> <span class="p">:</span> <span class="n">req</span><span class="o">.</span><span class="n">MoveOriginatorMessageID</span>
+            <span class="n">info</span> <span class="o">=</span> <span class="p">{</span>
+                <span class="s1">&#39;acceptor&#39;</span> <span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">acceptor</span><span class="o">.</span><span class="n">info</span><span class="p">,</span>
+                <span class="s1">&#39;requestor&#39;</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">requestor</span><span class="o">.</span><span class="n">info</span><span class="p">,</span>
+                <span class="s1">&#39;parameters&#39;</span> <span class="p">:</span> <span class="p">{</span>
+                    <span class="s1">&#39;message_id&#39;</span> <span class="p">:</span> <span class="n">req</span><span class="o">.</span><span class="n">MessageID</span><span class="p">,</span>
+                    <span class="s1">&#39;priority&#39;</span> <span class="p">:</span> <span class="n">req</span><span class="o">.</span><span class="n">Priority</span><span class="p">,</span>
+                    <span class="s1">&#39;originator_aet&#39;</span> <span class="p">:</span> <span class="n">req</span><span class="o">.</span><span class="n">MoveOriginatorApplicationEntityTitle</span><span class="p">,</span>
+                    <span class="s1">&#39;original_message_id&#39;</span> <span class="p">:</span> <span class="n">req</span><span class="o">.</span><span class="n">MoveOriginatorMessageID</span>
+                <span class="p">}</span>
             <span class="p">}</span>
-        <span class="p">}</span>
 
-        <span class="c1">#  Attempt to run the ApplicationEntity&#39;s on_c_store callback</span>
-        <span class="k">try</span><span class="p">:</span>
-            <span class="n">status</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">ae</span><span class="o">.</span><span class="n">on_c_store</span><span class="p">(</span><span class="n">ds</span><span class="p">,</span> <span class="n">context</span><span class="o">.</span><span class="n">as_tuple</span><span class="p">,</span> <span class="n">info</span><span class="p">)</span>
-        <span class="k">except</span> <span class="ne">Exception</span> <span class="k">as</span> <span class="n">ex</span><span class="p">:</span>
-            <span class="n">LOGGER</span><span class="o">.</span><span class="n">error</span><span class="p">(</span><span class="s2">&quot;Exception in the &quot;</span>
-                         <span class="s2">&quot;ApplicationEntity.on_c_store() callback&quot;</span><span class="p">)</span>
-            <span class="n">LOGGER</span><span class="o">.</span><span class="n">exception</span><span class="p">(</span><span class="n">ex</span><span class="p">)</span>
-            <span class="n">rsp</span><span class="o">.</span><span class="n">Status</span> <span class="o">=</span> <span class="mh">0xC211</span>
-            <span class="bp">self</span><span class="o">.</span><span class="n">dimse</span><span class="o">.</span><span class="n">send_msg</span><span class="p">(</span><span class="n">rsp</span><span class="p">,</span> <span class="n">context</span><span class="o">.</span><span class="n">context_id</span><span class="p">)</span>
-            <span class="k">return</span>
+            <span class="k">try</span><span class="p">:</span>
+                <span class="n">status</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">ae</span><span class="o">.</span><span class="n">on_c_store</span><span class="p">(</span><span class="n">ds</span><span class="p">,</span> <span class="n">context</span><span class="o">.</span><span class="n">as_tuple</span><span class="p">,</span> <span class="n">info</span><span class="p">)</span>
+            <span class="k">except</span> <span class="ne">Exception</span> <span class="k">as</span> <span class="n">ex</span><span class="p">:</span>
+                <span class="n">LOGGER</span><span class="o">.</span><span class="n">error</span><span class="p">(</span><span class="s2">&quot;Exception in the &quot;</span>
+                             <span class="s2">&quot;ApplicationEntity.on_c_store() callback&quot;</span><span class="p">)</span>
+                <span class="n">LOGGER</span><span class="o">.</span><span class="n">exception</span><span class="p">(</span><span class="n">ex</span><span class="p">)</span>
+                <span class="n">rsp</span><span class="o">.</span><span class="n">Status</span> <span class="o">=</span> <span class="mh">0xC211</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">dimse</span><span class="o">.</span><span class="n">send_msg</span><span class="p">(</span><span class="n">rsp</span><span class="p">,</span> <span class="n">context</span><span class="o">.</span><span class="n">context_id</span><span class="p">)</span>
+                <span class="k">return</span>
 
         <span class="c1"># Check the callback&#39;s returned status</span>
         <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">status</span><span class="p">,</span> <span class="n">Dataset</span><span class="p">):</span>
@@ -995,8 +1125,8 @@
 <span class="sd">        * DICOM Standard Part 4, `Annex A &lt;http://dicom.nema.org/medical/dicom/current/output/html/part04.html#chapter_A&gt;`_</span>
 <span class="sd">        * DICOM Standard Part 7, Sections</span>
 <span class="sd">          `9.1.5 &lt;http://dicom.nema.org/medical/dicom/current/output/html/part07.html#sect_9.1.5&gt;`_,</span>
-<span class="sd">           and `9.3.5 &lt;http://dicom.nema.org/medical/dicom/current/output/html/part07.html#sect_9.3.5&gt;`_</span>
-<span class="sd">          `Annex C &lt;http://dicom.nema.org/medical/dicom/current/output/html/part07.html#chapter_C&gt;`_</span>
+<span class="sd">          `9.3.5 &lt;http://dicom.nema.org/medical/dicom/current/output/html/part07.html#sect_9.3.5&gt;`_,</span>
+<span class="sd">          and `Annex C &lt;http://dicom.nema.org/medical/dicom/current/output/html/part07.html#chapter_C&gt;`_</span>
 <span class="sd">        &quot;&quot;&quot;</span>
         <span class="c1"># Can&#39;t send a C-ECHO without an Association</span>
         <span class="k">if</span> <span class="ow">not</span> <span class="bp">self</span><span class="o">.</span><span class="n">is_established</span><span class="p">:</span>
@@ -1014,6 +1144,7 @@
         <span class="n">primitive</span><span class="o">.</span><span class="n">AffectedSOPClassUID</span> <span class="o">=</span> <span class="n">VerificationSOPClass</span>
 
         <span class="c1"># Send C-ECHO request to the peer via DIMSE and wait for the response</span>
+        <span class="n">LOGGER</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="s1">&#39;Sending Echo Request: MsgID </span><span class="si">{}</span><span class="s1">&#39;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">msg_id</span><span class="p">))</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">dimse</span><span class="o">.</span><span class="n">send_msg</span><span class="p">(</span><span class="n">primitive</span><span class="p">,</span> <span class="n">context</span><span class="o">.</span><span class="n">context_id</span><span class="p">)</span>
         <span class="n">cx_id</span><span class="p">,</span> <span class="n">rsp</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">dimse</span><span class="o">.</span><span class="n">get_msg</span><span class="p">(</span><span class="n">block</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
 
@@ -1187,7 +1318,7 @@
 <span class="sd">          `9.1.2 &lt;http://dicom.nema.org/medical/dicom/current/output/html/part07.html#sect_9.1.2&gt;`_,</span>
 <span class="sd">          `9.3.2 &lt;http://dicom.nema.org/medical/dicom/current/output/html/part07.html#sect_9.3.2&gt;`_,</span>
 <span class="sd">          Annexes `C &lt;http://dicom.nema.org/medical/dicom/current/output/html/part07.html#chapter_C&gt;`_</span>
-<span class="sd">           and `K &lt;http://dicom.nema.org/medical/dicom/current/output/html/part07.html#chapter_K&gt;`_</span>
+<span class="sd">          and `K &lt;http://dicom.nema.org/medical/dicom/current/output/html/part07.html#chapter_K&gt;`_</span>
 <span class="sd">        &quot;&quot;&quot;</span>
         <span class="c1"># Can&#39;t send a C-FIND without an Association</span>
         <span class="k">if</span> <span class="ow">not</span> <span class="bp">self</span><span class="o">.</span><span class="n">is_established</span><span class="p">:</span>
@@ -1246,9 +1377,9 @@
             <span class="n">LOGGER</span><span class="o">.</span><span class="n">error</span><span class="p">(</span><span class="s2">&quot;Failed to encode the supplied Dataset&quot;</span><span class="p">)</span>
             <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s1">&#39;Failed to encode the supplied Dataset&#39;</span><span class="p">)</span>
 
-        <span class="n">LOGGER</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="s1">&#39;Find SCU Request Identifiers:&#39;</span><span class="p">)</span>
+        <span class="n">LOGGER</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="s1">&#39;Sending Find Request: MsgID </span><span class="si">{}</span><span class="s1">&#39;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">msg_id</span><span class="p">))</span>
         <span class="n">LOGGER</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="s1">&#39;&#39;</span><span class="p">)</span>
-        <span class="n">LOGGER</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="s1">&#39;# DICOM Dataset&#39;</span><span class="p">)</span>
+        <span class="n">LOGGER</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="s1">&#39;# Identifier DICOM Dataset&#39;</span><span class="p">)</span>
         <span class="k">for</span> <span class="n">elem</span> <span class="ow">in</span> <span class="n">dataset</span><span class="p">:</span>
             <span class="n">LOGGER</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="n">elem</span><span class="p">)</span>
         <span class="n">LOGGER</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="s1">&#39;&#39;</span><span class="p">)</span>
@@ -1467,9 +1598,9 @@
             <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s1">&#39;Failed to encode the supplied Identifer &#39;</span>
                              <span class="s1">&#39;dataset&#39;</span><span class="p">)</span>
 
-        <span class="n">LOGGER</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="s1">&#39;Get SCU Request Identifier:&#39;</span><span class="p">)</span>
+        <span class="n">LOGGER</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="s1">&#39;Sending Get Request: MsgID </span><span class="si">{}</span><span class="s1">&#39;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">msg_id</span><span class="p">))</span>
         <span class="n">LOGGER</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="s1">&#39;&#39;</span><span class="p">)</span>
-        <span class="n">LOGGER</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="s1">&#39;# DICOM Dataset&#39;</span><span class="p">)</span>
+        <span class="n">LOGGER</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="s1">&#39;# Identifier DICOM Dataset&#39;</span><span class="p">)</span>
         <span class="k">for</span> <span class="n">elem</span> <span class="ow">in</span> <span class="n">dataset</span><span class="p">:</span>
             <span class="n">LOGGER</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="n">elem</span><span class="p">)</span>
         <span class="n">LOGGER</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="s1">&#39;&#39;</span><span class="p">)</span>
@@ -1675,9 +1806,9 @@
             <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s1">&#39;Failed to encode the supplied Identifier &#39;</span>
                              <span class="s1">&#39;dataset&#39;</span><span class="p">)</span>
 
-        <span class="n">LOGGER</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="s1">&#39;Move SCU Request Identifier:&#39;</span><span class="p">)</span>
+        <span class="n">LOGGER</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="s1">&#39;Sending Move Request: MsgID </span><span class="si">{}</span><span class="s1">&#39;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">msg_id</span><span class="p">))</span>
         <span class="n">LOGGER</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="s1">&#39;&#39;</span><span class="p">)</span>
-        <span class="n">LOGGER</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="s1">&#39;# DICOM Dataset&#39;</span><span class="p">)</span>
+        <span class="n">LOGGER</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="s1">&#39;# Identifier DICOM Dataset&#39;</span><span class="p">)</span>
         <span class="k">for</span> <span class="n">elem</span> <span class="ow">in</span> <span class="n">dataset</span><span class="p">:</span>
             <span class="n">LOGGER</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="n">elem</span><span class="p">)</span>
         <span class="n">LOGGER</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="s1">&#39;&#39;</span><span class="p">)</span>
@@ -1935,16 +2066,13 @@
             <span class="n">LOGGER</span><span class="o">.</span><span class="n">debug</span><span class="p">(</span><span class="s1">&#39;&#39;</span><span class="p">)</span>
             <span class="k">if</span> <span class="n">category</span> <span class="o">==</span> <span class="n">STATUS_PENDING</span><span class="p">:</span>
                 <span class="n">LOGGER</span><span class="o">.</span><span class="n">info</span><span class="p">(</span>
-                    <span class="s2">&quot;Find SCP Response: </span><span class="si">{}</span><span class="s2"> (Pending)&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">operation_no</span><span class="p">)</span>
+                    <span class="s2">&quot;Find SCP Response: </span><span class="si">{}</span><span class="s2"> - 0x</span><span class="si">{:04x}</span><span class="s2"> (Pending)&quot;</span>
+                    <span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">operation_no</span><span class="p">,</span> <span class="n">status</span><span class="o">.</span><span class="n">Status</span><span class="p">)</span>
                 <span class="p">)</span>
-            <span class="k">elif</span> <span class="n">category</span> <span class="ow">in</span> <span class="p">[</span><span class="n">STATUS_SUCCESS</span><span class="p">,</span> <span class="n">STATUS_CANCEL</span><span class="p">,</span> <span class="n">STATUS_WARNING</span><span class="p">]:</span>
+            <span class="k">else</span><span class="p">:</span>
                 <span class="n">LOGGER</span><span class="o">.</span><span class="n">info</span><span class="p">(</span>
-                    <span class="s1">&#39;Find SCP Result: (</span><span class="si">{}</span><span class="s1">)&#39;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">category</span><span class="p">)</span>
-                <span class="p">)</span>
-            <span class="k">elif</span> <span class="n">category</span> <span class="o">==</span> <span class="n">STATUS_FAILURE</span><span class="p">:</span>
-                <span class="n">LOGGER</span><span class="o">.</span><span class="n">info</span><span class="p">(</span>
-                    <span class="s1">&#39;Find SCP Result: (Failure - 0x</span><span class="si">{:04x}</span><span class="s1">)&#39;</span>
-                    <span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">status</span><span class="o">.</span><span class="n">Status</span><span class="p">)</span>
+                    <span class="s1">&#39;Find SCP Result: 0x</span><span class="si">{:04x}</span><span class="s1"> (</span><span class="si">{}</span><span class="s1">)&#39;</span>
+                    <span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">status</span><span class="o">.</span><span class="n">Status</span><span class="p">,</span> <span class="n">category</span><span class="p">)</span>
                 <span class="p">)</span>
 
             <span class="c1"># &#39;Success&#39;, &#39;Warning&#39;, &#39;Failure&#39;, &#39;Cancel&#39; are final yields,</span>
@@ -1958,7 +2086,7 @@
                                         <span class="n">transfer_syntax</span><span class="o">.</span><span class="n">is_implicit_VR</span><span class="p">,</span>
                                         <span class="n">transfer_syntax</span><span class="o">.</span><span class="n">is_little_endian</span><span class="p">)</span>
                     <span class="n">LOGGER</span><span class="o">.</span><span class="n">debug</span><span class="p">(</span><span class="s1">&#39;&#39;</span><span class="p">)</span>
-                    <span class="n">LOGGER</span><span class="o">.</span><span class="n">debug</span><span class="p">(</span><span class="s1">&#39;# DICOM Dataset&#39;</span><span class="p">)</span>
+                    <span class="n">LOGGER</span><span class="o">.</span><span class="n">debug</span><span class="p">(</span><span class="s1">&#39;# Identifier DICOM Dataset&#39;</span><span class="p">)</span>
                     <span class="k">for</span> <span class="n">elem</span> <span class="ow">in</span> <span class="n">identifier</span><span class="p">:</span>
                         <span class="n">LOGGER</span><span class="o">.</span><span class="n">debug</span><span class="p">(</span><span class="n">elem</span><span class="p">)</span>
                     <span class="n">LOGGER</span><span class="o">.</span><span class="n">debug</span><span class="p">(</span><span class="s1">&#39;&#39;</span><span class="p">)</span>
@@ -2054,17 +2182,13 @@
             <span class="n">LOGGER</span><span class="o">.</span><span class="n">debug</span><span class="p">(</span><span class="s1">&#39;&#39;</span><span class="p">)</span>
             <span class="k">if</span> <span class="n">category</span> <span class="o">==</span> <span class="n">STATUS_PENDING</span><span class="p">:</span>
                 <span class="n">LOGGER</span><span class="o">.</span><span class="n">info</span><span class="p">(</span>
-                    <span class="s2">&quot;</span><span class="si">{}</span><span class="s2"> SCP Response: </span><span class="si">{}</span><span class="s2"> (Pending)&quot;</span>
-                    <span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">rsp_name</span><span class="p">[</span><span class="n">rsp_type</span><span class="p">],</span> <span class="n">operation_no</span> <span class="o">+</span> <span class="mi">1</span><span class="p">)</span>
+                    <span class="s2">&quot;</span><span class="si">{}</span><span class="s2"> SCP Response: </span><span class="si">{}</span><span class="s2"> - 0x</span><span class="si">{:04x}</span><span class="s2"> (Pending)&quot;</span>
+                    <span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">rsp_name</span><span class="p">[</span><span class="n">rsp_type</span><span class="p">],</span> <span class="n">operation_no</span><span class="p">,</span> <span class="n">status</span><span class="o">.</span><span class="n">Status</span><span class="p">)</span>
                 <span class="p">)</span>
-            <span class="k">elif</span> <span class="n">category</span> <span class="ow">in</span> <span class="p">[</span><span class="n">STATUS_SUCCESS</span><span class="p">,</span> <span class="n">STATUS_CANCEL</span><span class="p">,</span> <span class="n">STATUS_WARNING</span><span class="p">]:</span>
+            <span class="k">else</span><span class="p">:</span>
                 <span class="n">LOGGER</span><span class="o">.</span><span class="n">info</span><span class="p">(</span>
-                    <span class="s1">&#39;</span><span class="si">{}</span><span class="s1"> SCP Result: (</span><span class="si">{}</span><span class="s1">)&#39;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">rsp_name</span><span class="p">[</span><span class="n">rsp_type</span><span class="p">],</span> <span class="n">category</span><span class="p">)</span>
-                <span class="p">)</span>
-            <span class="k">elif</span> <span class="n">category</span> <span class="o">==</span> <span class="n">STATUS_FAILURE</span><span class="p">:</span>
-                <span class="n">LOGGER</span><span class="o">.</span><span class="n">info</span><span class="p">(</span>
-                    <span class="s1">&#39;</span><span class="si">{}</span><span class="s1"> SCP Result: (Failure - 0x</span><span class="si">{:04x}</span><span class="s1">)&#39;</span>
-                    <span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">rsp_name</span><span class="p">[</span><span class="n">rsp_type</span><span class="p">],</span> <span class="n">status</span><span class="o">.</span><span class="n">Status</span><span class="p">)</span>
+                    <span class="s1">&#39;</span><span class="si">{}</span><span class="s1"> SCP Result: 0x</span><span class="si">{:04x}</span><span class="s1"> (</span><span class="si">{}</span><span class="s1">)&#39;</span>
+                    <span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">rsp_name</span><span class="p">[</span><span class="n">rsp_type</span><span class="p">],</span> <span class="n">status</span><span class="o">.</span><span class="n">Status</span><span class="p">,</span> <span class="n">category</span><span class="p">)</span>
                 <span class="p">)</span>
 
             <span class="c1"># Log number of remaining sub-operations - C-GET/C-MOVE only</span>
@@ -2096,11 +2220,12 @@
                     <span class="n">identifier</span> <span class="o">=</span> <span class="n">decode</span><span class="p">(</span><span class="n">rsp</span><span class="o">.</span><span class="n">Identifier</span><span class="p">,</span>
                                         <span class="n">transfer_syntax</span><span class="o">.</span><span class="n">is_implicit_VR</span><span class="p">,</span>
                                         <span class="n">transfer_syntax</span><span class="o">.</span><span class="n">is_little_endian</span><span class="p">)</span>
-                    <span class="n">LOGGER</span><span class="o">.</span><span class="n">debug</span><span class="p">(</span><span class="s1">&#39;&#39;</span><span class="p">)</span>
-                    <span class="n">LOGGER</span><span class="o">.</span><span class="n">debug</span><span class="p">(</span><span class="s1">&#39;# DICOM Dataset&#39;</span><span class="p">)</span>
-                    <span class="k">for</span> <span class="n">elem</span> <span class="ow">in</span> <span class="n">identifier</span><span class="p">:</span>
-                        <span class="n">LOGGER</span><span class="o">.</span><span class="n">debug</span><span class="p">(</span><span class="n">elem</span><span class="p">)</span>
-                    <span class="n">LOGGER</span><span class="o">.</span><span class="n">debug</span><span class="p">(</span><span class="s1">&#39;&#39;</span><span class="p">)</span>
+                    <span class="k">if</span> <span class="n">identifier</span><span class="p">:</span>
+                        <span class="n">LOGGER</span><span class="o">.</span><span class="n">debug</span><span class="p">(</span><span class="s1">&#39;&#39;</span><span class="p">)</span>
+                        <span class="n">LOGGER</span><span class="o">.</span><span class="n">debug</span><span class="p">(</span><span class="s1">&#39;# Identifier DICOM Dataset&#39;</span><span class="p">)</span>
+                        <span class="k">for</span> <span class="n">elem</span> <span class="ow">in</span> <span class="n">identifier</span><span class="p">:</span>
+                            <span class="n">LOGGER</span><span class="o">.</span><span class="n">debug</span><span class="p">(</span><span class="n">elem</span><span class="p">)</span>
+                        <span class="n">LOGGER</span><span class="o">.</span><span class="n">debug</span><span class="p">(</span><span class="s1">&#39;&#39;</span><span class="p">)</span>
                 <span class="k">except</span> <span class="ne">Exception</span> <span class="k">as</span> <span class="n">ex</span><span class="p">:</span>
                     <span class="n">LOGGER</span><span class="o">.</span><span class="n">error</span><span class="p">(</span>
                         <span class="s2">&quot;Failed to decode the received Identifier dataset&quot;</span>
@@ -2224,6 +2349,7 @@
             <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s1">&#39;Failed to encode the supplied Dataset&#39;</span><span class="p">)</span>
 
         <span class="c1"># Send N-ACTION request to the peer via DIMSE and wait for the response</span>
+        <span class="n">LOGGER</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="s1">&#39;Sending Action Request: MsgID </span><span class="si">{}</span><span class="s1">&#39;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">msg_id</span><span class="p">))</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">dimse</span><span class="o">.</span><span class="n">send_msg</span><span class="p">(</span><span class="n">req</span><span class="p">,</span> <span class="n">context</span><span class="o">.</span><span class="n">context_id</span><span class="p">)</span>
         <span class="n">cx_id</span><span class="p">,</span> <span class="n">rsp</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">dimse</span><span class="o">.</span><span class="n">get_msg</span><span class="p">(</span><span class="n">block</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
 
@@ -2364,6 +2490,7 @@
             <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s1">&#39;Failed to encode the supplied Dataset&#39;</span><span class="p">)</span>
 
         <span class="c1"># Send N-CREATE request to the peer via DIMSE and wait for the response</span>
+        <span class="n">LOGGER</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="s1">&#39;Sending Create Request: MsgID </span><span class="si">{}</span><span class="s1">&#39;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">msg_id</span><span class="p">))</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">dimse</span><span class="o">.</span><span class="n">send_msg</span><span class="p">(</span><span class="n">req</span><span class="p">,</span> <span class="n">context</span><span class="o">.</span><span class="n">context_id</span><span class="p">)</span>
         <span class="n">cx_id</span><span class="p">,</span> <span class="n">rsp</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">dimse</span><span class="o">.</span><span class="n">get_msg</span><span class="p">(</span><span class="n">block</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
 
@@ -2478,6 +2605,7 @@
         <span class="n">req</span><span class="o">.</span><span class="n">RequestedSOPInstanceUID</span> <span class="o">=</span> <span class="n">instance_uid</span>
 
         <span class="c1"># Send N-DELETE request to the peer via DIMSE and wait for the response</span>
+        <span class="n">LOGGER</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="s1">&#39;Sending Delete Request: MsgID </span><span class="si">{}</span><span class="s1">&#39;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">msg_id</span><span class="p">))</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">dimse</span><span class="o">.</span><span class="n">send_msg</span><span class="p">(</span><span class="n">req</span><span class="p">,</span> <span class="n">context</span><span class="o">.</span><span class="n">context_id</span><span class="p">)</span>
         <span class="n">cx_id</span><span class="p">,</span> <span class="n">rsp</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">dimse</span><span class="o">.</span><span class="n">get_msg</span><span class="p">(</span><span class="n">block</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
 
@@ -2606,6 +2734,7 @@
 
         <span class="c1"># Send N-EVENT-REPORT request to the peer via DIMSE and wait for</span>
         <span class="c1"># the response primitive</span>
+        <span class="n">LOGGER</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="s1">&#39;Sending Event Report Request: MsgID </span><span class="si">{}</span><span class="s1">&#39;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">msg_id</span><span class="p">))</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">dimse</span><span class="o">.</span><span class="n">send_msg</span><span class="p">(</span><span class="n">req</span><span class="p">,</span> <span class="n">context</span><span class="o">.</span><span class="n">context_id</span><span class="p">)</span>
         <span class="n">cx_id</span><span class="p">,</span> <span class="n">rsp</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">dimse</span><span class="o">.</span><span class="n">get_msg</span><span class="p">(</span><span class="n">block</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
 
@@ -2741,6 +2870,7 @@
         <span class="n">req</span><span class="o">.</span><span class="n">AttributeIdentifierList</span> <span class="o">=</span> <span class="n">identifier_list</span>
 
         <span class="c1"># Send N-GET request to the peer via DIMSE and wait for the response</span>
+        <span class="n">LOGGER</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="s1">&#39;Sending Get Request: MsgID </span><span class="si">{}</span><span class="s1">&#39;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">msg_id</span><span class="p">))</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">dimse</span><span class="o">.</span><span class="n">send_msg</span><span class="p">(</span><span class="n">req</span><span class="p">,</span> <span class="n">context</span><span class="o">.</span><span class="n">context_id</span><span class="p">)</span>
         <span class="n">cx_id</span><span class="p">,</span> <span class="n">rsp</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">dimse</span><span class="o">.</span><span class="n">get_msg</span><span class="p">(</span><span class="n">block</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
 
@@ -2886,6 +3016,7 @@
             <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s1">&#39;Failed to encode the supplied Dataset&#39;</span><span class="p">)</span>
 
         <span class="c1"># Send N-SET request to the peer via DIMSE and wait for the response</span>
+        <span class="n">LOGGER</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="s1">&#39;Sending Set Request: MsgID </span><span class="si">{}</span><span class="s1">&#39;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">msg_id</span><span class="p">))</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">dimse</span><span class="o">.</span><span class="n">send_msg</span><span class="p">(</span><span class="n">req</span><span class="p">,</span> <span class="n">context</span><span class="o">.</span><span class="n">context_id</span><span class="p">)</span>
         <span class="n">cx_id</span><span class="p">,</span> <span class="n">rsp</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">dimse</span><span class="o">.</span><span class="n">get_msg</span><span class="p">(</span><span class="n">block</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
 
@@ -2919,100 +3050,7 @@
                 <span class="c1"># Failure: Processing failure</span>
                 <span class="n">status</span><span class="o">.</span><span class="n">Status</span> <span class="o">=</span> <span class="mh">0x0110</span>
 
-        <span class="k">return</span> <span class="n">status</span><span class="p">,</span> <span class="n">attribute_list</span></div>
-
-    <span class="c1"># Association logging/debugging functions</span>
-<div class="viewcode-block" id="Association.debug_association_aborted"><a class="viewcode-back" href="../../reference/generated/pynetdicom.association.Association.html#pynetdicom.association.Association.debug_association_aborted">[docs]</a>    <span class="nd">@staticmethod</span>
-    <span class="k">def</span> <span class="nf">debug_association_aborted</span><span class="p">(</span><span class="n">primitive</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
-        <span class="sd">&quot;&quot;&quot;Debugging information when an A-ABORT request received.</span>
-
-<span class="sd">        Parameters</span>
-<span class="sd">        ----------</span>
-<span class="sd">        assoc_primitive : pynetdicom.pdu_primitives.A_ABORT</span>
-<span class="sd">            The A-ABORT (RQ) primitive received from the DICOM Upper Layer</span>
-<span class="sd">        &quot;&quot;&quot;</span>
-        <span class="n">LOGGER</span><span class="o">.</span><span class="n">error</span><span class="p">(</span><span class="s1">&#39;Association Aborted&#39;</span><span class="p">)</span></div>
-
-<div class="viewcode-block" id="Association.debug_association_accepted"><a class="viewcode-back" href="../../reference/generated/pynetdicom.association.Association.html#pynetdicom.association.Association.debug_association_accepted">[docs]</a>    <span class="nd">@staticmethod</span>
-    <span class="k">def</span> <span class="nf">debug_association_accepted</span><span class="p">(</span><span class="n">primitive</span><span class="p">):</span>
-        <span class="sd">&quot;&quot;&quot;Debugging information when an A-ASSOCIATE accept is received.</span>
-
-<span class="sd">        Parameters</span>
-<span class="sd">        ----------</span>
-<span class="sd">        primitive : pynetdicom.pdu_primitives.A_ASSOCIATE</span>
-<span class="sd">            The A-ASSOCIATE (AC) PDU received from the DICOM Upper Layer</span>
-<span class="sd">        &quot;&quot;&quot;</span>
-        <span class="k">pass</span></div>
-
-<div class="viewcode-block" id="Association.debug_association_rejected"><a class="viewcode-back" href="../../reference/generated/pynetdicom.association.Association.html#pynetdicom.association.Association.debug_association_rejected">[docs]</a>    <span class="nd">@staticmethod</span>
-    <span class="k">def</span> <span class="nf">debug_association_rejected</span><span class="p">(</span><span class="n">primitive</span><span class="p">):</span>
-        <span class="sd">&quot;&quot;&quot;Debugging information when an A-ASSOCIATE rejection received.</span>
-
-<span class="sd">        Parameters</span>
-<span class="sd">        ----------</span>
-<span class="sd">        assoc_primitive : pynetdicom.pdu_primitives.A_ASSOCIATE</span>
-<span class="sd">            The A-ASSOCIATE (RJ) primitive received from the DICOM Upper Layer</span>
-<span class="sd">        &quot;&quot;&quot;</span>
-        <span class="c1"># See PS3.8 Section 7.1.1.9 but mainly Section 9.3.4 and Table 9-21</span>
-        <span class="c1">#   for information on the result and diagnostic information</span>
-        <span class="n">source</span> <span class="o">=</span> <span class="n">primitive</span><span class="o">.</span><span class="n">result_source</span>
-        <span class="n">result</span> <span class="o">=</span> <span class="n">primitive</span><span class="o">.</span><span class="n">result</span>
-        <span class="n">reason</span> <span class="o">=</span> <span class="n">primitive</span><span class="o">.</span><span class="n">diagnostic</span>
-
-        <span class="n">source_str</span> <span class="o">=</span> <span class="p">{</span><span class="mi">1</span> <span class="p">:</span> <span class="s1">&#39;Service User&#39;</span><span class="p">,</span>
-                      <span class="mi">2</span> <span class="p">:</span> <span class="s1">&#39;Service Provider (ACSE)&#39;</span><span class="p">,</span>
-                      <span class="mi">3</span> <span class="p">:</span> <span class="s1">&#39;Service Provider (Presentation)&#39;</span><span class="p">}</span>
-
-        <span class="n">reason_str</span> <span class="o">=</span> <span class="p">[{</span><span class="mi">1</span> <span class="p">:</span> <span class="s1">&#39;No reason given&#39;</span><span class="p">,</span>
-                       <span class="mi">2</span> <span class="p">:</span> <span class="s1">&#39;Application context name not supported&#39;</span><span class="p">,</span>
-                       <span class="mi">3</span> <span class="p">:</span> <span class="s1">&#39;Calling AE title not recognised&#39;</span><span class="p">,</span>
-                       <span class="mi">4</span> <span class="p">:</span> <span class="s1">&#39;Reserved&#39;</span><span class="p">,</span>
-                       <span class="mi">5</span> <span class="p">:</span> <span class="s1">&#39;Reserved&#39;</span><span class="p">,</span>
-                       <span class="mi">6</span> <span class="p">:</span> <span class="s1">&#39;Reserved&#39;</span><span class="p">,</span>
-                       <span class="mi">7</span> <span class="p">:</span> <span class="s1">&#39;Called AE title not recognised&#39;</span><span class="p">,</span>
-                       <span class="mi">8</span> <span class="p">:</span> <span class="s1">&#39;Reserved&#39;</span><span class="p">,</span>
-                       <span class="mi">9</span> <span class="p">:</span> <span class="s1">&#39;Reserved&#39;</span><span class="p">,</span>
-                       <span class="mi">10</span> <span class="p">:</span> <span class="s1">&#39;Reserved&#39;</span><span class="p">},</span>
-                      <span class="p">{</span><span class="mi">1</span> <span class="p">:</span> <span class="s1">&#39;No reason given&#39;</span><span class="p">,</span>
-                       <span class="mi">2</span> <span class="p">:</span> <span class="s1">&#39;Protocol version not supported&#39;</span><span class="p">},</span>
-                      <span class="p">{</span><span class="mi">0</span> <span class="p">:</span> <span class="s1">&#39;Reserved&#39;</span><span class="p">,</span>
-                       <span class="mi">1</span> <span class="p">:</span> <span class="s1">&#39;Temporary congestion&#39;</span><span class="p">,</span>
-                       <span class="mi">2</span> <span class="p">:</span> <span class="s1">&#39;Local limit exceeded&#39;</span><span class="p">,</span>
-                       <span class="mi">3</span> <span class="p">:</span> <span class="s1">&#39;Reserved&#39;</span><span class="p">,</span>
-                       <span class="mi">4</span> <span class="p">:</span> <span class="s1">&#39;Reserved&#39;</span><span class="p">,</span>
-                       <span class="mi">5</span> <span class="p">:</span> <span class="s1">&#39;Reserved&#39;</span><span class="p">,</span>
-                       <span class="mi">6</span> <span class="p">:</span> <span class="s1">&#39;Reserved&#39;</span><span class="p">,</span>
-                       <span class="mi">7</span> <span class="p">:</span> <span class="s1">&#39;Reserved&#39;</span><span class="p">}]</span>
-
-        <span class="n">result_str</span> <span class="o">=</span> <span class="p">{</span><span class="mi">1</span> <span class="p">:</span> <span class="s1">&#39;Rejected Permanent&#39;</span><span class="p">,</span>
-                      <span class="mi">2</span> <span class="p">:</span> <span class="s1">&#39;Rejected Transient&#39;</span><span class="p">}</span>
-
-        <span class="n">LOGGER</span><span class="o">.</span><span class="n">error</span><span class="p">(</span><span class="s1">&#39;Association Rejected:&#39;</span><span class="p">)</span>
-        <span class="n">LOGGER</span><span class="o">.</span><span class="n">error</span><span class="p">(</span><span class="s1">&#39;Result: </span><span class="si">%s</span><span class="s1">, Source: </span><span class="si">%s</span><span class="s1">&#39;</span><span class="p">,</span> <span class="n">result_str</span><span class="p">[</span><span class="n">result</span><span class="p">],</span>
-                     <span class="n">source_str</span><span class="p">[</span><span class="n">source</span><span class="p">])</span>
-        <span class="n">LOGGER</span><span class="o">.</span><span class="n">error</span><span class="p">(</span><span class="s1">&#39;Reason: </span><span class="si">%s</span><span class="s1">&#39;</span><span class="p">,</span> <span class="n">reason_str</span><span class="p">[</span><span class="n">source</span> <span class="o">-</span> <span class="mi">1</span><span class="p">][</span><span class="n">reason</span><span class="p">])</span></div>
-
-<div class="viewcode-block" id="Association.debug_association_released"><a class="viewcode-back" href="../../reference/generated/pynetdicom.association.Association.html#pynetdicom.association.Association.debug_association_released">[docs]</a>    <span class="nd">@staticmethod</span>
-    <span class="k">def</span> <span class="nf">debug_association_released</span><span class="p">(</span><span class="n">primitive</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
-        <span class="sd">&quot;&quot;&quot;Debugging information when an A-RELEASE request received.</span>
-
-<span class="sd">        Parameters</span>
-<span class="sd">        ----------</span>
-<span class="sd">        assoc_primitive : pynetdicom.pdu_primitives.A_RELEASE</span>
-<span class="sd">            The A-RELEASE (RQ) primitive received from the DICOM Upper Layer</span>
-<span class="sd">        &quot;&quot;&quot;</span>
-        <span class="n">LOGGER</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="s1">&#39;Association Released&#39;</span><span class="p">)</span></div>
-
-<div class="viewcode-block" id="Association.debug_association_requested"><a class="viewcode-back" href="../../reference/generated/pynetdicom.association.Association.html#pynetdicom.association.Association.debug_association_requested">[docs]</a>    <span class="nd">@staticmethod</span>
-    <span class="k">def</span> <span class="nf">debug_association_requested</span><span class="p">(</span><span class="n">primitive</span><span class="p">):</span>
-        <span class="sd">&quot;&quot;&quot;Debugging information when an A-ASSOCIATE request received.</span>
-
-<span class="sd">        Parameters</span>
-<span class="sd">        ----------</span>
-<span class="sd">        primitive : pynetdicom.pdu_primitives.A_ASSOCIATE</span>
-<span class="sd">            The A-ASSOCIATE (RQ) PDU received from the DICOM Upper Layer</span>
-<span class="sd">        &quot;&quot;&quot;</span>
-        <span class="k">pass</span></div></div>
+        <span class="k">return</span> <span class="n">status</span><span class="p">,</span> <span class="n">attribute_list</span></div></div>
 
 
 <div class="viewcode-block" id="ServiceUser"><a class="viewcode-back" href="../../reference/generated/pynetdicom.association.ServiceUser.html#pynetdicom.association.ServiceUser">[docs]</a><span class="k">class</span> <span class="nc">ServiceUser</span><span class="p">(</span><span class="nb">object</span><span class="p">):</span>

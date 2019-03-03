@@ -14,20 +14,6 @@ pynetdicom.acse.ACSE
    .. autosummary::
    
       ~ACSE.__init__
-      ~ACSE.debug_receive_abort
-      ~ACSE.debug_receive_associate_ac
-      ~ACSE.debug_receive_associate_rj
-      ~ACSE.debug_receive_associate_rq
-      ~ACSE.debug_receive_data_tf
-      ~ACSE.debug_receive_release_rp
-      ~ACSE.debug_receive_release_rq
-      ~ACSE.debug_send_abort
-      ~ACSE.debug_send_associate_ac
-      ~ACSE.debug_send_associate_rj
-      ~ACSE.debug_send_associate_rq
-      ~ACSE.debug_send_data_tf
-      ~ACSE.debug_send_release_rp
-      ~ACSE.debug_send_release_rq
       ~ACSE.is_aborted
       ~ACSE.is_release_requested
       ~ACSE.negotiate_association
@@ -42,5 +28,11 @@ pynetdicom.acse.ACSE
    
 
    
+   
+   .. rubric:: Attributes
+
+   .. autosummary::
+   
+      ~ACSE.assoc
    
    

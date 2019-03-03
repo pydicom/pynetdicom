@@ -15,12 +15,10 @@ pynetdicom.association.Association
    
       ~Association.__init__
       ~Association.abort
-      ~Association.debug_association_aborted
-      ~Association.debug_association_accepted
-      ~Association.debug_association_rejected
-      ~Association.debug_association_released
-      ~Association.debug_association_requested
+      ~Association.bind
       ~Association.getName
+      ~Association.get_events
+      ~Association.get_handlers
       ~Association.isAlive
       ~Association.isDaemon
       ~Association.is_alive
@@ -45,6 +43,7 @@ pynetdicom.association.Association
       ~Association.setName
       ~Association.set_socket
       ~Association.start
+      ~Association.unbind
    
    
 

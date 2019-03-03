@@ -181,8 +181,9 @@ allows an Application Entity to verify application level communication between
 itself and another AE by using the DIMSE C-ECHO service. It only has a single
 <a class="reference internal" href="../verification_service_class.html#verification-sops"><span class="std std-ref">supported SOP Class</span></a>.</p>
 <p>The Verification Service is mostly used to verify basic connectivity and as a
-starting point when troubleshooting associations, particularly with the log
-level set to debug:</p>
+starting point when troubleshooting associations, particularly when handlers
+are bound to the more fundamental <a class="reference internal" href="../user/events.html#events-notification"><span class="std std-ref">notification events</span></a>
+like  <code class="docutils literal notranslate"><span class="pre">evt.EVT_PDU_RECV</span></code> or <code class="docutils literal notranslate"><span class="pre">evt.EVT_DATA_RECV</span></code> or with the log level set to debug:</p>
 <div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="kn">import</span> <span class="nn">logging</span>
 
 <span class="n">LOGGER</span> <span class="o">=</span> <span class="n">logging</span><span class="o">.</span><span class="n">getLogger</span><span class="p">(</span><span class="s1">&#39;pynetdicom&#39;</span><span class="p">)</span>
@@ -233,66 +234,40 @@ the requested contexts.</p>
 </div>
 </div>
 <div class="section" id="verification-scp">
-<h2>Verification SCP<a class="headerlink" href="#verification-scp" title="Permalink to this headline">¶</a></h2>
+<span id="example-verification-scp"></span><h2>Verification SCP<a class="headerlink" href="#verification-scp" title="Permalink to this headline">¶</a></h2>
 <p>Create an <a class="reference internal" href="../reference/ae.html#ae"><span class="std std-ref">AE</span></a> that supports the Verification Service and then listen for
 association requests on port 11112. When a verification request is received
-over the association we rely on the default implementation of <code class="docutils literal notranslate"><span class="pre">AE.on_c_echo</span></code>
+over the association we rely on the default handler bound to <code class="docutils literal notranslate"><span class="pre">evt.EVT_C_ECHO</span></code>
 to return an 0x0000 <em>Success</em> <a class="reference internal" href="../verification_service_class.html#verification-statuses"><span class="std std-ref">status</span></a>.</p>
-<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span> <span class="nn">pynetdicom</span> <span class="kn">import</span> <span class="n">AE</span>
-<span class="kn">from</span> <span class="nn">pynetdicom.sop_class</span> <span class="kn">import</span> <span class="n">VerificationSOPClass</span>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span> <span class="kn">from</span> <span class="nn">pynetdicom</span> <span class="kn">import</span> <span class="n">AE</span>
+ <span class="kn">from</span> <span class="nn">pynetdicom.sop_class</span> <span class="kn">import</span> <span class="n">VerificationSOPClass</span>
 
-<span class="c1"># Initialise the Application Entity and specify the listen port</span>
-<span class="n">ae</span> <span class="o">=</span> <span class="n">AE</span><span class="p">()</span>
+ <span class="c1"># Initialise the Application Entity</span>
+ <span class="n">ae</span> <span class="o">=</span> <span class="n">AE</span><span class="p">()</span>
 
-<span class="c1"># Add the supported presentation context</span>
-<span class="n">ae</span><span class="o">.</span><span class="n">add_supported_context</span><span class="p">(</span><span class="n">VerificationSOPClass</span><span class="p">)</span>
+ <span class="c1"># Add the supported presentation context</span>
+ <span class="n">ae</span><span class="o">.</span><span class="n">add_supported_context</span><span class="p">(</span><span class="n">VerificationSOPClass</span><span class="p">)</span>
 
 <span class="c1"># Start listening for incoming association requests in blocking mode</span>
 <span class="n">ae</span><span class="o">.</span><span class="n">start_server</span><span class="p">((</span><span class="s1">&#39;&#39;</span><span class="p">,</span> <span class="mi">11112</span><span class="p">),</span> <span class="n">block</span><span class="o">=</span><span class="bp">True</span><span class="p">)</span>
 </pre></div>
 </div>
-<p>You can also optionally implement the <code class="docutils literal notranslate"><span class="pre">on_c_echo</span></code> callback.</p>
-<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">import</span> <span class="nn">time</span>
-
-<span class="kn">from</span> <span class="nn">pynetdicom</span> <span class="kn">import</span> <span class="n">AE</span>
+<p>You can also optionally bind your own handler to <code class="docutils literal notranslate"><span class="pre">evt.EVT_C_ECHO</span></code>. Check the
+<a class="reference external" href="../reference/generated/pynetdicom._handlers.doc_handle_echo.html">handler implementation documentation</a>
+to see the requirements for the <code class="docutils literal notranslate"><span class="pre">evt.EVT_C_ECHO</span></code> handler.</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span> <span class="nn">pynetdicom</span> <span class="kn">import</span> <span class="n">AE</span><span class="p">,</span> <span class="n">evt</span>
 <span class="kn">from</span> <span class="nn">pynetdicom.sop_class</span> <span class="kn">import</span> <span class="n">VerificationSOPClass</span>
 
-<span class="c1"># Initialise the Application Entity and specify the listen port</span>
-<span class="n">ae</span> <span class="o">=</span> <span class="n">AE</span><span class="p">()</span>
-
-<span class="c1"># Add the supported presentation context</span>
-<span class="n">ae</span><span class="o">.</span><span class="n">add_supported_context</span><span class="p">(</span><span class="n">VerificationSOPClass</span><span class="p">)</span>
-
-<span class="k">def</span> <span class="nf">on_c_echo</span><span class="p">(</span><span class="n">context</span><span class="p">,</span> <span class="n">info</span><span class="p">):</span>
-    <span class="sd">&quot;&quot;&quot;Respond to a C-ECHO service request.</span>
-
-<span class="sd">    Parameters</span>
-<span class="sd">    ----------</span>
-<span class="sd">    context : namedtuple</span>
-<span class="sd">        The presentation context that the verification request was sent under.</span>
-<span class="sd">    info : dict</span>
-<span class="sd">        Information about the association and verification request.</span>
-
-<span class="sd">    Returns</span>
-<span class="sd">    -------</span>
-<span class="sd">    status : int or pydicom.dataset.Dataset</span>
-<span class="sd">        The status returned to the peer AE in the C-ECHO response. Must be</span>
-<span class="sd">        a valid C-ECHO status value for the applicable Service Class as</span>
-<span class="sd">        either an ``int`` or a ``Dataset`` object containing (at a</span>
-<span class="sd">        minimum) a (0000,0900) *Status* element.</span>
-<span class="sd">    &quot;&quot;&quot;</span>
+<span class="c1"># Implement a handler for evt.EVT_C_ECHO</span>
+<span class="k">def</span> <span class="nf">handle_echo</span><span class="p">(</span><span class="n">event</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;Handle a C-ECHO request event.&quot;&quot;&quot;</span>
     <span class="k">return</span> <span class="mh">0x0000</span>
 
-<span class="n">ae</span><span class="o">.</span><span class="n">on_c_echo</span> <span class="o">=</span> <span class="n">on_c_echo</span>
+<span class="n">handlers</span> <span class="o">=</span> <span class="p">[(</span><span class="n">evt</span><span class="o">.</span><span class="n">EVT_C_ECHO</span><span class="p">,</span> <span class="n">handle_echo</span><span class="p">)]</span>
 
-<span class="c1"># Start listening for incoming association requests in non-blocking mode</span>
-<span class="n">scp</span> <span class="o">=</span> <span class="n">ae</span><span class="o">.</span><span class="n">start_server</span><span class="p">((</span><span class="s1">&#39;&#39;</span><span class="p">,</span> <span class="mi">11112</span><span class="p">),</span> <span class="n">block</span><span class="o">=</span><span class="bp">False</span><span class="p">)</span>
-
-<span class="c1"># Zzzzz</span>
-<span class="n">time</span><span class="o">.</span><span class="n">sleep</span><span class="p">(</span><span class="mi">60</span><span class="p">)</span>
-
-<span class="c1"># Shutdown the listen server</span>
-<span class="n">scp</span><span class="o">.</span><span class="n">shutdown</span><span class="p">()</span>
+<span class="n">ae</span> <span class="o">=</span> <span class="n">AE</span><span class="p">()</span>
+<span class="n">ae</span><span class="o">.</span><span class="n">add_supported_context</span><span class="p">(</span><span class="n">VerificationSOPClass</span><span class="p">)</span>
+<span class="n">ae</span><span class="o">.</span><span class="n">start_server</span><span class="p">((</span><span class="s1">&#39;&#39;</span><span class="p">,</span> <span class="mi">11112</span><span class="p">),</span> <span class="n">evt_handlers</span><span class="o">=</span><span class="n">handlers</span><span class="p">)</span>
 </pre></div>
 </div>
 </div>

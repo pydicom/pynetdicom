@@ -38,7 +38,7 @@
   <link rel="stylesheet" href="../_static/css/pynetdicom.css" type="text/css" />
     <link rel="index" title="Index" href="../genindex.html" />
     <link rel="search" title="Search" href="../search.html" />
-    <link rel="next" title="Application Entity" href="ae.html" />
+    <link rel="next" title="Events" href="events.html" />
     <link rel="prev" title="Important Concepts" href="concepts.html" /> 
 </head>
 
@@ -122,6 +122,7 @@
 <li class="toctree-l3"><a class="reference internal" href="#scp-scu-role-selection">SCP/SCU Role Selection</a></li>
 </ul>
 </li>
+<li class="toctree-l2"><a class="reference internal" href="events.html">Events</a></li>
 <li class="toctree-l2"><a class="reference internal" href="ae.html">Application Entity</a></li>
 <li class="toctree-l2"><a class="reference internal" href="association.html">Association</a></li>
 </ul>
@@ -247,7 +248,7 @@ class.</p>
 <span class="go">    =JPEG Baseline (Process 1)</span>
 </pre></div>
 </div>
-<p>However its more convenient to use the
+<p>However its easier to use the
 <a class="reference internal" href="../reference/generated/pynetdicom.presentation.build_context.html#pynetdicom.presentation.build_context" title="pynetdicom.presentation.build_context"><code class="xref py py-meth docutils literal notranslate"><span class="pre">build_context</span></code></a>
 convenience function which returns a <code class="docutils literal notranslate"><span class="pre">PresentationContext</span></code> instance:</p>
 <div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="kn">from</span> <span class="nn">pynetdicom</span> <span class="k">import</span> <span class="n">build_context</span>
@@ -355,7 +356,7 @@ transfer syntaxes:</p>
 <p>Provided both contexts get accepted then its becomes possible to transfer CT
 Image datasets encoded in <em>JPEG Baseline</em> and/or <em>Implicit VR Little Endian</em>.
 Alternatively it may be necessary to decompress datasets prior to sending (as
-Implicit VR Little Endian should always be accepted).</p>
+<em>Implicit VR Little Endian</em> should always be accepted).</p>
 </div>
 <div class="section" id="presentation-contexts-and-the-association-acceptor">
 <h2>Presentation Contexts and the Association Acceptor<a class="headerlink" href="#presentation-contexts-and-the-association-acceptor" title="Permalink to this headline">¶</a></h2>
@@ -494,10 +495,9 @@ services such as the Query/Retrieve Service’s C-GET requests, where the
 association <em>Acceptor</em> sends data back to the <em>Requestor</em>.</p>
 <p>To propose SCP/SCU Role Selection as a <em>Requestor</em> you should include
 <a class="reference internal" href="../reference/generated/pynetdicom.pdu_primitives.SCP_SCU_RoleSelectionNegotiation.html#pynetdicom.pdu_primitives.SCP_SCU_RoleSelectionNegotiation" title="pynetdicom.pdu_primitives.SCP_SCU_RoleSelectionNegotiation"><code class="xref py py-class docutils literal notranslate"><span class="pre">SCP_SCU_RoleSelectionNegotiation</span></code></a>
-items in the extended negotiation, either through creating
-SCP_SCU_RoleSelectionNegotiation items from scratch or using the
-<a class="reference internal" href="../reference/generated/pynetdicom.presentation.build_role.html#pynetdicom.presentation.build_role" title="pynetdicom.presentation.build_role"><code class="xref py py-meth docutils literal notranslate"><span class="pre">build_role()</span></code></a> convenience
-function:</p>
+items in the extended negotiation, either by creating them from scratch or
+using the <a class="reference internal" href="../reference/generated/pynetdicom.presentation.build_role.html#pynetdicom.presentation.build_role" title="pynetdicom.presentation.build_role"><code class="xref py py-meth docutils literal notranslate"><span class="pre">build_role()</span></code></a>
+convenience function:</p>
 <blockquote>
 <div><div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span> <span class="nn">pynetdicom</span> <span class="k">import</span> <span class="n">AE</span><span class="p">,</span> <span class="n">build_role</span>
 <span class="kn">from</span> <span class="nn">pynetdicom.pdu_primitives</span> <span class="k">import</span> <span class="n">SCP_SCU_RoleSelectionNegotiation</span>
@@ -653,7 +653,7 @@ so different implementations may not give the same outcomes.</p>
   
     <div class="rst-footer-buttons" role="navigation" aria-label="footer navigation">
       
-        <a href="ae.html" class="btn btn-neutral float-right" title="Application Entity" accesskey="n" rel="next">Next <span class="fa fa-arrow-circle-right"></span></a>
+        <a href="events.html" class="btn btn-neutral float-right" title="Events" accesskey="n" rel="next">Next <span class="fa fa-arrow-circle-right"></span></a>
       
       
         <a href="concepts.html" class="btn btn-neutral float-left" title="Important Concepts" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left"></span> Previous</a>

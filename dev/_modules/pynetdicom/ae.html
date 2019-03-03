@@ -617,7 +617,7 @@
 
 <div class="viewcode-block" id="ApplicationEntity.associate"><a class="viewcode-back" href="../../reference/generated/pynetdicom.ae.ApplicationEntity.html#pynetdicom.ae.ApplicationEntity.associate">[docs]</a>    <span class="k">def</span> <span class="nf">associate</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">addr</span><span class="p">,</span> <span class="n">port</span><span class="p">,</span> <span class="n">contexts</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">ae_title</span><span class="o">=</span><span class="sa">b</span><span class="s1">&#39;ANY-SCP&#39;</span><span class="p">,</span>
                   <span class="n">max_pdu</span><span class="o">=</span><span class="n">DEFAULT_MAX_LENGTH</span><span class="p">,</span> <span class="n">ext_neg</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
-                  <span class="n">bind_address</span><span class="o">=</span><span class="p">(</span><span class="s1">&#39;&#39;</span><span class="p">,</span> <span class="mi">0</span><span class="p">),</span> <span class="n">tls_args</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
+                  <span class="n">bind_address</span><span class="o">=</span><span class="p">(</span><span class="s1">&#39;&#39;</span><span class="p">,</span> <span class="mi">0</span><span class="p">),</span> <span class="n">tls_args</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">evt_handlers</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;Request an Association with a remote AE.</span>
 
 <span class="sd">        The Association thread is returned whether or not the association is</span>
@@ -653,6 +653,13 @@
 <span class="sd">            `server_hostname` is the value to use for the corresponding</span>
 <span class="sd">            keyword parameter in ``SSLContext.wrap_sockets()``. If no</span>
 <span class="sd">            `tls_args` is supplied then TLS will not be used (default).</span>
+<span class="sd">        evt_handlers : list of 2-tuple, optional</span>
+<span class="sd">            A list of (event, handler), where `event` is an ``evt.EVT_*`` event</span>
+<span class="sd">            tuple and `handler` is a callable function that will be bound to</span>
+<span class="sd">            the event. The handler should take a single ``event.Event``</span>
+<span class="sd">            parameter and may return or yield objects depending on the exact</span>
+<span class="sd">            event that the handler is bound to. For more information see the</span>
+<span class="sd">            :ref:`documentation&lt;user_events&gt;`.</span>
 
 <span class="sd">        Returns</span>
 <span class="sd">        -------</span>
@@ -727,6 +734,11 @@
 
         <span class="n">assoc</span><span class="o">.</span><span class="n">requestor</span><span class="o">.</span><span class="n">requested_contexts</span> <span class="o">=</span> <span class="n">contexts</span>
 
+        <span class="c1"># Bind events to the handlers</span>
+        <span class="n">evt_handlers</span> <span class="o">=</span> <span class="n">evt_handlers</span> <span class="ow">or</span> <span class="p">{}</span>
+        <span class="k">for</span> <span class="p">(</span><span class="n">event</span><span class="p">,</span> <span class="n">handler</span><span class="p">)</span> <span class="ow">in</span> <span class="n">evt_handlers</span><span class="p">:</span>
+            <span class="n">assoc</span><span class="o">.</span><span class="n">bind</span><span class="p">(</span><span class="n">event</span><span class="p">,</span> <span class="n">handler</span><span class="p">)</span>
+
         <span class="c1"># Send an A-ASSOCIATE request to the peer and start negotiation</span>
         <span class="n">assoc</span><span class="o">.</span><span class="n">request</span><span class="p">()</span>
 
@@ -756,7 +768,6 @@
 
         <span class="k">for</span> <span class="n">assoc</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">active_associations</span><span class="p">:</span>
             <span class="n">assoc</span><span class="o">.</span><span class="n">dimse_timeout</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">dimse_timeout</span>
-            <span class="n">assoc</span><span class="o">.</span><span class="n">dimse</span><span class="o">.</span><span class="n">dimse_timeout</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">dimse_timeout</span>
 
     <span class="nd">@property</span>
     <span class="k">def</span> <span class="nf">implementation_class_uid</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
@@ -1219,7 +1230,8 @@
             <span class="n">validate_ae_title</span><span class="p">(</span><span class="n">aet</span><span class="p">)</span> <span class="k">for</span> <span class="n">aet</span> <span class="ow">in</span> <span class="n">ae_titles</span>
         <span class="p">]</span>
 
-<div class="viewcode-block" id="ApplicationEntity.start_server"><a class="viewcode-back" href="../../reference/generated/pynetdicom.ae.ApplicationEntity.html#pynetdicom.ae.ApplicationEntity.start_server">[docs]</a>    <span class="k">def</span> <span class="nf">start_server</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">address</span><span class="p">,</span> <span class="n">block</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span> <span class="n">ssl_context</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
+<div class="viewcode-block" id="ApplicationEntity.start_server"><a class="viewcode-back" href="../../reference/generated/pynetdicom.ae.ApplicationEntity.html#pynetdicom.ae.ApplicationEntity.start_server">[docs]</a>    <span class="k">def</span> <span class="nf">start_server</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">address</span><span class="p">,</span> <span class="n">block</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span> <span class="n">ssl_context</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
+                     <span class="n">evt_handlers</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;Start the AE as an association acceptor.</span>
 
 <span class="sd">        If set to non-blocking then a running ``ThreadedAssociationServer``</span>
@@ -1237,6 +1249,13 @@
 <span class="sd">            If TLS is required then this should the SSLContext instance to</span>
 <span class="sd">            use to wrap the client sockets, otherwise if None then no TLS will</span>
 <span class="sd">            be used (default).</span>
+<span class="sd">        evt_handlers : list of 2-tuple, optional</span>
+<span class="sd">            A list of (event, handler), where `event` is an ``evt.EVT_*`` event</span>
+<span class="sd">            tuple and `handler` is a callable function that will be bound to</span>
+<span class="sd">            the event. The handler should take a single ``event.Event``</span>
+<span class="sd">            parameter and may return or yield objects depending on the exact</span>
+<span class="sd">            event that the handler is bound to. For more information see the</span>
+<span class="sd">            :ref:`documentation&lt;user_events&gt;`.</span>
 
 <span class="sd">        Returns</span>
 <span class="sd">        -------</span>
@@ -1265,9 +1284,15 @@
             <span class="n">msg</span> <span class="o">+=</span> <span class="s1">&#39;</span><span class="se">\n</span><span class="s1">  &#39;</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">bad_contexts</span><span class="p">)</span>
             <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="n">msg</span><span class="p">)</span>
 
+        <span class="n">evt_handlers</span> <span class="o">=</span> <span class="n">evt_handlers</span> <span class="ow">or</span> <span class="p">{}</span>
+
         <span class="k">if</span> <span class="n">block</span><span class="p">:</span>
-            <span class="n">server</span> <span class="o">=</span> <span class="n">AssociationServer</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">address</span><span class="p">,</span> <span class="n">ssl_context</span><span class="p">)</span>
+            <span class="c1"># Blocking server</span>
+            <span class="n">server</span> <span class="o">=</span> <span class="n">AssociationServer</span><span class="p">(</span>
+                <span class="bp">self</span><span class="p">,</span> <span class="n">address</span><span class="p">,</span> <span class="n">ssl_context</span><span class="p">,</span> <span class="n">evt_handlers</span><span class="o">=</span><span class="n">evt_handlers</span>
+            <span class="p">)</span>
             <span class="bp">self</span><span class="o">.</span><span class="n">_servers</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">server</span><span class="p">)</span>
+
             <span class="k">try</span><span class="p">:</span>
                 <span class="c1"># **BLOCKING**</span>
                 <span class="n">server</span><span class="o">.</span><span class="n">serve_forever</span><span class="p">()</span>
@@ -1276,7 +1301,10 @@
         <span class="k">else</span><span class="p">:</span>
             <span class="c1"># Non-blocking server</span>
             <span class="n">timestamp</span> <span class="o">=</span> <span class="n">datetime</span><span class="o">.</span><span class="n">strftime</span><span class="p">(</span><span class="n">datetime</span><span class="o">.</span><span class="n">now</span><span class="p">(),</span> <span class="s2">&quot;%Y%m</span><span class="si">%d</span><span class="s2">%H%M%S&quot;</span><span class="p">)</span>
-            <span class="n">server</span> <span class="o">=</span> <span class="n">ThreadedAssociationServer</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">address</span><span class="p">,</span> <span class="n">ssl_context</span><span class="p">)</span>
+            <span class="n">server</span> <span class="o">=</span> <span class="n">ThreadedAssociationServer</span><span class="p">(</span>
+                <span class="bp">self</span><span class="p">,</span> <span class="n">address</span><span class="p">,</span> <span class="n">ssl_context</span><span class="p">,</span> <span class="n">evt_handlers</span><span class="o">=</span><span class="n">evt_handlers</span>
+            <span class="p">)</span>
+
             <span class="n">thread</span> <span class="o">=</span> <span class="n">threading</span><span class="o">.</span><span class="n">Thread</span><span class="p">(</span>
                 <span class="n">target</span><span class="o">=</span><span class="n">server</span><span class="o">.</span><span class="n">serve_forever</span><span class="p">,</span>
                 <span class="n">name</span><span class="o">=</span><span class="s2">&quot;AcceptorServer@</span><span class="si">{}</span><span class="s2">&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">timestamp</span><span class="p">)</span>
@@ -2385,32 +2413,16 @@
         <span class="p">)</span></div>
 
 
-    <span class="c1"># Communication related callbacks</span>
-<div class="viewcode-block" id="ApplicationEntity.on_receive_connection"><a class="viewcode-back" href="../../reference/generated/pynetdicom.ae.ApplicationEntity.html#pynetdicom.ae.ApplicationEntity.on_receive_connection">[docs]</a>    <span class="k">def</span> <span class="nf">on_receive_connection</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
-        <span class="sd">&quot;&quot;&quot;Callback for a connection is received.</span>
-<span class="sd">        ** NOT IMPLEMENTED **</span>
-<span class="sd">        &quot;&quot;&quot;</span>
-        <span class="k">raise</span> <span class="ne">NotImplementedError</span><span class="p">()</span></div>
-
-<div class="viewcode-block" id="ApplicationEntity.on_make_connection"><a class="viewcode-back" href="../../reference/generated/pynetdicom.ae.ApplicationEntity.html#pynetdicom.ae.ApplicationEntity.on_make_connection">[docs]</a>    <span class="k">def</span> <span class="nf">on_make_connection</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
-        <span class="sd">&quot;&quot;&quot;Callback for a connection is made.</span>
-<span class="sd">        ** NOT IMPLEMENTED **</span>
-<span class="sd">        &quot;&quot;&quot;</span>
-        <span class="k">raise</span> <span class="ne">NotImplementedError</span><span class="p">()</span></div>
-
-
     <span class="c1"># High-level Association related callbacks</span>
-<div class="viewcode-block" id="ApplicationEntity.on_association_requested"><a class="viewcode-back" href="../../reference/generated/pynetdicom.ae.ApplicationEntity.html#pynetdicom.ae.ApplicationEntity.on_association_requested">[docs]</a>    <span class="k">def</span> <span class="nf">on_association_requested</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">primitive</span><span class="p">):</span>
-        <span class="sd">&quot;&quot;&quot;Callback for an association is requested.</span>
-<span class="sd">        ** NOT IMPLEMENTED **</span>
-<span class="sd">        &quot;&quot;&quot;</span>
-        <span class="k">pass</span></div>
-
 <div class="viewcode-block" id="ApplicationEntity.on_association_accepted"><a class="viewcode-back" href="../../reference/generated/pynetdicom.ae.ApplicationEntity.html#pynetdicom.ae.ApplicationEntity.on_association_accepted">[docs]</a>    <span class="k">def</span> <span class="nf">on_association_accepted</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">primitive</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;Callback for when an association is accepted.</span>
-<span class="sd">        ** NOT IMPLEMENTED **</span>
+
+<span class="sd">        Deprecated and will be removed in v1.4. Bind a handler to</span>
+<span class="sd">        ``evt.EVT_ACCEPTED`` instead.</span>
+
 <span class="sd">        Placeholder for a function callback. Function will be called</span>
 <span class="sd">        when an association attempt is accepted by either the local or peer AE</span>
+
 <span class="sd">        Parameters</span>
 <span class="sd">        ----------</span>
 <span class="sd">        pdu_primitives.A_ASSOCIATE</span>
@@ -2420,9 +2432,13 @@
 
 <div class="viewcode-block" id="ApplicationEntity.on_association_rejected"><a class="viewcode-back" href="../../reference/generated/pynetdicom.ae.ApplicationEntity.html#pynetdicom.ae.ApplicationEntity.on_association_rejected">[docs]</a>    <span class="k">def</span> <span class="nf">on_association_rejected</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">primitive</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;Callback for when an association is rejected.</span>
-<span class="sd">        ** NOT IMPLEMENTED **</span>
+
+<span class="sd">        Deprecated and will be removed in v1.4. Bind a handler to</span>
+<span class="sd">        ``evt.EVT_REJECTED`` instead.</span>
+
 <span class="sd">        Placeholder for a function callback. Function will be called</span>
 <span class="sd">        when an association attempt is rejected by a peer AE</span>
+
 <span class="sd">        Parameters</span>
 <span class="sd">        ----------</span>
 <span class="sd">        associate_rq_pdu : pynetdicom.pdu.A_ASSOCIATE_RJ</span>
@@ -2432,15 +2448,18 @@
 
 <div class="viewcode-block" id="ApplicationEntity.on_association_released"><a class="viewcode-back" href="../../reference/generated/pynetdicom.ae.ApplicationEntity.html#pynetdicom.ae.ApplicationEntity.on_association_released">[docs]</a>    <span class="k">def</span> <span class="nf">on_association_released</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">primitive</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;Callback for when an association is released.</span>
-<span class="sd">        ** NOT IMPLEMENTED **</span>
+
+<span class="sd">        Deprecated and will be removed in v1.4. Bind a handler to</span>
+<span class="sd">        ``evt.EVT_RELEASED`` instead.</span>
 <span class="sd">        &quot;&quot;&quot;</span>
         <span class="k">pass</span></div>
 
 <div class="viewcode-block" id="ApplicationEntity.on_association_aborted"><a class="viewcode-back" href="../../reference/generated/pynetdicom.ae.ApplicationEntity.html#pynetdicom.ae.ApplicationEntity.on_association_aborted">[docs]</a>    <span class="k">def</span> <span class="nf">on_association_aborted</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">primitive</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;Callback for when an association is aborted.</span>
-<span class="sd">        ** NOT IMPLEMENTED **</span>
+
+<span class="sd">        Deprecated and will be removed in v1.4. Bind a handler to</span>
+<span class="sd">        ``evt.EVT_ABORTED`` instead.</span>
 <span class="sd">        &quot;&quot;&quot;</span>
-        <span class="c1"># FIXME: Need to standardise callback parameters for A-ABORT</span>
         <span class="k">pass</span></div></div>
 </pre></div>
 

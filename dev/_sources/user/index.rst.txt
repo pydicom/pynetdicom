@@ -10,5 +10,6 @@ User Guide
    installation
    concepts
    presentation
+   events
    ae
    association

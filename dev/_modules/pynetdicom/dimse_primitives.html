@@ -1289,7 +1289,7 @@
 
 
 <span class="c1"># DIMSE-N Service Primitives</span>
-<span class="k">class</span> <span class="nc">N_EVENT_REPORT</span><span class="p">(</span><span class="n">DIMSEPrimitive</span><span class="p">):</span>
+<div class="viewcode-block" id="N_EVENT_REPORT"><a class="viewcode-back" href="../../reference/generated/pynetdicom.dimse_primitives.N_EVENT_REPORT.html#pynetdicom.dimse_primitives.N_EVENT_REPORT">[docs]</a><span class="k">class</span> <span class="nc">N_EVENT_REPORT</span><span class="p">(</span><span class="n">DIMSEPrimitive</span><span class="p">):</span>
     <span class="sd">&quot;&quot;&quot;Represents a N-EVENT-REPORT primitive.</span>
 
 <span class="sd">    +------------------------------------------+---------+----------+</span>
@@ -1361,7 +1361,7 @@
         <span class="s1">&#39;AffectedSOPInstanceUID&#39;</span>
     <span class="p">)</span>
 
-    <span class="k">def</span> <span class="nf">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+<div class="viewcode-block" id="N_EVENT_REPORT.__init__"><a class="viewcode-back" href="../../reference/generated/pynetdicom.dimse_primitives.N_EVENT_REPORT.html#pynetdicom.dimse_primitives.N_EVENT_REPORT.__init__">[docs]</a>    <span class="k">def</span> <span class="nf">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">MessageID</span> <span class="o">=</span> <span class="kc">None</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">MessageIDBeingRespondedTo</span> <span class="o">=</span> <span class="kc">None</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">AffectedSOPClassUID</span> <span class="o">=</span> <span class="kc">None</span>
@@ -1373,7 +1373,7 @@
 
         <span class="c1"># Optional status elements</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">ErrorComment</span> <span class="o">=</span> <span class="kc">None</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">ErrorID</span> <span class="o">=</span> <span class="kc">None</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">ErrorID</span> <span class="o">=</span> <span class="kc">None</span></div>
 
     <span class="nd">@property</span>
     <span class="k">def</span> <span class="nf">AffectedSOPInstanceUID</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
@@ -1438,10 +1438,10 @@
         <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">value</span><span class="p">,</span> <span class="nb">int</span><span class="p">)</span> <span class="ow">or</span> <span class="n">value</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
             <span class="bp">self</span><span class="o">.</span><span class="n">_event_type_id</span> <span class="o">=</span> <span class="n">value</span>
         <span class="k">else</span><span class="p">:</span>
-            <span class="k">raise</span> <span class="ne">TypeError</span><span class="p">(</span><span class="s2">&quot;&#39;N_EVENT_REPORT.EventTypeID&#39; must be an int.&quot;</span><span class="p">)</span>
+            <span class="k">raise</span> <span class="ne">TypeError</span><span class="p">(</span><span class="s2">&quot;&#39;N_EVENT_REPORT.EventTypeID&#39; must be an int.&quot;</span><span class="p">)</span></div>
 
 
-<span class="k">class</span> <span class="nc">N_GET</span><span class="p">(</span><span class="n">DIMSEPrimitive</span><span class="p">):</span>
+<div class="viewcode-block" id="N_GET"><a class="viewcode-back" href="../../reference/generated/pynetdicom.dimse_primitives.N_GET.html#pynetdicom.dimse_primitives.N_GET">[docs]</a><span class="k">class</span> <span class="nc">N_GET</span><span class="p">(</span><span class="n">DIMSEPrimitive</span><span class="p">):</span>
     <span class="sd">&quot;&quot;&quot;Represents an N-GET primitive.</span>
 
 <span class="sd">    +------------------------------------------+---------+----------+</span>
@@ -1508,7 +1508,7 @@
         <span class="s1">&#39;MessageID&#39;</span><span class="p">,</span> <span class="s1">&#39;RequestedSOPClassUID&#39;</span><span class="p">,</span> <span class="s1">&#39;RequestedSOPInstanceUID&#39;</span>
     <span class="p">)</span>
 
-    <span class="k">def</span> <span class="nf">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+<div class="viewcode-block" id="N_GET.__init__"><a class="viewcode-back" href="../../reference/generated/pynetdicom.dimse_primitives.N_GET.html#pynetdicom.dimse_primitives.N_GET.__init__">[docs]</a>    <span class="k">def</span> <span class="nf">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">MessageID</span> <span class="o">=</span> <span class="kc">None</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">MessageIDBeingRespondedTo</span> <span class="o">=</span> <span class="kc">None</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">RequestedSOPClassUID</span> <span class="o">=</span> <span class="kc">None</span>
@@ -1521,7 +1521,7 @@
 
         <span class="c1"># (Optional) elements for specific status values</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">ErrorComment</span> <span class="o">=</span> <span class="kc">None</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">ErrorID</span> <span class="o">=</span> <span class="kc">None</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">ErrorID</span> <span class="o">=</span> <span class="kc">None</span></div>
 
     <span class="nd">@property</span>
     <span class="k">def</span> <span class="nf">AffectedSOPInstanceUID</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
@@ -1658,10 +1658,10 @@
             <span class="n">LOGGER</span><span class="o">.</span><span class="n">error</span><span class="p">(</span><span class="s2">&quot;Requested SOP Instance UID is an invalid UID&quot;</span><span class="p">)</span>
             <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s2">&quot;Requested SOP Instance UID is an invalid UID&quot;</span><span class="p">)</span>
 
-        <span class="bp">self</span><span class="o">.</span><span class="n">_requested_sop_instance_uid</span> <span class="o">=</span> <span class="n">value</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_requested_sop_instance_uid</span> <span class="o">=</span> <span class="n">value</span></div>
 
 
-<span class="k">class</span> <span class="nc">N_SET</span><span class="p">(</span><span class="n">DIMSEPrimitive</span><span class="p">):</span>
+<div class="viewcode-block" id="N_SET"><a class="viewcode-back" href="../../reference/generated/pynetdicom.dimse_primitives.N_SET.html#pynetdicom.dimse_primitives.N_SET">[docs]</a><span class="k">class</span> <span class="nc">N_SET</span><span class="p">(</span><span class="n">DIMSEPrimitive</span><span class="p">):</span>
     <span class="sd">&quot;&quot;&quot;Represents a N-SET primitive.</span>
 
 <span class="sd">    +------------------------------------------+---------+----------+</span>
@@ -1730,7 +1730,7 @@
         <span class="s1">&#39;ModificationList&#39;</span>
     <span class="p">)</span>
 
-    <span class="k">def</span> <span class="nf">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+<div class="viewcode-block" id="N_SET.__init__"><a class="viewcode-back" href="../../reference/generated/pynetdicom.dimse_primitives.N_SET.html#pynetdicom.dimse_primitives.N_SET.__init__">[docs]</a>    <span class="k">def</span> <span class="nf">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">MessageID</span> <span class="o">=</span> <span class="kc">None</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">MessageIDBeingRespondedTo</span> <span class="o">=</span> <span class="kc">None</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">RequestedSOPClassUID</span> <span class="o">=</span> <span class="kc">None</span>
@@ -1744,7 +1744,7 @@
         <span class="c1"># Optional</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">ErrorComment</span> <span class="o">=</span> <span class="kc">None</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">ErrorID</span> <span class="o">=</span> <span class="kc">None</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">AttributeIdentifierList</span> <span class="o">=</span> <span class="kc">None</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">AttributeIdentifierList</span> <span class="o">=</span> <span class="kc">None</span></div>
 
     <span class="nd">@property</span>
     <span class="k">def</span> <span class="nf">AffectedSOPInstanceUID</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
@@ -1860,10 +1860,10 @@
             <span class="n">LOGGER</span><span class="o">.</span><span class="n">error</span><span class="p">(</span><span class="s2">&quot;Requested SOP Instance UID is an invalid UID&quot;</span><span class="p">)</span>
             <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s2">&quot;Requested SOP Instance UID is an invalid UID&quot;</span><span class="p">)</span>
 
-        <span class="bp">self</span><span class="o">.</span><span class="n">_requested_sop_instance_uid</span> <span class="o">=</span> <span class="n">value</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_requested_sop_instance_uid</span> <span class="o">=</span> <span class="n">value</span></div>
 
 
-<span class="k">class</span> <span class="nc">N_ACTION</span><span class="p">(</span><span class="n">DIMSEPrimitive</span><span class="p">):</span>
+<div class="viewcode-block" id="N_ACTION"><a class="viewcode-back" href="../../reference/generated/pynetdicom.dimse_primitives.N_ACTION.html#pynetdicom.dimse_primitives.N_ACTION">[docs]</a><span class="k">class</span> <span class="nc">N_ACTION</span><span class="p">(</span><span class="n">DIMSEPrimitive</span><span class="p">):</span>
     <span class="sd">&quot;&quot;&quot;Represents a N-ACTION primitive.</span>
 
 <span class="sd">    +------------------------------------------+---------+----------+</span>
@@ -1937,7 +1937,7 @@
         <span class="s1">&#39;ActionTypeID&#39;</span>
     <span class="p">)</span>
 
-    <span class="k">def</span> <span class="nf">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+<div class="viewcode-block" id="N_ACTION.__init__"><a class="viewcode-back" href="../../reference/generated/pynetdicom.dimse_primitives.N_ACTION.html#pynetdicom.dimse_primitives.N_ACTION.__init__">[docs]</a>    <span class="k">def</span> <span class="nf">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">MessageID</span> <span class="o">=</span> <span class="kc">None</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">MessageIDBeingRespondedTo</span> <span class="o">=</span> <span class="kc">None</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">RequestedSOPClassUID</span> <span class="o">=</span> <span class="kc">None</span>
@@ -1951,7 +1951,7 @@
 
         <span class="c1"># Optional status elements</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">ErrorComment</span> <span class="o">=</span> <span class="kc">None</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">ErrorID</span> <span class="o">=</span> <span class="kc">None</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">ErrorID</span> <span class="o">=</span> <span class="kc">None</span></div>
 
     <span class="nd">@property</span>
     <span class="k">def</span> <span class="nf">AffectedSOPInstanceUID</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
@@ -2080,10 +2080,10 @@
         <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">value</span><span class="p">,</span> <span class="nb">int</span><span class="p">)</span> <span class="ow">or</span> <span class="n">value</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
             <span class="bp">self</span><span class="o">.</span><span class="n">_action_type_id</span> <span class="o">=</span> <span class="n">value</span>
         <span class="k">else</span><span class="p">:</span>
-            <span class="k">raise</span> <span class="ne">TypeError</span><span class="p">(</span><span class="s2">&quot;&#39;N_ACTION.ActionTypeID&#39; must be an int.&quot;</span><span class="p">)</span>
+            <span class="k">raise</span> <span class="ne">TypeError</span><span class="p">(</span><span class="s2">&quot;&#39;N_ACTION.ActionTypeID&#39; must be an int.&quot;</span><span class="p">)</span></div>
 
 
-<span class="k">class</span> <span class="nc">N_CREATE</span><span class="p">(</span><span class="n">DIMSEPrimitive</span><span class="p">):</span>
+<div class="viewcode-block" id="N_CREATE"><a class="viewcode-back" href="../../reference/generated/pynetdicom.dimse_primitives.N_CREATE.html#pynetdicom.dimse_primitives.N_CREATE">[docs]</a><span class="k">class</span> <span class="nc">N_CREATE</span><span class="p">(</span><span class="n">DIMSEPrimitive</span><span class="p">):</span>
     <span class="sd">&quot;&quot;&quot;Represents a N-CREATE primitive.</span>
 
 <span class="sd">    +------------------------------------------+---------+----------+</span>
@@ -2138,7 +2138,7 @@
     <span class="n">STATUS_OPTIONAL_KEYWORDS</span> <span class="o">=</span> <span class="p">(</span><span class="s1">&#39;ErrorComment&#39;</span><span class="p">,</span> <span class="s1">&#39;ErrorID&#39;</span><span class="p">,</span> <span class="p">)</span>
     <span class="n">REQUEST_KEYWORDS</span> <span class="o">=</span> <span class="p">(</span><span class="s1">&#39;MessageID&#39;</span><span class="p">,</span> <span class="s1">&#39;AffectedSOPClassUID&#39;</span><span class="p">)</span>
 
-    <span class="k">def</span> <span class="nf">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+<div class="viewcode-block" id="N_CREATE.__init__"><a class="viewcode-back" href="../../reference/generated/pynetdicom.dimse_primitives.N_CREATE.html#pynetdicom.dimse_primitives.N_CREATE.__init__">[docs]</a>    <span class="k">def</span> <span class="nf">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">MessageID</span> <span class="o">=</span> <span class="kc">None</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">MessageIDBeingRespondedTo</span> <span class="o">=</span> <span class="kc">None</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">AffectedSOPClassUID</span> <span class="o">=</span> <span class="kc">None</span>
@@ -2148,7 +2148,7 @@
 
         <span class="c1"># Optional elements</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">ErrorComment</span> <span class="o">=</span> <span class="kc">None</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">ErrorID</span> <span class="o">=</span> <span class="kc">None</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">ErrorID</span> <span class="o">=</span> <span class="kc">None</span></div>
 
     <span class="nd">@property</span>
     <span class="k">def</span> <span class="nf">AffectedSOPInstanceUID</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
@@ -2190,10 +2190,10 @@
     <span class="nd">@AttributeList</span><span class="o">.</span><span class="n">setter</span>
     <span class="k">def</span> <span class="nf">AttributeList</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">value</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;Set the *Attribute List*.&quot;&quot;&quot;</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">_dataset_variant</span> <span class="o">=</span> <span class="p">(</span><span class="n">value</span><span class="p">,</span> <span class="s1">&#39;AttributeList&#39;</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_dataset_variant</span> <span class="o">=</span> <span class="p">(</span><span class="n">value</span><span class="p">,</span> <span class="s1">&#39;AttributeList&#39;</span><span class="p">)</span></div>
 
 
-<span class="k">class</span> <span class="nc">N_DELETE</span><span class="p">(</span><span class="n">DIMSEPrimitive</span><span class="p">):</span>
+<div class="viewcode-block" id="N_DELETE"><a class="viewcode-back" href="../../reference/generated/pynetdicom.dimse_primitives.N_DELETE.html#pynetdicom.dimse_primitives.N_DELETE">[docs]</a><span class="k">class</span> <span class="nc">N_DELETE</span><span class="p">(</span><span class="n">DIMSEPrimitive</span><span class="p">):</span>
     <span class="sd">&quot;&quot;&quot;Represents a N-DELETE primitive.</span>
 
 <span class="sd">    +------------------------------------------+---------+----------+</span>
@@ -2252,7 +2252,7 @@
         <span class="s1">&#39;MessageID&#39;</span><span class="p">,</span> <span class="s1">&#39;RequestedSOPClassUID&#39;</span><span class="p">,</span> <span class="s1">&#39;RequestedSOPInstanceUID&#39;</span>
     <span class="p">)</span>
 
-    <span class="k">def</span> <span class="nf">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+<div class="viewcode-block" id="N_DELETE.__init__"><a class="viewcode-back" href="../../reference/generated/pynetdicom.dimse_primitives.N_DELETE.html#pynetdicom.dimse_primitives.N_DELETE.__init__">[docs]</a>    <span class="k">def</span> <span class="nf">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">MessageID</span> <span class="o">=</span> <span class="kc">None</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">MessageIDBeingRespondedTo</span> <span class="o">=</span> <span class="kc">None</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">RequestedSOPClassUID</span> <span class="o">=</span> <span class="kc">None</span>
@@ -2263,7 +2263,7 @@
 
         <span class="c1"># Optional</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">ErrorComment</span> <span class="o">=</span> <span class="kc">None</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">ErrorID</span> <span class="o">=</span> <span class="kc">None</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">ErrorID</span> <span class="o">=</span> <span class="kc">None</span></div>
 
     <span class="nd">@property</span>
     <span class="k">def</span> <span class="nf">AffectedSOPInstanceUID</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
@@ -2359,7 +2359,7 @@
             <span class="n">LOGGER</span><span class="o">.</span><span class="n">error</span><span class="p">(</span><span class="s2">&quot;Requested SOP Instance UID is an invalid UID&quot;</span><span class="p">)</span>
             <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s2">&quot;Requested SOP Instance UID is an invalid UID&quot;</span><span class="p">)</span>
 
-        <span class="bp">self</span><span class="o">.</span><span class="n">_requested_sop_instance_uid</span> <span class="o">=</span> <span class="n">value</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_requested_sop_instance_uid</span> <span class="o">=</span> <span class="n">value</span></div>
 </pre></div>
 
            </div>

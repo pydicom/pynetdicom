@@ -38,7 +38,7 @@ single CT dataset.
 
    if assoc.is_established:
        # Use the C-STORE service to send the dataset
-       # returns a pydicom Dataset
+       # returns the response status as a pydicom Dataset
        status = assoc.send_c_store(ds)
 
        # Check the status of the storage request
@@ -87,6 +87,7 @@ You can also set the requested contexts on a per association basis.
    assoc = ae.associate('127.0.0.1', 11112, contexts=[mr_context])
    assoc.release()
 
+.. _example_storage_scp:
 
 Storage SCP
 ...........
@@ -101,44 +102,28 @@ that you ensure the file is conformant with the
 `DICOM File Format <http://dicom.nema.org/medical/dicom/current/output/html/part10.html#chapter_7>`_,
 which requires adding the File Meta Information.
 
+Check the
+`handler implementation documentation
+<../reference/generated/pynetdicom._handlers.doc_handle_store.html>`_
+to see the requirements for the ``evt.EVT_C_STORE`` handler.
+
 .. code-block:: python
 
    from pydicom.dataset import Dataset
 
    from pynetdicom import (
-       AE,
+       AE, evt,
        StoragePresentationContexts,
        PYNETDICOM_IMPLEMENTATION_UID,
        PYNETDICOM_IMPLEMENTATION_VERSION
    )
 
-   # Initialise the Application Entity and specify the listen port
-   ae = AE()
+   # Implement a handler evt.EVT_C_STORE
+   def handle_store(event):
+       """Handle a C-STORE request event."""
+       ds = event.dataset
+       context = event.context
 
-   # Add the supported presentation contexts
-   ae.supported_contexts = StoragePresentationContexts
-
-   # Implement the AE.on_c_store callback
-   def on_c_store(ds, context, info):
-       """Store the pydicom Dataset `ds`.
-
-       Parameters
-       ----------
-       ds : pydicom.dataset.Dataset
-           The dataset that the peer has requested be stored.
-       context : namedtuple
-           The presentation context that the dataset was sent under.
-       info : dict
-           Information about the association and storage request.
-
-       Returns
-       -------
-       status : int or pydicom.dataset.Dataset
-           The status returned to the peer AE in the C-STORE response. Must be
-           a valid C-STORE status value for the applicable Service Class as
-           either an ``int`` or a ``Dataset`` object containing (at a
-           minimum) a (0000,0900) *Status* element.
-       """
        # Add the DICOM File Meta Information
        meta = Dataset()
        meta.MediaStorageSOPClassUID = ds.SOPClassUID
@@ -160,80 +145,55 @@ which requires adding the File Meta Information.
        # Return a 'Success' status
        return 0x0000
 
-   ae.on_c_store = on_c_store
+   handlers = [(evt.EVT_C_STORE, handle_store)]
 
-   # Start listening for incoming association requests in blocking mode
-   ae.start_server(('', 11112), block=True)
+   # Initialise the Application Entity
+   ae = AE()
+
+   # Add the supported presentation contexts
+   ae.supported_contexts = StoragePresentationContexts
+
+   # Start listening for incoming association requests
+   ae.start_server(('', 11112), evt_handlers=handlers)
 
 As with the SCU you can also just support only the contexts you're
 interested in.
 
 .. code-block:: python
 
-   import time
+    from pynetdicom import AE, evt
+    from pynetdicom.sop_class import CTImageStorage
 
-   from pynetdicom import AE
-   from pynetdicom.sop_class import CTImageStorage
+    ae = AE()
 
-   ae = AE()
+    # Add a supported presentation context
+    ae.add_supported_context(CTImageStorage)
 
-   # Add a supported presentation context
-   ae.add_supported_context(CTImageStorage)
+    def handle_store(event):
+        # Don't store anything but respond with `Success`
+        return 0x0000
 
-   def on_c_store(ds, context, info):
-       # Don't store anything but respond with `Success`
-       return 0x0000
+    handlers = [(evt.EVT_C_STORE, handle_store)]
 
-   ae.on_c_store = on_c_store
+    ae.start_server(('', 11112), evt_handlers=handlers)
 
-   # Start server in non-blocking mode
-   scp = ae.start_server(('', 11112), block=False)
-
-   # Listen for incoming connection requests
-   time.sleep(60)
-
-   # Shutdown the listen server
-   scp.shutdown()
-
-It's also possible to return the raw encoded dataset sent by the service
-requestor rather than a pydicom ``Dataset`` object by setting the
-``_config.DECODE_STORE_DATASETS`` value to False:
+You can also start the SCP in non-blocking mode:
 
 .. code-block:: python
 
-   from pynetdicom import AE
-   from pynetdicom import _config
-   from pynetdicom.sop_class import CTImageStorage
+    from pynetdicom import AE, evt
+    from pynetdicom.sop_class import CTImageStorage
 
-   # Pass the raw encoded dataset to on_c_store()
-   _config.DECODE_STORE_DATASETS = False
+    def handle_store(event):
+        return 0x0000
 
-   ae = AE()
+    handlers = [(evt.EVT_C_STORE, handle_store)]
 
-   # Add a supported presentation context
-   ae.add_supported_context(CTImageStorage)
+    ae = AE()
+    ae.add_supported_context(CTImageStorage)
+    scp = ae.start_server(('', 11112), block=False evt_handlers=handlers)
 
-   def on_c_store(ds, context, info):
-       # `ds` should now be a bytes object rather than pydicom Dataset
-       with open('some_file.dcm', 'wb') as fp:
-           fp.write(ds)
+    # Zzzz
+    time.sleep(60)
 
-       return 0x0000
-
-   ae.on_c_store = on_c_store
-
-   ae.start_server(('', 11112))
-
-This has a couple of advantages over the default:
-
-* The Storage SCP should run faster as the dataset is no longer decoded
-* Writing the dataset to file should be faster as it no longer needs to be
-  re-encoded prior to writing.
-* Any issues with decoding the dataset (non-conformance, bugs in pydicom)
-  are bypassed.
-
-And a couple of caveats:
-
-* You need to decode the dataset yourself
-* You need to provide error handling if the decode fails and return the
-  correct status if that happens
+    scp.shutdown()

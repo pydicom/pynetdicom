@@ -185,8 +185,6 @@ This is accomplished through the DIMSE C-MOVE and C-STORE services.</p>
 know in advance the details (AE title, IP address, port number) of the
 destination Storage SCP. If the Move SCP doesn’t know the destination AE then
 it will usually respond with an <code class="docutils literal notranslate"><span class="pre">0xA801</span></code> status code.</p>
-<p>With <em>pynetdicom</em> its possible to start a non-blocking Storage SCP and use
-that as the destination for a C-MOVE request sent by the same AE instance.</p>
 <div class="section" id="query-retrieve-move-scu">
 <h2>Query/Retrieve (Move) SCU<a class="headerlink" href="#query-retrieve-move-scu" title="Permalink to this headline">¶</a></h2>
 <p>Associate with a peer DICOM Application Entity and request it send
@@ -241,31 +239,35 @@ series with <em>Study Instance UID</em> <code class="docutils literal notranslat
 </div>
 <p>The responses received from the SCP include notifications on whether or not
 the storage sub-operations have been successful.</p>
-<p>Do the same thing, but send the SOP Instances to a non-blocking Storage SCP
-being run from the same AE as the C-MOVE request:</p>
+<p>In the next example we use a Storage SCP running within the same AE as the
+<em>Move Destination</em>. Remember that the Move SCP must first be configured with
+the IP and port number of the corresponding AE title. Check the
+<a class="reference external" href="../reference/generated/pynetdicom._handlers.doc_handle_store.html">handler implementation documentation</a>
+to see the requirements for the <code class="docutils literal notranslate"><span class="pre">evt.EVT_C_STORE</span></code> handler.</p>
 <div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span> <span class="nn">pydicom.dataset</span> <span class="kn">import</span> <span class="n">Dataset</span>
 
-<span class="kn">from</span> <span class="nn">pynetdicom</span> <span class="kn">import</span> <span class="n">AE</span><span class="p">,</span> <span class="n">StoragePresentationContexts</span>
+<span class="kn">from</span> <span class="nn">pynetdicom</span> <span class="kn">import</span> <span class="n">AE</span><span class="p">,</span> <span class="n">evt</span><span class="p">,</span> <span class="n">StoragePresentationContexts</span>
 <span class="kn">from</span> <span class="nn">pynetdicom.sop_class</span> <span class="kn">import</span> <span class="n">PatientRootQueryRetrieveInformationModelMove</span>
+
+<span class="k">def</span> <span class="nf">handle_store</span><span class="p">(</span><span class="n">event</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;Handle a C-STORE service request&quot;&quot;&quot;</span>
+    <span class="c1"># Ignore the request and return Success</span>
+    <span class="k">return</span> <span class="mh">0x0000</span>
+
+<span class="n">handlers</span> <span class="o">=</span> <span class="p">[(</span><span class="n">evt</span><span class="o">.</span><span class="n">EVT_C_STORE</span><span class="p">,</span> <span class="n">handle_store</span><span class="p">)]</span>
 
 <span class="c1"># Initialise the Application Entity</span>
 <span class="n">ae</span> <span class="o">=</span> <span class="n">AE</span><span class="p">()</span>
 
-<span class="c1"># Add the storage SCP&#39;s supported presentation contexts</span>
-<span class="n">ae</span><span class="o">.</span><span class="n">supported_contexts</span> <span class="o">=</span> <span class="n">StoragePresentationContexts</span>
-
-<span class="c1"># Implement the on_c_store callback</span>
-<span class="k">def</span> <span class="nf">on_c_store</span><span class="p">(</span><span class="n">ds</span><span class="p">,</span> <span class="n">context</span><span class="p">,</span> <span class="n">info</span><span class="p">):</span>
-    <span class="c1"># Don&#39;t store anything, just return Success</span>
-    <span class="k">return</span> <span class="mh">0x0000</span>
-
-<span class="c1"># Start the storage SCP on port 11113</span>
-<span class="n">ae</span><span class="o">.</span><span class="n">ae_title</span> <span class="o">=</span> <span class="sa">b</span><span class="s1">&#39;STORE_SCP&#39;</span>
-<span class="n">ae</span><span class="o">.</span><span class="n">on_c_store</span> <span class="o">=</span> <span class="n">on_c_store</span>
-<span class="n">scp</span> <span class="o">=</span> <span class="n">ae</span><span class="o">.</span><span class="n">start_server</span><span class="p">((</span><span class="s1">&#39;&#39;</span><span class="p">,</span> <span class="mi">11113</span><span class="p">),</span> <span class="n">block</span><span class="o">=</span><span class="bp">False</span><span class="p">)</span>
-
 <span class="c1"># Add a requested presentation context</span>
 <span class="n">ae</span><span class="o">.</span><span class="n">add_requested_context</span><span class="p">(</span><span class="n">PatientRootQueryRetrieveInformationModelMove</span><span class="p">)</span>
+
+<span class="c1"># Add the Storage SCP&#39;s supported presentation contexts</span>
+<span class="n">ae</span><span class="o">.</span><span class="n">supported_contexts</span> <span class="o">=</span> <span class="n">StoragePresentationContexts</span>
+
+<span class="c1"># Start our Storage SCP in non-blocking mode, listening on port 11120</span>
+<span class="n">ae</span><span class="o">.</span><span class="n">ae_title</span> <span class="o">=</span> <span class="sa">b</span><span class="s1">&#39;OUR_STORE_SCP&#39;</span>
+<span class="n">scp</span> <span class="o">=</span> <span class="n">ae</span><span class="o">.</span><span class="n">start_server</span><span class="p">((</span><span class="s1">&#39;&#39;</span><span class="p">,</span> <span class="mi">11120</span><span class="p">),</span> <span class="n">block</span><span class="o">=</span><span class="bp">False</span><span class="p">,</span> <span class="n">evt_handlers</span><span class="o">=</span><span class="n">handlers</span><span class="p">)</span>
 
 <span class="c1"># Create out identifier (query) dataset</span>
 <span class="n">ds</span> <span class="o">=</span> <span class="n">Dataset</span><span class="p">()</span>
@@ -278,31 +280,36 @@ being run from the same AE as the C-MOVE request:</p>
 <span class="n">ds</span><span class="o">.</span><span class="n">SeriesInstanceUID</span> <span class="o">=</span> <span class="s1">&#39;1.2.3.4&#39;</span>
 
 <span class="c1"># Associate with peer AE at IP 127.0.0.1 and port 11112</span>
-<span class="c1"># Note: the peer AE must know the IP and port for our move destination</span>
 <span class="n">assoc</span> <span class="o">=</span> <span class="n">ae</span><span class="o">.</span><span class="n">associate</span><span class="p">(</span><span class="s1">&#39;127.0.0.1&#39;</span><span class="p">,</span> <span class="mi">11112</span><span class="p">)</span>
 
 <span class="k">if</span> <span class="n">assoc</span><span class="o">.</span><span class="n">is_established</span><span class="p">:</span>
-    <span class="n">responses</span> <span class="o">=</span> <span class="n">assoc</span><span class="o">.</span><span class="n">send_c_move</span><span class="p">(</span><span class="n">ds</span><span class="p">,</span> <span class="sa">b</span><span class="s1">&#39;STORE_SCP&#39;</span><span class="p">,</span> <span class="n">query_model</span><span class="o">=</span><span class="s1">&#39;P&#39;</span><span class="p">)</span>
+    <span class="c1"># Use the C-MOVE service to send the identifier</span>
+    <span class="c1"># A query_model value of &#39;P&#39; means use the &#39;Patient Root Query</span>
+    <span class="c1">#   Retrieve Information Model - Move&#39; presentation context</span>
+    <span class="n">responses</span> <span class="o">=</span> <span class="n">assoc</span><span class="o">.</span><span class="n">send_c_move</span><span class="p">(</span><span class="n">ds</span><span class="p">,</span> <span class="sa">b</span><span class="s1">&#39;OUR_STORE_SCP&#39;</span><span class="p">,</span> <span class="n">query_model</span><span class="o">=</span><span class="s1">&#39;P&#39;</span><span class="p">)</span>
 
     <span class="k">for</span> <span class="p">(</span><span class="n">status</span><span class="p">,</span> <span class="n">identifier</span><span class="p">)</span> <span class="ow">in</span> <span class="n">responses</span><span class="p">:</span>
         <span class="k">if</span> <span class="n">status</span><span class="p">:</span>
             <span class="k">print</span><span class="p">(</span><span class="s1">&#39;C-MOVE query status: 0x{0:04x}&#39;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">status</span><span class="o">.</span><span class="n">Status</span><span class="p">))</span>
+
+            <span class="c1"># If the status is &#39;Pending&#39; then `identifier` is the C-MOVE response</span>
             <span class="k">if</span> <span class="n">status</span><span class="o">.</span><span class="n">Status</span> <span class="ow">in</span> <span class="p">(</span><span class="mh">0xFF00</span><span class="p">,</span> <span class="mh">0xFF01</span><span class="p">):</span>
                 <span class="k">print</span><span class="p">(</span><span class="n">identifier</span><span class="p">)</span>
         <span class="k">else</span><span class="p">:</span>
             <span class="k">print</span><span class="p">(</span><span class="s1">&#39;Connection timed out, was aborted or received invalid response&#39;</span><span class="p">)</span>
 
+    <span class="c1"># Release the association</span>
     <span class="n">assoc</span><span class="o">.</span><span class="n">release</span><span class="p">()</span>
 <span class="k">else</span><span class="p">:</span>
     <span class="k">print</span><span class="p">(</span><span class="s1">&#39;Association rejected, aborted or never connected&#39;</span><span class="p">)</span>
 
-<span class="c1"># Shutdown the storage SCP</span>
+<span class="c1"># Stop our Storage SCP</span>
 <span class="n">scp</span><span class="o">.</span><span class="n">shutdown</span><span class="p">()</span>
 </pre></div>
 </div>
 </div>
 <div class="section" id="query-retrieve-move-scp">
-<h2>Query/Retrieve (Move) SCP<a class="headerlink" href="#query-retrieve-move-scp" title="Permalink to this headline">¶</a></h2>
+<span id="example-qrmove-scp"></span><h2>Query/Retrieve (Move) SCP<a class="headerlink" href="#query-retrieve-move-scp" title="Permalink to this headline">¶</a></h2>
 <p>The following represents a toy implementation of a Query/Retrieve (Move) SCP
 where the SCU has sent the following <em>Identifier</em> dataset under the <em>Patient
 Root Query Retrieve Information Model - Move</em> context and the move destination
@@ -316,72 +323,21 @@ and listen port number <code class="docutils literal notranslate"><span class="p
 <p>This is a very bad way of managing stored SOP Instances, in reality its
 probably best to store the instance attributes in a database and run the
 query against that.</p>
+<p>Check the <a class="reference external" href="../reference/generated/pynetdicom._handlers.doc_handle_move.html">handler implementation documentation</a>
+to see the requirements for the <code class="docutils literal notranslate"><span class="pre">evt.EVT_C_MOVE</span></code> handler.</p>
 <div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">import</span> <span class="nn">os</span>
 
 <span class="kn">from</span> <span class="nn">pydicom</span> <span class="kn">import</span> <span class="n">dcmread</span>
 <span class="kn">from</span> <span class="nn">pydicom.dataset</span> <span class="kn">import</span> <span class="n">Dataset</span>
 
-<span class="kn">from</span> <span class="nn">pynetdicom</span> <span class="kn">import</span> <span class="n">AE</span><span class="p">,</span> <span class="n">StoragePresentationContexts</span>
+<span class="kn">from</span> <span class="nn">pynetdicom</span> <span class="kn">import</span> <span class="n">AE</span><span class="p">,</span> <span class="n">StoragePresentationContexts</span><span class="p">,</span> <span class="n">evt</span>
 <span class="kn">from</span> <span class="nn">pynetdicom.sop_class</span> <span class="kn">import</span> <span class="n">PatientRootQueryRetrieveInformationModelMove</span>
 
-<span class="c1"># Create application entity</span>
-<span class="n">ae</span> <span class="o">=</span> <span class="n">AE</span><span class="p">()</span>
+<span class="c1"># Implement the evt.EVT_C_MOVE handler</span>
+<span class="k">def</span> <span class="nf">handle_move</span><span class="p">(</span><span class="n">event</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;Handle a C-MOVE request event.&quot;&quot;&quot;</span>
+    <span class="n">ds</span> <span class="o">=</span> <span class="n">event</span><span class="o">.</span><span class="n">identifier</span>
 
-<span class="c1"># Add the requested presentation contexts (Storage SCU)</span>
-<span class="n">ae</span><span class="o">.</span><span class="n">requested_contexts</span> <span class="o">=</span> <span class="n">StoragePresentationContexts</span>
-<span class="c1"># Add a supported presentation context (QR Move SCP)</span>
-<span class="n">ae</span><span class="o">.</span><span class="n">add_supported_context</span><span class="p">(</span><span class="n">PatientRootQueryRetrieveInformationModelMove</span><span class="p">)</span>
-
-<span class="c1"># Implement the AE.on_c_move callback</span>
-<span class="k">def</span> <span class="nf">on_c_move</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">ds</span><span class="p">,</span> <span class="n">move_aet</span><span class="p">,</span> <span class="n">context</span><span class="p">,</span> <span class="n">info</span><span class="p">):</span>
-    <span class="sd">&quot;&quot;&quot;Respond to a C-MOVE request Identifier `ds`.</span>
-
-<span class="sd">    Parameters</span>
-<span class="sd">    ----------</span>
-<span class="sd">    ds : pydicom.dataset.Dataset</span>
-<span class="sd">        The Identifier dataset sent by the peer.</span>
-<span class="sd">    move_aet : bytes</span>
-<span class="sd">        The destination AE title that matching SOP Instances will be sent</span>
-<span class="sd">        to using C-STORE sub-operations. ``move_aet`` will be a correctly</span>
-<span class="sd">        formatted AE title (16 chars, with trailing spaces as padding).</span>
-<span class="sd">    context : presentation.PresentationContextTuple</span>
-<span class="sd">        The presentation context that the C-MOVE message was sent under.</span>
-<span class="sd">    info : dict</span>
-<span class="sd">        A dict containing information about the current association.</span>
-
-<span class="sd">    Yields</span>
-<span class="sd">    ------</span>
-<span class="sd">    addr, port : str, int or None, None</span>
-<span class="sd">        The first yield should be the TCP/IP address and port number of the</span>
-<span class="sd">        destination AE (if known) or ``(None, None)`` if unknown. If</span>
-<span class="sd">        ``(None, None)`` is yielded then the SCP will send a C-MOVE</span>
-<span class="sd">        response with a &#39;Failure&#39; Status of ``0xA801`` (move destination</span>
-<span class="sd">        unknown), in which case nothing more needs to be yielded.</span>
-<span class="sd">    int</span>
-<span class="sd">        The second yield should be the number of C-STORE sub-operations</span>
-<span class="sd">        required to complete the C-MOVE operation. In other words, this is</span>
-<span class="sd">        the number of matching SOP Instances to be sent to the peer.</span>
-<span class="sd">    status : pydiom.dataset.Dataset or int</span>
-<span class="sd">        The status returned to the peer AE in the C-MOVE response. Must be</span>
-<span class="sd">        a valid C-MOVE status value for the applicable Service Class as</span>
-<span class="sd">        either an ``int`` or a ``Dataset`` containing (at a minimum) a</span>
-<span class="sd">        (0000,0900) *Status* element. If returning a ``Dataset`` then it</span>
-<span class="sd">        may also contain optional elements related to the Status (as in</span>
-<span class="sd">        DICOM Standard Part 7, Annex C).</span>
-<span class="sd">    dataset : pydicom.dataset.Dataset or None</span>
-<span class="sd">        If the status is &#39;Pending&#39; then yield the ``Dataset``</span>
-<span class="sd">        to send to the peer via a C-STORE sub-operation over a new</span>
-<span class="sd">        association.</span>
-
-<span class="sd">        If the status is &#39;Failed&#39;, &#39;Warning&#39; or &#39;Cancel&#39; then yield a</span>
-<span class="sd">        ``Dataset`` with a (0008,0058) *Failed SOP Instance UID List*</span>
-<span class="sd">        element containing the list of the C-STORE sub-operation SOP</span>
-<span class="sd">        Instance UIDs for which the C-MOVE operation has failed.</span>
-
-<span class="sd">        If the status is &#39;Success&#39; then yield ``None``, although yielding a</span>
-<span class="sd">        final &#39;Success&#39; status is not required and will be ignored if</span>
-<span class="sd">        necessary.</span>
-<span class="sd">    &quot;&quot;&quot;</span>
     <span class="k">if</span> <span class="s1">&#39;QueryRetrieveLevel&#39;</span> <span class="ow">not</span> <span class="ow">in</span> <span class="n">ds</span><span class="p">:</span>
         <span class="c1"># Failure</span>
         <span class="k">yield</span> <span class="mh">0xC000</span><span class="p">,</span> <span class="bp">None</span>
@@ -424,13 +380,26 @@ query against that.</p>
 
     <span class="c1"># Yield the matching instances</span>
     <span class="k">for</span> <span class="n">instance</span> <span class="ow">in</span> <span class="n">matching</span><span class="p">:</span>
+        <span class="c1"># Check if C-CANCEL has been received</span>
+        <span class="k">if</span> <span class="n">event</span><span class="o">.</span><span class="n">is_cancelled</span><span class="p">:</span>
+            <span class="k">yield</span> <span class="p">(</span><span class="mh">0xFE00</span><span class="p">,</span> <span class="bp">None</span><span class="p">)</span>
+            <span class="k">return</span>
+
         <span class="c1"># Pending</span>
         <span class="k">yield</span> <span class="p">(</span><span class="mh">0xFF00</span><span class="p">,</span> <span class="n">instance</span><span class="p">)</span>
 
-<span class="n">ae</span><span class="o">.</span><span class="n">on_c_move</span> <span class="o">=</span> <span class="n">on_c_move</span>
+<span class="n">handlers</span> <span class="o">=</span> <span class="p">[(</span><span class="n">evt</span><span class="o">.</span><span class="n">EVT_C_MOVE</span><span class="p">,</span> <span class="n">handle_move</span><span class="p">)]</span>
+
+<span class="c1"># Create application entity</span>
+<span class="n">ae</span> <span class="o">=</span> <span class="n">AE</span><span class="p">()</span>
+
+<span class="c1"># Add the requested presentation contexts (Storage SCU)</span>
+<span class="n">ae</span><span class="o">.</span><span class="n">requested_contexts</span> <span class="o">=</span> <span class="n">StoragePresentationContexts</span>
+<span class="c1"># Add a supported presentation context (QR Move SCP)</span>
+<span class="n">ae</span><span class="o">.</span><span class="n">add_supported_context</span><span class="p">(</span><span class="n">PatientRootQueryRetrieveInformationModelMove</span><span class="p">)</span>
 
 <span class="c1"># Start listening for incoming association requests</span>
-<span class="n">ae</span><span class="o">.</span><span class="n">start_server</span><span class="p">((</span><span class="s1">&#39;&#39;</span><span class="p">,</span> <span class="mi">11112</span><span class="p">))</span>
+<span class="n">ae</span><span class="o">.</span><span class="n">start_server</span><span class="p">((</span><span class="s1">&#39;&#39;</span><span class="p">,</span> <span class="mi">11112</span><span class="p">),</span> <span class="n">evt_handlers</span><span class="o">=</span><span class="n">handlers</span><span class="p">)</span>
 </pre></div>
 </div>
 </div>

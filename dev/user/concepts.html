@@ -128,6 +128,7 @@
 </ul>
 </li>
 <li class="toctree-l2"><a class="reference internal" href="presentation.html">Presentation Contexts</a></li>
+<li class="toctree-l2"><a class="reference internal" href="events.html">Events</a></li>
 <li class="toctree-l2"><a class="reference internal" href="ae.html">Application Entity</a></li>
 <li class="toctree-l2"><a class="reference internal" href="association.html">Association</a></li>
 </ul>
@@ -254,20 +255,21 @@ of the DICOM Standard.</p>
 </div>
 <div class="section" id="sop-classes">
 <span id="concepts-sop-classes"></span><h3>SOP Classes<a class="headerlink" href="#sop-classes" title="Permalink to this headline">¶</a></h3>
-<p>A Service-Object Pair (SOP) Class is defined by the union of an IOD and a DIMSE
-service group:</p>
+<p>A Service-Object Pair (SOP) Class is defined by the union of an IOD and a
+<a class="reference external" href="http://dicom.nema.org/medical/dicom/current/output/chtml/part07/PS3.7.html">DICOM Message Service Element</a>
+(DIMSE) service group:</p>
 <ul class="simple">
 <li><strong>Composite SOP Classes</strong> are the union of Composite IODs and
-DIMSE-C services. An example of a Composite SOP Class is the <em>CT Image
-Storage SOP Class</em>, which is the union of the <em>CT Image IOD</em> and the DIMSE
-C-STORE service. A <em>CT Image Storage</em> instance stores information about a
-single slice of a patient’s CT scan. A complete scan (a <em>Series</em>) would
-then be made up of one or more <em>CT Image Storage SOP Class</em> instances, all
+the DIMSE-C service group. An example of a Composite SOP Class is the
+<em>CT Image Storage SOP Class</em>, which is the union of the <em>CT Image IOD</em> and
+the DIMSE C-STORE service. A <em>CT Image Storage</em> instance stores information
+about a single slice of a patient’s CT scan. A complete scan (a <em>Series</em>) is
+made up of one or more <em>CT Image Storage SOP Class</em> instances, all
 with the same <em>Study Instance UID</em> and <em>Series Instance UID</em> values but
 differing <em>SOP Instance UID</em> values (one for each SOP instance within the
 <em>Series</em>).</li>
 <li><strong>Normalised SOP Classes</strong> are the union of Normalised IODs and DIMSE-N
-services. An example of a Normalised SOP Class is the <em>Print Job SOP
+service group. An example of a Normalised SOP Class is the <em>Print Job SOP
 Class</em>, which is the union of the <em>Print Job IOD</em> and the DIMSE
 N-EVENT-REPORT and N-GET services. The <em>Print Job SOP Class</em> is an
 abstraction of a print job containing one or more films to be printed.</li>
@@ -286,6 +288,8 @@ include storage of SOP Class instances (<em>Storage Service Class</em>), verific
 of DICOM connectivity (<em>Verification Service Class</em>), querying and retrieval
 of managed SOP instances (<em>Query/Retrieve Service Class</em>), printing of images
 (<em>Print Management Service Class</em>) and many others.</p>
+<p>The labels <em>Service Class User</em> and <em>Service Class Provider</em> are derived from
+whether or not an AE <em>uses</em> or <em>provides</em> the services in a Service Class.</p>
 <p>Service Classes are defined in <a class="reference external" href="http://dicom.nema.org/medical/dicom/current/output/html/part04.html">Part 4</a>
 of the DICOM Standard.</p>
 </div>
@@ -325,7 +329,7 @@ Each Abstract Syntax is identified by an <em>Abstract Syntax Name</em> in the fo
 of a UID. Abstract syntax names used with DICOM are usually the officially
 registered SOP class UIDs (and the abstract syntax is therefore the SOP class
 itself), but the standard also allows the use of private
-abstract syntaxes. While pynetdicom can handle association negotiation
+abstract syntaxes. While <em>pynetdicom</em> can handle association negotiation
 containing private abstract syntaxes the implementation of the associated
 services/semantics is up to the end user.</p>
 </div>
@@ -340,17 +344,17 @@ compression, etc.).</p>
 <p>The official DICOM transfer syntaxes are defined in
 <a class="reference external" href="http://dicom.nema.org/medical/dicom/current/output/html/part05.html#chapter_8">Part 5</a>
 of the DICOM Standard. The Standard also allows the use of privately defined
-transfer syntaxes. While pynetdicom is able to handle association
+transfer syntaxes. While <em>pynetdicom</em> is able to handle association
 negotiation containing private transfer syntaxes, the implementation of the
 associated encoding requirements is the responsibility of the end user.</p>
 </div>
 </div>
 <div class="section" id="association">
 <span id="concepts-association"></span><h2>Association<a class="headerlink" href="#association" title="Permalink to this headline">¶</a></h2>
-<p>When peer AEs want to communicate they must first set up an Association.</p>
+<p>When peer AEs want to communicate they must first establish an Association.</p>
 <ul class="simple">
-<li>The AE that is initiating the association (the <em>requestor</em>) sends
-an A-ASSOCIATE message to the peer AE (the <em>acceptor</em>) which contains a list
+<li>The AE that is initiating the association (the <em>Requestor</em>) sends
+an A-ASSOCIATE message to the peer AE (the <em>Acceptor</em>) which contains a list
 of proposed presentation contexts and association negotiation items.</li>
 <li>The <em>acceptor</em> receives the request and responds with:<ul>
 <li>acceptance, which results is an association being established, or</li>
@@ -360,7 +364,7 @@ of proposed presentation contexts and association negotiation items.</li>
 </li>
 </ul>
 <p>An association may be rejected because none of the proposed presentation
-contexts are supported, or because the <em>requestor</em> hasn’t identified itself
+contexts are supported, or because the <em>Requestor</em> hasn’t identified itself
 correctly or for a <a class="reference external" href="http://dicom.nema.org/medical/dicom/current/output/chtml/part08/sect_9.3.4.html">number of other reasons</a>.</p>
 <p>The full service procedure for an association is found in
 <a class="reference external" href="http://dicom.nema.org/medical/dicom/current/output/chtml/part08/chapter_7.html#sect_7.1.2">Part 8</a>

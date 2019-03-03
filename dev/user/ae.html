@@ -39,7 +39,7 @@
     <link rel="index" title="Index" href="../genindex.html" />
     <link rel="search" title="Search" href="../search.html" />
     <link rel="next" title="Association" href="association.html" />
-    <link rel="prev" title="Presentation Contexts" href="presentation.html" /> 
+    <link rel="prev" title="Events" href="events.html" /> 
 </head>
 
 <body class="wy-body-for-nav">
@@ -109,6 +109,7 @@
 <li class="toctree-l2"><a class="reference internal" href="installation.html">Installation</a></li>
 <li class="toctree-l2"><a class="reference internal" href="concepts.html">Important Concepts</a></li>
 <li class="toctree-l2"><a class="reference internal" href="presentation.html">Presentation Contexts</a></li>
+<li class="toctree-l2"><a class="reference internal" href="events.html">Events</a></li>
 <li class="toctree-l2 current"><a class="current reference internal" href="#">Application Entity</a><ul>
 <li class="toctree-l3"><a class="reference internal" href="#creating-an-scu">Creating an SCU</a><ul>
 <li class="toctree-l4"><a class="reference internal" href="#adding-requested-presentation-contexts">Adding requested Presentation Contexts</a></li>
@@ -232,9 +233,6 @@ of <strong>AE</strong> <a class="footnote-reference" href="#id8" id="id1">[1]</a
 <li>Valid characters belong to the DICOM <a class="reference external" href="http://dicom.nema.org/medical/dicom/current/output/chtml/part05/chapter_E.html">Default Character Repertoire</a>
 <a class="footnote-reference" href="#id9" id="id2">[2]</a>, which is the basic G0 Set of the ISO646:1990 <a class="footnote-reference" href="#id12" id="id3">[5]</a> (ASCII) standard
 excluding backslash (‘\ ‘ <code class="docutils literal notranslate"><span class="pre">0x5c</span></code>) and all control characters <a class="footnote-reference" href="#id10" id="id4">[3]</a>.</li>
-</ul>
-<p>There’s also an extra restriction on Application Entity AE titles:</p>
-<ul class="simple">
 <li>An AE title made entirely of spaces is not allowed <a class="footnote-reference" href="#id11" id="id5">[4]</a></li>
 </ul>
 <p>AE titles in <em>pynetdicom</em> are checked for validity (using
@@ -616,54 +614,27 @@ methods are:</p>
 <p>By default all association requests that include user identity negotiation
 are accepted (provided there’s no other reason to reject) and
 no user identity negotiation response is sent even if one is requested.</p>
-<p>To handle the user identity negotiation yourself you should implement the
-<a class="reference internal" href="../reference/generated/pynetdicom.ae.ApplicationEntity.html#pynetdicom.ae.ApplicationEntity.on_user_identity" title="pynetdicom.ae.ApplicationEntity.on_user_identity"><code class="xref py py-meth docutils literal notranslate"><span class="pre">AE.on_user_identity</span></code></a>
-callback.</p>
-<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span> <span class="nn">pynetdicom</span> <span class="kn">import</span> <span class="n">AE</span>
+<p>To handle a user identity negotiation yourself you
+should implement and bind a <a class="reference internal" href="events.html#user-events"><span class="std std-ref">handler</span></a> to the
+<code class="docutils literal notranslate"><span class="pre">evt.EVT_USER_ID</span></code> event. Check the
+<a class="reference external" href="../reference/generated/pynetdicom._handlers.doc_handle_userid.html">documentation</a>
+to see the requirements for implementations of the <code class="docutils literal notranslate"><span class="pre">evt.EVT_USER_ID</span></code> handler.</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span> <span class="nn">pynetdicom</span> <span class="kn">import</span> <span class="n">AE</span><span class="p">,</span> <span class="n">evt</span>
 <span class="kn">from</span> <span class="nn">pynetdicom.sop_class</span> <span class="kn">import</span> <span class="n">VerificationSOPClass</span>
 
-<span class="k">def</span> <span class="nf">on_user_identity</span><span class="p">(</span><span class="n">identity_type</span><span class="p">,</span> <span class="n">primary_field</span><span class="p">,</span> <span class="n">secondary_field</span><span class="p">,</span> <span class="n">info</span><span class="p">):</span>
-    <span class="sd">&quot;&quot;&quot;Handle user identity negotiation requests.</span>
-
-<span class="sd">    Parameters</span>
-<span class="sd">    ----------</span>
-<span class="sd">    identity_type : int</span>
-<span class="sd">        * 1 - Username as a UTF-8 string</span>
-<span class="sd">        * 2 - Username as a UTF-8 string and passcode</span>
-<span class="sd">        * 3 - Kerberos Service ticket</span>
-<span class="sd">        * 4 - SAML Assertion</span>
-<span class="sd">        * 5 - JSON Web Token</span>
-<span class="sd">    primary_field : bytes</span>
-<span class="sd">        The value of the request&#39;s *Primary Field* parameter.</span>
-<span class="sd">    secondary_field : bytes or None</span>
-<span class="sd">        If the `identity_type` is 2 then the passcode, otherwise None.</span>
-<span class="sd">    info : dict</span>
-<span class="sd">        A dict containing information about the association requestor.</span>
-
-<span class="sd">    Returns</span>
-<span class="sd">    -------</span>
-<span class="sd">    is_verified : bool</span>
-<span class="sd">        Return True if the user identity has been confirmed and you wish</span>
-<span class="sd">        to proceed with association establishment, False otherwise.</span>
-<span class="sd">    response : bytes or None</span>
-<span class="sd">        If a positive response is requested and the identity is verified</span>
-<span class="sd">        then this will be the value of the response&#39;s *Server Response*</span>
-<span class="sd">        parameter. If ``user_id_type`` is:</span>
-
-<span class="sd">        * 1 or 2, then return None</span>
-<span class="sd">        * 3 then return the Kerberos Server ticket as bytes</span>
-<span class="sd">        * 4 then return the SAML response as bytes</span>
-<span class="sd">        * 5 then return the JSON web token as bytes</span>
-<span class="sd">    &quot;&quot;&quot;</span>
+<span class="k">def</span> <span class="nf">handle_user_id</span><span class="p">(</span><span class="n">event</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;Handle evt.EVT_USER_ID.&quot;&quot;&quot;</span>
     <span class="c1"># Identity verification code is outside the scope of pynetdicom</span>
     <span class="n">is_verified</span><span class="p">,</span> <span class="n">response</span> <span class="o">=</span> <span class="n">some_user_function</span><span class="p">()</span>
 
     <span class="k">return</span> <span class="n">is_verified</span><span class="p">,</span> <span class="n">response</span>
 
+<span class="n">handlers</span> <span class="o">=</span> <span class="p">[(</span><span class="n">evt</span><span class="o">.</span><span class="n">EVT_USER_ID</span><span class="p">,</span> <span class="n">handle_user_id</span><span class="p">)]</span>
+
 <span class="n">ae</span> <span class="o">=</span> <span class="n">AE</span><span class="p">()</span>
 <span class="n">ae</span><span class="o">.</span><span class="n">add_supported_context</span><span class="p">(</span><span class="n">VerificationSOPClass</span><span class="p">)</span>
 <span class="n">ae</span><span class="o">.</span><span class="n">on_user_identity</span> <span class="o">=</span> <span class="n">on_user_identity</span>
-<span class="n">ae</span><span class="o">.</span><span class="n">start_server</span><span class="p">((</span><span class="s1">&#39;&#39;</span><span class="p">,</span> <span class="mi">11112</span><span class="p">))</span>
+<span class="n">ae</span><span class="o">.</span><span class="n">start_server</span><span class="p">((</span><span class="s1">&#39;&#39;</span><span class="p">,</span> <span class="mi">11112</span><span class="p">),</span> <span class="n">evt_handlers</span><span class="o">=</span><span class="n">handlers</span><span class="p">)</span>
 </pre></div>
 </div>
 </div>
@@ -735,7 +706,7 @@ AEs and how to handle their service requests see the
         <a href="association.html" class="btn btn-neutral float-right" title="Association" accesskey="n" rel="next">Next <span class="fa fa-arrow-circle-right"></span></a>
       
       
-        <a href="presentation.html" class="btn btn-neutral float-left" title="Presentation Contexts" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left"></span> Previous</a>
+        <a href="events.html" class="btn btn-neutral float-left" title="Events" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left"></span> Previous</a>
       
     </div>
   

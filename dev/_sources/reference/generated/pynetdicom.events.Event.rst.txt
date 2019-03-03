@@ -1,0 +1,33 @@
+pynetdicom.events.Event
+=======================
+
+.. currentmodule:: pynetdicom.events
+
+.. autoclass:: Event
+
+   
+   .. automethod:: __init__
+
+   
+   .. rubric:: Methods
+
+   .. autosummary::
+   
+      ~Event.__init__
+   
+   
+
+   
+   
+   .. rubric:: Attributes
+
+   .. autosummary::
+   
+      ~Event.dataset
+      ~Event.description
+      ~Event.file_meta
+      ~Event.identifier
+      ~Event.is_cancelled
+      ~Event.name
+   
+   
