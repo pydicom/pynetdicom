@@ -1809,7 +1809,6 @@ class Association(threading.Thread):
             raise ValueError('Failed to encode the supplied Dataset')
 
         # Send C-STORE request to the peer via DIMSE and wait for the response
-        LOGGER.info('Sending Store Request: MsgID {}'.format(msg_id))
         self.dimse.send_msg(req, context.context_id)
         cx_id, rsp = self.dimse.get_msg(block=True)
 

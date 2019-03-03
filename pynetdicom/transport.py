@@ -151,11 +151,6 @@ class AssociationSocket(object):
             if isinstance(exc, ssl.SSLError):
                 LOGGER.exception(exc)
 
-            # Log connection failure
-            LOGGER.error("Association Request Failed: Failed to establish "
-                         "association")
-            LOGGER.error("Peer aborted Association (or never connected)")
-            LOGGER.error("TCP Initialisation Error: Connection refused")
             # Don't be tempted to replace this with a self.close() call -
             #   it doesn't work because `_is_connected` is False
             if self.socket:

@@ -162,13 +162,16 @@ if args.prefer_big and ExplicitVRBigEndian in transfer_syntax:
 
 def handle_move(event):
     """Implement the on_c_move callback"""
-    basedir = '../../tests/dicom_files/'
+
+    APP_DIR = os.path.join(os.path.dirname(__file__))
+    DATA_DIR = os.path.join(APP_DIR, '../', '../', 'tests', 'dicom_files')
     dcm_files = ['RTImageStorage.dcm']
-    dcm_files = [os.path.join(basedir, x) for x in dcm_files]
+    dcm_files = [os.path.join(DATA_DIR, x) for x in dcm_files]
 
     # Address and port to send to
-    if move_aet == b'ANY-SCP         ':
-        yield '127.0.0.1', 11112
+    move_destination = event.request.MoveDestination
+    if move_destination == b'ANY-SCP         ':
+        yield '127.0.0.1', 11113
     else:
         yield None, None
 
@@ -180,16 +183,14 @@ def handle_move(event):
         ds = dcmread(dcm, force=True)
         yield 0xff00, ds
 
-def handle_store(event):
-    return 0x0000
 
-# Allow our SCP to act as the move destination
-handlers = [(evt.EVT_C_MOVE, handle_move), (evt.EVT_C_STORE, handle_store)]
+handlers = [(evt.EVT_C_MOVE, handle_move)]
 
 # Create application entity
 ae = AE(ae_title=args.aetitle)
 
 # Add the requested Storage Service presentation contexts
+# Used when sending the dataset to the move destination Storage SCP
 for context in StoragePresentationContexts:
     ae.add_requested_context(context.abstract_syntax, transfer_syntax)
 

@@ -19,18 +19,19 @@ from pydicom.uid import (
 )
 
 from pynetdicom import (
-    AE,
+    AE, evt,
     QueryRetrievePresentationContexts,
+    StoragePresentationContexts,
     PYNETDICOM_IMPLEMENTATION_VERSION,
     PYNETDICOM_IMPLEMENTATION_UID
 )
 
-logger = logging.Logger('movescu')
+LOGGER = logging.Logger('movescu')
 stream_logger = logging.StreamHandler()
 formatter = logging.Formatter('%(levelname).1s: %(message)s')
 stream_logger.setFormatter(formatter)
-logger.addHandler(stream_logger)
-logger.setLevel(logging.ERROR)
+LOGGER.addHandler(stream_logger)
+LOGGER.setLevel(logging.ERROR)
 
 
 VERSION = '0.3.0'
@@ -41,8 +42,9 @@ def _setup_argparser():
     # Description
     parser = argparse.ArgumentParser(
         description="The movescu application implements a Service Class User "
-                    "(SCU) for the Query/Retrieve (QR) Service Class and a SCP "
-                    " for the Storage Service Class. movescu "
+                    "(SCU) for the Query/Retrieve (QR) Service Class and "
+                    "(optionally) a Storage SCP for the Storage Service "
+                    "Class. movescu "
                     "supports retrieve functionality using the C-MOVE "
                     "message. It sends query keys to an SCP and waits for a "
                     "response. It will accept associations for the purpose of "
@@ -51,7 +53,7 @@ def _setup_argparser():
                     "QR Service Classes. movescu can initiate the transfer of "
                     "images to a third party or can retrieve images to itself "
                     "(note: the use of the term 'move' is a misnomer, the "
-                    "C-MOVE operation performs an image copy only)",
+                    "C-MOVE operation performs a SOP Instance copy only)",
         usage="movescu [options] peer port dcmfile-in")
 
     # Parameters
@@ -120,6 +122,24 @@ def _setup_argparser():
                           help="use patient/study only information model",
                           action="store_true")
 
+    # Store SCP options
+    store_group = parser.add_argument_group('Storage SCP Options')
+    store_group.add_argument("--store",
+                             help=(
+                                "start a Storage SCP that can be used as "
+                                "the move destination"
+                             ),
+                             action="store_true",
+                             default=False)
+    store_group.add_argument("--store-port",
+                             help="the port number to use for the Storage SCP",
+                             type=int,
+                             default=11113)
+    store_group.add_argument("--store_aet",
+                             help="the AE title to use for the Storage SCP",
+                             type=str,
+                             default="STORESCP")
+
     # Output Options
     out_opts = parser.add_argument_group('Output Options')
     out_opts.add_argument('-od', "--output-directory", metavar="[d]irectory",
@@ -137,22 +157,140 @@ def _setup_argparser():
 args = _setup_argparser()
 
 if args.verbose:
-    logger.setLevel(logging.INFO)
-    pynetdicom_logger = logging.getLogger('PYNETDICOM3_')
+    LOGGER.setLevel(logging.INFO)
+    pynetdicom_logger = logging.getLogger('pynetdicom')
     pynetdicom_logger.setLevel(logging.INFO)
 
 if args.debug:
-    logger.setLevel(logging.DEBUG)
+    LOGGER.setLevel(logging.DEBUG)
     pynetdicom_logger = logging.getLogger('pynetdicom')
     pynetdicom_logger.setLevel(logging.DEBUG)
 
-logger.debug('$movescu.py v{0!s}'.format(VERSION))
-logger.debug('')
+LOGGER.debug('$movescu.py v{0!s}'.format(VERSION))
+LOGGER.debug('')
 
 # Create application entity
 # Binding to port 0 lets the OS pick an available port
-ae = AE(ae_title=args.calling_aet)
+ae = AE()
+
+
+# Start the Store SCP (optional)
+scp = None
+if args.store:
+    def handle_store(event):
+        """Handle a C-STORE request."""
+        if args.ignore:
+            return 0x0000
+
+        mode_prefixes = {
+            'CT Image Storage' : 'CT',
+            'Enhanced CT Image Storage' : 'CTE',
+            'MR Image Storage' : 'MR',
+            'Enhanced MR Image Storage' : 'MRE',
+            'Positron Emission Tomography Image Storage' : 'PT',
+            'Enhanced PET Image Storage' : 'PTE',
+            'RT Image Storage' : 'RI',
+            'RT Dose Storage' : 'RD',
+            'RT Plan Storage' : 'RP',
+            'RT Structure Set Storage' : 'RS',
+            'Computed Radiography Image Storage' : 'CR',
+            'Ultrasound Image Storage' : 'US',
+            'Enhanced Ultrasound Image Storage' : 'USE',
+            'X-Ray Angiographic Image Storage' : 'XA',
+            'Enhanced XA Image Storage' : 'XAE',
+            'Nuclear Medicine Image Storage' : 'NM',
+            'Secondary Capture Image Storage' : 'SC'
+        }
+
+        ds = event.dataset
+
+        # Because pydicom uses deferred reads for its decoding, decoding errors
+        #   are hidden until encountered by accessing a faulty element
+        try:
+            sop_class = ds.SOPClassUID
+            sop_instance = ds.SOPInstanceUID
+        except Exception as exc:
+            # Unable to decode dataset
+            return 0xC210
+
+        try:
+            # Get the elements we need
+            mode_prefix = mode_prefixes[sop_class.name]
+        except KeyError:
+            mode_prefix = 'UN'
+
+        filename = '{0!s}.{1!s}'.format(mode_prefix, sop_instance)
+        LOGGER.info('Storing DICOM file: {0!s}'.format(filename))
+
+        if os.path.exists(filename):
+            LOGGER.warning('DICOM file already exists, overwriting')
+
+        # Presentation context
+        cx = event.context
+
+        ## DICOM File Format - File Meta Information Header
+        # If a DICOM dataset is to be stored in the DICOM File Format then the
+        # File Meta Information Header is required. At a minimum it requires:
+        #   * (0002,0000) FileMetaInformationGroupLength, UL, 4
+        #   * (0002,0001) FileMetaInformationVersion, OB, 2
+        #   * (0002,0002) MediaStorageSOPClassUID, UI, N
+        #   * (0002,0003) MediaStorageSOPInstanceUID, UI, N
+        #   * (0002,0010) TransferSyntaxUID, UI, N
+        #   * (0002,0012) ImplementationClassUID, UI, N
+        # (from the DICOM Standard, Part 10, Section 7.1)
+        # Of these, we should update the following as pydicom will take care of
+        #   the remainder
+        meta = Dataset()
+        meta.MediaStorageSOPClassUID = sop_class
+        meta.MediaStorageSOPInstanceUID = sop_instance
+        meta.ImplementationClassUID = PYNETDICOM_IMPLEMENTATION_UID
+        meta.TransferSyntaxUID = cx.transfer_syntax
+
+        # The following is not mandatory, set for convenience
+        meta.ImplementationVersionName = PYNETDICOM_IMPLEMENTATION_VERSION
+
+        ds.file_meta = meta
+        ds.is_little_endian = cx.transfer_syntax.is_little_endian
+        ds.is_implicit_VR = cx.transfer_syntax.is_implicit_VR
+
+        status_ds = Dataset()
+        status_ds.Status = 0x0000
+
+        # Try to save to output-directory
+        if args.output_directory is not None:
+            filename = os.path.join(args.output_directory, filename)
+
+        try:
+            # We use `write_like_original=False` to ensure that a compliant
+            #   File Meta Information Header is written
+            ds.save_as(filename, write_like_original=False)
+            status_ds.Status = 0x0000 # Success
+        except IOError:
+            LOGGER.error('Could not write file to specified directory:')
+            LOGGER.error("    {0!s}".format(os.path.dirname(filename)))
+            LOGGER.error('Directory may not exist or you may not have write '
+                         'permission')
+            # Failed - Out of Resources - IOError
+            status_ds.Status = 0xA700
+        except:
+            LOGGER.error('Could not write file to specified directory:')
+            LOGGER.error("    {0!s}".format(os.path.dirname(filename)))
+            # Failed - Out of Resources - Miscellaneous error
+            status_ds.Status = 0xA701
+
+        return status_ds
+
+    store_handlers = [(evt.EVT_C_STORE, handle_store)]
+
+    ae.ae_title = args.store_aet
+    ae.supported_contexts = StoragePresentationContexts
+    scp = ae.start_server(('', args.store_port),
+                          block=False,
+                          evt_handlers=store_handlers)
+
+ae.ae_title = args.calling_aet
 ae.requested_contexts = QueryRetrievePresentationContexts
+
 
 # Request association with remote AE
 assoc = ae.associate(args.peer, args.port, ae_title=args.called_aet)
@@ -184,3 +322,7 @@ if assoc.is_established:
         pass
 
     assoc.release()
+
+# Shutdown the Storage SCP (if used)
+if scp:
+    scp.shutdown()

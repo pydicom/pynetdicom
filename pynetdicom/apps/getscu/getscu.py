@@ -17,13 +17,13 @@ from pydicom.uid import (
 )
 
 from pynetdicom import (
-    AE,
+    AE, build_role, evt,
     StoragePresentationContexts,
     QueryRetrievePresentationContexts,
     PYNETDICOM_IMPLEMENTATION_UID,
     PYNETDICOM_IMPLEMENTATION_VERSION
 )
-from pynetdicom.pdu_primitives import SCP_SCU_RoleSelectionNegotiation
+
 
 LOGGER = logging.Logger('getscu')
 stream_logger = logging.StreamHandler()
@@ -146,11 +146,7 @@ for context in StoragePresentationContexts[:115]:
 # We want to act as a Storage SCP
 ext_neg = []
 for context in StoragePresentationContexts:
-    role = SCP_SCU_RoleSelectionNegotiation()
-    role.sop_class_uid = context.abstract_syntax
-    role.scp_role = True
-    role.scu_role = False
-    ext_neg.append(role)
+    ext_neg.append(build_role(context.abstract_syntax, scp_role=True))
 
 # Create query dataset
 d = Dataset()
@@ -168,55 +164,56 @@ elif args.psonly:
 else:
     query_model = 'W'
 
-def on_c_store(dataset, context, info):
-    """
-    Function replacing ApplicationEntity.on_store(). Called when a dataset is
-    received following a C-STORE. Write the received dataset to file
+def handle_store(event):
+    """Handle a C-STORE request."""
+    if args.ignore:
+        return 0x0000
 
-    Parameters
-    ----------
-    dataset : pydicom.Dataset
-        The DICOM dataset sent via the C-STORE
-    context : pynetdicom.presentation.PresentationContextTuple
-        Details of the presentation context the dataset was sent under.
-    info : dict
-        A dict containing information about the association and DIMSE message.
+    mode_prefixes = {
+        'CT Image Storage' : 'CT',
+        'Enhanced CT Image Storage' : 'CTE',
+        'MR Image Storage' : 'MR',
+        'Enhanced MR Image Storage' : 'MRE',
+        'Positron Emission Tomography Image Storage' : 'PT',
+        'Enhanced PET Image Storage' : 'PTE',
+        'RT Image Storage' : 'RI',
+        'RT Dose Storage' : 'RD',
+        'RT Plan Storage' : 'RP',
+        'RT Structure Set Storage' : 'RS',
+        'Computed Radiography Image Storage' : 'CR',
+        'Ultrasound Image Storage' : 'US',
+        'Enhanced Ultrasound Image Storage' : 'USE',
+        'X-Ray Angiographic Image Storage' : 'XA',
+        'Enhanced XA Image Storage' : 'XAE',
+        'Nuclear Medicine Image Storage' : 'NM',
+        'Secondary Capture Image Storage' : 'SC'
+    }
 
-    Returns
-    -------
-    status : pynetdicom.sop_class.Status or int
-        A valid return status code, see PS3.4 Annex B.2.3 or the
-        StorageServiceClass implementation for the available statuses
-    """
-    mode_prefix = 'UN'
-    mode_prefixes = {'CT Image Storage' : 'CT',
-                     'Enhanced CT Image Storage' : 'CTE',
-                     'MR Image Storage' : 'MR',
-                     'Enhanced MR Image Storage' : 'MRE',
-                     'Positron Emission Tomography Image Storage' : 'PT',
-                     'Enhanced PET Image Storage' : 'PTE',
-                     'RT Image Storage' : 'RI',
-                     'RT Dose Storage' : 'RD',
-                     'RT Plan Storage' : 'RP',
-                     'RT Structure Set Storage' : 'RS',
-                     'Computed Radiography Image Storage' : 'CR',
-                     'Ultrasound Image Storage' : 'US',
-                     'Enhanced Ultrasound Image Storage' : 'USE',
-                     'X-Ray Angiographic Image Storage' : 'XA',
-                     'Enhanced XA Image Storage' : 'XAE',
-                     'Nuclear Medicine Image Storage' : 'NM',
-                     'Secondary Capture Image Storage' : 'SC'}
+    ds = event.dataset
+
+    # Because pydicom uses deferred reads for its decoding, decoding errors
+    #   are hidden until encountered by accessing a faulty element
+    try:
+        sop_class = ds.SOPClassUID
+        sop_instance = ds.SOPInstanceUID
+    except Exception as exc:
+        # Unable to decode dataset
+        return 0xC210
 
     try:
-        mode_prefix = mode_prefixes[dataset.SOPClassUID.name]
+        # Get the elements we need
+        mode_prefix = mode_prefixes[sop_class.name]
     except KeyError:
         mode_prefix = 'UN'
 
-    filename = '{0!s}.{1!s}'.format(mode_prefix, dataset.SOPInstanceUID)
+    filename = '{0!s}.{1!s}'.format(mode_prefix, sop_instance)
     LOGGER.info('Storing DICOM file: {0!s}'.format(filename))
 
     if os.path.exists(filename):
         LOGGER.warning('DICOM file already exists, overwriting')
+
+    # Presentation context
+    cx = event.context
 
     ## DICOM File Format - File Meta Information Header
     # If a DICOM dataset is to be stored in the DICOM File Format then the
@@ -231,54 +228,53 @@ def on_c_store(dataset, context, info):
     # Of these, we should update the following as pydicom will take care of
     #   the remainder
     meta = Dataset()
-    meta.MediaStorageSOPClassUID = dataset.SOPClassUID
-    meta.MediaStorageSOPInstanceUID = dataset.SOPInstanceUID
+    meta.MediaStorageSOPClassUID = sop_class
+    meta.MediaStorageSOPInstanceUID = sop_instance
     meta.ImplementationClassUID = PYNETDICOM_IMPLEMENTATION_UID
-    meta.TransferSyntaxUID = context.transfer_syntax
+    meta.TransferSyntaxUID = cx.transfer_syntax
 
     # The following is not mandatory, set for convenience
     meta.ImplementationVersionName = PYNETDICOM_IMPLEMENTATION_VERSION
 
-    ds = FileDataset(filename, {}, file_meta=meta, preamble=b"\0" * 128)
-    ds.update(dataset)
-    ds.is_little_endian = context.transfer_syntax.is_little_endian
-    ds.is_implicit_VR = context.transfer_syntax.is_implicit_VR
+    ds.file_meta = meta
+    ds.is_little_endian = cx.transfer_syntax.is_little_endian
+    ds.is_implicit_VR = cx.transfer_syntax.is_implicit_VR
 
     status_ds = Dataset()
     status_ds.Status = 0x0000
 
-    if not args.ignore:
-        # Try to save to output-directory
-        if args.output_directory is not None:
-            filename = os.path.join(args.output_directory, filename)
+    # Try to save to output-directory
+    if args.output_directory is not None:
+        filename = os.path.join(args.output_directory, filename)
 
-        try:
-            # We use `write_like_original=False` to ensure that a compliant
-            #   File Meta Information Header is written
-            ds.save_as(filename, write_like_original=False)
-            status_ds.Status = 0x0000 # Success
-        except IOError:
-            LOGGER.error('Could not write file to specified directory:')
-            LOGGER.error("    {0!s}".format(os.path.dirname(filename)))
-            LOGGER.error('Directory may not exist or you may not have write '
-                    'permission')
-            # Failed - Out of Resources - IOError
-            status_ds.Status = 0xA700
-        except:
-            LOGGER.error('Could not write file to specified directory:')
-            LOGGER.error("    {0!s}".format(os.path.dirname(filename)))
-            # Failed - Out of Resources - Miscellaneous error
-            status_ds.Status = 0xA701
+    try:
+        # We use `write_like_original=False` to ensure that a compliant
+        #   File Meta Information Header is written
+        ds.save_as(filename, write_like_original=False)
+        status_ds.Status = 0x0000 # Success
+    except IOError:
+        LOGGER.error('Could not write file to specified directory:')
+        LOGGER.error("    {0!s}".format(os.path.dirname(filename)))
+        LOGGER.error('Directory may not exist or you may not have write '
+                     'permission')
+        # Failed - Out of Resources - IOError
+        status_ds.Status = 0xA700
+    except:
+        LOGGER.error('Could not write file to specified directory:')
+        LOGGER.error("    {0!s}".format(os.path.dirname(filename)))
+        # Failed - Out of Resources - Miscellaneous error
+        status_ds.Status = 0xA701
 
     return status_ds
 
-ae.on_c_store = on_c_store
+handlers = [(evt.EVT_C_STORE, handle_store)]
 
 # Request association with remote
 assoc = ae.associate(args.peer,
                      args.port,
                      ae_title=args.called_aet,
-                     ext_neg=ext_neg)
+                     ext_neg=ext_neg,
+                     evt_handlers=handlers)
 
 # Send query
 if assoc.is_established:

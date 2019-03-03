@@ -159,15 +159,18 @@ if args.prefer_big and ExplicitVRBigEndian in transfer_syntax:
 
 def handle_find(event):
     """Handle a C-FIND request."""
-    basedir = '../../tests/dicom_files/'
+    APP_DIR = os.path.join(os.path.dirname(__file__))
+    DATA_DIR = os.path.join(APP_DIR, '../', '../', 'tests', 'dicom_files')
     dcm_files = ['RTImageStorage.dcm']
-    dcm_files = [os.path.join(basedir, x) for x in dcm_files]
+    dcm_files = [os.path.join(DATA_DIR, x) for x in dcm_files]
     for dcm in dcm_files:
         data = dcmread(dcm, force=True)
 
+        identifier = event.identifier
+
         ds = Dataset()
-        if 'QueryRetrieveLevel' in dataset:
-            ds.QueryRetrieveLevel = dataset.QueryRetrieveLevel
+        if 'QueryRetrieveLevel' in identifier:
+            ds.QueryRetrieveLevel = identifier.QueryRetrieveLevel
         ds.RetrieveAETitle = args.aetitle
         ds.PatientName = data.PatientName
 
@@ -190,7 +193,5 @@ ae.maximum_pdu_size = args.max_pdu
 ae.network_timeout = args.timeout
 ae.acse_timeout = args.acse_timeout
 ae.dimse_timeout = args.dimse_timeout
-
-ae.on_c_find = on_c_find
 
 ae.start_server(('', args.port), evt_handlers=handlers)

@@ -163,9 +163,10 @@ if args.prefer_big and ExplicitVRBigEndian in transfer_syntax:
 def handle_get(event):
     """Implement the on_c_get callback"""
     try:
-        basedir = '../../tests/dicom_files/'
+        APP_DIR = os.path.join(os.path.dirname(__file__))
+        DATA_DIR = os.path.join(APP_DIR, '../', '../', 'tests', 'dicom_files')
         dcm_files = ['RTImageStorage.dcm', 'CTImageStorage.dcm']
-        dcm_files = [os.path.join(basedir, x) for x in dcm_files]
+        dcm_files = [os.path.join(DATA_DIR, x) for x in dcm_files]
         yield len(dcm_files)
     except:
         dcm_files = []
