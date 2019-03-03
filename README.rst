@@ -99,42 +99,42 @@ been accepted):
 .. _send_n_get: https:pydicom.github.io/pynetdicom/stable/reference/generated/pynetdicom.association.Association.html#pynetdicom.association.Association.send_n_get
 .. _send_n_set: https:pydicom.github.io/pynetdicom/stable/reference/generated/pynetdicom.association.Association.html#pynetdicom.association.Association.send_n_set
 
-+----------------+----------------------------------------------------------+-------------------------------------+
-| DIMSE service  | ``Association`` method                                   | Documentation                       |
-+================+==========================================================+=====================================+
-| C-ECHO         | ``send_c_echo()``                                        | .. image:: docs/assets/img/link.svg |
-|                |                                                          |   :target: send_c_echo_             |
-+----------------+----------------------------------------------------------+-------------------------------------+
-| C-FIND         | ``send_c_find(dataset)``                                 | .. image:: docs/assets/img/link.svg |
-|                |                                                          |   :target: send_c_find_             |
-+----------------+----------------------------------------------------------+-------------------------------------+
-| C-GET          | ``send_c_get(dataset)``                                  | .. image:: docs/assets/img/link.svg |
-|                |                                                          |   :target: send_c_get_              |
-+----------------+----------------------------------------------------------+-------------------------------------+
-| C-MOVE         | ``send_c_move(dataset, move_aet)``                       | .. image:: docs/assets/img/link.svg |
-|                |                                                          |   :target: send_c_move_             |
-+----------------+----------------------------------------------------------+-------------------------------------+
-| C-STORE        | ``send_c_store(dataset)``                                | .. image:: docs/assets/img/link.svg |
-|                |                                                          |   :target: send_c_store_            |
-+----------------+----------------------------------------------------------+-------------------------------------+
-| N-ACTION       | ``send_n_action(dataset, action_type, class_uid,         | .. image:: docs/assets/img/link.svg |
-|                | instance_uid)``                                          |   :target: send_n_action_           |
-+----------------+----------------------------------------------------------+-------------------------------------+
-| N-CREATE       | ``send_n_create(dataset, class_uid, instance_uid)``      | .. image:: docs/assets/img/link.svg |
-|                |                                                          |   :target: send_n_create_           |
-+----------------+----------------------------------------------------------+-------------------------------------+
-| N-DELETE       | ``send_n_delete(class_uid, instance_uid)``               | .. image:: docs/assets/img/link.svg |
-|                |                                                          |   :target: send_n_delete_           |
-+----------------+----------------------------------------------------------+-------------------------------------+
-| N-EVENT-REPORT | ``send_n_event_report(dataset, event_type,               | .. image:: docs/assets/img/link.svg |
-|                | class_uid, instance_uid)``                               |   :target: send_n_event_report_     |
-+----------------+----------------------------------------------------------+-------------------------------------+
-| N-GET          | ``send_n_get(identifier_list, class_uid, instance_uid)`` | .. image:: docs/assets/img/link.svg |
-|                |                                                          |   :target: send_n_get_              |
-+----------------+----------------------------------------------------------+-------------------------------------+
-| N-SET          | ``send_n_set(dataset, class_uid, instance_uid)``         | .. image:: docs/assets/img/link.svg |
-|                |                                                          |   :target: send_n_set_              |
-+----------------+----------------------------------------------------------+-------------------------------------+
++----------------+----------------------------------------------------------+
+| DIMSE service  | ``Association`` method                                   |
++================+==========================================================+
+| C-ECHO         | ``send_c_echo()``                                        |
+|                |                                                          |
++----------------+----------------------------------------------------------+
+| C-FIND         | ``send_c_find(dataset)``                                 |
+|                |                                                          |
++----------------+----------------------------------------------------------+
+| C-GET          | ``send_c_get(dataset)``                                  |
+|                |                                                          |
++----------------+----------------------------------------------------------+
+| C-MOVE         | ``send_c_move(dataset, move_aet)``                       |
+|                |                                                          |
++----------------+----------------------------------------------------------+
+| C-STORE        | ``send_c_store(dataset)``                                |
+|                |                                                          |
++----------------+----------------------------------------------------------+
+| N-ACTION       | ``send_n_action(dataset, action_type, class_uid,         |
+|                | instance_uid)``                                          |
++----------------+----------------------------------------------------------+
+| N-CREATE       | ``send_n_create(dataset, class_uid, instance_uid)``      |
+|                |                                                          |
++----------------+----------------------------------------------------------+
+| N-DELETE       | ``send_n_delete(class_uid, instance_uid)``               |
+|                |                                                          |
++----------------+----------------------------------------------------------+
+| N-EVENT-REPORT | ``send_n_event_report(dataset, event_type,               |
+|                | class_uid, instance_uid)``                               |
++----------------+----------------------------------------------------------+
+| N-GET          | ``send_n_get(identifier_list, class_uid, instance_uid)`` |
+|                |                                                          |
++----------------+----------------------------------------------------------+
+| N-SET          | ``send_n_set(dataset, class_uid, instance_uid)``         |
+|                |                                                          |
++----------------+----------------------------------------------------------+
 
 Where *dataset* is a pydicom
 `Dataset <https://pydicom.github.io/pydicom/stable/ref_guide.html#dataset>`_
@@ -152,39 +152,39 @@ Supported DIMSE SCP Services
 When the AE is acting as an SCP the following DIMSE-C and -N services are
 available to the peer once an association has been established:
 
-.. _handle_echo: https:pydicom.github.io/pynetdicom/dev/reference/generated/pynetdicom._handlers.doc_handle_echo.html
-.. _handle_find: https:pydicom.github.io/pynetdicom/dev/reference/generated/pynetdicom._handlers.doc_handle_find.html
-.. _handle_c_get: https:pydicom.github.io/pynetdicom/dev/reference/generated/pynetdicom._handlers.doc_handle_c_get.html
-.. _handle_move: https:pydicom.github.io/pynetdicom/dev/reference/generated/pynetdicom._handlers.doc_handle_move.html
-.. _handle_store: https:pydicom.github.io/pynetdicom/dev/reference/generated/pynetdicom._handlers.doc_handle_store.html
-.. _handle_action: https:pydicom.github.io/pynetdicom/dev/reference/generated/pynetdicom._handlers.doc_handle_action.html
-.. _handle_create: https:pydicom.github.io/pynetdicom/dev/reference/generated/pynetdicom._handlers.doc_handle_create.html
-.. _handle_delete: https:pydicom.github.io/pynetdicom/dev/reference/generated/pynetdicom._handlers.doc_handle_delete.html
-.. _handle_event_report: https:pydicom.github.io/pynetdicom/dev/reference/generated/pynetdicom._handlers.doc_handle_event_report.html
-.. _handle_n_get: https:pydicom.github.io/pynetdicom/dev/reference/generated/pynetdicom._handlers.doc_handle_n_get.html
-.. _handle_set: https:pydicom.github.io/pynetdicom/dev/reference/generated/pynetdicom._handlers.doc_handle_set.html
+.. _handle_echo: https://pydicom.github.io/pynetdicom/dev/reference/generated/pynetdicom._handlers.doc_handle_echo.html
+.. _handle_find: https://pydicom.github.io/pynetdicom/dev/reference/generated/pynetdicom._handlers.doc_handle_find.html
+.. _handle_c_get: https://pydicom.github.io/pynetdicom/dev/reference/generated/pynetdicom._handlers.doc_handle_c_get.html
+.. _handle_move: https://pydicom.github.io/pynetdicom/dev/reference/generated/pynetdicom._handlers.doc_handle_move.html
+.. _handle_store: https://pydicom.github.io/pynetdicom/dev/reference/generated/pynetdicom._handlers.doc_handle_store.html
+.. _handle_action: https://pydicom.github.io/pynetdicom/dev/reference/generated/pynetdicom._handlers.doc_handle_action.html
+.. _handle_create: https://pydicom.github.io/pynetdicom/dev/reference/generated/pynetdicom._handlers.doc_handle_create.html
+.. _handle_delete: https://pydicom.github.io/pynetdicom/dev/reference/generated/pynetdicom._handlers.doc_handle_delete.html
+.. _handle_event_report: https://pydicom.github.io/pynetdicom/dev/reference/generated/pynetdicom._handlers.doc_handle_event_report.html
+.. _handle_n_get: https://pydicom.github.io/pynetdicom/dev/reference/generated/pynetdicom._handlers.doc_handle_n_get.html
+.. _handle_set: https://pydicom.github.io/pynetdicom/dev/reference/generated/pynetdicom._handlers.doc_handle_set.html
 
-+---------------+---------------------+-------------------------------------+
-| DIMSE service | Intervention Event  | Handler Documentation               |
-+===============+=====================+=====================================+
-| C-ECHO        | ``evt.EVT_C_ECHO``  | .. image:: docs/assets/img/link.svg |
-|               |                     |   :target: handle_echo_             |
-+---------------+---------------------+-------------------------------------+
-| C-FIND        | ``evt.EVT_C_FIND``  | .. image:: docs/assets/img/link.svg |
-|               |                     |   :target: handle_echo_             |
-+---------------+---------------------+-------------------------------------+
-| C-GET         | ``evt.EVT_C_GET``   | .. image:: docs/assets/img/link.svg |
-|               |                     |   :target: handle_echo_             |
-+---------------+---------------------+-------------------------------------+
-| C-MOVE        | ``evt.EVT_C_MOVE``  | .. image:: docs/assets/img/link.svg |
-|               |                     |   :target: handle_echo_             |
-+---------------+---------------------+-------------------------------------+
-| C-STORE       | ``evt.EVT_C_STORE`` | .. image:: docs/assets/img/link.svg |
-|               |                     |   :target: handle_echo_             |
-+---------------+---------------------+-------------------------------------+
-| N-GET         | ``evt.EVT_N_GET``   | .. image:: docs/assets/img/link.svg |
-|               |                     |   :target: handle_echo_             |
-+---------------+---------------------+-------------------------------------+
++---------------+---------------------+
+| DIMSE service | Intervention Event  |
++===============+=====================+
+| C-ECHO        | ``evt.EVT_C_ECHO``  |
+|               |                     |
++---------------+---------------------+
+| C-FIND        | ``evt.EVT_C_FIND``  |
+|               |                     |
++---------------+---------------------+
+| C-GET         | ``evt.EVT_C_GET``   |
+|               |                     |
++---------------+---------------------+
+| C-MOVE        | ``evt.EVT_C_MOVE``  |
+|               |                     |
++---------------+---------------------+
+| C-STORE       | ``evt.EVT_C_STORE`` |
+|               |                     |
++---------------+---------------------+
+| N-GET         | ``evt.EVT_N_GET``   |
+|               |                     |
++---------------+---------------------+
 
 With the exception of the C-ECHO service, a user-defined *handler* must be bound
 to the corresponding
