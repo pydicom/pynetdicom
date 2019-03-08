@@ -1150,7 +1150,14 @@ class QueryRetrieveServiceClass(ServiceClass):
                 #   association and check that the response's Status exists and
                 #   is a known value
                 try:
-                    store_status = self.assoc.send_c_store(dataset)
+                    # Message ID is VR 'US' and has range 0 <= n < 2**16
+                    msg_id = req.MessageID + ii + 1
+                    if msg_id > 65535:
+                        msg_id -= 65535
+
+                    store_status = self.assoc.send_c_store(
+                        dataset, msg_id=msg_id
+                    )
                     store_status = (
                         STORAGE_SERVICE_CLASS_STATUS[store_status.Status]
                     )
@@ -1599,8 +1606,14 @@ class QueryRetrieveServiceClass(ServiceClass):
                     #   association and check that the response's Status exists
                     #   and is a known value
                     try:
+                        # Message ID is VR 'US' and has range 0 <= n < 2**16
+                        msg_id = req.MessageID + ii + 1
+                        if msg_id > 65535:
+                            msg_id -= 65535
+
                         store_status = store_assoc.send_c_store(
                             dataset,
+                            msg_id=msg_id,
                             originator_aet=self.ae.ae_title,
                             originator_id=1
                         )

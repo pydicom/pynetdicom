@@ -1060,6 +1060,46 @@ class TestStandardLogging(object):
             assoc.release()
             scp.shutdown()
 
+    def test_send_assoc_ac_no_cx(self, caplog):
+        """Test _send_associate_ac logger with no presentations contexts"""
+        with caplog.at_level(logging.DEBUG, logger='pynetdicom'):
+            self.ae = ae = AE()
+            ae.add_supported_context(VerificationSOPClass)
+            ae.add_requested_context(VerificationSOPClass)
+            ae.add_requested_context(VerificationSOPClass)
+            ae.add_requested_context(VerificationSOPClass)
+            ae.add_requested_context(VerificationSOPClass)
+            ae.add_requested_context(VerificationSOPClass)
+            scp = ae.start_server(('', 11112), block=False)
+            assoc = ae.associate('localhost', 11112)
+
+            primitive = self.associate_ac
+            primitive.presentation_context_definition_results_list = []
+            pdu = A_ASSOCIATE_AC()
+            pdu.from_primitive(primitive)
+            evt.trigger(
+                assoc, evt.EVT_PDU_SENT, {'pdu' : pdu}
+            )
+
+            messages = [
+                "Our Implementation Class UID:      1.2.826.0.1.3680043.8.498"
+                ".10207287587329888519122978685894984263",
+                "Application Context Name:    1.2.840.10008.3.1.1.1",
+                "Responding Application Name: resp. AE Title",
+                "Our Max PDU Receive Size:    0",
+                "Presentation Contexts:",
+                "(no valid presentation contexts)",
+                "Accepted Extended Negotiation: None",
+                "Accepted Asynchronous Operations Window Negotiation: None",
+                "User Identity Negotiation Response: None",
+            ]
+
+            for msg in messages:
+                assert msg in caplog.text
+
+            assoc.release()
+            scp.shutdown()
+
     # debug_receive_associate_ac
     def test_recv_assoc_ac_minimal(self, caplog):
         """Test minimal ACSE.debug_receive_associate_ac."""
