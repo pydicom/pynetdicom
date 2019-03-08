@@ -4318,6 +4318,114 @@ class TestQRGetServiceClass(object):
 
         scp.shutdown()
 
+    def test_subop_message_id(self):
+        """The that the C-STORE sub-operation Message ID iterates."""
+        def handle(event):
+            yield 3
+            yield 0xFF00, self.ds
+            yield 0xFF00, self.ds
+            yield 0xFF00, self.ds
+            yield 0xB000, None
+
+        msg_ids = []
+        def handle_store(event):
+            msg_ids.append(event.request.MessageID)
+            return 0x0000
+
+        handlers = [(evt.EVT_C_GET, handle)]
+
+        self.ae = ae = AE()
+        ae.add_supported_context(PatientRootQueryRetrieveInformationModelGet)
+        ae.add_supported_context(CTImageStorage, scu_role=False, scp_role=True)
+        ae.add_requested_context(PatientRootQueryRetrieveInformationModelGet)
+        ae.add_requested_context(CTImageStorage)
+        scp = ae.start_server(('', 11112), block=False, evt_handlers=handlers)
+
+        role = build_role(CTImageStorage, scp_role=True)
+        handlers = [(evt.EVT_C_STORE, handle_store)]
+
+        ae.acse_timeout = 5
+        ae.dimse_timeout = 5
+        assoc = ae.associate('localhost', 11112, ext_neg=[role], evt_handlers=handlers)
+        assert assoc.is_established
+        result = assoc.send_c_get(self.query, query_model='P')
+        status, identifier = next(result)
+        assert status.Status == 0xFF00
+        assert identifier is None
+        status, identifier = next(result)
+        assert status.Status == 0xFF00
+        assert identifier is None
+        status, identifier = next(result)
+        assert status.Status == 0xFF00
+        assert identifier is None
+        status, identifier = next(result)
+        assert status.Status == 0x0000
+        assert status.NumberOfFailedSuboperations == 0
+        assert status.NumberOfWarningSuboperations == 0
+        assert status.NumberOfCompletedSuboperations == 3
+        assert identifier is None
+        pytest.raises(StopIteration, next, result)
+
+        assoc.release()
+        assert assoc.is_released
+        scp.shutdown()
+
+        assert msg_ids == [2, 3, 4]
+
+    def test_subop_message_id_rollover(self):
+        """The that the C-STORE sub-operation Message ID iterates."""
+        def handle(event):
+            yield 3
+            yield 0xFF00, self.ds
+            yield 0xFF00, self.ds
+            yield 0xFF00, self.ds
+            yield 0xB000, None
+
+        msg_ids = []
+        def handle_store(event):
+            msg_ids.append(event.request.MessageID)
+            return 0x0000
+
+        handlers = [(evt.EVT_C_GET, handle)]
+
+        self.ae = ae = AE()
+        ae.add_supported_context(PatientRootQueryRetrieveInformationModelGet)
+        ae.add_supported_context(CTImageStorage, scu_role=False, scp_role=True)
+        ae.add_requested_context(PatientRootQueryRetrieveInformationModelGet)
+        ae.add_requested_context(CTImageStorage)
+        scp = ae.start_server(('', 11112), block=False, evt_handlers=handlers)
+
+        role = build_role(CTImageStorage, scp_role=True)
+        handlers = [(evt.EVT_C_STORE, handle_store)]
+
+        ae.acse_timeout = 5
+        ae.dimse_timeout = 5
+        assoc = ae.associate('localhost', 11112, ext_neg=[role], evt_handlers=handlers)
+        assert assoc.is_established
+        result = assoc.send_c_get(self.query, msg_id=65534, query_model='P')
+        status, identifier = next(result)
+        assert status.Status == 0xFF00
+        assert identifier is None
+        status, identifier = next(result)
+        assert status.Status == 0xFF00
+        assert identifier is None
+        status, identifier = next(result)
+        assert status.Status == 0xFF00
+        assert identifier is None
+        status, identifier = next(result)
+        assert status.Status == 0x0000
+        assert status.NumberOfFailedSuboperations == 0
+        assert status.NumberOfWarningSuboperations == 0
+        assert status.NumberOfCompletedSuboperations == 3
+        assert identifier is None
+        pytest.raises(StopIteration, next, result)
+
+        assoc.release()
+        assert assoc.is_released
+        scp.shutdown()
+
+        assert msg_ids == [65535, 1, 2]
+
 
 class TestQRMoveServiceClass_Deprecated(object):
     def setup(self):
@@ -6958,6 +7066,110 @@ class TestQRMoveServiceClass(object):
         assert cancel_results == [False, True]
 
         scp.shutdown()
+
+    def test_subop_message_id(self):
+        """Test C-STORE sub-operations Message ID iterates."""
+        def handle(event):
+            yield self.destination
+            yield 3
+            yield 0xFF00, self.ds
+            yield 0xFF00, self.ds
+            yield 0xFF00, self.ds
+            yield 0xB000, None
+
+        msg_ids = []
+        def handle_store(event):
+            msg_ids.append(event.request.MessageID)
+            return 0x0000
+
+        handlers = [(evt.EVT_C_MOVE, handle), (evt.EVT_C_STORE, handle_store)]
+
+        self.ae = ae = AE()
+        ae.add_supported_context(PatientRootQueryRetrieveInformationModelMove)
+        ae.add_supported_context(CTImageStorage, scu_role=False, scp_role=True)
+        ae.add_requested_context(PatientRootQueryRetrieveInformationModelMove)
+        ae.add_requested_context(CTImageStorage)
+        scp = ae.start_server(('', 11112), block=False, evt_handlers=handlers)
+
+        ae.acse_timeout = 5
+        ae.dimse_timeout = 5
+        assoc = ae.associate('localhost', 11112)
+        assert assoc.is_established
+        result = assoc.send_c_move(self.query, b'TESTMOVE', query_model='P')
+        status, identifier = next(result)
+        assert status.Status == 0xFF00
+        assert identifier is None
+        status, identifier = next(result)
+        assert status.Status == 0xFF00
+        assert identifier is None
+        status, identifier = next(result)
+        assert status.Status == 0xFF00
+        assert identifier is None
+        status, identifier = next(result)
+        assert status.Status == 0x0000
+        assert status.NumberOfFailedSuboperations == 0
+        assert status.NumberOfWarningSuboperations == 0
+        assert status.NumberOfCompletedSuboperations == 3
+        assert identifier is None
+        pytest.raises(StopIteration, next, result)
+
+        assoc.release()
+        scp.shutdown()
+
+        assert msg_ids == [2, 3, 4]
+
+    def test_subop_message_id_rollover(self):
+        """Test C-STORE sub-operations Message ID iterates."""
+        def handle(event):
+            yield self.destination
+            yield 3
+            yield 0xFF00, self.ds
+            yield 0xFF00, self.ds
+            yield 0xFF00, self.ds
+            yield 0xB000, None
+
+        msg_ids = []
+        def handle_store(event):
+            msg_ids.append(event.request.MessageID)
+            return 0x0000
+
+        handlers = [(evt.EVT_C_MOVE, handle), (evt.EVT_C_STORE, handle_store)]
+
+        self.ae = ae = AE()
+        ae.add_supported_context(PatientRootQueryRetrieveInformationModelMove)
+        ae.add_supported_context(CTImageStorage, scu_role=False, scp_role=True)
+        ae.add_requested_context(PatientRootQueryRetrieveInformationModelMove)
+        ae.add_requested_context(CTImageStorage)
+        scp = ae.start_server(('', 11112), block=False, evt_handlers=handlers)
+
+        ae.acse_timeout = 5
+        ae.dimse_timeout = 5
+        assoc = ae.associate('localhost', 11112)
+        assert assoc.is_established
+        result = assoc.send_c_move(
+            self.query, b'TESTMOVE', msg_id=65534, query_model='P'
+        )
+        status, identifier = next(result)
+        assert status.Status == 0xFF00
+        assert identifier is None
+        status, identifier = next(result)
+        assert status.Status == 0xFF00
+        assert identifier is None
+        status, identifier = next(result)
+        assert status.Status == 0xFF00
+        assert identifier is None
+        status, identifier = next(result)
+        assert status.Status == 0x0000
+        assert status.NumberOfFailedSuboperations == 0
+        assert status.NumberOfWarningSuboperations == 0
+        assert status.NumberOfCompletedSuboperations == 3
+        assert identifier is None
+        pytest.raises(StopIteration, next, result)
+
+        assoc.release()
+        scp.shutdown()
+
+        assert msg_ids == [65535, 1, 2]
 
 
 class TestQRCompositeInstanceWithoutBulk(object):
