@@ -1325,7 +1325,14 @@
                 <span class="c1">#   association and check that the response&#39;s Status exists and</span>
                 <span class="c1">#   is a known value</span>
                 <span class="k">try</span><span class="p">:</span>
-                    <span class="n">store_status</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">assoc</span><span class="o">.</span><span class="n">send_c_store</span><span class="p">(</span><span class="n">dataset</span><span class="p">)</span>
+                    <span class="c1"># Message ID is VR &#39;US&#39; and has range 0 &lt;= n &lt; 2**16</span>
+                    <span class="n">msg_id</span> <span class="o">=</span> <span class="n">req</span><span class="o">.</span><span class="n">MessageID</span> <span class="o">+</span> <span class="n">ii</span> <span class="o">+</span> <span class="mi">1</span>
+                    <span class="k">if</span> <span class="n">msg_id</span> <span class="o">&gt;</span> <span class="mi">65535</span><span class="p">:</span>
+                        <span class="n">msg_id</span> <span class="o">-=</span> <span class="mi">65535</span>
+
+                    <span class="n">store_status</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">assoc</span><span class="o">.</span><span class="n">send_c_store</span><span class="p">(</span>
+                        <span class="n">dataset</span><span class="p">,</span> <span class="n">msg_id</span><span class="o">=</span><span class="n">msg_id</span>
+                    <span class="p">)</span>
                     <span class="n">store_status</span> <span class="o">=</span> <span class="p">(</span>
                         <span class="n">STORAGE_SERVICE_CLASS_STATUS</span><span class="p">[</span><span class="n">store_status</span><span class="o">.</span><span class="n">Status</span><span class="p">]</span>
                     <span class="p">)</span>
@@ -1774,8 +1781,14 @@
                     <span class="c1">#   association and check that the response&#39;s Status exists</span>
                     <span class="c1">#   and is a known value</span>
                     <span class="k">try</span><span class="p">:</span>
+                        <span class="c1"># Message ID is VR &#39;US&#39; and has range 0 &lt;= n &lt; 2**16</span>
+                        <span class="n">msg_id</span> <span class="o">=</span> <span class="n">req</span><span class="o">.</span><span class="n">MessageID</span> <span class="o">+</span> <span class="n">ii</span> <span class="o">+</span> <span class="mi">1</span>
+                        <span class="k">if</span> <span class="n">msg_id</span> <span class="o">&gt;</span> <span class="mi">65535</span><span class="p">:</span>
+                            <span class="n">msg_id</span> <span class="o">-=</span> <span class="mi">65535</span>
+
                         <span class="n">store_status</span> <span class="o">=</span> <span class="n">store_assoc</span><span class="o">.</span><span class="n">send_c_store</span><span class="p">(</span>
                             <span class="n">dataset</span><span class="p">,</span>
+                            <span class="n">msg_id</span><span class="o">=</span><span class="n">msg_id</span><span class="p">,</span>
                             <span class="n">originator_aet</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">ae</span><span class="o">.</span><span class="n">ae_title</span><span class="p">,</span>
                             <span class="n">originator_id</span><span class="o">=</span><span class="mi">1</span>
                         <span class="p">)</span>
