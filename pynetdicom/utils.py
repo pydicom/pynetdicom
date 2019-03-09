@@ -6,6 +6,8 @@ import logging
 import sys
 import unicodedata
 
+from pynetdicom._config import ENFORCE_UID_CONFORMANCE
+
 
 LOGGER = logging.getLogger('pynetdicom.utils')
 
@@ -88,6 +90,66 @@ def validate_ae_title(ae_title):
 
     # Return as bytes (python 3) or str (python 2)
     return ae_title.encode('ascii', errors='strict')
+
+
+def validate_uid(uid):
+    """Return True if `uid` is considered valid.
+
+    If ``pynetdicom._config.ENFORCE_UID_CONFORMANCE = True`` then the following
+    rules apply:
+
+    * 1-64 characters, inclusive
+    * Each component may not start with 0 unless the component itself is 0
+    * Components are separated by '.'
+    * Valid component characters are 0-9 of the Basic G0 Set of the
+      International Reference Version of ISO 646:1990 (ASCII)
+
+    If ``pynetdicom._config.ENFORCE_UID_CONFORMANCE = False`` then the
+    following rules apply:
+
+    * 1-64 characters, inclusive
+    * Valid component characters are the Basic G0 Set of the International
+      Reference Version of ISO 646:1990 (ASCII)
+
+    Parameters
+    ----------
+    uid : pydicom.uid.UID
+        The UID to check for validity.
+
+    Returns
+    -------
+    bool
+        True if the value is considered valid, False otherwise.
+    """
+    if isinstance(value, UID):
+        pass
+    elif isinstance(value, str):
+        value = UID(value)
+    elif isinstance(value, bytes):
+        value = UID(value.decode('ascii'))
+    elif value is None:
+        pass
+    else:
+        raise TypeError("Affected SOP Class UID must be a "
+                        "pydicom.uid.UID, str or bytes")
+
+    if value is not None and not value.is_valid:
+        LOGGER.error("Affected SOP Class UID is an invalid UID")
+        raise ValueError("Affected SOP Class UID is an invalid UID")
+
+    if ENFORCE_UID_CONFORMANCE:
+        return uid.is_valid
+
+    if 0 < len(uid) < 65:
+        # Python 2 - convert string to unicode
+        if sys.version_info[0] == 2:
+            ascii_uid = unicode(uid)
+
+        ascii_uid.encode('ascii', errors='strict')
+
+        return True
+
+    return False
 
 
 def pretty_bytes(bytestream, prefix='  ', delimiter='  ', items_per_line=16,
