@@ -8,6 +8,7 @@ import pytest
 
 from pydicom.uid import UID
 
+from pynetdicom import _config
 from pynetdicom.pdu import (
     A_ASSOCIATE_RQ, A_ASSOCIATE_AC, P_DATA_TF
 )
@@ -260,6 +261,12 @@ class TestPDU(object):
 
 
 class TestApplicationContext(object):
+    def setup(self):
+        self.default_conformance = _config.ENFORCE_UID_CONFORMANCE
+
+    def teardown(self):
+        _config.ENFORCE_UID_CONFORMANCE = self.default_conformance
+
     def test_init(self):
         """Test a new ApplicationContextItem"""
         item = ApplicationContextItem()
@@ -267,6 +274,22 @@ class TestApplicationContext(object):
         assert item.item_length == 21
         assert len(item) == 25
         assert item.application_context_name == UID('1.2.840.10008.3.1.1.1')
+
+    def test_uid_conformance(self):
+        """Test the UID conformance with ENFORCE_UID_CONFORMANCE."""
+        _config.ENFORCE_UID_CONFORMANCE = False
+
+        item = ApplicationContextItem()
+        item.application_context_name = 'abc'
+        assert item.application_context_name == 'abc'
+
+        msg = r"Invalid 'Application Context Name'"
+        with pytest.raises(ValueError, match=msg):
+            item.application_context_name = 'abc' * 22
+
+        _config.ENFORCE_UID_CONFORMANCE = True
+        with pytest.raises(ValueError, match=msg):
+            item.application_context_name = 'abc'
 
     def test_string_output(self):
         """Test the string output"""
@@ -591,6 +614,12 @@ class TestPresentationContextAC(object):
 
 
 class TestAbstractSyntax(object):
+    def setup(self):
+        self.default_conformance = _config.ENFORCE_UID_CONFORMANCE
+
+    def teardown(self):
+        _config.ENFORCE_UID_CONFORMANCE = self.default_conformance
+
     def test_init(self):
         """Test a new AbstractSyntaxSubItem."""
         item = AbstractSyntaxSubItem()
@@ -599,6 +628,22 @@ class TestAbstractSyntax(object):
         assert len(item) == 4
         assert item.abstract_syntax_name is None
         assert item.abstract_syntax is None
+
+    def test_uid_conformance(self):
+        """Test the UID conformance with ENFORCE_UID_CONFORMANCE."""
+        _config.ENFORCE_UID_CONFORMANCE = False
+
+        item = AbstractSyntaxSubItem()
+        item.abstract_syntax_name = 'abc'
+        assert item.abstract_syntax_name == 'abc'
+
+        msg = r"Abstract Syntax Name is an invalid UID"
+        with pytest.raises(ValueError, match=msg):
+            item.abstract_syntax_name = 'abc' * 22
+
+        _config.ENFORCE_UID_CONFORMANCE = True
+        with pytest.raises(ValueError, match=msg):
+            item.abstract_syntax_name = 'abc'
 
     def test_string_output(self):
         """Test the string output"""
@@ -703,6 +748,12 @@ class TestAbstractSyntax(object):
 
 
 class TestTransferSyntax(object):
+    def setup(self):
+        self.default_conformance = _config.ENFORCE_UID_CONFORMANCE
+
+    def teardown(self):
+        _config.ENFORCE_UID_CONFORMANCE = self.default_conformance
+
     def test_init(self):
         """Test a new AbstractSyntaxSubItem."""
         item = TransferSyntaxSubItem()
@@ -711,6 +762,22 @@ class TestTransferSyntax(object):
         assert len(item) == 4
         assert item.transfer_syntax_name is None
         assert item.transfer_syntax is None
+
+    def test_uid_conformance(self):
+        """Test the UID conformance with ENFORCE_UID_CONFORMANCE."""
+        _config.ENFORCE_UID_CONFORMANCE = False
+
+        item = TransferSyntaxSubItem()
+        item.transfer_syntax_name = 'abc'
+        assert item.transfer_syntax_name == 'abc'
+
+        msg = r"Transfer Syntax Name is an invalid UID"
+        with pytest.raises(ValueError, match=msg):
+            item.transfer_syntax_name = 'abc' * 22
+
+        _config.ENFORCE_UID_CONFORMANCE = True
+        with pytest.raises(ValueError, match=msg):
+            item.transfer_syntax_name = 'abc'
 
     def test_string_output(self):
         """Test the string output"""
@@ -1099,6 +1166,28 @@ class TestUserInformation_MaximumLength(object):
 
 
 class TestUserInformation_ImplementationUID(object):
+    def setup(self):
+        self.default_conformance = _config.ENFORCE_UID_CONFORMANCE
+
+    def teardown(self):
+        _config.ENFORCE_UID_CONFORMANCE = self.default_conformance
+
+    def test_uid_conformance(self):
+        """Test the UID conformance with ENFORCE_UID_CONFORMANCE."""
+        _config.ENFORCE_UID_CONFORMANCE = False
+
+        item = ImplementationClassUIDSubItem()
+        item.implementation_class_uid = 'abc'
+        assert item.implementation_class_uid == 'abc'
+
+        msg = r"Implementation Class UID is an invalid UID"
+        with pytest.raises(ValueError, match=msg):
+            item.implementation_class_uid = 'abc' * 22
+
+        _config.ENFORCE_UID_CONFORMANCE = True
+        with pytest.raises(ValueError, match=msg):
+            item.implementation_class_uid = 'abc'
+
     def test_init(self):
         """Test a new ImplementationClassUIDSubItem."""
         item = ImplementationClassUIDSubItem()
@@ -1249,6 +1338,7 @@ class TestUserInformation_ImplementationUID(object):
                         reason='pytest missing caplog')
     def test_no_log_padded(self, caplog):
         """Regression test for #240."""
+        _config.ENFORCE_UID_CONFORMANCE = True
         caplog.set_level(logging.DEBUG, logger='pynetdicom.pdu_primitives')
         # Confirm that no longer logs invalid UID
         item = ImplementationClassUIDSubItem()
@@ -1262,15 +1352,30 @@ class TestUserInformation_ImplementationUID(object):
         assert caplog.text == ''
 
         # Invalid UID (with no padding)
-        item.decode(
-            b'\x52\x00\x00\x08\x30\x30\x2e\x31\x2e\x32\x2e\x33'
-        )
-        primitive = item.to_primitive()
+        msg = r"Implementation Class UID is an invalid UID"
+        with pytest.raises(ValueError, match=msg):
+            item.decode(
+                b'\x52\x00\x00\x08'
+                b'\x30\x30\x2e\x31\x2e\x32\x2e\x33'
+            )
+
+        # Invalid UID (with non-conformant padding)
+        with pytest.raises(ValueError, match=msg):
+            item.decode(
+                b'\x52\x00\x00\x09'
+                b'\x30\x30\x2e\x31\x2e\x32\x2e\x33\x00'
+            )
+
+        item._implementation_class_uid = '00.1.2.3'
         msg = (
             r"The Implementation Class UID Notification's 'Implementation "
             r"Class UID' parameter value '00.1.2.3' is not a valid UID"
         )
+        with pytest.raises(ValueError, match=msg):
+            primitive = item.to_primitive()
+
         assert msg in caplog.text
+
 
 class TestUserInformation_ImplementationVersion(object):
     def test_init(self):
@@ -1436,6 +1541,28 @@ class TestUserInformation_Asynchronous(object):
 
 
 class TestUserInformation_RoleSelection(object):
+    def setup(self):
+        self.default_conformance = _config.ENFORCE_UID_CONFORMANCE
+
+    def teardown(self):
+        _config.ENFORCE_UID_CONFORMANCE = self.default_conformance
+
+    def test_uid_conformance(self):
+        """Test the UID conformance with ENFORCE_UID_CONFORMANCE."""
+        _config.ENFORCE_UID_CONFORMANCE = False
+
+        item = SCP_SCU_RoleSelectionSubItem()
+        item.sop_class_uid = 'abc'
+        assert item.sop_class_uid == 'abc'
+
+        msg = r"SOP Class UID is an invalid UID"
+        with pytest.raises(ValueError, match=msg):
+            item.sop_class_uid = 'abc' * 22
+
+        _config.ENFORCE_UID_CONFORMANCE = True
+        with pytest.raises(ValueError, match=msg):
+            item.sop_class_uid = 'abc'
+
     def test_init(self):
         """Test a new SCP_SCU_RoleSelectionSubItem."""
         item = SCP_SCU_RoleSelectionSubItem()
@@ -1929,6 +2056,28 @@ class TestUserIdentityAC_UserResponse(object):
 
 
 class TestUserInformation_ExtendedNegotiation(object):
+    def setup(self):
+        self.default_conformance = _config.ENFORCE_UID_CONFORMANCE
+
+    def teardown(self):
+        _config.ENFORCE_UID_CONFORMANCE = self.default_conformance
+
+    def test_uid_conformance(self):
+        """Test the UID conformance with ENFORCE_UID_CONFORMANCE."""
+        _config.ENFORCE_UID_CONFORMANCE = False
+
+        item = SOPClassExtendedNegotiation()
+        item.sop_class_uid = 'abc'
+        assert item.sop_class_uid == 'abc'
+
+        msg = r"SOP Class UID is an invalid UID"
+        with pytest.raises(ValueError, match=msg):
+            item.sop_class_uid = 'abc' * 22
+
+        _config.ENFORCE_UID_CONFORMANCE = True
+        with pytest.raises(ValueError, match=msg):
+            item.sop_class_uid = 'abc'
+
     def test_init(self):
         """Test a new SOPClassExtendedNegotiationSubItem."""
         item = SOPClassExtendedNegotiationSubItem()
@@ -2123,6 +2272,55 @@ class TestUserInformation_ExtendedNegotiation(object):
 
 
 class TestUserInformation_CommonExtendedNegotiation(object):
+    def setup(self):
+        self.default_conformance = _config.ENFORCE_UID_CONFORMANCE
+
+    def teardown(self):
+        _config.ENFORCE_UID_CONFORMANCE = self.default_conformance
+
+    def test_uid_conformance(self):
+        """Test the UID conformance with ENFORCE_UID_CONFORMANCE."""
+        _config.ENFORCE_UID_CONFORMANCE = False
+
+        item = SOPClassCommonExtendedNegotiationSubItem()
+        item.sop_class_uid = 'abc'
+        assert item.sop_class_uid == 'abc'
+        item.service_class_uid = 'abc'
+        assert item.service_class_uid == 'abc'
+        item.related_general_sop_class_identification = ['abc']
+        assert item.related_general_sop_class_identification == ['abc']
+
+        msg = r"SOP Class UID is an invalid UID"
+        with pytest.raises(ValueError, match=msg):
+            item.sop_class_uid = 'abc' * 22
+
+        msg = r"Service Class UID is an invalid UID"
+        with pytest.raises(ValueError, match=msg):
+            item.service_class_uid = 'abc' * 22
+
+        msg = (
+            r"Related General SOP Class Identification contains "
+            r"an invalid UID"
+        )
+        with pytest.raises(ValueError, match=msg):
+            item.related_general_sop_class_identification = ['abc' * 22]
+
+        _config.ENFORCE_UID_CONFORMANCE = True
+        msg = r"SOP Class UID is an invalid UID"
+        with pytest.raises(ValueError, match=msg):
+            item.sop_class_uid = 'abc'
+
+        msg = r"Service Class UID is an invalid UID"
+        with pytest.raises(ValueError, match=msg):
+            item.service_class_uid = 'abc'
+
+        msg = (
+            r"Related General SOP Class Identification contains "
+            r"an invalid UID"
+        )
+        with pytest.raises(ValueError, match=msg):
+            item.related_general_sop_class_identification = ['abc']
+
     def test_init(self):
         """Test a new SOPClassCommonExtendedNegotiationSubItem."""
         item = SOPClassCommonExtendedNegotiationSubItem()

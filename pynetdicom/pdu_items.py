@@ -47,6 +47,7 @@ from struct import Struct
 from pydicom.uid import UID
 
 from pynetdicom.presentation import PresentationContext
+from pynetdicom.utils import validate_uid
 
 
 LOGGER = logging.getLogger('pynetdicom.pdu_items')
@@ -445,8 +446,13 @@ class ApplicationContextItem(PDUItem):
         elif isinstance(value, bytes):
             value = UID(value.decode('ascii'))
         else:
-            raise TypeError('Application Context Name must be a UID, '
-                            'str or bytes')
+            raise TypeError(
+                'Application Context Name must be a UID, str or bytes'
+            )
+
+        if value is not None and not validate_uid(value):
+            LOGGER.error("Invalid 'Application Context Name'")
+            raise ValueError("Invalid 'Application Context Name'")
 
         self._application_context_name = value
 
@@ -1350,8 +1356,13 @@ class AbstractSyntaxSubItem(PDUItem):
         elif value is None:
             pass
         else:
-            raise TypeError('Abstract Syntax must be a pydicom.uid.UID, '
-                            'str or bytes')
+            raise TypeError(
+                'Abstract Syntax Name ust be a pydicom.uid.UID, str or bytes'
+            )
+
+        if value is not None and not validate_uid(value):
+            LOGGER.error("Abstract Syntax Name is an invalid UID")
+            raise ValueError("Abstract Syntax Name is an invalid UID")
 
         self._abstract_syntax_name = value
 
@@ -1575,6 +1586,10 @@ class TransferSyntaxSubItem(PDUItem):
         else:
             raise TypeError('Transfer syntax must be a pydicom.uid.UID, '
                             'bytes or str')
+
+        if value is not None and not validate_uid(value):
+            LOGGER.error("Transfer Syntax Name is an invalid UID")
+            raise ValueError("Transfer Syntax Name is an invalid UID")
 
         self._transfer_syntax_name = value
 
@@ -1868,6 +1883,10 @@ class ImplementationClassUIDSubItem(PDUItem):
         else:
             raise TypeError('implementation_class_uid must be str, bytes '
                             'or UID')
+
+        if value is not None and not validate_uid(value):
+            LOGGER.error("Implementation Class UID is an invalid UID")
+            raise ValueError("Implementation Class UID is an invalid UID")
 
         self._implementation_class_uid = value
         #if value is not None:
@@ -2475,6 +2494,10 @@ class SCP_SCU_RoleSelectionSubItem(PDUItem):
             raise TypeError('sop_class_uid must be str, bytes or '
                             'pydicom.uid.UID')
 
+        if value is not None and not validate_uid(value):
+            LOGGER.error("SOP Class UID is an invalid UID")
+            raise ValueError("SOP Class UID is an invalid UID")
+
         self._sop_class_uid = value
 
     def __str__(self):
@@ -2700,6 +2723,10 @@ class SOPClassExtendedNegotiationSubItem(PDUItem):
         else:
             raise TypeError('sop_class_uid must be str, bytes or '
                             'pydicom.uid.UID')
+
+        if value is not None and not validate_uid(value):
+            LOGGER.error("SOP Class UID is an invalid UID")
+            raise ValueError("SOP Class UID is an invalid UID")
 
         self._sop_class_uid = value
 
@@ -3046,6 +3073,14 @@ class SOPClassCommonExtendedNegotiationSubItem(PDUItem):
                 raise TypeError('related_general_sop_class_identification '
                                 'must be str, bytes or pydicom.uid.UID')
 
+            if value is not None and not validate_uid(value):
+                msg = (
+                    "Related General SOP Class Identification contains "
+                    "an invalid UID"
+                )
+                LOGGER.error(msg)
+                raise ValueError(msg)
+
             self._related_general_sop_class_identification.append(value)
 
     @property
@@ -3078,6 +3113,10 @@ class SOPClassCommonExtendedNegotiationSubItem(PDUItem):
             raise TypeError('sop_class_uid must be str, bytes or '
                             'pydicom.uid.UID')
 
+        if value is not None and not validate_uid(value):
+            LOGGER.error("SOP Class UID is an invalid UID")
+            raise ValueError("SOP Class UID is an invalid UID")
+
         self._sop_class_uid = value
 
     @property
@@ -3106,6 +3145,10 @@ class SOPClassCommonExtendedNegotiationSubItem(PDUItem):
         else:
             raise TypeError('service_class_uid must be str, bytes or '
                             'pydicom.uid.UID')
+
+        if value is not None and not validate_uid(value):
+            LOGGER.error("Service Class UID is an invalid UID")
+            raise ValueError("Service Class UID is an invalid UID")
 
         self._service_class_uid = value
 

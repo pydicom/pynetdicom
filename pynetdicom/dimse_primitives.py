@@ -21,9 +21,11 @@ import logging
 from pydicom.tag import Tag
 from pydicom.uid import UID
 
-from pynetdicom.utils import validate_ae_title
+from pynetdicom.utils import validate_ae_title, validate_uid
+
 
 LOGGER = logging.getLogger('pynetdicom.dimse_primitives')
+
 
 # pylint: disable=invalid-name
 # pylint: disable=attribute-defined-outside-init
@@ -61,7 +63,7 @@ class DIMSEPrimitive(object):
             raise TypeError("Affected SOP Class UID must be a "
                             "pydicom.uid.UID, str or bytes")
 
-        if value is not None and not value.is_valid:
+        if value is not None and not validate_uid(value):
             LOGGER.error("Affected SOP Class UID is an invalid UID")
             raise ValueError("Affected SOP Class UID is an invalid UID")
 
@@ -313,7 +315,7 @@ class C_STORE(DIMSEPrimitive):
             raise TypeError("Affected SOP Instance UID must be a "
                             "pydicom.uid.UID, str or bytes")
 
-        if value is not None and not value.is_valid:
+        if value is not None and not validate_uid(value):
             LOGGER.error("Affected SOP Instance UID is an invalid UID")
             raise ValueError("Affected SOP Instance UID is an invalid UID")
 
@@ -1226,7 +1228,7 @@ class N_EVENT_REPORT(DIMSEPrimitive):
             raise TypeError("Affected SOP Instance UID must be a "
                             "pydicom.uid.UID, str or bytes")
 
-        if value is not None and not value.is_valid:
+        if value is not None and not validate_uid(value):
             LOGGER.error("Affected SOP Instance UID is an invalid UID")
             raise ValueError("Affected SOP Instance UID is an invalid UID")
 
@@ -1374,7 +1376,7 @@ class N_GET(DIMSEPrimitive):
             raise TypeError("Affected SOP Instance UID must be a "
                             "pydicom.uid.UID, str or bytes")
 
-        if value is not None and not value.is_valid:
+        if value is not None and not validate_uid(value):
             LOGGER.error("Affected SOP Instance UID is an invalid UID")
             raise ValueError("Affected SOP Instance UID is an invalid UID")
 
@@ -1447,7 +1449,7 @@ class N_GET(DIMSEPrimitive):
             raise TypeError("Requested SOP Class UID must be a "
                             "pydicom.uid.UID, str or bytes")
 
-        if value is not None and not value.is_valid:
+        if value is not None and not validate_uid(value):
             LOGGER.error("Requested SOP Class UID is an invalid UID")
             raise ValueError("Requested SOP Class UID is an invalid UID")
 
@@ -1479,7 +1481,7 @@ class N_GET(DIMSEPrimitive):
             raise TypeError("Requested SOP Instance UID must be a "
                             "pydicom.uid.UID, str or bytes")
 
-        if value is not None and not value.is_valid:
+        if value is not None and not validate_uid(value):
             LOGGER.error("Requested SOP Instance UID is an invalid UID")
             raise ValueError("Requested SOP Instance UID is an invalid UID")
 
@@ -1597,7 +1599,7 @@ class N_SET(DIMSEPrimitive):
             raise TypeError("Affected SOP Instance UID must be a "
                             "pydicom.uid.UID, str or bytes")
 
-        if value is not None and not value.is_valid:
+        if value is not None and not validate_uid(value):
             LOGGER.error("Affected SOP Instance UID is an invalid UID")
             raise ValueError("Affected SOP Instance UID is an invalid UID")
 
@@ -1649,7 +1651,7 @@ class N_SET(DIMSEPrimitive):
             raise TypeError("Requested SOP Class UID must be a "
                             "pydicom.uid.UID, str or bytes")
 
-        if value is not None and not value.is_valid:
+        if value is not None and not validate_uid(value):
             LOGGER.error("Requested SOP Class UID is an invalid UID")
             raise ValueError("Requested SOP Class UID is an invalid UID")
 
@@ -1681,7 +1683,7 @@ class N_SET(DIMSEPrimitive):
             raise TypeError("Requested SOP Instance UID must be a "
                             "pydicom.uid.UID, str or bytes")
 
-        if value is not None and not value.is_valid:
+        if value is not None and not validate_uid(value):
             LOGGER.error("Requested SOP Instance UID is an invalid UID")
             raise ValueError("Requested SOP Instance UID is an invalid UID")
 
@@ -1804,7 +1806,7 @@ class N_ACTION(DIMSEPrimitive):
             raise TypeError("Affected SOP Instance UID must be a "
                             "pydicom.uid.UID, str or bytes")
 
-        if value is not None and not value.is_valid:
+        if value is not None and not validate_uid(value):
             LOGGER.error("Affected SOP Instance UID is an invalid UID")
             raise ValueError("Affected SOP Instance UID is an invalid UID")
 
@@ -1856,7 +1858,7 @@ class N_ACTION(DIMSEPrimitive):
             raise TypeError("Requested SOP Class UID must be a "
                             "pydicom.uid.UID, str or bytes")
 
-        if value is not None and not value.is_valid:
+        if value is not None and not validate_uid(value):
             LOGGER.error("Requested SOP Class UID is an invalid UID")
             raise ValueError("Requested SOP Class UID is an invalid UID")
 
@@ -1888,7 +1890,7 @@ class N_ACTION(DIMSEPrimitive):
             raise TypeError("Requested SOP Instance UID must be a "
                             "pydicom.uid.UID, str or bytes")
 
-        if value is not None and not value.is_valid:
+        if value is not None and not validate_uid(value):
             LOGGER.error("Requested SOP Instance UID is an invalid UID")
             raise ValueError("Requested SOP Instance UID is an invalid UID")
 
@@ -2001,7 +2003,7 @@ class N_CREATE(DIMSEPrimitive):
             raise TypeError("Affected SOP Instance UID must be a "
                             "pydicom.uid.UID, str or bytes")
 
-        if value is not None and not value.is_valid:
+        if value is not None and not validate_uid(value):
             LOGGER.error("Affected SOP Instance UID is an invalid UID")
             raise ValueError("Affected SOP Instance UID is an invalid UID")
 
@@ -2116,7 +2118,7 @@ class N_DELETE(DIMSEPrimitive):
             raise TypeError("Affected SOP Instance UID must be a "
                             "pydicom.uid.UID, str or bytes")
 
-        if value is not None and not value.is_valid:
+        if value is not None and not validate_uid(value):
             LOGGER.error("Affected SOP Instance UID is an invalid UID")
             raise ValueError("Affected SOP Instance UID is an invalid UID")
 
@@ -2148,7 +2150,7 @@ class N_DELETE(DIMSEPrimitive):
             raise TypeError("Requested SOP Class UID must be a "
                             "pydicom.uid.UID, str or bytes")
 
-        if value is not None and not value.is_valid:
+        if value is not None and not validate_uid(value):
             LOGGER.error("Requested SOP Class UID is an invalid UID")
             raise ValueError("Requested SOP Class UID is an invalid UID")
 
@@ -2180,7 +2182,7 @@ class N_DELETE(DIMSEPrimitive):
             raise TypeError("Requested SOP Instance UID must be a "
                             "pydicom.uid.UID, str or bytes")
 
-        if value is not None and not value.is_valid:
+        if value is not None and not validate_uid(value):
             LOGGER.error("Requested SOP Instance UID is an invalid UID")
             raise ValueError("Requested SOP Instance UID is an invalid UID")
 

@@ -9,6 +9,7 @@ import pytest
 from pydicom.dataset import Dataset
 from pydicom.uid import UID
 
+from pynetdicom import _config
 from pynetdicom.dimse_messages import (
     C_STORE_RQ, C_STORE_RSP,C_MOVE_RQ, C_MOVE_RSP, C_ECHO_RQ, C_ECHO_RSP,
     C_FIND_RQ, C_FIND_RSP, C_GET_RQ, C_GET_RSP
@@ -47,6 +48,12 @@ class TestPrimitive_C_CANCEL(object):
 
 class TestPrimitive_C_STORE(object):
     """Test DIMSE C-STORE operations."""
+    def setup(self):
+        self.default_conformance = _config.ENFORCE_UID_CONFORMANCE
+
+    def teardown(self):
+        _config.ENFORCE_UID_CONFORMANCE = self.default_conformance
+
     def test_assignment(self):
         """ Check assignment works correctly """
         primitive = C_STORE()
@@ -105,6 +112,36 @@ class TestPrimitive_C_STORE(object):
         primitive.Status = 0xEE01
         assert primitive.Status == 0xEE01
 
+    def test_uid_exceptions_false(self):
+        """Test ValueError raised with ENFORCE_UID_CONFORMANCE = False."""
+        primitive = C_STORE()
+
+        _config.ENFORCE_UID_CONFORMANCE = False
+
+        primitive.AffectedSOPClassUID = 'abc'
+        assert primitive.AffectedSOPClassUID == 'abc'
+
+        primitive.AffectedSOPInstanceUID = 'abc'
+        assert primitive.AffectedSOPInstanceUID == 'abc'
+
+        # Can't have more than 64 characters
+        with pytest.raises(ValueError):
+            primitive.AffectedSOPClassUID = 'abc' * 22
+
+        with pytest.raises(ValueError):
+            primitive.AffectedSOPInstanceUID = 'abc' * 22
+
+    def test_uid_exceptions_true(self):
+        """Test ValueError raised with ENFORCE_UID_CONFORMANCE = True."""
+        primitive = C_STORE()
+        _config.ENFORCE_UID_CONFORMANCE = True
+
+        with pytest.raises(ValueError):
+            primitive.AffectedSOPClassUID = 'abc'
+
+        with pytest.raises(ValueError):
+            primitive.AffectedSOPInstanceUID = 'abc'
+
     def test_exceptions(self):
         """ Check incorrect types/values for properties raise exceptions """
         primitive = C_STORE()
@@ -142,18 +179,12 @@ class TestPrimitive_C_STORE(object):
         with pytest.raises(TypeError):
             primitive.AffectedSOPClassUID = 100
 
-        with pytest.raises(ValueError):
-            primitive.AffectedSOPClassUID = 'abc'
-
         # AffectedSOPInstanceUID
         with pytest.raises(TypeError):
             primitive.AffectedSOPInstanceUID = 45.2
 
         with pytest.raises(TypeError):
             primitive.AffectedSOPInstanceUID = 100
-
-        with pytest.raises(ValueError):
-            primitive.AffectedSOPInstanceUID = 'abc'
 
         # Priority
         with pytest.raises(ValueError):
@@ -285,6 +316,12 @@ class TestPrimitive_C_STORE(object):
 
 class TestPrimitive_C_FIND(object):
     """Test DIMSE C-FIND operations."""
+    def setup(self):
+        self.default_conformance = _config.ENFORCE_UID_CONFORMANCE
+
+    def teardown(self):
+        _config.ENFORCE_UID_CONFORMANCE = self.default_conformance
+
     def test_assignment(self):
         """ Check assignment works correctly """
         primitive = C_FIND()
@@ -325,6 +362,27 @@ class TestPrimitive_C_FIND(object):
         primitive.Status = 0xEE01
         assert primitive.Status == 0xEE01
 
+    def test_uid_exceptions_false(self):
+        """Test ValueError raised with ENFORCE_UID_CONFORMANCE = False."""
+        primitive = C_FIND()
+
+        _config.ENFORCE_UID_CONFORMANCE = False
+
+        primitive.AffectedSOPClassUID = 'abc'
+        assert primitive.AffectedSOPClassUID == 'abc'
+
+        # Can't have more than 64 characters
+        with pytest.raises(ValueError):
+            primitive.AffectedSOPClassUID = 'abc' * 22
+
+    def test_uid_exceptions_true(self):
+        """Test ValueError raised with ENFORCE_UID_CONFORMANCE = True."""
+        primitive = C_FIND()
+        _config.ENFORCE_UID_CONFORMANCE = True
+
+        with pytest.raises(ValueError):
+            primitive.AffectedSOPClassUID = 'abc'
+
     def test_exceptions(self):
         """ Check incorrect types/values for properties raise exceptions """
         primitive = C_FIND()
@@ -361,9 +419,6 @@ class TestPrimitive_C_FIND(object):
 
         with pytest.raises(TypeError):
             primitive.AffectedSOPClassUID = 100
-
-        with pytest.raises(ValueError):
-            primitive.AffectedSOPClassUID = 'abc'
 
         # Priority
         with pytest.raises(ValueError):
@@ -470,6 +525,12 @@ class TestPrimitive_C_FIND(object):
 
 class TestPrimitive_C_GET(object):
     """Test DIMSE C-GET operations."""
+    def setup(self):
+        self.default_conformance = _config.ENFORCE_UID_CONFORMANCE
+
+    def teardown(self):
+        _config.ENFORCE_UID_CONFORMANCE = self.default_conformance
+
     def test_assignment(self):
         """ Check assignment works correctly """
         primitive = C_GET()
@@ -520,6 +581,27 @@ class TestPrimitive_C_GET(object):
 
         primitive.NumberOfWarningSuboperations = 4
         assert primitive.NumberOfWarningSuboperations == 4
+
+    def test_uid_exceptions_false(self):
+        """Test ValueError raised with ENFORCE_UID_CONFORMANCE = False."""
+        primitive = C_GET()
+
+        _config.ENFORCE_UID_CONFORMANCE = False
+
+        primitive.AffectedSOPClassUID = 'abc'
+        assert primitive.AffectedSOPClassUID == 'abc'
+
+        # Can't have more than 64 characters
+        with pytest.raises(ValueError):
+            primitive.AffectedSOPClassUID = 'abc' * 22
+
+    def test_uid_exceptions_true(self):
+        """Test ValueError raised with ENFORCE_UID_CONFORMANCE = True."""
+        primitive = C_GET()
+        _config.ENFORCE_UID_CONFORMANCE = True
+
+        with pytest.raises(ValueError):
+            primitive.AffectedSOPClassUID = 'abc'
 
     def test_exceptions(self):
         """ Check incorrect types/values for properties raise exceptions """
@@ -589,9 +671,6 @@ class TestPrimitive_C_GET(object):
 
         with pytest.raises(TypeError):
             primitive.AffectedSOPClassUID = 100
-
-        with pytest.raises(ValueError):
-            primitive.AffectedSOPClassUID = 'abc'
 
         # Priority
         with pytest.raises(ValueError):
@@ -701,6 +780,12 @@ class TestPrimitive_C_GET(object):
 
 class TestPrimitive_C_MOVE(object):
     """Test DIMSE C-MOVE operations."""
+    def setup(self):
+        self.default_conformance = _config.ENFORCE_UID_CONFORMANCE
+
+    def teardown(self):
+        _config.ENFORCE_UID_CONFORMANCE = self.default_conformance
+
     def test_assignment(self):
         """ Check assignment works correctly """
         primitive = C_MOVE()
@@ -742,6 +827,27 @@ class TestPrimitive_C_MOVE(object):
 
         primitive.Status = 0xEE01
         assert primitive.Status == 0xEE01
+
+    def test_uid_exceptions_false(self):
+        """Test ValueError raised with ENFORCE_UID_CONFORMANCE = False."""
+        primitive = C_MOVE()
+
+        _config.ENFORCE_UID_CONFORMANCE = False
+
+        primitive.AffectedSOPClassUID = 'abc'
+        assert primitive.AffectedSOPClassUID == 'abc'
+
+        # Can't have more than 64 characters
+        with pytest.raises(ValueError):
+            primitive.AffectedSOPClassUID = 'abc' * 22
+
+    def test_uid_exceptions_true(self):
+        """Test ValueError raised with ENFORCE_UID_CONFORMANCE = True."""
+        primitive = C_MOVE()
+        _config.ENFORCE_UID_CONFORMANCE = True
+
+        with pytest.raises(ValueError):
+            primitive.AffectedSOPClassUID = 'abc'
 
     def test_exceptions(self):
         """ Check incorrect types/values for properties raise exceptions """
@@ -811,9 +917,6 @@ class TestPrimitive_C_MOVE(object):
 
         with pytest.raises(TypeError):
             primitive.AffectedSOPClassUID = 100
-
-        with pytest.raises(ValueError):
-            primitive.AffectedSOPClassUID = 'abc'
 
         # Priority
         with pytest.raises(ValueError):
@@ -940,6 +1043,12 @@ class TestPrimitive_C_MOVE(object):
 
 class TestPrimitive_C_ECHO(object):
     """Test DIMSE C-ECHO operations."""
+    def setup(self):
+        self.default_conformance = _config.ENFORCE_UID_CONFORMANCE
+
+    def teardown(self):
+        _config.ENFORCE_UID_CONFORMANCE = self.default_conformance
+
     def test_assignment(self):
         """ Check assignment works correctly """
         primitive = C_ECHO()
@@ -971,6 +1080,27 @@ class TestPrimitive_C_ECHO(object):
         primitive.Status = 0xEE01
         assert primitive.Status == 0xEE01
 
+    def test_uid_exceptions_false(self):
+        """Test ValueError raised with ENFORCE_UID_CONFORMANCE = False."""
+        primitive = C_ECHO()
+
+        _config.ENFORCE_UID_CONFORMANCE = False
+
+        primitive.AffectedSOPClassUID = 'abc'
+        assert primitive.AffectedSOPClassUID == 'abc'
+
+        # Can't have more than 64 characters
+        with pytest.raises(ValueError):
+            primitive.AffectedSOPClassUID = 'abc' * 22
+
+    def test_uid_exceptions_true(self):
+        """Test ValueError raised with ENFORCE_UID_CONFORMANCE = True."""
+        primitive = C_ECHO()
+        _config.ENFORCE_UID_CONFORMANCE = True
+
+        with pytest.raises(ValueError):
+            primitive.AffectedSOPClassUID = 'abc'
+
     def test_exceptions(self):
         """ Check incorrect types/values for properties raise exceptions """
         primitive = C_ECHO()
@@ -1000,8 +1130,6 @@ class TestPrimitive_C_ECHO(object):
             primitive.AffectedSOPClassUID = 45.2
         with pytest.raises(TypeError):
             primitive.AffectedSOPClassUID = 100
-        with pytest.raises(ValueError):
-            primitive.AffectedSOPClassUID = 'abc'
 
         # Status
         with pytest.raises(TypeError):

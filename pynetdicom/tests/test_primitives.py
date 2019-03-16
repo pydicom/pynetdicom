@@ -7,6 +7,7 @@ import pytest
 
 from pydicom.uid import UID
 
+from pynetdicom import _config
 from pynetdicom.pdu import A_ASSOCIATE_RQ, A_ABORT_RQ, P_DATA_TF
 from pynetdicom.pdu_primitives import (
     SOPClassExtendedNegotiation,
@@ -250,6 +251,28 @@ class TestPrimitive_AsynchronousOperationsWindowNegotiation(object):
 
 
 class TestPrimitive_SCP_SCU_RoleSelectionNegotiation(object):
+    def setup(self):
+        self.default_conformance = _config.ENFORCE_UID_CONFORMANCE
+
+    def teardown(self):
+        _config.ENFORCE_UID_CONFORMANCE = self.default_conformance
+
+    def test_uid_conformance_false(self):
+        """Test UID conformance with ENFORCE_UID_CONFORMANCE = False"""
+        _config.ENFORCE_UID_CONFORMANCE = False
+        primitive = SCP_SCU_RoleSelectionNegotiation()
+
+        primitive.sop_class_uid = 'abc'
+        assert primitive.sop_class_uid == 'abc'
+
+    def test_uid_conformance_true(self):
+        """Test UID conformance with ENFORCE_UID_CONFORMANCE = True"""
+        _config.ENFORCE_UID_CONFORMANCE = True
+        primitive = SCP_SCU_RoleSelectionNegotiation()
+
+        with pytest.raises(ValueError):
+            primitive.sop_class_uid = 'abc'
+
     def test_assignment_and_exceptions(self):
         """ Check incorrect types/values for properties raise exceptions """
         primitive = SCP_SCU_RoleSelectionNegotiation()
@@ -281,9 +304,6 @@ class TestPrimitive_SCP_SCU_RoleSelectionNegotiation(object):
 
         with pytest.raises(TypeError):
             primitive.sop_class_uid = 45.2
-
-        with pytest.raises(ValueError):
-            primitive.sop_class_uid = 'abc'
 
         with pytest.raises(TypeError):
             primitive.scp_role = 1
@@ -346,6 +366,28 @@ class TestPrimitive_SCP_SCU_RoleSelectionNegotiation(object):
 
 
 class TestPrimitive_SOPClassExtendedNegotiation(object):
+    def setup(self):
+        self.default_conformance = _config.ENFORCE_UID_CONFORMANCE
+
+    def teardown(self):
+        _config.ENFORCE_UID_CONFORMANCE = self.default_conformance
+
+    def test_uid_conformance_false(self):
+        """Test UID conformance with ENFORCE_UID_CONFORMANCE = False"""
+        _config.ENFORCE_UID_CONFORMANCE = False
+        primitive = SOPClassExtendedNegotiation()
+
+        primitive.sop_class_uid = 'abc'
+        assert primitive.sop_class_uid == 'abc'
+
+    def test_uid_conformance_true(self):
+        """Test UID conformance with ENFORCE_UID_CONFORMANCE = True"""
+        _config.ENFORCE_UID_CONFORMANCE = True
+        primitive = SOPClassExtendedNegotiation()
+
+        with pytest.raises(ValueError):
+            primitive.sop_class_uid = 'abc'
+
     def test_assignment_and_exceptions(self):
         """ Check incorrect types/values for properties raise exceptions """
         primitive = SOPClassExtendedNegotiation()
@@ -378,9 +420,6 @@ class TestPrimitive_SOPClassExtendedNegotiation(object):
 
         with pytest.raises(TypeError):
             primitive.sop_class_uid = 45.2
-
-        with pytest.raises(ValueError):
-            primitive.sop_class_uid = 'abc'
 
         # Service Class Application Information
         with pytest.raises(TypeError):
@@ -606,6 +645,28 @@ class TestPrimitive_UserIdentityNegotiation(object):
 
 
 class TestPrimitive_A_ASSOCIATE(object):
+    def setup(self):
+        self.default_conformance = _config.ENFORCE_UID_CONFORMANCE
+
+    def teardown(self):
+        _config.ENFORCE_UID_CONFORMANCE = self.default_conformance
+
+    def test_uid_conformance_false(self):
+        """Test UID conformance with ENFORCE_UID_CONFORMANCE = False"""
+        _config.ENFORCE_UID_CONFORMANCE = False
+        primitive = A_ASSOCIATE()
+
+        primitive.application_context_name = 'abc'
+        assert primitive.application_context_name == 'abc'
+
+    def test_uid_conformance_true(self):
+        """Test UID conformance with ENFORCE_UID_CONFORMANCE = True"""
+        _config.ENFORCE_UID_CONFORMANCE = True
+        primitive = A_ASSOCIATE()
+
+        with pytest.raises(ValueError):
+            primitive.application_context_name = 'abc'
+
     def test_assignment(self):
         """ Check assignment works correctly """
         assoc = A_ASSOCIATE()
@@ -716,9 +777,6 @@ class TestPrimitive_A_ASSOCIATE(object):
 
         with pytest.raises(TypeError):
             assoc.application_context_name = 45.2
-
-        with pytest.raises(ValueError):
-            assoc.application_context_name = 'abc'
 
         # calling_ae_title
         with pytest.raises(TypeError):

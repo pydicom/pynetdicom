@@ -11,7 +11,8 @@ import pytest
 
 from pydicom.uid import UID
 
-from pynetdicom.utils import validate_ae_title, pretty_bytes
+from pynetdicom import _config
+from pynetdicom.utils import validate_ae_title, pretty_bytes, validate_uid
 from .encoded_pdu_items import a_associate_rq
 
 LOGGER = logging.getLogger('pynetdicom')
@@ -82,7 +83,6 @@ class TestValidateAETitle(object):
         assert validate_ae_title(aet) == output
         assert isinstance(validate_ae_title(aet), bytes)
 
-
     @pytest.mark.parametrize("aet, output", REFERENCE_GOOD_AE_BYTES)
     def test_good_ae_bytes(self, aet, output):
         """Test validate_ae_title using bytes input."""
@@ -100,6 +100,42 @@ class TestValidateAETitle(object):
         """Test validate_ae_title using bad bytes input."""
         with pytest.raises((TypeError, ValueError)):
             validate_ae_title(aet)
+
+
+REFERENCE_UID = [
+    # UID, (enforced, non-enforced conformance)
+    # Invalid, invalid
+    ('', (False, False)),
+    (' ' * 64, (False, False)),
+    ('1' * 65, (False, False)),
+    ('a' * 65, (False, False)),
+    # Invalid, valid
+    ('a' * 64, (False, True)),
+    ('0.1.2.04', (False, True)),
+    ('some random string', (False, True)),
+    # Valid, valid
+    ('1' * 64, (True, True)),
+    ('0.1.2.4', (True, True)),
+]
+
+
+class TestValidateUID(object):
+    """Test validate_uid."""
+    def setup(self):
+        self.default_conformance = _config.ENFORCE_UID_CONFORMANCE
+
+    def teardown(self):
+        _config.ENFORCE_UID_CONFORMANCE = self.default_conformance
+
+    @pytest.mark.parametrize("uid,is_valid", REFERENCE_UID)
+    def test_validate_uid_conformance_true(self, uid, is_valid):
+        _config.ENFORCE_UID_CONFORMANCE = True
+        assert validate_uid(UID(uid)) == is_valid[0]
+
+    @pytest.mark.parametrize("uid,is_valid", REFERENCE_UID)
+    def test_validate_uid_conformance_false(self, uid, is_valid):
+        _config.ENFORCE_UID_CONFORMANCE = False
+        assert validate_uid(UID(uid)) == is_valid[1]
 
 
 class TestWrapList(object):
