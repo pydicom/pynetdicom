@@ -181,8 +181,69 @@
 <span class="kn">import</span> <span class="nn">sys</span>
 <span class="kn">import</span> <span class="nn">unicodedata</span>
 
+<span class="kn">from</span> <span class="nn">pynetdicom</span> <span class="k">import</span> <span class="n">_config</span>
+
 
 <span class="n">LOGGER</span> <span class="o">=</span> <span class="n">logging</span><span class="o">.</span><span class="n">getLogger</span><span class="p">(</span><span class="s1">&#39;pynetdicom.utils&#39;</span><span class="p">)</span>
+
+
+<div class="viewcode-block" id="pretty_bytes"><a class="viewcode-back" href="../../reference/generated/pynetdicom.utils.pretty_bytes.html#pynetdicom.utils.pretty_bytes">[docs]</a><span class="k">def</span> <span class="nf">pretty_bytes</span><span class="p">(</span><span class="n">bytestream</span><span class="p">,</span> <span class="n">prefix</span><span class="o">=</span><span class="s1">&#39;  &#39;</span><span class="p">,</span> <span class="n">delimiter</span><span class="o">=</span><span class="s1">&#39;  &#39;</span><span class="p">,</span> <span class="n">items_per_line</span><span class="o">=</span><span class="mi">16</span><span class="p">,</span>
+                 <span class="n">max_size</span><span class="o">=</span><span class="mi">512</span><span class="p">,</span> <span class="n">suffix</span><span class="o">=</span><span class="s1">&#39;&#39;</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;Turn the bytestring `bytestream` into a list of nicely formatted str.</span>
+
+<span class="sd">    Parameters</span>
+<span class="sd">    ----------</span>
+<span class="sd">    bytestream : bytes or io.BytesIO</span>
+<span class="sd">        The bytes to convert to a nicely formatted string list</span>
+<span class="sd">    prefix : str</span>
+<span class="sd">        Insert `prefix` at the start of every item in the output string list</span>
+<span class="sd">    delimiter : str</span>
+<span class="sd">        Delimit each of the bytes in `bytestream` using `delimiter`</span>
+<span class="sd">    items_per_line : int</span>
+<span class="sd">        The number of bytes in each item of the output string list.</span>
+<span class="sd">    max_size : int or None</span>
+<span class="sd">        The maximum number of bytes to add to the output string list. A value</span>
+<span class="sd">        of None indicates that all of `bytestream` should be output.</span>
+<span class="sd">    suffix : str</span>
+<span class="sd">        Append `suffix` to the end of every item in the output string list</span>
+
+<span class="sd">    Returns</span>
+<span class="sd">    -------</span>
+<span class="sd">    list of str</span>
+<span class="sd">        The output string list</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="n">lines</span> <span class="o">=</span> <span class="p">[]</span>
+    <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">bytestream</span><span class="p">,</span> <span class="n">BytesIO</span><span class="p">):</span>
+        <span class="n">bytestream</span> <span class="o">=</span> <span class="n">bytestream</span><span class="o">.</span><span class="n">getvalue</span><span class="p">()</span>
+
+    <span class="n">cutoff_output</span> <span class="o">=</span> <span class="kc">False</span>
+    <span class="n">byte_count</span> <span class="o">=</span> <span class="mi">0</span>
+    <span class="k">for</span> <span class="n">ii</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="nb">len</span><span class="p">(</span><span class="n">bytestream</span><span class="p">),</span> <span class="n">items_per_line</span><span class="p">):</span>
+        <span class="c1"># chunk is a bytes in python3 and a str in python2</span>
+        <span class="n">chunk</span> <span class="o">=</span> <span class="n">bytestream</span><span class="p">[</span><span class="n">ii</span><span class="p">:</span><span class="n">ii</span> <span class="o">+</span> <span class="n">items_per_line</span><span class="p">]</span>
+        <span class="n">byte_count</span> <span class="o">+=</span> <span class="nb">len</span><span class="p">(</span><span class="n">chunk</span><span class="p">)</span>
+
+        <span class="c1"># Python 2 compatibility</span>
+        <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">chunk</span><span class="p">,</span> <span class="nb">str</span><span class="p">):</span>
+            <span class="n">gen</span> <span class="o">=</span> <span class="p">(</span><span class="nb">format</span><span class="p">(</span><span class="nb">ord</span><span class="p">(</span><span class="n">x</span><span class="p">),</span> <span class="s1">&#39;02x&#39;</span><span class="p">)</span> <span class="k">for</span> <span class="n">x</span> <span class="ow">in</span> <span class="n">chunk</span><span class="p">)</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="n">gen</span> <span class="o">=</span> <span class="p">(</span><span class="nb">format</span><span class="p">(</span><span class="n">x</span><span class="p">,</span> <span class="s1">&#39;02x&#39;</span><span class="p">)</span> <span class="k">for</span> <span class="n">x</span> <span class="ow">in</span> <span class="n">chunk</span><span class="p">)</span>
+
+
+        <span class="k">if</span> <span class="n">max_size</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span> <span class="ow">and</span> <span class="n">byte_count</span> <span class="o">&lt;=</span> <span class="n">max_size</span><span class="p">:</span>
+            <span class="n">line</span> <span class="o">=</span> <span class="n">prefix</span> <span class="o">+</span> <span class="n">delimiter</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">gen</span><span class="p">)</span>
+            <span class="n">lines</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">line</span> <span class="o">+</span> <span class="n">suffix</span><span class="p">)</span>
+        <span class="k">elif</span> <span class="n">max_size</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span> <span class="ow">and</span> <span class="n">byte_count</span> <span class="o">&gt;</span> <span class="n">max_size</span><span class="p">:</span>
+            <span class="n">cutoff_output</span> <span class="o">=</span> <span class="kc">True</span>
+            <span class="k">break</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="n">line</span> <span class="o">=</span> <span class="n">prefix</span> <span class="o">+</span> <span class="n">delimiter</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">gen</span><span class="p">)</span>
+            <span class="n">lines</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">line</span> <span class="o">+</span> <span class="n">suffix</span><span class="p">)</span>
+
+    <span class="k">if</span> <span class="n">cutoff_output</span><span class="p">:</span>
+        <span class="n">lines</span><span class="o">.</span><span class="n">insert</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="n">prefix</span> <span class="o">+</span> <span class="s1">&#39;Only dumping </span><span class="si">{0!s}</span><span class="s1"> bytes.&#39;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">max_size</span><span class="p">))</span>
+
+    <span class="k">return</span> <span class="n">lines</span></div>
 
 
 <div class="viewcode-block" id="validate_ae_title"><a class="viewcode-back" href="../../reference/generated/pynetdicom.utils.validate_ae_title.html#pynetdicom.utils.validate_ae_title">[docs]</a><span class="k">def</span> <span class="nf">validate_ae_title</span><span class="p">(</span><span class="n">ae_title</span><span class="p">):</span>
@@ -265,63 +326,40 @@
     <span class="k">return</span> <span class="n">ae_title</span><span class="o">.</span><span class="n">encode</span><span class="p">(</span><span class="s1">&#39;ascii&#39;</span><span class="p">,</span> <span class="n">errors</span><span class="o">=</span><span class="s1">&#39;strict&#39;</span><span class="p">)</span></div>
 
 
-<div class="viewcode-block" id="pretty_bytes"><a class="viewcode-back" href="../../reference/generated/pynetdicom.utils.pretty_bytes.html#pynetdicom.utils.pretty_bytes">[docs]</a><span class="k">def</span> <span class="nf">pretty_bytes</span><span class="p">(</span><span class="n">bytestream</span><span class="p">,</span> <span class="n">prefix</span><span class="o">=</span><span class="s1">&#39;  &#39;</span><span class="p">,</span> <span class="n">delimiter</span><span class="o">=</span><span class="s1">&#39;  &#39;</span><span class="p">,</span> <span class="n">items_per_line</span><span class="o">=</span><span class="mi">16</span><span class="p">,</span>
-                 <span class="n">max_size</span><span class="o">=</span><span class="mi">512</span><span class="p">,</span> <span class="n">suffix</span><span class="o">=</span><span class="s1">&#39;&#39;</span><span class="p">):</span>
-    <span class="sd">&quot;&quot;&quot;Turn the bytestring `bytestream` into a list of nicely formatted str.</span>
+<span class="k">def</span> <span class="nf">validate_uid</span><span class="p">(</span><span class="n">uid</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;Return True if `uid` is considered valid.</span>
+
+<span class="sd">    If ``pynetdicom._config.ENFORCE_UID_CONFORMANCE = True`` then the following</span>
+<span class="sd">    rules apply:</span>
+
+<span class="sd">    * 1-64 characters, inclusive</span>
+<span class="sd">    * Each component may not start with 0 unless the component itself is 0</span>
+<span class="sd">    * Components are separated by &#39;.&#39;</span>
+<span class="sd">    * Valid component characters are 0-9 of the Basic G0 Set of the</span>
+<span class="sd">      International Reference Version of ISO 646:1990 (ASCII)</span>
+
+<span class="sd">    If ``pynetdicom._config.ENFORCE_UID_CONFORMANCE = False`` then the</span>
+<span class="sd">    following rules apply:</span>
+
+<span class="sd">    * 1-64 characters, inclusive</span>
 
 <span class="sd">    Parameters</span>
 <span class="sd">    ----------</span>
-<span class="sd">    bytestream : bytes or io.BytesIO</span>
-<span class="sd">        The bytes to convert to a nicely formatted string list</span>
-<span class="sd">    prefix : str</span>
-<span class="sd">        Insert `prefix` at the start of every item in the output string list</span>
-<span class="sd">    delimiter : str</span>
-<span class="sd">        Delimit each of the bytes in `bytestream` using `delimiter`</span>
-<span class="sd">    items_per_line : int</span>
-<span class="sd">        The number of bytes in each item of the output string list.</span>
-<span class="sd">    max_size : int or None</span>
-<span class="sd">        The maximum number of bytes to add to the output string list. A value</span>
-<span class="sd">        of None indicates that all of `bytestream` should be output.</span>
-<span class="sd">    suffix : str</span>
-<span class="sd">        Append `suffix` to the end of every item in the output string list</span>
+<span class="sd">    uid : pydicom.uid.UID</span>
+<span class="sd">        The UID to check for validity.</span>
 
 <span class="sd">    Returns</span>
 <span class="sd">    -------</span>
-<span class="sd">    list of str</span>
-<span class="sd">        The output string list</span>
+<span class="sd">    bool</span>
+<span class="sd">        True if the value is considered valid, False otherwise.</span>
 <span class="sd">    &quot;&quot;&quot;</span>
-    <span class="n">lines</span> <span class="o">=</span> <span class="p">[]</span>
-    <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">bytestream</span><span class="p">,</span> <span class="n">BytesIO</span><span class="p">):</span>
-        <span class="n">bytestream</span> <span class="o">=</span> <span class="n">bytestream</span><span class="o">.</span><span class="n">getvalue</span><span class="p">()</span>
+    <span class="k">if</span> <span class="n">_config</span><span class="o">.</span><span class="n">ENFORCE_UID_CONFORMANCE</span><span class="p">:</span>
+        <span class="k">return</span> <span class="n">uid</span><span class="o">.</span><span class="n">is_valid</span>
 
-    <span class="n">cutoff_output</span> <span class="o">=</span> <span class="kc">False</span>
-    <span class="n">byte_count</span> <span class="o">=</span> <span class="mi">0</span>
-    <span class="k">for</span> <span class="n">ii</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="nb">len</span><span class="p">(</span><span class="n">bytestream</span><span class="p">),</span> <span class="n">items_per_line</span><span class="p">):</span>
-        <span class="c1"># chunk is a bytes in python3 and a str in python2</span>
-        <span class="n">chunk</span> <span class="o">=</span> <span class="n">bytestream</span><span class="p">[</span><span class="n">ii</span><span class="p">:</span><span class="n">ii</span> <span class="o">+</span> <span class="n">items_per_line</span><span class="p">]</span>
-        <span class="n">byte_count</span> <span class="o">+=</span> <span class="nb">len</span><span class="p">(</span><span class="n">chunk</span><span class="p">)</span>
+    <span class="k">if</span> <span class="mi">0</span> <span class="o">&lt;</span> <span class="nb">len</span><span class="p">(</span><span class="n">uid</span><span class="p">)</span> <span class="o">&lt;</span> <span class="mi">65</span><span class="p">:</span>
+        <span class="k">return</span> <span class="kc">True</span>
 
-        <span class="c1"># Python 2 compatibility</span>
-        <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">chunk</span><span class="p">,</span> <span class="nb">str</span><span class="p">):</span>
-            <span class="n">gen</span> <span class="o">=</span> <span class="p">(</span><span class="nb">format</span><span class="p">(</span><span class="nb">ord</span><span class="p">(</span><span class="n">x</span><span class="p">),</span> <span class="s1">&#39;02x&#39;</span><span class="p">)</span> <span class="k">for</span> <span class="n">x</span> <span class="ow">in</span> <span class="n">chunk</span><span class="p">)</span>
-        <span class="k">else</span><span class="p">:</span>
-            <span class="n">gen</span> <span class="o">=</span> <span class="p">(</span><span class="nb">format</span><span class="p">(</span><span class="n">x</span><span class="p">,</span> <span class="s1">&#39;02x&#39;</span><span class="p">)</span> <span class="k">for</span> <span class="n">x</span> <span class="ow">in</span> <span class="n">chunk</span><span class="p">)</span>
-
-
-        <span class="k">if</span> <span class="n">max_size</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span> <span class="ow">and</span> <span class="n">byte_count</span> <span class="o">&lt;=</span> <span class="n">max_size</span><span class="p">:</span>
-            <span class="n">line</span> <span class="o">=</span> <span class="n">prefix</span> <span class="o">+</span> <span class="n">delimiter</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">gen</span><span class="p">)</span>
-            <span class="n">lines</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">line</span> <span class="o">+</span> <span class="n">suffix</span><span class="p">)</span>
-        <span class="k">elif</span> <span class="n">max_size</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span> <span class="ow">and</span> <span class="n">byte_count</span> <span class="o">&gt;</span> <span class="n">max_size</span><span class="p">:</span>
-            <span class="n">cutoff_output</span> <span class="o">=</span> <span class="kc">True</span>
-            <span class="k">break</span>
-        <span class="k">else</span><span class="p">:</span>
-            <span class="n">line</span> <span class="o">=</span> <span class="n">prefix</span> <span class="o">+</span> <span class="n">delimiter</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">gen</span><span class="p">)</span>
-            <span class="n">lines</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">line</span> <span class="o">+</span> <span class="n">suffix</span><span class="p">)</span>
-
-    <span class="k">if</span> <span class="n">cutoff_output</span><span class="p">:</span>
-        <span class="n">lines</span><span class="o">.</span><span class="n">insert</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="n">prefix</span> <span class="o">+</span> <span class="s1">&#39;Only dumping </span><span class="si">{0!s}</span><span class="s1"> bytes.&#39;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">max_size</span><span class="p">))</span>
-
-    <span class="k">return</span> <span class="n">lines</span></div>
+    <span class="k">return</span> <span class="kc">False</span>
 </pre></div>
 
            </div>
