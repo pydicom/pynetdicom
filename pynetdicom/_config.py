@@ -13,7 +13,7 @@
 #   * Any issues with dataset decoding (bugs, non-conformance) are bypassed
 # Usage:
 #   from pynetdicom import _config
-#   _config.DECODE_STORE_DATASETS = [True|False]
+#   _config.DECODE_STORE_DATASETS = (True|False)
 # Deprecated and will be removed in v1.4, use the event handler system instead
 #   as it provides all the benefits listed above by default
 DECODE_STORE_DATASETS = True
@@ -26,5 +26,16 @@ DECODE_STORE_DATASETS = True
 #     negotiation, DIMSE messaging, etc)
 # Usage:
 #   from pynetdicom import _config
-#   _config.LOG_HANDLER_LEVEL = ['none'|'standard']
+#   _config.LOG_HANDLER_LEVEL = ('none'|'standard')
 LOG_HANDLER_LEVEL = 'standard'
+
+
+# Enfore UID conformance
+#   * If True then UIDs will be checked to ensure they're conformant to the
+#     DICOM Standard and if not then an appropriate response sent.
+#   * If False then UIDs will only be checked to ensure they're no longer
+#     then 64 characters and if not then an appropriate response sent.
+# Usage:
+#   from pynetdicom import _config
+#   _config.ENFORCE_UID_CONFORMANCE = (True|False)
+ENFORCE_UID_CONFORMANCE = False

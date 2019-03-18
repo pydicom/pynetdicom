@@ -6,8 +6,69 @@ import logging
 import sys
 import unicodedata
 
+from pynetdicom import _config
+
 
 LOGGER = logging.getLogger('pynetdicom.utils')
+
+
+def pretty_bytes(bytestream, prefix='  ', delimiter='  ', items_per_line=16,
+                 max_size=512, suffix=''):
+    """Turn the bytestring `bytestream` into a list of nicely formatted str.
+
+    Parameters
+    ----------
+    bytestream : bytes or io.BytesIO
+        The bytes to convert to a nicely formatted string list
+    prefix : str
+        Insert `prefix` at the start of every item in the output string list
+    delimiter : str
+        Delimit each of the bytes in `bytestream` using `delimiter`
+    items_per_line : int
+        The number of bytes in each item of the output string list.
+    max_size : int or None
+        The maximum number of bytes to add to the output string list. A value
+        of None indicates that all of `bytestream` should be output.
+    suffix : str
+        Append `suffix` to the end of every item in the output string list
+
+    Returns
+    -------
+    list of str
+        The output string list
+    """
+    lines = []
+    if isinstance(bytestream, BytesIO):
+        bytestream = bytestream.getvalue()
+
+    cutoff_output = False
+    byte_count = 0
+    for ii in range(0, len(bytestream), items_per_line):
+        # chunk is a bytes in python3 and a str in python2
+        chunk = bytestream[ii:ii + items_per_line]
+        byte_count += len(chunk)
+
+        # Python 2 compatibility
+        if isinstance(chunk, str):
+            gen = (format(ord(x), '02x') for x in chunk)
+        else:
+            gen = (format(x, '02x') for x in chunk)
+
+
+        if max_size is not None and byte_count <= max_size:
+            line = prefix + delimiter.join(gen)
+            lines.append(line + suffix)
+        elif max_size is not None and byte_count > max_size:
+            cutoff_output = True
+            break
+        else:
+            line = prefix + delimiter.join(gen)
+            lines.append(line + suffix)
+
+    if cutoff_output:
+        lines.insert(0, prefix + 'Only dumping {0!s} bytes.'.format(max_size))
+
+    return lines
 
 
 def validate_ae_title(ae_title):
@@ -90,60 +151,37 @@ def validate_ae_title(ae_title):
     return ae_title.encode('ascii', errors='strict')
 
 
-def pretty_bytes(bytestream, prefix='  ', delimiter='  ', items_per_line=16,
-                 max_size=512, suffix=''):
-    """Turn the bytestring `bytestream` into a list of nicely formatted str.
+def validate_uid(uid):
+    """Return True if `uid` is considered valid.
+
+    If ``pynetdicom._config.ENFORCE_UID_CONFORMANCE = True`` then the following
+    rules apply:
+
+    * 1-64 characters, inclusive
+    * Each component may not start with 0 unless the component itself is 0
+    * Components are separated by '.'
+    * Valid component characters are 0-9 of the Basic G0 Set of the
+      International Reference Version of ISO 646:1990 (ASCII)
+
+    If ``pynetdicom._config.ENFORCE_UID_CONFORMANCE = False`` then the
+    following rules apply:
+
+    * 1-64 characters, inclusive
 
     Parameters
     ----------
-    bytestream : bytes or io.BytesIO
-        The bytes to convert to a nicely formatted string list
-    prefix : str
-        Insert `prefix` at the start of every item in the output string list
-    delimiter : str
-        Delimit each of the bytes in `bytestream` using `delimiter`
-    items_per_line : int
-        The number of bytes in each item of the output string list.
-    max_size : int or None
-        The maximum number of bytes to add to the output string list. A value
-        of None indicates that all of `bytestream` should be output.
-    suffix : str
-        Append `suffix` to the end of every item in the output string list
+    uid : pydicom.uid.UID
+        The UID to check for validity.
 
     Returns
     -------
-    list of str
-        The output string list
+    bool
+        True if the value is considered valid, False otherwise.
     """
-    lines = []
-    if isinstance(bytestream, BytesIO):
-        bytestream = bytestream.getvalue()
+    if _config.ENFORCE_UID_CONFORMANCE:
+        return uid.is_valid
 
-    cutoff_output = False
-    byte_count = 0
-    for ii in range(0, len(bytestream), items_per_line):
-        # chunk is a bytes in python3 and a str in python2
-        chunk = bytestream[ii:ii + items_per_line]
-        byte_count += len(chunk)
+    if 0 < len(uid) < 65:
+        return True
 
-        # Python 2 compatibility
-        if isinstance(chunk, str):
-            gen = (format(ord(x), '02x') for x in chunk)
-        else:
-            gen = (format(x, '02x') for x in chunk)
-
-
-        if max_size is not None and byte_count <= max_size:
-            line = prefix + delimiter.join(gen)
-            lines.append(line + suffix)
-        elif max_size is not None and byte_count > max_size:
-            cutoff_output = True
-            break
-        else:
-            line = prefix + delimiter.join(gen)
-            lines.append(line + suffix)
-
-    if cutoff_output:
-        lines.insert(0, prefix + 'Only dumping {0!s} bytes.'.format(max_size))
-
-    return lines
+    return False

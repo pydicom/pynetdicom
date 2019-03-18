@@ -24,6 +24,7 @@ from pynetdicom.sop_class import (
     #_RT_MACHINE_VERIFICATION_CLASSES,
 )
 from pynetdicom._globals import DEFAULT_TRANSFER_SYNTAXES
+from pynetdicom.utils import validate_uid
 
 
 LOGGER = logging.getLogger('pynetdicom.presentation')
@@ -252,8 +253,14 @@ class PresentationContext(object):
         else:
             raise TypeError("'abstract_syntax' must be str or bytes or UID")
 
-        if not uid.is_valid:
-            LOGGER.warning("'abstract_syntax' set to a non-conformant UID")
+        if not validate_uid(uid):
+            LOGGER.error("'abstract_syntax' is an invalid UID")
+            raise ValueError("'abstract_syntax' is an invalid UID")
+
+        if uid and not uid.is_valid:
+            LOGGER.warning(
+                "The Abstract Syntax Name '{}' is non-conformant".format(uid)
+            )
 
         self._abstract_syntax = uid
 
@@ -272,6 +279,16 @@ class PresentationContext(object):
         else:
             LOGGER.error("Attempted to add an invalid transfer syntax")
             return
+
+        if syntax is not None and not validate_uid(syntax):
+            LOGGER.error("'transfer_syntax' contains an invalid UID")
+            raise ValueError("'transfer_syntax' contains an invalid UID")
+
+        if syntax and not syntax.is_valid:
+            LOGGER.warning(
+                "The Transfer Syntax Name '{}' is non-conformant"
+                .format(syntax)
+            )
 
         # If the transfer syntax is rejected we may add an empty str
         if syntax not in self._transfer_syntax and syntax != '':

@@ -4293,7 +4293,7 @@ class TestQRGetServiceClass(object):
         identifier = Dataset()
         identifier.PatientID = '*'
         results = assoc.send_c_get(identifier, msg_id=11142, query_model='P')
-        time.sleep(0.2)
+        time.sleep(0.3)
         assoc.send_c_cancel(1, 3)
         assoc.send_c_cancel(11142, 1)
 
@@ -7042,7 +7042,7 @@ class TestQRMoveServiceClass(object):
         identifier.PatientID = '*'
         results = assoc.send_c_move(identifier, move_aet=b'A',
                                     msg_id=11142, query_model='P')
-        time.sleep(0.2)
+        time.sleep(0.3)
         assoc.send_c_cancel(11142, 1)
         assoc.send_c_cancel(1, 3)
 

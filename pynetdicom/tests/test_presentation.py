@@ -7,7 +7,7 @@ import pytest
 from pydicom._uid_dict import UID_dictionary
 from pydicom.uid import UID
 
-from pynetdicom import StoragePresentationContexts, AE
+from pynetdicom import StoragePresentationContexts, AE, _config
 from pynetdicom.pdu_primitives import SCP_SCU_RoleSelectionNegotiation
 from pynetdicom.presentation import (
     PresentationContext,
@@ -51,6 +51,12 @@ def good_init(request):
 
 class TestPresentationContext(object):
     """Test the PresentationContext class"""
+    def setup(self):
+        self.default_conformance = _config.ENFORCE_UID_CONFORMANCE
+
+    def teardown(self):
+        _config.ENFORCE_UID_CONFORMANCE = self.default_conformance
+
     def test_setter(self, good_init):
         """Test the presentation context class init"""
         (context_id, abs_syn, tran_syn) = good_init
@@ -74,7 +80,6 @@ class TestPresentationContext(object):
         pc.add_transfer_syntax('1.2.840.10008.1.2')
         pc.add_transfer_syntax(b'1.2.840.10008.1.2.1')
         pc.add_transfer_syntax(UID('1.2.840.10008.1.2.2'))
-        pc.add_transfer_syntax(UID(''))
 
         # Test adding an invalid value
         pc.add_transfer_syntax(1234)
@@ -84,19 +89,38 @@ class TestPresentationContext(object):
                         reason='pytest missing caplog')
     def test_add_transfer_syntax_nonconformant(self, caplog):
         """Test adding non-conformant transfer syntaxes"""
+        _config.ENFORCE_UID_CONFORMANCE = True
+
         caplog.set_level(logging.DEBUG, logger='pynetdicom.presentation')
         pc = PresentationContext()
         pc.context_id = 1
-        pc.add_transfer_syntax('1.2.3.')
-        assert ("A non-conformant UID has been added to 'transfer_syntax'"
-            in caplog.text)
+
+        msg = r"'transfer_syntax' contains an invalid UID"
+        with pytest.raises(ValueError, match=msg):
+            pc.add_transfer_syntax('1.2.3.')
+
+        assert msg in caplog.text
 
         pc.add_transfer_syntax('1.2.840.10008.1.1')
         assert ("A UID has been added to 'transfer_syntax' that is not a "
                "transfer syntax" in caplog.text)
 
+        _config.ENFORCE_UID_CONFORMANCE = False
+        pc.add_transfer_syntax('1.2.3.')
+        assert '1.2.3.' in pc.transfer_syntax
+
     def test_add_private_transfer_syntax(self):
         """Test adding private transfer syntaxes"""
+        _config.ENFORCE_UID_CONFORMANCE = False
+        pc = PresentationContext()
+        pc.context_id = 1
+        pc.add_transfer_syntax('2.16.840.1.113709.1.2.2')
+        assert '2.16.840.1.113709.1.2.2' in pc._transfer_syntax
+
+        pc.transfer_syntax = ['2.16.840.1.113709.1.2.1']
+        assert '2.16.840.1.113709.1.2.1' in pc._transfer_syntax
+
+        _config.ENFORCE_UID_CONFORMANCE = True
         pc = PresentationContext()
         pc.context_id = 1
         pc.add_transfer_syntax('2.16.840.1.113709.1.2.2')
@@ -206,14 +230,22 @@ class TestPresentationContext(object):
                         reason='pytest missing caplog')
     def test_abstract_syntax_nonconformant(self, caplog):
         """Test adding non-conformant abstract syntaxes"""
+        _config.ENFORCE_UID_CONFORMANCE = True
         caplog.set_level(logging.DEBUG, logger='pynetdicom.presentation')
         pc = PresentationContext()
         pc.context_id = 1
+
+        msg = r"'abstract_syntax' is an invalid UID"
+        with pytest.raises(ValueError, match=msg):
+            pc.abstract_syntax = UID('1.4.1.')
+        assert pc.abstract_syntax is None
+
+        _config.ENFORCE_UID_CONFORMANCE = False
         pc.abstract_syntax = UID('1.4.1.')
         assert pc.abstract_syntax == UID('1.4.1.')
         assert isinstance(pc.abstract_syntax, UID)
 
-        assert ("'abstract_syntax' set to a non-conformant UID" in caplog.text)
+        assert ("'abstract_syntax' is an invalid UID" in caplog.text)
 
     def test_transfer_syntax(self):
         """Test transfer syntax setter"""

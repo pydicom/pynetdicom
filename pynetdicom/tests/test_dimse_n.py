@@ -15,6 +15,7 @@ from pydicom.dataelem import DataElement
 from pydicom.tag import Tag
 from pydicom.uid import UID
 
+from pynetdicom import _config
 from pynetdicom.dimse_messages import (
     N_EVENT_REPORT_RQ, N_EVENT_REPORT_RSP, N_GET_RQ, N_GET_RSP,
     N_SET_RQ, N_SET_RSP, N_ACTION_RQ, N_ACTION_RSP, N_CREATE_RQ,
@@ -41,6 +42,12 @@ LOGGER.setLevel(logging.CRITICAL)
 
 class TestPrimitive_N_EVENT(object):
     """Test DIMSE N-EVENT-REPORT operations."""
+    def setup(self):
+        self.default_conformance = _config.ENFORCE_UID_CONFORMANCE
+
+    def teardown(self):
+        _config.ENFORCE_UID_CONFORMANCE = self.default_conformance
+
     def test_assignment(self):
         """ Check assignment works correctly """
         primitive = N_EVENT_REPORT()
@@ -97,6 +104,35 @@ class TestPrimitive_N_EVENT(object):
         primitive.Status = 0x0000
         assert primitive.Status == 0x0000
 
+    def test_uid_exceptions_false(self):
+        """Test ValueError raised with ENFORCE_UID_CONFORMANCE = False."""
+        primitive = N_EVENT_REPORT()
+
+        _config.ENFORCE_UID_CONFORMANCE = False
+
+        primitive.AffectedSOPClassUID = 'abc'
+        assert primitive.AffectedSOPClassUID == 'abc'
+        primitive.AffectedSOPInstanceUID = 'abc'
+        assert primitive.AffectedSOPInstanceUID == 'abc'
+
+        # Can't have more than 64 characters
+        with pytest.raises(ValueError):
+            primitive.AffectedSOPClassUID = 'abc' * 22
+
+        with pytest.raises(ValueError):
+            primitive.AffectedSOPInstanceUID = 'abc' * 22
+
+    def test_uid_exceptions_true(self):
+        """Test ValueError raised with ENFORCE_UID_CONFORMANCE = True."""
+        primitive = N_EVENT_REPORT()
+        _config.ENFORCE_UID_CONFORMANCE = True
+
+        with pytest.raises(ValueError):
+            primitive.AffectedSOPClassUID = 'abc'
+
+        with pytest.raises(ValueError):
+            primitive.AffectedSOPInstanceUID = 'abc'
+
     def test_exceptions(self):
         """ Check incorrect types/values for properties raise exceptions """
         primitive = N_EVENT_REPORT()
@@ -134,18 +170,12 @@ class TestPrimitive_N_EVENT(object):
         with pytest.raises(TypeError):
             primitive.AffectedSOPClassUID = 100
 
-        with pytest.raises(ValueError):
-            primitive.AffectedSOPClassUID = 'abc'
-
         # AffectedSOPInstanceUID
         with pytest.raises(TypeError):
             primitive.AffectedSOPInstanceUID = 45.2
 
         with pytest.raises(TypeError):
             primitive.AffectedSOPInstanceUID = 100
-
-        with pytest.raises(ValueError):
-            primitive.AffectedSOPInstanceUID = 'abc'
 
         # EventInformation
         msg = r"'EventInformation' parameter must be a BytesIO object"
@@ -265,6 +295,12 @@ class TestPrimitive_N_EVENT(object):
 
 class TestPrimitive_N_GET(object):
     """Test DIMSE N-GET operations."""
+    def setup(self):
+        self.default_conformance = _config.ENFORCE_UID_CONFORMANCE
+
+    def teardown(self):
+        _config.ENFORCE_UID_CONFORMANCE = self.default_conformance
+
     def test_assignment(self):
         """Check assignment works correctly"""
         primitive = N_GET()
@@ -349,6 +385,51 @@ class TestPrimitive_N_GET(object):
         primitive.Status = 0x0000
         assert primitive.Status == 0x0000
 
+    def test_uid_exceptions_false(self):
+        """Test ValueError raised with ENFORCE_UID_CONFORMANCE = False."""
+        primitive = N_GET()
+
+        _config.ENFORCE_UID_CONFORMANCE = False
+
+        primitive.AffectedSOPClassUID = 'abc'
+        assert primitive.AffectedSOPClassUID == 'abc'
+        primitive.AffectedSOPInstanceUID = 'abc'
+        assert primitive.AffectedSOPInstanceUID == 'abc'
+        primitive.RequestedSOPClassUID = 'abc'
+        assert primitive.RequestedSOPClassUID == 'abc'
+        primitive.RequestedSOPInstanceUID = 'abc'
+        assert primitive.RequestedSOPInstanceUID == 'abc'
+
+        # Can't have more than 64 characters
+        with pytest.raises(ValueError):
+            primitive.AffectedSOPClassUID = 'abc' * 22
+
+        with pytest.raises(ValueError):
+            primitive.AffectedSOPInstanceUID = 'abc' * 22
+
+        with pytest.raises(ValueError):
+            primitive.RequestedSOPClassUID = 'abc' * 22
+
+        with pytest.raises(ValueError):
+            primitive.RequestedSOPInstanceUID = 'abc' * 22
+
+    def test_uid_exceptions_true(self):
+        """Test ValueError raised with ENFORCE_UID_CONFORMANCE = True."""
+        primitive = N_GET()
+        _config.ENFORCE_UID_CONFORMANCE = True
+
+        with pytest.raises(ValueError):
+            primitive.AffectedSOPClassUID = 'abc'
+
+        with pytest.raises(ValueError):
+            primitive.AffectedSOPInstanceUID = 'abc'
+
+        with pytest.raises(ValueError):
+            primitive.RequestedSOPClassUID = 'abc'
+
+        with pytest.raises(ValueError):
+            primitive.RequestedSOPInstanceUID = 'abc'
+
     def test_exceptions(self):
         """ Check incorrect types/values for properties raise exceptions """
         primitive = N_GET()
@@ -386,18 +467,12 @@ class TestPrimitive_N_GET(object):
         with pytest.raises(TypeError):
             primitive.AffectedSOPClassUID = 100
 
-        with pytest.raises(ValueError):
-            primitive.AffectedSOPClassUID = 'abc'
-
         # AffectedSOPInstanceUID
         with pytest.raises(TypeError):
             primitive.AffectedSOPInstanceUID = 45.2
 
         with pytest.raises(TypeError):
             primitive.AffectedSOPInstanceUID = 100
-
-        with pytest.raises(ValueError):
-            primitive.AffectedSOPInstanceUID = 'abc'
 
         # RequestedSOPClassUID
         with pytest.raises(TypeError):
@@ -406,18 +481,12 @@ class TestPrimitive_N_GET(object):
         with pytest.raises(TypeError):
             primitive.RequestedSOPClassUID = 100
 
-        with pytest.raises(ValueError):
-            primitive.RequestedSOPClassUID = 'abc'
-
         # RequestedSOPInstanceUID
         with pytest.raises(TypeError):
             primitive.RequestedSOPInstanceUID = 45.2
 
         with pytest.raises(TypeError):
             primitive.RequestedSOPInstanceUID = 100
-
-        with pytest.raises(ValueError):
-            primitive.RequestedSOPInstanceUID = 'abc'
 
         # AttributeIdentifierList
         with pytest.raises(ValueError):
@@ -520,6 +589,12 @@ class TestPrimitive_N_GET(object):
 
 class TestPrimitive_N_SET(object):
     """Test DIMSE N-SET operations."""
+    def setup(self):
+        self.default_conformance = _config.ENFORCE_UID_CONFORMANCE
+
+    def teardown(self):
+        _config.ENFORCE_UID_CONFORMANCE = self.default_conformance
+
     def test_assignment(self):
         """ Check assignment works correctly """
         primitive = N_SET()
@@ -594,6 +669,51 @@ class TestPrimitive_N_SET(object):
         primitive.Status = 0x0000
         assert primitive.Status == 0x0000
 
+    def test_uid_exceptions_false(self):
+        """Test ValueError raised with ENFORCE_UID_CONFORMANCE = False."""
+        primitive = N_SET()
+
+        _config.ENFORCE_UID_CONFORMANCE = False
+
+        primitive.AffectedSOPClassUID = 'abc'
+        assert primitive.AffectedSOPClassUID == 'abc'
+        primitive.AffectedSOPInstanceUID = 'abc'
+        assert primitive.AffectedSOPInstanceUID == 'abc'
+        primitive.RequestedSOPClassUID = 'abc'
+        assert primitive.RequestedSOPClassUID == 'abc'
+        primitive.RequestedSOPInstanceUID = 'abc'
+        assert primitive.RequestedSOPInstanceUID == 'abc'
+
+        # Can't have more than 64 characters
+        with pytest.raises(ValueError):
+            primitive.AffectedSOPClassUID = 'abc' * 22
+
+        with pytest.raises(ValueError):
+            primitive.AffectedSOPInstanceUID = 'abc' * 22
+
+        with pytest.raises(ValueError):
+            primitive.RequestedSOPClassUID = 'abc' * 22
+
+        with pytest.raises(ValueError):
+            primitive.RequestedSOPInstanceUID = 'abc' * 22
+
+    def test_uid_exceptions_true(self):
+        """Test ValueError raised with ENFORCE_UID_CONFORMANCE = True."""
+        primitive = N_SET()
+        _config.ENFORCE_UID_CONFORMANCE = True
+
+        with pytest.raises(ValueError):
+            primitive.AffectedSOPClassUID = 'abc'
+
+        with pytest.raises(ValueError):
+            primitive.AffectedSOPInstanceUID = 'abc'
+
+        with pytest.raises(ValueError):
+            primitive.RequestedSOPClassUID = 'abc'
+
+        with pytest.raises(ValueError):
+            primitive.RequestedSOPInstanceUID = 'abc'
+
     def test_exceptions(self):
         """ Check incorrect types/values for properties raise exceptions """
         primitive = N_SET()
@@ -631,18 +751,12 @@ class TestPrimitive_N_SET(object):
         with pytest.raises(TypeError):
             primitive.AffectedSOPClassUID = 100
 
-        with pytest.raises(ValueError):
-            primitive.AffectedSOPClassUID = 'abc'
-
         # AffectedSOPInstanceUID
         with pytest.raises(TypeError):
             primitive.AffectedSOPInstanceUID = 45.2
 
         with pytest.raises(TypeError):
             primitive.AffectedSOPInstanceUID = 100
-
-        with pytest.raises(ValueError):
-            primitive.AffectedSOPInstanceUID = 'abc'
 
         # RequestedSOPClassUID
         with pytest.raises(TypeError):
@@ -651,18 +765,12 @@ class TestPrimitive_N_SET(object):
         with pytest.raises(TypeError):
             primitive.RequestedSOPClassUID = 100
 
-        with pytest.raises(ValueError):
-            primitive.RequestedSOPClassUID = 'abc'
-
         # RequestedSOPInstanceUID
         with pytest.raises(TypeError):
             primitive.RequestedSOPInstanceUID = 45.2
 
         with pytest.raises(TypeError):
             primitive.RequestedSOPInstanceUID = 100
-
-        with pytest.raises(ValueError):
-            primitive.RequestedSOPInstanceUID = 'abc'
 
         # AttributeList
         msg = r"'AttributeList' parameter must be a BytesIO object"
@@ -780,6 +888,12 @@ class TestPrimitive_N_SET(object):
 
 class TestPrimitive_N_ACTION(object):
     """Test DIMSE N-ACTION operations."""
+    def setup(self):
+        self.default_conformance = _config.ENFORCE_UID_CONFORMANCE
+
+    def teardown(self):
+        _config.ENFORCE_UID_CONFORMANCE = self.default_conformance
+
     def test_assignment(self):
         """ Check assignment works correctly """
         primitive = N_ACTION()
@@ -858,6 +972,51 @@ class TestPrimitive_N_ACTION(object):
         primitive.Status = 0x0000
         assert primitive.Status == 0x0000
 
+    def test_uid_exceptions_false(self):
+        """Test ValueError raised with ENFORCE_UID_CONFORMANCE = False."""
+        primitive = N_ACTION()
+
+        _config.ENFORCE_UID_CONFORMANCE = False
+
+        primitive.AffectedSOPClassUID = 'abc'
+        assert primitive.AffectedSOPClassUID == 'abc'
+        primitive.AffectedSOPInstanceUID = 'abc'
+        assert primitive.AffectedSOPInstanceUID == 'abc'
+        primitive.RequestedSOPClassUID = 'abc'
+        assert primitive.RequestedSOPClassUID == 'abc'
+        primitive.RequestedSOPInstanceUID = 'abc'
+        assert primitive.RequestedSOPInstanceUID == 'abc'
+
+        # Can't have more than 64 characters
+        with pytest.raises(ValueError):
+            primitive.AffectedSOPClassUID = 'abc' * 22
+
+        with pytest.raises(ValueError):
+            primitive.AffectedSOPInstanceUID = 'abc' * 22
+
+        with pytest.raises(ValueError):
+            primitive.RequestedSOPClassUID = 'abc' * 22
+
+        with pytest.raises(ValueError):
+            primitive.RequestedSOPInstanceUID = 'abc' * 22
+
+    def test_uid_exceptions_true(self):
+        """Test ValueError raised with ENFORCE_UID_CONFORMANCE = True."""
+        primitive = N_ACTION()
+        _config.ENFORCE_UID_CONFORMANCE = True
+
+        with pytest.raises(ValueError):
+            primitive.AffectedSOPClassUID = 'abc'
+
+        with pytest.raises(ValueError):
+            primitive.AffectedSOPInstanceUID = 'abc'
+
+        with pytest.raises(ValueError):
+            primitive.RequestedSOPClassUID = 'abc'
+
+        with pytest.raises(ValueError):
+            primitive.RequestedSOPInstanceUID = 'abc'
+
     def test_exceptions(self):
         """ Check incorrect types/values for properties raise exceptions """
         primitive = N_ACTION()
@@ -895,18 +1054,12 @@ class TestPrimitive_N_ACTION(object):
         with pytest.raises(TypeError):
             primitive.AffectedSOPClassUID = 100
 
-        with pytest.raises(ValueError):
-            primitive.AffectedSOPClassUID = 'abc'
-
         # AffectedSOPInstanceUID
         with pytest.raises(TypeError):
             primitive.AffectedSOPInstanceUID = 45.2
 
         with pytest.raises(TypeError):
             primitive.AffectedSOPInstanceUID = 100
-
-        with pytest.raises(ValueError):
-            primitive.AffectedSOPInstanceUID = 'abc'
 
         # RequestedSOPClassUID
         with pytest.raises(TypeError):
@@ -915,18 +1068,12 @@ class TestPrimitive_N_ACTION(object):
         with pytest.raises(TypeError):
             primitive.RequestedSOPClassUID = 100
 
-        with pytest.raises(ValueError):
-            primitive.RequestedSOPClassUID = 'abc'
-
         # RequestedSOPInstanceUID
         with pytest.raises(TypeError):
             primitive.RequestedSOPInstanceUID = 45.2
 
         with pytest.raises(TypeError):
             primitive.RequestedSOPInstanceUID = 100
-
-        with pytest.raises(ValueError):
-            primitive.RequestedSOPInstanceUID = 'abc'
 
         # ActionInformation
         msg = r"'ActionInformation' parameter must be a BytesIO object"
@@ -1046,6 +1193,12 @@ class TestPrimitive_N_ACTION(object):
 
 class TestPrimitive_N_CREATE(object):
     """Test DIMSE N-CREATE operations."""
+    def setup(self):
+        self.default_conformance = _config.ENFORCE_UID_CONFORMANCE
+
+    def teardown(self):
+        _config.ENFORCE_UID_CONFORMANCE = self.default_conformance
+
     def test_assignment(self):
         """ Check assignment works correctly """
         primitive = N_CREATE()
@@ -1091,6 +1244,35 @@ class TestPrimitive_N_CREATE(object):
         primitive.Status = 0x0000
         assert primitive.Status == 0x0000
 
+    def test_uid_exceptions_false(self):
+        """Test ValueError raised with ENFORCE_UID_CONFORMANCE = False."""
+        primitive = N_CREATE()
+
+        _config.ENFORCE_UID_CONFORMANCE = False
+
+        primitive.AffectedSOPClassUID = 'abc'
+        assert primitive.AffectedSOPClassUID == 'abc'
+        primitive.AffectedSOPInstanceUID = 'abc'
+        assert primitive.AffectedSOPInstanceUID == 'abc'
+
+        # Can't have more than 64 characters
+        with pytest.raises(ValueError):
+            primitive.AffectedSOPClassUID = 'abc' * 22
+
+        with pytest.raises(ValueError):
+            primitive.AffectedSOPInstanceUID = 'abc' * 22
+
+    def test_uid_exceptions_true(self):
+        """Test ValueError raised with ENFORCE_UID_CONFORMANCE = True."""
+        primitive = N_CREATE()
+        _config.ENFORCE_UID_CONFORMANCE = True
+
+        with pytest.raises(ValueError):
+            primitive.AffectedSOPClassUID = 'abc'
+
+        with pytest.raises(ValueError):
+            primitive.AffectedSOPInstanceUID = 'abc'
+
     def test_exceptions(self):
         """ Check incorrect types/values for properties raise exceptions """
         primitive = N_CREATE()
@@ -1128,18 +1310,12 @@ class TestPrimitive_N_CREATE(object):
         with pytest.raises(TypeError):
             primitive.AffectedSOPClassUID = 100
 
-        with pytest.raises(ValueError):
-            primitive.AffectedSOPClassUID = 'abc'
-
         # AffectedSOPInstanceUID
         with pytest.raises(TypeError):
             primitive.AffectedSOPInstanceUID = 45.2
 
         with pytest.raises(TypeError):
             primitive.AffectedSOPInstanceUID = 100
-
-        with pytest.raises(ValueError):
-            primitive.AffectedSOPInstanceUID = 'abc'
 
         # AttributeList
         msg = r"'AttributeList' parameter must be a BytesIO object"
@@ -1235,6 +1411,12 @@ class TestPrimitive_N_CREATE(object):
 
 class TestPrimitive_N_DELETE(object):
     """Test DIMSE N-DELETE operations."""
+    def setup(self):
+        self.default_conformance = _config.ENFORCE_UID_CONFORMANCE
+
+    def teardown(self):
+        _config.ENFORCE_UID_CONFORMANCE = self.default_conformance
+
     def test_assignment(self):
         """ Check assignment works correctly """
         primitive = N_DELETE()
@@ -1295,6 +1477,51 @@ class TestPrimitive_N_DELETE(object):
         primitive.Status = 0x0000
         assert primitive.Status == 0x0000
 
+    def test_uid_exceptions_false(self):
+        """Test ValueError raised with ENFORCE_UID_CONFORMANCE = False."""
+        primitive = N_DELETE()
+
+        _config.ENFORCE_UID_CONFORMANCE = False
+
+        primitive.AffectedSOPClassUID = 'abc'
+        assert primitive.AffectedSOPClassUID == 'abc'
+        primitive.AffectedSOPInstanceUID = 'abc'
+        assert primitive.AffectedSOPInstanceUID == 'abc'
+        primitive.RequestedSOPClassUID = 'abc'
+        assert primitive.RequestedSOPClassUID == 'abc'
+        primitive.RequestedSOPInstanceUID = 'abc'
+        assert primitive.RequestedSOPInstanceUID == 'abc'
+
+        # Can't have more than 64 characters
+        with pytest.raises(ValueError):
+            primitive.AffectedSOPClassUID = 'abc' * 22
+
+        with pytest.raises(ValueError):
+            primitive.AffectedSOPInstanceUID = 'abc' * 22
+
+        with pytest.raises(ValueError):
+            primitive.RequestedSOPClassUID = 'abc' * 22
+
+        with pytest.raises(ValueError):
+            primitive.RequestedSOPInstanceUID = 'abc' * 22
+
+    def test_uid_exceptions_true(self):
+        """Test ValueError raised with ENFORCE_UID_CONFORMANCE = True."""
+        primitive = N_DELETE()
+        _config.ENFORCE_UID_CONFORMANCE = True
+
+        with pytest.raises(ValueError):
+            primitive.AffectedSOPClassUID = 'abc'
+
+        with pytest.raises(ValueError):
+            primitive.AffectedSOPInstanceUID = 'abc'
+
+        with pytest.raises(ValueError):
+            primitive.RequestedSOPClassUID = 'abc'
+
+        with pytest.raises(ValueError):
+            primitive.RequestedSOPInstanceUID = 'abc'
+
     def test_exceptions(self):
         """ Check incorrect types/values for properties raise exceptions """
         primitive = N_DELETE()
@@ -1332,18 +1559,12 @@ class TestPrimitive_N_DELETE(object):
         with pytest.raises(TypeError):
             primitive.AffectedSOPClassUID = 100
 
-        with pytest.raises(ValueError):
-            primitive.AffectedSOPClassUID = 'abc'
-
         # AffectedSOPInstanceUID
         with pytest.raises(TypeError):
             primitive.AffectedSOPInstanceUID = 45.2
 
         with pytest.raises(TypeError):
             primitive.AffectedSOPInstanceUID = 100
-
-        with pytest.raises(ValueError):
-            primitive.AffectedSOPInstanceUID = 'abc'
 
         # RequestedSOPClassUID
         with pytest.raises(TypeError):
@@ -1352,18 +1573,12 @@ class TestPrimitive_N_DELETE(object):
         with pytest.raises(TypeError):
             primitive.RequestedSOPClassUID = 100
 
-        with pytest.raises(ValueError):
-            primitive.RequestedSOPClassUID = 'abc'
-
         # RequestedSOPInstanceUID
         with pytest.raises(TypeError):
             primitive.RequestedSOPInstanceUID = 45.2
 
         with pytest.raises(TypeError):
             primitive.RequestedSOPInstanceUID = 100
-
-        with pytest.raises(ValueError):
-            primitive.RequestedSOPInstanceUID = 'abc'
 
         # Status
         with pytest.raises(TypeError):

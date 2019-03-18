@@ -31,7 +31,8 @@ must not start with 0 unless the component itself is 0 (i.e. 1.2.0.4 is
 valid but 1.2.08.4 is invalid) and the maximum length of a UID is 64 total
 characters.
 
-More information on DICOM UIDs is available in `Part 5 <http://dicom.nema.org/medical/dicom/current/output/html/part03.html>`_
+More information on DICOM UIDs is available in
+`Part 5 <http://dicom.nema.org/medical/dicom/current/output/html/part05.html>`_
 of the DICOM Standard.
 
 
