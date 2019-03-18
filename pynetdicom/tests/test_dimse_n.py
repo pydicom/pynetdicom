@@ -1246,7 +1246,7 @@ class TestPrimitive_N_CREATE(object):
 
     def test_uid_exceptions_false(self):
         """Test ValueError raised with ENFORCE_UID_CONFORMANCE = False."""
-        primitive = N_DELETE()
+        primitive = N_CREATE()
 
         _config.ENFORCE_UID_CONFORMANCE = False
 
@@ -1264,7 +1264,7 @@ class TestPrimitive_N_CREATE(object):
 
     def test_uid_exceptions_true(self):
         """Test ValueError raised with ENFORCE_UID_CONFORMANCE = True."""
-        primitive = N_DELETE()
+        primitive = N_CREATE()
         _config.ENFORCE_UID_CONFORMANCE = True
 
         with pytest.raises(ValueError):

@@ -2066,7 +2066,7 @@ class TestUserInformation_ExtendedNegotiation(object):
         """Test the UID conformance with ENFORCE_UID_CONFORMANCE."""
         _config.ENFORCE_UID_CONFORMANCE = False
 
-        item = SOPClassExtendedNegotiation()
+        item = SOPClassExtendedNegotiationSubItem()
         item.sop_class_uid = 'abc'
         assert item.sop_class_uid == 'abc'
 

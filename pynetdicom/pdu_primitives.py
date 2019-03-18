@@ -296,6 +296,12 @@ class A_ASSOCIATE(object):
             LOGGER.error("application_context_name is an invalid UID")
             raise ValueError("application_context_name is an invalid UID")
 
+        if value and not value.is_valid:
+            LOGGER.warning(
+                "The Application Context Name '{}' is non-conformant"
+                .format(value)
+            )
+
         self._application_context_name = value
 
     @property
@@ -1286,6 +1292,12 @@ class ImplementationClassUIDNotification(ServiceParameter):
             LOGGER.error(msg)
             raise ValueError(msg)
 
+        if value and not value.is_valid:
+            LOGGER.warning(
+                "The Implementation Class UID '{}' is non-conformant"
+                .format(value)
+            )
+
         self._implementation_class_uid = value
 
     def __str__(self):
@@ -1721,6 +1733,12 @@ class SCP_SCU_RoleSelectionNegotiation(ServiceParameter):
             LOGGER.error("SOP Class UID is an invalid UID")
             raise ValueError("SOP Class UID is an invalid UID")
 
+        if value and not value.is_valid:
+            LOGGER.warning(
+                "The SOP Class UID '{}' is non-conformant"
+                .format(value)
+            )
+
         self._sop_class_uid = value
 
 
@@ -1863,6 +1881,12 @@ class SOPClassExtendedNegotiation(ServiceParameter):
             LOGGER.error("SOP Class UID is an invalid UID")
             raise ValueError("SOP Class UID is an invalid UID")
 
+        if value and not value.is_valid:
+            LOGGER.warning(
+                "The SOP Class UID '{}' is non-conformant"
+                .format(value)
+            )
+
         self._sop_class_uid = value
 
 
@@ -1982,6 +2006,12 @@ class SOPClassCommonExtendedNegotiation(ServiceParameter):
                     LOGGER.error(msg)
                     raise ValueError(msg)
 
+                if uid and not uid.is_valid:
+                    LOGGER.warning(
+                        "The Related General SOP Class UID '{}' is "
+                        "non-conformant".format(uid)
+                    )
+
                 valid_uid_list.append(uid)
 
             self._related_general_sop_class_identification = valid_uid_list
@@ -2030,6 +2060,12 @@ class SOPClassCommonExtendedNegotiation(ServiceParameter):
             LOGGER.error("Service Class UID is an invalid UID")
             raise ValueError("Service Class UID is an invalid UID")
 
+        if value and not value.is_valid:
+            LOGGER.warning(
+                "The Service Class UID '{}' is non-conformant"
+                .format(value)
+            )
+
         self._service_class_uid = value
 
     @property
@@ -2068,6 +2104,12 @@ class SOPClassCommonExtendedNegotiation(ServiceParameter):
         if value is not None and not validate_uid(value):
             LOGGER.error("SOP Class UID is an invalid UID")
             raise ValueError("SOP Class UID is an invalid UID")
+
+        if value and not value.is_valid:
+            LOGGER.warning(
+                "The SOP Class UID '{}' is non-conformant"
+                .format(value)
+            )
 
         self._sop_class_uid = value
 

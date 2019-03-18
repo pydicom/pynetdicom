@@ -38,7 +38,8 @@ Pull Requests
 
 - Use pytest to run the unit tests.
 
-- When adding features you should have complete documentation and high coverage unit tests (95-100%) that cover not just the lines of code but ensure that the feature works as intended.
+- When adding features you should have complete documentation and 100% unit test coverage
+that covers not just the lines of code but ensure that the feature works as intended.
 
 - When writing documentation please reference the DICOM Standard where possible. When dealing with significant parts of the code base (`DIMSEMessage.decode_msg()` for example) you should have inline comments that reference both the DICOM Standard and explain in detail what the code is doing and why.
 
@@ -49,9 +50,11 @@ Code Style
 ----------
 PEP8 should be followed where it makes sense to do so. In addition there are a handful of project specific styles that should be used:
  - `ae` for an ApplicationEntity object
+ - `acse` for the ACSE object
  - `assoc` for an Association object
+ - `dimse` for the DIMSE object
  - Variable and function names should be `lower_case_underscore`, including acronyms such as `context_id` and `uid`.
- - Where a variable corresponds directly to a DICOM DataElement then use a name that is identical to the element keyword (i.e. the DIMSE command set elements such as MessageID and AffectedSOPClassUID correspond to the `dimse_primitives` attributes such as `C_STORE.MessageID` and `C_STORE.AffectedSOPClassUID`).
+ - Where a variable corresponds directly to a DICOM Data Element then use a name that is identical to the element keyword (i.e. the DIMSE command set elements such as MessageID and AffectedSOPClassUID correspond to attributes such as `C_STORE.MessageID` and `C_STORE.AffectedSOPClassUID`).
 
 
 Testing

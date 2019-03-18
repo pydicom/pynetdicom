@@ -1889,8 +1889,6 @@ class ImplementationClassUIDSubItem(PDUItem):
             raise ValueError("Implementation Class UID is an invalid UID")
 
         self._implementation_class_uid = value
-        #if value is not None:
-        #    #self.item_length = len(self.implementation_class_uid)
 
     @property
     def item_length(self):
