@@ -80,6 +80,31 @@ class TestPrimitive_MaximumLengthNotification(object):
 
 
 class TestPrimitive_ImplementationClassUIDNotification(object):
+    def setup(self):
+        self.default_conformance = _config.ENFORCE_UID_CONFORMANCE
+
+    def teardown(self):
+        _config.ENFORCE_UID_CONFORMANCE = self.default_conformance
+
+    def test_uid_conformance_false(self):
+        """Test UID conformance with ENFORCE_UID_CONFORMANCE = False"""
+        _config.ENFORCE_UID_CONFORMANCE = False
+        primitive = ImplementationClassUIDNotification()
+
+        primitive.implementation_class_uid = 'abc'
+        assert primitive.implementation_class_uid == 'abc'
+
+        with pytest.raises(ValueError):
+            primitive.implementation_class_uid = 'abc' * 22
+
+    def test_uid_conformance_true(self):
+        """Test UID conformance with ENFORCE_UID_CONFORMANCE = True"""
+        _config.ENFORCE_UID_CONFORMANCE = True
+        primitive = ImplementationClassUIDNotification()
+
+        with pytest.raises(ValueError):
+            primitive.implementation_class_uid = 'abc'
+
     def test_assignment_and_exceptions(self):
         """Check incorrect setter for implementation_class_uid raises"""
         primitive = ImplementationClassUIDNotification()
