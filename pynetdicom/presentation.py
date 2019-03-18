@@ -257,6 +257,11 @@ class PresentationContext(object):
             LOGGER.error("'abstract_syntax' is an invalid UID")
             raise ValueError("'abstract_syntax' is an invalid UID")
 
+        if uid and not uid.is_valid:
+            LOGGER.warning(
+                "The Abstract Syntax Name '{}' is non-conformant".format(uid)
+            )
+
         self._abstract_syntax = uid
 
     def add_transfer_syntax(self, syntax):
@@ -278,6 +283,12 @@ class PresentationContext(object):
         if syntax is not None and not validate_uid(syntax):
             LOGGER.error("'transfer_syntax' contains an invalid UID")
             raise ValueError("'transfer_syntax' contains an invalid UID")
+
+        if syntax and not syntax.is_valid:
+            LOGGER.warning(
+                "The Transfer Syntax Name '{}' is non-conformant"
+                .format(syntax)
+            )
 
         # If the transfer syntax is rejected we may add an empty str
         if syntax not in self._transfer_syntax and syntax != '':
