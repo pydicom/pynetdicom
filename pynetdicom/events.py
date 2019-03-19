@@ -211,6 +211,94 @@ class Event(object):
             setattr(self, kk, vv)
 
     @property
+    def attribute_list(self):
+        """Return an N-CREATE request's `Attribute List` as a *pydicom*
+        Dataset.
+
+        Because *pydicom* defers data parsing during decoding until an element
+        is actually required the returned ``Dataset`` may raise an exception
+        when any element is first accessed. It's therefore important that
+        proper error handling be part of any handler
+        that uses the returned ``Dataset``.
+
+        Returns
+        -------
+        pydicom.dataset.Dataset
+            The decoded *Attribute List* dataset.
+
+        Raises
+        ------
+        AttributeError
+            If the corresponding event is not an N-CREATE request.
+        """
+        try:
+            # If no change in encoded data then return stored decode
+            if self._hash == hash(self.request.AttributeList):
+                return self._decoded
+
+            t_syntax = self.context.transfer_syntax
+            ds = decode(self.request.AttributeList,
+                        t_syntax.is_implicit_VR,
+                        t_syntax.is_little_endian)
+
+            # Store the decoded dataset in case its accessed again
+            self._hash = hash(self.request.AttributeList)
+            self._decoded = ds
+
+            return ds
+        except AttributeError:
+            pass
+
+        raise AttributeError(
+            "The corresponding event is not an N-CREATE request and has no "
+            "'Attribute List' parameter"
+        )
+
+    @property
+    def action_information(self):
+        """Return an N-ACTION request's `Action Information` as a *pydicom*
+        Dataset.
+
+        Because *pydicom* defers data parsing during decoding until an element
+        is actually required the returned ``Dataset`` may raise an exception
+        when any element is first accessed. It's therefore important that
+        proper error handling be part of any handler
+        that uses the returned ``Dataset``.
+
+        Returns
+        -------
+        pydicom.dataset.Dataset
+            The decoded *Action Information* dataset.
+
+        Raises
+        ------
+        AttributeError
+            If the corresponding event is not an N-ACTION request.
+        """
+        try:
+            # If no change in encoded data then return stored decode
+            if self._hash == hash(self.request.ActionInformation):
+                return self._decoded
+
+            t_syntax = self.context.transfer_syntax
+            ds = decode(self.request.ActionInformation,
+                        t_syntax.is_implicit_VR,
+                        t_syntax.is_little_endian)
+
+            # Store the decoded dataset in case its accessed again
+            self._hash = hash(self.request.ActionInformation)
+            self._decoded = ds
+
+            return ds
+        except AttributeError:
+            pass
+
+        raise AttributeError(
+            "The corresponding event is not an N-ACTION request and has no "
+            "'Action Information' parameter"
+        )
+
+    @property
     def dataset(self):
         """Return a C-STORE request's `Data Set` as a *pydicom* Dataset.
 
@@ -257,6 +345,50 @@ class Event(object):
     def description(self):
         """Return a description of the event as a str."""
         return self._event.description
+
+    @property
+    def event_information(self):
+        """Return an N-EVENT-REPORT request's `Event Information` as a
+        *pydicom* Dataset.
+
+        Because *pydicom* defers data parsing during decoding until an element
+        is actually required the returned ``Dataset`` may raise an exception
+        when any element is first accessed. It's therefore important that
+        proper error handling be part of any handler
+        that uses the returned ``Dataset``.
+
+        Returns
+        -------
+        pydicom.dataset.Dataset
+            The decoded *Event Information* dataset.
+
+        Raises
+        ------
+        AttributeError
+            If the corresponding event is not an N-EVENT-REPORT request.
+        """
+        try:
+            # If no change in encoded data then return stored decode
+            if self._hash == hash(self.request.EventInformation):
+                return self._decoded
+
+            t_syntax = self.context.transfer_syntax
+            ds = decode(self.request.EventInformation,
+                        t_syntax.is_implicit_VR,
+                        t_syntax.is_little_endian)
+
+            # Store the decoded dataset in case its accessed again
+            self._hash = hash(self.request.EventInformation)
+            self._decoded = ds
+
+            return ds
+        except AttributeError:
+            pass
+
+        raise AttributeError(
+            "The corresponding event is not an N-EVENT-REPORT request and has "
+            "no 'Event Information' parameter"
+        )
 
     @property
     def file_meta(self):
@@ -381,6 +513,50 @@ class Event(object):
             pass
 
         return False
+
+    @property
+    def modification_list(self):
+        """Return an N-SET request's `Modification List` as a *pydicom*
+        Dataset.
+
+        Because *pydicom* defers data parsing during decoding until an element
+        is actually required the returned ``Dataset`` may raise an exception
+        when any element is first accessed. It's therefore important that
+        proper error handling be part of any handler
+        that uses the returned ``Dataset``.
+
+        Returns
+        -------
+        pydicom.dataset.Dataset
+            The decoded *Modification List* dataset.
+
+        Raises
+        ------
+        AttributeError
+            If the corresponding event is not an N-SET request.
+        """
+        try:
+            # If no change in encoded data then return stored decode
+            if self._hash == hash(self.request.ModificationList):
+                return self._decoded
+
+            t_syntax = self.context.transfer_syntax
+            ds = decode(self.request.ModificationList,
+                        t_syntax.is_implicit_VR,
+                        t_syntax.is_little_endian)
+
+            # Store the decoded dataset in case its accessed again
+            self._hash = hash(self.request.ModificationList)
+            self._decoded = ds
+
+            return ds
+        except AttributeError:
+            pass
+
+        raise AttributeError(
+            "The corresponding event is not an N-SET request and has no "
+            "'Modification List' parameter"
+        )
 
     @property
     def name(self):

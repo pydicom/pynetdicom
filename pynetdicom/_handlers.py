@@ -2628,11 +2628,58 @@ def doc_handle_action(event):
     """Documentation for handlers bound to ``evt.EVT_N_ACTION``.
 
     User implementation of this event handler is required if one or more
-    services that use N-ACTION are to be supported.
+    services that use N-ACTION are to be supported. If a handler is
+    not implemented and bound to ``evt.EVT_N_ACTION`` then the N-ACTION request
+    will be responded to using a  *Status* value of FIXME.
 
     **Event**
 
     ``evt.EVT_N_ACTION``
+
+    **Supported Service Classes**
+
+    **Status**
+
+    Parameters
+    ----------
+    event : event.Event
+        The event representing a service class receiving a N-ACTION
+        request message. Event attributes are:
+
+        * ``assoc`` : the
+          :py:class:`association <pynetdicom.association.Association>`
+          that is running the service that received the N-ACTION request.
+        * ``context`` : the presentation context the request was sent under
+          as a ``presentation.PresentationContextTuple``.
+        * ``description`` : a description of the event that occurred as str.
+        * ``name`` : the name of the event that occurred as str.
+        * ``request`` : the received
+          :py:class:`N-ACTION request <pynetdicom.dimse_primitives.N_ACTION>`
+        * ``timestamp`` : the
+          `date and time <https://docs.python.org/3/library/datetime.html#datetime-objects>`_
+          that the N-ACTION request was processed by the service.
+
+        Event properties are:
+
+        * ``action_information`` : the decoded
+          :py:class:`Dataset <pydicom.dataset.Dataset>` contained within the
+          N-ACTION request's *Action Information* parameter. Because *pydicom*
+          uses a deferred read when decoding data, if the decode fails the
+          returned ``Dataset`` will only raise an exception at the time of use.
+
+    Returns
+    -------
+
+    Raises
+    ------
+    NotImplementedError
+        If the handler has not been implemented and bound to
+        ``evt.EVT_N_ACTION`` by the user.
+
+    See Also
+    --------
+    :py:meth:`send_n_action()<pynetdicom.association.Association.send_n_action>`
+    :py:class:`N_ACTION<pynetdicom.dimse_primitives.N_ACTION>`
 
     References
     ----------
@@ -2644,11 +2691,58 @@ def doc_handle_create(event):
     """Documentation for handlers bound to ``evt.EVT_N_CREATE``.
 
     User implementation of this event handler is required if one or more
-    services that use N-CREATE are to be supported.
+    services that use N-CREATE are to be supported. If a handler is
+    not implemented and bound to ``evt.EVT_N_CREATE`` then the N-CREATE request
+    will be responded to using a  *Status* value of FIXME.
 
     **Event**
 
     ``evt.EVT_N_CREATE``
+
+    **Supported Service Classes**
+
+    **Status**
+
+    Parameters
+    ----------
+    event : event.Event
+        The event representing a service class receiving a N-CREATE
+        request message. Event attributes are:
+
+        * ``assoc`` : the
+          :py:class:`association <pynetdicom.association.Association>`
+          that is running the service that received the N-CREATE request.
+        * ``context`` : the presentation context the request was sent under
+          as a ``presentation.PresentationContextTuple``.
+        * ``description`` : a description of the event that occurred as str.
+        * ``name`` : the name of the event that occurred as str.
+        * ``request`` : the received
+          :py:class:`N-CREATE request <pynetdicom.dimse_primitives.N_CREATE>`
+        * ``timestamp`` : the
+          `date and time <https://docs.python.org/3/library/datetime.html#datetime-objects>`_
+          that the N-CREATE request was processed by the service.
+
+        Event properties are:
+
+        * ``attribute_list`` : the decoded
+          :py:class:`Dataset <pydicom.dataset.Dataset>` contained within the
+          N-CREATE request's *Attribute List* parameter. Because *pydicom*
+          uses a deferred read when decoding data, if the decode fails the
+          returned ``Dataset`` will only raise an exception at the time of use.
+
+    Returns
+    -------
+
+    Raises
+    ------
+    NotImplementedError
+        If the handler has not been implemented and bound to
+        ``evt.EVT_N_CREATE`` by the user.
+
+    See Also
+    --------
+    :py:meth:`send_n_create()<pynetdicom.association.Association.send_n_create>`
+    :py:class:`N_CREATE<pynetdicom.dimse_primitives.N_CREATE>`
 
     References
     ----------
@@ -2660,11 +2754,50 @@ def doc_handle_delete(event):
     """Documentation for handlers bound to ``evt.EVT_N_DELETE``.
 
     User implementation of this event handler is required if one or more
-    services that use N-DELETE are to be supported.
+    services that use N-DELETE are to be supported. If a handler is
+    not implemented and bound to ``evt.EVT_N_DELETE`` then the N-DELETE request
+    will be responded to using a  *Status* value of FIXME.
 
     **Event**
 
     ``evt.EVT_N_DELETE``
+
+    **Supported Service Classes**
+
+    **Status**
+
+    Parameters
+    ----------
+    event : event.Event
+        The event representing a service class receiving a N-DELETE
+        request message. Event attributes are:
+
+        * ``assoc`` : the
+          :py:class:`association <pynetdicom.association.Association>`
+          that is running the service that received the N-DELETE request.
+        * ``context`` : the presentation context the request was sent under
+          as a ``presentation.PresentationContextTuple``.
+        * ``description`` : a description of the event that occurred as str.
+        * ``name`` : the name of the event that occurred as str.
+        * ``request`` : the received
+          :py:class:`N-DELETE request <pynetdicom.dimse_primitives.N_DELETE>`
+        * ``timestamp`` : the
+          `date and time <https://docs.python.org/3/library/datetime.html#datetime-objects>`_
+          that the N-DELETE request was processed by the service.
+
+    Returns
+    -------
+
+    Raises
+    ------
+    NotImplementedError
+        If the handler has not been implemented and bound to
+        ``evt.EVT_N_DELETE`` by the user.
+
+    See Also
+    --------
+    :py:meth:`send_n_delete()<pynetdicom.association.Association.send_n_delete>`
+    :py:class:`N_DELETE<pynetdicom.dimse_primitives.N_DELETE>`
 
     References
     ----------
@@ -2676,11 +2809,60 @@ def doc_handle_event_report(event):
     """Documentation for handlers bound to ``evt.EVT_N_EVENT_REPORT``.
 
     User implementation of this event handler is required if one or more
-    services that use N-EVENT-REPORT are to be supported.
+    services that use N-EVENT-REPORT are to be supported. If a handler is
+    not implemented and bound to ``evt.EVT_N_EVENT_REPORT`` then the
+    N-EVENT-REPORT request will be responded to using a  *Status* value
+    of FIXME.
 
     **Event**
 
     ``evt.EVT_N_EVENT_REPORT``
+
+    **Supported Service Classes**
+
+    **Status**
+
+    Parameters
+    ----------
+    event : event.Event
+        The event representing a service class receiving a N-EVENT-REPORT
+        request message. Event attributes are:
+
+        * ``assoc`` : the
+          :py:class:`association <pynetdicom.association.Association>`
+          that is running the service that received the N-EVENT-REPORT request.
+        * ``context`` : the presentation context the request was sent under
+          as a ``presentation.PresentationContextTuple``.
+        * ``description`` : a description of the event that occurred as str.
+        * ``name`` : the name of the event that occurred as str.
+        * ``request`` : the received
+          :py:class:`N-EVENT-REPORT request <pynetdicom.dimse_primitives.N_EVENT_REPORT>`
+        * ``timestamp`` : the
+          `date and time <https://docs.python.org/3/library/datetime.html#datetime-objects>`_
+          that the N-EVENT-REPORT request was processed by the service.
+
+        Event properties are:
+
+        * ``event_information`` : the decoded
+          :py:class:`Dataset <pydicom.dataset.Dataset>` contained within the
+          N-EVENT-REPORT request's *Event Information* parameter. Because
+          *pydicom* uses a deferred read when decoding data, if the decode
+          fails the returned ``Dataset`` will only raise an exception at the
+          time of use.
+
+    Returns
+    -------
+
+    Raises
+    ------
+    NotImplementedError
+        If the handler has not been implemented and bound to
+        ``evt.EVT_N_EVENT_REPORT`` by the user.
+
+    See Also
+    --------
+    :py:meth:`send_n_event_report()<pynetdicom.association.Association.send_n_event_report>`
+    :py:class:`N_EVENT_REPORT<pynetdicom.dimse_primitives.N_EVENT_REPORT>`
 
     References
     ----------
@@ -2758,11 +2940,58 @@ def doc_handle_set(event):
     """Documentation for handlers bound to ``evt.EVT_N_SET``.
 
     User implementation of this event handler is required if one or more
-    services that use N-SET are to be supported.
+    services that use N-SET are to be supported. If a handler is
+    not implemented and bound to ``evt.EVT_N_SET`` then the N-SET request
+    will be responded to using a  *Status* value of FIXME.
 
     **Event**
 
     ``evt.EVT_N_SET``
+
+    **Supported Service Classes**
+
+    **Status**
+
+    Parameters
+    ----------
+    event : event.Event
+        The event representing a service class receiving a N-SET
+        request message. Event attributes are:
+
+        * ``assoc`` : the
+          :py:class:`association <pynetdicom.association.Association>`
+          that is running the service that received the N-SET request.
+        * ``context`` : the presentation context the request was sent under
+          as a ``presentation.PresentationContextTuple``.
+        * ``description`` : a description of the event that occurred as str.
+        * ``name`` : the name of the event that occurred as str.
+        * ``request`` : the received
+          :py:class:`N-SET request <pynetdicom.dimse_primitives.N_SET>`
+        * ``timestamp`` : the
+          `date and time <https://docs.python.org/3/library/datetime.html#datetime-objects>`_
+          that the N-SET request was processed by the service.
+
+        Event properties are:
+
+        * ``modification_list`` : the decoded
+          :py:class:`Dataset <pydicom.dataset.Dataset>` contained within the
+          N-SET request's *Modification List* parameter. Because *pydicom*
+          uses a deferred read when decoding data, if the decode fails the
+          returned ``Dataset`` will only raise an exception at the time of use.
+
+    Returns
+    -------
+
+    Raises
+    ------
+    NotImplementedError
+        If the handler has not been implemented and bound to
+        ``evt.EVT_N_SET`` by the user.
+
+    See Also
+    --------
+    :py:meth:`send_n_set()<pynetdicom.association.Association.send_n_set>`
+    :py:class:`N_SET<pynetdicom.dimse_primitives.N_SET>`
 
     References
     ----------
