@@ -22,19 +22,7 @@ from pynetdicom._globals import (
 )
 
 
-def setup_logger():
-    """Setup the logger."""
-    logger = logging.getLogger('pynetdicom')
-    handler = logging.StreamHandler()
-    logger.setLevel(logging.WARNING)
-    formatter = logging.Formatter('%(levelname).1s: %(message)s')
-    handler.setFormatter(formatter)
-    logger.addHandler(handler)
-
-    return logger
-
-
-LOGGER = setup_logger()
+LOGGER = logging.getLogger('pynetdicom.ae')
 
 
 class ApplicationEntity(object):

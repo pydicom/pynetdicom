@@ -9,14 +9,14 @@ itself and another AE by using the DIMSE C-ECHO service. It only has a single
 The Verification Service is mostly used to verify basic connectivity and as a
 starting point when troubleshooting associations, particularly when handlers
 are bound to the more fundamental :ref:`notification events<events_notification>`
-like  ``evt.EVT_PDU_RECV`` or ``evt.EVT_DATA_RECV`` or with the log level set to debug:
+like  ``evt.EVT_PDU_RECV`` or ``evt.EVT_DATA_RECV`` or with the log level set
+to debug:
 
 ::
 
-    import logging
+    from pynetdicom import debug_logger
 
-    LOGGER = logging.getLogger('pynetdicom')
-    LOGGER.setLevel(logging.DEBUG)
+    debug_logger()
 
 
 Verification SCU

@@ -8,6 +8,7 @@
 
 import argparse
 import logging
+from logging.config import fileConfig
 import os
 import socket
 import sys
@@ -25,15 +26,8 @@ from pynetdicom import (
     BasicWorklistManagementPresentationContexts
 )
 
-logger = logging.Logger('findscu')
-stream_logger = logging.StreamHandler()
-formatter = logging.Formatter('%(levelname).1s: %(message)s')
-stream_logger.setFormatter(formatter)
-logger.addHandler(stream_logger)
-logger.setLevel(logging.ERROR)
 
-
-VERSION = '0.1.3'
+VERSION = '0.1.4'
 
 
 def _setup_argparser():
@@ -119,18 +113,54 @@ def _setup_argparser():
 
 args = _setup_argparser()
 
-if args.verbose:
-    logger.setLevel(logging.INFO)
+# Logging/Output
+def setup_logger():
+    """Setup the echoscu logging"""
+    logger = logging.Logger('findscu')
+    handler = logging.StreamHandler()
+    formatter = logging.Formatter('%(levelname).1s: %(message)s')
+    handler.setFormatter(formatter)
+    logger.addHandler(handler)
+    logger.setLevel(logging.ERROR)
+
+    return logger
+
+APP_LOGGER = setup_logger()
+
+def _setup_logging(level):
+    APP_LOGGER.setLevel(level)
     pynetdicom_logger = logging.getLogger('pynetdicom')
-    pynetdicom_logger.setLevel(logging.INFO)
+    handler = logging.StreamHandler()
+    pynetdicom_logger.setLevel(level)
+    formatter = logging.Formatter('%(levelname).1s: %(message)s')
+    handler.setFormatter(formatter)
+    pynetdicom_logger.addHandler(handler)
+
+if args.quiet:
+    for hh in APP_LOGGER.handlers:
+        APP_LOGGER.removeHandler(hh)
+
+    APP_LOGGER.addHandler(logging.NullHandler())
+
+if args.verbose:
+    _setup_logging(logging.INFO)
 
 if args.debug:
-    logger.setLevel(logging.DEBUG)
-    pynetdicom_logger = logging.getLogger('pynetdicom')
-    pynetdicom_logger.setLevel(logging.DEBUG)
+    _setup_logging(logging.DEBUG)
 
-logger.debug('$findscu.py v{0!s}'.format(VERSION))
-logger.debug('')
+if args.log_level:
+    levels = {'critical' : logging.CRITICAL,
+              'error'    : logging.ERROR,
+              'warn'     : logging.WARNING,
+              'info'     : logging.INFO,
+              'debug'    : logging.DEBUG}
+    _setup_logging(levels[args.log_level])
+
+if args.log_config:
+    fileConfig(args.log_config)
+
+APP_LOGGER.debug('$findscu.py v{0!s}'.format(VERSION))
+APP_LOGGER.debug('')
 
 # Create application entity
 # Binding to port 0 lets the OS pick an available port
@@ -145,16 +175,16 @@ assoc = ae.associate(args.peer, args.port, ae_title=args.called_aet)
 if assoc.is_established:
     # Import query dataset
     # Check file exists and is readable and DICOM
-    logger.debug('Checking input files')
+    APP_LOGGER.debug('Checking input files')
     try:
         with open(args.dcmfile_in, 'rb') as f:
             dataset = dcmread(f, force=True)
     except IOError:
-        logger.error('Cannot read input file {0!s}'.format(args.dcmfile_in))
+        APP_LOGGER.error('Cannot read input file {0!s}'.format(args.dcmfile_in))
         assoc.release()
         sys.exit()
     except:
-        logger.error('File may not be DICOM {0!s}'.format(args.dcmfile_in))
+        APP_LOGGER.error('File may not be DICOM {0!s}'.format(args.dcmfile_in))
         assoc.release()
         sys.exit()
 
