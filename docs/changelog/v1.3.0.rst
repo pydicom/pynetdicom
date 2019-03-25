@@ -34,7 +34,7 @@ Enhancements
 * ``_config.ENFORCE_UID_CONFORMANCE`` added which determines the level of
   conformance required for UIDs. If ``True`` then all UIDs are required to
   meet the UID rules in the DICOM Standard, if ``False`` (default) then UIDs
-  are only requirement to meet the length requirement. (:issue:`316`, :issue:`322`)
+  only need to meet the length requirement. (:issue:`316`, :issue:`322`)
 
 
 Changes
