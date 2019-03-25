@@ -1349,7 +1349,7 @@ def _recv_c_find_rq(event):
     s.append('{:=^76}'.format(' END DIMSE MESSAGE '))
 
     for line in s:
-        LOGGER.info(line)
+        LOGGER.debug(line)
 
 def _recv_c_find_rsp(event):
     """Logging handler when a C-FIND-RSP is received.
@@ -1412,7 +1412,7 @@ def _recv_c_cancel_rq(event):
     s.append('{:=^76}'.format(' END DIMSE MESSAGE '))
 
     for line in s:
-        LOGGER.info(line)
+        LOGGER.debug(line)
 
 def _recv_c_get_rq(event):
     """Logging handler when a C-GET-RQ is received.
@@ -1452,7 +1452,7 @@ def _recv_c_get_rq(event):
     s.append('{:=^76}'.format(' END DIMSE MESSAGE '))
 
     for line in s:
-        LOGGER.info(line)
+        LOGGER.debug(line)
 
 def _recv_c_get_rsp(event):
     """Logging handler when a C-GET-RSP is received.
