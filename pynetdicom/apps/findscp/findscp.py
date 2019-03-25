@@ -6,6 +6,7 @@
 
 import argparse
 import logging
+from logging.config import fileConfig
 import os
 import socket
 import sys
@@ -19,15 +20,8 @@ from pydicom.uid import (
 
 from pynetdicom import AE, QueryRetrievePresentationContexts, evt
 
-logger = logging.Logger('findscp')
-stream_logger = logging.StreamHandler()
-formatter = logging.Formatter('%(levelname).1s: %(message)s')
-stream_logger.setFormatter(formatter)
-logger.addHandler(stream_logger)
-logger.setLevel(logging.ERROR)
 
-
-VERSION = '0.4.0'
+VERSION = '0.4.1'
 
 
 def _setup_argparser():
@@ -118,16 +112,54 @@ def _setup_argparser():
 
 args = _setup_argparser()
 
+# Logging/Output
+def setup_logger():
+    """Setup the echoscu logging"""
+    logger = logging.Logger('findscp')
+    handler = logging.StreamHandler()
+    formatter = logging.Formatter('%(levelname).1s: %(message)s')
+    handler.setFormatter(formatter)
+    logger.addHandler(handler)
+    logger.setLevel(logging.ERROR)
+
+    return logger
+
+APP_LOGGER = setup_logger()
+
+def _setup_logging(level):
+    APP_LOGGER.setLevel(level)
+    pynetdicom_logger = logging.getLogger('pynetdicom')
+    handler = logging.StreamHandler()
+    pynetdicom_logger.setLevel(level)
+    formatter = logging.Formatter('%(levelname).1s: %(message)s')
+    handler.setFormatter(formatter)
+    pynetdicom_logger.addHandler(handler)
+
+if args.quiet:
+    for hh in APP_LOGGER.handlers:
+        APP_LOGGER.removeHandler(hh)
+
+    APP_LOGGER.addHandler(logging.NullHandler())
+
 if args.verbose:
-    logger.setLevel(logging.INFO)
+    _setup_logging(logging.INFO)
 
 if args.debug:
-    logger.setLevel(logging.DEBUG)
-    pynetdicom_logger = logging.getLogger('pynetdicom')
-    pynetdicom_logger.setLevel(logging.DEBUG)
+    _setup_logging(logging.DEBUG)
 
-logger.debug('$findscp.py v{0!s}'.format(VERSION))
-logger.debug('')
+if args.log_level:
+    levels = {'critical' : logging.CRITICAL,
+              'error'    : logging.ERROR,
+              'warn'     : logging.WARNING,
+              'info'     : logging.INFO,
+              'debug'    : logging.DEBUG}
+    _setup_logging(levels[args.log_level])
+
+if args.log_config:
+    fileConfig(args.log_config)
+
+APP_LOGGER.debug('$findscp.py v{0!s}'.format(VERSION))
+APP_LOGGER.debug('')
 
 # Validate port
 if isinstance(args.port, int):
@@ -137,7 +169,7 @@ if isinstance(args.port, int):
         test_socket.bind((os.popen('hostname').read()[:-1], args.port))
         test_socket.close()
     except socket.error:
-        logger.error("Cannot listen on port {0:d}, insufficient priveleges".format(args.port))
+        APP_LOGGER.error("Cannot listen on port {0:d}, insufficient priveleges".format(args.port))
         sys.exit()
 
 # Set Transfer Syntax options

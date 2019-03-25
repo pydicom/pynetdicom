@@ -44,3 +44,17 @@ from pynetdicom.presentation import (
     ImplantTemplatePresentationContexts,
     DisplaySystemPresentationContexts,
 )
+
+
+# Setup default logging
+logging.getLogger('pynetdicom').addHandler(logging.NullHandler())
+
+
+def debug_logger():
+    """Setup the logger for debugging."""
+    logger = logging.getLogger('pynetdicom')
+    handler = logging.StreamHandler()
+    logger.setLevel(logging.DEBUG)
+    formatter = logging.Formatter('%(levelname).1s: %(message)s')
+    handler.setFormatter(formatter)
+    logger.addHandler(handler)

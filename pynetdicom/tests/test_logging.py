@@ -15,7 +15,7 @@ from pydicom.uid import (
     generate_uid,
 )
 
-from pynetdicom import build_context, evt, AE, build_role
+from pynetdicom import build_context, evt, AE, build_role, debug_logger
 from pynetdicom.acse import ACSE, APPLICATION_CONTEXT_NAME
 from pynetdicom.dimse_primitives import C_MOVE, N_EVENT_REPORT, N_GET, N_DELETE
 from pynetdicom._handlers import (
@@ -43,9 +43,7 @@ from pynetdicom.pdu_primitives import (
 from pynetdicom.sop_class import CTImageStorage, VerificationSOPClass
 
 
-LOGGER = logging.getLogger('pynetdicom')
-LOGGER.setLevel(logging.CRITICAL)
-#LOGGER.setLevel(logging.DEBUG)
+#debug_logger()
 
 
 REFERENCE_USER_ID = [
@@ -142,6 +140,19 @@ DOC_HANDLERS = [
     doc_handle_userid, doc_handle_acse, doc_handle_dimse, doc_handle_data,
     doc_handle_pdu, doc_handle_transport, doc_handle_assoc, doc_handle_fsm
 ]
+
+
+def test_debug_logger():
+    """Test __init__.debug_logger()."""
+    logger = logging.getLogger('pynetdicom')
+    assert len(logger.handlers) == 1
+    assert isinstance(logger.handlers[0], logging.NullHandler)
+
+    debug_logger()
+
+    handlers = logger.handlers
+    assert len(logger.handlers) == 2
+    assert isinstance(logger.handlers[1], logging.StreamHandler)
 
 
 class TestDocHandlers(object):

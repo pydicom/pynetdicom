@@ -14,7 +14,9 @@ Fixes
 * Fixed rejected contexts not being included in the Presentation Context
   Definition Results List when acting as the association Acceptor.
 * The Message ID values for C-MOVE and C-GET sub-operations now iterate instead
-  of just re-using 1.
+  of just re-using 1. (:issue:`315`)
+* The default ``logging`` configuration no longer uses a non-NullHandler
+  (:issue:`321`)
 
 
 Enhancements
@@ -29,6 +31,10 @@ Enhancements
   * Added ``bind()``, ``unbind()``, ``get_handlers()`` and ``get_events()``
     to ``Association`` and ``AssociationServer`` classes.
   * Add ``assoc`` properties to ``DIMSEServiceProvider`` and ``ACSE`` classes
+* ``_config.ENFORCE_UID_CONFORMANCE`` added which determines the level of
+  conformance required for UIDs. If ``True`` then all UIDs are required to
+  meet the UID rules in the DICOM Standard, if ``False`` (default) then UIDs
+  only need to meet the length requirement. (:issue:`316`, :issue:`322`)
 
 
 Changes
