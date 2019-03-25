@@ -183,11 +183,11 @@ itself and another AE by using the DIMSE C-ECHO service. It only has a single
 <p>The Verification Service is mostly used to verify basic connectivity and as a
 starting point when troubleshooting associations, particularly when handlers
 are bound to the more fundamental <a class="reference internal" href="../user/events.html#events-notification"><span class="std std-ref">notification events</span></a>
-like  <code class="docutils literal notranslate"><span class="pre">evt.EVT_PDU_RECV</span></code> or <code class="docutils literal notranslate"><span class="pre">evt.EVT_DATA_RECV</span></code> or with the log level set to debug:</p>
-<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="kn">import</span> <span class="nn">logging</span>
+like  <code class="docutils literal notranslate"><span class="pre">evt.EVT_PDU_RECV</span></code> or <code class="docutils literal notranslate"><span class="pre">evt.EVT_DATA_RECV</span></code> or with the log level set
+to debug:</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span> <span class="nn">pynetdicom</span> <span class="k">import</span> <span class="n">debug_logger</span>
 
-<span class="n">LOGGER</span> <span class="o">=</span> <span class="n">logging</span><span class="o">.</span><span class="n">getLogger</span><span class="p">(</span><span class="s1">&#39;pynetdicom&#39;</span><span class="p">)</span>
-<span class="n">LOGGER</span><span class="o">.</span><span class="n">setLevel</span><span class="p">(</span><span class="n">logging</span><span class="o">.</span><span class="n">DEBUG</span><span class="p">)</span>
+<span class="n">debug_logger</span><span class="p">()</span>
 </pre></div>
 </div>
 <div class="section" id="verification-scu">

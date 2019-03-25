@@ -207,7 +207,9 @@ than an A-ABORT</li>
 <li>Fixed rejected contexts not being included in the Presentation Context
 Definition Results List when acting as the association Acceptor.</li>
 <li>The Message ID values for C-MOVE and C-GET sub-operations now iterate instead
-of just re-using 1.</li>
+of just re-using 1. (<a class="reference external" href="https://github.com/pydicom/pynetdicom/issues/315">#315</a>)</li>
+<li>The default <code class="docutils literal notranslate"><span class="pre">logging</span></code> configuration no longer uses a non-NullHandler
+(<a class="reference external" href="https://github.com/pydicom/pynetdicom/issues/321">#321</a>)</li>
 </ul>
 </div>
 <div class="section" id="enhancements">
@@ -223,6 +225,10 @@ to <code class="docutils literal notranslate"><span class="pre">Association</spa
 <li>Add <code class="docutils literal notranslate"><span class="pre">assoc</span></code> properties to <code class="docutils literal notranslate"><span class="pre">DIMSEServiceProvider</span></code> and <code class="docutils literal notranslate"><span class="pre">ACSE</span></code> classes</li>
 </ul>
 </li>
+<li><code class="docutils literal notranslate"><span class="pre">_config.ENFORCE_UID_CONFORMANCE</span></code> added which determines the level of
+conformance required for UIDs. If <code class="docutils literal notranslate"><span class="pre">True</span></code> then all UIDs are required to
+meet the UID rules in the DICOM Standard, if <code class="docutils literal notranslate"><span class="pre">False</span></code> (default) then UIDs
+only need to meet the length requirement. (<a class="reference external" href="https://github.com/pydicom/pynetdicom/issues/316">#316</a>, <a class="reference external" href="https://github.com/pydicom/pynetdicom/issues/322">#322</a>)</li>
 </ul>
 </div>
 <div class="section" id="changes">
