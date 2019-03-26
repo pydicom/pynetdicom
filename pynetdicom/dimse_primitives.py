@@ -252,8 +252,8 @@ class C_STORE(DIMSEPrimitive):
         The Message ID of the C-MOVE request/indication primitive from
         which this C-STORE sub-operation is being performed
     DataSet : io.BytesIO
-        The pydicom Dataset containing the Attributes of the Composite
-        SOP Instance to be stored, encoded as a BytesIO object
+        A DICOM dataset containing the attributes of the Composite
+        SOP Instance to be stored.
     Status : int
         The error or success notification of the operation.
     OffendingElement : list of int or None
@@ -457,10 +457,9 @@ class C_FIND(DIMSEPrimitive):
         * 1: High
         * 2: Low (Default)
     Identifier : io.BytesIO
-        A list of Attributes (in the form of an encoded pydicom
-        Dataset) to be matched against the values of the Attributes in the
-        instances of the composite objects known to the performing DIMSE
-        service-user.
+        A DICOM dataset of attributes to be matched against the values of the
+        attributes in the instances of the composite objects known to the
+        performing DIMSE service-user.
     Status : int
         The error or success notification of the operation.
     OffendingElement : list of int or None
@@ -581,12 +580,9 @@ class C_GET(DIMSEPrimitive):
         * 1: High
         * 2: Low (Default)
     Identifier : io.BytesIO
-        The pydicom Dataset containing the list of Attributes to be
-        matched against the values of Attributes of known composite SOP
-        Instances of the performing DIMSE service-user, encoded as a BytesIO
-        object. For the list of allowed Attributes and the rules defining their
-        usage see the section corresponding to the service class in the DICOM
-        Standard, Part 4.
+        A DICOM dataset of attributes to be matched against the values of the
+        attributes in the instances of the composite objects known to the
+        performing DIMSE service-user.
     Status : int
         The error or success notification of the operation.
     NumberOfRemainingSuboperations : int
@@ -815,12 +811,9 @@ class C_MOVE(DIMSEPrimitive):
         Specifies the DICOM AE Title of the destination DICOM AE to
         which the C-STORE sub-operations are being performed.
     Identifier : io.BytesIO
-        The pydicom Dataset containing the list of Attributes to be
-        matched against the values of Attributes of known composite SOP
-        Instances of the performing DIMSE service-user, encoded as a BytesIO
-        object. For the list of allowed Attributes and the rules defining their
-        usage see the section corresponding to the service class in the DICOM
-        Standard, Part 4.
+        A DICOM dataset of attributes to be matched against the values of the
+        attributes in the instances of the composite objects known to the
+        performing DIMSE service-user.
     Status : int
         The error or success notification of the operation.
     NumberOfRemainingSuboperations : int
@@ -1182,11 +1175,11 @@ class N_EVENT_REPORT(DIMSEPrimitive):
         specification. Shall be included if Event Reply is included.
     EventInformation : io.BytesIO
         Contains information the invoking DIMSE user is able to supply about
-        the event. An encoded DICOM Dataset containing additional Service
+        the event. An encoded DICOM dataset containing additional Service
         Class specific information related to the operation.
     EventReply : io.BytesIO
         Contains the optional reply to the event report. An encoded DICOM
-        Dataset containing additional Service Class specific information.
+        dataset containing additional Service Class specific information.
     Status : int
         The error or success notification of the operation.
     """
@@ -1343,8 +1336,8 @@ class N_GET(DIMSEPrimitive):
         The SOP Instance UID of the SOP Instance for which the attributes were
         retrieved.
     AttributeList : pydicom.dataset.Dataset
-        A dataset containing elements matching those supplied in
-        AttributeIdentifierList.
+        A DICOM dataset containing elements matching those supplied in
+        Attribute Identifier List.
     Status : int
         The error or success notification of the operation.
     """
@@ -1572,11 +1565,11 @@ class N_SET(DIMSEPrimitive):
         modified.
     RequestedSOPInstanceUID : pydicom.uid.UID, bytes or str
         The SOP Instance for which attribute values are to be modified.
-    ModificationList : pydicom.dataset.Dataset
-        A dataset containing the attributes and values that are to be used
-        to modify the SOP Instance.
-    AttributeList : pydicom.dataset.Dataset
-        A dataset containing the attributes and values that were used to
+    ModificationList : io.BytesIO
+        A DICOM dataset containing the attributes and values that are to be
+        used to modify the SOP Instance.
+    AttributeList : io.BytesIO
+        A DICOM dataset containing the attributes and values that were used to
         modify the SOP Instance.
     AffectedSOPClassUID : pydicom.uid.UID, bytes or str
         The SOP Class UID of the modified SOP Instance.
@@ -1795,7 +1788,7 @@ class N_ACTION(DIMSEPrimitive):
         The SOP Instance for which the action is to be performed.
     ActionTypeID : int
         The type of action that is to be performed.
-    ActionInformation : pydicom.dataset.Dataset
+    ActionInformation : io.BytesIO
         Extra information required to perform the action.
     AffectedSOPClassUID : pydicom.uid.UID, bytes or str
         For the request/indication this specifies the SOP Class for
@@ -1805,7 +1798,7 @@ class N_ACTION(DIMSEPrimitive):
         For the request/indication this specifies the SOP Instance for
         storage. If included in the response/confirmation, it shall be equal
         to the value in the request/indication
-    ActionReply : pydicom.dataset.Dataset
+    ActionReply : io.BytesIO
         The reply to the action.
     Status : int
         The error or success notification of the operation.
@@ -2027,7 +2020,7 @@ class N_CREATE(DIMSEPrimitive):
         For the request/indication this specifies the SOP Instance for
         storage. If included in the response/confirmation, it shall be equal
         to the value in the request/indication
-    AttributeList : pydicom.dataset.Dataset
+    AttributeList : io.BytesIO
         A set of attributes and values that are to be assigned to the new
         SOP Instance.
     Status : int
