@@ -292,10 +292,18 @@
 
 <span class="sd">    * `_is_cancelled` key then ``Event.is_cancelled`` will be hooked into</span>
 <span class="sd">      the value&#39;s callable function.</span>
-<span class="sd">    * a C-STORE `request` key then ``Event.dataset`` will return the decoded</span>
-<span class="sd">      *Data Set* parameter value.</span>
 <span class="sd">    * a C-FIND, C-GET or C-MOVE `request` key then ``Event.identifier`` will</span>
 <span class="sd">      return the decoded *Identifier* parameter value.</span>
+<span class="sd">    * a C-STORE `request` key then ``Event.dataset`` will return the decoded</span>
+<span class="sd">      *Data Set* parameter value.</span>
+<span class="sd">    * an N-ACTION `request` key then ``Event.action_information`` will return</span>
+<span class="sd">      the decoded *Action Information* parameter value.</span>
+<span class="sd">    * an N-CREATE `request` key then ``Event.attribute_list`` will return</span>
+<span class="sd">      the decoded *Attribute List* parameter value.</span>
+<span class="sd">    * an N-EVENT-REPORT `request` key then ``Event.event_information`` will</span>
+<span class="sd">      return the decoded *Event Information* parameter value.</span>
+<span class="sd">    * an N-SET `request` key then ``Event.modification_list`` will return</span>
+<span class="sd">      the decoded *Modification List* parameter value.</span>
 
 <span class="sd">    Parameters</span>
 <span class="sd">    ----------</span>
@@ -325,7 +333,7 @@
     <span class="n">evt</span> <span class="o">=</span> <span class="n">Event</span><span class="p">(</span><span class="n">assoc</span><span class="p">,</span> <span class="n">event</span><span class="p">,</span> <span class="n">attrs</span><span class="p">)</span>
 
     <span class="k">try</span><span class="p">:</span>
-        <span class="c1"># Intervention event - only singule handler allowed</span>
+        <span class="c1"># Intervention event - only single handler allowed</span>
         <span class="k">if</span> <span class="n">event</span><span class="o">.</span><span class="n">is_intervention</span><span class="p">:</span>
             <span class="k">return</span> <span class="n">handlers</span><span class="p">(</span><span class="n">evt</span><span class="p">)</span>
 
@@ -386,6 +394,94 @@
             <span class="nb">setattr</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">kk</span><span class="p">,</span> <span class="n">vv</span><span class="p">)</span></div>
 
     <span class="nd">@property</span>
+    <span class="k">def</span> <span class="nf">action_information</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;Return an N-ACTION request&#39;s `Action Information` as a *pydicom*</span>
+<span class="sd">        Dataset.</span>
+
+<span class="sd">        Because *pydicom* defers data parsing during decoding until an element</span>
+<span class="sd">        is actually required the returned ``Dataset`` may raise an exception</span>
+<span class="sd">        when any element is first accessed. It&#39;s therefore important that</span>
+<span class="sd">        proper error handling be part of any handler</span>
+<span class="sd">        that uses the returned ``Dataset``.</span>
+
+<span class="sd">        Returns</span>
+<span class="sd">        -------</span>
+<span class="sd">        pydicom.dataset.Dataset</span>
+<span class="sd">            The decoded *Action Information* dataset.</span>
+
+<span class="sd">        Raises</span>
+<span class="sd">        ------</span>
+<span class="sd">        AttributeError</span>
+<span class="sd">            If the corresponding event is not an N-ACTION request.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">try</span><span class="p">:</span>
+            <span class="c1"># If no change in encoded data then return stored decode</span>
+            <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">_hash</span> <span class="o">==</span> <span class="nb">hash</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">request</span><span class="o">.</span><span class="n">ActionInformation</span><span class="p">):</span>
+                <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_decoded</span>
+
+            <span class="n">t_syntax</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">context</span><span class="o">.</span><span class="n">transfer_syntax</span>
+            <span class="n">ds</span> <span class="o">=</span> <span class="n">decode</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">request</span><span class="o">.</span><span class="n">ActionInformation</span><span class="p">,</span>
+                        <span class="n">t_syntax</span><span class="o">.</span><span class="n">is_implicit_VR</span><span class="p">,</span>
+                        <span class="n">t_syntax</span><span class="o">.</span><span class="n">is_little_endian</span><span class="p">)</span>
+
+            <span class="c1"># Store the decoded dataset in case its accessed again</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">_hash</span> <span class="o">=</span> <span class="nb">hash</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">request</span><span class="o">.</span><span class="n">ActionInformation</span><span class="p">)</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">_decoded</span> <span class="o">=</span> <span class="n">ds</span>
+
+            <span class="k">return</span> <span class="n">ds</span>
+        <span class="k">except</span> <span class="ne">AttributeError</span><span class="p">:</span>
+            <span class="k">pass</span>
+
+        <span class="k">raise</span> <span class="ne">AttributeError</span><span class="p">(</span>
+            <span class="s2">&quot;The corresponding event is not an N-ACTION request and has no &quot;</span>
+            <span class="s2">&quot;&#39;Action Information&#39; parameter&quot;</span>
+        <span class="p">)</span>
+
+    <span class="nd">@property</span>
+    <span class="k">def</span> <span class="nf">attribute_list</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;Return an N-CREATE request&#39;s `Attribute List` as a *pydicom*</span>
+<span class="sd">        Dataset.</span>
+
+<span class="sd">        Because *pydicom* defers data parsing during decoding until an element</span>
+<span class="sd">        is actually required the returned ``Dataset`` may raise an exception</span>
+<span class="sd">        when any element is first accessed. It&#39;s therefore important that</span>
+<span class="sd">        proper error handling be part of any handler</span>
+<span class="sd">        that uses the returned ``Dataset``.</span>
+
+<span class="sd">        Returns</span>
+<span class="sd">        -------</span>
+<span class="sd">        pydicom.dataset.Dataset</span>
+<span class="sd">            The decoded *Attribute List* dataset.</span>
+
+<span class="sd">        Raises</span>
+<span class="sd">        ------</span>
+<span class="sd">        AttributeError</span>
+<span class="sd">            If the corresponding event is not an N-CREATE request.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">try</span><span class="p">:</span>
+            <span class="c1"># If no change in encoded data then return stored decode</span>
+            <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">_hash</span> <span class="o">==</span> <span class="nb">hash</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">request</span><span class="o">.</span><span class="n">AttributeList</span><span class="p">):</span>
+                <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_decoded</span>
+
+            <span class="n">t_syntax</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">context</span><span class="o">.</span><span class="n">transfer_syntax</span>
+            <span class="n">ds</span> <span class="o">=</span> <span class="n">decode</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">request</span><span class="o">.</span><span class="n">AttributeList</span><span class="p">,</span>
+                        <span class="n">t_syntax</span><span class="o">.</span><span class="n">is_implicit_VR</span><span class="p">,</span>
+                        <span class="n">t_syntax</span><span class="o">.</span><span class="n">is_little_endian</span><span class="p">)</span>
+
+            <span class="c1"># Store the decoded dataset in case its accessed again</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">_hash</span> <span class="o">=</span> <span class="nb">hash</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">request</span><span class="o">.</span><span class="n">AttributeList</span><span class="p">)</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">_decoded</span> <span class="o">=</span> <span class="n">ds</span>
+
+            <span class="k">return</span> <span class="n">ds</span>
+        <span class="k">except</span> <span class="ne">AttributeError</span><span class="p">:</span>
+            <span class="k">pass</span>
+
+        <span class="k">raise</span> <span class="ne">AttributeError</span><span class="p">(</span>
+            <span class="s2">&quot;The corresponding event is not an N-CREATE request and has no &quot;</span>
+            <span class="s2">&quot;&#39;Attribute List&#39; parameter&quot;</span>
+        <span class="p">)</span>
+
+    <span class="nd">@property</span>
     <span class="k">def</span> <span class="nf">dataset</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;Return a C-STORE request&#39;s `Data Set` as a *pydicom* Dataset.</span>
 
@@ -432,6 +528,50 @@
     <span class="k">def</span> <span class="nf">description</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;Return a description of the event as a str.&quot;&quot;&quot;</span>
         <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_event</span><span class="o">.</span><span class="n">description</span>
+
+    <span class="nd">@property</span>
+    <span class="k">def</span> <span class="nf">event_information</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;Return an N-EVENT-REPORT request&#39;s `Event Information` as a</span>
+<span class="sd">        *pydicom* Dataset.</span>
+
+<span class="sd">        Because *pydicom* defers data parsing during decoding until an element</span>
+<span class="sd">        is actually required the returned ``Dataset`` may raise an exception</span>
+<span class="sd">        when any element is first accessed. It&#39;s therefore important that</span>
+<span class="sd">        proper error handling be part of any handler</span>
+<span class="sd">        that uses the returned ``Dataset``.</span>
+
+<span class="sd">        Returns</span>
+<span class="sd">        -------</span>
+<span class="sd">        pydicom.dataset.Dataset</span>
+<span class="sd">            The decoded *Event Information* dataset.</span>
+
+<span class="sd">        Raises</span>
+<span class="sd">        ------</span>
+<span class="sd">        AttributeError</span>
+<span class="sd">            If the corresponding event is not an N-EVENT-REPORT request.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">try</span><span class="p">:</span>
+            <span class="c1"># If no change in encoded data then return stored decode</span>
+            <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">_hash</span> <span class="o">==</span> <span class="nb">hash</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">request</span><span class="o">.</span><span class="n">EventInformation</span><span class="p">):</span>
+                <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_decoded</span>
+
+            <span class="n">t_syntax</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">context</span><span class="o">.</span><span class="n">transfer_syntax</span>
+            <span class="n">ds</span> <span class="o">=</span> <span class="n">decode</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">request</span><span class="o">.</span><span class="n">EventInformation</span><span class="p">,</span>
+                        <span class="n">t_syntax</span><span class="o">.</span><span class="n">is_implicit_VR</span><span class="p">,</span>
+                        <span class="n">t_syntax</span><span class="o">.</span><span class="n">is_little_endian</span><span class="p">)</span>
+
+            <span class="c1"># Store the decoded dataset in case its accessed again</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">_hash</span> <span class="o">=</span> <span class="nb">hash</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">request</span><span class="o">.</span><span class="n">EventInformation</span><span class="p">)</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">_decoded</span> <span class="o">=</span> <span class="n">ds</span>
+
+            <span class="k">return</span> <span class="n">ds</span>
+        <span class="k">except</span> <span class="ne">AttributeError</span><span class="p">:</span>
+            <span class="k">pass</span>
+
+        <span class="k">raise</span> <span class="ne">AttributeError</span><span class="p">(</span>
+            <span class="s2">&quot;The corresponding event is not an N-EVENT-REPORT request and has &quot;</span>
+            <span class="s2">&quot;no &#39;Event Information&#39; parameter&quot;</span>
+        <span class="p">)</span>
 
     <span class="nd">@property</span>
     <span class="k">def</span> <span class="nf">file_meta</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
@@ -544,8 +684,8 @@
 <span class="sd">        bool</span>
 <span class="sd">            If this event corresponds to a C-FIND, C-GET or C-MOVE request</span>
 <span class="sd">            being received by a Service Class then returns True if a C-CANCEL</span>
-<span class="sd">            request with a *MessageIDBeingRespondedTo* parameter value</span>
-<span class="sd">            corresponding to the *MessageID* of the service request has been</span>
+<span class="sd">            request with a *Message ID Being Responded To* parameter value</span>
+<span class="sd">            corresponding to the *Message ID* of the service request has been</span>
 <span class="sd">            received. If no such C-CANCEL request has been received or if</span>
 <span class="sd">            the event is not a C-FIND, C-GET or C-MOVE request then returns</span>
 <span class="sd">            False.</span>
@@ -556,6 +696,50 @@
             <span class="k">pass</span>
 
         <span class="k">return</span> <span class="kc">False</span>
+
+    <span class="nd">@property</span>
+    <span class="k">def</span> <span class="nf">modification_list</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;Return an N-SET request&#39;s `Modification List` as a *pydicom*</span>
+<span class="sd">        Dataset.</span>
+
+<span class="sd">        Because *pydicom* defers data parsing during decoding until an element</span>
+<span class="sd">        is actually required the returned ``Dataset`` may raise an exception</span>
+<span class="sd">        when any element is first accessed. It&#39;s therefore important that</span>
+<span class="sd">        proper error handling be part of any handler</span>
+<span class="sd">        that uses the returned ``Dataset``.</span>
+
+<span class="sd">        Returns</span>
+<span class="sd">        -------</span>
+<span class="sd">        pydicom.dataset.Dataset</span>
+<span class="sd">            The decoded *Modification List* dataset.</span>
+
+<span class="sd">        Raises</span>
+<span class="sd">        ------</span>
+<span class="sd">        AttributeError</span>
+<span class="sd">            If the corresponding event is not an N-SET request.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">try</span><span class="p">:</span>
+            <span class="c1"># If no change in encoded data then return stored decode</span>
+            <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">_hash</span> <span class="o">==</span> <span class="nb">hash</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">request</span><span class="o">.</span><span class="n">ModificationList</span><span class="p">):</span>
+                <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_decoded</span>
+
+            <span class="n">t_syntax</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">context</span><span class="o">.</span><span class="n">transfer_syntax</span>
+            <span class="n">ds</span> <span class="o">=</span> <span class="n">decode</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">request</span><span class="o">.</span><span class="n">ModificationList</span><span class="p">,</span>
+                        <span class="n">t_syntax</span><span class="o">.</span><span class="n">is_implicit_VR</span><span class="p">,</span>
+                        <span class="n">t_syntax</span><span class="o">.</span><span class="n">is_little_endian</span><span class="p">)</span>
+
+            <span class="c1"># Store the decoded dataset in case its accessed again</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">_hash</span> <span class="o">=</span> <span class="nb">hash</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">request</span><span class="o">.</span><span class="n">ModificationList</span><span class="p">)</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">_decoded</span> <span class="o">=</span> <span class="n">ds</span>
+
+            <span class="k">return</span> <span class="n">ds</span>
+        <span class="k">except</span> <span class="ne">AttributeError</span><span class="p">:</span>
+            <span class="k">pass</span>
+
+        <span class="k">raise</span> <span class="ne">AttributeError</span><span class="p">(</span>
+            <span class="s2">&quot;The corresponding event is not an N-SET request and has no &quot;</span>
+            <span class="s2">&quot;&#39;Modification List&#39; parameter&quot;</span>
+        <span class="p">)</span>
 
     <span class="nd">@property</span>
     <span class="k">def</span> <span class="nf">name</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
@@ -685,7 +869,6 @@
 
 <span class="k">def</span> <span class="nf">_n_set_handler</span><span class="p">(</span><span class="n">event</span><span class="p">):</span>
     <span class="sd">&quot;&quot;&quot;Default handler for when an N-SET request is received.</span>
-
 
 <span class="sd">    See _handlers.doc_handle_set for detailed documentation.</span>
 <span class="sd">    &quot;&quot;&quot;</span>
