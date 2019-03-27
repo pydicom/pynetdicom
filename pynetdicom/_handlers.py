@@ -33,7 +33,7 @@ def standard_pdu_recv_handler(event):
 
     Parameters
     ----------
-    event : event.Event
+    event : events.Event
         The ``evt.EVT_PDU_RECV`` event corresponding to receiving and decoding
         a PDU from the peer. Event attributes are:
 
@@ -68,7 +68,7 @@ def standard_pdu_sent_handler(event):
 
     Parameters
     ----------
-    event : event.Event
+    event : events.Event
         The ``evt.EVT_PDU_SENT`` event corresponding to encoding and sending
         a PDU to the peer. Event attributes are:
 
@@ -98,7 +98,7 @@ def standard_dimse_recv_handler(event):
 
     Parameters
     ----------
-    event : event.Event
+    event : events.Event
         The ``evt.EVT_DIMSE_RECV`` event corresponding to the DIMSE decoding
         a message received from the peer. Event attributes are:
 
@@ -143,7 +143,7 @@ def standard_dimse_sent_handler(event):
 
     Parameters
     ----------
-    event : event.Event
+    event : events.Event
         The ``evt.EVT_DIMSE_SENT`` event corresponding to the DIMSE encoding
         a message to be sent to the peer. Event attributes are:
 
@@ -794,7 +794,7 @@ def _send_c_echo_rq(event):
 
     Parameters
     ----------
-    event : event.Event
+    event : events.Event
         The evt.EVT_DIMSE_SENT event that occurred.
     """
     pass
@@ -811,7 +811,7 @@ def _send_c_echo_rsp(event):
 
     Parameters
     ----------
-    event : event.Event
+    event : events.Event
         The evt.EVT_DIMSE_SENT event that occurred.
     """
     pass
@@ -831,7 +831,7 @@ def _send_c_store_rq(event):
 
     Parameters
     ----------
-    event : event.Event
+    event : events.Event
         The evt.EVT_DIMSE_SENT event that occurred.
     """
     msg = event.message
@@ -883,7 +883,7 @@ def _send_c_store_rsp(event):
 
     Parameters
     ----------
-    event : event.Event
+    event : events.Event
         The evt.EVT_DIMSE_SENT event that occurred.
     """
     pass
@@ -900,7 +900,7 @@ def _send_c_find_rq(event):
 
     Parameters
     ----------
-    event : event.Event
+    event : events.Event
         The evt.EVT_DIMSE_SENT event that occurred.
     """
     msg = event.message
@@ -943,7 +943,7 @@ def _send_c_find_rsp(event):
 
     Parameters
     ----------
-    event : event.Event
+    event : events.Event
         The evt.EVT_DIMSE_SENT event that occurred.
     """
     msg = event.message
@@ -980,7 +980,7 @@ def _send_c_get_rq(event):
 
     Parameters
     ----------
-    event : event.Event
+    event : events.Event
         The evt.EVT_DIMSE_SENT event that occurred.
     """
     msg = event.message
@@ -1024,7 +1024,7 @@ def _send_c_get_rsp(event):
 
     Parameters
     ----------
-    event : event.Event
+    event : events.Event
         The evt.EVT_DIMSE_SENT event that occurred.
     """
     msg = event.message
@@ -1064,7 +1064,7 @@ def _send_c_move_rq(event):
 
     Parameters
     ----------
-    event : event.Event
+    event : events.Event
         The evt.EVT_DIMSE_SENT event that occurred.
     """
     msg = event.message
@@ -1111,7 +1111,7 @@ def _send_c_move_rsp(event):
 
     Parameters
     ----------
-    event : event.Event
+    event : events.Event
         The evt.EVT_DIMSE_SENT event that occurred.
     """
     msg = event.message
@@ -1145,7 +1145,7 @@ def _send_c_cancel_rq(event):
 
     Parameters
     ----------
-    event : event.Event
+    event : events.Event
         The evt.EVT_DIMSE_SENT event that occurred.
     """
     pass
@@ -1160,7 +1160,7 @@ def _recv_c_echo_rq(event):
 
     Parameters
     ----------
-    event : event.Event
+    event : events.Event
         The evt.EVT_DIMSE_RECV event that occurred.
     """
     msg = event.message
@@ -1192,7 +1192,7 @@ def _recv_c_echo_rsp(event):
 
     Parameters
     ----------
-    event : event.Event
+    event : events.Event
         The evt.EVT_DIMSE_RECV event that occurred.
     """
     msg = event.message
@@ -1224,7 +1224,7 @@ def _recv_c_store_rq(event):
 
     Parameters
     ----------
-    event : event.Event
+    event : events.Event
         The evt.EVT_DIMSE_RECV event that occurred.
     """
     msg = event.message
@@ -1273,7 +1273,7 @@ def _recv_c_store_rsp(event):
 
     Parameters
     ----------
-    event : event.Event
+    event : events.Event
         The evt.EVT_DIMSE_RECV event that occurred.
     """
     msg = event.message
@@ -1323,7 +1323,7 @@ def _recv_c_find_rq(event):
 
     Parameters
     ----------
-    event : event.Event
+    event : events.Event
         The evt.EVT_DIMSE_RECV event that occurred.
     """
     msg = event.message
@@ -1364,7 +1364,7 @@ def _recv_c_find_rsp(event):
 
     Parameters
     ----------
-    event : event.Event
+    event : events.Event
         The evt.EVT_DIMSE_RECV event that occurred.
     """
     msg = event.message
@@ -1398,7 +1398,7 @@ def _recv_c_cancel_rq(event):
 
     Parameters
     ----------
-    event : event.Event
+    event : events.Event
         The evt.EVT_DIMSE_RECV event that occurred.
     """
     msg = event.message
@@ -1426,7 +1426,7 @@ def _recv_c_get_rq(event):
 
     Parameters
     ----------
-    event : event.Event
+    event : events.Event
         The evt.EVT_DIMSE_RECV event that occurred.
     """
     msg = event.message
@@ -1471,7 +1471,7 @@ def _recv_c_get_rsp(event):
 
     Parameters
     ----------
-    event : event.Event
+    event : events.Event
         The evt.EVT_DIMSE_RECV event that occurred.
     """
     msg = event.message
@@ -1523,7 +1523,7 @@ def _recv_c_move_rq(event):
 
     Parameters
     ----------
-    event : event.Event
+    event : events.Event
         The evt.EVT_DIMSE_RECV event that occurred.
     """
     pass
@@ -1545,7 +1545,7 @@ def _recv_c_move_rsp(event):
 
     Parameters
     ----------
-    event : event.Event
+    event : events.Event
         The evt.EVT_DIMSE_RECV event that occurred.
     """
     msg = event.message
@@ -1587,7 +1587,7 @@ def _send_n_event_report_rq(event):
 
     Parameters
     ----------
-    event : event.Event
+    event : events.Event
         The evt.EVT_DIMSE_SENT event that occurred.
     """
     msg = event.message
@@ -1618,7 +1618,7 @@ def _send_n_event_report_rsp(event):
 
     Parameters
     ----------
-    event : event.Event
+    event : events.Event
         The evt.EVT_DIMSE_SENT event that occurred.
     """
     msg = event.message
@@ -1656,7 +1656,7 @@ def _send_n_get_rq(event):
 
     Parameters
     ----------
-    event : event.Event
+    event : events.Event
         The evt.EVT_DIMSE_SENT event that occurred.
     """
     msg = event.message
@@ -1688,7 +1688,7 @@ def _send_n_get_rsp(event):
 
     Parameters
     ----------
-    event : event.Event
+    event : events.Event
         The evt.EVT_DIMSE_SENT event that occurred.
     """
     msg = event.message
@@ -1720,7 +1720,7 @@ def _send_n_set_rq(event):
 
     Parameters
     ----------
-    event : event.Event
+    event : events.Event
         The evt.EVT_DIMSE_SENT event that occurred.
     """
     msg = event.message
@@ -1748,7 +1748,7 @@ def _send_n_set_rsp(event):
 
     Parameters
     ----------
-    event : event.Event
+    event : events.Event
         The evt.EVT_DIMSE_SENT event that occurred.
     """
     msg = event.message
@@ -1780,7 +1780,7 @@ def _send_n_action_rq(event):
 
     Parameters
     ----------
-    event : event.Event
+    event : events.Event
         The evt.EVT_DIMSE_SENT event that occurred.
     """
     pass
@@ -1790,7 +1790,7 @@ def _send_n_action_rsp(event):
 
     Parameters
     ----------
-    event : event.Event
+    event : events.Event
         The evt.EVT_DIMSE_SENT event that occurred.
     """
     pass
@@ -1800,7 +1800,7 @@ def _send_n_create_rq(event):
 
     Parameters
     ----------
-    event : event.Event
+    event : events.Event
         The evt.EVT_DIMSE_SENT event that occurred.
     """
     pass
@@ -1810,7 +1810,7 @@ def _send_n_create_rsp(event):
 
     Parameters
     ----------
-    event : event.Event
+    event : events.Event
         The evt.EVT_DIMSE_SENT event that occurred.
     """
     pass
@@ -1820,7 +1820,7 @@ def _send_n_delete_rq(event):
 
     Parameters
     ----------
-    event : event.Event
+    event : events.Event
         The evt.EVT_DIMSE_SENT event that occurred.
     """
     msg = event.message
@@ -1843,7 +1843,7 @@ def _send_n_delete_rsp(event):
 
     Parameters
     ----------
-    event : event.Event
+    event : events.Event
         The evt.EVT_DIMSE_SENT event that occurred.
     """
     msg = event.message
@@ -1870,7 +1870,7 @@ def _recv_n_event_report_rq(event):
 
     Parameters
     ----------
-    event : event.Event
+    event : events.Event
         The evt.EVT_DIMSE_RECV event that occurred.
     """
     pass
@@ -1880,7 +1880,7 @@ def _recv_n_event_report_rsp(event):
 
     Parameters
     ----------
-    event : event.Event
+    event : events.Event
         The evt.EVT_DIMSE_RECV event that occurred.
     """
     pass
@@ -1890,7 +1890,7 @@ def _recv_n_get_rq(event):
 
     Parameters
     ----------
-    event : event.Event
+    event : events.Event
         The evt.EVT_DIMSE_RECV event that occurred.
     """
     pass
@@ -1900,7 +1900,7 @@ def _recv_n_get_rsp(event):
 
     Parameters
     ----------
-    event : event.Event
+    event : events.Event
         The evt.EVT_DIMSE_RECV event that occurred.
     """
     msg = event.message
@@ -1936,7 +1936,7 @@ def _recv_n_set_rq(event):
 
     Parameters
     ----------
-    event : event.Event
+    event : events.Event
         The evt.EVT_DIMSE_RECV event that occurred.
     """
     pass
@@ -1946,7 +1946,7 @@ def _recv_n_set_rsp(event):
 
     Parameters
     ----------
-    event : event.Event
+    event : events.Event
         The evt.EVT_DIMSE_RECV event that occurred.
     """
     pass
@@ -1956,7 +1956,7 @@ def _recv_n_action_rq(event):
 
     Parameters
     ----------
-    event : event.Event
+    event : events.Event
         The evt.EVT_DIMSE_RECV event that occurred.
     """
     pass
@@ -1966,7 +1966,7 @@ def _recv_n_action_rsp(event):
 
     Parameters
     ----------
-    event : event.Event
+    event : events.Event
         The evt.EVT_DIMSE_RECV event that occurred.
     """
     pass
@@ -1976,7 +1976,7 @@ def _recv_n_create_rq(event):
 
     Parameters
     ----------
-    event : event.Event
+    event : events.Event
         The evt.EVT_DIMSE_RECV event that occurred.
     """
     pass
@@ -1986,7 +1986,7 @@ def _recv_n_create_rsp(event):
 
     Parameters
     ----------
-    event : event.Event
+    event : events.Event
         The evt.EVT_DIMSE_RECV event that occurred.
     """
     pass
@@ -1996,7 +1996,7 @@ def _recv_n_delete_rq(event):
 
     Parameters
     ----------
-    event : event.Event
+    event : events.Event
         The evt.EVT_DIMSE_RECV event that occurred.
     """
     pass
@@ -2006,7 +2006,7 @@ def _recv_n_delete_rsp(event):
 
     Parameters
     ----------
-    event : event.Event
+    event : events.Event
         The evt.EVT_DIMSE_RECV event that occurred.
     """
     pass
@@ -2042,7 +2042,7 @@ def doc_handle_echo(event):
 
     Parameters
     ----------
-    event : event.Event
+    event : events.Event
         The event representing a service class receiving a C-ECHO
         request message. Event attributes are:
 
@@ -2137,7 +2137,7 @@ def doc_handle_find(event):
 
     Parameters
     ----------
-    event : event.Event
+    event : events.Event
         The event representing a service class receiving a C-FIND
         request message. Event attributes are:
 
@@ -2276,7 +2276,7 @@ def doc_handle_c_get(event):
 
     Parameters
     ----------
-    event : event.Event
+    event : events.Event
         The event representing a service class receiving a C-GET
         request message. Event attributes are:
 
@@ -2422,7 +2422,7 @@ def doc_handle_move(event):
 
     Parameters
     ----------
-    event : event.Event
+    event : events.Event
         The event representing a service class receiving a C-MOVE
         request message. Event attributes are:
 
@@ -2555,7 +2555,7 @@ def doc_handle_store(event):
 
     Parameters
     ----------
-    event : event.Event
+    event : events.Event
         The event representing a service class receiving a C-STORE
         request message. Event attributes are:
 
@@ -2627,12 +2627,75 @@ def doc_handle_store(event):
 def doc_handle_action(event):
     """Documentation for handlers bound to ``evt.EVT_N_ACTION``.
 
+    Use of handlers for ``evt.EVT_N_ACTION`` is not yet supported.
+
     User implementation of this event handler is required if one or more
-    services that use N-ACTION are to be supported.
+    services that use N-ACTION are to be supported. If a handler is
+    not implemented and bound to ``evt.EVT_N_ACTION`` then the N-ACTION request
+    will be responded to using a  *Status* value of FIXME.
 
     **Event**
 
     ``evt.EVT_N_ACTION``
+
+    **Supported Service Classes**
+
+    **Status**
+
+    Parameters
+    ----------
+    event : events.Event
+        The event representing a service class receiving a N-ACTION
+        request message. Event attributes are:
+
+        * ``assoc`` : the
+          :py:class:`association <pynetdicom.association.Association>`
+          that is running the service that received the N-ACTION request.
+        * ``context`` : the presentation context the request was sent under
+          as a ``presentation.PresentationContextTuple``.
+        * ``description`` : a description of the event that occurred as str.
+        * ``name`` : the name of the event that occurred as str.
+        * ``request`` : the received
+          :py:class:`N-ACTION request <pynetdicom.dimse_primitives.N_ACTION>`
+        * ``timestamp`` : the
+          `date and time <https://docs.python.org/3/library/datetime.html#datetime-objects>`_
+          that the N-ACTION request was processed by the service.
+
+        Event properties are:
+
+        * ``action_information`` : the decoded
+          :py:class:`Dataset <pydicom.dataset.Dataset>` contained within the
+          N-ACTION request's *Action Information* parameter. Because *pydicom*
+          uses a deferred read when decoding data, if the decode fails the
+          returned ``Dataset`` will only raise an exception at the time of use.
+
+    Returns
+    -------
+    status : pydicom.dataset.Dataset or int
+        The status returned to the peer AE in the N-ACTION response. Must be a
+        valid N-ACTION status value for the applicable Service Class as either
+        an ``int`` or a ``Dataset`` object containing (at a minimum) a
+        (0000,0900) *Status* element. If returning a Dataset object then
+        it may also contain optional elements related to the Status (as in
+        DICOM Standard Part 7, Annex C).
+    dataset : pydicom.dataset.Dataset or None
+        If the status category is 'Success' or 'Warning' then a dataset
+        containing elements for the response's Action Reply
+        conformant to the specifications in the corresponding Service
+        Class.
+
+        If the status is not 'Successs' or 'Warning' then None.
+
+    Raises
+    ------
+    NotImplementedError
+        If the handler has not been implemented and bound to
+        ``evt.EVT_N_ACTION`` by the user.
+
+    See Also
+    --------
+    :py:meth:`send_n_action()<pynetdicom.association.Association.send_n_action>`
+    :py:class:`N_ACTION<pynetdicom.dimse_primitives.N_ACTION>`
 
     References
     ----------
@@ -2643,12 +2706,77 @@ def doc_handle_action(event):
 def doc_handle_create(event):
     """Documentation for handlers bound to ``evt.EVT_N_CREATE``.
 
+    Use of handlers for ``evt.EVT_N_CREATE`` is not yet supported.
+
     User implementation of this event handler is required if one or more
-    services that use N-CREATE are to be supported.
+    services that use N-CREATE are to be supported. If a handler is
+    not implemented and bound to ``evt.EVT_N_CREATE`` then the N-CREATE request
+    will be responded to using a  *Status* value of FIXME.
 
     **Event**
 
     ``evt.EVT_N_CREATE``
+
+    **Supported Service Classes**
+
+    None
+
+    **Status**
+
+    Parameters
+    ----------
+    event : events.Event
+        The event representing a service class receiving a N-CREATE
+        request message. Event attributes are:
+
+        * ``assoc`` : the
+          :py:class:`association <pynetdicom.association.Association>`
+          that is running the service that received the N-CREATE request.
+        * ``context`` : the presentation context the request was sent under
+          as a ``presentation.PresentationContextTuple``.
+        * ``description`` : a description of the event that occurred as str.
+        * ``name`` : the name of the event that occurred as str.
+        * ``request`` : the received
+          :py:class:`N-CREATE request <pynetdicom.dimse_primitives.N_CREATE>`
+        * ``timestamp`` : the
+          `date and time <https://docs.python.org/3/library/datetime.html#datetime-objects>`_
+          that the N-CREATE request was processed by the service.
+
+        Event properties are:
+
+        * ``attribute_list`` : the decoded
+          :py:class:`Dataset <pydicom.dataset.Dataset>` contained within the
+          N-CREATE request's *Attribute List* parameter. Because *pydicom*
+          uses a deferred read when decoding data, if the decode fails the
+          returned ``Dataset`` will only raise an exception at the time of use.
+
+    Returns
+    -------
+    status : pydicom.dataset.Dataset or int
+        The status returned to the peer AE in the N-CREATE response. Must be a
+        valid N-CREATE status value for the applicable Service Class as either
+        an ``int`` or a ``Dataset`` object containing (at a minimum) a
+        (0000,0900) *Status* element. If returning a Dataset object then
+        it may also contain optional elements related to the Status (as in
+        DICOM Standard Part 7, Annex C).
+    dataset : pydicom.dataset.Dataset or None
+        If the status category is 'Success' or 'Warning' then a dataset
+        containing elements of the response's Attribute List
+        conformant to the specifications in the corresponding Service
+        Class.
+
+        If the status is not 'Successs' or 'Warning' then None.
+
+    Raises
+    ------
+    NotImplementedError
+        If the handler has not been implemented and bound to
+        ``evt.EVT_N_CREATE`` by the user.
+
+    See Also
+    --------
+    :py:meth:`send_n_create()<pynetdicom.association.Association.send_n_create>`
+    :py:class:`N_CREATE<pynetdicom.dimse_primitives.N_CREATE>`
 
     References
     ----------
@@ -2659,12 +2787,60 @@ def doc_handle_create(event):
 def doc_handle_delete(event):
     """Documentation for handlers bound to ``evt.EVT_N_DELETE``.
 
+    Use of handlers for ``evt.EVT_N_DELETE`` is not yet supported.
+
     User implementation of this event handler is required if one or more
-    services that use N-DELETE are to be supported.
+    services that use N-DELETE are to be supported. If a handler is
+    not implemented and bound to ``evt.EVT_N_DELETE`` then the N-DELETE request
+    will be responded to using a  *Status* value of FIXME.
 
     **Event**
 
     ``evt.EVT_N_DELETE``
+
+    **Supported Service Classes**
+
+    **Status**
+
+    Parameters
+    ----------
+    event : events.Event
+        The event representing a service class receiving a N-DELETE
+        request message. Event attributes are:
+
+        * ``assoc`` : the
+          :py:class:`association <pynetdicom.association.Association>`
+          that is running the service that received the N-DELETE request.
+        * ``context`` : the presentation context the request was sent under
+          as a ``presentation.PresentationContextTuple``.
+        * ``description`` : a description of the event that occurred as str.
+        * ``name`` : the name of the event that occurred as str.
+        * ``request`` : the received
+          :py:class:`N-DELETE request <pynetdicom.dimse_primitives.N_DELETE>`
+        * ``timestamp`` : the
+          `date and time <https://docs.python.org/3/library/datetime.html#datetime-objects>`_
+          that the N-DELETE request was processed by the service.
+
+    Returns
+    -------
+    status : pydicom.dataset.Dataset or int
+        The status returned to the peer AE in the N-DELETE response. Must be a
+        valid N-DELETE status value for the applicable Service Class as either
+        an ``int`` or a ``Dataset`` object containing (at a minimum) a
+        (0000,0900) *Status* element. If returning a Dataset object then
+        it may also contain optional elements related to the Status (as in
+        DICOM Standard Part 7, Annex C).
+
+    Raises
+    ------
+    NotImplementedError
+        If the handler has not been implemented and bound to
+        ``evt.EVT_N_DELETE`` by the user.
+
+    See Also
+    --------
+    :py:meth:`send_n_delete()<pynetdicom.association.Association.send_n_delete>`
+    :py:class:`N_DELETE<pynetdicom.dimse_primitives.N_DELETE>`
 
     References
     ----------
@@ -2675,12 +2851,77 @@ def doc_handle_delete(event):
 def doc_handle_event_report(event):
     """Documentation for handlers bound to ``evt.EVT_N_EVENT_REPORT``.
 
+    Use of handlers for ``evt.EVT_N_EVENT_REPORT`` is not yet supported.
+
     User implementation of this event handler is required if one or more
-    services that use N-EVENT-REPORT are to be supported.
+    services that use N-EVENT-REPORT are to be supported. If a handler is
+    not implemented and bound to ``evt.EVT_N_EVENT_REPORT`` then the
+    N-EVENT-REPORT request will be responded to using a  *Status* value
+    of FIXME.
 
     **Event**
 
     ``evt.EVT_N_EVENT_REPORT``
+
+    **Supported Service Classes**
+
+    **Status**
+
+    Parameters
+    ----------
+    event : events.Event
+        The event representing a service class receiving a N-EVENT-REPORT
+        request message. Event attributes are:
+
+        * ``assoc`` : the
+          :py:class:`association <pynetdicom.association.Association>`
+          that is running the service that received the N-EVENT-REPORT request.
+        * ``context`` : the presentation context the request was sent under
+          as a ``presentation.PresentationContextTuple``.
+        * ``description`` : a description of the event that occurred as str.
+        * ``name`` : the name of the event that occurred as str.
+        * ``request`` : the received
+          :py:class:`N-EVENT-REPORT request <pynetdicom.dimse_primitives.N_EVENT_REPORT>`
+        * ``timestamp`` : the
+          `date and time <https://docs.python.org/3/library/datetime.html#datetime-objects>`_
+          that the N-EVENT-REPORT request was processed by the service.
+
+        Event properties are:
+
+        * ``event_information`` : the decoded
+          :py:class:`Dataset <pydicom.dataset.Dataset>` contained within the
+          N-EVENT-REPORT request's *Event Information* parameter. Because
+          *pydicom* uses a deferred read when decoding data, if the decode
+          fails the returned ``Dataset`` will only raise an exception at the
+          time of use.
+
+    Returns
+    -------
+    status : pydicom.dataset.Dataset or int
+        The status returned to the peer AE in the N-EVENT-REPORT response.
+        Must be a valid N-EVENT-REPORT status value for the applicable Service
+        Class as either an ``int`` or a ``Dataset`` object containing (at a
+        minimum) a (0000,0900) *Status* element. If returning a Dataset
+        object then it may also contain optional elements related to the
+        Status (as in DICOM Standard Part 7, Annex C).
+    dataset : pydicom.dataset.Dataset or None
+        If the status category is 'Success' or 'Warning' then a dataset
+        containing elements of the response's Event Reply
+        conformant to the specifications in the corresponding Service
+        Class.
+
+        If the status is not 'Successs' or 'Warning' then None.
+
+    Raises
+    ------
+    NotImplementedError
+        If the handler has not been implemented and bound to
+        ``evt.EVT_N_EVENT_REPORT`` by the user.
+
+    See Also
+    --------
+    :py:meth:`send_n_event_report()<pynetdicom.association.Association.send_n_event_report>`
+    :py:class:`N_EVENT_REPORT<pynetdicom.dimse_primitives.N_EVENT_REPORT>`
 
     References
     ----------
@@ -2702,7 +2943,7 @@ def doc_handle_n_get(event):
 
     Parameters
     ----------
-    event : event.Event
+    event : events.Event
         The event representing a service class receiving an N-GET
         request message. Event attributes are:
 
@@ -2757,12 +2998,75 @@ def doc_handle_n_get(event):
 def doc_handle_set(event):
     """Documentation for handlers bound to ``evt.EVT_N_SET``.
 
+    Use of handlers for ``evt.EVT_N_SET`` is not yet supported.
+
     User implementation of this event handler is required if one or more
-    services that use N-SET are to be supported.
+    services that use N-SET are to be supported. If a handler is
+    not implemented and bound to ``evt.EVT_N_SET`` then the N-SET request
+    will be responded to using a  *Status* value of FIXME.
 
     **Event**
 
     ``evt.EVT_N_SET``
+
+    **Supported Service Classes**
+
+    **Status**
+
+    Parameters
+    ----------
+    event : events.Event
+        The event representing a service class receiving a N-SET
+        request message. Event attributes are:
+
+        * ``assoc`` : the
+          :py:class:`association <pynetdicom.association.Association>`
+          that is running the service that received the N-SET request.
+        * ``context`` : the presentation context the request was sent under
+          as a ``presentation.PresentationContextTuple``.
+        * ``description`` : a description of the event that occurred as str.
+        * ``name`` : the name of the event that occurred as str.
+        * ``request`` : the received
+          :py:class:`N-SET request <pynetdicom.dimse_primitives.N_SET>`
+        * ``timestamp`` : the
+          `date and time <https://docs.python.org/3/library/datetime.html#datetime-objects>`_
+          that the N-SET request was processed by the service.
+
+        Event properties are:
+
+        * ``modification_list`` : the decoded
+          :py:class:`Dataset <pydicom.dataset.Dataset>` contained within the
+          N-SET request's *Modification List* parameter. Because *pydicom*
+          uses a deferred read when decoding data, if the decode fails the
+          returned ``Dataset`` will only raise an exception at the time of use.
+
+    Returns
+    -------
+    status : pydicom.dataset.Dataset or int
+        The status returned to the peer AE in the N-SET response. Must be a
+        valid N-SET status value for the applicable Service Class as either
+        an ``int`` or a ``Dataset`` object containing (at a minimum) a
+        (0000,0900) *Status* element. If returning a Dataset object then
+        it may also contain optional elements related to the Status (as in
+        DICOM Standard Part 7, Annex C).
+    dataset : pydicom.dataset.Dataset or None
+        If the status category is 'Success' or 'Warning' then a dataset
+        containing elements of the response's Attribute List
+        conformant to the specifications in the corresponding Service
+        Class.
+
+        If the status is not 'Successs' or 'Warning' then None.
+
+    Raises
+    ------
+    NotImplementedError
+        If the handler has not been implemented and bound to
+        ``evt.EVT_N_SET`` by the user.
+
+    See Also
+    --------
+    :py:meth:`send_n_set()<pynetdicom.association.Association.send_n_set>`
+    :py:class:`N_SET<pynetdicom.dimse_primitives.N_SET>`
 
     References
     ----------
@@ -2790,7 +3094,7 @@ def doc_handle_async(event):
 
     Parameters
     ----------
-    event : event.Event
+    event : events.Event
         The event representing an association request being received which
         contains an Asynchronous Operations Window Negotiation item. Event
         attributes are:
@@ -2835,7 +3139,7 @@ def doc_handle_sop_common(event):
 
     Parameters
     ----------
-    event : event.Event
+    event : events.Event
         The event representing an association request being received which
         contains one or more SOP Class Common Extended Negotiation items. Event
         attributes are:
@@ -2884,7 +3188,7 @@ def doc_handle_sop_extended(event):
 
     Parameters
     ----------
-    event : event.Event
+    event : events.Event
         The event representing an association request being received which
         contains one or more SOP Class Extended Negotiation item. Event
         attributes are:
@@ -2935,7 +3239,7 @@ def doc_handle_userid(event):
 
     Parameters
     ----------
-    event : event.Event
+    event : events.Event
         The event representing an association request being received which
         contains a User Identity Negotiation item. Event attributes are:
 
@@ -2990,7 +3294,7 @@ def doc_handle_acse(event):
 
     Parameters
     ----------
-    event : event.Event
+    event : events.Event
         Represents the ACSE service provider receiving or sending an
         association related primitive to/from the DUL service provider.
         Event attributes are:
@@ -3019,7 +3323,7 @@ def doc_handle_dimse(event):
 
     Parameters
     ----------
-    event : event.Event
+    event : events.Event
         Represents the DIMSE service provider decoding a DIMSE message after
         receiving the final P-DATA primitive that contained it, or encoding
         and converting a DIMSE message into P-DATA primitives. Event
@@ -3066,7 +3370,7 @@ def doc_handle_data(event):
 
     Parameters
     ----------
-    event : event.Event
+    event : events.Event
         Represents data being sent to or received from the remote over the
         socket. Event attributes are:
 
@@ -3090,7 +3394,7 @@ def doc_handle_pdu(event):
 
     Parameters
     ----------
-    event : event.Event
+    event : events.Event
         Represents the DUL service provider sending or receiving a PDU.
         Event attributes are:
 
@@ -3120,7 +3424,7 @@ def doc_handle_transport(event):
 
     Parameters
     ----------
-    event : event.Event
+    event : events.Event
         Represents opening or closing a transport connection. Event
         attributes are:
 
@@ -3144,7 +3448,7 @@ def doc_handle_assoc(event):
 
     Parameters
     ----------
-    event : event.Event
+    event : events.Event
         Represents moving to one of the main association states. Event
         attributes are:
 
@@ -3165,7 +3469,7 @@ def doc_handle_fsm(event):
 
     Parameters
     ----------
-    event : event.Event
+    event : events.Event
         Represents the state machine receiving a triggering event and being
         about to perform the action that will take it to the next state.
         Event attributes are:
