@@ -6,6 +6,7 @@
 
 import argparse
 import logging
+from logging.config import fileConfig
 import os
 import socket
 import sys
@@ -25,15 +26,7 @@ from pynetdicom import (
 )
 
 
-LOGGER = logging.Logger('getscu')
-stream_logger = logging.StreamHandler()
-formatter = logging.Formatter('%(levelname).1s: %(message)s')
-stream_logger.setFormatter(formatter)
-LOGGER.addHandler(stream_logger)
-LOGGER.setLevel(logging.ERROR)
-
-
-VERSION = '0.3.0'
+VERSION = '0.3.1'
 
 
 def _setup_argparser():
@@ -75,6 +68,15 @@ def _setup_argparser():
     gen_opts.add_argument("-d", "--debug",
                           help="debug mode, print debug information",
                           action="store_true")
+    gen_opts.add_argument("-ll", "--log-level", metavar='[l]',
+                          help="use level l for the APP_LOGGER (fatal, error, warn, "
+                               "info, debug, trace)",
+                          type=str,
+                          choices=['fatal', 'error', 'warn',
+                                   'info', 'debug', 'trace'])
+    gen_opts.add_argument("-lc", "--log-config", metavar='[f]',
+                          help="use config file f for the APP_LOGGER",
+                          type=str)
 
     # Network Options
     net_opts = parser.add_argument_group('Network Options')
@@ -119,18 +121,54 @@ def _setup_argparser():
 
 args = _setup_argparser()
 
-if args.verbose:
-    LOGGER.setLevel(logging.INFO)
+# Logging/Output
+def setup_logger():
+    """Setup the echoscu logging"""
+    logger = logging.Logger('getscu')
+    handler = logging.StreamHandler()
+    formatter = logging.Formatter('%(levelname).1s: %(message)s')
+    handler.setFormatter(formatter)
+    logger.addHandler(handler)
+    logger.setLevel(logging.ERROR)
+
+    return logger
+
+APP_LOGGER = setup_logger()
+
+def _setup_logging(level):
+    APP_LOGGER.setLevel(level)
     pynetdicom_logger = logging.getLogger('pynetdicom')
-    pynetdicom_logger.setLevel(logging.INFO)
+    handler = logging.StreamHandler()
+    pynetdicom_logger.setLevel(level)
+    formatter = logging.Formatter('%(levelname).1s: %(message)s')
+    handler.setFormatter(formatter)
+    pynetdicom_logger.addHandler(handler)
+
+if args.quiet:
+    for hh in APP_LOGGER.handlers:
+        APP_LOGGER.removeHandler(hh)
+
+    APP_LOGGER.addHandler(logging.NullHandler())
+
+if args.verbose:
+    _setup_logging(logging.INFO)
 
 if args.debug:
-    LOGGER.setLevel(logging.DEBUG)
-    pynetdicom_logger = logging.getLogger('pynetdicom')
-    pynetdicom_logger.setLevel(logging.DEBUG)
+    _setup_logging(logging.DEBUG)
 
-LOGGER.debug('$getscu.py v{0!s}'.format(VERSION))
-LOGGER.debug('')
+if args.log_level:
+    levels = {'critical' : logging.CRITICAL,
+              'error'    : logging.ERROR,
+              'warn'     : logging.WARNING,
+              'info'     : logging.INFO,
+              'debug'    : logging.DEBUG}
+    _setup_logging(levels[args.log_level])
+
+if args.log_config:
+    fileConfig(args.log_config)
+
+APP_LOGGER.debug('$getscu.py v{0!s}'.format(VERSION))
+APP_LOGGER.debug('')
 
 
 # Create application entity
@@ -207,10 +245,10 @@ def handle_store(event):
         mode_prefix = 'UN'
 
     filename = '{0!s}.{1!s}'.format(mode_prefix, sop_instance)
-    LOGGER.info('Storing DICOM file: {0!s}'.format(filename))
+    APP_LOGGER.info('Storing DICOM file: {0!s}'.format(filename))
 
     if os.path.exists(filename):
-        LOGGER.warning('DICOM file already exists, overwriting')
+        APP_LOGGER.warning('DICOM file already exists, overwriting')
 
     # Presentation context
     cx = event.context
@@ -253,15 +291,15 @@ def handle_store(event):
         ds.save_as(filename, write_like_original=False)
         status_ds.Status = 0x0000 # Success
     except IOError:
-        LOGGER.error('Could not write file to specified directory:')
-        LOGGER.error("    {0!s}".format(os.path.dirname(filename)))
-        LOGGER.error('Directory may not exist or you may not have write '
+        APP_LOGGER.error('Could not write file to specified directory:')
+        APP_LOGGER.error("    {0!s}".format(os.path.dirname(filename)))
+        APP_LOGGER.error('Directory may not exist or you may not have write '
                      'permission')
         # Failed - Out of Resources - IOError
         status_ds.Status = 0xA700
     except:
-        LOGGER.error('Could not write file to specified directory:')
-        LOGGER.error("    {0!s}".format(os.path.dirname(filename)))
+        APP_LOGGER.error('Could not write file to specified directory:')
+        APP_LOGGER.error("    {0!s}".format(os.path.dirname(filename)))
         # Failed - Out of Resources - Miscellaneous error
         status_ds.Status = 0xA701
 

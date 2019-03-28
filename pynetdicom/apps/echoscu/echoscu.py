@@ -20,21 +20,7 @@ from pynetdicom import AE
 from pynetdicom.sop_class import VerificationSOPClass
 
 
-def setup_logger():
-    """Setup the logging"""
-    logger = logging.Logger('echoscu')
-    stream_logger = logging.StreamHandler()
-    formatter = logging.Formatter('%(levelname).1s: %(message)s')
-    stream_logger.setFormatter(formatter)
-    logger.addHandler(stream_logger)
-    logger.setLevel(logging.ERROR)
-
-    return logger
-
-
-LOGGER = setup_logger()
-
-VERSION = '0.6.3'
+VERSION = '0.6.4'
 
 
 def _setup_argparser():
@@ -120,33 +106,43 @@ def _setup_argparser():
 
     return parser.parse_args()
 
-
 args = _setup_argparser()
 
 #--------------------------- SETUP USING ARGUMENTS ----------------------------
-
 # Logging/Output
-if args.quiet:
-    for h in LOGGER.handlers:
-        LOGGER.removeHandler(h)
+def setup_logger():
+    """Setup the echoscu logging"""
+    logger = logging.Logger('echoscu')
+    handler = logging.StreamHandler()
+    formatter = logging.Formatter('%(levelname).1s: %(message)s')
+    handler.setFormatter(formatter)
+    logger.addHandler(handler)
+    logger.setLevel(logging.ERROR)
 
-    LOGGER.addHandler(logging.NullHandler())
+    return logger
 
+APP_LOGGER = setup_logger()
+
+def _setup_logging(level):
+    APP_LOGGER.setLevel(level)
     pynetdicom_logger = logging.getLogger('pynetdicom')
-    for h in pynetdicom_logger.handlers:
-        pynetdicom_logger.removeHandler(h)
+    handler = logging.StreamHandler()
+    pynetdicom_logger.setLevel(level)
+    formatter = logging.Formatter('%(levelname).1s: %(message)s')
+    handler.setFormatter(formatter)
+    pynetdicom_logger.addHandler(handler)
 
-    pynetdicom_logger.addHandler(logging.NullHandler())
+if args.quiet:
+    for hh in APP_LOGGER.handlers:
+        APP_LOGGER.removeHandler(hh)
+
+    APP_LOGGER.addHandler(logging.NullHandler())
 
 if args.verbose:
-    LOGGER.setLevel(logging.INFO)
-    pynetdicom_logger = logging.getLogger('pynetdicom')
-    pynetdicom_logger.setLevel(logging.INFO)
+    _setup_logging(logging.INFO)
 
 if args.debug:
-    LOGGER.setLevel(logging.DEBUG)
-    pynetdicom_logger = logging.getLogger('pynetdicom')
-    pynetdicom_logger.setLevel(logging.DEBUG)
+    _setup_logging(logging.DEBUG)
 
 if args.log_level:
     levels = {'critical' : logging.CRITICAL,
@@ -154,9 +150,7 @@ if args.log_level:
               'warn'     : logging.WARNING,
               'info'     : logging.INFO,
               'debug'    : logging.DEBUG}
-    LOGGER.setLevel(levels[args.log_level])
-    pynetdicom_logger = logging.getLogger('pynetdicom')
-    pynetdicom_logger.setLevel(levels[args.log_level])
+    _setup_logging(levels[args.log_level])
 
 if args.log_config:
     fileConfig(args.log_config)
@@ -179,8 +173,8 @@ if args.version:
     print('echoscu.py v%s' %(VERSION))
     sys.exit()
 
-LOGGER.debug('echoscu.py v%s', VERSION)
-LOGGER.debug('')
+APP_LOGGER.debug('echoscu.py v%s', VERSION)
+APP_LOGGER.debug('')
 
 
 # Create local AE

@@ -2,6 +2,7 @@
 
 from collections import namedtuple
 from datetime import datetime
+from io import BytesIO
 import logging
 import os
 import sys
@@ -9,7 +10,12 @@ import time
 
 import pytest
 
-from pynetdicom import AE, evt, _config, Association
+from pydicom.dataset import Dataset
+from pydicom.uid import ImplicitVRLittleEndian
+
+from pynetdicom import (
+    AE, evt, _config, Association, debug_logger, build_context
+)
 from pynetdicom.events import (
     Event, trigger, _async_ops_handler, _sop_common_handler,
     _sop_extended_handler, _user_identity_handler, _c_echo_handler,
@@ -17,11 +23,13 @@ from pynetdicom.events import (
     _n_action_handler, _n_create_handler, _n_delete_handler,
     _n_event_report_handler, _n_get_handler, _n_set_handler
 )
+from pynetdicom.dimse_messages import (
+    N_ACTION_RQ, N_CREATE_RQ, N_EVENT_REPORT_RQ, N_SET_RQ
+)
 from pynetdicom.sop_class import VerificationSOPClass
 
-LOGGER = logging.getLogger('pynetdicom')
-LOGGER.setLevel(logging.CRITICAL)
-LOGGER.setLevel(logging.DEBUG)
+
+#debug_logger()
 
 
 def test_intervention_namedtuple():
@@ -56,6 +64,16 @@ class TestEvent(object):
     def setup(self):
         self.ae = None
         _config.LOG_HANDLER_LEVEL = 'none'
+
+        # Implicit VR Little Endian
+        self.bytestream = BytesIO(
+            #  (0010,0010) PatientName
+            # | tag           | length        | value
+            b'\x10\x00\x10\x00\x09\x00\x00\x00'
+            b'\x54\x45\x53\x54\x5E\x54\x65\x73\x74'
+        )
+        self.context = build_context('1.2.840.10008.1.1',
+                                     ImplicitVRLittleEndian)
 
     def teardown(self):
         if self.ae:
@@ -103,6 +121,34 @@ class TestEvent(object):
         )
         with pytest.raises(AttributeError, match=msg):
             event.identifier
+
+        msg = (
+            r"The corresponding event is not an N-ACTION request and has no "
+            r"'Action Information' parameter"
+        )
+        with pytest.raises(AttributeError, match=msg):
+            event.action_information
+
+        msg = (
+            r"The corresponding event is not an N-CREATE request and has no "
+            r"'Attribute List' parameter"
+        )
+        with pytest.raises(AttributeError, match=msg):
+            event.attribute_list
+
+        msg = (
+            r"The corresponding event is not an N-EVENT-REPORT request and "
+            r"has no 'Event Information' parameter"
+        )
+        with pytest.raises(AttributeError, match=msg):
+            event.event_information
+
+        msg = (
+            r"The corresponding event is not an N-SET request and has no "
+            r"'Modification List' parameter"
+        )
+        with pytest.raises(AttributeError, match=msg):
+            event.modification_list
 
     def test_is_cancelled_non(self):
         """Test Event.is_cancelled with wrong event type."""
@@ -152,6 +198,102 @@ class TestEvent(object):
         msg = r"'Event' object already has an attribute 'assoc'"
         with pytest.raises(AttributeError, match=msg):
             event = evt.Event(None, evt.EVT_C_STORE, {'assoc' : None})
+
+    def test_action_information(self):
+        """Test Event.action_information."""
+        request = N_ACTION_RQ()
+        request.ActionInformation = self.bytestream
+        event = Event(
+            None,
+            evt.EVT_N_ACTION,
+            {'request' : request, 'context' : self.context.as_tuple}
+        )
+
+        assert event._hash is None
+        assert event._decoded is None
+        ds = event.action_information
+        assert event._hash == hash(request.ActionInformation)
+        assert isinstance(ds, Dataset)
+        assert ds.PatientName == 'TEST^Test'
+
+        ds.PatientID = '1234567'
+        assert event.action_information.PatientID == '1234567'
+
+        # Test hash mismatch
+        event._hash = None
+        assert 'PatientID' not in event.action_information
+
+    def test_attribute_list(self):
+        """Test Event.attribute_list."""
+        request = N_CREATE_RQ()
+        request.AttributeList = self.bytestream
+        event = Event(
+            None,
+            evt.EVT_N_CREATE,
+            {'request' : request, 'context' : self.context.as_tuple}
+        )
+
+        assert event._hash is None
+        assert event._decoded is None
+        ds = event.attribute_list
+        assert event._hash == hash(request.AttributeList)
+        assert isinstance(ds, Dataset)
+        assert ds.PatientName == 'TEST^Test'
+
+        ds.PatientID = '1234567'
+        assert event.attribute_list.PatientID == '1234567'
+
+        # Test hash mismatch
+        event._hash = None
+        assert 'PatientID' not in event.attribute_list
+
+    def test_event_information(self):
+        """Test Event.event_information."""
+        request = N_EVENT_REPORT_RQ()
+        request.EventInformation = self.bytestream
+        event = Event(
+            None,
+            evt.EVT_N_CREATE,
+            {'request' : request, 'context' : self.context.as_tuple}
+        )
+
+        assert event._hash is None
+        assert event._decoded is None
+        ds = event.event_information
+        assert event._hash == hash(request.EventInformation)
+        assert isinstance(ds, Dataset)
+        assert ds.PatientName == 'TEST^Test'
+
+        ds.PatientID = '1234567'
+        assert event.event_information.PatientID == '1234567'
+
+        # Test hash mismatch
+        event._hash = None
+        assert 'PatientID' not in event.event_information
+
+    def test_modification_list(self):
+        """Test Event.modification_list."""
+        request = N_SET_RQ()
+        request.ModificationList = self.bytestream
+        event = Event(
+            None,
+            evt.EVT_N_CREATE,
+            {'request' : request, 'context' : self.context.as_tuple}
+        )
+
+        assert event._hash is None
+        assert event._decoded is None
+        ds = event.modification_list
+        assert event._hash == hash(request.ModificationList)
+        assert isinstance(ds, Dataset)
+        assert ds.PatientName == 'TEST^Test'
+
+        ds.PatientID = '1234567'
+        assert event.modification_list.PatientID == '1234567'
+
+        # Test hash mismatch
+        event._hash = None
+        assert 'PatientID' not in event.modification_list
 
 
 # TODO: Should be able to remove in v1.4
