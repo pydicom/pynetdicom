@@ -155,7 +155,7 @@ def trigger(assoc, event, attrs=None):
     if not handlers:
         return
 
-    evt = Event(assoc, event, attrs)
+    evt = Event(assoc, event, attrs or {})
 
     try:
         # Intervention event - only single handler allowed

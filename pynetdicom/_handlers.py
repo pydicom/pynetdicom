@@ -2027,7 +2027,7 @@ def doc_handle_echo(event):
 
     **Supported Service Classes**
 
-    *Verification Service Class*
+    * *Verification Service Class*
 
     **Status**
 
@@ -2684,7 +2684,7 @@ def doc_handle_action(event):
         conformant to the specifications in the corresponding Service
         Class.
 
-        If the status is not 'Successs' or 'Warning' then None.
+        If the status is not 'Successs' or 'Warning' then ``None``.
 
     Raises
     ------
@@ -2706,12 +2706,14 @@ def doc_handle_action(event):
 def doc_handle_create(event):
     """Documentation for handlers bound to ``evt.EVT_N_CREATE``.
 
-    Use of handlers for ``evt.EVT_N_CREATE`` is not yet supported.
-
     User implementation of this event handler is required if one or more
     services that use N-CREATE are to be supported. If a handler is
     not implemented and bound to ``evt.EVT_N_CREATE`` then the N-CREATE request
-    will be responded to using a  *Status* value of FIXME.
+    will be responded to using a  *Status* value of ``0x0110`` - Processing
+    Failure.
+
+    Management of the SOP Instances created in response to an N-CREATE request
+    is the responsibility of the user.
 
     **Event**
 
@@ -2719,9 +2721,60 @@ def doc_handle_create(event):
 
     **Supported Service Classes**
 
-    None
+    * *Modality Performed Procedure Step*
 
     **Status**
+
+    General Statuses
+
+    Success
+      | ``0x0000`` - Success
+
+    Failure
+      | ``0x0105`` - No such attribute
+      | ``0x0106`` - Invalid attribute value
+      | ``0x0107`` - Attribute list error
+      | ``0x0110`` - Processing failure
+      | ``0x0111`` - Duplicate SOP Instance
+      | ``0x0116`` - Attribute value out of range
+      | ``0x0117`` - Invalid object instance
+      | ``0x0118`` - No such SOP Class
+      | ``0x0120`` - Missing attribute
+      | ``0x0121`` - Missing attribute value
+      | ``0x0124`` - Refused: not authorised
+      | ``0x0210`` - Duplicate invocation
+      | ``0x0211`` - Unrecognised operation
+      | ``0x0212`` - Mistyped argument
+      | ``0x0213`` - Resource limitation
+
+    Print Management Statuses
+
+    Warning
+      | ``0xB600`` - Memory allocation not supported
+
+    Media Creation Management Statuses
+
+    Failure
+      | ``0xA510`` - Failed: an initiate media creation action has already been
+        received for this SOP Instance
+
+    Unified Procedure Step Statuses
+
+    Warning
+      | ``0xB300`` - THE UPS was created with modifications
+
+    Failure
+      | ``0xC309`` - The provided value of UPS State was not 'SCHEDULED'
+
+    RT Machine Verification Statuses
+
+    Failure
+    | ``0xC221`` - The Referenced Fraction Group Number does not exist in the
+      referenced plan
+    | ``0xC222`` - No beams exist within the referenced fraction group
+    | ``0xC223`` - SCU already verifying and cannot currently process this
+      request
+    | ``0xC227`` - No such object instance - Referenced RT Plan not found
 
     Parameters
     ----------
@@ -2757,15 +2810,14 @@ def doc_handle_create(event):
         valid N-CREATE status value for the applicable Service Class as either
         an ``int`` or a ``Dataset`` object containing (at a minimum) a
         (0000,0900) *Status* element. If returning a Dataset object then
-        it may also contain optional elements related to the Status (as in
+        it may also contain optional elements related to the *Status* (as in
         DICOM Standard Part 7, Annex C).
     dataset : pydicom.dataset.Dataset or None
         If the status category is 'Success' or 'Warning' then a dataset
-        containing elements of the response's Attribute List
-        conformant to the specifications in the corresponding Service
-        Class.
+        containing elements of the response's *Attribute List* conformant to
+        the specifications in the corresponding Service Class.
 
-        If the status is not 'Successs' or 'Warning' then None.
+        If the status is not 'Successs' then None.
 
     Raises
     ------
@@ -2857,7 +2909,7 @@ def doc_handle_event_report(event):
     services that use N-EVENT-REPORT are to be supported. If a handler is
     not implemented and bound to ``evt.EVT_N_EVENT_REPORT`` then the
     N-EVENT-REPORT request will be responded to using a  *Status* value
-    of FIXME.
+    of ``0x0110`` Processing Failure.
 
     **Event**
 
@@ -2865,7 +2917,26 @@ def doc_handle_event_report(event):
 
     **Supported Service Classes**
 
+    * *Modality Performed Procedure Step*
+
     **Status**
+
+    Success
+      | ``0x0000`` Success
+
+    Failure
+      | ``0x0110`` Processing failure
+      | ``0x0112`` No such SOP Instance
+      | ``0x0113`` No such event type
+      | ``0x0114`` No such argument
+      | ``0x0115`` Invalid argument value
+      | ``0x0117`` Invalid object Instance
+      | ``0x0118`` No such SOP Class
+      | ``0x0119`` Class-Instance conflict
+      | ``0x0210`` Duplicate invocation
+      | ``0x0211`` Unrecognised operation
+      | ``0x0212`` Mistyped argument
+      | ``0x0213`` Resource limitation
 
     Parameters
     ----------
@@ -2910,7 +2981,7 @@ def doc_handle_event_report(event):
         conformant to the specifications in the corresponding Service
         Class.
 
-        If the status is not 'Successs' or 'Warning' then None.
+        If the status is not 'Successs' or 'Warning' then ``None``.
 
     Raises
     ------
@@ -2935,11 +3006,42 @@ def doc_handle_n_get(event):
     User implementation of this event handler is required if one or more
     services that use N-GET are to be supported. If a handler is
     not implemented and bound to ``evt.EVT_N_GET`` then the N_GET request
-    will be responded to using a  *Status* value of ``0x0110`` - Failure.
+    will be responded to using a  *Status* value of ``0x0110`` - Processing
+    Failure.
 
     **Event**
 
     ``evt.EVT_N_GET``
+
+    **Supported Service Classes**
+
+    * *Display System Management Service Class*
+    * *Modality Performed Procedure Step*
+
+    **Status**
+
+    General Statuses
+
+    Success
+      | ``0x0000`` Success
+
+    Failure
+      | ``0x0107`` Attribute list error
+      | ``0x0110`` Processing failure
+      | ``0x0112`` No such SOP Instance
+      | ``0x0117`` Invalid object Instance
+      | ``0x0118`` No such SOP Class
+      | ``0x0119`` Class-Instance conflict
+      | ``0x0124`` Not authorised
+      | ``0x0210`` Duplicate invocation
+      | ``0x0211`` Unrecognised operation
+      | ``0x0212`` Mistyped argument
+      | ``0x0213`` Resource limitation
+
+    Modality Performed Procedure Step Statuses
+
+    Warning
+      | ``0x0001`` Requested optional attributes are not supported
 
     Parameters
     ----------
@@ -2967,21 +3069,22 @@ def doc_handle_n_get(event):
         valid N-GET status value for the applicable Service Class as either
         an ``int`` or a ``Dataset`` object containing (at a minimum) a
         (0000,0900) *Status* element. If returning a Dataset object then
-        it may also contain optional elements related to the Status (as in
+        it may also contain optional elements related to the *Status* (as in
         DICOM Standard Part 7, Annex C).
     dataset : pydicom.dataset.Dataset or None
         If the status category is 'Success' or 'Warning' then a dataset
-        containing elements matching the request's Attribute List
+        containing elements matching the request's *Attribute List*
         conformant to the specifications in the corresponding Service
         Class.
 
-        If the status is not 'Successs' or 'Warning' then None.
+        If the status is not 'Successs' or 'Warning' then ``None``.
 
     See Also
     --------
     :py:meth:`send_n_get()<pynetdicom.association.Association.send_n_get>`
     :py:class:`N_GET<pynetdicom.dimse_primitives.N_GET>`
     :py:class:`DisplaySystemManagementServiceClass<pynetdicom.service_class_n.DisplaySystemManagementServiceClass>`
+    :py:class:`ModalityPerformedProcedureStepServiceClass<pynetdicom.service_class_n.ModalityPerformedProcedureStepServiceClass>`
 
     References
     ----------
@@ -3003,7 +3106,8 @@ def doc_handle_set(event):
     User implementation of this event handler is required if one or more
     services that use N-SET are to be supported. If a handler is
     not implemented and bound to ``evt.EVT_N_SET`` then the N-SET request
-    will be responded to using a  *Status* value of FIXME.
+    will be responded to using a  *Status* value of ``0x0110`` - Processing
+    Failure.
 
     **Event**
 
@@ -3011,7 +3115,28 @@ def doc_handle_set(event):
 
     **Supported Service Classes**
 
+    * *Modality Performed Procedure Step*
+
     **Status**
+
+    Success
+      | ``0x0000`` - Success
+
+    Failure
+      | ``0x0105`` - No such attribute
+      | ``0x0106`` - Invalid attribute value
+      | ``0x0110`` - Processing failure
+      | ``0x0112`` - SOP Instance not recognised
+      | ``0x0116`` - Attribute value out of range
+      | ``0x0117`` - Invalid object instance
+      | ``0x0118`` - No such SOP Class
+      | ``0x0119`` - Class-Instance conflict
+      | ``0x0121`` - Missing attribute value
+      | ``0x0124`` - Refused: not authorised
+      | ``0x0210`` - Duplicate invocation
+      | ``0x0211`` - Unrecognised operation
+      | ``0x0212`` - Mistyped argument
+      | ``0x0213`` - Resource limitation
 
     Parameters
     ----------
@@ -3051,11 +3176,11 @@ def doc_handle_set(event):
         DICOM Standard Part 7, Annex C).
     dataset : pydicom.dataset.Dataset or None
         If the status category is 'Success' or 'Warning' then a dataset
-        containing elements of the response's Attribute List
+        containing elements of the response's *Attribute List*
         conformant to the specifications in the corresponding Service
         Class.
 
-        If the status is not 'Successs' or 'Warning' then None.
+        If the status is not 'Successs' or 'Warning' then ``None``.
 
     Raises
     ------

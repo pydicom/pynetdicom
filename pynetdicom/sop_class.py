@@ -358,10 +358,10 @@ _MEDIA_STORAGE_CLASSES = {
 }
 
 _UNIFIED_PROCEDURE_STEP_CLASSES = {
-    'UnitedProcedureStepPush' : '1.2.840.10008.5.1.4.34.6.1',
-    'UnitedProcedureStepWatch' : '1.2.840.10008.5.1.4.34.6.2',
-    'UnitedProcedureStepPull' : '1.2.840.10008.5.1.4.34.6.3',
-    'UnitedProcedureStepEvent' : '1.2.840.10008.5.1.4.34.6.4',
+    'UnifiedProcedureStepPush' : '1.2.840.10008.5.1.4.34.6.1',
+    'UnifiedProcedureStepWatch' : '1.2.840.10008.5.1.4.34.6.2',
+    'UnifiedProcedureStepPull' : '1.2.840.10008.5.1.4.34.6.3',
+    'UnifiedProcedureStepEvent' : '1.2.840.10008.5.1.4.34.6.4',
 }
 
 _RT_MACHINE_VERIFICATION_CLASSES = {

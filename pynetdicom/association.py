@@ -2456,14 +2456,14 @@ class Association(threading.Thread):
             The dataset that will be sent as the *Event Information* parameter
             in the N-EVENT-REPORT request.
         event_type : int
-            The value to be sent in the request's (0000,10002) *Event Type ID*
-            element.
+            The value to be sent for the request's (0000,1002) *Event Type ID*
+            parameter.
         class_uid : pydicom.uid.UID
-            The UID to be sent in the request's (0000,0003) *Affected SOP
-            Class UID* element.
+            The UID to be sent for the request's (0000,0003) *Affected SOP
+            Class UID* parameter.
         instance_uid : pydicom.uid.UID
-            The UID to be sent in the request's (0000,1001) *Affected SOP
-            Instance UID* element.
+            The UID to be sent for the request's (0000,1000) *Affected SOP
+            Instance UID* parameter.
         msg_id : int, optional
             The DIMSE *Message ID*, must be between 0 and 65535, inclusive,
             (default 1).
@@ -2500,7 +2500,7 @@ class Association(threading.Thread):
 
         event_reply : pydicom.dataset.Dataset or None
             If the status is 'Success' then a ``Dataset`` containing the
-            optional reply to the event report.
+            reply to the event report request.
 
         See Also
         --------

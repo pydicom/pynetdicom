@@ -2087,54 +2087,6 @@ class ApplicationEntity(object):
 
 
     # High-level DIMSE-N callbacks - user should implement these as required
-    def on_n_action(self, dataset, context, info):
-        """Callback for when a N-ACTION is received.
-
-        References
-        ----------
-        DICOM Standard Part 4, Annexes H, J, P, S, CC and DD
-        """
-        raise NotImplementedError(
-            "User must implement the AE.on_n_action function prior to "
-            "calling AE.start_server()"
-        )
-
-    def on_n_create(self, dataset, context, info):
-        """Callback for when a N-CREATE is received.
-
-        References
-        ----------
-        DICOM Standard Part 4, Annexes F, H, R, S, CC and DD
-        """
-        raise NotImplementedError(
-            "User must implement the AE.on_n_create function prior to "
-            "calling AE.start_server()"
-        )
-
-    def on_n_delete(self, context, info):
-        """Callback for when a N-DELETE is received.
-
-        References
-        ----------
-        DICOM Standard Part 4, Annexes H and DD
-        """
-        raise NotImplementedError(
-            "User must implement the AE.on_n_delete function prior to "
-            "calling AE.start_server()"
-        )
-
-    def on_n_event_report(self, dataset, context, info):
-        """Callback for when a N-EVENT-REPORT is received.
-
-        References
-        ----------
-        DICOM Standard Part 4, Annexes F, H, J, CC and DD
-        """
-        raise NotImplementedError(
-            "User must implement the AE.on_n_event_report function prior to "
-            "calling AE.start_server()"
-        )
-
     def on_n_get(self, attr, context, info):
         """Callback for when an N-GET request is received.
 
@@ -2210,18 +2162,6 @@ class ApplicationEntity(object):
         """
         raise NotImplementedError(
             "User must implement the AE.on_n_get function prior to "
-            "calling AE.start_server()"
-        )
-
-    def on_n_set(self, dataset, context, info):
-        """Callback for when a N-SET is received.
-
-        References
-        ----------
-        DICOM Standard Part 4, Annexes F, H, CC and DD
-        """
-        raise NotImplementedError(
-            "User must implement the AE.on_n_set function prior to "
             "calling AE.start_server()"
         )
 
