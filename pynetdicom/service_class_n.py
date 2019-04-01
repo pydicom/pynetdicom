@@ -174,13 +174,13 @@ class ModalityPerformedProcedureStepServiceClass(ServiceClass):
         if isinstance(req, N_CREATE):
             # Modality Performed Procedure Step
             self._create_scp(req, context)
-        elif isinstance(req, N_EVENT_REPORT_RQ):
+        elif isinstance(req, N_EVENT_REPORT):
             # Modality Performed Procedure Step Notification
             self._event_report_scp(req, context)
         elif isinstance(req, N_GET):
             # Modality Performed Procedure Step Retrieve
             self._get_scp(req, context)
-        elif isinstance(req, N_SET_RQ):
+        elif isinstance(req, N_SET):
             # Modality Performed Procedure Step
             self._set_scp(req, context)
         else:
@@ -278,7 +278,7 @@ class ModalityPerformedProcedureStepServiceClass(ServiceClass):
 
         # Check Status validity
         # Validate rsp_status and set rsp.Status accordingly
-        rsp = self.validate_status(rsp_status, rsp)
+        rsp = self.validate_status(status, rsp)
 
         if rsp.Status in self.statuses:
             status = self.statuses[rsp.Status]
@@ -393,7 +393,7 @@ class ModalityPerformedProcedureStepServiceClass(ServiceClass):
 
         # Check Status validity
         # Validate rsp_status and set rsp.Status accordingly
-        rsp = self.validate_status(rsp_status, rsp)
+        rsp = self.validate_status(status, rsp)
 
         if rsp.Status in self.statuses:
             status = self.statuses[rsp.Status]
@@ -505,7 +505,7 @@ class ModalityPerformedProcedureStepServiceClass(ServiceClass):
             return
 
         # Validate rsp_status and set rsp.Status accordingly
-        rsp = self.validate_status(rsp_status, rsp)
+        rsp = self.validate_status(status, rsp)
 
         # Success or Warning, must return AttributeList dataset
         if code_to_category(rsp.Status) in [STATUS_SUCCESS, STATUS_WARNING]:
@@ -634,146 +634,6 @@ class ModalityPerformedProcedureStepServiceClass(ServiceClass):
                 rsp.Status = 0x0110
             else:
                 rsp.AttributeList = bytestream
-
-        # Send response primitive
-        self.dimse.send_msg(rsp, context.context_id)
-
-
-class StorageCommitmentServiceClass(ServiceClass):
-    """Implementation of the Storage Commitment Service Class."""
-    statuses = None
-
-    def SCP(self, req, context, info):
-        """
-
-        Parameters
-        ----------
-        req : dimse_primitives.N_EVENT_REPORT or N_ACTION
-            The N-EVENT-REPORT or N-ACTION request primitive
-            sent by the peer.
-        context : presentation.PresentationContext
-            The presentation context that the SCP is operating under.
-        info : dict
-            A dict containing details about the association.
-        """
-        pass
-
-    def _action_scp(self, req, context):
-        """
-
-        """
-
-    def _event_report_scp(self, req, context):
-        """Implementation of the N-EVENT-REPORT SCP.
-
-        Parameters
-        ----------
-        req : dimse_primitives.N_EVENT_REPORT
-            The N-EVENT-REPORT request primitive sent by the peer.
-        context : presentation.PresentationContext
-            The presentation context that the SCP is operating under.
-
-        Notes
-        -----
-        **N-EVENT-REPORT Request**
-
-        *Parameters*
-
-        | (M) Message ID
-        | (M) Affected SOP Class UID
-        | (M) Affected SOP Instance UID
-        | (M) Event Type ID
-        | (U) Event Information
-
-        **N-EVENT-REPORT Response**
-
-        *Parameters*
-
-        | (M) Message ID Being Responded To
-        | (U=) Affected SOP Class UID
-        | (U=) Affected SOP Instance UID
-        | (C=) Event Type ID
-        | (C) Event Reply
-        | (M) Status
-
-        *Status*
-
-        Success
-          | ``0x0000`` Success
-
-        Failure
-          | ``0x0110`` Processing failure
-          | ``0x0112`` No such SOP Instance
-          | ``0x0113`` No such event type
-          | ``0x0114`` No such argument
-          | ``0x0115`` Invalid argument value
-          | ``0x0117`` Invalid object Instance
-          | ``0x0118`` No such SOP Class
-          | ``0x0119`` Class-Instance conflict
-          | ``0x0210`` Duplicate invocation
-          | ``0x0211`` Unrecognised operation
-          | ``0x0212`` Mistyped argument
-          | ``0x0213`` Resource limitation
-
-        References
-        ----------
-
-        * DICOM Standard, Part 4, `Annex F <http://dicom.nema.org/medical/dicom/current/output/html/part04.html#chapter_F>`_
-        * DICOM Standard, Part 7, Sections
-          `10.1.1 <http://dicom.nema.org/medical/dicom/current/output/html/part07.html#sect_10.1.1>`_,
-          `10.3.1 <http://dicom.nema.org/medical/dicom/current/output/html/part07.html#sect_10.3.1>`_
-          and `Annex C <http://dicom.nema.org/medical/dicom/current/output/html/part07.html#chapter_C>`_
-        """
-        # Build N-EVENT-REPLY response primitive
-        rsp = N_EVENT_REPORT()
-        rsp.MessageIDBeingRespondedTo = req.MessageID
-        rsp.AffectedSOPClassUID = req.AffectedSOPClassUID
-        rsp.AffectedSOPInstanceUID = req.AffectedSOPInstanceUID
-        rsp.EventTypeID = req.EventTypeID
-
-        try:
-            status, ds = evt.trigger(
-                self.assoc,
-                evt.EVT_N_EVENT_REPORT,
-                {'request' : req, 'context' : context.as_tuple}
-            )
-        except Exception as exc:
-            LOGGER.error(
-                "Exception in the handler bound to 'evt.EVT_N_EVENT_REPORT"
-            )
-            LOGGER.exception(exc)
-            rsp.Status = 0x0110
-            self.dimse.send_msg(rsp, context.context_id)
-            return
-
-        # Check Status validity
-        # Validate rsp_status and set rsp.Status accordingly
-        rsp = self.validate_status(rsp_status, rsp)
-
-        if rsp.Status in self.statuses:
-            status = self.statuses[rsp.Status]
-        else:
-            # Unknown status
-            self.dimse.send_msg(rsp, context.context_id)
-            return
-
-        if status[0] in (STATUS_SUCCESS, STATUS_WARNING) and ds:
-            # If success or warning then there may be a dataset
-            transfer_syntax = context.transfer_syntax[0]
-            bytestream = encode(ds,
-                                transfer_syntax.is_implicit_VR,
-                                transfer_syntax.is_little_endian)
-            bytestream = BytesIO(bytestream)
-
-            if bytestream.getvalue() == b'':
-                LOGGER.error(
-                    "Failed to encode the N-EVENT-REPORT response's 'Event "
-                    "Reply' dataset"
-                )
-                # Processing failure
-                rsp.Status = 0x0110
-            else:
-                rsp.EventReply = bytestream
 
         # Send response primitive
         self.dimse.send_msg(rsp, context.context_id)

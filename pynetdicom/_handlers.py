@@ -1,6 +1,7 @@
 """Standard logging event handlers."""
 
 import logging
+import threading
 
 from pynetdicom.dimse_messages import *
 from pynetdicom.pdu import (

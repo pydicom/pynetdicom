@@ -2072,18 +2072,18 @@ class Association(threading.Thread):
         ----------
         dataset : pydicom.dataset.Dataset or None
             The dataset that will be sent as the *Action Information*
-            parameter in the N-ACTION request, or None if not required.
+            parameter in the N-ACTION request, or ``None`` if not required.
         action_type : int
-            The value of the request's (0000,1008) *Action Type ID* element.
+            The value of the request's (0000,1008) *Action Type ID* parameter.
         class_uid : pydicom.uid.UID
-            The UID to be sent in the request's (0000,0003) *Requested SOP
-            Class UID* element.
+            The UID to be sent for the request's (0000,0003) *Requested SOP
+            Class UID* parameter.
         instance_uid : pydicom.uid.UID
-            The UID to be sent in the request's (0000,1001) *Requested SOP
-            Instance UID* element.
+            The UID to be sent for the request's (0000,1001) *Requested SOP
+            Instance UID* parameter.
         msg_id : int, optional
-            The DIMSE *Message ID*, must be between 0 and 65535, inclusive,
-            (default 1).
+            The request's *Message ID* parameter value, must be between 0 and
+            65535, inclusive, (default 1).
 
         Returns
         -------
@@ -2155,6 +2155,7 @@ class Association(threading.Thread):
         #   (M) Requested SOP Class UID
         #   (M) Requested SOP Instance UID
         #   (M) Action Type ID
+        #   (U) Action Information
         req = N_ACTION()
         req.MessageID = msg_id
         req.RequestedSOPClassUID = class_uid
@@ -2170,8 +2171,9 @@ class Association(threading.Thread):
         if bytestream is not None:
             req.ActionInformation = BytesIO(bytestream)
         else:
-            LOGGER.error("Failed to encode the supplied Dataset")
-            raise ValueError('Failed to encode the supplied Dataset')
+            msg = "Failed to encode the supplied 'Action Information' dataset"
+            LOGGER.error(msg)
+            raise ValueError(msg)
 
         # Send N-ACTION request to the peer via DIMSE and wait for the response
         LOGGER.info('Sending Action Request: MsgID {}'.format(msg_id))
@@ -2196,37 +2198,41 @@ class Association(threading.Thread):
             if category not in [STATUS_WARNING, STATUS_SUCCESS]:
                 return status, action_reply
 
-            # Attempt to decode the response's dataset
-            # pylint: disable=broad-except
-            try:
-                action_reply = decode(rsp.ActionReply,
-                                      transfer_syntax.is_implicit_VR,
-                                      transfer_syntax.is_little_endian)
-            except Exception as ex:
-                LOGGER.error("Failed to decode the received dataset")
-                LOGGER.exception(ex)
-                # Failure: Processing failure
-                status.Status = 0x0110
+            bytestream = rsp.ActionReply
+            if bytestream and bytestream.getvalue() != b'':
+                # Attempt to decode the response's dataset
+                # pylint: disable=broad-except
+                try:
+                    action_reply = decode(bytestream,
+                                          transfer_syntax.is_implicit_VR,
+                                          transfer_syntax.is_little_endian)
+                except Exception as ex:
+                    LOGGER.error(
+                        "Unable to decode the received 'Action Reply' dataset"
+                    )
+                    LOGGER.exception(ex)
+                    # Failure: Processing failure
+                    status.Status = 0x0110
 
         return status, action_reply
 
-    def send_n_create(self, dataset, class_uid, instance_uid, msg_id=1):
+    def send_n_create(self, dataset, class_uid, instance_uid=None, msg_id=1):
         """Send an N-CREATE request message to the peer AE.
 
         Parameters
         ----------
         dataset : pydicom.dataset.Dataset or None
             The dataset that will be sent as the *Attribute List*
-            parameter in the N-CREATE request, or None if not required.
+            parameter in the N-CREATE request, or ``None`` if not required.
         class_uid : pydicom.uid.UID
-            The UID to be sent in the request's (0000,0002) *Affected SOP
-            Class UID* element.
+            The UID to be sent for the request's (0000,0002) *Affected SOP
+            Class UID* parameter.
         instance_uid : pydicom.uid.UID or None
-            The UID to be sent in the request's (0000,1000) *Affected SOP
-            Instance UID* element or None if not required.
+            The UID to be sent for the request's (0000,1000) *Affected SOP
+            Instance UID* parameter or ``None`` if not required (default).
         msg_id : int, optional
-            The DIMSE *Message ID*, must be between 0 and 65535, inclusive,
-            (default 1).
+            The request's *Message ID* parameter value, must be between 0 and
+            65535, inclusive, (default 1).
 
         Returns
         -------
@@ -2296,7 +2302,8 @@ class Association(threading.Thread):
         # Build N-CREATE request primitive
         #   (M) Message ID
         #   (M) Affected SOP Class UID
-        #   (M) Affected SOP Instance UID
+        #   (U) Affected SOP Instance UID
+        #   (U) Attribute List
         req = N_CREATE()
         req.MessageID = msg_id
         req.AffectedSOPClassUID = class_uid
@@ -2311,8 +2318,9 @@ class Association(threading.Thread):
         if bytestream is not None:
             req.AttributeList = BytesIO(bytestream)
         else:
-            LOGGER.error("Failed to encode the supplied Dataset")
-            raise ValueError('Failed to encode the supplied Dataset')
+            msg = "Failed to encode the supplied 'Attribute List' dataset"
+            LOGGER.error(msg)
+            raise ValueError(msg)
 
         # Send N-CREATE request to the peer via DIMSE and wait for the response
         LOGGER.info('Sending Create Request: MsgID {}'.format(msg_id))
@@ -2337,17 +2345,22 @@ class Association(threading.Thread):
             if category not in [STATUS_WARNING, STATUS_SUCCESS]:
                 return status, attribute_list
 
-            # Attempt to decode the response's dataset
-            # pylint: disable=broad-except
-            try:
-                attribute_list = decode(rsp.AttributeList,
-                                        transfer_syntax.is_implicit_VR,
-                                        transfer_syntax.is_little_endian)
-            except Exception as ex:
-                LOGGER.error("Failed to decode the received dataset")
-                LOGGER.exception(ex)
-                # Failure: Processing failure
-                status.Status = 0x0110
+            bytestream = rsp.AttributeList
+            if bytestream and bytestream.getvalue() != b'':
+                # Attempt to decode the response's dataset
+                # pylint: disable=broad-except
+                try:
+                    attribute_list = decode(bytestream,
+                                            transfer_syntax.is_implicit_VR,
+                                            transfer_syntax.is_little_endian)
+                except Exception as ex:
+                    LOGGER.error(
+                        "Unable to decode the received 'Attribute List' "
+                        "dataset"
+                    )
+                    LOGGER.exception(ex)
+                    # Failure: Processing failure
+                    status.Status = 0x0110
 
         return status, attribute_list
 
@@ -2357,14 +2370,14 @@ class Association(threading.Thread):
         Parameters
         ----------
         class_uid : pydicom.uid.UID
-            The UID to be sent in the request's (0000,0003) *Requested SOP
-            Class UID* element.
+            The UID to be sent for the request's (0000,0003) *Requested SOP
+            Class UID* parameter.
         instance_uid : pydicom.uid.UID
-            The UID to be sent in the request's (0000,1001) *Requested SOP
-            Instance UID* element.
+            The UID to be sent for the request's (0000,1001) *Requested SOP
+            Instance UID* parameter.
         msg_id : int, optional
-            The DIMSE *Message ID*, must be between 0 and 65535, inclusive,
-            (default 1).
+            The request's *Message ID* parameter value, must be between 0 and
+            65535, inclusive, (default 1).
 
         Returns
         -------
@@ -2465,8 +2478,8 @@ class Association(threading.Thread):
             The UID to be sent for the request's (0000,1000) *Affected SOP
             Instance UID* parameter.
         msg_id : int, optional
-            The DIMSE *Message ID*, must be between 0 and 65535, inclusive,
-            (default 1).
+            The request's *Message ID* parameter value, must be between 0 and
+            65535, inclusive, (default 1).
 
         Returns
         -------
@@ -2500,7 +2513,7 @@ class Association(threading.Thread):
 
         event_reply : pydicom.dataset.Dataset or None
             If the status is 'Success' then a ``Dataset`` containing the
-            reply to the event report request.
+            *Event Reply* to the event report request.
 
         See Also
         --------
@@ -2554,8 +2567,9 @@ class Association(threading.Thread):
         if bytestream is not None:
             req.EventInformation = BytesIO(bytestream)
         else:
-            LOGGER.error("Failed to encode the supplied dataset")
-            raise ValueError('Failed to encode the supplied dataset')
+            msg = "Failed to encode the supplied 'Event Information dataset'"
+            LOGGER.error(msg)
+            raise ValueError(msg)
 
         # Send N-EVENT-REPORT request to the peer via DIMSE and wait for
         # the response primitive
@@ -2581,17 +2595,21 @@ class Association(threading.Thread):
             if category not in [STATUS_WARNING, STATUS_SUCCESS]:
                 return status, event_reply
 
-            # Attempt to decode the response's dataset
-            # pylint: disable=broad-except
-            try:
-                event_reply = decode(rsp.EventReply,
-                                     transfer_syntax.is_implicit_VR,
-                                     transfer_syntax.is_little_endian)
-            except Exception as ex:
-                LOGGER.error("Failed to decode the received dataset")
-                LOGGER.exception(ex)
-                # Failure: Processing failure
-                status.Status = 0x0110
+            bytestream = rsp.EventReply
+            if bytestream and bytestream.getvalue() != b'':
+                # Attempt to decode the response's dataset
+                # pylint: disable=broad-except
+                try:
+                    event_reply = decode(bytestream,
+                                         transfer_syntax.is_implicit_VR,
+                                         transfer_syntax.is_little_endian)
+                except Exception as ex:
+                    LOGGER.error(
+                        "Unable to decode the received 'Event Reply' dataset"
+                    )
+                    LOGGER.exception(ex)
+                    # Failure: Processing failure
+                    status.Status = 0x0110
 
         return status, event_reply
 
@@ -2601,19 +2619,19 @@ class Association(threading.Thread):
         Parameters
         ----------
         identifier_list : list of pydicom.tag.Tag
-            A list of DICOM Data Element tags to be sent in the request's
-            (0000,1005) *Attribute Identifier List* element. Should either be
-            a list of pydicom Tag objects or a list of values that is
-            acceptable for creating pydicom Tag objects.
+            A list of DICOM Data Element tags to be sent for the request's
+            (0000,1005) *Attribute Identifier List* parameter. Should either be
+            a list of pydicom ``Tag`` objects or a list of values that is
+            acceptable for creating pydicom ``Tag`` objects.
         class_uid : pydicom.uid.UID
-            The UID to be sent in the request's (0000,0003) *Requested SOP
-            Class UID* element.
+            The UID to be sent for the request's (0000,0003) *Requested SOP
+            Class UID* parameter.
         instance_uid : pydicom.uid.UID
-            The UID to be sent in the request's (0000,1001) *Requested SOP
-            Instance UID* element.
+            The UID to be sent for the request's (0000,1001) *Requested SOP
+            Instance UID* parameter.
         msg_id : int, optional
-            The DIMSE *Message ID*, must be between 0 and 65535, inclusive,
-            (default 1).
+            The request's *Message ID* parameter value, must be between 0 and
+            65535, inclusive, (default 1).
 
         Returns
         -------
@@ -2649,7 +2667,7 @@ class Association(threading.Thread):
         attribute_list : pydicom.dataset.Dataset or None
             If the status is 'Success' then a ``Dataset`` containing attributes
             corresponding to those supplied in the *Attribute Identifier List*,
-            otherwise returns None.
+            otherwise returns ``None``.
 
         See Also
         --------
@@ -2717,17 +2735,22 @@ class Association(threading.Thread):
             if category not in [STATUS_WARNING, STATUS_SUCCESS]:
                 return status, attribute_list
 
-            # Attempt to decode the response's dataset
-            # pylint: disable=broad-except
-            try:
-                attribute_list = decode(rsp.AttributeList,
-                                        transfer_syntax.is_implicit_VR,
-                                        transfer_syntax.is_little_endian)
-            except Exception as ex:
-                LOGGER.error("Failed to decode the received dataset")
-                LOGGER.exception(ex)
-                # Failure: Processing failure
-                status.Status = 0x0110
+            bytestream = rsp.AttributeList
+            if bytestream and bytestream.getvalue != b'':
+                # Attempt to decode the response's dataset
+                # pylint: disable=broad-except
+                try:
+                    attribute_list = decode(bytestream,
+                                            transfer_syntax.is_implicit_VR,
+                                            transfer_syntax.is_little_endian)
+                except Exception as ex:
+                    LOGGER.error(
+                        "Unable to decode the received 'Attribute List' "
+                        "dataset"
+                    )
+                    LOGGER.exception(ex)
+                    # Failure: Processing failure
+                    status.Status = 0x0110
 
         return status, attribute_list
 
@@ -2740,14 +2763,14 @@ class Association(threading.Thread):
             The dataset that will be sent as the *Modification List* parameter
             in the N-SET request.
         class_uid : pydicom.uid.UID
-            The UID to be sent in the request's (0000,0003) *Requested SOP
-            Class UID* element.
+            The UID to be sent for the request's (0000,0003) *Requested SOP
+            Class UID* parameter.
         instance_uid : pydicom.uid.UID
-            The UID to be sent in the request's (0000,1001) *Requested SOP
-            Instance UID* element.
+            The UID to be sent for the request's (0000,1001) *Requested SOP
+            Instance UID* parameter.
         msg_id : int, optional
-            The DIMSE *Message ID*, must be between 0 and 65535, inclusive,
-            (default 1).
+            The request's *Message ID* parameter value, must be between 0 and
+            65535, inclusive, (default 1).
 
         Returns
         -------
@@ -2787,7 +2810,7 @@ class Association(threading.Thread):
         attribute_list : pydicom.dataset.Dataset or None
             If the status is 'Success' then a ``Dataset`` containing attributes
             corresponding to those supplied in the *Attribute List*,
-            otherwise returns None.
+            otherwise returns ``None``.
 
         See Also
         --------
@@ -2837,8 +2860,9 @@ class Association(threading.Thread):
         if bytestream is not None:
             req.ModificationList = BytesIO(bytestream)
         else:
-            LOGGER.error("Failed to encode the supplied Dataset")
-            raise ValueError('Failed to encode the supplied Dataset')
+            msg = "Failed to encode the supplied 'Modification List' dataset"
+            LOGGER.error(msg)
+            raise ValueError(msg)
 
         # Send N-SET request to the peer via DIMSE and wait for the response
         LOGGER.info('Sending Set Request: MsgID {}'.format(msg_id))
@@ -2863,17 +2887,22 @@ class Association(threading.Thread):
             if category not in [STATUS_WARNING, STATUS_SUCCESS]:
                 return status, attribute_list
 
-            # Attempt to decode the response's dataset
-            # pylint: disable=broad-except
-            try:
-                attribute_list = decode(rsp.AttributeList,
-                                        transfer_syntax.is_implicit_VR,
-                                        transfer_syntax.is_little_endian)
-            except Exception as ex:
-                LOGGER.error("Failed to decode the received dataset")
-                LOGGER.exception(ex)
-                # Failure: Processing failure
-                status.Status = 0x0110
+            bytestream = rsp.AttributeList
+            if bytestream and bytestream.getvalue() != b'':
+                # Attempt to decode the response's dataset
+                # pylint: disable=broad-except
+                try:
+                    attribute_list = decode(rsp.AttributeList,
+                                            transfer_syntax.is_implicit_VR,
+                                            transfer_syntax.is_little_endian)
+                except Exception as ex:
+                    LOGGER.error(
+                        "Unable to decode the received 'Attribute List' "
+                        "dataset"
+                    )
+                    LOGGER.exception(ex)
+                    # Failure: Processing failure
+                    status.Status = 0x0110
 
         return status, attribute_list
 
