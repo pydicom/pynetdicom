@@ -2567,7 +2567,7 @@ class Association(threading.Thread):
         if bytestream is not None:
             req.EventInformation = BytesIO(bytestream)
         else:
-            msg = "Failed to encode the supplied 'Event Information dataset'"
+            msg = "Unable to encode the supplied 'Event Information' dataset"
             LOGGER.error(msg)
             raise ValueError(msg)
 
@@ -2603,6 +2603,7 @@ class Association(threading.Thread):
                     event_reply = decode(bytestream,
                                          transfer_syntax.is_implicit_VR,
                                          transfer_syntax.is_little_endian)
+                    print(event_reply)
                 except Exception as ex:
                     LOGGER.error(
                         "Unable to decode the received 'Event Reply' dataset"

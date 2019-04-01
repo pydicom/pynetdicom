@@ -1186,7 +1186,7 @@ class N_EVENT_REPORT(DIMSEPrimitive):
     # Optional status element keywords other than 'Status'
     STATUS_OPTIONAL_KEYWORDS = (
         'AffectedSOPClassUID', 'AffectedSOPInstanceUID', 'EventTypeID',
-        'EventInformation', 'ErrorComment', 'ErrorID'
+        'ErrorComment', 'ErrorID' # EventInformation
     )
     REQUEST_KEYWORDS = (
         'MessageID', 'AffectedSOPClassUID', 'EventTypeID',

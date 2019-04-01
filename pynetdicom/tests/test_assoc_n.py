@@ -15,7 +15,7 @@ from pydicom import read_file
 from pydicom.dataset import Dataset
 from pydicom.uid import UID, ImplicitVRLittleEndian, ExplicitVRLittleEndian
 
-from pynetdicom import AE, VerificationPresentationContexts
+from pynetdicom import AE, VerificationPresentationContexts, debug_logger, evt
 from pynetdicom.association import Association
 from pynetdicom.dimse_primitives import (
     N_EVENT_REPORT, N_GET, N_SET, N_ACTION, N_CREATE, N_DELETE
@@ -29,6 +29,7 @@ from pynetdicom.sop_class import (
     DisplaySystemSOPClass,
     VerificationSOPClass,
     PrintJobSOPClass,
+    ModalityPerformedProcedureStepNotificationSOPClass,
 )
 from pynetdicom.service_class import ServiceClass
 from .dummy_c_scp import DummyBaseSCP, DummyVerificationSCP
@@ -37,9 +38,8 @@ from .dummy_n_scp import (
     DummyCreateSCP, DummyActionSCP
 )
 
-LOGGER = logging.getLogger('pynetdicom')
-LOGGER.setLevel(logging.CRITICAL)
-#LOGGER.setLevel(logging.DEBUG)
+
+#debug_logger()
 
 
 class TestAssociationSendNEventReport(object):
@@ -49,6 +49,7 @@ class TestAssociationSendNEventReport(object):
         rsp.MessageIDBeingRespondedTo = req.MessageID
         rsp.AffectedSOPClassUID = req.AffectedSOPClassUID
         rsp.AffectedSOPInstanceUID = req.AffectedSOPInstanceUID
+
 
         status, ds = self.scp.ae.on_n_event_report(req.EventInformation,
                                                    context.as_tuple,
@@ -76,8 +77,13 @@ class TestAssociationSendNEventReport(object):
         self.scp = None
         self._orig_scp = ServiceClass.SCP
 
+        self.ae = None
+
     def teardown(self):
         """Clear any active threads"""
+        if self.ae:
+            self.ae.shutdown()
+
         if self.scp:
             self.scp.abort()
 
@@ -141,7 +147,7 @@ class TestAssociationSendNEventReport(object):
         assert assoc.is_established
         ds = Dataset()
         ds.PerimeterValue = b'\x00\x01'
-        msg = r"Failed to encode the supplied dataset"
+        msg = r"Unable to encode the supplied 'Event Information' dataset"
         with pytest.raises(ValueError, match=msg):
             assoc.send_n_event_report(ds, 1, PrintJobSOPClass, '1.2.3')
         assoc.release()
@@ -308,19 +314,68 @@ class TestAssociationSendNEventReport(object):
         self.scp.stop()
 
     def test_rsp_bad_dataset(self):
-        """Test bad dataset received from peer"""
-        self.scp = DummyEventReportSCP()
-        ServiceClass.SCP = self._scp
-        self.scp.start()
-        ae = AE()
-        ae.add_requested_context(PrintJobSOPClass)
+        """Test handler returns bad dataset"""
+        def handle(event):
+            def test(): pass
+            return 0x0000, test
+
+        self.ae = ae = AE()
+        ae.add_requested_context(ModalityPerformedProcedureStepNotificationSOPClass)
+        ae.add_supported_context(ModalityPerformedProcedureStepNotificationSOPClass)
+
+        handlers = [(evt.EVT_N_EVENT_REPORT, handle)]
+        scp = ae.start_server(('', 11112), evt_handlers=handlers, block=False)
+
         ae.acse_timeout = 5
         ae.dimse_timeout = 5
         assoc = ae.associate('localhost', 11112)
 
+        assert assoc.is_established
+
+        # Event Information
+        ds = Dataset()
+        ds.PatientName = 'Test^test'
+        status, ds = assoc.send_n_event_report(
+            ds,
+            1,
+            ModalityPerformedProcedureStepNotificationSOPClass,
+            '1.2.840.10008.5.1.1.40.1'
+        )
+
+        assert status.Status == 0x0110
+        assert ds is None
+
+        assoc.release()
+        scp.shutdown()
+
+    def test_decode_failure(self):
+        """Test being unable to decode received dataset"""
+        def handle(event):
+            def test(): pass
+            return 0x0000, test
+
+        self.ae = ae = AE()
+        ae.add_requested_context(
+            ModalityPerformedProcedureStepNotificationSOPClass,
+            ExplicitVRLittleEndian
+        )
+        ae.add_supported_context(ModalityPerformedProcedureStepNotificationSOPClass)
+
+        handlers = [(evt.EVT_N_EVENT_REPORT, handle)]
+        scp = ae.start_server(('', 11112), evt_handlers=handlers, block=False)
+
+        ae.acse_timeout = 5
+        ae.dimse_timeout = 5
+        assoc = ae.associate('localhost', 11112)
+
+        class DummyReply():
+            def getvalue(self):
+                def test(): pass
+                return test
+
         class DummyMessage():
             is_valid_response = True
-            EventReply = None
+            EventReply = DummyReply()
             Status = 0x0000
             STATUS_OPTIONAL_KEYWORDS = []
 
@@ -329,25 +384,27 @@ class TestAssociationSendNEventReport(object):
                 return
 
             def get_msg(*args, **kwargs):
-                status = Dataset()
-                status.Status = 0x0000
-
                 rsp = DummyMessage()
-
-                return None, rsp
+                return 1, rsp
 
         assoc.dimse = DummyDIMSE()
         assert assoc.is_established
+
+        # Event Information
         ds = Dataset()
         ds.PatientName = 'Test^test'
         status, ds = assoc.send_n_event_report(
-            ds, 1, PrintJobSOPClass, '1.2.840.10008.5.1.1.40.1'
+            ds,
+            1,
+            ModalityPerformedProcedureStepNotificationSOPClass,
+            '1.2.840.10008.5.1.1.40.1'
         )
 
         assert status.Status == 0x0110
         assert ds is None
 
-        self.scp.stop()
+        assoc.release()
+        scp.shutdown()
 
     def test_extra_status(self):
         """Test extra status elements are available."""
@@ -593,9 +650,14 @@ class TestAssociationSendNGet(object):
         ae.dimse_timeout = 5
         assoc = ae.associate('localhost', 11112)
 
+        class DummyReply():
+            def getvalue(self):
+                def test(): pass
+                return test
+
         class DummyMessage():
             is_valid_response = True
-            AttributeList = None
+            AttributeList = DummyReply()
             Status = 0x0000
             STATUS_OPTIONAL_KEYWORDS = []
 
@@ -604,12 +666,8 @@ class TestAssociationSendNGet(object):
                 return
 
             def get_msg(*args, **kwargs):
-                status = Dataset()
-                status.Status = 0x0000
-
                 rsp = DummyMessage()
-
-                return None, rsp
+                return 1, rsp
 
         assoc.dimse = DummyDIMSE()
         assert assoc.is_established
@@ -745,7 +803,7 @@ class TestAssociationSendNSet(object):
         assert assoc.is_established
         mod_list = Dataset()
         mod_list.PerimeterValue = b'\x00\x01'
-        msg = r"Failed to encode the supplied Dataset"
+        msg = r"Failed to encode the supplied 'Modification List' dataset"
         with pytest.raises(ValueError, match=msg):
             assoc.send_n_set(mod_list, PrintJobSOPClass, '1.2.3')
         assoc.release()
@@ -922,9 +980,14 @@ class TestAssociationSendNSet(object):
         ae.dimse_timeout = 5
         assoc = ae.associate('localhost', 11112)
 
+        class DummyReply():
+            def getvalue(self):
+                def test(): pass
+                return test
+
         class DummyMessage():
             is_valid_response = True
-            ModificationList = None
+            AttributeList = DummyReply()
             Status = 0x0000
             STATUS_OPTIONAL_KEYWORDS = []
 
@@ -933,12 +996,8 @@ class TestAssociationSendNSet(object):
                 return
 
             def get_msg(*args, **kwargs):
-                status = Dataset()
-                status.Status = 0x0000
-
                 rsp = DummyMessage()
-
-                return None, rsp
+                return 1, rsp
 
         assoc.dimse = DummyDIMSE()
         assert assoc.is_established
@@ -1082,7 +1141,7 @@ class TestAssociationSendNAction(object):
         assert assoc.is_established
         ds = Dataset()
         ds.PerimeterValue = b'\x00\x01'
-        msg = r"Failed to encode the supplied Dataset"
+        msg = r"Failed to encode the supplied 'Action Information' dataset"
         with pytest.raises(ValueError, match=msg):
             assoc.send_n_action(ds, 1, PrintJobSOPClass, '1.2.3')
         assoc.release()
@@ -1259,9 +1318,14 @@ class TestAssociationSendNAction(object):
         ae.dimse_timeout = 5
         assoc = ae.associate('localhost', 11112)
 
+        class DummyReply():
+            def getvalue(self):
+                def test(): pass
+                return test
+
         class DummyMessage():
             is_valid_response = True
-            ModificationList = None
+            ActionReply = DummyReply()
             Status = 0x0000
             STATUS_OPTIONAL_KEYWORDS = []
 
@@ -1270,12 +1334,8 @@ class TestAssociationSendNAction(object):
                 return
 
             def get_msg(*args, **kwargs):
-                status = Dataset()
-                status.Status = 0x0000
-
                 rsp = DummyMessage()
-
-                return None, rsp
+                return 1, rsp
 
         assoc.dimse = DummyDIMSE()
         assert assoc.is_established
@@ -1417,7 +1477,7 @@ class TestAssociationSendNCreate(object):
         assert assoc.is_established
         ds = Dataset()
         ds.PerimeterValue = b'\x00\x01'
-        msg = r"Failed to encode the supplied Dataset"
+        msg = r"Failed to encode the supplied 'Attribute List' dataset"
         with pytest.raises(ValueError, match=msg):
             assoc.send_n_create(ds, PrintJobSOPClass, '1.2.3')
         assoc.release()
@@ -1594,9 +1654,14 @@ class TestAssociationSendNCreate(object):
         ae.dimse_timeout = 5
         assoc = ae.associate('localhost', 11112)
 
+        class DummyReply():
+            def getvalue(self):
+                def test(): pass
+                return test
+
         class DummyMessage():
             is_valid_response = True
-            ModificationList = None
+            AttributeList = DummyReply()
             Status = 0x0000
             STATUS_OPTIONAL_KEYWORDS = []
 
@@ -1605,12 +1670,8 @@ class TestAssociationSendNCreate(object):
                 return
 
             def get_msg(*args, **kwargs):
-                status = Dataset()
-                status.Status = 0x0000
-
                 rsp = DummyMessage()
-
-                return None, rsp
+                return 1, rsp
 
         assoc.dimse = DummyDIMSE()
         assert assoc.is_established

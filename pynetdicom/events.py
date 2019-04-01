@@ -240,28 +240,11 @@ class Event(object):
         AttributeError
             If the corresponding event is not an N-ACTION request.
         """
-        try:
-            # If no change in encoded data then return stored decode
-            if self._hash == hash(self.request.ActionInformation):
-                return self._decoded
-
-            t_syntax = self.context.transfer_syntax
-            ds = decode(self.request.ActionInformation,
-                        t_syntax.is_implicit_VR,
-                        t_syntax.is_little_endian)
-
-            # Store the decoded dataset in case its accessed again
-            self._hash = hash(self.request.ActionInformation)
-            self._decoded = ds
-
-            return ds
-        except AttributeError:
-            pass
-
-        raise AttributeError(
+        msg = (
             "The corresponding event is not an N-ACTION request and has no "
             "'Action Information' parameter"
         )
+        return self._get_dataset("ActionInformation", msg)
 
     @property
     def attribute_list(self):
@@ -284,28 +267,11 @@ class Event(object):
         AttributeError
             If the corresponding event is not an N-CREATE request.
         """
-        try:
-            # If no change in encoded data then return stored decode
-            if self._hash == hash(self.request.AttributeList):
-                return self._decoded
-
-            t_syntax = self.context.transfer_syntax
-            ds = decode(self.request.AttributeList,
-                        t_syntax.is_implicit_VR,
-                        t_syntax.is_little_endian)
-
-            # Store the decoded dataset in case its accessed again
-            self._hash = hash(self.request.AttributeList)
-            self._decoded = ds
-
-            return ds
-        except AttributeError:
-            pass
-
-        raise AttributeError(
+        msg = (
             "The corresponding event is not an N-CREATE request and has no "
             "'Attribute List' parameter"
         )
+        return self._get_dataset("AttributeList", msg)
 
     @property
     def dataset(self):
@@ -327,28 +293,11 @@ class Event(object):
         AttributeError
             If the corresponding event is not a C-STORE request.
         """
-        try:
-            # If no change in encoded data then return stored decode
-            if self._hash == hash(self.request.DataSet):
-                return self._decoded
-
-            t_syntax = self.context.transfer_syntax
-            ds = decode(self.request.DataSet,
-                        t_syntax.is_implicit_VR,
-                        t_syntax.is_little_endian)
-
-            # Store the decoded dataset in case its accessed again
-            self._hash = hash(self.request.DataSet)
-            self._decoded = ds
-
-            return ds
-        except AttributeError:
-            pass
-
-        raise AttributeError(
+        msg = (
             "The corresponding event is not a C-STORE request and has no "
             "'Data Set' parameter"
         )
+        return self._get_dataset("DataSet", msg)
 
     @property
     def description(self):
@@ -376,28 +325,11 @@ class Event(object):
         AttributeError
             If the corresponding event is not an N-EVENT-REPORT request.
         """
-        try:
-            # If no change in encoded data then return stored decode
-            if self._hash == hash(self.request.EventInformation):
-                return self._decoded
-
-            t_syntax = self.context.transfer_syntax
-            ds = decode(self.request.EventInformation,
-                        t_syntax.is_implicit_VR,
-                        t_syntax.is_little_endian)
-
-            # Store the decoded dataset in case its accessed again
-            self._hash = hash(self.request.EventInformation)
-            self._decoded = ds
-
-            return ds
-        except AttributeError:
-            pass
-
-        raise AttributeError(
+        msg = (
             "The corresponding event is not an N-EVENT-REPORT request and has "
             "no 'Event Information' parameter"
         )
+        return self._get_dataset("EventInformation", msg)
 
     @property
     def file_meta(self):
@@ -456,6 +388,58 @@ class Event(object):
 
         return meta
 
+    def _get_dataset(self, attr, exc_msg):
+        """Return DIMSE dataset-like parameter as a *pydicom* Dataset.
+
+        Parameters
+        ----------
+        attr : str
+            The name of the DIMSE primitive's dataset-like parameter, one of
+            'DataSet', 'Identifier', 'AttributeList', 'ModificationList',
+            'EventInformation', 'ActionInformation'.
+        exc_msg : str
+            The exception message to use if the request primitive has no
+            dataset-like parameter.
+
+        Returns
+        -------
+        pydicom.dataset.Dataset
+            The decoded dataset-like parameter.
+
+        Raises
+        ------
+        AttributeError
+            If the corresponding event is not due to one of the DIMSE requests
+            with a dataset-like parameter.
+        """
+        try:
+            bytestream = getattr(self.request, attr)
+            # Some dataset-like parameters are optional
+            if bytestream and bytestream.getvalue() != b'':
+                # Dataset-like parameter has been used
+                # If no change in encoded data then return stored decode
+                if self._hash == hash(bytestream):
+                    return self._decoded
+
+                t_syntax = self.context.transfer_syntax
+                ds = decode(bytestream,
+                            t_syntax.is_implicit_VR,
+                            t_syntax.is_little_endian)
+
+                # Store the decoded dataset in case its accessed again
+                self._decoded = ds
+            else:
+                # Dataset-like parameter hasn't been used
+                self._decoded = Dataset()
+
+            self._hash = hash(bytestream)
+            return self._decoded
+
+        except AttributeError:
+            pass
+
+        raise AttributeError(exc_msg)
+
     @property
     def identifier(self):
         """Return a C-FIND, C-GET or C-MOVE request's `Identifier` as a
@@ -478,28 +462,11 @@ class Event(object):
             If the corresponding event is not a C-FIND, C-GET or C-MOVE
             request.
         """
-        try:
-            # If no change in encoded data then return stored decode
-            if self._hash == hash(self.request.Identifier):
-                return self._decoded
-
-            t_syntax = self.context.transfer_syntax
-            ds = decode(self.request.Identifier,
-                        t_syntax.is_implicit_VR,
-                        t_syntax.is_little_endian)
-
-            # Store the decoded dataset in case its accessed again
-            self._hash = hash(self.request.Identifier)
-            self._decoded = ds
-
-            return ds
-        except AttributeError:
-            pass
-
-        raise AttributeError(
+        msg = (
             "The corresponding event is not a C-FIND, C-GET or C-MOVE request "
             "and has no 'Identifier' parameter"
         )
+        return self._get_dataset("Identifier", msg)
 
     @property
     def is_cancelled(self):
@@ -544,28 +511,11 @@ class Event(object):
         AttributeError
             If the corresponding event is not an N-SET request.
         """
-        try:
-            # If no change in encoded data then return stored decode
-            if self._hash == hash(self.request.ModificationList):
-                return self._decoded
-
-            t_syntax = self.context.transfer_syntax
-            ds = decode(self.request.ModificationList,
-                        t_syntax.is_implicit_VR,
-                        t_syntax.is_little_endian)
-
-            # Store the decoded dataset in case its accessed again
-            self._hash = hash(self.request.ModificationList)
-            self._decoded = ds
-
-            return ds
-        except AttributeError:
-            pass
-
-        raise AttributeError(
+        msg = (
             "The corresponding event is not an N-SET request and has no "
             "'Modification List' parameter"
         )
+        return self._get_dataset("ModificationList", msg)
 
     @property
     def name(self):
