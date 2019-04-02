@@ -908,7 +908,7 @@ class TestMPPSGet(object):
 
 
 class TestMPPSEventReport(object):
-    """Test the MPPS N-GET"""
+    """Test the MPPS N-EVENT-REPORT"""
     def setup(self):
         """Run prior to each test"""
         self.ae = None
@@ -1208,3 +1208,71 @@ class TestMPPSEventReport(object):
         assert assoc.is_released
 
         scp.shutdown()
+
+
+class TestMPPS(object):
+    """Functional tests for MPPS"""
+    def setup(self):
+        """Run prior to each test"""
+        self.ae = None
+
+        self.tag_list = [0x00100010, 0x00100020]
+
+        ds = Dataset()
+        ds.PatientName = 'Test'
+        ds.SOPClassUID = ModalityPerformedProcedureStepSOPClass
+        ds.SOPInstanceUID = '1.2.3.4'
+        self.ds = ds
+
+    def teardown(self):
+        """Clear any active threads"""
+        if self.ae:
+            self.ae.shutdown()
+
+    def test_unknown_msg(self):
+        """Test exception raised if not valid DIMSE primitive."""
+        pass
+
+    def test_functional_create(self):
+        """Test functionality with basic operation."""
+        managed_instances = {}
+
+        def handle_create(event):
+            return 0x0000, event.attribute_list
+
+    def test_functional_create_no_instance(self):
+        """Test functionality without Instance UID."""
+        pass
+
+    def test_functional_create_fail(self):
+        """Test receiving a failed status from handler."""
+        pass
+
+    def test_functional_set_success(self):
+        """Test setting."""
+        pass
+
+    def test_functional_set_fail(self):
+        """Test trying to set with no matching instance."""
+        pass
+
+    def test_functional_get_success(self):
+        """Test setting."""
+        pass
+
+    def test_functional_get_fail(self):
+        """Test trying to set with no matching instance."""
+        pass
+
+    def test_functional_report_success(self):
+        """Test setting."""
+        pass
+
+    def test_functional_report_fail(self):
+        """Test trying to set with no matching instance."""
+        pass
+
+
+
+    def test_functional_retrieve(self):
+        """

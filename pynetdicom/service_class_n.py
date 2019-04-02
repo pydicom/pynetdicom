@@ -184,9 +184,9 @@ class ModalityPerformedProcedureStepServiceClass(ServiceClass):
             # Modality Performed Procedure Step
             self._set_scp(req, context)
         else:
-            LOGGER.error(
-                "Invalid DIMSE primitive '{}' used with the Modality "
-                "Performed Procedure Step service class"
+            raise ValueError(
+                "Invalid DIMSE primitive '{}' used with Modality "
+                "Performed Procedure Step"
                 .format(req.__class__.__name__)
             )
 

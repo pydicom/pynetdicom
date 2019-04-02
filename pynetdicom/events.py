@@ -247,6 +247,28 @@ class Event(object):
         return self._get_dataset("ActionInformation", msg)
 
     @property
+    def attribute_identifiers(self):
+        """Return an N-GET request's `Attribute Identifier List` as a list of
+        *pydicom* Tags.
+
+        Returns
+        -------
+        list of pydicom.tag.Tag
+            The *Attribute Identifier List* tags, may be an empty list if no
+            *Attribute Identifier List* was included in the C-GET request.
+
+        Raises
+        ------
+        AttributeError
+            If the corresponding event is not an N-GET request.
+        """
+        attr_list = self.request.AttributeIdentifierList
+        if attr_list is None:
+            return []
+
+        return attr_list
+
+    @property
     def attribute_list(self):
         """Return an N-CREATE request's `Attribute List` as a *pydicom*
         Dataset.
@@ -338,11 +360,11 @@ class Event(object):
 
         Contains the following File Meta Information elements:
 
-        * (0002,0002) MediaStorageSOPClassUID, UI
-        * (0002,0003) MediaStorageSOPInstanceUID, UI
-        * (0002,0010) TransferSyntaxUID, UI
-        * (0002,0012) ImplementationClassUID, UI
-        * (0002,0013) ImplementationVersionName, SH
+        * (0002,0002) *Media Storage SOP Class UID*
+        * (0002,0003) *Media Storage SOP Instance UID*
+        * (0002,0010) *Transfer Syntax UID*
+        * (0002,0012) *Implementation Class UID*
+        * (0002,0013) *Implementation Version Name*
 
         Examples
         --------

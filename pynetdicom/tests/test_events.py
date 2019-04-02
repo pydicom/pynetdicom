@@ -11,6 +11,7 @@ import time
 import pytest
 
 from pydicom.dataset import Dataset
+from pydicom.tag import BaseTag
 from pydicom.uid import ImplicitVRLittleEndian
 
 from pynetdicom import (
@@ -24,7 +25,7 @@ from pynetdicom.events import (
     _n_event_report_handler, _n_get_handler, _n_set_handler
 )
 from pynetdicom.dimse_messages import (
-    N_ACTION, N_CREATE, N_EVENT_REPORT, N_SET
+    N_ACTION, N_CREATE, N_EVENT_REPORT, N_SET, N_GET, N_DELETE
 )
 from pynetdicom.sop_class import VerificationSOPClass
 
@@ -317,6 +318,33 @@ class TestEvent(object):
         # Test hash mismatch
         event._hash = None
         assert 'PatientID' not in event.event_information
+
+    def test_empty_attr_identifiers(self):
+        """Test with an empty attribute_identifiers."""
+        request = N_GET()
+        event = Event(
+            None,
+            evt.EVT_N_GET,
+            {'request' : request, 'context' : self.context.as_tuple}
+        )
+
+        assert event.attribute_identifiers == []
+
+    def test_attr_identifiers(self):
+        """Test with attribute_identifiers."""
+        request = N_GET()
+        request.AttributeIdentifierList = [0x00100010, 0x00100020]
+        event = Event(
+            None,
+            evt.EVT_N_GET,
+            {'request' : request, 'context' : self.context.as_tuple}
+        )
+
+        tags = event.attribute_identifiers
+        assert isinstance(tags[0], BaseTag)
+        assert tags[0] == 0x00100010
+        assert isinstance(tags[1], BaseTag)
+        assert tags[1] == 0x00100020
 
 
 # TODO: Should be able to remove in v1.4

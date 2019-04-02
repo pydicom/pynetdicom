@@ -30,6 +30,8 @@ from pynetdicom.sop_class import (
     VerificationSOPClass,
     PrintJobSOPClass,
     ModalityPerformedProcedureStepNotificationSOPClass,
+    ModalityPerformedProcedureStepRetrieveSOPClass,
+    ModalityPerformedProcedureStepSOPClass,
 )
 from pynetdicom.service_class import ServiceClass
 from .dummy_c_scp import DummyBaseSCP, DummyVerificationSCP
@@ -641,6 +643,39 @@ class TestAssociationSendNGet(object):
         self.scp.stop()
 
     def test_rsp_bad_dataset(self):
+        """Test handler returns bad dataset"""
+        def handle(event):
+            def test(): pass
+            return 0x0000, test
+
+        self.ae = ae = AE()
+        ae.add_requested_context(ModalityPerformedProcedureStepRetrieveSOPClass)
+        ae.add_supported_context(ModalityPerformedProcedureStepRetrieveSOPClass)
+
+        handlers = [(evt.EVT_N_GET, handle)]
+        scp = ae.start_server(('', 11112), evt_handlers=handlers, block=False)
+
+        ae.acse_timeout = 5
+        ae.dimse_timeout = 5
+        assoc = ae.associate('localhost', 11112)
+
+        assert assoc.is_established
+
+        # Event Information
+        attrs = [0x00100010, 0x00100020]
+        status, ds = assoc.send_n_get(
+            attrs,
+            ModalityPerformedProcedureStepRetrieveSOPClass,
+            '1.2.840.10008.5.1.1.40.1'
+        )
+
+        assert status.Status == 0x0110
+        assert ds is None
+
+        assoc.release()
+        scp.shutdown()
+
+    def test_decode_failure(self):
         """Test bad dataset received from peer"""
         self.scp = DummyGetSCP()
         self.scp.start()
@@ -970,6 +1005,40 @@ class TestAssociationSendNSet(object):
         self.scp.stop()
 
     def test_rsp_bad_dataset(self):
+        """Test handler returns bad dataset"""
+        def handle(event):
+            def test(): pass
+            return 0x0000, test
+
+        self.ae = ae = AE()
+        ae.add_requested_context(ModalityPerformedProcedureStepSOPClass)
+        ae.add_supported_context(ModalityPerformedProcedureStepSOPClass)
+
+        handlers = [(evt.EVT_N_SET, handle)]
+        scp = ae.start_server(('', 11112), evt_handlers=handlers, block=False)
+
+        ae.acse_timeout = 5
+        ae.dimse_timeout = 5
+        assoc = ae.associate('localhost', 11112)
+
+        assert assoc.is_established
+
+        # Event Information
+        ds = Dataset()
+        ds.PatientName = 'Test^test'
+        status, ds = assoc.send_n_set(
+            ds,
+            ModalityPerformedProcedureStepSOPClass,
+            '1.2.840.10008.5.1.1.40.1'
+        )
+
+        assert status.Status == 0x0110
+        assert ds is None
+
+        assoc.release()
+        scp.shutdown()
+
+    def test_decode_failure(self):
         """Test bad dataset received from peer"""
         self.scp = DummySetSCP()
         ServiceClass.SCP = self._scp
@@ -1644,6 +1713,40 @@ class TestAssociationSendNCreate(object):
         self.scp.stop()
 
     def test_rsp_bad_dataset(self):
+        """Test handler returns bad dataset"""
+        def handle(event):
+            def test(): pass
+            return 0x0000, test
+
+        self.ae = ae = AE()
+        ae.add_requested_context(ModalityPerformedProcedureStepSOPClass)
+        ae.add_supported_context(ModalityPerformedProcedureStepSOPClass)
+
+        handlers = [(evt.EVT_N_CREATE, handle)]
+        scp = ae.start_server(('', 11112), evt_handlers=handlers, block=False)
+
+        ae.acse_timeout = 5
+        ae.dimse_timeout = 5
+        assoc = ae.associate('localhost', 11112)
+
+        assert assoc.is_established
+
+        # Event Information
+        ds = Dataset()
+        ds.PatientName = 'Test^test'
+        status, ds = assoc.send_n_create(
+            ds,
+            ModalityPerformedProcedureStepSOPClass,
+            '1.2.840.10008.5.1.1.40.1'
+        )
+
+        assert status.Status == 0x0110
+        assert ds is None
+
+        assoc.release()
+        scp.shutdown()
+
+    def test_decode_failure(self):
         """Test bad dataset received from peer"""
         self.scp = DummyCreateSCP()
         ServiceClass.SCP = self._scp

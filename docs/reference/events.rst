@@ -23,7 +23,12 @@ Documentation for Intervention Event Handlers
    doc_handle_c_get
    doc_handle_move
    doc_handle_store
+   doc_handle_action
+   doc_handle_create
+   doc_handle_delete
+   doc_handle_event_report
    doc_handle_n_get
+   doc_handle_set
    doc_handle_async
    doc_handle_sop_common
    doc_handle_sop_extended

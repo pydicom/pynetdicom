@@ -1010,36 +1010,36 @@ class Association(threading.Thread):
         query_model : str, optional
             The Information Model to use, one of the following:
 
-            - ``P`` - *Patient Root Information Model - FIND*
-              1.2.840.10008.5.1.4.1.2.1.1 (default)
-            - ``S`` - *Study Root Information Model - FIND*
-              1.2.840.10008.5.1.4.1.2.2.1
-            - ``O`` - *Patient Study Only Information Model - FIND*
-              1.2.840.10008.5.1.4.1.2.3.1
-            - ``W`` - *Modality Worklist Information - FIND*
-              1.2.840.10008.5.1.4.31
-            - ``G`` - *General Relevant Patient Information Query*
-              1.2.840.10008.5.1.4.37.1
-            - ``B`` - *Breast Imaging Relevant Patient Information Query*
-              1.2.840.10008.5.1.4.37.2
-            - ``C`` - *Cardiac Relevant Patient Information Query*
-              1.2.840.10008.5.1.4.37.3
-            - ``PC`` - *Product Characteristics Query Information Model - FIND*
-              1.2.840.10008.5.1.4.41
-            - ``SA`` - *Substance Approval Query Information Model - FIND*
-              1.2.840.10008.5.1.4.42
-            - ``H`` - *Hanging Protocol Information Model - FIND*
-              1.2.840.10008.5.1.4.38.2
-            - ``D`` - *Defined Procedure Protocol Information Model - FIND*
-              1.2.840.10008.5.1.4.20.1
-            - ``CP`` - *Color Palette Information Model - FIND*
-              1.2.840.10008.5.1.4.39.2
-            - ``IG`` - *Generic Implant Template Information Model - FIND*
-              1.2.840.10008.5.1.4.43.2
-            - ``IA`` - *Implant Assembly Template Information Model - FIND*
-              1.2.840.10008.5.1.4.44.2
-            - ``IT`` - *Implant Template Group Information Model - FIND*
-              1.2.840.10008.5.1.4.44.2
+            - ``P`` - 1.2.840.10008.5.1.4.1.2.1.1  -
+              *Patient Root Information Model - FIND* (default)
+            - ``S`` - 1.2.840.10008.5.1.4.1.2.2.1 -
+              *Study Root Information Model - FIND*
+            - ``O`` - 1.2.840.10008.5.1.4.1.2.3.1 -
+              *Patient Study Only Information Model - FIND*
+            - ``W`` - 1.2.840.10008.5.1.4.31 -
+              *Modality Worklist Information - FIND*
+            - ``G`` - 1.2.840.10008.5.1.4.37.1 -
+              *General Relevant Patient Information Query*
+            - ``B`` - 1.2.840.10008.5.1.4.37.2 -
+              *Breast Imaging Relevant Patient Information Query*
+            - ``C`` - 1.2.840.10008.5.1.4.37.3 -
+              *Cardiac Relevant Patient Information Query*
+            - ``PC`` - 1.2.840.10008.5.1.4.41 -
+              *Product Characteristics Query Information Model - FIND*
+            - ``SA`` - 1.2.840.10008.5.1.4.42 -
+              *Substance Approval Query Information Model - FIND*
+            - ``H`` - 1.2.840.10008.5.1.4.38.2 -
+              *Hanging Protocol Information Model - FIND*
+            - ``D`` - 1.2.840.10008.5.1.4.20.1 -
+              *Defined Procedure Protocol Information Model - FIND*
+            - ``CP`` - 1.2.840.10008.5.1.4.39.2 -
+              *Color Palette Information Model - FIND*
+            - ``IG`` - 1.2.840.10008.5.1.4.43.2 -
+              *Generic Implant Template Information Model - FIND*
+            - ``IA`` - 1.2.840.10008.5.1.4.44.2 -
+              *Implant Assembly Template Information Model - FIND*
+            - ``IT`` - 1.2.840.10008.5.1.4.44.2 -
+              *Implant Template Group Information Model - FIND*
 
         Yields
         ------
@@ -1052,10 +1052,10 @@ class Association(threading.Thread):
             Part 7, Section 9.1.2.1.5 and Annex C).
 
             The status for the requested C-FIND operation should be one of the
-            following values, but as the returned value depends
+            following values, but as the value depends
             on the peer this can't be assumed:
 
-            General C-FIND (Part 7, Section 9.1.2.1.5 and Annex C)
+            *General C-FIND* (Part 7, Section 9.1.2.1.5 and Annex C)
 
             Cancel
               | ``0xFE00`` Matching terminated due to Cancel request
@@ -1067,11 +1067,11 @@ class Association(threading.Thread):
             Failure
               | ``0x0122`` SOP class not supported
 
-            Query/Retrieve Service, Basic Worklist Management Service,
+            *Query/Retrieve Service, Basic Worklist Management Service,
             Hanging Protocol Query/Retrieve Service, Defined Procedure Protocol
             Query/Retrieve Service, Substance Administration Query Service,
-            Color Palette Query/Retrieve Service and Implant Template
-            Query/Retrieve Service specific
+            Color Palette Query/Retrieve Service* and *Implant Template
+            Query/Retrieve Service* specific
             (DICOM Standard Part 4, Annexes C.4.1, K.4.1.1.4, U.4.1, HH,
             V.4.1.1.4, X and BB):
 
@@ -1088,7 +1088,7 @@ class Association(threading.Thread):
                 Optional Keys were not supported for existence and/or matching
                 for this Identifier)
 
-            Relevant Patient Information Query Service specific (DICOM
+            *Relevant Patient Information Query Service* specific (DICOM
             Standard Part 4, Annex Q.2.1.1.4):
 
             Failure
@@ -1104,10 +1104,11 @@ class Association(threading.Thread):
                 Required Keys
 
         identifier : pydicom.dataset.Dataset or None
-            If the status is 'Pending' then the C-FIND response's *Identifier*
-            ``Dataset``. If the status is not 'Pending' this will be ``None``.
-            The exact contents of the response *Identifier* are Service Class
-            specific (see the DICOM Standard, Part 4).
+            If the status category is 'Pending' then the C-FIND response's
+            *Identifier* ``Dataset``. If the status category is not 'Pending'
+            this will be ``None``. The exact contents of the response
+            *Identifier* are Service Class specific (see the DICOM Standard,
+            Part 4).
 
         Raises
         ------
@@ -1223,9 +1224,10 @@ class Association(threading.Thread):
 
         Yields ``(status, identifier)`` pairs.
 
-        The ``AE.on_c_store`` callback should be implemented prior
-        to calling ``send_c_get`` as the peer will return any matches via a
-        C-STORE sub-operation over the current association. In addition,
+        A :py:meth:`handler <pynetdicom._handlers.doc_handle_store>`
+        should be implemented and bound to ``evt.EVT_C_STORE``
+        prior to calling ``send_c_get`` as the peer will return any matches
+        via a C-STORE sub-operation over the current association. In addition,
         SCP/SCU Role Selection Negotiation must be supported by the
         Association.
 
@@ -1249,28 +1251,28 @@ class Association(threading.Thread):
         query_model : str, optional
             The Query/Retrieve Information Model to use, one of the following:
 
-            - ``P`` - *Patient Root Information Model - GET*
-              1.2.840.10008.5.1.4.1.2.1.3 (default)
-            - ``S`` - *Study Root Information Model - GET*
-              1.2.840.10008.5.1.4.1.2.2.3
-            - ``O`` - *Patient Study Only Information Model - GET*
-              1.2.840.10008.5.1.4.1.2.3.3
-            - ``C`` - *Composite Instance Root Retrieve - GET*
-              1.2.840.10008.5.1.4.1.2.4.3
-            - ``CB`` - *Composite Instance Retrieve Without Bulk Data - GET*
-              1.2.840.10008.5.1.4.1.2.5.3
-            - ``H`` - *Hanging Protocol Information Model - GET*
-              1.2.840.10008.5.1.4.38.4
-            - ``D`` - *Defined Procedure  Protocol Information Model - GET*
-              1.2.840.10008.5.1.4.20.3
-            - ``CP`` - *Palette Color Information Model - GET*
-              1.2.840.10008.5.1.4.39.4
-            - ``IG`` - *Generic Implant Template Information Model - GET*
-              1.2.840.10008.5.1.4.43.4
-            - ``IA`` - *Implant Assembly Template Information Model - GET*
-              1.2.840.10008.5.1.4.44.4
-            - ``IT`` - *Implant Template Group Information Model - GET*
-              1.2.840.10008.5.1.4.44.4
+            - ``P`` - 1.2.840.10008.5.1.4.1.2.1.3 -
+              *Patient Root Information Model - GET* (default)
+            - ``S`` - 1.2.840.10008.5.1.4.1.2.2.3 -
+              *Study Root Information Model - GET*
+            - ``O`` - 1.2.840.10008.5.1.4.1.2.3.3 -
+              *Patient Study Only Information Model - GET*
+            - ``C`` - 1.2.840.10008.5.1.4.1.2.4.3 -
+              *Composite Instance Root Retrieve - GET*
+            - ``CB`` - 1.2.840.10008.5.1.4.1.2.5.3 -
+              *Composite Instance Retrieve Without Bulk Data - GET*
+            - ``H`` - 1.2.840.10008.5.1.4.38.4 -
+              *Hanging Protocol Information Model - GET*
+            - ``D`` - 1.2.840.10008.5.1.4.20.3 -
+              *Defined Procedure  Protocol Information Model - GET*
+            - ``CP`` - 1.2.840.10008.5.1.4.39.4 -
+              *Palette Color Information Model - GET*
+            - ``IG`` - 1.2.840.10008.5.1.4.43.4 -
+              *Generic Implant Template Information Model - GET*
+            - ``IA`` - 1.2.840.10008.5.1.4.44.4 -
+              *Implant Assembly Template Information Model - GET*
+            - ``IT`` - 1.2.840.10008.5.1.4.44.4 -
+              *Implant Template Group Information Model - GET*
 
         Yields
         ------
@@ -1283,10 +1285,10 @@ class Association(threading.Thread):
             Section 9.1.2.1.5 and Annex C).
 
             The status for the requested C-GET operation should be one of the
-            following values, but as the returned value depends on the
-            peer this can't be assumed:
+            following values, but as the value depends on the peer this
+            can't be assumed:
 
-            General C-GET (DICOM Standard Part 7, Section 9.1.3 and Annex C)
+            *General C-GET* (DICOM Standard Part 7, Section 9.1.3 and Annex C)
 
             Success
               | ``0x0000`` Sub-operations complete: no failures or warnings
@@ -1298,11 +1300,11 @@ class Association(threading.Thread):
               | ``0x0211`` Unrecognised operation
               | ``0x0212`` Mistyped argument
 
-            Query/Retrieve Service, Hanging Protocol Query/Retrieve Service,
+            *Query/Retrieve Service, Hanging Protocol Query/Retrieve Service,
             Defined Procedure Protocol Query/Retrieve Service, Color Palette
-            Query/Retrieve Service and Implant Template Query/Retrieve Service
-            specific (DICOM Standard Part 4, Annexes C.4.3, Y.C.4.2.1.4,
-            Z.4.2.1.4, U.4.3, X, BB and HH):
+            Query/Retrieve Service* and *Implant Template Query/Retrieve
+            Service* specific (DICOM Standard Part 4, Annexes C.4.3,
+            Y.C.4.2.1.4, Z.4.2.1.4, U.4.3, X, BB and HH):
 
             Pending
               | ``0xFF00`` Sub-operations are continuing
@@ -1329,11 +1331,11 @@ class Association(threading.Thread):
                  warnings
 
         identifier : pydicom.dataset.Dataset or None
-            If the status is 'Pending' or 'Success' then yields ``None``. If
-            the status is 'Warning', 'Failure' or 'Cancel' then yields a
-            ``Dataset`` which should contain an (0008,0058) *Failed SOP
-            Instance UID List* element, however this is not guaranteed and may
-            instead return an empty ``Dataset``.
+            If the status category is 'Pending' or 'Success' then yields
+            ``None``. If the status category is 'Warning', 'Failure' or
+            'Cancel' then yields a ``Dataset`` which should contain an
+            (0008,0058) *Failed SOP Instance UID List* element, however this
+            is not guaranteed and may instead be an empty ``Dataset``.
 
         Raises
         ------
@@ -1457,13 +1459,15 @@ class Association(threading.Thread):
             requirements for the *Identifier* are Service Class specific (see
             the DICOM Standard, Part 4).
         move_aet : bytes
-            The AE title of the destination for the C-STORE sub-operations
-            performed by the peer.
+            The value of the *Move Destination* parameter for the C-MOVE
+            request, should be the AE title of the Storage SCP for the
+            C-STORE sub-operations performed by the peer.
         msg_id : int, optional
             The DIMSE *Message ID*, must be between 0 and 65535, inclusive,
             (default 1).
         priority : int, optional
-            The C-MOVE operation *Priority* (if supported by the peer), one of:
+            The value of the *Priority* parameter (if supported by the peer),
+            one of:
 
             - ``0`` - Medium
             - ``1`` - High
@@ -1472,26 +1476,26 @@ class Association(threading.Thread):
         query_model : str, optional
             The Query/Retrieve Information Model to use, one of the following:
 
-            - ``P`` - *Patient Root Information Model - MOVE*
-              1.2.840.10008.5.1.4.1.2.1.2 (default)
-            - ``S`` - *Study Root Information Model - MOVE*
-              1.2.840.10008.5.1.4.1.2.2.2
-            - ``O`` - *Patient Study Only Information Model - MOVE*
-              1.2.840.10008.5.1.4.1.2.3.2
-            - ``C`` - *Composite Instance Root Retrieve - MOVE*
-              1.2.840.10008.5.1.4.1.2.4.2
-            - ``H`` - *Hanging Protocol Information Model - MOVE*
-              1.2.840.10008.5.1.4.38.3
-            - ``D`` - *Defined Procedure Protocol Information Model - MOVE*
-              1.2.840.10008.5.1.4.20.2
-            - ``CP`` - *Color Palette Information Model - MOVE*
-              1.2.840.10008.5.1.4.39.3
-            - ``IG`` - *Generic Implant Template Information Model - MOVE*
-              1.2.840.10008.5.1.4.43.3
-            - ``IA`` - *Implant Assembly Template Information Model - MOVE*
-              1.2.840.10008.5.1.4.44.3
-            - ``IT`` - *Implant Template Group Information Model - MOVE*
-              1.2.840.10008.5.1.4.44.3
+            - ``P`` - 1.2.840.10008.5.1.4.1.2.1.2 -
+              *Patient Root Information Model - MOVE* (default)
+            - ``S`` - 1.2.840.10008.5.1.4.1.2.2.2 -
+              *Study Root Information Model - MOVE*
+            - ``O`` - 1.2.840.10008.5.1.4.1.2.3.2 -
+              *Patient Study Only Information Model - MOVE*
+            - ``C`` - 1.2.840.10008.5.1.4.1.2.4.2 -
+              *Composite Instance Root Retrieve - MOVE*
+            - ``H`` - 1.2.840.10008.5.1.4.38.3 -
+              *Hanging Protocol Information Model - MOVE*
+            - ``D`` - 1.2.840.10008.5.1.4.20.2 -
+              *Defined Procedure Protocol Information Model - MOVE*
+            - ``CP`` - 1.2.840.10008.5.1.4.39.3 -
+              *Color Palette Information Model - MOVE*
+            - ``IG`` - 1.2.840.10008.5.1.4.43.3 -
+              *Generic Implant Template Information Model - MOVE*
+            - ``IA`` - 1.2.840.10008.5.1.4.44.3 -
+              *Implant Assembly Template Information Model - MOVE*
+            - ``IT`` - 1.2.840.10008.5.1.4.44.3 -
+              *Implant Template Group Information Model - MOVE*
 
         Yields
         ------
@@ -1504,10 +1508,10 @@ class Association(threading.Thread):
             Section 9.1.4 and Annex C).
 
             The status for the requested C-MOVE operation should be one of the
-            following values, but as the returned value depends
+            following values, but as the value depends
             on the peer this can't be assumed:
 
-            General C-MOVE (DICOM Standard Part 7, 9.1.4.1.7 and Annex C)
+            *General C-MOVE* (DICOM Standard Part 7, 9.1.4.1.7 and Annex C)
 
             Cancel
               | ``0xFE00`` Sub-operations terminated due to Cancel indication
@@ -1518,10 +1522,10 @@ class Association(threading.Thread):
             Failure
               | ``0x0122`` SOP class not supported
 
-            Query/Retrieve Service, Hanging Protocol Query/Retrieve Service,
+            *Query/Retrieve Service, Hanging Protocol Query/Retrieve Service,
             Defined Procedure Protocol Query/Retrieve Service, Color Palette
-            Query/Retrieve Service and Implant Template Query/Retreive
-            Service
+            Query/Retrieve Service* and *Implant Template Query/Retreive
+            Service*
             specific (DICOM Standard Part 4, Annexes C, U, Y, X, BB and HH):
 
             Failure
@@ -1546,11 +1550,11 @@ class Association(threading.Thread):
               | ``0xB000`` Sub-operations complete: one or more failures
 
         identifier : pydicom.dataset.Dataset or None
-            If the status is 'Pending' or 'Success' then yields ``None``. If
-            the status is 'Warning', 'Failure' or 'Cancel' then yields a
-            ``Dataset`` which should contain an (0008,0058) *Failed SOP
-            Instance UID List* element, however this is not guaranteed and may
-            instead return an empty ``Dataset``.
+            If the status category is 'Pending' or 'Success' then yields
+            ``None``. If the status category is 'Warning', 'Failure' or
+            'Cancel' then yields a ``Dataset`` which should contain an
+            (0008,0058) *Failed SOP Instance UID List* element, however this
+            is not guaranteed and may instead be an empty ``Dataset``.
 
         See Also
         --------
@@ -1666,11 +1670,15 @@ class Association(threading.Thread):
             - ``1`` - High
             - ``2`` - Low (default)
         originator_aet : bytes, optional
-            The AE title of the peer that invoked the C-MOVE operation for
+            The value of the *Move Originator Application Entity Title*
+            parameter for the C-STORE request. This is the AE title of the
+            peer that invoked the C-MOVE operation for
             which this C-STORE sub-operation is being performed (default
             ``None``).
         originator_id : int, optional
-            The Message ID of the C-MOVE request primitive from which this
+            The value of the *Move Originator Message ID* parameter for the
+            C-STORE request. This is the original *Message ID* parameter value
+            for the C-MOVE request primitive for which the
             C-STORE sub-operation is being performed (default ``None``).
 
         Returns
@@ -1687,7 +1695,7 @@ class Association(threading.Thread):
             following, but as the value depends on the peer SCP this can't be
             assumed:
 
-            General C-STORE (DICOM Standard Part 7, 9.1.1.1.9 and Annex C):
+            *General C-STORE* (DICOM Standard Part 7, 9.1.1.1.9 and Annex C):
 
             Success
               | ``0x0000`` Success
@@ -1700,7 +1708,7 @@ class Association(threading.Thread):
               | ``0x0211`` Unrecognised operation
               | ``0x0212`` Mistyped argument
 
-            Storage Service and Non-Patient Object Storage Service specific
+            *Storage Service* and *Non-Patient Object Storage Service* specific
             (DICOM Standard Part 4, Annexes B.2.3 and GG):
 
             Failure
@@ -1713,7 +1721,7 @@ class Association(threading.Thread):
               | ``0xB006`` Element discarded
               | ``0xB007`` Data set does not match SOP class
 
-            Non-Patient Object Service Class specific (DICOM Standard Part 4,
+            *Non-Patient Object Service Class* specific (DICOM Standard Part 4,
             Annex GG.4.2)
 
             Failure
@@ -2095,7 +2103,7 @@ class Association(threading.Thread):
             optionally contain additional elements (see the DICOM Standard,
             Part 7, Section 9.1.2.1.5 and Annex C).
 
-            General N-ACTION (DICOM Standard Part 7, Section 10.1.4 and
+            *General N-ACTION* (DICOM Standard Part 7, Section 10.1.4 and
             Annex C)
 
             Success
@@ -2117,9 +2125,9 @@ class Association(threading.Thread):
               | ``0x0213`` Resource limitation
 
         action_reply : pydicom.dataset.Dataset or None
-            If the status is 'Success' then a ``Dataset`` containing attributes
-            corresponding to those supplied in the *Action Reply*,
-            otherwise returns None.
+            If the status category is 'Success' then a ``Dataset``
+            containing attributes corresponding to those supplied in the
+            *Action Reply*, otherwise returns ``None``.
 
         See Also
         --------
