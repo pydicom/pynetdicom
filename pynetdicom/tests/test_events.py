@@ -24,7 +24,7 @@ from pynetdicom.events import (
     _n_event_report_handler, _n_get_handler, _n_set_handler
 )
 from pynetdicom.dimse_messages import (
-    N_ACTION_RQ, N_CREATE_RQ, N_EVENT_REPORT_RQ, N_SET_RQ
+    N_ACTION, N_CREATE, N_EVENT_REPORT, N_SET
 )
 from pynetdicom.sop_class import VerificationSOPClass
 
@@ -201,7 +201,7 @@ class TestEvent(object):
 
     def test_action_information(self):
         """Test Event.action_information."""
-        request = N_ACTION_RQ()
+        request = N_ACTION()
         request.ActionInformation = self.bytestream
         event = Event(
             None,
@@ -225,7 +225,7 @@ class TestEvent(object):
 
     def test_attribute_list(self):
         """Test Event.attribute_list."""
-        request = N_CREATE_RQ()
+        request = N_CREATE()
         request.AttributeList = self.bytestream
         event = Event(
             None,
@@ -249,7 +249,7 @@ class TestEvent(object):
 
     def test_event_information(self):
         """Test Event.event_information."""
-        request = N_EVENT_REPORT_RQ()
+        request = N_EVENT_REPORT()
         request.EventInformation = self.bytestream
         event = Event(
             None,
@@ -273,7 +273,7 @@ class TestEvent(object):
 
     def test_modification_list(self):
         """Test Event.modification_list."""
-        request = N_SET_RQ()
+        request = N_SET()
         request.ModificationList = self.bytestream
         event = Event(
             None,
@@ -294,6 +294,29 @@ class TestEvent(object):
         # Test hash mismatch
         event._hash = None
         assert 'PatientID' not in event.modification_list
+
+    def test_empty_dataset(self):
+        """Test with an empty dataset-like."""
+        request = N_EVENT_REPORT()
+        event = Event(
+            None,
+            evt.EVT_N_CREATE,
+            {'request' : request, 'context' : self.context.as_tuple}
+        )
+
+        assert event._hash is None
+        assert event._decoded is None
+        ds = event.event_information
+        assert event._hash == hash(request.EventInformation)
+        assert ds == Dataset()
+
+        # Test in-place modification works OK
+        ds.PatientID = '1234567'
+        assert event.event_information.PatientID == '1234567'
+
+        # Test hash mismatch
+        event._hash = None
+        assert 'PatientID' not in event.event_information
 
 
 # TODO: Should be able to remove in v1.4

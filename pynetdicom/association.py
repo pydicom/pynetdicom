@@ -872,10 +872,10 @@ class Association(threading.Thread):
         Parameters
         ----------
         msg_id : int
-            The message ID of the C-GET/MOVE/FIND operation we want to cancel.
-            Must be between 0 and 65535, inclusive.
+            The *Message ID* of the C-GET/C-MOVE/C-FIND operation to be
+            cancelled. Must be between 0 and 65535, inclusive.
         context_id : int
-            The presentation context ID of the original C-GET/MOVE/FIND
+            The presentation context ID of the original C-GET/C-MOVE/C-FIND
             service request.
         """
         # Can't send a C-CANCEL without an Association
@@ -910,7 +910,7 @@ class Association(threading.Thread):
             returns an empty ``Dataset``. If a valid response was received from
             the peer then returns a ``Dataset`` containing at least a
             (0000,0900) *Status* element, and, depending on the returned
-            Status value, may optionally contain additional elements (see
+            *Status* value, may optionally contain additional elements (see
             DICOM Standard Part 7, Annex C).
 
             The DICOM Standard Part 7, Table 9.3-13 indicates that the Status

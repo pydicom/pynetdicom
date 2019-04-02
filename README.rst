@@ -295,10 +295,11 @@ number and the timestamp for the event.
 
         import logging
 
-        from pynetdicom import AE, evt, VerificationPresentationContexts
+        from pynetdicom import AE, evt, VerificationPresentationContexts, debug_logger
 
+        # Setup logging to use the StreamHandler at the debug level
+        debug_logger()
         LOGGER = logging.getLogger('pynetdicom')
-        LOGGER.setLevel(logging.DEBUG)
 
         ae = AE(ae_title=b'MY_ECHO_SCP')
         ae.supported_contexts = VerificationPresentationContexts

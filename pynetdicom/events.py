@@ -414,13 +414,13 @@ class Event(object):
         """
         try:
             bytestream = getattr(self.request, attr)
+            # If no change in encoded data then return stored decode
+            if self._hash == hash(bytestream):
+                return self._decoded
+
             # Some dataset-like parameters are optional
             if bytestream and bytestream.getvalue() != b'':
                 # Dataset-like parameter has been used
-                # If no change in encoded data then return stored decode
-                if self._hash == hash(bytestream):
-                    return self._decoded
-
                 t_syntax = self.context.transfer_syntax
                 ds = decode(bytestream,
                             t_syntax.is_implicit_VR,
