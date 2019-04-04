@@ -1231,48 +1231,451 @@ class TestMPPS(object):
 
     def test_unknown_msg(self):
         """Test exception raised if not valid DIMSE primitive."""
-        pass
+        self.ae = ae = AE()
+        ae.add_supported_context(ModalityPerformedProcedureStepSOPClass)
+        ae.add_requested_context(ModalityPerformedProcedureStepSOPClass)
+        scp = ae.start_server(('', 11112), block=False)
+
+        ae.acse_timeout = 5
+        ae.dimse_timeout = 5
+        assoc = ae.associate('localhost', 11112)
+        assert assoc.is_established
+        status, ds = assoc.send_n_action(
+            self.ds,
+            1,
+            ModalityPerformedProcedureStepSOPClass,
+            '1.2.3.4'
+        )
+        assert assoc.is_aborted
+
+        scp.shutdown()
 
     def test_functional_create(self):
         """Test functionality with basic operation."""
         managed_instances = {}
 
         def handle_create(event):
-            return 0x0000, event.attribute_list
+            ds = event.attribute_list
+            managed_instances[ds.SOPInstanceUID] = ds
+            return 0x0000, ds
+
+        def handle_set(event):
+            ds = event.modification_list
+            managed_instances[ds.SOPInstanceUID].update(ds)
+            return 0x0000, ds
+
+        handlers = [(evt.EVT_N_CREATE, handle_create),
+                    (evt.EVT_N_SET, handle_set)]
+
+        self.ae = ae = AE()
+        ae.add_supported_context(ModalityPerformedProcedureStepSOPClass)
+        ae.add_requested_context(ModalityPerformedProcedureStepSOPClass)
+        scp = ae.start_server(('', 11112), block=False, evt_handlers=handlers)
+
+        ae.acse_timeout = 5
+        ae.dimse_timeout = 5
+        assoc = ae.associate('localhost', 11112)
+        assert assoc.is_established
+        status, ds = assoc.send_n_create(
+            self.ds,
+            ModalityPerformedProcedureStepSOPClass,
+            '1.2.3.4'
+        )
+        assert status.Status == 0x0000
+        assert ds.PatientName == 'Test'
+        assoc.release()
+
+        assert '1.2.3.4' in managed_instances
+        mpps = managed_instances['1.2.3.4']
+        assert mpps.PatientName == 'Test'
+
+        scp.shutdown()
 
     def test_functional_create_no_instance(self):
         """Test functionality without Instance UID."""
-        pass
+        managed_instances = {}
+
+        def handle_create(event):
+            ds = event.attribute_list
+            ds.SOPInstanceUID = '1.2.3.4.5'
+            managed_instances[ds.SOPInstanceUID] = ds
+            return 0x0000, ds
+
+        def handle_set(event):
+            ds = event.modification_list
+            managed_instances[ds.SOPInstanceUID].update(ds)
+            return 0x0000, ds
+
+        handlers = [(evt.EVT_N_CREATE, handle_create),
+                    (evt.EVT_N_SET, handle_set)]
+
+        self.ae = ae = AE()
+        ae.add_supported_context(ModalityPerformedProcedureStepSOPClass)
+        ae.add_requested_context(ModalityPerformedProcedureStepSOPClass)
+        scp = ae.start_server(('', 11112), block=False, evt_handlers=handlers)
+
+        ae.acse_timeout = 5
+        ae.dimse_timeout = 5
+        assoc = ae.associate('localhost', 11112)
+        assert assoc.is_established
+        del self.ds.SOPInstanceUID
+        status, ds = assoc.send_n_create(
+            self.ds,
+            ModalityPerformedProcedureStepSOPClass,
+        )
+        assert status.Status == 0x0000
+        assert ds.PatientName == 'Test'
+        assert ds.SOPInstanceUID == '1.2.3.4.5'
+        assoc.release()
+
+        assert '1.2.3.4.5' in managed_instances
+        mpps = managed_instances['1.2.3.4.5']
+        assert mpps.PatientName == 'Test'
+
+        scp.shutdown()
 
     def test_functional_create_fail(self):
         """Test receiving a failed status from handler."""
-        pass
+        managed_instances = {}
+
+        def handle_create(event):
+            return 0x0110, None
+
+        def handle_set(event):
+            ds = event.modification_list
+            managed_instances[ds.SOPInstanceUID].update(ds)
+            return 0x0000, ds
+
+        handlers = [(evt.EVT_N_CREATE, handle_create),
+                    (evt.EVT_N_SET, handle_set)]
+
+        self.ae = ae = AE()
+        ae.add_supported_context(ModalityPerformedProcedureStepSOPClass)
+        ae.add_requested_context(ModalityPerformedProcedureStepSOPClass)
+        scp = ae.start_server(('', 11112), block=False, evt_handlers=handlers)
+
+        ae.acse_timeout = 5
+        ae.dimse_timeout = 5
+        assoc = ae.associate('localhost', 11112)
+        assert assoc.is_established
+        del self.ds.SOPInstanceUID
+        status, ds = assoc.send_n_create(
+            self.ds,
+            ModalityPerformedProcedureStepSOPClass,
+        )
+        assert status.Status == 0x0110
+        assert ds is None
+        assoc.release()
+
+        assert managed_instances == {}
+
+        scp.shutdown()
 
     def test_functional_set_success(self):
         """Test setting."""
-        pass
+        managed_instances = {}
+
+        def handle_create(event):
+            ds = event.attribute_list
+            ds.SOPInstanceUID = '1.2.3.4.5'
+            managed_instances[ds.SOPInstanceUID] = ds
+            return 0x0000, ds
+
+        def handle_set(event):
+            ds = event.modification_list
+            instance_uid = event.request.RequestedSOPInstanceUID
+            managed_instances[instance_uid].update(ds)
+            return 0x0000, managed_instances[instance_uid]
+
+        handlers = [(evt.EVT_N_CREATE, handle_create),
+                    (evt.EVT_N_SET, handle_set)]
+
+        self.ae = ae = AE()
+        ae.add_supported_context(ModalityPerformedProcedureStepSOPClass)
+        ae.add_requested_context(ModalityPerformedProcedureStepSOPClass)
+        scp = ae.start_server(('', 11112), block=False, evt_handlers=handlers)
+
+        ae.acse_timeout = 5
+        ae.dimse_timeout = 5
+        assoc = ae.associate('localhost', 11112)
+        assert assoc.is_established
+        del self.ds.SOPInstanceUID
+        status, ds = assoc.send_n_create(
+            self.ds,
+            ModalityPerformedProcedureStepSOPClass,
+        )
+        assert status.Status == 0x0000
+        assert ds.PatientName == 'Test'
+        assert ds.SOPInstanceUID == '1.2.3.4.5'
+        assoc.release()
+
+        assert '1.2.3.4.5' in managed_instances
+        mpps = managed_instances['1.2.3.4.5']
+        assert mpps.PatientName == 'Test'
+
+        assoc = ae.associate('localhost', 11112)
+        assert assoc.is_established
+        set_ds = Dataset()
+        set_ds.PatientName = 'Test^Test'
+        status, ds = assoc.send_n_set(
+            set_ds,
+            ModalityPerformedProcedureStepSOPClass,
+            '1.2.3.4.5'
+        )
+
+        assert status.Status == 0x0000
+        assert ds.PatientName == 'Test^Test'
+        assert ds.SOPInstanceUID == '1.2.3.4.5'
+        assoc.release()
+
+        assert '1.2.3.4.5' in managed_instances
+        mpps = managed_instances['1.2.3.4.5']
+        assert mpps.PatientName == 'Test^Test'
+
+        scp.shutdown()
 
     def test_functional_set_fail(self):
         """Test trying to set with no matching instance."""
-        pass
+        managed_instances = {}
+
+        def handle_create(event):
+            ds = event.attribute_list
+            ds.SOPInstanceUID = '1.2.3.4.5'
+            managed_instances[ds.SOPInstanceUID] = ds
+            return 0x0000, ds
+
+        def handle_set(event):
+            return 0x0110, None
+
+        handlers = [(evt.EVT_N_CREATE, handle_create),
+                    (evt.EVT_N_SET, handle_set)]
+
+        self.ae = ae = AE()
+        ae.add_supported_context(ModalityPerformedProcedureStepSOPClass)
+        ae.add_requested_context(ModalityPerformedProcedureStepSOPClass)
+        scp = ae.start_server(('', 11112), block=False, evt_handlers=handlers)
+
+        ae.acse_timeout = 5
+        ae.dimse_timeout = 5
+        assoc = ae.associate('localhost', 11112)
+        assert assoc.is_established
+        del self.ds.SOPInstanceUID
+        status, ds = assoc.send_n_create(
+            self.ds,
+            ModalityPerformedProcedureStepSOPClass,
+        )
+        assert status.Status == 0x0000
+        assert ds.PatientName == 'Test'
+        assert ds.SOPInstanceUID == '1.2.3.4.5'
+        assoc.release()
+
+        assert '1.2.3.4.5' in managed_instances
+        mpps = managed_instances['1.2.3.4.5']
+        assert mpps.PatientName == 'Test'
+
+        assoc = ae.associate('localhost', 11112)
+        assert assoc.is_established
+        set_ds = Dataset()
+        set_ds.PatientName = 'Test^Test'
+        status, ds = assoc.send_n_set(
+            set_ds,
+            ModalityPerformedProcedureStepSOPClass,
+            '1.2.3.4.5'
+        )
+
+        assert status.Status == 0x0110
+        assert ds is None
+        assoc.release()
+
+        assert '1.2.3.4.5' in managed_instances
+        mpps = managed_instances['1.2.3.4.5']
+        assert mpps.PatientName == 'Test'
+
+        scp.shutdown()
 
     def test_functional_get_success(self):
-        """Test setting."""
-        pass
+        """Test getting."""
+        managed_instances = {self.ds.SOPInstanceUID : self.ds}
+
+        def handle_get(event):
+            instance_uid = event.request.RequestedSOPInstanceUID
+            return 0x0000, managed_instances[instance_uid]
+
+        handlers = [(evt.EVT_N_GET, handle_get)]
+
+        self.ae = ae = AE()
+        ae.add_supported_context(ModalityPerformedProcedureStepRetrieveSOPClass)
+        ae.add_requested_context(ModalityPerformedProcedureStepRetrieveSOPClass)
+        scp = ae.start_server(('', 11112), block=False, evt_handlers=handlers)
+
+        ae.acse_timeout = 5
+        ae.dimse_timeout = 5
+        assoc = ae.associate('localhost', 11112)
+        assert assoc.is_established
+        status, ds = assoc.send_n_get(
+            [0x00100010, 0x00100020],
+            ModalityPerformedProcedureStepRetrieveSOPClass,
+            '1.2.3.4'
+        )
+        assert status.Status == 0x0000
+        assert ds.PatientName == 'Test'
+        assert ds.SOPInstanceUID == '1.2.3.4'
+        assoc.release()
+
+        scp.shutdown()
+
+    def test_functional_get_no_attr_list(self):
+        """Test getting without attribute information list."""
+        managed_instances = {self.ds.SOPInstanceUID : self.ds}
+
+        def handle_get(event):
+            instance_uid = event.request.RequestedSOPInstanceUID
+            return 0x0000, managed_instances[instance_uid]
+
+        handlers = [(evt.EVT_N_GET, handle_get)]
+
+        self.ae = ae = AE()
+        ae.add_supported_context(ModalityPerformedProcedureStepRetrieveSOPClass)
+        ae.add_requested_context(ModalityPerformedProcedureStepRetrieveSOPClass)
+        scp = ae.start_server(('', 11112), block=False, evt_handlers=handlers)
+
+        ae.acse_timeout = 5
+        ae.dimse_timeout = 5
+        assoc = ae.associate('localhost', 11112)
+        assert assoc.is_established
+        status, ds = assoc.send_n_get(
+            [],
+            ModalityPerformedProcedureStepRetrieveSOPClass,
+            '1.2.3.4'
+        )
+        assert status.Status == 0x0000
+        assert ds.PatientName == 'Test'
+        assert ds.SOPInstanceUID == '1.2.3.4'
+        assoc.release()
+
+        scp.shutdown()
 
     def test_functional_get_fail(self):
-        """Test trying to set with no matching instance."""
-        pass
+        """Test failing to get."""
+        managed_instances = {self.ds.SOPInstanceUID : self.ds}
+
+        def handle_get(event):
+            instance_uid = event.request.RequestedSOPInstanceUID
+            return 0x0110, managed_instances[instance_uid]
+
+        handlers = [(evt.EVT_N_GET, handle_get)]
+
+        self.ae = ae = AE()
+        ae.add_supported_context(ModalityPerformedProcedureStepRetrieveSOPClass)
+        ae.add_requested_context(ModalityPerformedProcedureStepRetrieveSOPClass)
+        scp = ae.start_server(('', 11112), block=False, evt_handlers=handlers)
+
+        ae.acse_timeout = 5
+        ae.dimse_timeout = 5
+        assoc = ae.associate('localhost', 11112)
+        assert assoc.is_established
+        status, ds = assoc.send_n_get(
+            [],
+            ModalityPerformedProcedureStepRetrieveSOPClass,
+            '1.2.3.4'
+        )
+        assert status.Status == 0x0110
+        assert ds is None
+        assoc.release()
+
+        scp.shutdown()
 
     def test_functional_report_success(self):
-        """Test setting."""
-        pass
+        """Test event report with Event Information."""
+        managed_instances = {self.ds.SOPInstanceUID : self.ds}
+
+        def handle_er(event):
+            instance_uid = event.request.AffectedSOPInstanceUID
+            return 0x0000, managed_instances[instance_uid]
+
+        handlers = [(evt.EVT_N_EVENT_REPORT, handle_er)]
+
+        self.ae = ae = AE()
+        ae.add_supported_context(ModalityPerformedProcedureStepNotificationSOPClass)
+        ae.add_requested_context(ModalityPerformedProcedureStepNotificationSOPClass)
+        scp = ae.start_server(('', 11112), block=False, evt_handlers=handlers)
+
+        ae.acse_timeout = 5
+        ae.dimse_timeout = 5
+        assoc = ae.associate('localhost', 11112)
+        assert assoc.is_established
+        status, ds = assoc.send_n_event_report(
+            self.ds,
+            1,
+            ModalityPerformedProcedureStepNotificationSOPClass,
+            '1.2.3.4'
+        )
+        assert status.Status == 0x0000
+        assert ds.PatientName == 'Test'
+        assert ds.SOPInstanceUID == '1.2.3.4'
+        assoc.release()
+
+        scp.shutdown()
+
+    def test_functional_report_no_event_info(self):
+        """Test event report without Event Information."""
+        managed_instances = {self.ds.SOPInstanceUID : self.ds}
+
+        def handle_er(event):
+            instance_uid = event.request.AffectedSOPInstanceUID
+            return 0x0000, managed_instances[instance_uid]
+
+        handlers = [(evt.EVT_N_EVENT_REPORT, handle_er)]
+
+        self.ae = ae = AE()
+        ae.add_supported_context(ModalityPerformedProcedureStepNotificationSOPClass)
+        ae.add_requested_context(ModalityPerformedProcedureStepNotificationSOPClass)
+        scp = ae.start_server(('', 11112), block=False, evt_handlers=handlers)
+
+        ae.acse_timeout = 5
+        ae.dimse_timeout = 5
+        assoc = ae.associate('localhost', 11112)
+        assert assoc.is_established
+        status, ds = assoc.send_n_event_report(
+            None,
+            1,
+            ModalityPerformedProcedureStepNotificationSOPClass,
+            '1.2.3.4'
+        )
+        assert status.Status == 0x0000
+        assert ds.PatientName == 'Test'
+        assert ds.SOPInstanceUID == '1.2.3.4'
+        assoc.release()
+
+        scp.shutdown()
 
     def test_functional_report_fail(self):
         """Test trying to set with no matching instance."""
-        pass
+        managed_instances = {self.ds.SOPInstanceUID : self.ds}
 
+        def handle_er(event):
+            instance_uid = event.request.AffectedSOPInstanceUID
+            return 0x0110, managed_instances[instance_uid]
 
+        handlers = [(evt.EVT_N_EVENT_REPORT, handle_er)]
 
-    def test_functional_retrieve(self):
-        """
+        self.ae = ae = AE()
+        ae.add_supported_context(ModalityPerformedProcedureStepNotificationSOPClass)
+        ae.add_requested_context(ModalityPerformedProcedureStepNotificationSOPClass)
+        scp = ae.start_server(('', 11112), block=False, evt_handlers=handlers)
+
+        ae.acse_timeout = 5
+        ae.dimse_timeout = 5
+        assoc = ae.associate('localhost', 11112)
+        assert assoc.is_established
+        status, ds = assoc.send_n_event_report(
+            None,
+            1,
+            ModalityPerformedProcedureStepNotificationSOPClass,
+            '1.2.3.4'
+        )
+        assert status.Status == 0x0110
+        assert ds is None
+        assoc.release()
+
+        scp.shutdown()

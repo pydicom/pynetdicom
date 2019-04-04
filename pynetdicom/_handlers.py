@@ -2819,7 +2819,7 @@ def doc_handle_create(event):
         containing elements of the response's *Attribute List* conformant to
         the specifications in the corresponding Service Class.
 
-        If the status is not 'Success' then None.
+        If the status is not 'Success' then ``None``.
 
     Raises
     ------
@@ -3402,10 +3402,10 @@ def doc_handle_userid(event):
     response : bytes or None
         If ``user_id_type`` is:
 
-        * 1 or 2, then return None
-        * 3 then return the Kerberos Server ticket as bytes
-        * 4 then return the SAML response as bytes
-        * 5 then return the JSON web token as bytes
+        * 1 or 2, then return ``None``
+        * 3 then return the Kerberos Server ticket as ``bytes``
+        * 4 then return the SAML response as ``bytes``
+        * 5 then return the JSON web token as ``bytes``
 
     References
     ----------

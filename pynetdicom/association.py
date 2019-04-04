@@ -602,6 +602,10 @@ class Association(threading.Thread):
                     )
                     self.abort()
                     return
+                except Exception as exc:
+                    LOGGER.exception(exc)
+                    self.abort()
+                    return
 
             # Check for release request
             if self.acse.is_release_requested(self):
@@ -2473,9 +2477,10 @@ class Association(threading.Thread):
 
         Parameters
         ----------
-        dataset : pydicom.dataset.Dataset
+        dataset : pydicom.dataset.Dataset or None
             The dataset that will be sent as the *Event Information* parameter
-            in the N-EVENT-REPORT request.
+            in the N-EVENT-REPORT request, if no *Event Information* parameter
+            is needed then ``None``.
         event_type : int
             The value to be sent for the request's (0000,1002) *Event Type ID*
             parameter.
@@ -2568,16 +2573,18 @@ class Association(threading.Thread):
         # Encode the `dataset` using the agreed transfer syntax
         #   Will return None if failed to encode
         transfer_syntax = context.transfer_syntax[0]
-        bytestream = encode(dataset,
-                            transfer_syntax.is_implicit_VR,
-                            transfer_syntax.is_little_endian)
+        # *Event Information* is optional
+        if dataset:
+            bytestream = encode(dataset,
+                                transfer_syntax.is_implicit_VR,
+                                transfer_syntax.is_little_endian)
 
-        if bytestream is not None:
-            req.EventInformation = BytesIO(bytestream)
-        else:
-            msg = "Unable to encode the supplied 'Event Information' dataset"
-            LOGGER.error(msg)
-            raise ValueError(msg)
+            if bytestream is not None:
+                req.EventInformation = BytesIO(bytestream)
+            else:
+                msg = "Unable to encode the supplied 'Event Information' dataset"
+                LOGGER.error(msg)
+                raise ValueError(msg)
 
         # Send N-EVENT-REPORT request to the peer via DIMSE and wait for
         # the response primitive
@@ -2611,7 +2618,6 @@ class Association(threading.Thread):
                     event_reply = decode(bytestream,
                                          transfer_syntax.is_implicit_VR,
                                          transfer_syntax.is_little_endian)
-                    print(event_reply)
                 except Exception as ex:
                     LOGGER.error(
                         "Unable to decode the received 'Event Reply' dataset"

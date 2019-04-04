@@ -151,6 +151,13 @@ class TestEvent(object):
         with pytest.raises(AttributeError, match=msg):
             event.modification_list
 
+        msg = (
+            r"The corresponding event is not an N-GET request and has no "
+            r"'Attribute Identifier List' parameter"
+        )
+        with pytest.raises(AttributeError, match=msg):
+            event.attribute_identifiers
+
     def test_is_cancelled_non(self):
         """Test Event.is_cancelled with wrong event type."""
         event = evt.Event(None, evt.EVT_DATA_RECV)

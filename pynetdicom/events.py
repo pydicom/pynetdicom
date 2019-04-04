@@ -262,11 +262,19 @@ class Event(object):
         AttributeError
             If the corresponding event is not an N-GET request.
         """
-        attr_list = self.request.AttributeIdentifierList
-        if attr_list is None:
-            return []
+        try:
+            attr_list = self.request.AttributeIdentifierList
+            if attr_list is None:
+                return []
 
-        return attr_list
+            return attr_list
+        except AttributeError:
+            pass
+
+        raise AttributeError(
+            "The corresponding event is not an N-GET request and has no "
+            "'Attribute Identifier List' parameter"
+        )
 
     @property
     def attribute_list(self):

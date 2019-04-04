@@ -1414,18 +1414,23 @@ class N_GET(DIMSEPrimitive):
             A list of pydicom Tags or any values acceptable for creating a new
             pydicom Tag object.
         """
-        if value:
-            if not isinstance(value, (list, MutableSequence)):
-                value = [value]
-            try:
-                self._attribute_identifier_list = [Tag(tag) for tag in value]
-            except (TypeError, ValueError):
-                raise ValueError(
-                    "Attribute Identifier List must be a list of pydicom Tags"
-                )
-        elif value is None:
+        if value is None:
             self._attribute_identifier_list = None
-        else:
+            return
+
+        # Singleton tags get put in a list
+        if not isinstance(value, (list, MutableSequence)):
+            value = [value]
+
+        # Empty list -> None
+        if not value:
+            self._attribute_identifier_list = None
+            return
+
+        try:
+            # Convert each item in list to pydicom Tag
+            self._attribute_identifier_list = [Tag(tag) for tag in value]
+        except (TypeError, ValueError):
             raise ValueError(
                 "Attribute Identifier List must be a list of pydicom Tags"
             )
