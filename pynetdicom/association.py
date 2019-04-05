@@ -2239,9 +2239,9 @@ class Association(threading.Thread):
         class_uid : pydicom.uid.UID
             The UID to be sent for the request's (0000,0002) *Affected SOP
             Class UID* parameter.
-        instance_uid : pydicom.uid.UID or None
+        instance_uid : pydicom.uid.UID, optional
             The UID to be sent for the request's (0000,1000) *Affected SOP
-            Instance UID* parameter or ``None`` if not required (default).
+            Instance UID* parameter.
         msg_id : int, optional
             The request's *Message ID* parameter value, must be between 0 and
             65535, inclusive, (default 1).
@@ -2278,9 +2278,9 @@ class Association(threading.Thread):
               | ``0x0213`` Resource limitation
 
         attribute_list : pydicom.dataset.Dataset or None
-            If the status is 'Success' then a ``Dataset`` containing attributes
-            corresponding to those supplied in the *Attribute List*,
-            otherwise returns None.
+            If the status category is 'Success' then a ``Dataset`` containing
+            attributes corresponding to those supplied in the *Attribute List*,
+            otherwise returns ``None``.
 
         See Also
         --------
@@ -2525,8 +2525,8 @@ class Association(threading.Thread):
               | ``0x0213`` Resource limitation
 
         event_reply : pydicom.dataset.Dataset or None
-            If the status is 'Success' then a ``Dataset`` containing the
-            *Event Reply* to the event report request.
+            If the status category is 'Success' then a ``Dataset`` containing
+            the *Event Reply* to the event report request.
 
         See Also
         --------
@@ -2680,9 +2680,9 @@ class Association(threading.Thread):
               | ``0x0213`` Resource limitation
 
         attribute_list : pydicom.dataset.Dataset or None
-            If the status is 'Success' then a ``Dataset`` containing attributes
-            corresponding to those supplied in the *Attribute Identifier List*,
-            otherwise returns ``None``.
+            If the status category is 'Success' then a ``Dataset`` containing
+            attributes corresponding to those supplied in the *Attribute
+            Identifier List*, otherwise returns ``None``.
 
         See Also
         --------
@@ -2823,8 +2823,8 @@ class Association(threading.Thread):
               | ``0x0213`` Resource limitation
 
         attribute_list : pydicom.dataset.Dataset or None
-            If the status is 'Success' then a ``Dataset`` containing attributes
-            corresponding to those supplied in the *Attribute List*,
+            If the status category is 'Success' then a ``Dataset`` containing
+            attributes corresponding to those supplied in the *Attribute List*,
             otherwise returns ``None``.
 
         See Also

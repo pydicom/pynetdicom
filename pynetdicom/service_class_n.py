@@ -470,6 +470,25 @@ class ModalityPerformedProcedureStepServiceClass(ServiceClass):
 
         A dataset containing the values of the requested attributes.
 
+        *Status*
+
+        Success
+          | ``0x0000`` - Success
+
+        Failure
+          | ``0x0107`` - SOP Class not supported
+          | ``0x0110`` - Processing failure
+          | ``0x0112`` - No such SOP Instance
+          | ``0x0117`` - Invalid object instance
+          | ``0x0118`` - No such SOP Class
+          | ``0x0119`` - Class-Instance conflict
+          | ``0x0122`` - SOP Class not supported
+          | ``0x0124`` - Refused: not authorised
+          | ``0x0210`` - Duplicate invocation
+          | ``0x0211`` - Unrecognised operation
+          | ``0x0212`` - Mistyped argument
+          | ``0x0213`` - Resource limitation
+
         References
         ----------
 
