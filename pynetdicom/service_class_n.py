@@ -3,9 +3,7 @@
 from io import BytesIO
 import logging
 
-from pydicom.uid import generate_uid
-
-from pynetdicom import evt, PYNETDICOM_UID_PREFIX
+from pynetdicom import evt
 from pynetdicom.dsutils import encode
 from pynetdicom.dimse_primitives import (
     N_ACTION, N_CREATE, N_DELETE, N_EVENT_REPORT, N_GET, N_SET

@@ -923,13 +923,13 @@ class Association(threading.Thread):
             values:
 
             Success
-              | ``0x0000`` Success
+              | ``0x0000`` - Success
 
             Failure
-              | ``0x0122`` SOP class not supported
-              | ``0x0210`` Duplicate invocation
-              | ``0x0211`` Unrecognised operation
-              | ``0x0212`` Mistyped argument
+              | ``0x0122`` - SOP class not supported
+              | ``0x0210`` - Duplicate invocation
+              | ``0x0211`` - Unrecognised operation
+              | ``0x0212`` - Mistyped argument
 
             As the actual status depends on the peer SCP, it shouldn't be
             assumed that it will be one of these.
@@ -1062,14 +1062,14 @@ class Association(threading.Thread):
             *General C-FIND* (Part 7, Section 9.1.2.1.5 and Annex C)
 
             Cancel
-              | ``0xFE00`` Matching terminated due to Cancel request
+              | ``0xFE00`` - Matching terminated due to Cancel request
 
             Success
-              | ``0x0000`` Matching is complete: no final Identifier is
+              | ``0x0000`` - Matching is complete: no final Identifier is
                 supplied
 
             Failure
-              | ``0x0122`` SOP class not supported
+              | ``0x0122`` - SOP class not supported
 
             *Query/Retrieve Service, Basic Worklist Management Service,
             Hanging Protocol Query/Retrieve Service, Defined Procedure Protocol
@@ -1080,15 +1080,15 @@ class Association(threading.Thread):
             V.4.1.1.4, X and BB):
 
             Failure
-              | ``0xA700`` Out of resources
-              | ``0xA900`` Identifier does not match SOP Class
-              | ``0xC000`` to ``0xCFFF`` Unable to process
+              | ``0xA700`` - Out of resources
+              | ``0xA900`` - Identifier does not match SOP Class
+              | ``0xC000`` to ``0xCFFF`` - Unable to process
 
             Pending
-              | ``0xFF00`` Matches are continuing: current match is supplied
+              | ``0xFF00`` - Matches are continuing: current match is supplied
                 and any Optional Keys were supported in the same manner as
                 Required Keys
-              | ``0xFF01`` Matches are continuing: warning that one or more
+              | ``0xFF01`` - Matches are continuing: warning that one or more
                 Optional Keys were not supported for existence and/or matching
                 for this Identifier)
 
@@ -1096,14 +1096,14 @@ class Association(threading.Thread):
             Standard Part 4, Annex Q.2.1.1.4):
 
             Failure
-              | ``0xA700`` Out of resources
-              | ``0xA900`` Identifier does not match SOP Class
-              | ``0xC000`` Unable to process
-              | ``0xC100`` More than one match found
-              | ``0xC200`` Unable to support requested template
+              | ``0xA700`` - Out of resources
+              | ``0xA900`` - Identifier does not match SOP Class
+              | ``0xC000`` - Unable to process
+              | ``0xC100`` - More than one match found
+              | ``0xC200`` - Unable to support requested template
 
             Pending
-              | ``0xFF00`` Matches are continuing: current match is supplied
+              | ``0xFF00`` - Matches are continuing: current match is supplied
                 and any Optional Keys were supported in the same manner as
                 Required Keys
 
@@ -1295,14 +1295,14 @@ class Association(threading.Thread):
             *General C-GET* (DICOM Standard Part 7, Section 9.1.3 and Annex C)
 
             Success
-              | ``0x0000`` Sub-operations complete: no failures or warnings
+              | ``0x0000`` - Sub-operations complete: no failures or warnings
 
             Failure
-              | ``0x0122`` SOP class not supported
-              | ``0x0124`` Not authorised
-              | ``0x0210`` Duplicate invocation
-              | ``0x0211`` Unrecognised operation
-              | ``0x0212`` Mistyped argument
+              | ``0x0122`` - SOP class not supported
+              | ``0x0124`` - Not authorised
+              | ``0x0210`` - Duplicate invocation
+              | ``0x0211`` - Unrecognised operation
+              | ``0x0212`` - Mistyped argument
 
             *Query/Retrieve Service, Hanging Protocol Query/Retrieve Service,
             Defined Procedure Protocol Query/Retrieve Service, Color Palette
@@ -1311,27 +1311,27 @@ class Association(threading.Thread):
             Y.C.4.2.1.4, Z.4.2.1.4, U.4.3, X, BB and HH):
 
             Pending
-              | ``0xFF00`` Sub-operations are continuing
+              | ``0xFF00`` - Sub-operations are continuing
 
             Cancel
-              | ``0xFE00`` Sub-operations terminated due to Cancel indication
+              | ``0xFE00`` - Sub-operations terminated due to Cancel indication
 
             Failure
-              | ``0xA701`` Out of resources: unable to calculate number of
+              | ``0xA701`` - Out of resources: unable to calculate number of
                  matches
-              | ``0xA702`` Out of resources: unable to perform sub-operations
-              | ``0xA900`` Identifier does not match SOP class
-              | ``0xAA00`` None of the frames requested were found in the SOP
+              | ``0xA702`` - Out of resources: unable to perform sub-operations
+              | ``0xA900`` - Identifier does not match SOP class
+              | ``0xAA00`` - None of the frames requested were found in the SOP
                 instance
-              | ``0xAA01`` Unable to create new object for this SOP class
-              | ``0xAA02`` Unable to extract frames
-              | ``0xAA03`` Time-based request received for a non-time-based
+              | ``0xAA01`` - Unable to create new object for this SOP class
+              | ``0xAA02`` - Unable to extract frames
+              | ``0xAA03`` - Time-based request received for a non-time-based
                 original SOP Instance
-              | ``0xAA04`` Invalid request
-              | ``0xC000`` to ``0xCFFF`` Unable to process
+              | ``0xAA04`` - Invalid request
+              | ``0xC000`` to ``0xCFFF`` - Unable to process
 
             Warning
-              | ``0xB000`` Sub-operations completed: one or more failures or
+              | ``0xB000`` - Sub-operations completed: one or more failures or
                  warnings
 
         identifier : pydicom.dataset.Dataset or None
@@ -1518,13 +1518,13 @@ class Association(threading.Thread):
             *General C-MOVE* (DICOM Standard Part 7, 9.1.4.1.7 and Annex C)
 
             Cancel
-              | ``0xFE00`` Sub-operations terminated due to Cancel indication
+              | ``0xFE00`` - Sub-operations terminated due to Cancel indication
 
             Success
-              | ``0x0000`` Sub-operations complete: no failures
+              | ``0x0000`` - Sub-operations complete: no failures
 
             Failure
-              | ``0x0122`` SOP class not supported
+              | ``0x0122`` - SOP class not supported
 
             *Query/Retrieve Service, Hanging Protocol Query/Retrieve Service,
             Defined Procedure Protocol Query/Retrieve Service, Color Palette
@@ -1533,25 +1533,25 @@ class Association(threading.Thread):
             specific (DICOM Standard Part 4, Annexes C, U, Y, X, BB and HH):
 
             Failure
-              | ``0xA701`` Out of resources: unable to calculate number of
+              | ``0xA701`` - Out of resources: unable to calculate number of
                 matches
-              | ``0xA702`` Out of resources: unable to perform sub-operations
-              | ``0xA801`` Move destination unknown
-              | ``0xA900`` Identifier does not match SOP Class
-              | ``0xAA00`` None of the frames requested were found in the SOP
+              | ``0xA702`` - Out of resources: unable to perform sub-operations
+              | ``0xA801`` - Move destination unknown
+              | ``0xA900`` - Identifier does not match SOP Class
+              | ``0xAA00`` - None of the frames requested were found in the SOP
                 instance
-              | ``0xAA01`` Unable to create new object for this SOP class
-              | ``0xAA02`` Unable to extract frames
-              | ``0xAA03`` Time-based request received for a non-time-based
+              | ``0xAA01`` - Unable to create new object for this SOP class
+              | ``0xAA02`` - Unable to extract frames
+              | ``0xAA03`` - Time-based request received for a non-time-based
                 original SOP Instance
-              | ``0xAA04`` Invalid request
-              | ``0xC000`` to ``0xCFFF`` Unable to process
+              | ``0xAA04`` - Invalid request
+              | ``0xC000`` to ``0xCFFF`` - Unable to process
 
             Pending
-              | ``0xFF00`` Sub-operations are continuing
+              | ``0xFF00`` - Sub-operations are continuing
 
             Warning
-              | ``0xB000`` Sub-operations complete: one or more failures
+              | ``0xB000`` - Sub-operations complete: one or more failures
 
         identifier : pydicom.dataset.Dataset or None
             If the status category is 'Pending' or 'Success' then yields
@@ -1702,36 +1702,36 @@ class Association(threading.Thread):
             *General C-STORE* (DICOM Standard Part 7, 9.1.1.1.9 and Annex C):
 
             Success
-              | ``0x0000`` Success
+              | ``0x0000`` - Success
 
             Failure
-              | ``0x0117`` Invalid SOP instance
-              | ``0x0122`` SOP class not supported
-              | ``0x0124`` Not authorised
-              | ``0x0210`` Duplicate invocation
-              | ``0x0211`` Unrecognised operation
-              | ``0x0212`` Mistyped argument
+              | ``0x0117`` - Invalid SOP instance
+              | ``0x0122`` - SOP class not supported
+              | ``0x0124`` - Not authorised
+              | ``0x0210`` - Duplicate invocation
+              | ``0x0211`` - Unrecognised operation
+              | ``0x0212`` - Mistyped argument
 
             *Storage Service* and *Non-Patient Object Storage Service* specific
             (DICOM Standard Part 4, Annexes B.2.3 and GG):
 
             Failure
-              | ``0xA700`` to ``0xA7FF`` Out of resources
-              | ``0xA900`` to ``0xA9FF`` Data set does not match SOP class
-              | ``0xC000`` to ``0xCFFF`` Cannot understand
+              | ``0xA700`` to ``0xA7FF`` - Out of resources
+              | ``0xA900`` to ``0xA9FF`` - Data set does not match SOP class
+              | ``0xC000`` to ``0xCFFF`` - Cannot understand
 
             Warning
-              | ``0xB000`` Coercion of data elements
-              | ``0xB006`` Element discarded
-              | ``0xB007`` Data set does not match SOP class
+              | ``0xB000`` - Coercion of data elements
+              | ``0xB006`` - Element discarded
+              | ``0xB007`` - Data set does not match SOP class
 
             *Non-Patient Object Service Class* specific (DICOM Standard Part 4,
             Annex GG.4.2)
 
             Failure
-              | ``0xA700`` Out of resources
-              | ``0xA900`` Data set does not match SOP class
-              | ``0xC000`` Cannot understand
+              | ``0xA700`` - Out of resources
+              | ``0xA900`` - Data set does not match SOP class
+              | ``0xC000`` - Cannot understand
 
         Raises
         ------
@@ -2111,22 +2111,22 @@ class Association(threading.Thread):
             Annex C)
 
             Success
-              | ``0x0000`` Successful operation
+              | ``0x0000`` - Successful operation
 
             Failure
-              | ``0x0110`` Processing failure
-              | ``0x0112`` No such SOP Instance
-              | ``0x0114`` No such argument
-              | ``0x0115`` Invalid argument value
-              | ``0x0117`` Invalid object instance
-              | ``0x0118`` No such SOP Class
-              | ``0x0119`` Class-Instance conflict
-              | ``0x0123`` No such action
-              | ``0x0124`` Not authorised
-              | ``0x0210`` Duplicate invocation
-              | ``0x0211`` Unrecognised operation
-              | ``0x0212`` Mistyped argument
-              | ``0x0213`` Resource limitation
+              | ``0x0110`` - Processing failure
+              | ``0x0112`` - No such SOP Instance
+              | ``0x0114`` - No such argument
+              | ``0x0115`` - Invalid argument value
+              | ``0x0117`` - Invalid object instance
+              | ``0x0118`` - No such SOP Class
+              | ``0x0119`` - Class-Instance conflict
+              | ``0x0123`` - No such action
+              | ``0x0124`` - Not authorised
+              | ``0x0210`` - Duplicate invocation
+              | ``0x0211`` - Unrecognised operation
+              | ``0x0212`` - Mistyped argument
+              | ``0x0213`` - Resource limitation
 
         action_reply : pydicom.dataset.Dataset or None
             If the status category is 'Success' then a ``Dataset``
@@ -2256,26 +2256,68 @@ class Association(threading.Thread):
             optionally contain additional elements (see the DICOM Standard,
             Part 7, Section 9.1.2.1.5 and Annex C).
 
-            General N-CREATE (DICOM Standard Part 7, Section 10.1.5 and
+            *General N-CREATE* (DICOM Standard Part 7, Section 10.1.5 and
             Annex C)
 
             Success
-              | ``0x0000`` Successful operation
+              | ``0x0000`` - Successful operation
 
             Failure
-              | ``0x0110`` Processing failure
-              | ``0x0112`` No such SOP Instance
-              | ``0x0114`` No such argument
-              | ``0x0115`` Invalid argument value
-              | ``0x0117`` Invalid object instance
-              | ``0x0118`` No such SOP Class
-              | ``0x0119`` Class-Instance conflict
-              | ``0x0123`` No such action
-              | ``0x0124`` Not authorised
-              | ``0x0210`` Duplicate invocation
-              | ``0x0211`` Unrecognised operation
-              | ``0x0212`` Mistyped argument
-              | ``0x0213`` Resource limitation
+              | ``0x0110`` - Processing failure
+              | ``0x0112`` - No such SOP Instance
+              | ``0x0114`` - No such argument
+              | ``0x0115`` - Invalid argument value
+              | ``0x0117`` - Invalid object instance
+              | ``0x0118`` - No such SOP Class
+              | ``0x0119`` - Class-Instance conflict
+              | ``0x0123`` - No such action
+              | ``0x0124`` - Not authorised
+              | ``0x0210`` - Duplicate invocation
+              | ``0x0211`` - Unrecognised operation
+              | ``0x0212`` - Mistyped argument
+              | ``0x0213`` - Resource limitation
+
+            *Print Management Service* specific (DICOM
+            Standard Part 4, Annex H.4.1.2.1.2, H.4.2.2.1.2 and H.4.9.2.1.2):
+
+            Warning
+              | ``0xB600`` - Memory allocation not supported
+              | ``0xB605`` - Requested Min Density or Max Density outside of
+                printer's operating range. The printer will use its respective
+                minimum or maximum density value instead
+
+            Failure
+              | ``0xC616`` - There is an existing Film Box that has not been
+                printed and N-ACTION at the Film Session level is not supported.
+                A new Film Box will not be created when a previous Film Box has
+                not been printed
+
+            *Media Creation Management Service* specific (DICOM
+            Standard Part 4, Annex S.3.2.1.4):
+
+            Failure
+              | ``0xA510`` - Failed: an initiate media creation action has already been
+                received for this SOP Instance
+
+            *Unified Procedure Step Service* specific (DICOM
+            Standard Part 4, Annex CC.2.5.4):
+
+            Warning
+              | ``0xB300`` - THE UPS was created with modifications
+
+            Failure
+              | ``0xC309`` - The provided value of UPS State was not 'SCHEDULED'
+
+            *RT Machine Verification Service* specific (DICOM
+            Standard Part 4, Annex DD.3.2.1.2):
+
+            Failure
+              | ``0xC221`` - The Referenced Fraction Group Number does not exist in the
+                referenced plan
+              | ``0xC222`` - No beams exist within the referenced fraction group
+              | ``0xC223`` - SCU already verifying and cannot currently process this
+                request
+              | ``0xC227`` - No such object instance - Referenced RT Plan not found
 
         attribute_list : pydicom.dataset.Dataset or None
             If the status category is 'Success' then a ``Dataset`` containing
@@ -2405,19 +2447,19 @@ class Association(threading.Thread):
             Annex C)
 
             Success
-              | ``0x0000`` Successful operation
+              | ``0x0000`` - Successful operation
 
             Failure
-              | ``0x0110`` Processing failure
-              | ``0x0112`` No such SOP Instance
-              | ``0x0117`` Invalid object instance
-              | ``0x0118`` No such SOP Class
-              | ``0x0119`` Class-Instance conflict
-              | ``0x0124`` Not authorised
-              | ``0x0210`` Duplicate invocation
-              | ``0x0211`` Unrecognised operation
-              | ``0x0212`` Mistyped argument
-              | ``0x0213`` Resource limitation
+              | ``0x0110`` - Processing failure
+              | ``0x0112`` - No such SOP Instance
+              | ``0x0117`` - Invalid object instance
+              | ``0x0118`` - No such SOP Class
+              | ``0x0119`` - Class-Instance conflict
+              | ``0x0124`` - Not authorised
+              | ``0x0210`` - Duplicate invocation
+              | ``0x0211`` - Unrecognised operation
+              | ``0x0212`` - Mistyped argument
+              | ``0x0213`` - Resource limitation
 
         See Also
         --------
@@ -2504,25 +2546,25 @@ class Association(threading.Thread):
             optionally contain additional elements (see the DICOM Standard,
             Part 7, Section 9.1.2.1.5 and Annex C).
 
-            General N-EVENT-REPORT (DICOM Standard Part 7, Section 10.1.1
+            *General N-EVENT-REPORT* (DICOM Standard Part 7, Section 10.1.1
             and Annex C)
 
             Success
-              | ``0x0000`` Successful operation
+              | ``0x0000`` - Successful operation
 
             Failure
-              | ``0x0110`` Processing failure
-              | ``0x0112`` No such SOP Instance
-              | ``0x0113`` No such event type
-              | ``0x0114`` No such argument
-              | ``0x0115`` Invalid argument value
-              | ``0x0117`` Invalid object instance
-              | ``0x0118`` No such SOP Class
-              | ``0x0119`` Class-Instance conflict
-              | ``0x0210`` Duplicate invocation
-              | ``0x0211`` Unrecognised operation
-              | ``0x0212`` Mistyped argument
-              | ``0x0213`` Resource limitation
+              | ``0x0110`` - Processing failure
+              | ``0x0112`` - No such SOP Instance
+              | ``0x0113`` - No such event type
+              | ``0x0114`` - No such argument
+              | ``0x0115`` - Invalid argument value
+              | ``0x0117`` - Invalid object instance
+              | ``0x0118`` - No such SOP Class
+              | ``0x0119`` - Class-Instance conflict
+              | ``0x0210`` - Duplicate invocation
+              | ``0x0211`` - Unrecognised operation
+              | ``0x0212`` - Mistyped argument
+              | ``0x0213`` - Resource limitation
 
         event_reply : pydicom.dataset.Dataset or None
             If the status category is 'Success' then a ``Dataset`` containing
@@ -2658,26 +2700,49 @@ class Association(threading.Thread):
             optionally contain additional elements (see the DICOM Standard,
             Part 7, Section 9.1.2.1.5 and Annex C).
 
-            General N-GET (DICOM Standard Part 7, Section 10.1.2 and Annex C)
+            *General N-GET* (DICOM Standard Part 7, Section 10.1.2 and Annex C)
 
             Success
-              | ``0x0000`` Successful operation
+              | ``0x0000`` - Successful operation
 
             Warning
-              | ``0x0107`` Attribute list error
+              | ``0x0107`` - Attribute list error
 
             Failure
-              | ``0x0110`` Processing failure
-              | ``0x0112`` No such SOP Instance
-              | ``0x0117`` Invalid object instance
-              | ``0x0118`` No such SOP Class
-              | ``0x0119`` Class-Instance conflict
-              | ``0x0122`` SOP class not supported
-              | ``0x0124`` Not authorised
-              | ``0x0210`` Duplicate invocation
-              | ``0x0211`` Unrecognised operation
-              | ``0x0212`` Mistyped argument
-              | ``0x0213`` Resource limitation
+              | ``0x0110`` - Processing failure
+              | ``0x0112`` - No such SOP Instance
+              | ``0x0117`` - Invalid object instance
+              | ``0x0118`` - No such SOP Class
+              | ``0x0119`` - Class-Instance conflict
+              | ``0x0122`` - SOP class not supported
+              | ``0x0124`` - Not authorised
+              | ``0x0210`` - Duplicate invocation
+              | ``0x0211`` - Unrecognised operation
+              | ``0x0212`` - Mistyped argument
+              | ``0x0213`` - Resource limitation
+
+            *Modality Performed Procedure Step Management Service* and *Media
+            Creation Management Service* specific
+            (DICOM Standard Part 4, Annex F.8.2.1.4 and Annex S.3.2.4.4):
+
+            Warning
+              | ``0x0001`` - Requested optional Attributes are not supported
+
+            *Unified Procedure Step Service* specific
+            (DICOM Standard Part 4, Annex CC.2.7.4):
+
+            Warning
+              | ``0x0001`` - Requested optional Attributes are not supported
+
+            Failure
+              | ``0xC307`` - Specified SOP Instance UID doesn't exist or is not
+                a UPS Instance managed by this SCP
+
+            *RT Machine Verification Service* specific
+            (DICOM Standard Part 4, Annex DD.3.2.2.3):
+
+            Failure
+              | ``0xC112`` - Applicable Machine Verification Instance not found
 
         attribute_list : pydicom.dataset.Dataset or None
             If the status category is 'Success' then a ``Dataset`` containing
@@ -2797,30 +2862,81 @@ class Association(threading.Thread):
             optionally contain additional elements (see the DICOM Standard,
             Part 7, Section 9.1.2.1.5 and Annex C).
 
-            General N-SET (DICOM Standard Part 7, Section 10.1.3 and Annex C)
+            *General N-SET* (DICOM Standard Part 7, Section 10.1.3 and Annex C)
 
             Success
-              | ``0x0000`` Successful operation
+              | ``0x0000`` - Successful operation
 
             Warning
-              | ``0x0107`` Attribute list error
-              | ``0x0116`` Attribute value out of range
+              | ``0x0107`` - Attribute list error
+              | ``0x0116`` - Attribute value out of range
 
             Failure
-              | ``0x0105`` No such attribute
-              | ``0x0106`` Invalid attribute value
-              | ``0x0110`` Processing failure
-              | ``0x0112`` No such SOP Instance
-              | ``0x0117`` Invalid object instance
-              | ``0x0118`` No such SOP Class
-              | ``0x0119`` Class-Instance conflict
-              | ``0x0121`` Missing attribute value
-              | ``0x0122`` SOP class not supported
-              | ``0x0124`` Not authorised
-              | ``0x0210`` Duplicate invocation
-              | ``0x0211`` Unrecognised operation
-              | ``0x0212`` Mistyped argument
-              | ``0x0213`` Resource limitation
+              | ``0x0105`` - No such attribute
+              | ``0x0106`` - Invalid attribute value
+              | ``0x0110`` - Processing failure
+              | ``0x0112`` - No such SOP Instance
+              | ``0x0117`` - Invalid object instance
+              | ``0x0118`` - No such SOP Class
+              | ``0x0119`` - Class-Instance conflict
+              | ``0x0121`` - Missing attribute value
+              | ``0x0122`` - SOP class not supported
+              | ``0x0124`` - Not authorised
+              | ``0x0210`` - Duplicate invocation
+              | ``0x0211`` - Unrecognised operation
+              | ``0x0212`` - Mistyped argument
+              | ``0x0213`` - Resource limitation
+
+            *Print Management Service* specific (DICOM
+            Standard Part 4, Annex H.4.1.2.1.2, H.4.2.2.1.2, H.4.3.1.2.1.2 and
+            H.4.3.2.2.1.2):
+
+            Warning
+              | ``0xB600`` - Memory allocation not supported
+              | ``0xB604`` - Image size larger than image box size, the image
+                has been demagnified
+              | ``0xB605`` - Requested Min Density or Max Density outside of
+                printer's operating range. The printer will use its respective
+                minimum or maximum density value instead
+              | ``0xB609`` - Image size is larger than the Image Box. The Image
+                has been cropped to fit
+              | ``0xB60A`` - Image size or Combined Print Image size is larger
+                than the Image Box size. The Image or Combined Print Image has
+                been decimated to fit
+
+            Failure
+              | ``0xC603`` - Image size is larger than image box size
+              | ``0xC605`` - Insufficient memory in printer to store the image
+              | ``0xC613`` - Combined Print Image size is larger than the Image
+                Box size
+              | ``0xC616`` - There is an existing Film Box that has not been
+                printed and N-ACTION at the Film Session level is not
+                supported. A new Film Box will not be created when a previous
+                Film Box has not been printed
+
+            *Unified Procedure Step Service* specific (DICOM Standard Part 4,
+            Annex CC.2.6.4):
+
+            Warning
+              | ``0x0001`` - Requested optional attributes are not supported
+              | ``0xB305`` - Coerced invalid values to valid values
+
+            Failure
+              | ``0xC300`` - The UPS may no longer be updated
+              | ``0xC301`` - The correct Transaction UID was not provided
+              | ``0xC307`` - Specified SOP Instance UID does not exist or is
+                not a UPS Instance managed by this SCP
+              | ``0xC310`` - The UPS is not in the 'IN PROGRESS' state
+
+            *RT Machine Verification Service* specific (DICOM Standard Part 4,
+            Annex DD.3.2.1.2):
+
+            Failure
+              | ``0xC224`` - Reference Beam Number not found within the
+                referenced Fraction Group
+              | ``0xC225`` - Referenced device or accessory not supported
+              | ``0xC226`` - Referenced device or accessory not found with the
+                referenced beam
 
         attribute_list : pydicom.dataset.Dataset or None
             If the status category is 'Success' then a ``Dataset`` containing

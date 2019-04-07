@@ -1,7 +1,6 @@
 """Standard logging event handlers."""
 
 import logging
-import threading
 
 from pynetdicom.dimse_messages import *
 from pynetdicom.pdu import (
@@ -2723,11 +2722,9 @@ def doc_handle_create(event):
 
     **Supported Service Classes**
 
-    * *Modality Performed Procedure Step*
+    * *Modality Performed Procedure Step Management*
 
     **Status**
-
-    General Statuses
 
     Success
       | ``0x0000`` - Success
@@ -2748,35 +2745,26 @@ def doc_handle_create(event):
       | ``0x0211`` - Unrecognised operation
       | ``0x0212`` - Mistyped argument
       | ``0x0213`` - Resource limitation
-
-    Print Management Statuses
-
-    Warning
-      | ``0xB600`` - Memory allocation not supported
-
-    Media Creation Management Statuses
-
-    Failure
       | ``0xA510`` - Failed: an initiate media creation action has already been
         received for this SOP Instance
-
-    Unified Procedure Step Statuses
+      | ``0xC221`` - The Referenced Fraction Group Number does not exist in the
+        referenced plan
+      | ``0xC222`` - No beams exist within the referenced fraction group
+      | ``0xC223`` - SCU already verifying and cannot currently process this
+        request
+      | ``0xC227`` - No such object instance - Referenced RT Plan not found
+      | ``0xC309`` - The provided value of UPS State was not 'SCHEDULED'
+      | ``0xC616`` - There is an existing Film Box that has not been
+        printed and N-ACTION at the Film Session level is not supported.
+        A new Film Box will not be created when a previous Film Box has
+        not been printed
 
     Warning
       | ``0xB300`` - THE UPS was created with modifications
-
-    Failure
-      | ``0xC309`` - The provided value of UPS State was not 'SCHEDULED'
-
-    RT Machine Verification Statuses
-
-    Failure
-    | ``0xC221`` - The Referenced Fraction Group Number does not exist in the
-      referenced plan
-    | ``0xC222`` - No beams exist within the referenced fraction group
-    | ``0xC223`` - SCU already verifying and cannot currently process this
-      request
-    | ``0xC227`` - No such object instance - Referenced RT Plan not found
+      | ``0xB600`` - Memory allocation not supported
+      | ``0xB605`` - Requested Min Density or Max Density outside of
+        printer's operating range. The printer will use its respective
+        minimum or maximum density value instead
 
     Parameters
     ----------
@@ -2819,7 +2807,7 @@ def doc_handle_create(event):
         containing elements of the response's *Attribute List* conformant to
         the specifications in the corresponding Service Class.
 
-        If the status is not 'Success' then ``None``.
+        If the status category is not 'Success' or 'Warning' then ``None``.
 
     Raises
     ------
@@ -2905,13 +2893,11 @@ def doc_handle_delete(event):
 def doc_handle_event_report(event):
     """Documentation for handlers bound to ``evt.EVT_N_EVENT_REPORT``.
 
-    Use of handlers for ``evt.EVT_N_EVENT_REPORT`` is not yet supported.
-
     User implementation of this event handler is required if one or more
     services that use N-EVENT-REPORT are to be supported. If a handler is
     not implemented and bound to ``evt.EVT_N_EVENT_REPORT`` then the
     N-EVENT-REPORT request will be responded to using a  *Status* value
-    of ``0x0110`` Processing Failure.
+    of ``0x0110`` - Processing Failure.
 
     **Event**
 
@@ -2919,7 +2905,7 @@ def doc_handle_event_report(event):
 
     **Supported Service Classes**
 
-    * *Modality Performed Procedure Step*
+    * *Modality Performed Procedure Step Management*
 
     **Status**
 
@@ -3018,32 +3004,32 @@ def doc_handle_n_get(event):
     **Supported Service Classes**
 
     * *Display System Management Service Class*
-    * *Modality Performed Procedure Step*
+    * *Modality Performed Procedure Step Management*
 
     **Status**
 
-    General Statuses
-
     Success
-      | ``0x0000`` Success
+      | ``0x0000`` - Success
 
     Failure
-      | ``0x0107`` Attribute list error
-      | ``0x0110`` Processing failure
-      | ``0x0112`` No such SOP Instance
-      | ``0x0117`` Invalid object Instance
-      | ``0x0118`` No such SOP Class
-      | ``0x0119`` Class-Instance conflict
-      | ``0x0124`` Not authorised
-      | ``0x0210`` Duplicate invocation
-      | ``0x0211`` Unrecognised operation
-      | ``0x0212`` Mistyped argument
-      | ``0x0213`` Resource limitation
-
-    Modality Performed Procedure Step Statuses
+      | ``0x0107`` - Attribute list error
+      | ``0x0110`` - Processing failure
+      | ``0x0112`` - No such SOP Instance
+      | ``0x0117`` - Invalid object Instance
+      | ``0x0118`` - No such SOP Class
+      | ``0x0119`` - Class-Instance conflict
+      | ``0x0124`` - Not authorised
+      | ``0x0210`` - Duplicate invocation
+      | ``0x0211`` - Unrecognised operation
+      | ``0x0212`` - Mistyped argument
+      | ``0x0213`` - Resource limitation
+      | ``0xC112`` - Applicable Machine Verification Instance not found
+      | ``0xC307`` - Specified SOP Instance UID doesn't exist or is not
+        a UPS Instance managed by this SCP
 
     Warning
-      | ``0x0001`` Requested optional attributes are not supported
+      | ``0x0001`` - Requested optional Attributes are not supported
+      | ``0x0107`` Attribute list error
 
     Parameters
     ----------
@@ -3103,8 +3089,6 @@ def doc_handle_n_get(event):
 def doc_handle_set(event):
     """Documentation for handlers bound to ``evt.EVT_N_SET``.
 
-    Use of handlers for ``evt.EVT_N_SET`` is not yet supported.
-
     User implementation of this event handler is required if one or more
     services that use N-SET are to be supported. If a handler is
     not implemented and bound to ``evt.EVT_N_SET`` then the N-SET request
@@ -3117,7 +3101,7 @@ def doc_handle_set(event):
 
     **Supported Service Classes**
 
-    * *Modality Performed Procedure Step*
+    * *Modality Performed Procedure Step Management*
 
     **Status**
 
@@ -3139,6 +3123,40 @@ def doc_handle_set(event):
       | ``0x0211`` - Unrecognised operation
       | ``0x0212`` - Mistyped argument
       | ``0x0213`` - Resource limitation
+      | ``0xC112`` - Applicable Machine Verification Instance not found
+      | ``0xC224`` - Reference Beam Number not found within the
+        referenced Fraction Group
+      | ``0xC225`` - Referenced device or accessory not supported
+      | ``0xC226`` - Referenced device or accessory not found with the
+        referenced beam
+      | ``0xC300`` - The UPS may no longer be updated
+      | ``0xC301`` - The correct Transaction UID was not provided
+      | ``0xC307`` - Specified SOP Instance UID does not exist or is not a UPS
+        Instance managed by this SCP
+      | ``0xC310`` - The UPS is not in the 'IN PROGRESS' state
+      | ``0xC603`` - Image size is larger than image box size
+      | ``0xC605`` - Insufficient memory in printer to store the image
+      | ``0xC613`` - Combined Print Image size is larger than the Image Box
+        size
+      | ``0xC616`` - There is an existing Film Box that has not been
+        printed and N-ACTION at the Film Session level is not supported.
+        A new Film Box will not be created when a previous Film Box has
+        not been printed
+
+    Warning
+      | ``0x0001`` - Requested optional attributes are not supported
+      | ``0xB305`` - Coerced invalid values to valid values
+      | ``0xB600`` - Memory allocation not supported
+      | ``0xB604`` - Image size larger than image box size, the image has been
+        demagnified
+      | ``0xB605`` - Requested Min Density or Max Density outside of
+        printer's operating range. The printer will use its respective
+        minimum or maximum density value instead
+      | ``0xB609`` - Image size is larger than the Image Box. The Image has
+        been cropped to fit
+      | ``0xB60A`` - Image size or Combined Print Image size is larger than the
+        Image Box size. The Image or Combined Print Image has been decimated
+        to fit
 
     Parameters
     ----------

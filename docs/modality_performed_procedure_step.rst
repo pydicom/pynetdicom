@@ -1,8 +1,8 @@
 .. _mpps_service:
 
-Modality Performed Procedure Step
-=================================
-`Modality Performed Procedure Step <http://dicom.nema.org/medical/dicom/current/output/html/part04.html#chapter_F>`_
+Modality Performed Procedure Step Management
+============================================
+`Modality Performed Procedure Step Management <http://dicom.nema.org/medical/dicom/current/output/html/part04.html#chapter_F>`_
 defines a service that facilitates logging and tracking of procedures performed
 by a modality.
 

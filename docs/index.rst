@@ -70,7 +70,7 @@ Examples
 * :doc:`Basic Worklist Management Service Examples <examples/basic_worklist>`
 * :doc:`Relevant Patient Information Query Service Examples <examples/relevant_patient>`
 * :doc:`Display System Management Service Examples <examples/display>`
-* :doc:`Modality Performed Procedure Step Service Examples <examples/mpps>`
+* :doc:`Modality Performed Procedure Step Management Service Examples <examples/mpps>`
 
 
 API Reference

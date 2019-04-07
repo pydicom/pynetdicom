@@ -1,18 +1,18 @@
-Modality Performed Procedure Step Service Examples
-~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+Modality Performed Procedure Step Management Service Examples
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
-The DICOM `Modality Performed Procedure Step Service (MPPS)
+The DICOM `Modality Performed Procedure Step Management (MPPS) service
 <http://dicom.nema.org/medical/dicom/current/output/html/part04.html#chapter_F>`_
 allows an Application Entity to log or track procedures performed by a
-modality through the N-CREATE/N-SET/N-EVENT-REPORT and N-GET services. It only
-has :ref:`three SOP Class <display_sops>`:
+modality through the N-CREATE, N-SET, N-EVENT-REPORT and N-GET services. It
+has :ref:`three SOP Classes <display_sops>`:
 
 * *Modality Performed Procedure Step SOP Class*, used with N-CREATE and N-SET
   to create and set the SOP Instance's attribute values
 * *Modality Performed Procedure Step Retrieve SOP Class*, used with N-GET to
   retrieve the SOP Instance's attribute values
 * *Modality Performed Procedure Step Notification SOP Class*, used with
-  N-EVENT-REPORT to notify a peer of the status of an in-progress procedure.
+  N-EVENT-REPORT to notify a peer of the status of a procedure.
 
 MPPS is usually used in combination with the Modality Worklist Service Class
 to provide the modality a mechanism for notifying the RIS (or PACS) that

@@ -77,7 +77,7 @@ Supported Service Classes
 - `Display System Management Service Class <http://dicom.nema.org/medical/dicom/current/output/html/part04.html#chapter_EE>`_
 - `Non-Patient Object Storage Service Class <http://dicom.nema.org/medical/dicom/current/output/html/part04.html#chapter_GG>`_
 - `Defined Procedure Protocol Query/Retrieve Service Class <http://dicom.nema.org/medical/dicom/current/output/html/part04.html#chapter_HH>`_
-- `Modality Performed Procedure Step <http://dicom.nema.org/medical/dicom/current/output/html/part04.html#chapter_F>`_
+- `Modality Performed Procedure Step Management <http://dicom.nema.org/medical/dicom/current/output/html/part04.html#chapter_F>`_
 
 
 Supported DIMSE SCU Services

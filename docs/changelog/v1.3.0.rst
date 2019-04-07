@@ -17,6 +17,7 @@ Fixes
   of just re-using 1. (:issue:`315`)
 * The default ``logging`` configuration no longer uses a non-NullHandler
   (:issue:`321`)
+* Fix Unified Procedure Step's SOP Class UID variable names
 
 
 Enhancements

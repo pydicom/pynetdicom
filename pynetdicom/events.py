@@ -7,7 +7,6 @@ from datetime import datetime
 import inspect
 import logging
 import sys
-import threading
 
 from pydicom.dataset import Dataset
 
