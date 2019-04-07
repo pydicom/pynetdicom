@@ -35,7 +35,7 @@ def standard_pdu_recv_handler(event):
     ----------
     event : events.Event
         The ``evt.EVT_PDU_RECV`` event corresponding to receiving and decoding
-        a PDU from the peer. Event attributes are:
+        a PDU from the peer. ``Event`` attributes are:
 
         * ``assoc`` : the
           :py:class:`association <pynetdicom.association.Association>`
@@ -70,7 +70,7 @@ def standard_pdu_sent_handler(event):
     ----------
     event : events.Event
         The ``evt.EVT_PDU_SENT`` event corresponding to encoding and sending
-        a PDU to the peer. Event attributes are:
+        a PDU to the peer. ``Event`` attributes are:
 
         * ``assoc`` : the
           :py:class:`association <pynetdicom.association.Association>`
@@ -100,7 +100,7 @@ def standard_dimse_recv_handler(event):
     ----------
     event : events.Event
         The ``evt.EVT_DIMSE_RECV`` event corresponding to the DIMSE decoding
-        a message received from the peer. Event attributes are:
+        a message received from the peer. ``Event`` attributes are:
 
         * ``assoc`` : the
           :py:class:`association <pynetdicom.association.Association>`
@@ -145,7 +145,7 @@ def standard_dimse_sent_handler(event):
     ----------
     event : events.Event
         The ``evt.EVT_DIMSE_SENT`` event corresponding to the DIMSE encoding
-        a message to be sent to the peer. Event attributes are:
+        a message to be sent to the peer. ``Event`` attributes are:
 
         * ``assoc`` : the
           :py:class:`association <pynetdicom.association.Association>`
@@ -2027,7 +2027,7 @@ def doc_handle_echo(event):
 
     **Supported Service Classes**
 
-    *Verification Service Class*
+    * *Verification Service Class*
 
     **Status**
 
@@ -2044,7 +2044,7 @@ def doc_handle_echo(event):
     ----------
     event : events.Event
         The event representing a service class receiving a C-ECHO
-        request message. Event attributes are:
+        request message. ``Event`` attributes are:
 
         * ``assoc`` : the
           :py:class:`association <pynetdicom.association.Association>`
@@ -2066,7 +2066,7 @@ def doc_handle_echo(event):
         a valid C-ECHO status value for the applicable Service Class as
         either an ``int`` or a ``Dataset`` object containing (at a minimum)
         a (0000,0900) *Status* element. If returning a ``Dataset`` object
-        then it may also contain optional elements related to the Status
+        then it may also contain optional elements related to the *Status*
         (as in the DICOM Standard Part 7, Annex C).
 
     See Also
@@ -2139,7 +2139,7 @@ def doc_handle_find(event):
     ----------
     event : events.Event
         The event representing a service class receiving a C-FIND
-        request message. Event attributes are:
+        request message. ``Event`` attributes are:
 
         * ``assoc`` : the
           :py:class:`association <pynetdicom.association.Association>`
@@ -2172,20 +2172,20 @@ def doc_handle_find(event):
         The status returned to the peer AE in the C-FIND response. Must be
         a valid C-FIND status vuale for the applicable Service Class as
         either an ``int`` or a ``Dataset`` object containing (at a minimum)
-        a (0000,0900) *Status* element. If returning a Dataset object then
-        it may also contain optional elements related to the Status (as in
+        a (0000,0900) *Status* element. If returning a ``Dataset`` object then
+        it may also contain optional elements related to the *Status* (as in
         DICOM Standard Part 7, Annex C).
     identifier : pydicom.dataset.Dataset or None
-        If the status is 'Pending' then the *Identifier* ``Dataset`` for a
-        matching SOP Instance. The exact requirements for the C-FIND
+        If the status category is 'Pending' then the *Identifier* ``Dataset``
+        for a matching SOP Instance. The exact requirements for the C-FIND
         response *Identifier* are Service Class specific (see the
         DICOM Standard, Part 4).
 
-        If the status is 'Failure' or 'Cancel' then yield ``None``.
+        If the status category is 'Failure' or 'Cancel' then yield ``None``.
 
-        If the status is 'Success' then yield ``None``, however yielding a
-        final 'Success' status is not required and will be ignored if
-        necessary.
+        If the status category is 'Success' then yield ``None``, however
+        yielding a final 'Success' status is not required and will be ignored
+        if necessary.
 
     See Also
     --------
@@ -2278,7 +2278,7 @@ def doc_handle_c_get(event):
     ----------
     event : events.Event
         The event representing a service class receiving a C-GET
-        request message. Event attributes are:
+        request message. ``Event`` attributes are:
 
         * ``assoc`` : the
           :py:class:`association <pynetdicom.association.Association>`
@@ -2316,21 +2316,21 @@ def doc_handle_c_get(event):
         The status returned to the peer AE in the C-GET response. Must be a
         valid C-GET status value for the applicable Service Class as either
         an ``int`` or a ``Dataset`` object containing (at a minimum) a
-        (0000,0900) *Status* element. If returning a Dataset object then
-        it may also contain optional elements related to the Status (as in
+        (0000,0900) *Status* element. If returning a ``Dataset`` object then
+        it may also contain optional elements related to the *Status* (as in
         DICOM Standard Part 7, Annex C).
     dataset : pydicom.dataset.Dataset or None
-        If the status is 'Pending' then yield the ``Dataset`` to send to
-        the peer via a C-STORE sub-operation over the current association.
+        If the status category is 'Pending' then yield the ``Dataset`` to send
+        to the peer via a C-STORE sub-operation over the current association.
 
-        If the status is 'Failed', 'Warning' or 'Cancel' then yield a
+        If the status category is 'Failed', 'Warning' or 'Cancel' then yield a
         ``Dataset`` with a (0008,0058) *Failed SOP Instance UID List*
         element containing a list of the C-STORE sub-operation SOP Instance
         UIDs for which the C-GET operation has failed.
 
-        If the status is 'Success' then yield ``None``, although yielding a
-        final 'Success' status is not required and will be ignored if
-        necessary.
+        If the status category is 'Success' then yield ``None``, although
+        yielding a final 'Success' status is not required and will be ignored
+        if necessary.
 
     See Also
     --------
@@ -2424,7 +2424,7 @@ def doc_handle_move(event):
     ----------
     event : events.Event
         The event representing a service class receiving a C-MOVE
-        request message. Event attributes are:
+        request message. ``Event`` attributes are:
 
         * ``assoc`` : the
           :py:class:`association <pynetdicom.association.Association>`
@@ -2468,7 +2468,7 @@ def doc_handle_move(event):
         a valid C-MOVE status value for the applicable Service Class as
         either an ``int`` or a ``Dataset`` containing (at a minimum) a
         (0000,0900) *Status* element. If returning a ``Dataset`` then it
-        may also contain optional elements related to the Status (as in
+        may also contain optional elements related to the *Status* (as in
         DICOM Standard Part 7, Annex C).
     dataset : pydicom.dataset.Dataset or None
         If the status is 'Pending' then yield the ``Dataset``
@@ -2557,7 +2557,7 @@ def doc_handle_store(event):
     ----------
     event : events.Event
         The event representing a service class receiving a C-STORE
-        request message. Event attributes are:
+        request message. ``Event`` attributes are:
 
         * ``assoc`` : the
           :py:class:`association <pynetdicom.association.Association>`
@@ -2582,7 +2582,8 @@ def doc_handle_store(event):
         * ``file_meta`` : a
           :py:class:`Dataset <pydicom.dataset.Dataset>` containing DICOM
           conformant File Meta Information that can be used with the decoded
-          dataset when saving to file: `ds.file_meta = event.file_meta`.
+          dataset when saving to file: `event.dataset.file_meta =
+          event.file_meta`.
 
     Returns
     -------
@@ -2590,9 +2591,9 @@ def doc_handle_store(event):
         The status returned to the requesting AE in the C-STORE response. Must
         be a valid C-STORE status value for the applicable Service Class as
         either an ``int`` or a ``Dataset`` object containing (at a
-        minimum) a (0000,0900) *Status* element. If returning a Dataset
+        minimum) a (0000,0900) *Status* element. If returning a ``Dataset``
         object then it may also contain optional elements related to the
-        Status (as in the DICOM Standard Part 7, Annex C).
+        *Status* (as in the DICOM Standard Part 7, Annex C).
 
     Raises
     ------
@@ -2646,7 +2647,7 @@ def doc_handle_action(event):
     ----------
     event : events.Event
         The event representing a service class receiving a N-ACTION
-        request message. Event attributes are:
+        request message. ``Event`` attributes are:
 
         * ``assoc`` : the
           :py:class:`association <pynetdicom.association.Association>`
@@ -2675,16 +2676,16 @@ def doc_handle_action(event):
         The status returned to the peer AE in the N-ACTION response. Must be a
         valid N-ACTION status value for the applicable Service Class as either
         an ``int`` or a ``Dataset`` object containing (at a minimum) a
-        (0000,0900) *Status* element. If returning a Dataset object then
-        it may also contain optional elements related to the Status (as in
+        (0000,0900) *Status* element. If returning a ``Dataset`` object then
+        it may also contain optional elements related to the *Status* (as in
         DICOM Standard Part 7, Annex C).
     dataset : pydicom.dataset.Dataset or None
-        If the status category is 'Success' or 'Warning' then a dataset
-        containing elements for the response's Action Reply
+        If the status category is 'Success' or 'Warning' then a ``Dataset``
+        containing elements for the response's *Action Reply*
         conformant to the specifications in the corresponding Service
         Class.
 
-        If the status is not 'Successs' or 'Warning' then None.
+        If the status category is not 'Success' or 'Warning' then ``None``.
 
     Raises
     ------
@@ -2706,12 +2707,14 @@ def doc_handle_action(event):
 def doc_handle_create(event):
     """Documentation for handlers bound to ``evt.EVT_N_CREATE``.
 
-    Use of handlers for ``evt.EVT_N_CREATE`` is not yet supported.
-
     User implementation of this event handler is required if one or more
     services that use N-CREATE are to be supported. If a handler is
     not implemented and bound to ``evt.EVT_N_CREATE`` then the N-CREATE request
-    will be responded to using a  *Status* value of FIXME.
+    will be responded to using a  *Status* value of ``0x0110`` - Processing
+    Failure.
+
+    Management of the SOP Instances created in response to an N-CREATE request
+    is the responsibility of the user.
 
     **Event**
 
@@ -2719,15 +2722,55 @@ def doc_handle_create(event):
 
     **Supported Service Classes**
 
-    None
+    * *Modality Performed Procedure Step Management*
 
     **Status**
+
+    Success
+      | ``0x0000`` - Success
+
+    Failure
+      | ``0x0105`` - No such attribute
+      | ``0x0106`` - Invalid attribute value
+      | ``0x0107`` - Attribute list error
+      | ``0x0110`` - Processing failure
+      | ``0x0111`` - Duplicate SOP Instance
+      | ``0x0116`` - Attribute value out of range
+      | ``0x0117`` - Invalid object instance
+      | ``0x0118`` - No such SOP Class
+      | ``0x0120`` - Missing attribute
+      | ``0x0121`` - Missing attribute value
+      | ``0x0124`` - Refused: not authorised
+      | ``0x0210`` - Duplicate invocation
+      | ``0x0211`` - Unrecognised operation
+      | ``0x0212`` - Mistyped argument
+      | ``0x0213`` - Resource limitation
+      | ``0xA510`` - Failed: an initiate media creation action has already been
+        received for this SOP Instance
+      | ``0xC221`` - The Referenced Fraction Group Number does not exist in the
+        referenced plan
+      | ``0xC222`` - No beams exist within the referenced fraction group
+      | ``0xC223`` - SCU already verifying and cannot currently process this
+        request
+      | ``0xC227`` - No such object instance - Referenced RT Plan not found
+      | ``0xC309`` - The provided value of UPS State was not 'SCHEDULED'
+      | ``0xC616`` - There is an existing Film Box that has not been
+        printed and N-ACTION at the Film Session level is not supported.
+        A new Film Box will not be created when a previous Film Box has
+        not been printed
+
+    Warning
+      | ``0xB300`` - THE UPS was created with modifications
+      | ``0xB600`` - Memory allocation not supported
+      | ``0xB605`` - Requested Min Density or Max Density outside of
+        printer's operating range. The printer will use its respective
+        minimum or maximum density value instead
 
     Parameters
     ----------
     event : events.Event
         The event representing a service class receiving a N-CREATE
-        request message. Event attributes are:
+        request message. ``Event`` attributes are:
 
         * ``assoc`` : the
           :py:class:`association <pynetdicom.association.Association>`
@@ -2756,16 +2799,15 @@ def doc_handle_create(event):
         The status returned to the peer AE in the N-CREATE response. Must be a
         valid N-CREATE status value for the applicable Service Class as either
         an ``int`` or a ``Dataset`` object containing (at a minimum) a
-        (0000,0900) *Status* element. If returning a Dataset object then
-        it may also contain optional elements related to the Status (as in
+        (0000,0900) *Status* element. If returning a ``Dataset`` object then
+        it may also contain optional elements related to the *Status* (as in
         DICOM Standard Part 7, Annex C).
     dataset : pydicom.dataset.Dataset or None
-        If the status category is 'Success' or 'Warning' then a dataset
-        containing elements of the response's Attribute List
-        conformant to the specifications in the corresponding Service
-        Class.
+        If the status category is 'Success' or 'Warning' then a ``Dataset``
+        containing elements of the response's *Attribute List* conformant to
+        the specifications in the corresponding Service Class.
 
-        If the status is not 'Successs' or 'Warning' then None.
+        If the status category is not 'Success' or 'Warning' then ``None``.
 
     Raises
     ------
@@ -2806,7 +2848,7 @@ def doc_handle_delete(event):
     ----------
     event : events.Event
         The event representing a service class receiving a N-DELETE
-        request message. Event attributes are:
+        request message. ``Event`` attributes are:
 
         * ``assoc`` : the
           :py:class:`association <pynetdicom.association.Association>`
@@ -2827,8 +2869,8 @@ def doc_handle_delete(event):
         The status returned to the peer AE in the N-DELETE response. Must be a
         valid N-DELETE status value for the applicable Service Class as either
         an ``int`` or a ``Dataset`` object containing (at a minimum) a
-        (0000,0900) *Status* element. If returning a Dataset object then
-        it may also contain optional elements related to the Status (as in
+        (0000,0900) *Status* element. If returning a ``Dataset`` object then
+        it may also contain optional elements related to the *Status* (as in
         DICOM Standard Part 7, Annex C).
 
     Raises
@@ -2851,13 +2893,11 @@ def doc_handle_delete(event):
 def doc_handle_event_report(event):
     """Documentation for handlers bound to ``evt.EVT_N_EVENT_REPORT``.
 
-    Use of handlers for ``evt.EVT_N_EVENT_REPORT`` is not yet supported.
-
     User implementation of this event handler is required if one or more
     services that use N-EVENT-REPORT are to be supported. If a handler is
     not implemented and bound to ``evt.EVT_N_EVENT_REPORT`` then the
     N-EVENT-REPORT request will be responded to using a  *Status* value
-    of FIXME.
+    of ``0x0110`` - Processing Failure.
 
     **Event**
 
@@ -2865,13 +2905,32 @@ def doc_handle_event_report(event):
 
     **Supported Service Classes**
 
+    * *Modality Performed Procedure Step Management*
+
     **Status**
+
+    Success
+      | ``0x0000`` Success
+
+    Failure
+      | ``0x0110`` Processing failure
+      | ``0x0112`` No such SOP Instance
+      | ``0x0113`` No such event type
+      | ``0x0114`` No such argument
+      | ``0x0115`` Invalid argument value
+      | ``0x0117`` Invalid object Instance
+      | ``0x0118`` No such SOP Class
+      | ``0x0119`` Class-Instance conflict
+      | ``0x0210`` Duplicate invocation
+      | ``0x0211`` Unrecognised operation
+      | ``0x0212`` Mistyped argument
+      | ``0x0213`` Resource limitation
 
     Parameters
     ----------
     event : events.Event
         The event representing a service class receiving a N-EVENT-REPORT
-        request message. Event attributes are:
+        request message. ``Event`` attributes are:
 
         * ``assoc`` : the
           :py:class:`association <pynetdicom.association.Association>`
@@ -2905,12 +2964,12 @@ def doc_handle_event_report(event):
         object then it may also contain optional elements related to the
         Status (as in DICOM Standard Part 7, Annex C).
     dataset : pydicom.dataset.Dataset or None
-        If the status category is 'Success' or 'Warning' then a dataset
-        containing elements of the response's Event Reply
+        If the status category is 'Success' or 'Warning' then a ``Dataset``
+        containing elements of the response's *Event Reply*
         conformant to the specifications in the corresponding Service
         Class.
 
-        If the status is not 'Successs' or 'Warning' then None.
+        If the status category is not 'Success' or 'Warning' then ``None``.
 
     Raises
     ------
@@ -2935,17 +2994,48 @@ def doc_handle_n_get(event):
     User implementation of this event handler is required if one or more
     services that use N-GET are to be supported. If a handler is
     not implemented and bound to ``evt.EVT_N_GET`` then the N_GET request
-    will be responded to using a  *Status* value of ``0x0110`` - Failure.
+    will be responded to using a  *Status* value of ``0x0110`` - Processing
+    Failure.
 
     **Event**
 
     ``evt.EVT_N_GET``
 
+    **Supported Service Classes**
+
+    * *Display System Management Service Class*
+    * *Modality Performed Procedure Step Management*
+
+    **Status**
+
+    Success
+      | ``0x0000`` - Success
+
+    Failure
+      | ``0x0107`` - Attribute list error
+      | ``0x0110`` - Processing failure
+      | ``0x0112`` - No such SOP Instance
+      | ``0x0117`` - Invalid object Instance
+      | ``0x0118`` - No such SOP Class
+      | ``0x0119`` - Class-Instance conflict
+      | ``0x0124`` - Not authorised
+      | ``0x0210`` - Duplicate invocation
+      | ``0x0211`` - Unrecognised operation
+      | ``0x0212`` - Mistyped argument
+      | ``0x0213`` - Resource limitation
+      | ``0xC112`` - Applicable Machine Verification Instance not found
+      | ``0xC307`` - Specified SOP Instance UID doesn't exist or is not
+        a UPS Instance managed by this SCP
+
+    Warning
+      | ``0x0001`` - Requested optional Attributes are not supported
+      | ``0x0107`` Attribute list error
+
     Parameters
     ----------
     event : events.Event
         The event representing a service class receiving an N-GET
-        request message. Event attributes are:
+        request message. ``Event`` attributes are:
 
         * ``assoc`` : the
           :py:class:`association <pynetdicom.association.Association>`
@@ -2966,22 +3056,23 @@ def doc_handle_n_get(event):
         The status returned to the peer AE in the N-GET response. Must be a
         valid N-GET status value for the applicable Service Class as either
         an ``int`` or a ``Dataset`` object containing (at a minimum) a
-        (0000,0900) *Status* element. If returning a Dataset object then
-        it may also contain optional elements related to the Status (as in
+        (0000,0900) *Status* element. If returning a ``Dataset`` object then
+        it may also contain optional elements related to the *Status* (as in
         DICOM Standard Part 7, Annex C).
     dataset : pydicom.dataset.Dataset or None
-        If the status category is 'Success' or 'Warning' then a dataset
-        containing elements matching the request's Attribute List
+        If the status category is 'Success' or 'Warning' then a ``Dataset``
+        containing elements matching the request's *Attribute List*
         conformant to the specifications in the corresponding Service
         Class.
 
-        If the status is not 'Successs' or 'Warning' then None.
+        If the status category is not 'Success' or 'Warning' then ``None``.
 
     See Also
     --------
     :py:meth:`send_n_get()<pynetdicom.association.Association.send_n_get>`
     :py:class:`N_GET<pynetdicom.dimse_primitives.N_GET>`
     :py:class:`DisplaySystemManagementServiceClass<pynetdicom.service_class_n.DisplaySystemManagementServiceClass>`
+    :py:class:`ModalityPerformedProcedureStepServiceClass<pynetdicom.service_class_n.ModalityPerformedProcedureStepServiceClass>`
 
     References
     ----------
@@ -2998,12 +3089,11 @@ def doc_handle_n_get(event):
 def doc_handle_set(event):
     """Documentation for handlers bound to ``evt.EVT_N_SET``.
 
-    Use of handlers for ``evt.EVT_N_SET`` is not yet supported.
-
     User implementation of this event handler is required if one or more
     services that use N-SET are to be supported. If a handler is
     not implemented and bound to ``evt.EVT_N_SET`` then the N-SET request
-    will be responded to using a  *Status* value of FIXME.
+    will be responded to using a  *Status* value of ``0x0110`` - Processing
+    Failure.
 
     **Event**
 
@@ -3011,13 +3101,68 @@ def doc_handle_set(event):
 
     **Supported Service Classes**
 
+    * *Modality Performed Procedure Step Management*
+
     **Status**
+
+    Success
+      | ``0x0000`` - Success
+
+    Failure
+      | ``0x0105`` - No such attribute
+      | ``0x0106`` - Invalid attribute value
+      | ``0x0110`` - Processing failure
+      | ``0x0112`` - SOP Instance not recognised
+      | ``0x0116`` - Attribute value out of range
+      | ``0x0117`` - Invalid object instance
+      | ``0x0118`` - No such SOP Class
+      | ``0x0119`` - Class-Instance conflict
+      | ``0x0121`` - Missing attribute value
+      | ``0x0124`` - Refused: not authorised
+      | ``0x0210`` - Duplicate invocation
+      | ``0x0211`` - Unrecognised operation
+      | ``0x0212`` - Mistyped argument
+      | ``0x0213`` - Resource limitation
+      | ``0xC112`` - Applicable Machine Verification Instance not found
+      | ``0xC224`` - Reference Beam Number not found within the
+        referenced Fraction Group
+      | ``0xC225`` - Referenced device or accessory not supported
+      | ``0xC226`` - Referenced device or accessory not found with the
+        referenced beam
+      | ``0xC300`` - The UPS may no longer be updated
+      | ``0xC301`` - The correct Transaction UID was not provided
+      | ``0xC307`` - Specified SOP Instance UID does not exist or is not a UPS
+        Instance managed by this SCP
+      | ``0xC310`` - The UPS is not in the 'IN PROGRESS' state
+      | ``0xC603`` - Image size is larger than image box size
+      | ``0xC605`` - Insufficient memory in printer to store the image
+      | ``0xC613`` - Combined Print Image size is larger than the Image Box
+        size
+      | ``0xC616`` - There is an existing Film Box that has not been
+        printed and N-ACTION at the Film Session level is not supported.
+        A new Film Box will not be created when a previous Film Box has
+        not been printed
+
+    Warning
+      | ``0x0001`` - Requested optional attributes are not supported
+      | ``0xB305`` - Coerced invalid values to valid values
+      | ``0xB600`` - Memory allocation not supported
+      | ``0xB604`` - Image size larger than image box size, the image has been
+        demagnified
+      | ``0xB605`` - Requested Min Density or Max Density outside of
+        printer's operating range. The printer will use its respective
+        minimum or maximum density value instead
+      | ``0xB609`` - Image size is larger than the Image Box. The Image has
+        been cropped to fit
+      | ``0xB60A`` - Image size or Combined Print Image size is larger than the
+        Image Box size. The Image or Combined Print Image has been decimated
+        to fit
 
     Parameters
     ----------
     event : events.Event
         The event representing a service class receiving a N-SET
-        request message. Event attributes are:
+        request message. ``Event`` attributes are:
 
         * ``assoc`` : the
           :py:class:`association <pynetdicom.association.Association>`
@@ -3046,16 +3191,16 @@ def doc_handle_set(event):
         The status returned to the peer AE in the N-SET response. Must be a
         valid N-SET status value for the applicable Service Class as either
         an ``int`` or a ``Dataset`` object containing (at a minimum) a
-        (0000,0900) *Status* element. If returning a Dataset object then
-        it may also contain optional elements related to the Status (as in
+        (0000,0900) *Status* element. If returning a ``Dataset`` object then
+        it may also contain optional elements related to the *Status* (as in
         DICOM Standard Part 7, Annex C).
     dataset : pydicom.dataset.Dataset or None
-        If the status category is 'Success' or 'Warning' then a dataset
-        containing elements of the response's Attribute List
+        If the status category is 'Success' or 'Warning' then a ``Dataset``
+        containing elements of the response's *Attribute List*
         conformant to the specifications in the corresponding Service
         Class.
 
-        If the status is not 'Successs' or 'Warning' then None.
+        If the status category is not 'Success' or 'Warning' then ``None``.
 
     Raises
     ------
@@ -3241,7 +3386,7 @@ def doc_handle_userid(event):
     ----------
     event : events.Event
         The event representing an association request being received which
-        contains a User Identity Negotiation item. Event attributes are:
+        contains a User Identity Negotiation item. ``Event`` attributes are:
 
         * ``assoc`` : the
           :py:class:`association <pynetdicom.association.Association>`
@@ -3275,10 +3420,10 @@ def doc_handle_userid(event):
     response : bytes or None
         If ``user_id_type`` is:
 
-        * 1 or 2, then return None
-        * 3 then return the Kerberos Server ticket as bytes
-        * 4 then return the SAML response as bytes
-        * 5 then return the JSON web token as bytes
+        * 1 or 2, then return ``None``
+        * 3 then return the Kerberos Server ticket as ``bytes``
+        * 4 then return the SAML response as ``bytes``
+        * 5 then return the JSON web token as ``bytes``
 
     References
     ----------
@@ -3297,7 +3442,7 @@ def doc_handle_acse(event):
     event : events.Event
         Represents the ACSE service provider receiving or sending an
         association related primitive to/from the DUL service provider.
-        Event attributes are:
+        ``Event`` attributes are:
 
         * ``assoc`` : the
           :py:class:`association <pynetdicom.association.Association>`
@@ -3372,7 +3517,7 @@ def doc_handle_data(event):
     ----------
     event : events.Event
         Represents data being sent to or received from the remote over the
-        socket. Event attributes are:
+        socket. ``Event`` attributes are:
 
         * ``assoc`` : the
           :py:class:`association <pynetdicom.association.Association>`
@@ -3396,7 +3541,7 @@ def doc_handle_pdu(event):
     ----------
     event : events.Event
         Represents the DUL service provider sending or receiving a PDU.
-        Event attributes are:
+        ``Event`` attributes are:
 
         * ``assoc`` : the
           :py:class:`association <pynetdicom.association.Association>`
@@ -3472,7 +3617,7 @@ def doc_handle_fsm(event):
     event : events.Event
         Represents the state machine receiving a triggering event and being
         about to perform the action that will take it to the next state.
-        Event attributes are:
+        ``Event`` attributes are:
 
         * ``action`` : the name of the action that's to be performed.
         * ``assoc`` : the

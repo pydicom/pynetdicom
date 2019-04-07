@@ -11,6 +11,7 @@ import time
 import pytest
 
 from pydicom.dataset import Dataset
+from pydicom.tag import BaseTag
 from pydicom.uid import ImplicitVRLittleEndian
 
 from pynetdicom import (
@@ -24,7 +25,7 @@ from pynetdicom.events import (
     _n_event_report_handler, _n_get_handler, _n_set_handler
 )
 from pynetdicom.dimse_messages import (
-    N_ACTION_RQ, N_CREATE_RQ, N_EVENT_REPORT_RQ, N_SET_RQ
+    N_ACTION, N_CREATE, N_EVENT_REPORT, N_SET, N_GET, N_DELETE
 )
 from pynetdicom.sop_class import VerificationSOPClass
 
@@ -150,6 +151,13 @@ class TestEvent(object):
         with pytest.raises(AttributeError, match=msg):
             event.modification_list
 
+        msg = (
+            r"The corresponding event is not an N-GET request and has no "
+            r"'Attribute Identifier List' parameter"
+        )
+        with pytest.raises(AttributeError, match=msg):
+            event.attribute_identifiers
+
     def test_is_cancelled_non(self):
         """Test Event.is_cancelled with wrong event type."""
         event = evt.Event(None, evt.EVT_DATA_RECV)
@@ -201,7 +209,7 @@ class TestEvent(object):
 
     def test_action_information(self):
         """Test Event.action_information."""
-        request = N_ACTION_RQ()
+        request = N_ACTION()
         request.ActionInformation = self.bytestream
         event = Event(
             None,
@@ -225,7 +233,7 @@ class TestEvent(object):
 
     def test_attribute_list(self):
         """Test Event.attribute_list."""
-        request = N_CREATE_RQ()
+        request = N_CREATE()
         request.AttributeList = self.bytestream
         event = Event(
             None,
@@ -249,7 +257,7 @@ class TestEvent(object):
 
     def test_event_information(self):
         """Test Event.event_information."""
-        request = N_EVENT_REPORT_RQ()
+        request = N_EVENT_REPORT()
         request.EventInformation = self.bytestream
         event = Event(
             None,
@@ -273,7 +281,7 @@ class TestEvent(object):
 
     def test_modification_list(self):
         """Test Event.modification_list."""
-        request = N_SET_RQ()
+        request = N_SET()
         request.ModificationList = self.bytestream
         event = Event(
             None,
@@ -294,6 +302,56 @@ class TestEvent(object):
         # Test hash mismatch
         event._hash = None
         assert 'PatientID' not in event.modification_list
+
+    def test_empty_dataset(self):
+        """Test with an empty dataset-like."""
+        request = N_EVENT_REPORT()
+        event = Event(
+            None,
+            evt.EVT_N_CREATE,
+            {'request' : request, 'context' : self.context.as_tuple}
+        )
+
+        assert event._hash is None
+        assert event._decoded is None
+        ds = event.event_information
+        assert event._hash == hash(request.EventInformation)
+        assert ds == Dataset()
+
+        # Test in-place modification works OK
+        ds.PatientID = '1234567'
+        assert event.event_information.PatientID == '1234567'
+
+        # Test hash mismatch
+        event._hash = None
+        assert 'PatientID' not in event.event_information
+
+    def test_empty_attr_identifiers(self):
+        """Test with an empty attribute_identifiers."""
+        request = N_GET()
+        event = Event(
+            None,
+            evt.EVT_N_GET,
+            {'request' : request, 'context' : self.context.as_tuple}
+        )
+
+        assert event.attribute_identifiers == []
+
+    def test_attr_identifiers(self):
+        """Test with attribute_identifiers."""
+        request = N_GET()
+        request.AttributeIdentifierList = [0x00100010, 0x00100020]
+        event = Event(
+            None,
+            evt.EVT_N_GET,
+            {'request' : request, 'context' : self.context.as_tuple}
+        )
+
+        tags = event.attribute_identifiers
+        assert isinstance(tags[0], BaseTag)
+        assert tags[0] == 0x00100010
+        assert isinstance(tags[1], BaseTag)
+        assert tags[1] == 0x00100020
 
 
 # TODO: Should be able to remove in v1.4

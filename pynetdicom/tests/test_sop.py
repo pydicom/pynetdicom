@@ -50,6 +50,7 @@ from pynetdicom.service_class import (
 )
 from pynetdicom.service_class_n import (
     DisplaySystemManagementServiceClass,
+    ModalityPerformedProcedureStepServiceClass,
 )
 
 
@@ -156,7 +157,7 @@ class TestUIDToServiceClass(object):
     def test_procedure_uids(self):
         """Test that the Procedure SOP Class UIDs work correctly."""
         for uid in _PROCEDURE_STEP_CLASSES.values():
-            assert uid_to_service_class(uid) == ServiceClass
+            assert uid_to_service_class(uid) == ModalityPerformedProcedureStepServiceClass
 
     def test_media_uids(self):
         """Test that the Media Storage SOP Class UIDs work correctly."""

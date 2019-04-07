@@ -30,7 +30,7 @@ DECODE_STORE_DATASETS = True
 LOG_HANDLER_LEVEL = 'standard'
 
 
-# Enfore UID conformance
+# Enforce UID conformance
 #   * If True then UIDs will be checked to ensure they're conformant to the
 #     DICOM Standard and if not then an appropriate response sent.
 #   * If False then UIDs will only be checked to ensure they're no longer

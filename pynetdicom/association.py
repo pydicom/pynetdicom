@@ -602,6 +602,10 @@ class Association(threading.Thread):
                     )
                     self.abort()
                     return
+                except Exception as exc:
+                    LOGGER.exception(exc)
+                    self.abort()
+                    return
 
             # Check for release request
             if self.acse.is_release_requested(self):
@@ -872,10 +876,10 @@ class Association(threading.Thread):
         Parameters
         ----------
         msg_id : int
-            The message ID of the C-GET/MOVE/FIND operation we want to cancel.
-            Must be between 0 and 65535, inclusive.
+            The *Message ID* of the C-GET/C-MOVE/C-FIND operation to be
+            cancelled. Must be between 0 and 65535, inclusive.
         context_id : int
-            The presentation context ID of the original C-GET/MOVE/FIND
+            The presentation context ID of the original C-GET/C-MOVE/C-FIND
             service request.
         """
         # Can't send a C-CANCEL without an Association
@@ -910,7 +914,7 @@ class Association(threading.Thread):
             returns an empty ``Dataset``. If a valid response was received from
             the peer then returns a ``Dataset`` containing at least a
             (0000,0900) *Status* element, and, depending on the returned
-            Status value, may optionally contain additional elements (see
+            *Status* value, may optionally contain additional elements (see
             DICOM Standard Part 7, Annex C).
 
             The DICOM Standard Part 7, Table 9.3-13 indicates that the Status
@@ -919,13 +923,13 @@ class Association(threading.Thread):
             values:
 
             Success
-              | ``0x0000`` Success
+              | ``0x0000`` - Success
 
             Failure
-              | ``0x0122`` SOP class not supported
-              | ``0x0210`` Duplicate invocation
-              | ``0x0211`` Unrecognised operation
-              | ``0x0212`` Mistyped argument
+              | ``0x0122`` - SOP class not supported
+              | ``0x0210`` - Duplicate invocation
+              | ``0x0211`` - Unrecognised operation
+              | ``0x0212`` - Mistyped argument
 
             As the actual status depends on the peer SCP, it shouldn't be
             assumed that it will be one of these.
@@ -1010,36 +1014,36 @@ class Association(threading.Thread):
         query_model : str, optional
             The Information Model to use, one of the following:
 
-            - ``P`` - *Patient Root Information Model - FIND*
-              1.2.840.10008.5.1.4.1.2.1.1 (default)
-            - ``S`` - *Study Root Information Model - FIND*
-              1.2.840.10008.5.1.4.1.2.2.1
-            - ``O`` - *Patient Study Only Information Model - FIND*
-              1.2.840.10008.5.1.4.1.2.3.1
-            - ``W`` - *Modality Worklist Information - FIND*
-              1.2.840.10008.5.1.4.31
-            - ``G`` - *General Relevant Patient Information Query*
-              1.2.840.10008.5.1.4.37.1
-            - ``B`` - *Breast Imaging Relevant Patient Information Query*
-              1.2.840.10008.5.1.4.37.2
-            - ``C`` - *Cardiac Relevant Patient Information Query*
-              1.2.840.10008.5.1.4.37.3
-            - ``PC`` - *Product Characteristics Query Information Model - FIND*
-              1.2.840.10008.5.1.4.41
-            - ``SA`` - *Substance Approval Query Information Model - FIND*
-              1.2.840.10008.5.1.4.42
-            - ``H`` - *Hanging Protocol Information Model - FIND*
-              1.2.840.10008.5.1.4.38.2
-            - ``D`` - *Defined Procedure Protocol Information Model - FIND*
-              1.2.840.10008.5.1.4.20.1
-            - ``CP`` - *Color Palette Information Model - FIND*
-              1.2.840.10008.5.1.4.39.2
-            - ``IG`` - *Generic Implant Template Information Model - FIND*
-              1.2.840.10008.5.1.4.43.2
-            - ``IA`` - *Implant Assembly Template Information Model - FIND*
-              1.2.840.10008.5.1.4.44.2
-            - ``IT`` - *Implant Template Group Information Model - FIND*
-              1.2.840.10008.5.1.4.44.2
+            - ``P`` - 1.2.840.10008.5.1.4.1.2.1.1  -
+              *Patient Root Information Model - FIND* (default)
+            - ``S`` - 1.2.840.10008.5.1.4.1.2.2.1 -
+              *Study Root Information Model - FIND*
+            - ``O`` - 1.2.840.10008.5.1.4.1.2.3.1 -
+              *Patient Study Only Information Model - FIND*
+            - ``W`` - 1.2.840.10008.5.1.4.31 -
+              *Modality Worklist Information - FIND*
+            - ``G`` - 1.2.840.10008.5.1.4.37.1 -
+              *General Relevant Patient Information Query*
+            - ``B`` - 1.2.840.10008.5.1.4.37.2 -
+              *Breast Imaging Relevant Patient Information Query*
+            - ``C`` - 1.2.840.10008.5.1.4.37.3 -
+              *Cardiac Relevant Patient Information Query*
+            - ``PC`` - 1.2.840.10008.5.1.4.41 -
+              *Product Characteristics Query Information Model - FIND*
+            - ``SA`` - 1.2.840.10008.5.1.4.42 -
+              *Substance Approval Query Information Model - FIND*
+            - ``H`` - 1.2.840.10008.5.1.4.38.2 -
+              *Hanging Protocol Information Model - FIND*
+            - ``D`` - 1.2.840.10008.5.1.4.20.1 -
+              *Defined Procedure Protocol Information Model - FIND*
+            - ``CP`` - 1.2.840.10008.5.1.4.39.2 -
+              *Color Palette Information Model - FIND*
+            - ``IG`` - 1.2.840.10008.5.1.4.43.2 -
+              *Generic Implant Template Information Model - FIND*
+            - ``IA`` - 1.2.840.10008.5.1.4.44.2 -
+              *Implant Assembly Template Information Model - FIND*
+            - ``IT`` - 1.2.840.10008.5.1.4.44.2 -
+              *Implant Template Group Information Model - FIND*
 
         Yields
         ------
@@ -1052,62 +1056,63 @@ class Association(threading.Thread):
             Part 7, Section 9.1.2.1.5 and Annex C).
 
             The status for the requested C-FIND operation should be one of the
-            following values, but as the returned value depends
+            following values, but as the value depends
             on the peer this can't be assumed:
 
-            General C-FIND (Part 7, Section 9.1.2.1.5 and Annex C)
+            *General C-FIND* (Part 7, Section 9.1.2.1.5 and Annex C)
 
             Cancel
-              | ``0xFE00`` Matching terminated due to Cancel request
+              | ``0xFE00`` - Matching terminated due to Cancel request
 
             Success
-              | ``0x0000`` Matching is complete: no final Identifier is
+              | ``0x0000`` - Matching is complete: no final Identifier is
                 supplied
 
             Failure
-              | ``0x0122`` SOP class not supported
+              | ``0x0122`` - SOP class not supported
 
-            Query/Retrieve Service, Basic Worklist Management Service,
+            *Query/Retrieve Service, Basic Worklist Management Service,
             Hanging Protocol Query/Retrieve Service, Defined Procedure Protocol
             Query/Retrieve Service, Substance Administration Query Service,
-            Color Palette Query/Retrieve Service and Implant Template
-            Query/Retrieve Service specific
+            Color Palette Query/Retrieve Service* and *Implant Template
+            Query/Retrieve Service* specific
             (DICOM Standard Part 4, Annexes C.4.1, K.4.1.1.4, U.4.1, HH,
             V.4.1.1.4, X and BB):
 
             Failure
-              | ``0xA700`` Out of resources
-              | ``0xA900`` Identifier does not match SOP Class
-              | ``0xC000`` to ``0xCFFF`` Unable to process
+              | ``0xA700`` - Out of resources
+              | ``0xA900`` - Identifier does not match SOP Class
+              | ``0xC000`` to ``0xCFFF`` - Unable to process
 
             Pending
-              | ``0xFF00`` Matches are continuing: current match is supplied
+              | ``0xFF00`` - Matches are continuing: current match is supplied
                 and any Optional Keys were supported in the same manner as
                 Required Keys
-              | ``0xFF01`` Matches are continuing: warning that one or more
+              | ``0xFF01`` - Matches are continuing: warning that one or more
                 Optional Keys were not supported for existence and/or matching
                 for this Identifier)
 
-            Relevant Patient Information Query Service specific (DICOM
+            *Relevant Patient Information Query Service* specific (DICOM
             Standard Part 4, Annex Q.2.1.1.4):
 
             Failure
-              | ``0xA700`` Out of resources
-              | ``0xA900`` Identifier does not match SOP Class
-              | ``0xC000`` Unable to process
-              | ``0xC100`` More than one match found
-              | ``0xC200`` Unable to support requested template
+              | ``0xA700`` - Out of resources
+              | ``0xA900`` - Identifier does not match SOP Class
+              | ``0xC000`` - Unable to process
+              | ``0xC100`` - More than one match found
+              | ``0xC200`` - Unable to support requested template
 
             Pending
-              | ``0xFF00`` Matches are continuing: current match is supplied
+              | ``0xFF00`` - Matches are continuing: current match is supplied
                 and any Optional Keys were supported in the same manner as
                 Required Keys
 
         identifier : pydicom.dataset.Dataset or None
-            If the status is 'Pending' then the C-FIND response's *Identifier*
-            ``Dataset``. If the status is not 'Pending' this will be ``None``.
-            The exact contents of the response *Identifier* are Service Class
-            specific (see the DICOM Standard, Part 4).
+            If the status category is 'Pending' then the C-FIND response's
+            *Identifier* ``Dataset``. If the status category is not 'Pending'
+            this will be ``None``. The exact contents of the response
+            *Identifier* are Service Class specific (see the DICOM Standard,
+            Part 4).
 
         Raises
         ------
@@ -1223,9 +1228,10 @@ class Association(threading.Thread):
 
         Yields ``(status, identifier)`` pairs.
 
-        The ``AE.on_c_store`` callback should be implemented prior
-        to calling ``send_c_get`` as the peer will return any matches via a
-        C-STORE sub-operation over the current association. In addition,
+        A :py:meth:`handler <pynetdicom._handlers.doc_handle_store>`
+        should be implemented and bound to ``evt.EVT_C_STORE``
+        prior to calling ``send_c_get`` as the peer will return any matches
+        via a C-STORE sub-operation over the current association. In addition,
         SCP/SCU Role Selection Negotiation must be supported by the
         Association.
 
@@ -1249,28 +1255,28 @@ class Association(threading.Thread):
         query_model : str, optional
             The Query/Retrieve Information Model to use, one of the following:
 
-            - ``P`` - *Patient Root Information Model - GET*
-              1.2.840.10008.5.1.4.1.2.1.3 (default)
-            - ``S`` - *Study Root Information Model - GET*
-              1.2.840.10008.5.1.4.1.2.2.3
-            - ``O`` - *Patient Study Only Information Model - GET*
-              1.2.840.10008.5.1.4.1.2.3.3
-            - ``C`` - *Composite Instance Root Retrieve - GET*
-              1.2.840.10008.5.1.4.1.2.4.3
-            - ``CB`` - *Composite Instance Retrieve Without Bulk Data - GET*
-              1.2.840.10008.5.1.4.1.2.5.3
-            - ``H`` - *Hanging Protocol Information Model - GET*
-              1.2.840.10008.5.1.4.38.4
-            - ``D`` - *Defined Procedure  Protocol Information Model - GET*
-              1.2.840.10008.5.1.4.20.3
-            - ``CP`` - *Palette Color Information Model - GET*
-              1.2.840.10008.5.1.4.39.4
-            - ``IG`` - *Generic Implant Template Information Model - GET*
-              1.2.840.10008.5.1.4.43.4
-            - ``IA`` - *Implant Assembly Template Information Model - GET*
-              1.2.840.10008.5.1.4.44.4
-            - ``IT`` - *Implant Template Group Information Model - GET*
-              1.2.840.10008.5.1.4.44.4
+            - ``P`` - 1.2.840.10008.5.1.4.1.2.1.3 -
+              *Patient Root Information Model - GET* (default)
+            - ``S`` - 1.2.840.10008.5.1.4.1.2.2.3 -
+              *Study Root Information Model - GET*
+            - ``O`` - 1.2.840.10008.5.1.4.1.2.3.3 -
+              *Patient Study Only Information Model - GET*
+            - ``C`` - 1.2.840.10008.5.1.4.1.2.4.3 -
+              *Composite Instance Root Retrieve - GET*
+            - ``CB`` - 1.2.840.10008.5.1.4.1.2.5.3 -
+              *Composite Instance Retrieve Without Bulk Data - GET*
+            - ``H`` - 1.2.840.10008.5.1.4.38.4 -
+              *Hanging Protocol Information Model - GET*
+            - ``D`` - 1.2.840.10008.5.1.4.20.3 -
+              *Defined Procedure  Protocol Information Model - GET*
+            - ``CP`` - 1.2.840.10008.5.1.4.39.4 -
+              *Palette Color Information Model - GET*
+            - ``IG`` - 1.2.840.10008.5.1.4.43.4 -
+              *Generic Implant Template Information Model - GET*
+            - ``IA`` - 1.2.840.10008.5.1.4.44.4 -
+              *Implant Assembly Template Information Model - GET*
+            - ``IT`` - 1.2.840.10008.5.1.4.44.4 -
+              *Implant Template Group Information Model - GET*
 
         Yields
         ------
@@ -1283,57 +1289,57 @@ class Association(threading.Thread):
             Section 9.1.2.1.5 and Annex C).
 
             The status for the requested C-GET operation should be one of the
-            following values, but as the returned value depends on the
-            peer this can't be assumed:
+            following values, but as the value depends on the peer this
+            can't be assumed:
 
-            General C-GET (DICOM Standard Part 7, Section 9.1.3 and Annex C)
+            *General C-GET* (DICOM Standard Part 7, Section 9.1.3 and Annex C)
 
             Success
-              | ``0x0000`` Sub-operations complete: no failures or warnings
+              | ``0x0000`` - Sub-operations complete: no failures or warnings
 
             Failure
-              | ``0x0122`` SOP class not supported
-              | ``0x0124`` Not authorised
-              | ``0x0210`` Duplicate invocation
-              | ``0x0211`` Unrecognised operation
-              | ``0x0212`` Mistyped argument
+              | ``0x0122`` - SOP class not supported
+              | ``0x0124`` - Not authorised
+              | ``0x0210`` - Duplicate invocation
+              | ``0x0211`` - Unrecognised operation
+              | ``0x0212`` - Mistyped argument
 
-            Query/Retrieve Service, Hanging Protocol Query/Retrieve Service,
+            *Query/Retrieve Service, Hanging Protocol Query/Retrieve Service,
             Defined Procedure Protocol Query/Retrieve Service, Color Palette
-            Query/Retrieve Service and Implant Template Query/Retrieve Service
-            specific (DICOM Standard Part 4, Annexes C.4.3, Y.C.4.2.1.4,
-            Z.4.2.1.4, U.4.3, X, BB and HH):
+            Query/Retrieve Service* and *Implant Template Query/Retrieve
+            Service* specific (DICOM Standard Part 4, Annexes C.4.3,
+            Y.C.4.2.1.4, Z.4.2.1.4, U.4.3, X, BB and HH):
 
             Pending
-              | ``0xFF00`` Sub-operations are continuing
+              | ``0xFF00`` - Sub-operations are continuing
 
             Cancel
-              | ``0xFE00`` Sub-operations terminated due to Cancel indication
+              | ``0xFE00`` - Sub-operations terminated due to Cancel indication
 
             Failure
-              | ``0xA701`` Out of resources: unable to calculate number of
+              | ``0xA701`` - Out of resources: unable to calculate number of
                  matches
-              | ``0xA702`` Out of resources: unable to perform sub-operations
-              | ``0xA900`` Identifier does not match SOP class
-              | ``0xAA00`` None of the frames requested were found in the SOP
+              | ``0xA702`` - Out of resources: unable to perform sub-operations
+              | ``0xA900`` - Identifier does not match SOP class
+              | ``0xAA00`` - None of the frames requested were found in the SOP
                 instance
-              | ``0xAA01`` Unable to create new object for this SOP class
-              | ``0xAA02`` Unable to extract frames
-              | ``0xAA03`` Time-based request received for a non-time-based
+              | ``0xAA01`` - Unable to create new object for this SOP class
+              | ``0xAA02`` - Unable to extract frames
+              | ``0xAA03`` - Time-based request received for a non-time-based
                 original SOP Instance
-              | ``0xAA04`` Invalid request
-              | ``0xC000`` to ``0xCFFF`` Unable to process
+              | ``0xAA04`` - Invalid request
+              | ``0xC000`` to ``0xCFFF`` - Unable to process
 
             Warning
-              | ``0xB000`` Sub-operations completed: one or more failures or
+              | ``0xB000`` - Sub-operations completed: one or more failures or
                  warnings
 
         identifier : pydicom.dataset.Dataset or None
-            If the status is 'Pending' or 'Success' then yields ``None``. If
-            the status is 'Warning', 'Failure' or 'Cancel' then yields a
-            ``Dataset`` which should contain an (0008,0058) *Failed SOP
-            Instance UID List* element, however this is not guaranteed and may
-            instead return an empty ``Dataset``.
+            If the status category is 'Pending' or 'Success' then yields
+            ``None``. If the status category is 'Warning', 'Failure' or
+            'Cancel' then yields a ``Dataset`` which should contain an
+            (0008,0058) *Failed SOP Instance UID List* element, however this
+            is not guaranteed and may instead be an empty ``Dataset``.
 
         Raises
         ------
@@ -1457,13 +1463,15 @@ class Association(threading.Thread):
             requirements for the *Identifier* are Service Class specific (see
             the DICOM Standard, Part 4).
         move_aet : bytes
-            The AE title of the destination for the C-STORE sub-operations
-            performed by the peer.
+            The value of the *Move Destination* parameter for the C-MOVE
+            request, should be the AE title of the Storage SCP for the
+            C-STORE sub-operations performed by the peer.
         msg_id : int, optional
             The DIMSE *Message ID*, must be between 0 and 65535, inclusive,
             (default 1).
         priority : int, optional
-            The C-MOVE operation *Priority* (if supported by the peer), one of:
+            The value of the *Priority* parameter (if supported by the peer),
+            one of:
 
             - ``0`` - Medium
             - ``1`` - High
@@ -1472,26 +1480,26 @@ class Association(threading.Thread):
         query_model : str, optional
             The Query/Retrieve Information Model to use, one of the following:
 
-            - ``P`` - *Patient Root Information Model - MOVE*
-              1.2.840.10008.5.1.4.1.2.1.2 (default)
-            - ``S`` - *Study Root Information Model - MOVE*
-              1.2.840.10008.5.1.4.1.2.2.2
-            - ``O`` - *Patient Study Only Information Model - MOVE*
-              1.2.840.10008.5.1.4.1.2.3.2
-            - ``C`` - *Composite Instance Root Retrieve - MOVE*
-              1.2.840.10008.5.1.4.1.2.4.2
-            - ``H`` - *Hanging Protocol Information Model - MOVE*
-              1.2.840.10008.5.1.4.38.3
-            - ``D`` - *Defined Procedure Protocol Information Model - MOVE*
-              1.2.840.10008.5.1.4.20.2
-            - ``CP`` - *Color Palette Information Model - MOVE*
-              1.2.840.10008.5.1.4.39.3
-            - ``IG`` - *Generic Implant Template Information Model - MOVE*
-              1.2.840.10008.5.1.4.43.3
-            - ``IA`` - *Implant Assembly Template Information Model - MOVE*
-              1.2.840.10008.5.1.4.44.3
-            - ``IT`` - *Implant Template Group Information Model - MOVE*
-              1.2.840.10008.5.1.4.44.3
+            - ``P`` - 1.2.840.10008.5.1.4.1.2.1.2 -
+              *Patient Root Information Model - MOVE* (default)
+            - ``S`` - 1.2.840.10008.5.1.4.1.2.2.2 -
+              *Study Root Information Model - MOVE*
+            - ``O`` - 1.2.840.10008.5.1.4.1.2.3.2 -
+              *Patient Study Only Information Model - MOVE*
+            - ``C`` - 1.2.840.10008.5.1.4.1.2.4.2 -
+              *Composite Instance Root Retrieve - MOVE*
+            - ``H`` - 1.2.840.10008.5.1.4.38.3 -
+              *Hanging Protocol Information Model - MOVE*
+            - ``D`` - 1.2.840.10008.5.1.4.20.2 -
+              *Defined Procedure Protocol Information Model - MOVE*
+            - ``CP`` - 1.2.840.10008.5.1.4.39.3 -
+              *Color Palette Information Model - MOVE*
+            - ``IG`` - 1.2.840.10008.5.1.4.43.3 -
+              *Generic Implant Template Information Model - MOVE*
+            - ``IA`` - 1.2.840.10008.5.1.4.44.3 -
+              *Implant Assembly Template Information Model - MOVE*
+            - ``IT`` - 1.2.840.10008.5.1.4.44.3 -
+              *Implant Template Group Information Model - MOVE*
 
         Yields
         ------
@@ -1504,53 +1512,53 @@ class Association(threading.Thread):
             Section 9.1.4 and Annex C).
 
             The status for the requested C-MOVE operation should be one of the
-            following values, but as the returned value depends
+            following values, but as the value depends
             on the peer this can't be assumed:
 
-            General C-MOVE (DICOM Standard Part 7, 9.1.4.1.7 and Annex C)
+            *General C-MOVE* (DICOM Standard Part 7, 9.1.4.1.7 and Annex C)
 
             Cancel
-              | ``0xFE00`` Sub-operations terminated due to Cancel indication
+              | ``0xFE00`` - Sub-operations terminated due to Cancel indication
 
             Success
-              | ``0x0000`` Sub-operations complete: no failures
+              | ``0x0000`` - Sub-operations complete: no failures
 
             Failure
-              | ``0x0122`` SOP class not supported
+              | ``0x0122`` - SOP class not supported
 
-            Query/Retrieve Service, Hanging Protocol Query/Retrieve Service,
+            *Query/Retrieve Service, Hanging Protocol Query/Retrieve Service,
             Defined Procedure Protocol Query/Retrieve Service, Color Palette
-            Query/Retrieve Service and Implant Template Query/Retreive
-            Service
+            Query/Retrieve Service* and *Implant Template Query/Retreive
+            Service*
             specific (DICOM Standard Part 4, Annexes C, U, Y, X, BB and HH):
 
             Failure
-              | ``0xA701`` Out of resources: unable to calculate number of
+              | ``0xA701`` - Out of resources: unable to calculate number of
                 matches
-              | ``0xA702`` Out of resources: unable to perform sub-operations
-              | ``0xA801`` Move destination unknown
-              | ``0xA900`` Identifier does not match SOP Class
-              | ``0xAA00`` None of the frames requested were found in the SOP
+              | ``0xA702`` - Out of resources: unable to perform sub-operations
+              | ``0xA801`` - Move destination unknown
+              | ``0xA900`` - Identifier does not match SOP Class
+              | ``0xAA00`` - None of the frames requested were found in the SOP
                 instance
-              | ``0xAA01`` Unable to create new object for this SOP class
-              | ``0xAA02`` Unable to extract frames
-              | ``0xAA03`` Time-based request received for a non-time-based
+              | ``0xAA01`` - Unable to create new object for this SOP class
+              | ``0xAA02`` - Unable to extract frames
+              | ``0xAA03`` - Time-based request received for a non-time-based
                 original SOP Instance
-              | ``0xAA04`` Invalid request
-              | ``0xC000`` to ``0xCFFF`` Unable to process
+              | ``0xAA04`` - Invalid request
+              | ``0xC000`` to ``0xCFFF`` - Unable to process
 
             Pending
-              | ``0xFF00`` Sub-operations are continuing
+              | ``0xFF00`` - Sub-operations are continuing
 
             Warning
-              | ``0xB000`` Sub-operations complete: one or more failures
+              | ``0xB000`` - Sub-operations complete: one or more failures
 
         identifier : pydicom.dataset.Dataset or None
-            If the status is 'Pending' or 'Success' then yields ``None``. If
-            the status is 'Warning', 'Failure' or 'Cancel' then yields a
-            ``Dataset`` which should contain an (0008,0058) *Failed SOP
-            Instance UID List* element, however this is not guaranteed and may
-            instead return an empty ``Dataset``.
+            If the status category is 'Pending' or 'Success' then yields
+            ``None``. If the status category is 'Warning', 'Failure' or
+            'Cancel' then yields a ``Dataset`` which should contain an
+            (0008,0058) *Failed SOP Instance UID List* element, however this
+            is not guaranteed and may instead be an empty ``Dataset``.
 
         See Also
         --------
@@ -1666,11 +1674,15 @@ class Association(threading.Thread):
             - ``1`` - High
             - ``2`` - Low (default)
         originator_aet : bytes, optional
-            The AE title of the peer that invoked the C-MOVE operation for
+            The value of the *Move Originator Application Entity Title*
+            parameter for the C-STORE request. This is the AE title of the
+            peer that invoked the C-MOVE operation for
             which this C-STORE sub-operation is being performed (default
             ``None``).
         originator_id : int, optional
-            The Message ID of the C-MOVE request primitive from which this
+            The value of the *Move Originator Message ID* parameter for the
+            C-STORE request. This is the original *Message ID* parameter value
+            for the C-MOVE request primitive for which the
             C-STORE sub-operation is being performed (default ``None``).
 
         Returns
@@ -1687,39 +1699,39 @@ class Association(threading.Thread):
             following, but as the value depends on the peer SCP this can't be
             assumed:
 
-            General C-STORE (DICOM Standard Part 7, 9.1.1.1.9 and Annex C):
+            *General C-STORE* (DICOM Standard Part 7, 9.1.1.1.9 and Annex C):
 
             Success
-              | ``0x0000`` Success
+              | ``0x0000`` - Success
 
             Failure
-              | ``0x0117`` Invalid SOP instance
-              | ``0x0122`` SOP class not supported
-              | ``0x0124`` Not authorised
-              | ``0x0210`` Duplicate invocation
-              | ``0x0211`` Unrecognised operation
-              | ``0x0212`` Mistyped argument
+              | ``0x0117`` - Invalid SOP instance
+              | ``0x0122`` - SOP class not supported
+              | ``0x0124`` - Not authorised
+              | ``0x0210`` - Duplicate invocation
+              | ``0x0211`` - Unrecognised operation
+              | ``0x0212`` - Mistyped argument
 
-            Storage Service and Non-Patient Object Storage Service specific
+            *Storage Service* and *Non-Patient Object Storage Service* specific
             (DICOM Standard Part 4, Annexes B.2.3 and GG):
 
             Failure
-              | ``0xA700`` to ``0xA7FF`` Out of resources
-              | ``0xA900`` to ``0xA9FF`` Data set does not match SOP class
-              | ``0xC000`` to ``0xCFFF`` Cannot understand
+              | ``0xA700`` to ``0xA7FF`` - Out of resources
+              | ``0xA900`` to ``0xA9FF`` - Data set does not match SOP class
+              | ``0xC000`` to ``0xCFFF`` - Cannot understand
 
             Warning
-              | ``0xB000`` Coercion of data elements
-              | ``0xB006`` Element discarded
-              | ``0xB007`` Data set does not match SOP class
+              | ``0xB000`` - Coercion of data elements
+              | ``0xB006`` - Element discarded
+              | ``0xB007`` - Data set does not match SOP class
 
-            Non-Patient Object Service Class specific (DICOM Standard Part 4,
+            *Non-Patient Object Service Class* specific (DICOM Standard Part 4,
             Annex GG.4.2)
 
             Failure
-              | ``0xA700`` Out of resources
-              | ``0xA900`` Data set does not match SOP class
-              | ``0xC000`` Cannot understand
+              | ``0xA700`` - Out of resources
+              | ``0xA900`` - Data set does not match SOP class
+              | ``0xC000`` - Cannot understand
 
         Raises
         ------
@@ -2072,18 +2084,18 @@ class Association(threading.Thread):
         ----------
         dataset : pydicom.dataset.Dataset or None
             The dataset that will be sent as the *Action Information*
-            parameter in the N-ACTION request, or None if not required.
+            parameter in the N-ACTION request, or ``None`` if not required.
         action_type : int
-            The value of the request's (0000,1008) *Action Type ID* element.
+            The value of the request's (0000,1008) *Action Type ID* parameter.
         class_uid : pydicom.uid.UID
-            The UID to be sent in the request's (0000,0003) *Requested SOP
-            Class UID* element.
+            The UID to be sent for the request's (0000,0003) *Requested SOP
+            Class UID* parameter.
         instance_uid : pydicom.uid.UID
-            The UID to be sent in the request's (0000,1001) *Requested SOP
-            Instance UID* element.
+            The UID to be sent for the request's (0000,1001) *Requested SOP
+            Instance UID* parameter.
         msg_id : int, optional
-            The DIMSE *Message ID*, must be between 0 and 65535, inclusive,
-            (default 1).
+            The request's *Message ID* parameter value, must be between 0 and
+            65535, inclusive, (default 1).
 
         Returns
         -------
@@ -2095,31 +2107,31 @@ class Association(threading.Thread):
             optionally contain additional elements (see the DICOM Standard,
             Part 7, Section 9.1.2.1.5 and Annex C).
 
-            General N-ACTION (DICOM Standard Part 7, Section 10.1.4 and
+            *General N-ACTION* (DICOM Standard Part 7, Section 10.1.4 and
             Annex C)
 
             Success
-              | ``0x0000`` Successful operation
+              | ``0x0000`` - Successful operation
 
             Failure
-              | ``0x0110`` Processing failure
-              | ``0x0112`` No such SOP Instance
-              | ``0x0114`` No such argument
-              | ``0x0115`` Invalid argument value
-              | ``0x0117`` Invalid object instance
-              | ``0x0118`` No such SOP Class
-              | ``0x0119`` Class-Instance conflict
-              | ``0x0123`` No such action
-              | ``0x0124`` Not authorised
-              | ``0x0210`` Duplicate invocation
-              | ``0x0211`` Unrecognised operation
-              | ``0x0212`` Mistyped argument
-              | ``0x0213`` Resource limitation
+              | ``0x0110`` - Processing failure
+              | ``0x0112`` - No such SOP Instance
+              | ``0x0114`` - No such argument
+              | ``0x0115`` - Invalid argument value
+              | ``0x0117`` - Invalid object instance
+              | ``0x0118`` - No such SOP Class
+              | ``0x0119`` - Class-Instance conflict
+              | ``0x0123`` - No such action
+              | ``0x0124`` - Not authorised
+              | ``0x0210`` - Duplicate invocation
+              | ``0x0211`` - Unrecognised operation
+              | ``0x0212`` - Mistyped argument
+              | ``0x0213`` - Resource limitation
 
         action_reply : pydicom.dataset.Dataset or None
-            If the status is 'Success' then a ``Dataset`` containing attributes
-            corresponding to those supplied in the *Action Reply*,
-            otherwise returns None.
+            If the status category is 'Success' then a ``Dataset``
+            containing attributes corresponding to those supplied in the
+            *Action Reply*, otherwise returns ``None``.
 
         See Also
         --------
@@ -2155,6 +2167,7 @@ class Association(threading.Thread):
         #   (M) Requested SOP Class UID
         #   (M) Requested SOP Instance UID
         #   (M) Action Type ID
+        #   (U) Action Information
         req = N_ACTION()
         req.MessageID = msg_id
         req.RequestedSOPClassUID = class_uid
@@ -2170,8 +2183,9 @@ class Association(threading.Thread):
         if bytestream is not None:
             req.ActionInformation = BytesIO(bytestream)
         else:
-            LOGGER.error("Failed to encode the supplied Dataset")
-            raise ValueError('Failed to encode the supplied Dataset')
+            msg = "Failed to encode the supplied 'Action Information' dataset"
+            LOGGER.error(msg)
+            raise ValueError(msg)
 
         # Send N-ACTION request to the peer via DIMSE and wait for the response
         LOGGER.info('Sending Action Request: MsgID {}'.format(msg_id))
@@ -2196,37 +2210,41 @@ class Association(threading.Thread):
             if category not in [STATUS_WARNING, STATUS_SUCCESS]:
                 return status, action_reply
 
-            # Attempt to decode the response's dataset
-            # pylint: disable=broad-except
-            try:
-                action_reply = decode(rsp.ActionReply,
-                                      transfer_syntax.is_implicit_VR,
-                                      transfer_syntax.is_little_endian)
-            except Exception as ex:
-                LOGGER.error("Failed to decode the received dataset")
-                LOGGER.exception(ex)
-                # Failure: Processing failure
-                status.Status = 0x0110
+            bytestream = rsp.ActionReply
+            if bytestream and bytestream.getvalue() != b'':
+                # Attempt to decode the response's dataset
+                # pylint: disable=broad-except
+                try:
+                    action_reply = decode(bytestream,
+                                          transfer_syntax.is_implicit_VR,
+                                          transfer_syntax.is_little_endian)
+                except Exception as ex:
+                    LOGGER.error(
+                        "Unable to decode the received 'Action Reply' dataset"
+                    )
+                    LOGGER.exception(ex)
+                    # Failure: Processing failure
+                    status.Status = 0x0110
 
         return status, action_reply
 
-    def send_n_create(self, dataset, class_uid, instance_uid, msg_id=1):
+    def send_n_create(self, dataset, class_uid, instance_uid=None, msg_id=1):
         """Send an N-CREATE request message to the peer AE.
 
         Parameters
         ----------
         dataset : pydicom.dataset.Dataset or None
             The dataset that will be sent as the *Attribute List*
-            parameter in the N-CREATE request, or None if not required.
+            parameter in the N-CREATE request, or ``None`` if not required.
         class_uid : pydicom.uid.UID
-            The UID to be sent in the request's (0000,0002) *Affected SOP
-            Class UID* element.
-        instance_uid : pydicom.uid.UID or None
-            The UID to be sent in the request's (0000,1000) *Affected SOP
-            Instance UID* element or None if not required.
+            The UID to be sent for the request's (0000,0002) *Affected SOP
+            Class UID* parameter.
+        instance_uid : pydicom.uid.UID, optional
+            The UID to be sent for the request's (0000,1000) *Affected SOP
+            Instance UID* parameter.
         msg_id : int, optional
-            The DIMSE *Message ID*, must be between 0 and 65535, inclusive,
-            (default 1).
+            The request's *Message ID* parameter value, must be between 0 and
+            65535, inclusive, (default 1).
 
         Returns
         -------
@@ -2238,31 +2256,73 @@ class Association(threading.Thread):
             optionally contain additional elements (see the DICOM Standard,
             Part 7, Section 9.1.2.1.5 and Annex C).
 
-            General N-CREATE (DICOM Standard Part 7, Section 10.1.5 and
+            *General N-CREATE* (DICOM Standard Part 7, Section 10.1.5 and
             Annex C)
 
             Success
-              | ``0x0000`` Successful operation
+              | ``0x0000`` - Successful operation
 
             Failure
-              | ``0x0110`` Processing failure
-              | ``0x0112`` No such SOP Instance
-              | ``0x0114`` No such argument
-              | ``0x0115`` Invalid argument value
-              | ``0x0117`` Invalid object instance
-              | ``0x0118`` No such SOP Class
-              | ``0x0119`` Class-Instance conflict
-              | ``0x0123`` No such action
-              | ``0x0124`` Not authorised
-              | ``0x0210`` Duplicate invocation
-              | ``0x0211`` Unrecognised operation
-              | ``0x0212`` Mistyped argument
-              | ``0x0213`` Resource limitation
+              | ``0x0110`` - Processing failure
+              | ``0x0112`` - No such SOP Instance
+              | ``0x0114`` - No such argument
+              | ``0x0115`` - Invalid argument value
+              | ``0x0117`` - Invalid object instance
+              | ``0x0118`` - No such SOP Class
+              | ``0x0119`` - Class-Instance conflict
+              | ``0x0123`` - No such action
+              | ``0x0124`` - Not authorised
+              | ``0x0210`` - Duplicate invocation
+              | ``0x0211`` - Unrecognised operation
+              | ``0x0212`` - Mistyped argument
+              | ``0x0213`` - Resource limitation
+
+            *Print Management Service* specific (DICOM
+            Standard Part 4, Annex H.4.1.2.1.2, H.4.2.2.1.2 and H.4.9.2.1.2):
+
+            Warning
+              | ``0xB600`` - Memory allocation not supported
+              | ``0xB605`` - Requested Min Density or Max Density outside of
+                printer's operating range. The printer will use its respective
+                minimum or maximum density value instead
+
+            Failure
+              | ``0xC616`` - There is an existing Film Box that has not been
+                printed and N-ACTION at the Film Session level is not supported.
+                A new Film Box will not be created when a previous Film Box has
+                not been printed
+
+            *Media Creation Management Service* specific (DICOM
+            Standard Part 4, Annex S.3.2.1.4):
+
+            Failure
+              | ``0xA510`` - Failed: an initiate media creation action has already been
+                received for this SOP Instance
+
+            *Unified Procedure Step Service* specific (DICOM
+            Standard Part 4, Annex CC.2.5.4):
+
+            Warning
+              | ``0xB300`` - THE UPS was created with modifications
+
+            Failure
+              | ``0xC309`` - The provided value of UPS State was not 'SCHEDULED'
+
+            *RT Machine Verification Service* specific (DICOM
+            Standard Part 4, Annex DD.3.2.1.2):
+
+            Failure
+              | ``0xC221`` - The Referenced Fraction Group Number does not exist in the
+                referenced plan
+              | ``0xC222`` - No beams exist within the referenced fraction group
+              | ``0xC223`` - SCU already verifying and cannot currently process this
+                request
+              | ``0xC227`` - No such object instance - Referenced RT Plan not found
 
         attribute_list : pydicom.dataset.Dataset or None
-            If the status is 'Success' then a ``Dataset`` containing attributes
-            corresponding to those supplied in the *Attribute List*,
-            otherwise returns None.
+            If the status category is 'Success' then a ``Dataset`` containing
+            attributes corresponding to those supplied in the *Attribute List*,
+            otherwise returns ``None``.
 
         See Also
         --------
@@ -2296,7 +2356,8 @@ class Association(threading.Thread):
         # Build N-CREATE request primitive
         #   (M) Message ID
         #   (M) Affected SOP Class UID
-        #   (M) Affected SOP Instance UID
+        #   (U) Affected SOP Instance UID
+        #   (U) Attribute List
         req = N_CREATE()
         req.MessageID = msg_id
         req.AffectedSOPClassUID = class_uid
@@ -2311,8 +2372,9 @@ class Association(threading.Thread):
         if bytestream is not None:
             req.AttributeList = BytesIO(bytestream)
         else:
-            LOGGER.error("Failed to encode the supplied Dataset")
-            raise ValueError('Failed to encode the supplied Dataset')
+            msg = "Failed to encode the supplied 'Attribute List' dataset"
+            LOGGER.error(msg)
+            raise ValueError(msg)
 
         # Send N-CREATE request to the peer via DIMSE and wait for the response
         LOGGER.info('Sending Create Request: MsgID {}'.format(msg_id))
@@ -2337,17 +2399,22 @@ class Association(threading.Thread):
             if category not in [STATUS_WARNING, STATUS_SUCCESS]:
                 return status, attribute_list
 
-            # Attempt to decode the response's dataset
-            # pylint: disable=broad-except
-            try:
-                attribute_list = decode(rsp.AttributeList,
-                                        transfer_syntax.is_implicit_VR,
-                                        transfer_syntax.is_little_endian)
-            except Exception as ex:
-                LOGGER.error("Failed to decode the received dataset")
-                LOGGER.exception(ex)
-                # Failure: Processing failure
-                status.Status = 0x0110
+            bytestream = rsp.AttributeList
+            if bytestream and bytestream.getvalue() != b'':
+                # Attempt to decode the response's dataset
+                # pylint: disable=broad-except
+                try:
+                    attribute_list = decode(bytestream,
+                                            transfer_syntax.is_implicit_VR,
+                                            transfer_syntax.is_little_endian)
+                except Exception as ex:
+                    LOGGER.error(
+                        "Unable to decode the received 'Attribute List' "
+                        "dataset"
+                    )
+                    LOGGER.exception(ex)
+                    # Failure: Processing failure
+                    status.Status = 0x0110
 
         return status, attribute_list
 
@@ -2357,14 +2424,14 @@ class Association(threading.Thread):
         Parameters
         ----------
         class_uid : pydicom.uid.UID
-            The UID to be sent in the request's (0000,0003) *Requested SOP
-            Class UID* element.
+            The UID to be sent for the request's (0000,0003) *Requested SOP
+            Class UID* parameter.
         instance_uid : pydicom.uid.UID
-            The UID to be sent in the request's (0000,1001) *Requested SOP
-            Instance UID* element.
+            The UID to be sent for the request's (0000,1001) *Requested SOP
+            Instance UID* parameter.
         msg_id : int, optional
-            The DIMSE *Message ID*, must be between 0 and 65535, inclusive,
-            (default 1).
+            The request's *Message ID* parameter value, must be between 0 and
+            65535, inclusive, (default 1).
 
         Returns
         -------
@@ -2380,19 +2447,19 @@ class Association(threading.Thread):
             Annex C)
 
             Success
-              | ``0x0000`` Successful operation
+              | ``0x0000`` - Successful operation
 
             Failure
-              | ``0x0110`` Processing failure
-              | ``0x0112`` No such SOP Instance
-              | ``0x0117`` Invalid object instance
-              | ``0x0118`` No such SOP Class
-              | ``0x0119`` Class-Instance conflict
-              | ``0x0124`` Not authorised
-              | ``0x0210`` Duplicate invocation
-              | ``0x0211`` Unrecognised operation
-              | ``0x0212`` Mistyped argument
-              | ``0x0213`` Resource limitation
+              | ``0x0110`` - Processing failure
+              | ``0x0112`` - No such SOP Instance
+              | ``0x0117`` - Invalid object instance
+              | ``0x0118`` - No such SOP Class
+              | ``0x0119`` - Class-Instance conflict
+              | ``0x0124`` - Not authorised
+              | ``0x0210`` - Duplicate invocation
+              | ``0x0211`` - Unrecognised operation
+              | ``0x0212`` - Mistyped argument
+              | ``0x0213`` - Resource limitation
 
         See Also
         --------
@@ -2452,21 +2519,22 @@ class Association(threading.Thread):
 
         Parameters
         ----------
-        dataset : pydicom.dataset.Dataset
+        dataset : pydicom.dataset.Dataset or None
             The dataset that will be sent as the *Event Information* parameter
-            in the N-EVENT-REPORT request.
+            in the N-EVENT-REPORT request, if no *Event Information* parameter
+            is needed then ``None``.
         event_type : int
-            The value to be sent in the request's (0000,10002) *Event Type ID*
-            element.
+            The value to be sent for the request's (0000,1002) *Event Type ID*
+            parameter.
         class_uid : pydicom.uid.UID
-            The UID to be sent in the request's (0000,0003) *Affected SOP
-            Class UID* element.
+            The UID to be sent for the request's (0000,0003) *Affected SOP
+            Class UID* parameter.
         instance_uid : pydicom.uid.UID
-            The UID to be sent in the request's (0000,1001) *Affected SOP
-            Instance UID* element.
+            The UID to be sent for the request's (0000,1000) *Affected SOP
+            Instance UID* parameter.
         msg_id : int, optional
-            The DIMSE *Message ID*, must be between 0 and 65535, inclusive,
-            (default 1).
+            The request's *Message ID* parameter value, must be between 0 and
+            65535, inclusive, (default 1).
 
         Returns
         -------
@@ -2478,29 +2546,29 @@ class Association(threading.Thread):
             optionally contain additional elements (see the DICOM Standard,
             Part 7, Section 9.1.2.1.5 and Annex C).
 
-            General N-EVENT-REPORT (DICOM Standard Part 7, Section 10.1.1
+            *General N-EVENT-REPORT* (DICOM Standard Part 7, Section 10.1.1
             and Annex C)
 
             Success
-              | ``0x0000`` Successful operation
+              | ``0x0000`` - Successful operation
 
             Failure
-              | ``0x0110`` Processing failure
-              | ``0x0112`` No such SOP Instance
-              | ``0x0113`` No such event type
-              | ``0x0114`` No such argument
-              | ``0x0115`` Invalid argument value
-              | ``0x0117`` Invalid object instance
-              | ``0x0118`` No such SOP Class
-              | ``0x0119`` Class-Instance conflict
-              | ``0x0210`` Duplicate invocation
-              | ``0x0211`` Unrecognised operation
-              | ``0x0212`` Mistyped argument
-              | ``0x0213`` Resource limitation
+              | ``0x0110`` - Processing failure
+              | ``0x0112`` - No such SOP Instance
+              | ``0x0113`` - No such event type
+              | ``0x0114`` - No such argument
+              | ``0x0115`` - Invalid argument value
+              | ``0x0117`` - Invalid object instance
+              | ``0x0118`` - No such SOP Class
+              | ``0x0119`` - Class-Instance conflict
+              | ``0x0210`` - Duplicate invocation
+              | ``0x0211`` - Unrecognised operation
+              | ``0x0212`` - Mistyped argument
+              | ``0x0213`` - Resource limitation
 
         event_reply : pydicom.dataset.Dataset or None
-            If the status is 'Success' then a ``Dataset`` containing the
-            optional reply to the event report.
+            If the status category is 'Success' then a ``Dataset`` containing
+            the *Event Reply* to the event report request.
 
         See Also
         --------
@@ -2547,15 +2615,18 @@ class Association(threading.Thread):
         # Encode the `dataset` using the agreed transfer syntax
         #   Will return None if failed to encode
         transfer_syntax = context.transfer_syntax[0]
-        bytestream = encode(dataset,
-                            transfer_syntax.is_implicit_VR,
-                            transfer_syntax.is_little_endian)
+        # *Event Information* is optional
+        if dataset:
+            bytestream = encode(dataset,
+                                transfer_syntax.is_implicit_VR,
+                                transfer_syntax.is_little_endian)
 
-        if bytestream is not None:
-            req.EventInformation = BytesIO(bytestream)
-        else:
-            LOGGER.error("Failed to encode the supplied dataset")
-            raise ValueError('Failed to encode the supplied dataset')
+            if bytestream is not None:
+                req.EventInformation = BytesIO(bytestream)
+            else:
+                msg = "Unable to encode the supplied 'Event Information' dataset"
+                LOGGER.error(msg)
+                raise ValueError(msg)
 
         # Send N-EVENT-REPORT request to the peer via DIMSE and wait for
         # the response primitive
@@ -2581,17 +2652,21 @@ class Association(threading.Thread):
             if category not in [STATUS_WARNING, STATUS_SUCCESS]:
                 return status, event_reply
 
-            # Attempt to decode the response's dataset
-            # pylint: disable=broad-except
-            try:
-                event_reply = decode(rsp.EventReply,
-                                     transfer_syntax.is_implicit_VR,
-                                     transfer_syntax.is_little_endian)
-            except Exception as ex:
-                LOGGER.error("Failed to decode the received dataset")
-                LOGGER.exception(ex)
-                # Failure: Processing failure
-                status.Status = 0x0110
+            bytestream = rsp.EventReply
+            if bytestream and bytestream.getvalue() != b'':
+                # Attempt to decode the response's dataset
+                # pylint: disable=broad-except
+                try:
+                    event_reply = decode(bytestream,
+                                         transfer_syntax.is_implicit_VR,
+                                         transfer_syntax.is_little_endian)
+                except Exception as ex:
+                    LOGGER.error(
+                        "Unable to decode the received 'Event Reply' dataset"
+                    )
+                    LOGGER.exception(ex)
+                    # Failure: Processing failure
+                    status.Status = 0x0110
 
         return status, event_reply
 
@@ -2601,19 +2676,19 @@ class Association(threading.Thread):
         Parameters
         ----------
         identifier_list : list of pydicom.tag.Tag
-            A list of DICOM Data Element tags to be sent in the request's
-            (0000,1005) *Attribute Identifier List* element. Should either be
-            a list of pydicom Tag objects or a list of values that is
-            acceptable for creating pydicom Tag objects.
+            A list of DICOM Data Element tags to be sent for the request's
+            (0000,1005) *Attribute Identifier List* parameter. Should either be
+            a list of pydicom ``Tag`` objects or a list of values that is
+            acceptable for creating pydicom ``Tag`` objects.
         class_uid : pydicom.uid.UID
-            The UID to be sent in the request's (0000,0003) *Requested SOP
-            Class UID* element.
+            The UID to be sent for the request's (0000,0003) *Requested SOP
+            Class UID* parameter.
         instance_uid : pydicom.uid.UID
-            The UID to be sent in the request's (0000,1001) *Requested SOP
-            Instance UID* element.
+            The UID to be sent for the request's (0000,1001) *Requested SOP
+            Instance UID* parameter.
         msg_id : int, optional
-            The DIMSE *Message ID*, must be between 0 and 65535, inclusive,
-            (default 1).
+            The request's *Message ID* parameter value, must be between 0 and
+            65535, inclusive, (default 1).
 
         Returns
         -------
@@ -2625,31 +2700,54 @@ class Association(threading.Thread):
             optionally contain additional elements (see the DICOM Standard,
             Part 7, Section 9.1.2.1.5 and Annex C).
 
-            General N-GET (DICOM Standard Part 7, Section 10.1.2 and Annex C)
+            *General N-GET* (DICOM Standard Part 7, Section 10.1.2 and Annex C)
 
             Success
-              | ``0x0000`` Successful operation
+              | ``0x0000`` - Successful operation
 
             Warning
-              | ``0x0107`` Attribute list error
+              | ``0x0107`` - Attribute list error
 
             Failure
-              | ``0x0110`` Processing failure
-              | ``0x0112`` No such SOP Instance
-              | ``0x0117`` Invalid object instance
-              | ``0x0118`` No such SOP Class
-              | ``0x0119`` Class-Instance conflict
-              | ``0x0122`` SOP class not supported
-              | ``0x0124`` Not authorised
-              | ``0x0210`` Duplicate invocation
-              | ``0x0211`` Unrecognised operation
-              | ``0x0212`` Mistyped argument
-              | ``0x0213`` Resource limitation
+              | ``0x0110`` - Processing failure
+              | ``0x0112`` - No such SOP Instance
+              | ``0x0117`` - Invalid object instance
+              | ``0x0118`` - No such SOP Class
+              | ``0x0119`` - Class-Instance conflict
+              | ``0x0122`` - SOP class not supported
+              | ``0x0124`` - Not authorised
+              | ``0x0210`` - Duplicate invocation
+              | ``0x0211`` - Unrecognised operation
+              | ``0x0212`` - Mistyped argument
+              | ``0x0213`` - Resource limitation
+
+            *Modality Performed Procedure Step Management Service* and *Media
+            Creation Management Service* specific
+            (DICOM Standard Part 4, Annex F.8.2.1.4 and Annex S.3.2.4.4):
+
+            Warning
+              | ``0x0001`` - Requested optional Attributes are not supported
+
+            *Unified Procedure Step Service* specific
+            (DICOM Standard Part 4, Annex CC.2.7.4):
+
+            Warning
+              | ``0x0001`` - Requested optional Attributes are not supported
+
+            Failure
+              | ``0xC307`` - Specified SOP Instance UID doesn't exist or is not
+                a UPS Instance managed by this SCP
+
+            *RT Machine Verification Service* specific
+            (DICOM Standard Part 4, Annex DD.3.2.2.3):
+
+            Failure
+              | ``0xC112`` - Applicable Machine Verification Instance not found
 
         attribute_list : pydicom.dataset.Dataset or None
-            If the status is 'Success' then a ``Dataset`` containing attributes
-            corresponding to those supplied in the *Attribute Identifier List*,
-            otherwise returns None.
+            If the status category is 'Success' then a ``Dataset`` containing
+            attributes corresponding to those supplied in the *Attribute
+            Identifier List*, otherwise returns ``None``.
 
         See Also
         --------
@@ -2717,17 +2815,22 @@ class Association(threading.Thread):
             if category not in [STATUS_WARNING, STATUS_SUCCESS]:
                 return status, attribute_list
 
-            # Attempt to decode the response's dataset
-            # pylint: disable=broad-except
-            try:
-                attribute_list = decode(rsp.AttributeList,
-                                        transfer_syntax.is_implicit_VR,
-                                        transfer_syntax.is_little_endian)
-            except Exception as ex:
-                LOGGER.error("Failed to decode the received dataset")
-                LOGGER.exception(ex)
-                # Failure: Processing failure
-                status.Status = 0x0110
+            bytestream = rsp.AttributeList
+            if bytestream and bytestream.getvalue != b'':
+                # Attempt to decode the response's dataset
+                # pylint: disable=broad-except
+                try:
+                    attribute_list = decode(bytestream,
+                                            transfer_syntax.is_implicit_VR,
+                                            transfer_syntax.is_little_endian)
+                except Exception as ex:
+                    LOGGER.error(
+                        "Unable to decode the received 'Attribute List' "
+                        "dataset"
+                    )
+                    LOGGER.exception(ex)
+                    # Failure: Processing failure
+                    status.Status = 0x0110
 
         return status, attribute_list
 
@@ -2740,14 +2843,14 @@ class Association(threading.Thread):
             The dataset that will be sent as the *Modification List* parameter
             in the N-SET request.
         class_uid : pydicom.uid.UID
-            The UID to be sent in the request's (0000,0003) *Requested SOP
-            Class UID* element.
+            The UID to be sent for the request's (0000,0003) *Requested SOP
+            Class UID* parameter.
         instance_uid : pydicom.uid.UID
-            The UID to be sent in the request's (0000,1001) *Requested SOP
-            Instance UID* element.
+            The UID to be sent for the request's (0000,1001) *Requested SOP
+            Instance UID* parameter.
         msg_id : int, optional
-            The DIMSE *Message ID*, must be between 0 and 65535, inclusive,
-            (default 1).
+            The request's *Message ID* parameter value, must be between 0 and
+            65535, inclusive, (default 1).
 
         Returns
         -------
@@ -2759,35 +2862,86 @@ class Association(threading.Thread):
             optionally contain additional elements (see the DICOM Standard,
             Part 7, Section 9.1.2.1.5 and Annex C).
 
-            General N-SET (DICOM Standard Part 7, Section 10.1.3 and Annex C)
+            *General N-SET* (DICOM Standard Part 7, Section 10.1.3 and Annex C)
 
             Success
-              | ``0x0000`` Successful operation
+              | ``0x0000`` - Successful operation
 
             Warning
-              | ``0x0107`` Attribute list error
-              | ``0x0116`` Attribute value out of range
+              | ``0x0107`` - Attribute list error
+              | ``0x0116`` - Attribute value out of range
 
             Failure
-              | ``0x0105`` No such attribute
-              | ``0x0106`` Invalid attribute value
-              | ``0x0110`` Processing failure
-              | ``0x0112`` No such SOP Instance
-              | ``0x0117`` Invalid object instance
-              | ``0x0118`` No such SOP Class
-              | ``0x0119`` Class-Instance conflict
-              | ``0x0121`` Missing attribute value
-              | ``0x0122`` SOP class not supported
-              | ``0x0124`` Not authorised
-              | ``0x0210`` Duplicate invocation
-              | ``0x0211`` Unrecognised operation
-              | ``0x0212`` Mistyped argument
-              | ``0x0213`` Resource limitation
+              | ``0x0105`` - No such attribute
+              | ``0x0106`` - Invalid attribute value
+              | ``0x0110`` - Processing failure
+              | ``0x0112`` - No such SOP Instance
+              | ``0x0117`` - Invalid object instance
+              | ``0x0118`` - No such SOP Class
+              | ``0x0119`` - Class-Instance conflict
+              | ``0x0121`` - Missing attribute value
+              | ``0x0122`` - SOP class not supported
+              | ``0x0124`` - Not authorised
+              | ``0x0210`` - Duplicate invocation
+              | ``0x0211`` - Unrecognised operation
+              | ``0x0212`` - Mistyped argument
+              | ``0x0213`` - Resource limitation
+
+            *Print Management Service* specific (DICOM
+            Standard Part 4, Annex H.4.1.2.1.2, H.4.2.2.1.2, H.4.3.1.2.1.2 and
+            H.4.3.2.2.1.2):
+
+            Warning
+              | ``0xB600`` - Memory allocation not supported
+              | ``0xB604`` - Image size larger than image box size, the image
+                has been demagnified
+              | ``0xB605`` - Requested Min Density or Max Density outside of
+                printer's operating range. The printer will use its respective
+                minimum or maximum density value instead
+              | ``0xB609`` - Image size is larger than the Image Box. The Image
+                has been cropped to fit
+              | ``0xB60A`` - Image size or Combined Print Image size is larger
+                than the Image Box size. The Image or Combined Print Image has
+                been decimated to fit
+
+            Failure
+              | ``0xC603`` - Image size is larger than image box size
+              | ``0xC605`` - Insufficient memory in printer to store the image
+              | ``0xC613`` - Combined Print Image size is larger than the Image
+                Box size
+              | ``0xC616`` - There is an existing Film Box that has not been
+                printed and N-ACTION at the Film Session level is not
+                supported. A new Film Box will not be created when a previous
+                Film Box has not been printed
+
+            *Unified Procedure Step Service* specific (DICOM Standard Part 4,
+            Annex CC.2.6.4):
+
+            Warning
+              | ``0x0001`` - Requested optional attributes are not supported
+              | ``0xB305`` - Coerced invalid values to valid values
+
+            Failure
+              | ``0xC300`` - The UPS may no longer be updated
+              | ``0xC301`` - The correct Transaction UID was not provided
+              | ``0xC307`` - Specified SOP Instance UID does not exist or is
+                not a UPS Instance managed by this SCP
+              | ``0xC310`` - The UPS is not in the 'IN PROGRESS' state
+
+            *RT Machine Verification Service* specific (DICOM Standard Part 4,
+            Annex DD.3.2.1.2):
+
+            Failure
+              | ``0xC224`` - Reference Beam Number not found within the
+                referenced Fraction Group
+              | ``0xC225`` - Referenced device or accessory not supported
+              | ``0xC226`` - Referenced device or accessory not found with the
+                referenced beam
 
         attribute_list : pydicom.dataset.Dataset or None
-            If the status is 'Success' then a ``Dataset`` containing attributes
-            corresponding to those supplied in the *Attribute List*,
-            otherwise returns None.
+            If the status category is 'Success' then a ``Dataset`` containing
+            attributes corresponding to those supplied in the *Attribute List*,
+            otherwise returns ``None``.
 
         See Also
         --------
@@ -2837,8 +2991,9 @@ class Association(threading.Thread):
         if bytestream is not None:
             req.ModificationList = BytesIO(bytestream)
         else:
-            LOGGER.error("Failed to encode the supplied Dataset")
-            raise ValueError('Failed to encode the supplied Dataset')
+            msg = "Failed to encode the supplied 'Modification List' dataset"
+            LOGGER.error(msg)
+            raise ValueError(msg)
 
         # Send N-SET request to the peer via DIMSE and wait for the response
         LOGGER.info('Sending Set Request: MsgID {}'.format(msg_id))
@@ -2863,17 +3018,22 @@ class Association(threading.Thread):
             if category not in [STATUS_WARNING, STATUS_SUCCESS]:
                 return status, attribute_list
 
-            # Attempt to decode the response's dataset
-            # pylint: disable=broad-except
-            try:
-                attribute_list = decode(rsp.AttributeList,
-                                        transfer_syntax.is_implicit_VR,
-                                        transfer_syntax.is_little_endian)
-            except Exception as ex:
-                LOGGER.error("Failed to decode the received dataset")
-                LOGGER.exception(ex)
-                # Failure: Processing failure
-                status.Status = 0x0110
+            bytestream = rsp.AttributeList
+            if bytestream and bytestream.getvalue() != b'':
+                # Attempt to decode the response's dataset
+                # pylint: disable=broad-except
+                try:
+                    attribute_list = decode(rsp.AttributeList,
+                                            transfer_syntax.is_implicit_VR,
+                                            transfer_syntax.is_little_endian)
+                except Exception as ex:
+                    LOGGER.error(
+                        "Unable to decode the received 'Attribute List' "
+                        "dataset"
+                    )
+                    LOGGER.exception(ex)
+                    # Failure: Processing failure
+                    status.Status = 0x0110
 
         return status, attribute_list
 

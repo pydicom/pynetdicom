@@ -490,13 +490,10 @@ class TestPrimitive_N_GET(object):
 
         # AttributeIdentifierList
         with pytest.raises(ValueError):
-            primitive.AttributeIdentifierList = Tag(0x0000,0x0000)
+            primitive.AttributeIdentifierList = 'ijk'
 
         with pytest.raises(ValueError, match="Attribute Identifier List must"):
             primitive.AttributeIdentifierList = ['ijk', 'abc']
-
-        with pytest.raises(ValueError, match="Attribute Identifier List must"):
-            primitive.AttributeIdentifierList = []
 
         # AttributeList
         msg = r"'AttributeList' parameter must be a BytesIO object"

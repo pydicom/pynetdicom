@@ -21,7 +21,8 @@ from pynetdicom.service_class import (
     ImplantTemplateQueryRetrieveServiceClass,
 )
 from pynetdicom.service_class_n import (
-    DisplaySystemManagementServiceClass
+    DisplaySystemManagementServiceClass,
+    ModalityPerformedProcedureStepServiceClass
 )
 
 
@@ -40,13 +41,8 @@ def uid_to_service_class(uid):
     Returns
     -------
     service_class.ServiceClass
-        The Service Class corresponding to the SOP Class UID.
-
-    Raises
-    ------
-    NotImplementedError
-        If the Service Class corresponding to the SOP Class `uid` hasn't been
-        implemented.
+        The Service Class corresponding to the SOP Class UID or the base class
+        if support for the SOP Class isn't implemented.
     """
     if uid in _SERVICE_CLASSES:
         return _SERVICE_CLASSES[uid]
@@ -77,7 +73,7 @@ def uid_to_service_class(uid):
     elif uid in _PRINT_MANAGEMENT_CLASSES.values():
         return ServiceClass  # Not yet implemented
     elif uid in _PROCEDURE_STEP_CLASSES.values():
-        return ServiceClass  # Not yet implemented
+        return ModalityPerformedProcedureStepServiceClass
     elif uid in _MEDIA_STORAGE_CLASSES.values():
         return ServiceClass  # Not yet implemented
     elif uid in _UNIFIED_PROCEDURE_STEP_CLASSES.values():
@@ -358,10 +354,10 @@ _MEDIA_STORAGE_CLASSES = {
 }
 
 _UNIFIED_PROCEDURE_STEP_CLASSES = {
-    'UnitedProcedureStepPush' : '1.2.840.10008.5.1.4.34.6.1',
-    'UnitedProcedureStepWatch' : '1.2.840.10008.5.1.4.34.6.2',
-    'UnitedProcedureStepPull' : '1.2.840.10008.5.1.4.34.6.3',
-    'UnitedProcedureStepEvent' : '1.2.840.10008.5.1.4.34.6.4',
+    'UnifiedProcedureStepPush' : '1.2.840.10008.5.1.4.34.6.1',
+    'UnifiedProcedureStepWatch' : '1.2.840.10008.5.1.4.34.6.2',
+    'UnifiedProcedureStepPull' : '1.2.840.10008.5.1.4.34.6.3',
+    'UnifiedProcedureStepEvent' : '1.2.840.10008.5.1.4.34.6.4',
 }
 
 _RT_MACHINE_VERIFICATION_CLASSES = {

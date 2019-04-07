@@ -18,7 +18,7 @@ from .dummy_c_scp import (DummyVerificationSCP, DummyStorageSCP,
                           DummyFindSCP, DummyGetSCP, DummyMoveSCP,
                           DummyBaseSCP)
 from pynetdicom import (
-    AE, evt,
+    AE, evt, debug_logger,
     DEFAULT_TRANSFER_SYNTAXES,
     StoragePresentationContexts,
     VerificationPresentationContexts,
@@ -35,9 +35,8 @@ from pynetdicom.sop_class import (
 )
 
 
-LOGGER = logging.getLogger('pynetdicom')
-LOGGER.setLevel(logging.CRITICAL)
-#LOGGER.setLevel(logging.DEBUG)
+#debug_logger()
+
 
 TEST_DS_DIR = os.path.join(os.path.dirname(__file__), 'dicom_files')
 DATASET = read_file(os.path.join(TEST_DS_DIR, 'RTImageStorage.dcm'))
@@ -336,41 +335,11 @@ class TestAEGoodCallbacks(object):
         with pytest.raises(NotImplementedError):
             ae.on_c_move(None, None, None, None)
 
-    def test_on_n_event_report(self):
-        """Test default callback raises exception"""
-        ae = AE()
-        with pytest.raises(NotImplementedError):
-            ae.on_n_event_report(None, None, None)
-
     def test_on_n_get(self):
         """Test default callback raises exception"""
         ae = AE()
         with pytest.raises(NotImplementedError):
             ae.on_n_get(None, None, None)
-
-    def test_on_n_set(self):
-        """Test default callback raises exception"""
-        ae = AE()
-        with pytest.raises(NotImplementedError):
-            ae.on_n_set(None, None, None)
-
-    def test_on_n_action(self):
-        """Test default callback raises exception"""
-        ae = AE()
-        with pytest.raises(NotImplementedError):
-            ae.on_n_action(None, None, None)
-
-    def test_on_n_create(self):
-        """Test default callback raises exception"""
-        ae = AE()
-        with pytest.raises(NotImplementedError):
-            ae.on_n_create(None, None, None)
-
-    def test_on_n_delete(self):
-        """Test default callback raises exception"""
-        ae = AE()
-        with pytest.raises(NotImplementedError):
-            ae.on_n_delete(None, None)
 
     def test_association_accepted(self):
         """Test default callback raises exception"""

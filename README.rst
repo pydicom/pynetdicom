@@ -77,6 +77,7 @@ Supported Service Classes
 - `Display System Management Service Class <http://dicom.nema.org/medical/dicom/current/output/html/part04.html#chapter_EE>`_
 - `Non-Patient Object Storage Service Class <http://dicom.nema.org/medical/dicom/current/output/html/part04.html#chapter_GG>`_
 - `Defined Procedure Protocol Query/Retrieve Service Class <http://dicom.nema.org/medical/dicom/current/output/html/part04.html#chapter_HH>`_
+- `Modality Performed Procedure Step Management <http://dicom.nema.org/medical/dicom/current/output/html/part04.html#chapter_F>`_
 
 
 Supported DIMSE SCU Services
@@ -164,27 +165,27 @@ available to the peer once an association has been established:
 .. _handle_n_get: https://pydicom.github.io/pynetdicom/dev/reference/generated/pynetdicom._handlers.doc_handle_n_get.html
 .. _handle_set: https://pydicom.github.io/pynetdicom/dev/reference/generated/pynetdicom._handlers.doc_handle_set.html
 
-+---------------+---------------------+
-| DIMSE service | Intervention Event  |
-+===============+=====================+
-| C-ECHO        | ``evt.EVT_C_ECHO``  |
-|               |                     |
-+---------------+---------------------+
-| C-FIND        | ``evt.EVT_C_FIND``  |
-|               |                     |
-+---------------+---------------------+
-| C-GET         | ``evt.EVT_C_GET``   |
-|               |                     |
-+---------------+---------------------+
-| C-MOVE        | ``evt.EVT_C_MOVE``  |
-|               |                     |
-+---------------+---------------------+
-| C-STORE       | ``evt.EVT_C_STORE`` |
-|               |                     |
-+---------------+---------------------+
-| N-GET         | ``evt.EVT_N_GET``   |
-|               |                     |
-+---------------+---------------------+
++----------------+----------------------------+
+| DIMSE service  | Intervention Event         |
++================+============================+
+| C-ECHO         | ``evt.EVT_C_ECHO``         |
++----------------+----------------------------+
+| C-FIND         | ``evt.EVT_C_FIND``         |
++----------------+----------------------------+
+| C-GET          | ``evt.EVT_C_GET``          |
++----------------+----------------------------+
+| C-MOVE         | ``evt.EVT_C_MOVE``         |
++----------------+----------------------------+
+| C-STORE        | ``evt.EVT_C_STORE``        |
++----------------+----------------------------+
+| N-CREATE       | ``evt.EVT_N_CREATE``       |
++----------------+----------------------------+
+| N-EVENT-REPORT | ``evt.EVT_N_EVENT_REPORT`` |
++----------------+----------------------------+
+| N-GET          | ``evt.EVT_N_GET``          |
++----------------+----------------------------+
+| N-SET          | ``evt.EVT_N_SET``          |
++----------------+----------------------------+
 
 With the exception of the C-ECHO service, a user-defined *handler* must be bound
 to the corresponding
@@ -295,10 +296,11 @@ number and the timestamp for the event.
 
         import logging
 
-        from pynetdicom import AE, evt, VerificationPresentationContexts
+        from pynetdicom import AE, evt, VerificationPresentationContexts, debug_logger
 
+        # Setup logging to use the StreamHandler at the debug level
+        debug_logger()
         LOGGER = logging.getLogger('pynetdicom')
-        LOGGER.setLevel(logging.DEBUG)
 
         ae = AE(ae_title=b'MY_ECHO_SCP')
         ae.supported_contexts = VerificationPresentationContexts
