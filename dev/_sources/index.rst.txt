@@ -42,6 +42,7 @@ Supported Service Classes
    hanging_protocol_service_class
    implant_template_service_class
    display_system_service_class
+   modality_performed_procedure_step
 
 
 User Guide
@@ -69,6 +70,7 @@ Examples
 * :doc:`Basic Worklist Management Service Examples <examples/basic_worklist>`
 * :doc:`Relevant Patient Information Query Service Examples <examples/relevant_patient>`
 * :doc:`Display System Management Service Examples <examples/display>`
+* :doc:`Modality Performed Procedure Step Management Service Examples <examples/mpps>`
 
 
 API Reference

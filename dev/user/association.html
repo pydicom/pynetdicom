@@ -103,6 +103,7 @@
 <li class="toctree-l1"><a class="reference internal" href="../hanging_protocol_service_class.html">Hanging Protocol Query/Retrieve Service Class</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../implant_template_service_class.html">Implant Template Query/Retrieve Service Class</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../display_system_service_class.html">Display System Management Service Class</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../modality_performed_procedure_step.html">Modality Performed Procedure Step Management</a></li>
 </ul>
 <ul class="current">
 <li class="toctree-l1 current"><a class="reference internal" href="index.html">User Guide</a><ul class="current">
@@ -317,11 +318,11 @@ also acting as a Storage SCP), plus a <em>User Identity Negotiation</em> item:</
 </div>
 <p>Possible extended negotiation items are:</p>
 <ul class="simple">
-<li><a class="reference internal" href="../reference/generated/pynetdicom.pdu_primitives.AsynchronousOperationsWindowNegotiation.html#pynetdicom.pdu_primitives.AsynchronousOperationsWindowNegotiation" title="pynetdicom.pdu_primitives.AsynchronousOperationsWindowNegotiation"><code class="xref py py-class docutils literal notranslate"><span class="pre">Asynchronous</span> <span class="pre">Operations</span> <span class="pre">Window</span> <span class="pre">Negotiation</span></code></a></li>
-<li><a class="reference internal" href="../reference/generated/pynetdicom.pdu_primitives.SCP_SCU_RoleSelectionNegotiation.html#pynetdicom.pdu_primitives.SCP_SCU_RoleSelectionNegotiation" title="pynetdicom.pdu_primitives.SCP_SCU_RoleSelectionNegotiation"><code class="xref py py-class docutils literal notranslate"><span class="pre">SCP/SCU</span> <span class="pre">Role</span> <span class="pre">Selection</span> <span class="pre">Negotiation</span></code></a></li>
-<li><a class="reference internal" href="../reference/generated/pynetdicom.pdu_primitives.SOPClassExtendedNegotiation.html#pynetdicom.pdu_primitives.SOPClassExtendedNegotiation" title="pynetdicom.pdu_primitives.SOPClassExtendedNegotiation"><code class="xref py py-class docutils literal notranslate"><span class="pre">SOP</span> <span class="pre">Class</span> <span class="pre">Extended</span> <span class="pre">Negotiation</span></code></a></li>
-<li><a class="reference internal" href="../reference/generated/pynetdicom.pdu_primitives.SOPClassCommonExtendedNegotiation.html#pynetdicom.pdu_primitives.SOPClassCommonExtendedNegotiation" title="pynetdicom.pdu_primitives.SOPClassCommonExtendedNegotiation"><code class="xref py py-class docutils literal notranslate"><span class="pre">SOP</span> <span class="pre">Class</span> <span class="pre">Common</span> <span class="pre">Negotiation</span></code></a></li>
-<li><a class="reference internal" href="../reference/generated/pynetdicom.pdu_primitives.UserIdentityNegotiation.html#pynetdicom.pdu_primitives.UserIdentityNegotiation" title="pynetdicom.pdu_primitives.UserIdentityNegotiation"><code class="xref py py-class docutils literal notranslate"><span class="pre">User</span> <span class="pre">Identity</span> <span class="pre">Negotiation</span></code></a></li>
+<li><p><a class="reference internal" href="../reference/generated/pynetdicom.pdu_primitives.AsynchronousOperationsWindowNegotiation.html#pynetdicom.pdu_primitives.AsynchronousOperationsWindowNegotiation" title="pynetdicom.pdu_primitives.AsynchronousOperationsWindowNegotiation"><code class="xref py py-class docutils literal notranslate"><span class="pre">Asynchronous</span> <span class="pre">Operations</span> <span class="pre">Window</span> <span class="pre">Negotiation</span></code></a></p></li>
+<li><p><a class="reference internal" href="../reference/generated/pynetdicom.pdu_primitives.SCP_SCU_RoleSelectionNegotiation.html#pynetdicom.pdu_primitives.SCP_SCU_RoleSelectionNegotiation" title="pynetdicom.pdu_primitives.SCP_SCU_RoleSelectionNegotiation"><code class="xref py py-class docutils literal notranslate"><span class="pre">SCP/SCU</span> <span class="pre">Role</span> <span class="pre">Selection</span> <span class="pre">Negotiation</span></code></a></p></li>
+<li><p><a class="reference internal" href="../reference/generated/pynetdicom.pdu_primitives.SOPClassExtendedNegotiation.html#pynetdicom.pdu_primitives.SOPClassExtendedNegotiation" title="pynetdicom.pdu_primitives.SOPClassExtendedNegotiation"><code class="xref py py-class docutils literal notranslate"><span class="pre">SOP</span> <span class="pre">Class</span> <span class="pre">Extended</span> <span class="pre">Negotiation</span></code></a></p></li>
+<li><p><a class="reference internal" href="../reference/generated/pynetdicom.pdu_primitives.SOPClassCommonExtendedNegotiation.html#pynetdicom.pdu_primitives.SOPClassCommonExtendedNegotiation" title="pynetdicom.pdu_primitives.SOPClassCommonExtendedNegotiation"><code class="xref py py-class docutils literal notranslate"><span class="pre">SOP</span> <span class="pre">Class</span> <span class="pre">Common</span> <span class="pre">Negotiation</span></code></a></p></li>
+<li><p><a class="reference internal" href="../reference/generated/pynetdicom.pdu_primitives.UserIdentityNegotiation.html#pynetdicom.pdu_primitives.UserIdentityNegotiation" title="pynetdicom.pdu_primitives.UserIdentityNegotiation"><code class="xref py py-class docutils literal notranslate"><span class="pre">User</span> <span class="pre">Identity</span> <span class="pre">Negotiation</span></code></a></p></li>
 </ul>
 </div>
 <div class="section" id="binding-event-handlers">
@@ -433,24 +434,24 @@ the Association:</p>
 set of services are available for use. Currently pynetdicom supports the usage
 of the following DIMSE-C services:</p>
 <ul class="simple">
-<li>C-ECHO, through the
+<li><p>C-ECHO, through the
 <a class="reference internal" href="../reference/generated/pynetdicom.association.Association.html#pynetdicom.association.Association.send_c_echo" title="pynetdicom.association.Association.send_c_echo"><code class="xref py py-meth docutils literal notranslate"><span class="pre">Association.send_c_echo()</span></code></a>
-method</li>
-<li>C-STORE, through the
+method</p></li>
+<li><p>C-STORE, through the
 <a class="reference internal" href="../reference/generated/pynetdicom.association.Association.html#pynetdicom.association.Association.send_c_store" title="pynetdicom.association.Association.send_c_store"><code class="xref py py-meth docutils literal notranslate"><span class="pre">Association.send_c_store()</span></code></a>
-method</li>
-<li>C-FIND, through the
+method</p></li>
+<li><p>C-FIND, through the
 <a class="reference internal" href="../reference/generated/pynetdicom.association.Association.html#pynetdicom.association.Association.send_c_find" title="pynetdicom.association.Association.send_c_find"><code class="xref py py-meth docutils literal notranslate"><span class="pre">Association.send_c_find()</span></code></a>
-method</li>
-<li>C-GET, through the
+method</p></li>
+<li><p>C-GET, through the
 <a class="reference internal" href="../reference/generated/pynetdicom.association.Association.html#pynetdicom.association.Association.send_c_get" title="pynetdicom.association.Association.send_c_get"><code class="xref py py-meth docutils literal notranslate"><span class="pre">Association.send_c_get()</span></code></a>
 method. Any AE that uses the C-GET service will also be providing the C-STORE
 service and must implement and bind a handler for <code class="docutils literal notranslate"><span class="pre">evt.EVT_C_STORE</span></code> (as
-outlined <a class="reference internal" href="#assoc-scp"><span class="std std-ref">here</span></a>)</li>
-<li>C-MOVE, through the
+outlined <a class="reference internal" href="#assoc-scp"><span class="std std-ref">here</span></a>)</p></li>
+<li><p>C-MOVE, through the
 <a class="reference internal" href="../reference/generated/pynetdicom.association.Association.html#pynetdicom.association.Association.send_c_move" title="pynetdicom.association.Association.send_c_move"><code class="xref py py-meth docutils literal notranslate"><span class="pre">Association.send_c_move()</span></code></a>
 method. The move destination can either be a different AE or the AE that made
-the C-MOVE request (provided a non-blocking Storage SCP has been started).</li>
+the C-MOVE request (provided a non-blocking Storage SCP has been started).</p></li>
 </ul>
 <p>Attempting to use a service without an established association will raise a
 <code class="docutils literal notranslate"><span class="pre">RuntimeError</span></code>, while attempting to use a service that is not supported by
@@ -595,34 +596,34 @@ instance via the <code class="docutils literal notranslate"><span class="pre">ss
 DIMSE-C or -N services then a handler must be implemented and bound to the
 event corresponding the the service (excluding C-ECHO which has a default
 implementation that always returns a 0x0000 <em>Success</em> response):</p>
-<table border="1" class="docutils">
+<table class="docutils align-center">
 <colgroup>
-<col width="42%" />
-<col width="58%" />
+<col style="width: 42%" />
+<col style="width: 58%" />
 </colgroup>
-<thead valign="bottom">
-<tr class="row-odd"><th class="head">DIMSE service</th>
-<th class="head">Event</th>
+<thead>
+<tr class="row-odd"><th class="head"><p>DIMSE service</p></th>
+<th class="head"><p>Event</p></th>
 </tr>
 </thead>
-<tbody valign="top">
-<tr class="row-even"><td>C-ECHO</td>
-<td><code class="docutils literal notranslate"><span class="pre">evt.EVT_C_ECHO</span></code></td>
+<tbody>
+<tr class="row-even"><td><p>C-ECHO</p></td>
+<td><p><code class="docutils literal notranslate"><span class="pre">evt.EVT_C_ECHO</span></code></p></td>
 </tr>
-<tr class="row-odd"><td>C-FIND</td>
-<td><code class="docutils literal notranslate"><span class="pre">evt.EVT_C_FIND</span></code></td>
+<tr class="row-odd"><td><p>C-FIND</p></td>
+<td><p><code class="docutils literal notranslate"><span class="pre">evt.EVT_C_FIND</span></code></p></td>
 </tr>
-<tr class="row-even"><td>C-GET</td>
-<td><code class="docutils literal notranslate"><span class="pre">evt.EVT_C_GET</span></code></td>
+<tr class="row-even"><td><p>C-GET</p></td>
+<td><p><code class="docutils literal notranslate"><span class="pre">evt.EVT_C_GET</span></code></p></td>
 </tr>
-<tr class="row-odd"><td>C-MOVE</td>
-<td><code class="docutils literal notranslate"><span class="pre">evt.EVT_C_MOVE</span></code></td>
+<tr class="row-odd"><td><p>C-MOVE</p></td>
+<td><p><code class="docutils literal notranslate"><span class="pre">evt.EVT_C_MOVE</span></code></p></td>
 </tr>
-<tr class="row-even"><td>C-STORE</td>
-<td><code class="docutils literal notranslate"><span class="pre">evt.EVT_C_STORE</span></code></td>
+<tr class="row-even"><td><p>C-STORE</p></td>
+<td><p><code class="docutils literal notranslate"><span class="pre">evt.EVT_C_STORE</span></code></p></td>
 </tr>
-<tr class="row-odd"><td>N-GET</td>
-<td><code class="docutils literal notranslate"><span class="pre">evt.EVT_N_GET</span></code></td>
+<tr class="row-odd"><td><p>N-GET</p></td>
+<td><p><code class="docutils literal notranslate"><span class="pre">evt.EVT_N_GET</span></code></p></td>
 </tr>
 </tbody>
 </table>

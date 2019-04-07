@@ -101,6 +101,7 @@
 <li class="toctree-l1"><a class="reference internal" href="../hanging_protocol_service_class.html">Hanging Protocol Query/Retrieve Service Class</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../implant_template_service_class.html">Implant Template Query/Retrieve Service Class</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../display_system_service_class.html">Display System Management Service Class</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../modality_performed_procedure_step.html">Modality Performed Procedure Step Management</a></li>
 </ul>
 <ul>
 <li class="toctree-l1"><a class="reference internal" href="../user/index.html">User Guide</a></li>
@@ -155,7 +156,7 @@
     
       <li><a href="../index.html">Docs</a> &raquo;</li>
         
-      <li>Events and Handlers (<code class="docutils literal notranslate"><span class="pre">pynetdicom.events</span></code>)</li>
+      <li>Events and Handlers (<code class="xref py py-mod docutils literal notranslate"><span class="pre">pynetdicom.events</span></code>)</li>
     
     
       <li class="wy-breadcrumbs-aside">
@@ -176,86 +177,101 @@
             
   <div class="section" id="events-and-handlers-pynetdicom-events">
 <span id="api-events"></span><h1>Events and Handlers (<code class="xref py py-mod docutils literal notranslate"><span class="pre">pynetdicom.events</span></code>)<a class="headerlink" href="#events-and-handlers-pynetdicom-events" title="Permalink to this headline">¶</a></h1>
-<table border="1" class="longtable docutils">
+<table class="longtable docutils align-center">
 <colgroup>
-<col width="10%" />
-<col width="90%" />
+<col style="width: 10%" />
+<col style="width: 90%" />
 </colgroup>
-<tbody valign="top">
-<tr class="row-odd"><td><a class="reference internal" href="generated/pynetdicom.events.Event.html#pynetdicom.events.Event" title="pynetdicom.events.Event"><code class="xref py py-obj docutils literal notranslate"><span class="pre">Event</span></code></a>(assoc,&nbsp;event[,&nbsp;attrs])</td>
-<td>Representation of an event.</td>
+<tbody>
+<tr class="row-odd"><td><p><a class="reference internal" href="generated/pynetdicom.events.Event.html#pynetdicom.events.Event" title="pynetdicom.events.Event"><code class="xref py py-obj docutils literal notranslate"><span class="pre">Event</span></code></a>(assoc, event[, attrs])</p></td>
+<td><p>Representation of an event.</p></td>
 </tr>
 </tbody>
 </table>
 <div class="section" id="documentation-for-intervention-event-handlers">
 <h2>Documentation for Intervention Event Handlers<a class="headerlink" href="#documentation-for-intervention-event-handlers" title="Permalink to this headline">¶</a></h2>
-<table border="1" class="longtable docutils">
+<table class="longtable docutils align-center">
 <colgroup>
-<col width="10%" />
-<col width="90%" />
+<col style="width: 10%" />
+<col style="width: 90%" />
 </colgroup>
-<tbody valign="top">
-<tr class="row-odd"><td><a class="reference internal" href="generated/pynetdicom._handlers.doc_handle_echo.html#pynetdicom._handlers.doc_handle_echo" title="pynetdicom._handlers.doc_handle_echo"><code class="xref py py-obj docutils literal notranslate"><span class="pre">doc_handle_echo</span></code></a>(event)</td>
-<td>Documentation for handlers bound to <code class="docutils literal notranslate"><span class="pre">evt.EVT_C_ECHO</span></code>.</td>
+<tbody>
+<tr class="row-odd"><td><p><a class="reference internal" href="generated/pynetdicom._handlers.doc_handle_echo.html#pynetdicom._handlers.doc_handle_echo" title="pynetdicom._handlers.doc_handle_echo"><code class="xref py py-obj docutils literal notranslate"><span class="pre">doc_handle_echo</span></code></a>(event)</p></td>
+<td><p>Documentation for handlers bound to <code class="docutils literal notranslate"><span class="pre">evt.EVT_C_ECHO</span></code>.</p></td>
 </tr>
-<tr class="row-even"><td><a class="reference internal" href="generated/pynetdicom._handlers.doc_handle_find.html#pynetdicom._handlers.doc_handle_find" title="pynetdicom._handlers.doc_handle_find"><code class="xref py py-obj docutils literal notranslate"><span class="pre">doc_handle_find</span></code></a>(event)</td>
-<td>Documentation for handlers bound to <code class="docutils literal notranslate"><span class="pre">evt.EVT_C_FIND</span></code>.</td>
+<tr class="row-even"><td><p><a class="reference internal" href="generated/pynetdicom._handlers.doc_handle_find.html#pynetdicom._handlers.doc_handle_find" title="pynetdicom._handlers.doc_handle_find"><code class="xref py py-obj docutils literal notranslate"><span class="pre">doc_handle_find</span></code></a>(event)</p></td>
+<td><p>Documentation for handlers bound to <code class="docutils literal notranslate"><span class="pre">evt.EVT_C_FIND</span></code>.</p></td>
 </tr>
-<tr class="row-odd"><td><a class="reference internal" href="generated/pynetdicom._handlers.doc_handle_c_get.html#pynetdicom._handlers.doc_handle_c_get" title="pynetdicom._handlers.doc_handle_c_get"><code class="xref py py-obj docutils literal notranslate"><span class="pre">doc_handle_c_get</span></code></a>(event)</td>
-<td>Documentation for handlers bound to <code class="docutils literal notranslate"><span class="pre">evt.EVT_C_GET</span></code>.</td>
+<tr class="row-odd"><td><p><a class="reference internal" href="generated/pynetdicom._handlers.doc_handle_c_get.html#pynetdicom._handlers.doc_handle_c_get" title="pynetdicom._handlers.doc_handle_c_get"><code class="xref py py-obj docutils literal notranslate"><span class="pre">doc_handle_c_get</span></code></a>(event)</p></td>
+<td><p>Documentation for handlers bound to <code class="docutils literal notranslate"><span class="pre">evt.EVT_C_GET</span></code>.</p></td>
 </tr>
-<tr class="row-even"><td><a class="reference internal" href="generated/pynetdicom._handlers.doc_handle_move.html#pynetdicom._handlers.doc_handle_move" title="pynetdicom._handlers.doc_handle_move"><code class="xref py py-obj docutils literal notranslate"><span class="pre">doc_handle_move</span></code></a>(event)</td>
-<td>Documentation for handlers bound to <code class="docutils literal notranslate"><span class="pre">evt.EVT_C_MOVE</span></code>.</td>
+<tr class="row-even"><td><p><a class="reference internal" href="generated/pynetdicom._handlers.doc_handle_move.html#pynetdicom._handlers.doc_handle_move" title="pynetdicom._handlers.doc_handle_move"><code class="xref py py-obj docutils literal notranslate"><span class="pre">doc_handle_move</span></code></a>(event)</p></td>
+<td><p>Documentation for handlers bound to <code class="docutils literal notranslate"><span class="pre">evt.EVT_C_MOVE</span></code>.</p></td>
 </tr>
-<tr class="row-odd"><td><a class="reference internal" href="generated/pynetdicom._handlers.doc_handle_store.html#pynetdicom._handlers.doc_handle_store" title="pynetdicom._handlers.doc_handle_store"><code class="xref py py-obj docutils literal notranslate"><span class="pre">doc_handle_store</span></code></a>(event)</td>
-<td>Documentation for handlers bound to <code class="docutils literal notranslate"><span class="pre">evt.EVT_C_STORE</span></code>.</td>
+<tr class="row-odd"><td><p><a class="reference internal" href="generated/pynetdicom._handlers.doc_handle_store.html#pynetdicom._handlers.doc_handle_store" title="pynetdicom._handlers.doc_handle_store"><code class="xref py py-obj docutils literal notranslate"><span class="pre">doc_handle_store</span></code></a>(event)</p></td>
+<td><p>Documentation for handlers bound to <code class="docutils literal notranslate"><span class="pre">evt.EVT_C_STORE</span></code>.</p></td>
 </tr>
-<tr class="row-even"><td><a class="reference internal" href="generated/pynetdicom._handlers.doc_handle_n_get.html#pynetdicom._handlers.doc_handle_n_get" title="pynetdicom._handlers.doc_handle_n_get"><code class="xref py py-obj docutils literal notranslate"><span class="pre">doc_handle_n_get</span></code></a>(event)</td>
-<td>Documentation for handlers bound to <code class="docutils literal notranslate"><span class="pre">evt.EVT_N_GET</span></code>.</td>
+<tr class="row-even"><td><p><a class="reference internal" href="generated/pynetdicom._handlers.doc_handle_action.html#pynetdicom._handlers.doc_handle_action" title="pynetdicom._handlers.doc_handle_action"><code class="xref py py-obj docutils literal notranslate"><span class="pre">doc_handle_action</span></code></a>(event)</p></td>
+<td><p>Documentation for handlers bound to <code class="docutils literal notranslate"><span class="pre">evt.EVT_N_ACTION</span></code>.</p></td>
 </tr>
-<tr class="row-odd"><td><a class="reference internal" href="generated/pynetdicom._handlers.doc_handle_async.html#pynetdicom._handlers.doc_handle_async" title="pynetdicom._handlers.doc_handle_async"><code class="xref py py-obj docutils literal notranslate"><span class="pre">doc_handle_async</span></code></a>(event)</td>
-<td>Documentation for handlers bound to <code class="docutils literal notranslate"><span class="pre">evt.EVT_ASYNC_OPS</span></code>.</td>
+<tr class="row-odd"><td><p><a class="reference internal" href="generated/pynetdicom._handlers.doc_handle_create.html#pynetdicom._handlers.doc_handle_create" title="pynetdicom._handlers.doc_handle_create"><code class="xref py py-obj docutils literal notranslate"><span class="pre">doc_handle_create</span></code></a>(event)</p></td>
+<td><p>Documentation for handlers bound to <code class="docutils literal notranslate"><span class="pre">evt.EVT_N_CREATE</span></code>.</p></td>
 </tr>
-<tr class="row-even"><td><a class="reference internal" href="generated/pynetdicom._handlers.doc_handle_sop_common.html#pynetdicom._handlers.doc_handle_sop_common" title="pynetdicom._handlers.doc_handle_sop_common"><code class="xref py py-obj docutils literal notranslate"><span class="pre">doc_handle_sop_common</span></code></a>(event)</td>
-<td>Documentation for handlers bound to <code class="docutils literal notranslate"><span class="pre">evt.EVT_SOP_COMMON</span></code>.</td>
+<tr class="row-even"><td><p><a class="reference internal" href="generated/pynetdicom._handlers.doc_handle_delete.html#pynetdicom._handlers.doc_handle_delete" title="pynetdicom._handlers.doc_handle_delete"><code class="xref py py-obj docutils literal notranslate"><span class="pre">doc_handle_delete</span></code></a>(event)</p></td>
+<td><p>Documentation for handlers bound to <code class="docutils literal notranslate"><span class="pre">evt.EVT_N_DELETE</span></code>.</p></td>
 </tr>
-<tr class="row-odd"><td><a class="reference internal" href="generated/pynetdicom._handlers.doc_handle_sop_extended.html#pynetdicom._handlers.doc_handle_sop_extended" title="pynetdicom._handlers.doc_handle_sop_extended"><code class="xref py py-obj docutils literal notranslate"><span class="pre">doc_handle_sop_extended</span></code></a>(event)</td>
-<td>Documentation for handlers bound to <code class="docutils literal notranslate"><span class="pre">evt.EVT_SOP_EXTENDED</span></code>.</td>
+<tr class="row-odd"><td><p><a class="reference internal" href="generated/pynetdicom._handlers.doc_handle_event_report.html#pynetdicom._handlers.doc_handle_event_report" title="pynetdicom._handlers.doc_handle_event_report"><code class="xref py py-obj docutils literal notranslate"><span class="pre">doc_handle_event_report</span></code></a>(event)</p></td>
+<td><p>Documentation for handlers bound to <code class="docutils literal notranslate"><span class="pre">evt.EVT_N_EVENT_REPORT</span></code>.</p></td>
 </tr>
-<tr class="row-even"><td><a class="reference internal" href="generated/pynetdicom._handlers.doc_handle_userid.html#pynetdicom._handlers.doc_handle_userid" title="pynetdicom._handlers.doc_handle_userid"><code class="xref py py-obj docutils literal notranslate"><span class="pre">doc_handle_userid</span></code></a>(event)</td>
-<td>Documentation for handlers bound to <code class="docutils literal notranslate"><span class="pre">evt.EVT_USER_ID</span></code>.</td>
+<tr class="row-even"><td><p><a class="reference internal" href="generated/pynetdicom._handlers.doc_handle_n_get.html#pynetdicom._handlers.doc_handle_n_get" title="pynetdicom._handlers.doc_handle_n_get"><code class="xref py py-obj docutils literal notranslate"><span class="pre">doc_handle_n_get</span></code></a>(event)</p></td>
+<td><p>Documentation for handlers bound to <code class="docutils literal notranslate"><span class="pre">evt.EVT_N_GET</span></code>.</p></td>
+</tr>
+<tr class="row-odd"><td><p><a class="reference internal" href="generated/pynetdicom._handlers.doc_handle_set.html#pynetdicom._handlers.doc_handle_set" title="pynetdicom._handlers.doc_handle_set"><code class="xref py py-obj docutils literal notranslate"><span class="pre">doc_handle_set</span></code></a>(event)</p></td>
+<td><p>Documentation for handlers bound to <code class="docutils literal notranslate"><span class="pre">evt.EVT_N_SET</span></code>.</p></td>
+</tr>
+<tr class="row-even"><td><p><a class="reference internal" href="generated/pynetdicom._handlers.doc_handle_async.html#pynetdicom._handlers.doc_handle_async" title="pynetdicom._handlers.doc_handle_async"><code class="xref py py-obj docutils literal notranslate"><span class="pre">doc_handle_async</span></code></a>(event)</p></td>
+<td><p>Documentation for handlers bound to <code class="docutils literal notranslate"><span class="pre">evt.EVT_ASYNC_OPS</span></code>.</p></td>
+</tr>
+<tr class="row-odd"><td><p><a class="reference internal" href="generated/pynetdicom._handlers.doc_handle_sop_common.html#pynetdicom._handlers.doc_handle_sop_common" title="pynetdicom._handlers.doc_handle_sop_common"><code class="xref py py-obj docutils literal notranslate"><span class="pre">doc_handle_sop_common</span></code></a>(event)</p></td>
+<td><p>Documentation for handlers bound to <code class="docutils literal notranslate"><span class="pre">evt.EVT_SOP_COMMON</span></code>.</p></td>
+</tr>
+<tr class="row-even"><td><p><a class="reference internal" href="generated/pynetdicom._handlers.doc_handle_sop_extended.html#pynetdicom._handlers.doc_handle_sop_extended" title="pynetdicom._handlers.doc_handle_sop_extended"><code class="xref py py-obj docutils literal notranslate"><span class="pre">doc_handle_sop_extended</span></code></a>(event)</p></td>
+<td><p>Documentation for handlers bound to <code class="docutils literal notranslate"><span class="pre">evt.EVT_SOP_EXTENDED</span></code>.</p></td>
+</tr>
+<tr class="row-odd"><td><p><a class="reference internal" href="generated/pynetdicom._handlers.doc_handle_userid.html#pynetdicom._handlers.doc_handle_userid" title="pynetdicom._handlers.doc_handle_userid"><code class="xref py py-obj docutils literal notranslate"><span class="pre">doc_handle_userid</span></code></a>(event)</p></td>
+<td><p>Documentation for handlers bound to <code class="docutils literal notranslate"><span class="pre">evt.EVT_USER_ID</span></code>.</p></td>
 </tr>
 </tbody>
 </table>
 </div>
 <div class="section" id="documentation-for-notification-event-handlers">
 <h2>Documentation for Notification Event Handlers<a class="headerlink" href="#documentation-for-notification-event-handlers" title="Permalink to this headline">¶</a></h2>
-<table border="1" class="longtable docutils">
+<table class="longtable docutils align-center">
 <colgroup>
-<col width="10%" />
-<col width="90%" />
+<col style="width: 10%" />
+<col style="width: 90%" />
 </colgroup>
-<tbody valign="top">
-<tr class="row-odd"><td><a class="reference internal" href="generated/pynetdicom._handlers.doc_handle_acse.html#pynetdicom._handlers.doc_handle_acse" title="pynetdicom._handlers.doc_handle_acse"><code class="xref py py-obj docutils literal notranslate"><span class="pre">doc_handle_acse</span></code></a>(event)</td>
-<td>Documentation for handlers bound to <code class="docutils literal notranslate"><span class="pre">evt.EVT_ACSE_RECV</span></code> or <code class="docutils literal notranslate"><span class="pre">evt.EVT_ACSE_SENT</span></code>.</td>
+<tbody>
+<tr class="row-odd"><td><p><a class="reference internal" href="generated/pynetdicom._handlers.doc_handle_acse.html#pynetdicom._handlers.doc_handle_acse" title="pynetdicom._handlers.doc_handle_acse"><code class="xref py py-obj docutils literal notranslate"><span class="pre">doc_handle_acse</span></code></a>(event)</p></td>
+<td><p>Documentation for handlers bound to <code class="docutils literal notranslate"><span class="pre">evt.EVT_ACSE_RECV</span></code> or <code class="docutils literal notranslate"><span class="pre">evt.EVT_ACSE_SENT</span></code>.</p></td>
 </tr>
-<tr class="row-even"><td><a class="reference internal" href="generated/pynetdicom._handlers.doc_handle_dimse.html#pynetdicom._handlers.doc_handle_dimse" title="pynetdicom._handlers.doc_handle_dimse"><code class="xref py py-obj docutils literal notranslate"><span class="pre">doc_handle_dimse</span></code></a>(event)</td>
-<td>Documentation for handlers bound to <code class="docutils literal notranslate"><span class="pre">evt.EVT_DIMSE_RECV</span></code> or <code class="docutils literal notranslate"><span class="pre">evt.EVT_DIMSE_SENT</span></code>.</td>
+<tr class="row-even"><td><p><a class="reference internal" href="generated/pynetdicom._handlers.doc_handle_dimse.html#pynetdicom._handlers.doc_handle_dimse" title="pynetdicom._handlers.doc_handle_dimse"><code class="xref py py-obj docutils literal notranslate"><span class="pre">doc_handle_dimse</span></code></a>(event)</p></td>
+<td><p>Documentation for handlers bound to <code class="docutils literal notranslate"><span class="pre">evt.EVT_DIMSE_RECV</span></code> or <code class="docutils literal notranslate"><span class="pre">evt.EVT_DIMSE_SENT</span></code>.</p></td>
 </tr>
-<tr class="row-odd"><td><a class="reference internal" href="generated/pynetdicom._handlers.doc_handle_data.html#pynetdicom._handlers.doc_handle_data" title="pynetdicom._handlers.doc_handle_data"><code class="xref py py-obj docutils literal notranslate"><span class="pre">doc_handle_data</span></code></a>(event)</td>
-<td>Documentation for handlers bound to <code class="docutils literal notranslate"><span class="pre">evt.EVT_DATA_RECV</span></code> or <code class="docutils literal notranslate"><span class="pre">evt.EVT_DATA_SENT</span></code>.</td>
+<tr class="row-odd"><td><p><a class="reference internal" href="generated/pynetdicom._handlers.doc_handle_data.html#pynetdicom._handlers.doc_handle_data" title="pynetdicom._handlers.doc_handle_data"><code class="xref py py-obj docutils literal notranslate"><span class="pre">doc_handle_data</span></code></a>(event)</p></td>
+<td><p>Documentation for handlers bound to <code class="docutils literal notranslate"><span class="pre">evt.EVT_DATA_RECV</span></code> or <code class="docutils literal notranslate"><span class="pre">evt.EVT_DATA_SENT</span></code>.</p></td>
 </tr>
-<tr class="row-even"><td><a class="reference internal" href="generated/pynetdicom._handlers.doc_handle_pdu.html#pynetdicom._handlers.doc_handle_pdu" title="pynetdicom._handlers.doc_handle_pdu"><code class="xref py py-obj docutils literal notranslate"><span class="pre">doc_handle_pdu</span></code></a>(event)</td>
-<td>Documentation for handlers bound to <code class="docutils literal notranslate"><span class="pre">evt.EVT_PDU_RECV</span></code> or <code class="docutils literal notranslate"><span class="pre">evt.EVT_PDU_SENT</span></code>.</td>
+<tr class="row-even"><td><p><a class="reference internal" href="generated/pynetdicom._handlers.doc_handle_pdu.html#pynetdicom._handlers.doc_handle_pdu" title="pynetdicom._handlers.doc_handle_pdu"><code class="xref py py-obj docutils literal notranslate"><span class="pre">doc_handle_pdu</span></code></a>(event)</p></td>
+<td><p>Documentation for handlers bound to <code class="docutils literal notranslate"><span class="pre">evt.EVT_PDU_RECV</span></code> or <code class="docutils literal notranslate"><span class="pre">evt.EVT_PDU_SENT</span></code>.</p></td>
 </tr>
-<tr class="row-odd"><td><a class="reference internal" href="generated/pynetdicom._handlers.doc_handle_fsm.html#pynetdicom._handlers.doc_handle_fsm" title="pynetdicom._handlers.doc_handle_fsm"><code class="xref py py-obj docutils literal notranslate"><span class="pre">doc_handle_fsm</span></code></a>(event)</td>
-<td>Documentation for handlers bound to <code class="docutils literal notranslate"><span class="pre">evt.EVT_FSM_TRANSITION</span></code>.</td>
+<tr class="row-odd"><td><p><a class="reference internal" href="generated/pynetdicom._handlers.doc_handle_fsm.html#pynetdicom._handlers.doc_handle_fsm" title="pynetdicom._handlers.doc_handle_fsm"><code class="xref py py-obj docutils literal notranslate"><span class="pre">doc_handle_fsm</span></code></a>(event)</p></td>
+<td><p>Documentation for handlers bound to <code class="docutils literal notranslate"><span class="pre">evt.EVT_FSM_TRANSITION</span></code>.</p></td>
 </tr>
-<tr class="row-even"><td><a class="reference internal" href="generated/pynetdicom._handlers.doc_handle_assoc.html#pynetdicom._handlers.doc_handle_assoc" title="pynetdicom._handlers.doc_handle_assoc"><code class="xref py py-obj docutils literal notranslate"><span class="pre">doc_handle_assoc</span></code></a>(event)</td>
-<td>Documentation for handlers bound to <code class="docutils literal notranslate"><span class="pre">evt.EVT_ACCEPTED</span></code>, <code class="docutils literal notranslate"><span class="pre">evt.EVT_ESTABLISHED</span></code>, <code class="docutils literal notranslate"><span class="pre">evt.EVT_REJECTED</span></code>, <code class="docutils literal notranslate"><span class="pre">evt.EVT_REQUESTED</span></code>, <code class="docutils literal notranslate"><span class="pre">evt.EVT_RELEASED</span></code> or <code class="docutils literal notranslate"><span class="pre">evt.EVT_ABORTED</span></code>.</td>
+<tr class="row-even"><td><p><a class="reference internal" href="generated/pynetdicom._handlers.doc_handle_assoc.html#pynetdicom._handlers.doc_handle_assoc" title="pynetdicom._handlers.doc_handle_assoc"><code class="xref py py-obj docutils literal notranslate"><span class="pre">doc_handle_assoc</span></code></a>(event)</p></td>
+<td><p>Documentation for handlers bound to <code class="docutils literal notranslate"><span class="pre">evt.EVT_ACCEPTED</span></code>, <code class="docutils literal notranslate"><span class="pre">evt.EVT_ESTABLISHED</span></code>, <code class="docutils literal notranslate"><span class="pre">evt.EVT_REJECTED</span></code>, <code class="docutils literal notranslate"><span class="pre">evt.EVT_REQUESTED</span></code>, <code class="docutils literal notranslate"><span class="pre">evt.EVT_RELEASED</span></code> or <code class="docutils literal notranslate"><span class="pre">evt.EVT_ABORTED</span></code>.</p></td>
 </tr>
-<tr class="row-odd"><td><a class="reference internal" href="generated/pynetdicom._handlers.doc_handle_transport.html#pynetdicom._handlers.doc_handle_transport" title="pynetdicom._handlers.doc_handle_transport"><code class="xref py py-obj docutils literal notranslate"><span class="pre">doc_handle_transport</span></code></a>(event)</td>
-<td>Documentation for handlers bound to <code class="docutils literal notranslate"><span class="pre">evt.EVT_CONN_OPEN</span></code> or <code class="docutils literal notranslate"><span class="pre">evt.EVT_CONN_CLOSE</span></code>.</td>
+<tr class="row-odd"><td><p><a class="reference internal" href="generated/pynetdicom._handlers.doc_handle_transport.html#pynetdicom._handlers.doc_handle_transport" title="pynetdicom._handlers.doc_handle_transport"><code class="xref py py-obj docutils literal notranslate"><span class="pre">doc_handle_transport</span></code></a>(event)</p></td>
+<td><p>Documentation for handlers bound to <code class="docutils literal notranslate"><span class="pre">evt.EVT_CONN_OPEN</span></code> or <code class="docutils literal notranslate"><span class="pre">evt.EVT_CONN_CLOSE</span></code>.</p></td>
 </tr>
 </tbody>
 </table>

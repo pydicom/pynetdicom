@@ -101,6 +101,7 @@
 <li class="toctree-l1"><a class="reference internal" href="../../hanging_protocol_service_class.html">Hanging Protocol Query/Retrieve Service Class</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../../implant_template_service_class.html">Implant Template Query/Retrieve Service Class</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../../display_system_service_class.html">Display System Management Service Class</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../modality_performed_procedure_step.html">Modality Performed Procedure Step Management</a></li>
 </ul>
 <ul>
 <li class="toctree-l1"><a class="reference internal" href="../../user/index.html">User Guide</a></li>
@@ -2262,54 +2263,6 @@
 
 
     <span class="c1"># High-level DIMSE-N callbacks - user should implement these as required</span>
-<div class="viewcode-block" id="ApplicationEntity.on_n_action"><a class="viewcode-back" href="../../reference/generated/pynetdicom.ae.ApplicationEntity.html#pynetdicom.ae.ApplicationEntity.on_n_action">[docs]</a>    <span class="k">def</span> <span class="nf">on_n_action</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">dataset</span><span class="p">,</span> <span class="n">context</span><span class="p">,</span> <span class="n">info</span><span class="p">):</span>
-        <span class="sd">&quot;&quot;&quot;Callback for when a N-ACTION is received.</span>
-
-<span class="sd">        References</span>
-<span class="sd">        ----------</span>
-<span class="sd">        DICOM Standard Part 4, Annexes H, J, P, S, CC and DD</span>
-<span class="sd">        &quot;&quot;&quot;</span>
-        <span class="k">raise</span> <span class="ne">NotImplementedError</span><span class="p">(</span>
-            <span class="s2">&quot;User must implement the AE.on_n_action function prior to &quot;</span>
-            <span class="s2">&quot;calling AE.start_server()&quot;</span>
-        <span class="p">)</span></div>
-
-<div class="viewcode-block" id="ApplicationEntity.on_n_create"><a class="viewcode-back" href="../../reference/generated/pynetdicom.ae.ApplicationEntity.html#pynetdicom.ae.ApplicationEntity.on_n_create">[docs]</a>    <span class="k">def</span> <span class="nf">on_n_create</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">dataset</span><span class="p">,</span> <span class="n">context</span><span class="p">,</span> <span class="n">info</span><span class="p">):</span>
-        <span class="sd">&quot;&quot;&quot;Callback for when a N-CREATE is received.</span>
-
-<span class="sd">        References</span>
-<span class="sd">        ----------</span>
-<span class="sd">        DICOM Standard Part 4, Annexes F, H, R, S, CC and DD</span>
-<span class="sd">        &quot;&quot;&quot;</span>
-        <span class="k">raise</span> <span class="ne">NotImplementedError</span><span class="p">(</span>
-            <span class="s2">&quot;User must implement the AE.on_n_create function prior to &quot;</span>
-            <span class="s2">&quot;calling AE.start_server()&quot;</span>
-        <span class="p">)</span></div>
-
-<div class="viewcode-block" id="ApplicationEntity.on_n_delete"><a class="viewcode-back" href="../../reference/generated/pynetdicom.ae.ApplicationEntity.html#pynetdicom.ae.ApplicationEntity.on_n_delete">[docs]</a>    <span class="k">def</span> <span class="nf">on_n_delete</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">context</span><span class="p">,</span> <span class="n">info</span><span class="p">):</span>
-        <span class="sd">&quot;&quot;&quot;Callback for when a N-DELETE is received.</span>
-
-<span class="sd">        References</span>
-<span class="sd">        ----------</span>
-<span class="sd">        DICOM Standard Part 4, Annexes H and DD</span>
-<span class="sd">        &quot;&quot;&quot;</span>
-        <span class="k">raise</span> <span class="ne">NotImplementedError</span><span class="p">(</span>
-            <span class="s2">&quot;User must implement the AE.on_n_delete function prior to &quot;</span>
-            <span class="s2">&quot;calling AE.start_server()&quot;</span>
-        <span class="p">)</span></div>
-
-<div class="viewcode-block" id="ApplicationEntity.on_n_event_report"><a class="viewcode-back" href="../../reference/generated/pynetdicom.ae.ApplicationEntity.html#pynetdicom.ae.ApplicationEntity.on_n_event_report">[docs]</a>    <span class="k">def</span> <span class="nf">on_n_event_report</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">dataset</span><span class="p">,</span> <span class="n">context</span><span class="p">,</span> <span class="n">info</span><span class="p">):</span>
-        <span class="sd">&quot;&quot;&quot;Callback for when a N-EVENT-REPORT is received.</span>
-
-<span class="sd">        References</span>
-<span class="sd">        ----------</span>
-<span class="sd">        DICOM Standard Part 4, Annexes F, H, J, CC and DD</span>
-<span class="sd">        &quot;&quot;&quot;</span>
-        <span class="k">raise</span> <span class="ne">NotImplementedError</span><span class="p">(</span>
-            <span class="s2">&quot;User must implement the AE.on_n_event_report function prior to &quot;</span>
-            <span class="s2">&quot;calling AE.start_server()&quot;</span>
-        <span class="p">)</span></div>
-
 <div class="viewcode-block" id="ApplicationEntity.on_n_get"><a class="viewcode-back" href="../../reference/generated/pynetdicom.ae.ApplicationEntity.html#pynetdicom.ae.ApplicationEntity.on_n_get">[docs]</a>    <span class="k">def</span> <span class="nf">on_n_get</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">attr</span><span class="p">,</span> <span class="n">context</span><span class="p">,</span> <span class="n">info</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;Callback for when an N-GET request is received.</span>
 
@@ -2385,18 +2338,6 @@
 <span class="sd">        &quot;&quot;&quot;</span>
         <span class="k">raise</span> <span class="ne">NotImplementedError</span><span class="p">(</span>
             <span class="s2">&quot;User must implement the AE.on_n_get function prior to &quot;</span>
-            <span class="s2">&quot;calling AE.start_server()&quot;</span>
-        <span class="p">)</span></div>
-
-<div class="viewcode-block" id="ApplicationEntity.on_n_set"><a class="viewcode-back" href="../../reference/generated/pynetdicom.ae.ApplicationEntity.html#pynetdicom.ae.ApplicationEntity.on_n_set">[docs]</a>    <span class="k">def</span> <span class="nf">on_n_set</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">dataset</span><span class="p">,</span> <span class="n">context</span><span class="p">,</span> <span class="n">info</span><span class="p">):</span>
-        <span class="sd">&quot;&quot;&quot;Callback for when a N-SET is received.</span>
-
-<span class="sd">        References</span>
-<span class="sd">        ----------</span>
-<span class="sd">        DICOM Standard Part 4, Annexes F, H, CC and DD</span>
-<span class="sd">        &quot;&quot;&quot;</span>
-        <span class="k">raise</span> <span class="ne">NotImplementedError</span><span class="p">(</span>
-            <span class="s2">&quot;User must implement the AE.on_n_set function prior to &quot;</span>
             <span class="s2">&quot;calling AE.start_server()&quot;</span>
         <span class="p">)</span></div>
 

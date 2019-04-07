@@ -101,6 +101,7 @@
 <li class="toctree-l1"><a class="reference internal" href="../hanging_protocol_service_class.html">Hanging Protocol Query/Retrieve Service Class</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../implant_template_service_class.html">Implant Template Query/Retrieve Service Class</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../display_system_service_class.html">Display System Management Service Class</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../modality_performed_procedure_step.html">Modality Performed Procedure Step Management</a></li>
 </ul>
 <ul>
 <li class="toctree-l1"><a class="reference internal" href="../user/index.html">User Guide</a></li>
@@ -155,7 +156,7 @@
     
       <li><a href="../index.html">Docs</a> &raquo;</li>
         
-      <li>Transport Service (<code class="docutils literal notranslate"><span class="pre">pynetdicom.transport</span></code>)</li>
+      <li>Transport Service (<code class="xref py py-mod docutils literal notranslate"><span class="pre">pynetdicom.transport</span></code>)</li>
     
     
       <li class="wy-breadcrumbs-aside">
@@ -178,20 +179,20 @@
 <span id="transport"></span><h1>Transport Service (<code class="xref py py-mod docutils literal notranslate"><span class="pre">pynetdicom.transport</span></code>)<a class="headerlink" href="#transport-service-pynetdicom-transport" title="Permalink to this headline">¶</a></h1>
 <p>The Transport Service handles creation of the servers and clients used to
 communication with peer AEs.</p>
-<table border="1" class="longtable docutils">
+<table class="longtable docutils align-center">
 <colgroup>
-<col width="10%" />
-<col width="90%" />
+<col style="width: 10%" />
+<col style="width: 90%" />
 </colgroup>
-<tbody valign="top">
-<tr class="row-odd"><td><a class="reference internal" href="generated/pynetdicom.transport.AssociationSocket.html#pynetdicom.transport.AssociationSocket" title="pynetdicom.transport.AssociationSocket"><code class="xref py py-obj docutils literal notranslate"><span class="pre">AssociationSocket</span></code></a>(assoc[,&nbsp;client_socket,&nbsp;…])</td>
-<td>A wrapper for a <code class="docutils literal notranslate"><span class="pre">socket.socket</span></code> object.</td>
+<tbody>
+<tr class="row-odd"><td><p><a class="reference internal" href="generated/pynetdicom.transport.AssociationSocket.html#pynetdicom.transport.AssociationSocket" title="pynetdicom.transport.AssociationSocket"><code class="xref py py-obj docutils literal notranslate"><span class="pre">AssociationSocket</span></code></a>(assoc[, client_socket, …])</p></td>
+<td><p>A wrapper for a <code class="docutils literal notranslate"><span class="pre">socket.socket</span></code> object.</p></td>
 </tr>
-<tr class="row-even"><td><a class="reference internal" href="generated/pynetdicom.transport.AssociationServer.html#pynetdicom.transport.AssociationServer" title="pynetdicom.transport.AssociationServer"><code class="xref py py-obj docutils literal notranslate"><span class="pre">AssociationServer</span></code></a>(ae,&nbsp;address[,&nbsp;…])</td>
-<td>An Association server implementation.</td>
+<tr class="row-even"><td><p><a class="reference internal" href="generated/pynetdicom.transport.AssociationServer.html#pynetdicom.transport.AssociationServer" title="pynetdicom.transport.AssociationServer"><code class="xref py py-obj docutils literal notranslate"><span class="pre">AssociationServer</span></code></a>(ae, address[, …])</p></td>
+<td><p>An Association server implementation.</p></td>
 </tr>
-<tr class="row-odd"><td><a class="reference internal" href="generated/pynetdicom.transport.ThreadedAssociationServer.html#pynetdicom.transport.ThreadedAssociationServer" title="pynetdicom.transport.ThreadedAssociationServer"><code class="xref py py-obj docutils literal notranslate"><span class="pre">ThreadedAssociationServer</span></code></a>(ae,&nbsp;address[,&nbsp;…])</td>
-<td>An <code class="docutils literal notranslate"><span class="pre">AssociationServer</span></code> suitable for threading.</td>
+<tr class="row-odd"><td><p><a class="reference internal" href="generated/pynetdicom.transport.ThreadedAssociationServer.html#pynetdicom.transport.ThreadedAssociationServer" title="pynetdicom.transport.ThreadedAssociationServer"><code class="xref py py-obj docutils literal notranslate"><span class="pre">ThreadedAssociationServer</span></code></a>(ae, address[, …])</p></td>
+<td><p>An <code class="docutils literal notranslate"><span class="pre">AssociationServer</span></code> suitable for threading.</p></td>
 </tr>
 </tbody>
 </table>

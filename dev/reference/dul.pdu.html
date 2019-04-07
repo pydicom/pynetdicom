@@ -101,6 +101,7 @@
 <li class="toctree-l1"><a class="reference internal" href="../hanging_protocol_service_class.html">Hanging Protocol Query/Retrieve Service Class</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../implant_template_service_class.html">Implant Template Query/Retrieve Service Class</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../display_system_service_class.html">Display System Management Service Class</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../modality_performed_procedure_step.html">Modality Performed Procedure Step Management</a></li>
 </ul>
 <ul>
 <li class="toctree-l1"><a class="reference internal" href="../user/index.html">User Guide</a></li>
@@ -155,7 +156,7 @@
     
       <li><a href="../index.html">Docs</a> &raquo;</li>
         
-      <li>PDUs (<code class="docutils literal notranslate"><span class="pre">pynetdicom.pdu</span></code>)</li>
+      <li>PDUs (<code class="xref py py-mod docutils literal notranslate"><span class="pre">pynetdicom.pdu</span></code>)</li>
     
     
       <li class="wy-breadcrumbs-aside">
@@ -205,16 +206,15 @@ as its first byte value a corresponding <em>PDU Type</em>:</p>
 <div class="line"><code class="docutils literal notranslate"><span class="pre">0x06</span></code> - A-RELEASE-RP</div>
 <div class="line"><code class="docutils literal notranslate"><span class="pre">0x07</span></code> - A-ABORT</div>
 </div>
-<p>The encoding of DICOM Upper Layer PDUs is always Big Endian byte ordering <a class="footnote-reference" href="#id2" id="id1">[1]</a>.</p>
+<p>The encoding of DICOM Upper Layer PDUs is always Big Endian byte ordering <a class="footnote-reference brackets" href="#id2" id="id1">1</a>.</p>
 <div class="section" id="references">
 <h2>References<a class="headerlink" href="#references" title="Permalink to this headline">¶</a></h2>
-<table class="docutils footnote" frame="void" id="id2" rules="none">
-<colgroup><col class="label" /><col /></colgroup>
-<tbody valign="top">
-<tr><td class="label"><a class="fn-backref" href="#id1">[1]</a></td><td>DICOM Standard, Part 8, Section
-<a class="reference external" href="http://dicom.nema.org/medical/dicom/current/output/html/part08.html#sect_9.3.1">9.3.1</a></td></tr>
-</tbody>
-</table>
+<dl class="footnote brackets">
+<dt class="label" id="id2"><span class="brackets"><a class="fn-backref" href="#id1">1</a></span></dt>
+<dd><p>DICOM Standard, Part 8, Section
+<a class="reference external" href="http://dicom.nema.org/medical/dicom/current/output/html/part08.html#sect_9.3.1">9.3.1</a></p>
+</dd>
+</dl>
 </div>
 </div>
 

@@ -101,6 +101,7 @@
 <li class="toctree-l1"><a class="reference internal" href="../../hanging_protocol_service_class.html">Hanging Protocol Query/Retrieve Service Class</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../../implant_template_service_class.html">Implant Template Query/Retrieve Service Class</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../../display_system_service_class.html">Display System Management Service Class</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../modality_performed_procedure_step.html">Modality Performed Procedure Step Management</a></li>
 </ul>
 <ul>
 <li class="toctree-l1"><a class="reference internal" href="../../user/index.html">User Guide</a></li>
@@ -178,24 +179,22 @@
 <h1>pynetdicom._handlers.doc_handle_dimse<a class="headerlink" href="#pynetdicom-handlers-doc-handle-dimse" title="Permalink to this headline">¶</a></h1>
 <dl class="function">
 <dt id="pynetdicom._handlers.doc_handle_dimse">
-<code class="descclassname">pynetdicom._handlers.</code><code class="descname">doc_handle_dimse</code><span class="sig-paren">(</span><em>event</em><span class="sig-paren">)</span><a class="reference internal" href="../../_modules/pynetdicom/_handlers.html#doc_handle_dimse"><span class="viewcode-link">[source]</span></a><a class="reference external" href="https://github.com/pydicom/pynetdicom/blob/9250bb91/pynetdicom/_handlers.py#L3320"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pynetdicom._handlers.doc_handle_dimse" title="Permalink to this definition">¶</a></dt>
+<code class="descclassname">pynetdicom._handlers.</code><code class="descname">doc_handle_dimse</code><span class="sig-paren">(</span><em>event</em><span class="sig-paren">)</span><a class="reference internal" href="../../_modules/pynetdicom/_handlers.html#doc_handle_dimse"><span class="viewcode-link">[source]</span></a><a class="reference external" href="https://github.com/pydicom/pynetdicom/blob/ff79e00f/pynetdicom/_handlers.py#L3465"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pynetdicom._handlers.doc_handle_dimse" title="Permalink to this definition">¶</a></dt>
 <dd><p>Documentation for handlers bound to <code class="docutils literal notranslate"><span class="pre">evt.EVT_DIMSE_RECV</span></code> or
 <code class="docutils literal notranslate"><span class="pre">evt.EVT_DIMSE_SENT</span></code>.</p>
-<table class="docutils field-list" frame="void" rules="none">
-<col class="field-name" />
-<col class="field-body" />
-<tbody valign="top">
-<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><strong>event</strong> (<a class="reference internal" href="pynetdicom.events.Event.html#pynetdicom.events.Event" title="pynetdicom.events.Event"><em>events.Event</em></a>) – <p>Represents the DIMSE service provider decoding a DIMSE message after
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><p><strong>event</strong> (<a class="reference internal" href="pynetdicom.events.Event.html#pynetdicom.events.Event" title="pynetdicom.events.Event"><em>events.Event</em></a>) – <p>Represents the DIMSE service provider decoding a DIMSE message after
 receiving the final P-DATA primitive that contained it, or encoding
 and converting a DIMSE message into P-DATA primitives. Event
 attributes are:</p>
 <ul class="simple">
-<li><code class="docutils literal notranslate"><span class="pre">assoc</span></code> : the
+<li><p><code class="docutils literal notranslate"><span class="pre">assoc</span></code> : the
 <a class="reference internal" href="pynetdicom.association.Association.html#pynetdicom.association.Association" title="pynetdicom.association.Association"><code class="xref py py-class docutils literal notranslate"><span class="pre">association</span></code></a>
 that is running the service that received the user identity
-negotiation request.</li>
-<li><code class="docutils literal notranslate"><span class="pre">description</span></code> : a description of the event that occurred as str.</li>
-<li><code class="docutils literal notranslate"><span class="pre">message</span></code> : the DIMSE message encoding or decoded. One of
+negotiation request.</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">description</span></code> : a description of the event that occurred as str.</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">message</span></code> : the DIMSE message encoding or decoded. One of
 <a class="reference internal" href="pynetdicom.dimse_messages.C_ECHO_RQ.html#pynetdicom.dimse_messages.C_ECHO_RQ" title="pynetdicom.dimse_messages.C_ECHO_RQ"><code class="xref py py-class docutils literal notranslate"><span class="pre">C_ECHO_RQ</span></code></a>,
 <a class="reference internal" href="pynetdicom.dimse_messages.C_ECHO_RSP.html#pynetdicom.dimse_messages.C_ECHO_RSP" title="pynetdicom.dimse_messages.C_ECHO_RSP"><code class="xref py py-class docutils literal notranslate"><span class="pre">C_ECHO_RQ</span></code></a>,
 <a class="reference internal" href="pynetdicom.dimse_messages.C_FIND_RQ.html#pynetdicom.dimse_messages.C_FIND_RQ" title="pynetdicom.dimse_messages.C_FIND_RQ"><code class="xref py py-class docutils literal notranslate"><span class="pre">C_FIND_RQ</span></code></a>,
@@ -217,16 +216,15 @@ negotiation request.</li>
 <a class="reference internal" href="pynetdicom.dimse_messages.N_GET_RQ.html#pynetdicom.dimse_messages.N_GET_RQ" title="pynetdicom.dimse_messages.N_GET_RQ"><code class="xref py py-class docutils literal notranslate"><span class="pre">N_GET_RQ</span></code></a>,
 <a class="reference internal" href="pynetdicom.dimse_messages.N_GET_RSP.html#pynetdicom.dimse_messages.N_GET_RSP" title="pynetdicom.dimse_messages.N_GET_RSP"><code class="xref py py-class docutils literal notranslate"><span class="pre">N_GET_RSP</span></code></a>,
 <a class="reference internal" href="pynetdicom.dimse_messages.N_SET_RQ.html#pynetdicom.dimse_messages.N_SET_RQ" title="pynetdicom.dimse_messages.N_SET_RQ"><code class="xref py py-class docutils literal notranslate"><span class="pre">N_SET_RQ</span></code></a> or
-<a class="reference internal" href="pynetdicom.dimse_messages.N_SET_RSP.html#pynetdicom.dimse_messages.N_SET_RSP" title="pynetdicom.dimse_messages.N_SET_RSP"><code class="xref py py-class docutils literal notranslate"><span class="pre">N_SET_RSP</span></code></a></li>
-<li><code class="docutils literal notranslate"><span class="pre">name</span></code> : the name of the event that occurred as str.</li>
-<li><code class="docutils literal notranslate"><span class="pre">timestamp</span></code> : the
+<a class="reference internal" href="pynetdicom.dimse_messages.N_SET_RSP.html#pynetdicom.dimse_messages.N_SET_RSP" title="pynetdicom.dimse_messages.N_SET_RSP"><code class="xref py py-class docutils literal notranslate"><span class="pre">N_SET_RSP</span></code></a></p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">name</span></code> : the name of the event that occurred as str.</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">timestamp</span></code> : the
 <a class="reference external" href="https://docs.python.org/3/library/datetime.html#datetime-objects">date and time</a>
-that the negotiation request was processed by the ACSE.</li>
+that the negotiation request was processed by the ACSE.</p></li>
 </ul>
-</td>
-</tr>
-</tbody>
-</table>
+</p>
+</dd>
+</dl>
 </dd></dl>
 
 </div>

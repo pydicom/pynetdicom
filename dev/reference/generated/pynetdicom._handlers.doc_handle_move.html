@@ -101,6 +101,7 @@
 <li class="toctree-l1"><a class="reference internal" href="../../hanging_protocol_service_class.html">Hanging Protocol Query/Retrieve Service Class</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../../implant_template_service_class.html">Implant Template Query/Retrieve Service Class</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../../display_system_service_class.html">Display System Management Service Class</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../modality_performed_procedure_step.html">Modality Performed Procedure Step Management</a></li>
 </ul>
 <ul>
 <li class="toctree-l1"><a class="reference internal" href="../../user/index.html">User Guide</a></li>
@@ -178,7 +179,7 @@
 <h1>pynetdicom._handlers.doc_handle_move<a class="headerlink" href="#pynetdicom-handlers-doc-handle-move" title="Permalink to this headline">¶</a></h1>
 <dl class="function">
 <dt id="pynetdicom._handlers.doc_handle_move">
-<code class="descclassname">pynetdicom._handlers.</code><code class="descname">doc_handle_move</code><span class="sig-paren">(</span><em>event</em><span class="sig-paren">)</span><a class="reference internal" href="../../_modules/pynetdicom/_handlers.html#doc_handle_move"><span class="viewcode-link">[source]</span></a><a class="reference external" href="https://github.com/pydicom/pynetdicom/blob/9250bb91/pynetdicom/_handlers.py#L2363"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pynetdicom._handlers.doc_handle_move" title="Permalink to this definition">¶</a></dt>
+<code class="descclassname">pynetdicom._handlers.</code><code class="descname">doc_handle_move</code><span class="sig-paren">(</span><em>event</em><span class="sig-paren">)</span><a class="reference internal" href="../../_modules/pynetdicom/_handlers.html#doc_handle_move"><span class="viewcode-link">[source]</span></a><a class="reference external" href="https://github.com/pydicom/pynetdicom/blob/ff79e00f/pynetdicom/_handlers.py#L2363"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pynetdicom._handlers.doc_handle_move" title="Permalink to this definition">¶</a></dt>
 <dd><p>Documentation for handlers bound to <code class="docutils literal notranslate"><span class="pre">evt.EVT_C_MOVE</span></code>.</p>
 <p>User implementation of this event handler is required if one or more
 services that use C-MOVE are to be supported. If a handler is
@@ -195,31 +196,27 @@ the SCP will send a response with a ‘Failure’ status of <code class="docutil
 <p><code class="docutils literal notranslate"><span class="pre">evt.EVT_C_MOVE</span></code></p>
 <p><strong>Supported Service Classes</strong></p>
 <ul class="simple">
-<li><em>Query/Retrieve Service</em></li>
-<li><em>Hanging Protocol Query/Retrieve Service</em></li>
-<li><em>Defined Procedure Protocol Query/Retrieve Service</em></li>
-<li><em>Color Palette Query/Retrieve Service</em></li>
-<li><em>Implant Template Query/Retrieve Service</em></li>
+<li><p><em>Query/Retrieve Service</em></p></li>
+<li><p><em>Hanging Protocol Query/Retrieve Service</em></p></li>
+<li><p><em>Defined Procedure Protocol Query/Retrieve Service</em></p></li>
+<li><p><em>Color Palette Query/Retrieve Service</em></p></li>
+<li><p><em>Implant Template Query/Retrieve Service</em></p></li>
 </ul>
 <p><strong>Status</strong></p>
-<dl class="docutils">
-<dt>Success</dt>
-<dd><div class="first last line-block">
+<dl>
+<dt>Success</dt><dd><div class="line-block">
 <div class="line"><code class="docutils literal notranslate"><span class="pre">0x0000</span></code> Sub-operations complete, no failures</div>
 </div>
 </dd>
-<dt>Pending</dt>
-<dd><div class="first last line-block">
+<dt>Pending</dt><dd><div class="line-block">
 <div class="line"><code class="docutils literal notranslate"><span class="pre">0xFF00</span></code> Sub-operations are continuing</div>
 </div>
 </dd>
-<dt>Cancel</dt>
-<dd><div class="first last line-block">
+<dt>Cancel</dt><dd><div class="line-block">
 <div class="line"><code class="docutils literal notranslate"><span class="pre">0xFE00</span></code> Sub-operations terminated due to Cancel indication</div>
 </div>
 </dd>
-<dt>Failure</dt>
-<dd><div class="first last line-block">
+<dt>Failure</dt><dd><div class="line-block">
 <div class="line"><code class="docutils literal notranslate"><span class="pre">0x0122</span></code> SOP class not supported</div>
 <div class="line"><code class="docutils literal notranslate"><span class="pre">0x0124</span></code> Not authorised</div>
 <div class="line"><code class="docutils literal notranslate"><span class="pre">0x0210</span></code> Duplicate invocation</div>
@@ -240,60 +237,55 @@ original SOP Instance</div>
 </div>
 </dd>
 </dl>
-<table class="docutils field-list" frame="void" rules="none">
-<col class="field-name" />
-<col class="field-body" />
-<tbody valign="top">
-<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><p class="first"><strong>event</strong> (<a class="reference internal" href="pynetdicom.events.Event.html#pynetdicom.events.Event" title="pynetdicom.events.Event"><em>events.Event</em></a>) – <p>The event representing a service class receiving a C-MOVE
-request message. Event attributes are:</p>
+<dl class="field-list">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><p><strong>event</strong> (<a class="reference internal" href="pynetdicom.events.Event.html#pynetdicom.events.Event" title="pynetdicom.events.Event"><em>events.Event</em></a>) – <p>The event representing a service class receiving a C-MOVE
+request message. <code class="docutils literal notranslate"><span class="pre">Event</span></code> attributes are:</p>
 <ul class="simple">
-<li><code class="docutils literal notranslate"><span class="pre">assoc</span></code> : the
+<li><p><code class="docutils literal notranslate"><span class="pre">assoc</span></code> : the
 <a class="reference internal" href="pynetdicom.association.Association.html#pynetdicom.association.Association" title="pynetdicom.association.Association"><code class="xref py py-class docutils literal notranslate"><span class="pre">association</span></code></a>
-that is running the service that received the C-MOVE request.</li>
-<li><code class="docutils literal notranslate"><span class="pre">context</span></code> : the presentation context the request was sent under
-as a <code class="docutils literal notranslate"><span class="pre">presentation.PresentationContextTuple</span></code>.</li>
-<li><code class="docutils literal notranslate"><span class="pre">description</span></code> : a description of the event that occurred as str.</li>
-<li><code class="docutils literal notranslate"><span class="pre">name</span></code> : the name of the event that occurred as str.</li>
-<li><code class="docutils literal notranslate"><span class="pre">request</span></code> : the received
-<a class="reference internal" href="pynetdicom.dimse_primitives.C_MOVE.html#pynetdicom.dimse_primitives.C_MOVE" title="pynetdicom.dimse_primitives.C_MOVE"><code class="xref py py-class docutils literal notranslate"><span class="pre">C-MOVE</span> <span class="pre">request</span></code></a></li>
-<li><code class="docutils literal notranslate"><span class="pre">timestamp</span></code> : the
+that is running the service that received the C-MOVE request.</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">context</span></code> : the presentation context the request was sent under
+as a <code class="docutils literal notranslate"><span class="pre">presentation.PresentationContextTuple</span></code>.</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">description</span></code> : a description of the event that occurred as str.</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">name</span></code> : the name of the event that occurred as str.</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">request</span></code> : the received
+<a class="reference internal" href="pynetdicom.dimse_primitives.C_MOVE.html#pynetdicom.dimse_primitives.C_MOVE" title="pynetdicom.dimse_primitives.C_MOVE"><code class="xref py py-class docutils literal notranslate"><span class="pre">C-MOVE</span> <span class="pre">request</span></code></a></p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">timestamp</span></code> : the
 <a class="reference external" href="https://docs.python.org/3/library/datetime.html#datetime-objects">date and time</a>
-that the C-MOVE request was processed by the service.</li>
+that the C-MOVE request was processed by the service.</p></li>
 </ul>
 <p>Event properties are:</p>
 <ul class="simple">
-<li><code class="docutils literal notranslate"><span class="pre">identifier</span></code> : the decoded
+<li><p><code class="docutils literal notranslate"><span class="pre">identifier</span></code> : the decoded
 <a class="reference external" href="https://pydicom.github.io/pydicom/stable/api_ref.html#pydicom.dataset.Dataset" title="(in pydicom v1.2.0rc1)"><code class="xref py py-class docutils literal notranslate"><span class="pre">Dataset</span></code></a> contained within the
 C-MOVE request’s <em>Identifier</em> parameter. Because <em>pydicom</em> uses
 a deferred read when decoding data, if the decode fails the returned
-<code class="docutils literal notranslate"><span class="pre">Dataset</span></code> will only raise an exception at the time of use.</li>
-<li><code class="docutils literal notranslate"><span class="pre">is_cancelled</span></code> : returns <code class="docutils literal notranslate"><span class="pre">True</span></code> if a
+<code class="docutils literal notranslate"><span class="pre">Dataset</span></code> will only raise an exception at the time of use.</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">is_cancelled</span></code> : returns <code class="docutils literal notranslate"><span class="pre">True</span></code> if a
 C-CANCEL request has been received, False otherwise. If a C-CANCEL
 is received then the handler should yield a <code class="docutils literal notranslate"><span class="pre">(0xFE00,</span> <span class="pre">None)</span></code>
-status/dataset pair and return.</li>
+status/dataset pair and return.</p></li>
 </ul>
 </p>
-</td>
-</tr>
-<tr class="field-even field"><th class="field-name">Yields:</th><td class="field-body"><ul class="first last">
-<li><p class="first"><strong>addr, port</strong> (<em>str, int or None, None</em>) – The first yield should be the TCP/IP address and port number of the
+</dd>
+<dt class="field-even">Yields</dt>
+<dd class="field-even"><ul>
+<li><p><strong>addr, port</strong> (<em>str, int or None, None</em>) – The first yield should be the TCP/IP address and port number of the
 destination AE (if known) or <code class="docutils literal notranslate"><span class="pre">(None,</span> <span class="pre">None)</span></code> if unknown. If
 <code class="docutils literal notranslate"><span class="pre">(None,</span> <span class="pre">None)</span></code> is yielded then the SCP will send a C-MOVE
 response with a ‘Failure’ Status of <code class="docutils literal notranslate"><span class="pre">0xA801</span></code> (move destination
-unknown), in which case nothing more needs to be yielded.</p>
-</li>
-<li><p class="first"><em>int</em> – The second yield should be the number of C-STORE sub-operations
+unknown), in which case nothing more needs to be yielded.</p></li>
+<li><p><em>int</em> – The second yield should be the number of C-STORE sub-operations
 required to complete the C-MOVE operation. In other words, this is
-the number of matching SOP Instances to be sent to the peer.</p>
-</li>
-<li><p class="first"><strong>status</strong> (<em>pydiom.dataset.Dataset or int</em>) – The status returned to the peer AE in the C-MOVE response. Must be
+the number of matching SOP Instances to be sent to the peer.</p></li>
+<li><p><strong>status</strong> (<em>pydiom.dataset.Dataset or int</em>) – The status returned to the peer AE in the C-MOVE response. Must be
 a valid C-MOVE status value for the applicable Service Class as
 either an <code class="docutils literal notranslate"><span class="pre">int</span></code> or a <code class="docutils literal notranslate"><span class="pre">Dataset</span></code> containing (at a minimum) a
 (0000,0900) <em>Status</em> element. If returning a <code class="docutils literal notranslate"><span class="pre">Dataset</span></code> then it
-may also contain optional elements related to the Status (as in
-DICOM Standard Part 7, Annex C).</p>
-</li>
-<li><p class="first"><strong>dataset</strong> (<em>pydicom.dataset.Dataset or None</em>) – If the status is ‘Pending’ then yield the <code class="docutils literal notranslate"><span class="pre">Dataset</span></code>
+may also contain optional elements related to the <em>Status</em> (as in
+DICOM Standard Part 7, Annex C).</p></li>
+<li><p><strong>dataset</strong> (<em>pydicom.dataset.Dataset or None</em>) – If the status is ‘Pending’ then yield the <code class="docutils literal notranslate"><span class="pre">Dataset</span></code>
 to send to the peer via a C-STORE sub-operation over a new
 association.</p>
 <p>If the status is ‘Failed’, ‘Warning’ or ‘Cancel’ then yield a
@@ -305,13 +297,11 @@ final ‘Success’ status is not required and will be ignored if
 necessary.</p>
 </li>
 </ul>
-</td>
-</tr>
-</tbody>
-</table>
+</dd>
+</dl>
 <div class="admonition seealso">
-<p class="first admonition-title">See also</p>
-<p class="last"><a class="reference internal" href="pynetdicom.association.Association.html#pynetdicom.association.Association.send_c_move" title="pynetdicom.association.Association.send_c_move"><code class="xref py py-meth docutils literal notranslate"><span class="pre">send_c_move()</span></code></a>
+<p class="admonition-title">See also</p>
+<p><a class="reference internal" href="pynetdicom.association.Association.html#pynetdicom.association.Association.send_c_move" title="pynetdicom.association.Association.send_c_move"><code class="xref py py-meth docutils literal notranslate"><span class="pre">send_c_move()</span></code></a>
 <a class="reference internal" href="pynetdicom.dimse_primitives.C_MOVE.html#pynetdicom.dimse_primitives.C_MOVE" title="pynetdicom.dimse_primitives.C_MOVE"><code class="xref py py-class docutils literal notranslate"><span class="pre">C_MOVE</span></code></a>
 <a class="reference internal" href="pynetdicom.service_class.QueryRetrieveServiceClass.html#pynetdicom.service_class.QueryRetrieveServiceClass" title="pynetdicom.service_class.QueryRetrieveServiceClass"><code class="xref py py-class docutils literal notranslate"><span class="pre">QueryRetrieveServiceClass</span></code></a>
 <a class="reference internal" href="pynetdicom.service_class.HangingProtocolQueryRetrieveServiceClass.html#pynetdicom.service_class.HangingProtocolQueryRetrieveServiceClass" title="pynetdicom.service_class.HangingProtocolQueryRetrieveServiceClass"><code class="xref py py-class docutils literal notranslate"><span class="pre">HangingProtocolQueryRetrieveServiceClass</span></code></a>
@@ -321,17 +311,17 @@ necessary.</p>
 </div>
 <p class="rubric">References</p>
 <ul class="simple">
-<li>DICOM Standard Part 4, Annexes
+<li><p>DICOM Standard Part 4, Annexes
 <a class="reference external" href="http://dicom.nema.org/medical/dicom/current/output/html/part04.html#chapter_C">C</a>,
 <a class="reference external" href="http://dicom.nema.org/medical/dicom/current/output/html/part04.html#chapter_U">U</a>,
 <a class="reference external" href="http://dicom.nema.org/medical/dicom/current/output/html/part04.html#chapter_X">X</a>,
 <a class="reference external" href="http://dicom.nema.org/medical/dicom/current/output/html/part04.html#chapter_Y">Y</a>,
 <a class="reference external" href="http://dicom.nema.org/medical/dicom/current/output/html/part04.html#chapter_BB">BB</a>
-and <a class="reference external" href="http://dicom.nema.org/medical/dicom/current/output/html/part04.html#chapter_HH">HH</a></li>
-<li>DICOM Standard Part 7, Sections
+and <a class="reference external" href="http://dicom.nema.org/medical/dicom/current/output/html/part04.html#chapter_HH">HH</a></p></li>
+<li><p>DICOM Standard Part 7, Sections
 <a class="reference external" href="http://dicom.nema.org/medical/dicom/current/output/html/part07.html#sect_9.1.4">9.1.4</a>,
 <a class="reference external" href="http://dicom.nema.org/medical/dicom/current/output/html/part07.html#sect_9.3.4">9.3.4</a>
-and <a class="reference external" href="http://dicom.nema.org/medical/dicom/current/output/html/part07.html#chapter_C">Annex C</a></li>
+and <a class="reference external" href="http://dicom.nema.org/medical/dicom/current/output/html/part07.html#chapter_C">Annex C</a></p></li>
 </ul>
 </dd></dl>
 

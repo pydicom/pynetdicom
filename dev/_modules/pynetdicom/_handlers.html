@@ -101,6 +101,7 @@
 <li class="toctree-l1"><a class="reference internal" href="../../hanging_protocol_service_class.html">Hanging Protocol Query/Retrieve Service Class</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../../implant_template_service_class.html">Implant Template Query/Retrieve Service Class</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../../display_system_service_class.html">Display System Management Service Class</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../modality_performed_procedure_step.html">Modality Performed Procedure Step Management</a></li>
 </ul>
 <ul>
 <li class="toctree-l1"><a class="reference internal" href="../../user/index.html">User Guide</a></li>
@@ -210,7 +211,7 @@
 <span class="sd">    ----------</span>
 <span class="sd">    event : events.Event</span>
 <span class="sd">        The ``evt.EVT_PDU_RECV`` event corresponding to receiving and decoding</span>
-<span class="sd">        a PDU from the peer. Event attributes are:</span>
+<span class="sd">        a PDU from the peer. ``Event`` attributes are:</span>
 
 <span class="sd">        * ``assoc`` : the</span>
 <span class="sd">          :py:class:`association &lt;pynetdicom.association.Association&gt;`</span>
@@ -245,7 +246,7 @@
 <span class="sd">    ----------</span>
 <span class="sd">    event : events.Event</span>
 <span class="sd">        The ``evt.EVT_PDU_SENT`` event corresponding to encoding and sending</span>
-<span class="sd">        a PDU to the peer. Event attributes are:</span>
+<span class="sd">        a PDU to the peer. ``Event`` attributes are:</span>
 
 <span class="sd">        * ``assoc`` : the</span>
 <span class="sd">          :py:class:`association &lt;pynetdicom.association.Association&gt;`</span>
@@ -275,7 +276,7 @@
 <span class="sd">    ----------</span>
 <span class="sd">    event : events.Event</span>
 <span class="sd">        The ``evt.EVT_DIMSE_RECV`` event corresponding to the DIMSE decoding</span>
-<span class="sd">        a message received from the peer. Event attributes are:</span>
+<span class="sd">        a message received from the peer. ``Event`` attributes are:</span>
 
 <span class="sd">        * ``assoc`` : the</span>
 <span class="sd">          :py:class:`association &lt;pynetdicom.association.Association&gt;`</span>
@@ -320,7 +321,7 @@
 <span class="sd">    ----------</span>
 <span class="sd">    event : events.Event</span>
 <span class="sd">        The ``evt.EVT_DIMSE_SENT`` event corresponding to the DIMSE encoding</span>
-<span class="sd">        a message to be sent to the peer. Event attributes are:</span>
+<span class="sd">        a message to be sent to the peer. ``Event`` attributes are:</span>
 
 <span class="sd">        * ``assoc`` : the</span>
 <span class="sd">          :py:class:`association &lt;pynetdicom.association.Association&gt;`</span>
@@ -2202,7 +2203,7 @@
 
 <span class="sd">    **Supported Service Classes**</span>
 
-<span class="sd">    *Verification Service Class*</span>
+<span class="sd">    * *Verification Service Class*</span>
 
 <span class="sd">    **Status**</span>
 
@@ -2219,7 +2220,7 @@
 <span class="sd">    ----------</span>
 <span class="sd">    event : events.Event</span>
 <span class="sd">        The event representing a service class receiving a C-ECHO</span>
-<span class="sd">        request message. Event attributes are:</span>
+<span class="sd">        request message. ``Event`` attributes are:</span>
 
 <span class="sd">        * ``assoc`` : the</span>
 <span class="sd">          :py:class:`association &lt;pynetdicom.association.Association&gt;`</span>
@@ -2241,7 +2242,7 @@
 <span class="sd">        a valid C-ECHO status value for the applicable Service Class as</span>
 <span class="sd">        either an ``int`` or a ``Dataset`` object containing (at a minimum)</span>
 <span class="sd">        a (0000,0900) *Status* element. If returning a ``Dataset`` object</span>
-<span class="sd">        then it may also contain optional elements related to the Status</span>
+<span class="sd">        then it may also contain optional elements related to the *Status*</span>
 <span class="sd">        (as in the DICOM Standard Part 7, Annex C).</span>
 
 <span class="sd">    See Also</span>
@@ -2314,7 +2315,7 @@
 <span class="sd">    ----------</span>
 <span class="sd">    event : events.Event</span>
 <span class="sd">        The event representing a service class receiving a C-FIND</span>
-<span class="sd">        request message. Event attributes are:</span>
+<span class="sd">        request message. ``Event`` attributes are:</span>
 
 <span class="sd">        * ``assoc`` : the</span>
 <span class="sd">          :py:class:`association &lt;pynetdicom.association.Association&gt;`</span>
@@ -2347,20 +2348,20 @@
 <span class="sd">        The status returned to the peer AE in the C-FIND response. Must be</span>
 <span class="sd">        a valid C-FIND status vuale for the applicable Service Class as</span>
 <span class="sd">        either an ``int`` or a ``Dataset`` object containing (at a minimum)</span>
-<span class="sd">        a (0000,0900) *Status* element. If returning a Dataset object then</span>
-<span class="sd">        it may also contain optional elements related to the Status (as in</span>
+<span class="sd">        a (0000,0900) *Status* element. If returning a ``Dataset`` object then</span>
+<span class="sd">        it may also contain optional elements related to the *Status* (as in</span>
 <span class="sd">        DICOM Standard Part 7, Annex C).</span>
 <span class="sd">    identifier : pydicom.dataset.Dataset or None</span>
-<span class="sd">        If the status is &#39;Pending&#39; then the *Identifier* ``Dataset`` for a</span>
-<span class="sd">        matching SOP Instance. The exact requirements for the C-FIND</span>
+<span class="sd">        If the status category is &#39;Pending&#39; then the *Identifier* ``Dataset``</span>
+<span class="sd">        for a matching SOP Instance. The exact requirements for the C-FIND</span>
 <span class="sd">        response *Identifier* are Service Class specific (see the</span>
 <span class="sd">        DICOM Standard, Part 4).</span>
 
-<span class="sd">        If the status is &#39;Failure&#39; or &#39;Cancel&#39; then yield ``None``.</span>
+<span class="sd">        If the status category is &#39;Failure&#39; or &#39;Cancel&#39; then yield ``None``.</span>
 
-<span class="sd">        If the status is &#39;Success&#39; then yield ``None``, however yielding a</span>
-<span class="sd">        final &#39;Success&#39; status is not required and will be ignored if</span>
-<span class="sd">        necessary.</span>
+<span class="sd">        If the status category is &#39;Success&#39; then yield ``None``, however</span>
+<span class="sd">        yielding a final &#39;Success&#39; status is not required and will be ignored</span>
+<span class="sd">        if necessary.</span>
 
 <span class="sd">    See Also</span>
 <span class="sd">    --------</span>
@@ -2453,7 +2454,7 @@
 <span class="sd">    ----------</span>
 <span class="sd">    event : events.Event</span>
 <span class="sd">        The event representing a service class receiving a C-GET</span>
-<span class="sd">        request message. Event attributes are:</span>
+<span class="sd">        request message. ``Event`` attributes are:</span>
 
 <span class="sd">        * ``assoc`` : the</span>
 <span class="sd">          :py:class:`association &lt;pynetdicom.association.Association&gt;`</span>
@@ -2491,21 +2492,21 @@
 <span class="sd">        The status returned to the peer AE in the C-GET response. Must be a</span>
 <span class="sd">        valid C-GET status value for the applicable Service Class as either</span>
 <span class="sd">        an ``int`` or a ``Dataset`` object containing (at a minimum) a</span>
-<span class="sd">        (0000,0900) *Status* element. If returning a Dataset object then</span>
-<span class="sd">        it may also contain optional elements related to the Status (as in</span>
+<span class="sd">        (0000,0900) *Status* element. If returning a ``Dataset`` object then</span>
+<span class="sd">        it may also contain optional elements related to the *Status* (as in</span>
 <span class="sd">        DICOM Standard Part 7, Annex C).</span>
 <span class="sd">    dataset : pydicom.dataset.Dataset or None</span>
-<span class="sd">        If the status is &#39;Pending&#39; then yield the ``Dataset`` to send to</span>
-<span class="sd">        the peer via a C-STORE sub-operation over the current association.</span>
+<span class="sd">        If the status category is &#39;Pending&#39; then yield the ``Dataset`` to send</span>
+<span class="sd">        to the peer via a C-STORE sub-operation over the current association.</span>
 
-<span class="sd">        If the status is &#39;Failed&#39;, &#39;Warning&#39; or &#39;Cancel&#39; then yield a</span>
+<span class="sd">        If the status category is &#39;Failed&#39;, &#39;Warning&#39; or &#39;Cancel&#39; then yield a</span>
 <span class="sd">        ``Dataset`` with a (0008,0058) *Failed SOP Instance UID List*</span>
 <span class="sd">        element containing a list of the C-STORE sub-operation SOP Instance</span>
 <span class="sd">        UIDs for which the C-GET operation has failed.</span>
 
-<span class="sd">        If the status is &#39;Success&#39; then yield ``None``, although yielding a</span>
-<span class="sd">        final &#39;Success&#39; status is not required and will be ignored if</span>
-<span class="sd">        necessary.</span>
+<span class="sd">        If the status category is &#39;Success&#39; then yield ``None``, although</span>
+<span class="sd">        yielding a final &#39;Success&#39; status is not required and will be ignored</span>
+<span class="sd">        if necessary.</span>
 
 <span class="sd">    See Also</span>
 <span class="sd">    --------</span>
@@ -2599,7 +2600,7 @@
 <span class="sd">    ----------</span>
 <span class="sd">    event : events.Event</span>
 <span class="sd">        The event representing a service class receiving a C-MOVE</span>
-<span class="sd">        request message. Event attributes are:</span>
+<span class="sd">        request message. ``Event`` attributes are:</span>
 
 <span class="sd">        * ``assoc`` : the</span>
 <span class="sd">          :py:class:`association &lt;pynetdicom.association.Association&gt;`</span>
@@ -2643,7 +2644,7 @@
 <span class="sd">        a valid C-MOVE status value for the applicable Service Class as</span>
 <span class="sd">        either an ``int`` or a ``Dataset`` containing (at a minimum) a</span>
 <span class="sd">        (0000,0900) *Status* element. If returning a ``Dataset`` then it</span>
-<span class="sd">        may also contain optional elements related to the Status (as in</span>
+<span class="sd">        may also contain optional elements related to the *Status* (as in</span>
 <span class="sd">        DICOM Standard Part 7, Annex C).</span>
 <span class="sd">    dataset : pydicom.dataset.Dataset or None</span>
 <span class="sd">        If the status is &#39;Pending&#39; then yield the ``Dataset``</span>
@@ -2732,7 +2733,7 @@
 <span class="sd">    ----------</span>
 <span class="sd">    event : events.Event</span>
 <span class="sd">        The event representing a service class receiving a C-STORE</span>
-<span class="sd">        request message. Event attributes are:</span>
+<span class="sd">        request message. ``Event`` attributes are:</span>
 
 <span class="sd">        * ``assoc`` : the</span>
 <span class="sd">          :py:class:`association &lt;pynetdicom.association.Association&gt;`</span>
@@ -2757,7 +2758,8 @@
 <span class="sd">        * ``file_meta`` : a</span>
 <span class="sd">          :py:class:`Dataset &lt;pydicom.dataset.Dataset&gt;` containing DICOM</span>
 <span class="sd">          conformant File Meta Information that can be used with the decoded</span>
-<span class="sd">          dataset when saving to file: `ds.file_meta = event.file_meta`.</span>
+<span class="sd">          dataset when saving to file: `event.dataset.file_meta =</span>
+<span class="sd">          event.file_meta`.</span>
 
 <span class="sd">    Returns</span>
 <span class="sd">    -------</span>
@@ -2765,9 +2767,9 @@
 <span class="sd">        The status returned to the requesting AE in the C-STORE response. Must</span>
 <span class="sd">        be a valid C-STORE status value for the applicable Service Class as</span>
 <span class="sd">        either an ``int`` or a ``Dataset`` object containing (at a</span>
-<span class="sd">        minimum) a (0000,0900) *Status* element. If returning a Dataset</span>
+<span class="sd">        minimum) a (0000,0900) *Status* element. If returning a ``Dataset``</span>
 <span class="sd">        object then it may also contain optional elements related to the</span>
-<span class="sd">        Status (as in the DICOM Standard Part 7, Annex C).</span>
+<span class="sd">        *Status* (as in the DICOM Standard Part 7, Annex C).</span>
 
 <span class="sd">    Raises</span>
 <span class="sd">    ------</span>
@@ -2799,7 +2801,7 @@
 <span class="sd">    &quot;&quot;&quot;</span>
     <span class="k">pass</span></div>
 
-<span class="k">def</span> <span class="nf">doc_handle_action</span><span class="p">(</span><span class="n">event</span><span class="p">):</span>
+<div class="viewcode-block" id="doc_handle_action"><a class="viewcode-back" href="../../reference/generated/pynetdicom._handlers.doc_handle_action.html#pynetdicom._handlers.doc_handle_action">[docs]</a><span class="k">def</span> <span class="nf">doc_handle_action</span><span class="p">(</span><span class="n">event</span><span class="p">):</span>
     <span class="sd">&quot;&quot;&quot;Documentation for handlers bound to ``evt.EVT_N_ACTION``.</span>
 
 <span class="sd">    Use of handlers for ``evt.EVT_N_ACTION`` is not yet supported.</span>
@@ -2821,7 +2823,7 @@
 <span class="sd">    ----------</span>
 <span class="sd">    event : events.Event</span>
 <span class="sd">        The event representing a service class receiving a N-ACTION</span>
-<span class="sd">        request message. Event attributes are:</span>
+<span class="sd">        request message. ``Event`` attributes are:</span>
 
 <span class="sd">        * ``assoc`` : the</span>
 <span class="sd">          :py:class:`association &lt;pynetdicom.association.Association&gt;`</span>
@@ -2850,16 +2852,16 @@
 <span class="sd">        The status returned to the peer AE in the N-ACTION response. Must be a</span>
 <span class="sd">        valid N-ACTION status value for the applicable Service Class as either</span>
 <span class="sd">        an ``int`` or a ``Dataset`` object containing (at a minimum) a</span>
-<span class="sd">        (0000,0900) *Status* element. If returning a Dataset object then</span>
-<span class="sd">        it may also contain optional elements related to the Status (as in</span>
+<span class="sd">        (0000,0900) *Status* element. If returning a ``Dataset`` object then</span>
+<span class="sd">        it may also contain optional elements related to the *Status* (as in</span>
 <span class="sd">        DICOM Standard Part 7, Annex C).</span>
 <span class="sd">    dataset : pydicom.dataset.Dataset or None</span>
-<span class="sd">        If the status category is &#39;Success&#39; or &#39;Warning&#39; then a dataset</span>
-<span class="sd">        containing elements for the response&#39;s Action Reply</span>
+<span class="sd">        If the status category is &#39;Success&#39; or &#39;Warning&#39; then a ``Dataset``</span>
+<span class="sd">        containing elements for the response&#39;s *Action Reply*</span>
 <span class="sd">        conformant to the specifications in the corresponding Service</span>
 <span class="sd">        Class.</span>
 
-<span class="sd">        If the status is not &#39;Successs&#39; or &#39;Warning&#39; then None.</span>
+<span class="sd">        If the status category is not &#39;Success&#39; or &#39;Warning&#39; then ``None``.</span>
 
 <span class="sd">    Raises</span>
 <span class="sd">    ------</span>
@@ -2876,17 +2878,19 @@
 <span class="sd">    ----------</span>
 <span class="sd">    DICOM Standard Part 4, Annexes H, J, P, S, CC and DD</span>
 <span class="sd">    &quot;&quot;&quot;</span>
-    <span class="k">pass</span>
+    <span class="k">pass</span></div>
 
-<span class="k">def</span> <span class="nf">doc_handle_create</span><span class="p">(</span><span class="n">event</span><span class="p">):</span>
+<div class="viewcode-block" id="doc_handle_create"><a class="viewcode-back" href="../../reference/generated/pynetdicom._handlers.doc_handle_create.html#pynetdicom._handlers.doc_handle_create">[docs]</a><span class="k">def</span> <span class="nf">doc_handle_create</span><span class="p">(</span><span class="n">event</span><span class="p">):</span>
     <span class="sd">&quot;&quot;&quot;Documentation for handlers bound to ``evt.EVT_N_CREATE``.</span>
-
-<span class="sd">    Use of handlers for ``evt.EVT_N_CREATE`` is not yet supported.</span>
 
 <span class="sd">    User implementation of this event handler is required if one or more</span>
 <span class="sd">    services that use N-CREATE are to be supported. If a handler is</span>
 <span class="sd">    not implemented and bound to ``evt.EVT_N_CREATE`` then the N-CREATE request</span>
-<span class="sd">    will be responded to using a  *Status* value of FIXME.</span>
+<span class="sd">    will be responded to using a  *Status* value of ``0x0110`` - Processing</span>
+<span class="sd">    Failure.</span>
+
+<span class="sd">    Management of the SOP Instances created in response to an N-CREATE request</span>
+<span class="sd">    is the responsibility of the user.</span>
 
 <span class="sd">    **Event**</span>
 
@@ -2894,15 +2898,55 @@
 
 <span class="sd">    **Supported Service Classes**</span>
 
-<span class="sd">    None</span>
+<span class="sd">    * *Modality Performed Procedure Step Management*</span>
 
 <span class="sd">    **Status**</span>
+
+<span class="sd">    Success</span>
+<span class="sd">      | ``0x0000`` - Success</span>
+
+<span class="sd">    Failure</span>
+<span class="sd">      | ``0x0105`` - No such attribute</span>
+<span class="sd">      | ``0x0106`` - Invalid attribute value</span>
+<span class="sd">      | ``0x0107`` - Attribute list error</span>
+<span class="sd">      | ``0x0110`` - Processing failure</span>
+<span class="sd">      | ``0x0111`` - Duplicate SOP Instance</span>
+<span class="sd">      | ``0x0116`` - Attribute value out of range</span>
+<span class="sd">      | ``0x0117`` - Invalid object instance</span>
+<span class="sd">      | ``0x0118`` - No such SOP Class</span>
+<span class="sd">      | ``0x0120`` - Missing attribute</span>
+<span class="sd">      | ``0x0121`` - Missing attribute value</span>
+<span class="sd">      | ``0x0124`` - Refused: not authorised</span>
+<span class="sd">      | ``0x0210`` - Duplicate invocation</span>
+<span class="sd">      | ``0x0211`` - Unrecognised operation</span>
+<span class="sd">      | ``0x0212`` - Mistyped argument</span>
+<span class="sd">      | ``0x0213`` - Resource limitation</span>
+<span class="sd">      | ``0xA510`` - Failed: an initiate media creation action has already been</span>
+<span class="sd">        received for this SOP Instance</span>
+<span class="sd">      | ``0xC221`` - The Referenced Fraction Group Number does not exist in the</span>
+<span class="sd">        referenced plan</span>
+<span class="sd">      | ``0xC222`` - No beams exist within the referenced fraction group</span>
+<span class="sd">      | ``0xC223`` - SCU already verifying and cannot currently process this</span>
+<span class="sd">        request</span>
+<span class="sd">      | ``0xC227`` - No such object instance - Referenced RT Plan not found</span>
+<span class="sd">      | ``0xC309`` - The provided value of UPS State was not &#39;SCHEDULED&#39;</span>
+<span class="sd">      | ``0xC616`` - There is an existing Film Box that has not been</span>
+<span class="sd">        printed and N-ACTION at the Film Session level is not supported.</span>
+<span class="sd">        A new Film Box will not be created when a previous Film Box has</span>
+<span class="sd">        not been printed</span>
+
+<span class="sd">    Warning</span>
+<span class="sd">      | ``0xB300`` - THE UPS was created with modifications</span>
+<span class="sd">      | ``0xB600`` - Memory allocation not supported</span>
+<span class="sd">      | ``0xB605`` - Requested Min Density or Max Density outside of</span>
+<span class="sd">        printer&#39;s operating range. The printer will use its respective</span>
+<span class="sd">        minimum or maximum density value instead</span>
 
 <span class="sd">    Parameters</span>
 <span class="sd">    ----------</span>
 <span class="sd">    event : events.Event</span>
 <span class="sd">        The event representing a service class receiving a N-CREATE</span>
-<span class="sd">        request message. Event attributes are:</span>
+<span class="sd">        request message. ``Event`` attributes are:</span>
 
 <span class="sd">        * ``assoc`` : the</span>
 <span class="sd">          :py:class:`association &lt;pynetdicom.association.Association&gt;`</span>
@@ -2931,16 +2975,15 @@
 <span class="sd">        The status returned to the peer AE in the N-CREATE response. Must be a</span>
 <span class="sd">        valid N-CREATE status value for the applicable Service Class as either</span>
 <span class="sd">        an ``int`` or a ``Dataset`` object containing (at a minimum) a</span>
-<span class="sd">        (0000,0900) *Status* element. If returning a Dataset object then</span>
-<span class="sd">        it may also contain optional elements related to the Status (as in</span>
+<span class="sd">        (0000,0900) *Status* element. If returning a ``Dataset`` object then</span>
+<span class="sd">        it may also contain optional elements related to the *Status* (as in</span>
 <span class="sd">        DICOM Standard Part 7, Annex C).</span>
 <span class="sd">    dataset : pydicom.dataset.Dataset or None</span>
-<span class="sd">        If the status category is &#39;Success&#39; or &#39;Warning&#39; then a dataset</span>
-<span class="sd">        containing elements of the response&#39;s Attribute List</span>
-<span class="sd">        conformant to the specifications in the corresponding Service</span>
-<span class="sd">        Class.</span>
+<span class="sd">        If the status category is &#39;Success&#39; or &#39;Warning&#39; then a ``Dataset``</span>
+<span class="sd">        containing elements of the response&#39;s *Attribute List* conformant to</span>
+<span class="sd">        the specifications in the corresponding Service Class.</span>
 
-<span class="sd">        If the status is not &#39;Successs&#39; or &#39;Warning&#39; then None.</span>
+<span class="sd">        If the status category is not &#39;Success&#39; or &#39;Warning&#39; then ``None``.</span>
 
 <span class="sd">    Raises</span>
 <span class="sd">    ------</span>
@@ -2957,9 +3000,9 @@
 <span class="sd">    ----------</span>
 <span class="sd">    DICOM Standard Part 4, Annexes F, H, R, S, CC and DD</span>
 <span class="sd">    &quot;&quot;&quot;</span>
-    <span class="k">pass</span>
+    <span class="k">pass</span></div>
 
-<span class="k">def</span> <span class="nf">doc_handle_delete</span><span class="p">(</span><span class="n">event</span><span class="p">):</span>
+<div class="viewcode-block" id="doc_handle_delete"><a class="viewcode-back" href="../../reference/generated/pynetdicom._handlers.doc_handle_delete.html#pynetdicom._handlers.doc_handle_delete">[docs]</a><span class="k">def</span> <span class="nf">doc_handle_delete</span><span class="p">(</span><span class="n">event</span><span class="p">):</span>
     <span class="sd">&quot;&quot;&quot;Documentation for handlers bound to ``evt.EVT_N_DELETE``.</span>
 
 <span class="sd">    Use of handlers for ``evt.EVT_N_DELETE`` is not yet supported.</span>
@@ -2981,7 +3024,7 @@
 <span class="sd">    ----------</span>
 <span class="sd">    event : events.Event</span>
 <span class="sd">        The event representing a service class receiving a N-DELETE</span>
-<span class="sd">        request message. Event attributes are:</span>
+<span class="sd">        request message. ``Event`` attributes are:</span>
 
 <span class="sd">        * ``assoc`` : the</span>
 <span class="sd">          :py:class:`association &lt;pynetdicom.association.Association&gt;`</span>
@@ -3002,8 +3045,8 @@
 <span class="sd">        The status returned to the peer AE in the N-DELETE response. Must be a</span>
 <span class="sd">        valid N-DELETE status value for the applicable Service Class as either</span>
 <span class="sd">        an ``int`` or a ``Dataset`` object containing (at a minimum) a</span>
-<span class="sd">        (0000,0900) *Status* element. If returning a Dataset object then</span>
-<span class="sd">        it may also contain optional elements related to the Status (as in</span>
+<span class="sd">        (0000,0900) *Status* element. If returning a ``Dataset`` object then</span>
+<span class="sd">        it may also contain optional elements related to the *Status* (as in</span>
 <span class="sd">        DICOM Standard Part 7, Annex C).</span>
 
 <span class="sd">    Raises</span>
@@ -3021,18 +3064,16 @@
 <span class="sd">    ----------</span>
 <span class="sd">    DICOM Standard Part 4, Annexes H and DD</span>
 <span class="sd">    &quot;&quot;&quot;</span>
-    <span class="k">pass</span>
+    <span class="k">pass</span></div>
 
-<span class="k">def</span> <span class="nf">doc_handle_event_report</span><span class="p">(</span><span class="n">event</span><span class="p">):</span>
+<div class="viewcode-block" id="doc_handle_event_report"><a class="viewcode-back" href="../../reference/generated/pynetdicom._handlers.doc_handle_event_report.html#pynetdicom._handlers.doc_handle_event_report">[docs]</a><span class="k">def</span> <span class="nf">doc_handle_event_report</span><span class="p">(</span><span class="n">event</span><span class="p">):</span>
     <span class="sd">&quot;&quot;&quot;Documentation for handlers bound to ``evt.EVT_N_EVENT_REPORT``.</span>
-
-<span class="sd">    Use of handlers for ``evt.EVT_N_EVENT_REPORT`` is not yet supported.</span>
 
 <span class="sd">    User implementation of this event handler is required if one or more</span>
 <span class="sd">    services that use N-EVENT-REPORT are to be supported. If a handler is</span>
 <span class="sd">    not implemented and bound to ``evt.EVT_N_EVENT_REPORT`` then the</span>
 <span class="sd">    N-EVENT-REPORT request will be responded to using a  *Status* value</span>
-<span class="sd">    of FIXME.</span>
+<span class="sd">    of ``0x0110`` - Processing Failure.</span>
 
 <span class="sd">    **Event**</span>
 
@@ -3040,13 +3081,32 @@
 
 <span class="sd">    **Supported Service Classes**</span>
 
+<span class="sd">    * *Modality Performed Procedure Step Management*</span>
+
 <span class="sd">    **Status**</span>
+
+<span class="sd">    Success</span>
+<span class="sd">      | ``0x0000`` Success</span>
+
+<span class="sd">    Failure</span>
+<span class="sd">      | ``0x0110`` Processing failure</span>
+<span class="sd">      | ``0x0112`` No such SOP Instance</span>
+<span class="sd">      | ``0x0113`` No such event type</span>
+<span class="sd">      | ``0x0114`` No such argument</span>
+<span class="sd">      | ``0x0115`` Invalid argument value</span>
+<span class="sd">      | ``0x0117`` Invalid object Instance</span>
+<span class="sd">      | ``0x0118`` No such SOP Class</span>
+<span class="sd">      | ``0x0119`` Class-Instance conflict</span>
+<span class="sd">      | ``0x0210`` Duplicate invocation</span>
+<span class="sd">      | ``0x0211`` Unrecognised operation</span>
+<span class="sd">      | ``0x0212`` Mistyped argument</span>
+<span class="sd">      | ``0x0213`` Resource limitation</span>
 
 <span class="sd">    Parameters</span>
 <span class="sd">    ----------</span>
 <span class="sd">    event : events.Event</span>
 <span class="sd">        The event representing a service class receiving a N-EVENT-REPORT</span>
-<span class="sd">        request message. Event attributes are:</span>
+<span class="sd">        request message. ``Event`` attributes are:</span>
 
 <span class="sd">        * ``assoc`` : the</span>
 <span class="sd">          :py:class:`association &lt;pynetdicom.association.Association&gt;`</span>
@@ -3080,12 +3140,12 @@
 <span class="sd">        object then it may also contain optional elements related to the</span>
 <span class="sd">        Status (as in DICOM Standard Part 7, Annex C).</span>
 <span class="sd">    dataset : pydicom.dataset.Dataset or None</span>
-<span class="sd">        If the status category is &#39;Success&#39; or &#39;Warning&#39; then a dataset</span>
-<span class="sd">        containing elements of the response&#39;s Event Reply</span>
+<span class="sd">        If the status category is &#39;Success&#39; or &#39;Warning&#39; then a ``Dataset``</span>
+<span class="sd">        containing elements of the response&#39;s *Event Reply*</span>
 <span class="sd">        conformant to the specifications in the corresponding Service</span>
 <span class="sd">        Class.</span>
 
-<span class="sd">        If the status is not &#39;Successs&#39; or &#39;Warning&#39; then None.</span>
+<span class="sd">        If the status category is not &#39;Success&#39; or &#39;Warning&#39; then ``None``.</span>
 
 <span class="sd">    Raises</span>
 <span class="sd">    ------</span>
@@ -3102,7 +3162,7 @@
 <span class="sd">    ----------</span>
 <span class="sd">    DICOM Standard Part 4, Annexes F, H, J, CC and DD</span>
 <span class="sd">    &quot;&quot;&quot;</span>
-    <span class="k">pass</span>
+    <span class="k">pass</span></div>
 
 <div class="viewcode-block" id="doc_handle_n_get"><a class="viewcode-back" href="../../reference/generated/pynetdicom._handlers.doc_handle_n_get.html#pynetdicom._handlers.doc_handle_n_get">[docs]</a><span class="k">def</span> <span class="nf">doc_handle_n_get</span><span class="p">(</span><span class="n">event</span><span class="p">):</span>
     <span class="sd">&quot;&quot;&quot;Documentation for handlers bound to ``evt.EVT_N_GET``.</span>
@@ -3110,17 +3170,48 @@
 <span class="sd">    User implementation of this event handler is required if one or more</span>
 <span class="sd">    services that use N-GET are to be supported. If a handler is</span>
 <span class="sd">    not implemented and bound to ``evt.EVT_N_GET`` then the N_GET request</span>
-<span class="sd">    will be responded to using a  *Status* value of ``0x0110`` - Failure.</span>
+<span class="sd">    will be responded to using a  *Status* value of ``0x0110`` - Processing</span>
+<span class="sd">    Failure.</span>
 
 <span class="sd">    **Event**</span>
 
 <span class="sd">    ``evt.EVT_N_GET``</span>
 
+<span class="sd">    **Supported Service Classes**</span>
+
+<span class="sd">    * *Display System Management Service Class*</span>
+<span class="sd">    * *Modality Performed Procedure Step Management*</span>
+
+<span class="sd">    **Status**</span>
+
+<span class="sd">    Success</span>
+<span class="sd">      | ``0x0000`` - Success</span>
+
+<span class="sd">    Failure</span>
+<span class="sd">      | ``0x0107`` - Attribute list error</span>
+<span class="sd">      | ``0x0110`` - Processing failure</span>
+<span class="sd">      | ``0x0112`` - No such SOP Instance</span>
+<span class="sd">      | ``0x0117`` - Invalid object Instance</span>
+<span class="sd">      | ``0x0118`` - No such SOP Class</span>
+<span class="sd">      | ``0x0119`` - Class-Instance conflict</span>
+<span class="sd">      | ``0x0124`` - Not authorised</span>
+<span class="sd">      | ``0x0210`` - Duplicate invocation</span>
+<span class="sd">      | ``0x0211`` - Unrecognised operation</span>
+<span class="sd">      | ``0x0212`` - Mistyped argument</span>
+<span class="sd">      | ``0x0213`` - Resource limitation</span>
+<span class="sd">      | ``0xC112`` - Applicable Machine Verification Instance not found</span>
+<span class="sd">      | ``0xC307`` - Specified SOP Instance UID doesn&#39;t exist or is not</span>
+<span class="sd">        a UPS Instance managed by this SCP</span>
+
+<span class="sd">    Warning</span>
+<span class="sd">      | ``0x0001`` - Requested optional Attributes are not supported</span>
+<span class="sd">      | ``0x0107`` Attribute list error</span>
+
 <span class="sd">    Parameters</span>
 <span class="sd">    ----------</span>
 <span class="sd">    event : events.Event</span>
 <span class="sd">        The event representing a service class receiving an N-GET</span>
-<span class="sd">        request message. Event attributes are:</span>
+<span class="sd">        request message. ``Event`` attributes are:</span>
 
 <span class="sd">        * ``assoc`` : the</span>
 <span class="sd">          :py:class:`association &lt;pynetdicom.association.Association&gt;`</span>
@@ -3141,22 +3232,23 @@
 <span class="sd">        The status returned to the peer AE in the N-GET response. Must be a</span>
 <span class="sd">        valid N-GET status value for the applicable Service Class as either</span>
 <span class="sd">        an ``int`` or a ``Dataset`` object containing (at a minimum) a</span>
-<span class="sd">        (0000,0900) *Status* element. If returning a Dataset object then</span>
-<span class="sd">        it may also contain optional elements related to the Status (as in</span>
+<span class="sd">        (0000,0900) *Status* element. If returning a ``Dataset`` object then</span>
+<span class="sd">        it may also contain optional elements related to the *Status* (as in</span>
 <span class="sd">        DICOM Standard Part 7, Annex C).</span>
 <span class="sd">    dataset : pydicom.dataset.Dataset or None</span>
-<span class="sd">        If the status category is &#39;Success&#39; or &#39;Warning&#39; then a dataset</span>
-<span class="sd">        containing elements matching the request&#39;s Attribute List</span>
+<span class="sd">        If the status category is &#39;Success&#39; or &#39;Warning&#39; then a ``Dataset``</span>
+<span class="sd">        containing elements matching the request&#39;s *Attribute List*</span>
 <span class="sd">        conformant to the specifications in the corresponding Service</span>
 <span class="sd">        Class.</span>
 
-<span class="sd">        If the status is not &#39;Successs&#39; or &#39;Warning&#39; then None.</span>
+<span class="sd">        If the status category is not &#39;Success&#39; or &#39;Warning&#39; then ``None``.</span>
 
 <span class="sd">    See Also</span>
 <span class="sd">    --------</span>
 <span class="sd">    :py:meth:`send_n_get()&lt;pynetdicom.association.Association.send_n_get&gt;`</span>
 <span class="sd">    :py:class:`N_GET&lt;pynetdicom.dimse_primitives.N_GET&gt;`</span>
 <span class="sd">    :py:class:`DisplaySystemManagementServiceClass&lt;pynetdicom.service_class_n.DisplaySystemManagementServiceClass&gt;`</span>
+<span class="sd">    :py:class:`ModalityPerformedProcedureStepServiceClass&lt;pynetdicom.service_class_n.ModalityPerformedProcedureStepServiceClass&gt;`</span>
 
 <span class="sd">    References</span>
 <span class="sd">    ----------</span>
@@ -3170,15 +3262,14 @@
 <span class="sd">    &quot;&quot;&quot;</span>
     <span class="k">pass</span></div>
 
-<span class="k">def</span> <span class="nf">doc_handle_set</span><span class="p">(</span><span class="n">event</span><span class="p">):</span>
+<div class="viewcode-block" id="doc_handle_set"><a class="viewcode-back" href="../../reference/generated/pynetdicom._handlers.doc_handle_set.html#pynetdicom._handlers.doc_handle_set">[docs]</a><span class="k">def</span> <span class="nf">doc_handle_set</span><span class="p">(</span><span class="n">event</span><span class="p">):</span>
     <span class="sd">&quot;&quot;&quot;Documentation for handlers bound to ``evt.EVT_N_SET``.</span>
-
-<span class="sd">    Use of handlers for ``evt.EVT_N_SET`` is not yet supported.</span>
 
 <span class="sd">    User implementation of this event handler is required if one or more</span>
 <span class="sd">    services that use N-SET are to be supported. If a handler is</span>
 <span class="sd">    not implemented and bound to ``evt.EVT_N_SET`` then the N-SET request</span>
-<span class="sd">    will be responded to using a  *Status* value of FIXME.</span>
+<span class="sd">    will be responded to using a  *Status* value of ``0x0110`` - Processing</span>
+<span class="sd">    Failure.</span>
 
 <span class="sd">    **Event**</span>
 
@@ -3186,13 +3277,68 @@
 
 <span class="sd">    **Supported Service Classes**</span>
 
+<span class="sd">    * *Modality Performed Procedure Step Management*</span>
+
 <span class="sd">    **Status**</span>
+
+<span class="sd">    Success</span>
+<span class="sd">      | ``0x0000`` - Success</span>
+
+<span class="sd">    Failure</span>
+<span class="sd">      | ``0x0105`` - No such attribute</span>
+<span class="sd">      | ``0x0106`` - Invalid attribute value</span>
+<span class="sd">      | ``0x0110`` - Processing failure</span>
+<span class="sd">      | ``0x0112`` - SOP Instance not recognised</span>
+<span class="sd">      | ``0x0116`` - Attribute value out of range</span>
+<span class="sd">      | ``0x0117`` - Invalid object instance</span>
+<span class="sd">      | ``0x0118`` - No such SOP Class</span>
+<span class="sd">      | ``0x0119`` - Class-Instance conflict</span>
+<span class="sd">      | ``0x0121`` - Missing attribute value</span>
+<span class="sd">      | ``0x0124`` - Refused: not authorised</span>
+<span class="sd">      | ``0x0210`` - Duplicate invocation</span>
+<span class="sd">      | ``0x0211`` - Unrecognised operation</span>
+<span class="sd">      | ``0x0212`` - Mistyped argument</span>
+<span class="sd">      | ``0x0213`` - Resource limitation</span>
+<span class="sd">      | ``0xC112`` - Applicable Machine Verification Instance not found</span>
+<span class="sd">      | ``0xC224`` - Reference Beam Number not found within the</span>
+<span class="sd">        referenced Fraction Group</span>
+<span class="sd">      | ``0xC225`` - Referenced device or accessory not supported</span>
+<span class="sd">      | ``0xC226`` - Referenced device or accessory not found with the</span>
+<span class="sd">        referenced beam</span>
+<span class="sd">      | ``0xC300`` - The UPS may no longer be updated</span>
+<span class="sd">      | ``0xC301`` - The correct Transaction UID was not provided</span>
+<span class="sd">      | ``0xC307`` - Specified SOP Instance UID does not exist or is not a UPS</span>
+<span class="sd">        Instance managed by this SCP</span>
+<span class="sd">      | ``0xC310`` - The UPS is not in the &#39;IN PROGRESS&#39; state</span>
+<span class="sd">      | ``0xC603`` - Image size is larger than image box size</span>
+<span class="sd">      | ``0xC605`` - Insufficient memory in printer to store the image</span>
+<span class="sd">      | ``0xC613`` - Combined Print Image size is larger than the Image Box</span>
+<span class="sd">        size</span>
+<span class="sd">      | ``0xC616`` - There is an existing Film Box that has not been</span>
+<span class="sd">        printed and N-ACTION at the Film Session level is not supported.</span>
+<span class="sd">        A new Film Box will not be created when a previous Film Box has</span>
+<span class="sd">        not been printed</span>
+
+<span class="sd">    Warning</span>
+<span class="sd">      | ``0x0001`` - Requested optional attributes are not supported</span>
+<span class="sd">      | ``0xB305`` - Coerced invalid values to valid values</span>
+<span class="sd">      | ``0xB600`` - Memory allocation not supported</span>
+<span class="sd">      | ``0xB604`` - Image size larger than image box size, the image has been</span>
+<span class="sd">        demagnified</span>
+<span class="sd">      | ``0xB605`` - Requested Min Density or Max Density outside of</span>
+<span class="sd">        printer&#39;s operating range. The printer will use its respective</span>
+<span class="sd">        minimum or maximum density value instead</span>
+<span class="sd">      | ``0xB609`` - Image size is larger than the Image Box. The Image has</span>
+<span class="sd">        been cropped to fit</span>
+<span class="sd">      | ``0xB60A`` - Image size or Combined Print Image size is larger than the</span>
+<span class="sd">        Image Box size. The Image or Combined Print Image has been decimated</span>
+<span class="sd">        to fit</span>
 
 <span class="sd">    Parameters</span>
 <span class="sd">    ----------</span>
 <span class="sd">    event : events.Event</span>
 <span class="sd">        The event representing a service class receiving a N-SET</span>
-<span class="sd">        request message. Event attributes are:</span>
+<span class="sd">        request message. ``Event`` attributes are:</span>
 
 <span class="sd">        * ``assoc`` : the</span>
 <span class="sd">          :py:class:`association &lt;pynetdicom.association.Association&gt;`</span>
@@ -3221,16 +3367,16 @@
 <span class="sd">        The status returned to the peer AE in the N-SET response. Must be a</span>
 <span class="sd">        valid N-SET status value for the applicable Service Class as either</span>
 <span class="sd">        an ``int`` or a ``Dataset`` object containing (at a minimum) a</span>
-<span class="sd">        (0000,0900) *Status* element. If returning a Dataset object then</span>
-<span class="sd">        it may also contain optional elements related to the Status (as in</span>
+<span class="sd">        (0000,0900) *Status* element. If returning a ``Dataset`` object then</span>
+<span class="sd">        it may also contain optional elements related to the *Status* (as in</span>
 <span class="sd">        DICOM Standard Part 7, Annex C).</span>
 <span class="sd">    dataset : pydicom.dataset.Dataset or None</span>
-<span class="sd">        If the status category is &#39;Success&#39; or &#39;Warning&#39; then a dataset</span>
-<span class="sd">        containing elements of the response&#39;s Attribute List</span>
+<span class="sd">        If the status category is &#39;Success&#39; or &#39;Warning&#39; then a ``Dataset``</span>
+<span class="sd">        containing elements of the response&#39;s *Attribute List*</span>
 <span class="sd">        conformant to the specifications in the corresponding Service</span>
 <span class="sd">        Class.</span>
 
-<span class="sd">        If the status is not &#39;Successs&#39; or &#39;Warning&#39; then None.</span>
+<span class="sd">        If the status category is not &#39;Success&#39; or &#39;Warning&#39; then ``None``.</span>
 
 <span class="sd">    Raises</span>
 <span class="sd">    ------</span>
@@ -3247,7 +3393,7 @@
 <span class="sd">    ----------</span>
 <span class="sd">    DICOM Standard Part 4, Annexes H, J, P, S, CC and DD</span>
 <span class="sd">    &quot;&quot;&quot;</span>
-    <span class="k">pass</span>
+    <span class="k">pass</span></div>
 
 <div class="viewcode-block" id="doc_handle_async"><a class="viewcode-back" href="../../reference/generated/pynetdicom._handlers.doc_handle_async.html#pynetdicom._handlers.doc_handle_async">[docs]</a><span class="k">def</span> <span class="nf">doc_handle_async</span><span class="p">(</span><span class="n">event</span><span class="p">):</span>
     <span class="sd">&quot;&quot;&quot;Documentation for handlers bound to ``evt.EVT_ASYNC_OPS``.</span>
@@ -3416,7 +3562,7 @@
 <span class="sd">    ----------</span>
 <span class="sd">    event : events.Event</span>
 <span class="sd">        The event representing an association request being received which</span>
-<span class="sd">        contains a User Identity Negotiation item. Event attributes are:</span>
+<span class="sd">        contains a User Identity Negotiation item. ``Event`` attributes are:</span>
 
 <span class="sd">        * ``assoc`` : the</span>
 <span class="sd">          :py:class:`association &lt;pynetdicom.association.Association&gt;`</span>
@@ -3450,10 +3596,10 @@
 <span class="sd">    response : bytes or None</span>
 <span class="sd">        If ``user_id_type`` is:</span>
 
-<span class="sd">        * 1 or 2, then return None</span>
-<span class="sd">        * 3 then return the Kerberos Server ticket as bytes</span>
-<span class="sd">        * 4 then return the SAML response as bytes</span>
-<span class="sd">        * 5 then return the JSON web token as bytes</span>
+<span class="sd">        * 1 or 2, then return ``None``</span>
+<span class="sd">        * 3 then return the Kerberos Server ticket as ``bytes``</span>
+<span class="sd">        * 4 then return the SAML response as ``bytes``</span>
+<span class="sd">        * 5 then return the JSON web token as ``bytes``</span>
 
 <span class="sd">    References</span>
 <span class="sd">    ----------</span>
@@ -3472,7 +3618,7 @@
 <span class="sd">    event : events.Event</span>
 <span class="sd">        Represents the ACSE service provider receiving or sending an</span>
 <span class="sd">        association related primitive to/from the DUL service provider.</span>
-<span class="sd">        Event attributes are:</span>
+<span class="sd">        ``Event`` attributes are:</span>
 
 <span class="sd">        * ``assoc`` : the</span>
 <span class="sd">          :py:class:`association &lt;pynetdicom.association.Association&gt;`</span>
@@ -3547,7 +3693,7 @@
 <span class="sd">    ----------</span>
 <span class="sd">    event : events.Event</span>
 <span class="sd">        Represents data being sent to or received from the remote over the</span>
-<span class="sd">        socket. Event attributes are:</span>
+<span class="sd">        socket. ``Event`` attributes are:</span>
 
 <span class="sd">        * ``assoc`` : the</span>
 <span class="sd">          :py:class:`association &lt;pynetdicom.association.Association&gt;`</span>
@@ -3571,7 +3717,7 @@
 <span class="sd">    ----------</span>
 <span class="sd">    event : events.Event</span>
 <span class="sd">        Represents the DUL service provider sending or receiving a PDU.</span>
-<span class="sd">        Event attributes are:</span>
+<span class="sd">        ``Event`` attributes are:</span>
 
 <span class="sd">        * ``assoc`` : the</span>
 <span class="sd">          :py:class:`association &lt;pynetdicom.association.Association&gt;`</span>
@@ -3647,7 +3793,7 @@
 <span class="sd">    event : events.Event</span>
 <span class="sd">        Represents the state machine receiving a triggering event and being</span>
 <span class="sd">        about to perform the action that will take it to the next state.</span>
-<span class="sd">        Event attributes are:</span>
+<span class="sd">        ``Event`` attributes are:</span>
 
 <span class="sd">        * ``action`` : the name of the action that&#39;s to be performed.</span>
 <span class="sd">        * ``assoc`` : the</span>

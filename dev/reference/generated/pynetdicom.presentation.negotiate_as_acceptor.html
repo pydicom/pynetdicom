@@ -101,6 +101,7 @@
 <li class="toctree-l1"><a class="reference internal" href="../../hanging_protocol_service_class.html">Hanging Protocol Query/Retrieve Service Class</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../../implant_template_service_class.html">Implant Template Query/Retrieve Service Class</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../../display_system_service_class.html">Display System Management Service Class</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../modality_performed_procedure_step.html">Modality Performed Procedure Step Management</a></li>
 </ul>
 <ul>
 <li class="toctree-l1"><a class="reference internal" href="../../user/index.html">User Guide</a></li>
@@ -178,36 +179,32 @@
 <h1>pynetdicom.presentation.negotiate_as_acceptor<a class="headerlink" href="#pynetdicom-presentation-negotiate-as-acceptor" title="Permalink to this headline">¶</a></h1>
 <dl class="function">
 <dt id="pynetdicom.presentation.negotiate_as_acceptor">
-<code class="descclassname">pynetdicom.presentation.</code><code class="descname">negotiate_as_acceptor</code><span class="sig-paren">(</span><em>rq_contexts</em>, <em>ac_contexts</em>, <em>roles=None</em><span class="sig-paren">)</span><a class="reference internal" href="../../_modules/pynetdicom/presentation.html#negotiate_as_acceptor"><span class="viewcode-link">[source]</span></a><a class="reference external" href="https://github.com/pydicom/pynetdicom/blob/9250bb91/pynetdicom/presentation.py#L500"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pynetdicom.presentation.negotiate_as_acceptor" title="Permalink to this definition">¶</a></dt>
+<code class="descclassname">pynetdicom.presentation.</code><code class="descname">negotiate_as_acceptor</code><span class="sig-paren">(</span><em>rq_contexts</em>, <em>ac_contexts</em>, <em>roles=None</em><span class="sig-paren">)</span><a class="reference internal" href="../../_modules/pynetdicom/presentation.html#negotiate_as_acceptor"><span class="viewcode-link">[source]</span></a><a class="reference external" href="https://github.com/pydicom/pynetdicom/blob/ff79e00f/pynetdicom/presentation.py#L500"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pynetdicom.presentation.negotiate_as_acceptor" title="Permalink to this definition">¶</a></dt>
 <dd><p>Process the Presentation Contexts as an Association acceptor.</p>
-<table class="docutils field-list" frame="void" rules="none">
-<col class="field-name" />
-<col class="field-body" />
-<tbody valign="top">
-<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first simple">
-<li><strong>rq_contexts</strong> (<em>list of PresentationContext</em>) – The Presentation Contexts proposed by the peer. Each item has
-values for Context ID, Abstract Syntax and Transfer Syntax.</li>
-<li><strong>ac_contexts</strong> (<em>list of PresentationContext</em>) – The Presentation Contexts supported by the local AE when acting
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>rq_contexts</strong> (<em>list of PresentationContext</em>) – The Presentation Contexts proposed by the peer. Each item has
+values for Context ID, Abstract Syntax and Transfer Syntax.</p></li>
+<li><p><strong>ac_contexts</strong> (<em>list of PresentationContext</em>) – The Presentation Contexts supported by the local AE when acting
 as an Association acceptor. Each item has values for Context ID
-Abstract Syntax and Transfer Syntax.</li>
-<li><strong>roles</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#dict" title="(in Python v3.7)"><em>dict</em></a><em> or </em><a class="reference external" href="https://docs.python.org/3/library/constants.html#None" title="(in Python v3.7)"><em>None</em></a>) – If the requestor has included one or more SCP/SCU Role Selection
+Abstract Syntax and Transfer Syntax.</p></li>
+<li><p><strong>roles</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#dict" title="(in Python v3.7)"><em>dict</em></a><em> or </em><a class="reference external" href="https://docs.python.org/3/library/constants.html#None" title="(in Python v3.7)"><em>None</em></a>) – If the requestor has included one or more SCP/SCU Role Selection
 Negotiation items then this will be a dict of
-{SOP Class UID : (SCU role, SCP role)}, otherwise None (default)</li>
+{SOP Class UID : (SCU role, SCP role)}, otherwise None (default)</p></li>
 </ul>
-</td>
-</tr>
-<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body"><p class="first last"><ul class="simple">
-<li><em>list of PresentationContext</em> – The accepted presentation context items, each with a Result value
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p><ul class="simple">
+<li><p><em>list of PresentationContext</em> – The accepted presentation context items, each with a Result value
 a Context ID, an Abstract Syntax and one Transfer Syntax item.
-Items are sorted in increasing Context ID value.</li>
-<li><em>list of SCP_SCU_RoleSelectionNegotiation</em> – If <cite>roles</cite> is not None then this is a list of SCP/SCU Role Selection
-Negotiation items that can be sent back to the requestor.</li>
+Items are sorted in increasing Context ID value.</p></li>
+<li><p><em>list of SCP_SCU_RoleSelectionNegotiation</em> – If <cite>roles</cite> is not None then this is a list of SCP/SCU Role Selection
+Negotiation items that can be sent back to the requestor.</p></li>
 </ul>
 </p>
-</td>
-</tr>
-</tbody>
-</table>
+</dd>
+</dl>
 </dd></dl>
 
 </div>

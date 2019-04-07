@@ -101,6 +101,7 @@
 <li class="toctree-l1"><a class="reference internal" href="../../hanging_protocol_service_class.html">Hanging Protocol Query/Retrieve Service Class</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../../implant_template_service_class.html">Implant Template Query/Retrieve Service Class</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../../display_system_service_class.html">Display System Management Service Class</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../modality_performed_procedure_step.html">Modality Performed Procedure Step Management</a></li>
 </ul>
 <ul>
 <li class="toctree-l1"><a class="reference internal" href="../../user/index.html">User Guide</a></li>
@@ -178,7 +179,7 @@
 <h1>pynetdicom._handlers.doc_handle_userid<a class="headerlink" href="#pynetdicom-handlers-doc-handle-userid" title="Permalink to this headline">¶</a></h1>
 <dl class="function">
 <dt id="pynetdicom._handlers.doc_handle_userid">
-<code class="descclassname">pynetdicom._handlers.</code><code class="descname">doc_handle_userid</code><span class="sig-paren">(</span><em>event</em><span class="sig-paren">)</span><a class="reference internal" href="../../_modules/pynetdicom/_handlers.html#doc_handle_userid"><span class="viewcode-link">[source]</span></a><a class="reference external" href="https://github.com/pydicom/pynetdicom/blob/9250bb91/pynetdicom/_handlers.py#L3226"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pynetdicom._handlers.doc_handle_userid" title="Permalink to this definition">¶</a></dt>
+<code class="descclassname">pynetdicom._handlers.</code><code class="descname">doc_handle_userid</code><span class="sig-paren">(</span><em>event</em><span class="sig-paren">)</span><a class="reference internal" href="../../_modules/pynetdicom/_handlers.html#doc_handle_userid"><span class="viewcode-link">[source]</span></a><a class="reference external" href="https://github.com/pydicom/pynetdicom/blob/ff79e00f/pynetdicom/_handlers.py#L3371"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pynetdicom._handlers.doc_handle_userid" title="Permalink to this definition">¶</a></dt>
 <dd><p>Documentation for handlers bound to <code class="docutils literal notranslate"><span class="pre">evt.EVT_USER_ID</span></code>.</p>
 <p>User implementation of this handler is required if User Identity
 Negotiation is to be supported by the association. If no handler is
@@ -188,58 +189,58 @@ to reject it) and no User Identity Negotiation response will be sent in
 reply even if one is requested.</p>
 <p><strong>Event</strong></p>
 <p><code class="docutils literal notranslate"><span class="pre">evt.EVT_USER_ID</span></code></p>
-<table class="docutils field-list" frame="void" rules="none">
-<col class="field-name" />
-<col class="field-body" />
-<tbody valign="top">
-<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><strong>event</strong> (<a class="reference internal" href="pynetdicom.events.Event.html#pynetdicom.events.Event" title="pynetdicom.events.Event"><em>events.Event</em></a>) – <p>The event representing an association request being received which
-contains a User Identity Negotiation item. Event attributes are:</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><p><strong>event</strong> (<a class="reference internal" href="pynetdicom.events.Event.html#pynetdicom.events.Event" title="pynetdicom.events.Event"><em>events.Event</em></a>) – <p>The event representing an association request being received which
+contains a User Identity Negotiation item. <code class="docutils literal notranslate"><span class="pre">Event</span></code> attributes are:</p>
 <ul class="simple">
-<li><code class="docutils literal notranslate"><span class="pre">assoc</span></code> : the
+<li><p><code class="docutils literal notranslate"><span class="pre">assoc</span></code> : the
 <a class="reference internal" href="pynetdicom.association.Association.html#pynetdicom.association.Association" title="pynetdicom.association.Association"><code class="xref py py-class docutils literal notranslate"><span class="pre">association</span></code></a>
 that is running the service that received the user identity
-negotiation request.</li>
-<li><code class="docutils literal notranslate"><span class="pre">description</span></code> : a description of the event that occurred as str.</li>
-<li><code class="docutils literal notranslate"><span class="pre">name</span></code> : the name of the event that occurred as str.</li>
-<li><code class="docutils literal notranslate"><span class="pre">primary_field</span></code> : the <em>Primary Field</em> value (as <code class="docutils literal notranslate"><span class="pre">bytes</span></code>),
+negotiation request.</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">description</span></code> : a description of the event that occurred as str.</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">name</span></code> : the name of the event that occurred as str.</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">primary_field</span></code> : the <em>Primary Field</em> value (as <code class="docutils literal notranslate"><span class="pre">bytes</span></code>),
 contains the username, the encoded Kerberos ticket or the JSON web
-token, depending on the value of <code class="docutils literal notranslate"><span class="pre">user_id_type</span></code>.</li>
-<li><code class="docutils literal notranslate"><span class="pre">secondary_field</span></code> : the <em>Secondary Field</em> value. Will be <code class="docutils literal notranslate"><span class="pre">None</span></code>
+token, depending on the value of <code class="docutils literal notranslate"><span class="pre">user_id_type</span></code>.</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">secondary_field</span></code> : the <em>Secondary Field</em> value. Will be <code class="docutils literal notranslate"><span class="pre">None</span></code>
 unless the <code class="docutils literal notranslate"><span class="pre">user_id_type</span></code> is <code class="docutils literal notranslate"><span class="pre">2</span></code> in which case it will be
-<code class="docutils literal notranslate"><span class="pre">bytes</span></code>.</li>
-<li><code class="docutils literal notranslate"><span class="pre">timestamp</span></code> : the
+<code class="docutils literal notranslate"><span class="pre">bytes</span></code>.</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">timestamp</span></code> : the
 <a class="reference external" href="https://docs.python.org/3/library/datetime.html#datetime-objects">date and time</a>
-that the negotiation request was processed by the ACSE.</li>
-<li><code class="docutils literal notranslate"><span class="pre">user_id_type</span></code> : the <em>User Identity Type</em> value (as an <code class="docutils literal notranslate"><span class="pre">int</span></code>),
-which indicates the form of user identity being provided:<ul>
-<li>1 - Username as a UTF-8 string</li>
-<li>2 - Username as a UTF-8 string and passcode</li>
-<li>3 - Kerberos Service ticket</li>
-<li>4 - SAML Assertion</li>
-<li>5 - JSON Web Token</li>
+that the negotiation request was processed by the ACSE.</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">user_id_type</span></code> : the <em>User Identity Type</em> value (as an <code class="docutils literal notranslate"><span class="pre">int</span></code>),
+which indicates the form of user identity being provided:</p>
+<ul>
+<li><p>1 - Username as a UTF-8 string</p></li>
+<li><p>2 - Username as a UTF-8 string and passcode</p></li>
+<li><p>3 - Kerberos Service ticket</p></li>
+<li><p>4 - SAML Assertion</p></li>
+<li><p>5 - JSON Web Token</p></li>
 </ul>
 </li>
 </ul>
-</td>
-</tr>
-<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body"><ul class="simple">
-<li><strong>is_verified</strong> (<em>bool</em>) – Return True if the user identity has been confirmed and you wish
-to proceed with association establishment, False otherwise.</li>
-<li><strong>response</strong> (<em>bytes or None</em>) – If <code class="docutils literal notranslate"><span class="pre">user_id_type</span></code> is:<ul>
-<li>1 or 2, then return None</li>
-<li>3 then return the Kerberos Server ticket as bytes</li>
-<li>4 then return the SAML response as bytes</li>
-<li>5 then return the JSON web token as bytes</li>
+</p>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p><ul class="simple">
+<li><p><strong>is_verified</strong> (<em>bool</em>) – Return True if the user identity has been confirmed and you wish
+to proceed with association establishment, False otherwise.</p></li>
+<li><p><strong>response</strong> (<em>bytes or None</em>) – If <code class="docutils literal notranslate"><span class="pre">user_id_type</span></code> is:</p>
+<ul>
+<li><p>1 or 2, then return <code class="docutils literal notranslate"><span class="pre">None</span></code></p></li>
+<li><p>3 then return the Kerberos Server ticket as <code class="docutils literal notranslate"><span class="pre">bytes</span></code></p></li>
+<li><p>4 then return the SAML response as <code class="docutils literal notranslate"><span class="pre">bytes</span></code></p></li>
+<li><p>5 then return the JSON web token as <code class="docutils literal notranslate"><span class="pre">bytes</span></code></p></li>
 </ul>
 </li>
 </ul>
-</td>
-</tr>
-</tbody>
-</table>
+</p>
+</dd>
+</dl>
 <p class="rubric">References</p>
 <ul class="simple">
-<li>DICOM Standard Part 7, <a class="reference external" href="http://dicom.nema.org/medical/dicom/current/output/chtml/part07/sect_D.3.3.7.html">Annex D.3.3.7</a></li>
+<li><p>DICOM Standard Part 7, <a class="reference external" href="http://dicom.nema.org/medical/dicom/current/output/chtml/part07/sect_D.3.3.7.html">Annex D.3.3.7</a></p></li>
 </ul>
 </dd></dl>
 

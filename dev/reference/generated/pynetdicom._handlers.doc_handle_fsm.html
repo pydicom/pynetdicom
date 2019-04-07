@@ -101,6 +101,7 @@
 <li class="toctree-l1"><a class="reference internal" href="../../hanging_protocol_service_class.html">Hanging Protocol Query/Retrieve Service Class</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../../implant_template_service_class.html">Implant Template Query/Retrieve Service Class</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../../display_system_service_class.html">Display System Management Service Class</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../modality_performed_procedure_step.html">Modality Performed Procedure Step Management</a></li>
 </ul>
 <ul>
 <li class="toctree-l1"><a class="reference internal" href="../../user/index.html">User Guide</a></li>
@@ -178,36 +179,33 @@
 <h1>pynetdicom._handlers.doc_handle_fsm<a class="headerlink" href="#pynetdicom-handlers-doc-handle-fsm" title="Permalink to this headline">¶</a></h1>
 <dl class="function">
 <dt id="pynetdicom._handlers.doc_handle_fsm">
-<code class="descclassname">pynetdicom._handlers.</code><code class="descname">doc_handle_fsm</code><span class="sig-paren">(</span><em>event</em><span class="sig-paren">)</span><a class="reference internal" href="../../_modules/pynetdicom/_handlers.html#doc_handle_fsm"><span class="viewcode-link">[source]</span></a><a class="reference external" href="https://github.com/pydicom/pynetdicom/blob/9250bb91/pynetdicom/_handlers.py#L3467"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pynetdicom._handlers.doc_handle_fsm" title="Permalink to this definition">¶</a></dt>
+<code class="descclassname">pynetdicom._handlers.</code><code class="descname">doc_handle_fsm</code><span class="sig-paren">(</span><em>event</em><span class="sig-paren">)</span><a class="reference internal" href="../../_modules/pynetdicom/_handlers.html#doc_handle_fsm"><span class="viewcode-link">[source]</span></a><a class="reference external" href="https://github.com/pydicom/pynetdicom/blob/ff79e00f/pynetdicom/_handlers.py#L3612"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pynetdicom._handlers.doc_handle_fsm" title="Permalink to this definition">¶</a></dt>
 <dd><p>Documentation for handlers bound to <code class="docutils literal notranslate"><span class="pre">evt.EVT_FSM_TRANSITION</span></code>.</p>
-<table class="docutils field-list" frame="void" rules="none">
-<col class="field-name" />
-<col class="field-body" />
-<tbody valign="top">
-<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><strong>event</strong> (<a class="reference internal" href="pynetdicom.events.Event.html#pynetdicom.events.Event" title="pynetdicom.events.Event"><em>events.Event</em></a>) – <p>Represents the state machine receiving a triggering event and being
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><p><strong>event</strong> (<a class="reference internal" href="pynetdicom.events.Event.html#pynetdicom.events.Event" title="pynetdicom.events.Event"><em>events.Event</em></a>) – <p>Represents the state machine receiving a triggering event and being
 about to perform the action that will take it to the next state.
-Event attributes are:</p>
+<code class="docutils literal notranslate"><span class="pre">Event</span></code> attributes are:</p>
 <ul class="simple">
-<li><code class="docutils literal notranslate"><span class="pre">action</span></code> : the name of the action that’s to be performed.</li>
-<li><code class="docutils literal notranslate"><span class="pre">assoc</span></code> : the
+<li><p><code class="docutils literal notranslate"><span class="pre">action</span></code> : the name of the action that’s to be performed.</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">assoc</span></code> : the
 <a class="reference internal" href="pynetdicom.association.Association.html#pynetdicom.association.Association" title="pynetdicom.association.Association"><code class="xref py py-class docutils literal notranslate"><span class="pre">association</span></code></a>
 that is running the service that received the user identity
-negotiation request.</li>
-<li><code class="docutils literal notranslate"><span class="pre">current_state</span></code> : the current state of the state machine as str.</li>
-<li><code class="docutils literal notranslate"><span class="pre">description</span></code> : a description of the event that occurred as str.</li>
-<li><code class="docutils literal notranslate"><span class="pre">fsm_event</span></code> : the name of the state machine event that occurred,
-triggering the transition.</li>
-<li><code class="docutils literal notranslate"><span class="pre">name</span></code> : the name of the event that occurred as str.</li>
-<li><code class="docutils literal notranslate"><span class="pre">next_state</span></code> : the state the state machine will be in after the
-action has been performed.</li>
-<li><code class="docutils literal notranslate"><span class="pre">timestamp</span></code> : the
+negotiation request.</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">current_state</span></code> : the current state of the state machine as str.</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">description</span></code> : a description of the event that occurred as str.</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">fsm_event</span></code> : the name of the state machine event that occurred,
+triggering the transition.</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">name</span></code> : the name of the event that occurred as str.</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">next_state</span></code> : the state the state machine will be in after the
+action has been performed.</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">timestamp</span></code> : the
 <a class="reference external" href="https://docs.python.org/3/library/datetime.html#datetime-objects">date and time</a>
-that the negotiation request was processed by the ACSE.</li>
+that the negotiation request was processed by the ACSE.</p></li>
 </ul>
-</td>
-</tr>
-</tbody>
-</table>
+</p>
+</dd>
+</dl>
 </dd></dl>
 
 </div>

@@ -101,6 +101,7 @@
 <li class="toctree-l1"><a class="reference internal" href="../hanging_protocol_service_class.html">Hanging Protocol Query/Retrieve Service Class</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../implant_template_service_class.html">Implant Template Query/Retrieve Service Class</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../display_system_service_class.html">Display System Management Service Class</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../modality_performed_procedure_step.html">Modality Performed Procedure Step Management</a></li>
 </ul>
 <ul>
 <li class="toctree-l1"><a class="reference internal" href="../user/index.html">User Guide</a></li>
@@ -192,32 +193,32 @@ series with <em>Study Instance UID</em> <code class="docutils literal notranslat
 <p>The value of the <em>Query Retrieve Level</em> determines what SOP Instances are
 actually transferred; to transfer all datasets in the series we use
 the SERIES level.</p>
-<table border="1" class="docutils">
+<table class="docutils align-center">
 <colgroup>
-<col width="26%" />
-<col width="74%" />
+<col style="width: 26%" />
+<col style="width: 74%" />
 </colgroup>
-<thead valign="bottom">
-<tr class="row-odd"><th class="head">Query Retrieve
-Level</th>
-<th class="head">Effect</th>
+<thead>
+<tr class="row-odd"><th class="head"><p>Query Retrieve
+Level</p></th>
+<th class="head"><p>Effect</p></th>
 </tr>
 </thead>
-<tbody valign="top">
-<tr class="row-even"><td>PATIENT</td>
-<td>All SOP Instances related to a patient shall be
-transferred</td>
+<tbody>
+<tr class="row-even"><td><p>PATIENT</p></td>
+<td><p>All SOP Instances related to a patient shall be
+transferred</p></td>
 </tr>
-<tr class="row-odd"><td>STUDY</td>
-<td>All SOP Instances related to a study shall be
-transferred</td>
+<tr class="row-odd"><td><p>STUDY</p></td>
+<td><p>All SOP Instances related to a study shall be
+transferred</p></td>
 </tr>
-<tr class="row-even"><td>SERIES</td>
-<td>All SOP Instances related to a series shall be
-transferred</td>
+<tr class="row-even"><td><p>SERIES</p></td>
+<td><p>All SOP Instances related to a series shall be
+transferred</p></td>
 </tr>
-<tr class="row-odd"><td>IMAGE</td>
-<td>Selected individual SOP Instances shall be transferred</td>
+<tr class="row-odd"><td><p>IMAGE</p></td>
+<td><p>Selected individual SOP Instances shall be transferred</p></td>
 </tr>
 </tbody>
 </table>

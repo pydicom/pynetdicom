@@ -103,6 +103,7 @@
 <li class="toctree-l1"><a class="reference internal" href="../hanging_protocol_service_class.html">Hanging Protocol Query/Retrieve Service Class</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../implant_template_service_class.html">Implant Template Query/Retrieve Service Class</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../display_system_service_class.html">Display System Management Service Class</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../modality_performed_procedure_step.html">Modality Performed Procedure Step Management</a></li>
 </ul>
 <ul class="current">
 <li class="toctree-l1 current"><a class="reference internal" href="index.html">User Guide</a><ul class="current">
@@ -226,14 +227,14 @@ title can set by supplying the <code class="docutils literal notranslate"><span 
 </div>
 <p>AE titles must meet the conditions of a DICOM data element with a
 <a class="reference external" href="http://dicom.nema.org/medical/dicom/current/output/chtml/part05/sect_6.2.html">Value Representation</a>
-of <strong>AE</strong> <a class="footnote-reference" href="#id8" id="id1">[1]</a>:</p>
+of <strong>AE</strong> <a class="footnote-reference brackets" href="#id8" id="id1">1</a>:</p>
 <ul class="simple">
-<li>Leading and trailing spaces (<code class="docutils literal notranslate"><span class="pre">0x20</span></code>) are non-significant</li>
-<li>Maximum 16 characters (once non-significant characters are removed)</li>
-<li>Valid characters belong to the DICOM <a class="reference external" href="http://dicom.nema.org/medical/dicom/current/output/chtml/part05/chapter_E.html">Default Character Repertoire</a>
-<a class="footnote-reference" href="#id9" id="id2">[2]</a>, which is the basic G0 Set of the ISO646:1990 <a class="footnote-reference" href="#id12" id="id3">[5]</a> (ASCII) standard
-excluding backslash (‘\ ‘ <code class="docutils literal notranslate"><span class="pre">0x5c</span></code>) and all control characters <a class="footnote-reference" href="#id10" id="id4">[3]</a>.</li>
-<li>An AE title made entirely of spaces is not allowed <a class="footnote-reference" href="#id11" id="id5">[4]</a></li>
+<li><p>Leading and trailing spaces (<code class="docutils literal notranslate"><span class="pre">0x20</span></code>) are non-significant</p></li>
+<li><p>Maximum 16 characters (once non-significant characters are removed)</p></li>
+<li><p>Valid characters belong to the DICOM <a class="reference external" href="http://dicom.nema.org/medical/dicom/current/output/chtml/part05/chapter_E.html">Default Character Repertoire</a>
+<a class="footnote-reference brackets" href="#id9" id="id2">2</a>, which is the basic G0 Set of the ISO646:1990 <a class="footnote-reference brackets" href="#id12" id="id3">5</a> (ASCII) standard
+excluding backslash (‘\ ‘ <code class="docutils literal notranslate"><span class="pre">0x5c</span></code>) and all control characters <a class="footnote-reference brackets" href="#id10" id="id4">3</a>.</p></li>
+<li><p>An AE title made entirely of spaces is not allowed <a class="footnote-reference brackets" href="#id11" id="id5">4</a></p></li>
 </ul>
 <p>AE titles in <em>pynetdicom</em> are checked for validity (using
 <a class="reference internal" href="../reference/generated/pynetdicom.utils.validate_ae_title.html#pynetdicom.utils.validate_ae_title" title="pynetdicom.utils.validate_ae_title"><code class="xref py py-meth docutils literal notranslate"><span class="pre">utils.validate_ae_title()</span></code></a>)
@@ -259,12 +260,12 @@ specify the <a class="reference internal" href="presentation.html#user-presentat
 that will be <em>requested</em> during
 Association negotiation. This can be done in two ways:</p>
 <ul class="simple">
-<li>You can add requested contexts on a one-by-one basis using the
+<li><p>You can add requested contexts on a one-by-one basis using the
 <a class="reference internal" href="../reference/generated/pynetdicom.ae.ApplicationEntity.html#pynetdicom.ae.ApplicationEntity.add_requested_context" title="pynetdicom.ae.ApplicationEntity.add_requested_context"><code class="xref py py-meth docutils literal notranslate"><span class="pre">AE.add_requested_context()</span></code></a>
-method.</li>
-<li>You can set all the requested contexts at once using the
+method.</p></li>
+<li><p>You can set all the requested contexts at once using the
 <a class="reference internal" href="../reference/generated/pynetdicom.ae.ApplicationEntity.html#pynetdicom.ae.ApplicationEntity.requested_contexts" title="pynetdicom.ae.ApplicationEntity.requested_contexts"><code class="xref py py-obj docutils literal notranslate"><span class="pre">AE.requested_contexts</span></code></a>
-property. Additional contexts can still be added on a one-by-one basis afterwards.</li>
+property. Additional contexts can still be added on a one-by-one basis afterwards.</p></li>
 </ul>
 <p>Adding presentation contexts one-by-one:</p>
 <div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="kn">from</span> <span class="nn">pydicom.uid</span> <span class="k">import</span> <span class="n">UID</span>
@@ -315,20 +316,20 @@ presentation contexts, so attempting to add more than 128 contexts will raise
 a <code class="docutils literal notranslate"><span class="pre">ValueError</span></code> exception.</p>
 <p>When you add presentation contexts as shown above, the following transfer
 syntaxes are used by default for each context:</p>
-<table border="1" class="docutils">
+<table class="docutils align-center">
 <colgroup>
-<col width="41%" />
-<col width="59%" />
+<col style="width: 41%" />
+<col style="width: 59%" />
 </colgroup>
-<tbody valign="top">
-<tr class="row-odd"><td>1.2.840.10008.1.2</td>
-<td>Implicit VR Little Endian</td>
+<tbody>
+<tr class="row-odd"><td><p>1.2.840.10008.1.2</p></td>
+<td><p>Implicit VR Little Endian</p></td>
 </tr>
-<tr class="row-even"><td>1.2.840.10008.1.2.1</td>
-<td>Explicit VR Little Endian</td>
+<tr class="row-even"><td><p>1.2.840.10008.1.2.1</p></td>
+<td><p>Explicit VR Little Endian</p></td>
 </tr>
-<tr class="row-odd"><td>1.2.840.10008.1.2.2</td>
-<td>Explicit VR Big Endian</td>
+<tr class="row-odd"><td><p>1.2.840.10008.1.2.2</p></td>
+<td><p>Explicit VR Big Endian</p></td>
 </tr>
 </tbody>
 </table>
@@ -431,13 +432,13 @@ specify the <a class="reference internal" href="presentation.html#user-presentat
 that will be <em>supported</em> during
 Association negotiation. This can be done in two ways:</p>
 <ul class="simple">
-<li>You can add supported contexts on a one-by-one basis using the
+<li><p>You can add supported contexts on a one-by-one basis using the
 <a class="reference internal" href="../reference/generated/pynetdicom.ae.ApplicationEntity.html#pynetdicom.ae.ApplicationEntity.add_supported_context" title="pynetdicom.ae.ApplicationEntity.add_supported_context"><code class="xref py py-meth docutils literal notranslate"><span class="pre">AE.add_supported_context()</span></code></a>
-method.</li>
-<li>You can set all the supported contexts at once using the
+method.</p></li>
+<li><p>You can set all the supported contexts at once using the
 <a class="reference internal" href="../reference/generated/pynetdicom.ae.ApplicationEntity.html#pynetdicom.ae.ApplicationEntity.supported_contexts" title="pynetdicom.ae.ApplicationEntity.supported_contexts"><code class="xref py py-obj docutils literal notranslate"><span class="pre">AE.supported_contexts</span></code></a>
 property. Additional contexts can still be added on a one-by-one basis
-afterwards.</li>
+afterwards.</p></li>
 </ul>
 <p>Adding presentation contexts one-by-one:</p>
 <div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="kn">from</span> <span class="nn">pydicom.uid</span> <span class="k">import</span> <span class="n">UID</span>
@@ -487,20 +488,20 @@ convenience function:</p>
 contexts that you can support.</p>
 <p>When you add presentation contexts as shown above, the following transfer
 syntaxes are used by default for each context:</p>
-<table border="1" class="docutils">
+<table class="docutils align-center">
 <colgroup>
-<col width="41%" />
-<col width="59%" />
+<col style="width: 41%" />
+<col style="width: 59%" />
 </colgroup>
-<tbody valign="top">
-<tr class="row-odd"><td>1.2.840.10008.1.2</td>
-<td>Implicit VR Little Endian</td>
+<tbody>
+<tr class="row-odd"><td><p>1.2.840.10008.1.2</p></td>
+<td><p>Implicit VR Little Endian</p></td>
 </tr>
-<tr class="row-even"><td>1.2.840.10008.1.2.1</td>
-<td>Explicit VR Little Endian</td>
+<tr class="row-even"><td><p>1.2.840.10008.1.2.1</p></td>
+<td><p>Explicit VR Little Endian</p></td>
 </tr>
-<tr class="row-odd"><td>1.2.840.10008.1.2.2</td>
-<td>Explicit VR Big Endian</td>
+<tr class="row-odd"><td><p>1.2.840.10008.1.2.2</p></td>
+<td><p>Explicit VR Big Endian</p></td>
 </tr>
 </tbody>
 </table>
@@ -591,10 +592,10 @@ indicates whether or not to accept or reject the proposal.</p>
 for the role selection negotiation, depending
 on what was proposed and what was accepted:</p>
 <ul class="simple">
-<li>The proposed roles aren’t acceptable and the context is rejected</li>
-<li>The <em>Acceptor</em> acts as the SCP and the <em>Requestor</em> the SCU (default)</li>
-<li>The <em>Acceptor</em> acts as the SCU and the <em>Requestor</em> the SCP</li>
-<li>Both <em>Acceptor</em> and <em>Requestor</em> act as SCU and SCP</li>
+<li><p>The proposed roles aren’t acceptable and the context is rejected</p></li>
+<li><p>The <em>Acceptor</em> acts as the SCP and the <em>Requestor</em> the SCU (default)</p></li>
+<li><p>The <em>Acceptor</em> acts as the SCU and the <em>Requestor</em> the SCP</p></li>
+<li><p>Both <em>Acceptor</em> and <em>Requestor</em> act as SCU and SCP</p></li>
 </ul>
 </div>
 <div class="section" id="handling-user-identity-negotiation">
@@ -605,11 +606,11 @@ item in the association request with the aim of providing the <em>Acceptor</em> 
 method of verifying its identity. Possible forms of identity confirmation
 methods are:</p>
 <ul class="simple">
-<li>Username</li>
-<li>Username and password (sent in the clear)</li>
-<li>Kerberos service ticket</li>
-<li>SAML assertion</li>
-<li>JSON web token</li>
+<li><p>Username</p></li>
+<li><p>Username and password (sent in the clear)</p></li>
+<li><p>Kerberos service ticket</p></li>
+<li><p>SAML assertion</p></li>
+<li><p>JSON web token</p></li>
 </ul>
 <p>By default all association requests that include user identity negotiation
 are accepted (provided there’s no other reason to reject) and
@@ -657,40 +658,27 @@ AEs and how to handle their service requests see the
 </div>
 <div class="section" id="references">
 <h3>References<a class="headerlink" href="#references" title="Permalink to this headline">¶</a></h3>
-<table class="docutils footnote" frame="void" id="id8" rules="none">
-<colgroup><col class="label" /><col /></colgroup>
-<tbody valign="top">
-<tr><td class="label"><a class="fn-backref" href="#id1">[1]</a></td><td>DICOM Standard, Part 5
-<a class="reference external" href="http://dicom.nema.org/medical/dicom/current/output/html/part05.html#sect_6.2">Section 6.2</a></td></tr>
-</tbody>
-</table>
-<table class="docutils footnote" frame="void" id="id9" rules="none">
-<colgroup><col class="label" /><col /></colgroup>
-<tbody valign="top">
-<tr><td class="label"><a class="fn-backref" href="#id2">[2]</a></td><td>DICOM Standard, Part 5
-<a class="reference external" href="http://dicom.nema.org/medical/dicom/current/output/html/part05.html#sect_6.1.3">Section 6.1.2.1</a></td></tr>
-</tbody>
-</table>
-<table class="docutils footnote" frame="void" id="id10" rules="none">
-<colgroup><col class="label" /><col /></colgroup>
-<tbody valign="top">
-<tr><td class="label"><a class="fn-backref" href="#id4">[3]</a></td><td>DICOM Standard, Part 5
-<a class="reference external" href="http://dicom.nema.org/medical/dicom/current/output/html/part05.html#sect_6.1.3">Section 6.1.3</a></td></tr>
-</tbody>
-</table>
-<table class="docutils footnote" frame="void" id="id11" rules="none">
-<colgroup><col class="label" /><col /></colgroup>
-<tbody valign="top">
-<tr><td class="label"><a class="fn-backref" href="#id5">[4]</a></td><td>DICOM Standard, Part 8
-<a class="reference external" href="http://dicom.nema.org/medical/dicom/current/output/html/part08.html#sect_9.3.2">Section 9.3.2</a></td></tr>
-</tbody>
-</table>
-<table class="docutils footnote" frame="void" id="id12" rules="none">
-<colgroup><col class="label" /><col /></colgroup>
-<tbody valign="top">
-<tr><td class="label"><a class="fn-backref" href="#id3">[5]</a></td><td><a class="reference external" href="https://www.iso.org/standard/4777.html">ISO/IEC 646:1991</a></td></tr>
-</tbody>
-</table>
+<dl class="footnote brackets">
+<dt class="label" id="id8"><span class="brackets"><a class="fn-backref" href="#id1">1</a></span></dt>
+<dd><p>DICOM Standard, Part 5
+<a class="reference external" href="http://dicom.nema.org/medical/dicom/current/output/html/part05.html#sect_6.2">Section 6.2</a></p>
+</dd>
+<dt class="label" id="id9"><span class="brackets"><a class="fn-backref" href="#id2">2</a></span></dt>
+<dd><p>DICOM Standard, Part 5
+<a class="reference external" href="http://dicom.nema.org/medical/dicom/current/output/html/part05.html#sect_6.1.3">Section 6.1.2.1</a></p>
+</dd>
+<dt class="label" id="id10"><span class="brackets"><a class="fn-backref" href="#id4">3</a></span></dt>
+<dd><p>DICOM Standard, Part 5
+<a class="reference external" href="http://dicom.nema.org/medical/dicom/current/output/html/part05.html#sect_6.1.3">Section 6.1.3</a></p>
+</dd>
+<dt class="label" id="id11"><span class="brackets"><a class="fn-backref" href="#id5">4</a></span></dt>
+<dd><p>DICOM Standard, Part 8
+<a class="reference external" href="http://dicom.nema.org/medical/dicom/current/output/html/part08.html#sect_9.3.2">Section 9.3.2</a></p>
+</dd>
+<dt class="label" id="id12"><span class="brackets"><a class="fn-backref" href="#id3">5</a></span></dt>
+<dd><p><a class="reference external" href="https://www.iso.org/standard/4777.html">ISO/IEC 646:1991</a></p>
+</dd>
+</dl>
 </div>
 </div>
 </div>

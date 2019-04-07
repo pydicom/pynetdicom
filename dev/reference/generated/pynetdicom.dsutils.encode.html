@@ -101,6 +101,7 @@
 <li class="toctree-l1"><a class="reference internal" href="../../hanging_protocol_service_class.html">Hanging Protocol Query/Retrieve Service Class</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../../implant_template_service_class.html">Implant Template Query/Retrieve Service Class</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../../display_system_service_class.html">Display System Management Service Class</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../modality_performed_procedure_step.html">Modality Performed Procedure Step Management</a></li>
 </ul>
 <ul>
 <li class="toctree-l1"><a class="reference internal" href="../../user/index.html">User Guide</a></li>
@@ -178,28 +179,24 @@
 <h1>pynetdicom.dsutils.encode<a class="headerlink" href="#pynetdicom-dsutils-encode" title="Permalink to this headline">¶</a></h1>
 <dl class="function">
 <dt id="pynetdicom.dsutils.encode">
-<code class="descclassname">pynetdicom.dsutils.</code><code class="descname">encode</code><span class="sig-paren">(</span><em>ds</em>, <em>is_implicit_vr</em>, <em>is_little_endian</em><span class="sig-paren">)</span><a class="reference internal" href="../../_modules/pynetdicom/dsutils.html#encode"><span class="viewcode-link">[source]</span></a><a class="reference external" href="https://github.com/pydicom/pynetdicom/blob/9250bb91/pynetdicom/dsutils.py#L43"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pynetdicom.dsutils.encode" title="Permalink to this definition">¶</a></dt>
+<code class="descclassname">pynetdicom.dsutils.</code><code class="descname">encode</code><span class="sig-paren">(</span><em>ds</em>, <em>is_implicit_vr</em>, <em>is_little_endian</em><span class="sig-paren">)</span><a class="reference internal" href="../../_modules/pynetdicom/dsutils.html#encode"><span class="viewcode-link">[source]</span></a><a class="reference external" href="https://github.com/pydicom/pynetdicom/blob/ff79e00f/pynetdicom/dsutils.py#L43"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pynetdicom.dsutils.encode" title="Permalink to this definition">¶</a></dt>
 <dd><p>Encode a pydicom Dataset <cite>ds</cite> to bytes.</p>
-<table class="docutils field-list" frame="void" rules="none">
-<col class="field-name" />
-<col class="field-body" />
-<tbody valign="top">
-<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first simple">
-<li><strong>ds</strong> (<a class="reference external" href="https://pydicom.github.io/pydicom/stable/api_ref.html#pydicom.dataset.Dataset" title="(in pydicom v1.2.0rc1)"><em>pydicom.dataset.Dataset</em></a>) – The dataset to encode</li>
-<li><strong>is_implicit_vr</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#bool" title="(in Python v3.7)"><em>bool</em></a>) – The element encoding scheme the dataset will be encoded with.</li>
-<li><strong>is_little_endian</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#bool" title="(in Python v3.7)"><em>bool</em></a>) – The byte ordering the dataset will be encoded in.</li>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>ds</strong> (<a class="reference external" href="https://pydicom.github.io/pydicom/stable/api_ref.html#pydicom.dataset.Dataset" title="(in pydicom v1.2.0rc1)"><em>pydicom.dataset.Dataset</em></a>) – The dataset to encode</p></li>
+<li><p><strong>is_implicit_vr</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#bool" title="(in Python v3.7)"><em>bool</em></a>) – The element encoding scheme the dataset will be encoded with.</p></li>
+<li><p><strong>is_little_endian</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#bool" title="(in Python v3.7)"><em>bool</em></a>) – The byte ordering the dataset will be encoded in.</p></li>
 </ul>
-</td>
-</tr>
-<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body"><p class="first">The encoded dataset as <code class="docutils literal notranslate"><span class="pre">bytes</span></code> (if successful) or <code class="docutils literal notranslate"><span class="pre">None</span></code> if the
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p>The encoded dataset as <code class="docutils literal notranslate"><span class="pre">bytes</span></code> (if successful) or <code class="docutils literal notranslate"><span class="pre">None</span></code> if the
 encoding failed.</p>
-</td>
-</tr>
-<tr class="field-odd field"><th class="field-name">Return type:</th><td class="field-body"><p class="first last"><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#bytes" title="(in Python v3.7)">bytes</a> or <a class="reference external" href="https://docs.python.org/3/library/constants.html#None" title="(in Python v3.7)">None</a></p>
-</td>
-</tr>
-</tbody>
-</table>
+</dd>
+<dt class="field-odd">Return type</dt>
+<dd class="field-odd"><p><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#bytes" title="(in Python v3.7)">bytes</a> or <a class="reference external" href="https://docs.python.org/3/library/constants.html#None" title="(in Python v3.7)">None</a></p>
+</dd>
+</dl>
 </dd></dl>
 
 </div>

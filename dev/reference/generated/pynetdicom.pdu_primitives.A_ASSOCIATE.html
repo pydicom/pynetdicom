@@ -101,6 +101,7 @@
 <li class="toctree-l1"><a class="reference internal" href="../../hanging_protocol_service_class.html">Hanging Protocol Query/Retrieve Service Class</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../../implant_template_service_class.html">Implant Template Query/Retrieve Service Class</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../../display_system_service_class.html">Display System Management Service Class</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../modality_performed_procedure_step.html">Modality Performed Procedure Step Management</a></li>
 </ul>
 <ul>
 <li class="toctree-l1"><a class="reference internal" href="../../user/index.html">User Guide</a></li>
@@ -178,7 +179,7 @@
 <h1>pynetdicom.pdu_primitives.A_ASSOCIATE<a class="headerlink" href="#pynetdicom-pdu-primitives-a-associate" title="Permalink to this headline">¶</a></h1>
 <dl class="class">
 <dt id="pynetdicom.pdu_primitives.A_ASSOCIATE">
-<em class="property">class </em><code class="descclassname">pynetdicom.pdu_primitives.</code><code class="descname">A_ASSOCIATE</code><a class="reference internal" href="../../_modules/pynetdicom/pdu_primitives.html#A_ASSOCIATE"><span class="viewcode-link">[source]</span></a><a class="reference external" href="https://github.com/pydicom/pynetdicom/blob/9250bb91/pynetdicom/pdu_primitives.py#L44"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pynetdicom.pdu_primitives.A_ASSOCIATE" title="Permalink to this definition">¶</a></dt>
+<em class="property">class </em><code class="descclassname">pynetdicom.pdu_primitives.</code><code class="descname">A_ASSOCIATE</code><a class="reference internal" href="../../_modules/pynetdicom/pdu_primitives.html#A_ASSOCIATE"><span class="viewcode-link">[source]</span></a><a class="reference external" href="https://github.com/pydicom/pynetdicom/blob/ff79e00f/pynetdicom/pdu_primitives.py#L44"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pynetdicom.pdu_primitives.A_ASSOCIATE" title="Permalink to this definition">¶</a></dt>
 <dd><p>An A-ASSOCIATE primitive.</p>
 <p>The establishment of an association between two AEs shall be performed
 through ACSE A-ASSOCIATE request, indication, response and confirmation
@@ -194,114 +195,114 @@ the -rq, -ac, -rj possibilities rather than creating a new
 AssociationInformation class, but it would require maintaining the instance
 across the request-accept/reject path</p>
 <ul class="simple">
-<li>-rq = no Result value</li>
-<li>-ac = Result of 0x00</li>
-<li>-rj = Result != 0x00</li>
+<li><p>-rq = no Result value</p></li>
+<li><p>-ac = Result of 0x00</p></li>
+<li><p>-rj = Result != 0x00</p></li>
 </ul>
-<table border="1" class="docutils">
+<table class="docutils align-center">
 <colgroup>
-<col width="29%" />
-<col width="14%" />
-<col width="19%" />
-<col width="16%" />
-<col width="22%" />
+<col style="width: 29%" />
+<col style="width: 14%" />
+<col style="width: 19%" />
+<col style="width: 16%" />
+<col style="width: 22%" />
 </colgroup>
-<tbody valign="top">
-<tr class="row-odd"><td>Parameter</td>
-<td>Request</td>
-<td>Indication</td>
-<td>Response</td>
-<td>Confirmation</td>
+<tbody>
+<tr class="row-odd"><td><p>Parameter</p></td>
+<td><p>Request</p></td>
+<td><p>Indication</p></td>
+<td><p>Response</p></td>
+<td><p>Confirmation</p></td>
 </tr>
-<tr class="row-even"><td>app context name</td>
-<td>M</td>
-<td>M(=)</td>
-<td>M</td>
-<td>M(=)</td>
+<tr class="row-even"><td><p>app context name</p></td>
+<td><p>M</p></td>
+<td><p>M(=)</p></td>
+<td><p>M</p></td>
+<td><p>M(=)</p></td>
 </tr>
-<tr class="row-odd"><td>calling ae title</td>
-<td>M</td>
-<td>M(=)</td>
-<td>M</td>
-<td>M(=)</td>
+<tr class="row-odd"><td><p>calling ae title</p></td>
+<td><p>M</p></td>
+<td><p>M(=)</p></td>
+<td><p>M</p></td>
+<td><p>M(=)</p></td>
 </tr>
-<tr class="row-even"><td>called ae title</td>
-<td>M</td>
-<td>M(=)</td>
-<td>M</td>
-<td>M(=)</td>
+<tr class="row-even"><td><p>called ae title</p></td>
+<td><p>M</p></td>
+<td><p>M(=)</p></td>
+<td><p>M</p></td>
+<td><p>M(=)</p></td>
 </tr>
-<tr class="row-odd"><td>user info</td>
-<td>M</td>
-<td>M(=)</td>
-<td>M</td>
-<td>M(=)</td>
+<tr class="row-odd"><td><p>user info</p></td>
+<td><p>M</p></td>
+<td><p>M(=)</p></td>
+<td><p>M</p></td>
+<td><p>M(=)</p></td>
 </tr>
-<tr class="row-even"><td>result</td>
-<td>&#160;</td>
-<td>&#160;</td>
-<td>M</td>
-<td>M(=)</td>
+<tr class="row-even"><td><p>result</p></td>
+<td></td>
+<td></td>
+<td><p>M</p></td>
+<td><p>M(=)</p></td>
 </tr>
-<tr class="row-odd"><td>source</td>
-<td>&#160;</td>
-<td>&#160;</td>
-<td>&#160;</td>
-<td>M</td>
+<tr class="row-odd"><td><p>source</p></td>
+<td></td>
+<td></td>
+<td></td>
+<td><p>M</p></td>
 </tr>
-<tr class="row-even"><td>diagnostic</td>
-<td>&#160;</td>
-<td>&#160;</td>
-<td>U</td>
-<td>C(=)</td>
+<tr class="row-even"><td><p>diagnostic</p></td>
+<td></td>
+<td></td>
+<td><p>U</p></td>
+<td><p>C(=)</p></td>
 </tr>
-<tr class="row-odd"><td>calling pres add</td>
-<td>M</td>
-<td>M(=)</td>
-<td>&#160;</td>
-<td>&#160;</td>
+<tr class="row-odd"><td><p>calling pres add</p></td>
+<td><p>M</p></td>
+<td><p>M(=)</p></td>
+<td></td>
+<td></td>
 </tr>
-<tr class="row-even"><td>called pres add</td>
-<td>M</td>
-<td>M(=)</td>
-<td>&#160;</td>
-<td>&#160;</td>
+<tr class="row-even"><td><p>called pres add</p></td>
+<td><p>M</p></td>
+<td><p>M(=)</p></td>
+<td></td>
+<td></td>
 </tr>
-<tr class="row-odd"><td>pres contxt list</td>
-<td>M</td>
-<td>M(=)</td>
-<td>&#160;</td>
-<td>&#160;</td>
+<tr class="row-odd"><td><p>pres contxt list</p></td>
+<td><p>M</p></td>
+<td><p>M(=)</p></td>
+<td></td>
+<td></td>
 </tr>
-<tr class="row-even"><td>pres list result</td>
-<td>&#160;</td>
-<td>&#160;</td>
-<td>M</td>
-<td>M(=)</td>
+<tr class="row-even"><td><p>pres list result</p></td>
+<td></td>
+<td></td>
+<td><p>M</p></td>
+<td><p>M(=)</p></td>
 </tr>
-<tr class="row-odd"><td>mode</td>
-<td>UF</td>
-<td>MF(=)</td>
-<td>&#160;</td>
-<td>&#160;</td>
+<tr class="row-odd"><td><p>mode</p></td>
+<td><p>UF</p></td>
+<td><p>MF(=)</p></td>
+<td></td>
+<td></td>
 </tr>
-<tr class="row-even"><td>resp ae title</td>
-<td>&#160;</td>
-<td>&#160;</td>
-<td>MF</td>
-<td>MF(=)</td>
+<tr class="row-even"><td><p>resp ae title</p></td>
+<td></td>
+<td></td>
+<td><p>MF</p></td>
+<td><p>MF(=)</p></td>
 </tr>
-<tr class="row-odd"><td>resp pres add</td>
-<td>&#160;</td>
-<td>&#160;</td>
-<td>MF</td>
-<td>MF(=)</td>
+<tr class="row-odd"><td><p>resp pres add</p></td>
+<td></td>
+<td></td>
+<td><p>MF</p></td>
+<td><p>MF(=)</p></td>
 </tr>
-<tr class="row-even"><td>pres/sess req</td>
-<td>UF</td>
-<td>UF(=)</td>
-<td>UF</td>
-<td>UF(=)</td>
+<tr class="row-even"><td><p>pres/sess req</p></td>
+<td><p>UF</p></td>
+<td><p>UF(=)</p></td>
+<td><p>UF</p></td>
+<td><p>UF(=)</p></td>
 </tr>
 </tbody>
 </table>
@@ -322,45 +323,42 @@ primitive to Requestor</p>
 The DICOM UL providers communicate with each other using PDUs over TCP/IP</p>
 <p><strong>Service Procedure</strong></p>
 <ol class="arabic simple">
-<li>An AE (DICOM UL service user) that desires the establish an association
+<li><p>An AE (DICOM UL service user) that desires the establish an association
 issues an A-ASSOCIATE request primitive to the DICOM UL service
 provider. The Requestor shall not issue any primitives except the
 A-ABORT request primitive until it receives an A-ASSOCIATE confirmation
-primitive.</li>
-<li>The DICOM UL service provider issues an A-ASSOCIATE indication primitive
-to the called AE</li>
-<li>The called AE shall accept or reject the association by sending an
+primitive.</p></li>
+<li><p>The DICOM UL service provider issues an A-ASSOCIATE indication primitive
+to the called AE</p></li>
+<li><p>The called AE shall accept or reject the association by sending an
 A-ASSOCIATE response primitive with an appropriate Result parameter. The
 DICOM UL service provider shall issue an A-ASSOCIATE confirmation
 primitive having the same Result parameter. The Result Source parameter
-shall be assigned “UL service-user”</li>
-<li>If the Acceptor accepts the association, it is established and is
-available for use. DIMSE messages can now be exchanged.</li>
-<li>If the Acceptor rejects the association, it shall not be established and
-is not available for use</li>
-<li>If the DICOM UL service provider is not capable of supporting the
+shall be assigned “UL service-user”</p></li>
+<li><p>If the Acceptor accepts the association, it is established and is
+available for use. DIMSE messages can now be exchanged.</p></li>
+<li><p>If the Acceptor rejects the association, it shall not be established and
+is not available for use</p></li>
+<li><p>If the DICOM UL service provider is not capable of supporting the
 requested association it shall return an A-ASSOCIATE confirmation
 primitive to the Requestor with an appropriate Result parameter
 (rejected). The Result Source parameter shall be assigned either
 UL service provider (ACSE) or UL service provider (Presentation).
 The indication primitive shall not be issued. The association shall not
-be established.</li>
-<li>Either Requestor or Acceptor may disrupt the Service Procedure by
+be established.</p></li>
+<li><p>Either Requestor or Acceptor may disrupt the Service Procedure by
 issuing an A-ABORT request primitive. The remote AE receives an A-ABORT
-indication primitive. The association shall not be established</li>
+indication primitive. The association shall not be established</p></li>
 </ol>
 <dl class="attribute">
 <dt id="pynetdicom.pdu_primitives.A_ASSOCIATE.mode">
 <code class="descname">mode</code><a class="headerlink" href="#pynetdicom.pdu_primitives.A_ASSOCIATE.mode" title="Permalink to this definition">¶</a></dt>
 <dd><p>Fixed value of “normal”</p>
-<table class="docutils field-list" frame="void" rules="none">
-<col class="field-name" />
-<col class="field-body" />
-<tbody valign="top">
-<tr class="field-odd field"><th class="field-name">Type:</th><td class="field-body"><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.7)">str</a></td>
-</tr>
-</tbody>
-</table>
+<dl class="field-list simple">
+<dt class="field-odd">Type</dt>
+<dd class="field-odd"><p><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.7)">str</a></p>
+</dd>
+</dl>
 </dd></dl>
 
 <dl class="attribute">
@@ -371,14 +369,11 @@ returns either the same or a different name. Returned name specifies
 the application context used for the Association. See PS3.8 Annex A.
 The application context name shall be a valid UID or UID string and for
 version 3 of the DICOM Standard should be ‘1.2.840.10008.3.1.1.1’</p>
-<table class="docutils field-list" frame="void" rules="none">
-<col class="field-name" />
-<col class="field-body" />
-<tbody valign="top">
-<tr class="field-odd field"><th class="field-name">Type:</th><td class="field-body"><a class="reference external" href="https://pydicom.github.io/pydicom/stable/api_ref.html#pydicom.uid.UID" title="(in pydicom v1.2.0rc1)">pydicom.uid.UID</a>, <a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#bytes" title="(in Python v3.7)">bytes</a> or <a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.7)">str</a></td>
-</tr>
-</tbody>
-</table>
+<dl class="field-list simple">
+<dt class="field-odd">Type</dt>
+<dd class="field-odd"><p><a class="reference external" href="https://pydicom.github.io/pydicom/stable/api_ref.html#pydicom.uid.UID" title="(in pydicom v1.2.0rc1)">pydicom.uid.UID</a>, <a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#bytes" title="(in Python v3.7)">bytes</a> or <a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.7)">str</a></p>
+</dd>
+</dl>
 </dd></dl>
 
 <dl class="attribute">
@@ -386,14 +381,11 @@ version 3 of the DICOM Standard should be ‘1.2.840.10008.3.1.1.1’</p>
 <code class="descname">calling_ae_title</code><a class="headerlink" href="#pynetdicom.pdu_primitives.A_ASSOCIATE.calling_ae_title" title="Permalink to this definition">¶</a></dt>
 <dd><p>Identifies the Requestor of the A-ASSOCIATE service. Must be a valid
 AE</p>
-<table class="docutils field-list" frame="void" rules="none">
-<col class="field-name" />
-<col class="field-body" />
-<tbody valign="top">
-<tr class="field-odd field"><th class="field-name">Type:</th><td class="field-body"><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.7)">str</a> or <a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#bytes" title="(in Python v3.7)">bytes</a></td>
-</tr>
-</tbody>
-</table>
+<dl class="field-list simple">
+<dt class="field-odd">Type</dt>
+<dd class="field-odd"><p><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.7)">str</a> or <a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#bytes" title="(in Python v3.7)">bytes</a></p>
+</dd>
+</dl>
 </dd></dl>
 
 <dl class="attribute">
@@ -401,14 +393,11 @@ AE</p>
 <code class="descname">called_ae_title</code><a class="headerlink" href="#pynetdicom.pdu_primitives.A_ASSOCIATE.called_ae_title" title="Permalink to this definition">¶</a></dt>
 <dd><p>Identifies the intended Acceptor of the A-ASSOCIATE service. Must be a
 valid AE</p>
-<table class="docutils field-list" frame="void" rules="none">
-<col class="field-name" />
-<col class="field-body" />
-<tbody valign="top">
-<tr class="field-odd field"><th class="field-name">Type:</th><td class="field-body"><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.7)">str</a> or <a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#bytes" title="(in Python v3.7)">bytes</a></td>
-</tr>
-</tbody>
-</table>
+<dl class="field-list simple">
+<dt class="field-odd">Type</dt>
+<dd class="field-odd"><p><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.7)">str</a> or <a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#bytes" title="(in Python v3.7)">bytes</a></p>
+</dd>
+</dl>
 </dd></dl>
 
 <dl class="attribute">
@@ -417,14 +406,11 @@ valid AE</p>
 <dd><p>Identifies the AE that contains the actual acceptor of the
 A-ASSOCIATE service. Shall always contain the same value as the
 Called AE Title of the A-ASSOCIATE indication</p>
-<table class="docutils field-list" frame="void" rules="none">
-<col class="field-name" />
-<col class="field-body" />
-<tbody valign="top">
-<tr class="field-odd field"><th class="field-name">Type:</th><td class="field-body"><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.7)">str</a> or <a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#bytes" title="(in Python v3.7)">bytes</a></td>
-</tr>
-</tbody>
-</table>
+<dl class="field-list simple">
+<dt class="field-odd">Type</dt>
+<dd class="field-odd"><p><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.7)">str</a> or <a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#bytes" title="(in Python v3.7)">bytes</a></p>
+</dd>
+</dl>
 </dd></dl>
 
 <dl class="attribute">
@@ -432,14 +418,11 @@ Called AE Title of the A-ASSOCIATE indication</p>
 <code class="descname">user_information</code><a class="headerlink" href="#pynetdicom.pdu_primitives.A_ASSOCIATE.user_information" title="Permalink to this definition">¶</a></dt>
 <dd><p>Used by Requestor and Acceptor to include AE user information. See
 PS3.8 Annex D and PS3.7 Annex D.3</p>
-<table class="docutils field-list" frame="void" rules="none">
-<col class="field-name" />
-<col class="field-body" />
-<tbody valign="top">
-<tr class="field-odd field"><th class="field-name">Type:</th><td class="field-body"><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#list" title="(in Python v3.7)">list</a></td>
-</tr>
-</tbody>
-</table>
+<dl class="field-list simple">
+<dt class="field-odd">Type</dt>
+<dd class="field-odd"><p><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#list" title="(in Python v3.7)">list</a></p>
+</dd>
+</dl>
 </dd></dl>
 
 <dl class="attribute">
@@ -450,18 +433,15 @@ service provider (ACSE related) or the UL service provider
 (Presentation related). Indicates the result of the A-ASSOCIATE
 service. Allowed values are:</p>
 <ul class="simple">
-<li>0: accepted</li>
-<li>1: rejected (permanent)</li>
-<li>2: rejected (transient)</li>
+<li><p>0: accepted</p></li>
+<li><p>1: rejected (permanent)</p></li>
+<li><p>2: rejected (transient)</p></li>
 </ul>
-<table class="docutils field-list" frame="void" rules="none">
-<col class="field-name" />
-<col class="field-body" />
-<tbody valign="top">
-<tr class="field-odd field"><th class="field-name">Type:</th><td class="field-body"><a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.7)">int</a></td>
-</tr>
-</tbody>
-</table>
+<dl class="field-list simple">
+<dt class="field-odd">Type</dt>
+<dd class="field-odd"><p><a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.7)">int</a></p>
+</dd>
+</dl>
 </dd></dl>
 
 <dl class="attribute">
@@ -470,18 +450,15 @@ service. Allowed values are:</p>
 <dd><p>Identifies the creating source of the Result and Diagnostic parameters
 Allowed values are:</p>
 <ul class="simple">
-<li>0: UL service-user</li>
-<li>1: UL service-provider (ACSE related function)</li>
-<li>2: UL service-provider (presentation related function)</li>
+<li><p>0: UL service-user</p></li>
+<li><p>1: UL service-provider (ACSE related function)</p></li>
+<li><p>2: UL service-provider (presentation related function)</p></li>
 </ul>
-<table class="docutils field-list" frame="void" rules="none">
-<col class="field-name" />
-<col class="field-body" />
-<tbody valign="top">
-<tr class="field-odd field"><th class="field-name">Type:</th><td class="field-body"><a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.7)">int</a></td>
-</tr>
-</tbody>
-</table>
+<dl class="field-list simple">
+<dt class="field-odd">Type</dt>
+<dd class="field-odd"><p><a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.7)">int</a></p>
+</dd>
+</dl>
 </dd></dl>
 
 <dl class="attribute">
@@ -492,77 +469,65 @@ Allowed values are:</p>
 result. If <cite>result_source</cite> is 0 “UL service-user” then allowed values
 are:</p>
 <ul class="simple">
-<li>0: no reason given</li>
-<li>1: application context name not supported</li>
-<li>2: calling AE title not recognised</li>
-<li>3: called AE title not recognised</li>
+<li><p>0: no reason given</p></li>
+<li><p>1: application context name not supported</p></li>
+<li><p>2: calling AE title not recognised</p></li>
+<li><p>3: called AE title not recognised</p></li>
 </ul>
 <p>If <cite>result_source</cite> is 1 “UL service-provider (ACSE related function)”
 then allowed values are:</p>
 <ul class="simple">
-<li>0: no reason given</li>
-<li>1: no common UL version</li>
+<li><p>0: no reason given</p></li>
+<li><p>1: no common UL version</p></li>
 </ul>
 <p>If <cite>result_source</cite> is 2 “UL service-provider (presentation related
 function)” then allowed values are:</p>
 <ul class="simple">
-<li>0: no reason given</li>
-<li>1: temporary congestion</li>
-<li>2: local limit exceeded</li>
-<li>3: called presentation address unknown</li>
-<li>4: presentation protocol version not supported</li>
-<li>5: no presentation service access point available</li>
+<li><p>0: no reason given</p></li>
+<li><p>1: temporary congestion</p></li>
+<li><p>2: local limit exceeded</p></li>
+<li><p>3: called presentation address unknown</p></li>
+<li><p>4: presentation protocol version not supported</p></li>
+<li><p>5: no presentation service access point available</p></li>
 </ul>
-<table class="docutils field-list" frame="void" rules="none">
-<col class="field-name" />
-<col class="field-body" />
-<tbody valign="top">
-<tr class="field-odd field"><th class="field-name">Type:</th><td class="field-body"><a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.7)">int</a></td>
-</tr>
-</tbody>
-</table>
+<dl class="field-list simple">
+<dt class="field-odd">Type</dt>
+<dd class="field-odd"><p><a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.7)">int</a></p>
+</dd>
+</dl>
 </dd></dl>
 
 <dl class="attribute">
 <dt id="pynetdicom.pdu_primitives.A_ASSOCIATE.calling_presentation_address">
 <code class="descname">calling_presentation_address</code><a class="headerlink" href="#pynetdicom.pdu_primitives.A_ASSOCIATE.calling_presentation_address" title="Permalink to this definition">¶</a></dt>
 <dd><p>TCP/IP address of the Requestor</p>
-<table class="docutils field-list" frame="void" rules="none">
-<col class="field-name" />
-<col class="field-body" />
-<tbody valign="top">
-<tr class="field-odd field"><th class="field-name">Type:</th><td class="field-body"><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.7)">str</a></td>
-</tr>
-</tbody>
-</table>
+<dl class="field-list simple">
+<dt class="field-odd">Type</dt>
+<dd class="field-odd"><p><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.7)">str</a></p>
+</dd>
+</dl>
 </dd></dl>
 
 <dl class="attribute">
 <dt id="pynetdicom.pdu_primitives.A_ASSOCIATE.called_presentation_address">
 <code class="descname">called_presentation_address</code><a class="headerlink" href="#pynetdicom.pdu_primitives.A_ASSOCIATE.called_presentation_address" title="Permalink to this definition">¶</a></dt>
 <dd><p>TCP/IP address of the intended Acceptor</p>
-<table class="docutils field-list" frame="void" rules="none">
-<col class="field-name" />
-<col class="field-body" />
-<tbody valign="top">
-<tr class="field-odd field"><th class="field-name">Type:</th><td class="field-body"><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.7)">str</a></td>
-</tr>
-</tbody>
-</table>
+<dl class="field-list simple">
+<dt class="field-odd">Type</dt>
+<dd class="field-odd"><p><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.7)">str</a></p>
+</dd>
+</dl>
 </dd></dl>
 
 <dl class="attribute">
 <dt id="pynetdicom.pdu_primitives.A_ASSOCIATE.responding_presentation_address">
 <code class="descname">responding_presentation_address</code><a class="headerlink" href="#pynetdicom.pdu_primitives.A_ASSOCIATE.responding_presentation_address" title="Permalink to this definition">¶</a></dt>
 <dd><p>Shall always contain the same value as the Called Presentation Address</p>
-<table class="docutils field-list" frame="void" rules="none">
-<col class="field-name" />
-<col class="field-body" />
-<tbody valign="top">
-<tr class="field-odd field"><th class="field-name">Type:</th><td class="field-body"><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.7)">str</a></td>
-</tr>
-</tbody>
-</table>
+<dl class="field-list simple">
+<dt class="field-odd">Type</dt>
+<dd class="field-odd"><p><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.7)">str</a></p>
+</dd>
+</dl>
 </dd></dl>
 
 <dl class="attribute">
@@ -572,14 +537,11 @@ function)” then allowed values are:</p>
 a presentation context ID, an Abstract Syntax and a list of one or
 more Transfer Syntax Names. Sent by the Requestor during
 request/indication</p>
-<table class="docutils field-list" frame="void" rules="none">
-<col class="field-name" />
-<col class="field-body" />
-<tbody valign="top">
-<tr class="field-odd field"><th class="field-name">Type:</th><td class="field-body"><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#list" title="(in Python v3.7)">list</a></td>
-</tr>
-</tbody>
-</table>
+<dl class="field-list simple">
+<dt class="field-odd">Type</dt>
+<dd class="field-odd"><p><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#list" title="(in Python v3.7)">list</a></p>
+</dd>
+</dl>
 </dd></dl>
 
 <dl class="attribute">
@@ -593,135 +555,126 @@ Definition List parameter.
 The result values may be sent in any order and may be different than
 the order proposed.
 Only one Transfer Syntax per presentation context shall be agreed to</p>
-<table class="docutils field-list" frame="void" rules="none">
-<col class="field-name" />
-<col class="field-body" />
-<tbody valign="top">
-<tr class="field-odd field"><th class="field-name">Type:</th><td class="field-body"><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#list" title="(in Python v3.7)">list</a></td>
-</tr>
-</tbody>
-</table>
+<dl class="field-list simple">
+<dt class="field-odd">Type</dt>
+<dd class="field-odd"><p><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#list" title="(in Python v3.7)">list</a></p>
+</dd>
+</dl>
 </dd></dl>
 
 <dl class="attribute">
 <dt id="pynetdicom.pdu_primitives.A_ASSOCIATE.presentation_requirements">
 <code class="descname">presentation_requirements</code><a class="headerlink" href="#pynetdicom.pdu_primitives.A_ASSOCIATE.presentation_requirements" title="Permalink to this definition">¶</a></dt>
 <dd><p>Fixed value of “Presentation Kernel”</p>
-<table class="docutils field-list" frame="void" rules="none">
-<col class="field-name" />
-<col class="field-body" />
-<tbody valign="top">
-<tr class="field-odd field"><th class="field-name">Type:</th><td class="field-body"><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.7)">str</a></td>
-</tr>
-</tbody>
-</table>
+<dl class="field-list simple">
+<dt class="field-odd">Type</dt>
+<dd class="field-odd"><p><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.7)">str</a></p>
+</dd>
+</dl>
 </dd></dl>
 
 <dl class="attribute">
 <dt id="pynetdicom.pdu_primitives.A_ASSOCIATE.session_requirements">
 <code class="descname">session_requirements</code><a class="headerlink" href="#pynetdicom.pdu_primitives.A_ASSOCIATE.session_requirements" title="Permalink to this definition">¶</a></dt>
 <dd><p>Fixed value of “” (empty string)</p>
-<table class="docutils field-list" frame="void" rules="none">
-<col class="field-name" />
-<col class="field-body" />
-<tbody valign="top">
-<tr class="field-odd field"><th class="field-name">Type:</th><td class="field-body"><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.7)">str</a></td>
-</tr>
-</tbody>
-</table>
+<dl class="field-list simple">
+<dt class="field-odd">Type</dt>
+<dd class="field-odd"><p><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.7)">str</a></p>
+</dd>
+</dl>
 </dd></dl>
 
 <p class="rubric">References</p>
 <ul class="simple">
-<li>DICOM Standard, Part 8, Section 7.1.1</li>
+<li><p>DICOM Standard, Part 8, Section 7.1.1</p></li>
 </ul>
 <dl class="method">
 <dt id="pynetdicom.pdu_primitives.A_ASSOCIATE.__init__">
-<code class="descname">__init__</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="../../_modules/pynetdicom/pdu_primitives.html#A_ASSOCIATE.__init__"><span class="viewcode-link">[source]</span></a><a class="reference external" href="https://github.com/pydicom/pynetdicom/blob/9250bb91/pynetdicom/pdu_primitives.py#L250"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pynetdicom.pdu_primitives.A_ASSOCIATE.__init__" title="Permalink to this definition">¶</a></dt>
+<code class="descname">__init__</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="../../_modules/pynetdicom/pdu_primitives.html#A_ASSOCIATE.__init__"><span class="viewcode-link">[source]</span></a><a class="reference external" href="https://github.com/pydicom/pynetdicom/blob/ff79e00f/pynetdicom/pdu_primitives.py#L250"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pynetdicom.pdu_primitives.A_ASSOCIATE.__init__" title="Permalink to this definition">¶</a></dt>
 <dd><p>Initialize self.  See help(type(self)) for accurate signature.</p>
 </dd></dl>
 
 <p class="rubric">Methods</p>
-<table border="1" class="longtable docutils">
+<table class="longtable docutils align-center">
 <colgroup>
-<col width="10%" />
-<col width="90%" />
+<col style="width: 10%" />
+<col style="width: 90%" />
 </colgroup>
-<tbody valign="top">
-<tr class="row-odd"><td><a class="reference internal" href="#pynetdicom.pdu_primitives.A_ASSOCIATE.__init__" title="pynetdicom.pdu_primitives.A_ASSOCIATE.__init__"><code class="xref py py-obj docutils literal notranslate"><span class="pre">__init__</span></code></a>()</td>
-<td>Initialize self.</td>
+<tbody>
+<tr class="row-odd"><td><p><a class="reference internal" href="#pynetdicom.pdu_primitives.A_ASSOCIATE.__init__" title="pynetdicom.pdu_primitives.A_ASSOCIATE.__init__"><code class="xref py py-obj docutils literal notranslate"><span class="pre">__init__</span></code></a>()</p></td>
+<td><p>Initialize self.</p></td>
 </tr>
 </tbody>
 </table>
 <p class="rubric">Attributes</p>
-<table border="1" class="longtable docutils">
+<table class="longtable docutils align-center">
 <colgroup>
-<col width="10%" />
-<col width="90%" />
+<col style="width: 10%" />
+<col style="width: 90%" />
 </colgroup>
-<tbody valign="top">
-<tr class="row-odd"><td><a class="reference internal" href="#pynetdicom.pdu_primitives.A_ASSOCIATE.application_context_name" title="pynetdicom.pdu_primitives.A_ASSOCIATE.application_context_name"><code class="xref py py-obj docutils literal notranslate"><span class="pre">application_context_name</span></code></a></td>
-<td>Return the Application Context Name parameter.</td>
+<tbody>
+<tr class="row-odd"><td><p><a class="reference internal" href="#pynetdicom.pdu_primitives.A_ASSOCIATE.application_context_name" title="pynetdicom.pdu_primitives.A_ASSOCIATE.application_context_name"><code class="xref py py-obj docutils literal notranslate"><span class="pre">application_context_name</span></code></a></p></td>
+<td><p>Return the Application Context Name parameter.</p></td>
 </tr>
-<tr class="row-even"><td><a class="reference internal" href="#pynetdicom.pdu_primitives.A_ASSOCIATE.called_ae_title" title="pynetdicom.pdu_primitives.A_ASSOCIATE.called_ae_title"><code class="xref py py-obj docutils literal notranslate"><span class="pre">called_ae_title</span></code></a></td>
-<td>Return the Called AE Title parameter.</td>
+<tr class="row-even"><td><p><a class="reference internal" href="#pynetdicom.pdu_primitives.A_ASSOCIATE.called_ae_title" title="pynetdicom.pdu_primitives.A_ASSOCIATE.called_ae_title"><code class="xref py py-obj docutils literal notranslate"><span class="pre">called_ae_title</span></code></a></p></td>
+<td><p>Return the Called AE Title parameter.</p></td>
 </tr>
-<tr class="row-odd"><td><a class="reference internal" href="#pynetdicom.pdu_primitives.A_ASSOCIATE.called_presentation_address" title="pynetdicom.pdu_primitives.A_ASSOCIATE.called_presentation_address"><code class="xref py py-obj docutils literal notranslate"><span class="pre">called_presentation_address</span></code></a></td>
-<td>Return the Called Presentation Address parameter.</td>
+<tr class="row-odd"><td><p><a class="reference internal" href="#pynetdicom.pdu_primitives.A_ASSOCIATE.called_presentation_address" title="pynetdicom.pdu_primitives.A_ASSOCIATE.called_presentation_address"><code class="xref py py-obj docutils literal notranslate"><span class="pre">called_presentation_address</span></code></a></p></td>
+<td><p>Return the Called Presentation Address parameter.</p></td>
 </tr>
-<tr class="row-even"><td><a class="reference internal" href="#pynetdicom.pdu_primitives.A_ASSOCIATE.calling_ae_title" title="pynetdicom.pdu_primitives.A_ASSOCIATE.calling_ae_title"><code class="xref py py-obj docutils literal notranslate"><span class="pre">calling_ae_title</span></code></a></td>
-<td>Return the Calling AE Title parameter.</td>
+<tr class="row-even"><td><p><a class="reference internal" href="#pynetdicom.pdu_primitives.A_ASSOCIATE.calling_ae_title" title="pynetdicom.pdu_primitives.A_ASSOCIATE.calling_ae_title"><code class="xref py py-obj docutils literal notranslate"><span class="pre">calling_ae_title</span></code></a></p></td>
+<td><p>Return the Calling AE Title parameter.</p></td>
 </tr>
-<tr class="row-odd"><td><a class="reference internal" href="#pynetdicom.pdu_primitives.A_ASSOCIATE.calling_presentation_address" title="pynetdicom.pdu_primitives.A_ASSOCIATE.calling_presentation_address"><code class="xref py py-obj docutils literal notranslate"><span class="pre">calling_presentation_address</span></code></a></td>
-<td>Return the Calling Presentation Address parameter.</td>
+<tr class="row-odd"><td><p><a class="reference internal" href="#pynetdicom.pdu_primitives.A_ASSOCIATE.calling_presentation_address" title="pynetdicom.pdu_primitives.A_ASSOCIATE.calling_presentation_address"><code class="xref py py-obj docutils literal notranslate"><span class="pre">calling_presentation_address</span></code></a></p></td>
+<td><p>Return the Calling Presentation Address parameter.</p></td>
 </tr>
-<tr class="row-even"><td><a class="reference internal" href="#pynetdicom.pdu_primitives.A_ASSOCIATE.diagnostic" title="pynetdicom.pdu_primitives.A_ASSOCIATE.diagnostic"><code class="xref py py-obj docutils literal notranslate"><span class="pre">diagnostic</span></code></a></td>
-<td>Return the Diagnostic parameter.</td>
+<tr class="row-even"><td><p><a class="reference internal" href="#pynetdicom.pdu_primitives.A_ASSOCIATE.diagnostic" title="pynetdicom.pdu_primitives.A_ASSOCIATE.diagnostic"><code class="xref py py-obj docutils literal notranslate"><span class="pre">diagnostic</span></code></a></p></td>
+<td><p>Return the Diagnostic parameter.</p></td>
 </tr>
-<tr class="row-odd"><td><a class="reference internal" href="#pynetdicom.pdu_primitives.A_ASSOCIATE.implementation_class_uid" title="pynetdicom.pdu_primitives.A_ASSOCIATE.implementation_class_uid"><code class="xref py py-obj docutils literal notranslate"><span class="pre">implementation_class_uid</span></code></a></td>
-<td>Return the Implementation Class UID.</td>
+<tr class="row-odd"><td><p><a class="reference internal" href="#pynetdicom.pdu_primitives.A_ASSOCIATE.implementation_class_uid" title="pynetdicom.pdu_primitives.A_ASSOCIATE.implementation_class_uid"><code class="xref py py-obj docutils literal notranslate"><span class="pre">implementation_class_uid</span></code></a></p></td>
+<td><p>Return the Implementation Class UID.</p></td>
 </tr>
-<tr class="row-even"><td><a class="reference internal" href="#pynetdicom.pdu_primitives.A_ASSOCIATE.maximum_length_received" title="pynetdicom.pdu_primitives.A_ASSOCIATE.maximum_length_received"><code class="xref py py-obj docutils literal notranslate"><span class="pre">maximum_length_received</span></code></a></td>
-<td>Get the Maximum Length Received.</td>
+<tr class="row-even"><td><p><a class="reference internal" href="#pynetdicom.pdu_primitives.A_ASSOCIATE.maximum_length_received" title="pynetdicom.pdu_primitives.A_ASSOCIATE.maximum_length_received"><code class="xref py py-obj docutils literal notranslate"><span class="pre">maximum_length_received</span></code></a></p></td>
+<td><p>Get the Maximum Length Received.</p></td>
 </tr>
-<tr class="row-odd"><td><a class="reference internal" href="#pynetdicom.pdu_primitives.A_ASSOCIATE.mode" title="pynetdicom.pdu_primitives.A_ASSOCIATE.mode"><code class="xref py py-obj docutils literal notranslate"><span class="pre">mode</span></code></a></td>
-<td>Return the Mode parameter.</td>
+<tr class="row-odd"><td><p><a class="reference internal" href="#pynetdicom.pdu_primitives.A_ASSOCIATE.mode" title="pynetdicom.pdu_primitives.A_ASSOCIATE.mode"><code class="xref py py-obj docutils literal notranslate"><span class="pre">mode</span></code></a></p></td>
+<td><p>Return the Mode parameter.</p></td>
 </tr>
-<tr class="row-even"><td><a class="reference internal" href="#pynetdicom.pdu_primitives.A_ASSOCIATE.presentation_context_definition_list" title="pynetdicom.pdu_primitives.A_ASSOCIATE.presentation_context_definition_list"><code class="xref py py-obj docutils literal notranslate"><span class="pre">presentation_context_definition_list</span></code></a></td>
-<td>Get the Presentation Context Definition List.</td>
+<tr class="row-even"><td><p><a class="reference internal" href="#pynetdicom.pdu_primitives.A_ASSOCIATE.presentation_context_definition_list" title="pynetdicom.pdu_primitives.A_ASSOCIATE.presentation_context_definition_list"><code class="xref py py-obj docutils literal notranslate"><span class="pre">presentation_context_definition_list</span></code></a></p></td>
+<td><p>Get the Presentation Context Definition List.</p></td>
 </tr>
-<tr class="row-odd"><td><a class="reference internal" href="#pynetdicom.pdu_primitives.A_ASSOCIATE.presentation_context_definition_results_list" title="pynetdicom.pdu_primitives.A_ASSOCIATE.presentation_context_definition_results_list"><code class="xref py py-obj docutils literal notranslate"><span class="pre">presentation_context_definition_results_list</span></code></a></td>
-<td>Get the Presentation Context Definition Results List.</td>
+<tr class="row-odd"><td><p><a class="reference internal" href="#pynetdicom.pdu_primitives.A_ASSOCIATE.presentation_context_definition_results_list" title="pynetdicom.pdu_primitives.A_ASSOCIATE.presentation_context_definition_results_list"><code class="xref py py-obj docutils literal notranslate"><span class="pre">presentation_context_definition_results_list</span></code></a></p></td>
+<td><p>Get the Presentation Context Definition Results List.</p></td>
 </tr>
-<tr class="row-even"><td><a class="reference internal" href="#pynetdicom.pdu_primitives.A_ASSOCIATE.presentation_requirements" title="pynetdicom.pdu_primitives.A_ASSOCIATE.presentation_requirements"><code class="xref py py-obj docutils literal notranslate"><span class="pre">presentation_requirements</span></code></a></td>
-<td>Get the Presentation Kernel.</td>
+<tr class="row-even"><td><p><a class="reference internal" href="#pynetdicom.pdu_primitives.A_ASSOCIATE.presentation_requirements" title="pynetdicom.pdu_primitives.A_ASSOCIATE.presentation_requirements"><code class="xref py py-obj docutils literal notranslate"><span class="pre">presentation_requirements</span></code></a></p></td>
+<td><p>Get the Presentation Kernel.</p></td>
 </tr>
-<tr class="row-odd"><td><a class="reference internal" href="#pynetdicom.pdu_primitives.A_ASSOCIATE.reason_str" title="pynetdicom.pdu_primitives.A_ASSOCIATE.reason_str"><code class="xref py py-obj docutils literal notranslate"><span class="pre">reason_str</span></code></a></td>
-<td>Return the rejection reason as str.</td>
+<tr class="row-odd"><td><p><a class="reference internal" href="#pynetdicom.pdu_primitives.A_ASSOCIATE.reason_str" title="pynetdicom.pdu_primitives.A_ASSOCIATE.reason_str"><code class="xref py py-obj docutils literal notranslate"><span class="pre">reason_str</span></code></a></p></td>
+<td><p>Return the rejection reason as str.</p></td>
 </tr>
-<tr class="row-even"><td><a class="reference internal" href="#pynetdicom.pdu_primitives.A_ASSOCIATE.responding_ae_title" title="pynetdicom.pdu_primitives.A_ASSOCIATE.responding_ae_title"><code class="xref py py-obj docutils literal notranslate"><span class="pre">responding_ae_title</span></code></a></td>
-<td>Return the Responding AE Title parameter.</td>
+<tr class="row-even"><td><p><a class="reference internal" href="#pynetdicom.pdu_primitives.A_ASSOCIATE.responding_ae_title" title="pynetdicom.pdu_primitives.A_ASSOCIATE.responding_ae_title"><code class="xref py py-obj docutils literal notranslate"><span class="pre">responding_ae_title</span></code></a></p></td>
+<td><p>Return the Responding AE Title parameter.</p></td>
 </tr>
-<tr class="row-odd"><td><a class="reference internal" href="#pynetdicom.pdu_primitives.A_ASSOCIATE.responding_presentation_address" title="pynetdicom.pdu_primitives.A_ASSOCIATE.responding_presentation_address"><code class="xref py py-obj docutils literal notranslate"><span class="pre">responding_presentation_address</span></code></a></td>
-<td>Get the Responding Presentation Address parameter.</td>
+<tr class="row-odd"><td><p><a class="reference internal" href="#pynetdicom.pdu_primitives.A_ASSOCIATE.responding_presentation_address" title="pynetdicom.pdu_primitives.A_ASSOCIATE.responding_presentation_address"><code class="xref py py-obj docutils literal notranslate"><span class="pre">responding_presentation_address</span></code></a></p></td>
+<td><p>Get the Responding Presentation Address parameter.</p></td>
 </tr>
-<tr class="row-even"><td><a class="reference internal" href="#pynetdicom.pdu_primitives.A_ASSOCIATE.result" title="pynetdicom.pdu_primitives.A_ASSOCIATE.result"><code class="xref py py-obj docutils literal notranslate"><span class="pre">result</span></code></a></td>
-<td>Return te Result parameter.</td>
+<tr class="row-even"><td><p><a class="reference internal" href="#pynetdicom.pdu_primitives.A_ASSOCIATE.result" title="pynetdicom.pdu_primitives.A_ASSOCIATE.result"><code class="xref py py-obj docutils literal notranslate"><span class="pre">result</span></code></a></p></td>
+<td><p>Return te Result parameter.</p></td>
 </tr>
-<tr class="row-odd"><td><a class="reference internal" href="#pynetdicom.pdu_primitives.A_ASSOCIATE.result_source" title="pynetdicom.pdu_primitives.A_ASSOCIATE.result_source"><code class="xref py py-obj docutils literal notranslate"><span class="pre">result_source</span></code></a></td>
-<td>Return the Result Source parameter.</td>
+<tr class="row-odd"><td><p><a class="reference internal" href="#pynetdicom.pdu_primitives.A_ASSOCIATE.result_source" title="pynetdicom.pdu_primitives.A_ASSOCIATE.result_source"><code class="xref py py-obj docutils literal notranslate"><span class="pre">result_source</span></code></a></p></td>
+<td><p>Return the Result Source parameter.</p></td>
 </tr>
-<tr class="row-even"><td><a class="reference internal" href="#pynetdicom.pdu_primitives.A_ASSOCIATE.result_str" title="pynetdicom.pdu_primitives.A_ASSOCIATE.result_str"><code class="xref py py-obj docutils literal notranslate"><span class="pre">result_str</span></code></a></td>
-<td>Return the result as str.</td>
+<tr class="row-even"><td><p><a class="reference internal" href="#pynetdicom.pdu_primitives.A_ASSOCIATE.result_str" title="pynetdicom.pdu_primitives.A_ASSOCIATE.result_str"><code class="xref py py-obj docutils literal notranslate"><span class="pre">result_str</span></code></a></p></td>
+<td><p>Return the result as str.</p></td>
 </tr>
-<tr class="row-odd"><td><a class="reference internal" href="#pynetdicom.pdu_primitives.A_ASSOCIATE.session_requirements" title="pynetdicom.pdu_primitives.A_ASSOCIATE.session_requirements"><code class="xref py py-obj docutils literal notranslate"><span class="pre">session_requirements</span></code></a></td>
-<td>Get the Session Requirements.</td>
+<tr class="row-odd"><td><p><a class="reference internal" href="#pynetdicom.pdu_primitives.A_ASSOCIATE.session_requirements" title="pynetdicom.pdu_primitives.A_ASSOCIATE.session_requirements"><code class="xref py py-obj docutils literal notranslate"><span class="pre">session_requirements</span></code></a></p></td>
+<td><p>Get the Session Requirements.</p></td>
 </tr>
-<tr class="row-even"><td><a class="reference internal" href="#pynetdicom.pdu_primitives.A_ASSOCIATE.source_str" title="pynetdicom.pdu_primitives.A_ASSOCIATE.source_str"><code class="xref py py-obj docutils literal notranslate"><span class="pre">source_str</span></code></a></td>
-<td>Return the reject source as str.</td>
+<tr class="row-even"><td><p><a class="reference internal" href="#pynetdicom.pdu_primitives.A_ASSOCIATE.source_str" title="pynetdicom.pdu_primitives.A_ASSOCIATE.source_str"><code class="xref py py-obj docutils literal notranslate"><span class="pre">source_str</span></code></a></p></td>
+<td><p>Return the reject source as str.</p></td>
 </tr>
-<tr class="row-odd"><td><a class="reference internal" href="#pynetdicom.pdu_primitives.A_ASSOCIATE.user_information" title="pynetdicom.pdu_primitives.A_ASSOCIATE.user_information"><code class="xref py py-obj docutils literal notranslate"><span class="pre">user_information</span></code></a></td>
-<td>Return the User Information parameter.</td>
+<tr class="row-odd"><td><p><a class="reference internal" href="#pynetdicom.pdu_primitives.A_ASSOCIATE.user_information" title="pynetdicom.pdu_primitives.A_ASSOCIATE.user_information"><code class="xref py py-obj docutils literal notranslate"><span class="pre">user_information</span></code></a></p></td>
+<td><p>Return the User Information parameter.</p></td>
 </tr>
 </tbody>
 </table>

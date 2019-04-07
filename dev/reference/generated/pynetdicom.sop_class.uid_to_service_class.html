@@ -101,6 +101,7 @@
 <li class="toctree-l1"><a class="reference internal" href="../../hanging_protocol_service_class.html">Hanging Protocol Query/Retrieve Service Class</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../../implant_template_service_class.html">Implant Template Query/Retrieve Service Class</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../../display_system_service_class.html">Display System Management Service Class</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../modality_performed_procedure_step.html">Modality Performed Procedure Step Management</a></li>
 </ul>
 <ul>
 <li class="toctree-l1"><a class="reference internal" href="../../user/index.html">User Guide</a></li>
@@ -178,24 +179,21 @@
 <h1>pynetdicom.sop_class.uid_to_service_class<a class="headerlink" href="#pynetdicom-sop-class-uid-to-service-class" title="Permalink to this headline">¶</a></h1>
 <dl class="function">
 <dt id="pynetdicom.sop_class.uid_to_service_class">
-<code class="descclassname">pynetdicom.sop_class.</code><code class="descname">uid_to_service_class</code><span class="sig-paren">(</span><em>uid</em><span class="sig-paren">)</span><a class="reference internal" href="../../_modules/pynetdicom/sop_class.html#uid_to_service_class"><span class="viewcode-link">[source]</span></a><a class="reference external" href="https://github.com/pydicom/pynetdicom/blob/9250bb91/pynetdicom/sop_class.py#L31"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pynetdicom.sop_class.uid_to_service_class" title="Permalink to this definition">¶</a></dt>
+<code class="descclassname">pynetdicom.sop_class.</code><code class="descname">uid_to_service_class</code><span class="sig-paren">(</span><em>uid</em><span class="sig-paren">)</span><a class="reference internal" href="../../_modules/pynetdicom/sop_class.html#uid_to_service_class"><span class="viewcode-link">[source]</span></a><a class="reference external" href="https://github.com/pydicom/pynetdicom/blob/ff79e00f/pynetdicom/sop_class.py#L32"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pynetdicom.sop_class.uid_to_service_class" title="Permalink to this definition">¶</a></dt>
 <dd><p>Return the ServiceClass object corresponding to <cite>uid</cite>.</p>
-<table class="docutils field-list" frame="void" rules="none">
-<col class="field-name" />
-<col class="field-body" />
-<tbody valign="top">
-<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><strong>uid</strong> (<a class="reference external" href="https://pydicom.github.io/pydicom/stable/api_ref.html#pydicom.uid.UID" title="(in pydicom v1.2.0rc1)"><em>pydicom.uid.UID</em></a>) – The SOP or Service Class UID to use to find the corresponding Service
-Class.</td>
-</tr>
-<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body">The Service Class corresponding to the SOP Class UID.</td>
-</tr>
-<tr class="field-odd field"><th class="field-name">Return type:</th><td class="field-body">service_class.ServiceClass</td>
-</tr>
-<tr class="field-even field"><th class="field-name">Raises:</th><td class="field-body"><a class="reference external" href="https://docs.python.org/3/library/exceptions.html#NotImplementedError" title="(in Python v3.7)"><code class="xref py py-exc docutils literal notranslate"><span class="pre">NotImplementedError</span></code></a> – If the Service Class corresponding to the SOP Class <cite>uid</cite> hasn’t been
-implemented.</td>
-</tr>
-</tbody>
-</table>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><p><strong>uid</strong> (<a class="reference external" href="https://pydicom.github.io/pydicom/stable/api_ref.html#pydicom.uid.UID" title="(in pydicom v1.2.0rc1)"><em>pydicom.uid.UID</em></a>) – The SOP or Service Class UID to use to find the corresponding Service
+Class.</p>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p>The Service Class corresponding to the SOP Class UID or the base class
+if support for the SOP Class isn’t implemented.</p>
+</dd>
+<dt class="field-odd">Return type</dt>
+<dd class="field-odd"><p>service_class.ServiceClass</p>
+</dd>
+</dl>
 </dd></dl>
 
 </div>

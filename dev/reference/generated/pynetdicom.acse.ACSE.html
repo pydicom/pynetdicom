@@ -101,6 +101,7 @@
 <li class="toctree-l1"><a class="reference internal" href="../../hanging_protocol_service_class.html">Hanging Protocol Query/Retrieve Service Class</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../../implant_template_service_class.html">Implant Template Query/Retrieve Service Class</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../../display_system_service_class.html">Display System Management Service Class</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../modality_performed_procedure_step.html">Modality Performed Procedure Step Management</a></li>
 </ul>
 <ul>
 <li class="toctree-l1"><a class="reference internal" href="../../user/index.html">User Guide</a></li>
@@ -178,75 +179,72 @@
 <h1>pynetdicom.acse.ACSE<a class="headerlink" href="#pynetdicom-acse-acse" title="Permalink to this headline">¶</a></h1>
 <dl class="class">
 <dt id="pynetdicom.acse.ACSE">
-<em class="property">class </em><code class="descclassname">pynetdicom.acse.</code><code class="descname">ACSE</code><span class="sig-paren">(</span><em>assoc</em><span class="sig-paren">)</span><a class="reference internal" href="../../_modules/pynetdicom/acse.html#ACSE"><span class="viewcode-link">[source]</span></a><a class="reference external" href="https://github.com/pydicom/pynetdicom/blob/9250bb91/pynetdicom/acse.py#L23"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pynetdicom.acse.ACSE" title="Permalink to this definition">¶</a></dt>
+<em class="property">class </em><code class="descclassname">pynetdicom.acse.</code><code class="descname">ACSE</code><span class="sig-paren">(</span><em>assoc</em><span class="sig-paren">)</span><a class="reference internal" href="../../_modules/pynetdicom/acse.html#ACSE"><span class="viewcode-link">[source]</span></a><a class="reference external" href="https://github.com/pydicom/pynetdicom/blob/ff79e00f/pynetdicom/acse.py#L23"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pynetdicom.acse.ACSE" title="Permalink to this definition">¶</a></dt>
 <dd><p>The Association Control Service Element (ACSE) service provider.</p>
 <p>The ACSE protocol handles association establishment, normal release of an
 association and the abnormal release of an association.</p>
 <dl class="method">
 <dt id="pynetdicom.acse.ACSE.__init__">
-<code class="descname">__init__</code><span class="sig-paren">(</span><em>assoc</em><span class="sig-paren">)</span><a class="reference internal" href="../../_modules/pynetdicom/acse.html#ACSE.__init__"><span class="viewcode-link">[source]</span></a><a class="reference external" href="https://github.com/pydicom/pynetdicom/blob/9250bb91/pynetdicom/acse.py#L29"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pynetdicom.acse.ACSE.__init__" title="Permalink to this definition">¶</a></dt>
+<code class="descname">__init__</code><span class="sig-paren">(</span><em>assoc</em><span class="sig-paren">)</span><a class="reference internal" href="../../_modules/pynetdicom/acse.html#ACSE.__init__"><span class="viewcode-link">[source]</span></a><a class="reference external" href="https://github.com/pydicom/pynetdicom/blob/ff79e00f/pynetdicom/acse.py#L29"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pynetdicom.acse.ACSE.__init__" title="Permalink to this definition">¶</a></dt>
 <dd><p>Create the ACSE service provider.</p>
-<table class="docutils field-list" frame="void" rules="none">
-<col class="field-name" />
-<col class="field-body" />
-<tbody valign="top">
-<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><strong>assoc</strong> (<a class="reference internal" href="pynetdicom.association.Association.html#pynetdicom.association.Association" title="pynetdicom.association.Association"><em>association.Association</em></a>) – The Association to provide ACSE services for.</td>
-</tr>
-</tbody>
-</table>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><p><strong>assoc</strong> (<a class="reference internal" href="pynetdicom.association.Association.html#pynetdicom.association.Association" title="pynetdicom.association.Association"><em>association.Association</em></a>) – The Association to provide ACSE services for.</p>
+</dd>
+</dl>
 </dd></dl>
 
 <p class="rubric">Methods</p>
-<table border="1" class="longtable docutils">
+<table class="longtable docutils align-center">
 <colgroup>
-<col width="10%" />
-<col width="90%" />
+<col style="width: 10%" />
+<col style="width: 90%" />
 </colgroup>
-<tbody valign="top">
-<tr class="row-odd"><td><a class="reference internal" href="#pynetdicom.acse.ACSE.__init__" title="pynetdicom.acse.ACSE.__init__"><code class="xref py py-obj docutils literal notranslate"><span class="pre">__init__</span></code></a>(assoc)</td>
-<td>Create the ACSE service provider.</td>
+<tbody>
+<tr class="row-odd"><td><p><a class="reference internal" href="#pynetdicom.acse.ACSE.__init__" title="pynetdicom.acse.ACSE.__init__"><code class="xref py py-obj docutils literal notranslate"><span class="pre">__init__</span></code></a>(assoc)</p></td>
+<td><p>Create the ACSE service provider.</p></td>
 </tr>
-<tr class="row-even"><td><a class="reference internal" href="#pynetdicom.acse.ACSE.is_aborted" title="pynetdicom.acse.ACSE.is_aborted"><code class="xref py py-obj docutils literal notranslate"><span class="pre">is_aborted</span></code></a>(assoc)</td>
-<td>Return True if an A-ABORT or A-P-ABORT request has been received.</td>
+<tr class="row-even"><td><p><a class="reference internal" href="#pynetdicom.acse.ACSE.is_aborted" title="pynetdicom.acse.ACSE.is_aborted"><code class="xref py py-obj docutils literal notranslate"><span class="pre">is_aborted</span></code></a>(assoc)</p></td>
+<td><p>Return True if an A-ABORT or A-P-ABORT request has been received.</p></td>
 </tr>
-<tr class="row-odd"><td><a class="reference internal" href="#pynetdicom.acse.ACSE.is_release_requested" title="pynetdicom.acse.ACSE.is_release_requested"><code class="xref py py-obj docutils literal notranslate"><span class="pre">is_release_requested</span></code></a>(assoc)</td>
-<td>Return True if an A-RELEASE request has been received.</td>
+<tr class="row-odd"><td><p><a class="reference internal" href="#pynetdicom.acse.ACSE.is_release_requested" title="pynetdicom.acse.ACSE.is_release_requested"><code class="xref py py-obj docutils literal notranslate"><span class="pre">is_release_requested</span></code></a>(assoc)</p></td>
+<td><p>Return True if an A-RELEASE request has been received.</p></td>
 </tr>
-<tr class="row-even"><td><a class="reference internal" href="#pynetdicom.acse.ACSE.negotiate_association" title="pynetdicom.acse.ACSE.negotiate_association"><code class="xref py py-obj docutils literal notranslate"><span class="pre">negotiate_association</span></code></a>(assoc)</td>
-<td>Perform an association negotiation as either the requestor or acceptor.</td>
+<tr class="row-even"><td><p><a class="reference internal" href="#pynetdicom.acse.ACSE.negotiate_association" title="pynetdicom.acse.ACSE.negotiate_association"><code class="xref py py-obj docutils literal notranslate"><span class="pre">negotiate_association</span></code></a>(assoc)</p></td>
+<td><p>Perform an association negotiation as either the requestor or acceptor.</p></td>
 </tr>
-<tr class="row-odd"><td><a class="reference internal" href="#pynetdicom.acse.ACSE.negotiate_release" title="pynetdicom.acse.ACSE.negotiate_release"><code class="xref py py-obj docutils literal notranslate"><span class="pre">negotiate_release</span></code></a>(assoc)</td>
-<td>Negotiate association release.</td>
+<tr class="row-odd"><td><p><a class="reference internal" href="#pynetdicom.acse.ACSE.negotiate_release" title="pynetdicom.acse.ACSE.negotiate_release"><code class="xref py py-obj docutils literal notranslate"><span class="pre">negotiate_release</span></code></a>(assoc)</p></td>
+<td><p>Negotiate association release.</p></td>
 </tr>
-<tr class="row-even"><td><a class="reference internal" href="#pynetdicom.acse.ACSE.send_abort" title="pynetdicom.acse.ACSE.send_abort"><code class="xref py py-obj docutils literal notranslate"><span class="pre">send_abort</span></code></a>(assoc,&nbsp;source)</td>
-<td>Send an A-ABORT request to the peer.</td>
+<tr class="row-even"><td><p><a class="reference internal" href="#pynetdicom.acse.ACSE.send_abort" title="pynetdicom.acse.ACSE.send_abort"><code class="xref py py-obj docutils literal notranslate"><span class="pre">send_abort</span></code></a>(assoc, source)</p></td>
+<td><p>Send an A-ABORT request to the peer.</p></td>
 </tr>
-<tr class="row-odd"><td><a class="reference internal" href="#pynetdicom.acse.ACSE.send_accept" title="pynetdicom.acse.ACSE.send_accept"><code class="xref py py-obj docutils literal notranslate"><span class="pre">send_accept</span></code></a>(assoc)</td>
-<td>Send an A-ASSOCIATE (accept) to the peer.</td>
+<tr class="row-odd"><td><p><a class="reference internal" href="#pynetdicom.acse.ACSE.send_accept" title="pynetdicom.acse.ACSE.send_accept"><code class="xref py py-obj docutils literal notranslate"><span class="pre">send_accept</span></code></a>(assoc)</p></td>
+<td><p>Send an A-ASSOCIATE (accept) to the peer.</p></td>
 </tr>
-<tr class="row-even"><td><a class="reference internal" href="#pynetdicom.acse.ACSE.send_ap_abort" title="pynetdicom.acse.ACSE.send_ap_abort"><code class="xref py py-obj docutils literal notranslate"><span class="pre">send_ap_abort</span></code></a>(assoc,&nbsp;reason)</td>
-<td>Send an A-P-ABORT to the peer.</td>
+<tr class="row-even"><td><p><a class="reference internal" href="#pynetdicom.acse.ACSE.send_ap_abort" title="pynetdicom.acse.ACSE.send_ap_abort"><code class="xref py py-obj docutils literal notranslate"><span class="pre">send_ap_abort</span></code></a>(assoc, reason)</p></td>
+<td><p>Send an A-P-ABORT to the peer.</p></td>
 </tr>
-<tr class="row-odd"><td><a class="reference internal" href="#pynetdicom.acse.ACSE.send_reject" title="pynetdicom.acse.ACSE.send_reject"><code class="xref py py-obj docutils literal notranslate"><span class="pre">send_reject</span></code></a>(assoc,&nbsp;result,&nbsp;source,&nbsp;diagnostic)</td>
-<td>Send an A-ASSOCIATE (reject) to the peer.</td>
+<tr class="row-odd"><td><p><a class="reference internal" href="#pynetdicom.acse.ACSE.send_reject" title="pynetdicom.acse.ACSE.send_reject"><code class="xref py py-obj docutils literal notranslate"><span class="pre">send_reject</span></code></a>(assoc, result, source, diagnostic)</p></td>
+<td><p>Send an A-ASSOCIATE (reject) to the peer.</p></td>
 </tr>
-<tr class="row-even"><td><a class="reference internal" href="#pynetdicom.acse.ACSE.send_release" title="pynetdicom.acse.ACSE.send_release"><code class="xref py py-obj docutils literal notranslate"><span class="pre">send_release</span></code></a>(assoc[,&nbsp;is_response])</td>
-<td>Send an A-RELEASE (request or response) to the peer.</td>
+<tr class="row-even"><td><p><a class="reference internal" href="#pynetdicom.acse.ACSE.send_release" title="pynetdicom.acse.ACSE.send_release"><code class="xref py py-obj docutils literal notranslate"><span class="pre">send_release</span></code></a>(assoc[, is_response])</p></td>
+<td><p>Send an A-RELEASE (request or response) to the peer.</p></td>
 </tr>
-<tr class="row-odd"><td><a class="reference internal" href="#pynetdicom.acse.ACSE.send_request" title="pynetdicom.acse.ACSE.send_request"><code class="xref py py-obj docutils literal notranslate"><span class="pre">send_request</span></code></a>(assoc)</td>
-<td>Send an A-ASSOCIATE (request) to the peer.</td>
+<tr class="row-odd"><td><p><a class="reference internal" href="#pynetdicom.acse.ACSE.send_request" title="pynetdicom.acse.ACSE.send_request"><code class="xref py py-obj docutils literal notranslate"><span class="pre">send_request</span></code></a>(assoc)</p></td>
+<td><p>Send an A-ASSOCIATE (request) to the peer.</p></td>
 </tr>
 </tbody>
 </table>
 <p class="rubric">Attributes</p>
-<table border="1" class="longtable docutils">
+<table class="longtable docutils align-center">
 <colgroup>
-<col width="10%" />
-<col width="90%" />
+<col style="width: 10%" />
+<col style="width: 90%" />
 </colgroup>
-<tbody valign="top">
-<tr class="row-odd"><td><a class="reference internal" href="#pynetdicom.acse.ACSE.assoc" title="pynetdicom.acse.ACSE.assoc"><code class="xref py py-obj docutils literal notranslate"><span class="pre">assoc</span></code></a></td>
-<td>Return the Association to provide ACSE services for.</td>
+<tbody>
+<tr class="row-odd"><td><p><a class="reference internal" href="#pynetdicom.acse.ACSE.assoc" title="pynetdicom.acse.ACSE.assoc"><code class="xref py py-obj docutils literal notranslate"><span class="pre">assoc</span></code></a></p></td>
+<td><p>Return the Association to provide ACSE services for.</p></td>
 </tr>
 </tbody>
 </table>
@@ -258,206 +256,175 @@ association and the abnormal release of an association.</p>
 
 <dl class="staticmethod">
 <dt id="pynetdicom.acse.ACSE.is_aborted">
-<em class="property">static </em><code class="descname">is_aborted</code><span class="sig-paren">(</span><em>assoc</em><span class="sig-paren">)</span><a class="reference internal" href="../../_modules/pynetdicom/acse.html#ACSE.is_aborted"><span class="viewcode-link">[source]</span></a><a class="reference external" href="https://github.com/pydicom/pynetdicom/blob/9250bb91/pynetdicom/acse.py#L255"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pynetdicom.acse.ACSE.is_aborted" title="Permalink to this definition">¶</a></dt>
+<em class="property">static </em><code class="descname">is_aborted</code><span class="sig-paren">(</span><em>assoc</em><span class="sig-paren">)</span><a class="reference internal" href="../../_modules/pynetdicom/acse.html#ACSE.is_aborted"><span class="viewcode-link">[source]</span></a><a class="reference external" href="https://github.com/pydicom/pynetdicom/blob/ff79e00f/pynetdicom/acse.py#L255"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pynetdicom.acse.ACSE.is_aborted" title="Permalink to this definition">¶</a></dt>
 <dd><p>Return True if an A-ABORT or A-P-ABORT request has been received.</p>
 </dd></dl>
 
 <dl class="staticmethod">
 <dt id="pynetdicom.acse.ACSE.is_release_requested">
-<em class="property">static </em><code class="descname">is_release_requested</code><span class="sig-paren">(</span><em>assoc</em><span class="sig-paren">)</span><a class="reference internal" href="../../_modules/pynetdicom/acse.html#ACSE.is_release_requested"><span class="viewcode-link">[source]</span></a><a class="reference external" href="https://github.com/pydicom/pynetdicom/blob/9250bb91/pynetdicom/acse.py#L264"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pynetdicom.acse.ACSE.is_release_requested" title="Permalink to this definition">¶</a></dt>
+<em class="property">static </em><code class="descname">is_release_requested</code><span class="sig-paren">(</span><em>assoc</em><span class="sig-paren">)</span><a class="reference internal" href="../../_modules/pynetdicom/acse.html#ACSE.is_release_requested"><span class="viewcode-link">[source]</span></a><a class="reference external" href="https://github.com/pydicom/pynetdicom/blob/ff79e00f/pynetdicom/acse.py#L264"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pynetdicom.acse.ACSE.is_release_requested" title="Permalink to this definition">¶</a></dt>
 <dd><p>Return True if an A-RELEASE request has been received.</p>
-<table class="docutils field-list" frame="void" rules="none">
-<col class="field-name" />
-<col class="field-body" />
-<tbody valign="top">
-<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><strong>assoc</strong> (<a class="reference internal" href="pynetdicom.association.Association.html#pynetdicom.association.Association" title="pynetdicom.association.Association"><em>association.Association</em></a>) – The Association instance that wants to know if an A-RELEASE
-request has been received.</td>
-</tr>
-</tbody>
-</table>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><p><strong>assoc</strong> (<a class="reference internal" href="pynetdicom.association.Association.html#pynetdicom.association.Association" title="pynetdicom.association.Association"><em>association.Association</em></a>) – The Association instance that wants to know if an A-RELEASE
+request has been received.</p>
+</dd>
+</dl>
 </dd></dl>
 
 <dl class="method">
 <dt id="pynetdicom.acse.ACSE.negotiate_association">
-<code class="descname">negotiate_association</code><span class="sig-paren">(</span><em>assoc</em><span class="sig-paren">)</span><a class="reference internal" href="../../_modules/pynetdicom/acse.html#ACSE.negotiate_association"><span class="viewcode-link">[source]</span></a><a class="reference external" href="https://github.com/pydicom/pynetdicom/blob/9250bb91/pynetdicom/acse.py#L281"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pynetdicom.acse.ACSE.negotiate_association" title="Permalink to this definition">¶</a></dt>
+<code class="descname">negotiate_association</code><span class="sig-paren">(</span><em>assoc</em><span class="sig-paren">)</span><a class="reference internal" href="../../_modules/pynetdicom/acse.html#ACSE.negotiate_association"><span class="viewcode-link">[source]</span></a><a class="reference external" href="https://github.com/pydicom/pynetdicom/blob/ff79e00f/pynetdicom/acse.py#L281"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pynetdicom.acse.ACSE.negotiate_association" title="Permalink to this definition">¶</a></dt>
 <dd><p>Perform an association negotiation as either the requestor or
 acceptor.</p>
-<table class="docutils field-list" frame="void" rules="none">
-<col class="field-name" />
-<col class="field-body" />
-<tbody valign="top">
-<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><strong>assoc</strong> (<a class="reference internal" href="pynetdicom.association.Association.html#pynetdicom.association.Association" title="pynetdicom.association.Association"><em>association.Association</em></a>) – The Association instance to perform the negotiation for.</td>
-</tr>
-</tbody>
-</table>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><p><strong>assoc</strong> (<a class="reference internal" href="pynetdicom.association.Association.html#pynetdicom.association.Association" title="pynetdicom.association.Association"><em>association.Association</em></a>) – The Association instance to perform the negotiation for.</p>
+</dd>
+</dl>
 </dd></dl>
 
 <dl class="method">
 <dt id="pynetdicom.acse.ACSE.negotiate_release">
-<code class="descname">negotiate_release</code><span class="sig-paren">(</span><em>assoc</em><span class="sig-paren">)</span><a class="reference internal" href="../../_modules/pynetdicom/acse.html#ACSE.negotiate_release"><span class="viewcode-link">[source]</span></a><a class="reference external" href="https://github.com/pydicom/pynetdicom/blob/9250bb91/pynetdicom/acse.py#L537"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pynetdicom.acse.ACSE.negotiate_release" title="Permalink to this definition">¶</a></dt>
+<code class="descname">negotiate_release</code><span class="sig-paren">(</span><em>assoc</em><span class="sig-paren">)</span><a class="reference internal" href="../../_modules/pynetdicom/acse.html#ACSE.negotiate_release"><span class="viewcode-link">[source]</span></a><a class="reference external" href="https://github.com/pydicom/pynetdicom/blob/ff79e00f/pynetdicom/acse.py#L537"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pynetdicom.acse.ACSE.negotiate_release" title="Permalink to this definition">¶</a></dt>
 <dd><p>Negotiate association release.</p>
 <p>Once an A-RELEASE request has been sent any received P-DATA PDUs will
 be ignored.</p>
-<table class="docutils field-list" frame="void" rules="none">
-<col class="field-name" />
-<col class="field-body" />
-<tbody valign="top">
-<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><strong>assoc</strong> (<a class="reference internal" href="pynetdicom.association.Association.html#pynetdicom.association.Association" title="pynetdicom.association.Association"><em>association.Association</em></a>) – The association instance that wants to initiate association
-release.</td>
-</tr>
-</tbody>
-</table>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><p><strong>assoc</strong> (<a class="reference internal" href="pynetdicom.association.Association.html#pynetdicom.association.Association" title="pynetdicom.association.Association"><em>association.Association</em></a>) – The association instance that wants to initiate association
+release.</p>
+</dd>
+</dl>
 </dd></dl>
 
 <dl class="staticmethod">
 <dt id="pynetdicom.acse.ACSE.send_abort">
-<em class="property">static </em><code class="descname">send_abort</code><span class="sig-paren">(</span><em>assoc</em>, <em>source</em><span class="sig-paren">)</span><a class="reference internal" href="../../_modules/pynetdicom/acse.html#ACSE.send_abort"><span class="viewcode-link">[source]</span></a><a class="reference external" href="https://github.com/pydicom/pynetdicom/blob/9250bb91/pynetdicom/acse.py#L616"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pynetdicom.acse.ACSE.send_abort" title="Permalink to this definition">¶</a></dt>
+<em class="property">static </em><code class="descname">send_abort</code><span class="sig-paren">(</span><em>assoc</em>, <em>source</em><span class="sig-paren">)</span><a class="reference internal" href="../../_modules/pynetdicom/acse.html#ACSE.send_abort"><span class="viewcode-link">[source]</span></a><a class="reference external" href="https://github.com/pydicom/pynetdicom/blob/ff79e00f/pynetdicom/acse.py#L616"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pynetdicom.acse.ACSE.send_abort" title="Permalink to this definition">¶</a></dt>
 <dd><p>Send an A-ABORT request to the peer.</p>
-<table class="docutils field-list" frame="void" rules="none">
-<col class="field-name" />
-<col class="field-body" />
-<tbody valign="top">
-<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first simple">
-<li><strong>assoc</strong> (<a class="reference internal" href="pynetdicom.association.Association.html#pynetdicom.association.Association" title="pynetdicom.association.Association"><em>pynetdicom.association.Association</em></a>) – The association that is sending the A-ABORT.</li>
-<li><strong>source</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.7)"><em>int</em></a>) – <p>The source of the abort request</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>assoc</strong> (<a class="reference internal" href="pynetdicom.association.Association.html#pynetdicom.association.Association" title="pynetdicom.association.Association"><em>pynetdicom.association.Association</em></a>) – The association that is sending the A-ABORT.</p></li>
+<li><p><strong>source</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.7)"><em>int</em></a>) – <p>The source of the abort request</p>
 <ul>
-<li>0x00 - the DUL service user</li>
-<li>0x02 - the DUL service provider</li>
+<li><p>0x00 - the DUL service user</p></li>
+<li><p>0x02 - the DUL service provider</p></li>
 </ul>
-</li>
+</p></li>
 </ul>
-</td>
-</tr>
-<tr class="field-even field"><th class="field-name">Raises:</th><td class="field-body"><p class="first last"><a class="reference external" href="https://docs.python.org/3/library/exceptions.html#ValueError" title="(in Python v3.7)"><code class="xref py py-exc docutils literal notranslate"><span class="pre">ValueError</span></code></a> – If the <cite>source</cite> value is invalid.</p>
-</td>
-</tr>
-</tbody>
-</table>
+</dd>
+<dt class="field-even">Raises</dt>
+<dd class="field-even"><p><a class="reference external" href="https://docs.python.org/3/library/exceptions.html#ValueError" title="(in Python v3.7)"><strong>ValueError</strong></a> – If the <cite>source</cite> value is invalid.</p>
+</dd>
+</dl>
 </dd></dl>
 
 <dl class="staticmethod">
 <dt id="pynetdicom.acse.ACSE.send_accept">
-<em class="property">static </em><code class="descname">send_accept</code><span class="sig-paren">(</span><em>assoc</em><span class="sig-paren">)</span><a class="reference internal" href="../../_modules/pynetdicom/acse.html#ACSE.send_accept"><span class="viewcode-link">[source]</span></a><a class="reference external" href="https://github.com/pydicom/pynetdicom/blob/9250bb91/pynetdicom/acse.py#L649"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pynetdicom.acse.ACSE.send_accept" title="Permalink to this definition">¶</a></dt>
+<em class="property">static </em><code class="descname">send_accept</code><span class="sig-paren">(</span><em>assoc</em><span class="sig-paren">)</span><a class="reference internal" href="../../_modules/pynetdicom/acse.html#ACSE.send_accept"><span class="viewcode-link">[source]</span></a><a class="reference external" href="https://github.com/pydicom/pynetdicom/blob/ff79e00f/pynetdicom/acse.py#L649"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pynetdicom.acse.ACSE.send_accept" title="Permalink to this definition">¶</a></dt>
 <dd><p>Send an A-ASSOCIATE (accept) to the peer.</p>
-<table class="docutils field-list" frame="void" rules="none">
-<col class="field-name" />
-<col class="field-body" />
-<tbody valign="top">
-<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><strong>assoc</strong> (<a class="reference internal" href="pynetdicom.association.Association.html#pynetdicom.association.Association" title="pynetdicom.association.Association"><em>pynetdicom.association.Association</em></a>) – The association that is sending the A-ASSOCIATE (accept).</td>
-</tr>
-</tbody>
-</table>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><p><strong>assoc</strong> (<a class="reference internal" href="pynetdicom.association.Association.html#pynetdicom.association.Association" title="pynetdicom.association.Association"><em>pynetdicom.association.Association</em></a>) – The association that is sending the A-ASSOCIATE (accept).</p>
+</dd>
+</dl>
 </dd></dl>
 
 <dl class="staticmethod">
 <dt id="pynetdicom.acse.ACSE.send_ap_abort">
-<em class="property">static </em><code class="descname">send_ap_abort</code><span class="sig-paren">(</span><em>assoc</em>, <em>reason</em><span class="sig-paren">)</span><a class="reference internal" href="../../_modules/pynetdicom/acse.html#ACSE.send_ap_abort"><span class="viewcode-link">[source]</span></a><a class="reference external" href="https://github.com/pydicom/pynetdicom/blob/9250bb91/pynetdicom/acse.py#L686"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pynetdicom.acse.ACSE.send_ap_abort" title="Permalink to this definition">¶</a></dt>
+<em class="property">static </em><code class="descname">send_ap_abort</code><span class="sig-paren">(</span><em>assoc</em>, <em>reason</em><span class="sig-paren">)</span><a class="reference internal" href="../../_modules/pynetdicom/acse.html#ACSE.send_ap_abort"><span class="viewcode-link">[source]</span></a><a class="reference external" href="https://github.com/pydicom/pynetdicom/blob/ff79e00f/pynetdicom/acse.py#L686"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pynetdicom.acse.ACSE.send_ap_abort" title="Permalink to this definition">¶</a></dt>
 <dd><p>Send an A-P-ABORT to the peer.</p>
-<table class="docutils field-list" frame="void" rules="none">
-<col class="field-name" />
-<col class="field-body" />
-<tbody valign="top">
-<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first simple">
-<li><strong>assoc</strong> (<a class="reference internal" href="pynetdicom.association.Association.html#pynetdicom.association.Association" title="pynetdicom.association.Association"><em>pynetdicom.association.Association</em></a>) – The association that is sending the A-P-ABORT.</li>
-<li><strong>reason</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.7)"><em>int</em></a>) – <p>The reason for aborting the association, one of the following:</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>assoc</strong> (<a class="reference internal" href="pynetdicom.association.Association.html#pynetdicom.association.Association" title="pynetdicom.association.Association"><em>pynetdicom.association.Association</em></a>) – The association that is sending the A-P-ABORT.</p></li>
+<li><p><strong>reason</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.7)"><em>int</em></a>) – <p>The reason for aborting the association, one of the following:</p>
 <ul>
-<li>0x00 - reason not specified</li>
-<li>0x01 - unrecognised PDU</li>
-<li>0x02 - unexpected PDU</li>
-<li>0x04 - unrecognised PDU parameter</li>
-<li>0x05 - unexpected PDU parameter</li>
-<li>0x06 - invalid PDU parameter value</li>
+<li><p>0x00 - reason not specified</p></li>
+<li><p>0x01 - unrecognised PDU</p></li>
+<li><p>0x02 - unexpected PDU</p></li>
+<li><p>0x04 - unrecognised PDU parameter</p></li>
+<li><p>0x05 - unexpected PDU parameter</p></li>
+<li><p>0x06 - invalid PDU parameter value</p></li>
 </ul>
-</li>
+</p></li>
 </ul>
-</td>
-</tr>
-<tr class="field-even field"><th class="field-name">Raises:</th><td class="field-body"><p class="first last"><a class="reference external" href="https://docs.python.org/3/library/exceptions.html#ValueError" title="(in Python v3.7)"><code class="xref py py-exc docutils literal notranslate"><span class="pre">ValueError</span></code></a> – If the <cite>reason</cite> value is invalid.</p>
-</td>
-</tr>
-</tbody>
-</table>
+</dd>
+<dt class="field-even">Raises</dt>
+<dd class="field-even"><p><a class="reference external" href="https://docs.python.org/3/library/exceptions.html#ValueError" title="(in Python v3.7)"><strong>ValueError</strong></a> – If the <cite>reason</cite> value is invalid.</p>
+</dd>
+</dl>
 </dd></dl>
 
 <dl class="staticmethod">
 <dt id="pynetdicom.acse.ACSE.send_reject">
-<em class="property">static </em><code class="descname">send_reject</code><span class="sig-paren">(</span><em>assoc</em>, <em>result</em>, <em>source</em>, <em>diagnostic</em><span class="sig-paren">)</span><a class="reference internal" href="../../_modules/pynetdicom/acse.html#ACSE.send_reject"><span class="viewcode-link">[source]</span></a><a class="reference external" href="https://github.com/pydicom/pynetdicom/blob/9250bb91/pynetdicom/acse.py#L723"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pynetdicom.acse.ACSE.send_reject" title="Permalink to this definition">¶</a></dt>
+<em class="property">static </em><code class="descname">send_reject</code><span class="sig-paren">(</span><em>assoc</em>, <em>result</em>, <em>source</em>, <em>diagnostic</em><span class="sig-paren">)</span><a class="reference internal" href="../../_modules/pynetdicom/acse.html#ACSE.send_reject"><span class="viewcode-link">[source]</span></a><a class="reference external" href="https://github.com/pydicom/pynetdicom/blob/ff79e00f/pynetdicom/acse.py#L723"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pynetdicom.acse.ACSE.send_reject" title="Permalink to this definition">¶</a></dt>
 <dd><p>Send an A-ASSOCIATE (reject) to the peer.</p>
-<table class="docutils field-list" frame="void" rules="none">
-<col class="field-name" />
-<col class="field-body" />
-<tbody valign="top">
-<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first last simple">
-<li><strong>assoc</strong> (<a class="reference internal" href="pynetdicom.association.Association.html#pynetdicom.association.Association" title="pynetdicom.association.Association"><em>pynetdicom.association.Association</em></a>) – The association that is sending the A-ASSOCIATE (reject).</li>
-<li><strong>result</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.7)"><em>int</em></a>) – <p>The association rejection:</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>assoc</strong> (<a class="reference internal" href="pynetdicom.association.Association.html#pynetdicom.association.Association" title="pynetdicom.association.Association"><em>pynetdicom.association.Association</em></a>) – The association that is sending the A-ASSOCIATE (reject).</p></li>
+<li><p><strong>result</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.7)"><em>int</em></a>) – <p>The association rejection:</p>
 <ul>
-<li>0x01 - rejected permanent</li>
-<li>0x02 - rejected transient</li>
+<li><p>0x01 - rejected permanent</p></li>
+<li><p>0x02 - rejected transient</p></li>
 </ul>
-</li>
-<li><strong>source</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.7)"><em>int</em></a>) – <p>The source of the rejection:</p>
+</p></li>
+<li><p><strong>source</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.7)"><em>int</em></a>) – <p>The source of the rejection:</p>
 <ul>
-<li>0x01 - DUL service user</li>
-<li>0x02 - DUL service provider (ACSE related)</li>
-<li>0x03 - DUL service provider (presentation related)</li>
+<li><p>0x01 - DUL service user</p></li>
+<li><p>0x02 - DUL service provider (ACSE related)</p></li>
+<li><p>0x03 - DUL service provider (presentation related)</p></li>
 </ul>
-</li>
-<li><strong>diagnostic</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.7)"><em>int</em></a>) – <p>The reason for the rejection, if the source is 0x01:</p>
+</p></li>
+<li><p><strong>diagnostic</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.7)"><em>int</em></a>) – <p>The reason for the rejection, if the source is 0x01:</p>
 <ul>
-<li>0x01 - no reason given</li>
-<li>0x02 - application context name not supported</li>
-<li>0x03 - calling AE title not recognised</li>
-<li>0x07 - called AE title not recognised</li>
+<li><p>0x01 - no reason given</p></li>
+<li><p>0x02 - application context name not supported</p></li>
+<li><p>0x03 - calling AE title not recognised</p></li>
+<li><p>0x07 - called AE title not recognised</p></li>
 </ul>
 <p>If the source is 0x02:</p>
 <ul>
-<li>0x01 - no reason given</li>
-<li>0x02 - protocol version not supported</li>
+<li><p>0x01 - no reason given</p></li>
+<li><p>0x02 - protocol version not supported</p></li>
 </ul>
 <p>If the source is 0x03:</p>
 <ul>
-<li>0x01 - temporary congestion</li>
-<li>0x02 - local limit exceeded</li>
+<li><p>0x01 - temporary congestion</p></li>
+<li><p>0x02 - local limit exceeded</p></li>
 </ul>
-</li>
+</p></li>
 </ul>
-</td>
-</tr>
-</tbody>
-</table>
+</dd>
+</dl>
 </dd></dl>
 
 <dl class="staticmethod">
 <dt id="pynetdicom.acse.ACSE.send_release">
-<em class="property">static </em><code class="descname">send_release</code><span class="sig-paren">(</span><em>assoc</em>, <em>is_response=False</em><span class="sig-paren">)</span><a class="reference internal" href="../../_modules/pynetdicom/acse.html#ACSE.send_release"><span class="viewcode-link">[source]</span></a><a class="reference external" href="https://github.com/pydicom/pynetdicom/blob/9250bb91/pynetdicom/acse.py#L792"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pynetdicom.acse.ACSE.send_release" title="Permalink to this definition">¶</a></dt>
+<em class="property">static </em><code class="descname">send_release</code><span class="sig-paren">(</span><em>assoc</em>, <em>is_response=False</em><span class="sig-paren">)</span><a class="reference internal" href="../../_modules/pynetdicom/acse.html#ACSE.send_release"><span class="viewcode-link">[source]</span></a><a class="reference external" href="https://github.com/pydicom/pynetdicom/blob/ff79e00f/pynetdicom/acse.py#L792"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pynetdicom.acse.ACSE.send_release" title="Permalink to this definition">¶</a></dt>
 <dd><p>Send an A-RELEASE (request or response) to the peer.</p>
-<table class="docutils field-list" frame="void" rules="none">
-<col class="field-name" />
-<col class="field-body" />
-<tbody valign="top">
-<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first last simple">
-<li><strong>assoc</strong> (<a class="reference internal" href="pynetdicom.association.Association.html#pynetdicom.association.Association" title="pynetdicom.association.Association"><em>pynetdicom.association.Association</em></a>) – The association that is sending the A-RELEASE.</li>
-<li><strong>is_response</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#bool" title="(in Python v3.7)"><em>bool</em></a><em>, </em><em>optional</em>) – True to send an A-RELEASE (response) to the peer, False
-to send an A-RELEASE (request) to the peer (default).</li>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>assoc</strong> (<a class="reference internal" href="pynetdicom.association.Association.html#pynetdicom.association.Association" title="pynetdicom.association.Association"><em>pynetdicom.association.Association</em></a>) – The association that is sending the A-RELEASE.</p></li>
+<li><p><strong>is_response</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#bool" title="(in Python v3.7)"><em>bool</em></a><em>, </em><em>optional</em>) – True to send an A-RELEASE (response) to the peer, False
+to send an A-RELEASE (request) to the peer (default).</p></li>
 </ul>
-</td>
-</tr>
-</tbody>
-</table>
+</dd>
+</dl>
 </dd></dl>
 
 <dl class="staticmethod">
 <dt id="pynetdicom.acse.ACSE.send_request">
-<em class="property">static </em><code class="descname">send_request</code><span class="sig-paren">(</span><em>assoc</em><span class="sig-paren">)</span><a class="reference internal" href="../../_modules/pynetdicom/acse.html#ACSE.send_request"><span class="viewcode-link">[source]</span></a><a class="reference external" href="https://github.com/pydicom/pynetdicom/blob/9250bb91/pynetdicom/acse.py#L811"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pynetdicom.acse.ACSE.send_request" title="Permalink to this definition">¶</a></dt>
+<em class="property">static </em><code class="descname">send_request</code><span class="sig-paren">(</span><em>assoc</em><span class="sig-paren">)</span><a class="reference internal" href="../../_modules/pynetdicom/acse.html#ACSE.send_request"><span class="viewcode-link">[source]</span></a><a class="reference external" href="https://github.com/pydicom/pynetdicom/blob/ff79e00f/pynetdicom/acse.py#L811"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pynetdicom.acse.ACSE.send_request" title="Permalink to this definition">¶</a></dt>
 <dd><p>Send an A-ASSOCIATE (request) to the peer.</p>
-<table class="docutils field-list" frame="void" rules="none">
-<col class="field-name" />
-<col class="field-body" />
-<tbody valign="top">
-<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><strong>assoc</strong> (<a class="reference internal" href="pynetdicom.association.Association.html#pynetdicom.association.Association" title="pynetdicom.association.Association"><em>pynetdicom.association.Association</em></a>) – The association that is sending the A-ASSOCIATE (request).</td>
-</tr>
-</tbody>
-</table>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><p><strong>assoc</strong> (<a class="reference internal" href="pynetdicom.association.Association.html#pynetdicom.association.Association" title="pynetdicom.association.Association"><em>pynetdicom.association.Association</em></a>) – The association that is sending the A-ASSOCIATE (request).</p>
+</dd>
+</dl>
 </dd></dl>
 
 </dd></dl>

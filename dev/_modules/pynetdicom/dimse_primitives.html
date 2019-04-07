@@ -101,6 +101,7 @@
 <li class="toctree-l1"><a class="reference internal" href="../../hanging_protocol_service_class.html">Hanging Protocol Query/Retrieve Service Class</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../../implant_template_service_class.html">Implant Template Query/Retrieve Service Class</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../../display_system_service_class.html">Display System Management Service Class</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../modality_performed_procedure_step.html">Modality Performed Procedure Step Management</a></li>
 </ul>
 <ul>
 <li class="toctree-l1"><a class="reference internal" href="../../user/index.html">User Guide</a></li>
@@ -1361,7 +1362,7 @@
     <span class="c1"># Optional status element keywords other than &#39;Status&#39;</span>
     <span class="n">STATUS_OPTIONAL_KEYWORDS</span> <span class="o">=</span> <span class="p">(</span>
         <span class="s1">&#39;AffectedSOPClassUID&#39;</span><span class="p">,</span> <span class="s1">&#39;AffectedSOPInstanceUID&#39;</span><span class="p">,</span> <span class="s1">&#39;EventTypeID&#39;</span><span class="p">,</span>
-        <span class="s1">&#39;EventInformation&#39;</span><span class="p">,</span> <span class="s1">&#39;ErrorComment&#39;</span><span class="p">,</span> <span class="s1">&#39;ErrorID&#39;</span>
+        <span class="s1">&#39;ErrorComment&#39;</span><span class="p">,</span> <span class="s1">&#39;ErrorID&#39;</span> <span class="c1"># EventInformation</span>
     <span class="p">)</span>
     <span class="n">REQUEST_KEYWORDS</span> <span class="o">=</span> <span class="p">(</span>
         <span class="s1">&#39;MessageID&#39;</span><span class="p">,</span> <span class="s1">&#39;AffectedSOPClassUID&#39;</span><span class="p">,</span> <span class="s1">&#39;EventTypeID&#39;</span><span class="p">,</span>
@@ -1589,18 +1590,23 @@
 <span class="sd">            A list of pydicom Tags or any values acceptable for creating a new</span>
 <span class="sd">            pydicom Tag object.</span>
 <span class="sd">        &quot;&quot;&quot;</span>
-        <span class="k">if</span> <span class="n">value</span><span class="p">:</span>
-            <span class="k">if</span> <span class="ow">not</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">value</span><span class="p">,</span> <span class="p">(</span><span class="nb">list</span><span class="p">,</span> <span class="n">MutableSequence</span><span class="p">)):</span>
-                <span class="n">value</span> <span class="o">=</span> <span class="p">[</span><span class="n">value</span><span class="p">]</span>
-            <span class="k">try</span><span class="p">:</span>
-                <span class="bp">self</span><span class="o">.</span><span class="n">_attribute_identifier_list</span> <span class="o">=</span> <span class="p">[</span><span class="n">Tag</span><span class="p">(</span><span class="n">tag</span><span class="p">)</span> <span class="k">for</span> <span class="n">tag</span> <span class="ow">in</span> <span class="n">value</span><span class="p">]</span>
-            <span class="k">except</span> <span class="p">(</span><span class="ne">TypeError</span><span class="p">,</span> <span class="ne">ValueError</span><span class="p">):</span>
-                <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span>
-                    <span class="s2">&quot;Attribute Identifier List must be a list of pydicom Tags&quot;</span>
-                <span class="p">)</span>
-        <span class="k">elif</span> <span class="n">value</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+        <span class="k">if</span> <span class="n">value</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
             <span class="bp">self</span><span class="o">.</span><span class="n">_attribute_identifier_list</span> <span class="o">=</span> <span class="kc">None</span>
-        <span class="k">else</span><span class="p">:</span>
+            <span class="k">return</span>
+
+        <span class="c1"># Singleton tags get put in a list</span>
+        <span class="k">if</span> <span class="ow">not</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">value</span><span class="p">,</span> <span class="p">(</span><span class="nb">list</span><span class="p">,</span> <span class="n">MutableSequence</span><span class="p">)):</span>
+            <span class="n">value</span> <span class="o">=</span> <span class="p">[</span><span class="n">value</span><span class="p">]</span>
+
+        <span class="c1"># Empty list -&gt; None</span>
+        <span class="k">if</span> <span class="ow">not</span> <span class="n">value</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">_attribute_identifier_list</span> <span class="o">=</span> <span class="kc">None</span>
+            <span class="k">return</span>
+
+        <span class="k">try</span><span class="p">:</span>
+            <span class="c1"># Convert each item in list to pydicom Tag</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">_attribute_identifier_list</span> <span class="o">=</span> <span class="p">[</span><span class="n">Tag</span><span class="p">(</span><span class="n">tag</span><span class="p">)</span> <span class="k">for</span> <span class="n">tag</span> <span class="ow">in</span> <span class="n">value</span><span class="p">]</span>
+        <span class="k">except</span> <span class="p">(</span><span class="ne">TypeError</span><span class="p">,</span> <span class="ne">ValueError</span><span class="p">):</span>
             <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span>
                 <span class="s2">&quot;Attribute Identifier List must be a list of pydicom Tags&quot;</span>
             <span class="p">)</span>

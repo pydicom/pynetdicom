@@ -101,6 +101,7 @@
 <li class="toctree-l1"><a class="reference internal" href="../../hanging_protocol_service_class.html">Hanging Protocol Query/Retrieve Service Class</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../../implant_template_service_class.html">Implant Template Query/Retrieve Service Class</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../../display_system_service_class.html">Display System Management Service Class</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../modality_performed_procedure_step.html">Modality Performed Procedure Step Management</a></li>
 </ul>
 <ul>
 <li class="toctree-l1"><a class="reference internal" href="../../user/index.html">User Guide</a></li>
@@ -178,80 +179,76 @@
 <h1>pynetdicom.service_class.SubstanceAdministrationQueryServiceClass<a class="headerlink" href="#pynetdicom-service-class-substanceadministrationqueryserviceclass" title="Permalink to this headline">¶</a></h1>
 <dl class="class">
 <dt id="pynetdicom.service_class.SubstanceAdministrationQueryServiceClass">
-<em class="property">class </em><code class="descclassname">pynetdicom.service_class.</code><code class="descname">SubstanceAdministrationQueryServiceClass</code><span class="sig-paren">(</span><em>assoc</em><span class="sig-paren">)</span><a class="reference internal" href="../../_modules/pynetdicom/service_class.html#SubstanceAdministrationQueryServiceClass"><span class="viewcode-link">[source]</span></a><a class="reference external" href="https://github.com/pydicom/pynetdicom/blob/9250bb91/pynetdicom/service_class.py#L2030"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pynetdicom.service_class.SubstanceAdministrationQueryServiceClass" title="Permalink to this definition">¶</a></dt>
+<em class="property">class </em><code class="descclassname">pynetdicom.service_class.</code><code class="descname">SubstanceAdministrationQueryServiceClass</code><span class="sig-paren">(</span><em>assoc</em><span class="sig-paren">)</span><a class="reference internal" href="../../_modules/pynetdicom/service_class.html#SubstanceAdministrationQueryServiceClass"><span class="viewcode-link">[source]</span></a><a class="reference external" href="https://github.com/pydicom/pynetdicom/blob/ff79e00f/pynetdicom/service_class.py#L2030"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pynetdicom.service_class.SubstanceAdministrationQueryServiceClass" title="Permalink to this definition">¶</a></dt>
 <dd><p>Implementation of the Substance Administration Query Service</p>
 <dl class="method">
 <dt id="pynetdicom.service_class.SubstanceAdministrationQueryServiceClass.__init__">
-<code class="descname">__init__</code><span class="sig-paren">(</span><em>assoc</em><span class="sig-paren">)</span><a class="reference internal" href="../../_modules/pynetdicom/service_class.html#SubstanceAdministrationQueryServiceClass.__init__"><span class="viewcode-link">[source]</span></a><a class="reference external" href="https://github.com/pydicom/pynetdicom/blob/9250bb91/pynetdicom/service_class.py#L2034"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pynetdicom.service_class.SubstanceAdministrationQueryServiceClass.__init__" title="Permalink to this definition">¶</a></dt>
+<code class="descname">__init__</code><span class="sig-paren">(</span><em>assoc</em><span class="sig-paren">)</span><a class="reference internal" href="../../_modules/pynetdicom/service_class.html#SubstanceAdministrationQueryServiceClass.__init__"><span class="viewcode-link">[source]</span></a><a class="reference external" href="https://github.com/pydicom/pynetdicom/blob/ff79e00f/pynetdicom/service_class.py#L2034"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pynetdicom.service_class.SubstanceAdministrationQueryServiceClass.__init__" title="Permalink to this definition">¶</a></dt>
 <dd><p>Create a new ServiceClass.</p>
 </dd></dl>
 
 <p class="rubric">Methods</p>
-<table border="1" class="longtable docutils">
+<table class="longtable docutils align-center">
 <colgroup>
-<col width="10%" />
-<col width="90%" />
+<col style="width: 10%" />
+<col style="width: 90%" />
 </colgroup>
-<tbody valign="top">
-<tr class="row-odd"><td><a class="reference internal" href="#pynetdicom.service_class.SubstanceAdministrationQueryServiceClass.SCP" title="pynetdicom.service_class.SubstanceAdministrationQueryServiceClass.SCP"><code class="xref py py-obj docutils literal notranslate"><span class="pre">SCP</span></code></a>(req,&nbsp;context,&nbsp;info)</td>
-<td>The SCP implementation for the Relevant Patient Information Query Service Class.</td>
+<tbody>
+<tr class="row-odd"><td><p><a class="reference internal" href="#pynetdicom.service_class.SubstanceAdministrationQueryServiceClass.SCP" title="pynetdicom.service_class.SubstanceAdministrationQueryServiceClass.SCP"><code class="xref py py-obj docutils literal notranslate"><span class="pre">SCP</span></code></a>(req, context, info)</p></td>
+<td><p>The SCP implementation for the Relevant Patient Information Query Service Class.</p></td>
 </tr>
-<tr class="row-even"><td><a class="reference internal" href="#pynetdicom.service_class.SubstanceAdministrationQueryServiceClass.__init__" title="pynetdicom.service_class.SubstanceAdministrationQueryServiceClass.__init__"><code class="xref py py-obj docutils literal notranslate"><span class="pre">__init__</span></code></a>(assoc)</td>
-<td>Create a new ServiceClass.</td>
+<tr class="row-even"><td><p><a class="reference internal" href="#pynetdicom.service_class.SubstanceAdministrationQueryServiceClass.__init__" title="pynetdicom.service_class.SubstanceAdministrationQueryServiceClass.__init__"><code class="xref py py-obj docutils literal notranslate"><span class="pre">__init__</span></code></a>(assoc)</p></td>
+<td><p>Create a new ServiceClass.</p></td>
 </tr>
-<tr class="row-odd"><td><a class="reference internal" href="#pynetdicom.service_class.SubstanceAdministrationQueryServiceClass.is_cancelled" title="pynetdicom.service_class.SubstanceAdministrationQueryServiceClass.is_cancelled"><code class="xref py py-obj docutils literal notranslate"><span class="pre">is_cancelled</span></code></a>(msg_id)</td>
-<td>Return True if a C-CANCEL message with <cite>msg_id</cite> has been received.</td>
+<tr class="row-odd"><td><p><a class="reference internal" href="#pynetdicom.service_class.SubstanceAdministrationQueryServiceClass.is_cancelled" title="pynetdicom.service_class.SubstanceAdministrationQueryServiceClass.is_cancelled"><code class="xref py py-obj docutils literal notranslate"><span class="pre">is_cancelled</span></code></a>(msg_id)</p></td>
+<td><p>Return True if a C-CANCEL message with <cite>msg_id</cite> has been received.</p></td>
 </tr>
-<tr class="row-even"><td><a class="reference internal" href="#pynetdicom.service_class.SubstanceAdministrationQueryServiceClass.is_valid_status" title="pynetdicom.service_class.SubstanceAdministrationQueryServiceClass.is_valid_status"><code class="xref py py-obj docutils literal notranslate"><span class="pre">is_valid_status</span></code></a>(status)</td>
-<td>Return True if <cite>status</cite> is valid for the service class.</td>
+<tr class="row-even"><td><p><a class="reference internal" href="#pynetdicom.service_class.SubstanceAdministrationQueryServiceClass.is_valid_status" title="pynetdicom.service_class.SubstanceAdministrationQueryServiceClass.is_valid_status"><code class="xref py py-obj docutils literal notranslate"><span class="pre">is_valid_status</span></code></a>(status)</p></td>
+<td><p>Return True if <cite>status</cite> is valid for the service class.</p></td>
 </tr>
-<tr class="row-odd"><td><a class="reference internal" href="#pynetdicom.service_class.SubstanceAdministrationQueryServiceClass.validate_status" title="pynetdicom.service_class.SubstanceAdministrationQueryServiceClass.validate_status"><code class="xref py py-obj docutils literal notranslate"><span class="pre">validate_status</span></code></a>(status,&nbsp;rsp)</td>
-<td>Validate <cite>status</cite> and set <cite>rsp.Status</cite> accordingly.</td>
+<tr class="row-odd"><td><p><a class="reference internal" href="#pynetdicom.service_class.SubstanceAdministrationQueryServiceClass.validate_status" title="pynetdicom.service_class.SubstanceAdministrationQueryServiceClass.validate_status"><code class="xref py py-obj docutils literal notranslate"><span class="pre">validate_status</span></code></a>(status, rsp)</p></td>
+<td><p>Validate <cite>status</cite> and set <cite>rsp.Status</cite> accordingly.</p></td>
 </tr>
 </tbody>
 </table>
 <p class="rubric">Attributes</p>
-<table border="1" class="longtable docutils">
+<table class="longtable docutils align-center">
 <colgroup>
-<col width="10%" />
-<col width="90%" />
+<col style="width: 10%" />
+<col style="width: 90%" />
 </colgroup>
-<tbody valign="top">
-<tr class="row-odd"><td><code class="xref py py-obj docutils literal notranslate"><span class="pre">BULK_DATA_KEYWORDS</span></code></td>
-<td></td>
+<tbody>
+<tr class="row-odd"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">BULK_DATA_KEYWORDS</span></code></p></td>
+<td><p></p></td>
 </tr>
-<tr class="row-even"><td><a class="reference internal" href="#pynetdicom.service_class.SubstanceAdministrationQueryServiceClass.ae" title="pynetdicom.service_class.SubstanceAdministrationQueryServiceClass.ae"><code class="xref py py-obj docutils literal notranslate"><span class="pre">ae</span></code></a></td>
-<td>Return the AE.</td>
+<tr class="row-even"><td><p><a class="reference internal" href="#pynetdicom.service_class.SubstanceAdministrationQueryServiceClass.ae" title="pynetdicom.service_class.SubstanceAdministrationQueryServiceClass.ae"><code class="xref py py-obj docutils literal notranslate"><span class="pre">ae</span></code></a></p></td>
+<td><p>Return the AE.</p></td>
 </tr>
-<tr class="row-odd"><td><a class="reference internal" href="#pynetdicom.service_class.SubstanceAdministrationQueryServiceClass.dimse" title="pynetdicom.service_class.SubstanceAdministrationQueryServiceClass.dimse"><code class="xref py py-obj docutils literal notranslate"><span class="pre">dimse</span></code></a></td>
-<td>Return the DIMSE service provider.</td>
+<tr class="row-odd"><td><p><a class="reference internal" href="#pynetdicom.service_class.SubstanceAdministrationQueryServiceClass.dimse" title="pynetdicom.service_class.SubstanceAdministrationQueryServiceClass.dimse"><code class="xref py py-obj docutils literal notranslate"><span class="pre">dimse</span></code></a></p></td>
+<td><p>Return the DIMSE service provider.</p></td>
 </tr>
-<tr class="row-even"><td><code class="xref py py-obj docutils literal notranslate"><span class="pre">statuses</span></code></td>
-<td></td>
+<tr class="row-even"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">statuses</span></code></p></td>
+<td><p></p></td>
 </tr>
 </tbody>
 </table>
 <dl class="method">
 <dt id="pynetdicom.service_class.SubstanceAdministrationQueryServiceClass.SCP">
-<code class="descname">SCP</code><span class="sig-paren">(</span><em>req</em>, <em>context</em>, <em>info</em><span class="sig-paren">)</span><a class="reference internal" href="../../_modules/pynetdicom/service_class.html#SubstanceAdministrationQueryServiceClass.SCP"><span class="viewcode-link">[source]</span></a><a class="reference external" href="https://github.com/pydicom/pynetdicom/blob/9250bb91/pynetdicom/service_class.py#L2037"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pynetdicom.service_class.SubstanceAdministrationQueryServiceClass.SCP" title="Permalink to this definition">¶</a></dt>
+<code class="descname">SCP</code><span class="sig-paren">(</span><em>req</em>, <em>context</em>, <em>info</em><span class="sig-paren">)</span><a class="reference internal" href="../../_modules/pynetdicom/service_class.html#SubstanceAdministrationQueryServiceClass.SCP"><span class="viewcode-link">[source]</span></a><a class="reference external" href="https://github.com/pydicom/pynetdicom/blob/ff79e00f/pynetdicom/service_class.py#L2037"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pynetdicom.service_class.SubstanceAdministrationQueryServiceClass.SCP" title="Permalink to this definition">¶</a></dt>
 <dd><p>The SCP implementation for the Relevant Patient Information Query
 Service Class.</p>
-<table class="docutils field-list" frame="void" rules="none">
-<col class="field-name" />
-<col class="field-body" />
-<tbody valign="top">
-<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first last simple">
-<li><strong>req</strong> (<a class="reference internal" href="pynetdicom.dimse_primitives.C_FIND.html#pynetdicom.dimse_primitives.C_FIND" title="pynetdicom.dimse_primitives.C_FIND"><em>dimse_primitives.C_FIND</em></a>) – The C-FIND request primitive sent by the peer.</li>
-<li><strong>context</strong> (<a class="reference internal" href="pynetdicom.presentation.PresentationContext.html#pynetdicom.presentation.PresentationContext" title="pynetdicom.presentation.PresentationContext"><em>presentation.PresentationContext</em></a>) – The presentation context that the SCP is operating under.</li>
-<li><strong>info</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#dict" title="(in Python v3.7)"><em>dict</em></a>) – A dict containing details about the association.</li>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>req</strong> (<a class="reference internal" href="pynetdicom.dimse_primitives.C_FIND.html#pynetdicom.dimse_primitives.C_FIND" title="pynetdicom.dimse_primitives.C_FIND"><em>dimse_primitives.C_FIND</em></a>) – The C-FIND request primitive sent by the peer.</p></li>
+<li><p><strong>context</strong> (<a class="reference internal" href="pynetdicom.presentation.PresentationContext.html#pynetdicom.presentation.PresentationContext" title="pynetdicom.presentation.PresentationContext"><em>presentation.PresentationContext</em></a>) – The presentation context that the SCP is operating under.</p></li>
+<li><p><strong>info</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#dict" title="(in Python v3.7)"><em>dict</em></a>) – A dict containing details about the association.</p></li>
 </ul>
-</td>
-</tr>
-</tbody>
-</table>
+</dd>
+</dl>
 <div class="admonition seealso">
-<p class="first admonition-title">See also</p>
-<p class="last"><code class="xref py py-meth docutils literal notranslate"><span class="pre">ae.ApplicationEntity.on_c_find()</span></code>, <code class="xref py py-meth docutils literal notranslate"><span class="pre">association.Association.send_c_find()</span></code></p>
+<p class="admonition-title">See also</p>
+<p><code class="xref py py-meth docutils literal notranslate"><span class="pre">ae.ApplicationEntity.on_c_find()</span></code>, <code class="xref py py-meth docutils literal notranslate"><span class="pre">association.Association.send_c_find()</span></code></p>
 </div>
 <p class="rubric">Notes</p>
 <p><strong>C-FIND Request</strong></p>
@@ -265,11 +262,11 @@ Service Class.</p>
 <p><em>Identifier</em></p>
 <p>The C-FIND request Identifier shall contain:</p>
 <ul class="simple">
-<li>Key Attributes with values corresponding to Key Attributes contained
-in the Identifier of the request.</li>
-<li>(0008,0005) Specific Character Set, if expanded or replacement
+<li><p>Key Attributes with values corresponding to Key Attributes contained
+in the Identifier of the request.</p></li>
+<li><p>(0008,0005) Specific Character Set, if expanded or replacement
 character sets may be used in any of the Attributes in the request
-Identifier. It shall not be present otherwise.</li>
+Identifier. It shall not be present otherwise.</p></li>
 </ul>
 <p><strong>C-FIND Response</strong></p>
 <p><em>Parameters</em></p>
@@ -281,25 +278,21 @@ Identifier. It shall not be present otherwise.</li>
 <div class="line">(M) Status</div>
 </div>
 <p><em>Status</em></p>
-<dl class="docutils">
-<dt>Success</dt>
-<dd><div class="first last line-block">
+<dl>
+<dt>Success</dt><dd><div class="line-block">
 <div class="line"><code class="docutils literal notranslate"><span class="pre">0x0000</span></code> Success</div>
 </div>
 </dd>
-<dt>Pending</dt>
-<dd><div class="first last line-block">
+<dt>Pending</dt><dd><div class="line-block">
 <div class="line"><code class="docutils literal notranslate"><span class="pre">0xFF00</span></code> Matches are continuing, current match supplied</div>
 <div class="line"><code class="docutils literal notranslate"><span class="pre">0xFF01</span></code> Matches are continuing, warning</div>
 </div>
 </dd>
-<dt>Cancel</dt>
-<dd><div class="first last line-block">
+<dt>Cancel</dt><dd><div class="line-block">
 <div class="line"><code class="docutils literal notranslate"><span class="pre">0xFE00</span></code> Matching terminated due to cancel request</div>
 </div>
 </dd>
-<dt>Failure</dt>
-<dd><div class="first last line-block">
+<dt>Failure</dt><dd><div class="line-block">
 <div class="line"><code class="docutils literal notranslate"><span class="pre">0x0122</span></code> SOP class not supported</div>
 <div class="line"><code class="docutils literal notranslate"><span class="pre">0xA700</span></code> Out of resources</div>
 <div class="line"><code class="docutils literal notranslate"><span class="pre">0xA900</span></code> Identifier does not match SOP class</div>
@@ -309,12 +302,12 @@ Identifier. It shall not be present otherwise.</li>
 </dl>
 <p class="rubric">References</p>
 <ul class="simple">
-<li>DICOM Standard, Part 4, <a class="reference external" href="http://dicom.nema.org/medical/dicom/current/output/html/part04.html#chapter_V">Annex V</a>.</li>
-<li><dl class="first docutils">
-<dt>DICOM Standard, Part 7, Sections</dt>
-<dd><a class="reference external" href="http://dicom.nema.org/medical/dicom/current/output/html/part07.html#sect_9.1.2">9.1.2</a>,
+<li><p>DICOM Standard, Part 4, <a class="reference external" href="http://dicom.nema.org/medical/dicom/current/output/html/part04.html#chapter_V">Annex V</a>.</p></li>
+<li><dl class="simple">
+<dt>DICOM Standard, Part 7, Sections</dt><dd><p><a class="reference external" href="http://dicom.nema.org/medical/dicom/current/output/html/part07.html#sect_9.1.2">9.1.2</a>,
 <a class="reference external" href="http://dicom.nema.org/medical/dicom/current/output/html/part07.html#sect_9.3.2">9.3.2</a>
-and <a class="reference external" href="http://dicom.nema.org/medical/dicom/current/output/html/part07.html#chapter_C">Annex C</a>.</dd>
+and <a class="reference external" href="http://dicom.nema.org/medical/dicom/current/output/html/part07.html#chapter_C">Annex C</a>.</p>
+</dd>
 </dl>
 </li>
 </ul>
@@ -334,65 +327,59 @@ and <a class="reference external" href="http://dicom.nema.org/medical/dicom/curr
 
 <dl class="method">
 <dt id="pynetdicom.service_class.SubstanceAdministrationQueryServiceClass.is_cancelled">
-<code class="descname">is_cancelled</code><span class="sig-paren">(</span><em>msg_id</em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/pydicom/pynetdicom/blob/9250bb91/pynetdicom/service_class.py#L60"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pynetdicom.service_class.SubstanceAdministrationQueryServiceClass.is_cancelled" title="Permalink to this definition">¶</a></dt>
+<code class="descname">is_cancelled</code><span class="sig-paren">(</span><em>msg_id</em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/pydicom/pynetdicom/blob/ff79e00f/pynetdicom/service_class.py#L60"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pynetdicom.service_class.SubstanceAdministrationQueryServiceClass.is_cancelled" title="Permalink to this definition">¶</a></dt>
 <dd><p>Return True if a C-CANCEL message with <cite>msg_id</cite> has been received.</p>
-<table class="docutils field-list" frame="void" rules="none">
-<col class="field-name" />
-<col class="field-body" />
-<tbody valign="top">
-<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><strong>msg_id</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.7)"><em>int</em></a>) – The (0000,0120) <em>Message ID Being Responded To</em> value to use to
-match against.</td>
-</tr>
-<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body">True if a C-CANCEL message has been received with a <em>Message ID
-Being Responded To</em> corresponding to <cite>msg_id</cite>, False otherwise.</td>
-</tr>
-<tr class="field-odd field"><th class="field-name">Return type:</th><td class="field-body"><a class="reference external" href="https://docs.python.org/3/library/functions.html#bool" title="(in Python v3.7)">bool</a></td>
-</tr>
-</tbody>
-</table>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><p><strong>msg_id</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.7)"><em>int</em></a>) – The (0000,0120) <em>Message ID Being Responded To</em> value to use to
+match against.</p>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p>True if a C-CANCEL message has been received with a <em>Message ID
+Being Responded To</em> corresponding to <cite>msg_id</cite>, False otherwise.</p>
+</dd>
+<dt class="field-odd">Return type</dt>
+<dd class="field-odd"><p><a class="reference external" href="https://docs.python.org/3/library/functions.html#bool" title="(in Python v3.7)">bool</a></p>
+</dd>
+</dl>
 </dd></dl>
 
 <dl class="method">
 <dt id="pynetdicom.service_class.SubstanceAdministrationQueryServiceClass.is_valid_status">
-<code class="descname">is_valid_status</code><span class="sig-paren">(</span><em>status</em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/pydicom/pynetdicom/blob/9250bb91/pynetdicom/service_class.py#L81"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pynetdicom.service_class.SubstanceAdministrationQueryServiceClass.is_valid_status" title="Permalink to this definition">¶</a></dt>
+<code class="descname">is_valid_status</code><span class="sig-paren">(</span><em>status</em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/pydicom/pynetdicom/blob/ff79e00f/pynetdicom/service_class.py#L81"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pynetdicom.service_class.SubstanceAdministrationQueryServiceClass.is_valid_status" title="Permalink to this definition">¶</a></dt>
 <dd><p>Return True if <cite>status</cite> is valid for the service class.</p>
-<table class="docutils field-list" frame="void" rules="none">
-<col class="field-name" />
-<col class="field-body" />
-<tbody valign="top">
-<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><strong>status</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.7)"><em>int</em></a>) – The Status value to check for validity.</td>
-</tr>
-<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body">True if the status is valid, False otherwise.</td>
-</tr>
-<tr class="field-odd field"><th class="field-name">Return type:</th><td class="field-body"><a class="reference external" href="https://docs.python.org/3/library/functions.html#bool" title="(in Python v3.7)">bool</a></td>
-</tr>
-</tbody>
-</table>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><p><strong>status</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.7)"><em>int</em></a>) – The Status value to check for validity.</p>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p>True if the status is valid, False otherwise.</p>
+</dd>
+<dt class="field-odd">Return type</dt>
+<dd class="field-odd"><p><a class="reference external" href="https://docs.python.org/3/library/functions.html#bool" title="(in Python v3.7)">bool</a></p>
+</dd>
+</dl>
 </dd></dl>
 
 <dl class="method">
 <dt id="pynetdicom.service_class.SubstanceAdministrationQueryServiceClass.validate_status">
-<code class="descname">validate_status</code><span class="sig-paren">(</span><em>status</em>, <em>rsp</em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/pydicom/pynetdicom/blob/9250bb91/pynetdicom/service_class.py#L117"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pynetdicom.service_class.SubstanceAdministrationQueryServiceClass.validate_status" title="Permalink to this definition">¶</a></dt>
+<code class="descname">validate_status</code><span class="sig-paren">(</span><em>status</em>, <em>rsp</em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/pydicom/pynetdicom/blob/ff79e00f/pynetdicom/service_class.py#L117"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pynetdicom.service_class.SubstanceAdministrationQueryServiceClass.validate_status" title="Permalink to this definition">¶</a></dt>
 <dd><p>Validate <cite>status</cite> and set <cite>rsp.Status</cite> accordingly.</p>
-<table class="docutils field-list" frame="void" rules="none">
-<col class="field-name" />
-<col class="field-body" />
-<tbody valign="top">
-<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first simple">
-<li><strong>status</strong> (<a class="reference external" href="https://pydicom.github.io/pydicom/stable/api_ref.html#pydicom.dataset.Dataset" title="(in pydicom v1.2.0rc1)"><em>pydicom.dataset.Dataset</em></a><em> or </em><a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.7)"><em>int</em></a>) – A Dataset containing a Status element or an int.</li>
-<li><strong>rsp</strong> (<em>dimse_primitive</em>) – The response primitive to be sent to the peer.</li>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>status</strong> (<a class="reference external" href="https://pydicom.github.io/pydicom/stable/api_ref.html#pydicom.dataset.Dataset" title="(in pydicom v1.2.0rc1)"><em>pydicom.dataset.Dataset</em></a><em> or </em><a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.7)"><em>int</em></a>) – A Dataset containing a Status element or an int.</p></li>
+<li><p><strong>rsp</strong> (<em>dimse_primitive</em>) – The response primitive to be sent to the peer.</p></li>
 </ul>
-</td>
-</tr>
-<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body"><p class="first"><strong>rsp</strong> – The response primitie to be sent to the peer (containing a valid
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p><strong>rsp</strong> – The response primitie to be sent to the peer (containing a valid
 Status parameter).</p>
-</td>
-</tr>
-<tr class="field-odd field"><th class="field-name">Return type:</th><td class="field-body"><p class="first last">dimse_primitive</p>
-</td>
-</tr>
-</tbody>
-</table>
+</dd>
+<dt class="field-odd">Return type</dt>
+<dd class="field-odd"><p>dimse_primitive</p>
+</dd>
+</dl>
 </dd></dl>
 
 </dd></dl>

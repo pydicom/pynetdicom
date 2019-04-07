@@ -24,6 +24,7 @@ pynetdicom.events.Event
    .. autosummary::
    
       ~Event.action_information
+      ~Event.attribute_identifiers
       ~Event.attribute_list
       ~Event.dataset
       ~Event.description
