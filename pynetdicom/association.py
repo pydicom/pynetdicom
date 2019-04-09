@@ -1,6 +1,7 @@
 """
 Defines the Association class which handles associating with peers.
 """
+import gc
 from io import BytesIO
 import logging
 import threading
@@ -129,6 +130,10 @@ class Association(threading.Thread):
         """
         self._ae = ae
         self.mode = mode
+
+        # If acceptor this is the parent AssociationServer, used to identify
+        #   the thread when updating bound event-handlers
+        self._server = None
 
         # Represents the association requestor and acceptor users
         self.requestor = ServiceUser(self, MODE_REQUESTOR)

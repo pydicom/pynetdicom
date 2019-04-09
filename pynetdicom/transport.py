@@ -342,6 +342,7 @@ class RequestHandler(BaseRequestHandler):
         from pynetdicom.association import Association
 
         assoc = Association(self.ae, MODE_ACCEPTOR)
+        assoc._server = self.server
 
         # Set the thread name
         timestamp = datetime.strftime(datetime.now(), "%Y%m%d%H%M%S")
@@ -384,9 +385,6 @@ class RequestHandler(BaseRequestHandler):
         )
 
         assoc.start()
-
-        # Track the server's associations
-        self.server._children.append(assoc)
 
     @property
     def local(self):
@@ -448,10 +446,8 @@ class AssociationServer(TCPServer):
 
         self.timeout = 60
 
-        # Tracks child Association acceptors
-        self._children = []
         # Stores all currently bound event handlers so future
-        #   children can be bound
+        #   Associations can be bound
         self._handlers = {}
         self._bind_defaults()
 
@@ -506,9 +502,11 @@ class AssociationServer(TCPServer):
     @property
     def active_associations(self):
         """Return the server's running ``Association`` acceptor instances"""
-        self._children = [
-            child for child in self._children if child.is_alive()]
-        return self._children
+        # Find all AcceptorThreads with `_server` as self
+        threads = [
+            tt for tt in threading.enumerate() if 'AcceptorThread' in tt.name
+        ]
+        return [tt for tt in threads if tt._server is self]
 
     def get_events(self):
         """Return a list of currently bound events."""

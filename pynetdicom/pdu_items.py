@@ -125,7 +125,8 @@ class PDUItem(object):
         if other is self:
             return True
 
-        if isinstance(other, self.__class__):
+        if isinstance(other, type(self)):
+            # Use the values of the class attributes that get encoded
             self_dict = {
                 en[0]: getattr(self, en[0]) for en in self._encoders if en[0]
             }
@@ -216,11 +217,7 @@ class PDUItem(object):
     @property
     def item_type(self):
         """Return the item's *Item Type* field value as an int."""
-        key_val = PDU_ITEM_TYPES.items()
-        keys = [key for (key, val) in key_val]
-        vals = [val for (key, val) in key_val]
-
-        return keys[vals.index(self.__class__)]
+        return {vv: kk for kk, vv in PDU_ITEM_TYPES.items()}[type(self)]
 
     def __len__(self):
         """Return the total length of the encoded item as an int."""

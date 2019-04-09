@@ -169,9 +169,16 @@ def client_context(request):
 
 class TestTLS(object):
     """Test using TLS to wrap the association."""
+    def setup(self):
+        self.ae = None
+
+    def teardown(self):
+        if self.ae:
+            self.ae.shutdown()
+
     def test_tls_not_server_not_client(self):
         """Test associating with no TLS on either end."""
-        ae = AE()
+        self.ae = ae = AE()
         ae.add_supported_context('1.2.840.10008.1.1')
         server = ae.start_server(('', 11112), block=False)
 
@@ -182,11 +189,17 @@ class TestTLS(object):
         assert assoc.is_released
 
         server.shutdown()
+
+        assert len(server.active_associations) == 0
 
     def test_tls_not_server_yes_client(self, client_context):
         """Test wrapping the requestor socket with TLS (but not server)."""
-        ae = AE()
+        self.ae = ae = AE()
+        ae.acse_timeout = 0.5
+        ae.dimse_timeout = 0.5
+        ae.network_timeout = 0.5
         ae.add_supported_context('1.2.840.10008.1.1')
+
         server = ae.start_server(('', 11112), block=False)
 
         ae.add_requested_context('1.2.840.10008.1.1')
@@ -195,9 +208,13 @@ class TestTLS(object):
 
         server.shutdown()
 
+        time.sleep(0.5)
+
+        assert len(server.active_associations) == 0
+
     def test_tls_yes_server_not_client(self, server_context):
         """Test wrapping the requestor socket with TLS (and server)."""
-        ae = AE()
+        self.ae = ae = AE()
         ae.add_supported_context('1.2.840.10008.1.1')
         server = ae.start_server(
             ('', 11112),
@@ -211,9 +228,11 @@ class TestTLS(object):
 
         server.shutdown()
 
+        assert len(server.active_associations) == 0
+
     def test_tls_yes_server_yes_client(self, server_context, client_context):
         """Test associating with no TLS on either end."""
-        ae = AE()
+        self.ae = ae = AE()
         ae.add_supported_context('1.2.840.10008.1.1')
         server = ae.start_server(
             ('', 11112),
@@ -228,6 +247,8 @@ class TestTLS(object):
         assert assoc.is_released
 
         server.shutdown()
+
+        assert len(server.active_associations) == 0
 
 
 class TestAssociationServer(object):

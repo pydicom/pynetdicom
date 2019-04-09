@@ -178,9 +178,9 @@ class TestPDU(object):
             item.item_length
 
     def test_item_type_raises(self):
-        """Test PDU.pdu_type raises ValueError."""
+        """Test PDUItem.item_type raises ValueError."""
         item = PDUItem()
-        with pytest.raises(ValueError):
+        with pytest.raises(KeyError):
             item.item_type
 
     def test_wrap_bytes(self):
