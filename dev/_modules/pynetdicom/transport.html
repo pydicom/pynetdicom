@@ -518,6 +518,7 @@
         <span class="kn">from</span> <span class="nn">pynetdicom.association</span> <span class="k">import</span> <span class="n">Association</span>
 
         <span class="n">assoc</span> <span class="o">=</span> <span class="n">Association</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">ae</span><span class="p">,</span> <span class="n">MODE_ACCEPTOR</span><span class="p">)</span>
+        <span class="n">assoc</span><span class="o">.</span><span class="n">_server</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">server</span>
 
         <span class="c1"># Set the thread name</span>
         <span class="n">timestamp</span> <span class="o">=</span> <span class="n">datetime</span><span class="o">.</span><span class="n">strftime</span><span class="p">(</span><span class="n">datetime</span><span class="o">.</span><span class="n">now</span><span class="p">(),</span> <span class="s2">&quot;%Y%m</span><span class="si">%d</span><span class="s2">%H%M%S&quot;</span><span class="p">)</span>
@@ -560,9 +561,6 @@
         <span class="p">)</span>
 
         <span class="n">assoc</span><span class="o">.</span><span class="n">start</span><span class="p">()</span>
-
-        <span class="c1"># Track the server&#39;s associations</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">server</span><span class="o">.</span><span class="n">_children</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">assoc</span><span class="p">)</span>
 
     <span class="nd">@property</span>
     <span class="k">def</span> <span class="nf">local</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
@@ -624,10 +622,8 @@
 
         <span class="bp">self</span><span class="o">.</span><span class="n">timeout</span> <span class="o">=</span> <span class="mi">60</span>
 
-        <span class="c1"># Tracks child Association acceptors</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">_children</span> <span class="o">=</span> <span class="p">[]</span>
         <span class="c1"># Stores all currently bound event handlers so future</span>
-        <span class="c1">#   children can be bound</span>
+        <span class="c1">#   Associations can be bound</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">_handlers</span> <span class="o">=</span> <span class="p">{}</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">_bind_defaults</span><span class="p">()</span>
 
@@ -682,9 +678,11 @@
     <span class="nd">@property</span>
     <span class="k">def</span> <span class="nf">active_associations</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;Return the server&#39;s running ``Association`` acceptor instances&quot;&quot;&quot;</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">_children</span> <span class="o">=</span> <span class="p">[</span>
-            <span class="n">child</span> <span class="k">for</span> <span class="n">child</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">_children</span> <span class="k">if</span> <span class="n">child</span><span class="o">.</span><span class="n">is_alive</span><span class="p">()]</span>
-        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_children</span>
+        <span class="c1"># Find all AcceptorThreads with `_server` as self</span>
+        <span class="n">threads</span> <span class="o">=</span> <span class="p">[</span>
+            <span class="n">tt</span> <span class="k">for</span> <span class="n">tt</span> <span class="ow">in</span> <span class="n">threading</span><span class="o">.</span><span class="n">enumerate</span><span class="p">()</span> <span class="k">if</span> <span class="s1">&#39;AcceptorThread&#39;</span> <span class="ow">in</span> <span class="n">tt</span><span class="o">.</span><span class="n">name</span>
+        <span class="p">]</span>
+        <span class="k">return</span> <span class="p">[</span><span class="n">tt</span> <span class="k">for</span> <span class="n">tt</span> <span class="ow">in</span> <span class="n">threads</span> <span class="k">if</span> <span class="n">tt</span><span class="o">.</span><span class="n">_server</span> <span class="ow">is</span> <span class="bp">self</span><span class="p">]</span>
 
 <div class="viewcode-block" id="AssociationServer.get_events"><a class="viewcode-back" href="../../reference/generated/pynetdicom.transport.AssociationServer.html#pynetdicom.transport.AssociationServer.get_events">[docs]</a>    <span class="k">def</span> <span class="nf">get_events</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;Return a list of currently bound events.&quot;&quot;&quot;</span>

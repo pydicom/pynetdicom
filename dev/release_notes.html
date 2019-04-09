@@ -211,7 +211,9 @@ Definition Results List when acting as the association Acceptor.</p></li>
 of just re-using 1. (<a class="reference external" href="https://github.com/pydicom/pynetdicom/issues/315">#315</a>)</p></li>
 <li><p>The default <code class="docutils literal notranslate"><span class="pre">logging</span></code> configuration no longer uses a non-NullHandler
 (<a class="reference external" href="https://github.com/pydicom/pynetdicom/issues/321">#321</a>)</p></li>
-<li><p>Fix Unified Procedure Step’s SOP Class UID variable names</p></li>
+<li><p>Fixed Unified Procedure Step’s SOP Class UID variable names</p></li>
+<li><p>Fixed memory leak caused by keeping old <code class="docutils literal notranslate"><span class="pre">Association</span></code> threads around after
+they died (<a class="reference external" href="https://github.com/pydicom/pynetdicom/issues/328">#328</a>)</p></li>
 </ul>
 </div>
 <div class="section" id="enhancements">

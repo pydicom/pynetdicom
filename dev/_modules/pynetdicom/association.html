@@ -177,6 +177,7 @@
 <span></span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">Defines the Association class which handles associating with peers.</span>
 <span class="sd">&quot;&quot;&quot;</span>
+<span class="kn">import</span> <span class="nn">gc</span>
 <span class="kn">from</span> <span class="nn">io</span> <span class="k">import</span> <span class="n">BytesIO</span>
 <span class="kn">import</span> <span class="nn">logging</span>
 <span class="kn">import</span> <span class="nn">threading</span>
@@ -305,6 +306,10 @@
 <span class="sd">        &quot;&quot;&quot;</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">_ae</span> <span class="o">=</span> <span class="n">ae</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">mode</span> <span class="o">=</span> <span class="n">mode</span>
+
+        <span class="c1"># If acceptor this is the parent AssociationServer, used to identify</span>
+        <span class="c1">#   the thread when updating bound event-handlers</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_server</span> <span class="o">=</span> <span class="kc">None</span>
 
         <span class="c1"># Represents the association requestor and acceptor users</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">requestor</span> <span class="o">=</span> <span class="n">ServiceUser</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">MODE_REQUESTOR</span><span class="p">)</span>

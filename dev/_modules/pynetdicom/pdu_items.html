@@ -301,7 +301,8 @@
         <span class="k">if</span> <span class="n">other</span> <span class="ow">is</span> <span class="bp">self</span><span class="p">:</span>
             <span class="k">return</span> <span class="kc">True</span>
 
-        <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">other</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="vm">__class__</span><span class="p">):</span>
+        <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">other</span><span class="p">,</span> <span class="nb">type</span><span class="p">(</span><span class="bp">self</span><span class="p">)):</span>
+            <span class="c1"># Use the values of the class attributes that get encoded</span>
             <span class="n">self_dict</span> <span class="o">=</span> <span class="p">{</span>
                 <span class="n">en</span><span class="p">[</span><span class="mi">0</span><span class="p">]:</span> <span class="nb">getattr</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">en</span><span class="p">[</span><span class="mi">0</span><span class="p">])</span> <span class="k">for</span> <span class="n">en</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">_encoders</span> <span class="k">if</span> <span class="n">en</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span>
             <span class="p">}</span>
@@ -392,11 +393,7 @@
     <span class="nd">@property</span>
     <span class="k">def</span> <span class="nf">item_type</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;Return the item&#39;s *Item Type* field value as an int.&quot;&quot;&quot;</span>
-        <span class="n">key_val</span> <span class="o">=</span> <span class="n">PDU_ITEM_TYPES</span><span class="o">.</span><span class="n">items</span><span class="p">()</span>
-        <span class="n">keys</span> <span class="o">=</span> <span class="p">[</span><span class="n">key</span> <span class="k">for</span> <span class="p">(</span><span class="n">key</span><span class="p">,</span> <span class="n">val</span><span class="p">)</span> <span class="ow">in</span> <span class="n">key_val</span><span class="p">]</span>
-        <span class="n">vals</span> <span class="o">=</span> <span class="p">[</span><span class="n">val</span> <span class="k">for</span> <span class="p">(</span><span class="n">key</span><span class="p">,</span> <span class="n">val</span><span class="p">)</span> <span class="ow">in</span> <span class="n">key_val</span><span class="p">]</span>
-
-        <span class="k">return</span> <span class="n">keys</span><span class="p">[</span><span class="n">vals</span><span class="o">.</span><span class="n">index</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="vm">__class__</span><span class="p">)]</span>
+        <span class="k">return</span> <span class="p">{</span><span class="n">vv</span><span class="p">:</span> <span class="n">kk</span> <span class="k">for</span> <span class="n">kk</span><span class="p">,</span> <span class="n">vv</span> <span class="ow">in</span> <span class="n">PDU_ITEM_TYPES</span><span class="o">.</span><span class="n">items</span><span class="p">()}[</span><span class="nb">type</span><span class="p">(</span><span class="bp">self</span><span class="p">)]</span>
 
     <span class="k">def</span> <span class="nf">__len__</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;Return the total length of the encoded item as an int.&quot;&quot;&quot;</span>
