@@ -124,11 +124,11 @@ class ApplicationEntity(object):
 
     @property
     def active_associations(self):
-        """Return a list of the AE's active Associations threads.
+        """Return a list of the AE's active ``Association`` threads.
 
         Returns
         -------
-        list of threading.Thread
+        list of association.Association
             A list of all active association threads, both requestors and
             acceptors.
         """
@@ -138,10 +138,10 @@ class ApplicationEntity(object):
         return [tt for tt in t_assocs if tt.ae == self]
 
     def add_requested_context(self, abstract_syntax, transfer_syntax=None):
-        """Add a Presentation Context to be proposed when sending Association
-        requests.
+        """Add a presentation context to be proposed when requesting an
+        association.
 
-        When an SCU sends an Association request to a peer it includes a list
+        When an SCU sends an association request to a peer it includes a list
         of presentation contexts it would like the peer to support [1]_. This
         method adds a single
         :py:class:`PresentationContext
@@ -261,9 +261,10 @@ class ApplicationEntity(object):
 
     def add_supported_context(self, abstract_syntax, transfer_syntax=None,
                               scu_role=None, scp_role=None):
-        """Add a supported presentation context.
+        """Add a presentation context to be supported when accepting
+        association requests.
 
-        When an Association request is received from a peer it supplies a list
+        When an association request is received from a peer it supplies a list
         of presentation contexts that it would like the SCP to support. This
         method adds a `PresentationContext` to the list of the SCP's
         supported contexts.
@@ -284,20 +285,20 @@ class ApplicationEntity(object):
             If the association requestor includes an SCP/SCU Role Selection
             Negotiation item for this context then:
 
-            * If None then ignore the proposal (if either `scp_role` or
-              `scu_role` is None then both are assumed to be) and use the
+            * If ``None`` then ignore the proposal (if either `scp_role` or
+              `scu_role` is ``None`` then both are assumed to be) and use the
               default roles.
-            * If True accept the proposed SCU role
-            * If False reject the proposed SCU role
+            * If ``True`` accept the proposed SCU role
+            * If ``False`` reject the proposed SCU role
         scp_role : bool or None, optional
             If the association requestor includes an SCP/SCU Role Selection
             Negotiation item for this context then:
 
-            * If None then ignore the proposal (if either `scp_role` or
-              `scu_role` is None then both are assumed to be) and use the
+            * If ``None`` then ignore the proposal (if either `scp_role` or
+              `scu_role` is ``None`` then both are assumed to be) and use the
               default roles.
-            * If True accept the proposed SCP role
-            * If False reject the proposed SCP role
+            * If ``True`` accept the proposed SCP role
+            * If ``False`` reject the proposed SCP role
 
         Examples
         --------
@@ -363,9 +364,9 @@ class ApplicationEntity(object):
             =Explicit VR Little Endian
             =Explicit VR Big Endian
 
-        Add support for CTImageStorage and if the association requestor
-        includes an SCP/SCU Role Selection Negotiation item for CT Image
-        Storage requesting the SCU and SCP roles then accept the proposal.
+        Add support for *CT Image Storage* and if the association requestor
+        includes an SCP/SCU Role Selection Negotiation item for *CT Image
+        Storage* requesting the SCU and SCP roles then accept the proposal.
 
         >>> from pynetdicom import AE
         >>> from pynetdicom.sop_class import CTImageStorage
@@ -409,12 +410,12 @@ class ApplicationEntity(object):
 
     @property
     def ae_title(self):
-        """Get the AE title."""
+        """Return the AE title as length 16 ``bytes``."""
         return self._ae_title
 
     @ae_title.setter
     def ae_title(self, value):
-        """Set the AE title.
+        """Set the AE title using ``bytes``.
 
         Parameters
         ----------
@@ -423,18 +424,15 @@ class ApplicationEntity(object):
             trailing spaces are non-significant.
         """
         # pylint: disable=attribute-defined-outside-init
-        try:
-            self._ae_title = validate_ae_title(value)
-        except:
-            raise
+        self._ae_title = validate_ae_title(value)
 
     def associate(self, addr, port, contexts=None, ae_title=b'ANY-SCP',
                   max_pdu=DEFAULT_MAX_LENGTH, ext_neg=None,
                   bind_address=('', 0), tls_args=None, evt_handlers=None):
-        """Request an Association with a remote AE.
+        """Request an association with a remote AE.
 
-        The Association thread is returned whether or not the association is
-        accepted and should be checked using ``Association.is_established``
+        An ``Association`` thread is returned whether or not the association
+        is accepted and should be checked using ``Association.is_established``
         before sending any messages. The returned thread will only be running
         if the association was established.
 
@@ -449,8 +447,8 @@ class ApplicationEntity(object):
             support by the peer. If not used then the presentation contexts in
             the `AE.requested_contexts` property will be requested instead.
         ae_title : bytes, optional
-            The peer's AE title, will be used as the 'Called AE Title'
-            parameter value (default b'ANY-SCP').
+            The peer's AE title, will be used as the *Called AE Title*
+            parameter value (default ``b'ANY-SCP'``).
         max_pdu : int, optional
             The maximum PDV receive size in bytes to use when negotiating the
             association (default 16832).
@@ -461,23 +459,23 @@ class ApplicationEntity(object):
             to, default ('', 0).
         tls_args : 2-tuple, optional
             If TLS is required then this should be a 2-tuple containing a
-            (ssl_context, `server_hostname`), where ssl_context is the
-            ssl.SSLContext instance to use to wrap the client socket and
+            (`ssl_context`, `server_hostname`), where `ssl_context` is the
+            ``ssl.SSLContext`` instance to use to wrap the client socket and
             `server_hostname` is the value to use for the corresponding
             keyword parameter in ``SSLContext.wrap_sockets()``. If no
             `tls_args` is supplied then TLS will not be used (default).
         evt_handlers : list of 2-tuple, optional
-            A list of (event, handler), where `event` is an ``evt.EVT_*`` event
-            tuple and `handler` is a callable function that will be bound to
-            the event. The handler should take a single ``event.Event``
-            parameter and may return or yield objects depending on the exact
-            event that the handler is bound to. For more information see the
-            :ref:`documentation<user_events>`.
+            A list of (`event`, `handler`), where `event` is an ``evt.EVT_*``
+            event tuple and `handler` is a callable function that will be
+            bound to the event. The handler should take a single
+            ``event.Event`` parameter and may return or yield objects
+            depending on the exact event that the handler is bound to. For
+            more information see the :ref:`documentation<user_events>`.
 
         Returns
         -------
         assoc : association.Association
-            If the association was established then a running Association
+            If the association was established then a running ``Association``
             thread, otherwise returns a thread that hasn't been started.
 
         Raises
@@ -564,7 +562,7 @@ class ApplicationEntity(object):
 
     @property
     def dimse_timeout(self):
-        """Get the DIMSE timeout."""
+        """Return the DIMSE timeout."""
         return self._dimse_timeout
 
     @dimse_timeout.setter
@@ -584,17 +582,17 @@ class ApplicationEntity(object):
 
     @property
     def implementation_class_uid(self):
-        """Return the current Implementation Class UID."""
+        """Return the current *Implementation Class UID*."""
         return self._implementation_uid
 
     @implementation_class_uid.setter
     def implementation_class_uid(self, uid):
-        """Set the Implementation Class UID used in Association requests.
+        """Set the *Implementation Class UID* used in association requests.
 
         Parameters
         ----------
         uid : str or pydicom.uid.UID
-            The A-ASSOCIATE-RQ's Implementation Class UID value.
+            The A-ASSOCIATE-RQ's *Implementation Class UID* value.
         """
         uid = UID(uid)
         if uid.is_valid:
@@ -603,17 +601,17 @@ class ApplicationEntity(object):
 
     @property
     def implementation_version_name(self):
-        """Return the current Implementation Version Name."""
+        """Return the current *Implementation Version Name*."""
         return self._implementation_version
 
     @implementation_version_name.setter
     def implementation_version_name(self, value):
-        """Set the Implementation Version Name used in Association requests.
+        """Set the *Implementation Version Name* used in association requests.
 
         Parameters
         ----------
         value : bytes
-            The A-ASSOCIATE-RQ's Implementation Version Name value.
+            The A-ASSOCIATE-RQ's *Implementation Version Name* value.
         """
         # pylint: disable=attribute-defined-outside-init
         self._implementation_version = value
@@ -655,7 +653,7 @@ class ApplicationEntity(object):
 
     @property
     def network_timeout(self):
-        """Get the network timeout."""
+        """Return the network timeout."""
         return self._network_timeout
 
     @network_timeout.setter
@@ -674,7 +672,7 @@ class ApplicationEntity(object):
             assoc.network_timeout = self.network_timeout
 
     def remove_requested_context(self, abstract_syntax, transfer_syntax=None):
-        """Remove a requested Presentation Context.
+        """Remove a requested presentation context.
 
         Depending on the supplied parameters one of the following will occur:
 
@@ -805,7 +803,7 @@ class ApplicationEntity(object):
 
         Depending on the supplied parameters one of the following will occur:
 
-        * `abstract_syntax` alone-  the entire supported context will be
+        * `abstract_syntax` alone - the entire supported context will be
           removed.
         * `abstract_syntax` and `transfer_syntax` -  If the supplied
           `transfer_syntax` list contains all of the context's supported
@@ -926,35 +924,35 @@ class ApplicationEntity(object):
 
     @property
     def requested_contexts(self):
-        """Return a list of the requested PresentationContext items.
+        """Return a list of the requested ``PresentationContext`` items.
 
         Returns
         -------
         list of presentation.PresentationContext
-            The SCU's requested Presentation Contexts.
+            The SCU's requested presentation contexts.
         """
         return self._requested_contexts
 
     @requested_contexts.setter
     def requested_contexts(self, contexts):
-        """Set the requested Presentation Contexts using a list.
+        """Set the requested presentation contexts using a list.
 
         Parameters
         ----------
         contexts : list of presentation.PresentationContext
-            The Presentation Contexts to request when acting as an SCU.
+            The presentation contexts to request when acting as an SCU.
 
         Examples
         --------
         Set the requested presentation contexts using an inbuilt list of
-        service specific `PresentationContext` items:
+        service specific ``PresentationContext`` items:
 
         >>> from pynetdicom import AE, StoragePresentationContexts
         >>> ae = AE()
         >>> ae.requested_contexts = StoragePresentationContexts
 
         Set the requested presentation contexts using a list of
-        `PresentationContext` items:
+        ```PresentationContext`` items:
 
         >>> from pydicom.uid import ImplicitVRLittleEndian
         >>> from pynetdicom import AE
@@ -992,25 +990,25 @@ class ApplicationEntity(object):
 
     @property
     def require_called_aet(self):
-        """Return whether the *Called AE Title* must match ae_title."""
+        """Return whether the *Called AE Title* must match the AE title."""
         return self._require_called_aet
 
     @require_called_aet.setter
     def require_called_aet(self, require_match):
         """Set whether the *Called AE Title* must match the AE title.
 
-        When an Association request is received the value of the 'Called AE
+        When an association request is received the value of the 'Called AE
         Title' supplied by the peer will be compared with the set values and
         if none match the association will be rejected. If the set value
-        is an empty list then the 'Called AE Title' will not be checked.
+        is an empty list then the *Called AE Title* will not be checked.
 
         Parameters
         ----------
         require_match : bool
-            If True then any association requests that supply a
-            *Called AE Title* value that does not match AE.ae_title
-            will be rejected. If False (default) then all association requests
-            will be accepted (unless rejected for other reasons).
+            If ``True`` then any association requests that supply a
+            *Called AE Title* value that does not match ``AE.ae_title``
+            will be rejected. If ``False`` (default) then all association
+            requests will be accepted (unless rejected for other reasons).
         """
         # pylint: disable=attribute-defined-outside-init
         self._require_called_aet = require_match
@@ -1024,17 +1022,17 @@ class ApplicationEntity(object):
     def require_calling_aet(self, ae_titles):
         """Set the required calling AE title.
 
-        When an Association request is received the value of the 'Calling AE
-        Title' supplied by the peer will be compared with the set value and
+        When an association request is received the value of the *Calling AE
+        Title* supplied by the peer will be compared with the set value and
         if none match the association will be rejected. If the set value
-        is an empty list then the 'Calling AE Title' will not be checked.
+        is an empty list then the *Calling AE Title* will not be checked.
 
         Parameters
         ----------
         ae_titles : list of bytes
             If not empty then any association requests that supply a
-            Calling AE Title value that does not match one of the values in
-            `ae_titles` will be rejected. If an empty list (default) then all
+            *Calling AE Title* value that does not match one of the values in
+            ``ae_titles`` will be rejected. If an empty list (default) then all
             association requests will be accepted (unless rejected for other
             reasons).
         """
@@ -1053,15 +1051,15 @@ class ApplicationEntity(object):
         Parameters
         ----------
         address : 2-tuple
-            The (host, port) to use when listening for incoming association
+            The (`host`, `port`) to use when listening for incoming association
             requests.
         block : bool, optional
-            If True (default) then the server will be blocking, otherwise it
-            will start the server in a new thread and be non-blocking.
+            If ``True`` (default) then the server will be blocking, otherwise
+            it will start the server in a new thread and be non-blocking.
         ssl_context : ssl.SSLContext, optional
-            If TLS is required then this should the SSLContext instance to
-            use to wrap the client sockets, otherwise if None then no TLS will
-            be used (default).
+            If TLS is required then this should the ``SSLContext`` instance to
+            use to wrap the client sockets, otherwise if ``None`` then no TLS
+            will be used (default).
         evt_handlers : list of 2-tuple, optional
             A list of (event, handler), where `event` is an ``evt.EVT_*`` event
             tuple and `handler` is a callable function that will be bound to
@@ -1073,8 +1071,8 @@ class ApplicationEntity(object):
         Returns
         -------
         transport.ThreadedAssociationServer or None
-            If `block` is False then returns the server instance, otherwise
-            returns None.
+            If `block` is ``False`` then returns the server instance, otherwise
+            returns ``None``.
         """
         # If the SCP has no supported SOP Classes then there's no point
         #   running as a server
@@ -1197,12 +1195,12 @@ class ApplicationEntity(object):
 
     @property
     def supported_contexts(self):
-        """Return a list of the supported PresentationContexts items.
+        """Return a list of the supported ``PresentationContexts`` items.
 
         Returns
         -------
         list of presentation.PresentationContext
-            The SCP's supported Presentation Contexts, ordered by abstract
+            The SCP's supported presentation contexts, ordered by abstract
             syntax.
         """
         # The supported presentation contexts are stored internally as a dict
@@ -1212,17 +1210,17 @@ class ApplicationEntity(object):
 
     @supported_contexts.setter
     def supported_contexts(self, contexts):
-        """Set the supported Presentation Contexts using a list.
+        """Set the supported presentation contexts using a list.
 
         Parameters
         ----------
         contexts : list of presentation.PresentationContext
-            The Presentation Contexts to support when acting as an SCP.
+            The presentation contexts to support when acting as an SCP.
 
         Examples
         --------
         Set the supported presentation contexts using a list of
-        `PresentationContext` items:
+        ``PresentationContext`` items:
 
         >>> from pydicom.uid import ImplicitVRLittleEndian
         >>> from pynetdicom import AE
@@ -1234,7 +1232,7 @@ class ApplicationEntity(object):
         >>> ae.supported_contexts = [context]
 
         Set the supported presentation contexts using an inbuilt list of
-        service specific `PresentationContext` items:
+        service specific ``PresentationContext`` items:
 
         >>> from pynetdicom import AE, StoragePresentationContexts
         >>> ae = AE()

@@ -153,17 +153,17 @@ Supported DIMSE SCP Services
 When the AE is acting as an SCP the following DIMSE-C and -N services are
 available to the peer once an association has been established:
 
-.. _handle_echo: https://pydicom.github.io/pynetdicom/dev/reference/generated/pynetdicom._handlers.doc_handle_echo.html
-.. _handle_find: https://pydicom.github.io/pynetdicom/dev/reference/generated/pynetdicom._handlers.doc_handle_find.html
-.. _handle_c_get: https://pydicom.github.io/pynetdicom/dev/reference/generated/pynetdicom._handlers.doc_handle_c_get.html
-.. _handle_move: https://pydicom.github.io/pynetdicom/dev/reference/generated/pynetdicom._handlers.doc_handle_move.html
-.. _handle_store: https://pydicom.github.io/pynetdicom/dev/reference/generated/pynetdicom._handlers.doc_handle_store.html
-.. _handle_action: https://pydicom.github.io/pynetdicom/dev/reference/generated/pynetdicom._handlers.doc_handle_action.html
-.. _handle_create: https://pydicom.github.io/pynetdicom/dev/reference/generated/pynetdicom._handlers.doc_handle_create.html
-.. _handle_delete: https://pydicom.github.io/pynetdicom/dev/reference/generated/pynetdicom._handlers.doc_handle_delete.html
-.. _handle_event_report: https://pydicom.github.io/pynetdicom/dev/reference/generated/pynetdicom._handlers.doc_handle_event_report.html
-.. _handle_n_get: https://pydicom.github.io/pynetdicom/dev/reference/generated/pynetdicom._handlers.doc_handle_n_get.html
-.. _handle_set: https://pydicom.github.io/pynetdicom/dev/reference/generated/pynetdicom._handlers.doc_handle_set.html
+.. _handle_echo: https://pydicom.github.io/pynetdicom/stable/reference/generated/pynetdicom._handlers.doc_handle_echo.html
+.. _handle_find: https://pydicom.github.io/pynetdicom/stable/reference/generated/pynetdicom._handlers.doc_handle_find.html
+.. _handle_c_get: https://pydicom.github.io/pynetdicom/stable/reference/generated/pynetdicom._handlers.doc_handle_c_get.html
+.. _handle_move: https://pydicom.github.io/pynetdicom/stable/reference/generated/pynetdicom._handlers.doc_handle_move.html
+.. _handle_store: https://pydicom.github.io/pynetdicom/stable/reference/generated/pynetdicom._handlers.doc_handle_store.html
+.. _handle_action: https://pydicom.github.io/pynetdicom/stable/reference/generated/pynetdicom._handlers.doc_handle_action.html
+.. _handle_create: https://pydicom.github.io/pynetdicom/stable/reference/generated/pynetdicom._handlers.doc_handle_create.html
+.. _handle_delete: https://pydicom.github.io/pynetdicom/stable/reference/generated/pynetdicom._handlers.doc_handle_delete.html
+.. _handle_event_report: https://pydicom.github.io/pynetdicom/stable/reference/generated/pynetdicom._handlers.doc_handle_event_report.html
+.. _handle_n_get: https://pydicom.github.io/pynetdicom/stable/reference/generated/pynetdicom._handlers.doc_handle_n_get.html
+.. _handle_set: https://pydicom.github.io/pynetdicom/stable/reference/generated/pynetdicom._handlers.doc_handle_set.html
 
 +----------------+----------------------------+
 | DIMSE service  | Intervention Event         |
@@ -189,7 +189,7 @@ available to the peer once an association has been established:
 
 With the exception of the C-ECHO service, a user-defined *handler* must be bound
 to the corresponding
-`intervention event <https://pydicom.github.io/pynetdicom/dev/user/events#intervention-events>`_
+`intervention event <https://pydicom.github.io/pynetdicom/stable/user/events#intervention-events>`_
 in order to complete a DIMSE service request. Events
 can be imported with ``from pynetdicom import evt`` and a handler can be
 bound to an event prior to starting an association through the *evt_handlers*
@@ -199,7 +199,7 @@ When an event occurs the *handler* function is called and passed a single
 parameter, *event*, which is an ``evt.Event`` object whose specific attributes
 are dependent on the type of event that occurred. Handlers bound to
 intervention events must  return or yield certain values. See the
-`handler documentation <https://pydicom.github.io/pynetdicom/dev/reference/events>`_
+`handler documentation <https://pydicom.github.io/pynetdicom/stable/reference/events>`_
 for information on what attributes and properties are available in ``Event``
 for each event type and the expected returns/yields for the
 corresponding handlers.

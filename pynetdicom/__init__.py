@@ -43,6 +43,7 @@ from pynetdicom.presentation import (
     ColorPalettePresentationContexts,
     ImplantTemplatePresentationContexts,
     DisplaySystemPresentationContexts,
+    ModalityPerformedPresentationContexts,
 )
 
 

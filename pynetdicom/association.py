@@ -101,13 +101,13 @@ class Association(threading.Thread):
     dul : dul.DULServiceProvider
         The DICOM Upper Layer service provider.
     is_aborted : bool
-        True if the association has been aborted, False otherwise.
+        ``True`` if the association has been aborted, ``False`` otherwise.
     is_established : bool
-        True if the association has been established, False otherwise.
+        ``True`` if the association has been established, ``False`` otherwise.
     is_rejected : bool
-        True if the association was rejected, False otherwise.
+        ``True`` if the association was rejected, ``False`` otherwise.
     is_released : bool
-        True if the association has been released, False otherwise.
+        ``True`` if the association has been released, ``False`` otherwise.
     mode : str
         The mode of the local AE, either the association 'requestor' or
         association 'acceptor'.
@@ -115,18 +115,18 @@ class Association(threading.Thread):
         Representation of the association's requestor AE.
     """
     def __init__(self, ae, mode):
-        """Create a new Association instance.
+        """Create a new ``Association`` instance.
 
-        The Association starts in State 1 (idle). Association negotiation
-        won't begin until an AssociationSocket is assigned using set_socket()
-        and Association.start_server() is called.
+        The association starts in State 1 (idle). Association negotiation
+        won't begin until an ``AssociationSocket`` is assigned using
+        ``set_socket()`` and ``Association.start_server()`` is called.
 
         Parameters
         ----------
         ae : ae.ApplicationEntity
             The local AE.
         mode : str
-            Must be "requestor" or "acceptor".
+            Must be ``"requestor"`` or ``"acceptor"``.
         """
         self._ae = ae
         self.mode = mode
@@ -175,7 +175,7 @@ class Association(threading.Thread):
         self.daemon = True
 
     def abort(self):
-        """Sends an A-ABORT to the remote AE and kills the Association."""
+        """Send an A-ABORT to the remote AE and kill the ``Association``."""
         if not self.is_released:
             LOGGER.info('Aborting Association')
             self.acse.send_abort(self, 0x00)
@@ -188,7 +188,7 @@ class Association(threading.Thread):
 
     @property
     def accepted_contexts(self):
-        """Return a list of accepted Presentation Contexts."""
+        """Return a list of accepted ``PresentationContexts``."""
         # Accepted contexts are stored internally as {context ID : context}
         return sorted(self._accepted_cx.values(), key=lambda x: x.context_id)
 
@@ -199,14 +199,14 @@ class Association(threading.Thread):
 
     @acse_timeout.setter
     def acse_timeout(self, value):
-        """Set the ACSE timeout using numeric or None."""
+        """Set the ACSE timeout using numeric or ``None``."""
         with threading.Lock():
             self.dul.artim_timer.timeout = value
             self._acse_timeout = value
 
     @property
     def ae(self):
-        """Return the Association's parent ApplicationEntity."""
+        """Return the Association's parent ``ApplicationEntity``."""
         return self._ae
 
     def bind(self, event, handler):
@@ -214,7 +214,7 @@ class Association(threading.Thread):
 
         Parameters
         ----------
-        event : 3-tuple
+        event : namedtuple
             The event to bind the function to.
         handler : callable
             The function that will be called if the event occurs.
@@ -251,7 +251,7 @@ class Association(threading.Thread):
             self.bind(evt.EVT_PDU_SENT, standard_pdu_sent_handler)
 
     def _check_received_status(self, rsp):
-        """Return a pydicom Dataset containing status related elements.
+        """Return a pydicom ``Dataset`` containing status related elements.
 
         Parameters
         ----------
@@ -263,10 +263,10 @@ class Association(threading.Thread):
         -------
         pydicom.dataset.Dataset
             If no response or an invalid response was received from the peer
-            then an empty Dataset, if a valid response was received from the
-            peer then (at a minimum) a Dataset containing an (0000,0900)
-            *Status* element, and any included optional status related
-            elements.
+            then an empty ``Dataset``, if a valid response was received from
+            the peer then (at a minimum) a ``Dataset`` containing an
+            (0000,0900) *Status* element, and any included optional status
+            related elements.
         """
         msg_type = rsp.__class__.__name__
         msg_type = msg_type.replace('_', '-')
@@ -293,7 +293,7 @@ class Association(threading.Thread):
 
     @dimse_timeout.setter
     def dimse_timeout(self, value):
-        """Set the DIMSE timeout using numeric or None."""
+        """Set the DIMSE timeout using numeric or ``None``."""
         with threading.Lock():
             self._dimse_timeout = value
 
@@ -306,7 +306,7 @@ class Association(threading.Thread):
 
         Parameters
         ----------
-        event : tuple
+        event : namedtuple
             The event bound to the handlers.
 
         Returns
@@ -323,7 +323,7 @@ class Association(threading.Thread):
         return self._handlers[event]
 
     def _get_valid_context(self, ab_syntax, tr_syntax, role, context_id=None):
-        """Return a valid Presentation Context matching the parameters.
+        """Return a valid presentation context matching the parameters.
 
         Parameters
         ----------
@@ -391,16 +391,16 @@ class Association(threading.Thread):
 
     @property
     def is_acceptor(self):
-        """Return True if the local AE is the association acceptor."""
+        """Return ``True`` if the local AE is the association *Acceptor*."""
         return self.mode == MODE_ACCEPTOR
 
     @property
     def is_requestor(self):
-        """Return True if the local AE is the association requestor."""
+        """Return ``True`` if the local AE is the association *Requestor*."""
         return self.mode == MODE_REQUESTOR
 
     def kill(self):
-        """Kill the main association thread loop."""
+        """Kill the ``Association`` thread."""
         self._kill = True
         self.is_established = False
         while self.dul.is_alive() and not self.dul.stop_dul():
@@ -426,11 +426,11 @@ class Association(threading.Thread):
         Parameters
         ----------
         mode : str
-            The mode of the Association, must be either "requestor" or
-            "acceptor". If "requestor" then its assumed that the local AE
-            requests an association with peers and (by default) acts as the
-            SCU. If "acceptor" then its assumed that the local AE is listening
-            for association requests and (by default) acts as the SCP.
+            The mode of the Association, must be either ``"requestor"`` or
+            ``"acceptor"``. If ``"requestor"`` then its assumed that the local
+            AE requests an association with peers and (by default) acts as the
+            SCU. If ``"acceptor"`` then its assumed that the local AE is
+            listening for association requests and (by default) acts as the SCP.
         """
         mode = mode.lower()
         if mode not in [MODE_REQUESTOR, MODE_ACCEPTOR]:
@@ -449,14 +449,14 @@ class Association(threading.Thread):
 
     @network_timeout.setter
     def network_timeout(self, value):
-        """Set the network timeout using numeric or None."""
+        """Set the network timeout using numeric or ``None``."""
         with threading.Lock():
             self.dul._idle_timer.timeout = value
             self._network_timeout = value
 
     @property
     def rejected_contexts(self):
-        """Return a list of rejected Presentation Contexts."""
+        """Return a list of rejected ``PresentationContext``."""
         return self._rejected_cx
 
     def release(self):
@@ -476,8 +476,9 @@ class Association(threading.Thread):
     def request(self):
         """Request an association with a peer.
 
-        A request can only be made once the Association instance has been
-        configured for requestor mode and been assigned an AssociationSocket.
+        A request can only be made once the ``Association`` instance has been
+        configured for requestor mode and been assigned an
+        ``AssociationSocket``.
         """
         # Start the DUL thread if not already started
         self.dul.start()
@@ -489,7 +490,7 @@ class Association(threading.Thread):
         self.acse.negotiate_association(self)
 
     def run(self):
-        """The main Association control."""
+        """The main ``Association`` reactor."""
         # Start the DUL thread if not already started
         if not self._started_dul:
             self.dul.start()
@@ -524,7 +525,7 @@ class Association(threading.Thread):
                 self._run_as_requestor()
 
     def _run_as_acceptor(self):
-        """Run the Association acceptor reactor loop.
+        """Run the ``Association`` acceptor reactor loop.
 
         Main acceptor run loop
         1. Checks for incoming DIMSE messages
@@ -714,7 +715,7 @@ class Association(threading.Thread):
 
         Parameters
         ----------
-        event : 3-tuple
+        event : namedtuple
             The event to unbind the function from.
         handler : callable
             The function that will no longer be called if the event occurs.
@@ -3044,13 +3045,13 @@ class Association(threading.Thread):
 
 
 class ServiceUser(object):
-    """Convenience class for the Association Service User.
+    """Convenience class for the ``Association`` service user.
 
-    An Association object has two ServiceUser attributes, one representing the
-    association requestor and the other the association acceptor. Once both
-    ServiceUser's have been defined sufficiently to be considered valid then
-    association negotiation can begin. The requestor ServiceUser requires
-    (at a minimum) the following in order to be valid:
+    An ``Association`` object has two ``ServiceUser`` attributes, one
+    representing the association *Requestor* and the other the association
+    *Acceptor*. Once both have been defined sufficiently to be considered
+    valid then association negotiation can begin. The *Requestor*
+    ``ServiceUser`` requires (at a minimum) the following in order to be valid:
 
     * For association as requestor:
 
@@ -3064,8 +3065,8 @@ class ServiceUser(object):
         * AE title
         * Address and port number
 
-    The acceptor ServiceUser requires (at a minimum) the following in order
-    to be valid:
+    The *Acceptor* ``ServiceUser`` requires (at a minimum) the following in
+    order to be valid:
 
     * For association as requestor:
 
