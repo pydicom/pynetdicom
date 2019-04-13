@@ -17,7 +17,7 @@ from pynetdicom.sop_class import (
     _COLOR_PALETTE_CLASSES,
     _IMPLANT_TEMPLATE_CLASSES,
     #_PRINT_MANAGEMENT_CLASSES,
-    #_PROCEDURE_STEP_CLASSES,
+    _PROCEDURE_STEP_CLASSES,
     _DISPLAY_SYSTEM_CLASSES,
     #_MEDIA_STORAGE_CLASSES,
     #_UNIFIED_PROCEDURE_STEP_CLASSES,
@@ -906,4 +906,8 @@ ImplantTemplatePresentationContexts = [
 
 DisplaySystemPresentationContexts = [
     build_context(uid) for uid in sorted(_DISPLAY_SYSTEM_CLASSES.values())
+]
+
+ModalityPerformedPresentationContexts = [
+    build_context(uid) for uid in sorted(_PROCEDURE_STEP_CLASSES.values())
 ]
