@@ -2024,21 +2024,18 @@ class TestAssociationSendCFind(object):
         ae.dimse_timeout = 5
         assoc = ae.associate('localhost', 11112)
 
-        class DummyMessage():
-            is_valid_response = True
-            DataSet = None
-            Status = 0x0000
-            STATUS_OPTIONAL_KEYWORDS = []
-
         class DummyDIMSE():
             def send_msg(*args, **kwargs):
                 return
 
             def get_msg(*args, **kwargs):
+                def dummy():
+                    pass
+
                 rsp = C_FIND()
                 rsp.Status = 0xFF00
                 rsp.MessageIDBeingRespondedTo = 1
-                rsp.Identifier = BytesIO(b'\x08\x00\x01\x00\x04\x00\x00\x00\x00\x08\x00\x49')
+                rsp._dataset = dummy
                 return 1, rsp
 
         assoc.dimse = DummyDIMSE()
@@ -2683,10 +2680,11 @@ class TestAssociationSendCGet(object):
                 return
 
             def get_msg(*args, **kwargs):
+                def dummy(): pass
                 rsp = C_GET()
                 rsp.Status = 0xC000
                 rsp.MessageIDBeingRespondedTo = 1
-                rsp.Identifier = BytesIO(b'\x08\x00\x01\x00\x04\x00\x00\x00\x00\x08\x00\x49')
+                rsp._dataset = dummy
                 return 1, rsp
 
         assoc.dimse = DummyDIMSE()
@@ -3377,10 +3375,12 @@ class TestAssociationSendCMove(object):
                 return
 
             def get_msg(*args, **kwargs):
+                def dummy(): pass
+
                 rsp = C_MOVE()
                 rsp.MessageIDBeingRespondedTo = 1
                 rsp.Status = 0xC000
-                rsp.Identifier = BytesIO(b'\x08\x00\x01\x00\x04\x00\x00\x00\x00\x08\x00\x49')
+                rsp._dataset = dummy
                 return 1, rsp
 
         assoc.dimse = DummyDIMSE()

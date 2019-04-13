@@ -71,7 +71,7 @@ class TestStorageServiceClass_Deprecated(object):
         req.AffectedSOPClassUID = DATASET.SOPClassUID
         req.AffectedSOPInstanceUID = DATASET.SOPInstanceUID
         req.Priorty = 0x0002
-        req.DataSet = BytesIO(b'\x08\x00\x01\x00\x04\x00\x00\x00\x00\x08\x00\x49')
+        req.DataSet = BytesIO(b'\x08\x00\x01\x00\x40\x40\x00\x00\x00\x00\x00\x08\x00\x49')
 
         # Send C-STORE request to DIMSE and get response
         assoc.dimse.send_msg(req, 1)
@@ -375,7 +375,7 @@ class TestStorageServiceClass(object):
             try:
                 for elem in event.dataset.iterall():
                     pass
-            except NotImplementedError:
+            except:
                 status = Dataset()
                 status.Status = 0xC210
                 status.ErrorComment = "Unable to decode the dataset"
@@ -398,7 +398,7 @@ class TestStorageServiceClass(object):
         req.AffectedSOPClassUID = DATASET.SOPClassUID
         req.AffectedSOPInstanceUID = DATASET.SOPInstanceUID
         req.Priorty = 0x0002
-        req.DataSet = BytesIO(b'\x08\x00\x01\x00\x04\x00\x00\x00\x00\x08\x00\x49')
+        req.DataSet = BytesIO(b'\x08\x00\x01\x00\x40\x40\x00\x00\x00\x00\x00\x08\x00\x49')
 
         # Send C-STORE request to DIMSE and get response
         assoc.dimse.send_msg(req, 1)

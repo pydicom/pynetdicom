@@ -129,6 +129,6 @@ class TestElementEncode(object):
 class TestDecodeFailure(object):
     """Tests that ensure dataset decoding fails as expected"""
     def test_failure(self):
-        bytestream = BytesIO(b'\x08\x00\x01\x00\x04\x00\x00\x00\x00\x08\x00\x49')
-        with pytest.raises(NotImplementedError):
-            print(decode(bytestream, False, True))
+        def dummy(): pass
+        with pytest.raises(AttributeError):
+            print(decode(dummy, False, True))

@@ -19,39 +19,39 @@ single CT dataset.
 
 .. code-block:: python
 
-   from pydicom import dcmread
+    from pydicom import dcmread
 
-   from pynetdicom import AE
-   from pynetdicom.sop_class import CTImageStorage
+    from pynetdicom import AE
+    from pynetdicom.sop_class import CTImageStorage
 
-   # Initialise the Application Entity
-   ae = AE()
+    # Initialise the Application Entity
+    ae = AE()
 
-   # Add a requested presentation context
-   ae.add_requested_context(CTImageStorage)
+    # Add a requested presentation context
+    ae.add_requested_context(CTImageStorage)
 
-   # Read in our DICOM CT dataset
-   ds = dcmread('path/to/dataset')
+    # Read in our DICOM CT dataset
+    ds = dcmread('path/to/dataset')
 
-   # Associate with peer AE at IP 127.0.0.1 and port 11112
-   assoc = ae.associate('127.0.0.1', 11112)
+    # Associate with peer AE at IP 127.0.0.1 and port 11112
+    assoc = ae.associate('127.0.0.1', 11112)
 
-   if assoc.is_established:
-       # Use the C-STORE service to send the dataset
-       # returns the response status as a pydicom Dataset
-       status = assoc.send_c_store(ds)
+    if assoc.is_established:
+        # Use the C-STORE service to send the dataset
+        # returns the response status as a pydicom Dataset
+        status = assoc.send_c_store(ds)
 
-       # Check the status of the storage request
-       if status:
-           # If the storage request succeeded this will be 0x0000
-           print('C-STORE request status: 0x{0:04x}'.format(status.Status))
-       else:
-           print('Connection timed out, was aborted or received invalid response')
+        # Check the status of the storage request
+        if status:
+            # If the storage request succeeded this will be 0x0000
+            print('C-STORE request status: 0x{0:04x}'.format(status.Status))
+        else:
+            print('Connection timed out, was aborted or received invalid response')
 
-       # Release the association
-       assoc.release()
-   else:
-       print('Association rejected, aborted or never connected')
+        # Release the association
+        assoc.release()
+    else:
+        print('Association rejected, aborted or never connected')
 
 Of course it's rarely the case that someone wants to store just CT images,
 so you can also use the inbuilt ``StoragePresentationContexts`` when setting
@@ -59,33 +59,33 @@ the requested contexts or just add as many contexts as you need.
 
 .. code-block:: python
 
-   from pynetdicom import AE, StoragePresentationContexts
+    from pynetdicom import AE, StoragePresentationContexts
 
-   ae = AE()
-   ae.requested_contexts = StoragePresentationContexts
+    ae = AE()
+    ae.requested_contexts = StoragePresentationContexts
 
 You can also set the requested contexts on a per association basis.
 
 .. code-block:: python
 
-   from pydicom import dcmread
+    from pydicom import dcmread
 
-   from pynetdicom import AE, build_context
-   from pynetdicom.sop_class import CTImageStorage, MRImageStorage
+    from pynetdicom import AE, build_context
+    from pynetdicom.sop_class import CTImageStorage, MRImageStorage
 
-   # Initialise the Application Entity
-   ae = AE()
+    # Initialise the Application Entity
+    ae = AE()
 
-   # Create some presentation contexts
-   ct_context = build_context(CTImageStorage)
-   mr_context = build_context(MRImageStorage)
+    # Create some presentation contexts
+    ct_context = build_context(CTImageStorage)
+    mr_context = build_context(MRImageStorage)
 
-   # Associate with peer AE at IP 127.0.0.1 and port 11112
-   assoc = ae.associate('127.0.0.1', 11112, contexts=[ct_context])
-   assoc.release()
+    # Associate with peer AE at IP 127.0.0.1 and port 11112
+    assoc = ae.associate('127.0.0.1', 11112, contexts=[ct_context])
+    assoc.release()
 
-   assoc = ae.associate('127.0.0.1', 11112, contexts=[mr_context])
-   assoc.release()
+    assoc = ae.associate('127.0.0.1', 11112, contexts=[mr_context])
+    assoc.release()
 
 .. _example_storage_scp:
 
@@ -109,52 +109,40 @@ to see the requirements for the ``evt.EVT_C_STORE`` handler.
 
 .. code-block:: python
 
-   from pydicom.dataset import Dataset
+    from pydicom.dataset import Dataset
 
-   from pynetdicom import (
-       AE, evt,
-       StoragePresentationContexts,
-       PYNETDICOM_IMPLEMENTATION_UID,
-       PYNETDICOM_IMPLEMENTATION_VERSION
-   )
+    from pynetdicom import (
+        AE, evt,
+        StoragePresentationContexts,
+        PYNETDICOM_IMPLEMENTATION_UID,
+        PYNETDICOM_IMPLEMENTATION_VERSION
+    )
 
-   # Implement a handler evt.EVT_C_STORE
-   def handle_store(event):
-       """Handle a C-STORE request event."""
-       ds = event.dataset
-       context = event.context
+    # Implement a handler evt.EVT_C_STORE
+    def handle_store(event):
+        """Handle a C-STORE request event."""
+        # Decode the C-STORE request's *Data Set* parameter to a pydicom Dataset
+        ds = event.dataset
 
-       # Add the DICOM File Meta Information
-       meta = Dataset()
-       meta.MediaStorageSOPClassUID = ds.SOPClassUID
-       meta.MediaStorageSOPInstanceUID = ds.SOPInstanceUID
-       meta.ImplementationClassUID = PYNETDICOM_IMPLEMENTATION_UID
-       meta.ImplementationVersionName = PYNETDICOM_IMPLEMENTATION_VERSION
-       meta.TransferSyntaxUID = context.transfer_syntax
+        # Add the File Meta Information
+        ds.file_meta = event.file_meta
 
-       # Add the file meta to the dataset
-       ds.file_meta = meta
+        # Save the dataset using the SOP Instance UID as the filename
+        ds.save_as(ds.SOPInstanceUID, write_like_original=False)
 
-       # Set the transfer syntax attributes of the dataset
-       ds.is_little_endian = context.transfer_syntax.is_little_endian
-       ds.is_implicit_VR = context.transfer_syntax.is_implicit_VR
+        # Return a 'Success' status
+        return 0x0000
 
-       # Save the dataset using the SOP Instance UID as the filename
-       ds.save_as(ds.SOPInstanceUID, write_like_original=False)
+    handlers = [(evt.EVT_C_STORE, handle_store)]
 
-       # Return a 'Success' status
-       return 0x0000
+    # Initialise the Application Entity
+    ae = AE()
 
-   handlers = [(evt.EVT_C_STORE, handle_store)]
+    # Add the supported presentation contexts
+    ae.supported_contexts = StoragePresentationContexts
 
-   # Initialise the Application Entity
-   ae = AE()
-
-   # Add the supported presentation contexts
-   ae.supported_contexts = StoragePresentationContexts
-
-   # Start listening for incoming association requests
-   ae.start_server(('', 11112), evt_handlers=handlers)
+    # Start listening for incoming association requests
+    ae.start_server(('', 11112), evt_handlers=handlers)
 
 As with the SCU you can also just support only the contexts you're
 interested in.
