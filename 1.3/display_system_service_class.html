@@ -8,7 +8,7 @@
   
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   
-  <title>Display System Management Service Class &mdash; pynetdicom 1.2.0 documentation</title>
+  <title>Display System Management Service Class &mdash; pynetdicom 1.3.0 documentation</title>
   
 
   
@@ -38,7 +38,7 @@
   <link rel="stylesheet" href="_static/css/pynetdicom.css" type="text/css" />
     <link rel="index" title="Index" href="genindex.html" />
     <link rel="search" title="Search" href="search.html" />
-    <link rel="next" title="User Guide" href="user/index.html" />
+    <link rel="next" title="Modality Performed Procedure Step Management" href="modality_performed_procedure_step.html" />
     <link rel="prev" title="Implant Template Query/Retrieve Service Class" href="implant_template_service_class.html" /> 
 </head>
 
@@ -66,7 +66,7 @@
             
             
               <div class="version">
-                1.2.0
+                1.3.0
               </div>
             
           
@@ -114,12 +114,14 @@
 <li class="toctree-l2"><a class="reference internal" href="#references">References</a></li>
 </ul>
 </li>
+<li class="toctree-l1"><a class="reference internal" href="modality_performed_procedure_step.html">Modality Performed Procedure Step Management</a></li>
 </ul>
 <ul>
 <li class="toctree-l1"><a class="reference internal" href="user/index.html">User Guide</a></li>
 </ul>
 <ul>
-<li class="toctree-l1"><a class="reference internal" href="release_notes.html">1.2.0</a></li>
+<li class="toctree-l1"><a class="reference internal" href="release_notes.html">1.3.0</a></li>
+<li class="toctree-l1"><a class="reference internal" href="release_notes.html#v1-2-0">1.2.0</a></li>
 <li class="toctree-l1"><a class="reference internal" href="release_notes.html#v1-1-0">1.1.0</a></li>
 <li class="toctree-l1"><a class="reference internal" href="release_notes.html#v1-0-0">1.0.0</a></li>
 </ul>
@@ -194,19 +196,19 @@ defines a service that facilitates access to Display System objects.</p>
 <h2>Supported SOP Classes<a class="headerlink" href="#supported-sop-classes" title="Permalink to this headline">¶</a></h2>
 <div class="section" id="display-system-management-sop-classes">
 <span id="display-sops"></span><h3>Display System Management SOP Classes<a class="headerlink" href="#display-system-management-sop-classes" title="Permalink to this headline">¶</a></h3>
-<table border="1" class="docutils">
+<table class="docutils align-center">
 <colgroup>
-<col width="38%" />
-<col width="62%" />
+<col style="width: 38%" />
+<col style="width: 62%" />
 </colgroup>
-<thead valign="bottom">
-<tr class="row-odd"><th class="head">UID</th>
-<th class="head">SOP Class</th>
+<thead>
+<tr class="row-odd"><th class="head"><p>UID</p></th>
+<th class="head"><p>SOP Class</p></th>
 </tr>
 </thead>
-<tbody valign="top">
-<tr class="row-even"><td>1.2.840.10008.5.1.1.40</td>
-<td>DisplaySystemSOPClass</td>
+<tbody>
+<tr class="row-even"><td><p>1.2.840.10008.5.1.1.40</p></td>
+<td><p>DisplaySystemSOPClass</p></td>
 </tr>
 </tbody>
 </table>
@@ -216,70 +218,70 @@ defines a service that facilitates access to Display System objects.</p>
 <span id="display-statuses"></span><h2>Statuses<a class="headerlink" href="#statuses" title="Permalink to this headline">¶</a></h2>
 <div class="section" id="n-get-statuses">
 <h3>N-GET Statuses<a class="headerlink" href="#n-get-statuses" title="Permalink to this headline">¶</a></h3>
-<table border="1" class="docutils">
+<table class="docutils align-center">
 <colgroup>
-<col width="21%" />
-<col width="18%" />
-<col width="61%" />
+<col style="width: 21%" />
+<col style="width: 18%" />
+<col style="width: 61%" />
 </colgroup>
-<thead valign="bottom">
-<tr class="row-odd"><th class="head">Code (hex)</th>
-<th class="head">Category</th>
-<th class="head">Description</th>
+<thead>
+<tr class="row-odd"><th class="head"><p>Code (hex)</p></th>
+<th class="head"><p>Category</p></th>
+<th class="head"><p>Description</p></th>
 </tr>
 </thead>
-<tbody valign="top">
-<tr class="row-even"><td>0x0000</td>
-<td>Success</td>
-<td>Success</td>
+<tbody>
+<tr class="row-even"><td><p>0x0000</p></td>
+<td><p>Success</p></td>
+<td><p>Success</p></td>
 </tr>
-<tr class="row-odd"><td>0x0107</td>
-<td>Warning</td>
-<td>SOP Class not supported</td>
+<tr class="row-odd"><td><p>0x0107</p></td>
+<td><p>Warning</p></td>
+<td><p>SOP Class not supported</p></td>
 </tr>
-<tr class="row-even"><td>0x0110</td>
-<td>Failure</td>
-<td>Processing failure</td>
+<tr class="row-even"><td><p>0x0110</p></td>
+<td><p>Failure</p></td>
+<td><p>Processing failure</p></td>
 </tr>
-<tr class="row-odd"><td>0x0112</td>
-<td>Failure</td>
-<td>No such SOP Instance</td>
+<tr class="row-odd"><td><p>0x0112</p></td>
+<td><p>Failure</p></td>
+<td><p>No such SOP Instance</p></td>
 </tr>
-<tr class="row-even"><td>0x0117</td>
-<td>Failure</td>
-<td>Invalid object instance</td>
+<tr class="row-even"><td><p>0x0117</p></td>
+<td><p>Failure</p></td>
+<td><p>Invalid object instance</p></td>
 </tr>
-<tr class="row-odd"><td>0x0118</td>
-<td>Failure</td>
-<td>No such SOP Class</td>
+<tr class="row-odd"><td><p>0x0118</p></td>
+<td><p>Failure</p></td>
+<td><p>No such SOP Class</p></td>
 </tr>
-<tr class="row-even"><td>0x0119</td>
-<td>Failure</td>
-<td>Class-Instance conflict</td>
+<tr class="row-even"><td><p>0x0119</p></td>
+<td><p>Failure</p></td>
+<td><p>Class-Instance conflict</p></td>
 </tr>
-<tr class="row-odd"><td>0x0122</td>
-<td>Failure</td>
-<td>SOP class not supported</td>
+<tr class="row-odd"><td><p>0x0122</p></td>
+<td><p>Failure</p></td>
+<td><p>SOP class not supported</p></td>
 </tr>
-<tr class="row-even"><td>0x0124</td>
-<td>Failure</td>
-<td>Not authorised</td>
+<tr class="row-even"><td><p>0x0124</p></td>
+<td><p>Failure</p></td>
+<td><p>Not authorised</p></td>
 </tr>
-<tr class="row-odd"><td>0x0210</td>
-<td>Failure</td>
-<td>Duplicate invocation</td>
+<tr class="row-odd"><td><p>0x0210</p></td>
+<td><p>Failure</p></td>
+<td><p>Duplicate invocation</p></td>
 </tr>
-<tr class="row-even"><td>0x0211</td>
-<td>Failure</td>
-<td>Unrecognised operation</td>
+<tr class="row-even"><td><p>0x0211</p></td>
+<td><p>Failure</p></td>
+<td><p>Unrecognised operation</p></td>
 </tr>
-<tr class="row-odd"><td>0x0212</td>
-<td>Failure</td>
-<td>Mistyped argument</td>
+<tr class="row-odd"><td><p>0x0212</p></td>
+<td><p>Failure</p></td>
+<td><p>Mistyped argument</p></td>
 </tr>
-<tr class="row-even"><td>0x0213</td>
-<td>Failure</td>
-<td>Resource limitation</td>
+<tr class="row-even"><td><p>0x0213</p></td>
+<td><p>Failure</p></td>
+<td><p>Resource limitation</p></td>
 </tr>
 </tbody>
 </table>
@@ -288,9 +290,9 @@ defines a service that facilitates access to Display System objects.</p>
 <div class="section" id="references">
 <h2>References<a class="headerlink" href="#references" title="Permalink to this headline">¶</a></h2>
 <ul class="simple">
-<li>DICOM Standard, Part 4, <a class="reference external" href="http://dicom.nema.org/medical/dicom/current/output/html/part04.html#chapter_EE">Annex EE</a></li>
-<li>DICOM Standard, Part 7, Sections
-<a class="reference external" href="http://dicom.nema.org/medical/dicom/current/output/chtml/part07/chapter_9.html#sect_10.1.2">10.1.2</a></li>
+<li><p>DICOM Standard, Part 4, <a class="reference external" href="http://dicom.nema.org/medical/dicom/current/output/html/part04.html#chapter_EE">Annex EE</a></p></li>
+<li><p>DICOM Standard, Part 7, Sections
+<a class="reference external" href="http://dicom.nema.org/medical/dicom/current/output/chtml/part07/chapter_9.html#sect_10.1.2">10.1.2</a></p></li>
 </ul>
 </div>
 </div>
@@ -303,7 +305,7 @@ defines a service that facilitates access to Display System objects.</p>
   
     <div class="rst-footer-buttons" role="navigation" aria-label="footer navigation">
       
-        <a href="user/index.html" class="btn btn-neutral float-right" title="User Guide" accesskey="n" rel="next">Next <span class="fa fa-arrow-circle-right"></span></a>
+        <a href="modality_performed_procedure_step.html" class="btn btn-neutral float-right" title="Modality Performed Procedure Step Management" accesskey="n" rel="next">Next <span class="fa fa-arrow-circle-right"></span></a>
       
       
         <a href="implant_template_service_class.html" class="btn btn-neutral float-left" title="Implant Template Query/Retrieve Service Class" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left"></span> Previous</a>

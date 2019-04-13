@@ -36,26 +36,26 @@ Root Query/Retrieve Information Model - Find* at the *Patient* level.
    # Associate with peer AE at IP 127.0.0.1 and port 11112
    assoc = ae.associate('127.0.0.1', 11112)
 
-   if assoc.is_established:
-       # Use the C-FIND service to send the identifier
-       # A query_model value of 'P' means use the 'Patient Root Query Retrieve
-       #     Information Model - Find' presentation context
-       responses = assoc.send_c_find(ds, query_model='P')
+    if assoc.is_established:
+        # Use the C-FIND service to send the identifier
+        # A query_model value of 'P' means use the 'Patient Root Query Retrieve
+        #     Information Model - Find' presentation context
+        responses = assoc.send_c_find(ds, query_model='P')
 
-       for (status, identifier) in responses:
-           if status:
-              print('C-FIND query status: 0x{0:04x}'.format(status.Status))
+        for (status, identifier) in responses:
+            if status:
+                print('C-FIND query status: 0x{0:04x}'.format(status.Status))
 
-              # If the status is 'Pending' then `identifier` is the C-FIND response
-              if status.Status in (0xFF00, 0xFF01):
-                  print(identifier)
-           else:
-              print('Connection timed out, was aborted or received invalid response')
+                # If the status is 'Pending' then identifier is the C-FIND response
+                if status.Status in (0xFF00, 0xFF01):
+                    print(identifier)
+            else:
+                print('Connection timed out, was aborted or received invalid response')
 
-       # Release the association
-       assoc.release()
-   else:
-       print('Association rejected, aborted or never connected')
+        # Release the association
+        assoc.release()
+    else:
+        print('Association rejected, aborted or never connected')
 
 The responses received from the SCP are dependent on the *Identifier* dataset
 keys and values, the Query/Retrieve level and the information model. For
@@ -71,6 +71,7 @@ the various *SOP Class UIDs* that make are in each study for a patient with
     ds.StudyInstanceUID = '*'
     ds.QueryRetrieveLevel = 'STUDY'
 
+.. _example_qrfind_scp:
 
 Query/Retrieve (Find) SCP
 .........................
@@ -89,88 +90,70 @@ This is a very bad way of managing stored SOP Instances, in reality its
 probably best to store the instance attributes in a database and run the
 query against that.
 
+Check the
+`handler implementation documentation
+<../reference/generated/pynetdicom._handlers.doc_handle_find.html>`_
+to see the requirements for the ``evt.EVT_C_FIND`` handler.
+
 .. code-block:: python
 
-   import os
+    import os
 
-   from pydicom import dcmread
-   from pydicom.dataset import Dataset
+    from pydicom import dcmread
+    from pydicom.dataset import Dataset
 
-   from pynetdicom import AE
-   from pynetdicom.sop_class import PatientRootQueryRetrieveInformationModelFind
+    from pynetdicom import AE, evt
+    from pynetdicom.sop_class import PatientRootQueryRetrieveInformationModelFind
+
+    # Implement the handler for evt.EVT_C_FIND
+    def handle_find(event):
+        """Handle a C-FIND request event."""
+        ds = event.identifier
+
+        # Import stored SOP Instances
+        instances = []
+        fdir = '/path/to/directory'
+        for fpath in os.listdir(fdir):
+            instances.append(dcmread(os.path.join(fdir, fpath)))
+
+        if 'QueryRetrieveLevel' not in ds:
+            # Failure
+            yield 0xC000, None
+            return
+
+        if ds.QueryRetrieveLevel == 'PATIENT':
+            if 'PatientName' in ds:
+                if ds.PatientName not in ['*', '', '?']:
+                    matching = [
+                        inst for inst in instances if inst.PatientName == ds.PatientName
+                    ]
+
+                # Skip the other possibile values...
+
+            # Skip the other possible attributes...
+
+        # Skip the other QR levels...
+
+        for instance in matching:
+            # Check if C-CANCEL has been received
+            if event.is_cancelled:
+                yield (0xFE00, None)
+                return
+
+            identifier = Dataset()
+            identifier.PatientName = instance.PatientName
+            identifier.QueryRetrieveLevel = ds.QueryRetrieveLevel
+
+            # Pending
+            yield (0xFF00, identifier)
+
+   handlers = [(evt.EVT_C_FIND, handle_find)]
 
    # Initialise the Application Entity and specify the listen port
    ae = AE()
 
-   # Add a requested presentation context
+   # Add the supported presentation context
    ae.add_supported_context(PatientRootQueryRetrieveInformationModelFind)
 
-   # Implement the AE.on_c_store callback
-   def on_c_find(ds, context, info):
-       """Respond to a C-FIND request Identifier `ds`.
-
-       Parameters
-       ----------
-       ds : pydicom.dataset.Dataset
-           The Identifier dataset send by the peer.
-       context : namedtuple
-           The presentation context that the dataset was sent under.
-       info : dict
-           Information about the association and query/retrieve request.
-
-       Yields
-       ------
-       status : int or pydicom.dataset.Dataset
-           The status returned to the peer AE in the C-FIND response. Must be
-           a valid C-FIND status value for the applicable Service Class as
-           either an ``int`` or a ``Dataset`` object containing (at a
-           minimum) a (0000,0900) *Status* element.
-       identifier : pydicom.dataset.Dataset
-           If the status is 'Pending' then the *Identifier* ``Dataset`` for a
-           matching SOP Instance. The exact requirements for the C-FIND
-           response *Identifier* are Service Class specific (see the
-           DICOM Standard, Part 4).
-
-           If the status is 'Failure' or 'Cancel' then yield ``None``.
-
-           If the status is 'Success' then yield ``None``, however yielding a
-           final 'Success' status is not required and will be ignored if
-           necessary.
-       """
-       # Import stored SOP Instances
-       instances = []
-       matching = []
-       fdir = '/path/to/directory'
-       for fpath in os.listdir(fdir):
-           instances.append(dcmread(os.path.join(fdir, fpath)))
-
-       if 'QueryRetrieveLevel' not in ds:
-           # Failure
-           yield 0xC000, None
-           return
-
-       if ds.QueryRetrieveLevel == 'PATIENT':
-           if 'PatientName' in ds:
-               if ds.PatientName not in ['*', '', '?']:
-                   matching = [
-                       inst for inst in instances if inst.PatientName == ds.PatientName
-                   ]
-
-               # Skip the other possibile values...
-
-           # Skip the other possible attributes...
-
-       # Skip the other QR levels...
-
-       for instance in matching:
-           identifier = Dataset()
-           identifier.PatientName = instance.PatientName
-           identifier.QueryRetrieveLevel = ds.QueryRetrieveLevel
-
-           # Pending
-           yield (0xFF00, identifier)
-
-   ae.on_c_find = on_c_find
-
    # Start listening for incoming association requests
-   ae.start_server(('', 11112))
+   ae.start_server(('', 11112), evt_handlers=handlers)

@@ -8,7 +8,7 @@
   
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   
-  <title>pynetdicom.pdu_primitives.P_DATA &mdash; pynetdicom 1.2.0 documentation</title>
+  <title>pynetdicom.pdu_primitives.P_DATA &mdash; pynetdicom 1.3.0 documentation</title>
   
 
   
@@ -64,7 +64,7 @@
             
             
               <div class="version">
-                1.2.0
+                1.3.0
               </div>
             
           
@@ -101,12 +101,14 @@
 <li class="toctree-l1"><a class="reference internal" href="../../hanging_protocol_service_class.html">Hanging Protocol Query/Retrieve Service Class</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../../implant_template_service_class.html">Implant Template Query/Retrieve Service Class</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../../display_system_service_class.html">Display System Management Service Class</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../modality_performed_procedure_step.html">Modality Performed Procedure Step Management</a></li>
 </ul>
 <ul>
 <li class="toctree-l1"><a class="reference internal" href="../../user/index.html">User Guide</a></li>
 </ul>
 <ul>
-<li class="toctree-l1"><a class="reference internal" href="../../release_notes.html">1.2.0</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../release_notes.html">1.3.0</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../release_notes.html#v1-2-0">1.2.0</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../../release_notes.html#v1-1-0">1.1.0</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../../release_notes.html#v1-0-0">1.0.0</a></li>
 </ul>
@@ -177,22 +179,22 @@
 <h1>pynetdicom.pdu_primitives.P_DATA<a class="headerlink" href="#pynetdicom-pdu-primitives-p-data" title="Permalink to this headline">¶</a></h1>
 <dl class="class">
 <dt id="pynetdicom.pdu_primitives.P_DATA">
-<em class="property">class </em><code class="descclassname">pynetdicom.pdu_primitives.</code><code class="descname">P_DATA</code><a class="reference internal" href="../../_modules/pynetdicom/pdu_primitives.html#P_DATA"><span class="viewcode-link">[source]</span></a><a class="reference external" href="https://github.com/pydicom/pynetdicom/blob/fa9f63a/pynetdicom/pdu_primitives.py#L955"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pynetdicom.pdu_primitives.P_DATA" title="Permalink to this definition">¶</a></dt>
+<em class="property">class </em><code class="descclassname">pynetdicom.pdu_primitives.</code><code class="descname">P_DATA</code><a class="reference internal" href="../../_modules/pynetdicom/pdu_primitives.html#P_DATA"><span class="viewcode-link">[source]</span></a><a class="reference external" href="https://github.com/pydicom/pynetdicom/blob/c7e7004b/pynetdicom/pdu_primitives.py#L1010"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pynetdicom.pdu_primitives.P_DATA" title="Permalink to this definition">¶</a></dt>
 <dd><p>A P-DATA primitive.</p>
-<table border="1" class="docutils">
+<table class="docutils align-center">
 <colgroup>
-<col width="59%" />
-<col width="18%" />
-<col width="24%" />
+<col style="width: 59%" />
+<col style="width: 18%" />
+<col style="width: 24%" />
 </colgroup>
-<tbody valign="top">
-<tr class="row-odd"><td>Parameter</td>
-<td>Request</td>
-<td>Indication</td>
+<tbody>
+<tr class="row-odd"><td><p>Parameter</p></td>
+<td><p>Request</p></td>
+<td><p>Indication</p></td>
 </tr>
-<tr class="row-even"><td>presentation data value list</td>
-<td>M</td>
-<td>M(=)</td>
+<tr class="row-even"><td><p>presentation data value list</p></td>
+<td><p>M</p></td>
+<td><p>M(=)</p></td>
 </tr>
 </tbody>
 </table>
@@ -213,47 +215,44 @@ a Presentation Context ID and User Data values. The User Data values
 are taken from the Abstract Syntax and encoded in the Transfer Syntax
 identified by the Presentation Context ID. Each item in the list is
 [Context ID, PDV Data]</p>
-<table class="docutils field-list" frame="void" rules="none">
-<col class="field-name" />
-<col class="field-body" />
-<tbody valign="top">
-<tr class="field-odd field"><th class="field-name">Type:</th><td class="field-body">list of [<a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.7)">int</a>, <a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#bytes" title="(in Python v3.7)">bytes</a>]</td>
-</tr>
-</tbody>
-</table>
+<dl class="field-list simple">
+<dt class="field-odd">Type</dt>
+<dd class="field-odd"><p>list of [<a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.7)">int</a>, <a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#bytes" title="(in Python v3.7)">bytes</a>]</p>
+</dd>
+</dl>
 </dd></dl>
 
 <p class="rubric">References</p>
 <ul class="simple">
-<li>DICOM Standard, Part 8, Section 7.6.1</li>
+<li><p>DICOM Standard, Part 8, Section 7.6.1</p></li>
 </ul>
 <dl class="method">
 <dt id="pynetdicom.pdu_primitives.P_DATA.__init__">
-<code class="descname">__init__</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="../../_modules/pynetdicom/pdu_primitives.html#P_DATA.__init__"><span class="viewcode-link">[source]</span></a><a class="reference external" href="https://github.com/pydicom/pynetdicom/blob/fa9f63a/pynetdicom/pdu_primitives.py#L987"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pynetdicom.pdu_primitives.P_DATA.__init__" title="Permalink to this definition">¶</a></dt>
+<code class="descname">__init__</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="../../_modules/pynetdicom/pdu_primitives.html#P_DATA.__init__"><span class="viewcode-link">[source]</span></a><a class="reference external" href="https://github.com/pydicom/pynetdicom/blob/c7e7004b/pynetdicom/pdu_primitives.py#L1042"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pynetdicom.pdu_primitives.P_DATA.__init__" title="Permalink to this definition">¶</a></dt>
 <dd><p>Initialize self.  See help(type(self)) for accurate signature.</p>
 </dd></dl>
 
 <p class="rubric">Methods</p>
-<table border="1" class="longtable docutils">
+<table class="longtable docutils align-center">
 <colgroup>
-<col width="10%" />
-<col width="90%" />
+<col style="width: 10%" />
+<col style="width: 90%" />
 </colgroup>
-<tbody valign="top">
-<tr class="row-odd"><td><a class="reference internal" href="#pynetdicom.pdu_primitives.P_DATA.__init__" title="pynetdicom.pdu_primitives.P_DATA.__init__"><code class="xref py py-obj docutils literal notranslate"><span class="pre">__init__</span></code></a>()</td>
-<td>Initialize self.</td>
+<tbody>
+<tr class="row-odd"><td><p><a class="reference internal" href="#pynetdicom.pdu_primitives.P_DATA.__init__" title="pynetdicom.pdu_primitives.P_DATA.__init__"><code class="xref py py-obj docutils literal notranslate"><span class="pre">__init__</span></code></a>()</p></td>
+<td><p>Initialize self.</p></td>
 </tr>
 </tbody>
 </table>
 <p class="rubric">Attributes</p>
-<table border="1" class="longtable docutils">
+<table class="longtable docutils align-center">
 <colgroup>
-<col width="10%" />
-<col width="90%" />
+<col style="width: 10%" />
+<col style="width: 90%" />
 </colgroup>
-<tbody valign="top">
-<tr class="row-odd"><td><a class="reference internal" href="#pynetdicom.pdu_primitives.P_DATA.presentation_data_value_list" title="pynetdicom.pdu_primitives.P_DATA.presentation_data_value_list"><code class="xref py py-obj docutils literal notranslate"><span class="pre">presentation_data_value_list</span></code></a></td>
-<td>Return the <em>Presentation Data Value List</em>.</td>
+<tbody>
+<tr class="row-odd"><td><p><a class="reference internal" href="#pynetdicom.pdu_primitives.P_DATA.presentation_data_value_list" title="pynetdicom.pdu_primitives.P_DATA.presentation_data_value_list"><code class="xref py py-obj docutils literal notranslate"><span class="pre">presentation_data_value_list</span></code></a></p></td>
+<td><p>Return the <em>Presentation Data Value List</em>.</p></td>
 </tr>
 </tbody>
 </table>

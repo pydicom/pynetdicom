@@ -8,7 +8,7 @@
   
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   
-  <title>pynetdicom.dsutils.decode &mdash; pynetdicom 1.2.0 documentation</title>
+  <title>pynetdicom.dsutils.decode &mdash; pynetdicom 1.3.0 documentation</title>
   
 
   
@@ -64,7 +64,7 @@
             
             
               <div class="version">
-                1.2.0
+                1.3.0
               </div>
             
           
@@ -101,12 +101,14 @@
 <li class="toctree-l1"><a class="reference internal" href="../../hanging_protocol_service_class.html">Hanging Protocol Query/Retrieve Service Class</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../../implant_template_service_class.html">Implant Template Query/Retrieve Service Class</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../../display_system_service_class.html">Display System Management Service Class</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../modality_performed_procedure_step.html">Modality Performed Procedure Step Management</a></li>
 </ul>
 <ul>
 <li class="toctree-l1"><a class="reference internal" href="../../user/index.html">User Guide</a></li>
 </ul>
 <ul>
-<li class="toctree-l1"><a class="reference internal" href="../../release_notes.html">1.2.0</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../release_notes.html">1.3.0</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../release_notes.html#v1-2-0">1.2.0</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../../release_notes.html#v1-1-0">1.1.0</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../../release_notes.html#v1-0-0">1.0.0</a></li>
 </ul>
@@ -177,27 +179,23 @@
 <h1>pynetdicom.dsutils.decode<a class="headerlink" href="#pynetdicom-dsutils-decode" title="Permalink to this headline">¶</a></h1>
 <dl class="function">
 <dt id="pynetdicom.dsutils.decode">
-<code class="descclassname">pynetdicom.dsutils.</code><code class="descname">decode</code><span class="sig-paren">(</span><em>bytestring</em>, <em>is_implicit_vr</em>, <em>is_little_endian</em><span class="sig-paren">)</span><a class="reference internal" href="../../_modules/pynetdicom/dsutils.html#decode"><span class="viewcode-link">[source]</span></a><a class="reference external" href="https://github.com/pydicom/pynetdicom/blob/fa9f63a/pynetdicom/dsutils.py#L12"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pynetdicom.dsutils.decode" title="Permalink to this definition">¶</a></dt>
+<code class="descclassname">pynetdicom.dsutils.</code><code class="descname">decode</code><span class="sig-paren">(</span><em>bytestring</em>, <em>is_implicit_vr</em>, <em>is_little_endian</em><span class="sig-paren">)</span><a class="reference internal" href="../../_modules/pynetdicom/dsutils.html#decode"><span class="viewcode-link">[source]</span></a><a class="reference external" href="https://github.com/pydicom/pynetdicom/blob/c7e7004b/pynetdicom/dsutils.py#L12"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pynetdicom.dsutils.decode" title="Permalink to this definition">¶</a></dt>
 <dd><p>Decode <cite>bytestring</cite> to a pydicom Dataset.</p>
-<table class="docutils field-list" frame="void" rules="none">
-<col class="field-name" />
-<col class="field-body" />
-<tbody valign="top">
-<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first simple">
-<li><strong>byestring</strong> (<a class="reference external" href="https://docs.python.org/3/library/io.html#io.BytesIO" title="(in Python v3.7)"><em>io.BytesIO</em></a>) – The encoded dataset in the DIMSE Message sent from the peer AE.</li>
-<li><strong>is_implicit_vr</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#bool" title="(in Python v3.7)"><em>bool</em></a>) – The dataset is encoded as implicit or explicit VR.</li>
-<li><strong>is_little_endian</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#bool" title="(in Python v3.7)"><em>bool</em></a>) – The byte ordering of the encoded dataset, little or big endian.</li>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>byestring</strong> (<a class="reference external" href="https://docs.python.org/3/library/io.html#io.BytesIO" title="(in Python v3.7)"><em>io.BytesIO</em></a>) – The encoded dataset in the DIMSE Message sent from the peer AE.</p></li>
+<li><p><strong>is_implicit_vr</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#bool" title="(in Python v3.7)"><em>bool</em></a>) – The dataset is encoded as implicit or explicit VR.</p></li>
+<li><p><strong>is_little_endian</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#bool" title="(in Python v3.7)"><em>bool</em></a>) – The byte ordering of the encoded dataset, little or big endian.</p></li>
 </ul>
-</td>
-</tr>
-<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body"><p class="first">The decoded dataset.</p>
-</td>
-</tr>
-<tr class="field-odd field"><th class="field-name">Return type:</th><td class="field-body"><p class="first last"><a class="reference external" href="https://pydicom.github.io/pydicom/stable/api_ref.html#pydicom.dataset.Dataset" title="(in pydicom v1.2.0rc1)">pydicom.dataset.Dataset</a></p>
-</td>
-</tr>
-</tbody>
-</table>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p>The decoded dataset.</p>
+</dd>
+<dt class="field-odd">Return type</dt>
+<dd class="field-odd"><p><a class="reference external" href="https://pydicom.github.io/pydicom/stable/api_ref.html#pydicom.dataset.Dataset" title="(in pydicom v1.2.0rc1)">pydicom.dataset.Dataset</a></p>
+</dd>
+</dl>
 </dd></dl>
 
 </div>

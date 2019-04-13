@@ -16,3 +16,16 @@ DIMSE-C Primitives
    C_GET
    C_MOVE
    C_STORE
+
+DIMSE-N Primitives
+------------------
+
+.. autosummary::
+   :toctree: generated/
+
+   N_ACTION
+   N_CREATE
+   N_DELETE
+   N_EVENT_REPORT
+   N_GET
+   N_SET

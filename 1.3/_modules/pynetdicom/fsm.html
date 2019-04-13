@@ -8,7 +8,7 @@
   
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   
-  <title>pynetdicom.fsm &mdash; pynetdicom 1.2.0 documentation</title>
+  <title>pynetdicom.fsm &mdash; pynetdicom 1.3.0 documentation</title>
   
 
   
@@ -64,7 +64,7 @@
             
             
               <div class="version">
-                1.2.0
+                1.3.0
               </div>
             
           
@@ -101,12 +101,14 @@
 <li class="toctree-l1"><a class="reference internal" href="../../hanging_protocol_service_class.html">Hanging Protocol Query/Retrieve Service Class</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../../implant_template_service_class.html">Implant Template Query/Retrieve Service Class</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../../display_system_service_class.html">Display System Management Service Class</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../modality_performed_procedure_step.html">Modality Performed Procedure Step Management</a></li>
 </ul>
 <ul>
 <li class="toctree-l1"><a class="reference internal" href="../../user/index.html">User Guide</a></li>
 </ul>
 <ul>
-<li class="toctree-l1"><a class="reference internal" href="../../release_notes.html">1.2.0</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../release_notes.html">1.3.0</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../release_notes.html#v1-2-0">1.2.0</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../../release_notes.html#v1-1-0">1.1.0</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../../release_notes.html#v1-0-0">1.0.0</a></li>
 </ul>
@@ -177,6 +179,7 @@
 <span class="sd">&quot;&quot;&quot;</span>
 <span class="kn">import</span> <span class="nn">logging</span>
 
+<span class="kn">from</span> <span class="nn">pynetdicom</span> <span class="k">import</span> <span class="n">evt</span>
 <span class="kn">from</span> <span class="nn">pynetdicom.pdu</span> <span class="k">import</span> <span class="p">(</span>
     <span class="n">A_ASSOCIATE_RQ</span><span class="p">,</span> <span class="n">A_ASSOCIATE_RJ</span><span class="p">,</span> <span class="n">A_ASSOCIATE_AC</span><span class="p">,</span>
     <span class="n">P_DATA_TF</span><span class="p">,</span> <span class="n">A_RELEASE_RQ</span><span class="p">,</span> <span class="n">A_RELEASE_RP</span><span class="p">,</span> <span class="n">A_ABORT_RQ</span>
@@ -248,7 +251,17 @@
             <span class="c1"># Execute the required action</span>
             <span class="n">next_state</span> <span class="o">=</span> <span class="n">action</span><span class="p">[</span><span class="mi">1</span><span class="p">](</span><span class="bp">self</span><span class="o">.</span><span class="n">dul</span><span class="p">)</span>
 
-            <span class="c1"># Useful for debugging</span>
+            <span class="c1"># Event handler - FSM transition</span>
+            <span class="n">evt</span><span class="o">.</span><span class="n">trigger</span><span class="p">(</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">dul</span><span class="o">.</span><span class="n">assoc</span><span class="p">,</span>
+                <span class="n">evt</span><span class="o">.</span><span class="n">EVT_FSM_TRANSITION</span><span class="p">,</span>
+                <span class="p">{</span>
+                    <span class="s1">&#39;action&#39;</span> <span class="p">:</span> <span class="n">action_name</span><span class="p">,</span>
+                    <span class="s1">&#39;current_state&#39;</span> <span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">current_state</span><span class="p">,</span>
+                    <span class="s1">&#39;fsm_event&#39;</span> <span class="p">:</span> <span class="n">event</span><span class="p">,</span>
+                    <span class="s1">&#39;next_state&#39;</span> <span class="p">:</span> <span class="n">next_state</span>
+                <span class="p">}</span>
+            <span class="p">)</span>
             <span class="c1">#print(</span>
             <span class="c1">#    &quot;{} + {} -&gt; {} -&gt; {}&quot;</span>
             <span class="c1">#    .format(self.current_state, event, action_name, next_state)</span>
@@ -351,12 +364,8 @@
     <span class="n">dul</span><span class="o">.</span><span class="n">pdu</span> <span class="o">=</span> <span class="n">A_ASSOCIATE_RQ</span><span class="p">()</span>
     <span class="n">dul</span><span class="o">.</span><span class="n">pdu</span><span class="o">.</span><span class="n">from_primitive</span><span class="p">(</span><span class="n">dul</span><span class="o">.</span><span class="n">primitive</span><span class="p">)</span>
 
-    <span class="c1"># Callback</span>
-    <span class="n">LOGGER</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="s2">&quot;Requesting Association&quot;</span><span class="p">)</span>
-    <span class="n">dul</span><span class="o">.</span><span class="n">assoc</span><span class="o">.</span><span class="n">acse</span><span class="o">.</span><span class="n">debug_send_associate_rq</span><span class="p">(</span><span class="n">dul</span><span class="o">.</span><span class="n">pdu</span><span class="p">)</span>
-
-    <span class="n">bytestream</span> <span class="o">=</span> <span class="n">dul</span><span class="o">.</span><span class="n">pdu</span><span class="o">.</span><span class="n">encode</span><span class="p">()</span>
-    <span class="n">dul</span><span class="o">.</span><span class="n">socket</span><span class="o">.</span><span class="n">send</span><span class="p">(</span><span class="n">bytestream</span><span class="p">)</span>
+    <span class="n">dul</span><span class="o">.</span><span class="n">socket</span><span class="o">.</span><span class="n">send</span><span class="p">(</span><span class="n">dul</span><span class="o">.</span><span class="n">pdu</span><span class="o">.</span><span class="n">encode</span><span class="p">())</span>
+    <span class="n">evt</span><span class="o">.</span><span class="n">trigger</span><span class="p">(</span><span class="n">dul</span><span class="o">.</span><span class="n">assoc</span><span class="p">,</span> <span class="n">evt</span><span class="o">.</span><span class="n">EVT_PDU_SENT</span><span class="p">,</span> <span class="p">{</span><span class="s1">&#39;pdu&#39;</span> <span class="p">:</span> <span class="n">dul</span><span class="o">.</span><span class="n">pdu</span><span class="p">})</span>
 
     <span class="k">return</span> <span class="s1">&#39;Sta5&#39;</span></div>
 
@@ -414,6 +423,13 @@
     <span class="c1"># connection</span>
     <span class="n">dul</span><span class="o">.</span><span class="n">to_user_queue</span><span class="o">.</span><span class="n">put</span><span class="p">(</span><span class="n">dul</span><span class="o">.</span><span class="n">primitive</span><span class="p">)</span>
     <span class="n">dul</span><span class="o">.</span><span class="n">socket</span><span class="o">.</span><span class="n">close</span><span class="p">()</span>
+
+    <span class="n">assoc</span> <span class="o">=</span> <span class="n">dul</span><span class="o">.</span><span class="n">assoc</span>
+    <span class="n">remote</span> <span class="o">=</span> <span class="n">assoc</span><span class="o">.</span><span class="n">acceptor</span> <span class="k">if</span> <span class="n">assoc</span><span class="o">.</span><span class="n">is_requestor</span> <span class="k">else</span> <span class="n">assoc</span><span class="o">.</span><span class="n">requestor</span>
+
+    <span class="n">address</span> <span class="o">=</span> <span class="p">(</span><span class="n">remote</span><span class="o">.</span><span class="n">address</span><span class="p">,</span> <span class="n">remote</span><span class="o">.</span><span class="n">port</span><span class="p">)</span>
+    <span class="n">evt</span><span class="o">.</span><span class="n">trigger</span><span class="p">(</span><span class="n">dul</span><span class="o">.</span><span class="n">assoc</span><span class="p">,</span> <span class="n">evt</span><span class="o">.</span><span class="n">EVT_CONN_CLOSE</span><span class="p">,</span> <span class="p">{</span><span class="s1">&#39;address&#39;</span> <span class="p">:</span> <span class="n">address</span><span class="p">})</span>
+
     <span class="n">dul</span><span class="o">.</span><span class="n">kill_dul</span><span class="p">()</span>
 
     <span class="k">return</span> <span class="s1">&#39;Sta1&#39;</span></div>
@@ -495,10 +511,8 @@
         <span class="n">dul</span><span class="o">.</span><span class="n">pdu</span> <span class="o">=</span> <span class="n">A_ASSOCIATE_RJ</span><span class="p">()</span>
         <span class="n">dul</span><span class="o">.</span><span class="n">pdu</span><span class="o">.</span><span class="n">from_primitive</span><span class="p">(</span><span class="n">dul</span><span class="o">.</span><span class="n">primitive</span><span class="p">)</span>
 
-        <span class="c1"># Callback</span>
-        <span class="n">dul</span><span class="o">.</span><span class="n">assoc</span><span class="o">.</span><span class="n">acse</span><span class="o">.</span><span class="n">debug_send_associate_rj</span><span class="p">(</span><span class="n">dul</span><span class="o">.</span><span class="n">pdu</span><span class="p">)</span>
-
         <span class="n">dul</span><span class="o">.</span><span class="n">socket</span><span class="o">.</span><span class="n">send</span><span class="p">(</span><span class="n">dul</span><span class="o">.</span><span class="n">pdu</span><span class="o">.</span><span class="n">encode</span><span class="p">())</span>
+        <span class="n">evt</span><span class="o">.</span><span class="n">trigger</span><span class="p">(</span><span class="n">dul</span><span class="o">.</span><span class="n">assoc</span><span class="p">,</span> <span class="n">evt</span><span class="o">.</span><span class="n">EVT_PDU_SENT</span><span class="p">,</span> <span class="p">{</span><span class="s1">&#39;pdu&#39;</span> <span class="p">:</span> <span class="n">dul</span><span class="o">.</span><span class="n">pdu</span><span class="p">})</span>
         <span class="n">dul</span><span class="o">.</span><span class="n">artim_timer</span><span class="o">.</span><span class="n">start</span><span class="p">()</span>
 
         <span class="k">return</span> <span class="s1">&#39;Sta13&#39;</span>
@@ -535,11 +549,8 @@
     <span class="n">dul</span><span class="o">.</span><span class="n">pdu</span> <span class="o">=</span> <span class="n">A_ASSOCIATE_AC</span><span class="p">()</span>
     <span class="n">dul</span><span class="o">.</span><span class="n">pdu</span><span class="o">.</span><span class="n">from_primitive</span><span class="p">(</span><span class="n">dul</span><span class="o">.</span><span class="n">primitive</span><span class="p">)</span>
 
-    <span class="c1"># Callback</span>
-    <span class="n">dul</span><span class="o">.</span><span class="n">assoc</span><span class="o">.</span><span class="n">acse</span><span class="o">.</span><span class="n">debug_send_associate_ac</span><span class="p">(</span><span class="n">dul</span><span class="o">.</span><span class="n">pdu</span><span class="p">)</span>
-
-    <span class="n">bytestream</span> <span class="o">=</span> <span class="n">dul</span><span class="o">.</span><span class="n">pdu</span><span class="o">.</span><span class="n">encode</span><span class="p">()</span>
-    <span class="n">dul</span><span class="o">.</span><span class="n">socket</span><span class="o">.</span><span class="n">send</span><span class="p">(</span><span class="n">bytestream</span><span class="p">)</span>
+    <span class="n">dul</span><span class="o">.</span><span class="n">socket</span><span class="o">.</span><span class="n">send</span><span class="p">(</span><span class="n">dul</span><span class="o">.</span><span class="n">pdu</span><span class="o">.</span><span class="n">encode</span><span class="p">())</span>
+    <span class="n">evt</span><span class="o">.</span><span class="n">trigger</span><span class="p">(</span><span class="n">dul</span><span class="o">.</span><span class="n">assoc</span><span class="p">,</span> <span class="n">evt</span><span class="o">.</span><span class="n">EVT_PDU_SENT</span><span class="p">,</span> <span class="p">{</span><span class="s1">&#39;pdu&#39;</span> <span class="p">:</span> <span class="n">dul</span><span class="o">.</span><span class="n">pdu</span><span class="p">})</span>
 
     <span class="k">return</span> <span class="s1">&#39;Sta6&#39;</span></div>
 
@@ -569,10 +580,8 @@
     <span class="n">dul</span><span class="o">.</span><span class="n">pdu</span> <span class="o">=</span> <span class="n">A_ASSOCIATE_RJ</span><span class="p">()</span>
     <span class="n">dul</span><span class="o">.</span><span class="n">pdu</span><span class="o">.</span><span class="n">from_primitive</span><span class="p">(</span><span class="n">dul</span><span class="o">.</span><span class="n">primitive</span><span class="p">)</span>
 
-    <span class="c1"># Callback</span>
-    <span class="n">dul</span><span class="o">.</span><span class="n">assoc</span><span class="o">.</span><span class="n">acse</span><span class="o">.</span><span class="n">debug_send_associate_rj</span><span class="p">(</span><span class="n">dul</span><span class="o">.</span><span class="n">pdu</span><span class="p">)</span>
-
     <span class="n">dul</span><span class="o">.</span><span class="n">socket</span><span class="o">.</span><span class="n">send</span><span class="p">(</span><span class="n">dul</span><span class="o">.</span><span class="n">pdu</span><span class="o">.</span><span class="n">encode</span><span class="p">())</span>
+    <span class="n">evt</span><span class="o">.</span><span class="n">trigger</span><span class="p">(</span><span class="n">dul</span><span class="o">.</span><span class="n">assoc</span><span class="p">,</span> <span class="n">evt</span><span class="o">.</span><span class="n">EVT_PDU_SENT</span><span class="p">,</span> <span class="p">{</span><span class="s1">&#39;pdu&#39;</span> <span class="p">:</span> <span class="n">dul</span><span class="o">.</span><span class="n">pdu</span><span class="p">})</span>
     <span class="n">dul</span><span class="o">.</span><span class="n">artim_timer</span><span class="o">.</span><span class="n">start</span><span class="p">()</span>
 
     <span class="k">return</span> <span class="s1">&#39;Sta13&#39;</span></div>
@@ -605,10 +614,8 @@
     <span class="n">dul</span><span class="o">.</span><span class="n">pdu</span><span class="o">.</span><span class="n">from_primitive</span><span class="p">(</span><span class="n">dul</span><span class="o">.</span><span class="n">primitive</span><span class="p">)</span>
     <span class="n">dul</span><span class="o">.</span><span class="n">primitive</span> <span class="o">=</span> <span class="kc">None</span>  <span class="c1"># Why this?</span>
 
-    <span class="c1"># Callback</span>
-    <span class="n">dul</span><span class="o">.</span><span class="n">assoc</span><span class="o">.</span><span class="n">acse</span><span class="o">.</span><span class="n">debug_send_data_tf</span><span class="p">(</span><span class="n">dul</span><span class="o">.</span><span class="n">pdu</span><span class="p">)</span>
-
     <span class="n">dul</span><span class="o">.</span><span class="n">socket</span><span class="o">.</span><span class="n">send</span><span class="p">(</span><span class="n">dul</span><span class="o">.</span><span class="n">pdu</span><span class="o">.</span><span class="n">encode</span><span class="p">())</span>
+    <span class="n">evt</span><span class="o">.</span><span class="n">trigger</span><span class="p">(</span><span class="n">dul</span><span class="o">.</span><span class="n">assoc</span><span class="p">,</span> <span class="n">evt</span><span class="o">.</span><span class="n">EVT_PDU_SENT</span><span class="p">,</span> <span class="p">{</span><span class="s1">&#39;pdu&#39;</span> <span class="p">:</span> <span class="n">dul</span><span class="o">.</span><span class="n">pdu</span><span class="p">})</span>
 
     <span class="k">return</span> <span class="s1">&#39;Sta6&#39;</span></div>
 
@@ -666,10 +673,8 @@
     <span class="n">dul</span><span class="o">.</span><span class="n">pdu</span> <span class="o">=</span> <span class="n">A_RELEASE_RQ</span><span class="p">()</span>
     <span class="n">dul</span><span class="o">.</span><span class="n">pdu</span><span class="o">.</span><span class="n">from_primitive</span><span class="p">(</span><span class="n">dul</span><span class="o">.</span><span class="n">primitive</span><span class="p">)</span>
 
-    <span class="c1"># Callback</span>
-    <span class="n">dul</span><span class="o">.</span><span class="n">assoc</span><span class="o">.</span><span class="n">acse</span><span class="o">.</span><span class="n">debug_send_release_rq</span><span class="p">(</span><span class="n">dul</span><span class="o">.</span><span class="n">pdu</span><span class="p">)</span>
-
     <span class="n">dul</span><span class="o">.</span><span class="n">socket</span><span class="o">.</span><span class="n">send</span><span class="p">(</span><span class="n">dul</span><span class="o">.</span><span class="n">pdu</span><span class="o">.</span><span class="n">encode</span><span class="p">())</span>
+    <span class="n">evt</span><span class="o">.</span><span class="n">trigger</span><span class="p">(</span><span class="n">dul</span><span class="o">.</span><span class="n">assoc</span><span class="p">,</span> <span class="n">evt</span><span class="o">.</span><span class="n">EVT_PDU_SENT</span><span class="p">,</span> <span class="p">{</span><span class="s1">&#39;pdu&#39;</span> <span class="p">:</span> <span class="n">dul</span><span class="o">.</span><span class="n">pdu</span><span class="p">})</span>
 
     <span class="k">return</span> <span class="s1">&#39;Sta7&#39;</span></div>
 
@@ -726,6 +731,13 @@
     <span class="c1"># Issue A-RELEASE confirmation primitive and close transport connection</span>
     <span class="n">dul</span><span class="o">.</span><span class="n">to_user_queue</span><span class="o">.</span><span class="n">put</span><span class="p">(</span><span class="n">dul</span><span class="o">.</span><span class="n">primitive</span><span class="p">)</span>
     <span class="n">dul</span><span class="o">.</span><span class="n">socket</span><span class="o">.</span><span class="n">close</span><span class="p">()</span>
+
+    <span class="n">assoc</span> <span class="o">=</span> <span class="n">dul</span><span class="o">.</span><span class="n">assoc</span>
+    <span class="n">remote</span> <span class="o">=</span> <span class="n">assoc</span><span class="o">.</span><span class="n">acceptor</span> <span class="k">if</span> <span class="n">assoc</span><span class="o">.</span><span class="n">is_requestor</span> <span class="k">else</span> <span class="n">assoc</span><span class="o">.</span><span class="n">requestor</span>
+
+    <span class="n">address</span> <span class="o">=</span> <span class="p">(</span><span class="n">remote</span><span class="o">.</span><span class="n">address</span><span class="p">,</span> <span class="n">remote</span><span class="o">.</span><span class="n">port</span><span class="p">)</span>
+    <span class="n">evt</span><span class="o">.</span><span class="n">trigger</span><span class="p">(</span><span class="n">dul</span><span class="o">.</span><span class="n">assoc</span><span class="p">,</span> <span class="n">evt</span><span class="o">.</span><span class="n">EVT_CONN_CLOSE</span><span class="p">,</span> <span class="p">{</span><span class="s1">&#39;address&#39;</span> <span class="p">:</span> <span class="n">address</span><span class="p">})</span>
+
     <span class="n">dul</span><span class="o">.</span><span class="n">kill_dul</span><span class="p">()</span>
 
     <span class="k">return</span> <span class="s1">&#39;Sta1&#39;</span></div>
@@ -756,10 +768,8 @@
     <span class="n">dul</span><span class="o">.</span><span class="n">pdu</span> <span class="o">=</span> <span class="n">A_RELEASE_RP</span><span class="p">()</span>
     <span class="n">dul</span><span class="o">.</span><span class="n">pdu</span><span class="o">.</span><span class="n">from_primitive</span><span class="p">(</span><span class="n">dul</span><span class="o">.</span><span class="n">primitive</span><span class="p">)</span>
 
-    <span class="c1"># Callback</span>
-    <span class="n">dul</span><span class="o">.</span><span class="n">assoc</span><span class="o">.</span><span class="n">acse</span><span class="o">.</span><span class="n">debug_send_release_rp</span><span class="p">(</span><span class="n">dul</span><span class="o">.</span><span class="n">pdu</span><span class="p">)</span>
-
     <span class="n">dul</span><span class="o">.</span><span class="n">socket</span><span class="o">.</span><span class="n">send</span><span class="p">(</span><span class="n">dul</span><span class="o">.</span><span class="n">pdu</span><span class="o">.</span><span class="n">encode</span><span class="p">())</span>
+    <span class="n">evt</span><span class="o">.</span><span class="n">trigger</span><span class="p">(</span><span class="n">dul</span><span class="o">.</span><span class="n">assoc</span><span class="p">,</span> <span class="n">evt</span><span class="o">.</span><span class="n">EVT_PDU_SENT</span><span class="p">,</span> <span class="p">{</span><span class="s1">&#39;pdu&#39;</span> <span class="p">:</span> <span class="n">dul</span><span class="o">.</span><span class="n">pdu</span><span class="p">})</span>
     <span class="n">dul</span><span class="o">.</span><span class="n">artim_timer</span><span class="o">.</span><span class="n">start</span><span class="p">()</span>
 
     <span class="k">return</span> <span class="s1">&#39;Sta13&#39;</span></div>
@@ -787,6 +797,12 @@
 <span class="sd">    str</span>
 <span class="sd">        Sta1, the next state of the state machine</span>
 <span class="sd">    &quot;&quot;&quot;</span>
+    <span class="n">assoc</span> <span class="o">=</span> <span class="n">dul</span><span class="o">.</span><span class="n">assoc</span>
+    <span class="n">remote</span> <span class="o">=</span> <span class="n">assoc</span><span class="o">.</span><span class="n">acceptor</span> <span class="k">if</span> <span class="n">assoc</span><span class="o">.</span><span class="n">is_requestor</span> <span class="k">else</span> <span class="n">assoc</span><span class="o">.</span><span class="n">requestor</span>
+
+    <span class="n">address</span> <span class="o">=</span> <span class="p">(</span><span class="n">remote</span><span class="o">.</span><span class="n">address</span><span class="p">,</span> <span class="n">remote</span><span class="o">.</span><span class="n">port</span><span class="p">)</span>
+    <span class="n">evt</span><span class="o">.</span><span class="n">trigger</span><span class="p">(</span><span class="n">dul</span><span class="o">.</span><span class="n">assoc</span><span class="p">,</span> <span class="n">evt</span><span class="o">.</span><span class="n">EVT_CONN_CLOSE</span><span class="p">,</span> <span class="p">{</span><span class="s1">&#39;address&#39;</span> <span class="p">:</span> <span class="n">address</span><span class="p">})</span>
+
     <span class="c1"># Stop ARTIM timer</span>
     <span class="n">dul</span><span class="o">.</span><span class="n">artim_timer</span><span class="o">.</span><span class="n">stop</span><span class="p">()</span>
     <span class="n">dul</span><span class="o">.</span><span class="n">kill_dul</span><span class="p">()</span>
@@ -848,10 +864,8 @@
     <span class="n">dul</span><span class="o">.</span><span class="n">pdu</span> <span class="o">=</span> <span class="n">P_DATA_TF</span><span class="p">()</span>
     <span class="n">dul</span><span class="o">.</span><span class="n">pdu</span><span class="o">.</span><span class="n">from_primitive</span><span class="p">(</span><span class="n">dul</span><span class="o">.</span><span class="n">primitive</span><span class="p">)</span>
 
-    <span class="c1"># Callback</span>
-    <span class="n">dul</span><span class="o">.</span><span class="n">assoc</span><span class="o">.</span><span class="n">acse</span><span class="o">.</span><span class="n">debug_send_data_tf</span><span class="p">(</span><span class="n">dul</span><span class="o">.</span><span class="n">pdu</span><span class="p">)</span>
-
     <span class="n">dul</span><span class="o">.</span><span class="n">socket</span><span class="o">.</span><span class="n">send</span><span class="p">(</span><span class="n">dul</span><span class="o">.</span><span class="n">pdu</span><span class="o">.</span><span class="n">encode</span><span class="p">())</span>
+    <span class="n">evt</span><span class="o">.</span><span class="n">trigger</span><span class="p">(</span><span class="n">dul</span><span class="o">.</span><span class="n">assoc</span><span class="p">,</span> <span class="n">evt</span><span class="o">.</span><span class="n">EVT_PDU_SENT</span><span class="p">,</span> <span class="p">{</span><span class="s1">&#39;pdu&#39;</span> <span class="p">:</span> <span class="n">dul</span><span class="o">.</span><span class="n">pdu</span><span class="p">})</span>
 
     <span class="k">return</span> <span class="s1">&#39;Sta8&#39;</span></div>
 
@@ -911,10 +925,8 @@
     <span class="n">dul</span><span class="o">.</span><span class="n">pdu</span> <span class="o">=</span> <span class="n">A_RELEASE_RP</span><span class="p">()</span>
     <span class="n">dul</span><span class="o">.</span><span class="n">pdu</span><span class="o">.</span><span class="n">from_primitive</span><span class="p">(</span><span class="n">dul</span><span class="o">.</span><span class="n">primitive</span><span class="p">)</span>
 
-    <span class="c1"># Callback</span>
-    <span class="n">dul</span><span class="o">.</span><span class="n">assoc</span><span class="o">.</span><span class="n">acse</span><span class="o">.</span><span class="n">debug_send_release_rp</span><span class="p">(</span><span class="n">dul</span><span class="o">.</span><span class="n">pdu</span><span class="p">)</span>
-
     <span class="n">dul</span><span class="o">.</span><span class="n">socket</span><span class="o">.</span><span class="n">send</span><span class="p">(</span><span class="n">dul</span><span class="o">.</span><span class="n">pdu</span><span class="o">.</span><span class="n">encode</span><span class="p">())</span>
+    <span class="n">evt</span><span class="o">.</span><span class="n">trigger</span><span class="p">(</span><span class="n">dul</span><span class="o">.</span><span class="n">assoc</span><span class="p">,</span> <span class="n">evt</span><span class="o">.</span><span class="n">EVT_PDU_SENT</span><span class="p">,</span> <span class="p">{</span><span class="s1">&#39;pdu&#39;</span> <span class="p">:</span> <span class="n">dul</span><span class="o">.</span><span class="n">pdu</span><span class="p">})</span>
 
     <span class="k">return</span> <span class="s1">&#39;Sta11&#39;</span></div>
 
@@ -978,10 +990,8 @@
     <span class="n">dul</span><span class="o">.</span><span class="n">pdu</span><span class="o">.</span><span class="n">reason_diagnostic</span> <span class="o">=</span> <span class="mh">0x00</span>
     <span class="n">dul</span><span class="o">.</span><span class="n">pdu</span><span class="o">.</span><span class="n">from_primitive</span><span class="p">(</span><span class="n">dul</span><span class="o">.</span><span class="n">primitive</span><span class="p">)</span>
 
-    <span class="c1"># Callback</span>
-    <span class="n">dul</span><span class="o">.</span><span class="n">assoc</span><span class="o">.</span><span class="n">acse</span><span class="o">.</span><span class="n">debug_send_abort</span><span class="p">(</span><span class="n">dul</span><span class="o">.</span><span class="n">pdu</span><span class="p">)</span>
-
     <span class="n">dul</span><span class="o">.</span><span class="n">socket</span><span class="o">.</span><span class="n">send</span><span class="p">(</span><span class="n">dul</span><span class="o">.</span><span class="n">pdu</span><span class="o">.</span><span class="n">encode</span><span class="p">())</span>
+    <span class="n">evt</span><span class="o">.</span><span class="n">trigger</span><span class="p">(</span><span class="n">dul</span><span class="o">.</span><span class="n">assoc</span><span class="p">,</span> <span class="n">evt</span><span class="o">.</span><span class="n">EVT_PDU_SENT</span><span class="p">,</span> <span class="p">{</span><span class="s1">&#39;pdu&#39;</span> <span class="p">:</span> <span class="n">dul</span><span class="o">.</span><span class="n">pdu</span><span class="p">})</span>
     <span class="n">dul</span><span class="o">.</span><span class="n">artim_timer</span><span class="o">.</span><span class="n">restart</span><span class="p">()</span>
 
     <span class="k">return</span> <span class="s1">&#39;Sta13&#39;</span></div>
@@ -1012,6 +1022,13 @@
     <span class="c1"># Stop ARTIM timer if running. Close transport connection.</span>
     <span class="n">dul</span><span class="o">.</span><span class="n">artim_timer</span><span class="o">.</span><span class="n">stop</span><span class="p">()</span>
     <span class="n">dul</span><span class="o">.</span><span class="n">socket</span><span class="o">.</span><span class="n">close</span><span class="p">()</span>
+
+    <span class="n">assoc</span> <span class="o">=</span> <span class="n">dul</span><span class="o">.</span><span class="n">assoc</span>
+    <span class="n">remote</span> <span class="o">=</span> <span class="n">assoc</span><span class="o">.</span><span class="n">acceptor</span> <span class="k">if</span> <span class="n">assoc</span><span class="o">.</span><span class="n">is_requestor</span> <span class="k">else</span> <span class="n">assoc</span><span class="o">.</span><span class="n">requestor</span>
+
+    <span class="n">address</span> <span class="o">=</span> <span class="p">(</span><span class="n">remote</span><span class="o">.</span><span class="n">address</span><span class="p">,</span> <span class="n">remote</span><span class="o">.</span><span class="n">port</span><span class="p">)</span>
+    <span class="n">evt</span><span class="o">.</span><span class="n">trigger</span><span class="p">(</span><span class="n">dul</span><span class="o">.</span><span class="n">assoc</span><span class="p">,</span> <span class="n">evt</span><span class="o">.</span><span class="n">EVT_CONN_CLOSE</span><span class="p">,</span> <span class="p">{</span><span class="s1">&#39;address&#39;</span> <span class="p">:</span> <span class="n">address</span><span class="p">})</span>
+
     <span class="n">dul</span><span class="o">.</span><span class="n">kill_dul</span><span class="p">()</span>
 
     <span class="k">return</span> <span class="s1">&#39;Sta1&#39;</span></div>
@@ -1047,6 +1064,13 @@
     <span class="c1"># This action is triggered by the reception of an A-ABORT PDU</span>
     <span class="n">dul</span><span class="o">.</span><span class="n">to_user_queue</span><span class="o">.</span><span class="n">put</span><span class="p">(</span><span class="n">dul</span><span class="o">.</span><span class="n">primitive</span><span class="p">)</span>
     <span class="n">dul</span><span class="o">.</span><span class="n">socket</span><span class="o">.</span><span class="n">close</span><span class="p">()</span>
+
+    <span class="n">assoc</span> <span class="o">=</span> <span class="n">dul</span><span class="o">.</span><span class="n">assoc</span>
+    <span class="n">remote</span> <span class="o">=</span> <span class="n">assoc</span><span class="o">.</span><span class="n">acceptor</span> <span class="k">if</span> <span class="n">assoc</span><span class="o">.</span><span class="n">is_requestor</span> <span class="k">else</span> <span class="n">assoc</span><span class="o">.</span><span class="n">requestor</span>
+
+    <span class="n">address</span> <span class="o">=</span> <span class="p">(</span><span class="n">remote</span><span class="o">.</span><span class="n">address</span><span class="p">,</span> <span class="n">remote</span><span class="o">.</span><span class="n">port</span><span class="p">)</span>
+    <span class="n">evt</span><span class="o">.</span><span class="n">trigger</span><span class="p">(</span><span class="n">dul</span><span class="o">.</span><span class="n">assoc</span><span class="p">,</span> <span class="n">evt</span><span class="o">.</span><span class="n">EVT_CONN_CLOSE</span><span class="p">,</span> <span class="p">{</span><span class="s1">&#39;address&#39;</span> <span class="p">:</span> <span class="n">address</span><span class="p">})</span>
+
     <span class="n">dul</span><span class="o">.</span><span class="n">kill_dul</span><span class="p">()</span>
 
     <span class="k">return</span> <span class="s1">&#39;Sta1&#39;</span></div>
@@ -1074,10 +1098,16 @@
 <span class="sd">    str</span>
 <span class="sd">        Sta1, the next state of the state machine</span>
 <span class="sd">    &quot;&quot;&quot;</span>
+    <span class="n">assoc</span> <span class="o">=</span> <span class="n">dul</span><span class="o">.</span><span class="n">assoc</span>
+    <span class="n">remote</span> <span class="o">=</span> <span class="n">assoc</span><span class="o">.</span><span class="n">acceptor</span> <span class="k">if</span> <span class="n">assoc</span><span class="o">.</span><span class="n">is_requestor</span> <span class="k">else</span> <span class="n">assoc</span><span class="o">.</span><span class="n">requestor</span>
+
+    <span class="n">address</span> <span class="o">=</span> <span class="p">(</span><span class="n">remote</span><span class="o">.</span><span class="n">address</span><span class="p">,</span> <span class="n">remote</span><span class="o">.</span><span class="n">port</span><span class="p">)</span>
+    <span class="n">evt</span><span class="o">.</span><span class="n">trigger</span><span class="p">(</span><span class="n">dul</span><span class="o">.</span><span class="n">assoc</span><span class="p">,</span> <span class="n">evt</span><span class="o">.</span><span class="n">EVT_CONN_CLOSE</span><span class="p">,</span> <span class="p">{</span><span class="s1">&#39;address&#39;</span> <span class="p">:</span> <span class="n">address</span><span class="p">})</span>
+
     <span class="c1"># Issue A-P-ABORT indication primitive.</span>
-    <span class="n">dul</span><span class="o">.</span><span class="n">primitive</span> <span class="o">=</span> <span class="n">A_P_ABORT</span><span class="p">()</span>
-    <span class="n">dul</span><span class="o">.</span><span class="n">primitive</span><span class="o">.</span><span class="n">provider_reason</span> <span class="o">=</span> <span class="mh">0x00</span>
-    <span class="n">dul</span><span class="o">.</span><span class="n">to_user_queue</span><span class="o">.</span><span class="n">put</span><span class="p">(</span><span class="n">dul</span><span class="o">.</span><span class="n">primitive</span><span class="p">)</span>
+    <span class="n">primitive</span> <span class="o">=</span> <span class="n">A_P_ABORT</span><span class="p">()</span>
+    <span class="n">primitive</span><span class="o">.</span><span class="n">provider_reason</span> <span class="o">=</span> <span class="mh">0x00</span>
+    <span class="n">dul</span><span class="o">.</span><span class="n">to_user_queue</span><span class="o">.</span><span class="n">put</span><span class="p">(</span><span class="n">primitive</span><span class="p">)</span>
     <span class="n">dul</span><span class="o">.</span><span class="n">kill_dul</span><span class="p">()</span>
 
     <span class="k">return</span> <span class="s1">&#39;Sta1&#39;</span></div>
@@ -1105,6 +1135,12 @@
 <span class="sd">    str</span>
 <span class="sd">        Sta1, the next state of the state machine</span>
 <span class="sd">    &quot;&quot;&quot;</span>
+    <span class="n">assoc</span> <span class="o">=</span> <span class="n">dul</span><span class="o">.</span><span class="n">assoc</span>
+    <span class="n">remote</span> <span class="o">=</span> <span class="n">assoc</span><span class="o">.</span><span class="n">acceptor</span> <span class="k">if</span> <span class="n">assoc</span><span class="o">.</span><span class="n">is_requestor</span> <span class="k">else</span> <span class="n">assoc</span><span class="o">.</span><span class="n">requestor</span>
+
+    <span class="n">address</span> <span class="o">=</span> <span class="p">(</span><span class="n">remote</span><span class="o">.</span><span class="n">address</span><span class="p">,</span> <span class="n">remote</span><span class="o">.</span><span class="n">port</span><span class="p">)</span>
+    <span class="n">evt</span><span class="o">.</span><span class="n">trigger</span><span class="p">(</span><span class="n">dul</span><span class="o">.</span><span class="n">assoc</span><span class="p">,</span> <span class="n">evt</span><span class="o">.</span><span class="n">EVT_CONN_CLOSE</span><span class="p">,</span> <span class="p">{</span><span class="s1">&#39;address&#39;</span> <span class="p">:</span> <span class="n">address</span><span class="p">})</span>
+
     <span class="c1"># Stop ARTIM timer.</span>
     <span class="n">dul</span><span class="o">.</span><span class="n">artim_timer</span><span class="o">.</span><span class="n">stop</span><span class="p">()</span>
     <span class="n">dul</span><span class="o">.</span><span class="n">kill_dul</span><span class="p">()</span>
@@ -1141,8 +1177,8 @@
 <div class="viewcode-block" id="AA_7"><a class="viewcode-back" href="../../reference/generated/pynetdicom.fsm.AA_7.html#pynetdicom.fsm.AA_7">[docs]</a><span class="k">def</span> <span class="nf">AA_7</span><span class="p">(</span><span class="n">dul</span><span class="p">):</span>
     <span class="sd">&quot;&quot;&quot;Association abort AA-7.</span>
 
-<span class="sd">    If receive a association request or invalid PDU while waiting for connection</span>
-<span class="sd">    to close, issue A-ABORT</span>
+<span class="sd">    If receive a association request or invalid PDU while waiting for</span>
+<span class="sd">    connection to close, send A-ABORT PDU</span>
 
 <span class="sd">    State-event triggers: Sta13 + Evt6/Evt19</span>
 
@@ -1161,23 +1197,23 @@
 <span class="sd">    str</span>
 <span class="sd">        Sta13, the next state of the state machine</span>
 <span class="sd">    &quot;&quot;&quot;</span>
+    <span class="n">primitive</span> <span class="o">=</span> <span class="n">A_P_ABORT</span><span class="p">()</span>
+    <span class="n">primitive</span><span class="o">.</span><span class="n">provider_reason</span> <span class="o">=</span> <span class="mh">0x02</span>
+
     <span class="c1"># Send A-ABORT PDU.</span>
     <span class="n">pdu</span> <span class="o">=</span> <span class="n">A_ABORT_RQ</span><span class="p">()</span>
-    <span class="n">pdu</span><span class="o">.</span><span class="n">source</span> <span class="o">=</span> <span class="mh">0x02</span>
-    <span class="n">pdu</span><span class="o">.</span><span class="n">reason_diagnostic</span> <span class="o">=</span> <span class="mh">0x02</span>
+    <span class="n">pdu</span><span class="o">.</span><span class="n">from_primitive</span><span class="p">(</span><span class="n">primitive</span><span class="p">)</span>
 
-    <span class="c1"># Callback</span>
-    <span class="n">dul</span><span class="o">.</span><span class="n">assoc</span><span class="o">.</span><span class="n">acse</span><span class="o">.</span><span class="n">debug_send_abort</span><span class="p">(</span><span class="n">pdu</span><span class="p">)</span>
-
-    <span class="n">dul</span><span class="o">.</span><span class="n">socket</span><span class="o">.</span><span class="n">send</span><span class="p">(</span><span class="n">pdu</span><span class="o">.</span><span class="n">encode</span><span class="p">())</span>
+    <span class="n">dul</span><span class="o">.</span><span class="n">socket</span><span class="o">.</span><span class="n">send</span><span class="p">(</span><span class="n">dul</span><span class="o">.</span><span class="n">pdu</span><span class="o">.</span><span class="n">encode</span><span class="p">())</span>
+    <span class="n">evt</span><span class="o">.</span><span class="n">trigger</span><span class="p">(</span><span class="n">dul</span><span class="o">.</span><span class="n">assoc</span><span class="p">,</span> <span class="n">evt</span><span class="o">.</span><span class="n">EVT_PDU_SENT</span><span class="p">,</span> <span class="p">{</span><span class="s1">&#39;pdu&#39;</span> <span class="p">:</span> <span class="n">dul</span><span class="o">.</span><span class="n">pdu</span><span class="p">})</span>
 
     <span class="k">return</span> <span class="s1">&#39;Sta13&#39;</span></div>
 
 <div class="viewcode-block" id="AA_8"><a class="viewcode-back" href="../../reference/generated/pynetdicom.fsm.AA_8.html#pynetdicom.fsm.AA_8">[docs]</a><span class="k">def</span> <span class="nf">AA_8</span><span class="p">(</span><span class="n">dul</span><span class="p">):</span>
     <span class="sd">&quot;&quot;&quot;Association abort AA-8.</span>
 
-<span class="sd">    If receive invalid event, send A-ABORT, issue A-P-ABORT indication and start</span>
-<span class="sd">    ARTIM timer</span>
+<span class="sd">    If receive invalid event, send A-ABORT, issue A-P-ABORT indication and</span>
+<span class="sd">    start ARTIM timer</span>
 
 <span class="sd">    State-event triggers: Evt3 + Sta3/6/7/8/9/10/11/12,</span>
 <span class="sd">    Evt4 + Sta3/5/6/7/8/9/10/11/12, Evt6 + Sta3/5/6/7/8/9/10/11/12,</span>
@@ -1210,13 +1246,13 @@
     <span class="n">dul</span><span class="o">.</span><span class="n">primitive</span><span class="o">.</span><span class="n">result</span> <span class="o">=</span> <span class="mh">0x01</span>
     <span class="n">dul</span><span class="o">.</span><span class="n">primitive</span><span class="o">.</span><span class="n">diagnostic</span> <span class="o">=</span> <span class="mh">0x01</span>
 
-    <span class="c1"># Callback</span>
-    <span class="n">dul</span><span class="o">.</span><span class="n">assoc</span><span class="o">.</span><span class="n">acse</span><span class="o">.</span><span class="n">debug_send_abort</span><span class="p">(</span><span class="n">dul</span><span class="o">.</span><span class="n">pdu</span><span class="p">)</span>
-
     <span class="n">dul</span><span class="o">.</span><span class="n">socket</span><span class="o">.</span><span class="n">send</span><span class="p">(</span><span class="n">dul</span><span class="o">.</span><span class="n">pdu</span><span class="o">.</span><span class="n">encode</span><span class="p">())</span>
+    <span class="n">evt</span><span class="o">.</span><span class="n">trigger</span><span class="p">(</span><span class="n">dul</span><span class="o">.</span><span class="n">assoc</span><span class="p">,</span> <span class="n">evt</span><span class="o">.</span><span class="n">EVT_PDU_SENT</span><span class="p">,</span> <span class="p">{</span><span class="s1">&#39;pdu&#39;</span> <span class="p">:</span> <span class="n">dul</span><span class="o">.</span><span class="n">pdu</span><span class="p">})</span>
 
     <span class="c1"># Issue A-P-ABORT to user</span>
-    <span class="n">dul</span><span class="o">.</span><span class="n">to_user_queue</span><span class="o">.</span><span class="n">put</span><span class="p">(</span><span class="n">dul</span><span class="o">.</span><span class="n">primitive</span><span class="p">)</span>
+    <span class="n">primitive</span> <span class="o">=</span> <span class="n">A_P_ABORT</span><span class="p">()</span>
+    <span class="n">primitive</span><span class="o">.</span><span class="n">provider_reason</span> <span class="o">=</span> <span class="mh">0x05</span>
+    <span class="n">dul</span><span class="o">.</span><span class="n">to_user_queue</span><span class="o">.</span><span class="n">put</span><span class="p">(</span><span class="n">primitive</span><span class="p">)</span>
     <span class="n">dul</span><span class="o">.</span><span class="n">artim_timer</span><span class="o">.</span><span class="n">start</span><span class="p">()</span>
 
     <span class="k">return</span> <span class="s1">&#39;Sta13&#39;</span></div>

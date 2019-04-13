@@ -38,6 +38,7 @@ pynetdicom.dul.DULServiceProvider
 
    .. autosummary::
    
+      ~DULServiceProvider.assoc
       ~DULServiceProvider.daemon
       ~DULServiceProvider.ident
       ~DULServiceProvider.name

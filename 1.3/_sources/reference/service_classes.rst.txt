@@ -15,3 +15,16 @@ pynetdicom supports the following Service Classes
    QueryRetrieveServiceClass
    BasicWorklistManagementServiceClass
    RelevantPatientInformationQueryServiceClass
+   SubstanceAdministrationQueryServiceClass
+   NonPatientObjectStorageServiceClass
+   HangingProtocolQueryRetrieveServiceClass
+   DefinedProcedureProtocolQueryRetrieveServiceClass
+   ColorPaletteQueryRetrieveServiceClass
+   ImplantTemplateQueryRetrieveServiceClass
+
+.. currentmodule:: pynetdicom.service_class_n
+
+.. autosummary::
+   :toctree: generated/
+
+   DisplaySystemManagementServiceClass

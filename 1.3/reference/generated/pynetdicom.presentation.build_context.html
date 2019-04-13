@@ -8,7 +8,7 @@
   
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   
-  <title>pynetdicom.presentation.build_context &mdash; pynetdicom 1.2.0 documentation</title>
+  <title>pynetdicom.presentation.build_context &mdash; pynetdicom 1.3.0 documentation</title>
   
 
   
@@ -64,7 +64,7 @@
             
             
               <div class="version">
-                1.2.0
+                1.3.0
               </div>
             
           
@@ -101,12 +101,14 @@
 <li class="toctree-l1"><a class="reference internal" href="../../hanging_protocol_service_class.html">Hanging Protocol Query/Retrieve Service Class</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../../implant_template_service_class.html">Implant Template Query/Retrieve Service Class</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../../display_system_service_class.html">Display System Management Service Class</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../modality_performed_procedure_step.html">Modality Performed Procedure Step Management</a></li>
 </ul>
 <ul>
 <li class="toctree-l1"><a class="reference internal" href="../../user/index.html">User Guide</a></li>
 </ul>
 <ul>
-<li class="toctree-l1"><a class="reference internal" href="../../release_notes.html">1.2.0</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../release_notes.html">1.3.0</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../release_notes.html#v1-2-0">1.2.0</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../../release_notes.html#v1-1-0">1.1.0</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../../release_notes.html#v1-0-0">1.0.0</a></li>
 </ul>
@@ -177,21 +179,17 @@
 <h1>pynetdicom.presentation.build_context<a class="headerlink" href="#pynetdicom-presentation-build-context" title="Permalink to this headline">¶</a></h1>
 <dl class="function">
 <dt id="pynetdicom.presentation.build_context">
-<code class="descclassname">pynetdicom.presentation.</code><code class="descname">build_context</code><span class="sig-paren">(</span><em>abstract_syntax</em>, <em>transfer_syntax=None</em><span class="sig-paren">)</span><a class="reference internal" href="../../_modules/pynetdicom/presentation.html#build_context"><span class="viewcode-link">[source]</span></a><a class="reference external" href="https://github.com/pydicom/pynetdicom/blob/fa9f63a/pynetdicom/presentation.py#L745"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pynetdicom.presentation.build_context" title="Permalink to this definition">¶</a></dt>
+<code class="descclassname">pynetdicom.presentation.</code><code class="descname">build_context</code><span class="sig-paren">(</span><em>abstract_syntax</em>, <em>transfer_syntax=None</em><span class="sig-paren">)</span><a class="reference internal" href="../../_modules/pynetdicom/presentation.html#build_context"><span class="viewcode-link">[source]</span></a><a class="reference external" href="https://github.com/pydicom/pynetdicom/blob/c7e7004b/pynetdicom/presentation.py#L762"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pynetdicom.presentation.build_context" title="Permalink to this definition">¶</a></dt>
 <dd><p>Return a PresentationContext built from the <cite>abstract_syntax</cite>.</p>
-<table class="docutils field-list" frame="void" rules="none">
-<col class="field-name" />
-<col class="field-body" />
-<tbody valign="top">
-<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first last simple">
-<li><strong>abstract_syntax</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.7)"><em>str</em></a><em> or </em><em>UID</em><em> or </em><a class="reference internal" href="pynetdicom.sop_class.SOPClass.html#pynetdicom.sop_class.SOPClass" title="pynetdicom.sop_class.SOPClass"><em>sop_class.SOPClass</em></a>) – The UID or SOPClass instance to use as the abstract syntax.</li>
-<li><strong>transfer_syntax</strong> (<em>str/UID</em><em> or </em><em>list of str/UID</em>) – The transfer syntax UID(s) to use (default: [Implicit VR Little Endian,
-Explicit VR Little Endian, Implicit VR Big Endian])</li>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>abstract_syntax</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.7)"><em>str</em></a><em> or </em><em>UID</em><em> or </em><a class="reference internal" href="pynetdicom.sop_class.SOPClass.html#pynetdicom.sop_class.SOPClass" title="pynetdicom.sop_class.SOPClass"><em>sop_class.SOPClass</em></a>) – The UID or SOPClass instance to use as the abstract syntax.</p></li>
+<li><p><strong>transfer_syntax</strong> (<em>str/UID</em><em> or </em><em>list of str/UID</em>) – The transfer syntax UID(s) to use (default: [Implicit VR Little Endian,
+Explicit VR Little Endian, Implicit VR Big Endian])</p></li>
 </ul>
-</td>
-</tr>
-</tbody>
-</table>
+</dd>
+</dl>
 <p class="rubric">Examples</p>
 <p>Specifying a presentation context with the default transfer syntaxes</p>
 <div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="kn">from</span> <span class="nn">pynetdicom</span> <span class="k">import</span> <span class="n">build_context</span>
@@ -228,16 +226,14 @@ a single transfer syntax</p>
 <span class="go">    =JPEG Baseline (Process 1)</span>
 </pre></div>
 </div>
-<table class="docutils field-list" frame="void" rules="none">
-<col class="field-name" />
-<col class="field-body" />
-<tbody valign="top">
-<tr class="field-odd field"><th class="field-name">Returns:</th><td class="field-body"></td>
-</tr>
-<tr class="field-even field"><th class="field-name">Return type:</th><td class="field-body"><a class="reference internal" href="pynetdicom.presentation.PresentationContext.html#pynetdicom.presentation.PresentationContext" title="pynetdicom.presentation.PresentationContext">presentation.PresentationContext</a></td>
-</tr>
-</tbody>
-</table>
+<dl class="field-list simple">
+<dt class="field-odd">Returns</dt>
+<dd class="field-odd"><p></p>
+</dd>
+<dt class="field-even">Return type</dt>
+<dd class="field-even"><p><a class="reference internal" href="pynetdicom.presentation.PresentationContext.html#pynetdicom.presentation.PresentationContext" title="pynetdicom.presentation.PresentationContext">presentation.PresentationContext</a></p>
+</dd>
+</dl>
 </dd></dl>
 
 </div>

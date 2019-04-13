@@ -12,8 +12,6 @@ know in advance the details (AE title, IP address, port number) of the
 destination Storage SCP. If the Move SCP doesn't know the destination AE then
 it will usually respond with an ``0xA801`` status code.
 
-With *pynetdicom* its possible to start a non-blocking Storage SCP and use
-that as the destination for a C-MOVE request sent by the same AE instance.
 
 Query/Retrieve (Move) SCU
 .........................
@@ -73,34 +71,39 @@ series with *Study Instance UID* ``1.2.3`` and *Series Instance UID*
 The responses received from the SCP include notifications on whether or not
 the storage sub-operations have been successful.
 
-Do the same thing, but send the SOP Instances to a non-blocking Storage SCP
-being run from the same AE as the C-MOVE request:
+In the next example we use a Storage SCP running within the same AE as the
+*Move Destination*. Remember that the Move SCP must first be configured with
+the IP and port number of the corresponding AE title. Check the
+`handler implementation documentation
+<../reference/generated/pynetdicom._handlers.doc_handle_store.html>`_
+to see the requirements for the ``evt.EVT_C_STORE`` handler.
 
 .. code-block:: python
 
     from pydicom.dataset import Dataset
 
-    from pynetdicom import AE, StoragePresentationContexts
+    from pynetdicom import AE, evt, StoragePresentationContexts
     from pynetdicom.sop_class import PatientRootQueryRetrieveInformationModelMove
+
+    def handle_store(event):
+        """Handle a C-STORE service request"""
+        # Ignore the request and return Success
+        return 0x0000
+
+    handlers = [(evt.EVT_C_STORE, handle_store)]
 
     # Initialise the Application Entity
     ae = AE()
 
-    # Add the storage SCP's supported presentation contexts
-    ae.supported_contexts = StoragePresentationContexts
-
-    # Implement the on_c_store callback
-    def on_c_store(ds, context, info):
-        # Don't store anything, just return Success
-        return 0x0000
-
-    # Start the storage SCP on port 11113
-    ae.ae_title = b'STORE_SCP'
-    ae.on_c_store = on_c_store
-    scp = ae.start_server(('', 11113), block=False)
-
     # Add a requested presentation context
     ae.add_requested_context(PatientRootQueryRetrieveInformationModelMove)
+
+    # Add the Storage SCP's supported presentation contexts
+    ae.supported_contexts = StoragePresentationContexts
+
+    # Start our Storage SCP in non-blocking mode, listening on port 11120
+    ae.ae_title = b'OUR_STORE_SCP'
+    scp = ae.start_server(('', 11120), block=False, evt_handlers=handlers)
 
     # Create out identifier (query) dataset
     ds = Dataset()
@@ -113,27 +116,33 @@ being run from the same AE as the C-MOVE request:
     ds.SeriesInstanceUID = '1.2.3.4'
 
     # Associate with peer AE at IP 127.0.0.1 and port 11112
-    # Note: the peer AE must know the IP and port for our move destination
     assoc = ae.associate('127.0.0.1', 11112)
 
     if assoc.is_established:
-        responses = assoc.send_c_move(ds, b'STORE_SCP', query_model='P')
+        # Use the C-MOVE service to send the identifier
+        # A query_model value of 'P' means use the 'Patient Root Query
+        #   Retrieve Information Model - Move' presentation context
+        responses = assoc.send_c_move(ds, b'OUR_STORE_SCP', query_model='P')
 
         for (status, identifier) in responses:
             if status:
                 print('C-MOVE query status: 0x{0:04x}'.format(status.Status))
+
+                # If the status is 'Pending' then `identifier` is the C-MOVE response
                 if status.Status in (0xFF00, 0xFF01):
                     print(identifier)
             else:
                 print('Connection timed out, was aborted or received invalid response')
 
+        # Release the association
         assoc.release()
     else:
         print('Association rejected, aborted or never connected')
 
-    # Shutdown the storage SCP
+    # Stop our Storage SCP
     scp.shutdown()
 
+.. _example_qrmove_scp:
 
 Query/Retrieve (Move) SCP
 .........................
@@ -154,6 +163,10 @@ This is a very bad way of managing stored SOP Instances, in reality its
 probably best to store the instance attributes in a database and run the
 query against that.
 
+Check the `handler implementation documentation
+<../reference/generated/pynetdicom._handlers.doc_handle_move.html>`_
+to see the requirements for the ``evt.EVT_C_MOVE`` handler.
+
 .. code-block:: python
 
     import os
@@ -161,67 +174,14 @@ query against that.
     from pydicom import dcmread
     from pydicom.dataset import Dataset
 
-    from pynetdicom import AE, StoragePresentationContexts
+    from pynetdicom import AE, StoragePresentationContexts, evt
     from pynetdicom.sop_class import PatientRootQueryRetrieveInformationModelMove
 
-    # Create application entity
-    ae = AE()
+    # Implement the evt.EVT_C_MOVE handler
+    def handle_move(event):
+        """Handle a C-MOVE request event."""
+        ds = event.identifier
 
-    # Add the requested presentation contexts (Storage SCU)
-    ae.requested_contexts = StoragePresentationContexts
-    # Add a supported presentation context (QR Move SCP)
-    ae.add_supported_context(PatientRootQueryRetrieveInformationModelMove)
-
-    # Implement the AE.on_c_move callback
-    def on_c_move(self, ds, move_aet, context, info):
-        """Respond to a C-MOVE request Identifier `ds`.
-
-        Parameters
-        ----------
-        ds : pydicom.dataset.Dataset
-            The Identifier dataset sent by the peer.
-        move_aet : bytes
-            The destination AE title that matching SOP Instances will be sent
-            to using C-STORE sub-operations. ``move_aet`` will be a correctly
-            formatted AE title (16 chars, with trailing spaces as padding).
-        context : presentation.PresentationContextTuple
-            The presentation context that the C-MOVE message was sent under.
-        info : dict
-            A dict containing information about the current association.
-
-        Yields
-        ------
-        addr, port : str, int or None, None
-            The first yield should be the TCP/IP address and port number of the
-            destination AE (if known) or ``(None, None)`` if unknown. If
-            ``(None, None)`` is yielded then the SCP will send a C-MOVE
-            response with a 'Failure' Status of ``0xA801`` (move destination
-            unknown), in which case nothing more needs to be yielded.
-        int
-            The second yield should be the number of C-STORE sub-operations
-            required to complete the C-MOVE operation. In other words, this is
-            the number of matching SOP Instances to be sent to the peer.
-        status : pydiom.dataset.Dataset or int
-            The status returned to the peer AE in the C-MOVE response. Must be
-            a valid C-MOVE status value for the applicable Service Class as
-            either an ``int`` or a ``Dataset`` containing (at a minimum) a
-            (0000,0900) *Status* element. If returning a ``Dataset`` then it
-            may also contain optional elements related to the Status (as in
-            DICOM Standard Part 7, Annex C).
-        dataset : pydicom.dataset.Dataset or None
-            If the status is 'Pending' then yield the ``Dataset``
-            to send to the peer via a C-STORE sub-operation over a new
-            association.
-
-            If the status is 'Failed', 'Warning' or 'Cancel' then yield a
-            ``Dataset`` with a (0008,0058) *Failed SOP Instance UID List*
-            element containing the list of the C-STORE sub-operation SOP
-            Instance UIDs for which the C-MOVE operation has failed.
-
-            If the status is 'Success' then yield ``None``, although yielding a
-            final 'Success' status is not required and will be ignored if
-            necessary.
-        """
         if 'QueryRetrieveLevel' not in ds:
             # Failure
             yield 0xC000, None
@@ -264,10 +224,23 @@ query against that.
 
         # Yield the matching instances
         for instance in matching:
+            # Check if C-CANCEL has been received
+            if event.is_cancelled:
+                yield (0xFE00, None)
+                return
+
             # Pending
             yield (0xFF00, instance)
 
-    ae.on_c_move = on_c_move
+    handlers = [(evt.EVT_C_MOVE, handle_move)]
+
+    # Create application entity
+    ae = AE()
+
+    # Add the requested presentation contexts (Storage SCU)
+    ae.requested_contexts = StoragePresentationContexts
+    # Add a supported presentation context (QR Move SCP)
+    ae.add_supported_context(PatientRootQueryRetrieveInformationModelMove)
 
     # Start listening for incoming association requests
-    ae.start_server(('', 11112))
+    ae.start_server(('', 11112), evt_handlers=handlers)

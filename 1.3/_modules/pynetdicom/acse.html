@@ -8,7 +8,7 @@
   
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   
-  <title>pynetdicom.acse &mdash; pynetdicom 1.2.0 documentation</title>
+  <title>pynetdicom.acse &mdash; pynetdicom 1.3.0 documentation</title>
   
 
   
@@ -64,7 +64,7 @@
             
             
               <div class="version">
-                1.2.0
+                1.3.0
               </div>
             
           
@@ -101,12 +101,14 @@
 <li class="toctree-l1"><a class="reference internal" href="../../hanging_protocol_service_class.html">Hanging Protocol Query/Retrieve Service Class</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../../implant_template_service_class.html">Implant Template Query/Retrieve Service Class</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../../display_system_service_class.html">Display System Management Service Class</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../modality_performed_procedure_step.html">Modality Performed Procedure Step Management</a></li>
 </ul>
 <ul>
 <li class="toctree-l1"><a class="reference internal" href="../../user/index.html">User Guide</a></li>
 </ul>
 <ul>
-<li class="toctree-l1"><a class="reference internal" href="../../release_notes.html">1.2.0</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../release_notes.html">1.3.0</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../release_notes.html#v1-2-0">1.2.0</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../../release_notes.html#v1-1-0">1.1.0</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../../release_notes.html#v1-0-0">1.0.0</a></li>
 </ul>
@@ -176,6 +178,8 @@
 
 <span class="kn">import</span> <span class="nn">logging</span>
 
+<span class="kn">from</span> <span class="nn">pynetdicom</span> <span class="k">import</span> <span class="n">evt</span>
+<span class="kn">from</span> <span class="nn">pynetdicom._globals</span> <span class="k">import</span> <span class="n">APPLICATION_CONTEXT_NAME</span>
 <span class="kn">from</span> <span class="nn">pynetdicom.pdu_primitives</span> <span class="k">import</span> <span class="p">(</span>
     <span class="n">A_ASSOCIATE</span><span class="p">,</span> <span class="n">A_RELEASE</span><span class="p">,</span> <span class="n">A_ABORT</span><span class="p">,</span> <span class="n">A_P_ABORT</span><span class="p">,</span>
     <span class="n">AsynchronousOperationsWindowNegotiation</span><span class="p">,</span>
@@ -187,7 +191,6 @@
     <span class="n">negotiate_as_requestor</span><span class="p">,</span> <span class="n">negotiate_as_acceptor</span>
 <span class="p">)</span>
 <span class="kn">from</span> <span class="nn">pynetdicom.utils</span> <span class="k">import</span> <span class="n">pretty_bytes</span>
-<span class="kn">from</span> <span class="nn">pynetdicom._globals</span> <span class="k">import</span> <span class="n">APPLICATION_CONTEXT_NAME</span>
 
 
 <span class="n">LOGGER</span> <span class="o">=</span> <span class="n">logging</span><span class="o">.</span><span class="n">getLogger</span><span class="p">(</span><span class="s1">&#39;pynetdicom.acse&#39;</span><span class="p">)</span>
@@ -199,19 +202,23 @@
 <span class="sd">    The ACSE protocol handles association establishment, normal release of an</span>
 <span class="sd">    association and the abnormal release of an association.</span>
 <span class="sd">    &quot;&quot;&quot;</span>
-<div class="viewcode-block" id="ACSE.__init__"><a class="viewcode-back" href="../../reference/generated/pynetdicom.acse.ACSE.html#pynetdicom.acse.ACSE.__init__">[docs]</a>    <span class="k">def</span> <span class="nf">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
-        <span class="sd">&quot;&quot;&quot;Create the ACSE service provider.&quot;&quot;&quot;</span>
-        <span class="k">pass</span></div>
-
-    <span class="nd">@staticmethod</span>
-    <span class="k">def</span> <span class="nf">_check_async_ops</span><span class="p">(</span><span class="n">assoc</span><span class="p">):</span>
-        <span class="sd">&quot;&quot;&quot;Check the user&#39;s response to an Asynchronous Operations request.</span>
+<div class="viewcode-block" id="ACSE.__init__"><a class="viewcode-back" href="../../reference/generated/pynetdicom.acse.ACSE.html#pynetdicom.acse.ACSE.__init__">[docs]</a>    <span class="k">def</span> <span class="nf">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">assoc</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;Create the ACSE service provider.</span>
 
 <span class="sd">        Parameters</span>
 <span class="sd">        ----------</span>
 <span class="sd">        assoc : association.Association</span>
-<span class="sd">            The Association instance that received the Asynchronous Operations</span>
-<span class="sd">            Window Negotiation item in an A-ASSOCIATE (request) primitive.</span>
+<span class="sd">            The Association to provide ACSE services for.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_assoc</span> <span class="o">=</span> <span class="n">assoc</span></div>
+
+    <span class="nd">@property</span>
+    <span class="k">def</span> <span class="nf">assoc</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;Return the Association to provide ACSE services for.&quot;&quot;&quot;</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_assoc</span>
+
+    <span class="k">def</span> <span class="nf">_check_async_ops</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;Check the user&#39;s response to an Asynchronous Operations request.</span>
 
 <span class="sd">        Returns</span>
 <span class="sd">        -------</span>
@@ -223,10 +230,20 @@
 <span class="sd">        &quot;&quot;&quot;</span>
         <span class="c1"># pylint: disable=broad-except</span>
         <span class="k">try</span><span class="p">:</span>
+            <span class="c1"># TODO: refactor in v1.4</span>
             <span class="c1"># Response is always ignored as async ops is not supported</span>
-            <span class="n">_</span> <span class="o">=</span> <span class="n">assoc</span><span class="o">.</span><span class="n">ae</span><span class="o">.</span><span class="n">on_async_ops_window</span><span class="p">(</span>
-                <span class="o">*</span><span class="n">assoc</span><span class="o">.</span><span class="n">requestor</span><span class="o">.</span><span class="n">asynchronous_operations</span>
-            <span class="p">)</span>
+            <span class="n">default</span> <span class="o">=</span> <span class="n">evt</span><span class="o">.</span><span class="n">get_default_handler</span><span class="p">(</span><span class="n">evt</span><span class="o">.</span><span class="n">EVT_ASYNC_OPS</span><span class="p">)</span>
+            <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">assoc</span><span class="o">.</span><span class="n">get_handlers</span><span class="p">(</span><span class="n">evt</span><span class="o">.</span><span class="n">EVT_ASYNC_OPS</span><span class="p">)</span> <span class="o">!=</span> <span class="n">default</span><span class="p">:</span>
+                <span class="n">inv</span><span class="p">,</span> <span class="n">perf</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">assoc</span><span class="o">.</span><span class="n">requestor</span><span class="o">.</span><span class="n">asynchronous_operations</span>
+                <span class="n">_</span> <span class="o">=</span> <span class="n">evt</span><span class="o">.</span><span class="n">trigger</span><span class="p">(</span>
+                    <span class="bp">self</span><span class="o">.</span><span class="n">assoc</span><span class="p">,</span>
+                    <span class="n">evt</span><span class="o">.</span><span class="n">EVT_ASYNC_OPS</span><span class="p">,</span>
+                    <span class="p">{</span><span class="s1">&#39;nr_invoked&#39;</span> <span class="p">:</span> <span class="n">inv</span><span class="p">,</span> <span class="s1">&#39;nr_performed&#39;</span> <span class="p">:</span> <span class="n">perf</span><span class="p">}</span>
+                <span class="p">)</span>
+            <span class="k">else</span><span class="p">:</span>
+                <span class="n">_</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">assoc</span><span class="o">.</span><span class="n">ae</span><span class="o">.</span><span class="n">on_async_ops_window</span><span class="p">(</span>
+                    <span class="o">*</span><span class="bp">self</span><span class="o">.</span><span class="n">assoc</span><span class="o">.</span><span class="n">requestor</span><span class="o">.</span><span class="n">asynchronous_operations</span>
+                <span class="p">)</span>
         <span class="k">except</span> <span class="ne">NotImplementedError</span><span class="p">:</span>
             <span class="k">return</span> <span class="kc">None</span>
         <span class="k">except</span> <span class="ne">Exception</span> <span class="k">as</span> <span class="n">exc</span><span class="p">:</span>
@@ -242,16 +259,8 @@
 
         <span class="k">return</span> <span class="n">item</span>
 
-    <span class="nd">@staticmethod</span>
-    <span class="k">def</span> <span class="nf">_check_sop_class_common_extended</span><span class="p">(</span><span class="n">assoc</span><span class="p">):</span>
+    <span class="k">def</span> <span class="nf">_check_sop_class_common_extended</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;Check the user&#39;s response to a SOP Class Common Extended request.</span>
-
-<span class="sd">        Parameters</span>
-<span class="sd">        ----------</span>
-<span class="sd">        assoc : association.Association</span>
-<span class="sd">            The Association instance that received one or more SOP Class</span>
-<span class="sd">            Common Extended Negotiation items in an A-ASSOCIATE (request)</span>
-<span class="sd">            primitive.</span>
 
 <span class="sd">        Returns</span>
 <span class="sd">        -------</span>
@@ -261,9 +270,17 @@
 <span class="sd">        &quot;&quot;&quot;</span>
         <span class="c1"># pylint: disable=broad-except</span>
         <span class="k">try</span><span class="p">:</span>
-            <span class="n">rsp</span> <span class="o">=</span> <span class="n">assoc</span><span class="o">.</span><span class="n">ae</span><span class="o">.</span><span class="n">on_sop_class_common_extended</span><span class="p">(</span>
-                <span class="n">assoc</span><span class="o">.</span><span class="n">requestor</span><span class="o">.</span><span class="n">sop_class_common_extended</span>
-            <span class="p">)</span>
+            <span class="n">default</span> <span class="o">=</span> <span class="n">evt</span><span class="o">.</span><span class="n">get_default_handler</span><span class="p">(</span><span class="n">evt</span><span class="o">.</span><span class="n">EVT_SOP_COMMON</span><span class="p">)</span>
+            <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">assoc</span><span class="o">.</span><span class="n">get_handlers</span><span class="p">(</span><span class="n">evt</span><span class="o">.</span><span class="n">EVT_SOP_COMMON</span><span class="p">)</span> <span class="o">!=</span> <span class="n">default</span><span class="p">:</span>
+                <span class="n">rsp</span> <span class="o">=</span> <span class="n">evt</span><span class="o">.</span><span class="n">trigger</span><span class="p">(</span>
+                    <span class="bp">self</span><span class="o">.</span><span class="n">assoc</span><span class="p">,</span>
+                    <span class="n">evt</span><span class="o">.</span><span class="n">EVT_SOP_COMMON</span><span class="p">,</span>
+                    <span class="p">{</span><span class="s1">&#39;items&#39;</span> <span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">assoc</span><span class="o">.</span><span class="n">requestor</span><span class="o">.</span><span class="n">sop_class_common_extended</span><span class="p">}</span>
+                <span class="p">)</span>
+            <span class="k">else</span><span class="p">:</span>
+                <span class="n">rsp</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">assoc</span><span class="o">.</span><span class="n">ae</span><span class="o">.</span><span class="n">on_sop_class_common_extended</span><span class="p">(</span>
+                    <span class="bp">self</span><span class="o">.</span><span class="n">assoc</span><span class="o">.</span><span class="n">requestor</span><span class="o">.</span><span class="n">sop_class_common_extended</span>
+                <span class="p">)</span>
         <span class="k">except</span> <span class="ne">Exception</span> <span class="k">as</span> <span class="n">exc</span><span class="p">:</span>
             <span class="n">LOGGER</span><span class="o">.</span><span class="n">error</span><span class="p">(</span>
                 <span class="s2">&quot;Exception raised in user&#39;s &#39;on_sop_class_common_extended&#39; &quot;</span>
@@ -272,22 +289,22 @@
             <span class="n">LOGGER</span><span class="o">.</span><span class="n">exception</span><span class="p">(</span><span class="n">exc</span><span class="p">)</span>
             <span class="k">return</span> <span class="p">{}</span>
 
-        <span class="n">rsp</span> <span class="o">=</span> <span class="p">{</span>
-            <span class="n">uid</span><span class="p">:</span><span class="n">ii</span> <span class="k">for</span> <span class="n">uid</span><span class="p">,</span> <span class="n">ii</span> <span class="ow">in</span> <span class="n">rsp</span><span class="o">.</span><span class="n">items</span><span class="p">()</span>
-            <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">ii</span><span class="p">,</span> <span class="n">SOPClassCommonExtendedNegotiation</span><span class="p">)</span>
-        <span class="p">}</span>
+        <span class="k">try</span><span class="p">:</span>
+            <span class="n">rsp</span> <span class="o">=</span> <span class="p">{</span>
+                <span class="n">uid</span><span class="p">:</span><span class="n">ii</span> <span class="k">for</span> <span class="n">uid</span><span class="p">,</span> <span class="n">ii</span> <span class="ow">in</span> <span class="n">rsp</span><span class="o">.</span><span class="n">items</span><span class="p">()</span>
+                <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">ii</span><span class="p">,</span> <span class="n">SOPClassCommonExtendedNegotiation</span><span class="p">)</span>
+            <span class="p">}</span>
+        <span class="k">except</span> <span class="ne">Exception</span> <span class="k">as</span> <span class="n">exc</span><span class="p">:</span>
+            <span class="n">LOGGER</span><span class="o">.</span><span class="n">error</span><span class="p">(</span>
+                <span class="s2">&quot;Invalid type returned by user&#39;s &#39;evt.EVT_SOP_COMMON&#39; handler&quot;</span>
+            <span class="p">)</span>
+            <span class="n">LOGGER</span><span class="o">.</span><span class="n">exception</span><span class="p">(</span><span class="n">exc</span><span class="p">)</span>
+            <span class="k">return</span> <span class="p">{}</span>
 
         <span class="k">return</span> <span class="n">rsp</span>
 
-    <span class="nd">@staticmethod</span>
-    <span class="k">def</span> <span class="nf">_check_sop_class_extended</span><span class="p">(</span><span class="n">assoc</span><span class="p">):</span>
+    <span class="k">def</span> <span class="nf">_check_sop_class_extended</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;Check the user&#39;s response to a SOP Class Extended request.</span>
-
-<span class="sd">        Parameters</span>
-<span class="sd">        ----------</span>
-<span class="sd">        assoc : association.Association</span>
-<span class="sd">            The Association instance that received one or more SOP Class</span>
-<span class="sd">            Extended Negotiation items in an A-ASSOCIATE (request) primitive.</span>
 
 <span class="sd">        Returns</span>
 <span class="sd">        -------</span>
@@ -296,11 +313,19 @@
 <span class="sd">        &quot;&quot;&quot;</span>
         <span class="c1"># pylint: disable=broad-except</span>
         <span class="k">try</span><span class="p">:</span>
-            <span class="n">user_response</span> <span class="o">=</span> <span class="n">assoc</span><span class="o">.</span><span class="n">ae</span><span class="o">.</span><span class="n">on_sop_class_extended</span><span class="p">(</span>
-                <span class="n">assoc</span><span class="o">.</span><span class="n">requestor</span><span class="o">.</span><span class="n">sop_class_extended</span>
-            <span class="p">)</span>
+            <span class="n">default</span> <span class="o">=</span> <span class="n">evt</span><span class="o">.</span><span class="n">get_default_handler</span><span class="p">(</span><span class="n">evt</span><span class="o">.</span><span class="n">EVT_SOP_EXTENDED</span><span class="p">)</span>
+            <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">assoc</span><span class="o">.</span><span class="n">get_handlers</span><span class="p">(</span><span class="n">evt</span><span class="o">.</span><span class="n">EVT_SOP_EXTENDED</span><span class="p">)</span> <span class="o">!=</span> <span class="n">default</span><span class="p">:</span>
+                <span class="n">user_response</span> <span class="o">=</span> <span class="n">evt</span><span class="o">.</span><span class="n">trigger</span><span class="p">(</span>
+                    <span class="bp">self</span><span class="o">.</span><span class="n">assoc</span><span class="p">,</span>
+                    <span class="n">evt</span><span class="o">.</span><span class="n">EVT_SOP_EXTENDED</span><span class="p">,</span>
+                    <span class="p">{</span><span class="s1">&#39;app_info&#39;</span> <span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">assoc</span><span class="o">.</span><span class="n">requestor</span><span class="o">.</span><span class="n">sop_class_extended</span><span class="p">}</span>
+                <span class="p">)</span>
+            <span class="k">else</span><span class="p">:</span>
+                <span class="n">user_response</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">assoc</span><span class="o">.</span><span class="n">ae</span><span class="o">.</span><span class="n">on_sop_class_extended</span><span class="p">(</span>
+                    <span class="bp">self</span><span class="o">.</span><span class="n">assoc</span><span class="o">.</span><span class="n">requestor</span><span class="o">.</span><span class="n">sop_class_extended</span>
+                <span class="p">)</span>
         <span class="k">except</span> <span class="ne">Exception</span> <span class="k">as</span> <span class="n">exc</span><span class="p">:</span>
-            <span class="n">user_response</span> <span class="o">=</span> <span class="kc">None</span>
+            <span class="n">user_response</span> <span class="o">=</span> <span class="p">{}</span>
             <span class="n">LOGGER</span><span class="o">.</span><span class="n">error</span><span class="p">(</span>
                 <span class="s2">&quot;Exception raised in user&#39;s &#39;on_sop_class_extended&#39; &quot;</span>
                 <span class="s2">&quot;implementation&quot;</span>
@@ -312,9 +337,9 @@
                 <span class="s2">&quot;Invalid type returned by user&#39;s &#39;on_sop_class_extended&#39; &quot;</span>
                 <span class="s2">&quot;implementation&quot;</span>
             <span class="p">)</span>
-            <span class="n">user_response</span> <span class="o">=</span> <span class="kc">None</span>
+            <span class="n">user_response</span> <span class="o">=</span> <span class="p">{}</span>
 
-        <span class="k">if</span> <span class="n">user_response</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+        <span class="k">if</span> <span class="ow">not</span> <span class="n">user_response</span><span class="p">:</span>
             <span class="k">return</span> <span class="p">[]</span>
 
         <span class="n">items</span> <span class="o">=</span> <span class="p">[]</span>
@@ -334,15 +359,8 @@
 
         <span class="k">return</span> <span class="n">items</span>
 
-    <span class="nd">@staticmethod</span>
-    <span class="k">def</span> <span class="nf">_check_user_identity</span><span class="p">(</span><span class="n">assoc</span><span class="p">):</span>
+    <span class="k">def</span> <span class="nf">_check_user_identity</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;Check the user&#39;s response to a User Identity request.</span>
-
-<span class="sd">        Parameters</span>
-<span class="sd">        ----------</span>
-<span class="sd">        assoc : association.Association</span>
-<span class="sd">            The Association instance that received the User Identity</span>
-<span class="sd">            Negotiation item in an A-ASSOCIATE (request) primitive.</span>
 
 <span class="sd">        Returns</span>
 <span class="sd">        -------</span>
@@ -354,16 +372,28 @@
 <span class="sd">        &quot;&quot;&quot;</span>
         <span class="c1"># pylint: disable=broad-except</span>
         <span class="c1"># The UserIdentityNegotiation (request) item</span>
-        <span class="n">req</span> <span class="o">=</span> <span class="n">assoc</span><span class="o">.</span><span class="n">requestor</span><span class="o">.</span><span class="n">user_identity</span>
+        <span class="n">req</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">assoc</span><span class="o">.</span><span class="n">requestor</span><span class="o">.</span><span class="n">user_identity</span>
         <span class="k">try</span><span class="p">:</span>
-            <span class="n">identity_verified</span><span class="p">,</span> <span class="n">response</span> <span class="o">=</span> <span class="n">assoc</span><span class="o">.</span><span class="n">ae</span><span class="o">.</span><span class="n">on_user_identity</span><span class="p">(</span>
-                <span class="n">req</span><span class="o">.</span><span class="n">user_identity_type</span><span class="p">,</span>
-                <span class="n">req</span><span class="o">.</span><span class="n">primary_field</span><span class="p">,</span>
-                <span class="n">req</span><span class="o">.</span><span class="n">secondary_field</span><span class="p">,</span>
-                <span class="p">{</span>
-                    <span class="s1">&#39;requestor&#39;</span> <span class="p">:</span> <span class="n">assoc</span><span class="o">.</span><span class="n">requestor</span><span class="o">.</span><span class="n">info</span><span class="p">,</span>
-                <span class="p">}</span>
-            <span class="p">)</span>
+            <span class="n">default</span> <span class="o">=</span> <span class="n">evt</span><span class="o">.</span><span class="n">get_default_handler</span><span class="p">(</span><span class="n">evt</span><span class="o">.</span><span class="n">EVT_USER_ID</span><span class="p">)</span>
+            <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">assoc</span><span class="o">.</span><span class="n">get_handlers</span><span class="p">(</span><span class="n">evt</span><span class="o">.</span><span class="n">EVT_USER_ID</span><span class="p">)</span> <span class="o">!=</span> <span class="n">default</span><span class="p">:</span>
+                <span class="n">identity_verified</span><span class="p">,</span> <span class="n">response</span> <span class="o">=</span> <span class="n">evt</span><span class="o">.</span><span class="n">trigger</span><span class="p">(</span>
+                    <span class="bp">self</span><span class="o">.</span><span class="n">assoc</span><span class="p">,</span>
+                    <span class="n">evt</span><span class="o">.</span><span class="n">EVT_USER_ID</span><span class="p">,</span>
+                    <span class="p">{</span>
+                        <span class="s1">&#39;user_id_type&#39;</span> <span class="p">:</span> <span class="n">req</span><span class="o">.</span><span class="n">user_identity_type</span><span class="p">,</span>
+                        <span class="s1">&#39;primary_field&#39;</span> <span class="p">:</span> <span class="n">req</span><span class="o">.</span><span class="n">primary_field</span><span class="p">,</span>
+                        <span class="s1">&#39;secondary_field&#39;</span> <span class="p">:</span> <span class="n">req</span><span class="o">.</span><span class="n">secondary_field</span><span class="p">,</span>
+                    <span class="p">}</span>
+                <span class="p">)</span>
+            <span class="k">else</span><span class="p">:</span>
+                <span class="n">identity_verified</span><span class="p">,</span> <span class="n">response</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">assoc</span><span class="o">.</span><span class="n">ae</span><span class="o">.</span><span class="n">on_user_identity</span><span class="p">(</span>
+                    <span class="n">req</span><span class="o">.</span><span class="n">user_identity_type</span><span class="p">,</span>
+                    <span class="n">req</span><span class="o">.</span><span class="n">primary_field</span><span class="p">,</span>
+                    <span class="n">req</span><span class="o">.</span><span class="n">secondary_field</span><span class="p">,</span>
+                    <span class="p">{</span>
+                        <span class="s1">&#39;requestor&#39;</span> <span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">assoc</span><span class="o">.</span><span class="n">requestor</span><span class="o">.</span><span class="n">info</span><span class="p">,</span>
+                    <span class="p">}</span>
+                <span class="p">)</span>
         <span class="k">except</span> <span class="ne">NotImplementedError</span><span class="p">:</span>
             <span class="c1"># If the user hasn&#39;t implemented identity negotiation then</span>
             <span class="c1">#   default to accepting the association</span>
@@ -467,7 +497,7 @@
         <span class="c1">## Extended Negotiation items</span>
         <span class="c1"># User Identity Negotiation items</span>
         <span class="k">if</span> <span class="n">assoc</span><span class="o">.</span><span class="n">requestor</span><span class="o">.</span><span class="n">user_identity</span><span class="p">:</span>
-            <span class="n">is_valid</span><span class="p">,</span> <span class="n">id_response</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_check_user_identity</span><span class="p">(</span><span class="n">assoc</span><span class="p">)</span>
+            <span class="n">is_valid</span><span class="p">,</span> <span class="n">id_response</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_check_user_identity</span><span class="p">()</span>
 
             <span class="k">if</span> <span class="ow">not</span> <span class="n">is_valid</span><span class="p">:</span>
                 <span class="c1"># Transient, ACSE related, no reason given</span>
@@ -479,20 +509,20 @@
                 <span class="n">assoc</span><span class="o">.</span><span class="n">acceptor</span><span class="o">.</span><span class="n">add_negotiation_item</span><span class="p">(</span><span class="n">id_response</span><span class="p">)</span>
 
         <span class="c1"># SOP Class Extended Negotiation items</span>
-        <span class="k">for</span> <span class="n">item</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">_check_sop_class_extended</span><span class="p">(</span><span class="n">assoc</span><span class="p">):</span>
+        <span class="k">for</span> <span class="n">item</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">_check_sop_class_extended</span><span class="p">():</span>
             <span class="n">assoc</span><span class="o">.</span><span class="n">acceptor</span><span class="o">.</span><span class="n">add_negotiation_item</span><span class="p">(</span><span class="n">item</span><span class="p">)</span>
 
         <span class="c1"># SOP Class Common Extended Negotiation items</span>
         <span class="c1">#   Note: No response items are allowed</span>
         <span class="c1"># pylint: disable=protected-access</span>
         <span class="n">assoc</span><span class="o">.</span><span class="n">acceptor</span><span class="o">.</span><span class="n">_common_ext</span> <span class="o">=</span> <span class="p">(</span>
-            <span class="bp">self</span><span class="o">.</span><span class="n">_check_sop_class_common_extended</span><span class="p">(</span><span class="n">assoc</span><span class="p">)</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">_check_sop_class_common_extended</span><span class="p">()</span>
         <span class="p">)</span>
         <span class="c1"># pylint: enable=protected-access</span>
 
         <span class="c1"># Asynchronous Operations Window Negotiation items</span>
         <span class="k">if</span> <span class="n">assoc</span><span class="o">.</span><span class="n">requestor</span><span class="o">.</span><span class="n">asynchronous_operations</span> <span class="o">!=</span> <span class="p">(</span><span class="mi">1</span><span class="p">,</span> <span class="mi">1</span><span class="p">):</span>
-            <span class="n">async_rsp</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_check_async_ops</span><span class="p">(</span><span class="n">assoc</span><span class="p">)</span>
+            <span class="n">async_rsp</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_check_async_ops</span><span class="p">()</span>
 
             <span class="c1"># Add any Async Ops (response) item</span>
             <span class="k">if</span> <span class="n">async_rsp</span><span class="p">:</span>
@@ -508,8 +538,9 @@
 
         <span class="k">if</span> <span class="n">reject_assoc_rsd</span><span class="p">:</span>
             <span class="c1"># pylint: disable=no-value-for-parameter</span>
+            <span class="n">LOGGER</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="s2">&quot;Rejecting Association&quot;</span><span class="p">)</span>
             <span class="bp">self</span><span class="o">.</span><span class="n">send_reject</span><span class="p">(</span><span class="n">assoc</span><span class="p">,</span> <span class="o">*</span><span class="n">reject_assoc_rsd</span><span class="p">)</span>
-            <span class="n">assoc</span><span class="o">.</span><span class="n">debug_association_rejected</span><span class="p">(</span><span class="n">assoc</span><span class="o">.</span><span class="n">acceptor</span><span class="o">.</span><span class="n">primitive</span><span class="p">)</span>
+            <span class="n">evt</span><span class="o">.</span><span class="n">trigger</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">assoc</span><span class="p">,</span> <span class="n">evt</span><span class="o">.</span><span class="n">EVT_REJECTED</span><span class="p">,</span> <span class="p">{})</span>
             <span class="n">assoc</span><span class="o">.</span><span class="n">ae</span><span class="o">.</span><span class="n">on_association_rejected</span><span class="p">(</span><span class="n">assoc</span><span class="o">.</span><span class="n">acceptor</span><span class="o">.</span><span class="n">primitive</span><span class="p">)</span>
             <span class="n">assoc</span><span class="o">.</span><span class="n">kill</span><span class="p">()</span>
             <span class="k">return</span>
@@ -541,14 +572,16 @@
             <span class="n">assoc</span><span class="o">.</span><span class="n">acceptor</span><span class="o">.</span><span class="n">add_negotiation_item</span><span class="p">(</span><span class="n">item</span><span class="p">)</span>
 
         <span class="c1"># Send the A-ASSOCIATE (accept) primitive</span>
+        <span class="n">LOGGER</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="s2">&quot;Accepting Association&quot;</span><span class="p">)</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">send_accept</span><span class="p">(</span><span class="n">assoc</span><span class="p">)</span>
 
         <span class="c1"># Callbacks/Logging</span>
-        <span class="n">assoc</span><span class="o">.</span><span class="n">debug_association_accepted</span><span class="p">(</span><span class="n">assoc</span><span class="o">.</span><span class="n">acceptor</span><span class="o">.</span><span class="n">primitive</span><span class="p">)</span>
         <span class="n">assoc</span><span class="o">.</span><span class="n">ae</span><span class="o">.</span><span class="n">on_association_accepted</span><span class="p">(</span><span class="n">assoc</span><span class="o">.</span><span class="n">acceptor</span><span class="o">.</span><span class="n">primitive</span><span class="p">)</span>
+        <span class="n">evt</span><span class="o">.</span><span class="n">trigger</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">assoc</span><span class="p">,</span> <span class="n">evt</span><span class="o">.</span><span class="n">EVT_ACCEPTED</span><span class="p">,</span> <span class="p">{})</span>
 
         <span class="c1"># Assocation established OK</span>
         <span class="n">assoc</span><span class="o">.</span><span class="n">is_established</span> <span class="o">=</span> <span class="kc">True</span>
+        <span class="n">evt</span><span class="o">.</span><span class="n">trigger</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">assoc</span><span class="p">,</span> <span class="n">evt</span><span class="o">.</span><span class="n">EVT_ESTABLISHED</span><span class="p">,</span> <span class="p">{})</span>
 
     <span class="k">def</span> <span class="nf">_negotiate_as_requestor</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">assoc</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;Perform an association negotiation as the association requestor.</span>
@@ -568,6 +601,7 @@
 
         <span class="c1"># Build and send an A-ASSOCIATE (request) PDU to the peer</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">send_request</span><span class="p">(</span><span class="n">assoc</span><span class="p">)</span>
+        <span class="n">evt</span><span class="o">.</span><span class="n">trigger</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">assoc</span><span class="p">,</span> <span class="n">evt</span><span class="o">.</span><span class="n">EVT_REQUESTED</span><span class="p">,</span> <span class="p">{})</span>
 
         <span class="c1"># Wait for response</span>
         <span class="n">rsp</span> <span class="o">=</span> <span class="n">assoc</span><span class="o">.</span><span class="n">dul</span><span class="o">.</span><span class="n">receive_pdu</span><span class="p">(</span><span class="n">wait</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span> <span class="n">timeout</span><span class="o">=</span><span class="n">assoc</span><span class="o">.</span><span class="n">acse_timeout</span><span class="p">)</span>
@@ -622,8 +656,8 @@
                 <span class="p">]</span>
                 <span class="c1"># pylint: enable=protected-access</span>
 
-                <span class="n">assoc</span><span class="o">.</span><span class="n">debug_association_accepted</span><span class="p">(</span><span class="n">rsp</span><span class="p">)</span>
                 <span class="n">assoc</span><span class="o">.</span><span class="n">ae</span><span class="o">.</span><span class="n">on_association_accepted</span><span class="p">(</span><span class="n">rsp</span><span class="p">)</span>
+                <span class="n">evt</span><span class="o">.</span><span class="n">trigger</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">assoc</span><span class="p">,</span> <span class="n">evt</span><span class="o">.</span><span class="n">EVT_ACCEPTED</span><span class="p">,</span> <span class="p">{})</span>
 
                 <span class="c1"># No acceptable presentation contexts</span>
                 <span class="k">if</span> <span class="ow">not</span> <span class="n">assoc</span><span class="o">.</span><span class="n">accepted_contexts</span><span class="p">:</span>
@@ -631,33 +665,46 @@
                     <span class="bp">self</span><span class="o">.</span><span class="n">send_abort</span><span class="p">(</span><span class="n">assoc</span><span class="p">,</span> <span class="mh">0x02</span><span class="p">)</span>
                     <span class="n">assoc</span><span class="o">.</span><span class="n">is_aborted</span> <span class="o">=</span> <span class="kc">True</span>
                     <span class="n">assoc</span><span class="o">.</span><span class="n">is_established</span> <span class="o">=</span> <span class="kc">False</span>
+                    <span class="n">evt</span><span class="o">.</span><span class="n">trigger</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">assoc</span><span class="p">,</span> <span class="n">evt</span><span class="o">.</span><span class="n">EVT_ABORTED</span><span class="p">,</span> <span class="p">{})</span>
                     <span class="n">assoc</span><span class="o">.</span><span class="n">kill</span><span class="p">()</span>
                 <span class="k">else</span><span class="p">:</span>
+                    <span class="n">LOGGER</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="s1">&#39;Association Accepted&#39;</span><span class="p">)</span>
                     <span class="n">assoc</span><span class="o">.</span><span class="n">is_established</span> <span class="o">=</span> <span class="kc">True</span>
+                    <span class="n">evt</span><span class="o">.</span><span class="n">trigger</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">assoc</span><span class="p">,</span> <span class="n">evt</span><span class="o">.</span><span class="n">EVT_ESTABLISHED</span><span class="p">,</span> <span class="p">{})</span>
 
             <span class="k">elif</span> <span class="nb">hasattr</span><span class="p">(</span><span class="n">rsp</span><span class="p">,</span> <span class="s1">&#39;result&#39;</span><span class="p">)</span> <span class="ow">and</span> <span class="n">rsp</span><span class="o">.</span><span class="n">result</span> <span class="ow">in</span> <span class="p">[</span><span class="mh">0x01</span><span class="p">,</span> <span class="mh">0x02</span><span class="p">]:</span>
                 <span class="c1"># 0x01 is rejected (permanent)</span>
                 <span class="c1"># 0x02 is rejected (transient)</span>
+                <span class="n">LOGGER</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="s1">&#39;Association Rejected:&#39;</span><span class="p">)</span>
+                <span class="n">LOGGER</span><span class="o">.</span><span class="n">info</span><span class="p">(</span>
+                    <span class="s1">&#39;Result: </span><span class="si">{}</span><span class="s1">, Source: </span><span class="si">{}</span><span class="s1">&#39;</span>
+                    <span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">rsp</span><span class="o">.</span><span class="n">result_str</span><span class="p">,</span> <span class="n">rsp</span><span class="o">.</span><span class="n">source_str</span><span class="p">)</span>
+                <span class="p">)</span>
+                <span class="n">LOGGER</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="s1">&#39;Reason: </span><span class="si">{}</span><span class="s1">&#39;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">rsp</span><span class="o">.</span><span class="n">reason_str</span><span class="p">))</span>
                 <span class="n">assoc</span><span class="o">.</span><span class="n">ae</span><span class="o">.</span><span class="n">on_association_rejected</span><span class="p">(</span><span class="n">rsp</span><span class="p">)</span>
-                <span class="n">assoc</span><span class="o">.</span><span class="n">debug_association_rejected</span><span class="p">(</span><span class="n">rsp</span><span class="p">)</span>
                 <span class="n">assoc</span><span class="o">.</span><span class="n">is_rejected</span> <span class="o">=</span> <span class="kc">True</span>
                 <span class="n">assoc</span><span class="o">.</span><span class="n">is_established</span> <span class="o">=</span> <span class="kc">False</span>
+                <span class="n">evt</span><span class="o">.</span><span class="n">trigger</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">assoc</span><span class="p">,</span> <span class="n">evt</span><span class="o">.</span><span class="n">EVT_REJECTED</span><span class="p">,</span> <span class="p">{})</span>
                 <span class="n">assoc</span><span class="o">.</span><span class="n">dul</span><span class="o">.</span><span class="n">kill_dul</span><span class="p">()</span>
             <span class="k">else</span><span class="p">:</span>
                 <span class="n">LOGGER</span><span class="o">.</span><span class="n">warning</span><span class="p">(</span>
                     <span class="s2">&quot;Received an invalid A-ASSOCIATE response from the peer&quot;</span>
                 <span class="p">)</span>
+                <span class="n">LOGGER</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="s2">&quot;Aborting Association&quot;</span><span class="p">)</span>
                 <span class="bp">self</span><span class="o">.</span><span class="n">send_abort</span><span class="p">(</span><span class="n">assoc</span><span class="p">,</span> <span class="mh">0x02</span><span class="p">)</span>
                 <span class="n">assoc</span><span class="o">.</span><span class="n">is_aborted</span> <span class="o">=</span> <span class="kc">True</span>
                 <span class="n">assoc</span><span class="o">.</span><span class="n">is_established</span> <span class="o">=</span> <span class="kc">False</span>
+                <span class="c1"># Event handler - association aborted</span>
+                <span class="n">evt</span><span class="o">.</span><span class="n">trigger</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">assoc</span><span class="p">,</span> <span class="n">evt</span><span class="o">.</span><span class="n">EVT_ABORTED</span><span class="p">,</span> <span class="p">{})</span>
                 <span class="n">assoc</span><span class="o">.</span><span class="n">kill</span><span class="p">()</span>
 
         <span class="c1"># Association aborted</span>
         <span class="k">elif</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">rsp</span><span class="p">,</span> <span class="p">(</span><span class="n">A_ABORT</span><span class="p">,</span> <span class="n">A_P_ABORT</span><span class="p">)):</span>
             <span class="n">assoc</span><span class="o">.</span><span class="n">ae</span><span class="o">.</span><span class="n">on_association_aborted</span><span class="p">(</span><span class="n">rsp</span><span class="p">)</span>
-            <span class="n">assoc</span><span class="o">.</span><span class="n">debug_association_aborted</span><span class="p">(</span><span class="n">rsp</span><span class="p">)</span>
+            <span class="n">LOGGER</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="s2">&quot;Association Aborted&quot;</span><span class="p">)</span>
             <span class="n">assoc</span><span class="o">.</span><span class="n">is_established</span> <span class="o">=</span> <span class="kc">False</span>
             <span class="n">assoc</span><span class="o">.</span><span class="n">is_aborted</span> <span class="o">=</span> <span class="kc">True</span>
+            <span class="n">evt</span><span class="o">.</span><span class="n">trigger</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">assoc</span><span class="p">,</span> <span class="n">evt</span><span class="o">.</span><span class="n">EVT_ABORTED</span><span class="p">,</span> <span class="p">{})</span>
             <span class="n">assoc</span><span class="o">.</span><span class="n">dul</span><span class="o">.</span><span class="n">kill_dul</span><span class="p">()</span>
         <span class="k">else</span><span class="p">:</span>
             <span class="n">assoc</span><span class="o">.</span><span class="n">is_established</span> <span class="o">=</span> <span class="kc">False</span>
@@ -690,16 +737,20 @@
                                               <span class="n">timeout</span><span class="o">=</span><span class="n">assoc</span><span class="o">.</span><span class="n">acse_timeout</span><span class="p">)</span>
             <span class="k">if</span> <span class="n">primitive</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
                 <span class="c1"># No response received within timeout window</span>
+                <span class="n">LOGGER</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="s2">&quot;Aborting Association&quot;</span><span class="p">)</span>
                 <span class="bp">self</span><span class="o">.</span><span class="n">send_abort</span><span class="p">(</span><span class="n">assoc</span><span class="p">,</span> <span class="mh">0x02</span><span class="p">)</span>
                 <span class="n">assoc</span><span class="o">.</span><span class="n">is_aborted</span> <span class="o">=</span> <span class="kc">True</span>
                 <span class="n">assoc</span><span class="o">.</span><span class="n">is_established</span> <span class="o">=</span> <span class="kc">False</span>
+                <span class="n">evt</span><span class="o">.</span><span class="n">trigger</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">assoc</span><span class="p">,</span> <span class="n">evt</span><span class="o">.</span><span class="n">EVT_ABORTED</span><span class="p">,</span> <span class="p">{})</span>
                 <span class="n">assoc</span><span class="o">.</span><span class="n">kill</span><span class="p">()</span>
                 <span class="k">return</span>
 
             <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">primitive</span><span class="p">,</span> <span class="p">(</span><span class="n">A_ABORT</span><span class="p">,</span> <span class="n">A_P_ABORT</span><span class="p">)):</span>
                 <span class="c1"># Received A-ABORT/A-P-ABORT during association release</span>
+                <span class="n">LOGGER</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="s2">&quot;Association Aborted&quot;</span><span class="p">)</span>
                 <span class="n">assoc</span><span class="o">.</span><span class="n">is_aborted</span> <span class="o">=</span> <span class="kc">True</span>
                 <span class="n">assoc</span><span class="o">.</span><span class="n">is_established</span> <span class="o">=</span> <span class="kc">False</span>
+                <span class="n">evt</span><span class="o">.</span><span class="n">trigger</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">assoc</span><span class="p">,</span> <span class="n">evt</span><span class="o">.</span><span class="n">EVT_ABORTED</span><span class="p">,</span> <span class="p">{})</span>
                 <span class="n">assoc</span><span class="o">.</span><span class="n">kill</span><span class="p">()</span>
                 <span class="k">return</span>
 
@@ -734,6 +785,7 @@
 
                 <span class="n">assoc</span><span class="o">.</span><span class="n">is_released</span> <span class="o">=</span> <span class="kc">True</span>
                 <span class="n">assoc</span><span class="o">.</span><span class="n">is_established</span> <span class="o">=</span> <span class="kc">False</span>
+                <span class="n">evt</span><span class="o">.</span><span class="n">trigger</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">assoc</span><span class="p">,</span> <span class="n">evt</span><span class="o">.</span><span class="n">EVT_RELEASED</span><span class="p">,</span> <span class="p">{})</span>
                 <span class="n">assoc</span><span class="o">.</span><span class="n">kill</span><span class="p">()</span>
                 <span class="k">return</span></div>
 
@@ -798,7 +850,7 @@
         <span class="n">primitive</span><span class="o">.</span><span class="n">result_source</span> <span class="o">=</span> <span class="mh">0x01</span>
 
         <span class="n">primitive</span><span class="o">.</span><span class="n">presentation_context_definition_results_list</span> <span class="o">=</span> <span class="p">(</span>
-            <span class="n">assoc</span><span class="o">.</span><span class="n">accepted_contexts</span>
+            <span class="n">assoc</span><span class="o">.</span><span class="n">accepted_contexts</span> <span class="o">+</span> <span class="n">assoc</span><span class="o">.</span><span class="n">rejected_contexts</span>
         <span class="p">)</span>
 
         <span class="c1">## User Information - PS3.7 Annex D.3.3</span>
@@ -990,772 +1042,7 @@
         <span class="n">assoc</span><span class="o">.</span><span class="n">requestor</span><span class="o">.</span><span class="n">primitive</span> <span class="o">=</span> <span class="n">primitive</span>
 
         <span class="c1"># Send the A-ASSOCIATE request primitive to the peer</span>
-        <span class="n">assoc</span><span class="o">.</span><span class="n">dul</span><span class="o">.</span><span class="n">send_pdu</span><span class="p">(</span><span class="n">primitive</span><span class="p">)</span></div>
-
-
-    <span class="c1"># ACSE logging/debugging functions</span>
-    <span class="c1"># pylint: disable=too-many-branches,unused-argument</span>
-    <span class="c1"># pylint: disable=too-many-locals,too-many-statements</span>
-<div class="viewcode-block" id="ACSE.debug_send_abort"><a class="viewcode-back" href="../../reference/generated/pynetdicom.acse.ACSE.html#pynetdicom.acse.ACSE.debug_send_abort">[docs]</a>    <span class="nd">@staticmethod</span>
-    <span class="k">def</span> <span class="nf">debug_send_abort</span><span class="p">(</span><span class="n">a_abort_rq</span><span class="p">):</span>
-        <span class="sd">&quot;&quot;&quot;</span>
-<span class="sd">        Placeholder for a function callback. Function will be called</span>
-<span class="sd">        immediately prior to encoding and sending an A-ABORT to a peer AE</span>
-
-<span class="sd">        Parameters</span>
-<span class="sd">        ----------</span>
-<span class="sd">        a_abort : pdu.A_ABORT_RQ</span>
-<span class="sd">            The A-ABORT PDU instance</span>
-<span class="sd">        &quot;&quot;&quot;</span>
-        <span class="n">LOGGER</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="s1">&#39;Aborting Association&#39;</span><span class="p">)</span></div>
-
-<div class="viewcode-block" id="ACSE.debug_send_associate_ac"><a class="viewcode-back" href="../../reference/generated/pynetdicom.acse.ACSE.html#pynetdicom.acse.ACSE.debug_send_associate_ac">[docs]</a>    <span class="nd">@staticmethod</span>
-    <span class="k">def</span> <span class="nf">debug_send_associate_ac</span><span class="p">(</span><span class="n">a_associate_ac</span><span class="p">):</span>
-        <span class="sd">&quot;&quot;&quot;</span>
-<span class="sd">        Placeholder for a function callback. Function will be called</span>
-<span class="sd">        immediately prior to encoding and sending an A-ASSOCIATE-AC to a peer</span>
-<span class="sd">        AE</span>
-
-<span class="sd">        Parameters</span>
-<span class="sd">        ----------</span>
-<span class="sd">        a_associate_ac : pdu.A_ASSOCIATE_AC</span>
-<span class="sd">            The A-ASSOCIATE-AC PDU instance</span>
-<span class="sd">        &quot;&quot;&quot;</span>
-        <span class="n">LOGGER</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="s2">&quot;Association Accepted&quot;</span><span class="p">)</span>
-
-        <span class="c1"># Shorthand</span>
-        <span class="n">assoc_ac</span> <span class="o">=</span> <span class="n">a_associate_ac</span>
-
-        <span class="c1"># Needs some cleanup</span>
-        <span class="n">app_context</span> <span class="o">=</span> <span class="n">assoc_ac</span><span class="o">.</span><span class="n">application_context_name</span><span class="o">.</span><span class="n">title</span><span class="p">()</span>
-        <span class="n">pres_contexts</span> <span class="o">=</span> <span class="n">assoc_ac</span><span class="o">.</span><span class="n">presentation_context</span>
-        <span class="n">user_info</span> <span class="o">=</span> <span class="n">assoc_ac</span><span class="o">.</span><span class="n">user_information</span>
-        <span class="n">async_ops</span> <span class="o">=</span> <span class="n">user_info</span><span class="o">.</span><span class="n">async_ops_window</span>
-        <span class="n">roles</span> <span class="o">=</span> <span class="n">user_info</span><span class="o">.</span><span class="n">role_selection</span>
-
-        <span class="n">responding_ae</span> <span class="o">=</span> <span class="s1">&#39;resp. AE Title&#39;</span>
-
-        <span class="n">s</span> <span class="o">=</span> <span class="p">[</span><span class="s1">&#39;Accept Parameters:&#39;</span><span class="p">]</span>
-        <span class="n">s</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="s1">&#39;====================== BEGIN A-ASSOCIATE-AC ================&#39;</span>
-                 <span class="s1">&#39;=====&#39;</span><span class="p">)</span>
-
-        <span class="n">s</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="s1">&#39;Our Implementation Class UID:      &#39;</span>
-                 <span class="s1">&#39;</span><span class="si">{0!s}</span><span class="s1">&#39;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">user_info</span><span class="o">.</span><span class="n">implementation_class_uid</span><span class="p">))</span>
-
-        <span class="k">if</span> <span class="n">user_info</span><span class="o">.</span><span class="n">implementation_version_name</span><span class="p">:</span>
-            <span class="n">s</span><span class="o">.</span><span class="n">append</span><span class="p">(</span>
-                <span class="s2">&quot;Our Implementation Version Name:   </span><span class="si">{0!s}</span><span class="s2">&quot;</span>
-                <span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">user_info</span><span class="o">.</span><span class="n">implementation_version_name</span><span class="o">.</span><span class="n">decode</span><span class="p">(</span><span class="s1">&#39;ascii&#39;</span><span class="p">))</span>
-            <span class="p">)</span>
-        <span class="n">s</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="s1">&#39;Application Context Name:    </span><span class="si">{0!s}</span><span class="s1">&#39;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">app_context</span><span class="p">))</span>
-        <span class="n">s</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="s1">&#39;Responding Application Name: </span><span class="si">{0!s}</span><span class="s1">&#39;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">responding_ae</span><span class="p">))</span>
-        <span class="n">s</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="s1">&#39;Our Max PDU Receive Size:    &#39;</span>
-                 <span class="s1">&#39;</span><span class="si">{0!s}</span><span class="s1">&#39;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">user_info</span><span class="o">.</span><span class="n">maximum_length</span><span class="p">))</span>
-        <span class="n">s</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="s1">&#39;Presentation Contexts:&#39;</span><span class="p">)</span>
-
-        <span class="k">if</span> <span class="ow">not</span> <span class="n">pres_contexts</span><span class="p">:</span>
-            <span class="n">s</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="s1">&#39;    (no valid presentation contexts)&#39;</span><span class="p">)</span>
-
-        <span class="c1"># Sort by context ID</span>
-        <span class="k">for</span> <span class="n">item</span> <span class="ow">in</span> <span class="nb">sorted</span><span class="p">(</span><span class="n">pres_contexts</span><span class="p">,</span> <span class="n">key</span><span class="o">=</span><span class="k">lambda</span> <span class="n">x</span><span class="p">:</span> <span class="n">x</span><span class="o">.</span><span class="n">context_id</span><span class="p">):</span>
-            <span class="n">s</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="s1">&#39;  Context ID:        </span><span class="si">{0!s}</span><span class="s1"> (</span><span class="si">{1!s}</span><span class="s1">)&#39;</span>
-                     <span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">item</span><span class="o">.</span><span class="n">context_id</span><span class="p">,</span> <span class="n">item</span><span class="o">.</span><span class="n">result_str</span><span class="p">))</span>
-
-            <span class="c1"># If Presentation Context was accepted</span>
-            <span class="k">if</span> <span class="n">item</span><span class="o">.</span><span class="n">result</span> <span class="o">==</span> <span class="mi">0</span><span class="p">:</span>
-                <span class="c1">#if item.scu_role is None and item.scp_role is None:</span>
-                <span class="c1">#    ac_scp_scu_role = &#39;Default&#39;</span>
-                <span class="c1">#else:</span>
-                <span class="c1">#    ac_scp_scu_role = &#39;{0!s}/{1!s}&#39;.format(item.scp_role,</span>
-                <span class="c1">#item.scu_role)</span>
-                <span class="c1">#s.append(&#39;    Accepted SCP/SCU Role: {0!s}&#39;</span>
-                <span class="c1">#         .format(ac_scp_scu_role))</span>
-                <span class="n">s</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="s1">&#39;    Accepted Transfer Syntax: =</span><span class="si">{0!s}</span><span class="s1">&#39;</span>
-                         <span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">item</span><span class="o">.</span><span class="n">transfer_syntax</span><span class="o">.</span><span class="n">name</span><span class="p">))</span>
-
-        <span class="c1">## Role Selection</span>
-        <span class="k">if</span> <span class="n">roles</span><span class="p">:</span>
-            <span class="n">s</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="s2">&quot;Accepted Role Selection:&quot;</span><span class="p">)</span>
-
-            <span class="k">for</span> <span class="n">uid</span> <span class="ow">in</span> <span class="nb">sorted</span><span class="p">(</span><span class="n">roles</span><span class="o">.</span><span class="n">keys</span><span class="p">()):</span>
-                <span class="n">s</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="s2">&quot;  SOP Class: =</span><span class="si">{}</span><span class="s2">&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">uid</span><span class="o">.</span><span class="n">name</span><span class="p">))</span>
-                <span class="n">str_roles</span> <span class="o">=</span> <span class="p">[]</span>
-                <span class="k">if</span> <span class="n">roles</span><span class="p">[</span><span class="n">uid</span><span class="p">]</span><span class="o">.</span><span class="n">scp_role</span><span class="p">:</span>
-                    <span class="n">str_roles</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="s1">&#39;SCP&#39;</span><span class="p">)</span>
-                <span class="k">if</span> <span class="n">roles</span><span class="p">[</span><span class="n">uid</span><span class="p">]</span><span class="o">.</span><span class="n">scu_role</span><span class="p">:</span>
-                    <span class="n">str_roles</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="s1">&#39;SCU&#39;</span><span class="p">)</span>
-
-                <span class="n">str_roles</span> <span class="o">=</span> <span class="s1">&#39;/&#39;</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">str_roles</span><span class="p">)</span>
-                <span class="n">s</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="s2">&quot;    SCP/SCU Role: </span><span class="si">{}</span><span class="s2">&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">str_roles</span><span class="p">))</span>
-        <span class="k">else</span><span class="p">:</span>
-            <span class="n">s</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="s2">&quot;Role Selection: None&quot;</span><span class="p">)</span>
-
-        <span class="c1">## Extended Negotiation</span>
-        <span class="k">if</span> <span class="n">user_info</span><span class="o">.</span><span class="n">ext_neg</span><span class="p">:</span>
-            <span class="n">s</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="s1">&#39;Accepted Extended Negotiation:&#39;</span><span class="p">)</span>
-
-            <span class="k">for</span> <span class="n">item</span> <span class="ow">in</span> <span class="n">user_info</span><span class="o">.</span><span class="n">ext_neg</span><span class="p">:</span>
-                <span class="n">s</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="s1">&#39;  SOP Class: =</span><span class="si">{0!s}</span><span class="s1">&#39;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">item</span><span class="o">.</span><span class="n">uid</span><span class="p">))</span>
-                <span class="n">app_info</span> <span class="o">=</span> <span class="n">pretty_bytes</span><span class="p">(</span><span class="n">item</span><span class="o">.</span><span class="n">app_info</span><span class="p">)</span>
-                <span class="n">app_info</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span> <span class="o">=</span> <span class="s1">&#39;[&#39;</span> <span class="o">+</span> <span class="n">app_info</span><span class="p">[</span><span class="mi">0</span><span class="p">][</span><span class="mi">1</span><span class="p">:]</span>
-                <span class="n">app_info</span><span class="p">[</span><span class="o">-</span><span class="mi">1</span><span class="p">]</span> <span class="o">=</span> <span class="n">app_info</span><span class="p">[</span><span class="o">-</span><span class="mi">1</span><span class="p">]</span> <span class="o">+</span> <span class="s1">&#39; ]&#39;</span>
-                <span class="k">for</span> <span class="n">line</span> <span class="ow">in</span> <span class="n">app_info</span><span class="p">:</span>
-                    <span class="n">s</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="s1">&#39;    </span><span class="si">{0!s}</span><span class="s1">&#39;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">line</span><span class="p">))</span>
-        <span class="k">else</span><span class="p">:</span>
-            <span class="n">s</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="s1">&#39;Accepted Extended Negotiation: None&#39;</span><span class="p">)</span>
-
-        <span class="c1">## Asynchronous Operations</span>
-        <span class="k">if</span> <span class="n">async_ops</span><span class="p">:</span>
-            <span class="n">s</span><span class="o">.</span><span class="n">append</span><span class="p">(</span>
-                <span class="s2">&quot;Accepted Asynchronous Operations Window Negotiation:&quot;</span>
-            <span class="p">)</span>
-            <span class="n">s</span><span class="o">.</span><span class="n">append</span><span class="p">(</span>
-                <span class="s2">&quot;  Maximum Invoked Operations:     </span><span class="si">{}</span><span class="s2">&quot;</span>
-                <span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">async_ops</span><span class="o">.</span><span class="n">maximum_number_operations_invoked</span><span class="p">)</span>
-            <span class="p">)</span>
-            <span class="n">s</span><span class="o">.</span><span class="n">append</span><span class="p">(</span>
-                <span class="s2">&quot;  Maximum Performed Operations:   </span><span class="si">{}</span><span class="s2">&quot;</span>
-                <span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">async_ops</span><span class="o">.</span><span class="n">maximum_number_operations_performed</span><span class="p">)</span>
-            <span class="p">)</span>
-        <span class="k">else</span><span class="p">:</span>
-            <span class="n">s</span><span class="o">.</span><span class="n">append</span><span class="p">(</span>
-                <span class="s2">&quot;Accepted Asynchronous Operations Window Negotiation: None&quot;</span>
-            <span class="p">)</span>
-
-        <span class="c1">## User Identity Negotiation</span>
-        <span class="n">usr_id</span> <span class="o">=</span> <span class="s1">&#39;Yes&#39;</span> <span class="k">if</span> <span class="n">user_info</span><span class="o">.</span><span class="n">user_identity</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span> <span class="k">else</span> <span class="s1">&#39;None&#39;</span>
-
-
-        <span class="n">s</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="s1">&#39;User Identity Negotiation Response: </span><span class="si">{0!s}</span><span class="s1">&#39;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">usr_id</span><span class="p">))</span>
-        <span class="n">s</span><span class="o">.</span><span class="n">append</span><span class="p">(</span>
-            <span class="s1">&#39;======================= END A-ASSOCIATE-AC ======================&#39;</span>
-        <span class="p">)</span>
-
-        <span class="k">for</span> <span class="n">line</span> <span class="ow">in</span> <span class="n">s</span><span class="p">:</span>
-            <span class="n">LOGGER</span><span class="o">.</span><span class="n">debug</span><span class="p">(</span><span class="n">line</span><span class="p">)</span></div>
-
-<div class="viewcode-block" id="ACSE.debug_send_associate_rj"><a class="viewcode-back" href="../../reference/generated/pynetdicom.acse.ACSE.html#pynetdicom.acse.ACSE.debug_send_associate_rj">[docs]</a>    <span class="nd">@staticmethod</span>
-    <span class="k">def</span> <span class="nf">debug_send_associate_rj</span><span class="p">(</span><span class="n">a_associate_rj</span><span class="p">):</span>
-        <span class="sd">&quot;&quot;&quot;</span>
-<span class="sd">        Placeholder for a function callback. Function will be called</span>
-<span class="sd">        immediately prior to encoding and sending an A-ASSOCIATE-RJ to a peer</span>
-<span class="sd">        AE.</span>
-
-<span class="sd">        Parameters</span>
-<span class="sd">        ----------</span>
-<span class="sd">        a_associate_rj : pdu.A_ASSOCIATE_RJ</span>
-<span class="sd">            The A-ASSOCIATE-RJ PDU instance</span>
-<span class="sd">        &quot;&quot;&quot;</span>
-        <span class="n">LOGGER</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="s2">&quot;Association Rejected&quot;</span><span class="p">)</span></div>
-
-<div class="viewcode-block" id="ACSE.debug_send_associate_rq"><a class="viewcode-back" href="../../reference/generated/pynetdicom.acse.ACSE.html#pynetdicom.acse.ACSE.debug_send_associate_rq">[docs]</a>    <span class="nd">@staticmethod</span>
-    <span class="k">def</span> <span class="nf">debug_send_associate_rq</span><span class="p">(</span><span class="n">a_associate_rq</span><span class="p">):</span>
-        <span class="sd">&quot;&quot;&quot;</span>
-<span class="sd">        Placeholder for a function callback. Function will be called</span>
-<span class="sd">        immediately prior to encoding and sending an A-ASSOCIATE-RQ to</span>
-<span class="sd">        a peer AE</span>
-
-<span class="sd">        The default implementation is used for logging debugging information</span>
-
-<span class="sd">        Parameters</span>
-<span class="sd">        ----------</span>
-<span class="sd">        a_associate_rq : pdu.A_ASSOCIATE_RQ</span>
-<span class="sd">            The A-ASSOCIATE-RQ PDU instance to be encoded and sent</span>
-<span class="sd">        &quot;&quot;&quot;</span>
-        <span class="c1"># Shorthand</span>
-        <span class="n">pdu</span> <span class="o">=</span> <span class="n">a_associate_rq</span>
-
-        <span class="n">app_context</span> <span class="o">=</span> <span class="n">pdu</span><span class="o">.</span><span class="n">application_context_name</span><span class="o">.</span><span class="n">title</span><span class="p">()</span>
-        <span class="n">pres_contexts</span> <span class="o">=</span> <span class="n">pdu</span><span class="o">.</span><span class="n">presentation_context</span>
-        <span class="n">user_info</span> <span class="o">=</span> <span class="n">pdu</span><span class="o">.</span><span class="n">user_information</span>
-
-        <span class="n">s</span> <span class="o">=</span> <span class="p">[</span><span class="s1">&#39;Request Parameters:&#39;</span><span class="p">]</span>
-        <span class="n">s</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="s1">&#39;====================== BEGIN A-ASSOCIATE-RQ ================&#39;</span>
-                 <span class="s1">&#39;=====&#39;</span><span class="p">)</span>
-
-        <span class="n">s</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="s1">&#39;Our Implementation Class UID:      &#39;</span>
-                 <span class="s1">&#39;</span><span class="si">{0!s}</span><span class="s1">&#39;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">user_info</span><span class="o">.</span><span class="n">implementation_class_uid</span><span class="p">))</span>
-        <span class="k">if</span> <span class="n">user_info</span><span class="o">.</span><span class="n">implementation_version_name</span><span class="p">:</span>
-            <span class="n">s</span><span class="o">.</span><span class="n">append</span><span class="p">(</span>
-                <span class="s1">&#39;Our Implementation Version Name:   </span><span class="si">{0!s}</span><span class="s1">&#39;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span>
-                    <span class="n">user_info</span><span class="o">.</span><span class="n">implementation_version_name</span><span class="o">.</span><span class="n">decode</span><span class="p">(</span><span class="s1">&#39;ascii&#39;</span><span class="p">)</span>
-                <span class="p">)</span>
-            <span class="p">)</span>
-        <span class="n">s</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="s1">&#39;Application Context Name:    </span><span class="si">{0!s}</span><span class="s1">&#39;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">app_context</span><span class="p">))</span>
-        <span class="n">s</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="s1">&#39;Calling Application Name:    &#39;</span>
-                 <span class="s1">&#39;</span><span class="si">{0!s}</span><span class="s1">&#39;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">pdu</span><span class="o">.</span><span class="n">calling_ae_title</span><span class="o">.</span><span class="n">decode</span><span class="p">(</span><span class="s1">&#39;ascii&#39;</span><span class="p">)))</span>
-        <span class="n">s</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="s1">&#39;Called Application Name:     &#39;</span>
-                 <span class="s1">&#39;</span><span class="si">{0!s}</span><span class="s1">&#39;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">pdu</span><span class="o">.</span><span class="n">called_ae_title</span><span class="o">.</span><span class="n">decode</span><span class="p">(</span><span class="s1">&#39;ascii&#39;</span><span class="p">)))</span>
-        <span class="n">s</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="s1">&#39;Our Max PDU Receive Size:    &#39;</span>
-                 <span class="s1">&#39;</span><span class="si">{0!s}</span><span class="s1">&#39;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">user_info</span><span class="o">.</span><span class="n">maximum_length</span><span class="p">))</span>
-
-        <span class="c1">## Presentation Contexts</span>
-        <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">pres_contexts</span><span class="p">)</span> <span class="o">==</span> <span class="mi">1</span><span class="p">:</span>
-            <span class="n">s</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="s1">&#39;Presentation Context:&#39;</span><span class="p">)</span>
-        <span class="k">else</span><span class="p">:</span>
-            <span class="n">s</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="s1">&#39;Presentation Contexts:&#39;</span><span class="p">)</span>
-
-        <span class="k">for</span> <span class="n">context</span> <span class="ow">in</span> <span class="n">pres_contexts</span><span class="p">:</span>
-            <span class="n">s</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="s1">&#39;  Context ID:        </span><span class="si">{0!s}</span><span class="s1"> &#39;</span>
-                     <span class="s1">&#39;(Proposed)&#39;</span><span class="o">.</span><span class="n">format</span><span class="p">((</span><span class="n">context</span><span class="o">.</span><span class="n">context_id</span><span class="p">)))</span>
-            <span class="n">s</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="s1">&#39;    Abstract Syntax: =&#39;</span>
-                     <span class="s1">&#39;</span><span class="si">{0!s}</span><span class="s1">&#39;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">context</span><span class="o">.</span><span class="n">abstract_syntax</span><span class="o">.</span><span class="n">name</span><span class="p">))</span>
-
-            <span class="c1"># Add SCP/SCU Role Selection Negotiation</span>
-            <span class="c1"># Roles are: SCU, SCP/SCU, SCP, Default</span>
-            <span class="k">if</span> <span class="n">pdu</span><span class="o">.</span><span class="n">user_information</span><span class="o">.</span><span class="n">role_selection</span><span class="p">:</span>
-                <span class="k">try</span><span class="p">:</span>
-                    <span class="n">role</span> <span class="o">=</span> <span class="n">pdu</span><span class="o">.</span><span class="n">user_information</span><span class="o">.</span><span class="n">role_selection</span><span class="p">[</span>
-                        <span class="n">context</span><span class="o">.</span><span class="n">abstract_syntax</span>
-                    <span class="p">]</span>
-                    <span class="n">roles</span> <span class="o">=</span> <span class="p">[]</span>
-                    <span class="k">if</span> <span class="n">role</span><span class="o">.</span><span class="n">scp_role</span><span class="p">:</span>
-                        <span class="n">roles</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="s1">&#39;SCP&#39;</span><span class="p">)</span>
-                    <span class="k">if</span> <span class="n">role</span><span class="o">.</span><span class="n">scu_role</span><span class="p">:</span>
-                        <span class="n">roles</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="s1">&#39;SCU&#39;</span><span class="p">)</span>
-
-                    <span class="n">scp_scu_role</span> <span class="o">=</span> <span class="s1">&#39;/&#39;</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">roles</span><span class="p">)</span>
-                <span class="k">except</span> <span class="ne">KeyError</span><span class="p">:</span>
-                    <span class="n">scp_scu_role</span> <span class="o">=</span> <span class="s1">&#39;Default&#39;</span>
-            <span class="k">else</span><span class="p">:</span>
-                <span class="n">scp_scu_role</span> <span class="o">=</span> <span class="s1">&#39;Default&#39;</span>
-
-            <span class="n">s</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="s1">&#39;    Proposed SCP/SCU Role: </span><span class="si">{0!s}</span><span class="s1">&#39;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">scp_scu_role</span><span class="p">))</span>
-
-            <span class="c1"># Transfer Syntaxes</span>
-            <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">context</span><span class="o">.</span><span class="n">transfer_syntax</span><span class="p">)</span> <span class="o">==</span> <span class="mi">1</span><span class="p">:</span>
-                <span class="n">s</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="s1">&#39;    Proposed Transfer Syntax:&#39;</span><span class="p">)</span>
-            <span class="k">else</span><span class="p">:</span>
-                <span class="n">s</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="s1">&#39;    Proposed Transfer Syntaxes:&#39;</span><span class="p">)</span>
-
-            <span class="k">for</span> <span class="n">ts</span> <span class="ow">in</span> <span class="n">context</span><span class="o">.</span><span class="n">transfer_syntax</span><span class="p">:</span>
-                <span class="n">s</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="s1">&#39;      =</span><span class="si">{0!s}</span><span class="s1">&#39;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">ts</span><span class="o">.</span><span class="n">name</span><span class="p">))</span>
-
-        <span class="c1">## Extended Negotiation</span>
-        <span class="k">if</span> <span class="n">pdu</span><span class="o">.</span><span class="n">user_information</span><span class="o">.</span><span class="n">ext_neg</span><span class="p">:</span>
-            <span class="n">s</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="s1">&#39;Requested Extended Negotiation:&#39;</span><span class="p">)</span>
-
-            <span class="k">for</span> <span class="n">item</span> <span class="ow">in</span> <span class="n">pdu</span><span class="o">.</span><span class="n">user_information</span><span class="o">.</span><span class="n">ext_neg</span><span class="p">:</span>
-                <span class="n">s</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="s1">&#39;  SOP Class: =</span><span class="si">{0!s}</span><span class="s1">&#39;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">item</span><span class="o">.</span><span class="n">uid</span><span class="p">))</span>
-                <span class="c1">#s.append(&#39;    Application Information, length: %d bytes&#39;</span>
-                <span class="c1">#                                       %len(item.app_info))</span>
-
-                <span class="n">app_info</span> <span class="o">=</span> <span class="n">pretty_bytes</span><span class="p">(</span><span class="n">item</span><span class="o">.</span><span class="n">app_info</span><span class="p">)</span>
-                <span class="n">app_info</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span> <span class="o">=</span> <span class="s1">&#39;[&#39;</span> <span class="o">+</span> <span class="n">app_info</span><span class="p">[</span><span class="mi">0</span><span class="p">][</span><span class="mi">1</span><span class="p">:]</span>
-                <span class="n">app_info</span><span class="p">[</span><span class="o">-</span><span class="mi">1</span><span class="p">]</span> <span class="o">=</span> <span class="n">app_info</span><span class="p">[</span><span class="o">-</span><span class="mi">1</span><span class="p">]</span> <span class="o">+</span> <span class="s1">&#39; ]&#39;</span>
-                <span class="k">for</span> <span class="n">line</span> <span class="ow">in</span> <span class="n">app_info</span><span class="p">:</span>
-                    <span class="n">s</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="s1">&#39;    </span><span class="si">{0!s}</span><span class="s1">&#39;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">line</span><span class="p">))</span>
-        <span class="k">else</span><span class="p">:</span>
-            <span class="n">s</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="s1">&#39;Requested Extended Negotiation: None&#39;</span><span class="p">)</span>
-
-        <span class="c1">## Common Extended Negotiation</span>
-        <span class="k">if</span> <span class="n">pdu</span><span class="o">.</span><span class="n">user_information</span><span class="o">.</span><span class="n">common_ext_neg</span><span class="p">:</span>
-            <span class="n">s</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="s1">&#39;Requested Common Extended Negotiation:&#39;</span><span class="p">)</span>
-
-            <span class="k">for</span> <span class="n">item</span> <span class="ow">in</span> <span class="n">pdu</span><span class="o">.</span><span class="n">user_information</span><span class="o">.</span><span class="n">common_ext_neg</span><span class="p">:</span>
-
-                <span class="n">s</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="s1">&#39;  SOP Class: =</span><span class="si">{0!s}</span><span class="s1">&#39;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">item</span><span class="o">.</span><span class="n">sop_class_uid</span><span class="o">.</span><span class="n">name</span><span class="p">))</span>
-                <span class="n">s</span><span class="o">.</span><span class="n">append</span><span class="p">(</span>
-                    <span class="s2">&quot;    Service Class: =</span><span class="si">{0!s}</span><span class="s2">&quot;</span>
-                    <span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">item</span><span class="o">.</span><span class="n">service_class_uid</span><span class="o">.</span><span class="n">name</span><span class="p">)</span>
-                <span class="p">)</span>
-
-                <span class="n">related_uids</span> <span class="o">=</span> <span class="n">item</span><span class="o">.</span><span class="n">related_general_sop_class_identification</span>
-                <span class="k">if</span> <span class="n">related_uids</span><span class="p">:</span>
-                    <span class="n">s</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="s1">&#39;    Related General SOP Class(es):&#39;</span><span class="p">)</span>
-                    <span class="k">for</span> <span class="n">sub_field</span> <span class="ow">in</span> <span class="n">related_uids</span><span class="p">:</span>
-                        <span class="n">s</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="s1">&#39;      =</span><span class="si">{0!s}</span><span class="s1">&#39;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">sub_field</span><span class="o">.</span><span class="n">name</span><span class="p">))</span>
-                <span class="k">else</span><span class="p">:</span>
-                    <span class="n">s</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="s1">&#39;    Related General SOP Classes: None&#39;</span><span class="p">)</span>
-        <span class="k">else</span><span class="p">:</span>
-            <span class="n">s</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="s1">&#39;Requested Common Extended Negotiation: None&#39;</span><span class="p">)</span>
-
-        <span class="c1">## Asynchronous Operations Window Negotiation</span>
-        <span class="n">async_ops</span> <span class="o">=</span> <span class="n">pdu</span><span class="o">.</span><span class="n">user_information</span><span class="o">.</span><span class="n">async_ops_window</span>
-        <span class="k">if</span> <span class="n">async_ops</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
-            <span class="n">s</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="s1">&#39;Requested Asynchronous Operations Window Negotiation:&#39;</span><span class="p">)</span>
-            <span class="n">s</span><span class="o">.</span><span class="n">append</span><span class="p">(</span>
-                <span class="s2">&quot;  Maximum Invoked Operations:     </span><span class="si">{}</span><span class="s2">&quot;</span>
-                <span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">async_ops</span><span class="o">.</span><span class="n">maximum_number_operations_invoked</span><span class="p">)</span>
-            <span class="p">)</span>
-            <span class="n">s</span><span class="o">.</span><span class="n">append</span><span class="p">(</span>
-                <span class="s2">&quot;  Maximum Performed Operations:   </span><span class="si">{}</span><span class="s2">&quot;</span>
-                <span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">async_ops</span><span class="o">.</span><span class="n">maximum_number_operations_performed</span><span class="p">)</span>
-            <span class="p">)</span>
-        <span class="k">else</span><span class="p">:</span>
-            <span class="n">s</span><span class="o">.</span><span class="n">append</span><span class="p">(</span>
-                <span class="s2">&quot;Requested Asynchronous Operations Window Negotiation: None&quot;</span>
-            <span class="p">)</span>
-
-        <span class="c1">## User Identity</span>
-        <span class="k">if</span> <span class="n">user_info</span><span class="o">.</span><span class="n">user_identity</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
-            <span class="n">usid</span> <span class="o">=</span> <span class="n">user_info</span><span class="o">.</span><span class="n">user_identity</span>
-            <span class="n">s</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="s1">&#39;Requested User Identity Negotiation:&#39;</span><span class="p">)</span>
-            <span class="n">s</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="s1">&#39;  Authentication Mode: </span><span class="si">{0:d}</span><span class="s1"> - &#39;</span>
-                     <span class="s1">&#39;</span><span class="si">{1!s}</span><span class="s1">&#39;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">usid</span><span class="o">.</span><span class="n">id_type</span><span class="p">,</span> <span class="n">usid</span><span class="o">.</span><span class="n">id_type_str</span><span class="p">))</span>
-            <span class="k">if</span> <span class="n">usid</span><span class="o">.</span><span class="n">id_type</span> <span class="o">==</span> <span class="mi">1</span><span class="p">:</span>
-                <span class="n">s</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="s1">&#39;  Username: &#39;</span>
-                         <span class="s1">&#39;[</span><span class="si">{0!s}</span><span class="s1">]&#39;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">usid</span><span class="o">.</span><span class="n">primary</span><span class="o">.</span><span class="n">decode</span><span class="p">(</span><span class="s1">&#39;utf-8&#39;</span><span class="p">)))</span>
-            <span class="k">elif</span> <span class="n">usid</span><span class="o">.</span><span class="n">id_type</span> <span class="o">==</span> <span class="mi">2</span><span class="p">:</span>
-                <span class="n">s</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="s1">&#39;  Username: &#39;</span>
-                         <span class="s1">&#39;[</span><span class="si">{0!s}</span><span class="s1">]&#39;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">usid</span><span class="o">.</span><span class="n">primary</span><span class="o">.</span><span class="n">decode</span><span class="p">(</span><span class="s1">&#39;utf-8&#39;</span><span class="p">)))</span>
-                <span class="n">s</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="s1">&#39;  Password: &#39;</span>
-                         <span class="s1">&#39;[</span><span class="si">{0!s}</span><span class="s1">]&#39;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">usid</span><span class="o">.</span><span class="n">secondary</span><span class="o">.</span><span class="n">decode</span><span class="p">(</span><span class="s1">&#39;utf-8&#39;</span><span class="p">)))</span>
-            <span class="k">elif</span> <span class="n">usid</span><span class="o">.</span><span class="n">id_type</span> <span class="o">==</span> <span class="mi">3</span><span class="p">:</span>
-                <span class="n">s</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="s1">&#39;  Kerberos Service Ticket (not dumped) length: &#39;</span>
-                         <span class="s1">&#39;</span><span class="si">{0:d}</span><span class="s1">&#39;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="nb">len</span><span class="p">(</span><span class="n">usid</span><span class="o">.</span><span class="n">primary</span><span class="p">)))</span>
-            <span class="k">elif</span> <span class="n">usid</span><span class="o">.</span><span class="n">id_type</span> <span class="o">==</span> <span class="mi">4</span><span class="p">:</span>
-                <span class="n">s</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="s1">&#39;  SAML Assertion (not dumped) length: &#39;</span>
-                         <span class="s1">&#39;</span><span class="si">{0:d}</span><span class="s1">&#39;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="nb">len</span><span class="p">(</span><span class="n">usid</span><span class="o">.</span><span class="n">primary</span><span class="p">)))</span>
-            <span class="k">elif</span> <span class="n">usid</span><span class="o">.</span><span class="n">id_type</span> <span class="o">==</span> <span class="mi">5</span><span class="p">:</span>
-                <span class="n">s</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="s1">&#39;  JSON Web Token (not dumped) length: &#39;</span>
-                         <span class="s1">&#39;</span><span class="si">{0:d}</span><span class="s1">&#39;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="nb">len</span><span class="p">(</span><span class="n">usid</span><span class="o">.</span><span class="n">primary</span><span class="p">)))</span>
-
-            <span class="k">if</span> <span class="n">usid</span><span class="o">.</span><span class="n">response_requested</span><span class="p">:</span>
-                <span class="n">s</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="s1">&#39;  Positive Response Requested: Yes&#39;</span><span class="p">)</span>
-            <span class="k">else</span><span class="p">:</span>
-                <span class="n">s</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="s1">&#39;  Positive Response Requested: No&#39;</span><span class="p">)</span>
-        <span class="k">else</span><span class="p">:</span>
-            <span class="n">s</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="s1">&#39;Requested User Identity Negotiation: None&#39;</span><span class="p">)</span>
-
-        <span class="n">s</span><span class="o">.</span><span class="n">append</span><span class="p">(</span>
-            <span class="s1">&#39;======================= END A-ASSOCIATE-RQ ======================&#39;</span>
-        <span class="p">)</span>
-
-        <span class="k">for</span> <span class="n">line</span> <span class="ow">in</span> <span class="n">s</span><span class="p">:</span>
-            <span class="n">LOGGER</span><span class="o">.</span><span class="n">debug</span><span class="p">(</span><span class="n">line</span><span class="p">)</span></div>
-
-<div class="viewcode-block" id="ACSE.debug_send_data_tf"><a class="viewcode-back" href="../../reference/generated/pynetdicom.acse.ACSE.html#pynetdicom.acse.ACSE.debug_send_data_tf">[docs]</a>    <span class="nd">@staticmethod</span>
-    <span class="k">def</span> <span class="nf">debug_send_data_tf</span><span class="p">(</span><span class="n">p_data_tf</span><span class="p">):</span>
-        <span class="sd">&quot;&quot;&quot;</span>
-<span class="sd">        Placeholder for a function callback. Function will be called</span>
-<span class="sd">        immediately prior to encoding and sending an P-DATA-TF to a peer AE</span>
-
-<span class="sd">        Parameters</span>
-<span class="sd">        ----------</span>
-<span class="sd">        a_release_rq : pdu.P_DATA_TF</span>
-<span class="sd">            The P-DATA-TF PDU instance</span>
-<span class="sd">        &quot;&quot;&quot;</span>
-        <span class="k">pass</span></div>
-
-<div class="viewcode-block" id="ACSE.debug_send_release_rp"><a class="viewcode-back" href="../../reference/generated/pynetdicom.acse.ACSE.html#pynetdicom.acse.ACSE.debug_send_release_rp">[docs]</a>    <span class="nd">@staticmethod</span>
-    <span class="k">def</span> <span class="nf">debug_send_release_rp</span><span class="p">(</span><span class="n">a_release_rp</span><span class="p">):</span>
-        <span class="sd">&quot;&quot;&quot;</span>
-<span class="sd">        Placeholder for a function callback. Function will be called</span>
-<span class="sd">        immediately prior to encoding and sending an A-RELEASE-RP to a peer AE</span>
-
-<span class="sd">        Parameters</span>
-<span class="sd">        ----------</span>
-<span class="sd">        a_release_rp : pdu.A_RELEASE_RP</span>
-<span class="sd">            The A-RELEASE-RP PDU instance</span>
-<span class="sd">        &quot;&quot;&quot;</span>
-        <span class="k">pass</span></div>
-
-<div class="viewcode-block" id="ACSE.debug_send_release_rq"><a class="viewcode-back" href="../../reference/generated/pynetdicom.acse.ACSE.html#pynetdicom.acse.ACSE.debug_send_release_rq">[docs]</a>    <span class="nd">@staticmethod</span>
-    <span class="k">def</span> <span class="nf">debug_send_release_rq</span><span class="p">(</span><span class="n">a_release_rq</span><span class="p">):</span>
-        <span class="sd">&quot;&quot;&quot;</span>
-<span class="sd">        Placeholder for a function callback. Function will be called</span>
-<span class="sd">        immediately prior to encoding and sending an A-RELEASE-RQ to a peer AE</span>
-
-<span class="sd">        Parameters</span>
-<span class="sd">        ----------</span>
-<span class="sd">        a_release_rq : pdu.A_RELEASE_RQ</span>
-<span class="sd">            The A-RELEASE-RQ PDU instance</span>
-<span class="sd">        &quot;&quot;&quot;</span>
-        <span class="k">pass</span></div>
-
-<div class="viewcode-block" id="ACSE.debug_receive_abort"><a class="viewcode-back" href="../../reference/generated/pynetdicom.acse.ACSE.html#pynetdicom.acse.ACSE.debug_receive_abort">[docs]</a>    <span class="nd">@staticmethod</span>
-    <span class="k">def</span> <span class="nf">debug_receive_abort</span><span class="p">(</span><span class="n">a_abort</span><span class="p">):</span>
-        <span class="sd">&quot;&quot;&quot;</span>
-<span class="sd">        Placeholder for a function callback. Function will be called</span>
-<span class="sd">        immediately after receiving and decoding an A-ABORT</span>
-
-<span class="sd">        Parameters</span>
-<span class="sd">        ----------</span>
-<span class="sd">        a_abort : pdu.A_ABORT_RQ</span>
-<span class="sd">            The A-ABORT PDU instance</span>
-<span class="sd">        &quot;&quot;&quot;</span>
-        <span class="n">s</span> <span class="o">=</span> <span class="p">[</span><span class="s1">&#39;Abort Parameters:&#39;</span><span class="p">]</span>
-        <span class="n">s</span><span class="o">.</span><span class="n">append</span><span class="p">(</span>
-            <span class="s1">&#39;========================== BEGIN A-ABORT ========================&#39;</span>
-        <span class="p">)</span>
-        <span class="n">s</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="s1">&#39;Abort Source: </span><span class="si">{0!s}</span><span class="s1">&#39;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">a_abort</span><span class="o">.</span><span class="n">source_str</span><span class="p">))</span>
-        <span class="n">s</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="s1">&#39;Abort Reason: </span><span class="si">{0!s}</span><span class="s1">&#39;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">a_abort</span><span class="o">.</span><span class="n">reason_str</span><span class="p">))</span>
-        <span class="n">s</span><span class="o">.</span><span class="n">append</span><span class="p">(</span>
-            <span class="s1">&#39;=========================== END A-ABORT =========================&#39;</span>
-        <span class="p">)</span>
-        <span class="k">for</span> <span class="n">line</span> <span class="ow">in</span> <span class="n">s</span><span class="p">:</span>
-            <span class="n">LOGGER</span><span class="o">.</span><span class="n">debug</span><span class="p">(</span><span class="n">line</span><span class="p">)</span></div>
-
-<div class="viewcode-block" id="ACSE.debug_receive_associate_ac"><a class="viewcode-back" href="../../reference/generated/pynetdicom.acse.ACSE.html#pynetdicom.acse.ACSE.debug_receive_associate_ac">[docs]</a>    <span class="nd">@staticmethod</span>
-    <span class="k">def</span> <span class="nf">debug_receive_associate_ac</span><span class="p">(</span><span class="n">a_associate_ac</span><span class="p">):</span>
-        <span class="sd">&quot;&quot;&quot;</span>
-<span class="sd">        Placeholder for a function callback. Function will be called</span>
-<span class="sd">        immediately after receiving and decoding an A-ASSOCIATE-AC</span>
-
-<span class="sd">        The default implementation is used for logging debugging information</span>
-
-<span class="sd">        Most of this should be moved to on_association_accepted()</span>
-
-<span class="sd">        Parameters</span>
-<span class="sd">        ----------</span>
-<span class="sd">        a_associate_ac : pdu.A_ASSOCIATE_AC</span>
-<span class="sd">            The A-ASSOCIATE-AC PDU instance</span>
-<span class="sd">        &quot;&quot;&quot;</span>
-        <span class="c1"># Shorthand</span>
-        <span class="n">assoc_ac</span> <span class="o">=</span> <span class="n">a_associate_ac</span>
-
-        <span class="n">app_context</span> <span class="o">=</span> <span class="n">assoc_ac</span><span class="o">.</span><span class="n">application_context_name</span><span class="o">.</span><span class="n">title</span><span class="p">()</span>
-        <span class="n">pres_contexts</span> <span class="o">=</span> <span class="nb">sorted</span><span class="p">(</span>
-            <span class="n">assoc_ac</span><span class="o">.</span><span class="n">presentation_context</span><span class="p">,</span> <span class="n">key</span><span class="o">=</span><span class="k">lambda</span> <span class="n">x</span><span class="p">:</span> <span class="n">x</span><span class="o">.</span><span class="n">context_id</span>
-        <span class="p">)</span>
-        <span class="n">user_info</span> <span class="o">=</span> <span class="n">assoc_ac</span><span class="o">.</span><span class="n">user_information</span>
-        <span class="n">async_ops</span> <span class="o">=</span> <span class="n">user_info</span><span class="o">.</span><span class="n">async_ops_window</span>
-        <span class="n">roles</span> <span class="o">=</span> <span class="n">user_info</span><span class="o">.</span><span class="n">role_selection</span>
-
-        <span class="n">their_class_uid</span> <span class="o">=</span> <span class="s1">&#39;unknown&#39;</span>
-        <span class="n">their_version</span> <span class="o">=</span> <span class="sa">b</span><span class="s1">&#39;unknown&#39;</span>
-
-        <span class="k">if</span> <span class="n">user_info</span><span class="o">.</span><span class="n">implementation_class_uid</span><span class="p">:</span>
-            <span class="n">their_class_uid</span> <span class="o">=</span> <span class="n">user_info</span><span class="o">.</span><span class="n">implementation_class_uid</span>
-        <span class="k">if</span> <span class="n">user_info</span><span class="o">.</span><span class="n">implementation_version_name</span><span class="p">:</span>
-            <span class="n">their_version</span> <span class="o">=</span> <span class="n">user_info</span><span class="o">.</span><span class="n">implementation_version_name</span>
-
-        <span class="n">s</span> <span class="o">=</span> <span class="p">[</span><span class="s1">&#39;Accept Parameters:&#39;</span><span class="p">]</span>
-        <span class="n">s</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="s1">&#39;====================== BEGIN A-ASSOCIATE-AC ================&#39;</span>
-                 <span class="s1">&#39;=====&#39;</span><span class="p">)</span>
-
-        <span class="n">s</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="s1">&#39;Their Implementation Class UID:    </span><span class="si">{0!s}</span><span class="s1">&#39;</span>
-                 <span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">their_class_uid</span><span class="p">))</span>
-        <span class="n">s</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="s1">&#39;Their Implementation Version Name: </span><span class="si">{0!s}</span><span class="s1">&#39;</span>
-                 <span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">their_version</span><span class="o">.</span><span class="n">decode</span><span class="p">(</span><span class="s1">&#39;ascii&#39;</span><span class="p">)))</span>
-        <span class="n">s</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="s1">&#39;Application Context Name:    </span><span class="si">{0!s}</span><span class="s1">&#39;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">app_context</span><span class="p">))</span>
-        <span class="n">s</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="s1">&#39;Calling Application Name:    </span><span class="si">{0!s}</span><span class="s1">&#39;</span>
-                 <span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">assoc_ac</span><span class="o">.</span><span class="n">calling_ae_title</span><span class="o">.</span><span class="n">decode</span><span class="p">(</span><span class="s1">&#39;ascii&#39;</span><span class="p">)))</span>
-        <span class="n">s</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="s1">&#39;Called Application Name:     </span><span class="si">{0!s}</span><span class="s1">&#39;</span>
-                 <span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">assoc_ac</span><span class="o">.</span><span class="n">called_ae_title</span><span class="o">.</span><span class="n">decode</span><span class="p">(</span><span class="s1">&#39;ascii&#39;</span><span class="p">)))</span>
-        <span class="n">s</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="s1">&#39;Their Max PDU Receive Size:  </span><span class="si">{0!s}</span><span class="s1">&#39;</span>
-                 <span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">user_info</span><span class="o">.</span><span class="n">maximum_length</span><span class="p">))</span>
-        <span class="n">s</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="s1">&#39;Presentation Contexts:&#39;</span><span class="p">)</span>
-
-        <span class="k">for</span> <span class="n">item</span> <span class="ow">in</span> <span class="n">pres_contexts</span><span class="p">:</span>
-            <span class="n">s</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="s1">&#39;  Context ID:        </span><span class="si">{0!s}</span><span class="s1"> (</span><span class="si">{1!s}</span><span class="s1">)&#39;</span>
-                     <span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">item</span><span class="o">.</span><span class="n">context_id</span><span class="p">,</span> <span class="n">item</span><span class="o">.</span><span class="n">result_str</span><span class="p">))</span>
-
-            <span class="k">if</span> <span class="n">item</span><span class="o">.</span><span class="n">result</span> <span class="o">==</span> <span class="mi">0</span><span class="p">:</span>
-                <span class="n">s</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="s1">&#39;    Accepted Transfer Syntax: =</span><span class="si">{0!s}</span><span class="s1">&#39;</span>
-                         <span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">item</span><span class="o">.</span><span class="n">transfer_syntax</span><span class="o">.</span><span class="n">name</span><span class="p">))</span>
-
-        <span class="c1">## Role Selection</span>
-        <span class="k">if</span> <span class="n">roles</span><span class="p">:</span>
-            <span class="n">s</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="s2">&quot;Accepted Role Selection:&quot;</span><span class="p">)</span>
-
-            <span class="k">for</span> <span class="n">uid</span> <span class="ow">in</span> <span class="nb">sorted</span><span class="p">(</span><span class="n">roles</span><span class="o">.</span><span class="n">keys</span><span class="p">()):</span>
-                <span class="n">s</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="s2">&quot;  SOP Class: =</span><span class="si">{}</span><span class="s2">&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">uid</span><span class="o">.</span><span class="n">name</span><span class="p">))</span>
-                <span class="n">str_roles</span> <span class="o">=</span> <span class="p">[]</span>
-                <span class="k">if</span> <span class="n">roles</span><span class="p">[</span><span class="n">uid</span><span class="p">]</span><span class="o">.</span><span class="n">scp_role</span><span class="p">:</span>
-                    <span class="n">str_roles</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="s1">&#39;SCP&#39;</span><span class="p">)</span>
-                <span class="k">if</span> <span class="n">roles</span><span class="p">[</span><span class="n">uid</span><span class="p">]</span><span class="o">.</span><span class="n">scu_role</span><span class="p">:</span>
-                    <span class="n">str_roles</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="s1">&#39;SCU&#39;</span><span class="p">)</span>
-
-                <span class="n">str_roles</span> <span class="o">=</span> <span class="s1">&#39;/&#39;</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">str_roles</span><span class="p">)</span>
-                <span class="n">s</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="s2">&quot;    SCP/SCU Role: </span><span class="si">{}</span><span class="s2">&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">str_roles</span><span class="p">))</span>
-        <span class="k">else</span><span class="p">:</span>
-            <span class="n">s</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="s2">&quot;Role Selection: None&quot;</span><span class="p">)</span>
-
-        <span class="c1">## Extended Negotiation</span>
-        <span class="k">if</span> <span class="n">user_info</span><span class="o">.</span><span class="n">ext_neg</span><span class="p">:</span>
-            <span class="n">s</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="s1">&#39;Accepted Extended Negotiation:&#39;</span><span class="p">)</span>
-
-            <span class="k">for</span> <span class="n">item</span> <span class="ow">in</span> <span class="n">user_info</span><span class="o">.</span><span class="n">ext_neg</span><span class="p">:</span>
-                <span class="n">s</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="s1">&#39;  SOP Class: =</span><span class="si">{0!s}</span><span class="s1">&#39;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">item</span><span class="o">.</span><span class="n">uid</span><span class="p">))</span>
-                <span class="n">app_info</span> <span class="o">=</span> <span class="n">pretty_bytes</span><span class="p">(</span><span class="n">item</span><span class="o">.</span><span class="n">app_info</span><span class="p">)</span>
-                <span class="n">app_info</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span> <span class="o">=</span> <span class="s1">&#39;[&#39;</span> <span class="o">+</span> <span class="n">app_info</span><span class="p">[</span><span class="mi">0</span><span class="p">][</span><span class="mi">1</span><span class="p">:]</span>
-                <span class="n">app_info</span><span class="p">[</span><span class="o">-</span><span class="mi">1</span><span class="p">]</span> <span class="o">=</span> <span class="n">app_info</span><span class="p">[</span><span class="o">-</span><span class="mi">1</span><span class="p">]</span> <span class="o">+</span> <span class="s1">&#39; ]&#39;</span>
-                <span class="k">for</span> <span class="n">line</span> <span class="ow">in</span> <span class="n">app_info</span><span class="p">:</span>
-                    <span class="n">s</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="s1">&#39;    </span><span class="si">{0!s}</span><span class="s1">&#39;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">line</span><span class="p">))</span>
-        <span class="k">else</span><span class="p">:</span>
-            <span class="n">s</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="s1">&#39;Accepted Extended Negotiation: None&#39;</span><span class="p">)</span>
-
-        <span class="c1">## Asynchronous Operations</span>
-        <span class="k">if</span> <span class="n">async_ops</span><span class="p">:</span>
-            <span class="n">s</span><span class="o">.</span><span class="n">append</span><span class="p">(</span>
-                <span class="s2">&quot;Accepted Asynchronous Operations Window Negotiation:&quot;</span>
-            <span class="p">)</span>
-            <span class="n">s</span><span class="o">.</span><span class="n">append</span><span class="p">(</span>
-                <span class="s2">&quot;  Maximum Invoked Operations:     </span><span class="si">{}</span><span class="s2">&quot;</span>
-                <span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">async_ops</span><span class="o">.</span><span class="n">maximum_number_operations_invoked</span><span class="p">)</span>
-            <span class="p">)</span>
-            <span class="n">s</span><span class="o">.</span><span class="n">append</span><span class="p">(</span>
-                <span class="s2">&quot;  Maximum Performed Operations:   </span><span class="si">{}</span><span class="s2">&quot;</span>
-                <span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">async_ops</span><span class="o">.</span><span class="n">maximum_number_operations_performed</span><span class="p">)</span>
-            <span class="p">)</span>
-        <span class="k">else</span><span class="p">:</span>
-            <span class="n">s</span><span class="o">.</span><span class="n">append</span><span class="p">(</span>
-                <span class="s2">&quot;Accepted Asynchronous Operations Window Negotiation: None&quot;</span>
-            <span class="p">)</span>
-
-        <span class="c1">## User Identity</span>
-        <span class="n">usr_id</span> <span class="o">=</span> <span class="s1">&#39;Yes&#39;</span> <span class="k">if</span> <span class="n">user_info</span><span class="o">.</span><span class="n">user_identity</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span> <span class="k">else</span> <span class="s1">&#39;None&#39;</span>
-
-        <span class="n">s</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="s1">&#39;User Identity Negotiation Response: </span><span class="si">{0!s}</span><span class="s1">&#39;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">usr_id</span><span class="p">))</span>
-        <span class="n">s</span><span class="o">.</span><span class="n">append</span><span class="p">(</span>
-            <span class="s1">&#39;======================= END A-ASSOCIATE-AC ======================&#39;</span>
-        <span class="p">)</span>
-
-        <span class="k">for</span> <span class="n">line</span> <span class="ow">in</span> <span class="n">s</span><span class="p">:</span>
-            <span class="n">LOGGER</span><span class="o">.</span><span class="n">debug</span><span class="p">(</span><span class="n">line</span><span class="p">)</span>
-
-        <span class="n">LOGGER</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="s1">&#39;Association Accepted&#39;</span><span class="p">)</span></div>
-
-<div class="viewcode-block" id="ACSE.debug_receive_associate_rj"><a class="viewcode-back" href="../../reference/generated/pynetdicom.acse.ACSE.html#pynetdicom.acse.ACSE.debug_receive_associate_rj">[docs]</a>    <span class="nd">@staticmethod</span>
-    <span class="k">def</span> <span class="nf">debug_receive_associate_rj</span><span class="p">(</span><span class="n">a_associate_rj</span><span class="p">):</span>
-        <span class="sd">&quot;&quot;&quot;</span>
-<span class="sd">        Placeholder for a function callback. Function will be called</span>
-<span class="sd">        immediately after receiving and decoding an A-ASSOCIATE-RJ</span>
-
-<span class="sd">        Parameters</span>
-<span class="sd">        ----------</span>
-<span class="sd">        a_associate_rj : pdu.A_ASSOCIATE_RJ</span>
-<span class="sd">            The A-ASSOCIATE-RJ PDU instance</span>
-<span class="sd">        &quot;&quot;&quot;</span>
-        <span class="c1"># Shorthand</span>
-        <span class="n">assoc_rj</span> <span class="o">=</span> <span class="n">a_associate_rj</span>
-
-        <span class="n">s</span> <span class="o">=</span> <span class="p">[</span><span class="s1">&#39;Reject Parameters:&#39;</span><span class="p">]</span>
-        <span class="n">s</span><span class="o">.</span><span class="n">append</span><span class="p">(</span>
-            <span class="s1">&#39;====================== BEGIN A-ASSOCIATE-RJ =====================&#39;</span>
-        <span class="p">)</span>
-        <span class="n">s</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="s1">&#39;Result:    </span><span class="si">{0!s}</span><span class="s1">&#39;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">assoc_rj</span><span class="o">.</span><span class="n">result_str</span><span class="p">))</span>
-        <span class="n">s</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="s1">&#39;Source:    </span><span class="si">{0!s}</span><span class="s1">&#39;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">assoc_rj</span><span class="o">.</span><span class="n">source_str</span><span class="p">))</span>
-        <span class="n">s</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="s1">&#39;Reason:    </span><span class="si">{0!s}</span><span class="s1">&#39;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">assoc_rj</span><span class="o">.</span><span class="n">reason_str</span><span class="p">))</span>
-        <span class="n">s</span><span class="o">.</span><span class="n">append</span><span class="p">(</span>
-            <span class="s1">&#39;======================= END A-ASSOCIATE-RJ ======================&#39;</span>
-        <span class="p">)</span>
-        <span class="k">for</span> <span class="n">line</span> <span class="ow">in</span> <span class="n">s</span><span class="p">:</span>
-            <span class="n">LOGGER</span><span class="o">.</span><span class="n">debug</span><span class="p">(</span><span class="n">line</span><span class="p">)</span></div>
-
-<div class="viewcode-block" id="ACSE.debug_receive_associate_rq"><a class="viewcode-back" href="../../reference/generated/pynetdicom.acse.ACSE.html#pynetdicom.acse.ACSE.debug_receive_associate_rq">[docs]</a>    <span class="nd">@staticmethod</span>
-    <span class="k">def</span> <span class="nf">debug_receive_associate_rq</span><span class="p">(</span><span class="n">a_associate_rq</span><span class="p">):</span>
-        <span class="sd">&quot;&quot;&quot;</span>
-<span class="sd">        Placeholder for a function callback. Function will be called</span>
-<span class="sd">        immediately after receiving and decoding an A-ASSOCIATE-RQ</span>
-
-<span class="sd">        Parameters</span>
-<span class="sd">        ----------</span>
-<span class="sd">        a_associate_rq : pdu.A_ASSOCIATE_RQ</span>
-<span class="sd">            The A-ASSOCIATE-RQ PDU instance</span>
-<span class="sd">        &quot;&quot;&quot;</span>
-        <span class="n">LOGGER</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="s2">&quot;Association Received&quot;</span><span class="p">)</span>
-
-        <span class="c1"># Shorthand</span>
-        <span class="n">pdu</span> <span class="o">=</span> <span class="n">a_associate_rq</span>
-
-        <span class="n">app_context</span> <span class="o">=</span> <span class="n">pdu</span><span class="o">.</span><span class="n">application_context_name</span><span class="o">.</span><span class="n">title</span><span class="p">()</span>
-        <span class="n">pres_contexts</span> <span class="o">=</span> <span class="nb">sorted</span><span class="p">(</span>
-            <span class="n">pdu</span><span class="o">.</span><span class="n">presentation_context</span><span class="p">,</span> <span class="n">key</span><span class="o">=</span><span class="k">lambda</span> <span class="n">x</span><span class="p">:</span> <span class="n">x</span><span class="o">.</span><span class="n">context_id</span>
-        <span class="p">)</span>
-        <span class="n">user_info</span> <span class="o">=</span> <span class="n">pdu</span><span class="o">.</span><span class="n">user_information</span>
-
-        <span class="c1">#responding_ae = &#39;resp. AP Title&#39;</span>
-        <span class="n">their_class_uid</span> <span class="o">=</span> <span class="s1">&#39;unknown&#39;</span>
-        <span class="n">their_version</span> <span class="o">=</span> <span class="sa">b</span><span class="s1">&#39;unknown&#39;</span>
-
-        <span class="k">if</span> <span class="n">user_info</span><span class="o">.</span><span class="n">implementation_class_uid</span><span class="p">:</span>
-            <span class="n">their_class_uid</span> <span class="o">=</span> <span class="n">user_info</span><span class="o">.</span><span class="n">implementation_class_uid</span>
-        <span class="k">if</span> <span class="n">user_info</span><span class="o">.</span><span class="n">implementation_version_name</span><span class="p">:</span>
-            <span class="n">their_version</span> <span class="o">=</span> <span class="n">user_info</span><span class="o">.</span><span class="n">implementation_version_name</span>
-
-        <span class="n">s</span> <span class="o">=</span> <span class="p">[</span><span class="s1">&#39;Request Parameters:&#39;</span><span class="p">]</span>
-        <span class="n">s</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="s1">&#39;====================== BEGIN A-ASSOCIATE-RQ ================&#39;</span>
-                 <span class="s1">&#39;=====&#39;</span><span class="p">)</span>
-        <span class="n">s</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="s1">&#39;Their Implementation Class UID:      </span><span class="si">{0!s}</span><span class="s1">&#39;</span>
-                 <span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">their_class_uid</span><span class="p">))</span>
-        <span class="n">s</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="s1">&#39;Their Implementation Version Name:   </span><span class="si">{0!s}</span><span class="s1">&#39;</span>
-                 <span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">their_version</span><span class="o">.</span><span class="n">decode</span><span class="p">(</span><span class="s1">&#39;ascii&#39;</span><span class="p">)))</span>
-        <span class="n">s</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="s1">&#39;Application Context Name:    </span><span class="si">{0!s}</span><span class="s1">&#39;</span>
-                 <span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">app_context</span><span class="p">))</span>
-        <span class="n">s</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="s1">&#39;Calling Application Name:    </span><span class="si">{0!s}</span><span class="s1">&#39;</span>
-                 <span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">pdu</span><span class="o">.</span><span class="n">calling_ae_title</span><span class="o">.</span><span class="n">decode</span><span class="p">(</span><span class="s1">&#39;ascii&#39;</span><span class="p">)))</span>
-        <span class="n">s</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="s1">&#39;Called Application Name:     </span><span class="si">{0!s}</span><span class="s1">&#39;</span>
-                 <span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">pdu</span><span class="o">.</span><span class="n">called_ae_title</span><span class="o">.</span><span class="n">decode</span><span class="p">(</span><span class="s1">&#39;ascii&#39;</span><span class="p">)))</span>
-        <span class="n">s</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="s1">&#39;Their Max PDU Receive Size:  </span><span class="si">{0!s}</span><span class="s1">&#39;</span>
-                 <span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">user_info</span><span class="o">.</span><span class="n">maximum_length</span><span class="p">))</span>
-
-        <span class="c1">## Presentation Contexts</span>
-        <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">pres_contexts</span><span class="p">)</span> <span class="o">==</span> <span class="mi">1</span><span class="p">:</span>
-            <span class="n">s</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="s1">&#39;Presentation Context:&#39;</span><span class="p">)</span>
-        <span class="k">else</span><span class="p">:</span>
-            <span class="n">s</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="s1">&#39;Presentation Contexts:&#39;</span><span class="p">)</span>
-
-        <span class="k">for</span> <span class="n">context</span> <span class="ow">in</span> <span class="n">pres_contexts</span><span class="p">:</span>
-            <span class="n">s</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="s1">&#39;  Context ID:        </span><span class="si">{0!s}</span><span class="s1"> &#39;</span>
-                     <span class="s1">&#39;(Proposed)&#39;</span><span class="o">.</span><span class="n">format</span><span class="p">((</span><span class="n">context</span><span class="o">.</span><span class="n">context_id</span><span class="p">)))</span>
-            <span class="n">s</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="s1">&#39;    Abstract Syntax: =&#39;</span>
-                     <span class="s1">&#39;</span><span class="si">{0!s}</span><span class="s1">&#39;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">context</span><span class="o">.</span><span class="n">abstract_syntax</span><span class="o">.</span><span class="n">name</span><span class="p">))</span>
-
-            <span class="c1"># Add SCP/SCU Role Selection Negotiation</span>
-            <span class="c1"># Roles are: SCU, SCP/SCU, SCP, Default</span>
-            <span class="k">if</span> <span class="n">pdu</span><span class="o">.</span><span class="n">user_information</span><span class="o">.</span><span class="n">role_selection</span><span class="p">:</span>
-                <span class="k">try</span><span class="p">:</span>
-                    <span class="n">role</span> <span class="o">=</span> <span class="n">pdu</span><span class="o">.</span><span class="n">user_information</span><span class="o">.</span><span class="n">role_selection</span><span class="p">[</span>
-                        <span class="n">context</span><span class="o">.</span><span class="n">abstract_syntax</span>
-                    <span class="p">]</span>
-                    <span class="n">roles</span> <span class="o">=</span> <span class="p">[]</span>
-                    <span class="k">if</span> <span class="n">role</span><span class="o">.</span><span class="n">scp_role</span><span class="p">:</span>
-                        <span class="n">roles</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="s1">&#39;SCP&#39;</span><span class="p">)</span>
-                    <span class="k">if</span> <span class="n">role</span><span class="o">.</span><span class="n">scu_role</span><span class="p">:</span>
-                        <span class="n">roles</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="s1">&#39;SCU&#39;</span><span class="p">)</span>
-
-                    <span class="n">scp_scu_role</span> <span class="o">=</span> <span class="s1">&#39;/&#39;</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">roles</span><span class="p">)</span>
-                <span class="k">except</span> <span class="ne">KeyError</span><span class="p">:</span>
-                    <span class="n">scp_scu_role</span> <span class="o">=</span> <span class="s1">&#39;Default&#39;</span>
-            <span class="k">else</span><span class="p">:</span>
-                <span class="n">scp_scu_role</span> <span class="o">=</span> <span class="s1">&#39;Default&#39;</span>
-
-            <span class="n">s</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="s1">&#39;    Proposed SCP/SCU Role: </span><span class="si">{0!s}</span><span class="s1">&#39;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">scp_scu_role</span><span class="p">))</span>
-
-            <span class="c1"># Transfer Syntaxes</span>
-            <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">context</span><span class="o">.</span><span class="n">transfer_syntax</span><span class="p">)</span> <span class="o">==</span> <span class="mi">1</span><span class="p">:</span>
-                <span class="n">s</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="s1">&#39;    Proposed Transfer Syntax:&#39;</span><span class="p">)</span>
-            <span class="k">else</span><span class="p">:</span>
-                <span class="n">s</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="s1">&#39;    Proposed Transfer Syntaxes:&#39;</span><span class="p">)</span>
-
-            <span class="k">for</span> <span class="n">ts</span> <span class="ow">in</span> <span class="n">context</span><span class="o">.</span><span class="n">transfer_syntax</span><span class="p">:</span>
-                <span class="n">s</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="s1">&#39;      =</span><span class="si">{0!s}</span><span class="s1">&#39;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">ts</span><span class="o">.</span><span class="n">name</span><span class="p">))</span>
-
-        <span class="c1">## Extended Negotiation</span>
-        <span class="k">if</span> <span class="n">pdu</span><span class="o">.</span><span class="n">user_information</span><span class="o">.</span><span class="n">ext_neg</span><span class="p">:</span>
-            <span class="n">s</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="s1">&#39;Requested Extended Negotiation:&#39;</span><span class="p">)</span>
-
-            <span class="k">for</span> <span class="n">item</span> <span class="ow">in</span> <span class="n">pdu</span><span class="o">.</span><span class="n">user_information</span><span class="o">.</span><span class="n">ext_neg</span><span class="p">:</span>
-                <span class="n">s</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="s1">&#39;  SOP Class: =</span><span class="si">{0!s}</span><span class="s1">&#39;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">item</span><span class="o">.</span><span class="n">uid</span><span class="p">))</span>
-                <span class="c1">#s.append(&#39;    Application Information, length: %d bytes&#39;</span>
-                <span class="c1">#                                       %len(item.app_info))</span>
-
-                <span class="n">app_info</span> <span class="o">=</span> <span class="n">pretty_bytes</span><span class="p">(</span><span class="n">item</span><span class="o">.</span><span class="n">app_info</span><span class="p">)</span>
-                <span class="n">app_info</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span> <span class="o">=</span> <span class="s1">&#39;[&#39;</span> <span class="o">+</span> <span class="n">app_info</span><span class="p">[</span><span class="mi">0</span><span class="p">][</span><span class="mi">1</span><span class="p">:]</span>
-                <span class="n">app_info</span><span class="p">[</span><span class="o">-</span><span class="mi">1</span><span class="p">]</span> <span class="o">=</span> <span class="n">app_info</span><span class="p">[</span><span class="o">-</span><span class="mi">1</span><span class="p">]</span> <span class="o">+</span> <span class="s1">&#39; ]&#39;</span>
-                <span class="k">for</span> <span class="n">line</span> <span class="ow">in</span> <span class="n">app_info</span><span class="p">:</span>
-                    <span class="n">s</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="s1">&#39;    </span><span class="si">{0!s}</span><span class="s1">&#39;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">line</span><span class="p">))</span>
-        <span class="k">else</span><span class="p">:</span>
-            <span class="n">s</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="s1">&#39;Requested Extended Negotiation: None&#39;</span><span class="p">)</span>
-
-        <span class="c1">## Common Extended Negotiation</span>
-        <span class="k">if</span> <span class="n">pdu</span><span class="o">.</span><span class="n">user_information</span><span class="o">.</span><span class="n">common_ext_neg</span><span class="p">:</span>
-            <span class="n">s</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="s1">&#39;Requested Common Extended Negotiation:&#39;</span><span class="p">)</span>
-
-            <span class="k">for</span> <span class="n">item</span> <span class="ow">in</span> <span class="n">pdu</span><span class="o">.</span><span class="n">user_information</span><span class="o">.</span><span class="n">common_ext_neg</span><span class="p">:</span>
-
-                <span class="n">s</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="s1">&#39;  SOP Class: =</span><span class="si">{0!s}</span><span class="s1">&#39;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">item</span><span class="o">.</span><span class="n">sop_class_uid</span><span class="o">.</span><span class="n">name</span><span class="p">))</span>
-                <span class="n">s</span><span class="o">.</span><span class="n">append</span><span class="p">(</span>
-                    <span class="s2">&quot;    Service Class: =</span><span class="si">{0!s}</span><span class="s2">&quot;</span>
-                    <span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">item</span><span class="o">.</span><span class="n">service_class_uid</span><span class="o">.</span><span class="n">name</span><span class="p">)</span>
-                <span class="p">)</span>
-
-                <span class="n">related_uids</span> <span class="o">=</span> <span class="n">item</span><span class="o">.</span><span class="n">related_general_sop_class_identification</span>
-                <span class="k">if</span> <span class="n">related_uids</span><span class="p">:</span>
-                    <span class="n">s</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="s1">&#39;    Related General SOP Class(es):&#39;</span><span class="p">)</span>
-                    <span class="k">for</span> <span class="n">sub_field</span> <span class="ow">in</span> <span class="n">related_uids</span><span class="p">:</span>
-                        <span class="n">s</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="s1">&#39;      =</span><span class="si">{0!s}</span><span class="s1">&#39;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">sub_field</span><span class="o">.</span><span class="n">name</span><span class="p">))</span>
-                <span class="k">else</span><span class="p">:</span>
-                    <span class="n">s</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="s1">&#39;    Related General SOP Classes: None&#39;</span><span class="p">)</span>
-        <span class="k">else</span><span class="p">:</span>
-            <span class="n">s</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="s1">&#39;Requested Common Extended Negotiation: None&#39;</span><span class="p">)</span>
-
-        <span class="c1">## Asynchronous Operations Window Negotiation</span>
-        <span class="n">async_ops</span> <span class="o">=</span> <span class="n">pdu</span><span class="o">.</span><span class="n">user_information</span><span class="o">.</span><span class="n">async_ops_window</span>
-        <span class="k">if</span> <span class="n">async_ops</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
-            <span class="n">s</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="s1">&#39;Requested Asynchronous Operations Window Negotiation:&#39;</span><span class="p">)</span>
-            <span class="n">s</span><span class="o">.</span><span class="n">append</span><span class="p">(</span>
-                <span class="s2">&quot;  Maximum Invoked Operations:     </span><span class="si">{}</span><span class="s2">&quot;</span>
-                <span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">async_ops</span><span class="o">.</span><span class="n">maximum_number_operations_invoked</span><span class="p">)</span>
-            <span class="p">)</span>
-            <span class="n">s</span><span class="o">.</span><span class="n">append</span><span class="p">(</span>
-                <span class="s2">&quot;  Maximum Performed Operations:   </span><span class="si">{}</span><span class="s2">&quot;</span>
-                <span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">async_ops</span><span class="o">.</span><span class="n">maximum_number_operations_performed</span><span class="p">)</span>
-            <span class="p">)</span>
-        <span class="k">else</span><span class="p">:</span>
-            <span class="n">s</span><span class="o">.</span><span class="n">append</span><span class="p">(</span>
-                <span class="s2">&quot;Requested Asynchronous Operations Window Negotiation: None&quot;</span>
-            <span class="p">)</span>
-
-        <span class="c1">## User Identity</span>
-        <span class="k">if</span> <span class="n">user_info</span><span class="o">.</span><span class="n">user_identity</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
-            <span class="n">usid</span> <span class="o">=</span> <span class="n">user_info</span><span class="o">.</span><span class="n">user_identity</span>
-            <span class="n">s</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="s1">&#39;Requested User Identity Negotiation:&#39;</span><span class="p">)</span>
-            <span class="n">s</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="s1">&#39;  Authentication Mode: </span><span class="si">{0:d}</span><span class="s1"> - </span><span class="si">{1!s}</span><span class="s1">&#39;</span>
-                     <span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">usid</span><span class="o">.</span><span class="n">id_type</span><span class="p">,</span> <span class="n">usid</span><span class="o">.</span><span class="n">id_type_str</span><span class="p">))</span>
-            <span class="k">if</span> <span class="n">usid</span><span class="o">.</span><span class="n">id_type</span> <span class="o">==</span> <span class="mi">1</span><span class="p">:</span>
-                <span class="n">s</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="s1">&#39;  Username: [</span><span class="si">{0!s}</span><span class="s1">]&#39;</span>
-                         <span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">usid</span><span class="o">.</span><span class="n">primary</span><span class="o">.</span><span class="n">decode</span><span class="p">(</span><span class="s1">&#39;utf-8&#39;</span><span class="p">)))</span>
-            <span class="k">elif</span> <span class="n">usid</span><span class="o">.</span><span class="n">id_type</span> <span class="o">==</span> <span class="mi">2</span><span class="p">:</span>
-                <span class="n">s</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="s1">&#39;  Username: [</span><span class="si">{0!s}</span><span class="s1">]&#39;</span>
-                         <span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">usid</span><span class="o">.</span><span class="n">primary</span><span class="o">.</span><span class="n">decode</span><span class="p">(</span><span class="s1">&#39;utf-8&#39;</span><span class="p">)))</span>
-                <span class="n">s</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="s1">&#39;  Password: [</span><span class="si">{0!s}</span><span class="s1">]&#39;</span>
-                         <span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">usid</span><span class="o">.</span><span class="n">secondary</span><span class="o">.</span><span class="n">decode</span><span class="p">(</span><span class="s1">&#39;utf-8&#39;</span><span class="p">)))</span>
-            <span class="k">elif</span> <span class="n">usid</span><span class="o">.</span><span class="n">id_type</span> <span class="o">==</span> <span class="mi">3</span><span class="p">:</span>
-                <span class="n">s</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="s1">&#39;  Kerberos Service Ticket (not dumped) length: &#39;</span>
-                         <span class="s1">&#39;</span><span class="si">{0:d}</span><span class="s1">&#39;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="nb">len</span><span class="p">(</span><span class="n">usid</span><span class="o">.</span><span class="n">primary</span><span class="p">)))</span>
-            <span class="k">elif</span> <span class="n">usid</span><span class="o">.</span><span class="n">id_type</span> <span class="o">==</span> <span class="mi">4</span><span class="p">:</span>
-                <span class="n">s</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="s1">&#39;  SAML Assertion (not dumped) length: &#39;</span>
-                         <span class="s1">&#39;</span><span class="si">{0:d}</span><span class="s1">&#39;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="nb">len</span><span class="p">(</span><span class="n">usid</span><span class="o">.</span><span class="n">primary</span><span class="p">)))</span>
-            <span class="k">elif</span> <span class="n">usid</span><span class="o">.</span><span class="n">id_type</span> <span class="o">==</span> <span class="mi">5</span><span class="p">:</span>
-                <span class="n">s</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="s1">&#39;  JSON Web Token (not dumped) length: &#39;</span>
-                         <span class="s1">&#39;</span><span class="si">{0:d}</span><span class="s1">&#39;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="nb">len</span><span class="p">(</span><span class="n">usid</span><span class="o">.</span><span class="n">primary</span><span class="p">)))</span>
-
-            <span class="k">if</span> <span class="n">usid</span><span class="o">.</span><span class="n">response_requested</span><span class="p">:</span>
-                <span class="n">s</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="s1">&#39;  Positive Response requested: Yes&#39;</span><span class="p">)</span>
-            <span class="k">else</span><span class="p">:</span>
-                <span class="n">s</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="s1">&#39;  Positive Response requested: None&#39;</span><span class="p">)</span>
-        <span class="k">else</span><span class="p">:</span>
-            <span class="n">s</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="s1">&#39;Requested User Identity Negotiation: None&#39;</span><span class="p">)</span>
-
-        <span class="n">s</span><span class="o">.</span><span class="n">append</span><span class="p">(</span>
-            <span class="s1">&#39;======================= END A-ASSOCIATE-RQ ======================&#39;</span>
-        <span class="p">)</span>
-
-        <span class="k">for</span> <span class="n">line</span> <span class="ow">in</span> <span class="n">s</span><span class="p">:</span>
-            <span class="n">LOGGER</span><span class="o">.</span><span class="n">debug</span><span class="p">(</span><span class="n">line</span><span class="p">)</span></div>
-
-<div class="viewcode-block" id="ACSE.debug_receive_data_tf"><a class="viewcode-back" href="../../reference/generated/pynetdicom.acse.ACSE.html#pynetdicom.acse.ACSE.debug_receive_data_tf">[docs]</a>    <span class="nd">@staticmethod</span>
-    <span class="k">def</span> <span class="nf">debug_receive_data_tf</span><span class="p">(</span><span class="n">p_data_tf</span><span class="p">):</span>
-        <span class="sd">&quot;&quot;&quot;</span>
-<span class="sd">        Placeholder for a function callback. Function will be called</span>
-<span class="sd">        immediately after receiving and decoding an P-DATA-TF</span>
-
-<span class="sd">        Parameters</span>
-<span class="sd">        ----------</span>
-<span class="sd">        p_data_tf : pdu.P_DATA_TF</span>
-<span class="sd">            The P-DATA-TF PDU instance</span>
-<span class="sd">        &quot;&quot;&quot;</span>
-        <span class="k">pass</span></div>
-
-<div class="viewcode-block" id="ACSE.debug_receive_release_rp"><a class="viewcode-back" href="../../reference/generated/pynetdicom.acse.ACSE.html#pynetdicom.acse.ACSE.debug_receive_release_rp">[docs]</a>    <span class="nd">@staticmethod</span>
-    <span class="k">def</span> <span class="nf">debug_receive_release_rp</span><span class="p">(</span><span class="n">a_release_rp</span><span class="p">):</span>
-        <span class="sd">&quot;&quot;&quot;</span>
-<span class="sd">        Placeholder for a function callback. Function will be called</span>
-<span class="sd">        immediately after receiving and decoding an A-RELEASE-RP</span>
-
-<span class="sd">        Parameters</span>
-<span class="sd">        ----------</span>
-<span class="sd">        a_release_rp : pdu.A_RELEASE_RP</span>
-<span class="sd">            The A-RELEASE-RP PDU instance</span>
-<span class="sd">        &quot;&quot;&quot;</span>
-        <span class="k">pass</span></div>
-
-<div class="viewcode-block" id="ACSE.debug_receive_release_rq"><a class="viewcode-back" href="../../reference/generated/pynetdicom.acse.ACSE.html#pynetdicom.acse.ACSE.debug_receive_release_rq">[docs]</a>    <span class="nd">@staticmethod</span>
-    <span class="k">def</span> <span class="nf">debug_receive_release_rq</span><span class="p">(</span><span class="n">a_release_rq</span><span class="p">):</span>
-        <span class="sd">&quot;&quot;&quot;</span>
-<span class="sd">        Placeholder for a function callback. Function will be called</span>
-<span class="sd">        immediately after receiving and decoding an A-RELEASE-RQ</span>
-
-<span class="sd">        Parameters</span>
-<span class="sd">        ----------</span>
-<span class="sd">        a_release_rq : pdu.A_RELEASE_RQ</span>
-<span class="sd">            The A-RELEASE-RQ PDU instance</span>
-<span class="sd">        &quot;&quot;&quot;</span>
-        <span class="k">pass</span></div></div>
+        <span class="n">assoc</span><span class="o">.</span><span class="n">dul</span><span class="o">.</span><span class="n">send_pdu</span><span class="p">(</span><span class="n">primitive</span><span class="p">)</span></div></div>
 </pre></div>
 
            </div>

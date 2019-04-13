@@ -1,0 +1,319 @@
+
+
+<!DOCTYPE html>
+<!--[if IE 8]><html class="no-js lt-ie9" lang="en" > <![endif]-->
+<!--[if gt IE 8]><!--> <html class="no-js" lang="en" > <!--<![endif]-->
+<head>
+  <meta charset="utf-8">
+  
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  
+  <title>pynetdicom._handlers.doc_handle_event_report &mdash; pynetdicom 1.3.0 documentation</title>
+  
+
+  
+  
+    <link rel="shortcut icon" href="../../_static/favicon.ico"/>
+  
+  
+  
+
+  
+  <script type="text/javascript" src="../../_static/js/modernizr.min.js"></script>
+  
+    
+      <script type="text/javascript" id="documentation_options" data-url_root="../../" src="../../_static/documentation_options.js"></script>
+        <script type="text/javascript" src="../../_static/jquery.js"></script>
+        <script type="text/javascript" src="../../_static/underscore.js"></script>
+        <script type="text/javascript" src="../../_static/doctools.js"></script>
+        <script type="text/javascript" src="../../_static/language_data.js"></script>
+    
+    <script type="text/javascript" src="../../_static/js/theme.js"></script>
+
+    
+
+  
+  <link rel="stylesheet" href="../../_static/css/pynetdicom.css" type="text/css" />
+  <link rel="stylesheet" href="../../_static/pygments.css" type="text/css" />
+  <link rel="stylesheet" href="../../_static/css/pynetdicom.css" type="text/css" />
+    <link rel="index" title="Index" href="../../genindex.html" />
+    <link rel="search" title="Search" href="../../search.html" /> 
+</head>
+
+<body class="wy-body-for-nav">
+
+   
+  <div class="wy-grid-for-nav">
+    
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search" >
+          
+
+          
+            <a href="../../index.html" class="icon icon-home"> pynetdicom
+          
+
+          
+            
+            <img src="../../_static/pydicom_flat_black.svg" class="logo" alt="Logo"/>
+          
+          </a>
+
+          
+            
+            
+              <div class="version">
+                1.3.0
+              </div>
+            
+          
+
+          
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="../../search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+
+          
+        </div>
+
+        <div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="main navigation">
+          
+            
+            
+              
+            
+            
+              <ul>
+<li class="toctree-l1"><a class="reference internal" href="../../verification_service_class.html">Verification Service Class</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../storage_service_class.html">Storage Service Class</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../query_retrieve_service_class.html">Query/Retrieve Service Class</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../basic_worklist_service_class.html">Basic Worklist Management Service Class</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../relevant_patient_service_class.html">Relevant Patient Information Query Service Class</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../substance_admin_service_class.html">Substance Administration Query Service Class</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../non_patient_service_class.html">Non-Patient Object Storage Service Class</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../color_palette_service_class.html">Color Palette Query/Retrieve Service Class</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../defined_procedure_service_class.html">Defined Procedure Protocol Query/Retrieve Service Class</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../hanging_protocol_service_class.html">Hanging Protocol Query/Retrieve Service Class</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../implant_template_service_class.html">Implant Template Query/Retrieve Service Class</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../display_system_service_class.html">Display System Management Service Class</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../modality_performed_procedure_step.html">Modality Performed Procedure Step Management</a></li>
+</ul>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../../user/index.html">User Guide</a></li>
+</ul>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../../release_notes.html">1.3.0</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../release_notes.html#v1-2-0">1.2.0</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../release_notes.html#v1-1-0">1.1.0</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../release_notes.html#v1-0-0">1.0.0</a></li>
+</ul>
+
+            
+          
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap">
+
+      
+      <nav class="wy-nav-top" aria-label="top navigation">
+        
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="../../index.html">pynetdicom</a>
+        
+      </nav>
+
+
+      <div class="wy-nav-content">
+        
+        <div class="rst-content">
+        
+          
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+<div role="navigation" aria-label="breadcrumbs navigation">
+
+  <ul class="wy-breadcrumbs">
+    
+      <li><a href="../../index.html">Docs</a> &raquo;</li>
+        
+      <li>pynetdicom._handlers.doc_handle_event_report</li>
+    
+    
+      <li class="wy-breadcrumbs-aside">
+        
+            
+            <a href="../../_sources/reference/generated/pynetdicom._handlers.doc_handle_event_report.rst.txt" rel="nofollow"> View page source</a>
+          
+        
+      </li>
+    
+  </ul>
+
+  
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+            
+  <div class="section" id="pynetdicom-handlers-doc-handle-event-report">
+<h1>pynetdicom._handlers.doc_handle_event_report<a class="headerlink" href="#pynetdicom-handlers-doc-handle-event-report" title="Permalink to this headline">¶</a></h1>
+<dl class="function">
+<dt id="pynetdicom._handlers.doc_handle_event_report">
+<code class="descclassname">pynetdicom._handlers.</code><code class="descname">doc_handle_event_report</code><span class="sig-paren">(</span><em>event</em><span class="sig-paren">)</span><a class="reference internal" href="../../_modules/pynetdicom/_handlers.html#doc_handle_event_report"><span class="viewcode-link">[source]</span></a><a class="reference external" href="https://github.com/pydicom/pynetdicom/blob/c7e7004b/pynetdicom/_handlers.py#L2893"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pynetdicom._handlers.doc_handle_event_report" title="Permalink to this definition">¶</a></dt>
+<dd><p>Documentation for handlers bound to <code class="docutils literal notranslate"><span class="pre">evt.EVT_N_EVENT_REPORT</span></code>.</p>
+<p>User implementation of this event handler is required if one or more
+services that use N-EVENT-REPORT are to be supported. If a handler is
+not implemented and bound to <code class="docutils literal notranslate"><span class="pre">evt.EVT_N_EVENT_REPORT</span></code> then the
+N-EVENT-REPORT request will be responded to using a  <em>Status</em> value
+of <code class="docutils literal notranslate"><span class="pre">0x0110</span></code> - Processing Failure.</p>
+<p><strong>Event</strong></p>
+<p><code class="docutils literal notranslate"><span class="pre">evt.EVT_N_EVENT_REPORT</span></code></p>
+<p><strong>Supported Service Classes</strong></p>
+<ul class="simple">
+<li><p><em>Modality Performed Procedure Step Management</em></p></li>
+</ul>
+<p><strong>Status</strong></p>
+<dl>
+<dt>Success</dt><dd><div class="line-block">
+<div class="line"><code class="docutils literal notranslate"><span class="pre">0x0000</span></code> Success</div>
+</div>
+</dd>
+<dt>Failure</dt><dd><div class="line-block">
+<div class="line"><code class="docutils literal notranslate"><span class="pre">0x0110</span></code> Processing failure</div>
+<div class="line"><code class="docutils literal notranslate"><span class="pre">0x0112</span></code> No such SOP Instance</div>
+<div class="line"><code class="docutils literal notranslate"><span class="pre">0x0113</span></code> No such event type</div>
+<div class="line"><code class="docutils literal notranslate"><span class="pre">0x0114</span></code> No such argument</div>
+<div class="line"><code class="docutils literal notranslate"><span class="pre">0x0115</span></code> Invalid argument value</div>
+<div class="line"><code class="docutils literal notranslate"><span class="pre">0x0117</span></code> Invalid object Instance</div>
+<div class="line"><code class="docutils literal notranslate"><span class="pre">0x0118</span></code> No such SOP Class</div>
+<div class="line"><code class="docutils literal notranslate"><span class="pre">0x0119</span></code> Class-Instance conflict</div>
+<div class="line"><code class="docutils literal notranslate"><span class="pre">0x0210</span></code> Duplicate invocation</div>
+<div class="line"><code class="docutils literal notranslate"><span class="pre">0x0211</span></code> Unrecognised operation</div>
+<div class="line"><code class="docutils literal notranslate"><span class="pre">0x0212</span></code> Mistyped argument</div>
+<div class="line"><code class="docutils literal notranslate"><span class="pre">0x0213</span></code> Resource limitation</div>
+</div>
+</dd>
+</dl>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><p><strong>event</strong> (<a class="reference internal" href="pynetdicom.events.Event.html#pynetdicom.events.Event" title="pynetdicom.events.Event"><em>events.Event</em></a>) – <p>The event representing a service class receiving a N-EVENT-REPORT
+request message. <code class="docutils literal notranslate"><span class="pre">Event</span></code> attributes are:</p>
+<ul class="simple">
+<li><p><code class="docutils literal notranslate"><span class="pre">assoc</span></code> : the
+<a class="reference internal" href="pynetdicom.association.Association.html#pynetdicom.association.Association" title="pynetdicom.association.Association"><code class="xref py py-class docutils literal notranslate"><span class="pre">association</span></code></a>
+that is running the service that received the N-EVENT-REPORT request.</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">context</span></code> : the presentation context the request was sent under
+as a <code class="docutils literal notranslate"><span class="pre">presentation.PresentationContextTuple</span></code>.</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">description</span></code> : a description of the event that occurred as str.</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">name</span></code> : the name of the event that occurred as str.</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">request</span></code> : the received
+<a class="reference internal" href="pynetdicom.dimse_primitives.N_EVENT_REPORT.html#pynetdicom.dimse_primitives.N_EVENT_REPORT" title="pynetdicom.dimse_primitives.N_EVENT_REPORT"><code class="xref py py-class docutils literal notranslate"><span class="pre">N-EVENT-REPORT</span> <span class="pre">request</span></code></a></p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">timestamp</span></code> : the
+<a class="reference external" href="https://docs.python.org/3/library/datetime.html#datetime-objects">date and time</a>
+that the N-EVENT-REPORT request was processed by the service.</p></li>
+</ul>
+<p>Event properties are:</p>
+<ul class="simple">
+<li><p><code class="docutils literal notranslate"><span class="pre">event_information</span></code> : the decoded
+<a class="reference external" href="https://pydicom.github.io/pydicom/stable/api_ref.html#pydicom.dataset.Dataset" title="(in pydicom v1.2.0rc1)"><code class="xref py py-class docutils literal notranslate"><span class="pre">Dataset</span></code></a> contained within the
+N-EVENT-REPORT request’s <em>Event Information</em> parameter. Because
+<em>pydicom</em> uses a deferred read when decoding data, if the decode
+fails the returned <code class="docutils literal notranslate"><span class="pre">Dataset</span></code> will only raise an exception at the
+time of use.</p></li>
+</ul>
+</p>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p><ul>
+<li><p><strong>status</strong> (<em>pydicom.dataset.Dataset or int</em>) – The status returned to the peer AE in the N-EVENT-REPORT response.
+Must be a valid N-EVENT-REPORT status value for the applicable Service
+Class as either an <code class="docutils literal notranslate"><span class="pre">int</span></code> or a <code class="docutils literal notranslate"><span class="pre">Dataset</span></code> object containing (at a
+minimum) a (0000,0900) <em>Status</em> element. If returning a Dataset
+object then it may also contain optional elements related to the
+Status (as in DICOM Standard Part 7, Annex C).</p></li>
+<li><p><strong>dataset</strong> (<em>pydicom.dataset.Dataset or None</em>) – If the status category is ‘Success’ or ‘Warning’ then a <code class="docutils literal notranslate"><span class="pre">Dataset</span></code>
+containing elements of the response’s <em>Event Reply</em>
+conformant to the specifications in the corresponding Service
+Class.</p>
+<p>If the status category is not ‘Success’ or ‘Warning’ then <code class="docutils literal notranslate"><span class="pre">None</span></code>.</p>
+</li>
+</ul>
+</p>
+</dd>
+<dt class="field-odd">Raises</dt>
+<dd class="field-odd"><p><a class="reference external" href="https://docs.python.org/3/library/exceptions.html#NotImplementedError" title="(in Python v3.7)"><strong>NotImplementedError</strong></a> – If the handler has not been implemented and bound to
+    <code class="docutils literal notranslate"><span class="pre">evt.EVT_N_EVENT_REPORT</span></code> by the user.</p>
+</dd>
+</dl>
+<div class="admonition seealso">
+<p class="admonition-title">See also</p>
+<p><a class="reference internal" href="pynetdicom.association.Association.html#pynetdicom.association.Association.send_n_event_report" title="pynetdicom.association.Association.send_n_event_report"><code class="xref py py-meth docutils literal notranslate"><span class="pre">send_n_event_report()</span></code></a>
+<a class="reference internal" href="pynetdicom.dimse_primitives.N_EVENT_REPORT.html#pynetdicom.dimse_primitives.N_EVENT_REPORT" title="pynetdicom.dimse_primitives.N_EVENT_REPORT"><code class="xref py py-class docutils literal notranslate"><span class="pre">N_EVENT_REPORT</span></code></a></p>
+</div>
+<p class="rubric">References</p>
+<p>DICOM Standard Part 4, Annexes F, H, J, CC and DD</p>
+</dd></dl>
+
+</div>
+
+
+           </div>
+           
+          </div>
+          <footer>
+  
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>
+        &copy; Copyright 2018-19, pynetdicom contributors
+
+    </p>
+  </div>
+  Built with <a href="http://sphinx-doc.org/">Sphinx</a> using a <a href="https://github.com/rtfd/sphinx_rtd_theme">theme</a> provided by <a href="https://readthedocs.org">Read the Docs</a>. 
+
+</footer>
+
+        </div>
+      </div>
+
+    </section>
+
+  </div>
+  
+
+
+  <script type="text/javascript">
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script>
+
+  
+  
+    
+   
+
+</body>
+</html>

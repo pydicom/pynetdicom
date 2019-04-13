@@ -8,7 +8,7 @@
   
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   
-  <title>Display System Management Service Examples &mdash; pynetdicom 1.2.0 documentation</title>
+  <title>Display System Management Service Examples &mdash; pynetdicom 1.3.0 documentation</title>
   
 
   
@@ -64,7 +64,7 @@
             
             
               <div class="version">
-                1.2.0
+                1.3.0
               </div>
             
           
@@ -101,12 +101,14 @@
 <li class="toctree-l1"><a class="reference internal" href="../hanging_protocol_service_class.html">Hanging Protocol Query/Retrieve Service Class</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../implant_template_service_class.html">Implant Template Query/Retrieve Service Class</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../display_system_service_class.html">Display System Management Service Class</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../modality_performed_procedure_step.html">Modality Performed Procedure Step Management</a></li>
 </ul>
 <ul>
 <li class="toctree-l1"><a class="reference internal" href="../user/index.html">User Guide</a></li>
 </ul>
 <ul>
-<li class="toctree-l1"><a class="reference internal" href="../release_notes.html">1.2.0</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../release_notes.html">1.3.0</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../release_notes.html#v1-2-0">1.2.0</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../release_notes.html#v1-1-0">1.1.0</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../release_notes.html#v1-0-0">1.0.0</a></li>
 </ul>
@@ -206,7 +208,7 @@ Display System Management Service.</p>
     <span class="p">)</span>
 
     <span class="c1"># Check the status of the display system request</span>
-    <span class="k">if</span> <span class="s1">&#39;Status&#39;</span> <span class="ow">in</span> <span class="n">status</span><span class="p">:</span>
+    <span class="k">if</span> <span class="n">status</span><span class="p">:</span>
         <span class="k">print</span><span class="p">(</span><span class="s1">&#39;N-GET request status: 0x{0:04x}&#39;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">status</span><span class="o">.</span><span class="n">Status</span><span class="p">))</span>
 
         <span class="c1"># If the display system request succeeded the status category may</span>
@@ -216,12 +218,12 @@ Display System Management Service.</p>
             <span class="c1"># `attr_list` is a pydicom Dataset containing attribute values</span>
             <span class="k">print</span><span class="p">(</span><span class="n">attr_list</span><span class="p">)</span>
     <span class="k">else</span><span class="p">:</span>
-        <span class="k">print</span><span class="p">(</span><span class="s1">&#39;Connection timed out or invalid response from peer&#39;</span><span class="p">)</span>
+        <span class="k">print</span><span class="p">(</span><span class="s1">&#39;Connection timed out, was aborted or received invalid response&#39;</span><span class="p">)</span>
 
     <span class="c1"># Release the association</span>
     <span class="n">assoc</span><span class="o">.</span><span class="n">release</span><span class="p">()</span>
 <span class="k">else</span><span class="p">:</span>
-    <span class="k">print</span><span class="p">(</span><span class="s1">&#39;Association rejected or aborted&#39;</span><span class="p">)</span>
+    <span class="k">print</span><span class="p">(</span><span class="s1">&#39;Association rejected, aborted or never connected&#39;</span><span class="p">)</span>
 </pre></div>
 </div>
 <p>You can also use the inbuilt <code class="docutils literal notranslate"><span class="pre">DisplaySystemPresentationContexts</span></code> when setting
@@ -234,49 +236,20 @@ the requested contexts.</p>
 </div>
 </div>
 <div class="section" id="display-system-management-scp">
-<h2>Display System Management SCP<a class="headerlink" href="#display-system-management-scp" title="Permalink to this headline">¶</a></h2>
+<span id="example-nget-scp"></span><h2>Display System Management SCP<a class="headerlink" href="#display-system-management-scp" title="Permalink to this headline">¶</a></h2>
 <p>The following represents a toy implementation of a Display System Management
 SCP, where the SCU has sent a request with an <em>Attribute Identifier List</em>
 containing the single tag (0008,0070).</p>
-<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span> <span class="nn">pynetdicom</span> <span class="kn">import</span> <span class="n">AE</span>
+<p>Check the
+<a class="reference external" href="../reference/generated/pynetdicom._handlers.doc_handle_n_get.html">handler implementation documentation</a>
+to see the requirements for the <code class="docutils literal notranslate"><span class="pre">evt.EVT_N_GET</span></code> handler.</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span> <span class="nn">pynetdicom</span> <span class="kn">import</span> <span class="n">AE</span><span class="p">,</span> <span class="n">evt</span>
 <span class="kn">from</span> <span class="nn">pynetdicom.sop_class</span> <span class="kn">import</span> <span class="n">DisplaySystemSOPClass</span>
 
-<span class="c1"># Initialise the Application Entity and specify the listen port</span>
-<span class="n">ae</span> <span class="o">=</span> <span class="n">AE</span><span class="p">()</span>
-
-<span class="c1"># Add the supported presentation context</span>
-<span class="n">ae</span><span class="o">.</span><span class="n">add_supported_context</span><span class="p">(</span><span class="n">DisplaySystemSOPClass</span><span class="p">)</span>
-
-<span class="k">def</span> <span class="nf">on_n_get</span><span class="p">(</span><span class="n">attr</span><span class="p">,</span> <span class="n">context</span><span class="p">,</span> <span class="n">info</span><span class="p">):</span>
-    <span class="sd">&quot;&quot;&quot;Callback for when an N-GET request is received.</span>
-
-<span class="sd">    Parameters</span>
-<span class="sd">    ----------</span>
-<span class="sd">    attr : list of pydicom.tag.Tag</span>
-<span class="sd">        The value of the (0000,1005) *Attribute Idenfier List* element</span>
-<span class="sd">        containing the attribute tags for the N-GET operation.</span>
-<span class="sd">    context : presentation.PresentationContextTuple</span>
-<span class="sd">        The presentation context that the N-GET message was sent under.</span>
-<span class="sd">    info : dict</span>
-<span class="sd">        A dict containing information about the current association.</span>
-
-<span class="sd">    Returns</span>
-<span class="sd">    -------</span>
-<span class="sd">    status : pydicom.dataset.Dataset or int</span>
-<span class="sd">        The status returned to the peer AE in the N-GET response. Must be a</span>
-<span class="sd">        valid N-GET status value for the applicable Service Class as either</span>
-<span class="sd">        an ``int`` or a ``Dataset`` object containing (at a minimum) a</span>
-<span class="sd">        (0000,0900) *Status* element. If returning a Dataset object then</span>
-<span class="sd">        it may also contain optional elements related to the Status (as in</span>
-<span class="sd">        DICOM Standard Part 7, Annex C).</span>
-<span class="sd">    dataset : pydicom.dataset.Dataset or None</span>
-<span class="sd">        If the status category is &#39;Success&#39; or &#39;Warning&#39; then a dataset</span>
-<span class="sd">        containing elements matching the request&#39;s Attribute List</span>
-<span class="sd">        conformant to the specifications in the corresponding Service</span>
-<span class="sd">        Class.</span>
-
-<span class="sd">        If the status is not &#39;Successs&#39; or &#39;Warning&#39; then return None.</span>
-<span class="sd">    &quot;&quot;&quot;</span>
+<span class="c1"># Implement a handler evt.EVT_N_GET</span>
+<span class="k">def</span> <span class="nf">handle_get</span><span class="p">(</span><span class="n">event</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;Handle an N-GET request event.&quot;&quot;&quot;</span>
+    <span class="n">attr</span> <span class="o">=</span> <span class="n">event</span><span class="o">.</span><span class="n">request</span><span class="o">.</span><span class="n">AttributeIdentifierList</span>
     <span class="c1"># User defined function to generate the required attribute list dataset</span>
     <span class="c1"># implementation is outside the scope of the current example</span>
     <span class="c1"># We pretend it returns a pydicom Dataset</span>
@@ -290,10 +263,16 @@ containing the single tag (0008,0070).</p>
     <span class="c1"># Return status, dataset</span>
     <span class="k">return</span> <span class="mh">0x0000</span><span class="p">,</span> <span class="n">dataset</span>
 
-<span class="n">ae</span><span class="o">.</span><span class="n">on_n_get</span> <span class="o">=</span> <span class="n">on_n_get</span>
+<span class="n">handlers</span> <span class="o">=</span> <span class="p">[(</span><span class="n">evt</span><span class="o">.</span><span class="n">EVT_N_GET</span><span class="p">,</span> <span class="n">handle_get</span><span class="p">)]</span>
+
+<span class="c1"># Initialise the Application Entity and specify the listen port</span>
+<span class="n">ae</span> <span class="o">=</span> <span class="n">AE</span><span class="p">()</span>
+
+<span class="c1"># Add the supported presentation context</span>
+<span class="n">ae</span><span class="o">.</span><span class="n">add_supported_context</span><span class="p">(</span><span class="n">DisplaySystemSOPClass</span><span class="p">)</span>
 
 <span class="c1"># Start listening for incoming association requests</span>
-<span class="n">ae</span><span class="o">.</span><span class="n">start_server</span><span class="p">((</span><span class="s1">&#39;&#39;</span><span class="p">,</span> <span class="mi">11112</span><span class="p">))</span>
+<span class="n">ae</span><span class="o">.</span><span class="n">start_server</span><span class="p">((</span><span class="s1">&#39;&#39;</span><span class="p">,</span> <span class="mi">11112</span><span class="p">),</span> <span class="n">evt_handlers</span><span class="o">=</span><span class="n">handlers</span><span class="p">)</span>
 </pre></div>
 </div>
 </div>

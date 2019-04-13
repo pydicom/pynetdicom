@@ -8,7 +8,7 @@
   
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   
-  <title>pynetdicom.pdu_items &mdash; pynetdicom 1.2.0 documentation</title>
+  <title>pynetdicom.pdu_items &mdash; pynetdicom 1.3.0 documentation</title>
   
 
   
@@ -64,7 +64,7 @@
             
             
               <div class="version">
-                1.2.0
+                1.3.0
               </div>
             
           
@@ -101,12 +101,14 @@
 <li class="toctree-l1"><a class="reference internal" href="../../hanging_protocol_service_class.html">Hanging Protocol Query/Retrieve Service Class</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../../implant_template_service_class.html">Implant Template Query/Retrieve Service Class</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../../display_system_service_class.html">Display System Management Service Class</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../modality_performed_procedure_step.html">Modality Performed Procedure Step Management</a></li>
 </ul>
 <ul>
 <li class="toctree-l1"><a class="reference internal" href="../../user/index.html">User Guide</a></li>
 </ul>
 <ul>
-<li class="toctree-l1"><a class="reference internal" href="../../release_notes.html">1.2.0</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../release_notes.html">1.3.0</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../release_notes.html#v1-2-0">1.2.0</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../../release_notes.html#v1-1-0">1.1.0</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../../release_notes.html#v1-0-0">1.0.0</a></li>
 </ul>
@@ -221,6 +223,7 @@
 <span class="kn">from</span> <span class="nn">pydicom.uid</span> <span class="k">import</span> <span class="n">UID</span>
 
 <span class="kn">from</span> <span class="nn">pynetdicom.presentation</span> <span class="k">import</span> <span class="n">PresentationContext</span>
+<span class="kn">from</span> <span class="nn">pynetdicom.utils</span> <span class="k">import</span> <span class="n">validate_uid</span>
 
 
 <span class="n">LOGGER</span> <span class="o">=</span> <span class="n">logging</span><span class="o">.</span><span class="n">getLogger</span><span class="p">(</span><span class="s1">&#39;pynetdicom.pdu_items&#39;</span><span class="p">)</span>
@@ -298,7 +301,8 @@
         <span class="k">if</span> <span class="n">other</span> <span class="ow">is</span> <span class="bp">self</span><span class="p">:</span>
             <span class="k">return</span> <span class="kc">True</span>
 
-        <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">other</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="vm">__class__</span><span class="p">):</span>
+        <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">other</span><span class="p">,</span> <span class="nb">type</span><span class="p">(</span><span class="bp">self</span><span class="p">)):</span>
+            <span class="c1"># Use the values of the class attributes that get encoded</span>
             <span class="n">self_dict</span> <span class="o">=</span> <span class="p">{</span>
                 <span class="n">en</span><span class="p">[</span><span class="mi">0</span><span class="p">]:</span> <span class="nb">getattr</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">en</span><span class="p">[</span><span class="mi">0</span><span class="p">])</span> <span class="k">for</span> <span class="n">en</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">_encoders</span> <span class="k">if</span> <span class="n">en</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span>
             <span class="p">}</span>
@@ -389,11 +393,7 @@
     <span class="nd">@property</span>
     <span class="k">def</span> <span class="nf">item_type</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;Return the item&#39;s *Item Type* field value as an int.&quot;&quot;&quot;</span>
-        <span class="n">key_val</span> <span class="o">=</span> <span class="n">PDU_ITEM_TYPES</span><span class="o">.</span><span class="n">items</span><span class="p">()</span>
-        <span class="n">keys</span> <span class="o">=</span> <span class="p">[</span><span class="n">key</span> <span class="k">for</span> <span class="p">(</span><span class="n">key</span><span class="p">,</span> <span class="n">val</span><span class="p">)</span> <span class="ow">in</span> <span class="n">key_val</span><span class="p">]</span>
-        <span class="n">vals</span> <span class="o">=</span> <span class="p">[</span><span class="n">val</span> <span class="k">for</span> <span class="p">(</span><span class="n">key</span><span class="p">,</span> <span class="n">val</span><span class="p">)</span> <span class="ow">in</span> <span class="n">key_val</span><span class="p">]</span>
-
-        <span class="k">return</span> <span class="n">keys</span><span class="p">[</span><span class="n">vals</span><span class="o">.</span><span class="n">index</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="vm">__class__</span><span class="p">)]</span>
+        <span class="k">return</span> <span class="p">{</span><span class="n">vv</span><span class="p">:</span> <span class="n">kk</span> <span class="k">for</span> <span class="n">kk</span><span class="p">,</span> <span class="n">vv</span> <span class="ow">in</span> <span class="n">PDU_ITEM_TYPES</span><span class="o">.</span><span class="n">items</span><span class="p">()}[</span><span class="nb">type</span><span class="p">(</span><span class="bp">self</span><span class="p">)]</span>
 
     <span class="k">def</span> <span class="nf">__len__</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;Return the total length of the encoded item as an int.&quot;&quot;&quot;</span>
@@ -619,8 +619,13 @@
         <span class="k">elif</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">value</span><span class="p">,</span> <span class="nb">bytes</span><span class="p">):</span>
             <span class="n">value</span> <span class="o">=</span> <span class="n">UID</span><span class="p">(</span><span class="n">value</span><span class="o">.</span><span class="n">decode</span><span class="p">(</span><span class="s1">&#39;ascii&#39;</span><span class="p">))</span>
         <span class="k">else</span><span class="p">:</span>
-            <span class="k">raise</span> <span class="ne">TypeError</span><span class="p">(</span><span class="s1">&#39;Application Context Name must be a UID, &#39;</span>
-                            <span class="s1">&#39;str or bytes&#39;</span><span class="p">)</span>
+            <span class="k">raise</span> <span class="ne">TypeError</span><span class="p">(</span>
+                <span class="s1">&#39;Application Context Name must be a UID, str or bytes&#39;</span>
+            <span class="p">)</span>
+
+        <span class="k">if</span> <span class="n">value</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span> <span class="ow">and</span> <span class="ow">not</span> <span class="n">validate_uid</span><span class="p">(</span><span class="n">value</span><span class="p">):</span>
+            <span class="n">LOGGER</span><span class="o">.</span><span class="n">error</span><span class="p">(</span><span class="s2">&quot;Invalid &#39;Application Context Name&#39;&quot;</span><span class="p">)</span>
+            <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s2">&quot;Invalid &#39;Application Context Name&#39;&quot;</span><span class="p">)</span>
 
         <span class="bp">self</span><span class="o">.</span><span class="n">_application_context_name</span> <span class="o">=</span> <span class="n">value</span>
 
@@ -1119,8 +1124,8 @@
             <span class="mi">0</span> <span class="p">:</span> <span class="s1">&#39;Accepted&#39;</span><span class="p">,</span>
             <span class="mi">1</span> <span class="p">:</span> <span class="s1">&#39;User Rejection&#39;</span><span class="p">,</span>
             <span class="mi">2</span> <span class="p">:</span> <span class="s1">&#39;Provider Rejection&#39;</span><span class="p">,</span>
-            <span class="mi">3</span> <span class="p">:</span> <span class="s1">&#39;Abstract Syntax Not Supported&#39;</span><span class="p">,</span>
-            <span class="mi">4</span> <span class="p">:</span> <span class="s1">&#39;Transfer Syntax Not Supported&#39;</span>
+            <span class="mi">3</span> <span class="p">:</span> <span class="s1">&#39;Rejected - Abstract Syntax Not Supported&#39;</span><span class="p">,</span>
+            <span class="mi">4</span> <span class="p">:</span> <span class="s1">&#39;Rejected - Transfer Syntax Not Supported&#39;</span>
         <span class="p">}</span>
         <span class="k">return</span> <span class="n">_result</span><span class="p">[</span><span class="bp">self</span><span class="o">.</span><span class="n">result_reason</span><span class="p">]</span>
 
@@ -1524,8 +1529,13 @@
         <span class="k">elif</span> <span class="n">value</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
             <span class="k">pass</span>
         <span class="k">else</span><span class="p">:</span>
-            <span class="k">raise</span> <span class="ne">TypeError</span><span class="p">(</span><span class="s1">&#39;Abstract Syntax must be a pydicom.uid.UID, &#39;</span>
-                            <span class="s1">&#39;str or bytes&#39;</span><span class="p">)</span>
+            <span class="k">raise</span> <span class="ne">TypeError</span><span class="p">(</span>
+                <span class="s1">&#39;Abstract Syntax Name ust be a pydicom.uid.UID, str or bytes&#39;</span>
+            <span class="p">)</span>
+
+        <span class="k">if</span> <span class="n">value</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span> <span class="ow">and</span> <span class="ow">not</span> <span class="n">validate_uid</span><span class="p">(</span><span class="n">value</span><span class="p">):</span>
+            <span class="n">LOGGER</span><span class="o">.</span><span class="n">error</span><span class="p">(</span><span class="s2">&quot;Abstract Syntax Name is an invalid UID&quot;</span><span class="p">)</span>
+            <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s2">&quot;Abstract Syntax Name is an invalid UID&quot;</span><span class="p">)</span>
 
         <span class="bp">self</span><span class="o">.</span><span class="n">_abstract_syntax_name</span> <span class="o">=</span> <span class="n">value</span>
 
@@ -1749,6 +1759,10 @@
         <span class="k">else</span><span class="p">:</span>
             <span class="k">raise</span> <span class="ne">TypeError</span><span class="p">(</span><span class="s1">&#39;Transfer syntax must be a pydicom.uid.UID, &#39;</span>
                             <span class="s1">&#39;bytes or str&#39;</span><span class="p">)</span>
+
+        <span class="k">if</span> <span class="n">value</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span> <span class="ow">and</span> <span class="ow">not</span> <span class="n">validate_uid</span><span class="p">(</span><span class="n">value</span><span class="p">):</span>
+            <span class="n">LOGGER</span><span class="o">.</span><span class="n">error</span><span class="p">(</span><span class="s2">&quot;Transfer Syntax Name is an invalid UID&quot;</span><span class="p">)</span>
+            <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s2">&quot;Transfer Syntax Name is an invalid UID&quot;</span><span class="p">)</span>
 
         <span class="bp">self</span><span class="o">.</span><span class="n">_transfer_syntax_name</span> <span class="o">=</span> <span class="n">value</span></div>
 
@@ -2043,9 +2057,11 @@
             <span class="k">raise</span> <span class="ne">TypeError</span><span class="p">(</span><span class="s1">&#39;implementation_class_uid must be str, bytes &#39;</span>
                             <span class="s1">&#39;or UID&#39;</span><span class="p">)</span>
 
+        <span class="k">if</span> <span class="n">value</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span> <span class="ow">and</span> <span class="ow">not</span> <span class="n">validate_uid</span><span class="p">(</span><span class="n">value</span><span class="p">):</span>
+            <span class="n">LOGGER</span><span class="o">.</span><span class="n">error</span><span class="p">(</span><span class="s2">&quot;Implementation Class UID is an invalid UID&quot;</span><span class="p">)</span>
+            <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s2">&quot;Implementation Class UID is an invalid UID&quot;</span><span class="p">)</span>
+
         <span class="bp">self</span><span class="o">.</span><span class="n">_implementation_class_uid</span> <span class="o">=</span> <span class="n">value</span>
-        <span class="c1">#if value is not None:</span>
-        <span class="c1">#    #self.item_length = len(self.implementation_class_uid)</span>
 
     <span class="nd">@property</span>
     <span class="k">def</span> <span class="nf">item_length</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
@@ -2649,6 +2665,10 @@
             <span class="k">raise</span> <span class="ne">TypeError</span><span class="p">(</span><span class="s1">&#39;sop_class_uid must be str, bytes or &#39;</span>
                             <span class="s1">&#39;pydicom.uid.UID&#39;</span><span class="p">)</span>
 
+        <span class="k">if</span> <span class="n">value</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span> <span class="ow">and</span> <span class="ow">not</span> <span class="n">validate_uid</span><span class="p">(</span><span class="n">value</span><span class="p">):</span>
+            <span class="n">LOGGER</span><span class="o">.</span><span class="n">error</span><span class="p">(</span><span class="s2">&quot;SOP Class UID is an invalid UID&quot;</span><span class="p">)</span>
+            <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s2">&quot;SOP Class UID is an invalid UID&quot;</span><span class="p">)</span>
+
         <span class="bp">self</span><span class="o">.</span><span class="n">_sop_class_uid</span> <span class="o">=</span> <span class="n">value</span>
 
     <span class="k">def</span> <span class="nf">__str__</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
@@ -2874,6 +2894,10 @@
         <span class="k">else</span><span class="p">:</span>
             <span class="k">raise</span> <span class="ne">TypeError</span><span class="p">(</span><span class="s1">&#39;sop_class_uid must be str, bytes or &#39;</span>
                             <span class="s1">&#39;pydicom.uid.UID&#39;</span><span class="p">)</span>
+
+        <span class="k">if</span> <span class="n">value</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span> <span class="ow">and</span> <span class="ow">not</span> <span class="n">validate_uid</span><span class="p">(</span><span class="n">value</span><span class="p">):</span>
+            <span class="n">LOGGER</span><span class="o">.</span><span class="n">error</span><span class="p">(</span><span class="s2">&quot;SOP Class UID is an invalid UID&quot;</span><span class="p">)</span>
+            <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s2">&quot;SOP Class UID is an invalid UID&quot;</span><span class="p">)</span>
 
         <span class="bp">self</span><span class="o">.</span><span class="n">_sop_class_uid</span> <span class="o">=</span> <span class="n">value</span>
 
@@ -3220,6 +3244,14 @@
                 <span class="k">raise</span> <span class="ne">TypeError</span><span class="p">(</span><span class="s1">&#39;related_general_sop_class_identification &#39;</span>
                                 <span class="s1">&#39;must be str, bytes or pydicom.uid.UID&#39;</span><span class="p">)</span>
 
+            <span class="k">if</span> <span class="n">value</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span> <span class="ow">and</span> <span class="ow">not</span> <span class="n">validate_uid</span><span class="p">(</span><span class="n">value</span><span class="p">):</span>
+                <span class="n">msg</span> <span class="o">=</span> <span class="p">(</span>
+                    <span class="s2">&quot;Related General SOP Class Identification contains &quot;</span>
+                    <span class="s2">&quot;an invalid UID&quot;</span>
+                <span class="p">)</span>
+                <span class="n">LOGGER</span><span class="o">.</span><span class="n">error</span><span class="p">(</span><span class="n">msg</span><span class="p">)</span>
+                <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="n">msg</span><span class="p">)</span>
+
             <span class="bp">self</span><span class="o">.</span><span class="n">_related_general_sop_class_identification</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">value</span><span class="p">)</span>
 
     <span class="nd">@property</span>
@@ -3252,6 +3284,10 @@
             <span class="k">raise</span> <span class="ne">TypeError</span><span class="p">(</span><span class="s1">&#39;sop_class_uid must be str, bytes or &#39;</span>
                             <span class="s1">&#39;pydicom.uid.UID&#39;</span><span class="p">)</span>
 
+        <span class="k">if</span> <span class="n">value</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span> <span class="ow">and</span> <span class="ow">not</span> <span class="n">validate_uid</span><span class="p">(</span><span class="n">value</span><span class="p">):</span>
+            <span class="n">LOGGER</span><span class="o">.</span><span class="n">error</span><span class="p">(</span><span class="s2">&quot;SOP Class UID is an invalid UID&quot;</span><span class="p">)</span>
+            <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s2">&quot;SOP Class UID is an invalid UID&quot;</span><span class="p">)</span>
+
         <span class="bp">self</span><span class="o">.</span><span class="n">_sop_class_uid</span> <span class="o">=</span> <span class="n">value</span>
 
     <span class="nd">@property</span>
@@ -3280,6 +3316,10 @@
         <span class="k">else</span><span class="p">:</span>
             <span class="k">raise</span> <span class="ne">TypeError</span><span class="p">(</span><span class="s1">&#39;service_class_uid must be str, bytes or &#39;</span>
                             <span class="s1">&#39;pydicom.uid.UID&#39;</span><span class="p">)</span>
+
+        <span class="k">if</span> <span class="n">value</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span> <span class="ow">and</span> <span class="ow">not</span> <span class="n">validate_uid</span><span class="p">(</span><span class="n">value</span><span class="p">):</span>
+            <span class="n">LOGGER</span><span class="o">.</span><span class="n">error</span><span class="p">(</span><span class="s2">&quot;Service Class UID is an invalid UID&quot;</span><span class="p">)</span>
+            <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s2">&quot;Service Class UID is an invalid UID&quot;</span><span class="p">)</span>
 
         <span class="bp">self</span><span class="o">.</span><span class="n">_service_class_uid</span> <span class="o">=</span> <span class="n">value</span>
 

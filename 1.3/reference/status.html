@@ -8,7 +8,7 @@
   
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   
-  <title>Statuses (pynetdicom.status) &mdash; pynetdicom 1.2.0 documentation</title>
+  <title>Statuses (pynetdicom.status) &mdash; pynetdicom 1.3.0 documentation</title>
   
 
   
@@ -64,7 +64,7 @@
             
             
               <div class="version">
-                1.2.0
+                1.3.0
               </div>
             
           
@@ -101,12 +101,14 @@
 <li class="toctree-l1"><a class="reference internal" href="../hanging_protocol_service_class.html">Hanging Protocol Query/Retrieve Service Class</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../implant_template_service_class.html">Implant Template Query/Retrieve Service Class</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../display_system_service_class.html">Display System Management Service Class</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../modality_performed_procedure_step.html">Modality Performed Procedure Step Management</a></li>
 </ul>
 <ul>
 <li class="toctree-l1"><a class="reference internal" href="../user/index.html">User Guide</a></li>
 </ul>
 <ul>
-<li class="toctree-l1"><a class="reference internal" href="../release_notes.html">1.2.0</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../release_notes.html">1.3.0</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../release_notes.html#v1-2-0">1.2.0</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../release_notes.html#v1-1-0">1.1.0</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../release_notes.html#v1-0-0">1.0.0</a></li>
 </ul>
@@ -154,7 +156,7 @@
     
       <li><a href="../index.html">Docs</a> &raquo;</li>
         
-      <li>Statuses (<code class="docutils literal notranslate"><span class="pre">pynetdicom.status</span></code>)</li>
+      <li>Statuses (<code class="xref py py-mod docutils literal notranslate"><span class="pre">pynetdicom.status</span></code>)</li>
     
     
       <li class="wy-breadcrumbs-aside">
@@ -178,102 +180,102 @@
 <p>Certain service classes allow assigning custom values to specific general
 status types provided that they lay within a given range. The following status
 codes are used internally within pynetdicom to help aid in debugging.</p>
-<table border="1" class="docutils">
+<table class="docutils align-center">
 <colgroup>
-<col width="24%" />
-<col width="76%" />
+<col style="width: 24%" />
+<col style="width: 76%" />
 </colgroup>
-<thead valign="bottom">
-<tr class="row-odd"><th class="head">Code</th>
-<th class="head">Description</th>
+<thead>
+<tr class="row-odd"><th class="head"><p>Code</p></th>
+<th class="head"><p>Description</p></th>
 </tr>
 </thead>
-<tbody valign="top">
-<tr class="row-even"><td>0xC000 to 0xC0FF</td>
-<td>Non-service specific</td>
+<tbody>
+<tr class="row-even"><td><p>0xC000 to 0xC0FF</p></td>
+<td><p>Non-service specific</p></td>
 </tr>
-<tr class="row-odd"><td>0xC001</td>
-<td>User’s callback implementation returned a status
-dataset with no (0000,0900) <em>Status</em> element.</td>
+<tr class="row-odd"><td><p>0xC001</p></td>
+<td><p>User’s callback implementation returned a status
+dataset with no (0000,0900) <em>Status</em> element.</p></td>
 </tr>
-<tr class="row-even"><td>0xC002</td>
-<td>User’s callback implementation returned an invalid
-status object (not a pydicom Dataset or an int)</td>
+<tr class="row-even"><td><p>0xC002</p></td>
+<td><p>User’s callback implementation returned an invalid
+status object (not a pydicom Dataset or an int)</p></td>
 </tr>
-<tr class="row-odd"><td>0xC200 to 0xC2FF</td>
-<td>C-STORE related</td>
+<tr class="row-odd"><td><p>0xC200 to 0xC2FF</p></td>
+<td><p>C-STORE related</p></td>
 </tr>
-<tr class="row-even"><td>0xC210</td>
-<td>Failed to decode the dataset received from the peer</td>
+<tr class="row-even"><td><p>0xC210</p></td>
+<td><p>Failed to decode the dataset received from the peer</p></td>
 </tr>
-<tr class="row-odd"><td>0xC211</td>
-<td>Unhandled exception raised by the user’s implementation
-of the on_c_store callback</td>
+<tr class="row-odd"><td><p>0xC211</p></td>
+<td><p>Unhandled exception raised by the user’s implementation
+of the on_c_store callback</p></td>
 </tr>
-<tr class="row-even"><td>0xC300 to 0xC3FF</td>
-<td>C-FIND related</td>
+<tr class="row-even"><td><p>0xC300 to 0xC3FF</p></td>
+<td><p>C-FIND related</p></td>
 </tr>
-<tr class="row-odd"><td>0xC310</td>
-<td>Failed to decode the dataset received from the peer</td>
+<tr class="row-odd"><td><p>0xC310</p></td>
+<td><p>Failed to decode the dataset received from the peer</p></td>
 </tr>
-<tr class="row-even"><td>0xC311</td>
-<td>Unhandled exception raised by the user’s implementation
-of the on_c_find callback</td>
+<tr class="row-even"><td><p>0xC311</p></td>
+<td><p>Unhandled exception raised by the user’s implementation
+of the on_c_find callback</p></td>
 </tr>
-<tr class="row-odd"><td>0xC312</td>
-<td>Failed to encode the dataset received from the user’s
-implementation of the on_c_find_callback</td>
+<tr class="row-odd"><td><p>0xC312</p></td>
+<td><p>Failed to encode the dataset received from the user’s
+implementation of the on_c_find_callback</p></td>
 </tr>
-<tr class="row-even"><td>0xC400 to 0xC4FF</td>
-<td>C-GET related</td>
+<tr class="row-even"><td><p>0xC400 to 0xC4FF</p></td>
+<td><p>C-GET related</p></td>
 </tr>
-<tr class="row-odd"><td>0xC410</td>
-<td>Failed to decode the dataset received from the peer</td>
+<tr class="row-odd"><td><p>0xC410</p></td>
+<td><p>Failed to decode the dataset received from the peer</p></td>
 </tr>
-<tr class="row-even"><td>0xC411</td>
-<td>Unhandled exception raised by the user’s implementation
-of the on_c_get callback</td>
+<tr class="row-even"><td><p>0xC411</p></td>
+<td><p>Unhandled exception raised by the user’s implementation
+of the on_c_get callback</p></td>
 </tr>
-<tr class="row-odd"><td>0xC413</td>
-<td>The user’s implementation of the on_c_get callback
-yielded an invalid number of sub-operations value</td>
+<tr class="row-odd"><td><p>0xC413</p></td>
+<td><p>The user’s implementation of the on_c_get callback
+yielded an invalid number of sub-operations value</p></td>
 </tr>
-<tr class="row-even"><td>0xC500 to 0xC5FF</td>
-<td>C-MOVE related</td>
+<tr class="row-even"><td><p>0xC500 to 0xC5FF</p></td>
+<td><p>C-MOVE related</p></td>
 </tr>
-<tr class="row-odd"><td>0xC510</td>
-<td>Failed to decode the dataset received from the peer</td>
+<tr class="row-odd"><td><p>0xC510</p></td>
+<td><p>Failed to decode the dataset received from the peer</p></td>
 </tr>
-<tr class="row-even"><td>0xC511</td>
-<td>Unhandled exception raised by the user’s implementation
-of the on_c_move callback</td>
+<tr class="row-even"><td><p>0xC511</p></td>
+<td><p>Unhandled exception raised by the user’s implementation
+of the on_c_move callback</p></td>
 </tr>
-<tr class="row-odd"><td>0xC513</td>
-<td>The user’s implementation of the on_c_move callback
-yielded an invalid number of sub-operations value</td>
+<tr class="row-odd"><td><p>0xC513</p></td>
+<td><p>The user’s implementation of the on_c_move callback
+yielded an invalid number of sub-operations value</p></td>
 </tr>
-<tr class="row-even"><td>0xC514</td>
-<td>The user’s implementation of the on_c_move callback
+<tr class="row-even"><td><p>0xC514</p></td>
+<td><p>The user’s implementation of the on_c_move callback
 failed to yield the (address, port) pair and/or the
-number of sub-operations value</td>
+number of sub-operations value</p></td>
 </tr>
-<tr class="row-odd"><td>0xC515</td>
-<td>The user’s implementation of the on_c_move callback
-failed to yield a valid (address, port) pair</td>
+<tr class="row-odd"><td><p>0xC515</p></td>
+<td><p>The user’s implementation of the on_c_move callback
+failed to yield a valid (address, port) pair</p></td>
 </tr>
 </tbody>
 </table>
-<table border="1" class="longtable docutils">
+<table class="longtable docutils align-center">
 <colgroup>
-<col width="10%" />
-<col width="90%" />
+<col style="width: 10%" />
+<col style="width: 90%" />
 </colgroup>
-<tbody valign="top">
-<tr class="row-odd"><td><a class="reference internal" href="generated/pynetdicom.status.code_to_category.html#pynetdicom.status.code_to_category" title="pynetdicom.status.code_to_category"><code class="xref py py-obj docutils literal notranslate"><span class="pre">code_to_category</span></code></a>(code)</td>
-<td>Return a Status’ category as a str or ‘Unknown’ if not recognised.</td>
+<tbody>
+<tr class="row-odd"><td><p><a class="reference internal" href="generated/pynetdicom.status.code_to_category.html#pynetdicom.status.code_to_category" title="pynetdicom.status.code_to_category"><code class="xref py py-obj docutils literal notranslate"><span class="pre">code_to_category</span></code></a>(code)</p></td>
+<td><p>Return a Status’ category as a str or ‘Unknown’ if not recognised.</p></td>
 </tr>
-<tr class="row-even"><td><a class="reference internal" href="generated/pynetdicom.status.code_to_status.html#pynetdicom.status.code_to_status" title="pynetdicom.status.code_to_status"><code class="xref py py-obj docutils literal notranslate"><span class="pre">code_to_status</span></code></a>(code)</td>
-<td>Return a Dataset with a Status element value of <cite>code</cite>.</td>
+<tr class="row-even"><td><p><a class="reference internal" href="generated/pynetdicom.status.code_to_status.html#pynetdicom.status.code_to_status" title="pynetdicom.status.code_to_status"><code class="xref py py-obj docutils literal notranslate"><span class="pre">code_to_status</span></code></a>(code)</p></td>
+<td><p>Return a Dataset with a Status element value of <cite>code</cite>.</p></td>
 </tr>
 </tbody>
 </table>

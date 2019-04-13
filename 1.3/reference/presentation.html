@@ -8,7 +8,7 @@
   
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   
-  <title>Presentation Service (pynetdicom.presentation) &mdash; pynetdicom 1.2.0 documentation</title>
+  <title>Presentation Service (pynetdicom.presentation) &mdash; pynetdicom 1.3.0 documentation</title>
   
 
   
@@ -64,7 +64,7 @@
             
             
               <div class="version">
-                1.2.0
+                1.3.0
               </div>
             
           
@@ -101,12 +101,14 @@
 <li class="toctree-l1"><a class="reference internal" href="../hanging_protocol_service_class.html">Hanging Protocol Query/Retrieve Service Class</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../implant_template_service_class.html">Implant Template Query/Retrieve Service Class</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../display_system_service_class.html">Display System Management Service Class</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../modality_performed_procedure_step.html">Modality Performed Procedure Step Management</a></li>
 </ul>
 <ul>
 <li class="toctree-l1"><a class="reference internal" href="../user/index.html">User Guide</a></li>
 </ul>
 <ul>
-<li class="toctree-l1"><a class="reference internal" href="../release_notes.html">1.2.0</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../release_notes.html">1.3.0</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../release_notes.html#v1-2-0">1.2.0</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../release_notes.html#v1-1-0">1.1.0</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../release_notes.html#v1-0-0">1.0.0</a></li>
 </ul>
@@ -154,7 +156,7 @@
     
       <li><a href="../index.html">Docs</a> &raquo;</li>
         
-      <li>Presentation Service (<code class="docutils literal notranslate"><span class="pre">pynetdicom.presentation</span></code>)</li>
+      <li>Presentation Service (<code class="xref py py-mod docutils literal notranslate"><span class="pre">pynetdicom.presentation</span></code>)</li>
     
     
       <li class="wy-breadcrumbs-aside">
@@ -178,35 +180,35 @@
 <p>The Presentation Service supports the creation of Presentation Contexts and
 their negotiation during association.</p>
 <p>Creation</p>
-<table border="1" class="longtable docutils">
+<table class="longtable docutils align-center">
 <colgroup>
-<col width="10%" />
-<col width="90%" />
+<col style="width: 10%" />
+<col style="width: 90%" />
 </colgroup>
-<tbody valign="top">
-<tr class="row-odd"><td><a class="reference internal" href="generated/pynetdicom.presentation.PresentationContext.html#pynetdicom.presentation.PresentationContext" title="pynetdicom.presentation.PresentationContext"><code class="xref py py-obj docutils literal notranslate"><span class="pre">PresentationContext</span></code></a>()</td>
-<td>A Presentation Context primitive.</td>
+<tbody>
+<tr class="row-odd"><td><p><a class="reference internal" href="generated/pynetdicom.presentation.PresentationContext.html#pynetdicom.presentation.PresentationContext" title="pynetdicom.presentation.PresentationContext"><code class="xref py py-obj docutils literal notranslate"><span class="pre">PresentationContext</span></code></a>()</p></td>
+<td><p>A Presentation Context primitive.</p></td>
 </tr>
-<tr class="row-even"><td><a class="reference internal" href="generated/pynetdicom.presentation.build_context.html#pynetdicom.presentation.build_context" title="pynetdicom.presentation.build_context"><code class="xref py py-obj docutils literal notranslate"><span class="pre">build_context</span></code></a>(abstract_syntax[,&nbsp;transfer_syntax])</td>
-<td>Return a PresentationContext built from the <cite>abstract_syntax</cite>.</td>
+<tr class="row-even"><td><p><a class="reference internal" href="generated/pynetdicom.presentation.build_context.html#pynetdicom.presentation.build_context" title="pynetdicom.presentation.build_context"><code class="xref py py-obj docutils literal notranslate"><span class="pre">build_context</span></code></a>(abstract_syntax[, transfer_syntax])</p></td>
+<td><p>Return a PresentationContext built from the <cite>abstract_syntax</cite>.</p></td>
 </tr>
-<tr class="row-odd"><td><a class="reference internal" href="generated/pynetdicom.presentation.build_role.html#pynetdicom.presentation.build_role" title="pynetdicom.presentation.build_role"><code class="xref py py-obj docutils literal notranslate"><span class="pre">build_role</span></code></a>(uid[,&nbsp;scu_role,&nbsp;scp_role])</td>
-<td>Return a SCP/SCU Role Selection Negotiation item.</td>
+<tr class="row-odd"><td><p><a class="reference internal" href="generated/pynetdicom.presentation.build_role.html#pynetdicom.presentation.build_role" title="pynetdicom.presentation.build_role"><code class="xref py py-obj docutils literal notranslate"><span class="pre">build_role</span></code></a>(uid[, scu_role, scp_role])</p></td>
+<td><p>Return a SCP/SCU Role Selection Negotiation item.</p></td>
 </tr>
 </tbody>
 </table>
 <p>Negotiation</p>
-<table border="1" class="longtable docutils">
+<table class="longtable docutils align-center">
 <colgroup>
-<col width="10%" />
-<col width="90%" />
+<col style="width: 10%" />
+<col style="width: 90%" />
 </colgroup>
-<tbody valign="top">
-<tr class="row-odd"><td><a class="reference internal" href="generated/pynetdicom.presentation.negotiate_as_acceptor.html#pynetdicom.presentation.negotiate_as_acceptor" title="pynetdicom.presentation.negotiate_as_acceptor"><code class="xref py py-obj docutils literal notranslate"><span class="pre">negotiate_as_acceptor</span></code></a>(rq_contexts,&nbsp;ac_contexts)</td>
-<td>Process the Presentation Contexts as an Association acceptor.</td>
+<tbody>
+<tr class="row-odd"><td><p><a class="reference internal" href="generated/pynetdicom.presentation.negotiate_as_acceptor.html#pynetdicom.presentation.negotiate_as_acceptor" title="pynetdicom.presentation.negotiate_as_acceptor"><code class="xref py py-obj docutils literal notranslate"><span class="pre">negotiate_as_acceptor</span></code></a>(rq_contexts, ac_contexts)</p></td>
+<td><p>Process the Presentation Contexts as an Association acceptor.</p></td>
 </tr>
-<tr class="row-even"><td><a class="reference internal" href="generated/pynetdicom.presentation.negotiate_as_requestor.html#pynetdicom.presentation.negotiate_as_requestor" title="pynetdicom.presentation.negotiate_as_requestor"><code class="xref py py-obj docutils literal notranslate"><span class="pre">negotiate_as_requestor</span></code></a>(rq_contexts,&nbsp;ac_contexts)</td>
-<td>Process the Presentation Contexts as an Association requestor.</td>
+<tr class="row-even"><td><p><a class="reference internal" href="generated/pynetdicom.presentation.negotiate_as_requestor.html#pynetdicom.presentation.negotiate_as_requestor" title="pynetdicom.presentation.negotiate_as_requestor"><code class="xref py py-obj docutils literal notranslate"><span class="pre">negotiate_as_requestor</span></code></a>(rq_contexts, ac_contexts)</p></td>
+<td><p>Process the Presentation Contexts as an Association requestor.</p></td>
 </tr>
 </tbody>
 </table>

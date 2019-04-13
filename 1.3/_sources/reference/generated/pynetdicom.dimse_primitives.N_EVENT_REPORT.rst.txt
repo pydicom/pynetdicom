@@ -1,0 +1,40 @@
+pynetdicom.dimse\_primitives.N\_EVENT\_REPORT
+=============================================
+
+.. currentmodule:: pynetdicom.dimse_primitives
+
+.. autoclass:: N_EVENT_REPORT
+
+   
+   .. automethod:: __init__
+
+   
+   .. rubric:: Methods
+
+   .. autosummary::
+   
+      ~N_EVENT_REPORT.__init__
+   
+   
+
+   
+   
+   .. rubric:: Attributes
+
+   .. autosummary::
+   
+      ~N_EVENT_REPORT.AffectedSOPClassUID
+      ~N_EVENT_REPORT.AffectedSOPInstanceUID
+      ~N_EVENT_REPORT.EventInformation
+      ~N_EVENT_REPORT.EventReply
+      ~N_EVENT_REPORT.EventTypeID
+      ~N_EVENT_REPORT.MessageID
+      ~N_EVENT_REPORT.MessageIDBeingRespondedTo
+      ~N_EVENT_REPORT.REQUEST_KEYWORDS
+      ~N_EVENT_REPORT.RESPONSE_KEYWORDS
+      ~N_EVENT_REPORT.STATUS_OPTIONAL_KEYWORDS
+      ~N_EVENT_REPORT.Status
+      ~N_EVENT_REPORT.is_valid_request
+      ~N_EVENT_REPORT.is_valid_response
+   
+   

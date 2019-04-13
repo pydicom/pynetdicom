@@ -8,7 +8,7 @@
   
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   
-  <title>pynetdicom.fsm.AE_1 &mdash; pynetdicom 1.2.0 documentation</title>
+  <title>pynetdicom.fsm.AE_1 &mdash; pynetdicom 1.3.0 documentation</title>
   
 
   
@@ -64,7 +64,7 @@
             
             
               <div class="version">
-                1.2.0
+                1.3.0
               </div>
             
           
@@ -101,12 +101,14 @@
 <li class="toctree-l1"><a class="reference internal" href="../../hanging_protocol_service_class.html">Hanging Protocol Query/Retrieve Service Class</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../../implant_template_service_class.html">Implant Template Query/Retrieve Service Class</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../../display_system_service_class.html">Display System Management Service Class</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../modality_performed_procedure_step.html">Modality Performed Procedure Step Management</a></li>
 </ul>
 <ul>
 <li class="toctree-l1"><a class="reference internal" href="../../user/index.html">User Guide</a></li>
 </ul>
 <ul>
-<li class="toctree-l1"><a class="reference internal" href="../../release_notes.html">1.2.0</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../release_notes.html">1.3.0</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../release_notes.html#v1-2-0">1.2.0</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../../release_notes.html#v1-1-0">1.1.0</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../../release_notes.html#v1-0-0">1.0.0</a></li>
 </ul>
@@ -177,7 +179,7 @@
 <h1>pynetdicom.fsm.AE_1<a class="headerlink" href="#pynetdicom-fsm-ae-1" title="Permalink to this headline">¶</a></h1>
 <dl class="function">
 <dt id="pynetdicom.fsm.AE_1">
-<code class="descclassname">pynetdicom.fsm.</code><code class="descname">AE_1</code><span class="sig-paren">(</span><em>dul</em><span class="sig-paren">)</span><a class="reference internal" href="../../_modules/pynetdicom/fsm.html#AE_1"><span class="viewcode-link">[source]</span></a><a class="reference external" href="https://github.com/pydicom/pynetdicom/blob/fa9f63a/pynetdicom/fsm.py#L116"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pynetdicom.fsm.AE_1" title="Permalink to this definition">¶</a></dt>
+<code class="descclassname">pynetdicom.fsm.</code><code class="descname">AE_1</code><span class="sig-paren">(</span><em>dul</em><span class="sig-paren">)</span><a class="reference internal" href="../../_modules/pynetdicom/fsm.html#AE_1"><span class="viewcode-link">[source]</span></a><a class="reference external" href="https://github.com/pydicom/pynetdicom/blob/c7e7004b/pynetdicom/fsm.py#L127"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pynetdicom.fsm.AE_1" title="Permalink to this definition">¶</a></dt>
 <dd><p>Association establishment action AE-1.</p>
 <p><em>Event</em></p>
 <p>Service user issued A-ASSOCIATE (request) to the service provider</p>
@@ -185,24 +187,23 @@
 <p>Issue TRANSPORT CONNECT request primitive to the transport service.</p>
 <p><em>State/Event Triggers</em></p>
 <ul class="simple">
-<li>Sta1 + Evt1</li>
+<li><p>Sta1 + Evt1</p></li>
 </ul>
-<table class="docutils field-list" frame="void" rules="none">
-<col class="field-name" />
-<col class="field-body" />
-<tbody valign="top">
-<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><strong>dul</strong> (<a class="reference internal" href="pynetdicom.dul.DULServiceProvider.html#pynetdicom.dul.DULServiceProvider" title="pynetdicom.dul.DULServiceProvider"><em>pynetdicom.dul.DULServiceProvider</em></a>) – The DICOM Upper Layer Service instance for the local AE</td>
-</tr>
-<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body">‘Sta4’, the next state of the state machine.</td>
-</tr>
-<tr class="field-odd field"><th class="field-name">Return type:</th><td class="field-body"><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.7)">str</a></td>
-</tr>
-</tbody>
-</table>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><p><strong>dul</strong> (<a class="reference internal" href="pynetdicom.dul.DULServiceProvider.html#pynetdicom.dul.DULServiceProvider" title="pynetdicom.dul.DULServiceProvider"><em>pynetdicom.dul.DULServiceProvider</em></a>) – The DICOM Upper Layer Service instance for the local AE</p>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p>‘Sta4’, the next state of the state machine.</p>
+</dd>
+<dt class="field-odd">Return type</dt>
+<dd class="field-odd"><p><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.7)">str</a></p>
+</dd>
+</dl>
 <p class="rubric">References</p>
 <ol class="arabic simple">
-<li>DICOM Standard 2015b, PS3.8, Table 9-7, “Associate Establishment
-Related Actions”</li>
+<li><p>DICOM Standard 2015b, PS3.8, Table 9-7, “Associate Establishment
+Related Actions”</p></li>
 </ol>
 </dd></dl>
 

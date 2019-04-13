@@ -1,0 +1,901 @@
+
+
+<!DOCTYPE html>
+<!--[if IE 8]><html class="no-js lt-ie9" lang="en" > <![endif]-->
+<!--[if gt IE 8]><!--> <html class="no-js" lang="en" > <!--<![endif]-->
+<head>
+  <meta charset="utf-8">
+  
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  
+  <title>pynetdicom.events &mdash; pynetdicom 1.3.0 documentation</title>
+  
+
+  
+  
+    <link rel="shortcut icon" href="../../_static/favicon.ico"/>
+  
+  
+  
+
+  
+  <script type="text/javascript" src="../../_static/js/modernizr.min.js"></script>
+  
+    
+      <script type="text/javascript" id="documentation_options" data-url_root="../../" src="../../_static/documentation_options.js"></script>
+        <script type="text/javascript" src="../../_static/jquery.js"></script>
+        <script type="text/javascript" src="../../_static/underscore.js"></script>
+        <script type="text/javascript" src="../../_static/doctools.js"></script>
+        <script type="text/javascript" src="../../_static/language_data.js"></script>
+    
+    <script type="text/javascript" src="../../_static/js/theme.js"></script>
+
+    
+
+  
+  <link rel="stylesheet" href="../../_static/css/pynetdicom.css" type="text/css" />
+  <link rel="stylesheet" href="../../_static/pygments.css" type="text/css" />
+  <link rel="stylesheet" href="../../_static/css/pynetdicom.css" type="text/css" />
+    <link rel="index" title="Index" href="../../genindex.html" />
+    <link rel="search" title="Search" href="../../search.html" /> 
+</head>
+
+<body class="wy-body-for-nav">
+
+   
+  <div class="wy-grid-for-nav">
+    
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search" >
+          
+
+          
+            <a href="../../index.html" class="icon icon-home"> pynetdicom
+          
+
+          
+            
+            <img src="../../_static/pydicom_flat_black.svg" class="logo" alt="Logo"/>
+          
+          </a>
+
+          
+            
+            
+              <div class="version">
+                1.3.0
+              </div>
+            
+          
+
+          
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="../../search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+
+          
+        </div>
+
+        <div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="main navigation">
+          
+            
+            
+              
+            
+            
+              <ul>
+<li class="toctree-l1"><a class="reference internal" href="../../verification_service_class.html">Verification Service Class</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../storage_service_class.html">Storage Service Class</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../query_retrieve_service_class.html">Query/Retrieve Service Class</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../basic_worklist_service_class.html">Basic Worklist Management Service Class</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../relevant_patient_service_class.html">Relevant Patient Information Query Service Class</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../substance_admin_service_class.html">Substance Administration Query Service Class</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../non_patient_service_class.html">Non-Patient Object Storage Service Class</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../color_palette_service_class.html">Color Palette Query/Retrieve Service Class</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../defined_procedure_service_class.html">Defined Procedure Protocol Query/Retrieve Service Class</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../hanging_protocol_service_class.html">Hanging Protocol Query/Retrieve Service Class</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../implant_template_service_class.html">Implant Template Query/Retrieve Service Class</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../display_system_service_class.html">Display System Management Service Class</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../modality_performed_procedure_step.html">Modality Performed Procedure Step Management</a></li>
+</ul>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../../user/index.html">User Guide</a></li>
+</ul>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../../release_notes.html">1.3.0</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../release_notes.html#v1-2-0">1.2.0</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../release_notes.html#v1-1-0">1.1.0</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../release_notes.html#v1-0-0">1.0.0</a></li>
+</ul>
+
+            
+          
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap">
+
+      
+      <nav class="wy-nav-top" aria-label="top navigation">
+        
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="../../index.html">pynetdicom</a>
+        
+      </nav>
+
+
+      <div class="wy-nav-content">
+        
+        <div class="rst-content">
+        
+          
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+<div role="navigation" aria-label="breadcrumbs navigation">
+
+  <ul class="wy-breadcrumbs">
+    
+      <li><a href="../../index.html">Docs</a> &raquo;</li>
+        
+          <li><a href="../index.html">Module code</a> &raquo;</li>
+        
+      <li>pynetdicom.events</li>
+    
+    
+      <li class="wy-breadcrumbs-aside">
+        
+      </li>
+    
+  </ul>
+
+  
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+            
+  <h1>Source code for pynetdicom.events</h1><div class="highlight"><pre>
+<span></span><span class="sd">&quot;&quot;&quot;Module used to support events and event handling, not to be confused with</span>
+<span class="sd">the state machine events.</span>
+<span class="sd">&quot;&quot;&quot;</span>
+
+<span class="kn">from</span> <span class="nn">collections</span> <span class="k">import</span> <span class="n">namedtuple</span>
+<span class="kn">from</span> <span class="nn">datetime</span> <span class="k">import</span> <span class="n">datetime</span>
+<span class="kn">import</span> <span class="nn">inspect</span>
+<span class="kn">import</span> <span class="nn">logging</span>
+<span class="kn">import</span> <span class="nn">sys</span>
+
+<span class="kn">from</span> <span class="nn">pydicom.dataset</span> <span class="k">import</span> <span class="n">Dataset</span>
+
+<span class="kn">from</span> <span class="nn">pynetdicom.dsutils</span> <span class="k">import</span> <span class="n">decode</span>
+
+
+<span class="n">LOGGER</span> <span class="o">=</span> <span class="n">logging</span><span class="o">.</span><span class="n">getLogger</span><span class="p">(</span><span class="s1">&#39;pynetdicom.events&#39;</span><span class="p">)</span>
+
+
+<span class="c1"># Notification events</span>
+<span class="c1">#   No returns/yields needed, can have multiple handlers per event</span>
+<span class="n">NotificationEvent</span> <span class="o">=</span> <span class="n">namedtuple</span><span class="p">(</span><span class="s1">&#39;NotificationEvent&#39;</span><span class="p">,</span> <span class="p">[</span><span class="s1">&#39;name&#39;</span><span class="p">,</span> <span class="s1">&#39;description&#39;</span><span class="p">])</span>
+<span class="n">NotificationEvent</span><span class="o">.</span><span class="n">is_intervention</span> <span class="o">=</span> <span class="kc">False</span>
+<span class="n">NotificationEvent</span><span class="o">.</span><span class="n">is_notification</span> <span class="o">=</span> <span class="kc">True</span>
+
+<span class="n">EVT_ABORTED</span> <span class="o">=</span> <span class="n">NotificationEvent</span><span class="p">(</span><span class="s2">&quot;EVT_ABORTED&quot;</span><span class="p">,</span> <span class="s2">&quot;Association aborted&quot;</span><span class="p">)</span>
+<span class="n">EVT_ACCEPTED</span> <span class="o">=</span> <span class="n">NotificationEvent</span><span class="p">(</span><span class="s2">&quot;EVT_ACCEPTED&quot;</span><span class="p">,</span> <span class="s2">&quot;Association request accepted&quot;</span><span class="p">)</span>
+<span class="n">EVT_ACSE_RECV</span> <span class="o">=</span> <span class="n">NotificationEvent</span><span class="p">(</span><span class="s2">&quot;EVT_ACSE_RECV&quot;</span><span class="p">,</span> <span class="s2">&quot;ACSE primitive received from DUL&quot;</span><span class="p">)</span>
+<span class="n">EVT_ACSE_SENT</span> <span class="o">=</span> <span class="n">NotificationEvent</span><span class="p">(</span><span class="s2">&quot;EVT_ACSE_SENT&quot;</span><span class="p">,</span> <span class="s2">&quot;ACSE primitive sent to DUL&quot;</span><span class="p">)</span>
+<span class="n">EVT_CONN_CLOSE</span> <span class="o">=</span> <span class="n">NotificationEvent</span><span class="p">(</span><span class="s2">&quot;EVT_CONN_CLOSE&quot;</span><span class="p">,</span> <span class="s2">&quot;Connection closed&quot;</span><span class="p">)</span>
+<span class="n">EVT_CONN_OPEN</span> <span class="o">=</span> <span class="n">NotificationEvent</span><span class="p">(</span><span class="s2">&quot;EVT_CONN_OPEN&quot;</span><span class="p">,</span> <span class="s2">&quot;Connection opened&quot;</span><span class="p">)</span>
+<span class="n">EVT_DATA_RECV</span> <span class="o">=</span> <span class="n">NotificationEvent</span><span class="p">(</span><span class="s2">&quot;EVT_DATA_RECV&quot;</span><span class="p">,</span> <span class="s2">&quot;PDU data received from remote&quot;</span><span class="p">)</span>
+<span class="n">EVT_DATA_SENT</span> <span class="o">=</span> <span class="n">NotificationEvent</span><span class="p">(</span><span class="s2">&quot;EVT_DATA_SENT&quot;</span><span class="p">,</span> <span class="s2">&quot;PDU data sent to remote&quot;</span><span class="p">)</span>
+<span class="n">EVT_DIMSE_RECV</span> <span class="o">=</span> <span class="n">NotificationEvent</span><span class="p">(</span><span class="s2">&quot;EVT_DIMSE_RECV&quot;</span><span class="p">,</span> <span class="s2">&quot;Complete DIMSE message received and decoded&quot;</span><span class="p">)</span>
+<span class="n">EVT_DIMSE_SENT</span> <span class="o">=</span> <span class="n">NotificationEvent</span><span class="p">(</span><span class="s2">&quot;EVT_DIMSE_SENT&quot;</span><span class="p">,</span> <span class="s2">&quot;DIMSE message encoded and P-DATA primitives sent to DUL&quot;</span><span class="p">)</span>
+<span class="n">EVT_ESTABLISHED</span> <span class="o">=</span> <span class="n">NotificationEvent</span><span class="p">(</span><span class="s2">&quot;EVT_ESTABLISHED&quot;</span><span class="p">,</span> <span class="s2">&quot;Association established&quot;</span><span class="p">)</span>
+<span class="n">EVT_FSM_TRANSITION</span> <span class="o">=</span> <span class="n">NotificationEvent</span><span class="p">(</span><span class="s2">&quot;EVT_FSM_TRANSITION&quot;</span><span class="p">,</span> <span class="s2">&quot;State machine about to transition&quot;</span><span class="p">)</span>
+<span class="n">EVT_PDU_RECV</span> <span class="o">=</span> <span class="n">NotificationEvent</span><span class="p">(</span><span class="s2">&quot;EVT_PDU_RECV&quot;</span><span class="p">,</span> <span class="s2">&quot;PDU received and decoded&quot;</span><span class="p">)</span>
+<span class="n">EVT_PDU_SENT</span> <span class="o">=</span> <span class="n">NotificationEvent</span><span class="p">(</span><span class="s2">&quot;EVT_PDU_SENT&quot;</span><span class="p">,</span> <span class="s2">&quot;PDU encoded and sent&quot;</span><span class="p">)</span>
+<span class="n">EVT_REJECTED</span> <span class="o">=</span> <span class="n">NotificationEvent</span><span class="p">(</span><span class="s2">&quot;EVT_REJECTED&quot;</span><span class="p">,</span> <span class="s2">&quot;Association request rejected&quot;</span><span class="p">)</span>
+<span class="n">EVT_RELEASED</span> <span class="o">=</span> <span class="n">NotificationEvent</span><span class="p">(</span><span class="s2">&quot;EVT_RELEASED&quot;</span><span class="p">,</span> <span class="s2">&quot;Association released&quot;</span><span class="p">)</span>
+<span class="n">EVT_REQUESTED</span> <span class="o">=</span> <span class="n">NotificationEvent</span><span class="p">(</span><span class="s2">&quot;EVT_REQUESTED&quot;</span><span class="p">,</span> <span class="s2">&quot;Association requested&quot;</span><span class="p">)</span>
+
+<span class="c1"># Intervention events</span>
+<span class="c1">#   Returns/yields needed if bound, can only have one handler per event</span>
+<span class="n">InterventionEvent</span> <span class="o">=</span> <span class="n">namedtuple</span><span class="p">(</span><span class="s1">&#39;InterventionEvent&#39;</span><span class="p">,</span> <span class="p">[</span><span class="s1">&#39;name&#39;</span><span class="p">,</span> <span class="s1">&#39;description&#39;</span><span class="p">])</span>
+<span class="n">InterventionEvent</span><span class="o">.</span><span class="n">is_intervention</span> <span class="o">=</span> <span class="kc">True</span>
+<span class="n">InterventionEvent</span><span class="o">.</span><span class="n">is_notification</span> <span class="o">=</span> <span class="kc">False</span>
+
+<span class="n">EVT_ASYNC_OPS</span> <span class="o">=</span> <span class="n">InterventionEvent</span><span class="p">(</span><span class="s2">&quot;EVT_ASYNC_OPS&quot;</span><span class="p">,</span> <span class="s2">&quot;Asynchronous operations negotiation requested&quot;</span><span class="p">)</span>
+<span class="n">EVT_SOP_COMMON</span> <span class="o">=</span> <span class="n">InterventionEvent</span><span class="p">(</span><span class="s2">&quot;EVT_SOP_COMMON&quot;</span><span class="p">,</span> <span class="s2">&quot;SOP class common extended negotiation requested&quot;</span><span class="p">)</span>
+<span class="n">EVT_SOP_EXTENDED</span> <span class="o">=</span> <span class="n">InterventionEvent</span><span class="p">(</span><span class="s2">&quot;EVT_SOP_EXTENDED&quot;</span><span class="p">,</span> <span class="s2">&quot;SOP class extended negotiation requested&quot;</span><span class="p">)</span>
+<span class="n">EVT_USER_ID</span> <span class="o">=</span> <span class="n">InterventionEvent</span><span class="p">(</span><span class="s2">&quot;EVT_USER_ID&quot;</span><span class="p">,</span> <span class="s2">&quot;User identity negotiation requested&quot;</span><span class="p">)</span>
+<span class="n">EVT_C_ECHO</span> <span class="o">=</span> <span class="n">InterventionEvent</span><span class="p">(</span><span class="s2">&quot;EVT_C_ECHO&quot;</span><span class="p">,</span> <span class="s2">&quot;C-ECHO request received&quot;</span><span class="p">)</span>
+<span class="n">EVT_C_FIND</span> <span class="o">=</span> <span class="n">InterventionEvent</span><span class="p">(</span><span class="s2">&quot;EVT_C_FIND&quot;</span><span class="p">,</span> <span class="s2">&quot;C-FIND request received&quot;</span><span class="p">)</span>
+<span class="n">EVT_C_GET</span> <span class="o">=</span> <span class="n">InterventionEvent</span><span class="p">(</span><span class="s2">&quot;EVT_C_GET&quot;</span><span class="p">,</span> <span class="s2">&quot;C-GET request received&quot;</span><span class="p">)</span>
+<span class="n">EVT_C_MOVE</span> <span class="o">=</span> <span class="n">InterventionEvent</span><span class="p">(</span><span class="s2">&quot;EVT_C_MOVE&quot;</span><span class="p">,</span> <span class="s2">&quot;C-MOVE request received&quot;</span><span class="p">)</span>
+<span class="n">EVT_C_STORE</span> <span class="o">=</span> <span class="n">InterventionEvent</span><span class="p">(</span><span class="s2">&quot;EVT_C_STORE&quot;</span><span class="p">,</span> <span class="s2">&quot;C-STORE request received&quot;</span><span class="p">)</span>
+<span class="n">EVT_N_ACTION</span> <span class="o">=</span> <span class="n">InterventionEvent</span><span class="p">(</span><span class="s2">&quot;EVT_N_ACTION&quot;</span><span class="p">,</span> <span class="s2">&quot;N-ACTION request received&quot;</span><span class="p">)</span>
+<span class="n">EVT_N_CREATE</span> <span class="o">=</span> <span class="n">InterventionEvent</span><span class="p">(</span><span class="s2">&quot;EVT_N_CREATE&quot;</span><span class="p">,</span> <span class="s2">&quot;N-CREATE request received&quot;</span><span class="p">)</span>
+<span class="n">EVT_N_DELETE</span> <span class="o">=</span> <span class="n">InterventionEvent</span><span class="p">(</span><span class="s2">&quot;EVT_N_DELETE&quot;</span><span class="p">,</span> <span class="s2">&quot;N-DELETE request received&quot;</span><span class="p">)</span>
+<span class="n">EVT_N_EVENT_REPORT</span> <span class="o">=</span> <span class="n">InterventionEvent</span><span class="p">(</span><span class="s2">&quot;EVT_N_EVENT_REPORT&quot;</span><span class="p">,</span> <span class="s2">&quot;N-EVENT-REPORT request received&quot;</span><span class="p">)</span>
+<span class="n">EVT_N_GET</span> <span class="o">=</span> <span class="n">InterventionEvent</span><span class="p">(</span><span class="s2">&quot;EVT_N_GET&quot;</span><span class="p">,</span> <span class="s2">&quot;N-GET request received&quot;</span><span class="p">)</span>
+<span class="n">EVT_N_SET</span> <span class="o">=</span> <span class="n">InterventionEvent</span><span class="p">(</span><span class="s2">&quot;EVT_N_SET&quot;</span><span class="p">,</span> <span class="s2">&quot;N-SET request received&quot;</span><span class="p">)</span>
+
+
+<span class="n">_INTERVENTION_EVENTS</span> <span class="o">=</span> <span class="p">[</span>
+    <span class="n">ii</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span> <span class="k">for</span> <span class="n">ii</span> <span class="ow">in</span> <span class="n">inspect</span><span class="o">.</span><span class="n">getmembers</span><span class="p">(</span>
+        <span class="n">sys</span><span class="o">.</span><span class="n">modules</span><span class="p">[</span><span class="vm">__name__</span><span class="p">],</span> <span class="k">lambda</span> <span class="n">x</span><span class="p">:</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">x</span><span class="p">,</span> <span class="n">InterventionEvent</span><span class="p">)</span>
+    <span class="p">)</span>
+<span class="p">]</span>
+<span class="n">_NOTIFICATION_EVENTS</span> <span class="o">=</span> <span class="p">[</span>
+    <span class="n">ii</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span> <span class="k">for</span> <span class="n">ii</span> <span class="ow">in</span> <span class="n">inspect</span><span class="o">.</span><span class="n">getmembers</span><span class="p">(</span>
+        <span class="n">sys</span><span class="o">.</span><span class="n">modules</span><span class="p">[</span><span class="vm">__name__</span><span class="p">],</span> <span class="k">lambda</span> <span class="n">x</span><span class="p">:</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">x</span><span class="p">,</span> <span class="n">NotificationEvent</span><span class="p">)</span>
+    <span class="p">)</span>
+<span class="p">]</span>
+
+
+<span class="k">def</span> <span class="nf">get_default_handler</span><span class="p">(</span><span class="n">event</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;Get the default handler for an intervention `event`.&quot;&quot;&quot;</span>
+    <span class="n">handlers</span> <span class="o">=</span> <span class="p">{</span>
+        <span class="n">EVT_ASYNC_OPS</span> <span class="p">:</span> <span class="n">_async_ops_handler</span><span class="p">,</span>
+        <span class="n">EVT_SOP_COMMON</span> <span class="p">:</span> <span class="n">_sop_common_handler</span><span class="p">,</span>
+        <span class="n">EVT_SOP_EXTENDED</span> <span class="p">:</span> <span class="n">_sop_extended_handler</span><span class="p">,</span>
+        <span class="n">EVT_USER_ID</span> <span class="p">:</span> <span class="n">_user_identity_handler</span><span class="p">,</span>
+        <span class="n">EVT_C_ECHO</span> <span class="p">:</span> <span class="n">_c_echo_handler</span><span class="p">,</span>
+        <span class="n">EVT_C_FIND</span> <span class="p">:</span> <span class="n">_c_find_handler</span><span class="p">,</span>
+        <span class="n">EVT_C_GET</span> <span class="p">:</span> <span class="n">_c_get_handler</span><span class="p">,</span>
+        <span class="n">EVT_C_MOVE</span> <span class="p">:</span> <span class="n">_c_move_handler</span><span class="p">,</span>
+        <span class="n">EVT_C_STORE</span> <span class="p">:</span> <span class="n">_c_store_handler</span><span class="p">,</span>
+        <span class="n">EVT_N_ACTION</span> <span class="p">:</span> <span class="n">_n_action_handler</span><span class="p">,</span>
+        <span class="n">EVT_N_CREATE</span> <span class="p">:</span> <span class="n">_n_create_handler</span><span class="p">,</span>
+        <span class="n">EVT_N_DELETE</span> <span class="p">:</span> <span class="n">_n_delete_handler</span><span class="p">,</span>
+        <span class="n">EVT_N_EVENT_REPORT</span> <span class="p">:</span> <span class="n">_n_event_report_handler</span><span class="p">,</span>
+        <span class="n">EVT_N_GET</span> <span class="p">:</span> <span class="n">_n_get_handler</span><span class="p">,</span>
+        <span class="n">EVT_N_SET</span> <span class="p">:</span> <span class="n">_n_set_handler</span><span class="p">,</span>
+    <span class="p">}</span>
+    <span class="k">return</span> <span class="n">handlers</span><span class="p">[</span><span class="n">event</span><span class="p">]</span>
+
+
+<span class="k">def</span> <span class="nf">trigger</span><span class="p">(</span><span class="n">assoc</span><span class="p">,</span> <span class="n">event</span><span class="p">,</span> <span class="n">attrs</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;Trigger an `event` and call any bound handler(s).</span>
+
+<span class="sd">    Notification events can be bound to multiple handlers, intervention events</span>
+<span class="sd">    can only be bound to a single handler.</span>
+
+<span class="sd">    **Intervention Events**</span>
+
+<span class="sd">    * Service class requests: EVT_C_ECHO, EVT_C_FIND, EVT_C_GET, EVT_C_MOVE,</span>
+<span class="sd">      EVT_C_STORE, EVT_N_ACTION, EVT_N_CREATE, EVT_N_DELETE,</span>
+<span class="sd">      EVT_N_EVENT_REPORT, EVT_N_GET, EVT_N_SET</span>
+<span class="sd">    * Association extended negotiation requests: EVT_ASYNC_OPS, EVT_SOP_COMMON,</span>
+<span class="sd">      EVT_SOP_EXTENDED, EVT_USER_ID</span>
+
+<span class="sd">    **Special Attributes**</span>
+
+<span class="sd">    If `attrs` contains:</span>
+
+<span class="sd">    * `_is_cancelled` key then ``Event.is_cancelled`` will be hooked into</span>
+<span class="sd">      the value&#39;s callable function.</span>
+<span class="sd">    * a C-FIND, C-GET or C-MOVE `request` key then ``Event.identifier`` will</span>
+<span class="sd">      return the decoded *Identifier* parameter value.</span>
+<span class="sd">    * a C-STORE `request` key then ``Event.dataset`` will return the decoded</span>
+<span class="sd">      *Data Set* parameter value.</span>
+<span class="sd">    * an N-ACTION `request` key then ``Event.action_information`` will return</span>
+<span class="sd">      the decoded *Action Information* parameter value.</span>
+<span class="sd">    * an N-CREATE `request` key then ``Event.attribute_list`` will return</span>
+<span class="sd">      the decoded *Attribute List* parameter value.</span>
+<span class="sd">    * an N-EVENT-REPORT `request` key then ``Event.event_information`` will</span>
+<span class="sd">      return the decoded *Event Information* parameter value.</span>
+<span class="sd">    * an N-SET `request` key then ``Event.modification_list`` will return</span>
+<span class="sd">      the decoded *Modification List* parameter value.</span>
+
+<span class="sd">    Parameters</span>
+<span class="sd">    ----------</span>
+<span class="sd">    assoc : assoc.Association</span>
+<span class="sd">        The association in which the event occurred.</span>
+<span class="sd">    event : event.NotificationEvent or event.InterventionEvent</span>
+<span class="sd">        The event to trigger.</span>
+<span class="sd">    attrs : dict, optional</span>
+<span class="sd">        The attributes to set in the Event instance that is passed to</span>
+<span class="sd">        the event&#39;s corresponding handler functions as</span>
+<span class="sd">        {attribute name : value}, default {}.</span>
+
+<span class="sd">    Raises</span>
+<span class="sd">    ------</span>
+<span class="sd">    Exception</span>
+<span class="sd">        If an exception occurs in an intervention event handler then the</span>
+<span class="sd">        exception will be raised. If an exception occurs in a notification</span>
+<span class="sd">        handler then the exception will be caught and logged instead.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="c1"># Get the handler(s) bound to the event</span>
+    <span class="c1">#   notification events: returns a list of callable</span>
+    <span class="c1">#   intervention events: returns a callable or None</span>
+    <span class="n">handlers</span> <span class="o">=</span> <span class="n">assoc</span><span class="o">.</span><span class="n">get_handlers</span><span class="p">(</span><span class="n">event</span><span class="p">)</span>
+    <span class="k">if</span> <span class="ow">not</span> <span class="n">handlers</span><span class="p">:</span>
+        <span class="k">return</span>
+
+    <span class="n">evt</span> <span class="o">=</span> <span class="n">Event</span><span class="p">(</span><span class="n">assoc</span><span class="p">,</span> <span class="n">event</span><span class="p">,</span> <span class="n">attrs</span> <span class="ow">or</span> <span class="p">{})</span>
+
+    <span class="k">try</span><span class="p">:</span>
+        <span class="c1"># Intervention event - only single handler allowed</span>
+        <span class="k">if</span> <span class="n">event</span><span class="o">.</span><span class="n">is_intervention</span><span class="p">:</span>
+            <span class="k">return</span> <span class="n">handlers</span><span class="p">(</span><span class="n">evt</span><span class="p">)</span>
+
+        <span class="c1"># Notification event - multiple handlers are allowed</span>
+        <span class="k">for</span> <span class="n">func</span> <span class="ow">in</span> <span class="n">handlers</span><span class="p">:</span>
+            <span class="n">func</span><span class="p">(</span><span class="n">evt</span><span class="p">)</span>
+    <span class="k">except</span> <span class="ne">Exception</span> <span class="k">as</span> <span class="n">exc</span><span class="p">:</span>
+        <span class="c1"># Intervention exceptions get raised</span>
+        <span class="k">if</span> <span class="n">event</span><span class="o">.</span><span class="n">is_intervention</span><span class="p">:</span>
+            <span class="k">raise</span>
+
+        <span class="c1"># Capture exceptions for notification events</span>
+        <span class="n">LOGGER</span><span class="o">.</span><span class="n">error</span><span class="p">(</span>
+            <span class="s2">&quot;Exception raised in user&#39;s &#39;evt.</span><span class="si">{}</span><span class="s2">&#39; event handler &#39;</span><span class="si">{}</span><span class="s2">&#39;&quot;</span>
+            <span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">event</span><span class="o">.</span><span class="n">name</span><span class="p">,</span> <span class="n">func</span><span class="o">.</span><span class="vm">__name__</span><span class="p">)</span>
+        <span class="p">)</span>
+        <span class="n">LOGGER</span><span class="o">.</span><span class="n">exception</span><span class="p">(</span><span class="n">exc</span><span class="p">)</span>
+
+
+<div class="viewcode-block" id="Event"><a class="viewcode-back" href="../../reference/generated/pynetdicom.events.Event.html#pynetdicom.events.Event">[docs]</a><span class="k">class</span> <span class="nc">Event</span><span class="p">(</span><span class="nb">object</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;Representation of an event.</span>
+
+<span class="sd">    Attributes</span>
+<span class="sd">    ----------</span>
+<span class="sd">    assoc : association.Association</span>
+<span class="sd">        The association in which the event occurred.</span>
+<span class="sd">    timestamp : datetime.datetime</span>
+<span class="sd">        The date/time the event was created. Will be slightly before or after</span>
+<span class="sd">        the actual event that this object represents.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+<div class="viewcode-block" id="Event.__init__"><a class="viewcode-back" href="../../reference/generated/pynetdicom.events.Event.html#pynetdicom.events.Event.__init__">[docs]</a>    <span class="k">def</span> <span class="nf">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">assoc</span><span class="p">,</span> <span class="n">event</span><span class="p">,</span> <span class="n">attrs</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;Create a new Event.</span>
+
+<span class="sd">        Parameters</span>
+<span class="sd">        ----------</span>
+<span class="sd">        assoc : association.Association</span>
+<span class="sd">            The association in which the event occurred.</span>
+<span class="sd">        event : events.NotificationEvent or events.InterventionEvent</span>
+<span class="sd">            The representation of the event that occurred.</span>
+<span class="sd">        attrs : dict, optional</span>
+<span class="sd">            The {attribute : value} pairs to use to set the Event&#39;s attributes.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">assoc</span> <span class="o">=</span> <span class="n">assoc</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_event</span> <span class="o">=</span> <span class="n">event</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">timestamp</span> <span class="o">=</span> <span class="n">datetime</span><span class="o">.</span><span class="n">now</span><span class="p">()</span>
+
+        <span class="c1"># Only decode a dataset when necessary</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_hash</span> <span class="o">=</span> <span class="kc">None</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_decoded</span> <span class="o">=</span> <span class="kc">None</span>
+
+        <span class="n">attrs</span> <span class="o">=</span> <span class="n">attrs</span> <span class="ow">or</span> <span class="p">{}</span>
+        <span class="k">for</span> <span class="n">kk</span><span class="p">,</span> <span class="n">vv</span> <span class="ow">in</span> <span class="n">attrs</span><span class="o">.</span><span class="n">items</span><span class="p">():</span>
+            <span class="k">if</span> <span class="nb">hasattr</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">kk</span><span class="p">):</span>
+                <span class="k">raise</span> <span class="ne">AttributeError</span><span class="p">(</span>
+                    <span class="s2">&quot;&#39;Event&#39; object already has an attribute &#39;</span><span class="si">{}</span><span class="s2">&#39;&quot;</span>
+                    <span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">kk</span><span class="p">)</span>
+                <span class="p">)</span>
+            <span class="nb">setattr</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">kk</span><span class="p">,</span> <span class="n">vv</span><span class="p">)</span></div>
+
+    <span class="nd">@property</span>
+    <span class="k">def</span> <span class="nf">action_information</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;Return an N-ACTION request&#39;s `Action Information` as a *pydicom*</span>
+<span class="sd">        Dataset.</span>
+
+<span class="sd">        Because *pydicom* defers data parsing during decoding until an element</span>
+<span class="sd">        is actually required the returned ``Dataset`` may raise an exception</span>
+<span class="sd">        when any element is first accessed. It&#39;s therefore important that</span>
+<span class="sd">        proper error handling be part of any handler</span>
+<span class="sd">        that uses the returned ``Dataset``.</span>
+
+<span class="sd">        Returns</span>
+<span class="sd">        -------</span>
+<span class="sd">        pydicom.dataset.Dataset</span>
+<span class="sd">            The decoded *Action Information* dataset.</span>
+
+<span class="sd">        Raises</span>
+<span class="sd">        ------</span>
+<span class="sd">        AttributeError</span>
+<span class="sd">            If the corresponding event is not an N-ACTION request.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">msg</span> <span class="o">=</span> <span class="p">(</span>
+            <span class="s2">&quot;The corresponding event is not an N-ACTION request and has no &quot;</span>
+            <span class="s2">&quot;&#39;Action Information&#39; parameter&quot;</span>
+        <span class="p">)</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_get_dataset</span><span class="p">(</span><span class="s2">&quot;ActionInformation&quot;</span><span class="p">,</span> <span class="n">msg</span><span class="p">)</span>
+
+    <span class="nd">@property</span>
+    <span class="k">def</span> <span class="nf">attribute_identifiers</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;Return an N-GET request&#39;s `Attribute Identifier List` as a list of</span>
+<span class="sd">        *pydicom* Tags.</span>
+
+<span class="sd">        Returns</span>
+<span class="sd">        -------</span>
+<span class="sd">        list of pydicom.tag.Tag</span>
+<span class="sd">            The *Attribute Identifier List* tags, may be an empty list if no</span>
+<span class="sd">            *Attribute Identifier List* was included in the C-GET request.</span>
+
+<span class="sd">        Raises</span>
+<span class="sd">        ------</span>
+<span class="sd">        AttributeError</span>
+<span class="sd">            If the corresponding event is not an N-GET request.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">try</span><span class="p">:</span>
+            <span class="n">attr_list</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">request</span><span class="o">.</span><span class="n">AttributeIdentifierList</span>
+            <span class="k">if</span> <span class="n">attr_list</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+                <span class="k">return</span> <span class="p">[]</span>
+
+            <span class="k">return</span> <span class="n">attr_list</span>
+        <span class="k">except</span> <span class="ne">AttributeError</span><span class="p">:</span>
+            <span class="k">pass</span>
+
+        <span class="k">raise</span> <span class="ne">AttributeError</span><span class="p">(</span>
+            <span class="s2">&quot;The corresponding event is not an N-GET request and has no &quot;</span>
+            <span class="s2">&quot;&#39;Attribute Identifier List&#39; parameter&quot;</span>
+        <span class="p">)</span>
+
+    <span class="nd">@property</span>
+    <span class="k">def</span> <span class="nf">attribute_list</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;Return an N-CREATE request&#39;s `Attribute List` as a *pydicom*</span>
+<span class="sd">        Dataset.</span>
+
+<span class="sd">        Because *pydicom* defers data parsing during decoding until an element</span>
+<span class="sd">        is actually required the returned ``Dataset`` may raise an exception</span>
+<span class="sd">        when any element is first accessed. It&#39;s therefore important that</span>
+<span class="sd">        proper error handling be part of any handler</span>
+<span class="sd">        that uses the returned ``Dataset``.</span>
+
+<span class="sd">        Returns</span>
+<span class="sd">        -------</span>
+<span class="sd">        pydicom.dataset.Dataset</span>
+<span class="sd">            The decoded *Attribute List* dataset.</span>
+
+<span class="sd">        Raises</span>
+<span class="sd">        ------</span>
+<span class="sd">        AttributeError</span>
+<span class="sd">            If the corresponding event is not an N-CREATE request.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">msg</span> <span class="o">=</span> <span class="p">(</span>
+            <span class="s2">&quot;The corresponding event is not an N-CREATE request and has no &quot;</span>
+            <span class="s2">&quot;&#39;Attribute List&#39; parameter&quot;</span>
+        <span class="p">)</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_get_dataset</span><span class="p">(</span><span class="s2">&quot;AttributeList&quot;</span><span class="p">,</span> <span class="n">msg</span><span class="p">)</span>
+
+    <span class="nd">@property</span>
+    <span class="k">def</span> <span class="nf">dataset</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;Return a C-STORE request&#39;s `Data Set` as a *pydicom* Dataset.</span>
+
+<span class="sd">        Because *pydicom* defers data parsing during decoding until an element</span>
+<span class="sd">        is actually required the returned ``Dataset`` may raise an exception</span>
+<span class="sd">        when any element is first accessed. It&#39;s therefore important that</span>
+<span class="sd">        proper error handling be part of any handler</span>
+<span class="sd">        that uses the returned ``Dataset``.</span>
+
+<span class="sd">        Returns</span>
+<span class="sd">        -------</span>
+<span class="sd">        pydicom.dataset.Dataset</span>
+<span class="sd">            The decoded *Data Set* dataset.</span>
+
+<span class="sd">        Raises</span>
+<span class="sd">        ------</span>
+<span class="sd">        AttributeError</span>
+<span class="sd">            If the corresponding event is not a C-STORE request.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">msg</span> <span class="o">=</span> <span class="p">(</span>
+            <span class="s2">&quot;The corresponding event is not a C-STORE request and has no &quot;</span>
+            <span class="s2">&quot;&#39;Data Set&#39; parameter&quot;</span>
+        <span class="p">)</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_get_dataset</span><span class="p">(</span><span class="s2">&quot;DataSet&quot;</span><span class="p">,</span> <span class="n">msg</span><span class="p">)</span>
+
+    <span class="nd">@property</span>
+    <span class="k">def</span> <span class="nf">description</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;Return a description of the event as a str.&quot;&quot;&quot;</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_event</span><span class="o">.</span><span class="n">description</span>
+
+    <span class="nd">@property</span>
+    <span class="k">def</span> <span class="nf">event_information</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;Return an N-EVENT-REPORT request&#39;s `Event Information` as a</span>
+<span class="sd">        *pydicom* Dataset.</span>
+
+<span class="sd">        Because *pydicom* defers data parsing during decoding until an element</span>
+<span class="sd">        is actually required the returned ``Dataset`` may raise an exception</span>
+<span class="sd">        when any element is first accessed. It&#39;s therefore important that</span>
+<span class="sd">        proper error handling be part of any handler</span>
+<span class="sd">        that uses the returned ``Dataset``.</span>
+
+<span class="sd">        Returns</span>
+<span class="sd">        -------</span>
+<span class="sd">        pydicom.dataset.Dataset</span>
+<span class="sd">            The decoded *Event Information* dataset.</span>
+
+<span class="sd">        Raises</span>
+<span class="sd">        ------</span>
+<span class="sd">        AttributeError</span>
+<span class="sd">            If the corresponding event is not an N-EVENT-REPORT request.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">msg</span> <span class="o">=</span> <span class="p">(</span>
+            <span class="s2">&quot;The corresponding event is not an N-EVENT-REPORT request and has &quot;</span>
+            <span class="s2">&quot;no &#39;Event Information&#39; parameter&quot;</span>
+        <span class="p">)</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_get_dataset</span><span class="p">(</span><span class="s2">&quot;EventInformation&quot;</span><span class="p">,</span> <span class="n">msg</span><span class="p">)</span>
+
+    <span class="nd">@property</span>
+    <span class="k">def</span> <span class="nf">file_meta</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;Return a *pydicom* Dataset with the File Meta Information for a</span>
+<span class="sd">        C-STORE request&#39;s `Data Set`.</span>
+
+<span class="sd">        Contains the following File Meta Information elements:</span>
+
+<span class="sd">        * (0002,0002) *Media Storage SOP Class UID*</span>
+<span class="sd">        * (0002,0003) *Media Storage SOP Instance UID*</span>
+<span class="sd">        * (0002,0010) *Transfer Syntax UID*</span>
+<span class="sd">        * (0002,0012) *Implementation Class UID*</span>
+<span class="sd">        * (0002,0013) *Implementation Version Name*</span>
+
+<span class="sd">        Examples</span>
+<span class="sd">        --------</span>
+
+<span class="sd">        Add the File Meta Information to the decoded *Data Set* and save it to</span>
+<span class="sd">        the DICOM File Format.</span>
+
+<span class="sd">        &gt;&gt;&gt; ds = event.dataset</span>
+<span class="sd">        &gt;&gt;&gt; ds.file_meta = event.file_meta</span>
+<span class="sd">        &gt;&gt;&gt; ds.save_as(&#39;example.dcm&#39;)</span>
+
+<span class="sd">        Returns</span>
+<span class="sd">        -------</span>
+<span class="sd">        pydicom.dataset.Dataset</span>
+<span class="sd">            The File Meta Information suitable for use with the decoded C-STORE</span>
+<span class="sd">            request&#39;s *Data Set*.</span>
+
+<span class="sd">        Raises</span>
+<span class="sd">        ------</span>
+<span class="sd">        AttributeError</span>
+<span class="sd">            If the corresponding event is not a C-STORE request.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">if</span> <span class="ow">not</span> <span class="nb">hasattr</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">request</span><span class="p">,</span> <span class="s1">&#39;DataSet&#39;</span><span class="p">):</span>
+            <span class="k">raise</span> <span class="ne">AttributeError</span><span class="p">(</span>
+                <span class="s2">&quot;The corresponding event is not a C-STORE request&quot;</span>
+            <span class="p">)</span>
+
+        <span class="kn">from</span> <span class="nn">pynetdicom</span> <span class="k">import</span> <span class="n">PYNETDICOM_IMPLEMENTATION_UID</span>
+        <span class="kn">from</span> <span class="nn">pynetdicom</span> <span class="k">import</span> <span class="n">PYNETDICOM_IMPLEMENTATION_VERSION</span>
+
+        <span class="c1"># A C-STORE request must have AffectedSOPClassUID and</span>
+        <span class="c1">#   AffectedSOPInstanceUID</span>
+        <span class="n">meta</span> <span class="o">=</span> <span class="n">Dataset</span><span class="p">()</span>
+        <span class="n">meta</span><span class="o">.</span><span class="n">MediaStorageSOPClassUID</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">request</span><span class="o">.</span><span class="n">AffectedSOPClassUID</span>
+        <span class="n">meta</span><span class="o">.</span><span class="n">MediaStorageSOPInstanceUID</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">request</span><span class="o">.</span><span class="n">AffectedSOPInstanceUID</span>
+        <span class="n">meta</span><span class="o">.</span><span class="n">TransferSyntaxUID</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">context</span><span class="o">.</span><span class="n">transfer_syntax</span>
+        <span class="n">meta</span><span class="o">.</span><span class="n">ImplementationClassUID</span> <span class="o">=</span> <span class="n">PYNETDICOM_IMPLEMENTATION_UID</span>
+        <span class="n">meta</span><span class="o">.</span><span class="n">ImplementationVersionName</span> <span class="o">=</span> <span class="n">PYNETDICOM_IMPLEMENTATION_VERSION</span>
+
+        <span class="c1"># File Meta Information is always encoded as Explicit VR Little Endian</span>
+        <span class="n">meta</span><span class="o">.</span><span class="n">is_little_endian</span> <span class="o">=</span> <span class="kc">True</span>
+        <span class="n">meta</span><span class="o">.</span><span class="n">is_implicit_VR</span> <span class="o">=</span> <span class="kc">False</span>
+
+        <span class="k">return</span> <span class="n">meta</span>
+
+    <span class="k">def</span> <span class="nf">_get_dataset</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">attr</span><span class="p">,</span> <span class="n">exc_msg</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;Return DIMSE dataset-like parameter as a *pydicom* Dataset.</span>
+
+<span class="sd">        Parameters</span>
+<span class="sd">        ----------</span>
+<span class="sd">        attr : str</span>
+<span class="sd">            The name of the DIMSE primitive&#39;s dataset-like parameter, one of</span>
+<span class="sd">            &#39;DataSet&#39;, &#39;Identifier&#39;, &#39;AttributeList&#39;, &#39;ModificationList&#39;,</span>
+<span class="sd">            &#39;EventInformation&#39;, &#39;ActionInformation&#39;.</span>
+<span class="sd">        exc_msg : str</span>
+<span class="sd">            The exception message to use if the request primitive has no</span>
+<span class="sd">            dataset-like parameter.</span>
+
+<span class="sd">        Returns</span>
+<span class="sd">        -------</span>
+<span class="sd">        pydicom.dataset.Dataset</span>
+<span class="sd">            The decoded dataset-like parameter.</span>
+
+<span class="sd">        Raises</span>
+<span class="sd">        ------</span>
+<span class="sd">        AttributeError</span>
+<span class="sd">            If the corresponding event is not due to one of the DIMSE requests</span>
+<span class="sd">            with a dataset-like parameter.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">try</span><span class="p">:</span>
+            <span class="n">bytestream</span> <span class="o">=</span> <span class="nb">getattr</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">request</span><span class="p">,</span> <span class="n">attr</span><span class="p">)</span>
+            <span class="c1"># If no change in encoded data then return stored decode</span>
+            <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">_hash</span> <span class="o">==</span> <span class="nb">hash</span><span class="p">(</span><span class="n">bytestream</span><span class="p">):</span>
+                <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_decoded</span>
+
+            <span class="c1"># Some dataset-like parameters are optional</span>
+            <span class="k">if</span> <span class="n">bytestream</span> <span class="ow">and</span> <span class="n">bytestream</span><span class="o">.</span><span class="n">getvalue</span><span class="p">()</span> <span class="o">!=</span> <span class="sa">b</span><span class="s1">&#39;&#39;</span><span class="p">:</span>
+                <span class="c1"># Dataset-like parameter has been used</span>
+                <span class="n">t_syntax</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">context</span><span class="o">.</span><span class="n">transfer_syntax</span>
+                <span class="n">ds</span> <span class="o">=</span> <span class="n">decode</span><span class="p">(</span><span class="n">bytestream</span><span class="p">,</span>
+                            <span class="n">t_syntax</span><span class="o">.</span><span class="n">is_implicit_VR</span><span class="p">,</span>
+                            <span class="n">t_syntax</span><span class="o">.</span><span class="n">is_little_endian</span><span class="p">)</span>
+
+                <span class="n">ds</span><span class="o">.</span><span class="n">is_little_endian</span> <span class="o">=</span> <span class="n">t_syntax</span><span class="o">.</span><span class="n">is_little_endian</span>
+                <span class="n">ds</span><span class="o">.</span><span class="n">is_implicit_VR</span> <span class="o">=</span> <span class="n">t_syntax</span><span class="o">.</span><span class="n">is_implicit_VR</span>
+
+                <span class="c1"># Store the decoded dataset in case its accessed again</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">_decoded</span> <span class="o">=</span> <span class="n">ds</span>
+            <span class="k">else</span><span class="p">:</span>
+                <span class="c1"># Dataset-like parameter hasn&#39;t been used</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">_decoded</span> <span class="o">=</span> <span class="n">Dataset</span><span class="p">()</span>
+
+            <span class="bp">self</span><span class="o">.</span><span class="n">_hash</span> <span class="o">=</span> <span class="nb">hash</span><span class="p">(</span><span class="n">bytestream</span><span class="p">)</span>
+            <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_decoded</span>
+
+        <span class="k">except</span> <span class="ne">AttributeError</span><span class="p">:</span>
+            <span class="k">pass</span>
+
+        <span class="k">raise</span> <span class="ne">AttributeError</span><span class="p">(</span><span class="n">exc_msg</span><span class="p">)</span>
+
+    <span class="nd">@property</span>
+    <span class="k">def</span> <span class="nf">identifier</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;Return a C-FIND, C-GET or C-MOVE request&#39;s `Identifier` as a</span>
+<span class="sd">        *pydicom* Dataset.</span>
+
+<span class="sd">        Because *pydicom* defers data parsing during decoding until an element</span>
+<span class="sd">        is actually required the returned ``Dataset`` may raise an exception</span>
+<span class="sd">        when any element is first accessed. It&#39;s therefore important that</span>
+<span class="sd">        proper error handling be part of any handler that</span>
+<span class="sd">        uses the returned ``Dataset``.</span>
+
+<span class="sd">        Returns</span>
+<span class="sd">        -------</span>
+<span class="sd">        pydicom.dataset.Dataset</span>
+<span class="sd">            The decoded *Identifier* dataset.</span>
+
+<span class="sd">        Raises</span>
+<span class="sd">        ------</span>
+<span class="sd">        AttributeError</span>
+<span class="sd">            If the corresponding event is not a C-FIND, C-GET or C-MOVE</span>
+<span class="sd">            request.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">msg</span> <span class="o">=</span> <span class="p">(</span>
+            <span class="s2">&quot;The corresponding event is not a C-FIND, C-GET or C-MOVE request &quot;</span>
+            <span class="s2">&quot;and has no &#39;Identifier&#39; parameter&quot;</span>
+        <span class="p">)</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_get_dataset</span><span class="p">(</span><span class="s2">&quot;Identifier&quot;</span><span class="p">,</span> <span class="n">msg</span><span class="p">)</span>
+
+    <span class="nd">@property</span>
+    <span class="k">def</span> <span class="nf">is_cancelled</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;Return True if a C-CANCEL request has been received.</span>
+
+<span class="sd">        Returns</span>
+<span class="sd">        -------</span>
+<span class="sd">        bool</span>
+<span class="sd">            If this event corresponds to a C-FIND, C-GET or C-MOVE request</span>
+<span class="sd">            being received by a Service Class then returns True if a C-CANCEL</span>
+<span class="sd">            request with a *Message ID Being Responded To* parameter value</span>
+<span class="sd">            corresponding to the *Message ID* of the service request has been</span>
+<span class="sd">            received. If no such C-CANCEL request has been received or if</span>
+<span class="sd">            the event is not a C-FIND, C-GET or C-MOVE request then returns</span>
+<span class="sd">            False.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">try</span><span class="p">:</span>
+            <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_is_cancelled</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">request</span><span class="o">.</span><span class="n">MessageID</span><span class="p">)</span>
+        <span class="k">except</span> <span class="ne">AttributeError</span><span class="p">:</span>
+            <span class="k">pass</span>
+
+        <span class="k">return</span> <span class="kc">False</span>
+
+    <span class="nd">@property</span>
+    <span class="k">def</span> <span class="nf">modification_list</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;Return an N-SET request&#39;s `Modification List` as a *pydicom*</span>
+<span class="sd">        Dataset.</span>
+
+<span class="sd">        Because *pydicom* defers data parsing during decoding until an element</span>
+<span class="sd">        is actually required the returned ``Dataset`` may raise an exception</span>
+<span class="sd">        when any element is first accessed. It&#39;s therefore important that</span>
+<span class="sd">        proper error handling be part of any handler</span>
+<span class="sd">        that uses the returned ``Dataset``.</span>
+
+<span class="sd">        Returns</span>
+<span class="sd">        -------</span>
+<span class="sd">        pydicom.dataset.Dataset</span>
+<span class="sd">            The decoded *Modification List* dataset.</span>
+
+<span class="sd">        Raises</span>
+<span class="sd">        ------</span>
+<span class="sd">        AttributeError</span>
+<span class="sd">            If the corresponding event is not an N-SET request.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">msg</span> <span class="o">=</span> <span class="p">(</span>
+            <span class="s2">&quot;The corresponding event is not an N-SET request and has no &quot;</span>
+            <span class="s2">&quot;&#39;Modification List&#39; parameter&quot;</span>
+        <span class="p">)</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_get_dataset</span><span class="p">(</span><span class="s2">&quot;ModificationList&quot;</span><span class="p">,</span> <span class="n">msg</span><span class="p">)</span>
+
+    <span class="nd">@property</span>
+    <span class="k">def</span> <span class="nf">name</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;Return the name of the event as a str.&quot;&quot;&quot;</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_event</span><span class="o">.</span><span class="n">name</span></div>
+
+
+<span class="c1"># Default extended negotiation event handlers</span>
+<span class="k">def</span> <span class="nf">_async_ops_handler</span><span class="p">(</span><span class="n">event</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;Default handler for when an Asynchronous Operations Window Negotiation</span>
+<span class="sd">    item is include in the association request.</span>
+
+<span class="sd">    See _handlers.doc_handle_async for detailed documentation.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="k">raise</span> <span class="ne">NotImplementedError</span><span class="p">(</span>
+        <span class="s2">&quot;No handler has been bound to &#39;evt.EVT_ASYNC_OPS&#39;, so no &quot;</span>
+        <span class="s2">&quot;Asynchronous Operations Window Negotiation response will be &quot;</span>
+        <span class="s2">&quot;sent&quot;</span>
+    <span class="p">)</span>
+
+<span class="k">def</span> <span class="nf">_sop_common_handler</span><span class="p">(</span><span class="n">event</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;Default handler for when one or more SOP Class Common Extended</span>
+<span class="sd">    Negotiation items are included in the association request.</span>
+
+<span class="sd">    See _handlers.doc_handle_sop_common for detailed documentation.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="k">return</span> <span class="p">{}</span>
+
+<span class="k">def</span> <span class="nf">_sop_extended_handler</span><span class="p">(</span><span class="n">event</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;Default handler for when one or more SOP Class Extended Negotiation</span>
+<span class="sd">    items are included in the association request.</span>
+
+<span class="sd">    See _handlers.doc_handler_sop_extended for detailed documentation.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="k">return</span> <span class="p">{}</span>
+
+<span class="k">def</span> <span class="nf">_user_identity_handler</span><span class="p">(</span><span class="n">event</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;Default hander for when a user identity negotiation item is included</span>
+<span class="sd">    with the association request.</span>
+
+<span class="sd">    See _handlers.doc_handler_userid for detailed documentation.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="k">raise</span> <span class="ne">NotImplementedError</span><span class="p">(</span>
+        <span class="s2">&quot;No handler has been bound to &#39;evt.EVT_USER_ID&#39;, so the User Identity &quot;</span>
+        <span class="s2">&quot;Negotiation will be ignored and the association accepted (unless &quot;</span>
+        <span class="s2">&quot;rejected for another reason)&quot;</span>
+    <span class="p">)</span>
+
+<span class="c1"># Default service class request handlers</span>
+<span class="k">def</span> <span class="nf">_c_echo_handler</span><span class="p">(</span><span class="n">event</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;Default handler for when a C-ECHO request is received.</span>
+
+<span class="sd">    See _handlers.doc_handle_echo for detailed documentation.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="k">return</span> <span class="mh">0x0000</span>
+
+<span class="k">def</span> <span class="nf">_c_find_handler</span><span class="p">(</span><span class="n">event</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;Default handler for when a C-FIND request is received.</span>
+
+<span class="sd">    See _handlers.doc_handle_find for detailed documentation.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="k">raise</span> <span class="ne">NotImplementedError</span><span class="p">(</span><span class="s2">&quot;No handler has been bound to &#39;evt.EVT_C_FIND&#39;&quot;</span><span class="p">)</span>
+
+<span class="k">def</span> <span class="nf">_c_get_handler</span><span class="p">(</span><span class="n">event</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;Default handler for when a C-GET request is received.</span>
+
+<span class="sd">    See _handlers.doc_handle_c_get for detailed documentation.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="k">raise</span> <span class="ne">NotImplementedError</span><span class="p">(</span><span class="s2">&quot;No handler has been bound to &#39;evt.EVT_C_GET&#39;&quot;</span><span class="p">)</span>
+
+<span class="k">def</span> <span class="nf">_c_move_handler</span><span class="p">(</span><span class="n">event</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;Default handler for when a C-MOVE request is received.</span>
+
+<span class="sd">    See _handlers.doc_handle_move for detailed documentation.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="k">raise</span> <span class="ne">NotImplementedError</span><span class="p">(</span><span class="s2">&quot;No handler has been bound to &#39;evt.EVT_C_MOVE&#39;&quot;</span><span class="p">)</span>
+
+<span class="k">def</span> <span class="nf">_c_store_handler</span><span class="p">(</span><span class="n">event</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;Default handler for when a C-STORE request is received.</span>
+
+<span class="sd">    See _handlers.doc_handle_store for detailed documentation.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="k">raise</span> <span class="ne">NotImplementedError</span><span class="p">(</span><span class="s2">&quot;No handler has been bound to &#39;evt.EVT_C_STORE&#39;&quot;</span><span class="p">)</span>
+
+<span class="k">def</span> <span class="nf">_n_action_handler</span><span class="p">(</span><span class="n">event</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;Default handler for when an N-ACTION request is received.</span>
+
+<span class="sd">    See _handlers.doc_handle_action for detailed documentation.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="k">raise</span> <span class="ne">NotImplementedError</span><span class="p">(</span>
+        <span class="s2">&quot;No handler has been bound to &#39;evt.EVT_N_ACTION&#39;&quot;</span>
+    <span class="p">)</span>
+
+<span class="k">def</span> <span class="nf">_n_create_handler</span><span class="p">(</span><span class="n">event</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;Default handler for when an N-CREATE request is received.</span>
+
+<span class="sd">    See _handlers.doc_handle_create for detailed documentation.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="k">raise</span> <span class="ne">NotImplementedError</span><span class="p">(</span>
+        <span class="s2">&quot;No handler has been bound to &#39;evt.EVT_N_CREATE&#39;&quot;</span>
+    <span class="p">)</span>
+
+<span class="k">def</span> <span class="nf">_n_delete_handler</span><span class="p">(</span><span class="n">event</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;Default handler for when an N-DELETE request is received.</span>
+
+<span class="sd">    See _handlers.doc_handle_delete for detailed documentation.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="k">raise</span> <span class="ne">NotImplementedError</span><span class="p">(</span>
+        <span class="s2">&quot;No handler has been bound to &#39;evt.EVT_N_DELETE&#39;&quot;</span>
+    <span class="p">)</span>
+
+<span class="k">def</span> <span class="nf">_n_event_report_handler</span><span class="p">(</span><span class="n">event</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;Default handler for when an N-EVENT-REPORT request is received.</span>
+
+<span class="sd">    See _handlers.doc_handle_event_report for detailed documentation.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="k">raise</span> <span class="ne">NotImplementedError</span><span class="p">(</span>
+        <span class="s2">&quot;No handler has been bound to &#39;evt.EVT_N_EVENT_REPORT&#39;&quot;</span>
+    <span class="p">)</span>
+
+<span class="k">def</span> <span class="nf">_n_get_handler</span><span class="p">(</span><span class="n">event</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;Default handler for when an N-GET request is received.</span>
+
+<span class="sd">    See _handlers.doc_handle_n_get for detailed documentation.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="k">raise</span> <span class="ne">NotImplementedError</span><span class="p">(</span><span class="s2">&quot;No handler has been bound to &#39;evt.EVT_N_GET&#39;&quot;</span><span class="p">)</span>
+
+<span class="k">def</span> <span class="nf">_n_set_handler</span><span class="p">(</span><span class="n">event</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;Default handler for when an N-SET request is received.</span>
+
+<span class="sd">    See _handlers.doc_handle_set for detailed documentation.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="k">raise</span> <span class="ne">NotImplementedError</span><span class="p">(</span><span class="s2">&quot;No handler has been bound to &#39;evt.EVT_N_SET&#39;&quot;</span><span class="p">)</span>
+</pre></div>
+
+           </div>
+           
+          </div>
+          <footer>
+  
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>
+        &copy; Copyright 2018-19, pynetdicom contributors
+
+    </p>
+  </div>
+  Built with <a href="http://sphinx-doc.org/">Sphinx</a> using a <a href="https://github.com/rtfd/sphinx_rtd_theme">theme</a> provided by <a href="https://readthedocs.org">Read the Docs</a>. 
+
+</footer>
+
+        </div>
+      </div>
+
+    </section>
+
+  </div>
+  
+
+
+  <script type="text/javascript">
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script>
+
+  
+  
+    
+   
+
+</body>
+</html>

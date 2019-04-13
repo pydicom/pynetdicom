@@ -8,7 +8,7 @@
   
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   
-  <title>Association &mdash; pynetdicom 1.2.0 documentation</title>
+  <title>Association &mdash; pynetdicom 1.3.0 documentation</title>
   
 
   
@@ -38,7 +38,7 @@
   <link rel="stylesheet" href="../_static/css/pynetdicom.css" type="text/css" />
     <link rel="index" title="Index" href="../genindex.html" />
     <link rel="search" title="Search" href="../search.html" />
-    <link rel="next" title="1.2.0" href="../release_notes.html" />
+    <link rel="next" title="1.3.0" href="../release_notes.html" />
     <link rel="prev" title="Application Entity" href="ae.html" /> 
 </head>
 
@@ -66,7 +66,7 @@
             
             
               <div class="version">
-                1.2.0
+                1.3.0
               </div>
             
           
@@ -103,18 +103,21 @@
 <li class="toctree-l1"><a class="reference internal" href="../hanging_protocol_service_class.html">Hanging Protocol Query/Retrieve Service Class</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../implant_template_service_class.html">Implant Template Query/Retrieve Service Class</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../display_system_service_class.html">Display System Management Service Class</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../modality_performed_procedure_step.html">Modality Performed Procedure Step Management</a></li>
 </ul>
 <ul class="current">
 <li class="toctree-l1 current"><a class="reference internal" href="index.html">User Guide</a><ul class="current">
 <li class="toctree-l2"><a class="reference internal" href="installation.html">Installation</a></li>
 <li class="toctree-l2"><a class="reference internal" href="concepts.html">Important Concepts</a></li>
 <li class="toctree-l2"><a class="reference internal" href="presentation.html">Presentation Contexts</a></li>
+<li class="toctree-l2"><a class="reference internal" href="events.html">Events</a></li>
 <li class="toctree-l2"><a class="reference internal" href="ae.html">Application Entity</a></li>
 <li class="toctree-l2 current"><a class="current reference internal" href="#">Association</a><ul>
 <li class="toctree-l3"><a class="reference internal" href="#requesting-an-association-scu">Requesting an Association (SCU)</a><ul>
 <li class="toctree-l4"><a class="reference internal" href="#specifying-the-called-ae-title">Specifying the Called AE Title</a></li>
 <li class="toctree-l4"><a class="reference internal" href="#specifying-presentation-contexts-for-each-association">Specifying Presentation Contexts for each Association</a></li>
 <li class="toctree-l4"><a class="reference internal" href="#using-extended-negotiation">Using Extended Negotiation</a></li>
+<li class="toctree-l4"><a class="reference internal" href="#binding-event-handlers">Binding Event Handlers</a></li>
 <li class="toctree-l4"><a class="reference internal" href="#tls">TLS</a></li>
 <li class="toctree-l4"><a class="reference internal" href="#outcomes-of-an-association-request">Outcomes of an Association Request</a></li>
 </ul>
@@ -125,7 +128,8 @@
 </li>
 <li class="toctree-l3"><a class="reference internal" href="#accessing-user-identity-responses">Accessing User Identity Responses</a></li>
 <li class="toctree-l3"><a class="reference internal" href="#listening-for-association-requests-scp">Listening for Association Requests (SCP)</a><ul>
-<li class="toctree-l4"><a class="reference internal" href="#id2">TLS</a></li>
+<li class="toctree-l4"><a class="reference internal" href="#id2">Binding Event Handlers</a></li>
+<li class="toctree-l4"><a class="reference internal" href="#id3">TLS</a></li>
 </ul>
 </li>
 <li class="toctree-l3"><a class="reference internal" href="#providing-dimse-services-scp">Providing DIMSE Services (SCP)</a></li>
@@ -135,7 +139,8 @@
 </li>
 </ul>
 <ul>
-<li class="toctree-l1"><a class="reference internal" href="../release_notes.html">1.2.0</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../release_notes.html">1.3.0</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../release_notes.html#v1-2-0">1.2.0</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../release_notes.html#v1-1-0">1.1.0</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../release_notes.html#v1-0-0">1.0.0</a></li>
 </ul>
@@ -222,18 +227,26 @@ thread:</p>
 
 <span class="c1"># Associate with the peer at IP address 127.0.0.1 and port 11112</span>
 <span class="n">assoc</span> <span class="o">=</span> <span class="n">ae</span><span class="o">.</span><span class="n">associate</span><span class="p">(</span><span class="s1">&#39;127.0.0.1&#39;</span><span class="p">,</span> <span class="mi">11112</span><span class="p">)</span>
+
+<span class="c1"># Release the association</span>
+<span class="k">if</span> <span class="n">assoc</span><span class="o">.</span><span class="n">is_established</span><span class="p">:</span>
+    <span class="n">assoc</span><span class="o">.</span><span class="n">release</span><span class="p">()</span>
 </pre></div>
 </div>
 <p>This sends an association request to the IP address ‘127.0.0.1’ on port 11112
 with the request containing the presentation contexts from
 <a class="reference internal" href="../reference/generated/pynetdicom.ae.ApplicationEntity.html#pynetdicom.ae.ApplicationEntity.requested_contexts" title="pynetdicom.ae.ApplicationEntity.requested_contexts"><code class="xref py py-obj docutils literal notranslate"><span class="pre">AE.requested_contexts</span></code></a>
 and the default <em>Called AE Title</em> parameter of <code class="docutils literal notranslate"><span class="pre">b'ANY-SCP</span>&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160; <span class="pre">'</span></code>.</p>
+<p>Established associations should always be released or aborted (using
+<code class="docutils literal notranslate"><span class="pre">Association.release()</span></code> or <code class="docutils literal notranslate"><span class="pre">Associations.abort()</span></code>), otherwise the
+association will remain open until either the peer or local AE hits a timeout
+and aborts.</p>
 <div class="section" id="specifying-the-called-ae-title">
 <h3>Specifying the Called AE Title<a class="headerlink" href="#specifying-the-called-ae-title" title="Permalink to this headline">¶</a></h3>
 <p>Some SCPs will reject an association request if the <em>Called AE Title</em> parameter
 value doesn’t match its own title, so this can be set using the <code class="docutils literal notranslate"><span class="pre">ae_title</span></code>
 parameter:</p>
-<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="n">assoc</span> <span class="o">=</span> <span class="n">ae</span><span class="o">.</span><span class="n">associate</span><span class="p">(</span><span class="s1">&#39;127.0.0.1&#39;</span><span class="p">,</span> <span class="mi">11112</span><span class="p">,</span> <span class="n">ae_title</span><span class="o">=</span><span class="sa">b</span><span class="s1">&#39;STORE_SCP&#39;</span><span class="p">)</span>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">assoc</span> <span class="o">=</span> <span class="n">ae</span><span class="o">.</span><span class="n">associate</span><span class="p">(</span><span class="s1">&#39;127.0.0.1&#39;</span><span class="p">,</span> <span class="mi">11112</span><span class="p">,</span> <span class="n">ae_title</span><span class="o">=</span><span class="sa">b</span><span class="s1">&#39;STORE_SCP&#39;</span><span class="p">)</span>
 </pre></div>
 </div>
 </div>
@@ -251,6 +264,9 @@ per-association basis you can use the <code class="docutils literal notranslate"
 <span class="n">ae</span> <span class="o">=</span> <span class="n">AE</span><span class="p">()</span>
 <span class="n">requested_contexts</span> <span class="o">=</span> <span class="p">[</span><span class="n">build_context</span><span class="p">(</span><span class="s1">&#39;1.2.840.10008.1.1&#39;</span><span class="p">)]</span>
 <span class="n">assoc</span> <span class="o">=</span> <span class="n">ae</span><span class="o">.</span><span class="n">associate</span><span class="p">(</span><span class="s1">&#39;127.0.0.1&#39;</span><span class="p">,</span> <span class="mi">11112</span><span class="p">,</span> <span class="n">contexts</span><span class="o">=</span><span class="n">requested_contexts</span><span class="p">)</span>
+
+<span class="k">if</span> <span class="n">assoc</span><span class="o">.</span><span class="n">is_established</span><span class="p">:</span>
+    <span class="n">assoc</span><span class="o">.</span><span class="n">release</span><span class="p">()</span>
 </pre></div>
 </div>
 </div>
@@ -295,16 +311,70 @@ also acting as a Storage SCP), plus a <em>User Identity Negotiation</em> item:</
 
 <span class="c1"># Associate with the peer at IP address 127.0.0.1 and port 11112</span>
 <span class="n">assoc</span> <span class="o">=</span> <span class="n">ae</span><span class="o">.</span><span class="n">associate</span><span class="p">(</span><span class="s1">&#39;127.0.0.1&#39;</span><span class="p">,</span> <span class="mi">11112</span><span class="p">,</span> <span class="n">ext_neg</span><span class="o">=</span><span class="n">negotiation_items</span><span class="p">)</span>
+
+<span class="k">if</span> <span class="n">assoc</span><span class="o">.</span><span class="n">is_established</span><span class="p">:</span>
+    <span class="n">assoc</span><span class="o">.</span><span class="n">release</span><span class="p">()</span>
 </pre></div>
 </div>
 <p>Possible extended negotiation items are:</p>
 <ul class="simple">
-<li><a class="reference internal" href="../reference/generated/pynetdicom.pdu_primitives.AsynchronousOperationsWindowNegotiation.html#pynetdicom.pdu_primitives.AsynchronousOperationsWindowNegotiation" title="pynetdicom.pdu_primitives.AsynchronousOperationsWindowNegotiation"><code class="xref py py-class docutils literal notranslate"><span class="pre">Asynchronous</span> <span class="pre">Operations</span> <span class="pre">Window</span> <span class="pre">Negotiation</span></code></a></li>
-<li><a class="reference internal" href="../reference/generated/pynetdicom.pdu_primitives.SCP_SCU_RoleSelectionNegotiation.html#pynetdicom.pdu_primitives.SCP_SCU_RoleSelectionNegotiation" title="pynetdicom.pdu_primitives.SCP_SCU_RoleSelectionNegotiation"><code class="xref py py-class docutils literal notranslate"><span class="pre">SCP/SCU</span> <span class="pre">Role</span> <span class="pre">Selection</span> <span class="pre">Negotiation</span></code></a></li>
-<li><a class="reference internal" href="../reference/generated/pynetdicom.pdu_primitives.SOPClassExtendedNegotiation.html#pynetdicom.pdu_primitives.SOPClassExtendedNegotiation" title="pynetdicom.pdu_primitives.SOPClassExtendedNegotiation"><code class="xref py py-class docutils literal notranslate"><span class="pre">SOP</span> <span class="pre">Class</span> <span class="pre">Extended</span> <span class="pre">Negotiation</span></code></a></li>
-<li><a class="reference internal" href="../reference/generated/pynetdicom.pdu_primitives.SOPClassCommonExtendedNegotiation.html#pynetdicom.pdu_primitives.SOPClassCommonExtendedNegotiation" title="pynetdicom.pdu_primitives.SOPClassCommonExtendedNegotiation"><code class="xref py py-class docutils literal notranslate"><span class="pre">SOP</span> <span class="pre">Class</span> <span class="pre">Common</span> <span class="pre">Negotiation</span></code></a></li>
-<li><a class="reference internal" href="../reference/generated/pynetdicom.pdu_primitives.UserIdentityNegotiation.html#pynetdicom.pdu_primitives.UserIdentityNegotiation" title="pynetdicom.pdu_primitives.UserIdentityNegotiation"><code class="xref py py-class docutils literal notranslate"><span class="pre">User</span> <span class="pre">Identity</span> <span class="pre">Negotiation</span></code></a></li>
+<li><p><a class="reference internal" href="../reference/generated/pynetdicom.pdu_primitives.AsynchronousOperationsWindowNegotiation.html#pynetdicom.pdu_primitives.AsynchronousOperationsWindowNegotiation" title="pynetdicom.pdu_primitives.AsynchronousOperationsWindowNegotiation"><code class="xref py py-class docutils literal notranslate"><span class="pre">Asynchronous</span> <span class="pre">Operations</span> <span class="pre">Window</span> <span class="pre">Negotiation</span></code></a></p></li>
+<li><p><a class="reference internal" href="../reference/generated/pynetdicom.pdu_primitives.SCP_SCU_RoleSelectionNegotiation.html#pynetdicom.pdu_primitives.SCP_SCU_RoleSelectionNegotiation" title="pynetdicom.pdu_primitives.SCP_SCU_RoleSelectionNegotiation"><code class="xref py py-class docutils literal notranslate"><span class="pre">SCP/SCU</span> <span class="pre">Role</span> <span class="pre">Selection</span> <span class="pre">Negotiation</span></code></a></p></li>
+<li><p><a class="reference internal" href="../reference/generated/pynetdicom.pdu_primitives.SOPClassExtendedNegotiation.html#pynetdicom.pdu_primitives.SOPClassExtendedNegotiation" title="pynetdicom.pdu_primitives.SOPClassExtendedNegotiation"><code class="xref py py-class docutils literal notranslate"><span class="pre">SOP</span> <span class="pre">Class</span> <span class="pre">Extended</span> <span class="pre">Negotiation</span></code></a></p></li>
+<li><p><a class="reference internal" href="../reference/generated/pynetdicom.pdu_primitives.SOPClassCommonExtendedNegotiation.html#pynetdicom.pdu_primitives.SOPClassCommonExtendedNegotiation" title="pynetdicom.pdu_primitives.SOPClassCommonExtendedNegotiation"><code class="xref py py-class docutils literal notranslate"><span class="pre">SOP</span> <span class="pre">Class</span> <span class="pre">Common</span> <span class="pre">Negotiation</span></code></a></p></li>
+<li><p><a class="reference internal" href="../reference/generated/pynetdicom.pdu_primitives.UserIdentityNegotiation.html#pynetdicom.pdu_primitives.UserIdentityNegotiation" title="pynetdicom.pdu_primitives.UserIdentityNegotiation"><code class="xref py py-class docutils literal notranslate"><span class="pre">User</span> <span class="pre">Identity</span> <span class="pre">Negotiation</span></code></a></p></li>
 </ul>
+</div>
+<div class="section" id="binding-event-handlers">
+<h3>Binding Event Handlers<a class="headerlink" href="#binding-event-handlers" title="Permalink to this headline">¶</a></h3>
+<p>If you want to bind handlers to any events within a new <code class="docutils literal notranslate"><span class="pre">Association</span></code> you can
+use the <code class="docutils literal notranslate"><span class="pre">evt_handlers</span></code> keyword parameter:</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span> <span class="nn">pynetdicom</span> <span class="k">import</span> <span class="n">AE</span><span class="p">,</span> <span class="n">evt</span>
+<span class="kn">from</span> <span class="nn">pynetdicom.sop_class</span> <span class="k">import</span> <span class="n">VerificationSOPClass</span>
+
+<span class="k">def</span> <span class="nf">handle_open</span><span class="p">(</span><span class="n">event</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;Print the remote&#39;s (host, port) when connected.&quot;&quot;&quot;</span>
+    <span class="n">msg</span> <span class="o">=</span> <span class="s1">&#39;Connected with remote at (</span><span class="si">{}</span><span class="s1">)&#39;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">event</span><span class="o">.</span><span class="n">address</span><span class="p">)</span>
+    <span class="n">LOGGER</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="n">msg</span><span class="p">)</span>
+
+<span class="n">handlers</span> <span class="o">=</span> <span class="p">[(</span><span class="n">evt</span><span class="o">.</span><span class="n">EVT_CONN_OPEN</span><span class="p">,</span> <span class="n">handle_open</span><span class="p">)]</span>
+
+<span class="n">ae</span> <span class="o">=</span> <span class="n">AE</span><span class="p">()</span>
+<span class="n">ae</span><span class="o">.</span><span class="n">add_requested_context</span><span class="p">(</span><span class="n">VerificationSOPClass</span><span class="p">)</span>
+<span class="n">assoc</span> <span class="o">=</span> <span class="n">ae</span><span class="o">.</span><span class="n">associate</span><span class="p">(</span><span class="s1">&#39;&#39;</span><span class="p">,</span> <span class="mi">11112</span><span class="p">,</span> <span class="n">evt_handlers</span><span class="o">=</span><span class="n">handlers</span><span class="p">)</span>
+
+<span class="k">if</span> <span class="n">assoc</span><span class="o">.</span><span class="n">is_established</span><span class="p">:</span>
+    <span class="n">assoc</span><span class="o">.</span><span class="n">release</span><span class="p">()</span>
+</pre></div>
+</div>
+<p>Handlers can also be bound and unbound from events in an existing
+<code class="docutils literal notranslate"><span class="pre">Association</span></code>:</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span> <span class="nn">pynetdicom</span> <span class="k">import</span> <span class="n">AE</span><span class="p">,</span> <span class="n">evt</span>
+<span class="kn">from</span> <span class="nn">pynetdicom.sop_class</span> <span class="k">import</span> <span class="n">VerificationSOPClass</span>
+
+<span class="k">def</span> <span class="nf">handle_open</span><span class="p">(</span><span class="n">event</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;Print the remote&#39;s (host, port) when connected.&quot;&quot;&quot;</span>
+    <span class="n">msg</span> <span class="o">=</span> <span class="s1">&#39;Connected with remote at (</span><span class="si">{}</span><span class="s1">)&#39;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">event</span><span class="o">.</span><span class="n">address</span><span class="p">)</span>
+    <span class="n">LOGGER</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="n">msg</span><span class="p">)</span>
+
+<span class="k">def</span> <span class="nf">handle_close</span><span class="p">(</span><span class="n">event</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;Print the remote&#39;s (host, port) when disconnected.&quot;&quot;&quot;</span>
+    <span class="n">msg</span> <span class="o">=</span> <span class="s1">&#39;Disconnected from remote at (</span><span class="si">{}</span><span class="s1">)&#39;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">event</span><span class="o">.</span><span class="n">address</span><span class="p">)</span>
+    <span class="n">LOGGER</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="n">msg</span><span class="p">)</span>
+
+<span class="n">handlers</span> <span class="o">=</span> <span class="p">[(</span><span class="n">evt</span><span class="o">.</span><span class="n">EVT_CONN_OPEN</span><span class="p">,</span> <span class="n">handle_open</span><span class="p">)]</span>
+
+<span class="n">ae</span> <span class="o">=</span> <span class="n">AE</span><span class="p">()</span>
+<span class="n">ae</span><span class="o">.</span><span class="n">add_requested_context</span><span class="p">(</span><span class="n">VerificationSOPClass</span><span class="p">)</span>
+<span class="n">assoc</span> <span class="o">=</span> <span class="n">ae</span><span class="o">.</span><span class="n">associate</span><span class="p">(</span><span class="s1">&#39;&#39;</span><span class="p">,</span> <span class="mi">11112</span><span class="p">,</span> <span class="n">evt_handlers</span><span class="o">=</span><span class="n">handlers</span><span class="p">)</span>
+
+<span class="n">assoc</span><span class="o">.</span><span class="n">unbind</span><span class="p">(</span><span class="n">evt</span><span class="o">.</span><span class="n">EVT_CONN_OPEN</span><span class="p">,</span> <span class="n">handle_open</span><span class="p">)</span>
+<span class="n">assoc</span><span class="o">.</span><span class="n">bind</span><span class="p">(</span><span class="n">evt</span><span class="o">.</span><span class="n">EVT_CONN_CLOSE</span><span class="p">,</span> <span class="n">handle_close</span><span class="p">)</span>
+
+<span class="k">if</span> <span class="n">assoc</span><span class="o">.</span><span class="n">is_established</span><span class="p">:</span>
+    <span class="n">assoc</span><span class="o">.</span><span class="n">release</span><span class="p">()</span>
+</pre></div>
+</div>
 </div>
 <div class="section" id="tls">
 <h3>TLS<a class="headerlink" href="#tls" title="Permalink to this headline">¶</a></h3>
@@ -324,11 +394,8 @@ the <code class="docutils literal notranslate"><span class="pre">tls_args</span>
 <span class="n">ssl_cx</span><span class="o">.</span><span class="n">load_cert_chain</span><span class="p">(</span><span class="n">certfile</span><span class="o">=</span><span class="s1">&#39;client.crt&#39;</span><span class="p">,</span> <span class="n">keyfile</span><span class="o">=</span><span class="s1">&#39;client.key&#39;</span><span class="p">)</span>
 
 <span class="n">assoc</span> <span class="o">=</span> <span class="n">ae</span><span class="o">.</span><span class="n">associate</span><span class="p">(</span><span class="s1">&#39;127.0.0.1&#39;</span><span class="p">,</span> <span class="mi">11112</span><span class="p">,</span> <span class="n">tls_args</span><span class="o">=</span><span class="p">(</span><span class="n">ssl_cx</span><span class="p">,</span> <span class="kc">None</span><span class="p">))</span>
-<span class="k">if</span> <span class="n">assoc</span><span class="o">.</span><span class="n">is_established</span><span class="p">:</span>
-    <span class="c1"># Do something with the association</span>
-    <span class="k">pass</span>
 
-    <span class="c1"># Once we are finished, release the association</span>
+<span class="k">if</span> <span class="n">assoc</span><span class="o">.</span><span class="n">is_established</span><span class="p">:</span>
     <span class="n">assoc</span><span class="o">.</span><span class="n">release</span><span class="p">()</span>
 </pre></div>
 </div>
@@ -350,11 +417,12 @@ the Association:</p>
 
 <span class="c1"># Associate with the peer at IP address 127.0.0.1 and port 11112</span>
 <span class="n">assoc</span> <span class="o">=</span> <span class="n">ae</span><span class="o">.</span><span class="n">associate</span><span class="p">(</span><span class="s1">&#39;127.0.0.1&#39;</span><span class="p">,</span> <span class="mi">11112</span><span class="p">)</span>
+
 <span class="k">if</span> <span class="n">assoc</span><span class="o">.</span><span class="n">is_established</span><span class="p">:</span>
-    <span class="c1"># Do something with the association</span>
+    <span class="c1"># Do something useful...</span>
     <span class="k">pass</span>
 
-    <span class="c1"># Once we are finished, release the association</span>
+    <span class="c1"># Release</span>
     <span class="n">assoc</span><span class="o">.</span><span class="n">release</span><span class="p">()</span>
 </pre></div>
 </div>
@@ -366,28 +434,24 @@ the Association:</p>
 set of services are available for use. Currently pynetdicom supports the usage
 of the following DIMSE-C services:</p>
 <ul class="simple">
-<li>C-ECHO, through the
+<li><p>C-ECHO, through the
 <a class="reference internal" href="../reference/generated/pynetdicom.association.Association.html#pynetdicom.association.Association.send_c_echo" title="pynetdicom.association.Association.send_c_echo"><code class="xref py py-meth docutils literal notranslate"><span class="pre">Association.send_c_echo()</span></code></a>
-method</li>
-<li>C-STORE, through the
+method</p></li>
+<li><p>C-STORE, through the
 <a class="reference internal" href="../reference/generated/pynetdicom.association.Association.html#pynetdicom.association.Association.send_c_store" title="pynetdicom.association.Association.send_c_store"><code class="xref py py-meth docutils literal notranslate"><span class="pre">Association.send_c_store()</span></code></a>
-method</li>
-<li>C-FIND, through the
+method</p></li>
+<li><p>C-FIND, through the
 <a class="reference internal" href="../reference/generated/pynetdicom.association.Association.html#pynetdicom.association.Association.send_c_find" title="pynetdicom.association.Association.send_c_find"><code class="xref py py-meth docutils literal notranslate"><span class="pre">Association.send_c_find()</span></code></a>
-method</li>
-<li>C-GET, through the
+method</p></li>
+<li><p>C-GET, through the
 <a class="reference internal" href="../reference/generated/pynetdicom.association.Association.html#pynetdicom.association.Association.send_c_get" title="pynetdicom.association.Association.send_c_get"><code class="xref py py-meth docutils literal notranslate"><span class="pre">Association.send_c_get()</span></code></a>
 method. Any AE that uses the C-GET service will also be providing the C-STORE
-service and must implement the
-<a class="reference internal" href="../reference/generated/pynetdicom.ae.ApplicationEntity.html#pynetdicom.ae.ApplicationEntity.on_c_store" title="pynetdicom.ae.ApplicationEntity.on_c_store"><code class="xref py py-meth docutils literal notranslate"><span class="pre">AE.on_c_store()</span></code></a>
-callback (as outlined <a class="reference internal" href="#assoc-scp"><span class="std std-ref">here</span></a>)</li>
-<li>C-MOVE, through the
+service and must implement and bind a handler for <code class="docutils literal notranslate"><span class="pre">evt.EVT_C_STORE</span></code> (as
+outlined <a class="reference internal" href="#assoc-scp"><span class="std std-ref">here</span></a>)</p></li>
+<li><p>C-MOVE, through the
 <a class="reference internal" href="../reference/generated/pynetdicom.association.Association.html#pynetdicom.association.Association.send_c_move" title="pynetdicom.association.Association.send_c_move"><code class="xref py py-meth docutils literal notranslate"><span class="pre">Association.send_c_move()</span></code></a>
-method. The performing SCP may either send the requested datasets over a new
-association to the move destination or (if the SCU is the destination) over
-the existing association so in that case you should implement the
-<a class="reference internal" href="../reference/generated/pynetdicom.ae.ApplicationEntity.html#pynetdicom.ae.ApplicationEntity.on_c_store" title="pynetdicom.ae.ApplicationEntity.on_c_store"><code class="xref py py-meth docutils literal notranslate"><span class="pre">AE.on_c_store()</span></code></a>
-callback.</li>
+method. The move destination can either be a different AE or the AE that made
+the C-MOVE request (provided a non-blocking Storage SCP has been started).</p></li>
 </ul>
 <p>Attempting to use a service without an established association will raise a
 <code class="docutils literal notranslate"><span class="pre">RuntimeError</span></code>, while attempting to use a service that is not supported by
@@ -428,8 +492,8 @@ method:</p>
 </pre></div>
 </div>
 <p>The above is suitable as an implementation of the Verification Service
-Class, however other service classes will require that you implement one
-or more of the AE service class callbacks.</p>
+Class, however other service classes will require that you implement and bind
+one or more of the <a class="reference internal" href="events.html#events-intervention"><span class="std std-ref">intervention event handlers</span></a>.</p>
 <p>The association server can be started in both blocking (default) and
 non-blocking modes:</p>
 <div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span> <span class="nn">pynetdicom</span> <span class="k">import</span> <span class="n">AE</span>
@@ -449,7 +513,62 @@ non-blocking modes:</p>
 instances can be stopped using <code class="docutils literal notranslate"><span class="pre">shutdown()</span></code> and all active association
 can be stopped using <code class="docutils literal notranslate"><span class="pre">AE.shutdown()</span></code>.</p>
 <div class="section" id="id2">
-<h3>TLS<a class="headerlink" href="#id2" title="Permalink to this headline">¶</a></h3>
+<h3>Binding Event Handlers<a class="headerlink" href="#id2" title="Permalink to this headline">¶</a></h3>
+<p>If you want to bind handlers to any events within any <code class="docutils literal notranslate"><span class="pre">Association</span></code> instances
+generated by the SCP you can use the <code class="docutils literal notranslate"><span class="pre">evt_handlers</span></code> keyword parameter:</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span> <span class="nn">pynetdicom</span> <span class="k">import</span> <span class="n">AE</span><span class="p">,</span> <span class="n">evt</span>
+<span class="kn">from</span> <span class="nn">pynetdicom.sop_class</span> <span class="k">import</span> <span class="n">VerificationSOPClass</span>
+
+<span class="k">def</span> <span class="nf">handle_open</span><span class="p">(</span><span class="n">event</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;Print the remote&#39;s (host, port) when connected.&quot;&quot;&quot;</span>
+    <span class="n">msg</span> <span class="o">=</span> <span class="s1">&#39;Connected with remote at (</span><span class="si">{}</span><span class="s1">)&#39;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">event</span><span class="o">.</span><span class="n">address</span><span class="p">)</span>
+    <span class="n">LOGGER</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="n">msg</span><span class="p">)</span>
+
+<span class="n">handlers</span> <span class="o">=</span> <span class="p">[(</span><span class="n">evt</span><span class="o">.</span><span class="n">EVT_CONN_OPEN</span><span class="p">,</span> <span class="n">handle_open</span><span class="p">)]</span>
+
+<span class="n">ae</span> <span class="o">=</span> <span class="n">AE</span><span class="p">()</span>
+<span class="n">ae</span><span class="o">.</span><span class="n">add_supported_context</span><span class="p">(</span><span class="n">VerificationSOPClass</span><span class="p">)</span>
+<span class="n">ae</span><span class="o">.</span><span class="n">start_server</span><span class="p">((</span><span class="s1">&#39;&#39;</span><span class="p">,</span> <span class="mi">11112</span><span class="p">),</span> <span class="n">evt_handlers</span><span class="o">=</span><span class="n">handlers</span><span class="p">)</span>
+</pre></div>
+</div>
+<p>Handlers can also be bound and unbound from events in an existing
+<code class="docutils literal notranslate"><span class="pre">ThreadedAssociationServer</span></code>, provided you run in non-blocking mode:</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span> <span class="nn">pynetdicom</span> <span class="k">import</span> <span class="n">AE</span><span class="p">,</span> <span class="n">evt</span>
+<span class="kn">from</span> <span class="nn">pynetdicom.sop_class</span> <span class="k">import</span> <span class="n">VerificationSOPClass</span>
+
+<span class="k">def</span> <span class="nf">handle_open</span><span class="p">(</span><span class="n">event</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;Print the remote&#39;s (host, port) when connected.&quot;&quot;&quot;</span>
+    <span class="n">msg</span> <span class="o">=</span> <span class="s1">&#39;Connected with remote at (</span><span class="si">{}</span><span class="s1">)&#39;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">event</span><span class="o">.</span><span class="n">address</span><span class="p">)</span>
+    <span class="n">LOGGER</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="n">msg</span><span class="p">)</span>
+
+<span class="k">def</span> <span class="nf">handle_close</span><span class="p">(</span><span class="n">event</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;Print the remote&#39;s (host, port) when disconnected.&quot;&quot;&quot;</span>
+    <span class="n">msg</span> <span class="o">=</span> <span class="s1">&#39;Disconnected from remote at (</span><span class="si">{}</span><span class="s1">)&#39;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">event</span><span class="o">.</span><span class="n">address</span><span class="p">)</span>
+    <span class="n">LOGGER</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="n">msg</span><span class="p">)</span>
+
+<span class="n">handlers</span> <span class="o">=</span> <span class="p">[(</span><span class="n">evt</span><span class="o">.</span><span class="n">EVT_CONN_OPEN</span><span class="p">,</span> <span class="n">handle_open</span><span class="p">)]</span>
+
+<span class="n">ae</span> <span class="o">=</span> <span class="n">AE</span><span class="p">()</span>
+<span class="n">ae</span><span class="o">.</span><span class="n">add_supported_context</span><span class="p">(</span><span class="n">VerificationSOPClass</span><span class="p">)</span>
+<span class="n">scp</span> <span class="o">=</span> <span class="n">ae</span><span class="o">.</span><span class="n">start_server</span><span class="p">((</span><span class="s1">&#39;&#39;</span><span class="p">,</span> <span class="mi">11112</span><span class="p">),</span> <span class="n">block</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span> <span class="n">evt_handlers</span><span class="o">=</span><span class="n">handlers</span><span class="p">)</span>
+
+<span class="n">time</span><span class="o">.</span><span class="n">sleep</span><span class="p">(</span><span class="mi">60</span><span class="p">)</span>
+
+<span class="n">scp</span><span class="o">.</span><span class="n">unbind</span><span class="p">(</span><span class="n">evt</span><span class="o">.</span><span class="n">EVT_CONN_OPEN</span><span class="p">,</span> <span class="n">handle_open</span><span class="p">)</span>
+<span class="n">scp</span><span class="o">.</span><span class="n">bind</span><span class="p">(</span><span class="n">evt</span><span class="o">.</span><span class="n">EVT_CONN_CLOSE</span><span class="p">,</span> <span class="n">handle_close</span><span class="p">)</span>
+
+<span class="n">time</span><span class="o">.</span><span class="n">sleep</span><span class="p">(</span><span class="mi">60</span><span class="p">)</span>
+
+<span class="n">scp</span><span class="o">.</span><span class="n">shutdown</span><span class="p">()</span>
+</pre></div>
+</div>
+<p>This will bind/unbind the handler from all currently running <code class="docutils literal notranslate"><span class="pre">Association</span></code>
+instances generated  by the server as well as new <code class="docutils literal notranslate"><span class="pre">Association</span></code> instances
+generated in response to future association requests. <code class="docutils literal notranslate"><span class="pre">Associations</span></code> created
+using <code class="docutils literal notranslate"><span class="pre">AE.associate()</span></code> will be unaffected.</p>
+</div>
+<div class="section" id="id3">
+<h3>TLS<a class="headerlink" href="#id3" title="Permalink to this headline">¶</a></h3>
 <p>The client sockets generated by the association server can also be wrapped in
 TLS by  supplying a <a class="reference external" href="https://docs.python.org/3/library/ssl.html#ssl.SSLContext.wrap_socket">ssl.SSLContext</a>
 instance via the <code class="docutils literal notranslate"><span class="pre">ssl_context</span></code> keyword parameter:</p>
@@ -474,56 +593,64 @@ instance via the <code class="docutils literal notranslate"><span class="pre">ss
 <div class="section" id="providing-dimse-services-scp">
 <h2>Providing DIMSE Services (SCP)<a class="headerlink" href="#providing-dimse-services-scp" title="Permalink to this headline">¶</a></h2>
 <p>If the association supports a service class that uses one or more of the
-DIMSE-C services then the corresponding callback(s) should be implemented
-(excluding C-ECHO which has a default implementation that always returns a
-0x0000 <em>Success</em> response):</p>
-<ul class="simple">
-<li>C-ECHO: <a class="reference internal" href="../reference/generated/pynetdicom.ae.ApplicationEntity.html#pynetdicom.ae.ApplicationEntity.on_c_echo" title="pynetdicom.ae.ApplicationEntity.on_c_echo"><code class="xref py py-meth docutils literal notranslate"><span class="pre">AE.on_c_echo()</span></code></a></li>
-<li>C-STORE: <a class="reference internal" href="../reference/generated/pynetdicom.ae.ApplicationEntity.html#pynetdicom.ae.ApplicationEntity.on_c_store" title="pynetdicom.ae.ApplicationEntity.on_c_store"><code class="xref py py-meth docutils literal notranslate"><span class="pre">AE.on_c_store()</span></code></a></li>
-<li>C-FIND: <a class="reference internal" href="../reference/generated/pynetdicom.ae.ApplicationEntity.html#pynetdicom.ae.ApplicationEntity.on_c_find" title="pynetdicom.ae.ApplicationEntity.on_c_find"><code class="xref py py-meth docutils literal notranslate"><span class="pre">AE.on_c_find()</span></code></a></li>
-<li>C-GET: <a class="reference internal" href="../reference/generated/pynetdicom.ae.ApplicationEntity.html#pynetdicom.ae.ApplicationEntity.on_c_get" title="pynetdicom.ae.ApplicationEntity.on_c_get"><code class="xref py py-meth docutils literal notranslate"><span class="pre">AE.on_c_get()</span></code></a></li>
-<li>C-MOVE: <a class="reference internal" href="../reference/generated/pynetdicom.ae.ApplicationEntity.html#pynetdicom.ae.ApplicationEntity.on_c_move" title="pynetdicom.ae.ApplicationEntity.on_c_move"><code class="xref py py-meth docutils literal notranslate"><span class="pre">AE.on_c_move()</span></code></a></li>
-</ul>
+DIMSE-C or -N services then a handler must be implemented and bound to the
+event corresponding the the service (excluding C-ECHO which has a default
+implementation that always returns a 0x0000 <em>Success</em> response):</p>
+<table class="docutils align-center">
+<colgroup>
+<col style="width: 42%" />
+<col style="width: 58%" />
+</colgroup>
+<thead>
+<tr class="row-odd"><th class="head"><p>DIMSE service</p></th>
+<th class="head"><p>Event</p></th>
+</tr>
+</thead>
+<tbody>
+<tr class="row-even"><td><p>C-ECHO</p></td>
+<td><p><code class="docutils literal notranslate"><span class="pre">evt.EVT_C_ECHO</span></code></p></td>
+</tr>
+<tr class="row-odd"><td><p>C-FIND</p></td>
+<td><p><code class="docutils literal notranslate"><span class="pre">evt.EVT_C_FIND</span></code></p></td>
+</tr>
+<tr class="row-even"><td><p>C-GET</p></td>
+<td><p><code class="docutils literal notranslate"><span class="pre">evt.EVT_C_GET</span></code></p></td>
+</tr>
+<tr class="row-odd"><td><p>C-MOVE</p></td>
+<td><p><code class="docutils literal notranslate"><span class="pre">evt.EVT_C_MOVE</span></code></p></td>
+</tr>
+<tr class="row-even"><td><p>C-STORE</p></td>
+<td><p><code class="docutils literal notranslate"><span class="pre">evt.EVT_C_STORE</span></code></p></td>
+</tr>
+<tr class="row-odd"><td><p>N-GET</p></td>
+<td><p><code class="docutils literal notranslate"><span class="pre">evt.EVT_N_GET</span></code></p></td>
+</tr>
+</tbody>
+</table>
 <p>For instance, if your SCP is to support the Storage Service then you would
-implement the <code class="docutils literal notranslate"><span class="pre">on_c_store</span></code> callback in manner similar to:</p>
-<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span> <span class="nn">pynetdicom</span> <span class="k">import</span> <span class="n">AE</span>
+implement and bind a handler for the <code class="docutils literal notranslate"><span class="pre">evt.EVT_C_STORE</span></code> event in manner
+similar to:</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span> <span class="nn">pynetdicom</span> <span class="k">import</span> <span class="n">AE</span><span class="p">,</span> <span class="n">evt</span>
 <span class="kn">from</span> <span class="nn">pynetdicom.sop_class</span> <span class="k">import</span> <span class="n">VerificationSOPClass</span>
 
 <span class="n">ae</span> <span class="o">=</span> <span class="n">AE</span><span class="p">()</span>
 <span class="n">ae</span><span class="o">.</span><span class="n">add_supported_context</span><span class="p">(</span><span class="n">VerificationSOPClass</span><span class="p">)</span>
 
-<span class="k">def</span> <span class="nf">on_c_store</span><span class="p">(</span><span class="n">ds</span><span class="p">,</span> <span class="n">context</span><span class="p">,</span> <span class="n">info</span><span class="p">):</span>
-    <span class="sd">&quot;&quot;&quot;Store the pydicom Dataset `ds`.</span>
-
-<span class="sd">    Parameters</span>
-<span class="sd">    ----------</span>
-<span class="sd">    ds : pydicom.dataset.Dataset</span>
-<span class="sd">        The dataset that the peer has requested be stored.</span>
-<span class="sd">    context : namedtuple</span>
-<span class="sd">        The presentation context that the dataset was sent under.</span>
-<span class="sd">    info : dict</span>
-<span class="sd">        Information about the association and storage request.</span>
-
-<span class="sd">    Returns</span>
-<span class="sd">    -------</span>
-<span class="sd">    status : int or pydicom.dataset.Dataset</span>
-<span class="sd">        The status returned to the peer AE in the C-STORE response. Must be</span>
-<span class="sd">        a valid C-STORE status value for the applicable Service Class as</span>
-<span class="sd">        either an ``int`` or a ``Dataset`` object containing (at a</span>
-<span class="sd">        minimum) a (0000,0900) *Status* element.</span>
-<span class="sd">    &quot;&quot;&quot;</span>
+<span class="k">def</span> <span class="nf">handle_store</span><span class="p">(</span><span class="n">event</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;Handle evt.EVT_C_STORE&quot;&quot;&quot;</span>
     <span class="c1"># This is just a toy implementation that doesn&#39;t store anything and</span>
     <span class="c1"># always returns a Success response</span>
     <span class="k">return</span> <span class="mh">0x0000</span>
 
-<span class="n">ae</span><span class="o">.</span><span class="n">on_c_store</span> <span class="o">=</span> <span class="n">on_c_store</span>
+<span class="n">handlers</span> <span class="o">=</span> <span class="p">[(</span><span class="n">evt</span><span class="o">.</span><span class="n">EVT_C_STORE</span><span class="p">,</span> <span class="n">handle_store</span><span class="p">)]</span>
 
 <span class="c1"># Listen for association requests</span>
-<span class="n">ae</span><span class="o">.</span><span class="n">start_server</span><span class="p">((</span><span class="s1">&#39;&#39;</span><span class="p">,</span> <span class="mi">11112</span><span class="p">))</span>
+<span class="n">ae</span><span class="o">.</span><span class="n">start_server</span><span class="p">((</span><span class="s1">&#39;&#39;</span><span class="p">,</span> <span class="mi">11112</span><span class="p">),</span> <span class="n">evt_handlers</span><span class="o">=</span><span class="n">handlers</span><span class="p">)</span>
 </pre></div>
 </div>
 <p>For more detailed information on implementing the DIMSE service
-provider callbacks please see their API reference documentation and the
+provider handlers please see the
+<a class="reference internal" href="../reference/events.html#api-events"><span class="std std-ref">handler implementation documentation</span></a> and the
 <a class="reference internal" href="../index.html#index-examples"><span class="std std-ref">examples</span></a> corresponding to the service class you’re
 interested in.</p>
 </div>
@@ -537,7 +664,7 @@ interested in.</p>
   
     <div class="rst-footer-buttons" role="navigation" aria-label="footer navigation">
       
-        <a href="../release_notes.html" class="btn btn-neutral float-right" title="1.2.0" accesskey="n" rel="next">Next <span class="fa fa-arrow-circle-right"></span></a>
+        <a href="../release_notes.html" class="btn btn-neutral float-right" title="1.3.0" accesskey="n" rel="next">Next <span class="fa fa-arrow-circle-right"></span></a>
       
       
         <a href="ae.html" class="btn btn-neutral float-left" title="Application Entity" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left"></span> Previous</a>

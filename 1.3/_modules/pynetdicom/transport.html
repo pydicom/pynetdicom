@@ -8,7 +8,7 @@
   
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   
-  <title>pynetdicom.transport &mdash; pynetdicom 1.2.0 documentation</title>
+  <title>pynetdicom.transport &mdash; pynetdicom 1.3.0 documentation</title>
   
 
   
@@ -64,7 +64,7 @@
             
             
               <div class="version">
-                1.2.0
+                1.3.0
               </div>
             
           
@@ -101,12 +101,14 @@
 <li class="toctree-l1"><a class="reference internal" href="../../hanging_protocol_service_class.html">Hanging Protocol Query/Retrieve Service Class</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../../implant_template_service_class.html">Implant Template Query/Retrieve Service Class</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../../display_system_service_class.html">Display System Management Service Class</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../modality_performed_procedure_step.html">Modality Performed Procedure Step Management</a></li>
 </ul>
 <ul>
 <li class="toctree-l1"><a class="reference internal" href="../../user/index.html">User Guide</a></li>
 </ul>
 <ul>
-<li class="toctree-l1"><a class="reference internal" href="../../release_notes.html">1.2.0</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../release_notes.html">1.3.0</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../release_notes.html#v1-2-0">1.2.0</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../../release_notes.html#v1-1-0">1.1.0</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../../release_notes.html#v1-0-0">1.0.0</a></li>
 </ul>
@@ -185,34 +187,39 @@
     <span class="kn">from</span> <span class="nn">socketserver</span> <span class="k">import</span> <span class="n">TCPServer</span><span class="p">,</span> <span class="n">ThreadingMixIn</span><span class="p">,</span> <span class="n">BaseRequestHandler</span>
 <span class="kn">import</span> <span class="nn">ssl</span>
 <span class="kn">from</span> <span class="nn">struct</span> <span class="k">import</span> <span class="n">pack</span>
+<span class="kn">import</span> <span class="nn">threading</span>
 
+<span class="kn">from</span> <span class="nn">pynetdicom</span> <span class="k">import</span> <span class="n">evt</span><span class="p">,</span> <span class="n">_config</span>
 <span class="kn">from</span> <span class="nn">pynetdicom._globals</span> <span class="k">import</span> <span class="n">MODE_ACCEPTOR</span>
+<span class="kn">from</span> <span class="nn">pynetdicom._handlers</span> <span class="k">import</span> <span class="p">(</span>
+    <span class="n">standard_dimse_recv_handler</span><span class="p">,</span> <span class="n">standard_dimse_sent_handler</span><span class="p">,</span>
+    <span class="n">standard_pdu_recv_handler</span><span class="p">,</span> <span class="n">standard_pdu_sent_handler</span><span class="p">,</span>
+<span class="p">)</span>
 
 
 <span class="n">LOGGER</span> <span class="o">=</span> <span class="n">logging</span><span class="o">.</span><span class="n">getLogger</span><span class="p">(</span><span class="s1">&#39;pynetdicom.transport&#39;</span><span class="p">)</span>
 
 
 <div class="viewcode-block" id="AssociationSocket"><a class="viewcode-back" href="../../reference/generated/pynetdicom.transport.AssociationSocket.html#pynetdicom.transport.AssociationSocket">[docs]</a><span class="k">class</span> <span class="nc">AssociationSocket</span><span class="p">(</span><span class="nb">object</span><span class="p">):</span>
-    <span class="sd">&quot;&quot;&quot;A wrapper for the socket.socket object.</span>
+    <span class="sd">&quot;&quot;&quot;A wrapper for a ``socket.socket`` object.</span>
 
-<span class="sd">    Provides an interface for socket.socket that is integrated nicely with a</span>
-<span class="sd">    pynetdicom Association instance and the state machine.</span>
+<span class="sd">    Provides an interface for ``socket.socket`` that is integrated nicely with</span>
+<span class="sd">    an ``Association`` instance and the state machine.</span>
 
 <span class="sd">    Attributes</span>
 <span class="sd">    ----------</span>
 <span class="sd">    select_timeout : float or None</span>
-<span class="sd">        The timeout (in seconds) that select.select() calls in ``ready`` will</span>
-<span class="sd">        block for (default 0.5). A value of 0 specifies a poll and never</span>
-<span class="sd">        blocks. A value of None blocks until a connection is ready.</span>
+<span class="sd">        The timeout (in seconds) that ``select.select()`` calls in :meth:`ready`</span>
+<span class="sd">        will block for (default ``0.5``). A value of ``0`` specifies a poll and never</span>
+<span class="sd">        blocks. A value of ``None`` blocks until a connection is ready.</span>
 <span class="sd">    socket : socket.socket or None</span>
-<span class="sd">        The wrapped socket, will be None if AssociationSocket.close() is</span>
-<span class="sd">        called.</span>
+<span class="sd">        The wrapped socket, will be ``None``if :meth:`close()` is called.</span>
 <span class="sd">    tls_args : 2-tuple or None</span>
 <span class="sd">        If the socket should be wrapped by TLS then this is</span>
-<span class="sd">        (context, hostname), where `context` is a ssl.SSLContext that will be</span>
-<span class="sd">        used to wrap the socket and `hostname` is the value to use for</span>
-<span class="sd">        the `server_hostname` keyword argument for ``SSLContext.wrap_socket()``</span>
-<span class="sd">        If TLS is not to be used then None (default).</span>
+<span class="sd">        ``(context, hostname)``, where *context* is a ``ssl.SSLContext`` that</span>
+<span class="sd">        will be used to wrap the socket and *hostname* is the value to use for</span>
+<span class="sd">        the *server_hostname* keyword argument for ``SSLContext.wrap_socket()``</span>
+<span class="sd">        If TLS is not to be used then ``None`` (default).</span>
 <span class="sd">    &quot;&quot;&quot;</span>
 <div class="viewcode-block" id="AssociationSocket.__init__"><a class="viewcode-back" href="../../reference/generated/pynetdicom.transport.AssociationSocket.html#pynetdicom.transport.AssociationSocket.__init__">[docs]</a>    <span class="k">def</span> <span class="nf">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">assoc</span><span class="p">,</span> <span class="n">client_socket</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">address</span><span class="o">=</span><span class="p">(</span><span class="s1">&#39;&#39;</span><span class="p">,</span> <span class="mi">0</span><span class="p">)):</span>
         <span class="sd">&quot;&quot;&quot;Create a new AssociationSocket.</span>
@@ -220,14 +227,15 @@
 <span class="sd">        Parameters</span>
 <span class="sd">        ----------</span>
 <span class="sd">        assoc : association.Association</span>
-<span class="sd">            The Association instance that will be using the socket to</span>
+<span class="sd">            The ``Association`` instance that will be using the socket to</span>
 <span class="sd">            communicate.</span>
 <span class="sd">        client_socket : socket.socket, optional</span>
-<span class="sd">            The socket to wrap, if not supplied then a new socket will be</span>
+<span class="sd">            The ``socket`` to wrap, if not supplied then a new socket will be</span>
 <span class="sd">            created instead.</span>
-<span class="sd">        address : 2-tuple</span>
-<span class="sd">            If `client_socket` is None then this is the (host, port) to bind</span>
-<span class="sd">            the newly created socket to, which by default will be (&#39;&#39;, 0).</span>
+<span class="sd">        address : 2-tuple, optional</span>
+<span class="sd">            If *client_socket* is ``None`` then this is the ``(host, port)`` to</span>
+<span class="sd">            bind the newly created socket to, which by default will be</span>
+<span class="sd">            ``(&#39;&#39;, 0)``.</span>
 <span class="sd">        &quot;&quot;&quot;</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">_assoc</span> <span class="o">=</span> <span class="n">assoc</span>
 
@@ -251,7 +259,7 @@
 
     <span class="nd">@property</span>
     <span class="k">def</span> <span class="nf">assoc</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
-        <span class="sd">&quot;&quot;&quot;Return the socket&#39;s parent Association instance.&quot;&quot;&quot;</span>
+        <span class="sd">&quot;&quot;&quot;Return the socket&#39;s parent ``Association`` instance.&quot;&quot;&quot;</span>
         <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_assoc</span>
 
 <div class="viewcode-block" id="AssociationSocket.close"><a class="viewcode-back" href="../../reference/generated/pynetdicom.transport.AssociationSocket.html#pynetdicom.transport.AssociationSocket.close">[docs]</a>    <span class="k">def</span> <span class="nf">close</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
@@ -259,7 +267,7 @@
 
 <span class="sd">        Sets ``AssociationSocket.socket`` to ``None`` once complete.</span>
 
-<span class="sd">        *Events Emitted*</span>
+<span class="sd">        **Events Emitted**</span>
 
 <span class="sd">        - Evt17: Transport connection closed</span>
 <span class="sd">        &quot;&quot;&quot;</span>
@@ -278,7 +286,7 @@
         <span class="bp">self</span><span class="o">.</span><span class="n">event_queue</span><span class="o">.</span><span class="n">put</span><span class="p">(</span><span class="s1">&#39;Evt17&#39;</span><span class="p">)</span></div>
 
 <div class="viewcode-block" id="AssociationSocket.connect"><a class="viewcode-back" href="../../reference/generated/pynetdicom.transport.AssociationSocket.html#pynetdicom.transport.AssociationSocket.connect">[docs]</a>    <span class="k">def</span> <span class="nf">connect</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">address</span><span class="p">):</span>
-        <span class="sd">&quot;&quot;&quot;Try and connect to a remote.</span>
+        <span class="sd">&quot;&quot;&quot;Try and connect to a remote at `address`.</span>
 
 <span class="sd">        **Events Emitted**</span>
 
@@ -288,7 +296,7 @@
 <span class="sd">        Parameters</span>
 <span class="sd">        ----------</span>
 <span class="sd">        address : 2-tuple</span>
-<span class="sd">            The (host, port) IPv4 address to connect to.</span>
+<span class="sd">            The ``(host, port)`` IPv4 address to connect to.</span>
 <span class="sd">        &quot;&quot;&quot;</span>
         <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">socket</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
             <span class="bp">self</span><span class="o">.</span><span class="n">socket</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_create_socket</span><span class="p">()</span>
@@ -304,6 +312,8 @@
             <span class="c1"># Try and connect to remote at (address, port)</span>
             <span class="c1">#   raises socket.error if connection refused</span>
             <span class="bp">self</span><span class="o">.</span><span class="n">socket</span><span class="o">.</span><span class="n">connect</span><span class="p">(</span><span class="n">address</span><span class="p">)</span>
+            <span class="c1"># Trigger event - connection open</span>
+            <span class="n">evt</span><span class="o">.</span><span class="n">trigger</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">assoc</span><span class="p">,</span> <span class="n">evt</span><span class="o">.</span><span class="n">EVT_CONN_OPEN</span><span class="p">,</span> <span class="p">{</span><span class="s1">&#39;address&#39;</span> <span class="p">:</span> <span class="n">address</span><span class="p">})</span>
             <span class="bp">self</span><span class="o">.</span><span class="n">_is_connected</span> <span class="o">=</span> <span class="kc">True</span>
             <span class="c1"># Evt2: Transport connection confirmation</span>
             <span class="bp">self</span><span class="o">.</span><span class="n">event_queue</span><span class="o">.</span><span class="n">put</span><span class="p">(</span><span class="s1">&#39;Evt2&#39;</span><span class="p">)</span>
@@ -316,6 +326,7 @@
             <span class="c1"># Log exception if TLS issue to help with troubleshooting</span>
             <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">exc</span><span class="p">,</span> <span class="n">ssl</span><span class="o">.</span><span class="n">SSLError</span><span class="p">):</span>
                 <span class="n">LOGGER</span><span class="o">.</span><span class="n">exception</span><span class="p">(</span><span class="n">exc</span><span class="p">)</span>
+
             <span class="c1"># Don&#39;t be tempted to replace this with a self.close() call -</span>
             <span class="c1">#   it doesn&#39;t work because `_is_connected` is False</span>
             <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">socket</span><span class="p">:</span>
@@ -332,19 +343,20 @@
 
 <span class="sd">        *Socket Options*</span>
 
-<span class="sd">        - SO_REUSEADDR is 1</span>
-<span class="sd">        - SO_RCVTIMEO is set to the Association&#39;s network_timeout value.</span>
+<span class="sd">        - ``SO_REUSEADDR`` is 1</span>
+<span class="sd">        - ``SO_RCVTIMEO`` is set to the Association&#39;s ``network_timeout``</span>
+<span class="sd">          value.</span>
 
 <span class="sd">        Parameters</span>
 <span class="sd">        ----------</span>
-<span class="sd">        address : 2-tuple</span>
-<span class="sd">            The (host, port) to bind the socket to. By default the socket</span>
-<span class="sd">            is bound to (&#39;&#39;, 0), i.e. the first available port.</span>
+<span class="sd">        address : 2-tuple, optional</span>
+<span class="sd">            The ``(host, port)`` to bind the socket to. By default the socket</span>
+<span class="sd">            is bound to ``(&#39;&#39;, 0)``, i.e. the first available port.</span>
 
 <span class="sd">        Returns</span>
 <span class="sd">        -------</span>
 <span class="sd">        socket.socket</span>
-<span class="sd">            An unbound and unconnected socket instance.</span>
+<span class="sd">            A bound and unconnected socket instance.</span>
 <span class="sd">        &quot;&quot;&quot;</span>
         <span class="c1"># AF_INET: IPv4, SOCK_STREAM: TCP socket</span>
         <span class="n">sock</span> <span class="o">=</span> <span class="n">socket</span><span class="o">.</span><span class="n">socket</span><span class="p">(</span><span class="n">socket</span><span class="o">.</span><span class="n">AF_INET</span><span class="p">,</span> <span class="n">socket</span><span class="o">.</span><span class="n">SOCK_STREAM</span><span class="p">)</span>
@@ -379,7 +391,7 @@
 
     <span class="nd">@property</span>
     <span class="k">def</span> <span class="nf">ready</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
-        <span class="sd">&quot;&quot;&quot;Return True if there is data available to be read.</span>
+        <span class="sd">&quot;&quot;&quot;Return ``True`` if there is data available to be read.</span>
 
 <span class="sd">        *Events Emitted*</span>
 
@@ -389,7 +401,8 @@
 <span class="sd">        Returns</span>
 <span class="sd">        -------</span>
 <span class="sd">        bool</span>
-<span class="sd">            True if the socket has data ready to be read, False otherwise.</span>
+<span class="sd">            ``True`` if the socket has data ready to be read, ``False``</span>
+<span class="sd">            otherwise.</span>
 <span class="sd">        &quot;&quot;&quot;</span>
         <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">socket</span> <span class="ow">is</span> <span class="kc">None</span> <span class="ow">or</span> <span class="bp">self</span><span class="o">.</span><span class="n">_is_connected</span> <span class="ow">is</span> <span class="kc">False</span><span class="p">:</span>
             <span class="k">return</span> <span class="kc">False</span>
@@ -448,7 +461,7 @@
         <span class="k">return</span> <span class="n">bytestream</span></div>
 
 <div class="viewcode-block" id="AssociationSocket.send"><a class="viewcode-back" href="../../reference/generated/pynetdicom.transport.AssociationSocket.html#pynetdicom.transport.AssociationSocket.send">[docs]</a>    <span class="k">def</span> <span class="nf">send</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">bytestream</span><span class="p">):</span>
-        <span class="sd">&quot;&quot;&quot;Try and send `bystream` to the remote.</span>
+        <span class="sd">&quot;&quot;&quot;Try and send the data in `bytestream` to the remote.</span>
 
 <span class="sd">        *Events Emitted*</span>
 
@@ -467,24 +480,26 @@
                 <span class="c1"># Returns the number of bytes sent</span>
                 <span class="n">nr_sent</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">socket</span><span class="o">.</span><span class="n">send</span><span class="p">(</span><span class="n">bytestream</span><span class="p">[</span><span class="n">total_sent</span><span class="p">:])</span>
                 <span class="n">total_sent</span> <span class="o">+=</span> <span class="n">nr_sent</span>
+
+            <span class="n">evt</span><span class="o">.</span><span class="n">trigger</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">assoc</span><span class="p">,</span> <span class="n">evt</span><span class="o">.</span><span class="n">EVT_DATA_SENT</span><span class="p">,</span> <span class="p">{</span><span class="s1">&#39;data&#39;</span> <span class="p">:</span> <span class="n">bytestream</span><span class="p">})</span>
         <span class="k">except</span> <span class="p">(</span><span class="n">socket</span><span class="o">.</span><span class="n">error</span><span class="p">,</span> <span class="n">socket</span><span class="o">.</span><span class="n">timeout</span><span class="p">):</span>
             <span class="c1"># Evt17: Transport connection closed</span>
             <span class="bp">self</span><span class="o">.</span><span class="n">event_queue</span><span class="o">.</span><span class="n">put</span><span class="p">(</span><span class="s1">&#39;Evt17&#39;</span><span class="p">)</span></div>
 
     <span class="k">def</span> <span class="nf">__str__</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
-        <span class="sd">&quot;&quot;&quot;Return the string output for `socket`.&quot;&quot;&quot;</span>
+        <span class="sd">&quot;&quot;&quot;Return the string output for ``socket``.&quot;&quot;&quot;</span>
         <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">socket</span><span class="o">.</span><span class="fm">__str__</span><span class="p">()</span></div>
 
 
 <span class="k">class</span> <span class="nc">RequestHandler</span><span class="p">(</span><span class="n">BaseRequestHandler</span><span class="p">):</span>
-    <span class="sd">&quot;&quot;&quot;Connection request handler for the AssociationServer.</span>
+    <span class="sd">&quot;&quot;&quot;Connection request handler for the ``AssociationServer``.</span>
 
 <span class="sd">    Attributes</span>
 <span class="sd">    ----------</span>
+<span class="sd">    client_address : 2-tuple</span>
+<span class="sd">        The ``(host, port)`` of the remote.</span>
 <span class="sd">    request : socket.socket</span>
 <span class="sd">        The (unaccepted) client socket.</span>
-<span class="sd">    client_address : 2-tuple</span>
-<span class="sd">        The (host, port) of the remote.</span>
 <span class="sd">    server : transport.AssociationServer or transport.ThreadedAssociationServer</span>
 <span class="sd">        The server that received the connection request.</span>
 <span class="sd">    &quot;&quot;&quot;</span>
@@ -503,6 +518,7 @@
         <span class="kn">from</span> <span class="nn">pynetdicom.association</span> <span class="k">import</span> <span class="n">Association</span>
 
         <span class="n">assoc</span> <span class="o">=</span> <span class="n">Association</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">ae</span><span class="p">,</span> <span class="n">MODE_ACCEPTOR</span><span class="p">)</span>
+        <span class="n">assoc</span><span class="o">.</span><span class="n">_server</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">server</span>
 
         <span class="c1"># Set the thread name</span>
         <span class="n">timestamp</span> <span class="o">=</span> <span class="n">datetime</span><span class="o">.</span><span class="n">strftime</span><span class="p">(</span><span class="n">datetime</span><span class="o">.</span><span class="n">now</span><span class="p">(),</span> <span class="s2">&quot;%Y%m</span><span class="si">%d</span><span class="s2">%H%M%S&quot;</span><span class="p">)</span>
@@ -530,16 +546,30 @@
         <span class="n">assoc</span><span class="o">.</span><span class="n">requestor</span><span class="o">.</span><span class="n">address</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">remote</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span>
         <span class="n">assoc</span><span class="o">.</span><span class="n">requestor</span><span class="o">.</span><span class="n">port</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">remote</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span>
 
+        <span class="c1"># Bind events to handlers</span>
+        <span class="k">for</span> <span class="n">event</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">server</span><span class="o">.</span><span class="n">_handlers</span><span class="p">:</span>
+            <span class="c1"># Intervention events</span>
+            <span class="k">if</span> <span class="n">event</span><span class="o">.</span><span class="n">is_intervention</span> <span class="ow">and</span> <span class="bp">self</span><span class="o">.</span><span class="n">server</span><span class="o">.</span><span class="n">_handlers</span><span class="p">[</span><span class="n">event</span><span class="p">]:</span>
+                <span class="n">assoc</span><span class="o">.</span><span class="n">bind</span><span class="p">(</span><span class="n">event</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">server</span><span class="o">.</span><span class="n">_handlers</span><span class="p">[</span><span class="n">event</span><span class="p">])</span>
+            <span class="k">elif</span> <span class="n">event</span><span class="o">.</span><span class="n">is_notification</span><span class="p">:</span>
+                <span class="k">for</span> <span class="n">handler</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">server</span><span class="o">.</span><span class="n">_handlers</span><span class="p">[</span><span class="n">event</span><span class="p">]:</span>
+                    <span class="n">assoc</span><span class="o">.</span><span class="n">bind</span><span class="p">(</span><span class="n">event</span><span class="p">,</span> <span class="n">handler</span><span class="p">)</span>
+
+        <span class="c1"># Trigger must be after binding the events</span>
+        <span class="n">evt</span><span class="o">.</span><span class="n">trigger</span><span class="p">(</span>
+            <span class="n">assoc</span><span class="p">,</span> <span class="n">evt</span><span class="o">.</span><span class="n">EVT_CONN_OPEN</span><span class="p">,</span> <span class="p">{</span><span class="s1">&#39;address&#39;</span> <span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">client_address</span><span class="p">}</span>
+        <span class="p">)</span>
+
         <span class="n">assoc</span><span class="o">.</span><span class="n">start</span><span class="p">()</span>
 
     <span class="nd">@property</span>
     <span class="k">def</span> <span class="nf">local</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
-        <span class="sd">&quot;&quot;&quot;Return a 2-tuple of the local server&#39;s (host, port) address.&quot;&quot;&quot;</span>
+        <span class="sd">&quot;&quot;&quot;Return a 2-tuple of the local server&#39;s ``(host, port)`` address.&quot;&quot;&quot;</span>
         <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">server</span><span class="o">.</span><span class="n">server_address</span>
 
     <span class="nd">@property</span>
     <span class="k">def</span> <span class="nf">remote</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
-        <span class="sd">&quot;&quot;&quot;Return a 2-tuple of the remote client&#39;s (host, port) address.&quot;&quot;&quot;</span>
+        <span class="sd">&quot;&quot;&quot;Return a 2-tuple of the remote client&#39;s ``(host, port)`` address.&quot;&quot;&quot;</span>
         <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">client_address</span>
 
 
@@ -550,22 +580,22 @@
 
 <span class="sd">    The server should be started with ``serve_forever(poll_interval)``, where</span>
 <span class="sd">    ``poll_interval`` is the timeout (in seconds) that the ``select.select()``</span>
-<span class="sd">    call will block for (default 0.5). A value of 0 specifies a poll and never</span>
-<span class="sd">    blocks. A value of None blocks until a connection is ready.</span>
+<span class="sd">    call will block for (default ``0.5``). A value of ``0`` specifies a poll</span>
+<span class="sd">    and never blocks. A value of ``None`` blocks until a connection is ready.</span>
 
 <span class="sd">    Attributes</span>
 <span class="sd">    ----------</span>
 <span class="sd">    ae : ae.ApplicationEntity</span>
 <span class="sd">        The parent AE that is running the server.</span>
-<span class="sd">    server_address : 2-tuple</span>
-<span class="sd">        The (host, port) that the server is running on.</span>
-<span class="sd">    ssl_context : ssl.SSLContext or None</span>
-<span class="sd">        The SSLContext used to wrap client sockets, or None if no TLS is</span>
-<span class="sd">        required.</span>
 <span class="sd">    request_queue_size : int</span>
-<span class="sd">        Default 5.</span>
+<span class="sd">        Default ``5``.</span>
+<span class="sd">    server_address : 2-tuple</span>
+<span class="sd">        The ``(host, port)`` that the server is running on.</span>
+<span class="sd">    ssl_context : ssl.SSLContext or None</span>
+<span class="sd">        The ``SSLContext`` used to wrap client sockets, or ``None`` if no TLS</span>
+<span class="sd">        is required (default).</span>
 <span class="sd">    &quot;&quot;&quot;</span>
-<div class="viewcode-block" id="AssociationServer.__init__"><a class="viewcode-back" href="../../reference/generated/pynetdicom.transport.AssociationServer.html#pynetdicom.transport.AssociationServer.__init__">[docs]</a>    <span class="k">def</span> <span class="nf">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">ae</span><span class="p">,</span> <span class="n">address</span><span class="p">,</span> <span class="n">ssl_context</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
+<div class="viewcode-block" id="AssociationServer.__init__"><a class="viewcode-back" href="../../reference/generated/pynetdicom.transport.AssociationServer.html#pynetdicom.transport.AssociationServer.__init__">[docs]</a>    <span class="k">def</span> <span class="nf">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">ae</span><span class="p">,</span> <span class="n">address</span><span class="p">,</span> <span class="n">ssl_context</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">evt_handlers</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;Create a new AssociationServer, bind a socket and start listening.</span>
 
 <span class="sd">        Parameters</span>
@@ -573,11 +603,14 @@
 <span class="sd">        ae : ae.ApplicationEntity</span>
 <span class="sd">            The parent AE that&#39;s running the server.</span>
 <span class="sd">        address : 2-tuple</span>
-<span class="sd">            The (host, port) that the server should run on.</span>
+<span class="sd">            The ``(host, port)`` that the server should run on.</span>
 <span class="sd">        ssl_context : ssl.SSLContext, optional</span>
-<span class="sd">            If TLS is to be used then this should be the ssl.SSLContext used</span>
-<span class="sd">            to wrap the client sockets, otherwise if None then no TLS will be</span>
-<span class="sd">            used (default).</span>
+<span class="sd">            If TLS is to be used then this should be the ``ssl.SSLContext``</span>
+<span class="sd">            used to wrap the client sockets, otherwise if ``None`` then no</span>
+<span class="sd">            TLS will beused (default).</span>
+<span class="sd">        evt_handlers : list of 2-tuple, optional</span>
+<span class="sd">            A list of ``(event, callable)``, the *callable* function to run</span>
+<span class="sd">            when *event* occurs.</span>
 <span class="sd">        &quot;&quot;&quot;</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">ae</span> <span class="o">=</span> <span class="n">ae</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">ssl_context</span> <span class="o">=</span> <span class="n">ssl_context</span>
@@ -587,14 +620,126 @@
             <span class="bp">self</span><span class="p">,</span> <span class="n">address</span><span class="p">,</span> <span class="n">RequestHandler</span><span class="p">,</span> <span class="n">bind_and_activate</span><span class="o">=</span><span class="kc">True</span>
         <span class="p">)</span>
 
-        <span class="bp">self</span><span class="o">.</span><span class="n">timeout</span> <span class="o">=</span> <span class="mi">60</span></div>
+        <span class="bp">self</span><span class="o">.</span><span class="n">timeout</span> <span class="o">=</span> <span class="mi">60</span>
+
+        <span class="c1"># Stores all currently bound event handlers so future</span>
+        <span class="c1">#   Associations can be bound</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_handlers</span> <span class="o">=</span> <span class="p">{}</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_bind_defaults</span><span class="p">()</span>
+
+        <span class="c1"># Bind the functions to their events</span>
+        <span class="k">for</span> <span class="p">(</span><span class="n">event</span><span class="p">,</span> <span class="n">handler</span><span class="p">)</span> <span class="ow">in</span> <span class="p">(</span><span class="n">evt_handlers</span> <span class="ow">or</span> <span class="p">{}):</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">bind</span><span class="p">(</span><span class="n">event</span><span class="p">,</span> <span class="n">handler</span><span class="p">)</span></div>
+
+<div class="viewcode-block" id="AssociationServer.bind"><a class="viewcode-back" href="../../reference/generated/pynetdicom.transport.AssociationServer.html#pynetdicom.transport.AssociationServer.bind">[docs]</a>    <span class="k">def</span> <span class="nf">bind</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">event</span><span class="p">,</span> <span class="n">handler</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;Bind a callable `handler` to an `event`.</span>
+
+<span class="sd">        Parameters</span>
+<span class="sd">        ----------</span>
+<span class="sd">        event : 3-tuple</span>
+<span class="sd">            The event to bind the function to.</span>
+<span class="sd">        handler : callable</span>
+<span class="sd">            The function that will be called if the event occurs.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="c1"># Notification events - multiple handlers allowed</span>
+        <span class="k">if</span> <span class="n">event</span><span class="o">.</span><span class="n">is_notification</span><span class="p">:</span>
+            <span class="k">if</span> <span class="n">event</span> <span class="ow">not</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">_handlers</span><span class="p">:</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">_handlers</span><span class="p">[</span><span class="n">event</span><span class="p">]</span> <span class="o">=</span> <span class="p">[]</span>
+
+            <span class="k">if</span> <span class="n">handler</span> <span class="ow">not</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">_handlers</span><span class="p">[</span><span class="n">event</span><span class="p">]:</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">_handlers</span><span class="p">[</span><span class="n">event</span><span class="p">]</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">handler</span><span class="p">)</span>
+
+        <span class="c1"># Intervention events - only one handler allowed</span>
+        <span class="k">if</span> <span class="n">event</span><span class="o">.</span><span class="n">is_intervention</span><span class="p">:</span>
+            <span class="k">if</span> <span class="n">event</span> <span class="ow">not</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">_handlers</span><span class="p">:</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">_handlers</span><span class="p">[</span><span class="n">event</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span>
+
+            <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">_handlers</span><span class="p">[</span><span class="n">event</span><span class="p">]</span> <span class="o">!=</span> <span class="n">handler</span><span class="p">:</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">_handlers</span><span class="p">[</span><span class="n">event</span><span class="p">]</span> <span class="o">=</span> <span class="n">handler</span>
+
+        <span class="c1"># Bind our child Association events</span>
+        <span class="k">for</span> <span class="n">assoc</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">active_associations</span><span class="p">:</span>
+            <span class="n">assoc</span><span class="o">.</span><span class="n">bind</span><span class="p">(</span><span class="n">event</span><span class="p">,</span> <span class="n">handler</span><span class="p">)</span></div>
+
+    <span class="k">def</span> <span class="nf">_bind_defaults</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;Bind the default event handlers.&quot;&quot;&quot;</span>
+        <span class="c1"># Intervention event handlers</span>
+        <span class="k">for</span> <span class="n">event</span> <span class="ow">in</span> <span class="n">evt</span><span class="o">.</span><span class="n">_INTERVENTION_EVENTS</span><span class="p">:</span>
+            <span class="n">handler</span> <span class="o">=</span> <span class="n">evt</span><span class="o">.</span><span class="n">get_default_handler</span><span class="p">(</span><span class="n">event</span><span class="p">)</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">bind</span><span class="p">(</span><span class="n">event</span><span class="p">,</span> <span class="n">handler</span><span class="p">)</span>
+
+        <span class="c1"># Notification event handlers</span>
+        <span class="k">if</span> <span class="n">_config</span><span class="o">.</span><span class="n">LOG_HANDLER_LEVEL</span> <span class="o">==</span> <span class="s1">&#39;standard&#39;</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">bind</span><span class="p">(</span><span class="n">evt</span><span class="o">.</span><span class="n">EVT_DIMSE_RECV</span><span class="p">,</span> <span class="n">standard_dimse_recv_handler</span><span class="p">)</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">bind</span><span class="p">(</span><span class="n">evt</span><span class="o">.</span><span class="n">EVT_DIMSE_SENT</span><span class="p">,</span> <span class="n">standard_dimse_sent_handler</span><span class="p">)</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">bind</span><span class="p">(</span><span class="n">evt</span><span class="o">.</span><span class="n">EVT_PDU_RECV</span><span class="p">,</span> <span class="n">standard_pdu_recv_handler</span><span class="p">)</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">bind</span><span class="p">(</span><span class="n">evt</span><span class="o">.</span><span class="n">EVT_PDU_SENT</span><span class="p">,</span> <span class="n">standard_pdu_sent_handler</span><span class="p">)</span>
+
+    <span class="nd">@property</span>
+    <span class="k">def</span> <span class="nf">active_associations</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;Return the server&#39;s running ``Association`` acceptor instances&quot;&quot;&quot;</span>
+        <span class="c1"># Find all AcceptorThreads with `_server` as self</span>
+        <span class="n">threads</span> <span class="o">=</span> <span class="p">[</span>
+            <span class="n">tt</span> <span class="k">for</span> <span class="n">tt</span> <span class="ow">in</span> <span class="n">threading</span><span class="o">.</span><span class="n">enumerate</span><span class="p">()</span> <span class="k">if</span> <span class="s1">&#39;AcceptorThread&#39;</span> <span class="ow">in</span> <span class="n">tt</span><span class="o">.</span><span class="n">name</span>
+        <span class="p">]</span>
+        <span class="k">return</span> <span class="p">[</span><span class="n">tt</span> <span class="k">for</span> <span class="n">tt</span> <span class="ow">in</span> <span class="n">threads</span> <span class="k">if</span> <span class="n">tt</span><span class="o">.</span><span class="n">_server</span> <span class="ow">is</span> <span class="bp">self</span><span class="p">]</span>
+
+<div class="viewcode-block" id="AssociationServer.get_events"><a class="viewcode-back" href="../../reference/generated/pynetdicom.transport.AssociationServer.html#pynetdicom.transport.AssociationServer.get_events">[docs]</a>    <span class="k">def</span> <span class="nf">get_events</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;Return a list of currently bound events.&quot;&quot;&quot;</span>
+        <span class="k">return</span> <span class="nb">sorted</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_handlers</span><span class="o">.</span><span class="n">keys</span><span class="p">(),</span> <span class="n">key</span><span class="o">=</span><span class="k">lambda</span> <span class="n">x</span><span class="p">:</span> <span class="n">x</span><span class="o">.</span><span class="n">name</span><span class="p">)</span></div>
+
+<div class="viewcode-block" id="AssociationServer.get_handlers"><a class="viewcode-back" href="../../reference/generated/pynetdicom.transport.AssociationServer.html#pynetdicom.transport.AssociationServer.get_handlers">[docs]</a>    <span class="k">def</span> <span class="nf">get_handlers</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">event</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;Return handlers bound to a specific `event`.</span>
+
+<span class="sd">        Parameters</span>
+<span class="sd">        ----------</span>
+<span class="sd">        event : tuple</span>
+<span class="sd">            The event bound to the handlers.</span>
+
+<span class="sd">        Returns</span>
+<span class="sd">        -------</span>
+<span class="sd">        callable, list of callable or None</span>
+<span class="sd">            If the event is a notification event then returns a list of</span>
+<span class="sd">            callable functions bound to ``event``, if the event is an</span>
+<span class="sd">            intervention event then returns either a callable function if a</span>
+<span class="sd">            handler is bound to the event or ``None`` if no handler has been</span>
+<span class="sd">            bound.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">if</span> <span class="n">event</span> <span class="ow">not</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">_handlers</span><span class="p">:</span>
+            <span class="k">return</span> <span class="p">[]</span>
+
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_handlers</span><span class="p">[</span><span class="n">event</span><span class="p">]</span></div>
+
+<div class="viewcode-block" id="AssociationServer.get_request"><a class="viewcode-back" href="../../reference/generated/pynetdicom.transport.AssociationServer.html#pynetdicom.transport.AssociationServer.get_request">[docs]</a>    <span class="k">def</span> <span class="nf">get_request</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;Handle a connection request.</span>
+
+<span class="sd">        If ``ssl_context`` is set then the client socket will be wrapped using</span>
+<span class="sd">        ``ssl_context.wrap_socket()``.</span>
+
+<span class="sd">        Returns</span>
+<span class="sd">        -------</span>
+<span class="sd">        client_socket : socket._socket</span>
+<span class="sd">            The connection request.</span>
+<span class="sd">        address : 2-tuple</span>
+<span class="sd">            The client&#39;s address as ``(host, port)``.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">client_socket</span><span class="p">,</span> <span class="n">address</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">socket</span><span class="o">.</span><span class="n">accept</span><span class="p">()</span>
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">ssl_context</span><span class="p">:</span>
+            <span class="n">client_socket</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">ssl_context</span><span class="o">.</span><span class="n">wrap_socket</span><span class="p">(</span><span class="n">client_socket</span><span class="p">,</span>
+                                                         <span class="n">server_side</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+
+        <span class="k">return</span> <span class="n">client_socket</span><span class="p">,</span> <span class="n">address</span></div>
+
+<div class="viewcode-block" id="AssociationServer.process_request"><a class="viewcode-back" href="../../reference/generated/pynetdicom.transport.AssociationServer.html#pynetdicom.transport.AssociationServer.process_request">[docs]</a>    <span class="k">def</span> <span class="nf">process_request</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">request</span><span class="p">,</span> <span class="n">client_address</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;Process a connection request.&quot;&quot;&quot;</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">finish_request</span><span class="p">(</span><span class="n">request</span><span class="p">,</span> <span class="n">client_address</span><span class="p">)</span></div>
 
 <div class="viewcode-block" id="AssociationServer.server_bind"><a class="viewcode-back" href="../../reference/generated/pynetdicom.transport.AssociationServer.html#pynetdicom.transport.AssociationServer.server_bind">[docs]</a>    <span class="k">def</span> <span class="nf">server_bind</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;Bind the socket and set the socket options.</span>
 
-<span class="sd">        - socket.SO_REUSEADDR is set to 1</span>
-<span class="sd">        - socket.SO_RCVTIMEO is set to AE.network_timeout unless the value is</span>
-<span class="sd">          None in which case it will be left unset.</span>
+<span class="sd">        - ``socket.SO_REUSEADDR`` is set to 1</span>
+<span class="sd">        - ``socket.SO_RCVTIMEO`` is set to ``AE.network_timeout`` unless the</span>
+<span class="sd">          value is ``None`` in which case it will be left unset.</span>
 <span class="sd">        &quot;&quot;&quot;</span>
         <span class="c1"># SO_REUSEADDR: reuse the socket in TIME_WAIT state without</span>
         <span class="c1">#   waiting for its natural timeout to expire</span>
@@ -621,30 +766,6 @@
         <span class="bp">self</span><span class="o">.</span><span class="n">socket</span><span class="o">.</span><span class="n">bind</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">server_address</span><span class="p">)</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">server_address</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">socket</span><span class="o">.</span><span class="n">getsockname</span><span class="p">()</span></div>
 
-<div class="viewcode-block" id="AssociationServer.get_request"><a class="viewcode-back" href="../../reference/generated/pynetdicom.transport.AssociationServer.html#pynetdicom.transport.AssociationServer.get_request">[docs]</a>    <span class="k">def</span> <span class="nf">get_request</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
-        <span class="sd">&quot;&quot;&quot;Handle a connection request.</span>
-
-<span class="sd">        If ``ssl_context`` is set then the client socket will be wrapped using</span>
-<span class="sd">        ``ssl_context.wrap_socket()``.</span>
-
-<span class="sd">        Returns</span>
-<span class="sd">        -------</span>
-<span class="sd">        client_socket : socket._socket</span>
-<span class="sd">            The connection request.</span>
-<span class="sd">        address : 2-tuple</span>
-<span class="sd">            The client&#39;s address as (host, port).</span>
-<span class="sd">        &quot;&quot;&quot;</span>
-        <span class="n">client_socket</span><span class="p">,</span> <span class="n">address</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">socket</span><span class="o">.</span><span class="n">accept</span><span class="p">()</span>
-        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">ssl_context</span><span class="p">:</span>
-            <span class="n">client_socket</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">ssl_context</span><span class="o">.</span><span class="n">wrap_socket</span><span class="p">(</span><span class="n">client_socket</span><span class="p">,</span>
-                                                         <span class="n">server_side</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
-
-        <span class="k">return</span> <span class="n">client_socket</span><span class="p">,</span> <span class="n">address</span></div>
-
-<div class="viewcode-block" id="AssociationServer.process_request"><a class="viewcode-back" href="../../reference/generated/pynetdicom.transport.AssociationServer.html#pynetdicom.transport.AssociationServer.process_request">[docs]</a>    <span class="k">def</span> <span class="nf">process_request</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">request</span><span class="p">,</span> <span class="n">client_address</span><span class="p">):</span>
-        <span class="sd">&quot;&quot;&quot;Process a connection request.&quot;&quot;&quot;</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">finish_request</span><span class="p">(</span><span class="n">request</span><span class="p">,</span> <span class="n">client_address</span><span class="p">)</span></div>
-
 <div class="viewcode-block" id="AssociationServer.server_close"><a class="viewcode-back" href="../../reference/generated/pynetdicom.transport.AssociationServer.html#pynetdicom.transport.AssociationServer.server_close">[docs]</a>    <span class="k">def</span> <span class="nf">server_close</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;Close the server.&quot;&quot;&quot;</span>
         <span class="k">try</span><span class="p">:</span>
@@ -658,11 +779,41 @@
         <span class="sd">&quot;&quot;&quot;Completely shutdown the server and close it&#39;s socket.&quot;&quot;&quot;</span>
         <span class="n">TCPServer</span><span class="o">.</span><span class="n">shutdown</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">server_close</span><span class="p">()</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">ae</span><span class="o">.</span><span class="n">_servers</span><span class="o">.</span><span class="n">remove</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span></div></div>
+        <span class="bp">self</span><span class="o">.</span><span class="n">ae</span><span class="o">.</span><span class="n">_servers</span><span class="o">.</span><span class="n">remove</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span></div>
+
+<div class="viewcode-block" id="AssociationServer.unbind"><a class="viewcode-back" href="../../reference/generated/pynetdicom.transport.AssociationServer.html#pynetdicom.transport.AssociationServer.unbind">[docs]</a>    <span class="k">def</span> <span class="nf">unbind</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">event</span><span class="p">,</span> <span class="n">handler</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;Unbind a callable `handler` from an `event`.</span>
+
+<span class="sd">        Parameters</span>
+<span class="sd">        ----------</span>
+<span class="sd">        event : 3-tuple</span>
+<span class="sd">            The event to unbind the function from.</span>
+<span class="sd">        handler : callable</span>
+<span class="sd">            The function that will no longer be called if the event occurs.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">if</span> <span class="n">event</span> <span class="ow">not</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">_handlers</span><span class="p">:</span>
+            <span class="k">return</span>
+
+        <span class="c1"># Make sure no access to `_handlers` while its being changed</span>
+        <span class="k">with</span> <span class="n">threading</span><span class="o">.</span><span class="n">Lock</span><span class="p">():</span>
+            <span class="c1"># Notification events</span>
+            <span class="k">if</span> <span class="n">event</span><span class="o">.</span><span class="n">is_notification</span> <span class="ow">and</span> <span class="n">handler</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">_handlers</span><span class="p">[</span><span class="n">event</span><span class="p">]:</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">_handlers</span><span class="p">[</span><span class="n">event</span><span class="p">]</span><span class="o">.</span><span class="n">remove</span><span class="p">(</span><span class="n">handler</span><span class="p">)</span>
+
+                <span class="k">if</span> <span class="ow">not</span> <span class="bp">self</span><span class="o">.</span><span class="n">_handlers</span><span class="p">[</span><span class="n">event</span><span class="p">]:</span>
+                    <span class="k">del</span> <span class="bp">self</span><span class="o">.</span><span class="n">_handlers</span><span class="p">[</span><span class="n">event</span><span class="p">]</span>
+
+            <span class="c1"># Intervention events - unbind and replace with default</span>
+            <span class="k">if</span> <span class="n">event</span><span class="o">.</span><span class="n">is_intervention</span> <span class="ow">and</span> <span class="bp">self</span><span class="o">.</span><span class="n">_handlers</span><span class="p">[</span><span class="n">event</span><span class="p">]</span> <span class="o">==</span> <span class="n">handler</span><span class="p">:</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">_handlers</span><span class="p">[</span><span class="n">event</span><span class="p">]</span> <span class="o">=</span> <span class="n">evt</span><span class="o">.</span><span class="n">get_default_handler</span><span class="p">(</span><span class="n">event</span><span class="p">)</span>
+
+            <span class="c1"># Unbind from our child Association events</span>
+            <span class="k">for</span> <span class="n">assoc</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">active_associations</span><span class="p">:</span>
+                <span class="n">assoc</span><span class="o">.</span><span class="n">unbind</span><span class="p">(</span><span class="n">event</span><span class="p">,</span> <span class="n">handler</span><span class="p">)</span></div></div>
 
 
 <div class="viewcode-block" id="ThreadedAssociationServer"><a class="viewcode-back" href="../../reference/generated/pynetdicom.transport.ThreadedAssociationServer.html#pynetdicom.transport.ThreadedAssociationServer">[docs]</a><span class="k">class</span> <span class="nc">ThreadedAssociationServer</span><span class="p">(</span><span class="n">ThreadingMixIn</span><span class="p">,</span> <span class="n">AssociationServer</span><span class="p">):</span>
-    <span class="sd">&quot;&quot;&quot;An AssociationServer suitable for threading.&quot;&quot;&quot;</span>
+    <span class="sd">&quot;&quot;&quot;An ``AssociationServer`` suitable for threading.&quot;&quot;&quot;</span>
 <div class="viewcode-block" id="ThreadedAssociationServer.process_request_thread"><a class="viewcode-back" href="../../reference/generated/pynetdicom.transport.ThreadedAssociationServer.html#pynetdicom.transport.ThreadedAssociationServer.process_request_thread">[docs]</a>    <span class="k">def</span> <span class="nf">process_request_thread</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">request</span><span class="p">,</span> <span class="n">client_address</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;Process a connection request.&quot;&quot;&quot;</span>
         <span class="c1"># pylint: disable=broad-except</span>

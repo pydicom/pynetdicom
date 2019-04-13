@@ -8,7 +8,7 @@
   
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   
-  <title>Query/Retrieve (Get) Service Examples &mdash; pynetdicom 1.2.0 documentation</title>
+  <title>Query/Retrieve (Get) Service Examples &mdash; pynetdicom 1.3.0 documentation</title>
   
 
   
@@ -64,7 +64,7 @@
             
             
               <div class="version">
-                1.2.0
+                1.3.0
               </div>
             
           
@@ -101,12 +101,14 @@
 <li class="toctree-l1"><a class="reference internal" href="../hanging_protocol_service_class.html">Hanging Protocol Query/Retrieve Service Class</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../implant_template_service_class.html">Implant Template Query/Retrieve Service Class</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../display_system_service_class.html">Display System Management Service Class</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../modality_performed_procedure_step.html">Modality Performed Procedure Step Management</a></li>
 </ul>
 <ul>
 <li class="toctree-l1"><a class="reference internal" href="../user/index.html">User Guide</a></li>
 </ul>
 <ul>
-<li class="toctree-l1"><a class="reference internal" href="../release_notes.html">1.2.0</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../release_notes.html">1.3.0</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../release_notes.html#v1-2-0">1.2.0</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../release_notes.html#v1-1-0">1.1.0</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../release_notes.html#v1-0-0">1.0.0</a></li>
 </ul>
@@ -191,32 +193,32 @@ series with <em>Study Instance UID</em> <code class="docutils literal notranslat
 <p>The value of the <em>Query Retrieve Level</em> determines what SOP Instances are
 actually transferred; to transfer all datasets in the series we use
 the SERIES level.</p>
-<table border="1" class="docutils">
+<table class="docutils align-center">
 <colgroup>
-<col width="26%" />
-<col width="74%" />
+<col style="width: 26%" />
+<col style="width: 74%" />
 </colgroup>
-<thead valign="bottom">
-<tr class="row-odd"><th class="head">Query Retrieve
-Level</th>
-<th class="head">Effect</th>
+<thead>
+<tr class="row-odd"><th class="head"><p>Query Retrieve
+Level</p></th>
+<th class="head"><p>Effect</p></th>
 </tr>
 </thead>
-<tbody valign="top">
-<tr class="row-even"><td>PATIENT</td>
-<td>All SOP Instances related to a patient shall be
-transferred</td>
+<tbody>
+<tr class="row-even"><td><p>PATIENT</p></td>
+<td><p>All SOP Instances related to a patient shall be
+transferred</p></td>
 </tr>
-<tr class="row-odd"><td>STUDY</td>
-<td>All SOP Instances related to a study shall be
-transferred</td>
+<tr class="row-odd"><td><p>STUDY</p></td>
+<td><p>All SOP Instances related to a study shall be
+transferred</p></td>
 </tr>
-<tr class="row-even"><td>SERIES</td>
-<td>All SOP Instances related to a series shall be
-transferred</td>
+<tr class="row-even"><td><p>SERIES</p></td>
+<td><p>All SOP Instances related to a series shall be
+transferred</p></td>
 </tr>
-<tr class="row-odd"><td>IMAGE</td>
-<td>Selected individual SOP Instances shall be transferred</td>
+<tr class="row-odd"><td><p>IMAGE</p></td>
+<td><p>Selected individual SOP Instances shall be transferred</p></td>
 </tr>
 </tbody>
 </table>
@@ -229,70 +231,27 @@ the C-STORE requests.</p>
 that you ensure the file is conformant with the
 <a class="reference external" href="http://dicom.nema.org/medical/dicom/current/output/html/part10.html#chapter_7">DICOM File Format</a>,
 which requires adding the File Meta Information.</p>
+<p>Check the
+<a class="reference external" href="../reference/generated/pynetdicom._handlers.doc_handle_store.html">handler implementation documentation</a>
+to see the requirements for the <code class="docutils literal notranslate"><span class="pre">evt.EVT_C_STORE</span></code> handler.</p>
 <div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span> <span class="nn">pydicom.dataset</span> <span class="kn">import</span> <span class="n">Dataset</span>
 
 <span class="kn">from</span> <span class="nn">pynetdicom</span> <span class="kn">import</span> <span class="p">(</span>
-    <span class="n">AE</span><span class="p">,</span>
+    <span class="n">AE</span><span class="p">,</span> <span class="n">evt</span><span class="p">,</span> <span class="n">build_role</span><span class="p">,</span>
     <span class="n">PYNETDICOM_IMPLEMENTATION_UID</span><span class="p">,</span>
     <span class="n">PYNETDICOM_IMPLEMENTATION_VERSION</span>
 <span class="p">)</span>
-<span class="kn">from</span> <span class="nn">pynetdicom.pdu_primitives</span> <span class="kn">import</span> <span class="n">SCP_SCU_RoleSelectionNegotiation</span>
 <span class="kn">from</span> <span class="nn">pynetdicom.sop_class</span> <span class="kn">import</span> <span class="p">(</span>
     <span class="n">PatientRootQueryRetrieveInformationModelGet</span><span class="p">,</span>
     <span class="n">CTImageStorage</span>
 <span class="p">)</span>
 
-<span class="c1"># Initialise the Application Entity</span>
-<span class="n">ae</span> <span class="o">=</span> <span class="n">AE</span><span class="p">()</span>
+<span class="c1"># Implement the handler for evt.EVT_C_STORE</span>
+<span class="k">def</span> <span class="nf">handle_store</span><span class="p">(</span><span class="n">event</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;Handle a C-STORE request event.&quot;&quot;&quot;</span>
+    <span class="n">ds</span> <span class="o">=</span> <span class="n">event</span><span class="o">.</span><span class="n">dataset</span>
+    <span class="n">context</span> <span class="o">=</span> <span class="n">event</span><span class="o">.</span><span class="n">context</span>
 
-<span class="c1"># Add the requested presentation contexts (QR SCU)</span>
-<span class="n">ae</span><span class="o">.</span><span class="n">add_requested_context</span><span class="p">(</span><span class="n">PatientRootQueryRetrieveInformationModelGet</span><span class="p">)</span>
-<span class="c1"># Add the requested presentation context (Storage SCP)</span>
-<span class="n">ae</span><span class="o">.</span><span class="n">add_requested_context</span><span class="p">(</span><span class="n">CTImageStorage</span><span class="p">)</span>
-
-<span class="c1"># Add an SCP/SCU Role Selection Negotiation item for CT Image Storage</span>
-<span class="n">role</span> <span class="o">=</span> <span class="n">SCP_SCU_RoleSelectionNegotiation</span><span class="p">()</span>
-<span class="n">role</span><span class="o">.</span><span class="n">sop_class_uid</span> <span class="o">=</span> <span class="n">CTImageStorage</span>
-<span class="c1"># We will be acting as an SCP for CT Image Storage</span>
-<span class="n">role</span><span class="o">.</span><span class="n">scu_role</span> <span class="o">=</span> <span class="bp">False</span>
-<span class="n">role</span><span class="o">.</span><span class="n">scp_role</span> <span class="o">=</span> <span class="bp">True</span>
-
-<span class="c1"># Extended negotiation items</span>
-<span class="n">ext_neg</span> <span class="o">=</span> <span class="p">[</span><span class="n">role</span><span class="p">]</span>
-
-<span class="c1"># Create our Identifier (query) dataset</span>
-<span class="c1"># We need to supply a Unique Key Attribute for each level above the</span>
-<span class="c1">#   Query/Retrieve level</span>
-<span class="n">ds</span> <span class="o">=</span> <span class="n">Dataset</span><span class="p">()</span>
-<span class="n">ds</span><span class="o">.</span><span class="n">QueryRetrieveLevel</span> <span class="o">=</span> <span class="s1">&#39;SERIES&#39;</span>
-<span class="c1"># Unique key for PATIENT level</span>
-<span class="n">ds</span><span class="o">.</span><span class="n">PatientID</span> <span class="o">=</span> <span class="s1">&#39;1234567&#39;</span>
-<span class="c1"># Unique key for STUDY level</span>
-<span class="n">ds</span><span class="o">.</span><span class="n">StudyInstanceUID</span> <span class="o">=</span> <span class="s1">&#39;1.2.3&#39;</span>
-<span class="c1"># Unique key for SERIES level</span>
-<span class="n">ds</span><span class="o">.</span><span class="n">SeriesInstanceUID</span> <span class="o">=</span> <span class="s1">&#39;1.2.3.4&#39;</span>
-
-<span class="c1"># Implement the AE.on_c_store callback</span>
-<span class="k">def</span> <span class="nf">on_c_store</span><span class="p">(</span><span class="n">ds</span><span class="p">,</span> <span class="n">context</span><span class="p">,</span> <span class="n">info</span><span class="p">):</span>
-    <span class="sd">&quot;&quot;&quot;Store the pydicom Dataset `ds`.</span>
-
-<span class="sd">    Parameters</span>
-<span class="sd">    ----------</span>
-<span class="sd">    ds : pydicom.dataset.Dataset</span>
-<span class="sd">        The dataset that the peer has requested be stored.</span>
-<span class="sd">    context : namedtuple</span>
-<span class="sd">        The presentation context that the dataset was sent under.</span>
-<span class="sd">    info : dict</span>
-<span class="sd">        Information about the association and storage request.</span>
-
-<span class="sd">    Returns</span>
-<span class="sd">    -------</span>
-<span class="sd">    status : int or pydicom.dataset.Dataset</span>
-<span class="sd">        The status returned to the peer AE in the C-STORE response. Must be</span>
-<span class="sd">        a valid C-STORE status value for the applicable Service Class as</span>
-<span class="sd">        either an ``int`` or a ``Dataset`` object containing (at a</span>
-<span class="sd">        minimum) a (0000,0900) *Status* element.</span>
-<span class="sd">    &quot;&quot;&quot;</span>
     <span class="c1"># Add the DICOM File Meta Information</span>
     <span class="n">meta</span> <span class="o">=</span> <span class="n">Dataset</span><span class="p">()</span>
     <span class="n">meta</span><span class="o">.</span><span class="n">MediaStorageSOPClassUID</span> <span class="o">=</span> <span class="n">ds</span><span class="o">.</span><span class="n">SOPClassUID</span>
@@ -314,10 +273,33 @@ which requires adding the File Meta Information.</p>
     <span class="c1"># Return a &#39;Success&#39; status</span>
     <span class="k">return</span> <span class="mh">0x0000</span>
 
-<span class="n">ae</span><span class="o">.</span><span class="n">on_c_store</span> <span class="o">=</span> <span class="n">on_c_store</span>
+<span class="n">handlers</span> <span class="o">=</span> <span class="p">[(</span><span class="n">evt</span><span class="o">.</span><span class="n">EVT_C_STORE</span><span class="p">,</span> <span class="n">handle_store</span><span class="p">)]</span>
+
+<span class="c1"># Initialise the Application Entity</span>
+<span class="n">ae</span> <span class="o">=</span> <span class="n">AE</span><span class="p">()</span>
+
+<span class="c1"># Add the requested presentation contexts (QR SCU)</span>
+<span class="n">ae</span><span class="o">.</span><span class="n">add_requested_context</span><span class="p">(</span><span class="n">PatientRootQueryRetrieveInformationModelGet</span><span class="p">)</span>
+<span class="c1"># Add the requested presentation context (Storage SCP)</span>
+<span class="n">ae</span><span class="o">.</span><span class="n">add_requested_context</span><span class="p">(</span><span class="n">CTImageStorage</span><span class="p">)</span>
+
+<span class="c1"># Create an SCP/SCU Role Selection Negotiation item for CT Image Storage</span>
+<span class="n">role</span> <span class="o">=</span> <span class="n">build_role</span><span class="p">(</span><span class="n">CTImageStorage</span><span class="p">,</span> <span class="n">scp_role</span><span class="o">=</span><span class="bp">True</span><span class="p">)</span>
+
+<span class="c1"># Create our Identifier (query) dataset</span>
+<span class="c1"># We need to supply a Unique Key Attribute for each level above the</span>
+<span class="c1">#   Query/Retrieve level</span>
+<span class="n">ds</span> <span class="o">=</span> <span class="n">Dataset</span><span class="p">()</span>
+<span class="n">ds</span><span class="o">.</span><span class="n">QueryRetrieveLevel</span> <span class="o">=</span> <span class="s1">&#39;SERIES&#39;</span>
+<span class="c1"># Unique key for PATIENT level</span>
+<span class="n">ds</span><span class="o">.</span><span class="n">PatientID</span> <span class="o">=</span> <span class="s1">&#39;1234567&#39;</span>
+<span class="c1"># Unique key for STUDY level</span>
+<span class="n">ds</span><span class="o">.</span><span class="n">StudyInstanceUID</span> <span class="o">=</span> <span class="s1">&#39;1.2.3&#39;</span>
+<span class="c1"># Unique key for SERIES level</span>
+<span class="n">ds</span><span class="o">.</span><span class="n">SeriesInstanceUID</span> <span class="o">=</span> <span class="s1">&#39;1.2.3.4&#39;</span>
 
 <span class="c1"># Associate with peer AE at IP 127.0.0.1 and port 11112</span>
-<span class="n">assoc</span> <span class="o">=</span> <span class="n">ae</span><span class="o">.</span><span class="n">associate</span><span class="p">(</span><span class="s1">&#39;127.0.0.1&#39;</span><span class="p">,</span> <span class="mi">11112</span><span class="p">,</span> <span class="n">ext_neg</span><span class="o">=</span><span class="n">ext_neg</span><span class="p">)</span>
+<span class="n">assoc</span> <span class="o">=</span> <span class="n">ae</span><span class="o">.</span><span class="n">associate</span><span class="p">(</span><span class="s1">&#39;127.0.0.1&#39;</span><span class="p">,</span> <span class="mi">11112</span><span class="p">,</span> <span class="n">ext_neg</span><span class="o">=</span><span class="p">[</span><span class="n">role</span><span class="p">],</span> <span class="n">evt_handlers</span><span class="o">=</span><span class="n">handlers</span><span class="p">)</span>
 
 <span class="k">if</span> <span class="n">assoc</span><span class="o">.</span><span class="n">is_established</span><span class="p">:</span>
     <span class="c1"># Use the C-GET service to send the identifier</span>
@@ -345,7 +327,7 @@ which requires adding the File Meta Information.</p>
 keys and values, the Query/Retrieve level and the information model.</p>
 </div>
 <div class="section" id="query-retrieve-get-scp">
-<h2>Query/Retrieve (Get) SCP<a class="headerlink" href="#query-retrieve-get-scp" title="Permalink to this headline">¶</a></h2>
+<span id="example-qrget-scp"></span><h2>Query/Retrieve (Get) SCP<a class="headerlink" href="#query-retrieve-get-scp" title="Permalink to this headline">¶</a></h2>
 <p>The following represents a toy implementation of a Query/Retrieve (Get) SCP
 where the SCU has sent the following <em>Identifier</em> dataset under the <em>Patient
 Root Query Retrieve Information Model - Get</em> context.</p>
@@ -357,69 +339,21 @@ Root Query Retrieve Information Model - Get</em> context.</p>
 <p>This is a very bad way of managing stored SOP Instances, in reality its
 probably best to store the instance attributes in a database and run the
 query against that.</p>
+<p>Check the
+<a class="reference external" href="../reference/generated/pynetdicom._handlers.doc_handle_c_get.html">handler implementation documentation</a>
+to see the requirements for the <code class="docutils literal notranslate"><span class="pre">evt.EVT_C_GET</span></code> handler.</p>
 <div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">import</span> <span class="nn">os</span>
 
 <span class="kn">from</span> <span class="nn">pydicom</span> <span class="kn">import</span> <span class="n">dcmread</span>
 <span class="kn">from</span> <span class="nn">pydicom.dataset</span> <span class="kn">import</span> <span class="n">Dataset</span>
 
-<span class="kn">from</span> <span class="nn">pynetdicom</span> <span class="kn">import</span> <span class="n">AE</span><span class="p">,</span> <span class="n">StoragePresentationContexts</span>
+<span class="kn">from</span> <span class="nn">pynetdicom</span> <span class="kn">import</span> <span class="n">AE</span><span class="p">,</span> <span class="n">StoragePresentationContexts</span><span class="p">,</span> <span class="n">evt</span>
 <span class="kn">from</span> <span class="nn">pynetdicom.sop_class</span> <span class="kn">import</span> <span class="n">PatientRootQueryRetrieveInformationModelGet</span>
 
-<span class="c1"># Create application entity</span>
-<span class="n">ae</span> <span class="o">=</span> <span class="n">AE</span><span class="p">()</span>
-
-<span class="c1"># Add the supported presentation contexts (Storage SCU)</span>
-<span class="n">ae</span><span class="o">.</span><span class="n">supported_contexts</span> <span class="o">=</span> <span class="n">StoragePresentationContexts</span>
-
-<span class="c1"># Accept the association requestor&#39;s proposed SCP role in the</span>
-<span class="c1">#   SCP/SCU Role Selection Negotiation items</span>
-<span class="k">for</span> <span class="n">cx</span> <span class="ow">in</span> <span class="n">ae</span><span class="o">.</span><span class="n">supported_contexts</span><span class="p">:</span>
-    <span class="n">cx</span><span class="o">.</span><span class="n">scp_role</span> <span class="o">=</span> <span class="bp">True</span>
-    <span class="n">cx</span><span class="o">.</span><span class="n">scu_role</span> <span class="o">=</span> <span class="bp">False</span>
-
-<span class="c1"># Add a supported presentation context (QR Get SCP)</span>
-<span class="n">ae</span><span class="o">.</span><span class="n">add_supported_context</span><span class="p">(</span><span class="n">PatientRootQueryRetrieveInformationModelGet</span><span class="p">)</span>
-
-<span class="c1"># Implement the AE.on_c_get callback</span>
-<span class="k">def</span> <span class="nf">on_c_get</span><span class="p">(</span><span class="n">ds</span><span class="p">,</span> <span class="n">context</span><span class="p">,</span> <span class="n">info</span><span class="p">):</span>
-    <span class="sd">&quot;&quot;&quot;Respond to a C-GET request Identifier `ds`.</span>
-
-<span class="sd">    Parameters</span>
-<span class="sd">    ----------</span>
-<span class="sd">    ds : pydicom.dataset.Dataset</span>
-<span class="sd">        The Identifier dataset sent by the peer.</span>
-<span class="sd">    context : presentation.PresentationContextTuple</span>
-<span class="sd">        The presentation context that the C-GET message was sent under.</span>
-<span class="sd">    info : dict</span>
-<span class="sd">        A dict containing information about the current association.</span>
-
-<span class="sd">    Yields</span>
-<span class="sd">    ------</span>
-<span class="sd">    int</span>
-<span class="sd">        The first yielded value should be the total number of C-STORE</span>
-<span class="sd">        sub-operations necessary to complete the C-GET operation. In other</span>
-<span class="sd">        words, this is the number of matching SOP Instances to be sent to</span>
-<span class="sd">        the peer.</span>
-<span class="sd">    status : pydicom.dataset.Dataset or int</span>
-<span class="sd">        The status returned to the peer AE in the C-GET response. Must be a</span>
-<span class="sd">        valid C-GET status value for the applicable Service Class as either</span>
-<span class="sd">        an ``int`` or a ``Dataset`` object containing (at a minimum) a</span>
-<span class="sd">        (0000,0900) *Status* element. If returning a Dataset object then</span>
-<span class="sd">        it may also contain optional elements related to the Status (as in</span>
-<span class="sd">        DICOM Standard Part 7, Annex C).</span>
-<span class="sd">    dataset : pydicom.dataset.Dataset or None</span>
-<span class="sd">        If the status is &#39;Pending&#39; then yield the ``Dataset`` to send to</span>
-<span class="sd">        the peer via a C-STORE sub-operation over the current association.</span>
-
-<span class="sd">        If the status is &#39;Failed&#39;, &#39;Warning&#39; or &#39;Cancel&#39; then yield a</span>
-<span class="sd">        ``Dataset`` with a (0008,0058) *Failed SOP Instance UID List*</span>
-<span class="sd">        element containing a list of the C-STORE sub-operation SOP Instance</span>
-<span class="sd">        UIDs for which the C-GET operation has failed.</span>
-
-<span class="sd">        If the status is &#39;Success&#39; then yield ``None``, although yielding a</span>
-<span class="sd">        final &#39;Success&#39; status is not required and will be ignored if</span>
-<span class="sd">        necessary</span>
-<span class="sd">    &quot;&quot;&quot;</span>
+<span class="c1"># Implement the handler for evt.EVT_C_GET</span>
+<span class="k">def</span> <span class="nf">handle_get</span><span class="p">(</span><span class="n">event</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;Handle a C-GET request event.&quot;&quot;&quot;</span>
+    <span class="n">ds</span> <span class="o">=</span> <span class="n">event</span><span class="o">.</span><span class="n">identifier</span>
     <span class="k">if</span> <span class="s1">&#39;QueryRetrieveLevel&#39;</span> <span class="ow">not</span> <span class="ow">in</span> <span class="n">ds</span><span class="p">:</span>
         <span class="c1"># Failure</span>
         <span class="k">yield</span> <span class="mh">0xC000</span><span class="p">,</span> <span class="bp">None</span>
@@ -447,14 +381,33 @@ query against that.</p>
 
     <span class="c1"># Yield the matching instances</span>
     <span class="k">for</span> <span class="n">instance</span> <span class="ow">in</span> <span class="n">matching</span><span class="p">:</span>
+        <span class="c1"># Check if C-CANCEL has been received</span>
+        <span class="k">if</span> <span class="n">event</span><span class="o">.</span><span class="n">is_cancelled</span><span class="p">:</span>
+            <span class="k">yield</span> <span class="p">(</span><span class="mh">0xFE00</span><span class="p">,</span> <span class="bp">None</span><span class="p">)</span>
+            <span class="k">return</span>
+
         <span class="c1"># Pending</span>
         <span class="k">yield</span> <span class="p">(</span><span class="mh">0xFF00</span><span class="p">,</span> <span class="n">instance</span><span class="p">)</span>
 
+<span class="n">handlers</span> <span class="o">=</span> <span class="p">[(</span><span class="n">evt</span><span class="o">.</span><span class="n">EVT_C_GET</span><span class="p">),</span> <span class="n">handle_get</span><span class="p">]</span>
 
-<span class="n">ae</span><span class="o">.</span><span class="n">on_c_get</span> <span class="o">=</span> <span class="n">on_c_get</span>
+<span class="c1"># Create application entity</span>
+<span class="n">ae</span> <span class="o">=</span> <span class="n">AE</span><span class="p">()</span>
+
+<span class="c1"># Add the supported presentation contexts (Storage SCU)</span>
+<span class="n">ae</span><span class="o">.</span><span class="n">supported_contexts</span> <span class="o">=</span> <span class="n">StoragePresentationContexts</span>
+
+<span class="c1"># Accept the association requestor&#39;s proposed SCP role in the</span>
+<span class="c1">#   SCP/SCU Role Selection Negotiation items</span>
+<span class="k">for</span> <span class="n">cx</span> <span class="ow">in</span> <span class="n">ae</span><span class="o">.</span><span class="n">supported_contexts</span><span class="p">:</span>
+    <span class="n">cx</span><span class="o">.</span><span class="n">scp_role</span> <span class="o">=</span> <span class="bp">True</span>
+    <span class="n">cx</span><span class="o">.</span><span class="n">scu_role</span> <span class="o">=</span> <span class="bp">False</span>
+
+<span class="c1"># Add a supported presentation context (QR Get SCP)</span>
+<span class="n">ae</span><span class="o">.</span><span class="n">add_supported_context</span><span class="p">(</span><span class="n">PatientRootQueryRetrieveInformationModelGet</span><span class="p">)</span>
 
 <span class="c1"># Start listening for incoming association requests</span>
-<span class="n">ae</span><span class="o">.</span><span class="n">start_server</span><span class="p">((</span><span class="s1">&#39;&#39;</span><span class="p">,</span> <span class="mi">11112</span><span class="p">))</span>
+<span class="n">ae</span><span class="o">.</span><span class="n">start_server</span><span class="p">((</span><span class="s1">&#39;&#39;</span><span class="p">,</span> <span class="mi">11112</span><span class="p">),</span> <span class="n">evt_handlers</span><span class="o">=</span><span class="n">handlers</span><span class="p">)</span>
 </pre></div>
 </div>
 </div>

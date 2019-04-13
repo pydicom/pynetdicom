@@ -8,7 +8,7 @@
   
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   
-  <title>Application Entity &mdash; pynetdicom 1.2.0 documentation</title>
+  <title>Application Entity &mdash; pynetdicom 1.3.0 documentation</title>
   
 
   
@@ -39,7 +39,7 @@
     <link rel="index" title="Index" href="../genindex.html" />
     <link rel="search" title="Search" href="../search.html" />
     <link rel="next" title="Association" href="association.html" />
-    <link rel="prev" title="Presentation Contexts" href="presentation.html" /> 
+    <link rel="prev" title="Events" href="events.html" /> 
 </head>
 
 <body class="wy-body-for-nav">
@@ -66,7 +66,7 @@
             
             
               <div class="version">
-                1.2.0
+                1.3.0
               </div>
             
           
@@ -103,12 +103,14 @@
 <li class="toctree-l1"><a class="reference internal" href="../hanging_protocol_service_class.html">Hanging Protocol Query/Retrieve Service Class</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../implant_template_service_class.html">Implant Template Query/Retrieve Service Class</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../display_system_service_class.html">Display System Management Service Class</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../modality_performed_procedure_step.html">Modality Performed Procedure Step Management</a></li>
 </ul>
 <ul class="current">
 <li class="toctree-l1 current"><a class="reference internal" href="index.html">User Guide</a><ul class="current">
 <li class="toctree-l2"><a class="reference internal" href="installation.html">Installation</a></li>
 <li class="toctree-l2"><a class="reference internal" href="concepts.html">Important Concepts</a></li>
 <li class="toctree-l2"><a class="reference internal" href="presentation.html">Presentation Contexts</a></li>
+<li class="toctree-l2"><a class="reference internal" href="events.html">Events</a></li>
 <li class="toctree-l2 current"><a class="current reference internal" href="#">Application Entity</a><ul>
 <li class="toctree-l3"><a class="reference internal" href="#creating-an-scu">Creating an SCU</a><ul>
 <li class="toctree-l4"><a class="reference internal" href="#adding-requested-presentation-contexts">Adding requested Presentation Contexts</a></li>
@@ -132,7 +134,8 @@
 </li>
 </ul>
 <ul>
-<li class="toctree-l1"><a class="reference internal" href="../release_notes.html">1.2.0</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../release_notes.html">1.3.0</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../release_notes.html#v1-2-0">1.2.0</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../release_notes.html#v1-1-0">1.1.0</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../release_notes.html#v1-0-0">1.0.0</a></li>
 </ul>
@@ -224,17 +227,14 @@ title can set by supplying the <code class="docutils literal notranslate"><span 
 </div>
 <p>AE titles must meet the conditions of a DICOM data element with a
 <a class="reference external" href="http://dicom.nema.org/medical/dicom/current/output/chtml/part05/sect_6.2.html">Value Representation</a>
-of <strong>AE</strong> <a class="footnote-reference" href="#id8" id="id1">[1]</a>:</p>
+of <strong>AE</strong> <a class="footnote-reference brackets" href="#id8" id="id1">1</a>:</p>
 <ul class="simple">
-<li>Leading and trailing spaces (<code class="docutils literal notranslate"><span class="pre">0x20</span></code>) are non-significant</li>
-<li>Maximum 16 characters (once non-significant characters are removed)</li>
-<li>Valid characters belong to the DICOM <a class="reference external" href="http://dicom.nema.org/medical/dicom/current/output/chtml/part05/chapter_E.html">Default Character Repertoire</a>
-<a class="footnote-reference" href="#id9" id="id2">[2]</a>, which is the basic G0 Set of the ISO646:1990 <a class="footnote-reference" href="#id12" id="id3">[5]</a> (ASCII) standard
-excluding backslash (‘\ ‘ <code class="docutils literal notranslate"><span class="pre">0x5c</span></code>) and all control characters <a class="footnote-reference" href="#id10" id="id4">[3]</a>.</li>
-</ul>
-<p>There’s also an extra restriction on Application Entity AE titles:</p>
-<ul class="simple">
-<li>An AE title made entirely of spaces is not allowed <a class="footnote-reference" href="#id11" id="id5">[4]</a></li>
+<li><p>Leading and trailing spaces (<code class="docutils literal notranslate"><span class="pre">0x20</span></code>) are non-significant</p></li>
+<li><p>Maximum 16 characters (once non-significant characters are removed)</p></li>
+<li><p>Valid characters belong to the DICOM <a class="reference external" href="http://dicom.nema.org/medical/dicom/current/output/chtml/part05/chapter_E.html">Default Character Repertoire</a>
+<a class="footnote-reference brackets" href="#id9" id="id2">2</a>, which is the basic G0 Set of the ISO646:1990 <a class="footnote-reference brackets" href="#id12" id="id3">5</a> (ASCII) standard
+excluding backslash (‘\ ‘ <code class="docutils literal notranslate"><span class="pre">0x5c</span></code>) and all control characters <a class="footnote-reference brackets" href="#id10" id="id4">3</a>.</p></li>
+<li><p>An AE title made entirely of spaces is not allowed <a class="footnote-reference brackets" href="#id11" id="id5">4</a></p></li>
 </ul>
 <p>AE titles in <em>pynetdicom</em> are checked for validity (using
 <a class="reference internal" href="../reference/generated/pynetdicom.utils.validate_ae_title.html#pynetdicom.utils.validate_ae_title" title="pynetdicom.utils.validate_ae_title"><code class="xref py py-meth docutils literal notranslate"><span class="pre">utils.validate_ae_title()</span></code></a>)
@@ -260,12 +260,12 @@ specify the <a class="reference internal" href="presentation.html#user-presentat
 that will be <em>requested</em> during
 Association negotiation. This can be done in two ways:</p>
 <ul class="simple">
-<li>You can add requested contexts on a one-by-one basis using the
+<li><p>You can add requested contexts on a one-by-one basis using the
 <a class="reference internal" href="../reference/generated/pynetdicom.ae.ApplicationEntity.html#pynetdicom.ae.ApplicationEntity.add_requested_context" title="pynetdicom.ae.ApplicationEntity.add_requested_context"><code class="xref py py-meth docutils literal notranslate"><span class="pre">AE.add_requested_context()</span></code></a>
-method.</li>
-<li>You can set all the requested contexts at once using the
+method.</p></li>
+<li><p>You can set all the requested contexts at once using the
 <a class="reference internal" href="../reference/generated/pynetdicom.ae.ApplicationEntity.html#pynetdicom.ae.ApplicationEntity.requested_contexts" title="pynetdicom.ae.ApplicationEntity.requested_contexts"><code class="xref py py-obj docutils literal notranslate"><span class="pre">AE.requested_contexts</span></code></a>
-property. Additional contexts can still be added on a one-by-one basis afterwards.</li>
+property. Additional contexts can still be added on a one-by-one basis afterwards.</p></li>
 </ul>
 <p>Adding presentation contexts one-by-one:</p>
 <div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="kn">from</span> <span class="nn">pydicom.uid</span> <span class="k">import</span> <span class="n">UID</span>
@@ -316,20 +316,20 @@ presentation contexts, so attempting to add more than 128 contexts will raise
 a <code class="docutils literal notranslate"><span class="pre">ValueError</span></code> exception.</p>
 <p>When you add presentation contexts as shown above, the following transfer
 syntaxes are used by default for each context:</p>
-<table border="1" class="docutils">
+<table class="docutils align-center">
 <colgroup>
-<col width="41%" />
-<col width="59%" />
+<col style="width: 41%" />
+<col style="width: 59%" />
 </colgroup>
-<tbody valign="top">
-<tr class="row-odd"><td>1.2.840.10008.1.2</td>
-<td>Implicit VR Little Endian</td>
+<tbody>
+<tr class="row-odd"><td><p>1.2.840.10008.1.2</p></td>
+<td><p>Implicit VR Little Endian</p></td>
 </tr>
-<tr class="row-even"><td>1.2.840.10008.1.2.1</td>
-<td>Explicit VR Little Endian</td>
+<tr class="row-even"><td><p>1.2.840.10008.1.2.1</p></td>
+<td><p>Explicit VR Little Endian</p></td>
 </tr>
-<tr class="row-odd"><td>1.2.840.10008.1.2.2</td>
-<td>Explicit VR Big Endian</td>
+<tr class="row-odd"><td><p>1.2.840.10008.1.2.2</p></td>
+<td><p>Explicit VR Big Endian</p></td>
 </tr>
 </tbody>
 </table>
@@ -432,13 +432,13 @@ specify the <a class="reference internal" href="presentation.html#user-presentat
 that will be <em>supported</em> during
 Association negotiation. This can be done in two ways:</p>
 <ul class="simple">
-<li>You can add supported contexts on a one-by-one basis using the
+<li><p>You can add supported contexts on a one-by-one basis using the
 <a class="reference internal" href="../reference/generated/pynetdicom.ae.ApplicationEntity.html#pynetdicom.ae.ApplicationEntity.add_supported_context" title="pynetdicom.ae.ApplicationEntity.add_supported_context"><code class="xref py py-meth docutils literal notranslate"><span class="pre">AE.add_supported_context()</span></code></a>
-method.</li>
-<li>You can set all the supported contexts at once using the
+method.</p></li>
+<li><p>You can set all the supported contexts at once using the
 <a class="reference internal" href="../reference/generated/pynetdicom.ae.ApplicationEntity.html#pynetdicom.ae.ApplicationEntity.supported_contexts" title="pynetdicom.ae.ApplicationEntity.supported_contexts"><code class="xref py py-obj docutils literal notranslate"><span class="pre">AE.supported_contexts</span></code></a>
 property. Additional contexts can still be added on a one-by-one basis
-afterwards.</li>
+afterwards.</p></li>
 </ul>
 <p>Adding presentation contexts one-by-one:</p>
 <div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="kn">from</span> <span class="nn">pydicom.uid</span> <span class="k">import</span> <span class="n">UID</span>
@@ -488,20 +488,20 @@ convenience function:</p>
 contexts that you can support.</p>
 <p>When you add presentation contexts as shown above, the following transfer
 syntaxes are used by default for each context:</p>
-<table border="1" class="docutils">
+<table class="docutils align-center">
 <colgroup>
-<col width="41%" />
-<col width="59%" />
+<col style="width: 41%" />
+<col style="width: 59%" />
 </colgroup>
-<tbody valign="top">
-<tr class="row-odd"><td>1.2.840.10008.1.2</td>
-<td>Implicit VR Little Endian</td>
+<tbody>
+<tr class="row-odd"><td><p>1.2.840.10008.1.2</p></td>
+<td><p>Implicit VR Little Endian</p></td>
 </tr>
-<tr class="row-even"><td>1.2.840.10008.1.2.1</td>
-<td>Explicit VR Little Endian</td>
+<tr class="row-even"><td><p>1.2.840.10008.1.2.1</p></td>
+<td><p>Explicit VR Little Endian</p></td>
 </tr>
-<tr class="row-odd"><td>1.2.840.10008.1.2.2</td>
-<td>Explicit VR Big Endian</td>
+<tr class="row-odd"><td><p>1.2.840.10008.1.2.2</p></td>
+<td><p>Explicit VR Big Endian</p></td>
 </tr>
 </tbody>
 </table>
@@ -592,10 +592,10 @@ indicates whether or not to accept or reject the proposal.</p>
 for the role selection negotiation, depending
 on what was proposed and what was accepted:</p>
 <ul class="simple">
-<li>The proposed roles aren’t acceptable and the context is rejected</li>
-<li>The <em>Acceptor</em> acts as the SCP and the <em>Requestor</em> the SCU (default)</li>
-<li>The <em>Acceptor</em> acts as the SCU and the <em>Requestor</em> the SCP</li>
-<li>Both <em>Acceptor</em> and <em>Requestor</em> act as SCU and SCP</li>
+<li><p>The proposed roles aren’t acceptable and the context is rejected</p></li>
+<li><p>The <em>Acceptor</em> acts as the SCP and the <em>Requestor</em> the SCU (default)</p></li>
+<li><p>The <em>Acceptor</em> acts as the SCU and the <em>Requestor</em> the SCP</p></li>
+<li><p>Both <em>Acceptor</em> and <em>Requestor</em> act as SCU and SCP</p></li>
 </ul>
 </div>
 <div class="section" id="handling-user-identity-negotiation">
@@ -606,63 +606,36 @@ item in the association request with the aim of providing the <em>Acceptor</em> 
 method of verifying its identity. Possible forms of identity confirmation
 methods are:</p>
 <ul class="simple">
-<li>Username</li>
-<li>Username and password (sent in the clear)</li>
-<li>Kerberos service ticket</li>
-<li>SAML assertion</li>
-<li>JSON web token</li>
+<li><p>Username</p></li>
+<li><p>Username and password (sent in the clear)</p></li>
+<li><p>Kerberos service ticket</p></li>
+<li><p>SAML assertion</p></li>
+<li><p>JSON web token</p></li>
 </ul>
 <p>By default all association requests that include user identity negotiation
 are accepted (provided there’s no other reason to reject) and
 no user identity negotiation response is sent even if one is requested.</p>
-<p>To handle the user identity negotiation yourself you should implement the
-<a class="reference internal" href="../reference/generated/pynetdicom.ae.ApplicationEntity.html#pynetdicom.ae.ApplicationEntity.on_user_identity" title="pynetdicom.ae.ApplicationEntity.on_user_identity"><code class="xref py py-meth docutils literal notranslate"><span class="pre">AE.on_user_identity</span></code></a>
-callback.</p>
-<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span> <span class="nn">pynetdicom</span> <span class="kn">import</span> <span class="n">AE</span>
+<p>To handle a user identity negotiation yourself you
+should implement and bind a <a class="reference internal" href="events.html#user-events"><span class="std std-ref">handler</span></a> to the
+<code class="docutils literal notranslate"><span class="pre">evt.EVT_USER_ID</span></code> event. Check the
+<a class="reference external" href="../reference/generated/pynetdicom._handlers.doc_handle_userid.html">documentation</a>
+to see the requirements for implementations of the <code class="docutils literal notranslate"><span class="pre">evt.EVT_USER_ID</span></code> handler.</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span> <span class="nn">pynetdicom</span> <span class="kn">import</span> <span class="n">AE</span><span class="p">,</span> <span class="n">evt</span>
 <span class="kn">from</span> <span class="nn">pynetdicom.sop_class</span> <span class="kn">import</span> <span class="n">VerificationSOPClass</span>
 
-<span class="k">def</span> <span class="nf">on_user_identity</span><span class="p">(</span><span class="n">identity_type</span><span class="p">,</span> <span class="n">primary_field</span><span class="p">,</span> <span class="n">secondary_field</span><span class="p">,</span> <span class="n">info</span><span class="p">):</span>
-    <span class="sd">&quot;&quot;&quot;Handle user identity negotiation requests.</span>
-
-<span class="sd">    Parameters</span>
-<span class="sd">    ----------</span>
-<span class="sd">    identity_type : int</span>
-<span class="sd">        * 1 - Username as a UTF-8 string</span>
-<span class="sd">        * 2 - Username as a UTF-8 string and passcode</span>
-<span class="sd">        * 3 - Kerberos Service ticket</span>
-<span class="sd">        * 4 - SAML Assertion</span>
-<span class="sd">        * 5 - JSON Web Token</span>
-<span class="sd">    primary_field : bytes</span>
-<span class="sd">        The value of the request&#39;s *Primary Field* parameter.</span>
-<span class="sd">    secondary_field : bytes or None</span>
-<span class="sd">        If the `identity_type` is 2 then the passcode, otherwise None.</span>
-<span class="sd">    info : dict</span>
-<span class="sd">        A dict containing information about the association requestor.</span>
-
-<span class="sd">    Returns</span>
-<span class="sd">    -------</span>
-<span class="sd">    is_verified : bool</span>
-<span class="sd">        Return True if the user identity has been confirmed and you wish</span>
-<span class="sd">        to proceed with association establishment, False otherwise.</span>
-<span class="sd">    response : bytes or None</span>
-<span class="sd">        If a positive response is requested and the identity is verified</span>
-<span class="sd">        then this will be the value of the response&#39;s *Server Response*</span>
-<span class="sd">        parameter. If ``user_id_type`` is:</span>
-
-<span class="sd">        * 1 or 2, then return None</span>
-<span class="sd">        * 3 then return the Kerberos Server ticket as bytes</span>
-<span class="sd">        * 4 then return the SAML response as bytes</span>
-<span class="sd">        * 5 then return the JSON web token as bytes</span>
-<span class="sd">    &quot;&quot;&quot;</span>
+<span class="k">def</span> <span class="nf">handle_user_id</span><span class="p">(</span><span class="n">event</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;Handle evt.EVT_USER_ID.&quot;&quot;&quot;</span>
     <span class="c1"># Identity verification code is outside the scope of pynetdicom</span>
     <span class="n">is_verified</span><span class="p">,</span> <span class="n">response</span> <span class="o">=</span> <span class="n">some_user_function</span><span class="p">()</span>
 
     <span class="k">return</span> <span class="n">is_verified</span><span class="p">,</span> <span class="n">response</span>
 
+<span class="n">handlers</span> <span class="o">=</span> <span class="p">[(</span><span class="n">evt</span><span class="o">.</span><span class="n">EVT_USER_ID</span><span class="p">,</span> <span class="n">handle_user_id</span><span class="p">)]</span>
+
 <span class="n">ae</span> <span class="o">=</span> <span class="n">AE</span><span class="p">()</span>
 <span class="n">ae</span><span class="o">.</span><span class="n">add_supported_context</span><span class="p">(</span><span class="n">VerificationSOPClass</span><span class="p">)</span>
 <span class="n">ae</span><span class="o">.</span><span class="n">on_user_identity</span> <span class="o">=</span> <span class="n">on_user_identity</span>
-<span class="n">ae</span><span class="o">.</span><span class="n">start_server</span><span class="p">((</span><span class="s1">&#39;&#39;</span><span class="p">,</span> <span class="mi">11112</span><span class="p">))</span>
+<span class="n">ae</span><span class="o">.</span><span class="n">start_server</span><span class="p">((</span><span class="s1">&#39;&#39;</span><span class="p">,</span> <span class="mi">11112</span><span class="p">),</span> <span class="n">evt_handlers</span><span class="o">=</span><span class="n">handlers</span><span class="p">)</span>
 </pre></div>
 </div>
 </div>
@@ -685,40 +658,27 @@ AEs and how to handle their service requests see the
 </div>
 <div class="section" id="references">
 <h3>References<a class="headerlink" href="#references" title="Permalink to this headline">¶</a></h3>
-<table class="docutils footnote" frame="void" id="id8" rules="none">
-<colgroup><col class="label" /><col /></colgroup>
-<tbody valign="top">
-<tr><td class="label"><a class="fn-backref" href="#id1">[1]</a></td><td>DICOM Standard, Part 5
-<a class="reference external" href="http://dicom.nema.org/medical/dicom/current/output/html/part05.html#sect_6.2">Section 6.2</a></td></tr>
-</tbody>
-</table>
-<table class="docutils footnote" frame="void" id="id9" rules="none">
-<colgroup><col class="label" /><col /></colgroup>
-<tbody valign="top">
-<tr><td class="label"><a class="fn-backref" href="#id2">[2]</a></td><td>DICOM Standard, Part 5
-<a class="reference external" href="http://dicom.nema.org/medical/dicom/current/output/html/part05.html#sect_6.1.3">Section 6.1.2.1</a></td></tr>
-</tbody>
-</table>
-<table class="docutils footnote" frame="void" id="id10" rules="none">
-<colgroup><col class="label" /><col /></colgroup>
-<tbody valign="top">
-<tr><td class="label"><a class="fn-backref" href="#id4">[3]</a></td><td>DICOM Standard, Part 5
-<a class="reference external" href="http://dicom.nema.org/medical/dicom/current/output/html/part05.html#sect_6.1.3">Section 6.1.3</a></td></tr>
-</tbody>
-</table>
-<table class="docutils footnote" frame="void" id="id11" rules="none">
-<colgroup><col class="label" /><col /></colgroup>
-<tbody valign="top">
-<tr><td class="label"><a class="fn-backref" href="#id5">[4]</a></td><td>DICOM Standard, Part 8
-<a class="reference external" href="http://dicom.nema.org/medical/dicom/current/output/html/part08.html#sect_9.3.2">Section 9.3.2</a></td></tr>
-</tbody>
-</table>
-<table class="docutils footnote" frame="void" id="id12" rules="none">
-<colgroup><col class="label" /><col /></colgroup>
-<tbody valign="top">
-<tr><td class="label"><a class="fn-backref" href="#id3">[5]</a></td><td><a class="reference external" href="https://www.iso.org/standard/4777.html">ISO/IEC 646:1991</a></td></tr>
-</tbody>
-</table>
+<dl class="footnote brackets">
+<dt class="label" id="id8"><span class="brackets"><a class="fn-backref" href="#id1">1</a></span></dt>
+<dd><p>DICOM Standard, Part 5
+<a class="reference external" href="http://dicom.nema.org/medical/dicom/current/output/html/part05.html#sect_6.2">Section 6.2</a></p>
+</dd>
+<dt class="label" id="id9"><span class="brackets"><a class="fn-backref" href="#id2">2</a></span></dt>
+<dd><p>DICOM Standard, Part 5
+<a class="reference external" href="http://dicom.nema.org/medical/dicom/current/output/html/part05.html#sect_6.1.3">Section 6.1.2.1</a></p>
+</dd>
+<dt class="label" id="id10"><span class="brackets"><a class="fn-backref" href="#id4">3</a></span></dt>
+<dd><p>DICOM Standard, Part 5
+<a class="reference external" href="http://dicom.nema.org/medical/dicom/current/output/html/part05.html#sect_6.1.3">Section 6.1.3</a></p>
+</dd>
+<dt class="label" id="id11"><span class="brackets"><a class="fn-backref" href="#id5">4</a></span></dt>
+<dd><p>DICOM Standard, Part 8
+<a class="reference external" href="http://dicom.nema.org/medical/dicom/current/output/html/part08.html#sect_9.3.2">Section 9.3.2</a></p>
+</dd>
+<dt class="label" id="id12"><span class="brackets"><a class="fn-backref" href="#id3">5</a></span></dt>
+<dd><p><a class="reference external" href="https://www.iso.org/standard/4777.html">ISO/IEC 646:1991</a></p>
+</dd>
+</dl>
 </div>
 </div>
 </div>
@@ -734,7 +694,7 @@ AEs and how to handle their service requests see the
         <a href="association.html" class="btn btn-neutral float-right" title="Association" accesskey="n" rel="next">Next <span class="fa fa-arrow-circle-right"></span></a>
       
       
-        <a href="presentation.html" class="btn btn-neutral float-left" title="Presentation Contexts" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left"></span> Previous</a>
+        <a href="events.html" class="btn btn-neutral float-left" title="Events" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left"></span> Previous</a>
       
     </div>
   

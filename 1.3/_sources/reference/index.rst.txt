@@ -21,6 +21,7 @@ pynetdicom.
    dimse
    dsutils
    dul
+   events
    fsm
    presentation
    service_classes

@@ -8,7 +8,7 @@
   
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   
-  <title>1.0.0 &mdash; pynetdicom 1.2.0 documentation</title>
+  <title>1.0.0 &mdash; pynetdicom 1.3.0 documentation</title>
   
 
   
@@ -64,7 +64,7 @@
             
             
               <div class="version">
-                1.2.0
+                1.3.0
               </div>
             
           
@@ -101,12 +101,14 @@
 <li class="toctree-l1"><a class="reference internal" href="../hanging_protocol_service_class.html">Hanging Protocol Query/Retrieve Service Class</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../implant_template_service_class.html">Implant Template Query/Retrieve Service Class</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../display_system_service_class.html">Display System Management Service Class</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../modality_performed_procedure_step.html">Modality Performed Procedure Step Management</a></li>
 </ul>
 <ul>
 <li class="toctree-l1"><a class="reference internal" href="../user/index.html">User Guide</a></li>
 </ul>
 <ul>
-<li class="toctree-l1"><a class="reference internal" href="../release_notes.html">1.2.0</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../release_notes.html">1.3.0</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../release_notes.html#v1-2-0">1.2.0</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../release_notes.html#v1-1-0">1.1.0</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../release_notes.html#v1-0-0">1.0.0</a></li>
 </ul>
@@ -178,106 +180,109 @@
 <div class="section" id="fixes">
 <h2>Fixes<a class="headerlink" href="#fixes" title="Permalink to this headline">¶</a></h2>
 <ul class="simple">
-<li>Fixed upstream pydicom changes to AE elements breaking logging
-(<a class="reference external" href="https://github.com/pydicom/pynetdicom/issues/195">#195</a>)</li>
-<li>Fixed typos in SOP class names, fix bad UID</li>
-<li>Fixed SCP/SCU Role Negotiation requiring both SCP and SCU role values to be
-set (as association requestor)</li>
-<li>Starting with v1.0.0, versioning should be consistent</li>
+<li><p>Fixed upstream pydicom changes to AE elements breaking logging
+(<a class="reference external" href="https://github.com/pydicom/pynetdicom/issues/195">#195</a>)</p></li>
+<li><p>Fixed typos in SOP class names, fix bad UID</p></li>
+<li><p>Fixed SCP/SCU Role Negotiation requiring both SCP and SCU role values to be
+set (as association requestor)</p></li>
+<li><p>Starting with v1.0.0, versioning should be consistent</p></li>
 </ul>
 </div>
 <div class="section" id="changes">
 <h2>Changes<a class="headerlink" href="#changes" title="Permalink to this headline">¶</a></h2>
 <ul class="simple">
-<li><code class="docutils literal notranslate"><span class="pre">applicationentity</span></code> module renamed <code class="docutils literal notranslate"><span class="pre">ae</span></code></li>
-<li><code class="docutils literal notranslate"><span class="pre">ApplicationEntity</span></code> interface updated<ul>
-<li>Removed the following: <code class="docutils literal notranslate"><span class="pre">AE.scu_supported_sop</span></code>, <code class="docutils literal notranslate"><span class="pre">AE.scp_supported_sop</span></code>,
+<li><p><code class="docutils literal notranslate"><span class="pre">applicationentity</span></code> module renamed <code class="docutils literal notranslate"><span class="pre">ae</span></code></p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">ApplicationEntity</span></code> interface updated</p>
+<ul>
+<li><p>Removed the following: <code class="docutils literal notranslate"><span class="pre">AE.scu_supported_sop</span></code>, <code class="docutils literal notranslate"><span class="pre">AE.scp_supported_sop</span></code>,
 <code class="docutils literal notranslate"><span class="pre">AE.transfer_syntax</span></code>, <code class="docutils literal notranslate"><span class="pre">AE.presentation_contexts_scu</span></code>,
-<code class="docutils literal notranslate"><span class="pre">AE.presentation_contexts_scp</span></code>.</li>
-<li><code class="docutils literal notranslate"><span class="pre">scu_sop_class</span></code>, <code class="docutils literal notranslate"><span class="pre">scp_sop_class</span></code>, <code class="docutils literal notranslate"><span class="pre">transfer_syntax</span></code> and <code class="docutils literal notranslate"><span class="pre">bind_addr</span></code>
-arguments removed from <code class="docutils literal notranslate"><span class="pre">AE</span></code> initialisation.</li>
-<li>Added <code class="docutils literal notranslate"><span class="pre">AE.bind_addr</span></code> attribute to allow the user to specify the network
-adapter.</li>
-<li>Added <code class="docutils literal notranslate"><span class="pre">AE.add_supported_context()</span></code>, <code class="docutils literal notranslate"><span class="pre">AE.supported_contexts</span></code>,
+<code class="docutils literal notranslate"><span class="pre">AE.presentation_contexts_scp</span></code>.</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">scu_sop_class</span></code>, <code class="docutils literal notranslate"><span class="pre">scp_sop_class</span></code>, <code class="docutils literal notranslate"><span class="pre">transfer_syntax</span></code> and <code class="docutils literal notranslate"><span class="pre">bind_addr</span></code>
+arguments removed from <code class="docutils literal notranslate"><span class="pre">AE</span></code> initialisation.</p></li>
+<li><p>Added <code class="docutils literal notranslate"><span class="pre">AE.bind_addr</span></code> attribute to allow the user to specify the network
+adapter.</p></li>
+<li><p>Added <code class="docutils literal notranslate"><span class="pre">AE.add_supported_context()</span></code>, <code class="docutils literal notranslate"><span class="pre">AE.supported_contexts</span></code>,
 <code class="docutils literal notranslate"><span class="pre">AE.remove_supported_context()</span></code> for adding and removing the presentation
-contexts supported as an SCP.</li>
-<li>Added <code class="docutils literal notranslate"><span class="pre">AE.add_requested_context()</span></code>, <code class="docutils literal notranslate"><span class="pre">AE.requested_contexts</span></code>,
+contexts supported as an SCP.</p></li>
+<li><p>Added <code class="docutils literal notranslate"><span class="pre">AE.add_requested_context()</span></code>, <code class="docutils literal notranslate"><span class="pre">AE.requested_contexts</span></code>,
 <code class="docutils literal notranslate"><span class="pre">AE.remove_requested_context()</span></code> for adding and removing the presentation
-contexts requested as an SCU.</li>
+contexts requested as an SCU.</p></li>
 </ul>
 </li>
-<li>Removed <code class="docutils literal notranslate"><span class="pre">VerificationSOPClass</span></code>, <code class="docutils literal notranslate"><span class="pre">StorageSOPClassList</span></code> and
-<code class="docutils literal notranslate"><span class="pre">QueryRetrieveSOPClassList</span></code>.</li>
-<li>Added <code class="docutils literal notranslate"><span class="pre">VerificationPresentationContexts</span></code>, <code class="docutils literal notranslate"><span class="pre">StoragePresentationContexts</span></code>,
+<li><p>Removed <code class="docutils literal notranslate"><span class="pre">VerificationSOPClass</span></code>, <code class="docutils literal notranslate"><span class="pre">StorageSOPClassList</span></code> and
+<code class="docutils literal notranslate"><span class="pre">QueryRetrieveSOPClassList</span></code>.</p></li>
+<li><p>Added <code class="docutils literal notranslate"><span class="pre">VerificationPresentationContexts</span></code>, <code class="docutils literal notranslate"><span class="pre">StoragePresentationContexts</span></code>,
 <code class="docutils literal notranslate"><span class="pre">QueryRetrievePresentationContexts</span></code> and
-<code class="docutils literal notranslate"><span class="pre">BasicWorklistManagmentPresentationContexts</span></code> to replace them</li>
-<li>Added <code class="docutils literal notranslate"><span class="pre">service_class</span></code> module and moved the service class implementations
-from <code class="docutils literal notranslate"><span class="pre">sop_class</span></code> to <code class="docutils literal notranslate"><span class="pre">service_class</span></code>.</li>
-<li>The three Query/Retrieve service class implementations (Find, Get, Move) have
-been consolidated into one.</li>
-<li><code class="docutils literal notranslate"><span class="pre">BasicWorklistManagementServiceClass</span></code> reimplemented separately from QR.</li>
-<li><code class="docutils literal notranslate"><span class="pre">SOPClass</span></code> class added to <code class="docutils literal notranslate"><span class="pre">sop_class</span></code> module and all SOP Class objects
-now inherit from it rather than the corresponding service class.</li>
-<li><code class="docutils literal notranslate"><span class="pre">utils.PresentationContextManager</span></code> removed</li>
-<li><code class="docutils literal notranslate"><span class="pre">MaximumLengthNegotiation</span></code> changed to <code class="docutils literal notranslate"><span class="pre">MaximumLengthNotification</span></code></li>
-<li><code class="docutils literal notranslate"><span class="pre">ImplementationClassUIDNegotiation</span></code> changed to <code class="docutils literal notranslate"><span class="pre">ImplementationClassUIDNotification</span></code></li>
-<li><code class="docutils literal notranslate"><span class="pre">ImplementationVersionNameNegotiation</span></code> changed to <code class="docutils literal notranslate"><span class="pre">ImplementationVersioNameNotification</span></code></li>
-<li>Simplified <code class="docutils literal notranslate"><span class="pre">service_class.ServiceClass</span></code> interface</li>
-<li><code class="docutils literal notranslate"><span class="pre">ACSE</span></code> refactored to do more of the association negotiation work and to
-operate independently of the Association instance.<ul>
-<li>Added <code class="docutils literal notranslate"><span class="pre">send_abort</span></code>, <code class="docutils literal notranslate"><span class="pre">send_ap_abort</span></code>, <code class="docutils literal notranslate"><span class="pre">send_reject</span></code>, <code class="docutils literal notranslate"><span class="pre">send_release</span></code>
-<code class="docutils literal notranslate"><span class="pre">send_request</span></code>, <code class="docutils literal notranslate"><span class="pre">send_accept</span></code> methods</li>
-<li>Added <code class="docutils literal notranslate"><span class="pre">negotiate_association</span></code> method</li>
-<li>Added <code class="docutils literal notranslate"><span class="pre">release_association</span></code> method</li>
+<code class="docutils literal notranslate"><span class="pre">BasicWorklistManagmentPresentationContexts</span></code> to replace them</p></li>
+<li><p>Added <code class="docutils literal notranslate"><span class="pre">service_class</span></code> module and moved the service class implementations
+from <code class="docutils literal notranslate"><span class="pre">sop_class</span></code> to <code class="docutils literal notranslate"><span class="pre">service_class</span></code>.</p></li>
+<li><p>The three Query/Retrieve service class implementations (Find, Get, Move) have
+been consolidated into one.</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">BasicWorklistManagementServiceClass</span></code> reimplemented separately from QR.</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">SOPClass</span></code> class added to <code class="docutils literal notranslate"><span class="pre">sop_class</span></code> module and all SOP Class objects
+now inherit from it rather than the corresponding service class.</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">utils.PresentationContextManager</span></code> removed</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">MaximumLengthNegotiation</span></code> changed to <code class="docutils literal notranslate"><span class="pre">MaximumLengthNotification</span></code></p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">ImplementationClassUIDNegotiation</span></code> changed to <code class="docutils literal notranslate"><span class="pre">ImplementationClassUIDNotification</span></code></p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">ImplementationVersionNameNegotiation</span></code> changed to <code class="docutils literal notranslate"><span class="pre">ImplementationVersioNameNotification</span></code></p></li>
+<li><p>Simplified <code class="docutils literal notranslate"><span class="pre">service_class.ServiceClass</span></code> interface</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">ACSE</span></code> refactored to do more of the association negotiation work and to
+operate independently of the Association instance.</p>
+<ul>
+<li><p>Added <code class="docutils literal notranslate"><span class="pre">send_abort</span></code>, <code class="docutils literal notranslate"><span class="pre">send_ap_abort</span></code>, <code class="docutils literal notranslate"><span class="pre">send_reject</span></code>, <code class="docutils literal notranslate"><span class="pre">send_release</span></code>
+<code class="docutils literal notranslate"><span class="pre">send_request</span></code>, <code class="docutils literal notranslate"><span class="pre">send_accept</span></code> methods</p></li>
+<li><p>Added <code class="docutils literal notranslate"><span class="pre">negotiate_association</span></code> method</p></li>
+<li><p>Added <code class="docutils literal notranslate"><span class="pre">release_association</span></code> method</p></li>
 </ul>
 </li>
-<li>Added <code class="docutils literal notranslate"><span class="pre">association.ServiceUser</span></code> class</li>
-<li><code class="docutils literal notranslate"><span class="pre">Association</span></code> refactored to do less association negotiation work and to
-operate independently of the ACSE instance.<ul>
-<li>Added <code class="docutils literal notranslate"><span class="pre">Association.requestor</span></code> and <code class="docutils literal notranslate"><span class="pre">Association.acceptor</span></code> attributes
+<li><p>Added <code class="docutils literal notranslate"><span class="pre">association.ServiceUser</span></code> class</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">Association</span></code> refactored to do less association negotiation work and to
+operate independently of the ACSE instance.</p>
+<ul>
+<li><p>Added <code class="docutils literal notranslate"><span class="pre">Association.requestor</span></code> and <code class="docutils literal notranslate"><span class="pre">Association.acceptor</span></code> attributes
 which are <code class="docutils literal notranslate"><span class="pre">ServiceUser</span></code> instances that track the association requestor
-and acceptor.</li>
+and acceptor.</p></li>
 </ul>
 </li>
-<li>Project named changed from pynetdicom3 to pynetdicom</li>
+<li><p>Project named changed from pynetdicom3 to pynetdicom</p></li>
 </ul>
 </div>
 <div class="section" id="enhancements">
 <h2>Enhancements<a class="headerlink" href="#enhancements" title="Permalink to this headline">¶</a></h2>
 <ul class="simple">
-<li>Add <code class="docutils literal notranslate"><span class="pre">context</span></code> and <code class="docutils literal notranslate"><span class="pre">info</span></code> parameters to on_c_* callbacks (<a class="reference external" href="https://github.com/pydicom/pynetdicom/issues/45">#45</a>,
-<a class="reference external" href="https://github.com/pydicom/pynetdicom/issues/54">#54</a>, <a class="reference external" href="https://github.com/pydicom/pynetdicom/issues/65">#65</a>, <a class="reference external" href="https://github.com/pydicom/pynetdicom/issues/106">#106</a>)</li>
-<li>Added contribution, issue and PR guides (<a class="reference external" href="https://github.com/pydicom/pynetdicom/issues/66">#66</a>)</li>
-<li>Added PEP8 conformant <code class="docutils literal notranslate"><span class="pre">PYNETDICOM_IMPLEMENTATION_VERSION</span></code> and
+<li><p>Add <code class="docutils literal notranslate"><span class="pre">context</span></code> and <code class="docutils literal notranslate"><span class="pre">info</span></code> parameters to on_c_* callbacks (<a class="reference external" href="https://github.com/pydicom/pynetdicom/issues/45">#45</a>,
+<a class="reference external" href="https://github.com/pydicom/pynetdicom/issues/54">#54</a>, <a class="reference external" href="https://github.com/pydicom/pynetdicom/issues/65">#65</a>, <a class="reference external" href="https://github.com/pydicom/pynetdicom/issues/106">#106</a>)</p></li>
+<li><p>Added contribution, issue and PR guides (<a class="reference external" href="https://github.com/pydicom/pynetdicom/issues/66">#66</a>)</p></li>
+<li><p>Added PEP8 conformant <code class="docutils literal notranslate"><span class="pre">PYNETDICOM_IMPLEMENTATION_VERSION</span></code> and
 <code class="docutils literal notranslate"><span class="pre">PYNETDICOM_IMPLEMENTATION_UID</span></code> variables. The old ones will be removed in
-v1.0</li>
-<li>Added <code class="docutils literal notranslate"><span class="pre">AE.implementation_version_name</span></code> and <code class="docutils literal notranslate"><span class="pre">AE.implementation_class_uid</span></code>
+v1.0</p></li>
+<li><p>Added <code class="docutils literal notranslate"><span class="pre">AE.implementation_version_name</span></code> and <code class="docutils literal notranslate"><span class="pre">AE.implementation_class_uid</span></code>
 attributes so user’s can specify the values used during association
-negotiation.</li>
-<li>Allow per-association presentation context requests (SCU)</li>
-<li>Allow more than 128 supported presentation contexts (SCP)</li>
-<li>Documentation added: user guide, examples, API reference (<a class="reference external" href="https://github.com/pydicom/pynetdicom/issues/1">#1</a>,
-<a class="reference external" href="https://github.com/pydicom/pynetdicom/issues/45">#45</a>, <a class="reference external" href="https://github.com/pydicom/pynetdicom/issues/49">#49</a>, <a class="reference external" href="https://github.com/pydicom/pynetdicom/issues/50">#50</a>)</li>
-<li>Add support for QR Instance and Frame Level Retrieve</li>
-<li>Add support for QR Composite Instance Root Retrieval</li>
-<li>Add support for the Relevant Patient Information Query service</li>
-<li>Add support for the Hanging Protocol QR service</li>
-<li>Add support for the Substance Administration Query service</li>
-<li>Add support for the Color Palette QR service</li>
-<li>Add support for the Implant Template QR service</li>
-<li>Add support for the Non-Patient Information Storage service</li>
-<li>Add support for the Defined Procedure Protocol QR service</li>
-<li>Add support for the Display System Management service</li>
-<li>Add support for N-GET, N-SET, N-EVENT-REPORT, N-DELETE, N-ACTION, N-CREATE
-as SCU.</li>
-<li>Add full support for SCP/SCU Role Selection Negotiation</li>
-<li>Add support for SOP Class Extended Negotiation</li>
-<li>Add support for Asynchronous Operations Window Negotiation, however
-pynetdicom does not support asynchronous operations.</li>
-<li>Add support for User Identity Negotiation</li>
-<li>Add support for SOP Class Common Extended Negotiation</li>
-<li>Non-conformant (null trailing padded) UIDs in A-ASSOCIATE messages are now
-handled</li>
+negotiation.</p></li>
+<li><p>Allow per-association presentation context requests (SCU)</p></li>
+<li><p>Allow more than 128 supported presentation contexts (SCP)</p></li>
+<li><p>Documentation added: user guide, examples, API reference (<a class="reference external" href="https://github.com/pydicom/pynetdicom/issues/1">#1</a>,
+<a class="reference external" href="https://github.com/pydicom/pynetdicom/issues/45">#45</a>, <a class="reference external" href="https://github.com/pydicom/pynetdicom/issues/49">#49</a>, <a class="reference external" href="https://github.com/pydicom/pynetdicom/issues/50">#50</a>)</p></li>
+<li><p>Add support for QR Instance and Frame Level Retrieve</p></li>
+<li><p>Add support for QR Composite Instance Root Retrieval</p></li>
+<li><p>Add support for the Relevant Patient Information Query service</p></li>
+<li><p>Add support for the Hanging Protocol QR service</p></li>
+<li><p>Add support for the Substance Administration Query service</p></li>
+<li><p>Add support for the Color Palette QR service</p></li>
+<li><p>Add support for the Implant Template QR service</p></li>
+<li><p>Add support for the Non-Patient Information Storage service</p></li>
+<li><p>Add support for the Defined Procedure Protocol QR service</p></li>
+<li><p>Add support for the Display System Management service</p></li>
+<li><p>Add support for N-GET, N-SET, N-EVENT-REPORT, N-DELETE, N-ACTION, N-CREATE
+as SCU.</p></li>
+<li><p>Add full support for SCP/SCU Role Selection Negotiation</p></li>
+<li><p>Add support for SOP Class Extended Negotiation</p></li>
+<li><p>Add support for Asynchronous Operations Window Negotiation, however
+pynetdicom does not support asynchronous operations.</p></li>
+<li><p>Add support for User Identity Negotiation</p></li>
+<li><p>Add support for SOP Class Common Extended Negotiation</p></li>
+<li><p>Non-conformant (null trailing padded) UIDs in A-ASSOCIATE messages are now
+handled</p></li>
 </ul>
 </div>
 </div>

@@ -21,30 +21,20 @@ pynetdicom.ae.ApplicationEntity
       ~ApplicationEntity.on_association_accepted
       ~ApplicationEntity.on_association_rejected
       ~ApplicationEntity.on_association_released
-      ~ApplicationEntity.on_association_requested
       ~ApplicationEntity.on_async_ops_window
       ~ApplicationEntity.on_c_echo
       ~ApplicationEntity.on_c_find
       ~ApplicationEntity.on_c_get
       ~ApplicationEntity.on_c_move
       ~ApplicationEntity.on_c_store
-      ~ApplicationEntity.on_make_connection
-      ~ApplicationEntity.on_n_action
-      ~ApplicationEntity.on_n_create
-      ~ApplicationEntity.on_n_delete
-      ~ApplicationEntity.on_n_event_report
       ~ApplicationEntity.on_n_get
-      ~ApplicationEntity.on_n_set
-      ~ApplicationEntity.on_receive_connection
       ~ApplicationEntity.on_sop_class_common_extended
       ~ApplicationEntity.on_sop_class_extended
       ~ApplicationEntity.on_user_identity
       ~ApplicationEntity.remove_requested_context
       ~ApplicationEntity.remove_supported_context
       ~ApplicationEntity.shutdown
-      ~ApplicationEntity.start
       ~ApplicationEntity.start_server
-      ~ApplicationEntity.stop
    
    
 
@@ -57,14 +47,12 @@ pynetdicom.ae.ApplicationEntity
       ~ApplicationEntity.acse_timeout
       ~ApplicationEntity.active_associations
       ~ApplicationEntity.ae_title
-      ~ApplicationEntity.bind_addr
       ~ApplicationEntity.dimse_timeout
       ~ApplicationEntity.implementation_class_uid
       ~ApplicationEntity.implementation_version_name
       ~ApplicationEntity.maximum_associations
       ~ApplicationEntity.maximum_pdu_size
       ~ApplicationEntity.network_timeout
-      ~ApplicationEntity.port
       ~ApplicationEntity.requested_contexts
       ~ApplicationEntity.require_called_aet
       ~ApplicationEntity.require_calling_aet

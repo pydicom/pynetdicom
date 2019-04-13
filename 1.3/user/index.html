@@ -8,7 +8,7 @@
   
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   
-  <title>User Guide &mdash; pynetdicom 1.2.0 documentation</title>
+  <title>User Guide &mdash; pynetdicom 1.3.0 documentation</title>
   
 
   
@@ -39,7 +39,7 @@
     <link rel="index" title="Index" href="../genindex.html" />
     <link rel="search" title="Search" href="../search.html" />
     <link rel="next" title="Installation" href="installation.html" />
-    <link rel="prev" title="Display System Management Service Class" href="../display_system_service_class.html" /> 
+    <link rel="prev" title="Modality Performed Procedure Step Management" href="../modality_performed_procedure_step.html" /> 
 </head>
 
 <body class="wy-body-for-nav">
@@ -66,7 +66,7 @@
             
             
               <div class="version">
-                1.2.0
+                1.3.0
               </div>
             
           
@@ -103,19 +103,22 @@
 <li class="toctree-l1"><a class="reference internal" href="../hanging_protocol_service_class.html">Hanging Protocol Query/Retrieve Service Class</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../implant_template_service_class.html">Implant Template Query/Retrieve Service Class</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../display_system_service_class.html">Display System Management Service Class</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../modality_performed_procedure_step.html">Modality Performed Procedure Step Management</a></li>
 </ul>
 <ul class="current">
 <li class="toctree-l1 current"><a class="current reference internal" href="#">User Guide</a><ul>
 <li class="toctree-l2"><a class="reference internal" href="installation.html">Installation</a></li>
 <li class="toctree-l2"><a class="reference internal" href="concepts.html">Important Concepts</a></li>
 <li class="toctree-l2"><a class="reference internal" href="presentation.html">Presentation Contexts</a></li>
+<li class="toctree-l2"><a class="reference internal" href="events.html">Events</a></li>
 <li class="toctree-l2"><a class="reference internal" href="ae.html">Application Entity</a></li>
 <li class="toctree-l2"><a class="reference internal" href="association.html">Association</a></li>
 </ul>
 </li>
 </ul>
 <ul>
-<li class="toctree-l1"><a class="reference internal" href="../release_notes.html">1.2.0</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../release_notes.html">1.3.0</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../release_notes.html#v1-2-0">1.2.0</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../release_notes.html#v1-1-0">1.1.0</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../release_notes.html#v1-0-0">1.0.0</a></li>
 </ul>
@@ -207,6 +210,12 @@
 <li class="toctree-l2"><a class="reference internal" href="presentation.html#scp-scu-role-selection">SCP/SCU Role Selection</a></li>
 </ul>
 </li>
+<li class="toctree-l1"><a class="reference internal" href="events.html">Events</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="events.html#notification-events">Notification Events</a></li>
+<li class="toctree-l2"><a class="reference internal" href="events.html#intervention-events">Intervention Events</a></li>
+<li class="toctree-l2"><a class="reference internal" href="events.html#event-handlers">Event Handlers</a></li>
+</ul>
+</li>
 <li class="toctree-l1"><a class="reference internal" href="ae.html">Application Entity</a><ul>
 <li class="toctree-l2"><a class="reference internal" href="ae.html#creating-an-scu">Creating an SCU</a></li>
 <li class="toctree-l2"><a class="reference internal" href="ae.html#creating-an-scp">Creating an SCP</a></li>
@@ -235,7 +244,7 @@
         <a href="installation.html" class="btn btn-neutral float-right" title="Installation" accesskey="n" rel="next">Next <span class="fa fa-arrow-circle-right"></span></a>
       
       
-        <a href="../display_system_service_class.html" class="btn btn-neutral float-left" title="Display System Management Service Class" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left"></span> Previous</a>
+        <a href="../modality_performed_procedure_step.html" class="btn btn-neutral float-left" title="Modality Performed Procedure Step Management" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left"></span> Previous</a>
       
     </div>
   
