@@ -280,23 +280,11 @@ to see the requirements for the <code class="docutils literal notranslate"><span
 <span class="c1"># Implement a handler evt.EVT_C_STORE</span>
 <span class="k">def</span> <span class="nf">handle_store</span><span class="p">(</span><span class="n">event</span><span class="p">):</span>
     <span class="sd">&quot;&quot;&quot;Handle a C-STORE request event.&quot;&quot;&quot;</span>
+    <span class="c1"># Decode the C-STORE request&#39;s *Data Set* parameter to a pydicom Dataset</span>
     <span class="n">ds</span> <span class="o">=</span> <span class="n">event</span><span class="o">.</span><span class="n">dataset</span>
-    <span class="n">context</span> <span class="o">=</span> <span class="n">event</span><span class="o">.</span><span class="n">context</span>
 
-    <span class="c1"># Add the DICOM File Meta Information</span>
-    <span class="n">meta</span> <span class="o">=</span> <span class="n">Dataset</span><span class="p">()</span>
-    <span class="n">meta</span><span class="o">.</span><span class="n">MediaStorageSOPClassUID</span> <span class="o">=</span> <span class="n">ds</span><span class="o">.</span><span class="n">SOPClassUID</span>
-    <span class="n">meta</span><span class="o">.</span><span class="n">MediaStorageSOPInstanceUID</span> <span class="o">=</span> <span class="n">ds</span><span class="o">.</span><span class="n">SOPInstanceUID</span>
-    <span class="n">meta</span><span class="o">.</span><span class="n">ImplementationClassUID</span> <span class="o">=</span> <span class="n">PYNETDICOM_IMPLEMENTATION_UID</span>
-    <span class="n">meta</span><span class="o">.</span><span class="n">ImplementationVersionName</span> <span class="o">=</span> <span class="n">PYNETDICOM_IMPLEMENTATION_VERSION</span>
-    <span class="n">meta</span><span class="o">.</span><span class="n">TransferSyntaxUID</span> <span class="o">=</span> <span class="n">context</span><span class="o">.</span><span class="n">transfer_syntax</span>
-
-    <span class="c1"># Add the file meta to the dataset</span>
-    <span class="n">ds</span><span class="o">.</span><span class="n">file_meta</span> <span class="o">=</span> <span class="n">meta</span>
-
-    <span class="c1"># Set the transfer syntax attributes of the dataset</span>
-    <span class="n">ds</span><span class="o">.</span><span class="n">is_little_endian</span> <span class="o">=</span> <span class="n">context</span><span class="o">.</span><span class="n">transfer_syntax</span><span class="o">.</span><span class="n">is_little_endian</span>
-    <span class="n">ds</span><span class="o">.</span><span class="n">is_implicit_VR</span> <span class="o">=</span> <span class="n">context</span><span class="o">.</span><span class="n">transfer_syntax</span><span class="o">.</span><span class="n">is_implicit_VR</span>
+    <span class="c1"># Add the File Meta Information</span>
+    <span class="n">ds</span><span class="o">.</span><span class="n">file_meta</span> <span class="o">=</span> <span class="n">event</span><span class="o">.</span><span class="n">file_meta</span>
 
     <span class="c1"># Save the dataset using the SOP Instance UID as the filename</span>
     <span class="n">ds</span><span class="o">.</span><span class="n">save_as</span><span class="p">(</span><span class="n">ds</span><span class="o">.</span><span class="n">SOPInstanceUID</span><span class="p">,</span> <span class="n">write_like_original</span><span class="o">=</span><span class="bp">False</span><span class="p">)</span>

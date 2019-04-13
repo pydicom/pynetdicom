@@ -631,6 +631,9 @@
                             <span class="n">t_syntax</span><span class="o">.</span><span class="n">is_implicit_VR</span><span class="p">,</span>
                             <span class="n">t_syntax</span><span class="o">.</span><span class="n">is_little_endian</span><span class="p">)</span>
 
+                <span class="n">ds</span><span class="o">.</span><span class="n">is_little_endian</span> <span class="o">=</span> <span class="n">t_syntax</span><span class="o">.</span><span class="n">is_little_endian</span>
+                <span class="n">ds</span><span class="o">.</span><span class="n">is_implicit_VR</span> <span class="o">=</span> <span class="n">t_syntax</span><span class="o">.</span><span class="n">is_implicit_VR</span>
+
                 <span class="c1"># Store the decoded dataset in case its accessed again</span>
                 <span class="bp">self</span><span class="o">.</span><span class="n">_decoded</span> <span class="o">=</span> <span class="n">ds</span>
             <span class="k">else</span><span class="p">:</span>
