@@ -2,8 +2,8 @@ Storage Service Class
 =====================
 The `Storage Service Class <http://dicom.nema.org/medical/dicom/current/output/html/part04.html#chapter_B>`_
 defines a service that facilitates the simple
-transfer of DICOM information Instances. It allows one DICOM Application Entity
-to send images, waveforms, reports, etc., to another using the C-STORE DIMSE-C
+transfer of DICOM SOP Instances. It allows one DICOM Application Entity
+to send images, waveforms, reports, etc., to another using the DIMSE C-STORE
 service.
 
 .. _storage_sops:

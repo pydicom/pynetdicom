@@ -8,7 +8,7 @@
   
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   
-  <title>pynetdicom.ae &mdash; pynetdicom 1.3.0.dev0 documentation</title>
+  <title>pynetdicom.ae &mdash; pynetdicom 1.3.0 documentation</title>
   
 
   
@@ -64,7 +64,7 @@
             
             
               <div class="version">
-                1.3.0.dev0
+                1.3.0
               </div>
             
           
@@ -300,11 +300,11 @@
 
     <span class="nd">@property</span>
     <span class="k">def</span> <span class="nf">active_associations</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
-        <span class="sd">&quot;&quot;&quot;Return a list of the AE&#39;s active Associations threads.</span>
+        <span class="sd">&quot;&quot;&quot;Return a list of the AE&#39;s active ``Association`` threads.</span>
 
 <span class="sd">        Returns</span>
 <span class="sd">        -------</span>
-<span class="sd">        list of threading.Thread</span>
+<span class="sd">        list of association.Association</span>
 <span class="sd">            A list of all active association threads, both requestors and</span>
 <span class="sd">            acceptors.</span>
 <span class="sd">        &quot;&quot;&quot;</span>
@@ -314,10 +314,10 @@
         <span class="k">return</span> <span class="p">[</span><span class="n">tt</span> <span class="k">for</span> <span class="n">tt</span> <span class="ow">in</span> <span class="n">t_assocs</span> <span class="k">if</span> <span class="n">tt</span><span class="o">.</span><span class="n">ae</span> <span class="o">==</span> <span class="bp">self</span><span class="p">]</span>
 
 <div class="viewcode-block" id="ApplicationEntity.add_requested_context"><a class="viewcode-back" href="../../reference/generated/pynetdicom.ae.ApplicationEntity.html#pynetdicom.ae.ApplicationEntity.add_requested_context">[docs]</a>    <span class="k">def</span> <span class="nf">add_requested_context</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">abstract_syntax</span><span class="p">,</span> <span class="n">transfer_syntax</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
-        <span class="sd">&quot;&quot;&quot;Add a Presentation Context to be proposed when sending Association</span>
-<span class="sd">        requests.</span>
+        <span class="sd">&quot;&quot;&quot;Add a presentation context to be proposed when requesting an</span>
+<span class="sd">        association.</span>
 
-<span class="sd">        When an SCU sends an Association request to a peer it includes a list</span>
+<span class="sd">        When an SCU sends an association request to a peer it includes a list</span>
 <span class="sd">        of presentation contexts it would like the peer to support [1]_. This</span>
 <span class="sd">        method adds a single</span>
 <span class="sd">        :py:class:`PresentationContext</span>
@@ -437,9 +437,10 @@
 
 <div class="viewcode-block" id="ApplicationEntity.add_supported_context"><a class="viewcode-back" href="../../reference/generated/pynetdicom.ae.ApplicationEntity.html#pynetdicom.ae.ApplicationEntity.add_supported_context">[docs]</a>    <span class="k">def</span> <span class="nf">add_supported_context</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">abstract_syntax</span><span class="p">,</span> <span class="n">transfer_syntax</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
                               <span class="n">scu_role</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">scp_role</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
-        <span class="sd">&quot;&quot;&quot;Add a supported presentation context.</span>
+        <span class="sd">&quot;&quot;&quot;Add a presentation context to be supported when accepting</span>
+<span class="sd">        association requests.</span>
 
-<span class="sd">        When an Association request is received from a peer it supplies a list</span>
+<span class="sd">        When an association request is received from a peer it supplies a list</span>
 <span class="sd">        of presentation contexts that it would like the SCP to support. This</span>
 <span class="sd">        method adds a `PresentationContext` to the list of the SCP&#39;s</span>
 <span class="sd">        supported contexts.</span>
@@ -460,20 +461,20 @@
 <span class="sd">            If the association requestor includes an SCP/SCU Role Selection</span>
 <span class="sd">            Negotiation item for this context then:</span>
 
-<span class="sd">            * If None then ignore the proposal (if either `scp_role` or</span>
-<span class="sd">              `scu_role` is None then both are assumed to be) and use the</span>
+<span class="sd">            * If ``None`` then ignore the proposal (if either `scp_role` or</span>
+<span class="sd">              `scu_role` is ``None`` then both are assumed to be) and use the</span>
 <span class="sd">              default roles.</span>
-<span class="sd">            * If True accept the proposed SCU role</span>
-<span class="sd">            * If False reject the proposed SCU role</span>
+<span class="sd">            * If ``True`` accept the proposed SCU role</span>
+<span class="sd">            * If ``False`` reject the proposed SCU role</span>
 <span class="sd">        scp_role : bool or None, optional</span>
 <span class="sd">            If the association requestor includes an SCP/SCU Role Selection</span>
 <span class="sd">            Negotiation item for this context then:</span>
 
-<span class="sd">            * If None then ignore the proposal (if either `scp_role` or</span>
-<span class="sd">              `scu_role` is None then both are assumed to be) and use the</span>
+<span class="sd">            * If ``None`` then ignore the proposal (if either `scp_role` or</span>
+<span class="sd">              `scu_role` is ``None`` then both are assumed to be) and use the</span>
 <span class="sd">              default roles.</span>
-<span class="sd">            * If True accept the proposed SCP role</span>
-<span class="sd">            * If False reject the proposed SCP role</span>
+<span class="sd">            * If ``True`` accept the proposed SCP role</span>
+<span class="sd">            * If ``False`` reject the proposed SCP role</span>
 
 <span class="sd">        Examples</span>
 <span class="sd">        --------</span>
@@ -539,9 +540,9 @@
 <span class="sd">            =Explicit VR Little Endian</span>
 <span class="sd">            =Explicit VR Big Endian</span>
 
-<span class="sd">        Add support for CTImageStorage and if the association requestor</span>
-<span class="sd">        includes an SCP/SCU Role Selection Negotiation item for CT Image</span>
-<span class="sd">        Storage requesting the SCU and SCP roles then accept the proposal.</span>
+<span class="sd">        Add support for *CT Image Storage* and if the association requestor</span>
+<span class="sd">        includes an SCP/SCU Role Selection Negotiation item for *CT Image</span>
+<span class="sd">        Storage* requesting the SCU and SCP roles then accept the proposal.</span>
 
 <span class="sd">        &gt;&gt;&gt; from pynetdicom import AE</span>
 <span class="sd">        &gt;&gt;&gt; from pynetdicom.sop_class import CTImageStorage</span>
@@ -585,12 +586,12 @@
 
     <span class="nd">@property</span>
     <span class="k">def</span> <span class="nf">ae_title</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
-        <span class="sd">&quot;&quot;&quot;Get the AE title.&quot;&quot;&quot;</span>
+        <span class="sd">&quot;&quot;&quot;Return the AE title as length 16 ``bytes``.&quot;&quot;&quot;</span>
         <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_ae_title</span>
 
     <span class="nd">@ae_title</span><span class="o">.</span><span class="n">setter</span>
     <span class="k">def</span> <span class="nf">ae_title</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">value</span><span class="p">):</span>
-        <span class="sd">&quot;&quot;&quot;Set the AE title.</span>
+        <span class="sd">&quot;&quot;&quot;Set the AE title using ``bytes``.</span>
 
 <span class="sd">        Parameters</span>
 <span class="sd">        ----------</span>
@@ -599,18 +600,15 @@
 <span class="sd">            trailing spaces are non-significant.</span>
 <span class="sd">        &quot;&quot;&quot;</span>
         <span class="c1"># pylint: disable=attribute-defined-outside-init</span>
-        <span class="k">try</span><span class="p">:</span>
-            <span class="bp">self</span><span class="o">.</span><span class="n">_ae_title</span> <span class="o">=</span> <span class="n">validate_ae_title</span><span class="p">(</span><span class="n">value</span><span class="p">)</span>
-        <span class="k">except</span><span class="p">:</span>
-            <span class="k">raise</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_ae_title</span> <span class="o">=</span> <span class="n">validate_ae_title</span><span class="p">(</span><span class="n">value</span><span class="p">)</span>
 
 <div class="viewcode-block" id="ApplicationEntity.associate"><a class="viewcode-back" href="../../reference/generated/pynetdicom.ae.ApplicationEntity.html#pynetdicom.ae.ApplicationEntity.associate">[docs]</a>    <span class="k">def</span> <span class="nf">associate</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">addr</span><span class="p">,</span> <span class="n">port</span><span class="p">,</span> <span class="n">contexts</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">ae_title</span><span class="o">=</span><span class="sa">b</span><span class="s1">&#39;ANY-SCP&#39;</span><span class="p">,</span>
                   <span class="n">max_pdu</span><span class="o">=</span><span class="n">DEFAULT_MAX_LENGTH</span><span class="p">,</span> <span class="n">ext_neg</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
                   <span class="n">bind_address</span><span class="o">=</span><span class="p">(</span><span class="s1">&#39;&#39;</span><span class="p">,</span> <span class="mi">0</span><span class="p">),</span> <span class="n">tls_args</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">evt_handlers</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
-        <span class="sd">&quot;&quot;&quot;Request an Association with a remote AE.</span>
+        <span class="sd">&quot;&quot;&quot;Request an association with a remote AE.</span>
 
-<span class="sd">        The Association thread is returned whether or not the association is</span>
-<span class="sd">        accepted and should be checked using ``Association.is_established``</span>
+<span class="sd">        An ``Association`` thread is returned whether or not the association</span>
+<span class="sd">        is accepted and should be checked using ``Association.is_established``</span>
 <span class="sd">        before sending any messages. The returned thread will only be running</span>
 <span class="sd">        if the association was established.</span>
 
@@ -625,8 +623,8 @@
 <span class="sd">            support by the peer. If not used then the presentation contexts in</span>
 <span class="sd">            the `AE.requested_contexts` property will be requested instead.</span>
 <span class="sd">        ae_title : bytes, optional</span>
-<span class="sd">            The peer&#39;s AE title, will be used as the &#39;Called AE Title&#39;</span>
-<span class="sd">            parameter value (default b&#39;ANY-SCP&#39;).</span>
+<span class="sd">            The peer&#39;s AE title, will be used as the *Called AE Title*</span>
+<span class="sd">            parameter value (default ``b&#39;ANY-SCP&#39;``).</span>
 <span class="sd">        max_pdu : int, optional</span>
 <span class="sd">            The maximum PDV receive size in bytes to use when negotiating the</span>
 <span class="sd">            association (default 16832).</span>
@@ -637,23 +635,23 @@
 <span class="sd">            to, default (&#39;&#39;, 0).</span>
 <span class="sd">        tls_args : 2-tuple, optional</span>
 <span class="sd">            If TLS is required then this should be a 2-tuple containing a</span>
-<span class="sd">            (ssl_context, `server_hostname`), where ssl_context is the</span>
-<span class="sd">            ssl.SSLContext instance to use to wrap the client socket and</span>
+<span class="sd">            (`ssl_context`, `server_hostname`), where `ssl_context` is the</span>
+<span class="sd">            ``ssl.SSLContext`` instance to use to wrap the client socket and</span>
 <span class="sd">            `server_hostname` is the value to use for the corresponding</span>
 <span class="sd">            keyword parameter in ``SSLContext.wrap_sockets()``. If no</span>
 <span class="sd">            `tls_args` is supplied then TLS will not be used (default).</span>
 <span class="sd">        evt_handlers : list of 2-tuple, optional</span>
-<span class="sd">            A list of (event, handler), where `event` is an ``evt.EVT_*`` event</span>
-<span class="sd">            tuple and `handler` is a callable function that will be bound to</span>
-<span class="sd">            the event. The handler should take a single ``event.Event``</span>
-<span class="sd">            parameter and may return or yield objects depending on the exact</span>
-<span class="sd">            event that the handler is bound to. For more information see the</span>
-<span class="sd">            :ref:`documentation&lt;user_events&gt;`.</span>
+<span class="sd">            A list of (`event`, `handler`), where `event` is an ``evt.EVT_*``</span>
+<span class="sd">            event tuple and `handler` is a callable function that will be</span>
+<span class="sd">            bound to the event. The handler should take a single</span>
+<span class="sd">            ``event.Event`` parameter and may return or yield objects</span>
+<span class="sd">            depending on the exact event that the handler is bound to. For</span>
+<span class="sd">            more information see the :ref:`documentation&lt;user_events&gt;`.</span>
 
 <span class="sd">        Returns</span>
 <span class="sd">        -------</span>
 <span class="sd">        assoc : association.Association</span>
-<span class="sd">            If the association was established then a running Association</span>
+<span class="sd">            If the association was established then a running ``Association``</span>
 <span class="sd">            thread, otherwise returns a thread that hasn&#39;t been started.</span>
 
 <span class="sd">        Raises</span>
@@ -740,7 +738,7 @@
 
     <span class="nd">@property</span>
     <span class="k">def</span> <span class="nf">dimse_timeout</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
-        <span class="sd">&quot;&quot;&quot;Get the DIMSE timeout.&quot;&quot;&quot;</span>
+        <span class="sd">&quot;&quot;&quot;Return the DIMSE timeout.&quot;&quot;&quot;</span>
         <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_dimse_timeout</span>
 
     <span class="nd">@dimse_timeout</span><span class="o">.</span><span class="n">setter</span>
@@ -760,17 +758,17 @@
 
     <span class="nd">@property</span>
     <span class="k">def</span> <span class="nf">implementation_class_uid</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
-        <span class="sd">&quot;&quot;&quot;Return the current Implementation Class UID.&quot;&quot;&quot;</span>
+        <span class="sd">&quot;&quot;&quot;Return the current *Implementation Class UID*.&quot;&quot;&quot;</span>
         <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_implementation_uid</span>
 
     <span class="nd">@implementation_class_uid</span><span class="o">.</span><span class="n">setter</span>
     <span class="k">def</span> <span class="nf">implementation_class_uid</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">uid</span><span class="p">):</span>
-        <span class="sd">&quot;&quot;&quot;Set the Implementation Class UID used in Association requests.</span>
+        <span class="sd">&quot;&quot;&quot;Set the *Implementation Class UID* used in association requests.</span>
 
 <span class="sd">        Parameters</span>
 <span class="sd">        ----------</span>
 <span class="sd">        uid : str or pydicom.uid.UID</span>
-<span class="sd">            The A-ASSOCIATE-RQ&#39;s Implementation Class UID value.</span>
+<span class="sd">            The A-ASSOCIATE-RQ&#39;s *Implementation Class UID* value.</span>
 <span class="sd">        &quot;&quot;&quot;</span>
         <span class="n">uid</span> <span class="o">=</span> <span class="n">UID</span><span class="p">(</span><span class="n">uid</span><span class="p">)</span>
         <span class="k">if</span> <span class="n">uid</span><span class="o">.</span><span class="n">is_valid</span><span class="p">:</span>
@@ -779,17 +777,17 @@
 
     <span class="nd">@property</span>
     <span class="k">def</span> <span class="nf">implementation_version_name</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
-        <span class="sd">&quot;&quot;&quot;Return the current Implementation Version Name.&quot;&quot;&quot;</span>
+        <span class="sd">&quot;&quot;&quot;Return the current *Implementation Version Name*.&quot;&quot;&quot;</span>
         <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_implementation_version</span>
 
     <span class="nd">@implementation_version_name</span><span class="o">.</span><span class="n">setter</span>
     <span class="k">def</span> <span class="nf">implementation_version_name</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">value</span><span class="p">):</span>
-        <span class="sd">&quot;&quot;&quot;Set the Implementation Version Name used in Association requests.</span>
+        <span class="sd">&quot;&quot;&quot;Set the *Implementation Version Name* used in association requests.</span>
 
 <span class="sd">        Parameters</span>
 <span class="sd">        ----------</span>
 <span class="sd">        value : bytes</span>
-<span class="sd">            The A-ASSOCIATE-RQ&#39;s Implementation Version Name value.</span>
+<span class="sd">            The A-ASSOCIATE-RQ&#39;s *Implementation Version Name* value.</span>
 <span class="sd">        &quot;&quot;&quot;</span>
         <span class="c1"># pylint: disable=attribute-defined-outside-init</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">_implementation_version</span> <span class="o">=</span> <span class="n">value</span>
@@ -831,7 +829,7 @@
 
     <span class="nd">@property</span>
     <span class="k">def</span> <span class="nf">network_timeout</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
-        <span class="sd">&quot;&quot;&quot;Get the network timeout.&quot;&quot;&quot;</span>
+        <span class="sd">&quot;&quot;&quot;Return the network timeout.&quot;&quot;&quot;</span>
         <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_network_timeout</span>
 
     <span class="nd">@network_timeout</span><span class="o">.</span><span class="n">setter</span>
@@ -850,7 +848,7 @@
             <span class="n">assoc</span><span class="o">.</span><span class="n">network_timeout</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">network_timeout</span>
 
 <div class="viewcode-block" id="ApplicationEntity.remove_requested_context"><a class="viewcode-back" href="../../reference/generated/pynetdicom.ae.ApplicationEntity.html#pynetdicom.ae.ApplicationEntity.remove_requested_context">[docs]</a>    <span class="k">def</span> <span class="nf">remove_requested_context</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">abstract_syntax</span><span class="p">,</span> <span class="n">transfer_syntax</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
-        <span class="sd">&quot;&quot;&quot;Remove a requested Presentation Context.</span>
+        <span class="sd">&quot;&quot;&quot;Remove a requested presentation context.</span>
 
 <span class="sd">        Depending on the supplied parameters one of the following will occur:</span>
 
@@ -981,7 +979,7 @@
 
 <span class="sd">        Depending on the supplied parameters one of the following will occur:</span>
 
-<span class="sd">        * `abstract_syntax` alone-  the entire supported context will be</span>
+<span class="sd">        * `abstract_syntax` alone - the entire supported context will be</span>
 <span class="sd">          removed.</span>
 <span class="sd">        * `abstract_syntax` and `transfer_syntax` -  If the supplied</span>
 <span class="sd">          `transfer_syntax` list contains all of the context&#39;s supported</span>
@@ -1102,35 +1100,35 @@
 
     <span class="nd">@property</span>
     <span class="k">def</span> <span class="nf">requested_contexts</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
-        <span class="sd">&quot;&quot;&quot;Return a list of the requested PresentationContext items.</span>
+        <span class="sd">&quot;&quot;&quot;Return a list of the requested ``PresentationContext`` items.</span>
 
 <span class="sd">        Returns</span>
 <span class="sd">        -------</span>
 <span class="sd">        list of presentation.PresentationContext</span>
-<span class="sd">            The SCU&#39;s requested Presentation Contexts.</span>
+<span class="sd">            The SCU&#39;s requested presentation contexts.</span>
 <span class="sd">        &quot;&quot;&quot;</span>
         <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_requested_contexts</span>
 
     <span class="nd">@requested_contexts</span><span class="o">.</span><span class="n">setter</span>
     <span class="k">def</span> <span class="nf">requested_contexts</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">contexts</span><span class="p">):</span>
-        <span class="sd">&quot;&quot;&quot;Set the requested Presentation Contexts using a list.</span>
+        <span class="sd">&quot;&quot;&quot;Set the requested presentation contexts using a list.</span>
 
 <span class="sd">        Parameters</span>
 <span class="sd">        ----------</span>
 <span class="sd">        contexts : list of presentation.PresentationContext</span>
-<span class="sd">            The Presentation Contexts to request when acting as an SCU.</span>
+<span class="sd">            The presentation contexts to request when acting as an SCU.</span>
 
 <span class="sd">        Examples</span>
 <span class="sd">        --------</span>
 <span class="sd">        Set the requested presentation contexts using an inbuilt list of</span>
-<span class="sd">        service specific `PresentationContext` items:</span>
+<span class="sd">        service specific ``PresentationContext`` items:</span>
 
 <span class="sd">        &gt;&gt;&gt; from pynetdicom import AE, StoragePresentationContexts</span>
 <span class="sd">        &gt;&gt;&gt; ae = AE()</span>
 <span class="sd">        &gt;&gt;&gt; ae.requested_contexts = StoragePresentationContexts</span>
 
 <span class="sd">        Set the requested presentation contexts using a list of</span>
-<span class="sd">        `PresentationContext` items:</span>
+<span class="sd">        ```PresentationContext`` items:</span>
 
 <span class="sd">        &gt;&gt;&gt; from pydicom.uid import ImplicitVRLittleEndian</span>
 <span class="sd">        &gt;&gt;&gt; from pynetdicom import AE</span>
@@ -1168,25 +1166,25 @@
 
     <span class="nd">@property</span>
     <span class="k">def</span> <span class="nf">require_called_aet</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
-        <span class="sd">&quot;&quot;&quot;Return whether the *Called AE Title* must match ae_title.&quot;&quot;&quot;</span>
+        <span class="sd">&quot;&quot;&quot;Return whether the *Called AE Title* must match the AE title.&quot;&quot;&quot;</span>
         <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_require_called_aet</span>
 
     <span class="nd">@require_called_aet</span><span class="o">.</span><span class="n">setter</span>
     <span class="k">def</span> <span class="nf">require_called_aet</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">require_match</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;Set whether the *Called AE Title* must match the AE title.</span>
 
-<span class="sd">        When an Association request is received the value of the &#39;Called AE</span>
+<span class="sd">        When an association request is received the value of the &#39;Called AE</span>
 <span class="sd">        Title&#39; supplied by the peer will be compared with the set values and</span>
 <span class="sd">        if none match the association will be rejected. If the set value</span>
-<span class="sd">        is an empty list then the &#39;Called AE Title&#39; will not be checked.</span>
+<span class="sd">        is an empty list then the *Called AE Title* will not be checked.</span>
 
 <span class="sd">        Parameters</span>
 <span class="sd">        ----------</span>
 <span class="sd">        require_match : bool</span>
-<span class="sd">            If True then any association requests that supply a</span>
-<span class="sd">            *Called AE Title* value that does not match AE.ae_title</span>
-<span class="sd">            will be rejected. If False (default) then all association requests</span>
-<span class="sd">            will be accepted (unless rejected for other reasons).</span>
+<span class="sd">            If ``True`` then any association requests that supply a</span>
+<span class="sd">            *Called AE Title* value that does not match ``AE.ae_title``</span>
+<span class="sd">            will be rejected. If ``False`` (default) then all association</span>
+<span class="sd">            requests will be accepted (unless rejected for other reasons).</span>
 <span class="sd">        &quot;&quot;&quot;</span>
         <span class="c1"># pylint: disable=attribute-defined-outside-init</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">_require_called_aet</span> <span class="o">=</span> <span class="n">require_match</span>
@@ -1200,17 +1198,17 @@
     <span class="k">def</span> <span class="nf">require_calling_aet</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">ae_titles</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;Set the required calling AE title.</span>
 
-<span class="sd">        When an Association request is received the value of the &#39;Calling AE</span>
-<span class="sd">        Title&#39; supplied by the peer will be compared with the set value and</span>
+<span class="sd">        When an association request is received the value of the *Calling AE</span>
+<span class="sd">        Title* supplied by the peer will be compared with the set value and</span>
 <span class="sd">        if none match the association will be rejected. If the set value</span>
-<span class="sd">        is an empty list then the &#39;Calling AE Title&#39; will not be checked.</span>
+<span class="sd">        is an empty list then the *Calling AE Title* will not be checked.</span>
 
 <span class="sd">        Parameters</span>
 <span class="sd">        ----------</span>
 <span class="sd">        ae_titles : list of bytes</span>
 <span class="sd">            If not empty then any association requests that supply a</span>
-<span class="sd">            Calling AE Title value that does not match one of the values in</span>
-<span class="sd">            `ae_titles` will be rejected. If an empty list (default) then all</span>
+<span class="sd">            *Calling AE Title* value that does not match one of the values in</span>
+<span class="sd">            ``ae_titles`` will be rejected. If an empty list (default) then all</span>
 <span class="sd">            association requests will be accepted (unless rejected for other</span>
 <span class="sd">            reasons).</span>
 <span class="sd">        &quot;&quot;&quot;</span>
@@ -1229,15 +1227,15 @@
 <span class="sd">        Parameters</span>
 <span class="sd">        ----------</span>
 <span class="sd">        address : 2-tuple</span>
-<span class="sd">            The (host, port) to use when listening for incoming association</span>
+<span class="sd">            The (`host`, `port`) to use when listening for incoming association</span>
 <span class="sd">            requests.</span>
 <span class="sd">        block : bool, optional</span>
-<span class="sd">            If True (default) then the server will be blocking, otherwise it</span>
-<span class="sd">            will start the server in a new thread and be non-blocking.</span>
+<span class="sd">            If ``True`` (default) then the server will be blocking, otherwise</span>
+<span class="sd">            it will start the server in a new thread and be non-blocking.</span>
 <span class="sd">        ssl_context : ssl.SSLContext, optional</span>
-<span class="sd">            If TLS is required then this should the SSLContext instance to</span>
-<span class="sd">            use to wrap the client sockets, otherwise if None then no TLS will</span>
-<span class="sd">            be used (default).</span>
+<span class="sd">            If TLS is required then this should the ``SSLContext`` instance to</span>
+<span class="sd">            use to wrap the client sockets, otherwise if ``None`` then no TLS</span>
+<span class="sd">            will be used (default).</span>
 <span class="sd">        evt_handlers : list of 2-tuple, optional</span>
 <span class="sd">            A list of (event, handler), where `event` is an ``evt.EVT_*`` event</span>
 <span class="sd">            tuple and `handler` is a callable function that will be bound to</span>
@@ -1249,8 +1247,8 @@
 <span class="sd">        Returns</span>
 <span class="sd">        -------</span>
 <span class="sd">        transport.ThreadedAssociationServer or None</span>
-<span class="sd">            If `block` is False then returns the server instance, otherwise</span>
-<span class="sd">            returns None.</span>
+<span class="sd">            If `block` is ``False`` then returns the server instance, otherwise</span>
+<span class="sd">            returns ``None``.</span>
 <span class="sd">        &quot;&quot;&quot;</span>
         <span class="c1"># If the SCP has no supported SOP Classes then there&#39;s no point</span>
         <span class="c1">#   running as a server</span>
@@ -1373,12 +1371,12 @@
 
     <span class="nd">@property</span>
     <span class="k">def</span> <span class="nf">supported_contexts</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
-        <span class="sd">&quot;&quot;&quot;Return a list of the supported PresentationContexts items.</span>
+        <span class="sd">&quot;&quot;&quot;Return a list of the supported ``PresentationContexts`` items.</span>
 
 <span class="sd">        Returns</span>
 <span class="sd">        -------</span>
 <span class="sd">        list of presentation.PresentationContext</span>
-<span class="sd">            The SCP&#39;s supported Presentation Contexts, ordered by abstract</span>
+<span class="sd">            The SCP&#39;s supported presentation contexts, ordered by abstract</span>
 <span class="sd">            syntax.</span>
 <span class="sd">        &quot;&quot;&quot;</span>
         <span class="c1"># The supported presentation contexts are stored internally as a dict</span>
@@ -1388,17 +1386,17 @@
 
     <span class="nd">@supported_contexts</span><span class="o">.</span><span class="n">setter</span>
     <span class="k">def</span> <span class="nf">supported_contexts</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">contexts</span><span class="p">):</span>
-        <span class="sd">&quot;&quot;&quot;Set the supported Presentation Contexts using a list.</span>
+        <span class="sd">&quot;&quot;&quot;Set the supported presentation contexts using a list.</span>
 
 <span class="sd">        Parameters</span>
 <span class="sd">        ----------</span>
 <span class="sd">        contexts : list of presentation.PresentationContext</span>
-<span class="sd">            The Presentation Contexts to support when acting as an SCP.</span>
+<span class="sd">            The presentation contexts to support when acting as an SCP.</span>
 
 <span class="sd">        Examples</span>
 <span class="sd">        --------</span>
 <span class="sd">        Set the supported presentation contexts using a list of</span>
-<span class="sd">        `PresentationContext` items:</span>
+<span class="sd">        ``PresentationContext`` items:</span>
 
 <span class="sd">        &gt;&gt;&gt; from pydicom.uid import ImplicitVRLittleEndian</span>
 <span class="sd">        &gt;&gt;&gt; from pynetdicom import AE</span>
@@ -1410,7 +1408,7 @@
 <span class="sd">        &gt;&gt;&gt; ae.supported_contexts = [context]</span>
 
 <span class="sd">        Set the supported presentation contexts using an inbuilt list of</span>
-<span class="sd">        service specific `PresentationContext` items:</span>
+<span class="sd">        service specific ``PresentationContext`` items:</span>
 
 <span class="sd">        &gt;&gt;&gt; from pynetdicom import AE, StoragePresentationContexts</span>
 <span class="sd">        &gt;&gt;&gt; ae = AE()</span>
