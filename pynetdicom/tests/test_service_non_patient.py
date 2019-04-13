@@ -12,7 +12,7 @@ from pydicom import dcmread
 from pydicom.dataset import Dataset
 from pydicom.uid import ExplicitVRLittleEndian
 
-from pynetdicom import AE, evt
+from pynetdicom import AE, evt, debug_logger
 from pynetdicom.dimse_primitives import C_STORE
 from pynetdicom.sop_class import (
     NonPatientObjectStorageServiceClass,
@@ -23,9 +23,7 @@ from .dummy_c_scp import (
     DummyStorageSCP
 )
 
-LOGGER = logging.getLogger('pynetdicom')
-LOGGER.setLevel(logging.CRITICAL)
-#LOGGER.setLevel(logging.DEBUG)
+#debug_logger()
 
 TEST_DS_DIR = os.path.join(os.path.dirname(__file__), 'dicom_files')
 DATASET = dcmread(os.path.join(TEST_DS_DIR, 'CTImageStorage.dcm'))
@@ -67,12 +65,14 @@ class TestNonPatientObjectStorageServiceClass_Deprecated(object):
         assoc = ae.associate('localhost', 11112)
         assert assoc.is_established
 
+        def dummy(): pass
+
         req = C_STORE()
         req.MessageID = 1
         req.AffectedSOPClassUID = DATASET.SOPClassUID
         req.AffectedSOPInstanceUID = DATASET.SOPInstanceUID
         req.Priorty = 0x0002
-        req.DataSet = BytesIO(b'\x08\x00\x01\x00\x04\x00\x00\x00\x00\x08\x00\x49')
+        req._dataSet = dummy
 
         # Send C-STORE request to DIMSE and get response
         assoc.dimse.send_msg(req, 1)
@@ -289,7 +289,7 @@ class TestNonPatientObjectStorageServiceClass(object):
             try:
                 for elem in event.dataset.iterall():
                     pass
-            except NotImplementedError:
+            except:
                 status = Dataset()
                 status.Status = 0xC210
                 status.ErrorComment = "Unable to decode the dataset"
@@ -312,7 +312,8 @@ class TestNonPatientObjectStorageServiceClass(object):
         req.AffectedSOPClassUID = DATASET.SOPClassUID
         req.AffectedSOPInstanceUID = DATASET.SOPInstanceUID
         req.Priorty = 0x0002
-        req.DataSet = BytesIO(b'\x08\x00\x01\x00\x04\x00\x00\x00\x00\x08\x00\x49')
+        # Bad VR? AA
+        req.DataSet = BytesIO(b'\x08\x00\x01\x00\x40\x40\x00\x00\x00\x00\x00\x08\x00\x49')
 
         # Send C-STORE request to DIMSE and get response
         assoc.dimse.send_msg(req, 1)

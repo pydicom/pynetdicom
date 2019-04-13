@@ -108,7 +108,7 @@ class TestQRFindServiceClass_Deprecated(object):
         req.MessageID = 1
         req.AffectedSOPClassUID = PatientRootQueryRetrieveInformationModelFind
         req.Priority = 2
-        req.Identifier = BytesIO(b'\x08\x00\x01\x00\x04\x00\x00\x00\x00\x08\x00\x49')
+        req.Identifier = BytesIO(b'\x08\x00\x01\x00\x40\x40\x00\x00\x00\x00\x00\x08\x00\x49')
         assoc.dimse.send_msg(req, 1)
         cx_id, rsp = assoc.dimse.get_msg(True)
         assert rsp.Status == 0xC310
@@ -589,7 +589,7 @@ class TestQRFindServiceClass(object):
                 ds = event.identifier
                 for elem in ds.iterall():
                     pass
-            except NotImplementedError:
+            except:
                 yield 0xC310, None
                 return
 
@@ -612,7 +612,7 @@ class TestQRFindServiceClass(object):
         req.MessageID = 1
         req.AffectedSOPClassUID = PatientRootQueryRetrieveInformationModelFind
         req.Priority = 2
-        req.Identifier = BytesIO(b'\x08\x00\x01\x00\x04\x00\x00\x00\x00\x08\x00\x49')
+        req.Identifier = BytesIO(b'\x08\x00\x01\x00\x40\x40\x00\x00\x00\x00\x00\x08\x00\x49')
         assoc.dimse.send_msg(req, 1)
         cx_id, rsp = assoc.dimse.get_msg(True)
         assert rsp.Status == 0xC310
@@ -1414,7 +1414,7 @@ class TestQRGetServiceClass_Deprecated(object):
         req.MessageID = 1
         req.AffectedSOPClassUID = PatientRootQueryRetrieveInformationModelGet
         req.Priority = 2
-        req.Identifier = BytesIO(b'\x08\x00\x01\x00\x04\x00\x00\x00\x00\x08\x00\x49')
+        req.Identifier = BytesIO(b'\x08\x00\x01\x00\x40\x40\x00\x00\x00\x00\x00\x08\x00\x49')
         assoc.dimse.send_msg(req, 1)
         cx_id, status = assoc.dimse.get_msg(True)
         assert status.Status == 0xC410
@@ -2610,7 +2610,7 @@ class TestQRGetServiceClass(object):
                 ds = event.identifier
                 for elem in ds.iterall():
                     pass
-            except NotImplementedError:
+            except:
                 yield 0xC410, None
                 return
 
@@ -2635,7 +2635,7 @@ class TestQRGetServiceClass(object):
         req.MessageID = 1
         req.AffectedSOPClassUID = PatientRootQueryRetrieveInformationModelGet
         req.Priority = 2
-        req.Identifier = BytesIO(b'\x08\x00\x01\x00\x04\x00\x00\x00\x00\x08\x00\x49')
+        req.Identifier = BytesIO(b'\x08\x00\x01\x00\x40\x40\x00\x00\x00\x00\x00\x08\x00\x49')
         assoc.dimse.send_msg(req, 1)
         cx_id, status = assoc.dimse.get_msg(True)
         assert status.Status == 0xC410
@@ -4478,7 +4478,7 @@ class TestQRMoveServiceClass_Deprecated(object):
         req.AffectedSOPClassUID = PatientRootQueryRetrieveInformationModelMove
         req.Priority = 2
         # Encoded as Implicit VR Little
-        req.Identifier = BytesIO(b'\x08\x00\x01\x00\x04\x00\x00\x00\x00\x08\x00\x49')
+        req.Identifier = BytesIO(b'\x08\x00\x01\x00\x40\x40\x00\x00\x00\x00\x00\x08\x00\x49')
         assoc.dimse.send_msg(req, 1)
         cx_id, status = assoc.dimse.get_msg(True)
         assert status.Status == 0xC510
@@ -5550,7 +5550,7 @@ class TestQRMoveServiceClass(object):
                 ds = event.identifier
                 for elem in ds.iterall():
                     pass
-            except NotImplementedError:
+            except:
                 yield 0xC410, None
                 return
 
@@ -5577,7 +5577,7 @@ class TestQRMoveServiceClass(object):
         req.AffectedSOPClassUID = PatientRootQueryRetrieveInformationModelMove
         req.Priority = 2
         # Encoded as Implicit VR Little
-        req.Identifier = BytesIO(b'\x08\x00\x01\x00\x04\x00\x00\x00\x00\x08\x00\x49')
+        req.Identifier = BytesIO(b'\x08\x00\x01\x00\x40\x40\x00\x00\x00\x00\x00\x08\x00\x49')
         assoc.dimse.send_msg(req, 1)
         cx_id, status = assoc.dimse.get_msg(True)
         assert status.Status == 0xC510

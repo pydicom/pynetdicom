@@ -73,7 +73,7 @@ class TestRelevantPatientServiceClass_Deprecated(object):
         req.MessageID = 1
         req.AffectedSOPClassUID = GeneralRelevantPatientInformationQuery
         req.Priority = 2
-        req.Identifier = BytesIO(b'\x08\x00\x01\x00\x04\x00\x00\x00\x00\x08\x00\x49')
+        req.Identifier = BytesIO(b'\x08\x00\x01\x00\x40\x40\x00\x00\x00\x00\x00\x08\x00\x49')
         assoc.dimse.send_msg(req, 1)
         cx_id, rsp = assoc.dimse.get_msg(True)
         assert rsp.Status == 0xC310
@@ -518,7 +518,7 @@ class TestRelevantPatientServiceClass(object):
         req.MessageID = 1
         req.AffectedSOPClassUID = GeneralRelevantPatientInformationQuery
         req.Priority = 2
-        req.Identifier = BytesIO(b'\x08\x00\x01\x00\x04\x00\x00\x00\x00\x08\x00\x49')
+        req.Identifier = BytesIO(b'\x08\x00\x01\x00\x40\x40\x00\x00\x00\x00\x00\x08\x00\x49')
         assoc.dimse.send_msg(req, 1)
         cx_id, rsp = assoc.dimse.get_msg(True)
         assert rsp.Status == 0xC310
