@@ -97,21 +97,21 @@ class TestAEVerificationSCP(object):
 
     def test_no_supported_contexts(self):
         """Test starting with no contexts raises"""
-        self.ae = ae = AE()
+        ae = AE()
         with pytest.raises(ValueError, match=r"No supported Presentation"):
             ae.start_server(('', 11112))
 
     def test_new_scu_scp_warning(self, caplog):
         """Test that a warning is given if scu_role and scp_role bad."""
-        self.ae = ae = AE()
+        ae = AE()
         ae.add_supported_context('1.2.3.4', scp_role=False)
         msg = r"The following presentation contexts have "
         with pytest.raises(ValueError, match=msg):
-            scp = ae.start_server(('', 11112))
+            ae.start_server(('', 11112))
 
     def test_str_empty(self):
         """Test str output for default AE"""
-        self.ae = ae = AE()
+        ae = AE()
         ae.__str__()
 
 
@@ -173,160 +173,6 @@ class TestAEPresentationSCU(object):
         self.ae = ae = AE()
         with pytest.raises(RuntimeError):
             assoc = ae.associate('localhost', 11112)
-
-
-class TestAEGoodCallbacks(object):
-    def setup(self):
-        """Run prior to each test"""
-        self.ae = None
-
-    def teardown(self):
-        """Clear any active threads"""
-        if self.ae:
-            self.ae.shutdown()
-
-    def test_on_c_echo_called(self):
-        """ Check that SCP AE.on_c_echo() was called """
-        self.ae = ae = AE()
-        ae.add_supported_context(VerificationSOPClass)
-        scp = ae.start_server(('', 11112), block=False)
-
-        ae.add_requested_context(VerificationSOPClass)
-        ae.acse_timeout = 5
-        ae.dimse_timeout = 5
-        assoc = ae.associate('localhost', 11112)
-        assert assoc.is_established
-        status = assoc.send_c_echo()
-        assert isinstance(status, Dataset)
-        assert 'Status' in status
-        assert status.Status == 0x0000
-
-        assoc.release()
-        assert assoc.is_released
-        assert not assoc.is_established
-
-        scp.shutdown()
-
-    def test_on_c_find_called(self):
-        """ Check that SCP AE.on_c_find(dataset) was called """
-        self.scp = DummyFindSCP()
-        self.scp.status = 0x0000
-        self.scp.start()
-
-        ds = Dataset()
-        ds.PatientName = '*'
-        ds.QueryRetrieveLevel = "PATIENT"
-        ae = AE()
-        ae.add_requested_context(PatientRootQueryRetrieveInformationModelFind)
-        ae.acse_timeout = 5
-        ae.dimse_timeout = 5
-        assoc = ae.associate('localhost', 11112)
-        assert assoc.is_established
-        for (status, ds) in assoc.send_c_find(ds, query_model='P'):
-            assert status.Status == 0x0000
-        assoc.release()
-
-        self.scp.stop()
-
-    def test_on_c_get_called(self):
-        """ Check that SCP AE.on_c_get(dataset) was called """
-        self.scp = DummyGetSCP()
-        self.scp.start()
-
-        ds = Dataset()
-        ds.PatientName = '*'
-        ds.QueryRetrieveLevel = "PATIENT"
-        ae = AE()
-        ae.add_requested_context(PatientRootQueryRetrieveInformationModelGet)
-        ae.acse_timeout = 5
-        ae.dimse_timeout = 5
-        assoc = ae.associate('localhost', 11112)
-        assert assoc.is_established
-        for (status, ds) in assoc.send_c_get(ds, query_model='P'):
-            assert status.Status == 0x0000
-        assoc.release()
-
-        self.scp.stop()
-
-    def test_on_c_move_called(self):
-        """ Check that SCP AE.on_c_move(dataset) was called """
-        self.scp = DummyMoveSCP()
-        self.scp.start()
-
-        ds = Dataset()
-        ds.PatientName = '*'
-        ds.QueryRetrieveLevel = "PATIENT"
-        ae = AE()
-        ae.add_requested_context(PatientRootQueryRetrieveInformationModelMove)
-        ae.acse_timeout = 5
-        ae.dimse_timeout = 5
-        assoc = ae.associate('localhost', 11112)
-        assert assoc.is_established
-        for (status, ds) in assoc.send_c_move(ds, query_model='P', move_aet=b'TEST'):
-            pass
-        assoc.release()
-
-        self.scp.stop()
-
-    def test_on_user_identity_negotiation(self):
-        """Test default callback raises exception"""
-        ae = AE()
-        with pytest.raises(NotImplementedError):
-            ae.on_user_identity(None, None, None, None)
-
-    def test_on_sop_class_extended(self):
-        """Test default callback returns None"""
-        ae = AE()
-        assert ae.on_sop_class_extended(None) is None
-
-    def test_on_c_echo(self):
-        """Test default callback raises exception"""
-        ae = AE()
-        ae.on_c_echo(None, None)
-
-    def test_on_c_find(self):
-        """Test default callback raises exception"""
-        ae = AE()
-        with pytest.raises(NotImplementedError):
-            ae.on_c_find(None, None, None)
-
-    def test_on_c_get(self):
-        """Test default callback raises exception"""
-        ae = AE()
-        with pytest.raises(NotImplementedError):
-            ae.on_c_get(None, None, None)
-
-    def test_on_c_move(self):
-        """Test default callback raises exception"""
-        ae = AE()
-        with pytest.raises(NotImplementedError):
-            ae.on_c_move(None, None, None, None)
-
-    def test_on_n_get(self):
-        """Test default callback raises exception"""
-        ae = AE()
-        with pytest.raises(NotImplementedError):
-            ae.on_n_get(None, None, None)
-
-    def test_association_accepted(self):
-        """Test default callback raises exception"""
-        ae = AE()
-        ae.on_association_accepted(None)
-
-    def test_association_rejected(self):
-        """Test default callback raises exception"""
-        ae = AE()
-        ae.on_association_rejected(None)
-
-    def test_association_released(self):
-        """Test default callback raises exception"""
-        ae = AE()
-        ae.on_association_released(None)
-
-    def test_association_aborted(self):
-        """Test default callback raises exception"""
-        ae = AE()
-        ae.on_association_aborted(None)
 
 
 class TestAEGoodTimeoutSetters(object):

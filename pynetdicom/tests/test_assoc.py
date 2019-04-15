@@ -115,11 +115,15 @@ class TestAssociation(object):
     def setup(self):
         """This function runs prior to all test methods"""
         self.scp = None
+        self.ae = None
 
     def teardown(self):
         """This function runs after all test methods"""
         if self.scp:
             self.scp.abort()
+
+        if self.ae:
+            self.ae.shutdown()
 
         for thread in threading.enumerate():
             if isinstance(thread, DummyBaseSCP):
@@ -413,14 +417,20 @@ class TestAssociation(object):
 
     def test_dimse_timeout(self):
         """Test that the DIMSE timeout works"""
-        self.scp = DummyVerificationSCP()
-        self.scp.delay = 0.2
-        self.scp.start()
-        ae = AE()
-        ae.add_requested_context(VerificationSOPClass)
+        def handle(event):
+            time.sleep(0.2)
+            return 0x0000
+
+        self.ae = ae = AE()
+        ae.add_supported_context(VerificationSOPClass)
         ae.acse_timeout = 5
         ae.dimse_timeout = 5
         ae.dimse_timeout = 0.1
+        scp = ae.start_server(
+            ('', 11112), block=False, evt_handlers=[(evt.EVT_C_ECHO, handle)]
+        )
+
+        ae.add_requested_context(VerificationSOPClass)
         assoc = ae.associate('localhost', 11112)
         assert assoc.dimse_timeout == 0.1
         assert assoc.dimse.dimse_timeout == 0.1
@@ -429,7 +439,8 @@ class TestAssociation(object):
         assoc.release()
         assert not assoc.is_released
         assert assoc.is_aborted
-        self.scp.stop()
+
+        scp.shutdown()
 
     def test_multiple_association_release_cycles(self):
         """Test repeatedly associating and releasing"""
@@ -528,192 +539,6 @@ class TestAssociation(object):
         assoc = ae.associate('localhost', 11112)
         assert evt.EVT_C_STORE in assoc.get_events()
         assert evt.EVT_USER_ID in assoc.get_events()
-
-
-class TestAssociationSendCEcho_Old(object):
-    """Run tests on Assocation send_c_echo."""
-    def setup(self):
-        """Run prior to each test"""
-        self.scp = None
-
-    def teardown(self):
-        """Clear any active threads"""
-        if self.scp:
-            self.scp.abort()
-
-        time.sleep(0.1)
-
-        for thread in threading.enumerate():
-            if isinstance(thread, DummyBaseSCP):
-                thread.abort()
-                thread.stop()
-
-    def test_must_be_associated(self):
-        """Test can't send without association."""
-        # Test raise if assoc not established
-        self.scp = DummyVerificationSCP()
-        self.scp.start()
-        ae = AE()
-        ae.add_requested_context(VerificationSOPClass)
-        ae.acse_timeout = 5
-        ae.dimse_timeout = 5
-        assoc = ae.associate('localhost', 11112)
-        assert assoc.is_established
-        assoc.release()
-        assert assoc.is_released
-        assert not assoc.is_established
-        with pytest.raises(RuntimeError):
-            assoc.send_c_echo()
-        self.scp.stop()
-
-    def test_no_abstract_syntax_match(self):
-        """Test SCU when no accepted abstract syntax"""
-        self.scp = DummyStorageSCP()
-        self.scp.start()
-        ae = AE()
-        ae.add_requested_context(CTImageStorage)
-        ae.acse_timeout = 5
-        ae.dimse_timeout = 5
-        assoc = ae.associate('localhost', 11112)
-        assert assoc.is_established
-        with pytest.raises(ValueError):
-            assoc.send_c_echo()
-        assoc.release()
-        assert assoc.is_released
-        self.scp.stop()
-
-    def test_rsp_none(self):
-        """Test no response from peer"""
-        self.scp = DummyVerificationSCP()
-        self.scp.start()
-        ae = AE()
-        ae.add_requested_context(VerificationSOPClass)
-        ae.acse_timeout = 5
-        ae.dimse_timeout = 5
-        assoc = ae.associate('localhost', 11112)
-        class DummyDIMSE():
-            def send_msg(*args, **kwargs): return
-            def get_msg(*args, **kwargs): return None, None
-
-        assoc.dimse = DummyDIMSE()
-        if assoc.is_established:
-            assoc.send_c_echo()
-
-        assert assoc.is_aborted
-
-        self.scp.stop()
-
-    def test_rsp_invalid(self):
-        """Test invalid response received from peer"""
-        self.scp = DummyVerificationSCP()
-        self.scp.start()
-        ae = AE()
-        ae.add_requested_context(VerificationSOPClass)
-        ae.acse_timeout = 5
-        ae.dimse_timeout = 5
-        assoc = ae.associate('localhost', 11112)
-
-        class DummyResponse():
-            is_valid_response = False
-
-        class DummyDIMSE():
-            def send_msg(*args, **kwargs): return
-            def get_msg(*args, **kwargs): return None, DummyResponse()
-
-        assoc.dimse = DummyDIMSE()
-        if assoc.is_established:
-            assoc.send_c_echo()
-
-        assert assoc.is_aborted
-
-        self.scp.stop()
-
-    def test_rsp_success(self):
-        """Test receiving a success response from the peer"""
-        scp = AE()
-        scp.add_supported_context(VerificationSOPClass)
-        scp.start_server(('', 11112), block=False)
-
-        ae = AE()
-        ae.add_requested_context(VerificationSOPClass)
-        ae.acse_timeout = 5
-        ae.dimse_timeout = 5
-        assoc = ae.associate('localhost', 11112)
-        assert assoc.is_established
-        result = assoc.send_c_echo()
-        assert result.Status == 0x0000
-        assoc.release()
-        assert assoc.is_released
-
-        scp.shutdown()
-
-    def test_rsp_failure(self):
-        """Test receiving a failure response from the peer"""
-        #self.scp = DummyVerificationSCP()
-        #self.scp.status = 0x0210
-        #self.scp.start()
-        def on_c_echo(cx, info):
-            return 0x0210
-
-        scp = AE()
-        scp.add_supported_context(VerificationSOPClass)
-        scp.on_c_echo = on_c_echo
-        scp.start_server(('', 11112), block=False)
-
-        ae = AE()
-        ae.add_requested_context(VerificationSOPClass)
-        ae.acse_timeout = 5
-        ae.dimse_timeout = 5
-        assoc = ae.associate('localhost', 11112)
-        assert assoc.is_established
-        result = assoc.send_c_echo()
-        assert result.Status == 0x0210
-        assoc.release()
-        assert assoc.is_released
-        #self.scp.stop()
-
-        scp.shutdown()
-
-    def test_rsp_unknown_status(self):
-        """Test unknown status value returned by peer"""
-        self.scp = DummyVerificationSCP()
-        self.scp.status = 0xFFF0
-        self.scp.start()
-        ae = AE()
-        ae.add_requested_context(VerificationSOPClass)
-        ae.acse_timeout = 5
-        ae.dimse_timeout = 5
-        assoc = ae.associate('localhost', 11112)
-        assert assoc.is_established
-        result = assoc.send_c_echo()
-        assert result.Status == 0xFFF0
-        assoc.release()
-        assert assoc.is_released
-        self.scp.stop()
-
-    def test_rsp_multi_status(self):
-        """Test receiving a status with extra elements"""
-        def on_c_echo(context, assoc_info):
-            ds = Dataset()
-            ds.Status = 0x0122
-            ds.ErrorComment = 'Some comment'
-            return ds
-
-        self.scp = DummyVerificationSCP()
-        self.scp.ae.on_c_echo = on_c_echo
-        self.scp.start()
-        ae = AE()
-        ae.add_requested_context(VerificationSOPClass)
-        ae.acse_timeout = 5
-        ae.dimse_timeout = 5
-        assoc = ae.associate('localhost', 11112)
-        assert assoc.is_established
-        result = assoc.send_c_echo()
-        assert result.Status == 0x0122
-        assert result.ErrorComment == 'Some comment'
-        assoc.release()
-        assert assoc.is_released
-        self.scp.stop()
 
 
 class TestAssociationSendCEcho(object):
@@ -820,14 +645,14 @@ class TestAssociationSendCEcho(object):
 
     def test_rsp_success(self):
         """Test receiving a success response from the peer"""
-        scp = AE()
-        scp.add_supported_context(VerificationSOPClass)
-        scp.start_server(('', 11112), block=False)
-
-        ae = AE()
-        ae.add_requested_context(VerificationSOPClass)
+        self.ae = ae = AE()
         ae.acse_timeout = 5
         ae.dimse_timeout = 5
+        ae.network_timeout = 5
+        ae.add_supported_context(VerificationSOPClass)
+        scp = ae.start_server(('', 11112), block=False)
+
+        ae.add_requested_context(VerificationSOPClass)
         assoc = ae.associate('localhost', 11112)
         assert assoc.is_established
         result = assoc.send_c_echo()
@@ -909,19 +734,27 @@ class TestAssociationSendCEcho(object):
 
     def test_abort_during(self):
         """Test aborting the association during message exchange"""
-        self.scp = DummyVerificationSCP()
-        self.scp.send_abort = True
-        self.scp.start()
-        ae = AE()
+        def handle(event):
+            event.assoc.abort()
+            return 0x0000
+
+        self.ae = ae = AE()
+        ae.acse_timeout = 1
+        ae.dimse_timeout = 1
+        ae.network_timeout = 1
+        ae.add_supported_context(VerificationSOPClass)
+        scp = ae.start_server(
+            ('', 11112), block=False, evt_handlers=[(evt.EVT_C_ECHO, handle)]
+        )
+
         ae.add_requested_context(VerificationSOPClass)
-        ae.acse_timeout = 5
-        ae.dimse_timeout = 5
         assoc = ae.associate('localhost', 11112)
         assert assoc.is_established
         result = assoc.send_c_echo()
         assert result == Dataset()
         assert assoc.is_aborted
-        self.scp.stop()
+
+        scp.shutdown()
 
     def test_run_accept_scp_not_implemented(self):
         """Test association is aborted if non-implemented SCP requested."""
@@ -1522,11 +1355,15 @@ class TestAssociationSendCFind(object):
         self.ds.QueryRetrieveLevel = "PATIENT"
 
         self.scp = None
+        self.ae = None
 
     def teardown(self):
         """Clear any active threads"""
         if self.scp:
             self.scp.abort()
+
+        if self.ae:
+            self.ae.shutdown()
 
         time.sleep(0.1)
 
@@ -1590,10 +1427,32 @@ class TestAssociationSendCFind(object):
 
     def test_good_query_model(self):
         """Test good query_model values"""
-        scp = DummyFindSCP()
-        scp.statuses = [0x0000]
-        scp.start()
-        ae = AE()
+        def handle(event):
+            yield 0x0000, None
+
+        self.ae = ae = AE()
+        ae.acse_timeout = 5
+        ae.dimse_timout = 5
+        ae.network_timeout = 5
+        ae.add_supported_context(PatientRootQueryRetrieveInformationModelFind)
+        ae.add_supported_context(StudyRootQueryRetrieveInformationModelFind)
+        ae.add_supported_context(PatientStudyOnlyQueryRetrieveInformationModelFind)
+        ae.add_supported_context(ModalityWorklistInformationFind)
+        ae.add_supported_context(GeneralRelevantPatientInformationQuery)
+        ae.add_supported_context(BreastImagingRelevantPatientInformationQuery)
+        ae.add_supported_context(CardiacRelevantPatientInformationQuery)
+        ae.add_supported_context(ProductCharacteristicsQueryInformationModelFind)
+        ae.add_supported_context(SubstanceApprovalQueryInformationModelFind)
+        ae.add_supported_context(HangingProtocolInformationModelFind)
+        ae.add_supported_context(DefinedProcedureProtocolInformationModelFind)
+        ae.add_supported_context(ColorPaletteInformationModelFind)
+        ae.add_supported_context(GenericImplantTemplateInformationModelFind)
+        ae.add_supported_context(ImplantAssemblyTemplateInformationModelFind)
+        ae.add_supported_context(ImplantTemplateGroupInformationModelFind)
+        scp = ae.start_server(
+            ('', 11112), block=False, evt_handlers=[(evt.EVT_C_FIND, handle)]
+        )
+
         ae.add_requested_context(PatientRootQueryRetrieveInformationModelFind)
         ae.add_requested_context(StudyRootQueryRetrieveInformationModelFind)
         ae.add_requested_context(PatientStudyOnlyQueryRetrieveInformationModelFind)
@@ -1609,8 +1468,6 @@ class TestAssociationSendCFind(object):
         ae.add_requested_context(GenericImplantTemplateInformationModelFind)
         ae.add_requested_context(ImplantAssemblyTemplateInformationModelFind)
         ae.add_requested_context(ImplantTemplateGroupInformationModelFind)
-        ae.acse_timeout = 5
-        ae.dimse_timeout = 5
         assoc = ae.associate('localhost', 11112)
         assert assoc.is_established
 
@@ -1621,7 +1478,8 @@ class TestAssociationSendCFind(object):
 
         assoc.release()
         assert assoc.is_released
-        scp.stop()
+
+        scp.shutdown()
 
     def test_fail_encode_identifier(self):
         """Test a failure in encoding the Identifier dataset"""
@@ -1647,33 +1505,48 @@ class TestAssociationSendCFind(object):
 
     def test_rsp_failure(self):
         """Test receiving a failure response from the peer"""
-        scp = DummyFindSCP()
-        scp.statuses = [0xA700]
-        scp.start()
-        ae = AE()
-        ae.add_requested_context(PatientRootQueryRetrieveInformationModelFind)
+        def handle(event):
+            yield 0xA700, None
+
+        self.ae = ae = AE()
         ae.acse_timeout = 5
-        ae.dimse_timeout = 5
+        ae.dimse_timout = 5
+        ae.network_timeout = 5
+        ae.add_supported_context(PatientRootQueryRetrieveInformationModelFind)
+        scp = ae.start_server(
+            ('', 11112), block=False, evt_handlers=[(evt.EVT_C_FIND, handle)]
+        )
+
+        ae.add_requested_context(PatientRootQueryRetrieveInformationModelFind)
         assoc = ae.associate('localhost', 11112)
         assert assoc.is_established
+
         for (status, ds) in assoc.send_c_find(self.ds, query_model='P'):
             assert status.Status == 0xA700
             assert ds is None
         assoc.release()
         assert assoc.is_released
-        scp.stop()
+
+        scp.shutdown()
 
     def test_rsp_pending(self):
         """Test receiving a pending response from the peer"""
-        scp = DummyFindSCP()
-        scp.statuses = [0xFF00]
-        scp.start()
-        ae = AE()
-        ae.add_requested_context(PatientRootQueryRetrieveInformationModelFind)
+        def handle(event):
+            yield 0xFF00, self.ds
+
+        self.ae = ae = AE()
         ae.acse_timeout = 5
-        ae.dimse_timeout = 5
+        ae.dimse_timout = 5
+        ae.network_timeout = 5
+        ae.add_supported_context(PatientRootQueryRetrieveInformationModelFind)
+        scp = ae.start_server(
+            ('', 11112), block=False, evt_handlers=[(evt.EVT_C_FIND, handle)]
+        )
+
+        ae.add_requested_context(PatientRootQueryRetrieveInformationModelFind)
         assoc = ae.associate('localhost', 11112)
         assert assoc.is_established
+
         result = assoc.send_c_find(self.ds, query_model='P')
         (status, ds) = next(result)
         assert status.Status == 0xFF00
@@ -1683,62 +1556,87 @@ class TestAssociationSendCFind(object):
         assert ds is None
         assoc.release()
         assert assoc.is_released
-        scp.stop()
+
+        scp.shutdown()
 
     def test_rsp_success(self):
         """Test receiving a success response from the peer"""
-        self.scp = DummyFindSCP()
-        self.scp.statuses = [0x0000]
-        self.scp.start()
-        ae = AE()
-        ae.add_requested_context(PatientRootQueryRetrieveInformationModelFind)
+        def handle(event):
+            yield 0x0000, None
+
+        self.ae = ae = AE()
         ae.acse_timeout = 5
-        ae.dimse_timeout = 5
+        ae.dimse_timout = 5
+        ae.network_timeout = 5
+        ae.add_supported_context(PatientRootQueryRetrieveInformationModelFind)
+        scp = ae.start_server(
+            ('', 11112), block=False, evt_handlers=[(evt.EVT_C_FIND, handle)]
+        )
+
+        ae.add_requested_context(PatientRootQueryRetrieveInformationModelFind)
         assoc = ae.associate('localhost', 11112)
         assert assoc.is_established
+
         for (status, ds) in assoc.send_c_find(self.ds, query_model='P'):
             assert status.Status == 0x0000
             assert ds is None
         assoc.release()
         assert assoc.is_released
-        self.scp.stop()
+
+        scp.shutdown()
 
     def test_rsp_empty(self):
         """Test receiving a success response from the peer"""
-        scp = DummyFindSCP()
-        scp.statuses = []
-        scp.identifiers = []
-        scp.start()
-        ae = AE()
-        ae.add_requested_context(PatientRootQueryRetrieveInformationModelFind)
+        # No matches
+        def handle(event):
+            pass
+
+        self.ae = ae = AE()
         ae.acse_timeout = 5
-        ae.dimse_timeout = 5
+        ae.dimse_timout = 5
+        ae.network_timeout = 5
+        ae.add_supported_context(PatientRootQueryRetrieveInformationModelFind)
+        scp = ae.start_server(
+            ('', 11112), block=False, evt_handlers=[(evt.EVT_C_FIND, handle)]
+        )
+
+        ae.add_requested_context(PatientRootQueryRetrieveInformationModelFind)
         assoc = ae.associate('localhost', 11112)
         assert assoc.is_established
+
         for (status, ds) in assoc.send_c_find(self.ds, query_model='P'):
             assert status.Status == 0x0000
             assert ds is None
         assoc.release()
         assert assoc.is_released
-        scp.stop()
+
+        scp.shutdown()
 
     def test_rsp_cancel(self):
         """Test receiving a cancel response from the peer"""
-        scp = DummyFindSCP()
-        scp.statuses = [0xFE00]
-        scp.start()
-        ae = AE()
-        ae.add_requested_context(PatientRootQueryRetrieveInformationModelFind)
+        def handle(event):
+            yield 0xFE00, None
+
+        self.ae = ae = AE()
         ae.acse_timeout = 5
-        ae.dimse_timeout = 5
+        ae.dimse_timout = 5
+        ae.network_timeout = 5
+        ae.add_supported_context(PatientRootQueryRetrieveInformationModelFind)
+        scp = ae.start_server(
+            ('', 11112), block=False, evt_handlers=[(evt.EVT_C_FIND, handle)]
+        )
+
+        ae.add_requested_context(PatientRootQueryRetrieveInformationModelFind)
         assoc = ae.associate('localhost', 11112)
         assert assoc.is_established
+
         for (status, ds) in assoc.send_c_find(self.ds, query_model='P'):
             assert status.Status == 0xFE00
             assert ds is None
         assoc.release()
         assert assoc.is_released
-        scp.stop()
+
+        scp.shutdown()
 
     def test_rsp_invalid(self):
         """Test invalid DIMSE message response received from peer"""
@@ -1768,43 +1666,57 @@ class TestAssociationSendCFind(object):
 
     def test_rsp_unknown_status(self):
         """Test unknown status value returned by peer"""
-        self.scp = DummyFindSCP()
-        self.scp.statuses = [0xFFF0]
-        self.scp.start()
-        ae = AE()
-        ae.add_requested_context(PatientRootQueryRetrieveInformationModelFind)
+        def handle(event):
+            yield 0xFFF0, None
+
+        self.ae = ae = AE()
         ae.acse_timeout = 5
-        ae.dimse_timeout = 5
+        ae.dimse_timout = 5
+        ae.network_timeout = 5
+        ae.add_supported_context(PatientRootQueryRetrieveInformationModelFind)
+        scp = ae.start_server(
+            ('', 11112), block=False, evt_handlers=[(evt.EVT_C_FIND, handle)]
+        )
+
+        ae.add_requested_context(PatientRootQueryRetrieveInformationModelFind)
         assoc = ae.associate('localhost', 11112)
         assert assoc.is_established
+
         for (status, ds) in assoc.send_c_find(self.ds, query_model='P'):
             assert status.Status == 0xFFF0
         assoc.release()
         assert assoc.is_released
-        self.scp.stop()
+
+        scp.shutdown()
 
     def test_rsp_bad_dataset(self):
-        """Test bad dataset returned by on_c_find"""
-        self.scp = DummyFindSCP()
-
-        def on_c_find(ds, context, assoc_info):
+        """Test bad dataset returned by evt.EVT_C_FIND handler"""
+        def handle(event):
             def test(): pass
             yield 0xFF00, test
 
-        self.scp.ae.on_c_find = on_c_find
-        self.scp.start()
-        ae = AE()
+        self.ae = ae = AE()
+        ae.acse_timeout = 5
+        ae.dimse_timout = 5
+        ae.network_timeout = 5
+        ae.add_supported_context(
+            PatientRootQueryRetrieveInformationModelFind,
+            ExplicitVRLittleEndian
+        )
+        scp = ae.start_server(
+            ('', 11112), block=False, evt_handlers=[(evt.EVT_C_FIND, handle)]
+        )
+
         ae.add_requested_context(PatientRootQueryRetrieveInformationModelFind,
                                  ExplicitVRLittleEndian)
-        ae.acse_timeout = 5
-        ae.dimse_timeout = 5
         assoc = ae.associate('localhost', 11112)
         assert assoc.is_established
         for (status, ds) in assoc.send_c_find(self.ds, query_model='P'):
             assert status.Status in range(0xC000, 0xD000)
         assoc.release()
         assert assoc.is_released
-        self.scp.stop()
+
+        scp.shutdown()
 
     def test_connection_timeout(self):
         """Test the connection timing out"""

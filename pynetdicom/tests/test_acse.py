@@ -2205,17 +2205,18 @@ class TestNegotiateRelease(object):
         """Test a simulated A-RELEASE collision on the acceptor side."""
         # Listening on port 11112
         with caplog.at_level(logging.DEBUG, logger='pynetdicom'):
-            def on_c_echo(cx, info):
-                assoc = self.scp.ae.active_associations[0]
-                assoc.release()
+            def handle(event):
+                event.assoc.release()
                 return 0x0000
 
-            self.scp = DummyVerificationSCP()
-            self.scp.ae.acse_timeout = 1
-            self.scp.ae.dimse_timeout = 5
-            self.scp.ae.network_timeout = 5
-            self.scp.ae.on_c_echo = on_c_echo
-            self.scp.start()
+            self.ae = ae = AE()
+            ae.acse_timeout = 1
+            ae.dimse_timeout = 5
+            ae.network_timeout = 5
+            ae.add_supported_context(VerificationSOPClass)
+            scp = ae.start_server(
+                ('', 11112), block=False, evt_handlers=[(evt.EVT_C_ECHO, handle)]
+            )
 
             # C-ECHO-RQ
             # 80 total length
@@ -2247,7 +2248,7 @@ class TestNegotiateRelease(object):
             # Blocking
             scu.run_as_requestor()
 
-            self.scp.stop()
+            scp.shutdown()
 
             assert "An A-RELEASE collision has occurred" in caplog.text
 

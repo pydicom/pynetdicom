@@ -1,27 +1,16 @@
 """Tests for the VerificationServiceClass."""
 
-import logging
-import threading
-import time
-
 import pytest
 
 from pydicom.dataset import Dataset
 
-from pynetdicom import AE, evt
+from pynetdicom import AE, evt, debug_logger
 from pynetdicom.dimse_primitives import C_ECHO
-from pynetdicom.sop_class import (
-    VerificationServiceClass,
-    VerificationSOPClass
-)
-from .dummy_c_scp import (
-    DummyBaseSCP,
-    DummyVerificationSCP,
-)
+from pynetdicom.service_class import VerificationServiceClass
+from pynetdicom.sop_class import VerificationSOPClass
 
-LOGGER = logging.getLogger('pynetdicom')
-LOGGER.setLevel(logging.CRITICAL)
-#LOGGER.setLevel(logging.DEBUG)
+
+#debug_logger()
 
 
 class TestVerificationServiceClass(object):

@@ -188,6 +188,7 @@ class ServiceClass(object):
 
 
 # Service Class implementations
+# TODO: Remove `info` parameter
 class VerificationServiceClass(ServiceClass):
     """Implementation of the Verification Service Class."""
     statuses = VERIFICATION_SERVICE_CLASS_STATUS
@@ -260,93 +261,55 @@ class VerificationServiceClass(ServiceClass):
         rsp.MessageIDBeingRespondedTo = req.MessageID
         rsp.AffectedSOPClassUID = req.AffectedSOPClassUID
 
-        info['parameters'] = {
-            'message_id' : req.MessageID
-        }
-
-        # Try and run the user's on_c_echo callback. The callback should return
-        #   the Status as either an int or Dataset, and any failures in the
-        #   callback results in 0x0000 'Success'
-        # TODO: refactor in v1.4
-        default_handler = evt.get_default_handler(evt.EVT_C_ECHO)
-        if self.assoc.get_handlers(evt.EVT_C_ECHO) != default_handler:
-            try:
-                status = evt.trigger(
-                    self.assoc,
-                    evt.EVT_C_ECHO,
-                    {'request' : req, 'context' : context.as_tuple}
-                )
-                if isinstance(status, Dataset):
-                    if 'Status' not in status:
-                        raise AttributeError(
-                            "The 'status' dataset returned by the handler "
-                            "bound to 'evt.EVT_C_ECHO' must contain"
-                            "a (0000,0900) Status element"
-                        )
-                    for elem in status:
-                        if hasattr(rsp, elem.keyword):
-                            setattr(rsp, elem.keyword, elem.value)
-                        else:
-                            LOGGER.warning(
-                                "The 'status' dataset returned by the handler "
-                                "bound to 'evt.EVT_C_ECHO' contained an "
-                                "unsupported Element '%s'.", elem.keyword)
-                elif isinstance(status, int):
-                    rsp.Status = status
-                else:
-                    raise TypeError(
-                        "Invalid 'status' returned by the handler bound to "
-                        "'evt.EVT_C_ECHO'"
+        try:
+            status = evt.trigger(
+                self.assoc,
+                evt.EVT_C_ECHO,
+                {'request' : req, 'context' : context.as_tuple}
+            )
+            if isinstance(status, Dataset):
+                if 'Status' not in status:
+                    raise AttributeError(
+                        "The 'status' dataset returned by the handler "
+                        "bound to 'evt.EVT_C_ECHO' must contain"
+                        "a (0000,0900) Status element"
                     )
-
-            except Exception as ex:
-                LOGGER.error(
-                    "Exception in the handler bound to 'evt.EVT_C_ECHO', "
-                    "responding with a default 'Status' value of 0x0000 "
-                    "(Success)"
+                for elem in status:
+                    if hasattr(rsp, elem.keyword):
+                        setattr(rsp, elem.keyword, elem.value)
+                    else:
+                        LOGGER.warning(
+                            "The 'status' dataset returned by the handler "
+                            "bound to 'evt.EVT_C_ECHO' contained an "
+                            "unsupported Element '%s'.", elem.keyword)
+            elif isinstance(status, int):
+                rsp.Status = status
+            else:
+                raise TypeError(
+                    "Invalid 'status' returned by the handler bound to "
+                    "'evt.EVT_C_ECHO'"
                 )
-                LOGGER.exception(ex)
-                rsp.Status = 0x0000
-        else:
-            try:
-                status = self.ae.on_c_echo(context.as_tuple, info)
-                if isinstance(status, Dataset):
-                    if 'Status' not in status:
-                        raise AttributeError("The 'status' dataset returned by "
-                                             "'on_c_echo' must contain"
-                                             "a (0000,0900) Status element")
-                    for elem in status:
-                        if hasattr(rsp, elem.keyword):
-                            setattr(rsp, elem.keyword, elem.value)
-                        else:
-                            LOGGER.warning("The 'status' dataset returned by "
-                                           "'on_c_echo' contained an unsupported "
-                                           "Element '%s'.", elem.keyword)
-                elif isinstance(status, int):
-                    rsp.Status = status
-                else:
-                    raise TypeError("Invalid 'status' returned by 'on_c_echo'")
 
-            except Exception as ex:
-                LOGGER.error(
-                    "Exception in the 'on_c_echo' callback, responding "
-                    "with default 'Status' value of 0x0000 (Success)"
-                )
-                LOGGER.exception(ex)
-                rsp.Status = 0x0000
+        except Exception as ex:
+            LOGGER.error(
+                "Exception in the handler bound to 'evt.EVT_C_ECHO', "
+                "responding with a default 'Status' value of 0x0000 "
+                "(Success)"
+            )
+            LOGGER.exception(ex)
+            rsp.Status = 0x0000
 
         # Check Status validity
         if not self.is_valid_status(rsp.Status):
             LOGGER.warning(
-                "Unknown 'status' value returned by 'on_c_echo' "
-                "callback - 0x{0:04x}".format(rsp.Status)
+                "Unknown 'status' value returned by the handler bound to "
+                "'evt.EVT_C_ECHO' - 0x{0:04x}".format(rsp.Status)
             )
 
         # Send primitive
         self.dimse.send_msg(rsp, context.context_id)
 
 
-# TODO: Remove `info` parameter
 class StorageServiceClass(ServiceClass):
     """Implementation of the Storage Service Class."""
     uid = '1.2.840.10008.4.2'
@@ -648,10 +611,8 @@ class QueryRetrieveServiceClass(ServiceClass):
             self.dimse.send_msg(rsp, context.context_id)
             return
 
-        # TODO: refactor in v1.4
         # Pass the C-FIND request to the user to handle
-        default_handler = evt.get_default_handler(evt.EVT_C_FIND)
-        if self.assoc.get_handlers(evt.EVT_C_FIND) != default_handler:
+        try:
             handler = evt.trigger(
                 self.assoc,
                 evt.EVT_C_FIND,
@@ -661,24 +622,16 @@ class QueryRetrieveServiceClass(ServiceClass):
                     '_is_cancelled' : self.is_cancelled
                 }
             )
-        else:
-            info['parameters'] = {
-                 'message_id' : req.MessageID,
-                 'priority' : req.Priority,
-            }
-            # Add callable to the info so user can check if cancelled
-            info['cancelled'] = self.is_cancelled
+        except Exception as exc:
+            LOGGER.error("Exception in handler bound to 'evt.EVT_C_FIND'")
+            LOGGER.exception(exc)
+            rsp.Status = 0xC311
+            self.dimse.send_msg(rsp, context.context_id)
+            return
 
-            try:
-                handler = self.ae.on_c_find(identifier, context.as_tuple, info)
-            except Exception as exc:
-                LOGGER.error(
-                    "Exception raised by user's C-FIND request handler"
-                )
-                LOGGER.exception(exc)
-                rsp.Status = 0xC311
-                self.dimse.send_msg(rsp, context.context_id)
-                return
+        # No matches and no yields
+        if handler is None:
+            handler = iter([(0x0000, None)])
 
         ii = -1  # So if there are no results, log below doesn't break
         # Iterate through the results
@@ -1866,64 +1819,30 @@ class RelevantPatientInformationQueryServiceClass(ServiceClass):
             self.dimse.send_msg(rsp, context.context_id)
             return
 
-        # TODO: refactor in v1.4
-        default_handler = evt.get_default_handler(evt.EVT_C_FIND)
-        if self.assoc.get_handlers(evt.EVT_C_FIND) != default_handler:
-            try:
-                responses = evt.trigger(
-                    self.assoc,
-                    evt.EVT_C_FIND,
-                    {
-                        'request' : req,
-                        'context' : context.as_tuple,
-                        '_is_cancelled' : self.is_cancelled
-                    }
-                )
-                (rsp_status, rsp_identifier) = next(responses)
-            except (StopIteration, TypeError):
-                # There were no matches, so return Success
-                # If success, then rsp_identifier is None
-                rsp.Status = 0x0000
-                LOGGER.info('Find SCP Response: (Success)')
-                self.dimse.send_msg(rsp, context.context_id)
-                return
-            except Exception as ex:
-                LOGGER.error("Exception in handler bound to 'evt.EVT_C_FIND'")
-                LOGGER.exception(ex)
-                rsp.Status = 0xC311
-                self.dimse.send_msg(rsp, context.context_id)
-                return
-        else:
-
-            info['parameters'] = {
-                 'message_id' : req.MessageID,
-                 'priority' : req.Priority,
-            }
-            info['cancelled'] = self.is_cancelled
-
-            # Relevant Patient Query only allows the following responses:
-            #   pending + match; success
-            #   cancel or failure
-            #   success (no match)
-            # In other words there can only be 1 or 2 responses
-            try:
-                responses = self.ae.on_c_find(
-                    identifier, context.as_tuple, info
-                )
-                (rsp_status, rsp_identifier) = next(responses)
-            except StopIteration:
-                # There were no matches, so return Success
-                # If success, then rsp_identifier is None
-                rsp.Status = 0x0000
-                LOGGER.info('Find SCP Response: (Success)')
-                self.dimse.send_msg(rsp, context.context_id)
-                return
-            except Exception as ex:
-                LOGGER.error("Exception in user's on_c_find implementation.")
-                LOGGER.exception(ex)
-                rsp.Status = 0xC311
-                self.dimse.send_msg(rsp, context.context_id)
-                return
+        try:
+            responses = evt.trigger(
+                self.assoc,
+                evt.EVT_C_FIND,
+                {
+                    'request' : req,
+                    'context' : context.as_tuple,
+                    '_is_cancelled' : self.is_cancelled
+                }
+            )
+            (rsp_status, rsp_identifier) = next(responses)
+        except (StopIteration, TypeError):
+            # There were no matches, so return Success
+            # If success, then rsp_identifier is None
+            rsp.Status = 0x0000
+            LOGGER.info('Find SCP Response: (Success)')
+            self.dimse.send_msg(rsp, context.context_id)
+            return
+        except Exception as ex:
+            LOGGER.error("Exception in handler bound to 'evt.EVT_C_FIND'")
+            LOGGER.exception(ex)
+            rsp.Status = 0xC311
+            self.dimse.send_msg(rsp, context.context_id)
+            return
 
         rsp = self.validate_status(rsp_status, rsp)
 

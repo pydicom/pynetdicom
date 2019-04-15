@@ -27,10 +27,6 @@ from .dummy_c_scp import (
     DummyBaseSCP
 )
 
-LOGGER = logging.getLogger('pynetdicom')
-LOGGER.setLevel(logging.CRITICAL)
-LOGGER.setLevel(logging.DEBUG)
-
 
 class TestRelevantPatientServiceClass(object):
     """Test the RelevantPatientInformationQueryServiceClass"""
