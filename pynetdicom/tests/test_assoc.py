@@ -111,7 +111,7 @@ class DummyDIMSE(object):
 class TestAssociation(object):
     """Run tests on Associtation."""
     # Association(local_ae, client_socket, peer_ae, acse_timeout,
-    #             dimse_timout, max_pdu, ext_neg)
+    #             dimse_timeout, max_pdu, ext_neg)
     def setup(self):
         """This function runs prior to all test methods"""
         self.scp = None
@@ -1432,7 +1432,7 @@ class TestAssociationSendCFind(object):
 
         self.ae = ae = AE()
         ae.acse_timeout = 5
-        ae.dimse_timout = 5
+        ae.dimse_timeout = 5
         ae.network_timeout = 5
         ae.add_supported_context(PatientRootQueryRetrieveInformationModelFind)
         ae.add_supported_context(StudyRootQueryRetrieveInformationModelFind)
@@ -1510,7 +1510,7 @@ class TestAssociationSendCFind(object):
 
         self.ae = ae = AE()
         ae.acse_timeout = 5
-        ae.dimse_timout = 5
+        ae.dimse_timeout = 5
         ae.network_timeout = 5
         ae.add_supported_context(PatientRootQueryRetrieveInformationModelFind)
         scp = ae.start_server(
@@ -1536,7 +1536,7 @@ class TestAssociationSendCFind(object):
 
         self.ae = ae = AE()
         ae.acse_timeout = 5
-        ae.dimse_timout = 5
+        ae.dimse_timeout = 5
         ae.network_timeout = 5
         ae.add_supported_context(PatientRootQueryRetrieveInformationModelFind)
         scp = ae.start_server(
@@ -1566,7 +1566,7 @@ class TestAssociationSendCFind(object):
 
         self.ae = ae = AE()
         ae.acse_timeout = 5
-        ae.dimse_timout = 5
+        ae.dimse_timeout = 5
         ae.network_timeout = 5
         ae.add_supported_context(PatientRootQueryRetrieveInformationModelFind)
         scp = ae.start_server(
@@ -1593,7 +1593,7 @@ class TestAssociationSendCFind(object):
 
         self.ae = ae = AE()
         ae.acse_timeout = 5
-        ae.dimse_timout = 5
+        ae.dimse_timeout = 5
         ae.network_timeout = 5
         ae.add_supported_context(PatientRootQueryRetrieveInformationModelFind)
         scp = ae.start_server(
@@ -1619,7 +1619,7 @@ class TestAssociationSendCFind(object):
 
         self.ae = ae = AE()
         ae.acse_timeout = 5
-        ae.dimse_timout = 5
+        ae.dimse_timeout = 5
         ae.network_timeout = 5
         ae.add_supported_context(PatientRootQueryRetrieveInformationModelFind)
         scp = ae.start_server(
@@ -1671,7 +1671,7 @@ class TestAssociationSendCFind(object):
 
         self.ae = ae = AE()
         ae.acse_timeout = 5
-        ae.dimse_timout = 5
+        ae.dimse_timeout = 5
         ae.network_timeout = 5
         ae.add_supported_context(PatientRootQueryRetrieveInformationModelFind)
         scp = ae.start_server(
@@ -1697,7 +1697,7 @@ class TestAssociationSendCFind(object):
 
         self.ae = ae = AE()
         ae.acse_timeout = 5
-        ae.dimse_timout = 5
+        ae.dimse_timeout = 5
         ae.network_timeout = 5
         ae.add_supported_context(
             PatientRootQueryRetrieveInformationModelFind,
@@ -1952,32 +1952,39 @@ class TestAssociationSendCGet(object):
 
     def test_must_be_scp(self):
         """Test failure if not SCP for storage context."""
-        self.scp = DummyGetSCP()
-        self.scp.no_suboperations = 2
-        self.scp.statuses = [0xFF00, 0xFF00]
-        self.scp.datasets = [self.good, self.good]
 
-        def on_c_store(ds, context, assoc_info):
-            assert 'PatientName' in ds
+        store_pname = []
+
+        def handle_store(event):
+            store_pname.append(event.dataset.PatientName)
             return 0x0000
 
-        self.scp.start()
-        ae = AE()
-        ae.add_requested_context(PatientRootQueryRetrieveInformationModelGet)
-        ae.add_requested_context(CTImageStorage)
+        def handle_get(event):
+            yield 2
+            yield 0xFF00, self.good
+            yield 0xFF00, self.good
 
-        role = SCP_SCU_RoleSelectionNegotiation()
-        role.sop_class_uid = CTImageStorage
-        role.scu_role = True
-        role.scp_role = False
-
+        self.ae = ae = AE()
         ae.acse_timeout = 5
         ae.dimse_timeout = 5
-        ae.on_c_store = on_c_store
-        assoc = ae.associate('localhost', 11112, ext_neg=[role])
+        ae.network_timeout = 5
+        ae.add_supported_context(PatientRootQueryRetrieveInformationModelGet)
+        ae.add_supported_context(CTImageStorage, scu_role=True, scp_role=True)
+        scp = ae.start_server(
+            ('', 11112), block=False, evt_handlers=[(evt.EVT_C_GET, handle_get)]
+        )
+
+        ae.add_requested_context(PatientRootQueryRetrieveInformationModelGet)
+        #ae.add_requested_context(CTImageStorage)
+
+        role = build_role(CTImageStorage, scu_role=True, scp_role=True)
+        assoc = ae.associate(
+            'localhost', 11112, ext_neg=[role],
+            evt_handlers=[(evt.EVT_C_STORE, handle_store)]
+        )
         assert assoc.is_established
+
         result = assoc.send_c_get(self.ds, query_model='P')
-        time.sleep(0.2)
         (status, ds) = next(result)
         assert status.Status == 0xff00
         assert ds is None
@@ -1989,7 +1996,8 @@ class TestAssociationSendCGet(object):
         assert ds.FailedSOPInstanceUIDList == ['1.1.1', '1.1.1']
         assoc.release()
         assert assoc.is_released
-        self.scp.stop()
+
+        scp.shutdown()
 
     def test_no_abstract_syntax_match(self):
         """Test when no accepted abstract syntax"""
@@ -2030,9 +2038,35 @@ class TestAssociationSendCGet(object):
 
     def test_good_query_model(self):
         """Test all the query models"""
-        self.scp = DummyGetSCP()
-        self.scp.start()
-        ae = AE()
+        store_pname = []
+
+        def handle_store(event):
+            store_pname.append(event.dataset.PatientName)
+            return 0x0000
+
+        def handle_get(event):
+            yield 0
+
+        self.ae = ae = AE()
+        ae.acse_timeout = 5
+        ae.dimse_timeout = 5
+        ae.network_timeout = 5
+        ae.add_supported_context(PatientRootQueryRetrieveInformationModelGet)
+        ae.add_supported_context(StudyRootQueryRetrieveInformationModelGet)
+        ae.add_supported_context(PatientStudyOnlyQueryRetrieveInformationModelGet)
+        ae.add_supported_context(CompositeInstanceRootRetrieveGet)
+        ae.add_supported_context(CompositeInstanceRetrieveWithoutBulkDataGet)
+        ae.add_supported_context(HangingProtocolInformationModelGet)
+        ae.add_supported_context(DefinedProcedureProtocolInformationModelGet)
+        ae.add_supported_context(ColorPaletteInformationModelGet)
+        ae.add_supported_context(GenericImplantTemplateInformationModelGet)
+        ae.add_supported_context(ImplantAssemblyTemplateInformationModelGet)
+        ae.add_supported_context(ImplantTemplateGroupInformationModelGet)
+        ae.add_supported_context(CTImageStorage, scu_role=True, scp_role=True)
+        scp = ae.start_server(
+            ('', 11112), block=False, evt_handlers=[(evt.EVT_C_GET, handle_get)]
+        )
+
         ae.add_requested_context(PatientRootQueryRetrieveInformationModelGet)
         ae.add_requested_context(StudyRootQueryRetrieveInformationModelGet)
         ae.add_requested_context(PatientStudyOnlyQueryRetrieveInformationModelGet)
@@ -2044,9 +2078,13 @@ class TestAssociationSendCGet(object):
         ae.add_requested_context(GenericImplantTemplateInformationModelGet)
         ae.add_requested_context(ImplantAssemblyTemplateInformationModelGet)
         ae.add_requested_context(ImplantTemplateGroupInformationModelGet)
-        ae.acse_timeout = 5
-        ae.dimse_timeout = 5
-        assoc = ae.associate('localhost', 11112)
+        ae.add_requested_context(CTImageStorage)
+
+        role = build_role(CTImageStorage, scu_role=True, scp_role=True)
+        assoc = ae.associate(
+            'localhost', 11112, ext_neg=[role],
+            evt_handlers=[(evt.EVT_C_STORE, handle_store)]
+        )
         assert assoc.is_established
 
         for qm in ['P', 'S', 'O', 'C', 'CB', 'H', 'D', 'CP', 'IG', 'IA', 'IT']:
@@ -2055,7 +2093,8 @@ class TestAssociationSendCGet(object):
 
         assoc.release()
         assert assoc.is_released
-        self.scp.stop()
+
+        scp.shutdown()
 
     def test_fail_encode_identifier(self):
         """Test a failure in encoding the Identifier dataset"""
@@ -2081,22 +2120,42 @@ class TestAssociationSendCGet(object):
 
     def test_rsp_failure(self):
         """Test receiving a failure response"""
-        self.scp = DummyGetSCP()
-        self.scp.statuses = [0xA701]
-        self.scp.start()
-        ae = AE()
-        ae.add_requested_context(PatientRootQueryRetrieveInformationModelGet)
+        store_pname = []
+
+        def handle_store(event):
+            store_pname.append(event.dataset.PatientName)
+            return 0x0000
+
+        def handle_get(event):
+            yield 1
+            yield 0xA701, None
+
+        self.ae = ae = AE()
         ae.acse_timeout = 5
         ae.dimse_timeout = 5
-        def on_c_store(ds, context, assoc_info):
-            return 0x0000
-        assoc = ae.associate('localhost', 11112)
+        ae.network_timeout = 5
+        ae.add_supported_context(PatientRootQueryRetrieveInformationModelGet)
+        ae.add_supported_context(CTImageStorage, scu_role=True, scp_role=True)
+        scp = ae.start_server(
+            ('', 11112), block=False, evt_handlers=[(evt.EVT_C_GET, handle_get)]
+        )
+
+        ae.add_requested_context(PatientRootQueryRetrieveInformationModelGet)
+        ae.add_requested_context(CTImageStorage)
+
+        role = build_role(CTImageStorage, scu_role=True, scp_role=True)
+        assoc = ae.associate(
+            'localhost', 11112, ext_neg=[role],
+            evt_handlers=[(evt.EVT_C_STORE, handle_store)]
+        )
         assert assoc.is_established
+
         for (status, ds) in assoc.send_c_get(self.ds, query_model='P'):
             assert status.Status == 0xA701
         assoc.release()
         assert assoc.is_released
-        self.scp.stop()
+
+        scp.shutdown()
 
     def test_rsp_success(self):
         """Test good send"""
@@ -2116,7 +2175,7 @@ class TestAssociationSendCGet(object):
 
         self.ae = ae = AE()
         ae.acse_timeout = 5
-        ae.dimse_timout = 5
+        ae.dimse_timeout = 5
         ae.network_timeout = 5
         ae.add_supported_context(PatientRootQueryRetrieveInformationModelGet)
         ae.add_supported_context(CTImageStorage, scu_role=True, scp_role=True)
@@ -2169,7 +2228,7 @@ class TestAssociationSendCGet(object):
 
         self.ae = ae = AE()
         ae.acse_timeout = 5
-        ae.dimse_timout = 5
+        ae.dimse_timeout = 5
         ae.network_timeout = 5
         ae.add_supported_context(PatientRootQueryRetrieveInformationModelGet)
         ae.add_supported_context(CTImageStorage, scu_role=True, scp_role=True)
@@ -2246,27 +2305,38 @@ class TestAssociationSendCGet(object):
 
     def test_rsp_pending_send_failure(self):
         """Test receiving a pending response and sending a failure"""
-        self.scp = DummyGetSCP()
-        self.scp.no_suboperations = 3
-        self.scp.statuses = [0xFF00, 0xFF00, 0x0000]
-        self.scp.datasets = [self.good, self.good, None]
-        self.scp.start()
-        ae = AE()
+        store_pname = []
+
+        def handle_store(event):
+            store_pname.append(event.dataset.PatientName)
+            return 0xA700
+
+        def handle_get(event):
+            yield 3
+            yield 0xFF00, self.good
+            yield 0xFF00, self.good
+            yield 0x0000, None
+
+        self.ae = ae = AE()
+        ae.acse_timeout = 5
+        ae.dimse_timeout = 5
+        ae.network_timeout = 5
+        ae.add_supported_context(PatientRootQueryRetrieveInformationModelGet)
+        ae.add_supported_context(CTImageStorage, scu_role=True, scp_role=True)
+        scp = ae.start_server(
+            ('', 11112), block=False, evt_handlers=[(evt.EVT_C_GET, handle_get)]
+        )
+
         ae.add_requested_context(PatientRootQueryRetrieveInformationModelGet)
         ae.add_requested_context(CTImageStorage)
 
-        role = SCP_SCU_RoleSelectionNegotiation()
-        role.sop_class_uid = CTImageStorage
-        role.scu_role = True
-        role.scp_role = False
-
-        ae.acse_timeout = 5
-        ae.dimse_timeout = 5
-        def on_c_store(ds, context, assoc_info):
-            return 0xA700
-        ae.on_c_store = on_c_store
-        assoc = ae.associate('localhost', 11112, ext_neg=[role])
+        role = build_role(CTImageStorage, scu_role=True, scp_role=True)
+        assoc = ae.associate(
+            'localhost', 11112, ext_neg=[role],
+            evt_handlers=[(evt.EVT_C_STORE, handle_store)]
+        )
         assert assoc.is_established
+
         result = assoc.send_c_get(self.ds, query_model='P')
         # We have 2 status, ds and 1 success
         (status, ds) = next(result)
@@ -2282,31 +2352,43 @@ class TestAssociationSendCGet(object):
             next(result)
         assoc.release()
         assert assoc.is_released
-        self.scp.stop()
+
+        scp.shutdown()
 
     def test_rsp_pending_send_warning(self):
         """Test receiving a pending response and sending a warning"""
-        self.scp = DummyGetSCP()
-        self.scp.no_suboperations = 3
-        self.scp.statuses = [0xFF00, 0xFF00, 0xB000]
-        self.scp.datasets = [self.good, self.good, None]
-        self.scp.start()
-        ae = AE()
+        store_pname = []
+
+        def handle_store(event):
+            store_pname.append(event.dataset.PatientName)
+            return 0xB007
+
+        def handle_get(event):
+            yield 3
+            yield 0xFF00, self.good
+            yield 0xFF00, self.good
+            yield 0xB000, None
+
+        self.ae = ae = AE()
+        ae.acse_timeout = 5
+        ae.dimse_timeout = 5
+        ae.network_timeout = 5
+        ae.add_supported_context(PatientRootQueryRetrieveInformationModelGet)
+        ae.add_supported_context(CTImageStorage, scu_role=True, scp_role=True)
+        scp = ae.start_server(
+            ('', 11112), block=False, evt_handlers=[(evt.EVT_C_GET, handle_get)]
+        )
+
         ae.add_requested_context(PatientRootQueryRetrieveInformationModelGet)
         ae.add_requested_context(CTImageStorage)
 
-        role = SCP_SCU_RoleSelectionNegotiation()
-        role.sop_class_uid = CTImageStorage
-        role.scu_role = True
-        role.scp_role = False
-
-        ae.acse_timeout = 5
-        ae.dimse_timeout = 5
-        def on_c_store(ds, context, assoc_info):
-            return 0xB007
-        ae.on_c_store = on_c_store
-        assoc = ae.associate('localhost', 11112, ext_neg=[role])
+        role = build_role(CTImageStorage, scu_role=True, scp_role=True)
+        assoc = ae.associate(
+            'localhost', 11112, ext_neg=[role],
+            evt_handlers=[(evt.EVT_C_STORE, handle_store)]
+        )
         assert assoc.is_established
+
         result = assoc.send_c_get(self.ds, query_model='P')
         # We have 2 status, ds and 1 success
         (status, ds) = next(result)
@@ -2322,50 +2404,82 @@ class TestAssociationSendCGet(object):
             next(result)
         assoc.release()
         assert assoc.is_released
-        self.scp.stop()
+
+        scp.shutdown()
 
     def test_rsp_cancel(self):
         """Test receiving a cancel response"""
-        self.scp = DummyGetSCP()
-        self.scp.statuses = [0xFE00]
-        self.scp.start()
-        ae = AE()
-        ae.add_requested_context(PatientRootQueryRetrieveInformationModelGet)
+        store_pname = []
+
+        def handle_store(event):
+            store_pname.append(event.dataset.PatientName)
+            return 0x0000
+
+        def handle_get(event):
+            yield 1
+            yield 0xFE00, None
+
+        self.ae = ae = AE()
         ae.acse_timeout = 5
         ae.dimse_timeout = 5
-        assoc = ae.associate('localhost', 11112)
+        ae.network_timeout = 5
+        ae.add_supported_context(PatientRootQueryRetrieveInformationModelGet)
+        ae.add_supported_context(CTImageStorage, scu_role=True, scp_role=True)
+        scp = ae.start_server(
+            ('', 11112), block=False, evt_handlers=[(evt.EVT_C_GET, handle_get)]
+        )
+
+        ae.add_requested_context(PatientRootQueryRetrieveInformationModelGet)
+        ae.add_requested_context(CTImageStorage)
+
+        role = build_role(CTImageStorage, scu_role=True, scp_role=True)
+        assoc = ae.associate(
+            'localhost', 11112, ext_neg=[role],
+            evt_handlers=[(evt.EVT_C_STORE, handle_store)]
+        )
         assert assoc.is_established
+
         for (status, ds) in assoc.send_c_get(self.ds, query_model='P'):
             assert status.Status == 0xFE00
         assoc.release()
         assert assoc.is_released
-        self.scp.stop()
+
+        scp.shutdown()
 
     def test_rsp_warning(self):
         """Test receiving a warning response"""
-        self.scp = DummyGetSCP()
-        self.scp.no_suboperations = 3
-        self.scp.statuses = [0xFF00, 0xFF00, 0xB000]
-        self.scp.datasets = [self.good, self.good, None]
-        self.scp.start()
+        store_pname = []
 
-        ae = AE()
+        def handle_store(event):
+            store_pname.append(event.dataset.PatientName)
+            return 0xB007
+
+        def handle_get(event):
+            yield 3
+            yield 0xFF00, self.good
+            yield 0xFF00, self.good
+            yield 0xB000, None
+
+        self.ae = ae = AE()
+        ae.acse_timeout = 5
+        ae.dimse_timeout = 5
+        ae.network_timeout = 5
+        ae.add_supported_context(PatientRootQueryRetrieveInformationModelGet)
+        ae.add_supported_context(CTImageStorage, scu_role=True, scp_role=True)
+        scp = ae.start_server(
+            ('', 11112), block=False, evt_handlers=[(evt.EVT_C_GET, handle_get)]
+        )
+
         ae.add_requested_context(PatientRootQueryRetrieveInformationModelGet)
         ae.add_requested_context(CTImageStorage)
 
-        role = SCP_SCU_RoleSelectionNegotiation()
-        role.sop_class_uid = CTImageStorage
-        role.scu_role = True
-        role.scp_role = False
-
-        ae.acse_timeout = 5
-        ae.dimse_timeout = 5
-
-        def on_c_store(ds, context, assoc_info):
-            return 0xB007
-        ae.on_c_store = on_c_store
-        assoc = ae.associate('localhost', 11112, ext_neg=[role])
+        role = build_role(CTImageStorage, scu_role=True, scp_role=True)
+        assoc = ae.associate(
+            'localhost', 11112, ext_neg=[role],
+            evt_handlers=[(evt.EVT_C_STORE, handle_store)]
+        )
         assert assoc.is_established
+
         result = assoc.send_c_get(self.ds, query_model='P')
         (status, ds) = next(result)
         assert status.Status == 0xff00
@@ -2380,31 +2494,47 @@ class TestAssociationSendCGet(object):
             next(result)
         assoc.release()
         assert assoc.is_released
-        self.scp.stop()
+
+        scp.shutdown()
 
     def test_rsp_unknown_status(self):
         """Test unknown status value returned by peer"""
-        self.scp = DummyGetSCP()
-        self.scp.statuses = [0xFFF0]
-        self.scp.start()
-        ae = AE()
+        store_pname = []
+
+        def handle_store(event):
+            store_pname.append(event.dataset.PatientName)
+            return 0x0000
+
+        def handle_get(event):
+            yield 1
+            yield 0xFFF0, None
+
+        self.ae = ae = AE()
+        ae.acse_timeout = 5
+        ae.dimse_timeout = 5
+        ae.network_timeout = 5
+        ae.add_supported_context(PatientRootQueryRetrieveInformationModelGet)
+        ae.add_supported_context(CTImageStorage, scu_role=True, scp_role=True)
+        scp = ae.start_server(
+            ('', 11112), block=False, evt_handlers=[(evt.EVT_C_GET, handle_get)]
+        )
+
         ae.add_requested_context(PatientRootQueryRetrieveInformationModelGet)
         ae.add_requested_context(CTImageStorage)
 
-        role = SCP_SCU_RoleSelectionNegotiation()
-        role.sop_class_uid = CTImageStorage
-        role.scu_role = True
-        role.scp_role = False
-
-        ae.acse_timeout = 5
-        ae.dimse_timeout = 5
-        assoc = ae.associate('localhost', 11112, ext_neg=[role])
+        role = build_role(CTImageStorage, scu_role=True, scp_role=True)
+        assoc = ae.associate(
+            'localhost', 11112, ext_neg=[role],
+            evt_handlers=[(evt.EVT_C_STORE, handle_store)]
+        )
         assert assoc.is_established
+
         for (status, ds) in assoc.send_c_get(self.ds, query_model='P'):
             assert status.Status == 0xFFF0
         assoc.release()
         assert assoc.is_released
-        self.scp.stop()
+
+        scp.shutdown()
 
     def test_connection_timeout(self):
         """Test the connection timing out"""
@@ -2667,7 +2797,7 @@ class TestAssociationSendCMove(object):
 
         self.ae = ae = AE()
         ae.acse_timeout = 5
-        ae.dimse_timout = 5
+        ae.dimse_timeout = 5
         ae.network_timeout = 5
 
         # Storage SCP
@@ -2754,62 +2884,86 @@ class TestAssociationSendCMove(object):
 
     def test_move_destination_no_assoc(self):
         """Test move destination failed to assoc"""
-        self.scp = DummyMoveSCP()
-        self.scp.destination_ae = ('localhost', 11113)
-        self.scp.start()
-        ae = AE()
-        ae.add_requested_context(PatientRootQueryRetrieveInformationModelMove)
-        ae.add_requested_context(StudyRootQueryRetrieveInformationModelMove)
-        ae.add_requested_context(PatientStudyOnlyQueryRetrieveInformationModelMove)
+        def handle_move(event):
+            yield 'localhost', 11113
+            yield 0
+            yield 0x0000, None
+
+        self.ae = ae = AE()
         ae.acse_timeout = 5
         ae.dimse_timeout = 5
+        ae.network_timeout = 5
+        ae.add_supported_context(PatientRootQueryRetrieveInformationModelMove)
+        move_scp = ae.start_server(
+            ('', 11112), block=False, evt_handlers=[(evt.EVT_C_MOVE, handle_move)]
+        )
+
+        ae.add_requested_context(PatientRootQueryRetrieveInformationModelMove)
         assoc = ae.associate('localhost', 11112)
         assert assoc.is_established
         for (status, ds) in assoc.send_c_move(self.ds, b'TESTMOVE', query_model='P'):
             assert status.Status == 0xa801
         assoc.release()
         assert assoc.is_released
-        self.scp.stop()
+
+        move_scp.shutdown()
 
     def test_move_destination_unknown(self):
         """Test unknown move destination"""
-        self.scp = DummyMoveSCP()
-        self.scp.destination_ae = ('localhost', 11113)
-        self.scp.start()
-        ae = AE()
-        ae.add_requested_context(PatientRootQueryRetrieveInformationModelMove)
-        ae.add_requested_context(StudyRootQueryRetrieveInformationModelMove)
-        ae.add_requested_context(PatientStudyOnlyQueryRetrieveInformationModelMove)
+        def handle_move(event):
+            yield None, None
+            yield 0
+            yield 0x0000, None
+
+        self.ae = ae = AE()
         ae.acse_timeout = 5
         ae.dimse_timeout = 5
+        ae.network_timeout = 5
+        ae.add_supported_context(PatientRootQueryRetrieveInformationModelMove)
+        move_scp = ae.start_server(
+            ('', 11112), block=False, evt_handlers=[(evt.EVT_C_MOVE, handle_move)]
+        )
+
+        ae.add_requested_context(PatientRootQueryRetrieveInformationModelMove)
         assoc = ae.associate('localhost', 11112)
         assert assoc.is_established
+
         for (status, ds) in assoc.send_c_move(self.ds, b'UNKNOWN', query_model='P'):
             assert status.Status == 0xa801
         assoc.release()
         assert assoc.is_released
-        self.scp.stop()
+
+        move_scp.shutdown()
 
     def test_move_destination_failed_store(self):
         """Test the destination AE returning failed status"""
-        self.scp2 = DummyStorageSCP(11113)
-        self.scp2.status = 0xA700
-        self.scp2.start()
+        def handle_store(event):
+            return 0xA700
 
-        self.scp = DummyMoveSCP()
-        self.scp.destination_ae = ('localhost', 11113)
-        self.scp.no_suboperations = 2
-        self.scp.statuses = [0xFF00, 0xFF00]
-        self.scp.datasets = [self.good, self.good]
-        self.scp.start()
-        ae = AE()
-        ae.add_requested_context(PatientRootQueryRetrieveInformationModelMove)
-        ae.add_requested_context(StudyRootQueryRetrieveInformationModelMove)
-        ae.add_requested_context(PatientStudyOnlyQueryRetrieveInformationModelMove)
+        def handle_move(event):
+            yield 'localhost', 11113
+            yield 2
+            yield 0xFF00, self.good
+            yield 0xFF00, self.good
+
+        self.ae = ae = AE()
         ae.acse_timeout = 5
         ae.dimse_timeout = 5
+        ae.network_timeout = 5
+        ae.add_supported_context(PatientRootQueryRetrieveInformationModelMove)
+        move_scp = ae.start_server(
+            ('', 11112), block=False, evt_handlers=[(evt.EVT_C_MOVE, handle_move)]
+        )
+
+        ae.add_supported_context(CTImageStorage)
+        store_scp = ae.start_server(
+            ('', 11113), block=False, evt_handlers=[(evt.EVT_C_STORE, handle_store)]
+        )
+
+        ae.add_requested_context(PatientRootQueryRetrieveInformationModelMove)
         assoc = ae.associate('localhost', 11112)
         assert assoc.is_established
+
         result = assoc.send_c_move(self.ds, b'TESTMOVE', query_model='P')
         (status, ds) = next(result)
         assert status.Status == 0xFF00
@@ -2822,30 +2976,39 @@ class TestAssociationSendCMove(object):
 
         assoc.release()
         assert assoc.is_released
-        self.scp.stop()
 
-        self.scp2.stop()
+        store_scp.shutdown()
+        move_scp.shutdown()
 
     def test_move_destination_warning_store(self):
         """Test the destination AE returning warning status"""
-        self.scp2 = DummyStorageSCP(11113)
-        self.scp2.status = 0xB000
-        self.scp2.start()
+        def handle_store(event):
+            return 0xB000
 
-        self.scp = DummyMoveSCP()
-        self.scp.destination_ae = ('localhost', 11113)
-        self.scp.no_suboperations = 2
-        self.scp.statuses = [0xFF00, 0xFF00]
-        self.scp.datasets = [self.good, self.good]
-        self.scp.start()
-        ae = AE()
-        ae.add_requested_context(PatientRootQueryRetrieveInformationModelMove)
-        ae.add_requested_context(StudyRootQueryRetrieveInformationModelMove)
-        ae.add_requested_context(PatientStudyOnlyQueryRetrieveInformationModelMove)
+        def handle_move(event):
+            yield 'localhost', 11113
+            yield 2
+            yield 0xFF00, self.good
+            yield 0xFF00, self.good
+
+        self.ae = ae = AE()
         ae.acse_timeout = 5
         ae.dimse_timeout = 5
+        ae.network_timeout = 5
+        ae.add_supported_context(PatientRootQueryRetrieveInformationModelMove)
+        move_scp = ae.start_server(
+            ('', 11112), block=False, evt_handlers=[(evt.EVT_C_MOVE, handle_move)]
+        )
+
+        ae.add_supported_context(CTImageStorage)
+        store_scp = ae.start_server(
+            ('', 11113), block=False, evt_handlers=[(evt.EVT_C_STORE, handle_store)]
+        )
+
+        ae.add_requested_context(PatientRootQueryRetrieveInformationModelMove)
         assoc = ae.associate('localhost', 11112)
         assert assoc.is_established
+
         result = assoc.send_c_move(self.ds, b'TESTMOVE', query_model='P')
         (status, ds) = next(result)
         assert status.Status == 0xFF00
@@ -2856,29 +3019,39 @@ class TestAssociationSendCMove(object):
 
         assoc.release()
         assert assoc.is_released
-        self.scp.stop()
 
-        self.scp2.stop()
+        store_scp.shutdown()
+        move_scp.shutdown()
 
     def test_rsp_failure(self):
         """Test the user on_c_move returning failure status"""
-        self.scp2 = DummyStorageSCP(11113)
-        self.scp2.start()
+        def handle_store(event):
+            return 0x0000
 
-        self.scp = DummyMoveSCP()
-        self.scp.no_suboperations = 1
-        self.scp.destination_ae = ('localhost', 11113)
-        self.scp.statuses = [0xC000]
-        self.scp.datasets = [None]
-        self.scp.start()
-        ae = AE()
-        ae.add_requested_context(PatientRootQueryRetrieveInformationModelMove)
-        ae.add_requested_context(StudyRootQueryRetrieveInformationModelMove)
-        ae.add_requested_context(PatientStudyOnlyQueryRetrieveInformationModelMove)
+        def handle_move(event):
+            yield 'localhost', 11113
+            yield 2
+            yield 0xC000, None
+            yield 0xFF00, self.good
+
+        self.ae = ae = AE()
         ae.acse_timeout = 5
         ae.dimse_timeout = 5
+        ae.network_timeout = 5
+        ae.add_supported_context(PatientRootQueryRetrieveInformationModelMove)
+        move_scp = ae.start_server(
+            ('', 11112), block=False, evt_handlers=[(evt.EVT_C_MOVE, handle_move)]
+        )
+
+        ae.add_supported_context(CTImageStorage)
+        store_scp = ae.start_server(
+            ('', 11113), block=False, evt_handlers=[(evt.EVT_C_STORE, handle_store)]
+        )
+
+        ae.add_requested_context(PatientRootQueryRetrieveInformationModelMove)
         assoc = ae.associate('localhost', 11112)
         assert assoc.is_established
+
         result = assoc.send_c_move(self.ds, b'TESTMOVE', query_model='P')
         (status, ds) = next(result)
         assert status.Status == 0xC000
@@ -2888,30 +3061,39 @@ class TestAssociationSendCMove(object):
 
         assoc.release()
         assert assoc.is_released
-        self.scp.stop()
-        self.scp2.stop()
+
+        store_scp.shutdown()
+        move_scp.shutdown()
 
     def test_rsp_warning(self):
         """Test receiving a warning response from the peer"""
-        self.scp2 = DummyStorageSCP(11113)
-        self.scp2.status = 0xB007
-        self.scp2.start()
+        def handle_store(event):
+            return 0xB007
 
-        self.scp = DummyMoveSCP()
-        self.scp.destination_ae = ('localhost', 11113)
-        self.scp.no_suboperations = 2
-        self.scp.statuses = [0xFF00, 0xFF00]
-        self.scp.datasets = [self.good, self.good]
-        self.scp.start()
-        ae = AE()
-        ae.add_requested_context(PatientRootQueryRetrieveInformationModelMove)
-        ae.add_requested_context(StudyRootQueryRetrieveInformationModelMove)
-        ae.add_requested_context(PatientStudyOnlyQueryRetrieveInformationModelMove)
+        def handle_move(event):
+            yield 'localhost', 11113
+            yield 2
+            yield 0xFF00, self.good
+            yield 0xFF00, self.good
+
+        self.ae = ae = AE()
         ae.acse_timeout = 5
         ae.dimse_timeout = 5
-        ae.dimse_timeout = 5
+        ae.network_timeout = 5
+        ae.add_supported_context(PatientRootQueryRetrieveInformationModelMove)
+        move_scp = ae.start_server(
+            ('', 11112), block=False, evt_handlers=[(evt.EVT_C_MOVE, handle_move)]
+        )
+
+        ae.add_supported_context(CTImageStorage)
+        store_scp = ae.start_server(
+            ('', 11113), block=False, evt_handlers=[(evt.EVT_C_STORE, handle_store)]
+        )
+
+        ae.add_requested_context(PatientRootQueryRetrieveInformationModelMove)
         assoc = ae.associate('localhost', 11112)
         assert assoc.is_established
+
         result = assoc.send_c_move(self.ds, b'TESTMOVE', query_model='P')
         (status, ds) = next(result)
         assert status.Status == 0xFF00
@@ -2927,39 +3109,48 @@ class TestAssociationSendCMove(object):
 
         assoc.release()
         assert assoc.is_released
-        self.scp.stop()
 
-        self.scp2.stop()
+        store_scp.shutdown()
+        move_scp.shutdown()
 
     def test_rsp_cancel(self):
         """Test the user on_c_move returning cancel status"""
-        self.scp2 = DummyStorageSCP(11113)
-        self.scp2.start()
+        def handle_store(event):
+            return 0x0000
 
-        self.scp = DummyMoveSCP()
-        self.scp.destination_ae = ('localhost', 11113)
-        self.scp.no_suboperations = 2
-        self.scp.statuses = [0xFE00, 0xFF00]
-        self.scp.datasets = [None, self.good]
-        self.scp.start()
-        ae = AE()
-        ae.add_requested_context(PatientRootQueryRetrieveInformationModelMove)
-        ae.add_requested_context(StudyRootQueryRetrieveInformationModelMove)
-        ae.add_requested_context(PatientStudyOnlyQueryRetrieveInformationModelMove)
+        def handle_move(event):
+            yield 'localhost', 11113
+            yield 2
+            yield 0xFE00, self.good
+            yield 0xFF00, self.good
+
+        self.ae = ae = AE()
         ae.acse_timeout = 5
         ae.dimse_timeout = 5
-        ae.dimse_timeout = 5
+        ae.network_timeout = 5
+        ae.add_supported_context(PatientRootQueryRetrieveInformationModelMove)
+        move_scp = ae.start_server(
+            ('', 11112), block=False, evt_handlers=[(evt.EVT_C_MOVE, handle_move)]
+        )
+
+        ae.add_supported_context(CTImageStorage)
+        store_scp = ae.start_server(
+            ('', 11113), block=False, evt_handlers=[(evt.EVT_C_STORE, handle_store)]
+        )
+
+        ae.add_requested_context(PatientRootQueryRetrieveInformationModelMove)
         assoc = ae.associate('localhost', 11112)
         assert assoc.is_established
+
         result = assoc.send_c_move(self.ds, b'TESTMOVE', query_model='P')
         (status, ds) = next(result)
         assert status.Status == 0xFE00
 
         assoc.release()
         assert assoc.is_released
-        self.scp.stop()
 
-        self.scp2.stop()
+        store_scp.shutdown()
+        move_scp.shutdown()
 
     def test_rsp_success(self):
         """Test the user on_c_move returning success status"""
@@ -2969,7 +3160,7 @@ class TestAssociationSendCMove(object):
 
         self.ae = ae = AE()
         ae.acse_timeout = 5
-        ae.dimse_timout = 5
+        ae.dimse_timeout = 5
         ae.network_timeout = 5
 
         # Storage SCP
@@ -3018,28 +3209,40 @@ class TestAssociationSendCMove(object):
 
     def test_rsp_unknown_status(self):
         """Test unknown status value returned by peer"""
-        self.scp2 = DummyStorageSCP(11113)
-        self.scp2.start()
+        def handle_store(event):
+            return 0xA700
 
-        self.scp = DummyMoveSCP()
-        self.scp.destination_ae = ('localhost', 11113)
-        self.scp.statuses = [0xFFF0]
-        self.scp.start()
-        ae = AE()
-        ae.add_requested_context(PatientRootQueryRetrieveInformationModelMove)
-        ae.add_requested_context(CTImageStorage)
-        ae.add_supported_context(CTImageStorage)
+        def handle_move(event):
+            yield 'localhost', 11113
+            yield 2
+            yield 0xFFF0, self.good
+            yield 0xFF00, self.good
+
+        self.ae = ae = AE()
         ae.acse_timeout = 5
         ae.dimse_timeout = 5
+        ae.network_timeout = 5
+        ae.add_supported_context(PatientRootQueryRetrieveInformationModelMove)
+        move_scp = ae.start_server(
+            ('', 11112), block=False, evt_handlers=[(evt.EVT_C_MOVE, handle_move)]
+        )
+
+        ae.add_supported_context(CTImageStorage)
+        store_scp = ae.start_server(
+            ('', 11113), block=False, evt_handlers=[(evt.EVT_C_STORE, handle_store)]
+        )
+
+        ae.add_requested_context(PatientRootQueryRetrieveInformationModelMove)
         assoc = ae.associate('localhost', 11112)
         assert assoc.is_established
+
         for (status, ds) in assoc.send_c_move(self.ds, b'TESTMOVE', query_model='P'):
             assert status.Status == 0xFFF0
         assoc.release()
         assert assoc.is_released
-        self.scp.stop()
 
-        self.scp2.stop()
+        store_scp.shutdown()
+        move_scp.shutdown()
 
     def test_multiple_c_move(self):
         """Test multiple C-MOVE operation requests"""
@@ -3048,7 +3251,7 @@ class TestAssociationSendCMove(object):
 
         self.ae = ae = AE()
         ae.acse_timeout = 5
-        ae.dimse_timout = 5
+        ae.dimse_timeout = 5
         ae.network_timeout = 5
 
         # Storage SCP

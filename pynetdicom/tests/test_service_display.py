@@ -1,26 +1,12 @@
 """Tests for the Display System Management Service Class."""
 
-import logging
-import os
-import threading
-import time
-
 import pytest
 
 from pydicom.dataset import Dataset
 
 from pynetdicom import AE, evt
 from pynetdicom.dimse_primitives import N_GET
-from pynetdicom.sop_class import (
-    DisplaySystemSOPClass
-)
-from .dummy_c_scp import DummyBaseSCP
-from .dummy_n_scp import DummyGetSCP
-
-
-LOGGER = logging.getLogger('pynetdicom')
-LOGGER.setLevel(logging.CRITICAL)
-#LOGGER.setLevel(logging.DEBUG)
+from pynetdicom.sop_class import DisplaySystemSOPClass
 
 
 class TestDisplayServiceClass(object):

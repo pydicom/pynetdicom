@@ -840,62 +840,23 @@ class QueryRetrieveServiceClass(ServiceClass):
 
         # Attempt to decode the request's Identifier dataset
         transfer_syntax = context.transfer_syntax[0]
-        # TODO: refactor in v1.4
-        default_handler = evt.get_default_handler(evt.EVT_C_GET)
-        if self.assoc.get_handlers(evt.EVT_C_GET) != default_handler:
-            try:
-                result = evt.trigger(
-                    self.assoc,
-                    evt.EVT_C_GET,
-                    {
-                        'request' : req,
-                        'context' : context.as_tuple,
-                        '_is_cancelled' : self.is_cancelled
-                    }
-                )
-            except Exception as exc:
-                LOGGER.error("Exception in handler bound to 'evt.EVT_C_GET'")
-                LOGGER.exception(exc)
-                rsp.Status = 0xC411
-                self.dimse.send_msg(rsp, context.context_id)
-                return
-        else:
-            try:
-                # TODO: consider keeping this with new handlers
-                identifier = decode(req.Identifier,
-                                    transfer_syntax.is_implicit_VR,
-                                    transfer_syntax.is_little_endian)
-                LOGGER.info('Get SCP Request Identifier:')
-                LOGGER.info('')
-                LOGGER.debug('# DICOM Data Set')
-                for elem in identifier.iterall():
-                    LOGGER.info(elem)
-                LOGGER.info('')
-            except Exception as exc:
-                LOGGER.error("Failed to decode the request's Identifier dataset")
-                LOGGER.exception(exc)
-                # Failure: Cannot Understand - Dataset decoding error
-                rsp.Status = 0xC410
-                rsp.ErrorComment = 'Unable to decode the dataset'
-                self.dimse.send_msg(rsp, context.context_id)
-                return
 
-            info['parameters'] = {
-                 'message_id' : req.MessageID,
-                 'priority' : req.Priority
-            }
-            # Add callable to the info so user can check if cancelled
-            info['cancelled'] = self.is_cancelled
-
-            # Callback - C-GET
-            try:
-                result = self.ae.on_c_get(identifier, context.as_tuple, info)
-            except Exception as ex:
-                LOGGER.error("Exception in user's on_c_get implementation.")
-                LOGGER.exception(ex)
-                rsp.Status = 0xC411
-                self.dimse.send_msg(rsp, context.context_id)
-                return
+        try:
+            result = evt.trigger(
+                self.assoc,
+                evt.EVT_C_GET,
+                {
+                    'request' : req,
+                    'context' : context.as_tuple,
+                    '_is_cancelled' : self.is_cancelled
+                }
+            )
+        except Exception as exc:
+            LOGGER.error("Exception in handler bound to 'evt.EVT_C_GET'")
+            LOGGER.exception(exc)
+            rsp.Status = 0xC411
+            self.dimse.send_msg(rsp, context.context_id)
+            return
 
         # Number of C-STORE sub-operations
         try:
@@ -1280,47 +1241,23 @@ class QueryRetrieveServiceClass(ServiceClass):
             self.dimse.send_msg(rsp, context.context_id)
             return
 
-        # TODO: refactor in v1.4
-        default_handler = evt.get_default_handler(evt.EVT_C_MOVE)
-        if self.assoc.get_handlers(evt.EVT_C_MOVE) != default_handler:
-            try:
-                result = evt.trigger(
-                    self.assoc,
-                    evt.EVT_C_MOVE,
-                    {
-                        'request' : req,
-                        'context' : context.as_tuple,
-                        '_is_cancelled' : self.is_cancelled
-                    }
-                )
-            except Exception as exc:
-                LOGGER.error("Exception in handler bound to 'evt.EVT_C_MOVE'")
-                LOGGER.exception(exc)
-                # Failure - Unable to process - Error in on_c_move callback
-                rsp.Status = 0xC511
-                self.dimse.send_msg(rsp, context.context_id)
-                return
-        else:
-            info['parameters'] = {
-                 'message_id' : req.MessageID,
-                 'priority' : req.Priority
-            }
-            # Add callable to the info so user can check if cancelled
-            info['cancelled'] = self.is_cancelled
-
-            # Callback - C-MOVE
-            try:
-                result = self.ae.on_c_move(identifier,
-                                           req.MoveDestination,
-                                           context.as_tuple,
-                                           info)
-            except Exception as exc:
-                LOGGER.error("Exception in user's on_c_move implementation.")
-                LOGGER.exception(exc)
-                # Failure - Unable to process - Error in on_c_move callback
-                rsp.Status = 0xC511
-                self.dimse.send_msg(rsp, context.context_id)
-                return
+        try:
+            result = evt.trigger(
+                self.assoc,
+                evt.EVT_C_MOVE,
+                {
+                    'request' : req,
+                    'context' : context.as_tuple,
+                    '_is_cancelled' : self.is_cancelled
+                }
+            )
+        except Exception as exc:
+            LOGGER.error("Exception in handler bound to 'evt.EVT_C_MOVE'")
+            LOGGER.exception(exc)
+            # Failure - Unable to process - Error in on_c_move callback
+            rsp.Status = 0xC511
+            self.dimse.send_msg(rsp, context.context_id)
+            return
 
         try:
             destination = next(result)
