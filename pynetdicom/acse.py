@@ -333,7 +333,6 @@ class ACSE(object):
             LOGGER.info("Rejecting Association")
             self.send_reject(assoc, *reject_assoc_rsd)
             evt.trigger(self.assoc, evt.EVT_REJECTED, {})
-            assoc.ae.on_association_rejected(assoc.acceptor.primitive)
             assoc.kill()
             return
 
@@ -368,7 +367,6 @@ class ACSE(object):
         self.send_accept(assoc)
 
         # Callbacks/Logging
-        assoc.ae.on_association_accepted(assoc.acceptor.primitive)
         evt.trigger(self.assoc, evt.EVT_ACCEPTED, {})
 
         # Assocation established OK
@@ -448,7 +446,6 @@ class ACSE(object):
                 ]
                 # pylint: enable=protected-access
 
-                assoc.ae.on_association_accepted(rsp)
                 evt.trigger(self.assoc, evt.EVT_ACCEPTED, {})
 
                 # No acceptable presentation contexts
@@ -473,7 +470,6 @@ class ACSE(object):
                     .format(rsp.result_str, rsp.source_str)
                 )
                 LOGGER.info('Reason: {}'.format(rsp.reason_str))
-                assoc.ae.on_association_rejected(rsp)
                 assoc.is_rejected = True
                 assoc.is_established = False
                 evt.trigger(self.assoc, evt.EVT_REJECTED, {})
@@ -492,7 +488,6 @@ class ACSE(object):
 
         # Association aborted
         elif isinstance(rsp, (A_ABORT, A_P_ABORT)):
-            assoc.ae.on_association_aborted(rsp)
             LOGGER.info("Association Aborted")
             assoc.is_established = False
             assoc.is_aborted = True

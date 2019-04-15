@@ -621,8 +621,6 @@ class Association(threading.Thread):
                 self.is_released = True
                 self.is_established = False
                 evt.trigger(self, evt.EVT_RELEASED, {})
-                # Callback triggers
-                self.ae.on_association_released()
                 self.kill()
                 return
 
@@ -632,8 +630,6 @@ class Association(threading.Thread):
                 self.is_aborted = True
                 self.is_established = False
                 evt.trigger(self, evt.EVT_ABORTED, {})
-                # Callback trigger
-                self.ae.on_association_aborted(None)
                 self.kill()
                 return
 
@@ -663,8 +659,6 @@ class Association(threading.Thread):
                 self.is_released = True
                 self.is_established = False
                 evt.trigger(self, evt.EVT_RELEASED, {})
-                # Callback triggers
-                self.ae.on_association_released()
                 self.kill()
                 return
 
@@ -674,8 +668,6 @@ class Association(threading.Thread):
                 self.is_aborted = True
                 self.is_established = False
                 evt.trigger(self, evt.EVT_ABORTED, {})
-                # Callback trigger
-                self.ae.on_association_aborted()
                 self.kill()
                 return
 

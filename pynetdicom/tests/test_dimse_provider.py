@@ -144,32 +144,6 @@ class TestDIMSEProvider(object):
         """Test we get back None if not a P_DATA"""
         assert self.dimse.get_msg(True) == (None, None)
 
-    @pytest.mark.parametrize("primitive, cls_name", REFERENCE_MSG)
-    def test_send_msg(self, primitive, cls_name):
-        """Check sending DIMSE messages."""
-        # -RQ
-        primitive.MessageID = 1
-        primitive.AffectedSOPClassUID = '1.1.1'
-
-        def test_callback(msg):
-            """Callback"""
-            assert msg.__class__.__name__ == cls_name[0]
-
-        self.dimse.on_send_dimse_message = test_callback
-        if cls_name[0]:
-            self.dimse.send_msg(primitive, 1)
-
-        # -RSP
-        primitive.MessageIDBeingRespondedTo = 1
-        primitive.Status = 0x0000
-
-        def test_callback(msg):
-            """Callback"""
-            assert msg.__class__.__name__ == cls_name[1]
-
-        self.dimse.on_send_dimse_message = test_callback
-        self.dimse.send_msg(primitive, 1)
-
     def test_peek_empty(self):
         """Test peek_msg with nothing on the queue."""
         dimse = DIMSEServiceProvider(DummyAssociation())
