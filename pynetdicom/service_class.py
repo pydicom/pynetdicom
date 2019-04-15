@@ -346,6 +346,7 @@ class VerificationServiceClass(ServiceClass):
         self.dimse.send_msg(rsp, context.context_id)
 
 
+# TODO: Remove `info` parameter
 class StorageServiceClass(ServiceClass):
     """Implementation of the Storage Service Class."""
     uid = '1.2.840.10008.4.2'
@@ -431,62 +432,20 @@ class StorageServiceClass(ServiceClass):
         rsp.AffectedSOPInstanceUID = req.AffectedSOPInstanceUID
         rsp.AffectedSOPClassUID = req.AffectedSOPClassUID
 
-        transfer_syntax = context.transfer_syntax[0]
-
-        # TODO: refactor in v1.4
-        default_handler = evt.get_default_handler(evt.EVT_C_STORE)
-        if self.assoc.get_handlers(evt.EVT_C_STORE) != default_handler:
-            try:
-                rsp_status = evt.trigger(
-                    self.assoc,
-                    evt.EVT_C_STORE,
-                    {'request' : req, 'context' : context.as_tuple}
-                )
-            except Exception as exc:
-                LOGGER.error(
-                    "Exception in the handler bound to 'evt.EVT_C_STORE'"
-                )
-                LOGGER.exception(exc)
-                rsp.Status = 0xC211
-                self.dimse.send_msg(rsp, context.context_id)
-                return
-        else:
-            if _config.DECODE_STORE_DATASETS:
-                # Attempt to decode the request's dataset
-                try:
-                    ds = decode(req.DataSet,
-                                transfer_syntax.is_implicit_VR,
-                                transfer_syntax.is_little_endian)
-                    # Trigger exception if bad dataset
-                    for elem in ds:
-                        pass
-                except Exception as ex:
-                    LOGGER.error("Failed to decode the received dataset")
-                    LOGGER.exception(ex)
-                    # Failure: Cannot Understand - Dataset decoding error
-                    rsp.Status = 0xC210
-                    rsp.ErrorComment = 'Unable to decode the dataset'
-                    self.dimse.send_msg(rsp, context.context_id)
-                    return
-            else:
-                ds = req.DataSet.getvalue()
-
-            info['parameters'] = {
-                'message_id' : req.MessageID,
-                'priority' : req.Priority,
-                'originator_aet' : req.MoveOriginatorApplicationEntityTitle,
-                'originator_message_id' : req.MoveOriginatorMessageID
-            }
-
-            # Attempt to run the ApplicationEntity's on_c_store callback
-            try:
-                rsp_status = self.ae.on_c_store(ds, context.as_tuple, info)
-            except Exception as ex:
-                LOGGER.error("Exception in the ApplicationEntity.on_c_store() "
-                             "callback")
-                LOGGER.exception(ex)
-                # Failure: Cannot Understand - Error in on_c_store callback
-                rsp_status = 0xC211
+        try:
+            rsp_status = evt.trigger(
+                self.assoc,
+                evt.EVT_C_STORE,
+                {'request' : req, 'context' : context.as_tuple}
+            )
+        except Exception as exc:
+            LOGGER.error(
+                "Exception in the handler bound to 'evt.EVT_C_STORE'"
+            )
+            LOGGER.exception(exc)
+            rsp.Status = 0xC211
+            self.dimse.send_msg(rsp, context.context_id)
+            return
 
         # Validate rsp_status and set rsp.Status accordingly
         rsp = self.validate_status(rsp_status, rsp)

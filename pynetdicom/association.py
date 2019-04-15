@@ -787,64 +787,21 @@ class Association(threading.Thread):
             self.dimse.send_msg(rsp, 1)
             return
 
-        transfer_syntax = context.transfer_syntax[0]
-
         # Attempt to handle the service request
-        # TODO: refactor in v1.4
-        default_handler = evt.get_default_handler(evt.EVT_C_STORE)
-        if self.get_handlers(evt.EVT_C_STORE) != default_handler:
-            try:
-                status = evt.trigger(
-                    self,
-                    evt.EVT_C_STORE,
-                    {'request' : req, 'context' : context.as_tuple}
-                )
-            except Exception as ex:
-                LOGGER.error(
-                    "Exception in the handler bound to 'evt.EVT_C_STORE'"
-                )
-                LOGGER.exception(ex)
-                rsp.Status = 0xC211
-                self.dimse.send_msg(rsp, context.context_id)
-                return
-        else:
-            if _config.DECODE_STORE_DATASETS:
-                # Attempt to decode the dataset
-                # pylint: disable=broad-except
-                try:
-                    ds = decode(req.DataSet,
-                                transfer_syntax.is_implicit_VR,
-                                transfer_syntax.is_little_endian)
-                except Exception as ex:
-                    LOGGER.error('Failed to decode the received dataset')
-                    LOGGER.exception(ex)
-                    rsp.Status = 0xC210
-                    rsp.ErrorComment = 'Unable to decode the dataset'
-                    self.dimse.send_msg(rsp, context.context_id)
-                    return
-            else:
-                ds = req.DataSet.getvalue()
-
-            info = {
-                'acceptor' : self.acceptor.info,
-                'requestor': self.requestor.info,
-                'parameters' : {
-                    'message_id' : req.MessageID,
-                    'priority' : req.Priority,
-                    'originator_aet' : req.MoveOriginatorApplicationEntityTitle,
-                    'original_message_id' : req.MoveOriginatorMessageID
-                }
-            }
-
-            try:
-                status = self.ae.on_c_store(ds, context.as_tuple, info)
-            except Exception as ex:
-                LOGGER.error("Exception in the "
-                             "ApplicationEntity.on_c_store() callback")
-                LOGGER.exception(ex)
-                rsp.Status = 0xC211
-                self.dimse.send_msg(rsp, context.context_id)
-                return
+        try:
+            status = evt.trigger(
+                self,
+                evt.EVT_C_STORE,
+                {'request' : req, 'context' : context.as_tuple}
+            )
+        except Exception as ex:
+            LOGGER.error(
+                "Exception in the handler bound to 'evt.EVT_C_STORE'"
+            )
+            LOGGER.exception(ex)
+            rsp.Status = 0xC211
+            self.dimse.send_msg(rsp, context.context_id)
+            return
 
         # Check the callback's returned status
         if isinstance(status, Dataset):

@@ -26,7 +26,8 @@ from pydicom.uid import (
 )
 
 from pynetdicom import (
-    AE, VerificationPresentationContexts, build_context, evt, _config
+    AE, VerificationPresentationContexts, build_context, evt, _config,
+    debug_logger, build_role
 )
 from pynetdicom.association import Association
 from pynetdicom.dimse_primitives import C_STORE, C_FIND, C_GET, C_MOVE
@@ -86,9 +87,8 @@ from .encoded_pdu_items import a_associate_ac
 from .parrot import start_server, ThreadedParrot
 
 
-LOGGER = logging.getLogger('pynetdicom')
-LOGGER.setLevel(logging.CRITICAL)
-LOGGER.setLevel(logging.DEBUG)
+#debug_logger()
+
 
 TEST_DS_DIR = os.path.join(os.path.dirname(__file__), 'dicom_files')
 BIG_DATASET = dcmread(os.path.join(TEST_DS_DIR, 'RTImageStorage.dcm')) # 2.1 M
@@ -106,307 +106,6 @@ class DummyDIMSE(object):
 
     def get_msg(self, block=False):
         return None, None
-
-
-class TestCStoreSCP(object):
-    """Tests for Association._c_store_scp"""
-    def setup(self):
-        """Run prior to each test"""
-        self.scp = None
-
-    def teardown(self):
-        """Clear any active threads"""
-        if self.scp:
-            self.scp.abort()
-
-        time.sleep(0.1)
-
-        for thread in threading.enumerate():
-            if isinstance(thread, DummyBaseSCP):
-                thread.abort()
-                thread.stop()
-
-    def test_no_presentation_context(self):
-        """Test correct status is returned if no valid presentation context."""
-        self.scp = DummyStorageSCP()
-        self.scp.raise_exception = True
-        self.scp.start()
-
-        ae = AE()
-        ae.add_requested_context(RTImageStorage)
-        ae.acse_timeout = 5
-        ae.dimse_timeout = 5
-        ae.on_c_store = self.scp.on_c_store
-
-        role = SCP_SCU_RoleSelectionNegotiation()
-        role.sop_class_uid = CTImageStorage
-        role.scu_role = False
-        role.scp_role = True
-
-        assoc = ae.associate('localhost', 11112, ext_neg=[role])
-        assoc.dimse = DummyDIMSE()
-        assert assoc.is_established
-
-        req = C_STORE()
-        req.MessageID = 1
-        req.AffectedSOPClassUID = DATASET.SOPClassUID
-        req.AffectedSOPInstanceUID = DATASET.SOPInstanceUID
-        req.Priority = 1
-        req._context_id = 1
-
-        bytestream = encode(DATASET, True, True)
-        req.DataSet = BytesIO(bytestream)
-
-        assoc._c_store_scp(req)
-        assert assoc.dimse.status == 0x0122
-        assoc.release()
-        assert assoc.is_released
-        self.scp.stop()
-
-    def test_on_c_store_callback_exception(self):
-        """Test correct status returned if exception raised in callback."""
-        self.scp = DummyStorageSCP()
-        self.scp.raise_exception = True
-        self.scp.start()
-
-        ae = AE()
-        ae.add_requested_context(CTImageStorage)
-        ae.add_requested_context(RTImageStorage)
-        ae.acse_timeout = 5
-        ae.dimse_timeout = 5
-        ae.on_c_store = self.scp.on_c_store
-
-        role = SCP_SCU_RoleSelectionNegotiation()
-        role.sop_class_uid = CTImageStorage
-        role.scu_role = False
-        role.scp_role = True
-
-        assoc = ae.associate('localhost', 11112, ext_neg=[role])
-        assoc.dimse = DummyDIMSE()
-        assert assoc.is_established
-
-        req = C_STORE()
-        req.MessageID = 1
-        req.AffectedSOPClassUID = DATASET.SOPClassUID
-        req.AffectedSOPInstanceUID = DATASET.SOPInstanceUID
-        req.Priority = 1
-        req._context_id = 1
-
-        bytestream = encode(DATASET, True, True)
-        req.DataSet = BytesIO(bytestream)
-
-        assoc._c_store_scp(req)
-        assert assoc.dimse.status == 0xC211
-        assoc.release()
-        assert assoc.is_released
-        self.scp.stop()
-
-    def test_callback_status_ds_no_status(self):
-        """Test correct status returned if status Dataset has no status."""
-        self.scp = DummyStorageSCP()
-        self.scp.status = Dataset()
-        self.scp.status.PatientName = 'ABCD'
-        self.scp.start()
-
-        ae = AE()
-        ae.add_requested_context(CTImageStorage)
-        ae.add_requested_context(RTImageStorage)
-        ae.acse_timeout = 5
-        ae.dimse_timeout = 5
-        ae.on_c_store = self.scp.on_c_store
-
-        role = SCP_SCU_RoleSelectionNegotiation()
-        role.sop_class_uid = CTImageStorage
-        role.scu_role = False
-        role.scp_role = True
-
-        assoc = ae.associate('localhost', 11112, ext_neg=[role])
-        assoc.dimse = DummyDIMSE()
-        assert assoc.is_established
-
-        req = C_STORE()
-        req.MessageID = 1
-        req.AffectedSOPClassUID = DATASET.SOPClassUID
-        req.AffectedSOPInstanceUID = DATASET.SOPInstanceUID
-        req.Priority = 1
-        req._context_id = 1
-
-        bytestream = encode(DATASET, True, True)
-        req.DataSet = BytesIO(bytestream)
-
-        assoc._c_store_scp(req)
-        assert assoc.dimse.status == 0xC001
-        assoc.release()
-        assert assoc.is_released
-        self.scp.stop()
-
-    def test_callback_status_ds_unknown_elem(self):
-        """Test returning a status Dataset with an unknown element."""
-        self.scp = DummyStorageSCP()
-        self.scp.status = Dataset()
-        self.scp.status.Status = 0x0000
-        self.scp.status.PatientName = 'ABCD'
-        self.scp.start()
-
-        ae = AE()
-        ae.add_requested_context(CTImageStorage)
-        ae.add_requested_context(RTImageStorage)
-        ae.acse_timeout = 5
-        ae.dimse_timeout = 5
-        ae.on_c_store = self.scp.on_c_store
-
-        role = SCP_SCU_RoleSelectionNegotiation()
-        role.sop_class_uid = CTImageStorage
-        role.scu_role = False
-        role.scp_role = True
-
-        assoc = ae.associate('localhost', 11112, ext_neg=[role])
-        assoc.dimse = DummyDIMSE()
-        assert assoc.is_established
-
-        req = C_STORE()
-        req.MessageID = 1
-        req.AffectedSOPClassUID = DATASET.SOPClassUID
-        req.AffectedSOPInstanceUID = DATASET.SOPInstanceUID
-        req.Priority = 1
-        req._context_id = 1
-
-        bytestream = encode(DATASET, True, True)
-        req.DataSet = BytesIO(bytestream)
-
-        assoc._c_store_scp(req)
-        assert assoc.dimse.status == 0x0000
-        assoc.release()
-        assert assoc.is_released
-        self.scp.stop()
-
-    def test_callback_invalid_status(self):
-        """Test returning a status Dataset with an invalid status type."""
-        self.scp = DummyStorageSCP()
-        self.scp.status = 'abcd'
-        self.scp.start()
-
-        ae = AE()
-        ae.add_requested_context(CTImageStorage)
-        ae.add_requested_context(RTImageStorage)
-        ae.acse_timeout = 5
-        ae.dimse_timeout = 5
-        ae.on_c_store = self.scp.on_c_store
-
-        role = SCP_SCU_RoleSelectionNegotiation()
-        role.sop_class_uid = CTImageStorage
-        role.scu_role = False
-        role.scp_role = True
-
-        assoc = ae.associate('localhost', 11112, ext_neg=[role])
-        assoc.dimse = DummyDIMSE()
-        assert assoc.is_established
-
-        req = C_STORE()
-        req.MessageID = 1
-        req.AffectedSOPClassUID = DATASET.SOPClassUID
-        req.AffectedSOPInstanceUID = DATASET.SOPInstanceUID
-        req.Priority = 1
-        req._context_id = 1
-
-        bytestream = encode(DATASET, True, True)
-        req.DataSet = BytesIO(bytestream)
-
-        assoc._c_store_scp(req)
-        assert assoc.dimse.status == 0xC002
-        assoc.release()
-        assert assoc.is_released
-        self.scp.stop()
-
-    def test_callback_unknown_status(self):
-        """Test returning a status Dataset with an unknown status value."""
-        self.scp = DummyStorageSCP()
-        self.scp.status = 0xDEFA
-        self.scp.start()
-
-        ae = AE()
-        ae.add_requested_context(CTImageStorage)
-        ae.add_requested_context(RTImageStorage)
-
-        role = SCP_SCU_RoleSelectionNegotiation()
-        role.sop_class_uid = CTImageStorage
-        role.scu_role = False
-        role.scp_role = True
-
-        ae.acse_timeout = 5
-        ae.dimse_timeout = 5
-        ae.on_c_store = self.scp.on_c_store
-
-        assoc = ae.associate('localhost', 11112, ext_neg=[role])
-        assoc.dimse = DummyDIMSE()
-        assert assoc.is_established
-
-        req = C_STORE()
-        req.MessageID = 1
-        req.AffectedSOPClassUID = DATASET.SOPClassUID
-        req.AffectedSOPInstanceUID = DATASET.SOPInstanceUID
-        req.Priority = 1
-        req._context_id = 1
-
-        bytestream = encode(DATASET, True, True)
-        req.DataSet = BytesIO(bytestream)
-
-        assoc._c_store_scp(req)
-        assert assoc.dimse.status == 0xDEFA
-        assoc.release()
-        assert assoc.is_released
-        self.scp.stop()
-
-    def test_decode_failure(self):
-        """Test decoding failure."""
-        self.scp = DummyStorageSCP()
-        self.scp.start()
-
-        ae = AE()
-        ae.add_requested_context(CTImageStorage)
-        ae.acse_timeout = 5
-        ae.dimse_timeout = 5
-
-        role = SCP_SCU_RoleSelectionNegotiation()
-        role.sop_class_uid = CTImageStorage
-        role.scu_role = False
-        role.scp_role = True
-
-        assoc = ae.associate('localhost', 11112, ext_neg=[role])
-
-        class DummyMessage():
-            is_valid_response = True
-            DataSet = None
-            Status = 0x0000
-            STATUS_OPTIONAL_KEYWORDS = []
-
-        class DummyDIMSE():
-            def send_msg(*args, **kwargs):
-                assert args[1].Status == 0xC210
-                assert args[1].ErrorComment == "Unable to decode the dataset"
-                return
-
-            def get_msg(*args, **kwargs):
-                status = Dataset()
-                status.Status = 0x0000
-
-                rsp = DummyMessage()
-
-                return None, rsp
-
-        req = C_STORE()
-        req.MessageID = 1
-        req.AffectedSOPClassUID = DATASET.SOPClassUID
-        req.AffectedSOPInstanceUID = DATASET.SOPInstanceUID
-        req.Priority = 1
-        req._context_id = 1
-        req.DataSet = None
-
-        assoc.dimse = DummyDIMSE()
-        assert assoc.is_established
-        assoc._c_store_scp(req)
-
-        self.scp.stop()
 
 
 class TestAssociation(object):
@@ -1342,132 +1041,186 @@ class TestAssociationSendCStore(object):
     """Run tests on Assocation send_c_store."""
     def setup(self):
         """Run prior to each test"""
-        self.scp = None
+        self.ae = None
 
     def teardown(self):
         """Clear any active threads"""
-        if self.scp:
-            self.scp.abort()
-
-        time.sleep(0.1)
-
-        for thread in threading.enumerate():
-            if isinstance(thread, DummyBaseSCP):
-                thread.abort()
-                thread.stop()
+        if self.ae:
+            self.ae.shutdown()
 
     def test_must_be_associated(self):
         """Test SCU can't send without association."""
         # Test raise if assoc not established
-        self.scp = DummyStorageSCP()
-        self.scp.start()
-        ae = AE()
-        ae.add_requested_context(CTImageStorage)
+        def handle_store(event):
+            return 0x0000
+
+        handlers = [(evt.EVT_C_STORE, handle_store)]
+
+        self.ae = ae = AE()
         ae.acse_timeout = 5
         ae.dimse_timeout = 5
+        ae.network_timeout = 5
+        ae.add_supported_context(CTImageStorage)
+        scp = ae.start_server(('', 11112), block=False, evt_handlers=handlers)
+
+        ae.add_requested_context(CTImageStorage)
         assoc = ae.associate('localhost', 11112)
         assoc.release()
+
         assert assoc.is_released
         assert not assoc.is_established
         with pytest.raises(RuntimeError):
             assoc.send_c_store(DATASET)
-        self.scp.stop()
+
+        scp.shutdown()
 
     def test_no_abstract_syntax_match(self):
         """Test SCU when no accepted abstract syntax"""
-        self.scp = DummyVerificationSCP()
-        self.scp.start()
-        ae = AE()
-        ae.add_requested_context(VerificationSOPClass)
+        def handle_store(event):
+            return 0x0000
+
+        handlers = [(evt.EVT_C_STORE, handle_store)]
+
+        self.ae = ae = AE()
         ae.acse_timeout = 5
         ae.dimse_timeout = 5
+        ae.network_timeout = 5
+        ae.add_supported_context(VerificationSOPClass)
+        scp = ae.start_server(('', 11112), block=False, evt_handlers=handlers)
+
+        ae.add_requested_context(VerificationSOPClass)
         assoc = ae.associate('localhost', 11112)
         assert assoc.is_established
         with pytest.raises(ValueError):
             assoc.send_c_store(DATASET)
         assoc.release()
         assert assoc.is_released
-        self.scp.stop()
+
+        scp.shutdown()
 
     def test_bad_priority(self):
         """Test bad priority raises exception"""
-        self.scp = DummyStorageSCP()
-        self.scp.start()
-        ae = AE()
-        ae.add_requested_context(CTImageStorage)
+        def handle_store(event):
+            return 0x0000
+
+        handlers = [(evt.EVT_C_STORE, handle_store)]
+
+        self.ae = ae = AE()
         ae.acse_timeout = 5
         ae.dimse_timeout = 5
+        ae.network_timeout = 5
+        ae.add_supported_context(CTImageStorage)
+        scp = ae.start_server(('', 11112), block=False, evt_handlers=handlers)
+
+        ae.add_requested_context(CTImageStorage)
         assoc = ae.associate('localhost', 11112)
         assert assoc.is_established
         with pytest.raises(ValueError):
             assoc.send_c_store(DATASET, priority=0x0003)
         assoc.release()
         assert assoc.is_released
-        self.scp.stop()
+
+        scp.shutdown()
 
     def test_fail_encode_dataset(self):
         """Test failure if unable to encode dataset"""
-        self.scp = DummyStorageSCP()
-        self.scp.start()
-        ae = AE()
-        ae.add_requested_context(CTImageStorage, ExplicitVRLittleEndian)
+        def handle_store(event):
+            return 0x0000
+
+        handlers = [(evt.EVT_C_STORE, handle_store)]
+
+        self.ae = ae = AE()
         ae.acse_timeout = 5
         ae.dimse_timeout = 5
+        ae.network_timeout = 5
+        ae.add_supported_context(CTImageStorage)
+        scp = ae.start_server(('', 11112), block=False, evt_handlers=handlers)
+
+        ae.add_requested_context(CTImageStorage, ExplicitVRLittleEndian)
         assoc = ae.associate('localhost', 11112)
         assert assoc.is_established
-        DATASET.PerimeterValue = b'\x00\x01'
+        ds = Dataset()
+        ds.SOPClassUID = CTImageStorage
+        ds.SOPInstanceUID = '1.2.3'
+        ds.PerimeterValue = b'\x00\x01'
+        ds.file_meta = Dataset()
+        ds.file_meta.TransferSyntaxUID = ImplicitVRLittleEndian
         with pytest.raises(ValueError):
-            assoc.send_c_store(DATASET)
+            assoc.send_c_store(ds)
         assoc.release()
         assert assoc.is_released
-        del DATASET.PerimeterValue # Fix up our changes
-        self.scp.stop()
+
+        scp.shutdown()
 
     def test_encode_compressed_dataset(self):
         """Test sending a dataset with a compressed transfer syntax"""
-        self.scp = DummyStorageSCP()
-        self.scp.start()
-        ae = AE()
-        ae.add_requested_context(MRImageStorage, JPEG2000Lossless)
+        def handle_store(event):
+            return 0x0000
+
+        handlers = [(evt.EVT_C_STORE, handle_store)]
+
+        self.ae = ae = AE()
         ae.acse_timeout = 5
         ae.dimse_timeout = 5
+        ae.network_timeout = 5
+        ae.add_supported_context(MRImageStorage, JPEG2000Lossless)
+        scp = ae.start_server(('', 11112), block=False, evt_handlers=handlers)
+
+        ae.add_requested_context(MRImageStorage, JPEG2000Lossless)
         assoc = ae.associate('localhost', 11112)
         assert assoc.is_established
         result = assoc.send_c_store(COMP_DATASET)
         assert result.Status == 0x0000
         assoc.release()
         assert assoc.is_released
-        self.scp.stop()
+
+        scp.shutdown()
 
     def test_rsp_none(self):
         """Test no response from peer"""
-        self.scp = DummyStorageSCP()
-        self.scp.start()
-        ae = AE()
-        ae.add_requested_context(CTImageStorage)
+        def handle_store(event):
+            return 0x0000
+
+        handlers = [(evt.EVT_C_STORE, handle_store)]
+
+        self.ae = ae = AE()
         ae.acse_timeout = 5
         ae.dimse_timeout = 5
+        ae.network_timeout = 5
+        ae.add_supported_context(CTImageStorage)
+        scp = ae.start_server(('', 11112), block=False, evt_handlers=handlers)
+
+        ae.add_requested_context(CTImageStorage)
         assoc = ae.associate('localhost', 11112)
+
         class DummyDIMSE():
             def send_msg(*args, **kwargs): return
             def get_msg(*args, **kwargs): return None, None
 
         assoc.dimse = DummyDIMSE()
         assert assoc.is_established
-        assoc.send_c_store(DATASET)
+        status = assoc.send_c_store(DATASET)
+        assert status == Dataset()
 
         assert assoc.is_aborted
 
-        self.scp.stop()
+        scp.shutdown()
 
     def test_rsp_invalid(self):
         """Test invalid DIMSE message received from peer"""
-        self.scp = DummyStorageSCP()
-        self.scp.start()
-        ae = AE()
-        ae.add_requested_context(CTImageStorage)
+        def handle_store(event):
+            return 0x0000
+
+        handlers = [(evt.EVT_C_STORE, handle_store)]
+
+        self.ae = ae = AE()
         ae.acse_timeout = 5
         ae.dimse_timeout = 5
+        ae.network_timeout = 5
+        ae.add_supported_context(CTImageStorage)
+        scp = ae.start_server(('', 11112), block=False, evt_handlers=handlers)
+
+        ae.add_requested_context(CTImageStorage)
         assoc = ae.associate('localhost', 11112)
 
         class DummyResponse():
@@ -1479,93 +1232,134 @@ class TestAssociationSendCStore(object):
 
         assoc.dimse = DummyDIMSE()
         assert assoc.is_established
-        assoc.send_c_store(DATASET)
+        status = assoc.send_c_store(DATASET)
         assert assoc.is_aborted
+        assert status == Dataset()
 
-        self.scp.stop()
+        scp.shutdown()
 
     def test_rsp_failure(self):
         """Test receiving a failure response from the peer"""
-        self.scp = DummyStorageSCP()
-        self.scp.status = 0xC000
-        self.scp.start()
-        ae = AE()
-        ae.add_requested_context(CTImageStorage)
-        ae.add_requested_context(RTImageStorage)
+        def handle_store(event):
+            return 0xC000
+
+        handlers = [(evt.EVT_C_STORE, handle_store)]
+
+        self.ae = ae = AE()
         ae.acse_timeout = 5
         ae.dimse_timeout = 5
+        ae.network_timeout = 5
+        ae.add_supported_context(CTImageStorage)
+        scp = ae.start_server(('', 11112), block=False, evt_handlers=handlers)
+
+        ae.add_requested_context(CTImageStorage)
         assoc = ae.associate('localhost', 11112)
         assert assoc.is_established
-        result = assoc.send_c_store(DATASET)
-        assert result.Status == 0xC000
+        status = assoc.send_c_store(DATASET)
+        assert status.Status == 0xC000
         assoc.release()
         assert assoc.is_released
-        self.scp.stop()
+
+        scp.shutdown()
 
     def test_rsp_warning(self):
         """Test receiving a warning response from the peer"""
-        self.scp = DummyStorageSCP()
-        self.scp.status = 0xB000
-        self.scp.start()
-        ae = AE()
-        ae.add_requested_context(CTImageStorage)
-        ae.add_requested_context(RTImageStorage)
+        def handle_store(event):
+            return 0xB000
+
+        handlers = [(evt.EVT_C_STORE, handle_store)]
+
+        self.ae = ae = AE()
         ae.acse_timeout = 5
         ae.dimse_timeout = 5
+        ae.network_timeout = 5
+        ae.add_supported_context(CTImageStorage)
+        scp = ae.start_server(('', 11112), block=False, evt_handlers=handlers)
+
+        ae.add_requested_context(CTImageStorage)
         assoc = ae.associate('localhost', 11112)
+
         assert assoc.is_established
-        result = assoc.send_c_store(DATASET)
-        assert result.Status == 0xB000
+        status = assoc.send_c_store(DATASET)
+        assert status.Status == 0xB000
         assoc.release()
         assert assoc.is_released
-        self.scp.stop()
+
+        scp.shutdown()
 
     def test_rsp_success(self):
         """Test receiving a success response from the peer"""
-        self.scp = DummyStorageSCP()
-        self.scp.start()
-        ae = AE()
-        ae.add_requested_context(CTImageStorage)
-        ae.add_requested_context(RTImageStorage)
+        def handle_store(event):
+            return 0x0000
+
+        handlers = [(evt.EVT_C_STORE, handle_store)]
+
+        self.ae = ae = AE()
         ae.acse_timeout = 5
         ae.dimse_timeout = 5
+        ae.network_timeout = 5
+        ae.add_supported_context(CTImageStorage)
+        scp = ae.start_server(('', 11112), block=False, evt_handlers=handlers)
+
+        ae.add_requested_context(CTImageStorage)
         assoc = ae.associate('localhost', 11112)
+
         assert assoc.is_established
-        result = assoc.send_c_store(DATASET)
-        assert result.Status == 0x0000
+        status = assoc.send_c_store(DATASET)
+        assert status.Status == 0x0000
         assoc.release()
         assert assoc.is_released
-        self.scp.stop()
+
+        scp.shutdown()
 
     def test_rsp_unknown_status(self):
         """Test unknown status value returned by peer"""
-        self.scp = DummyStorageSCP()
-        self.scp.status = 0xFFF0
-        self.scp.start()
-        ae = AE()
-        ae.add_requested_context(CTImageStorage)
+        def handle_store(event):
+            return 0xFFF0
+
+        handlers = [(evt.EVT_C_STORE, handle_store)]
+
+        self.ae = ae = AE()
         ae.acse_timeout = 5
         ae.dimse_timeout = 5
+        ae.network_timeout = 5
+        ae.add_supported_context(CTImageStorage)
+        scp = ae.start_server(('', 11112), block=False, evt_handlers=handlers)
+
+        ae.add_requested_context(CTImageStorage)
         assoc = ae.associate('localhost', 11112)
+
         assert assoc.is_established
-        result = assoc.send_c_store(DATASET)
-        assert result.Status == 0xFFF0
+        status = assoc.send_c_store(DATASET)
+        assert status.Status == 0xFFF0
         assoc.release()
         assert assoc.is_released
-        self.scp.stop()
+
+        scp.shutdown()
 
     def test_dataset_no_sop_class_raises(self):
         """Test sending a dataset without SOPClassUID raises."""
-        self.scp = DummyStorageSCP()
-        self.scp.start()
-        ae = AE()
-        ae.add_requested_context(CTImageStorage)
+        def handle_store(event):
+            return 0x0000
+
+        handlers = [(evt.EVT_C_STORE, handle_store)]
+
+        self.ae = ae = AE()
         ae.acse_timeout = 5
         ae.dimse_timeout = 5
+        ae.network_timeout = 5
+        ae.add_supported_context(CTImageStorage)
+        scp = ae.start_server(('', 11112), block=False, evt_handlers=handlers)
+
+        ae.add_requested_context(CTImageStorage)
         assoc = ae.associate('localhost', 11112)
+
+        ds = Dataset()
+        ds.SOPInstanceUID = '1.2.3.4'
+        ds.file_meta = Dataset()
+        ds.file_meta.TransferSyntaxUID = ImplicitVRLittleEndian
+
         assert assoc.is_established
-        ds = DATASET[:]
-        del ds.SOPClassUID
         assert 'SOPClassUID' not in ds
         msg = (
             r"Unable to determine the presentation context to use with "
@@ -1577,19 +1371,30 @@ class TestAssociationSendCStore(object):
 
         assoc.release()
         assert assoc.is_released
-        self.scp.stop()
+
+        scp.shutdown()
 
     def test_dataset_no_transfer_syntax_raises(self):
         """Test sending a dataset without TransferSyntaxUID raises."""
-        self.scp = DummyStorageSCP()
-        self.scp.start()
-        ae = AE()
-        ae.add_requested_context(CTImageStorage)
+        def handle_store(event):
+            return 0x0000
+
+        handlers = [(evt.EVT_C_STORE, handle_store)]
+
+        self.ae = ae = AE()
         ae.acse_timeout = 5
         ae.dimse_timeout = 5
+        ae.network_timeout = 5
+        ae.add_supported_context(CTImageStorage)
+        scp = ae.start_server(('', 11112), block=False, evt_handlers=handlers)
+
+        ae.add_requested_context(CTImageStorage)
         assoc = ae.associate('localhost', 11112)
-        assert assoc.is_established
-        ds = DATASET[:]
+
+        ds = Dataset()
+        ds.SOPInstanceUID = '1.2.3.4'
+        ds.SOPClassUID = CTImageStorage
+
         assert 'file_meta' not in ds
         msg = (
             r"Unable to determine the presentation context to use with "
@@ -1611,21 +1416,32 @@ class TestAssociationSendCStore(object):
 
         assoc.release()
         assert assoc.is_released
-        self.scp.stop()
+
+        scp.shutdown()
 
     def test_functional_common_ext_neg(self):
         """Test functioning of the SOP Class Common Extended negotiation."""
-        def on_ext(req):
-            return req
+        def handle_ext(event):
+            return event.items
 
-        self.scp = DummyStorageSCP()
-        self.scp.ae.add_supported_context('1.2.3')
-        self.scp.ae.on_sop_class_common_extended = on_ext
-        self.scp.start()
-        ae = AE()
-        ae.add_requested_context('1.2.3')
+        def handle_store(event):
+            return 0x0000
+
+        handlers = [
+            (evt.EVT_C_STORE, handle_store),
+            (evt.EVT_SOP_COMMON, handle_ext)
+        ]
+
+        self.ae = ae = AE()
         ae.acse_timeout = 5
         ae.dimse_timeout = 5
+        ae.network_timeout = 5
+        ae.add_supported_context(CTImageStorage)
+        ae.add_supported_context('1.2.3')
+        scp = ae.start_server(('', 11112), block=False, evt_handlers=handlers)
+
+        ae.add_requested_context(CTImageStorage)
+        ae.add_requested_context('1.2.3')
 
         req = {
             '1.2.3' : ('1.2.840.10008.4.2', []),
@@ -1645,39 +1461,56 @@ class TestAssociationSendCStore(object):
         assoc = ae.associate('localhost', 11112, ext_neg=ext_neg)
         assert assoc.is_established
 
-        ds = deepcopy(DATASET)
+        ds = Dataset()
         ds.SOPClassUID = '1.2.3'
+        ds.SOPInstanceUID = '1.2.3.4'
+        ds.file_meta = Dataset()
+        ds.file_meta.TransferSyntaxUID = ImplicitVRLittleEndian
         status = assoc.send_c_store(ds)
         assert status.Status == 0x0000
 
         assoc.release()
 
-        self.scp.stop()
+        scp.shutdown()
 
     # Regression tests
     def test_no_send_mismatch(self):
         """Test sending a dataset with mismatched transfer syntax (206)."""
-        self.scp = DummyStorageSCP()
-        self.scp.start()
+        def handle_store(event):
+            return 0x0000
 
-        ds = dcmread(os.path.join(TEST_DS_DIR, 'CTImageStorage.dcm'))
-        ds.file_meta.TransferSyntaxUID = JPEGBaseline
+        handlers = [(evt.EVT_C_STORE, handle_store)]
 
-        ae = AE()
-        ae.add_requested_context(CTImageStorage, ImplicitVRLittleEndian)
+        self.ae = ae = AE()
         ae.acse_timeout = 5
         ae.dimse_timeout = 5
+        ae.network_timeout = 5
+        ae.add_supported_context(CTImageStorage)
+        scp = ae.start_server(('', 11112), block=False, evt_handlers=handlers)
+
+        ae.add_requested_context(CTImageStorage, ImplicitVRLittleEndian)
         assoc = ae.associate('localhost', 11112)
+
+        ds = Dataset()
+        ds.SOPClassUID = CTImageStorage
+        ds.SOPInstanceUID = '1.2.3.4'
+        ds.file_meta = Dataset()
+        ds.file_meta.TransferSyntaxUID = JPEGBaseline
+
         assert assoc.is_established
 
-        msg = r""
+        msg = (
+            r"No suitable presentation context for the SCU role has been "
+            r"accepted by the peer for the SOP Class 'CT Image Storage' with "
+            r"a transfer syntax of 'JPEG Baseline \(Process 1\)'"
+        )
         with pytest.raises(ValueError, match=msg):
             assoc.send_c_store(ds)
 
         assoc.release()
         assert assoc.is_released
 
-        self.scp.stop()
+        scp.shutdown()
 
 
 class TestAssociationSendCFind(object):
@@ -2171,10 +2004,15 @@ class TestAssociationSendCGet(object):
 
         self.scp = None
 
+        self.ae = None
+
     def teardown(self):
         """Clear any active threads"""
         if self.scp:
             self.scp.abort()
+
+        if self.ae:
+            self.ae.shutdown()
 
         time.sleep(0.1)
 
@@ -2350,30 +2188,40 @@ class TestAssociationSendCGet(object):
 
     def test_rsp_success(self):
         """Test good send"""
-        self.scp = DummyGetSCP()
-        self.scp.no_suboperations = 2
-        self.scp.statuses = [0xFF00, 0xFF00]
-        self.scp.datasets = [self.good, self.good]
+        store_pname = []
 
-        def on_c_store(ds, context, assoc_info):
-            assert 'PatientName' in ds
+        def handle_get(event):
+            yield 2
+            yield 0xFF00, self.good
+            yield 0xFF00, self.good
+
+        def handle_store(event):
+            store_pname.append(event.dataset.PatientName)
             return 0x0000
 
-        self.scp.start()
-        ae = AE()
+        scu_handler = [(evt.EVT_C_STORE, handle_store)]
+        scp_handler = [(evt.EVT_C_GET, handle_get)]
+
+        self.ae = ae = AE()
+        ae.acse_timeout = 5
+        ae.dimse_timout = 5
+        ae.network_timeout = 5
+        ae.add_supported_context(PatientRootQueryRetrieveInformationModelGet)
+        ae.add_supported_context(CTImageStorage, scu_role=True, scp_role=True)
+
+        scp = ae.start_server(('', 11112), block=False, evt_handlers=scp_handler)
+
         ae.add_requested_context(PatientRootQueryRetrieveInformationModelGet)
         ae.add_requested_context(CTImageStorage)
 
-        role = SCP_SCU_RoleSelectionNegotiation()
-        role.sop_class_uid = CTImageStorage
-        role.scu_role = False
-        role.scp_role = True
+        role = build_role(CTImageStorage, scp_role=True, scu_role=True)
 
-        ae.acse_timeout = 5
-        ae.dimse_timeout = 5
-        ae.on_c_store = on_c_store
-        assoc = ae.associate('localhost', 11112, ext_neg=[role])
+        assoc = ae.associate(
+            'localhost', 11112, evt_handlers=scu_handler, ext_neg=[role]
+        )
+
         assert assoc.is_established
+
         result = assoc.send_c_get(self.ds, query_model='P')
         (status, ds) = next(result)
         assert status.Status == 0xff00
@@ -2386,10 +2234,65 @@ class TestAssociationSendCGet(object):
         assert ds is None
         assoc.release()
         assert assoc.is_released
-        self.scp.stop()
+
+        assert store_pname == ['Test', 'Test']
+
+        scp.shutdown()
 
     def test_rsp_pending_send_success(self):
         """Test receiving a pending response and sending success"""
+        store_pname = []
+
+        def handle_get(event):
+            yield 3
+            yield 0xFF00, self.good
+            yield 0xFF00, self.good
+
+        def handle_store(event):
+            store_pname.append(event.dataset.PatientName)
+            return 0x0000
+
+        scu_handler = [(evt.EVT_C_STORE, handle_store)]
+        scp_handler = [(evt.EVT_C_GET, handle_get)]
+
+        self.ae = ae = AE()
+        ae.acse_timeout = 5
+        ae.dimse_timout = 5
+        ae.network_timeout = 5
+        ae.add_supported_context(PatientRootQueryRetrieveInformationModelGet)
+        ae.add_supported_context(CTImageStorage, scu_role=True, scp_role=True)
+
+        scp = ae.start_server(('', 11112), block=False, evt_handlers=scp_handler)
+
+        ae.add_requested_context(PatientRootQueryRetrieveInformationModelGet)
+        ae.add_requested_context(CTImageStorage)
+
+        role = build_role(CTImageStorage, scp_role=True, scu_role=True)
+
+        assoc = ae.associate(
+            'localhost', 11112, evt_handlers=scu_handler, ext_neg=[role]
+        )
+
+        assert assoc.is_established
+
+        result = assoc.send_c_get(self.ds, query_model='P')
+        (status, ds) = next(result)
+        assert status.Status == 0xff00
+        assert ds is None
+        (status, ds) = next(result)
+        assert status.Status == 0xff00
+        assert ds is None
+        (status, ds) = next(result)
+        assert status.Status == 0x0000
+        assert ds is None
+        assoc.release()
+        assert assoc.is_released
+
+        assert store_pname == ['Test', 'Test']
+
+        scp.shutdown()
+
+        """
         self.scp = DummyGetSCP()
         self.scp.no_suboperations = 3
         self.scp.statuses = [0xFF00, 0xFF00, 0xB000]
@@ -2427,6 +2330,7 @@ class TestAssociationSendCGet(object):
         assoc.release()
         assert assoc.is_released
         self.scp.stop()
+        """
 
     def test_rsp_pending_send_failure(self):
         """Test receiving a pending response and sending a failure"""
@@ -2698,96 +2602,6 @@ class TestAssociationSendCGet(object):
 
         self.scp.stop()
 
-    def test_config_return_dataset(self):
-        """Test the _config option DECODE_STORE_DATASETS = True."""
-        from pynetdicom import _config
-
-        orig_value = _config.DECODE_STORE_DATASETS
-        _config.DECODE_STORE_DATASETS = True
-
-        self.scp = DummyGetSCP()
-        self.scp.no_suboperations = 1
-        self.scp.statuses = [0xFF00]
-        self.scp.datasets = [self.good]
-
-        def on_c_store(ds, context, assoc_info):
-            assert isinstance(ds, Dataset)
-            return 0x0000
-
-        self.scp.start()
-        ae = AE()
-        ae.add_requested_context(PatientRootQueryRetrieveInformationModelGet)
-        ae.add_requested_context(CTImageStorage)
-
-        role = SCP_SCU_RoleSelectionNegotiation()
-        role.sop_class_uid = CTImageStorage
-        role.scu_role = False
-        role.scp_role = True
-
-        ae.acse_timeout = 5
-        ae.dimse_timeout = 5
-        ae.on_c_store = on_c_store
-        assoc = ae.associate('localhost', 11112, ext_neg=[role])
-        assert assoc.is_established
-        result = assoc.send_c_get(self.ds, query_model='P')
-        (status, ds) = next(result)
-        assert status.Status == 0xff00
-        assert ds is None
-        (status, ds) = next(result)
-        assert status.Status == 0x0000
-        assert ds is None
-        assoc.release()
-        assert assoc.is_released
-        self.scp.stop()
-
-        _config.DECODE_STORE_DATASETS = orig_value
-
-        self.scp.stop()
-
-    def test_config_return_bytes(self):
-        """Test the _config option DECODE_STORE_DATASETS = False."""
-        from pynetdicom import _config
-
-        orig_value = _config.DECODE_STORE_DATASETS
-        _config.DECODE_STORE_DATASETS = False
-
-        self.scp = DummyGetSCP()
-        self.scp.no_suboperations = 1
-        self.scp.statuses = [0xFF00]
-        self.scp.datasets = [self.good]
-
-        def on_c_store(ds, context, assoc_info):
-            assert isinstance(ds, bytes)
-            return 0x0000
-
-        self.scp.start()
-        ae = AE()
-        ae.add_requested_context(PatientRootQueryRetrieveInformationModelGet)
-        ae.add_requested_context(CTImageStorage)
-
-        role = SCP_SCU_RoleSelectionNegotiation()
-        role.sop_class_uid = CTImageStorage
-        role.scu_role = False
-        role.scp_role = True
-
-        ae.acse_timeout = 5
-        ae.dimse_timeout = 5
-        ae.on_c_store = on_c_store
-        assoc = ae.associate('localhost', 11112, ext_neg=[role])
-        assert assoc.is_established
-        result = assoc.send_c_get(self.ds, query_model='P')
-        (status, ds) = next(result)
-        assert status.Status == 0xff00
-        assert ds is None
-        (status, ds) = next(result)
-        assert status.Status == 0x0000
-        assert ds is None
-        assoc.release()
-        assert assoc.is_released
-        self.scp.stop()
-
-        _config.DECODE_STORE_DATASETS = orig_value
-
     @pytest.mark.skipif(sys.version_info[:2] == (3, 4), reason='no caplog')
     def test_rsp_not_get(self, caplog):
         """Test receiving a non C-GET/C-STORE message in response."""
@@ -2861,10 +2675,15 @@ class TestAssociationSendCMove(object):
         self.scp = None
         self.scp2 = None
 
+        self.ae = None
+
     def teardown(self):
         """Clear any active threads"""
         if self.scp:
             self.scp.abort()
+
+        if self.ae:
+            self.ae.shutdown()
 
         if self.scp2:
             self.scp2.abort()
@@ -2930,16 +2749,44 @@ class TestAssociationSendCMove(object):
 
     def test_good_query_model(self):
         """Test all the query models"""
-        self.scp2 = DummyStorageSCP(11113)
-        self.scp2.start()
 
-        self.scp = DummyMoveSCP()  # port 11112
-        self.scp.no_suboperations = 2
-        self.scp.destination_ae = ('localhost', 11113)
-        self.scp.statuses = [0xFF00, 0xFF00]
-        self.scp.datasets = [self.good, self.good]
-        self.scp.start()
-        ae = AE()
+        def handle_store(event):
+            return 0x0000
+
+        self.ae = ae = AE()
+        ae.acse_timeout = 5
+        ae.dimse_timout = 5
+        ae.network_timeout = 5
+
+        # Storage SCP
+        ae.add_supported_context(CTImageStorage)
+        store_scp = ae.start_server(
+            ('', 11112), block=False, evt_handlers=[(evt.EVT_C_STORE, handle_store)]
+        )
+
+        # Move SCP
+        def handle_move(event):
+            yield 'localhost', 11112
+            yield 2
+            yield 0xff00, self.good
+            yield 0xff00, self.good
+
+        ae.add_requested_context(CTImageStorage)
+        ae.add_supported_context(PatientRootQueryRetrieveInformationModelMove)
+        ae.add_supported_context(StudyRootQueryRetrieveInformationModelMove)
+        ae.add_supported_context(PatientStudyOnlyQueryRetrieveInformationModelMove)
+        ae.add_supported_context(CompositeInstanceRootRetrieveMove)
+        ae.add_supported_context(HangingProtocolInformationModelMove)
+        ae.add_supported_context(DefinedProcedureProtocolInformationModelMove)
+        ae.add_supported_context(ColorPaletteInformationModelMove)
+        ae.add_supported_context(GenericImplantTemplateInformationModelMove)
+        ae.add_supported_context(ImplantAssemblyTemplateInformationModelMove)
+        ae.add_supported_context(ImplantTemplateGroupInformationModelMove)
+        move_scp = ae.start_server(
+            ('', 11113), block=False, evt_handlers=[(evt.EVT_C_MOVE, handle_move)]
+        )
+
+        # Move SCU
         ae.add_requested_context(PatientRootQueryRetrieveInformationModelMove)
         ae.add_requested_context(StudyRootQueryRetrieveInformationModelMove)
         ae.add_requested_context(PatientStudyOnlyQueryRetrieveInformationModelMove)
@@ -2950,9 +2797,8 @@ class TestAssociationSendCMove(object):
         ae.add_requested_context(GenericImplantTemplateInformationModelMove)
         ae.add_requested_context(ImplantAssemblyTemplateInformationModelMove)
         ae.add_requested_context(ImplantTemplateGroupInformationModelMove)
-        ae.acse_timeout = 5
-        ae.dimse_timeout = 5
-        assoc = ae.associate('localhost', 11112)
+
+        assoc = ae.associate('localhost', 11113)
         assert assoc.is_established
 
         for qm in ['P', 'S', 'O', 'C', 'H', 'D', 'CP', 'IG', 'IA', 'IT']:
@@ -2968,9 +2814,9 @@ class TestAssociationSendCMove(object):
 
         assoc.release()
         assert assoc.is_released
-        self.scp.stop()
 
-        self.scp2.stop()
+        store_scp.shutdown()
+        move_scp.shutdown()
 
     def test_fail_encode_identifier(self):
         """Test a failure in encoding the Identifier dataset"""
@@ -3205,24 +3051,43 @@ class TestAssociationSendCMove(object):
 
     def test_rsp_success(self):
         """Test the user on_c_move returning success status"""
-        self.scp2 = DummyStorageSCP(11113)
-        self.scp2.start()
 
-        self.scp = DummyMoveSCP()
-        self.scp.destination_ae = ('localhost', 11113)
-        self.scp.no_suboperations = 2
-        self.scp.statuses = [0xFF00, 0x0000]
-        self.scp.datasets = [self.good, None]
-        self.scp.start()
-        ae = AE()
+        def handle_store(event):
+            return 0x0000
+
+        self.ae = ae = AE()
+        ae.acse_timeout = 5
+        ae.dimse_timout = 5
+        ae.network_timeout = 5
+
+        # Storage SCP
+        ae.add_supported_context(CTImageStorage)
+        store_scp = ae.start_server(
+            ('', 11112), block=False, evt_handlers=[(evt.EVT_C_STORE, handle_store)]
+        )
+
+        # Move SCP
+        def handle_move(event):
+            yield 'localhost', 11112
+            yield 2
+            yield 0xff00, self.good
+
+        ae.add_requested_context(CTImageStorage)
+        ae.add_supported_context(PatientRootQueryRetrieveInformationModelMove)
+        ae.add_supported_context(StudyRootQueryRetrieveInformationModelMove)
+        ae.add_supported_context(PatientStudyOnlyQueryRetrieveInformationModelMove)
+        move_scp = ae.start_server(
+            ('', 11113), block=False, evt_handlers=[(evt.EVT_C_MOVE, handle_move)]
+        )
+
+        # Move SCU
         ae.add_requested_context(PatientRootQueryRetrieveInformationModelMove)
         ae.add_requested_context(StudyRootQueryRetrieveInformationModelMove)
         ae.add_requested_context(PatientStudyOnlyQueryRetrieveInformationModelMove)
-        ae.acse_timeout = 5
-        ae.dimse_timeout = 5
-        ae.dimse_timeout = 5
-        assoc = ae.associate('localhost', 11112)
+
+        assoc = ae.associate('localhost', 11113)
         assert assoc.is_established
+
         result = assoc.send_c_move(self.ds, b'TESTMOVE', query_model='P')
         (status, ds) = next(result)
         assert status.Status == 0xFF00
@@ -3235,9 +3100,9 @@ class TestAssociationSendCMove(object):
 
         assoc.release()
         assert assoc.is_released
-        self.scp.stop()
 
-        self.scp2.stop()
+        store_scp.shutdown()
+        move_scp.shutdown()
 
     def test_rsp_unknown_status(self):
         """Test unknown status value returned by peer"""
@@ -3266,23 +3131,42 @@ class TestAssociationSendCMove(object):
 
     def test_multiple_c_move(self):
         """Test multiple C-MOVE operation requests"""
-        self.scp2 = DummyStorageSCP(11113)
-        self.scp2.start()
+        def handle_store(event):
+            return 0x0000
 
-        self.scp = DummyMoveSCP()
-        self.scp.no_suboperations = 2
-        self.scp.statuses = [0xFF00, 0xFF00]
-        self.scp.datasets = [self.good, self.good]
-        self.scp.destination_ae = ('localhost', 11113)
-        self.scp.start()
-        ae = AE()
+        self.ae = ae = AE()
+        ae.acse_timeout = 5
+        ae.dimse_timout = 5
+        ae.network_timeout = 5
+
+        # Storage SCP
+        ae.add_supported_context(CTImageStorage)
+        store_scp = ae.start_server(
+            ('', 11112), block=False, evt_handlers=[(evt.EVT_C_STORE, handle_store)]
+        )
+
+        # Move SCP
+        def handle_move(event):
+            yield 'localhost', 11112
+            yield 2
+            yield 0xff00, self.good
+            yield 0xff00, self.good
+
+        ae.add_requested_context(CTImageStorage)
+        ae.add_supported_context(PatientRootQueryRetrieveInformationModelMove)
+        ae.add_supported_context(StudyRootQueryRetrieveInformationModelMove)
+        ae.add_supported_context(PatientStudyOnlyQueryRetrieveInformationModelMove)
+        move_scp = ae.start_server(
+            ('', 11113), block=False, evt_handlers=[(evt.EVT_C_MOVE, handle_move)]
+        )
+
+        # Move SCU
         ae.add_requested_context(PatientRootQueryRetrieveInformationModelMove)
         ae.add_requested_context(StudyRootQueryRetrieveInformationModelMove)
         ae.add_requested_context(PatientStudyOnlyQueryRetrieveInformationModelMove)
-        ae.acse_timeout = 5
-        ae.dimse_timeout = 5
+
         for ii in range(20):
-            assoc = ae.associate('localhost', 11112)
+            assoc = ae.associate('localhost', 11113)
             assert assoc.is_established
             assert not assoc.is_released
             result = assoc.send_c_move(self.ds, b'TESTMOVE', query_model='P')
@@ -3298,8 +3182,8 @@ class TestAssociationSendCMove(object):
             assert assoc.is_released
             assert not assoc.is_established
 
-        self.scp.stop()
-        self.scp2.stop()
+        store_scp.shutdown()
+        move_scp.shutdown()
 
     def test_connection_timeout(self):
         """Test the connection timing out"""

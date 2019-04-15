@@ -207,33 +207,6 @@ class TestAEGoodCallbacks(object):
 
         scp.shutdown()
 
-    def test_on_c_store_called(self):
-        """ Check that SCP AE.on_c_store(dataset) was called """
-        def on_c_store(ds, cx, info):
-            return 0x0000
-
-        self.ae = ae = AE()
-        ae.on_c_store = on_c_store
-        ae.add_supported_context(RTImageStorage)
-        scp = ae.start_server(('', 11112), block=False)
-
-        ae = AE()
-        ae.add_requested_context(RTImageStorage)
-        ae.acse_timeout = 5
-        ae.dimse_timeout = 5
-        assoc = ae.associate('localhost', 11112)
-        assert assoc.is_established
-        status = assoc.send_c_store(DATASET)
-        assert isinstance(status, Dataset)
-        assert 'Status' in status
-        assert status.Status == 0x0000
-
-        assoc.release()
-        assert assoc.is_released
-        assert not assoc.is_established
-
-        scp.shutdown()
-
     def test_on_c_find_called(self):
         """ Check that SCP AE.on_c_find(dataset) was called """
         self.scp = DummyFindSCP()
@@ -310,12 +283,6 @@ class TestAEGoodCallbacks(object):
         """Test default callback raises exception"""
         ae = AE()
         ae.on_c_echo(None, None)
-
-    def test_on_c_store(self):
-        """Test default callback raises exception"""
-        ae = AE()
-        with pytest.raises(NotImplementedError):
-            ae.on_c_store(None, None, None)
 
     def test_on_c_find(self):
         """Test default callback raises exception"""
