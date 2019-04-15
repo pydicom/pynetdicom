@@ -91,13 +91,10 @@ class DisplaySystemManagementServiceClass(ServiceClass):
         rsp.AffectedSOPInstanceUID = req.RequestedSOPInstanceUID
 
         try:
-            (rsp_status, ds) = evt.trigger(
+            rsp_status, ds = evt.trigger(
                 self.assoc,
                 evt.EVT_N_GET,
-                {
-                    'request' : req,
-                    'context' : context.as_tuple,
-                }
+                {'request' : req, 'context' : context.as_tuple}
             )
         except Exception as exc:
             LOGGER.error(

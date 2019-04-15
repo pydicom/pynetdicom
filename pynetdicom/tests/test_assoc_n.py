@@ -446,11 +446,15 @@ class TestAssociationSendNGet(object):
     def setup(self):
         """Run prior to each test"""
         self.scp = None
+        self.ae = None
 
     def teardown(self):
         """Clear any active threads"""
         if self.scp:
             self.scp.abort()
+
+        if self.ae:
+            self.ae.shutdown()
 
         time.sleep(0.1)
 
@@ -557,15 +561,22 @@ class TestAssociationSendNGet(object):
 
     def test_rsp_failure(self):
         """Test receiving a failure response from the peer"""
-        self.scp = DummyGetSCP()
-        self.scp.status = 0x0112
-        self.scp.start()
-        ae = AE()
-        ae.add_requested_context(DisplaySystemSOPClass)
+        def handle(event):
+            return 0x0112, None
+
+        self.ae = ae = AE()
         ae.acse_timeout = 5
         ae.dimse_timeout = 5
+        ae.network_timeout = 5
+        ae.add_supported_context(DisplaySystemSOPClass)
+        scp = ae.start_server(
+            ('', 11112), block=False, evt_handlers=[(evt.EVT_N_GET, handle)]
+        )
+
+        ae.add_requested_context(DisplaySystemSOPClass)
         assoc = ae.associate('localhost', 11112)
         assert assoc.is_established
+
         status, ds = assoc.send_n_get([(0x7fe0, 0x0010)],
                                       DisplaySystemSOPClass,
                                       '1.2.840.10008.5.1.1.40.1')
@@ -573,19 +584,31 @@ class TestAssociationSendNGet(object):
         assert ds is None
         assoc.release()
         assert assoc.is_released
-        self.scp.stop()
+
+        scp.shutdown()
 
     def test_rsp_warning(self):
         """Test receiving a warning response from the peer"""
-        self.scp = DummyGetSCP()
-        self.scp.status = 0x0116
-        self.scp.start()
-        ae = AE()
-        ae.add_requested_context(DisplaySystemSOPClass)
+        def handle(event):
+            ds = Dataset()
+            ds.PatientName = 'Test'
+            ds.SOPClassUID = DisplaySystemSOPClass
+            ds.SOPInstanceUID = '1.2.3.4'
+            return 0x0116, ds
+
+        self.ae = ae = AE()
         ae.acse_timeout = 5
         ae.dimse_timeout = 5
+        ae.network_timeout = 5
+        ae.add_supported_context(DisplaySystemSOPClass)
+        scp = ae.start_server(
+            ('', 11112), block=False, evt_handlers=[(evt.EVT_N_GET, handle)]
+        )
+
+        ae.add_requested_context(DisplaySystemSOPClass)
         assoc = ae.associate('localhost', 11112)
         assert assoc.is_established
+
         status, ds = assoc.send_n_get([(0x7fe0,0x0010)],
                                       DisplaySystemSOPClass,
                                       '1.2.840.10008.5.1.1.40.1')
@@ -597,18 +620,31 @@ class TestAssociationSendNGet(object):
         assert ds.SOPInstanceUID == '1.2.3.4'
         assoc.release()
         assert assoc.is_released
-        self.scp.stop()
+
+        scp.shutdown()
 
     def test_rsp_success(self):
         """Test receiving a success response from the peer"""
-        self.scp = DummyGetSCP()
-        self.scp.start()
-        ae = AE()
-        ae.add_requested_context(DisplaySystemSOPClass)
+        def handle(event):
+            ds = Dataset()
+            ds.PatientName = 'Test'
+            ds.SOPClassUID = DisplaySystemSOPClass
+            ds.SOPInstanceUID = '1.2.3.4'
+            return 0x0000, ds
+
+        self.ae = ae = AE()
         ae.acse_timeout = 5
         ae.dimse_timeout = 5
+        ae.network_timeout = 5
+        ae.add_supported_context(DisplaySystemSOPClass)
+        scp = ae.start_server(
+            ('', 11112), block=False, evt_handlers=[(evt.EVT_N_GET, handle)]
+        )
+
+        ae.add_requested_context(DisplaySystemSOPClass)
         assoc = ae.associate('localhost', 11112)
         assert assoc.is_established
+
         status, ds = assoc.send_n_get([(0x7fe0,0x0010)],
                                       DisplaySystemSOPClass,
                                       '1.2.840.10008.5.1.1.40.1')
@@ -620,19 +656,31 @@ class TestAssociationSendNGet(object):
         assert ds.SOPInstanceUID == '1.2.3.4'
         assoc.release()
         assert assoc.is_released
-        self.scp.stop()
+
+        scp.shutdown()
 
     def test_rsp_unknown_status(self):
         """Test unknown status value returned by peer"""
-        self.scp = DummyGetSCP()
-        self.scp.status = 0xFFF0
-        self.scp.start()
-        ae = AE()
-        ae.add_requested_context(DisplaySystemSOPClass)
+        def handle(event):
+            ds = Dataset()
+            ds.PatientName = 'Test'
+            ds.SOPClassUID = DisplaySystemSOPClass
+            ds.SOPInstanceUID = '1.2.3.4'
+            return 0xFFF0, ds
+
+        self.ae = ae = AE()
         ae.acse_timeout = 5
         ae.dimse_timeout = 5
+        ae.network_timeout = 5
+        ae.add_supported_context(DisplaySystemSOPClass)
+        scp = ae.start_server(
+            ('', 11112), block=False, evt_handlers=[(evt.EVT_N_GET, handle)]
+        )
+
+        ae.add_requested_context(DisplaySystemSOPClass)
         assoc = ae.associate('localhost', 11112)
         assert assoc.is_established
+
         status, ds = assoc.send_n_get([(0x7fe0,0x0010)],
                                       DisplaySystemSOPClass,
                                       '1.2.840.10008.5.1.1.40.1')
@@ -640,7 +688,8 @@ class TestAssociationSendNGet(object):
         assert ds is None
         assoc.release()
         assert assoc.is_released
-        self.scp.stop()
+
+        scp.shutdown()
 
     def test_rsp_bad_dataset(self):
         """Test handler returns bad dataset"""
@@ -717,18 +766,26 @@ class TestAssociationSendNGet(object):
 
     def test_extra_status(self):
         """Test extra status elements are available."""
-        self.scp = DummyGetSCP()
-        self.scp.status = Dataset()
-        self.scp.status.Status = 0xFFF0
-        self.scp.status.ErrorComment = 'Some comment'
-        self.scp.status.ErrorID = 12
-        self.scp.start()
-        ae = AE()
-        ae.add_requested_context(DisplaySystemSOPClass)
+        def handle(event):
+            ds = Dataset()
+            ds.Status = 0xFFF0
+            ds.ErrorComment = 'Some comment'
+            ds.ErrorID = 12
+            return ds, None
+
+        self.ae = ae = AE()
         ae.acse_timeout = 5
         ae.dimse_timeout = 5
+        ae.network_timeout = 5
+        ae.add_supported_context(DisplaySystemSOPClass)
+        scp = ae.start_server(
+            ('', 11112), block=False, evt_handlers=[(evt.EVT_N_GET, handle)]
+        )
+
+        ae.add_requested_context(DisplaySystemSOPClass)
         assoc = ae.associate('localhost', 11112)
         assert assoc.is_established
+
         status, ds = assoc.send_n_get([(0x7fe0,0x0010)],
                                       DisplaySystemSOPClass,
                                       '1.2.840.10008.5.1.1.40.1')
@@ -738,7 +795,8 @@ class TestAssociationSendNGet(object):
         assert ds is None
         assoc.release()
         assert assoc.is_released
-        self.scp.stop()
+
+        scp.shutdown()
 
 
 class TestAssociationSendNSet(object):
