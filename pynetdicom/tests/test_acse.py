@@ -763,7 +763,7 @@ class TestUserIdentityNegotiation(object):
 
     @pytest.mark.parametrize("req, rsp", REFERENCE_USER_IDENTITY_REQUEST)
     def test_handler(self, req, rsp):
-        """Test the AE.on_user_identity callback"""
+        """Test the handler bound to evt.EVT_USER_ID"""
         attrs = {}
         def handle(event):
             attrs['assoc'] = event.assoc
@@ -908,9 +908,6 @@ class TestUserIdentityNegotiation(object):
         ae.add_requested_context(VerificationSOPClass)
         scp = ae.start_server(('', 11112), block=False, evt_handlers=handlers)
 
-        def on_user_identity(usr_type, primary, secondary, info):
-            return True, b'\x00\x01'
-
         ae.acse_timeout = 5
         ae.dimse_timeout = 5
 
@@ -1033,7 +1030,7 @@ class TestSOPClassExtendedNegotiation(object):
             self.ae.shutdown()
 
     def test_check_ext_no_req(self):
-        """Test the default implementation of on_sop_class_extended"""
+        """Test the an empty SOP Extended request"""
         self.ae = ae = AE()
         ae.add_supported_context(VerificationSOPClass)
         ae.add_requested_context(VerificationSOPClass)
@@ -1056,7 +1053,7 @@ class TestSOPClassExtendedNegotiation(object):
         scp.shutdown()
 
     def test_check_ext_default(self):
-        """Test the default implementation of on_sop_class_extended"""
+        """Test the default handler bound to evt.EVT_SOP_EXTENDED"""
         self.ae = ae = AE()
         ae.add_supported_context(VerificationSOPClass)
         ae.add_requested_context(VerificationSOPClass)
@@ -1086,7 +1083,7 @@ class TestSOPClassExtendedNegotiation(object):
         scp.shutdown()
 
     def test_check_ext_user_implemented_none(self):
-        """Test the default implementation of on_sop_class_extended"""
+        """Test the handler returning the request"""
         def handle(event):
             return event.app_info
 
@@ -1130,7 +1127,7 @@ class TestSOPClassExtendedNegotiation(object):
         scp.shutdown()
 
     def test_check_ext_bad_implemented_raises(self):
-        """Test the default implementation of on_sop_class_extended"""
+        """Test exception raised by handler"""
         def handle(event):
             raise ValueError
             return event.app_info
@@ -1167,7 +1164,7 @@ class TestSOPClassExtendedNegotiation(object):
         scp.shutdown()
 
     def test_check_ext_bad_implemented_type(self):
-        """Test the default implementation of on_sop_class_extended"""
+        """Test bad type returned by handler"""
         def handle(event):
             return b'\x01\x02'
 
@@ -1203,7 +1200,7 @@ class TestSOPClassExtendedNegotiation(object):
         scp.shutdown()
 
     def test_check_ext_bad_implemented_item_value(self):
-        """Test the default implementation of on_sop_class_extended"""
+        """Test bad value returned by handler"""
         def handle(event):
             out = {}
             for k, v in event.app_info.items():
@@ -1439,7 +1436,7 @@ class TestSOPClassCommonExtendedNegotiation(object):
             self.ae.shutdown()
 
     def test_check_ext_no_req(self):
-        """Test the default implementation of on_sop_class_common_extended"""
+        """Test the default handler for evt.EVT_SOP_COMMON"""
         self.ae = ae = AE()
         ae.add_supported_context(VerificationSOPClass)
         ae.add_requested_context(VerificationSOPClass)
@@ -1460,7 +1457,7 @@ class TestSOPClassCommonExtendedNegotiation(object):
         scp.shutdown()
 
     def test_check_ext_default(self):
-        """Test the default implementation of on_sop_class_extended"""
+        """Test the default handler implementation"""
         self.ae = ae = AE()
         ae.add_supported_context(VerificationSOPClass)
         ae.add_requested_context(VerificationSOPClass)
@@ -1495,7 +1492,7 @@ class TestSOPClassCommonExtendedNegotiation(object):
         scp.shutdown()
 
     def test_check_ext_user_implemented_none(self):
-        """Test the default implementation of on_sop_class_common_extended"""
+        """Test handler returning request"""
         def handle(event):
             return event.items
 
@@ -1535,7 +1532,7 @@ class TestSOPClassCommonExtendedNegotiation(object):
         scp.shutdown()
 
     def test_check_ext_bad_implemented_raises(self):
-        """Test the default implementation of on_sop_class_extended"""
+        """Test exception in handler"""
         def handle(event):
             raise ValueError
             return event.items
@@ -1577,7 +1574,7 @@ class TestSOPClassCommonExtendedNegotiation(object):
         scp.shutdown()
 
     def test_check_ext_bad_implemented_type(self):
-        """Test the default implementation of on_sop_class_extended"""
+        """Test bad type returned by handler"""
         def handle(event):
             return b'\x00\x01'
 
@@ -1714,7 +1711,7 @@ class TestAsyncOpsNegotiation(object):
             self.ae.shutdown()
 
     def test_check_async_no_req(self):
-        """Test the default implementation of on_async_ops_window"""
+        """Test the default evt.EVT_ASYNC_OPS handler"""
         self.ae = ae = AE()
         ae.add_supported_context(VerificationSOPClass)
         ae.add_requested_context(VerificationSOPClass)

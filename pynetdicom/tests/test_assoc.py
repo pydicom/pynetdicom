@@ -3242,7 +3242,7 @@ class TestAssociationSendCMove(object):
         assert assoc.is_released
 
         store_scp.shutdown()
-        move_scp.shu
+        move_scp.shutdown()
 
     def test_multiple_c_move(self):
         """Test multiple C-MOVE operation requests"""

@@ -47,33 +47,25 @@ class ACSE(object):
         Returns
         -------
         pdu_primitives.AsynchronousOperationsWindowNegotiation or None
-            If the `AE.on_async_ops_window` callback hasn't been implemented
+            If the `evt.EVT_ASYNC_OPS` callback hasn't been implemented
             then returns None, otherwise returns an
             AsynchronousOperationsWindowNegotiation item with the default
             values for the number of operations invoked/performed (1, 1).
         """
         # pylint: disable=broad-except
         try:
-            # TODO: refactor in v1.4
             # Response is always ignored as async ops is not supported
-            default = evt.get_default_handler(evt.EVT_ASYNC_OPS)
-            if self.assoc.get_handlers(evt.EVT_ASYNC_OPS) != default:
-                inv, perf = self.assoc.requestor.asynchronous_operations
-                _ = evt.trigger(
-                    self.assoc,
-                    evt.EVT_ASYNC_OPS,
-                    {'nr_invoked' : inv, 'nr_performed' : perf}
-                )
-            else:
-                _ = self.assoc.ae.on_async_ops_window(
-                    *self.assoc.requestor.asynchronous_operations
-                )
+            inv, perf = self.assoc.requestor.asynchronous_operations
+            _ = evt.trigger(
+                self.assoc,
+                evt.EVT_ASYNC_OPS,
+                {'nr_invoked' : inv, 'nr_performed' : perf}
+            )
         except NotImplementedError:
             return None
         except Exception as exc:
             LOGGER.error(
-                "Exception raised in user's 'on_async_ops_window' "
-                "implementation"
+                "Exception raised in handler bound to 'evt.EVT_ASYNC_OPS'"
             )
             LOGGER.exception(exc)
 
@@ -94,21 +86,14 @@ class ACSE(object):
         """
         # pylint: disable=broad-except
         try:
-            default = evt.get_default_handler(evt.EVT_SOP_COMMON)
-            if self.assoc.get_handlers(evt.EVT_SOP_COMMON) != default:
-                rsp = evt.trigger(
-                    self.assoc,
-                    evt.EVT_SOP_COMMON,
-                    {'items' : self.assoc.requestor.sop_class_common_extended}
-                )
-            else:
-                rsp = self.assoc.ae.on_sop_class_common_extended(
-                    self.assoc.requestor.sop_class_common_extended
-                )
+            rsp = evt.trigger(
+                self.assoc,
+                evt.EVT_SOP_COMMON,
+                {'items' : self.assoc.requestor.sop_class_common_extended}
+            )
         except Exception as exc:
             LOGGER.error(
-                "Exception raised in user's 'on_sop_class_common_extended' "
-                "implementation"
+                "Exception raised in handler bound to 'evt.EVT_SOP_COMMON'"
             )
             LOGGER.exception(exc)
             return {}
@@ -120,7 +105,8 @@ class ACSE(object):
             }
         except Exception as exc:
             LOGGER.error(
-                "Invalid type returned by user's 'evt.EVT_SOP_COMMON' handler"
+                "Invalid type returned by handler bound to "
+                "'evt.EVT_SOP_COMMON'"
             )
             LOGGER.exception(exc)
             return {}
@@ -137,29 +123,22 @@ class ACSE(object):
         """
         # pylint: disable=broad-except
         try:
-            default = evt.get_default_handler(evt.EVT_SOP_EXTENDED)
-            if self.assoc.get_handlers(evt.EVT_SOP_EXTENDED) != default:
-                user_response = evt.trigger(
-                    self.assoc,
-                    evt.EVT_SOP_EXTENDED,
-                    {'app_info' : self.assoc.requestor.sop_class_extended}
-                )
-            else:
-                user_response = self.assoc.ae.on_sop_class_extended(
-                    self.assoc.requestor.sop_class_extended
-                )
+            user_response = evt.trigger(
+                self.assoc,
+                evt.EVT_SOP_EXTENDED,
+                {'app_info' : self.assoc.requestor.sop_class_extended}
+            )
         except Exception as exc:
             user_response = {}
             LOGGER.error(
-                "Exception raised in user's 'on_sop_class_extended' "
-                "implementation"
+                "Exception raised in handler bound to 'evt.EVT_SOP_EXTENDED'"
             )
             LOGGER.exception(exc)
 
         if not isinstance(user_response, (type(None), dict)):
             LOGGER.error(
-                "Invalid type returned by user's 'on_sop_class_extended' "
-                "implementation"
+                "Invalid type returned by handler bount to "
+                "'evt.EVT_SOP_EXTENDED'"
             )
             user_response = {}
 
@@ -198,26 +177,15 @@ class ACSE(object):
         # The UserIdentityNegotiation (request) item
         req = self.assoc.requestor.user_identity
         try:
-            default = evt.get_default_handler(evt.EVT_USER_ID)
-            if self.assoc.get_handlers(evt.EVT_USER_ID) != default:
-                identity_verified, response = evt.trigger(
-                    self.assoc,
-                    evt.EVT_USER_ID,
-                    {
-                        'user_id_type' : req.user_identity_type,
-                        'primary_field' : req.primary_field,
-                        'secondary_field' : req.secondary_field,
-                    }
-                )
-            else:
-                identity_verified, response = self.assoc.ae.on_user_identity(
-                    req.user_identity_type,
-                    req.primary_field,
-                    req.secondary_field,
-                    {
-                        'requestor' : self.assoc.requestor.info,
-                    }
-                )
+            identity_verified, response = evt.trigger(
+                self.assoc,
+                evt.EVT_USER_ID,
+                {
+                    'user_id_type' : req.user_identity_type,
+                    'primary_field' : req.primary_field,
+                    'secondary_field' : req.secondary_field,
+                }
+            )
         except NotImplementedError:
             # If the user hasn't implemented identity negotiation then
             #   default to accepting the association
@@ -225,7 +193,7 @@ class ACSE(object):
         except Exception as exc:
             # If the user has implemented identity negotiation but an exception
             #   occurred then reject the association
-            LOGGER.error("Exception in handling user identity negotiation")
+            LOGGER.error("Exception in handler bound to 'evt.EVT_USER_ID'")
             LOGGER.exception(exc)
             return False, None
 
