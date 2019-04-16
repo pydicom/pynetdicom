@@ -2439,9 +2439,7 @@ class Association(threading.Thread):
 
         # If `rsp` is None then the DIMSE timeout expired so abort
         if rsp is None:
-            print(self.is_established)
             if self.is_established:
-                print('here')
                 LOGGER.error("Connection closed or timed-out")
                 self.abort()
             return Dataset()
