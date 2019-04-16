@@ -434,7 +434,8 @@ class QueryRetrieveServiceClass(ServiceClass):
                                        '1.2.840.10008.5.1.4.39.2',
                                        '1.2.840.10008.5.1.4.43.2',
                                        '1.2.840.10008.5.1.4.44.2',
-                                       '1.2.840.10008.5.1.4.45.2']:
+                                       '1.2.840.10008.5.1.4.45.2',
+                                       '1.2.840.10008.5.1.4.1.1.200.4']:
             self.statuses = QR_FIND_SERVICE_CLASS_STATUS
             self._find_scp(req, context)
         elif context.abstract_syntax in ['1.2.840.10008.5.1.4.1.2.1.3',
@@ -447,7 +448,8 @@ class QueryRetrieveServiceClass(ServiceClass):
                                          '1.2.840.10008.5.1.4.39.4',
                                          '1.2.840.10008.5.1.4.43.4',
                                          '1.2.840.10008.5.1.4.44.4',
-                                         '1.2.840.10008.5.1.4.45.4']:
+                                         '1.2.840.10008.5.1.4.45.4',
+                                         '1.2.840.10008.5.1.4.1.1.200.6']:
             self.statuses = QR_GET_SERVICE_CLASS_STATUS
             self._get_scp(req, context)
         elif context.abstract_syntax in ['1.2.840.10008.5.1.4.1.2.1.2',
@@ -459,7 +461,8 @@ class QueryRetrieveServiceClass(ServiceClass):
                                          '1.2.840.10008.5.1.4.39.3',
                                          '1.2.840.10008.5.1.4.43.3',
                                          '1.2.840.10008.5.1.4.44.3',
-                                         '1.2.840.10008.5.1.4.45.3']:
+                                         '1.2.840.10008.5.1.4.45.3',
+                                         '1.2.840.10008.5.1.4.1.1.200.5']:
             self.statuses = QR_MOVE_SERVICE_CLASS_STATUS
             self._move_scp(req, context)
         else:
@@ -1924,4 +1927,8 @@ class ColorPaletteQueryRetrieveServiceClass(QueryRetrieveServiceClass):
 
 class ImplantTemplateQueryRetrieveServiceClass(QueryRetrieveServiceClass):
     """Implementation of the Implant Template QR Service."""
+    pass
+
+class ProtocolApprovalQueryRetrieveServiceClass(QueryRetrieveServiceClass):
+    """Implementation of the Protocol Approval QR Service."""
     pass

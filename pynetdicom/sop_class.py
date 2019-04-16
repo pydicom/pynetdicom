@@ -19,6 +19,7 @@ from pynetdicom.service_class import (
     DefinedProcedureProtocolQueryRetrieveServiceClass,
     ColorPaletteQueryRetrieveServiceClass,
     ImplantTemplateQueryRetrieveServiceClass,
+    ProtocolApprovalQueryRetrieveServiceClass,
 )
 from pynetdicom.service_class_n import (
     DisplaySystemManagementServiceClass,
@@ -80,6 +81,8 @@ def uid_to_service_class(uid):
         return ServiceClass  # Not yet implemented
     elif uid in _RT_MACHINE_VERIFICATION_CLASSES.values():
         return ServiceClass  # Not yet implemented
+    elif uid in _PROTOCOL_APPROVAL_SOP_CLASSES.values():
+        return ProtocolApprovalQueryRetrieveServiceClass
 
     # No SCP implemented
     return ServiceClass
@@ -365,6 +368,12 @@ _RT_MACHINE_VERIFICATION_CLASSES = {
     'RTIonMachineVerification' : '1.2.840.10008.5.1.4.34.9',
 }
 
+_PROTOCOL_APPROVAL_SOP_CLASSES = {
+    'ProtocolApprovalInformationModelFind' : '1.2.840.10008.5.1.4.1.1.200.4',
+    'ProtocolApprovalInformationModelMove' : '1.2.840.10008.5.1.4.1.1.200.5',
+    'ProtocolApprovalInformationModelGet' : '1.2.840.10008.5.1.4.1.1.200.6'
+}
+
 # pylint: enable=line-too-long
 _generate_sop_classes(_VERIFICATION_CLASSES)
 _generate_sop_classes(_STORAGE_CLASSES)
@@ -383,6 +392,7 @@ _generate_sop_classes(_PROCEDURE_STEP_CLASSES)
 _generate_sop_classes(_MEDIA_STORAGE_CLASSES)
 _generate_sop_classes(_UNIFIED_PROCEDURE_STEP_CLASSES)
 _generate_sop_classes(_RT_MACHINE_VERIFICATION_CLASSES)
+_generate_sop_classes(_PROTOCOL_APPROVAL_SOP_CLASSES)
 
 
 def uid_to_sop_class(uid):

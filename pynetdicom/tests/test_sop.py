@@ -22,6 +22,7 @@ from pynetdicom.sop_class import (
     _MEDIA_STORAGE_CLASSES,
     _UNIFIED_PROCEDURE_STEP_CLASSES,
     _RT_MACHINE_VERIFICATION_CLASSES,
+    _PROTOCOL_APPROVAL_SOP_CLASSES,
     VerificationSOPClass,
     CTImageStorage,
     StudyRootQueryRetrieveInformationModelFind,
@@ -33,6 +34,9 @@ from pynetdicom.sop_class import (
     DefinedProcedureProtocolInformationModelFind,
     ColorPaletteInformationModelMove,
     ImplantTemplateGroupInformationModelFind,
+    ProtocolApprovalInformationModelFind,
+    ProtocolApprovalInformationModelMove,
+    ProtocolApprovalInformationModelGet,
 )
 from pynetdicom.service_class import (
     ServiceClass,
@@ -47,6 +51,7 @@ from pynetdicom.service_class import (
     DefinedProcedureProtocolQueryRetrieveServiceClass,
     ColorPaletteQueryRetrieveServiceClass,
     ImplantTemplateQueryRetrieveServiceClass,
+    ProtocolApprovalQueryRetrieveServiceClass,
 )
 from pynetdicom.service_class_n import (
     DisplaySystemManagementServiceClass,
@@ -81,6 +86,8 @@ def test_all_sop_classes():
     for uid in _UNIFIED_PROCEDURE_STEP_CLASSES.values():
         assert uid in UID_dictionary
     for uid in _RT_MACHINE_VERIFICATION_CLASSES.values():
+        assert uid in UID_dictionary
+    for uid in _PROTOCOL_APPROVAL_SOP_CLASSES.values():
         assert uid in UID_dictionary
 
 def test_all_service_classes():
@@ -179,6 +186,11 @@ class TestUIDToServiceClass(object):
         for uid in _DISPLAY_SYSTEM_CLASSES.values():
             assert uid_to_service_class(uid) == DisplaySystemManagementServiceClass
 
+    def test_protocol_approval_uids(self):
+        """Test that Protocol Approval SOP Class UIDs work correctly."""
+        for uid in _PROTOCOL_APPROVAL_SOP_CLASSES.values():
+            assert uid_to_service_class(uid) == ProtocolApprovalQueryRetrieveServiceClass
+
     def test_unknown_uid(self):
         """Test that an unknown UID returns default service class."""
         assert uid_to_service_class('1.2.3') == ServiceClass
@@ -253,3 +265,8 @@ class TestSOPClass(object):
         """Test an Implant Template Service SOP Class."""
         assert ImplantTemplateGroupInformationModelFind == '1.2.840.10008.5.1.4.45.2'
         assert ImplantTemplateGroupInformationModelFind.service_class == ImplantTemplateQueryRetrieveServiceClass
+
+    def test_protocol_approval_sop(self):
+        """Test an Protocol Approval Service SOP Class."""
+        assert ProtocolApprovalInformationModelFind == '1.2.840.10008.5.1.4.1.1.200.4'
+        assert ProtocolApprovalInformationModelFind.service_class == ProtocolApprovalQueryRetrieveServiceClass
