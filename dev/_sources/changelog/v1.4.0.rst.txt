@@ -1,0 +1,31 @@
+.. _v1.4.0:
+
+1.4.0
+=====
+
+
+Fixes
+.....
+
+* Fixed Query Retrieve service class not responded with 0x0000 Success if no
+  matches were yielded by the C-FIND request handler.
+
+Enhancements
+............
+
+
+
+Changes
+.......
+
+* The following have been removed as per planned deprecation:
+
+  * ``AE.on_c_store()``, ``AE.on_c_echo()``, ``AE.on_c_find()``,
+    ``AE.on_c_get()``, ``AE.on_c_move()``, ``AE.on_n_get()``,
+    ``AE.on_async_ops_window()``, ``AE.on_sop_class_common_extended()``,
+    ``AE.on_sop_class_extended()``, ``AE.on_user_identity()``,
+    ``AE.on_association_accepted()``, ``AE.on_association_rejected()``,
+    ``AE.on_association_released()``, ``AE.on_association_aborted()``,
+  * ``_config.DECODE_STORE_DATASETS``
+  * ``DIMSEServiceProvider.on_send_dimse_message()``,
+    ``DIMSEServiceProvider.on_receive_dimse_message()``,

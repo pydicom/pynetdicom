@@ -107,7 +107,8 @@
 <li class="toctree-l1"><a class="reference internal" href="../user/index.html">User Guide</a></li>
 </ul>
 <ul>
-<li class="toctree-l1"><a class="reference internal" href="../release_notes.html">1.3.0</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../release_notes.html">1.4.0</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../release_notes.html#v1-3-0">1.3.0</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../release_notes.html#v1-2-0">1.2.0</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../release_notes.html#v1-1-0">1.1.0</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../release_notes.html#v1-0-0">1.0.0</a></li>
@@ -195,11 +196,11 @@ codes are used internally within pynetdicom to help aid in debugging.</p>
 <td><p>Non-service specific</p></td>
 </tr>
 <tr class="row-odd"><td><p>0xC001</p></td>
-<td><p>User’s callback implementation returned a status
+<td><p>Event handler returned/yielded a status
 dataset with no (0000,0900) <em>Status</em> element.</p></td>
 </tr>
 <tr class="row-even"><td><p>0xC002</p></td>
-<td><p>User’s callback implementation returned an invalid
+<td><p>Event handler returned/yielded an invalid
 status object (not a pydicom Dataset or an int)</p></td>
 </tr>
 <tr class="row-odd"><td><p>0xC200 to 0xC2FF</p></td>
@@ -209,8 +210,8 @@ status object (not a pydicom Dataset or an int)</p></td>
 <td><p>Failed to decode the dataset received from the peer</p></td>
 </tr>
 <tr class="row-odd"><td><p>0xC211</p></td>
-<td><p>Unhandled exception raised by the user’s implementation
-of the on_c_store callback</p></td>
+<td><p>Unhandled exception raised by the handler bound to
+<code class="docutils literal notranslate"><span class="pre">evt.EVT_C_STORE</span></code></p></td>
 </tr>
 <tr class="row-even"><td><p>0xC300 to 0xC3FF</p></td>
 <td><p>C-FIND related</p></td>
@@ -219,12 +220,12 @@ of the on_c_store callback</p></td>
 <td><p>Failed to decode the dataset received from the peer</p></td>
 </tr>
 <tr class="row-even"><td><p>0xC311</p></td>
-<td><p>Unhandled exception raised by the user’s implementation
-of the on_c_find callback</p></td>
+<td><p>Unhandled exception raised by the handler bound to
+<code class="docutils literal notranslate"><span class="pre">evt.EVT_C_FIND</span></code></p></td>
 </tr>
 <tr class="row-odd"><td><p>0xC312</p></td>
-<td><p>Failed to encode the dataset received from the user’s
-implementation of the on_c_find_callback</p></td>
+<td><p>Failed to encode the dataset received from the handler
+bound to <code class="docutils literal notranslate"><span class="pre">evt.EVT_C_FIND</span></code></p></td>
 </tr>
 <tr class="row-even"><td><p>0xC400 to 0xC4FF</p></td>
 <td><p>C-GET related</p></td>
@@ -233,11 +234,11 @@ implementation of the on_c_find_callback</p></td>
 <td><p>Failed to decode the dataset received from the peer</p></td>
 </tr>
 <tr class="row-even"><td><p>0xC411</p></td>
-<td><p>Unhandled exception raised by the user’s implementation
-of the on_c_get callback</p></td>
+<td><p>Unhandled exception raised by the handler bound to
+<code class="docutils literal notranslate"><span class="pre">evt.EVT_C_GET</span></code></p></td>
 </tr>
 <tr class="row-odd"><td><p>0xC413</p></td>
-<td><p>The user’s implementation of the on_c_get callback
+<td><p>The handler bound to <code class="docutils literal notranslate"><span class="pre">evt.EVT_C_GET</span></code>
 yielded an invalid number of sub-operations value</p></td>
 </tr>
 <tr class="row-even"><td><p>0xC500 to 0xC5FF</p></td>
@@ -247,20 +248,20 @@ yielded an invalid number of sub-operations value</p></td>
 <td><p>Failed to decode the dataset received from the peer</p></td>
 </tr>
 <tr class="row-even"><td><p>0xC511</p></td>
-<td><p>Unhandled exception raised by the user’s implementation
-of the on_c_move callback</p></td>
+<td><p>Unhandled exception raised by the handler bound to
+<code class="docutils literal notranslate"><span class="pre">evt.EVT_C_MOVE</span></code></p></td>
 </tr>
 <tr class="row-odd"><td><p>0xC513</p></td>
-<td><p>The user’s implementation of the on_c_move callback
+<td><p>The handler bound to <code class="docutils literal notranslate"><span class="pre">evt.EVT_C_MOVE</span></code>
 yielded an invalid number of sub-operations value</p></td>
 </tr>
 <tr class="row-even"><td><p>0xC514</p></td>
-<td><p>The user’s implementation of the on_c_move callback
+<td><p>The handler bound to <code class="docutils literal notranslate"><span class="pre">evt.EVT_C_MOVE</span></code>
 failed to yield the (address, port) pair and/or the
 number of sub-operations value</p></td>
 </tr>
 <tr class="row-odd"><td><p>0xC515</p></td>
-<td><p>The user’s implementation of the on_c_move callback
+<td><p>The handler bound to <code class="docutils literal notranslate"><span class="pre">evt.EVT_C_MOVE</span></code>
 failed to yield a valid (address, port) pair</p></td>
 </tr>
 </tbody>

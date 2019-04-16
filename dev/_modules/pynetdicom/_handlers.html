@@ -107,7 +107,8 @@
 <li class="toctree-l1"><a class="reference internal" href="../../user/index.html">User Guide</a></li>
 </ul>
 <ul>
-<li class="toctree-l1"><a class="reference internal" href="../../release_notes.html">1.3.0</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../release_notes.html">1.4.0</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../release_notes.html#v1-3-0">1.3.0</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../../release_notes.html#v1-2-0">1.2.0</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../../release_notes.html#v1-1-0">1.1.0</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../../release_notes.html#v1-0-0">1.0.0</a></li>
@@ -3225,6 +3226,12 @@
 <span class="sd">        * ``timestamp`` : the</span>
 <span class="sd">          `date and time &lt;https://docs.python.org/3/library/datetime.html#datetime-objects&gt;`_</span>
 <span class="sd">          that the N-GET request was processed by the service.</span>
+
+<span class="sd">        ``Event`` properties are:</span>
+
+<span class="sd">        * ``attribute_identifiers`` : a list of attribute</span>
+<span class="sd">          :py:class:`Tags &lt;pydicom.tag.BaseTag&gt;` contained within the</span>
+<span class="sd">          N-GET request&#39;s *Attribute Identifier List* parameter.</span>
 
 <span class="sd">    Returns</span>
 <span class="sd">    -------</span>

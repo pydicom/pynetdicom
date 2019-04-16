@@ -107,7 +107,8 @@
 <li class="toctree-l1"><a class="reference internal" href="../../user/index.html">User Guide</a></li>
 </ul>
 <ul>
-<li class="toctree-l1"><a class="reference internal" href="../../release_notes.html">1.3.0</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../release_notes.html">1.4.0</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../release_notes.html#v1-3-0">1.3.0</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../../release_notes.html#v1-2-0">1.2.0</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../../release_notes.html#v1-1-0">1.1.0</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../../release_notes.html#v1-0-0">1.0.0</a></li>
@@ -204,7 +205,7 @@
     <span class="sd">&quot;&quot;&quot;Implementation of the Display System Management Service Class.&quot;&quot;&quot;</span>
     <span class="n">statuses</span> <span class="o">=</span> <span class="n">GENERAL_STATUS</span>
 
-<div class="viewcode-block" id="DisplaySystemManagementServiceClass.SCP"><a class="viewcode-back" href="../../reference/generated/pynetdicom.service_class_n.DisplaySystemManagementServiceClass.html#pynetdicom.service_class_n.DisplaySystemManagementServiceClass.SCP">[docs]</a>    <span class="k">def</span> <span class="nf">SCP</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">req</span><span class="p">,</span> <span class="n">context</span><span class="p">,</span> <span class="n">info</span><span class="p">):</span>
+<div class="viewcode-block" id="DisplaySystemManagementServiceClass.SCP"><a class="viewcode-back" href="../../reference/generated/pynetdicom.service_class_n.DisplaySystemManagementServiceClass.html#pynetdicom.service_class_n.DisplaySystemManagementServiceClass.SCP">[docs]</a>    <span class="k">def</span> <span class="nf">SCP</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">req</span><span class="p">,</span> <span class="n">context</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;The implementation for the DIMSE N-GET service.</span>
 
 <span class="sd">        Parameters</span>
@@ -213,12 +214,9 @@
 <span class="sd">            The N-GET request primitive sent by the peer.</span>
 <span class="sd">        context : presentation.PresentationContext</span>
 <span class="sd">            The presentation context that the service is operating under.</span>
-<span class="sd">        info : dict</span>
-<span class="sd">            A dict containing details about the association.</span>
 
 <span class="sd">        See Also</span>
 <span class="sd">        --------</span>
-<span class="sd">        ae.ApplicationEntity.on_n_get</span>
 <span class="sd">        association.Association.send_n_get</span>
 
 <span class="sd">        Notes</span>
@@ -266,45 +264,19 @@
         <span class="n">rsp</span><span class="o">.</span><span class="n">AffectedSOPClassUID</span> <span class="o">=</span> <span class="n">req</span><span class="o">.</span><span class="n">RequestedSOPClassUID</span>
         <span class="n">rsp</span><span class="o">.</span><span class="n">AffectedSOPInstanceUID</span> <span class="o">=</span> <span class="n">req</span><span class="o">.</span><span class="n">RequestedSOPInstanceUID</span>
 
-        <span class="n">default_handler</span> <span class="o">=</span> <span class="n">evt</span><span class="o">.</span><span class="n">get_default_handler</span><span class="p">(</span><span class="n">evt</span><span class="o">.</span><span class="n">EVT_N_GET</span><span class="p">)</span>
-        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">assoc</span><span class="o">.</span><span class="n">get_handlers</span><span class="p">(</span><span class="n">evt</span><span class="o">.</span><span class="n">EVT_N_GET</span><span class="p">)</span> <span class="o">!=</span> <span class="n">default_handler</span><span class="p">:</span>
-            <span class="k">try</span><span class="p">:</span>
-                <span class="p">(</span><span class="n">rsp_status</span><span class="p">,</span> <span class="n">ds</span><span class="p">)</span> <span class="o">=</span> <span class="n">evt</span><span class="o">.</span><span class="n">trigger</span><span class="p">(</span>
-                    <span class="bp">self</span><span class="o">.</span><span class="n">assoc</span><span class="p">,</span>
-                    <span class="n">evt</span><span class="o">.</span><span class="n">EVT_N_GET</span><span class="p">,</span>
-                    <span class="p">{</span>
-                        <span class="s1">&#39;request&#39;</span> <span class="p">:</span> <span class="n">req</span><span class="p">,</span>
-                        <span class="s1">&#39;context&#39;</span> <span class="p">:</span> <span class="n">context</span><span class="o">.</span><span class="n">as_tuple</span><span class="p">,</span>
-                    <span class="p">}</span>
-                <span class="p">)</span>
-            <span class="k">except</span> <span class="ne">Exception</span> <span class="k">as</span> <span class="n">exc</span><span class="p">:</span>
-                <span class="n">LOGGER</span><span class="o">.</span><span class="n">error</span><span class="p">(</span>
-                    <span class="s2">&quot;Exception in the handler bound to &#39;evt.EVT_N_GET&#39;&quot;</span>
-                <span class="p">)</span>
-                <span class="n">LOGGER</span><span class="o">.</span><span class="n">exception</span><span class="p">(</span><span class="n">exc</span><span class="p">)</span>
-                <span class="c1"># Processing failure - Error in on_n_get callback</span>
-                <span class="n">rsp_status</span> <span class="o">=</span> <span class="mh">0x0110</span>
-        <span class="k">else</span><span class="p">:</span>
-            <span class="n">info</span><span class="p">[</span><span class="s1">&#39;parameters&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="p">{</span>
-                <span class="s1">&#39;message_id&#39;</span> <span class="p">:</span> <span class="n">req</span><span class="o">.</span><span class="n">MessageID</span><span class="p">,</span>
-                <span class="s1">&#39;requested_sop_class_uid&#39;</span> <span class="p">:</span> <span class="n">req</span><span class="o">.</span><span class="n">RequestedSOPClassUID</span><span class="p">,</span>
-                <span class="s1">&#39;requested_sop_instance_uid&#39;</span> <span class="p">:</span> <span class="n">req</span><span class="o">.</span><span class="n">RequestedSOPInstanceUID</span><span class="p">,</span>
-            <span class="p">}</span>
-
-            <span class="c1"># Attempt to run the ApplicationEntity&#39;s on_n_get callback</span>
-            <span class="c1"># pylint: disable=broad-except</span>
-            <span class="k">try</span><span class="p">:</span>
-            <span class="c1"># Send the value rather than the element</span>
-                <span class="p">(</span><span class="n">rsp_status</span><span class="p">,</span> <span class="n">ds</span><span class="p">)</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">ae</span><span class="o">.</span><span class="n">on_n_get</span><span class="p">(</span>
-                    <span class="n">req</span><span class="o">.</span><span class="n">AttributeIdentifierList</span><span class="p">,</span> <span class="n">context</span><span class="o">.</span><span class="n">as_tuple</span><span class="p">,</span> <span class="n">info</span>
-                <span class="p">)</span>
-            <span class="k">except</span> <span class="ne">Exception</span> <span class="k">as</span> <span class="n">exc</span><span class="p">:</span>
-                <span class="n">LOGGER</span><span class="o">.</span><span class="n">error</span><span class="p">(</span>
-                    <span class="s2">&quot;Exception in the ApplicationEntity.on_n_get() callback&quot;</span>
-                <span class="p">)</span>
-                <span class="n">LOGGER</span><span class="o">.</span><span class="n">exception</span><span class="p">(</span><span class="n">exc</span><span class="p">)</span>
-                <span class="c1"># Processing failure - Error in on_n_get callback</span>
-                <span class="n">rsp_status</span> <span class="o">=</span> <span class="mh">0x0110</span>
+        <span class="k">try</span><span class="p">:</span>
+            <span class="n">rsp_status</span><span class="p">,</span> <span class="n">ds</span> <span class="o">=</span> <span class="n">evt</span><span class="o">.</span><span class="n">trigger</span><span class="p">(</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">assoc</span><span class="p">,</span>
+                <span class="n">evt</span><span class="o">.</span><span class="n">EVT_N_GET</span><span class="p">,</span>
+                <span class="p">{</span><span class="s1">&#39;request&#39;</span> <span class="p">:</span> <span class="n">req</span><span class="p">,</span> <span class="s1">&#39;context&#39;</span> <span class="p">:</span> <span class="n">context</span><span class="o">.</span><span class="n">as_tuple</span><span class="p">}</span>
+            <span class="p">)</span>
+        <span class="k">except</span> <span class="ne">Exception</span> <span class="k">as</span> <span class="n">exc</span><span class="p">:</span>
+            <span class="n">LOGGER</span><span class="o">.</span><span class="n">error</span><span class="p">(</span>
+                <span class="s2">&quot;Exception in the handler bound to &#39;evt.EVT_N_GET&#39;&quot;</span>
+            <span class="p">)</span>
+            <span class="n">LOGGER</span><span class="o">.</span><span class="n">exception</span><span class="p">(</span><span class="n">exc</span><span class="p">)</span>
+            <span class="c1"># Processing failure - Error in handler</span>
+            <span class="n">rsp_status</span> <span class="o">=</span> <span class="mh">0x0110</span>
 
         <span class="c1"># Validate rsp_status and set rsp.Status accordingly</span>
         <span class="n">rsp</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">validate_status</span><span class="p">(</span><span class="n">rsp_status</span><span class="p">,</span> <span class="n">rsp</span><span class="p">)</span>
@@ -332,7 +304,7 @@
     <span class="sd">&quot;&quot;&quot;Implementation of the Modality Performed Procedure Step Service Class&quot;&quot;&quot;</span>
     <span class="n">statuses</span> <span class="o">=</span> <span class="n">_PROCEDURE_STEP_STATUS</span>
 
-    <span class="k">def</span> <span class="nf">SCP</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">req</span><span class="p">,</span> <span class="n">context</span><span class="p">,</span> <span class="n">info</span><span class="p">):</span>
+    <span class="k">def</span> <span class="nf">SCP</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">req</span><span class="p">,</span> <span class="n">context</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;</span>
 
 <span class="sd">        Parameters</span>
@@ -342,8 +314,6 @@
 <span class="sd">            sent by the peer.</span>
 <span class="sd">        context : presentation.PresentationContext</span>
 <span class="sd">            The presentation context that the SCP is operating under.</span>
-<span class="sd">        info : dict</span>
-<span class="sd">            A dict containing details about the association.</span>
 <span class="sd">        &quot;&quot;&quot;</span>
         <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">req</span><span class="p">,</span> <span class="n">N_CREATE</span><span class="p">):</span>
             <span class="c1"># Modality Performed Procedure Step</span>
@@ -606,12 +576,9 @@
 <span class="sd">            The N-GET request primitive sent by the peer.</span>
 <span class="sd">        context : presentation.PresentationContext</span>
 <span class="sd">            The presentation context that the service is operating under.</span>
-<span class="sd">        info : dict</span>
-<span class="sd">            A dict containing details about the association.</span>
 
 <span class="sd">        See Also</span>
 <span class="sd">        --------</span>
-<span class="sd">        ae.ApplicationEntity.on_n_get</span>
 <span class="sd">        association.Association.send_n_get</span>
 
 <span class="sd">        Notes</span>
@@ -692,7 +659,7 @@
                 <span class="s2">&quot;Exception in the handler bound to &#39;evt.EVT_N_GET&#39;&quot;</span>
             <span class="p">)</span>
             <span class="n">LOGGER</span><span class="o">.</span><span class="n">exception</span><span class="p">(</span><span class="n">exc</span><span class="p">)</span>
-            <span class="c1"># Processing failure - Error in on_n_get callback</span>
+            <span class="c1"># Processing failure - Error in handler</span>
             <span class="n">rsp</span><span class="o">.</span><span class="n">Status</span> <span class="o">=</span> <span class="mh">0x0110</span>
             <span class="bp">self</span><span class="o">.</span><span class="n">dimse</span><span class="o">.</span><span class="n">send_msg</span><span class="p">(</span><span class="n">rsp</span><span class="p">,</span> <span class="n">context</span><span class="o">.</span><span class="n">context_id</span><span class="p">)</span>
             <span class="k">return</span>

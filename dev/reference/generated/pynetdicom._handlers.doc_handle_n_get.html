@@ -107,7 +107,8 @@
 <li class="toctree-l1"><a class="reference internal" href="../../user/index.html">User Guide</a></li>
 </ul>
 <ul>
-<li class="toctree-l1"><a class="reference internal" href="../../release_notes.html">1.3.0</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../release_notes.html">1.4.0</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../release_notes.html#v1-3-0">1.3.0</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../../release_notes.html#v1-2-0">1.2.0</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../../release_notes.html#v1-1-0">1.1.0</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../../release_notes.html#v1-0-0">1.0.0</a></li>
@@ -179,7 +180,7 @@
 <h1>pynetdicom._handlers.doc_handle_n_get<a class="headerlink" href="#pynetdicom-handlers-doc-handle-n-get" title="Permalink to this headline">¶</a></h1>
 <dl class="function">
 <dt id="pynetdicom._handlers.doc_handle_n_get">
-<code class="descclassname">pynetdicom._handlers.</code><code class="descname">doc_handle_n_get</code><span class="sig-paren">(</span><em>event</em><span class="sig-paren">)</span><a class="reference internal" href="../../_modules/pynetdicom/_handlers.html#doc_handle_n_get"><span class="viewcode-link">[source]</span></a><a class="reference external" href="https://github.com/pydicom/pynetdicom/blob/aac2591b/pynetdicom/_handlers.py#L2991"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pynetdicom._handlers.doc_handle_n_get" title="Permalink to this definition">¶</a></dt>
+<code class="descclassname">pynetdicom._handlers.</code><code class="descname">doc_handle_n_get</code><span class="sig-paren">(</span><em>event</em><span class="sig-paren">)</span><a class="reference internal" href="../../_modules/pynetdicom/_handlers.html#doc_handle_n_get"><span class="viewcode-link">[source]</span></a><a class="reference external" href="https://github.com/pydicom/pynetdicom/blob/109df04a/pynetdicom/_handlers.py#L2991"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pynetdicom._handlers.doc_handle_n_get" title="Permalink to this definition">¶</a></dt>
 <dd><p>Documentation for handlers bound to <code class="docutils literal notranslate"><span class="pre">evt.EVT_N_GET</span></code>.</p>
 <p>User implementation of this event handler is required if one or more
 services that use N-GET are to be supported. If a handler is
@@ -239,6 +240,12 @@ as a <code class="docutils literal notranslate"><span class="pre">presentation.P
 <li><p><code class="docutils literal notranslate"><span class="pre">timestamp</span></code> : the
 <a class="reference external" href="https://docs.python.org/3/library/datetime.html#datetime-objects">date and time</a>
 that the N-GET request was processed by the service.</p></li>
+</ul>
+<p><code class="docutils literal notranslate"><span class="pre">Event</span></code> properties are:</p>
+<ul class="simple">
+<li><p><code class="docutils literal notranslate"><span class="pre">attribute_identifiers</span></code> : a list of attribute
+<a class="reference external" href="https://pydicom.github.io/pydicom/stable/api_ref.html#pydicom.tag.BaseTag" title="(in pydicom v1.2.0rc1)"><code class="xref py py-class docutils literal notranslate"><span class="pre">Tags</span></code></a> contained within the
+N-GET request’s <em>Attribute Identifier List</em> parameter.</p></li>
 </ul>
 </p>
 </dd>

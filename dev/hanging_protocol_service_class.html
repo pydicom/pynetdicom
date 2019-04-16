@@ -130,7 +130,8 @@
 <li class="toctree-l1"><a class="reference internal" href="user/index.html">User Guide</a></li>
 </ul>
 <ul>
-<li class="toctree-l1"><a class="reference internal" href="release_notes.html">1.3.0</a></li>
+<li class="toctree-l1"><a class="reference internal" href="release_notes.html">1.4.0</a></li>
+<li class="toctree-l1"><a class="reference internal" href="release_notes.html#v1-3-0">1.3.0</a></li>
 <li class="toctree-l1"><a class="reference internal" href="release_notes.html#v1-2-0">1.2.0</a></li>
 <li class="toctree-l1"><a class="reference internal" href="release_notes.html#v1-1-0">1.1.0</a></li>
 <li class="toctree-l1"><a class="reference internal" href="release_notes.html#v1-0-0">1.0.0</a></li>
@@ -353,13 +354,13 @@ issue has occurred to help aid in debugging.</p>
 <tbody>
 <tr class="row-even"><td><p>0xC001</p></td>
 <td><p>Failure</p></td>
-<td><p>User’s callback implementation returned a
+<td><p>Handler bound to <code class="docutils literal notranslate"><span class="pre">evt.EVT_C_FIND</span></code> yielded a
 status Dataset with no (0000,0900) <em>Status</em>
 element</p></td>
 </tr>
 <tr class="row-odd"><td><p>0xC002</p></td>
 <td><p>Failure</p></td>
-<td><p>User’s callback implementation returned an
+<td><p>Handler bound to <code class="docutils literal notranslate"><span class="pre">evt.EVT_C_FIND</span></code> yielded an
 invalid status object (not a pydicom Dataset
 or an int)</p></td>
 </tr>
@@ -370,14 +371,13 @@ the peer</p></td>
 </tr>
 <tr class="row-odd"><td><p>0xC311</p></td>
 <td><p>Failure</p></td>
-<td><p>Unhandled exception raised by the user’s
-implementation of the <code class="docutils literal notranslate"><span class="pre">on_c_find</span></code> callback</p></td>
+<td><p>Unhandled exception raised by the handler
+bound to <code class="docutils literal notranslate"><span class="pre">evt.EVT_C_FIND</span></code></p></td>
 </tr>
 <tr class="row-even"><td><p>0xC312</p></td>
 <td><p>Failure</p></td>
 <td><p>Failed to encode the dataset received from
-the user’s implementation of the <code class="docutils literal notranslate"><span class="pre">on_c_find</span></code>
-callback</p></td>
+the handler bound to <code class="docutils literal notranslate"><span class="pre">evt.EVT_C_FIND</span></code></p></td>
 </tr>
 </tbody>
 </table>
@@ -486,13 +486,13 @@ or warnings</p></td>
 <tbody>
 <tr class="row-even"><td><p>0xC001</p></td>
 <td><p>Failure</p></td>
-<td><p>User’s callback implementation returned a
+<td><p>Handler bound to <code class="docutils literal notranslate"><span class="pre">evt.EVT_C_GET</span></code> yielded a
 status Dataset with no (0000,0900) <em>Status</em>
 element</p></td>
 </tr>
 <tr class="row-odd"><td><p>0xC002</p></td>
 <td><p>Failure</p></td>
-<td><p>User’s callback implementation returned an
+<td><p>Handler bound to <code class="docutils literal notranslate"><span class="pre">evt.EVT_C_GET</span></code> yielded an
 invalid status object (not a pydicom Dataset
 or an int)</p></td>
 </tr>
@@ -503,14 +503,13 @@ the peer</p></td>
 </tr>
 <tr class="row-odd"><td><p>0xC411</p></td>
 <td><p>Failure</p></td>
-<td><p>Unhandled exception raised by the user’s
-implementation of the <code class="docutils literal notranslate"><span class="pre">on_c_get</span></code> callback</p></td>
+<td><p>Unhandled exception raised by the handler
+bound to <code class="docutils literal notranslate"><span class="pre">evt.EVT_C_GET</span></code></p></td>
 </tr>
 <tr class="row-even"><td><p>0xC413</p></td>
 <td><p>Failure</p></td>
-<td><p>The user’s implementation oc the <code class="docutils literal notranslate"><span class="pre">on_c_get</span></code>
-callback yielded an invalid number of
-sub-operations</p></td>
+<td><p>The handler bound to <code class="docutils literal notranslate"><span class="pre">evt.EVT_C_GET</span></code>
+yielded an invalid number of sub-operations</p></td>
 </tr>
 </tbody>
 </table>
@@ -627,13 +626,13 @@ or warnings</p></td>
 <tbody>
 <tr class="row-even"><td><p>0xC001</p></td>
 <td><p>Failure</p></td>
-<td><p>User’s callback implementation returned a
+<td><p>Handler bound to <code class="docutils literal notranslate"><span class="pre">evt.EVT_C_MOVE</span></code> yielded a
 status Dataset with no (0000,0900) <em>Status</em>
 element</p></td>
 </tr>
 <tr class="row-odd"><td><p>0xC002</p></td>
 <td><p>Failure</p></td>
-<td><p>User’s callback implementation returned an
+<td><p>Handler bound to <code class="docutils literal notranslate"><span class="pre">evt.EVT_C_MOVE</span></code> yielded an
 invalid status object (not a pydicom Dataset
 or an int)</p></td>
 </tr>
@@ -644,26 +643,24 @@ the peer</p></td>
 </tr>
 <tr class="row-odd"><td><p>0xC511</p></td>
 <td><p>Failure</p></td>
-<td><p>Unhandled exception raised by the user’s
-implementation of the <code class="docutils literal notranslate"><span class="pre">on_c_get</span></code> callback</p></td>
+<td><p>Unhandled exception raised by the handler
+bound to <code class="docutils literal notranslate"><span class="pre">evt.EVT_C_MOVE</span></code></p></td>
 </tr>
 <tr class="row-even"><td><p>0xC513</p></td>
 <td><p>Failure</p></td>
-<td><p>The user’s implementation oc the <code class="docutils literal notranslate"><span class="pre">on_c_move</span></code>
-callback yielded an invalid number of
-sub-operations</p></td>
+<td><p>The handler bound to <code class="docutils literal notranslate"><span class="pre">evt.EVT_C_MOVE</span></code>
+yielded an invalid number of sub-operations</p></td>
 </tr>
 <tr class="row-odd"><td><p>0xC514</p></td>
 <td><p>Failure</p></td>
-<td><p>The user’s implementation oc the <code class="docutils literal notranslate"><span class="pre">on_c_move</span></code>
-callback failed to yield the (address, port)
+<td><p>The handler bound to <code class="docutils literal notranslate"><span class="pre">evt.EVT_C_MOVE</span></code>
+failed to yield the (address, port)
 and/or the number of sub-operations</p></td>
 </tr>
 <tr class="row-even"><td><p>0xC515</p></td>
 <td><p>Failure</p></td>
-<td><p>The user’s implementation oc the <code class="docutils literal notranslate"><span class="pre">on_c_move</span></code>
-callback failed to yield a valid (address,
-port) pair</p></td>
+<td><p>The handler bound to <code class="docutils literal notranslate"><span class="pre">evt.EVT_C_MOVE</span></code>
+failed to yield a valid (address, port) pair</p></td>
 </tr>
 </tbody>
 </table>

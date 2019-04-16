@@ -107,7 +107,8 @@
 <li class="toctree-l1"><a class="reference internal" href="../../user/index.html">User Guide</a></li>
 </ul>
 <ul>
-<li class="toctree-l1"><a class="reference internal" href="../../release_notes.html">1.3.0</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../release_notes.html">1.4.0</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../release_notes.html#v1-3-0">1.3.0</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../../release_notes.html#v1-2-0">1.2.0</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../../release_notes.html#v1-1-0">1.1.0</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../../release_notes.html#v1-0-0">1.0.0</a></li>
@@ -272,7 +273,7 @@
 
         <span class="k">return</span> <span class="kc">False</span>
 
-    <span class="k">def</span> <span class="nf">SCP</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">req</span><span class="p">,</span> <span class="n">context</span><span class="p">,</span> <span class="n">info</span><span class="p">):</span>
+    <span class="k">def</span> <span class="nf">SCP</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">req</span><span class="p">,</span> <span class="n">context</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;The implementation of the corresponding service class.</span>
 
 <span class="sd">        Parameters</span>
@@ -281,8 +282,6 @@
 <span class="sd">            The message request primitive sent by the peer.</span>
 <span class="sd">        context : presentation.PresentationContext</span>
 <span class="sd">            The presentation context that the SCP is operating under.</span>
-<span class="sd">        info : dict</span>
-<span class="sd">            A dict containing details about the association.</span>
 <span class="sd">        &quot;&quot;&quot;</span>
         <span class="n">msg</span> <span class="o">=</span> <span class="p">(</span>
             <span class="s2">&quot;No service class has been implemented for the SOP Class UID &#39;</span><span class="si">{}</span><span class="s2">&#39;&quot;</span>
@@ -368,11 +367,11 @@
     <span class="sd">&quot;&quot;&quot;Implementation of the Verification Service Class.&quot;&quot;&quot;</span>
     <span class="n">statuses</span> <span class="o">=</span> <span class="n">VERIFICATION_SERVICE_CLASS_STATUS</span>
 
-<div class="viewcode-block" id="VerificationServiceClass.SCP"><a class="viewcode-back" href="../../reference/generated/pynetdicom.service_class.VerificationServiceClass.html#pynetdicom.service_class.VerificationServiceClass.SCP">[docs]</a>    <span class="k">def</span> <span class="nf">SCP</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">req</span><span class="p">,</span> <span class="n">context</span><span class="p">,</span> <span class="n">info</span><span class="p">):</span>
+<div class="viewcode-block" id="VerificationServiceClass.SCP"><a class="viewcode-back" href="../../reference/generated/pynetdicom.service_class.VerificationServiceClass.html#pynetdicom.service_class.VerificationServiceClass.SCP">[docs]</a>    <span class="k">def</span> <span class="nf">SCP</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">req</span><span class="p">,</span> <span class="n">context</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;The SCP implementation for the Verification Service Class.</span>
 
 <span class="sd">        Will always return 0x0000 (Success) unless the user returns a different</span>
-<span class="sd">        (valid) status value from the `AE.on_c_echo` callback.</span>
+<span class="sd">        (valid) status value from the handler bound to `evt.EVT_C_ECHO`.</span>
 
 <span class="sd">        Parameters</span>
 <span class="sd">        ----------</span>
@@ -380,12 +379,9 @@
 <span class="sd">            The C-ECHO request primitive sent by the peer.</span>
 <span class="sd">        context : presentation.PresentationContext</span>
 <span class="sd">            The presentation context that the SCP is operating under.</span>
-<span class="sd">        info : dict</span>
-<span class="sd">            A dict containing details about the association.</span>
 
 <span class="sd">        See Also</span>
 <span class="sd">        --------</span>
-<span class="sd">        ae.ApplicationEntity.on_c_echo</span>
 <span class="sd">        association.Association.send_c_echo</span>
 
 <span class="sd">        Notes</span>
@@ -436,86 +432,49 @@
         <span class="n">rsp</span><span class="o">.</span><span class="n">MessageIDBeingRespondedTo</span> <span class="o">=</span> <span class="n">req</span><span class="o">.</span><span class="n">MessageID</span>
         <span class="n">rsp</span><span class="o">.</span><span class="n">AffectedSOPClassUID</span> <span class="o">=</span> <span class="n">req</span><span class="o">.</span><span class="n">AffectedSOPClassUID</span>
 
-        <span class="n">info</span><span class="p">[</span><span class="s1">&#39;parameters&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="p">{</span>
-            <span class="s1">&#39;message_id&#39;</span> <span class="p">:</span> <span class="n">req</span><span class="o">.</span><span class="n">MessageID</span>
-        <span class="p">}</span>
-
-        <span class="c1"># Try and run the user&#39;s on_c_echo callback. The callback should return</span>
-        <span class="c1">#   the Status as either an int or Dataset, and any failures in the</span>
-        <span class="c1">#   callback results in 0x0000 &#39;Success&#39;</span>
-        <span class="c1"># TODO: refactor in v1.4</span>
-        <span class="n">default_handler</span> <span class="o">=</span> <span class="n">evt</span><span class="o">.</span><span class="n">get_default_handler</span><span class="p">(</span><span class="n">evt</span><span class="o">.</span><span class="n">EVT_C_ECHO</span><span class="p">)</span>
-        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">assoc</span><span class="o">.</span><span class="n">get_handlers</span><span class="p">(</span><span class="n">evt</span><span class="o">.</span><span class="n">EVT_C_ECHO</span><span class="p">)</span> <span class="o">!=</span> <span class="n">default_handler</span><span class="p">:</span>
-            <span class="k">try</span><span class="p">:</span>
-                <span class="n">status</span> <span class="o">=</span> <span class="n">evt</span><span class="o">.</span><span class="n">trigger</span><span class="p">(</span>
-                    <span class="bp">self</span><span class="o">.</span><span class="n">assoc</span><span class="p">,</span>
-                    <span class="n">evt</span><span class="o">.</span><span class="n">EVT_C_ECHO</span><span class="p">,</span>
-                    <span class="p">{</span><span class="s1">&#39;request&#39;</span> <span class="p">:</span> <span class="n">req</span><span class="p">,</span> <span class="s1">&#39;context&#39;</span> <span class="p">:</span> <span class="n">context</span><span class="o">.</span><span class="n">as_tuple</span><span class="p">}</span>
-                <span class="p">)</span>
-                <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">status</span><span class="p">,</span> <span class="n">Dataset</span><span class="p">):</span>
-                    <span class="k">if</span> <span class="s1">&#39;Status&#39;</span> <span class="ow">not</span> <span class="ow">in</span> <span class="n">status</span><span class="p">:</span>
-                        <span class="k">raise</span> <span class="ne">AttributeError</span><span class="p">(</span>
-                            <span class="s2">&quot;The &#39;status&#39; dataset returned by the handler &quot;</span>
-                            <span class="s2">&quot;bound to &#39;evt.EVT_C_ECHO&#39; must contain&quot;</span>
-                            <span class="s2">&quot;a (0000,0900) Status element&quot;</span>
-                        <span class="p">)</span>
-                    <span class="k">for</span> <span class="n">elem</span> <span class="ow">in</span> <span class="n">status</span><span class="p">:</span>
-                        <span class="k">if</span> <span class="nb">hasattr</span><span class="p">(</span><span class="n">rsp</span><span class="p">,</span> <span class="n">elem</span><span class="o">.</span><span class="n">keyword</span><span class="p">):</span>
-                            <span class="nb">setattr</span><span class="p">(</span><span class="n">rsp</span><span class="p">,</span> <span class="n">elem</span><span class="o">.</span><span class="n">keyword</span><span class="p">,</span> <span class="n">elem</span><span class="o">.</span><span class="n">value</span><span class="p">)</span>
-                        <span class="k">else</span><span class="p">:</span>
-                            <span class="n">LOGGER</span><span class="o">.</span><span class="n">warning</span><span class="p">(</span>
-                                <span class="s2">&quot;The &#39;status&#39; dataset returned by the handler &quot;</span>
-                                <span class="s2">&quot;bound to &#39;evt.EVT_C_ECHO&#39; contained an &quot;</span>
-                                <span class="s2">&quot;unsupported Element &#39;</span><span class="si">%s</span><span class="s2">&#39;.&quot;</span><span class="p">,</span> <span class="n">elem</span><span class="o">.</span><span class="n">keyword</span><span class="p">)</span>
-                <span class="k">elif</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">status</span><span class="p">,</span> <span class="nb">int</span><span class="p">):</span>
-                    <span class="n">rsp</span><span class="o">.</span><span class="n">Status</span> <span class="o">=</span> <span class="n">status</span>
-                <span class="k">else</span><span class="p">:</span>
-                    <span class="k">raise</span> <span class="ne">TypeError</span><span class="p">(</span>
-                        <span class="s2">&quot;Invalid &#39;status&#39; returned by the handler bound to &quot;</span>
-                        <span class="s2">&quot;&#39;evt.EVT_C_ECHO&#39;&quot;</span>
+        <span class="k">try</span><span class="p">:</span>
+            <span class="n">status</span> <span class="o">=</span> <span class="n">evt</span><span class="o">.</span><span class="n">trigger</span><span class="p">(</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">assoc</span><span class="p">,</span>
+                <span class="n">evt</span><span class="o">.</span><span class="n">EVT_C_ECHO</span><span class="p">,</span>
+                <span class="p">{</span><span class="s1">&#39;request&#39;</span> <span class="p">:</span> <span class="n">req</span><span class="p">,</span> <span class="s1">&#39;context&#39;</span> <span class="p">:</span> <span class="n">context</span><span class="o">.</span><span class="n">as_tuple</span><span class="p">}</span>
+            <span class="p">)</span>
+            <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">status</span><span class="p">,</span> <span class="n">Dataset</span><span class="p">):</span>
+                <span class="k">if</span> <span class="s1">&#39;Status&#39;</span> <span class="ow">not</span> <span class="ow">in</span> <span class="n">status</span><span class="p">:</span>
+                    <span class="k">raise</span> <span class="ne">AttributeError</span><span class="p">(</span>
+                        <span class="s2">&quot;The &#39;status&#39; dataset returned by the handler &quot;</span>
+                        <span class="s2">&quot;bound to &#39;evt.EVT_C_ECHO&#39; must contain&quot;</span>
+                        <span class="s2">&quot;a (0000,0900) Status element&quot;</span>
                     <span class="p">)</span>
-
-            <span class="k">except</span> <span class="ne">Exception</span> <span class="k">as</span> <span class="n">ex</span><span class="p">:</span>
-                <span class="n">LOGGER</span><span class="o">.</span><span class="n">error</span><span class="p">(</span>
-                    <span class="s2">&quot;Exception in the handler bound to &#39;evt.EVT_C_ECHO&#39;, &quot;</span>
-                    <span class="s2">&quot;responding with a default &#39;Status&#39; value of 0x0000 &quot;</span>
-                    <span class="s2">&quot;(Success)&quot;</span>
+                <span class="k">for</span> <span class="n">elem</span> <span class="ow">in</span> <span class="n">status</span><span class="p">:</span>
+                    <span class="k">if</span> <span class="nb">hasattr</span><span class="p">(</span><span class="n">rsp</span><span class="p">,</span> <span class="n">elem</span><span class="o">.</span><span class="n">keyword</span><span class="p">):</span>
+                        <span class="nb">setattr</span><span class="p">(</span><span class="n">rsp</span><span class="p">,</span> <span class="n">elem</span><span class="o">.</span><span class="n">keyword</span><span class="p">,</span> <span class="n">elem</span><span class="o">.</span><span class="n">value</span><span class="p">)</span>
+                    <span class="k">else</span><span class="p">:</span>
+                        <span class="n">LOGGER</span><span class="o">.</span><span class="n">warning</span><span class="p">(</span>
+                            <span class="s2">&quot;The &#39;status&#39; dataset returned by the handler &quot;</span>
+                            <span class="s2">&quot;bound to &#39;evt.EVT_C_ECHO&#39; contained an &quot;</span>
+                            <span class="s2">&quot;unsupported Element &#39;</span><span class="si">%s</span><span class="s2">&#39;.&quot;</span><span class="p">,</span> <span class="n">elem</span><span class="o">.</span><span class="n">keyword</span><span class="p">)</span>
+            <span class="k">elif</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">status</span><span class="p">,</span> <span class="nb">int</span><span class="p">):</span>
+                <span class="n">rsp</span><span class="o">.</span><span class="n">Status</span> <span class="o">=</span> <span class="n">status</span>
+            <span class="k">else</span><span class="p">:</span>
+                <span class="k">raise</span> <span class="ne">TypeError</span><span class="p">(</span>
+                    <span class="s2">&quot;Invalid &#39;status&#39; returned by the handler bound to &quot;</span>
+                    <span class="s2">&quot;&#39;evt.EVT_C_ECHO&#39;&quot;</span>
                 <span class="p">)</span>
-                <span class="n">LOGGER</span><span class="o">.</span><span class="n">exception</span><span class="p">(</span><span class="n">ex</span><span class="p">)</span>
-                <span class="n">rsp</span><span class="o">.</span><span class="n">Status</span> <span class="o">=</span> <span class="mh">0x0000</span>
-        <span class="k">else</span><span class="p">:</span>
-            <span class="k">try</span><span class="p">:</span>
-                <span class="n">status</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">ae</span><span class="o">.</span><span class="n">on_c_echo</span><span class="p">(</span><span class="n">context</span><span class="o">.</span><span class="n">as_tuple</span><span class="p">,</span> <span class="n">info</span><span class="p">)</span>
-                <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">status</span><span class="p">,</span> <span class="n">Dataset</span><span class="p">):</span>
-                    <span class="k">if</span> <span class="s1">&#39;Status&#39;</span> <span class="ow">not</span> <span class="ow">in</span> <span class="n">status</span><span class="p">:</span>
-                        <span class="k">raise</span> <span class="ne">AttributeError</span><span class="p">(</span><span class="s2">&quot;The &#39;status&#39; dataset returned by &quot;</span>
-                                             <span class="s2">&quot;&#39;on_c_echo&#39; must contain&quot;</span>
-                                             <span class="s2">&quot;a (0000,0900) Status element&quot;</span><span class="p">)</span>
-                    <span class="k">for</span> <span class="n">elem</span> <span class="ow">in</span> <span class="n">status</span><span class="p">:</span>
-                        <span class="k">if</span> <span class="nb">hasattr</span><span class="p">(</span><span class="n">rsp</span><span class="p">,</span> <span class="n">elem</span><span class="o">.</span><span class="n">keyword</span><span class="p">):</span>
-                            <span class="nb">setattr</span><span class="p">(</span><span class="n">rsp</span><span class="p">,</span> <span class="n">elem</span><span class="o">.</span><span class="n">keyword</span><span class="p">,</span> <span class="n">elem</span><span class="o">.</span><span class="n">value</span><span class="p">)</span>
-                        <span class="k">else</span><span class="p">:</span>
-                            <span class="n">LOGGER</span><span class="o">.</span><span class="n">warning</span><span class="p">(</span><span class="s2">&quot;The &#39;status&#39; dataset returned by &quot;</span>
-                                           <span class="s2">&quot;&#39;on_c_echo&#39; contained an unsupported &quot;</span>
-                                           <span class="s2">&quot;Element &#39;</span><span class="si">%s</span><span class="s2">&#39;.&quot;</span><span class="p">,</span> <span class="n">elem</span><span class="o">.</span><span class="n">keyword</span><span class="p">)</span>
-                <span class="k">elif</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">status</span><span class="p">,</span> <span class="nb">int</span><span class="p">):</span>
-                    <span class="n">rsp</span><span class="o">.</span><span class="n">Status</span> <span class="o">=</span> <span class="n">status</span>
-                <span class="k">else</span><span class="p">:</span>
-                    <span class="k">raise</span> <span class="ne">TypeError</span><span class="p">(</span><span class="s2">&quot;Invalid &#39;status&#39; returned by &#39;on_c_echo&#39;&quot;</span><span class="p">)</span>
 
-            <span class="k">except</span> <span class="ne">Exception</span> <span class="k">as</span> <span class="n">ex</span><span class="p">:</span>
-                <span class="n">LOGGER</span><span class="o">.</span><span class="n">error</span><span class="p">(</span>
-                    <span class="s2">&quot;Exception in the &#39;on_c_echo&#39; callback, responding &quot;</span>
-                    <span class="s2">&quot;with default &#39;Status&#39; value of 0x0000 (Success)&quot;</span>
-                <span class="p">)</span>
-                <span class="n">LOGGER</span><span class="o">.</span><span class="n">exception</span><span class="p">(</span><span class="n">ex</span><span class="p">)</span>
-                <span class="n">rsp</span><span class="o">.</span><span class="n">Status</span> <span class="o">=</span> <span class="mh">0x0000</span>
+        <span class="k">except</span> <span class="ne">Exception</span> <span class="k">as</span> <span class="n">ex</span><span class="p">:</span>
+            <span class="n">LOGGER</span><span class="o">.</span><span class="n">error</span><span class="p">(</span>
+                <span class="s2">&quot;Exception in the handler bound to &#39;evt.EVT_C_ECHO&#39;, &quot;</span>
+                <span class="s2">&quot;responding with a default &#39;Status&#39; value of 0x0000 &quot;</span>
+                <span class="s2">&quot;(Success)&quot;</span>
+            <span class="p">)</span>
+            <span class="n">LOGGER</span><span class="o">.</span><span class="n">exception</span><span class="p">(</span><span class="n">ex</span><span class="p">)</span>
+            <span class="n">rsp</span><span class="o">.</span><span class="n">Status</span> <span class="o">=</span> <span class="mh">0x0000</span>
 
         <span class="c1"># Check Status validity</span>
         <span class="k">if</span> <span class="ow">not</span> <span class="bp">self</span><span class="o">.</span><span class="n">is_valid_status</span><span class="p">(</span><span class="n">rsp</span><span class="o">.</span><span class="n">Status</span><span class="p">):</span>
             <span class="n">LOGGER</span><span class="o">.</span><span class="n">warning</span><span class="p">(</span>
-                <span class="s2">&quot;Unknown &#39;status&#39; value returned by &#39;on_c_echo&#39; &quot;</span>
-                <span class="s2">&quot;callback - 0x</span><span class="si">{0:04x}</span><span class="s2">&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">rsp</span><span class="o">.</span><span class="n">Status</span><span class="p">)</span>
+                <span class="s2">&quot;Unknown &#39;status&#39; value returned by the handler bound to &quot;</span>
+                <span class="s2">&quot;&#39;evt.EVT_C_ECHO&#39; - 0x</span><span class="si">{0:04x}</span><span class="s2">&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">rsp</span><span class="o">.</span><span class="n">Status</span><span class="p">)</span>
             <span class="p">)</span>
 
         <span class="c1"># Send primitive</span>
@@ -527,7 +486,7 @@
     <span class="n">uid</span> <span class="o">=</span> <span class="s1">&#39;1.2.840.10008.4.2&#39;</span>
     <span class="n">statuses</span> <span class="o">=</span> <span class="n">STORAGE_SERVICE_CLASS_STATUS</span>
 
-<div class="viewcode-block" id="StorageServiceClass.SCP"><a class="viewcode-back" href="../../reference/generated/pynetdicom.service_class.StorageServiceClass.html#pynetdicom.service_class.StorageServiceClass.SCP">[docs]</a>    <span class="k">def</span> <span class="nf">SCP</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">req</span><span class="p">,</span> <span class="n">context</span><span class="p">,</span> <span class="n">info</span><span class="p">):</span>
+<div class="viewcode-block" id="StorageServiceClass.SCP"><a class="viewcode-back" href="../../reference/generated/pynetdicom.service_class.StorageServiceClass.html#pynetdicom.service_class.StorageServiceClass.SCP">[docs]</a>    <span class="k">def</span> <span class="nf">SCP</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">req</span><span class="p">,</span> <span class="n">context</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;The SCP implementation for the Storage Service Class.</span>
 
 <span class="sd">        Parameters</span>
@@ -536,12 +495,9 @@
 <span class="sd">            The C-STORE request primitive sent by the peer.</span>
 <span class="sd">        context : presentation.PresentationContext</span>
 <span class="sd">            The presentation context that the SCP is operating under.</span>
-<span class="sd">        info : dict</span>
-<span class="sd">            A dict containing details about the association.</span>
 
 <span class="sd">        See Also</span>
 <span class="sd">        --------</span>
-<span class="sd">        ae.ApplicationEntity.on_c_store</span>
 <span class="sd">        association.Association.send_c_store</span>
 
 <span class="sd">        Notes</span>
@@ -607,62 +563,20 @@
         <span class="n">rsp</span><span class="o">.</span><span class="n">AffectedSOPInstanceUID</span> <span class="o">=</span> <span class="n">req</span><span class="o">.</span><span class="n">AffectedSOPInstanceUID</span>
         <span class="n">rsp</span><span class="o">.</span><span class="n">AffectedSOPClassUID</span> <span class="o">=</span> <span class="n">req</span><span class="o">.</span><span class="n">AffectedSOPClassUID</span>
 
-        <span class="n">transfer_syntax</span> <span class="o">=</span> <span class="n">context</span><span class="o">.</span><span class="n">transfer_syntax</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span>
-
-        <span class="c1"># TODO: refactor in v1.4</span>
-        <span class="n">default_handler</span> <span class="o">=</span> <span class="n">evt</span><span class="o">.</span><span class="n">get_default_handler</span><span class="p">(</span><span class="n">evt</span><span class="o">.</span><span class="n">EVT_C_STORE</span><span class="p">)</span>
-        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">assoc</span><span class="o">.</span><span class="n">get_handlers</span><span class="p">(</span><span class="n">evt</span><span class="o">.</span><span class="n">EVT_C_STORE</span><span class="p">)</span> <span class="o">!=</span> <span class="n">default_handler</span><span class="p">:</span>
-            <span class="k">try</span><span class="p">:</span>
-                <span class="n">rsp_status</span> <span class="o">=</span> <span class="n">evt</span><span class="o">.</span><span class="n">trigger</span><span class="p">(</span>
-                    <span class="bp">self</span><span class="o">.</span><span class="n">assoc</span><span class="p">,</span>
-                    <span class="n">evt</span><span class="o">.</span><span class="n">EVT_C_STORE</span><span class="p">,</span>
-                    <span class="p">{</span><span class="s1">&#39;request&#39;</span> <span class="p">:</span> <span class="n">req</span><span class="p">,</span> <span class="s1">&#39;context&#39;</span> <span class="p">:</span> <span class="n">context</span><span class="o">.</span><span class="n">as_tuple</span><span class="p">}</span>
-                <span class="p">)</span>
-            <span class="k">except</span> <span class="ne">Exception</span> <span class="k">as</span> <span class="n">exc</span><span class="p">:</span>
-                <span class="n">LOGGER</span><span class="o">.</span><span class="n">error</span><span class="p">(</span>
-                    <span class="s2">&quot;Exception in the handler bound to &#39;evt.EVT_C_STORE&#39;&quot;</span>
-                <span class="p">)</span>
-                <span class="n">LOGGER</span><span class="o">.</span><span class="n">exception</span><span class="p">(</span><span class="n">exc</span><span class="p">)</span>
-                <span class="n">rsp</span><span class="o">.</span><span class="n">Status</span> <span class="o">=</span> <span class="mh">0xC211</span>
-                <span class="bp">self</span><span class="o">.</span><span class="n">dimse</span><span class="o">.</span><span class="n">send_msg</span><span class="p">(</span><span class="n">rsp</span><span class="p">,</span> <span class="n">context</span><span class="o">.</span><span class="n">context_id</span><span class="p">)</span>
-                <span class="k">return</span>
-        <span class="k">else</span><span class="p">:</span>
-            <span class="k">if</span> <span class="n">_config</span><span class="o">.</span><span class="n">DECODE_STORE_DATASETS</span><span class="p">:</span>
-                <span class="c1"># Attempt to decode the request&#39;s dataset</span>
-                <span class="k">try</span><span class="p">:</span>
-                    <span class="n">ds</span> <span class="o">=</span> <span class="n">decode</span><span class="p">(</span><span class="n">req</span><span class="o">.</span><span class="n">DataSet</span><span class="p">,</span>
-                                <span class="n">transfer_syntax</span><span class="o">.</span><span class="n">is_implicit_VR</span><span class="p">,</span>
-                                <span class="n">transfer_syntax</span><span class="o">.</span><span class="n">is_little_endian</span><span class="p">)</span>
-                    <span class="c1"># Trigger exception if bad dataset</span>
-                    <span class="k">for</span> <span class="n">elem</span> <span class="ow">in</span> <span class="n">ds</span><span class="p">:</span>
-                        <span class="k">pass</span>
-                <span class="k">except</span> <span class="ne">Exception</span> <span class="k">as</span> <span class="n">ex</span><span class="p">:</span>
-                    <span class="n">LOGGER</span><span class="o">.</span><span class="n">error</span><span class="p">(</span><span class="s2">&quot;Failed to decode the received dataset&quot;</span><span class="p">)</span>
-                    <span class="n">LOGGER</span><span class="o">.</span><span class="n">exception</span><span class="p">(</span><span class="n">ex</span><span class="p">)</span>
-                    <span class="c1"># Failure: Cannot Understand - Dataset decoding error</span>
-                    <span class="n">rsp</span><span class="o">.</span><span class="n">Status</span> <span class="o">=</span> <span class="mh">0xC210</span>
-                    <span class="n">rsp</span><span class="o">.</span><span class="n">ErrorComment</span> <span class="o">=</span> <span class="s1">&#39;Unable to decode the dataset&#39;</span>
-                    <span class="bp">self</span><span class="o">.</span><span class="n">dimse</span><span class="o">.</span><span class="n">send_msg</span><span class="p">(</span><span class="n">rsp</span><span class="p">,</span> <span class="n">context</span><span class="o">.</span><span class="n">context_id</span><span class="p">)</span>
-                    <span class="k">return</span>
-            <span class="k">else</span><span class="p">:</span>
-                <span class="n">ds</span> <span class="o">=</span> <span class="n">req</span><span class="o">.</span><span class="n">DataSet</span><span class="o">.</span><span class="n">getvalue</span><span class="p">()</span>
-
-            <span class="n">info</span><span class="p">[</span><span class="s1">&#39;parameters&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="p">{</span>
-                <span class="s1">&#39;message_id&#39;</span> <span class="p">:</span> <span class="n">req</span><span class="o">.</span><span class="n">MessageID</span><span class="p">,</span>
-                <span class="s1">&#39;priority&#39;</span> <span class="p">:</span> <span class="n">req</span><span class="o">.</span><span class="n">Priority</span><span class="p">,</span>
-                <span class="s1">&#39;originator_aet&#39;</span> <span class="p">:</span> <span class="n">req</span><span class="o">.</span><span class="n">MoveOriginatorApplicationEntityTitle</span><span class="p">,</span>
-                <span class="s1">&#39;originator_message_id&#39;</span> <span class="p">:</span> <span class="n">req</span><span class="o">.</span><span class="n">MoveOriginatorMessageID</span>
-            <span class="p">}</span>
-
-            <span class="c1"># Attempt to run the ApplicationEntity&#39;s on_c_store callback</span>
-            <span class="k">try</span><span class="p">:</span>
-                <span class="n">rsp_status</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">ae</span><span class="o">.</span><span class="n">on_c_store</span><span class="p">(</span><span class="n">ds</span><span class="p">,</span> <span class="n">context</span><span class="o">.</span><span class="n">as_tuple</span><span class="p">,</span> <span class="n">info</span><span class="p">)</span>
-            <span class="k">except</span> <span class="ne">Exception</span> <span class="k">as</span> <span class="n">ex</span><span class="p">:</span>
-                <span class="n">LOGGER</span><span class="o">.</span><span class="n">error</span><span class="p">(</span><span class="s2">&quot;Exception in the ApplicationEntity.on_c_store() &quot;</span>
-                             <span class="s2">&quot;callback&quot;</span><span class="p">)</span>
-                <span class="n">LOGGER</span><span class="o">.</span><span class="n">exception</span><span class="p">(</span><span class="n">ex</span><span class="p">)</span>
-                <span class="c1"># Failure: Cannot Understand - Error in on_c_store callback</span>
-                <span class="n">rsp_status</span> <span class="o">=</span> <span class="mh">0xC211</span>
+        <span class="k">try</span><span class="p">:</span>
+            <span class="n">rsp_status</span> <span class="o">=</span> <span class="n">evt</span><span class="o">.</span><span class="n">trigger</span><span class="p">(</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">assoc</span><span class="p">,</span>
+                <span class="n">evt</span><span class="o">.</span><span class="n">EVT_C_STORE</span><span class="p">,</span>
+                <span class="p">{</span><span class="s1">&#39;request&#39;</span> <span class="p">:</span> <span class="n">req</span><span class="p">,</span> <span class="s1">&#39;context&#39;</span> <span class="p">:</span> <span class="n">context</span><span class="o">.</span><span class="n">as_tuple</span><span class="p">}</span>
+            <span class="p">)</span>
+        <span class="k">except</span> <span class="ne">Exception</span> <span class="k">as</span> <span class="n">exc</span><span class="p">:</span>
+            <span class="n">LOGGER</span><span class="o">.</span><span class="n">error</span><span class="p">(</span>
+                <span class="s2">&quot;Exception in the handler bound to &#39;evt.EVT_C_STORE&#39;&quot;</span>
+            <span class="p">)</span>
+            <span class="n">LOGGER</span><span class="o">.</span><span class="n">exception</span><span class="p">(</span><span class="n">exc</span><span class="p">)</span>
+            <span class="n">rsp</span><span class="o">.</span><span class="n">Status</span> <span class="o">=</span> <span class="mh">0xC211</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">dimse</span><span class="o">.</span><span class="n">send_msg</span><span class="p">(</span><span class="n">rsp</span><span class="p">,</span> <span class="n">context</span><span class="o">.</span><span class="n">context_id</span><span class="p">)</span>
+            <span class="k">return</span>
 
         <span class="c1"># Validate rsp_status and set rsp.Status accordingly</span>
         <span class="n">rsp</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">validate_status</span><span class="p">(</span><span class="n">rsp_status</span><span class="p">,</span> <span class="n">rsp</span><span class="p">)</span>
@@ -679,7 +593,7 @@
         <span class="s1">&#39;CurveData&#39;</span><span class="p">,</span> <span class="s1">&#39;AudioSampleData&#39;</span><span class="p">,</span> <span class="s1">&#39;EncapsulatedDocument&#39;</span>
     <span class="p">]</span>
 
-<div class="viewcode-block" id="QueryRetrieveServiceClass.SCP"><a class="viewcode-back" href="../../reference/generated/pynetdicom.service_class.QueryRetrieveServiceClass.html#pynetdicom.service_class.QueryRetrieveServiceClass.SCP">[docs]</a>    <span class="k">def</span> <span class="nf">SCP</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">req</span><span class="p">,</span> <span class="n">context</span><span class="p">,</span> <span class="n">info</span><span class="p">):</span>
+<div class="viewcode-block" id="QueryRetrieveServiceClass.SCP"><a class="viewcode-back" href="../../reference/generated/pynetdicom.service_class.QueryRetrieveServiceClass.html#pynetdicom.service_class.QueryRetrieveServiceClass.SCP">[docs]</a>    <span class="k">def</span> <span class="nf">SCP</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">req</span><span class="p">,</span> <span class="n">context</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;The SCP implementation for the Query/Retrieve Service Class.</span>
 
 <span class="sd">        Parameters</span>
@@ -688,8 +602,6 @@
 <span class="sd">            The request primitive received from the peer.</span>
 <span class="sd">        context : presentation.PresentationContext</span>
 <span class="sd">            The presentation context that the SCP is operating under.</span>
-<span class="sd">        info : dict</span>
-<span class="sd">            A dict containing details about the association.</span>
 <span class="sd">        &quot;&quot;&quot;</span>
         <span class="k">if</span> <span class="n">context</span><span class="o">.</span><span class="n">abstract_syntax</span> <span class="ow">in</span> <span class="p">[</span><span class="s1">&#39;1.2.840.10008.5.1.4.1.2.1.1&#39;</span><span class="p">,</span>
                                        <span class="s1">&#39;1.2.840.10008.5.1.4.1.2.2.1&#39;</span><span class="p">,</span>
@@ -701,7 +613,7 @@
                                        <span class="s1">&#39;1.2.840.10008.5.1.4.44.2&#39;</span><span class="p">,</span>
                                        <span class="s1">&#39;1.2.840.10008.5.1.4.45.2&#39;</span><span class="p">]:</span>
             <span class="bp">self</span><span class="o">.</span><span class="n">statuses</span> <span class="o">=</span> <span class="n">QR_FIND_SERVICE_CLASS_STATUS</span>
-            <span class="bp">self</span><span class="o">.</span><span class="n">_find_scp</span><span class="p">(</span><span class="n">req</span><span class="p">,</span> <span class="n">context</span><span class="p">,</span> <span class="n">info</span><span class="p">)</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">_find_scp</span><span class="p">(</span><span class="n">req</span><span class="p">,</span> <span class="n">context</span><span class="p">)</span>
         <span class="k">elif</span> <span class="n">context</span><span class="o">.</span><span class="n">abstract_syntax</span> <span class="ow">in</span> <span class="p">[</span><span class="s1">&#39;1.2.840.10008.5.1.4.1.2.1.3&#39;</span><span class="p">,</span>
                                          <span class="s1">&#39;1.2.840.10008.5.1.4.1.2.2.3&#39;</span><span class="p">,</span>
                                          <span class="s1">&#39;1.2.840.10008.5.1.4.1.2.3.3&#39;</span><span class="p">,</span>
@@ -714,7 +626,7 @@
                                          <span class="s1">&#39;1.2.840.10008.5.1.4.44.4&#39;</span><span class="p">,</span>
                                          <span class="s1">&#39;1.2.840.10008.5.1.4.45.4&#39;</span><span class="p">]:</span>
             <span class="bp">self</span><span class="o">.</span><span class="n">statuses</span> <span class="o">=</span> <span class="n">QR_GET_SERVICE_CLASS_STATUS</span>
-            <span class="bp">self</span><span class="o">.</span><span class="n">_get_scp</span><span class="p">(</span><span class="n">req</span><span class="p">,</span> <span class="n">context</span><span class="p">,</span> <span class="n">info</span><span class="p">)</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">_get_scp</span><span class="p">(</span><span class="n">req</span><span class="p">,</span> <span class="n">context</span><span class="p">)</span>
         <span class="k">elif</span> <span class="n">context</span><span class="o">.</span><span class="n">abstract_syntax</span> <span class="ow">in</span> <span class="p">[</span><span class="s1">&#39;1.2.840.10008.5.1.4.1.2.1.2&#39;</span><span class="p">,</span>
                                          <span class="s1">&#39;1.2.840.10008.5.1.4.1.2.2.2&#39;</span><span class="p">,</span>
                                          <span class="s1">&#39;1.2.840.10008.5.1.4.1.2.3.2&#39;</span><span class="p">,</span>
@@ -726,14 +638,14 @@
                                          <span class="s1">&#39;1.2.840.10008.5.1.4.44.3&#39;</span><span class="p">,</span>
                                          <span class="s1">&#39;1.2.840.10008.5.1.4.45.3&#39;</span><span class="p">]:</span>
             <span class="bp">self</span><span class="o">.</span><span class="n">statuses</span> <span class="o">=</span> <span class="n">QR_MOVE_SERVICE_CLASS_STATUS</span>
-            <span class="bp">self</span><span class="o">.</span><span class="n">_move_scp</span><span class="p">(</span><span class="n">req</span><span class="p">,</span> <span class="n">context</span><span class="p">,</span> <span class="n">info</span><span class="p">)</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">_move_scp</span><span class="p">(</span><span class="n">req</span><span class="p">,</span> <span class="n">context</span><span class="p">)</span>
         <span class="k">else</span><span class="p">:</span>
             <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span>
                 <span class="s1">&#39;The supplied abstract syntax is not valid for use with the &#39;</span>
                 <span class="s1">&#39;Query/Retrieve Service Class&#39;</span>
             <span class="p">)</span></div>
 
-    <span class="k">def</span> <span class="nf">_find_scp</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">req</span><span class="p">,</span> <span class="n">context</span><span class="p">,</span> <span class="n">info</span><span class="p">):</span>
+    <span class="k">def</span> <span class="nf">_find_scp</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">req</span><span class="p">,</span> <span class="n">context</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;The SCP implementation for Query/Retrieve - Find.</span>
 
 <span class="sd">        Parameters</span>
@@ -742,12 +654,9 @@
 <span class="sd">            The C-FIND request primitive received from the peer.</span>
 <span class="sd">        context : presentation.PresentationContext</span>
 <span class="sd">            The presentation context that the SCP is operating under.</span>
-<span class="sd">        info : dict</span>
-<span class="sd">            A dict containing details about the association.</span>
 
 <span class="sd">        See Also</span>
 <span class="sd">        --------</span>
-<span class="sd">        ae.ApplicationEntity.on_c_find</span>
 <span class="sd">        association.Association.send_c_find</span>
 
 <span class="sd">        Notes</span>
@@ -865,10 +774,8 @@
             <span class="bp">self</span><span class="o">.</span><span class="n">dimse</span><span class="o">.</span><span class="n">send_msg</span><span class="p">(</span><span class="n">rsp</span><span class="p">,</span> <span class="n">context</span><span class="o">.</span><span class="n">context_id</span><span class="p">)</span>
             <span class="k">return</span>
 
-        <span class="c1"># TODO: refactor in v1.4</span>
         <span class="c1"># Pass the C-FIND request to the user to handle</span>
-        <span class="n">default_handler</span> <span class="o">=</span> <span class="n">evt</span><span class="o">.</span><span class="n">get_default_handler</span><span class="p">(</span><span class="n">evt</span><span class="o">.</span><span class="n">EVT_C_FIND</span><span class="p">)</span>
-        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">assoc</span><span class="o">.</span><span class="n">get_handlers</span><span class="p">(</span><span class="n">evt</span><span class="o">.</span><span class="n">EVT_C_FIND</span><span class="p">)</span> <span class="o">!=</span> <span class="n">default_handler</span><span class="p">:</span>
+        <span class="k">try</span><span class="p">:</span>
             <span class="n">handler</span> <span class="o">=</span> <span class="n">evt</span><span class="o">.</span><span class="n">trigger</span><span class="p">(</span>
                 <span class="bp">self</span><span class="o">.</span><span class="n">assoc</span><span class="p">,</span>
                 <span class="n">evt</span><span class="o">.</span><span class="n">EVT_C_FIND</span><span class="p">,</span>
@@ -878,24 +785,16 @@
                     <span class="s1">&#39;_is_cancelled&#39;</span> <span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">is_cancelled</span>
                 <span class="p">}</span>
             <span class="p">)</span>
-        <span class="k">else</span><span class="p">:</span>
-            <span class="n">info</span><span class="p">[</span><span class="s1">&#39;parameters&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="p">{</span>
-                 <span class="s1">&#39;message_id&#39;</span> <span class="p">:</span> <span class="n">req</span><span class="o">.</span><span class="n">MessageID</span><span class="p">,</span>
-                 <span class="s1">&#39;priority&#39;</span> <span class="p">:</span> <span class="n">req</span><span class="o">.</span><span class="n">Priority</span><span class="p">,</span>
-            <span class="p">}</span>
-            <span class="c1"># Add callable to the info so user can check if cancelled</span>
-            <span class="n">info</span><span class="p">[</span><span class="s1">&#39;cancelled&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">is_cancelled</span>
+        <span class="k">except</span> <span class="ne">Exception</span> <span class="k">as</span> <span class="n">exc</span><span class="p">:</span>
+            <span class="n">LOGGER</span><span class="o">.</span><span class="n">error</span><span class="p">(</span><span class="s2">&quot;Exception in handler bound to &#39;evt.EVT_C_FIND&#39;&quot;</span><span class="p">)</span>
+            <span class="n">LOGGER</span><span class="o">.</span><span class="n">exception</span><span class="p">(</span><span class="n">exc</span><span class="p">)</span>
+            <span class="n">rsp</span><span class="o">.</span><span class="n">Status</span> <span class="o">=</span> <span class="mh">0xC311</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">dimse</span><span class="o">.</span><span class="n">send_msg</span><span class="p">(</span><span class="n">rsp</span><span class="p">,</span> <span class="n">context</span><span class="o">.</span><span class="n">context_id</span><span class="p">)</span>
+            <span class="k">return</span>
 
-            <span class="k">try</span><span class="p">:</span>
-                <span class="n">handler</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">ae</span><span class="o">.</span><span class="n">on_c_find</span><span class="p">(</span><span class="n">identifier</span><span class="p">,</span> <span class="n">context</span><span class="o">.</span><span class="n">as_tuple</span><span class="p">,</span> <span class="n">info</span><span class="p">)</span>
-            <span class="k">except</span> <span class="ne">Exception</span> <span class="k">as</span> <span class="n">exc</span><span class="p">:</span>
-                <span class="n">LOGGER</span><span class="o">.</span><span class="n">error</span><span class="p">(</span>
-                    <span class="s2">&quot;Exception raised by user&#39;s C-FIND request handler&quot;</span>
-                <span class="p">)</span>
-                <span class="n">LOGGER</span><span class="o">.</span><span class="n">exception</span><span class="p">(</span><span class="n">exc</span><span class="p">)</span>
-                <span class="n">rsp</span><span class="o">.</span><span class="n">Status</span> <span class="o">=</span> <span class="mh">0xC311</span>
-                <span class="bp">self</span><span class="o">.</span><span class="n">dimse</span><span class="o">.</span><span class="n">send_msg</span><span class="p">(</span><span class="n">rsp</span><span class="p">,</span> <span class="n">context</span><span class="o">.</span><span class="n">context_id</span><span class="p">)</span>
-                <span class="k">return</span>
+        <span class="c1"># No matches and no yields</span>
+        <span class="k">if</span> <span class="n">handler</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="n">handler</span> <span class="o">=</span> <span class="nb">iter</span><span class="p">([(</span><span class="mh">0x0000</span><span class="p">,</span> <span class="kc">None</span><span class="p">)])</span>
 
         <span class="n">ii</span> <span class="o">=</span> <span class="o">-</span><span class="mi">1</span>  <span class="c1"># So if there are no results, log below doesn&#39;t break</span>
         <span class="c1"># Iterate through the results</span>
@@ -945,7 +844,7 @@
                     <span class="n">LOGGER</span><span class="o">.</span><span class="n">error</span><span class="p">(</span><span class="s2">&quot;Failed to encode the received Identifier &quot;</span>
                                  <span class="s2">&quot;dataset&quot;</span><span class="p">)</span>
                     <span class="c1"># Failure: Unable to Process - Can&#39;t decode dataset</span>
-                    <span class="c1">#   returned by on_c_find callback</span>
+                    <span class="c1">#   returned by handler</span>
                     <span class="n">rsp</span><span class="o">.</span><span class="n">Status</span> <span class="o">=</span> <span class="mh">0xC312</span>
                     <span class="bp">self</span><span class="o">.</span><span class="n">dimse</span><span class="o">.</span><span class="n">send_msg</span><span class="p">(</span><span class="n">rsp</span><span class="p">,</span> <span class="n">context</span><span class="o">.</span><span class="n">context_id</span><span class="p">)</span>
                     <span class="k">return</span>
@@ -970,7 +869,7 @@
         <span class="n">LOGGER</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="s1">&#39;Find SCP Response: </span><span class="si">%s</span><span class="s1"> (Success)&#39;</span><span class="p">,</span> <span class="n">ii</span> <span class="o">+</span> <span class="mi">2</span><span class="p">)</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">dimse</span><span class="o">.</span><span class="n">send_msg</span><span class="p">(</span><span class="n">rsp</span><span class="p">,</span> <span class="n">context</span><span class="o">.</span><span class="n">context_id</span><span class="p">)</span>
 
-    <span class="k">def</span> <span class="nf">_get_scp</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">req</span><span class="p">,</span> <span class="n">context</span><span class="p">,</span> <span class="n">info</span><span class="p">):</span>
+    <span class="k">def</span> <span class="nf">_get_scp</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">req</span><span class="p">,</span> <span class="n">context</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;The SCP implementation for Query/Retrieve - Get.</span>
 
 <span class="sd">        Parameters</span>
@@ -979,12 +878,9 @@
 <span class="sd">            The C-GET request primitive sent by the peer.</span>
 <span class="sd">        context : presentation.PresentationContext</span>
 <span class="sd">            The presentation context that the SCP is operating under.</span>
-<span class="sd">        info : dict</span>
-<span class="sd">            A dict containing details about the association.</span>
 
 <span class="sd">        See Also</span>
 <span class="sd">        --------</span>
-<span class="sd">        ae.ApplicationEntity.on_c_get</span>
 <span class="sd">        association.Association.send_c_get</span>
 
 <span class="sd">        Notes</span>
@@ -1104,62 +1000,23 @@
 
         <span class="c1"># Attempt to decode the request&#39;s Identifier dataset</span>
         <span class="n">transfer_syntax</span> <span class="o">=</span> <span class="n">context</span><span class="o">.</span><span class="n">transfer_syntax</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span>
-        <span class="c1"># TODO: refactor in v1.4</span>
-        <span class="n">default_handler</span> <span class="o">=</span> <span class="n">evt</span><span class="o">.</span><span class="n">get_default_handler</span><span class="p">(</span><span class="n">evt</span><span class="o">.</span><span class="n">EVT_C_GET</span><span class="p">)</span>
-        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">assoc</span><span class="o">.</span><span class="n">get_handlers</span><span class="p">(</span><span class="n">evt</span><span class="o">.</span><span class="n">EVT_C_GET</span><span class="p">)</span> <span class="o">!=</span> <span class="n">default_handler</span><span class="p">:</span>
-            <span class="k">try</span><span class="p">:</span>
-                <span class="n">result</span> <span class="o">=</span> <span class="n">evt</span><span class="o">.</span><span class="n">trigger</span><span class="p">(</span>
-                    <span class="bp">self</span><span class="o">.</span><span class="n">assoc</span><span class="p">,</span>
-                    <span class="n">evt</span><span class="o">.</span><span class="n">EVT_C_GET</span><span class="p">,</span>
-                    <span class="p">{</span>
-                        <span class="s1">&#39;request&#39;</span> <span class="p">:</span> <span class="n">req</span><span class="p">,</span>
-                        <span class="s1">&#39;context&#39;</span> <span class="p">:</span> <span class="n">context</span><span class="o">.</span><span class="n">as_tuple</span><span class="p">,</span>
-                        <span class="s1">&#39;_is_cancelled&#39;</span> <span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">is_cancelled</span>
-                    <span class="p">}</span>
-                <span class="p">)</span>
-            <span class="k">except</span> <span class="ne">Exception</span> <span class="k">as</span> <span class="n">exc</span><span class="p">:</span>
-                <span class="n">LOGGER</span><span class="o">.</span><span class="n">error</span><span class="p">(</span><span class="s2">&quot;Exception in handler bound to &#39;evt.EVT_C_GET&#39;&quot;</span><span class="p">)</span>
-                <span class="n">LOGGER</span><span class="o">.</span><span class="n">exception</span><span class="p">(</span><span class="n">exc</span><span class="p">)</span>
-                <span class="n">rsp</span><span class="o">.</span><span class="n">Status</span> <span class="o">=</span> <span class="mh">0xC411</span>
-                <span class="bp">self</span><span class="o">.</span><span class="n">dimse</span><span class="o">.</span><span class="n">send_msg</span><span class="p">(</span><span class="n">rsp</span><span class="p">,</span> <span class="n">context</span><span class="o">.</span><span class="n">context_id</span><span class="p">)</span>
-                <span class="k">return</span>
-        <span class="k">else</span><span class="p">:</span>
-            <span class="k">try</span><span class="p">:</span>
-                <span class="c1"># TODO: consider keeping this with new handlers</span>
-                <span class="n">identifier</span> <span class="o">=</span> <span class="n">decode</span><span class="p">(</span><span class="n">req</span><span class="o">.</span><span class="n">Identifier</span><span class="p">,</span>
-                                    <span class="n">transfer_syntax</span><span class="o">.</span><span class="n">is_implicit_VR</span><span class="p">,</span>
-                                    <span class="n">transfer_syntax</span><span class="o">.</span><span class="n">is_little_endian</span><span class="p">)</span>
-                <span class="n">LOGGER</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="s1">&#39;Get SCP Request Identifier:&#39;</span><span class="p">)</span>
-                <span class="n">LOGGER</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="s1">&#39;&#39;</span><span class="p">)</span>
-                <span class="n">LOGGER</span><span class="o">.</span><span class="n">debug</span><span class="p">(</span><span class="s1">&#39;# DICOM Data Set&#39;</span><span class="p">)</span>
-                <span class="k">for</span> <span class="n">elem</span> <span class="ow">in</span> <span class="n">identifier</span><span class="o">.</span><span class="n">iterall</span><span class="p">():</span>
-                    <span class="n">LOGGER</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="n">elem</span><span class="p">)</span>
-                <span class="n">LOGGER</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="s1">&#39;&#39;</span><span class="p">)</span>
-            <span class="k">except</span> <span class="ne">Exception</span> <span class="k">as</span> <span class="n">exc</span><span class="p">:</span>
-                <span class="n">LOGGER</span><span class="o">.</span><span class="n">error</span><span class="p">(</span><span class="s2">&quot;Failed to decode the request&#39;s Identifier dataset&quot;</span><span class="p">)</span>
-                <span class="n">LOGGER</span><span class="o">.</span><span class="n">exception</span><span class="p">(</span><span class="n">exc</span><span class="p">)</span>
-                <span class="c1"># Failure: Cannot Understand - Dataset decoding error</span>
-                <span class="n">rsp</span><span class="o">.</span><span class="n">Status</span> <span class="o">=</span> <span class="mh">0xC410</span>
-                <span class="n">rsp</span><span class="o">.</span><span class="n">ErrorComment</span> <span class="o">=</span> <span class="s1">&#39;Unable to decode the dataset&#39;</span>
-                <span class="bp">self</span><span class="o">.</span><span class="n">dimse</span><span class="o">.</span><span class="n">send_msg</span><span class="p">(</span><span class="n">rsp</span><span class="p">,</span> <span class="n">context</span><span class="o">.</span><span class="n">context_id</span><span class="p">)</span>
-                <span class="k">return</span>
 
-            <span class="n">info</span><span class="p">[</span><span class="s1">&#39;parameters&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="p">{</span>
-                 <span class="s1">&#39;message_id&#39;</span> <span class="p">:</span> <span class="n">req</span><span class="o">.</span><span class="n">MessageID</span><span class="p">,</span>
-                 <span class="s1">&#39;priority&#39;</span> <span class="p">:</span> <span class="n">req</span><span class="o">.</span><span class="n">Priority</span>
-            <span class="p">}</span>
-            <span class="c1"># Add callable to the info so user can check if cancelled</span>
-            <span class="n">info</span><span class="p">[</span><span class="s1">&#39;cancelled&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">is_cancelled</span>
-
-            <span class="c1"># Callback - C-GET</span>
-            <span class="k">try</span><span class="p">:</span>
-                <span class="n">result</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">ae</span><span class="o">.</span><span class="n">on_c_get</span><span class="p">(</span><span class="n">identifier</span><span class="p">,</span> <span class="n">context</span><span class="o">.</span><span class="n">as_tuple</span><span class="p">,</span> <span class="n">info</span><span class="p">)</span>
-            <span class="k">except</span> <span class="ne">Exception</span> <span class="k">as</span> <span class="n">ex</span><span class="p">:</span>
-                <span class="n">LOGGER</span><span class="o">.</span><span class="n">error</span><span class="p">(</span><span class="s2">&quot;Exception in user&#39;s on_c_get implementation.&quot;</span><span class="p">)</span>
-                <span class="n">LOGGER</span><span class="o">.</span><span class="n">exception</span><span class="p">(</span><span class="n">ex</span><span class="p">)</span>
-                <span class="n">rsp</span><span class="o">.</span><span class="n">Status</span> <span class="o">=</span> <span class="mh">0xC411</span>
-                <span class="bp">self</span><span class="o">.</span><span class="n">dimse</span><span class="o">.</span><span class="n">send_msg</span><span class="p">(</span><span class="n">rsp</span><span class="p">,</span> <span class="n">context</span><span class="o">.</span><span class="n">context_id</span><span class="p">)</span>
-                <span class="k">return</span>
+        <span class="k">try</span><span class="p">:</span>
+            <span class="n">result</span> <span class="o">=</span> <span class="n">evt</span><span class="o">.</span><span class="n">trigger</span><span class="p">(</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">assoc</span><span class="p">,</span>
+                <span class="n">evt</span><span class="o">.</span><span class="n">EVT_C_GET</span><span class="p">,</span>
+                <span class="p">{</span>
+                    <span class="s1">&#39;request&#39;</span> <span class="p">:</span> <span class="n">req</span><span class="p">,</span>
+                    <span class="s1">&#39;context&#39;</span> <span class="p">:</span> <span class="n">context</span><span class="o">.</span><span class="n">as_tuple</span><span class="p">,</span>
+                    <span class="s1">&#39;_is_cancelled&#39;</span> <span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">is_cancelled</span>
+                <span class="p">}</span>
+            <span class="p">)</span>
+        <span class="k">except</span> <span class="ne">Exception</span> <span class="k">as</span> <span class="n">exc</span><span class="p">:</span>
+            <span class="n">LOGGER</span><span class="o">.</span><span class="n">error</span><span class="p">(</span><span class="s2">&quot;Exception in handler bound to &#39;evt.EVT_C_GET&#39;&quot;</span><span class="p">)</span>
+            <span class="n">LOGGER</span><span class="o">.</span><span class="n">exception</span><span class="p">(</span><span class="n">exc</span><span class="p">)</span>
+            <span class="n">rsp</span><span class="o">.</span><span class="n">Status</span> <span class="o">=</span> <span class="mh">0xC411</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">dimse</span><span class="o">.</span><span class="n">send_msg</span><span class="p">(</span><span class="n">rsp</span><span class="p">,</span> <span class="n">context</span><span class="o">.</span><span class="n">context_id</span><span class="p">)</span>
+            <span class="k">return</span>
 
         <span class="c1"># Number of C-STORE sub-operations</span>
         <span class="k">try</span><span class="p">:</span>
@@ -1390,7 +1247,7 @@
 
         <span class="bp">self</span><span class="o">.</span><span class="n">dimse</span><span class="o">.</span><span class="n">send_msg</span><span class="p">(</span><span class="n">rsp</span><span class="p">,</span> <span class="n">context</span><span class="o">.</span><span class="n">context_id</span><span class="p">)</span>
 
-    <span class="k">def</span> <span class="nf">_move_scp</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">req</span><span class="p">,</span> <span class="n">context</span><span class="p">,</span> <span class="n">info</span><span class="p">):</span>
+    <span class="k">def</span> <span class="nf">_move_scp</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">req</span><span class="p">,</span> <span class="n">context</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;The SCP implementation for Query/Retrieve - Move.</span>
 
 <span class="sd">        Parameters</span>
@@ -1399,12 +1256,9 @@
 <span class="sd">            The C-MOVE request primitive sent by the peer.</span>
 <span class="sd">        context : presentation.PresentationContext</span>
 <span class="sd">            The presentation context that the SCP is operating under.</span>
-<span class="sd">        info : dict</span>
-<span class="sd">            A dict containing details about the association.</span>
 
 <span class="sd">        See Also</span>
 <span class="sd">        --------</span>
-<span class="sd">        ae.ApplicationEntity.on_c_move</span>
 <span class="sd">        association.Association.send_c_move</span>
 
 <span class="sd">        Notes</span>
@@ -1544,47 +1398,23 @@
             <span class="bp">self</span><span class="o">.</span><span class="n">dimse</span><span class="o">.</span><span class="n">send_msg</span><span class="p">(</span><span class="n">rsp</span><span class="p">,</span> <span class="n">context</span><span class="o">.</span><span class="n">context_id</span><span class="p">)</span>
             <span class="k">return</span>
 
-        <span class="c1"># TODO: refactor in v1.4</span>
-        <span class="n">default_handler</span> <span class="o">=</span> <span class="n">evt</span><span class="o">.</span><span class="n">get_default_handler</span><span class="p">(</span><span class="n">evt</span><span class="o">.</span><span class="n">EVT_C_MOVE</span><span class="p">)</span>
-        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">assoc</span><span class="o">.</span><span class="n">get_handlers</span><span class="p">(</span><span class="n">evt</span><span class="o">.</span><span class="n">EVT_C_MOVE</span><span class="p">)</span> <span class="o">!=</span> <span class="n">default_handler</span><span class="p">:</span>
-            <span class="k">try</span><span class="p">:</span>
-                <span class="n">result</span> <span class="o">=</span> <span class="n">evt</span><span class="o">.</span><span class="n">trigger</span><span class="p">(</span>
-                    <span class="bp">self</span><span class="o">.</span><span class="n">assoc</span><span class="p">,</span>
-                    <span class="n">evt</span><span class="o">.</span><span class="n">EVT_C_MOVE</span><span class="p">,</span>
-                    <span class="p">{</span>
-                        <span class="s1">&#39;request&#39;</span> <span class="p">:</span> <span class="n">req</span><span class="p">,</span>
-                        <span class="s1">&#39;context&#39;</span> <span class="p">:</span> <span class="n">context</span><span class="o">.</span><span class="n">as_tuple</span><span class="p">,</span>
-                        <span class="s1">&#39;_is_cancelled&#39;</span> <span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">is_cancelled</span>
-                    <span class="p">}</span>
-                <span class="p">)</span>
-            <span class="k">except</span> <span class="ne">Exception</span> <span class="k">as</span> <span class="n">exc</span><span class="p">:</span>
-                <span class="n">LOGGER</span><span class="o">.</span><span class="n">error</span><span class="p">(</span><span class="s2">&quot;Exception in handler bound to &#39;evt.EVT_C_MOVE&#39;&quot;</span><span class="p">)</span>
-                <span class="n">LOGGER</span><span class="o">.</span><span class="n">exception</span><span class="p">(</span><span class="n">exc</span><span class="p">)</span>
-                <span class="c1"># Failure - Unable to process - Error in on_c_move callback</span>
-                <span class="n">rsp</span><span class="o">.</span><span class="n">Status</span> <span class="o">=</span> <span class="mh">0xC511</span>
-                <span class="bp">self</span><span class="o">.</span><span class="n">dimse</span><span class="o">.</span><span class="n">send_msg</span><span class="p">(</span><span class="n">rsp</span><span class="p">,</span> <span class="n">context</span><span class="o">.</span><span class="n">context_id</span><span class="p">)</span>
-                <span class="k">return</span>
-        <span class="k">else</span><span class="p">:</span>
-            <span class="n">info</span><span class="p">[</span><span class="s1">&#39;parameters&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="p">{</span>
-                 <span class="s1">&#39;message_id&#39;</span> <span class="p">:</span> <span class="n">req</span><span class="o">.</span><span class="n">MessageID</span><span class="p">,</span>
-                 <span class="s1">&#39;priority&#39;</span> <span class="p">:</span> <span class="n">req</span><span class="o">.</span><span class="n">Priority</span>
-            <span class="p">}</span>
-            <span class="c1"># Add callable to the info so user can check if cancelled</span>
-            <span class="n">info</span><span class="p">[</span><span class="s1">&#39;cancelled&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">is_cancelled</span>
-
-            <span class="c1"># Callback - C-MOVE</span>
-            <span class="k">try</span><span class="p">:</span>
-                <span class="n">result</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">ae</span><span class="o">.</span><span class="n">on_c_move</span><span class="p">(</span><span class="n">identifier</span><span class="p">,</span>
-                                           <span class="n">req</span><span class="o">.</span><span class="n">MoveDestination</span><span class="p">,</span>
-                                           <span class="n">context</span><span class="o">.</span><span class="n">as_tuple</span><span class="p">,</span>
-                                           <span class="n">info</span><span class="p">)</span>
-            <span class="k">except</span> <span class="ne">Exception</span> <span class="k">as</span> <span class="n">exc</span><span class="p">:</span>
-                <span class="n">LOGGER</span><span class="o">.</span><span class="n">error</span><span class="p">(</span><span class="s2">&quot;Exception in user&#39;s on_c_move implementation.&quot;</span><span class="p">)</span>
-                <span class="n">LOGGER</span><span class="o">.</span><span class="n">exception</span><span class="p">(</span><span class="n">exc</span><span class="p">)</span>
-                <span class="c1"># Failure - Unable to process - Error in on_c_move callback</span>
-                <span class="n">rsp</span><span class="o">.</span><span class="n">Status</span> <span class="o">=</span> <span class="mh">0xC511</span>
-                <span class="bp">self</span><span class="o">.</span><span class="n">dimse</span><span class="o">.</span><span class="n">send_msg</span><span class="p">(</span><span class="n">rsp</span><span class="p">,</span> <span class="n">context</span><span class="o">.</span><span class="n">context_id</span><span class="p">)</span>
-                <span class="k">return</span>
+        <span class="k">try</span><span class="p">:</span>
+            <span class="n">result</span> <span class="o">=</span> <span class="n">evt</span><span class="o">.</span><span class="n">trigger</span><span class="p">(</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">assoc</span><span class="p">,</span>
+                <span class="n">evt</span><span class="o">.</span><span class="n">EVT_C_MOVE</span><span class="p">,</span>
+                <span class="p">{</span>
+                    <span class="s1">&#39;request&#39;</span> <span class="p">:</span> <span class="n">req</span><span class="p">,</span>
+                    <span class="s1">&#39;context&#39;</span> <span class="p">:</span> <span class="n">context</span><span class="o">.</span><span class="n">as_tuple</span><span class="p">,</span>
+                    <span class="s1">&#39;_is_cancelled&#39;</span> <span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">is_cancelled</span>
+                <span class="p">}</span>
+            <span class="p">)</span>
+        <span class="k">except</span> <span class="ne">Exception</span> <span class="k">as</span> <span class="n">exc</span><span class="p">:</span>
+            <span class="n">LOGGER</span><span class="o">.</span><span class="n">error</span><span class="p">(</span><span class="s2">&quot;Exception in handler bound to &#39;evt.EVT_C_MOVE&#39;&quot;</span><span class="p">)</span>
+            <span class="n">LOGGER</span><span class="o">.</span><span class="n">exception</span><span class="p">(</span><span class="n">exc</span><span class="p">)</span>
+            <span class="c1"># Failure - Unable to process - Error in handler</span>
+            <span class="n">rsp</span><span class="o">.</span><span class="n">Status</span> <span class="o">=</span> <span class="mh">0xC511</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">dimse</span><span class="o">.</span><span class="n">send_msg</span><span class="p">(</span><span class="n">rsp</span><span class="p">,</span> <span class="n">context</span><span class="o">.</span><span class="n">context_id</span><span class="p">)</span>
+            <span class="k">return</span>
 
         <span class="k">try</span><span class="p">:</span>
             <span class="n">destination</span> <span class="o">=</span> <span class="nb">next</span><span class="p">(</span><span class="n">result</span><span class="p">)</span>
@@ -1595,7 +1425,7 @@
                 <span class="s2">&quot;of the destination AE, then yield the number of &quot;</span>
                 <span class="s2">&quot;sub-operations, then yield (status dataset) pairs.&quot;</span>
             <span class="p">)</span>
-            <span class="c1"># Failure - Unable to process - Error in on_c_move yield</span>
+            <span class="c1"># Failure - Unable to process - Error in handler</span>
             <span class="n">rsp</span><span class="o">.</span><span class="n">Status</span> <span class="o">=</span> <span class="mh">0xC514</span>
             <span class="bp">self</span><span class="o">.</span><span class="n">dimse</span><span class="o">.</span><span class="n">send_msg</span><span class="p">(</span><span class="n">rsp</span><span class="p">,</span> <span class="n">context</span><span class="o">.</span><span class="n">context_id</span><span class="p">)</span>
             <span class="k">return</span>
@@ -1629,11 +1459,11 @@
                                             <span class="n">ae_title</span><span class="o">=</span><span class="n">req</span><span class="o">.</span><span class="n">MoveDestination</span><span class="p">)</span>
         <span class="k">except</span> <span class="ne">Exception</span> <span class="k">as</span> <span class="n">ex</span><span class="p">:</span>
             <span class="n">LOGGER</span><span class="o">.</span><span class="n">error</span><span class="p">(</span>
-                <span class="s2">&quot;&#39;on_c_move&#39; yielded an invalid destination AE (addr, &quot;</span>
-                <span class="s2">&quot;port) value&quot;</span>
+                <span class="s2">&quot;The handler bound to &#39;evt.EVT_C_MOVE&#39; yielded an invalid &quot;</span>
+                <span class="s2">&quot;destination AE (addr, port) value&quot;</span>
             <span class="p">)</span>
             <span class="n">LOGGER</span><span class="o">.</span><span class="n">exception</span><span class="p">(</span><span class="n">ex</span><span class="p">)</span>
-            <span class="c1"># Failure - Unable to process - Bad on_c_move destination</span>
+            <span class="c1"># Failure - Unable to process - Bad handler AE destination</span>
             <span class="n">rsp</span><span class="o">.</span><span class="n">Status</span> <span class="o">=</span> <span class="mh">0xC515</span>
             <span class="bp">self</span><span class="o">.</span><span class="n">dimse</span><span class="o">.</span><span class="n">send_msg</span><span class="p">(</span><span class="n">rsp</span><span class="p">,</span> <span class="n">context</span><span class="o">.</span><span class="n">context_id</span><span class="p">)</span>
             <span class="k">return</span>
@@ -1654,14 +1484,15 @@
                 <span class="c1"># Exception raised by handler</span>
                 <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">rsp_status</span><span class="p">,</span> <span class="ne">Exception</span><span class="p">):</span>
                     <span class="n">LOGGER</span><span class="o">.</span><span class="n">error</span><span class="p">(</span>
-                        <span class="s2">&quot;Exception raised by user&#39;s C-MOVE request handler&quot;</span><span class="p">,</span>
-                        <span class="n">exc_info</span><span class="o">=</span><span class="n">dataset</span><span class="p">)</span>
+                        <span class="s2">&quot;Exception raised by handler bound to &#39;evt.EVT_C_MOVE&#39;&quot;</span><span class="p">,</span>
+                        <span class="n">exc_info</span><span class="o">=</span><span class="n">dataset</span>
+                    <span class="p">)</span>
                     <span class="n">rsp_status</span> <span class="o">=</span> <span class="mh">0xC511</span>
 
                 <span class="c1"># All sub-operations are complete</span>
                 <span class="k">if</span> <span class="n">store_results</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span> <span class="o">&lt;=</span> <span class="mi">0</span><span class="p">:</span>
                     <span class="n">LOGGER</span><span class="o">.</span><span class="n">warning</span><span class="p">(</span>
-                        <span class="s2">&quot;User&#39;s C-MOVE request handler yielded further &quot;</span>
+                        <span class="s2">&quot;Handler bound to &#39;evt.EVT_C_MOVE&#39; yielded further &quot;</span>
                         <span class="s2">&quot;(status, dataset) results but these will be &quot;</span>
                         <span class="s2">&quot;ignored as the sub-operations are complete&quot;</span>
                     <span class="p">)</span>
@@ -1735,11 +1566,12 @@
                     <span class="bp">self</span><span class="o">.</span><span class="n">dimse</span><span class="o">.</span><span class="n">send_msg</span><span class="p">(</span><span class="n">rsp</span><span class="p">,</span> <span class="n">context</span><span class="o">.</span><span class="n">context_id</span><span class="p">)</span>
                     <span class="k">return</span>
                 <span class="k">elif</span> <span class="n">status</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span> <span class="o">==</span> <span class="n">STATUS_SUCCESS</span><span class="p">:</span>
-                    <span class="c1"># If success, then dataset is None</span>
+                    <span class="c1"># If Success, then dataset is None</span>
                     <span class="n">store_assoc</span><span class="o">.</span><span class="n">release</span><span class="p">()</span>
 
                     <span class="c1"># If the user yields Success, check it</span>
                     <span class="k">if</span> <span class="n">store_results</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span> <span class="ow">or</span> <span class="n">store_results</span><span class="p">[</span><span class="mi">2</span><span class="p">]:</span>
+                        <span class="c1"># Sub-operations contained failures/warnings</span>
                         <span class="n">LOGGER</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="s1">&#39;Move SCP Response: (Warning)&#39;</span><span class="p">)</span>
 
                         <span class="n">ds</span> <span class="o">=</span> <span class="n">Dataset</span><span class="p">()</span>
@@ -1751,7 +1583,8 @@
                         <span class="n">rsp</span><span class="o">.</span><span class="n">Identifier</span> <span class="o">=</span> <span class="n">BytesIO</span><span class="p">(</span><span class="n">bytestream</span><span class="p">)</span>
                         <span class="n">rsp</span><span class="o">.</span><span class="n">Status</span> <span class="o">=</span> <span class="mh">0xB000</span>
                     <span class="k">else</span><span class="p">:</span>
-                        <span class="n">LOGGER</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="s1">&#39;Move SCP Response: (Warning)&#39;</span><span class="p">)</span>
+                        <span class="c1"># No failures or warnings</span>
+                        <span class="n">LOGGER</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="s1">&#39;Move SCP Response: (Success)&#39;</span><span class="p">)</span>
                         <span class="n">rsp</span><span class="o">.</span><span class="n">Identifier</span> <span class="o">=</span> <span class="kc">None</span>
 
                     <span class="n">rsp</span><span class="o">.</span><span class="n">NumberOfRemainingSuboperations</span> <span class="o">=</span> <span class="kc">None</span>
@@ -1870,7 +1703,7 @@
 <div class="viewcode-block" id="BasicWorklistManagementServiceClass.__init__"><a class="viewcode-back" href="../../reference/generated/pynetdicom.service_class.BasicWorklistManagementServiceClass.html#pynetdicom.service_class.BasicWorklistManagementServiceClass.__init__">[docs]</a>    <span class="k">def</span> <span class="nf">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">assoc</span><span class="p">):</span>
         <span class="nb">super</span><span class="p">(</span><span class="n">BasicWorklistManagementServiceClass</span><span class="p">,</span> <span class="bp">self</span><span class="p">)</span><span class="o">.</span><span class="fm">__init__</span><span class="p">(</span><span class="n">assoc</span><span class="p">)</span></div>
 
-<div class="viewcode-block" id="BasicWorklistManagementServiceClass.SCP"><a class="viewcode-back" href="../../reference/generated/pynetdicom.service_class.BasicWorklistManagementServiceClass.html#pynetdicom.service_class.BasicWorklistManagementServiceClass.SCP">[docs]</a>    <span class="k">def</span> <span class="nf">SCP</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">req</span><span class="p">,</span> <span class="n">context</span><span class="p">,</span> <span class="n">info</span><span class="p">):</span>
+<div class="viewcode-block" id="BasicWorklistManagementServiceClass.SCP"><a class="viewcode-back" href="../../reference/generated/pynetdicom.service_class.BasicWorklistManagementServiceClass.html#pynetdicom.service_class.BasicWorklistManagementServiceClass.SCP">[docs]</a>    <span class="k">def</span> <span class="nf">SCP</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">req</span><span class="p">,</span> <span class="n">context</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;The SCP implementation for Basic Worklist Management.</span>
 
 <span class="sd">        Parameters</span>
@@ -1879,12 +1712,9 @@
 <span class="sd">            The C-FIND request primitive received from the peer.</span>
 <span class="sd">        context : presentation.PresentationContext</span>
 <span class="sd">            The presentation context that the SCP is operating under.</span>
-<span class="sd">        info : dict</span>
-<span class="sd">            A dict containing details about the association.</span>
 
 <span class="sd">        See Also</span>
 <span class="sd">        --------</span>
-<span class="sd">        ae.ApplicationEntity.on_c_find</span>
 <span class="sd">        association.Association.send_c_find</span>
 
 <span class="sd">        Notes</span>
@@ -1963,7 +1793,7 @@
 <span class="sd">          and `Annex C &lt;http://dicom.nema.org/medical/dicom/current/output/html/part07.html#chapter_C&gt;`_.</span>
 <span class="sd">        &quot;&quot;&quot;</span>
         <span class="k">if</span> <span class="n">context</span><span class="o">.</span><span class="n">abstract_syntax</span> <span class="o">==</span> <span class="s1">&#39;1.2.840.10008.5.1.4.31&#39;</span><span class="p">:</span>
-            <span class="bp">self</span><span class="o">.</span><span class="n">_find_scp</span><span class="p">(</span><span class="n">req</span><span class="p">,</span> <span class="n">context</span><span class="p">,</span> <span class="n">info</span><span class="p">)</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">_find_scp</span><span class="p">(</span><span class="n">req</span><span class="p">,</span> <span class="n">context</span><span class="p">)</span>
         <span class="k">else</span><span class="p">:</span>
             <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span>
                 <span class="s1">&#39;The supplied abstract syntax is not valid for use with the &#39;</span>
@@ -1975,7 +1805,7 @@
     <span class="sd">&quot;&quot;&quot;Implementation of the Relevant Patient Information Query&quot;&quot;&quot;</span>
     <span class="n">statuses</span> <span class="o">=</span> <span class="n">RELEVANT_PATIENT_SERVICE_CLASS_STATUS</span>
 
-<div class="viewcode-block" id="RelevantPatientInformationQueryServiceClass.SCP"><a class="viewcode-back" href="../../reference/generated/pynetdicom.service_class.RelevantPatientInformationQueryServiceClass.html#pynetdicom.service_class.RelevantPatientInformationQueryServiceClass.SCP">[docs]</a>    <span class="k">def</span> <span class="nf">SCP</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">req</span><span class="p">,</span> <span class="n">context</span><span class="p">,</span> <span class="n">info</span><span class="p">):</span>
+<div class="viewcode-block" id="RelevantPatientInformationQueryServiceClass.SCP"><a class="viewcode-back" href="../../reference/generated/pynetdicom.service_class.RelevantPatientInformationQueryServiceClass.html#pynetdicom.service_class.RelevantPatientInformationQueryServiceClass.SCP">[docs]</a>    <span class="k">def</span> <span class="nf">SCP</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">req</span><span class="p">,</span> <span class="n">context</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;The SCP implementation for the Relevant Patient Information Query</span>
 <span class="sd">        Service Class.</span>
 
@@ -1985,12 +1815,9 @@
 <span class="sd">            The C-FIND request primitive sent by the peer.</span>
 <span class="sd">        context : presentation.PresentationContext</span>
 <span class="sd">            The presentation context that the SCP is operating under.</span>
-<span class="sd">        info : dict</span>
-<span class="sd">            A dict containing details about the association.</span>
 
 <span class="sd">        See Also</span>
 <span class="sd">        --------</span>
-<span class="sd">        ae.ApplicationEntity.on_c_find</span>
 <span class="sd">        association.Association.send_c_find</span>
 
 <span class="sd">        Notes</span>
@@ -2083,64 +1910,30 @@
             <span class="bp">self</span><span class="o">.</span><span class="n">dimse</span><span class="o">.</span><span class="n">send_msg</span><span class="p">(</span><span class="n">rsp</span><span class="p">,</span> <span class="n">context</span><span class="o">.</span><span class="n">context_id</span><span class="p">)</span>
             <span class="k">return</span>
 
-        <span class="c1"># TODO: refactor in v1.4</span>
-        <span class="n">default_handler</span> <span class="o">=</span> <span class="n">evt</span><span class="o">.</span><span class="n">get_default_handler</span><span class="p">(</span><span class="n">evt</span><span class="o">.</span><span class="n">EVT_C_FIND</span><span class="p">)</span>
-        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">assoc</span><span class="o">.</span><span class="n">get_handlers</span><span class="p">(</span><span class="n">evt</span><span class="o">.</span><span class="n">EVT_C_FIND</span><span class="p">)</span> <span class="o">!=</span> <span class="n">default_handler</span><span class="p">:</span>
-            <span class="k">try</span><span class="p">:</span>
-                <span class="n">responses</span> <span class="o">=</span> <span class="n">evt</span><span class="o">.</span><span class="n">trigger</span><span class="p">(</span>
-                    <span class="bp">self</span><span class="o">.</span><span class="n">assoc</span><span class="p">,</span>
-                    <span class="n">evt</span><span class="o">.</span><span class="n">EVT_C_FIND</span><span class="p">,</span>
-                    <span class="p">{</span>
-                        <span class="s1">&#39;request&#39;</span> <span class="p">:</span> <span class="n">req</span><span class="p">,</span>
-                        <span class="s1">&#39;context&#39;</span> <span class="p">:</span> <span class="n">context</span><span class="o">.</span><span class="n">as_tuple</span><span class="p">,</span>
-                        <span class="s1">&#39;_is_cancelled&#39;</span> <span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">is_cancelled</span>
-                    <span class="p">}</span>
-                <span class="p">)</span>
-                <span class="p">(</span><span class="n">rsp_status</span><span class="p">,</span> <span class="n">rsp_identifier</span><span class="p">)</span> <span class="o">=</span> <span class="nb">next</span><span class="p">(</span><span class="n">responses</span><span class="p">)</span>
-            <span class="k">except</span> <span class="p">(</span><span class="ne">StopIteration</span><span class="p">,</span> <span class="ne">TypeError</span><span class="p">):</span>
-                <span class="c1"># There were no matches, so return Success</span>
-                <span class="c1"># If success, then rsp_identifier is None</span>
-                <span class="n">rsp</span><span class="o">.</span><span class="n">Status</span> <span class="o">=</span> <span class="mh">0x0000</span>
-                <span class="n">LOGGER</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="s1">&#39;Find SCP Response: (Success)&#39;</span><span class="p">)</span>
-                <span class="bp">self</span><span class="o">.</span><span class="n">dimse</span><span class="o">.</span><span class="n">send_msg</span><span class="p">(</span><span class="n">rsp</span><span class="p">,</span> <span class="n">context</span><span class="o">.</span><span class="n">context_id</span><span class="p">)</span>
-                <span class="k">return</span>
-            <span class="k">except</span> <span class="ne">Exception</span> <span class="k">as</span> <span class="n">ex</span><span class="p">:</span>
-                <span class="n">LOGGER</span><span class="o">.</span><span class="n">error</span><span class="p">(</span><span class="s2">&quot;Exception in handler bound to &#39;evt.EVT_C_FIND&#39;&quot;</span><span class="p">)</span>
-                <span class="n">LOGGER</span><span class="o">.</span><span class="n">exception</span><span class="p">(</span><span class="n">ex</span><span class="p">)</span>
-                <span class="n">rsp</span><span class="o">.</span><span class="n">Status</span> <span class="o">=</span> <span class="mh">0xC311</span>
-                <span class="bp">self</span><span class="o">.</span><span class="n">dimse</span><span class="o">.</span><span class="n">send_msg</span><span class="p">(</span><span class="n">rsp</span><span class="p">,</span> <span class="n">context</span><span class="o">.</span><span class="n">context_id</span><span class="p">)</span>
-                <span class="k">return</span>
-        <span class="k">else</span><span class="p">:</span>
-
-            <span class="n">info</span><span class="p">[</span><span class="s1">&#39;parameters&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="p">{</span>
-                 <span class="s1">&#39;message_id&#39;</span> <span class="p">:</span> <span class="n">req</span><span class="o">.</span><span class="n">MessageID</span><span class="p">,</span>
-                 <span class="s1">&#39;priority&#39;</span> <span class="p">:</span> <span class="n">req</span><span class="o">.</span><span class="n">Priority</span><span class="p">,</span>
-            <span class="p">}</span>
-            <span class="n">info</span><span class="p">[</span><span class="s1">&#39;cancelled&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">is_cancelled</span>
-
-            <span class="c1"># Relevant Patient Query only allows the following responses:</span>
-            <span class="c1">#   pending + match; success</span>
-            <span class="c1">#   cancel or failure</span>
-            <span class="c1">#   success (no match)</span>
-            <span class="c1"># In other words there can only be 1 or 2 responses</span>
-            <span class="k">try</span><span class="p">:</span>
-                <span class="n">responses</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">ae</span><span class="o">.</span><span class="n">on_c_find</span><span class="p">(</span>
-                    <span class="n">identifier</span><span class="p">,</span> <span class="n">context</span><span class="o">.</span><span class="n">as_tuple</span><span class="p">,</span> <span class="n">info</span>
-                <span class="p">)</span>
-                <span class="p">(</span><span class="n">rsp_status</span><span class="p">,</span> <span class="n">rsp_identifier</span><span class="p">)</span> <span class="o">=</span> <span class="nb">next</span><span class="p">(</span><span class="n">responses</span><span class="p">)</span>
-            <span class="k">except</span> <span class="ne">StopIteration</span><span class="p">:</span>
-                <span class="c1"># There were no matches, so return Success</span>
-                <span class="c1"># If success, then rsp_identifier is None</span>
-                <span class="n">rsp</span><span class="o">.</span><span class="n">Status</span> <span class="o">=</span> <span class="mh">0x0000</span>
-                <span class="n">LOGGER</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="s1">&#39;Find SCP Response: (Success)&#39;</span><span class="p">)</span>
-                <span class="bp">self</span><span class="o">.</span><span class="n">dimse</span><span class="o">.</span><span class="n">send_msg</span><span class="p">(</span><span class="n">rsp</span><span class="p">,</span> <span class="n">context</span><span class="o">.</span><span class="n">context_id</span><span class="p">)</span>
-                <span class="k">return</span>
-            <span class="k">except</span> <span class="ne">Exception</span> <span class="k">as</span> <span class="n">ex</span><span class="p">:</span>
-                <span class="n">LOGGER</span><span class="o">.</span><span class="n">error</span><span class="p">(</span><span class="s2">&quot;Exception in user&#39;s on_c_find implementation.&quot;</span><span class="p">)</span>
-                <span class="n">LOGGER</span><span class="o">.</span><span class="n">exception</span><span class="p">(</span><span class="n">ex</span><span class="p">)</span>
-                <span class="n">rsp</span><span class="o">.</span><span class="n">Status</span> <span class="o">=</span> <span class="mh">0xC311</span>
-                <span class="bp">self</span><span class="o">.</span><span class="n">dimse</span><span class="o">.</span><span class="n">send_msg</span><span class="p">(</span><span class="n">rsp</span><span class="p">,</span> <span class="n">context</span><span class="o">.</span><span class="n">context_id</span><span class="p">)</span>
-                <span class="k">return</span>
+        <span class="k">try</span><span class="p">:</span>
+            <span class="n">responses</span> <span class="o">=</span> <span class="n">evt</span><span class="o">.</span><span class="n">trigger</span><span class="p">(</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">assoc</span><span class="p">,</span>
+                <span class="n">evt</span><span class="o">.</span><span class="n">EVT_C_FIND</span><span class="p">,</span>
+                <span class="p">{</span>
+                    <span class="s1">&#39;request&#39;</span> <span class="p">:</span> <span class="n">req</span><span class="p">,</span>
+                    <span class="s1">&#39;context&#39;</span> <span class="p">:</span> <span class="n">context</span><span class="o">.</span><span class="n">as_tuple</span><span class="p">,</span>
+                    <span class="s1">&#39;_is_cancelled&#39;</span> <span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">is_cancelled</span>
+                <span class="p">}</span>
+            <span class="p">)</span>
+            <span class="p">(</span><span class="n">rsp_status</span><span class="p">,</span> <span class="n">rsp_identifier</span><span class="p">)</span> <span class="o">=</span> <span class="nb">next</span><span class="p">(</span><span class="n">responses</span><span class="p">)</span>
+        <span class="k">except</span> <span class="p">(</span><span class="ne">StopIteration</span><span class="p">,</span> <span class="ne">TypeError</span><span class="p">):</span>
+            <span class="c1"># There were no matches, so return Success</span>
+            <span class="c1"># If success, then rsp_identifier is None</span>
+            <span class="n">rsp</span><span class="o">.</span><span class="n">Status</span> <span class="o">=</span> <span class="mh">0x0000</span>
+            <span class="n">LOGGER</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="s1">&#39;Find SCP Response: (Success)&#39;</span><span class="p">)</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">dimse</span><span class="o">.</span><span class="n">send_msg</span><span class="p">(</span><span class="n">rsp</span><span class="p">,</span> <span class="n">context</span><span class="o">.</span><span class="n">context_id</span><span class="p">)</span>
+            <span class="k">return</span>
+        <span class="k">except</span> <span class="ne">Exception</span> <span class="k">as</span> <span class="n">ex</span><span class="p">:</span>
+            <span class="n">LOGGER</span><span class="o">.</span><span class="n">error</span><span class="p">(</span><span class="s2">&quot;Exception in handler bound to &#39;evt.EVT_C_FIND&#39;&quot;</span><span class="p">)</span>
+            <span class="n">LOGGER</span><span class="o">.</span><span class="n">exception</span><span class="p">(</span><span class="n">ex</span><span class="p">)</span>
+            <span class="n">rsp</span><span class="o">.</span><span class="n">Status</span> <span class="o">=</span> <span class="mh">0xC311</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">dimse</span><span class="o">.</span><span class="n">send_msg</span><span class="p">(</span><span class="n">rsp</span><span class="p">,</span> <span class="n">context</span><span class="o">.</span><span class="n">context_id</span><span class="p">)</span>
+            <span class="k">return</span>
 
         <span class="n">rsp</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">validate_status</span><span class="p">(</span><span class="n">rsp_status</span><span class="p">,</span> <span class="n">rsp</span><span class="p">)</span>
 
@@ -2179,7 +1972,7 @@
                 <span class="n">LOGGER</span><span class="o">.</span><span class="n">error</span><span class="p">(</span><span class="s2">&quot;Failed to encode the received Identifier &quot;</span>
                              <span class="s2">&quot;dataset&quot;</span><span class="p">)</span>
                 <span class="c1"># Failure: Unable to Process - Can&#39;t encode dataset</span>
-                <span class="c1">#   returned by on_c_find callback</span>
+                <span class="c1">#   returned by handler</span>
                 <span class="n">rsp</span><span class="o">.</span><span class="n">Status</span> <span class="o">=</span> <span class="mh">0xC312</span>
                 <span class="bp">self</span><span class="o">.</span><span class="n">dimse</span><span class="o">.</span><span class="n">send_msg</span><span class="p">(</span><span class="n">rsp</span><span class="p">,</span> <span class="n">context</span><span class="o">.</span><span class="n">context_id</span><span class="p">)</span>
                 <span class="k">return</span>
@@ -2210,7 +2003,7 @@
 <div class="viewcode-block" id="SubstanceAdministrationQueryServiceClass.__init__"><a class="viewcode-back" href="../../reference/generated/pynetdicom.service_class.SubstanceAdministrationQueryServiceClass.html#pynetdicom.service_class.SubstanceAdministrationQueryServiceClass.__init__">[docs]</a>    <span class="k">def</span> <span class="nf">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">assoc</span><span class="p">):</span>
         <span class="nb">super</span><span class="p">(</span><span class="n">SubstanceAdministrationQueryServiceClass</span><span class="p">,</span> <span class="bp">self</span><span class="p">)</span><span class="o">.</span><span class="fm">__init__</span><span class="p">(</span><span class="n">assoc</span><span class="p">)</span></div>
 
-<div class="viewcode-block" id="SubstanceAdministrationQueryServiceClass.SCP"><a class="viewcode-back" href="../../reference/generated/pynetdicom.service_class.SubstanceAdministrationQueryServiceClass.html#pynetdicom.service_class.SubstanceAdministrationQueryServiceClass.SCP">[docs]</a>    <span class="k">def</span> <span class="nf">SCP</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">req</span><span class="p">,</span> <span class="n">context</span><span class="p">,</span> <span class="n">info</span><span class="p">):</span>
+<div class="viewcode-block" id="SubstanceAdministrationQueryServiceClass.SCP"><a class="viewcode-back" href="../../reference/generated/pynetdicom.service_class.SubstanceAdministrationQueryServiceClass.html#pynetdicom.service_class.SubstanceAdministrationQueryServiceClass.SCP">[docs]</a>    <span class="k">def</span> <span class="nf">SCP</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">req</span><span class="p">,</span> <span class="n">context</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;The SCP implementation for the Relevant Patient Information Query</span>
 <span class="sd">        Service Class.</span>
 
@@ -2220,12 +2013,9 @@
 <span class="sd">            The C-FIND request primitive sent by the peer.</span>
 <span class="sd">        context : presentation.PresentationContext</span>
 <span class="sd">            The presentation context that the SCP is operating under.</span>
-<span class="sd">        info : dict</span>
-<span class="sd">            A dict containing details about the association.</span>
 
 <span class="sd">        See Also</span>
 <span class="sd">        --------</span>
-<span class="sd">        ae.ApplicationEntity.on_c_find</span>
 <span class="sd">        association.Association.send_c_find</span>
 
 <span class="sd">        Notes</span>
@@ -2286,7 +2076,7 @@
 <span class="sd">           `9.3.2 &lt;http://dicom.nema.org/medical/dicom/current/output/html/part07.html#sect_9.3.2&gt;`_</span>
 <span class="sd">           and `Annex C &lt;http://dicom.nema.org/medical/dicom/current/output/html/part07.html#chapter_C&gt;`_.</span>
 <span class="sd">        &quot;&quot;&quot;</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">_find_scp</span><span class="p">(</span><span class="n">req</span><span class="p">,</span> <span class="n">context</span><span class="p">,</span> <span class="n">info</span><span class="p">)</span></div></div>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_find_scp</span><span class="p">(</span><span class="n">req</span><span class="p">,</span> <span class="n">context</span><span class="p">)</span></div></div>
 
 
 <div class="viewcode-block" id="NonPatientObjectStorageServiceClass"><a class="viewcode-back" href="../../reference/generated/pynetdicom.service_class.NonPatientObjectStorageServiceClass.html#pynetdicom.service_class.NonPatientObjectStorageServiceClass">[docs]</a><span class="k">class</span> <span class="nc">NonPatientObjectStorageServiceClass</span><span class="p">(</span><span class="n">StorageServiceClass</span><span class="p">):</span>

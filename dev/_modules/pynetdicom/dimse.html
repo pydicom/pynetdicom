@@ -107,7 +107,8 @@
 <li class="toctree-l1"><a class="reference internal" href="../../user/index.html">User Guide</a></li>
 </ul>
 <ul>
-<li class="toctree-l1"><a class="reference internal" href="../../release_notes.html">1.3.0</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../release_notes.html">1.4.0</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../release_notes.html#v1-3-0">1.3.0</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../../release_notes.html#v1-2-0">1.2.0</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../../release_notes.html#v1-1-0">1.1.0</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../../release_notes.html#v1-0-0">1.0.0</a></li>
@@ -450,10 +451,6 @@
                 <span class="bp">self</span><span class="o">.</span><span class="n">assoc</span><span class="p">,</span> <span class="n">evt</span><span class="o">.</span><span class="n">EVT_DIMSE_RECV</span><span class="p">,</span> <span class="p">{</span><span class="s1">&#39;message&#39;</span> <span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">message</span><span class="p">}</span>
             <span class="p">)</span>
 
-            <span class="c1"># Callback</span>
-            <span class="c1"># TODO: To be removed in v1.4</span>
-            <span class="bp">self</span><span class="o">.</span><span class="n">on_receive_dimse_message</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">message</span><span class="p">)</span>
-
             <span class="n">context_id</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">message</span><span class="o">.</span><span class="n">context_id</span>
             <span class="k">try</span><span class="p">:</span>
                 <span class="n">primitive</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">message</span><span class="o">.</span><span class="n">message_to_primitive</span><span class="p">()</span>
@@ -502,42 +499,10 @@
             <span class="bp">self</span><span class="o">.</span><span class="n">assoc</span><span class="p">,</span> <span class="n">evt</span><span class="o">.</span><span class="n">EVT_DIMSE_SENT</span><span class="p">,</span> <span class="p">{</span><span class="s1">&#39;message&#39;</span> <span class="p">:</span> <span class="n">dimse_msg</span><span class="p">}</span>
         <span class="p">)</span>
 
-        <span class="c1"># Callbacks</span>
-        <span class="c1"># TODO: To be removed in v1.4</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">on_send_dimse_message</span><span class="p">(</span><span class="n">dimse_msg</span><span class="p">)</span>
-
         <span class="c1"># Split the full messages into P-DATA chunks,</span>
         <span class="c1">#   each below the max_pdu size</span>
         <span class="k">for</span> <span class="n">pdata</span> <span class="ow">in</span> <span class="n">dimse_msg</span><span class="o">.</span><span class="n">encode_msg</span><span class="p">(</span><span class="n">context_id</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">maximum_pdu_size</span><span class="p">):</span>
-            <span class="bp">self</span><span class="o">.</span><span class="n">dul</span><span class="o">.</span><span class="n">send_pdu</span><span class="p">(</span><span class="n">pdata</span><span class="p">)</span></div>
-
-    <span class="c1"># TODO: Deprecated, to be removed in v1.4</span>
-<div class="viewcode-block" id="DIMSEServiceProvider.on_send_dimse_message"><a class="viewcode-back" href="../../reference/generated/pynetdicom.dimse.DIMSEServiceProvider.html#pynetdicom.dimse.DIMSEServiceProvider.on_send_dimse_message">[docs]</a>    <span class="k">def</span> <span class="nf">on_send_dimse_message</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">message</span><span class="p">):</span>
-        <span class="sd">&quot;&quot;&quot;Controls which debugging function is called when sending.</span>
-
-<span class="sd">        Will be called immediately prior to encoding and sending a DIMSE</span>
-<span class="sd">        message.</span>
-
-<span class="sd">        Parameters</span>
-<span class="sd">        ----------</span>
-<span class="sd">        message : dimse_messages.DIMSEMessage</span>
-<span class="sd">            The DIMSE message to be sent.</span>
-<span class="sd">        &quot;&quot;&quot;</span>
-        <span class="k">pass</span></div>
-
-    <span class="c1"># TODO: Deprecated, to be removed in v1.4</span>
-<div class="viewcode-block" id="DIMSEServiceProvider.on_receive_dimse_message"><a class="viewcode-back" href="../../reference/generated/pynetdicom.dimse.DIMSEServiceProvider.html#pynetdicom.dimse.DIMSEServiceProvider.on_receive_dimse_message">[docs]</a>    <span class="k">def</span> <span class="nf">on_receive_dimse_message</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">message</span><span class="p">):</span>
-        <span class="sd">&quot;&quot;&quot;Controls which debugging function is called when receiving.</span>
-
-<span class="sd">        Function will be called immediately after receiving and decoding a</span>
-<span class="sd">        DIMSE message.</span>
-
-<span class="sd">        Parameters</span>
-<span class="sd">        ----------</span>
-<span class="sd">        message : dimse_messages.DIMSEMessage</span>
-<span class="sd">            The DIMSE message that was received.</span>
-<span class="sd">        &quot;&quot;&quot;</span>
-        <span class="k">pass</span></div></div>
+            <span class="bp">self</span><span class="o">.</span><span class="n">dul</span><span class="o">.</span><span class="n">send_pdu</span><span class="p">(</span><span class="n">pdata</span><span class="p">)</span></div></div>
 </pre></div>
 
            </div>

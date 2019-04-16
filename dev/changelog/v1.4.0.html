@@ -8,7 +8,7 @@
   
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   
-  <title>Overview: module code &mdash; pynetdicom 1.4.0.dev0 documentation</title>
+  <title>1.4.0 &mdash; pynetdicom 1.4.0.dev0 documentation</title>
   
 
   
@@ -157,10 +157,14 @@
     
       <li><a href="../index.html">Docs</a> &raquo;</li>
         
-      <li>Overview: module code</li>
+      <li>1.4.0</li>
     
     
       <li class="wy-breadcrumbs-aside">
+        
+            
+            <a href="../_sources/changelog/v1.4.0.rst.txt" rel="nofollow"> View page source</a>
+          
         
       </li>
     
@@ -172,32 +176,38 @@
           <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
            <div itemprop="articleBody">
             
-  <h1>All modules for which code is available</h1>
-<ul><li><a href="pynetdicom/_handlers.html">pynetdicom._handlers</a></li>
-<li><a href="pynetdicom/acse.html">pynetdicom.acse</a></li>
-<li><a href="pynetdicom/ae.html">pynetdicom.ae</a></li>
-<li><a href="pynetdicom/association.html">pynetdicom.association</a></li>
-<li><a href="pynetdicom/dimse.html">pynetdicom.dimse</a></li>
-<li><a href="pynetdicom/dimse_messages.html">pynetdicom.dimse_messages</a></li>
-<li><a href="pynetdicom/dimse_primitives.html">pynetdicom.dimse_primitives</a></li>
-<li><a href="pynetdicom/dsutils.html">pynetdicom.dsutils</a></li>
-<li><a href="pynetdicom/dul.html">pynetdicom.dul</a></li>
-<li><a href="pynetdicom/events.html">pynetdicom.events</a></li>
-<li><a href="pynetdicom/fsm.html">pynetdicom.fsm</a></li>
-<li><a href="pynetdicom/pdu.html">pynetdicom.pdu</a></li>
-<li><a href="pynetdicom/pdu_items.html">pynetdicom.pdu_items</a></li>
-<li><a href="pynetdicom/pdu_primitives.html">pynetdicom.pdu_primitives</a></li>
-<li><a href="pynetdicom/presentation.html">pynetdicom.presentation</a></li>
-<li><a href="pynetdicom/service_class.html">pynetdicom.service_class</a></li>
-<li><a href="pynetdicom/service_class_n.html">pynetdicom.service_class_n</a></li>
-<li><a href="pynetdicom/sop_class.html">pynetdicom.sop_class</a></li>
-<li><a href="pynetdicom/status.html">pynetdicom.status</a></li>
-<li><a href="pynetdicom/timer.html">pynetdicom.timer</a></li>
-<li><a href="pynetdicom/transport.html">pynetdicom.transport</a></li>
-<li><a href="pynetdicom/utils.html">pynetdicom.utils</a></li>
-<li><a href="socketserver.html">socketserver</a></li>
-<li><a href="threading.html">threading</a></li>
+  <div class="section" id="v1-4-0">
+<span id="id1"></span><h1>1.4.0<a class="headerlink" href="#v1-4-0" title="Permalink to this headline">¶</a></h1>
+<div class="section" id="fixes">
+<h2>Fixes<a class="headerlink" href="#fixes" title="Permalink to this headline">¶</a></h2>
+<ul class="simple">
+<li><p>Fixed Query Retrieve service class not responded with 0x0000 Success if no
+matches were yielded by the C-FIND request handler.</p></li>
 </ul>
+</div>
+<div class="section" id="enhancements">
+<h2>Enhancements<a class="headerlink" href="#enhancements" title="Permalink to this headline">¶</a></h2>
+</div>
+<div class="section" id="changes">
+<h2>Changes<a class="headerlink" href="#changes" title="Permalink to this headline">¶</a></h2>
+<ul class="simple">
+<li><p>The following have been removed as per planned deprecation:</p>
+<ul>
+<li><p><code class="docutils literal notranslate"><span class="pre">AE.on_c_store()</span></code>, <code class="docutils literal notranslate"><span class="pre">AE.on_c_echo()</span></code>, <code class="docutils literal notranslate"><span class="pre">AE.on_c_find()</span></code>,
+<code class="docutils literal notranslate"><span class="pre">AE.on_c_get()</span></code>, <code class="docutils literal notranslate"><span class="pre">AE.on_c_move()</span></code>, <code class="docutils literal notranslate"><span class="pre">AE.on_n_get()</span></code>,
+<code class="docutils literal notranslate"><span class="pre">AE.on_async_ops_window()</span></code>, <code class="docutils literal notranslate"><span class="pre">AE.on_sop_class_common_extended()</span></code>,
+<code class="docutils literal notranslate"><span class="pre">AE.on_sop_class_extended()</span></code>, <code class="docutils literal notranslate"><span class="pre">AE.on_user_identity()</span></code>,
+<code class="docutils literal notranslate"><span class="pre">AE.on_association_accepted()</span></code>, <code class="docutils literal notranslate"><span class="pre">AE.on_association_rejected()</span></code>,
+<code class="docutils literal notranslate"><span class="pre">AE.on_association_released()</span></code>, <code class="docutils literal notranslate"><span class="pre">AE.on_association_aborted()</span></code>,</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">_config.DECODE_STORE_DATASETS</span></code></p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">DIMSEServiceProvider.on_send_dimse_message()</span></code>,
+<code class="docutils literal notranslate"><span class="pre">DIMSEServiceProvider.on_receive_dimse_message()</span></code>,</p></li>
+</ul>
+</li>
+</ul>
+</div>
+</div>
+
 
            </div>
            

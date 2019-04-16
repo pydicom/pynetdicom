@@ -119,7 +119,8 @@
 <li class="toctree-l1"><a class="reference internal" href="user/index.html">User Guide</a></li>
 </ul>
 <ul>
-<li class="toctree-l1"><a class="reference internal" href="release_notes.html">1.3.0</a></li>
+<li class="toctree-l1"><a class="reference internal" href="release_notes.html">1.4.0</a></li>
+<li class="toctree-l1"><a class="reference internal" href="release_notes.html#v1-3-0">1.3.0</a></li>
 <li class="toctree-l1"><a class="reference internal" href="release_notes.html#v1-2-0">1.2.0</a></li>
 <li class="toctree-l1"><a class="reference internal" href="release_notes.html#v1-1-0">1.1.0</a></li>
 <li class="toctree-l1"><a class="reference internal" href="release_notes.html#v1-0-0">1.0.0</a></li>
@@ -327,15 +328,15 @@ occurred to help aid in debugging.</p>
 <tbody>
 <tr class="row-even"><td><p>0xC001</p></td>
 <td><p>Failure</p></td>
-<td><p>User’s callback implementation returned a
-status Dataset with no (0000,0900) <em>Status</em>
+<td><p>Handler bound to <code class="docutils literal notranslate"><span class="pre">evt.EVT_C_STORE</span></code> returned
+a status Dataset with no (0000,0900) <em>Status</em>
 element</p></td>
 </tr>
 <tr class="row-odd"><td><p>0xC002</p></td>
 <td><p>Failure</p></td>
-<td><p>User’s callback implementation returned an
-invalid status object (not a pydicom Dataset
-or an int)</p></td>
+<td><p>Handler bound to <code class="docutils literal notranslate"><span class="pre">evt.EVT_C_STORE</span></code> returned
+an invalid status object (not a pydicom
+Dataset or an int)</p></td>
 </tr>
 <tr class="row-even"><td><p>0xC210</p></td>
 <td><p>Failure</p></td>
@@ -344,8 +345,8 @@ the peer</p></td>
 </tr>
 <tr class="row-odd"><td><p>0xC211</p></td>
 <td><p>Failure</p></td>
-<td><p>Unhandled exception raised by the user’s
-implementation of the <code class="docutils literal notranslate"><span class="pre">on_c_store</span></code> callback</p></td>
+<td><p>Unhandled exception raised by the handler
+bound to <code class="docutils literal notranslate"><span class="pre">evt.EVT_C_STORE</span></code></p></td>
 </tr>
 </tbody>
 </table>
