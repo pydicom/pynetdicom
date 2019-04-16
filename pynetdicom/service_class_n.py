@@ -28,7 +28,7 @@ class DisplaySystemManagementServiceClass(ServiceClass):
     """Implementation of the Display System Management Service Class."""
     statuses = GENERAL_STATUS
 
-    def SCP(self, req, context, info):
+    def SCP(self, req, context):
         """The implementation for the DIMSE N-GET service.
 
         Parameters
@@ -37,12 +37,9 @@ class DisplaySystemManagementServiceClass(ServiceClass):
             The N-GET request primitive sent by the peer.
         context : presentation.PresentationContext
             The presentation context that the service is operating under.
-        info : dict
-            A dict containing details about the association.
 
         See Also
         --------
-        ae.ApplicationEntity.on_n_get
         association.Association.send_n_get
 
         Notes
@@ -90,45 +87,19 @@ class DisplaySystemManagementServiceClass(ServiceClass):
         rsp.AffectedSOPClassUID = req.RequestedSOPClassUID
         rsp.AffectedSOPInstanceUID = req.RequestedSOPInstanceUID
 
-        default_handler = evt.get_default_handler(evt.EVT_N_GET)
-        if self.assoc.get_handlers(evt.EVT_N_GET) != default_handler:
-            try:
-                (rsp_status, ds) = evt.trigger(
-                    self.assoc,
-                    evt.EVT_N_GET,
-                    {
-                        'request' : req,
-                        'context' : context.as_tuple,
-                    }
-                )
-            except Exception as exc:
-                LOGGER.error(
-                    "Exception in the handler bound to 'evt.EVT_N_GET'"
-                )
-                LOGGER.exception(exc)
-                # Processing failure - Error in on_n_get callback
-                rsp_status = 0x0110
-        else:
-            info['parameters'] = {
-                'message_id' : req.MessageID,
-                'requested_sop_class_uid' : req.RequestedSOPClassUID,
-                'requested_sop_instance_uid' : req.RequestedSOPInstanceUID,
-            }
-
-            # Attempt to run the ApplicationEntity's on_n_get callback
-            # pylint: disable=broad-except
-            try:
-            # Send the value rather than the element
-                (rsp_status, ds) = self.ae.on_n_get(
-                    req.AttributeIdentifierList, context.as_tuple, info
-                )
-            except Exception as exc:
-                LOGGER.error(
-                    "Exception in the ApplicationEntity.on_n_get() callback"
-                )
-                LOGGER.exception(exc)
-                # Processing failure - Error in on_n_get callback
-                rsp_status = 0x0110
+        try:
+            rsp_status, ds = evt.trigger(
+                self.assoc,
+                evt.EVT_N_GET,
+                {'request' : req, 'context' : context.as_tuple}
+            )
+        except Exception as exc:
+            LOGGER.error(
+                "Exception in the handler bound to 'evt.EVT_N_GET'"
+            )
+            LOGGER.exception(exc)
+            # Processing failure - Error in handler
+            rsp_status = 0x0110
 
         # Validate rsp_status and set rsp.Status accordingly
         rsp = self.validate_status(rsp_status, rsp)
@@ -156,7 +127,7 @@ class ModalityPerformedProcedureStepServiceClass(ServiceClass):
     """Implementation of the Modality Performed Procedure Step Service Class"""
     statuses = _PROCEDURE_STEP_STATUS
 
-    def SCP(self, req, context, info):
+    def SCP(self, req, context):
         """
 
         Parameters
@@ -166,8 +137,6 @@ class ModalityPerformedProcedureStepServiceClass(ServiceClass):
             sent by the peer.
         context : presentation.PresentationContext
             The presentation context that the SCP is operating under.
-        info : dict
-            A dict containing details about the association.
         """
         if isinstance(req, N_CREATE):
             # Modality Performed Procedure Step
@@ -430,12 +399,9 @@ class ModalityPerformedProcedureStepServiceClass(ServiceClass):
             The N-GET request primitive sent by the peer.
         context : presentation.PresentationContext
             The presentation context that the service is operating under.
-        info : dict
-            A dict containing details about the association.
 
         See Also
         --------
-        ae.ApplicationEntity.on_n_get
         association.Association.send_n_get
 
         Notes
@@ -516,7 +482,7 @@ class ModalityPerformedProcedureStepServiceClass(ServiceClass):
                 "Exception in the handler bound to 'evt.EVT_N_GET'"
             )
             LOGGER.exception(exc)
-            # Processing failure - Error in on_n_get callback
+            # Processing failure - Error in handler
             rsp.Status = 0x0110
             self.dimse.send_msg(rsp, context.context_id)
             return

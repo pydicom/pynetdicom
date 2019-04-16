@@ -96,7 +96,7 @@ class ServiceClass(object):
 
         return False
 
-    def SCP(self, req, context, info):
+    def SCP(self, req, context):
         """The implementation of the corresponding service class.
 
         Parameters
@@ -105,8 +105,6 @@ class ServiceClass(object):
             The message request primitive sent by the peer.
         context : presentation.PresentationContext
             The presentation context that the SCP is operating under.
-        info : dict
-            A dict containing details about the association.
         """
         msg = (
             "No service class has been implemented for the SOP Class UID '{}'"
@@ -192,11 +190,11 @@ class VerificationServiceClass(ServiceClass):
     """Implementation of the Verification Service Class."""
     statuses = VERIFICATION_SERVICE_CLASS_STATUS
 
-    def SCP(self, req, context, info):
+    def SCP(self, req, context):
         """The SCP implementation for the Verification Service Class.
 
         Will always return 0x0000 (Success) unless the user returns a different
-        (valid) status value from the `AE.on_c_echo` callback.
+        (valid) status value from the handler bound to `evt.EVT_C_ECHO`.
 
         Parameters
         ----------
@@ -204,12 +202,9 @@ class VerificationServiceClass(ServiceClass):
             The C-ECHO request primitive sent by the peer.
         context : presentation.PresentationContext
             The presentation context that the SCP is operating under.
-        info : dict
-            A dict containing details about the association.
 
         See Also
         --------
-        ae.ApplicationEntity.on_c_echo
         association.Association.send_c_echo
 
         Notes
@@ -260,86 +255,49 @@ class VerificationServiceClass(ServiceClass):
         rsp.MessageIDBeingRespondedTo = req.MessageID
         rsp.AffectedSOPClassUID = req.AffectedSOPClassUID
 
-        info['parameters'] = {
-            'message_id' : req.MessageID
-        }
-
-        # Try and run the user's on_c_echo callback. The callback should return
-        #   the Status as either an int or Dataset, and any failures in the
-        #   callback results in 0x0000 'Success'
-        # TODO: refactor in v1.4
-        default_handler = evt.get_default_handler(evt.EVT_C_ECHO)
-        if self.assoc.get_handlers(evt.EVT_C_ECHO) != default_handler:
-            try:
-                status = evt.trigger(
-                    self.assoc,
-                    evt.EVT_C_ECHO,
-                    {'request' : req, 'context' : context.as_tuple}
-                )
-                if isinstance(status, Dataset):
-                    if 'Status' not in status:
-                        raise AttributeError(
-                            "The 'status' dataset returned by the handler "
-                            "bound to 'evt.EVT_C_ECHO' must contain"
-                            "a (0000,0900) Status element"
-                        )
-                    for elem in status:
-                        if hasattr(rsp, elem.keyword):
-                            setattr(rsp, elem.keyword, elem.value)
-                        else:
-                            LOGGER.warning(
-                                "The 'status' dataset returned by the handler "
-                                "bound to 'evt.EVT_C_ECHO' contained an "
-                                "unsupported Element '%s'.", elem.keyword)
-                elif isinstance(status, int):
-                    rsp.Status = status
-                else:
-                    raise TypeError(
-                        "Invalid 'status' returned by the handler bound to "
-                        "'evt.EVT_C_ECHO'"
+        try:
+            status = evt.trigger(
+                self.assoc,
+                evt.EVT_C_ECHO,
+                {'request' : req, 'context' : context.as_tuple}
+            )
+            if isinstance(status, Dataset):
+                if 'Status' not in status:
+                    raise AttributeError(
+                        "The 'status' dataset returned by the handler "
+                        "bound to 'evt.EVT_C_ECHO' must contain"
+                        "a (0000,0900) Status element"
                     )
-
-            except Exception as ex:
-                LOGGER.error(
-                    "Exception in the handler bound to 'evt.EVT_C_ECHO', "
-                    "responding with a default 'Status' value of 0x0000 "
-                    "(Success)"
+                for elem in status:
+                    if hasattr(rsp, elem.keyword):
+                        setattr(rsp, elem.keyword, elem.value)
+                    else:
+                        LOGGER.warning(
+                            "The 'status' dataset returned by the handler "
+                            "bound to 'evt.EVT_C_ECHO' contained an "
+                            "unsupported Element '%s'.", elem.keyword)
+            elif isinstance(status, int):
+                rsp.Status = status
+            else:
+                raise TypeError(
+                    "Invalid 'status' returned by the handler bound to "
+                    "'evt.EVT_C_ECHO'"
                 )
-                LOGGER.exception(ex)
-                rsp.Status = 0x0000
-        else:
-            try:
-                status = self.ae.on_c_echo(context.as_tuple, info)
-                if isinstance(status, Dataset):
-                    if 'Status' not in status:
-                        raise AttributeError("The 'status' dataset returned by "
-                                             "'on_c_echo' must contain"
-                                             "a (0000,0900) Status element")
-                    for elem in status:
-                        if hasattr(rsp, elem.keyword):
-                            setattr(rsp, elem.keyword, elem.value)
-                        else:
-                            LOGGER.warning("The 'status' dataset returned by "
-                                           "'on_c_echo' contained an unsupported "
-                                           "Element '%s'.", elem.keyword)
-                elif isinstance(status, int):
-                    rsp.Status = status
-                else:
-                    raise TypeError("Invalid 'status' returned by 'on_c_echo'")
 
-            except Exception as ex:
-                LOGGER.error(
-                    "Exception in the 'on_c_echo' callback, responding "
-                    "with default 'Status' value of 0x0000 (Success)"
-                )
-                LOGGER.exception(ex)
-                rsp.Status = 0x0000
+        except Exception as ex:
+            LOGGER.error(
+                "Exception in the handler bound to 'evt.EVT_C_ECHO', "
+                "responding with a default 'Status' value of 0x0000 "
+                "(Success)"
+            )
+            LOGGER.exception(ex)
+            rsp.Status = 0x0000
 
         # Check Status validity
         if not self.is_valid_status(rsp.Status):
             LOGGER.warning(
-                "Unknown 'status' value returned by 'on_c_echo' "
-                "callback - 0x{0:04x}".format(rsp.Status)
+                "Unknown 'status' value returned by the handler bound to "
+                "'evt.EVT_C_ECHO' - 0x{0:04x}".format(rsp.Status)
             )
 
         # Send primitive
@@ -351,7 +309,7 @@ class StorageServiceClass(ServiceClass):
     uid = '1.2.840.10008.4.2'
     statuses = STORAGE_SERVICE_CLASS_STATUS
 
-    def SCP(self, req, context, info):
+    def SCP(self, req, context):
         """The SCP implementation for the Storage Service Class.
 
         Parameters
@@ -360,12 +318,9 @@ class StorageServiceClass(ServiceClass):
             The C-STORE request primitive sent by the peer.
         context : presentation.PresentationContext
             The presentation context that the SCP is operating under.
-        info : dict
-            A dict containing details about the association.
 
         See Also
         --------
-        ae.ApplicationEntity.on_c_store
         association.Association.send_c_store
 
         Notes
@@ -431,62 +386,20 @@ class StorageServiceClass(ServiceClass):
         rsp.AffectedSOPInstanceUID = req.AffectedSOPInstanceUID
         rsp.AffectedSOPClassUID = req.AffectedSOPClassUID
 
-        transfer_syntax = context.transfer_syntax[0]
-
-        # TODO: refactor in v1.4
-        default_handler = evt.get_default_handler(evt.EVT_C_STORE)
-        if self.assoc.get_handlers(evt.EVT_C_STORE) != default_handler:
-            try:
-                rsp_status = evt.trigger(
-                    self.assoc,
-                    evt.EVT_C_STORE,
-                    {'request' : req, 'context' : context.as_tuple}
-                )
-            except Exception as exc:
-                LOGGER.error(
-                    "Exception in the handler bound to 'evt.EVT_C_STORE'"
-                )
-                LOGGER.exception(exc)
-                rsp.Status = 0xC211
-                self.dimse.send_msg(rsp, context.context_id)
-                return
-        else:
-            if _config.DECODE_STORE_DATASETS:
-                # Attempt to decode the request's dataset
-                try:
-                    ds = decode(req.DataSet,
-                                transfer_syntax.is_implicit_VR,
-                                transfer_syntax.is_little_endian)
-                    # Trigger exception if bad dataset
-                    for elem in ds:
-                        pass
-                except Exception as ex:
-                    LOGGER.error("Failed to decode the received dataset")
-                    LOGGER.exception(ex)
-                    # Failure: Cannot Understand - Dataset decoding error
-                    rsp.Status = 0xC210
-                    rsp.ErrorComment = 'Unable to decode the dataset'
-                    self.dimse.send_msg(rsp, context.context_id)
-                    return
-            else:
-                ds = req.DataSet.getvalue()
-
-            info['parameters'] = {
-                'message_id' : req.MessageID,
-                'priority' : req.Priority,
-                'originator_aet' : req.MoveOriginatorApplicationEntityTitle,
-                'originator_message_id' : req.MoveOriginatorMessageID
-            }
-
-            # Attempt to run the ApplicationEntity's on_c_store callback
-            try:
-                rsp_status = self.ae.on_c_store(ds, context.as_tuple, info)
-            except Exception as ex:
-                LOGGER.error("Exception in the ApplicationEntity.on_c_store() "
-                             "callback")
-                LOGGER.exception(ex)
-                # Failure: Cannot Understand - Error in on_c_store callback
-                rsp_status = 0xC211
+        try:
+            rsp_status = evt.trigger(
+                self.assoc,
+                evt.EVT_C_STORE,
+                {'request' : req, 'context' : context.as_tuple}
+            )
+        except Exception as exc:
+            LOGGER.error(
+                "Exception in the handler bound to 'evt.EVT_C_STORE'"
+            )
+            LOGGER.exception(exc)
+            rsp.Status = 0xC211
+            self.dimse.send_msg(rsp, context.context_id)
+            return
 
         # Validate rsp_status and set rsp.Status accordingly
         rsp = self.validate_status(rsp_status, rsp)
@@ -503,7 +416,7 @@ class QueryRetrieveServiceClass(ServiceClass):
         'CurveData', 'AudioSampleData', 'EncapsulatedDocument'
     ]
 
-    def SCP(self, req, context, info):
+    def SCP(self, req, context):
         """The SCP implementation for the Query/Retrieve Service Class.
 
         Parameters
@@ -512,8 +425,6 @@ class QueryRetrieveServiceClass(ServiceClass):
             The request primitive received from the peer.
         context : presentation.PresentationContext
             The presentation context that the SCP is operating under.
-        info : dict
-            A dict containing details about the association.
         """
         if context.abstract_syntax in ['1.2.840.10008.5.1.4.1.2.1.1',
                                        '1.2.840.10008.5.1.4.1.2.2.1',
@@ -525,7 +436,7 @@ class QueryRetrieveServiceClass(ServiceClass):
                                        '1.2.840.10008.5.1.4.44.2',
                                        '1.2.840.10008.5.1.4.45.2']:
             self.statuses = QR_FIND_SERVICE_CLASS_STATUS
-            self._find_scp(req, context, info)
+            self._find_scp(req, context)
         elif context.abstract_syntax in ['1.2.840.10008.5.1.4.1.2.1.3',
                                          '1.2.840.10008.5.1.4.1.2.2.3',
                                          '1.2.840.10008.5.1.4.1.2.3.3',
@@ -538,7 +449,7 @@ class QueryRetrieveServiceClass(ServiceClass):
                                          '1.2.840.10008.5.1.4.44.4',
                                          '1.2.840.10008.5.1.4.45.4']:
             self.statuses = QR_GET_SERVICE_CLASS_STATUS
-            self._get_scp(req, context, info)
+            self._get_scp(req, context)
         elif context.abstract_syntax in ['1.2.840.10008.5.1.4.1.2.1.2',
                                          '1.2.840.10008.5.1.4.1.2.2.2',
                                          '1.2.840.10008.5.1.4.1.2.3.2',
@@ -550,14 +461,14 @@ class QueryRetrieveServiceClass(ServiceClass):
                                          '1.2.840.10008.5.1.4.44.3',
                                          '1.2.840.10008.5.1.4.45.3']:
             self.statuses = QR_MOVE_SERVICE_CLASS_STATUS
-            self._move_scp(req, context, info)
+            self._move_scp(req, context)
         else:
             raise ValueError(
                 'The supplied abstract syntax is not valid for use with the '
                 'Query/Retrieve Service Class'
             )
 
-    def _find_scp(self, req, context, info):
+    def _find_scp(self, req, context):
         """The SCP implementation for Query/Retrieve - Find.
 
         Parameters
@@ -566,12 +477,9 @@ class QueryRetrieveServiceClass(ServiceClass):
             The C-FIND request primitive received from the peer.
         context : presentation.PresentationContext
             The presentation context that the SCP is operating under.
-        info : dict
-            A dict containing details about the association.
 
         See Also
         --------
-        ae.ApplicationEntity.on_c_find
         association.Association.send_c_find
 
         Notes
@@ -689,10 +597,8 @@ class QueryRetrieveServiceClass(ServiceClass):
             self.dimse.send_msg(rsp, context.context_id)
             return
 
-        # TODO: refactor in v1.4
         # Pass the C-FIND request to the user to handle
-        default_handler = evt.get_default_handler(evt.EVT_C_FIND)
-        if self.assoc.get_handlers(evt.EVT_C_FIND) != default_handler:
+        try:
             handler = evt.trigger(
                 self.assoc,
                 evt.EVT_C_FIND,
@@ -702,24 +608,16 @@ class QueryRetrieveServiceClass(ServiceClass):
                     '_is_cancelled' : self.is_cancelled
                 }
             )
-        else:
-            info['parameters'] = {
-                 'message_id' : req.MessageID,
-                 'priority' : req.Priority,
-            }
-            # Add callable to the info so user can check if cancelled
-            info['cancelled'] = self.is_cancelled
+        except Exception as exc:
+            LOGGER.error("Exception in handler bound to 'evt.EVT_C_FIND'")
+            LOGGER.exception(exc)
+            rsp.Status = 0xC311
+            self.dimse.send_msg(rsp, context.context_id)
+            return
 
-            try:
-                handler = self.ae.on_c_find(identifier, context.as_tuple, info)
-            except Exception as exc:
-                LOGGER.error(
-                    "Exception raised by user's C-FIND request handler"
-                )
-                LOGGER.exception(exc)
-                rsp.Status = 0xC311
-                self.dimse.send_msg(rsp, context.context_id)
-                return
+        # No matches and no yields
+        if handler is None:
+            handler = iter([(0x0000, None)])
 
         ii = -1  # So if there are no results, log below doesn't break
         # Iterate through the results
@@ -769,7 +667,7 @@ class QueryRetrieveServiceClass(ServiceClass):
                     LOGGER.error("Failed to encode the received Identifier "
                                  "dataset")
                     # Failure: Unable to Process - Can't decode dataset
-                    #   returned by on_c_find callback
+                    #   returned by handler
                     rsp.Status = 0xC312
                     self.dimse.send_msg(rsp, context.context_id)
                     return
@@ -794,7 +692,7 @@ class QueryRetrieveServiceClass(ServiceClass):
         LOGGER.info('Find SCP Response: %s (Success)', ii + 2)
         self.dimse.send_msg(rsp, context.context_id)
 
-    def _get_scp(self, req, context, info):
+    def _get_scp(self, req, context):
         """The SCP implementation for Query/Retrieve - Get.
 
         Parameters
@@ -803,12 +701,9 @@ class QueryRetrieveServiceClass(ServiceClass):
             The C-GET request primitive sent by the peer.
         context : presentation.PresentationContext
             The presentation context that the SCP is operating under.
-        info : dict
-            A dict containing details about the association.
 
         See Also
         --------
-        ae.ApplicationEntity.on_c_get
         association.Association.send_c_get
 
         Notes
@@ -928,62 +823,23 @@ class QueryRetrieveServiceClass(ServiceClass):
 
         # Attempt to decode the request's Identifier dataset
         transfer_syntax = context.transfer_syntax[0]
-        # TODO: refactor in v1.4
-        default_handler = evt.get_default_handler(evt.EVT_C_GET)
-        if self.assoc.get_handlers(evt.EVT_C_GET) != default_handler:
-            try:
-                result = evt.trigger(
-                    self.assoc,
-                    evt.EVT_C_GET,
-                    {
-                        'request' : req,
-                        'context' : context.as_tuple,
-                        '_is_cancelled' : self.is_cancelled
-                    }
-                )
-            except Exception as exc:
-                LOGGER.error("Exception in handler bound to 'evt.EVT_C_GET'")
-                LOGGER.exception(exc)
-                rsp.Status = 0xC411
-                self.dimse.send_msg(rsp, context.context_id)
-                return
-        else:
-            try:
-                # TODO: consider keeping this with new handlers
-                identifier = decode(req.Identifier,
-                                    transfer_syntax.is_implicit_VR,
-                                    transfer_syntax.is_little_endian)
-                LOGGER.info('Get SCP Request Identifier:')
-                LOGGER.info('')
-                LOGGER.debug('# DICOM Data Set')
-                for elem in identifier.iterall():
-                    LOGGER.info(elem)
-                LOGGER.info('')
-            except Exception as exc:
-                LOGGER.error("Failed to decode the request's Identifier dataset")
-                LOGGER.exception(exc)
-                # Failure: Cannot Understand - Dataset decoding error
-                rsp.Status = 0xC410
-                rsp.ErrorComment = 'Unable to decode the dataset'
-                self.dimse.send_msg(rsp, context.context_id)
-                return
 
-            info['parameters'] = {
-                 'message_id' : req.MessageID,
-                 'priority' : req.Priority
-            }
-            # Add callable to the info so user can check if cancelled
-            info['cancelled'] = self.is_cancelled
-
-            # Callback - C-GET
-            try:
-                result = self.ae.on_c_get(identifier, context.as_tuple, info)
-            except Exception as ex:
-                LOGGER.error("Exception in user's on_c_get implementation.")
-                LOGGER.exception(ex)
-                rsp.Status = 0xC411
-                self.dimse.send_msg(rsp, context.context_id)
-                return
+        try:
+            result = evt.trigger(
+                self.assoc,
+                evt.EVT_C_GET,
+                {
+                    'request' : req,
+                    'context' : context.as_tuple,
+                    '_is_cancelled' : self.is_cancelled
+                }
+            )
+        except Exception as exc:
+            LOGGER.error("Exception in handler bound to 'evt.EVT_C_GET'")
+            LOGGER.exception(exc)
+            rsp.Status = 0xC411
+            self.dimse.send_msg(rsp, context.context_id)
+            return
 
         # Number of C-STORE sub-operations
         try:
@@ -1214,7 +1070,7 @@ class QueryRetrieveServiceClass(ServiceClass):
 
         self.dimse.send_msg(rsp, context.context_id)
 
-    def _move_scp(self, req, context, info):
+    def _move_scp(self, req, context):
         """The SCP implementation for Query/Retrieve - Move.
 
         Parameters
@@ -1223,12 +1079,9 @@ class QueryRetrieveServiceClass(ServiceClass):
             The C-MOVE request primitive sent by the peer.
         context : presentation.PresentationContext
             The presentation context that the SCP is operating under.
-        info : dict
-            A dict containing details about the association.
 
         See Also
         --------
-        ae.ApplicationEntity.on_c_move
         association.Association.send_c_move
 
         Notes
@@ -1368,47 +1221,23 @@ class QueryRetrieveServiceClass(ServiceClass):
             self.dimse.send_msg(rsp, context.context_id)
             return
 
-        # TODO: refactor in v1.4
-        default_handler = evt.get_default_handler(evt.EVT_C_MOVE)
-        if self.assoc.get_handlers(evt.EVT_C_MOVE) != default_handler:
-            try:
-                result = evt.trigger(
-                    self.assoc,
-                    evt.EVT_C_MOVE,
-                    {
-                        'request' : req,
-                        'context' : context.as_tuple,
-                        '_is_cancelled' : self.is_cancelled
-                    }
-                )
-            except Exception as exc:
-                LOGGER.error("Exception in handler bound to 'evt.EVT_C_MOVE'")
-                LOGGER.exception(exc)
-                # Failure - Unable to process - Error in on_c_move callback
-                rsp.Status = 0xC511
-                self.dimse.send_msg(rsp, context.context_id)
-                return
-        else:
-            info['parameters'] = {
-                 'message_id' : req.MessageID,
-                 'priority' : req.Priority
-            }
-            # Add callable to the info so user can check if cancelled
-            info['cancelled'] = self.is_cancelled
-
-            # Callback - C-MOVE
-            try:
-                result = self.ae.on_c_move(identifier,
-                                           req.MoveDestination,
-                                           context.as_tuple,
-                                           info)
-            except Exception as exc:
-                LOGGER.error("Exception in user's on_c_move implementation.")
-                LOGGER.exception(exc)
-                # Failure - Unable to process - Error in on_c_move callback
-                rsp.Status = 0xC511
-                self.dimse.send_msg(rsp, context.context_id)
-                return
+        try:
+            result = evt.trigger(
+                self.assoc,
+                evt.EVT_C_MOVE,
+                {
+                    'request' : req,
+                    'context' : context.as_tuple,
+                    '_is_cancelled' : self.is_cancelled
+                }
+            )
+        except Exception as exc:
+            LOGGER.error("Exception in handler bound to 'evt.EVT_C_MOVE'")
+            LOGGER.exception(exc)
+            # Failure - Unable to process - Error in handler
+            rsp.Status = 0xC511
+            self.dimse.send_msg(rsp, context.context_id)
+            return
 
         try:
             destination = next(result)
@@ -1419,7 +1248,7 @@ class QueryRetrieveServiceClass(ServiceClass):
                 "of the destination AE, then yield the number of "
                 "sub-operations, then yield (status dataset) pairs."
             )
-            # Failure - Unable to process - Error in on_c_move yield
+            # Failure - Unable to process - Error in handler
             rsp.Status = 0xC514
             self.dimse.send_msg(rsp, context.context_id)
             return
@@ -1453,11 +1282,11 @@ class QueryRetrieveServiceClass(ServiceClass):
                                             ae_title=req.MoveDestination)
         except Exception as ex:
             LOGGER.error(
-                "'on_c_move' yielded an invalid destination AE (addr, "
-                "port) value"
+                "The handler bound to 'evt.EVT_C_MOVE' yielded an invalid "
+                "destination AE (addr, port) value"
             )
             LOGGER.exception(ex)
-            # Failure - Unable to process - Bad on_c_move destination
+            # Failure - Unable to process - Bad handler AE destination
             rsp.Status = 0xC515
             self.dimse.send_msg(rsp, context.context_id)
             return
@@ -1478,14 +1307,15 @@ class QueryRetrieveServiceClass(ServiceClass):
                 # Exception raised by handler
                 if isinstance(rsp_status, Exception):
                     LOGGER.error(
-                        "Exception raised by user's C-MOVE request handler",
-                        exc_info=dataset)
+                        "Exception raised by handler bound to 'evt.EVT_C_MOVE'",
+                        exc_info=dataset
+                    )
                     rsp_status = 0xC511
 
                 # All sub-operations are complete
                 if store_results[0] <= 0:
                     LOGGER.warning(
-                        "User's C-MOVE request handler yielded further "
+                        "Handler bound to 'evt.EVT_C_MOVE' yielded further "
                         "(status, dataset) results but these will be "
                         "ignored as the sub-operations are complete"
                     )
@@ -1559,11 +1389,12 @@ class QueryRetrieveServiceClass(ServiceClass):
                     self.dimse.send_msg(rsp, context.context_id)
                     return
                 elif status[0] == STATUS_SUCCESS:
-                    # If success, then dataset is None
+                    # If Success, then dataset is None
                     store_assoc.release()
 
                     # If the user yields Success, check it
                     if store_results[1] or store_results[2]:
+                        # Sub-operations contained failures/warnings
                         LOGGER.info('Move SCP Response: (Warning)')
 
                         ds = Dataset()
@@ -1575,7 +1406,8 @@ class QueryRetrieveServiceClass(ServiceClass):
                         rsp.Identifier = BytesIO(bytestream)
                         rsp.Status = 0xB000
                     else:
-                        LOGGER.info('Move SCP Response: (Warning)')
+                        # No failures or warnings
+                        LOGGER.info('Move SCP Response: (Success)')
                         rsp.Identifier = None
 
                     rsp.NumberOfRemainingSuboperations = None
@@ -1694,7 +1526,7 @@ class BasicWorklistManagementServiceClass(QueryRetrieveServiceClass):
     def __init__(self, assoc):
         super(BasicWorklistManagementServiceClass, self).__init__(assoc)
 
-    def SCP(self, req, context, info):
+    def SCP(self, req, context):
         """The SCP implementation for Basic Worklist Management.
 
         Parameters
@@ -1703,12 +1535,9 @@ class BasicWorklistManagementServiceClass(QueryRetrieveServiceClass):
             The C-FIND request primitive received from the peer.
         context : presentation.PresentationContext
             The presentation context that the SCP is operating under.
-        info : dict
-            A dict containing details about the association.
 
         See Also
         --------
-        ae.ApplicationEntity.on_c_find
         association.Association.send_c_find
 
         Notes
@@ -1787,7 +1616,7 @@ class BasicWorklistManagementServiceClass(QueryRetrieveServiceClass):
           and `Annex C <http://dicom.nema.org/medical/dicom/current/output/html/part07.html#chapter_C>`_.
         """
         if context.abstract_syntax == '1.2.840.10008.5.1.4.31':
-            self._find_scp(req, context, info)
+            self._find_scp(req, context)
         else:
             raise ValueError(
                 'The supplied abstract syntax is not valid for use with the '
@@ -1799,7 +1628,7 @@ class RelevantPatientInformationQueryServiceClass(ServiceClass):
     """Implementation of the Relevant Patient Information Query"""
     statuses = RELEVANT_PATIENT_SERVICE_CLASS_STATUS
 
-    def SCP(self, req, context, info):
+    def SCP(self, req, context):
         """The SCP implementation for the Relevant Patient Information Query
         Service Class.
 
@@ -1809,12 +1638,9 @@ class RelevantPatientInformationQueryServiceClass(ServiceClass):
             The C-FIND request primitive sent by the peer.
         context : presentation.PresentationContext
             The presentation context that the SCP is operating under.
-        info : dict
-            A dict containing details about the association.
 
         See Also
         --------
-        ae.ApplicationEntity.on_c_find
         association.Association.send_c_find
 
         Notes
@@ -1907,64 +1733,30 @@ class RelevantPatientInformationQueryServiceClass(ServiceClass):
             self.dimse.send_msg(rsp, context.context_id)
             return
 
-        # TODO: refactor in v1.4
-        default_handler = evt.get_default_handler(evt.EVT_C_FIND)
-        if self.assoc.get_handlers(evt.EVT_C_FIND) != default_handler:
-            try:
-                responses = evt.trigger(
-                    self.assoc,
-                    evt.EVT_C_FIND,
-                    {
-                        'request' : req,
-                        'context' : context.as_tuple,
-                        '_is_cancelled' : self.is_cancelled
-                    }
-                )
-                (rsp_status, rsp_identifier) = next(responses)
-            except (StopIteration, TypeError):
-                # There were no matches, so return Success
-                # If success, then rsp_identifier is None
-                rsp.Status = 0x0000
-                LOGGER.info('Find SCP Response: (Success)')
-                self.dimse.send_msg(rsp, context.context_id)
-                return
-            except Exception as ex:
-                LOGGER.error("Exception in handler bound to 'evt.EVT_C_FIND'")
-                LOGGER.exception(ex)
-                rsp.Status = 0xC311
-                self.dimse.send_msg(rsp, context.context_id)
-                return
-        else:
-
-            info['parameters'] = {
-                 'message_id' : req.MessageID,
-                 'priority' : req.Priority,
-            }
-            info['cancelled'] = self.is_cancelled
-
-            # Relevant Patient Query only allows the following responses:
-            #   pending + match; success
-            #   cancel or failure
-            #   success (no match)
-            # In other words there can only be 1 or 2 responses
-            try:
-                responses = self.ae.on_c_find(
-                    identifier, context.as_tuple, info
-                )
-                (rsp_status, rsp_identifier) = next(responses)
-            except StopIteration:
-                # There were no matches, so return Success
-                # If success, then rsp_identifier is None
-                rsp.Status = 0x0000
-                LOGGER.info('Find SCP Response: (Success)')
-                self.dimse.send_msg(rsp, context.context_id)
-                return
-            except Exception as ex:
-                LOGGER.error("Exception in user's on_c_find implementation.")
-                LOGGER.exception(ex)
-                rsp.Status = 0xC311
-                self.dimse.send_msg(rsp, context.context_id)
-                return
+        try:
+            responses = evt.trigger(
+                self.assoc,
+                evt.EVT_C_FIND,
+                {
+                    'request' : req,
+                    'context' : context.as_tuple,
+                    '_is_cancelled' : self.is_cancelled
+                }
+            )
+            (rsp_status, rsp_identifier) = next(responses)
+        except (StopIteration, TypeError):
+            # There were no matches, so return Success
+            # If success, then rsp_identifier is None
+            rsp.Status = 0x0000
+            LOGGER.info('Find SCP Response: (Success)')
+            self.dimse.send_msg(rsp, context.context_id)
+            return
+        except Exception as ex:
+            LOGGER.error("Exception in handler bound to 'evt.EVT_C_FIND'")
+            LOGGER.exception(ex)
+            rsp.Status = 0xC311
+            self.dimse.send_msg(rsp, context.context_id)
+            return
 
         rsp = self.validate_status(rsp_status, rsp)
 
@@ -2003,7 +1795,7 @@ class RelevantPatientInformationQueryServiceClass(ServiceClass):
                 LOGGER.error("Failed to encode the received Identifier "
                              "dataset")
                 # Failure: Unable to Process - Can't encode dataset
-                #   returned by on_c_find callback
+                #   returned by handler
                 rsp.Status = 0xC312
                 self.dimse.send_msg(rsp, context.context_id)
                 return
@@ -2034,7 +1826,7 @@ class SubstanceAdministrationQueryServiceClass(QueryRetrieveServiceClass):
     def __init__(self, assoc):
         super(SubstanceAdministrationQueryServiceClass, self).__init__(assoc)
 
-    def SCP(self, req, context, info):
+    def SCP(self, req, context):
         """The SCP implementation for the Relevant Patient Information Query
         Service Class.
 
@@ -2044,12 +1836,9 @@ class SubstanceAdministrationQueryServiceClass(QueryRetrieveServiceClass):
             The C-FIND request primitive sent by the peer.
         context : presentation.PresentationContext
             The presentation context that the SCP is operating under.
-        info : dict
-            A dict containing details about the association.
 
         See Also
         --------
-        ae.ApplicationEntity.on_c_find
         association.Association.send_c_find
 
         Notes
@@ -2110,7 +1899,7 @@ class SubstanceAdministrationQueryServiceClass(QueryRetrieveServiceClass):
            `9.3.2 <http://dicom.nema.org/medical/dicom/current/output/html/part07.html#sect_9.3.2>`_
            and `Annex C <http://dicom.nema.org/medical/dicom/current/output/html/part07.html#chapter_C>`_.
         """
-        self._find_scp(req, context, info)
+        self._find_scp(req, context)
 
 
 class NonPatientObjectStorageServiceClass(StorageServiceClass):

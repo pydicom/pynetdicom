@@ -331,19 +331,19 @@ debugging.
 +------------------+----------+-----------------------------------------------+
 | Code (hex)       | Category | Description                                   |
 +==================+==========+===============================================+
-| 0xC001           | Failure  | User's callback implementation returned a     |
-|                  |          | status Dataset with no (0000,0900) *Status*   |
+| 0xC001           | Failure  | Handler bound to ``evt.EVT_C_STORE`` returned |
+|                  |          | a status Dataset with no (0000,0900) *Status* |
 |                  |          | element                                       |
 +------------------+----------+-----------------------------------------------+
-| 0xC002           | Failure  | User's callback implementation returned an    |
-|                  |          | invalid status object (not a pydicom Dataset  |
-|                  |          | or an int)                                    |
+| 0xC002           | Failure  | Handler bound to ``evt.EVT_C_STORE`` returned |
+|                  |          | an invalid status object (not a pydicom       |
+|                  |          | Dataset or an int)                            |
 +------------------+----------+-----------------------------------------------+
 | 0xC210           | Failure  | Failed to decode the dataset received from    |
 |                  |          | the peer                                      |
 +------------------+----------+-----------------------------------------------+
-| 0xC211           | Failure  | Unhandled exception raised by the user's      |
-|                  |          | implementation of the ``on_c_store`` callback |
+| 0xC211           | Failure  | Unhandled exception raised by the handler     |
+|                  |          | bound to ``evt.EVT_C_STORE``                  |
 +------------------+----------+-----------------------------------------------+
 
 

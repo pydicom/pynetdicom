@@ -107,23 +107,22 @@ aid in debugging.
 +------------------+----------+-----------------------------------------------+
 | Code (hex)       | Category | Description                                   |
 +==================+==========+===============================================+
-| 0xC001           | Failure  | User's callback implementation returned a     |
+| 0xC001           | Failure  | Handler bound to ``evt.EVT_C_FIND`` yielded a |
 |                  |          | status Dataset with no (0000,0900) *Status*   |
 |                  |          | element                                       |
 +------------------+----------+-----------------------------------------------+
-| 0xC002           | Failure  | User's callback implementation returned an    |
+| 0xC002           | Failure  | Handler bound to ``evt.EVT_C_FIND`` yielded an|
 |                  |          | invalid status object (not a pydicom Dataset  |
 |                  |          | or an int)                                    |
 +------------------+----------+-----------------------------------------------+
 | 0xC310           | Failure  | Failed to decode the dataset received from    |
 |                  |          | the peer                                      |
 +------------------+----------+-----------------------------------------------+
-| 0xC311           | Failure  | Unhandled exception raised by the user's      |
-|                  |          | implementation of the ``on_c_find`` callback  |
+| 0xC311           | Failure  | Unhandled exception raised by the handler     |
+|                  |          | bound to ``evt.EVT_C_FIND``                   |
 +------------------+----------+-----------------------------------------------+
 | 0xC312           | Failure  | Failed to encode the dataset received from    |
-|                  |          | the user's implementation of the ``on_c_find``|
-|                  |          | callback                                      |
+|                  |          | the handler bound to ``evt.EVT_C_FIND``       |
 +------------------+----------+-----------------------------------------------+
 
 
@@ -189,23 +188,22 @@ pynetdicom Query/Retrieve (Get) Statuses
 +------------------+----------+-----------------------------------------------+
 | Code (hex)       | Category | Description                                   |
 +==================+==========+===============================================+
-| 0xC001           | Failure  | User's callback implementation returned a     |
+| 0xC001           | Failure  | Handler bound to ``evt.EVT_C_GET`` yielded a  |
 |                  |          | status Dataset with no (0000,0900) *Status*   |
 |                  |          | element                                       |
 +------------------+----------+-----------------------------------------------+
-| 0xC002           | Failure  | User's callback implementation returned an    |
+| 0xC002           | Failure  | Handler bound to ``evt.EVT_C_GET`` yielded an |
 |                  |          | invalid status object (not a pydicom Dataset  |
 |                  |          | or an int)                                    |
 +------------------+----------+-----------------------------------------------+
 | 0xC410           | Failure  | Failed to decode the dataset received from    |
 |                  |          | the peer                                      |
 +------------------+----------+-----------------------------------------------+
-| 0xC411           | Failure  | Unhandled exception raised by the user's      |
-|                  |          | implementation of the ``on_c_get`` callback   |
+| 0xC411           | Failure  | Unhandled exception raised by the handler     |
+|                  |          | bound to ``evt.EVT_C_GET``                    |
 +------------------+----------+-----------------------------------------------+
-| 0xC413           | Failure  | The user's implementation oc the ``on_c_get`` |
-|                  |          | callback yielded an invalid number of         |
-|                  |          | sub-operations                                |
+| 0xC413           | Failure  | The handler bound to ``evt.EVT_C_GET``        |
+|                  |          | yielded an invalid number of sub-operations   |
 +------------------+----------+-----------------------------------------------+
 
 
@@ -275,34 +273,30 @@ pynetdicom Query/Retrieve (Move) Statuses
 +------------------+----------+-----------------------------------------------+
 | Code (hex)       | Category | Description                                   |
 +==================+==========+===============================================+
-| 0xC001           | Failure  | User's callback implementation returned a     |
+| 0xC001           | Failure  | Handler bound to ``evt.EVT_C_MOVE`` yielded a |
 |                  |          | status Dataset with no (0000,0900) *Status*   |
 |                  |          | element                                       |
 +------------------+----------+-----------------------------------------------+
-| 0xC002           | Failure  | User's callback implementation returned an    |
+| 0xC002           | Failure  | Handler bound to ``evt.EVT_C_MOVE`` yielded an|
 |                  |          | invalid status object (not a pydicom Dataset  |
 |                  |          | or an int)                                    |
 +------------------+----------+-----------------------------------------------+
 | 0xC510           | Failure  | Failed to decode the dataset received from    |
 |                  |          | the peer                                      |
 +------------------+----------+-----------------------------------------------+
-| 0xC511           | Failure  | Unhandled exception raised by the user's      |
-|                  |          | implementation of the ``on_c_get`` callback   |
+| 0xC511           | Failure  | Unhandled exception raised by the handler     |
+|                  |          | bound to ``evt.EVT_C_MOVE``                   |
 +------------------+----------+-----------------------------------------------+
-| 0xC513           | Failure  | The user's implementation oc the ``on_c_move``|
-|                  |          | callback yielded an invalid number of         |
-|                  |          | sub-operations                                |
+| 0xC513           | Failure  | The handler bound to ``evt.EVT_C_MOVE``       |
+|                  |          | yielded an invalid number of sub-operations   |
 +------------------+----------+-----------------------------------------------+
-| 0xC514           | Failure  | The user's implementation oc the ``on_c_move``|
-|                  |          | callback failed to yield the (address, port)  |
+| 0xC514           | Failure  | The handler bound to ``evt.EVT_C_MOVE``       |
+|                  |          | failed to yield the (address, port)           |
 |                  |          | and/or the number of sub-operations           |
 +------------------+----------+-----------------------------------------------+
-| 0xC515           | Failure  | The user's implementation oc the ``on_c_move``|
-|                  |          | callback failed to yield a valid (address,    |
-|                  |          | port) pair                                    |
+| 0xC515           | Failure  | The handler bound to ``evt.EVT_C_MOVE``       |
+|                  |          | failed to yield a valid (address, port) pair  |
 +------------------+----------+-----------------------------------------------+
-
-
 
 
 References

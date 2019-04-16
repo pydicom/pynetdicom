@@ -540,15 +540,6 @@ class Association(threading.Thread):
         5. Checks DUL idle timeout
             If timed out then kill thread
         """
-        info = {
-            'requestor' : self.requestor.info,
-            'acceptor' : self.acceptor.info,
-            'sop_class_extended' : self.acceptor.sop_class_extended,
-            'sop_class_common_extended' : (
-                self.acceptor.accepted_common_extended
-            ),
-        }
-
         while not self._kill:
             time.sleep(0.001)
 
@@ -597,7 +588,7 @@ class Association(threading.Thread):
                 try:
                     # Clear out any C-CANCEL requests received beforehand
                     self.dimse.cancel_req = {}
-                    service_class.SCP(msg, context, info)
+                    service_class.SCP(msg, context)
                     # Clear out any unacted upon requests received during
                     self.dimse.cancel_req = {}
                 except NotImplementedError:
@@ -621,8 +612,6 @@ class Association(threading.Thread):
                 self.is_released = True
                 self.is_established = False
                 evt.trigger(self, evt.EVT_RELEASED, {})
-                # Callback triggers
-                self.ae.on_association_released()
                 self.kill()
                 return
 
@@ -632,8 +621,6 @@ class Association(threading.Thread):
                 self.is_aborted = True
                 self.is_established = False
                 evt.trigger(self, evt.EVT_ABORTED, {})
-                # Callback trigger
-                self.ae.on_association_aborted(None)
                 self.kill()
                 return
 
@@ -663,8 +650,6 @@ class Association(threading.Thread):
                 self.is_released = True
                 self.is_established = False
                 evt.trigger(self, evt.EVT_RELEASED, {})
-                # Callback triggers
-                self.ae.on_association_released()
                 self.kill()
                 return
 
@@ -674,8 +659,6 @@ class Association(threading.Thread):
                 self.is_aborted = True
                 self.is_established = False
                 evt.trigger(self, evt.EVT_ABORTED, {})
-                # Callback trigger
-                self.ae.on_association_aborted()
                 self.kill()
                 return
 
@@ -787,64 +770,21 @@ class Association(threading.Thread):
             self.dimse.send_msg(rsp, 1)
             return
 
-        transfer_syntax = context.transfer_syntax[0]
-
         # Attempt to handle the service request
-        # TODO: refactor in v1.4
-        default_handler = evt.get_default_handler(evt.EVT_C_STORE)
-        if self.get_handlers(evt.EVT_C_STORE) != default_handler:
-            try:
-                status = evt.trigger(
-                    self,
-                    evt.EVT_C_STORE,
-                    {'request' : req, 'context' : context.as_tuple}
-                )
-            except Exception as ex:
-                LOGGER.error(
-                    "Exception in the handler bound to 'evt.EVT_C_STORE'"
-                )
-                LOGGER.exception(ex)
-                rsp.Status = 0xC211
-                self.dimse.send_msg(rsp, context.context_id)
-                return
-        else:
-            if _config.DECODE_STORE_DATASETS:
-                # Attempt to decode the dataset
-                # pylint: disable=broad-except
-                try:
-                    ds = decode(req.DataSet,
-                                transfer_syntax.is_implicit_VR,
-                                transfer_syntax.is_little_endian)
-                except Exception as ex:
-                    LOGGER.error('Failed to decode the received dataset')
-                    LOGGER.exception(ex)
-                    rsp.Status = 0xC210
-                    rsp.ErrorComment = 'Unable to decode the dataset'
-                    self.dimse.send_msg(rsp, context.context_id)
-                    return
-            else:
-                ds = req.DataSet.getvalue()
-
-            info = {
-                'acceptor' : self.acceptor.info,
-                'requestor': self.requestor.info,
-                'parameters' : {
-                    'message_id' : req.MessageID,
-                    'priority' : req.Priority,
-                    'originator_aet' : req.MoveOriginatorApplicationEntityTitle,
-                    'original_message_id' : req.MoveOriginatorMessageID
-                }
-            }
-
-            try:
-                status = self.ae.on_c_store(ds, context.as_tuple, info)
-            except Exception as ex:
-                LOGGER.error("Exception in the "
-                             "ApplicationEntity.on_c_store() callback")
-                LOGGER.exception(ex)
-                rsp.Status = 0xC211
-                self.dimse.send_msg(rsp, context.context_id)
-                return
+        try:
+            status = evt.trigger(
+                self,
+                evt.EVT_C_STORE,
+                {'request' : req, 'context' : context.as_tuple}
+            )
+        except Exception as ex:
+            LOGGER.error(
+                "Exception in the handler bound to 'evt.EVT_C_STORE'"
+            )
+            LOGGER.exception(ex)
+            rsp.Status = 0xC211
+            self.dimse.send_msg(rsp, context.context_id)
+            return
 
         # Check the callback's returned status
         if isinstance(status, Dataset):
@@ -950,7 +890,6 @@ class Association(threading.Thread):
 
         See Also
         --------
-        ae.ApplicationEntity.on_c_echo
         dimse_primitives.C_ECHO
         service_class.VerificationServiceClass
 
@@ -1130,7 +1069,6 @@ class Association(threading.Thread):
 
         See Also
         --------
-        ae.ApplicationEntity.on_c_find
         dimse_primitives.C_FIND
         service_class.QueryRetrieveFindServiceClass
         service_class.RelevantPatientInformationQueryServiceClass
@@ -1357,8 +1295,6 @@ class Association(threading.Thread):
 
         See Also
         --------
-        ae.ApplicationEntity.on_c_get
-        ae.ApplicationEntity.on_c_store
         service_class.QueryRetrieveGetServiceClass
         service_class.HangingProtocolQueryRetrieveServiceClass
         service_class.DefinedProcedureProtocolQueryRetrieveServiceClass
@@ -1568,8 +1504,6 @@ class Association(threading.Thread):
 
         See Also
         --------
-        ae.ApplicationEntity.on_c_move
-        ae.ApplicationEntity.on_c_store
         dimse_primitives.C_MOVE
         service_class.QueryRetrieveMoveServiceClass
         service_class.HangingProtocolQueryRetrieveServiceClass
@@ -1753,7 +1687,6 @@ class Association(threading.Thread):
 
         See Also
         --------
-        ae.ApplicationEntity.on_c_store
         dimse_primitives.C_STORE
         service_class.StorageServiceClass
         service_class.NonPatientObjectStorageServiceClass
@@ -2141,7 +2074,6 @@ class Association(threading.Thread):
 
         See Also
         --------
-        ae.ApplicationEntity.on_n_action
         dimse_primitives.N_ACTION
 
         References
@@ -2332,7 +2264,6 @@ class Association(threading.Thread):
 
         See Also
         --------
-        ae.ApplicationEntity.on_n_create
         dimse_primitives.N_CREATE
 
         References
@@ -2469,7 +2400,6 @@ class Association(threading.Thread):
 
         See Also
         --------
-        ae.ApplicationEntity.on_n_delete
         dimse_primitives.N_DELETE
 
         References
@@ -2578,7 +2508,6 @@ class Association(threading.Thread):
 
         See Also
         --------
-        ae.ApplicationEntity.on_n_event_report
         dimse_primitives.N_EVENT_REPORT
 
         References
@@ -2757,7 +2686,6 @@ class Association(threading.Thread):
 
         See Also
         --------
-        ae.ApplicationEntity.on_n_get
         dimse_primitives.N_GET
         service_class.DisplaySystemManagementServiceClass
 
@@ -2951,7 +2879,6 @@ class Association(threading.Thread):
 
         See Also
         --------
-        ae.ApplicationEntity.on_n_set
         dimse_primitives.N_SET
 
         References

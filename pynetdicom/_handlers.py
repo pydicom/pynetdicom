@@ -3050,6 +3050,12 @@ def doc_handle_n_get(event):
           `date and time <https://docs.python.org/3/library/datetime.html#datetime-objects>`_
           that the N-GET request was processed by the service.
 
+        ``Event`` properties are:
+
+        * ``attribute_identifiers`` : a list of attribute
+          :py:class:`Tags <pydicom.tag.BaseTag>` contained within the
+          N-GET request's *Attribute Identifier List* parameter.
+
     Returns
     -------
     status : pydicom.dataset.Dataset or int

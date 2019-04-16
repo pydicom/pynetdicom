@@ -66,23 +66,22 @@ to help aid in debugging.
 +------------------+----------+-----------------------------------------------+
 | Code (hex)       | Category | Description                                   |
 +==================+==========+===============================================+
-| 0xC001           | Failure  | User's callback implementation returned a     |
+| 0xC001           | Failure  | Handler bound to ``evt.EVT_C_FIND`` yielded a |
 |                  |          | status Dataset with no (0000,0900) *Status*   |
 |                  |          | element                                       |
 +------------------+----------+-----------------------------------------------+
-| 0xC002           | Failure  | User's callback implementation returned an    |
+| 0xC002           | Failure  | Handler bound to ``evt.EVT_C_FIND`` yielded an|
 |                  |          | invalid status object (not a pydicom Dataset  |
 |                  |          | or an int)                                    |
 +------------------+----------+-----------------------------------------------+
 | 0xC310           | Failure  | Failed to decode the dataset received from    |
 |                  |          | the peer                                      |
 +------------------+----------+-----------------------------------------------+
-| 0xC311           | Failure  | Unhandled exception raised by the user's      |
-|                  |          | implementation of the ``on_c_find`` callback  |
+| 0xC311           | Failure  | Unhandled exception raised by the handler     |
+|                  |          | bound to ``evt.EVT_C_FIND``                   |
 +------------------+----------+-----------------------------------------------+
 | 0xC312           | Failure  | Failed to encode the dataset received from    |
-|                  |          | the user's implementation of the ``on_c_find``|
-|                  |          | callback                                      |
+|                  |          | the handler bound to ``evt.EVT_C_FIND``       |
 +------------------+----------+-----------------------------------------------+
 
 

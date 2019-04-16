@@ -274,10 +274,6 @@ class DIMSEServiceProvider(object):
                 self.assoc, evt.EVT_DIMSE_RECV, {'message' : self.message}
             )
 
-            # Callback
-            # TODO: To be removed in v1.4
-            self.on_receive_dimse_message(self.message)
-
             context_id = self.message.context_id
             try:
                 primitive = self.message.message_to_primitive()
@@ -326,39 +322,7 @@ class DIMSEServiceProvider(object):
             self.assoc, evt.EVT_DIMSE_SENT, {'message' : dimse_msg}
         )
 
-        # Callbacks
-        # TODO: To be removed in v1.4
-        self.on_send_dimse_message(dimse_msg)
-
         # Split the full messages into P-DATA chunks,
         #   each below the max_pdu size
         for pdata in dimse_msg.encode_msg(context_id, self.maximum_pdu_size):
             self.dul.send_pdu(pdata)
-
-    # TODO: Deprecated, to be removed in v1.4
-    def on_send_dimse_message(self, message):
-        """Controls which debugging function is called when sending.
-
-        Will be called immediately prior to encoding and sending a DIMSE
-        message.
-
-        Parameters
-        ----------
-        message : dimse_messages.DIMSEMessage
-            The DIMSE message to be sent.
-        """
-        pass
-
-    # TODO: Deprecated, to be removed in v1.4
-    def on_receive_dimse_message(self, message):
-        """Controls which debugging function is called when receiving.
-
-        Function will be called immediately after receiving and decoding a
-        DIMSE message.
-
-        Parameters
-        ----------
-        message : dimse_messages.DIMSEMessage
-            The DIMSE message that was received.
-        """
-        pass
