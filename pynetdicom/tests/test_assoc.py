@@ -103,6 +103,7 @@ class DummyDIMSE(object):
 
     def send_msg(self, rsp, context_id):
         self.status = rsp.Status
+        self.rsp = rsp
 
     def get_msg(self, block=False):
         return None, None
@@ -130,8 +131,7 @@ class TestAssociation(object):
                 thread.abort()
                 thread.stop()
 
-    @staticmethod
-    def test_bad_connection():
+    def test_bad_connection(self):
         """Test connect to non-AE"""
         # sometimes causes hangs in Travis
         ae = AE()
@@ -140,9 +140,9 @@ class TestAssociation(object):
         ae.dimse_timeout = 5
         ae.network_timeout = 5
         assoc = ae.associate('localhost', 22)
+        assert not assoc.is_established
 
-    @staticmethod
-    def test_connection_refused():
+    def test_connection_refused(self):
         """Test connection refused"""
         ae = AE()
         ae.add_requested_context(VerificationSOPClass)
@@ -150,57 +150,67 @@ class TestAssociation(object):
         ae.dimse_timeout = 5
         ae.network_timeout = 5
         assoc = ae.associate('localhost', 11120)
+        assert not assoc.is_established
 
     def test_req_no_presentation_context(self):
         """Test rejection due to no acceptable presentation contexts"""
-        self.scp = DummyVerificationSCP()
-        self.scp.start()
-        ae = AE()
-        ae.add_requested_context(CTImageStorage)
+        self.ae = ae = AE()
         ae.acse_timeout = 5
         ae.dimse_timeout = 5
         ae.network_timeout = 5
+        ae.add_supported_context(VerificationSOPClass)
+        scp = ae.start_server(('', 11112), block=False)
+
+        ae.add_requested_context(CTImageStorage)
         assoc = ae.associate('localhost', 11112)
-        time.sleep(0.1)
         assert not assoc.is_established
         assert assoc.is_aborted
-        self.scp.stop()
+
+        scp.shutdown()
 
     def test_peer_releases_assoc(self):
-        """Test peer releases assoc"""
-        self.scp = DummyVerificationSCP()
-        self.scp.start()
-        ae = AE()
-        ae.add_requested_context(VerificationSOPClass)
+        """Test peer releases association"""
+        self.ae = ae = AE()
         ae.acse_timeout = 5
         ae.dimse_timeout = 5
+        ae.network_timeout = 5
+        ae.add_supported_context(VerificationSOPClass)
+        scp = ae.start_server(('', 11112), block=False)
+
+        ae.add_requested_context(VerificationSOPClass)
         assoc = ae.associate('localhost', 11112)
         assert assoc.is_established
-        self.scp.release()
+
+        scp.active_associations[0].release()
+
         time.sleep(0.1)
-        assert not assoc.is_established
+
         assert assoc.is_released
-        #self.assertRaises(SystemExit, ae.quit)
-        self.scp.stop() # Important!
+        assert not assoc.is_established
+
+        scp.shutdown()
 
     def test_peer_aborts_assoc(self):
-        """Test peer aborts assoc"""
-        self.scp = DummyVerificationSCP()
-        self.scp.start()
-        ae = AE()
-        ae.add_requested_context(VerificationSOPClass)
+        """Test peer aborts association."""
+        self.ae = ae = AE()
         ae.acse_timeout = 5
         ae.dimse_timeout = 5
+        ae.network_timeout = 5
+        ae.add_supported_context(VerificationSOPClass)
+        scp = ae.start_server(('', 11112), block=False)
+
+        ae.add_requested_context(VerificationSOPClass)
         assoc = ae.associate('localhost', 11112)
         assert assoc.is_established
 
-        self.scp.abort()
+        scp.active_associations[0].abort()
 
-        time.sleep(0.5)
-        assert not assoc.is_established
+        time.sleep(0.1)
+
         assert assoc.is_aborted
+        assert not assoc.is_established
 
-        self.scp.stop()
+        scp.shutdown()
 
     def test_peer_rejects_assoc(self):
         """Test peer rejects assoc"""
@@ -539,6 +549,257 @@ class TestAssociation(object):
         assoc = ae.associate('localhost', 11112)
         assert evt.EVT_C_STORE in assoc.get_events()
         assert evt.EVT_USER_ID in assoc.get_events()
+
+
+class TestCStoreSCP(object):
+    """Tests for Association._c_store_scp()."""
+    # Used with C-GET (always) and C-MOVE (over the same association)
+    def setup(self):
+        self.ae = None
+
+    def teardown(self):
+        if self.ae:
+            self.ae.shutdown()
+
+    def test_no_context(self):
+        """Test correct response if no valid presentation context."""
+        def handle(event):
+            return 0x0000
+
+        self.ae = ae = AE()
+        ae.acse_timeout = 5
+        ae.dimse_timeout = 5
+        ae.network_timeout = 5
+        ae.add_supported_context(CTImageStorage)
+        ae.add_supported_context(RTImageStorage)
+        # Storage SCP
+        scp = ae.start_server(
+            ('', 11112), block=False, evt_handlers=[(evt.EVT_C_STORE, handle)]
+        )
+
+        ae.add_requested_context(RTImageStorage)
+        role = build_role(CTImageStorage, scu_role=False, scp_role=True)
+        assoc = ae.associate('localhost', 11112, ext_neg=[role])
+        assert assoc.is_established
+
+        req = C_STORE()
+        req.MessageID = 1
+        req.AffectedSOPClassUID = DATASET.SOPClassUID
+        req.AffectedSOPInstanceUID = DATASET.SOPInstanceUID
+        req.Priority = 1
+        req._context_id = 1
+
+        bytestream = encode(DATASET, True, True)
+        req.DataSet = BytesIO(bytestream)
+
+        assoc.dimse = DummyDIMSE()
+        assoc._c_store_scp(req)
+        assert assoc.dimse.status == 0x0122
+        assoc.release()
+        assert assoc.is_released
+
+        scp.shutdown()
+
+    def test_handler_exception(self):
+        """Test correct response if exception raised by handler."""
+        def handle(event):
+            raise ValueError()
+            return 0x0000
+
+        self.ae = ae = AE()
+        ae.acse_timeout = 5
+        ae.dimse_timeout = 5
+        ae.network_timeout = 5
+        ae.add_supported_context(CTImageStorage, scp_role=True, scu_role=True)
+        # Storage SCP
+        scp = ae.start_server(('', 11112), block=False)
+
+        ae.add_requested_context(CTImageStorage)
+        role = build_role(CTImageStorage, scu_role=False, scp_role=True)
+        assoc = ae.associate(
+            'localhost', 11112, ext_neg=[role],
+            evt_handlers=[(evt.EVT_C_STORE, handle)]
+        )
+        assert assoc.is_established
+
+        req = C_STORE()
+        req.MessageID = 1
+        req.AffectedSOPClassUID = DATASET.SOPClassUID
+        req.AffectedSOPInstanceUID = DATASET.SOPInstanceUID
+        req.Priority = 1
+        req._context_id = 1
+
+        bytestream = encode(DATASET, True, True)
+        req.DataSet = BytesIO(bytestream)
+
+        assoc.dimse = DummyDIMSE()
+        assoc._c_store_scp(req)
+        assert assoc.dimse.status == 0xC211
+        assoc.release()
+        assert assoc.is_released
+
+        scp.shutdown()
+
+    def test_handler_status_ds_no_status(self):
+        """Test handler with status dataset with no Status element."""
+        def handle(event):
+            return Dataset()
+
+        self.ae = ae = AE()
+        ae.acse_timeout = 5
+        ae.dimse_timeout = 5
+        ae.network_timeout = 5
+        ae.add_supported_context(CTImageStorage, scp_role=True, scu_role=True)
+        # Storage SCP
+        scp = ae.start_server(('', 11112), block=False)
+
+        ae.add_requested_context(CTImageStorage)
+        role = build_role(CTImageStorage, scu_role=False, scp_role=True)
+        assoc = ae.associate(
+            'localhost', 11112, ext_neg=[role],
+            evt_handlers=[(evt.EVT_C_STORE, handle)]
+        )
+        assert assoc.is_established
+
+        req = C_STORE()
+        req.MessageID = 1
+        req.AffectedSOPClassUID = DATASET.SOPClassUID
+        req.AffectedSOPInstanceUID = DATASET.SOPInstanceUID
+        req.Priority = 1
+        req._context_id = 1
+
+        bytestream = encode(DATASET, True, True)
+        req.DataSet = BytesIO(bytestream)
+
+        assoc.dimse = DummyDIMSE()
+        assoc._c_store_scp(req)
+        assert assoc.dimse.status == 0xC001
+        assoc.release()
+        assert assoc.is_released
+
+        scp.shutdown()
+
+    def test_handler_status_ds_unknown_elems(self):
+        """Test handler with status dataset with an unknown element."""
+        def handle(event):
+            ds = Dataset()
+            ds.Status = 0x0000
+            ds.PatientName = 'ABCD'
+            return ds
+
+        self.ae = ae = AE()
+        ae.acse_timeout = 5
+        ae.dimse_timeout = 5
+        ae.network_timeout = 5
+        ae.add_supported_context(CTImageStorage, scp_role=True, scu_role=True)
+        # Storage SCP
+        scp = ae.start_server(('', 11112), block=False)
+
+        ae.add_requested_context(CTImageStorage)
+        role = build_role(CTImageStorage, scu_role=False, scp_role=True)
+        assoc = ae.associate(
+            'localhost', 11112, ext_neg=[role],
+            evt_handlers=[(evt.EVT_C_STORE, handle)]
+        )
+        assert assoc.is_established
+
+        req = C_STORE()
+        req.MessageID = 1
+        req.AffectedSOPClassUID = DATASET.SOPClassUID
+        req.AffectedSOPInstanceUID = DATASET.SOPInstanceUID
+        req.Priority = 1
+        req._context_id = 1
+
+        bytestream = encode(DATASET, True, True)
+        req.DataSet = BytesIO(bytestream)
+
+        assoc.dimse = DummyDIMSE()
+        assoc._c_store_scp(req)
+        rsp = assoc.dimse.rsp
+        assert rsp.Status == 0x0000
+        assert not hasattr(rsp, 'PatientName')
+        assoc.release()
+        assert assoc.is_released
+
+        scp.shutdown()
+
+    def test_handler_invalid_status(self):
+        """Test handler with invalid status."""
+        def handle(event):
+            return 'abcd'
+
+        self.ae = ae = AE()
+        ae.acse_timeout = 5
+        ae.dimse_timeout = 5
+        ae.network_timeout = 5
+        ae.add_supported_context(CTImageStorage, scp_role=True, scu_role=True)
+        # Storage SCP
+        scp = ae.start_server(('', 11112), block=False)
+
+        ae.add_requested_context(CTImageStorage)
+        role = build_role(CTImageStorage, scu_role=False, scp_role=True)
+        assoc = ae.associate(
+            'localhost', 11112, ext_neg=[role],
+            evt_handlers=[(evt.EVT_C_STORE, handle)]
+        )
+        assert assoc.is_established
+
+        req = C_STORE()
+        req.MessageID = 1
+        req.AffectedSOPClassUID = DATASET.SOPClassUID
+        req.AffectedSOPInstanceUID = DATASET.SOPInstanceUID
+        req.Priority = 1
+        req._context_id = 1
+
+        bytestream = encode(DATASET, True, True)
+        req.DataSet = BytesIO(bytestream)
+
+        assoc.dimse = DummyDIMSE()
+        assoc._c_store_scp(req)
+        assert assoc.dimse.status == 0xC002
+        assoc.release()
+        assert assoc.is_released
+
+        scp.shutdown()
+
+    def test_handler_unknown_status(self):
+        """Test handler with invalid status."""
+        def handle(event):
+            return 0xDEFA
+
+        self.ae = ae = AE()
+        ae.acse_timeout = 5
+        ae.dimse_timeout = 5
+        ae.network_timeout = 5
+        ae.add_supported_context(CTImageStorage, scp_role=True, scu_role=True)
+        # Storage SCP
+        scp = ae.start_server(('', 11112), block=False)
+
+        ae.add_requested_context(CTImageStorage)
+        role = build_role(CTImageStorage, scu_role=False, scp_role=True)
+        assoc = ae.associate(
+            'localhost', 11112, ext_neg=[role],
+            evt_handlers=[(evt.EVT_C_STORE, handle)]
+        )
+        assert assoc.is_established
+
+        req = C_STORE()
+        req.MessageID = 1
+        req.AffectedSOPClassUID = DATASET.SOPClassUID
+        req.AffectedSOPInstanceUID = DATASET.SOPInstanceUID
+        req.Priority = 1
+        req._context_id = 1
+
+        bytestream = encode(DATASET, True, True)
+        req.DataSet = BytesIO(bytestream)
+
+        assoc.dimse = DummyDIMSE()
+        assoc._c_store_scp(req)
+        assert assoc.dimse.status == 0xDEFA
+        assoc.release()
+        assert assoc.is_released
+
+        scp.shutdown()
 
 
 class TestAssociationSendCEcho(object):

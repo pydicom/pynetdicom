@@ -77,22 +77,9 @@ class DummyBaseSCP(threading.Thread):
     bad_status = 0x0101
     def __init__(self):
         """Initialise the class"""
-        self.ae.on_c_echo = self.on_c_echo
-        self.ae.on_c_store = self.on_c_store
-        self.ae.on_c_find = self.on_c_find
-        self.ae.on_c_get = self.on_c_get
-        self.ae.on_c_move = self.on_c_move
-        self.ae.on_n_event_report = self.on_n_event_report
-        self.ae.on_n_set = self.on_n_set
-        self.ae.on_n_get = self.on_n_get
-        self.ae.on_n_action = self.on_n_action
-        self.ae.on_n_create = self.on_n_create
-        self.ae.on_n_delete = self.on_n_delete
         self.ae.network_timeout = 5
-
         self.ae.acse_timeout = 5
         self.ae.dimse_timeout = 5
-        self.ae_network_timeout = 5
 
         self.implementation_class_uid = '1.2'
 
@@ -143,62 +130,6 @@ class DummyBaseSCP(threading.Thread):
         """Release any associations"""
         for assoc in self.ae.active_associations:
             assoc.release()
-
-    def on_c_echo(self, context, info):
-        """Callback for ae.on_c_echo"""
-        raise RuntimeError("You should not have been able to get here.")
-
-    def on_c_store(self, ds, context, info):
-        """Callback for ae.on_c_store"""
-        raise RuntimeError("You should not have been able to get here.")
-
-    def on_c_find(self, ds, context, info):
-        """Callback for ae.on_c_find"""
-        raise RuntimeError("You should not have been able to get here.")
-
-    def on_c_cancel_find(self):
-        """Callback for ae.on_c_cancel_find"""
-        raise RuntimeError("You should not have been able to get here.")
-
-    def on_c_get(self, ds, context, info):
-        """Callback for ae.on_c_get"""
-        raise RuntimeError("You should not have been able to get here.")
-
-    def on_c_cancel_get(self):
-        """Callback for ae.on_c_cancel_get"""
-        raise RuntimeError("You should not have been able to get here.")
-
-    def on_c_move(self, ds, move_aet, context, info):
-        """Callback for ae.on_c_move"""
-        raise RuntimeError("You should not have been able to get here.")
-
-    def on_c_cancel_move(self):
-        """Callback for ae.on_c_cancel_move"""
-        raise RuntimeError("You should not have been able to get here.")
-
-    def on_n_event_report(self, ds, evt_id, context, info):
-        """Callback for ae.on_n_event_report"""
-        raise RuntimeError("You should not have been able to get here.")
-
-    def on_n_get(self, attr, context, info):
-        """Callback for ae.on_n_get"""
-        raise RuntimeError("You should not have been able to get here.")
-
-    def on_n_set(self, ds, context, info):
-        """Callback for ae.on_n_set"""
-        raise RuntimeError("You should not have been able to get here.")
-
-    def on_n_action(self, ds, context, info):
-        """Callback for ae.on_n_action"""
-        raise RuntimeError("You should not have been able to get here.")
-
-    def on_n_create(self, ds, context, info):
-        """Callback for ae.on_n_create"""
-        raise RuntimeError("You should not have been able to get here.")
-
-    def on_n_delete(self, context, info):
-        """Callback for ae.on_n_delete"""
-        raise RuntimeError("You should not have been able to get here.")
 
     def dev_handle_connection(self, client_socket):
         # Create a new Association

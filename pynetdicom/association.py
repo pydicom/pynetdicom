@@ -540,15 +540,6 @@ class Association(threading.Thread):
         5. Checks DUL idle timeout
             If timed out then kill thread
         """
-        info = {
-            'requestor' : self.requestor.info,
-            'acceptor' : self.acceptor.info,
-            'sop_class_extended' : self.acceptor.sop_class_extended,
-            'sop_class_common_extended' : (
-                self.acceptor.accepted_common_extended
-            ),
-        }
-
         while not self._kill:
             time.sleep(0.001)
 
@@ -597,7 +588,7 @@ class Association(threading.Thread):
                 try:
                     # Clear out any C-CANCEL requests received beforehand
                     self.dimse.cancel_req = {}
-                    service_class.SCP(msg, context, info)
+                    service_class.SCP(msg, context)
                     # Clear out any unacted upon requests received during
                     self.dimse.cancel_req = {}
                 except NotImplementedError:
@@ -899,7 +890,6 @@ class Association(threading.Thread):
 
         See Also
         --------
-        ae.ApplicationEntity.on_c_echo
         dimse_primitives.C_ECHO
         service_class.VerificationServiceClass
 

@@ -37,7 +37,7 @@ from pynetdicom.pdu_primitives import (
 from pynetdicom.pdu import P_DATA_TF
 from pynetdicom.sop_class import VerificationSOPClass, CTImageStorage
 
-from .dummy_c_scp import DummyVerificationSCP, DummyBaseSCP
+from .dummy_c_scp import DummyBaseSCP
 from .encoded_pdu_items import (
     a_associate_rq, a_associate_ac, a_release_rq, a_release_rp, p_data_tf,
     a_abort, a_p_abort,
@@ -318,19 +318,19 @@ class TestNegotiationRequestor(object):
 
     def test_receive_accept(self):
         """Test establishment if A-ASSOCIATE result is acceptance."""
-        self.scp = DummyVerificationSCP()
-        self.scp.start()
-
-        ae = AE()
-        ae.add_requested_context(VerificationSOPClass)
+        self.ae = ae = AE()
         ae.acse_timeout = 5
         ae.dimse_timeout = 5
+        ae.network_timeout = 5
+        ae.add_supported_context(VerificationSOPClass)
+        scp = ae.start_server(('', 11112), block=False)
 
+        ae.add_requested_context(VerificationSOPClass)
         assoc = ae.associate('localhost', 11112)
         assert assoc.is_established is True
         assoc.release()
 
-        self.scp.stop()
+        scp.shutdown()
 
 
 class TestNegotiationAcceptor(object):

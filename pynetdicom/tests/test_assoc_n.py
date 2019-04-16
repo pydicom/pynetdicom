@@ -1,30 +1,19 @@
 """Association testing for DIMSE-N services"""
 
 from io import BytesIO
-import logging
-import os
-import select
-import socket
-from struct import pack
 import time
-import threading
 
 import pytest
 
-from pydicom import read_file
 from pydicom.dataset import Dataset
+from pydicom.tag import Tag
 from pydicom.uid import UID, ImplicitVRLittleEndian, ExplicitVRLittleEndian
 
-from pynetdicom import AE, VerificationPresentationContexts, debug_logger, evt
-from pynetdicom.association import Association
+from pynetdicom import AE, debug_logger, evt
 from pynetdicom.dimse_primitives import (
     N_EVENT_REPORT, N_GET, N_SET, N_ACTION, N_CREATE, N_DELETE
 )
 from pynetdicom.dsutils import encode, decode
-from pynetdicom.pdu_primitives import (
-    UserIdentityNegotiation, SOPClassExtendedNegotiation,
-    SOPClassCommonExtendedNegotiation
-)
 from pynetdicom.sop_class import (
     DisplaySystemSOPClass,
     VerificationSOPClass,
@@ -34,11 +23,6 @@ from pynetdicom.sop_class import (
     ModalityPerformedProcedureStepSOPClass,
 )
 from pynetdicom.service_class import ServiceClass
-from .dummy_c_scp import DummyBaseSCP, DummyVerificationSCP
-from .dummy_n_scp import (
-    DummyGetSCP, DummySetSCP, DummyDeleteSCP, DummyEventReportSCP,
-    DummyCreateSCP, DummyActionSCP
-)
 
 
 #debug_logger()
@@ -46,39 +30,7 @@ from .dummy_n_scp import (
 
 class TestAssociationSendNEventReport(object):
     """Run tests on Assocation send_n_event_report."""
-    def _scp(self, req, context, info):
-        rsp = N_EVENT_REPORT()
-        rsp.MessageIDBeingRespondedTo = req.MessageID
-        rsp.AffectedSOPClassUID = req.AffectedSOPClassUID
-        rsp.AffectedSOPInstanceUID = req.AffectedSOPInstanceUID
-
-
-        status, ds = self.scp.ae.on_n_event_report(req.EventInformation,
-                                                   context.as_tuple,
-                                                   info)
-        if isinstance(status, Dataset):
-            if 'Status' not in status:
-                raise AttributeError("The 'status' dataset returned by "
-                                     "'on_n_set' must contain"
-                                     "a (0000,0900) Status element")
-            for elem in status:
-                if hasattr(rsp, elem.keyword):
-                    setattr(rsp, elem.keyword, elem.value)
-                else:
-                    LOGGER.warning("The 'status' dataset returned by "
-                                   "'on_n_set' contained an unsupported "
-                                   "Element '%s'.", elem.keyword)
-        elif isinstance(status, int):
-            rsp.Status = status
-
-        rsp.EventReply = BytesIO(encode(ds, True, True))
-
-        self.scp.ae.active_associations[0].dimse.send_msg(rsp, context.context_id)
-
     def setup(self):
-        self.scp = None
-        self._orig_scp = ServiceClass.SCP
-
         self.ae = None
 
     def teardown(self):
@@ -86,45 +38,51 @@ class TestAssociationSendNEventReport(object):
         if self.ae:
             self.ae.shutdown()
 
-        if self.scp:
-            self.scp.abort()
-
-        time.sleep(0.1)
-
-        for thread in threading.enumerate():
-            if isinstance(thread, DummyBaseSCP):
-                thread.abort()
-                thread.stop()
-
-        ServiceClass.SCP = self._orig_scp
-
     def test_must_be_associated(self):
         """Test can't send without association."""
-        # Test raise if assoc not established
-        self.scp = DummyEventReportSCP()
-        self.scp.start()
-        ae = AE()
-        ae.add_requested_context(PrintJobSOPClass)
+        def handle(event):
+            return 0x0000, Dataset()
+
+        self.ae = ae = AE()
         ae.acse_timeout = 5
         ae.dimse_timeout = 5
+        ae.network_timeout = 5
+        ae.add_supported_context(ModalityPerformedProcedureStepNotificationSOPClass)
+        scp = ae.start_server(
+            ('', 11112), block=False,
+            evt_handlers=[(evt.EVT_N_EVENT_REPORT, handle)]
+        )
+
+        ae.add_requested_context(ModalityPerformedProcedureStepNotificationSOPClass)
         assoc = ae.associate('localhost', 11112)
+        assert assoc.is_established
         assoc.release()
-        assert assoc.is_released
         assert not assoc.is_established
+
         with pytest.raises(RuntimeError):
             assoc.send_n_event_report(None, None, None, None)
-        self.scp.stop()
+
+        scp.shutdown()
 
     def test_no_abstract_syntax_match(self):
         """Test SCU when no accepted abstract syntax"""
-        self.scp = DummyEventReportSCP()
-        self.scp.start()
-        ae = AE()
-        ae.add_requested_context(PrintJobSOPClass)
+        def handle(event):
+            return 0x0000, Dataset()
+
+        self.ae = ae = AE()
         ae.acse_timeout = 5
         ae.dimse_timeout = 5
+        ae.network_timeout = 5
+        ae.add_supported_context(ModalityPerformedProcedureStepNotificationSOPClass)
+        scp = ae.start_server(
+            ('', 11112), block=False,
+            evt_handlers=[(evt.EVT_N_EVENT_REPORT, handle)]
+        )
+
+        ae.add_requested_context(ModalityPerformedProcedureStepNotificationSOPClass)
         assoc = ae.associate('localhost', 11112)
         assert assoc.is_established
+
         msg = (
             r"No suitable presentation context for the SCU role has been "
             r"accepted by the peer for the SOP Class 'Verification SOP Class'"
@@ -133,68 +91,100 @@ class TestAssociationSendNEventReport(object):
             assoc.send_n_event_report(
                 None, None, VerificationSOPClass, None
             )
+
         assoc.release()
         assert assoc.is_released
-        self.scp.stop()
+
+        scp.shutdown()
 
     def test_rq_bad_dataset_raises(self):
         """Test sending bad dataset raises exception."""
-        self.scp = DummyEventReportSCP()
-        self.scp.start()
-        ae = AE()
-        ae.add_requested_context(PrintJobSOPClass, ExplicitVRLittleEndian)
+        def handle(event):
+            return 0x0000, Dataset()
+
+        self.ae = ae = AE()
         ae.acse_timeout = 5
         ae.dimse_timeout = 5
+        ae.network_timeout = 5
+        ae.add_supported_context(ModalityPerformedProcedureStepNotificationSOPClass)
+        scp = ae.start_server(
+            ('', 11112), block=False,
+            evt_handlers=[(evt.EVT_N_EVENT_REPORT, handle)]
+        )
+
+        ae.add_requested_context(
+            ModalityPerformedProcedureStepNotificationSOPClass,
+            ExplicitVRLittleEndian
+        )
         assoc = ae.associate('localhost', 11112)
         assert assoc.is_established
+
         ds = Dataset()
         ds.PerimeterValue = b'\x00\x01'
         msg = r"Unable to encode the supplied 'Event Information' dataset"
         with pytest.raises(ValueError, match=msg):
-            assoc.send_n_event_report(ds, 1, PrintJobSOPClass, '1.2.3')
+            assoc.send_n_event_report(
+                ds, 1,
+                ModalityPerformedProcedureStepNotificationSOPClass,
+                '1.2.3'
+            )
+
         assoc.release()
         assert assoc.is_released
 
-        self.scp.stop()
+        scp.shutdown()
 
     def test_rsp_none(self):
         """Test no response from peer"""
-        self.scp = DummyEventReportSCP()
-        self.scp.start()
-        ae = AE()
-        ae.add_requested_context(PrintJobSOPClass)
+        def handle(event):
+            time.sleep(0.5)
+            return 0x0000, Dataset()
+
+        self.ae = ae = AE()
         ae.acse_timeout = 5
-        ae.dimse_timeout = 5
+        ae.dimse_timeout = 0.4
+        ae.network_timeout = 5
+        ae.add_supported_context(ModalityPerformedProcedureStepNotificationSOPClass)
+        scp = ae.start_server(
+            ('', 11112), block=False,
+            evt_handlers=[(evt.EVT_N_EVENT_REPORT, handle)]
+        )
+
+        ae.add_requested_context(ModalityPerformedProcedureStepNotificationSOPClass)
         assoc = ae.associate('localhost', 11112)
-
-        class DummyDIMSE():
-            def send_msg(*args, **kwargs): return
-
-            def get_msg(*args, **kwargs): return None, None
-
-        assoc.dimse = DummyDIMSE()
         assert assoc.is_established
+
         ds = Dataset()
         ds.PatientName = 'Test^test'
         status, ds = assoc.send_n_event_report(
-            ds, 1, PrintJobSOPClass, '1.2.840.10008.5.1.1.40.1'
+            ds, 1,
+            ModalityPerformedProcedureStepNotificationSOPClass,
+            '1.2.840.10008.5.1.1.40.1'
         )
-
         assert status == Dataset()
         assert ds is None
         assert assoc.is_aborted
 
-        self.scp.stop()
+        scp.shutdown()
 
     def test_rsp_invalid(self):
         """Test invalid DIMSE message received from peer"""
-        self.scp = DummyEventReportSCP()
-        self.scp.start()
-        ae = AE()
-        ae.add_requested_context(PrintJobSOPClass)
+        def handle(event):
+            return 0x0000, Dataset()
+
+        self.ae = ae = AE()
         ae.acse_timeout = 5
         ae.dimse_timeout = 5
+        ae.network_timeout = 5
+        ae.add_supported_context(ModalityPerformedProcedureStepNotificationSOPClass)
+        scp = ae.start_server(
+            ('', 11112), block=False,
+            evt_handlers=[(evt.EVT_N_EVENT_REPORT, handle)]
+        )
+
+        ae.add_requested_context(ModalityPerformedProcedureStepNotificationSOPClass)
         assoc = ae.associate('localhost', 11112)
+        assert assoc.is_established
 
         class DummyResponse():
             is_valid_response = False
@@ -204,116 +194,152 @@ class TestAssociationSendNEventReport(object):
             def get_msg(*args, **kwargs): return None, DummyResponse()
 
         assoc.dimse = DummyDIMSE()
-        assert assoc.is_established
+
         ds = Dataset()
         ds.PatientName = 'Test^test'
         status, ds = assoc.send_n_event_report(
-            ds, 1, PrintJobSOPClass, '1.2.840.10008.5.1.1.40.1'
+            ds, 1,
+            ModalityPerformedProcedureStepNotificationSOPClass,
+            '1.2.840.10008.5.1.1.40.1'
         )
+
         assert status == Dataset()
         assert ds is None
         assert assoc.is_aborted
 
-        self.scp.stop()
+        scp.shutdown()
 
     def test_rsp_failure(self):
         """Test receiving a failure response from the peer"""
-        self.scp = DummyEventReportSCP()
-        self.scp.status = 0x0112
-        ServiceClass.SCP = self._scp
-        self.scp.start()
-        ae = AE()
-        ae.add_requested_context(PrintJobSOPClass)
+        def handle(event):
+            return 0x0112, None
+
+        self.ae = ae = AE()
         ae.acse_timeout = 5
         ae.dimse_timeout = 5
+        ae.network_timeout = 5
+        ae.add_supported_context(ModalityPerformedProcedureStepNotificationSOPClass)
+        scp = ae.start_server(
+            ('', 11112), block=False,
+            evt_handlers=[(evt.EVT_N_EVENT_REPORT, handle)]
+        )
+
+        ae.add_requested_context(ModalityPerformedProcedureStepNotificationSOPClass)
         assoc = ae.associate('localhost', 11112)
         assert assoc.is_established
+
         ds = Dataset()
         ds.PatientName = 'Test^test'
         status, ds = assoc.send_n_event_report(
-            ds, 1, PrintJobSOPClass, '1.2.840.10008.5.1.1.40.1'
+            ds, 1,
+            ModalityPerformedProcedureStepNotificationSOPClass,
+            '1.2.840.10008.5.1.1.40.1'
         )
         assert status.Status == 0x0112
         assert ds is None
         assoc.release()
         assert assoc.is_released
-        self.scp.stop()
+
+        scp.shutdown()
 
     def test_rsp_warning(self):
         """Test receiving a warning response from the peer"""
-        self.scp = DummyEventReportSCP()
-        self.scp.status = 0x0116
-        ServiceClass.SCP = self._scp
-        self.scp.start()
-        ae = AE()
-        ae.add_requested_context(PrintJobSOPClass)
+        def handle(event):
+            return 0x0116, event.event_information
+
+        self.ae = ae = AE()
         ae.acse_timeout = 5
         ae.dimse_timeout = 5
+        ae.network_timeout = 5
+        ae.add_supported_context(ModalityPerformedProcedureStepNotificationSOPClass)
+        scp = ae.start_server(
+            ('', 11112), block=False,
+            evt_handlers=[(evt.EVT_N_EVENT_REPORT, handle)]
+        )
+
+        ae.add_requested_context(ModalityPerformedProcedureStepNotificationSOPClass)
         assoc = ae.associate('localhost', 11112)
         assert assoc.is_established
+
         ds = Dataset()
         ds.PatientName = 'Test^test'
         status, ds = assoc.send_n_event_report(
-            ds, 1, PrintJobSOPClass, '1.2.840.10008.5.1.1.40.1'
+            ds, 1,
+            ModalityPerformedProcedureStepNotificationSOPClass,
+            '1.2.840.10008.5.1.1.40.1'
         )
         assert status.Status == 0x0116
-        assert ds is not None
-        assert isinstance(ds, Dataset)
-        assert ds.PatientName == 'Test'
-        assert ds.SOPClassUID == PrintJobSOPClass
-        assert ds.SOPInstanceUID == '1.2.3.4'
+        assert ds.PatientName == 'Test^test'
         assoc.release()
         assert assoc.is_released
-        self.scp.stop()
+
+        scp.shutdown()
 
     def test_rsp_success(self):
         """Test receiving a success response from the peer"""
-        self.scp = DummyEventReportSCP()
-        ServiceClass.SCP = self._scp
-        self.scp.start()
-        ae = AE()
-        ae.add_requested_context(PrintJobSOPClass)
+        def handle(event):
+            return 0x0000, event.event_information
+
+        self.ae = ae = AE()
         ae.acse_timeout = 5
         ae.dimse_timeout = 5
+        ae.network_timeout = 5
+        ae.add_supported_context(ModalityPerformedProcedureStepNotificationSOPClass)
+        scp = ae.start_server(
+            ('', 11112), block=False,
+            evt_handlers=[(evt.EVT_N_EVENT_REPORT, handle)]
+        )
+
+        ae.add_requested_context(ModalityPerformedProcedureStepNotificationSOPClass)
         assoc = ae.associate('localhost', 11112)
         assert assoc.is_established
+
         ds = Dataset()
         ds.PatientName = 'Test^test'
         status, ds = assoc.send_n_event_report(
-            ds, 1, PrintJobSOPClass, '1.2.840.10008.5.1.1.40.1'
+            ds, 1,
+            ModalityPerformedProcedureStepNotificationSOPClass,
+            '1.2.840.10008.5.1.1.40.1'
         )
         assert status.Status == 0x0000
-        assert ds is not None
-        assert isinstance(ds, Dataset)
-        assert ds.PatientName == 'Test'
-        assert ds.SOPClassUID == PrintJobSOPClass
-        assert ds.SOPInstanceUID == '1.2.3.4'
+        assert ds.PatientName == 'Test^test'
         assoc.release()
         assert assoc.is_released
-        self.scp.stop()
+
+        scp.shutdown()
 
     def test_rsp_unknown_status(self):
         """Test unknown status value returned by peer"""
-        self.scp = DummyEventReportSCP()
-        self.scp.status = 0xFFF0
-        ServiceClass.SCP = self._scp
-        self.scp.start()
-        ae = AE()
-        ae.add_requested_context(PrintJobSOPClass)
+        def handle(event):
+            return 0xFFF0, event.event_information
+
+        self.ae = ae = AE()
         ae.acse_timeout = 5
         ae.dimse_timeout = 5
+        ae.network_timeout = 5
+        ae.add_supported_context(ModalityPerformedProcedureStepNotificationSOPClass)
+        scp = ae.start_server(
+            ('', 11112), block=False,
+            evt_handlers=[(evt.EVT_N_EVENT_REPORT, handle)]
+        )
+
+        ae.add_requested_context(ModalityPerformedProcedureStepNotificationSOPClass)
         assoc = ae.associate('localhost', 11112)
         assert assoc.is_established
+
         ds = Dataset()
         ds.PatientName = 'Test^test'
         status, ds = assoc.send_n_event_report(
-            ds, 1, PrintJobSOPClass, '1.2.840.10008.5.1.1.40.1'
+            ds, 1,
+            ModalityPerformedProcedureStepNotificationSOPClass,
+            '1.2.840.10008.5.1.1.40.1'
         )
         assert status.Status == 0xFFF0
         assert ds is None
         assoc.release()
         assert assoc.is_released
-        self.scp.stop()
+
+        scp.shutdown()
 
     def test_rsp_bad_dataset(self):
         """Test handler returns bad dataset"""
@@ -410,25 +436,35 @@ class TestAssociationSendNEventReport(object):
 
     def test_extra_status(self):
         """Test extra status elements are available."""
-        self.scp = DummyEventReportSCP()
-        self.scp.status = Dataset()
-        self.scp.status.Status = 0xFFF0
-        self.scp.status.ErrorComment = 'Some comment'
-        self.scp.status.ErrorID = 12
-        self.scp.status.AffectedSOPClassUID = '1.2.3'
-        self.scp.status.AffectedSOPInstanceUID = '1.2.3.4'
-        ServiceClass.SCP = self._scp
-        self.scp.start()
-        ae = AE()
-        ae.add_requested_context(PrintJobSOPClass)
+        def handle(event):
+            status = Dataset()
+            status.Status = 0xFFF0
+            status.ErrorComment = 'Some comment'
+            status.ErrorID = 12
+            status.AffectedSOPClassUID = '1.2.3'
+            status.AffectedSOPInstanceUID = '1.2.3.4'
+            return status, event.event_information
+
+        self.ae = ae = AE()
         ae.acse_timeout = 5
         ae.dimse_timeout = 5
+        ae.network_timeout = 5
+        ae.add_supported_context(ModalityPerformedProcedureStepNotificationSOPClass)
+        scp = ae.start_server(
+            ('', 11112), block=False,
+            evt_handlers=[(evt.EVT_N_EVENT_REPORT, handle)]
+        )
+
+        ae.add_requested_context(ModalityPerformedProcedureStepNotificationSOPClass)
         assoc = ae.associate('localhost', 11112)
         assert assoc.is_established
+
         ds = Dataset()
         ds.PatientName = 'Test^test'
         status, ds = assoc.send_n_event_report(
-            ds, 1, PrintJobSOPClass, '1.2.840.10008.5.1.1.40.1'
+            ds, 1,
+            ModalityPerformedProcedureStepNotificationSOPClass,
+            '1.2.840.10008.5.1.1.40.1'
         )
         assert status.Status == 0xFFF0
         assert status.ErrorComment == 'Some comment'
@@ -438,56 +474,64 @@ class TestAssociationSendNEventReport(object):
         assert ds is None
         assoc.release()
         assert assoc.is_released
-        self.scp.stop()
+
+        scp.shutdown()
 
 
 class TestAssociationSendNGet(object):
     """Run tests on Assocation send_n_get."""
     def setup(self):
         """Run prior to each test"""
-        self.scp = None
         self.ae = None
 
     def teardown(self):
         """Clear any active threads"""
-        if self.scp:
-            self.scp.abort()
-
         if self.ae:
             self.ae.shutdown()
 
-        time.sleep(0.1)
-
-        for thread in threading.enumerate():
-            if isinstance(thread, DummyBaseSCP):
-                thread.abort()
-                thread.stop()
-
     def test_must_be_associated(self):
         """Test can't send without association."""
-        # Test raise if assoc not established
-        self.scp = DummyGetSCP()
-        self.scp.start()
-        ae = AE()
-        ae.add_requested_context(DisplaySystemSOPClass)
+        def handle(event):
+            ds = Dataset()
+            ds.PatientName = 'Test^test'
+            return 0x0000, ds
+
+        self.ae = ae = AE()
         ae.acse_timeout = 5
         ae.dimse_timeout = 5
+        ae.network_timeout = 5
+        ae.add_supported_context(DisplaySystemSOPClass)
+        scp = ae.start_server(
+            ('', 11112), block=False, evt_handlers=[(evt.EVT_N_GET, handle)]
+        )
+
+        ae.add_requested_context(DisplaySystemSOPClass)
         assoc = ae.associate('localhost', 11112)
         assoc.release()
         assert assoc.is_released
         assert not assoc.is_established
         with pytest.raises(RuntimeError):
             assoc.send_n_get(None, None, None)
-        self.scp.stop()
+
+        scp.shutdown()
 
     def test_no_abstract_syntax_match(self):
         """Test SCU when no accepted abstract syntax"""
-        self.scp = DummyGetSCP()
-        self.scp.start()
-        ae = AE()
-        ae.add_requested_context(DisplaySystemSOPClass)
+        def handle(event):
+            ds = Dataset()
+            ds.PatientName = 'Test^test'
+            return 0x0000, ds
+
+        self.ae = ae = AE()
         ae.acse_timeout = 5
         ae.dimse_timeout = 5
+        ae.network_timeout = 5
+        ae.add_supported_context(DisplaySystemSOPClass)
+        scp = ae.start_server(
+            ('', 11112), block=False, evt_handlers=[(evt.EVT_N_GET, handle)]
+        )
+
+        ae.add_requested_context(DisplaySystemSOPClass)
         assoc = ae.associate('localhost', 11112)
         assert assoc.is_established
         msg = (
@@ -496,50 +540,64 @@ class TestAssociationSendNGet(object):
         )
         with pytest.raises(ValueError, match=msg):
             assoc.send_n_get(None, VerificationSOPClass, None)
+
         assoc.release()
         assert assoc.is_released
-        self.scp.stop()
 
-    def test_ups_abstract_syntax(self):
-        """Test that sending with UPS uses correct SOP Class UID"""
-        pass
+        scp.shutdown()
 
     def test_rsp_none(self):
         """Test no response from peer"""
-        self.scp = DummyGetSCP()
-        self.scp.start()
-        ae = AE()
-        ae.add_requested_context(DisplaySystemSOPClass)
+        def handle(event):
+            ds = Dataset()
+            ds.PatientName = 'Test^test'
+            time.sleep(0.5)
+            return 0x0000, ds
+
+        self.ae = ae = AE()
         ae.acse_timeout = 5
-        ae.dimse_timeout = 5
+        ae.dimse_timeout = 0.4
+        ae.network_timeout = 5
+        ae.add_supported_context(DisplaySystemSOPClass)
+        scp = ae.start_server(
+            ('', 11112), block=False, evt_handlers=[(evt.EVT_N_GET, handle)]
+        )
+
+        ae.add_requested_context(DisplaySystemSOPClass)
         assoc = ae.associate('localhost', 11112)
-
-        class DummyDIMSE():
-            def send_msg(*args, **kwargs): return
-
-            def get_msg(*args, **kwargs): return None, None
-
-        assoc.dimse = DummyDIMSE()
         assert assoc.is_established
-        status, ds = assoc.send_n_get([(0x7fe0,0x0010)],
-                                      DisplaySystemSOPClass,
-                                      '1.2.840.10008.5.1.1.40.1')
+
+        status, ds = assoc.send_n_get(
+            [(0x7fe0,0x0010)],
+            DisplaySystemSOPClass,
+            '1.2.840.10008.5.1.1.40.1'
+        )
 
         assert status == Dataset()
         assert ds is None
         assert assoc.is_aborted
 
-        self.scp.stop()
+        scp.shutdown()
 
     def test_rsp_invalid(self):
         """Test invalid DIMSE message received from peer"""
-        self.scp = DummyGetSCP()
-        self.scp.start()
-        ae = AE()
-        ae.add_requested_context(DisplaySystemSOPClass)
+        def handle(event):
+            ds = Dataset()
+            ds.PatientName = 'Test^test'
+            return 0x0000, ds
+
+        self.ae = ae = AE()
         ae.acse_timeout = 5
         ae.dimse_timeout = 5
+        ae.network_timeout = 5
+        ae.add_supported_context(DisplaySystemSOPClass)
+        scp = ae.start_server(
+            ('', 11112), block=False, evt_handlers=[(evt.EVT_N_GET, handle)]
+        )
+
+        ae.add_requested_context(DisplaySystemSOPClass)
         assoc = ae.associate('localhost', 11112)
+        assert assoc.is_established
 
         class DummyResponse():
             is_valid_response = False
@@ -551,13 +609,13 @@ class TestAssociationSendNGet(object):
         assoc.dimse = DummyDIMSE()
         assert assoc.is_established
         status, ds = assoc.send_n_get([(0x7fe0,0x0010)],
-                                      DisplaySystemSOPClass,
-                                      '1.2.840.10008.5.1.1.40.1')
+        DisplaySystemSOPClass,
+        '1.2.840.10008.5.1.1.40.1')
         assert status == Dataset()
         assert ds is None
         assert assoc.is_aborted
 
-        self.scp.stop()
+        scp.shutdown()
 
     def test_rsp_failure(self):
         """Test receiving a failure response from the peer"""
@@ -726,13 +784,23 @@ class TestAssociationSendNGet(object):
 
     def test_decode_failure(self):
         """Test bad dataset received from peer"""
-        self.scp = DummyGetSCP()
-        self.scp.start()
-        ae = AE()
-        ae.add_requested_context(DisplaySystemSOPClass)
+        def handle(event):
+            ds = Dataset()
+            ds.PatientName = 'Test^test'
+            return 0x0000, ds
+
+        self.ae = ae = AE()
         ae.acse_timeout = 5
         ae.dimse_timeout = 5
+        ae.network_timeout = 5
+        ae.add_supported_context(DisplaySystemSOPClass)
+        scp = ae.start_server(
+            ('', 11112), block=False, evt_handlers=[(evt.EVT_N_GET, handle)]
+        )
+
+        ae.add_requested_context(DisplaySystemSOPClass)
         assoc = ae.associate('localhost', 11112)
+        assert assoc.is_established
 
         class DummyReply():
             def getvalue(self):
@@ -755,14 +823,16 @@ class TestAssociationSendNGet(object):
 
         assoc.dimse = DummyDIMSE()
         assert assoc.is_established
-        status, ds = assoc.send_n_get([(0x7fe0,0x0010)],
-                                      DisplaySystemSOPClass,
-                                      '1.2.840.10008.5.1.1.40.1')
+        status, ds = assoc.send_n_get(
+            [(0x7fe0,0x0010)],
+            DisplaySystemSOPClass,
+            '1.2.840.10008.5.1.1.40.1'
+        )
 
         assert status.Status == 0x0110
         assert ds is None
 
-        self.scp.stop()
+        scp.shutdown()
 
     def test_extra_status(self):
         """Test extra status elements are available."""
@@ -801,147 +871,161 @@ class TestAssociationSendNGet(object):
 
 class TestAssociationSendNSet(object):
     """Run tests on Assocation send_n_set."""
-    def _scp(self, req, context, info):
-        rsp = N_SET()
-        rsp.MessageIDBeingRespondedTo = req.MessageID
-        rsp.AffectedSOPClassUID = req.RequestedSOPClassUID
-        rsp.AffectedSOPInstanceUID = req.RequestedSOPInstanceUID
-
-        status, ds = self.scp.ae.on_n_set(req.ModificationList,
-                                          context.as_tuple,
-                                          info)
-        if isinstance(status, Dataset):
-            if 'Status' not in status:
-                raise AttributeError("The 'status' dataset returned by "
-                                     "'on_n_set' must contain"
-                                     "a (0000,0900) Status element")
-            for elem in status:
-                if hasattr(rsp, elem.keyword):
-                    setattr(rsp, elem.keyword, elem.value)
-                else:
-                    LOGGER.warning("The 'status' dataset returned by "
-                                   "'on_n_set' contained an unsupported "
-                                   "Element '%s'.", elem.keyword)
-        elif isinstance(status, int):
-            rsp.Status = status
-
-        rsp.AttributeList = BytesIO(encode(ds, True, True))
-
-        self.scp.ae.active_associations[0].dimse.send_msg(rsp, context.context_id)
-
     def setup(self):
-        self.scp = None
-        self._orig_scp = ServiceClass.SCP
+        self.ae = None
 
     def teardown(self):
         """Clear any active threads"""
-        if self.scp:
-            self.scp.abort()
-
-        time.sleep(0.1)
-
-        for thread in threading.enumerate():
-            if isinstance(thread, DummyBaseSCP):
-                thread.abort()
-                thread.stop()
-
-        ServiceClass.SCP = self._orig_scp
+        if self.ae:
+            self.ae.shutdown()
 
     def test_must_be_associated(self):
         """Test can't send without association."""
-        # Test raise if assoc not established
-        self.scp = DummySetSCP()
-        self.scp.start()
-        ae = AE()
-        ae.add_requested_context(PrintJobSOPClass)
+        def handle(event):
+            ds = Dataset()
+            ds.PatientName = 'Test^test'
+            return 0x0000, ds
+
+        self.ae = ae = AE()
         ae.acse_timeout = 5
         ae.dimse_timeout = 5
+        ae.network_timeout = 5
+        ae.add_supported_context(ModalityPerformedProcedureStepSOPClass)
+        scp = ae.start_server(
+            ('', 11112), block=False, evt_handlers=[(evt.EVT_N_SET, handle)]
+        )
+
+        ae.add_requested_context(ModalityPerformedProcedureStepSOPClass)
         assoc = ae.associate('localhost', 11112)
         assoc.release()
         assert assoc.is_released
         assert not assoc.is_established
         with pytest.raises(RuntimeError):
             assoc.send_n_set(None, None, None)
-        self.scp.stop()
+
+        scp.shutdown()
 
     def test_no_abstract_syntax_match(self):
         """Test SCU when no accepted abstract syntax"""
-        self.scp = DummySetSCP()
-        self.scp.start()
-        ae = AE()
-        ae.add_requested_context(PrintJobSOPClass)
+        def handle(event):
+            ds = Dataset()
+            ds.PatientName = 'Test^test'
+            return 0x0000, ds
+
+        self.ae = ae = AE()
         ae.acse_timeout = 5
         ae.dimse_timeout = 5
+        ae.network_timeout = 5
+        ae.add_supported_context(ModalityPerformedProcedureStepSOPClass)
+        scp = ae.start_server(
+            ('', 11112), block=False, evt_handlers=[(evt.EVT_N_SET, handle)]
+        )
+
+        ae.add_requested_context(ModalityPerformedProcedureStepSOPClass)
         assoc = ae.associate('localhost', 11112)
         assert assoc.is_established
+
         msg = (
             r"No suitable presentation context for the SCU role has been "
             r"accepted by the peer for the SOP Class 'Verification SOP Class'"
         )
         with pytest.raises(ValueError, match=msg):
             assoc.send_n_set(None, VerificationSOPClass, None)
+
         assoc.release()
         assert assoc.is_released
-        self.scp.stop()
+
+        scp.shutdown()
 
     def test_rq_bad_dataset_raises(self):
         """Test sending bad dataset raises exception."""
-        self.scp = DummySetSCP()
-        self.scp.start()
-        ae = AE()
-        ae.add_requested_context(PrintJobSOPClass, ExplicitVRLittleEndian)
+        def handle(event):
+            ds = Dataset()
+            ds.PatientName = 'Test^test'
+            return 0x0000, ds
+
+        self.ae = ae = AE()
         ae.acse_timeout = 5
         ae.dimse_timeout = 5
+        ae.network_timeout = 5
+        ae.add_supported_context(ModalityPerformedProcedureStepSOPClass)
+        scp = ae.start_server(
+            ('', 11112), block=False, evt_handlers=[(evt.EVT_N_SET, handle)]
+        )
+
+        ae.add_requested_context(
+            ModalityPerformedProcedureStepSOPClass,
+            ExplicitVRLittleEndian
+        )
         assoc = ae.associate('localhost', 11112)
         assert assoc.is_established
+
         mod_list = Dataset()
         mod_list.PerimeterValue = b'\x00\x01'
         msg = r"Failed to encode the supplied 'Modification List' dataset"
         with pytest.raises(ValueError, match=msg):
-            assoc.send_n_set(mod_list, PrintJobSOPClass, '1.2.3')
+            assoc.send_n_set(
+                mod_list, ModalityPerformedProcedureStepSOPClass, '1.2.3'
+            )
+
         assoc.release()
         assert assoc.is_released
 
-        self.scp.stop()
+        scp.shutdown()
 
     def test_rsp_none(self):
         """Test no response from peer"""
-        self.scp = DummySetSCP()
-        self.scp.start()
-        ae = AE()
-        ae.add_requested_context(PrintJobSOPClass)
+        def handle(event):
+            ds = Dataset()
+            ds.PatientName = 'Test^test'
+            time.sleep(0.5)
+            return 0x0000, ds
+
+        self.ae = ae = AE()
         ae.acse_timeout = 5
-        ae.dimse_timeout = 5
+        ae.dimse_timeout = 0.4
+        ae.network_timeout = 5
+        ae.add_supported_context(ModalityPerformedProcedureStepSOPClass)
+        scp = ae.start_server(
+            ('', 11112), block=False, evt_handlers=[(evt.EVT_N_SET, handle)]
+        )
+
+        ae.add_requested_context(ModalityPerformedProcedureStepSOPClass)
         assoc = ae.associate('localhost', 11112)
-
-        class DummyDIMSE():
-            def send_msg(*args, **kwargs): return
-
-            def get_msg(*args, **kwargs): return None, None
-
-        assoc.dimse = DummyDIMSE()
         assert assoc.is_established
+
         mod_list = Dataset()
         mod_list.PatientName = 'Test^test'
-        status, ds = assoc.send_n_set(mod_list,
-                                      PrintJobSOPClass,
-                                      '1.2.840.10008.5.1.1.40.1')
+        status, ds = assoc.send_n_set(
+            mod_list, ModalityPerformedProcedureStepSOPClass,
+            '1.2.840.10008.5.1.1.40.1'
+        )
 
         assert status == Dataset()
         assert ds is None
         assert assoc.is_aborted
 
-        self.scp.stop()
+        scp.shutdown()
 
     def test_rsp_invalid(self):
         """Test invalid DIMSE message received from peer"""
-        self.scp = DummySetSCP()
-        self.scp.start()
-        ae = AE()
-        ae.add_requested_context(PrintJobSOPClass)
+        def handle(event):
+            ds = Dataset()
+            ds.PatientName = 'Test^test'
+            return 0x0000, ds
+
+        self.ae = ae = AE()
         ae.acse_timeout = 5
-        ae.dimse_timeout = 5
+        ae.dimse_timeout = 0.4
+        ae.network_timeout = 5
+        ae.add_supported_context(ModalityPerformedProcedureStepSOPClass)
+        scp = ae.start_server(
+            ('', 11112), block=False, evt_handlers=[(evt.EVT_N_SET, handle)]
+        )
+
+        ae.add_requested_context(ModalityPerformedProcedureStepSOPClass)
         assoc = ae.associate('localhost', 11112)
+        assert assoc.is_established
 
         class DummyResponse():
             is_valid_response = False
@@ -951,116 +1035,141 @@ class TestAssociationSendNSet(object):
             def get_msg(*args, **kwargs): return None, DummyResponse()
 
         assoc.dimse = DummyDIMSE()
-        assert assoc.is_established
         mod_list = Dataset()
         mod_list.PatientName = 'Test^test'
-        status, ds = assoc.send_n_set(mod_list,
-                                      PrintJobSOPClass,
-                                      '1.2.840.10008.5.1.1.40.1')
+        status, ds = assoc.send_n_set(
+            mod_list,
+            ModalityPerformedProcedureStepSOPClass,
+            '1.2.840.10008.5.1.1.40.1'
+        )
+
         assert status == Dataset()
         assert ds is None
         assert assoc.is_aborted
 
-        self.scp.stop()
+        scp.shutdown()
 
     def test_rsp_failure(self):
         """Test receiving a failure response from the peer"""
-        self.scp = DummySetSCP()
-        self.scp.status = 0x0112
-        ServiceClass.SCP = self._scp
-        self.scp.start()
-        ae = AE()
-        ae.add_requested_context(PrintJobSOPClass)
+        def handle(event):
+            return 0x0112, None
+
+        self.ae = ae = AE()
         ae.acse_timeout = 5
         ae.dimse_timeout = 5
+        ae.network_timeout = 5
+        ae.add_supported_context(ModalityPerformedProcedureStepSOPClass)
+        scp = ae.start_server(
+            ('', 11112), block=False, evt_handlers=[(evt.EVT_N_SET, handle)]
+        )
+
+        ae.add_requested_context(ModalityPerformedProcedureStepSOPClass)
         assoc = ae.associate('localhost', 11112)
         assert assoc.is_established
-        mod_list = Dataset()
-        mod_list.PatientName = 'Test^test'
-        status, ds = assoc.send_n_set(mod_list,
-                                      PrintJobSOPClass,
-                                      '1.2.840.10008.5.1.1.40.1')
+
+        ds = Dataset()
+        ds.PatientName = 'Test^test'
+        status, ds = assoc.send_n_set(
+            ds,
+            ModalityPerformedProcedureStepSOPClass,
+            '1.2.840.10008.5.1.1.40.1'
+        )
         assert status.Status == 0x0112
         assert ds is None
         assoc.release()
         assert assoc.is_released
-        self.scp.stop()
+
+        scp.shutdown()
 
     def test_rsp_warning(self):
         """Test receiving a warning response from the peer"""
-        self.scp = DummySetSCP()
-        self.scp.status = 0x0116
-        ServiceClass.SCP = self._scp
-        self.scp.start()
-        ae = AE()
-        ae.add_requested_context(PrintJobSOPClass)
+        def handle(event):
+            return 0x0116, event.modification_list
+
+        self.ae = ae = AE()
         ae.acse_timeout = 5
         ae.dimse_timeout = 5
+        ae.network_timeout = 5
+        ae.add_supported_context(ModalityPerformedProcedureStepSOPClass)
+        scp = ae.start_server(
+            ('', 11112), block=False, evt_handlers=[(evt.EVT_N_SET, handle)]
+        )
+
+        ae.add_requested_context(ModalityPerformedProcedureStepSOPClass)
         assoc = ae.associate('localhost', 11112)
         assert assoc.is_established
-        mod_list = Dataset()
-        mod_list.PatientName = 'Test^test'
-        status, ds = assoc.send_n_set(mod_list,
-                                      PrintJobSOPClass,
-                                      '1.2.840.10008.5.1.1.40.1')
+
+        ds = Dataset()
+        ds.PatientName = 'Test^test'
+        status, ds = assoc.send_n_set(
+            ds,
+            ModalityPerformedProcedureStepSOPClass,
+            '1.2.840.10008.5.1.1.40.1'
+        )
         assert status.Status == 0x0116
-        assert ds is not None
-        assert isinstance(ds, Dataset)
-        assert ds.PatientName == 'Test'
-        assert ds.SOPClassUID == PrintJobSOPClass
-        assert ds.SOPInstanceUID == '1.2.3.4'
+        assert ds.PatientName == 'Test^test'
         assoc.release()
         assert assoc.is_released
-        self.scp.stop()
 
     def test_rsp_success(self):
         """Test receiving a success response from the peer"""
-        self.scp = DummySetSCP()
-        ServiceClass.SCP = self._scp
-        self.scp.start()
-        ae = AE()
-        ae.add_requested_context(PrintJobSOPClass)
+        def handle(event):
+            return 0x0000, event.modification_list
+
+        self.ae = ae = AE()
         ae.acse_timeout = 5
         ae.dimse_timeout = 5
+        ae.network_timeout = 5
+        ae.add_supported_context(ModalityPerformedProcedureStepSOPClass)
+        scp = ae.start_server(
+            ('', 11112), block=False, evt_handlers=[(evt.EVT_N_SET, handle)]
+        )
+
+        ae.add_requested_context(ModalityPerformedProcedureStepSOPClass)
         assoc = ae.associate('localhost', 11112)
         assert assoc.is_established
-        mod_list = Dataset()
-        mod_list.PatientName = 'Test^test'
-        status, ds = assoc.send_n_set(mod_list,
-                                      PrintJobSOPClass,
-                                      '1.2.840.10008.5.1.1.40.1')
+
+        ds = Dataset()
+        ds.PatientName = 'Test^test'
+        status, ds = assoc.send_n_set(
+            ds,
+            ModalityPerformedProcedureStepSOPClass,
+            '1.2.840.10008.5.1.1.40.1'
+        )
         assert status.Status == 0x0000
-        assert ds is not None
-        assert isinstance(ds, Dataset)
-        assert ds.PatientName == 'Test'
-        assert ds.SOPClassUID == PrintJobSOPClass
-        assert ds.SOPInstanceUID == '1.2.3.4'
+        assert ds.PatientName == 'Test^test'
         assoc.release()
         assert assoc.is_released
-        self.scp.stop()
 
     def test_rsp_unknown_status(self):
         """Test unknown status value returned by peer"""
-        self.scp = DummySetSCP()
-        self.scp.status = 0xFFF0
-        ServiceClass.SCP = self._scp
-        self.scp.start()
-        ae = AE()
-        ae.add_requested_context(PrintJobSOPClass)
+        def handle(event):
+            return 0xFFF0, event.modification_list
+
+        self.ae = ae = AE()
         ae.acse_timeout = 5
         ae.dimse_timeout = 5
+        ae.network_timeout = 5
+        ae.add_supported_context(ModalityPerformedProcedureStepSOPClass)
+        scp = ae.start_server(
+            ('', 11112), block=False, evt_handlers=[(evt.EVT_N_SET, handle)]
+        )
+
+        ae.add_requested_context(ModalityPerformedProcedureStepSOPClass)
         assoc = ae.associate('localhost', 11112)
         assert assoc.is_established
-        mod_list = Dataset()
-        mod_list.PatientName = 'Test^test'
-        status, ds = assoc.send_n_set(mod_list,
-                                      PrintJobSOPClass,
-                                      '1.2.840.10008.5.1.1.40.1')
+
+        ds = Dataset()
+        ds.PatientName = 'Test^test'
+        status, ds = assoc.send_n_set(
+            ds,
+            ModalityPerformedProcedureStepSOPClass,
+            '1.2.840.10008.5.1.1.40.1'
+        )
         assert status.Status == 0xFFF0
         assert ds is None
         assoc.release()
         assert assoc.is_released
-        self.scp.stop()
 
     def test_rsp_bad_dataset(self):
         """Test handler returns bad dataset"""
@@ -1098,14 +1207,26 @@ class TestAssociationSendNSet(object):
 
     def test_decode_failure(self):
         """Test bad dataset received from peer"""
-        self.scp = DummySetSCP()
-        ServiceClass.SCP = self._scp
-        self.scp.start()
-        ae = AE()
-        ae.add_requested_context(PrintJobSOPClass)
+        def handle(event):
+            ds = Dataset()
+            ds.PatientName = 'Test^test'
+            return 0x0000, ds
+
+        self.ae = ae = AE()
         ae.acse_timeout = 5
-        ae.dimse_timeout = 5
+        ae.dimse_timeout = 0.4
+        ae.network_timeout = 5
+        ae.add_supported_context(ModalityPerformedProcedureStepSOPClass)
+        scp = ae.start_server(
+            ('', 11112), block=False, evt_handlers=[(evt.EVT_N_SET, handle)]
+        )
+
+        ae.add_requested_context(
+            ModalityPerformedProcedureStepSOPClass,
+            ExplicitVRLittleEndian
+        )
         assoc = ae.associate('localhost', 11112)
+        assert assoc.is_established
 
         class DummyReply():
             def getvalue(self):
@@ -1130,58 +1251,74 @@ class TestAssociationSendNSet(object):
         assert assoc.is_established
         mod_list = Dataset()
         mod_list.PatientName = 'Test^test'
-        status, ds = assoc.send_n_set(mod_list,
-                                      PrintJobSOPClass,
-                                      '1.2.840.10008.5.1.1.40.1')
+        status, ds = assoc.send_n_set(
+            mod_list,
+            ModalityPerformedProcedureStepSOPClass,
+            '1.2.840.10008.5.1.1.40.1'
+        )
 
         assert status.Status == 0x0110
         assert ds is None
 
-        self.scp.stop()
+        scp.shutdown()
 
     def test_extra_status(self):
         """Test extra status elements are available."""
-        self.scp = DummySetSCP()
-        self.scp.status = Dataset()
-        self.scp.status.Status = 0xFFF0
-        self.scp.status.ErrorComment = 'Some comment'
-        self.scp.status.ErrorID = 12
-        self.scp.status.AttributeIdentifierList = [(0x7fe0,0x0010)]
-        ServiceClass.SCP = self._scp
-        self.scp.start()
-        ae = AE()
-        ae.add_requested_context(PrintJobSOPClass)
+        def handle(event):
+            status = Dataset()
+            status.Status = 0xFFF0
+            status.ErrorComment = 'Some comment'
+            status.ErrorID = 12
+            status.AttributeIdentifierList = [0x00100010]
+            return status, event.modification_list
+
+        self.ae = ae = AE()
         ae.acse_timeout = 5
         ae.dimse_timeout = 5
+        ae.network_timeout = 5
+        ae.add_supported_context(ModalityPerformedProcedureStepSOPClass)
+        scp = ae.start_server(
+            ('', 11112), block=False, evt_handlers=[(evt.EVT_N_SET, handle)]
+        )
+
+        ae.add_requested_context(ModalityPerformedProcedureStepSOPClass)
         assoc = ae.associate('localhost', 11112)
         assert assoc.is_established
-        mod_list = Dataset()
-        mod_list.PatientName = 'Test^test'
-        status, ds = assoc.send_n_set(mod_list,
-                                      PrintJobSOPClass,
-                                      '1.2.840.10008.5.1.1.40.1')
+
+        ds = Dataset()
+        ds.PatientName = 'Test^test'
+        status, ds = assoc.send_n_set(
+            ds,
+            ModalityPerformedProcedureStepSOPClass,
+            '1.2.840.10008.5.1.1.40.1'
+        )
         assert status.Status == 0xFFF0
         assert status.ErrorComment == 'Some comment'
         assert status.ErrorID == 12
-        assert status.AttributeIdentifierList == (0x7fe0,0x0010)
+        assert status.AttributeIdentifierList == Tag(0x00100010)
         assert ds is None
         assoc.release()
         assert assoc.is_released
-        self.scp.stop()
+
+        scp.shutdown()
 
 
+# TODO: Refactor when N-ACTION SCP is implemented
 class TestAssociationSendNAction(object):
     """Run tests on Assocation send_n_action."""
-    def _scp(self, req, context, info):
+    def _scp(self, req, context):
         rsp = N_ACTION()
         rsp.MessageIDBeingRespondedTo = req.MessageID
         rsp.AffectedSOPClassUID = req.RequestedSOPClassUID
         rsp.AffectedSOPInstanceUID = req.RequestedSOPInstanceUID
         rsp.ActionTypeID = req.ActionTypeID
 
-        status, ds = self.scp.ae.on_n_action(req.ActionInformation,
-                                             context.as_tuple,
-                                             info)
+        status, ds = evt.trigger(
+            self.ae.active_associations[0],
+            evt.EVT_N_ACTION,
+            {'request' : req, 'context' : context.as_tuple}
+        )
+
         if isinstance(status, Dataset):
             if 'Status' not in status:
                 raise AttributeError("The 'status' dataset returned by "
@@ -1197,55 +1334,67 @@ class TestAssociationSendNAction(object):
         elif isinstance(status, int):
             rsp.Status = status
 
-        rsp.ActionReply = BytesIO(encode(ds, True, True))
+        if ds:
+            rsp.ActionReply = BytesIO(encode(ds, True, True))
 
-        self.scp.ae.active_associations[0].dimse.send_msg(rsp, context.context_id)
+        self.ae.active_associations[0].dimse.send_msg(rsp, context.context_id)
 
     def setup(self):
-        self.scp = None
         self._orig_scp = ServiceClass.SCP
+
+        self.ae = None
 
     def teardown(self):
         """Clear any active threads"""
-        if self.scp:
-            self.scp.abort()
-
-        time.sleep(0.1)
-
-        for thread in threading.enumerate():
-            if isinstance(thread, DummyBaseSCP):
-                thread.abort()
-                thread.stop()
+        if self.ae:
+            self.ae.shutdown()
 
         ServiceClass.SCP = self._orig_scp
 
     def test_must_be_associated(self):
         """Test can't send without association."""
-        # Test raise if assoc not established
-        self.scp = DummyActionSCP()
-        self.scp.start()
-        ae = AE()
-        ae.add_requested_context(PrintJobSOPClass)
+        def handle(event):
+            return 0x0000, event.action_information
+
+        self.ae = ae = AE()
         ae.acse_timeout = 5
         ae.dimse_timeout = 5
+        ae.network_timeout = 5
+        ae.add_supported_context(VerificationSOPClass)
+        scp = ae.start_server(
+            ('', 11112), block=False, evt_handlers=[(evt.EVT_N_ACTION, handle)]
+        )
+
+        ae.add_requested_context(VerificationSOPClass)
         assoc = ae.associate('localhost', 11112)
+        assert assoc.is_established
+
         assoc.release()
         assert assoc.is_released
         assert not assoc.is_established
         with pytest.raises(RuntimeError):
             assoc.send_n_action(None, None, None, None)
-        self.scp.stop()
+
+        scp.shutdown()
 
     def test_no_abstract_syntax_match(self):
         """Test SCU when no accepted abstract syntax"""
-        self.scp = DummyActionSCP()
-        self.scp.start()
-        ae = AE()
-        ae.add_requested_context(PrintJobSOPClass)
+        def handle(event):
+            return 0x0000, event.action_information
+
+        self.ae = ae = AE()
         ae.acse_timeout = 5
         ae.dimse_timeout = 5
+        ae.network_timeout = 5
+        ae.add_supported_context(DisplaySystemSOPClass)
+        scp = ae.start_server(
+            ('', 11112), block=False, evt_handlers=[(evt.EVT_N_ACTION, handle)]
+        )
+
+        ae.add_requested_context(DisplaySystemSOPClass)
         assoc = ae.associate('localhost', 11112)
         assert assoc.is_established
+
         msg = (
             r"No suitable presentation context for the SCU role has been "
             r"accepted by the peer for the SOP Class 'Verification SOP Class'"
@@ -1254,37 +1403,57 @@ class TestAssociationSendNAction(object):
             assoc.send_n_action(None, 1, VerificationSOPClass, None)
         assoc.release()
         assert assoc.is_released
-        self.scp.stop()
+
+        scp.shutdown()
 
     def test_rq_bad_dataset_raises(self):
         """Test sending bad dataset raises exception."""
-        self.scp = DummyActionSCP()
-        self.scp.start()
-        ae = AE()
-        ae.add_requested_context(PrintJobSOPClass, ExplicitVRLittleEndian)
+        def handle(event):
+            return 0x0000, event.action_information
+
+        self.ae = ae = AE()
         ae.acse_timeout = 5
         ae.dimse_timeout = 5
+        ae.network_timeout = 5
+        ae.add_supported_context(DisplaySystemSOPClass)
+        scp = ae.start_server(
+            ('', 11112), block=False, evt_handlers=[(evt.EVT_N_ACTION, handle)]
+        )
+
+        ae.add_requested_context(
+            DisplaySystemSOPClass,
+            ExplicitVRLittleEndian
+        )
         assoc = ae.associate('localhost', 11112)
         assert assoc.is_established
+
         ds = Dataset()
         ds.PerimeterValue = b'\x00\x01'
         msg = r"Failed to encode the supplied 'Action Information' dataset"
         with pytest.raises(ValueError, match=msg):
-            assoc.send_n_action(ds, 1, PrintJobSOPClass, '1.2.3')
+            assoc.send_n_action(ds, 1, DisplaySystemSOPClass, '1.2.3')
         assoc.release()
         assert assoc.is_released
 
-        self.scp.stop()
+        scp.shutdown()
 
     def test_rsp_none(self):
         """Test no response from peer"""
-        self.scp = DummyActionSCP()
-        self.scp.start()
-        ae = AE()
-        ae.add_requested_context(PrintJobSOPClass)
+        def handle(event):
+            return 0x0000, event.action_information
+
+        self.ae = ae = AE()
         ae.acse_timeout = 5
         ae.dimse_timeout = 5
+        ae.network_timeout = 5
+        ae.add_supported_context(PrintJobSOPClass)
+        scp = ae.start_server(
+            ('', 11112), block=False, evt_handlers=[(evt.EVT_N_ACTION, handle)]
+        )
+
+        ae.add_requested_context(PrintJobSOPClass)
         assoc = ae.associate('localhost', 11112)
+        assert assoc.is_established
 
         class DummyDIMSE():
             def send_msg(*args, **kwargs): return
@@ -1292,7 +1461,6 @@ class TestAssociationSendNAction(object):
             def get_msg(*args, **kwargs): return None, None
 
         assoc.dimse = DummyDIMSE()
-        assert assoc.is_established
         ds = Dataset()
         ds.PatientName = 'Test^test'
         status, ds = assoc.send_n_action(
@@ -1303,17 +1471,25 @@ class TestAssociationSendNAction(object):
         assert ds is None
         assert assoc.is_aborted
 
-        self.scp.stop()
+        scp.shutdown()
 
     def test_rsp_invalid(self):
         """Test invalid DIMSE message received from peer"""
-        self.scp = DummyActionSCP()
-        self.scp.start()
-        ae = AE()
-        ae.add_requested_context(PrintJobSOPClass)
+        def handle(event):
+            return 0x0000, event.action_information
+
+        self.ae = ae = AE()
         ae.acse_timeout = 5
         ae.dimse_timeout = 5
+        ae.network_timeout = 5
+        ae.add_supported_context(PrintJobSOPClass)
+        scp = ae.start_server(
+            ('', 11112), block=False, evt_handlers=[(evt.EVT_N_ACTION, handle)]
+        )
+
+        ae.add_requested_context(PrintJobSOPClass)
         assoc = ae.associate('localhost', 11112)
+        assert assoc.is_established
 
         class DummyResponse():
             is_valid_response = False
@@ -1323,7 +1499,6 @@ class TestAssociationSendNAction(object):
             def get_msg(*args, **kwargs): return None, DummyResponse()
 
         assoc.dimse = DummyDIMSE()
-        assert assoc.is_established
         ds = Dataset()
         ds.PatientName = 'Test^test'
         status, ds = assoc.send_n_action(
@@ -1333,20 +1508,28 @@ class TestAssociationSendNAction(object):
         assert ds is None
         assert assoc.is_aborted
 
-        self.scp.stop()
+        scp.shutdown()
 
     def test_rsp_failure(self):
         """Test receiving a failure response from the peer"""
-        self.scp = DummyActionSCP()
-        self.scp.status = 0x0112
+        def handle(event):
+            return 0x0112, None
+
         ServiceClass.SCP = self._scp
-        self.scp.start()
-        ae = AE()
-        ae.add_requested_context(PrintJobSOPClass)
+
+        self.ae = ae = AE()
         ae.acse_timeout = 5
         ae.dimse_timeout = 5
+        ae.network_timeout = 5
+        ae.add_supported_context(PrintJobSOPClass)
+        scp = ae.start_server(
+            ('', 11112), block=False, evt_handlers=[(evt.EVT_N_ACTION, handle)]
+        )
+
+        ae.add_requested_context(PrintJobSOPClass)
         assoc = ae.associate('localhost', 11112)
         assert assoc.is_established
+
         ds = Dataset()
         ds.PatientName = 'Test^test'
         status, ds = assoc.send_n_action(
@@ -1356,73 +1539,93 @@ class TestAssociationSendNAction(object):
         assert ds is None
         assoc.release()
         assert assoc.is_released
-        self.scp.stop()
+
+        scp.shutdown()
 
     def test_rsp_warning(self):
         """Test receiving a warning response from the peer"""
-        self.scp = DummyActionSCP()
-        self.scp.status = 0x0116
+        def handle(event):
+            return 0x0116, event.action_information
+
         ServiceClass.SCP = self._scp
-        self.scp.start()
-        ae = AE()
-        ae.add_requested_context(PrintJobSOPClass)
+
+        self.ae = ae = AE()
         ae.acse_timeout = 5
         ae.dimse_timeout = 5
+        ae.network_timeout = 5
+        ae.add_supported_context(PrintJobSOPClass)
+        scp = ae.start_server(
+            ('', 11112), block=False, evt_handlers=[(evt.EVT_N_ACTION, handle)]
+        )
+
+        ae.add_requested_context(PrintJobSOPClass)
         assoc = ae.associate('localhost', 11112)
         assert assoc.is_established
+
         ds = Dataset()
         ds.PatientName = 'Test^test'
         status, ds = assoc.send_n_action(
             ds, 1, PrintJobSOPClass, '1.2.840.10008.5.1.1.40.1'
         )
         assert status.Status == 0x0116
-        assert ds is not None
-        assert isinstance(ds, Dataset)
-        assert ds.PatientName == 'Test'
-        assert ds.SOPClassUID == PrintJobSOPClass
-        assert ds.SOPInstanceUID == '1.2.3.4'
+        assert ds.PatientName == 'Test^test'
         assoc.release()
         assert assoc.is_released
-        self.scp.stop()
+
+        scp.shutdown()
 
     def test_rsp_success(self):
         """Test receiving a success response from the peer"""
-        self.scp = DummyActionSCP()
+        def handle(event):
+            return 0x0000, event.action_information
+
         ServiceClass.SCP = self._scp
-        self.scp.start()
-        ae = AE()
-        ae.add_requested_context(PrintJobSOPClass)
+
+        self.ae = ae = AE()
         ae.acse_timeout = 5
         ae.dimse_timeout = 5
+        ae.network_timeout = 5
+        ae.add_supported_context(PrintJobSOPClass)
+        scp = ae.start_server(
+            ('', 11112), block=False, evt_handlers=[(evt.EVT_N_ACTION, handle)]
+        )
+
+        ae.add_requested_context(PrintJobSOPClass)
         assoc = ae.associate('localhost', 11112)
         assert assoc.is_established
+
         ds = Dataset()
         ds.PatientName = 'Test^test'
         status, ds = assoc.send_n_action(
             ds, 1, PrintJobSOPClass, '1.2.840.10008.5.1.1.40.1'
         )
         assert status.Status == 0x0000
-        assert ds is not None
-        assert isinstance(ds, Dataset)
-        assert ds.PatientName == 'Test'
-        assert ds.SOPClassUID == PrintJobSOPClass
-        assert ds.SOPInstanceUID == '1.2.3.4'
+        assert ds.PatientName == 'Test^test'
         assoc.release()
         assert assoc.is_released
-        self.scp.stop()
+
+        scp.shutdown()
 
     def test_rsp_unknown_status(self):
         """Test unknown status value returned by peer"""
-        self.scp = DummyActionSCP()
-        self.scp.status = 0xFFF0
+        def handle(event):
+            return 0xFFF0, event.action_information
+
         ServiceClass.SCP = self._scp
-        self.scp.start()
-        ae = AE()
-        ae.add_requested_context(PrintJobSOPClass)
+
+        self.ae = ae = AE()
         ae.acse_timeout = 5
         ae.dimse_timeout = 5
+        ae.network_timeout = 5
+        ae.add_supported_context(PrintJobSOPClass)
+        scp = ae.start_server(
+            ('', 11112), block=False, evt_handlers=[(evt.EVT_N_ACTION, handle)]
+        )
+
+        ae.add_requested_context(PrintJobSOPClass)
         assoc = ae.associate('localhost', 11112)
         assert assoc.is_established
+
         ds = Dataset()
         ds.PatientName = 'Test^test'
         status, ds = assoc.send_n_action(
@@ -1432,18 +1635,28 @@ class TestAssociationSendNAction(object):
         assert ds is None
         assoc.release()
         assert assoc.is_released
-        self.scp.stop()
+
+        scp.shutdown()
 
     def test_rsp_bad_dataset(self):
         """Test bad dataset received from peer"""
-        self.scp = DummyActionSCP()
+        def handle(event):
+            return 0x0000, event.action_information
+
         ServiceClass.SCP = self._scp
-        self.scp.start()
-        ae = AE()
-        ae.add_requested_context(PrintJobSOPClass)
+
+        self.ae = ae = AE()
         ae.acse_timeout = 5
         ae.dimse_timeout = 5
+        ae.network_timeout = 5
+        ae.add_supported_context(PrintJobSOPClass)
+        scp = ae.start_server(
+            ('', 11112), block=False, evt_handlers=[(evt.EVT_N_ACTION, handle)]
+        )
+
+        ae.add_requested_context(PrintJobSOPClass)
         assoc = ae.associate('localhost', 11112)
+        assert assoc.is_established
 
         class DummyReply():
             def getvalue(self):
@@ -1465,7 +1678,6 @@ class TestAssociationSendNAction(object):
                 return 1, rsp
 
         assoc.dimse = DummyDIMSE()
-        assert assoc.is_established
         ds = Dataset()
         ds.PatientName = 'Test^test'
         status, ds = assoc.send_n_action(
@@ -1475,23 +1687,32 @@ class TestAssociationSendNAction(object):
         assert status.Status == 0x0110
         assert ds is None
 
-        self.scp.stop()
+        scp.shutdown()
 
     def test_extra_status(self):
         """Test extra status elements are available."""
-        self.scp = DummyActionSCP()
-        self.scp.status = Dataset()
-        self.scp.status.Status = 0xFFF0
-        self.scp.status.ErrorComment = 'Some comment'
-        self.scp.status.ErrorID = 12
+        def handle(event):
+            ds = Dataset()
+            ds.Status = 0xFFF0
+            ds.ErrorComment = 'Some comment'
+            ds.ErrorID = 12
+            return ds, event.action_information
+
         ServiceClass.SCP = self._scp
-        self.scp.start()
-        ae = AE()
-        ae.add_requested_context(PrintJobSOPClass)
+
+        self.ae = ae = AE()
         ae.acse_timeout = 5
         ae.dimse_timeout = 5
+        ae.network_timeout = 5
+        ae.add_supported_context(PrintJobSOPClass)
+        scp = ae.start_server(
+            ('', 11112), block=False, evt_handlers=[(evt.EVT_N_ACTION, handle)]
+        )
+
+        ae.add_requested_context(PrintJobSOPClass)
         assoc = ae.associate('localhost', 11112)
         assert assoc.is_established
+
         ds = Dataset()
         ds.PatientName = 'Test^test'
         status, ds = assoc.send_n_action(
@@ -1503,85 +1724,64 @@ class TestAssociationSendNAction(object):
         assert ds is None
         assoc.release()
         assert assoc.is_released
-        self.scp.stop()
+
+        scp.shutdown()
 
 
 class TestAssociationSendNCreate(object):
     """Run tests on Assocation send_n_create."""
-    def _scp(self, req, context, info):
-        rsp = N_CREATE()
-        rsp.MessageIDBeingRespondedTo = req.MessageID
-        rsp.AffectedSOPClassUID = req.AffectedSOPClassUID
-        rsp.AffectedSOPInstanceUID = req.AffectedSOPInstanceUID
-
-        status, ds = self.scp.ae.on_n_create(req.AttributeList,
-                                             context.as_tuple,
-                                             info)
-
-        if isinstance(status, Dataset):
-            if 'Status' not in status:
-                raise AttributeError("The 'status' dataset returned by "
-                                     "'on_n_create' must contain"
-                                     "a (0000,0900) Status element")
-            for elem in status:
-                if hasattr(rsp, elem.keyword):
-                    setattr(rsp, elem.keyword, elem.value)
-                else:
-                    LOGGER.warning("The 'status' dataset returned by "
-                                   "'on_n_create' contained an unsupported "
-                                   "Element '%s'.", elem.keyword)
-        elif isinstance(status, int):
-            rsp.Status = status
-
-        rsp.AttributeList = BytesIO(encode(ds, True, True))
-
-        self.scp.ae.active_associations[0].dimse.send_msg(rsp, context.context_id)
-
     def setup(self):
-        self.scp = None
-        self._orig_scp = ServiceClass.SCP
+        self.ae = None
 
     def teardown(self):
         """Clear any active threads"""
-        if self.scp:
-            self.scp.abort()
-
-        time.sleep(0.1)
-
-        for thread in threading.enumerate():
-            if isinstance(thread, DummyBaseSCP):
-                thread.abort()
-                thread.stop()
-
-        ServiceClass.SCP = self._orig_scp
+        if self.ae:
+            self.ae.shutdown()
 
     def test_must_be_associated(self):
         """Test can't send without association."""
-        # Test raise if assoc not established
-        self.scp = DummyCreateSCP()
-        self.scp.start()
-        ae = AE()
-        ae.add_requested_context(PrintJobSOPClass)
+        def handle(event):
+            return 0x0000, Dataset()
+
+        self.ae = ae = AE()
         ae.acse_timeout = 5
         ae.dimse_timeout = 5
+        ae.network_timeout = 5
+        ae.add_supported_context(ModalityPerformedProcedureStepSOPClass)
+
+        handlers = [(evt.EVT_N_CREATE, handle)]
+        scp = ae.start_server(('', 11112), evt_handlers=handlers, block=False)
+
+        ae.add_requested_context(ModalityPerformedProcedureStepSOPClass)
         assoc = ae.associate('localhost', 11112)
+        assert assoc.is_established
+
         assoc.release()
         assert assoc.is_released
         assert not assoc.is_established
         with pytest.raises(RuntimeError):
             assoc.send_n_create(None, None, None)
-        self.scp.stop()
+
+        scp.shutdown()
 
     def test_no_abstract_syntax_match(self):
         """Test SCU when no accepted abstract syntax"""
-        self.scp = DummyCreateSCP()
-        self.scp.start()
-        ae = AE()
-        ae.add_requested_context(PrintJobSOPClass)
+        def handle(event):
+            return 0x0000, Dataset()
+
+        self.ae = ae = AE()
         ae.acse_timeout = 5
         ae.dimse_timeout = 5
+        ae.network_timeout = 5
+        ae.add_supported_context(ModalityPerformedProcedureStepSOPClass)
+
+        handlers = [(evt.EVT_N_CREATE, handle)]
+        scp = ae.start_server(('', 11112), evt_handlers=handlers, block=False)
+
+        ae.add_requested_context(ModalityPerformedProcedureStepSOPClass)
         assoc = ae.associate('localhost', 11112)
         assert assoc.is_established
+
         msg = (
             r"No suitable presentation context for the SCU role has been "
             r"accepted by the peer for the SOP Class 'Verification SOP Class'"
@@ -1590,66 +1790,91 @@ class TestAssociationSendNCreate(object):
             assoc.send_n_create(None, VerificationSOPClass, None)
         assoc.release()
         assert assoc.is_released
-        self.scp.stop()
+
+        scp.shutdown()
 
     def test_rq_bad_dataset_raises(self):
         """Test sending bad dataset raises exception."""
-        self.scp = DummyCreateSCP()
-        self.scp.start()
-        ae = AE()
-        ae.add_requested_context(PrintJobSOPClass, ExplicitVRLittleEndian)
+        def handle(event):
+            return 0x0000, Dataset()
+
+        self.ae = ae = AE()
         ae.acse_timeout = 5
         ae.dimse_timeout = 5
+        ae.network_timeout = 5
+        ae.add_supported_context(ModalityPerformedProcedureStepSOPClass)
+
+        handlers = [(evt.EVT_N_CREATE, handle)]
+        scp = ae.start_server(('', 11112), evt_handlers=handlers, block=False)
+
+        ae.add_requested_context(
+            ModalityPerformedProcedureStepSOPClass,
+            ExplicitVRLittleEndian
+        )
         assoc = ae.associate('localhost', 11112)
         assert assoc.is_established
+
         ds = Dataset()
         ds.PerimeterValue = b'\x00\x01'
         msg = r"Failed to encode the supplied 'Attribute List' dataset"
         with pytest.raises(ValueError, match=msg):
-            assoc.send_n_create(ds, PrintJobSOPClass, '1.2.3')
+            assoc.send_n_create(
+                ds, ModalityPerformedProcedureStepSOPClass, '1.2.3'
+            )
         assoc.release()
         assert assoc.is_released
 
-        self.scp.stop()
+        scp.shutdown()
 
     def test_rsp_none(self):
         """Test no response from peer"""
-        self.scp = DummyCreateSCP()
-        self.scp.start()
-        ae = AE()
-        ae.add_requested_context(PrintJobSOPClass)
+        def handle(event):
+            time.sleep(0.5)
+            return 0x0000, Dataset()
+
+        self.ae = ae = AE()
         ae.acse_timeout = 5
-        ae.dimse_timeout = 5
+        ae.dimse_timeout = 0.4
+        ae.network_timeout = 5
+        ae.add_supported_context(ModalityPerformedProcedureStepSOPClass)
+
+        handlers = [(evt.EVT_N_CREATE, handle)]
+        scp = ae.start_server(('', 11112), evt_handlers=handlers, block=False)
+
+        ae.add_requested_context(ModalityPerformedProcedureStepSOPClass)
         assoc = ae.associate('localhost', 11112)
-
-        class DummyDIMSE():
-            def send_msg(*args, **kwargs): return
-
-            def get_msg(*args, **kwargs): return None, None
-
-        assoc.dimse = DummyDIMSE()
         assert assoc.is_established
+
         ds = Dataset()
         ds.PatientName = 'Test^test'
         status, ds = assoc.send_n_create(
-            ds, PrintJobSOPClass, '1.2.840.10008.5.1.1.40.1'
+            ds, ModalityPerformedProcedureStepSOPClass,
+            '1.2.840.10008.5.1.1.40.1'
         )
 
         assert status == Dataset()
         assert ds is None
         assert assoc.is_aborted
 
-        self.scp.stop()
+        scp.shutdown()
 
     def test_rsp_invalid(self):
         """Test invalid DIMSE message received from peer"""
-        self.scp = DummyCreateSCP()
-        self.scp.start()
-        ae = AE()
-        ae.add_requested_context(PrintJobSOPClass)
+        def handle(event):
+            return 0x0000, Dataset()
+
+        self.ae = ae = AE()
         ae.acse_timeout = 5
         ae.dimse_timeout = 5
+        ae.network_timeout = 5
+        ae.add_supported_context(ModalityPerformedProcedureStepSOPClass)
+
+        handlers = [(evt.EVT_N_CREATE, handle)]
+        scp = ae.start_server(('', 11112), evt_handlers=handlers, block=False)
+
+        ae.add_requested_context(ModalityPerformedProcedureStepSOPClass)
         assoc = ae.associate('localhost', 11112)
+        assert assoc.is_established
 
         class DummyResponse():
             is_valid_response = False
@@ -1659,116 +1884,141 @@ class TestAssociationSendNCreate(object):
             def get_msg(*args, **kwargs): return None, DummyResponse()
 
         assoc.dimse = DummyDIMSE()
-        assert assoc.is_established
         ds = Dataset()
         ds.PatientName = 'Test^test'
         status, ds = assoc.send_n_create(
-            ds, PrintJobSOPClass, '1.2.840.10008.5.1.1.40.1'
+            ds, ModalityPerformedProcedureStepSOPClass,
+            '1.2.840.10008.5.1.1.40.1'
         )
         assert status == Dataset()
         assert ds is None
         assert assoc.is_aborted
 
-        self.scp.stop()
+        scp.shutdown()
 
     def test_rsp_failure(self):
         """Test receiving a failure response from the peer"""
-        self.scp = DummyCreateSCP()
-        self.scp.status = 0x0112
-        ServiceClass.SCP = self._scp
-        self.scp.start()
-        ae = AE()
-        ae.add_requested_context(PrintJobSOPClass)
+        def handle(event):
+            return 0x0112, Dataset()
+
+        self.ae = ae = AE()
         ae.acse_timeout = 5
         ae.dimse_timeout = 5
+        ae.network_timeout = 5
+        ae.add_supported_context(ModalityPerformedProcedureStepSOPClass)
+
+        handlers = [(evt.EVT_N_CREATE, handle)]
+        scp = ae.start_server(('', 11112), evt_handlers=handlers, block=False)
+
+        ae.add_requested_context(ModalityPerformedProcedureStepSOPClass)
         assoc = ae.associate('localhost', 11112)
         assert assoc.is_established
+
         ds = Dataset()
         ds.PatientName = 'Test^test'
         status, ds = assoc.send_n_create(
-            ds, PrintJobSOPClass, '1.2.840.10008.5.1.1.40.1'
+            ds, ModalityPerformedProcedureStepSOPClass,
+            '1.2.840.10008.5.1.1.40.1'
         )
         assert status.Status == 0x0112
         assert ds is None
         assoc.release()
         assert assoc.is_released
-        self.scp.stop()
+
+        scp.shutdown()
 
     def test_rsp_warning(self):
         """Test receiving a warning response from the peer"""
-        self.scp = DummyCreateSCP()
-        self.scp.status = 0x0116
-        ServiceClass.SCP = self._scp
-        self.scp.start()
-        ae = AE()
-        ae.add_requested_context(PrintJobSOPClass)
+        def handle(event):
+            return 0x0116, event.attribute_list
+
+        self.ae = ae = AE()
         ae.acse_timeout = 5
         ae.dimse_timeout = 5
+        ae.network_timeout = 5
+        ae.add_supported_context(ModalityPerformedProcedureStepSOPClass)
+
+        handlers = [(evt.EVT_N_CREATE, handle)]
+        scp = ae.start_server(('', 11112), evt_handlers=handlers, block=False)
+
+        ae.add_requested_context(ModalityPerformedProcedureStepSOPClass)
         assoc = ae.associate('localhost', 11112)
         assert assoc.is_established
+
         ds = Dataset()
         ds.PatientName = 'Test^test'
         status, ds = assoc.send_n_create(
-            ds, PrintJobSOPClass, '1.2.840.10008.5.1.1.40.1'
+            ds, ModalityPerformedProcedureStepSOPClass,
+            '1.2.840.10008.5.1.1.40.1'
         )
         assert status.Status == 0x0116
-        assert ds is not None
-        assert isinstance(ds, Dataset)
-        assert ds.PatientName == 'Test'
-        assert ds.SOPClassUID == PrintJobSOPClass
-        assert ds.SOPInstanceUID == '1.2.3.4'
+        assert ds.PatientName == 'Test^test'
         assoc.release()
         assert assoc.is_released
-        self.scp.stop()
+
+        scp.shutdown()
 
     def test_rsp_success(self):
         """Test receiving a success response from the peer"""
-        self.scp = DummyCreateSCP()
-        ServiceClass.SCP = self._scp
-        self.scp.start()
-        ae = AE()
-        ae.add_requested_context(PrintJobSOPClass)
+        def handle(event):
+            return 0x0000, event.attribute_list
+
+        self.ae = ae = AE()
         ae.acse_timeout = 5
         ae.dimse_timeout = 5
+        ae.network_timeout = 5
+        ae.add_supported_context(ModalityPerformedProcedureStepSOPClass)
+
+        handlers = [(evt.EVT_N_CREATE, handle)]
+        scp = ae.start_server(('', 11112), evt_handlers=handlers, block=False)
+
+        ae.add_requested_context(ModalityPerformedProcedureStepSOPClass)
         assoc = ae.associate('localhost', 11112)
         assert assoc.is_established
+
         ds = Dataset()
         ds.PatientName = 'Test^test'
         status, ds = assoc.send_n_create(
-            ds, PrintJobSOPClass, '1.2.840.10008.5.1.1.40.1'
+            ds, ModalityPerformedProcedureStepSOPClass,
+            '1.2.840.10008.5.1.1.40.1'
         )
         assert status.Status == 0x0000
-        assert ds is not None
-        assert isinstance(ds, Dataset)
-        assert ds.PatientName == 'Test'
-        assert ds.SOPClassUID == PrintJobSOPClass
-        assert ds.SOPInstanceUID == '1.2.3.4'
+        assert ds.PatientName == 'Test^test'
         assoc.release()
         assert assoc.is_released
-        self.scp.stop()
+
+        scp.shutdown()
 
     def test_rsp_unknown_status(self):
         """Test unknown status value returned by peer"""
-        self.scp = DummyCreateSCP()
-        self.scp.status = 0xFFF0
-        ServiceClass.SCP = self._scp
-        self.scp.start()
-        ae = AE()
-        ae.add_requested_context(PrintJobSOPClass)
+        def handle(event):
+            return 0xFFF0, event.attribute_list
+
+        self.ae = ae = AE()
         ae.acse_timeout = 5
         ae.dimse_timeout = 5
+        ae.network_timeout = 5
+        ae.add_supported_context(ModalityPerformedProcedureStepSOPClass)
+
+        handlers = [(evt.EVT_N_CREATE, handle)]
+        scp = ae.start_server(('', 11112), evt_handlers=handlers, block=False)
+
+        ae.add_requested_context(ModalityPerformedProcedureStepSOPClass)
         assoc = ae.associate('localhost', 11112)
         assert assoc.is_established
+
         ds = Dataset()
         ds.PatientName = 'Test^test'
         status, ds = assoc.send_n_create(
-            ds, PrintJobSOPClass, '1.2.840.10008.5.1.1.40.1'
+            ds, ModalityPerformedProcedureStepSOPClass,
+            '1.2.840.10008.5.1.1.40.1'
         )
         assert status.Status == 0xFFF0
         assert ds is None
         assoc.release()
         assert assoc.is_released
-        self.scp.stop()
+
+        scp.shutdown()
 
     def test_rsp_bad_dataset(self):
         """Test handler returns bad dataset"""
@@ -1806,14 +2056,22 @@ class TestAssociationSendNCreate(object):
 
     def test_decode_failure(self):
         """Test bad dataset received from peer"""
-        self.scp = DummyCreateSCP()
-        ServiceClass.SCP = self._scp
-        self.scp.start()
-        ae = AE()
-        ae.add_requested_context(PrintJobSOPClass)
+        def handle(event):
+            return 0x0000, event.attribute_list
+
+        self.ae = ae = AE()
         ae.acse_timeout = 5
         ae.dimse_timeout = 5
+        ae.network_timeout = 5
+        ae.add_supported_context(ModalityPerformedProcedureStepSOPClass)
+
+        handlers = [(evt.EVT_N_CREATE, handle)]
+        scp = ae.start_server(('', 11112), evt_handlers=handlers, block=False)
+
+        ae.add_requested_context(ModalityPerformedProcedureStepSOPClass)
         assoc = ae.associate('localhost', 11112)
+        assert assoc.is_established
+
 
         class DummyReply():
             def getvalue(self):
@@ -1835,37 +2093,46 @@ class TestAssociationSendNCreate(object):
                 return 1, rsp
 
         assoc.dimse = DummyDIMSE()
-        assert assoc.is_established
         ds = Dataset()
         ds.PatientName = 'Test^test'
         status, ds = assoc.send_n_create(
-            ds, PrintJobSOPClass, '1.2.840.10008.5.1.1.40.1'
+            ds, ModalityPerformedProcedureStepSOPClass,
+            '1.2.840.10008.5.1.1.40.1'
         )
-
         assert status.Status == 0x0110
         assert ds is None
+        assoc.release()
+        assert assoc.is_released
 
-        self.scp.stop()
+        scp.shutdown()
 
     def test_extra_status(self):
         """Test extra status elements are available."""
-        self.scp = DummyCreateSCP()
-        self.scp.status = Dataset()
-        self.scp.status.Status = 0xFFF0
-        self.scp.status.ErrorComment = 'Some comment'
-        self.scp.status.ErrorID = 12
-        ServiceClass.SCP = self._scp
-        self.scp.start()
-        ae = AE()
-        ae.add_requested_context(PrintJobSOPClass)
+        def handle(event):
+            status = Dataset()
+            status.Status = 0xFFF0
+            status.ErrorComment = 'Some comment'
+            status.ErrorID = 12
+            return status, event.attribute_list
+
+        self.ae = ae = AE()
         ae.acse_timeout = 5
         ae.dimse_timeout = 5
+        ae.network_timeout = 5
+        ae.add_supported_context(ModalityPerformedProcedureStepSOPClass)
+
+        handlers = [(evt.EVT_N_CREATE, handle)]
+        scp = ae.start_server(('', 11112), evt_handlers=handlers, block=False)
+
+        ae.add_requested_context(ModalityPerformedProcedureStepSOPClass)
         assoc = ae.associate('localhost', 11112)
         assert assoc.is_established
+
         ds = Dataset()
         ds.PatientName = 'Test^test'
         status, ds = assoc.send_n_create(
-            ds, PrintJobSOPClass, '1.2.840.10008.5.1.1.40.1'
+            ds, ModalityPerformedProcedureStepSOPClass,
+            '1.2.840.10008.5.1.1.40.1'
         )
         assert status.Status == 0xFFF0
         assert status.ErrorComment == 'Some comment'
@@ -1873,81 +2140,94 @@ class TestAssociationSendNCreate(object):
         assert ds is None
         assoc.release()
         assert assoc.is_released
-        self.scp.stop()
+
+        scp.shutdown()
 
 
+# TODO: Refactor when N-DELETE SCP is implemented
 class TestAssociationSendNDelete(object):
     """Run tests on Assocation send_n_delete."""
-    def _scp(self, req, context, info):
+    def _scp(self, req, context):
         rsp = N_DELETE()
         rsp.MessageIDBeingRespondedTo = req.MessageID
 
-        status = self.scp.ae.on_n_delete(context.as_tuple, info)
+        status = evt.trigger(
+            self.ae.active_associations[0],
+            evt.EVT_N_DELETE,
+            {'request' : req, 'context' : context.as_tuple}
+        )
         if isinstance(status, Dataset):
             if 'Status' not in status:
                 raise AttributeError("The 'status' dataset returned by "
-                                     "'on_c_echo' must contain"
+                                     "the handler must contain"
                                      "a (0000,0900) Status element")
             for elem in status:
                 if hasattr(rsp, elem.keyword):
                     setattr(rsp, elem.keyword, elem.value)
                 else:
                     LOGGER.warning("The 'status' dataset returned by "
-                                   "'on_c_echo' contained an unsupported "
+                                   "the handler contained an unsupported "
                                    "Element '%s'.", elem.keyword)
         elif isinstance(status, int):
             rsp.Status = status
 
-        self.scp.ae.active_associations[0].dimse.send_msg(rsp, context.context_id)
+        self.ae.active_associations[0].dimse.send_msg(rsp, context.context_id)
 
     def setup(self):
-        self.scp = None
+        self.ae = None
         self._orig_scp = ServiceClass.SCP
 
     def teardown(self):
         """Clear any active threads"""
-        if self.scp:
-            self.scp.abort()
-
-        time.sleep(0.1)
-
-        for thread in threading.enumerate():
-            if isinstance(thread, DummyBaseSCP):
-                thread.abort()
-                thread.stop()
+        if self.ae:
+            self.ae.shutdown()
 
         ServiceClass.SCP = self._orig_scp
 
     def test_must_be_associated(self):
         """Test can't send without association."""
-        # Test raise if assoc not established
-        self.scp = DummyDeleteSCP()
-        self.scp.start()
+        def handle(event):
+            return 0x0000
 
-        ae = AE()
-        ae.add_requested_context(PrintJobSOPClass)
+        self.ae = ae = AE()
         ae.acse_timeout = 5
         ae.dimse_timeout = 5
-        assoc = ae.associate('localhost', 11112)
-        assoc.release()
+        ae.network_timeout = 5
+        ae.add_supported_context(PrintJobSOPClass)
+        scp = ae.start_server(
+            ('', 11112), block=False, evt_handlers=[(evt.EVT_N_DELETE, handle)]
+        )
 
+        ae.add_requested_context(PrintJobSOPClass)
+        assoc = ae.associate('localhost', 11112)
+        assert assoc.is_established
+
+        assoc.release()
         assert assoc.is_released
         assert not assoc.is_established
         with pytest.raises(RuntimeError):
             assoc.send_n_delete(None, None)
 
-        self.scp.stop()
+        scp.shutdown()
 
     def test_no_abstract_syntax_match(self):
         """Test SCU when no accepted abstract syntax"""
-        self.scp = DummyDeleteSCP()
-        self.scp.start()
-        ae = AE()
-        ae.add_requested_context(PrintJobSOPClass)
+        def handle(event):
+            return 0x0000
+
+        self.ae = ae = AE()
         ae.acse_timeout = 5
         ae.dimse_timeout = 5
+        ae.network_timeout = 5
+        ae.add_supported_context(PrintJobSOPClass)
+        scp = ae.start_server(
+            ('', 11112), block=False, evt_handlers=[(evt.EVT_N_DELETE, handle)]
+        )
+
+        ae.add_requested_context(PrintJobSOPClass)
         assoc = ae.associate('localhost', 11112)
         assert assoc.is_established
+
         msg = (
             r"No suitable presentation context for the SCU role has been "
             r"accepted by the peer for the SOP Class 'Verification SOP Class'"
@@ -1956,42 +2236,53 @@ class TestAssociationSendNDelete(object):
             assoc.send_n_delete(VerificationSOPClass, None)
         assoc.release()
         assert assoc.is_released
-        self.scp.stop()
+
+        scp.shutdown()
 
     def test_rsp_none(self):
         """Test no response from peer"""
-        self.scp = DummyDeleteSCP()
-        self.scp.start()
-        ae = AE()
-        ae.add_requested_context(PrintJobSOPClass)
+        def handle(event):
+            time.sleep(0.5)
+            return 0x0000
+
+        self.ae = ae = AE()
         ae.acse_timeout = 5
-        ae.dimse_timeout = 5
+        ae.dimse_timeout = 0.4
+        ae.network_timeout = 5
+        ae.add_supported_context(PrintJobSOPClass)
+        scp = ae.start_server(
+            ('', 11112), block=False, evt_handlers=[(evt.EVT_N_DELETE, handle)]
+        )
+
+        ae.add_requested_context(PrintJobSOPClass)
         assoc = ae.associate('localhost', 11112)
-
-        class DummyDIMSE():
-            def send_msg(*args, **kwargs): return
-
-            def get_msg(*args, **kwargs): return None, None
-
-        assoc.dimse = DummyDIMSE()
         assert assoc.is_established
+
         status = assoc.send_n_delete(PrintJobSOPClass,
                                      '1.2.840.10008.5.1.1.40.1')
-
         assert status == Dataset()
         assert assoc.is_aborted
 
-        self.scp.stop()
+        scp.shutdown()
 
     def test_rsp_invalid(self):
         """Test invalid DIMSE message received from peer"""
-        self.scp = DummyDeleteSCP()
-        self.scp.start()
-        ae = AE()
-        ae.add_requested_context(PrintJobSOPClass)
+        def handle(event):
+            return 0x0000
+
+        self.ae = ae = AE()
         ae.acse_timeout = 5
         ae.dimse_timeout = 5
+        ae.network_timeout = 5
+        ae.add_supported_context(PrintJobSOPClass)
+        scp = ae.start_server(
+            ('', 11112), block=False, evt_handlers=[(evt.EVT_N_DELETE, handle)]
+        )
+
+        ae.add_requested_context(PrintJobSOPClass)
         assoc = ae.associate('localhost', 11112)
+        assert assoc.is_established
+
 
         class DummyResponse():
             is_valid_response = False
@@ -2001,86 +2292,121 @@ class TestAssociationSendNDelete(object):
             def get_msg(*args, **kwargs): return None, DummyResponse()
 
         assoc.dimse = DummyDIMSE()
-        assert assoc.is_established
         status = assoc.send_n_delete(PrintJobSOPClass,
                                      '1.2.840.10008.5.1.1.40.1')
         assert status == Dataset()
         assert assoc.is_aborted
 
-        self.scp.stop()
+        scp.shutdown()
 
     def test_rsp_failure(self):
         """Test receiving a failure response from the peer"""
-        self.scp = DummyDeleteSCP()
-        self.scp.status = 0x0112
+        def handle(event):
+            return 0x0112
+
         ServiceClass.SCP = self._scp
-        self.scp.start()
-        ae = AE()
-        ae.add_requested_context(PrintJobSOPClass)
+
+        self.ae = ae = AE()
         ae.acse_timeout = 5
         ae.dimse_timeout = 5
+        ae.network_timeout = 5
+        ae.add_supported_context(PrintJobSOPClass)
+        scp = ae.start_server(
+            ('', 11112), block=False, evt_handlers=[(evt.EVT_N_DELETE, handle)]
+        )
+
+        ae.add_requested_context(PrintJobSOPClass)
         assoc = ae.associate('localhost', 11112)
         assert assoc.is_established
+
         status = assoc.send_n_delete(PrintJobSOPClass,
                                      '1.2.840.10008.5.1.1.40.1')
         assert status.Status == 0x0112
         assoc.release()
         assert assoc.is_released
-        self.scp.stop()
+
+        scp.shutdown()
 
     def test_rsp_success(self):
         """Test receiving a success response from the peer"""
-        self.scp = DummyDeleteSCP()
+        def handle(event):
+            return 0x0000
+
         ServiceClass.SCP = self._scp
-        self.scp.start()
-        ae = AE()
-        ae.add_requested_context(PrintJobSOPClass)
+
+        self.ae = ae = AE()
         ae.acse_timeout = 5
         ae.dimse_timeout = 5
-        assoc = ae.associate('localhost', 11112)
+        ae.network_timeout = 5
+        ae.add_supported_context(PrintJobSOPClass)
+        scp = ae.start_server(
+            ('', 11112), block=False, evt_handlers=[(evt.EVT_N_DELETE, handle)]
+        )
 
+        ae.add_requested_context(PrintJobSOPClass)
+        assoc = ae.associate('localhost', 11112)
         assert assoc.is_established
+
         status = assoc.send_n_delete(PrintJobSOPClass,
                                      '1.2.840.10008.5.1.1.40.1')
         assert status.Status == 0x0000
         assoc.release()
         assert assoc.is_released
-        self.scp.stop()
+
+        scp.shutdown()
 
     def test_rsp_unknown_status(self):
         """Test unknown status value returned by peer"""
-        self.scp = DummyDeleteSCP()
-        self.scp.status = 0xFFF0
+        def handle(event):
+            return 0xFFF0
+
         ServiceClass.SCP = self._scp
-        self.scp.start()
-        ae = AE()
-        ae.add_requested_context(PrintJobSOPClass)
+
+        self.ae = ae = AE()
         ae.acse_timeout = 5
         ae.dimse_timeout = 5
+        ae.network_timeout = 5
+        ae.add_supported_context(PrintJobSOPClass)
+        scp = ae.start_server(
+            ('', 11112), block=False, evt_handlers=[(evt.EVT_N_DELETE, handle)]
+        )
+
+        ae.add_requested_context(PrintJobSOPClass)
         assoc = ae.associate('localhost', 11112)
         assert assoc.is_established
+
         status = assoc.send_n_delete(PrintJobSOPClass,
                                      '1.2.840.10008.5.1.1.40.1')
         assert status.Status == 0xFFF0
         assoc.release()
         assert assoc.is_released
-        self.scp.stop()
+
+        scp.shutdown()
 
     def test_extra_status(self):
         """Test extra status elements are available."""
-        self.scp = DummyDeleteSCP()
-        self.scp.status = Dataset()
-        self.scp.status.Status = 0xFFF0
-        self.scp.status.ErrorComment = 'Some comment'
-        self.scp.status.ErrorID = 12
+        def handle(event):
+            ds = Dataset()
+            ds.Status = 0xFFF0
+            ds.ErrorComment = 'Some comment'
+            ds.ErrorID = 12
+            return ds
+
         ServiceClass.SCP = self._scp
-        self.scp.start()
-        ae = AE()
-        ae.add_requested_context(PrintJobSOPClass)
+
+        self.ae = ae = AE()
         ae.acse_timeout = 5
         ae.dimse_timeout = 5
+        ae.network_timeout = 5
+        ae.add_supported_context(PrintJobSOPClass)
+        scp = ae.start_server(
+            ('', 11112), block=False, evt_handlers=[(evt.EVT_N_DELETE, handle)]
+        )
+
+        ae.add_requested_context(PrintJobSOPClass)
         assoc = ae.associate('localhost', 11112)
         assert assoc.is_established
+
         status = assoc.send_n_delete(PrintJobSOPClass,
                                      '1.2.840.10008.5.1.1.40.1')
         assert status.Status == 0xFFF0
@@ -2088,4 +2414,5 @@ class TestAssociationSendNDelete(object):
         assert status.ErrorID == 12
         assoc.release()
         assert assoc.is_released
-        self.scp.stop()
+
+        scp.shutdown()

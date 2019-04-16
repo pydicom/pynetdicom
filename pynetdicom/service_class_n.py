@@ -28,7 +28,7 @@ class DisplaySystemManagementServiceClass(ServiceClass):
     """Implementation of the Display System Management Service Class."""
     statuses = GENERAL_STATUS
 
-    def SCP(self, req, context, info):
+    def SCP(self, req, context):
         """The implementation for the DIMSE N-GET service.
 
         Parameters
@@ -37,8 +37,6 @@ class DisplaySystemManagementServiceClass(ServiceClass):
             The N-GET request primitive sent by the peer.
         context : presentation.PresentationContext
             The presentation context that the service is operating under.
-        info : dict
-            A dict containing details about the association.
 
         See Also
         --------
@@ -130,7 +128,7 @@ class ModalityPerformedProcedureStepServiceClass(ServiceClass):
     """Implementation of the Modality Performed Procedure Step Service Class"""
     statuses = _PROCEDURE_STEP_STATUS
 
-    def SCP(self, req, context, info):
+    def SCP(self, req, context):
         """
 
         Parameters
@@ -140,8 +138,6 @@ class ModalityPerformedProcedureStepServiceClass(ServiceClass):
             sent by the peer.
         context : presentation.PresentationContext
             The presentation context that the SCP is operating under.
-        info : dict
-            A dict containing details about the association.
         """
         if isinstance(req, N_CREATE):
             # Modality Performed Procedure Step
@@ -404,8 +400,6 @@ class ModalityPerformedProcedureStepServiceClass(ServiceClass):
             The N-GET request primitive sent by the peer.
         context : presentation.PresentationContext
             The presentation context that the service is operating under.
-        info : dict
-            A dict containing details about the association.
 
         See Also
         --------

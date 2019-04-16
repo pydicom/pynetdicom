@@ -140,7 +140,7 @@ class TestNonPatientObjectStorageServiceClass(object):
         scp.shutdown()
 
     def test_scp_handler_return_int(self):
-        """Test on_c_echo returning an int status"""
+        """Test handler returning an int status"""
         def handle(event):
             return 0x0000
 

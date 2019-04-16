@@ -52,7 +52,7 @@ def test_unknown_sop_class():
     context.abstract_syntax = '1.2.3.4'
     context.add_transfer_syntax('1.2')
     with pytest.raises(ValueError):
-        service.SCP(None, context, None)
+        service.SCP(None, context)
 
 
 class TestQRFindServiceClass(object):
@@ -1932,6 +1932,48 @@ class TestQRGetServiceClass(object):
         def handle(event):
             yield 1
             yield 0xFF00, self.ds
+
+        def handle_store(event):
+            return 0x0000
+
+        handlers = [(evt.EVT_C_GET, handle)]
+
+        self.ae = ae = AE()
+        ae.add_supported_context(PatientRootQueryRetrieveInformationModelGet)
+        ae.add_supported_context(CTImageStorage, scu_role=False, scp_role=True)
+        ae.add_requested_context(PatientRootQueryRetrieveInformationModelGet)
+        ae.add_requested_context(CTImageStorage)
+        scp = ae.start_server(('', 11112), block=False, evt_handlers=handlers)
+
+        role = build_role(CTImageStorage, scp_role=True)
+        handlers = [(evt.EVT_C_STORE, handle_store)]
+
+        ae.acse_timeout = 5
+        ae.dimse_timeout = 5
+        assoc = ae.associate('localhost', 11112, ext_neg=[role], evt_handlers=handlers)
+        assert assoc.is_established
+        result = assoc.send_c_get(self.query, query_model='P')
+        status, identifier = next(result)
+        assert status.Status == 0xFF00
+        assert identifier is None
+        status, identifier = next(result)
+        assert status.Status == 0x0000
+        assert status.NumberOfFailedSuboperations == 0
+        assert status.NumberOfWarningSuboperations == 0
+        assert status.NumberOfCompletedSuboperations == 1
+        assert identifier is None
+        pytest.raises(StopIteration, next, result)
+
+        assoc.release()
+        assert assoc.is_released
+        scp.shutdown()
+
+    def test_get_success_user(self):
+        """Test when handler returns success status"""
+        def handle(event):
+            yield 2
+            yield 0xFF00, self.ds
+            yield 0x0000, None
 
         def handle_store(event):
             return 0x0000
@@ -4498,4 +4540,4 @@ class TestBasicWorklistServiceClass(object):
         with pytest.raises(ValueError, match=msg):
             bwm = BasicWorklistManagementServiceClass(None)
             context = build_context('1.2.3.4')
-            bwm.SCP(None, context, None)
+            bwm.SCP(None, context)

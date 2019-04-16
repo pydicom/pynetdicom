@@ -96,7 +96,7 @@ class ServiceClass(object):
 
         return False
 
-    def SCP(self, req, context, info):
+    def SCP(self, req, context):
         """The implementation of the corresponding service class.
 
         Parameters
@@ -105,8 +105,6 @@ class ServiceClass(object):
             The message request primitive sent by the peer.
         context : presentation.PresentationContext
             The presentation context that the SCP is operating under.
-        info : dict
-            A dict containing details about the association.
         """
         msg = (
             "No service class has been implemented for the SOP Class UID '{}'"
@@ -188,16 +186,15 @@ class ServiceClass(object):
 
 
 # Service Class implementations
-# TODO: Remove `info` parameter
 class VerificationServiceClass(ServiceClass):
     """Implementation of the Verification Service Class."""
     statuses = VERIFICATION_SERVICE_CLASS_STATUS
 
-    def SCP(self, req, context, info):
+    def SCP(self, req, context):
         """The SCP implementation for the Verification Service Class.
 
         Will always return 0x0000 (Success) unless the user returns a different
-        (valid) status value from the `AE.on_c_echo` callback.
+        (valid) status value from the handler bound to `evt.EVT_C_ECHO`.
 
         Parameters
         ----------
@@ -205,12 +202,9 @@ class VerificationServiceClass(ServiceClass):
             The C-ECHO request primitive sent by the peer.
         context : presentation.PresentationContext
             The presentation context that the SCP is operating under.
-        info : dict
-            A dict containing details about the association.
 
         See Also
         --------
-        ae.ApplicationEntity.on_c_echo
         association.Association.send_c_echo
 
         Notes
@@ -315,7 +309,7 @@ class StorageServiceClass(ServiceClass):
     uid = '1.2.840.10008.4.2'
     statuses = STORAGE_SERVICE_CLASS_STATUS
 
-    def SCP(self, req, context, info):
+    def SCP(self, req, context):
         """The SCP implementation for the Storage Service Class.
 
         Parameters
@@ -324,8 +318,6 @@ class StorageServiceClass(ServiceClass):
             The C-STORE request primitive sent by the peer.
         context : presentation.PresentationContext
             The presentation context that the SCP is operating under.
-        info : dict
-            A dict containing details about the association.
 
         See Also
         --------
@@ -425,7 +417,7 @@ class QueryRetrieveServiceClass(ServiceClass):
         'CurveData', 'AudioSampleData', 'EncapsulatedDocument'
     ]
 
-    def SCP(self, req, context, info):
+    def SCP(self, req, context):
         """The SCP implementation for the Query/Retrieve Service Class.
 
         Parameters
@@ -434,8 +426,6 @@ class QueryRetrieveServiceClass(ServiceClass):
             The request primitive received from the peer.
         context : presentation.PresentationContext
             The presentation context that the SCP is operating under.
-        info : dict
-            A dict containing details about the association.
         """
         if context.abstract_syntax in ['1.2.840.10008.5.1.4.1.2.1.1',
                                        '1.2.840.10008.5.1.4.1.2.2.1',
@@ -447,7 +437,7 @@ class QueryRetrieveServiceClass(ServiceClass):
                                        '1.2.840.10008.5.1.4.44.2',
                                        '1.2.840.10008.5.1.4.45.2']:
             self.statuses = QR_FIND_SERVICE_CLASS_STATUS
-            self._find_scp(req, context, info)
+            self._find_scp(req, context)
         elif context.abstract_syntax in ['1.2.840.10008.5.1.4.1.2.1.3',
                                          '1.2.840.10008.5.1.4.1.2.2.3',
                                          '1.2.840.10008.5.1.4.1.2.3.3',
@@ -460,7 +450,7 @@ class QueryRetrieveServiceClass(ServiceClass):
                                          '1.2.840.10008.5.1.4.44.4',
                                          '1.2.840.10008.5.1.4.45.4']:
             self.statuses = QR_GET_SERVICE_CLASS_STATUS
-            self._get_scp(req, context, info)
+            self._get_scp(req, context)
         elif context.abstract_syntax in ['1.2.840.10008.5.1.4.1.2.1.2',
                                          '1.2.840.10008.5.1.4.1.2.2.2',
                                          '1.2.840.10008.5.1.4.1.2.3.2',
@@ -472,14 +462,14 @@ class QueryRetrieveServiceClass(ServiceClass):
                                          '1.2.840.10008.5.1.4.44.3',
                                          '1.2.840.10008.5.1.4.45.3']:
             self.statuses = QR_MOVE_SERVICE_CLASS_STATUS
-            self._move_scp(req, context, info)
+            self._move_scp(req, context)
         else:
             raise ValueError(
                 'The supplied abstract syntax is not valid for use with the '
                 'Query/Retrieve Service Class'
             )
 
-    def _find_scp(self, req, context, info):
+    def _find_scp(self, req, context):
         """The SCP implementation for Query/Retrieve - Find.
 
         Parameters
@@ -488,8 +478,6 @@ class QueryRetrieveServiceClass(ServiceClass):
             The C-FIND request primitive received from the peer.
         context : presentation.PresentationContext
             The presentation context that the SCP is operating under.
-        info : dict
-            A dict containing details about the association.
 
         See Also
         --------
@@ -706,7 +694,7 @@ class QueryRetrieveServiceClass(ServiceClass):
         LOGGER.info('Find SCP Response: %s (Success)', ii + 2)
         self.dimse.send_msg(rsp, context.context_id)
 
-    def _get_scp(self, req, context, info):
+    def _get_scp(self, req, context):
         """The SCP implementation for Query/Retrieve - Get.
 
         Parameters
@@ -715,8 +703,6 @@ class QueryRetrieveServiceClass(ServiceClass):
             The C-GET request primitive sent by the peer.
         context : presentation.PresentationContext
             The presentation context that the SCP is operating under.
-        info : dict
-            A dict containing details about the association.
 
         See Also
         --------
@@ -1087,7 +1073,7 @@ class QueryRetrieveServiceClass(ServiceClass):
 
         self.dimse.send_msg(rsp, context.context_id)
 
-    def _move_scp(self, req, context, info):
+    def _move_scp(self, req, context):
         """The SCP implementation for Query/Retrieve - Move.
 
         Parameters
@@ -1096,8 +1082,6 @@ class QueryRetrieveServiceClass(ServiceClass):
             The C-MOVE request primitive sent by the peer.
         context : presentation.PresentationContext
             The presentation context that the SCP is operating under.
-        info : dict
-            A dict containing details about the association.
 
         See Also
         --------
@@ -1543,7 +1527,7 @@ class BasicWorklistManagementServiceClass(QueryRetrieveServiceClass):
     def __init__(self, assoc):
         super(BasicWorklistManagementServiceClass, self).__init__(assoc)
 
-    def SCP(self, req, context, info):
+    def SCP(self, req, context):
         """The SCP implementation for Basic Worklist Management.
 
         Parameters
@@ -1552,8 +1536,6 @@ class BasicWorklistManagementServiceClass(QueryRetrieveServiceClass):
             The C-FIND request primitive received from the peer.
         context : presentation.PresentationContext
             The presentation context that the SCP is operating under.
-        info : dict
-            A dict containing details about the association.
 
         See Also
         --------
@@ -1636,7 +1618,7 @@ class BasicWorklistManagementServiceClass(QueryRetrieveServiceClass):
           and `Annex C <http://dicom.nema.org/medical/dicom/current/output/html/part07.html#chapter_C>`_.
         """
         if context.abstract_syntax == '1.2.840.10008.5.1.4.31':
-            self._find_scp(req, context, info)
+            self._find_scp(req, context)
         else:
             raise ValueError(
                 'The supplied abstract syntax is not valid for use with the '
@@ -1648,7 +1630,7 @@ class RelevantPatientInformationQueryServiceClass(ServiceClass):
     """Implementation of the Relevant Patient Information Query"""
     statuses = RELEVANT_PATIENT_SERVICE_CLASS_STATUS
 
-    def SCP(self, req, context, info):
+    def SCP(self, req, context):
         """The SCP implementation for the Relevant Patient Information Query
         Service Class.
 
@@ -1658,8 +1640,6 @@ class RelevantPatientInformationQueryServiceClass(ServiceClass):
             The C-FIND request primitive sent by the peer.
         context : presentation.PresentationContext
             The presentation context that the SCP is operating under.
-        info : dict
-            A dict containing details about the association.
 
         See Also
         --------
@@ -1849,7 +1829,7 @@ class SubstanceAdministrationQueryServiceClass(QueryRetrieveServiceClass):
     def __init__(self, assoc):
         super(SubstanceAdministrationQueryServiceClass, self).__init__(assoc)
 
-    def SCP(self, req, context, info):
+    def SCP(self, req, context):
         """The SCP implementation for the Relevant Patient Information Query
         Service Class.
 
@@ -1859,8 +1839,6 @@ class SubstanceAdministrationQueryServiceClass(QueryRetrieveServiceClass):
             The C-FIND request primitive sent by the peer.
         context : presentation.PresentationContext
             The presentation context that the SCP is operating under.
-        info : dict
-            A dict containing details about the association.
 
         See Also
         --------
@@ -1925,7 +1903,7 @@ class SubstanceAdministrationQueryServiceClass(QueryRetrieveServiceClass):
            `9.3.2 <http://dicom.nema.org/medical/dicom/current/output/html/part07.html#sect_9.3.2>`_
            and `Annex C <http://dicom.nema.org/medical/dicom/current/output/html/part07.html#chapter_C>`_.
         """
-        self._find_scp(req, context, info)
+        self._find_scp(req, context)
 
 
 class NonPatientObjectStorageServiceClass(StorageServiceClass):
