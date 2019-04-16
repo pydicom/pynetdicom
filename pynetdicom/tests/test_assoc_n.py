@@ -1313,8 +1313,12 @@ class TestAssociationSendNAction(object):
         rsp.AffectedSOPInstanceUID = req.RequestedSOPInstanceUID
         rsp.ActionTypeID = req.ActionTypeID
 
+        acceptors = [
+            aa for aa in self.ae.active_associations if 'Acceptor' in aa.name
+        ]
+
         status, ds = evt.trigger(
-            self.ae.active_associations[0],
+            acceptors[0],
             evt.EVT_N_ACTION,
             {'request' : req, 'context' : context.as_tuple}
         )
@@ -1337,7 +1341,7 @@ class TestAssociationSendNAction(object):
         if ds:
             rsp.ActionReply = BytesIO(encode(ds, True, True))
 
-        self.ae.active_associations[0].dimse.send_msg(rsp, context.context_id)
+        acceptors[0].dimse.send_msg(rsp, context.context_id)
 
     def setup(self):
         self._orig_scp = ServiceClass.SCP
@@ -2151,8 +2155,12 @@ class TestAssociationSendNDelete(object):
         rsp = N_DELETE()
         rsp.MessageIDBeingRespondedTo = req.MessageID
 
+        acceptors = [
+            aa for aa in self.ae.active_associations if 'Acceptor' in aa.name
+        ]
+
         status = evt.trigger(
-            self.ae.active_associations[0],
+            acceptors[0],
             evt.EVT_N_DELETE,
             {'request' : req, 'context' : context.as_tuple}
         )
@@ -2171,7 +2179,7 @@ class TestAssociationSendNDelete(object):
         elif isinstance(status, int):
             rsp.Status = status
 
-        self.ae.active_associations[0].dimse.send_msg(rsp, context.context_id)
+        acceptors[0].dimse.send_msg(rsp, context.context_id)
 
     def setup(self):
         self.ae = None
