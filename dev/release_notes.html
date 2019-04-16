@@ -103,6 +103,7 @@
 <li class="toctree-l1"><a class="reference internal" href="implant_template_service_class.html">Implant Template Query/Retrieve Service Class</a></li>
 <li class="toctree-l1"><a class="reference internal" href="display_system_service_class.html">Display System Management Service Class</a></li>
 <li class="toctree-l1"><a class="reference internal" href="modality_performed_procedure_step.html">Modality Performed Procedure Step Management</a></li>
+<li class="toctree-l1"><a class="reference internal" href="protocol_approval_service_class.html">Protocol Approval Query/Retrieve Service Class</a></li>
 </ul>
 <ul>
 <li class="toctree-l1"><a class="reference internal" href="user/index.html">User Guide</a></li>
@@ -207,24 +208,30 @@
 <div class="section" id="fixes">
 <h2>Fixes<a class="headerlink" href="#fixes" title="Permalink to this headline">¶</a></h2>
 <ul class="simple">
-<li><p>Fixed Query Retrieve service class not responded with 0x0000 Success if no
-matches were yielded by the C-FIND request handler.</p></li>
+<li><p>Fixed Query Retrieve service class not responded with <code class="docutils literal notranslate"><span class="pre">0x0000</span></code> (Success)
+if no matches were yielded by the C-FIND request handler.</p></li>
 </ul>
 </div>
 <div class="section" id="enhancements">
 <h2>Enhancements<a class="headerlink" href="#enhancements" title="Permalink to this headline">¶</a></h2>
+<ul class="simple">
+<li><p>Added support for Protocol Approval Query Retrieve service class
+(<a class="reference external" href="https://github.com/pydicom/pynetdicom/issues/327">#327</a>)</p></li>
+</ul>
 </div>
 <div class="section" id="changes">
 <h2>Changes<a class="headerlink" href="#changes" title="Permalink to this headline">¶</a></h2>
-<ul class="simple">
-<li><p>The following have been removed as per planned deprecation:</p>
 <ul>
-<li><p><code class="docutils literal notranslate"><span class="pre">AE.on_c_store()</span></code>, <code class="docutils literal notranslate"><span class="pre">AE.on_c_echo()</span></code>, <code class="docutils literal notranslate"><span class="pre">AE.on_c_find()</span></code>,
-<code class="docutils literal notranslate"><span class="pre">AE.on_c_get()</span></code>, <code class="docutils literal notranslate"><span class="pre">AE.on_c_move()</span></code>, <code class="docutils literal notranslate"><span class="pre">AE.on_n_get()</span></code>,
+<li><p>The following have been removed as per planned deprecation:
+* <code class="docutils literal notranslate"><span class="pre">AE.on_c_store()</span></code>, <code class="docutils literal notranslate"><span class="pre">AE.on_c_echo()</span></code>, <code class="docutils literal notranslate"><span class="pre">AE.on_c_find()</span></code>,</p>
+<blockquote>
+<div><p><code class="docutils literal notranslate"><span class="pre">AE.on_c_get()</span></code>, <code class="docutils literal notranslate"><span class="pre">AE.on_c_move()</span></code>, <code class="docutils literal notranslate"><span class="pre">AE.on_n_get()</span></code>,
 <code class="docutils literal notranslate"><span class="pre">AE.on_async_ops_window()</span></code>, <code class="docutils literal notranslate"><span class="pre">AE.on_sop_class_common_extended()</span></code>,
 <code class="docutils literal notranslate"><span class="pre">AE.on_sop_class_extended()</span></code>, <code class="docutils literal notranslate"><span class="pre">AE.on_user_identity()</span></code>,
 <code class="docutils literal notranslate"><span class="pre">AE.on_association_accepted()</span></code>, <code class="docutils literal notranslate"><span class="pre">AE.on_association_rejected()</span></code>,
-<code class="docutils literal notranslate"><span class="pre">AE.on_association_released()</span></code>, <code class="docutils literal notranslate"><span class="pre">AE.on_association_aborted()</span></code>,</p></li>
+<code class="docutils literal notranslate"><span class="pre">AE.on_association_released()</span></code>, <code class="docutils literal notranslate"><span class="pre">AE.on_association_aborted()</span></code>,</p>
+</div></blockquote>
+<ul class="simple">
 <li><p><code class="docutils literal notranslate"><span class="pre">_config.DECODE_STORE_DATASETS</span></code></p></li>
 <li><p><code class="docutils literal notranslate"><span class="pre">DIMSEServiceProvider.on_send_dimse_message()</span></code>,
 <code class="docutils literal notranslate"><span class="pre">DIMSEServiceProvider.on_receive_dimse_message()</span></code>,</p></li>

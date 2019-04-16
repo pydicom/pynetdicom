@@ -102,6 +102,7 @@
 <li class="toctree-l1"><a class="reference internal" href="../../implant_template_service_class.html">Implant Template Query/Retrieve Service Class</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../../display_system_service_class.html">Display System Management Service Class</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../../modality_performed_procedure_step.html">Modality Performed Procedure Step Management</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../protocol_approval_service_class.html">Protocol Approval Query/Retrieve Service Class</a></li>
 </ul>
 <ul>
 <li class="toctree-l1"><a class="reference internal" href="../../user/index.html">User Guide</a></li>
@@ -611,7 +612,8 @@
                                        <span class="s1">&#39;1.2.840.10008.5.1.4.39.2&#39;</span><span class="p">,</span>
                                        <span class="s1">&#39;1.2.840.10008.5.1.4.43.2&#39;</span><span class="p">,</span>
                                        <span class="s1">&#39;1.2.840.10008.5.1.4.44.2&#39;</span><span class="p">,</span>
-                                       <span class="s1">&#39;1.2.840.10008.5.1.4.45.2&#39;</span><span class="p">]:</span>
+                                       <span class="s1">&#39;1.2.840.10008.5.1.4.45.2&#39;</span><span class="p">,</span>
+                                       <span class="s1">&#39;1.2.840.10008.5.1.4.1.1.200.4&#39;</span><span class="p">]:</span>
             <span class="bp">self</span><span class="o">.</span><span class="n">statuses</span> <span class="o">=</span> <span class="n">QR_FIND_SERVICE_CLASS_STATUS</span>
             <span class="bp">self</span><span class="o">.</span><span class="n">_find_scp</span><span class="p">(</span><span class="n">req</span><span class="p">,</span> <span class="n">context</span><span class="p">)</span>
         <span class="k">elif</span> <span class="n">context</span><span class="o">.</span><span class="n">abstract_syntax</span> <span class="ow">in</span> <span class="p">[</span><span class="s1">&#39;1.2.840.10008.5.1.4.1.2.1.3&#39;</span><span class="p">,</span>
@@ -624,7 +626,8 @@
                                          <span class="s1">&#39;1.2.840.10008.5.1.4.39.4&#39;</span><span class="p">,</span>
                                          <span class="s1">&#39;1.2.840.10008.5.1.4.43.4&#39;</span><span class="p">,</span>
                                          <span class="s1">&#39;1.2.840.10008.5.1.4.44.4&#39;</span><span class="p">,</span>
-                                         <span class="s1">&#39;1.2.840.10008.5.1.4.45.4&#39;</span><span class="p">]:</span>
+                                         <span class="s1">&#39;1.2.840.10008.5.1.4.45.4&#39;</span><span class="p">,</span>
+                                         <span class="s1">&#39;1.2.840.10008.5.1.4.1.1.200.6&#39;</span><span class="p">]:</span>
             <span class="bp">self</span><span class="o">.</span><span class="n">statuses</span> <span class="o">=</span> <span class="n">QR_GET_SERVICE_CLASS_STATUS</span>
             <span class="bp">self</span><span class="o">.</span><span class="n">_get_scp</span><span class="p">(</span><span class="n">req</span><span class="p">,</span> <span class="n">context</span><span class="p">)</span>
         <span class="k">elif</span> <span class="n">context</span><span class="o">.</span><span class="n">abstract_syntax</span> <span class="ow">in</span> <span class="p">[</span><span class="s1">&#39;1.2.840.10008.5.1.4.1.2.1.2&#39;</span><span class="p">,</span>
@@ -636,7 +639,8 @@
                                          <span class="s1">&#39;1.2.840.10008.5.1.4.39.3&#39;</span><span class="p">,</span>
                                          <span class="s1">&#39;1.2.840.10008.5.1.4.43.3&#39;</span><span class="p">,</span>
                                          <span class="s1">&#39;1.2.840.10008.5.1.4.44.3&#39;</span><span class="p">,</span>
-                                         <span class="s1">&#39;1.2.840.10008.5.1.4.45.3&#39;</span><span class="p">]:</span>
+                                         <span class="s1">&#39;1.2.840.10008.5.1.4.45.3&#39;</span><span class="p">,</span>
+                                         <span class="s1">&#39;1.2.840.10008.5.1.4.1.1.200.5&#39;</span><span class="p">]:</span>
             <span class="bp">self</span><span class="o">.</span><span class="n">statuses</span> <span class="o">=</span> <span class="n">QR_MOVE_SERVICE_CLASS_STATUS</span>
             <span class="bp">self</span><span class="o">.</span><span class="n">_move_scp</span><span class="p">(</span><span class="n">req</span><span class="p">,</span> <span class="n">context</span><span class="p">)</span>
         <span class="k">else</span><span class="p">:</span>
@@ -2102,6 +2106,10 @@
 <div class="viewcode-block" id="ImplantTemplateQueryRetrieveServiceClass"><a class="viewcode-back" href="../../reference/generated/pynetdicom.service_class.ImplantTemplateQueryRetrieveServiceClass.html#pynetdicom.service_class.ImplantTemplateQueryRetrieveServiceClass">[docs]</a><span class="k">class</span> <span class="nc">ImplantTemplateQueryRetrieveServiceClass</span><span class="p">(</span><span class="n">QueryRetrieveServiceClass</span><span class="p">):</span>
     <span class="sd">&quot;&quot;&quot;Implementation of the Implant Template QR Service.&quot;&quot;&quot;</span>
     <span class="k">pass</span></div>
+
+<span class="k">class</span> <span class="nc">ProtocolApprovalQueryRetrieveServiceClass</span><span class="p">(</span><span class="n">QueryRetrieveServiceClass</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;Implementation of the Protocol Approval QR Service.&quot;&quot;&quot;</span>
+    <span class="k">pass</span>
 </pre></div>
 
            </div>

@@ -43,6 +43,7 @@ Supported Service Classes
    implant_template_service_class
    display_system_service_class
    modality_performed_procedure_step
+   protocol_approval_service_class
 
 
 User Guide
