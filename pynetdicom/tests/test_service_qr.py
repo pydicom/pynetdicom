@@ -4397,6 +4397,123 @@ class TestQRMoveServiceClass(object):
 
         assert msg_ids == [65535, 1, 2]
 
+    def test_success_no_warn(self):
+        """Test receiving final success status."""
+        def handle(event):
+            yield self.destination
+            yield 2
+            yield 0xFF00, self.ds
+            yield 0x0000, None
+
+        def handle_store(event):
+            return 0x0000
+
+        handlers = [(evt.EVT_C_MOVE, handle), (evt.EVT_C_STORE, handle_store)]
+
+        self.ae = ae = AE()
+        ae.add_supported_context(PatientRootQueryRetrieveInformationModelMove)
+        ae.add_supported_context(CTImageStorage, scu_role=False, scp_role=True)
+        ae.add_requested_context(PatientRootQueryRetrieveInformationModelMove)
+        ae.add_requested_context(CTImageStorage)
+        scp = ae.start_server(('', 11112), block=False, evt_handlers=handlers)
+
+        ae.acse_timeout = 5
+        ae.dimse_timeout = 5
+        assoc = ae.associate('localhost', 11112)
+        assert assoc.is_established
+        result = assoc.send_c_move(self.query, b'TESTMOVE', query_model='P')
+        status, identifier = next(result)
+        assert status.Status == 0xFF00
+        assert identifier is None
+        status, identifier = next(result)
+        assert status.Status == 0x0000
+        assert status.NumberOfFailedSuboperations == 0
+        assert status.NumberOfWarningSuboperations == 0
+        assert status.NumberOfCompletedSuboperations == 1
+        assert identifier is None
+        pytest.raises(StopIteration, next, result)
+
+        assoc.release()
+        scp.shutdown()
+
+    def test_success_warn(self):
+        """Test receiving final success status after subop warns."""
+        def handle(event):
+            yield self.destination
+            yield 2
+            yield 0xFF00, self.ds
+            yield 0x0000, None
+
+        def handle_store(event):
+            return 0xB000
+
+        handlers = [(evt.EVT_C_MOVE, handle), (evt.EVT_C_STORE, handle_store)]
+
+        self.ae = ae = AE()
+        ae.add_supported_context(PatientRootQueryRetrieveInformationModelMove)
+        ae.add_supported_context(CTImageStorage, scu_role=False, scp_role=True)
+        ae.add_requested_context(PatientRootQueryRetrieveInformationModelMove)
+        ae.add_requested_context(CTImageStorage)
+        scp = ae.start_server(('', 11112), block=False, evt_handlers=handlers)
+
+        ae.acse_timeout = 5
+        ae.dimse_timeout = 5
+        assoc = ae.associate('localhost', 11112)
+        assert assoc.is_established
+        result = assoc.send_c_move(self.query, b'TESTMOVE', query_model='P')
+        status, identifier = next(result)
+        assert status.Status == 0xFF00
+        assert identifier is None
+        status, identifier = next(result)
+        assert status.Status == 0xB000
+        assert status.NumberOfFailedSuboperations == 0
+        assert status.NumberOfWarningSuboperations == 1
+        assert status.NumberOfCompletedSuboperations == 0
+        assert identifier.FailedSOPInstanceUIDList == '1.1.1'
+        pytest.raises(StopIteration, next, result)
+
+        assoc.release()
+        scp.shutdown()
+
+    def test_success_fail(self):
+        """Test receiving final success status after subop failures."""
+        def handle(event):
+            yield self.destination
+            yield 2
+            yield 0xFF00, self.ds
+            yield 0x0000, None
+
+        def handle_store(event):
+            return 0xC000
+
+        handlers = [(evt.EVT_C_MOVE, handle), (evt.EVT_C_STORE, handle_store)]
+
+        self.ae = ae = AE()
+        ae.add_supported_context(PatientRootQueryRetrieveInformationModelMove)
+        ae.add_supported_context(CTImageStorage, scu_role=False, scp_role=True)
+        ae.add_requested_context(PatientRootQueryRetrieveInformationModelMove)
+        ae.add_requested_context(CTImageStorage)
+        scp = ae.start_server(('', 11112), block=False, evt_handlers=handlers)
+
+        ae.acse_timeout = 5
+        ae.dimse_timeout = 5
+        assoc = ae.associate('localhost', 11112)
+        assert assoc.is_established
+        result = assoc.send_c_move(self.query, b'TESTMOVE', query_model='P')
+        status, identifier = next(result)
+        assert status.Status == 0xFF00
+        assert identifier is None
+        status, identifier = next(result)
+        assert status.Status == 0xB000
+        assert status.NumberOfFailedSuboperations == 1
+        assert status.NumberOfWarningSuboperations == 0
+        assert status.NumberOfCompletedSuboperations == 0
+        assert identifier.FailedSOPInstanceUIDList == '1.1.1'
+        pytest.raises(StopIteration, next, result)
+
+        assoc.release()
+        scp.shutdown()
+
 
 class TestQRCompositeInstanceWithoutBulk(object):
     """Tests for QR + Composite Instance Without Bulk Data"""

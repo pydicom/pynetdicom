@@ -1307,14 +1307,15 @@ class QueryRetrieveServiceClass(ServiceClass):
                 # Exception raised by handler
                 if isinstance(rsp_status, Exception):
                     LOGGER.error(
-                        "Exception raised by user's C-MOVE request handler",
-                        exc_info=dataset)
+                        "Exception raised by handler bound to 'evt.EVT_C_MOVE'",
+                        exc_info=dataset
+                    )
                     rsp_status = 0xC511
 
                 # All sub-operations are complete
                 if store_results[0] <= 0:
                     LOGGER.warning(
-                        "User's C-MOVE request handler yielded further "
+                        "Handler bound to 'evt.EVT_C_MOVE' yielded further "
                         "(status, dataset) results but these will be "
                         "ignored as the sub-operations are complete"
                     )
@@ -1388,11 +1389,12 @@ class QueryRetrieveServiceClass(ServiceClass):
                     self.dimse.send_msg(rsp, context.context_id)
                     return
                 elif status[0] == STATUS_SUCCESS:
-                    # If success, then dataset is None
+                    # If Success, then dataset is None
                     store_assoc.release()
 
                     # If the user yields Success, check it
                     if store_results[1] or store_results[2]:
+                        # Sub-operations contained failures/warnings
                         LOGGER.info('Move SCP Response: (Warning)')
 
                         ds = Dataset()
@@ -1404,7 +1406,8 @@ class QueryRetrieveServiceClass(ServiceClass):
                         rsp.Identifier = BytesIO(bytestream)
                         rsp.Status = 0xB000
                     else:
-                        LOGGER.info('Move SCP Response: (Warning)')
+                        # No failures or warnings
+                        LOGGER.info('Move SCP Response: (Success)')
                         rsp.Identifier = None
 
                     rsp.NumberOfRemainingSuboperations = None

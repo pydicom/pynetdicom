@@ -137,7 +137,7 @@ class TestAssociationSendNEventReport(object):
     def test_rsp_none(self):
         """Test no response from peer"""
         def handle(event):
-            time.sleep(0.5)
+            time.sleep(1)
             return 0x0000, Dataset()
 
         self.ae = ae = AE()
@@ -551,7 +551,7 @@ class TestAssociationSendNGet(object):
         def handle(event):
             ds = Dataset()
             ds.PatientName = 'Test^test'
-            time.sleep(0.5)
+            time.sleep(1)
             return 0x0000, ds
 
         self.ae = ae = AE()
@@ -978,7 +978,7 @@ class TestAssociationSendNSet(object):
         def handle(event):
             ds = Dataset()
             ds.PatientName = 'Test^test'
-            time.sleep(0.5)
+            time.sleep(1)
             return 0x0000, ds
 
         self.ae = ae = AE()
@@ -1444,11 +1444,12 @@ class TestAssociationSendNAction(object):
     def test_rsp_none(self):
         """Test no response from peer"""
         def handle(event):
+            time.sleep(1)
             return 0x0000, event.action_information
 
         self.ae = ae = AE()
         ae.acse_timeout = 5
-        ae.dimse_timeout = 5
+        ae.dimse_timeout = 0.4
         ae.network_timeout = 5
         ae.add_supported_context(PrintJobSOPClass)
         scp = ae.start_server(
@@ -1833,7 +1834,7 @@ class TestAssociationSendNCreate(object):
     def test_rsp_none(self):
         """Test no response from peer"""
         def handle(event):
-            time.sleep(0.5)
+            time.sleep(1)
             return 0x0000, Dataset()
 
         self.ae = ae = AE()
@@ -2250,7 +2251,7 @@ class TestAssociationSendNDelete(object):
     def test_rsp_none(self):
         """Test no response from peer"""
         def handle(event):
-            time.sleep(0.5)
+            time.sleep(1)
             return 0x0000
 
         self.ae = ae = AE()
