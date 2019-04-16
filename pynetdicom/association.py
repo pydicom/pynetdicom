@@ -67,6 +67,9 @@ from pynetdicom.sop_class import (
     ImplantTemplateGroupInformationModelFind,
     ImplantTemplateGroupInformationModelGet,
     ImplantTemplateGroupInformationModelMove,
+    ProtocolApprovalInformationModelFind,
+    ProtocolApprovalInformationModelGet,
+    ProtocolApprovalInformationModelMove,
 )
 from pynetdicom.pdu_primitives import (
     UserIdentityNegotiation,
@@ -989,6 +992,8 @@ class Association(threading.Thread):
               *Implant Assembly Template Information Model - FIND*
             - ``IT`` - 1.2.840.10008.5.1.4.44.2 -
               *Implant Template Group Information Model - FIND*
+            - ``PA`` - 1.2.840.10008.5.1.4.1.1.200.4 -
+              *Protocol Approval Information Model - FIND*
 
         Yields
         ------
@@ -1019,10 +1024,11 @@ class Association(threading.Thread):
             *Query/Retrieve Service, Basic Worklist Management Service,
             Hanging Protocol Query/Retrieve Service, Defined Procedure Protocol
             Query/Retrieve Service, Substance Administration Query Service,
-            Color Palette Query/Retrieve Service* and *Implant Template
-            Query/Retrieve Service* specific
+            Color Palette Query/Retrieve Service*, *Implant Template
+            Query/Retrieve Service* and *Protocol Approval Query/Retrieve
+            Service* specific
             (DICOM Standard Part 4, Annexes C.4.1, K.4.1.1.4, U.4.1, HH,
-            V.4.1.1.4, X and BB):
+            V.4.1.1.4, X, BB and II):
 
             Failure
               | ``0xA700`` - Out of resources
@@ -1077,6 +1083,7 @@ class Association(threading.Thread):
         service_class.DefinedProcedureProtocolQueryRetrieveServiceClass
         service_class.ColorPaletteQueryRetrieveServiceClass
         service_class.ImplantTemplateQueryRetrieveServiceClass
+        service_class.ProtocolApprovalQueryRetrieveServiceClass
 
         References
         ----------
@@ -1088,6 +1095,7 @@ class Association(threading.Thread):
         * DICOM Standard Part 4, `Annex X <http://dicom.nema.org/medical/dicom/current/output/html/part04.html#chapter_X>`_
         * DICOM Standard Part 4, `Annex BB <http://dicom.nema.org/medical/dicom/current/output/html/part04.html#chapter_BB>`_
         * DICOM Standard Part 4, `Annex HH <http://dicom.nema.org/medical/dicom/current/output/html/part04.html#chapter_HH>`_
+        * DICOM Standard Part 4, `Annex II <http://dicom.nema.org/medical/dicom/current/output/html/part04.html#chapter_II>`_
         * DICOM Standard Part 7, Sections
           `9.1.2 <http://dicom.nema.org/medical/dicom/current/output/html/part07.html#sect_9.1.2>`_,
           `9.3.2 <http://dicom.nema.org/medical/dicom/current/output/html/part07.html#sect_9.3.2>`_,
@@ -1115,6 +1123,7 @@ class Association(threading.Thread):
             "IG" : GenericImplantTemplateInformationModelFind,
             "IA" : ImplantAssemblyTemplateInformationModelFind,
             "IT" : ImplantTemplateGroupInformationModelFind,
+            "PA" : ProtocolApprovalInformationModelFind,
         }
 
         try:
@@ -1221,6 +1230,8 @@ class Association(threading.Thread):
               *Implant Assembly Template Information Model - GET*
             - ``IT`` - 1.2.840.10008.5.1.4.44.4 -
               *Implant Template Group Information Model - GET*
+            - ``PA`` - 1.2.840.10008.5.1.4.1.1.200.6 -
+              *Protocol Approval Information Model - GET*
 
         Yields
         ------
@@ -1250,9 +1261,10 @@ class Association(threading.Thread):
 
             *Query/Retrieve Service, Hanging Protocol Query/Retrieve Service,
             Defined Procedure Protocol Query/Retrieve Service, Color Palette
-            Query/Retrieve Service* and *Implant Template Query/Retrieve
-            Service* specific (DICOM Standard Part 4, Annexes C.4.3,
-            Y.C.4.2.1.4, Z.4.2.1.4, U.4.3, X, BB and HH):
+            Query/Retrieve Service*, *Implant Template Query/Retrieve
+            Service* and *Protocol Approval Query/Retrieve Service* specific
+            (DICOM Standard Part 4, Annexes C.4.3,
+            Y.C.4.2.1.4, Z.4.2.1.4, U.4.3, X, BB, HH and II):
 
             Pending
               | ``0xFF00`` - Sub-operations are continuing
@@ -1300,6 +1312,7 @@ class Association(threading.Thread):
         service_class.DefinedProcedureProtocolQueryRetrieveServiceClass
         service_class.ColorPaletteQueryRetrieveServiceClass
         service_class.ImplantTemplateQueryRetrieveServiceClass
+        service_class.ProtocolApprovalQueryRetrieveServiceClass
         dimse_primitives.C_GET
 
         References
@@ -1312,6 +1325,7 @@ class Association(threading.Thread):
         * DICOM Standard Part 4, `Annex Z <http://dicom.nema.org/medical/dicom/current/output/html/part04.html#chapter_Z>`_
         * DICOM Standard Part 4, `Annex BB <http://dicom.nema.org/medical/dicom/current/output/html/part04.html#chapter_BB>`_
         * DICOM Standard Part 4, `Annex HH <http://dicom.nema.org/medical/dicom/current/output/html/part04.html#chapter_HH>`_
+        * DICOM Standard Part 4, `Annex II <http://dicom.nema.org/medical/dicom/current/output/html/part04.html#chapter_II>`_
         * DICOM Standard Part 7, Sections
           `9.1.3 <http://dicom.nema.org/medical/dicom/current/output/html/part07.html#sect_9.1.3>`_,
           `9.3.3 <http://dicom.nema.org/medical/dicom/current/output/html/part07.html#sect_9.3.3>`_
@@ -1334,6 +1348,7 @@ class Association(threading.Thread):
             "IG" : GenericImplantTemplateInformationModelGet,
             "IA" : ImplantAssemblyTemplateInformationModelGet,
             "IT" : ImplantTemplateGroupInformationModelGet,
+            "PA" : ProtocolApprovalInformationModelGet,
         }
 
         try:
@@ -1442,6 +1457,8 @@ class Association(threading.Thread):
               *Implant Assembly Template Information Model - MOVE*
             - ``IT`` - 1.2.840.10008.5.1.4.44.3 -
               *Implant Template Group Information Model - MOVE*
+            - ``PA`` - 1.2.840.10008.5.1.4.1.1.200.5 -
+              *Protocol Approval Information Model - MOVE*
 
         Yields
         ------
@@ -1470,8 +1487,8 @@ class Association(threading.Thread):
 
             *Query/Retrieve Service, Hanging Protocol Query/Retrieve Service,
             Defined Procedure Protocol Query/Retrieve Service, Color Palette
-            Query/Retrieve Service* and *Implant Template Query/Retreive
-            Service*
+            Query/Retrieve Service* , *Implant Template Query/Retreive
+            Service* and *Protocol Approval Query/Retrieve Service*
             specific (DICOM Standard Part 4, Annexes C, U, Y, X, BB and HH):
 
             Failure
@@ -1509,6 +1526,7 @@ class Association(threading.Thread):
         service_class.HangingProtocolQueryRetrieveServiceClass
         service_class.ColorPaletteQueryRetrieveServiceClass
         service_class.ImplantTemplateQueryRetrieveServiceClass
+        service_class.ProtocolApprovalQueryRetrieveServiceClass
 
         References
         ----------
@@ -1519,6 +1537,7 @@ class Association(threading.Thread):
         * DICOM Standard Part 4, `Annex Y <http://dicom.nema.org/medical/dicom/current/output/html/part04.html#chapter_Y>`_
         * DICOM Standard Part 4, `Annex BB <http://dicom.nema.org/medical/dicom/current/output/html/part04.html#chapter_BB>`_
         * DICOM Standard Part 4, `Annex HH <http://dicom.nema.org/medical/dicom/current/output/html/part04.html#chapter_HH>`_
+        * DICOM Standard Part 4, `Annex II <http://dicom.nema.org/medical/dicom/current/output/html/part04.html#chapter_II>`_
         * DICOM Standard Part 7, Sections
           `9.1.4 <http://dicom.nema.org/medical/dicom/current/output/html/part07.html#sect_9.1.4>`_,
           `9.3.4 <http://dicom.nema.org/medical/dicom/current/output/html/part07.html#sect_9.3.4>`_
@@ -1540,6 +1559,7 @@ class Association(threading.Thread):
             "IG" : GenericImplantTemplateInformationModelMove,
             "IA" : ImplantAssemblyTemplateInformationModelMove,
             "IT" : ImplantTemplateGroupInformationModelMove,
+            "PA" : ProtocolApprovalInformationModelMove,
         }
 
         try:

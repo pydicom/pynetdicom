@@ -78,6 +78,9 @@ from pynetdicom.sop_class import (
     ImplantTemplateGroupInformationModelFind,
     ImplantTemplateGroupInformationModelGet,
     ImplantTemplateGroupInformationModelMove,
+    ProtocolApprovalInformationModelFind,
+    ProtocolApprovalInformationModelGet,
+    ProtocolApprovalInformationModelMove,
 )
 from .dummy_c_scp import (
     DummyVerificationSCP, DummyStorageSCP, DummyFindSCP, DummyGetSCP,
@@ -1710,6 +1713,7 @@ class TestAssociationSendCFind(object):
         ae.add_supported_context(GenericImplantTemplateInformationModelFind)
         ae.add_supported_context(ImplantAssemblyTemplateInformationModelFind)
         ae.add_supported_context(ImplantTemplateGroupInformationModelFind)
+        ae.add_supported_context(ProtocolApprovalInformationModelFind)
         scp = ae.start_server(
             ('', 11112), block=False, evt_handlers=[(evt.EVT_C_FIND, handle)]
         )
@@ -1729,11 +1733,12 @@ class TestAssociationSendCFind(object):
         ae.add_requested_context(GenericImplantTemplateInformationModelFind)
         ae.add_requested_context(ImplantAssemblyTemplateInformationModelFind)
         ae.add_requested_context(ImplantTemplateGroupInformationModelFind)
+        ae.add_requested_context(ProtocolApprovalInformationModelFind)
         assoc = ae.associate('localhost', 11112)
         assert assoc.is_established
 
         for qm in ['P', 'S', 'O', 'W', 'G', 'B', 'C', 'PC', 'SA', 'H',
-                   'D', 'CP', 'IG', 'IA', 'IT']:
+                   'D', 'CP', 'IG', 'IA', 'IT', 'PA']:
             for (status, ds) in assoc.send_c_find(self.ds, query_model=qm):
                 assert status.Status == 0x0000
 
@@ -2323,6 +2328,7 @@ class TestAssociationSendCGet(object):
         ae.add_supported_context(GenericImplantTemplateInformationModelGet)
         ae.add_supported_context(ImplantAssemblyTemplateInformationModelGet)
         ae.add_supported_context(ImplantTemplateGroupInformationModelGet)
+        ae.add_supported_context(ProtocolApprovalInformationModelGet)
         ae.add_supported_context(CTImageStorage, scu_role=True, scp_role=True)
         scp = ae.start_server(
             ('', 11112), block=False, evt_handlers=[(evt.EVT_C_GET, handle_get)]
@@ -2339,6 +2345,7 @@ class TestAssociationSendCGet(object):
         ae.add_requested_context(GenericImplantTemplateInformationModelGet)
         ae.add_requested_context(ImplantAssemblyTemplateInformationModelGet)
         ae.add_requested_context(ImplantTemplateGroupInformationModelGet)
+        ae.add_requested_context(ProtocolApprovalInformationModelGet)
         ae.add_requested_context(CTImageStorage)
 
         role = build_role(CTImageStorage, scu_role=True, scp_role=True)
@@ -2348,7 +2355,8 @@ class TestAssociationSendCGet(object):
         )
         assert assoc.is_established
 
-        for qm in ['P', 'S', 'O', 'C', 'CB', 'H', 'D', 'CP', 'IG', 'IA', 'IT']:
+        for qm in ['P', 'S', 'O', 'C', 'CB', 'H', 'D', 'CP', 'IG', 'IA', 'IT',
+                   'PA']:
             for (status, ds) in assoc.send_c_get(self.ds, query_model=qm):
                 assert status.Status == 0x0000
 
@@ -3035,6 +3043,7 @@ class TestAssociationSendCMove(object):
         ae.add_supported_context(GenericImplantTemplateInformationModelMove)
         ae.add_supported_context(ImplantAssemblyTemplateInformationModelMove)
         ae.add_supported_context(ImplantTemplateGroupInformationModelMove)
+        ae.add_supported_context(ProtocolApprovalInformationModelMove)
         move_scp = ae.start_server(
             ('', 11113), block=False, evt_handlers=[(evt.EVT_C_MOVE, handle_move)]
         )
@@ -3050,11 +3059,12 @@ class TestAssociationSendCMove(object):
         ae.add_requested_context(GenericImplantTemplateInformationModelMove)
         ae.add_requested_context(ImplantAssemblyTemplateInformationModelMove)
         ae.add_requested_context(ImplantTemplateGroupInformationModelMove)
+        ae.add_requested_context(ProtocolApprovalInformationModelMove)
 
         assoc = ae.associate('localhost', 11113)
         assert assoc.is_established
 
-        for qm in ['P', 'S', 'O', 'C', 'H', 'D', 'CP', 'IG', 'IA', 'IT']:
+        for qm in ['P', 'S', 'O', 'C', 'H', 'D', 'CP', 'IG', 'IA', 'IT', 'PA']:
             result = assoc.send_c_move(self.ds, b'TESTMOVE', query_model=qm)
             (status, ds) = next(result)
             assert status.Status == 0xFF00

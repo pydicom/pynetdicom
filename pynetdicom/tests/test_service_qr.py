@@ -5,6 +5,7 @@
 * DefinedProcedureProtocolQueryRetrieveServiceClass
 * ColorPaletteQueryRetrieveServiceClass
 * ImplantTemplateQueryRetrieveServiceClass
+* ProtocolApprovalQueryRetrieveServiceClass
 
 """
 
