@@ -2524,46 +2524,6 @@ class TestAssociationSendCGet(object):
 
         scp.shutdown()
 
-        """
-        self.scp = DummyGetSCP()
-        self.scp.no_suboperations = 3
-        self.scp.statuses = [0xFF00, 0xFF00, 0xB000]
-        self.scp.datasets = [self.good, self.good]
-        self.scp.start()
-        ae = AE()
-        ae.add_requested_context(PatientRootQueryRetrieveInformationModelGet)
-        ae.add_requested_context(CTImageStorage)
-
-        role = SCP_SCU_RoleSelectionNegotiation()
-        role.sop_class_uid = CTImageStorage
-        role.scu_role = False
-        role.scp_role = True
-
-        ae.acse_timeout = 5
-        ae.dimse_timeout = 5
-        def on_c_store(ds, context, assoc_info):
-            return 0x0000
-        ae.on_c_store = on_c_store
-        assoc = ae.associate('localhost', 11112, ext_neg=[role])
-        assert assoc.is_established
-        result = assoc.send_c_get(self.ds, query_model='P')
-        # We have 2 status, ds and 1 success
-        (status, ds) = next(result)
-        assert status.Status == 0xFF00
-        assert ds is None
-        (status, ds) = next(result)
-        assert status.Status == 0xFF00
-        assert ds is None
-        (status, ds) = next(result)
-        assert status.Status == 0x0000
-        assert ds is None
-        with pytest.raises(StopIteration):
-            next(result)
-        assoc.release()
-        assert assoc.is_released
-        self.scp.stop()
-        """
-
     def test_rsp_pending_send_failure(self):
         """Test receiving a pending response and sending a failure"""
         store_pname = []
@@ -2804,10 +2764,6 @@ class TestAssociationSendCGet(object):
         self.scp.statuses = [0xFF00, 0xFF00]
         self.scp.datasets = [self.good, self.good]
 
-        def on_c_store(ds, context, assoc_info):
-            assert 'PatientName' in ds
-            return 0x0000
-
         self.scp.start()
         ae = AE()
         ae.add_requested_context(PatientRootQueryRetrieveInformationModelGet)
@@ -2820,7 +2776,6 @@ class TestAssociationSendCGet(object):
 
         ae.acse_timeout = 5
         ae.dimse_timeout = 5
-        ae.on_c_store = on_c_store
         assoc = ae.associate('localhost', 11112, ext_neg=[role])
 
         class DummyMessage():
@@ -2856,10 +2811,6 @@ class TestAssociationSendCGet(object):
         self.scp.statuses = [0xFF00, 0xFF00]
         self.scp.datasets = [self.good, self.good]
 
-        def on_c_store(ds, context, assoc_info):
-            assert 'PatientName' in ds
-            return 0x0000
-
         self.scp.start()
         ae = AE()
         ae.add_requested_context(PatientRootQueryRetrieveInformationModelGet,
@@ -2873,7 +2824,6 @@ class TestAssociationSendCGet(object):
 
         ae.acse_timeout = 5
         ae.dimse_timeout = 5
-        ae.on_c_store = on_c_store
         assoc = ae.associate('localhost', 11112, ext_neg=[role])
 
         class DummyMessage():
@@ -3285,7 +3235,7 @@ class TestAssociationSendCMove(object):
         move_scp.shutdown()
 
     def test_rsp_failure(self):
-        """Test the user on_c_move returning failure status"""
+        """Test the handler returning failure status"""
         def handle_store(event):
             return 0x0000
 
@@ -3375,7 +3325,7 @@ class TestAssociationSendCMove(object):
         move_scp.shutdown()
 
     def test_rsp_cancel(self):
-        """Test the user on_c_move returning cancel status"""
+        """Test the handler returning cancel status"""
         def handle_store(event):
             return 0x0000
 
@@ -3414,7 +3364,7 @@ class TestAssociationSendCMove(object):
         move_scp.shutdown()
 
     def test_rsp_success(self):
-        """Test the user on_c_move returning success status"""
+        """Test the handler returning success status"""
 
         def handle_store(event):
             return 0x0000
@@ -3609,10 +3559,6 @@ class TestAssociationSendCMove(object):
         self.scp.statuses = [0xFF00, 0xFF00]
         self.scp.datasets = [self.good, self.good]
 
-        def on_c_store(ds, context, assoc_info):
-            assert 'PatientName' in ds
-            return 0x0000
-
         self.scp.start()
         ae = AE()
         ae.add_requested_context(PatientRootQueryRetrieveInformationModelMove,
@@ -3621,7 +3567,6 @@ class TestAssociationSendCMove(object):
 
         ae.acse_timeout = 5
         ae.dimse_timeout = 5
-        ae.on_c_store = on_c_store
         assoc = ae.associate('localhost', 11112)
 
         class DummyMessage():

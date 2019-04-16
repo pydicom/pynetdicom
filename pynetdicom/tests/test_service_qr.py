@@ -1517,7 +1517,7 @@ class TestQRGetServiceClass(object):
         scp.shutdown()
 
     def test_scp_store_failure(self):
-        """Test when on_c_store returns failure status"""
+        """Test when handler returns failure status"""
         def handle(event):
             yield 2
             yield 0xFF00, self.ds
@@ -1562,7 +1562,7 @@ class TestQRGetServiceClass(object):
         scp.shutdown()
 
     def test_scp_store_warning(self):
-        """Test when on_c_store returns warning status"""
+        """Test when handler returns warning status"""
         def handle(event):
             yield 2
             yield 0xFF00, self.ds
@@ -3478,7 +3478,7 @@ class TestQRMoveServiceClass(object):
         scp.shutdown()
 
     def test_scp_store_failure(self):
-        """Test when on_c_store returns failure status"""
+        """Test when handler returns failure status"""
         def handle(event):
             yield self.destination
             yield 2
@@ -3558,7 +3558,7 @@ class TestQRMoveServiceClass(object):
         scp.shutdown()
 
     def test_scp_store_warning(self):
-        """Test when on_c_store returns warning status"""
+        """Test when handler returns warning status"""
         def handle(event):
             yield self.destination
             yield 2
@@ -4475,7 +4475,7 @@ class TestQRCompositeInstanceWithoutBulk(object):
         scp.shutdown()
 
     def test_waveform_sequence(self):
-        """Test when on_c_get returns success status"""
+        """Test when handler returns success status"""
         self.ds.SOPClassUID = CTImageStorage
         self.ds.WaveformSequence = [Dataset(), Dataset()]
         self.ds.WaveformSequence[0].WaveformData = b'\x00\x01'

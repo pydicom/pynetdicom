@@ -40,7 +40,6 @@ class DisplaySystemManagementServiceClass(ServiceClass):
 
         See Also
         --------
-        ae.ApplicationEntity.on_n_get
         association.Association.send_n_get
 
         Notes
@@ -99,7 +98,7 @@ class DisplaySystemManagementServiceClass(ServiceClass):
                 "Exception in the handler bound to 'evt.EVT_N_GET'"
             )
             LOGGER.exception(exc)
-            # Processing failure - Error in on_n_get callback
+            # Processing failure - Error in handler
             rsp_status = 0x0110
 
         # Validate rsp_status and set rsp.Status accordingly
@@ -403,7 +402,6 @@ class ModalityPerformedProcedureStepServiceClass(ServiceClass):
 
         See Also
         --------
-        ae.ApplicationEntity.on_n_get
         association.Association.send_n_get
 
         Notes
@@ -484,7 +482,7 @@ class ModalityPerformedProcedureStepServiceClass(ServiceClass):
                 "Exception in the handler bound to 'evt.EVT_N_GET'"
             )
             LOGGER.exception(exc)
-            # Processing failure - Error in on_n_get callback
+            # Processing failure - Error in handler
             rsp.Status = 0x0110
             self.dimse.send_msg(rsp, context.context_id)
             return

@@ -321,7 +321,6 @@ class StorageServiceClass(ServiceClass):
 
         See Also
         --------
-        ae.ApplicationEntity.on_c_store
         association.Association.send_c_store
 
         Notes
@@ -481,7 +480,6 @@ class QueryRetrieveServiceClass(ServiceClass):
 
         See Also
         --------
-        ae.ApplicationEntity.on_c_find
         association.Association.send_c_find
 
         Notes
@@ -669,7 +667,7 @@ class QueryRetrieveServiceClass(ServiceClass):
                     LOGGER.error("Failed to encode the received Identifier "
                                  "dataset")
                     # Failure: Unable to Process - Can't decode dataset
-                    #   returned by on_c_find callback
+                    #   returned by handler
                     rsp.Status = 0xC312
                     self.dimse.send_msg(rsp, context.context_id)
                     return
@@ -706,7 +704,6 @@ class QueryRetrieveServiceClass(ServiceClass):
 
         See Also
         --------
-        ae.ApplicationEntity.on_c_get
         association.Association.send_c_get
 
         Notes
@@ -1085,7 +1082,6 @@ class QueryRetrieveServiceClass(ServiceClass):
 
         See Also
         --------
-        ae.ApplicationEntity.on_c_move
         association.Association.send_c_move
 
         Notes
@@ -1238,7 +1234,7 @@ class QueryRetrieveServiceClass(ServiceClass):
         except Exception as exc:
             LOGGER.error("Exception in handler bound to 'evt.EVT_C_MOVE'")
             LOGGER.exception(exc)
-            # Failure - Unable to process - Error in on_c_move callback
+            # Failure - Unable to process - Error in handler
             rsp.Status = 0xC511
             self.dimse.send_msg(rsp, context.context_id)
             return
@@ -1252,7 +1248,7 @@ class QueryRetrieveServiceClass(ServiceClass):
                 "of the destination AE, then yield the number of "
                 "sub-operations, then yield (status dataset) pairs."
             )
-            # Failure - Unable to process - Error in on_c_move yield
+            # Failure - Unable to process - Error in handler
             rsp.Status = 0xC514
             self.dimse.send_msg(rsp, context.context_id)
             return
@@ -1286,11 +1282,11 @@ class QueryRetrieveServiceClass(ServiceClass):
                                             ae_title=req.MoveDestination)
         except Exception as ex:
             LOGGER.error(
-                "'on_c_move' yielded an invalid destination AE (addr, "
-                "port) value"
+                "The handler bound to 'evt.EVT_C_MOVE' yielded an invalid "
+                "destination AE (addr, port) value"
             )
             LOGGER.exception(ex)
-            # Failure - Unable to process - Bad on_c_move destination
+            # Failure - Unable to process - Bad handler AE destination
             rsp.Status = 0xC515
             self.dimse.send_msg(rsp, context.context_id)
             return
@@ -1539,7 +1535,6 @@ class BasicWorklistManagementServiceClass(QueryRetrieveServiceClass):
 
         See Also
         --------
-        ae.ApplicationEntity.on_c_find
         association.Association.send_c_find
 
         Notes
@@ -1643,7 +1638,6 @@ class RelevantPatientInformationQueryServiceClass(ServiceClass):
 
         See Also
         --------
-        ae.ApplicationEntity.on_c_find
         association.Association.send_c_find
 
         Notes
@@ -1798,7 +1792,7 @@ class RelevantPatientInformationQueryServiceClass(ServiceClass):
                 LOGGER.error("Failed to encode the received Identifier "
                              "dataset")
                 # Failure: Unable to Process - Can't encode dataset
-                #   returned by on_c_find callback
+                #   returned by handler
                 rsp.Status = 0xC312
                 self.dimse.send_msg(rsp, context.context_id)
                 return
@@ -1842,7 +1836,6 @@ class SubstanceAdministrationQueryServiceClass(QueryRetrieveServiceClass):
 
         See Also
         --------
-        ae.ApplicationEntity.on_c_find
         association.Association.send_c_find
 
         Notes

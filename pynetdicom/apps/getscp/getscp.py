@@ -193,7 +193,7 @@ if args.prefer_big and ExplicitVRBigEndian in transfer_syntax:
         transfer_syntax.insert(0, ExplicitVRBigEndian)
 
 def handle_get(event):
-    """Implement the on_c_get callback"""
+    """Implement the evt.EVT_C_GET handler"""
     try:
         APP_DIR = os.path.join(os.path.dirname(__file__))
         DATA_DIR = os.path.join(APP_DIR, '../', '../', 'tests', 'dicom_files')

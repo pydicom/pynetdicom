@@ -1069,7 +1069,6 @@ class Association(threading.Thread):
 
         See Also
         --------
-        ae.ApplicationEntity.on_c_find
         dimse_primitives.C_FIND
         service_class.QueryRetrieveFindServiceClass
         service_class.RelevantPatientInformationQueryServiceClass
@@ -1296,8 +1295,6 @@ class Association(threading.Thread):
 
         See Also
         --------
-        ae.ApplicationEntity.on_c_get
-        ae.ApplicationEntity.on_c_store
         service_class.QueryRetrieveGetServiceClass
         service_class.HangingProtocolQueryRetrieveServiceClass
         service_class.DefinedProcedureProtocolQueryRetrieveServiceClass
@@ -1507,8 +1504,6 @@ class Association(threading.Thread):
 
         See Also
         --------
-        ae.ApplicationEntity.on_c_move
-        ae.ApplicationEntity.on_c_store
         dimse_primitives.C_MOVE
         service_class.QueryRetrieveMoveServiceClass
         service_class.HangingProtocolQueryRetrieveServiceClass
@@ -1692,7 +1687,6 @@ class Association(threading.Thread):
 
         See Also
         --------
-        ae.ApplicationEntity.on_c_store
         dimse_primitives.C_STORE
         service_class.StorageServiceClass
         service_class.NonPatientObjectStorageServiceClass
@@ -2080,7 +2074,6 @@ class Association(threading.Thread):
 
         See Also
         --------
-        ae.ApplicationEntity.on_n_action
         dimse_primitives.N_ACTION
 
         References
@@ -2271,7 +2264,6 @@ class Association(threading.Thread):
 
         See Also
         --------
-        ae.ApplicationEntity.on_n_create
         dimse_primitives.N_CREATE
 
         References
@@ -2408,7 +2400,6 @@ class Association(threading.Thread):
 
         See Also
         --------
-        ae.ApplicationEntity.on_n_delete
         dimse_primitives.N_DELETE
 
         References
@@ -2517,7 +2508,6 @@ class Association(threading.Thread):
 
         See Also
         --------
-        ae.ApplicationEntity.on_n_event_report
         dimse_primitives.N_EVENT_REPORT
 
         References
@@ -2696,7 +2686,6 @@ class Association(threading.Thread):
 
         See Also
         --------
-        ae.ApplicationEntity.on_n_get
         dimse_primitives.N_GET
         service_class.DisplaySystemManagementServiceClass
 
@@ -2890,7 +2879,6 @@ class Association(threading.Thread):
 
         See Also
         --------
-        ae.ApplicationEntity.on_n_set
         dimse_primitives.N_SET
 
         References
