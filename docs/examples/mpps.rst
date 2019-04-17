@@ -130,7 +130,7 @@ Procedure Step Status* of ``"COMPLETED"``.
 
     # Continuing on from the previous example...
     # Modality performs the procedure, update the MPPS SCP
-    # In performing the procedure a series with two CT Image Storage
+    # In performing the procedure a series with ten CT Image Storage
     # SOP Instances are generated
     ct_series_uid = generate_uid()
     ct_instance_uids = [generate_uid() for ii in range(10)]

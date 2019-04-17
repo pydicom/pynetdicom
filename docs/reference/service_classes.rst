@@ -21,6 +21,7 @@ pynetdicom supports the following Service Classes
    DefinedProcedureProtocolQueryRetrieveServiceClass
    ColorPaletteQueryRetrieveServiceClass
    ImplantTemplateQueryRetrieveServiceClass
+   ProtocolApprovalQueryRetrieveServiceClass
 
 .. currentmodule:: pynetdicom.service_class_n
 
@@ -28,3 +29,4 @@ pynetdicom supports the following Service Classes
    :toctree: generated/
 
    DisplaySystemManagementServiceClass
+   ModalityPerformedProcedureStepServiceClass

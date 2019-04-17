@@ -70,6 +70,8 @@ from pynetdicom.sop_class import (
     ProtocolApprovalInformationModelFind,
     ProtocolApprovalInformationModelGet,
     ProtocolApprovalInformationModelMove,
+    UnifiedProcedureStepPullSOPClass,
+    UnifiedProcedureStepWatchSOPClass,
 )
 from pynetdicom.pdu_primitives import (
     UserIdentityNegotiation,
@@ -994,6 +996,10 @@ class Association(threading.Thread):
               *Implant Template Group Information Model - FIND*
             - ``PA`` - 1.2.840.10008.5.1.4.1.1.200.4 -
               *Protocol Approval Information Model - FIND*
+            - ``UW`` - 1.2.840.10008.5.1.4.34.6.2 -
+              *Unified Procedure Step Watch SOP Class*
+            - ``UP`` - 1.2.840.10008.5.1.4.34.6.3 -
+              *Unified Procedure Step Pull SOP Class*
 
         Yields
         ------
@@ -1025,10 +1031,10 @@ class Association(threading.Thread):
             Hanging Protocol Query/Retrieve Service, Defined Procedure Protocol
             Query/Retrieve Service, Substance Administration Query Service,
             Color Palette Query/Retrieve Service*, *Implant Template
-            Query/Retrieve Service* and *Protocol Approval Query/Retrieve
-            Service* specific
+            Query/Retrieve Service*, *Protocol Approval Query/Retrieve
+            Service* and *Unified Protocol Step Service* specific
             (DICOM Standard Part 4, Annexes C.4.1, K.4.1.1.4, U.4.1, HH,
-            V.4.1.1.4, X, BB and II):
+            V.4.1.1.4, X, BB, II and CC):
 
             Failure
               | ``0xA700`` - Out of resources
@@ -1084,6 +1090,7 @@ class Association(threading.Thread):
         service_class.ColorPaletteQueryRetrieveServiceClass
         service_class.ImplantTemplateQueryRetrieveServiceClass
         service_class.ProtocolApprovalQueryRetrieveServiceClass
+        service_class.UnifiedProcedureStepServiceClass
 
         References
         ----------
@@ -1094,6 +1101,7 @@ class Association(threading.Thread):
         * DICOM Standard Part 4, `Annex V <http://dicom.nema.org/medical/dicom/current/output/html/part04.html#chapter_V>`_
         * DICOM Standard Part 4, `Annex X <http://dicom.nema.org/medical/dicom/current/output/html/part04.html#chapter_X>`_
         * DICOM Standard Part 4, `Annex BB <http://dicom.nema.org/medical/dicom/current/output/html/part04.html#chapter_BB>`_
+        * DICOM Standard Part 4, `Annex CC <http://dicom.nema.org/medical/dicom/current/output/html/part04.html#chapter_CC>`_
         * DICOM Standard Part 4, `Annex HH <http://dicom.nema.org/medical/dicom/current/output/html/part04.html#chapter_HH>`_
         * DICOM Standard Part 4, `Annex II <http://dicom.nema.org/medical/dicom/current/output/html/part04.html#chapter_II>`_
         * DICOM Standard Part 7, Sections

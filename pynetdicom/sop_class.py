@@ -23,7 +23,14 @@ from pynetdicom.service_class import (
 )
 from pynetdicom.service_class_n import (
     DisplaySystemManagementServiceClass,
-    ModalityPerformedProcedureStepServiceClass
+    ModalityPerformedProcedureStepServiceClass,
+    StorageCommitmentServiceClass,
+    PrintManagementServiceClass,
+    ApplicationEventLoggingServiceClass,
+    InstanceAvailabilityServiceClass,
+    MediaCreationManagementServiceClass,
+    UnifiedProcedureStepServiceClass,
+    RTMachineVerificationServiceClass,
 )
 
 
@@ -53,10 +60,16 @@ def uid_to_service_class(uid):
         return StorageServiceClass
     elif uid in _QR_CLASSES.values():
         return QueryRetrieveServiceClass
+    elif uid in _STORAGE_COMMITMENT_CLASSES.values():
+        return StorageCommitmentServiceClass
     elif uid in _BASIC_WORKLIST_CLASSES.values():
         return BasicWorklistManagementServiceClass
+    elif uid in _APPLICATION_EVENT_CLASSES.values():
+        return ApplicationEventLoggingServiceClass
     elif uid in _RELEVANT_PATIENT_QUERY_CLASSES.values():
         return RelevantPatientInformationQueryServiceClass
+    elif uid in _INSTANCE_AVAILABILITY_CLASSES.values():
+        return InstanceAvailabilityServiceClass
     elif uid in _SUBSTANCE_ADMINISTRATION_CLASSES.values():
         return SubstanceAdministrationQueryServiceClass
     elif uid in _NON_PATIENT_OBJECT_CLASSES.values():
@@ -69,18 +82,20 @@ def uid_to_service_class(uid):
         return ColorPaletteQueryRetrieveServiceClass
     elif uid in _IMPLANT_TEMPLATE_CLASSES.values():
         return ImplantTemplateQueryRetrieveServiceClass
+    elif uid in _MEDIA_CREATION_CLASSES.values():
+        return MediaCreationManagementServiceClass
     elif uid in _DISPLAY_SYSTEM_CLASSES.values():
         return DisplaySystemManagementServiceClass
     elif uid in _PRINT_MANAGEMENT_CLASSES.values():
-        return ServiceClass  # Not yet implemented
+        return PrintManagementServiceClass
     elif uid in _PROCEDURE_STEP_CLASSES.values():
         return ModalityPerformedProcedureStepServiceClass
     elif uid in _MEDIA_STORAGE_CLASSES.values():
         return ServiceClass  # Not yet implemented
     elif uid in _UNIFIED_PROCEDURE_STEP_CLASSES.values():
-        return ServiceClass  # Not yet implemented
+        return UnifiedProcedureStepServiceClass
     elif uid in _RT_MACHINE_VERIFICATION_CLASSES.values():
-        return ServiceClass  # Not yet implemented
+        return RTMachineVerificationServiceClass
     elif uid in _PROTOCOL_APPROVAL_SOP_CLASSES.values():
         return ProtocolApprovalQueryRetrieveServiceClass
 
@@ -275,14 +290,31 @@ _QR_CLASSES = {
     'CompositeInstanceRetrieveWithoutBulkDataGet' : '1.2.840.10008.5.1.4.1.2.5.3',
 }
 
+_STORAGE_COMMITMENT_CLASSES = {
+    'StorageCommitmentPushModelSOPClass' : '1.2.840.10008.1.20.1',
+}
+
 _BASIC_WORKLIST_CLASSES = {
     'ModalityWorklistInformationFind' : '1.2.840.10008.5.1.4.31',
+}
+
+_APPLICATION_EVENT_CLASSES = {
+    'ProceduralEventLoggingSOPClass' : '1.2.840.10008.1.40',
+    'SubstanceAdministrationLoggingSOPClass' : '1.2.840.10008.1.42',
 }
 
 _RELEVANT_PATIENT_QUERY_CLASSES = {
     'GeneralRelevantPatientInformationQuery' : '1.2.840.10008.5.1.4.37.1',
     'BreastImagingRelevantPatientInformationQuery' : '1.2.840.10008.5.1.4.37.2',
     'CardiacRelevantPatientInformationQuery' : '1.2.840.10008.5.1.4.37.3',
+}
+
+_INSTANCE_AVAILABILITY_CLASSES = {
+    'InstanceAvailabilityNotificationSOPClass' : '1.2.840.10008.5.1.4.33',
+}
+
+_MEDIA_CREATION_CLASSES = {
+    'MediaCreationManagementSOPClass' : '1.2.840.10008.5.1.1.33',
 }
 
 _SUBSTANCE_ADMINISTRATION_CLASSES = {
@@ -357,10 +389,10 @@ _MEDIA_STORAGE_CLASSES = {
 }
 
 _UNIFIED_PROCEDURE_STEP_CLASSES = {
-    'UnifiedProcedureStepPush' : '1.2.840.10008.5.1.4.34.6.1',
-    'UnifiedProcedureStepWatch' : '1.2.840.10008.5.1.4.34.6.2',
-    'UnifiedProcedureStepPull' : '1.2.840.10008.5.1.4.34.6.3',
-    'UnifiedProcedureStepEvent' : '1.2.840.10008.5.1.4.34.6.4',
+    'UnifiedProcedureStepPushSOPClass' : '1.2.840.10008.5.1.4.34.6.1',
+    'UnifiedProcedureStepWatchSOPClass' : '1.2.840.10008.5.1.4.34.6.2',
+    'UnifiedProcedureStepPullSOPClass' : '1.2.840.10008.5.1.4.34.6.3',
+    'UnifiedProcedureStepEventSOPClass' : '1.2.840.10008.5.1.4.34.6.4',
 }
 
 _RT_MACHINE_VERIFICATION_CLASSES = {
@@ -378,14 +410,18 @@ _PROTOCOL_APPROVAL_SOP_CLASSES = {
 _generate_sop_classes(_VERIFICATION_CLASSES)
 _generate_sop_classes(_STORAGE_CLASSES)
 _generate_sop_classes(_QR_CLASSES)
+_generate_sop_classes(_STORAGE_COMMITMENT_CLASSES)
 _generate_sop_classes(_BASIC_WORKLIST_CLASSES)
+_generate_sop_classes(_APPLICATION_EVENT_CLASSES)
 _generate_sop_classes(_RELEVANT_PATIENT_QUERY_CLASSES)
+_generate_sop_classes(_INSTANCE_AVAILABILITY_CLASSES)
 _generate_sop_classes(_SUBSTANCE_ADMINISTRATION_CLASSES)
 _generate_sop_classes(_NON_PATIENT_OBJECT_CLASSES)
 _generate_sop_classes(_HANGING_PROTOCOL_CLASSES)
 _generate_sop_classes(_DEFINED_PROCEDURE_CLASSES)
 _generate_sop_classes(_COLOR_PALETTE_CLASSES)
 _generate_sop_classes(_IMPLANT_TEMPLATE_CLASSES)
+_generate_sop_classes(_MEDIA_CREATION_CLASSES)
 _generate_sop_classes(_DISPLAY_SYSTEM_CLASSES)
 _generate_sop_classes(_PRINT_MANAGEMENT_CLASSES)
 _generate_sop_classes(_PROCEDURE_STEP_CLASSES)
