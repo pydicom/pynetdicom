@@ -2778,7 +2778,7 @@ class Association(threading.Thread):
                 return status, attribute_list
 
             bytestream = rsp.AttributeList
-            if bytestream and bytestream.getvalue != b'':
+            if bytestream and bytestream.getvalue() != b'':
                 # Attempt to decode the response's dataset
                 # pylint: disable=broad-except
                 try:
@@ -2793,6 +2793,8 @@ class Association(threading.Thread):
                     LOGGER.exception(ex)
                     # Failure: Processing failure
                     status.Status = 0x0110
+            else:
+                attribute_list = Dataset()
 
         return status, attribute_list
 

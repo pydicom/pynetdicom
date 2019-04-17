@@ -10,19 +10,27 @@ Fixes
 * Fixed Query Retrieve service class not responded with ``0x0000`` (Success)
   if no matches were yielded by the C-FIND request handler.
 
-
 Enhancements
 ............
 
 * Added support for Protocol Approval Query Retrieve service class
   (:issue:`327`)
+* Added support for the following service classes:
 
+  * Print Management
+  * Storage Commitment
+  * Application Event Logging
+  * Instance Availability Notification
+  * Media Creation Management
+  * Unified Procedure Step
+  * RT Machine Verification
 
 
 Changes
 .......
 
 * The following have been removed as per planned deprecation:
+
   * ``AE.on_c_store()``, ``AE.on_c_echo()``, ``AE.on_c_find()``,
     ``AE.on_c_get()``, ``AE.on_c_move()``, ``AE.on_n_get()``,
     ``AE.on_async_ops_window()``, ``AE.on_sop_class_common_extended()``,

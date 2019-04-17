@@ -21,6 +21,7 @@ from pynetdicom._globals import (
     STATUS_CANCEL,
 )
 from pynetdicom.status import (
+    GENERAL_STATUS,
     VERIFICATION_SERVICE_CLASS_STATUS,
     STORAGE_SERVICE_CLASS_STATUS,
     QR_FIND_SERVICE_CLASS_STATUS,
@@ -44,7 +45,7 @@ class ServiceClass(object):
     assoc : association.Association
         The association instance offering the service.
     """
-    statuses = {}
+    statuses = GENERAL_STATUS
 
     def __init__(self, assoc):
         """Create a new ServiceClass."""
@@ -458,10 +459,10 @@ class ServiceClass(object):
                                 transfer_syntax.is_implicit_VR,
                                 transfer_syntax.is_little_endian)
 
-            if bytestream is not None:
+            if bytestream is None:
                 LOGGER.error(
-                    "Failed to encode the N-CREATE response's 'Attribute "
-                    "List' dataset"
+                    "Failed to encode the N-ACTION response's 'Action Reply' "
+                    "dataset"
                 )
                 # Processing failure
                 rsp.Status = 0x0110
@@ -608,7 +609,7 @@ class ServiceClass(object):
                                 transfer_syntax.is_implicit_VR,
                                 transfer_syntax.is_little_endian)
 
-            if bytestream is not None:
+            if bytestream is None:
                 LOGGER.error(
                     "Failed to encode the N-CREATE response's 'Attribute "
                     "List' dataset"
@@ -690,7 +691,7 @@ class ServiceClass(object):
         rsp.AffectedSOPInstanceUID = req.RequestedSOPInstanceUID
 
         try:
-            status, ds = evt.trigger(
+            status = evt.trigger(
                 self.assoc,
                 evt.EVT_N_DELETE,
                 {'request' : req, 'context' : context.as_tuple}

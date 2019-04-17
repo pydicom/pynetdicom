@@ -27,7 +27,7 @@ from pynetdicom.service_class_n import (
     StorageCommitmentServiceClass,
     PrintManagementServiceClass,
     ApplicationEventLoggingServiceClass,
-    InstanceAvailabilityServiceClass,
+    InstanceAvailabilityNotificationServiceClass,
     MediaCreationManagementServiceClass,
     UnifiedProcedureStepServiceClass,
     RTMachineVerificationServiceClass,
@@ -69,7 +69,7 @@ def uid_to_service_class(uid):
     elif uid in _RELEVANT_PATIENT_QUERY_CLASSES.values():
         return RelevantPatientInformationQueryServiceClass
     elif uid in _INSTANCE_AVAILABILITY_CLASSES.values():
-        return InstanceAvailabilityServiceClass
+        return InstanceAvailabilityNotificationServiceClass
     elif uid in _SUBSTANCE_ADMINISTRATION_CLASSES.values():
         return SubstanceAdministrationQueryServiceClass
     elif uid in _NON_PATIENT_OBJECT_CLASSES.values():

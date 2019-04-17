@@ -56,6 +56,9 @@ from pynetdicom.service_class import (
 from pynetdicom.service_class_n import (
     DisplaySystemManagementServiceClass,
     ModalityPerformedProcedureStepServiceClass,
+    RTMachineVerificationServiceClass,
+    UnifiedProcedureStepServiceClass,
+    PrintManagementServiceClass,
 )
 
 
@@ -159,7 +162,7 @@ class TestUIDToServiceClass(object):
     def test_print_uids(self):
         """Test that the Print SOP Class UIDs work correctly."""
         for uid in _PRINT_MANAGEMENT_CLASSES.values():
-            assert uid_to_service_class(uid) == ServiceClass
+            assert uid_to_service_class(uid) == PrintManagementServiceClass
 
     def test_procedure_uids(self):
         """Test that the Procedure SOP Class UIDs work correctly."""
@@ -174,12 +177,12 @@ class TestUIDToServiceClass(object):
     def test_ups_uids(self):
         """Test that the UPS SOP Class UIDs work correctly."""
         for uid in _UNIFIED_PROCEDURE_STEP_CLASSES.values():
-            assert uid_to_service_class(uid) == ServiceClass
+            assert uid_to_service_class(uid) == UnifiedProcedureStepServiceClass
 
     def test_rt_machine_uids(self):
         """Test that the RT Verification SOP Class UIDs work correctly."""
         for uid in _RT_MACHINE_VERIFICATION_CLASSES.values():
-            assert uid_to_service_class(uid) == ServiceClass
+            assert uid_to_service_class(uid) == RTMachineVerificationServiceClass
 
     def test_display_system_uids(self):
         """Test that Display System SOP Class UIDs work correctly."""

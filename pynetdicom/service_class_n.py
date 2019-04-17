@@ -8,13 +8,13 @@ from pynetdicom.dimse_primitives import (
 from pynetdicom.service_class import ServiceClass
 from pynetdicom.status import (
     GENERAL_STATUS,
-    _PROCEDURE_STEP_STATUS,
-    _PRINT_JOB_MANAGEMENT_SERVICE_CLASS_STATUS,
-    _STORAGE_COMMITMENT_SERVICE_CLASS_STATUS,
-    _APPLICATION_EVENT_LOGGING_SERVICE_CLASS_STATUS,
-    _MEDIA_CREATION_MANAGEMENT_SERVICE_CLASS_STATUS,
-    _UNIFIED_PROCEDURE_STEP_SERVICE_CLASS_STATUS,
-    _RT_MACHINE_VERIFICATION_SERVICE_CLASS_STATUS,
+    PROCEDURE_STEP_STATUS,
+    PRINT_JOB_MANAGEMENT_SERVICE_CLASS_STATUS,
+    STORAGE_COMMITMENT_SERVICE_CLASS_STATUS,
+    APPLICATION_EVENT_LOGGING_SERVICE_CLASS_STATUS,
+    MEDIA_CREATION_MANAGEMENT_SERVICE_CLASS_STATUS,
+    UNIFIED_PROCEDURE_STEP_SERVICE_CLASS_STATUS,
+    RT_MACHINE_VERIFICATION_SERVICE_CLASS_STATUS,
 )
 
 
@@ -40,7 +40,7 @@ class DisplaySystemManagementServiceClass(ServiceClass):
 
 class ModalityPerformedProcedureStepServiceClass(ServiceClass):
     """Implementation of the Modality Performed Procedure Step Service Class"""
-    statuses = _PROCEDURE_STEP_STATUS
+    statuses = PROCEDURE_STEP_STATUS
 
     def SCP(self, req, context):
         """The SCP implementation for Modality Performed Procedure Step.
@@ -75,7 +75,7 @@ class ModalityPerformedProcedureStepServiceClass(ServiceClass):
 
 class PrintManagementServiceClass(ServiceClass):
     """Implementation of the Print Management Service Class"""
-    statuses = _PRINT_JOB_MANAGEMENT_SERVICE_CLASS_STATUS
+    statuses = PRINT_JOB_MANAGEMENT_SERVICE_CLASS_STATUS
 
     def SCP(self, req, context):
         """The SCP implementation for Print Management Service Class.
@@ -139,7 +139,7 @@ class PrintManagementServiceClass(ServiceClass):
 
 class StorageCommitmentServiceClass(ServiceClass):
     """Implementation of the Storage Commitment Service Class"""
-    statuses = _STORAGE_COMMITMENT_SERVICE_CLASS_STATUS
+    statuses = STORAGE_COMMITMENT_SERVICE_CLASS_STATUS
 
     def SCP(self, req, context):
         """The SCP implementation for Storage Commitment Service Class.
@@ -164,7 +164,7 @@ class StorageCommitmentServiceClass(ServiceClass):
 
 class ApplicationEventLoggingServiceClass(ServiceClass):
     """Implementation of the Application Event Logging Service Class"""
-    statuses = _APPLICATION_EVENT_LOGGING_SERVICE_CLASS_STATUS
+    statuses = APPLICATION_EVENT_LOGGING_SERVICE_CLASS_STATUS
 
     def SCP(self, req, context):
         """The SCP implementation for Application Event Logging Service Class.
@@ -185,7 +185,7 @@ class ApplicationEventLoggingServiceClass(ServiceClass):
             )
 
 
-class InstanceAvailabilityServiceClass(ServiceClass):
+class InstanceAvailabilityNotificationServiceClass(ServiceClass):
     """Implementation of the Instance Availability Service Class"""
     statuses = GENERAL_STATUS
 
@@ -210,7 +210,7 @@ class InstanceAvailabilityServiceClass(ServiceClass):
 
 class MediaCreationManagementServiceClass(ServiceClass):
     """Implementation of the Media Creation Management Service Class"""
-    statuses = _MEDIA_CREATION_MANAGEMENT_SERVICE_CLASS_STATUS
+    statuses = MEDIA_CREATION_MANAGEMENT_SERVICE_CLASS_STATUS
 
     def SCP(self, req, context):
         """The SCP implementation for Media Creation Management Service Class.
@@ -237,7 +237,7 @@ class MediaCreationManagementServiceClass(ServiceClass):
 
 class UnifiedProcedureStepServiceClass(ServiceClass):
     """Implementation of the Unified Procedure Step Service Class"""
-    statuses = _UNIFIED_PROCEDURE_STEP_SERVICE_CLASS_STATUS
+    statuses = UNIFIED_PROCEDURE_STEP_SERVICE_CLASS_STATUS
 
     def SCP(self, req, context):
         """The SCP implementation for Unified Procedure Step Service Class.
@@ -275,7 +275,7 @@ class UnifiedProcedureStepServiceClass(ServiceClass):
 
 class RTMachineVerificationServiceClass(ServiceClass):
     """Implementation of the RT Machine Verification Service Class"""
-    statuses = _RT_MACHINE_VERIFICATION_SERVICE_CLASS_STATUS
+    statuses = RT_MACHINE_VERIFICATION_SERVICE_CLASS_STATUS
 
     def SCP(self, req, context):
         """The SCP implementation for RT Machine Verification Service Class.

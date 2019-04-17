@@ -4,9 +4,12 @@ import pytest
 
 from pydicom.dataset import Dataset
 
-from pynetdicom import AE, evt
+from pynetdicom import AE, evt, debug_logger
 from pynetdicom.dimse_primitives import N_GET
 from pynetdicom.sop_class import DisplaySystemSOPClass
+
+
+#debug_logger()
 
 
 class TestDisplayServiceClass(object):
@@ -30,7 +33,7 @@ class TestDisplayServiceClass(object):
         """Test handler returning a Dataset status"""
         def handle(event):
             status = Dataset()
-            status.Status = 0x0001
+            status.Status = 0x0000
             return status, self.ds
 
         handlers = [(evt.EVT_N_GET, handle)]
@@ -47,7 +50,7 @@ class TestDisplayServiceClass(object):
         status, ds = assoc.send_n_get([(0x7fe0,0x0010)],
                                       DisplaySystemSOPClass,
                                       '1.2.840.10008.5.1.1.40.1')
-        assert status.Status == 0x0001
+        assert status.Status == 0x0000
         assert ds.PatientName == 'Test'
         assoc.release()
         scp.shutdown()
@@ -56,7 +59,7 @@ class TestDisplayServiceClass(object):
         """Test handler returning a Dataset status with other elements"""
         def handle(event):
             status = Dataset()
-            status.Status = 0x0001
+            status.Status = 0xFFF0
             status.ErrorComment = 'Test'
             status.OffendingElement = 0x00080010
             status.ErrorID = 12
@@ -76,11 +79,11 @@ class TestDisplayServiceClass(object):
         status, ds = assoc.send_n_get([(0x7fe0,0x0010)],
                                       DisplaySystemSOPClass,
                                       '1.2.840.10008.5.1.1.40.1')
-        assert status.Status == 0x0001
+        assert status.Status == 0xFFF0
         assert status.ErrorComment == 'Test'
         assert status.ErrorID == 12
         assert 'OffendingElement' not in status
-        assert ds.PatientName == 'Test'
+        assert ds is None
         assoc.release()
         scp.shutdown()
 
@@ -284,10 +287,36 @@ class TestDisplayServiceClass(object):
 
         scp.shutdown()
 
+    def test_handler_none(self):
+        """Test SCP handles no attribute list"""
+        def handle(event):
+            return 0x0000, None
+
+        handlers = [(evt.EVT_N_GET, handle)]
+
+        self.ae = ae = AE()
+        ae.add_supported_context(DisplaySystemSOPClass)
+        ae.add_requested_context(DisplaySystemSOPClass)
+        scp = ae.start_server(('', 11112), block=False, evt_handlers=handlers)
+
+        ae.acse_timeout = 5
+        ae.dimse_timeout = 5
+        assoc = ae.associate('localhost', 11112)
+        assert assoc.is_established
+        status, ds = assoc.send_n_get([(0x7fe0, 0x0010)],
+                                      DisplaySystemSOPClass,
+                                      '1.2.840.10008.5.1.1.40.1')
+        assert status.Status == 0x0000
+        assert ds == Dataset()
+
+        assoc.release()
+        scp.shutdown()
+
     def test_handler_bad_attr(self):
         """Test SCP handles a bad handler attribute list"""
         def handle(event):
-            return 0x0000, None
+            def test(): pass
+            return 0x0000, test
 
         handlers = [(evt.EVT_N_GET, handle)]
 
