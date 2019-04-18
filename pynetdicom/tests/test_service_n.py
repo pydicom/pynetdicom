@@ -145,14 +145,6 @@ class TestNServiceClass(object):
         return handler
 
     @staticmethod
-    def handle_yield(generator):
-        def handle(event):
-            for ii in generator:
-                yield ii
-
-        return handle
-
-    @staticmethod
     def send_action(assoc, class_uid, action_type=1, action_info=None):
         """Send an N-ACTION request via `assoc`
 
@@ -266,10 +258,6 @@ class TestNServiceClass(object):
         return assoc.send_n_set(
             mod_list, class_uid, '1.2.3.4'
         )
-
-    @staticmethod
-    def send_find(assoc):
-        pass
 
     @pytest.mark.parametrize("sop_class, msg_type, warn, fail", REFERENCE_REQUESTS)
     def test_handler_status_dataset(self, sop_class, msg_type, warn, fail):
@@ -1285,6 +1273,36 @@ class TestUPSFindServiceClass(object):
         result = assoc.send_c_find(self.query, query_model='UP')
         status, identifier = next(result)
         assert status.Status == 0xC002
+        with pytest.raises(StopIteration):
+            next(result)
+
+        assoc.release()
+        assert assoc.is_released
+        scp.shutdown()
+
+    def test_handler_no_match(self):
+        """Test SCP handles handler not yielding a status"""
+        def handle(event):
+            return
+
+        handlers = [(evt.EVT_C_FIND, handle)]
+
+        self.ae = ae = AE()
+        ae.add_supported_context(UnifiedProcedureStepPullSOPClass)
+        ae.add_requested_context(
+            UnifiedProcedureStepPullSOPClass,
+            ExplicitVRLittleEndian
+        )
+        scp = ae.start_server(('', 11112), block=False, evt_handlers=handlers)
+
+        ae.acse_timeout = 5
+        ae.dimse_timeout = 5
+        assoc = ae.associate('localhost', 11112)
+        assert assoc.is_established
+        result = assoc.send_c_find(self.query, query_model='UP')
+        status, identifier = next(result)
+        assert status.Status == 0x0000
+        assert identifier is None
         with pytest.raises(StopIteration):
             next(result)
 

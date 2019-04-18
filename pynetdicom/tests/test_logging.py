@@ -6,6 +6,7 @@ import sys
 
 import pytest
 
+from pydicom.dataset import Dataset
 from pydicom.uid import (
     ImplicitVRLittleEndian, ExplicitVRLittleEndian, ExplicitVRBigEndian,
     DeflatedExplicitVRLittleEndian, JPEGBaseline, JPEGExtended,

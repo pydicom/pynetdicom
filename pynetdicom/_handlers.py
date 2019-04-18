@@ -1284,12 +1284,9 @@ def _recv_c_store_rsp(event):
     # Try and get the status from the affected SOP class UID
     if 'AffectedSOPClassUID' in cs:
         service_class = uid_to_service_class(cs.AffectedSOPClassUID)
-        try:
-            if cs.Status in service_class.statuses:
-                status = service_class.statuses[cs.Status]
-                status_str = '0x{0:04x} - {1}'.format(cs.Status, status[0])
-        except AttributeError:
-            status_str = '0x{0:04x}'.format(cs.Status)
+        if cs.Status in service_class.statuses:
+            status = service_class.statuses[cs.Status]
+            status_str = '0x{0:04x} - {1}'.format(cs.Status, status[0])
 
     LOGGER.info('Received Store Response')
     s = []
