@@ -35,8 +35,8 @@ class DisplaySystemManagementServiceClass(ServiceClass):
         context : presentation.PresentationContext
             The presentation context that the service is operating under.
         """
-        if isinstance(req, N_SET):
-            self._n_set_scp(req, context)
+        if isinstance(req, N_GET):
+            self._n_get_scp(req, context)
         else:
             raise ValueError(
                 "Invalid DIMSE primitive '{}' used with Display System "
