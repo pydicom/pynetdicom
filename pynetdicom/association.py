@@ -1132,6 +1132,8 @@ class Association(threading.Thread):
             "IA" : ImplantAssemblyTemplateInformationModelFind,
             "IT" : ImplantTemplateGroupInformationModelFind,
             "PA" : ProtocolApprovalInformationModelFind,
+            "UW" : UnifiedProcedureStepWatchSOPClass,
+            "UP" : UnifiedProcedureStepPullSOPClass,
         }
 
         try:
