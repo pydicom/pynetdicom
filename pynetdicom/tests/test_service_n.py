@@ -1026,8 +1026,30 @@ class TestNServiceClass(object):
 
         scp.shutdown()
 
+    def test_handler_get_empty(self):
+        """Test the handler returning None."""
+        ds = Dataset()
+        ds.PatientName = 'Test^test'
+        handlers = [(evt.EVT_N_GET, self.handle_dual(0x0000, ds))]
 
-# TODO: Test UPS C-FIND separately
+        self.ae = ae = AE()
+        ae.add_supported_context(DisplaySystemSOPClass)
+        ae.add_requested_context(DisplaySystemSOPClass)
+        scp = ae.start_server(('', 11112), block=False, evt_handlers=handlers)
+
+        ae.acse_timeout = 5
+        ae.dimse_timeout = 5
+        assoc = ae.associate('localhost', 11112)
+        assert assoc.is_established
+        status, ds = assoc.send_n_get([], DisplaySystemSOPClass, '1.2.3.4')
+        assert status.Status == 0x0000
+        assert ds.PatientName == 'Test^test'
+
+        assoc.release()
+        assert assoc.is_released
+        scp.shutdown()
+
+
 class TestUPSFindServiceClass(object):
     """Test the Unified Proecedure Step (Find) Service Class"""
     def setup(self):
