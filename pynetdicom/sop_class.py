@@ -133,7 +133,7 @@ def _generate_sop_classes(sop_class_dict):
 # Table of service classes with assigned UIDs
 _SERVICE_CLASSES = {
     '1.2.840.10008.4.2' : StorageServiceClass,
-    #'1.2.840.10008.5.1.4.34.6', UnifiedProcedureStepServiceClass,
+    '1.2.840.10008.5.1.4.34.6' : UnifiedProcedureStepServiceClass,
 }
 
 # Generate the various SOP classes

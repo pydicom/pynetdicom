@@ -30,3 +30,10 @@ pynetdicom supports the following Service Classes
 
    DisplaySystemManagementServiceClass
    ModalityPerformedProcedureStepServiceClass
+   PrintManagementServiceClass
+   StorageCommitmentServiceClass
+   ApplicationEventLoggingServiceClass
+   InstanceAvailabilityNotificationServiceClass
+   MediaCreationManagementServiceClass
+   UnifiedProcedureStepServiceClass
+   RTMachineVerificationServiceClass

@@ -69,7 +69,7 @@ Supported Service Classes
   - `Instance and Frame Level Retrieve <http://dicom.nema.org/medical/dicom/current/output/html/part04.html#chapter_Y>`_
   - `Composite Instance Retrieve Without Bulk Data <http://dicom.nema.org/medical/dicom/current/output/html/part04.html#chapter_Z>`_
 - `Modality Performed Procedure Step Management <http://dicom.nema.org/medical/dicom/current/output/html/part04.html#chapter_F>`_
-- `Print Management Service Class<http://dicom.nema.org/medical/dicom/current/output/html/part04.html#chapter_H>`_
+- `Print Management Service Class <http://dicom.nema.org/medical/dicom/current/output/html/part04.html#chapter_H>`_
 - `Storage Commitment Service Class <http://dicom.nema.org/medical/dicom/current/output/html/part04.html#chapter_J>`_
 - `Basic Worklist Management Service Class <http://dicom.nema.org/medical/dicom/current/output/html/part04.html#chapter_K>`_
 - `Application Event Logging Service Class <http://dicom.nema.org/medical/dicom/current/output/html/part04.html#chapter_P>`_

@@ -2096,9 +2096,13 @@ class Association(threading.Thread):
               | ``0x0213`` - Resource limitation
 
         action_reply : pydicom.dataset.Dataset or None
-            If the status category is 'Success' then a ``Dataset``
+            If the status category is 'Success' or 'Warning' then a ``Dataset``
             containing attributes corresponding to those supplied in the
-            *Action Reply*, otherwise returns ``None``.
+            *Action Reply*. Because *Action Reply* is optional the returned
+            ``Dataset`` may be empty .
+
+            If the status category is 'Failure' or if the peer timed-out,
+            aborted, or sent an invalid response then returns ``None``.
 
         See Also
         --------
@@ -2140,18 +2144,23 @@ class Association(threading.Thread):
         req.RequestedSOPInstanceUID = instance_uid
         req.ActionTypeID = action_type
 
-        # Encode the `dataset` using the agreed transfer syntax
-        #   Will return None if failed to encode
-        bytestream = encode(dataset,
-                            transfer_syntax.is_implicit_VR,
-                            transfer_syntax.is_little_endian)
+        # Action Information is optional
+        if dataset is not None:
+            # Encode the `dataset` using the agreed transfer syntax
+            #   Will return None if failed to encode
+            bytestream = encode(dataset,
+                                transfer_syntax.is_implicit_VR,
+                                transfer_syntax.is_little_endian)
 
-        if bytestream is not None:
-            req.ActionInformation = BytesIO(bytestream)
-        else:
-            msg = "Failed to encode the supplied 'Action Information' dataset"
-            LOGGER.error(msg)
-            raise ValueError(msg)
+            if bytestream is not None:
+                req.ActionInformation = BytesIO(bytestream)
+            else:
+                msg = (
+                    "Failed to encode the supplied 'Action Information' "
+                    "dataset"
+                )
+                LOGGER.error(msg)
+                raise ValueError(msg)
 
         # Send N-ACTION request to the peer via DIMSE and wait for the response
         LOGGER.info('Sending Action Request: MsgID {}'.format(msg_id))
@@ -2191,6 +2200,8 @@ class Association(threading.Thread):
                     LOGGER.exception(ex)
                     # Failure: Processing failure
                     status.Status = 0x0110
+            else:
+                action_reply = Dataset()
 
         return status, action_reply
 
@@ -2286,9 +2297,13 @@ class Association(threading.Thread):
               | ``0xC227`` - No such object instance - Referenced RT Plan not found
 
         attribute_list : pydicom.dataset.Dataset or None
-            If the status category is 'Success' then a ``Dataset`` containing
-            attributes corresponding to those supplied in the *Attribute List*,
-            otherwise returns ``None``.
+            If the status category is 'Success' or 'Warning' then a ``Dataset``
+            containing attributes corresponding to those supplied in the
+            *Attribute List*. Because *Attribute List* is optional the returned
+            ``Dataset`` may be empty .
+
+            If the status category is 'Failure' or if the peer timed-out,
+            aborted, or sent an invalid response then returns ``None``.
 
         See Also
         --------
@@ -2328,18 +2343,20 @@ class Association(threading.Thread):
         req.AffectedSOPClassUID = class_uid
         req.AffectedSOPInstanceUID = instance_uid
 
-        # Encode the `dataset` using the agreed transfer syntax
-        #   Will return None if failed to encode
-        bytestream = encode(dataset,
-                            transfer_syntax.is_implicit_VR,
-                            transfer_syntax.is_little_endian)
+        # Attribute List is optional
+        if dataset:
+            # Encode the `dataset` using the agreed transfer syntax
+            #   Will return None if failed to encode
+            bytestream = encode(dataset,
+                                transfer_syntax.is_implicit_VR,
+                                transfer_syntax.is_little_endian)
 
-        if bytestream is not None:
-            req.AttributeList = BytesIO(bytestream)
-        else:
-            msg = "Failed to encode the supplied 'Attribute List' dataset"
-            LOGGER.error(msg)
-            raise ValueError(msg)
+            if bytestream is not None:
+                req.AttributeList = BytesIO(bytestream)
+            else:
+                msg = "Failed to encode the supplied 'Attribute List' dataset"
+                LOGGER.error(msg)
+                raise ValueError(msg)
 
         # Send N-CREATE request to the peer via DIMSE and wait for the response
         LOGGER.info('Sending Create Request: MsgID {}'.format(msg_id))
@@ -2380,6 +2397,8 @@ class Association(threading.Thread):
                     LOGGER.exception(ex)
                     # Failure: Processing failure
                     status.Status = 0x0110
+            else:
+                attribute_list = Dataset()
 
         return status, attribute_list
 
@@ -2531,8 +2550,13 @@ class Association(threading.Thread):
               | ``0x0213`` - Resource limitation
 
         event_reply : pydicom.dataset.Dataset or None
-            If the status category is 'Success' then a ``Dataset`` containing
-            the *Event Reply* to the event report request.
+            If the status category is 'Success' or 'Warning' then a ``Dataset``
+            containing attributes corresponding to those supplied in the
+            *Event Reply*. Because *Event Reply* is optional the returned
+            ``Dataset`` may be empty .
+
+            If the status category is 'Failure' or if the peer timed-out,
+            aborted, or sent an invalid response then returns ``None``.
 
         See Also
         --------
@@ -2575,11 +2599,12 @@ class Association(threading.Thread):
         req.AffectedSOPInstanceUID = instance_uid
         req.EventTypeID = event_type
 
-        # Encode the `dataset` using the agreed transfer syntax
-        #   Will return None if failed to encode
         transfer_syntax = context.transfer_syntax[0]
+
         # *Event Information* is optional
         if dataset:
+            # Encode the `dataset` using the agreed transfer syntax
+            #   Will return None if failed to encode
             bytestream = encode(dataset,
                                 transfer_syntax.is_implicit_VR,
                                 transfer_syntax.is_little_endian)
@@ -2630,6 +2655,8 @@ class Association(threading.Thread):
                     LOGGER.exception(ex)
                     # Failure: Processing failure
                     status.Status = 0x0110
+            else:
+                event_reply = Dataset()
 
         return status, event_reply
 
@@ -2708,9 +2735,13 @@ class Association(threading.Thread):
               | ``0xC112`` - Applicable Machine Verification Instance not found
 
         attribute_list : pydicom.dataset.Dataset or None
-            If the status category is 'Success' then a ``Dataset`` containing
-            attributes corresponding to those supplied in the *Attribute
-            Identifier List*, otherwise returns ``None``.
+            If the status category is 'Success' or 'Warning' then a ``Dataset``
+            containing attributes corresponding to those supplied in the
+            *Attribute List*. Because *Attribute List* is optional the returned
+            ``Dataset`` may be empty.
+
+            If the status category is 'Failure' or if the peer timed-out,
+            aborted, or sent an invalid response then returns ``None``.
 
         See Also
         --------
@@ -2903,9 +2934,13 @@ class Association(threading.Thread):
                 referenced beam
 
         attribute_list : pydicom.dataset.Dataset or None
-            If the status category is 'Success' then a ``Dataset`` containing
-            attributes corresponding to those supplied in the *Attribute List*,
-            otherwise returns ``None``.
+            If the status category is 'Success' or 'Warning' then a ``Dataset``
+            containing attributes corresponding to those supplied in the
+            *Attribute List*. Because *Attribute List* is optional the returned
+            ``Dataset`` may be empty.
+
+            If the status category is 'Failure' or if the peer timed-out,
+            aborted, or sent an invalid response then returns ``None``.
 
         See Also
         --------
@@ -2997,6 +3032,8 @@ class Association(threading.Thread):
                     LOGGER.exception(ex)
                     # Failure: Processing failure
                     status.Status = 0x0110
+            else:
+                attribute_list = Dataset()
 
         return status, attribute_list
 

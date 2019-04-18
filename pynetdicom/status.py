@@ -357,6 +357,8 @@ UNIFIED_PROCEDURE_STEP_SERVICE_CLASS_STATUS = {
     0xA700 : (STATUS_FAILURE, "Out of resources"),
     0xA900 : (STATUS_FAILURE, "Identifier doesn't match SOP Class"),
     0xB300 : (STATUS_WARNING, "The UPS was created with modifications"),
+    0xB300 : (STATUS_WARNING, "The UPS was created with modifications"),
+    0xB301 : (STATUS_WARNING, "Deletion Lock not granted"),
     0xB304 : (STATUS_WARNING,
               "The UPS is already in the requested state of CANCELED"),
     0xB305 : (STATUS_WARNING, "Coerced invalid values to valid values"),

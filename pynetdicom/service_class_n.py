@@ -35,8 +35,13 @@ class DisplaySystemManagementServiceClass(ServiceClass):
         context : presentation.PresentationContext
             The presentation context that the service is operating under.
         """
-        self._n_get_scp(req, context)
-
+        if isinstance(req, N_SET):
+            self._n_set_scp(req, context)
+        else:
+            raise ValueError(
+                "Invalid DIMSE primitive '{}' used with Display System "
+                "Management".format(req.__class__.__name__)
+            )
 
 class ModalityPerformedProcedureStepServiceClass(ServiceClass):
     """Implementation of the Modality Performed Procedure Step Service Class"""
