@@ -83,8 +83,28 @@ Examples
 
 .. toctree::
    :maxdepth: 2
+   :hidden:
 
    examples/index
+
+* :doc:`Basisc Worklist Management (C-FIND) <examples/basic_worklist>`
+* :doc:`Display System Management (N-GET) <examples/display>`
+* Modality Performed Procedure Step Management
+
+  * :doc:`MPPS (N-CREATE and N-SET) <examples/mpps>`
+  * :doc:`MPPS Notification (N-EVENT-REPORT) <examples/mpps_er>`
+* Print Management
+
+  * :doc:`Basic Film Session (N-CREATE, N-SET, N-DELETE, N-ACTION) <examples/print>`
+  * :doc:`Print Job (N-EVENT-REPORT, N-GET) <examples/print>`
+* Query/Retrieve
+
+  * :doc:`Query/Retrieve - Find (C-FIND) <examples/qr_find>`
+  * :doc:`Query/Retrieve - Get (C-GET and C-STORE) <examples/qr_get>`
+  * :doc:`Query/Retrieve - Move (C-MOVE and C-STORE) <examples/qr_move>`
+* :doc:`Relevant Patient Information Query (C-FIND) <examples/relevant_patient>`
+* :doc:`Storage (C-STORE) <examples/storage>`
+* :doc:`Verification (C-ECHO) <examples/verification>`
 
 
 API Reference

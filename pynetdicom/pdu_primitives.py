@@ -2167,7 +2167,7 @@ class UserIdentityNegotiation(ServiceParameter):
     server_response : bytes or None
         A-ASSOCIATE-AC only. Shall contain the Kerberos Service ticket or SAML
         response if the `user_identity_type` in the Request was 3 or 4. Shall
-         be None if `user_identity_type` was 1 or 2.
+        be None if `user_identity_type` was 1 or 2.
 
     Examples
     --------
