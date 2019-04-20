@@ -11,6 +11,7 @@ the ACSE, DIMSE and transport service providers.
 .. toctree::
    :maxdepth: 2
    :titlesonly:
+   :includehidden:
 
    dul.provider
    dul.pdu_primitives

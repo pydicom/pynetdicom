@@ -83,3 +83,7 @@ code.xref {
     color: #2980B9 !important;
     font-size: 80%;
 }
+
+.highlight {
+    background: #f6f6f6 !important;
+}

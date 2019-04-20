@@ -23,7 +23,7 @@ from pynetdicom.service_class import (
 )
 from pynetdicom.service_class_n import (
     DisplaySystemManagementServiceClass,
-    ModalityPerformedProcedureStepServiceClass,
+    ProcedureStepServiceClass,
     StorageCommitmentServiceClass,
     PrintManagementServiceClass,
     ApplicationEventLoggingServiceClass,
@@ -79,7 +79,7 @@ def uid_to_service_class(uid):
     elif uid in _PRINT_MANAGEMENT_CLASSES.values():
         return PrintManagementServiceClass
     elif uid in _PROCEDURE_STEP_CLASSES.values():
-        return ModalityPerformedProcedureStepServiceClass
+        return ProcedureStepServiceClass
     elif uid in _PROTOCOL_APPROVAL_CLASSES.values():
         return ProtocolApprovalQueryRetrieveServiceClass
     elif uid in _QR_CLASSES.values():

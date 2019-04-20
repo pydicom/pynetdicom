@@ -77,7 +77,7 @@ from pynetdicom.service_class_n import (
     InstanceAvailabilityNotificationServiceClass,
     MediaCreationManagementServiceClass,
     # Media Storage not implemented
-    ModalityPerformedProcedureStepServiceClass,
+    ProcedureStepServiceClass,
     PrintManagementServiceClass,
     RTMachineVerificationServiceClass,
     StorageCommitmentServiceClass,
@@ -227,7 +227,7 @@ class TestUIDToServiceClass(object):
     def test_procedure_step_uids(self):
         """Test that the Procedure SOP Class UIDs work correctly."""
         for uid in _PROCEDURE_STEP_CLASSES.values():
-            assert uid_to_service_class(uid) == ModalityPerformedProcedureStepServiceClass
+            assert uid_to_service_class(uid) == ProcedureStepServiceClass
 
     def test_protocol_approval_uids(self):
         """Test that Protocol Approval SOP Class UIDs work correctly."""
@@ -337,7 +337,7 @@ class TestSOPClass(object):
 
     def test_procedure_step_sop(self):
         assert ModalityPerformedProcedureStepSOPClass == '1.2.840.10008.3.1.2.3.3'
-        assert ModalityPerformedProcedureStepSOPClass.service_class == ModalityPerformedProcedureStepServiceClass
+        assert ModalityPerformedProcedureStepSOPClass.service_class == ProcedureStepServiceClass
 
     def test_protocol_approval_sop(self):
         """Test an Protocol Approval Service SOP Class."""

@@ -1,4 +1,4 @@
-.. _service_classes:
+.. _ref_service_classes:
 
 Service Classes (:mod:`pynetdicom.service_class`)
 ==================================================
@@ -10,30 +10,30 @@ pynetdicom supports the following Service Classes
 .. autosummary::
    :toctree: generated/
 
-   VerificationServiceClass
-   StorageServiceClass
-   QueryRetrieveServiceClass
    BasicWorklistManagementServiceClass
-   RelevantPatientInformationQueryServiceClass
-   SubstanceAdministrationQueryServiceClass
-   NonPatientObjectStorageServiceClass
-   HangingProtocolQueryRetrieveServiceClass
-   DefinedProcedureProtocolQueryRetrieveServiceClass
    ColorPaletteQueryRetrieveServiceClass
+   DefinedProcedureProtocolQueryRetrieveServiceClass
+   HangingProtocolQueryRetrieveServiceClass
    ImplantTemplateQueryRetrieveServiceClass
+   NonPatientObjectStorageServiceClass
    ProtocolApprovalQueryRetrieveServiceClass
+   QueryRetrieveServiceClass
+   RelevantPatientInformationQueryServiceClass
+   StorageServiceClass
+   SubstanceAdministrationQueryServiceClass
+   VerificationServiceClass
 
 .. currentmodule:: pynetdicom.service_class_n
 
 .. autosummary::
    :toctree: generated/
 
-   DisplaySystemManagementServiceClass
-   ModalityPerformedProcedureStepServiceClass
-   PrintManagementServiceClass
-   StorageCommitmentServiceClass
    ApplicationEventLoggingServiceClass
+   DisplaySystemManagementServiceClass
    InstanceAvailabilityNotificationServiceClass
    MediaCreationManagementServiceClass
-   UnifiedProcedureStepServiceClass
+   PrintManagementServiceClass
+   ProcedureStepServiceClass
    RTMachineVerificationServiceClass
+   StorageCommitmentServiceClass
+   UnifiedProcedureStepServiceClass

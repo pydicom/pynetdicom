@@ -2677,6 +2677,36 @@ class BasicWorklistManagementServiceClass(QueryRetrieveServiceClass):
             )
 
 
+class ColorPaletteQueryRetrieveServiceClass(QueryRetrieveServiceClass):
+    """Implementation of the Color Palette QR Service."""
+    pass
+
+
+class DefinedProcedureProtocolQueryRetrieveServiceClass(QueryRetrieveServiceClass):
+    """Implementation of the Defined Procedure Protocol QR Service."""
+    pass
+
+
+class HangingProtocolQueryRetrieveServiceClass(QueryRetrieveServiceClass):
+    """Implementation of the Hanging Protocol QR Service."""
+    pass
+
+
+class ImplantTemplateQueryRetrieveServiceClass(QueryRetrieveServiceClass):
+    """Implementation of the Implant Template QR Service."""
+    pass
+
+
+class NonPatientObjectStorageServiceClass(StorageServiceClass):
+    """Implementation of the Non-Patient Object Storage Service"""
+    statuses = NON_PATIENT_SERVICE_CLASS_STATUS
+
+
+class ProtocolApprovalQueryRetrieveServiceClass(QueryRetrieveServiceClass):
+    """Implementation of the Protocol Approval QR Service."""
+    pass
+
+
 class RelevantPatientInformationQueryServiceClass(ServiceClass):
     """Implementation of the Relevant Patient Information Query"""
     statuses = RELEVANT_PATIENT_SERVICE_CLASS_STATUS
@@ -2953,33 +2983,3 @@ class SubstanceAdministrationQueryServiceClass(QueryRetrieveServiceClass):
            and `Annex C <http://dicom.nema.org/medical/dicom/current/output/html/part07.html#chapter_C>`_.
         """
         self._find_scp(req, context)
-
-
-class NonPatientObjectStorageServiceClass(StorageServiceClass):
-    """Implementation of the Non-Patient Object Storage Service"""
-    statuses = NON_PATIENT_SERVICE_CLASS_STATUS
-
-
-class HangingProtocolQueryRetrieveServiceClass(QueryRetrieveServiceClass):
-    """Implementation of the Hanging Protocol QR Service."""
-    pass
-
-
-class DefinedProcedureProtocolQueryRetrieveServiceClass(QueryRetrieveServiceClass):
-    """Implementation of the Defined Procedure Protocol QR Service."""
-    pass
-
-
-class ColorPaletteQueryRetrieveServiceClass(QueryRetrieveServiceClass):
-    """Implementation of the Color Palette QR Service."""
-    pass
-
-
-class ImplantTemplateQueryRetrieveServiceClass(QueryRetrieveServiceClass):
-    """Implementation of the Implant Template QR Service."""
-    pass
-
-
-class ProtocolApprovalQueryRetrieveServiceClass(QueryRetrieveServiceClass):
-    """Implementation of the Protocol Approval QR Service."""
-    pass

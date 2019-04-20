@@ -8,17 +8,40 @@ from pynetdicom.dimse_primitives import (
 from pynetdicom.service_class import ServiceClass
 from pynetdicom.status import (
     GENERAL_STATUS,
-    PROCEDURE_STEP_STATUS,
-    PRINT_JOB_MANAGEMENT_SERVICE_CLASS_STATUS,
-    STORAGE_COMMITMENT_SERVICE_CLASS_STATUS,
     APPLICATION_EVENT_LOGGING_SERVICE_CLASS_STATUS,
     MEDIA_CREATION_MANAGEMENT_SERVICE_CLASS_STATUS,
-    UNIFIED_PROCEDURE_STEP_SERVICE_CLASS_STATUS,
+    PRINT_JOB_MANAGEMENT_SERVICE_CLASS_STATUS,
+    PROCEDURE_STEP_STATUS,
+    STORAGE_COMMITMENT_SERVICE_CLASS_STATUS,
     RT_MACHINE_VERIFICATION_SERVICE_CLASS_STATUS,
+    UNIFIED_PROCEDURE_STEP_SERVICE_CLASS_STATUS,
 )
 
 
 LOGGER = logging.getLogger('pynetdicom.service-n')
+
+
+class ApplicationEventLoggingServiceClass(ServiceClass):
+    """Implementation of the Application Event Logging Service Class"""
+    statuses = APPLICATION_EVENT_LOGGING_SERVICE_CLASS_STATUS
+
+    def SCP(self, req, context):
+        """The SCP implementation for Application Event Logging Service Class.
+
+        Parameters
+        ----------
+        req : dimse_primitives.N_ACTION
+            The N-ACTION request primitive sent by the peer.
+        context : presentation.PresentationContext
+            The presentation context that the service is operating under.
+        """
+        if isinstance(req, N_ACTION):
+            self._n_action_scp(req, context)
+        else:
+            raise ValueError(
+                "Invalid DIMSE primitive '{}' used with Application Event "
+                "Logging".format(req.__class__.__name__)
+            )
 
 
 class DisplaySystemManagementServiceClass(ServiceClass):
@@ -43,38 +66,54 @@ class DisplaySystemManagementServiceClass(ServiceClass):
                 "Management".format(req.__class__.__name__)
             )
 
-class ModalityPerformedProcedureStepServiceClass(ServiceClass):
-    """Implementation of the Modality Performed Procedure Step Service Class"""
-    statuses = PROCEDURE_STEP_STATUS
+
+class InstanceAvailabilityNotificationServiceClass(ServiceClass):
+    """Implementation of the Instance Availability Service Class"""
+    statuses = GENERAL_STATUS
 
     def SCP(self, req, context):
-        """The SCP implementation for Modality Performed Procedure Step.
+        """The SCP implementation for Instance Availability Service Class.
 
         Parameters
         ----------
-        req : dimse_primitives.N_CREATE or N_SET or N_GET or N_EVENT_REPORT
-            The N-CREATE, N-SET, N-GET or N-EVENT-REPORT request primitive
-            sent by the peer.
+        req : dimse_primitives.N_CREATE
+            The N-CREATE request primitive sent by the peer.
         context : presentation.PresentationContext
             The presentation context that the service is operating under.
         """
         if isinstance(req, N_CREATE):
-            # Modality Performed Procedure Step
             self._n_create_scp(req, context)
-        elif isinstance(req, N_EVENT_REPORT):
-            # Modality Performed Procedure Step Notification
-            self._n_event_report_scp(req, context)
-        elif isinstance(req, N_GET):
-            # Modality Performed Procedure Step Retrieve
-            self._n_get_scp(req, context)
-        elif isinstance(req, N_SET):
-            # Modality Performed Procedure Step
-            self._n_set_scp(req, context)
         else:
             raise ValueError(
-                "Invalid DIMSE primitive '{}' used with Modality "
-                "Performed Procedure Step"
+                "Invalid DIMSE primitive '{}' used with Instance Availability"
                 .format(req.__class__.__name__)
+            )
+
+
+class MediaCreationManagementServiceClass(ServiceClass):
+    """Implementation of the Media Creation Management Service Class"""
+    statuses = MEDIA_CREATION_MANAGEMENT_SERVICE_CLASS_STATUS
+
+    def SCP(self, req, context):
+        """The SCP implementation for Media Creation Management Service Class.
+
+        Parameters
+        ----------
+        req : dimse_primitives.N_CREATE or N_GET or N_ACTION
+            The N-CREATE, N-GET or N-ACTION request primitive sent by the peer.
+        context : presentation.PresentationContext
+            The presentation context that the service is operating under.
+        """
+        if isinstance(req, N_CREATE):
+            self._n_create_scp(req, context)
+        elif isinstance(req, N_GET):
+            self._n_get_scp(req, context)
+        elif isinstance(req, N_ACTION):
+            self._n_action_scp(req, context)
+        else:
+            raise ValueError(
+                "Invalid DIMSE primitive '{}' used with Media Creation "
+                "Management".format(req.__class__.__name__)
             )
 
 
@@ -142,6 +181,75 @@ class PrintManagementServiceClass(ServiceClass):
             )
 
 
+class ProcedureStepServiceClass(ServiceClass):
+    """Implementation of the Modality Performed Procedure Step Service Class"""
+    statuses = PROCEDURE_STEP_STATUS
+
+    def SCP(self, req, context):
+        """The SCP implementation for Modality Performed Procedure Step.
+
+        Parameters
+        ----------
+        req : dimse_primitives.N_CREATE or N_SET or N_GET or N_EVENT_REPORT
+            The N-CREATE, N-SET, N-GET or N-EVENT-REPORT request primitive
+            sent by the peer.
+        context : presentation.PresentationContext
+            The presentation context that the service is operating under.
+        """
+        if isinstance(req, N_CREATE):
+            # Modality Performed Procedure Step
+            self._n_create_scp(req, context)
+        elif isinstance(req, N_EVENT_REPORT):
+            # Modality Performed Procedure Step Notification
+            self._n_event_report_scp(req, context)
+        elif isinstance(req, N_GET):
+            # Modality Performed Procedure Step Retrieve
+            self._n_get_scp(req, context)
+        elif isinstance(req, N_SET):
+            # Modality Performed Procedure Step
+            self._n_set_scp(req, context)
+        else:
+            raise ValueError(
+                "Invalid DIMSE primitive '{}' used with Modality "
+                "Performed Procedure Step"
+                .format(req.__class__.__name__)
+            )
+
+
+class RTMachineVerificationServiceClass(ServiceClass):
+    """Implementation of the RT Machine Verification Service Class"""
+    statuses = RT_MACHINE_VERIFICATION_SERVICE_CLASS_STATUS
+
+    def SCP(self, req, context):
+        """The SCP implementation for RT Machine Verification Service Class.
+
+        Parameters
+        ----------
+        req : dimse_primitives.N_CREATE or N_SET or N_DELETE or N_GET or N_EVENT_REPORT or N_ACTION
+            The N-CREATE, N-SET, N-GET, N-DELETE, N-ACTION or N-EVENT-REPORT
+            request primitive sent by the peer.
+        context : presentation.PresentationContext
+            The presentation context that the service is operating under.
+        """
+        if isinstance(req, N_CREATE):
+            self._n_create_scp(req, context)
+        elif isinstance(req, N_EVENT_REPORT):
+            self._n_event_report_scp(req, context)
+        elif isinstance(req, N_GET):
+            self._n_get_scp(req, context)
+        elif isinstance(req, N_SET):
+            self._n_set_scp(req, context)
+        elif isinstance(req, N_ACTION):
+            self._n_action_scp(req, context)
+        elif isinstance(req, N_DELETE):
+            self._n_delete_scp(req, context)
+        else:
+            raise ValueError(
+                "Invalid DIMSE primitive '{}' used with RT Machine "
+                "Verification".format(req.__class__.__name__)
+            )
+
+
 class StorageCommitmentServiceClass(ServiceClass):
     """Implementation of the Storage Commitment Service Class"""
     statuses = STORAGE_COMMITMENT_SERVICE_CLASS_STATUS
@@ -164,79 +272,6 @@ class StorageCommitmentServiceClass(ServiceClass):
             raise ValueError(
                 "Invalid DIMSE primitive '{}' used with Storage Commitment"
                 .format(req.__class__.__name__)
-            )
-
-
-class ApplicationEventLoggingServiceClass(ServiceClass):
-    """Implementation of the Application Event Logging Service Class"""
-    statuses = APPLICATION_EVENT_LOGGING_SERVICE_CLASS_STATUS
-
-    def SCP(self, req, context):
-        """The SCP implementation for Application Event Logging Service Class.
-
-        Parameters
-        ----------
-        req : dimse_primitives.N_ACTION
-            The N-ACTION request primitive sent by the peer.
-        context : presentation.PresentationContext
-            The presentation context that the service is operating under.
-        """
-        if isinstance(req, N_ACTION):
-            self._n_action_scp(req, context)
-        else:
-            raise ValueError(
-                "Invalid DIMSE primitive '{}' used with Application Event "
-                "Logging".format(req.__class__.__name__)
-            )
-
-
-class InstanceAvailabilityNotificationServiceClass(ServiceClass):
-    """Implementation of the Instance Availability Service Class"""
-    statuses = GENERAL_STATUS
-
-    def SCP(self, req, context):
-        """The SCP implementation for Instance Availability Service Class.
-
-        Parameters
-        ----------
-        req : dimse_primitives.N_CREATE
-            The N-CREATE request primitive sent by the peer.
-        context : presentation.PresentationContext
-            The presentation context that the service is operating under.
-        """
-        if isinstance(req, N_CREATE):
-            self._n_create_scp(req, context)
-        else:
-            raise ValueError(
-                "Invalid DIMSE primitive '{}' used with Instance Availability"
-                .format(req.__class__.__name__)
-            )
-
-
-class MediaCreationManagementServiceClass(ServiceClass):
-    """Implementation of the Media Creation Management Service Class"""
-    statuses = MEDIA_CREATION_MANAGEMENT_SERVICE_CLASS_STATUS
-
-    def SCP(self, req, context):
-        """The SCP implementation for Media Creation Management Service Class.
-
-        Parameters
-        ----------
-        req : dimse_primitives.N_CREATE or N_GET or N_ACTION
-            The N-CREATE, N-GET or N-ACTION request primitive sent by the peer.
-        context : presentation.PresentationContext
-            The presentation context that the service is operating under.
-        """
-        if isinstance(req, N_CREATE):
-            self._n_create_scp(req, context)
-        elif isinstance(req, N_GET):
-            self._n_get_scp(req, context)
-        elif isinstance(req, N_ACTION):
-            self._n_action_scp(req, context)
-        else:
-            raise ValueError(
-                "Invalid DIMSE primitive '{}' used with Media Creation "
-                "Management".format(req.__class__.__name__)
             )
 
 
@@ -275,38 +310,4 @@ class UnifiedProcedureStepServiceClass(ServiceClass):
             raise ValueError(
                 "Invalid DIMSE primitive '{}' used with Unified Procedure Step"
                 .format(req.__class__.__name__)
-            )
-
-
-class RTMachineVerificationServiceClass(ServiceClass):
-    """Implementation of the RT Machine Verification Service Class"""
-    statuses = RT_MACHINE_VERIFICATION_SERVICE_CLASS_STATUS
-
-    def SCP(self, req, context):
-        """The SCP implementation for RT Machine Verification Service Class.
-
-        Parameters
-        ----------
-        req : dimse_primitives.N_CREATE or N_SET or N_DELETE or N_GET or N_EVENT_REPORT or N_ACTION
-            The N-CREATE, N-SET, N-GET, N-DELETE, N-ACTION or N-EVENT-REPORT
-            request primitive sent by the peer.
-        context : presentation.PresentationContext
-            The presentation context that the service is operating under.
-        """
-        if isinstance(req, N_CREATE):
-            self._n_create_scp(req, context)
-        elif isinstance(req, N_EVENT_REPORT):
-            self._n_event_report_scp(req, context)
-        elif isinstance(req, N_GET):
-            self._n_get_scp(req, context)
-        elif isinstance(req, N_SET):
-            self._n_set_scp(req, context)
-        elif isinstance(req, N_ACTION):
-            self._n_action_scp(req, context)
-        elif isinstance(req, N_DELETE):
-            self._n_delete_scp(req, context)
-        else:
-            raise ValueError(
-                "Invalid DIMSE primitive '{}' used with RT Machine "
-                "Verification".format(req.__class__.__name__)
             )
