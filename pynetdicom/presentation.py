@@ -4,37 +4,42 @@ import logging
 
 from pydicom.uid import UID
 
-from pynetdicom.sop_class import (
-    _VERIFICATION_CLASSES,
-    _STORAGE_CLASSES,
-    _QR_CLASSES,
-    _BASIC_WORKLIST_CLASSES,
-    _RELEVANT_PATIENT_QUERY_CLASSES,
-    _SUBSTANCE_ADMINISTRATION_CLASSES,
-    _NON_PATIENT_OBJECT_CLASSES,
-    _HANGING_PROTOCOL_CLASSES,
-    _DEFINED_PROCEDURE_CLASSES,
-    _COLOR_PALETTE_CLASSES,
-    _IMPLANT_TEMPLATE_CLASSES,
-    #_PRINT_MANAGEMENT_CLASSES,
-    _PROCEDURE_STEP_CLASSES,
-    _DISPLAY_SYSTEM_CLASSES,
-    #_MEDIA_STORAGE_CLASSES,
-    #_UNIFIED_PROCEDURE_STEP_CLASSES,
-    #_RT_MACHINE_VERIFICATION_CLASSES,
-)
 from pynetdicom._globals import DEFAULT_TRANSFER_SYNTAXES
+from pynetdicom.sop_class import (
+    _APPLICATION_EVENT_CLASSES,
+    _BASIC_WORKLIST_CLASSES,
+    _COLOR_PALETTE_CLASSES,
+    _DEFINED_PROCEDURE_CLASSES,
+    _DISPLAY_SYSTEM_CLASSES,
+    _HANGING_PROTOCOL_CLASSES,
+    _IMPLANT_TEMPLATE_CLASSES,
+    _INSTANCE_AVAILABILITY_CLASSES,
+    _MEDIA_CREATION_CLASSES,
+    _MEDIA_STORAGE_CLASSES,
+    _NON_PATIENT_OBJECT_CLASSES,
+    _PRINT_MANAGEMENT_CLASSES,
+    _PROCEDURE_STEP_CLASSES,
+    _PROTOCOL_APPROVAL_CLASSES,
+    _QR_CLASSES,
+    _RELEVANT_PATIENT_QUERY_CLASSES,
+    _RT_MACHINE_VERIFICATION_CLASSES,
+    _STORAGE_CLASSES,
+    _STORAGE_COMMITMENT_CLASSES,
+    _SUBSTANCE_ADMINISTRATION_CLASSES,
+    _UNIFIED_PROCEDURE_STEP_CLASSES,
+    _VERIFICATION_CLASSES,
+)
 from pynetdicom.utils import validate_uid
 
 
 LOGGER = logging.getLogger('pynetdicom.presentation')
 
 
-# Used with the on_c_* callbacks to give the users access to the context
-PresentationContextTuple = namedtuple('PresentationContextTuple',
-                                      ['context_id',
-                                       'abstract_syntax',
-                                       'transfer_syntax'])
+# Used with the event handlers to give the users access to the context
+PresentationContextTuple = namedtuple(
+    'PresentationContextTuple',
+    ['context_id', 'abstract_syntax', 'transfer_syntax']
+)
 
 
 DEFAULT_ROLE = (True, False, False, True)
@@ -88,7 +93,6 @@ SCP_SCU_ROLES = {
         (False, False) : CONTEXT_REJECTED,
         (False, True) : INVERTED_ROLE,
     },
-    # False, False proposed x
     (False, False) : {
         (None, None) : DEFAULT_ROLE,
         (None, True) : DEFAULT_ROLE,
@@ -600,7 +604,7 @@ def negotiate_as_acceptor(rq_contexts, ac_contexts, roles=None):
                     # Default roles
                     context._as_scu = False
                     context._as_scp = True
-                    # If either aq.scu_role or ac.scp_role is None then
+                    # If either ac.scu_role or ac.scp_role is None then
                     #   don't send an SCP/SCU negotiation reply
                     has_role = False
                 else:
@@ -860,54 +864,69 @@ def build_role(uid, scu_role=False, scp_role=False):
 
 # Service specific pre-generated Presentation Contexts
 # pylint: disable=line-too-long,invalid-name
-VerificationPresentationContexts = [
-    build_context(uid) for uid in sorted(_VERIFICATION_CLASSES.values())
+ApplicationEventLoggingPresentationContexts = [
+    build_context(uid) for uid in sorted(_APPLICATION_EVENT_CLASSES.values())
 ]
-
-StoragePresentationContexts = [
-    build_context(uid) for uid in sorted(_STORAGE_CLASSES.values())[:128]
-]
-
-QueryRetrievePresentationContexts = [
-    build_context(uid) for uid in sorted(_QR_CLASSES.values())
-]
-
 BasicWorklistManagementPresentationContexts = [
     build_context(uid) for uid in sorted(_BASIC_WORKLIST_CLASSES.values())
 ]
-
-RelevantPatientInformationPresentationContexts = [
-    build_context(uid) for uid in sorted(_RELEVANT_PATIENT_QUERY_CLASSES.values())
-]
-
-SubstanceAdministrationPresentationContexts = [
-    build_context(uid) for uid in sorted(_SUBSTANCE_ADMINISTRATION_CLASSES.values())
-]
-
-NonPatientObjectPresentationContexts = [
-    build_context(uid) for uid in sorted(_NON_PATIENT_OBJECT_CLASSES.values())
-]
-
-HangingProtocolPresentationContexts = [
-    build_context(uid) for uid in sorted(_HANGING_PROTOCOL_CLASSES.values())
-]
-
-DefinedProcedureProtocolPresentationContexts = [
-    build_context(uid) for uid in sorted(_DEFINED_PROCEDURE_CLASSES.values())
-]
-
 ColorPalettePresentationContexts = [
     build_context(uid) for uid in sorted(_COLOR_PALETTE_CLASSES.values())
 ]
-
-ImplantTemplatePresentationContexts = [
-    build_context(uid) for uid in sorted(_IMPLANT_TEMPLATE_CLASSES.values())
+DefinedProcedureProtocolPresentationContexts = [
+    build_context(uid) for uid in sorted(_DEFINED_PROCEDURE_CLASSES.values())
 ]
-
 DisplaySystemPresentationContexts = [
     build_context(uid) for uid in sorted(_DISPLAY_SYSTEM_CLASSES.values())
 ]
-
-ModalityPerformedPresentationContexts = [
+HangingProtocolPresentationContexts = [
+    build_context(uid) for uid in sorted(_HANGING_PROTOCOL_CLASSES.values())
+]
+ImplantTemplatePresentationContexts = [
+    build_context(uid) for uid in sorted(_IMPLANT_TEMPLATE_CLASSES.values())
+]
+InstanceAvailabilityPresentationContexts = [
+    build_context(uid) for uid in sorted(_INSTANCE_AVAILABILITY_CLASSES.values())
+]
+MediaCreationManagementPresentationContexts = [
+    build_context(uid) for uid in sorted(_MEDIA_CREATION_CLASSES.values())
+]
+MediaStoragePresentationContexts = [
+    build_context(uid) for uid in sorted(_MEDIA_STORAGE_CLASSES.values())
+]
+ProcedureStepPresentationContexts = [
     build_context(uid) for uid in sorted(_PROCEDURE_STEP_CLASSES.values())
+]
+NonPatientObjectPresentationContexts = [
+    build_context(uid) for uid in sorted(_NON_PATIENT_OBJECT_CLASSES.values())
+]
+PrintManagementPresentationContexts = [
+    build_context(uid) for uid in sorted(_PRINT_MANAGEMENT_CLASSES.values())
+]
+ProtocolApprovalPresentationContexts = [
+    build_context(uid) for uid in sorted(_PROTOCOL_APPROVAL_CLASSES.values())
+]
+QueryRetrievePresentationContexts = [
+    build_context(uid) for uid in sorted(_QR_CLASSES.values())
+]
+RelevantPatientInformationPresentationContexts = [
+    build_context(uid) for uid in sorted(_RELEVANT_PATIENT_QUERY_CLASSES.values())
+]
+RTMachineVerificationPresentationContexts = [
+    build_context(uid) for uid in sorted(_RT_MACHINE_VERIFICATION_CLASSES.values())
+]
+StoragePresentationContexts = [
+    build_context(uid) for uid in sorted(_STORAGE_CLASSES.values())[:128]
+]
+StorageCommitmentPresentationContexts = [
+    build_context(uid) for uid in sorted(_STORAGE_COMMITMENT_CLASSES.values())
+]
+SubstanceAdministrationPresentationContexts = [
+    build_context(uid) for uid in sorted(_SUBSTANCE_ADMINISTRATION_CLASSES.values())
+]
+UnifiedProcedurePresentationContexts = [
+    build_context(uid) for uid in sorted(_UNIFIED_PROCEDURE_STEP_CLASSES.values())
+]
+VerificationPresentationContexts = [
+    build_context(uid) for uid in sorted(_VERIFICATION_CLASSES.values())
 ]

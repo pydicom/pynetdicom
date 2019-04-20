@@ -11,7 +11,8 @@
     :target: https://img.shields.io/pypi/pyversions/pynetdicom.svg
 .. image:: https://zenodo.org/badge/DOI/10.5281/zenodo.2638736.svg
    :target: https://doi.org/10.5281/zenodo.2638736
-
+.. image:: https://badges.gitter.im/pydicom.png
+   :target: https://gitter.im/pydicom/Lobby
 
 
 pynetdicom
@@ -57,36 +58,35 @@ Supported Service Classes
 ~~~~~~~~~~~~~~~~~~~~~~~~~
 *pynetdicom* supports the following DICOM service classes:
 
-- `Verification Service Class <http://dicom.nema.org/medical/dicom/current/output/html/part04.html#chapter_A>`_
-- `Storage Service Class <http://dicom.nema.org/medical/dicom/current/output/html/part04.html#chapter_B>`_
-
-  - `Softcopy Presentation State Storage <http://dicom.nema.org/medical/dicom/current/output/html/part04.html#chapter_N>`_
-  - `Structured Reporting Storage <http://dicom.nema.org/medical/dicom/current/output/html/part04.html#chapter_O>`_
-  - `Ophthalmic Refractive Measurements Storage <http://dicom.nema.org/medical/dicom/current/output/html/part04.html#chapter_AA>`_
-  - `Volumetric Presentation State Storage <http://dicom.nema.org/medical/dicom/current/output/html/part04.html#chapter_FF>`_
-- `Query/Retrieve Service Class <http://dicom.nema.org/medical/dicom/current/output/html/part04.html#chapter_C>`_
-
-  - `Instance and Frame Level Retrieve <http://dicom.nema.org/medical/dicom/current/output/html/part04.html#chapter_Y>`_
-  - `Composite Instance Retrieve Without Bulk Data <http://dicom.nema.org/medical/dicom/current/output/html/part04.html#chapter_Z>`_
-- `Modality Performed Procedure Step Management <http://dicom.nema.org/medical/dicom/current/output/html/part04.html#chapter_F>`_
-- `Print Management Service Class <http://dicom.nema.org/medical/dicom/current/output/html/part04.html#chapter_H>`_
-- `Storage Commitment Service Class <http://dicom.nema.org/medical/dicom/current/output/html/part04.html#chapter_J>`_
-- `Basic Worklist Management Service Class <http://dicom.nema.org/medical/dicom/current/output/html/part04.html#chapter_K>`_
 - `Application Event Logging Service Class <http://dicom.nema.org/medical/dicom/current/output/html/part04.html#chapter_P>`_
-- `Relevant Patient Information Query Service Class <http://dicom.nema.org/medical/dicom/current/output/html/part04.html#chapter_Q>`_
+- `Basic Worklist Management Service Class <http://dicom.nema.org/medical/dicom/current/output/html/part04.html#chapter_K>`_
+- `Color Palette Query/Retrieve Service Class <http://dicom.nema.org/medical/dicom/current/output/html/part04.html#chapter_X>`_
+- `Defined Procedure Protocol Query/Retrieve Service Class <http://dicom.nema.org/medical/dicom/current/output/html/part04.html#chapter_HH>`_
+- `Display System Management Service Class <http://dicom.nema.org/medical/dicom/current/output/html/part04.html#chapter_EE>`_
+- `Hanging Protocol Query/Retrieve Service Class <http://dicom.nema.org/medical/dicom/current/output/html/part04.html#chapter_U>`_
+- `Implant Template Query/Retrieve Service Class <http://dicom.nema.org/medical/dicom/current/output/html/part04.html#chapter_BB>`_
 - `Instance Availability Notification Service Class <http://dicom.nema.org/medical/dicom/current/output/html/part04.html#chapter_R>`_
 - `Media Creation Management Service Class <http://dicom.nema.org/medical/dicom/current/output/html/part04.html#chapter_S>`_
-- `Hanging Protocol Query/Retrieve Service Class <http://dicom.nema.org/medical/dicom/current/output/html/part04.html#chapter_U>`_
-- `Substance Administration Query Service Class <http://dicom.nema.org/medical/dicom/current/output/html/part04.html#chapter_V>`_
-- `Color Palette Query/Retrieve Service Class <http://dicom.nema.org/medical/dicom/current/output/html/part04.html#chapter_X>`_
-- `Implant Template Query/Retrieve Service Class <http://dicom.nema.org/medical/dicom/current/output/html/part04.html#chapter_BB>`_
-- `Unified Procedure Step Service Class <http://dicom.nema.org/medical/dicom/current/output/html/part04.html#chapter_CC>`_
-- `RT Machine Verification Service Class <http://dicom.nema.org/medical/dicom/current/output/html/part04.html#chapter_DD>`_
-- `Display System Management Service Class <http://dicom.nema.org/medical/dicom/current/output/html/part04.html#chapter_EE>`_
+- `Modality Performed Procedure Step Management <http://dicom.nema.org/medical/dicom/current/output/html/part04.html#chapter_F>`_
 - `Non-Patient Object Storage Service Class <http://dicom.nema.org/medical/dicom/current/output/html/part04.html#chapter_GG>`_
-- `Defined Procedure Protocol Query/Retrieve Service Class <http://dicom.nema.org/medical/dicom/current/output/html/part04.html#chapter_HH>`_
+- `Print Management Service Class <http://dicom.nema.org/medical/dicom/current/output/html/part04.html#chapter_H>`_
 - `Protocol Approval Query/Retrieve Service Class <http://dicom.nema.org/medical/dicom/current/output/html/part04.html#chapter_II>`_
+- `Query/Retrieve Service Class <http://dicom.nema.org/medical/dicom/current/output/html/part04.html#chapter_C>`_
 
+  - `Composite Instance Retrieve Without Bulk Data <http://dicom.nema.org/medical/dicom/current/output/html/part04.html#chapter_Z>`_
+  - `Instance and Frame Level Retrieve <http://dicom.nema.org/medical/dicom/current/output/html/part04.html#chapter_Y>`_
+- `Relevant Patient Information Query Service Class <http://dicom.nema.org/medical/dicom/current/output/html/part04.html#chapter_Q>`_
+- `RT Machine Verification Service Class <http://dicom.nema.org/medical/dicom/current/output/html/part04.html#chapter_DD>`_
+- `Storage Commitment Service Class <http://dicom.nema.org/medical/dicom/current/output/html/part04.html#chapter_J>`_
+- `Storage Service Class <http://dicom.nema.org/medical/dicom/current/output/html/part04.html#chapter_B>`_
+
+  - `Ophthalmic Refractive Measurements Storage <http://dicom.nema.org/medical/dicom/current/output/html/part04.html#chapter_AA>`_
+  - `Softcopy Presentation State Storage <http://dicom.nema.org/medical/dicom/current/output/html/part04.html#chapter_N>`_
+  - `Structured Reporting Storage <http://dicom.nema.org/medical/dicom/current/output/html/part04.html#chapter_O>`_
+  - `Volumetric Presentation State Storage <http://dicom.nema.org/medical/dicom/current/output/html/part04.html#chapter_FF>`_
+- `Substance Administration Query Service Class <http://dicom.nema.org/medical/dicom/current/output/html/part04.html#chapter_V>`_
+- `Unified Procedure Step Service Class <http://dicom.nema.org/medical/dicom/current/output/html/part04.html#chapter_CC>`_
+- `Verification Service Class <http://dicom.nema.org/medical/dicom/current/output/html/part04.html#chapter_A>`_
 
 Supported DIMSE SCU Services
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~
@@ -212,7 +212,7 @@ parameter, *event*, which is an ``evt.Event`` object whose specific attributes
 are dependent on the type of event that occurred. Handlers bound to
 intervention events must  return or yield certain values. See the
 `handler documentation <https://pydicom.github.io/pynetdicom/stable/reference/events>`_
-for information on what attributes and properties are available in ``Event``
+for information on what attributes and properties are available to ``Event``
 for each event type and the expected returns/yields for the
 corresponding handlers.
 

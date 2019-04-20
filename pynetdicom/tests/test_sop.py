@@ -17,12 +17,16 @@ from pynetdicom.sop_class import (
     _SUBSTANCE_ADMINISTRATION_CLASSES,
     _NON_PATIENT_OBJECT_CLASSES,
     _PRINT_MANAGEMENT_CLASSES,
-    _PROCEDURE_STEP_CLASSES,
-    _DISPLAY_SYSTEM_CLASSES,
     _MEDIA_STORAGE_CLASSES,
+    _DISPLAY_SYSTEM_CLASSES,
+    _PROCEDURE_STEP_CLASSES,
+    _PROTOCOL_APPROVAL_CLASSES,
+    _STORAGE_COMMITMENT_CLASSES,
+    _APPLICATION_EVENT_CLASSES,
+    _INSTANCE_AVAILABILITY_CLASSES,
+    _MEDIA_CREATION_CLASSES,
     _UNIFIED_PROCEDURE_STEP_CLASSES,
     _RT_MACHINE_VERIFICATION_CLASSES,
-    _PROTOCOL_APPROVAL_SOP_CLASSES,
     VerificationSOPClass,
     CTImageStorage,
     StudyRootQueryRetrieveInformationModelFind,
@@ -37,6 +41,15 @@ from pynetdicom.sop_class import (
     ProtocolApprovalInformationModelFind,
     ProtocolApprovalInformationModelMove,
     ProtocolApprovalInformationModelGet,
+    DisplaySystemSOPClass,
+    ModalityPerformedProcedureStepSOPClass,
+    PrintJobSOPClass,
+    StorageCommitmentPushModelSOPClass,
+    ProceduralEventLoggingSOPClass,
+    InstanceAvailabilityNotificationSOPClass,
+    MediaCreationManagementSOPClass,
+    UnifiedProcedureStepPullSOPClass,
+    RTConventionalMachineVerification,
 )
 from pynetdicom.service_class import (
     ServiceClass,
@@ -56,9 +69,13 @@ from pynetdicom.service_class import (
 from pynetdicom.service_class_n import (
     DisplaySystemManagementServiceClass,
     ModalityPerformedProcedureStepServiceClass,
-    RTMachineVerificationServiceClass,
-    UnifiedProcedureStepServiceClass,
     PrintManagementServiceClass,
+    StorageCommitmentServiceClass,
+    ApplicationEventLoggingServiceClass,
+    InstanceAvailabilityNotificationServiceClass,
+    MediaCreationManagementServiceClass,
+    UnifiedProcedureStepServiceClass,
+    RTMachineVerificationServiceClass
 )
 
 
@@ -78,20 +95,29 @@ def test_all_sop_classes():
         assert uid in UID_dictionary
     for uid in _NON_PATIENT_OBJECT_CLASSES.values():
         assert uid in UID_dictionary
-    for uid in _PRINT_MANAGEMENT_CLASSES.values():
+    for uid in _MEDIA_STORAGE_CLASSES.values():
         assert uid in UID_dictionary
-    for uid in _PROCEDURE_STEP_CLASSES.values():
+    for uid in _PROTOCOL_APPROVAL_CLASSES.values():
         assert uid in UID_dictionary
     for uid in _DISPLAY_SYSTEM_CLASSES.values():
         assert uid in UID_dictionary
-    for uid in _MEDIA_STORAGE_CLASSES.values():
+    for uid in _PROCEDURE_STEP_CLASSES.values():
+        assert uid in UID_dictionary
+    for uid in _PRINT_MANAGEMENT_CLASSES.values():
+        assert uid in UID_dictionary
+    for uid in _STORAGE_COMMITMENT_CLASSES.values():
+        assert uid in UID_dictionary
+    for uid in _APPLICATION_EVENT_CLASSES.values():
+        assert uid in UID_dictionary
+    for uid in _INSTANCE_AVAILABILITY_CLASSES.values():
+        assert uid in UID_dictionary
+    for uid in _MEDIA_CREATION_CLASSES.values():
         assert uid in UID_dictionary
     for uid in _UNIFIED_PROCEDURE_STEP_CLASSES.values():
         assert uid in UID_dictionary
     for uid in _RT_MACHINE_VERIFICATION_CLASSES.values():
         assert uid in UID_dictionary
-    for uid in _PROTOCOL_APPROVAL_SOP_CLASSES.values():
-        assert uid in UID_dictionary
+
 
 def test_all_service_classes():
     """Test that all the Service Class UIDs are correct."""
@@ -159,20 +185,50 @@ class TestUIDToServiceClass(object):
         for uid in _NON_PATIENT_OBJECT_CLASSES.values():
             assert uid_to_service_class(uid) == NonPatientObjectStorageServiceClass
 
-    def test_print_uids(self):
-        """Test that the Print SOP Class UIDs work correctly."""
-        for uid in _PRINT_MANAGEMENT_CLASSES.values():
-            assert uid_to_service_class(uid) == PrintManagementServiceClass
+    def test_media_uids(self):
+        """Test that the Media Storage SOP Class UIDs work correctly."""
+        for uid in _MEDIA_STORAGE_CLASSES.values():
+            assert uid_to_service_class(uid) == ServiceClass
+
+    def test_protocol_approval_uids(self):
+        """Test that Protocol Approval SOP Class UIDs work correctly."""
+        for uid in _PROTOCOL_APPROVAL_CLASSES.values():
+            assert uid_to_service_class(uid) == ProtocolApprovalQueryRetrieveServiceClass
+
+    def test_display_system_uids(self):
+        """Test that Display System SOP Class UIDs work correctly."""
+        for uid in _DISPLAY_SYSTEM_CLASSES.values():
+            assert uid_to_service_class(uid) == DisplaySystemManagementServiceClass
 
     def test_procedure_uids(self):
         """Test that the Procedure SOP Class UIDs work correctly."""
         for uid in _PROCEDURE_STEP_CLASSES.values():
             assert uid_to_service_class(uid) == ModalityPerformedProcedureStepServiceClass
 
-    def test_media_uids(self):
-        """Test that the Media Storage SOP Class UIDs work correctly."""
-        for uid in _MEDIA_STORAGE_CLASSES.values():
-            assert uid_to_service_class(uid) == ServiceClass
+    def test_print_uids(self):
+        """Test that the Print SOP Class UIDs work correctly."""
+        for uid in _PRINT_MANAGEMENT_CLASSES.values():
+            assert uid_to_service_class(uid) == PrintManagementServiceClass
+
+    def test_commitment_uids(self):
+        """Test that the Storage Commitment SOP Class UIDs work correctly."""
+        for uid in _STORAGE_COMMITMENT_CLASSES.values():
+            assert uid_to_service_class(uid) == StorageCommitmentServiceClass
+
+    def test_app_logging_uids(self):
+        """Test that the Application Event SOP Class UIDs work correctly."""
+        for uid in _APPLICATION_EVENT_CLASSES.values():
+            assert uid_to_service_class(uid) == ApplicationEventLoggingServiceClass
+
+    def test_instance_uids(self):
+        """Test that the Instance Availability SOP Class UIDs work correctly."""
+        for uid in _INSTANCE_AVAILABILITY_CLASSES.values():
+            assert uid_to_service_class(uid) == InstanceAvailabilityNotificationServiceClass
+
+    def test_media_creation_uids(self):
+        """Test that the Media Creation SOP Class UIDs work correctly."""
+        for uid in _MEDIA_CREATION_CLASSES.values():
+            assert uid_to_service_class(uid) == MediaCreationManagementServiceClass
 
     def test_ups_uids(self):
         """Test that the UPS SOP Class UIDs work correctly."""
@@ -183,16 +239,6 @@ class TestUIDToServiceClass(object):
         """Test that the RT Verification SOP Class UIDs work correctly."""
         for uid in _RT_MACHINE_VERIFICATION_CLASSES.values():
             assert uid_to_service_class(uid) == RTMachineVerificationServiceClass
-
-    def test_display_system_uids(self):
-        """Test that Display System SOP Class UIDs work correctly."""
-        for uid in _DISPLAY_SYSTEM_CLASSES.values():
-            assert uid_to_service_class(uid) == DisplaySystemManagementServiceClass
-
-    def test_protocol_approval_uids(self):
-        """Test that Protocol Approval SOP Class UIDs work correctly."""
-        for uid in _PROTOCOL_APPROVAL_SOP_CLASSES.values():
-            assert uid_to_service_class(uid) == ProtocolApprovalQueryRetrieveServiceClass
 
     def test_unknown_uid(self):
         """Test that an unknown UID returns default service class."""
@@ -273,3 +319,39 @@ class TestSOPClass(object):
         """Test an Protocol Approval Service SOP Class."""
         assert ProtocolApprovalInformationModelFind == '1.2.840.10008.5.1.4.1.1.200.4'
         assert ProtocolApprovalInformationModelFind.service_class == ProtocolApprovalQueryRetrieveServiceClass
+
+    def test_display_sop(self):
+        assert DisplaySystemSOPClass == '1.2.840.10008.5.1.1.40'
+        assert DisplaySystemSOPClass.service_class == DisplaySystemManagementServiceClass
+
+    def test_mpps_sop(self):
+        assert ModalityPerformedProcedureStepSOPClass == '1.2.840.10008.3.1.2.3.3'
+        assert ModalityPerformedProcedureStepSOPClass.service_class == ModalityPerformedProcedureStepServiceClass
+
+    def test_print_sop(self):
+        assert PrintJobSOPClass == '1.2.840.10008.5.1.1.14'
+        assert PrintJobSOPClass.service_class == PrintManagementServiceClass
+
+    def test_commitment_sop(self):
+        assert StorageCommitmentPushModelSOPClass == '1.2.840.10008.1.20.1'
+        assert StorageCommitmentPushModelSOPClass.service_class == StorageCommitmentServiceClass
+
+    def test_app_logging_sop(self):
+        assert ProceduralEventLoggingSOPClass == '1.2.840.10008.1.40'
+        assert ProceduralEventLoggingSOPClass.service_class == ApplicationEventLoggingServiceClass
+
+    def test_instance_sop(self):
+        assert InstanceAvailabilityNotificationSOPClass == '1.2.840.10008.5.1.4.33'
+        assert InstanceAvailabilityNotificationSOPClass.service_class == InstanceAvailabilityNotificationServiceClass
+
+    def test_media_sop(self):
+        assert MediaCreationManagementSOPClass == '1.2.840.10008.5.1.1.33'
+        assert MediaCreationManagementSOPClass.service_class == MediaCreationManagementServiceClass
+
+    def test_ups_sop(self):
+        assert UnifiedProcedureStepPullSOPClass == '1.2.840.10008.5.1.4.34.6.3'
+        assert UnifiedProcedureStepPullSOPClass.service_class == UnifiedProcedureStepServiceClass
+
+    def test_rt_sop(self):
+        assert RTConventionalMachineVerification == '1.2.840.10008.5.1.4.34.8'
+        assert RTConventionalMachineVerification.service_class == RTMachineVerificationServiceClass
