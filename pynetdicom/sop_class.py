@@ -386,14 +386,14 @@ _VERIFICATION_CLASSES = {
 }
 # pylint: enable=line-too-long
 
-_generate_sop_classes(_BASIC_WORKLIST_CLASSES)
 _generate_sop_classes(_APPLICATION_EVENT_CLASSES)
-_generate_sop_classes(_INSTANCE_AVAILABILITY_CLASSES)
+_generate_sop_classes(_BASIC_WORKLIST_CLASSES)
 _generate_sop_classes(_COLOR_PALETTE_CLASSES)
 _generate_sop_classes(_DEFINED_PROCEDURE_CLASSES)
 _generate_sop_classes(_DISPLAY_SYSTEM_CLASSES)
 _generate_sop_classes(_HANGING_PROTOCOL_CLASSES)
 _generate_sop_classes(_IMPLANT_TEMPLATE_CLASSES)
+_generate_sop_classes(_INSTANCE_AVAILABILITY_CLASSES)
 _generate_sop_classes(_MEDIA_CREATION_CLASSES)
 _generate_sop_classes(_MEDIA_STORAGE_CLASSES)
 _generate_sop_classes(_NON_PATIENT_OBJECT_CLASSES)
