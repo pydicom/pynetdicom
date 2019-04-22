@@ -87,7 +87,7 @@ Examples
 
    examples/index
 
-* :doc:`Basisc Worklist Management (C-FIND) <examples/basic_worklist>`
+* :doc:`Basic Worklist Management (C-FIND) <examples/basic_worklist>`
 * :doc:`Display System Management (N-GET) <examples/display>`
 * Modality Performed Procedure Step Management
 
@@ -95,8 +95,7 @@ Examples
   * :doc:`MPPS Notification (N-EVENT-REPORT) <examples/mpps_er>`
 * Print Management
 
-  * :doc:`Basic Film Session (N-CREATE, N-SET, N-DELETE, N-ACTION) <examples/print>`
-  * :doc:`Print Job (N-EVENT-REPORT, N-GET) <examples/print>`
+  * :doc:`Basic Grayscale Print Management (N-CREATE, N-SET, N-DELETE, N-ACTION) <examples/print>`
 * Query/Retrieve
 
   * :doc:`Query/Retrieve - Find (C-FIND) <examples/qr_find>`

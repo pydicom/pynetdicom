@@ -1584,11 +1584,11 @@ class TransferSyntaxSubItem(PDUItem):
             raise TypeError('Transfer syntax must be a pydicom.uid.UID, '
                             'bytes or str')
 
-        if value is not None and not validate_uid(value):
+        if value and not validate_uid(value):
             LOGGER.error("Transfer Syntax Name is an invalid UID")
             raise ValueError("Transfer Syntax Name is an invalid UID")
 
-        self._transfer_syntax_name = value
+        self._transfer_syntax_name = value or None
 
 
 ## User Information Item sub-items

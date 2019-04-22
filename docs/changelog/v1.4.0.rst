@@ -7,7 +7,7 @@
 Fixes
 .....
 
-* Fixed Query Retrieve service class not responded with ``0x0000`` (Success)
+* Fixed Query Retrieve service class not responding with ``0x0000`` (Success)
   if no matches were yielded by the C-FIND request handler.
 
 Enhancements
@@ -17,13 +17,18 @@ Enhancements
   (:issue:`327`)
 * Added support for the following service classes:
 
-  * Print Management
-  * Storage Commitment
   * Application Event Logging
   * Instance Availability Notification
   * Media Creation Management
-  * Unified Procedure Step
+  * Print Management
   * RT Machine Verification
+  * Storage Commitment
+  * Unified Procedure Step
+* ``meta_uid`` keyword parameter added to ``Association.send_n_action()``,
+  ``Association.send_n_create()``, ``Association.send_n_delete()``,
+  ``Association.send_n_event_report()``, ``Association.send_n_get()`` and
+  ``Association.send_n_set()`` to allow the use of Meta SOP Classes such as
+  *Basic Grayscale Print Management Meta SOP Class*.
 
 
 Changes

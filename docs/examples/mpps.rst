@@ -12,7 +12,8 @@ has :ref:`three SOP Classes <display_sops>`:
 * *Modality Performed Procedure Step Retrieve SOP Class*, used with N-GET to
   retrieve the SOP Instance's attribute values
 * *Modality Performed Procedure Step Notification SOP Class*, used with
-  N-EVENT-REPORT to notify a peer of the status of a procedure.
+  N-EVENT-REPORT to notify a peer of the status of a procedure. See the
+  :doc:`MPPS Notification examples <mpps_er>` for more information.
 
 MPPS is usually used in combination with the Modality Worklist Service Class
 to provide the modality a mechanism for notifying the RIS (or PACS) that

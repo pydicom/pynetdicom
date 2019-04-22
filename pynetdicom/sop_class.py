@@ -202,6 +202,12 @@ _PRINT_MANAGEMENT_CLASSES = {
     'PrinterSOPClass' : '1.2.840.10008.5.1.1.16',
     'PrinterConfigurationRetrievalSOPClass' : '1.2.840.10008.5.1.1.16.376',
     'PresentationLUTSOPClass' : '1.2.840.10008.5.1.1.23',
+    # Meta SOP Classes
+    # Basic Film Session, Basic Film Box, Basic Grayscale, Printer
+    'BasicGrayscalePrintManagementMetaSOPClass' : '1.2.840.10008.5.1.1.9',
+    # Basic Film Session, Basic Film Box, Basic Color, Printer
+    'BasicColorPrintManagementMetaSOPClass' : '1.2.840.10008.5.1.1.18',
+
 }
 _PROCEDURE_STEP_CLASSES = {
     'ModalityPerformedProcedureStepSOPClass' : '1.2.840.10008.3.1.2.3.3',

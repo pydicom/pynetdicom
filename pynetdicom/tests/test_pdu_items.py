@@ -45,7 +45,7 @@ from .encoded_pdu_items import (
     maximum_length_received, implementation_class_uid,
     implementation_version_name, role_selection, role_selection_odd,
     user_information, extended_negotiation, common_extended_negotiation,
-    p_data_tf
+    p_data_tf, a_associate_ac_zero_ts
 )
 
 LOGGER = logging.getLogger('pynetdicom')
@@ -879,6 +879,23 @@ class TestTransferSyntax(object):
         assert len(item.transfer_syntax_name) % 2 > 0
         assert len(item) == 9
         assert item.encode() == b'\x40\x00\x00\x05\x31\x2e\x32\x2e\x33'
+
+    def test_decode_empty(self):
+        """Regression test for #342 (decoding an empty Transfer Syntax Item."""
+        pdu = A_ASSOCIATE_AC()
+        pdu.decode(a_associate_ac_zero_ts)
+
+        item = pdu.presentation_context[0]
+        assert item.item_type == 0x21
+        assert item.item_length == 27
+        assert len(item) == 31
+        assert item.transfer_syntax == UID('1.2.840.10008.1.2.1')
+
+        item = pdu.presentation_context[1]
+        assert item.item_type == 0x21
+        assert item.item_length == 8
+        assert len(item) == 12
+        assert item.transfer_syntax is None
 
 
 class TestPresentationDataValue(object):
