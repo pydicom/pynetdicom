@@ -961,8 +961,9 @@ class PresentationContextItemAC(PDUItem):
         s += "  Context ID: {0:d}\n".format(self.presentation_context_id)
         s += "  Result/Reason: {0!s}\n".format(self.result_str)
 
-        item_str = '{0!s}'.format(self.transfer_syntax.name)
-        s += '  +  {0!s}\n'.format(item_str)
+        if self.transfer_syntax:
+            item_str = '{0!s}'.format(self.transfer_syntax.name)
+            s += '  +  {0!s}\n'.format(item_str)
 
         return s
 
@@ -978,6 +979,20 @@ class PresentationContextItemAC(PDUItem):
             return self.transfer_syntax_sub_item[0].transfer_syntax_name
 
         return None
+
+    def _wrap_generate_items(self, bytestream):
+        """Return a list of decoded PDU items generated from `bytestream`."""
+        item_list = []
+        for item_type, item_bytes in self._generate_items(bytestream):
+            item = PDU_ITEM_TYPES[item_type]()
+            # Transfer Syntax items shall not have their value tested if
+            #   not accepted
+            if item_type == 0x40 and self.result != 0x00:
+                item._skip_validation = True
+            item.decode(item_bytes)
+            item_list.append(item)
+
+        return item_list
 
 
 class UserInformationItem(PDUItem):
@@ -1492,6 +1507,8 @@ class TransferSyntaxSubItem(PDUItem):
 
     def __init__(self):
         """Initialise a new Abstract Syntax Item."""
+        # Should not be validated if Presentation Context was rejected
+        self._skip_validation = False
         self.transfer_syntax_name = None
 
     @property
@@ -1547,8 +1564,10 @@ class TransferSyntaxSubItem(PDUItem):
         s = "Transfer syntax sub item\n"
         s += "  Item type: 0x{0:02x}\n".format(self.item_type)
         s += "  Item length: {0:d} bytes\n".format(self.item_length)
-        s += '  Transfer syntax name: ={0!s}\n'.format(
-            self.transfer_syntax_name.name)
+        if self.transfer_syntax_name:
+            s += '  Transfer syntax name: ={0!s}\n'.format(
+                self.transfer_syntax_name.name
+            )
 
         return s
 
@@ -1583,6 +1602,10 @@ class TransferSyntaxSubItem(PDUItem):
         else:
             raise TypeError('Transfer syntax must be a pydicom.uid.UID, '
                             'bytes or str')
+
+        if self._skip_validation:
+            self._transfer_syntax_name = value or None
+            return
 
         if value is not None and not validate_uid(value):
             LOGGER.error("Transfer Syntax Name is an invalid UID")
