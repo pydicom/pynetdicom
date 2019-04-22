@@ -612,6 +612,28 @@ class TestPresentationContextAC(object):
             item.result_reason = result
             assert item.result_str == _result[result]
 
+    def test_decode_empty(self):
+        """Regression test for #342 (decoding an empty Transfer Syntax Item."""
+        # When result is not accepted, transfer syntax value must not be tested
+        item = PresentationContextItemAC()
+        item.decode(
+            b'\x21\x00\x00\x08\x01\x00\x01\x00'
+            b'\x40\x00\x00\x00'
+        )
+
+        assert item.item_type == 0x21
+        assert item.item_length == 8
+        assert item.result == 1
+        assert len(item) == 12
+        assert item.transfer_syntax is None
+
+        assert "Item length: 8 bytes" in item.__str__()
+
+        item = item.transfer_syntax_sub_item[0]
+        assert item.item_length == 0
+        assert item._skip_validation is True
+        assert item.transfer_syntax_name is None
+
 
 class TestAbstractSyntax(object):
     def setup(self):
@@ -888,14 +910,26 @@ class TestTransferSyntax(object):
         item = pdu.presentation_context[0]
         assert item.item_type == 0x21
         assert item.item_length == 27
+        assert item.result == 0
         assert len(item) == 31
         assert item.transfer_syntax == UID('1.2.840.10008.1.2.1')
 
         item = pdu.presentation_context[1]
         assert item.item_type == 0x21
         assert item.item_length == 8
+        assert item.result == 3
         assert len(item) == 12
         assert item.transfer_syntax is None
+
+        item = TransferSyntaxSubItem()
+        item._skip_validation = True
+        item.decode(b'\x40\x00\x00\x00')
+        assert item.item_type == 0x40
+        assert item.item_length == 0
+        assert len(item) == 4
+        assert item.transfer_syntax is None
+        assert 'Item length: 0 bytes' in item.__str__()
+        assert 'Transfer syntax name' not in item.__str__()
 
 
 class TestPresentationDataValue(object):

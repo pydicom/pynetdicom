@@ -9,6 +9,9 @@ Fixes
 
 * Fixed Query Retrieve service class not responding with ``0x0000`` (Success)
   if no matches were yielded by the C-FIND request handler.
+* Fixed abort during association negotiation due to failing verification check
+  on rejected presentation contexts containing an empty transfer syntax name
+  (:issue:`342`)
 
 Enhancements
 ............
