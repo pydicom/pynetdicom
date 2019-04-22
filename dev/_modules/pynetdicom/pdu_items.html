@@ -1139,8 +1139,9 @@
         <span class="n">s</span> <span class="o">+=</span> <span class="s2">&quot;  Context ID: </span><span class="si">{0:d}</span><span class="se">\n</span><span class="s2">&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">presentation_context_id</span><span class="p">)</span>
         <span class="n">s</span> <span class="o">+=</span> <span class="s2">&quot;  Result/Reason: </span><span class="si">{0!s}</span><span class="se">\n</span><span class="s2">&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">result_str</span><span class="p">)</span>
 
-        <span class="n">item_str</span> <span class="o">=</span> <span class="s1">&#39;</span><span class="si">{0!s}</span><span class="s1">&#39;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">transfer_syntax</span><span class="o">.</span><span class="n">name</span><span class="p">)</span>
-        <span class="n">s</span> <span class="o">+=</span> <span class="s1">&#39;  +  </span><span class="si">{0!s}</span><span class="se">\n</span><span class="s1">&#39;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">item_str</span><span class="p">)</span>
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">transfer_syntax</span><span class="p">:</span>
+            <span class="n">item_str</span> <span class="o">=</span> <span class="s1">&#39;</span><span class="si">{0!s}</span><span class="s1">&#39;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">transfer_syntax</span><span class="o">.</span><span class="n">name</span><span class="p">)</span>
+            <span class="n">s</span> <span class="o">+=</span> <span class="s1">&#39;  +  </span><span class="si">{0!s}</span><span class="se">\n</span><span class="s1">&#39;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">item_str</span><span class="p">)</span>
 
         <span class="k">return</span> <span class="n">s</span>
 
@@ -1155,7 +1156,21 @@
         <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">transfer_syntax_sub_item</span><span class="p">:</span>
             <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">transfer_syntax_sub_item</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span><span class="o">.</span><span class="n">transfer_syntax_name</span>
 
-        <span class="k">return</span> <span class="kc">None</span></div>
+        <span class="k">return</span> <span class="kc">None</span>
+
+    <span class="k">def</span> <span class="nf">_wrap_generate_items</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">bytestream</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;Return a list of decoded PDU items generated from `bytestream`.&quot;&quot;&quot;</span>
+        <span class="n">item_list</span> <span class="o">=</span> <span class="p">[]</span>
+        <span class="k">for</span> <span class="n">item_type</span><span class="p">,</span> <span class="n">item_bytes</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">_generate_items</span><span class="p">(</span><span class="n">bytestream</span><span class="p">):</span>
+            <span class="n">item</span> <span class="o">=</span> <span class="n">PDU_ITEM_TYPES</span><span class="p">[</span><span class="n">item_type</span><span class="p">]()</span>
+            <span class="c1"># Transfer Syntax items shall not have their value tested if</span>
+            <span class="c1">#   not accepted</span>
+            <span class="k">if</span> <span class="n">item_type</span> <span class="o">==</span> <span class="mh">0x40</span> <span class="ow">and</span> <span class="bp">self</span><span class="o">.</span><span class="n">result</span> <span class="o">!=</span> <span class="mh">0x00</span><span class="p">:</span>
+                <span class="n">item</span><span class="o">.</span><span class="n">_skip_validation</span> <span class="o">=</span> <span class="kc">True</span>
+            <span class="n">item</span><span class="o">.</span><span class="n">decode</span><span class="p">(</span><span class="n">item_bytes</span><span class="p">)</span>
+            <span class="n">item_list</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">item</span><span class="p">)</span>
+
+        <span class="k">return</span> <span class="n">item_list</span></div>
 
 
 <div class="viewcode-block" id="UserInformationItem"><a class="viewcode-back" href="../../reference/generated/pynetdicom.pdu_items.UserInformationItem.html#pynetdicom.pdu.UserInformationItem">[docs]</a><span class="k">class</span> <span class="nc">UserInformationItem</span><span class="p">(</span><span class="n">PDUItem</span><span class="p">):</span>
@@ -1670,6 +1685,8 @@
 
 <div class="viewcode-block" id="TransferSyntaxSubItem.__init__"><a class="viewcode-back" href="../../reference/generated/pynetdicom.pdu_items.TransferSyntaxSubItem.html#pynetdicom.pdu.TransferSyntaxSubItem.__init__">[docs]</a>    <span class="k">def</span> <span class="nf">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;Initialise a new Abstract Syntax Item.&quot;&quot;&quot;</span>
+        <span class="c1"># Should not be validated if Presentation Context was rejected</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_skip_validation</span> <span class="o">=</span> <span class="kc">False</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">transfer_syntax_name</span> <span class="o">=</span> <span class="kc">None</span></div>
 
     <span class="nd">@property</span>
@@ -1725,8 +1742,10 @@
         <span class="n">s</span> <span class="o">=</span> <span class="s2">&quot;Transfer syntax sub item</span><span class="se">\n</span><span class="s2">&quot;</span>
         <span class="n">s</span> <span class="o">+=</span> <span class="s2">&quot;  Item type: 0x</span><span class="si">{0:02x}</span><span class="se">\n</span><span class="s2">&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">item_type</span><span class="p">)</span>
         <span class="n">s</span> <span class="o">+=</span> <span class="s2">&quot;  Item length: </span><span class="si">{0:d}</span><span class="s2"> bytes</span><span class="se">\n</span><span class="s2">&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">item_length</span><span class="p">)</span>
-        <span class="n">s</span> <span class="o">+=</span> <span class="s1">&#39;  Transfer syntax name: =</span><span class="si">{0!s}</span><span class="se">\n</span><span class="s1">&#39;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span>
-            <span class="bp">self</span><span class="o">.</span><span class="n">transfer_syntax_name</span><span class="o">.</span><span class="n">name</span><span class="p">)</span>
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">transfer_syntax_name</span><span class="p">:</span>
+            <span class="n">s</span> <span class="o">+=</span> <span class="s1">&#39;  Transfer syntax name: =</span><span class="si">{0!s}</span><span class="se">\n</span><span class="s1">&#39;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">transfer_syntax_name</span><span class="o">.</span><span class="n">name</span>
+            <span class="p">)</span>
 
         <span class="k">return</span> <span class="n">s</span>
 
@@ -1761,6 +1780,10 @@
         <span class="k">else</span><span class="p">:</span>
             <span class="k">raise</span> <span class="ne">TypeError</span><span class="p">(</span><span class="s1">&#39;Transfer syntax must be a pydicom.uid.UID, &#39;</span>
                             <span class="s1">&#39;bytes or str&#39;</span><span class="p">)</span>
+
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">_skip_validation</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">_transfer_syntax_name</span> <span class="o">=</span> <span class="n">value</span> <span class="ow">or</span> <span class="kc">None</span>
+            <span class="k">return</span>
 
         <span class="k">if</span> <span class="n">value</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span> <span class="ow">and</span> <span class="ow">not</span> <span class="n">validate_uid</span><span class="p">(</span><span class="n">value</span><span class="p">):</span>
             <span class="n">LOGGER</span><span class="o">.</span><span class="n">error</span><span class="p">(</span><span class="s2">&quot;Transfer Syntax Name is an invalid UID&quot;</span><span class="p">)</span>
