@@ -9,6 +9,17 @@ peer by using the N-GET service. It only has a single
 Display System Management SCU
 .............................
 
+DIMSE Services Available
+^^^^^^^^^^^^^^^^^^^^^^^^
+
++-----------------+---------------------------+
+| DIMSE-N Service | Usage SCU/SCP             |
++=================+===========================+
+| Display System SOP Class                    |
++-----------------+---------------------------+
+| N-GET           | Mandatory/Mandatory       |
++-----------------+---------------------------+
+
 Associate with a peer DICOM Application Entity and request the use of the
 Display System Management Service.
 

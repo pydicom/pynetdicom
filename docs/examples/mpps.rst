@@ -20,6 +20,19 @@ to provide the modality a mechanism for notifying the RIS (or PACS) that
 requested the procedure of it's current status. The modality is typically the
 SCU and the RIS (or PACS) the SCP.
 
+DIMSE Services Available
+........................
+
++-----------------+---------------------------+
+| DIMSE-N Service | Usage SCU/SCP             |
++=================+===========================+
+| Modality Performed Procedure Step SOP Class |
++-----------------+---------------------------+
+| N-CREATE        | Mandatory/Mandatory       |
++-----------------+---------------------------+
+| N-SET           | Mandatory/Mandatory       |
++-----------------+---------------------------+
+
 
 MPPS - Create SCU
 .................

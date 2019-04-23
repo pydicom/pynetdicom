@@ -18,6 +18,5 @@ Examples
    qr_move
    relevant_patient
    print
-   printer
    storage
    verification
