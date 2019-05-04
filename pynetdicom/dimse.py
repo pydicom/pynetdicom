@@ -288,6 +288,22 @@ class DIMSEServiceProvider(object):
             if isinstance(primitive, C_CANCEL) and len(self.cancel_req) < 10:
                 msg_id = primitive.MessageIDBeingRespondedTo
                 self.cancel_req[msg_id] = primitive
+            elif (self.assoc.is_requestor
+                    and isinstance(primitive, N_EVENT_REPORT)
+                    and primitive.MessageIDBeingRespondedTo is None):
+                # N-EVENT-REPORT requests received when acting as the SCU are
+                #   automatically responded to using a Success status
+                # TODO: Implement proper support for N-EVENT-REPORT
+                rsp = N_EVENT_REPORT()
+                rsp.MessageIDBeingRespondedTo = primitive.MessageID
+                rsp.AffectedSOPClassUID = primitive.AffectedSOPClassUID
+                rsp.AffectedSOPInstanceUID = primitive.AffectedSOPInstanceUID
+                rsp.EventTypeID = primitive.EventTypeID
+                bytestream = primitive.EventInformation
+                if bytestream and bytestream.getvalue() != b'':
+                    rsp.EventReply = bytestream
+                rsp.Status = 0x0000
+                self.send_msg(rsp, context_id)
             else:
                 self.msg_queue.put((context_id, primitive))
 
@@ -323,6 +339,6 @@ class DIMSEServiceProvider(object):
         )
 
         # Split the full messages into P-DATA chunks,
-        #   each below the max_pdu size
+        #   each below the maximum_pdu_size
         for pdata in dimse_msg.encode_msg(context_id, self.maximum_pdu_size):
             self.dul.send_pdu(pdata)

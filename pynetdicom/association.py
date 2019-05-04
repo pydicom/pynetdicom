@@ -545,6 +545,7 @@ class Association(threading.Thread):
         5. Checks DUL idle timeout
             If timed out then kill thread
         """
+        peeks = 0
         while not self._kill:
             time.sleep(0.001)
 
@@ -554,6 +555,13 @@ class Association(threading.Thread):
 
             # DIMSE message received, should be a service request
             if msg:
+                if msg.MessageIDBeingRespondedTo is None:
+                    LOGGER.error(
+                        "Unexpected DIMSE service response message received"
+                    )
+                    self.abort()
+                    return
+
                 # Use the Message's Affected SOP Class UID or Requested SOP
                 #   Class UID to determine which service to use
                 # If there's no AffectedSOPClassUID or RequestedSOPClassUID

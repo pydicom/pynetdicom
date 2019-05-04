@@ -1,2 +1,0 @@
-MPPS Notification Service Examples
-~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~

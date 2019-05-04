@@ -11,6 +11,10 @@ facilitate the print of images and image related data.
 Supported SOP Classes
 ---------------------
 
+.. warning::
+   The use of asynchronous N-EVENT-REPORT requests sent by the SCP to the SCU
+   with the *Printer SOP Class* is not supported.
+
 +----------------------------+------------------------------------------------+
 | UID                        | SOP Class                                      |
 +============================+================================================+

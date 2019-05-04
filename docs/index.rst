@@ -140,6 +140,7 @@ Release Notes
    changelog/index
 
 * `v1.4.0 <changelog/index.html#v1-4-0>`_
+* `v1.3.1 <changelog/index.html#v1-3-1>`_
 * `v1.3.0 <changelog/index.html#v1-3-0>`_
 * `v1.2.0 <changelog/index.html#v1-2-0>`_
 * `v1.1.0 <changelog/index.html#v1-1-0>`_

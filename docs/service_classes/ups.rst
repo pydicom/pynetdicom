@@ -12,6 +12,9 @@ items, querying worklists and communicating progress and results.
 Supported SOP Classes
 ---------------------
 
+.. note::
+   *Unified Procedure Step Event SOP Class* is not supported.
+
 +----------------------------+------------------------------------------------+
 | UID                        | SOP Class                                      |
 +============================+================================================+
@@ -20,8 +23,6 @@ Supported SOP Classes
 | 1.2.840.10008.5.1.4.34.6.2 | UnifiedProcedureStepWatchSOPClass              |
 +----------------------------+------------------------------------------------+
 | 1.2.840.10008.5.1.4.34.6.3 | UnifiedProcedureStepPullSOPClass               |
-+----------------------------+------------------------------------------------+
-| 1.2.840.10008.5.1.4.34.6.4 | UnifiedProcedureStepEventSOPClass              |
 +----------------------------+------------------------------------------------+
 
 

@@ -11,13 +11,14 @@ except ImportError:
 from io import BytesIO
 import logging
 import sys
+import threading
 import time
 
 import pytest
 
 from pydicom.dataset import Dataset
 
-from pynetdicom import evt, AE, Association, _config
+from pynetdicom import evt, AE, Association, _config, build_role, debug_logger
 from pynetdicom.association import ServiceUser
 from pynetdicom.dimse import DIMSEServiceProvider
 from pynetdicom.dimse_messages import (
@@ -41,10 +42,12 @@ from .encoded_dimse_n_msg import (
     n_action_rq_ds, n_action_rsp_ds, n_create_rq_ds, n_create_rsp_ds
 )
 from .encoded_pdu_items import p_data_tf
-from pynetdicom.sop_class import VerificationSOPClass
+from pynetdicom.sop_class import (
+    VerificationSOPClass, BasicGrayscalePrintManagementMetaSOPClass,
+    PrinterSOPClass
+)
 
-LOGGER = logging.getLogger('pynetdicom')
-LOGGER.setLevel(logging.CRITICAL)
+debug_logger()
 
 
 class DummyAssociation(object):
@@ -177,6 +180,42 @@ class TestDIMSEProvider(object):
         pdata = pdata.to_primitive()
         dimse.receive_primitive(pdata)
         assert dimse.assoc.dul.event_queue.get() == 'Evt19'
+
+    def test_scu_event_report(self):
+        """Test that N-EVENT-REPORT requests are responded to by SCU."""
+        def handle(event):
+            print(event.data)
+
+        self.ae = ae = AE()
+        ae.acse_timeout = 1
+        ae.dimse_timeout = 1
+        ae.network_timeout = 1
+        ae.add_supported_context(
+            BasicGrayscalePrintManagementMetaSOPClass,
+            scp_role=True, scu_role=True
+        )
+
+        scp = ae.start_server(
+            ('', 11112), block=False,
+            #evt_handlers=[(evt.EVT_DATA_RECV, handle)]
+        )
+
+        ae.add_requested_context(BasicGrayscalePrintManagementMetaSOPClass)
+        role = build_role(BasicGrayscalePrintManagementMetaSOPClass, True, True)
+        assoc = ae.associate(
+            'localhost', 11112, ext_neg=[role],
+            #evt_handlers=[(evt.EVT_DATA_SENT, handle)]
+        )
+
+        # SCP has race condition here with run_as_acceptor
+        status, ds = scp.active_associations[0].send_n_event_report(
+            None, 1, PrinterSOPClass, '1.2.840.10008.5.1.1.17',
+            meta_uid=BasicGrayscalePrintManagementMetaSOPClass
+        )
+
+        assoc.release()
+
+        scp.shutdown()
 
 
 class TestEventHandlingAcceptor(object):

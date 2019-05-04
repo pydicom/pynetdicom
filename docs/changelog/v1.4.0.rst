@@ -23,11 +23,11 @@ Enhancements
   * Media Creation Management
 * Added partial support (excluding support for asynchronous N-EVENT-REPORT)
   for the following service classes:
+
   * Print Management
   * RT Machine Verification
   * Storage Commitment
   * Unified Procedure Step
-
 * ``meta_uid`` keyword parameter added to ``Association.send_n_action()``,
   ``Association.send_n_create()``, ``Association.send_n_delete()``,
   ``Association.send_n_event_report()``, ``Association.send_n_get()`` and
