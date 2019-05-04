@@ -9,9 +9,7 @@ Fixes
 
 * Fixed Query Retrieve service class not responding with ``0x0000`` (Success)
   if no matches were yielded by the C-FIND request handler.
-* Fixed abort during association negotiation due to failing verification check
-  on rejected presentation contexts containing an empty transfer syntax name
-  (:issue:`342`)
+
 
 Enhancements
 ............
@@ -23,10 +21,13 @@ Enhancements
   * Application Event Logging
   * Instance Availability Notification
   * Media Creation Management
+* Added partial support (excluding support for asynchronous N-EVENT-REPORT)
+  for the following service classes:
   * Print Management
   * RT Machine Verification
   * Storage Commitment
   * Unified Procedure Step
+
 * ``meta_uid`` keyword parameter added to ``Association.send_n_action()``,
   ``Association.send_n_create()``, ``Association.send_n_delete()``,
   ``Association.send_n_event_report()``, ``Association.send_n_get()`` and

@@ -1764,7 +1764,7 @@ class TestServiceContexts(object):
     def test_print_management(self):
         """Tests with print management presentation contexts"""
         contexts = PrintManagementPresentationContexts
-        assert len(contexts) == 9
+        assert len(contexts) == 11
 
         for context in contexts:
             assert context.transfer_syntax == DEFAULT_TRANSFER_SYNTAXES
@@ -1775,10 +1775,12 @@ class TestServiceContexts(object):
         assert contexts[2].abstract_syntax == '1.2.840.10008.5.1.1.15'
         assert contexts[3].abstract_syntax == '1.2.840.10008.5.1.1.16'
         assert contexts[4].abstract_syntax == '1.2.840.10008.5.1.1.16.376'
-        assert contexts[5].abstract_syntax == '1.2.840.10008.5.1.1.2'
-        assert contexts[6].abstract_syntax == '1.2.840.10008.5.1.1.23'
-        assert contexts[7].abstract_syntax == '1.2.840.10008.5.1.1.4'
-        assert contexts[8].abstract_syntax == '1.2.840.10008.5.1.1.4.1'
+        assert contexts[5].abstract_syntax == '1.2.840.10008.5.1.1.18'
+        assert contexts[6].abstract_syntax == '1.2.840.10008.5.1.1.2'
+        assert contexts[7].abstract_syntax == '1.2.840.10008.5.1.1.23'
+        assert contexts[8].abstract_syntax == '1.2.840.10008.5.1.1.4'
+        assert contexts[9].abstract_syntax == '1.2.840.10008.5.1.1.4.1'
+        assert contexts[10].abstract_syntax == '1.2.840.10008.5.1.1.9'
 
     def test_procedure_step(self):
         """Tests with procedure step presentation contexts"""

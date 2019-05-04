@@ -63,6 +63,27 @@ notification events.
 | ``evt.EVT_REQUESTED``      | Association requested             |
 +----------------------------+-----------------------------------+
 
+By default a number of notification handlers are bound for logging purposes.
+If you wish to remove these then you can do the following:
+
+::
+
+    from pynetdicom import _config, AE
+    from pynetdicom.sop_class import VerificationSOPClass
+
+    # Don't bind any of the default notification handlers
+    _config.LOG_HANDLER_LEVEL = 'none'
+
+    ae = AE()
+    ae.add_requested_context(VerificationSOPClass)
+
+    # Associate with the peer at IP address 127.0.0.1 and port 11112
+    assoc = ae.associate('127.0.0.1', 11112)
+
+    # Release the association
+    if assoc.is_established:
+        assoc.release()
+
 .. _events_intervention:
 
 Intervention Events

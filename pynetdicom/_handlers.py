@@ -1672,7 +1672,7 @@ def _send_n_get_rq(event):
     s.append('Message Type                  : {0!s}'.format('N-GET RQ'))
     s.append('Message ID                    : {0!s}'.format(cs.MessageID))
     s.append('Requested SOP Class UID       : {0!s}'
-             .format(cs.RequestedSOPClassUID))
+             .format(cs.RequestedSOPClassUID.name))
     s.append('Requested SOP Instance UID    : {0!s}'
              .format(cs.RequestedSOPInstanceUID))
     s.append('Attribute Identifier List     : ({0!s})'.format(nr_attr))
@@ -1732,7 +1732,7 @@ def _send_n_set_rq(event):
     s.append('Message Type                  : {0!s}'.format('N-SET RQ'))
     s.append('Message ID                    : {0!s}'.format(cs.MessageID))
     s.append('Requested SOP Class UID       : {0!s}'
-             .format(cs.RequestedSOPClassUID))
+             .format(cs.RequestedSOPClassUID.name))
     s.append('Requested SOP Instance UID    : {0!s}'
              .format(cs.RequestedSOPInstanceUID))
     s.append('Modification List             : {0!s}'.format(mod_list))
@@ -1780,7 +1780,26 @@ def _send_n_action_rq(event):
     event : events.Event
         The evt.EVT_DIMSE_SENT event that occurred.
     """
-    pass
+    msg = event.message
+    cs = msg.command_set
+
+    action_info = 'None'
+    if msg.data_set and msg.data_set.getvalue() != b'':
+        action_info = 'Present'
+
+    s = []
+    s.append('{:=^76}'.format(' OUTGOING DIMSE MESSAGE '))
+    s.append('Message Type                  : {0!s}'.format('N-ACTION RQ'))
+    s.append('Message ID                    : {0!s}'.format(cs.MessageID))
+    s.append('Requested SOP Class UID       : {0!s}'
+             .format(cs.RequestedSOPClassUID.name))
+    s.append('Requested SOP Instance UID    : {0!s}'
+             .format(cs.RequestedSOPInstanceUID))
+    s.append('Action Type ID                : {0!s}'.format(cs.ActionTypeID))
+    s.append('Action Information            : {0!s}'.format(action_info))
+    s.append('{:=^76}'.format(' END DIMSE MESSAGE '))
+    for line in s:
+        LOGGER.debug(line)
 
 def _send_n_action_rsp(event):
     """Logging handler when an N-ACTION-RSP is sent.
@@ -1800,7 +1819,30 @@ def _send_n_create_rq(event):
     event : events.Event
         The evt.EVT_DIMSE_SENT event that occurred.
     """
-    pass
+    msg = event.message
+    cs = msg.command_set
+
+    attr_list = 'None'
+    if msg.data_set and msg.data_set.getvalue() != b'':
+        attr_list = 'Present'
+
+    s = []
+    s.append('{:=^76}'.format(' OUTGOING DIMSE MESSAGE '))
+    s.append('Message Type                  : {0!s}'.format('N-CREATE RQ'))
+    s.append('Message ID                    : {0!s}'.format(cs.MessageID))
+    s.append(
+        'Affected SOP Class UID        : {0!s}'
+        .format(cs.AffectedSOPClassUID.name)
+    )
+    if 'AffectedSOPInstanceUID' in cs:
+        s.append(
+            'Affected SOP Instance UID     : {0!s}'
+            .format(cs.AffectedSOPInstanceUID)
+        )
+    s.append('Attribute List                : {0!s}'.format(attr_list))
+    s.append('{:=^76}'.format(' END DIMSE MESSAGE '))
+    for line in s:
+        LOGGER.debug(line)
 
 def _send_n_create_rsp(event):
     """Logging handler when an N-CREATE-RSP is sent.
@@ -1907,17 +1949,19 @@ def _recv_n_get_rsp(event):
     if msg.data_set and msg.data_set.getvalue() != b'':
         dataset = 'Present'
 
-    LOGGER.info('Received Get Response')
+    LOGGER.info(
+        'Received Get Response (Status: 0x{0:04x})'.format(cs.Status)
+    )
+
     s = []
     s.append('{:=^76}'.format(' INCOMING DIMSE MESSAGE '))
     s.append('Message Type                  : {0!s}'.format('N-GET RSP'))
-    s.append('Presentation Context ID       : {0!s}'
-             .format(msg.context_id))
     s.append('Message ID Being Responded To : {0!s}'
              .format(cs.MessageIDBeingRespondedTo))
     if 'AffectedSOPClassUID' in cs:
         s.append('Affected SOP Class UID        : {0!s}'
-                 .format(cs.AffectedSOPClassUID))
+                 .format(cs.AffectedSOPClassUID.name)
+        )
     if 'AffectedSOPInstanceUID' in cs:
         s.append('Affected SOP Instance UID     : {0!s}'
                  .format(cs.AffectedSOPInstanceUID))
@@ -1946,7 +1990,35 @@ def _recv_n_set_rsp(event):
     event : events.Event
         The evt.EVT_DIMSE_RECV event that occurred.
     """
-    pass
+    msg = event.message
+    cs = msg.command_set
+
+    dataset = 'None'
+    if msg.data_set and msg.data_set.getvalue() != b'':
+        dataset = 'Present'
+
+    LOGGER.info(
+        'Received Set Response (Status: 0x{0:04x})'.format(cs.Status)
+    )
+
+    s = []
+    s.append('{:=^76}'.format(' INCOMING DIMSE MESSAGE '))
+    s.append('Message Type                  : {0!s}'.format('N-SET RSP'))
+    s.append('Message ID Being Responded To : {0!s}'
+             .format(cs.MessageIDBeingRespondedTo))
+    if 'AffectedSOPClassUID' in cs:
+        s.append('Affected SOP Class UID        : {0!s}'
+                 .format(cs.AffectedSOPClassUID.name)
+        )
+    if 'AffectedSOPInstanceUID' in cs:
+        s.append('Affected SOP Instance UID     : {0!s}'
+                 .format(cs.AffectedSOPInstanceUID))
+    s.append('Attribute List                : {0!s}'.format(dataset))
+    s.append('Status                        : 0x{0:04x}'.format(cs.Status))
+    s.append('{:=^76}'.format(' END DIMSE MESSAGE '))
+
+    for line in s:
+        LOGGER.debug(line)
 
 def _recv_n_action_rq(event):
     """Logging handler when an N-ACTION-RQ is received.
@@ -1966,7 +2038,40 @@ def _recv_n_action_rsp(event):
     event : events.Event
         The evt.EVT_DIMSE_RECV event that occurred.
     """
-    pass
+    msg = event.message
+    cs = msg.command_set
+
+    dataset = 'None'
+    if msg.data_set and msg.data_set.getvalue() != b'':
+        dataset = 'Present'
+
+    LOGGER.info(
+        'Received Action Response (Status: 0x{0:04x})'.format(cs.Status)
+    )
+
+    s = []
+    s.append('{:=^76}'.format(' INCOMING DIMSE MESSAGE '))
+    s.append('Message Type                  : {0!s}'.format('N-ACTION RSP'))
+    s.append('Presentation Context ID       : {0!s}'
+             .format(msg.context_id))
+    s.append('Message ID Being Responded To : {0!s}'
+             .format(cs.MessageIDBeingRespondedTo))
+    if 'AffectedSOPClassUID' in cs:
+        s.append('Affected SOP Class UID        : {0!s}'
+                 .format(cs.AffectedSOPClassUID.name))
+    if 'AffectedSOPInstanceUID' in cs:
+        s.append('Affected SOP Instance UID     : {0!s}'
+                 .format(cs.AffectedSOPInstanceUID))
+    if 'ActionTypeID' in cs:
+        s.append(
+            'Action Type ID                : {0!s}'.format(cs.ActionTypeID)
+        )
+    s.append('Action Reply                  : {0!s}'.format(dataset))
+    s.append('Status                        : 0x{0:04x}'.format(cs.Status))
+    s.append('{:=^76}'.format(' END DIMSE MESSAGE '))
+
+    for line in s:
+        LOGGER.debug(line)
 
 def _recv_n_create_rq(event):
     """Logging handler when an N-CREATE-RQ is received.
@@ -1986,7 +2091,34 @@ def _recv_n_create_rsp(event):
     event : events.Event
         The evt.EVT_DIMSE_RECV event that occurred.
     """
-    pass
+    msg = event.message
+    cs = msg.command_set
+
+    dataset = 'None'
+    if msg.data_set and msg.data_set.getvalue() != b'':
+        dataset = 'Present'
+
+    LOGGER.info(
+        'Received Create Response (Status: 0x{0:04x})'.format(cs.Status)
+    )
+    s = []
+    s.append('{:=^76}'.format(' INCOMING DIMSE MESSAGE '))
+    s.append('Message Type                  : {0!s}'.format('N-CREATE RSP'))
+    s.append('Message ID Being Responded To : {0!s}'
+             .format(cs.MessageIDBeingRespondedTo))
+    if 'AffectedSOPClassUID' in cs:
+        s.append('Affected SOP Class UID        : {0!s}'
+                 .format(cs.AffectedSOPClassUID.name)
+        )
+    if 'AffectedSOPInstanceUID' in cs:
+        s.append('Affected SOP Instance UID     : {0!s}'
+                 .format(cs.AffectedSOPInstanceUID))
+    s.append('Attribute List                : {0!s}'.format(dataset))
+    s.append('Status                        : 0x{0:04x}'.format(cs.Status))
+    s.append('{:=^76}'.format(' END DIMSE MESSAGE '))
+
+    for line in s:
+        LOGGER.debug(line)
 
 def _recv_n_delete_rq(event):
     """Logging handler when an N-DELETE-RQ is received.

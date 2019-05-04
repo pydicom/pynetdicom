@@ -2046,7 +2046,7 @@ class Association(threading.Thread):
 
     # DIMSE-N services provided by the Association
     def send_n_action(self, dataset, action_type, class_uid, instance_uid,
-                      meta_uid=None, msg_id=1):
+                      msg_id=1, meta_uid=None):
         """Send an N-ACTION request message to the peer AE.
 
         Parameters
@@ -2062,15 +2062,15 @@ class Association(threading.Thread):
         instance_uid : pydicom.uid.UID
             The UID to be sent for the request's (0000,1001) *Requested SOP
             Instance UID* parameter.
-        meta_uid : pydicom.uid.UID, optional
-            Should be used when the service class operates under a
-            presentation context negotiated using a *Meta SOP Class* rather
-            than a normal *SOP Class*, such as with *Print Management* and
-            *Basic Grayscale Print Management Meta SOP Class* or *Basic
-            Color Print Management Meta SOP Class*.
         msg_id : int, optional
             The request's *Message ID* parameter value, must be between 0 and
             65535, inclusive, (default 1).
+        meta_uid : pydicom.uid.UID, optional
+            Should be used when the service class operates under a
+            presentation context negotiated using a *Meta SOP Class* rather
+            than a standard *SOP Class*, such as with *Print Management* and
+            the *Basic Grayscale Print Management* and *Basic Color Print
+            Management* meta SOP classes.
 
         Returns
         -------
@@ -2218,7 +2218,7 @@ class Association(threading.Thread):
         return status, action_reply
 
     def send_n_create(self, dataset, class_uid, instance_uid=None,
-                      meta_uid=None, msg_id=1):
+                      msg_id=1, meta_uid=None):
         """Send an N-CREATE request message to the peer AE.
 
         Parameters
@@ -2232,15 +2232,15 @@ class Association(threading.Thread):
         instance_uid : pydicom.uid.UID, optional
             The UID to be sent for the request's (0000,1000) *Affected SOP
             Instance UID* parameter.
-        meta_uid : pydicom.uid.UID, optional
-            Should be used when the service class operates under a
-            presentation context negotiated using a *Meta SOP Class* rather
-            than a normal *SOP Class*, such as with *Print Management* and
-            *Basic Grayscale Print Management Meta SOP Class* or *Basic
-            Color Print Management Meta SOP Class*.
         msg_id : int, optional
             The request's *Message ID* parameter value, must be between 0 and
             65535, inclusive, (default 1).
+        meta_uid : pydicom.uid.UID, optional
+            Should be used when the service class operates under a
+            presentation context negotiated using a *Meta SOP Class* rather
+            than a standard *SOP Class*, such as with *Print Management* and
+            the *Basic Grayscale Print Management* and *Basic Color Print
+            Management* meta SOP classes.
 
         Returns
         -------
@@ -2425,7 +2425,7 @@ class Association(threading.Thread):
 
         return status, attribute_list
 
-    def send_n_delete(self, class_uid, instance_uid, meta_uid=None, msg_id=1):
+    def send_n_delete(self, class_uid, instance_uid, msg_id=1, meta_uid=None):
         """Send an N-DELETE request message to the peer AE.
 
         Parameters
@@ -2436,15 +2436,15 @@ class Association(threading.Thread):
         instance_uid : pydicom.uid.UID
             The UID to be sent for the request's (0000,1001) *Requested SOP
             Instance UID* parameter.
-        meta_uid : pydicom.uid.UID, optional
-            Should be used when the service class operates under a
-            presentation context negotiated using a *Meta SOP Class* rather
-            than a normal *SOP Class*, such as with *Print Management* and
-            *Basic Grayscale Print Management Meta SOP Class* or *Basic
-            Color Print Management Meta SOP Class*.
         msg_id : int, optional
             The request's *Message ID* parameter value, must be between 0 and
             65535, inclusive, (default 1).
+        meta_uid : pydicom.uid.UID, optional
+            Should be used when the service class operates under a
+            presentation context negotiated using a *Meta SOP Class* rather
+            than a standard *SOP Class*, such as with *Print Management* and
+            the *Basic Grayscale Print Management* and *Basic Color Print
+            Management* meta SOP classes.
 
         Returns
         -------
@@ -2529,7 +2529,7 @@ class Association(threading.Thread):
         return status
 
     def send_n_event_report(self, dataset, event_type, class_uid,
-                            instance_uid, meta_uid=None, msg_id=1):
+                            instance_uid, msg_id=1, meta_uid=None):
         """Send an N-EVENT-REPORT request message to the peer AE.
 
         Parameters
@@ -2547,15 +2547,15 @@ class Association(threading.Thread):
         instance_uid : pydicom.uid.UID
             The UID to be sent for the request's (0000,1000) *Affected SOP
             Instance UID* parameter.
-        meta_uid : pydicom.uid.UID, optional
-            Should be used when the service class operates under a
-            presentation context negotiated using a *Meta SOP Class* rather
-            than a normal *SOP Class*, such as with *Print Management* and
-            *Basic Grayscale Print Management Meta SOP Class* or *Basic
-            Color Print Management Meta SOP Class*.
         msg_id : int, optional
             The request's *Message ID* parameter value, must be between 0 and
             65535, inclusive, (default 1).
+        meta_uid : pydicom.uid.UID, optional
+            Should be used when the service class operates under a
+            presentation context negotiated using a *Meta SOP Class* rather
+            than a standard *SOP Class*, such as with *Print Management* and
+            the *Basic Grayscale Print Management* and *Basic Color Print
+            Management* meta SOP classes.
 
         Returns
         -------
@@ -2701,7 +2701,7 @@ class Association(threading.Thread):
         return status, event_reply
 
     def send_n_get(self, identifier_list, class_uid, instance_uid,
-                   meta_uid=None, msg_id=1):
+                   msg_id=1, meta_uid=None):
         """Send an N-GET request message to the peer AE.
 
         Parameters
@@ -2717,15 +2717,15 @@ class Association(threading.Thread):
         instance_uid : pydicom.uid.UID
             The UID to be sent for the request's (0000,1001) *Requested SOP
             Instance UID* parameter.
-        meta_uid : pydicom.uid.UID, optional
-            Should be used when the service class operates under a
-            presentation context negotiated using a *Meta SOP Class* rather
-            than a normal *SOP Class*, such as with *Print Management* and
-            *Basic Grayscale Print Management Meta SOP Class* or *Basic
-            Color Print Management Meta SOP Class*.
         msg_id : int, optional
             The request's *Message ID* parameter value, must be between 0 and
             65535, inclusive, (default 1).
+        meta_uid : pydicom.uid.UID, optional
+            Should be used when the service class operates under a
+            presentation context negotiated using a *Meta SOP Class* rather
+            than a standard *SOP Class*, such as with *Print Management* and
+            the *Basic Grayscale Print Management* and *Basic Color Print
+            Management* meta SOP classes.
 
         Returns
         -------
@@ -2880,8 +2880,8 @@ class Association(threading.Thread):
 
         return status, attribute_list
 
-    def send_n_set(self, dataset, class_uid, instance_uid, meta_uid=None,
-                   msg_id=1):
+    def send_n_set(self, dataset, class_uid, instance_uid, msg_id=1,
+                   meta_uid=None):
         """Send an N-SET request message to the peer AE.
 
         Parameters
@@ -2895,15 +2895,16 @@ class Association(threading.Thread):
         instance_uid : pydicom.uid.UID
             The UID to be sent for the request's (0000,1001) *Requested SOP
             Instance UID* parameter.
-        meta_uid : pydicom.uid.UID, optional
-            Should be used when the service class operates under a
-            presentation context negotiated using a *Meta SOP Class* rather
-            than a normal *SOP Class*, such as with *Print Management* and
-            *Basic Grayscale Print Management Meta SOP Class* or *Basic
-            Color Print Management Meta SOP Class*.
         msg_id : int, optional
             The request's *Message ID* parameter value, must be between 0 and
             65535, inclusive, (default 1).
+        meta_uid : pydicom.uid.UID, optional
+            Should be used when the service class operates under a
+            presentation context negotiated using a *Meta SOP Class* rather
+            than a standard *SOP Class*, such as with *Print Management* and
+            the *Basic Grayscale Print Management* and *Basic Color Print
+            Management* meta SOP classes.
+
 
         Returns
         -------

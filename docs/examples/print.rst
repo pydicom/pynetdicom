@@ -75,39 +75,39 @@ Over a single association:
 DIMSE Services Available
 ........................
 
-+-----------------+---------------------+
-| DIMSE-N Service | Usage SCU/SCP       |
-+=================+=====================+
-| Basic Film Session SOP Class          |
-+-----------------+---------------------+
-| N-CREATE        | Mandatory/Mandatory |
-+-----------------+---------------------+
-| N-SET           | Optional/Mandatory  |
-+-----------------+---------------------+
-| N-DELETE        | Optional/Mandatory  |
-+-----------------+---------------------+
-| N-ACTION        | Optional/Optional   |
-+-----------------+---------------------+
-| Basic Film Box SOP Class              |
-+-----------------+---------------------+
-| N-CREATE        | Mandatory/Mandatory |
-+-----------------+---------------------+
-| N-ACTION        | Mandatory/Mandatory |
-+-----------------+---------------------+
-| N-DELETE        | Optional/Mandatory  |
-+-----------------+---------------------+
-| N-SET           | Optional/Optional   |
-+-----------------+---------------------+
-| Basic Grayscale Image Box SOP Class   |
-+-----------------+---------------------+
-| N-SET           | Mandatory/Mandatory |
-+-----------------+---------------------+
-| Printer SOP Class                     |
-+-----------------+---------------------+
-| N-EVENT-REPORT  | Mandatory/Mandatory |
-+-----------------+---------------------+
-| N-GET           | Optional/Optional   |
-+-----------------+---------------------+
++-----------------+-------------------------+
+| DIMSE-N Service | Usage SCU/SCP           |
++=================+=========================+
+| Basic Film Session SOP Class (M/M)        |
++-----------------+-------------------------+
+| N-CREATE        | Mandatory/Mandatory     |
++-----------------+-------------------------+
+| N-SET           | Optional/Mandatory      |
++-----------------+-------------------------+
+| N-DELETE        | Optional/Mandatory      |
++-----------------+-------------------------+
+| N-ACTION        | Optional/Optional       |
++-----------------+-------------------------+
+| Basic Film Box SOP Class (M/M)            |
++-----------------+-------------------------+
+| N-CREATE        | Mandatory/Mandatory     |
++-----------------+-------------------------+
+| N-ACTION        | Mandatory/Mandatory     |
++-----------------+-------------------------+
+| N-DELETE        | Optional/Mandatory      |
++-----------------+-------------------------+
+| N-SET           | Optional/Optional       |
++-----------------+-------------------------+
+| Basic Grayscale Image Box SOP Class (M/M) |
++-----------------+-------------------------+
+| N-SET           | Mandatory/Mandatory     |
++-----------------+-------------------------+
+| Printer SOP Class (M/M)                   |
++-----------------+-------------------------+
+| N-EVENT-REPORT  | Mandatory/Mandatory     |
++-----------------+-------------------------+
+| N-GET           | Optional/Mandatory      |
++-----------------+-------------------------+
 
 Example
 .......
@@ -157,7 +157,7 @@ Print the image data from a SOP Instance onto a single A4 page.
 
         # Can only contain a single item, is a reference to the *Film Session*
         attr_list.ReferencedFilmSessionSequence = [Dataset]
-        item = ds.ReferencedFilmSessionSequence[0]
+        item = attr_list.ReferencedFilmSessionSequence[0]
         item.ReferencedSOPClassUID = session.SOPClassUID
         item.ReferencedSOPInstanceUID = session.SOPInstanceUID
 

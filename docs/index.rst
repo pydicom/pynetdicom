@@ -43,24 +43,22 @@ Supported Service Classes
 * :doc:`Instance Availability Notification <service_classes/instance_availability>`
 * :doc:`Media Creation Management <service_classes/media_creation>`
 * :doc:`Non-Patient Object Storage <service_classes/non_patient_service_class>`
-* :doc:`Print Management <service_classes/print_management>`
-* :doc:`Procedure Step <service_classes/modality_performed_procedure_step>`
+* :doc:`Print Management <service_classes/print_management>` (partial)
+* :doc:`Procedure Step <service_classes/modality_performed_procedure_step>` (partial)
 * :doc:`Protocol Approval Query/Retrieve <service_classes/protocol_approval_service_class>`
 * :doc:`Query/Retrieve <service_classes/query_retrieve_service_class>`
 
   * Composite Instance Retrieve Without Bulk Data
   * Instance and Frame Level Retrieve
 * :doc:`Relevant Patient Information Query <service_classes/relevant_patient_service_class>`
-* :doc:`RT Machine Verification <service_classes/rt_machine>`
 * :doc:`Storage <service_classes/storage_service_class>`
 
   * Ophthalmic Refractive Measurements
   * Softcopy Presentation State
   * Structured Reporting
   * Volumetric Presentation State
-* :doc:`Storage Commitment <service_classes/storage_commitment>`
 * :doc:`Substance Administration Query <service_classes/substance_admin_service_class>`
-* :doc:`Unified Procedure Step <service_classes/ups>`
+* :doc:`Unified Procedure Step <service_classes/ups>` (partial)
 * :doc:`Verification <service_classes/verification_service_class>`
 
 
@@ -92,10 +90,9 @@ Examples
 * Modality Performed Procedure Step Management
 
   * :doc:`MPPS (N-CREATE and N-SET) <examples/mpps>`
-  * :doc:`MPPS Notification (N-EVENT-REPORT) <examples/mpps_er>`
 * Print Management
 
-  * :doc:`Basic Grayscale Print Management (N-CREATE, N-SET, N-DELETE, N-ACTION) <examples/print>`
+  * :doc:`Basic Grayscale Print Management (N-CREATE, N-SET, N-GET, N-DELETE, N-ACTION) <examples/print>`
 * Query/Retrieve
 
   * :doc:`Query/Retrieve - Find (C-FIND) <examples/qr_find>`
