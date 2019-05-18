@@ -174,6 +174,9 @@ class Association(threading.Thread):
         self._started_dul = False
         # Used to pause the association reactor until the DUL is ready
         self._dul_ready = threading.Event()
+        # Use to pause the association reactor while a service is being used
+        self._reactor_checkpoint = threading.Event()
+        self._reactor_checkpoint.set()
 
         # Thread setup
         threading.Thread.__init__(self)
@@ -502,7 +505,6 @@ class Association(threading.Thread):
             self._started_dul = True
             # Wait until the DUL is up and running
             self._dul_ready.wait()
-            #time.sleep(0.05)
 
         if self.is_acceptor:
             primitive = self.dul.receive_pdu(wait=True,
@@ -545,8 +547,14 @@ class Association(threading.Thread):
         5. Checks DUL idle timeout
             If timed out then kill thread
         """
-        peeks = 0
         while not self._kill:
+            # A race condition may occur if the SCP uses the send_*()
+            #   methods as the received DIMSE message may be taken off the
+            #   queue before the send_*() method gets to it, so we allow the
+            #   reactor to be paused
+            # Will block until `_reactor_checkpoint` is True
+            self._reactor_checkpoint.wait()
+
             time.sleep(0.001)
 
             # Check with the DIMSE provider to see if a completely decoded
@@ -555,13 +563,6 @@ class Association(threading.Thread):
 
             # DIMSE message received, should be a service request
             if msg:
-                if msg.MessageIDBeingRespondedTo is None:
-                    LOGGER.error(
-                        "Unexpected DIMSE service response message received"
-                    )
-                    self.abort()
-                    return
-
                 # Use the Message's Affected SOP Class UID or Requested SOP
                 #   Class UID to determine which service to use
                 # If there's no AffectedSOPClassUID or RequestedSOPClassUID
@@ -653,6 +654,10 @@ class Association(threading.Thread):
         """Run the association as the requestor."""
         # Listen for further messages from the peer
         while not self._kill:
+            # For symmetry with `_run_as_acceptor`
+            # Will block until `_reactor_checkpoint` is True
+            self._reactor_checkpoint.wait()
+
             time.sleep(0.1)
 
             # Check for release request
@@ -932,8 +937,15 @@ class Association(threading.Thread):
 
         # Send C-ECHO request to the peer via DIMSE and wait for the response
         LOGGER.info('Sending Echo Request: MsgID {}'.format(msg_id))
+
+        # Pause the reactor to prevent a race condition
+        self._reactor_checkpoint.clear()
+
         self.dimse.send_msg(primitive, context.context_id)
         cx_id, rsp = self.dimse.get_msg(block=True)
+
+        # Unpause the reactor
+        self._reactor_checkpoint.set()
 
         # If `rsp` is None then the DIMSE timeout expired so abort
         if rsp is None:
@@ -1185,6 +1197,9 @@ class Association(threading.Thread):
             LOGGER.info(elem)
         LOGGER.info('')
 
+        # Pause the reactor to prevent a race condition
+        self._reactor_checkpoint.clear()
+
         # Send C-FIND request to the peer via DIMSE
         self.dimse.send_msg(req, context.context_id)
 
@@ -1411,6 +1426,9 @@ class Association(threading.Thread):
             LOGGER.info(elem)
         LOGGER.info('')
 
+        # Pause the reactor to prevent a race condition
+        self._reactor_checkpoint.clear()
+
         # Send C-GET request to the peer via DIMSE
         self.dimse.send_msg(req, context.context_id)
 
@@ -1624,6 +1642,9 @@ class Association(threading.Thread):
             LOGGER.info(elem)
         LOGGER.info('')
 
+        # Pause the reactor to prevent a race condition
+        self._reactor_checkpoint.clear()
+
         # Send C-MOVE request to the peer via DIMSE and wait for the response
         self.dimse.send_msg(req, context.context_id)
 
@@ -1797,9 +1818,15 @@ class Association(threading.Thread):
             LOGGER.error("Failed to encode the supplied Dataset")
             raise ValueError('Failed to encode the supplied Dataset')
 
+        # Pause the reactor to prevent a race condition
+        self._reactor_checkpoint.clear()
+
         # Send C-STORE request to the peer via DIMSE and wait for the response
         self.dimse.send_msg(req, context.context_id)
         cx_id, rsp = self.dimse.get_msg(block=True)
+
+        # Unpause the reactor
+        self._reactor_checkpoint.set()
 
         # If `rsp` is None then the DIMSE timeout expired so abort
         if rsp is None:
@@ -1843,6 +1870,7 @@ class Association(threading.Thread):
                     LOGGER.error("Connection closed or timed-out")
                     self.abort()
                 yield Dataset(), None
+                self._reactor_checkpoint.set()
                 return
 
             if not isinstance(rsp, C_FIND):
@@ -1852,6 +1880,7 @@ class Association(threading.Thread):
                 )
                 self.abort()
                 yield Dataset(), None
+                self._reactor_checkpoint.set()
                 return
 
             if not rsp.is_valid_response:
@@ -1860,6 +1889,7 @@ class Association(threading.Thread):
                 )
                 self.abort()
                 yield Dataset(), None
+                self._reactor_checkpoint.set()
                 return
 
             # Status may be 'Failure', 'Cancel', 'Warning', 'Success'
@@ -1918,6 +1948,9 @@ class Association(threading.Thread):
             yield status, identifier
             break
 
+        # Unpause the reactor
+        self._reactor_checkpoint.set()
+
     def _wrap_get_move_responses(self, transfer_syntax):
         """Wrapper for the C-GET/C-MOVE response generators.
 
@@ -1952,6 +1985,7 @@ class Association(threading.Thread):
                     LOGGER.error("Connection closed or timed-out")
                     self.abort()
                 yield Dataset(), None
+                self._reactor_checkpoint.set()
                 return
 
             if not isinstance(rsp, (C_STORE, C_GET, C_MOVE)):
@@ -1961,6 +1995,7 @@ class Association(threading.Thread):
                 )
                 self.abort()
                 yield Dataset(), None
+                self._reactor_checkpoint.set()
                 return
 
             if isinstance(rsp, C_STORE):
@@ -1976,6 +2011,7 @@ class Association(threading.Thread):
                 )
                 self.abort()
                 yield Dataset(), None
+                self._reactor_checkpoint.set()
                 return
 
             # Status may be 'Failure', 'Cancel', 'Warning', 'Success'
@@ -2051,6 +2087,9 @@ class Association(threading.Thread):
             #   or Cancel
             yield status, identifier
             break
+
+        # Unpause the reactor
+        self._reactor_checkpoint.set()
 
     # DIMSE-N services provided by the Association
     def send_n_action(self, dataset, action_type, class_uid, instance_uid,
@@ -2184,8 +2223,15 @@ class Association(threading.Thread):
 
         # Send N-ACTION request to the peer via DIMSE and wait for the response
         LOGGER.info('Sending Action Request: MsgID {}'.format(msg_id))
+
+        # Pause the reactor to prevent a race condition
+        self._reactor_checkpoint.clear()
+
         self.dimse.send_msg(req, context.context_id)
         cx_id, rsp = self.dimse.get_msg(block=True)
+
+        # Unpause the reactor
+        self._reactor_checkpoint.set()
 
         # If `rsp` is None then the DIMSE timeout expired so abort
         if rsp is None:
@@ -2391,8 +2437,15 @@ class Association(threading.Thread):
 
         # Send N-CREATE request to the peer via DIMSE and wait for the response
         LOGGER.info('Sending Create Request: MsgID {}'.format(msg_id))
+
+        # Pause the reactor to prevent a race condition
+        self._reactor_checkpoint.clear()
+
         self.dimse.send_msg(req, context.context_id)
         cx_id, rsp = self.dimse.get_msg(block=True)
+
+        # Unpause the reactor
+        self._reactor_checkpoint.set()
 
         # If `rsp` is None then the DIMSE timeout expired so abort
         if rsp is None:
@@ -2521,8 +2574,15 @@ class Association(threading.Thread):
 
         # Send N-DELETE request to the peer via DIMSE and wait for the response
         LOGGER.info('Sending Delete Request: MsgID {}'.format(msg_id))
+
+        # Pause the reactor to prevent a race condition
+        self._reactor_checkpoint.clear()
+
         self.dimse.send_msg(req, context.context_id)
         cx_id, rsp = self.dimse.get_msg(block=True)
+
+        # Unpause the reactor
+        self._reactor_checkpoint.set()
 
         # If `rsp` is None then the DIMSE timeout expired so abort
         if rsp is None:
@@ -2667,8 +2727,15 @@ class Association(threading.Thread):
         # Send N-EVENT-REPORT request to the peer via DIMSE and wait for
         # the response primitive
         LOGGER.info('Sending Event Report Request: MsgID {}'.format(msg_id))
+
+        # Pause the reactor to prevent a race condition
+        self._reactor_checkpoint.clear()
+
         self.dimse.send_msg(req, context.context_id)
         cx_id, rsp = self.dimse.get_msg(block=True)
+
+        # Unpause the reactor
+        self._reactor_checkpoint.set()
 
         # If `rsp` is None then the DIMSE timeout expired so abort
         if rsp is None:
@@ -2846,8 +2913,15 @@ class Association(threading.Thread):
 
         # Send N-GET request to the peer via DIMSE and wait for the response
         LOGGER.info('Sending Get Request: MsgID {}'.format(msg_id))
+
+        # Pause the reactor to prevent a race condition
+        self._reactor_checkpoint.clear()
+
         self.dimse.send_msg(req, context.context_id)
         cx_id, rsp = self.dimse.get_msg(block=True)
+
+        # Unpause the reactor
+        self._reactor_checkpoint.set()
 
         # If `rsp` is None then the DIMSE timeout expired so abort
         if rsp is None:
@@ -3066,8 +3140,15 @@ class Association(threading.Thread):
 
         # Send N-SET request to the peer via DIMSE and wait for the response
         LOGGER.info('Sending Set Request: MsgID {}'.format(msg_id))
+
+        # Pause the reactor to prevent a race condition
+        self._reactor_checkpoint.clear()
+
         self.dimse.send_msg(req, context.context_id)
         cx_id, rsp = self.dimse.get_msg(block=True)
+
+        # Unpause the reactor
+        self._reactor_checkpoint.set()
 
         # If `rsp` is None then the DIMSE timeout expired so abort
         if rsp is None:

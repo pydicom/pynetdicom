@@ -207,7 +207,6 @@ _PRINT_MANAGEMENT_CLASSES = {
     'BasicGrayscalePrintManagementMetaSOPClass' : '1.2.840.10008.5.1.1.9',
     # Basic Film Session, Basic Film Box, Basic Color, Printer
     'BasicColorPrintManagementMetaSOPClass' : '1.2.840.10008.5.1.1.18',
-
 }
 _PROCEDURE_STEP_CLASSES = {
     'ModalityPerformedProcedureStepSOPClass' : '1.2.840.10008.3.1.2.3.3',

@@ -11,7 +11,7 @@ import pytest
 from pydicom.dataset import Dataset
 from pydicom.uid import ExplicitVRLittleEndian
 
-from pynetdicom import AE, evt
+from pynetdicom import AE, evt, debug_logger
 from pynetdicom.dimse_primitives import C_FIND
 from pynetdicom.service_class import (
     RelevantPatientInformationQueryServiceClass
@@ -26,6 +26,9 @@ from .dummy_c_scp import (
     DummyFindSCP,
     DummyBaseSCP
 )
+
+
+#debug_logger()
 
 
 class TestRelevantPatientServiceClass(object):
@@ -529,8 +532,8 @@ class TestRelevantPatientServiceClass(object):
         status, identifier = next(result)
         assert status.Status == 0x0000
 
-        assoc = attrs['assoc']
-        assert assoc == scp.active_associations[0]
+        scp_assoc = attrs['assoc']
+        assert scp_assoc == scp.active_associations[0]
 
         assoc.release()
         assert assoc.is_released

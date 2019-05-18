@@ -1600,7 +1600,7 @@ def _send_n_event_report_rq(event):
              .format('N-EVENT-REPORT RQ'))
     s.append('Message ID                    : {0!s}'.format(cs.MessageID))
     s.append('Affected SOP Class UID        : {0!s}'
-             .format(cs.AffectedSOPClassUID))
+             .format(cs.AffectedSOPClassUID.name))
     s.append('Affected SOP Instance UID     : {0!s}'
              .format(cs.AffectedSOPInstanceUID))
     s.append('Event Type ID                 : {0!s}'
@@ -1633,7 +1633,7 @@ def _send_n_event_report_rsp(event):
              .format(cs.MessageIDBeingRespondedTo))
     if 'AffectedSOPClassUID' in cs:
         s.append('Affected SOP Class UID        : {0!s}'
-                 .format(cs.AffectedSOPClassUID))
+                 .format(cs.AffectedSOPClassUID.name))
     if 'AffectedSOPInstanceUID' in cs:
         s.append('Affected SOP Instance UID     : {0!s}'
                  .format(cs.AffectedSOPInstanceUID))
