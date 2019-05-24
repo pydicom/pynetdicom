@@ -124,6 +124,13 @@ class TestEvent(object):
             event.identifier
 
         msg = (
+            r"The corresponding event is not a C-MOVE request "
+            r"and has no 'Move Destination' parameter"
+        )
+        with pytest.raises(AttributeError, match=msg):
+            event.move_destination
+
+        msg = (
             r"The corresponding event is not an N-ACTION request and has no "
             r"'Action Information' parameter"
         )

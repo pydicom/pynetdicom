@@ -4233,6 +4233,51 @@ class TestQRMoveServiceClass(object):
 
         scp.shutdown()
 
+    def test_scp_handler_move_dest(self):
+        """Test hander event's context attribute"""
+        attrs = {}
+        def handle(event):
+            attrs['request'] = event.request
+            attrs['identifier'] = event.identifier
+            attrs['assoc'] = event.assoc
+            attrs['context'] = event.context
+            attrs['destination'] = event.move_destination
+
+            yield self.destination
+            yield 1
+            yield 0xFF00, self.ds
+
+        def handle_store(event):
+            return 0x0000
+
+        handlers = [(evt.EVT_C_MOVE, handle), (evt.EVT_C_STORE, handle_store)]
+
+        self.ae = ae = AE()
+        ae.add_supported_context(PatientRootQueryRetrieveInformationModelMove)
+        ae.add_supported_context(CTImageStorage, scu_role=False, scp_role=True)
+        ae.add_requested_context(PatientRootQueryRetrieveInformationModelMove)
+        ae.add_requested_context(CTImageStorage)
+        scp = ae.start_server(('', 11112), block=False, evt_handlers=handlers)
+
+        ae.acse_timeout = 5
+        ae.dimse_timeout = 5
+        assoc = ae.associate('localhost', 11112)
+        assert assoc.is_established
+        result = assoc.send_c_move(self.query, b'TESTMOVE', query_model='P')
+        status, identifier = next(result)
+        assert status.Status == 0xFF00
+        assert identifier is None
+        status, identifier = next(result)
+        assert status.Status == 0x0000
+        assert identifier is None
+        pytest.raises(StopIteration, next, result)
+        assoc.release()
+        assert assoc.is_released
+
+        assert attrs['destination'] == b'TESTMOVE        '
+
+        scp.shutdown()
+
     def test_scp_cancelled(self):
         """Test is_cancelled works as expected."""
         cancel_results = []
