@@ -181,7 +181,7 @@
 <h1>pynetdicom.transport.AssociationServer<a class="headerlink" href="#pynetdicom-transport-associationserver" title="Permalink to this headline">¶</a></h1>
 <dl class="class">
 <dt id="pynetdicom.transport.AssociationServer">
-<em class="property">class </em><code class="descclassname">pynetdicom.transport.</code><code class="descname">AssociationServer</code><span class="sig-paren">(</span><em>ae</em>, <em>address</em>, <em>ssl_context=None</em>, <em>evt_handlers=None</em><span class="sig-paren">)</span><a class="reference internal" href="../../_modules/pynetdicom/transport.html#AssociationServer"><span class="viewcode-link">[source]</span></a><a class="reference external" href="https://github.com/pydicom/pynetdicom/blob/9249e3e9/pynetdicom/transport.py#L400"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pynetdicom.transport.AssociationServer" title="Permalink to this definition">¶</a></dt>
+<em class="property">class </em><code class="descclassname">pynetdicom.transport.</code><code class="descname">AssociationServer</code><span class="sig-paren">(</span><em>ae</em>, <em>address</em>, <em>ssl_context=None</em>, <em>evt_handlers=None</em><span class="sig-paren">)</span><a class="reference internal" href="../../_modules/pynetdicom/transport.html#AssociationServer"><span class="viewcode-link">[source]</span></a><a class="reference external" href="https://github.com/pydicom/pynetdicom/blob/bebedb99/pynetdicom/transport.py#L400"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pynetdicom.transport.AssociationServer" title="Permalink to this definition">¶</a></dt>
 <dd><p>An Association server implementation.</p>
 <p>Any attempts to connect will be assumed to be from association requestors.</p>
 <p>The server should be started with <code class="docutils literal notranslate"><span class="pre">serve_forever(poll_interval)</span></code>, where
@@ -235,7 +235,7 @@ is required (default).</p>
 
 <dl class="method">
 <dt id="pynetdicom.transport.AssociationServer.__init__">
-<code class="descname">__init__</code><span class="sig-paren">(</span><em>ae</em>, <em>address</em>, <em>ssl_context=None</em>, <em>evt_handlers=None</em><span class="sig-paren">)</span><a class="reference internal" href="../../_modules/pynetdicom/transport.html#AssociationServer.__init__"><span class="viewcode-link">[source]</span></a><a class="reference external" href="https://github.com/pydicom/pynetdicom/blob/9249e3e9/pynetdicom/transport.py#L422"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pynetdicom.transport.AssociationServer.__init__" title="Permalink to this definition">¶</a></dt>
+<code class="descname">__init__</code><span class="sig-paren">(</span><em>ae</em>, <em>address</em>, <em>ssl_context=None</em>, <em>evt_handlers=None</em><span class="sig-paren">)</span><a class="reference internal" href="../../_modules/pynetdicom/transport.html#AssociationServer.__init__"><span class="viewcode-link">[source]</span></a><a class="reference external" href="https://github.com/pydicom/pynetdicom/blob/bebedb99/pynetdicom/transport.py#L422"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pynetdicom.transport.AssociationServer.__init__" title="Permalink to this definition">¶</a></dt>
 <dd><p>Create a new AssociationServer, bind a socket and start listening.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters</dt>
@@ -359,7 +359,7 @@ when <em>event</em> occurs.</p></li>
 
 <dl class="method">
 <dt id="pynetdicom.transport.AssociationServer.bind">
-<code class="descname">bind</code><span class="sig-paren">(</span><em>event</em>, <em>handler</em><span class="sig-paren">)</span><a class="reference internal" href="../../_modules/pynetdicom/transport.html#AssociationServer.bind"><span class="viewcode-link">[source]</span></a><a class="reference external" href="https://github.com/pydicom/pynetdicom/blob/9249e3e9/pynetdicom/transport.py#L458"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pynetdicom.transport.AssociationServer.bind" title="Permalink to this definition">¶</a></dt>
+<code class="descname">bind</code><span class="sig-paren">(</span><em>event</em>, <em>handler</em><span class="sig-paren">)</span><a class="reference internal" href="../../_modules/pynetdicom/transport.html#AssociationServer.bind"><span class="viewcode-link">[source]</span></a><a class="reference external" href="https://github.com/pydicom/pynetdicom/blob/bebedb99/pynetdicom/transport.py#L458"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pynetdicom.transport.AssociationServer.bind" title="Permalink to this definition">¶</a></dt>
 <dd><p>Bind a callable <cite>handler</cite> to an <cite>event</cite>.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters</dt>
@@ -373,32 +373,32 @@ when <em>event</em> occurs.</p></li>
 
 <dl class="method">
 <dt id="pynetdicom.transport.AssociationServer.close_request">
-<code class="descname">close_request</code><span class="sig-paren">(</span><em>request</em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/pydicom/pynetdicom/blob/9249e3e9/pynetdicom/../../../../usr/local/lib/python3.6/socketserver.py#L515"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pynetdicom.transport.AssociationServer.close_request" title="Permalink to this definition">¶</a></dt>
+<code class="descname">close_request</code><span class="sig-paren">(</span><em>request</em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/pydicom/pynetdicom/blob/bebedb99/pynetdicom/../../../../usr/local/lib/python3.6/socketserver.py#L515"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pynetdicom.transport.AssociationServer.close_request" title="Permalink to this definition">¶</a></dt>
 <dd><p>Called to clean up an individual request.</p>
 </dd></dl>
 
 <dl class="method">
 <dt id="pynetdicom.transport.AssociationServer.fileno">
-<code class="descname">fileno</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference external" href="https://github.com/pydicom/pynetdicom/blob/9249e3e9/pynetdicom/../../../../usr/local/lib/python3.6/socketserver.py#L489"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pynetdicom.transport.AssociationServer.fileno" title="Permalink to this definition">¶</a></dt>
+<code class="descname">fileno</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference external" href="https://github.com/pydicom/pynetdicom/blob/bebedb99/pynetdicom/../../../../usr/local/lib/python3.6/socketserver.py#L489"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pynetdicom.transport.AssociationServer.fileno" title="Permalink to this definition">¶</a></dt>
 <dd><p>Return socket file number.</p>
 <p>Interface required by selector.</p>
 </dd></dl>
 
 <dl class="method">
 <dt id="pynetdicom.transport.AssociationServer.finish_request">
-<code class="descname">finish_request</code><span class="sig-paren">(</span><em>request</em>, <em>client_address</em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/pydicom/pynetdicom/blob/9249e3e9/pynetdicom/../../../../usr/local/lib/python3.6/socketserver.py#L362"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pynetdicom.transport.AssociationServer.finish_request" title="Permalink to this definition">¶</a></dt>
+<code class="descname">finish_request</code><span class="sig-paren">(</span><em>request</em>, <em>client_address</em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/pydicom/pynetdicom/blob/bebedb99/pynetdicom/../../../../usr/local/lib/python3.6/socketserver.py#L362"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pynetdicom.transport.AssociationServer.finish_request" title="Permalink to this definition">¶</a></dt>
 <dd><p>Finish one request by instantiating RequestHandlerClass.</p>
 </dd></dl>
 
 <dl class="method">
 <dt id="pynetdicom.transport.AssociationServer.get_events">
-<code class="descname">get_events</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="../../_modules/pynetdicom/transport.html#AssociationServer.get_events"><span class="viewcode-link">[source]</span></a><a class="reference external" href="https://github.com/pydicom/pynetdicom/blob/9249e3e9/pynetdicom/transport.py#L511"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pynetdicom.transport.AssociationServer.get_events" title="Permalink to this definition">¶</a></dt>
+<code class="descname">get_events</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="../../_modules/pynetdicom/transport.html#AssociationServer.get_events"><span class="viewcode-link">[source]</span></a><a class="reference external" href="https://github.com/pydicom/pynetdicom/blob/bebedb99/pynetdicom/transport.py#L511"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pynetdicom.transport.AssociationServer.get_events" title="Permalink to this definition">¶</a></dt>
 <dd><p>Return a list of currently bound events.</p>
 </dd></dl>
 
 <dl class="method">
 <dt id="pynetdicom.transport.AssociationServer.get_handlers">
-<code class="descname">get_handlers</code><span class="sig-paren">(</span><em>event</em><span class="sig-paren">)</span><a class="reference internal" href="../../_modules/pynetdicom/transport.html#AssociationServer.get_handlers"><span class="viewcode-link">[source]</span></a><a class="reference external" href="https://github.com/pydicom/pynetdicom/blob/9249e3e9/pynetdicom/transport.py#L515"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pynetdicom.transport.AssociationServer.get_handlers" title="Permalink to this definition">¶</a></dt>
+<code class="descname">get_handlers</code><span class="sig-paren">(</span><em>event</em><span class="sig-paren">)</span><a class="reference internal" href="../../_modules/pynetdicom/transport.html#AssociationServer.get_handlers"><span class="viewcode-link">[source]</span></a><a class="reference external" href="https://github.com/pydicom/pynetdicom/blob/bebedb99/pynetdicom/transport.py#L515"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pynetdicom.transport.AssociationServer.get_handlers" title="Permalink to this definition">¶</a></dt>
 <dd><p>Return handlers bound to a specific <cite>event</cite>.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters</dt>
@@ -419,7 +419,7 @@ bound.</p>
 
 <dl class="method">
 <dt id="pynetdicom.transport.AssociationServer.get_request">
-<code class="descname">get_request</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="../../_modules/pynetdicom/transport.html#AssociationServer.get_request"><span class="viewcode-link">[source]</span></a><a class="reference external" href="https://github.com/pydicom/pynetdicom/blob/9249e3e9/pynetdicom/transport.py#L537"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pynetdicom.transport.AssociationServer.get_request" title="Permalink to this definition">¶</a></dt>
+<code class="descname">get_request</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="../../_modules/pynetdicom/transport.html#AssociationServer.get_request"><span class="viewcode-link">[source]</span></a><a class="reference external" href="https://github.com/pydicom/pynetdicom/blob/bebedb99/pynetdicom/transport.py#L537"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pynetdicom.transport.AssociationServer.get_request" title="Permalink to this definition">¶</a></dt>
 <dd><p>Handle a connection request.</p>
 <p>If <code class="docutils literal notranslate"><span class="pre">ssl_context</span></code> is set then the client socket will be wrapped using
 <code class="docutils literal notranslate"><span class="pre">ssl_context.wrap_socket()</span></code>.</p>
@@ -436,34 +436,34 @@ bound.</p>
 
 <dl class="method">
 <dt id="pynetdicom.transport.AssociationServer.handle_error">
-<code class="descname">handle_error</code><span class="sig-paren">(</span><em>request</em>, <em>client_address</em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/pydicom/pynetdicom/blob/9249e3e9/pynetdicom/../../../../usr/local/lib/python3.6/socketserver.py#L374"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pynetdicom.transport.AssociationServer.handle_error" title="Permalink to this definition">¶</a></dt>
+<code class="descname">handle_error</code><span class="sig-paren">(</span><em>request</em>, <em>client_address</em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/pydicom/pynetdicom/blob/bebedb99/pynetdicom/../../../../usr/local/lib/python3.6/socketserver.py#L374"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pynetdicom.transport.AssociationServer.handle_error" title="Permalink to this definition">¶</a></dt>
 <dd><p>Handle an error gracefully.  May be overridden.</p>
 <p>The default is to print a traceback and continue.</p>
 </dd></dl>
 
 <dl class="method">
 <dt id="pynetdicom.transport.AssociationServer.handle_request">
-<code class="descname">handle_request</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference external" href="https://github.com/pydicom/pynetdicom/blob/9249e3e9/pynetdicom/../../../../usr/local/lib/python3.6/socketserver.py#L277"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pynetdicom.transport.AssociationServer.handle_request" title="Permalink to this definition">¶</a></dt>
+<code class="descname">handle_request</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference external" href="https://github.com/pydicom/pynetdicom/blob/bebedb99/pynetdicom/../../../../usr/local/lib/python3.6/socketserver.py#L277"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pynetdicom.transport.AssociationServer.handle_request" title="Permalink to this definition">¶</a></dt>
 <dd><p>Handle one request, possibly blocking.</p>
 <p>Respects self.timeout.</p>
 </dd></dl>
 
 <dl class="method">
 <dt id="pynetdicom.transport.AssociationServer.handle_timeout">
-<code class="descname">handle_timeout</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference external" href="https://github.com/pydicom/pynetdicom/blob/9249e3e9/pynetdicom/../../../../usr/local/lib/python3.6/socketserver.py#L330"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pynetdicom.transport.AssociationServer.handle_timeout" title="Permalink to this definition">¶</a></dt>
+<code class="descname">handle_timeout</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference external" href="https://github.com/pydicom/pynetdicom/blob/bebedb99/pynetdicom/../../../../usr/local/lib/python3.6/socketserver.py#L330"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pynetdicom.transport.AssociationServer.handle_timeout" title="Permalink to this definition">¶</a></dt>
 <dd><p>Called if no new request arrives within self.timeout.</p>
 <p>Overridden by ForkingMixIn.</p>
 </dd></dl>
 
 <dl class="method">
 <dt id="pynetdicom.transport.AssociationServer.process_request">
-<code class="descname">process_request</code><span class="sig-paren">(</span><em>request</em>, <em>client_address</em><span class="sig-paren">)</span><a class="reference internal" href="../../_modules/pynetdicom/transport.html#AssociationServer.process_request"><span class="viewcode-link">[source]</span></a><a class="reference external" href="https://github.com/pydicom/pynetdicom/blob/9249e3e9/pynetdicom/transport.py#L557"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pynetdicom.transport.AssociationServer.process_request" title="Permalink to this definition">¶</a></dt>
+<code class="descname">process_request</code><span class="sig-paren">(</span><em>request</em>, <em>client_address</em><span class="sig-paren">)</span><a class="reference internal" href="../../_modules/pynetdicom/transport.html#AssociationServer.process_request"><span class="viewcode-link">[source]</span></a><a class="reference external" href="https://github.com/pydicom/pynetdicom/blob/bebedb99/pynetdicom/transport.py#L557"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pynetdicom.transport.AssociationServer.process_request" title="Permalink to this definition">¶</a></dt>
 <dd><p>Process a connection request.</p>
 </dd></dl>
 
 <dl class="method">
 <dt id="pynetdicom.transport.AssociationServer.serve_forever">
-<code class="descname">serve_forever</code><span class="sig-paren">(</span><em>poll_interval=0.5</em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/pydicom/pynetdicom/blob/9249e3e9/pynetdicom/../../../../usr/local/lib/python3.6/socketserver.py#L219"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pynetdicom.transport.AssociationServer.serve_forever" title="Permalink to this definition">¶</a></dt>
+<code class="descname">serve_forever</code><span class="sig-paren">(</span><em>poll_interval=0.5</em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/pydicom/pynetdicom/blob/bebedb99/pynetdicom/../../../../usr/local/lib/python3.6/socketserver.py#L219"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pynetdicom.transport.AssociationServer.serve_forever" title="Permalink to this definition">¶</a></dt>
 <dd><p>Handle one request at a time until shutdown.</p>
 <p>Polls for shutdown every poll_interval seconds. Ignores
 self.timeout. If you need to do periodic tasks, do them in
@@ -472,14 +472,14 @@ another thread.</p>
 
 <dl class="method">
 <dt id="pynetdicom.transport.AssociationServer.server_activate">
-<code class="descname">server_activate</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference external" href="https://github.com/pydicom/pynetdicom/blob/9249e3e9/pynetdicom/../../../../usr/local/lib/python3.6/socketserver.py#L473"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pynetdicom.transport.AssociationServer.server_activate" title="Permalink to this definition">¶</a></dt>
+<code class="descname">server_activate</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference external" href="https://github.com/pydicom/pynetdicom/blob/bebedb99/pynetdicom/../../../../usr/local/lib/python3.6/socketserver.py#L473"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pynetdicom.transport.AssociationServer.server_activate" title="Permalink to this definition">¶</a></dt>
 <dd><p>Called by constructor to activate the server.</p>
 <p>May be overridden.</p>
 </dd></dl>
 
 <dl class="method">
 <dt id="pynetdicom.transport.AssociationServer.server_bind">
-<code class="descname">server_bind</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="../../_modules/pynetdicom/transport.html#AssociationServer.server_bind"><span class="viewcode-link">[source]</span></a><a class="reference external" href="https://github.com/pydicom/pynetdicom/blob/9249e3e9/pynetdicom/transport.py#L561"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pynetdicom.transport.AssociationServer.server_bind" title="Permalink to this definition">¶</a></dt>
+<code class="descname">server_bind</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="../../_modules/pynetdicom/transport.html#AssociationServer.server_bind"><span class="viewcode-link">[source]</span></a><a class="reference external" href="https://github.com/pydicom/pynetdicom/blob/bebedb99/pynetdicom/transport.py#L561"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pynetdicom.transport.AssociationServer.server_bind" title="Permalink to this definition">¶</a></dt>
 <dd><p>Bind the socket and set the socket options.</p>
 <ul class="simple">
 <li><p><code class="docutils literal notranslate"><span class="pre">socket.SO_REUSEADDR</span></code> is set to 1</p></li>
@@ -490,13 +490,13 @@ value is <code class="docutils literal notranslate"><span class="pre">None</span
 
 <dl class="method">
 <dt id="pynetdicom.transport.AssociationServer.server_close">
-<code class="descname">server_close</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="../../_modules/pynetdicom/transport.html#AssociationServer.server_close"><span class="viewcode-link">[source]</span></a><a class="reference external" href="https://github.com/pydicom/pynetdicom/blob/9249e3e9/pynetdicom/transport.py#L593"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pynetdicom.transport.AssociationServer.server_close" title="Permalink to this definition">¶</a></dt>
+<code class="descname">server_close</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="../../_modules/pynetdicom/transport.html#AssociationServer.server_close"><span class="viewcode-link">[source]</span></a><a class="reference external" href="https://github.com/pydicom/pynetdicom/blob/bebedb99/pynetdicom/transport.py#L593"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pynetdicom.transport.AssociationServer.server_close" title="Permalink to this definition">¶</a></dt>
 <dd><p>Close the server.</p>
 </dd></dl>
 
 <dl class="method">
 <dt id="pynetdicom.transport.AssociationServer.service_actions">
-<code class="descname">service_actions</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference external" href="https://github.com/pydicom/pynetdicom/blob/9249e3e9/pynetdicom/../../../../usr/local/lib/python3.6/socketserver.py#L258"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pynetdicom.transport.AssociationServer.service_actions" title="Permalink to this definition">¶</a></dt>
+<code class="descname">service_actions</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference external" href="https://github.com/pydicom/pynetdicom/blob/bebedb99/pynetdicom/../../../../usr/local/lib/python3.6/socketserver.py#L258"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pynetdicom.transport.AssociationServer.service_actions" title="Permalink to this definition">¶</a></dt>
 <dd><p>Called by the serve_forever() loop.</p>
 <p>May be overridden by a subclass / Mixin to implement any code that
 needs to be run during the loop.</p>
@@ -504,19 +504,19 @@ needs to be run during the loop.</p>
 
 <dl class="method">
 <dt id="pynetdicom.transport.AssociationServer.shutdown">
-<code class="descname">shutdown</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="../../_modules/pynetdicom/transport.html#AssociationServer.shutdown"><span class="viewcode-link">[source]</span></a><a class="reference external" href="https://github.com/pydicom/pynetdicom/blob/9249e3e9/pynetdicom/transport.py#L602"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pynetdicom.transport.AssociationServer.shutdown" title="Permalink to this definition">¶</a></dt>
+<code class="descname">shutdown</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="../../_modules/pynetdicom/transport.html#AssociationServer.shutdown"><span class="viewcode-link">[source]</span></a><a class="reference external" href="https://github.com/pydicom/pynetdicom/blob/bebedb99/pynetdicom/transport.py#L602"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pynetdicom.transport.AssociationServer.shutdown" title="Permalink to this definition">¶</a></dt>
 <dd><p>Completely shutdown the server and close it’s socket.</p>
 </dd></dl>
 
 <dl class="method">
 <dt id="pynetdicom.transport.AssociationServer.shutdown_request">
-<code class="descname">shutdown_request</code><span class="sig-paren">(</span><em>request</em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/pydicom/pynetdicom/blob/9249e3e9/pynetdicom/../../../../usr/local/lib/python3.6/socketserver.py#L505"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pynetdicom.transport.AssociationServer.shutdown_request" title="Permalink to this definition">¶</a></dt>
+<code class="descname">shutdown_request</code><span class="sig-paren">(</span><em>request</em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/pydicom/pynetdicom/blob/bebedb99/pynetdicom/../../../../usr/local/lib/python3.6/socketserver.py#L505"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pynetdicom.transport.AssociationServer.shutdown_request" title="Permalink to this definition">¶</a></dt>
 <dd><p>Called to shutdown and close an individual request.</p>
 </dd></dl>
 
 <dl class="method">
 <dt id="pynetdicom.transport.AssociationServer.unbind">
-<code class="descname">unbind</code><span class="sig-paren">(</span><em>event</em>, <em>handler</em><span class="sig-paren">)</span><a class="reference internal" href="../../_modules/pynetdicom/transport.html#AssociationServer.unbind"><span class="viewcode-link">[source]</span></a><a class="reference external" href="https://github.com/pydicom/pynetdicom/blob/9249e3e9/pynetdicom/transport.py#L608"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pynetdicom.transport.AssociationServer.unbind" title="Permalink to this definition">¶</a></dt>
+<code class="descname">unbind</code><span class="sig-paren">(</span><em>event</em>, <em>handler</em><span class="sig-paren">)</span><a class="reference internal" href="../../_modules/pynetdicom/transport.html#AssociationServer.unbind"><span class="viewcode-link">[source]</span></a><a class="reference external" href="https://github.com/pydicom/pynetdicom/blob/bebedb99/pynetdicom/transport.py#L608"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pynetdicom.transport.AssociationServer.unbind" title="Permalink to this definition">¶</a></dt>
 <dd><p>Unbind a callable <cite>handler</cite> from an <cite>event</cite>.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters</dt>
@@ -530,7 +530,7 @@ needs to be run during the loop.</p>
 
 <dl class="method">
 <dt id="pynetdicom.transport.AssociationServer.verify_request">
-<code class="descname">verify_request</code><span class="sig-paren">(</span><em>request</em>, <em>client_address</em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/pydicom/pynetdicom/blob/9249e3e9/pynetdicom/../../../../usr/local/lib/python3.6/socketserver.py#L337"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pynetdicom.transport.AssociationServer.verify_request" title="Permalink to this definition">¶</a></dt>
+<code class="descname">verify_request</code><span class="sig-paren">(</span><em>request</em>, <em>client_address</em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/pydicom/pynetdicom/blob/bebedb99/pynetdicom/../../../../usr/local/lib/python3.6/socketserver.py#L337"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pynetdicom.transport.AssociationServer.verify_request" title="Permalink to this definition">¶</a></dt>
 <dd><p>Verify the request.  May be overridden.</p>
 <p>Return True if we should proceed with this request.</p>
 </dd></dl>
