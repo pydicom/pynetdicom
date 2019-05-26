@@ -431,8 +431,9 @@
 <span class="sd">        Returns</span>
 <span class="sd">        -------</span>
 <span class="sd">        list of pydicom.tag.Tag</span>
-<span class="sd">            The *Attribute Identifier List* tags, may be an empty list if no</span>
-<span class="sd">            *Attribute Identifier List* was included in the C-GET request.</span>
+<span class="sd">            The (0000,1005) *Attribute Identifier List* tags, may be an empty</span>
+<span class="sd">            list if no *Attribute Identifier List* was included in the C-GET</span>
+<span class="sd">            request.</span>
 
 <span class="sd">        Raises</span>
 <span class="sd">        ------</span>
@@ -726,6 +727,29 @@
             <span class="s2">&quot;&#39;Modification List&#39; parameter&quot;</span>
         <span class="p">)</span>
         <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_get_dataset</span><span class="p">(</span><span class="s2">&quot;ModificationList&quot;</span><span class="p">,</span> <span class="n">msg</span><span class="p">)</span>
+
+    <span class="nd">@property</span>
+    <span class="k">def</span> <span class="nf">move_destination</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;Return a C-MOVE request&#39;s `Move Destination` as bytes.</span>
+
+<span class="sd">        Returns</span>
+<span class="sd">        -------</span>
+<span class="sd">        bytes</span>
+<span class="sd">            The request&#39;s (0000,0600) *Move Destination* value as length 16</span>
+<span class="sd">            bytes (including trailing spaces as padding if required).</span>
+
+<span class="sd">        Raises</span>
+<span class="sd">        ------</span>
+<span class="sd">        AttributeError</span>
+<span class="sd">            If the corresponding event is not a C-MOVE request.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">try</span><span class="p">:</span>
+            <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">request</span><span class="o">.</span><span class="n">MoveDestination</span>
+        <span class="k">except</span> <span class="ne">AttributeError</span><span class="p">:</span>
+            <span class="k">raise</span> <span class="ne">AttributeError</span><span class="p">(</span>
+                <span class="s2">&quot;The corresponding event is not a C-MOVE request and has no &quot;</span>
+                <span class="s2">&quot;&#39;Move Destination&#39; parameter&quot;</span>
+            <span class="p">)</span>
 
     <span class="nd">@property</span>
     <span class="k">def</span> <span class="nf">name</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>

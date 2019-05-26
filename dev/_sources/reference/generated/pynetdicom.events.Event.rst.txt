@@ -33,6 +33,7 @@ pynetdicom.events.Event
       ~Event.identifier
       ~Event.is_cancelled
       ~Event.modification_list
+      ~Event.move_destination
       ~Event.name
    
    

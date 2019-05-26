@@ -187,17 +187,16 @@ to see the requirements for the ``evt.EVT_C_MOVE`` handler.
             yield 0xC000, None
             return
 
-        # Check move_aet is known
         # get_known_aet() is here to represent a user-implemented method of
-        #   getting known AEs
+        #   getting known AEs, for this example it returns a dict with the
+        #   AE titles as keys
         known_aet_dict = get_known_aet()
-        if move_aet not in known_aet_dict:
+        try:
+            (addr, port) = known_aet_dict[event.move_destination]
+        except KeyError:
             # Unknown destination AE
             yield (None, None)
             return
-
-        # Assuming known_ae_dict is {b'STORE_SCP       ' : ('127.0.0.1', 11113)}
-        (addr, port) = known_ae_dict[move_ae]
 
         # Yield the IP address and listen port of the destination AE
         yield (addr, port)
@@ -220,7 +219,7 @@ to see the requirements for the ``evt.EVT_C_MOVE`` handler.
         # Skip the other QR levels...
 
         # Yield the total number of C-STORE sub-operations required
-        yield len(instances)
+        yield len(matching)
 
         # Yield the matching instances
         for instance in matching:

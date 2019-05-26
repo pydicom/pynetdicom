@@ -346,17 +346,16 @@ to see the requirements for the <code class="docutils literal notranslate"><span
         <span class="k">yield</span> <span class="mh">0xC000</span><span class="p">,</span> <span class="bp">None</span>
         <span class="k">return</span>
 
-    <span class="c1"># Check move_aet is known</span>
     <span class="c1"># get_known_aet() is here to represent a user-implemented method of</span>
-    <span class="c1">#   getting known AEs</span>
+    <span class="c1">#   getting known AEs, for this example it returns a dict with the</span>
+    <span class="c1">#   AE titles as keys</span>
     <span class="n">known_aet_dict</span> <span class="o">=</span> <span class="n">get_known_aet</span><span class="p">()</span>
-    <span class="k">if</span> <span class="n">move_aet</span> <span class="ow">not</span> <span class="ow">in</span> <span class="n">known_aet_dict</span><span class="p">:</span>
+    <span class="k">try</span><span class="p">:</span>
+        <span class="p">(</span><span class="n">addr</span><span class="p">,</span> <span class="n">port</span><span class="p">)</span> <span class="o">=</span> <span class="n">known_aet_dict</span><span class="p">[</span><span class="n">event</span><span class="o">.</span><span class="n">move_destination</span><span class="p">]</span>
+    <span class="k">except</span> <span class="ne">KeyError</span><span class="p">:</span>
         <span class="c1"># Unknown destination AE</span>
         <span class="k">yield</span> <span class="p">(</span><span class="bp">None</span><span class="p">,</span> <span class="bp">None</span><span class="p">)</span>
         <span class="k">return</span>
-
-    <span class="c1"># Assuming known_ae_dict is {b&#39;STORE_SCP       &#39; : (&#39;127.0.0.1&#39;, 11113)}</span>
-    <span class="p">(</span><span class="n">addr</span><span class="p">,</span> <span class="n">port</span><span class="p">)</span> <span class="o">=</span> <span class="n">known_ae_dict</span><span class="p">[</span><span class="n">move_ae</span><span class="p">]</span>
 
     <span class="c1"># Yield the IP address and listen port of the destination AE</span>
     <span class="k">yield</span> <span class="p">(</span><span class="n">addr</span><span class="p">,</span> <span class="n">port</span><span class="p">)</span>
@@ -379,7 +378,7 @@ to see the requirements for the <code class="docutils literal notranslate"><span
     <span class="c1"># Skip the other QR levels...</span>
 
     <span class="c1"># Yield the total number of C-STORE sub-operations required</span>
-    <span class="k">yield</span> <span class="nb">len</span><span class="p">(</span><span class="n">instances</span><span class="p">)</span>
+    <span class="k">yield</span> <span class="nb">len</span><span class="p">(</span><span class="n">matching</span><span class="p">)</span>
 
     <span class="c1"># Yield the matching instances</span>
     <span class="k">for</span> <span class="n">instance</span> <span class="ow">in</span> <span class="n">matching</span><span class="p">:</span>

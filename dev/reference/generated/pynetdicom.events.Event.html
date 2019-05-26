@@ -181,7 +181,7 @@
 <h1>pynetdicom.events.Event<a class="headerlink" href="#pynetdicom-events-event" title="Permalink to this headline">¶</a></h1>
 <dl class="class">
 <dt id="pynetdicom.events.Event">
-<em class="property">class </em><code class="descclassname">pynetdicom.events.</code><code class="descname">Event</code><span class="sig-paren">(</span><em>assoc</em>, <em>event</em>, <em>attrs=None</em><span class="sig-paren">)</span><a class="reference internal" href="../../_modules/pynetdicom/events.html#Event"><span class="viewcode-link">[source]</span></a><a class="reference external" href="https://github.com/pydicom/pynetdicom/blob/fd33b881/pynetdicom/events.py#L181"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pynetdicom.events.Event" title="Permalink to this definition">¶</a></dt>
+<em class="property">class </em><code class="descclassname">pynetdicom.events.</code><code class="descname">Event</code><span class="sig-paren">(</span><em>assoc</em>, <em>event</em>, <em>attrs=None</em><span class="sig-paren">)</span><a class="reference internal" href="../../_modules/pynetdicom/events.html#Event"><span class="viewcode-link">[source]</span></a><a class="reference external" href="https://github.com/pydicom/pynetdicom/blob/9249e3e9/pynetdicom/events.py#L181"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pynetdicom.events.Event" title="Permalink to this definition">¶</a></dt>
 <dd><p>Representation of an event.</p>
 <dl class="attribute">
 <dt id="pynetdicom.events.Event.assoc">
@@ -208,7 +208,7 @@ the actual event that this object represents.</p>
 
 <dl class="method">
 <dt id="pynetdicom.events.Event.__init__">
-<code class="descname">__init__</code><span class="sig-paren">(</span><em>assoc</em>, <em>event</em>, <em>attrs=None</em><span class="sig-paren">)</span><a class="reference internal" href="../../_modules/pynetdicom/events.html#Event.__init__"><span class="viewcode-link">[source]</span></a><a class="reference external" href="https://github.com/pydicom/pynetdicom/blob/fd33b881/pynetdicom/events.py#L192"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pynetdicom.events.Event.__init__" title="Permalink to this definition">¶</a></dt>
+<code class="descname">__init__</code><span class="sig-paren">(</span><em>assoc</em>, <em>event</em>, <em>attrs=None</em><span class="sig-paren">)</span><a class="reference internal" href="../../_modules/pynetdicom/events.html#Event.__init__"><span class="viewcode-link">[source]</span></a><a class="reference external" href="https://github.com/pydicom/pynetdicom/blob/9249e3e9/pynetdicom/events.py#L192"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pynetdicom.events.Event.__init__" title="Permalink to this definition">¶</a></dt>
 <dd><p>Create a new Event.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters</dt>
@@ -270,7 +270,10 @@ the actual event that this object represents.</p>
 <tr class="row-even"><td><p><a class="reference internal" href="#pynetdicom.events.Event.modification_list" title="pynetdicom.events.Event.modification_list"><code class="xref py py-obj docutils literal notranslate"><span class="pre">modification_list</span></code></a></p></td>
 <td><p>Return an N-SET request’s <cite>Modification List</cite> as a <em>pydicom</em> Dataset.</p></td>
 </tr>
-<tr class="row-odd"><td><p><a class="reference internal" href="#pynetdicom.events.Event.name" title="pynetdicom.events.Event.name"><code class="xref py py-obj docutils literal notranslate"><span class="pre">name</span></code></a></p></td>
+<tr class="row-odd"><td><p><a class="reference internal" href="#pynetdicom.events.Event.move_destination" title="pynetdicom.events.Event.move_destination"><code class="xref py py-obj docutils literal notranslate"><span class="pre">move_destination</span></code></a></p></td>
+<td><p>Return a C-MOVE request’s <cite>Move Destination</cite> as bytes.</p></td>
+</tr>
+<tr class="row-even"><td><p><a class="reference internal" href="#pynetdicom.events.Event.name" title="pynetdicom.events.Event.name"><code class="xref py py-obj docutils literal notranslate"><span class="pre">name</span></code></a></p></td>
 <td><p>Return the name of the event as a str.</p></td>
 </tr>
 </tbody>
@@ -305,8 +308,9 @@ that uses the returned <code class="docutils literal notranslate"><span class="p
 <em>pydicom</em> Tags.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Returns</dt>
-<dd class="field-odd"><p>The <em>Attribute Identifier List</em> tags, may be an empty list if no
-<em>Attribute Identifier List</em> was included in the C-GET request.</p>
+<dd class="field-odd"><p>The (0000,1005) <em>Attribute Identifier List</em> tags, may be an empty
+list if no <em>Attribute Identifier List</em> was included in the C-GET
+request.</p>
 </dd>
 <dt class="field-even">Return type</dt>
 <dd class="field-even"><p>list of pydicom.tag.Tag</p>
@@ -489,6 +493,24 @@ that uses the returned <code class="docutils literal notranslate"><span class="p
 </dd>
 <dt class="field-odd">Raises</dt>
 <dd class="field-odd"><p><a class="reference external" href="https://docs.python.org/3/library/exceptions.html#AttributeError" title="(in Python v3.7)"><strong>AttributeError</strong></a> – If the corresponding event is not an N-SET request.</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="attribute">
+<dt id="pynetdicom.events.Event.move_destination">
+<code class="descname">move_destination</code><a class="headerlink" href="#pynetdicom.events.Event.move_destination" title="Permalink to this definition">¶</a></dt>
+<dd><p>Return a C-MOVE request’s <cite>Move Destination</cite> as bytes.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Returns</dt>
+<dd class="field-odd"><p>The request’s (0000,0600) <em>Move Destination</em> value as length 16
+bytes (including trailing spaces as padding if required).</p>
+</dd>
+<dt class="field-even">Return type</dt>
+<dd class="field-even"><p><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#bytes" title="(in Python v3.7)">bytes</a></p>
+</dd>
+<dt class="field-odd">Raises</dt>
+<dd class="field-odd"><p><a class="reference external" href="https://docs.python.org/3/library/exceptions.html#AttributeError" title="(in Python v3.7)"><strong>AttributeError</strong></a> – If the corresponding event is not a C-MOVE request.</p>
 </dd>
 </dl>
 </dd></dl>
