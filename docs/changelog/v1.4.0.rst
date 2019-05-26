@@ -11,13 +11,16 @@ Fixes
   if no matches were yielded by the C-FIND request handler.
 * Fixed association being aborted due to failure to decode a rejected
   presentation context when the transfer syntax value is empty (:issue:`342`)
-
+* Checkpoint added to the reactor in ``Association`` to prevent a possible
+  race condition when acting as the Acceptor and calling one of the
+  ``Association.send_*()`` methods.
 
 Enhancements
 ............
 
 * Added support for Protocol Approval Query Retrieve service class
   (:issue:`327`)
+* Added ``Event.move_destination`` property
 
 
 
@@ -33,4 +36,4 @@ Changes
     ``AE.on_association_released()``, ``AE.on_association_aborted()``,
   * ``_config.DECODE_STORE_DATASETS``
   * ``DIMSEServiceProvider.on_send_dimse_message()``,
-    ``DIMSEServiceProvider.on_receive_dimse_message()``,
+    ``DIMSEServiceProvider.on_receive_dimse_message()``
