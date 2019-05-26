@@ -2431,8 +2431,9 @@ def doc_handle_move(event):
           that is running the service that received the C-MOVE request.
         * ``context`` : the presentation context the request was sent under
           as a ``presentation.PresentationContextTuple``.
-        * ``description`` : a description of the event that occurred as str.
-        * ``name`` : the name of the event that occurred as str.
+        * ``description`` : a description of the event that occurred as
+          ``str``.
+        * ``name`` : the name of the event that occurred as ``str``.
         * ``request`` : the received
           :py:class:`C-MOVE request <pynetdicom.dimse_primitives.C_MOVE>`
         * ``timestamp`` : the
@@ -2447,9 +2448,11 @@ def doc_handle_move(event):
           a deferred read when decoding data, if the decode fails the returned
           ``Dataset`` will only raise an exception at the time of use.
         * ``is_cancelled`` : returns ``True`` if a
-          C-CANCEL request has been received, False otherwise. If a C-CANCEL
-          is received then the handler should yield a ``(0xFE00, None)``
-          status/dataset pair and return.
+          C-CANCEL request has been received, ``False`` otherwise. If a
+          C-CANCEL is received then the handler should yield a ``(0xFE00,
+          None)`` status/dataset pair and return.
+        * ``move_destination`` : returns the request's (0000,0600) *Move
+          Destination* AE title as a length 16 ``bytes``.
 
     Yields
     ------

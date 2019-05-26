@@ -253,8 +253,9 @@ class Event(object):
         Returns
         -------
         list of pydicom.tag.Tag
-            The *Attribute Identifier List* tags, may be an empty list if no
-            *Attribute Identifier List* was included in the C-GET request.
+            The (0000,1005) *Attribute Identifier List* tags, may be an empty
+            list if no *Attribute Identifier List* was included in the C-GET
+            request.
 
         Raises
         ------
@@ -548,6 +549,29 @@ class Event(object):
             "'Modification List' parameter"
         )
         return self._get_dataset("ModificationList", msg)
+
+    @property
+    def move_destination(self):
+        """Return a C-MOVE request's `Move Destination` as bytes.
+
+        Returns
+        -------
+        bytes
+            The request's (0000,0600) *Move Destination* value as length 16
+            bytes (including trailing spaces as padding if required).
+
+        Raises
+        ------
+        AttributeError
+            If the corresponding event is not a C-MOVE request.
+        """
+        try:
+            return self.request.MoveDestination
+        except AttributeError:
+            raise AttributeError(
+                "The corresponding event is not a C-MOVE request and has no "
+                "'Move Destination' parameter"
+            )
 
     @property
     def name(self):
