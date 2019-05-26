@@ -183,6 +183,8 @@ class Association(threading.Thread):
     def abort(self):
         """Send an A-ABORT to the remote AE and kill the ``Association``."""
         if not self.is_released:
+            # Ensure the reactor is running so it can be exited
+            self._reactor_checkpoint.set()
             LOGGER.info('Aborting Association')
             self.acse.send_abort(self, 0x00)
             # Event handler - association aborted
@@ -407,6 +409,8 @@ class Association(threading.Thread):
 
     def kill(self):
         """Kill the ``Association`` thread."""
+        # Ensure the reactor is running so it can be exited
+        self._reactor_checkpoint.set()
         self._kill = True
         self.is_established = False
         while self.dul.is_alive() and not self.dul.stop_dul():
@@ -468,6 +472,8 @@ class Association(threading.Thread):
     def release(self):
         """Send an A-RELEASE request and initiate association release."""
         if self.is_established:
+            # Ensure the reactor is running
+            self._reactor_checkpoint.set()
             LOGGER.info('Releasing Association')
             self.acse.negotiate_release(self)
 
@@ -652,10 +658,6 @@ class Association(threading.Thread):
         """Run the association as the requestor."""
         # Listen for further messages from the peer
         while not self._kill:
-            # For symmetry with `_run_as_acceptor`, but not really needed
-            # Will block until `_reactor_checkpoint` is True
-            self._reactor_checkpoint.wait()
-
             time.sleep(0.1)
 
             # Check for release request
