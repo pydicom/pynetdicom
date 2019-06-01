@@ -1283,7 +1283,7 @@ def _recv_c_store_rsp(event):
     status_str = '0x{0:04x} - Unknown'.format(cs.Status)
     # Try and get the status from the affected SOP class UID
     if 'AffectedSOPClassUID' in cs:
-        service_class = uid_to_service_class(cs.AffectedSOPClassUID.name)
+        service_class = uid_to_service_class(cs.AffectedSOPClassUID)
         try:
             if cs.Status in service_class.statuses:
                 status = service_class.statuses[cs.Status]
