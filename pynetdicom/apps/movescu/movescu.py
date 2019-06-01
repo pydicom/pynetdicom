@@ -26,9 +26,14 @@ from pynetdicom import (
     PYNETDICOM_IMPLEMENTATION_VERSION,
     PYNETDICOM_IMPLEMENTATION_UID
 )
+from pynetdicom.sop_class import (
+    PatientRootQueryRetrieveInformationModelMove,
+    StudyRootQueryRetrieveInformationModelMove,
+    PatientStudyOnlyQueryRetrieveInformationModelMove,
+)
 
 
-VERSION = '0.3.1'
+VERSION = '0.3.2'
 
 
 def _setup_argparser():
@@ -108,6 +113,7 @@ def _setup_argparser():
     qr_model.add_argument("-P", "--patient",
                           help="use patient root information model (default)",
                           action="store_true",
+                          default=True
                           )
     qr_model.add_argument("-S", "--study",
                           help="use study root information model",
@@ -332,13 +338,13 @@ if assoc.is_established:
     ds.QueryRetrieveLevel = "PATIENT"
 
     if args.patient:
-        query_model = 'P'
+        query_model = PatientRootQueryRetrieveInformationModelMove
     elif args.study:
-        query_model = 'S'
+        query_model = StudyRootQueryRetrieveInformationModelMove
     elif args.psonly:
-        query_model = 'O'
+        query_model = PatientStudyOnlyQueryRetrieveInformationModelMove
     else:
-        query_model = 'P'
+        query_model = PatientRootQueryRetrieveInformationModelMove
 
     if args.move_aet:
         move_aet = args.move_aet
@@ -346,7 +352,7 @@ if assoc.is_established:
         move_aet = args.calling_aet
 
     # Send query
-    response = assoc.send_c_move(ds, move_aet, query_model=query_model)
+    response = assoc.send_c_move(ds, move_aet, query_model)
 
     for (status, identifier) in response:
         pass

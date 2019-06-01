@@ -24,9 +24,14 @@ from pynetdicom import (
     PYNETDICOM_IMPLEMENTATION_UID,
     PYNETDICOM_IMPLEMENTATION_VERSION
 )
+from pynetdicom.sop_class import (
+    PatientRootQueryRetrieveInformationModelGet,
+    StudyRootQueryRetrieveInformationModelGet,
+    PatientStudyOnlyQueryRetrieveInformationModelGet,
+)
 
 
-VERSION = '0.3.1'
+VERSION = '0.3.2'
 
 
 def _setup_argparser():
@@ -92,9 +97,6 @@ def _setup_argparser():
     # Query information model choices
     qr_group = parser.add_argument_group('Query Information Model Options')
     qr_model = qr_group.add_mutually_exclusive_group()
-    qr_model.add_argument("-W", "--worklist",
-                          help="use modality worklist information model",
-                          action="store_true")
     qr_model.add_argument("-P", "--patient",
                           help="use patient root information model",
                           action="store_true", default=True)
@@ -191,16 +193,14 @@ d = Dataset()
 d.PatientName = '*'
 d.QueryRetrieveLevel = "PATIENT"
 
-if args.worklist:
-    query_model = 'W'
-elif args.patient:
-    query_model = 'P'
+if args.patient:
+    query_model = PatientRootQueryRetrieveInformationModelGet
 elif args.study:
-    query_model = 'S'
+    query_model = StudyRootQueryRetrieveInformationModelGet
 elif args.psonly:
-    query_model = 'O'
+    query_model = PatientStudyOnlyQueryRetrieveInformationModelGet
 else:
-    query_model = 'W'
+    query_model = PatientRootQueryRetrieveInformationModelGet
 
 def handle_store(event):
     """Handle a C-STORE request."""
@@ -316,7 +316,7 @@ assoc = ae.associate(args.peer,
 
 # Send query
 if assoc.is_established:
-    response = assoc.send_c_get(d, query_model=query_model)
+    response = assoc.send_c_get(d, query_model)
 
     for status, identifier in response:
         pass
