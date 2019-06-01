@@ -974,11 +974,11 @@ class Association(threading.Thread):
         query_model : pydicom.uid.UID or str
             The value to use for the C-FIND request's (0000,0002) *Affected
             SOP Class UID* parameter, which usually corresponds to the
-            Information Model that is to be used. If supplying a ``str``
+            Information Model that is to be used. If supplying a ``str`` key
             (deprecated, to be removed in v1.5.0) then one of the following:
 
             - ``P`` - 1.2.840.10008.5.1.4.1.2.1.1  -
-              *Patient Root Information Model - FIND* (default)
+              *Patient Root Information Model - FIND*
             - ``S`` - 1.2.840.10008.5.1.4.1.2.2.1 -
               *Study Root Information Model - FIND*
             - ``O`` - 1.2.840.10008.5.1.4.1.2.3.1 -
@@ -1237,11 +1237,11 @@ class Association(threading.Thread):
         query_model : pydicom.uid.UID or str
             The value to use for the C-GET request's (0000,0002) *Affected
             SOP Class UID* parameter, which usually corresponds to the
-            Information Model that is to be used. If supplying a ``str``
+            Information Model that is to be used. If supplying a ``str`` key
             (deprecated, to be removed in v1.5.0) then one of the following:
 
             - ``P`` - 1.2.840.10008.5.1.4.1.2.1.3 -
-              *Patient Root Information Model - GET* (default)
+              *Patient Root Information Model - GET*
             - ``S`` - 1.2.840.10008.5.1.4.1.2.2.3 -
               *Study Root Information Model - GET*
             - ``O`` - 1.2.840.10008.5.1.4.1.2.3.3 -
@@ -1481,11 +1481,11 @@ class Association(threading.Thread):
         query_model : pydicom.uid.UID or str
             The value to use for the C-MOVE request's (0000,0002) *Affected
             SOP Class UID* parameter, which usually corresponds to the
-            Information Model that is to be used. If supplying a ``str``
+            Information Model that is to be used. If supplying a ``str`` key
             (deprecated, to be removed in v1.5.0) then one of the following:
 
             - ``P`` - 1.2.840.10008.5.1.4.1.2.1.2 -
-              *Patient Root Information Model - MOVE* (default)
+              *Patient Root Information Model - MOVE*
             - ``S`` - 1.2.840.10008.5.1.4.1.2.2.2 -
               *Study Root Information Model - MOVE*
             - ``O`` - 1.2.840.10008.5.1.4.1.2.3.2 -
