@@ -99,7 +99,7 @@ def _setup_argparser():
     qr_model = qr_group.add_mutually_exclusive_group()
     qr_model.add_argument("-P", "--patient",
                           help="use patient root information model",
-                          action="store_true", default=True)
+                          action="store_true")
     qr_model.add_argument("-S", "--study",
                           help="use study root information model",
                           action="store_true")

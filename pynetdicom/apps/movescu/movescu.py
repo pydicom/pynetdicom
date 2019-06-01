@@ -111,10 +111,8 @@ def _setup_argparser():
     qr_group = parser.add_argument_group('Query Information Model Options')
     qr_model = qr_group.add_mutually_exclusive_group()
     qr_model.add_argument("-P", "--patient",
-                          help="use patient root information model (default)",
-                          action="store_true",
-                          default=True
-                          )
+                          help="use patient root information model",
+                          action="store_true")
     qr_model.add_argument("-S", "--study",
                           help="use study root information model",
                           action="store_true")
