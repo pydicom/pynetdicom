@@ -22,6 +22,11 @@ Enhancements
 * Added support for Protocol Approval Query Retrieve service class
   (:issue:`327`)
 * Added ``Event.move_destination`` property
+* Added ``meta_uid`` keyword parameters to the ``Association.send_n_*()``
+  methods to allow the use of Meta SOP Classes (such as those used in the
+  Print Management service class)
+* Added *Basic Grayscale Print Management Meta SOP Class* and *Basic Color
+  Print Management Meta SOP Class* to ``sop_class``.
 
 
 Changes

@@ -21,6 +21,8 @@ from pynetdicom.sop_class import (
     ModalityPerformedProcedureStepNotificationSOPClass,
     ModalityPerformedProcedureStepRetrieveSOPClass,
     ModalityPerformedProcedureStepSOPClass,
+    BasicGrayscalePrintManagementMetaSOPClass,
+    PrinterSOPClass,
 )
 from pynetdicom.service_class import ServiceClass
 
@@ -477,6 +479,46 @@ class TestAssociationSendNEventReport(object):
 
         scp.shutdown()
 
+    @pytest.mark.skip(reason="Needs print management service")
+    def test_meta_uid(self):
+        """Test using a Meta SOP Class"""
+        recv = []
+
+        def handle(event):
+            recv.append(event)
+            return 0x0000, event.event_information
+
+        self.ae = ae = AE()
+        ae.acse_timeout = 5
+        ae.dimse_timeout = 5
+        ae.network_timeout = 5
+        ae.add_supported_context(BasicGrayscalePrintManagementMetaSOPClass)
+        scp = ae.start_server(
+            ('', 11112), block=False,
+            evt_handlers=[(evt.EVT_N_EVENT_REPORT, handle)]
+        )
+
+        ae.add_requested_context(BasicGrayscalePrintManagementMetaSOPClass)
+        assoc = ae.associate('localhost', 11112)
+        assert assoc.is_established
+
+        ds = Dataset()
+        ds.PatientName = 'Test^test'
+        status, ds = assoc.send_n_event_report(
+            ds, 1,
+            PrinterSOPClass,
+            '1.2.840.10008.5.1.1.40.1',
+            meta_uid=BasicGrayscalePrintManagementMetaSOPClass
+        )
+        assert status.Status == 0x0000
+        assert ds.PatientName == 'Test^test'
+        assoc.release()
+        assert assoc.is_released
+
+        scp.shutdown()
+
+        print(recv)
+
 
 class TestAssociationSendNGet(object):
     """Run tests on Assocation send_n_get."""
@@ -867,6 +909,46 @@ class TestAssociationSendNGet(object):
         assert assoc.is_released
 
         scp.shutdown()
+
+    @pytest.mark.skip(reason="Needs print management service")
+    def test_meta_uid(self):
+        """Test using a Meta SOP Class"""
+        recv = []
+
+        def handle(event):
+            recv.append(event)
+            return 0x0000, event.event_information
+
+        self.ae = ae = AE()
+        ae.acse_timeout = 5
+        ae.dimse_timeout = 5
+        ae.network_timeout = 5
+        ae.add_supported_context(BasicGrayscalePrintManagementMetaSOPClass)
+        scp = ae.start_server(
+            ('', 11112), block=False,
+            evt_handlers=[(evt.EVT_N_EVENT_REPORT, handle)]
+        )
+
+        ae.add_requested_context(BasicGrayscalePrintManagementMetaSOPClass)
+        assoc = ae.associate('localhost', 11112)
+        assert assoc.is_established
+
+        ds = Dataset()
+        ds.PatientName = 'Test^test'
+        status, ds = assoc.send_n_event_report(
+            ds, 1,
+            PrinterSOPClass,
+            '1.2.840.10008.5.1.1.40.1',
+            meta_uid=BasicGrayscalePrintManagementMetaSOPClass
+        )
+        assert status.Status == 0x0000
+        assert ds.PatientName == 'Test^test'
+        assoc.release()
+        assert assoc.is_released
+
+        scp.shutdown()
+
+        print(recv)
 
 
 class TestAssociationSendNSet(object):
@@ -1302,6 +1384,46 @@ class TestAssociationSendNSet(object):
 
         scp.shutdown()
 
+    @pytest.mark.skip(reason="Needs print management service")
+    def test_meta_uid(self):
+        """Test using a Meta SOP Class"""
+        recv = []
+
+        def handle(event):
+            recv.append(event)
+            return 0x0000, event.event_information
+
+        self.ae = ae = AE()
+        ae.acse_timeout = 5
+        ae.dimse_timeout = 5
+        ae.network_timeout = 5
+        ae.add_supported_context(BasicGrayscalePrintManagementMetaSOPClass)
+        scp = ae.start_server(
+            ('', 11112), block=False,
+            evt_handlers=[(evt.EVT_N_EVENT_REPORT, handle)]
+        )
+
+        ae.add_requested_context(BasicGrayscalePrintManagementMetaSOPClass)
+        assoc = ae.associate('localhost', 11112)
+        assert assoc.is_established
+
+        ds = Dataset()
+        ds.PatientName = 'Test^test'
+        status, ds = assoc.send_n_event_report(
+            ds, 1,
+            PrinterSOPClass,
+            '1.2.840.10008.5.1.1.40.1',
+            meta_uid=BasicGrayscalePrintManagementMetaSOPClass
+        )
+        assert status.Status == 0x0000
+        assert ds.PatientName == 'Test^test'
+        assoc.release()
+        assert assoc.is_released
+
+        scp.shutdown()
+
+        print(recv)
+
 
 # TODO: Refactor when N-ACTION SCP is implemented
 class TestAssociationSendNAction(object):
@@ -1734,6 +1856,46 @@ class TestAssociationSendNAction(object):
 
         scp.shutdown()
 
+    @pytest.mark.skip(reason="Needs print management service")
+    def test_meta_uid(self):
+        """Test using a Meta SOP Class"""
+        recv = []
+
+        def handle(event):
+            recv.append(event)
+            return 0x0000, event.event_information
+
+        self.ae = ae = AE()
+        ae.acse_timeout = 5
+        ae.dimse_timeout = 5
+        ae.network_timeout = 5
+        ae.add_supported_context(BasicGrayscalePrintManagementMetaSOPClass)
+        scp = ae.start_server(
+            ('', 11112), block=False,
+            evt_handlers=[(evt.EVT_N_EVENT_REPORT, handle)]
+        )
+
+        ae.add_requested_context(BasicGrayscalePrintManagementMetaSOPClass)
+        assoc = ae.associate('localhost', 11112)
+        assert assoc.is_established
+
+        ds = Dataset()
+        ds.PatientName = 'Test^test'
+        status, ds = assoc.send_n_event_report(
+            ds, 1,
+            PrinterSOPClass,
+            '1.2.840.10008.5.1.1.40.1',
+            meta_uid=BasicGrayscalePrintManagementMetaSOPClass
+        )
+        assert status.Status == 0x0000
+        assert ds.PatientName == 'Test^test'
+        assoc.release()
+        assert assoc.is_released
+
+        scp.shutdown()
+
+        print(recv)
+
 
 class TestAssociationSendNCreate(object):
     """Run tests on Assocation send_n_create."""
@@ -2150,6 +2312,46 @@ class TestAssociationSendNCreate(object):
 
         scp.shutdown()
 
+    @pytest.mark.skip(reason="Needs print management service")
+    def test_meta_uid(self):
+        """Test using a Meta SOP Class"""
+        recv = []
+
+        def handle(event):
+            recv.append(event)
+            return 0x0000, event.event_information
+
+        self.ae = ae = AE()
+        ae.acse_timeout = 5
+        ae.dimse_timeout = 5
+        ae.network_timeout = 5
+        ae.add_supported_context(BasicGrayscalePrintManagementMetaSOPClass)
+        scp = ae.start_server(
+            ('', 11112), block=False,
+            evt_handlers=[(evt.EVT_N_EVENT_REPORT, handle)]
+        )
+
+        ae.add_requested_context(BasicGrayscalePrintManagementMetaSOPClass)
+        assoc = ae.associate('localhost', 11112)
+        assert assoc.is_established
+
+        ds = Dataset()
+        ds.PatientName = 'Test^test'
+        status, ds = assoc.send_n_event_report(
+            ds, 1,
+            PrinterSOPClass,
+            '1.2.840.10008.5.1.1.40.1',
+            meta_uid=BasicGrayscalePrintManagementMetaSOPClass
+        )
+        assert status.Status == 0x0000
+        assert ds.PatientName == 'Test^test'
+        assoc.release()
+        assert assoc.is_released
+
+        scp.shutdown()
+
+        print(recv)
+
 
 # TODO: Refactor when N-DELETE SCP is implemented
 class TestAssociationSendNDelete(object):
@@ -2428,3 +2630,43 @@ class TestAssociationSendNDelete(object):
         assert assoc.is_released
 
         scp.shutdown()
+
+    @pytest.mark.skip(reason="Needs print management service")
+    def test_meta_uid(self):
+        """Test using a Meta SOP Class"""
+        recv = []
+
+        def handle(event):
+            recv.append(event)
+            return 0x0000, event.event_information
+
+        self.ae = ae = AE()
+        ae.acse_timeout = 5
+        ae.dimse_timeout = 5
+        ae.network_timeout = 5
+        ae.add_supported_context(BasicGrayscalePrintManagementMetaSOPClass)
+        scp = ae.start_server(
+            ('', 11112), block=False,
+            evt_handlers=[(evt.EVT_N_EVENT_REPORT, handle)]
+        )
+
+        ae.add_requested_context(BasicGrayscalePrintManagementMetaSOPClass)
+        assoc = ae.associate('localhost', 11112)
+        assert assoc.is_established
+
+        ds = Dataset()
+        ds.PatientName = 'Test^test'
+        status, ds = assoc.send_n_event_report(
+            ds, 1,
+            PrinterSOPClass,
+            '1.2.840.10008.5.1.1.40.1',
+            meta_uid=BasicGrayscalePrintManagementMetaSOPClass
+        )
+        assert status.Status == 0x0000
+        assert ds.PatientName == 'Test^test'
+        assoc.release()
+        assert assoc.is_released
+
+        scp.shutdown()
+
+        print(recv)
