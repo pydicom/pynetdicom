@@ -184,6 +184,7 @@
 <span class="kn">import</span> <span class="nn">logging</span>
 <span class="kn">import</span> <span class="nn">threading</span>
 <span class="kn">import</span> <span class="nn">time</span>
+<span class="kn">import</span> <span class="nn">warnings</span>
 
 <span class="kn">from</span> <span class="nn">pydicom.dataset</span> <span class="k">import</span> <span class="n">Dataset</span>
 <span class="kn">from</span> <span class="nn">pydicom.uid</span> <span class="k">import</span> <span class="n">UID</span>
@@ -1137,7 +1138,7 @@
 
         <span class="k">return</span> <span class="n">status</span></div>
 
-<div class="viewcode-block" id="Association.send_c_find"><a class="viewcode-back" href="../../reference/generated/pynetdicom.association.Association.html#pynetdicom.association.Association.send_c_find">[docs]</a>    <span class="k">def</span> <span class="nf">send_c_find</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">dataset</span><span class="p">,</span> <span class="n">msg_id</span><span class="o">=</span><span class="mi">1</span><span class="p">,</span> <span class="n">priority</span><span class="o">=</span><span class="mi">2</span><span class="p">,</span> <span class="n">query_model</span><span class="o">=</span><span class="s1">&#39;P&#39;</span><span class="p">):</span>
+<div class="viewcode-block" id="Association.send_c_find"><a class="viewcode-back" href="../../reference/generated/pynetdicom.association.Association.html#pynetdicom.association.Association.send_c_find">[docs]</a>    <span class="k">def</span> <span class="nf">send_c_find</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">dataset</span><span class="p">,</span> <span class="n">query_model</span><span class="p">,</span> <span class="n">msg_id</span><span class="o">=</span><span class="mi">1</span><span class="p">,</span> <span class="n">priority</span><span class="o">=</span><span class="mi">2</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;Send a C-FIND request to the peer AE.</span>
 
 <span class="sd">        Yields ``(status, identifier)`` pairs.</span>
@@ -1148,22 +1149,14 @@
 <span class="sd">            The C-FIND request&#39;s *Identifier* dataset. The exact requirements</span>
 <span class="sd">            for the *Identifier* dataset are Service Class specific (see the</span>
 <span class="sd">            DICOM Standard, Part 4).</span>
-<span class="sd">        msg_id : int, optional</span>
-<span class="sd">            The DIMSE *Message ID*, must be between 0 and 65535, inclusive,</span>
-<span class="sd">            (default 1).</span>
-<span class="sd">        priority : int, optional</span>
-<span class="sd">            The C-FIND operation *Priority* (may not be supported by the peer),</span>
-<span class="sd">            one of:</span>
-
-<span class="sd">            - ``0`` - Medium</span>
-<span class="sd">            - ``1`` - High</span>
-<span class="sd">            - ``2`` - Low (default)</span>
-
-<span class="sd">        query_model : str, optional</span>
-<span class="sd">            The Information Model to use, one of the following:</span>
+<span class="sd">        query_model : pydicom.uid.UID or str</span>
+<span class="sd">            The value to use for the C-FIND request&#39;s (0000,0002) *Affected</span>
+<span class="sd">            SOP Class UID* parameter, which usually corresponds to the</span>
+<span class="sd">            Information Model that is to be used. If supplying a ``str`` key</span>
+<span class="sd">            (deprecated, to be removed in v1.5.0) then one of the following:</span>
 
 <span class="sd">            - ``P`` - 1.2.840.10008.5.1.4.1.2.1.1  -</span>
-<span class="sd">              *Patient Root Information Model - FIND* (default)</span>
+<span class="sd">              *Patient Root Information Model - FIND*</span>
 <span class="sd">            - ``S`` - 1.2.840.10008.5.1.4.1.2.2.1 -</span>
 <span class="sd">              *Study Root Information Model - FIND*</span>
 <span class="sd">            - ``O`` - 1.2.840.10008.5.1.4.1.2.3.1 -</span>
@@ -1194,6 +1187,16 @@
 <span class="sd">              *Implant Template Group Information Model - FIND*</span>
 <span class="sd">            - ``PA`` - 1.2.840.10008.5.1.4.1.1.200.4 -</span>
 <span class="sd">              *Protocol Approval Information Model - FIND*</span>
+<span class="sd">        msg_id : int, optional</span>
+<span class="sd">            The DIMSE *Message ID*, must be between 0 and 65535, inclusive,</span>
+<span class="sd">            (default 1).</span>
+<span class="sd">        priority : int, optional</span>
+<span class="sd">            The C-FIND operation *Priority* (may not be supported by the peer),</span>
+<span class="sd">            one of:</span>
+
+<span class="sd">            - ``0`` - Medium</span>
+<span class="sd">            - ``1`` - High</span>
+<span class="sd">            - ``2`` - Low (default)</span>
 
 <span class="sd">        Yields</span>
 <span class="sd">        ------</span>
@@ -1307,31 +1310,43 @@
             <span class="k">raise</span> <span class="ne">RuntimeError</span><span class="p">(</span><span class="s2">&quot;The association with a peer SCP must be &quot;</span>
                                <span class="s2">&quot;established before sending a C-FIND request&quot;</span><span class="p">)</span>
 
-        <span class="n">_sop_classes</span> <span class="o">=</span> <span class="p">{</span>
-            <span class="s1">&#39;W&#39;</span> <span class="p">:</span> <span class="n">ModalityWorklistInformationFind</span><span class="p">,</span>
-            <span class="s2">&quot;P&quot;</span> <span class="p">:</span> <span class="n">PatientRootQueryRetrieveInformationModelFind</span><span class="p">,</span>
-            <span class="s2">&quot;S&quot;</span> <span class="p">:</span> <span class="n">StudyRootQueryRetrieveInformationModelFind</span><span class="p">,</span>
-            <span class="s2">&quot;O&quot;</span> <span class="p">:</span> <span class="n">PatientStudyOnlyQueryRetrieveInformationModelFind</span><span class="p">,</span>
-            <span class="s2">&quot;G&quot;</span> <span class="p">:</span> <span class="n">GeneralRelevantPatientInformationQuery</span><span class="p">,</span>
-            <span class="s2">&quot;B&quot;</span> <span class="p">:</span> <span class="n">BreastImagingRelevantPatientInformationQuery</span><span class="p">,</span>
-            <span class="s2">&quot;C&quot;</span> <span class="p">:</span> <span class="n">CardiacRelevantPatientInformationQuery</span><span class="p">,</span>
-            <span class="s2">&quot;PC&quot;</span> <span class="p">:</span> <span class="n">ProductCharacteristicsQueryInformationModelFind</span><span class="p">,</span>
-            <span class="s2">&quot;SA&quot;</span> <span class="p">:</span> <span class="n">SubstanceApprovalQueryInformationModelFind</span><span class="p">,</span>
-            <span class="s2">&quot;H&quot;</span> <span class="p">:</span> <span class="n">HangingProtocolInformationModelFind</span><span class="p">,</span>
-            <span class="s2">&quot;D&quot;</span> <span class="p">:</span> <span class="n">DefinedProcedureProtocolInformationModelFind</span><span class="p">,</span>
-            <span class="s2">&quot;CP&quot;</span> <span class="p">:</span> <span class="n">ColorPaletteInformationModelFind</span><span class="p">,</span>
-            <span class="s2">&quot;IG&quot;</span> <span class="p">:</span> <span class="n">GenericImplantTemplateInformationModelFind</span><span class="p">,</span>
-            <span class="s2">&quot;IA&quot;</span> <span class="p">:</span> <span class="n">ImplantAssemblyTemplateInformationModelFind</span><span class="p">,</span>
-            <span class="s2">&quot;IT&quot;</span> <span class="p">:</span> <span class="n">ImplantTemplateGroupInformationModelFind</span><span class="p">,</span>
-            <span class="s2">&quot;PA&quot;</span> <span class="p">:</span> <span class="n">ProtocolApprovalInformationModelFind</span><span class="p">,</span>
-        <span class="p">}</span>
+        <span class="c1"># TODO: refactor in v1.5</span>
+        <span class="c1"># Try the UID first</span>
+        <span class="n">sop_class</span> <span class="o">=</span> <span class="n">UID</span><span class="p">(</span><span class="n">query_model</span><span class="p">)</span>
+        <span class="k">if</span> <span class="ow">not</span> <span class="n">sop_class</span><span class="o">.</span><span class="n">is_valid</span><span class="p">:</span>
+            <span class="c1"># Try the str</span>
+            <span class="n">_sop_classes</span> <span class="o">=</span> <span class="p">{</span>
+                <span class="s1">&#39;W&#39;</span> <span class="p">:</span> <span class="n">ModalityWorklistInformationFind</span><span class="p">,</span>
+                <span class="s2">&quot;P&quot;</span> <span class="p">:</span> <span class="n">PatientRootQueryRetrieveInformationModelFind</span><span class="p">,</span>
+                <span class="s2">&quot;S&quot;</span> <span class="p">:</span> <span class="n">StudyRootQueryRetrieveInformationModelFind</span><span class="p">,</span>
+                <span class="s2">&quot;O&quot;</span> <span class="p">:</span> <span class="n">PatientStudyOnlyQueryRetrieveInformationModelFind</span><span class="p">,</span>
+                <span class="s2">&quot;G&quot;</span> <span class="p">:</span> <span class="n">GeneralRelevantPatientInformationQuery</span><span class="p">,</span>
+                <span class="s2">&quot;B&quot;</span> <span class="p">:</span> <span class="n">BreastImagingRelevantPatientInformationQuery</span><span class="p">,</span>
+                <span class="s2">&quot;C&quot;</span> <span class="p">:</span> <span class="n">CardiacRelevantPatientInformationQuery</span><span class="p">,</span>
+                <span class="s2">&quot;PC&quot;</span> <span class="p">:</span> <span class="n">ProductCharacteristicsQueryInformationModelFind</span><span class="p">,</span>
+                <span class="s2">&quot;SA&quot;</span> <span class="p">:</span> <span class="n">SubstanceApprovalQueryInformationModelFind</span><span class="p">,</span>
+                <span class="s2">&quot;H&quot;</span> <span class="p">:</span> <span class="n">HangingProtocolInformationModelFind</span><span class="p">,</span>
+                <span class="s2">&quot;D&quot;</span> <span class="p">:</span> <span class="n">DefinedProcedureProtocolInformationModelFind</span><span class="p">,</span>
+                <span class="s2">&quot;CP&quot;</span> <span class="p">:</span> <span class="n">ColorPaletteInformationModelFind</span><span class="p">,</span>
+                <span class="s2">&quot;IG&quot;</span> <span class="p">:</span> <span class="n">GenericImplantTemplateInformationModelFind</span><span class="p">,</span>
+                <span class="s2">&quot;IA&quot;</span> <span class="p">:</span> <span class="n">ImplantAssemblyTemplateInformationModelFind</span><span class="p">,</span>
+                <span class="s2">&quot;IT&quot;</span> <span class="p">:</span> <span class="n">ImplantTemplateGroupInformationModelFind</span><span class="p">,</span>
+                <span class="s2">&quot;PA&quot;</span> <span class="p">:</span> <span class="n">ProtocolApprovalInformationModelFind</span><span class="p">,</span>
+            <span class="p">}</span>
 
-        <span class="k">try</span><span class="p">:</span>
-            <span class="n">sop_class</span> <span class="o">=</span> <span class="n">_sop_classes</span><span class="p">[</span><span class="n">query_model</span><span class="p">]</span>
-        <span class="k">except</span> <span class="ne">KeyError</span><span class="p">:</span>
-            <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span>
-                <span class="s2">&quot;Unsupported value for `query_model`: </span><span class="si">{}</span><span class="s2">&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">query_model</span><span class="p">)</span>
-            <span class="p">)</span>
+            <span class="k">try</span><span class="p">:</span>
+                <span class="n">sop_class</span> <span class="o">=</span> <span class="n">_sop_classes</span><span class="p">[</span><span class="n">query_model</span><span class="p">]</span>
+                <span class="n">warnings</span><span class="o">.</span><span class="n">warn</span><span class="p">(</span>
+                    <span class="s2">&quot;Using `query_model` with a key that corresponds to a &quot;</span>
+                    <span class="s2">&quot;given UID is deprecated and will be removed in v1.5. &quot;</span>
+                    <span class="s2">&quot;Pass the required UID directly instead.&quot;</span><span class="p">,</span>
+                    <span class="ne">DeprecationWarning</span>
+                <span class="p">)</span>
+            <span class="k">except</span> <span class="ne">KeyError</span><span class="p">:</span>
+                <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span>
+                    <span class="s2">&quot;Unsupported value for `query_model`: </span><span class="si">{}</span><span class="s2">&quot;</span>
+                    <span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">query_model</span><span class="p">)</span>
+                <span class="p">)</span>
 
         <span class="c1"># Determine the Presentation Context we are operating under</span>
         <span class="c1">#   and hence the transfer syntax to use for encoding `dataset`</span>
@@ -1379,7 +1394,7 @@
         <span class="c1">#   may end up being sent first unless next() is called</span>
         <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_wrap_find_responses</span><span class="p">(</span><span class="n">transfer_syntax</span><span class="p">)</span></div>
 
-<div class="viewcode-block" id="Association.send_c_get"><a class="viewcode-back" href="../../reference/generated/pynetdicom.association.Association.html#pynetdicom.association.Association.send_c_get">[docs]</a>    <span class="k">def</span> <span class="nf">send_c_get</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">dataset</span><span class="p">,</span> <span class="n">msg_id</span><span class="o">=</span><span class="mi">1</span><span class="p">,</span> <span class="n">priority</span><span class="o">=</span><span class="mi">2</span><span class="p">,</span> <span class="n">query_model</span><span class="o">=</span><span class="s1">&#39;P&#39;</span><span class="p">):</span>
+<div class="viewcode-block" id="Association.send_c_get"><a class="viewcode-back" href="../../reference/generated/pynetdicom.association.Association.html#pynetdicom.association.Association.send_c_get">[docs]</a>    <span class="k">def</span> <span class="nf">send_c_get</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">dataset</span><span class="p">,</span> <span class="n">query_model</span><span class="p">,</span> <span class="n">msg_id</span><span class="o">=</span><span class="mi">1</span><span class="p">,</span> <span class="n">priority</span><span class="o">=</span><span class="mi">2</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;Send a C-GET request to the peer AE.</span>
 
 <span class="sd">        Yields ``(status, identifier)`` pairs.</span>
@@ -1397,22 +1412,14 @@
 <span class="sd">            The C-GET request&#39;s *Identifier* ``Dataset``. The exact</span>
 <span class="sd">            requirements for the *Identifier* are Service Class specific (see</span>
 <span class="sd">            the DICOM Standard, Part 4).</span>
-<span class="sd">        msg_id : int, optional</span>
-<span class="sd">            The DIMSE *Message ID*, must be between 0 and 65535, inclusive,</span>
-<span class="sd">            (default 1).</span>
-<span class="sd">        priority : int, optional</span>
-<span class="sd">            The C-GET operation *Priority* (may not be supported by the peer),</span>
-<span class="sd">            one of:</span>
-
-<span class="sd">            - ``0`` - Medium</span>
-<span class="sd">            - ``1`` - High</span>
-<span class="sd">            - ``2`` - Low (default)</span>
-
-<span class="sd">        query_model : str, optional</span>
-<span class="sd">            The Query/Retrieve Information Model to use, one of the following:</span>
+<span class="sd">        query_model : pydicom.uid.UID or str</span>
+<span class="sd">            The value to use for the C-GET request&#39;s (0000,0002) *Affected</span>
+<span class="sd">            SOP Class UID* parameter, which usually corresponds to the</span>
+<span class="sd">            Information Model that is to be used. If supplying a ``str`` key</span>
+<span class="sd">            (deprecated, to be removed in v1.5.0) then one of the following:</span>
 
 <span class="sd">            - ``P`` - 1.2.840.10008.5.1.4.1.2.1.3 -</span>
-<span class="sd">              *Patient Root Information Model - GET* (default)</span>
+<span class="sd">              *Patient Root Information Model - GET*</span>
 <span class="sd">            - ``S`` - 1.2.840.10008.5.1.4.1.2.2.3 -</span>
 <span class="sd">              *Study Root Information Model - GET*</span>
 <span class="sd">            - ``O`` - 1.2.840.10008.5.1.4.1.2.3.3 -</span>
@@ -1435,6 +1442,16 @@
 <span class="sd">              *Implant Template Group Information Model - GET*</span>
 <span class="sd">            - ``PA`` - 1.2.840.10008.5.1.4.1.1.200.6 -</span>
 <span class="sd">              *Protocol Approval Information Model - GET*</span>
+<span class="sd">        msg_id : int, optional</span>
+<span class="sd">            The DIMSE *Message ID*, must be between 0 and 65535, inclusive,</span>
+<span class="sd">            (default 1).</span>
+<span class="sd">        priority : int, optional</span>
+<span class="sd">            The C-GET operation *Priority* (may not be supported by the peer),</span>
+<span class="sd">            one of:</span>
+
+<span class="sd">            - ``0`` - Medium</span>
+<span class="sd">            - ``1`` - High</span>
+<span class="sd">            - ``2`` - Low (default)</span>
 
 <span class="sd">        Yields</span>
 <span class="sd">        ------</span>
@@ -1539,27 +1556,37 @@
             <span class="k">raise</span> <span class="ne">RuntimeError</span><span class="p">(</span><span class="s2">&quot;The association with a peer SCP must be &quot;</span>
                                <span class="s2">&quot;established before sending a C-GET request&quot;</span><span class="p">)</span>
 
-        <span class="n">_sop_classes</span> <span class="o">=</span> <span class="p">{</span>
-            <span class="s2">&quot;P&quot;</span> <span class="p">:</span> <span class="n">PatientRootQueryRetrieveInformationModelGet</span><span class="p">,</span>
-            <span class="s2">&quot;S&quot;</span> <span class="p">:</span> <span class="n">StudyRootQueryRetrieveInformationModelGet</span><span class="p">,</span>
-            <span class="s2">&quot;O&quot;</span> <span class="p">:</span> <span class="n">PatientStudyOnlyQueryRetrieveInformationModelGet</span><span class="p">,</span>
-            <span class="s2">&quot;C&quot;</span> <span class="p">:</span> <span class="n">CompositeInstanceRootRetrieveGet</span><span class="p">,</span>
-            <span class="s2">&quot;CB&quot;</span> <span class="p">:</span> <span class="n">CompositeInstanceRetrieveWithoutBulkDataGet</span><span class="p">,</span>
-            <span class="s2">&quot;H&quot;</span> <span class="p">:</span> <span class="n">HangingProtocolInformationModelGet</span><span class="p">,</span>
-            <span class="s2">&quot;D&quot;</span> <span class="p">:</span> <span class="n">DefinedProcedureProtocolInformationModelGet</span><span class="p">,</span>
-            <span class="s2">&quot;CP&quot;</span> <span class="p">:</span> <span class="n">ColorPaletteInformationModelGet</span><span class="p">,</span>
-            <span class="s2">&quot;IG&quot;</span> <span class="p">:</span> <span class="n">GenericImplantTemplateInformationModelGet</span><span class="p">,</span>
-            <span class="s2">&quot;IA&quot;</span> <span class="p">:</span> <span class="n">ImplantAssemblyTemplateInformationModelGet</span><span class="p">,</span>
-            <span class="s2">&quot;IT&quot;</span> <span class="p">:</span> <span class="n">ImplantTemplateGroupInformationModelGet</span><span class="p">,</span>
-            <span class="s2">&quot;PA&quot;</span> <span class="p">:</span> <span class="n">ProtocolApprovalInformationModelGet</span><span class="p">,</span>
-        <span class="p">}</span>
+        <span class="c1"># TODO: refactor in v1.5</span>
+        <span class="n">sop_class</span> <span class="o">=</span> <span class="n">UID</span><span class="p">(</span><span class="n">query_model</span><span class="p">)</span>
+        <span class="k">if</span> <span class="ow">not</span> <span class="n">sop_class</span><span class="o">.</span><span class="n">is_valid</span><span class="p">:</span>
+            <span class="n">_sop_classes</span> <span class="o">=</span> <span class="p">{</span>
+                <span class="s2">&quot;P&quot;</span> <span class="p">:</span> <span class="n">PatientRootQueryRetrieveInformationModelGet</span><span class="p">,</span>
+                <span class="s2">&quot;S&quot;</span> <span class="p">:</span> <span class="n">StudyRootQueryRetrieveInformationModelGet</span><span class="p">,</span>
+                <span class="s2">&quot;O&quot;</span> <span class="p">:</span> <span class="n">PatientStudyOnlyQueryRetrieveInformationModelGet</span><span class="p">,</span>
+                <span class="s2">&quot;C&quot;</span> <span class="p">:</span> <span class="n">CompositeInstanceRootRetrieveGet</span><span class="p">,</span>
+                <span class="s2">&quot;CB&quot;</span> <span class="p">:</span> <span class="n">CompositeInstanceRetrieveWithoutBulkDataGet</span><span class="p">,</span>
+                <span class="s2">&quot;H&quot;</span> <span class="p">:</span> <span class="n">HangingProtocolInformationModelGet</span><span class="p">,</span>
+                <span class="s2">&quot;D&quot;</span> <span class="p">:</span> <span class="n">DefinedProcedureProtocolInformationModelGet</span><span class="p">,</span>
+                <span class="s2">&quot;CP&quot;</span> <span class="p">:</span> <span class="n">ColorPaletteInformationModelGet</span><span class="p">,</span>
+                <span class="s2">&quot;IG&quot;</span> <span class="p">:</span> <span class="n">GenericImplantTemplateInformationModelGet</span><span class="p">,</span>
+                <span class="s2">&quot;IA&quot;</span> <span class="p">:</span> <span class="n">ImplantAssemblyTemplateInformationModelGet</span><span class="p">,</span>
+                <span class="s2">&quot;IT&quot;</span> <span class="p">:</span> <span class="n">ImplantTemplateGroupInformationModelGet</span><span class="p">,</span>
+                <span class="s2">&quot;PA&quot;</span> <span class="p">:</span> <span class="n">ProtocolApprovalInformationModelGet</span><span class="p">,</span>
+            <span class="p">}</span>
 
-        <span class="k">try</span><span class="p">:</span>
-            <span class="n">sop_class</span> <span class="o">=</span> <span class="n">_sop_classes</span><span class="p">[</span><span class="n">query_model</span><span class="p">]</span>
-        <span class="k">except</span> <span class="ne">KeyError</span><span class="p">:</span>
-            <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span>
-                <span class="s2">&quot;Unsupported value for `query_model`: </span><span class="si">{}</span><span class="s2">&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">query_model</span><span class="p">)</span>
-            <span class="p">)</span>
+            <span class="k">try</span><span class="p">:</span>
+                <span class="n">sop_class</span> <span class="o">=</span> <span class="n">_sop_classes</span><span class="p">[</span><span class="n">query_model</span><span class="p">]</span>
+                <span class="n">warnings</span><span class="o">.</span><span class="n">warn</span><span class="p">(</span>
+                    <span class="s2">&quot;Using `query_model` with a key that corresponds to a &quot;</span>
+                    <span class="s2">&quot;given UID is deprecated and will be removed in v1.5. &quot;</span>
+                    <span class="s2">&quot;Pass the required UID directly instead.&quot;</span><span class="p">,</span>
+                    <span class="ne">DeprecationWarning</span>
+                <span class="p">)</span>
+            <span class="k">except</span> <span class="ne">KeyError</span><span class="p">:</span>
+                <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span>
+                    <span class="s2">&quot;Unsupported value for `query_model`: </span><span class="si">{}</span><span class="s2">&quot;</span>
+                    <span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">query_model</span><span class="p">)</span>
+                <span class="p">)</span>
 
         <span class="c1"># Determine the Presentation Context we are operating under</span>
         <span class="c1">#   and hence the transfer syntax to use for encoding `dataset`</span>
@@ -1608,8 +1635,8 @@
         <span class="c1">#   may end up being sent first unless next() is called</span>
         <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_wrap_get_move_responses</span><span class="p">(</span><span class="n">transfer_syntax</span><span class="p">)</span></div>
 
-<div class="viewcode-block" id="Association.send_c_move"><a class="viewcode-back" href="../../reference/generated/pynetdicom.association.Association.html#pynetdicom.association.Association.send_c_move">[docs]</a>    <span class="k">def</span> <span class="nf">send_c_move</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">dataset</span><span class="p">,</span> <span class="n">move_aet</span><span class="p">,</span> <span class="n">msg_id</span><span class="o">=</span><span class="mi">1</span><span class="p">,</span> <span class="n">priority</span><span class="o">=</span><span class="mi">2</span><span class="p">,</span>
-                    <span class="n">query_model</span><span class="o">=</span><span class="s1">&#39;P&#39;</span><span class="p">):</span>
+<div class="viewcode-block" id="Association.send_c_move"><a class="viewcode-back" href="../../reference/generated/pynetdicom.association.Association.html#pynetdicom.association.Association.send_c_move">[docs]</a>    <span class="k">def</span> <span class="nf">send_c_move</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">dataset</span><span class="p">,</span> <span class="n">move_aet</span><span class="p">,</span> <span class="n">query_model</span><span class="p">,</span> <span class="n">msg_id</span><span class="o">=</span><span class="mi">1</span><span class="p">,</span>
+                    <span class="n">priority</span><span class="o">=</span><span class="mi">2</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;Send a C-MOVE request to the peer AE.</span>
 
 <span class="sd">        Yields ``(status, identifier)`` pairs.</span>
@@ -1629,22 +1656,14 @@
 <span class="sd">            The value of the *Move Destination* parameter for the C-MOVE</span>
 <span class="sd">            request, should be the AE title of the Storage SCP for the</span>
 <span class="sd">            C-STORE sub-operations performed by the peer.</span>
-<span class="sd">        msg_id : int, optional</span>
-<span class="sd">            The DIMSE *Message ID*, must be between 0 and 65535, inclusive,</span>
-<span class="sd">            (default 1).</span>
-<span class="sd">        priority : int, optional</span>
-<span class="sd">            The value of the *Priority* parameter (if supported by the peer),</span>
-<span class="sd">            one of:</span>
-
-<span class="sd">            - ``0`` - Medium</span>
-<span class="sd">            - ``1`` - High</span>
-<span class="sd">            - ``2`` - Low (default)</span>
-
-<span class="sd">        query_model : str, optional</span>
-<span class="sd">            The Query/Retrieve Information Model to use, one of the following:</span>
+<span class="sd">        query_model : pydicom.uid.UID or str</span>
+<span class="sd">            The value to use for the C-MOVE request&#39;s (0000,0002) *Affected</span>
+<span class="sd">            SOP Class UID* parameter, which usually corresponds to the</span>
+<span class="sd">            Information Model that is to be used. If supplying a ``str`` key</span>
+<span class="sd">            (deprecated, to be removed in v1.5.0) then one of the following:</span>
 
 <span class="sd">            - ``P`` - 1.2.840.10008.5.1.4.1.2.1.2 -</span>
-<span class="sd">              *Patient Root Information Model - MOVE* (default)</span>
+<span class="sd">              *Patient Root Information Model - MOVE*</span>
 <span class="sd">            - ``S`` - 1.2.840.10008.5.1.4.1.2.2.2 -</span>
 <span class="sd">              *Study Root Information Model - MOVE*</span>
 <span class="sd">            - ``O`` - 1.2.840.10008.5.1.4.1.2.3.2 -</span>
@@ -1665,6 +1684,16 @@
 <span class="sd">              *Implant Template Group Information Model - MOVE*</span>
 <span class="sd">            - ``PA`` - 1.2.840.10008.5.1.4.1.1.200.5 -</span>
 <span class="sd">              *Protocol Approval Information Model - MOVE*</span>
+<span class="sd">        msg_id : int, optional</span>
+<span class="sd">            The DIMSE *Message ID*, must be between 0 and 65535, inclusive,</span>
+<span class="sd">            (default 1).</span>
+<span class="sd">        priority : int, optional</span>
+<span class="sd">            The value of the *Priority* parameter (if supported by the peer),</span>
+<span class="sd">            one of:</span>
+
+<span class="sd">            - ``0`` - Medium</span>
+<span class="sd">            - ``1`` - High</span>
+<span class="sd">            - ``2`` - Low (default)</span>
 
 <span class="sd">        Yields</span>
 <span class="sd">        ------</span>
@@ -1754,26 +1783,36 @@
             <span class="k">raise</span> <span class="ne">RuntimeError</span><span class="p">(</span><span class="s2">&quot;The association with a peer SCP must be &quot;</span>
                                <span class="s2">&quot;established before sending a C-MOVE request&quot;</span><span class="p">)</span>
 
-        <span class="n">_sop_classes</span> <span class="o">=</span> <span class="p">{</span>
-            <span class="s2">&quot;P&quot;</span> <span class="p">:</span> <span class="n">PatientRootQueryRetrieveInformationModelMove</span><span class="p">,</span>
-            <span class="s2">&quot;S&quot;</span> <span class="p">:</span> <span class="n">StudyRootQueryRetrieveInformationModelMove</span><span class="p">,</span>
-            <span class="s2">&quot;O&quot;</span> <span class="p">:</span> <span class="n">PatientStudyOnlyQueryRetrieveInformationModelMove</span><span class="p">,</span>
-            <span class="s2">&quot;C&quot;</span> <span class="p">:</span> <span class="n">CompositeInstanceRootRetrieveMove</span><span class="p">,</span>
-            <span class="s2">&quot;H&quot;</span> <span class="p">:</span> <span class="n">HangingProtocolInformationModelMove</span><span class="p">,</span>
-            <span class="s2">&quot;D&quot;</span> <span class="p">:</span> <span class="n">DefinedProcedureProtocolInformationModelMove</span><span class="p">,</span>
-            <span class="s2">&quot;CP&quot;</span> <span class="p">:</span> <span class="n">ColorPaletteInformationModelMove</span><span class="p">,</span>
-            <span class="s2">&quot;IG&quot;</span> <span class="p">:</span> <span class="n">GenericImplantTemplateInformationModelMove</span><span class="p">,</span>
-            <span class="s2">&quot;IA&quot;</span> <span class="p">:</span> <span class="n">ImplantAssemblyTemplateInformationModelMove</span><span class="p">,</span>
-            <span class="s2">&quot;IT&quot;</span> <span class="p">:</span> <span class="n">ImplantTemplateGroupInformationModelMove</span><span class="p">,</span>
-            <span class="s2">&quot;PA&quot;</span> <span class="p">:</span> <span class="n">ProtocolApprovalInformationModelMove</span><span class="p">,</span>
-        <span class="p">}</span>
+        <span class="c1"># TODO: refactor in v1.5</span>
+        <span class="n">sop_class</span> <span class="o">=</span> <span class="n">UID</span><span class="p">(</span><span class="n">query_model</span><span class="p">)</span>
+        <span class="k">if</span> <span class="ow">not</span> <span class="n">sop_class</span><span class="o">.</span><span class="n">is_valid</span><span class="p">:</span>
+            <span class="n">_sop_classes</span> <span class="o">=</span> <span class="p">{</span>
+                <span class="s2">&quot;P&quot;</span> <span class="p">:</span> <span class="n">PatientRootQueryRetrieveInformationModelMove</span><span class="p">,</span>
+                <span class="s2">&quot;S&quot;</span> <span class="p">:</span> <span class="n">StudyRootQueryRetrieveInformationModelMove</span><span class="p">,</span>
+                <span class="s2">&quot;O&quot;</span> <span class="p">:</span> <span class="n">PatientStudyOnlyQueryRetrieveInformationModelMove</span><span class="p">,</span>
+                <span class="s2">&quot;C&quot;</span> <span class="p">:</span> <span class="n">CompositeInstanceRootRetrieveMove</span><span class="p">,</span>
+                <span class="s2">&quot;H&quot;</span> <span class="p">:</span> <span class="n">HangingProtocolInformationModelMove</span><span class="p">,</span>
+                <span class="s2">&quot;D&quot;</span> <span class="p">:</span> <span class="n">DefinedProcedureProtocolInformationModelMove</span><span class="p">,</span>
+                <span class="s2">&quot;CP&quot;</span> <span class="p">:</span> <span class="n">ColorPaletteInformationModelMove</span><span class="p">,</span>
+                <span class="s2">&quot;IG&quot;</span> <span class="p">:</span> <span class="n">GenericImplantTemplateInformationModelMove</span><span class="p">,</span>
+                <span class="s2">&quot;IA&quot;</span> <span class="p">:</span> <span class="n">ImplantAssemblyTemplateInformationModelMove</span><span class="p">,</span>
+                <span class="s2">&quot;IT&quot;</span> <span class="p">:</span> <span class="n">ImplantTemplateGroupInformationModelMove</span><span class="p">,</span>
+                <span class="s2">&quot;PA&quot;</span> <span class="p">:</span> <span class="n">ProtocolApprovalInformationModelMove</span><span class="p">,</span>
+            <span class="p">}</span>
 
-        <span class="k">try</span><span class="p">:</span>
-            <span class="n">sop_class</span> <span class="o">=</span> <span class="n">_sop_classes</span><span class="p">[</span><span class="n">query_model</span><span class="p">]</span>
-        <span class="k">except</span> <span class="ne">KeyError</span><span class="p">:</span>
-            <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span>
-                <span class="s2">&quot;Unsupported value for `query_model`: </span><span class="si">{}</span><span class="s2">&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">query_model</span><span class="p">)</span>
-            <span class="p">)</span>
+            <span class="k">try</span><span class="p">:</span>
+                <span class="n">sop_class</span> <span class="o">=</span> <span class="n">_sop_classes</span><span class="p">[</span><span class="n">query_model</span><span class="p">]</span>
+                <span class="n">warnings</span><span class="o">.</span><span class="n">warn</span><span class="p">(</span>
+                    <span class="s2">&quot;Using `query_model` with a key that corresponds to a &quot;</span>
+                    <span class="s2">&quot;given UID is deprecated and will be removed in v1.5. &quot;</span>
+                    <span class="s2">&quot;Pass the required UID directly instead.&quot;</span><span class="p">,</span>
+                    <span class="ne">DeprecationWarning</span>
+                <span class="p">)</span>
+            <span class="k">except</span> <span class="ne">KeyError</span><span class="p">:</span>
+                <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span>
+                    <span class="s2">&quot;Unsupported value for `query_model`: </span><span class="si">{}</span><span class="s2">&quot;</span>
+                    <span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">query_model</span><span class="p">)</span>
+                <span class="p">)</span>
 
         <span class="c1"># Determine the Presentation Context we are operating under</span>
         <span class="c1">#   and hence the transfer syntax to use for encoding `dataset`</span>

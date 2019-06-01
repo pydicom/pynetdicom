@@ -49,9 +49,7 @@ series with *Study Instance UID* ``1.2.3`` and *Series Instance UID*
 
     if assoc.is_established:
         # Use the C-MOVE service to send the identifier
-        # A query_model value of 'P' means use the 'Patient Root Query
-        #   Retrieve Information Model - Move' presentation context
-        responses = assoc.send_c_move(ds, b'STORE_SCP', query_model='P')
+        responses = assoc.send_c_move(ds, b'STORE_SCP', PatientRootQueryRetrieveInformationModelMove)
 
         for (status, identifier) in responses:
             if status:
@@ -120,9 +118,7 @@ to see the requirements for the ``evt.EVT_C_STORE`` handler.
 
     if assoc.is_established:
         # Use the C-MOVE service to send the identifier
-        # A query_model value of 'P' means use the 'Patient Root Query
-        #   Retrieve Information Model - Move' presentation context
-        responses = assoc.send_c_move(ds, b'OUR_STORE_SCP', query_model='P')
+        responses = assoc.send_c_move(ds, b'OUR_STORE_SCP', PatientRootQueryRetrieveInformationModelMove)
 
         for (status, identifier) in responses:
             if status:

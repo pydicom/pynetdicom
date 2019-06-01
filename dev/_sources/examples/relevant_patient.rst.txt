@@ -40,9 +40,7 @@ single patient with ID ``1234567``.
 
     if assoc.is_established:
         # Use the C-FIND service to send the identifier
-        # A query_model value of 'G' means use the 'General Relevant Patient
-        #     Information Model Query' presentation context
-        responses = assoc.send_c_find(ds, query_model='G')
+        responses = assoc.send_c_find(ds, GeneralRelevantPatientInformationQuery)
 
         for (status, identifier) in responses:
             if status:

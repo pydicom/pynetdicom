@@ -15,13 +15,13 @@ Fixes
   race condition when acting as the Acceptor and calling one of the
   ``Association.send_*()`` methods.
 
+
 Enhancements
 ............
 
 * Added support for Protocol Approval Query Retrieve service class
   (:issue:`327`)
 * Added ``Event.move_destination`` property
-
 
 
 Changes
@@ -37,3 +37,8 @@ Changes
   * ``_config.DECODE_STORE_DATASETS``
   * ``DIMSEServiceProvider.on_send_dimse_message()``,
     ``DIMSEServiceProvider.on_receive_dimse_message()``
+  * ``Association.send_c_find()``, ``Association.send_c_get()`` and
+    ``Association.send_c_move()`` now require a `query_model` parameter that
+    is used to set the *Affected SOP Class UID* value. The parameter should
+    pass a pydicom UID or UID string. Passing a key that corresponds to a given
+    UID is deprecated and will be removed in v1.5. (:issue:`348`)

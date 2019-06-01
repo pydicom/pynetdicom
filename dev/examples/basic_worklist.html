@@ -217,9 +217,7 @@ for the <em>Identifier</em>.</p>
 
 <span class="k">if</span> <span class="n">assoc</span><span class="o">.</span><span class="n">is_established</span><span class="p">:</span>
     <span class="c1"># Use the C-FIND service to send the identifier</span>
-    <span class="c1"># A query_model value of &#39;W&#39; means use the &#39;Modality Worklist</span>
-    <span class="c1">#     Information Model - Find&#39; presentation context</span>
-    <span class="n">responses</span> <span class="o">=</span> <span class="n">assoc</span><span class="o">.</span><span class="n">send_c_find</span><span class="p">(</span><span class="n">ds</span><span class="p">,</span> <span class="n">query_model</span><span class="o">=</span><span class="s1">&#39;W&#39;</span><span class="p">)</span>
+    <span class="n">responses</span> <span class="o">=</span> <span class="n">assoc</span><span class="o">.</span><span class="n">send_c_find</span><span class="p">(</span><span class="n">ds</span><span class="p">,</span> <span class="n">BasicWorklistManagementPresentationContexts</span><span class="p">)</span>
 
     <span class="k">for</span> <span class="p">(</span><span class="n">status</span><span class="p">,</span> <span class="n">identifier</span><span class="p">)</span> <span class="ow">in</span> <span class="n">responses</span><span class="p">:</span>
         <span class="k">if</span> <span class="n">status</span><span class="p">:</span>
