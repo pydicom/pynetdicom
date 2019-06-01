@@ -45,9 +45,7 @@ for the *Identifier*.
 
     if assoc.is_established:
         # Use the C-FIND service to send the identifier
-        # A query_model value of 'W' means use the 'Modality Worklist
-        #     Information Model - Find' presentation context
-        responses = assoc.send_c_find(ds, query_model='W')
+        responses = assoc.send_c_find(ds, BasicWorklistManagementPresentationContexts)
 
         for (status, identifier) in responses:
             if status:

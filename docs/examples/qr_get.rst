@@ -124,9 +124,7 @@ to see the requirements for the ``evt.EVT_C_STORE`` handler.
 
     if assoc.is_established:
         # Use the C-GET service to send the identifier
-        # A query_model value of 'P' means use the 'Patient Root Query Retrieve
-        #     Information Model - Get' presentation context
-        responses = assoc.send_c_get(ds, query_model='P')
+        responses = assoc.send_c_get(ds, PatientRootQueryRetrieveInformationModelGet)
 
         for (status, identifier) in responses:
             if status:

@@ -107,13 +107,13 @@ been accepted):
 | C-ECHO         | ``send_c_echo()``                                        |
 |                |                                                          |
 +----------------+----------------------------------------------------------+
-| C-FIND         | ``send_c_find(dataset)``                                 |
+| C-FIND         | ``send_c_find(dataset, query_model)``                    |
 |                |                                                          |
 +----------------+----------------------------------------------------------+
-| C-GET          | ``send_c_get(dataset)``                                  |
+| C-GET          | ``send_c_get(dataset, query_model)``                     |
 |                |                                                          |
 +----------------+----------------------------------------------------------+
-| C-MOVE         | ``send_c_move(dataset, move_aet)``                       |
+| C-MOVE         | ``send_c_move(dataset, move_aet, query_model)``          |
 |                |                                                          |
 +----------------+----------------------------------------------------------+
 | C-STORE        | ``send_c_store(dataset)``                                |
@@ -140,7 +140,7 @@ been accepted):
 
 Where *dataset* is a pydicom
 `Dataset <https://pydicom.github.io/pydicom/stable/ref_guide.html#dataset>`_
-object, *identifier_list* is a list of pydicom
+object, *query_model* is a UID string, *identifier_list* is a list of pydicom
 `Tag <https://pydicom.github.io/pydicom/stable/api_ref.html#pydicom.tag.Tag>`_
 objects, *event_type* and *action_type* are ints and *class_uid* and
 *instance_uid* are UID strings. See the

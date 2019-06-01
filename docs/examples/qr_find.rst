@@ -38,9 +38,7 @@ Root Query/Retrieve Information Model - Find* at the *Patient* level.
 
    if assoc.is_established:
        # Use the C-FIND service to send the identifier
-       # A query_model value of 'P' means use the 'Patient Root Query Retrieve
-       #     Information Model - Find' presentation context
-       responses = assoc.send_c_find(ds, query_model='P')
+       responses = assoc.send_c_find(ds, PatientRootQueryRetrieveInformationModelFind)
 
        for (status, identifier) in responses:
            if status:

@@ -861,7 +861,7 @@ def _send_c_store_rq(event):
     s.append('Message Type                  : {0!s}'.format('C-STORE RQ'))
     s.append('Message ID                    : {0!s}'.format(cs.MessageID))
     s.append('Affected SOP Class UID        : {0!s}'
-             .format(cs.AffectedSOPClassUID))
+             .format(cs.AffectedSOPClassUID.name))
     s.append('Affected SOP Instance UID     : {0!s}'
              .format(cs.AffectedSOPInstanceUID))
     s.append('Data Set                      : {0!s}'.format(dataset))
@@ -922,7 +922,7 @@ def _send_c_find_rq(event):
              .format(msg.context_id))
     s.append('Message ID                    : {0!s}'.format(cs.MessageID))
     s.append('Affected SOP Class UID        : {0!s}'
-             .format(cs.AffectedSOPClassUID))
+             .format(cs.AffectedSOPClassUID.name))
     s.append('Identifier                    : {0!s}'.format(dataset))
     s.append('Priority                      : {0!s}'.format(priority))
     s.append('{:=^76}'.format(' END DIMSE MESSAGE '))
@@ -960,7 +960,7 @@ def _send_c_find_rsp(event):
              .format(cs.MessageIDBeingRespondedTo))
     if 'AffectedSOPClassUID' in cs:
         s.append('Affected SOP Class UID        : {0!s}'
-                 .format(cs.AffectedSOPClassUID))
+                 .format(cs.AffectedSOPClassUID.name))
     s.append('Identifier                    : {0!s}'.format(dataset))
     s.append('DIMSE Status                  : 0x{0:04x}'.format(cs.Status))
     s.append('{:=^76}'.format(' END DIMSE MESSAGE '))
@@ -1000,7 +1000,7 @@ def _send_c_get_rq(event):
     s.append('Message Type                  : {0!s}'.format('C-GET RQ'))
     s.append('Message ID                    : {0!s}'.format(cs.MessageID))
     s.append('Affected SOP Class UID        : {0!s}'
-             .format(cs.AffectedSOPClassUID))
+             .format(cs.AffectedSOPClassUID.name))
     s.append('Identifier                    : {0!s}'.format(dataset))
     s.append('Priority                      : {0!s}'.format(priority))
     s.append('{:=^76}'.format(' END DIMSE MESSAGE '))
@@ -1084,7 +1084,7 @@ def _send_c_move_rq(event):
     s.append('Message Type                  : {0!s}'.format('C-MOVE RQ'))
     s.append('Message ID                    : {0!s}'.format(cs.MessageID))
     s.append('Affected SOP Class UID        : {0!s}'
-             .format(cs.AffectedSOPClassUID))
+             .format(cs.AffectedSOPClassUID.name))
     s.append('Move Destination              : {0!s}'
              .format(cs.MoveDestination))
     s.append('Identifier                    : {0!s}'.format(identifier))
@@ -1128,7 +1128,7 @@ def _send_c_move_rsp(event):
              .format(cs.MessageIDBeingRespondedTo))
     if 'AffectedSOPClassUID' in cs:
         s.append('Affected SOP Class UID        : {0!s}'
-                 .format(cs.AffectedSOPClassUID))
+                 .format(cs.AffectedSOPClassUID.name))
     else:
         s.append('Affected SOP Class UID        : None')
     s.append('Identifier                    : {0!s}'.format(identifier))
@@ -1248,7 +1248,7 @@ def _recv_c_store_rq(event):
              .format(msg.context_id))
     s.append('Message ID                    : {0!s}'.format(cs.MessageID))
     s.append('Affected SOP Class UID        : {0!s}'
-             .format(cs.AffectedSOPClassUID))
+             .format(cs.AffectedSOPClassUID.name))
     s.append('Affected SOP Instance UID     : {0!s}'
              .format(cs.AffectedSOPInstanceUID))
     if 'MoveOriginatorApplicationEntityTitle' in cs:
@@ -1301,7 +1301,7 @@ def _recv_c_store_rsp(event):
              .format(cs.MessageIDBeingRespondedTo))
     if 'AffectedSOPClassUID' in cs:
         s.append('Affected SOP Class UID        : {0!s}'
-                 .format(cs.AffectedSOPClassUID))
+                 .format(cs.AffectedSOPClassUID.name))
     if 'AffectedSOPInstanceUID' in cs:
         s.append('Affected SOP Instance UID     : {0!s}'
                  .format(cs.AffectedSOPInstanceUID))
@@ -1343,7 +1343,7 @@ def _recv_c_find_rq(event):
     s.append('Message Type                  : {0!s}'.format('C-FIND RQ'))
     s.append('Message ID                    : {0!s}'.format(cs.MessageID))
     s.append('Affected SOP Class UID        : {0!s}'
-             .format(cs.AffectedSOPClassUID))
+             .format(cs.AffectedSOPClassUID.name))
     s.append('Identifier                    : {0!s}'.format(dataset))
     s.append('Priority                      : {0!s}'.format(priority))
     s.append('{:=^76}'.format(' END DIMSE MESSAGE '))
@@ -1383,7 +1383,7 @@ def _recv_c_find_rsp(event):
              .format(cs.MessageIDBeingRespondedTo))
     if 'AffectedSOPClassUID' in cs:
         s.append('Affected SOP Class UID        : {0!s}'
-                 .format(cs.AffectedSOPClassUID))
+                 .format(cs.AffectedSOPClassUID.name))
     s.append('Identifier                    : {0!s}'.format(dataset))
     s.append('DIMSE Status                  : 0x{0:04x}'.format(cs.Status))
     s.append('{:=^76}'.format(' END DIMSE MESSAGE '))
@@ -1446,7 +1446,7 @@ def _recv_c_get_rq(event):
     s.append('Message Type                  : {0!s}'.format('C-GET RQ'))
     s.append('Message ID                    : {0!s}'.format(cs.MessageID))
     s.append('Affected SOP Class UID        : {0!s}'
-             .format(cs.AffectedSOPClassUID))
+             .format(cs.AffectedSOPClassUID.name))
     s.append('Identifier                    : {0!s}'.format(dataset))
     s.append('Priority                      : {0!s}'.format(priority))
     s.append('{:=^76}'.format(' END DIMSE MESSAGE '))
@@ -1490,7 +1490,7 @@ def _recv_c_get_rsp(event):
              .format(cs.MessageIDBeingRespondedTo))
     if 'AffectedSOPClassUID' in cs:
         s.append('Affected SOP Class UID        : {0!s}'
-                 .format(cs.AffectedSOPClassUID))
+                 .format(cs.AffectedSOPClassUID.name))
     if 'NumberOfRemainingSuboperations' in cs:
         s.append('Remaining Sub-operations      : {0!s}'
                  .format(cs.NumberOfRemainingSuboperations))
@@ -1562,7 +1562,7 @@ def _recv_c_move_rsp(event):
              .format(cs.MessageIDBeingRespondedTo))
     if 'AffectedSOPClassUID' in cs:
         s.append('Affected SOP Class UID        : {0!s}'
-                 .format(cs.AffectedSOPClassUID))
+                 .format(cs.AffectedSOPClassUID.name))
     if 'NumberOfRemainingSuboperations' in cs:
         s.append('Remaining Sub-operations      : {0!s}'
                  .format(cs.NumberOfRemainingSuboperations))
@@ -1603,7 +1603,7 @@ def _send_n_event_report_rq(event):
              .format('N-EVENT-REPORT RQ'))
     s.append('Message ID                    : {0!s}'.format(cs.MessageID))
     s.append('Affected SOP Class UID        : {0!s}'
-             .format(cs.AffectedSOPClassUID))
+             .format(cs.AffectedSOPClassUID.name))
     s.append('Affected SOP Instance UID     : {0!s}'
              .format(cs.AffectedSOPInstanceUID))
     s.append('Event Type ID                 : {0!s}'
@@ -1636,7 +1636,7 @@ def _send_n_event_report_rsp(event):
              .format(cs.MessageIDBeingRespondedTo))
     if 'AffectedSOPClassUID' in cs:
         s.append('Affected SOP Class UID        : {0!s}'
-                 .format(cs.AffectedSOPClassUID))
+                 .format(cs.AffectedSOPClassUID.name))
     if 'AffectedSOPInstanceUID' in cs:
         s.append('Affected SOP Instance UID     : {0!s}'
                  .format(cs.AffectedSOPInstanceUID))
@@ -1705,7 +1705,7 @@ def _send_n_get_rsp(event):
              .format(cs.MessageIDBeingRespondedTo))
     if 'AffectedSOPClassUID' in cs:
         s.append('Affected SOP Class UID        : {0!s}'
-                 .format(cs.AffectedSOPClassUID))
+                 .format(cs.AffectedSOPClassUID.name))
     if 'AffectedSOPInstanceUID' in cs:
         s.append('Affected SOP Instance UID     : {0!s}'
                  .format(cs.AffectedSOPInstanceUID))
@@ -1765,7 +1765,7 @@ def _send_n_set_rsp(event):
              .format(cs.MessageIDBeingRespondedTo))
     if 'AffectedSOPClassUID' in cs:
         s.append('Affected SOP Class UID        : {0!s}'
-                 .format(cs.AffectedSOPClassUID))
+                 .format(cs.AffectedSOPClassUID.name))
     if 'AffectedSOPInstanceUID' in cs:
         s.append('Affected SOP Instance UID     : {0!s}'
                  .format(cs.AffectedSOPInstanceUID))
@@ -1856,7 +1856,7 @@ def _send_n_delete_rsp(event):
              .format(cs.MessageIDBeingRespondedTo))
     if 'AffectedSOPClassUID' in cs:
         s.append('Affected SOP Class UID        : {0!s}'
-                 .format(cs.AffectedSOPClassUID))
+                 .format(cs.AffectedSOPClassUID.name))
     if 'AffectedSOPInstanceUID' in cs:
         s.append('Affected SOP Instance UID     : {0!s}'
                  .format(cs.AffectedSOPInstanceUID))
@@ -1920,7 +1920,7 @@ def _recv_n_get_rsp(event):
              .format(cs.MessageIDBeingRespondedTo))
     if 'AffectedSOPClassUID' in cs:
         s.append('Affected SOP Class UID        : {0!s}'
-                 .format(cs.AffectedSOPClassUID))
+                 .format(cs.AffectedSOPClassUID.name))
     if 'AffectedSOPInstanceUID' in cs:
         s.append('Affected SOP Instance UID     : {0!s}'
                  .format(cs.AffectedSOPInstanceUID))

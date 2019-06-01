@@ -1650,7 +1650,7 @@ class TestAssociationSendCFind(object):
         assert assoc.is_released
         assert not assoc.is_established
         with pytest.raises(RuntimeError):
-            next(assoc.send_c_find(self.ds))
+            next(assoc.send_c_find(self.ds, PatientRootQueryRetrieveInformationModelFind))
         scp.stop()
 
     def test_no_abstract_syntax_match(self):
@@ -1665,7 +1665,7 @@ class TestAssociationSendCFind(object):
         assert assoc.is_established
 
         def test():
-            next(assoc.send_c_find(self.ds))
+            next(assoc.send_c_find(self.ds, PatientRootQueryRetrieveInformationModelFind))
 
         with pytest.raises(ValueError):
             test()
@@ -2114,6 +2114,92 @@ class TestAssociationSendCFind(object):
             ) in caplog.text
             assert assoc.is_aborted
 
+    def test_deprecation_warning(self):
+        """Test the deprecation warning works OK"""
+        with pytest.deprecated_call():
+            def handle(event):
+                yield 0x0000, None
+
+            self.ae = ae = AE()
+            ae.acse_timeout = 5
+            ae.dimse_timeout = 5
+            ae.network_timeout = 5
+            ae.add_supported_context(PatientRootQueryRetrieveInformationModelFind)
+            scp = ae.start_server(
+                ('', 11112), block=False, evt_handlers=[(evt.EVT_C_FIND, handle)]
+            )
+
+            ae.add_requested_context(PatientRootQueryRetrieveInformationModelFind)
+            assoc = ae.associate('localhost', 11112)
+            assert assoc.is_established
+
+            for (status, ds) in assoc.send_c_find(self.ds, query_model='P'):
+                assert status.Status == 0x0000
+                assert ds is None
+            assoc.release()
+            assert assoc.is_released
+
+            scp.shutdown()
+
+    def test_query_uid_public(self):
+        """Test using a public UID for the query model"""
+        def handle(event):
+            yield 0x0000, None
+
+        self.ae = ae = AE()
+        ae.acse_timeout = 5
+        ae.dimse_timeout = 5
+        ae.network_timeout = 5
+        ae.add_supported_context(PatientRootQueryRetrieveInformationModelFind)
+        scp = ae.start_server(
+            ('', 11112), block=False, evt_handlers=[(evt.EVT_C_FIND, handle)]
+        )
+
+        ae.add_requested_context(PatientRootQueryRetrieveInformationModelFind)
+        assoc = ae.associate('localhost', 11112)
+        assert assoc.is_established
+
+        responses = assoc.send_c_find(
+            self.ds, PatientRootQueryRetrieveInformationModelFind
+        )
+        for (status, ds) in responses:
+            assert status.Status == 0x0000
+            assert ds is None
+        assoc.release()
+        assert assoc.is_released
+
+        scp.shutdown()
+
+    @pytest.mark.skipif(sys.version_info[:2] == (3, 4), reason='no caplog')
+    def test_query_uid_private(self, caplog):
+        """Test using a private UID for the query model"""
+        def handle(event):
+            yield 0x0000, None
+
+        with caplog.at_level(logging.ERROR, logger='pynetdicom'):
+            self.ae = ae = AE()
+            ae.acse_timeout = 5
+            ae.dimse_timeout = 5
+            ae.network_timeout = 5
+            ae.add_supported_context('1.2.3.4')
+            scp = ae.start_server(
+                ('', 11112), block=False, evt_handlers=[(evt.EVT_C_FIND, handle)]
+            )
+
+            ae.add_requested_context('1.2.3.4')
+            assoc = ae.associate('localhost', 11112)
+            assert assoc.is_established
+
+            responses = assoc.send_c_find(self.ds, '1.2.3.4')
+
+            scp.shutdown()
+
+            msg = (
+                "No supported service class available for the SOP Class "
+                "UID '1.2.3.4'"
+            )
+            assert msg in caplog.text
+
 
 class TestAssociationSendCCancel(object):
     """Run tests on Assocation send_c_cancel."""
@@ -2213,7 +2299,7 @@ class TestAssociationSendCGet(object):
         assert assoc.is_released
         assert not assoc.is_established
         with pytest.raises(RuntimeError):
-            next(assoc.send_c_get(self.ds))
+            next(assoc.send_c_get(self.ds, PatientRootQueryRetrieveInformationModelGet))
         self.scp.stop()
 
     def test_must_be_scp(self):
@@ -2278,7 +2364,7 @@ class TestAssociationSendCGet(object):
         assert assoc.is_established
 
         def test():
-            next(assoc.send_c_get(self.ds))
+            next(assoc.send_c_get(self.ds, PatientRootQueryRetrieveInformationModelGet))
 
         with pytest.raises(ValueError):
             test()
@@ -2917,6 +3003,95 @@ class TestAssociationSendCGet(object):
             ) in caplog.text
             assert assoc.is_aborted
 
+    def test_deprecation_warning(self):
+        """Test the deprecation warning works OK"""
+        with pytest.deprecated_call():
+            def handle(event):
+                yield 0
+                yield 0x0000, None
+
+            self.ae = ae = AE()
+            ae.acse_timeout = 5
+            ae.dimse_timeout = 5
+            ae.network_timeout = 5
+            ae.add_supported_context(PatientRootQueryRetrieveInformationModelGet)
+            scp = ae.start_server(
+                ('', 11112), block=False, evt_handlers=[(evt.EVT_C_GET, handle)]
+            )
+
+            ae.add_requested_context(PatientRootQueryRetrieveInformationModelGet)
+            assoc = ae.associate('localhost', 11112)
+            assert assoc.is_established
+
+            for (status, ds) in assoc.send_c_get(self.ds, query_model='P'):
+                assert status.Status == 0x0000
+                assert ds is None
+            assoc.release()
+            assert assoc.is_released
+
+            scp.shutdown()
+
+    def test_query_uid_public(self):
+        """Test using a public UID for the query model"""
+        def handle(event):
+            yield 0
+            yield 0x0000, None
+
+        self.ae = ae = AE()
+        ae.acse_timeout = 5
+        ae.dimse_timeout = 5
+        ae.network_timeout = 5
+        ae.add_supported_context(PatientRootQueryRetrieveInformationModelGet)
+        scp = ae.start_server(
+            ('', 11112), block=False, evt_handlers=[(evt.EVT_C_GET, handle)]
+        )
+
+        ae.add_requested_context(PatientRootQueryRetrieveInformationModelGet)
+        assoc = ae.associate('localhost', 11112)
+        assert assoc.is_established
+
+        responses = assoc.send_c_get(
+            self.ds, PatientRootQueryRetrieveInformationModelGet
+        )
+        for (status, ds) in responses:
+            assert status.Status == 0x0000
+            assert ds is None
+        assoc.release()
+        assert assoc.is_released
+
+        scp.shutdown()
+
+    @pytest.mark.skipif(sys.version_info[:2] == (3, 4), reason='no caplog')
+    def test_query_uid_private(self, caplog):
+        """Test using a private UID for the query model"""
+        def handle(event):
+            yield 0
+            yield 0x0000, None
+
+        with caplog.at_level(logging.ERROR, logger='pynetdicom'):
+            self.ae = ae = AE()
+            ae.acse_timeout = 5
+            ae.dimse_timeout = 5
+            ae.network_timeout = 5
+            ae.add_supported_context('1.2.3.4')
+            scp = ae.start_server(
+                ('', 11112), block=False, evt_handlers=[(evt.EVT_C_GET, handle)]
+            )
+
+            ae.add_requested_context('1.2.3.4')
+            assoc = ae.associate('localhost', 11112)
+            assert assoc.is_established
+
+            responses = assoc.send_c_get(self.ds, '1.2.3.4')
+
+            scp.shutdown()
+
+            msg = (
+                "No supported service class available for the SOP Class "
+                "UID '1.2.3.4'"
+            )
+            assert msg in caplog.text
+
 
 class TestAssociationSendCMove(object):
     """Run tests on Assocation send_c_move."""
@@ -2959,10 +3134,10 @@ class TestAssociationSendCMove(object):
     def test_must_be_associated(self):
         """Test can't send without association."""
         # Test raise if assoc not established
-        self.scp = DummyVerificationSCP()
+        self.scp = DummyMoveSCP()
         self.scp.start()
         ae = AE()
-        ae.add_requested_context(VerificationSOPClass)
+        ae.add_requested_context(PatientRootQueryRetrieveInformationModelMove)
         ae.acse_timeout = 5
         ae.dimse_timeout = 5
         assoc = ae.associate('localhost', 11112)
@@ -2970,7 +3145,7 @@ class TestAssociationSendCMove(object):
         assert assoc.is_released
         assert not assoc.is_established
         with pytest.raises(RuntimeError):
-            next(assoc.send_c_move(self.ds, b'TESTMOVE'))
+            next(assoc.send_c_move(self.ds, b'TESTMOVE', PatientRootQueryRetrieveInformationModelMove))
         self.scp.stop()
 
     def test_no_abstract_syntax_match(self):
@@ -2984,7 +3159,7 @@ class TestAssociationSendCMove(object):
         assoc = ae.associate('localhost', 11112)
         assert assoc.is_established
         def test():
-            next(assoc.send_c_move(self.ds, b'TESTMOVE'))
+            next(assoc.send_c_move(self.ds, b'TESTMOVE', PatientRootQueryRetrieveInformationModelMove))
 
         with pytest.raises(ValueError):
             test()
@@ -3662,6 +3837,164 @@ class TestAssociationSendCMove(object):
                 'Received an invalid C-MOVE response from the peer'
             ) in caplog.text
             assert assoc.is_aborted
+
+    def test_deprecation_warning(self):
+        """Test the deprecation warning works OK"""
+        with pytest.deprecated_call():
+            def handle_store(event):
+                return 0x0000
+
+            self.ae = ae = AE()
+            ae.acse_timeout = 5
+            ae.dimse_timeout = 5
+            ae.network_timeout = 5
+
+            # Storage SCP
+            ae.add_supported_context(CTImageStorage)
+            store_scp = ae.start_server(
+                ('', 11112), block=False, evt_handlers=[(evt.EVT_C_STORE, handle_store)]
+            )
+
+            # Move SCP
+            def handle_move(event):
+                yield 'localhost', 11112
+                yield 2
+                yield 0xff00, self.good
+
+            ae.add_requested_context(CTImageStorage)
+            ae.add_supported_context(PatientRootQueryRetrieveInformationModelMove)
+            ae.add_supported_context(StudyRootQueryRetrieveInformationModelMove)
+            ae.add_supported_context(PatientStudyOnlyQueryRetrieveInformationModelMove)
+            move_scp = ae.start_server(
+                ('', 11113), block=False, evt_handlers=[(evt.EVT_C_MOVE, handle_move)]
+            )
+
+            # Move SCU
+            ae.add_requested_context(PatientRootQueryRetrieveInformationModelMove)
+            ae.add_requested_context(StudyRootQueryRetrieveInformationModelMove)
+            ae.add_requested_context(PatientStudyOnlyQueryRetrieveInformationModelMove)
+
+            assoc = ae.associate('localhost', 11113)
+            assert assoc.is_established
+
+            result = assoc.send_c_move(self.ds, b'TESTMOVE', 'P')
+            (status, ds) = next(result)
+            assert status.Status == 0xFF00
+            assert ds is None
+            (status, ds) = next(result)
+            assert status.Status == 0x0000
+            assert ds is None
+            with pytest.raises(StopIteration):
+                next(result)
+
+            assoc.release()
+            assert assoc.is_released
+
+            store_scp.shutdown()
+            move_scp.shutdown()
+
+    def test_query_uid_public(self):
+        """Test using a public UID for the query model"""
+
+        def handle_store(event):
+            return 0x0000
+
+        self.ae = ae = AE()
+        ae.acse_timeout = 5
+        ae.dimse_timeout = 5
+        ae.network_timeout = 5
+
+        # Storage SCP
+        ae.add_supported_context(CTImageStorage)
+        store_scp = ae.start_server(
+            ('', 11112), block=False, evt_handlers=[(evt.EVT_C_STORE, handle_store)]
+        )
+
+        # Move SCP
+        def handle_move(event):
+            yield 'localhost', 11112
+            yield 2
+            yield 0xff00, self.good
+
+        ae.add_requested_context(CTImageStorage)
+        ae.add_supported_context(PatientRootQueryRetrieveInformationModelMove)
+        ae.add_supported_context(StudyRootQueryRetrieveInformationModelMove)
+        ae.add_supported_context(PatientStudyOnlyQueryRetrieveInformationModelMove)
+        move_scp = ae.start_server(
+            ('', 11113), block=False, evt_handlers=[(evt.EVT_C_MOVE, handle_move)]
+        )
+
+        # Move SCU
+        ae.add_requested_context(PatientRootQueryRetrieveInformationModelMove)
+        ae.add_requested_context(StudyRootQueryRetrieveInformationModelMove)
+        ae.add_requested_context(PatientStudyOnlyQueryRetrieveInformationModelMove)
+
+        assoc = ae.associate('localhost', 11113)
+        assert assoc.is_established
+
+        result = assoc.send_c_move(
+            self.ds, b'TESTMOVE', PatientRootQueryRetrieveInformationModelMove
+        )
+        (status, ds) = next(result)
+        assert status.Status == 0xFF00
+        assert ds is None
+        (status, ds) = next(result)
+        assert status.Status == 0x0000
+        assert ds is None
+        with pytest.raises(StopIteration):
+            next(result)
+
+        assoc.release()
+        assert assoc.is_released
+
+        store_scp.shutdown()
+        move_scp.shutdown()
+
+    @pytest.mark.skipif(sys.version_info[:2] == (3, 4), reason='no caplog')
+    def test_query_uid_private(self, caplog):
+        """Test using a private UID for the query model"""
+        def handle_store(event):
+            return 0x0000
+
+        def handle_move(event):
+            yield 'localhost', 11112
+            yield 2
+            yield 0xff00, self.good
+
+        with caplog.at_level(logging.ERROR, logger='pynetdicom'):
+            self.ae = ae = AE()
+            ae.acse_timeout = 5
+            ae.dimse_timeout = 5
+            ae.network_timeout = 5
+
+            # Storage SCP
+            ae.add_supported_context(CTImageStorage)
+            store_scp = ae.start_server(
+                ('', 11112), block=False, evt_handlers=[(evt.EVT_C_STORE, handle_store)]
+            )
+
+            ae.add_requested_context(CTImageStorage)
+            ae.add_supported_context('1.2.3.4')
+            move_scp = ae.start_server(
+                ('', 11113), block=False, evt_handlers=[(evt.EVT_C_MOVE, handle_move)]
+            )
+
+            # Move SCU
+            ae.add_requested_context('1.2.3.4')
+
+            assoc = ae.associate('localhost', 11113)
+            assert assoc.is_established
+
+            result = assoc.send_c_move(self.ds, b'TESTMOVE', '1.2.3.4')
+
+            store_scp.shutdown()
+            move_scp.shutdown()
+
+            msg = (
+                "No supported service class available for the SOP Class "
+                "UID '1.2.3.4'"
+            )
+            assert msg in caplog.text
 
 
 class TestGetValidContext(object):

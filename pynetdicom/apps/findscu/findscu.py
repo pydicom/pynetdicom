@@ -25,9 +25,15 @@ from pynetdicom import (
     QueryRetrievePresentationContexts,
     BasicWorklistManagementPresentationContexts
 )
+from pynetdicom.sop_class import (
+    ModalityWorklistInformationFind,
+    PatientRootQueryRetrieveInformationModelFind,
+    StudyRootQueryRetrieveInformationModelFind,
+    PatientStudyOnlyQueryRetrieveInformationModelFind,
+)
 
 
-VERSION = '0.1.4'
+VERSION = '0.1.5'
 
 
 def _setup_argparser():
@@ -196,21 +202,20 @@ if assoc.is_established:
 
     # Query/Retrieve Information Models
     if args.worklist:
-        query_model = 'W'
+        query_model = ModalityWorklistInformationFind
     elif args.patient:
-        query_model = 'P'
+        query_model = PatientRootQueryRetrieveInformationModelFind
     elif args.study:
-        query_model = 'S'
+        query_model = StudyRootQueryRetrieveInformationModelFind
     elif args.psonly:
-        # Retired
-        query_model = 'O'
+        query_model = PatientStudyOnlyQueryRetrieveInformationModelFind
     else:
-        query_model = 'W'
+        query_model = PatientRootQueryRetrieveInformationModelFind
 
     # Send query, yields (status, identifier)
     # If `status` is one of the 'Pending' statuses then `identifier` is the
     #   C-FIND response's Identifier dataset, otherwise `identifier` is None
-    response = assoc.send_c_find(identifier, query_model=query_model)
+    response = assoc.send_c_find(identifier, query_model)
 
     for status, identifier in response:
         if status.Status in (0xFF00, 0xFF01):
