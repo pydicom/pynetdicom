@@ -490,7 +490,7 @@ class TestEventHandlingAcceptor(object):
         assert isinstance(event.timestamp, datetime)
         assert isinstance(event.address[0], str)
         assert isinstance(event.address[1], int)
-        assert event.name == 'EVT_CONN_OPEN'
+        assert event.event.name == 'EVT_CONN_OPEN'
 
         assoc.release()
         scp.shutdown()
@@ -725,7 +725,7 @@ class TestEventHandlingAcceptor(object):
         assert isinstance(event.timestamp, datetime)
         assert isinstance(event.address[0], str)
         assert isinstance(event.address[1], int)
-        assert event.name == 'EVT_CONN_CLOSE'
+        assert event.event.name == 'EVT_CONN_CLOSE'
 
         scp.shutdown()
 
@@ -893,7 +893,7 @@ class TestEventHandlingAcceptor(object):
         assert isinstance(event.assoc, Association)
         assert isinstance(event.timestamp, datetime)
         assert isinstance(event.data, bytes)
-        assert event.name == 'EVT_DATA_SENT'
+        assert event.event.name == 'EVT_DATA_SENT'
 
         assert triggered[0].data[0:1] == b'\x02'  # A-ASSOCIATE-AC
         assert triggered[1].data[0:1] == b'\x06'  # A-RELEASE-RP
@@ -936,7 +936,7 @@ class TestEventHandlingAcceptor(object):
         assert isinstance(event.assoc, Association)
         assert isinstance(event.timestamp, datetime)
         assert isinstance(event.data, bytes)
-        assert event.name == 'EVT_DATA_SENT'
+        assert event.event.name == 'EVT_DATA_SENT'
 
         assert event.data[0:1] == b'\x06'  # A-RELEASE-RP
 
@@ -1042,7 +1042,7 @@ class TestEventHandlingAcceptor(object):
         assert isinstance(event.data, bytes)
         assert triggered[0].data[0:1] == b'\x01'  # Should be A-ASSOCIATE-RQ PDU
         assert triggered[1].data[0:1] == b'\x05'  # Should be A-RELEASE-RQ PDU
-        assert event.name == 'EVT_DATA_RECV'
+        assert event.event.name == 'EVT_DATA_RECV'
 
         scp.shutdown()
 
@@ -1082,7 +1082,7 @@ class TestEventHandlingAcceptor(object):
         assert isinstance(event.timestamp, datetime)
         assert isinstance(event.data, bytes)
         assert event.data[0:1] == b'\x05'  # Should be A-RELEASE-RQ PDU
-        assert event.name == 'EVT_DATA_RECV'
+        assert event.event.name == 'EVT_DATA_RECV'
 
         scp.shutdown()
 
@@ -1123,7 +1123,7 @@ class TestEventHandlingAcceptor(object):
         assert isinstance(event.timestamp, datetime)
         assert isinstance(event.data, bytes)
         assert triggered[0].data[0:1] == b'\x01'  # Should be A-ASSOCIATE-RQ PDU
-        assert event.name == 'EVT_DATA_RECV'
+        assert event.event.name == 'EVT_DATA_RECV'
 
         scp.shutdown()
 
@@ -1413,7 +1413,7 @@ class TestEventHandlingRequestor(object):
         assert isinstance(event.assoc, Association)
         assert isinstance(event.timestamp, datetime)
         assert isinstance(event.data, bytes)
-        assert event.name == 'EVT_DATA_SENT'
+        assert event.event.name == 'EVT_DATA_SENT'
 
         assert triggered[0].data[0:1] == b'\x01'  # A-ASSOCIATE-RQ
         assert triggered[1].data[0:1] == b'\x05'  # A-RELEASE-RQ
@@ -1456,7 +1456,7 @@ class TestEventHandlingRequestor(object):
         assert isinstance(event.assoc, Association)
         assert isinstance(event.timestamp, datetime)
         assert isinstance(event.data, bytes)
-        assert event.name == 'EVT_DATA_SENT'
+        assert event.event.name == 'EVT_DATA_SENT'
 
         assert event.data[0:1] == b'\x05'  # A-RELEASE-RQ
 
@@ -1531,7 +1531,7 @@ class TestEventHandlingRequestor(object):
         assert isinstance(event.data, bytes)
         assert triggered[0].data[0:1] == b'\x02'  # Should be A-ASSOCIATE-AC PDU
         assert triggered[1].data[0:1] == b'\x06'  # Should be A-RELEASE-RP PDU
-        assert event.name == 'EVT_DATA_RECV'
+        assert event.event.name == 'EVT_DATA_RECV'
 
         scp.shutdown()
 
@@ -1571,7 +1571,7 @@ class TestEventHandlingRequestor(object):
         assert isinstance(event.timestamp, datetime)
         assert isinstance(event.data, bytes)
         assert event.data[0:1] == b'\x06'  # Should be A-RELEASE-RP PDU
-        assert event.name == 'EVT_DATA_RECV'
+        assert event.event.name == 'EVT_DATA_RECV'
 
         scp.shutdown()
 
@@ -1613,6 +1613,6 @@ class TestEventHandlingRequestor(object):
         assert isinstance(event.timestamp, datetime)
         assert isinstance(event.data, bytes)
         assert triggered[0].data[0:1] == b'\x02'  # Should be A-ASSOCIATE-AC PDU
-        assert event.name == 'EVT_DATA_RECV'
+        assert event.event.name == 'EVT_DATA_RECV'
 
         scp.shutdown()
