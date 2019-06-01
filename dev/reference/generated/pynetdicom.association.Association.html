@@ -181,7 +181,7 @@
 <h1>pynetdicom.association.Association<a class="headerlink" href="#pynetdicom-association-association" title="Permalink to this headline">¶</a></h1>
 <dl class="class">
 <dt id="pynetdicom.association.Association">
-<em class="property">class </em><code class="descclassname">pynetdicom.association.</code><code class="descname">Association</code><span class="sig-paren">(</span><em>ae</em>, <em>mode</em><span class="sig-paren">)</span><a class="reference internal" href="../../_modules/pynetdicom/association.html#Association"><span class="viewcode-link">[source]</span></a><a class="reference external" href="https://github.com/pydicom/pynetdicom/blob/a3f97c96/pynetdicom/association.py#L91"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pynetdicom.association.Association" title="Permalink to this definition">¶</a></dt>
+<em class="property">class </em><code class="descclassname">pynetdicom.association.</code><code class="descname">Association</code><span class="sig-paren">(</span><em>ae</em>, <em>mode</em><span class="sig-paren">)</span><a class="reference internal" href="../../_modules/pynetdicom/association.html#Association"><span class="viewcode-link">[source]</span></a><a class="reference external" href="https://github.com/pydicom/pynetdicom/blob/0d410793/pynetdicom/association.py#L91"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pynetdicom.association.Association" title="Permalink to this definition">¶</a></dt>
 <dd><p>Manage an Association with a peer AE.</p>
 <dl class="attribute">
 <dt id="pynetdicom.association.Association.acceptor">
@@ -307,7 +307,7 @@ association ‘acceptor’.</p>
 
 <dl class="method">
 <dt id="pynetdicom.association.Association.__init__">
-<code class="descname">__init__</code><span class="sig-paren">(</span><em>ae</em>, <em>mode</em><span class="sig-paren">)</span><a class="reference internal" href="../../_modules/pynetdicom/association.html#Association.__init__"><span class="viewcode-link">[source]</span></a><a class="reference external" href="https://github.com/pydicom/pynetdicom/blob/a3f97c96/pynetdicom/association.py#L120"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pynetdicom.association.Association.__init__" title="Permalink to this definition">¶</a></dt>
+<code class="descname">__init__</code><span class="sig-paren">(</span><em>ae</em>, <em>mode</em><span class="sig-paren">)</span><a class="reference internal" href="../../_modules/pynetdicom/association.html#Association.__init__"><span class="viewcode-link">[source]</span></a><a class="reference external" href="https://github.com/pydicom/pynetdicom/blob/0d410793/pynetdicom/association.py#L120"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pynetdicom.association.Association.__init__" title="Permalink to this definition">¶</a></dt>
 <dd><p>Create a new <code class="docutils literal notranslate"><span class="pre">Association</span></code> instance.</p>
 <p>The association starts in State 1 (idle). Association negotiation
 won’t begin until an <code class="docutils literal notranslate"><span class="pre">AssociationSocket</span></code> is assigned using
@@ -477,7 +477,7 @@ won’t begin until an <code class="docutils literal notranslate"><span class="p
 </table>
 <dl class="method">
 <dt id="pynetdicom.association.Association.abort">
-<code class="descname">abort</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="../../_modules/pynetdicom/association.html#Association.abort"><span class="viewcode-link">[source]</span></a><a class="reference external" href="https://github.com/pydicom/pynetdicom/blob/a3f97c96/pynetdicom/association.py#L183"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pynetdicom.association.Association.abort" title="Permalink to this definition">¶</a></dt>
+<code class="descname">abort</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="../../_modules/pynetdicom/association.html#Association.abort"><span class="viewcode-link">[source]</span></a><a class="reference external" href="https://github.com/pydicom/pynetdicom/blob/0d410793/pynetdicom/association.py#L183"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pynetdicom.association.Association.abort" title="Permalink to this definition">¶</a></dt>
 <dd><p>Send an A-ABORT to the remote AE and kill the <code class="docutils literal notranslate"><span class="pre">Association</span></code>.</p>
 </dd></dl>
 
@@ -501,7 +501,7 @@ won’t begin until an <code class="docutils literal notranslate"><span class="p
 
 <dl class="method">
 <dt id="pynetdicom.association.Association.bind">
-<code class="descname">bind</code><span class="sig-paren">(</span><em>event</em>, <em>handler</em><span class="sig-paren">)</span><a class="reference internal" href="../../_modules/pynetdicom/association.html#Association.bind"><span class="viewcode-link">[source]</span></a><a class="reference external" href="https://github.com/pydicom/pynetdicom/blob/a3f97c96/pynetdicom/association.py#L220"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pynetdicom.association.Association.bind" title="Permalink to this definition">¶</a></dt>
+<code class="descname">bind</code><span class="sig-paren">(</span><em>event</em>, <em>handler</em><span class="sig-paren">)</span><a class="reference internal" href="../../_modules/pynetdicom/association.html#Association.bind"><span class="viewcode-link">[source]</span></a><a class="reference external" href="https://github.com/pydicom/pynetdicom/blob/0d410793/pynetdicom/association.py#L220"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pynetdicom.association.Association.bind" title="Permalink to this definition">¶</a></dt>
 <dd><p>Bind a callable <cite>handler</cite> to an <cite>event</cite>.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters</dt>
@@ -533,13 +533,13 @@ left.</p>
 
 <dl class="method">
 <dt id="pynetdicom.association.Association.get_events">
-<code class="descname">get_events</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="../../_modules/pynetdicom/association.html#Association.get_events"><span class="viewcode-link">[source]</span></a><a class="reference external" href="https://github.com/pydicom/pynetdicom/blob/a3f97c96/pynetdicom/association.py#L308"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pynetdicom.association.Association.get_events" title="Permalink to this definition">¶</a></dt>
+<code class="descname">get_events</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="../../_modules/pynetdicom/association.html#Association.get_events"><span class="viewcode-link">[source]</span></a><a class="reference external" href="https://github.com/pydicom/pynetdicom/blob/0d410793/pynetdicom/association.py#L308"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pynetdicom.association.Association.get_events" title="Permalink to this definition">¶</a></dt>
 <dd><p>Return a list of currently bound events.</p>
 </dd></dl>
 
 <dl class="method">
 <dt id="pynetdicom.association.Association.get_handlers">
-<code class="descname">get_handlers</code><span class="sig-paren">(</span><em>event</em><span class="sig-paren">)</span><a class="reference internal" href="../../_modules/pynetdicom/association.html#Association.get_handlers"><span class="viewcode-link">[source]</span></a><a class="reference external" href="https://github.com/pydicom/pynetdicom/blob/a3f97c96/pynetdicom/association.py#L312"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pynetdicom.association.Association.get_handlers" title="Permalink to this definition">¶</a></dt>
+<code class="descname">get_handlers</code><span class="sig-paren">(</span><em>event</em><span class="sig-paren">)</span><a class="reference internal" href="../../_modules/pynetdicom/association.html#Association.get_handlers"><span class="viewcode-link">[source]</span></a><a class="reference external" href="https://github.com/pydicom/pynetdicom/blob/0d410793/pynetdicom/association.py#L312"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pynetdicom.association.Association.get_handlers" title="Permalink to this definition">¶</a></dt>
 <dd><p>Return handlers bound to a specific <cite>event</cite>.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters</dt>
@@ -568,7 +568,7 @@ created. The identifier is available even after the thread has exited.</p>
 
 <dl class="method">
 <dt id="pynetdicom.association.Association.isAlive">
-<code class="descname">isAlive</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference external" href="https://github.com/pydicom/pynetdicom/blob/a3f97c96/pynetdicom/../../../../usr/local/lib/python3.6/threading.py#L1104"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pynetdicom.association.Association.isAlive" title="Permalink to this definition">¶</a></dt>
+<code class="descname">isAlive</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference external" href="https://github.com/pydicom/pynetdicom/blob/0d410793/pynetdicom/../../../../usr/local/lib/python3.6/threading.py#L1104"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pynetdicom.association.Association.isAlive" title="Permalink to this definition">¶</a></dt>
 <dd><p>Return whether the thread is alive.</p>
 <p>This method returns True just before the run() method starts until just
 after the run() method terminates. The module function enumerate()
@@ -583,7 +583,7 @@ returns a list of all alive threads.</p>
 
 <dl class="method">
 <dt id="pynetdicom.association.Association.is_alive">
-<code class="descname">is_alive</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference external" href="https://github.com/pydicom/pynetdicom/blob/a3f97c96/pynetdicom/../../../../usr/local/lib/python3.6/threading.py#L1104"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pynetdicom.association.Association.is_alive" title="Permalink to this definition">¶</a></dt>
+<code class="descname">is_alive</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference external" href="https://github.com/pydicom/pynetdicom/blob/0d410793/pynetdicom/../../../../usr/local/lib/python3.6/threading.py#L1104"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pynetdicom.association.Association.is_alive" title="Permalink to this definition">¶</a></dt>
 <dd><p>Return whether the thread is alive.</p>
 <p>This method returns True just before the run() method starts until just
 after the run() method terminates. The module function enumerate()
@@ -598,7 +598,7 @@ returns a list of all alive threads.</p>
 
 <dl class="method">
 <dt id="pynetdicom.association.Association.join">
-<code class="descname">join</code><span class="sig-paren">(</span><em>timeout=None</em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/pydicom/pynetdicom/blob/a3f97c96/pynetdicom/../../../../usr/local/lib/python3.6/threading.py#L1024"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pynetdicom.association.Association.join" title="Permalink to this definition">¶</a></dt>
+<code class="descname">join</code><span class="sig-paren">(</span><em>timeout=None</em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/pydicom/pynetdicom/blob/0d410793/pynetdicom/../../../../usr/local/lib/python3.6/threading.py#L1024"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pynetdicom.association.Association.join" title="Permalink to this definition">¶</a></dt>
 <dd><p>Wait until the thread terminates.</p>
 <p>This blocks the calling thread until the thread whose join() method is
 called terminates – either normally or through an unhandled exception
@@ -619,7 +619,7 @@ exception.</p>
 
 <dl class="method">
 <dt id="pynetdicom.association.Association.kill">
-<code class="descname">kill</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="../../_modules/pynetdicom/association.html#Association.kill"><span class="viewcode-link">[source]</span></a><a class="reference external" href="https://github.com/pydicom/pynetdicom/blob/a3f97c96/pynetdicom/association.py#L410"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pynetdicom.association.Association.kill" title="Permalink to this definition">¶</a></dt>
+<code class="descname">kill</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="../../_modules/pynetdicom/association.html#Association.kill"><span class="viewcode-link">[source]</span></a><a class="reference external" href="https://github.com/pydicom/pynetdicom/blob/0d410793/pynetdicom/association.py#L410"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pynetdicom.association.Association.kill" title="Permalink to this definition">¶</a></dt>
 <dd><p>Kill the <code class="docutils literal notranslate"><span class="pre">Association</span></code> thread.</p>
 </dd></dl>
 
@@ -657,7 +657,7 @@ initial name is set by the constructor.</p>
 
 <dl class="method">
 <dt id="pynetdicom.association.Association.release">
-<code class="descname">release</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="../../_modules/pynetdicom/association.html#Association.release"><span class="viewcode-link">[source]</span></a><a class="reference external" href="https://github.com/pydicom/pynetdicom/blob/a3f97c96/pynetdicom/association.py#L472"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pynetdicom.association.Association.release" title="Permalink to this definition">¶</a></dt>
+<code class="descname">release</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="../../_modules/pynetdicom/association.html#Association.release"><span class="viewcode-link">[source]</span></a><a class="reference external" href="https://github.com/pydicom/pynetdicom/blob/0d410793/pynetdicom/association.py#L472"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pynetdicom.association.Association.release" title="Permalink to this definition">¶</a></dt>
 <dd><p>Send an A-RELEASE request and initiate association release.</p>
 </dd></dl>
 
@@ -669,7 +669,7 @@ initial name is set by the constructor.</p>
 
 <dl class="method">
 <dt id="pynetdicom.association.Association.request">
-<code class="descname">request</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="../../_modules/pynetdicom/association.html#Association.request"><span class="viewcode-link">[source]</span></a><a class="reference external" href="https://github.com/pydicom/pynetdicom/blob/a3f97c96/pynetdicom/association.py#L488"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pynetdicom.association.Association.request" title="Permalink to this definition">¶</a></dt>
+<code class="descname">request</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="../../_modules/pynetdicom/association.html#Association.request"><span class="viewcode-link">[source]</span></a><a class="reference external" href="https://github.com/pydicom/pynetdicom/blob/0d410793/pynetdicom/association.py#L488"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pynetdicom.association.Association.request" title="Permalink to this definition">¶</a></dt>
 <dd><p>Request an association with a peer.</p>
 <p>A request can only be made once the <code class="docutils literal notranslate"><span class="pre">Association</span></code> instance has been
 configured for requestor mode and been assigned an
@@ -678,13 +678,13 @@ configured for requestor mode and been assigned an
 
 <dl class="method">
 <dt id="pynetdicom.association.Association.run">
-<code class="descname">run</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="../../_modules/pynetdicom/association.html#Association.run"><span class="viewcode-link">[source]</span></a><a class="reference external" href="https://github.com/pydicom/pynetdicom/blob/a3f97c96/pynetdicom/association.py#L504"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pynetdicom.association.Association.run" title="Permalink to this definition">¶</a></dt>
+<code class="descname">run</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="../../_modules/pynetdicom/association.html#Association.run"><span class="viewcode-link">[source]</span></a><a class="reference external" href="https://github.com/pydicom/pynetdicom/blob/0d410793/pynetdicom/association.py#L504"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pynetdicom.association.Association.run" title="Permalink to this definition">¶</a></dt>
 <dd><p>The main <code class="docutils literal notranslate"><span class="pre">Association</span></code> reactor.</p>
 </dd></dl>
 
 <dl class="method">
 <dt id="pynetdicom.association.Association.send_c_cancel">
-<code class="descname">send_c_cancel</code><span class="sig-paren">(</span><em>msg_id</em>, <em>context_id</em><span class="sig-paren">)</span><a class="reference internal" href="../../_modules/pynetdicom/association.html#Association.send_c_cancel"><span class="viewcode-link">[source]</span></a><a class="reference external" href="https://github.com/pydicom/pynetdicom/blob/a3f97c96/pynetdicom/association.py#L837"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pynetdicom.association.Association.send_c_cancel" title="Permalink to this definition">¶</a></dt>
+<code class="descname">send_c_cancel</code><span class="sig-paren">(</span><em>msg_id</em>, <em>context_id</em><span class="sig-paren">)</span><a class="reference internal" href="../../_modules/pynetdicom/association.html#Association.send_c_cancel"><span class="viewcode-link">[source]</span></a><a class="reference external" href="https://github.com/pydicom/pynetdicom/blob/0d410793/pynetdicom/association.py#L837"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pynetdicom.association.Association.send_c_cancel" title="Permalink to this definition">¶</a></dt>
 <dd><p>Send a C-CANCEL request to the peer AE.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters</dt>
@@ -700,7 +700,7 @@ service request.</p></li>
 
 <dl class="method">
 <dt id="pynetdicom.association.Association.send_c_echo">
-<code class="descname">send_c_echo</code><span class="sig-paren">(</span><em>msg_id=1</em><span class="sig-paren">)</span><a class="reference internal" href="../../_modules/pynetdicom/association.html#Association.send_c_echo"><span class="viewcode-link">[source]</span></a><a class="reference external" href="https://github.com/pydicom/pynetdicom/blob/a3f97c96/pynetdicom/association.py#L865"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pynetdicom.association.Association.send_c_echo" title="Permalink to this definition">¶</a></dt>
+<code class="descname">send_c_echo</code><span class="sig-paren">(</span><em>msg_id=1</em><span class="sig-paren">)</span><a class="reference internal" href="../../_modules/pynetdicom/association.html#Association.send_c_echo"><span class="viewcode-link">[source]</span></a><a class="reference external" href="https://github.com/pydicom/pynetdicom/blob/0d410793/pynetdicom/association.py#L865"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pynetdicom.association.Association.send_c_echo" title="Permalink to this definition">¶</a></dt>
 <dd><p>Send a C-ECHO request to the peer AE.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters</dt>
@@ -762,7 +762,7 @@ and <a class="reference external" href="http://dicom.nema.org/medical/dicom/curr
 
 <dl class="method">
 <dt id="pynetdicom.association.Association.send_c_find">
-<code class="descname">send_c_find</code><span class="sig-paren">(</span><em>dataset</em>, <em>msg_id=1</em>, <em>priority=2</em>, <em>query_model='P'</em><span class="sig-paren">)</span><a class="reference internal" href="../../_modules/pynetdicom/association.html#Association.send_c_find"><span class="viewcode-link">[source]</span></a><a class="reference external" href="https://github.com/pydicom/pynetdicom/blob/a3f97c96/pynetdicom/association.py#L962"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pynetdicom.association.Association.send_c_find" title="Permalink to this definition">¶</a></dt>
+<code class="descname">send_c_find</code><span class="sig-paren">(</span><em>dataset</em>, <em>msg_id=1</em>, <em>priority=2</em>, <em>query_model='P'</em><span class="sig-paren">)</span><a class="reference internal" href="../../_modules/pynetdicom/association.html#Association.send_c_find"><span class="viewcode-link">[source]</span></a><a class="reference external" href="https://github.com/pydicom/pynetdicom/blob/0d410793/pynetdicom/association.py#L962"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pynetdicom.association.Association.send_c_find" title="Permalink to this definition">¶</a></dt>
 <dd><p>Send a C-FIND request to the peer AE.</p>
 <p>Yields <code class="docutils literal notranslate"><span class="pre">(status,</span> <span class="pre">identifier)</span></code> pairs.</p>
 <dl class="field-list">
@@ -929,7 +929,7 @@ and <a class="reference external" href="http://dicom.nema.org/medical/dicom/curr
 
 <dl class="method">
 <dt id="pynetdicom.association.Association.send_c_get">
-<code class="descname">send_c_get</code><span class="sig-paren">(</span><em>dataset</em>, <em>msg_id=1</em>, <em>priority=2</em>, <em>query_model='P'</em><span class="sig-paren">)</span><a class="reference internal" href="../../_modules/pynetdicom/association.html#Association.send_c_get"><span class="viewcode-link">[source]</span></a><a class="reference external" href="https://github.com/pydicom/pynetdicom/blob/a3f97c96/pynetdicom/association.py#L1204"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pynetdicom.association.Association.send_c_get" title="Permalink to this definition">¶</a></dt>
+<code class="descname">send_c_get</code><span class="sig-paren">(</span><em>dataset</em>, <em>msg_id=1</em>, <em>priority=2</em>, <em>query_model='P'</em><span class="sig-paren">)</span><a class="reference internal" href="../../_modules/pynetdicom/association.html#Association.send_c_get"><span class="viewcode-link">[source]</span></a><a class="reference external" href="https://github.com/pydicom/pynetdicom/blob/0d410793/pynetdicom/association.py#L1204"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pynetdicom.association.Association.send_c_get" title="Permalink to this definition">¶</a></dt>
 <dd><p>Send a C-GET request to the peer AE.</p>
 <p>Yields <code class="docutils literal notranslate"><span class="pre">(status,</span> <span class="pre">identifier)</span></code> pairs.</p>
 <p>A <a class="reference internal" href="pynetdicom._handlers.doc_handle_store.html#pynetdicom._handlers.doc_handle_store" title="pynetdicom._handlers.doc_handle_store"><code class="xref py py-meth docutils literal notranslate"><span class="pre">handler</span></code></a>
@@ -1085,7 +1085,7 @@ and <a class="reference external" href="http://dicom.nema.org/medical/dicom/curr
 
 <dl class="method">
 <dt id="pynetdicom.association.Association.send_c_move">
-<code class="descname">send_c_move</code><span class="sig-paren">(</span><em>dataset</em>, <em>move_aet</em>, <em>msg_id=1</em>, <em>priority=2</em>, <em>query_model='P'</em><span class="sig-paren">)</span><a class="reference internal" href="../../_modules/pynetdicom/association.html#Association.send_c_move"><span class="viewcode-link">[source]</span></a><a class="reference external" href="https://github.com/pydicom/pynetdicom/blob/a3f97c96/pynetdicom/association.py#L1433"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pynetdicom.association.Association.send_c_move" title="Permalink to this definition">¶</a></dt>
+<code class="descname">send_c_move</code><span class="sig-paren">(</span><em>dataset</em>, <em>move_aet</em>, <em>msg_id=1</em>, <em>priority=2</em>, <em>query_model='P'</em><span class="sig-paren">)</span><a class="reference internal" href="../../_modules/pynetdicom/association.html#Association.send_c_move"><span class="viewcode-link">[source]</span></a><a class="reference external" href="https://github.com/pydicom/pynetdicom/blob/0d410793/pynetdicom/association.py#L1433"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pynetdicom.association.Association.send_c_move" title="Permalink to this definition">¶</a></dt>
 <dd><p>Send a C-MOVE request to the peer AE.</p>
 <p>Yields <code class="docutils literal notranslate"><span class="pre">(status,</span> <span class="pre">identifier)</span></code> pairs.</p>
 <p>The peer will attempt to start a new association with the AE with
@@ -1227,7 +1227,7 @@ and <a class="reference external" href="http://dicom.nema.org/medical/dicom/curr
 
 <dl class="method">
 <dt id="pynetdicom.association.Association.send_c_store">
-<code class="descname">send_c_store</code><span class="sig-paren">(</span><em>dataset</em>, <em>msg_id=1</em>, <em>priority=2</em>, <em>originator_aet=None</em>, <em>originator_id=None</em><span class="sig-paren">)</span><a class="reference internal" href="../../_modules/pynetdicom/association.html#Association.send_c_store"><span class="viewcode-link">[source]</span></a><a class="reference external" href="https://github.com/pydicom/pynetdicom/blob/a3f97c96/pynetdicom/association.py#L1649"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pynetdicom.association.Association.send_c_store" title="Permalink to this definition">¶</a></dt>
+<code class="descname">send_c_store</code><span class="sig-paren">(</span><em>dataset</em>, <em>msg_id=1</em>, <em>priority=2</em>, <em>originator_aet=None</em>, <em>originator_id=None</em><span class="sig-paren">)</span><a class="reference internal" href="../../_modules/pynetdicom/association.html#Association.send_c_store"><span class="viewcode-link">[source]</span></a><a class="reference external" href="https://github.com/pydicom/pynetdicom/blob/0d410793/pynetdicom/association.py#L1649"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pynetdicom.association.Association.send_c_store" title="Permalink to this definition">¶</a></dt>
 <dd><p>Send a C-STORE request to the peer AE.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters</dt>
@@ -1339,7 +1339,7 @@ and <a class="reference external" href="http://dicom.nema.org/medical/dicom/curr
 
 <dl class="method">
 <dt id="pynetdicom.association.Association.send_n_action">
-<code class="descname">send_n_action</code><span class="sig-paren">(</span><em>dataset</em>, <em>action_type</em>, <em>class_uid</em>, <em>instance_uid</em>, <em>msg_id=1</em><span class="sig-paren">)</span><a class="reference internal" href="../../_modules/pynetdicom/association.html#Association.send_n_action"><span class="viewcode-link">[source]</span></a><a class="reference external" href="https://github.com/pydicom/pynetdicom/blob/a3f97c96/pynetdicom/association.py#L2087"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pynetdicom.association.Association.send_n_action" title="Permalink to this definition">¶</a></dt>
+<code class="descname">send_n_action</code><span class="sig-paren">(</span><em>dataset</em>, <em>action_type</em>, <em>class_uid</em>, <em>instance_uid</em>, <em>msg_id=1</em><span class="sig-paren">)</span><a class="reference internal" href="../../_modules/pynetdicom/association.html#Association.send_n_action"><span class="viewcode-link">[source]</span></a><a class="reference external" href="https://github.com/pydicom/pynetdicom/blob/0d410793/pynetdicom/association.py#L2087"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pynetdicom.association.Association.send_n_action" title="Permalink to this definition">¶</a></dt>
 <dd><p>Send an N-ACTION request message to the peer AE.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters</dt>
@@ -1414,7 +1414,7 @@ and <a class="reference external" href="http://dicom.nema.org/medical/dicom/curr
 
 <dl class="method">
 <dt id="pynetdicom.association.Association.send_n_create">
-<code class="descname">send_n_create</code><span class="sig-paren">(</span><em>dataset</em>, <em>class_uid</em>, <em>instance_uid=None</em>, <em>msg_id=1</em><span class="sig-paren">)</span><a class="reference internal" href="../../_modules/pynetdicom/association.html#Association.send_n_create"><span class="viewcode-link">[source]</span></a><a class="reference external" href="https://github.com/pydicom/pynetdicom/blob/a3f97c96/pynetdicom/association.py#L2245"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pynetdicom.association.Association.send_n_create" title="Permalink to this definition">¶</a></dt>
+<code class="descname">send_n_create</code><span class="sig-paren">(</span><em>dataset</em>, <em>class_uid</em>, <em>instance_uid=None</em>, <em>msg_id=1</em><span class="sig-paren">)</span><a class="reference internal" href="../../_modules/pynetdicom/association.html#Association.send_n_create"><span class="viewcode-link">[source]</span></a><a class="reference external" href="https://github.com/pydicom/pynetdicom/blob/0d410793/pynetdicom/association.py#L2245"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pynetdicom.association.Association.send_n_create" title="Permalink to this definition">¶</a></dt>
 <dd><p>Send an N-CREATE request message to the peer AE.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters</dt>
@@ -1540,7 +1540,7 @@ and <a class="reference external" href="http://dicom.nema.org/medical/dicom/curr
 
 <dl class="method">
 <dt id="pynetdicom.association.Association.send_n_delete">
-<code class="descname">send_n_delete</code><span class="sig-paren">(</span><em>class_uid</em>, <em>instance_uid</em>, <em>msg_id=1</em><span class="sig-paren">)</span><a class="reference internal" href="../../_modules/pynetdicom/association.html#Association.send_n_delete"><span class="viewcode-link">[source]</span></a><a class="reference external" href="https://github.com/pydicom/pynetdicom/blob/a3f97c96/pynetdicom/association.py#L2441"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pynetdicom.association.Association.send_n_delete" title="Permalink to this definition">¶</a></dt>
+<code class="descname">send_n_delete</code><span class="sig-paren">(</span><em>class_uid</em>, <em>instance_uid</em>, <em>msg_id=1</em><span class="sig-paren">)</span><a class="reference internal" href="../../_modules/pynetdicom/association.html#Association.send_n_delete"><span class="viewcode-link">[source]</span></a><a class="reference external" href="https://github.com/pydicom/pynetdicom/blob/0d410793/pynetdicom/association.py#L2441"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pynetdicom.association.Association.send_n_delete" title="Permalink to this definition">¶</a></dt>
 <dd><p>Send an N-DELETE request message to the peer AE.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters</dt>
@@ -1604,7 +1604,7 @@ and <a class="reference external" href="http://dicom.nema.org/medical/dicom/curr
 
 <dl class="method">
 <dt id="pynetdicom.association.Association.send_n_event_report">
-<code class="descname">send_n_event_report</code><span class="sig-paren">(</span><em>dataset</em>, <em>event_type</em>, <em>class_uid</em>, <em>instance_uid</em>, <em>msg_id=1</em><span class="sig-paren">)</span><a class="reference internal" href="../../_modules/pynetdicom/association.html#Association.send_n_event_report"><span class="viewcode-link">[source]</span></a><a class="reference external" href="https://github.com/pydicom/pynetdicom/blob/a3f97c96/pynetdicom/association.py#L2542"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pynetdicom.association.Association.send_n_event_report" title="Permalink to this definition">¶</a></dt>
+<code class="descname">send_n_event_report</code><span class="sig-paren">(</span><em>dataset</em>, <em>event_type</em>, <em>class_uid</em>, <em>instance_uid</em>, <em>msg_id=1</em><span class="sig-paren">)</span><a class="reference internal" href="../../_modules/pynetdicom/association.html#Association.send_n_event_report"><span class="viewcode-link">[source]</span></a><a class="reference external" href="https://github.com/pydicom/pynetdicom/blob/0d410793/pynetdicom/association.py#L2542"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pynetdicom.association.Association.send_n_event_report" title="Permalink to this definition">¶</a></dt>
 <dd><p>Send an N-EVENT-REPORT request message to the peer AE.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters</dt>
@@ -1680,7 +1680,7 @@ and <a class="reference external" href="http://dicom.nema.org/medical/dicom/curr
 
 <dl class="method">
 <dt id="pynetdicom.association.Association.send_n_get">
-<code class="descname">send_n_get</code><span class="sig-paren">(</span><em>identifier_list</em>, <em>class_uid</em>, <em>instance_uid</em>, <em>msg_id=1</em><span class="sig-paren">)</span><a class="reference internal" href="../../_modules/pynetdicom/association.html#Association.send_n_get"><span class="viewcode-link">[source]</span></a><a class="reference external" href="https://github.com/pydicom/pynetdicom/blob/a3f97c96/pynetdicom/association.py#L2705"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pynetdicom.association.Association.send_n_get" title="Permalink to this definition">¶</a></dt>
+<code class="descname">send_n_get</code><span class="sig-paren">(</span><em>identifier_list</em>, <em>class_uid</em>, <em>instance_uid</em>, <em>msg_id=1</em><span class="sig-paren">)</span><a class="reference internal" href="../../_modules/pynetdicom/association.html#Association.send_n_get"><span class="viewcode-link">[source]</span></a><a class="reference external" href="https://github.com/pydicom/pynetdicom/blob/0d410793/pynetdicom/association.py#L2705"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pynetdicom.association.Association.send_n_get" title="Permalink to this definition">¶</a></dt>
 <dd><p>Send an N-GET request message to the peer AE.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters</dt>
@@ -1789,7 +1789,7 @@ and <a class="reference external" href="http://dicom.nema.org/medical/dicom/curr
 
 <dl class="method">
 <dt id="pynetdicom.association.Association.send_n_set">
-<code class="descname">send_n_set</code><span class="sig-paren">(</span><em>dataset</em>, <em>class_uid</em>, <em>instance_uid</em>, <em>msg_id=1</em><span class="sig-paren">)</span><a class="reference internal" href="../../_modules/pynetdicom/association.html#Association.send_n_set"><span class="viewcode-link">[source]</span></a><a class="reference external" href="https://github.com/pydicom/pynetdicom/blob/a3f97c96/pynetdicom/association.py#L2875"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pynetdicom.association.Association.send_n_set" title="Permalink to this definition">¶</a></dt>
+<code class="descname">send_n_set</code><span class="sig-paren">(</span><em>dataset</em>, <em>class_uid</em>, <em>instance_uid</em>, <em>msg_id=1</em><span class="sig-paren">)</span><a class="reference internal" href="../../_modules/pynetdicom/association.html#Association.send_n_set"><span class="viewcode-link">[source]</span></a><a class="reference external" href="https://github.com/pydicom/pynetdicom/blob/0d410793/pynetdicom/association.py#L2875"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pynetdicom.association.Association.send_n_set" title="Permalink to this definition">¶</a></dt>
 <dd><p>Send an N-SET request message to the peer AE.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters</dt>
@@ -1927,7 +1927,7 @@ and <a class="reference external" href="http://dicom.nema.org/medical/dicom/curr
 
 <dl class="method">
 <dt id="pynetdicom.association.Association.set_socket">
-<code class="descname">set_socket</code><span class="sig-paren">(</span><em>socket</em><span class="sig-paren">)</span><a class="reference internal" href="../../_modules/pynetdicom/association.html#Association.set_socket"><span class="viewcode-link">[source]</span></a><a class="reference external" href="https://github.com/pydicom/pynetdicom/blob/a3f97c96/pynetdicom/association.py#L696"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pynetdicom.association.Association.set_socket" title="Permalink to this definition">¶</a></dt>
+<code class="descname">set_socket</code><span class="sig-paren">(</span><em>socket</em><span class="sig-paren">)</span><a class="reference internal" href="../../_modules/pynetdicom/association.html#Association.set_socket"><span class="viewcode-link">[source]</span></a><a class="reference external" href="https://github.com/pydicom/pynetdicom/blob/0d410793/pynetdicom/association.py#L696"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pynetdicom.association.Association.set_socket" title="Permalink to this definition">¶</a></dt>
 <dd><p>Set the socket to use for communicating with the peer.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters</dt>
@@ -1941,7 +1941,7 @@ and <a class="reference external" href="http://dicom.nema.org/medical/dicom/curr
 
 <dl class="method">
 <dt id="pynetdicom.association.Association.start">
-<code class="descname">start</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference external" href="https://github.com/pydicom/pynetdicom/blob/a3f97c96/pynetdicom/../../../../usr/local/lib/python3.6/threading.py#L828"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pynetdicom.association.Association.start" title="Permalink to this definition">¶</a></dt>
+<code class="descname">start</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference external" href="https://github.com/pydicom/pynetdicom/blob/0d410793/pynetdicom/../../../../usr/local/lib/python3.6/threading.py#L828"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pynetdicom.association.Association.start" title="Permalink to this definition">¶</a></dt>
 <dd><p>Start the thread’s activity.</p>
 <p>It must be called at most once per thread object. It arranges for the
 object’s run() method to be invoked in a separate thread of control.</p>
@@ -1951,7 +1951,7 @@ same thread object.</p>
 
 <dl class="method">
 <dt id="pynetdicom.association.Association.unbind">
-<code class="descname">unbind</code><span class="sig-paren">(</span><em>event</em>, <em>handler</em><span class="sig-paren">)</span><a class="reference internal" href="../../_modules/pynetdicom/association.html#Association.unbind"><span class="viewcode-link">[source]</span></a><a class="reference external" href="https://github.com/pydicom/pynetdicom/blob/a3f97c96/pynetdicom/association.py#L714"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pynetdicom.association.Association.unbind" title="Permalink to this definition">¶</a></dt>
+<code class="descname">unbind</code><span class="sig-paren">(</span><em>event</em>, <em>handler</em><span class="sig-paren">)</span><a class="reference internal" href="../../_modules/pynetdicom/association.html#Association.unbind"><span class="viewcode-link">[source]</span></a><a class="reference external" href="https://github.com/pydicom/pynetdicom/blob/0d410793/pynetdicom/association.py#L714"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pynetdicom.association.Association.unbind" title="Permalink to this definition">¶</a></dt>
 <dd><p>Unbind a callable <cite>func</cite> from an <cite>event</cite>.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters</dt>
