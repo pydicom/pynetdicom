@@ -12,3 +12,4 @@ This module provides utilities.
 
    pretty_bytes
    validate_ae_title
+   validate_uid

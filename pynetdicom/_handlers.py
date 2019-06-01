@@ -2032,13 +2032,13 @@ def doc_handle_echo(event):
     **Status**
 
     Success
-      | ``0x0000`` Success
+      | ``0x0000`` - Success
 
     Failure
-      | ``0x0122`` Refused: SOP Class Not Supported
-      | ``0x0210`` Refused: Duplicate Invocation
-      | ``0x0211`` Refused: Unrecognised Operation
-      | ``0x0212`` Refused: Mistyped Argument
+      | ``0x0122`` - SOP Class Not Supported
+      | ``0x0210`` - Duplicate Invocation
+      | ``0x0211`` - Unrecognised Operation
+      | ``0x0212`` - Mistyped Argument
 
     Parameters
     ----------
@@ -2117,21 +2117,21 @@ def doc_handle_find(event):
     **Status**
 
     Success
-      | ``0x0000`` Success
+      | ``0x0000`` - Success
 
     Failure
-      | ``0xA700`` Out of resources
-      | ``0xA900`` Identifier does not match SOP class
-      | ``0xC000`` to ``0xCFFF`` Unable to process
+      | ``0xA700`` - Out of resources
+      | ``0xA900`` - Identifier does not match SOP class
+      | ``0xC000`` to ``0xCFFF`` - Unable to process
 
     Cancel
-      | ``0xFE00`` Matching terminated due to Cancel request
+      | ``0xFE00`` - Matching terminated due to Cancel request
 
     Pending
-      | ``0xFF00`` Matches are continuing: current match is supplied and
+      | ``0xFF00`` - Matches are continuing: current match is supplied and
          any Optional Keys were supported in the same manner as Required
          Keys
-      | ``0xFF01`` Matches are continuing: warning that one or more Optional
+      | ``0xFF01`` - Matches are continuing: warning that one or more Optional
         Keys were not supported for existence and/or matching for this
         Identifier
 
@@ -2246,31 +2246,31 @@ def doc_handle_c_get(event):
     **Status**
 
     Success
-      | ``0x0000`` Sub-operations complete, no failures or warnings
+      | ``0x0000`` - Sub-operations complete, no failures or warnings
 
     Failure
-      | ``0xA701`` Out of resources: unable to calculate the number of
+      | ``0xA701`` - Out of resources: unable to calculate the number of
         matches
-      | ``0xA702`` Out of resources: unable to perform sub-operations
-      | ``0xA900`` Identifier does not match SOP class
-      | ``0xAA00`` None of the frames requested were found in the SOP
+      | ``0xA702`` - Out of resources: unable to perform sub-operations
+      | ``0xA900`` - Identifier does not match SOP class
+      | ``0xAA00`` - None of the frames requested were found in the SOP
         instance
-      | ``0xAA01`` Unable to create new object for this SOP class
-      | ``0xAA02`` Unable to extract frames
-      | ``0xAA03`` Time-based request received for a non-time-based
+      | ``0xAA01`` - Unable to create new object for this SOP class
+      | ``0xAA02`` - Unable to extract frames
+      | ``0xAA03`` - Time-based request received for a non-time-based
         original SOP Instance
-      | ``0xAA04`` Invalid request
-      | ``0xC000`` to ``0xCFFF`` Unable to process
+      | ``0xAA04`` - Invalid request
+      | ``0xC000`` to ``0xCFFF`` - Unable to process
 
     Cancel
-      | ``0xFE00`` Sub-operations terminated due to Cancel request
+      | ``0xFE00`` - Sub-operations terminated due to Cancel request
 
     Warning
-      | ``0xB000`` Sub-operations complete, one or more failures or
+      | ``0xB000`` - Sub-operations complete, one or more failures or
         warnings
 
     Pending
-      | ``0xFF00`` Matches are continuing - Current Match is supplied and
+      | ``0xFF00`` - Matches are continuing - Current Match is supplied and
         any Optional Keys were supported in the same manner as Required
         Keys
 
@@ -2392,32 +2392,32 @@ def doc_handle_move(event):
     **Status**
 
     Success
-      | ``0x0000`` Sub-operations complete, no failures
+      | ``0x0000`` - Sub-operations complete, no failures
 
     Pending
-      | ``0xFF00`` Sub-operations are continuing
+      | ``0xFF00`` - Sub-operations are continuing
 
     Cancel
-      | ``0xFE00`` Sub-operations terminated due to Cancel indication
+      | ``0xFE00`` - Sub-operations terminated due to Cancel indication
 
     Failure
-      | ``0x0122`` SOP class not supported
-      | ``0x0124`` Not authorised
-      | ``0x0210`` Duplicate invocation
-      | ``0x0211`` Unrecognised operation
-      | ``0x0212`` Mistyped argument
-      | ``0xA701`` Out of resources: unable to calculate number of matches
-      | ``0xA702`` Out of resources: unable to perform sub-operations
-      | ``0xA801`` Move destination unknown
-      | ``0xA900`` Identifier does not match SOP class
-      | ``0xAA00`` None of the frames requested were found in the SOP
+      | ``0x0122`` - SOP class not supported
+      | ``0x0124`` - Not authorised
+      | ``0x0210`` - Duplicate invocation
+      | ``0x0211`` - Unrecognised operation
+      | ``0x0212`` - Mistyped argument
+      | ``0xA701`` - Out of resources: unable to calculate number of matches
+      | ``0xA702`` - Out of resources: unable to perform sub-operations
+      | ``0xA801`` - Move destination unknown
+      | ``0xA900`` - Identifier does not match SOP class
+      | ``0xAA00`` - None of the frames requested were found in the SOP
         instance
-      | ``0xAA01`` Unable to create new object for this SOP class
-      | ``0xAA02`` Unable to extract frames
-      | ``0xAA03`` Time-based request received for a non-time-based
+      | ``0xAA01`` - Unable to create new object for this SOP class
+      | ``0xAA02`` - Unable to extract frames
+      | ``0xAA03`` - Time-based request received for a non-time-based
         original SOP Instance
-      | ``0xAA04`` Invalid request
-      | ``0xC000`` to ``0xCFFF`` Unable to process
+      | ``0xAA04`` - Invalid request
+      | ``0xC000`` to ``0xCFFF`` - Unable to process
 
 
     Parameters
@@ -2431,9 +2431,8 @@ def doc_handle_move(event):
           that is running the service that received the C-MOVE request.
         * ``context`` : the presentation context the request was sent under
           as a ``presentation.PresentationContextTuple``.
-        * ``description`` : a description of the event that occurred as
-          ``str``.
-        * ``name`` : the name of the event that occurred as ``str``.
+        * ``description`` : a description of the event that occurred as str.
+        * ``name`` : the name of the event that occurred as str.
         * ``request`` : the received
           :py:class:`C-MOVE request <pynetdicom.dimse_primitives.C_MOVE>`
         * ``timestamp`` : the
@@ -2448,11 +2447,9 @@ def doc_handle_move(event):
           a deferred read when decoding data, if the decode fails the returned
           ``Dataset`` will only raise an exception at the time of use.
         * ``is_cancelled`` : returns ``True`` if a
-          C-CANCEL request has been received, ``False`` otherwise. If a
-          C-CANCEL is received then the handler should yield a ``(0xFE00,
-          None)`` status/dataset pair and return.
-        * ``move_destination`` : returns the request's (0000,0600) *Move
-          Destination* AE title as a length 16 ``bytes``.
+          C-CANCEL request has been received, False otherwise. If a C-CANCEL
+          is received then the handler should yield a ``(0xFE00, None)``
+          status/dataset pair and return.
 
     Yields
     ------
@@ -2541,20 +2538,20 @@ def doc_handle_store(event):
       | ``0x0000`` - Success
 
     Warning
-      | ``0xB000`` Coercion of data elements
-      | ``0xB006`` Elements discarded
-      | ``0xB007`` Dataset does not match SOP class
+      | ``0xB000`` - Coercion of data elements
+      | ``0xB006`` - Elements discarded
+      | ``0xB007`` - Dataset does not match SOP class
 
     Failure
-      | ``0x0117`` Invalid SOP instance
-      | ``0x0122`` SOP class not supported
-      | ``0x0124`` Not authorised
-      | ``0x0210`` Duplicate invocation
-      | ``0x0211`` Unrecognised operation
-      | ``0x0212`` Mistyped argument
-      | ``0xA700`` to ``0xA7FF`` Out of resources
-      | ``0xA900`` to ``0xA9FF`` Dataset does not match SOP class
-      | ``0xC000`` to ``0xCFFF`` Cannot understand
+      | ``0x0117`` - Invalid SOP instance
+      | ``0x0122`` - SOP class not supported
+      | ``0x0124`` - Not authorised
+      | ``0x0210`` - Duplicate invocation
+      | ``0x0211`` - Unrecognised operation
+      | ``0x0212`` - Mistyped argument
+      | ``0xA700`` to ``0xA7FF`` - Out of resources
+      | ``0xA900`` to ``0xA9FF`` - Dataset does not match SOP class
+      | ``0xC000`` to ``0xCFFF`` - Cannot understand
 
     Parameters
     ----------
@@ -2631,12 +2628,11 @@ def doc_handle_store(event):
 def doc_handle_action(event):
     """Documentation for handlers bound to ``evt.EVT_N_ACTION``.
 
-    Use of handlers for ``evt.EVT_N_ACTION`` is not yet supported.
-
     User implementation of this event handler is required if one or more
     services that use N-ACTION are to be supported. If a handler is
     not implemented and bound to ``evt.EVT_N_ACTION`` then the N-ACTION request
-    will be responded to using a  *Status* value of FIXME.
+    will be responded to using a  *Status* value of ``0x0110`` - Processing
+    failure.
 
     **Event**
 
@@ -2644,7 +2640,89 @@ def doc_handle_action(event):
 
     **Supported Service Classes**
 
+    * *Print Management*
+    * *Storage Commitment*
+    * *Application Event Logging*
+    * *Media Creation Management*
+    * *Unified Procedure Step*
+    * *RT Machine Verification*
+
     **Status**
+
+    Success
+      | ``0x0000`` - Success
+
+    Failure
+      | ``0x0112`` - No such SOP Instance
+      | ``0x0114`` - No such argument
+      | ``0x0115`` - Invalid argument value
+      | ``0x0117`` - Invalid object instance
+      | ``0x0118`` - No such SOP Class
+      | ``0x0119`` - Class-Instance conflict
+      | ``0x0123`` - No such action
+      | ``0x0124`` - Refused: not authorised
+      | ``0x0210`` - Duplicate invocation
+      | ``0x0211`` - Unrecognised operation
+      | ``0x0212`` - Mistyped argument
+      | ``0x0213`` - Resource limitation
+      | ``0xC101`` - Procedural Logging not available for specified Study
+        Instance UID
+      | ``0xC102`` - Event Information does not match Template
+      | ``0xC103`` - Cannot match event to a current study
+      | ``0xC104`` - IDs inconsistent in matching a current study; Event not
+        logged
+      | ``0xC10E`` - Operator not authorised to add entry to Medication
+        Administration Record
+      | ``0xC110`` - Patient cannot be identified from Patient ID (0010,0020)
+        or Admission ID (0038,0010)
+      | ``0xC111`` - Update of Medication Administration Record failed
+      | ``0xC112`` - Machine Verification requested instance not found
+      | ``0xC300`` - The UPS may no longer be updated
+      | ``0xC301`` - The correct Transaction UID was not provided
+      | ``0xC302`` - The UPS is already IN PROGRESS
+      | ``0xC303`` - The UPS may only become SCHEDULED via N-CREATE, not N-SET
+        or N-ACTION
+      | ``0xC304`` - The UPS has not met final state requirements for the
+        requested state change
+      | ``0xC307`` - Specified SOP Instance UID does not exist or is not a UPS
+        Instance managed by this SCP
+      | ``0xC308`` - Receiving AE-TITLE is Unknown to this SCP
+      | ``0xC310`` - The UPS is not yet in the IN PROGRESS state
+      | ``0xC311`` - The UPS is already COMPLETED
+      | ``0xC312`` - The performer cannot be contacted
+      | ``0xC313`` - Performer chooses not to cancel
+      | ``0xC314`` - Specified action not appropriate for specified instance
+      | ``0xC315`` - SCP does not support Event Reports
+      | ``0xC600`` - Film Session SOP Instance hierarchy does not contain Film
+        Box SOP Instances
+      | ``0xC601`` - Unable to create Print Job SOP Instance; print queue is
+        full
+      | ``0xC602`` - Unable to create Print Job SOP Instance; print queue is
+        full
+      | ``0xC603`` - Image size is larger than image box size
+      | ``0xC613`` - Combined Print Image size is larger than Image Box size
+
+    Warning
+      | ``0xB101`` - Specified Synchronisation Frame of Reference UID does not
+        match SOP Synchronisation Frame of Reference
+      | ``0xB102`` - Study Instance UID coercion; Event logged under a
+        different Study Instance UID
+      | ``0xB104`` - IDs inconsistent in matching a current study; Event logged
+      | ``0xB301`` - Deletion Lock not granted
+      | ``0xB304`` - The UPS is already in the requested state of CANCELED
+      | ``0xB306`` - The UPS is already in the requested state of COMPLETED
+      | ``0xB601`` - Film session printing (collation) is not supported
+      | ``0xB602`` - Film Session SOP Instance hierarchy does not contain
+        Image Box SOP Instances (empty page)
+      | ``0xB603`` - Film Box SOP Instance hierarchy does not contain Image
+        Box SOP Instances (empty page)
+      | ``0xB604`` - Image size is larger than Image Box size, the image has
+        been demagnified
+      | ``0xB609`` - Image size is larger than Image Box size, the image has
+        been cropped to fit.
+      | ``0xB60A`` - Image size or Combined Print Image size is larger than the
+        Image Box size. Image or Combined Print Image has been decimated to
+        fit.
 
     Parameters
     ----------
@@ -2832,12 +2910,11 @@ def doc_handle_create(event):
 def doc_handle_delete(event):
     """Documentation for handlers bound to ``evt.EVT_N_DELETE``.
 
-    Use of handlers for ``evt.EVT_N_DELETE`` is not yet supported.
-
     User implementation of this event handler is required if one or more
     services that use N-DELETE are to be supported. If a handler is
     not implemented and bound to ``evt.EVT_N_DELETE`` then the N-DELETE request
-    will be responded to using a  *Status* value of FIXME.
+    will be responded to using a  *Status* value of ``0x0110`` - Processing
+    failure.
 
     **Event**
 
@@ -2845,7 +2922,25 @@ def doc_handle_delete(event):
 
     **Supported Service Classes**
 
+    * *Print Management*
+    * *RT Machine Verification*
+
     **Status**
+
+    Success
+      | ``0x0000`` - Success
+
+    Failure
+      | ``0x0110`` - Processing failure
+      | ``0x0112`` - No such SOP Instance
+      | ``0x0117`` - Invalid object Instance
+      | ``0x0118`` - Not such SOP Class
+      | ``0x0119`` - Class-Instance conflict
+      | ``0x0124`` - Not authorised
+      | ``0x0210`` - Duplicate invocation
+      | ``0x0211`` - Unrecognised operation
+      | ``0x0212`` - Mistyped argument
+      | ``0x0213`` - Resource limitation
 
     Parameters
     ----------
@@ -2913,21 +3008,21 @@ def doc_handle_event_report(event):
     **Status**
 
     Success
-      | ``0x0000`` Success
+      | ``0x0000`` - Success
 
     Failure
-      | ``0x0110`` Processing failure
-      | ``0x0112`` No such SOP Instance
-      | ``0x0113`` No such event type
-      | ``0x0114`` No such argument
-      | ``0x0115`` Invalid argument value
-      | ``0x0117`` Invalid object Instance
-      | ``0x0118`` No such SOP Class
-      | ``0x0119`` Class-Instance conflict
-      | ``0x0210`` Duplicate invocation
-      | ``0x0211`` Unrecognised operation
-      | ``0x0212`` Mistyped argument
-      | ``0x0213`` Resource limitation
+      | ``0x0110`` - Processing failure
+      | ``0x0112`` - No such SOP Instance
+      | ``0x0113`` - No such event type
+      | ``0x0114`` - No such argument
+      | ``0x0115`` - Invalid argument value
+      | ``0x0117`` - Invalid object Instance
+      | ``0x0118`` - No such SOP Class
+      | ``0x0119`` - Class-Instance conflict
+      | ``0x0210`` - Duplicate invocation
+      | ``0x0211`` - Unrecognised operation
+      | ``0x0212`` - Mistyped argument
+      | ``0x0213`` - Resource limitation
 
     Parameters
     ----------
@@ -3032,7 +3127,7 @@ def doc_handle_n_get(event):
 
     Warning
       | ``0x0001`` - Requested optional Attributes are not supported
-      | ``0x0107`` Attribute list error
+      | ``0x0107`` - Attribute list error
 
     Parameters
     ----------
@@ -3081,7 +3176,7 @@ def doc_handle_n_get(event):
     :py:meth:`send_n_get()<pynetdicom.association.Association.send_n_get>`
     :py:class:`N_GET<pynetdicom.dimse_primitives.N_GET>`
     :py:class:`DisplaySystemManagementServiceClass<pynetdicom.service_class_n.DisplaySystemManagementServiceClass>`
-    :py:class:`ModalityPerformedProcedureStepServiceClass<pynetdicom.service_class_n.ModalityPerformedProcedureStepServiceClass>`
+    :py:class:`ProcedureStepServiceClass<pynetdicom.service_class_n.ProcedureStepServiceClass>`
 
     References
     ----------

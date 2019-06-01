@@ -14,14 +14,17 @@ Supported SOP Classes
 Modality Performed Procedure Step SOP Classes
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
+
+.. note::
+   *Modality Performed Procedure Step Notification SOP Class* is not
+   supported.
+
 +-----------------------------+----------------------------------------------------+
 | UID                         | SOP Class                                          |
 +=============================+====================================================+
 | 1.2.840.10008.3.1.2.3.3     | ModalityPerformedProcedureStepSOPClass             |
 +-----------------------------+----------------------------------------------------+
 | 1.2.840.10008.3.1.2.3.4     | ModalityPerformedProcedureStepRetrieveSOPClass     |
-+-----------------------------+----------------------------------------------------+
-| 1.2.840.10008.3.1.2.3.5     | ModalityPerformedProcedureStepNotificationSOPClass |
 +-----------------------------+----------------------------------------------------+
 
 

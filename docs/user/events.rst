@@ -63,6 +63,18 @@ notification events.
 | ``evt.EVT_REQUESTED``      | Association requested             |
 +----------------------------+-----------------------------------+
 
+By default a number of notification handlers are bound for logging purposes.
+If you wish to remove these then you can do the following before creating any
+associations:
+
+::
+
+    from pynetdicom import _config
+
+    # Don't bind any of the default notification handlers
+    _config.LOG_HANDLER_LEVEL = 'none'
+
+
 .. _events_intervention:
 
 Intervention Events
@@ -130,8 +142,7 @@ come with at least four attributes:
 * ``Event.assoc`` - the
   :py:class:`Association <pynetdicom.association.Association>` in which the
   event occurred
-* ``Event.description`` - a str description of the event
-* ``Event.name`` - the name of the event
+* ``Event.event`` - the corresponding event as a ``namedtuple``
 * ``Event.timestamp`` - the date and time the event occurred at (as a python
   `datetime <https://docs.python.org/3/library/datetime.html#datetime-objects>`_).
 
