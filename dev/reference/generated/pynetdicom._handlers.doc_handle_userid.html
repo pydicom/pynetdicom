@@ -181,7 +181,7 @@
 <h1>pynetdicom._handlers.doc_handle_userid<a class="headerlink" href="#pynetdicom-handlers-doc-handle-userid" title="Permalink to this headline">¶</a></h1>
 <dl class="function">
 <dt id="pynetdicom._handlers.doc_handle_userid">
-<code class="descclassname">pynetdicom._handlers.</code><code class="descname">doc_handle_userid</code><span class="sig-paren">(</span><em>event</em><span class="sig-paren">)</span><a class="reference internal" href="../../_modules/pynetdicom/_handlers.html#doc_handle_userid"><span class="viewcode-link">[source]</span></a><a class="reference external" href="https://github.com/pydicom/pynetdicom/blob/87310c13/pynetdicom/_handlers.py#L3380"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pynetdicom._handlers.doc_handle_userid" title="Permalink to this definition">¶</a></dt>
+<code class="descclassname">pynetdicom._handlers.</code><code class="descname">doc_handle_userid</code><span class="sig-paren">(</span><em>event</em><span class="sig-paren">)</span><a class="reference internal" href="../../_modules/pynetdicom/_handlers.html#doc_handle_userid"><span class="viewcode-link">[source]</span></a><a class="reference external" href="https://github.com/pydicom/pynetdicom/blob/46f9a099/pynetdicom/_handlers.py#L3365"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pynetdicom._handlers.doc_handle_userid" title="Permalink to this definition">¶</a></dt>
 <dd><p>Documentation for handlers bound to <code class="docutils literal notranslate"><span class="pre">evt.EVT_USER_ID</span></code>.</p>
 <p>User implementation of this handler is required if User Identity
 Negotiation is to be supported by the association. If no handler is
@@ -200,8 +200,7 @@ contains a User Identity Negotiation item. <code class="docutils literal notrans
 <a class="reference internal" href="pynetdicom.association.Association.html#pynetdicom.association.Association" title="pynetdicom.association.Association"><code class="xref py py-class docutils literal notranslate"><span class="pre">association</span></code></a>
 that is running the service that received the user identity
 negotiation request.</p></li>
-<li><p><code class="docutils literal notranslate"><span class="pre">description</span></code> : a description of the event that occurred as str.</p></li>
-<li><p><code class="docutils literal notranslate"><span class="pre">name</span></code> : the name of the event that occurred as str.</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">event</span></code> : the event that occurred as <code class="docutils literal notranslate"><span class="pre">namedtuple</span></code>.</p></li>
 <li><p><code class="docutils literal notranslate"><span class="pre">primary_field</span></code> : the <em>Primary Field</em> value (as <code class="docutils literal notranslate"><span class="pre">bytes</span></code>),
 contains the username, the encoded Kerberos ticket or the JSON web
 token, depending on the value of <code class="docutils literal notranslate"><span class="pre">user_id_type</span></code>.</p></li>

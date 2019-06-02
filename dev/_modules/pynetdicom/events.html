@@ -508,9 +508,15 @@
         <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_get_dataset</span><span class="p">(</span><span class="s2">&quot;DataSet&quot;</span><span class="p">,</span> <span class="n">msg</span><span class="p">)</span>
 
     <span class="nd">@property</span>
-    <span class="k">def</span> <span class="nf">description</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
-        <span class="sd">&quot;&quot;&quot;Return a description of the event as a str.&quot;&quot;&quot;</span>
-        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_event</span><span class="o">.</span><span class="n">description</span>
+    <span class="k">def</span> <span class="nf">event</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;Return the corresponding event.</span>
+
+<span class="sd">        Returns</span>
+<span class="sd">        -------</span>
+<span class="sd">        InterventionEvent or NotificationEvent</span>
+<span class="sd">            The corresponding event as a ``collections.namedtuple``.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_event</span>
 
     <span class="nd">@property</span>
     <span class="k">def</span> <span class="nf">event_information</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
@@ -749,12 +755,7 @@
             <span class="k">raise</span> <span class="ne">AttributeError</span><span class="p">(</span>
                 <span class="s2">&quot;The corresponding event is not a C-MOVE request and has no &quot;</span>
                 <span class="s2">&quot;&#39;Move Destination&#39; parameter&quot;</span>
-            <span class="p">)</span>
-
-    <span class="nd">@property</span>
-    <span class="k">def</span> <span class="nf">name</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
-        <span class="sd">&quot;&quot;&quot;Return the name of the event as a str.&quot;&quot;&quot;</span>
-        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_event</span><span class="o">.</span><span class="n">name</span></div>
+            <span class="p">)</span></div>
 
 
 <span class="c1"># Default extended negotiation event handlers</span>

@@ -27,13 +27,12 @@ pynetdicom.events.Event
       ~Event.attribute_identifiers
       ~Event.attribute_list
       ~Event.dataset
-      ~Event.description
+      ~Event.event
       ~Event.event_information
       ~Event.file_meta
       ~Event.identifier
       ~Event.is_cancelled
       ~Event.modification_list
       ~Event.move_destination
-      ~Event.name
    
    

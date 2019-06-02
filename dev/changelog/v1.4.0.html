@@ -196,7 +196,8 @@ race condition when acting as the Acceptor and calling one of the
 <ul class="simple">
 <li><p>Added support for Protocol Approval Query Retrieve service class
 (<a class="reference external" href="https://github.com/pydicom/pynetdicom/issues/327">#327</a>)</p></li>
-<li><p>Added <code class="docutils literal notranslate"><span class="pre">Event.move_destination</span></code> property</p></li>
+<li><p>Added <code class="docutils literal notranslate"><span class="pre">Event.move_destination</span></code> and <code class="docutils literal notranslate"><span class="pre">Event.event</span></code> properties
+(<a class="reference external" href="https://github.com/pydicom/pynetdicom/issues/353">#353</a>)</p></li>
 </ul>
 </div>
 <div class="section" id="changes">
@@ -220,6 +221,8 @@ race condition when acting as the Acceptor and calling one of the
 is used to set the <em>Affected SOP Class UID</em> value. The parameter should
 pass a pydicom UID or UID string. Passing a key that corresponds to a given
 UID is deprecated and will be removed in v1.5. (<a class="reference external" href="https://github.com/pydicom/pynetdicom/issues/348">#348</a>)</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">Event.name</span></code> and <code class="docutils literal notranslate"><span class="pre">Event.description</span></code> properties removed, use <code class="docutils literal notranslate"><span class="pre">Event.</span>
+<span class="pre">event.name</span></code> and <code class="docutils literal notranslate"><span class="pre">Event.event.description</span></code> instead.</p></li>
 </ul>
 </li>
 </ul>
