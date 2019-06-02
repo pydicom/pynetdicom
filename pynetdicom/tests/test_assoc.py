@@ -4611,7 +4611,7 @@ class TestEventHandlingAcceptor(object):
         assert isinstance(event, Event)
         assert isinstance(event.assoc, Association)
         assert isinstance(event.timestamp, datetime)
-        assert event.name == 'EVT_ABORTED'
+        assert event.event.name == 'EVT_ABORTED'
 
         scp.shutdown()
 
@@ -4693,7 +4693,7 @@ class TestEventHandlingAcceptor(object):
         assert isinstance(event, Event)
         assert isinstance(event.assoc, Association)
         assert isinstance(event.timestamp, datetime)
-        assert event.name == 'EVT_ABORTED'
+        assert event.event.name == 'EVT_ABORTED'
 
         scp.shutdown()
 
@@ -4801,7 +4801,7 @@ class TestEventHandlingAcceptor(object):
         assert isinstance(event, Event)
         assert isinstance(event.assoc, Association)
         assert isinstance(event.timestamp, datetime)
-        assert event.name == 'EVT_ABORTED'
+        assert event.event.name == 'EVT_ABORTED'
 
         scp.shutdown()
 
@@ -4888,7 +4888,7 @@ class TestEventHandlingAcceptor(object):
         assert isinstance(event, Event)
         assert isinstance(event.assoc, Association)
         assert isinstance(event.timestamp, datetime)
-        assert event.name == 'EVT_ACCEPTED'
+        assert event.event.name == 'EVT_ACCEPTED'
 
         scp.shutdown()
 
@@ -4930,7 +4930,7 @@ class TestEventHandlingAcceptor(object):
             time.sleep(0.05)
 
         assert len(triggered) == 1
-        assert triggered[0].name == 'EVT_ACCEPTED'
+        assert triggered[0].event.name == 'EVT_ACCEPTED'
 
         scp.shutdown()
 
@@ -4957,7 +4957,7 @@ class TestEventHandlingAcceptor(object):
         assert child.get_handlers(evt.EVT_ACCEPTED) == [handle]
 
         assert len(triggered) == 1
-        assert triggered[0].name == "EVT_ACCEPTED"
+        assert triggered[0].event.name == "EVT_ACCEPTED"
 
         scp.unbind(evt.EVT_ACCEPTED, handle)
 
@@ -5061,7 +5061,7 @@ class TestEventHandlingAcceptor(object):
         assert isinstance(event, Event)
         assert isinstance(event.assoc, Association)
         assert isinstance(event.timestamp, datetime)
-        assert event.name == 'EVT_RELEASED'
+        assert event.event.name == 'EVT_RELEASED'
 
         scp.shutdown()
 
@@ -5105,7 +5105,7 @@ class TestEventHandlingAcceptor(object):
         assert isinstance(event, Event)
         assert isinstance(event.assoc, Association)
         assert isinstance(event.timestamp, datetime)
-        assert event.name == 'EVT_RELEASED'
+        assert event.event.name == 'EVT_RELEASED'
 
         scp.shutdown()
 
@@ -5168,7 +5168,7 @@ class TestEventHandlingAcceptor(object):
         assert isinstance(event, Event)
         assert isinstance(event.assoc, Association)
         assert isinstance(event.timestamp, datetime)
-        assert event.name == 'EVT_RELEASED'
+        assert event.event.name == 'EVT_RELEASED'
 
         scp.shutdown()
 
@@ -5255,7 +5255,7 @@ class TestEventHandlingAcceptor(object):
         assert isinstance(event, Event)
         assert isinstance(event.assoc, Association)
         assert isinstance(event.timestamp, datetime)
-        assert event.name == 'EVT_ESTABLISHED'
+        assert event.event.name == 'EVT_ESTABLISHED'
 
         scp.shutdown()
 
@@ -5293,7 +5293,7 @@ class TestEventHandlingAcceptor(object):
         assert isinstance(event, Event)
         assert isinstance(event.assoc, Association)
         assert isinstance(event.timestamp, datetime)
-        assert event.name == 'EVT_ESTABLISHED'
+        assert event.event.name == 'EVT_ESTABLISHED'
 
         scp.shutdown()
 
@@ -5412,7 +5412,7 @@ class TestEventHandlingAcceptor(object):
         assert isinstance(event, Event)
         assert isinstance(event.assoc, Association)
         assert isinstance(event.timestamp, datetime)
-        assert event.name == 'EVT_REQUESTED'
+        assert event.event.name == 'EVT_REQUESTED'
 
         scp.shutdown()
 
@@ -5450,7 +5450,7 @@ class TestEventHandlingAcceptor(object):
         assert isinstance(event, Event)
         assert isinstance(event.assoc, Association)
         assert isinstance(event.timestamp, datetime)
-        assert event.name == 'EVT_REQUESTED'
+        assert event.event.name == 'EVT_REQUESTED'
 
         scp.shutdown()
 
@@ -5556,7 +5556,7 @@ class TestEventHandlingAcceptor(object):
         assert isinstance(event, Event)
         assert isinstance(event.assoc, Association)
         assert isinstance(event.timestamp, datetime)
-        assert event.name == 'EVT_REJECTED'
+        assert event.event.name == 'EVT_REJECTED'
 
         scp.shutdown()
 
@@ -5587,7 +5587,7 @@ class TestEventHandlingAcceptor(object):
         assert isinstance(event, Event)
         assert isinstance(event.assoc, Association)
         assert isinstance(event.timestamp, datetime)
-        assert event.name == 'EVT_REJECTED'
+        assert event.event.name == 'EVT_REJECTED'
 
         scp.shutdown()
 
@@ -5805,7 +5805,7 @@ class TestEventHandlingRequestor(object):
         assert isinstance(event, Event)
         assert isinstance(event.assoc, Association)
         assert isinstance(event.timestamp, datetime)
-        assert event.name == 'EVT_ABORTED'
+        assert event.event.name == 'EVT_ABORTED'
 
         scp.shutdown()
 
@@ -5851,7 +5851,7 @@ class TestEventHandlingRequestor(object):
         assert isinstance(event, Event)
         assert isinstance(event.assoc, Association)
         assert isinstance(event.timestamp, datetime)
-        assert event.name == 'EVT_ABORTED'
+        assert event.event.name == 'EVT_ABORTED'
 
         scp.shutdown()
 
@@ -5922,7 +5922,7 @@ class TestEventHandlingRequestor(object):
         assert isinstance(event, Event)
         assert isinstance(event.assoc, Association)
         assert isinstance(event.timestamp, datetime)
-        assert event.name == 'EVT_ABORTED'
+        assert event.event.name == 'EVT_ABORTED'
 
         scp.shutdown()
 
@@ -5988,7 +5988,7 @@ class TestEventHandlingRequestor(object):
         assert isinstance(event, Event)
         assert isinstance(event.assoc, Association)
         assert isinstance(event.timestamp, datetime)
-        assert event.name == 'EVT_ACCEPTED'
+        assert event.event.name == 'EVT_ACCEPTED'
 
         scp.shutdown()
 
@@ -6054,7 +6054,7 @@ class TestEventHandlingRequestor(object):
         assert isinstance(event, Event)
         assert isinstance(event.assoc, Association)
         assert isinstance(event.timestamp, datetime)
-        assert event.name == 'EVT_RELEASED'
+        assert event.event.name == 'EVT_RELEASED'
 
         scp.shutdown()
 
@@ -6088,7 +6088,7 @@ class TestEventHandlingRequestor(object):
         assert isinstance(event, Event)
         assert isinstance(event.assoc, Association)
         assert isinstance(event.timestamp, datetime)
-        assert event.name == 'EVT_RELEASED'
+        assert event.event.name == 'EVT_RELEASED'
 
         scp.shutdown()
 
@@ -6149,7 +6149,7 @@ class TestEventHandlingRequestor(object):
         assert isinstance(event, Event)
         assert isinstance(event.assoc, Association)
         assert isinstance(event.timestamp, datetime)
-        assert event.name == 'EVT_RELEASED'
+        assert event.event.name == 'EVT_RELEASED'
 
         scp.shutdown()
 
@@ -6215,7 +6215,7 @@ class TestEventHandlingRequestor(object):
         assert isinstance(event, Event)
         assert isinstance(event.assoc, Association)
         assert isinstance(event.timestamp, datetime)
-        assert event.name == 'EVT_ESTABLISHED'
+        assert event.event.name == 'EVT_ESTABLISHED'
 
         scp.shutdown()
 
@@ -6280,7 +6280,7 @@ class TestEventHandlingRequestor(object):
         assert isinstance(event, Event)
         assert isinstance(event.assoc, Association)
         assert isinstance(event.timestamp, datetime)
-        assert event.name == 'EVT_REQUESTED'
+        assert event.event.name == 'EVT_REQUESTED'
 
         scp.shutdown()
 
@@ -6341,7 +6341,7 @@ class TestEventHandlingRequestor(object):
         assert isinstance(event, Event)
         assert isinstance(event.assoc, Association)
         assert isinstance(event.timestamp, datetime)
-        assert event.name == 'EVT_REJECTED'
+        assert event.event.name == 'EVT_REJECTED'
 
         scp.shutdown()
 
