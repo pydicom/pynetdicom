@@ -88,8 +88,9 @@ class TestEvent(object):
         assert event.assoc is None
         assert event._event == evt.EVT_C_STORE
         assert isinstance(event.timestamp, datetime)
-        assert event.name == 'EVT_C_STORE'
-        assert isinstance(event.description, str)
+        assert event.event == evt.EVT_C_STORE
+        assert event.event.name == 'EVT_C_STORE'
+        assert isinstance(event.event.description, str)
 
         def callable():
             return 'some value'
@@ -99,9 +100,10 @@ class TestEvent(object):
         )
         assert event.assoc is None
         assert event._event == evt.EVT_C_STORE
+        assert event.event == evt.EVT_C_STORE
         assert isinstance(event.timestamp, datetime)
-        assert event.name == 'EVT_C_STORE'
-        assert isinstance(event.description, str)
+        assert event.event.name == 'EVT_C_STORE'
+        assert isinstance(event.event.description, str)
         assert event.cc() == 'some value'
         assert event.aa is True
         assert event.bb is False

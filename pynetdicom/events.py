@@ -330,9 +330,15 @@ class Event(object):
         return self._get_dataset("DataSet", msg)
 
     @property
-    def description(self):
-        """Return a description of the event as a str."""
-        return self._event.description
+    def event(self):
+        """Return the corresponding event.
+
+        Returns
+        -------
+        InterventionEvent or NotificationEvent
+            The corresponding event as a ``collections.namedtuple``.
+        """
+        return self._event
 
     @property
     def event_information(self):
@@ -572,11 +578,6 @@ class Event(object):
                 "The corresponding event is not a C-MOVE request and has no "
                 "'Move Destination' parameter"
             )
-
-    @property
-    def name(self):
-        """Return the name of the event as a str."""
-        return self._event.name
 
 
 # Default extended negotiation event handlers

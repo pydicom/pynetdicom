@@ -2385,7 +2385,7 @@ class TestEventHandlingAcceptor(object):
         assert isinstance(event, Event)
         assert isinstance(event.assoc, Association)
         assert isinstance(event.timestamp, datetime)
-        assert event.name == 'EVT_ACSE_SENT'
+        assert event.event.name == 'EVT_ACSE_SENT'
 
         assert isinstance(triggered[0].primitive, A_ASSOCIATE)
         assert isinstance(triggered[1].primitive, A_RELEASE)
@@ -2434,7 +2434,7 @@ class TestEventHandlingAcceptor(object):
         assert isinstance(event, Event)
         assert isinstance(event.assoc, Association)
         assert isinstance(event.timestamp, datetime)
-        assert event.name == 'EVT_ACSE_SENT'
+        assert event.event.name == 'EVT_ACSE_SENT'
 
         assert isinstance(triggered[0].primitive, A_RELEASE)
 
@@ -2483,7 +2483,7 @@ class TestEventHandlingAcceptor(object):
         assert isinstance(event, Event)
         assert isinstance(event.assoc, Association)
         assert isinstance(event.timestamp, datetime)
-        assert event.name == 'EVT_ACSE_SENT'
+        assert event.event.name == 'EVT_ACSE_SENT'
 
         assert isinstance(triggered[0].primitive, A_ASSOCIATE)
 
@@ -2555,7 +2555,7 @@ class TestEventHandlingAcceptor(object):
         assert isinstance(event.timestamp, datetime)
         assert isinstance(triggered[0].primitive, A_ASSOCIATE)
         assert isinstance(triggered[1].primitive, A_RELEASE)
-        assert event.name == 'EVT_ACSE_RECV'
+        assert event.event.name == 'EVT_ACSE_RECV'
 
         assert triggered[0].primitive.result is None  ## A-ASSOCIATE (request)
         assert triggered[1].primitive.result is None  ## A-RELEASE (request)
@@ -2601,7 +2601,7 @@ class TestEventHandlingAcceptor(object):
         assert isinstance(event.assoc, Association)
         assert isinstance(event.timestamp, datetime)
         assert isinstance(triggered[0].primitive, A_RELEASE)
-        assert event.name == 'EVT_ACSE_RECV'
+        assert event.event.name == 'EVT_ACSE_RECV'
 
         scp.shutdown()
 
@@ -2648,7 +2648,7 @@ class TestEventHandlingAcceptor(object):
         assert isinstance(event.assoc, Association)
         assert isinstance(event.timestamp, datetime)
         assert isinstance(triggered[0].primitive, A_ASSOCIATE)
-        assert event.name == 'EVT_ACSE_RECV'
+        assert event.event.name == 'EVT_ACSE_RECV'
 
         scp.shutdown()
 
@@ -2752,7 +2752,7 @@ class TestEventHandlingRequestor(object):
         assert isinstance(event, Event)
         assert isinstance(event.assoc, Association)
         assert isinstance(event.timestamp, datetime)
-        assert event.name == 'EVT_ACSE_SENT'
+        assert event.event.name == 'EVT_ACSE_SENT'
 
         assert isinstance(triggered[0].primitive, A_ASSOCIATE)
         assert isinstance(triggered[1].primitive, A_ABORT)
@@ -2791,7 +2791,7 @@ class TestEventHandlingRequestor(object):
         assert isinstance(event, Event)
         assert isinstance(event.assoc, Association)
         assert isinstance(event.timestamp, datetime)
-        assert event.name == 'EVT_ACSE_SENT'
+        assert event.event.name == 'EVT_ACSE_SENT'
 
         assert isinstance(triggered[0].primitive, A_ASSOCIATE)
         assert isinstance(triggered[1].primitive, A_P_ABORT)
@@ -2837,7 +2837,7 @@ class TestEventHandlingRequestor(object):
         assert isinstance(event, Event)
         assert isinstance(event.assoc, Association)
         assert isinstance(event.timestamp, datetime)
-        assert event.name == 'EVT_ACSE_SENT'
+        assert event.event.name == 'EVT_ACSE_SENT'
 
         assert isinstance(triggered[0].primitive, A_RELEASE)
 
@@ -2948,7 +2948,7 @@ class TestEventHandlingRequestor(object):
         assert isinstance(event.timestamp, datetime)
         assert isinstance(triggered[0].primitive, A_ASSOCIATE)
         assert isinstance(triggered[1].primitive, A_RELEASE)
-        assert event.name == 'EVT_ACSE_RECV'
+        assert event.event.name == 'EVT_ACSE_RECV'
 
         scp.shutdown()
 
@@ -2970,7 +2970,7 @@ class TestEventHandlingRequestor(object):
         assert isinstance(event.assoc, Association)
         assert isinstance(event.timestamp, datetime)
         assert isinstance(triggered[0].primitive, A_P_ABORT)
-        assert event.name == 'EVT_ACSE_RECV'
+        assert event.event.name == 'EVT_ACSE_RECV'
 
     def test_acse_recv_bind(self):
         """Test binding to EVT_ACSE_RECV."""
@@ -3049,7 +3049,7 @@ class TestEventHandlingRequestor(object):
         assert isinstance(event.assoc, Association)
         assert isinstance(event.timestamp, datetime)
         assert isinstance(triggered[0].primitive, A_ASSOCIATE)
-        assert event.name == 'EVT_ACSE_RECV'
+        assert event.event.name == 'EVT_ACSE_RECV'
 
         scp.shutdown()
 

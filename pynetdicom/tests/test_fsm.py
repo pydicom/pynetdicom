@@ -9843,8 +9843,8 @@ class TestEventHandling(object):
             assert hasattr(event, 'next_state')
             assert isinstance(event.assoc, Association)
             assert isinstance(event.timestamp, datetime.datetime)
-            assert event.name == 'EVT_FSM_TRANSITION'
-            assert event.description == "State machine about to transition"
+            assert event.event.name == 'EVT_FSM_TRANSITION'
+            assert event.event.description == "State machine about to transition"
 
         states = [ee.current_state for ee in triggered]
         assert states[:6] == ['Sta1', 'Sta2', 'Sta3', 'Sta6', 'Sta8', 'Sta13']
