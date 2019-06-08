@@ -10,7 +10,7 @@ from pynetdicom.dimse_primitives import (
 )
 from pynetdicom.service_class import ServiceClass
 from pynetdicom.status import (
-    GENERAL_STATUS, code_to_category, _PROCEDURE_STEP_STATUS
+    GENERAL_STATUS, code_to_category, PROCEDURE_STEP_STATUS
 )
 from pynetdicom._globals import (
     STATUS_FAILURE,
@@ -125,7 +125,7 @@ class DisplaySystemManagementServiceClass(ServiceClass):
 
 class ModalityPerformedProcedureStepServiceClass(ServiceClass):
     """Implementation of the Modality Performed Procedure Step Service Class"""
-    statuses = _PROCEDURE_STEP_STATUS
+    statuses = PROCEDURE_STEP_STATUS
 
     def SCP(self, req, context):
         """
