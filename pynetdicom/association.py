@@ -2124,7 +2124,7 @@ class Association(threading.Thread):
 
     # DIMSE-N services provided by the Association
     def send_n_action(self, dataset, action_type, class_uid, instance_uid,
-                      msg_id=1):
+                      msg_id=1, meta_uid=None):
         """Send an N-ACTION request message to the peer AE.
 
         Parameters
@@ -2143,6 +2143,13 @@ class Association(threading.Thread):
         msg_id : int, optional
             The request's *Message ID* parameter value, must be between 0 and
             65535, inclusive, (default 1).
+        meta_uid : pydicom.uid.UID, optional
+            If the service class operates under a presentation context
+            negotiated using a *Meta SOP Class* rather than a standard *SOP
+            Class* (such as with *Print Management* service class and its
+            *Basic Grayscale Print Management Meta SOP Class*) then this
+            value will be used to determine the corresponding presentation
+            context.
 
         Returns
         -------
@@ -2205,7 +2212,7 @@ class Association(threading.Thread):
 
         # Determine the Presentation Context we are operating under
         #   and hence the transfer syntax to use for encoding `dataset`
-        context = self._get_valid_context(class_uid, '', 'scu')
+        context = self._get_valid_context(meta_uid or class_uid, '', 'scu')
         transfer_syntax = context.transfer_syntax[0]
 
         # Build N-ACTION request primitive
@@ -2281,7 +2288,8 @@ class Association(threading.Thread):
 
         return status, action_reply
 
-    def send_n_create(self, dataset, class_uid, instance_uid=None, msg_id=1):
+    def send_n_create(self, dataset, class_uid, instance_uid=None, msg_id=1,
+                      meta_uid=None):
         """Send an N-CREATE request message to the peer AE.
 
         Parameters
@@ -2298,6 +2306,13 @@ class Association(threading.Thread):
         msg_id : int, optional
             The request's *Message ID* parameter value, must be between 0 and
             65535, inclusive, (default 1).
+        meta_uid : pydicom.uid.UID, optional
+            If the service class operates under a presentation context
+            negotiated using a *Meta SOP Class* rather than a standard *SOP
+            Class* (such as with *Print Management* service class and its
+            *Basic Grayscale Print Management Meta SOP Class*) then this
+            value will be used to determine the corresponding presentation
+            context.
 
         Returns
         -------
@@ -2402,7 +2417,7 @@ class Association(threading.Thread):
 
         # Determine the Presentation Context we are operating under
         #   and hence the transfer syntax to use for encoding `dataset`
-        context = self._get_valid_context(class_uid, '', 'scu')
+        context = self._get_valid_context(meta_uid or class_uid, '', 'scu')
         transfer_syntax = context.transfer_syntax[0]
 
         # Build N-CREATE request primitive
@@ -2477,7 +2492,7 @@ class Association(threading.Thread):
 
         return status, attribute_list
 
-    def send_n_delete(self, class_uid, instance_uid, msg_id=1):
+    def send_n_delete(self, class_uid, instance_uid, msg_id=1, meta_uid=None):
         """Send an N-DELETE request message to the peer AE.
 
         Parameters
@@ -2491,6 +2506,13 @@ class Association(threading.Thread):
         msg_id : int, optional
             The request's *Message ID* parameter value, must be between 0 and
             65535, inclusive, (default 1).
+        meta_uid : pydicom.uid.UID, optional
+            If the service class operates under a presentation context
+            negotiated using a *Meta SOP Class* rather than a standard *SOP
+            Class* (such as with *Print Management* service class and its
+            *Basic Grayscale Print Management Meta SOP Class*) then this
+            value will be used to determine the corresponding presentation
+            context.
 
         Returns
         -------
@@ -2543,7 +2565,7 @@ class Association(threading.Thread):
 
         # Determine the Presentation Context we are operating under
         #   and hence the transfer syntax to use for encoding `dataset`
-        context = self._get_valid_context(class_uid, '', 'scu')
+        context = self._get_valid_context(meta_uid or class_uid, '', 'scu')
 
         # Build N-DELETE request primitive
         #   (M) Message ID
@@ -2579,7 +2601,7 @@ class Association(threading.Thread):
         return status
 
     def send_n_event_report(self, dataset, event_type, class_uid,
-                            instance_uid, msg_id=1):
+                            instance_uid, msg_id=1, meta_uid=None):
         """Send an N-EVENT-REPORT request message to the peer AE.
 
         Parameters
@@ -2600,6 +2622,13 @@ class Association(threading.Thread):
         msg_id : int, optional
             The request's *Message ID* parameter value, must be between 0 and
             65535, inclusive, (default 1).
+        meta_uid : pydicom.uid.UID, optional
+            If the service class operates under a presentation context
+            negotiated using a *Meta SOP Class* rather than a standard *SOP
+            Class* (such as with *Print Management* service class and its
+            *Basic Grayscale Print Management Meta SOP Class*) then this
+            value will be used to determine the corresponding presentation
+            context.
 
         Returns
         -------
@@ -2661,8 +2690,7 @@ class Association(threading.Thread):
 
         # Determine the Presentation Context we are operating under
         #   and hence the transfer syntax to use for encoding `dataset`
-        transfer_syntax = None
-        context = self._get_valid_context(class_uid, '', 'scu')
+        context = self._get_valid_context(meta_uid or class_uid, '', 'scu')
 
         # Build N-EVENT-REPORT request primitive
         #   (M) Message ID
@@ -2741,7 +2769,8 @@ class Association(threading.Thread):
 
         return status, event_reply
 
-    def send_n_get(self, identifier_list, class_uid, instance_uid, msg_id=1):
+    def send_n_get(self, identifier_list, class_uid, instance_uid, msg_id=1,
+                   meta_uid=None):
         """Send an N-GET request message to the peer AE.
 
         Parameters
@@ -2760,6 +2789,13 @@ class Association(threading.Thread):
         msg_id : int, optional
             The request's *Message ID* parameter value, must be between 0 and
             65535, inclusive, (default 1).
+        meta_uid : pydicom.uid.UID, optional
+            If the service class operates under a presentation context
+            negotiated using a *Meta SOP Class* rather than a standard *SOP
+            Class* (such as with *Print Management* service class and its
+            *Basic Grayscale Print Management Meta SOP Class*) then this
+            value will be used to determine the corresponding presentation
+            context.
 
         Returns
         -------
@@ -2848,7 +2884,7 @@ class Association(threading.Thread):
 
         # Determine the Presentation Context we are operating under
         #   and hence the transfer syntax to use for encoding `dataset`
-        context = self._get_valid_context(class_uid, '', 'scu')
+        context = self._get_valid_context(meta_uid or class_uid, '', 'scu')
         transfer_syntax = context.transfer_syntax[0]
 
         # Build N-GET request primitive
@@ -2911,7 +2947,8 @@ class Association(threading.Thread):
 
         return status, attribute_list
 
-    def send_n_set(self, dataset, class_uid, instance_uid, msg_id=1):
+    def send_n_set(self, dataset, class_uid, instance_uid, msg_id=1,
+                   meta_uid=None):
         """Send an N-SET request message to the peer AE.
 
         Parameters
@@ -2928,6 +2965,13 @@ class Association(threading.Thread):
         msg_id : int, optional
             The request's *Message ID* parameter value, must be between 0 and
             65535, inclusive, (default 1).
+        meta_uid : pydicom.uid.UID, optional
+            If the service class operates under a presentation context
+            negotiated using a *Meta SOP Class* rather than a standard *SOP
+            Class* (such as with *Print Management* service class and its
+            *Basic Grayscale Print Management Meta SOP Class*) then this
+            value will be used to determine the corresponding presentation
+            context.
 
         Returns
         -------
@@ -3045,7 +3089,7 @@ class Association(threading.Thread):
 
         # Determine the Presentation Context we are operating under
         #   and hence the transfer syntax to use for encoding `dataset`
-        context = self._get_valid_context(class_uid, '', 'scu')
+        context = self._get_valid_context(meta_uid or class_uid, '', 'scu')
         transfer_syntax = context.transfer_syntax[0]
 
         # Build N-SET request primitive

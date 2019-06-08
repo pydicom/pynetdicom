@@ -339,10 +339,12 @@ _PRINT_MANAGEMENT_CLASSES = {
     'BasicFilmBoxSOPClass' : '1.2.840.10008.5.1.1.2',
     'BasicGrayscaleImageBoxSOPClass' : '1.2.840.10008.5.1.1.4',
     'BasicColourImageBoxSOPClass' : '1.2.840.10008.5.1.1.4.1',
+    'BasicGrayscalePrintManagementMetaSOPClass' : '1.2.840.10008.5.1.1.9',
     'PrintJobSOPClass' : '1.2.840.10008.5.1.1.14',
     'BasicAnnotationBoxSOPClass' : '1.2.840.10008.5.1.1.15',
     'PrinterSOPClass' : '1.2.840.10008.5.1.1.16',
     'PrinterConfigurationRetrievalSOPClass' : '1.2.840.10008.5.1.1.16.376',
+    'BasicColorPrintManagementMetaSOPClass' : '1.2.840.10008.5.1.1.18',
     'PresentationLUTSOPClass' : '1.2.840.10008.5.1.1.23',
 }
 
