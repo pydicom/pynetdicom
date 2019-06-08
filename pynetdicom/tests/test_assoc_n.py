@@ -21,11 +21,26 @@ from pynetdicom.sop_class import (
     ModalityPerformedProcedureStepNotificationSOPClass,
     ModalityPerformedProcedureStepRetrieveSOPClass,
     ModalityPerformedProcedureStepSOPClass,
+    BasicGrayscalePrintManagementMetaSOPClass,
+    PrinterSOPClass,
 )
 from pynetdicom.service_class import ServiceClass
 
 
 #debug_logger()
+
+
+class DummyDIMSE(object):
+    def __init__(self):
+        self.status = None
+
+    def send_msg(self, req, context_id):
+        self.req = req
+        self.context_id = context_id
+
+    def get_msg(self, block=False):
+        return None, None
+
 
 
 class TestAssociationSendNEventReport(object):
@@ -477,6 +492,40 @@ class TestAssociationSendNEventReport(object):
 
         scp.shutdown()
 
+    def test_meta_uid(self):
+        """Test using a Meta SOP Class"""
+        self.ae = ae = AE()
+        ae.acse_timeout = 5
+        ae.dimse_timeout = 5
+        ae.network_timeout = 5
+        ae.add_supported_context(BasicGrayscalePrintManagementMetaSOPClass)
+        ae.add_supported_context(PrinterSOPClass)
+        scp = ae.start_server(('', 11112), block=False)
+
+        ae.add_requested_context(BasicGrayscalePrintManagementMetaSOPClass)
+        ae.add_requested_context(PrinterSOPClass)
+        assoc = ae.associate('localhost', 11112)
+        assert assoc.is_established
+
+        assoc.dimse = DummyDIMSE()
+
+        ds = Dataset()
+        ds.PatientName = 'Test^test'
+        # Receives None, None from DummyDIMSE, aborts
+        status, ds = assoc.send_n_event_report(
+            ds, 1,
+            PrinterSOPClass,
+            '1.2.840.10008.5.1.1.40.1',
+            meta_uid=BasicGrayscalePrintManagementMetaSOPClass
+        )
+        assert assoc.is_aborted
+
+        scp.shutdown()
+
+        assert assoc.dimse.req.AffectedSOPClassUID == PrinterSOPClass
+        assert assoc.dimse.context_id == 1
+        assert assoc._accepted_cx[1].abstract_syntax == BasicGrayscalePrintManagementMetaSOPClass
+
 
 class TestAssociationSendNGet(object):
     """Run tests on Assocation send_n_get."""
@@ -867,6 +916,40 @@ class TestAssociationSendNGet(object):
         assert assoc.is_released
 
         scp.shutdown()
+
+    def test_meta_uid(self):
+        """Test using a Meta SOP Class"""
+        self.ae = ae = AE()
+        ae.acse_timeout = 5
+        ae.dimse_timeout = 5
+        ae.network_timeout = 5
+        ae.add_supported_context(BasicGrayscalePrintManagementMetaSOPClass)
+        ae.add_supported_context(PrinterSOPClass)
+        scp = ae.start_server(('', 11112), block=False)
+
+        ae.add_requested_context(BasicGrayscalePrintManagementMetaSOPClass)
+        ae.add_requested_context(PrinterSOPClass)
+        assoc = ae.associate('localhost', 11112)
+        assert assoc.is_established
+
+        assoc.dimse = DummyDIMSE()
+
+        ds = Dataset()
+        ds.PatientName = 'Test^test'
+        # Receives None, None from DummyDIMSE, aborts
+        status, ds = assoc.send_n_get(
+            [(0x00100010)],
+            PrinterSOPClass,
+            '1.2.840.10008.5.1.1.40.1',
+            meta_uid=BasicGrayscalePrintManagementMetaSOPClass
+        )
+        assert assoc.is_aborted
+
+        scp.shutdown()
+
+        assert assoc.dimse.req.RequestedSOPClassUID == PrinterSOPClass
+        assert assoc.dimse.context_id == 1
+        assert assoc._accepted_cx[1].abstract_syntax == BasicGrayscalePrintManagementMetaSOPClass
 
 
 class TestAssociationSendNSet(object):
@@ -1302,8 +1385,41 @@ class TestAssociationSendNSet(object):
 
         scp.shutdown()
 
+    def test_meta_uid(self):
+        """Test using a Meta SOP Class"""
+        self.ae = ae = AE()
+        ae.acse_timeout = 5
+        ae.dimse_timeout = 5
+        ae.network_timeout = 5
+        ae.add_supported_context(BasicGrayscalePrintManagementMetaSOPClass)
+        ae.add_supported_context(PrinterSOPClass)
+        scp = ae.start_server(('', 11112), block=False)
 
-# TODO: Refactor when N-ACTION SCP is implemented
+        ae.add_requested_context(BasicGrayscalePrintManagementMetaSOPClass)
+        ae.add_requested_context(PrinterSOPClass)
+        assoc = ae.associate('localhost', 11112)
+        assert assoc.is_established
+
+        assoc.dimse = DummyDIMSE()
+
+        ds = Dataset()
+        ds.PatientName = 'Test^test'
+        # Receives None, None from DummyDIMSE, aborts
+        status, ds = assoc.send_n_set(
+            ds,
+            PrinterSOPClass,
+            '1.2.840.10008.5.1.1.40.1',
+            meta_uid=BasicGrayscalePrintManagementMetaSOPClass
+        )
+        assert assoc.is_aborted
+
+        scp.shutdown()
+
+        assert assoc.dimse.req.RequestedSOPClassUID == PrinterSOPClass
+        assert assoc.dimse.context_id == 1
+        assert assoc._accepted_cx[1].abstract_syntax == BasicGrayscalePrintManagementMetaSOPClass
+
+
 class TestAssociationSendNAction(object):
     """Run tests on Assocation send_n_action."""
     def _scp(self, req, context):
@@ -1734,6 +1850,40 @@ class TestAssociationSendNAction(object):
 
         scp.shutdown()
 
+    def test_meta_uid(self):
+        """Test using a Meta SOP Class"""
+        self.ae = ae = AE()
+        ae.acse_timeout = 5
+        ae.dimse_timeout = 5
+        ae.network_timeout = 5
+        ae.add_supported_context(BasicGrayscalePrintManagementMetaSOPClass)
+        ae.add_supported_context(PrinterSOPClass)
+        scp = ae.start_server(('', 11112), block=False)
+
+        ae.add_requested_context(BasicGrayscalePrintManagementMetaSOPClass)
+        ae.add_requested_context(PrinterSOPClass)
+        assoc = ae.associate('localhost', 11112)
+        assert assoc.is_established
+
+        assoc.dimse = DummyDIMSE()
+
+        ds = Dataset()
+        ds.PatientName = 'Test^test'
+        # Receives None, None from DummyDIMSE, aborts
+        status, ds = assoc.send_n_action(
+            ds, 1,
+            PrinterSOPClass,
+            '1.2.840.10008.5.1.1.40.1',
+            meta_uid=BasicGrayscalePrintManagementMetaSOPClass
+        )
+        assert assoc.is_aborted
+
+        scp.shutdown()
+
+        assert assoc.dimse.req.RequestedSOPClassUID == PrinterSOPClass
+        assert assoc.dimse.context_id == 1
+        assert assoc._accepted_cx[1].abstract_syntax == BasicGrayscalePrintManagementMetaSOPClass
+
 
 class TestAssociationSendNCreate(object):
     """Run tests on Assocation send_n_create."""
@@ -2150,8 +2300,41 @@ class TestAssociationSendNCreate(object):
 
         scp.shutdown()
 
+    def test_meta_uid(self):
+        """Test using a Meta SOP Class"""
+        self.ae = ae = AE()
+        ae.acse_timeout = 5
+        ae.dimse_timeout = 5
+        ae.network_timeout = 5
+        ae.add_supported_context(BasicGrayscalePrintManagementMetaSOPClass)
+        ae.add_supported_context(PrinterSOPClass)
+        scp = ae.start_server(('', 11112), block=False)
 
-# TODO: Refactor when N-DELETE SCP is implemented
+        ae.add_requested_context(BasicGrayscalePrintManagementMetaSOPClass)
+        ae.add_requested_context(PrinterSOPClass)
+        assoc = ae.associate('localhost', 11112)
+        assert assoc.is_established
+
+        assoc.dimse = DummyDIMSE()
+
+        ds = Dataset()
+        ds.PatientName = 'Test^test'
+        # Receives None, None from DummyDIMSE, aborts
+        status, ds = assoc.send_n_create(
+            ds,
+            PrinterSOPClass,
+            '1.2.840.10008.5.1.1.40.1',
+            meta_uid=BasicGrayscalePrintManagementMetaSOPClass
+        )
+        assert assoc.is_aborted
+
+        scp.shutdown()
+
+        assert assoc.dimse.req.AffectedSOPClassUID == PrinterSOPClass
+        assert assoc.dimse.context_id == 1
+        assert assoc._accepted_cx[1].abstract_syntax == BasicGrayscalePrintManagementMetaSOPClass
+
+
 class TestAssociationSendNDelete(object):
     """Run tests on Assocation send_n_delete."""
     def _scp(self, req, context):
@@ -2428,3 +2611,36 @@ class TestAssociationSendNDelete(object):
         assert assoc.is_released
 
         scp.shutdown()
+
+    def test_meta_uid(self):
+        """Test using a Meta SOP Class"""
+        self.ae = ae = AE()
+        ae.acse_timeout = 5
+        ae.dimse_timeout = 5
+        ae.network_timeout = 5
+        ae.add_supported_context(BasicGrayscalePrintManagementMetaSOPClass)
+        ae.add_supported_context(PrinterSOPClass)
+        scp = ae.start_server(('', 11112), block=False)
+
+        ae.add_requested_context(BasicGrayscalePrintManagementMetaSOPClass)
+        ae.add_requested_context(PrinterSOPClass)
+        assoc = ae.associate('localhost', 11112)
+        assert assoc.is_established
+
+        assoc.dimse = DummyDIMSE()
+
+        ds = Dataset()
+        ds.PatientName = 'Test^test'
+        # Receives None, None from DummyDIMSE, aborts
+        status = assoc.send_n_delete(
+            PrinterSOPClass,
+            '1.2.840.10008.5.1.1.40.1',
+            meta_uid=BasicGrayscalePrintManagementMetaSOPClass
+        )
+        assert assoc.is_aborted
+
+        scp.shutdown()
+
+        assert assoc.dimse.req.RequestedSOPClassUID == PrinterSOPClass
+        assert assoc.dimse.context_id == 1
+        assert assoc._accepted_cx[1].abstract_syntax == BasicGrayscalePrintManagementMetaSOPClass

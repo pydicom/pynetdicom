@@ -23,12 +23,18 @@ Enhancements
   (:issue:`327`)
 * Added ``Event.move_destination`` and ``Event.event`` properties
   (:issue:`353`)
+* Added ``meta_uid`` keyword parameters to the ``Association.send_n_*()``
+  methods to allow the use of Meta SOP Classes (such as those used in the
+  Print Management service class)
+* Added *Basic Grayscale Print Management Meta SOP Class* and *Basic Color
+  Print Management Meta SOP Class* to ``sop_class``.
 
 
 Changes
 .......
 
 * The following have been removed as per planned deprecation:
+  
   * ``AE.on_c_store()``, ``AE.on_c_echo()``, ``AE.on_c_find()``,
     ``AE.on_c_get()``, ``AE.on_c_move()``, ``AE.on_n_get()``,
     ``AE.on_async_ops_window()``, ``AE.on_sop_class_common_extended()``,
@@ -38,10 +44,10 @@ Changes
   * ``_config.DECODE_STORE_DATASETS``
   * ``DIMSEServiceProvider.on_send_dimse_message()``,
     ``DIMSEServiceProvider.on_receive_dimse_message()``
-  * ``Association.send_c_find()``, ``Association.send_c_get()`` and
-    ``Association.send_c_move()`` now require a `query_model` parameter that
-    is used to set the *Affected SOP Class UID* value. The parameter should
-    pass a pydicom UID or UID string. Passing a key that corresponds to a given
-    UID is deprecated and will be removed in v1.5. (:issue:`348`)
-  * ``Event.name`` and ``Event.description`` properties removed, use ``Event.
-    event.name`` and ``Event.event.description`` instead.
+* ``Association.send_c_find()``, ``Association.send_c_get()`` and
+  ``Association.send_c_move()`` now require a `query_model` parameter that
+  is used to set the *Affected SOP Class UID* value. The parameter should
+  pass a pydicom UID or UID string. Passing a key that corresponds to a given
+  UID is deprecated and will be removed in v1.5. (:issue:`348`)
+* ``Event.name`` and ``Event.description`` properties removed, use ``Event.
+  event.name`` and ``Event.event.description`` instead.
