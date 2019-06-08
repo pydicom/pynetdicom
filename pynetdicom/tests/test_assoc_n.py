@@ -30,6 +30,19 @@ from pynetdicom.service_class import ServiceClass
 #debug_logger()
 
 
+class DummyDIMSE(object):
+    def __init__(self):
+        self.status = None
+
+    def send_msg(self, req, context_id):
+        self.req = req
+        self.context_id = context_id
+
+    def get_msg(self, block=False):
+        return None, None
+
+
+
 class TestAssociationSendNEventReport(object):
     """Run tests on Assocation send_n_event_report."""
     def setup(self):
@@ -479,45 +492,39 @@ class TestAssociationSendNEventReport(object):
 
         scp.shutdown()
 
-    @pytest.mark.skip(reason="Needs print management service")
     def test_meta_uid(self):
         """Test using a Meta SOP Class"""
-        recv = []
-
-        def handle(event):
-            recv.append(event)
-            return 0x0000, event.event_information
-
         self.ae = ae = AE()
         ae.acse_timeout = 5
         ae.dimse_timeout = 5
         ae.network_timeout = 5
         ae.add_supported_context(BasicGrayscalePrintManagementMetaSOPClass)
-        scp = ae.start_server(
-            ('', 11112), block=False,
-            evt_handlers=[(evt.EVT_N_EVENT_REPORT, handle)]
-        )
+        ae.add_supported_context(PrinterSOPClass)
+        scp = ae.start_server(('', 11112), block=False)
 
         ae.add_requested_context(BasicGrayscalePrintManagementMetaSOPClass)
+        ae.add_requested_context(PrinterSOPClass)
         assoc = ae.associate('localhost', 11112)
         assert assoc.is_established
 
+        assoc.dimse = DummyDIMSE()
+
         ds = Dataset()
         ds.PatientName = 'Test^test'
+        # Receives None, None from DummyDIMSE, aborts
         status, ds = assoc.send_n_event_report(
             ds, 1,
             PrinterSOPClass,
             '1.2.840.10008.5.1.1.40.1',
             meta_uid=BasicGrayscalePrintManagementMetaSOPClass
         )
-        assert status.Status == 0x0000
-        assert ds.PatientName == 'Test^test'
-        assoc.release()
-        assert assoc.is_released
+        assert assoc.is_aborted
 
         scp.shutdown()
 
-        print(recv)
+        assert assoc.dimse.req.AffectedSOPClassUID == PrinterSOPClass
+        assert assoc.dimse.context_id == 1
+        assert assoc._accepted_cx[1].abstract_syntax == BasicGrayscalePrintManagementMetaSOPClass
 
 
 class TestAssociationSendNGet(object):
@@ -910,45 +917,39 @@ class TestAssociationSendNGet(object):
 
         scp.shutdown()
 
-    @pytest.mark.skip(reason="Needs print management service")
     def test_meta_uid(self):
         """Test using a Meta SOP Class"""
-        recv = []
-
-        def handle(event):
-            recv.append(event)
-            return 0x0000, event.event_information
-
         self.ae = ae = AE()
         ae.acse_timeout = 5
         ae.dimse_timeout = 5
         ae.network_timeout = 5
         ae.add_supported_context(BasicGrayscalePrintManagementMetaSOPClass)
-        scp = ae.start_server(
-            ('', 11112), block=False,
-            evt_handlers=[(evt.EVT_N_EVENT_REPORT, handle)]
-        )
+        ae.add_supported_context(PrinterSOPClass)
+        scp = ae.start_server(('', 11112), block=False)
 
         ae.add_requested_context(BasicGrayscalePrintManagementMetaSOPClass)
+        ae.add_requested_context(PrinterSOPClass)
         assoc = ae.associate('localhost', 11112)
         assert assoc.is_established
 
+        assoc.dimse = DummyDIMSE()
+
         ds = Dataset()
         ds.PatientName = 'Test^test'
-        status, ds = assoc.send_n_event_report(
-            ds, 1,
+        # Receives None, None from DummyDIMSE, aborts
+        status, ds = assoc.send_n_get(
+            [(0x00100010)],
             PrinterSOPClass,
             '1.2.840.10008.5.1.1.40.1',
             meta_uid=BasicGrayscalePrintManagementMetaSOPClass
         )
-        assert status.Status == 0x0000
-        assert ds.PatientName == 'Test^test'
-        assoc.release()
-        assert assoc.is_released
+        assert assoc.is_aborted
 
         scp.shutdown()
 
-        print(recv)
+        assert assoc.dimse.req.RequestedSOPClassUID == PrinterSOPClass
+        assert assoc.dimse.context_id == 1
+        assert assoc._accepted_cx[1].abstract_syntax == BasicGrayscalePrintManagementMetaSOPClass
 
 
 class TestAssociationSendNSet(object):
@@ -1384,48 +1385,41 @@ class TestAssociationSendNSet(object):
 
         scp.shutdown()
 
-    @pytest.mark.skip(reason="Needs print management service")
     def test_meta_uid(self):
         """Test using a Meta SOP Class"""
-        recv = []
-
-        def handle(event):
-            recv.append(event)
-            return 0x0000, event.event_information
-
         self.ae = ae = AE()
         ae.acse_timeout = 5
         ae.dimse_timeout = 5
         ae.network_timeout = 5
         ae.add_supported_context(BasicGrayscalePrintManagementMetaSOPClass)
-        scp = ae.start_server(
-            ('', 11112), block=False,
-            evt_handlers=[(evt.EVT_N_EVENT_REPORT, handle)]
-        )
+        ae.add_supported_context(PrinterSOPClass)
+        scp = ae.start_server(('', 11112), block=False)
 
         ae.add_requested_context(BasicGrayscalePrintManagementMetaSOPClass)
+        ae.add_requested_context(PrinterSOPClass)
         assoc = ae.associate('localhost', 11112)
         assert assoc.is_established
 
+        assoc.dimse = DummyDIMSE()
+
         ds = Dataset()
         ds.PatientName = 'Test^test'
-        status, ds = assoc.send_n_event_report(
-            ds, 1,
+        # Receives None, None from DummyDIMSE, aborts
+        status, ds = assoc.send_n_set(
+            ds,
             PrinterSOPClass,
             '1.2.840.10008.5.1.1.40.1',
             meta_uid=BasicGrayscalePrintManagementMetaSOPClass
         )
-        assert status.Status == 0x0000
-        assert ds.PatientName == 'Test^test'
-        assoc.release()
-        assert assoc.is_released
+        assert assoc.is_aborted
 
         scp.shutdown()
 
-        print(recv)
+        assert assoc.dimse.req.RequestedSOPClassUID == PrinterSOPClass
+        assert assoc.dimse.context_id == 1
+        assert assoc._accepted_cx[1].abstract_syntax == BasicGrayscalePrintManagementMetaSOPClass
 
 
-# TODO: Refactor when N-ACTION SCP is implemented
 class TestAssociationSendNAction(object):
     """Run tests on Assocation send_n_action."""
     def _scp(self, req, context):
@@ -1856,45 +1850,39 @@ class TestAssociationSendNAction(object):
 
         scp.shutdown()
 
-    @pytest.mark.skip(reason="Needs print management service")
     def test_meta_uid(self):
         """Test using a Meta SOP Class"""
-        recv = []
-
-        def handle(event):
-            recv.append(event)
-            return 0x0000, event.event_information
-
         self.ae = ae = AE()
         ae.acse_timeout = 5
         ae.dimse_timeout = 5
         ae.network_timeout = 5
         ae.add_supported_context(BasicGrayscalePrintManagementMetaSOPClass)
-        scp = ae.start_server(
-            ('', 11112), block=False,
-            evt_handlers=[(evt.EVT_N_EVENT_REPORT, handle)]
-        )
+        ae.add_supported_context(PrinterSOPClass)
+        scp = ae.start_server(('', 11112), block=False)
 
         ae.add_requested_context(BasicGrayscalePrintManagementMetaSOPClass)
+        ae.add_requested_context(PrinterSOPClass)
         assoc = ae.associate('localhost', 11112)
         assert assoc.is_established
 
+        assoc.dimse = DummyDIMSE()
+
         ds = Dataset()
         ds.PatientName = 'Test^test'
-        status, ds = assoc.send_n_event_report(
+        # Receives None, None from DummyDIMSE, aborts
+        status, ds = assoc.send_n_action(
             ds, 1,
             PrinterSOPClass,
             '1.2.840.10008.5.1.1.40.1',
             meta_uid=BasicGrayscalePrintManagementMetaSOPClass
         )
-        assert status.Status == 0x0000
-        assert ds.PatientName == 'Test^test'
-        assoc.release()
-        assert assoc.is_released
+        assert assoc.is_aborted
 
         scp.shutdown()
 
-        print(recv)
+        assert assoc.dimse.req.RequestedSOPClassUID == PrinterSOPClass
+        assert assoc.dimse.context_id == 1
+        assert assoc._accepted_cx[1].abstract_syntax == BasicGrayscalePrintManagementMetaSOPClass
 
 
 class TestAssociationSendNCreate(object):
@@ -2312,48 +2300,41 @@ class TestAssociationSendNCreate(object):
 
         scp.shutdown()
 
-    @pytest.mark.skip(reason="Needs print management service")
     def test_meta_uid(self):
         """Test using a Meta SOP Class"""
-        recv = []
-
-        def handle(event):
-            recv.append(event)
-            return 0x0000, event.event_information
-
         self.ae = ae = AE()
         ae.acse_timeout = 5
         ae.dimse_timeout = 5
         ae.network_timeout = 5
         ae.add_supported_context(BasicGrayscalePrintManagementMetaSOPClass)
-        scp = ae.start_server(
-            ('', 11112), block=False,
-            evt_handlers=[(evt.EVT_N_EVENT_REPORT, handle)]
-        )
+        ae.add_supported_context(PrinterSOPClass)
+        scp = ae.start_server(('', 11112), block=False)
 
         ae.add_requested_context(BasicGrayscalePrintManagementMetaSOPClass)
+        ae.add_requested_context(PrinterSOPClass)
         assoc = ae.associate('localhost', 11112)
         assert assoc.is_established
 
+        assoc.dimse = DummyDIMSE()
+
         ds = Dataset()
         ds.PatientName = 'Test^test'
-        status, ds = assoc.send_n_event_report(
-            ds, 1,
+        # Receives None, None from DummyDIMSE, aborts
+        status, ds = assoc.send_n_create(
+            ds,
             PrinterSOPClass,
             '1.2.840.10008.5.1.1.40.1',
             meta_uid=BasicGrayscalePrintManagementMetaSOPClass
         )
-        assert status.Status == 0x0000
-        assert ds.PatientName == 'Test^test'
-        assoc.release()
-        assert assoc.is_released
+        assert assoc.is_aborted
 
         scp.shutdown()
 
-        print(recv)
+        assert assoc.dimse.req.AffectedSOPClassUID == PrinterSOPClass
+        assert assoc.dimse.context_id == 1
+        assert assoc._accepted_cx[1].abstract_syntax == BasicGrayscalePrintManagementMetaSOPClass
 
 
-# TODO: Refactor when N-DELETE SCP is implemented
 class TestAssociationSendNDelete(object):
     """Run tests on Assocation send_n_delete."""
     def _scp(self, req, context):
@@ -2631,42 +2612,35 @@ class TestAssociationSendNDelete(object):
 
         scp.shutdown()
 
-    @pytest.mark.skip(reason="Needs print management service")
     def test_meta_uid(self):
         """Test using a Meta SOP Class"""
-        recv = []
-
-        def handle(event):
-            recv.append(event)
-            return 0x0000, event.event_information
-
         self.ae = ae = AE()
         ae.acse_timeout = 5
         ae.dimse_timeout = 5
         ae.network_timeout = 5
         ae.add_supported_context(BasicGrayscalePrintManagementMetaSOPClass)
-        scp = ae.start_server(
-            ('', 11112), block=False,
-            evt_handlers=[(evt.EVT_N_EVENT_REPORT, handle)]
-        )
+        ae.add_supported_context(PrinterSOPClass)
+        scp = ae.start_server(('', 11112), block=False)
 
         ae.add_requested_context(BasicGrayscalePrintManagementMetaSOPClass)
+        ae.add_requested_context(PrinterSOPClass)
         assoc = ae.associate('localhost', 11112)
         assert assoc.is_established
 
+        assoc.dimse = DummyDIMSE()
+
         ds = Dataset()
         ds.PatientName = 'Test^test'
-        status, ds = assoc.send_n_event_report(
-            ds, 1,
+        # Receives None, None from DummyDIMSE, aborts
+        status = assoc.send_n_delete(
             PrinterSOPClass,
             '1.2.840.10008.5.1.1.40.1',
             meta_uid=BasicGrayscalePrintManagementMetaSOPClass
         )
-        assert status.Status == 0x0000
-        assert ds.PatientName == 'Test^test'
-        assoc.release()
-        assert assoc.is_released
+        assert assoc.is_aborted
 
         scp.shutdown()
 
-        print(recv)
+        assert assoc.dimse.req.RequestedSOPClassUID == PrinterSOPClass
+        assert assoc.dimse.context_id == 1
+        assert assoc._accepted_cx[1].abstract_syntax == BasicGrayscalePrintManagementMetaSOPClass
