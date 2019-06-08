@@ -224,24 +224,29 @@ race condition when acting as the Acceptor and calling one of the
 (<a class="reference external" href="https://github.com/pydicom/pynetdicom/issues/327">#327</a>)</p></li>
 <li><p>Added <code class="docutils literal notranslate"><span class="pre">Event.move_destination</span></code> and <code class="docutils literal notranslate"><span class="pre">Event.event</span></code> properties
 (<a class="reference external" href="https://github.com/pydicom/pynetdicom/issues/353">#353</a>)</p></li>
+<li><p>Added <code class="docutils literal notranslate"><span class="pre">meta_uid</span></code> keyword parameters to the <code class="docutils literal notranslate"><span class="pre">Association.send_n_*()</span></code>
+methods to allow the use of Meta SOP Classes (such as those used in the
+Print Management service class)</p></li>
+<li><p>Added <em>Basic Grayscale Print Management Meta SOP Class</em> and <em>Basic Color
+Print Management Meta SOP Class</em> to <code class="docutils literal notranslate"><span class="pre">sop_class</span></code>.</p></li>
 </ul>
 </div>
 <div class="section" id="changes">
 <h2>Changes<a class="headerlink" href="#changes" title="Permalink to this headline">¶</a></h2>
+<ul class="simple">
+<li><p>The following have been removed as per planned deprecation:</p>
 <ul>
-<li><p>The following have been removed as per planned deprecation:
-* <code class="docutils literal notranslate"><span class="pre">AE.on_c_store()</span></code>, <code class="docutils literal notranslate"><span class="pre">AE.on_c_echo()</span></code>, <code class="docutils literal notranslate"><span class="pre">AE.on_c_find()</span></code>,</p>
-<blockquote>
-<div><p><code class="docutils literal notranslate"><span class="pre">AE.on_c_get()</span></code>, <code class="docutils literal notranslate"><span class="pre">AE.on_c_move()</span></code>, <code class="docutils literal notranslate"><span class="pre">AE.on_n_get()</span></code>,
+<li><p><code class="docutils literal notranslate"><span class="pre">AE.on_c_store()</span></code>, <code class="docutils literal notranslate"><span class="pre">AE.on_c_echo()</span></code>, <code class="docutils literal notranslate"><span class="pre">AE.on_c_find()</span></code>,
+<code class="docutils literal notranslate"><span class="pre">AE.on_c_get()</span></code>, <code class="docutils literal notranslate"><span class="pre">AE.on_c_move()</span></code>, <code class="docutils literal notranslate"><span class="pre">AE.on_n_get()</span></code>,
 <code class="docutils literal notranslate"><span class="pre">AE.on_async_ops_window()</span></code>, <code class="docutils literal notranslate"><span class="pre">AE.on_sop_class_common_extended()</span></code>,
 <code class="docutils literal notranslate"><span class="pre">AE.on_sop_class_extended()</span></code>, <code class="docutils literal notranslate"><span class="pre">AE.on_user_identity()</span></code>,
 <code class="docutils literal notranslate"><span class="pre">AE.on_association_accepted()</span></code>, <code class="docutils literal notranslate"><span class="pre">AE.on_association_rejected()</span></code>,
-<code class="docutils literal notranslate"><span class="pre">AE.on_association_released()</span></code>, <code class="docutils literal notranslate"><span class="pre">AE.on_association_aborted()</span></code>,</p>
-</div></blockquote>
-<ul class="simple">
+<code class="docutils literal notranslate"><span class="pre">AE.on_association_released()</span></code>, <code class="docutils literal notranslate"><span class="pre">AE.on_association_aborted()</span></code>,</p></li>
 <li><p><code class="docutils literal notranslate"><span class="pre">_config.DECODE_STORE_DATASETS</span></code></p></li>
 <li><p><code class="docutils literal notranslate"><span class="pre">DIMSEServiceProvider.on_send_dimse_message()</span></code>,
 <code class="docutils literal notranslate"><span class="pre">DIMSEServiceProvider.on_receive_dimse_message()</span></code></p></li>
+</ul>
+</li>
 <li><p><code class="docutils literal notranslate"><span class="pre">Association.send_c_find()</span></code>, <code class="docutils literal notranslate"><span class="pre">Association.send_c_get()</span></code> and
 <code class="docutils literal notranslate"><span class="pre">Association.send_c_move()</span></code> now require a <cite>query_model</cite> parameter that
 is used to set the <em>Affected SOP Class UID</em> value. The parameter should
@@ -249,8 +254,6 @@ pass a pydicom UID or UID string. Passing a key that corresponds to a given
 UID is deprecated and will be removed in v1.5. (<a class="reference external" href="https://github.com/pydicom/pynetdicom/issues/348">#348</a>)</p></li>
 <li><p><code class="docutils literal notranslate"><span class="pre">Event.name</span></code> and <code class="docutils literal notranslate"><span class="pre">Event.description</span></code> properties removed, use <code class="docutils literal notranslate"><span class="pre">Event.</span>
 <span class="pre">event.name</span></code> and <code class="docutils literal notranslate"><span class="pre">Event.event.description</span></code> instead.</p></li>
-</ul>
-</li>
 </ul>
 </div>
 </div>

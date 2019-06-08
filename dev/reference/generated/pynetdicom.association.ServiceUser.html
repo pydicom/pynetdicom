@@ -181,7 +181,7 @@
 <h1>pynetdicom.association.ServiceUser<a class="headerlink" href="#pynetdicom-association-serviceuser" title="Permalink to this headline">¶</a></h1>
 <dl class="class">
 <dt id="pynetdicom.association.ServiceUser">
-<em class="property">class </em><code class="descclassname">pynetdicom.association.</code><code class="descname">ServiceUser</code><span class="sig-paren">(</span><em>assoc</em>, <em>mode</em><span class="sig-paren">)</span><a class="reference internal" href="../../_modules/pynetdicom/association.html#ServiceUser"><span class="viewcode-link">[source]</span></a><a class="reference external" href="https://github.com/pydicom/pynetdicom/blob/46f9a099/pynetdicom/association.py#L3124"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pynetdicom.association.ServiceUser" title="Permalink to this definition">¶</a></dt>
+<em class="property">class </em><code class="sig-prename descclassname">pynetdicom.association.</code><code class="sig-name descname">ServiceUser</code><span class="sig-paren">(</span><em class="sig-param">assoc</em>, <em class="sig-param">mode</em><span class="sig-paren">)</span><a class="reference internal" href="../../_modules/pynetdicom/association.html#ServiceUser"><span class="viewcode-link">[source]</span></a><a class="reference external" href="https://github.com/pydicom/pynetdicom/blob/6c99d572/pynetdicom/association.py#L3168"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pynetdicom.association.ServiceUser" title="Permalink to this definition">¶</a></dt>
 <dd><p>Convenience class for the <code class="docutils literal notranslate"><span class="pre">Association</span></code> service user.</p>
 <p>An <code class="docutils literal notranslate"><span class="pre">Association</span></code> object has two <code class="docutils literal notranslate"><span class="pre">ServiceUser</span></code> attributes, one
 representing the association <em>Requestor</em> and the other the association
@@ -232,7 +232,7 @@ order to be valid:</p>
 </ul>
 <dl class="attribute">
 <dt id="pynetdicom.association.ServiceUser.address">
-<code class="descname">address</code><a class="headerlink" href="#pynetdicom.association.ServiceUser.address" title="Permalink to this definition">¶</a></dt>
+<code class="sig-name descname">address</code><a class="headerlink" href="#pynetdicom.association.ServiceUser.address" title="Permalink to this definition">¶</a></dt>
 <dd><p>The TCP/IP address of the AE.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Type</dt>
@@ -243,7 +243,7 @@ order to be valid:</p>
 
 <dl class="attribute">
 <dt id="pynetdicom.association.ServiceUser.ae_title">
-<code class="descname">ae_title</code><a class="headerlink" href="#pynetdicom.association.ServiceUser.ae_title" title="Permalink to this definition">¶</a></dt>
+<code class="sig-name descname">ae_title</code><a class="headerlink" href="#pynetdicom.association.ServiceUser.ae_title" title="Permalink to this definition">¶</a></dt>
 <dd><p>The AE’s AE title.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Type</dt>
@@ -254,7 +254,7 @@ order to be valid:</p>
 
 <dl class="attribute">
 <dt id="pynetdicom.association.ServiceUser.port">
-<code class="descname">port</code><a class="headerlink" href="#pynetdicom.association.ServiceUser.port" title="Permalink to this definition">¶</a></dt>
+<code class="sig-name descname">port</code><a class="headerlink" href="#pynetdicom.association.ServiceUser.port" title="Permalink to this definition">¶</a></dt>
 <dd><p>The port number of the AE.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Type</dt>
@@ -265,7 +265,7 @@ order to be valid:</p>
 
 <dl class="attribute">
 <dt id="pynetdicom.association.ServiceUser.primitive">
-<code class="descname">primitive</code><a class="headerlink" href="#pynetdicom.association.ServiceUser.primitive" title="Permalink to this definition">¶</a></dt>
+<code class="sig-name descname">primitive</code><a class="headerlink" href="#pynetdicom.association.ServiceUser.primitive" title="Permalink to this definition">¶</a></dt>
 <dd><p>The A-ASSOCIATE primitive (request if mode is ‘requestor’,
 accept/reject if mode is ‘acceptor’) sent or received by the AE
 during association negotiation.</p>
@@ -278,7 +278,7 @@ during association negotiation.</p>
 
 <dl class="method">
 <dt id="pynetdicom.association.ServiceUser.__init__">
-<code class="descname">__init__</code><span class="sig-paren">(</span><em>assoc</em>, <em>mode</em><span class="sig-paren">)</span><a class="reference internal" href="../../_modules/pynetdicom/association.html#ServiceUser.__init__"><span class="viewcode-link">[source]</span></a><a class="reference external" href="https://github.com/pydicom/pynetdicom/blob/46f9a099/pynetdicom/association.py#L3171"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pynetdicom.association.ServiceUser.__init__" title="Permalink to this definition">¶</a></dt>
+<code class="sig-name descname">__init__</code><span class="sig-paren">(</span><em class="sig-param">assoc</em>, <em class="sig-param">mode</em><span class="sig-paren">)</span><a class="reference internal" href="../../_modules/pynetdicom/association.html#ServiceUser.__init__"><span class="viewcode-link">[source]</span></a><a class="reference external" href="https://github.com/pydicom/pynetdicom/blob/6c99d572/pynetdicom/association.py#L3215"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pynetdicom.association.ServiceUser.__init__" title="Permalink to this definition">¶</a></dt>
 <dd><p>Create a new ServiceUser.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters</dt>
@@ -293,7 +293,7 @@ association’s mode.</p></li>
 </dd></dl>
 
 <p class="rubric">Methods</p>
-<table class="longtable docutils align-center">
+<table class="longtable docutils align-default">
 <colgroup>
 <col style="width: 10%" />
 <col style="width: 90%" />
@@ -317,7 +317,7 @@ association’s mode.</p></li>
 </tbody>
 </table>
 <p class="rubric">Attributes</p>
-<table class="longtable docutils align-center">
+<table class="longtable docutils align-default">
 <colgroup>
 <col style="width: 10%" />
 <col style="width: 90%" />
@@ -379,9 +379,9 @@ association’s mode.</p></li>
 </tr>
 </tbody>
 </table>
-<dl class="attribute">
+<dl class="method">
 <dt id="pynetdicom.association.ServiceUser.accepted_common_extended">
-<code class="descname">accepted_common_extended</code><a class="headerlink" href="#pynetdicom.association.ServiceUser.accepted_common_extended" title="Permalink to this definition">¶</a></dt>
+<em class="property">property </em><code class="sig-name descname">accepted_common_extended</code><a class="headerlink" href="#pynetdicom.association.ServiceUser.accepted_common_extended" title="Permalink to this definition">¶</a></dt>
 <dd><p>Return a dict of the accepted SOP Class Common Extended Negotiation.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Returns</dt>
@@ -400,7 +400,7 @@ negotiation items.</p>
 
 <dl class="method">
 <dt id="pynetdicom.association.ServiceUser.add_negotiation_item">
-<code class="descname">add_negotiation_item</code><span class="sig-paren">(</span><em>item</em><span class="sig-paren">)</span><a class="reference internal" href="../../_modules/pynetdicom/association.html#ServiceUser.add_negotiation_item"><span class="viewcode-link">[source]</span></a><a class="reference external" href="https://github.com/pydicom/pynetdicom/blob/46f9a099/pynetdicom/association.py#L3245"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pynetdicom.association.ServiceUser.add_negotiation_item" title="Permalink to this definition">¶</a></dt>
+<code class="sig-name descname">add_negotiation_item</code><span class="sig-paren">(</span><em class="sig-param">item</em><span class="sig-paren">)</span><a class="reference internal" href="../../_modules/pynetdicom/association.html#ServiceUser.add_negotiation_item"><span class="viewcode-link">[source]</span></a><a class="reference external" href="https://github.com/pydicom/pynetdicom/blob/6c99d572/pynetdicom/association.py#L3289"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pynetdicom.association.ServiceUser.add_negotiation_item" title="Permalink to this definition">¶</a></dt>
 <dd><p>Add an extended negotiation item to the user information.</p>
 <p>Items can only be added prior to starting the association negotiation.</p>
 <dl class="field-list simple">
@@ -420,9 +420,9 @@ SOPClassExtendedNegotiation or SOPClassCommonExtendedNegotiation.</p>
 </dl>
 </dd></dl>
 
-<dl class="attribute">
+<dl class="method">
 <dt id="pynetdicom.association.ServiceUser.asynchronous_operations">
-<code class="descname">asynchronous_operations</code><a class="headerlink" href="#pynetdicom.association.ServiceUser.asynchronous_operations" title="Permalink to this definition">¶</a></dt>
+<em class="property">property </em><code class="sig-name descname">asynchronous_operations</code><a class="headerlink" href="#pynetdicom.association.ServiceUser.asynchronous_operations" title="Permalink to this definition">¶</a></dt>
 <dd><p>Return the Asynchronous Operations Window operations numbers.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Returns</dt>
@@ -436,9 +436,9 @@ Window Negotiation item is in the extended negotiation items.</p>
 </dl>
 </dd></dl>
 
-<dl class="attribute">
+<dl class="method">
 <dt id="pynetdicom.association.ServiceUser.extended_negotiation">
-<code class="descname">extended_negotiation</code><a class="headerlink" href="#pynetdicom.association.ServiceUser.extended_negotiation" title="Permalink to this definition">¶</a></dt>
+<em class="property">property </em><code class="sig-name descname">extended_negotiation</code><a class="headerlink" href="#pynetdicom.association.ServiceUser.extended_negotiation" title="Permalink to this definition">¶</a></dt>
 <dd><p>Return a list of Extended Negotiation items.</p>
 <p>Extended Negotiation items are:</p>
 <ul class="simple">
@@ -462,7 +462,7 @@ extended negotiation item responses.</p>
 
 <dl class="method">
 <dt id="pynetdicom.association.ServiceUser.get_contexts">
-<code class="descname">get_contexts</code><span class="sig-paren">(</span><em>cx_type</em><span class="sig-paren">)</span><a class="reference internal" href="../../_modules/pynetdicom/association.html#ServiceUser.get_contexts"><span class="viewcode-link">[source]</span></a><a class="reference external" href="https://github.com/pydicom/pynetdicom/blob/46f9a099/pynetdicom/association.py#L3339"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pynetdicom.association.ServiceUser.get_contexts" title="Permalink to this definition">¶</a></dt>
+<code class="sig-name descname">get_contexts</code><span class="sig-paren">(</span><em class="sig-param">cx_type</em><span class="sig-paren">)</span><a class="reference internal" href="../../_modules/pynetdicom/association.html#ServiceUser.get_contexts"><span class="viewcode-link">[source]</span></a><a class="reference external" href="https://github.com/pydicom/pynetdicom/blob/6c99d572/pynetdicom/association.py#L3383"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pynetdicom.association.ServiceUser.get_contexts" title="Permalink to this definition">¶</a></dt>
 <dd><p>Return a list of PresentationContext corresponding to <cite>cx_type</cite>.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters</dt>
@@ -495,9 +495,9 @@ Presentation Context Definition Results List parameter.</p>
 </dl>
 </dd></dl>
 
-<dl class="attribute">
+<dl class="method">
 <dt id="pynetdicom.association.ServiceUser.implementation_class_uid">
-<code class="descname">implementation_class_uid</code><a class="headerlink" href="#pynetdicom.association.ServiceUser.implementation_class_uid" title="Permalink to this definition">¶</a></dt>
+<em class="property">property </em><code class="sig-name descname">implementation_class_uid</code><a class="headerlink" href="#pynetdicom.association.ServiceUser.implementation_class_uid" title="Permalink to this definition">¶</a></dt>
 <dd><p>Return the Implementation Class UID as a pydicom UID.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Returns</dt>
@@ -511,9 +511,9 @@ if the acceptor and they have rejected the negotiation.</p>
 </dl>
 </dd></dl>
 
-<dl class="attribute">
+<dl class="method">
 <dt id="pynetdicom.association.ServiceUser.implementation_version_name">
-<code class="descname">implementation_version_name</code><a class="headerlink" href="#pynetdicom.association.ServiceUser.implementation_version_name" title="Permalink to this definition">¶</a></dt>
+<em class="property">property </em><code class="sig-name descname">implementation_version_name</code><a class="headerlink" href="#pynetdicom.association.ServiceUser.implementation_version_name" title="Permalink to this definition">¶</a></dt>
 <dd><p>Return the Implementation Version Name as str (if available).</p>
 <dl class="field-list simple">
 <dt class="field-odd">Returns</dt>
@@ -528,27 +528,27 @@ the Implementation Version Name.</p>
 </dl>
 </dd></dl>
 
-<dl class="attribute">
+<dl class="method">
 <dt id="pynetdicom.association.ServiceUser.info">
-<code class="descname">info</code><a class="headerlink" href="#pynetdicom.association.ServiceUser.info" title="Permalink to this definition">¶</a></dt>
+<em class="property">property </em><code class="sig-name descname">info</code><a class="headerlink" href="#pynetdicom.association.ServiceUser.info" title="Permalink to this definition">¶</a></dt>
 <dd><p>Return a dict with information about the ServiceUser.</p>
 </dd></dl>
 
-<dl class="attribute">
+<dl class="method">
 <dt id="pynetdicom.association.ServiceUser.is_acceptor">
-<code class="descname">is_acceptor</code><a class="headerlink" href="#pynetdicom.association.ServiceUser.is_acceptor" title="Permalink to this definition">¶</a></dt>
+<em class="property">property </em><code class="sig-name descname">is_acceptor</code><a class="headerlink" href="#pynetdicom.association.ServiceUser.is_acceptor" title="Permalink to this definition">¶</a></dt>
 <dd><p>Return True if the ServiceUser is the association acceptor.</p>
 </dd></dl>
 
-<dl class="attribute">
+<dl class="method">
 <dt id="pynetdicom.association.ServiceUser.is_requestor">
-<code class="descname">is_requestor</code><a class="headerlink" href="#pynetdicom.association.ServiceUser.is_requestor" title="Permalink to this definition">¶</a></dt>
+<em class="property">property </em><code class="sig-name descname">is_requestor</code><a class="headerlink" href="#pynetdicom.association.ServiceUser.is_requestor" title="Permalink to this definition">¶</a></dt>
 <dd><p>Return True if the ServiceUser is the association requestor.</p>
 </dd></dl>
 
-<dl class="attribute">
+<dl class="method">
 <dt id="pynetdicom.association.ServiceUser.maximum_length">
-<code class="descname">maximum_length</code><a class="headerlink" href="#pynetdicom.association.ServiceUser.maximum_length" title="Permalink to this definition">¶</a></dt>
+<em class="property">property </em><code class="sig-name descname">maximum_length</code><a class="headerlink" href="#pynetdicom.association.ServiceUser.maximum_length" title="Permalink to this definition">¶</a></dt>
 <dd><p>Return the maximum PDV size as int.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Returns</dt>
@@ -562,15 +562,15 @@ if the acceptor and they have rejected the negotiation.</p>
 </dl>
 </dd></dl>
 
-<dl class="attribute">
+<dl class="method">
 <dt id="pynetdicom.association.ServiceUser.mode">
-<code class="descname">mode</code><a class="headerlink" href="#pynetdicom.association.ServiceUser.mode" title="Permalink to this definition">¶</a></dt>
+<em class="property">property </em><code class="sig-name descname">mode</code><a class="headerlink" href="#pynetdicom.association.ServiceUser.mode" title="Permalink to this definition">¶</a></dt>
 <dd><p>Return the mode as str, either ‘requestor’ or ‘acceptor’.</p>
 </dd></dl>
 
 <dl class="method">
 <dt id="pynetdicom.association.ServiceUser.remove_negotiation_item">
-<code class="descname">remove_negotiation_item</code><span class="sig-paren">(</span><em>item</em><span class="sig-paren">)</span><a class="reference internal" href="../../_modules/pynetdicom/association.html#ServiceUser.remove_negotiation_item"><span class="viewcode-link">[source]</span></a><a class="reference external" href="https://github.com/pydicom/pynetdicom/blob/46f9a099/pynetdicom/association.py#L3606"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pynetdicom.association.ServiceUser.remove_negotiation_item" title="Permalink to this definition">¶</a></dt>
+<code class="sig-name descname">remove_negotiation_item</code><span class="sig-paren">(</span><em class="sig-param">item</em><span class="sig-paren">)</span><a class="reference internal" href="../../_modules/pynetdicom/association.html#ServiceUser.remove_negotiation_item"><span class="viewcode-link">[source]</span></a><a class="reference external" href="https://github.com/pydicom/pynetdicom/blob/6c99d572/pynetdicom/association.py#L3650"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pynetdicom.association.ServiceUser.remove_negotiation_item" title="Permalink to this definition">¶</a></dt>
 <dd><p>Remove an extended negotiation item from the user information.</p>
 <p>Items can only be removed prior to starting the association
 negotiation.</p>
@@ -591,15 +591,15 @@ SOPClassExtendedNegotiation or SOPClassCommonExtendedNegotiation.</p>
 </dl>
 </dd></dl>
 
-<dl class="attribute">
+<dl class="method">
 <dt id="pynetdicom.association.ServiceUser.requested_contexts">
-<code class="descname">requested_contexts</code><a class="headerlink" href="#pynetdicom.association.ServiceUser.requested_contexts" title="Permalink to this definition">¶</a></dt>
+<em class="property">property </em><code class="sig-name descname">requested_contexts</code><a class="headerlink" href="#pynetdicom.association.ServiceUser.requested_contexts" title="Permalink to this definition">¶</a></dt>
 <dd><p>Return a list of the requestor’s requested presentation contexts.</p>
 </dd></dl>
 
 <dl class="method">
 <dt id="pynetdicom.association.ServiceUser.reset_negotiation_items">
-<code class="descname">reset_negotiation_items</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="../../_modules/pynetdicom/association.html#ServiceUser.reset_negotiation_items"><span class="viewcode-link">[source]</span></a><a class="reference external" href="https://github.com/pydicom/pynetdicom/blob/46f9a099/pynetdicom/association.py#L3644"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pynetdicom.association.ServiceUser.reset_negotiation_items" title="Permalink to this definition">¶</a></dt>
+<code class="sig-name descname">reset_negotiation_items</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="../../_modules/pynetdicom/association.html#ServiceUser.reset_negotiation_items"><span class="viewcode-link">[source]</span></a><a class="reference external" href="https://github.com/pydicom/pynetdicom/blob/6c99d572/pynetdicom/association.py#L3688"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pynetdicom.association.ServiceUser.reset_negotiation_items" title="Permalink to this definition">¶</a></dt>
 <dd><p>Remove all extended negotiation items.</p>
 <p>Items can only be removed prior to starting the association
 negotiation.</p>
@@ -611,9 +611,9 @@ negotiation.</p>
 </dl>
 </dd></dl>
 
-<dl class="attribute">
+<dl class="method">
 <dt id="pynetdicom.association.ServiceUser.role_selection">
-<code class="descname">role_selection</code><a class="headerlink" href="#pynetdicom.association.ServiceUser.role_selection" title="Permalink to this definition">¶</a></dt>
+<em class="property">property </em><code class="sig-name descname">role_selection</code><a class="headerlink" href="#pynetdicom.association.ServiceUser.role_selection" title="Permalink to this definition">¶</a></dt>
 <dd><p>Return any SCP/SCU Role Selection items as a dict.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Returns</dt>
@@ -626,9 +626,9 @@ SCP_SCU_RoleSelectionNegotiation}.</p>
 </dl>
 </dd></dl>
 
-<dl class="attribute">
+<dl class="method">
 <dt id="pynetdicom.association.ServiceUser.sop_class_common_extended">
-<code class="descname">sop_class_common_extended</code><a class="headerlink" href="#pynetdicom.association.ServiceUser.sop_class_common_extended" title="Permalink to this definition">¶</a></dt>
+<em class="property">property </em><code class="sig-name descname">sop_class_common_extended</code><a class="headerlink" href="#pynetdicom.association.ServiceUser.sop_class_common_extended" title="Permalink to this definition">¶</a></dt>
 <dd><p>Return any SOP Class Common Extended items as dict.</p>
 <p>If the ServiceUser is the association acceptor then no SOP Class
 Common Extended items will be present in the User Information.</p>
@@ -642,9 +642,9 @@ Common Extended items will be present in the User Information.</p>
 </dl>
 </dd></dl>
 
-<dl class="attribute">
+<dl class="method">
 <dt id="pynetdicom.association.ServiceUser.sop_class_extended">
-<code class="descname">sop_class_extended</code><a class="headerlink" href="#pynetdicom.association.ServiceUser.sop_class_extended" title="Permalink to this definition">¶</a></dt>
+<em class="property">property </em><code class="sig-name descname">sop_class_extended</code><a class="headerlink" href="#pynetdicom.association.ServiceUser.sop_class_extended" title="Permalink to this definition">¶</a></dt>
 <dd><p>Return any SOP Class Extended items as dict.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Returns</dt>
@@ -657,9 +657,9 @@ Application Information}.</p>
 </dl>
 </dd></dl>
 
-<dl class="attribute">
+<dl class="method">
 <dt id="pynetdicom.association.ServiceUser.supported_contexts">
-<code class="descname">supported_contexts</code><a class="headerlink" href="#pynetdicom.association.ServiceUser.supported_contexts" title="Permalink to this definition">¶</a></dt>
+<em class="property">property </em><code class="sig-name descname">supported_contexts</code><a class="headerlink" href="#pynetdicom.association.ServiceUser.supported_contexts" title="Permalink to this definition">¶</a></dt>
 <dd><p>Return a list of supported presentation contexts.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Returns</dt>
@@ -671,9 +671,9 @@ Application Information}.</p>
 </dl>
 </dd></dl>
 
-<dl class="attribute">
+<dl class="method">
 <dt id="pynetdicom.association.ServiceUser.user_identity">
-<code class="descname">user_identity</code><a class="headerlink" href="#pynetdicom.association.ServiceUser.user_identity" title="Permalink to this definition">¶</a></dt>
+<em class="property">property </em><code class="sig-name descname">user_identity</code><a class="headerlink" href="#pynetdicom.association.ServiceUser.user_identity" title="Permalink to this definition">¶</a></dt>
 <dd><p>Return the User Identity Negotiation Item (if available).</p>
 <dl class="field-list simple">
 <dt class="field-odd">Returns</dt>
@@ -686,15 +686,15 @@ None.</p>
 </dl>
 </dd></dl>
 
-<dl class="attribute">
+<dl class="method">
 <dt id="pynetdicom.association.ServiceUser.user_information">
-<code class="descname">user_information</code><a class="headerlink" href="#pynetdicom.association.ServiceUser.user_information" title="Permalink to this definition">¶</a></dt>
+<em class="property">property </em><code class="sig-name descname">user_information</code><a class="headerlink" href="#pynetdicom.association.ServiceUser.user_information" title="Permalink to this definition">¶</a></dt>
 <dd><p>Returns a list of the User Information items.</p>
 </dd></dl>
 
-<dl class="attribute">
+<dl class="method">
 <dt id="pynetdicom.association.ServiceUser.writeable">
-<code class="descname">writeable</code><a class="headerlink" href="#pynetdicom.association.ServiceUser.writeable" title="Permalink to this definition">¶</a></dt>
+<em class="property">property </em><code class="sig-name descname">writeable</code><a class="headerlink" href="#pynetdicom.association.ServiceUser.writeable" title="Permalink to this definition">¶</a></dt>
 <dd><p>Return True if the current object can be changed.</p>
 </dd></dl>
 

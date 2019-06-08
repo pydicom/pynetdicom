@@ -181,9 +181,9 @@
 <h1>pynetdicom.dimse_primitives.C_MOVE<a class="headerlink" href="#pynetdicom-dimse-primitives-c-move" title="Permalink to this headline">¶</a></h1>
 <dl class="class">
 <dt id="pynetdicom.dimse_primitives.C_MOVE">
-<em class="property">class </em><code class="descclassname">pynetdicom.dimse_primitives.</code><code class="descname">C_MOVE</code><a class="reference internal" href="../../_modules/pynetdicom/dimse_primitives.html#C_MOVE"><span class="viewcode-link">[source]</span></a><a class="reference external" href="https://github.com/pydicom/pynetdicom/blob/46f9a099/pynetdicom/dimse_primitives.py#L748"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pynetdicom.dimse_primitives.C_MOVE" title="Permalink to this definition">¶</a></dt>
+<em class="property">class </em><code class="sig-prename descclassname">pynetdicom.dimse_primitives.</code><code class="sig-name descname">C_MOVE</code><a class="reference internal" href="../../_modules/pynetdicom/dimse_primitives.html#C_MOVE"><span class="viewcode-link">[source]</span></a><a class="reference external" href="https://github.com/pydicom/pynetdicom/blob/6c99d572/pynetdicom/dimse_primitives.py#L748"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pynetdicom.dimse_primitives.C_MOVE" title="Permalink to this definition">¶</a></dt>
 <dd><p>Represents a C-MOVE primitive.</p>
-<table class="docutils align-center">
+<table class="docutils align-default">
 <colgroup>
 <col style="width: 62%" />
 <col style="width: 18%" />
@@ -261,7 +261,7 @@ in the column to the left</div>
 </div>
 <dl class="attribute">
 <dt id="pynetdicom.dimse_primitives.C_MOVE.MessageID">
-<code class="descname">MessageID</code><a class="headerlink" href="#pynetdicom.dimse_primitives.C_MOVE.MessageID" title="Permalink to this definition">¶</a></dt>
+<code class="sig-name descname">MessageID</code><a class="headerlink" href="#pynetdicom.dimse_primitives.C_MOVE.MessageID" title="Permalink to this definition">¶</a></dt>
 <dd><p>Identifies the operation and is used to distinguish this
 operation from other notifications or operations that may be in
 progress. No two identical values for the Message ID shall be used for
@@ -275,7 +275,7 @@ outstanding operations.</p>
 
 <dl class="attribute">
 <dt id="pynetdicom.dimse_primitives.C_MOVE.MessageIDBeingRespondedTo">
-<code class="descname">MessageIDBeingRespondedTo</code><a class="headerlink" href="#pynetdicom.dimse_primitives.C_MOVE.MessageIDBeingRespondedTo" title="Permalink to this definition">¶</a></dt>
+<code class="sig-name descname">MessageIDBeingRespondedTo</code><a class="headerlink" href="#pynetdicom.dimse_primitives.C_MOVE.MessageIDBeingRespondedTo" title="Permalink to this definition">¶</a></dt>
 <dd><p>The Message ID of the operation request/indication to which
 this response/confirmation applies.</p>
 <dl class="field-list simple">
@@ -287,7 +287,7 @@ this response/confirmation applies.</p>
 
 <dl class="attribute">
 <dt id="pynetdicom.dimse_primitives.C_MOVE.AffectedSOPClassUID">
-<code class="descname">AffectedSOPClassUID</code><a class="headerlink" href="#pynetdicom.dimse_primitives.C_MOVE.AffectedSOPClassUID" title="Permalink to this definition">¶</a></dt>
+<code class="sig-name descname">AffectedSOPClassUID</code><a class="headerlink" href="#pynetdicom.dimse_primitives.C_MOVE.AffectedSOPClassUID" title="Permalink to this definition">¶</a></dt>
 <dd><p>For the request/indication this specifies the SOP Class
 for storage. If included in the response/confirmation, it shall be
 equal to the value in the request/indication</p>
@@ -300,7 +300,7 @@ equal to the value in the request/indication</p>
 
 <dl class="attribute">
 <dt id="pynetdicom.dimse_primitives.C_MOVE.Priority">
-<code class="descname">Priority</code><a class="headerlink" href="#pynetdicom.dimse_primitives.C_MOVE.Priority" title="Permalink to this definition">¶</a></dt>
+<code class="sig-name descname">Priority</code><a class="headerlink" href="#pynetdicom.dimse_primitives.C_MOVE.Priority" title="Permalink to this definition">¶</a></dt>
 <dd><p>The priority of the C-STORE operation. It shall be one of the
 following:</p>
 <ul class="simple">
@@ -317,7 +317,7 @@ following:</p>
 
 <dl class="attribute">
 <dt id="pynetdicom.dimse_primitives.C_MOVE.MoveDestination">
-<code class="descname">MoveDestination</code><a class="headerlink" href="#pynetdicom.dimse_primitives.C_MOVE.MoveDestination" title="Permalink to this definition">¶</a></dt>
+<code class="sig-name descname">MoveDestination</code><a class="headerlink" href="#pynetdicom.dimse_primitives.C_MOVE.MoveDestination" title="Permalink to this definition">¶</a></dt>
 <dd><p>Specifies the DICOM AE Title of the destination DICOM AE to
 which the C-STORE sub-operations are being performed.</p>
 <dl class="field-list simple">
@@ -329,7 +329,7 @@ which the C-STORE sub-operations are being performed.</p>
 
 <dl class="attribute">
 <dt id="pynetdicom.dimse_primitives.C_MOVE.Identifier">
-<code class="descname">Identifier</code><a class="headerlink" href="#pynetdicom.dimse_primitives.C_MOVE.Identifier" title="Permalink to this definition">¶</a></dt>
+<code class="sig-name descname">Identifier</code><a class="headerlink" href="#pynetdicom.dimse_primitives.C_MOVE.Identifier" title="Permalink to this definition">¶</a></dt>
 <dd><p>A DICOM dataset of attributes to be matched against the values of the
 attributes in the instances of the composite objects known to the
 performing DIMSE service-user.</p>
@@ -342,7 +342,7 @@ performing DIMSE service-user.</p>
 
 <dl class="attribute">
 <dt id="pynetdicom.dimse_primitives.C_MOVE.Status">
-<code class="descname">Status</code><a class="headerlink" href="#pynetdicom.dimse_primitives.C_MOVE.Status" title="Permalink to this definition">¶</a></dt>
+<code class="sig-name descname">Status</code><a class="headerlink" href="#pynetdicom.dimse_primitives.C_MOVE.Status" title="Permalink to this definition">¶</a></dt>
 <dd><p>The error or success notification of the operation.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Type</dt>
@@ -353,7 +353,7 @@ performing DIMSE service-user.</p>
 
 <dl class="attribute">
 <dt id="pynetdicom.dimse_primitives.C_MOVE.NumberOfRemainingSuboperations">
-<code class="descname">NumberOfRemainingSuboperations</code><a class="headerlink" href="#pynetdicom.dimse_primitives.C_MOVE.NumberOfRemainingSuboperations" title="Permalink to this definition">¶</a></dt>
+<code class="sig-name descname">NumberOfRemainingSuboperations</code><a class="headerlink" href="#pynetdicom.dimse_primitives.C_MOVE.NumberOfRemainingSuboperations" title="Permalink to this definition">¶</a></dt>
 <dd><p>The number of remaining C-STORE sub-operations to be invoked
 by this C-MOVE operation. It may be included in any response and shall
 be included if the status is Pending</p>
@@ -366,7 +366,7 @@ be included if the status is Pending</p>
 
 <dl class="attribute">
 <dt id="pynetdicom.dimse_primitives.C_MOVE.NumberOfCompletedSuboperations">
-<code class="descname">NumberOfCompletedSuboperations</code><a class="headerlink" href="#pynetdicom.dimse_primitives.C_MOVE.NumberOfCompletedSuboperations" title="Permalink to this definition">¶</a></dt>
+<code class="sig-name descname">NumberOfCompletedSuboperations</code><a class="headerlink" href="#pynetdicom.dimse_primitives.C_MOVE.NumberOfCompletedSuboperations" title="Permalink to this definition">¶</a></dt>
 <dd><p>The number of C-STORE sub-operations that have completed
 successfully. It may be included in any response and shall be included
 if the status is Pending</p>
@@ -379,7 +379,7 @@ if the status is Pending</p>
 
 <dl class="attribute">
 <dt id="pynetdicom.dimse_primitives.C_MOVE.NumberOfFailedSuboperations">
-<code class="descname">NumberOfFailedSuboperations</code><a class="headerlink" href="#pynetdicom.dimse_primitives.C_MOVE.NumberOfFailedSuboperations" title="Permalink to this definition">¶</a></dt>
+<code class="sig-name descname">NumberOfFailedSuboperations</code><a class="headerlink" href="#pynetdicom.dimse_primitives.C_MOVE.NumberOfFailedSuboperations" title="Permalink to this definition">¶</a></dt>
 <dd><p>The number of C-STORE sub-operations that have failed. It may
 be included in any response and shall be included if the status is
 Pending</p>
@@ -392,7 +392,7 @@ Pending</p>
 
 <dl class="attribute">
 <dt id="pynetdicom.dimse_primitives.C_MOVE.NumberOfWarningSuboperations">
-<code class="descname">NumberOfWarningSuboperations</code><a class="headerlink" href="#pynetdicom.dimse_primitives.C_MOVE.NumberOfWarningSuboperations" title="Permalink to this definition">¶</a></dt>
+<code class="sig-name descname">NumberOfWarningSuboperations</code><a class="headerlink" href="#pynetdicom.dimse_primitives.C_MOVE.NumberOfWarningSuboperations" title="Permalink to this definition">¶</a></dt>
 <dd><p>The number of C-STORE operations that generated Warning
 responses. It may be included in any response and shall be included if
 the status is Pending</p>
@@ -405,7 +405,7 @@ the status is Pending</p>
 
 <dl class="attribute">
 <dt id="pynetdicom.dimse_primitives.C_MOVE.OffendingElement">
-<code class="descname">OffendingElement</code><a class="headerlink" href="#pynetdicom.dimse_primitives.C_MOVE.OffendingElement" title="Permalink to this definition">¶</a></dt>
+<code class="sig-name descname">OffendingElement</code><a class="headerlink" href="#pynetdicom.dimse_primitives.C_MOVE.OffendingElement" title="Permalink to this definition">¶</a></dt>
 <dd><p>An optional status related field containing a list of the
 elements in which an error was detected.</p>
 <dl class="field-list simple">
@@ -417,7 +417,7 @@ elements in which an error was detected.</p>
 
 <dl class="attribute">
 <dt id="pynetdicom.dimse_primitives.C_MOVE.ErrorComment">
-<code class="descname">ErrorComment</code><a class="headerlink" href="#pynetdicom.dimse_primitives.C_MOVE.ErrorComment" title="Permalink to this definition">¶</a></dt>
+<code class="sig-name descname">ErrorComment</code><a class="headerlink" href="#pynetdicom.dimse_primitives.C_MOVE.ErrorComment" title="Permalink to this definition">¶</a></dt>
 <dd><p>An optional status related field containing a text
 description of the error detected. 64 characters maximum.</p>
 <dl class="field-list simple">
@@ -429,12 +429,12 @@ description of the error detected. 64 characters maximum.</p>
 
 <dl class="method">
 <dt id="pynetdicom.dimse_primitives.C_MOVE.__init__">
-<code class="descname">__init__</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="../../_modules/pynetdicom/dimse_primitives.html#C_MOVE.__init__"><span class="viewcode-link">[source]</span></a><a class="reference external" href="https://github.com/pydicom/pynetdicom/blob/46f9a099/pynetdicom/dimse_primitives.py#L852"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pynetdicom.dimse_primitives.C_MOVE.__init__" title="Permalink to this definition">¶</a></dt>
+<code class="sig-name descname">__init__</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="../../_modules/pynetdicom/dimse_primitives.html#C_MOVE.__init__"><span class="viewcode-link">[source]</span></a><a class="reference external" href="https://github.com/pydicom/pynetdicom/blob/6c99d572/pynetdicom/dimse_primitives.py#L852"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pynetdicom.dimse_primitives.C_MOVE.__init__" title="Permalink to this definition">¶</a></dt>
 <dd><p>Initialize self.  See help(type(self)) for accurate signature.</p>
 </dd></dl>
 
 <p class="rubric">Methods</p>
-<table class="longtable docutils align-center">
+<table class="longtable docutils align-default">
 <colgroup>
 <col style="width: 10%" />
 <col style="width: 90%" />
@@ -446,7 +446,7 @@ description of the error detected. 64 characters maximum.</p>
 </tbody>
 </table>
 <p class="rubric">Attributes</p>
-<table class="longtable docutils align-center">
+<table class="longtable docutils align-default">
 <colgroup>
 <col style="width: 10%" />
 <col style="width: 90%" />
@@ -502,81 +502,81 @@ description of the error detected. 64 characters maximum.</p>
 </tr>
 </tbody>
 </table>
-<dl class="attribute">
+<dl class="method">
 <dt>
-<code class="descname">AffectedSOPClassUID</code></dt>
+<em class="property">property </em><code class="sig-name descname">AffectedSOPClassUID</code></dt>
 <dd><p>Return the <em>Affected SOP Class UID</em>.</p>
 </dd></dl>
 
-<dl class="attribute">
+<dl class="method">
 <dt>
-<code class="descname">Identifier</code></dt>
+<em class="property">property </em><code class="sig-name descname">Identifier</code></dt>
 <dd><p>Return the <em>Identifier</em>.</p>
 </dd></dl>
 
-<dl class="attribute">
+<dl class="method">
 <dt>
-<code class="descname">MessageID</code></dt>
+<em class="property">property </em><code class="sig-name descname">MessageID</code></dt>
 <dd><p>Return the DIMSE <em>Message ID</em>.</p>
 </dd></dl>
 
-<dl class="attribute">
+<dl class="method">
 <dt>
-<code class="descname">MessageIDBeingRespondedTo</code></dt>
+<em class="property">property </em><code class="sig-name descname">MessageIDBeingRespondedTo</code></dt>
 <dd><p>Return the <em>Message ID Being Responded To</em>.</p>
 </dd></dl>
 
-<dl class="attribute">
+<dl class="method">
 <dt>
-<code class="descname">MoveDestination</code></dt>
+<em class="property">property </em><code class="sig-name descname">MoveDestination</code></dt>
 <dd><p>Return the <em>Move Destination</em>.</p>
 </dd></dl>
 
-<dl class="attribute">
+<dl class="method">
 <dt>
-<code class="descname">NumberOfCompletedSuboperations</code></dt>
+<em class="property">property </em><code class="sig-name descname">NumberOfCompletedSuboperations</code></dt>
 <dd><p>Return the <em>Number of Completed Suboperations</em>.</p>
 </dd></dl>
 
-<dl class="attribute">
+<dl class="method">
 <dt>
-<code class="descname">NumberOfFailedSuboperations</code></dt>
+<em class="property">property </em><code class="sig-name descname">NumberOfFailedSuboperations</code></dt>
 <dd><p>Return the <em>Number of Failed Suboperations</em>.</p>
 </dd></dl>
 
-<dl class="attribute">
+<dl class="method">
 <dt>
-<code class="descname">NumberOfRemainingSuboperations</code></dt>
+<em class="property">property </em><code class="sig-name descname">NumberOfRemainingSuboperations</code></dt>
 <dd><p>Return the <em>Number of Remaining Suboperations</em>.</p>
 </dd></dl>
 
-<dl class="attribute">
+<dl class="method">
 <dt>
-<code class="descname">NumberOfWarningSuboperations</code></dt>
+<em class="property">property </em><code class="sig-name descname">NumberOfWarningSuboperations</code></dt>
 <dd><p>Return the <em>Number of Warning Suboperations</em>.</p>
 </dd></dl>
 
-<dl class="attribute">
+<dl class="method">
 <dt>
-<code class="descname">Priority</code></dt>
+<em class="property">property </em><code class="sig-name descname">Priority</code></dt>
 <dd><p>Return the <em>Priority</em>.</p>
 </dd></dl>
 
-<dl class="attribute">
+<dl class="method">
 <dt>
-<code class="descname">Status</code></dt>
+<em class="property">property </em><code class="sig-name descname">Status</code></dt>
 <dd><p>Return the <em>Status</em>.</p>
 </dd></dl>
 
-<dl class="attribute">
+<dl class="method">
 <dt id="pynetdicom.dimse_primitives.C_MOVE.is_valid_request">
-<code class="descname">is_valid_request</code><a class="headerlink" href="#pynetdicom.dimse_primitives.C_MOVE.is_valid_request" title="Permalink to this definition">¶</a></dt>
+<em class="property">property </em><code class="sig-name descname">is_valid_request</code><a class="headerlink" href="#pynetdicom.dimse_primitives.C_MOVE.is_valid_request" title="Permalink to this definition">¶</a></dt>
 <dd><p>Return True if the request is valid, False otherwise.</p>
 </dd></dl>
 
-<dl class="attribute">
+<dl class="method">
 <dt id="pynetdicom.dimse_primitives.C_MOVE.is_valid_response">
-<code class="descname">is_valid_response</code><a class="headerlink" href="#pynetdicom.dimse_primitives.C_MOVE.is_valid_response" title="Permalink to this definition">¶</a></dt>
+<em class="property">property </em><code class="sig-name descname">is_valid_response</code><a class="headerlink" href="#pynetdicom.dimse_primitives.C_MOVE.is_valid_response" title="Permalink to this definition">¶</a></dt>
 <dd><p>Return True if the response is valid, False otherwise.</p>
 </dd></dl>
 

@@ -2302,7 +2302,7 @@
 
     <span class="c1"># DIMSE-N services provided by the Association</span>
 <div class="viewcode-block" id="Association.send_n_action"><a class="viewcode-back" href="../../reference/generated/pynetdicom.association.Association.html#pynetdicom.association.Association.send_n_action">[docs]</a>    <span class="k">def</span> <span class="nf">send_n_action</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">dataset</span><span class="p">,</span> <span class="n">action_type</span><span class="p">,</span> <span class="n">class_uid</span><span class="p">,</span> <span class="n">instance_uid</span><span class="p">,</span>
-                      <span class="n">msg_id</span><span class="o">=</span><span class="mi">1</span><span class="p">):</span>
+                      <span class="n">msg_id</span><span class="o">=</span><span class="mi">1</span><span class="p">,</span> <span class="n">meta_uid</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;Send an N-ACTION request message to the peer AE.</span>
 
 <span class="sd">        Parameters</span>
@@ -2321,6 +2321,13 @@
 <span class="sd">        msg_id : int, optional</span>
 <span class="sd">            The request&#39;s *Message ID* parameter value, must be between 0 and</span>
 <span class="sd">            65535, inclusive, (default 1).</span>
+<span class="sd">        meta_uid : pydicom.uid.UID, optional</span>
+<span class="sd">            If the service class operates under a presentation context</span>
+<span class="sd">            negotiated using a *Meta SOP Class* rather than a standard *SOP</span>
+<span class="sd">            Class* (such as with *Print Management* service class and its</span>
+<span class="sd">            *Basic Grayscale Print Management Meta SOP Class*) then this</span>
+<span class="sd">            value will be used to determine the corresponding presentation</span>
+<span class="sd">            context.</span>
 
 <span class="sd">        Returns</span>
 <span class="sd">        -------</span>
@@ -2383,7 +2390,7 @@
 
         <span class="c1"># Determine the Presentation Context we are operating under</span>
         <span class="c1">#   and hence the transfer syntax to use for encoding `dataset`</span>
-        <span class="n">context</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_get_valid_context</span><span class="p">(</span><span class="n">class_uid</span><span class="p">,</span> <span class="s1">&#39;&#39;</span><span class="p">,</span> <span class="s1">&#39;scu&#39;</span><span class="p">)</span>
+        <span class="n">context</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_get_valid_context</span><span class="p">(</span><span class="n">meta_uid</span> <span class="ow">or</span> <span class="n">class_uid</span><span class="p">,</span> <span class="s1">&#39;&#39;</span><span class="p">,</span> <span class="s1">&#39;scu&#39;</span><span class="p">)</span>
         <span class="n">transfer_syntax</span> <span class="o">=</span> <span class="n">context</span><span class="o">.</span><span class="n">transfer_syntax</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span>
 
         <span class="c1"># Build N-ACTION request primitive</span>
@@ -2459,7 +2466,8 @@
 
         <span class="k">return</span> <span class="n">status</span><span class="p">,</span> <span class="n">action_reply</span></div>
 
-<div class="viewcode-block" id="Association.send_n_create"><a class="viewcode-back" href="../../reference/generated/pynetdicom.association.Association.html#pynetdicom.association.Association.send_n_create">[docs]</a>    <span class="k">def</span> <span class="nf">send_n_create</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">dataset</span><span class="p">,</span> <span class="n">class_uid</span><span class="p">,</span> <span class="n">instance_uid</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">msg_id</span><span class="o">=</span><span class="mi">1</span><span class="p">):</span>
+<div class="viewcode-block" id="Association.send_n_create"><a class="viewcode-back" href="../../reference/generated/pynetdicom.association.Association.html#pynetdicom.association.Association.send_n_create">[docs]</a>    <span class="k">def</span> <span class="nf">send_n_create</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">dataset</span><span class="p">,</span> <span class="n">class_uid</span><span class="p">,</span> <span class="n">instance_uid</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">msg_id</span><span class="o">=</span><span class="mi">1</span><span class="p">,</span>
+                      <span class="n">meta_uid</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;Send an N-CREATE request message to the peer AE.</span>
 
 <span class="sd">        Parameters</span>
@@ -2476,6 +2484,13 @@
 <span class="sd">        msg_id : int, optional</span>
 <span class="sd">            The request&#39;s *Message ID* parameter value, must be between 0 and</span>
 <span class="sd">            65535, inclusive, (default 1).</span>
+<span class="sd">        meta_uid : pydicom.uid.UID, optional</span>
+<span class="sd">            If the service class operates under a presentation context</span>
+<span class="sd">            negotiated using a *Meta SOP Class* rather than a standard *SOP</span>
+<span class="sd">            Class* (such as with *Print Management* service class and its</span>
+<span class="sd">            *Basic Grayscale Print Management Meta SOP Class*) then this</span>
+<span class="sd">            value will be used to determine the corresponding presentation</span>
+<span class="sd">            context.</span>
 
 <span class="sd">        Returns</span>
 <span class="sd">        -------</span>
@@ -2580,7 +2595,7 @@
 
         <span class="c1"># Determine the Presentation Context we are operating under</span>
         <span class="c1">#   and hence the transfer syntax to use for encoding `dataset`</span>
-        <span class="n">context</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_get_valid_context</span><span class="p">(</span><span class="n">class_uid</span><span class="p">,</span> <span class="s1">&#39;&#39;</span><span class="p">,</span> <span class="s1">&#39;scu&#39;</span><span class="p">)</span>
+        <span class="n">context</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_get_valid_context</span><span class="p">(</span><span class="n">meta_uid</span> <span class="ow">or</span> <span class="n">class_uid</span><span class="p">,</span> <span class="s1">&#39;&#39;</span><span class="p">,</span> <span class="s1">&#39;scu&#39;</span><span class="p">)</span>
         <span class="n">transfer_syntax</span> <span class="o">=</span> <span class="n">context</span><span class="o">.</span><span class="n">transfer_syntax</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span>
 
         <span class="c1"># Build N-CREATE request primitive</span>
@@ -2655,7 +2670,7 @@
 
         <span class="k">return</span> <span class="n">status</span><span class="p">,</span> <span class="n">attribute_list</span></div>
 
-<div class="viewcode-block" id="Association.send_n_delete"><a class="viewcode-back" href="../../reference/generated/pynetdicom.association.Association.html#pynetdicom.association.Association.send_n_delete">[docs]</a>    <span class="k">def</span> <span class="nf">send_n_delete</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">class_uid</span><span class="p">,</span> <span class="n">instance_uid</span><span class="p">,</span> <span class="n">msg_id</span><span class="o">=</span><span class="mi">1</span><span class="p">):</span>
+<div class="viewcode-block" id="Association.send_n_delete"><a class="viewcode-back" href="../../reference/generated/pynetdicom.association.Association.html#pynetdicom.association.Association.send_n_delete">[docs]</a>    <span class="k">def</span> <span class="nf">send_n_delete</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">class_uid</span><span class="p">,</span> <span class="n">instance_uid</span><span class="p">,</span> <span class="n">msg_id</span><span class="o">=</span><span class="mi">1</span><span class="p">,</span> <span class="n">meta_uid</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;Send an N-DELETE request message to the peer AE.</span>
 
 <span class="sd">        Parameters</span>
@@ -2669,6 +2684,13 @@
 <span class="sd">        msg_id : int, optional</span>
 <span class="sd">            The request&#39;s *Message ID* parameter value, must be between 0 and</span>
 <span class="sd">            65535, inclusive, (default 1).</span>
+<span class="sd">        meta_uid : pydicom.uid.UID, optional</span>
+<span class="sd">            If the service class operates under a presentation context</span>
+<span class="sd">            negotiated using a *Meta SOP Class* rather than a standard *SOP</span>
+<span class="sd">            Class* (such as with *Print Management* service class and its</span>
+<span class="sd">            *Basic Grayscale Print Management Meta SOP Class*) then this</span>
+<span class="sd">            value will be used to determine the corresponding presentation</span>
+<span class="sd">            context.</span>
 
 <span class="sd">        Returns</span>
 <span class="sd">        -------</span>
@@ -2721,7 +2743,7 @@
 
         <span class="c1"># Determine the Presentation Context we are operating under</span>
         <span class="c1">#   and hence the transfer syntax to use for encoding `dataset`</span>
-        <span class="n">context</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_get_valid_context</span><span class="p">(</span><span class="n">class_uid</span><span class="p">,</span> <span class="s1">&#39;&#39;</span><span class="p">,</span> <span class="s1">&#39;scu&#39;</span><span class="p">)</span>
+        <span class="n">context</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_get_valid_context</span><span class="p">(</span><span class="n">meta_uid</span> <span class="ow">or</span> <span class="n">class_uid</span><span class="p">,</span> <span class="s1">&#39;&#39;</span><span class="p">,</span> <span class="s1">&#39;scu&#39;</span><span class="p">)</span>
 
         <span class="c1"># Build N-DELETE request primitive</span>
         <span class="c1">#   (M) Message ID</span>
@@ -2757,7 +2779,7 @@
         <span class="k">return</span> <span class="n">status</span></div>
 
 <div class="viewcode-block" id="Association.send_n_event_report"><a class="viewcode-back" href="../../reference/generated/pynetdicom.association.Association.html#pynetdicom.association.Association.send_n_event_report">[docs]</a>    <span class="k">def</span> <span class="nf">send_n_event_report</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">dataset</span><span class="p">,</span> <span class="n">event_type</span><span class="p">,</span> <span class="n">class_uid</span><span class="p">,</span>
-                            <span class="n">instance_uid</span><span class="p">,</span> <span class="n">msg_id</span><span class="o">=</span><span class="mi">1</span><span class="p">):</span>
+                            <span class="n">instance_uid</span><span class="p">,</span> <span class="n">msg_id</span><span class="o">=</span><span class="mi">1</span><span class="p">,</span> <span class="n">meta_uid</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;Send an N-EVENT-REPORT request message to the peer AE.</span>
 
 <span class="sd">        Parameters</span>
@@ -2778,6 +2800,13 @@
 <span class="sd">        msg_id : int, optional</span>
 <span class="sd">            The request&#39;s *Message ID* parameter value, must be between 0 and</span>
 <span class="sd">            65535, inclusive, (default 1).</span>
+<span class="sd">        meta_uid : pydicom.uid.UID, optional</span>
+<span class="sd">            If the service class operates under a presentation context</span>
+<span class="sd">            negotiated using a *Meta SOP Class* rather than a standard *SOP</span>
+<span class="sd">            Class* (such as with *Print Management* service class and its</span>
+<span class="sd">            *Basic Grayscale Print Management Meta SOP Class*) then this</span>
+<span class="sd">            value will be used to determine the corresponding presentation</span>
+<span class="sd">            context.</span>
 
 <span class="sd">        Returns</span>
 <span class="sd">        -------</span>
@@ -2839,8 +2868,7 @@
 
         <span class="c1"># Determine the Presentation Context we are operating under</span>
         <span class="c1">#   and hence the transfer syntax to use for encoding `dataset`</span>
-        <span class="n">transfer_syntax</span> <span class="o">=</span> <span class="kc">None</span>
-        <span class="n">context</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_get_valid_context</span><span class="p">(</span><span class="n">class_uid</span><span class="p">,</span> <span class="s1">&#39;&#39;</span><span class="p">,</span> <span class="s1">&#39;scu&#39;</span><span class="p">)</span>
+        <span class="n">context</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_get_valid_context</span><span class="p">(</span><span class="n">meta_uid</span> <span class="ow">or</span> <span class="n">class_uid</span><span class="p">,</span> <span class="s1">&#39;&#39;</span><span class="p">,</span> <span class="s1">&#39;scu&#39;</span><span class="p">)</span>
 
         <span class="c1"># Build N-EVENT-REPORT request primitive</span>
         <span class="c1">#   (M) Message ID</span>
@@ -2919,7 +2947,8 @@
 
         <span class="k">return</span> <span class="n">status</span><span class="p">,</span> <span class="n">event_reply</span></div>
 
-<div class="viewcode-block" id="Association.send_n_get"><a class="viewcode-back" href="../../reference/generated/pynetdicom.association.Association.html#pynetdicom.association.Association.send_n_get">[docs]</a>    <span class="k">def</span> <span class="nf">send_n_get</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">identifier_list</span><span class="p">,</span> <span class="n">class_uid</span><span class="p">,</span> <span class="n">instance_uid</span><span class="p">,</span> <span class="n">msg_id</span><span class="o">=</span><span class="mi">1</span><span class="p">):</span>
+<div class="viewcode-block" id="Association.send_n_get"><a class="viewcode-back" href="../../reference/generated/pynetdicom.association.Association.html#pynetdicom.association.Association.send_n_get">[docs]</a>    <span class="k">def</span> <span class="nf">send_n_get</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">identifier_list</span><span class="p">,</span> <span class="n">class_uid</span><span class="p">,</span> <span class="n">instance_uid</span><span class="p">,</span> <span class="n">msg_id</span><span class="o">=</span><span class="mi">1</span><span class="p">,</span>
+                   <span class="n">meta_uid</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;Send an N-GET request message to the peer AE.</span>
 
 <span class="sd">        Parameters</span>
@@ -2938,6 +2967,13 @@
 <span class="sd">        msg_id : int, optional</span>
 <span class="sd">            The request&#39;s *Message ID* parameter value, must be between 0 and</span>
 <span class="sd">            65535, inclusive, (default 1).</span>
+<span class="sd">        meta_uid : pydicom.uid.UID, optional</span>
+<span class="sd">            If the service class operates under a presentation context</span>
+<span class="sd">            negotiated using a *Meta SOP Class* rather than a standard *SOP</span>
+<span class="sd">            Class* (such as with *Print Management* service class and its</span>
+<span class="sd">            *Basic Grayscale Print Management Meta SOP Class*) then this</span>
+<span class="sd">            value will be used to determine the corresponding presentation</span>
+<span class="sd">            context.</span>
 
 <span class="sd">        Returns</span>
 <span class="sd">        -------</span>
@@ -3026,7 +3062,7 @@
 
         <span class="c1"># Determine the Presentation Context we are operating under</span>
         <span class="c1">#   and hence the transfer syntax to use for encoding `dataset`</span>
-        <span class="n">context</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_get_valid_context</span><span class="p">(</span><span class="n">class_uid</span><span class="p">,</span> <span class="s1">&#39;&#39;</span><span class="p">,</span> <span class="s1">&#39;scu&#39;</span><span class="p">)</span>
+        <span class="n">context</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_get_valid_context</span><span class="p">(</span><span class="n">meta_uid</span> <span class="ow">or</span> <span class="n">class_uid</span><span class="p">,</span> <span class="s1">&#39;&#39;</span><span class="p">,</span> <span class="s1">&#39;scu&#39;</span><span class="p">)</span>
         <span class="n">transfer_syntax</span> <span class="o">=</span> <span class="n">context</span><span class="o">.</span><span class="n">transfer_syntax</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span>
 
         <span class="c1"># Build N-GET request primitive</span>
@@ -3089,7 +3125,8 @@
 
         <span class="k">return</span> <span class="n">status</span><span class="p">,</span> <span class="n">attribute_list</span></div>
 
-<div class="viewcode-block" id="Association.send_n_set"><a class="viewcode-back" href="../../reference/generated/pynetdicom.association.Association.html#pynetdicom.association.Association.send_n_set">[docs]</a>    <span class="k">def</span> <span class="nf">send_n_set</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">dataset</span><span class="p">,</span> <span class="n">class_uid</span><span class="p">,</span> <span class="n">instance_uid</span><span class="p">,</span> <span class="n">msg_id</span><span class="o">=</span><span class="mi">1</span><span class="p">):</span>
+<div class="viewcode-block" id="Association.send_n_set"><a class="viewcode-back" href="../../reference/generated/pynetdicom.association.Association.html#pynetdicom.association.Association.send_n_set">[docs]</a>    <span class="k">def</span> <span class="nf">send_n_set</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">dataset</span><span class="p">,</span> <span class="n">class_uid</span><span class="p">,</span> <span class="n">instance_uid</span><span class="p">,</span> <span class="n">msg_id</span><span class="o">=</span><span class="mi">1</span><span class="p">,</span>
+                   <span class="n">meta_uid</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;Send an N-SET request message to the peer AE.</span>
 
 <span class="sd">        Parameters</span>
@@ -3106,6 +3143,13 @@
 <span class="sd">        msg_id : int, optional</span>
 <span class="sd">            The request&#39;s *Message ID* parameter value, must be between 0 and</span>
 <span class="sd">            65535, inclusive, (default 1).</span>
+<span class="sd">        meta_uid : pydicom.uid.UID, optional</span>
+<span class="sd">            If the service class operates under a presentation context</span>
+<span class="sd">            negotiated using a *Meta SOP Class* rather than a standard *SOP</span>
+<span class="sd">            Class* (such as with *Print Management* service class and its</span>
+<span class="sd">            *Basic Grayscale Print Management Meta SOP Class*) then this</span>
+<span class="sd">            value will be used to determine the corresponding presentation</span>
+<span class="sd">            context.</span>
 
 <span class="sd">        Returns</span>
 <span class="sd">        -------</span>
@@ -3223,7 +3267,7 @@
 
         <span class="c1"># Determine the Presentation Context we are operating under</span>
         <span class="c1">#   and hence the transfer syntax to use for encoding `dataset`</span>
-        <span class="n">context</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_get_valid_context</span><span class="p">(</span><span class="n">class_uid</span><span class="p">,</span> <span class="s1">&#39;&#39;</span><span class="p">,</span> <span class="s1">&#39;scu&#39;</span><span class="p">)</span>
+        <span class="n">context</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_get_valid_context</span><span class="p">(</span><span class="n">meta_uid</span> <span class="ow">or</span> <span class="n">class_uid</span><span class="p">,</span> <span class="s1">&#39;&#39;</span><span class="p">,</span> <span class="s1">&#39;scu&#39;</span><span class="p">)</span>
         <span class="n">transfer_syntax</span> <span class="o">=</span> <span class="n">context</span><span class="o">.</span><span class="n">transfer_syntax</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span>
 
         <span class="c1"># Build N-SET request primitive</span>

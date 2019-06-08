@@ -181,9 +181,9 @@
 <h1>pynetdicom.dimse_primitives.N_GET<a class="headerlink" href="#pynetdicom-dimse-primitives-n-get" title="Permalink to this headline">¶</a></h1>
 <dl class="class">
 <dt id="pynetdicom.dimse_primitives.N_GET">
-<em class="property">class </em><code class="descclassname">pynetdicom.dimse_primitives.</code><code class="descname">N_GET</code><a class="reference internal" href="../../_modules/pynetdicom/dimse_primitives.html#N_GET"><span class="viewcode-link">[source]</span></a><a class="reference external" href="https://github.com/pydicom/pynetdicom/blob/46f9a099/pynetdicom/dimse_primitives.py#L1282"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pynetdicom.dimse_primitives.N_GET" title="Permalink to this definition">¶</a></dt>
+<em class="property">class </em><code class="sig-prename descclassname">pynetdicom.dimse_primitives.</code><code class="sig-name descname">N_GET</code><a class="reference internal" href="../../_modules/pynetdicom/dimse_primitives.html#N_GET"><span class="viewcode-link">[source]</span></a><a class="reference external" href="https://github.com/pydicom/pynetdicom/blob/6c99d572/pynetdicom/dimse_primitives.py#L1282"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pynetdicom.dimse_primitives.N_GET" title="Permalink to this definition">¶</a></dt>
 <dd><p>Represents an N-GET primitive.</p>
-<table class="docutils align-center">
+<table class="docutils align-default">
 <colgroup>
 <col style="width: 69%" />
 <col style="width: 15%" />
@@ -245,7 +245,7 @@ in the column to the left</div>
 </div>
 <dl class="attribute">
 <dt id="pynetdicom.dimse_primitives.N_GET.MessageID">
-<code class="descname">MessageID</code><a class="headerlink" href="#pynetdicom.dimse_primitives.N_GET.MessageID" title="Permalink to this definition">¶</a></dt>
+<code class="sig-name descname">MessageID</code><a class="headerlink" href="#pynetdicom.dimse_primitives.N_GET.MessageID" title="Permalink to this definition">¶</a></dt>
 <dd><p>Identifies the operation and is used to distinguish this
 operation from other notifications or operations that may be in
 progress. No two identical values for the Message ID shall be used for
@@ -259,7 +259,7 @@ outstanding operations.</p>
 
 <dl class="attribute">
 <dt id="pynetdicom.dimse_primitives.N_GET.MessageIDBeingRespondedTo">
-<code class="descname">MessageIDBeingRespondedTo</code><a class="headerlink" href="#pynetdicom.dimse_primitives.N_GET.MessageIDBeingRespondedTo" title="Permalink to this definition">¶</a></dt>
+<code class="sig-name descname">MessageIDBeingRespondedTo</code><a class="headerlink" href="#pynetdicom.dimse_primitives.N_GET.MessageIDBeingRespondedTo" title="Permalink to this definition">¶</a></dt>
 <dd><p>The Message ID of the operation request/indication to which this
 response/confirmation applies.</p>
 <dl class="field-list simple">
@@ -271,7 +271,7 @@ response/confirmation applies.</p>
 
 <dl class="attribute">
 <dt id="pynetdicom.dimse_primitives.N_GET.RequestedSOPClassUID">
-<code class="descname">RequestedSOPClassUID</code><a class="headerlink" href="#pynetdicom.dimse_primitives.N_GET.RequestedSOPClassUID" title="Permalink to this definition">¶</a></dt>
+<code class="sig-name descname">RequestedSOPClassUID</code><a class="headerlink" href="#pynetdicom.dimse_primitives.N_GET.RequestedSOPClassUID" title="Permalink to this definition">¶</a></dt>
 <dd><p>The UID of the SOP Class for which attribute values are to be
 retrieved.</p>
 <dl class="field-list simple">
@@ -283,7 +283,7 @@ retrieved.</p>
 
 <dl class="attribute">
 <dt id="pynetdicom.dimse_primitives.N_GET.RequestedSOPInstanceUID">
-<code class="descname">RequestedSOPInstanceUID</code><a class="headerlink" href="#pynetdicom.dimse_primitives.N_GET.RequestedSOPInstanceUID" title="Permalink to this definition">¶</a></dt>
+<code class="sig-name descname">RequestedSOPInstanceUID</code><a class="headerlink" href="#pynetdicom.dimse_primitives.N_GET.RequestedSOPInstanceUID" title="Permalink to this definition">¶</a></dt>
 <dd><p>The SOP Instance for which attribute values are to be retrieved.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Type</dt>
@@ -294,7 +294,7 @@ retrieved.</p>
 
 <dl class="attribute">
 <dt id="pynetdicom.dimse_primitives.N_GET.AttributeIdentifierList">
-<code class="descname">AttributeIdentifierList</code><a class="headerlink" href="#pynetdicom.dimse_primitives.N_GET.AttributeIdentifierList" title="Permalink to this definition">¶</a></dt>
+<code class="sig-name descname">AttributeIdentifierList</code><a class="headerlink" href="#pynetdicom.dimse_primitives.N_GET.AttributeIdentifierList" title="Permalink to this definition">¶</a></dt>
 <dd><p>A list of attribute tags to be sent to the peer.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Type</dt>
@@ -305,7 +305,7 @@ retrieved.</p>
 
 <dl class="attribute">
 <dt id="pynetdicom.dimse_primitives.N_GET.AffectedSOPClassUID">
-<code class="descname">AffectedSOPClassUID</code><a class="headerlink" href="#pynetdicom.dimse_primitives.N_GET.AffectedSOPClassUID" title="Permalink to this definition">¶</a></dt>
+<code class="sig-name descname">AffectedSOPClassUID</code><a class="headerlink" href="#pynetdicom.dimse_primitives.N_GET.AffectedSOPClassUID" title="Permalink to this definition">¶</a></dt>
 <dd><p>The SOP Class UID of the SOP Instance for which the attributes were
 retrieved.</p>
 <dl class="field-list simple">
@@ -317,7 +317,7 @@ retrieved.</p>
 
 <dl class="attribute">
 <dt id="pynetdicom.dimse_primitives.N_GET.AffectedSOPInstanceUID">
-<code class="descname">AffectedSOPInstanceUID</code><a class="headerlink" href="#pynetdicom.dimse_primitives.N_GET.AffectedSOPInstanceUID" title="Permalink to this definition">¶</a></dt>
+<code class="sig-name descname">AffectedSOPInstanceUID</code><a class="headerlink" href="#pynetdicom.dimse_primitives.N_GET.AffectedSOPInstanceUID" title="Permalink to this definition">¶</a></dt>
 <dd><p>The SOP Instance UID of the SOP Instance for which the attributes were
 retrieved.</p>
 <dl class="field-list simple">
@@ -329,7 +329,7 @@ retrieved.</p>
 
 <dl class="attribute">
 <dt id="pynetdicom.dimse_primitives.N_GET.AttributeList">
-<code class="descname">AttributeList</code><a class="headerlink" href="#pynetdicom.dimse_primitives.N_GET.AttributeList" title="Permalink to this definition">¶</a></dt>
+<code class="sig-name descname">AttributeList</code><a class="headerlink" href="#pynetdicom.dimse_primitives.N_GET.AttributeList" title="Permalink to this definition">¶</a></dt>
 <dd><p>A DICOM dataset containing elements matching those supplied in
 Attribute Identifier List.</p>
 <dl class="field-list simple">
@@ -341,7 +341,7 @@ Attribute Identifier List.</p>
 
 <dl class="attribute">
 <dt id="pynetdicom.dimse_primitives.N_GET.Status">
-<code class="descname">Status</code><a class="headerlink" href="#pynetdicom.dimse_primitives.N_GET.Status" title="Permalink to this definition">¶</a></dt>
+<code class="sig-name descname">Status</code><a class="headerlink" href="#pynetdicom.dimse_primitives.N_GET.Status" title="Permalink to this definition">¶</a></dt>
 <dd><p>The error or success notification of the operation.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Type</dt>
@@ -352,12 +352,12 @@ Attribute Identifier List.</p>
 
 <dl class="method">
 <dt id="pynetdicom.dimse_primitives.N_GET.__init__">
-<code class="descname">__init__</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="../../_modules/pynetdicom/dimse_primitives.html#N_GET.__init__"><span class="viewcode-link">[source]</span></a><a class="reference external" href="https://github.com/pydicom/pynetdicom/blob/46f9a099/pynetdicom/dimse_primitives.py#L1349"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pynetdicom.dimse_primitives.N_GET.__init__" title="Permalink to this definition">¶</a></dt>
+<code class="sig-name descname">__init__</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="../../_modules/pynetdicom/dimse_primitives.html#N_GET.__init__"><span class="viewcode-link">[source]</span></a><a class="reference external" href="https://github.com/pydicom/pynetdicom/blob/6c99d572/pynetdicom/dimse_primitives.py#L1349"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pynetdicom.dimse_primitives.N_GET.__init__" title="Permalink to this definition">¶</a></dt>
 <dd><p>Initialize self.  See help(type(self)) for accurate signature.</p>
 </dd></dl>
 
 <p class="rubric">Methods</p>
-<table class="longtable docutils align-center">
+<table class="longtable docutils align-default">
 <colgroup>
 <col style="width: 10%" />
 <col style="width: 90%" />
@@ -369,7 +369,7 @@ Attribute Identifier List.</p>
 </tbody>
 </table>
 <p class="rubric">Attributes</p>
-<table class="longtable docutils align-center">
+<table class="longtable docutils align-default">
 <colgroup>
 <col style="width: 10%" />
 <col style="width: 90%" />
@@ -419,69 +419,69 @@ Attribute Identifier List.</p>
 </tr>
 </tbody>
 </table>
-<dl class="attribute">
+<dl class="method">
 <dt>
-<code class="descname">AffectedSOPClassUID</code></dt>
+<em class="property">property </em><code class="sig-name descname">AffectedSOPClassUID</code></dt>
 <dd><p>Return the <em>Affected SOP Class UID</em>.</p>
 </dd></dl>
 
-<dl class="attribute">
+<dl class="method">
 <dt>
-<code class="descname">AffectedSOPInstanceUID</code></dt>
+<em class="property">property </em><code class="sig-name descname">AffectedSOPInstanceUID</code></dt>
 <dd><p>Return the <em>Affected SOP Instance UID</em>.</p>
 </dd></dl>
 
-<dl class="attribute">
+<dl class="method">
 <dt>
-<code class="descname">AttributeIdentifierList</code></dt>
+<em class="property">property </em><code class="sig-name descname">AttributeIdentifierList</code></dt>
 <dd><p>Return the value of (0000,1005) <em>Attribute Identifier List</em>.</p>
 </dd></dl>
 
-<dl class="attribute">
+<dl class="method">
 <dt>
-<code class="descname">AttributeList</code></dt>
+<em class="property">property </em><code class="sig-name descname">AttributeList</code></dt>
 <dd><p>Return the <em>Attribute List</em>.</p>
 </dd></dl>
 
-<dl class="attribute">
+<dl class="method">
 <dt>
-<code class="descname">MessageID</code></dt>
+<em class="property">property </em><code class="sig-name descname">MessageID</code></dt>
 <dd><p>Return the DIMSE <em>Message ID</em>.</p>
 </dd></dl>
 
-<dl class="attribute">
+<dl class="method">
 <dt>
-<code class="descname">MessageIDBeingRespondedTo</code></dt>
+<em class="property">property </em><code class="sig-name descname">MessageIDBeingRespondedTo</code></dt>
 <dd><p>Return the <em>Message ID Being Responded To</em>.</p>
 </dd></dl>
 
-<dl class="attribute">
+<dl class="method">
 <dt>
-<code class="descname">RequestedSOPClassUID</code></dt>
+<em class="property">property </em><code class="sig-name descname">RequestedSOPClassUID</code></dt>
 <dd><p>Return the <em>Requested SOP Class UID</em>.</p>
 </dd></dl>
 
-<dl class="attribute">
+<dl class="method">
 <dt>
-<code class="descname">RequestedSOPInstanceUID</code></dt>
+<em class="property">property </em><code class="sig-name descname">RequestedSOPInstanceUID</code></dt>
 <dd><p>Return the <em>Requested SOP Instance UID</em>.</p>
 </dd></dl>
 
-<dl class="attribute">
+<dl class="method">
 <dt>
-<code class="descname">Status</code></dt>
+<em class="property">property </em><code class="sig-name descname">Status</code></dt>
 <dd><p>Return the <em>Status</em>.</p>
 </dd></dl>
 
-<dl class="attribute">
+<dl class="method">
 <dt id="pynetdicom.dimse_primitives.N_GET.is_valid_request">
-<code class="descname">is_valid_request</code><a class="headerlink" href="#pynetdicom.dimse_primitives.N_GET.is_valid_request" title="Permalink to this definition">¶</a></dt>
+<em class="property">property </em><code class="sig-name descname">is_valid_request</code><a class="headerlink" href="#pynetdicom.dimse_primitives.N_GET.is_valid_request" title="Permalink to this definition">¶</a></dt>
 <dd><p>Return True if the request is valid, False otherwise.</p>
 </dd></dl>
 
-<dl class="attribute">
+<dl class="method">
 <dt id="pynetdicom.dimse_primitives.N_GET.is_valid_response">
-<code class="descname">is_valid_response</code><a class="headerlink" href="#pynetdicom.dimse_primitives.N_GET.is_valid_response" title="Permalink to this definition">¶</a></dt>
+<em class="property">property </em><code class="sig-name descname">is_valid_response</code><a class="headerlink" href="#pynetdicom.dimse_primitives.N_GET.is_valid_response" title="Permalink to this definition">¶</a></dt>
 <dd><p>Return True if the response is valid, False otherwise.</p>
 </dd></dl>
 

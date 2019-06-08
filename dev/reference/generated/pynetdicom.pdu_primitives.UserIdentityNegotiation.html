@@ -181,7 +181,7 @@
 <h1>pynetdicom.pdu_primitives.UserIdentityNegotiation<a class="headerlink" href="#pynetdicom-pdu-primitives-useridentitynegotiation" title="Permalink to this headline">¶</a></h1>
 <dl class="class">
 <dt id="pynetdicom.pdu_primitives.UserIdentityNegotiation">
-<em class="property">class </em><code class="descclassname">pynetdicom.pdu_primitives.</code><code class="descname">UserIdentityNegotiation</code><a class="reference internal" href="../../_modules/pynetdicom/pdu_primitives.html#UserIdentityNegotiation"><span class="viewcode-link">[source]</span></a><a class="reference external" href="https://github.com/pydicom/pynetdicom/blob/46f9a099/pynetdicom/pdu_primitives.py#L2117"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pynetdicom.pdu_primitives.UserIdentityNegotiation" title="Permalink to this definition">¶</a></dt>
+<em class="property">class </em><code class="sig-prename descclassname">pynetdicom.pdu_primitives.</code><code class="sig-name descname">UserIdentityNegotiation</code><a class="reference internal" href="../../_modules/pynetdicom/pdu_primitives.html#UserIdentityNegotiation"><span class="viewcode-link">[source]</span></a><a class="reference external" href="https://github.com/pydicom/pynetdicom/blob/6c99d572/pynetdicom/pdu_primitives.py#L2117"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pynetdicom.pdu_primitives.UserIdentityNegotiation" title="Permalink to this definition">¶</a></dt>
 <dd><p>Representation of the User Identity Negotiation primitive.</p>
 <p>Allows peer AEs to exchange generic application information.</p>
 <p>The SOP Class Common Extended Negotiation is optional and there may only be
@@ -207,7 +207,7 @@ Identity Negotiation request is to be issued (although this depends on
 whether or not this is supported by the Acceptor).</p>
 <dl class="attribute">
 <dt id="pynetdicom.pdu_primitives.UserIdentityNegotiation.user_identity_type">
-<code class="descname">user_identity_type</code><a class="headerlink" href="#pynetdicom.pdu_primitives.UserIdentityNegotiation.user_identity_type" title="Permalink to this definition">¶</a></dt>
+<code class="sig-name descname">user_identity_type</code><a class="headerlink" href="#pynetdicom.pdu_primitives.UserIdentityNegotiation.user_identity_type" title="Permalink to this definition">¶</a></dt>
 <dd><p>A-ASSOCIATE-RQ only. One of the following values:</p>
 <ul class="simple">
 <li><p>1 - Username as string in UTF-8</p></li>
@@ -225,7 +225,7 @@ whether or not this is supported by the Acceptor).</p>
 
 <dl class="attribute">
 <dt id="pynetdicom.pdu_primitives.UserIdentityNegotiation.positive_response_requested">
-<code class="descname">positive_response_requested</code><a class="headerlink" href="#pynetdicom.pdu_primitives.UserIdentityNegotiation.positive_response_requested" title="Permalink to this definition">¶</a></dt>
+<code class="sig-name descname">positive_response_requested</code><a class="headerlink" href="#pynetdicom.pdu_primitives.UserIdentityNegotiation.positive_response_requested" title="Permalink to this definition">¶</a></dt>
 <dd><p>A-ASSOCIATE-RQ only. True when requesting a response, False otherwise
 (default is False)</p>
 <dl class="field-list simple">
@@ -237,7 +237,7 @@ whether or not this is supported by the Acceptor).</p>
 
 <dl class="attribute">
 <dt id="pynetdicom.pdu_primitives.UserIdentityNegotiation.primary_field">
-<code class="descname">primary_field</code><a class="headerlink" href="#pynetdicom.pdu_primitives.UserIdentityNegotiation.primary_field" title="Permalink to this definition">¶</a></dt>
+<code class="sig-name descname">primary_field</code><a class="headerlink" href="#pynetdicom.pdu_primitives.UserIdentityNegotiation.primary_field" title="Permalink to this definition">¶</a></dt>
 <dd><p>A-ASSOCIATE-RQ only. Contains either the username, Kerberos Service
 ticket or SAML assertion depending on <cite>user_identity_type</cite>.</p>
 <dl class="field-list simple">
@@ -249,7 +249,7 @@ ticket or SAML assertion depending on <cite>user_identity_type</cite>.</p>
 
 <dl class="attribute">
 <dt id="pynetdicom.pdu_primitives.UserIdentityNegotiation.secondary_field">
-<code class="descname">secondary_field</code><a class="headerlink" href="#pynetdicom.pdu_primitives.UserIdentityNegotiation.secondary_field" title="Permalink to this definition">¶</a></dt>
+<code class="sig-name descname">secondary_field</code><a class="headerlink" href="#pynetdicom.pdu_primitives.UserIdentityNegotiation.secondary_field" title="Permalink to this definition">¶</a></dt>
 <dd><p>A-ASSOCIATE-RQ only. Only required if the <cite>user_identity_type</cite> is 2,
 when it should contain the passcode as a bytes object, None otherwise</p>
 <dl class="field-list simple">
@@ -261,7 +261,7 @@ when it should contain the passcode as a bytes object, None otherwise</p>
 
 <dl class="attribute">
 <dt id="pynetdicom.pdu_primitives.UserIdentityNegotiation.server_response">
-<code class="descname">server_response</code><a class="headerlink" href="#pynetdicom.pdu_primitives.UserIdentityNegotiation.server_response" title="Permalink to this definition">¶</a></dt>
+<code class="sig-name descname">server_response</code><a class="headerlink" href="#pynetdicom.pdu_primitives.UserIdentityNegotiation.server_response" title="Permalink to this definition">¶</a></dt>
 <dd><p>A-ASSOCIATE-AC only. Shall contain the Kerberos Service ticket or SAML
 response if the <cite>user_identity_type</cite> in the Request was 3 or 4. Shall</p>
 <blockquote>
@@ -289,12 +289,12 @@ response if the <cite>user_identity_type</cite> in the Request was 3 or 4. Shall
 </ul>
 <dl class="method">
 <dt id="pynetdicom.pdu_primitives.UserIdentityNegotiation.__init__">
-<code class="descname">__init__</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="../../_modules/pynetdicom/pdu_primitives.html#UserIdentityNegotiation.__init__"><span class="viewcode-link">[source]</span></a><a class="reference external" href="https://github.com/pydicom/pynetdicom/blob/46f9a099/pynetdicom/pdu_primitives.py#L2188"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pynetdicom.pdu_primitives.UserIdentityNegotiation.__init__" title="Permalink to this definition">¶</a></dt>
+<code class="sig-name descname">__init__</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="../../_modules/pynetdicom/pdu_primitives.html#UserIdentityNegotiation.__init__"><span class="viewcode-link">[source]</span></a><a class="reference external" href="https://github.com/pydicom/pynetdicom/blob/6c99d572/pynetdicom/pdu_primitives.py#L2188"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pynetdicom.pdu_primitives.UserIdentityNegotiation.__init__" title="Permalink to this definition">¶</a></dt>
 <dd><p>Initialize self.  See help(type(self)) for accurate signature.</p>
 </dd></dl>
 
 <p class="rubric">Methods</p>
-<table class="longtable docutils align-center">
+<table class="longtable docutils align-default">
 <colgroup>
 <col style="width: 10%" />
 <col style="width: 90%" />
@@ -309,7 +309,7 @@ response if the <cite>user_identity_type</cite> in the Request was 3 or 4. Shall
 </tbody>
 </table>
 <p class="rubric">Attributes</p>
-<table class="longtable docutils align-center">
+<table class="longtable docutils align-default">
 <colgroup>
 <col style="width: 10%" />
 <col style="width: 90%" />
@@ -334,7 +334,7 @@ response if the <cite>user_identity_type</cite> in the Request was 3 or 4. Shall
 </table>
 <dl class="method">
 <dt id="pynetdicom.pdu_primitives.UserIdentityNegotiation.from_primitive">
-<code class="descname">from_primitive</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="../../_modules/pynetdicom/pdu_primitives.html#UserIdentityNegotiation.from_primitive"><span class="viewcode-link">[source]</span></a><a class="reference external" href="https://github.com/pydicom/pynetdicom/blob/46f9a099/pynetdicom/pdu_primitives.py#L2195"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pynetdicom.pdu_primitives.UserIdentityNegotiation.from_primitive" title="Permalink to this definition">¶</a></dt>
+<code class="sig-name descname">from_primitive</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="../../_modules/pynetdicom/pdu_primitives.html#UserIdentityNegotiation.from_primitive"><span class="viewcode-link">[source]</span></a><a class="reference external" href="https://github.com/pydicom/pynetdicom/blob/6c99d572/pynetdicom/pdu_primitives.py#L2195"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pynetdicom.pdu_primitives.UserIdentityNegotiation.from_primitive" title="Permalink to this definition">¶</a></dt>
 <dd><p>Convert the primitive to a PDU item ready to be encoded.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Returns</dt>
@@ -354,33 +354,33 @@ response if the <cite>user_identity_type</cite> in the Request was 3 or 4. Shall
 </dl>
 </dd></dl>
 
-<dl class="attribute">
+<dl class="method">
 <dt>
-<code class="descname">positive_response_requested</code></dt>
+<em class="property">property </em><code class="sig-name descname">positive_response_requested</code></dt>
 <dd><p>Return <em>Positive Response Requested</em>.</p>
 </dd></dl>
 
-<dl class="attribute">
+<dl class="method">
 <dt>
-<code class="descname">primary_field</code></dt>
+<em class="property">property </em><code class="sig-name descname">primary_field</code></dt>
 <dd><p>Return <em>Primary Field</em>.</p>
 </dd></dl>
 
-<dl class="attribute">
+<dl class="method">
 <dt>
-<code class="descname">secondary_field</code></dt>
+<em class="property">property </em><code class="sig-name descname">secondary_field</code></dt>
 <dd><p>Return the <em>Secondary Field</em>.</p>
 </dd></dl>
 
-<dl class="attribute">
+<dl class="method">
 <dt>
-<code class="descname">server_response</code></dt>
+<em class="property">property </em><code class="sig-name descname">server_response</code></dt>
 <dd><p>Return the <em>Server Response</em>.</p>
 </dd></dl>
 
-<dl class="attribute">
+<dl class="method">
 <dt>
-<code class="descname">user_identity_type</code></dt>
+<em class="property">property </em><code class="sig-name descname">user_identity_type</code></dt>
 <dd><p>Return the <em>User Identity Type</em>.</p>
 </dd></dl>
 

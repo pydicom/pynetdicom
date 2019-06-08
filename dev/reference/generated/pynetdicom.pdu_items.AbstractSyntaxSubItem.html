@@ -181,7 +181,7 @@
 <h1>pynetdicom.pdu_items.AbstractSyntaxSubItem<a class="headerlink" href="#pynetdicom-pdu-items-abstractsyntaxsubitem" title="Permalink to this headline">¶</a></h1>
 <dl class="class">
 <dt id="pynetdicom.pdu_items.AbstractSyntaxSubItem">
-<em class="property">class </em><code class="descclassname">pynetdicom.pdu_items.</code><code class="descname">AbstractSyntaxSubItem</code><a class="reference internal" href="../../_modules/pynetdicom/pdu_items.html#AbstractSyntaxSubItem"><span class="viewcode-link">[source]</span></a><a class="reference external" href="https://github.com/pydicom/pynetdicom/blob/46f9a099/pynetdicom/pdu_items.py#L1270"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pynetdicom.pdu_items.AbstractSyntaxSubItem" title="Permalink to this definition">¶</a></dt>
+<em class="property">class </em><code class="sig-prename descclassname">pynetdicom.pdu_items.</code><code class="sig-name descname">AbstractSyntaxSubItem</code><a class="reference internal" href="../../_modules/pynetdicom/pdu_items.html#AbstractSyntaxSubItem"><span class="viewcode-link">[source]</span></a><a class="reference external" href="https://github.com/pydicom/pynetdicom/blob/6c99d572/pynetdicom/pdu_items.py#L1270"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pynetdicom.pdu_items.AbstractSyntaxSubItem" title="Permalink to this definition">¶</a></dt>
 <dd><p>An Abstract Syntax Sub-item.</p>
 <p>An Abstract Syntax is the specification of data elements with associated
 semantics. In particular it allows communicating Application Entities to
@@ -189,7 +189,7 @@ negotiate an agreed set of DICOM Data Elements and/or Information Object
 Class definitions <a class="footnote-reference brackets" href="#id6" id="id1">1</a>.</p>
 <dl class="attribute">
 <dt id="pynetdicom.pdu_items.AbstractSyntaxSubItem.abstract_syntax_name">
-<code class="descname">abstract_syntax_name</code><a class="headerlink" href="#pynetdicom.pdu_items.AbstractSyntaxSubItem.abstract_syntax_name" title="Permalink to this definition">¶</a></dt>
+<code class="sig-name descname">abstract_syntax_name</code><a class="headerlink" href="#pynetdicom.pdu_items.AbstractSyntaxSubItem.abstract_syntax_name" title="Permalink to this definition">¶</a></dt>
 <dd><p>The <em>Abstract Syntax Name</em> field value.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Type</dt>
@@ -200,7 +200,7 @@ Class definitions <a class="footnote-reference brackets" href="#id6" id="id1">1<
 
 <dl class="attribute">
 <dt id="pynetdicom.pdu_items.AbstractSyntaxSubItem.item_length">
-<code class="descname">item_length</code><a class="headerlink" href="#pynetdicom.pdu_items.AbstractSyntaxSubItem.item_length" title="Permalink to this definition">¶</a></dt>
+<code class="sig-name descname">item_length</code><a class="headerlink" href="#pynetdicom.pdu_items.AbstractSyntaxSubItem.item_length" title="Permalink to this definition">¶</a></dt>
 <dd><p>The number of bytes from the first byte following the <em>Item Length</em>
 field to the last byte of the Item.</p>
 <dl class="field-list simple">
@@ -212,7 +212,7 @@ field to the last byte of the Item.</p>
 
 <dl class="attribute">
 <dt id="pynetdicom.pdu_items.AbstractSyntaxSubItem.item_type">
-<code class="descname">item_type</code><a class="headerlink" href="#pynetdicom.pdu_items.AbstractSyntaxSubItem.item_type" title="Permalink to this definition">¶</a></dt>
+<code class="sig-name descname">item_type</code><a class="headerlink" href="#pynetdicom.pdu_items.AbstractSyntaxSubItem.item_type" title="Permalink to this definition">¶</a></dt>
 <dd><p>The <em>Item Type</em> field value (0x30).</p>
 <dl class="field-list simple">
 <dt class="field-odd">Type</dt>
@@ -243,7 +243,7 @@ digit of the last component.</p>
 taken from Table 9-14 <a class="footnote-reference brackets" href="#id9" id="id4">4</a> (offsets shown with Python indexing). Items are
 always encoded using Big Endian <a class="footnote-reference brackets" href="#id10" id="id5">5</a>. Encoding of the Abstract Syntax Name
 parameter follows the rules in Part 8, Annex F.</p>
-<table class="docutils align-center">
+<table class="docutils align-default">
 <colgroup>
 <col style="width: 14%" />
 <col style="width: 23%" />
@@ -298,12 +298,12 @@ parameter follows the rules in Part 8, Annex F.</p>
 </dl>
 <dl class="method">
 <dt id="pynetdicom.pdu_items.AbstractSyntaxSubItem.__init__">
-<code class="descname">__init__</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="../../_modules/pynetdicom/pdu_items.html#AbstractSyntaxSubItem.__init__"><span class="viewcode-link">[source]</span></a><a class="reference external" href="https://github.com/pydicom/pynetdicom/blob/46f9a099/pynetdicom/pdu_items.py#L1338"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pynetdicom.pdu_items.AbstractSyntaxSubItem.__init__" title="Permalink to this definition">¶</a></dt>
+<code class="sig-name descname">__init__</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="../../_modules/pynetdicom/pdu_items.html#AbstractSyntaxSubItem.__init__"><span class="viewcode-link">[source]</span></a><a class="reference external" href="https://github.com/pydicom/pynetdicom/blob/6c99d572/pynetdicom/pdu_items.py#L1338"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pynetdicom.pdu_items.AbstractSyntaxSubItem.__init__" title="Permalink to this definition">¶</a></dt>
 <dd><p>Initialise a new Abstract Syntax Item.</p>
 </dd></dl>
 
 <p class="rubric">Methods</p>
-<table class="longtable docutils align-center">
+<table class="longtable docutils align-default">
 <colgroup>
 <col style="width: 10%" />
 <col style="width: 90%" />
@@ -321,7 +321,7 @@ parameter follows the rules in Part 8, Annex F.</p>
 </tbody>
 </table>
 <p class="rubric">Attributes</p>
-<table class="longtable docutils align-center">
+<table class="longtable docutils align-default">
 <colgroup>
 <col style="width: 10%" />
 <col style="width: 90%" />
@@ -341,21 +341,21 @@ parameter follows the rules in Part 8, Annex F.</p>
 </tr>
 </tbody>
 </table>
-<dl class="attribute">
+<dl class="method">
 <dt id="pynetdicom.pdu_items.AbstractSyntaxSubItem.abstract_syntax">
-<code class="descname">abstract_syntax</code><a class="headerlink" href="#pynetdicom.pdu_items.AbstractSyntaxSubItem.abstract_syntax" title="Permalink to this definition">¶</a></dt>
+<em class="property">property </em><code class="sig-name descname">abstract_syntax</code><a class="headerlink" href="#pynetdicom.pdu_items.AbstractSyntaxSubItem.abstract_syntax" title="Permalink to this definition">¶</a></dt>
 <dd><p>Return the item’s <em>Abstract Syntax Name</em> field value.</p>
 </dd></dl>
 
-<dl class="attribute">
+<dl class="method">
 <dt>
-<code class="descname">abstract_syntax_name</code></dt>
+<em class="property">property </em><code class="sig-name descname">abstract_syntax_name</code></dt>
 <dd><p>Return the item’s <em>Abstract Syntax Name</em> field value.</p>
 </dd></dl>
 
 <dl class="method">
 <dt id="pynetdicom.pdu_items.AbstractSyntaxSubItem.decode">
-<code class="descname">decode</code><span class="sig-paren">(</span><em>bytestream</em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/pydicom/pynetdicom/blob/46f9a099/pynetdicom/pdu_items.py#L77"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pynetdicom.pdu_items.AbstractSyntaxSubItem.decode" title="Permalink to this definition">¶</a></dt>
+<code class="sig-name descname">decode</code><span class="sig-paren">(</span><em class="sig-param">bytestream</em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/pydicom/pynetdicom/blob/6c99d572/pynetdicom/pdu_items.py#L77"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pynetdicom.pdu_items.AbstractSyntaxSubItem.decode" title="Permalink to this definition">¶</a></dt>
 <dd><p>Decode <cite>bytestream</cite> and use the result to set the field values of
 the PDU item.</p>
 <dl class="field-list simple">
@@ -367,7 +367,7 @@ the PDU item.</p>
 
 <dl class="method">
 <dt id="pynetdicom.pdu_items.AbstractSyntaxSubItem.encode">
-<code class="descname">encode</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference external" href="https://github.com/pydicom/pynetdicom/blob/46f9a099/pynetdicom/pdu_items.py#L100"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pynetdicom.pdu_items.AbstractSyntaxSubItem.encode" title="Permalink to this definition">¶</a></dt>
+<code class="sig-name descname">encode</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference external" href="https://github.com/pydicom/pynetdicom/blob/6c99d572/pynetdicom/pdu_items.py#L100"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pynetdicom.pdu_items.AbstractSyntaxSubItem.encode" title="Permalink to this definition">¶</a></dt>
 <dd><p>Return the encoded PDU as bytes.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Returns</dt>
@@ -379,15 +379,15 @@ the PDU item.</p>
 </dl>
 </dd></dl>
 
-<dl class="attribute">
+<dl class="method">
 <dt>
-<code class="descname">item_length</code></dt>
+<em class="property">property </em><code class="sig-name descname">item_length</code></dt>
 <dd><p>Return the item’s <em>Item Length</em> field value as an int.</p>
 </dd></dl>
 
-<dl class="attribute">
+<dl class="method">
 <dt>
-<code class="descname">item_type</code></dt>
+<em class="property">property </em><code class="sig-name descname">item_type</code></dt>
 <dd><p>Return the item’s <em>Item Type</em> field value as an int.</p>
 </dd></dl>
 

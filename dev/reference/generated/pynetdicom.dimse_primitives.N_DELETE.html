@@ -181,9 +181,9 @@
 <h1>pynetdicom.dimse_primitives.N_DELETE<a class="headerlink" href="#pynetdicom-dimse-primitives-n-delete" title="Permalink to this headline">¶</a></h1>
 <dl class="class">
 <dt id="pynetdicom.dimse_primitives.N_DELETE">
-<em class="property">class </em><code class="descclassname">pynetdicom.dimse_primitives.</code><code class="descname">N_DELETE</code><a class="reference internal" href="../../_modules/pynetdicom/dimse_primitives.html#N_DELETE"><span class="viewcode-link">[source]</span></a><a class="reference external" href="https://github.com/pydicom/pynetdicom/blob/46f9a099/pynetdicom/dimse_primitives.py#L2099"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pynetdicom.dimse_primitives.N_DELETE" title="Permalink to this definition">¶</a></dt>
+<em class="property">class </em><code class="sig-prename descclassname">pynetdicom.dimse_primitives.</code><code class="sig-name descname">N_DELETE</code><a class="reference internal" href="../../_modules/pynetdicom/dimse_primitives.html#N_DELETE"><span class="viewcode-link">[source]</span></a><a class="reference external" href="https://github.com/pydicom/pynetdicom/blob/6c99d572/pynetdicom/dimse_primitives.py#L2099"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pynetdicom.dimse_primitives.N_DELETE" title="Permalink to this definition">¶</a></dt>
 <dd><p>Represents a N-DELETE primitive.</p>
-<table class="docutils align-center">
+<table class="docutils align-default">
 <colgroup>
 <col style="width: 69%" />
 <col style="width: 15%" />
@@ -237,7 +237,7 @@ in the column to the left</div>
 </div>
 <dl class="attribute">
 <dt id="pynetdicom.dimse_primitives.N_DELETE.MessageID">
-<code class="descname">MessageID</code><a class="headerlink" href="#pynetdicom.dimse_primitives.N_DELETE.MessageID" title="Permalink to this definition">¶</a></dt>
+<code class="sig-name descname">MessageID</code><a class="headerlink" href="#pynetdicom.dimse_primitives.N_DELETE.MessageID" title="Permalink to this definition">¶</a></dt>
 <dd><p>Identifies the operation and is used to distinguish this
 operation from other notifications or operations that may be in
 progress. No two identical values for the Message ID shall be used for
@@ -251,7 +251,7 @@ outstanding operations.</p>
 
 <dl class="attribute">
 <dt id="pynetdicom.dimse_primitives.N_DELETE.MessageIDBeingRespondedTo">
-<code class="descname">MessageIDBeingRespondedTo</code><a class="headerlink" href="#pynetdicom.dimse_primitives.N_DELETE.MessageIDBeingRespondedTo" title="Permalink to this definition">¶</a></dt>
+<code class="sig-name descname">MessageIDBeingRespondedTo</code><a class="headerlink" href="#pynetdicom.dimse_primitives.N_DELETE.MessageIDBeingRespondedTo" title="Permalink to this definition">¶</a></dt>
 <dd><p>The Message ID of the operation request/indication to which this
 response/confirmation applies.</p>
 <dl class="field-list simple">
@@ -263,7 +263,7 @@ response/confirmation applies.</p>
 
 <dl class="attribute">
 <dt id="pynetdicom.dimse_primitives.N_DELETE.RequestedSOPClassUID">
-<code class="descname">RequestedSOPClassUID</code><a class="headerlink" href="#pynetdicom.dimse_primitives.N_DELETE.RequestedSOPClassUID" title="Permalink to this definition">¶</a></dt>
+<code class="sig-name descname">RequestedSOPClassUID</code><a class="headerlink" href="#pynetdicom.dimse_primitives.N_DELETE.RequestedSOPClassUID" title="Permalink to this definition">¶</a></dt>
 <dd><p>The UID of the SOP Class to be deleted.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Type</dt>
@@ -274,7 +274,7 @@ response/confirmation applies.</p>
 
 <dl class="attribute">
 <dt id="pynetdicom.dimse_primitives.N_DELETE.RequestedSOPInstanceUID">
-<code class="descname">RequestedSOPInstanceUID</code><a class="headerlink" href="#pynetdicom.dimse_primitives.N_DELETE.RequestedSOPInstanceUID" title="Permalink to this definition">¶</a></dt>
+<code class="sig-name descname">RequestedSOPInstanceUID</code><a class="headerlink" href="#pynetdicom.dimse_primitives.N_DELETE.RequestedSOPInstanceUID" title="Permalink to this definition">¶</a></dt>
 <dd><p>The SOP Instance to be deleted.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Type</dt>
@@ -285,7 +285,7 @@ response/confirmation applies.</p>
 
 <dl class="attribute">
 <dt id="pynetdicom.dimse_primitives.N_DELETE.AffectedSOPClassUID">
-<code class="descname">AffectedSOPClassUID</code><a class="headerlink" href="#pynetdicom.dimse_primitives.N_DELETE.AffectedSOPClassUID" title="Permalink to this definition">¶</a></dt>
+<code class="sig-name descname">AffectedSOPClassUID</code><a class="headerlink" href="#pynetdicom.dimse_primitives.N_DELETE.AffectedSOPClassUID" title="Permalink to this definition">¶</a></dt>
 <dd><p>For the request/indication this specifies the SOP Class for
 storage. If included in the response/confirmation, it shall be equal
 to the value in the request/indication</p>
@@ -298,7 +298,7 @@ to the value in the request/indication</p>
 
 <dl class="attribute">
 <dt id="pynetdicom.dimse_primitives.N_DELETE.AffectedSOPInstanceUID">
-<code class="descname">AffectedSOPInstanceUID</code><a class="headerlink" href="#pynetdicom.dimse_primitives.N_DELETE.AffectedSOPInstanceUID" title="Permalink to this definition">¶</a></dt>
+<code class="sig-name descname">AffectedSOPInstanceUID</code><a class="headerlink" href="#pynetdicom.dimse_primitives.N_DELETE.AffectedSOPInstanceUID" title="Permalink to this definition">¶</a></dt>
 <dd><p>For the request/indication this specifies the SOP Instance for
 storage. If included in the response/confirmation, it shall be equal
 to the value in the request/indication</p>
@@ -311,7 +311,7 @@ to the value in the request/indication</p>
 
 <dl class="attribute">
 <dt id="pynetdicom.dimse_primitives.N_DELETE.Status">
-<code class="descname">Status</code><a class="headerlink" href="#pynetdicom.dimse_primitives.N_DELETE.Status" title="Permalink to this definition">¶</a></dt>
+<code class="sig-name descname">Status</code><a class="headerlink" href="#pynetdicom.dimse_primitives.N_DELETE.Status" title="Permalink to this definition">¶</a></dt>
 <dd><p>The error or success notification of the operation.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Type</dt>
@@ -322,12 +322,12 @@ to the value in the request/indication</p>
 
 <dl class="method">
 <dt id="pynetdicom.dimse_primitives.N_DELETE.__init__">
-<code class="descname">__init__</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="../../_modules/pynetdicom/dimse_primitives.html#N_DELETE.__init__"><span class="viewcode-link">[source]</span></a><a class="reference external" href="https://github.com/pydicom/pynetdicom/blob/46f9a099/pynetdicom/dimse_primitives.py#L2158"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pynetdicom.dimse_primitives.N_DELETE.__init__" title="Permalink to this definition">¶</a></dt>
+<code class="sig-name descname">__init__</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="../../_modules/pynetdicom/dimse_primitives.html#N_DELETE.__init__"><span class="viewcode-link">[source]</span></a><a class="reference external" href="https://github.com/pydicom/pynetdicom/blob/6c99d572/pynetdicom/dimse_primitives.py#L2158"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pynetdicom.dimse_primitives.N_DELETE.__init__" title="Permalink to this definition">¶</a></dt>
 <dd><p>Initialize self.  See help(type(self)) for accurate signature.</p>
 </dd></dl>
 
 <p class="rubric">Methods</p>
-<table class="longtable docutils align-center">
+<table class="longtable docutils align-default">
 <colgroup>
 <col style="width: 10%" />
 <col style="width: 90%" />
@@ -339,7 +339,7 @@ to the value in the request/indication</p>
 </tbody>
 </table>
 <p class="rubric">Attributes</p>
-<table class="longtable docutils align-center">
+<table class="longtable docutils align-default">
 <colgroup>
 <col style="width: 10%" />
 <col style="width: 90%" />
@@ -383,57 +383,57 @@ to the value in the request/indication</p>
 </tr>
 </tbody>
 </table>
-<dl class="attribute">
+<dl class="method">
 <dt>
-<code class="descname">AffectedSOPClassUID</code></dt>
+<em class="property">property </em><code class="sig-name descname">AffectedSOPClassUID</code></dt>
 <dd><p>Return the <em>Affected SOP Class UID</em>.</p>
 </dd></dl>
 
-<dl class="attribute">
+<dl class="method">
 <dt>
-<code class="descname">AffectedSOPInstanceUID</code></dt>
+<em class="property">property </em><code class="sig-name descname">AffectedSOPInstanceUID</code></dt>
 <dd><p>Return the <em>Affected SOP Instance UID</em>.</p>
 </dd></dl>
 
-<dl class="attribute">
+<dl class="method">
 <dt>
-<code class="descname">MessageID</code></dt>
+<em class="property">property </em><code class="sig-name descname">MessageID</code></dt>
 <dd><p>Return the DIMSE <em>Message ID</em>.</p>
 </dd></dl>
 
-<dl class="attribute">
+<dl class="method">
 <dt>
-<code class="descname">MessageIDBeingRespondedTo</code></dt>
+<em class="property">property </em><code class="sig-name descname">MessageIDBeingRespondedTo</code></dt>
 <dd><p>Return the <em>Message ID Being Responded To</em>.</p>
 </dd></dl>
 
-<dl class="attribute">
+<dl class="method">
 <dt>
-<code class="descname">RequestedSOPClassUID</code></dt>
+<em class="property">property </em><code class="sig-name descname">RequestedSOPClassUID</code></dt>
 <dd><p>Return the <em>Requested SOP Class UID</em>.</p>
 </dd></dl>
 
-<dl class="attribute">
+<dl class="method">
 <dt>
-<code class="descname">RequestedSOPInstanceUID</code></dt>
+<em class="property">property </em><code class="sig-name descname">RequestedSOPInstanceUID</code></dt>
 <dd><p>Return the <em>Requested SOP Instance UID</em>.</p>
 </dd></dl>
 
-<dl class="attribute">
+<dl class="method">
 <dt>
-<code class="descname">Status</code></dt>
+<em class="property">property </em><code class="sig-name descname">Status</code></dt>
 <dd><p>Return the <em>Status</em>.</p>
 </dd></dl>
 
-<dl class="attribute">
+<dl class="method">
 <dt id="pynetdicom.dimse_primitives.N_DELETE.is_valid_request">
-<code class="descname">is_valid_request</code><a class="headerlink" href="#pynetdicom.dimse_primitives.N_DELETE.is_valid_request" title="Permalink to this definition">¶</a></dt>
+<em class="property">property </em><code class="sig-name descname">is_valid_request</code><a class="headerlink" href="#pynetdicom.dimse_primitives.N_DELETE.is_valid_request" title="Permalink to this definition">¶</a></dt>
 <dd><p>Return True if the request is valid, False otherwise.</p>
 </dd></dl>
 
-<dl class="attribute">
+<dl class="method">
 <dt id="pynetdicom.dimse_primitives.N_DELETE.is_valid_response">
-<code class="descname">is_valid_response</code><a class="headerlink" href="#pynetdicom.dimse_primitives.N_DELETE.is_valid_response" title="Permalink to this definition">¶</a></dt>
+<em class="property">property </em><code class="sig-name descname">is_valid_response</code><a class="headerlink" href="#pynetdicom.dimse_primitives.N_DELETE.is_valid_response" title="Permalink to this definition">¶</a></dt>
 <dd><p>Return True if the response is valid, False otherwise.</p>
 </dd></dl>
 

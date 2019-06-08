@@ -181,14 +181,14 @@
 <h1>pynetdicom.pdu_items.SOPClassExtendedNegotiationSubItem<a class="headerlink" href="#pynetdicom-pdu-items-sopclassextendednegotiationsubitem" title="Permalink to this headline">¶</a></h1>
 <dl class="class">
 <dt id="pynetdicom.pdu_items.SOPClassExtendedNegotiationSubItem">
-<em class="property">class </em><code class="descclassname">pynetdicom.pdu_items.</code><code class="descname">SOPClassExtendedNegotiationSubItem</code><a class="reference internal" href="../../_modules/pynetdicom/pdu_items.html#SOPClassExtendedNegotiationSubItem"><span class="viewcode-link">[source]</span></a><a class="reference external" href="https://github.com/pydicom/pynetdicom/blob/46f9a099/pynetdicom/pdu_items.py#L2547"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pynetdicom.pdu_items.SOPClassExtendedNegotiationSubItem" title="Permalink to this definition">¶</a></dt>
+<em class="property">class </em><code class="sig-prename descclassname">pynetdicom.pdu_items.</code><code class="sig-name descname">SOPClassExtendedNegotiationSubItem</code><a class="reference internal" href="../../_modules/pynetdicom/pdu_items.html#SOPClassExtendedNegotiationSubItem"><span class="viewcode-link">[source]</span></a><a class="reference external" href="https://github.com/pydicom/pynetdicom/blob/6c99d572/pynetdicom/pdu_items.py#L2547"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pynetdicom.pdu_items.SOPClassExtendedNegotiationSubItem" title="Permalink to this definition">¶</a></dt>
 <dd><p>A SOP Class Extended Negotiation Sub-item.</p>
 <p>A SOP Class Extended Negotation Sub-item allows peer Application Entities
 to exchange application information defined by specific Service Class
 specifications <a class="footnote-reference brackets" href="#id4" id="id1">1</a>.</p>
 <dl class="attribute">
 <dt id="pynetdicom.pdu_items.SOPClassExtendedNegotiationSubItem.item_length">
-<code class="descname">item_length</code><a class="headerlink" href="#pynetdicom.pdu_items.SOPClassExtendedNegotiationSubItem.item_length" title="Permalink to this definition">¶</a></dt>
+<code class="sig-name descname">item_length</code><a class="headerlink" href="#pynetdicom.pdu_items.SOPClassExtendedNegotiationSubItem.item_length" title="Permalink to this definition">¶</a></dt>
 <dd><p>The number of bytes from the first byte following the <em>Item Length</em>
 field to the last byte of the Item.</p>
 <dl class="field-list simple">
@@ -200,7 +200,7 @@ field to the last byte of the Item.</p>
 
 <dl class="attribute">
 <dt id="pynetdicom.pdu_items.SOPClassExtendedNegotiationSubItem.item_type">
-<code class="descname">item_type</code><a class="headerlink" href="#pynetdicom.pdu_items.SOPClassExtendedNegotiationSubItem.item_type" title="Permalink to this definition">¶</a></dt>
+<code class="sig-name descname">item_type</code><a class="headerlink" href="#pynetdicom.pdu_items.SOPClassExtendedNegotiationSubItem.item_type" title="Permalink to this definition">¶</a></dt>
 <dd><p>The <em>Item Type</em> field value (0x56).</p>
 <dl class="field-list simple">
 <dt class="field-odd">Type</dt>
@@ -211,7 +211,7 @@ field to the last byte of the Item.</p>
 
 <dl class="attribute">
 <dt id="pynetdicom.pdu_items.SOPClassExtendedNegotiationSubItem.service_class_application_information">
-<code class="descname">service_class_application_information</code><a class="headerlink" href="#pynetdicom.pdu_items.SOPClassExtendedNegotiationSubItem.service_class_application_information" title="Permalink to this definition">¶</a></dt>
+<code class="sig-name descname">service_class_application_information</code><a class="headerlink" href="#pynetdicom.pdu_items.SOPClassExtendedNegotiationSubItem.service_class_application_information" title="Permalink to this definition">¶</a></dt>
 <dd><p>The <em>Service Class Application Information</em> field value.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Type</dt>
@@ -222,7 +222,7 @@ field to the last byte of the Item.</p>
 
 <dl class="attribute">
 <dt id="pynetdicom.pdu_items.SOPClassExtendedNegotiationSubItem.sop_class_uid">
-<code class="descname">sop_class_uid</code><a class="headerlink" href="#pynetdicom.pdu_items.SOPClassExtendedNegotiationSubItem.sop_class_uid" title="Permalink to this definition">¶</a></dt>
+<code class="sig-name descname">sop_class_uid</code><a class="headerlink" href="#pynetdicom.pdu_items.SOPClassExtendedNegotiationSubItem.sop_class_uid" title="Permalink to this definition">¶</a></dt>
 <dd><p>The <em>SOP Class UID</em> field value.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Type</dt>
@@ -233,7 +233,7 @@ field to the last byte of the Item.</p>
 
 <dl class="attribute">
 <dt id="pynetdicom.pdu_items.SOPClassExtendedNegotiationSubItem.sop_class_uid_length">
-<code class="descname">sop_class_uid_length</code><a class="headerlink" href="#pynetdicom.pdu_items.SOPClassExtendedNegotiationSubItem.sop_class_uid_length" title="Permalink to this definition">¶</a></dt>
+<code class="sig-name descname">sop_class_uid_length</code><a class="headerlink" href="#pynetdicom.pdu_items.SOPClassExtendedNegotiationSubItem.sop_class_uid_length" title="Permalink to this definition">¶</a></dt>
 <dd><p>The <em>SOP Class UID Length</em> field value.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Type</dt>
@@ -259,7 +259,7 @@ structure, taken from Table D.3-11 <a class="footnote-reference brackets" href="
 Python indexing). Items are always encoded using Big Endian <a class="footnote-reference brackets" href="#id5" id="id3">2</a>.
 The SOP Class UID parameter is encoded as a UID as per the rules in
 Part 5, Section 9.1 (ie NO trailing padding null byte).</p>
-<table class="docutils align-center">
+<table class="docutils align-default">
 <colgroup>
 <col style="width: 25%" />
 <col style="width: 20%" />
@@ -311,12 +311,12 @@ Part 5, Section 9.1 (ie NO trailing padding null byte).</p>
 </dl>
 <dl class="method">
 <dt id="pynetdicom.pdu_items.SOPClassExtendedNegotiationSubItem.__init__">
-<code class="descname">__init__</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="../../_modules/pynetdicom/pdu_items.html#SOPClassExtendedNegotiationSubItem.__init__"><span class="viewcode-link">[source]</span></a><a class="reference external" href="https://github.com/pydicom/pynetdicom/blob/46f9a099/pynetdicom/pdu_items.py#L2611"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pynetdicom.pdu_items.SOPClassExtendedNegotiationSubItem.__init__" title="Permalink to this definition">¶</a></dt>
+<code class="sig-name descname">__init__</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="../../_modules/pynetdicom/pdu_items.html#SOPClassExtendedNegotiationSubItem.__init__"><span class="viewcode-link">[source]</span></a><a class="reference external" href="https://github.com/pydicom/pynetdicom/blob/6c99d572/pynetdicom/pdu_items.py#L2611"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pynetdicom.pdu_items.SOPClassExtendedNegotiationSubItem.__init__" title="Permalink to this definition">¶</a></dt>
 <dd><p>Initialise a new SOP Class Extended Negotiation Item.</p>
 </dd></dl>
 
 <p class="rubric">Methods</p>
-<table class="longtable docutils align-center">
+<table class="longtable docutils align-default">
 <colgroup>
 <col style="width: 10%" />
 <col style="width: 90%" />
@@ -340,7 +340,7 @@ Part 5, Section 9.1 (ie NO trailing padding null byte).</p>
 </tbody>
 </table>
 <p class="rubric">Attributes</p>
-<table class="longtable docutils align-center">
+<table class="longtable docutils align-default">
 <colgroup>
 <col style="width: 10%" />
 <col style="width: 90%" />
@@ -366,15 +366,15 @@ Part 5, Section 9.1 (ie NO trailing padding null byte).</p>
 </tr>
 </tbody>
 </table>
-<dl class="attribute">
+<dl class="method">
 <dt id="pynetdicom.pdu_items.SOPClassExtendedNegotiationSubItem.app_info">
-<code class="descname">app_info</code><a class="headerlink" href="#pynetdicom.pdu_items.SOPClassExtendedNegotiationSubItem.app_info" title="Permalink to this definition">¶</a></dt>
+<em class="property">property </em><code class="sig-name descname">app_info</code><a class="headerlink" href="#pynetdicom.pdu_items.SOPClassExtendedNegotiationSubItem.app_info" title="Permalink to this definition">¶</a></dt>
 <dd><p>Return the item’s <em>Service Class Application Information</em> field value.</p>
 </dd></dl>
 
 <dl class="method">
 <dt id="pynetdicom.pdu_items.SOPClassExtendedNegotiationSubItem.decode">
-<code class="descname">decode</code><span class="sig-paren">(</span><em>bytestream</em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/pydicom/pynetdicom/blob/46f9a099/pynetdicom/pdu_items.py#L77"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pynetdicom.pdu_items.SOPClassExtendedNegotiationSubItem.decode" title="Permalink to this definition">¶</a></dt>
+<code class="sig-name descname">decode</code><span class="sig-paren">(</span><em class="sig-param">bytestream</em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/pydicom/pynetdicom/blob/6c99d572/pynetdicom/pdu_items.py#L77"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pynetdicom.pdu_items.SOPClassExtendedNegotiationSubItem.decode" title="Permalink to this definition">¶</a></dt>
 <dd><p>Decode <cite>bytestream</cite> and use the result to set the field values of
 the PDU item.</p>
 <dl class="field-list simple">
@@ -386,7 +386,7 @@ the PDU item.</p>
 
 <dl class="method">
 <dt id="pynetdicom.pdu_items.SOPClassExtendedNegotiationSubItem.encode">
-<code class="descname">encode</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference external" href="https://github.com/pydicom/pynetdicom/blob/46f9a099/pynetdicom/pdu_items.py#L100"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pynetdicom.pdu_items.SOPClassExtendedNegotiationSubItem.encode" title="Permalink to this definition">¶</a></dt>
+<code class="sig-name descname">encode</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference external" href="https://github.com/pydicom/pynetdicom/blob/6c99d572/pynetdicom/pdu_items.py#L100"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pynetdicom.pdu_items.SOPClassExtendedNegotiationSubItem.encode" title="Permalink to this definition">¶</a></dt>
 <dd><p>Return the encoded PDU as bytes.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Returns</dt>
@@ -400,7 +400,7 @@ the PDU item.</p>
 
 <dl class="method">
 <dt id="pynetdicom.pdu_items.SOPClassExtendedNegotiationSubItem.from_primitive">
-<code class="descname">from_primitive</code><span class="sig-paren">(</span><em>primitive</em><span class="sig-paren">)</span><a class="reference internal" href="../../_modules/pynetdicom/pdu_items.html#SOPClassExtendedNegotiationSubItem.from_primitive"><span class="viewcode-link">[source]</span></a><a class="reference external" href="https://github.com/pydicom/pynetdicom/blob/46f9a099/pynetdicom/pdu_items.py#L2617"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pynetdicom.pdu_items.SOPClassExtendedNegotiationSubItem.from_primitive" title="Permalink to this definition">¶</a></dt>
+<code class="sig-name descname">from_primitive</code><span class="sig-paren">(</span><em class="sig-param">primitive</em><span class="sig-paren">)</span><a class="reference internal" href="../../_modules/pynetdicom/pdu_items.html#SOPClassExtendedNegotiationSubItem.from_primitive"><span class="viewcode-link">[source]</span></a><a class="reference external" href="https://github.com/pydicom/pynetdicom/blob/6c99d572/pynetdicom/pdu_items.py#L2617"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pynetdicom.pdu_items.SOPClassExtendedNegotiationSubItem.from_primitive" title="Permalink to this definition">¶</a></dt>
 <dd><p>Set the item’s values using a SOP Class Extended Negotiation
 primitive.</p>
 <dl class="field-list simple">
@@ -410,33 +410,33 @@ primitive.</p>
 </dl>
 </dd></dl>
 
-<dl class="attribute">
+<dl class="method">
 <dt>
-<code class="descname">item_length</code></dt>
+<em class="property">property </em><code class="sig-name descname">item_length</code></dt>
 <dd><p>Return the item’s <em>Item Length</em> field value as an int.</p>
 </dd></dl>
 
-<dl class="attribute">
+<dl class="method">
 <dt>
-<code class="descname">item_type</code></dt>
+<em class="property">property </em><code class="sig-name descname">item_type</code></dt>
 <dd><p>Return the item’s <em>Item Type</em> field value as an int.</p>
 </dd></dl>
 
-<dl class="attribute">
+<dl class="method">
 <dt>
-<code class="descname">sop_class_uid</code></dt>
+<em class="property">property </em><code class="sig-name descname">sop_class_uid</code></dt>
 <dd><p>Return the item’s <em>SOP Class UID</em> field value.</p>
 </dd></dl>
 
-<dl class="attribute">
+<dl class="method">
 <dt>
-<code class="descname">sop_class_uid_length</code></dt>
+<em class="property">property </em><code class="sig-name descname">sop_class_uid_length</code></dt>
 <dd><p>Return the item’s <em>SOP Class UID Length</em> field value.</p>
 </dd></dl>
 
 <dl class="method">
 <dt id="pynetdicom.pdu_items.SOPClassExtendedNegotiationSubItem.to_primitive">
-<code class="descname">to_primitive</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="../../_modules/pynetdicom/pdu_items.html#SOPClassExtendedNegotiationSubItem.to_primitive"><span class="viewcode-link">[source]</span></a><a class="reference external" href="https://github.com/pydicom/pynetdicom/blob/46f9a099/pynetdicom/pdu_items.py#L2631"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pynetdicom.pdu_items.SOPClassExtendedNegotiationSubItem.to_primitive" title="Permalink to this definition">¶</a></dt>
+<code class="sig-name descname">to_primitive</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="../../_modules/pynetdicom/pdu_items.html#SOPClassExtendedNegotiationSubItem.to_primitive"><span class="viewcode-link">[source]</span></a><a class="reference external" href="https://github.com/pydicom/pynetdicom/blob/6c99d572/pynetdicom/pdu_items.py#L2631"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pynetdicom.pdu_items.SOPClassExtendedNegotiationSubItem.to_primitive" title="Permalink to this definition">¶</a></dt>
 <dd><p>Return a SOP Class Extended Negotiation primitive from the current
 Item.</p>
 <dl class="field-list simple">
@@ -449,9 +449,9 @@ Item.</p>
 </dl>
 </dd></dl>
 
-<dl class="attribute">
+<dl class="method">
 <dt id="pynetdicom.pdu_items.SOPClassExtendedNegotiationSubItem.uid">
-<code class="descname">uid</code><a class="headerlink" href="#pynetdicom.pdu_items.SOPClassExtendedNegotiationSubItem.uid" title="Permalink to this definition">¶</a></dt>
+<em class="property">property </em><code class="sig-name descname">uid</code><a class="headerlink" href="#pynetdicom.pdu_items.SOPClassExtendedNegotiationSubItem.uid" title="Permalink to this definition">¶</a></dt>
 <dd><p>Return the item’s <em>SOP Class UID</em> field value.</p>
 </dd></dl>
 

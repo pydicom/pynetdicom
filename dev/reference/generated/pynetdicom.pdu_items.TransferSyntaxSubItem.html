@@ -181,7 +181,7 @@
 <h1>pynetdicom.pdu_items.TransferSyntaxSubItem<a class="headerlink" href="#pynetdicom-pdu-items-transfersyntaxsubitem" title="Permalink to this headline">¶</a></h1>
 <dl class="class">
 <dt id="pynetdicom.pdu_items.TransferSyntaxSubItem">
-<em class="property">class </em><code class="descclassname">pynetdicom.pdu_items.</code><code class="descname">TransferSyntaxSubItem</code><a class="reference internal" href="../../_modules/pynetdicom/pdu_items.html#TransferSyntaxSubItem"><span class="viewcode-link">[source]</span></a><a class="reference external" href="https://github.com/pydicom/pynetdicom/blob/46f9a099/pynetdicom/pdu_items.py#L1439"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pynetdicom.pdu_items.TransferSyntaxSubItem" title="Permalink to this definition">¶</a></dt>
+<em class="property">class </em><code class="sig-prename descclassname">pynetdicom.pdu_items.</code><code class="sig-name descname">TransferSyntaxSubItem</code><a class="reference internal" href="../../_modules/pynetdicom/pdu_items.html#TransferSyntaxSubItem"><span class="viewcode-link">[source]</span></a><a class="reference external" href="https://github.com/pydicom/pynetdicom/blob/6c99d572/pynetdicom/pdu_items.py#L1439"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pynetdicom.pdu_items.TransferSyntaxSubItem" title="Permalink to this definition">¶</a></dt>
 <dd><p>A Transfer Syntax Sub-item.</p>
 <p>A Transfer Syntax is a set of encoding rules able to unambiguously
 represent the data elements defined by one or more Abstract Syntaxes <a class="footnote-reference brackets" href="#id6" id="id1">1</a>.
@@ -190,7 +190,7 @@ encoding techniques they are able to support (e.g. byte ordering,
 compression, etc).</p>
 <dl class="attribute">
 <dt id="pynetdicom.pdu_items.TransferSyntaxSubItem.item_length">
-<code class="descname">item_length</code><a class="headerlink" href="#pynetdicom.pdu_items.TransferSyntaxSubItem.item_length" title="Permalink to this definition">¶</a></dt>
+<code class="sig-name descname">item_length</code><a class="headerlink" href="#pynetdicom.pdu_items.TransferSyntaxSubItem.item_length" title="Permalink to this definition">¶</a></dt>
 <dd><p>The number of bytes from the first byte following the <em>Item Length</em>
 field to the last byte of the Item.</p>
 <dl class="field-list simple">
@@ -202,7 +202,7 @@ field to the last byte of the Item.</p>
 
 <dl class="attribute">
 <dt id="pynetdicom.pdu_items.TransferSyntaxSubItem.item_type">
-<code class="descname">item_type</code><a class="headerlink" href="#pynetdicom.pdu_items.TransferSyntaxSubItem.item_type" title="Permalink to this definition">¶</a></dt>
+<code class="sig-name descname">item_type</code><a class="headerlink" href="#pynetdicom.pdu_items.TransferSyntaxSubItem.item_type" title="Permalink to this definition">¶</a></dt>
 <dd><p>The <em>Item Type</em> field value (0x40).</p>
 <dl class="field-list simple">
 <dt class="field-odd">Type</dt>
@@ -213,7 +213,7 @@ field to the last byte of the Item.</p>
 
 <dl class="attribute">
 <dt id="pynetdicom.pdu_items.TransferSyntaxSubItem.transfer_syntax">
-<code class="descname">transfer_syntax</code><a class="headerlink" href="#pynetdicom.pdu_items.TransferSyntaxSubItem.transfer_syntax" title="Permalink to this definition">¶</a></dt>
+<code class="sig-name descname">transfer_syntax</code><a class="headerlink" href="#pynetdicom.pdu_items.TransferSyntaxSubItem.transfer_syntax" title="Permalink to this definition">¶</a></dt>
 <dd><p>The <em>Transfer Syntax Name</em> field value.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Type</dt>
@@ -244,7 +244,7 @@ digit of the last component.</p>
 taken from Table 9-15 <a class="footnote-reference brackets" href="#id9" id="id4">4</a> (offsets shown with Python indexing). Items are
 always encoded using Big Endian <a class="footnote-reference brackets" href="#id10" id="id5">5</a>. Encoding of the Transfer Syntax Name
 parameter follows the rules in Part 8, Annex F.</p>
-<table class="docutils align-center">
+<table class="docutils align-default">
 <colgroup>
 <col style="width: 14%" />
 <col style="width: 23%" />
@@ -299,12 +299,12 @@ parameter follows the rules in Part 8, Annex F.</p>
 </dl>
 <dl class="method">
 <dt id="pynetdicom.pdu_items.TransferSyntaxSubItem.__init__">
-<code class="descname">__init__</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="../../_modules/pynetdicom/pdu_items.html#TransferSyntaxSubItem.__init__"><span class="viewcode-link">[source]</span></a><a class="reference external" href="https://github.com/pydicom/pynetdicom/blob/46f9a099/pynetdicom/pdu_items.py#L1508"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pynetdicom.pdu_items.TransferSyntaxSubItem.__init__" title="Permalink to this definition">¶</a></dt>
+<code class="sig-name descname">__init__</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="../../_modules/pynetdicom/pdu_items.html#TransferSyntaxSubItem.__init__"><span class="viewcode-link">[source]</span></a><a class="reference external" href="https://github.com/pydicom/pynetdicom/blob/6c99d572/pynetdicom/pdu_items.py#L1508"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pynetdicom.pdu_items.TransferSyntaxSubItem.__init__" title="Permalink to this definition">¶</a></dt>
 <dd><p>Initialise a new Abstract Syntax Item.</p>
 </dd></dl>
 
 <p class="rubric">Methods</p>
-<table class="longtable docutils align-center">
+<table class="longtable docutils align-default">
 <colgroup>
 <col style="width: 10%" />
 <col style="width: 90%" />
@@ -322,7 +322,7 @@ parameter follows the rules in Part 8, Annex F.</p>
 </tbody>
 </table>
 <p class="rubric">Attributes</p>
-<table class="longtable docutils align-center">
+<table class="longtable docutils align-default">
 <colgroup>
 <col style="width: 10%" />
 <col style="width: 90%" />
@@ -344,7 +344,7 @@ parameter follows the rules in Part 8, Annex F.</p>
 </table>
 <dl class="method">
 <dt id="pynetdicom.pdu_items.TransferSyntaxSubItem.decode">
-<code class="descname">decode</code><span class="sig-paren">(</span><em>bytestream</em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/pydicom/pynetdicom/blob/46f9a099/pynetdicom/pdu_items.py#L77"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pynetdicom.pdu_items.TransferSyntaxSubItem.decode" title="Permalink to this definition">¶</a></dt>
+<code class="sig-name descname">decode</code><span class="sig-paren">(</span><em class="sig-param">bytestream</em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/pydicom/pynetdicom/blob/6c99d572/pynetdicom/pdu_items.py#L77"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pynetdicom.pdu_items.TransferSyntaxSubItem.decode" title="Permalink to this definition">¶</a></dt>
 <dd><p>Decode <cite>bytestream</cite> and use the result to set the field values of
 the PDU item.</p>
 <dl class="field-list simple">
@@ -356,7 +356,7 @@ the PDU item.</p>
 
 <dl class="method">
 <dt id="pynetdicom.pdu_items.TransferSyntaxSubItem.encode">
-<code class="descname">encode</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference external" href="https://github.com/pydicom/pynetdicom/blob/46f9a099/pynetdicom/pdu_items.py#L100"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pynetdicom.pdu_items.TransferSyntaxSubItem.encode" title="Permalink to this definition">¶</a></dt>
+<code class="sig-name descname">encode</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference external" href="https://github.com/pydicom/pynetdicom/blob/6c99d572/pynetdicom/pdu_items.py#L100"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pynetdicom.pdu_items.TransferSyntaxSubItem.encode" title="Permalink to this definition">¶</a></dt>
 <dd><p>Return the encoded PDU as bytes.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Returns</dt>
@@ -368,27 +368,27 @@ the PDU item.</p>
 </dl>
 </dd></dl>
 
-<dl class="attribute">
+<dl class="method">
 <dt>
-<code class="descname">item_length</code></dt>
+<em class="property">property </em><code class="sig-name descname">item_length</code></dt>
 <dd><p>Return the item’s <em>Item Length</em> field value as an int.</p>
 </dd></dl>
 
-<dl class="attribute">
+<dl class="method">
 <dt>
-<code class="descname">item_type</code></dt>
+<em class="property">property </em><code class="sig-name descname">item_type</code></dt>
 <dd><p>Return the item’s <em>Item Type</em> field value as an int.</p>
 </dd></dl>
 
-<dl class="attribute">
+<dl class="method">
 <dt>
-<code class="descname">transfer_syntax</code></dt>
+<em class="property">property </em><code class="sig-name descname">transfer_syntax</code></dt>
 <dd><p>Return the item’s <em>Transfer Syntax Name</em> field value.</p>
 </dd></dl>
 
-<dl class="attribute">
+<dl class="method">
 <dt id="pynetdicom.pdu_items.TransferSyntaxSubItem.transfer_syntax_name">
-<code class="descname">transfer_syntax_name</code><a class="headerlink" href="#pynetdicom.pdu_items.TransferSyntaxSubItem.transfer_syntax_name" title="Permalink to this definition">¶</a></dt>
+<em class="property">property </em><code class="sig-name descname">transfer_syntax_name</code><a class="headerlink" href="#pynetdicom.pdu_items.TransferSyntaxSubItem.transfer_syntax_name" title="Permalink to this definition">¶</a></dt>
 <dd><p>Return the item’s <em>Transfer Syntax Name</em> field value.</p>
 </dd></dl>
 

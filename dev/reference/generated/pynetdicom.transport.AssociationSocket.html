@@ -181,13 +181,13 @@
 <h1>pynetdicom.transport.AssociationSocket<a class="headerlink" href="#pynetdicom-transport-associationsocket" title="Permalink to this headline">¶</a></h1>
 <dl class="class">
 <dt id="pynetdicom.transport.AssociationSocket">
-<em class="property">class </em><code class="descclassname">pynetdicom.transport.</code><code class="descname">AssociationSocket</code><span class="sig-paren">(</span><em>assoc</em>, <em>client_socket=None</em>, <em>address=(''</em>, <em>0)</em><span class="sig-paren">)</span><a class="reference internal" href="../../_modules/pynetdicom/transport.html#AssociationSocket"><span class="viewcode-link">[source]</span></a><a class="reference external" href="https://github.com/pydicom/pynetdicom/blob/46f9a099/pynetdicom/transport.py#L27"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pynetdicom.transport.AssociationSocket" title="Permalink to this definition">¶</a></dt>
+<em class="property">class </em><code class="sig-prename descclassname">pynetdicom.transport.</code><code class="sig-name descname">AssociationSocket</code><span class="sig-paren">(</span><em class="sig-param">assoc</em>, <em class="sig-param">client_socket=None</em>, <em class="sig-param">address=(''</em>, <em class="sig-param">0)</em><span class="sig-paren">)</span><a class="reference internal" href="../../_modules/pynetdicom/transport.html#AssociationSocket"><span class="viewcode-link">[source]</span></a><a class="reference external" href="https://github.com/pydicom/pynetdicom/blob/6c99d572/pynetdicom/transport.py#L27"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pynetdicom.transport.AssociationSocket" title="Permalink to this definition">¶</a></dt>
 <dd><p>A wrapper for a <code class="docutils literal notranslate"><span class="pre">socket.socket</span></code> object.</p>
 <p>Provides an interface for <code class="docutils literal notranslate"><span class="pre">socket.socket</span></code> that is integrated nicely with
 an <code class="docutils literal notranslate"><span class="pre">Association</span></code> instance and the state machine.</p>
 <dl class="attribute">
 <dt id="pynetdicom.transport.AssociationSocket.select_timeout">
-<code class="descname">select_timeout</code><a class="headerlink" href="#pynetdicom.transport.AssociationSocket.select_timeout" title="Permalink to this definition">¶</a></dt>
+<code class="sig-name descname">select_timeout</code><a class="headerlink" href="#pynetdicom.transport.AssociationSocket.select_timeout" title="Permalink to this definition">¶</a></dt>
 <dd><p>The timeout (in seconds) that <code class="docutils literal notranslate"><span class="pre">select.select()</span></code> calls in <a class="reference internal" href="#pynetdicom.transport.AssociationSocket.ready" title="pynetdicom.transport.AssociationSocket.ready"><code class="xref py py-meth docutils literal notranslate"><span class="pre">ready()</span></code></a>
 will block for (default <code class="docutils literal notranslate"><span class="pre">0.5</span></code>). A value of <code class="docutils literal notranslate"><span class="pre">0</span></code> specifies a poll and never
 blocks. A value of <code class="docutils literal notranslate"><span class="pre">None</span></code> blocks until a connection is ready.</p>
@@ -200,7 +200,7 @@ blocks. A value of <code class="docutils literal notranslate"><span class="pre">
 
 <dl class="attribute">
 <dt id="pynetdicom.transport.AssociationSocket.socket">
-<code class="descname">socket</code><a class="headerlink" href="#pynetdicom.transport.AssociationSocket.socket" title="Permalink to this definition">¶</a></dt>
+<code class="sig-name descname">socket</code><a class="headerlink" href="#pynetdicom.transport.AssociationSocket.socket" title="Permalink to this definition">¶</a></dt>
 <dd><p>The wrapped socket, will be <a href="#id1"><span class="problematic" id="id2">``</span></a>None``if <a class="reference internal" href="#pynetdicom.transport.AssociationSocket.close" title="pynetdicom.transport.AssociationSocket.close"><code class="xref py py-meth docutils literal notranslate"><span class="pre">close()</span></code></a> is called.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Type</dt>
@@ -211,7 +211,7 @@ blocks. A value of <code class="docutils literal notranslate"><span class="pre">
 
 <dl class="attribute">
 <dt id="pynetdicom.transport.AssociationSocket.tls_args">
-<code class="descname">tls_args</code><a class="headerlink" href="#pynetdicom.transport.AssociationSocket.tls_args" title="Permalink to this definition">¶</a></dt>
+<code class="sig-name descname">tls_args</code><a class="headerlink" href="#pynetdicom.transport.AssociationSocket.tls_args" title="Permalink to this definition">¶</a></dt>
 <dd><p>If the socket should be wrapped by TLS then this is
 <code class="docutils literal notranslate"><span class="pre">(context,</span> <span class="pre">hostname)</span></code>, where <em>context</em> is a <code class="docutils literal notranslate"><span class="pre">ssl.SSLContext</span></code> that
 will be used to wrap the socket and <em>hostname</em> is the value to use for
@@ -226,7 +226,7 @@ If TLS is not to be used then <code class="docutils literal notranslate"><span c
 
 <dl class="method">
 <dt id="pynetdicom.transport.AssociationSocket.__init__">
-<code class="descname">__init__</code><span class="sig-paren">(</span><em>assoc</em>, <em>client_socket=None</em>, <em>address=(''</em>, <em>0)</em><span class="sig-paren">)</span><a class="reference internal" href="../../_modules/pynetdicom/transport.html#AssociationSocket.__init__"><span class="viewcode-link">[source]</span></a><a class="reference external" href="https://github.com/pydicom/pynetdicom/blob/46f9a099/pynetdicom/transport.py#L48"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pynetdicom.transport.AssociationSocket.__init__" title="Permalink to this definition">¶</a></dt>
+<code class="sig-name descname">__init__</code><span class="sig-paren">(</span><em class="sig-param">assoc</em>, <em class="sig-param">client_socket=None</em>, <em class="sig-param">address=(''</em>, <em class="sig-param">0)</em><span class="sig-paren">)</span><a class="reference internal" href="../../_modules/pynetdicom/transport.html#AssociationSocket.__init__"><span class="viewcode-link">[source]</span></a><a class="reference external" href="https://github.com/pydicom/pynetdicom/blob/6c99d572/pynetdicom/transport.py#L48"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pynetdicom.transport.AssociationSocket.__init__" title="Permalink to this definition">¶</a></dt>
 <dd><p>Create a new AssociationSocket.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters</dt>
@@ -244,7 +244,7 @@ bind the newly created socket to, which by default will be
 </dd></dl>
 
 <p class="rubric">Methods</p>
-<table class="longtable docutils align-center">
+<table class="longtable docutils align-default">
 <colgroup>
 <col style="width: 10%" />
 <col style="width: 90%" />
@@ -268,7 +268,7 @@ bind the newly created socket to, which by default will be
 </tbody>
 </table>
 <p class="rubric">Attributes</p>
-<table class="longtable docutils align-center">
+<table class="longtable docutils align-default">
 <colgroup>
 <col style="width: 10%" />
 <col style="width: 90%" />
@@ -285,15 +285,15 @@ bind the newly created socket to, which by default will be
 </tr>
 </tbody>
 </table>
-<dl class="attribute">
+<dl class="method">
 <dt id="pynetdicom.transport.AssociationSocket.assoc">
-<code class="descname">assoc</code><a class="headerlink" href="#pynetdicom.transport.AssociationSocket.assoc" title="Permalink to this definition">¶</a></dt>
+<em class="property">property </em><code class="sig-name descname">assoc</code><a class="headerlink" href="#pynetdicom.transport.AssociationSocket.assoc" title="Permalink to this definition">¶</a></dt>
 <dd><p>Return the socket’s parent <code class="docutils literal notranslate"><span class="pre">Association</span></code> instance.</p>
 </dd></dl>
 
 <dl class="method">
 <dt id="pynetdicom.transport.AssociationSocket.close">
-<code class="descname">close</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="../../_modules/pynetdicom/transport.html#AssociationSocket.close"><span class="viewcode-link">[source]</span></a><a class="reference external" href="https://github.com/pydicom/pynetdicom/blob/46f9a099/pynetdicom/transport.py#L89"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pynetdicom.transport.AssociationSocket.close" title="Permalink to this definition">¶</a></dt>
+<code class="sig-name descname">close</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="../../_modules/pynetdicom/transport.html#AssociationSocket.close"><span class="viewcode-link">[source]</span></a><a class="reference external" href="https://github.com/pydicom/pynetdicom/blob/6c99d572/pynetdicom/transport.py#L89"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pynetdicom.transport.AssociationSocket.close" title="Permalink to this definition">¶</a></dt>
 <dd><p>Close the connection to the peer and shutdown the socket.</p>
 <p>Sets <code class="docutils literal notranslate"><span class="pre">AssociationSocket.socket</span></code> to <code class="docutils literal notranslate"><span class="pre">None</span></code> once complete.</p>
 <p><strong>Events Emitted</strong></p>
@@ -304,7 +304,7 @@ bind the newly created socket to, which by default will be
 
 <dl class="method">
 <dt id="pynetdicom.transport.AssociationSocket.connect">
-<code class="descname">connect</code><span class="sig-paren">(</span><em>address</em><span class="sig-paren">)</span><a class="reference internal" href="../../_modules/pynetdicom/transport.html#AssociationSocket.connect"><span class="viewcode-link">[source]</span></a><a class="reference external" href="https://github.com/pydicom/pynetdicom/blob/46f9a099/pynetdicom/transport.py#L112"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pynetdicom.transport.AssociationSocket.connect" title="Permalink to this definition">¶</a></dt>
+<code class="sig-name descname">connect</code><span class="sig-paren">(</span><em class="sig-param">address</em><span class="sig-paren">)</span><a class="reference internal" href="../../_modules/pynetdicom/transport.html#AssociationSocket.connect"><span class="viewcode-link">[source]</span></a><a class="reference external" href="https://github.com/pydicom/pynetdicom/blob/6c99d572/pynetdicom/transport.py#L112"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pynetdicom.transport.AssociationSocket.connect" title="Permalink to this definition">¶</a></dt>
 <dd><p>Try and connect to a remote at <cite>address</cite>.</p>
 <p><strong>Events Emitted</strong></p>
 <ul class="simple">
@@ -318,15 +318,15 @@ bind the newly created socket to, which by default will be
 </dl>
 </dd></dl>
 
-<dl class="attribute">
+<dl class="method">
 <dt id="pynetdicom.transport.AssociationSocket.event_queue">
-<code class="descname">event_queue</code><a class="headerlink" href="#pynetdicom.transport.AssociationSocket.event_queue" title="Permalink to this definition">¶</a></dt>
+<em class="property">property </em><code class="sig-name descname">event_queue</code><a class="headerlink" href="#pynetdicom.transport.AssociationSocket.event_queue" title="Permalink to this definition">¶</a></dt>
 <dd><p>Return the Association’s event queue.</p>
 </dd></dl>
 
-<dl class="attribute">
+<dl class="method">
 <dt id="pynetdicom.transport.AssociationSocket.ready">
-<code class="descname">ready</code><a class="headerlink" href="#pynetdicom.transport.AssociationSocket.ready" title="Permalink to this definition">¶</a></dt>
+<em class="property">property </em><code class="sig-name descname">ready</code><a class="headerlink" href="#pynetdicom.transport.AssociationSocket.ready" title="Permalink to this definition">¶</a></dt>
 <dd><p>Return <code class="docutils literal notranslate"><span class="pre">True</span></code> if there is data available to be read.</p>
 <p><em>Events Emitted</em></p>
 <ul class="simple">
@@ -346,7 +346,7 @@ otherwise.</p>
 
 <dl class="method">
 <dt id="pynetdicom.transport.AssociationSocket.recv">
-<code class="descname">recv</code><span class="sig-paren">(</span><em>nr_bytes</em><span class="sig-paren">)</span><a class="reference internal" href="../../_modules/pynetdicom/transport.html#AssociationSocket.recv"><span class="viewcode-link">[source]</span></a><a class="reference external" href="https://github.com/pydicom/pynetdicom/blob/46f9a099/pynetdicom/transport.py#L244"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pynetdicom.transport.AssociationSocket.recv" title="Permalink to this definition">¶</a></dt>
+<code class="sig-name descname">recv</code><span class="sig-paren">(</span><em class="sig-param">nr_bytes</em><span class="sig-paren">)</span><a class="reference internal" href="../../_modules/pynetdicom/transport.html#AssociationSocket.recv"><span class="viewcode-link">[source]</span></a><a class="reference external" href="https://github.com/pydicom/pynetdicom/blob/6c99d572/pynetdicom/transport.py#L244"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pynetdicom.transport.AssociationSocket.recv" title="Permalink to this definition">¶</a></dt>
 <dd><p>Read <cite>nr_bytes</cite> from the socket.</p>
 <p><em>Events Emitted</em></p>
 <ul class="simple">
@@ -367,7 +367,7 @@ otherwise.</p>
 
 <dl class="method">
 <dt id="pynetdicom.transport.AssociationSocket.send">
-<code class="descname">send</code><span class="sig-paren">(</span><em>bytestream</em><span class="sig-paren">)</span><a class="reference internal" href="../../_modules/pynetdicom/transport.html#AssociationSocket.send"><span class="viewcode-link">[source]</span></a><a class="reference external" href="https://github.com/pydicom/pynetdicom/blob/46f9a099/pynetdicom/transport.py#L287"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pynetdicom.transport.AssociationSocket.send" title="Permalink to this definition">¶</a></dt>
+<code class="sig-name descname">send</code><span class="sig-paren">(</span><em class="sig-param">bytestream</em><span class="sig-paren">)</span><a class="reference internal" href="../../_modules/pynetdicom/transport.html#AssociationSocket.send"><span class="viewcode-link">[source]</span></a><a class="reference external" href="https://github.com/pydicom/pynetdicom/blob/6c99d572/pynetdicom/transport.py#L287"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pynetdicom.transport.AssociationSocket.send" title="Permalink to this definition">¶</a></dt>
 <dd><p>Try and send the data in <cite>bytestream</cite> to the remote.</p>
 <p><em>Events Emitted</em></p>
 <ul class="simple">

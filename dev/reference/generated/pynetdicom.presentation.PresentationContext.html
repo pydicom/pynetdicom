@@ -181,7 +181,7 @@
 <h1>pynetdicom.presentation.PresentationContext<a class="headerlink" href="#pynetdicom-presentation-presentationcontext" title="Permalink to this headline">¶</a></h1>
 <dl class="class">
 <dt id="pynetdicom.presentation.PresentationContext">
-<em class="property">class </em><code class="descclassname">pynetdicom.presentation.</code><code class="descname">PresentationContext</code><a class="reference internal" href="../../_modules/pynetdicom/presentation.html#PresentationContext"><span class="viewcode-link">[source]</span></a><a class="reference external" href="https://github.com/pydicom/pynetdicom/blob/46f9a099/pynetdicom/presentation.py#L106"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pynetdicom.presentation.PresentationContext" title="Permalink to this definition">¶</a></dt>
+<em class="property">class </em><code class="sig-prename descclassname">pynetdicom.presentation.</code><code class="sig-name descname">PresentationContext</code><a class="reference internal" href="../../_modules/pynetdicom/presentation.html#PresentationContext"><span class="viewcode-link">[source]</span></a><a class="reference external" href="https://github.com/pydicom/pynetdicom/blob/6c99d572/pynetdicom/presentation.py#L106"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pynetdicom.presentation.PresentationContext" title="Permalink to this definition">¶</a></dt>
 <dd><p>A Presentation Context primitive.</p>
 <p><strong>Rules</strong></p>
 <ul class="simple">
@@ -219,7 +219,7 @@ acceptor is SCP</p></li>
 proposed (i.e. cannot return 1 when the proposed value is 0).</p></li>
 <li><p>The association requestor may be SCP only, SCU only or both SCU and SCP.</p></li>
 </ul>
-<table class="docutils align-center">
+<table class="docutils align-default">
 <colgroup>
 <col style="width: 15%" />
 <col style="width: 15%" />
@@ -321,7 +321,7 @@ proposed (i.e. cannot return 1 when the proposed value is 0).</p></li>
 </ul>
 <dl class="attribute">
 <dt id="pynetdicom.presentation.PresentationContext.abstract_syntax">
-<code class="descname">abstract_syntax</code><a class="headerlink" href="#pynetdicom.presentation.PresentationContext.abstract_syntax" title="Permalink to this definition">¶</a></dt>
+<code class="sig-name descname">abstract_syntax</code><a class="headerlink" href="#pynetdicom.presentation.PresentationContext.abstract_syntax" title="Permalink to this definition">¶</a></dt>
 <dd><p>The Presentation Context’s <em>Abstract Syntax</em>.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Type</dt>
@@ -332,7 +332,7 @@ proposed (i.e. cannot return 1 when the proposed value is 0).</p></li>
 
 <dl class="attribute">
 <dt id="pynetdicom.presentation.PresentationContext.as_scp">
-<code class="descname">as_scp</code><a class="headerlink" href="#pynetdicom.presentation.PresentationContext.as_scp" title="Permalink to this definition">¶</a></dt>
+<code class="sig-name descname">as_scp</code><a class="headerlink" href="#pynetdicom.presentation.PresentationContext.as_scp" title="Permalink to this definition">¶</a></dt>
 <dd><p>If True then the association acceptor can act as SCP for the current
 context, otherwise it cannot. A non-None value is only available
 after association negotiation has been completed.</p>
@@ -345,7 +345,7 @@ after association negotiation has been completed.</p>
 
 <dl class="attribute">
 <dt id="pynetdicom.presentation.PresentationContext.as_scu">
-<code class="descname">as_scu</code><a class="headerlink" href="#pynetdicom.presentation.PresentationContext.as_scu" title="Permalink to this definition">¶</a></dt>
+<code class="sig-name descname">as_scu</code><a class="headerlink" href="#pynetdicom.presentation.PresentationContext.as_scu" title="Permalink to this definition">¶</a></dt>
 <dd><p>If True then the association acceptor can act as SCU for the current
 context, otherwise it cannot. A non-None value is only available
 after association negotiation has been completed.</p>
@@ -358,7 +358,7 @@ after association negotiation has been completed.</p>
 
 <dl class="attribute">
 <dt id="pynetdicom.presentation.PresentationContext.context_id">
-<code class="descname">context_id</code><a class="headerlink" href="#pynetdicom.presentation.PresentationContext.context_id" title="Permalink to this definition">¶</a></dt>
+<code class="sig-name descname">context_id</code><a class="headerlink" href="#pynetdicom.presentation.PresentationContext.context_id" title="Permalink to this definition">¶</a></dt>
 <dd><p>The Presentation Context’s <em>Context ID</em>.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Type</dt>
@@ -369,7 +369,7 @@ after association negotiation has been completed.</p>
 
 <dl class="attribute">
 <dt id="pynetdicom.presentation.PresentationContext.result">
-<code class="descname">result</code><a class="headerlink" href="#pynetdicom.presentation.PresentationContext.result" title="Permalink to this definition">¶</a></dt>
+<code class="sig-name descname">result</code><a class="headerlink" href="#pynetdicom.presentation.PresentationContext.result" title="Permalink to this definition">¶</a></dt>
 <dd><p>If part of an A-ASSOCIATE (request) then None. If part of an
 A-ASSOCIATE (response) then one of 0x00, 0x01, 0x02, 0x03, 0x04.</p>
 <dl class="field-list simple">
@@ -381,7 +381,7 @@ A-ASSOCIATE (response) then one of 0x00, 0x01, 0x02, 0x03, 0x04.</p>
 
 <dl class="attribute">
 <dt id="pynetdicom.presentation.PresentationContext.scp_role">
-<code class="descname">scp_role</code><a class="headerlink" href="#pynetdicom.presentation.PresentationContext.scp_role" title="Permalink to this definition">¶</a></dt>
+<code class="sig-name descname">scp_role</code><a class="headerlink" href="#pynetdicom.presentation.PresentationContext.scp_role" title="Permalink to this definition">¶</a></dt>
 <dd><p>Only used when acting as an association acceptor. If True
 then accept when the SCP role is proposed by the requestor, otherwise
 reject the proposal. If None (default) then no SCP/SCU Role Selection
@@ -395,7 +395,7 @@ reply will be sent and the default roles will be used.</p>
 
 <dl class="attribute">
 <dt id="pynetdicom.presentation.PresentationContext.scu_role">
-<code class="descname">scu_role</code><a class="headerlink" href="#pynetdicom.presentation.PresentationContext.scu_role" title="Permalink to this definition">¶</a></dt>
+<code class="sig-name descname">scu_role</code><a class="headerlink" href="#pynetdicom.presentation.PresentationContext.scu_role" title="Permalink to this definition">¶</a></dt>
 <dd><p>Only used when acting as an association acceptor. If True
 then accept when the SCU role is proposed by the requestor, otherwise
 reject the proposal. If None (default) then no SCP/SCU Role Selection
@@ -409,7 +409,7 @@ reply will be sent and the default roles will be used.</p>
 
 <dl class="attribute">
 <dt id="pynetdicom.presentation.PresentationContext.transfer_syntax">
-<code class="descname">transfer_syntax</code><a class="headerlink" href="#pynetdicom.presentation.PresentationContext.transfer_syntax" title="Permalink to this definition">¶</a></dt>
+<code class="sig-name descname">transfer_syntax</code><a class="headerlink" href="#pynetdicom.presentation.PresentationContext.transfer_syntax" title="Permalink to this definition">¶</a></dt>
 <dd><p>The Presentation Context’s <em>Transfer Syntax(es)</em>.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Type</dt>
@@ -430,12 +430,12 @@ and <a class="reference external" href="http://dicom.nema.org/medical/dicom/curr
 </ul>
 <dl class="method">
 <dt id="pynetdicom.presentation.PresentationContext.__init__">
-<code class="descname">__init__</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="../../_modules/pynetdicom/presentation.html#PresentationContext.__init__"><span class="viewcode-link">[source]</span></a><a class="reference external" href="https://github.com/pydicom/pynetdicom/blob/46f9a099/pynetdicom/presentation.py#L215"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pynetdicom.presentation.PresentationContext.__init__" title="Permalink to this definition">¶</a></dt>
+<code class="sig-name descname">__init__</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="../../_modules/pynetdicom/presentation.html#PresentationContext.__init__"><span class="viewcode-link">[source]</span></a><a class="reference external" href="https://github.com/pydicom/pynetdicom/blob/6c99d572/pynetdicom/presentation.py#L215"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pynetdicom.presentation.PresentationContext.__init__" title="Permalink to this definition">¶</a></dt>
 <dd><p>Create a new PresentationContext.</p>
 </dd></dl>
 
 <p class="rubric">Methods</p>
-<table class="longtable docutils align-center">
+<table class="longtable docutils align-default">
 <colgroup>
 <col style="width: 10%" />
 <col style="width: 90%" />
@@ -450,7 +450,7 @@ and <a class="reference external" href="http://dicom.nema.org/medical/dicom/curr
 </tbody>
 </table>
 <p class="rubric">Attributes</p>
-<table class="longtable docutils align-center">
+<table class="longtable docutils align-default">
 <colgroup>
 <col style="width: 10%" />
 <col style="width: 90%" />
@@ -485,9 +485,9 @@ and <a class="reference external" href="http://dicom.nema.org/medical/dicom/curr
 </tr>
 </tbody>
 </table>
-<dl class="attribute">
+<dl class="method">
 <dt>
-<code class="descname">abstract_syntax</code></dt>
+<em class="property">property </em><code class="sig-name descname">abstract_syntax</code></dt>
 <dd><p>Return the presentation context’s <em>Abstract Syntax</em> as a UID.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Returns</dt>
@@ -501,7 +501,7 @@ and <a class="reference external" href="http://dicom.nema.org/medical/dicom/curr
 
 <dl class="method">
 <dt id="pynetdicom.presentation.PresentationContext.add_transfer_syntax">
-<code class="descname">add_transfer_syntax</code><span class="sig-paren">(</span><em>syntax</em><span class="sig-paren">)</span><a class="reference internal" href="../../_modules/pynetdicom/presentation.html#PresentationContext.add_transfer_syntax"><span class="viewcode-link">[source]</span></a><a class="reference external" href="https://github.com/pydicom/pynetdicom/blob/46f9a099/pynetdicom/presentation.py#L267"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pynetdicom.presentation.PresentationContext.add_transfer_syntax" title="Permalink to this definition">¶</a></dt>
+<code class="sig-name descname">add_transfer_syntax</code><span class="sig-paren">(</span><em class="sig-param">syntax</em><span class="sig-paren">)</span><a class="reference internal" href="../../_modules/pynetdicom/presentation.html#PresentationContext.add_transfer_syntax"><span class="viewcode-link">[source]</span></a><a class="reference external" href="https://github.com/pydicom/pynetdicom/blob/6c99d572/pynetdicom/presentation.py#L267"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pynetdicom.presentation.PresentationContext.add_transfer_syntax" title="Permalink to this definition">¶</a></dt>
 <dd><p>Append a transfer syntax to the presentation context.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters</dt>
@@ -510,21 +510,21 @@ and <a class="reference external" href="http://dicom.nema.org/medical/dicom/curr
 </dl>
 </dd></dl>
 
-<dl class="attribute">
+<dl class="method">
 <dt>
-<code class="descname">as_scp</code></dt>
+<em class="property">property </em><code class="sig-name descname">as_scp</code></dt>
 <dd><p>Return True if can act as an SCP for the context.</p>
 </dd></dl>
 
-<dl class="attribute">
+<dl class="method">
 <dt>
-<code class="descname">as_scu</code></dt>
+<em class="property">property </em><code class="sig-name descname">as_scu</code></dt>
 <dd><p>Return True if can act as an SCU for the context.</p>
 </dd></dl>
 
-<dl class="attribute">
+<dl class="method">
 <dt id="pynetdicom.presentation.PresentationContext.as_tuple">
-<code class="descname">as_tuple</code><a class="headerlink" href="#pynetdicom.presentation.PresentationContext.as_tuple" title="Permalink to this definition">¶</a></dt>
+<em class="property">property </em><code class="sig-name descname">as_tuple</code><a class="headerlink" href="#pynetdicom.presentation.PresentationContext.as_tuple" title="Permalink to this definition">¶</a></dt>
 <dd><p>Return a namedtuple representation of the presentation context.</p>
 <p>Intended to be used when the result is 0x00 (accepted) as only the
 first transfer syntax item is returned in the tuple.</p>
@@ -538,27 +538,27 @@ first transfer syntax item is returned in the tuple.</p>
 </dl>
 </dd></dl>
 
-<dl class="attribute">
+<dl class="method">
 <dt>
-<code class="descname">context_id</code></dt>
+<em class="property">property </em><code class="sig-name descname">context_id</code></dt>
 <dd><p>Return the presentation context’s <em>ID</em> parameter as an int.</p>
 </dd></dl>
 
-<dl class="attribute">
+<dl class="method">
 <dt>
-<code class="descname">scp_role</code></dt>
+<em class="property">property </em><code class="sig-name descname">scp_role</code></dt>
 <dd><p>Return True if a proposed SCP role will be accepted.</p>
 </dd></dl>
 
-<dl class="attribute">
+<dl class="method">
 <dt>
-<code class="descname">scu_role</code></dt>
+<em class="property">property </em><code class="sig-name descname">scu_role</code></dt>
 <dd><p>Return True if a proposed SCU role will be accepted.</p>
 </dd></dl>
 
-<dl class="attribute">
+<dl class="method">
 <dt id="pynetdicom.presentation.PresentationContext.status">
-<code class="descname">status</code><a class="headerlink" href="#pynetdicom.presentation.PresentationContext.status" title="Permalink to this definition">¶</a></dt>
+<em class="property">property </em><code class="sig-name descname">status</code><a class="headerlink" href="#pynetdicom.presentation.PresentationContext.status" title="Permalink to this definition">¶</a></dt>
 <dd><p>Return a descriptive str of the presentation context’s <em>Result</em>.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Returns</dt>
@@ -570,9 +570,9 @@ first transfer syntax item is returned in the tuple.</p>
 </dl>
 </dd></dl>
 
-<dl class="attribute">
+<dl class="method">
 <dt>
-<code class="descname">transfer_syntax</code></dt>
+<em class="property">property </em><code class="sig-name descname">transfer_syntax</code></dt>
 <dd><p>Return the presentation context’s <em>Transfer Syntaxes</em> as a list.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Returns</dt>

@@ -13,6 +13,7 @@ pynetdicom.sop\_class.SOPClass
 
    .. autosummary::
    
+      ~SOPClass.__init__
       ~SOPClass.capitalize
       ~SOPClass.casefold
       ~SOPClass.center
