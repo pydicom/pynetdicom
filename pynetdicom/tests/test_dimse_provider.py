@@ -11,13 +11,14 @@ except ImportError:
 from io import BytesIO
 import logging
 import sys
+import threading
 import time
 
 import pytest
 
 from pydicom.dataset import Dataset
 
-from pynetdicom import evt, AE, Association, _config
+from pynetdicom import evt, AE, Association, _config, debug_logger
 from pynetdicom.association import ServiceUser
 from pynetdicom.dimse import DIMSEServiceProvider
 from pynetdicom.dimse_messages import (
@@ -41,10 +42,13 @@ from .encoded_dimse_n_msg import (
     n_action_rq_ds, n_action_rsp_ds, n_create_rq_ds, n_create_rsp_ds
 )
 from .encoded_pdu_items import p_data_tf
-from pynetdicom.sop_class import VerificationSOPClass
+from pynetdicom.sop_class import (
+    VerificationSOPClass, BasicGrayscalePrintManagementMetaSOPClass,
+    PrinterSOPClass
+)
 
-LOGGER = logging.getLogger('pynetdicom')
-LOGGER.setLevel(logging.CRITICAL)
+
+#debug_logger()
 
 
 class DummyAssociation(object):

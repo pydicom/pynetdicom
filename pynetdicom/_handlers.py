@@ -3070,7 +3070,7 @@ def doc_handle_n_get(event):
     :py:meth:`send_n_get()<pynetdicom.association.Association.send_n_get>`
     :py:class:`N_GET<pynetdicom.dimse_primitives.N_GET>`
     :py:class:`DisplaySystemManagementServiceClass<pynetdicom.service_class_n.DisplaySystemManagementServiceClass>`
-    :py:class:`ModalityPerformedProcedureStepServiceClass<pynetdicom.service_class_n.ModalityPerformedProcedureStepServiceClass>`
+    :py:class:`ProcedureStepServiceClass<pynetdicom.service_class_n.ProcedureStepServiceClass>`
 
     References
     ----------

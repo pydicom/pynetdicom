@@ -5,7 +5,7 @@ Important Concepts
 
 UIDs
 ----
-Unique identifiers (UIDs) are a way of uniquely identifying a wide variety
+Unique identifiers (UIDs) are a way of identifying a wide variety
 of items in a way that guarantees uniqueness across multiple countries, sites,
 vendors and equipment. The UID identification scheme used by DICOM is based on
 the numeric form of the OSI Object Identification as defined by `ISO/IEC 8824 <https://www.iso.org/standard/68350.html>`_
