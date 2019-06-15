@@ -427,7 +427,6 @@ to see the requirements for implementations of the ``evt.EVT_USER_ID`` handler.
 
     ae = AE()
     ae.add_supported_context(VerificationSOPClass)
-    ae.on_user_identity = on_user_identity
     ae.start_server(('', 11112), evt_handlers=handlers)
 
 

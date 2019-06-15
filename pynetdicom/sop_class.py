@@ -22,8 +22,15 @@ from pynetdicom.service_class import (
     VerificationServiceClass,
 )
 from pynetdicom.service_class_n import (
+    ApplicationEventLoggingServiceClass,
     DisplaySystemManagementServiceClass,
-    ModalityPerformedProcedureStepServiceClass
+    InstanceAvailabilityNotificationServiceClass,
+    MediaCreationManagementServiceClass,
+    PrintManagementServiceClass,
+    ProcedureStepServiceClass,
+    RTMachineVerificationServiceClass,
+    StorageCommitmentServiceClass,
+    UnifiedProcedureStepServiceClass,
 )
 
 
@@ -48,7 +55,7 @@ def uid_to_service_class(uid):
     if uid in _SERVICE_CLASSES:
         return _SERVICE_CLASSES[uid]
     elif uid in _APPLICATION_EVENT_CLASSES.values():
-        return ServiceClass  # Not yet implemented
+        return ApplicationEventLoggingServiceClass
     elif uid in _BASIC_WORKLIST_CLASSES.values():
         return BasicWorklistManagementServiceClass
     elif uid in _COLOR_PALETTE_CLASSES.values():
@@ -62,17 +69,17 @@ def uid_to_service_class(uid):
     elif uid in _IMPLANT_TEMPLATE_CLASSES.values():
         return ImplantTemplateQueryRetrieveServiceClass
     elif uid in _INSTANCE_AVAILABILITY_CLASSES.values():
-        return ServiceClass  # Not yet implemented
+        return InstanceAvailabilityNotificationServiceClass
     elif uid in _MEDIA_CREATION_CLASSES.values():
-        return ServiceClass  # Not yet implemented
+        return MediaCreationManagementServiceClass
     elif uid in _MEDIA_STORAGE_CLASSES.values():
         return ServiceClass  # Not yet implemented
     elif uid in _NON_PATIENT_OBJECT_CLASSES.values():
         return NonPatientObjectStorageServiceClass
     elif uid in _PRINT_MANAGEMENT_CLASSES.values():
-        return ServiceClass  # Not yet implemented
+        return PrintManagementServiceClass
     elif uid in _PROCEDURE_STEP_CLASSES.values():
-        return ModalityPerformedProcedureStepServiceClass
+        return ProcedureStepServiceClass
     elif uid in _PROTOCOL_APPROVAL_CLASSES.values():
         return ProtocolApprovalQueryRetrieveServiceClass
     elif uid in _QR_CLASSES.values():
@@ -80,15 +87,15 @@ def uid_to_service_class(uid):
     elif uid in _RELEVANT_PATIENT_QUERY_CLASSES.values():
         return RelevantPatientInformationQueryServiceClass
     elif uid in _RT_MACHINE_VERIFICATION_CLASSES.values():
-        return ServiceClass  # Not yet implemented
+        return RTMachineVerificationServiceClass
     elif uid in _STORAGE_CLASSES.values():
         return StorageServiceClass
     elif uid in _STORAGE_COMMITMENT_CLASSES.values():
-        return ServiceClass  # Not yet implemented
+        return StorageCommitmentServiceClass
     elif uid in _SUBSTANCE_ADMINISTRATION_CLASSES.values():
         return SubstanceAdministrationQueryServiceClass
     elif uid in _UNIFIED_PROCEDURE_STEP_CLASSES.values():
-        return ServiceClass  # Not yet implemented
+        return UnifiedProcedureStepServiceClass
     elif uid in _VERIFICATION_CLASSES.values():
         return VerificationServiceClass
 
@@ -126,7 +133,7 @@ def _generate_sop_classes(sop_class_dict):
 # Table of service classes with assigned UIDs
 _SERVICE_CLASSES = {
     '1.2.840.10008.4.2' : StorageServiceClass,
-    #'1.2.840.10008.5.1.4.34.6' : UnifiedProcedureStepServiceClass,
+    '1.2.840.10008.5.1.4.34.6' : UnifiedProcedureStepServiceClass,
 }
 
 # Generate the various SOP classes
@@ -189,7 +196,7 @@ _PRINT_MANAGEMENT_CLASSES = {
     'BasicFilmSessionSOPClass' : '1.2.840.10008.5.1.1.1',
     'BasicFilmBoxSOPClass' : '1.2.840.10008.5.1.1.2',
     'BasicGrayscaleImageBoxSOPClass' : '1.2.840.10008.5.1.1.4',
-    'BasicColourImageBoxSOPClass' : '1.2.840.10008.5.1.1.4.1',
+    'BasicColorImageBoxSOPClass' : '1.2.840.10008.5.1.1.4.1',
     'PrintJobSOPClass' : '1.2.840.10008.5.1.1.14',
     'BasicAnnotationBoxSOPClass' : '1.2.840.10008.5.1.1.15',
     'PrinterSOPClass' : '1.2.840.10008.5.1.1.16',

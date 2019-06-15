@@ -1284,12 +1284,9 @@ def _recv_c_store_rsp(event):
     # Try and get the status from the affected SOP class UID
     if 'AffectedSOPClassUID' in cs:
         service_class = uid_to_service_class(cs.AffectedSOPClassUID)
-        try:
-            if cs.Status in service_class.statuses:
-                status = service_class.statuses[cs.Status]
-                status_str = '0x{0:04x} - {1}'.format(cs.Status, status[0])
-        except AttributeError:
-            status_str = '0x{0:04x}'.format(cs.Status)
+        if cs.Status in service_class.statuses:
+            status = service_class.statuses[cs.Status]
+            status_str = '0x{0:04x} - {1}'.format(cs.Status, status[0])
 
     LOGGER.info('Received Store Response')
     s = []
@@ -3070,7 +3067,7 @@ def doc_handle_n_get(event):
     :py:meth:`send_n_get()<pynetdicom.association.Association.send_n_get>`
     :py:class:`N_GET<pynetdicom.dimse_primitives.N_GET>`
     :py:class:`DisplaySystemManagementServiceClass<pynetdicom.service_class_n.DisplaySystemManagementServiceClass>`
-    :py:class:`ModalityPerformedProcedureStepServiceClass<pynetdicom.service_class_n.ModalityPerformedProcedureStepServiceClass>`
+    :py:class:`ProcedureStepServiceClass<pynetdicom.service_class_n.ProcedureStepServiceClass>`
 
     References
     ----------

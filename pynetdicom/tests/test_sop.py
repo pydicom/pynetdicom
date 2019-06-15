@@ -72,8 +72,15 @@ from pynetdicom.service_class import (
     VerificationServiceClass,
 )
 from pynetdicom.service_class_n import (
+    ApplicationEventLoggingServiceClass,
     DisplaySystemManagementServiceClass,
-    ModalityPerformedProcedureStepServiceClass,
+    InstanceAvailabilityNotificationServiceClass,
+    MediaCreationManagementServiceClass,
+    PrintManagementServiceClass,
+    ProcedureStepServiceClass,
+    RTMachineVerificationServiceClass,
+    StorageCommitmentServiceClass,
+    UnifiedProcedureStepServiceClass,
 )
 
 
@@ -124,6 +131,7 @@ def test_all_sop_classes():
     for uid in _VERIFICATION_CLASSES.values():
         assert uid in UID_dictionary
 
+
 def test_all_service_classes():
     """Test that all the Service Class UIDs are correct."""
     for uid in _SERVICE_CLASSES:
@@ -158,7 +166,7 @@ class TestUIDToServiceClass(object):
     def test_app_logging_uids(self):
         """Test that the Application Event SOP Class UIDs work correctly."""
         for uid in _APPLICATION_EVENT_CLASSES.values():
-            assert uid_to_service_class(uid) == ServiceClass
+            assert uid_to_service_class(uid) == ApplicationEventLoggingServiceClass
 
     def test_basic_worklist_uids(self):
         """Test that the Basic Worklist SOP Class UIDs work correctly."""
@@ -193,12 +201,12 @@ class TestUIDToServiceClass(object):
     def test_instance_uids(self):
         """Test that the Instance Availability SOP Class UIDs work correctly."""
         for uid in _INSTANCE_AVAILABILITY_CLASSES.values():
-            assert uid_to_service_class(uid) == ServiceClass
+            assert uid_to_service_class(uid) == InstanceAvailabilityNotificationServiceClass
 
     def test_media_creation_uids(self):
         """Test that the Media Creation SOP Class UIDs work correctly."""
         for uid in _MEDIA_CREATION_CLASSES.values():
-            assert uid_to_service_class(uid) == ServiceClass
+            assert uid_to_service_class(uid) == MediaCreationManagementServiceClass
 
     def test_media_storage_uids(self):
         """Test that the Media Storage SOP Class UIDs work correctly."""
@@ -213,12 +221,12 @@ class TestUIDToServiceClass(object):
     def test_print_uids(self):
         """Test that the Print SOP Class UIDs work correctly."""
         for uid in _PRINT_MANAGEMENT_CLASSES.values():
-            assert uid_to_service_class(uid) == ServiceClass
+            assert uid_to_service_class(uid) == PrintManagementServiceClass
 
     def test_procedure_step_uids(self):
         """Test that the Procedure SOP Class UIDs work correctly."""
         for uid in _PROCEDURE_STEP_CLASSES.values():
-            assert uid_to_service_class(uid) == ModalityPerformedProcedureStepServiceClass
+            assert uid_to_service_class(uid) == ProcedureStepServiceClass
 
     def test_protocol_approval_uids(self):
         """Test that Protocol Approval SOP Class UIDs work correctly."""
@@ -238,7 +246,7 @@ class TestUIDToServiceClass(object):
     def test_rt_machine_uids(self):
         """Test that the RT Verification SOP Class UIDs work correctly."""
         for uid in _RT_MACHINE_VERIFICATION_CLASSES.values():
-            assert uid_to_service_class(uid) == ServiceClass
+            assert uid_to_service_class(uid) == RTMachineVerificationServiceClass
 
     def test_storage_uids(self):
         """Test that the Storage SOP Class UIDs work correctly."""
@@ -248,7 +256,7 @@ class TestUIDToServiceClass(object):
     def test_storage_commitment_uids(self):
         """Test that the Storage Commitment SOP Class UIDs work correctly."""
         for uid in _STORAGE_COMMITMENT_CLASSES.values():
-            assert uid_to_service_class(uid) == ServiceClass
+            assert uid_to_service_class(uid) == StorageCommitmentServiceClass
 
     def test_substance_admin_uids(self):
         """Test that the Substance Administration SOP Class UIDs work correctly."""
@@ -258,7 +266,7 @@ class TestUIDToServiceClass(object):
     def test_ups_uids(self):
         """Test that the UPS SOP Class UIDs work correctly."""
         for uid in _UNIFIED_PROCEDURE_STEP_CLASSES.values():
-            assert uid_to_service_class(uid) == ServiceClass
+            assert uid_to_service_class(uid) == UnifiedProcedureStepServiceClass
 
     def test_verification_uids(self):
         """Test that the Verification SOP Class UIDs work correctly."""
@@ -274,7 +282,7 @@ class TestSOPClass(object):
     """Tests for sop_class.SOPClass."""
     def test_app_logging_sop(self):
         assert ProceduralEventLoggingSOPClass == '1.2.840.10008.1.40'
-        assert ProceduralEventLoggingSOPClass.service_class == ServiceClass
+        assert ProceduralEventLoggingSOPClass.service_class == ApplicationEventLoggingServiceClass
 
     def test_basic_worklist_sop(self):
         """Test a Basic Worklist Service SOP Class."""
@@ -307,11 +315,11 @@ class TestSOPClass(object):
 
     def test_instance_sop(self):
         assert InstanceAvailabilityNotificationSOPClass == '1.2.840.10008.5.1.4.33'
-        assert InstanceAvailabilityNotificationSOPClass.service_class == ServiceClass
+        assert InstanceAvailabilityNotificationSOPClass.service_class == InstanceAvailabilityNotificationServiceClass
 
     def test_media_creation_sop(self):
         assert MediaCreationManagementSOPClass == '1.2.840.10008.5.1.1.33'
-        assert MediaCreationManagementSOPClass.service_class == ServiceClass
+        assert MediaCreationManagementSOPClass.service_class == MediaCreationManagementServiceClass
 
     def test_media_storage_sop(self):
         assert MediaStorageDirectoryStorage == '1.2.840.10008.1.3.10'
@@ -324,11 +332,11 @@ class TestSOPClass(object):
 
     def test_print_sop(self):
         assert PrintJobSOPClass == '1.2.840.10008.5.1.1.14'
-        assert PrintJobSOPClass.service_class == ServiceClass
+        assert PrintJobSOPClass.service_class == PrintManagementServiceClass
 
     def test_procedure_step_sop(self):
         assert ModalityPerformedProcedureStepSOPClass == '1.2.840.10008.3.1.2.3.3'
-        assert ModalityPerformedProcedureStepSOPClass.service_class == ModalityPerformedProcedureStepServiceClass
+        assert ModalityPerformedProcedureStepSOPClass.service_class == ProcedureStepServiceClass
 
     def test_protocol_approval_sop(self):
         """Test an Protocol Approval Service SOP Class."""
@@ -347,7 +355,7 @@ class TestSOPClass(object):
 
     def test_rt_sop(self):
         assert RTConventionalMachineVerification == '1.2.840.10008.5.1.4.34.8'
-        assert RTConventionalMachineVerification.service_class == ServiceClass
+        assert RTConventionalMachineVerification.service_class == RTMachineVerificationServiceClass
 
     def test_storage_sop(self):
         """Test a Storage Service SOP Class."""
@@ -356,7 +364,7 @@ class TestSOPClass(object):
 
     def test_storage_commitment_sop(self):
         assert StorageCommitmentPushModelSOPClass == '1.2.840.10008.1.20.1'
-        assert StorageCommitmentPushModelSOPClass.service_class == ServiceClass
+        assert StorageCommitmentPushModelSOPClass.service_class == StorageCommitmentServiceClass
 
     def test_substance_admin_sop(self):
         """Test s Substance Administration Query Service SOP Class."""
@@ -365,7 +373,7 @@ class TestSOPClass(object):
 
     def test_ups_sop(self):
         assert UnifiedProcedureStepPullSOPClass == '1.2.840.10008.5.1.4.34.6.3'
-        assert UnifiedProcedureStepPullSOPClass.service_class == ServiceClass
+        assert UnifiedProcedureStepPullSOPClass.service_class == UnifiedProcedureStepServiceClass
 
     def test_verification_sop(self):
         """Test a Verification Service SOP Class."""

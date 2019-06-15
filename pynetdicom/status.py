@@ -333,10 +333,10 @@ APPLICATION_EVENT_LOGGING_SERVICE_CLASS_STATUS.update(GENERAL_STATUS)
 # Media Creation Management Service Class specific status code values
 MEDIA_CREATION_MANAGEMENT_SERVICE_CLASS_STATUS = {
     0x0001 : (STATUS_WARNING,
-              "Requested optional attributes are not supported"),
+              "Requested optional Attributes are not supported"),
     0xA510 : (STATUS_FAILURE,
-              "Refused because an Initiate Media Creation action has already "
-              "been received for this SOP Instance"),
+              "An Initiate Media Creation action has already been received "
+              "for this SOP Instance"),
     0xC201 : (STATUS_FAILURE, "Media creation request already completed"),
     0xC202 : (STATUS_FAILURE,
               "Media creation request already in progress and cannot be "
@@ -347,7 +347,14 @@ MEDIA_CREATION_MANAGEMENT_SERVICE_CLASS_STATUS.update(GENERAL_STATUS)
 
 
 # Unified Procedure Step Service specific status code values
-UNIFIED_PROCEDURE_STEP_SERVICE_CLASS_STATUS = {
+UNIFIED_PROCEDURE_STEP_SERVICE_CLASS_STATUS = {}
+# Ranged values
+for _code in range(0xC000, 0xCFFF + 1):
+    UNIFIED_PROCEDURE_STEP_SERVICE_CLASS_STATUS[_code] = (
+        STATUS_FAILURE, 'Unable to Process'
+    )
+
+UNIFIED_PROCEDURE_STEP_SERVICE_CLASS_STATUS.update({
     0x0001 : (STATUS_WARNING,
               "Requested optional attributes are not supported"),
     0xA700 : (STATUS_FAILURE, "Out of resources"),
@@ -389,14 +396,7 @@ UNIFIED_PROCEDURE_STEP_SERVICE_CLASS_STATUS = {
               "Matches are continuing - current match is supplied an any "
               "Optional Keys were not supported for existence for this "
               "Identifier"),
-}
-
-# Ranged values
-for _code in range(0xC000, 0xCFFF + 1):
-    UNIFIED_PROCEDURE_STEP_SERVICE_CLASS_STATUS[_code] = (
-        STATUS_FAILURE, 'Unable to Process'
-    )
-
+})
 UNIFIED_PROCEDURE_STEP_SERVICE_CLASS_STATUS.update(GENERAL_STATUS)
 
 

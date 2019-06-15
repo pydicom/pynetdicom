@@ -141,7 +141,7 @@ see the `handler implementation documentation
 
 Handlers can be bound to events through the ``bind(event, handler)`` methods
 in the ``Association`` and ``AssociationServer`` classes or by using the
-``evt_handler`` keyword parameter to ``AE.associate()`` and
+``evt_handlers`` keyword parameter to ``AE.associate()`` and
 ``AE.start_server()``. Handlers can be unbound with the
 ``unbind(event, handler)`` methods in the ``Association`` and
 ``AssociationServer`` classes. See the :ref:`Association<association>`
