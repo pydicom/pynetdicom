@@ -200,8 +200,15 @@
     <span class="n">VerificationServiceClass</span><span class="p">,</span>
 <span class="p">)</span>
 <span class="kn">from</span> <span class="nn">pynetdicom.service_class_n</span> <span class="k">import</span> <span class="p">(</span>
+    <span class="n">ApplicationEventLoggingServiceClass</span><span class="p">,</span>
     <span class="n">DisplaySystemManagementServiceClass</span><span class="p">,</span>
-    <span class="n">ModalityPerformedProcedureStepServiceClass</span>
+    <span class="n">InstanceAvailabilityNotificationServiceClass</span><span class="p">,</span>
+    <span class="n">MediaCreationManagementServiceClass</span><span class="p">,</span>
+    <span class="n">PrintManagementServiceClass</span><span class="p">,</span>
+    <span class="n">ProcedureStepServiceClass</span><span class="p">,</span>
+    <span class="n">RTMachineVerificationServiceClass</span><span class="p">,</span>
+    <span class="n">StorageCommitmentServiceClass</span><span class="p">,</span>
+    <span class="n">UnifiedProcedureStepServiceClass</span><span class="p">,</span>
 <span class="p">)</span>
 
 
@@ -226,7 +233,7 @@
     <span class="k">if</span> <span class="n">uid</span> <span class="ow">in</span> <span class="n">_SERVICE_CLASSES</span><span class="p">:</span>
         <span class="k">return</span> <span class="n">_SERVICE_CLASSES</span><span class="p">[</span><span class="n">uid</span><span class="p">]</span>
     <span class="k">elif</span> <span class="n">uid</span> <span class="ow">in</span> <span class="n">_APPLICATION_EVENT_CLASSES</span><span class="o">.</span><span class="n">values</span><span class="p">():</span>
-        <span class="k">return</span> <span class="n">ServiceClass</span>  <span class="c1"># Not yet implemented</span>
+        <span class="k">return</span> <span class="n">ApplicationEventLoggingServiceClass</span>
     <span class="k">elif</span> <span class="n">uid</span> <span class="ow">in</span> <span class="n">_BASIC_WORKLIST_CLASSES</span><span class="o">.</span><span class="n">values</span><span class="p">():</span>
         <span class="k">return</span> <span class="n">BasicWorklistManagementServiceClass</span>
     <span class="k">elif</span> <span class="n">uid</span> <span class="ow">in</span> <span class="n">_COLOR_PALETTE_CLASSES</span><span class="o">.</span><span class="n">values</span><span class="p">():</span>
@@ -240,17 +247,17 @@
     <span class="k">elif</span> <span class="n">uid</span> <span class="ow">in</span> <span class="n">_IMPLANT_TEMPLATE_CLASSES</span><span class="o">.</span><span class="n">values</span><span class="p">():</span>
         <span class="k">return</span> <span class="n">ImplantTemplateQueryRetrieveServiceClass</span>
     <span class="k">elif</span> <span class="n">uid</span> <span class="ow">in</span> <span class="n">_INSTANCE_AVAILABILITY_CLASSES</span><span class="o">.</span><span class="n">values</span><span class="p">():</span>
-        <span class="k">return</span> <span class="n">ServiceClass</span>  <span class="c1"># Not yet implemented</span>
+        <span class="k">return</span> <span class="n">InstanceAvailabilityNotificationServiceClass</span>
     <span class="k">elif</span> <span class="n">uid</span> <span class="ow">in</span> <span class="n">_MEDIA_CREATION_CLASSES</span><span class="o">.</span><span class="n">values</span><span class="p">():</span>
-        <span class="k">return</span> <span class="n">ServiceClass</span>  <span class="c1"># Not yet implemented</span>
+        <span class="k">return</span> <span class="n">MediaCreationManagementServiceClass</span>
     <span class="k">elif</span> <span class="n">uid</span> <span class="ow">in</span> <span class="n">_MEDIA_STORAGE_CLASSES</span><span class="o">.</span><span class="n">values</span><span class="p">():</span>
         <span class="k">return</span> <span class="n">ServiceClass</span>  <span class="c1"># Not yet implemented</span>
     <span class="k">elif</span> <span class="n">uid</span> <span class="ow">in</span> <span class="n">_NON_PATIENT_OBJECT_CLASSES</span><span class="o">.</span><span class="n">values</span><span class="p">():</span>
         <span class="k">return</span> <span class="n">NonPatientObjectStorageServiceClass</span>
     <span class="k">elif</span> <span class="n">uid</span> <span class="ow">in</span> <span class="n">_PRINT_MANAGEMENT_CLASSES</span><span class="o">.</span><span class="n">values</span><span class="p">():</span>
-        <span class="k">return</span> <span class="n">ServiceClass</span>  <span class="c1"># Not yet implemented</span>
+        <span class="k">return</span> <span class="n">PrintManagementServiceClass</span>
     <span class="k">elif</span> <span class="n">uid</span> <span class="ow">in</span> <span class="n">_PROCEDURE_STEP_CLASSES</span><span class="o">.</span><span class="n">values</span><span class="p">():</span>
-        <span class="k">return</span> <span class="n">ModalityPerformedProcedureStepServiceClass</span>
+        <span class="k">return</span> <span class="n">ProcedureStepServiceClass</span>
     <span class="k">elif</span> <span class="n">uid</span> <span class="ow">in</span> <span class="n">_PROTOCOL_APPROVAL_CLASSES</span><span class="o">.</span><span class="n">values</span><span class="p">():</span>
         <span class="k">return</span> <span class="n">ProtocolApprovalQueryRetrieveServiceClass</span>
     <span class="k">elif</span> <span class="n">uid</span> <span class="ow">in</span> <span class="n">_QR_CLASSES</span><span class="o">.</span><span class="n">values</span><span class="p">():</span>
@@ -258,15 +265,15 @@
     <span class="k">elif</span> <span class="n">uid</span> <span class="ow">in</span> <span class="n">_RELEVANT_PATIENT_QUERY_CLASSES</span><span class="o">.</span><span class="n">values</span><span class="p">():</span>
         <span class="k">return</span> <span class="n">RelevantPatientInformationQueryServiceClass</span>
     <span class="k">elif</span> <span class="n">uid</span> <span class="ow">in</span> <span class="n">_RT_MACHINE_VERIFICATION_CLASSES</span><span class="o">.</span><span class="n">values</span><span class="p">():</span>
-        <span class="k">return</span> <span class="n">ServiceClass</span>  <span class="c1"># Not yet implemented</span>
+        <span class="k">return</span> <span class="n">RTMachineVerificationServiceClass</span>
     <span class="k">elif</span> <span class="n">uid</span> <span class="ow">in</span> <span class="n">_STORAGE_CLASSES</span><span class="o">.</span><span class="n">values</span><span class="p">():</span>
         <span class="k">return</span> <span class="n">StorageServiceClass</span>
     <span class="k">elif</span> <span class="n">uid</span> <span class="ow">in</span> <span class="n">_STORAGE_COMMITMENT_CLASSES</span><span class="o">.</span><span class="n">values</span><span class="p">():</span>
-        <span class="k">return</span> <span class="n">ServiceClass</span>  <span class="c1"># Not yet implemented</span>
+        <span class="k">return</span> <span class="n">StorageCommitmentServiceClass</span>
     <span class="k">elif</span> <span class="n">uid</span> <span class="ow">in</span> <span class="n">_SUBSTANCE_ADMINISTRATION_CLASSES</span><span class="o">.</span><span class="n">values</span><span class="p">():</span>
         <span class="k">return</span> <span class="n">SubstanceAdministrationQueryServiceClass</span>
     <span class="k">elif</span> <span class="n">uid</span> <span class="ow">in</span> <span class="n">_UNIFIED_PROCEDURE_STEP_CLASSES</span><span class="o">.</span><span class="n">values</span><span class="p">():</span>
-        <span class="k">return</span> <span class="n">ServiceClass</span>  <span class="c1"># Not yet implemented</span>
+        <span class="k">return</span> <span class="n">UnifiedProcedureStepServiceClass</span>
     <span class="k">elif</span> <span class="n">uid</span> <span class="ow">in</span> <span class="n">_VERIFICATION_CLASSES</span><span class="o">.</span><span class="n">values</span><span class="p">():</span>
         <span class="k">return</span> <span class="n">VerificationServiceClass</span>
 
@@ -304,7 +311,7 @@
 <span class="c1"># Table of service classes with assigned UIDs</span>
 <span class="n">_SERVICE_CLASSES</span> <span class="o">=</span> <span class="p">{</span>
     <span class="s1">&#39;1.2.840.10008.4.2&#39;</span> <span class="p">:</span> <span class="n">StorageServiceClass</span><span class="p">,</span>
-    <span class="c1">#&#39;1.2.840.10008.5.1.4.34.6&#39; : UnifiedProcedureStepServiceClass,</span>
+    <span class="s1">&#39;1.2.840.10008.5.1.4.34.6&#39;</span> <span class="p">:</span> <span class="n">UnifiedProcedureStepServiceClass</span><span class="p">,</span>
 <span class="p">}</span>
 
 <span class="c1"># Generate the various SOP classes</span>
@@ -367,7 +374,7 @@
     <span class="s1">&#39;BasicFilmSessionSOPClass&#39;</span> <span class="p">:</span> <span class="s1">&#39;1.2.840.10008.5.1.1.1&#39;</span><span class="p">,</span>
     <span class="s1">&#39;BasicFilmBoxSOPClass&#39;</span> <span class="p">:</span> <span class="s1">&#39;1.2.840.10008.5.1.1.2&#39;</span><span class="p">,</span>
     <span class="s1">&#39;BasicGrayscaleImageBoxSOPClass&#39;</span> <span class="p">:</span> <span class="s1">&#39;1.2.840.10008.5.1.1.4&#39;</span><span class="p">,</span>
-    <span class="s1">&#39;BasicColourImageBoxSOPClass&#39;</span> <span class="p">:</span> <span class="s1">&#39;1.2.840.10008.5.1.1.4.1&#39;</span><span class="p">,</span>
+    <span class="s1">&#39;BasicColorImageBoxSOPClass&#39;</span> <span class="p">:</span> <span class="s1">&#39;1.2.840.10008.5.1.1.4.1&#39;</span><span class="p">,</span>
     <span class="s1">&#39;PrintJobSOPClass&#39;</span> <span class="p">:</span> <span class="s1">&#39;1.2.840.10008.5.1.1.14&#39;</span><span class="p">,</span>
     <span class="s1">&#39;BasicAnnotationBoxSOPClass&#39;</span> <span class="p">:</span> <span class="s1">&#39;1.2.840.10008.5.1.1.15&#39;</span><span class="p">,</span>
     <span class="s1">&#39;PrinterSOPClass&#39;</span> <span class="p">:</span> <span class="s1">&#39;1.2.840.10008.5.1.1.16&#39;</span><span class="p">,</span>

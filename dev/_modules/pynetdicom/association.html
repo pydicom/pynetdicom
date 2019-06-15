@@ -1228,10 +1228,10 @@
 <span class="sd">            Hanging Protocol Query/Retrieve Service, Defined Procedure Protocol</span>
 <span class="sd">            Query/Retrieve Service, Substance Administration Query Service,</span>
 <span class="sd">            Color Palette Query/Retrieve Service*, *Implant Template</span>
-<span class="sd">            Query/Retrieve Service* and *Protocol Approval Query/Retrieve</span>
-<span class="sd">            Service* specific</span>
+<span class="sd">            Query/Retrieve Service*, *Protocol Approval Query/Retrieve</span>
+<span class="sd">            Service* and *Unified Protocol Step Service* specific</span>
 <span class="sd">            (DICOM Standard Part 4, Annexes C.4.1, K.4.1.1.4, U.4.1, HH,</span>
-<span class="sd">            V.4.1.1.4, X, BB and II):</span>
+<span class="sd">            V.4.1.1.4, X, BB, II and CC):</span>
 
 <span class="sd">            Failure</span>
 <span class="sd">              | ``0xA700`` - Out of resources</span>
@@ -1279,14 +1279,15 @@
 <span class="sd">        See Also</span>
 <span class="sd">        --------</span>
 <span class="sd">        dimse_primitives.C_FIND</span>
+<span class="sd">        service_class.ColorPaletteQueryRetrieveServiceClass</span>
+<span class="sd">        service_class.DefinedProcedureProtocolQueryRetrieveServiceClass</span>
+<span class="sd">        service_class.HangingProtocolQueryRetrieveServiceClass</span>
+<span class="sd">        service_class.ImplantTemplateQueryRetrieveServiceClass</span>
+<span class="sd">        service_class.ProtocolApprovalQueryRetrieveServiceClass</span>
 <span class="sd">        service_class.QueryRetrieveFindServiceClass</span>
 <span class="sd">        service_class.RelevantPatientInformationQueryServiceClass</span>
 <span class="sd">        service_class.SubstanceAdministrationQueryServiceClass</span>
-<span class="sd">        service_class.HangingProtocolQueryRetrieveServiceClass</span>
-<span class="sd">        service_class.DefinedProcedureProtocolQueryRetrieveServiceClass</span>
-<span class="sd">        service_class.ColorPaletteQueryRetrieveServiceClass</span>
-<span class="sd">        service_class.ImplantTemplateQueryRetrieveServiceClass</span>
-<span class="sd">        service_class.ProtocolApprovalQueryRetrieveServiceClass</span>
+<span class="sd">        service_class.UnifiedProcedureStepServiceClass</span>
 
 <span class="sd">        References</span>
 <span class="sd">        ----------</span>
@@ -2361,9 +2362,13 @@
 <span class="sd">              | ``0x0213`` - Resource limitation</span>
 
 <span class="sd">        action_reply : pydicom.dataset.Dataset or None</span>
-<span class="sd">            If the status category is &#39;Success&#39; then a ``Dataset``</span>
+<span class="sd">            If the status category is &#39;Success&#39; or &#39;Warning&#39; then a ``Dataset``</span>
 <span class="sd">            containing attributes corresponding to those supplied in the</span>
-<span class="sd">            *Action Reply*, otherwise returns ``None``.</span>
+<span class="sd">            *Action Reply*. Because *Action Reply* is optional the returned</span>
+<span class="sd">            ``Dataset`` may be empty.</span>
+
+<span class="sd">            If the status category is &#39;Failure&#39; or if the peer timed-out,</span>
+<span class="sd">            aborted, or sent an invalid response then returns ``None``.</span>
 
 <span class="sd">        See Also</span>
 <span class="sd">        --------</span>
@@ -2405,18 +2410,23 @@
         <span class="n">req</span><span class="o">.</span><span class="n">RequestedSOPInstanceUID</span> <span class="o">=</span> <span class="n">instance_uid</span>
         <span class="n">req</span><span class="o">.</span><span class="n">ActionTypeID</span> <span class="o">=</span> <span class="n">action_type</span>
 
-        <span class="c1"># Encode the `dataset` using the agreed transfer syntax</span>
-        <span class="c1">#   Will return None if failed to encode</span>
-        <span class="n">bytestream</span> <span class="o">=</span> <span class="n">encode</span><span class="p">(</span><span class="n">dataset</span><span class="p">,</span>
-                            <span class="n">transfer_syntax</span><span class="o">.</span><span class="n">is_implicit_VR</span><span class="p">,</span>
-                            <span class="n">transfer_syntax</span><span class="o">.</span><span class="n">is_little_endian</span><span class="p">)</span>
+        <span class="c1"># Action Information is optional</span>
+        <span class="k">if</span> <span class="n">dataset</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="c1"># Encode the `dataset` using the agreed transfer syntax</span>
+            <span class="c1">#   Will return None if failed to encode</span>
+            <span class="n">bytestream</span> <span class="o">=</span> <span class="n">encode</span><span class="p">(</span><span class="n">dataset</span><span class="p">,</span>
+                                <span class="n">transfer_syntax</span><span class="o">.</span><span class="n">is_implicit_VR</span><span class="p">,</span>
+                                <span class="n">transfer_syntax</span><span class="o">.</span><span class="n">is_little_endian</span><span class="p">)</span>
 
-        <span class="k">if</span> <span class="n">bytestream</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
-            <span class="n">req</span><span class="o">.</span><span class="n">ActionInformation</span> <span class="o">=</span> <span class="n">BytesIO</span><span class="p">(</span><span class="n">bytestream</span><span class="p">)</span>
-        <span class="k">else</span><span class="p">:</span>
-            <span class="n">msg</span> <span class="o">=</span> <span class="s2">&quot;Failed to encode the supplied &#39;Action Information&#39; dataset&quot;</span>
-            <span class="n">LOGGER</span><span class="o">.</span><span class="n">error</span><span class="p">(</span><span class="n">msg</span><span class="p">)</span>
-            <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="n">msg</span><span class="p">)</span>
+            <span class="k">if</span> <span class="n">bytestream</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+                <span class="n">req</span><span class="o">.</span><span class="n">ActionInformation</span> <span class="o">=</span> <span class="n">BytesIO</span><span class="p">(</span><span class="n">bytestream</span><span class="p">)</span>
+            <span class="k">else</span><span class="p">:</span>
+                <span class="n">msg</span> <span class="o">=</span> <span class="p">(</span>
+                    <span class="s2">&quot;Failed to encode the supplied &#39;Action Information&#39; &quot;</span>
+                    <span class="s2">&quot;dataset&quot;</span>
+                <span class="p">)</span>
+                <span class="n">LOGGER</span><span class="o">.</span><span class="n">error</span><span class="p">(</span><span class="n">msg</span><span class="p">)</span>
+                <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="n">msg</span><span class="p">)</span>
 
         <span class="c1"># Send N-ACTION request to the peer via DIMSE and wait for the response</span>
         <span class="n">LOGGER</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="s1">&#39;Sending Action Request: MsgID </span><span class="si">{}</span><span class="s1">&#39;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">msg_id</span><span class="p">))</span>
@@ -2435,6 +2445,7 @@
             <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">is_established</span><span class="p">:</span>
                 <span class="n">LOGGER</span><span class="o">.</span><span class="n">error</span><span class="p">(</span><span class="s2">&quot;Connection closed or timed-out&quot;</span><span class="p">)</span>
                 <span class="bp">self</span><span class="o">.</span><span class="n">abort</span><span class="p">()</span>
+
             <span class="k">return</span> <span class="n">Dataset</span><span class="p">(),</span> <span class="kc">None</span>
 
         <span class="c1"># Determine validity of the response and get the status</span>
@@ -2463,6 +2474,8 @@
                     <span class="n">LOGGER</span><span class="o">.</span><span class="n">exception</span><span class="p">(</span><span class="n">ex</span><span class="p">)</span>
                     <span class="c1"># Failure: Processing failure</span>
                     <span class="n">status</span><span class="o">.</span><span class="n">Status</span> <span class="o">=</span> <span class="mh">0x0110</span>
+            <span class="k">else</span><span class="p">:</span>
+                <span class="n">action_reply</span> <span class="o">=</span> <span class="n">Dataset</span><span class="p">()</span>
 
         <span class="k">return</span> <span class="n">status</span><span class="p">,</span> <span class="n">action_reply</span></div>
 
@@ -2566,9 +2579,13 @@
 <span class="sd">              | ``0xC227`` - No such object instance - Referenced RT Plan not found</span>
 
 <span class="sd">        attribute_list : pydicom.dataset.Dataset or None</span>
-<span class="sd">            If the status category is &#39;Success&#39; then a ``Dataset`` containing</span>
-<span class="sd">            attributes corresponding to those supplied in the *Attribute List*,</span>
-<span class="sd">            otherwise returns ``None``.</span>
+<span class="sd">            If the status category is &#39;Success&#39; or &#39;Warning&#39; then a ``Dataset``</span>
+<span class="sd">            containing attributes corresponding to those supplied in the</span>
+<span class="sd">            *Attribute List*. Because *Attribute List* is optional the returned</span>
+<span class="sd">            ``Dataset`` may be empty.</span>
+
+<span class="sd">            If the status category is &#39;Failure&#39; or if the peer timed-out,</span>
+<span class="sd">            aborted, or sent an invalid response then returns ``None``.</span>
 
 <span class="sd">        See Also</span>
 <span class="sd">        --------</span>
@@ -2608,18 +2625,20 @@
         <span class="n">req</span><span class="o">.</span><span class="n">AffectedSOPClassUID</span> <span class="o">=</span> <span class="n">class_uid</span>
         <span class="n">req</span><span class="o">.</span><span class="n">AffectedSOPInstanceUID</span> <span class="o">=</span> <span class="n">instance_uid</span>
 
-        <span class="c1"># Encode the `dataset` using the agreed transfer syntax</span>
-        <span class="c1">#   Will return None if failed to encode</span>
-        <span class="n">bytestream</span> <span class="o">=</span> <span class="n">encode</span><span class="p">(</span><span class="n">dataset</span><span class="p">,</span>
-                            <span class="n">transfer_syntax</span><span class="o">.</span><span class="n">is_implicit_VR</span><span class="p">,</span>
-                            <span class="n">transfer_syntax</span><span class="o">.</span><span class="n">is_little_endian</span><span class="p">)</span>
+        <span class="c1"># Attribute List is optional</span>
+        <span class="k">if</span> <span class="n">dataset</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="c1"># Encode the `dataset` using the agreed transfer syntax</span>
+            <span class="c1">#   Will return None if failed to encode</span>
+            <span class="n">bytestream</span> <span class="o">=</span> <span class="n">encode</span><span class="p">(</span><span class="n">dataset</span><span class="p">,</span>
+                                <span class="n">transfer_syntax</span><span class="o">.</span><span class="n">is_implicit_VR</span><span class="p">,</span>
+                                <span class="n">transfer_syntax</span><span class="o">.</span><span class="n">is_little_endian</span><span class="p">)</span>
 
-        <span class="k">if</span> <span class="n">bytestream</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
-            <span class="n">req</span><span class="o">.</span><span class="n">AttributeList</span> <span class="o">=</span> <span class="n">BytesIO</span><span class="p">(</span><span class="n">bytestream</span><span class="p">)</span>
-        <span class="k">else</span><span class="p">:</span>
-            <span class="n">msg</span> <span class="o">=</span> <span class="s2">&quot;Failed to encode the supplied &#39;Attribute List&#39; dataset&quot;</span>
-            <span class="n">LOGGER</span><span class="o">.</span><span class="n">error</span><span class="p">(</span><span class="n">msg</span><span class="p">)</span>
-            <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="n">msg</span><span class="p">)</span>
+            <span class="k">if</span> <span class="n">bytestream</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+                <span class="n">req</span><span class="o">.</span><span class="n">AttributeList</span> <span class="o">=</span> <span class="n">BytesIO</span><span class="p">(</span><span class="n">bytestream</span><span class="p">)</span>
+            <span class="k">else</span><span class="p">:</span>
+                <span class="n">msg</span> <span class="o">=</span> <span class="s2">&quot;Failed to encode the supplied &#39;Attribute List&#39; dataset&quot;</span>
+                <span class="n">LOGGER</span><span class="o">.</span><span class="n">error</span><span class="p">(</span><span class="n">msg</span><span class="p">)</span>
+                <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="n">msg</span><span class="p">)</span>
 
         <span class="c1"># Send N-CREATE request to the peer via DIMSE and wait for the response</span>
         <span class="n">LOGGER</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="s1">&#39;Sending Create Request: MsgID </span><span class="si">{}</span><span class="s1">&#39;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">msg_id</span><span class="p">))</span>
@@ -2667,6 +2686,9 @@
                     <span class="n">LOGGER</span><span class="o">.</span><span class="n">exception</span><span class="p">(</span><span class="n">ex</span><span class="p">)</span>
                     <span class="c1"># Failure: Processing failure</span>
                     <span class="n">status</span><span class="o">.</span><span class="n">Status</span> <span class="o">=</span> <span class="mh">0x0110</span>
+
+            <span class="k">else</span><span class="p">:</span>
+                <span class="n">attribute_list</span> <span class="o">=</span> <span class="n">Dataset</span><span class="p">()</span>
 
         <span class="k">return</span> <span class="n">status</span><span class="p">,</span> <span class="n">attribute_list</span></div>
 
@@ -2839,8 +2861,13 @@
 <span class="sd">              | ``0x0213`` - Resource limitation</span>
 
 <span class="sd">        event_reply : pydicom.dataset.Dataset or None</span>
-<span class="sd">            If the status category is &#39;Success&#39; then a ``Dataset`` containing</span>
-<span class="sd">            the *Event Reply* to the event report request.</span>
+<span class="sd">            If the status category is &#39;Success&#39; or &#39;Warning&#39; then a ``Dataset``</span>
+<span class="sd">            containing attributes corresponding to those supplied in the</span>
+<span class="sd">            *Event Reply*. Because *Event Reply* is optional the returned</span>
+<span class="sd">            ``Dataset`` may be empty.</span>
+
+<span class="sd">            If the status category is &#39;Failure&#39; or if the peer timed-out,</span>
+<span class="sd">            aborted, or sent an invalid response then returns ``None``.</span>
 
 <span class="sd">        See Also</span>
 <span class="sd">        --------</span>
@@ -2869,6 +2896,7 @@
         <span class="c1"># Determine the Presentation Context we are operating under</span>
         <span class="c1">#   and hence the transfer syntax to use for encoding `dataset`</span>
         <span class="n">context</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_get_valid_context</span><span class="p">(</span><span class="n">meta_uid</span> <span class="ow">or</span> <span class="n">class_uid</span><span class="p">,</span> <span class="s1">&#39;&#39;</span><span class="p">,</span> <span class="s1">&#39;scu&#39;</span><span class="p">)</span>
+        <span class="n">transfer_syntax</span> <span class="o">=</span> <span class="n">context</span><span class="o">.</span><span class="n">transfer_syntax</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span>
 
         <span class="c1"># Build N-EVENT-REPORT request primitive</span>
         <span class="c1">#   (M) Message ID</span>
@@ -2882,11 +2910,10 @@
         <span class="n">req</span><span class="o">.</span><span class="n">AffectedSOPInstanceUID</span> <span class="o">=</span> <span class="n">instance_uid</span>
         <span class="n">req</span><span class="o">.</span><span class="n">EventTypeID</span> <span class="o">=</span> <span class="n">event_type</span>
 
-        <span class="c1"># Encode the `dataset` using the agreed transfer syntax</span>
-        <span class="c1">#   Will return None if failed to encode</span>
-        <span class="n">transfer_syntax</span> <span class="o">=</span> <span class="n">context</span><span class="o">.</span><span class="n">transfer_syntax</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span>
         <span class="c1"># *Event Information* is optional</span>
-        <span class="k">if</span> <span class="n">dataset</span><span class="p">:</span>
+        <span class="k">if</span> <span class="n">dataset</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="c1"># Encode the `dataset` using the agreed transfer syntax</span>
+            <span class="c1">#   Will return None if failed to encode</span>
             <span class="n">bytestream</span> <span class="o">=</span> <span class="n">encode</span><span class="p">(</span><span class="n">dataset</span><span class="p">,</span>
                                 <span class="n">transfer_syntax</span><span class="o">.</span><span class="n">is_implicit_VR</span><span class="p">,</span>
                                 <span class="n">transfer_syntax</span><span class="o">.</span><span class="n">is_little_endian</span><span class="p">)</span>
@@ -2894,7 +2921,9 @@
             <span class="k">if</span> <span class="n">bytestream</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
                 <span class="n">req</span><span class="o">.</span><span class="n">EventInformation</span> <span class="o">=</span> <span class="n">BytesIO</span><span class="p">(</span><span class="n">bytestream</span><span class="p">)</span>
             <span class="k">else</span><span class="p">:</span>
-                <span class="n">msg</span> <span class="o">=</span> <span class="s2">&quot;Unable to encode the supplied &#39;Event Information&#39; dataset&quot;</span>
+                <span class="n">msg</span> <span class="o">=</span> <span class="p">(</span>
+                    <span class="s2">&quot;Unable to encode the supplied &#39;Event Information&#39; dataset&quot;</span>
+                <span class="p">)</span>
                 <span class="n">LOGGER</span><span class="o">.</span><span class="n">error</span><span class="p">(</span><span class="n">msg</span><span class="p">)</span>
                 <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="n">msg</span><span class="p">)</span>
 
@@ -2944,6 +2973,9 @@
                     <span class="n">LOGGER</span><span class="o">.</span><span class="n">exception</span><span class="p">(</span><span class="n">ex</span><span class="p">)</span>
                     <span class="c1"># Failure: Processing failure</span>
                     <span class="n">status</span><span class="o">.</span><span class="n">Status</span> <span class="o">=</span> <span class="mh">0x0110</span>
+
+            <span class="k">else</span><span class="p">:</span>
+                <span class="n">event_reply</span> <span class="o">=</span> <span class="n">Dataset</span><span class="p">()</span>
 
         <span class="k">return</span> <span class="n">status</span><span class="p">,</span> <span class="n">event_reply</span></div>
 
@@ -3030,9 +3062,13 @@
 <span class="sd">              | ``0xC112`` - Applicable Machine Verification Instance not found</span>
 
 <span class="sd">        attribute_list : pydicom.dataset.Dataset or None</span>
-<span class="sd">            If the status category is &#39;Success&#39; then a ``Dataset`` containing</span>
-<span class="sd">            attributes corresponding to those supplied in the *Attribute</span>
-<span class="sd">            Identifier List*, otherwise returns ``None``.</span>
+<span class="sd">            If the status category is &#39;Success&#39; or &#39;Warning&#39; then a ``Dataset``</span>
+<span class="sd">            containing attributes corresponding to those supplied in the</span>
+<span class="sd">            *Attribute List*. Because *Attribute List* is optional the returned</span>
+<span class="sd">            ``Dataset`` may be empty.</span>
+
+<span class="sd">            If the status category is &#39;Failure&#39; or if the peer timed-out,</span>
+<span class="sd">            aborted, or sent an invalid response then returns ``None``.</span>
 
 <span class="sd">        See Also</span>
 <span class="sd">        --------</span>
@@ -3107,7 +3143,7 @@
                 <span class="k">return</span> <span class="n">status</span><span class="p">,</span> <span class="n">attribute_list</span>
 
             <span class="n">bytestream</span> <span class="o">=</span> <span class="n">rsp</span><span class="o">.</span><span class="n">AttributeList</span>
-            <span class="k">if</span> <span class="n">bytestream</span> <span class="ow">and</span> <span class="n">bytestream</span><span class="o">.</span><span class="n">getvalue</span> <span class="o">!=</span> <span class="sa">b</span><span class="s1">&#39;&#39;</span><span class="p">:</span>
+            <span class="k">if</span> <span class="n">bytestream</span> <span class="ow">and</span> <span class="n">bytestream</span><span class="o">.</span><span class="n">getvalue</span><span class="p">()</span> <span class="o">!=</span> <span class="sa">b</span><span class="s1">&#39;&#39;</span><span class="p">:</span>
                 <span class="c1"># Attempt to decode the response&#39;s dataset</span>
                 <span class="c1"># pylint: disable=broad-except</span>
                 <span class="k">try</span><span class="p">:</span>
@@ -3122,6 +3158,9 @@
                     <span class="n">LOGGER</span><span class="o">.</span><span class="n">exception</span><span class="p">(</span><span class="n">ex</span><span class="p">)</span>
                     <span class="c1"># Failure: Processing failure</span>
                     <span class="n">status</span><span class="o">.</span><span class="n">Status</span> <span class="o">=</span> <span class="mh">0x0110</span>
+
+            <span class="k">else</span><span class="p">:</span>
+                <span class="n">attribute_list</span> <span class="o">=</span> <span class="n">Dataset</span><span class="p">()</span>
 
         <span class="k">return</span> <span class="n">status</span><span class="p">,</span> <span class="n">attribute_list</span></div>
 
@@ -3238,9 +3277,13 @@
 <span class="sd">                referenced beam</span>
 
 <span class="sd">        attribute_list : pydicom.dataset.Dataset or None</span>
-<span class="sd">            If the status category is &#39;Success&#39; then a ``Dataset`` containing</span>
-<span class="sd">            attributes corresponding to those supplied in the *Attribute List*,</span>
-<span class="sd">            otherwise returns ``None``.</span>
+<span class="sd">            If the status category is &#39;Success&#39; or &#39;Warning&#39; then a ``Dataset``</span>
+<span class="sd">            containing attributes corresponding to those supplied in the</span>
+<span class="sd">            *Attribute List*. Because *Attribute List* is optional the returned</span>
+<span class="sd">            ``Dataset`` may be empty.</span>
+
+<span class="sd">            If the status category is &#39;Failure&#39; or if the peer timed-out,</span>
+<span class="sd">            aborted, or sent an invalid response then returns ``None``.</span>
 
 <span class="sd">        See Also</span>
 <span class="sd">        --------</span>
@@ -3339,6 +3382,9 @@
                     <span class="n">LOGGER</span><span class="o">.</span><span class="n">exception</span><span class="p">(</span><span class="n">ex</span><span class="p">)</span>
                     <span class="c1"># Failure: Processing failure</span>
                     <span class="n">status</span><span class="o">.</span><span class="n">Status</span> <span class="o">=</span> <span class="mh">0x0110</span>
+
+            <span class="k">else</span><span class="p">:</span>
+                <span class="n">attribute_list</span> <span class="o">=</span> <span class="n">Dataset</span><span class="p">()</span>
 
         <span class="k">return</span> <span class="n">status</span><span class="p">,</span> <span class="n">attribute_list</span></div></div>
 

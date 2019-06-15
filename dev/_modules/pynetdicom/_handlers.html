@@ -1462,12 +1462,9 @@
     <span class="c1"># Try and get the status from the affected SOP class UID</span>
     <span class="k">if</span> <span class="s1">&#39;AffectedSOPClassUID&#39;</span> <span class="ow">in</span> <span class="n">cs</span><span class="p">:</span>
         <span class="n">service_class</span> <span class="o">=</span> <span class="n">uid_to_service_class</span><span class="p">(</span><span class="n">cs</span><span class="o">.</span><span class="n">AffectedSOPClassUID</span><span class="p">)</span>
-        <span class="k">try</span><span class="p">:</span>
-            <span class="k">if</span> <span class="n">cs</span><span class="o">.</span><span class="n">Status</span> <span class="ow">in</span> <span class="n">service_class</span><span class="o">.</span><span class="n">statuses</span><span class="p">:</span>
-                <span class="n">status</span> <span class="o">=</span> <span class="n">service_class</span><span class="o">.</span><span class="n">statuses</span><span class="p">[</span><span class="n">cs</span><span class="o">.</span><span class="n">Status</span><span class="p">]</span>
-                <span class="n">status_str</span> <span class="o">=</span> <span class="s1">&#39;0x</span><span class="si">{0:04x}</span><span class="s1"> - </span><span class="si">{1}</span><span class="s1">&#39;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">cs</span><span class="o">.</span><span class="n">Status</span><span class="p">,</span> <span class="n">status</span><span class="p">[</span><span class="mi">0</span><span class="p">])</span>
-        <span class="k">except</span> <span class="ne">AttributeError</span><span class="p">:</span>
-            <span class="n">status_str</span> <span class="o">=</span> <span class="s1">&#39;0x</span><span class="si">{0:04x}</span><span class="s1">&#39;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">cs</span><span class="o">.</span><span class="n">Status</span><span class="p">)</span>
+        <span class="k">if</span> <span class="n">cs</span><span class="o">.</span><span class="n">Status</span> <span class="ow">in</span> <span class="n">service_class</span><span class="o">.</span><span class="n">statuses</span><span class="p">:</span>
+            <span class="n">status</span> <span class="o">=</span> <span class="n">service_class</span><span class="o">.</span><span class="n">statuses</span><span class="p">[</span><span class="n">cs</span><span class="o">.</span><span class="n">Status</span><span class="p">]</span>
+            <span class="n">status_str</span> <span class="o">=</span> <span class="s1">&#39;0x</span><span class="si">{0:04x}</span><span class="s1"> - </span><span class="si">{1}</span><span class="s1">&#39;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">cs</span><span class="o">.</span><span class="n">Status</span><span class="p">,</span> <span class="n">status</span><span class="p">[</span><span class="mi">0</span><span class="p">])</span>
 
     <span class="n">LOGGER</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="s1">&#39;Received Store Response&#39;</span><span class="p">)</span>
     <span class="n">s</span> <span class="o">=</span> <span class="p">[]</span>
@@ -3248,7 +3245,7 @@
 <span class="sd">    :py:meth:`send_n_get()&lt;pynetdicom.association.Association.send_n_get&gt;`</span>
 <span class="sd">    :py:class:`N_GET&lt;pynetdicom.dimse_primitives.N_GET&gt;`</span>
 <span class="sd">    :py:class:`DisplaySystemManagementServiceClass&lt;pynetdicom.service_class_n.DisplaySystemManagementServiceClass&gt;`</span>
-<span class="sd">    :py:class:`ModalityPerformedProcedureStepServiceClass&lt;pynetdicom.service_class_n.ModalityPerformedProcedureStepServiceClass&gt;`</span>
+<span class="sd">    :py:class:`ProcedureStepServiceClass&lt;pynetdicom.service_class_n.ProcedureStepServiceClass&gt;`</span>
 
 <span class="sd">    References</span>
 <span class="sd">    ----------</span>

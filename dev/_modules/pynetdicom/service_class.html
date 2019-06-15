@@ -188,29 +188,28 @@
 <span class="kn">from</span> <span class="nn">pynetdicom</span> <span class="k">import</span> <span class="n">_config</span><span class="p">,</span> <span class="n">evt</span>
 <span class="kn">from</span> <span class="nn">pynetdicom.dsutils</span> <span class="k">import</span> <span class="n">decode</span><span class="p">,</span> <span class="n">encode</span>
 <span class="kn">from</span> <span class="nn">pynetdicom.dimse_primitives</span> <span class="k">import</span> <span class="p">(</span>
-    <span class="n">C_STORE</span><span class="p">,</span> <span class="n">C_ECHO</span><span class="p">,</span> <span class="n">C_MOVE</span><span class="p">,</span> <span class="n">C_GET</span><span class="p">,</span> <span class="n">C_FIND</span><span class="p">,</span> <span class="n">C_CANCEL</span>
+    <span class="n">C_STORE</span><span class="p">,</span> <span class="n">C_ECHO</span><span class="p">,</span> <span class="n">C_MOVE</span><span class="p">,</span> <span class="n">C_GET</span><span class="p">,</span> <span class="n">C_FIND</span><span class="p">,</span> <span class="n">C_CANCEL</span><span class="p">,</span>
+    <span class="n">N_ACTION</span><span class="p">,</span> <span class="n">N_CREATE</span><span class="p">,</span> <span class="n">N_DELETE</span><span class="p">,</span> <span class="n">N_EVENT_REPORT</span><span class="p">,</span> <span class="n">N_GET</span><span class="p">,</span> <span class="n">N_SET</span>
 <span class="p">)</span>
 <span class="kn">from</span> <span class="nn">pynetdicom._globals</span> <span class="k">import</span> <span class="p">(</span>
-    <span class="n">STATUS_FAILURE</span><span class="p">,</span>
-    <span class="n">STATUS_SUCCESS</span><span class="p">,</span>
-    <span class="n">STATUS_WARNING</span><span class="p">,</span>
-    <span class="n">STATUS_PENDING</span><span class="p">,</span>
+    <span class="n">STATUS_FAILURE</span><span class="p">,</span> <span class="n">STATUS_SUCCESS</span><span class="p">,</span> <span class="n">STATUS_WARNING</span><span class="p">,</span> <span class="n">STATUS_PENDING</span><span class="p">,</span>
     <span class="n">STATUS_CANCEL</span><span class="p">,</span>
 <span class="p">)</span>
 <span class="kn">from</span> <span class="nn">pynetdicom.status</span> <span class="k">import</span> <span class="p">(</span>
-    <span class="n">VERIFICATION_SERVICE_CLASS_STATUS</span><span class="p">,</span>
-    <span class="n">STORAGE_SERVICE_CLASS_STATUS</span><span class="p">,</span>
+    <span class="n">GENERAL_STATUS</span><span class="p">,</span>
     <span class="n">QR_FIND_SERVICE_CLASS_STATUS</span><span class="p">,</span>
-    <span class="n">QR_MOVE_SERVICE_CLASS_STATUS</span><span class="p">,</span>
     <span class="n">QR_GET_SERVICE_CLASS_STATUS</span><span class="p">,</span>
+    <span class="n">QR_MOVE_SERVICE_CLASS_STATUS</span><span class="p">,</span>
     <span class="n">MODALITY_WORKLIST_SERVICE_CLASS_STATUS</span><span class="p">,</span>
+    <span class="n">NON_PATIENT_SERVICE_CLASS_STATUS</span><span class="p">,</span>
     <span class="n">RELEVANT_PATIENT_SERVICE_CLASS_STATUS</span><span class="p">,</span>
     <span class="n">SUBSTANCE_ADMINISTRATION_SERVICE_CLASS_STATUS</span><span class="p">,</span>
-    <span class="n">NON_PATIENT_SERVICE_CLASS_STATUS</span><span class="p">,</span>
+    <span class="n">STORAGE_SERVICE_CLASS_STATUS</span><span class="p">,</span>
+    <span class="n">VERIFICATION_SERVICE_CLASS_STATUS</span><span class="p">,</span>
 <span class="p">)</span>
 
 
-<span class="n">LOGGER</span> <span class="o">=</span> <span class="n">logging</span><span class="o">.</span><span class="n">getLogger</span><span class="p">(</span><span class="s1">&#39;pynetdicom.service&#39;</span><span class="p">)</span>
+<span class="n">LOGGER</span> <span class="o">=</span> <span class="n">logging</span><span class="o">.</span><span class="n">getLogger</span><span class="p">(</span><span class="s1">&#39;pynetdicom.service-c&#39;</span><span class="p">)</span>
 
 
 <span class="k">class</span> <span class="nc">ServiceClass</span><span class="p">(</span><span class="nb">object</span><span class="p">):</span>
@@ -221,6 +220,8 @@
 <span class="sd">    assoc : association.Association</span>
 <span class="sd">        The association instance offering the service.</span>
 <span class="sd">    &quot;&quot;&quot;</span>
+    <span class="n">statuses</span> <span class="o">=</span> <span class="n">GENERAL_STATUS</span>
+
     <span class="k">def</span> <span class="nf">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">assoc</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;Create a new ServiceClass.&quot;&quot;&quot;</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">assoc</span> <span class="o">=</span> <span class="n">assoc</span>
@@ -229,6 +230,190 @@
     <span class="k">def</span> <span class="nf">ae</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;Return the AE.&quot;&quot;&quot;</span>
         <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">assoc</span><span class="o">.</span><span class="n">ae</span>
+
+    <span class="k">def</span> <span class="nf">_c_find_scp</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">req</span><span class="p">,</span> <span class="n">context</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;Implementation of the DIMSE C-FIND service.</span>
+
+<span class="sd">        Parameters</span>
+<span class="sd">        ----------</span>
+<span class="sd">        req : dimse_primitives.C_FIND</span>
+<span class="sd">            The C-FIND request primitive received from the peer.</span>
+<span class="sd">        context : presentation.PresentationContext</span>
+<span class="sd">            The presentation context that the SCP is operating under.</span>
+
+<span class="sd">        See Also</span>
+<span class="sd">        --------</span>
+<span class="sd">        association.Association.send_c_find</span>
+
+<span class="sd">        Notes</span>
+<span class="sd">        -----</span>
+<span class="sd">        **C-FIND Request**</span>
+
+<span class="sd">        *Parameters*</span>
+
+<span class="sd">        | (M) Message ID</span>
+<span class="sd">        | (M) Affected SOP Class UID</span>
+<span class="sd">        | (M) Priority</span>
+<span class="sd">        | (M) Identifier</span>
+
+<span class="sd">        **C-FIND Response**</span>
+
+<span class="sd">        *Parameters*</span>
+
+<span class="sd">        | (U) Message ID</span>
+<span class="sd">        | (M) Message ID Being Responded To</span>
+<span class="sd">        | (U) Affected SOP Class UID</span>
+<span class="sd">        | (C) Identifier</span>
+<span class="sd">        | (M) Status</span>
+
+<span class="sd">        *Status*</span>
+
+<span class="sd">        Success</span>
+<span class="sd">          | ``0x0000`` Success</span>
+
+<span class="sd">        Pending</span>
+<span class="sd">          | ``0xFF00`` Matches are continuing, current match supplied</span>
+<span class="sd">          | ``0xFF01`` Matches are continuing, warning</span>
+
+<span class="sd">        Cancel</span>
+<span class="sd">          | ``0xFE00`` Cancel</span>
+
+<span class="sd">        Failure</span>
+<span class="sd">          | ``0x0122`` SOP class not supported</span>
+<span class="sd">          | ``0xA700`` Out of resources</span>
+<span class="sd">          | ``0xA900`` Identifier does not match SOP class</span>
+<span class="sd">          | ``0xC000`` to ``0xCFFF`` Unable to process</span>
+
+<span class="sd">        References</span>
+<span class="sd">        ----------</span>
+<span class="sd">        .. [1] DICOM Standard, Part 4, `Annex C &lt;http://dicom.nema.org/medical/dicom/current/output/html/part04.html#chapter_C&gt;`_.</span>
+<span class="sd">        .. [1] DICOM Standard, Part 4, `Annex CC &lt;http://dicom.nema.org/medical/dicom/current/output/html/part04.html#chapter_CC&gt;`_.</span>
+<span class="sd">        .. [2] DICOM Standard, Part 7, Sections</span>
+<span class="sd">           `9.1.2 &lt;http://dicom.nema.org/medical/dicom/current/output/html/part07.html#sect_9.1.2&gt;`_,</span>
+<span class="sd">           `9.3.2 &lt;http://dicom.nema.org/medical/dicom/current/output/html/part07.html#sect_9.3.2&gt;`_</span>
+<span class="sd">           and `Annex C &lt;http://dicom.nema.org/medical/dicom/current/output/html/part07.html#chapter_C&gt;`_.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="c1"># Build C-FIND response primitive</span>
+        <span class="n">rsp</span> <span class="o">=</span> <span class="n">C_FIND</span><span class="p">()</span>
+        <span class="n">rsp</span><span class="o">.</span><span class="n">MessageID</span> <span class="o">=</span> <span class="n">req</span><span class="o">.</span><span class="n">MessageID</span>
+        <span class="n">rsp</span><span class="o">.</span><span class="n">MessageIDBeingRespondedTo</span> <span class="o">=</span> <span class="n">req</span><span class="o">.</span><span class="n">MessageID</span>
+        <span class="n">rsp</span><span class="o">.</span><span class="n">AffectedSOPClassUID</span> <span class="o">=</span> <span class="n">req</span><span class="o">.</span><span class="n">AffectedSOPClassUID</span>
+
+        <span class="c1"># Decode and log Identifier</span>
+        <span class="n">transfer_syntax</span> <span class="o">=</span> <span class="n">context</span><span class="o">.</span><span class="n">transfer_syntax</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span>
+        <span class="k">try</span><span class="p">:</span>
+            <span class="n">identifier</span> <span class="o">=</span> <span class="n">decode</span><span class="p">(</span><span class="n">req</span><span class="o">.</span><span class="n">Identifier</span><span class="p">,</span>
+                                <span class="n">transfer_syntax</span><span class="o">.</span><span class="n">is_implicit_VR</span><span class="p">,</span>
+                                <span class="n">transfer_syntax</span><span class="o">.</span><span class="n">is_little_endian</span><span class="p">)</span>
+            <span class="n">LOGGER</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="s1">&#39;Find SCP Request Identifiers:&#39;</span><span class="p">)</span>
+            <span class="n">LOGGER</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="s1">&#39;&#39;</span><span class="p">)</span>
+            <span class="n">LOGGER</span><span class="o">.</span><span class="n">debug</span><span class="p">(</span><span class="s1">&#39;# DICOM Dataset&#39;</span><span class="p">)</span>
+            <span class="k">for</span> <span class="n">elem</span> <span class="ow">in</span> <span class="n">identifier</span><span class="o">.</span><span class="n">iterall</span><span class="p">():</span>
+                <span class="n">LOGGER</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="n">elem</span><span class="p">)</span>
+            <span class="n">LOGGER</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="s1">&#39;&#39;</span><span class="p">)</span>
+        <span class="k">except</span> <span class="ne">Exception</span> <span class="k">as</span> <span class="n">ex</span><span class="p">:</span>
+            <span class="n">LOGGER</span><span class="o">.</span><span class="n">error</span><span class="p">(</span><span class="s2">&quot;Failed to decode the request&#39;s Identifier dataset.&quot;</span><span class="p">)</span>
+            <span class="n">LOGGER</span><span class="o">.</span><span class="n">exception</span><span class="p">(</span><span class="n">ex</span><span class="p">)</span>
+            <span class="c1"># Failure - Unable to Process - Failed to decode Identifier</span>
+            <span class="n">rsp</span><span class="o">.</span><span class="n">Status</span> <span class="o">=</span> <span class="mh">0xC310</span>
+            <span class="n">rsp</span><span class="o">.</span><span class="n">ErrorComment</span> <span class="o">=</span> <span class="s1">&#39;Unable to decode the dataset&#39;</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">dimse</span><span class="o">.</span><span class="n">send_msg</span><span class="p">(</span><span class="n">rsp</span><span class="p">,</span> <span class="n">context</span><span class="o">.</span><span class="n">context_id</span><span class="p">)</span>
+            <span class="k">return</span>
+
+        <span class="c1"># Pass the C-FIND request to the user to handle</span>
+        <span class="k">try</span><span class="p">:</span>
+            <span class="n">handler</span> <span class="o">=</span> <span class="n">evt</span><span class="o">.</span><span class="n">trigger</span><span class="p">(</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">assoc</span><span class="p">,</span>
+                <span class="n">evt</span><span class="o">.</span><span class="n">EVT_C_FIND</span><span class="p">,</span>
+                <span class="p">{</span>
+                    <span class="s1">&#39;request&#39;</span> <span class="p">:</span> <span class="n">req</span><span class="p">,</span>
+                    <span class="s1">&#39;context&#39;</span> <span class="p">:</span> <span class="n">context</span><span class="o">.</span><span class="n">as_tuple</span><span class="p">,</span>
+                    <span class="s1">&#39;_is_cancelled&#39;</span> <span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">is_cancelled</span>
+                <span class="p">}</span>
+            <span class="p">)</span>
+        <span class="k">except</span> <span class="ne">Exception</span> <span class="k">as</span> <span class="n">exc</span><span class="p">:</span>
+            <span class="n">LOGGER</span><span class="o">.</span><span class="n">error</span><span class="p">(</span><span class="s2">&quot;Exception in handler bound to &#39;evt.EVT_C_FIND&#39;&quot;</span><span class="p">)</span>
+            <span class="n">LOGGER</span><span class="o">.</span><span class="n">exception</span><span class="p">(</span><span class="n">exc</span><span class="p">)</span>
+            <span class="n">rsp</span><span class="o">.</span><span class="n">Status</span> <span class="o">=</span> <span class="mh">0xC311</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">dimse</span><span class="o">.</span><span class="n">send_msg</span><span class="p">(</span><span class="n">rsp</span><span class="p">,</span> <span class="n">context</span><span class="o">.</span><span class="n">context_id</span><span class="p">)</span>
+            <span class="k">return</span>
+
+        <span class="c1"># No matches and no yields</span>
+        <span class="k">if</span> <span class="n">handler</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="n">handler</span> <span class="o">=</span> <span class="nb">iter</span><span class="p">([(</span><span class="mh">0x0000</span><span class="p">,</span> <span class="kc">None</span><span class="p">)])</span>
+
+        <span class="n">ii</span> <span class="o">=</span> <span class="o">-</span><span class="mi">1</span>  <span class="c1"># So if there are no results, log below doesn&#39;t break</span>
+        <span class="c1"># Iterate through the results</span>
+        <span class="k">for</span> <span class="n">ii</span><span class="p">,</span> <span class="p">(</span><span class="n">rsp_status</span><span class="p">,</span> <span class="n">rsp_identifier</span><span class="p">)</span> <span class="ow">in</span> <span class="nb">enumerate</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_wrap_handler</span><span class="p">(</span><span class="n">handler</span><span class="p">)):</span>
+            <span class="c1"># Exception raised by user&#39;s generator</span>
+            <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">rsp_status</span><span class="p">,</span> <span class="ne">Exception</span><span class="p">):</span>
+                <span class="n">LOGGER</span><span class="o">.</span><span class="n">error</span><span class="p">(</span>
+                    <span class="s2">&quot;Exception raised by user&#39;s C-FIND request handler&quot;</span><span class="p">,</span>
+                    <span class="n">exc_info</span><span class="o">=</span><span class="n">rsp_identifier</span><span class="p">)</span>
+                <span class="n">rsp_status</span> <span class="o">=</span> <span class="mh">0xC311</span>
+
+            <span class="c1"># Validate rsp_status and set rsp.Status accordingly</span>
+            <span class="n">rsp</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">validate_status</span><span class="p">(</span><span class="n">rsp_status</span><span class="p">,</span> <span class="n">rsp</span><span class="p">)</span>
+
+            <span class="k">if</span> <span class="n">rsp</span><span class="o">.</span><span class="n">Status</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">statuses</span><span class="p">:</span>
+                <span class="n">status</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">statuses</span><span class="p">[</span><span class="n">rsp</span><span class="o">.</span><span class="n">Status</span><span class="p">]</span>
+            <span class="k">else</span><span class="p">:</span>
+                <span class="c1"># Unknown status</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">dimse</span><span class="o">.</span><span class="n">send_msg</span><span class="p">(</span><span class="n">rsp</span><span class="p">,</span> <span class="n">context</span><span class="o">.</span><span class="n">context_id</span><span class="p">)</span>
+                <span class="k">return</span>
+
+            <span class="k">if</span> <span class="n">status</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span> <span class="o">==</span> <span class="n">STATUS_CANCEL</span><span class="p">:</span>
+                <span class="c1"># If cancel, then rsp_identifier is None</span>
+                <span class="n">LOGGER</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="s1">&#39;Received C-CANCEL-FIND RQ from peer&#39;</span><span class="p">)</span>
+                <span class="n">LOGGER</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="s1">&#39;Find SCP Response: (Cancel)&#39;</span><span class="p">)</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">dimse</span><span class="o">.</span><span class="n">send_msg</span><span class="p">(</span><span class="n">rsp</span><span class="p">,</span> <span class="n">context</span><span class="o">.</span><span class="n">context_id</span><span class="p">)</span>
+                <span class="k">return</span>
+            <span class="k">elif</span> <span class="n">status</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span> <span class="o">==</span> <span class="n">STATUS_FAILURE</span><span class="p">:</span>
+                <span class="c1"># If failed, then rsp_identifier is None</span>
+                <span class="n">LOGGER</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="s1">&#39;Find SCP Response: (Failure - </span><span class="si">%s</span><span class="s1">)&#39;</span><span class="p">,</span> <span class="n">status</span><span class="p">[</span><span class="mi">1</span><span class="p">])</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">dimse</span><span class="o">.</span><span class="n">send_msg</span><span class="p">(</span><span class="n">rsp</span><span class="p">,</span> <span class="n">context</span><span class="o">.</span><span class="n">context_id</span><span class="p">)</span>
+                <span class="k">return</span>
+            <span class="k">elif</span> <span class="n">status</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span> <span class="o">==</span> <span class="n">STATUS_SUCCESS</span><span class="p">:</span>
+                <span class="c1"># User isn&#39;t supposed to send these, but handle anyway</span>
+                <span class="c1"># If success, then rsp_identifier is None</span>
+                <span class="n">LOGGER</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="s1">&#39;Find SCP Response: </span><span class="si">%s</span><span class="s1"> (Success)&#39;</span><span class="p">,</span> <span class="n">ii</span> <span class="o">+</span> <span class="mi">1</span><span class="p">)</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">dimse</span><span class="o">.</span><span class="n">send_msg</span><span class="p">(</span><span class="n">rsp</span><span class="p">,</span> <span class="n">context</span><span class="o">.</span><span class="n">context_id</span><span class="p">)</span>
+                <span class="k">return</span>
+            <span class="k">elif</span> <span class="n">status</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span> <span class="o">==</span> <span class="n">STATUS_PENDING</span><span class="p">:</span>
+                <span class="c1"># If pending, the rsp_identifier is the Identifier dataset</span>
+                <span class="n">bytestream</span> <span class="o">=</span> <span class="n">encode</span><span class="p">(</span><span class="n">rsp_identifier</span><span class="p">,</span>
+                                    <span class="n">transfer_syntax</span><span class="o">.</span><span class="n">is_implicit_VR</span><span class="p">,</span>
+                                    <span class="n">transfer_syntax</span><span class="o">.</span><span class="n">is_little_endian</span><span class="p">)</span>
+                <span class="n">bytestream</span> <span class="o">=</span> <span class="n">BytesIO</span><span class="p">(</span><span class="n">bytestream</span><span class="p">)</span>
+
+                <span class="k">if</span> <span class="n">bytestream</span><span class="o">.</span><span class="n">getvalue</span><span class="p">()</span> <span class="o">==</span> <span class="sa">b</span><span class="s1">&#39;&#39;</span><span class="p">:</span>
+                    <span class="n">LOGGER</span><span class="o">.</span><span class="n">error</span><span class="p">(</span><span class="s2">&quot;Failed to encode the received Identifier &quot;</span>
+                                 <span class="s2">&quot;dataset&quot;</span><span class="p">)</span>
+                    <span class="c1"># Failure: Unable to Process - Can&#39;t decode dataset</span>
+                    <span class="c1">#   returned by handler</span>
+                    <span class="n">rsp</span><span class="o">.</span><span class="n">Status</span> <span class="o">=</span> <span class="mh">0xC312</span>
+                    <span class="bp">self</span><span class="o">.</span><span class="n">dimse</span><span class="o">.</span><span class="n">send_msg</span><span class="p">(</span><span class="n">rsp</span><span class="p">,</span> <span class="n">context</span><span class="o">.</span><span class="n">context_id</span><span class="p">)</span>
+                    <span class="k">return</span>
+
+                <span class="n">rsp</span><span class="o">.</span><span class="n">Identifier</span> <span class="o">=</span> <span class="n">bytestream</span>
+
+                <span class="n">LOGGER</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="s1">&#39;Find SCP Response: </span><span class="si">%s</span><span class="s1"> (Pending)&#39;</span><span class="p">,</span> <span class="n">ii</span> <span class="o">+</span> <span class="mi">1</span><span class="p">)</span>
+                <span class="n">LOGGER</span><span class="o">.</span><span class="n">debug</span><span class="p">(</span><span class="s1">&#39;Find SCP Response Identifier:&#39;</span><span class="p">)</span>
+                <span class="n">LOGGER</span><span class="o">.</span><span class="n">debug</span><span class="p">(</span><span class="s1">&#39;&#39;</span><span class="p">)</span>
+                <span class="n">LOGGER</span><span class="o">.</span><span class="n">debug</span><span class="p">(</span><span class="s1">&#39;# DICOM Dataset&#39;</span><span class="p">)</span>
+                <span class="k">for</span> <span class="n">elem</span> <span class="ow">in</span> <span class="n">rsp_identifier</span><span class="o">.</span><span class="n">iterall</span><span class="p">():</span>
+                    <span class="n">LOGGER</span><span class="o">.</span><span class="n">debug</span><span class="p">(</span><span class="n">elem</span><span class="p">)</span>
+                <span class="n">LOGGER</span><span class="o">.</span><span class="n">debug</span><span class="p">(</span><span class="s1">&#39;&#39;</span><span class="p">)</span>
+
+                <span class="bp">self</span><span class="o">.</span><span class="n">dimse</span><span class="o">.</span><span class="n">send_msg</span><span class="p">(</span><span class="n">rsp</span><span class="p">,</span> <span class="n">context</span><span class="o">.</span><span class="n">context_id</span><span class="p">)</span>
+
+            <span class="c1"># Reset the response Identifier</span>
+            <span class="n">rsp</span><span class="o">.</span><span class="n">Identifier</span> <span class="o">=</span> <span class="kc">None</span>
+
+        <span class="c1"># Send final success response</span>
+        <span class="n">rsp</span><span class="o">.</span><span class="n">Status</span> <span class="o">=</span> <span class="mh">0x0000</span>
+        <span class="n">LOGGER</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="s1">&#39;Find SCP Response: </span><span class="si">%s</span><span class="s1"> (Success)&#39;</span><span class="p">,</span> <span class="n">ii</span> <span class="o">+</span> <span class="mi">2</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">dimse</span><span class="o">.</span><span class="n">send_msg</span><span class="p">(</span><span class="n">rsp</span><span class="p">,</span> <span class="n">context</span><span class="o">.</span><span class="n">context_id</span><span class="p">)</span>
 
     <span class="nd">@property</span>
     <span class="k">def</span> <span class="nf">dimse</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
@@ -273,6 +458,868 @@
             <span class="k">return</span> <span class="kc">True</span>
 
         <span class="k">return</span> <span class="kc">False</span>
+
+    <span class="k">def</span> <span class="nf">_n_action_scp</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">req</span><span class="p">,</span> <span class="n">context</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;Implementation of the DIMSE N-ACTION service.</span>
+
+<span class="sd">        Parameters</span>
+<span class="sd">        ----------</span>
+<span class="sd">        req : dimse_primitives.N_ACTION</span>
+<span class="sd">            The N-ACTION request primitive sent by the peer.</span>
+<span class="sd">        context : presentation.PresentationContext</span>
+<span class="sd">            The presentation context that the SCP is operating under.</span>
+
+<span class="sd">        Notes</span>
+<span class="sd">        -----</span>
+
+<span class="sd">        **Service Classes**</span>
+
+<span class="sd">        * *Print Management*</span>
+<span class="sd">        * *Storage Commitment*</span>
+<span class="sd">        * *Application Event Logging*</span>
+<span class="sd">        * *Media Creation Management*</span>
+<span class="sd">        * *Unified Procedure Step*</span>
+<span class="sd">        * *RT Machine Verification*</span>
+
+<span class="sd">        **N-ACTION Request**</span>
+
+<span class="sd">        *Parameters*</span>
+
+<span class="sd">        | (M) Message ID</span>
+<span class="sd">        | (M) Requested SOP Class UID</span>
+<span class="sd">        | (M) Requested SOP Instance UID</span>
+<span class="sd">        | (M) Action Type ID</span>
+<span class="sd">        | (U) Action Information</span>
+
+<span class="sd">        **N-ACTION Response**</span>
+
+<span class="sd">        *Parameters*</span>
+
+<span class="sd">        | (M) Message ID Being Responded To</span>
+<span class="sd">        | (C=) Action Type ID</span>
+<span class="sd">        | (U) Affected SOP Class UID</span>
+<span class="sd">        | (U) Affected SOP Instance UID</span>
+<span class="sd">        | (C) Action Reply</span>
+<span class="sd">        | (M) Status</span>
+
+<span class="sd">        *Status*</span>
+
+<span class="sd">        Success</span>
+<span class="sd">          | ``0x0000`` - Success</span>
+
+<span class="sd">        Failure</span>
+<span class="sd">          | ``0x0112`` - No such SOP Instance</span>
+<span class="sd">          | ``0x0114`` - No such argument</span>
+<span class="sd">          | ``0x0115`` - Invalid argument value</span>
+<span class="sd">          | ``0x0117`` - Invalid object instance</span>
+<span class="sd">          | ``0x0118`` - No such SOP Class</span>
+<span class="sd">          | ``0x0119`` - Class-Instance conflict</span>
+<span class="sd">          | ``0x0123`` - No such action</span>
+<span class="sd">          | ``0x0124`` - Refused: not authorised</span>
+<span class="sd">          | ``0x0210`` - Duplicate invocation</span>
+<span class="sd">          | ``0x0211`` - Unrecognised operation</span>
+<span class="sd">          | ``0x0212`` - Mistyped argument</span>
+<span class="sd">          | ``0x0213`` - Resource limitation</span>
+<span class="sd">          | ``0xC101`` - Procedural Logging not available for specified Study</span>
+<span class="sd">            Instance UID</span>
+<span class="sd">          | ``0xC102`` - Event Information does not match Template</span>
+<span class="sd">          | ``0xC103`` - Cannot match event to a current study</span>
+<span class="sd">          | ``0xC104`` - IDs inconsistent in matching a current study; Event not</span>
+<span class="sd">            logged</span>
+<span class="sd">          | ``0xC10E`` - Operator not authorised to add entry to Medication</span>
+<span class="sd">            Administration Record</span>
+<span class="sd">          | ``0xC110`` - Patient cannot be identified from Patient ID (0010,0020)</span>
+<span class="sd">            or Admission ID (0038,0010)</span>
+<span class="sd">          | ``0xC111`` - Update of Medication Administration Record failed</span>
+<span class="sd">          | ``0xC112`` - Machine Verification requested instance not found</span>
+<span class="sd">          | ``0xC300`` - The UPS may no longer be updated</span>
+<span class="sd">          | ``0xC301`` - The correct Transaction UID was not provided</span>
+<span class="sd">          | ``0xC302`` - The UPS is already IN PROGRESS</span>
+<span class="sd">          | ``0xC303`` - The UPS may only become SCHEDULED via N-CREATE, not N-SET</span>
+<span class="sd">            or N-ACTION</span>
+<span class="sd">          | ``0xC304`` - The UPS has not met final state requirements for the</span>
+<span class="sd">            requested state change</span>
+<span class="sd">          | ``0xC307`` - Specified SOP Instance UID does not exist or is not a UPS</span>
+<span class="sd">            Instance managed by this SCP</span>
+<span class="sd">          | ``0xC308`` - Receiving AE-TITLE is Unknown to this SCP</span>
+<span class="sd">          | ``0xC310`` - The UPS is not yet in the IN PROGRESS state</span>
+<span class="sd">          | ``0xC311`` - The UPS is already COMPLETED</span>
+<span class="sd">          | ``0xC312`` - The performer cannot be contacted</span>
+<span class="sd">          | ``0xC313`` - Performer chooses not to cancel</span>
+<span class="sd">          | ``0xC314`` - Specified action not appropriate for specified instance</span>
+<span class="sd">          | ``0xC315`` - SCP does not support Event Reports</span>
+<span class="sd">          | ``0xC600`` - Film Session SOP Instance hierarchy does not contain Film</span>
+<span class="sd">            Box SOP Instances</span>
+<span class="sd">          | ``0xC601`` - Unable to create Print Job SOP Instance; print queue is</span>
+<span class="sd">            full</span>
+<span class="sd">          | ``0xC602`` - Unable to create Print Job SOP Instance; print queue is</span>
+<span class="sd">            full</span>
+<span class="sd">          | ``0xC603`` - Image size is larger than image box size</span>
+<span class="sd">          | ``0xC613`` - Combined Print Image size is larger than Image Box size</span>
+
+<span class="sd">        Warning</span>
+<span class="sd">          | ``0xB101`` - Specified Synchronisation Frame of Reference UID does not</span>
+<span class="sd">            match SOP Synchronisation Frame of Reference</span>
+<span class="sd">          | ``0xB102`` - Study Instance UID coercion; Event logged under a</span>
+<span class="sd">            different Study Instance UID</span>
+<span class="sd">          | ``0xB104`` - IDs inconsistent in matching a current study; Event logged</span>
+<span class="sd">          | ``0xB301`` - Deletion Lock not granted</span>
+<span class="sd">          | ``0xB304`` - The UPS is already in the requested state of CANCELED</span>
+<span class="sd">          | ``0xB306`` - The UPS is already in the requested state of COMPLETED</span>
+<span class="sd">          | ``0xB601`` - Film session printing (collation) is not supported</span>
+<span class="sd">          | ``0xB602`` - Film Session SOP Instance hierarchy does not contain</span>
+<span class="sd">            Image Box SOP Instances (empty page)</span>
+<span class="sd">          | ``0xB603`` - Film Box SOP Instance hierarchy does not contain Image</span>
+<span class="sd">            Box SOP Instances (empty page)</span>
+<span class="sd">          | ``0xB604`` - Image size is larger than Image Box size, the image has</span>
+<span class="sd">            been demagnified</span>
+<span class="sd">          | ``0xB609`` - Image size is larger than Image Box size, the image has</span>
+<span class="sd">            been cropped to fit.</span>
+<span class="sd">          | ``0xB60A`` - Image size or Combined Print Image size is larger than the</span>
+<span class="sd">            Image Box size. Image or Combined Print Image has been decimated to</span>
+<span class="sd">            fit.</span>
+
+<span class="sd">        References</span>
+<span class="sd">        ----------</span>
+
+<span class="sd">        * DICOM Standard, Part 4, `Annex H &lt;http://dicom.nema.org/medical/dicom/current/output/html/part04.html#chapter_H&gt;`_</span>
+<span class="sd">        * DICOM Standard, Part 4, `Annex J &lt;http://dicom.nema.org/medical/dicom/current/output/html/part04.html#chapter_J&gt;`_</span>
+<span class="sd">        * DICOM Standard, Part 4, `Annex P &lt;http://dicom.nema.org/medical/dicom/current/output/html/part04.html#chapter_P&gt;`_</span>
+<span class="sd">        * DICOM Standard, Part 4, `Annex S &lt;http://dicom.nema.org/medical/dicom/current/output/html/part04.html#chapter_S&gt;`_</span>
+<span class="sd">        * DICOM Standard, Part 4, `Annex CC &lt;http://dicom.nema.org/medical/dicom/current/output/html/part04.html#chapter_CC&gt;`_</span>
+<span class="sd">        * DICOM Standard, Part 4, `Annex DD &lt;http://dicom.nema.org/medical/dicom/current/output/html/part04.html#chapter_DD&gt;`_</span>
+<span class="sd">        * DICOM Standard, Part 7, Sections</span>
+<span class="sd">          `10.1.5 &lt;http://dicom.nema.org/medical/dicom/current/output/html/part07.html#sect_10.1.5&gt;`_,</span>
+<span class="sd">          `10.3.5 &lt;http://dicom.nema.org/medical/dicom/current/output/html/part07.html#sect_10.3.5&gt;`_</span>
+<span class="sd">          and `Annex C &lt;http://dicom.nema.org/medical/dicom/current/output/html/part07.html#chapter_C&gt;`_</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="c1"># Build N-CREATE response primitive</span>
+        <span class="n">rsp</span> <span class="o">=</span> <span class="n">N_ACTION</span><span class="p">()</span>
+        <span class="n">rsp</span><span class="o">.</span><span class="n">MessageIDBeingRespondedTo</span> <span class="o">=</span> <span class="n">req</span><span class="o">.</span><span class="n">MessageID</span>
+        <span class="n">rsp</span><span class="o">.</span><span class="n">AffectedSOPClassUID</span> <span class="o">=</span> <span class="n">req</span><span class="o">.</span><span class="n">RequestedSOPClassUID</span>
+        <span class="n">rsp</span><span class="o">.</span><span class="n">AffectedSOPInstanceUID</span> <span class="o">=</span> <span class="n">req</span><span class="o">.</span><span class="n">RequestedSOPInstanceUID</span>
+        <span class="n">rsp</span><span class="o">.</span><span class="n">ActionTypeID</span> <span class="o">=</span> <span class="n">req</span><span class="o">.</span><span class="n">ActionTypeID</span>
+
+        <span class="k">try</span><span class="p">:</span>
+            <span class="n">status</span><span class="p">,</span> <span class="n">ds</span> <span class="o">=</span> <span class="n">evt</span><span class="o">.</span><span class="n">trigger</span><span class="p">(</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">assoc</span><span class="p">,</span>
+                <span class="n">evt</span><span class="o">.</span><span class="n">EVT_N_ACTION</span><span class="p">,</span>
+                <span class="p">{</span><span class="s1">&#39;request&#39;</span> <span class="p">:</span> <span class="n">req</span><span class="p">,</span> <span class="s1">&#39;context&#39;</span> <span class="p">:</span> <span class="n">context</span><span class="o">.</span><span class="n">as_tuple</span><span class="p">}</span>
+            <span class="p">)</span>
+        <span class="k">except</span> <span class="ne">Exception</span> <span class="k">as</span> <span class="n">exc</span><span class="p">:</span>
+            <span class="n">LOGGER</span><span class="o">.</span><span class="n">error</span><span class="p">(</span>
+                <span class="s2">&quot;Exception in the handler bound to &#39;evt.EVT_N_ACTION&quot;</span>
+            <span class="p">)</span>
+            <span class="n">LOGGER</span><span class="o">.</span><span class="n">exception</span><span class="p">(</span><span class="n">exc</span><span class="p">)</span>
+            <span class="n">rsp</span><span class="o">.</span><span class="n">Status</span> <span class="o">=</span> <span class="mh">0x0110</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">dimse</span><span class="o">.</span><span class="n">send_msg</span><span class="p">(</span><span class="n">rsp</span><span class="p">,</span> <span class="n">context</span><span class="o">.</span><span class="n">context_id</span><span class="p">)</span>
+            <span class="k">return</span>
+
+        <span class="c1"># Check Status validity</span>
+        <span class="c1"># Validate rsp_status and set rsp.Status accordingly</span>
+        <span class="n">rsp</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">validate_status</span><span class="p">(</span><span class="n">status</span><span class="p">,</span> <span class="n">rsp</span><span class="p">)</span>
+
+        <span class="k">if</span> <span class="n">rsp</span><span class="o">.</span><span class="n">Status</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">statuses</span><span class="p">:</span>
+            <span class="n">status</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">statuses</span><span class="p">[</span><span class="n">rsp</span><span class="o">.</span><span class="n">Status</span><span class="p">]</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="c1"># Unknown status</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">dimse</span><span class="o">.</span><span class="n">send_msg</span><span class="p">(</span><span class="n">rsp</span><span class="p">,</span> <span class="n">context</span><span class="o">.</span><span class="n">context_id</span><span class="p">)</span>
+            <span class="k">return</span>
+
+        <span class="k">if</span> <span class="n">status</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span> <span class="ow">in</span> <span class="p">(</span><span class="n">STATUS_SUCCESS</span><span class="p">,</span> <span class="n">STATUS_WARNING</span><span class="p">)</span> <span class="ow">and</span> <span class="n">ds</span><span class="p">:</span>
+            <span class="c1"># If Success or Warning then there **may** be a dataset</span>
+            <span class="n">transfer_syntax</span> <span class="o">=</span> <span class="n">context</span><span class="o">.</span><span class="n">transfer_syntax</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span>
+            <span class="c1"># If encode() fails then returns `None`</span>
+            <span class="n">bytestream</span> <span class="o">=</span> <span class="n">encode</span><span class="p">(</span><span class="n">ds</span><span class="p">,</span>
+                                <span class="n">transfer_syntax</span><span class="o">.</span><span class="n">is_implicit_VR</span><span class="p">,</span>
+                                <span class="n">transfer_syntax</span><span class="o">.</span><span class="n">is_little_endian</span><span class="p">)</span>
+
+            <span class="k">if</span> <span class="n">bytestream</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+                <span class="n">LOGGER</span><span class="o">.</span><span class="n">error</span><span class="p">(</span>
+                    <span class="s2">&quot;Failed to encode the N-ACTION response&#39;s &#39;Action Reply&#39; &quot;</span>
+                    <span class="s2">&quot;dataset&quot;</span>
+                <span class="p">)</span>
+                <span class="c1"># Processing failure</span>
+                <span class="n">rsp</span><span class="o">.</span><span class="n">Status</span> <span class="o">=</span> <span class="mh">0x0110</span>
+            <span class="k">else</span><span class="p">:</span>
+                <span class="n">rsp</span><span class="o">.</span><span class="n">ActionReply</span> <span class="o">=</span> <span class="n">BytesIO</span><span class="p">(</span><span class="n">bytestream</span><span class="p">)</span>
+
+        <span class="c1"># Send response primitive</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">dimse</span><span class="o">.</span><span class="n">send_msg</span><span class="p">(</span><span class="n">rsp</span><span class="p">,</span> <span class="n">context</span><span class="o">.</span><span class="n">context_id</span><span class="p">)</span>
+
+    <span class="k">def</span> <span class="nf">_n_create_scp</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">req</span><span class="p">,</span> <span class="n">context</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;Implementation of the DIMSE N-CREATE service.</span>
+
+<span class="sd">        Parameters</span>
+<span class="sd">        ----------</span>
+<span class="sd">        req : dimse_primitives.N_CREATE</span>
+<span class="sd">            The N-CREATE request primitive sent by the peer.</span>
+<span class="sd">        context : presentation.PresentationContext</span>
+<span class="sd">            The presentation context that the SCP is operating under.</span>
+
+<span class="sd">        Notes</span>
+<span class="sd">        -----</span>
+
+<span class="sd">        **Service Classes**</span>
+
+<span class="sd">        * *Procedure Step*</span>
+<span class="sd">        * *Print Management*</span>
+<span class="sd">        * *Instance Availability Notification*</span>
+<span class="sd">        * *Media Creation Management*</span>
+<span class="sd">        * *Unified Procedure Step*</span>
+<span class="sd">        * *RT Machine Verification*</span>
+
+<span class="sd">        **N-CREATE Request**</span>
+
+<span class="sd">        *Parameters*</span>
+
+<span class="sd">        | (M) Message ID</span>
+<span class="sd">        | (M) Affected SOP Class UID</span>
+<span class="sd">        | (U) Affected SOP Instance UID</span>
+<span class="sd">        | (U) Attribute List</span>
+
+<span class="sd">        **N-CREATE Response**</span>
+
+<span class="sd">        *Parameters*</span>
+
+<span class="sd">        | (M) Message ID Being Responded To</span>
+<span class="sd">        | (U=) Affected SOP Class UID</span>
+<span class="sd">        | (C) Affected SOP Instance UID</span>
+<span class="sd">        | (U) Attribute List</span>
+<span class="sd">        | (M) Status</span>
+
+<span class="sd">        *Status*</span>
+
+<span class="sd">        Success</span>
+<span class="sd">          | ``0x0000`` - Success</span>
+
+<span class="sd">        Failure</span>
+<span class="sd">          | ``0x0105`` - No such attribute</span>
+<span class="sd">          | ``0x0106`` - Invalid attribute value</span>
+<span class="sd">          | ``0x0107`` - Attribute list error</span>
+<span class="sd">          | ``0x0110`` - Processing failure</span>
+<span class="sd">          | ``0x0111`` - Duplicate SOP Instance</span>
+<span class="sd">          | ``0x0116`` - Attribute value out of range</span>
+<span class="sd">          | ``0x0117`` - Invalid object instance</span>
+<span class="sd">          | ``0x0118`` - No such SOP Class</span>
+<span class="sd">          | ``0x0120`` - Missing attribute</span>
+<span class="sd">          | ``0x0121`` - Missing attribute value</span>
+<span class="sd">          | ``0x0124`` - Refused: not authorised</span>
+<span class="sd">          | ``0x0210`` - Duplicate invocation</span>
+<span class="sd">          | ``0x0211`` - Unrecognised operation</span>
+<span class="sd">          | ``0x0212`` - Mistyped argument</span>
+<span class="sd">          | ``0x0213`` - Resource limitation</span>
+<span class="sd">          | ``0xA510`` - Failed: an initiate media creation action has already</span>
+<span class="sd">            been received for this SOP Instance</span>
+<span class="sd">          | ``0xC221`` - The Referenced Fraction Group Number does not exist in</span>
+<span class="sd">            the referenced plan</span>
+<span class="sd">          | ``0xC222`` - No beams exist within the referenced fraction group</span>
+<span class="sd">          | ``0xC223`` - SCU already verifying and cannot currently process</span>
+<span class="sd">            this request</span>
+<span class="sd">          | ``0xC227`` - No such object instance - Referenced RT Plan not found</span>
+<span class="sd">          | ``0xC309`` - The provided value of UPS State was not &#39;SCHEDULED&#39;</span>
+<span class="sd">          | ``0xC616`` - There is an existing Film Box that has not been</span>
+<span class="sd">            printed and N-ACTION at the Film Session level is not supported.</span>
+<span class="sd">            A new Film Box will not be created when a previous Film Box has</span>
+<span class="sd">            not been printed</span>
+
+<span class="sd">        Warning</span>
+<span class="sd">          | ``0xB300`` - THE UPS was created with modifications</span>
+<span class="sd">          | ``0xB600`` - Memory allocation not supported</span>
+<span class="sd">          | ``0xB605`` - Requested Min Density or Max Density outside of</span>
+<span class="sd">            printer&#39;s operating range. The printer will use its respective</span>
+<span class="sd">            minimum or maximum density value instead</span>
+
+<span class="sd">        References</span>
+<span class="sd">        ----------</span>
+
+<span class="sd">        * DICOM Standard, Part 4, `Annex F &lt;http://dicom.nema.org/medical/dicom/current/output/html/part04.html#chapter_F&gt;`_</span>
+<span class="sd">        * DICOM Standard, Part 4, `Annex H &lt;http://dicom.nema.org/medical/dicom/current/output/html/part04.html#chapter_H&gt;`_</span>
+<span class="sd">        * DICOM Standard, Part 4, `Annex R &lt;http://dicom.nema.org/medical/dicom/current/output/html/part04.html#chapter_R&gt;`_</span>
+<span class="sd">        * DICOM Standard, Part 4, `Annex S &lt;http://dicom.nema.org/medical/dicom/current/output/html/part04.html#chapter_S&gt;`_</span>
+<span class="sd">        * DICOM Standard, Part 4, `Annex CC &lt;http://dicom.nema.org/medical/dicom/current/output/html/part04.html#chapter_CC&gt;`_</span>
+<span class="sd">        * DICOM Standard, Part 4, `Annex DD &lt;http://dicom.nema.org/medical/dicom/current/output/html/part04.html#chapter_DD&gt;`_</span>
+<span class="sd">        * DICOM Standard, Part 7, Sections</span>
+<span class="sd">          `10.1.5 &lt;http://dicom.nema.org/medical/dicom/current/output/html/part07.html#sect_10.1.5&gt;`_,</span>
+<span class="sd">          `10.3.5 &lt;http://dicom.nema.org/medical/dicom/current/output/html/part07.html#sect_10.3.5&gt;`_</span>
+<span class="sd">          and `Annex C &lt;http://dicom.nema.org/medical/dicom/current/output/html/part07.html#chapter_C&gt;`_</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="c1"># Build N-CREATE response primitive</span>
+        <span class="n">rsp</span> <span class="o">=</span> <span class="n">N_CREATE</span><span class="p">()</span>
+        <span class="n">rsp</span><span class="o">.</span><span class="n">MessageIDBeingRespondedTo</span> <span class="o">=</span> <span class="n">req</span><span class="o">.</span><span class="n">MessageID</span>
+        <span class="n">rsp</span><span class="o">.</span><span class="n">AffectedSOPClassUID</span> <span class="o">=</span> <span class="n">req</span><span class="o">.</span><span class="n">AffectedSOPClassUID</span>
+        <span class="n">rsp</span><span class="o">.</span><span class="n">AffectedSOPInstanceUID</span> <span class="o">=</span> <span class="n">req</span><span class="o">.</span><span class="n">AffectedSOPInstanceUID</span>
+
+        <span class="k">try</span><span class="p">:</span>
+            <span class="n">status</span><span class="p">,</span> <span class="n">ds</span> <span class="o">=</span> <span class="n">evt</span><span class="o">.</span><span class="n">trigger</span><span class="p">(</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">assoc</span><span class="p">,</span>
+                <span class="n">evt</span><span class="o">.</span><span class="n">EVT_N_CREATE</span><span class="p">,</span>
+                <span class="p">{</span><span class="s1">&#39;request&#39;</span> <span class="p">:</span> <span class="n">req</span><span class="p">,</span> <span class="s1">&#39;context&#39;</span> <span class="p">:</span> <span class="n">context</span><span class="o">.</span><span class="n">as_tuple</span><span class="p">}</span>
+            <span class="p">)</span>
+        <span class="k">except</span> <span class="ne">Exception</span> <span class="k">as</span> <span class="n">exc</span><span class="p">:</span>
+            <span class="n">LOGGER</span><span class="o">.</span><span class="n">error</span><span class="p">(</span>
+                <span class="s2">&quot;Exception in the handler bound to &#39;evt.EVT_N_CREATE&quot;</span>
+            <span class="p">)</span>
+            <span class="n">LOGGER</span><span class="o">.</span><span class="n">exception</span><span class="p">(</span><span class="n">exc</span><span class="p">)</span>
+            <span class="n">rsp</span><span class="o">.</span><span class="n">Status</span> <span class="o">=</span> <span class="mh">0x0110</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">dimse</span><span class="o">.</span><span class="n">send_msg</span><span class="p">(</span><span class="n">rsp</span><span class="p">,</span> <span class="n">context</span><span class="o">.</span><span class="n">context_id</span><span class="p">)</span>
+            <span class="k">return</span>
+
+        <span class="c1"># Check Status validity</span>
+        <span class="c1"># Validate rsp_status and set rsp.Status accordingly</span>
+        <span class="n">rsp</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">validate_status</span><span class="p">(</span><span class="n">status</span><span class="p">,</span> <span class="n">rsp</span><span class="p">)</span>
+
+        <span class="k">if</span> <span class="n">rsp</span><span class="o">.</span><span class="n">Status</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">statuses</span><span class="p">:</span>
+            <span class="n">status</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">statuses</span><span class="p">[</span><span class="n">rsp</span><span class="o">.</span><span class="n">Status</span><span class="p">]</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="c1"># Unknown status</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">dimse</span><span class="o">.</span><span class="n">send_msg</span><span class="p">(</span><span class="n">rsp</span><span class="p">,</span> <span class="n">context</span><span class="o">.</span><span class="n">context_id</span><span class="p">)</span>
+            <span class="k">return</span>
+
+        <span class="k">if</span> <span class="n">status</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span> <span class="ow">in</span> <span class="p">(</span><span class="n">STATUS_SUCCESS</span><span class="p">,</span> <span class="n">STATUS_WARNING</span><span class="p">)</span> <span class="ow">and</span> <span class="n">ds</span><span class="p">:</span>
+            <span class="c1"># If Success or Warning then there **may** be a dataset</span>
+            <span class="n">transfer_syntax</span> <span class="o">=</span> <span class="n">context</span><span class="o">.</span><span class="n">transfer_syntax</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span>
+            <span class="c1"># If encode() fails then returns `None`</span>
+            <span class="n">bytestream</span> <span class="o">=</span> <span class="n">encode</span><span class="p">(</span><span class="n">ds</span><span class="p">,</span>
+                                <span class="n">transfer_syntax</span><span class="o">.</span><span class="n">is_implicit_VR</span><span class="p">,</span>
+                                <span class="n">transfer_syntax</span><span class="o">.</span><span class="n">is_little_endian</span><span class="p">)</span>
+
+            <span class="k">if</span> <span class="n">bytestream</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+                <span class="n">LOGGER</span><span class="o">.</span><span class="n">error</span><span class="p">(</span>
+                    <span class="s2">&quot;Failed to encode the N-CREATE response&#39;s &#39;Attribute &quot;</span>
+                    <span class="s2">&quot;List&#39; dataset&quot;</span>
+                <span class="p">)</span>
+                <span class="c1"># Processing failure</span>
+                <span class="n">rsp</span><span class="o">.</span><span class="n">Status</span> <span class="o">=</span> <span class="mh">0x0110</span>
+            <span class="k">else</span><span class="p">:</span>
+                <span class="n">rsp</span><span class="o">.</span><span class="n">AttributeList</span> <span class="o">=</span> <span class="n">BytesIO</span><span class="p">(</span><span class="n">bytestream</span><span class="p">)</span>
+
+        <span class="c1"># Send response primitive</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">dimse</span><span class="o">.</span><span class="n">send_msg</span><span class="p">(</span><span class="n">rsp</span><span class="p">,</span> <span class="n">context</span><span class="o">.</span><span class="n">context_id</span><span class="p">)</span>
+
+    <span class="k">def</span> <span class="nf">_n_delete_scp</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">req</span><span class="p">,</span> <span class="n">context</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;Implementation of the DIMSE N-DELETE service.</span>
+
+<span class="sd">        Parameters</span>
+<span class="sd">        ----------</span>
+<span class="sd">        req : dimse_primitives.N_DELETE</span>
+<span class="sd">            The N-DELETE request primitive sent by the peer.</span>
+<span class="sd">        context : presentation.PresentationContext</span>
+<span class="sd">            The presentation context that the SCP is operating under.</span>
+
+<span class="sd">        Notes</span>
+<span class="sd">        -----</span>
+
+<span class="sd">        **Service Classes**</span>
+
+<span class="sd">        * *Print Management*</span>
+<span class="sd">        * *RT Machine Verification*</span>
+
+<span class="sd">        **N-DELETE Request**</span>
+
+<span class="sd">        *Parameters*</span>
+
+<span class="sd">        | (M) Message ID</span>
+<span class="sd">        | (M) Requested SOP Class UID</span>
+<span class="sd">        | (M) Requested SOP Instance UID</span>
+
+<span class="sd">        **N-DELETE Response**</span>
+
+<span class="sd">        *Parameters*</span>
+
+<span class="sd">        | (M) Message ID Being Responded To</span>
+<span class="sd">        | (U) Affected SOP Class UID</span>
+<span class="sd">        | (U) Affected SOP Instance UID</span>
+<span class="sd">        | (M) Status</span>
+
+<span class="sd">        *Status*</span>
+
+<span class="sd">        Success</span>
+<span class="sd">          | ``0x0000`` - Success</span>
+
+<span class="sd">        Failure</span>
+<span class="sd">          | ``0x0110`` - Processing failure</span>
+<span class="sd">          | ``0x0112`` - No such SOP Instance</span>
+<span class="sd">          | ``0x0117`` - Invalid object Instance</span>
+<span class="sd">          | ``0x0118`` - Not such SOP Class</span>
+<span class="sd">          | ``0x0119`` - Class-Instance conflict</span>
+<span class="sd">          | ``0x0124`` - Not authorised</span>
+<span class="sd">          | ``0x0210`` - Duplicate invocation</span>
+<span class="sd">          | ``0x0211`` - Unrecognised operation</span>
+<span class="sd">          | ``0x0212`` - Mistyped argument</span>
+<span class="sd">          | ``0x0213`` - Resource limitation</span>
+
+<span class="sd">        References</span>
+<span class="sd">        ----------</span>
+
+<span class="sd">        * DICOM Standard, Part 4, `Annex H &lt;http://dicom.nema.org/medical/dicom/current/output/html/part04.html#chapter_H&gt;`_</span>
+<span class="sd">        * DICOM Standard, Part 4, `Annex DD &lt;http://dicom.nema.org/medical/dicom/current/output/html/part04.html#chapter_DD&gt;`_</span>
+<span class="sd">        * DICOM Standard, Part 7, Sections</span>
+<span class="sd">          `10.1.6 &lt;http://dicom.nema.org/medical/dicom/current/output/html/part07.html#sect_10.1.6&gt;`_,</span>
+<span class="sd">          `10.3.6 &lt;http://dicom.nema.org/medical/dicom/current/output/html/part07.html#sect_10.3.6&gt;`_</span>
+<span class="sd">          and `Annex C &lt;http://dicom.nema.org/medical/dicom/current/output/html/part07.html#chapter_C&gt;`_</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="c1"># Build N-DELETE response primitive</span>
+        <span class="n">rsp</span> <span class="o">=</span> <span class="n">N_DELETE</span><span class="p">()</span>
+        <span class="n">rsp</span><span class="o">.</span><span class="n">MessageIDBeingRespondedTo</span> <span class="o">=</span> <span class="n">req</span><span class="o">.</span><span class="n">MessageID</span>
+        <span class="n">rsp</span><span class="o">.</span><span class="n">AffectedSOPClassUID</span> <span class="o">=</span> <span class="n">req</span><span class="o">.</span><span class="n">RequestedSOPClassUID</span>
+        <span class="n">rsp</span><span class="o">.</span><span class="n">AffectedSOPInstanceUID</span> <span class="o">=</span> <span class="n">req</span><span class="o">.</span><span class="n">RequestedSOPInstanceUID</span>
+
+        <span class="k">try</span><span class="p">:</span>
+            <span class="n">status</span> <span class="o">=</span> <span class="n">evt</span><span class="o">.</span><span class="n">trigger</span><span class="p">(</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">assoc</span><span class="p">,</span>
+                <span class="n">evt</span><span class="o">.</span><span class="n">EVT_N_DELETE</span><span class="p">,</span>
+                <span class="p">{</span><span class="s1">&#39;request&#39;</span> <span class="p">:</span> <span class="n">req</span><span class="p">,</span> <span class="s1">&#39;context&#39;</span> <span class="p">:</span> <span class="n">context</span><span class="o">.</span><span class="n">as_tuple</span><span class="p">}</span>
+            <span class="p">)</span>
+        <span class="k">except</span> <span class="ne">Exception</span> <span class="k">as</span> <span class="n">exc</span><span class="p">:</span>
+            <span class="n">LOGGER</span><span class="o">.</span><span class="n">error</span><span class="p">(</span>
+                <span class="s2">&quot;Exception in the handler bound to &#39;evt.EVT_N_DELETE&quot;</span>
+            <span class="p">)</span>
+            <span class="n">LOGGER</span><span class="o">.</span><span class="n">exception</span><span class="p">(</span><span class="n">exc</span><span class="p">)</span>
+            <span class="n">rsp</span><span class="o">.</span><span class="n">Status</span> <span class="o">=</span> <span class="mh">0x0110</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">dimse</span><span class="o">.</span><span class="n">send_msg</span><span class="p">(</span><span class="n">rsp</span><span class="p">,</span> <span class="n">context</span><span class="o">.</span><span class="n">context_id</span><span class="p">)</span>
+            <span class="k">return</span>
+
+        <span class="c1"># Check Status validity</span>
+        <span class="c1"># Validate &#39;status&#39; and set &#39;rsp.Status&#39; accordingly</span>
+        <span class="n">rsp</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">validate_status</span><span class="p">(</span><span class="n">status</span><span class="p">,</span> <span class="n">rsp</span><span class="p">)</span>
+
+        <span class="c1"># Send response primitive</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">dimse</span><span class="o">.</span><span class="n">send_msg</span><span class="p">(</span><span class="n">rsp</span><span class="p">,</span> <span class="n">context</span><span class="o">.</span><span class="n">context_id</span><span class="p">)</span>
+
+    <span class="k">def</span> <span class="nf">_n_event_report_scp</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">req</span><span class="p">,</span> <span class="n">context</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;Implementation of the DIMSE N-EVENT-REPORT service.</span>
+
+<span class="sd">        Parameters</span>
+<span class="sd">        ----------</span>
+<span class="sd">        req : dimse_primitives.N_EVENT_REPORT</span>
+<span class="sd">            The N-EVENT-REPORT request primitive sent by the peer.</span>
+<span class="sd">        context : presentation.PresentationContext</span>
+<span class="sd">            The presentation context that the SCP is operating under.</span>
+
+<span class="sd">        Notes</span>
+<span class="sd">        -----</span>
+
+<span class="sd">        **Service Classes**</span>
+
+<span class="sd">        * *Procedure Step*</span>
+<span class="sd">        * *Print Management*</span>
+<span class="sd">        * *Storage Commitment*</span>
+<span class="sd">        * *Unified Procedure Step*</span>
+<span class="sd">        * *RT Machine Verification*</span>
+
+<span class="sd">        **N-EVENT-REPORT Request**</span>
+
+<span class="sd">        *Parameters*</span>
+
+<span class="sd">        | (M) Message ID</span>
+<span class="sd">        | (M) Affected SOP Class UID</span>
+<span class="sd">        | (M) Affected SOP Instance UID</span>
+<span class="sd">        | (M) Event Type ID</span>
+<span class="sd">        | (U) Event Information</span>
+
+<span class="sd">        **N-EVENT-REPORT Response**</span>
+
+<span class="sd">        *Parameters*</span>
+
+<span class="sd">        | (M) Message ID Being Responded To</span>
+<span class="sd">        | (U=) Affected SOP Class UID</span>
+<span class="sd">        | (U=) Affected SOP Instance UID</span>
+<span class="sd">        | (C=) Event Type ID</span>
+<span class="sd">        | (C) Event Reply</span>
+<span class="sd">        | (M) Status</span>
+
+<span class="sd">        *Status*</span>
+
+<span class="sd">        Success</span>
+<span class="sd">          | ``0x0000`` - Success</span>
+
+<span class="sd">        Failure</span>
+<span class="sd">          | ``0x0110`` - Processing failure</span>
+<span class="sd">          | ``0x0112`` - No such SOP Instance</span>
+<span class="sd">          | ``0x0113`` - No such event type</span>
+<span class="sd">          | ``0x0114`` - No such argument</span>
+<span class="sd">          | ``0x0115`` - Invalid argument value</span>
+<span class="sd">          | ``0x0117`` - Invalid object Instance</span>
+<span class="sd">          | ``0x0118`` - No such SOP Class</span>
+<span class="sd">          | ``0x0119`` - Class-Instance conflict</span>
+<span class="sd">          | ``0x0210`` - Duplicate invocation</span>
+<span class="sd">          | ``0x0211`` - Unrecognised operation</span>
+<span class="sd">          | ``0x0212`` - Mistyped argument</span>
+<span class="sd">          | ``0x0213`` - Resource limitation</span>
+
+<span class="sd">        References</span>
+<span class="sd">        ----------</span>
+
+<span class="sd">        * DICOM Standard, Part 4, `Annex F &lt;http://dicom.nema.org/medical/dicom/current/output/html/part04.html#chapter_F&gt;`_</span>
+<span class="sd">        * DICOM Standard, Part 4, `Annex H &lt;http://dicom.nema.org/medical/dicom/current/output/html/part04.html#chapter_H&gt;`_</span>
+<span class="sd">        * DICOM Standard, Part 4, `Annex J &lt;http://dicom.nema.org/medical/dicom/current/output/html/part04.html#chapter_J&gt;`_</span>
+<span class="sd">        * DICOM Standard, Part 4, `Annex CC &lt;http://dicom.nema.org/medical/dicom/current/output/html/part04.html#chapter_CC&gt;`_</span>
+<span class="sd">        * DICOM Standard, Part 4, `Annex DD &lt;http://dicom.nema.org/medical/dicom/current/output/html/part04.html#chapter_DD&gt;`_</span>
+<span class="sd">        * DICOM Standard, Part 7, Sections</span>
+<span class="sd">          `10.1.1 &lt;http://dicom.nema.org/medical/dicom/current/output/html/part07.html#sect_10.1.1&gt;`_,</span>
+<span class="sd">          `10.3.1 &lt;http://dicom.nema.org/medical/dicom/current/output/html/part07.html#sect_10.3.1&gt;`_</span>
+<span class="sd">          and `Annex C &lt;http://dicom.nema.org/medical/dicom/current/output/html/part07.html#chapter_C&gt;`_</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="c1"># Build N-EVENT-REPLY response primitive</span>
+        <span class="n">rsp</span> <span class="o">=</span> <span class="n">N_EVENT_REPORT</span><span class="p">()</span>
+        <span class="n">rsp</span><span class="o">.</span><span class="n">MessageIDBeingRespondedTo</span> <span class="o">=</span> <span class="n">req</span><span class="o">.</span><span class="n">MessageID</span>
+        <span class="n">rsp</span><span class="o">.</span><span class="n">AffectedSOPClassUID</span> <span class="o">=</span> <span class="n">req</span><span class="o">.</span><span class="n">AffectedSOPClassUID</span>
+        <span class="n">rsp</span><span class="o">.</span><span class="n">AffectedSOPInstanceUID</span> <span class="o">=</span> <span class="n">req</span><span class="o">.</span><span class="n">AffectedSOPInstanceUID</span>
+        <span class="n">rsp</span><span class="o">.</span><span class="n">EventTypeID</span> <span class="o">=</span> <span class="n">req</span><span class="o">.</span><span class="n">EventTypeID</span>
+
+        <span class="k">try</span><span class="p">:</span>
+            <span class="n">status</span><span class="p">,</span> <span class="n">ds</span> <span class="o">=</span> <span class="n">evt</span><span class="o">.</span><span class="n">trigger</span><span class="p">(</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">assoc</span><span class="p">,</span>
+                <span class="n">evt</span><span class="o">.</span><span class="n">EVT_N_EVENT_REPORT</span><span class="p">,</span>
+                <span class="p">{</span><span class="s1">&#39;request&#39;</span> <span class="p">:</span> <span class="n">req</span><span class="p">,</span> <span class="s1">&#39;context&#39;</span> <span class="p">:</span> <span class="n">context</span><span class="o">.</span><span class="n">as_tuple</span><span class="p">}</span>
+            <span class="p">)</span>
+        <span class="k">except</span> <span class="ne">Exception</span> <span class="k">as</span> <span class="n">exc</span><span class="p">:</span>
+            <span class="n">LOGGER</span><span class="o">.</span><span class="n">error</span><span class="p">(</span>
+                <span class="s2">&quot;Exception in the handler bound to &#39;evt.EVT_N_EVENT_REPORT&quot;</span>
+            <span class="p">)</span>
+            <span class="n">LOGGER</span><span class="o">.</span><span class="n">exception</span><span class="p">(</span><span class="n">exc</span><span class="p">)</span>
+            <span class="n">rsp</span><span class="o">.</span><span class="n">Status</span> <span class="o">=</span> <span class="mh">0x0110</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">dimse</span><span class="o">.</span><span class="n">send_msg</span><span class="p">(</span><span class="n">rsp</span><span class="p">,</span> <span class="n">context</span><span class="o">.</span><span class="n">context_id</span><span class="p">)</span>
+            <span class="k">return</span>
+
+        <span class="c1"># Check Status validity</span>
+        <span class="c1"># Validate rsp_status and set rsp.Status accordingly</span>
+        <span class="n">rsp</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">validate_status</span><span class="p">(</span><span class="n">status</span><span class="p">,</span> <span class="n">rsp</span><span class="p">)</span>
+
+        <span class="k">if</span> <span class="n">rsp</span><span class="o">.</span><span class="n">Status</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">statuses</span><span class="p">:</span>
+            <span class="n">status</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">statuses</span><span class="p">[</span><span class="n">rsp</span><span class="o">.</span><span class="n">Status</span><span class="p">]</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="c1"># Unknown status</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">dimse</span><span class="o">.</span><span class="n">send_msg</span><span class="p">(</span><span class="n">rsp</span><span class="p">,</span> <span class="n">context</span><span class="o">.</span><span class="n">context_id</span><span class="p">)</span>
+            <span class="k">return</span>
+
+        <span class="k">if</span> <span class="n">status</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span> <span class="ow">in</span> <span class="p">(</span><span class="n">STATUS_SUCCESS</span><span class="p">,</span> <span class="n">STATUS_WARNING</span><span class="p">)</span> <span class="ow">and</span> <span class="n">ds</span><span class="p">:</span>
+            <span class="c1"># If Success or Warning then there **may** be a dataset</span>
+            <span class="n">transfer_syntax</span> <span class="o">=</span> <span class="n">context</span><span class="o">.</span><span class="n">transfer_syntax</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span>
+            <span class="c1"># If encode() fails then returns `None`</span>
+            <span class="n">bytestream</span> <span class="o">=</span> <span class="n">encode</span><span class="p">(</span><span class="n">ds</span><span class="p">,</span>
+                                <span class="n">transfer_syntax</span><span class="o">.</span><span class="n">is_implicit_VR</span><span class="p">,</span>
+                                <span class="n">transfer_syntax</span><span class="o">.</span><span class="n">is_little_endian</span><span class="p">)</span>
+
+            <span class="k">if</span> <span class="n">bytestream</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+                <span class="n">LOGGER</span><span class="o">.</span><span class="n">error</span><span class="p">(</span>
+                    <span class="s2">&quot;Failed to encode the N-EVENT-REPORT response&#39;s &#39;Event &quot;</span>
+                    <span class="s2">&quot;Reply&#39; dataset&quot;</span>
+                <span class="p">)</span>
+                <span class="c1"># Processing failure</span>
+                <span class="n">rsp</span><span class="o">.</span><span class="n">Status</span> <span class="o">=</span> <span class="mh">0x0110</span>
+            <span class="k">else</span><span class="p">:</span>
+                <span class="n">rsp</span><span class="o">.</span><span class="n">EventReply</span> <span class="o">=</span> <span class="n">BytesIO</span><span class="p">(</span><span class="n">bytestream</span><span class="p">)</span>
+
+        <span class="c1"># Send response primitive</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">dimse</span><span class="o">.</span><span class="n">send_msg</span><span class="p">(</span><span class="n">rsp</span><span class="p">,</span> <span class="n">context</span><span class="o">.</span><span class="n">context_id</span><span class="p">)</span>
+
+    <span class="k">def</span> <span class="nf">_n_get_scp</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">req</span><span class="p">,</span> <span class="n">context</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;Implementation of the DIMSE N-GET service.</span>
+
+<span class="sd">        Parameters</span>
+<span class="sd">        ----------</span>
+<span class="sd">        req : dimse_primitives.N_GET</span>
+<span class="sd">            The N-GET request primitive sent by the peer.</span>
+<span class="sd">        context : presentation.PresentationContext</span>
+<span class="sd">            The presentation context that the service is operating under.</span>
+
+<span class="sd">        See Also</span>
+<span class="sd">        --------</span>
+<span class="sd">        association.Association.send_n_get</span>
+
+<span class="sd">        Notes</span>
+<span class="sd">        -----</span>
+
+<span class="sd">        **Service Classes**</span>
+
+<span class="sd">        * *Display System Management*</span>
+<span class="sd">        * *Procedure Step*</span>
+<span class="sd">        * *Print Management*</span>
+<span class="sd">        * *Media Creation Management*</span>
+<span class="sd">        * *Unified Procedure Step*</span>
+<span class="sd">        * *RT Machine Verification*</span>
+
+<span class="sd">        **N-GET Request**</span>
+
+<span class="sd">        *Parameters*</span>
+
+<span class="sd">        | (M) Message ID</span>
+<span class="sd">        | (M) Requested SOP Class UID</span>
+<span class="sd">        | (M) Requested SOP Instance UID</span>
+<span class="sd">        | (U) Attribute Identifier List</span>
+
+<span class="sd">        *Attribute Identifier List*</span>
+
+<span class="sd">        An element with VR AT, VM 1-n, containing an attribute tag for each</span>
+<span class="sd">        of the attributes applicable to the N-GET operation.</span>
+
+<span class="sd">        **N-GET Response**</span>
+
+<span class="sd">        *Parameters*</span>
+
+<span class="sd">        | (M) Message ID Being Responded To</span>
+<span class="sd">        | (U) Affected SOP Class UID</span>
+<span class="sd">        | (U) Affected SOP Instance UID</span>
+<span class="sd">        | (C) Attribute List</span>
+<span class="sd">        | (M) Status</span>
+
+<span class="sd">        *Attribute List*</span>
+
+<span class="sd">        A dataset containing the values of the requested attributes.</span>
+
+<span class="sd">        *Status*</span>
+
+<span class="sd">        Success</span>
+<span class="sd">          | ``0x0000`` - Success</span>
+
+<span class="sd">        Failure</span>
+<span class="sd">          | ``0x0107`` - Attribute list error</span>
+<span class="sd">          | ``0x0110`` - Processing failure</span>
+<span class="sd">          | ``0x0112`` - No such SOP Instance</span>
+<span class="sd">          | ``0x0117`` - Invalid object Instance</span>
+<span class="sd">          | ``0x0118`` - No such SOP Class</span>
+<span class="sd">          | ``0x0119`` - Class-Instance conflict</span>
+<span class="sd">          | ``0x0124`` - Not authorised</span>
+<span class="sd">          | ``0x0210`` - Duplicate invocation</span>
+<span class="sd">          | ``0x0211`` - Unrecognised operation</span>
+<span class="sd">          | ``0x0212`` - Mistyped argument</span>
+<span class="sd">          | ``0x0213`` - Resource limitation</span>
+<span class="sd">          | ``0xC112`` - Applicable Machine Verification Instance not found</span>
+<span class="sd">          | ``0xC307`` - Specified SOP Instance UID doesn&#39;t exist or is not</span>
+<span class="sd">            a UPS Instance managed by this SCP</span>
+
+<span class="sd">        Warning</span>
+<span class="sd">          | ``0x0001`` - Requested optional Attributes are not supported</span>
+<span class="sd">          | ``0x0107`` - Attribute list error</span>
+
+<span class="sd">        References</span>
+<span class="sd">        ----------</span>
+
+<span class="sd">        * DICOM Standard, Part 4, `Annex F &lt;http://dicom.nema.org/medical/dicom/current/output/html/part04.html#chapter_F&gt;`_</span>
+<span class="sd">        * DICOM Standard, Part 4, `Annex H &lt;http://dicom.nema.org/medical/dicom/current/output/html/part04.html#chapter_H&gt;`_</span>
+<span class="sd">        * DICOM Standard, Part 4, `Annex S &lt;http://dicom.nema.org/medical/dicom/current/output/html/part04.html#chapter_S&gt;`_</span>
+<span class="sd">        * DICOM Standard, Part 4, `Annex CC &lt;http://dicom.nema.org/medical/dicom/current/output/html/part04.html#chapter_CC&gt;`_</span>
+<span class="sd">        * DICOM Standard, Part 4, `Annex DD &lt;http://dicom.nema.org/medical/dicom/current/output/html/part04.html#chapter_DD&gt;`_</span>
+<span class="sd">        * DICOM Standard, Part 4, `Annex EE &lt;http://dicom.nema.org/medical/dicom/current/output/html/part04.html#chapter_EE&gt;`_</span>
+<span class="sd">        * DICOM Standard, Part 7, Sections</span>
+<span class="sd">          `10.1.2 &lt;http://dicom.nema.org/medical/dicom/current/output/html/part07.html#sect_10.1.2&gt;`_,</span>
+<span class="sd">          `10.3.2 &lt;http://dicom.nema.org/medical/dicom/current/output/html/part07.html#sect_10.3.2&gt;`_</span>
+<span class="sd">          and `Annex C &lt;http://dicom.nema.org/medical/dicom/current/output/html/part07.html#chapter_C&gt;`_</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="c1"># Build N-GET response primitive</span>
+        <span class="n">rsp</span> <span class="o">=</span> <span class="n">N_GET</span><span class="p">()</span>
+        <span class="n">rsp</span><span class="o">.</span><span class="n">MessageIDBeingRespondedTo</span> <span class="o">=</span> <span class="n">req</span><span class="o">.</span><span class="n">MessageID</span>
+        <span class="n">rsp</span><span class="o">.</span><span class="n">AffectedSOPClassUID</span> <span class="o">=</span> <span class="n">req</span><span class="o">.</span><span class="n">RequestedSOPClassUID</span>
+        <span class="n">rsp</span><span class="o">.</span><span class="n">AffectedSOPInstanceUID</span> <span class="o">=</span> <span class="n">req</span><span class="o">.</span><span class="n">RequestedSOPInstanceUID</span>
+
+        <span class="k">try</span><span class="p">:</span>
+            <span class="n">status</span><span class="p">,</span> <span class="n">ds</span> <span class="o">=</span> <span class="n">evt</span><span class="o">.</span><span class="n">trigger</span><span class="p">(</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">assoc</span><span class="p">,</span>
+                <span class="n">evt</span><span class="o">.</span><span class="n">EVT_N_GET</span><span class="p">,</span>
+                <span class="p">{</span>
+                    <span class="s1">&#39;request&#39;</span> <span class="p">:</span> <span class="n">req</span><span class="p">,</span>
+                    <span class="s1">&#39;context&#39;</span> <span class="p">:</span> <span class="n">context</span><span class="o">.</span><span class="n">as_tuple</span><span class="p">,</span>
+                <span class="p">}</span>
+            <span class="p">)</span>
+        <span class="k">except</span> <span class="ne">Exception</span> <span class="k">as</span> <span class="n">exc</span><span class="p">:</span>
+            <span class="n">LOGGER</span><span class="o">.</span><span class="n">error</span><span class="p">(</span>
+                <span class="s2">&quot;Exception in the handler bound to &#39;evt.EVT_N_GET&#39;&quot;</span>
+            <span class="p">)</span>
+            <span class="n">LOGGER</span><span class="o">.</span><span class="n">exception</span><span class="p">(</span><span class="n">exc</span><span class="p">)</span>
+            <span class="c1"># Processing failure - Error in handler</span>
+            <span class="n">rsp</span><span class="o">.</span><span class="n">Status</span> <span class="o">=</span> <span class="mh">0x0110</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">dimse</span><span class="o">.</span><span class="n">send_msg</span><span class="p">(</span><span class="n">rsp</span><span class="p">,</span> <span class="n">context</span><span class="o">.</span><span class="n">context_id</span><span class="p">)</span>
+            <span class="k">return</span>
+
+        <span class="c1"># Validate rsp_status and set rsp.Status accordingly</span>
+        <span class="n">rsp</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">validate_status</span><span class="p">(</span><span class="n">status</span><span class="p">,</span> <span class="n">rsp</span><span class="p">)</span>
+
+        <span class="k">if</span> <span class="n">rsp</span><span class="o">.</span><span class="n">Status</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">statuses</span><span class="p">:</span>
+            <span class="n">status</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">statuses</span><span class="p">[</span><span class="n">rsp</span><span class="o">.</span><span class="n">Status</span><span class="p">]</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="c1"># Unknown status</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">dimse</span><span class="o">.</span><span class="n">send_msg</span><span class="p">(</span><span class="n">rsp</span><span class="p">,</span> <span class="n">context</span><span class="o">.</span><span class="n">context_id</span><span class="p">)</span>
+            <span class="k">return</span>
+
+        <span class="k">if</span> <span class="n">status</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span> <span class="ow">in</span> <span class="p">[</span><span class="n">STATUS_SUCCESS</span><span class="p">,</span> <span class="n">STATUS_WARNING</span><span class="p">]</span> <span class="ow">and</span> <span class="n">ds</span><span class="p">:</span>
+            <span class="c1"># If Success or Warning then there **may** be a dataset</span>
+            <span class="n">transfer_syntax</span> <span class="o">=</span> <span class="n">context</span><span class="o">.</span><span class="n">transfer_syntax</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span>
+            <span class="c1"># If encode() fails then returns `None`</span>
+            <span class="n">bytestream</span> <span class="o">=</span> <span class="n">encode</span><span class="p">(</span><span class="n">ds</span><span class="p">,</span>
+                                <span class="n">transfer_syntax</span><span class="o">.</span><span class="n">is_implicit_VR</span><span class="p">,</span>
+                                <span class="n">transfer_syntax</span><span class="o">.</span><span class="n">is_little_endian</span><span class="p">)</span>
+
+            <span class="k">if</span> <span class="n">bytestream</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+                <span class="n">LOGGER</span><span class="o">.</span><span class="n">error</span><span class="p">(</span>
+                    <span class="s2">&quot;Failed to encode the N-GET response&#39;s &#39;Attribute &quot;</span>
+                    <span class="s2">&quot;List&#39; dataset&quot;</span>
+                <span class="p">)</span>
+                <span class="c1"># Processing failure - Failed to encode dataset</span>
+                <span class="n">rsp</span><span class="o">.</span><span class="n">Status</span> <span class="o">=</span> <span class="mh">0x0110</span>
+            <span class="k">else</span><span class="p">:</span>
+                <span class="n">rsp</span><span class="o">.</span><span class="n">AttributeList</span> <span class="o">=</span> <span class="n">BytesIO</span><span class="p">(</span><span class="n">bytestream</span><span class="p">)</span>
+
+        <span class="bp">self</span><span class="o">.</span><span class="n">dimse</span><span class="o">.</span><span class="n">send_msg</span><span class="p">(</span><span class="n">rsp</span><span class="p">,</span> <span class="n">context</span><span class="o">.</span><span class="n">context_id</span><span class="p">)</span>
+
+    <span class="k">def</span> <span class="nf">_n_set_scp</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">req</span><span class="p">,</span> <span class="n">context</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;Implementation of the DIMSE N-SET service.</span>
+
+<span class="sd">        Parameters</span>
+<span class="sd">        ----------</span>
+<span class="sd">        req : dimse_primitives.N_SET</span>
+<span class="sd">            The N-SET request primitive sent by the peer.</span>
+<span class="sd">        context : presentation.PresentationContext</span>
+<span class="sd">            The presentation context that the SCP is operating under.</span>
+
+<span class="sd">        Notes</span>
+<span class="sd">        -----</span>
+
+<span class="sd">        **Service Classes**</span>
+
+<span class="sd">        * *Procedure Step*</span>
+<span class="sd">        * *Print Management*</span>
+<span class="sd">        * *Unified Procedure Step*</span>
+<span class="sd">        * *RT Machine Verification*</span>
+
+<span class="sd">        **N-SET Request**</span>
+
+<span class="sd">        *Parameters*</span>
+
+<span class="sd">        | (M) Message ID</span>
+<span class="sd">        | (M) Requested SOP Class UID</span>
+<span class="sd">        | (M) Requested SOP Instance UID</span>
+<span class="sd">        | (M) Modification List</span>
+
+<span class="sd">        **N-SET Response**</span>
+
+<span class="sd">        *Parameters*</span>
+
+<span class="sd">        | (M) Message ID Being Responded To</span>
+<span class="sd">        | (U) Attribute List</span>
+<span class="sd">        | (U) Affected SOP Class UID</span>
+<span class="sd">        | (U) Affected SOP Instance UID</span>
+<span class="sd">        | (M) Status</span>
+
+<span class="sd">        *Status*</span>
+
+<span class="sd">        Success</span>
+<span class="sd">          | ``0x0000`` - Success</span>
+
+<span class="sd">        Failure</span>
+<span class="sd">          | ``0x0105`` - No such attribute</span>
+<span class="sd">          | ``0x0106`` - Invalid attribute value</span>
+<span class="sd">          | ``0x0110`` - Processing failure</span>
+<span class="sd">          | ``0x0112`` - SOP Instance not recognised</span>
+<span class="sd">          | ``0x0116`` - Attribute value out of range</span>
+<span class="sd">          | ``0x0117`` - Invalid object instance</span>
+<span class="sd">          | ``0x0118`` - No such SOP Class</span>
+<span class="sd">          | ``0x0119`` - Class-Instance conflict</span>
+<span class="sd">          | ``0x0121`` - Missing attribute value</span>
+<span class="sd">          | ``0x0124`` - Refused: not authorised</span>
+<span class="sd">          | ``0x0210`` - Duplicate invocation</span>
+<span class="sd">          | ``0x0211`` - Unrecognised operation</span>
+<span class="sd">          | ``0x0212`` - Mistyped argument</span>
+<span class="sd">          | ``0x0213`` - Resource limitation</span>
+<span class="sd">          | ``0xC112`` - Applicable Machine Verification Instance not found</span>
+<span class="sd">          | ``0xC224`` - Reference Beam Number not found within the</span>
+<span class="sd">            referenced Fraction Group</span>
+<span class="sd">          | ``0xC225`` - Referenced device or accessory not supported</span>
+<span class="sd">          | ``0xC226`` - Referenced device or accessory not found with the</span>
+<span class="sd">            referenced beam</span>
+<span class="sd">          | ``0xC300`` - The UPS may no longer be updated</span>
+<span class="sd">          | ``0xC301`` - The correct Transaction UID was not provided</span>
+<span class="sd">          | ``0xC307`` - Specified SOP Instance UID does not exist or is not a</span>
+<span class="sd">            UPS Instance managed by this SCP</span>
+<span class="sd">          | ``0xC310`` - The UPS is not in the &#39;IN PROGRESS&#39; state</span>
+<span class="sd">          | ``0xC603`` - Image size is larger than image box size</span>
+<span class="sd">          | ``0xC605`` - Insufficient memory in printer to store the image</span>
+<span class="sd">          | ``0xC613`` - Combined Print Image size is larger than the Image Box</span>
+<span class="sd">            size</span>
+<span class="sd">          | ``0xC616`` - There is an existing Film Box that has not been</span>
+<span class="sd">            printed and N-ACTION at the Film Session level is not supported.</span>
+<span class="sd">            A new Film Box will not be created when a previous Film Box has</span>
+<span class="sd">            not been printed</span>
+
+<span class="sd">        Warning</span>
+<span class="sd">          | ``0x0001`` - Requested optional attributes are not supported</span>
+<span class="sd">          | ``0xB305`` - Coerced invalid values to valid values</span>
+<span class="sd">          | ``0xB600`` - Memory allocation not supported</span>
+<span class="sd">          | ``0xB604`` - Image size larger than image box size, the image has</span>
+<span class="sd">            been demagnified</span>
+<span class="sd">          | ``0xB605`` - Requested Min Density or Max Density outside of</span>
+<span class="sd">            printer&#39;s operating range. The printer will use its respective</span>
+<span class="sd">            minimum or maximum density value instead</span>
+<span class="sd">          | ``0xB609`` - Image size is larger than the Image Box. The Image has</span>
+<span class="sd">            been cropped to fit</span>
+<span class="sd">          | ``0xB60A`` - Image size or Combined Print Image size is larger than</span>
+<span class="sd">            the Image Box size. The Image or Combined Print Image has been</span>
+<span class="sd">            decimated to fit</span>
+
+<span class="sd">        References</span>
+<span class="sd">        ----------</span>
+
+<span class="sd">        * DICOM Standard, Part 4, `Annex F &lt;http://dicom.nema.org/medical/dicom/current/output/html/part04.html#chapter_F&gt;`_</span>
+<span class="sd">        * DICOM Standard, Part 4, `Annex H &lt;http://dicom.nema.org/medical/dicom/current/output/html/part04.html#chapter_H&gt;`_</span>
+<span class="sd">        * DICOM Standard, Part 4, `Annex CC &lt;http://dicom.nema.org/medical/dicom/current/output/html/part04.html#chapter_CC&gt;`_</span>
+<span class="sd">        * DICOM Standard, Part 4, `Annex DD &lt;http://dicom.nema.org/medical/dicom/current/output/html/part04.html#chapter_DD&gt;`_</span>
+<span class="sd">        * DICOM Standard, Part 7, Sections</span>
+<span class="sd">          `10.1.3 &lt;http://dicom.nema.org/medical/dicom/current/output/html/part07.html#sect_10.1.3&gt;`_,</span>
+<span class="sd">          `10.3.3 &lt;http://dicom.nema.org/medical/dicom/current/output/html/part07.html#sect_10.3.3&gt;`_</span>
+<span class="sd">          and `Annex C &lt;http://dicom.nema.org/medical/dicom/current/output/html/part07.html#chapter_C&gt;`_</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="c1"># Build N-CREATE response primitive</span>
+        <span class="n">rsp</span> <span class="o">=</span> <span class="n">N_SET</span><span class="p">()</span>
+        <span class="n">rsp</span><span class="o">.</span><span class="n">MessageIDBeingRespondedTo</span> <span class="o">=</span> <span class="n">req</span><span class="o">.</span><span class="n">MessageID</span>
+        <span class="n">rsp</span><span class="o">.</span><span class="n">AffectedSOPClassUID</span> <span class="o">=</span> <span class="n">req</span><span class="o">.</span><span class="n">RequestedSOPClassUID</span>
+        <span class="n">rsp</span><span class="o">.</span><span class="n">AffectedSOPInstanceUID</span> <span class="o">=</span> <span class="n">req</span><span class="o">.</span><span class="n">RequestedSOPInstanceUID</span>
+
+        <span class="k">try</span><span class="p">:</span>
+            <span class="n">status</span><span class="p">,</span> <span class="n">ds</span> <span class="o">=</span> <span class="n">evt</span><span class="o">.</span><span class="n">trigger</span><span class="p">(</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">assoc</span><span class="p">,</span>
+                <span class="n">evt</span><span class="o">.</span><span class="n">EVT_N_SET</span><span class="p">,</span>
+                <span class="p">{</span><span class="s1">&#39;request&#39;</span> <span class="p">:</span> <span class="n">req</span><span class="p">,</span> <span class="s1">&#39;context&#39;</span> <span class="p">:</span> <span class="n">context</span><span class="o">.</span><span class="n">as_tuple</span><span class="p">}</span>
+            <span class="p">)</span>
+        <span class="k">except</span> <span class="ne">Exception</span> <span class="k">as</span> <span class="n">exc</span><span class="p">:</span>
+            <span class="n">LOGGER</span><span class="o">.</span><span class="n">error</span><span class="p">(</span>
+                <span class="s2">&quot;Exception in the handler bound to &#39;evt.EVT_N_SET&quot;</span>
+            <span class="p">)</span>
+            <span class="n">LOGGER</span><span class="o">.</span><span class="n">exception</span><span class="p">(</span><span class="n">exc</span><span class="p">)</span>
+            <span class="n">rsp</span><span class="o">.</span><span class="n">Status</span> <span class="o">=</span> <span class="mh">0x0110</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">dimse</span><span class="o">.</span><span class="n">send_msg</span><span class="p">(</span><span class="n">rsp</span><span class="p">,</span> <span class="n">context</span><span class="o">.</span><span class="n">context_id</span><span class="p">)</span>
+            <span class="k">return</span>
+
+        <span class="c1"># Validate rsp_status and set rsp.Status accordingly</span>
+        <span class="n">rsp</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">validate_status</span><span class="p">(</span><span class="n">status</span><span class="p">,</span> <span class="n">rsp</span><span class="p">)</span>
+
+        <span class="k">if</span> <span class="n">rsp</span><span class="o">.</span><span class="n">Status</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">statuses</span><span class="p">:</span>
+            <span class="n">status</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">statuses</span><span class="p">[</span><span class="n">rsp</span><span class="o">.</span><span class="n">Status</span><span class="p">]</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="c1"># Unknown status</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">dimse</span><span class="o">.</span><span class="n">send_msg</span><span class="p">(</span><span class="n">rsp</span><span class="p">,</span> <span class="n">context</span><span class="o">.</span><span class="n">context_id</span><span class="p">)</span>
+            <span class="k">return</span>
+
+        <span class="k">if</span> <span class="n">status</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span> <span class="ow">in</span> <span class="p">(</span><span class="n">STATUS_SUCCESS</span><span class="p">,</span> <span class="n">STATUS_WARNING</span><span class="p">)</span> <span class="ow">and</span> <span class="n">ds</span><span class="p">:</span>
+            <span class="c1"># If Success or Warning then there **may** be a dataset</span>
+            <span class="n">transfer_syntax</span> <span class="o">=</span> <span class="n">context</span><span class="o">.</span><span class="n">transfer_syntax</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span>
+            <span class="c1"># If encode() fails then returns `None`</span>
+            <span class="n">bytestream</span> <span class="o">=</span> <span class="n">encode</span><span class="p">(</span><span class="n">ds</span><span class="p">,</span>
+                                <span class="n">transfer_syntax</span><span class="o">.</span><span class="n">is_implicit_VR</span><span class="p">,</span>
+                                <span class="n">transfer_syntax</span><span class="o">.</span><span class="n">is_little_endian</span><span class="p">)</span>
+
+            <span class="k">if</span> <span class="n">bytestream</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+                <span class="n">LOGGER</span><span class="o">.</span><span class="n">error</span><span class="p">(</span>
+                    <span class="s2">&quot;Failed to encode the N-SET response&#39;s &#39;Attribute &quot;</span>
+                    <span class="s2">&quot;List&#39; dataset&quot;</span>
+                <span class="p">)</span>
+                <span class="c1"># Processing failure</span>
+                <span class="n">rsp</span><span class="o">.</span><span class="n">Status</span> <span class="o">=</span> <span class="mh">0x0110</span>
+            <span class="k">else</span><span class="p">:</span>
+                <span class="n">rsp</span><span class="o">.</span><span class="n">AttributeList</span> <span class="o">=</span> <span class="n">BytesIO</span><span class="p">(</span><span class="n">bytestream</span><span class="p">)</span>
+
+        <span class="c1"># Send response primitive</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">dimse</span><span class="o">.</span><span class="n">send_msg</span><span class="p">(</span><span class="n">rsp</span><span class="p">,</span> <span class="n">context</span><span class="o">.</span><span class="n">context_id</span><span class="p">)</span>
 
     <span class="k">def</span> <span class="nf">SCP</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">req</span><span class="p">,</span> <span class="n">context</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;The implementation of the corresponding service class.</span>
@@ -1805,6 +2852,36 @@
             <span class="p">)</span></div></div>
 
 
+<div class="viewcode-block" id="ColorPaletteQueryRetrieveServiceClass"><a class="viewcode-back" href="../../reference/generated/pynetdicom.service_class.ColorPaletteQueryRetrieveServiceClass.html#pynetdicom.service_class.ColorPaletteQueryRetrieveServiceClass">[docs]</a><span class="k">class</span> <span class="nc">ColorPaletteQueryRetrieveServiceClass</span><span class="p">(</span><span class="n">QueryRetrieveServiceClass</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;Implementation of the Color Palette QR Service.&quot;&quot;&quot;</span>
+    <span class="k">pass</span></div>
+
+
+<div class="viewcode-block" id="DefinedProcedureProtocolQueryRetrieveServiceClass"><a class="viewcode-back" href="../../reference/generated/pynetdicom.service_class.DefinedProcedureProtocolQueryRetrieveServiceClass.html#pynetdicom.service_class.DefinedProcedureProtocolQueryRetrieveServiceClass">[docs]</a><span class="k">class</span> <span class="nc">DefinedProcedureProtocolQueryRetrieveServiceClass</span><span class="p">(</span><span class="n">QueryRetrieveServiceClass</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;Implementation of the Defined Procedure Protocol QR Service.&quot;&quot;&quot;</span>
+    <span class="k">pass</span></div>
+
+
+<div class="viewcode-block" id="HangingProtocolQueryRetrieveServiceClass"><a class="viewcode-back" href="../../reference/generated/pynetdicom.service_class.HangingProtocolQueryRetrieveServiceClass.html#pynetdicom.service_class.HangingProtocolQueryRetrieveServiceClass">[docs]</a><span class="k">class</span> <span class="nc">HangingProtocolQueryRetrieveServiceClass</span><span class="p">(</span><span class="n">QueryRetrieveServiceClass</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;Implementation of the Hanging Protocol QR Service.&quot;&quot;&quot;</span>
+    <span class="k">pass</span></div>
+
+
+<div class="viewcode-block" id="ImplantTemplateQueryRetrieveServiceClass"><a class="viewcode-back" href="../../reference/generated/pynetdicom.service_class.ImplantTemplateQueryRetrieveServiceClass.html#pynetdicom.service_class.ImplantTemplateQueryRetrieveServiceClass">[docs]</a><span class="k">class</span> <span class="nc">ImplantTemplateQueryRetrieveServiceClass</span><span class="p">(</span><span class="n">QueryRetrieveServiceClass</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;Implementation of the Implant Template QR Service.&quot;&quot;&quot;</span>
+    <span class="k">pass</span></div>
+
+
+<div class="viewcode-block" id="NonPatientObjectStorageServiceClass"><a class="viewcode-back" href="../../reference/generated/pynetdicom.service_class.NonPatientObjectStorageServiceClass.html#pynetdicom.service_class.NonPatientObjectStorageServiceClass">[docs]</a><span class="k">class</span> <span class="nc">NonPatientObjectStorageServiceClass</span><span class="p">(</span><span class="n">StorageServiceClass</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;Implementation of the Non-Patient Object Storage Service&quot;&quot;&quot;</span>
+    <span class="n">statuses</span> <span class="o">=</span> <span class="n">NON_PATIENT_SERVICE_CLASS_STATUS</span></div>
+
+
+<span class="k">class</span> <span class="nc">ProtocolApprovalQueryRetrieveServiceClass</span><span class="p">(</span><span class="n">QueryRetrieveServiceClass</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;Implementation of the Protocol Approval QR Service.&quot;&quot;&quot;</span>
+    <span class="k">pass</span>
+
+
 <div class="viewcode-block" id="RelevantPatientInformationQueryServiceClass"><a class="viewcode-back" href="../../reference/generated/pynetdicom.service_class.RelevantPatientInformationQueryServiceClass.html#pynetdicom.service_class.RelevantPatientInformationQueryServiceClass">[docs]</a><span class="k">class</span> <span class="nc">RelevantPatientInformationQueryServiceClass</span><span class="p">(</span><span class="n">ServiceClass</span><span class="p">):</span>
     <span class="sd">&quot;&quot;&quot;Implementation of the Relevant Patient Information Query&quot;&quot;&quot;</span>
     <span class="n">statuses</span> <span class="o">=</span> <span class="n">RELEVANT_PATIENT_SERVICE_CLASS_STATUS</span>
@@ -2081,35 +3158,6 @@
 <span class="sd">           and `Annex C &lt;http://dicom.nema.org/medical/dicom/current/output/html/part07.html#chapter_C&gt;`_.</span>
 <span class="sd">        &quot;&quot;&quot;</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">_find_scp</span><span class="p">(</span><span class="n">req</span><span class="p">,</span> <span class="n">context</span><span class="p">)</span></div></div>
-
-
-<div class="viewcode-block" id="NonPatientObjectStorageServiceClass"><a class="viewcode-back" href="../../reference/generated/pynetdicom.service_class.NonPatientObjectStorageServiceClass.html#pynetdicom.service_class.NonPatientObjectStorageServiceClass">[docs]</a><span class="k">class</span> <span class="nc">NonPatientObjectStorageServiceClass</span><span class="p">(</span><span class="n">StorageServiceClass</span><span class="p">):</span>
-    <span class="sd">&quot;&quot;&quot;Implementation of the Non-Patient Object Storage Service&quot;&quot;&quot;</span>
-    <span class="n">statuses</span> <span class="o">=</span> <span class="n">NON_PATIENT_SERVICE_CLASS_STATUS</span></div>
-
-
-<div class="viewcode-block" id="HangingProtocolQueryRetrieveServiceClass"><a class="viewcode-back" href="../../reference/generated/pynetdicom.service_class.HangingProtocolQueryRetrieveServiceClass.html#pynetdicom.service_class.HangingProtocolQueryRetrieveServiceClass">[docs]</a><span class="k">class</span> <span class="nc">HangingProtocolQueryRetrieveServiceClass</span><span class="p">(</span><span class="n">QueryRetrieveServiceClass</span><span class="p">):</span>
-    <span class="sd">&quot;&quot;&quot;Implementation of the Hanging Protocol QR Service.&quot;&quot;&quot;</span>
-    <span class="k">pass</span></div>
-
-
-<div class="viewcode-block" id="DefinedProcedureProtocolQueryRetrieveServiceClass"><a class="viewcode-back" href="../../reference/generated/pynetdicom.service_class.DefinedProcedureProtocolQueryRetrieveServiceClass.html#pynetdicom.service_class.DefinedProcedureProtocolQueryRetrieveServiceClass">[docs]</a><span class="k">class</span> <span class="nc">DefinedProcedureProtocolQueryRetrieveServiceClass</span><span class="p">(</span><span class="n">QueryRetrieveServiceClass</span><span class="p">):</span>
-    <span class="sd">&quot;&quot;&quot;Implementation of the Defined Procedure Protocol QR Service.&quot;&quot;&quot;</span>
-    <span class="k">pass</span></div>
-
-
-<div class="viewcode-block" id="ColorPaletteQueryRetrieveServiceClass"><a class="viewcode-back" href="../../reference/generated/pynetdicom.service_class.ColorPaletteQueryRetrieveServiceClass.html#pynetdicom.service_class.ColorPaletteQueryRetrieveServiceClass">[docs]</a><span class="k">class</span> <span class="nc">ColorPaletteQueryRetrieveServiceClass</span><span class="p">(</span><span class="n">QueryRetrieveServiceClass</span><span class="p">):</span>
-    <span class="sd">&quot;&quot;&quot;Implementation of the Color Palette QR Service.&quot;&quot;&quot;</span>
-    <span class="k">pass</span></div>
-
-
-<div class="viewcode-block" id="ImplantTemplateQueryRetrieveServiceClass"><a class="viewcode-back" href="../../reference/generated/pynetdicom.service_class.ImplantTemplateQueryRetrieveServiceClass.html#pynetdicom.service_class.ImplantTemplateQueryRetrieveServiceClass">[docs]</a><span class="k">class</span> <span class="nc">ImplantTemplateQueryRetrieveServiceClass</span><span class="p">(</span><span class="n">QueryRetrieveServiceClass</span><span class="p">):</span>
-    <span class="sd">&quot;&quot;&quot;Implementation of the Implant Template QR Service.&quot;&quot;&quot;</span>
-    <span class="k">pass</span></div>
-
-<span class="k">class</span> <span class="nc">ProtocolApprovalQueryRetrieveServiceClass</span><span class="p">(</span><span class="n">QueryRetrieveServiceClass</span><span class="p">):</span>
-    <span class="sd">&quot;&quot;&quot;Implementation of the Protocol Approval QR Service.&quot;&quot;&quot;</span>
-    <span class="k">pass</span>
 </pre></div>
 
            </div>

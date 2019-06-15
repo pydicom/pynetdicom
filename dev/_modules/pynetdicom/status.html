@@ -511,10 +511,10 @@
 <span class="c1"># Media Creation Management Service Class specific status code values</span>
 <span class="n">MEDIA_CREATION_MANAGEMENT_SERVICE_CLASS_STATUS</span> <span class="o">=</span> <span class="p">{</span>
     <span class="mh">0x0001</span> <span class="p">:</span> <span class="p">(</span><span class="n">STATUS_WARNING</span><span class="p">,</span>
-              <span class="s2">&quot;Requested optional attributes are not supported&quot;</span><span class="p">),</span>
+              <span class="s2">&quot;Requested optional Attributes are not supported&quot;</span><span class="p">),</span>
     <span class="mh">0xA510</span> <span class="p">:</span> <span class="p">(</span><span class="n">STATUS_FAILURE</span><span class="p">,</span>
-              <span class="s2">&quot;Refused because an Initiate Media Creation action has already &quot;</span>
-              <span class="s2">&quot;been received for this SOP Instance&quot;</span><span class="p">),</span>
+              <span class="s2">&quot;An Initiate Media Creation action has already been received &quot;</span>
+              <span class="s2">&quot;for this SOP Instance&quot;</span><span class="p">),</span>
     <span class="mh">0xC201</span> <span class="p">:</span> <span class="p">(</span><span class="n">STATUS_FAILURE</span><span class="p">,</span> <span class="s2">&quot;Media creation request already completed&quot;</span><span class="p">),</span>
     <span class="mh">0xC202</span> <span class="p">:</span> <span class="p">(</span><span class="n">STATUS_FAILURE</span><span class="p">,</span>
               <span class="s2">&quot;Media creation request already in progress and cannot be &quot;</span>
@@ -525,7 +525,14 @@
 
 
 <span class="c1"># Unified Procedure Step Service specific status code values</span>
-<span class="n">UNIFIED_PROCEDURE_STEP_SERVICE_CLASS_STATUS</span> <span class="o">=</span> <span class="p">{</span>
+<span class="n">UNIFIED_PROCEDURE_STEP_SERVICE_CLASS_STATUS</span> <span class="o">=</span> <span class="p">{}</span>
+<span class="c1"># Ranged values</span>
+<span class="k">for</span> <span class="n">_code</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="mh">0xC000</span><span class="p">,</span> <span class="mh">0xCFFF</span> <span class="o">+</span> <span class="mi">1</span><span class="p">):</span>
+    <span class="n">UNIFIED_PROCEDURE_STEP_SERVICE_CLASS_STATUS</span><span class="p">[</span><span class="n">_code</span><span class="p">]</span> <span class="o">=</span> <span class="p">(</span>
+        <span class="n">STATUS_FAILURE</span><span class="p">,</span> <span class="s1">&#39;Unable to Process&#39;</span>
+    <span class="p">)</span>
+
+<span class="n">UNIFIED_PROCEDURE_STEP_SERVICE_CLASS_STATUS</span><span class="o">.</span><span class="n">update</span><span class="p">({</span>
     <span class="mh">0x0001</span> <span class="p">:</span> <span class="p">(</span><span class="n">STATUS_WARNING</span><span class="p">,</span>
               <span class="s2">&quot;Requested optional attributes are not supported&quot;</span><span class="p">),</span>
     <span class="mh">0xA700</span> <span class="p">:</span> <span class="p">(</span><span class="n">STATUS_FAILURE</span><span class="p">,</span> <span class="s2">&quot;Out of resources&quot;</span><span class="p">),</span>
@@ -567,14 +574,7 @@
               <span class="s2">&quot;Matches are continuing - current match is supplied an any &quot;</span>
               <span class="s2">&quot;Optional Keys were not supported for existence for this &quot;</span>
               <span class="s2">&quot;Identifier&quot;</span><span class="p">),</span>
-<span class="p">}</span>
-
-<span class="c1"># Ranged values</span>
-<span class="k">for</span> <span class="n">_code</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="mh">0xC000</span><span class="p">,</span> <span class="mh">0xCFFF</span> <span class="o">+</span> <span class="mi">1</span><span class="p">):</span>
-    <span class="n">UNIFIED_PROCEDURE_STEP_SERVICE_CLASS_STATUS</span><span class="p">[</span><span class="n">_code</span><span class="p">]</span> <span class="o">=</span> <span class="p">(</span>
-        <span class="n">STATUS_FAILURE</span><span class="p">,</span> <span class="s1">&#39;Unable to Process&#39;</span>
-    <span class="p">)</span>
-
+<span class="p">})</span>
 <span class="n">UNIFIED_PROCEDURE_STEP_SERVICE_CLASS_STATUS</span><span class="o">.</span><span class="n">update</span><span class="p">(</span><span class="n">GENERAL_STATUS</span><span class="p">)</span>
 
 
