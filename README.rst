@@ -37,7 +37,7 @@ it allows the easy creation of DICOM *Service Class Users* (SCUs) and
 *Service Class Providers* (SCPs).
 
 The main user class is ``AE``, which is used to represent a DICOM Application
-Entity. Once the ``AE`` has been created you would typically either:
+Entity. Once an ``AE`` has been created you would typically either:
 
 - Start the application as an SCP by specifying the presentation contexts that
   you will support, then calling ``AE.start_server((host, port))`` and waiting
@@ -67,7 +67,7 @@ Supported Service Classes
 - `Implant Template Query/Retrieve Service Class <http://dicom.nema.org/medical/dicom/current/output/html/part04.html#chapter_BB>`_
 - `Instance Availability Notification Service Class <http://dicom.nema.org/medical/dicom/current/output/html/part04.html#chapter_R>`_
 - `Media Creation Management Service Class <http://dicom.nema.org/medical/dicom/current/output/html/part04.html#chapter_S>`_
-- `Modality Performed Procedure Step Management <http://dicom.nema.org/medical/dicom/current/output/html/part04.html#chapter_F>`_ (excluding *MPPS Notification SOP Class*)
+- `Modality Performed Procedure Step Management <http://dicom.nema.org/medical/dicom/current/output/html/part04.html#chapter_F>`_ (excluding *MPPS Notification SOP Class*
 - `Non-Patient Object Storage Service Class <http://dicom.nema.org/medical/dicom/current/output/html/part04.html#chapter_GG>`_
 - `Protocol Approval Query/Retrieve Service Class <http://dicom.nema.org/medical/dicom/current/output/html/part04.html#chapter_II>`_
 - `Query/Retrieve Service Class <http://dicom.nema.org/medical/dicom/current/output/html/part04.html#chapter_C>`_
@@ -198,13 +198,13 @@ available to the peer once an association has been established:
 +----------------+----------------------------+
 
 
-With the exception of the C-ECHO service, a user-defined *handler* must be bound
-to the corresponding
+With the exception of the C-ECHO service, a user-defined callable function,
+*handler*, must be bound to the corresponding
 `intervention event <https://pydicom.github.io/pynetdicom/stable/user/events#intervention-events>`_
 in order to complete a DIMSE service request. Events
 can be imported with ``from pynetdicom import evt`` and a handler can be
 bound to an event prior to starting an association through the *evt_handlers*
-keyword parameters in ``AE.start_server()`` and ``AE.associate()``.
+keyword arguments in ``AE.start_server()`` and ``AE.associate()``.
 
 When an event occurs the *handler* function is called and passed a single
 parameter, *event*, which is an ``evt.Event`` object whose specific attributes
