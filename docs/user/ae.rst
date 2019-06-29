@@ -191,7 +191,7 @@ All the above examples set the requested presentation contexts on the
 Application Entity level, i.e. the same contexts will be used for all
 association requests. To set the requested presentation contexts on a
 per-association basis (i.e. each association request can have different
-requested contexts) you can use the ``context`` parameter when calling
+requested contexts) you can use the ``context`` keyword argument when calling
 :py:meth:`AE.associate() <pynetdicom.ae.ApplicationEntity.associate>` (see
 the :ref:`Association <association>` page for more information).
 

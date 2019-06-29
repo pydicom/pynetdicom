@@ -30,7 +30,7 @@ thread:
     if assoc.is_established:
         assoc.release()
 
-This sends an association request to the IP address '127.0.0.1' on port 11112
+This sends an association request to the IP address ``127.0.0.1`` on port ``11112``
 with the request containing the presentation contexts from
 :py:obj:`AE.requested_contexts <pynetdicom.ae.ApplicationEntity.requested_contexts>`
 and the default *Called AE Title* parameter of ``b'ANY-SCP         '``.
@@ -59,7 +59,7 @@ with only the ``addr`` and ``port`` parameters means the presentation
 contexts in
 :py:obj:`AE.requested_contexts <pynetdicom.ae.ApplicationEntity.requested_contexts>`
 will be used with the association. To propose presentation contexts on a
-per-association basis you can use the ``contexts`` parameter:
+per-association basis you can use the ``contexts`` keyword argument:
 
 ::
 
@@ -75,7 +75,7 @@ per-association basis you can use the ``contexts`` parameter:
 Using Extended Negotiation
 ..........................
 If you require the use of :ref:`extended negotiation <concepts_negotiation>`
-then you can supply the ``ext_neg`` parameter. Some extended negotiation
+then you can supply the ``ext_neg`` keyword argument. Some extended negotiation
 items can only be singular and some can occur multiple times depending on the
 service class and intended usage. The following example shows how to add
 *SCP/SCU Role Selection Negotiation* items using
@@ -95,9 +95,9 @@ also acting as a Storage SCP), plus a *User Identity Negotiation* item:
     from pynetdicom.pdu_primitives import UserIdentityNegotiation
 
     ae = AE()
-    # Presentation contexts proposed as a QR SCU
+    # Contexts proposed as a QR SCU
     ae.requested_contexts = QueryRetrievePresentationContexts
-    # Presentation contexts supported as a Storage SCP: requires Role Selection
+    # Contexts supported as a Storage SCP - requires Role Selection
     ae.requested_contexts = StoragePresentationContexts
 
     # Add role selection items for the storage contexts we will be supporting
@@ -131,8 +131,9 @@ Possible extended negotiation items are:
 Binding Event Handlers
 ......................
 
-If you want to bind handlers to any events within a new ``Association`` you can
-use the ``evt_handlers`` keyword parameter:
+If you want to bind handlers to any
+:ref:`events <user_events>` within a new ``Association`` you can
+use the ``evt_handlers`` keyword argument:
 
 ::
 
@@ -196,7 +197,7 @@ TLS
 ...
 
 The client socket used for the association can be wrapped in TLS by supplying
-the ``tls_args`` keyword parameter to ``associate()``:
+the ``tls_args`` keyword argument to ``associate()``:
 
 ::
 
@@ -220,7 +221,7 @@ the ``tls_args`` keyword parameter to ``associate()``:
 
 ``tls_args`` is
 (`ssl.SSLContext <https://docs.python.org/3/library/ssl.html#ssl.SSLContext.wrap_socket>`_,
-*host*), where *host* is the value of the ``server_hostname`` keyword parameter in ``SSLContext.wrap_socket()``.
+*host*), where *host* is the value of the ``server_hostname`` keyword argument in ``SSLContext.wrap_socket()``.
 
 
 Outcomes of an Association Request
@@ -252,8 +253,8 @@ the Association:
 Using an Association (SCU)
 --------------------------
 Once an association has been established with the peer then the agreed upon
-set of services are available for use. Currently pynetdicom supports the usage
-of the following DIMSE-C services:
+set of services are available for use. *pynetdicom* supports the usage
+of the following DIMSE services:
 
 * C-ECHO, through the
   :py:meth:`Association.send_c_echo() <pynetdicom.association.Association.send_c_echo>`
@@ -273,6 +274,24 @@ of the following DIMSE-C services:
   :py:meth:`Association.send_c_move() <pynetdicom.association.Association.send_c_move>`
   method. The move destination can either be a different AE or the AE that made
   the C-MOVE request (provided a non-blocking Storage SCP has been started).
+* N-ACTION, through the
+  :py:meth:`Association.send_n_action() <pynetdicom.association.Association.send_n_action>`
+  method
+* N-CREATE, through the
+  :py:meth:`Association.send_n_create() <pynetdicom.association.Association.send_n_create>`
+  method
+* N-DELETE, through the
+  :py:meth:`Association.send_n_delete() <pynetdicom.association.Association.send_n_delete>`
+  method
+* N-EVENT-REPORT, through the
+  :py:meth:`Association.send_n_event_report() <pynetdicom.association.Association.send_n_event_report>`
+  method.
+* N-GET, through the
+  :py:meth:`Association.send_n_get() <pynetdicom.association.Association.send_n_get>`
+  method.
+* N-SET, through the
+  :py:meth:`Association.send_n_set() <pynetdicom.association.Association.send_n_set>`
+  method.
 
 Attempting to use a service without an established association will raise a
 ``RuntimeError``, while attempting to use a service that is not supported by
@@ -348,8 +367,9 @@ can be stopped using ``AE.shutdown()``.
 Binding Event Handlers
 ......................
 
-If you want to bind handlers to any events within any ``Association`` instances
-generated by the SCP you can use the ``evt_handlers`` keyword parameter:
+If you want to bind handlers to any
+:ref:`events <user_events>` within any ``Association`` instances
+generated by the SCP you can use the ``evt_handlers`` keyword argument:
 
 ::
 
@@ -420,7 +440,7 @@ TLS
 
 The client sockets generated by the association server can also be wrapped in
 TLS by  supplying a `ssl.SSLContext <https://docs.python.org/3/library/ssl.html#ssl.SSLContext.wrap_socket>`_
-instance via the ``ssl_context`` keyword parameter:
+instance via the ``ssl_context`` keyword argument:
 
 ::
 
@@ -448,21 +468,35 @@ DIMSE-C or -N services then a handler must be implemented and bound to the
 event corresponding the the service (excluding C-ECHO which has a default
 implementation that always returns a 0x0000 *Success* response):
 
-+---------------+---------------------+
-| DIMSE service | Event               |
-+===============+=====================+
-| C-ECHO        | ``evt.EVT_C_ECHO``  |
-+---------------+---------------------+
-| C-FIND        | ``evt.EVT_C_FIND``  |
-+---------------+---------------------+
-| C-GET         | ``evt.EVT_C_GET``   |
-+---------------+---------------------+
-| C-MOVE        | ``evt.EVT_C_MOVE``  |
-+---------------+---------------------+
-| C-STORE       | ``evt.EVT_C_STORE`` |
-+---------------+---------------------+
-| N-GET         | ``evt.EVT_N_GET``   |
-+---------------+---------------------+
++----------------+----------------------------+
+| DIMSE service  | Event                      |
++================+============================+
+| C-ECHO         | ``evt.EVT_C_ECHO``         |
++----------------+----------------------------+
+| C-FIND         | ``evt.EVT_C_FIND``         |
++----------------+----------------------------+
+| C-GET          | ``evt.EVT_C_GET``          |
++----------------+----------------------------+
+| C-MOVE         | ``evt.EVT_C_MOVE``         |
++----------------+----------------------------+
+| C-STORE        | ``evt.EVT_C_STORE``        |
++----------------+----------------------------+
+| N-ACTION       | ``evt.EVT_N_ACTION``       |
++----------------+----------------------------+
+| N-CREATE       | ``evt.EVT_N_CREATE``       |
++----------------+----------------------------+
+| N-DELETE       | ``evt.EVT_N_DELETE``       |
++----------------+----------------------------+
+| N-EVENT-REPORT | ``evt.EVT_N_EVENT_REPORT`` |
++----------------+----------------------------+
+| N-GET          | ``evt.EVT_N_GET``          |
++----------------+----------------------------+
+| N-SET          | ``evt.EVT_N_SET``          |
++----------------+----------------------------+
+
+.. warning::
+   The use of asynchronous N-EVENT-REPORT requests sent by the SCP to the SCU
+   is not currently supported.
 
 For instance, if your SCP is to support the Storage Service then you would
 implement and bind a handler for the ``evt.EVT_C_STORE`` event in manner

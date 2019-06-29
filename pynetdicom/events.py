@@ -185,6 +185,9 @@ class Event(object):
     ----------
     assoc : association.Association
         The association in which the event occurred.
+    event : events.InterventionEvent or events.NotificationEvent
+        A ``collections.namedtuple`` instance representing the event that
+        occurred.
     timestamp : datetime.datetime
         The date/time the event was created. Will be slightly before or after
         the actual event that this object represents.
@@ -335,7 +338,7 @@ class Event(object):
 
         Returns
         -------
-        InterventionEvent or NotificationEvent
+        events.InterventionEvent or events.NotificationEvent
             The corresponding event as a ``collections.namedtuple``.
         """
         return self._event
