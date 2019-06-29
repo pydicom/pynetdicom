@@ -1,23 +1,17 @@
-.. _mpps_service:
-
 Modality Performed Procedure Step Management
 ============================================
 `Modality Performed Procedure Step Management <http://dicom.nema.org/medical/dicom/current/output/html/part04.html#chapter_F>`_
 defines a service that facilitates logging and tracking of procedures performed
 by a modality.
 
+.. _mpps_sops:
+
 Supported SOP Classes
 ---------------------
 
-.. _mpps_sops:
-
-Modality Performed Procedure Step SOP Classes
-~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-
-
-.. note::
-   *Modality Performed Procedure Step Notification SOP Class* is not
-   supported.
+.. warning::
+   The use of asynchronous N-EVENT-REPORT requests sent by the SCP to the SCU
+   is not currently supported.
 
 +-----------------------------+----------------------------------------------------+
 | UID                         | SOP Class                                          |
@@ -26,6 +20,30 @@ Modality Performed Procedure Step SOP Classes
 +-----------------------------+----------------------------------------------------+
 | 1.2.840.10008.3.1.2.3.4     | ModalityPerformedProcedureStepRetrieveSOPClass     |
 +-----------------------------+----------------------------------------------------+
+| 1.2.840.10008.3.1.2.3.5     | ModalityPerformedProcedureStepNotificationSOPClass |
++-----------------------------+----------------------------------------------------+
+
+
+DIMSE Services
+--------------
+
++-----------------+------------------------------------------+
+| DIMSE Service   | Usage SCU/SCP                            |
++=================+==========================================+
+| *Modality Performed Procedure Step SOP Class*              |
++-----------------+------------------------------------------+
+| N-CREATE        | Mandatory/Mandatory                      |
++-----------------+------------------------------------------+
+| N-SET           | Mandatory/Mandatory                      |
++-----------------+------------------------------------------+
+| *Modality Performed Procedure Step Retrieve SOP Class*     |
++-----------------+------------------------------------------+
+| N-GET           | Mandatory/Mandatory                      |
++-----------------+------------------------------------------+
+| *Modality Performed Procedure Step Notification SOP Class* |
++-----------------+------------------------------------------+
+| N-EVENT-REPORT  | Mandatory/Mandatory                      |
++-----------------+------------------------------------------+
 
 
 .. _mpps_statuses:

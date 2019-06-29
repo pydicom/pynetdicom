@@ -1,5 +1,3 @@
-.. _implant_sops:
-
 Implant Template Query/Retrieve Service Class
 =======================================================
 The `Implant Template Query/Retrieve Service Class <http://dicom.nema.org/medical/dicom/current/output/html/part04.html#chapter_BB>`_
@@ -8,10 +6,7 @@ defines a service that facilitates access to Implant Template objects.
 Supported SOP Classes
 ---------------------
 
-.. _implant_find_sops:
-
-Implant Template Query/Retrieve (Find) SOP Classes
-~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+.. _implant_sops:
 
 +-----------------------------+-----------------------------------------------+
 | UID                         | SOP Class                                     |
@@ -22,39 +17,58 @@ Implant Template Query/Retrieve (Find) SOP Classes
 +-----------------------------+-----------------------------------------------+
 | 1.2.840.10008.5.1.4.45.2    | ImplantTemplateGroupInformationModelFind      |
 +-----------------------------+-----------------------------------------------+
+| 1.2.840.10008.5.1.4.43.3    | GenericImplantTemplateInformationModelMove    |
++-----------------------------+-----------------------------------------------+
+| 1.2.840.10008.5.1.4.44.3    | ImplantAssemblyTemplateInformationModelMove   |
++-----------------------------+-----------------------------------------------+
+| 1.2.840.10008.5.1.4.45.3    | ImplantTemplateGroupInformationModelMove      |
++-----------------------------+-----------------------------------------------+
+| 1.2.840.10008.5.1.4.43.4    | GenericImplantTemplateInformationModelGet     |
++-----------------------------+-----------------------------------------------+
+| 1.2.840.10008.5.1.4.44.4    | ImplantAssemblyTemplateInformationModelGet    |
++-----------------------------+-----------------------------------------------+
+| 1.2.840.10008.5.1.4.45.4    | ImplantTemplateGroupInformationModelGet       |
++-----------------------------+-----------------------------------------------+
 
 
-.. _implant_move_sops:
+DIMSE Services
+--------------
 
-Implant Template Query/Retrieve (Move) SOP Classes
-~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
++-----------------+-----------------------------------------+
+| DIMSE Service   | Usage SCU/SCP                           |
++=================+=========================================+
+| *Generic Implant Template Information Model - Find*       |
++-----------------+-----------------------------------------+
+| *Implant Assembly Template Information Model - Find*      |
++-----------------+-----------------------------------------+
+| *Implant Template Group Information Model - Find*         |
++-----------------+-----------------------------------------+
+| C-FIND          | Mandatory/Mandatory                     |
++-----------------+-----------------------------------------+
 
-+-----------------------------+----------------------------------------------+
-| UID                         | SOP Class                                    |
-+=============================+==============================================+
-| 1.2.840.10008.5.1.4.43.3    | GenericImplantTemplateInformationModelMove   |
-+-----------------------------+----------------------------------------------+
-| 1.2.840.10008.5.1.4.44.3    | ImplantAssemblyTemplateInformationModelMove  |
-+-----------------------------+----------------------------------------------+
-| 1.2.840.10008.5.1.4.45.3    | ImplantTemplateGroupInformationModelMove     |
-+-----------------------------+----------------------------------------------+
++-----------------+-----------------------------------------+
+| DIMSE Service   | Usage SCU/SCP                           |
++=================+=========================================+
+| *Generic Implant Template Information Model - Move*       |
++-----------------+-----------------------------------------+
+| *Implant Assembly Template Information Model - Move*      |
++-----------------+-----------------------------------------+
+| *Implant Template Group Information Model - Move*         |
++-----------------+-----------------------------------------+
+| C-MOVE          | Mandatory/Mandatory                     |
++-----------------+-----------------------------------------+
 
-
-.. _implant_get_sops:
-
-Implant Template Query/Retrieve (Get) SOP Classes
-~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-
-+-----------------------------+---------------------------------------------+
-| UID                         | SOP Class                                   |
-+=============================+=============================================+
-| 1.2.840.10008.5.1.4.43.4    | GenericImplantTemplateInformationModelGet   |
-+-----------------------------+---------------------------------------------+
-| 1.2.840.10008.5.1.4.44.4    | ImplantAssemblyTemplateInformationModelGet  |
-+-----------------------------+---------------------------------------------+
-| 1.2.840.10008.5.1.4.45.4    | ImplantTemplateGroupInformationModelGet     |
-+-----------------------------+---------------------------------------------+
-
++-----------------+-----------------------------------------+
+| DIMSE Service   | Usage SCU/SCP                           |
++=================+=========================================+
+| *Generic Implant Template Information Model - Get*        |
++-----------------+-----------------------------------------+
+| *Implant Assembly Template Information Model - Get*       |
++-----------------+-----------------------------------------+
+| *Implant Template Group Information Model - Get*          |
++-----------------+-----------------------------------------+
+| C-GET           | Mandatory/Mandatory                     |
++-----------------+-----------------------------------------+
 
 .. _implant_statuses:
 

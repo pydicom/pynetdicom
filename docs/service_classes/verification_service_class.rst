@@ -17,6 +17,17 @@ Supported SOP Classes
 | 1.2.840.10008.1.1 | VerificationSOPClass      |
 +-------------------+---------------------------+
 
+
+DIMSE Services
+--------------
+
++-----------------+----------------------------+
+| DIMSE Service   | Usage SCU/SCP              |
++=================+============================+
+| C-ECHO          | Mandatory/Mandatory        |
++-----------------+----------------------------+
+
+
 .. _verification_statuses:
 
 Statuses

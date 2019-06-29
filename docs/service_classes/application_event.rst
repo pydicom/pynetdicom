@@ -18,6 +18,23 @@ Supported SOP Classes
 | 1.2.840.10008.1.42 | SubstanceAdministrationLoggingSOPClass |
 +--------------------+----------------------------------------+
 
+
+DIMSE Services
+--------------
+
++-----------------+----------------------------+
+| DIMSE Service   | Usage SCU/SCP              |
++=================+============================+
+| *Procedural Event Logging SOP Class*         |
++-----------------+----------------------------+
+| N-ACTION        | Mandatory/Mandatory        |
++-----------------+----------------------------+
+| *Substance Administration Logging SOP Class* |
++-----------------+----------------------------+
+| N-CREATE        | Mandatory/Mandatory        |
++-----------------+----------------------------+
+
+
 .. _app_event_statuses:
 
 Statuses

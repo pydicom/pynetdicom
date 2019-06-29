@@ -1,5 +1,3 @@
-.. _defproc_sops:
-
 Defined Procedure Protocol Query/Retrieve Service Class
 =======================================================
 The `Defined Procedure Protocol Query/Retrieve Service Class <http://dicom.nema.org/medical/dicom/current/output/html/part04.html#chapter_HH>`_
@@ -8,41 +6,37 @@ defines a service that facilitates access to Defined Procedure Protocol objects.
 Supported SOP Classes
 ---------------------
 
-.. _defproc_find_sops:
-
-Defined Procedure Protocol Query/Retrieve (Find) SOP Classes
-~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+.. _defproc_sops:
 
 +-----------------------------+-----------------------------------------------+
 | UID                         | SOP Class                                     |
 +=============================+===============================================+
 | 1.2.840.10008.5.1.4.20.1    | DefinedProcedureProtocolInformationModelFind  |
 +-----------------------------+-----------------------------------------------+
+| 1.2.840.10008.5.1.4.20.2    | DefinedProcedureProtocolInformationModelMove  |
++-----------------------------+-----------------------------------------------+
+| 1.2.840.10008.5.1.4.20.3    | DefinedProcedureProtocolInformationModelGet   |
++-----------------------------+-----------------------------------------------+
 
 
-.. _defproc_move_sops:
+DIMSE Services
+--------------
 
-Defined Procedure Protocol Query/Retrieve (Move) SOP Classes
-~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-
-+-----------------------------+----------------------------------------------+
-| UID                         | SOP Class                                    |
-+=============================+==============================================+
-| 1.2.840.10008.5.1.4.20.2    | DefinedProcedureProtocolInformationModelMove |
-+-----------------------------+----------------------------------------------+
-
-
-.. _defproc_get_sops:
-
-Defined Procedure Protocol Query/Retrieve (Get) SOP Classes
-~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-
-+-----------------------------+---------------------------------------------+
-| UID                         | SOP Class                                   |
-+=============================+=============================================+
-| 1.2.840.10008.5.1.4.20.3    | DefinedProcedureProtocolInformationModelGet |
-+-----------------------------+---------------------------------------------+
-
++-----------------+-----------------------------------------+
+| DIMSE Service   | Usage SCU/SCP                           |
++=================+=========================================+
+| *Defined Procedure Protocol Information Model - Find*     |
++-----------------+-----------------------------------------+
+| C-FIND          | Mandatory/Mandatory                     |
++-----------------+-----------------------------------------+
+| *Defined Procedure Protocol Information Model - Move*     |
++-----------------+-----------------------------------------+
+| C-MOVE          | Mandatory/Mandatory                     |
++-----------------+-----------------------------------------+
+| *Defined Procedure Protocol Information Model - Get*      |
++-----------------+-----------------------------------------+
+| C-GET           | Mandatory/Mandatory                     |
++-----------------+-----------------------------------------+
 
 .. _defproc_statuses:
 

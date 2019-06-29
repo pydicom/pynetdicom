@@ -25,7 +25,8 @@ AEs and using or providing the services available to the association.
 
 Supported Service Classes
 -------------------------
-*pynetdicom* currently supports the following DICOM service classes:
+*pynetdicom* currently supports the following `DICOM service classes
+<http://dicom.nema.org/medical/dicom/current/output/chtml/part04/PS3.4.html>`_:
 
 .. toctree::
    :maxdepth: 2
@@ -51,12 +52,14 @@ Supported Service Classes
   * Composite Instance Retrieve Without Bulk Data
   * Instance and Frame Level Retrieve
 * :doc:`Relevant Patient Information Query <service_classes/relevant_patient_service_class>`
+* :doc:`RT Machine Verification <service_classes/rt_machine>` (partial)
 * :doc:`Storage <service_classes/storage_service_class>`
 
   * Ophthalmic Refractive Measurements
   * Softcopy Presentation State
   * Structured Reporting
   * Volumetric Presentation State
+* :doc:`Storage Commitment <service_classes/storage_commitment>` (partial)
 * :doc:`Substance Administration Query <service_classes/substance_admin_service_class>`
 * :doc:`Unified Procedure Step <service_classes/ups>` (partial)
 * :doc:`Verification <service_classes/verification_service_class>`

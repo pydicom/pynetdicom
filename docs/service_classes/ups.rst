@@ -12,8 +12,9 @@ items, querying worklists and communicating progress and results.
 Supported SOP Classes
 ---------------------
 
-.. note::
-   *Unified Procedure Step Event SOP Class* is not supported.
+.. warning::
+   The use of asynchronous N-EVENT-REPORT requests sent by the SCP to the SCU
+   is not currently supported.
 
 +----------------------------+------------------------------------------------+
 | UID                        | SOP Class                                      |
@@ -24,6 +25,48 @@ Supported SOP Classes
 +----------------------------+------------------------------------------------+
 | 1.2.840.10008.5.1.4.34.6.3 | UnifiedProcedureStepPullSOPClass               |
 +----------------------------+------------------------------------------------+
+| 1.2.840.10008.5.1.4.34.6.4 | UnifiedProcedureStepEventSOPClass              |
++----------------------------+------------------------------------------------+
+
+
+DIMSE Services
+--------------
+
++---------------------------+-------------------------------+
+| DIMSE Service             | Usage SCU/SCP                 |
++===========================+===============================+
+| *Unified Procedure Step Push SOP Class*                   |
++---------------------------+-------------------------------+
+| N-CREATE                  | Mandatory/Mandatory           |
++---------------------------+-------------------------------+
+| N-ACTION - Request cancel | Optional/Mandatory            |
++---------------------------+-------------------------------+
+| N-GET                     | Optional/Mandatory            |
++---------------------------+-------------------------------+
+| *Unified Procedure Step Pull SOP Class*                   |
++---------------------------+-------------------------------+
+| C-FIND                    | Mandatory/Mandatory           |
++---------------------------+-------------------------------+
+| N-GET                     | Mandatory/Mandatory           |
++---------------------------+-------------------------------+
+| N-SET                     | Mandatory/Mandatory           |
++---------------------------+-------------------------------+
+| N-ACTION                  | Mandatory/Mandatory           |
++---------------------------+-------------------------------+
+| *Unified Procedure Step Watch SOP Class*                  |
++---------------------------+-------------------------------+
+| N-ACTION - Un/subscribe   | Mandatory/Mandatory           |
++---------------------------+-------------------------------+
+| N-GET                     | Mandatory/Mandatory           |
++---------------------------+-------------------------------+
+| C-FIND                    | Optional/Mandatory            |
++---------------------------+-------------------------------+
+| N-ACTION - Request cancel | Optional/Mandatory            |
++---------------------------+-------------------------------+
+| *Unified Procedure Step Event SOP Class*                  |
++---------------------------+-------------------------------+
+| N-EVENT-REPORT            | Mandatory/Mandatory           |
++---------------------------+-------------------------------+
 
 
 .. _ups_statuses:

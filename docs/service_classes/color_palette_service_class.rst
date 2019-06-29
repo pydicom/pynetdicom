@@ -1,5 +1,3 @@
-.. _color_sops:
-
 Color Palette Query/Retrieve Service Class
 ==========================================
 The `Color Palette Query/Retrieve Service Class <http://dicom.nema.org/medical/dicom/current/output/html/part04.html#chapter_X>`_
@@ -8,40 +6,38 @@ defines a service that facilitates access to Color Palette objects.
 Supported SOP Classes
 ---------------------
 
-.. _color_find_sops:
-
-Color Palette Query/Retrieve (Find) SOP Classes
-~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-
-+-----------------------------+----------------------------------+
-| UID                         | SOP Class                        |
-+=============================+==================================+
-| 1.2.840.10008.5.1.4.39.2    | ColorPaletteInformationModelFind |
-+-----------------------------+----------------------------------+
-
-
-.. _color_move_sops:
-
-Color Palette Query/Retrieve (Move) SOP Classes
-~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+.. _color_sops:
 
 +-----------------------------+---------------------------------------+
 | UID                         | SOP Class                             |
 +=============================+=======================================+
+| 1.2.840.10008.5.1.4.39.2    | ColorPaletteInformationModelFind      |
++-----------------------------+---------------------------------------+
 | 1.2.840.10008.5.1.4.39.3    | ColorPaletteInformationModelMove      |
 +-----------------------------+---------------------------------------+
-
-
-.. _color_get_sops:
-
-Color Palette Query/Retrieve (Get) SOP Classes
-~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-
-+-----------------------------+---------------------------------------+
-| UID                         | SOP Class                             |
-+=============================+=======================================+
 | 1.2.840.10008.5.1.4.39.4    | ColorPaletteInformationModelGet       |
 +-----------------------------+---------------------------------------+
+
+
+DIMSE Services
+--------------
+
++-----------------+----------------------------+
+| DIMSE Service   | Usage SCU/SCP              |
++=================+============================+
+| *Color Palette Information Model - Find*     |
++-----------------+----------------------------+
+| C-FIND          | Mandatory/Mandatory        |
++-----------------+----------------------------+
+| *Color Palette Information Model - Move*     |
++-----------------+----------------------------+
+| C-MOVE          | Mandatory/Mandatory        |
++-----------------+----------------------------+
+| *Color Palette Information Model - Get*      |
++-----------------+----------------------------+
+| C-GET           | Mandatory/Mandatory        |
++-----------------+----------------------------+
+
 
 
 .. _color_statuses:

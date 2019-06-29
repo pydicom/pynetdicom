@@ -11,11 +11,27 @@ safekeeping of SOP Instances.
 Supported SOP Classes
 ---------------------
 
+.. warning::
+   The use of asynchronous N-EVENT-REPORT requests sent by the SCP to the SCU
+   is not currently supported.
+
 +----------------------------+------------------------------------------------+
 | UID                        | SOP Class                                      |
 +============================+================================================+
-| 1.2.840.10008.1.20.1      | StorageCommitmentPushModelSOPClass              |
+| 1.2.840.10008.1.20.1       | StorageCommitmentPushModelSOPClass             |
 +----------------------------+------------------------------------------------+
+
+
+DIMSE Services
+--------------
+
++-----------------+-----------------------------------------+
+| DIMSE Service   | Usage SCU/SCP                           |
++=================+=========================================+
+| N-EVENT-REPORT  | Mandatory/Mandatory                     |
++-----------------+-----------------------------------------+
+| N-ACTION        | Mandatory/Mandatory                     |
++-----------------+-----------------------------------------+
 
 
 .. _commitment_statuses:

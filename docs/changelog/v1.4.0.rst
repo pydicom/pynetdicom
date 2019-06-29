@@ -49,5 +49,5 @@ Changes
   is used to set the *Affected SOP Class UID* value. The parameter should
   pass a pydicom UID or UID string. Passing a key that corresponds to a given
   UID is deprecated and will be removed in v1.5. (:issue:`348`)
-* ``Event.name`` and ``Event.description`` properties removed, use ``Event.
-  event.name`` and ``Event.event.description`` instead.
+* ``Event.name`` and ``Event.description`` properties removed, use
+  ``Event.event.name`` and ``Event.event.description`` instead.

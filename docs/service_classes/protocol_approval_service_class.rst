@@ -10,9 +10,6 @@ Supported SOP Classes
 
 .. _pa_sops:
 
-Protocol Approval Query/Retrieve SOP Classes
-~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-
 +-------------------------------+---------------------------------+
 | UID                           | SOP Class                       |
 +===============================+=================================+
@@ -22,6 +19,25 @@ Protocol Approval Query/Retrieve SOP Classes
 +-------------------------------+---------------------------------+
 | 1.2.840.10008.5.1.4.1.1.200.6 | ProtocolApprovalInformationGet  |
 +-------------------------------+---------------------------------+
+
+DIMSE Services
+--------------
+
++-----------------+----------------------------+
+| DIMSE Service   | Usage SCU/SCP              |
++=================+============================+
+| *Protocol Approval Information Model - Find* |
++-----------------+----------------------------+
+| C-FIND          | Mandatory/Mandatory        |
++-----------------+----------------------------+
+| *Protocol Approval Information Model - Move* |
++-----------------+----------------------------+
+| C-MOVE          | Mandatory/Mandatory        |
++-----------------+----------------------------+
+| *Protocol Approval Information Model - Get*  |
++-----------------+----------------------------+
+| C-GET           | Mandatory/Mandatory        |
++-----------------+----------------------------+
 
 .. _pa_statuses:
 
