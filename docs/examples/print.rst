@@ -6,7 +6,7 @@ The DICOM `Print Management service
 facilitates print of images and image related data. There are two Basic Print
 Management Meta SOP Classes which correspond with the minimum functionality
 that an implementation of the Print Management service class shall support (i.e
-at a minimum either - or both - of the two Meta SOP Classes must be supported):
+at a minimum one of the two Meta SOP Classes must be supported):
 
 * *Basic Grayscale Print Management Meta SOP Class* which is defined by support
   of
@@ -81,9 +81,10 @@ DIMSE Services Available
 
 .. warning::
    The use of asynchronous N-EVENT-REPORT requests sent by the SCP to the SCU
-   with the *Printer SOP Class* is not supported. Any N-EVENT-REPORT requests
-   that are received when acting as the SCU will automatically be responded
-   to with a status of ``0x0000`` - Success.
+   with the *Printer SOP Class* is not currently supported. Any N-EVENT-REPORT
+   requests that are received when acting as the SCU will automatically be
+   responded to with a status of ``0x0000`` - Success. In order to get the
+   printer's current status send an N-GET request with the *Printer SOP Class*.
 
 +-----------------+-------------------------+
 | DIMSE-N Service | Usage SCU/SCP           |
@@ -135,6 +136,7 @@ N-CREATE responses include conformant *Basic Film Session SOP Class* and
 
     from pydicom import dcmread
     from pydicom.dataset import Dataset
+    from pydicom.uid import generate_uid
 
     from pynetdicom import AE
     from pynetdicom.sop_class import (
@@ -254,6 +256,10 @@ N-CREATE responses include conformant *Basic Film Session SOP Class* and
         if status and status.Status == 0x0000:
             if getattr(attr_list, 'PrinterStatus', None) != "NORMAL":
                 print("Printer status is not 'NORMAL'")
+                assoc.release()
+                sys.exit()
+            else:
+                print("Failed to get the printer status")
                 assoc.release()
                 sys.exit()
         else:

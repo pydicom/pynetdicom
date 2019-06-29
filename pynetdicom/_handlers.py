@@ -2149,7 +2149,7 @@ def doc_handle_find(event):
           `date and time <https://docs.python.org/3/library/datetime.html#datetime-objects>`_
           that the C-FIND request was processed by the service.
 
-        Event properties are:
+        ``Event`` properties are:
 
         * ``identifier`` : the decoded
           :py:class:`Dataset <pydicom.dataset.Dataset>` contained within the
@@ -2287,7 +2287,7 @@ def doc_handle_c_get(event):
           `date and time <https://docs.python.org/3/library/datetime.html#datetime-objects>`_
           that the C-GET request was processed by the service.
 
-        Event properties are:
+        ``Event`` properties are:
 
         * ``identifier`` : the decoded
           :py:class:`Dataset <pydicom.dataset.Dataset>` contained within the
@@ -2432,7 +2432,7 @@ def doc_handle_move(event):
           `date and time <https://docs.python.org/3/library/datetime.html#datetime-objects>`_
           that the C-MOVE request was processed by the service.
 
-        Event properties are:
+        ``Event`` properties are:
 
         * ``identifier`` : the decoded
           :py:class:`Dataset <pydicom.dataset.Dataset>` contained within the
@@ -2443,6 +2443,8 @@ def doc_handle_move(event):
           C-CANCEL request has been received, False otherwise. If a C-CANCEL
           is received then the handler should yield a ``(0xFE00, None)``
           status/dataset pair and return.
+        * ``move_destination`` : returns the C-MOVE request's *Move
+          Destination* value as ``bytes``.
 
     Yields
     ------
@@ -2564,7 +2566,7 @@ def doc_handle_store(event):
           `date and time <https://docs.python.org/3/library/datetime.html#datetime-objects>`_
           that the C-STORE request was processed by the service.
 
-        Event properties are:
+        ``Event`` properties are:
 
         * ``dataset`` : the decoded
           :py:class:`Dataset <pydicom.dataset.Dataset>` contained within the
@@ -2734,7 +2736,7 @@ def doc_handle_action(event):
           `date and time <https://docs.python.org/3/library/datetime.html#datetime-objects>`_
           that the N-ACTION request was processed by the service.
 
-        Event properties are:
+        ``Event`` properties are:
 
         * ``action_information`` : the decoded
           :py:class:`Dataset <pydicom.dataset.Dataset>` contained within the
@@ -2856,7 +2858,7 @@ def doc_handle_create(event):
           `date and time <https://docs.python.org/3/library/datetime.html#datetime-objects>`_
           that the N-CREATE request was processed by the service.
 
-        Event properties are:
+        ``Event`` properties are:
 
         * ``attribute_list`` : the decoded
           :py:class:`Dataset <pydicom.dataset.Dataset>` contained within the
@@ -3031,7 +3033,7 @@ def doc_handle_event_report(event):
           `date and time <https://docs.python.org/3/library/datetime.html#datetime-objects>`_
           that the N-EVENT-REPORT request was processed by the service.
 
-        Event properties are:
+        ``Event`` properties are:
 
         * ``event_information`` : the decoded
           :py:class:`Dataset <pydicom.dataset.Dataset>` contained within the
@@ -3267,7 +3269,7 @@ def doc_handle_set(event):
           `date and time <https://docs.python.org/3/library/datetime.html#datetime-objects>`_
           that the N-SET request was processed by the service.
 
-        Event properties are:
+        ``Event`` properties are:
 
         * ``modification_list`` : the decoded
           :py:class:`Dataset <pydicom.dataset.Dataset>` contained within the
