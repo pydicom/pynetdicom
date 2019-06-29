@@ -10,8 +10,9 @@
 .. image:: https://img.shields.io/pypi/pyversions/pynetdicom.svg
     :target: https://img.shields.io/pypi/pyversions/pynetdicom.svg
 .. image:: https://zenodo.org/badge/DOI/10.5281/zenodo.2638736.svg
-   :target: https://doi.org/10.5281/zenodo.2638736
-
+    :target: https://doi.org/10.5281/zenodo.2638736
+.. image:: https://badges.gitter.im/pydicom.png
+    :target: https://gitter.im/pydicom/Lobby
 
 
 pynetdicom
@@ -36,7 +37,7 @@ it allows the easy creation of DICOM *Service Class Users* (SCUs) and
 *Service Class Providers* (SCPs).
 
 The main user class is ``AE``, which is used to represent a DICOM Application
-Entity. Once the ``AE`` has been created you would typically either:
+Entity. Once an ``AE`` has been created you would typically either:
 
 - Start the application as an SCP by specifying the presentation contexts that
   you will support, then calling ``AE.start_server((host, port))`` and waiting
@@ -57,28 +58,32 @@ Supported Service Classes
 ~~~~~~~~~~~~~~~~~~~~~~~~~
 *pynetdicom* supports the following DICOM service classes:
 
-- `Verification Service Class <http://dicom.nema.org/medical/dicom/current/output/html/part04.html#chapter_A>`_
-- `Storage Service Class <http://dicom.nema.org/medical/dicom/current/output/html/part04.html#chapter_B>`_
-
-  - `Softcopy Presentation State Storage <http://dicom.nema.org/medical/dicom/current/output/html/part04.html#chapter_N>`_
-  - `Structured Reporting Storage <http://dicom.nema.org/medical/dicom/current/output/html/part04.html#chapter_O>`_
-  - `Ophthalmic Refractive Measurements Storage <http://dicom.nema.org/medical/dicom/current/output/html/part04.html#chapter_AA>`_
-  - `Volumetric Presentation State Storage <http://dicom.nema.org/medical/dicom/current/output/html/part04.html#chapter_FF>`_
+- `Application Event Logging Service Class <http://dicom.nema.org/medical/dicom/current/output/html/part04.html#chapter_P>`_
+- `Basic Worklist Management Service Class <http://dicom.nema.org/medical/dicom/current/output/html/part04.html#chapter_K>`_
+- `Color Palette Query/Retrieve Service Class <http://dicom.nema.org/medical/dicom/current/output/html/part04.html#chapter_X>`_
+- `Defined Procedure Protocol Query/Retrieve Service Class <http://dicom.nema.org/medical/dicom/current/output/html/part04.html#chapter_HH>`_
+- `Display System Management Service Class <http://dicom.nema.org/medical/dicom/current/output/html/part04.html#chapter_EE>`_
+- `Hanging Protocol Query/Retrieve Service Class <http://dicom.nema.org/medical/dicom/current/output/html/part04.html#chapter_U>`_
+- `Implant Template Query/Retrieve Service Class <http://dicom.nema.org/medical/dicom/current/output/html/part04.html#chapter_BB>`_
+- `Instance Availability Notification Service Class <http://dicom.nema.org/medical/dicom/current/output/html/part04.html#chapter_R>`_
+- `Media Creation Management Service Class <http://dicom.nema.org/medical/dicom/current/output/html/part04.html#chapter_S>`_
+- `Modality Performed Procedure Step Management <http://dicom.nema.org/medical/dicom/current/output/html/part04.html#chapter_F>`_ (excluding *MPPS Notification SOP Class*
+- `Non-Patient Object Storage Service Class <http://dicom.nema.org/medical/dicom/current/output/html/part04.html#chapter_GG>`_
+- `Protocol Approval Query/Retrieve Service Class <http://dicom.nema.org/medical/dicom/current/output/html/part04.html#chapter_II>`_
 - `Query/Retrieve Service Class <http://dicom.nema.org/medical/dicom/current/output/html/part04.html#chapter_C>`_
 
-  - `Instance and Frame Level Retrieve <http://dicom.nema.org/medical/dicom/current/output/html/part04.html#chapter_Y>`_
   - `Composite Instance Retrieve Without Bulk Data <http://dicom.nema.org/medical/dicom/current/output/html/part04.html#chapter_Z>`_
-- `Modality Performed Procedure Step Management <http://dicom.nema.org/medical/dicom/current/output/html/part04.html#chapter_F>`_
-- `Basic Worklist Management Service Class <http://dicom.nema.org/medical/dicom/current/output/html/part04.html#chapter_K>`_
+  - `Instance and Frame Level Retrieve <http://dicom.nema.org/medical/dicom/current/output/html/part04.html#chapter_Y>`_
 - `Relevant Patient Information Query Service Class <http://dicom.nema.org/medical/dicom/current/output/html/part04.html#chapter_Q>`_
-- `Hanging Protocol Query/Retrieve Service Class <http://dicom.nema.org/medical/dicom/current/output/html/part04.html#chapter_U>`_
+- `Storage Service Class <http://dicom.nema.org/medical/dicom/current/output/html/part04.html#chapter_B>`_
+
+  - `Ophthalmic Refractive Measurements Storage <http://dicom.nema.org/medical/dicom/current/output/html/part04.html#chapter_AA>`_
+  - `Softcopy Presentation State Storage <http://dicom.nema.org/medical/dicom/current/output/html/part04.html#chapter_N>`_
+  - `Structured Reporting Storage <http://dicom.nema.org/medical/dicom/current/output/html/part04.html#chapter_O>`_
+  - `Volumetric Presentation State Storage <http://dicom.nema.org/medical/dicom/current/output/html/part04.html#chapter_FF>`_
 - `Substance Administration Query Service Class <http://dicom.nema.org/medical/dicom/current/output/html/part04.html#chapter_V>`_
-- `Color Palette Query/Retrieve Service Class <http://dicom.nema.org/medical/dicom/current/output/html/part04.html#chapter_X>`_
-- `Implant Template Query/Retrieve Service Class <http://dicom.nema.org/medical/dicom/current/output/html/part04.html#chapter_BB>`_
-- `Display System Management Service Class <http://dicom.nema.org/medical/dicom/current/output/html/part04.html#chapter_EE>`_
-- `Non-Patient Object Storage Service Class <http://dicom.nema.org/medical/dicom/current/output/html/part04.html#chapter_GG>`_
-- `Defined Procedure Protocol Query/Retrieve Service Class <http://dicom.nema.org/medical/dicom/current/output/html/part04.html#chapter_HH>`_
-- `Protocol Approval Query/Retrieve Service Class <http://dicom.nema.org/medical/dicom/current/output/html/part04.html#chapter_II>`_
+- `Unified Procedure Step Service Class <http://dicom.nema.org/medical/dicom/current/output/html/part04.html#chapter_CC>`_ (excluding *UPS Event SOP Class*)
+- `Verification Service Class <http://dicom.nema.org/medical/dicom/current/output/html/part04.html#chapter_A>`_
 
 
 Supported DIMSE SCU Services
@@ -179,7 +184,11 @@ available to the peer once an association has been established:
 +----------------+----------------------------+
 | C-STORE        | ``evt.EVT_C_STORE``        |
 +----------------+----------------------------+
+| N-ACTION       | ``evt.EVT_N_ACTION``       |
++----------------+----------------------------+
 | N-CREATE       | ``evt.EVT_N_CREATE``       |
++----------------+----------------------------+
+| N-DELETE       | ``evt.EVT_N_DELETE``       |
 +----------------+----------------------------+
 | N-EVENT-REPORT | ``evt.EVT_N_EVENT_REPORT`` |
 +----------------+----------------------------+
@@ -188,13 +197,14 @@ available to the peer once an association has been established:
 | N-SET          | ``evt.EVT_N_SET``          |
 +----------------+----------------------------+
 
-With the exception of the C-ECHO service, a user-defined *handler* must be bound
-to the corresponding
+
+With the exception of the C-ECHO service, a user-defined callable function,
+*handler*, must be bound to the corresponding
 `intervention event <https://pydicom.github.io/pynetdicom/stable/user/events#intervention-events>`_
 in order to complete a DIMSE service request. Events
 can be imported with ``from pynetdicom import evt`` and a handler can be
 bound to an event prior to starting an association through the *evt_handlers*
-keyword parameters in ``AE.start_server()`` and ``AE.associate()``.
+keyword arguments in ``AE.start_server()`` and ``AE.associate()``.
 
 When an event occurs the *handler* function is called and passed a single
 parameter, *event*, which is an ``evt.Event`` object whose specific attributes

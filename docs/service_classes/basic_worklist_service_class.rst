@@ -1,31 +1,35 @@
-.. _subadm_service:
+Basic Worklist Management Service Class
+=======================================
+The `Basic Worklist Management Service Class <http://dicom.nema.org/medical/dicom/current/output/html/part04.html#chapter_K>`_
+defines a service that facilitates
+access to worklists, where a worklist is a structure that presents information
+related to a particular set of tasks and the particular details of each task.
 
-Substance Administration Query Service Class
-============================================
-The `Substance Administration Query Service Class
-<http://dicom.nema.org/medical/dicom/current/output/html/part04.html#chapter_V>`_
-defines a service that facilitates obtaining information about substances or
-devices used in imaging, image-guided treatment and related procedures.
-
-
-.. _subadm_sops:
+.. _worklist_sops:
 
 Supported SOP Classes
 ---------------------
 
-+------------------------+-------------------------------------------------+
-| UID                    | SOP Class                                       |
-+========================+=================================================+
-| 1.2.840.10008.5.1.4.41 | ProductCharacteristicsQueryInformationModelFind |
-+------------------------+-------------------------------------------------+
-| 1.2.840.10008.5.1.4.42 | SubstanceApprovalQueryInformationModelFind      |
-+------------------------+-------------------------------------------------+
++-----------------------------+-----------------------------------------------+
+| UID                         | SOP Class                                     |
++=============================+===============================================+
+| 1.2.840.10008.5.1.4.31      | ModalityWorklistInformationFind               |
++-----------------------------+-----------------------------------------------+
 
+DIMSE Services
+--------------
 
-.. _subadm_statuses:
++-----------------+----------------------------+
+| DIMSE Service   | Usage SCU/SCP              |
++=================+============================+
+| C-FIND          | Mandatory/Mandatory        |
++-----------------+----------------------------+
+
 
 Statuses
 --------
+
+.. _worklist_statuses:
 
 C-FIND Statuses
 ~~~~~~~~~~~~~~~~
@@ -40,9 +44,8 @@ C-FIND Statuses
 | 0xFE00     | Cancel   | Processing has been terminated   |
 +------------+----------+----------------------------------+
 
-
-Substance Administration Query Service Statuses
-~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+Basic Worklist Management Service Statuses
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
 +------------------+----------+----------------------------------------------+
 | Code (hex)       | Category | Description                                  |
@@ -55,11 +58,14 @@ Substance Administration Query Service Statuses
 +------------------+----------+----------------------------------------------+
 | 0xFF00           | Pending  | Matches are continuing                       |
 +------------------+----------+----------------------------------------------+
+| 0xFF01           | Pending  | Matches are continuing; one or more Optional |
+|                  |          | keys was not supported                       |
++------------------+----------+----------------------------------------------+
 
-pynetdicom Substance Administration Query Statuses
-~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+pynetdicom Basic Worklist Management Statuses
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
-When pynetdicom is acting as a Substance Administration SCP it uses the
+When pynetdicom is acting as a Basic Worklist Management SCP it uses the
 following status codes values to indicate the corresponding issue has occurred
 to help aid in debugging.
 
@@ -84,10 +90,9 @@ to help aid in debugging.
 |                  |          | the handler bound to ``evt.EVT_C_FIND``       |
 +------------------+----------+-----------------------------------------------+
 
-
 References
 ----------
 
-* DICOM Standard, Part 4, `Annex V <http://dicom.nema.org/medical/dicom/current/output/html/part04.html#chapter_V>`_
-* DICOM Standard, Part 7, Section
-  `9.1.2.1.5 <http://dicom.nema.org/medical/dicom/current/output/chtml/part07/chapter_9.html#sect_9.1.2.1.5>`_
+* DICOM Standard, Part 4, `Annex K <http://dicom.nema.org/medical/dicom/current/output/html/part04.html#chapter_K>`_
+* DICOM Standard, Part 7, Sections
+  `9.1.2.1.5 <http://dicom.nema.org/medical/dicom/current/output/chtml/part07/chapter_9.html#sect_9.1.2.1.5>`_,

@@ -462,7 +462,7 @@ class ApplicationEntity(object):
             (`ssl_context`, `server_hostname`), where `ssl_context` is the
             ``ssl.SSLContext`` instance to use to wrap the client socket and
             `server_hostname` is the value to use for the corresponding
-            keyword parameter in ``SSLContext.wrap_sockets()``. If no
+            keyword argument in ``SSLContext.wrap_sockets()``. If no
             `tls_args` is supplied then TLS will not be used (default).
         evt_handlers : list of 2-tuple, optional
             A list of (`event`, `handler`), where `event` is an ``evt.EVT_*``

@@ -1,67 +1,49 @@
-.. _implant_sops:
-
-Implant Template Query/Retrieve Service Class
+Defined Procedure Protocol Query/Retrieve Service Class
 =======================================================
-The `Implant Template Query/Retrieve Service Class <http://dicom.nema.org/medical/dicom/current/output/html/part04.html#chapter_BB>`_
-defines a service that facilitates access to Implant Template objects.
+The `Defined Procedure Protocol Query/Retrieve Service Class <http://dicom.nema.org/medical/dicom/current/output/html/part04.html#chapter_HH>`_
+defines a service that facilitates access to Defined Procedure Protocol objects.
 
 Supported SOP Classes
 ---------------------
 
-.. _implant_find_sops:
-
-Implant Template Query/Retrieve (Find) SOP Classes
-~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+.. _defproc_sops:
 
 +-----------------------------+-----------------------------------------------+
 | UID                         | SOP Class                                     |
 +=============================+===============================================+
-| 1.2.840.10008.5.1.4.43.2    | GenericImplantTemplateInformationModelFind    |
+| 1.2.840.10008.5.1.4.20.1    | DefinedProcedureProtocolInformationModelFind  |
 +-----------------------------+-----------------------------------------------+
-| 1.2.840.10008.5.1.4.44.2    | ImplantAssemblyTemplateInformationModelFind   |
+| 1.2.840.10008.5.1.4.20.2    | DefinedProcedureProtocolInformationModelMove  |
 +-----------------------------+-----------------------------------------------+
-| 1.2.840.10008.5.1.4.45.2    | ImplantTemplateGroupInformationModelFind      |
+| 1.2.840.10008.5.1.4.20.3    | DefinedProcedureProtocolInformationModelGet   |
 +-----------------------------+-----------------------------------------------+
 
 
-.. _implant_move_sops:
+DIMSE Services
+--------------
 
-Implant Template Query/Retrieve (Move) SOP Classes
-~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
++-----------------+-----------------------------------------+
+| DIMSE Service   | Usage SCU/SCP                           |
++=================+=========================================+
+| *Defined Procedure Protocol Information Model - Find*     |
++-----------------+-----------------------------------------+
+| C-FIND          | Mandatory/Mandatory                     |
++-----------------+-----------------------------------------+
+| *Defined Procedure Protocol Information Model - Move*     |
++-----------------+-----------------------------------------+
+| C-MOVE          | Mandatory/Mandatory                     |
++-----------------+-----------------------------------------+
+| *Defined Procedure Protocol Information Model - Get*      |
++-----------------+-----------------------------------------+
+| C-GET           | Mandatory/Mandatory                     |
++-----------------+-----------------------------------------+
 
-+-----------------------------+----------------------------------------------+
-| UID                         | SOP Class                                    |
-+=============================+==============================================+
-| 1.2.840.10008.5.1.4.43.3    | GenericImplantTemplateInformationModelMove   |
-+-----------------------------+----------------------------------------------+
-| 1.2.840.10008.5.1.4.44.3    | ImplantAssemblyTemplateInformationModelMove  |
-+-----------------------------+----------------------------------------------+
-| 1.2.840.10008.5.1.4.45.3    | ImplantTemplateGroupInformationModelMove     |
-+-----------------------------+----------------------------------------------+
-
-
-.. _implant_get_sops:
-
-Implant Template Query/Retrieve (Get) SOP Classes
-~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-
-+-----------------------------+---------------------------------------------+
-| UID                         | SOP Class                                   |
-+=============================+=============================================+
-| 1.2.840.10008.5.1.4.43.4    | GenericImplantTemplateInformationModelGet   |
-+-----------------------------+---------------------------------------------+
-| 1.2.840.10008.5.1.4.44.4    | ImplantAssemblyTemplateInformationModelGet  |
-+-----------------------------+---------------------------------------------+
-| 1.2.840.10008.5.1.4.45.4    | ImplantTemplateGroupInformationModelGet     |
-+-----------------------------+---------------------------------------------+
-
-
-.. _implant_statuses:
+.. _defproc_statuses:
 
 Statuses
 --------
 
-.. _implant_find_statuses:
+.. _defproc_find_statuses:
 
 C-FIND Statuses
 ~~~~~~~~~~~~~~~~
@@ -76,7 +58,7 @@ C-FIND Statuses
 | 0xFE00     | Cancel   | Processing has been terminated   |
 +------------+----------+----------------------------------+
 
-Implant Template Query/Retrieve (Find) Service Statuses
+Defined Procedure Protocol Query/Retrieve (Find) Service Statuses
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
 +------------------+----------+----------------------------------------------+
@@ -94,10 +76,10 @@ Implant Template Query/Retrieve (Find) Service Statuses
 |                  |          | keys was not supported                       |
 +------------------+----------+----------------------------------------------+
 
-pynetdicom Implant Template Query/Retrieve (Find) Statuses
-~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+pynetdicom Defined Procedure Protocol Query/Retrieve (Find) Statuses
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
-When pynetdicom is acting as a Implant Template Query/Retrieve (Find)
+When pynetdicom is acting as a Defined Procedure Protocol Query/Retrieve (Find)
 SCP it uses the following status codes values to indicate the corresponding
 issue has occurred to help aid in debugging.
 
@@ -123,7 +105,7 @@ issue has occurred to help aid in debugging.
 +------------------+----------+-----------------------------------------------+
 
 
-.. _implant_get_statuses:
+.. _defproc_get_statuses:
 
 C-GET Statuses
 ~~~~~~~~~~~~~~
@@ -144,7 +126,7 @@ C-GET Statuses
 | 0xFE00     | Cancel   | Sub-operations terminated        |
 +------------+----------+----------------------------------+
 
-Implant Template Query/Retrieve (Get) Service Statuses
+Defined Procedure Protocol Query/Retrieve (Get) Service Statuses
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
 +------------------+----------+----------------------------------------------+
@@ -166,7 +148,7 @@ Implant Template Query/Retrieve (Get) Service Statuses
 | 0xFF00           | Pending  | Sub-operations are continuing                |
 +------------------+----------+----------------------------------------------+
 
-pynetdicom Implant Template Query/Retrieve (Get) Statuses
+pynetdicom Defined Procedure Protocol Query/Retrieve (Get) Statuses
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
 +------------------+----------+-----------------------------------------------+
@@ -191,7 +173,7 @@ pynetdicom Implant Template Query/Retrieve (Get) Statuses
 +------------------+----------+-----------------------------------------------+
 
 
-.. _implant_move_statuses:
+.. _defproc_move_statuses:
 
 C-MOVE Statuses
 ~~~~~~~~~~~~~~~
@@ -214,7 +196,7 @@ C-MOVE Statuses
 | 0xFE00     | Cancel   | Sub-operations terminated        |
 +------------+----------+----------------------------------+
 
-Implant Template Query/Retrieve (Move) Service Statuses
+Defined Procedure Protocol Query/Retrieve (Move) Service Statuses
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
 +------------------+----------+----------------------------------------------+
@@ -238,7 +220,7 @@ Implant Template Query/Retrieve (Move) Service Statuses
 | 0xFF00           | Pending  | Sub-operations are continuing                |
 +------------------+----------+----------------------------------------------+
 
-pynetdicom Implant Template Query/Retrieve (Move) Statuses
+pynetdicom Defined Procedure Protocol Query/Retrieve (Move) Statuses
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
 +------------------+----------+-----------------------------------------------+
@@ -274,7 +256,7 @@ References
 ----------
 
 * DICOM Standard, Part 4, `Annex C <http://dicom.nema.org/medical/dicom/current/output/html/part04.html#chapter_C>`_
-* DICOM Standard, Part 4, `Annex BB <http://dicom.nema.org/medical/dicom/current/output/html/part04.html#chapter_BB>`_
+* DICOM Standard, Part 4, `Annex HH <http://dicom.nema.org/medical/dicom/current/output/html/part04.html#chapter_HH>`_
 * DICOM Standard, Part 7, Sections
   `9.1.2.1.5 <http://dicom.nema.org/medical/dicom/current/output/chtml/part07/chapter_9.html#sect_9.1.2.1.5>`_,
   `9.1.3.1.6 <http://dicom.nema.org/medical/dicom/current/output/chtml/part07/chapter_9.html#sect_9.1.3.1.6>`_ and

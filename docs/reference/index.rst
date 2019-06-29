@@ -14,6 +14,7 @@ pynetdicom.
 
 .. toctree::
    :maxdepth: 2
+   :includehidden:
 
    acse
    ae

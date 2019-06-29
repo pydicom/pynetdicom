@@ -1,70 +1,81 @@
-.. _qr_sops:
-
-Query/Retrieve Service Class
-============================
-The `Query/Retrieve Service Class <http://dicom.nema.org/medical/dicom/current/output/html/part04.html#chapter_C>`_
-defines a service that facilitates querying and retrieval of stored Instances.
+Implant Template Query/Retrieve Service Class
+=======================================================
+The `Implant Template Query/Retrieve Service Class <http://dicom.nema.org/medical/dicom/current/output/html/part04.html#chapter_BB>`_
+defines a service that facilitates access to Implant Template objects.
 
 Supported SOP Classes
 ---------------------
 
-.. _qr_find_sops:
+.. _implant_sops:
 
-Query/Retrieve (Find) SOP Classes
-~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
++-----------------------------+-----------------------------------------------+
+| UID                         | SOP Class                                     |
++=============================+===============================================+
+| 1.2.840.10008.5.1.4.43.2    | GenericImplantTemplateInformationModelFind    |
++-----------------------------+-----------------------------------------------+
+| 1.2.840.10008.5.1.4.44.2    | ImplantAssemblyTemplateInformationModelFind   |
++-----------------------------+-----------------------------------------------+
+| 1.2.840.10008.5.1.4.45.2    | ImplantTemplateGroupInformationModelFind      |
++-----------------------------+-----------------------------------------------+
+| 1.2.840.10008.5.1.4.43.3    | GenericImplantTemplateInformationModelMove    |
++-----------------------------+-----------------------------------------------+
+| 1.2.840.10008.5.1.4.44.3    | ImplantAssemblyTemplateInformationModelMove   |
++-----------------------------+-----------------------------------------------+
+| 1.2.840.10008.5.1.4.45.3    | ImplantTemplateGroupInformationModelMove      |
++-----------------------------+-----------------------------------------------+
+| 1.2.840.10008.5.1.4.43.4    | GenericImplantTemplateInformationModelGet     |
++-----------------------------+-----------------------------------------------+
+| 1.2.840.10008.5.1.4.44.4    | ImplantAssemblyTemplateInformationModelGet    |
++-----------------------------+-----------------------------------------------+
+| 1.2.840.10008.5.1.4.45.4    | ImplantTemplateGroupInformationModelGet       |
++-----------------------------+-----------------------------------------------+
 
-+-----------------------------+---------------------------------------------------+
-| UID                         | SOP Class                                         |
-+=============================+===================================================+
-| 1.2.840.10008.5.1.4.1.2.1.1 | PatientRootQueryRetrieveInformationModelFind      |
-+-----------------------------+---------------------------------------------------+
-| 1.2.840.10008.5.1.4.1.2.2.1 | StudyRootQueryRetrieveInformationModelFind        |
-+-----------------------------+---------------------------------------------------+
-| 1.2.840.10008.5.1.4.1.2.3.1 | PatientStudyOnlyQueryRetrieveInformationModelFind |
-+-----------------------------+---------------------------------------------------+
 
-.. _qr_move_sops:
+DIMSE Services
+--------------
 
-Query/Retrieve (Move) SOP Classes
-~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
++-----------------+-----------------------------------------+
+| DIMSE Service   | Usage SCU/SCP                           |
++=================+=========================================+
+| *Generic Implant Template Information Model - Find*       |
++-----------------+-----------------------------------------+
+| *Implant Assembly Template Information Model - Find*      |
++-----------------+-----------------------------------------+
+| *Implant Template Group Information Model - Find*         |
++-----------------+-----------------------------------------+
+| C-FIND          | Mandatory/Mandatory                     |
++-----------------+-----------------------------------------+
 
-+-----------------------------+---------------------------------------------------+
-| UID                         | SOP Class                                         |
-+=============================+===================================================+
-| 1.2.840.10008.5.1.4.1.2.1.2 | PatientRootQueryRetrieveInformationModelMove      |
-+-----------------------------+---------------------------------------------------+
-| 1.2.840.10008.5.1.4.1.2.2.2 | StudyRootQueryRetrieveInformationModelMove        |
-+-----------------------------+---------------------------------------------------+
-| 1.2.840.10008.5.1.4.1.2.3.2 | PatientStudyOnlyQueryRetrieveInformationModelMove |
-+-----------------------------+---------------------------------------------------+
-| 1.2.840.10008.5.1.4.1.2.4.2 | CompositeInstanceRootRetrieveMove                 |
-+-----------------------------+---------------------------------------------------+
++-----------------+-----------------------------------------+
+| DIMSE Service   | Usage SCU/SCP                           |
++=================+=========================================+
+| *Generic Implant Template Information Model - Move*       |
++-----------------+-----------------------------------------+
+| *Implant Assembly Template Information Model - Move*      |
++-----------------+-----------------------------------------+
+| *Implant Template Group Information Model - Move*         |
++-----------------+-----------------------------------------+
+| C-MOVE          | Mandatory/Mandatory                     |
++-----------------+-----------------------------------------+
 
-.. _qr_get_sops:
++-----------------+-----------------------------------------+
+| DIMSE Service   | Usage SCU/SCP                           |
++=================+=========================================+
+| *Generic Implant Template Information Model - Get*        |
++-----------------+-----------------------------------------+
+| *Implant Assembly Template Information Model - Get*       |
++-----------------+-----------------------------------------+
+| *Implant Template Group Information Model - Get*          |
++-----------------+-----------------------------------------+
+| C-GET           | Mandatory/Mandatory                     |
++-----------------+-----------------------------------------+
 
-Query/Retrieve (Get) SOP Classes
-~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-
-+-----------------------------+---------------------------------------------------+
-| UID                         | SOP Class                                         |
-+=============================+===================================================+
-| 1.2.840.10008.5.1.4.1.2.1.3 | PatientRootQueryRetrieveInformationModelGet       |
-+-----------------------------+---------------------------------------------------+
-| 1.2.840.10008.5.1.4.1.2.2.3 | StudyRootQueryRetrieveInformationModelGet         |
-+-----------------------------+---------------------------------------------------+
-| 1.2.840.10008.5.1.4.1.2.3.3 | PatientStudyOnlyQueryRetrieveInformationModelGet  |
-+-----------------------------+---------------------------------------------------+
-| 1.2.840.10008.5.1.4.1.2.5.3 | CompositeInstanceRetrieveWithoutBulkDataGet       |
-+-----------------------------+---------------------------------------------------+
-| 1.2.840.10008.5.1.4.1.2.4.3 | CompositeInstanceRootRetrieveGet                  |
-+-----------------------------+---------------------------------------------------+
-
-.. _qr_statuses:
+.. _implant_statuses:
 
 Statuses
 --------
 
-.. _qr_find_statuses:
+.. _implant_find_statuses:
 
 C-FIND Statuses
 ~~~~~~~~~~~~~~~~
@@ -79,8 +90,8 @@ C-FIND Statuses
 | 0xFE00     | Cancel   | Processing has been terminated   |
 +------------+----------+----------------------------------+
 
-Query/Retrieve (Find) Service Statuses
-~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+Implant Template Query/Retrieve (Find) Service Statuses
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
 +------------------+----------+----------------------------------------------+
 | Code (hex)       | Category | Description                                  |
@@ -97,12 +108,12 @@ Query/Retrieve (Find) Service Statuses
 |                  |          | keys was not supported                       |
 +------------------+----------+----------------------------------------------+
 
-pynetdicom Query/Retrieve (Find) Statuses
-~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+pynetdicom Implant Template Query/Retrieve (Find) Statuses
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
-When pynetdicom is acting as a Query/Retrieve (Find) SCP it uses the following
-status codes values to indicate the corresponding issue has occurred to help
-aid in debugging.
+When pynetdicom is acting as a Implant Template Query/Retrieve (Find)
+SCP it uses the following status codes values to indicate the corresponding
+issue has occurred to help aid in debugging.
 
 +------------------+----------+-----------------------------------------------+
 | Code (hex)       | Category | Description                                   |
@@ -126,7 +137,7 @@ aid in debugging.
 +------------------+----------+-----------------------------------------------+
 
 
-.. _qr_get_statuses:
+.. _implant_get_statuses:
 
 C-GET Statuses
 ~~~~~~~~~~~~~~
@@ -147,8 +158,8 @@ C-GET Statuses
 | 0xFE00     | Cancel   | Sub-operations terminated        |
 +------------+----------+----------------------------------+
 
-Query/Retrieve (Get) Service Statuses
-~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+Implant Template Query/Retrieve (Get) Service Statuses
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
 +------------------+----------+----------------------------------------------+
 | Code (hex)       | Category | Description                                  |
@@ -161,19 +172,6 @@ Query/Retrieve (Get) Service Statuses
 +------------------+----------+----------------------------------------------+
 | 0xA900           | Failure  | Dataset does not match SOP Class             |
 +------------------+----------+----------------------------------------------+
-| 0xAA00           | Failure  | None of the frames requested were found in   |
-|                  |          | the SOP Instance                             |
-+------------------+----------+----------------------------------------------+
-| 0xAA01           | Failure  | Unable to create new object for this SOP     |
-|                  |          | class                                        |
-+------------------+----------+----------------------------------------------+
-| 0xAA02           | Failure  | Unable to extract frames                     |
-+------------------+----------+----------------------------------------------+
-| 0xAA03           | Failure  | Time-based request received for a            |
-|                  |          | non-time-based original SOP Instance         |
-+------------------+----------+----------------------------------------------+
-| 0xAA04           | Failure  | Invalid request                              |
-+------------------+----------+----------------------------------------------+
 | 0xB000           | Warning  | Sub-operations complete, one or more         |
 |                  |          | or warnings                                  |
 +------------------+----------+----------------------------------------------+
@@ -182,8 +180,8 @@ Query/Retrieve (Get) Service Statuses
 | 0xFF00           | Pending  | Sub-operations are continuing                |
 +------------------+----------+----------------------------------------------+
 
-pynetdicom Query/Retrieve (Get) Statuses
-~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+pynetdicom Implant Template Query/Retrieve (Get) Statuses
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
 +------------------+----------+-----------------------------------------------+
 | Code (hex)       | Category | Description                                   |
@@ -207,7 +205,7 @@ pynetdicom Query/Retrieve (Get) Statuses
 +------------------+----------+-----------------------------------------------+
 
 
-.. _qr_move_statuses:
+.. _implant_move_statuses:
 
 C-MOVE Statuses
 ~~~~~~~~~~~~~~~
@@ -230,8 +228,8 @@ C-MOVE Statuses
 | 0xFE00     | Cancel   | Sub-operations terminated        |
 +------------+----------+----------------------------------+
 
-Query/Retrieve (Move) Service Statuses
-~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+Implant Template Query/Retrieve (Move) Service Statuses
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
 +------------------+----------+----------------------------------------------+
 | Code (hex)       | Category | Description                                  |
@@ -246,19 +244,6 @@ Query/Retrieve (Move) Service Statuses
 +------------------+----------+----------------------------------------------+
 | 0xA900           | Failure  | Dataset does not match SOP Class             |
 +------------------+----------+----------------------------------------------+
-| 0xAA00           | Failure  | None of the frames requested were found in   |
-|                  |          | the SOP Instance                             |
-+------------------+----------+----------------------------------------------+
-| 0xAA01           | Failure  | Unable to create new object for this SOP     |
-|                  |          | class                                        |
-+------------------+----------+----------------------------------------------+
-| 0xAA02           | Failure  | Unable to extract frames                     |
-+------------------+----------+----------------------------------------------+
-| 0xAA03           | Failure  | Time-based request received for a            |
-|                  |          | non-time-based original SOP Instance         |
-+------------------+----------+----------------------------------------------+
-| 0xAA04           | Failure  | Invalid request                              |
-+------------------+----------+----------------------------------------------+
 | 0xB000           | Warning  | Sub-operations complete, one or more         |
 |                  |          | or warnings                                  |
 +------------------+----------+----------------------------------------------+
@@ -267,8 +252,8 @@ Query/Retrieve (Move) Service Statuses
 | 0xFF00           | Pending  | Sub-operations are continuing                |
 +------------------+----------+----------------------------------------------+
 
-pynetdicom Query/Retrieve (Move) Statuses
-~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+pynetdicom Implant Template Query/Retrieve (Move) Statuses
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
 +------------------+----------+-----------------------------------------------+
 | Code (hex)       | Category | Description                                   |
@@ -303,7 +288,7 @@ References
 ----------
 
 * DICOM Standard, Part 4, `Annex C <http://dicom.nema.org/medical/dicom/current/output/html/part04.html#chapter_C>`_
-* DICOM Standard, Part 4, `Annex Y <http://dicom.nema.org/medical/dicom/current/output/html/part04.html#chapter_Y>`_
+* DICOM Standard, Part 4, `Annex BB <http://dicom.nema.org/medical/dicom/current/output/html/part04.html#chapter_BB>`_
 * DICOM Standard, Part 7, Sections
   `9.1.2.1.5 <http://dicom.nema.org/medical/dicom/current/output/chtml/part07/chapter_9.html#sect_9.1.2.1.5>`_,
   `9.1.3.1.6 <http://dicom.nema.org/medical/dicom/current/output/chtml/part07/chapter_9.html#sect_9.1.3.1.6>`_ and
